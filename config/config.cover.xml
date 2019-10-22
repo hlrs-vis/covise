@@ -48,7 +48,7 @@
 
    <DebugLevel value="0" />
    <Crease value="ON" />
-   <Specular value="ON" />
+   <Specular value="OFF" />
    <FPS value="OFF" />
   </COVER>
 

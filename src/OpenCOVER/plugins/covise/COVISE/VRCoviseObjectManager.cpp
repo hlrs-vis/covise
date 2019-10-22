@@ -503,7 +503,7 @@ coInteractor *ObjectManager::handleInteractors(CoviseRenderObject *container, Co
             int n = ro[k]->getAllAttributes(name, value);
             for (int i = 0; i < n; i++)
             {
-                if (strcmp(name[i], "MODULE") == 0)
+                if (strcmp(name[i], "MODULE") == 0 || strcmp(name[i], "PLUGIN") == 0)
                 {
                     cover->addPlugin(value[i]);
                 }
@@ -794,6 +794,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
     //fprintf ( stderr,"ObjectManager::addGeometry=%s type=%s ......... \n", geometry->getName(), gtype);
     // check for plugin to load
+	if (const char* pluginName = geometry->getAttribute("PLUGIN"))
+	{
+		cover->addPlugin(pluginName);
+	}
     if (const char *pluginName = geometry->getAttribute("MODULE"))
     {
         cover->addPlugin(pluginName);
@@ -1257,8 +1261,6 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 }
             }
         }
-
-        osg::Group *groupNode = NULL;
         if (coVRMSController::instance()->isMaster())
         {
             if (tstep_attrib != NULL)
@@ -1279,7 +1281,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             is_animation = false;
             CoviseBase::sendInfo("timesteps <=1 --> static");
         }
-
+        osg::Group* groupNode = nullptr;
         if (container->isAssignedToMe())
         {
             groupNode = GeometryManager::instance()->addGroup(object, is_animation);
@@ -1366,8 +1368,24 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
         if (inter && groupNode)
         {
-            std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
+            //std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
             groupNode->setUserData(new InteractorReference(inter));
+        }
+        if (groupNode)
+        {
+            if (osg::Sequence * pSequence = dynamic_cast<osg::Sequence*>(groupNode)) // timesteps
+            {
+                coVRAnimationManager::instance()->addSequence(pSequence, coVRAnimationManager::Cycle);
+            }
+        }
+
+
+        if (groupNode)
+        {
+            if (osg::Sequence * pSequence = dynamic_cast<osg::Sequence*>(groupNode)) // timesteps
+            {
+                coVRAnimationManager::instance()->addSequence(pSequence, coVRAnimationManager::Cycle);
+            }
         }
 
         return groupNode;
@@ -2009,7 +2027,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             {
                 if (inter && newNode)
                 {
-                    std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
+                    //std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
                     newNode->setUserData(new InteractorReference(inter));
                 }
                 return newNode;

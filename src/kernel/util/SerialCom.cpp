@@ -115,9 +115,21 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     case 38400:
         dcb.BaudRate = CBR_38400;
         break;
-    case 57600:
-        dcb.BaudRate = CBR_57600;
+    case 56000:
+        dcb.BaudRate = CBR_56000;
         break;
+	case 57600:
+		dcb.BaudRate = CBR_57600;
+		break;
+	case 115200:
+		dcb.BaudRate = CBR_115200;
+		break;
+	case 128000:
+		dcb.BaudRate = CBR_128000;
+		break;
+	case 256000:
+		dcb.BaudRate = CBR_256000;
+		break;
 
     default:
         dcb.BaudRate = CBR_19200;
@@ -186,6 +198,12 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     case 38400:
         SerialSpeed |= B38400;
         break;
+	case 115200:
+		SerialSpeed |= B115200;
+		break;
+	case 1500000:
+		SerialSpeed |= B1500000;
+		break;
     default:
         sprintf(d_error, "Serial Speed %s not valid", strerror(errno));
         return;

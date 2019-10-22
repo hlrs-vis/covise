@@ -836,10 +836,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 	}
 	else if (type >= PluginMessageTypes::HLRS_Revit_Message && type <= (PluginMessageTypes::HLRS_Revit_Message + 100))
 	{
-		Message m;
-		m.type = type - PluginMessageTypes::HLRS_Revit_Message + MSG_NewObject;
-		m.length = len;
-		m.data = (char *)buf;
+        Message m{ type - PluginMessageTypes::HLRS_Revit_Message + MSG_NewObject , DataHandle{(char*)buf, len, false} };
 		handleMessage(&m);
 	}
 
@@ -1187,7 +1184,7 @@ RevitPlugin::handleMessage(Message *m)
 		tb3 << 101; // owner
 		tb3 << text;
 		cover->sendMessage(this, "Annotation",
-			PluginMessageTypes::AnnotationTextMessage, tb3.get_length(), tb3.get_data());
+			PluginMessageTypes::AnnotationTextMessage, tb3.getData().length(), tb3.getData().data());
 		break;
 	}
     case MSG_DocumentInfo:
@@ -1711,7 +1708,7 @@ RevitPlugin::handleMessage(Message *m)
 			cerr << "connection to Revit closed" << endl;
 			break;
 		default:
-			cerr << "Unknown message [" << MSG_NewObject << "] " << m->type << endl;
+			cerr << "Unknown message [" << m->type << "] "  << endl;
 			break;
 		}
 	}
@@ -1727,6 +1724,13 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
     }
     std::replace( fileName.begin(), fileName.end(), '\\', '/');
 
+    found = fileName.find("Autodesk Shared/Materials/Textures//", 0);
+    if (found != std::string::npos)
+    {
+        fprintf(stderr,"%s %d",fileName.c_str(), (int)found);
+        fileName = fileName.substr(found+36);
+        fprintf(stderr,"new %s %d",fileName.c_str(), (int)found);
+    }
     localTextureFile = localTextureDir + "/" + fileName;
     found = fileName.find_last_of('\\');
     std::string fn;
@@ -1757,6 +1761,7 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
                 diffuseImage = osgDB::readImageFile(localTextureFileOnly);
                 if (diffuseImage == NULL)
                 {
+			cerr << "did not find it under any of its names, even not " << localTextureFileOnly<< endl;
                     return NULL;
                 }
             }
@@ -1886,7 +1891,7 @@ RevitPlugin::preFrame()
 				coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
 				coVRMSController::instance()->sendSlaves(msg);
 
-				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->length, msg->data);
+				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->data.length(), msg->data.data());
 				handleMessage(msg);
 			}
 			else
@@ -2083,7 +2088,7 @@ void RevitPlugin::requestTexture(int matID, TextureInfo * texture)
         if (RevitPlugin::instance()->sendMessage(message) == false)
         {
             gotMsg = '\0';
-            coVRMSController::instance()->sendSlaves(msg);
+			coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
         }
         else
         {
@@ -2095,7 +2100,7 @@ void RevitPlugin::requestTexture(int matID, TextureInfo * texture)
                     gotMsg = '\1';
                     coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
                     coVRMSController::instance()->sendSlaves(msg);
-                    cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->length, msg->data);
+                    cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->data.length(), msg->data.data());
                     handleMessage(msg);
                     if (msg->type == MSG_File)
                         break; // done

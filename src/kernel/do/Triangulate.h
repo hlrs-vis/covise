@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+#ifndef COVISE_TRIANGULATE_H
+#define COVISE_TRIANGULATE_H
+
 #include <vector>
 
 static const float EPSILON = 0.0000000001f;
@@ -177,3 +180,5 @@ private:
         return true;
     };
 };
+
+#endif

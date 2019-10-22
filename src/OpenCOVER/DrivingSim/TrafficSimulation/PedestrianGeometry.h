@@ -10,6 +10,7 @@
 
 #include "PedestrianFactory.h"
 #include "PedestrianUtils.h"
+#include "coEntity.h"
 #include <cover/coVRPluginSupport.h>
 #include <osg/Transform>
 #include <osg/Group>
@@ -47,7 +48,7 @@ struct TRAFFICSIMULATIONEXPORT PedestrianAnimations
 };
 
 class Pedestrian;
-class TRAFFICSIMULATIONEXPORT PedestrianGeometry
+class TRAFFICSIMULATIONEXPORT PedestrianGeometry: public coEntity
 {
 public:
     PedestrianGeometry(std::string &name, std::string &modelFile, double scale, double lod, const PedestrianAnimations &a, osg::Group *group);
@@ -72,9 +73,12 @@ public:
     void executeLook(double factor = 1.0);
     void executeWave(double factor = 1.0);
     void executeAction(int idx, double factor = 1.0);
+	bool isActive() { return activeState; };
+	void setActive(bool state) { activeState = state; };
 
 protected:
     bool floatEq(double a, double b);
+	bool activeState = true;
 
     std::string geometryName;
 

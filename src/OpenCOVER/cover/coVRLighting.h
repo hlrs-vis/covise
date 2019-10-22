@@ -26,19 +26,13 @@
 #include <osg/Vec4>
 #include <osg/LightSource>
 #include <osg/ref_ptr>
-#ifdef VRUI
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#else
 namespace opencover {
 namespace ui {
 class Menu;
 class Button;
+class Slider;
 }
 }
-#endif
 
 namespace opencover
 {
@@ -56,8 +50,8 @@ public:
     ui::Button *switchOtherlights_;
     bool otherlightsState;
 
-    ui::Button *switchSpecularlight_;
-    bool specularlightState;
+    ui::Slider *strengthSpecularlight_;
+    float specularlightStrength = 0.f;
 
     ui::Button *switchSpotlight_;
     bool spotlightState;
@@ -153,6 +147,7 @@ public:
     osg::LightSource *getShadowLight(){return shadowlight;};
     void setShadowLight(osg::LightSource *ls);
 
+    bool isLightEnabled(size_t ln) const;
 };
 }
 #endif

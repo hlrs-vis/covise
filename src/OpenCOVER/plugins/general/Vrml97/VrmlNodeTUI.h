@@ -29,6 +29,9 @@
 #include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <cover/coTabletUI.h>
+#include <vrbclient/SharedState.h>
+
+#include <memory>
 
 namespace vrml
 {
@@ -67,6 +70,7 @@ protected:
     VrmlSFString d_parent;
     VrmlSFString d_shaderParam;
     VrmlSFVec2f d_pos;
+	VrmlSFBool d_shared;
     coTUIElement *d_TUIElement;
 };
 
@@ -166,6 +170,7 @@ class VRML97COVEREXPORT VrmlNodeTUIToggleButton : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
+	virtual void eventIn(double timeStamp, const char* eventName, const VrmlField* fieldValue);
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIToggleButton(VrmlScene *);
@@ -180,6 +185,7 @@ public:
 private:
     VrmlSFBool d_state;
     VrmlSFInt d_choice;
+    std::unique_ptr<vrb::SharedState<bool>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIFrame : public VrmlNodeTUIElement
@@ -278,6 +284,7 @@ private:
     VrmlSFFloat d_max;
     VrmlSFFloat d_value;
     VrmlSFString d_orientation;
+    std::unique_ptr<vrb::SharedState<float>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIComboBox : public VrmlNodeTUIElement
@@ -302,6 +309,7 @@ private:
     VrmlSFBool d_withNone;
     VrmlSFInt d_defaultChoice;
     VrmlSFInt d_choice;
+    std::unique_ptr<vrb::SharedState<int>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIListBox : public VrmlNodeTUIElement
@@ -326,6 +334,7 @@ private:
     VrmlSFBool d_withNone;
     VrmlSFInt d_defaultChoice;
     VrmlSFInt d_choice;
+    std::unique_ptr<vrb::SharedState<int>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIMap : public VrmlNodeTUIElement

@@ -96,7 +96,7 @@ int PLMXMLPlugin::loadPLMXML(const char *filename, osg::Group *loadParent, const
     TokenBuffer tb;
     tb << "LoadFiles";
     cout << "Message generated from PLMXML-Plugin!-> create Loadfiles-Button for right mouse menue in SGBrowser" << endl;
-    cover->sendMessage(PLMXMLPlugin::plugin, "SGBrowser", PluginMessageTypes::PLMXMLLoadFiles, tb.get_length(), tb.get_data()); //gottlieb: message to /covise/src/renderer/OpenCOVER/plugins/general/SGBrowser/SGBrowser.cpp->SGBrowser::message
+    cover->sendMessage(PLMXMLPlugin::plugin, "SGBrowser", PluginMessageTypes::PLMXMLLoadFiles, tb.getData().length(), tb.getData().data()); //gottlieb: message to /covise/src/renderer/OpenCOVER/plugins/general/SGBrowser/SGBrowser.cpp->SGBrowser::message
     return 0;
 }
 

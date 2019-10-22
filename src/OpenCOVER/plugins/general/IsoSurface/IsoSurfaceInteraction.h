@@ -38,6 +38,13 @@ public:
 
     static const char *ISOPOINT;
     static const char *ISOVALUE;
+    static const char *INTERACTOR;
+    enum
+    {
+        INTERACTOR_POINT = 0,
+        INTERACTOR_VALUE = 1,
+    };
+
     IsoSurfacePlugin *plugin;
 
 private:

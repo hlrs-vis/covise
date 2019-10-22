@@ -378,7 +378,7 @@ void Move::message(int toWhom, int type, int len, const void *buf)
     {
         osg::Matrix m;
         std::string path;
-        TokenBuffer tb((const char *)buf, len);
+        TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
         tb >> path;
         selectedNodesParent = dynamic_cast<osg::Group *>(coVRSelectionManager::validPath(path));
         tb >> path;
@@ -931,13 +931,13 @@ void Move::preFrame()
     //coVRMSController::instance()->syncFloat(newDCSMat(0,0));
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                                   PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
                
                 vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
                 if(info!=NULL)
                 {
                     cover->sendMessage(this, "Revit",
-                        PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                        PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
                 }
             }
             else
@@ -997,13 +997,13 @@ void Move::preFrame()
                         tb << newDCSMat(i, j);
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                                   PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
             
                 vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
                 if(info!=NULL)
                 {
                     cover->sendMessage(this, "Revit",
-                        PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                        PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
                 }
             }
             else
@@ -1049,7 +1049,7 @@ void Move::preFrame()
                     if(info!=NULL)
                     {
                         cover->sendMessage(this, "Revit",
-                            PluginMessageTypes::MoveMoveNodeFinished, tb.get_length(), tb.get_data());
+                            PluginMessageTypes::MoveMoveNodeFinished, tb.getData().length(), tb.getData().data());
                     }
 		    
                     addUndo(mat, moveDCS.get());

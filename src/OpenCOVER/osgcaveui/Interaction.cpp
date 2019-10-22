@@ -10,7 +10,7 @@
 
 // OSG:
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
+#include <osgUtil/IntersectionVisitor>
 #include <cover/coIntersection.h>
 
 // Local:

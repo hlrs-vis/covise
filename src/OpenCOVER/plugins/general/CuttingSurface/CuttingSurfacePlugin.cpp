@@ -78,7 +78,7 @@ CuttingSurfacePlugin::guiToRenderMsg(const char *msg)
     {
         fprintf(stderr, "\n--- CuttingSurfacePlugin::guiToRenderMsg\n");
     }
-    string fullMsg(string("GRMSG\n") + msg);
+    std::string fullMsg(std::string("GRMSG\n") + msg);
     coGRMsg grMsg(fullMsg.c_str());
     if (grMsg.isValid())
     {

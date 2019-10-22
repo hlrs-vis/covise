@@ -23,6 +23,7 @@
 
 #include <OpenVRUI/coMenuItem.h>
 #include <util/coTypes.h>
+#include <vector>
 
 namespace vrui
 {
@@ -50,12 +51,16 @@ private:
 
     // hspacers and labels in horiz containers, all labels in vert container
     vrui::coLabel *labels_[MAX_LABELS];
+    vrui::coLabel *speciesLabel_ = nullptr;
     vrui::coTexturedBackground *hspaces_[MAX_LABELS];
     vrui::coRowContainer *labelAndHspaces_[MAX_LABELS];
+    vrui::coColoredBackground *vspaces_[MAX_LABELS];
     vrui::coRowContainer *allLabels_;
 
-    // horiz conatiner around textureAndVspacer and all labels
+    // horiz container around textureAndVspacer and all labels
     vrui::coRowContainer *textureAndLabels_;
+    // vert container around textureAndLabels_ and species label
+    vrui::coRowContainer *everything_ = nullptr;
 
     int numLabels_; // number of labels, max
     float labelValues_[MAX_LABELS]; // numerical values of labels
@@ -63,10 +68,11 @@ private:
 
     int numColors_;
     float min_, max_;
-    unsigned char *image_, *tickImage_;
-    char *name_; // the name of the colors module for example Colors_1
+    std::vector<unsigned char> image_, tickImage_;
+    std::string name_; // the name of the colors module for example Colors_1
+    std::string species_;
 
-    void makeImage(int numColors, float *r, float *g, float *b, float *a);
+    void makeImage(int numColors, const float *r, const float *g, const float *b, const float *a);
     void makeTickImage();
     void makeLabelValues();
 
@@ -83,7 +89,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    coColorBar(const char *name, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    coColorBar(const std::string &name, const std::string &species, float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a, bool inMenu=true);
 
     /// destructor
     ~coColorBar();
@@ -97,22 +103,19 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    void update(float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    void update(float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a);
 
     /** get name
        *  @return name the name of the colorbar, identical with module name, eg, g, Colors_1
        */
-    const char *getName()
-    {
-        return name_;
-    };
+    const char *getName() const override;
 
-    virtual vrui::coUIElement *getUIElement();
+    virtual vrui::coUIElement *getUIElement() override;
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
+    virtual const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual bool isOfClassName(const char *) const override;
 };
 }
 

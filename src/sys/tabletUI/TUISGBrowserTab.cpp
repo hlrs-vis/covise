@@ -132,7 +132,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
 
     findEdit = new QLineEdit(frame);
     findEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    connect(findEdit, SIGNAL(returnPressed()), this, SLOT(findItemSLOT()));
+    connect(findEdit, SIGNAL(editingFinished()), this, SLOT(findItemSLOT()));
 
     Hlayout->addWidget(findEdit);
     Hlayout->addLayout(findlayout);
@@ -625,24 +625,27 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> index;
         tb >> dataLength;
 
+		const char* recvData = tb.getBinary(dataLength);
+
         if (depth == 24)
             dataLength = (dataLength * 4) / 3;
 
-        char *sendData = new char[dataLength];
+		char* sendData = new char[dataLength];
 
+		int pos = 0;
         for (int i = 0; i < dataLength; i++)
         {
             if ((i % 4) == 3)
                 if (depth == 24)
                     sendData[i] = 1;
                 else
-                    tb >> sendData[i];
+                    sendData[i]=recvData[pos++];
             else if ((i % 4) == 2)
-                tb >> sendData[i - 2];
+                sendData[i - 2] = recvData[pos++];
             else if ((i % 4) == 1)
-                tb >> sendData[i];
+                sendData[i] = recvData[pos++];
             else if ((i % 4) == 0)
-                tb >> sendData[i + 2];
+                sendData[i + 2] = recvData[pos++];
         }
         QImage image;
         if (dataLength > 0)
@@ -1439,7 +1442,6 @@ void TUISGBrowserTab::changeTexture(int listindex, std::string geode)
         tb.addBinary(reinterpret_cast<char *>(image.bits()), dataLength);
 
         send(tb);
-        tb.delete_data();
     }
 }
 
@@ -1494,7 +1496,7 @@ void TUISGBrowserTab::setColor()
         ColorG = (float)color.green() / 255.0;
         ColorB = (float)color.blue() / 255.0;
 
-        tb.delete_data();
+        tb.reset();
         tb << ID;
         tb << TABLET_BROWSER_COLOR;
         tb << ColorR;
@@ -1514,7 +1516,7 @@ void TUISGBrowserTab::changeSelectionMode(int mode)
     tb << TABLET_BROWSER_CLEAR_SELECTION;
     TUIMainWindow::getInstance()->send(tb);
 
-    tb.delete_data();
+    tb.reset();
     tb << ID;
     tb << TABLET_BROWSER_WIRE;
     tb << mode;
@@ -1540,7 +1542,7 @@ void TUISGBrowserTab::setSelMode(bool mode)
         selMode = 0;
     }
 
-    tb.delete_data();
+    tb.reset();
     tb << ID;
     tb << TABLET_BROWSER_SEL_ONOFF;
     tb << selMode;
@@ -1556,7 +1558,7 @@ void TUISGBrowserTab::updateScene()
     tb << TABLET_BROWSER_CLEAR_SELECTION;
     TUIMainWindow::getInstance()->send(tb);
 
-    tb.delete_data();
+    tb.reset();
     treeWidget->clearSelection();
 
     root = false;
@@ -1865,7 +1867,7 @@ void TUISGBrowserTab::findItemSLOT()
     tb << ID;
     tb << TABLET_BROWSER_CLEAR_SELECTION;
     TUIMainWindow::getInstance()->send(tb);
-    tb.delete_data();
+    tb.reset();
 
     tb << ID;
     tb << TABLET_BROWSER_FIND;

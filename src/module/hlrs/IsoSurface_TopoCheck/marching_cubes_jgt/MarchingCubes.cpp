@@ -891,7 +891,7 @@ void MarchingCubes::process_cube()
 
 //_____________________________________________________________________________
 // Adding triangles
-void MarchingCubes::add_triangle(const char *trig, char n, int v12)
+void MarchingCubes::add_triangle(const signed char *trig, char n, int v12)
 //-----------------------------------------------------------------------------
 {
     int tv[3];

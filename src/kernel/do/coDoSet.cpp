@@ -281,10 +281,11 @@ const coDistributedObject *const *coDoSet::getAllElements(int *no) const
     int n = no_of_elements.get();
     if (no)
         *no = n;
-    objs = new const coDistributedObject *[n];
+    objs = new const coDistributedObject *[n + 1];
     for (int i = 0; i < n; i++)
     {
         objs[i] = elements[i];
     }
+    objs[n] = nullptr;
     return objs;
 }

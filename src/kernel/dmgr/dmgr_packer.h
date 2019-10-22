@@ -10,7 +10,7 @@
 
 #include "dmgr.h"
 #include <covise/covise.h>
-
+#include <net/dataHandle.h>
 #ifdef shm_ptr
 #undef shm_ptr
 #endif
@@ -30,7 +30,7 @@ const int IOVEC_MIN_SIZE = 10000;
 const int OBJECT_BUFFER_SIZE = 25000 * SIZEOF_ALIGNMENT;
 const int IOVEC_MAX_LENGTH = 1;
 #else
-const int OBJECT_BUFFER_SIZE = 50000 * SIZEOF_ALIGNMENT;
+const size_t OBJECT_BUFFER_SIZE = 50000 * SIZEOF_ALIGNMENT;
 const int IOVEC_MAX_LENGTH = 16;
 #endif
 
@@ -48,11 +48,10 @@ const int SIZE_PER_TYPE_ENTRY = sizeof(int) + MAX_INT_PER_DATA * sizeof(int);
 class DMGREXPORT PackBuffer
 {
 private:
-    char *buffer; // Buffer for write
-    int buffer_size; // Buffer size
-    int *intbuffer; // integer pointer to write buffer
+    covise::DataHandle buffer; // Buffer for write
+    int *intbuffer(); // integer pointer to write buffer
     int intbuffer_ptr; // current field for integer write buffer
-    int intbuffer_size; // integer size of write buffer
+    int intbuffer_size(); // integer size of write buffer
     int convert; // conversion necessary?
     Message *msg; // message that will be sent
     Connection *conn; // connection through which the message will be sent
@@ -66,10 +65,7 @@ public:
         conn = msg->conn;
         convert = conn->convert_to;
         buffer = msg->data;
-        msg->data = 0L;
-        intbuffer = (int *)buffer;
-        buffer_size = msg->length;
-        intbuffer_size = msg->length / sizeof(int);
+        msg->data = DataHandle{};
         intbuffer_ptr = 0;
     };
     PackBuffer(Message *m) // initialize for send
@@ -78,15 +74,11 @@ public:
         msg = m;
         conn = msg->conn;
         convert = conn->convert_to;
-        buffer = new char[OBJECT_BUFFER_SIZE];
-        intbuffer = (int *)buffer;
-        buffer_size = OBJECT_BUFFER_SIZE;
-        intbuffer_size = OBJECT_BUFFER_SIZE / sizeof(int);
+        buffer = DataHandle{ OBJECT_BUFFER_SIZE };
         intbuffer_ptr = 0;
     };
     ~PackBuffer()
     {
-        delete[] buffer;
         //	delete msg;
     };
     void send();

@@ -516,8 +516,11 @@ public:
         int getMinExpectedNumber() const;
         double getDistance2D(double x1, double y1, double x2, double y2, bool isGeo = false, bool isDriving = false);
         double getDistanceRoad(const std::string& edgeID1, double pos1, const std::string& edgeID2, double pos2, bool isDriving = false);
-
-
+		libsumo::TraCIStage findRoute(const std::string& fromEdge, const std::string& toEdge, const std::string& vType = "", const double depart = -1., const int routingMode = 0);
+        std::vector<libsumo::TraCIStage> findIntermodalRoute(const std::string& fromEdge, const std::string& toEdge, const std::string& modes = "",
+            double depart = -1., const int routingMode = 0, double speed = -1., double walkFactor = -1.,
+            double departPos = 0, double arrivalPos = INVALID_DOUBLE_VALUE, const double departPosLat = 0,
+            const std::string& pType = "", const std::string& vType = "", const std::string& destStop = ""); 
     private:
         /// @brief invalidated copy constructor
         SimulationScope(const SimulationScope& src);

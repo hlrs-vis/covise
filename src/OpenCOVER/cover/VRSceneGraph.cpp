@@ -344,13 +344,13 @@ void VRSceneGraph::initSceneGraph()
     // add it to the scene graph as the first child
     //                                  -----
     m_handTransform = new osg::MatrixTransform();
-	m_handTransform->setName("m_handTransform");
+    m_handTransform->setName("HandTransform");
     m_handIconScaleTransform = new osg::MatrixTransform();
-	m_handIconScaleTransform->setName("m_handIconScaleTransform");
+    m_handIconScaleTransform->setName("HandIconScaleTransform");
     m_handAxisScaleTransform = new osg::MatrixTransform();
-	m_handAxisScaleTransform->setName("m_handAxisScaleTransform");
+    m_handAxisScaleTransform->setName("HandAxisScaleTransform");
     m_pointerDepthTransform = new osg::MatrixTransform();
-	m_pointerDepthTransform->setName("m_pointerDepthTransform");
+    m_pointerDepthTransform->setName("PointerDepthTransform");
     m_handTransform->addChild(m_pointerDepthTransform.get());
     m_handTransform->addChild(m_handAxisScaleTransform);
     m_pointerDepthTransform->addChild(m_handIconScaleTransform);
@@ -378,12 +378,12 @@ void VRSceneGraph::initSceneGraph()
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
-	m_objectsTransform->setName("m_objectsTransform");
+    m_objectsTransform->setName("ObjectsTransform");
     m_objectsTransform->setStateSet(m_objectsStateSet);
 
     // dcs for scaling all objects
     m_scaleTransform = new osg::MatrixTransform();
-	m_scaleTransform->setName("m_scaleTransform");
+    m_scaleTransform->setName("ScaleTransform");
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
     m_objectsScene->addChild(m_objectsTransform);
@@ -401,6 +401,20 @@ void VRSceneGraph::initSceneGraph()
         ss->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
     }
 
+    m_alwaysVisibleGroupNode = new osg::Group();
+    m_alwaysVisibleGroupNode->setNodeMask(m_alwaysVisibleGroupNode->getNodeMask()&~Isect::ReceiveShadow);
+    m_alwaysVisibleGroupNode->setName("AlwaysVisibleGroupNode");
+    m_scene->addChild(m_alwaysVisibleGroupNode.get());
+    osg::StateSet *ssav = m_alwaysVisibleGroupNode->getOrCreateStateSet();
+    ssav->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF|osg::StateAttribute::PROTECTED|osg::StateAttribute::OVERRIDE);
+    ssav->setRenderBinDetails(INT_MAX, "RenderBin");
+    //ssav->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    ssav->setNestRenderBins(false);
+    for (int i = 0; i < cover->getNumClipPlanes(); i++)
+    {
+        ssav->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
+    }
+
     m_lineHider = new osgFX::Scribe();
 }
 
@@ -412,7 +426,7 @@ void VRSceneGraph::initAxis()
     m_viewerAxis = loadAxisGeode(4);
     m_objectAxis = loadAxisGeode(0.01f);
     m_viewerAxisTransform = new osg::MatrixTransform();
-	m_viewerAxisTransform->setName("m_viewerAxisTransform");
+    m_viewerAxisTransform->setName("ViewerAxisTransform");
     m_scene->addChild(m_viewerAxisTransform.get());
 
     showSmallSceneAxis_ = coCoviseConfig::isOn("COVER.SmallSceneAxis", false);
@@ -428,7 +442,7 @@ void VRSceneGraph::initAxis()
         m_smallSceneAxis = loadAxisGeode(0.01 * sx);
         m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
         m_smallSceneAxisTransform = new osg::MatrixTransform();
-		m_smallSceneAxisTransform->setName("m_smallSceneAxisTransform");
+        m_smallSceneAxisTransform->setName("SmallSceneAxisTransform");
         m_smallSceneAxisTransform->setMatrix(osg::Matrix::translate(xp, yp, zp));
         m_scene->addChild(m_smallSceneAxisTransform.get());
 
@@ -475,7 +489,8 @@ void VRSceneGraph::initAxis()
 void VRSceneGraph::initHandDeviceGeometry()
 {
     m_handLine = loadHandLine();
-    m_handTransform->addChild(m_handLine.get());
+    if (m_handLine)
+        m_handTransform->addChild(m_handLine.get());
 
     // add hand device geometry
     m_handSphere = loadHandIcon("HandSphere");
@@ -808,7 +823,7 @@ VRSceneGraph::update()
     }
 
     // transparency of handLine
-    if (transparentPointer_)
+    if (transparentPointer_ && m_handLine)
     {
         osg::Material *mat = dynamic_cast<osg::Material *>(m_handLine->getOrCreateStateSet()->getAttribute(osg::StateAttribute::MATERIAL));
         if (mat)
@@ -1021,10 +1036,8 @@ VRSceneGraph::update()
             vrui::coInteractionManager::the()->registerInteraction(m_interactionHQ);
         }
         m_highQuality = true;
-        fprintf(stdout, "\a");
-        fflush(stdout);
     }
-    else if (m_highQuality && (cover->getPointerButton()->wasPressed() || cover->getMouseButton()->wasPressed()))
+    else if (m_highQuality && (cover->getPointerButton()->wasPressed() || (cover->getMouseButton() && cover->getMouseButton()->wasPressed())))
     {
         m_highQuality = false;
         vrui::coInteractionManager::the()->unregisterInteraction(m_interactionHQ);
@@ -1277,9 +1290,12 @@ VRSceneGraph::loadHandIcon(const char *name)
 osg::Node *
 VRSceneGraph::loadHandLine()
 {
-    osg::Node *result;
+    if (!coCoviseConfig::isOn("visible", "COVER.PointerAppearance.IconName", true))
+        return nullptr;
 
-    osg::Node *n;
+    osg::Node *result = nullptr;
+
+    osg::Node *n = nullptr;
     string iconName = coCoviseConfig::getEntry("COVER.PointerAppearance.IconName");
     if (!iconName.empty())
     {
@@ -1473,16 +1489,16 @@ void VRSceneGraph::scaleAllObjects(bool resetView)
 	covise::TokenBuffer tb;
         tb << scaleFactor;
         tb << matrix;
-        len = tb.get_length();
+        len = tb.getData().length();
         coVRMSController::instance()->sendSlaves(&len, sizeof(len));
-        coVRMSController::instance()->sendSlaves(tb.get_data(), tb.get_length());
+        coVRMSController::instance()->sendSlaves(tb.getData().data(), tb.getData().length());
     }
     else
     {
         coVRMSController::instance()->readMaster(&len, sizeof(len));
-        std::vector<char> buf(len);
-        coVRMSController::instance()->readMaster(&buf[0], len);
-	covise::TokenBuffer tb(&buf[0], len);
+        covise::DataHandle buf(len);
+        coVRMSController::instance()->readMaster(&buf.accessData()[0], len);
+        covise::TokenBuffer tb(buf);
         tb >> masterScale;
         if (masterScale != scaleFactor)
         {
@@ -1806,10 +1822,24 @@ VRSceneGraph::loadDefaultGeostate(osg::Material::ColorMode mode)
     material->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     material->setAlpha(osg::Material::FRONT_AND_BACK, 1.0f);
 
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, 0.0);
+
+    osg::BlendFunc *blendFunc = new osg::BlendFunc();
+    blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
+
+    osg::LightModel *defaultLm = new osg::LightModel();
+    defaultLm->setLocalViewer(true);
+    defaultLm->setTwoSided(true);
+    //defaultLm->setColorControl(osg::LightModel::SINGLE_COLOR);
+
     osg::StateSet *stateSet = new osg::StateSet();
     stateSet->setRenderingHint(osg::StateSet::OPAQUE_BIN);
     stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    stateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+    stateSet->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
+    stateSet->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
     return stateSet;
 }
 
@@ -1834,8 +1864,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
 
-    osg::LightModel *defaultLm;
-    defaultLm = new osg::LightModel();
+    osg::LightModel *defaultLm = new osg::LightModel();
     defaultLm->setLocalViewer(true);
     defaultLm->setTwoSided(true);
     defaultLm->setColorControl(osg::LightModel::SINGLE_COLOR);

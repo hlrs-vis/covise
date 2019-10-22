@@ -35,6 +35,9 @@ Encoder::Encoder()
 	defaultDevice = "/dev/ttyUSB0";
 #endif
 	devstring = covise::coCoviseConfig::getEntry("device", "OpenCOVER/Plugins/Encoder", defaultDevice);
+	loopsPerRev = covise::coCoviseConfig::getInt("loopsPerRev", "OpenCOVER/Plugins/Encoder", 20);
+	countsPerRev = covise::coCoviseConfig::getInt("countsPerRev", "OpenCOVER/Plugins/Encoder", 2000);
+	direction = covise::coCoviseConfig::getInt("direction", "OpenCOVER/Plugins/Encoder", -1);
 	serial = NULL;
 	oldAngle = angle = 0.0;
 	doRun = true;
@@ -66,12 +69,13 @@ bool Encoder::update()
 			if (numTS <= 0)
 				numTS = 10;
 
-			int newTS = ((int)(angle / 360.0 * numTS*6)) % (numTS);
+			int newTS = ((int)(direction * (angle / 360.0) * numTS* loopsPerRev)) % (numTS);
 			if (newTS < 0)
 				newTS = numTS + newTS;
 			if (newTS > numTS)
 				newTS = newTS - numTS;
 			cerr << "newTS: " << newTS << endl;
+			cerr << "Angle: " << angle << endl;
 
 			coVRAnimationManager::instance()->requestAnimationFrame(newTS);
 
@@ -104,7 +108,7 @@ void Encoder::run()
 					OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 					int count;
 					sscanf(buf, "%d", &count);
-					angle = count / 20000.0 * 360;
+					angle = (360 * count) / (double)countsPerRev;
 					bufLen = 0;
 				}
 				else if (c == '\n')

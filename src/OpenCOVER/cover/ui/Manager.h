@@ -11,6 +11,8 @@
 #include "Owner.h"
 #include "Element.h"
 
+#include <net/tokenbuffer.h>
+
 namespace covise {
 class TokenBuffer;
 }
@@ -105,10 +107,10 @@ class COVER_UI_EXPORT Manager: public Owner {
    std::map<const std::string, View *> m_views;
 
    int m_numUpdates = 0;
-   std::map<int, std::pair<Element::UpdateMaskType, std::shared_ptr<covise::TokenBuffer>>> m_elemState;
-   std::shared_ptr<covise::TokenBuffer> m_updates;
+   std::map<int, std::pair<Element::UpdateMaskType, covise::TokenBuffer>> m_elemState;
+   covise::TokenBuffer m_updates;
    void flushUpdates();
-   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed);
+   void processUpdates(covise::TokenBuffer &updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed);
 
    int m_modifiers = 0;
    std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;

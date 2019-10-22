@@ -20,6 +20,9 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <net/covise_connect.h>
 
+namespace opencover
+{
+
 class fasi
 {
 public:
@@ -88,4 +91,5 @@ public:
     covise::SimpleServerConnection *toClientConn;
     bool readClientVal(void *buf, unsigned int numBytes);
 };
+}
 #endif

@@ -32,8 +32,8 @@
 
 namespace covise
 {
-
-typedef void(voidFuncintvoidpDef)(int, const void *);
+class DataHandle;
+typedef void(voidFuncintvoidpDef)(const DataHandle &dh);
 
 //=====================================================================
 //
@@ -51,7 +51,7 @@ private:
     // private member funcs
     static void doParam(Message *m);
     static void doRender(char *key, char *data);
-    static void doRenderModule(int len, const void *data);
+    static void doRenderModule(const DataHandle &dh);
     static void doAddObject(const coDistributedObject *, char *name);
     static void doCoviseError(const char *error);
     static void doDeleteObject(char *name);
@@ -105,6 +105,8 @@ public:
 
     static void sendFinishedMsg();
     static int check_and_handle_event(float time = 0.0);
+	static covise::Message* check_event(float time = 0.0);
+	static void handle_event(covise::Message* msg);
     static void do_one_event();
     static void ReceiveOneMsg();
     static int deleteConnection();

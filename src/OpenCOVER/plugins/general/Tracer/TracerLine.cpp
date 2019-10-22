@@ -580,12 +580,7 @@ TracerLine::sendShowPickInteractorMsg()
         //fprintf(stderr,"in show COVER SEND INTERACTOR VISIBLE 1 object=%s\n", initialObjectName_.c_str());
 
         coGRObjVisMsg visMsg(coGRMsg::INTERACTOR_VISIBLE, initialObjectName_.c_str(), 1);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_VISENSO_UI;
-        ;
-        grmsg.data = (char *)(visMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(visMsg, COVISE_MESSAGE_VISENSO_UI);
         //fprintf(stderr,"msg sent!\n");
     }
 }
@@ -602,12 +597,7 @@ TracerLine::sendHidePickInteractorMsg()
         //fprintf(stderr,"in show COVER SEND INTERACTOR VISIBLE 1 object=%s\n", initialObjectName_.c_str());
 
         coGRObjVisMsg visMsg(coGRMsg::INTERACTOR_VISIBLE, initialObjectName_.c_str(), 0);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_VISENSO_UI;
-        ;
-        grmsg.data = (char *)(visMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(visMsg, COVISE_MESSAGE_VISENSO_UI);
         //fprintf(stderr,"msg sent!\n");
     }
 }

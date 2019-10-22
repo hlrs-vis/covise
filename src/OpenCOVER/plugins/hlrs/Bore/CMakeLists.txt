@@ -1,0 +1,9 @@
+SET(HEADERS
+  Bore.h
+)
+SET(SOURCES
+  Bore.cpp
+)
+cover_add_plugin(Bore)
+covise_wnoerror(Bore)
+TARGET_LINK_LIBRARIES(Bore)

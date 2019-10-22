@@ -60,10 +60,12 @@ coSlider::coSlider(coSliderActor *actor, bool showValue)
     precision = 1;
 
     integer = false;
+    logarithmic = false;
 
     minVal = 0.0f;
     maxVal = 1.0f;
     value = 0.5f;
+    linearValue = value;
 
     myWidth = 300.0f;
     myHeight = 80.0f;
@@ -224,15 +226,37 @@ float coSlider::getValue() const
     return value;
 }
 
+float coSlider::getLinearValue() const
+{
+    if (logarithmic)
+        return log10(value);
+    else
+        return  value;
+}
+
 /// Returns the minimum slider value.
 float coSlider::getMin() const
 {
     return minVal;
 }
 
+float coSlider::getLinearMin() const
+{
+    if (logarithmic)
+        return log10(minVal);
+    return minVal;
+}
+
 /// Returns the maximum slider value.
 float coSlider::getMax() const
 {
+    return maxVal;
+}
+
+float coSlider::getLinearMax() const
+{
+    if (logarithmic)
+        return log10(maxVal);
     return maxVal;
 }
 
@@ -252,6 +276,22 @@ int coSlider::getPrecision() const
 bool coSlider::isInteger() const
 {
     return integer;
+}
+
+void coSlider::setLogarithmic(bool on)
+{
+    logarithmic = on;
+    if (on)
+        linearValue = log10(value);
+    else
+        linearValue = value;
+    createGeometry();
+    uiElementProvider->update();
+}
+
+bool coSlider::isLogarithmic() const
+{
+    return logarithmic;
 }
 
 float coSlider::getDialSize() const
@@ -276,6 +316,10 @@ void coSlider::setInteger(bool i)
 void coSlider::setValue(float v, bool generateEvent)
 {
     value = v;
+    if (logarithmic)
+        linearValue = log10(value);
+    else
+        linearValue = value;
     createGeometry();
     uiElementProvider->update();
     if (generateEvent && myActor)
@@ -359,27 +403,43 @@ bool coSlider::update()
     {
         if (interactionWheel[i]->isRunning() || interactionWheel[i]->wasStarted())
         {
-            float oldValue = value;
+            float oldValue = getValue();
 
-            if (maxVal - minVal > 0.0)
+            if (integer && maxVal - minVal < 30.0)
             {
-                if (integer && maxVal - minVal < 30.0)
+                value += interactionWheel[i]->getWheelCount();
+                if (value < minVal)
+                    value = minVal;
+                if (value > maxVal)
+                    value = maxVal;
+            }
+            else if (getLinearMax() - getLinearMin() > 0.0)
+            {
+                linearValue = getLinearValue() + interactionWheel[i]->getWheelCount() * (getLinearMax() - getLinearMin()) / 30.0f;
+                if (logarithmic)
                 {
-                    value += interactionWheel[i]->getWheelCount();
-                    if (value < minVal)
-                        value = minVal;
-                    if (value > maxVal)
-                        value = maxVal;
+                    value = pow(10., linearValue);
+                    if (integer)
+                    {
+                        value = (float)(static_cast<int>(value));
+                        if (value == oldValue)
+                        {
+                            if (interactionWheel[i]->getWheelCount() > 0)
+                                value += 1;
+                            else
+                                value -= 1;
+                        }
+                    }
                 }
                 else
                 {
-                    value += interactionWheel[i]->getWheelCount() * (maxVal - minVal) / 30.0f;
+                    value = linearValue;
+                    if (integer)
+                    {
+                        value = (float)(static_cast<int>(value));
+                    }
                 }
-            }
 
-            if (integer)
-            {
-                value = (float)(static_cast<int>(value));
             }
 
             clamp();
@@ -468,10 +528,14 @@ int coSlider::hit(vruiHit *hit)
         myTrans->makeInverse(getTransformMatrix());
 
         coVector localPoint = myTrans->getFullXformPt(hit->getWorldIntersectionPoint());
-        if (maxVal - minVal > 0.0)
-            value = minVal + (((float)localPoint[0] - dialSize) / (myWidth - (2.0f * dialSize)) * (maxVal - minVal));
+        if (getLinearMax() - getLinearMin() > 0.0)
+            linearValue = getLinearMin() + (((float)localPoint[0] - dialSize) / (myWidth - (2.0f * dialSize)) * (getLinearMax() - getLinearMin()));
         else
-            value = minVal;
+            linearValue = getLinearMin();
+        if (logarithmic)
+            value = pow(10., linearValue);
+        else
+            value = linearValue;
         if (integer)
         {
             value = (float)(static_cast<int>(value));
@@ -603,6 +667,10 @@ void coSlider::resetLastPressAction()
 void coSlider::clamp() const
 {
     value = coClamp(value, minVal, maxVal);
+    if (logarithmic)
+        linearValue = log10(value);
+    else
+        linearValue = value;
 }
 
 const char *coSlider::getClassName() const

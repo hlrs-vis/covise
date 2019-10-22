@@ -411,11 +411,20 @@ void MidiPlugin::key(int type, int keySym, int mod)
 {
 	if (type == osgGA::GUIEventAdapter::KEYDOWN)
 	{
+		MidiEvent me;
+		me.makeNoteOn(11, keySym, 1);
+		addEvent(me, 0);
 		//fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
 		//	keySym,mod);
 		return;
 		//}else{
 		//fprintf(stdout,"--- coVRKey called (KeyRelease, keySym=%d)\n",keySym);
+	}
+	else if (type == osgGA::GUIEventAdapter::KEYUP)
+	{
+		MidiEvent me;
+		me.makeNoteOff(11, keySym, 0);
+		addEvent(me, 0);
 	}
 
 	switch (keySym)
@@ -546,95 +555,98 @@ MidiPlugin * MidiPlugin::instance()
 {
 	return plugin;
 }
-osg::Geode *MidiPlugin::createGeometry(int i)
-{
-	osg::Geode *geode;
 
-	osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0);
-	osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint.get());
-	if (noteInfos[i] != NULL)
-	{
-		mySphereDrawable->setColor(noteInfos[i]->color);
-	}
-	geode = new osg::Geode();
-	geode->addDrawable(mySphereDrawable);
-	geode->setStateSet(shadedStateSet.get());
-	return geode;
-}
 
 NoteInfo::NoteInfo(int nN)
 {
 	noteNumber = nN;
-	MidiPlugin::instance()->nIs.push_back(this);
 }
 void NoteInfo::createGeom()
 {
-	geometry = MidiPlugin::instance()->createGeometry(noteNumber);
+	if (modelName.length() > 0)
+	{
+		osg::MatrixTransform* mt = new osg::MatrixTransform();
+		mt->setName(modelName.c_str());
+		mt->setMatrix(osg::Matrix::scale(modelScale, modelScale, modelScale) * osg::Matrix::rotate(M_PI_2, 0, 0, 1));
+		mt->addChild(osgDB::readNodeFile(modelName.c_str()));
+		osg::StateSet *geoState = mt->getOrCreateStateSet();
+
+	osg::Material *colorMaterial = new osg::Material;
+		colorMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		colorMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+		colorMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, color);
+		colorMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
+		colorMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+		colorMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+	geoState->setAttributeAndModes(colorMaterial, osg::StateAttribute::ON);
+	
+	
+	
+	
+	
+		geometry = mt;
+	}
+	if (geometry == NULL)
+	{
+		osg::Geode* geode;
+
+		osg::Sphere* mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0*modelScale);
+		osg::ShapeDrawable* mySphereDrawable = new osg::ShapeDrawable(mySphere, MidiPlugin::instance()->hint.get());
+		mySphereDrawable->setColor(color);
+		geode = new osg::Geode();
+		geode->addDrawable(mySphereDrawable);
+		geode->setStateSet(MidiPlugin::instance()->shadedStateSet.get());
+		geometry = geode;
+	}
 }
 
-bool MidiPlugin::init()
+MidiInstrument::MidiInstrument(std::string name,int id)
 {
-	currentTrack = 0;
-
-	for (int i = 0; i < NUMMidiStreams; i++)
-	{
-#ifdef WIN32
-		hMidiDevice[i] = NULL;
-#else
-#endif
-		midifd[i] = -1;
-		inputDevice[i] = NULL;
-
-		lTrack[i] = NULL;
-		lTrack[i] = new Track(i, true);
-	}
-	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
-	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
-	//----------------------------------------------------------------------------
-  /*  if (player == NULL)
-	{
-		player = cover->usePlayer(playerUnavailableCB);
-		if (player == NULL)
-		{
-			cover->unusePlayer(playerUnavailableCB);
-			cover->addPlugin("Vrml97");
-			player = cover->usePlayer(playerUnavailableCB);
-			if (player == NULL)
-			{
-				cerr << "sorry, no VRML, no Sound support " << endl;
-			}
-		}
-	}*/
-
-	MIDIRoot = new osg::Group;
-	MIDIRoot->setName("MIDIRoot");
-	cover->getScene()->addChild(MIDIRoot.get());
-	for (int i = 0; i < NUMMidiStreams; i++)
-	{
-		MIDITrans[i] = new osg::MatrixTransform();
-		std::string name = "MIDITrans_";
-		name += std::to_string(i);
-		MIDITrans[i]->setName(name);
-		MIDIRoot->addChild(MIDITrans[i].get());
-		float angle = ((M_PI*2.0) / NUMMidiStreams) * i;
-		MIDITrans[i]->setMatrix(osg::Matrix::rotate(angle, osg::Vec3(0, 0, 1)));
-	}
-
-	noteInfos.resize(180);
-
-	hint = new osg::TessellationHints();
-	hint->setDetailRatio(1.0);
-
-	for (int i = 0; i < 180; i++)
+	noteInfos.resize(128);
+	for (int i = 0; i < 128; i++)
 		noteInfos[i] = NULL;
+	type = coCoviseConfig::getEntry("type", "COVER.Plugin.Midi." + name, "none");
+	channel = coCoviseConfig::getInt("channel", "COVER.Plugin.Midi." + name, 0);
+
+	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi."+name, "Key");
+	const char** it = InstrumentEntries.getValue();
+	while (it && *it)
+	{
+		string n = *it;
+
+		std::string configName = "COVER.Plugin.Midi." + name + "." + n;
+
+		int keyNumber = coCoviseConfig::getInt("name", configName, 0);
+		NoteInfo *noteInfo = new NoteInfo(keyNumber);
+		float r, g, b, a;
+		r = coCoviseConfig::getFloat("r", configName, 1.0);
+		g = coCoviseConfig::getFloat("g", configName, 1.0);
+		b = coCoviseConfig::getFloat("b", configName, 1.0);
+		a = coCoviseConfig::getFloat("a", configName,  1.0);
+		if (r > 1.0)
+			r = r / 255.0;
+		if (g > 1.0)
+			g = g / 255.0;
+		if (b > 1.0)
+			b = b / 255.0;
+		if (a > 1.0)
+			a = a / 255.0;
+		noteInfo->color = osg::Vec4(r,g,b,a);
+		noteInfo->initialPosition.set(coCoviseConfig::getFloat("x", configName,  0.0), coCoviseConfig::getFloat("y", configName, 0.0), coCoviseConfig::getFloat("z", configName,  0.0));
+		noteInfo->modelScale = coCoviseConfig::getFloat("modelScale", configName,  1.0);
+		noteInfo->modelName = coCoviseConfig::getEntry("modelName", configName,  "");
+		noteInfos[keyNumber] = noteInfo;
+
+		it++;// value
+		it++;// next key
+	}
 
 
-	noteInfos[0] = new NoteInfo(0); //kick
-	noteInfos[0]->color = osg::Vec4(1, 1, 1, 1);
-	noteInfos[0]->initialPosition.set(0.0, 0.0, 0.0);
+
 
 	/* Jeremys drum kit*/
-	noteInfos[4] = new NoteInfo(4); //stomp
+	/*noteInfos[4] = new NoteInfo(4); //stomp
 	noteInfos[4]->color = osg::Vec4(1, 0, 0, 1);
 	noteInfos[4]->initialPosition.set(0.0, 0.0, 0.0);
 	noteInfos[29] = new NoteInfo(29); //cymbal1
@@ -710,6 +722,235 @@ bool MidiPlugin::init()
 	noteInfos[40]->color = osg::Vec4(153.0 / 255.0, 51.0 / 255.0, 153.0 / 255.0, 1);
 	noteInfos[40]->initialPosition.set(0.0, 0.0, 0.0);
 
+	noteInfos[5] = new NoteInfo(5);
+	noteInfos[5]->color = osg::Vec4(3.0 / 255.0, 165.0 / 255.0, 252.0 / 255.0, 1);
+	noteInfos[5]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[6] = new NoteInfo(6);
+	noteInfos[6]->color = osg::Vec4(36.0 / 255.0, 148.0 / 255.0, 209.0 / 255.0, 1);
+	noteInfos[6]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[7] = new NoteInfo(7);
+	noteInfos[7]->color = osg::Vec4(36.0 / 255.0, 89.0 / 255.0, 117.0 / 255.0, 1);
+	noteInfos[7]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[8] = new NoteInfo(8);
+	noteInfos[8]->color = osg::Vec4(14.0 / 255.0, 124.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[8]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[9] = new NoteInfo(9);
+	noteInfos[9]->color = osg::Vec4(14.0 / 255.0, 48.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[9]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[10] = new NoteInfo(10);
+	noteInfos[10]->color = osg::Vec4(14.0 / 255.0, 36.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[10]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[11] = new NoteInfo(11);
+	noteInfos[11]->color = osg::Vec4(47.0 / 255.0, 14.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[11]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[12] = new NoteInfo(12);
+	noteInfos[12]->color = osg::Vec4(98.0 / 255.0, 14.0 / 255.0, 232.0 / 255.0, 1);
+	noteInfos[12]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[13] = new NoteInfo(13);
+	noteInfos[13]->color = osg::Vec4(141.0 / 255.0, 14.0 / 255.0, 232.0 / 255.0, 1);
+	noteInfos[13]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[14] = new NoteInfo(14);
+	noteInfos[14]->color = osg::Vec4(188.0 / 255.0, 14.0 / 255.0, 232.0 / 255.0, 1);
+	noteInfos[14]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[15] = new NoteInfo(15);
+	noteInfos[15]->color = osg::Vec4(145.0 / 255.0, 70.0 / 255.0, 163.0 / 255.0, 1);
+	noteInfos[15]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[16] = new NoteInfo(16);
+	noteInfos[16]->color = osg::Vec4(223.0 / 255.0, 12.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[16]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[17] = new NoteInfo(17);
+	noteInfos[17]->color = osg::Vec4(235.0 / 255.0, 12.0 / 255.0, 194.0 / 255.0, 1);
+	noteInfos[17]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[18] = new NoteInfo(18);
+	noteInfos[18]->color = osg::Vec4(230.0 / 255.0, 9.0 / 255.0, 97.0 / 255.0, 1);
+	noteInfos[18]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[19] = new NoteInfo(19);
+	noteInfos[19]->color = osg::Vec4(230.0 / 255.0, 9.0 / 255.0, 61.0 / 255.0, 1);
+	noteInfos[19]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[20] = new NoteInfo(20);
+	noteInfos[20]->color = osg::Vec4(230.0 / 255.0, 9.0 / 255.0, 20.0 / 255.0, 1);
+	noteInfos[20]->initialPosition.set(0.0, 0.0, 0.0);
+
+	noteInfos[100] = new NoteInfo(100);
+	noteInfos[100]->color = osg::Vec4(250.0 / 255.0, 22.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[100]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[100]->modelName = "/data/Jeremy/A1.osg";
+	noteInfos[100]->modelScale = 1.0;
+	noteInfos[101] = new NoteInfo(101);
+	noteInfos[101]->color = osg::Vec4(250.0 / 255.0, 66.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[101]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[101]->modelName = "/data/Jeremy/A2.osg";
+	noteInfos[101]->modelScale = 1.0;
+	noteInfos[102] = new NoteInfo(102);
+	noteInfos[102]->color = osg::Vec4(250.0 / 255.0, 110.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[102]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[102]->modelName = "/data/Jeremy/A3.osg";
+	noteInfos[102]->modelScale = 1.0;
+	noteInfos[103] = new NoteInfo(103);
+	noteInfos[103]->color = osg::Vec4(250.0 / 255.0, 170.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[103]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[103]->modelName = "/data/Jeremy/A4.osg";
+	noteInfos[103]->modelScale = 1.0;
+	noteInfos[104] = new NoteInfo(104);
+	noteInfos[104]->color = osg::Vec4(250.0 / 255.0, 214.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[104]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[104]->modelName = "/data/Jeremy/A5.osg";
+	noteInfos[104]->modelScale = 1.0;
+	noteInfos[105] = new NoteInfo(105);
+	noteInfos[105]->color = osg::Vec4(246.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[105]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[105]->modelName = "/data/Jeremy/A6.osg";
+	noteInfos[105]->modelScale = 1.0;
+	noteInfos[106] = new NoteInfo(106);
+	noteInfos[106]->color = osg::Vec4(198.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[106]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[106]->modelName = "/data/Jeremy/A7.osg";
+	noteInfos[106]->modelScale = 1.0;
+	noteInfos[107] = new NoteInfo(107);
+	noteInfos[107]->color = osg::Vec4(130.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[107]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[107]->modelName = "/data/Jeremy/A8.osg";
+	noteInfos[107]->modelScale = 1.0;
+	noteInfos[108] = new NoteInfo(108);
+	noteInfos[108]->color = osg::Vec4(10.0 / 255.0, 250.0 / 255.0, 42.0 / 255.0, 1);
+	noteInfos[108]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[108]->modelName = "/data/Jeremy/A1.osg";
+	noteInfos[108]->modelScale = 1.0;
+	noteInfos[109] = new NoteInfo(109);
+	noteInfos[109]->color = osg::Vec4(29.0 / 255.0, 181.0 / 255.0, 49.0 / 255.0, 1);
+	noteInfos[109]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[109]->modelName = "/data/Jeremy/A2.osg";
+	noteInfos[109]->modelScale = 1.0;
+	noteInfos[110] = new NoteInfo(110);
+	noteInfos[110]->color = osg::Vec4(32.0 / 255.0, 199.0 / 255.0, 149.0 / 255.0, 1);
+	noteInfos[110]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[110]->modelName = "/data/Jeremy/A3.osg";
+	noteInfos[110]->modelScale = 1.0;
+	noteInfos[111] = new NoteInfo(111);
+	noteInfos[111]->color = osg::Vec4(17.0 / 255.0, 240.0 / 255.0, 210.0 / 255.0, 1);
+	noteInfos[111]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[111]->modelName = "/data/Jeremy/A4.osg";
+	noteInfos[111]->modelScale = 1.0;
+	noteInfos[112] = new NoteInfo(112);
+	noteInfos[112]->color = osg::Vec4(29.0 / 255.0, 128.0 / 255.0, 114.0 / 255.0, 1);
+	noteInfos[112]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[112]->modelName = "/data/Jeremy/A5.osg";
+	noteInfos[112]->modelScale = 1.0;
+	noteInfos[113] = new NoteInfo(113);
+	noteInfos[113]->color = osg::Vec4(232.0 / 255.0, 119.0 / 255.0, 14.0 / 255.0, 1);
+	noteInfos[113]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[113]->modelName = "/data/Jeremy/A6.osg";
+	noteInfos[113]->modelScale = 1.0;
+	noteInfos[114] = new NoteInfo(114);
+	noteInfos[114]->color = osg::Vec4(244.0 / 255.0, 204.0 / 255.0, 24.0 / 255.0, 1);
+	noteInfos[114]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[114]->modelName = "/data/Jeremy/A7.osg";
+	noteInfos[114]->modelScale = 1.0;
+	noteInfos[115] = new NoteInfo(115);
+	noteInfos[115]->color = osg::Vec4(248.0 / 255.0, 252.0 / 255.0, 3.0 / 255.0, 1);
+	noteInfos[115]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[115]->modelName = "/data/Jeremy/A8.osg";
+	noteInfos[115]->modelScale = 1.0;
+
+
+
+	noteInfos[80] = new NoteInfo(80);
+	noteInfos[80]->color = osg::Vec4(250.0 / 255.0, 22.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[80]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[81] = new NoteInfo(81);
+	noteInfos[81]->color = osg::Vec4(250.0 / 255.0, 66.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[81]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[82] = new NoteInfo(82);
+	noteInfos[82]->color = osg::Vec4(250.0 / 255.0, 110.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[82]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[83] = new NoteInfo(83);
+	noteInfos[83]->color = osg::Vec4(250.0 / 255.0, 170.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[83]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[84] = new NoteInfo(84);
+	noteInfos[84]->color = osg::Vec4(250.0 / 255.0, 214.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[84]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[85] = new NoteInfo(85);
+	noteInfos[85]->color = osg::Vec4(246.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[85]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[86] = new NoteInfo(86);
+	noteInfos[86]->color = osg::Vec4(198.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[86]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[87] = new NoteInfo(87);
+	noteInfos[87]->color = osg::Vec4(130.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[87]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[88] = new NoteInfo(88);
+	noteInfos[88]->color = osg::Vec4(10.0 / 255.0, 250.0 / 255.0, 42.0 / 255.0, 1);
+	noteInfos[88]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[89] = new NoteInfo(89);
+	noteInfos[89]->color = osg::Vec4(29.0 / 255.0, 181.0 / 255.0, 49.0 / 255.0, 1);
+	noteInfos[89]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[90] = new NoteInfo(90);
+	noteInfos[90]->color = osg::Vec4(32.0 / 255.0, 199.0 / 255.0, 149.0 / 255.0, 1);
+	noteInfos[90]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[91] = new NoteInfo(91);
+	noteInfos[91]->color = osg::Vec4(17.0 / 255.0, 240.0 / 255.0, 210.0 / 255.0, 1);
+	noteInfos[91]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[92] = new NoteInfo(92);
+	noteInfos[92]->color = osg::Vec4(29.0 / 255.0, 128.0 / 255.0, 114.0 / 255.0, 1);
+	noteInfos[92]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[93] = new NoteInfo(93);
+	noteInfos[93]->color = osg::Vec4(232.0 / 255.0, 119.0 / 255.0, 14.0 / 255.0, 1);
+	noteInfos[93]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[94] = new NoteInfo(94);
+	noteInfos[94]->color = osg::Vec4(244.0 / 255.0, 204.0 / 255.0, 24.0 / 255.0, 1);
+	noteInfos[94]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[95] = new NoteInfo(95);
+	noteInfos[95]->color = osg::Vec4(248.0 / 255.0, 252.0 / 255.0, 3.0 / 255.0, 1);
+	noteInfos[95]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[60] = new NoteInfo(60);
+	noteInfos[60]->color = osg::Vec4(128.0 / 255.0, 128.0 / 255.0, 0, 1);
+	noteInfos[60]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[61] = new NoteInfo(61);
+	noteInfos[61]->color = osg::Vec4(153.0 / 255.0, 153.0 / 255.0, 0, 1);
+	noteInfos[61]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[62] = new NoteInfo(62);
+	noteInfos[62]->color = osg::Vec4(255.0 / 255.0, 255.0 / 255.0, 200.0 / 255.0, 1);
+	noteInfos[62]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[63] = new NoteInfo(63);
+	noteInfos[63]->color = osg::Vec4(230.0 / 255.0, 92.0 / 255.0, 0, 1);
+	noteInfos[63]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[64] = new NoteInfo(64);
+	noteInfos[64]->color = osg::Vec4(204.0 / 255.0, 82.0 / 255.0, 0, 1);
+	noteInfos[64]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[65] = new NoteInfo(65);
+	noteInfos[65]->color = osg::Vec4(1, 102.0 / 255.0, 20.0 / 255.0, 1);
+	noteInfos[65]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[66] = new NoteInfo(66);
+	noteInfos[66]->color = osg::Vec4(1, 102.0 / 255.0, 0, 1);
+	noteInfos[66]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[67] = new NoteInfo(67);
+	noteInfos[67]->color = osg::Vec4(179.0 / 255.0, 204.0 / 255.0, 1, 1);
+	noteInfos[67]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[68] = new NoteInfo(68);
+	noteInfos[68]->color = osg::Vec4(128.0 / 255.0, 170.0 / 255.0, 1, 1);
+	noteInfos[68]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[69] = new NoteInfo(69);
+	noteInfos[69]->color = osg::Vec4(77.0 / 255.0, 136.0 / 255.0, 1, 1);
+	noteInfos[69]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[70] = new NoteInfo(70);
+	noteInfos[70]->color = osg::Vec4(26.0 / 255.0, 102.0 / 255.0, 1, 1);
+	noteInfos[70]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[71] = new NoteInfo(71);
+	noteInfos[71]->color = osg::Vec4(0, 77.0 / 255.0, 230.0 / 255.0, 1);
+	noteInfos[71]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[72] = new NoteInfo(72);
+	noteInfos[72]->color = osg::Vec4(0, 60.0 / 255.0, 179.0 / 255.0, 1);
+	noteInfos[72]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[73] = new NoteInfo(73);
+	noteInfos[73]->color = osg::Vec4(0, 51.0 / 255.0, 153.0 / 255.0, 1);
+	noteInfos[73]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[74] = new NoteInfo(74);
+	noteInfos[74]->color = osg::Vec4(0, 43.0 / 255.0, 128.0 / 255.0, 1);
+	noteInfos[74]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[75] = new NoteInfo(75);
+	noteInfos[75]->color = osg::Vec4(0, 34.0 / 255.0, 102.0 / 255.0, 1);
+	noteInfos[75]->initialPosition.set(0.0, 0.0, 0.0);
+	*/
 
 	/* HLRS Drum kit*/
 	 /*
@@ -734,29 +975,142 @@ bool MidiPlugin::init()
 
 	 noteInfos[51] = new NoteInfo(51);//ride
 	 noteInfos[51]->color = osg::Vec4(0.4,0.4,1,1);*/
-
-
-
-	for (int i = 0; i < nIs.size(); i++)
+	int i = 0;
+	for (auto& noteInfo : noteInfos)
 	{
-		nIs[i]->createGeom();
-		float angle = ((float)i / nIs.size())*2.0*M_PI;
-		//float radius = 300.0+(float)i/nIs.size()*800.0;
-		float radius = 800.0;
-		if (nIs[i]->initialPosition == osg::Vec3(0, 0, 0))
+		if (noteInfo)
 		{
-			nIs[i]->initialPosition.set(sin(angle)*radius, 0, cos(angle)*radius);
-			nIs[i]->initialVelocity.set(sin(angle)*100.0, 1000, cos(angle)*100.0);
-			nIs[i]->initialVelocity.set(sin(angle)*100.0, 1000, cos(angle)*100.0);
-		}
-		else
-		{
-			osg::Vec3 v = nIs[i]->initialPosition;
-			v.normalize();
-			v[1] = 1000.0;
-			nIs[i]->initialVelocity = v;
+			noteInfo->createGeom();
+			float angle = ((float)i / noteInfos.size()) * 2.0 * M_PI * 2;
+			float radius = 800.0;
+			if (noteInfo->initialPosition == osg::Vec3(0, 0, 0))
+			{
+				noteInfo->initialPosition.set(sin(angle) * radius, 0, cos(angle) * radius);
+				noteInfo->initialVelocity.set(sin(angle) * 100.0, 1000, cos(angle) * 100.0);
+				noteInfo->initialVelocity.set(sin(angle) * 100.0, 1000, cos(angle) * 100.0);
+			}
+			else
+			{
+				osg::Vec3 v = noteInfo->initialPosition;
+				v.normalize();
+				v[1] = 1000.0;
+				noteInfo->initialVelocity = v;
+			}
+			i++;
 		}
 	}
+
+}
+MidiInstrument::~MidiInstrument()
+{
+}
+
+MidiDevice::MidiDevice(std::string n, int id)
+{
+	name = n;
+	ID = id;
+
+	std::string configName = "COVER.Plugin.Midi." + name;
+	int instID = coCoviseConfig::getInt("instrument", configName, 0);
+	if( MidiPlugin::instance()->instruments.size()>instID)
+	{
+		instrument = MidiPlugin::instance()->instruments[instID].get();
+	}
+	else
+	{
+		instrument = NULL;
+	}
+}
+
+MidiDevice::~MidiDevice()
+{
+}
+
+bool MidiPlugin::init()
+{
+	currentTrack = 0;
+
+	for (int i = 0; i < NUMMidiStreams; i++)
+	{
+#ifdef WIN32
+		hMidiDevice[i] = NULL;
+#else
+#endif
+		midifd[i] = -1;
+		inputDevice[i] = NULL;
+
+		lTrack[i] = NULL;
+		lTrack[i] = new Track(i, true);
+	}
+	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Instrument");
+	const char** it = InstrumentEntries.getValue();
+	while (it && *it)
+	{
+		string n = *it;
+		std::unique_ptr<MidiInstrument> instrument = std::unique_ptr<MidiInstrument>(new MidiInstrument(n,instruments.size()));
+		lTrack[instrument->channel]->instrument = instrument.get();
+
+		instruments.push_back(std::move(instrument));
+
+		it++;
+		it++;
+	}
+	coCoviseConfig::ScopeEntries DeviceEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Device");
+	it = DeviceEntries.getValue();
+	while (it && *it)
+	{
+		string n = *it;
+		std::unique_ptr<MidiDevice> device = std::unique_ptr<MidiDevice>(new MidiDevice(n, devices.size()));
+		devices.push_back(std::move(device));
+
+		it++;
+		it++;
+	}
+
+
+	int instrument = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi.Instrument", 0);
+	int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
+
+
+	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
+	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
+	//----------------------------------------------------------------------------
+  /*  if (player == NULL)
+	{
+		player = cover->usePlayer(playerUnavailableCB);
+		if (player == NULL)
+		{
+			cover->unusePlayer(playerUnavailableCB);
+			cover->addPlugin("Vrml97");
+			player = cover->usePlayer(playerUnavailableCB);
+			if (player == NULL)
+			{
+				cerr << "sorry, no VRML, no Sound support " << endl;
+			}
+		}
+	}*/
+
+	MIDIRoot = new osg::Group;
+	MIDIRoot->setName("MIDIRoot");
+	cover->getScene()->addChild(MIDIRoot.get());
+	for (int i = 0; i < NUMMidiStreams; i++)
+	{
+		MIDITrans[i] = new osg::MatrixTransform();
+		std::string name = "MIDITrans_";
+		name += std::to_string(i);
+		MIDITrans[i]->setName(name);
+		MIDIRoot->addChild(MIDITrans[i].get());
+		float angle = ((M_PI*2.0) / NUMMidiStreams) * i;
+		//MIDITrans[i]->setMatrix(osg::Matrix::rotate(angle, osg::Vec3(0, 0, 1)));
+	}
+
+
+	hint = new osg::TessellationHints();
+	hint->setDetailRatio(1.0);
+
+
+
+
 
 	if (coVRMSController::instance()->isMaster())
 	{
@@ -794,11 +1148,11 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 	if (device == 0)
 		sprintf(devName, "/dev/midi");
 	else
-		sprintf(devName, "/dev/midi%d", device + 1);
+		sprintf(devName, "/dev/midi%d", device );
 	midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	if (midifd[streamNum] <= 0)
 	{
-		sprintf(devName, "/dev/midi%d", device + 1);
+		sprintf(devName, "/dev/midi%d", device);
 		midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	}
 	fprintf(stderr, "open %s %d\n", devName, midifd[streamNum]);
@@ -874,16 +1228,21 @@ MidiPlugin::~MidiPlugin()
 	for (int i = 0; i < NUMMidiStreams; i++)
 	{
 		delete lTrack[i];
+#ifdef WIN32
+		if (hMidiDevice && hMidiDevice[i])
+			midiInClose(hMidiDevice[i]);
+#else
+		if(midifd[i]>=0)
+		close(midifd[i]);
+#endif
 	}
+
 	SDL_Quit();
 }
 
 void MidiPlugin::addEvent(MidiEvent &me, int MidiStream)
 {
-	if (me.isNoteOn() && me.getVelocity() > 0)
-	{
-		eventqueue[MidiStream].push_back(me);
-	}
+	eventqueue[MidiStream].push_back(me);
 }
 bool MidiPlugin::destroy()
 {
@@ -948,9 +1307,18 @@ void MidiPlugin::preFrame()
 			}
 			else
 			{
-				lTrack[i]->addNote(new Note(me, lTrack[i]));
+				int channel = me.getChannel();
+				if (lTrack[channel]->instrument != nullptr)
+				{
+					lTrack[channel]->handleEvent(me);
+				}
+				else
+				{
+					if (me.getKeyNumber() > 0)
+					fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
+
+				}
 			}
-			printf("key: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
 		}
 		lTrack[i]->update();
 	}
@@ -1010,6 +1378,87 @@ osg::Geode *MidiPlugin::createBallGeometry(int ballId)
 void MidiPlugin::setTimestep(int t)
 {
 }
+
+void MidiPlugin::handleController(MidiEvent& me)
+{
+	fprintf(stderr, "Controller Nr.%d, value %d\n", me.getP1(), me.getP2());
+	int controllerID = me.getP1();
+	int value = me.getP2();
+	if (controllerID == 55)
+	{
+		frequencySurface->radius1 = value;
+		amplitudeSurface->radius1 = value;
+	}
+	if (controllerID == 60)
+	{
+		frequencySurface->radius2 = value;
+		amplitudeSurface->radius2 = value;
+	}
+	if (controllerID == 61)
+	{
+		sphereScale = 0.1+((value/127.0)*10.0);
+		sphereScaleSlider->setValue(sphereScale);
+	}
+	if (controllerID == 56)
+	{
+		frequencySurface->yStep = value;
+		amplitudeSurface->yStep = value;
+	}
+	if (controllerID == 57)
+	{
+		frequencySurface->amplitudeFactor = (value-63)/12.0;
+		amplitudeSurface->amplitudeFactor = (value - 63) / 12.0;
+	}
+	if (controllerID == 62)
+	{
+		frequencySurface->frequencyFactor = (value - 63) / 12.0;
+		amplitudeSurface->frequencyFactor = (value - 63) / 12.0;
+	}
+	if (controllerID == 52) // slider left
+	{
+		float sliderValue = ((float)(value - 64) / 64.0)*5.0;
+		osg::Vec3 rotSpeed;
+		rotSpeed.set(sliderValue, sliderValue / 2.0, 0);
+
+		fprintf(stderr, "rot%f, %f, %f\n", rotSpeed[0], rotSpeed[1], rotSpeed[2]);
+		for (int i = 0; i < NUMMidiStreams; i++)
+		{
+			lTrack[i]->setRotation(rotSpeed);
+		}
+	}
+	if (controllerID == 63) // distance sensor
+	{
+		float sliderValue = value / 127.0;
+		speedFactor = (100.0 * sliderValue) + 1.0;
+	}
+	if (controllerID == 1) // PitchBendUp
+	{
+		float sliderValue = ((float)(value ) / 127.0) * 5.0;
+		osg::Vec3 rotSpeed;
+		rotSpeed.set(sliderValue, sliderValue / 2.0, 0);
+
+		fprintf(stderr, "rot%f, %f, %f\n", rotSpeed[0], rotSpeed[1], rotSpeed[2]);
+		for (int i = 0; i < NUMMidiStreams; i++)
+		{
+			lTrack[i]->setRotation(rotSpeed);
+		}
+	}
+	if (controllerID == 2) // PitchBendDown
+	{
+		float sliderValue = ((float)(value) / 127.0) * -5.0;
+		osg::Vec3 rotSpeed;
+		rotSpeed.set(sliderValue, sliderValue / 2.0, 0);
+
+		fprintf(stderr, "rot%f, %f, %f\n", rotSpeed[0], rotSpeed[1], rotSpeed[2]);
+		for (int i = 0; i < NUMMidiStreams; i++)
+		{
+			lTrack[i]->setRotation(rotSpeed);
+		}
+	}
+
+
+}
+
 //--------------------------------------------------------------------
 void MidiPlugin::MIDItab_create(void)
 {
@@ -1023,6 +1472,13 @@ void MidiPlugin::MIDItab_create(void)
 			lTrack[i]->reset();
 		}
 	});
+
+	clearStoreButton = new ui::Button(MIDITab, "ClearStore");
+	clearStoreButton->setText("Clear Store");
+	clearStoreButton->setCallback([this](bool) {
+		clearStore();
+		});
+
 	radius1Slider = new ui::Slider(MIDITab, "Radius1");
 	radius1Slider->setText("Radius1");
 	radius1Slider->setBounds(1, 100);
@@ -1085,27 +1541,38 @@ void MidiPlugin::MIDItab_create(void)
 	spiralSpeedSlider->setCallback([this](float value, bool) {
 		spiralSpeed = value;
 	});
+
+	sphereScaleSlider = new ui::Slider(MIDITab, "SphereScale");
+	sphereScaleSlider->setText("sphereScale");
+	sphereScaleSlider->setBounds(0.1, 10);
+	sphereScaleSlider->setValue(1.0);
+	sphereScaleSlider->setCallback([this](float value, bool) {
+		sphereScale = value;
+		});
 	
 	trackNumber = new  ui::EditField(MIDITab, "trackNumber");
 	trackNumber->setValue(0);
 	trackNumber->setCallback([this](std::string newVal) {
-		currentTrack = std::stoi(newVal);
-		if (currentTrack >= 0 && currentTrack < tracks.size())
+		if (newVal.length() > 0)
 		{
-		}
-		else
-		{
-			currentTrack = 0;
-		}
-		if (currentTrack >= 0 && currentTrack < tracks.size())
-		{
-			tracks[currentTrack]->setVisible(false);
-
-			if (currentTrack >= 0)
+			currentTrack = std::stoi(newVal);
+			if (currentTrack >= 0 && currentTrack < tracks.size())
 			{
-				tracks[currentTrack]->reset();
-				startTime = cover->frameTime();
-				tracks[currentTrack]->setVisible(true);
+			}
+			else
+			{
+				currentTrack = 0;
+			}
+			if (currentTrack >= 0 && currentTrack < tracks.size())
+			{
+				tracks[currentTrack]->setVisible(false);
+
+				if (currentTrack >= 0)
+				{
+					tracks[currentTrack]->reset();
+					startTime = cover->frameTime();
+					tracks[currentTrack]->setVisible(true);
+				}
 			}
 		}
 	});
@@ -1215,11 +1682,24 @@ COVERPLUGIN(MidiPlugin)
 Track::Track(int tn, bool l)
 {
 	life = l;
+	rotationSpeed.set(0, 0, 0);
 	TrackRoot = new osg::MatrixTransform();
-	TrackRoot->setName("TrackRoot");
+	TrackRoot->setName("TrackRoot"+std::to_string(tn));
 	trackNumber = tn;
-
 	streamNum = trackNumber % MidiPlugin::instance()->NUMMidiStreams;
+
+	if(streamNum < MidiPlugin::instance()->devices.size())
+	{
+	  instrument = MidiPlugin::instance()->devices[streamNum]->instrument;
+	}
+	else
+	{
+		if(MidiPlugin::instance()->devices.size()>0)
+		{
+		    instrument = MidiPlugin::instance()->devices[0]->instrument;
+		}
+	}
+
 	char soundName[200];
 	snprintf(soundName, 200, "RENDERS/S%d.wav", tn);
 	//trackAudio = new vrml::Audio(soundName);
@@ -1244,48 +1724,108 @@ Track::Track(int tn, bool l)
 	TrackRoot->addChild(geometryLines);
 	lastNum = 0;
 	lastPrimitive = 0;
+	eventNumber = 0;
 }
 Track::~Track()
 {
 }
 void Track::addNote(Note *n)
 {
+	fprintf(stderr,"add: %02d velo %03d chan %d\n", n->event.getKeyNumber(), n->event.getVelocity(), n->event.getChannel());
+	n->spin = rotationSpeed;
+	if (n->track->instrument->type == "keyboard")
+	{
+		notes.push_back(n);
+		n->setInactive(false);
+		n->vertNum = lineVert->size();
+		lineVert->push_back(n->transform->getMatrix().getTrans());
+		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
 
-	Note* lastNode = NULL;
-	int num = notes.size() - 1;
-	if (num >= 0)
-	{
-		std::list<Note *>::iterator it;
-		it = notes.end();
-		it--;
-		lastNode = *it;
+		Note* currentNote = new Note(n->event, this);
+		notes.push_back(currentNote);
+		currentNote->spin = -rotationSpeed;
+		currentNote->vertNum = lineVert->size();
+		lineVert->push_back(currentNote->transform->getMatrix().getTrans());
+		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
+		//int numLines = linePrimitives->size();
+		linePrimitives->push_back(2);
 	}
-	notes.push_back(n);
-	if (lastNode == NULL || ((n->event.seconds - lastNode->event.seconds) > 1.0))
+	else
 	{
-		if (lastNode != NULL && num - lastNum == 0)
+		Note* lastNode = NULL;
+		int num = notes.size() - 1;
+		if (num >= 0)
 		{
-			fprintf(stderr, "new zero line\n");
-			linePrimitives->push_back(1);
+			std::list<Note*>::iterator it;
+			it = notes.end();
+			it--;
+			lastNode = *it;
 		}
-		lastNum = num;
-		fprintf(stderr, "%d\n", (num - lastNum) + 1);
-		fprintf(stderr, "td\n");
+		notes.push_back(n);
+		n->setInactive(false);
+		if (lastNode == NULL || ((n->event.seconds - lastNode->event.seconds) > 1.0))
+		{
+			if (lastNode != NULL && num - lastNum == 0)
+			{
+				fprintf(stderr, "new zero line\n");
+				linePrimitives->push_back(1);
+			}
+			lastNum = num;
+			fprintf(stderr, "%d\n", (num - lastNum) + 1);
+			fprintf(stderr, "td\n");
+		}
+		//fprintf(stderr, "num %d lastNum %d\n", num, lastNum);
+		if (num - lastNum == 1)
+		{
+			fprintf(stderr, "new line\n");
+			lastPrimitive = linePrimitives->size();
+			linePrimitives->push_back((num - lastNum) + 1);
+		}
+		if (num - lastNum > 0)
+		{
+			//fprintf(stderr, "addLineVert%d\n", (num - lastNum) + 1);
+			(*linePrimitives)[lastPrimitive] = (num - lastNum) + 1;
+		}
+		lineVert->push_back(n->transform->getMatrix().getTrans());
+		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
 	}
-	//fprintf(stderr, "num %d lastNum %d\n", num, lastNum);
-	if (num - lastNum == 1)
+}
+
+void Track::endNote(MidiEvent& me)
+{
+	Note *note = NULL;
+	fprintf(stderr,"end: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+
+	// find key press for this release
+	for (auto it = notes.end(); it != notes.begin(); )
 	{
-		fprintf(stderr, "new line\n");
-		lastPrimitive = linePrimitives->size();
-		linePrimitives->push_back((num - lastNum) + 1);
+		it--;
+		if ((*it)->event.getKeyNumber() == me.getKeyNumber())
+		{
+			note = *it;
+			//printf("foundNoteOn: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+			if (note->track->instrument->type == "keyboard")
+			{
+				Note* lastNode = *it;
+				if (it != notes.begin())
+					it--;
+				note = *it;
+				me.setVelocity(note->event.getVelocity());
+				lastNode->setInactive(false);
+			}
+			break;
+		}
 	}
-	if (num - lastNum > 0)
+	if (note != NULL)
 	{
-		//fprintf(stderr, "addLineVert%d\n", (num - lastNum) + 1);
-		(*linePrimitives)[lastPrimitive] = (num - lastNum) + 1;
+
 	}
-	lineVert->push_back(n->transform->getMatrix().getTrans());
-	lineColor->push_back(osg::Vec4(1, 0, 0, 1));
+	
+}
+
+void Track::setRotation(osg::Vec3& rotSpeed)
+{
+	rotationSpeed = rotSpeed;
 }
 
 osg::Geode *Track::createLinesGeometry()
@@ -1316,6 +1856,21 @@ osg::Geode *Track::createLinesGeometry()
 
 	return geode;
 }
+void Track::handleEvent(MidiEvent& me)
+{
+	if (me.isNoteOn())
+	{
+		addNote(new Note(me, this));
+	}
+	else if (me.isNoteOff())
+	{
+		endNote(me);
+	}
+	else if (me.isController())
+	{
+		MidiPlugin::instance()->handleController(me);
+	}
+}
 void Track::store()
 {
 	int pos = MidiPlugin::instance()->storedTracks.size();
@@ -1327,6 +1882,18 @@ void Track::store()
 	int yp = pos / 6;
 	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, (0.5*yp) + 0.5);
 	TrackRoot->setMatrix(mat);
+}
+void MidiPlugin::clearStore()
+{
+	for (auto it = storedTracks.begin(); it != storedTracks.end(); it++)
+	{
+		(*it)->clearStore();
+	}
+	storedTracks.clear();
+}
+void Track::clearStore()
+{
+	TrackRoot->getParent(0)->removeChild(TrackRoot);
 }
 void Track::reset()
 {
@@ -1341,10 +1908,17 @@ void Track::reset()
 	}
 	notes.clear();
 	lineVert->resize(0);
+	lineColor->resize(0);
 	linePrimitives->resize(0);
+
+	lineVert->dirty();
+	lineColor->dirty();
+	linePrimitives->dirty();
+
 	lastNum = 0;
 	lastPrimitive = 0;
 }
+
 
 void Track::update()
 {
@@ -1354,73 +1928,88 @@ void Track::update()
 	if (life)
 	{
 		char buf[1000];
-		int numRead = 0;
-		if (MidiPlugin::instance()->midifd[streamNum] > 0)
-		{
-			numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 2);
-			
-		}
-		if (numRead > 0)
-		{
-			if (buf[0] != -2)
+		int numRead = 1;
+		while(numRead > 0)
+		{	
+		
+			me.setP0(0);
+			me.setP1(0);
+			me.setP2(0);
+			if (coVRMSController::instance()->isMaster())
 			{
-			      
-				if (buf[0] == -112 || buf[0] == -103 ||(buf[1] == -112 ))
+				   if (MidiPlugin::instance()->midifd[streamNum] > 0)
+				   {
+					 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
+
+				   }
+				   else
+				   {
+				      numRead = -1;
+				   }
+				   if (numRead > 0)
+				   {
+					 if (buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
+					 {
+			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
+						 if(numRead < 2)
+						 {
+		                			fprintf(stderr,"oopps %d %d\n",(int)buf[0],numRead);
+						 }
+
+							 me.setP0(buf[0]);
+							 me.setP1(buf[1]);
+							 me.setP2(buf[2]);
+							 
+
+					 }
+					 else
+					 {
+                                             if(buf[0]!=-2 && buf[0]!=-8 )
+{
+		                			fprintf(stderr,"unknown message %d %d\n",(int)buf[0],numRead);
+}
+			                      buf[0] = 0;
+			                      buf[1] = 0;
+			                      buf[2] = 0;
+					 }
+				   }
+				   
+				   
+				   
+				signed char buf[4];
+				buf[0] = me.getP0();
+				buf[1] = me.getP1();
+				buf[2] = me.getP2();
+				buf[3] = numRead;
+				coVRMSController::instance()->sendSlaves((char *)buf, 4);
+	//fprintf(stderr,"sent: %01d %02d velo %03d chan %d numRead %d \n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
+
+			}
+			else
+			{
+				signed char buf[4];
+				coVRMSController::instance()->readMaster((char *)buf, 4);
+				me.setP0(buf[0]);
+				me.setP1(buf[1]);
+				me.setP2(buf[2]);
+				numRead = buf[3];
+	//fprintf(stderr,"received: %01d %02d velo %03d chan %d numRead %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
+			}
+			if(numRead > 0 &&  me.getP0()!=0)
+			{
+
+				int channel = me.getChannel();
+				if (MidiPlugin::instance()->lTrack[channel]->instrument != nullptr)
 				{
-					int key = buf[1];
-					if(buf[1] == -112)
-					{
-					me.setP0(buf[1]);
-					int numRead = read(MidiPlugin::instance()->midifd[streamNum], buf,1);
-					me.setP0(buf[0]);
-					}
-					me.setP0(buf[0]);
-					me.setP1(buf[1]);
-					int numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 2);
-					
-					int value = buf[0];
-					me.setP2(buf[0]);
-					me.seconds = cover->frameTime();
-					if (value > 0)
-					{
-						// key press
-						me.setKeyNumber(key);
-						me.setVelocity(value);
-					fprintf(stderr, "Midi info press %d %d\n", (int)key, (int)value);
-					}
-					else
-					{
-					fprintf(stderr, "Midi info release %d %d\n", (int)key, (int)value);
-						// key release
-					}
+					MidiPlugin::instance()->lTrack[channel]->handleEvent(me);
 				}
 				else
 				{
-				       //if(buf[1]!=-8)
-				//	fprintf(stderr, "Unknown midi info %d %d\n", (int)buf[0], (int)buf[1]);
+					if(me.getKeyNumber()>0)
+					fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
+
 				}
 			}
-		}
-		if (coVRMSController::instance()->isMaster())
-		{
-			char buf[3];
-			buf[0] = me.getP0();
-			buf[1] = me.getP1();
-			buf[2] = me.getP2();
-			coVRMSController::instance()->sendSlaves((char *)buf, 3);
-
-		}
-		else
-		{
-			char buf[3];
-			coVRMSController::instance()->readMaster((char *)buf, 3);
-			me.setP0(buf[0]);
-			me.setP1(buf[1]);
-			me.setP2(buf[2]);
-		}
-		if (me.isNote() && me.getVelocity() > 0)
-		{
-			addNote(new Note(me, this));
 		}
 	}
 	else
@@ -1433,19 +2022,7 @@ void Track::update()
 		{
 			me = MidiPlugin::instance()->midifile[trackNumber][eventNumber];
 			me.getDurationInSeconds();
-			if (me.isNoteOn())
-			{
-				//fprintf(stderr,"new note %d\n",me.getKeyNumber());
-				if (MidiPlugin::instance()->noteInfos[me.getKeyNumber()] != NULL)
-				{
-					notes.push_back(new Note(me, this));
-				}
-				else
-				{
-
-					//fprintf(stderr,"unknown note %d\n",me.getKeyNumber());
-				}
-			}
+			handleEvent(me);
 			eventNumber++;
 		}
 	}
@@ -1455,17 +2032,20 @@ void Track::update()
 	{
 
 		(*it)->integrate(cover->frameTime() - oldTime);
-		osg::Vec3 v = ((*it)->transform->getMatrix().getTrans());
-		(*lineVert)[vNum] = v;
-		float len = v.length();
-		v.normalize();
-		osg::Vec4 c;
-		c[0] = v[0];
-		c[1] = v[1];
-		c[2] = v[2];
-		c[3] = 1.0;
-		(*lineColor)[vNum] = c;
-		vNum++;
+		if (vNum < lineVert->size())
+		{
+			osg::Vec3 v = ((*it)->transform->getMatrix().getTrans());
+			(*lineVert)[vNum] = v;
+			float len = v.length();
+			v.normalize();
+			osg::Vec4 c;
+			c[0] = v[0];
+			c[1] = v[1];
+			c[2] = v[2];
+			c[3] = 1.0;
+			(*lineColor)[vNum] = c;
+			vNum++;
+		}
 	}
 	lineVert->dirty();
 	lineColor->dirty();
@@ -1496,16 +2076,25 @@ Note::Note(MidiEvent &me, Track *t)
 {
 	event = me;
 	track = t;
-	NoteInfo *ni = MidiPlugin::instance()->noteInfos[me.getKeyNumber()];
+	spin.set(0, 0, 0);
+	rot.set(0, 0, 0);
+	NoteInfo *ni = track->instrument->noteInfos[me.getKeyNumber()];
 	transform = new osg::MatrixTransform();
-	float s = event.getVelocity() / 10.0;
+	noteScale = MidiPlugin::instance()->sphereScale * event.getVelocity() / 10.0;
 	if (ni == NULL)
 	{
 		fprintf(stderr, "no NoteInfo for Key %d\n", me.getKeyNumber());
-		ni = MidiPlugin::instance()->noteInfos[0];
-		event.setKeyNumber(0);
+		for (int i = 0; i < 128; i++)
+		{
+			if ((ni = track->instrument->noteInfos[i]) != NULL)
+			{
+				break;
+			}
+		}
+		
+		//event.setKeyNumber(0);
 	}
-	transform->setMatrix(osg::Matrix::scale(s, s, s) * osg::Matrix::translate(ni->initialPosition));
+	transform->setMatrix(osg::Matrix::scale(noteScale, noteScale, noteScale) * osg::Matrix::translate(ni->initialPosition));
 	if (ni->geometry != NULL)
 	{
 		transform->addChild(ni->geometry);
@@ -1521,6 +2110,8 @@ Note::~Note()
 }
 void Note::integrate(double time)
 {
+	if (inactive)
+		return;
 	osg::Matrix nm = transform->getMatrix();
 	osg::Vec3 pos = nm.getTrans();
 	osg::Vec3 spiral;
@@ -1539,9 +2130,18 @@ void Note::integrate(double time)
 	a *= MidiPlugin::instance()->acceleration;
 	velo = velo + a * time;
 	pos += (velo + spiral+toCenter) * time;
+	rot += spin*time* MidiPlugin::instance()->speedFactor;
+	osg::Quat currentRot = osg::Quat(rot[0], osg::X_AXIS, rot[1] * time, osg::Y_AXIS, rot[2] * time, osg::Z_AXIS);
 	nm.setTrans(pos);
+	nm.setRotate(currentRot);
+	nm= osg::Matrix::scale(noteScale, noteScale, noteScale)*nm;
 	transform->setMatrix(nm);
 }
+void Note::setInactive(bool state)
+{
+	inactive = state;
+}
+
 FrequencySurface::FrequencySurface(osg::Group * parent, AudioInStream *s) :WaveSurface(parent, s, s->outputSize / 4)
 {
 	lastMagnitudes = new double[width];

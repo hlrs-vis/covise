@@ -37,6 +37,11 @@
 #else
 #define CLUSTER_MARK() ;
 #endif
+#define UDP_MESSAGE_HEADER_SIZE  3 *sizeof(int)
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace covise
 {
 class Socket;
@@ -84,7 +89,6 @@ public:
           */
         SlaveData(int n);
         virtual ~SlaveData();
-
         // Result vector
         std::vector<void *> data;
 
@@ -122,6 +126,7 @@ public:
     {
         return (numSlaves > 0);
     };
+	void setStartSession(const std::string& sessionName);
     int readMaster(void *c, int n, bool mcastOverTCP);
     int readMaster(void *c, int n);
     int readMasterDraw(void *c, int n, bool mcastOverTCP);
@@ -136,9 +141,11 @@ public:
     void sendSlaves(const SlaveData &c);
     void sendSlavesDraw(const void *c, int n);
     void sendSlaves(const covise::Message *msg);
+	void sendSlaves(const vrb::UdpMessage* msg);
     int readMaster(covise::Message *msg);
     void sendMaster(const covise::Message *msg);
-    void sendMaster(const std::string &s);
+	int readMaster(vrb::UdpMessage* msg);
+	void sendMaster(const std::string &s);
     void readSlave(int i, std::string &s);
     int getID()
     {
@@ -155,7 +162,7 @@ public:
     int syncData(void *data, int size);
     int syncMessage(covise::Message *msg);
     bool syncBool(bool);
-    bool reduceOr(bool); // master will resceive logical or of all inputs
+    bool reduceOr(bool); // master will receive logical or of all inputs
     bool reduceAnd(bool);
     bool allReduceOr(bool); // master and slaves will receive logical or of all inputs
     bool allReduceAnd(bool);
@@ -195,6 +202,7 @@ public:
 #endif
 
 private:
+	std::string startSession;
     bool debugLevel(int l) const;
     int m_debugLevel;
     bool master;

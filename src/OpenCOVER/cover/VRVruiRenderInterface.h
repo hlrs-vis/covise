@@ -46,6 +46,7 @@ public:
     VRVruiRenderInterface();
     virtual ~VRVruiRenderInterface();
 
+    virtual vrui::vruiNode *getAlwaysVisibleGroup() override;
     virtual vrui::vruiNode *getScene() override;
 
     virtual vrui::vruiNode *getMenuGroup() override;
@@ -90,12 +91,10 @@ public:
 
     virtual double getFrameTime() const override;
 
-    virtual void remoteLock(int) override;
-    virtual void remoteUnLock(int) override;
-    virtual bool isLocked(int) override;
-    virtual bool isLockedByMe(int) override;
-
+	virtual int getClientId() override;
+	virtual bool isRemoteBlockNececcary() override;
 private:
+    vrui::OSGVruiNode *alwaysVisibleNode = nullptr;
     vrui::OSGVruiNode *groupNode = nullptr;
     vrui::OSGVruiNode *sceneNode = nullptr;
     vrui::OSGVruiMatrix *handMatrix = nullptr;

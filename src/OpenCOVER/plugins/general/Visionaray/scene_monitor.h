@@ -47,8 +47,8 @@ namespace scene
         osg::Vec4 ce_;
         float shininess_;
 
-        // Specular light state
-        bool specular_;
+        // Specular light factor
+        float specular_;
     };
 
 

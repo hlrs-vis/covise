@@ -133,7 +133,8 @@ SystemCover::SystemCover()
     record = false;
     fileNumber = 0;
     doRemoteFetch = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoRemoteFetch", false);
-
+	m_optimize = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoOptimize", true);
+	cerr << "vrml optimizer  = " << m_optimize << endl;
     if (coVRMSController::instance()->isMaster())
     {
         if (const char *cache = getenv("COCACHE"))
@@ -355,6 +356,11 @@ void SystemCover::update()
     }
 }
 
+bool SystemCover::doOptimize()
+{
+	return m_optimize;
+}
+
 void SystemCover::startCapture()
 {
     if (record)
@@ -511,124 +517,132 @@ double SystemCover::time()
 //      Return the path to the file in local temp dir.
 //      --> Handle vrb:// and agtk3://
 //      Also add file:// path substition here?
-const char *SystemCover::remoteFetch(const char *filename)
+std::string SystemCover::remoteFetch(const std::string& filename, bool isTmp)
 {
-    char *result = 0;
-    const char *buf = NULL;
-    int numBytes = 0;
-    static int working = 0;
-    if(!doRemoteFetch)
-    {
-        return NULL;
-    }
+	return coVRFileManager::instance()->findOrGetFile(filename);
+//    char *result = 0;
+//    const char *buf = NULL;
+//    int numBytes = 0;
+//    static int working = 0;
+//    if(!doRemoteFetch)
+//    {
+//        return NULL;
+//    }
+//
+//    if (working)
+//    {
+//        cerr << "WARNING!!! reentered remoteFetch!!!!" << endl;
+//        return NULL;
+//    }
+//
+//    working = 1;
+//
+//    if (strncmp(filename, "vrb://", 6) == 0)
+//    {
+//        //Request file from VRB
+//        std::cerr << "VRB file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+//        coTUIFileBrowserButton *locFB = this->mFileManager->getMatchingFileBrowserInstance(string(filename));
+//        std::string sresult = locFB->getFilename(filename).c_str();
+//        char *result = new char[sresult.size() + 1];
+//        strcpy(result, sresult.c_str());
+//        working = 0;
+//        return result;
+//    }
+//    else if (strncmp(filename, "agtk3://", 8) == 0)
+//    {
+//        //REquest file from AG data store
+//        std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+//        coTUIFileBrowserButton *locFB = this->mFileManager->getMatchingFileBrowserInstance(string(filename));
+//        working = 0;
+//        return locFB->getFilename(filename).c_str();
+//    }
+//
+//    if (vrbc || !coVRMSController::instance()->isMaster())
+//    {
+//        if (coVRMSController::instance()->isMaster())
+//        {
+//            TokenBuffer rtb;
+//            rtb << filename;
+//            rtb << vrbc->getID();
+//            Message m(rtb);
+//            m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
+//            cover->sendVrbMessage(&m);
+//        }
+//        int message = 1;
+//        Message *msg = new Message;
+//        do
+//        {
+//            if (coVRMSController::instance()->isMaster())
+//            {
+//                if (!vrbc->isConnected())
+//                {
+//                    message = 0;
+//                    coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
+//                    break;
+//                }
+//                else
+//                {
+//                    vrbc->wait(msg);
+//                }
+//                coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
+//            }
+//            if (coVRMSController::instance()->isMaster())
+//            {
+//                coVRMSController::instance()->sendSlaves(msg);
+//            }
+//            else
+//            {
+//                coVRMSController::instance()->readMaster((char *)&message, sizeof(message));
+//                if (message == 0)
+//                    break;
+//                // wait for message from master instead
+//                coVRMSController::instance()->readMaster(msg);
+//            }
+//            coVRCommunication::instance()->handleVRB(msg);
+//        } while (msg->type != COVISE_MESSAGE_VRB_SEND_FILE);
+//
+//        if ((msg->data) && (msg->type == COVISE_MESSAGE_VRB_SEND_FILE))
+//        {
+//            TokenBuffer tb(msg);
+//            int myID;
+	//std::string fn;
+//            tb >> myID; // this should be my ID
+	//tb >> fn; //this should be the requested file
+//            tb >> numBytes;
+//            buf = tb.getBinary(numBytes);
+//            if ((numBytes > 0) && (result = tempnam(0, "VR")))
+//            {
+//#ifndef _WIN32
+//                int fd = open(result, O_RDWR | O_CREAT, 0777);
+//#else
+//                int fd = open(result, O_RDWR | O_CREAT | O_BINARY, 0777);
+//#endif
+//                if (fd != -1)
+//                {
+//                    if (write(fd, buf, numBytes) != numBytes)
+//                    {
+//                        warn("remoteFetch: temp file write error\n");
+//                        free(result);
+//                        result = NULL;
+//                    }
+//                    close(fd);
+//                }
+//                else
+//                {
+//                    free(result);
+//                    result = NULL;
+//                }
+//            }
+//        }
+//        delete msg;
+//    }
+//    working = 0;
+//    return result;
+}
 
-    if (working)
-    {
-        cerr << "WARNING!!! reentered remoteFetch!!!!" << endl;
-        return NULL;
-    }
-
-    working = 1;
-
-    if (strncmp(filename, "vrb://", 6) == 0)
-    {
-        //Request file from VRB
-        std::cerr << "VRB file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
-        coTUIFileBrowserButton *locFB = this->mFileManager->getMatchingFileBrowserInstance(string(filename));
-        std::string sresult = locFB->getFilename(filename).c_str();
-        char *result = new char[sresult.size() + 1];
-        strcpy(result, sresult.c_str());
-        working = 0;
-        return result;
-    }
-    else if (strncmp(filename, "agtk3://", 8) == 0)
-    {
-        //REquest file from AG data store
-        std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
-        coTUIFileBrowserButton *locFB = this->mFileManager->getMatchingFileBrowserInstance(string(filename));
-        working = 0;
-        return locFB->getFilename(filename).c_str();
-    }
-
-    if (vrbc || !coVRMSController::instance()->isMaster())
-    {
-        if (coVRMSController::instance()->isMaster())
-        {
-            TokenBuffer rtb;
-            rtb << filename;
-            rtb << vrbc->getID();
-            Message m(rtb);
-            m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
-            cover->sendVrbMessage(&m);
-        }
-        int message = 1;
-        Message *msg = new Message;
-        do
-        {
-            if (coVRMSController::instance()->isMaster())
-            {
-                if (!vrbc->isConnected())
-                {
-                    message = 0;
-                    coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
-                    break;
-                }
-                else
-                {
-                    vrbc->wait(msg);
-                }
-                coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
-            }
-            if (coVRMSController::instance()->isMaster())
-            {
-                coVRMSController::instance()->sendSlaves(msg);
-            }
-            else
-            {
-                coVRMSController::instance()->readMaster((char *)&message, sizeof(message));
-                if (message == 0)
-                    break;
-                // wait for message from master instead
-                coVRMSController::instance()->readMaster(msg);
-            }
-            coVRCommunication::instance()->handleVRB(msg);
-        } while (msg->type != COVISE_MESSAGE_VRB_SEND_FILE);
-
-        if ((msg->data) && (msg->type == COVISE_MESSAGE_VRB_SEND_FILE))
-        {
-            TokenBuffer tb(msg);
-            int myID;
-            tb >> myID; // this should be my ID
-            tb >> numBytes;
-            buf = tb.getBinary(numBytes);
-            if ((numBytes > 0) && (result = tempnam(0, "VR")))
-            {
-#ifndef _WIN32
-                int fd = open(result, O_RDWR | O_CREAT, 0777);
-#else
-                int fd = open(result, O_RDWR | O_CREAT | O_BINARY, 0777);
-#endif
-                if (fd != -1)
-                {
-                    if (write(fd, buf, numBytes) != numBytes)
-                    {
-                        warn("remoteFetch: temp file write error\n");
-                        free(result);
-                        result = NULL;
-                    }
-                    close(fd);
-                }
-                else
-                {
-                    free(result);
-                    result = NULL;
-                }
-            }
-        }
-        delete msg;
-    }
-    working = 0;
-    return result;
+int SystemCover::getFileId(const char* url)
+{
+	return coVRFileManager::instance()->getFileId(url);
 }
 
 void SystemCover::setSyncMode(const char *mode)
@@ -683,15 +697,9 @@ void SystemCover::sendAndDeleteMessage(VrmlMessage *msg)
     {
         cerr << "SystemCover::sendAndDeleteMessage: msg->pos > msg->size !!!" << endl;
     }
+    Message message{ COVISE_MESSAGE_RENDER_MODULE, DataHandle{msg->buf, msg->size, false} };
+    cover->sendVrbMessage(&message);
 
-    Message *message = new Message();
-    message->data = msg->buf;
-    message->type = COVISE_MESSAGE_RENDER_MODULE;
-    message->length = msg->size;
-
-    cover->sendVrbMessage(message);
-
-    delete message;
     delete msg;
 }
 
@@ -1138,10 +1146,13 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
         {
 
             // run optimization over the scene graph
-            osgUtil::Optimizer optimzer;
-            optimzer.optimize(osgNode);
+			if (m_optimize)
+			{
+				osgUtil::Optimizer optimzer;
+				optimzer.optimize(osgNode);
+			}
             std::string n(name);
-            if (coVRMSController::instance()->isMaster())
+            if (coVRMSController::instance()->isMaster() || coVRFileManager::instance()->isInTmpDir(n))
                 osgDB::writeNodeFile(*osgNode, n.c_str());
         }
     }

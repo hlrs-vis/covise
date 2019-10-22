@@ -1,0 +1,9 @@
+SET(HEADERS
+  ReadBinary.h
+)
+SET(SOURCES
+  ReadBinary.cpp
+)
+ADD_COVISE_MODULE(IO ReadBinary ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadBinary coApi coAppl coCore)
+COVISE_INSTALL_TARGET(ReadBinary)

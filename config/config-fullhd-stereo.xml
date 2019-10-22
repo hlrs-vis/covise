@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- fullhd side-by-side stereo -->
+
+<COCONFIG version="1" >
+ <GLOBAL>
+  <COVER>
+   <TabletUI host="141.58.8.23" />
+   <SceneSize value="1000" />
+
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <WindowConfig>
+    <Window type="Qt" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="100" top="100" name="0" embedded="false" decoration="true" />
+   </WindowConfig>
+
+   <ChannelConfig>
+       <Channel stereoMode="HORIZONTAL_SPLIT" comment="FRONT" channel="0" windowIndex="0" viewportIndex="0" screenIndex="0" name="0" />
+   </ChannelConfig>
+  </COVER>
+ </GLOBAL>
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+</COCONFIG>

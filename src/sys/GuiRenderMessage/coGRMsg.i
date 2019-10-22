@@ -142,4 +142,6 @@
 %include coGRObjSetAppearanceMsg.h
 %include coGRObjKinematicsStateMsg.h
 
+using namespace std;
+
 

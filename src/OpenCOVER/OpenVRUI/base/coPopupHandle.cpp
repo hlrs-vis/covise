@@ -86,30 +86,9 @@ coPopupHandle::coPopupHandle(const string &name)
     entryName = "COVER.VRUI." + name + ".Menu.Size";
     myScale = covise::coCoviseConfig::getFloat(entryName.c_str(), myScale);
 
-    vruiMatrix *transMatrix = vruiRendererInterface::the()->createMatrix();
-    vruiMatrix *rotateMatrix = vruiRendererInterface::the()->createMatrix();
-    vruiMatrix *scaleMatrix = vruiRendererInterface::the()->createMatrix();
-    vruiMatrix *matrix = vruiRendererInterface::the()->createMatrix();
-    vruiMatrix *rxMatrix = vruiRendererInterface::the()->createMatrix();
-
-    transMatrix->makeTranslate(x, y, z);
-    rotateMatrix->makeEuler(h, p, r);
-    scaleMatrix->makeScale(myScale, myScale, myScale);
-    rxMatrix->makeEuler(0.0, 90.0, 0.0);
-
-    matrix->makeIdentity();
-    matrix->mult(rxMatrix);
-    matrix->mult(scaleMatrix);
-    matrix->mult(rotateMatrix);
-    matrix->mult(transMatrix);
-
+    vruiMatrix *matrix = coUIElement::getMatrixFromPositionHprScale(x, y, z, h, p, r, myScale);
     getDCS()->setMatrix(matrix);
-
-    vruiRendererInterface::the()->deleteMatrix(transMatrix);
-    vruiRendererInterface::the()->deleteMatrix(rotateMatrix);
-    vruiRendererInterface::the()->deleteMatrix(scaleMatrix);
     vruiRendererInterface::the()->deleteMatrix(matrix);
-    vruiRendererInterface::the()->deleteMatrix(rxMatrix);
 
     addElement(titleFrame);
 

@@ -692,10 +692,10 @@ void ARToolKit::update()
         //}
         //delete[] msg_t;
         //    }
-        if (msg.data != NULL)
+        if (msg.data.data() != nullptr)
         {
-            char *datablock = &msg.data[strlen(&msg.data[1]) + 2];
-            if (strcmp(&(msg.data[1]), "AR_VIDEO_FRAME") == 0)
+            char *datablock = &msg.data.accessData()[strlen(&msg.data.data()[1]) + 2];
+            if (strcmp(&(msg.data.data()[1]), "AR_VIDEO_FRAME") == 0)
             {
                 remoteAR->receiveImage(datablock);
             }
@@ -811,11 +811,6 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
         if (pattID <= 0)
         {
             fprintf(stderr, "pattern load error for %s!!\n", pattern.c_str());
-            pattID = 0;
-        }
-        if (pattID > 100)
-        {
-            fprintf(stderr, "Pattern ID out of range !!\n");
             pattID = 0;
         }
     }

@@ -86,10 +86,10 @@ void PlotPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
     {
         cm = new PlotCommunication();
 
-        if (msg->length > 0)
+        if (msg->data.length() > 0)
         {
             //DBG  cerr << "RENDERER: message data length > 0 " << endl;
-            cm->parseMessage(msg->data, &token[0], MAXTOKENS, sep);
+            cm->parseMessage(msg->data.accessData(), &token[0], MAXTOKENS, sep);
         }
 
         if (msg->type != COVISE_MESSAGE_QUIT && token[0] == NULL)
@@ -107,7 +107,6 @@ void PlotPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
             case COVISE_MESSAGE_QUIT:
                 print_comment(__LINE__, __FILE__, "Module correctly finished");
                 cm->sendQuitMessage();
-                msg->data = 0L;
                 delete appmod;
                 delete msg;
                 bailout();
@@ -237,7 +236,6 @@ void PlotPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
             } // end switch
         }
         delete cm;
-        delete[] msg -> data;
         delete msg;
     } // end while
 }

@@ -56,6 +56,8 @@
 #include "coVRPlugin.h"
 
 #include <vrbclient/VrbMessageSenderInterface.h>
+#include <net/message_types.h>
+
 namespace opencover {
 namespace ui {
 class ButtonGroup;
@@ -69,13 +71,20 @@ namespace covise {
 class Message;
 }
 
+namespace grmsg {
+class coGRMsg;
+}
+
 #define MAX_NUMBER_JOYSTICKS 64
 
 namespace osg
 {
 class MatrixTransform;
 }
-
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace osgText
 {
 class Font;
@@ -193,6 +202,7 @@ class COVEREXPORT coVRPluginSupport
     friend class OpenCOVER;
     friend class fasi;
     friend class fasi2;
+    friend class mopla;
     friend class coVRMSController;
     friend class coIntersection;
 
@@ -310,8 +320,11 @@ public:
 
     bool isVRBconnected();
 
-    //! send a message either via COVISE connection or via VRB
+    //! send a message either via COVISE connection or via tcp to VRB
     bool sendVrbMessage(const covise::Message *msg) const;
+
+	//! send a message either via COVISE connection or via udp to VRB
+	bool sendVrbUdpMessage(const vrb::UdpMessage* msg) const;
 
     // tracker data
 
@@ -523,7 +536,12 @@ public:
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
     VRBMessageSender *getSender();
+	void connectToCovise(bool connected);
+	bool connectedToCovise();
+
+    bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
 private:
+	bool m_connectedToCovise = false;
     VRBMessageSender m_sender;
     void setFrameRealTime(double ft);
 

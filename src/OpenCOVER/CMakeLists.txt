@@ -28,6 +28,12 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     option(COVISE_USE_OSMESA "Use OSMesa OpenGL library for CPU based off-screen rendering" OFF)
 endif()
 
+option(COVER_ENABLE_VOIP "Enable VoIP linphone client plugin" OFF)
+mark_as_advanced(COVER_ENABLE_VOIP)
+
+option(COVER_ENABLE_ARUCO "Enable ARUCO marker tracking plugin" OFF)
+mark_as_advanced(COVER_ENABLE_ARUCO)
+
 macro (GETENV_PATH var name)
    set(${var} $ENV{${name}})
    if (WIN32)
@@ -58,7 +64,7 @@ if(COVISE_OPENCOVER_INTERNAL_PROJECT)
 
    set(COVISE_GPU_LIBRARIES ${COVISE_GPU_LIBRARY})
 
-   set(COVISE_INCLUDE_DIR ../kernel)
+   set(COVISE_INCLUDE_DIRS ../kernel)
    set(COVISE_FOUND TRUE)
 else()
    cmake_minimum_required(VERSION 3.1)
@@ -185,6 +191,8 @@ ADD_SUBDIRECTORY(mpiwrapper)
 
 ADD_SUBDIRECTORY(vrml97)
 ADD_SUBDIRECTORY(plugins)
+ADD_SUBDIRECTORY(ManagedOpenCOVER)
+ADD_SUBDIRECTORY(Sur40COVER)
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     IF(${CMAKE_VERSION} VERSION_GREATER "2.8.2")

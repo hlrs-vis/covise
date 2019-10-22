@@ -12,6 +12,7 @@
 #include <cstring>
 
 using namespace grmsg;
+using namespace std;
 
 GRMSGEXPORT coGRGenericParamChangedMsg::coGRGenericParamChangedMsg(const char *msg)
     : coGRMsg(msg)

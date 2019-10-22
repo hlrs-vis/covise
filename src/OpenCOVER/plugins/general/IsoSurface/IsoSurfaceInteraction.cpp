@@ -20,8 +20,10 @@
 
 using namespace opencover;
 
+// match these with COVISE and Vistle IsoSurface modules
 const char *IsoSurfaceInteraction::ISOVALUE = "isovalue";
 const char *IsoSurfaceInteraction::ISOPOINT = "isopoint";
+const char *IsoSurfaceInteraction::INTERACTOR = "point_or_value";
 
 IsoSurfaceInteraction::IsoSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, IsoSurfacePlugin *p)
     : ModuleInteraction(container, inter, pluginName)
@@ -88,7 +90,8 @@ IsoSurfaceInteraction::createMenu()
         inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
         isoValue_ = value;
         plugin->getSyncInteractors(inter_);
-        plugin->setSliderParam("isovalue", minValue_, maxValue_, isoValue_);
+        plugin->setSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
+        plugin->setChoiceParam(INTERACTOR, INTERACTOR_VALUE);
         plugin->executeModule();
     });
 }

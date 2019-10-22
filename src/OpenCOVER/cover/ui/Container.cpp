@@ -2,6 +2,7 @@
 #include "Element.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace opencover {
 namespace ui {
@@ -18,49 +19,71 @@ size_t Container::numChildren() const
 
 bool Container::add(Element *elem, int where)
 {
-    auto it = std::find(m_children.begin(), m_children.end(), elem);
-    if (it == m_children.end())
-    {
-        if (where == Front)
-            where = 0;
+    auto idx = index(elem);
+    if (idx >= 0)
+        return false;
 
-        if (where >= 0 && size_t(where) < m_children.size())
-        {
-            m_children.insert(m_children.begin()+where, elem);
-            elem->m_containers.insert(this);
-        }
-        else
-        {
-            m_children.push_back(elem);
-            elem->m_containers.insert(this);
-        }
-        return true;
+    elem->m_containers.insert(this);
+
+    if (where == KeepLast)
+    {
+        m_children.emplace_back(elem, where);
     }
-    return false;
+    else if (where == KeepFirst)
+    {
+        auto it = std::find_if(m_children.begin(), m_children.end(), [](const Child &c){ return c.where!=KeepFirst; });
+        m_children.emplace(it, elem, where);
+    }
+    else if (where == Append)
+    {
+        auto it = std::find_if(m_children.begin(), m_children.end(), [](const Child &c){ return c.where==KeepLast; });
+        m_children.emplace(it, elem, it==m_children.begin() ? 0 : (it-1)->where+1);
+    }
+    else
+    {
+        auto it = std::find_if(m_children.begin(), m_children.end(), [where](const Child &c){ return c.where != KeepFirst && c.where != KeepLast && c.where > where; });
+        m_children.emplace(it, elem, where);
+    }
+
+    return true;
 }
 
 bool Container::remove(Element *elem)
 {
-    auto it = std::find(m_children.begin(), m_children.end(), elem);
-    if (it != m_children.end())
-    {
-        m_children.erase(it);
-        elem->m_containers.erase(this);
-        return true;
-    }
-    return false;
+    auto it = std::find_if(m_children.begin(), m_children.end(), [elem](const Child &c){
+        return c.elem == elem;
+    });
+
+    if (it == m_children.end())
+        return false;
+
+    m_children.erase(it);
+    elem->m_containers.erase(this);
+    return true;
 }
 
 Element *Container::child(size_t index) const
 {
-    return m_children[index];
+    return m_children[index].elem;
+}
+
+int Container::index(const Element *elem) const
+{
+    auto it = std::find_if(m_children.begin(), m_children.end(), [elem](const Child &c){
+        return c.elem == elem;
+    });
+
+    if (it == m_children.end())
+        return -1;
+
+    return it - m_children.begin();
 }
 
 void Container::clearChildren()
 {
     while (!m_children.empty())
     {
-        remove(m_children.back());
+        remove(m_children.back().elem);
     }
 }
 

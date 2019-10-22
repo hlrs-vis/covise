@@ -21,6 +21,7 @@ if(NOT GDAL_FOUND)
 endif()
 
 SET(HEADERS
+  coEntity.h
   coTrafficSimulation.h
   TrafficSimulation.h
   Vehicle.h
@@ -42,6 +43,7 @@ SET(HEADERS
   projects/radarcones.hpp
 )
 SET(SOURCES
+  coEntity.cpp
   coTrafficSimulation.cpp
   TrafficSimulation.cpp
   Vehicle.cpp

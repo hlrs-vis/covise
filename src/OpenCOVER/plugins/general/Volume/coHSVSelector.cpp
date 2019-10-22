@@ -209,7 +209,7 @@ void coHSVSelector::sendLockMessageLocal()
 int coHSVSelector::hit(vruiHit *hit)
 {
 
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return ACTION_DONE;
 

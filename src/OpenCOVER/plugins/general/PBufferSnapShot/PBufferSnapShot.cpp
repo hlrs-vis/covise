@@ -358,7 +358,7 @@ void PBufferSnapShot::preFrame()
     {
         TokenBuffer tb;
         tb << lastSavedFile.c_str();
-        cover->sendMessage((coVRPlugin *)this, coVRPluginSupport::TO_ALL, PluginMessageTypes::PBufferDoneSnapshot, tb.get_length(), tb.get_data());
+        cover->sendMessage((coVRPlugin *)this, coVRPluginSupport::TO_ALL, PluginMessageTypes::PBufferDoneSnapshot, tb.getData().length(), tb.getData().data());
         lastSavedFile.clear();
     }
     //cerr << "PBufferSnapShot::preFrame info: called" << endl;
@@ -818,7 +818,7 @@ void PBufferSnapShot::message(int toWhom, int type, int len, const void *buf)
     {
     case PluginMessageTypes::PBufferDoSnap:
     {
-        TokenBuffer tb((const char *)buf, len);
+        TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
         std::string path;
 
         tb >> path;
@@ -831,7 +831,7 @@ void PBufferSnapShot::message(int toWhom, int type, int len, const void *buf)
     }
     case PluginMessageTypes::PBufferDoSnapFile:
     {
-        TokenBuffer tb((const char *)buf, len);
+        TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
         std::string file;
         tb >> file;
         snapID++;

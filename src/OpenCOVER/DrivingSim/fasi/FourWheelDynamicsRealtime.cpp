@@ -9,6 +9,8 @@
 
 #include "GasPedal.h"
 #include <fasi.h>
+using namespace opencover;
+
 
 FourWheelDynamicsRealtime::FourWheelDynamicsRealtime()
 #ifdef MERCURY

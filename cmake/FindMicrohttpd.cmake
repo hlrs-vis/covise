@@ -24,8 +24,8 @@ FIND_PATH(MICROHTTPD_INCLUDE_DIR "microhttpd.h"
   DOC "microhttpd - Headers"
 )
 
-SET(MICROHTTPD_NAMES microhttpd)
-SET(MICROHTTPD_DBG_NAMES microhttpdd)
+SET(MICROHTTPD_NAMES microhttpd libmicrohttpd)
+SET(MICROHTTPD_DBG_NAMES microhttpdd libmicrohttpdd)
 
 FIND_LIBRARY(MICROHTTPD_LIBRARY NAMES ${MICROHTTPD_NAMES}
   PATHS
@@ -51,8 +51,16 @@ IF(MSVC)
     PATHS
     $ENV{MICROHTTPD_HOME}/lib
     $ENV{EXTERNLIBS}/microhttpd/lib
+    PATH_SUFFIXES debug/lib debug/lib64 lib lib64
     DOC "microhttpd - Library (Debug)"
   )
+
+  if (NOT MICROHTTPD_LIBRARY_DEBUG)
+      FIND_LIBRARY(MICROHTTPD_LIBRARY_DEBUG NAMES ${MICROHTTPD_DBG_NAMES} ${MICROHTTPD_NAMES}
+          PATH_SUFFIXES debug/lib debug/lib64
+          DOC "microhttpd - Library (Debug)"
+      )
+  endif()
   
   IF(MICROHTTPD_LIBRARY_DEBUG AND MICROHTTPD_LIBRARY)
     SET(MICROHTTPD_LIBRARIES optimized ${MICROHTTPD_LIBRARY} debug ${MICROHTTPD_LIBRARY_DEBUG})

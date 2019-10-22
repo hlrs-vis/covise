@@ -93,6 +93,7 @@ IsoSurfacePoint::preFrame()
 
             plugin->getSyncInteractors(inter_);
             plugin->setVectorParam(IsoSurfaceInteraction::ISOPOINT, isoPoint_[0], isoPoint_[1], isoPoint_[2]);
+            plugin->setChoiceParam(IsoSurfaceInteraction::INTERACTOR, IsoSurfaceInteraction::INTERACTOR_POINT);
             plugin->executeModule();
 
             wait_ = true;
@@ -108,6 +109,7 @@ IsoSurfacePoint::preFrame()
             isoPoint_ = pointPickInteractor_->getPos();
             plugin->getSyncInteractors(inter_);
             plugin->setVectorParam(IsoSurfaceInteraction::ISOPOINT, isoPoint_[0], isoPoint_[1], isoPoint_[2]);
+            plugin->setChoiceParam(IsoSurfaceInteraction::INTERACTOR, IsoSurfaceInteraction::INTERACTOR_POINT);
             plugin->executeModule();
 
             wait_ = true;

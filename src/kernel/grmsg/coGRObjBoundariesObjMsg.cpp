@@ -8,6 +8,7 @@
 #include "coGRObjBoundariesObjMsg.h"
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjBoundariesObjMsg::coGRObjBoundariesObjMsg(Mtype type, const char *obj_name, const char *boundariesName, float front, float back, float left, float right, float top, float bottom)

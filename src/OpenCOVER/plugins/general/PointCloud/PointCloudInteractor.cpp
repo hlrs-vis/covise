@@ -54,10 +54,12 @@ void
 PointCloudInteractor::startInteraction()
 {
     if (cover->debugLevel(3))
+    {
         fprintf(stderr, "\nPointCloudInteractor::startMove\n");
+    }
 
     // store hand mat
-    Matrix initHandMat = cover->getPointerMat();
+    const Matrix &initHandMat = cover->getPointerMat();
     // get postion and direction of pointer
     m_initHandPos = initHandMat.preMult(Vec3(0.0, 0.0, 0.0));
     m_initHandDirection = initHandMat.preMult(Vec3(0.0, 1.0, 0.0));
@@ -71,11 +73,15 @@ void
 PointCloudInteractor::stopInteraction()
 {
     if (cover->debugLevel(3))
+    {
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
-
+    }
     while (previewPointsGroup->getNumChildren() > 0)
+    {
         previewPointsGroup->removeChild(0,1);
+    }
 
+        }
     previewPoints.clear();
     if (!m_deselection)
     {
@@ -268,10 +274,10 @@ PointCloudInteractor::stopInteraction()
 bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 {
     bool hitPointSuccess = false;
-    if (m_files)
+    if (m_files != nullptr)
     {
         Matrix currHandMat = cover->getPointerMat();
-        Matrix invBase = cover->getInvBaseMat();
+        const Matrix &invBase = cover->getInvBaseMat();
 
         currHandMat = currHandMat * invBase;
         Vec3 currHandBegin = currHandMat.preMult(Vec3(0.0, 0.0, 0.0));
@@ -527,7 +533,9 @@ void
 PointCloudInteractor::doInteraction()
 {
     if (cover->debugLevel(3))
+    {
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
+    }
 	if (type != ButtonC)
 	{
 		pointSelection bestPoint;
@@ -741,9 +749,13 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
         if (previewPointsGroup->getNumChildren() == 0)
+        {
             previewPointsGroup->addChild(sphereTransformation);
+        }
         else
+        {
             previewPointsGroup->setChild(0,sphereTransformation);
+        }
         previewPoints.clear();
         previewPoints.push_back(selectedPoint);
     }
@@ -785,7 +797,9 @@ void PointCloudInteractor::updateMessage(vector<pointSelection> points)
     for (auto iter=points.begin(); iter !=points.end(); iter++)
     {
         if (iter->isBoundaryPoint)
+        {
             fprintf(stderr, "PointCloudInteractor::updateMessage sending boundary point!\n");
+        }
     }
 }
 
@@ -798,7 +812,9 @@ PointCloudInteractor::LinePointMeasure(Vec3 center, Vec3 handPos, Vec3 handDirec
     double c = sqrt(pMinusC * pMinusC - b * b);
     //double d = pMinusC.length();
     if (pMinusC.length()==0.)
+    {
         return 0.;
+    }
     
     double d = c * pMinusC.length();
     return d;
@@ -819,11 +835,8 @@ PointCloudInteractor::LinePointDistance(Vec3 center, Vec3 handPos, Vec3 handDire
 bool PointCloudInteractor::hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, Vec3 center, float radius)
 {
     float distance = LinePointDistance(center,handPos, handDir);
-    if (distance<=radius)
-    {
-        return true;
-    }
-    return false;
+
+    return (distance <= radius);
 }
 
 bool PointCloudInteractor::hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, PointSet *pointset)
@@ -918,7 +931,7 @@ void PointCloudInteractor::resize()
 bool PointCloudInteractor::deselectPoint()
 {
     bool hitPointSuccess = false;
-    if (m_files)
+    if (m_files != nullptr)
     {
 		if (type == ButtonC)
 		{
@@ -985,9 +998,13 @@ void PointCloudInteractor::setRotation(bool rotation)
 void PointCloudInteractor::setDeselection(bool deselection)
 {
     if (deselection)
+    {
         m_deselection = true;
+    }
     else
+    {
         m_deselection = false;
+    }
 }
 
 void PointCloudInteractor::setSelectionSetIndex(int selectionSet)

@@ -147,7 +147,7 @@ QString DomListViewItem::text(int column) const
     case 3:
         return node.attribute("configname");
     default:
-        return QString::null;
+        return QString();
     }
 }
 
@@ -242,7 +242,7 @@ QString DomListViewItem::key(int, bool) const
         if (node == list.item(ctr))
             return QString().setNum(ctr);
     }
-    return QString::null;
+    return QString();
 }
 
 QString DomListViewItem::getScope() const

@@ -103,6 +103,7 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
     , oldNi(0)
     , resetVPFlag(true)
     , d_WasEncrypted(false)
+	, d_loadSuccess(false)
 {
     d_nodes.addToScene(this, sceneUrl);
     d_backgrounds = new VrmlNodeList;
@@ -132,8 +133,14 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
         {
             cache = new InlineCache(localCopy);
         }
-        if (!load(sceneUrl, localCopy))
-            System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		if (!load(sceneUrl, localCopy))
+		{
+			System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		}
+		else
+		{
+			d_loadSuccess = true;
+		}
     }
 }
 
@@ -144,7 +151,11 @@ void VrmlScene::setMenuVisible(bool vis)
 
 VrmlScene::~VrmlScene()
 {
-    System::the->destroyMenu();
+	if (d_namespace != NULL)
+	{
+		VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	}
+	System::the->destroyMenu();
     d_nodes.addToScene(0, 0);
     d_nodes.removeChildren();
 
@@ -403,8 +414,8 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
     {
         tryUrl = new Doc(url, d_url);
     }
-
-    VrmlNamespace *newScope = new VrmlNamespace();
+	;
+    VrmlNamespace *newScope = new VrmlNamespace(System::the->getFileId(url));
     bool wasEncrypted = false;
     VrmlMFNode *newNodes = readWrl(tryUrl, newScope, &wasEncrypted);
     d_WasEncrypted = d_WasEncrypted | wasEncrypted;
@@ -654,6 +665,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             VrmlNamespace nodeDefs;
             if (ns)
                 yyNodeTypes = ns;
+			
             else
                 yyNodeTypes = &nodeDefs;
 
@@ -783,13 +795,13 @@ VrmlMFNode *VrmlScene::readFunction(LoadCB cb, Doc *url, VrmlNamespace *ns)
 // This should read only PROTOs and return when the first/specified PROTO
 // is read...
 
-VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative)
+VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative, int parentId)
 {
     // This is a problem. The nodeType of the EXTERNPROTO has a namespace
     // that refers back to this namespace (protos), which will be invalid
     // after we exit this function. I guess it needs to be allocated and
     // ref counted too...
-    VrmlNamespace *protos = new VrmlNamespace(); // Leek, but better than deleting
+    VrmlNamespace *protos = new VrmlNamespace(parentId); // Leek, but better than deleting
     // because this would destroy the just read PROTO
     Doc urlDoc;
     VrmlNodeType *def = 0;

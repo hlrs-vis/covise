@@ -39,7 +39,7 @@ int coErr::m_file_lev = 99; // don't know yet
 void bcHelperDebug(const char *msg, ...)
 {
     char buf[1024];
-    char final[1024];
+    char final[1024+16];
     //QFileInfo fi(__MY_FILE__);
     va_list ap;
     va_start(ap, msg);
@@ -189,7 +189,7 @@ void coErr::error(const char *msg, ...)
     }
     if (m_console_lev > 0)
     {
-        char tmpstr[1024];
+        char tmpstr[1024+16];
         sprintf(tmpstr, "Error: %s\n", buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
@@ -215,7 +215,7 @@ void coErr::warning(const char *msg, ...)
     }
     if (m_console_lev > 1)
     {
-        char tmpstr[1024];
+        char tmpstr[1024+16];
         sprintf(tmpstr, "Warning: %s\n", buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
@@ -241,7 +241,7 @@ void coErr::info(const char *msg, ...)
     }
     if (m_console_lev > 2)
     {
-        char tmpstr[1024];
+        char tmpstr[1024+16];
         sprintf(tmpstr, "Info: %s\n", buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
@@ -267,7 +267,7 @@ void coErr::fl_error(const char *msg, ...)
     }
     if (m_console_lev > 0)
     {
-        char tmpstr[1024];
+        char tmpstr[1024+16];
         sprintf(tmpstr, "%s:%i # Error: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
@@ -293,7 +293,7 @@ void coErr::fl_warning(const char *msg, ...)
     }
     if (m_console_lev > 1)
     {
-        char tmpstr[1024];
+        char tmpstr[1024+16];
         sprintf(tmpstr, "%s:%i # Warning: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
@@ -319,7 +319,7 @@ void coErr::fl_info(const char *msg, ...)
     }
     if (m_console_lev > 2)
     {
-        char tmpstr[1024];
+        char tmpstr[1024+16];
         sprintf(tmpstr, "%s:%i # Info: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);

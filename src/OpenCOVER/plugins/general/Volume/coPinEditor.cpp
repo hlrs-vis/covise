@@ -427,7 +427,7 @@ void coPinEditor::setMax(float m, int context)
 
 int coPinEditor::hit(vruiHit *hit)
 {
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return ACTION_DONE;
 
@@ -765,7 +765,7 @@ void coPinEditor::update()
     }
 
     static int oldSyncMode = -1;
-    if (oldSyncMode != coVRCollaboration::instance()->getSyncMode())
+    if (oldSyncMode != coVRCollaboration::instance()->getCouplingMode())
     {
         if (currentPin)
         {
@@ -777,9 +777,9 @@ void coPinEditor::update()
                 sendOngoingMessage(message);
             }
         }
-        oldSyncMode = coVRCollaboration::instance()->getSyncMode();
+        oldSyncMode = coVRCollaboration::instance()->getCouplingMode();
     }
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return;
     if (interactionB->isRunning())
@@ -991,7 +991,7 @@ void coPinEditor::selectPin(float x, float y)
       }*/
         currentPin = minPin;
         highlightCurrent();
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
         {
             static char message[100];
             sprintf(message, "E%d", currentPin->getID());

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRShowPresentationpointMsg::coGRShowPresentationpointMsg(const char *msg)

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  NNSample.cpp
+)
+
+SET(EXTRASOURCES
+  NNSample.h
+)
+
+ADD_COVISE_MODULE(Interpolator NNSample ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(NNSample  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(NNSample)

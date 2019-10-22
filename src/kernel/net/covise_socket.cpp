@@ -972,7 +972,7 @@ int Socket::available(void)
     return retval;
 }
 
-int Socket::Read(void *buf, unsigned nbyte)
+int Socket::Read(void *buf, unsigned nbyte, char* ip)
 {
     int no_of_bytes = 0;
 
@@ -1144,35 +1144,32 @@ void Socket::print()
 #endif
 }
 
-UDPSocket::UDPSocket(char *address, int p)
+UDPSocket::UDPSocket(int p,const char *address)
 {
-    struct sockaddr_in addr;
-    struct in_addr grpaddr;
-    int i;
-    this->connected = false;
-
-    for (i = 0; i < sizeof(addr); i++)
-        ((char *)&addr)[i] = 0;
-
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-
-    //grpaddr.s_addr = inet_addr(address);
-	int err = inet_pton(AF_INET, address, &grpaddr.s_addr);
-	if (err != 1)
-	{
-		sock_id = -1;
-		return;
-	}
-
-    addr.sin_port = htons(p);
-
-    sock_id = (int)socket(AF_INET, SOCK_DGRAM, 0);
+	port = p;
+    this->connected = false;	
+    sock_id = (int)socket(AF_INET, SOCK_DGRAM, 0);	
     if (sock_id < 0)
     {
         sock_id = -1;
         return;
     }
+	memset((char*)& s_addr_in, 0, sizeof(s_addr_in));
+	s_addr_in.sin_family = AF_INET;
+	s_addr_in.sin_addr.s_addr = INADDR_ANY;
+	s_addr_in.sin_port = htons(port);
+	sockaddr_in c_addr_in = s_addr_in; //save adress in s_addr_in for sending, but bind without it
+	if (address)
+	{
+		int err = inet_pton(AF_INET, address, &s_addr_in.sin_addr.s_addr);
+		if (err != 1)
+		{
+			sock_id = -1;
+			return;
+		}
+	}
+
+
 #ifndef _WIN32
 // Make the sock_id non-blocking so it can read from the net faster
 //    if (fcntl(sock_id, F_SETFL, O_NDELAY) < 0) {
@@ -1193,38 +1190,86 @@ UDPSocket::UDPSocket(char *address, int p)
 
     // Assign a name to the socket.
     errno = 0;
-    if (bind(sock_id, (sockaddr *)(void *)&addr, sizeof(addr)) < 0)
+	if (bind(sock_id, (sockaddr*)(void*)& c_addr_in, sizeof(c_addr_in)) < 0)
     {
         fprintf(stderr, "binding of udp socket to port %d failed: %s\n",
                 p, coStrerror(getErrno()));
         sock_id = -1;
         return;
     }
-
-    // Indicate our interest in receiving packets sent to the mcast address.
-    struct ip_mreq mreq;
-    mreq.imr_multiaddr = grpaddr;
-    mreq.imr_interface.s_addr = INADDR_ANY;
-    if (setsockopt(sock_id, IPPROTO_IP, IP_ADD_MEMBERSHIP,
-                   (char *)&mreq, sizeof(mreq)) < 0)
-    {
-        LOGINFO("Could not add multicast address to socket");
-        sock_id = -1;
-        return;
-    }
-    // Set up the destination address for packets we send out.
-    s_addr_in = addr;
-    s_addr_in.sin_addr = grpaddr;
+	
+	if (!address)
+	{
+		host = new Host(s_addr_in.sin_addr.s_addr);
+	}
 }
+
 
 int UDPSocket::write(const void *buf, unsigned nbyte)
 {
     return (sendto(sock_id, (char *)buf, nbyte, 0, (sockaddr *)(void *)&s_addr_in, sizeof(struct sockaddr_in)));
 }
+int UDPSocket::writeTo(const void* buf, unsigned nbyte, const char*addr)
+{
+	struct sockaddr_in target = s_addr_in;
+	if (addr)
+	{
+		int err = inet_pton(AF_INET, addr, &target.sin_addr.s_addr);
+		if (err != 1)
+		{
+			return -1;
+		}
+	}
+	return (sendto(sock_id, (char*)buf, nbyte, 0, (sockaddr*)(void*)& target, sizeof(struct sockaddr_in)));
+}
 int UDPSocket::read(void *buf, unsigned nbyte)
 {
     return (recvfrom(sock_id, (char *)buf, nbyte, 0, NULL, 0));
 }
+int UDPSocket::Read(void* buf, unsigned nbyte, char* ip)
+{
+	struct timeval stTimeOut;
+
+	fd_set stReadFDS;
+
+	FD_ZERO(&stReadFDS);
+
+	// Timeout of one second
+	stTimeOut.tv_sec = 0;
+	stTimeOut.tv_usec = 0;
+
+	FD_SET(sock_id, &stReadFDS);
+	int retval = select(sock_id  + 1, &stReadFDS, 0, 0, &stTimeOut);
+	static bool first = true;
+	if (retval < 0)
+	{
+		if (first)
+		{
+			cerr << "select() failed on socket " << sock_id << endl;
+			first = false;
+		}
+		return 0;
+	}
+	else if(retval)
+	{
+		struct sockaddr_in  cliaddr;
+		memset(&cliaddr, 0, sizeof(cliaddr));
+		socklen_t len = sizeof(cliaddr);
+		int l = recvfrom(sock_id, (char*)buf, nbyte, 0, (struct sockaddr*) & cliaddr, &len);
+		if (l <= 0)
+		{
+			return 0;
+		}
+		if (ip)
+		{
+			inet_ntop(AF_INET, &cliaddr.sin_addr.s_addr, ip, 16);
+		}
+
+		return l;
+	}
+	else return 0;
+}
+
 UDPSocket::~UDPSocket()
 {
 }
@@ -1492,7 +1537,7 @@ int SSLSocket::read(void *buf, unsigned int nbyte)
     cerr << "SSLSocket::read(): ...left!" << endl;
     return no_of_bytes;
 }
-int SSLSocket::Read(void *buf, unsigned int nbyte)
+int SSLSocket::Read(void *buf, unsigned int nbyte, char *ip)
 {
     return this->read(buf, nbyte);
 }

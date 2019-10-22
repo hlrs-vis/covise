@@ -14,6 +14,7 @@
 #include "coVRPluginList.h"
 #include "coVRPlugin.h"
 #include "coVRMSController.h"
+
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/coInteractionManager.h>
 #include <OpenVRUI/coToolboxMenu.h>
@@ -21,6 +22,7 @@
 #include <assert.h>
 #include <net/tokenbuffer.h>
 #include <net/message.h>
+#include <net/udpMessage.h>
 #include <net/message_types.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/osg/mathUtils.h>
@@ -66,6 +68,7 @@
 #include "coVRConfig.h"
 
 #include <grmsg/coGRKeyWordMsg.h>
+
 
 using namespace vrui;
 using namespace grmsg;
@@ -214,6 +217,9 @@ osg::MatrixTransform *coVRPluginSupport::getObjectsScale() const
 
 coPointerButton *coVRPluginSupport::getMouseButton() const
 {
+    if (!Input::instance()->hasMouse())
+        return NULL;
+
     if (mouseButton == NULL)
     {
         mouseButton = new coPointerButton("mouse");
@@ -250,7 +256,7 @@ const osg::Matrix &coVRPluginSupport::getXformMat() const
 const osg::Matrix &coVRPluginSupport::getMouseMat() const
 {
     START("coVRPluginSupport::getMouseMat");
-    return Input::instance()->mouse()->getMatrix();
+    return Input::instance()->getMouseMat();
 }
 
 const osg::Matrix &coVRPluginSupport::getRelativeMat() const
@@ -406,6 +412,31 @@ VRBMessageSender * coVRPluginSupport::getSender()
     return &m_sender;
 }
 
+void coVRPluginSupport::connectToCovise(bool connected)
+{
+	if (coVRMSController::instance()->isMaster())
+	{
+		coVRMSController::instance()->sendSlaves((bool*)&connected, sizeof(connected));
+	}
+	else
+	{
+		coVRMSController::instance()->readMaster((bool*)& connected, sizeof(connected));
+	}
+	m_connectedToCovise = connected;
+}
+
+bool coVRPluginSupport::connectedToCovise()
+{
+    return m_connectedToCovise;
+}
+
+bool coVRPluginSupport::sendGrMessage(const coGRMsg &gr, int msgType) const
+{
+    std::string s = gr.getString();
+    Message grmsg{ msgType, DataHandle{const_cast<char *>(s.c_str()), s.length()+1, false} };
+    return sendVrbMessage(&grmsg);
+}
+
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;
@@ -474,23 +505,23 @@ void coVRPluginSupport::update()
         if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
             std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
 #endif
-    }
 
-    size_t currentPerson = Input::instance()->getActivePerson();
-    if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
-            || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
-    {
-        ++currentPerson;
-        currentPerson %= Input::instance()->getNumPersons();
-        Input::instance()->setActivePerson(currentPerson);
-    }
-    if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
-            || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
-    {
-        if (currentPerson == 0)
-            currentPerson = Input::instance()->getNumPersons();
-        --currentPerson;
-        Input::instance()->setActivePerson(currentPerson);
+        size_t currentPerson = Input::instance()->getActivePerson();
+        if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
+                || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
+        {
+            ++currentPerson;
+            currentPerson %= Input::instance()->getNumPersons();
+            Input::instance()->setActivePerson(currentPerson);
+        }
+        if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
+                || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
+        {
+            if (currentPerson == 0)
+                currentPerson = Input::instance()->getNumPersons();
+            --currentPerson;
+            Input::instance()->setActivePerson(currentPerson);
+        }
     }
 
 #ifdef DOTIMING
@@ -505,11 +536,7 @@ void coVRPluginSupport::update()
     if (old != baseMatrix && coVRMSController::instance()->isMaster())
     {
         coGRKeyWordMsg keyWordMsg("VIEW_CHANGED", false);
-        Message grmsg;
-        grmsg.type = Message::UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        sendGrMessage(keyWordMsg);
     }
 
 #ifdef DOTIMING
@@ -1017,8 +1044,7 @@ void coVRPluginSupport::setCursorVisible(bool visible)
 void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, int len, const void *buf)
 {
     START("coVRPluginSupport::sendMessage");
-    Message *message;
-    message = new Message();
+    Message message;
 
     int size = len + 2 * sizeof(int);
 
@@ -1032,34 +1058,30 @@ void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, in
         size += strlen(sender->getName()) + 1;
         size += 8 - ((strlen(sender->getName()) + 1) % 8);
     }
-    message->data = new char[size];
-    memcpy(&message->data[size - len], buf, len);
+    message.data = DataHandle(size);
+    memcpy(message.data.accessData() + (size - len), buf, len);
     if ((toWhom == coVRPluginSupport::TO_SAME) || (toWhom == coVRPluginSupport::TO_SAME_OTHERS))
     {
-        strcpy((char *)(message->data + 2 * sizeof(int)), sender->getName());
+        strcpy((message.data.accessData() + 2 * sizeof(int)), sender->getName());
     }
 #ifdef BYTESWAP
     int tmp = toWhom;
     byteSwap(tmp);
-    ((int *)message->data)[0] = tmp;
+    ((int *)message.data.accessData())[0] = tmp;
     tmp = type;
     byteSwap(tmp);
-    ((int *)message->data)[1] = tmp;
+    ((int *)message.data.accessData())[1] = tmp;
 #else
     ((int *)message->data)[0] = toWhom;
     ((int *)message->data)[1] = type;
 #endif
 
-    message->type = COVISE_MESSAGE_RENDER_MODULE;
-    message->length = size;
+    message.type = COVISE_MESSAGE_RENDER_MODULE;
 
     if (!coVRMSController::instance()->isSlave())
     {
-        cover->sendVrbMessage(message);
+        cover->sendVrbMessage(&message);
     }
-    delete[] message -> data;
-    message->data = NULL;
-    delete message;
 }
 
 void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destination, int type, int len, const void *buf, bool localonly)
@@ -1081,38 +1103,34 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
 
     if (!localonly)
     {
-        Message *message;
-        message = new Message();
+        Message message;
 
         int namelen = strlen(destination) + 1;
         namelen += 8 - ((strlen(destination) + 1) % 8);
         size += namelen;
-        message->data = new char[size];
-        memcpy(&message->data[size - len], buf, len);
-        memset(message->data + 2 * sizeof(int), '\0', namelen);
-        strcpy(message->data + 2 * sizeof(int), destination);
+        message.data = DataHandle(size);
+        memcpy(message.data.accessData() + (size - len), buf, len);
+        memset(message.data.accessData() + 2 * sizeof(int), '\0', namelen);
+        strcpy(message.data.accessData() + 2 * sizeof(int), destination);
 
 #ifdef BYTESWAP
         int tmp = coVRPluginSupport::TO_SAME;
         byteSwap(tmp);
-        ((int *)message->data)[0] = tmp;
+        ((int *)message.data.accessData())[0] = tmp;
         tmp = type;
         byteSwap(tmp);
-        ((int *)message->data)[1] = tmp;
+        ((int *)message.data.accessData())[1] = tmp;
 #else
         ((int *)message->data)[0] = coVRPluginSupport::TO_SAME;
         ((int *)message->data)[1] = type;
 #endif
 
-        message->type = COVISE_MESSAGE_RENDER_MODULE;
-        message->length = size;
+        message.type = COVISE_MESSAGE_RENDER_MODULE;
 
         if (!coVRMSController::instance()->isSlave())
         {
-            cover->sendVrbMessage(message);
+            cover->sendVrbMessage(&message);
         }
-        delete[] message -> data;
-        delete message;
     }
 }
 int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int len)
@@ -1120,22 +1138,15 @@ int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int
     START("coVRPluginSupport::sendBinMessage");
     if (!coVRMSController::instance()->isSlave())
     {
-        int size = strlen(keyword) + 2;
+        size_t size = strlen(keyword) + 2;
         size += len;
 
-        Message message;
-        message.data = new char[size];
-        message.data[0] = 0;
-        strcpy(&message.data[1], keyword);
-        memcpy(&message.data[strlen(keyword) + 2], data, len);
-        message.type = Message::RENDER;
-        message.length = size;
+        Message message{ Message::RENDER, DataHandle{size} };
+        message.data.accessData()[0] = 0;
+        strcpy(&message.data.accessData()[1], keyword);
+        memcpy(&message.data.accessData()[strlen(keyword) + 2], data, len);
 
         bool ret = sendVrbMessage(&message);
-
-        delete[] message.data;
-        message.data = NULL;
-
         return ret ? 1 : 0;
     }
 
@@ -1451,6 +1462,15 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
 
     return false;
 }
+bool coVRPluginSupport::sendVrbUdpMessage(const vrb::UdpMessage* msg) const
+{
+
+	if (vrbc)
+	{
+		return vrbc->sendUdpMessage(msg);
+	}
+	return false;
+}
 
 void coVRPluginSupport::personSwitched(size_t personNum)
 {
@@ -1476,7 +1496,7 @@ void coVRPluginSupport::unwatchFileDescriptor(int fd)
     OpenCOVER::instance()->unwatchFileDescriptor(fd);
 }
 
-bool VRBMessageSender::sendMessage(const covise::Message * msg)
+bool VRBMessageSender::sendMessage(const covise::Message * msg)  
 {
     return cover->sendVrbMessage(msg);
 }

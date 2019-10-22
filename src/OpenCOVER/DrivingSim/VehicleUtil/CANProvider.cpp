@@ -37,6 +37,10 @@ CANProvider::CANProvider()
 
     m_state = KEYOUT;
 }
+int CANProvider::numUninitializedDevices()
+{
+    return p_CANSendTask->numUninitializedDevices();
+};
 
 CANProvider::~CANProvider()
 {

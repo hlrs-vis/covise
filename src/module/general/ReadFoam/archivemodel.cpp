@@ -269,8 +269,9 @@ public:
 #endif
 };
 
-Model::Model(const std::string &archiveOrDirectory)
-    : container(archiveOrDirectory)
+Model::Model(const std::string &archiveOrDirectory, Format format)
+    : format(format)
+    , container(archiveOrDirectory)
     , root(this)
 {
     d.reset(new ModelPrivate);
@@ -278,6 +279,7 @@ Model::Model(const std::string &archiveOrDirectory)
     d->zipfile = zip_open(archiveOrDirectory.c_str(), 0, nullptr);
     if (d->zipfile) {
         archive = true;
+        format = FormatZip;
         auto nument = zip_get_num_entries(d->zipfile, 0);
         for (auto idx=0; idx<nument; ++idx) {
             std::string pathname = zip_get_name(d->zipfile, idx, 0);
@@ -285,8 +287,12 @@ Model::Model(const std::string &archiveOrDirectory)
                 file->index = idx;
             }
         }
-    } else {
+    } else if (format == FormatZip) {
         std::cerr << "failed to open archive with libzip: " << archiveOrDirectory << std::endl;
+    }
+#else
+    if (format == FormatZip) {
+        throw std::runtime_error("failed to open archive " + archiveOrDirectory + " in zip format: not compiled with libzip");
     }
 #endif
 

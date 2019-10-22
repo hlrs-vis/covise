@@ -172,16 +172,16 @@ void CoviseSG::addNode(osg::Node *node, osg::Group *parent, RenderObject *ro)
     node->setName(name + "_Geom");
     dcs->setName(name);
     // disable intersection with ray
-    node->setNodeMask(node->getNodeMask() & (~Isect::Intersection) & (~Isect::Update));
+    if (const char *isect = ro->getAttribute("DO_ISECT"))
+    {
+    }
+    else
+    {
+        node->setNodeMask(node->getNodeMask() & (~Isect::Intersection) & (~Isect::Update));
+    }
 
     m_addedNodeList[dcs->getName()] = node;
 
-    if (osg::Sequence *pSequence = dynamic_cast<osg::Sequence *>(node)) // timesteps
-    {
-        if (sgDebug_)
-            fprintf(stderr, "CoviseSG(%s)::addNode2 adding a sequence to coVRAnimationManager\n", hostName_);
-        coVRAnimationManager::instance()->addSequence(pSequence, coVRAnimationManager::Cycle);
-    }
     if (parent == NULL)
     {
         VRSceneGraph::instance()->objectsRoot()->addChild(dcs);

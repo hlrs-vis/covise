@@ -17,6 +17,7 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <vector>
+#include "coEntity.h"
 
 struct TRAFFICSIMULATIONEXPORT RoadTransitionPoint
 {
@@ -84,7 +85,7 @@ class VehicleAction;
 typedef std::multimap<double, VehicleAction *> VehicleActionMap;
 
 //class AgentVehicle : public FollowTheLeaderVehicle
-class TRAFFICSIMULATIONEXPORT AgentVehicle : public Vehicle
+class TRAFFICSIMULATIONEXPORT AgentVehicle : public Vehicle,public coEntity
 {
 public:
     AgentVehicle(AgentVehicle *, std::string, const VehicleParameters & = VehicleParameters(), Road * = NULL, double = 0.0, int = -1, double = 100, int = 1);

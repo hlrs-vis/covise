@@ -50,7 +50,7 @@ protected:
 
     void rescaleTexture();
     void createTexturesFromFiles();
-    void createTexturesFromArrays(uint *normalImage, uint *highlightImage, uint *disabledImage,
+    void createTexturesFromArrays(const uint *normalImage, const uint *highlightImage, const uint *disabledImage,
                                   int comp, int ns, int nt, int nr);
 
     coTexturedBackground *background;

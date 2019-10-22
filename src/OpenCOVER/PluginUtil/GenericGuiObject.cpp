@@ -181,11 +181,7 @@ void GuiParam::registerAtGui()
     strcpy(defaultValueBuffer, tmp_value.c_str());
 
     coGRGenericParamRegisterMsg msg(parentNameBuffer, nameBuffer, this->getType(), defaultValueBuffer);
-    Message grmsg;
-    grmsg.type = Message::UI;
-    grmsg.data = (char *)(msg.c_str());
-    grmsg.length = strlen(grmsg.data) + 1;
-    cover->sendVrbMessage(&grmsg);
+    cover->sendGrMessage(msg);
 
     delete[] parentNameBuffer;
     delete[] nameBuffer;
@@ -203,11 +199,7 @@ void GuiParam::sendChangeToGui()
     strcpy(valueBuffer, tmp_value.c_str());
 
     coGRGenericParamChangedMsg msg(parentNameBuffer, nameBuffer, valueBuffer);
-    Message grmsg;
-    grmsg.type = Message::UI;
-    grmsg.data = (char *)(msg.c_str());
-    grmsg.length = strlen(grmsg.data) + 1;
-    cover->sendVrbMessage(&grmsg);
+    cover->sendGrMessage(msg);
 
     delete[] parentNameBuffer;
     delete[] nameBuffer;

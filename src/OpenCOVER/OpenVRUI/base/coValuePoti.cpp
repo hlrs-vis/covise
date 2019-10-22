@@ -47,6 +47,7 @@ coValuePoti::coValuePoti(const string &buttonText, coValuePotiActor *actor,
     unregister = false;
     integer = false;
     discrete = false;
+    logarithmic = false;
     labelVisible = true;
     increment = 0.0f;
     minValue = 0;
@@ -191,6 +192,11 @@ void coValuePoti::setIncrement(float increment)
     setValue(value);
 }
 
+void coValuePoti::setLogarithmic(bool on)
+{
+    logarithmic = on;
+}
+
 /** Set minimum poti value.
   @param m minimum value
 */
@@ -330,6 +336,15 @@ bool coValuePoti::update()
 
     float oldValue, newValue;
     oldValue = newValue = value;
+    float linearValue = value;
+    float linMax = maxValue, linMin = minValue;
+
+    if (logarithmic)
+    {
+        linearValue = log10(value);
+        linMax = log10(maxValue);
+        linMin = log10(minValue);
+    }
 
     if (interactionW->isRunning() || interactionW->wasStarted())
     {
@@ -368,8 +383,11 @@ bool coValuePoti::update()
             while (lastRoll - mouseRotation < -180.0f)
                 lastRoll += 360.0f;
 
-            newValue -= rotScale * ((lastRoll - mouseRotation) / 180.0f) * (maxValue - minValue);
+            linearValue -= rotScale * ((lastRoll - mouseRotation) / 180.0f) * (linMax - linMin);
             lastRoll = mouseRotation;
+            newValue = linearValue;
+            if (logarithmic)
+                newValue = pow(10., linearValue);
 
             newValue = coClamp(newValue, minValue, maxValue);
         }
@@ -541,6 +559,11 @@ float coValuePoti::getMax() const
 float coValuePoti::getIncrement() const
 {
     return increment;
+}
+
+bool coValuePoti::isLogarithmic() const
+{
+    return logarithmic;
 }
 
 bool coValuePoti::isInteger() const

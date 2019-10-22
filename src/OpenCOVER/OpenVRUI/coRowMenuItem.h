@@ -41,18 +41,20 @@ public:
     virtual ~coRowMenuItem();
     virtual void setLabel(coLabel *label);
     coLabel *getLabel();
-    void setLabel(const std::string &labelString);
-    virtual coUIElement *getUIElement();
+    void setLabel(const std::string &labelString) override;
+    coUIElement *getUIElement() override;
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
+    const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(const char *) const;
+    bool isOfClassName(const char *) const override;
 
     /// activates or deactivates the item
-    virtual void setActive(bool a);
+    void setActive(bool a) override;
 
-    virtual void selected(bool selected);
+    void selected(bool selected) override;
+
+    void setVisible(bool visible) override;
 };
 }
 #endif

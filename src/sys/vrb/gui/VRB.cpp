@@ -36,9 +36,9 @@ int main(int argc, char **argv)
             gui = false;
         }
     }
-    QApplication a(argc, argv);
     if (gui)
     {
+		QApplication a(argc, argv);
 #ifdef __APPLE__
         a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
@@ -46,20 +46,41 @@ int main(int argc, char **argv)
         mw->setWindowTitle("VRB");
         mw->show();
         a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+		VRBServer server(gui);
+		if (server.openServer() < 0)
+		{
+			return -1;
+		}
+		if (!server.startUdpServer())
+		{
+			cerr << "failed to open udp socket" << endl;
+		}
+		int exitcode = a.exec();
+
+		server.closeServer();
+		return exitcode;
     }
+	else
+	{
+		VRBServer server(gui);
+		if (server.openServer() < 0)
+		{
+			return -1;
+		}
+		if (!server.startUdpServer())
+		{
+			cerr << "failed to open udp socket" << endl;
+		}
+		if (!gui)
+		{
+			server.loop();
+		}
+		int exitcode = 0;
+
+		server.closeServer();
+		return exitcode;
+	}
 
 
-    VRBServer server(gui);
-    if (server.openServer() < 0)
-    {
-        return -1;
-    }
-    if (!gui)
-    {
-        server.loop();
-    }
-    int exitcode = a.exec();
 
-    server.closeServer();
-    return exitcode;
 }

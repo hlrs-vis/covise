@@ -50,8 +50,10 @@ class coVRPlugin;
 //! describes a physical screen, such as one wall of a CAVE
 struct screenStruct
 {
-    float hsize; // horizontal size in mm
-    float vsize; // vertical size in mm
+    float hsize; // current horizontal size in mm
+    float vsize; // current vertical size in mm
+    float configuredHsize = 0.f; // configured horizontal size in mm
+    float configuredVsize = 0.f; // configured vertical size in mm
     osg::Vec3 xyz; // screen center in mm
     osg::Vec3 hpr; // screen orientation in degree euler angles
     std::string name;
@@ -495,7 +497,6 @@ private:
     osg::Multisample::Mode multisampleMode;
 
     int m_dLevel; // debugLevel
-    bool m_mouseNav;
     bool m_useWiiMote;
     bool m_useWiiNavVisenso;
 

@@ -41,7 +41,7 @@ class CanOpenDevice; // fwd class declaration
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class CANProvider : public CANMsgDB
+class VEHICLEUTILEXPORT CANProvider : public CANMsgDB
 {
 public:
     virtual ~CANProvider();
@@ -49,6 +49,7 @@ public:
     void routeCANDMessage(const can_frame &);
     void routeCANKMessage(const can_frame &);
     void registerDevice(CanOpenDevice *d);
+    int numUninitializedDevices();
     void shutdown();
 
     bool keyIsIn();

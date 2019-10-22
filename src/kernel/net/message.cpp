@@ -13,7 +13,7 @@
 
 #define DEFINE_MSG_TYPES
 #include "message_types.h"
-
+#include <cassert>
 /*
  $Log: covise_msg.C,v $
 Revision 1.3  1994/03/23  18:07:03  zrf30125
@@ -56,27 +56,31 @@ Initial revision
 \***********************************************************************/
 
 namespace covise {
-
-Message::Message(TokenBuffer *t)
-    : type(Message::EMPTY)
-    , conn(NULL)
-    , mustDelete(false)
+MessageBase::MessageBase()
+	: conn(nullptr)
 {
-    length = t->get_length();
-    data = (char *)t->get_data();
+
+}
+MessageBase::MessageBase(TokenBuffer& tb)
+{
+    data = tb.getData();
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+}
+MessageBase::MessageBase(DataHandle& dh)
+{
+    data =dh;
     //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    print();
 }
 
-Message::Message(const TokenBuffer &t)
-    : type(Message::EMPTY)
-    , conn(NULL)
-    , mustDelete(false)
+MessageBase::~MessageBase()
 {
-    length = t.get_length();
-    data = (char *)t.get_data();
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    print();
+}
+
+
+Message::Message(TokenBuffer &t)
+    :MessageBase(t)
+	,type(Message::EMPTY)
+{
 }
 
 void Message::print()
@@ -96,13 +100,20 @@ Message::Message(const Message &src)
     sender = src.sender;
     send_type = src.send_type;
     type = src.type;
-    length = src.length;
-    data = new char[length];
-    memcpy(data, src.data, length);
+    int length = src.data.length();
+    char *c = new char[length];
+    memcpy(c, src.data.data(), length);
+    data = DataHandle(c, length);
     conn = src.conn;
     print();
 }
-
+Message::Message(int message_type, const DataHandle &dh)
+    :sender(-1)
+    ,send_type(Message::UNDEFINED)
+    ,type(message_type)
+{
+    data = dh;
+}
 Message &Message::operator=(const Message &src)
 {
     //    printf("+ in message no. %d for %x, line %d\n", new_count++, this, __LINE__);
@@ -115,25 +126,30 @@ Message &Message::operator=(const Message &src)
         sender = src.sender;
         send_type = src.send_type;
         type = src.type;
-        length = src.length;
         conn = src.conn;
 
-        // copy data (if existent)
-        delete[] data;
-        data = new char[length];
-        if (length && src.data)
-            memcpy(data, src.data, length);
+        data = DataHandle(src.data.length());
+        memcpy(data.accessData(), src.data.data(), data.length());
+
     }
     print();
     return *this;
 }
 
-char *Message::extract_data()
+void Message::copyAndReuseData(const Message& src)
 {
-    char *tmpdata = data;
-    data = NULL;
-    return tmpdata;
+    sender = src.sender;
+    send_type = src.send_type;
+    type = src.type;
+    conn = src.conn;
+    data = src.data;
 }
+//char *Message::extract_data()
+//{
+//    char *tmpdata = data;
+//    data = NULL;
+//    return tmpdata;
+//}
 
 bool isVrbMessageType(int type)
 {

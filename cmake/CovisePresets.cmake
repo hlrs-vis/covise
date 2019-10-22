@@ -9,6 +9,7 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
 # disable rpath - only rely on LD_LIBRARY_PATH and the likes
 set(CMAKE_SKIP_RPATH TRUE)
+set(CMAKE_MACOSX_RPATH FALSE)
 
 macro(covise_cmake_policy)
 # policy settings
@@ -32,13 +33,18 @@ IF(COMMAND cmake_policy)
         cmake_policy(SET CMP0060 NEW) # always link to full path never convert to -lLibraryName
     endif()
     # Works around warnings about escaped quotes in ADD_DEFINITIONS statements.
+
+    if(POLICY CMP0071)
+        cmake_policy(SET CMP0071 NEW) # always link to full path never convert to -lLibraryName
+    endif()
+
     cmake_policy(SET CMP0005 NEW)
 
     # allow the commands include() and COVISE_FIND_PACKAGE() to do their default cmake_policy PUSH and POP.
     cmake_policy(SET CMP0011 NEW)
 
     # do not require BUNDLE DESTINATION on MacOS application bundles (simply use RUNTIME DESTINATION)
-    cmake_policy(SET CMP0006 OLD)
+    cmake_policy(SET CMP0006 NEW)
 
     if(POLICY CMP0042)
        # default to finding shlibs relative to @rpath on MacOS
@@ -87,7 +93,7 @@ endif(WIN32)
 # if you wish to reconfigure use cmake, ccmake or cmakesetup directly
 #SET(CMAKE_SUPPRESS_REGENERATION false)
 
-set(COVISE_DESTDIR $ENV{COVISEDIR})
+set(COVISE_DESTDIR ${COVISEDIR})
 if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "" AND NOT COVISE_DESTDIR STREQUAL "$ENV{COVISEDESTDIR}")
     message("COVISE internal build: COVISE_DESTDIR reset from $ENV{COVISEDESTDIR} to ${COVISE_DESTDIR}")
 endif()
@@ -151,7 +157,10 @@ IF(NOT COVISE_CONFIGURED_ONCE)
     SET (CMAKE_Fortran_FLAGS_DEBUG "-gdwarf-2" CACHE STRING "Flags used by the compiler during debug builds." FORCE)
     SET (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O2 -gdwarf-2" CACHE STRING "Flags used by the compiler during Release with Debug Info builds." FORCE)
   ENDIF(APPLE)
-  
+
+  # continue to support old fortran code with gnu fortran 8
+  SET (CMAKE_Fortran_FLAGS "-std=legacy" CACHE STRING "general fortran flags" FORCE)
+
   # IF(CMAKE_COMPILER_IS_GNUCXX)
   #   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -fno-omit-frame-pointer")
   #   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-aliasing -fexceptions -fno-omit-frame-pointer")
@@ -221,7 +230,12 @@ ENDIF()
 
 if(APPLE)
    if(BASEARCHSUFFIX STREQUAL "libc++")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wno-stdlibcxx-not-found")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+      include(CheckCXXCompilerFlag)
+      check_cxx_compiler_flag("-Wno-stdlibcxx-not-found" have_wno_stdlibcxx_not_found)
+      if(${have_wno_stdlibcxx_not_found})
+         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wno-stdlibcxx-not-found")
+      endif()
    endif()
 endif(APPLE)
 

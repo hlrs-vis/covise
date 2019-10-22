@@ -1,0 +1,168 @@
+#!/bin/bash
+
+export COVISE_TERMINATE_ON_QUIT=1 # terminate covise session when COVER exits
+
+MENU='\033[00;00m'  # white
+OPT='\033[32m'      # green
+ENTER='\033[33m'    # brown
+TYP='\033[36m'      # cyan
+NORMAL='\033[m'     # white
+
+while [ opt != '' ] 
+do
+
+    if [ -z "$1" ]; then
+
+    echo -e "${MENU}-----${TYP} Visdral ${MENU}-----------------------------------"
+    echo -e "${MENU} ${OPT} 20)  ${MENU} Agisoft 3D Reko Hochstativ"
+    echo -e "${MENU} ${OPT} 21)  ${MENU} Agisoft 3D Reko Helicopter"
+    echo -e "${MENU} ${OPT} 22)  ${MENU} Agisoft 3D Reko DJIMavic"
+
+    echo -e "${MENU}-----${TYP} LKA BW ${MENU}-----------------------------------"
+    echo -e "${MENU} ${OPT} 40)  ${MENU} Gasthaus (net)"
+    echo -e "${MENU} ${OPT} 41)  ${MENU} W/W Autohaus"
+    echo -e "${MENU} ${OPT} 42)  ${MENU} W/W Schule"
+    echo -e "${MENU} ${OPT} 43)  ${MENU} Sporthalle"
+
+    echo -e "${MENU}-----${TYP} Schweiz ${MENU}----------------------------------"
+    echo -e "${MENU} ${OPT} 50)  ${MENU} Bus"
+
+    echo -e "${MENU}-----${TYP} UTM ${MENU}--------------------------------------"
+    echo -e "${MENU} ${OPT} 60)  ${MENU} BPA CrimeHouse"
+    echo -e "${MENU} ${OPT} 61)  ${MENU} BPA Cardoor"   
+    echo -e "${MENU} ${OPT} 62)  ${MENU} Parking Lot"
+    echo -e "${MENU} ${OPT} 63)  ${MENU} LivingRoom"      
+
+    echo -e "${MENU}-----${TYP} IAFSM ${MENU}------------------------------------"
+    echo -e "${MENU} ${OPT} 65)  ${MENU} Homicide"   
+
+    echo -e "${MENU}-----${TYP} ShowCase/Test ${MENU}----------------------------"
+    echo -e "${MENU} ${OPT} 90)  ${MENU} Car Crash (by Riegl)"
+
+    echo -e "${MENU}-----${TYP} Virtopsy ${MENU}---------------------------------"
+    echo -e "${MENU} ${OPT} 80)  ${MENU} Ayali"
+    echo -e "${MENU} ${OPT} 81)  ${MENU} Thorax"      
+
+    echo -e "${MENU}---------------------------------------------"
+    echo -e "${ENTER}   [q] exit    [Enter] reprint menu ${NORMAL}"
+
+    opt=""
+    read opt
+    else
+        opt="$1"
+        shift
+    fi
+
+# Visdral
+
+    case $opt in
+
+	20)
+	    echo -e "starting Hochstativ";
+            cd /data/visdral/ZIM_Agisoft_Exporte/18063TN_Pol_HDL_Hochstativ/
+	    opencover 18063TN.e57 
+	    ;;
+	21)
+	    echo -e "starting Hochstativ";
+            cd /data/visdral/ZIM_Agisoft_Exporte/18077TN_Pol_MD_Helicopter/
+	    opencover 18077TN.e57
+	    ;;
+	22)
+	    echo -e "starting Hochstativ";
+            cd /data/visdral/ZIM_Agisoft_Exporte/18078TN_Pol_BBG_DJI_Mavic
+	    opencover 18078TN.e57
+	    ;;
+
+# LKA
+
+	40)
+	    echo -e "starting Gasthaus";
+            cd /data/LKA/Gasthaus/
+	    covise -e Gasthaus2.net
+	    ;;
+	41)
+	    echo -e "starting Autohaus";
+            opencover /data/LKA/WinWenn/Wendlingen_Ind_Wert.WRL
+	    ;;
+	42)
+	    echo -e "starting Schule";
+            opencover /data/LKA/WinWenn/winnenden_schule.WRL
+	    ;;
+	43)
+	    echo -e "starting Sporthalle";
+            opencover /data/LKA/Sporthalle/HalleSortedGroesser.ptsb
+	    ;;
+
+# Schweiz
+
+	50)
+	    echo -e "starting Schweizer Autobus";
+            opencover /data/LKA/Reisebus/ReisebusMrdTimesteps.wrl
+	    ;;
+
+# UTM
+
+	60)
+	    echo -e "starting BPA Crimehouse";
+	    cd /data/UTM
+	    opencover testroom.wrl Trajectories.bpadxf
+	    ;;
+	61)
+	    echo -e "starting BPA Cardoor";
+            cd /data/UTM/BloodstainTests/Trial10
+            opencover Trial10PointCloudSorted.ptsb Trajectories-Calculated\ Origin.bpadxf 
+	    ;;
+
+	62)
+	    echo -e "starting Parking Lot";
+	    cd /data/UTM/Parkinglot
+	    opencover Parkinglot2mm.sorted.ptsb
+	    ;;
+
+	63)
+	    echo -e "starting Parking Lot";
+	    cd /data/UTM/maps
+	    opencover livingrm-a.wrl livingrm-a_01.wrl 
+	    ;;
+
+# IAFSM
+
+	65)
+	    echo -e "starting Homicide";
+	    cd /data/IAFSM/
+	    opencover Homicide-1.sorted.ptsb
+	    ;;
+
+# Virtopsy
+
+	80)
+	    echo -e "starting Ayali";
+	    cd /data/Virtopsy
+	    opencover Ayali.xvf Ayali-Anouar-Projektil.stl
+	    ;;
+
+	81)
+	    echo -e "starting Thorax";
+	    cd /data/Virtopsy
+	    opencover CT_Thorax.xvf
+	    ;;
+
+	# ShowCase/Test
+
+	90)
+            echo -e "starting Car Crash (by Riegl)";
+            opencover /data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb
+	    ;;
+
+# MENU
+
+	q)
+	    exit;
+	    ;;
+	*)
+	    ;;
+    esac
+done
+
+#/data/UTM/BloodstainTests/Trial10> opencover Trial10PointCloudSorted.ptsb Trajectories-Calculated\ Origin.bpadxf
+#/data/UTM> opencover testroom.wrl Trajectories.bpadxf

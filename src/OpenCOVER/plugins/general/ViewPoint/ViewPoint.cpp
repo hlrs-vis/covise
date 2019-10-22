@@ -2072,12 +2072,7 @@ void ViewPoints::preFrame()
         if (coVRMSController::instance()->isMaster())
         {
             coGRActivatedViewpointMsg vMsg(activeVP->getId());
-
-            Message grmsg;
-            grmsg.type = COVISE_MESSAGE_UI;
-            grmsg.data = (char *)(vMsg.c_str());
-            grmsg.length = strlen(grmsg.data) + 1;
-            coVRPluginList::instance()->sendVisMessage(&grmsg);
+            cover->sendGrMessage(vMsg);
             if (cover->debugLevel(3))
                 fprintf(stderr, "--- sendActivatedViewpointMsg\n");
         }
@@ -2748,12 +2743,7 @@ void ViewPoints::sendNewViewpointMsgToGui(const char *name, int index, const cha
         // send to GUI
         //fprintf(stderr,"--- sendNewViewpointMsgToGui \n");
         coGRCreateViewpointMsg vMsg(name, index, str, plane);
-
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(vMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(vMsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendNewViewpointMsgToGui \n");
     }
@@ -2766,12 +2756,7 @@ void ViewPoints::sendNewDefaultViewpointMsgToGui(const char *name, int index)
     {
         // send to GUI
         coGRCreateDefaultViewpointMsg vMsg(name, index);
-
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(vMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(vMsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendNewDefaultViewpointMsgToGui\n");
     }
@@ -2787,12 +2772,7 @@ void ViewPoints::sendViewpointChangedMsgToGui(const char *name, int index, const
         // send to GUI
         //fprintf(stderr,"--- sendViewpointChangedMsgToGui_ \n");
         coGRViewpointChangedMsg vMsg(index, name, str /*, plane*/);
-
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(vMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(vMsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendViewpointChangedMsgToGui \n");
     }
@@ -2807,12 +2787,7 @@ void ViewPoints::sendLoadViewpointMsgToGui(int index)
         // send to GUI
         //fprintf(stderr,"ViewPoints::sendLoadViewpointMasgToGui(%d)\n", index);
         coGRShowViewpointMsg vMsg(index);
-
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(vMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(vMsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendLoadViewpointMsgToGui\n");
     }
@@ -2825,12 +2800,7 @@ void ViewPoints::sendFlyingModeToGui()
         // send to GUI
         //fprintf(stderr,"ViewPoints::sendFlyingModeToGui(%d)\n", flyingMode);
         coGRToggleFlymodeMsg vMsg((int)flyingMode);
-
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(vMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(vMsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendFlyingModeToGui\n");
     }
@@ -2842,12 +2812,7 @@ void ViewPoints::sendChangeIdMsgToGui(int guiId, int newId)
     if (coVRMSController::instance()->isMaster())
     {
         coGRChangeViewpointIdMsg cidMsg(guiId, newId);
-
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(cidMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(cidMsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendChangeIdMsgToGui\n");
     }

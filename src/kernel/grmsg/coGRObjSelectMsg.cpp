@@ -7,6 +7,8 @@
 
 #include "coGRObjSelectMsg.h"
 
+using namespace std;
+
 namespace grmsg
 {
 

@@ -4,8 +4,8 @@ MACRO(USE_VISIONARAY)
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
             set(VISIONARAY_CONFIG_DIR "${CMAKE_BINARY_DIR}/src/3rdparty/visionaray/config")
             if(MSVC)
-                set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
-                set(VISIONARAY_LIBRARY_RELEASE "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                set(VISIONARAY_LIBRARY_DEBUG "${COVISEDIR}/${BASEARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                set(VISIONARAY_LIBRARY_RELEASE "${COVISEDIR}/${BASEARCHSUFFIX}opt/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
             else()
                 if(BUILD_SHARED_LIBS)
                     set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_SHARED_LIBRARY_SUFFIX}")
@@ -30,10 +30,17 @@ MACRO(USE_VISIONARAY)
             include_directories(${VISIONARAY_INCLUDE_DIR})
             include_directories(${VISIONARAY_CONFIG_DIR})
 
-            set(EXTRA_LIBS
+            if(MSVC)
+                set(EXTRA_LIBS
+                ${EXTRA_LIBS}
+                debug ${VISIONARAY_LIBRARY_DEBUG} optimized ${VISIONARAY_LIBRARY_RELEASE}
+                )
+			else()
+                set(EXTRA_LIBS
                 ${EXTRA_LIBS}
                 ${VISIONARAY_LIBRARY}
                 )
+			endif()
 
             if (NOT APPLE AND NOT WIN32)
                 include_directories(SYSTEM ${PTHREAD_INCLUDE_DIR})

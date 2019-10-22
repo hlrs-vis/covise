@@ -101,6 +101,9 @@ protected:
     QWidget *createWidget(QWidget *parent) override;
     //void deleteWidget(QWidget *parent) override;
 
+private slots:
+    void actionChanged();
+
 private:
     QString m_text, m_tip, m_widthText;
     int m_value = 0;

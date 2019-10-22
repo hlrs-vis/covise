@@ -448,7 +448,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             if (!ownersIn)
                 return NULL;
             HeaderInfo ownerH = readFoamHeader(*ownersIn);
-            DimensionInfo dim = parseDimensions(ownerH.header);
+            DimensionInfo dim = parseDimensions(ownerH.note);
             std::vector<index_t> owners(ownerH.lines);
             readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
@@ -944,7 +944,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
     {
         std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
         HeaderInfo ownerH = readFoamHeader(*ownersIn);
-        DimensionInfo dim = parseDimensions(ownerH.header);
+        DimensionInfo dim = parseDimensions(ownerH.note);
         numberCells = dim.cells;
     }
     coDistributedObject *fieldObj;
@@ -1315,7 +1315,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 {
                                     std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
                                     HeaderInfo ownerH = readFoamHeader(*ownersIn);
-                                    DimensionInfo dim = parseDimensions(ownerH.header);
+                                    DimensionInfo dim = parseDimensions(ownerH.note);
                                     std::string portObjName = outPorts[nPort]->getObjName();
                                     portObjName += sd.str();
 

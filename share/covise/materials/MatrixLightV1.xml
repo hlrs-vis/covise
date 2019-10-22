@@ -1,0 +1,301 @@
+<MatrixLight>
+//<uniform name="AllPhotometricLights" type="sampler3D" value="6"/>
+//#<uniform name="targetTex" type="sampler2D" value="7"/>
+
+<vertexProgram>
+varying mat4 InLightCoordinates;
+uniform gl_MaterialParameters gl_FrontMaterial;  
+uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
+varying vec2 Texcoord;
+varying vec4 vColor;   // --------------------------------
+uniform mat4 coEnvCorrectMatrix;
+uniform mat4 coInvEnvCorrectMatrix;
+uniform mat4 photometricLightMatrix[4];
+uniform int MAX_LIGHTS;
+
+vec4 Ambient;
+vec4 Diffuse;
+vec4 Specular;
+
+
+
+void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
+{
+   float nDotVP;       // normal . light direction
+   float nDotHV;       // normal . light half vector
+   float pf;           // power factor
+   float attenuation;  // computed attenuation factor
+   float d;            // distance from surface to light source
+   vec3  VP;           // direction from surface to light position
+   vec3  halfVector;   // direction of maximum highlights
+
+   // Compute vector from surface to light position
+   VP = vec3 (gl_LightSource[i].position) - ecPosition3;
+
+   // Compute distance between surface and light position
+   d = length(VP);
+
+   // Normalize the vector from surface to light position
+   VP = normalize(VP);
+
+   // Compute attenuation
+   attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +
+       gl_LightSource[i].linearAttenuation * d +
+       gl_LightSource[i].quadraticAttenuation * d * d);
+
+   halfVector = normalize(VP + eye);
+   nDotVP = max(0.0, dot(normal, VP));
+   nDotHV = max(0.0, dot(normal, halfVector));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+   }
+   Ambient  += gl_LightSource[i].ambient * attenuation;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;
+   Specular += gl_LightSource[i].specular * pf * attenuation;
+}
+
+
+void directionalLight(in int i, in vec3 normal)
+{
+   float nDotVP;         // normal . light direction
+   float nDotHV;         // normal . light half vector
+   float pf;             // power factor
+
+   nDotVP = max(0.0, dot(normal, normalize(vec3 (gl_LightSource[i].position))));
+   nDotHV = max(0.0, dot(normal, vec3 (gl_LightSource[i].halfVector)));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+   }
+   Ambient  += gl_LightSource[i].ambient;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP;
+   Specular += gl_LightSource[i].specular * pf;
+}
+
+
+vec3 fnormal(void)
+{
+    //Compute the normal 
+    vec3 normal = gl_NormalMatrix * gl_Normal;
+    normal = normalize(normal);
+    return normal;
+}
+
+
+void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
+{
+    vec4 color;
+    vec3 ecPosition3;
+    vec3 eye;
+
+    ecPosition3 = (vec3 (ecPosition)) / ecPosition.w;
+    eye = vec3 (0.0, 0.0, 1.0);
+
+    // Clear the light intensity accumulators
+    Ambient  = vec4 (0.0);
+    Diffuse  = vec4 (0.0);
+    Specular = vec4 (0.0);
+
+    pointLight(0, normal, eye, ecPosition3);
+    //pointLight(1, normal, eye, ecPosition3);
+    //directionalLight(2, normal);
+
+    color = gl_FrontLightModelProduct.sceneColor +
+          Ambient  * gl_FrontMaterial.ambient +
+          Diffuse  * gl_FrontMaterial.diffuse;
+    color += Specular * gl_FrontMaterial.specular;
+    color = clamp(color, 0.0, 1.0);
+    gl_FrontColor = color;
+
+    normal = gl_NormalMatrix * gl_Normal;
+    gl_FrontColor.a *= alphaFade;
+}
+
+void main(void)
+{
+    Texcoord = gl_MultiTexCoord0.xy;
+    #ifdef __GLSL_CG_DATA_TYPES
+    gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+    #endif
+
+    vec3  transformedNormal;
+    float alphaFade = 1.0;
+
+    // Eye-coordinate position of vertex, needed in various calculations
+    vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;
+
+    // Do fixed functionality vertex transform
+    gl_Position = ftransform();
+    transformedNormal = fnormal();
+    flight(transformedNormal, ecPosition, alphaFade);
+    // TODO: for i in range(4):
+    // make in light coordinates 4x3
+    for (int light_number=0; light_number&lt;MAX_LIGHTS; light_number++)
+    {
+        InLightCoordinates[light_number] = photometricLightMatrix[light_number]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+    }
+    //gl_FrontColor = gl_FrontMaterial.diffuse;
+    vColor = gl_FrontColor; //gl_Color;   // --------------------------------
+}
+</vertexProgram>
+<fragmentProgram>
+#version 130
+varying mat4 InLightCoordinates;
+varying vec2 Texcoord;
+varying vec4 vColor;   // --------------------------------
+uniform mat4 coEnvCorrectMatrix;
+uniform mat4 coInvEnvCorrectMatrix;
+uniform mat4 photometricLightMatrix[4];
+
+uniform int MAX_LIGHTS;
+//uniform int num_lights;
+//uniform sampler2D IESMap;
+
+uniform sampler3D AllPhotometricLightsTex0;
+uniform sampler3D AllPhotometricLightsTex1;
+uniform sampler3D AllPhotometricLightsTex2;
+uniform sampler3D AllPhotometricLightsTex3;
+uniform sampler2D configuration0;
+uniform sampler2D configuration1;
+uniform sampler2D configuration2;
+uniform sampler2D configuration3;
+uniform sampler2D targetTex0;
+uniform sampler2D targetTex1;
+uniform sampler2D targetTex2;
+uniform sampler2D targetTex3;
+
+uniform vec4 left;
+uniform vec4 bottom;
+uniform vec4 width;
+uniform vec4 height;
+uniform vec4 is_active;
+
+
+ivec2 texSize;
+// Function to get a texel data from a texture with GL_NEAREST property.
+// Bi-Linear interpolation is implemented in this function with the 
+// help of nearest four data.
+
+
+float smallestperiod(float theta)
+{
+    // makes sure value is in between -180° and  + 180°
+    // takes a value in radians as argument!
+    float pi = 3.141592653589793;
+    return mod(theta+pi, 2*pi) - pi;
+}
+
+
+void main(void)
+{
+    vec2 newtc;
+    vec3 newtc3;
+    vec4 tmp;
+    vec4 DiffuseColor = vec4(0.0);
+    float candela = 0.0;
+    float an_h;
+    float an_v;
+    float z;
+    ivec3 texsize;
+    int num_lights;
+    ivec3 itc3;
+    ivec2 itc2 = ivec2(0, 0);
+    float factor, value;
+
+    //texSize = textureSize(IESMap, 0);
+    // angular range in ies file: -65 to 65 and -15 to 12
+    // angular range in ies file: -25 to 25 and -10 to 10
+/*
+    float left = radians(-25.); 
+    float bottom = radians(-10.);
+    float width = radians(50.); // radians
+    float height = radians(20.); // radians
+*/
+    for (int n=0; n &lt; MAX_LIGHTS; n++)
+    {
+        if (is_active[n] == 1.0)
+        {
+            an_h = smallestperiod(atan(InLightCoordinates[n][2], InLightCoordinates[n][0]));  // => arctan2
+            an_v = smallestperiod(atan(InLightCoordinates[n][1], InLightCoordinates[n][0]));  // => arctan2
+
+            newtc3[0]= (an_h-left[n])/width[n];
+            newtc3[1]= (an_v-bottom[n])/height[n];
+            newtc3[2]= 0.;
+            newtc[0] = newtc3[0];
+            newtc[1] = newtc3[1];
+
+            if(n==0)
+                texsize = textureSize(AllPhotometricLightsTex0, 0);
+            if (n==1)
+                texsize = textureSize(AllPhotometricLightsTex1, 0);
+            if (n==2)
+                texsize = textureSize(AllPhotometricLightsTex2, 0);
+            if (n==3)
+                texsize = textureSize(AllPhotometricLightsTex3, 0);
+            
+            num_lights = texsize[2];
+            float half_bin_width = 1./ float (num_lights*2);
+            itc3[0] = int(newtc3[0]*texsize[0]);
+            itc3[1] = int(newtc3[1]*texsize[1]);
+            
+            
+            if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
+            {    
+                if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 1.0))
+                {
+                    DiffuseColor *= 0.0;
+                    for (int i = 0; i &lt; num_lights; i++)
+                    {
+                        //value = texture3D(AllPhotometricLights, newtc3);
+                        z = float (i) / float (num_lights) + half_bin_width;
+                        itc3[2] = i;
+                        itc2[0] = i;
+                        
+                        if(n==0)
+                        {
+                            factor = texelFetch(configuration0, itc2, 0).r;
+                            value = texelFetch(AllPhotometricLightsTex0, itc3, 0).r;
+                        }
+                        if (n==1)
+                        {
+                            factor = texelFetch(configuration1, itc2, 0).r;
+                            value = texelFetch(AllPhotometricLightsTex1, itc3, 0).r;
+                        }
+                        if (n==2)
+                        {
+                            factor = texelFetch(configuration2, itc2, 0).r;
+                            value = texelFetch(AllPhotometricLightsTex2, itc3, 0).r;
+                        }
+                        if (n==3)
+                        {
+                            factor = texelFetch(configuration3, itc2, 0).r;
+                            value = texelFetch(AllPhotometricLightsTex3, itc3, 0).r;
+                        }
+                        DiffuseColor += (factor * value);
+                    }
+                }
+            }
+        }
+    }
+    gl_FragColor = DiffuseColor*0.5+ (vColor*0.5);
+    gl_FragColor[3] = 1;
+    //gl_FragColor = gl_Color;
+
+}</fragmentProgram></MatrixLight>
+    //<     &lt;     
+    //>     &gt;     nur problematisch in Tags und bei ']]>'
+    //&     &amp;     
+    //&& -> &amp;&amp;
+    //"     &quot;     nur problematisch in Attributwerten mit "…"
+    //'     &apos; 

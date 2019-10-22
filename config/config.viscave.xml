@@ -12,8 +12,8 @@
         
         <System>
             <!--VRB>
-                <Server value="141.58.8.5" port="31200" />
-                <Server value="lava.ucsd.edu" port="10001" />                
+                <Server value="141.58.8.5" tcpPort="31200" />
+                <Server value="lava.ucsd.edu" tcpPort="10001" />                
             </VRB-->
             <HostConfig>
                 <Host timeout="30" memory="shm" method="ssh" name="viscave1" hostname="viscave1" />

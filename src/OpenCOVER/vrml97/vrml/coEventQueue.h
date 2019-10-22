@@ -52,7 +52,7 @@ public:
     VrmlNode *node;
     VrmlNode *remoteNode;
     int bufferSize;
-    int namespaceNum;
+    std::pair<int, int> namespaceNum;
     char *nodeName;
     void addToMsg(VrmlMessage *msg);
     char *readFromBuf(char *buf);

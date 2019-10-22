@@ -89,9 +89,9 @@ coTexturedBackground::coTexturedBackground(const std::string &normalTexture,
   @param highlightImage texel array for highlighted appearance
   @param disableImage texel array for disabled appearance
 */
-coTexturedBackground::coTexturedBackground(uint *normalImage,
-                                           uint *highlightImage,
-                                           uint *disabledImage,
+coTexturedBackground::coTexturedBackground(const uint *normalImage,
+                                           const uint *highlightImage,
+                                           const uint *disabledImage,
                                            int comp, int ns, int nt, int nr,
                                            coTexturedBackgroundActor *actor)
 {
@@ -117,9 +117,9 @@ coTexturedBackground::~coTexturedBackground()
     delete currentTextures;
 }
 
-void coTexturedBackground::setImage(uint *normalImage,
-                                    uint *highlightImage,
-                                    uint *disabledImage,
+void coTexturedBackground::setImage(const uint *normalImage,
+                                    const uint *highlightImage,
+                                    const uint *disabledImage,
                                     int comp, int ns, int nt, int nr)
 {
     delete currentTextures;

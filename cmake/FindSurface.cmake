@@ -1,0 +1,37 @@
+# - Try to find surface-library
+# Once done this will define
+#
+#  SURFACE_INCLUDE_DIR    - where to find steering headers
+#  SURFACE_INCLUDE_DIRS   - same as above (uncached version)
+#  SURFACE_LIBRARIES      - list of libraries when using surface
+#  SURFACE_FOUND          - True if surface was found.
+
+
+
+FIND_LIBRARY(SURFACE_LIBRARY NAMES Surface  SURFACE
+  PATHS
+  $ENV{SURFACE_HOME}/lib
+  $ENV{EXTERNLIBS}/surface
+  NO_DEFAULT_PATH
+)
+FIND_FILE(SURFACE_LIBRARY_CORE NAMES Microsoft.Surface.Core.dll
+  PATHS
+  $ENV{SURFACE_HOME}/lib
+  $ENV{EXTERNLIBS}/surface
+  NO_DEFAULT_PATH)
+FIND_FILE(SURFACE_LIBRARY NAMES Microsoft.Surface.dll
+  PATHS
+  $ENV{SURFACE_HOME}/lib
+  $ENV{EXTERNLIBS}/surface
+  NO_DEFAULT_PATH)
+
+IF (SURFACE_LIBRARY)
+  SET(SURFACE_LIBRARIES ${SURFACE_LIBRARY} ${SURFACE_LIBRARY_CORE})
+ELSE (SURFACE_LIBRARY)
+  SET(SURFACE_LIBRARIES NOTFOUND)
+ENDIF (SURFACE_LIBRARY)
+
+INCLUDE(FindPackageHandleStandardArgs)
+
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Surface DEFAULT_MSG SURFACE_LIBRARY SURFACE_LIBRARY_CORE)
+MARK_AS_ADVANCED(SURFACE_LIBRARY)

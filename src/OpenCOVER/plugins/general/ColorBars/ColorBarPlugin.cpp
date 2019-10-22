@@ -24,6 +24,11 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/View.h>
 #include <cover/ui/VruiView.h>
+#include <cover/coVRMSController.h>
+#include <cover/coVRConfig.h>
+#include <OpenVRUI/osg/mathUtils.h>
+
+#include <osg/io_utils>
 
 using namespace opencover;
 
@@ -37,17 +42,11 @@ bool ColorBarPlugin::init()
     //fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
     colorSubmenu = NULL;
     colorsModuleMap.clear();
-    tabID = 0;
-
-    // create the TabletUI User-Interface
-    createMenuEntry();
 
     if (cover->visMenu)
     {
         colorSubmenu = new ui::Menu("Colors", this);
-        colorSubmenu->setVisible(false);
-        colorSubmenu->setVisible(true, ui::View::VR);
-        cover->visMenu->add(colorSubmenu, 1); // after Execute
+        cover->visMenu->add(colorSubmenu, ui::Container::KeepFirst); // after Execute
     }
 
     return true;
@@ -59,30 +58,6 @@ ColorBarPlugin::~ColorBarPlugin()
     //fprintf(stderr,"ColorBarPlugin::~ColorBarPlugin\n");
 
     colorsModuleMap.clear();
-
-    removeMenuEntry();
-}
-
-void ColorBarPlugin::createMenuEntry()
-{
-    colorBarTab = new coTUITab("ColorBars", coVRTui::instance()->mainFolder->getID());
-    colorBarTab->setPos(0, 0);
-    colorBarTab->setEventListener(this);
-
-    _tabFolder = new coTUITabFolder("Folder", colorBarTab->getID());
-    _tabFolder->setPos(0, 0);
-
-    tabID = _tabFolder->getID();
-}
-
-void ColorBarPlugin::removeMenuEntry()
-{
-    delete _tabFolder;
-    delete colorBarTab;
-}
-
-void ColorBarPlugin::tabletPressEvent(coTUIElement *)
-{
 }
 
 void
@@ -96,6 +71,49 @@ ColorBarPlugin::removeObject(const char *container, bool replace)
     else
     {
         removeInteractor(container);
+    }
+}
+
+void ColorBarPlugin::preFrame()
+{
+    for (auto it = visibleHuds.begin(); it != visibleHuds.end();)
+    {
+        if ((*it)->hudVisible())
+            ++it;
+        else
+            it = visibleHuds.erase(it);
+    }
+
+    for (const auto &cm: colorsModuleMap)
+    {
+        auto &mod = cm.second;
+        if (mod.hudVisible() && std::find(visibleHuds.begin(), visibleHuds.end(), &mod) == visibleHuds.end())
+            visibleHuds.emplace_back(&mod);
+    }
+
+    osg::Vec3 bl, hpr, offset;
+    if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0) {
+        const auto &s0 = coVRConfig::instance()->screens[0];
+        hpr = s0.hpr;
+        auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
+        osg::Matrix mat;
+        MAKE_EULER_MAT_VEC(mat, hpr);
+        bl = s0.xyz - sz * mat * 0.5;
+        auto minsize = std::min(s0.hsize, s0.vsize);
+        bl += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
+        offset = osg::Vec3(minsize/8, 0 , 0) * mat;
+    }
+    for (int i=0; i<3; ++i)
+    {
+        coVRMSController::instance()->syncData(&bl[i], sizeof(bl[i]));
+        coVRMSController::instance()->syncData(&hpr[i], sizeof(hpr[i]));
+    }
+
+    for (size_t i=0; i<visibleHuds.size(); ++i)
+    {
+        auto mod = visibleHuds[i];
+        mod->colorbar->setHudPosition(bl, hpr, offset[0]/450);
+        bl += offset;
     }
 }
 
@@ -122,8 +140,9 @@ ColorBarPlugin::removeInteractor(const std::string &container)
         {
             if (it2->first->isSame(inter))
             {
-                --it2->second.useCount;
-                if (it2->second.useCount == 0)
+                ColorsModule &mod = it2->second;
+                --mod.useCount;
+                if (mod.useCount == 0)
                 {
                     it2->first->decRefCount();
                     colorsModuleMap.erase(it2);
@@ -138,112 +157,71 @@ ColorBarPlugin::removeInteractor(const std::string &container)
 void
 ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter)
 {
-    if (strcmp(inter->getPluginName(), "ColorBars") == 0)
+    if (strcmp(inter->getPluginName(), "ColorBars") != 0)
+        return;
+
+    const char *containerName = container->getName();
+    coInteractor *oldInter = nullptr;
+    auto iit = interactorMap.find(containerName);
+    if (iit != interactorMap.end())
     {
-        const char *containerName = container->getName();
-        interactorMap[containerName] = inter;
+        oldInter = iit->second;
+    }
+    interactorMap[containerName] = inter;
+    inter->incRefCount();
+    if (oldInter)
+        oldInter->decRefCount();
+
+    const char *colormapString = inter->getString(0); // Colormap string
+    if (!colormapString)
+    {
+        // for Vistle: get from data object
+        colormapString = container->getAttribute("COLORMAP");
+    }
+
+    // get the module name
+    std::string moduleName = inter->getModuleName();
+    int instance = inter->getModuleInstance();
+    moduleName += "_" + std::to_string(instance);
+    std::string host = inter->getModuleHost();
+    moduleName += "@" + host;
+
+    std::string menuName = moduleName;
+    if (inter->getObject() && inter->getObject()->getAttribute("OBJECTNAME"))
+        menuName = inter->getObject()->getAttribute("OBJECTNAME");
+    if (container && container->getAttribute("OBJECTNAME"))
+        menuName = container->getAttribute("OBJECTNAME");
+
+    bool found = false;
+    ColorsModuleMap::iterator it = colorsModuleMap.begin();
+    for (; it != colorsModuleMap.end(); ++it)
+    {
+        if (it->first->isSame(inter))
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
         inter->incRefCount();
-
-        bool found = false;
-        ColorsModuleMap::iterator it = colorsModuleMap.begin();
-        for (; it != colorsModuleMap.end(); ++it)
-        {
-            if (it->first->isSame(inter))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
-        {
-            it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
-            inter->incRefCount();
-        }
         ColorsModule &mod = it->second;
-        ++mod.useCount;
+        mod.menu = new ui::Menu(menuName, &mod);
+        colorSubmenu->add(mod.menu);
 
-        const char *colormapString = NULL;
-        colormapString = inter->getString(0); // Colormap string
-
-        float min = 0.0;
-        float max = 1.0;
-        int numColors;
-        float *r = NULL;
-        float *g = NULL;
-        float *b = NULL;
-        float *a = NULL;
-        char *species = NULL;
+        mod.colorbar = new ColorBar(mod.menu);
+    }
+    ColorsModule &mod = it->second;
+    ++mod.useCount;
+    mod.menu->setText(menuName);
+    if (mod.colorbar)
+    {
+        mod.colorbar->addInter(inter);
+        mod.colorbar->setName(menuName.c_str());
         if (colormapString)
-        {
-            ColorBar::parseAttrib(colormapString, species, min, max, numColors, r, g, b, a);
-        }
-        else
-        {
-            species = new char[16];
-            strcpy(species, "NoColors");
-            numColors = 2;
-            min = 0.0;
-            max = 1.0;
-            r = new float[2];
-            g = new float[2];
-            b = new float[2];
-            a = new float[2];
-            r[0] = 0.0;
-            g[0] = 0.0;
-            b[0] = 0.0;
-            a[0] = 1.0;
-            r[1] = 1.0;
-            g[1] = 1.0;
-            b[1] = 1.0;
-            a[1] = 1.0;
-        }
-
-        // get the module name
-        std::string moduleName = inter->getModuleName();
-        int instance = inter->getModuleInstance();
-        std::string host = inter->getModuleHost();
-
-        char buf[32];
-        sprintf(buf, "_%d", instance);
-        moduleName += buf;
-        moduleName += "@" + host;
-
-        std::string menuName = moduleName;
-        if (inter->getObject() && inter->getObject()->getAttribute("OBJECTNAME"))
-            menuName = inter->getObject()->getAttribute("OBJECTNAME");
-        if (container && container->getAttribute("OBJECTNAME"))
-            menuName = container->getAttribute("OBJECTNAME");
-
-        if (found)
-        {
-            if (mod.colorbar)
-            {
-                mod.colorbar->update(species, min, max, numColors, r, g, b, a);
-                mod.colorbar->setName(menuName.c_str());
-            }
-        }
-        else
-        {
-            mod.menu = new ui::Menu(menuName, &mod);
-            colorSubmenu->add(mod.menu);
-
-            if (cover->vruiView)
-            {
-                auto menu = dynamic_cast<vrui::coRowMenu *>(cover->vruiView->getMenu(mod.menu));
-                auto item = dynamic_cast<vrui::coSubMenuItem *>(cover->vruiView->getItem(mod.menu));
-                if (menu && item)
-                    mod.colorbar = new ColorBar(item, menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
-            }
-        }
-        if (mod.colorbar)
-            mod.colorbar->addInter(inter);
-
-        delete[] species;
-        delete[] r;
-        delete[] g;
-        delete[] b;
-        delete[] a;
+            mod.colorbar->parseAttrib(colormapString);
     }
 }
 

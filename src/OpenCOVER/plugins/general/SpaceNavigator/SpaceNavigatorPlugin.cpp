@@ -344,11 +344,13 @@ void SpaceNavigator::doNavigation()
                 coVRConfig::instance()->screens[i].xyz[2] += (smd.p * 10);
         }
     }
-    if (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) || coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM))
-    {
-        VRSceneGraph::instance()->getTransform()->setMatrix(transformMat);
-        coVRCollaboration::instance()->SyncXform();
-    }
+	VRSceneGraph::instance()->getTransform()->setMatrix(transformMat);
+	coVRCollaboration::instance()->SyncXform();
+    //if (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) || coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM))
+    //{
+    //    VRSceneGraph::instance()->getTransform()->setMatrix(transformMat);
+    //    coVRCollaboration::instance()->SyncXform();
+    //}
 }
 
 // The timer callback is used to poll the 3d input device for change of keystates and

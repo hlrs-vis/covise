@@ -41,6 +41,7 @@ public:
 
     bool m_miniGUI, m_rgbTextOpen;
     int m_numRunning, m_numRendererRunning;
+	vrb::VrbMessageHandler m_handler;
 
     ControlConfig *Config;
     AccessGridDaemon *m_accessGridDaemon;
@@ -59,7 +60,6 @@ public:
 private:
     static CTRLHandler *singleton;
     FILE *fp;
-    vrb::VrbMessageHandler m_handler;
     string m_globalFilename, m_netfile, m_clipboardBuffer, m_collaborationRoom;
     string m_localUser, m_scriptName, m_filename, m_filePartnerHost, m_pyFile;
 

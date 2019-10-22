@@ -39,7 +39,7 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
 
     string = new QLineEdit(w);
 
-    connect(string, SIGNAL(returnPressed()), this, SLOT(released()));
+    connect(string, SIGNAL(editingFinished()), this, SLOT(released()));
     slider->setMinimum(0);
     slider->setMaximum(SliderMax);
 

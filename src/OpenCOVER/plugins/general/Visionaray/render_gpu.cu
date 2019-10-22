@@ -7,6 +7,7 @@
 
 #include <osg/Geometry>
 
+#include <visionaray/generic_material.h> // for ADL
 #include <visionaray/kernels.h>
 
 #include "kernels/bvh_costs_kernel.h"
@@ -19,7 +20,8 @@
 void render_gpu(
         const visionaray::cuda_index_bvh<visionaray::basic_triangle<3, float>>::bvh_ref* pbegin,
         const visionaray::cuda_index_bvh<visionaray::basic_triangle<3, float>>::bvh_ref* pend,
-        two_array_ref<thrust::device_vector<visionaray::vec3>> const& normals,
+        two_array_ref<thrust::device_vector<visionaray::vec3>> const& geometric_normals,
+        two_array_ref<thrust::device_vector<visionaray::vec3>> const& shading_normals,
         two_array_ref<thrust::device_vector<visionaray::vec2>> const& tex_coords,
         two_array_ref<device_material_list> const& materials,
         two_array_ref<thrust::device_vector<visionaray::vec3>> const& colors,
@@ -45,7 +47,8 @@ void render_gpu(
         colors_per_vertex_binding{},
         pbegin,
         pend,
-        normals,
+        geometric_normals,
+        shading_normals,
         tex_coords,
         materials,
         colors,

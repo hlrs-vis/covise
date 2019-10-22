@@ -83,7 +83,7 @@ osgCal::CoreModel *PedestrianFactory::getCoreModel(const std::string &modelFile)
         if (pos != std::string::npos)
             tmpModelFile.erase(pos, tmpModelFile.length());
 
-        tmpModelFile = std::string(getenv("COVISEDIR")) + std::string("/data/cal3d/") + tmpModelFile + std::string("/") + tmpModelFile + std::string(".cfg");
+        tmpModelFile = std::string("/data/cal3d/") + tmpModelFile + std::string("/") + tmpModelFile + std::string(".cfg");
     }
 
     // If some core models have already been loaded, we need to perform a search

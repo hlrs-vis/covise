@@ -32,7 +32,7 @@ FeedbackManager::~FeedbackManager()
 void FeedbackManager::registerFeedback(ModuleInteraction *feedback, coInteractor *inter)
 {
     m_moduleFeedback.emplace(inter, feedback);
-    std::cerr << "FeedbackManager: reg " << feedback->ModuleName() << ", #reg: " << m_moduleFeedback.size() << std::endl;
+    //std::cerr << "FeedbackManager: reg " << feedback->ModuleName() << ", #reg: " << m_moduleFeedback.size() << std::endl;
 }
 
 void FeedbackManager::unregisterFeedback(ModuleInteraction *feedback)

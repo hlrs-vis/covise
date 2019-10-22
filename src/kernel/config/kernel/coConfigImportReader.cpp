@@ -358,7 +358,7 @@ QDomDocument coConfigImportReader::parse()
                     else if (compatNode.attribute("list") == "1")
                     {
 
-                        if (compatNode.attribute("mapping") != QString::null)
+                        if (compatNode.attribute("mapping") != QString())
                         {
                             line = line.remove(0, compatNode.attribute("mapping").length());
                             line = line.trimmed();
@@ -387,7 +387,7 @@ QDomDocument coConfigImportReader::parse()
                         {
 
                             QString currentLine = line;
-                            if (compatNode.attribute("mapping") != QString::null)
+                            if (compatNode.attribute("mapping") != QString())
                             {
                                 currentLine = currentLine.remove(0, compatNode.attribute("mapping").length());
                                 currentLine = currentLine.trimmed();
@@ -496,7 +496,7 @@ QDomElement coConfigImportReader::findMapping(const QString &mapping,
     if (mapping.isNull())
         return QDomElement();
     else
-        return findMapping(QString::null, parent);
+        return findMapping(QString(), parent);
 }
 
 QDomElement coConfigImportReader::getOrCreateSection(QDomDocument &document, QDomNode &parent, const QString &name, const QString &hosts)

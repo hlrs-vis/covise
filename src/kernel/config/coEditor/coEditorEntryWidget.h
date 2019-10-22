@@ -27,9 +27,9 @@ class coEditorEntryWidget : public QWidget
 
 public:
     coEditorEntryWidget(QWidget *parent, coEditorGroupWidget *group,
-                        covise::coConfigEntry *entry, const QString &name = QString::null);
+                        covise::coConfigEntry *entry, const QString &name = QString());
     coEditorEntryWidget(QWidget *parent, coEditorGroupWidget *group,
-                        covise::coConfigSchemaInfos *infos, const QString &name = QString::null);
+                        covise::coConfigSchemaInfos *infos, const QString &name = QString());
 
     ~coEditorEntryWidget()
     {
@@ -41,7 +41,7 @@ public:
 signals:
     void helpRequest(/*QString & text*/);
     void saveValue(const QString &variable, const QString &value,
-                   const QString &section, const QString &host = QString::null);
+                   const QString &section, const QString &host = QString());
     void deleteValue(const QString &variable, const QString &section);
     void nameAdded(const QString &newName, covise::coConfigSchemaInfos *infos);
     void deleteRequest(coEditorEntryWidget *widget);
@@ -61,12 +61,12 @@ private slots:
 
 private:
     void createBooleanValue(const QString &valueName, const QString &value,
-                            const QString &attributeDescription = QString::null,
+                            const QString &attributeDescription = QString(),
                             bool empty = false, bool required = false);
     void createQregXpValue(const QString &valueName, const QString &value,
                            const QRegExp &rx = QRegExp("^.*"),
-                           const QString &readableAttrRule = QString::null,
-                           const QString &attributeDescription = QString::null,
+                           const QString &readableAttrRule = QString(),
+                           const QString &attributeDescription = QString(),
                            bool empty = false, bool required = false);
 
     void createConstruct();

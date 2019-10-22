@@ -71,6 +71,7 @@ protected:
     gzFile d_gz;
 #endif
     char *d_tmpfile; // Local copy of http: files
+	bool d_isTmp = false; //is local copy a temp file
 };
 }
 #endif // _DOC_

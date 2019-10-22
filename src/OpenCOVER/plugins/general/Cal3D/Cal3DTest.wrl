@@ -34,6 +34,23 @@ DEF troutOne Cal3DNode
 ]
 }
 
+DEF TroutTranst Transform
+{
+translation 7.5 1 0
+children [
+DEF testOne Cal3DNode
+{
+ core DEF testCore Cal3DCore
+ {
+            modelName "/data/cal3d/CH02_01_Bicycle/CH02_01_Bicycle.CFG"
+ 		   scale 1
+ }
+ animationId 1
+ animationOffset 0.0
+}
+]
+}
+
 DEF callyTrans Transform
 {
 translation 3 0 0
@@ -179,3 +196,6 @@ ROUTE Key-SCRIPT.action TO paladin.executeAction
 ROUTE Key-SCRIPT.action TO calKid.executeAction
 ROUTE Key-SCRIPT.offset TO cally.animationOffset
 ROUTE Key-SCRIPT.anim TO calKid.animationId
+ROUTE Key-SCRIPT.action TO testOne.executeAction
+ROUTE Key-SCRIPT.offset TO testOne.animationOffset
+ROUTE Key-SCRIPT.anim TO testOne.animationId

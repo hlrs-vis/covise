@@ -5,6 +5,7 @@ if defined COMMON_ACTIVE (
 )
 
 set VCPKG_DEFAULT_TRIPLET=x64-windows
+set VCPKG_OSGVER=3.6.3
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
    echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt,zebu, zebuopt mingw, mingwopt"
@@ -117,12 +118,19 @@ if "%BASEARCHSUFFIX%" EQU "zebu"  (
 )
 
 if "%VC14_15%" EQU "yes" (
-   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" ( 
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" ( 
+   call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
+   )
+    
     
     if NOT defined VS150COMNTOOLS% (
+    if NOT defined VS160COMNTOOLS% (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
+	)
 	)
 ) else if "%BASEARCHSUFFIX%" EQU "win32" (
     call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
@@ -176,15 +184,15 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
 
 if "%VCPKG_ROOT%" NEQ "" (
     if "%BASEARCHSUFFIX%" EQU "vcpkg" (
-        set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
-        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.6.2"
+        set "PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\bin;%VCPKG_ROOT%;%PATH%"
+        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\tools\osg\osgPlugins-%VCPKG_OSGVER%"
     )
 )
 
 if "%VCPKG_ROOT%" NEQ "" (
     if "%ARCHSUFFIX%" EQU "vcpkg" (
           set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
-          set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\debug\tools\osg\osgPlugins-3.6.2"
+          set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\debug\tools\osg\osgPlugins-%VCPKG_OSGVER%"
     )
 )
 
@@ -195,6 +203,9 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
 
 if defined CUDA_PATH_V10_0 (
     set CUDA_PATH=%CUDA_PATH_V10_0%
+)
+if defined CUDA_PATH_V10_1 (
+    set CUDA_PATH=%CUDA_PATH_V10_1%
 )
 
 if not defined QT_HOME ( 
@@ -298,7 +309,7 @@ if not defined CUDA_HOME  (
 )
 
 if not defined PYTHONHOME  (
-   set "PYTHONHOME=%EXTERNLIBS%\..\shared\Python;%EXTERNLIBS%\Python"
+   set "PYTHONHOME=%EXTERNLIBS%\Python"
    rem PYTHON_HOME is for compiling Python 
    rem  while PYTHONHOME is for executing Python and can consist of
    rem several different paths
@@ -324,7 +335,7 @@ set PATH=%PATH%;%EXTERNLIBS%\bison\bin
 
 :FINALIZE
 set LOGNAME=covise
-set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
+set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins;C:\Program Files\NVIDIA Corporation\NVSMI
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
 if not defined COVISE_PATH (

@@ -35,6 +35,7 @@ class coGenericSubMenuItem;
 */
 class OPENVRUIEXPORT coRowMenu : public coMenu, public coButtonActor, public coMenuListener
 {
+    friend class coRowMenuItem;
 protected:
     coRowContainer *itemsContainer; ///< menu items (anything below title bar)
     coFrame *itemsFrame; ///< all menu items are framed by this frame

@@ -181,6 +181,7 @@ SET(UI_HEADERS
     ui/TextField.h
     ui/EditField.h
     ui/FileBrowser.h
+    ui/SpecialElement.h
     ui/View.h
     ui/VruiView.h
     ui/TabletView.h
@@ -204,6 +205,7 @@ SET(UI_SOURCES
     ui/TextField.cpp
     ui/EditField.cpp
     ui/FileBrowser.cpp
+    ui/SpecialElement.cpp
     ui/View.cpp
     ui/VruiView.cpp
     ui/TabletView.cpp
@@ -288,7 +290,7 @@ ENDIF(WIN32)
 
 COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coQtUtil coAppl
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coQtUtil 
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(${COVERKERNEL_TARGET})

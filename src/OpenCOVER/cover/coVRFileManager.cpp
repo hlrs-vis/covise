@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cstring>
 #include <cctype>
+#include <stdlib.h>
 
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
@@ -40,6 +41,11 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <net/message.h>
+#include <vrbclient/VRBClient.h>
+#include <fcntl.h>
+
+
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -271,9 +277,13 @@ struct LoadedFile
   {
       if  (button)
       {
-          button->setText(shortenUrl(url));
+		  auto n = coVRFileManager::instance()->getFileName(shortenUrl(url));
+		  if (n.length() == 0)
+		  {
+			  n = url.str();
+		  }
+		  button->setText(n);
           button->setState(true);
-          button->setShared(true);
           button->setCallback([this](bool state){
               if (state)
               {
@@ -383,7 +393,12 @@ osg::Node *LoadedFile::load()
             fprintf(stderr, "coVRFileManager::loadFile(name=%s)   handler\n", url.str().c_str());
         if (handler->loadUrl)
         {
-            handler->loadUrl(url, fakeParent, covise_key);
+			if (handler->loadUrl(url, fakeParent, covise_key) < 0)
+			{
+				if (button)
+					button->setState(false);
+				return NULL;
+			}
         }
         else
         {
@@ -403,7 +418,6 @@ osg::Node *LoadedFile::load()
                     handler->loadFile(adjustedFileName.c_str(), fakeParent, covise_key);
             }
         }
-        coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
         if (fakeParent->getNumChildren() == 1)
         {
             node = fakeParent->getChild(0);
@@ -451,6 +465,7 @@ osg::Node *LoadedFile::load()
         //obj-Objects must not be rotated
         osgDB::ReaderWriter::Options *op = new osgDB::ReaderWriter::Options();
         op->setOptionString("noRotation");
+        op->setOptionString("noTriStripPolygons"); // don't run optimizer on STL and OBJ files
 
         std::string tmpFileName = adjustedFileName;
         if (fb)
@@ -608,19 +623,20 @@ const char *coVRFileManager::buildFileName(const char *texture)
 
 bool coVRFileManager::fileExist(const char *fileName)
 {
-    FILE *file;
-    const char *Name = buildFileName(fileName);
-    if (Name)
-    {
-        file = ::fopen(Name, "r");
-        //delete name;
-        if (file)
-        {
-            ::fclose(file);
-            return true;
-        }
-    }
-    return false;
+	try
+	{
+		return fs::exists(fileName);
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+	
+}
+
+bool coVRFileManager::fileExist(const std::string& fileName)
+{
+	return fileExist(fileName.c_str());
 }
 
 osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
@@ -630,36 +646,29 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         return nullptr;
     }
     START("coVRFileManager::loadFile");
-    fs::path p(fileName);
-    if (!fs::exists(p))
-    {
-        cerr << "file " << p.string() << " does not exist" << endl;
-        return nullptr;
-    }
-    std::string canonicalPath = fs::canonical(p).string();
-    convertBackslash(canonicalPath);
-    if (m_files.find(canonicalPath) != m_files.end())
+	std::string validFileName(fileName);
+	convertBackslash(validFileName);
+
+    if (m_files.find(validFileName)!= m_files.end())
     {
         cerr << "The File : " << fileName << " is already loaded" << endl;
         cerr << "Loading a file multiple times is currently not supported" << endl;
         return nullptr;
     }
-    std::string relativePath = canonicalPath;
-    cutName(relativePath);
     std::string adjustedFileName;
     std::string key;
 
     if (fb)
     {
         //Store filename associated with corresponding fb instance
-        key = canonicalPath;
+        key = validFileName;
         fileFBMap[key] = fb;
     }
-
-    Url url = Url::fromFileOrUrl(canonicalPath);
+	//url to local file
+    Url url = Url::fromFileOrUrl(validFileName);
     if (!url.valid())
     {
-        std::cerr << "failed to parse URL " << canonicalPath << std::endl;
+        std::cerr << "failed to parse URL " << validFileName << std::endl;
         return  nullptr;
     }
     std::cerr << "Loading " << url.str() << std::endl;
@@ -687,7 +696,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         parent = cover->getObjectsRoot();
     else
     {
-        parent->setNodeMask(parent->getNodeMask() & (~Isect::Intersection));
+        // why do you want to disable intersection test here? parent->setNodeMask(parent->getNodeMask() & (~Isect::Intersection));
         if (cover->debugLevel(3))
             fprintf(stderr, "coVRFileManager::loadFile setting nodeMask of parent to %x\n", parent->getNodeMask());
     }
@@ -696,15 +705,40 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        button = new ui::Button(m_fileGroup, std::string("File_"+ relativePath));
+		std::string relPath(adjustedFileName);
+		makeRelativeToSharedDataLink(relPath);
+		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath));
     }
+	if (isRoot)
+	{
+		//if file is not shared, add it to the shared filePaths list
+		fileOwnerList v = m_sharedFiles;
+		std::string pathIdentifier(adjustedFileName);
+		makeRelativeToSharedDataLink(pathIdentifier);
+		bool found = false;
+		for (auto p : v)
+		{
+			if (p.first == pathIdentifier)
+			{
+				found = true;
+				break;
+			}
+		}
+
+
+		if (!found)
+		{
+			v.push_back(fileOwner(pathIdentifier, coVRCommunication::instance()->getID()));
+			m_sharedFiles = v;
+		}
+	}
     auto fe = new LoadedFile(url, button);
     if (covise_key)
         fe->key = covise_key;
     fe->filebrowser = fb;
 
     OpenCOVER::instance()->hud->setText2("loading");
-    OpenCOVER::instance()->hud->setText3(canonicalPath);
+    OpenCOVER::instance()->hud->setText3(validFileName);
     OpenCOVER::instance()->hud->redraw();
     if (isRoot)
     {
@@ -713,7 +747,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             const char *ext = strchr(url.path().c_str(), '.');
             if(ext)
             {
-                viewPointFile = canonicalPath;
+                viewPointFile = validFileName;
                 std::string::size_type pos = viewPointFile.find_last_of('.');
                 viewPointFile = viewPointFile.substr(0,pos);
                 viewPointFile+=".vwp";
@@ -727,24 +761,45 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     coVRIOReader *reader = findIOHandler(adjustedFileName.c_str());
     if (!handler && !fileTypeString.empty())
         handler = findFileHandler(fileTypeString.c_str());
+	//vrml will remote fetch missing files itself
+	std::string xt = url.extension();
+	
+	std::vector<std::string> vrmlExtentions{ "x3dv", "wrl", "wrz" };
+	std::string lowXt(xt);
+	std::transform(xt.begin(), xt.end(), lowXt.begin(), ::tolower);
+	bool isVRML = false;
+	for (auto ext : vrmlExtentions)
+	{
+		if (("." + ext) == lowXt)
+		{
+			isVRML = true;
+			break;
+		}
+	}
+	if (!isVRML)
+	{
+		validFileName = findOrGetFile(adjustedFileName);
+		if (validFileName.length() == 0)
+		{
+			return nullptr;
+		}
+		fe->url = Url::fromFileOrUrl(validFileName);
+
+	}
     fe->handler = handler;
     fe->reader = reader;
     fe->parent = parent;
 
     auto node = fe->load();
+	if (fe->button)
+	{
+		fe->button->setShared(true);
+	}
 
-    if (isRoot)
+    if (isRoot && node != NULL)
     {
-        //if file is not shared, add it to the shared filePaths list
-        std::set<std::string> v = filePaths;
-        if (v.insert(relativePath).second)
-        {
-            filePaths = v;
-        }
-        m_files[canonicalPath] = fe;
-
-
-        if (node)
+		m_files[validFileName] = fe;
+		if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
         else
             OpenCOVER::instance()->hud->setText2("failed to load");
@@ -939,47 +994,75 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
-    , filePaths("coVRFileManager_filePaths", std::set<std::string>(), vrb::ALWAYS_SHARE)
+    , m_sharedFiles("coVRFileManager_filePaths", fileOwnerList(), vrb::ALWAYS_SHARE)
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
     assert(!s_instance);
     getSharedDataPath();
+	//register my files with my ID
+	coVRCommunication::instance()->addOnConnectCallback([this](void) {
+		fileOwnerList files = m_sharedFiles.value();
+		auto path = files.begin();
+		while (path != files.end())
+		{
+			path->second = coVRCommunication::instance()->getID();
+			++path;
+		}
+		m_sharedFiles = files;
+		});
     if (cover) {
         m_owner.reset(new ui::Owner("FileManager", cover->ui));
 
         auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
         fileOpen->setText("Open");
         fileOpen->setFilter(getFilterList());
-        cover->fileMenu->add(fileOpen);
-        fileOpen->setCallback([this](const std::string &file){
-                loadFile(file.c_str());
-        });
-        filePaths.setUpdateFunction([this](void) {loadPartnerFiles(); });
-        m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
-        m_fileGroup->setText("Files");
-        cover->fileMenu->add(m_fileGroup);
+        if(cover->fileMenu)
+        {
+          cover->fileMenu->add(fileOpen);
+          fileOpen->setCallback([this](const std::string &file){
+                  loadFile(file.c_str());
+          });
+          m_sharedFiles.setUpdateFunction([this](void) {loadPartnerFiles(); });
+          m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
+          m_fileGroup->setText("Files");
+          cover->fileMenu->add(m_fileGroup);
+  
+          auto fileReload = new ui::Action("ReloadFile", m_owner.get());
+          cover->fileMenu->add(fileReload);
+          fileReload->setText("Reload file");
+          fileReload->setCallback([this](){
+                  reloadFile();
+          });
 
-        auto fileReload = new ui::Action("ReloadFile", m_owner.get());
-        cover->fileMenu->add(fileReload);
-        fileReload->setText("Reload file");
-        fileReload->setCallback([this](){
-                reloadFile();
-        });
+          auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
+          fileSave->setText("Save");
+          fileSave->setFilter(getWriteFilterList());
+          cover->fileMenu->add(fileSave);
+          fileSave->setCallback([this](const std::string &file){
+                  if (coVRMSController::instance()->isMaster())
+                  VRSceneGraph::instance()->saveScenegraph(file);
+          });
 
-        auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
-        fileSave->setText("Save");
-        fileSave->setFilter(getWriteFilterList());
-        cover->fileMenu->add(fileSave);
-        fileSave->setCallback([this](const std::string &file){
-                if (coVRMSController::instance()->isMaster())
-                VRSceneGraph::instance()->saveScenegraph(file);
-        });
-
-        cover->getUpdateManager()->add(this);
+          cover->getUpdateManager()->add(this);
+		  coVRCommunication::instance()->initVrbFileMenue();
+        }
     }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
+	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
+	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
+	path = resolveEnvs(path);
+	if (fileExist(path))
+	{
+		remoteFetchPath = path;
+	}
+	else
+	{
+		std::string tmp = fs::temp_directory_path().string() + "/OpenCOVER";
+		fs::create_directory(tmp);
+		remoteFetchPath = tmp;
+	}
 }
 
 coVRFileManager::~coVRFileManager()
@@ -1084,30 +1167,163 @@ const char *coVRFileManager::getName(const char *file)
     return NULL;
 }
 
-void coVRFileManager::cutName(std::string & fileName)
+bool coVRFileManager::makeRelativeToSharedDataLink(std::string & fileName)
 {
-    boost::filesystem::path filePath(fileName);
-    if (!boost::filesystem::exists(filePath))
-    {
-        return;
-    }
-    if (fileName.compare(0, m_sharedDataPath.length(), m_sharedDataPath)== 0)
-    {
-        fileName.erase(0, m_sharedDataPath.length());
-    }
+	if (fs::exists(fileName))
+	{
+		return makeRelativePath(fileName, m_sharedDataLink);
+	}
+	return false;
+	
 }
-
-std::string coVRFileManager::findSharedFile(const std::string & fileName)
+bool coVRFileManager::isInTmpDir(const std::string& fileName)
 {
-    std::string path = m_sharedDataPath + fileName;
-    if (fs::exists(path))
-    {
-        return path;
-    }
-    else
-    {
-        return fileName;
-    }
+	std::string f(fileName);
+	return makeRelativePath(f, fs::temp_directory_path().string());
+}
+bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string& basePath)
+{
+	convertBackslash(fileName);
+	std::string bp(basePath);
+	convertBackslash(bp);
+	if (bp.length() >= fileName.length())
+	{
+		return false;
+	}
+	if (int pos = fileName.find(bp) != std::string::npos)
+	{
+		fileName.erase(0, pos + basePath.length() - 1);
+		return true;
+	}
+	std::string abs = fs::canonical(bp).string();
+	convertBackslash(abs);
+	for (size_t i = 0; i < abs.length(); i++)
+	{
+		if (std::tolower(abs[i]) != std::tolower(fileName[i]))
+		{
+			return false;
+		}
+	}
+	fileName.erase(0, abs.length());
+	return true;
+}
+std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool *isTmp)
+{
+	coVRMSController* ms = coVRMSController::instance();
+	enum FilePlace
+	{
+		MISS = 0,		//file not found
+		LOCAL,		//local file
+		WORK,		//in current working directory
+		LINK,		//under shared data link
+		FETCHED,		//already in remote fetch directory
+		REMOTE		//fetch from remote in tmp directory
+	};
+	FilePlace filePlace = MISS;
+	std::string path;
+	//find local file
+	if (fileExist(filePath))
+	{
+		path = filePath;
+		convertBackslash(path);
+		filePlace = LOCAL;
+	}
+	else if (fileExist(path = fs::current_path().string() + filePath) || fileExist(path = fs::current_path().string() + "/" + filePath))//find file in working dir
+	{
+		filePlace = WORK;
+	}
+	else if (fileExist(path = m_sharedDataLink + filePath))//find file under sharedData link
+	{
+
+		filePlace = LINK;
+	}
+	else if (remoteFetchPath.size() != 0 && fileExist(path = remoteFetchPath + "/" + getFileName(filePath)))
+	{
+		filePlace = FETCHED;
+	}
+	if (remoteFetchEnabled) //check if all have found the find locally
+	{
+		bool sync = true;
+		bool found = filePlace != MISS;
+		if (ms->isMaster())
+		{
+			coVRMSController::SlaveData sd(sizeof(bool));
+
+			ms->readSlaves(&sd);
+			for (size_t i = 0; i < sd.data.size(); i++)
+			{
+				if (*(bool*)sd.data[i] != found)
+				{
+					sync = false;
+				}
+			}
+			ms->sendSlaves(&sync, sizeof(sync));
+			if (!sync)
+			{
+				ms->sendSlaves(&found, sizeof(found));
+				if (found)
+				{
+					covise::TokenBuffer tb;
+					if (!serializeFile(path, tb))
+					{
+						cerr << "coVRFileManage::findOrGetFile error 1: file was there an is now gone" << endl;
+						exit(0);
+					}
+					covise::Message msg(tb);
+					ms->sendSlaves(&msg);
+				}
+			}
+		}
+		else //is slave
+		{
+			ms->sendMaster(&found, sizeof(found));
+			ms->readMaster(&sync, sizeof(sync));
+			if (!sync)
+			{
+				bool master_found;
+				ms->readMaster(&master_found, sizeof(master_found));
+				if (master_found) //receive file from master
+				{
+					covise::Message msg;
+					ms->readMaster(&msg);
+					int numBytes = 0;
+					covise::TokenBuffer tb(&msg);
+					tb >> numBytes;
+					if (numBytes <= 0)
+					{
+						path = "";
+					}
+					else
+					{
+						const char* buf = tb.getBinary(numBytes);
+						path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+					}
+				}
+				else
+				{
+					filePlace = MISS;
+				}
+			}
+		}
+		if (filePlace == MISS)
+		{
+			path = "";
+			//fetch the file
+			int fileOwner = guessFileOwner(filePath);
+			path = remoteFetch(filePath, fileOwner);
+			if (fileExist(path))
+			{
+				//isTmp = true; //dont ever delete tmp files
+				filePlace = REMOTE;
+			}
+		}
+	}
+	if (filePlace == MISS)
+	{
+		path = "";
+	}
+
+	return path;
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
@@ -1445,34 +1661,36 @@ void coVRFileManager::loadPartnerFiles()
     std::set<std::string> alreadyLoadedFiles;
     for (auto myFile : m_files)
     {
-        bool found = false;
-        
         auto shortPath = myFile.first;
-        cutName(shortPath);
-        alreadyLoadedFiles.insert(shortPath);
-        for (auto theirFile : filePaths.value())
-        {
-            if (shortPath == theirFile || myFile.first == theirFile)
-            {
-                myFile.second->load();
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-            unloadFile(myFile.first.c_str());
-        }
+		auto fileName = getFileName(shortPath);
+        makeRelativeToSharedDataLink(shortPath);
+        alreadyLoadedFiles.insert(fileName);
+		bool found = false;
+		for (auto p : m_sharedFiles.value())
+		{
+			auto pFileName = getFileName(p.first);
+			if (pFileName == fileName)
+			{
+				//myFile.second->load();
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			//unloadFile(myFile.first.c_str());
+		}
     }
-    
-    
+
     //load new partner files
     std::set<std::string> newFiles;
-    std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
-    for (auto newFile : newFiles)
-    {
-        loadFile(findSharedFile(newFile).c_str());
-    }
+	for (auto theirFile : m_sharedFiles.value())
+	{
+		if (alreadyLoadedFiles.find(getFileName(theirFile.first)) == alreadyLoadedFiles.end())
+		{
+			loadFile(theirFile.first.c_str());
+		}
+	}
 }
 
 void coVRFileManager::getSharedDataPath()
@@ -1483,14 +1701,15 @@ void coVRFileManager::getSharedDataPath()
 #else
     std::vector<std::string> p = split(covisepath, ':');
 #endif
-    for (const auto path : p)
+    for (auto path : p)
     {
-        std::string link = path + "/../sharedData";
-        if (fs::exists(link))
+		convertBackslash(path);
+		int delimiter = path.rfind('/');
+		std::string link = path.erase(delimiter, path.length()- delimiter) + "/sharedData";
+        if (fileExist(link))
         {
-            m_sharedDataPath = fs::canonical(link).string();
-            convertBackslash(m_sharedDataPath);
-
+			m_sharedDataLink = link;
+			return;
         }
     }
 }
@@ -1511,4 +1730,365 @@ void coVRFileManager::convertBackslash(std::string & path)
     }
     path = convertedPath;
 }
+
+std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOwner)
+{
+
+	const char *buf = nullptr;
+    int numBytes = 0;
+
+
+
+    //if (strncmp(filePath, "vrb://", 6) == 0)
+    //{
+    //    //Request file from VRB
+    //    std::cerr << "VRB file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+    //    coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filePath));
+    //    std::string sresult = locFB->getFilename(filePath).c_str();
+    //    char *result = new char[sresult.size() + 1];
+    //    strcpy(result, sresult.c_str());
+    //    return std::string(result);
+    //}
+    //else if (strncmp(filePath, "agtk3://", 8) == 0)
+    //{
+    //    //REquest file from AG data store
+    //    std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+    //    coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filePath));
+    //    return std::string(locFB->getFilename(filePath).c_str());
+    //}
+	//request file from vrb
+	if (vrbc || cover->connectedToCovise() ||!coVRMSController::instance()->isMaster())
+	{
+		if (coVRMSController::instance()->isMaster())
+		{
+			TokenBuffer rtb;
+			rtb << filePath;
+			rtb << coVRCommunication::instance()->getID();
+			rtb << fileOwner;
+			Message m(rtb);
+			m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
+			cover->sendVrbMessage(&m);
+		}
+		int message = 1;
+		Message* msg= new Message; 
+		Message* mymsg = nullptr;
+		//wait for the file
+		do
+		{
+			if (cover->connectedToCovise())
+			{
+				std::vector<covise::Message*> msgs = coVRCommunication::instance()->waitCoviseMessages();
+				for (auto m : msgs)
+				{
+					if (m->type == COVISE_MESSAGE_VRB_SEND_FILE)
+					{
+						m_sendFileMessages.push_back(m);
+					}
+					else
+					{
+						coVRCommunication::instance()->handleCoviseMessage(m);
+					}
+				}
+			}
+			else if ((vrbc && vrbc->isConnected()) || !coVRMSController::instance()->isMaster())
+			{
+				if (coVRMSController::instance()->isMaster())
+				{
+					vrbc->wait(msg);
+					coVRMSController::instance()->sendSlaves((char*)& message, sizeof(message));
+					coVRMSController::instance()->sendSlaves(msg);
+				}
+				else
+				{
+					coVRMSController::instance()->readMaster((char*)& message, sizeof(message));
+					if (message == 0)
+						return "";
+					// wait for message from master instead
+					coVRMSController::instance()->readMaster(msg);
+				}
+				//cache all send file messages
+				if (msg->type == COVISE_MESSAGE_VRB_SEND_FILE)
+				{
+					m_sendFileMessages.push_back(msg);
+				}
+				else
+				{
+					coVRCommunication::instance()->handleVRB(msg);
+				}
+			}
+			else
+			{
+					message = 0;
+					coVRMSController::instance()->sendSlaves((char*)& message, sizeof(message));
+
+				return "";
+			}
+			int myID;
+			std::string fn;
+			auto m = m_sendFileMessages.begin();
+			//find out if my file has been received
+			while (m != m_sendFileMessages.end())
+			{
+				TokenBuffer tb(*m);
+				tb.rewind();
+				tb >> myID;
+				tb >> fn;
+				if (fn == std::string(filePath) && myID == coVRCommunication::instance()->getID())
+				{
+					mymsg = *m;
+					m_sendFileMessages.erase(m);
+					m = m_sendFileMessages.end();
+				}
+				else
+				{
+					++m;
+				}
+			}
+		} while (!mymsg);
+
+		
+		TokenBuffer tb(mymsg);
+		int myID;
+		std::string fn;
+		tb >> myID; // this should be my ID
+		tb >> fn; //this should be the requested file
+		tb >> numBytes;
+		if (numBytes <= 0)
+		{
+			return "";
+		}
+		buf = tb.getBinary(numBytes);
+		std::string pathToTmpFile = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+		delete mymsg;
+		mymsg = nullptr;
+		return pathToTmpFile;
+	}
+
+	return "";
+}
+int coVRFileManager::getFileId(const char* url)
+{
+	if (!url)
+	{
+		return -1;
+	}
+	std::string p(url);
+	makeRelativeToSharedDataLink(p);
+	for (size_t i = 0; i < m_sharedFiles.value().size(); i++)
+	{
+		if (m_sharedFiles.value()[i].first == p)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+void coVRFileManager::sendFile(TokenBuffer &tb)
+{
+    char *filename;
+    tb >> filename;
+    int requestorsID;
+    tb >> requestorsID;
+    std::string validPath(filename);
+    //if filenot found
+    if (!fileExist(validPath))
+    {
+        //search file under sharedDataPath
+        makeRelativeToSharedDataLink(validPath);
+        validPath = m_sharedDataLink + validPath;
+    }
+	TokenBuffer rtb;
+	rtb << requestorsID;
+	rtb << filename;
+
+	serializeFile(validPath, rtb);
+	coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
+
+}
+std::string coVRFileManager::getFileName(const std::string &fileName)
+{
+    std::string name;
+    for (size_t i = fileName.length() - 1; i > 0; --i)
+    {
+        if (fileName[i] == '/' || fileName[i] == '\\')
+        {
+            return name;
+        }
+        name.insert(name.begin(), fileName[i]);
+    }
+    return fileName;
+}
+std::string coVRFileManager::cutFileName(const std::string &fileName)
+{
+    std::string name = fileName;
+    for (size_t i = fileName.length() - 1; i > 0; --i)
+    {
+        name.pop_back();
+        if (fileName[i] == '/' || fileName[i] == '\\')
+        {
+            return name;
+        }
+
+    }
+    return "";
+}
+std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
+{
+
+    std::string red;
+    for (auto c : str)
+    {
+        if (isalnum(c) && c != '_' && c != '-')
+        {
+			red.push_back(c);
+        }
+    }
+    return red;
+}
+
+std::string coVRFileManager::writeFile(const std::string& fileName, const char* content, int size)
+{
+	
+	std::string p(remoteFetchPath);
+	p += "/" + fileName;
+
+	if ((size > 0) && !fileExist(p))
+	{
+#ifndef _WIN32
+		int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
+#else
+		int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
+#endif
+		if (fd != -1)
+		{
+			if (int wroteBytes = write(fd, content, size) != size)
+			{
+				//warn("remoteFetch: temp file write error\n");
+				cerr << fileName << " writing file error: " << "wrote bytes = " << wroteBytes << " received bytes = " << size << endl;
+				return "";
+			}
+			close(fd);
+		}
+		else
+		{
+			cerr << "opening file " << p << " failed";
+			return "";
+		}
+	}
+	return p;
+}
+int coVRFileManager::guessFileOwner(const std::string& fileName)
+{
+
+	int fileOwner = -1;
+	int bestmatch = 0;
+	for (auto p : m_sharedFiles.value())
+	{
+		int match = 0;
+		for (size_t i = 0; i < std::min(p.first.length(), fileName.length()); i++)
+		{
+			if (p.first[i] == fileName[i])
+			{
+				++match;
+			}
+		}
+		if (match > bestmatch)
+		{
+			bestmatch = match;
+			fileOwner = p.second;
+		}
+	}
+	return fileOwner;
+}
+bool coVRFileManager::serializeFile(const std::string& fileName, covise::TokenBuffer& tb)
+{
+	struct stat statbuf;
+
+
+	if (stat(fileName.c_str(), &statbuf) < 0)
+	{
+		tb << 0;
+		return false;
+	}
+#ifdef _WIN32
+	int fdesc = open(fileName.c_str(), O_RDONLY | O_BINARY);
+#else
+	int fdesc = open(fileName.c_str(), O_RDONLY);
+#endif
+	if (fdesc > 0)
+	{
+		tb << (int)statbuf.st_size;
+		char* buf = (char*)tb.allocBinary(statbuf.st_size);
+		int n = read(fdesc, buf, statbuf.st_size);
+		if (n == -1)
+		{
+			cerr << "coVRCommunication::handleVRB: read failed: " << strerror(errno) << endl;
+		}
+		close(fdesc);
+	}
+	else
+	{
+		cerr << " file access error, could not open " << fileName << endl;
+		tb << 0;
+		return false;
+	}
+	return true;
+}
+std::string coVRFileManager::cutStringAt(const std::string &s, char delimiter)
+{
+	std::string r;
+	auto it = s.begin();
+	while (it != s.end() && *it != delimiter)
+	{
+		r.push_back(*it);
+		++it;
+	}
+	return r;
+}
+
+std::string coVRFileManager::resolveEnvs(const std::string& s)
+{
+	std::string stringWithoutEnvs;
+#ifdef WIN32	
+	char delimiter = '%';
+
+#else 
+	char delimiter = '$';
+	char delimiter2 = '/';
+#endif
+	auto it = s.begin();
+	auto lastIt = s.begin();
+	while (it != s.end())
+	{
+		if (*it == delimiter)
+		{
+			stringWithoutEnvs.append(lastIt, it);
+			++it;
+			std::string env;
+#ifdef WIN32
+			while (*it != delimiter)
+#else		
+			while(*it != delimiter2)
+#endif
+			{
+
+				env.push_back(*it);
+				++it;
+			}
+
+			env = getenv(env.c_str());
+			env = cutStringAt(env, ';');
+#ifndef WIN32
+			env.push_back(delimiter2);
+#endif // !WIN32
+			stringWithoutEnvs += env;
+			++it;
+			lastIt = it;
+		}
+		++it;
+	}
+	stringWithoutEnvs.append(lastIt, s.end());
+	return stringWithoutEnvs;
+}
+
 }

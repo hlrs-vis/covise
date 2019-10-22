@@ -27,13 +27,15 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPluginList.h>
 #include <cover/coVRFileManager.h>
-
+#include <cover/coVRCommunication.h>
 #include <PluginUtil/FeedbackManager.h>
 #include <PluginUtil/ModuleInteraction.h>
 
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Manager.h>
+
+#include <net/message.h>
 
 using namespace covise;
 using namespace opencover;
@@ -90,9 +92,9 @@ static void initPinboard(VRPinboard *pb)
 }
 #endif
 
-static void messageCallback(int len, const void *buf)
+static void messageCallback(const DataHandle &dh)
 {
-    coVRPluginList::instance()->forwardMessage(len, buf);
+    coVRPluginList::instance()->forwardMessage(dh);
 }
 
 bool CovisePlugin::init()
@@ -104,7 +106,8 @@ bool CovisePlugin::init()
     if (!cover->visMenu)
     {
         cover->visMenu = new ui::Menu("COVISE", this);
-        auto e = new ui::Action(cover->visMenu, "Execute");
+        auto e = new ui::Action("Execute", cover->visMenu);
+        cover->visMenu->add(e, ui::Container::KeepFirst);
         e->setShortcut("e");
         e->setCallback([this](){
             executeAll();
@@ -121,6 +124,7 @@ bool CovisePlugin::init()
         }
     }
 #endif
+    CoviseRender::set_custom_callback(CovisePlugin::OpenCOVERCallback, this); //get covisemessages from 
     CoviseRender::set_render_module_callback(messageCallback);
     return VRCoviseConnection::covconn;
 }
@@ -372,6 +376,19 @@ bool CovisePlugin::requestInteraction(coInteractor *inter, osg::Node *triggerNod
     else
         interaction->enableDirectInteractorFromGui(true);
     return true;
+}
+
+void CovisePlugin::handleVrbMessage()
+{
+    coVRCommunication::instance()->handleVRB(m_vrbmsg);
+}
+
+void CovisePlugin::OpenCOVERCallback(void * userData, void * callbackData)
+{
+    CovisePlugin *thisCovisePlugin = (CovisePlugin *)userData;
+    thisCovisePlugin->m_vrbmsg = (covise::Message *)callbackData;
+    thisCovisePlugin->handleVrbMessage();
+
 }
 
 COVERPLUGIN(CovisePlugin)

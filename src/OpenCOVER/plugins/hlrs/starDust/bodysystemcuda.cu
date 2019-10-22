@@ -592,7 +592,7 @@ template <class T> void CudaParticles<T>::setInitialData(T *pos,T*velo)
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
-            (long)numParticles*3*sizeof(T), cudaGetErrorString(err));
+            (long)(numParticles*3*sizeof(T)), cudaGetErrorString(err));
 	}
 	cudaMemcpy((char *) cudaVelo, velo, numParticles*3*sizeof(T), cudaMemcpyHostToDevice);
 
@@ -616,7 +616,7 @@ template <class T> void CudaParticles<T>::setInitialPlanetData(T *pos,T*velo)
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
-            (long)numParticles*4*sizeof(T), cudaGetErrorString(err));
+            (long)(numParticles*4*sizeof(T)), cudaGetErrorString(err));
 	}
 	cudaMemcpy((char *) cudaPlanetPos, pos, numParticles*4*sizeof(T), cudaMemcpyHostToDevice);
 
@@ -624,7 +624,7 @@ template <class T> void CudaParticles<T>::setInitialPlanetData(T *pos,T*velo)
 	if (err != cudaSuccess)
 	{
 		fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
-            (long)numParticles*3*sizeof(T), cudaGetErrorString(err));
+            (long)(numParticles*3*sizeof(T)), cudaGetErrorString(err));
 	}
 	cudaMemcpy((char *) cudaPlanetVelo, velo, numParticles*3*sizeof(T), cudaMemcpyHostToDevice);
 

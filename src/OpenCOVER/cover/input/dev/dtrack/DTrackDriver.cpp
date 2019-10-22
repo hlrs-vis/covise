@@ -33,6 +33,8 @@ using namespace covise;
 #undef min
 #endif
 
+static char progress[] = "-\\|/";
+
 void DTrackDriver::initArrays()
 {
     m_numFlySticks = dt->getNumFlyStick();
@@ -112,21 +114,20 @@ DTrackDriver::DTrackDriver(const std::string &config)
  */
 
 template <class Data>
-bool getDTrackMatrix(osg::Matrix &mat, const Data &d)
+bool getDTrackMatrix(osg::Matrix &mat, const Data *d)
 {
-
-    if (d.quality < 0.)
+    if (!d)
         return false;
 
-    mat.set(d.rot[0], d.rot[1], d.rot[2], 0,
-            d.rot[3], d.rot[4], d.rot[5], 0,
-            d.rot[6], d.rot[7], d.rot[8], 0,
+    mat.set(d->rot[0], d->rot[1], d->rot[2], 0,
+            d->rot[3], d->rot[4], d->rot[5], 0,
+            d->rot[6], d->rot[7], d->rot[8], 0,
             0, 0, 0, 1);
 
-    osg::Vec3d pos(d.loc[0], d.loc[1], d.loc[2]);
+    osg::Vec3d pos(d->loc[0], d->loc[1], d->loc[2]);
     mat.setTrans(pos);
 
-    return true;
+    return d->quality >= 0.;
 }
 bool DTrackDriver::updateHand(size_t idx)
 {
@@ -154,7 +155,7 @@ bool DTrackDriver::updateHand(size_t idx)
 	m_buttonStates[1 + m_handButtonBase[idx]] = (dist12>0)&&(dist13<23.0);
 
 
-	return getDTrackMatrix(m_bodyMatrices[m_handBase+idx],*h);
+        return getDTrackMatrix(m_bodyMatrices[m_handBase+idx], h);
 }
 bool DTrackDriver::updateBodyMatrix(size_t idx)
 {
@@ -172,7 +173,7 @@ bool DTrackDriver::updateBodyMatrix(size_t idx)
     * DTrack API will think that this device doesn't exist until it's tracked.
     */
     const DTrack_Body_Type_d *b = dt->getBody(idx);
-    return getDTrackMatrix(m_bodyMatrices[m_bodyBase + idx], *b);
+    return getDTrackMatrix(m_bodyMatrices[m_bodyBase + idx], b);
 }
 
 bool DTrackDriver::updateFlyStick(size_t idx)
@@ -200,7 +201,7 @@ bool DTrackDriver::updateFlyStick(size_t idx)
         m_valuatorValues[i + m_valuatorBase[idx]] = f->joystick[i];
     }
 
-    return getDTrackMatrix(m_bodyMatrices[idx], *f);
+    return getDTrackMatrix(m_bodyMatrices[idx], f);
 }
 
 DTrackDriver::~DTrackDriver()
@@ -229,7 +230,8 @@ bool DTrackDriver::poll()
 
         if (dt->getLastDataError() == DTrackSDK::ERR_TIMEOUT)
         {
-            cout << "--- timeout while waiting for tracking data" << endl;
+            ++timeoutcount;
+            cout << " " << progress[timeoutcount%4] << " " << m_name << ": timeout while waiting for tracking data\r" << flush;
             //return -1;
         }
 

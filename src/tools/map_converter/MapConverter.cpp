@@ -383,7 +383,11 @@ int main(int argc, char **argv)
             }
         }
 
+#ifdef _WIN32
+        ofstream oFileS(outFile.c_str(), std::ios::binary);
+#else
         ofstream oFileS(outFile.c_str());
+#endif
         if (!oFileS)
         {
             cerr << "map_converter: could not open file "
@@ -397,7 +401,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            oFileS << "#" << NET_FILE_VERERSION << endl;
+            oFileS << "#" << NET_FILE_VERSION << endl;
             oFileS << *nFile;
         }
         oFileS.close();
@@ -408,7 +412,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        cout << "#" << NET_FILE_VERERSION << endl;
+        cout << "#" << NET_FILE_VERSION << endl;
         cout << *nFile;
     }
 

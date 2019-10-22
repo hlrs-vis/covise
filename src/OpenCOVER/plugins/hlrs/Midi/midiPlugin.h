@@ -56,6 +56,41 @@ using namespace opencover;
 using namespace covise;
 using namespace smf;
 
+
+class NoteInfo
+{
+public:
+	NoteInfo(int nN);
+	~NoteInfo();
+	void createGeom();
+	osg::ref_ptr<osg::Node> geometry;
+	osg::Vec3 initialPosition;
+	osg::Vec3 initialVelocity;
+	osg::Vec4 color;
+	std::string modelName;
+	float modelScale = 1.0;
+	int noteNumber;
+};
+class MidiInstrument
+{
+public:
+	MidiInstrument(std::string name, int id);
+	~MidiInstrument();
+	std::string type;
+	int channel = 0;
+	std::vector<NoteInfo*> noteInfos;
+};
+class MidiDevice
+{
+public:
+	MidiDevice(std::string name, int id);
+	~MidiDevice();
+	std::string name;
+	int ID;
+	int instrumentNumber;
+	MidiInstrument* instrument=nullptr;
+};
+
 class WaveSurface
 {
 public:
@@ -145,6 +180,12 @@ public:
     osg::ref_ptr<osg::MatrixTransform> transform;
     osg::Vec3 velo;
     MidiEvent event;
+	int vertNum;
+	float noteScale;
+	void setInactive(bool state);
+	bool inactive = true;
+	osg::Vec3 spin;
+	osg::Vec3 rot;
 };
 class Track
 {
@@ -157,20 +198,25 @@ public:
     std::list<Note *> notes;
     //std::list<Note *>::iterator lastNoteIt;
 
+	void clearStore();
     osg::ref_ptr<osg::MatrixTransform> TrackRoot;
     void update();
     void reset();
     void setVisible(bool state);
     int trackNumber;
     void addNote(Note*);
+	void endNote(MidiEvent& me);
+	void setRotation(osg::Vec3 &rotationSpeed);
     vrml::Player::Source *trackSource;
     vrml::Audio *trackAudio;
+	MidiInstrument *instrument=nullptr;
     osg::Geode *createLinesGeometry();
 
     osg::ref_ptr<osg::Geode> geometryLines;
     osg::Vec3Array *lineVert = new osg::Vec3Array;
     osg::Vec4Array *lineColor = new osg::Vec4Array;
     osg::DrawArrayLengths *linePrimitives;
+	void handleEvent(MidiEvent& me);
 	void store();
 private:
     bool life;
@@ -179,19 +225,7 @@ private:
     double oldTime = 0.0;
     int streamNum;
     enum deviceType devType=Track::Drum;
-};
-
-class NoteInfo
-{
-public:
-    NoteInfo(int nN);
-    ~NoteInfo();
-    void createGeom();
-    osg::ref_ptr<osg::Geode> geometry;
-    osg::Vec3 initialPosition;
-    osg::Vec3 initialVelocity;
-    osg::Vec4 color;
-    int noteNumber;
+	osg::Vec3 rotationSpeed;
 };
 
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
@@ -204,21 +238,23 @@ private:
 	std::list<WaveSurface *>waveSurfaces;
 
 public:
-    static const size_t NUMMidiStreams = 4;
+    static const size_t NUMMidiStreams = 16;
     double  tempo;
+	std::vector<std::unique_ptr<MidiInstrument>> instruments;
+	std::vector<std::unique_ptr<MidiDevice>> devices;
     std::vector<Track *> tracks;
-    std::vector<NoteInfo *> noteInfos;
     std::list<MidiEvent> eventqueue[NUMMidiStreams];
     static MidiPlugin *instance();
     vrml::Player *player;
     //scenegraph
     osg::ref_ptr<osg::Group> MIDIRoot;
     osg::ref_ptr<osg::MatrixTransform> MIDITrans[NUMMidiStreams];
-    std::vector<NoteInfo *> nIs;
     MidiFile midifile;
     double startTime;
+	float speedFactor = 1.0;
     int currentTrack;
-
+	void handleController(MidiEvent& me);
+	void clearStore();
     static int unloadMidi(const char *filename, const char *);
     static int loadMidi(const char *filename, osg::Group *parent, const char *);
     int loadFile(const char *filename, osg::Group *parent);
@@ -236,7 +272,7 @@ public:
 
     // destructor
     virtual ~MidiPlugin();
-    osg::Geode *createGeometry(int i);
+    osg::Node *createGeometry(int i);
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
     osg::ref_ptr<osg::StateSet> lineStateSet;
@@ -271,7 +307,9 @@ public:
     AmplitudeSurface *amplitudeSurface;
 
     ui::Menu *MIDITab = nullptr;
-    ui::Button *reset = nullptr;
+	ui::Button* reset = nullptr;
+	ui::Button* clearStoreButton = nullptr;
+	
     ui::Slider *radius1Slider = nullptr;
     ui::Slider *radius2Slider = nullptr;
     ui::Slider *yStepSlider = nullptr;
@@ -280,6 +318,8 @@ public:
     ui::Slider *accelSlider = nullptr;
     ui::Slider *raccelSlider = nullptr;
     ui::Slider *spiralSpeedSlider = nullptr;
+	ui::Slider* sphereScaleSlider = nullptr;
+	
     ui::EditField *trackNumber = nullptr;
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
@@ -287,6 +327,7 @@ public:
     float acceleration=-300;
     float rAcceleration=0.2;
     float spiralSpeed=0.1;
+	float sphereScale = 1.0;
 private:
 
     static MidiPlugin *plugin;

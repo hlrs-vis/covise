@@ -32,7 +32,7 @@ list<const coEventType *> coEventQueue::eventHandlerList;
 coEventSourceData::coEventSourceData()
 {
     nodeName = NULL;
-    namespaceNum = 0;
+    namespaceNum = NamespaceNum(0, 0);
 }
 
 coEventSourceData::~coEventSourceData()
@@ -46,13 +46,14 @@ void coEventSourceData::setName(const char *name)
     int len = (int)strlen(name) + 1;
     nodeName = new char[len];
     strcpy(nodeName, name);
-    bufferSize = 16 + len + 8 - (len % 8);
+    bufferSize = 16 + 4 + len + 8 - (len % 8);
 }
 
 void coEventSourceData::addToMsg(VrmlMessage *msg)
 {
     msg->append((char *)&node, sizeof(uint64_t));
-    msg->append(namespaceNum);
+    msg->append(namespaceNum.first);
+	msg->append(namespaceNum.second);
     msg->append(nodeName, strlen(nodeName) + 1);
     char dummy[8 + 8];
     msg->append(dummy, 8 + 8 - ((strlen(nodeName) + 1) % 8));
@@ -66,11 +67,17 @@ char *coEventSourceData::readFromBuf(char *buf)
     node = NULL;
     remoteNode = (VrmlNode *)(*((uint64_t *)buf));
     buf += sizeof(uint64_t);
-    namespaceNum = *((int *)buf);
+	int p = *((int *)buf);
+	buf += sizeof(int);
+	int n = *((int*)buf);
+	buf += sizeof(int);
+
 #ifdef BYTESWAP
-    byteSwap(namespaceNum);
+    byteSwap(p);
+	byteSwap(n);
 #endif
-    buf += sizeof(int);
+	namespaceNum = NamespaceNum(p, n);
+
     setName(buf);
 
     // find node * for remoteNode
@@ -93,7 +100,7 @@ char *coEventSourceData::readFromBuf(char *buf)
             node = VrmlNamespace::findNode(nodeName, namespaceNum);
             if (node == NULL)
             {
-                cerr << "Node not Found: " << nodeName << " Namespace: " << namespaceNum << endl;
+                cerr << "Node not Found: " << nodeName << " Namespace: " << namespaceNum.first << " | " << namespaceNum.second << endl;
             }
         }
 
@@ -103,7 +110,7 @@ char *coEventSourceData::readFromBuf(char *buf)
         strcpy(lastNodeName, nodeName);
     }
 
-    return (buf + bufferSize - (2 * sizeof(int)));
+    return (buf + bufferSize - (3 * sizeof(int)));
 }
 
 void coEventData::addToMsg(VrmlMessage *msg)

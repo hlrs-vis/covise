@@ -106,16 +106,6 @@ public:
         return group;
     }
     void setGroup(InteractionGroup group);
-
-    int getRemoteLockID() const
-    {
-        return remoteLockID;
-    }
-    void setRemoteLockID(int ID);
-    void setRemoteLock(bool);
-
-    void setRemoteActive(bool);
-
     void requestActivation();
 
     virtual void update();
@@ -166,22 +156,24 @@ public:
     {
         return (runningState == StateNotRunning);
     }
-
+	InteractionState getState();
 protected:
     std::string name;
 
-    InteractionState state;
+
     InteractionType type;
     InteractionPriority priority;
-    InteractionGroup group = GroupNonexclusive;
+	InteractionGroup group = GroupNonexclusive;
     RunningState runningState;
 
     bool notifyOnly;
     bool hasPriorityFlag;
     bool registered;
-    bool remoteLock;
 
-    int remoteLockID;
+	void setState(InteractionState s);
+
+	private:
+		InteractionState state;
 };
 }
 #endif

@@ -7,6 +7,7 @@
 
 #include "coGRObjVisMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjVisMsg::coGRObjVisMsg(Mtype type, const char *obj_name, int is_visible)

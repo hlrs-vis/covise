@@ -144,6 +144,12 @@ stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF); */
 
     setStateSet(stateset);
 
+    updateBounds();
+}
+
+
+void PointCloudGeometry::updateBounds()
+{
     // init bounding box
     box.init();
 
@@ -151,12 +157,14 @@ stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF); */
     ::Point *data = pointSet->points;
 
     for (int i = 0; i < pointSet->size; i++)
+    {
         box.expandBy(data[i].x, data[i].y, data[i].z);
+    }
     setInitialBound(box);
 }
 
-PointCloudGeometry::PointCloudGeometry(const PointCloudGeometry &eqvis, const CopyOp &copyop)
-    : Geometry(eqvis, copyop)
+PointCloudGeometry::PointCloudGeometry(const PointCloudGeometry &drawimage, const CopyOp &copyop)
+    : Geometry(drawimage, copyop)
 {
     // make copies of global variables here; optional
 }
@@ -179,12 +187,18 @@ BoundingBox PointCloudGeometry::computeBound() const
 void PointCloudGeometry::changeLod(float sampleNum)
 {
     if (sampleNum < 0)
+    {
         sampleNum = 0.;
+    }
     if (sampleNum > 1.)
+    {
         sampleNum = 1.;
+    }
 
     if (subsample == sampleNum)
+    {
         return;
+    }
 
     subsample = sampleNum;
 
@@ -195,15 +209,22 @@ void PointCloudGeometry::changeLod(float sampleNum)
     else
     {
         auto prim = getPrimitiveSet(0);
-        auto arr = dynamic_cast<osg::DrawArrays *>(prim);
+        auto arr = static_cast<osg::DrawArrays *>(prim);
         arr->setCount(pointSet->size * sampleNum);
     }
 
     setPointSize(pointSize);
 }
 
-void PointCloudGeometry::setPointSize(float psize)
+void PointCloudGeometry::setPointSize(float newPointSize)
 {
-    pointSize = psize;
+    pointSize = newPointSize;
     pointstate->setSize(pointSize / ((subsample / 4.0) + (3.0 / 4.0)));
+}
+
+void PointCloudGeometry::updateCoords()
+{
+    memcpy(&points->at(0), pointSet->points, pointSet->size*sizeof(pointSet->points[0]));
+    points->dirty();
+    updateBounds();
 }

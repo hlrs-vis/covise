@@ -132,9 +132,14 @@ void VrmlNodeSpaceSensor::activate(double timeStamp,
                                    bool isActive,
                                    double *p, const double *N)
 {
-    if (N == 0)
+	static bool debug = true;
+	if (N == 0)
     {
-        cerr << "this has to be fixed, the matrix is not transmitted yet" << endl;
+		if (debug)
+		{
+			cerr << "this has to be fixed, the matrix is not transmitted yet" << endl;
+			debug = false;
+		}
         return;
     }
 

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRSetDocPositionMsg::coGRSetDocPositionMsg(const char *document_name, float x, float y, float z)

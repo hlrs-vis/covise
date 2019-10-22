@@ -38,7 +38,7 @@ namespace osg
 {
 class Node;
 class Geode;
-};
+}
 namespace opencover
 {
 class coVRShader;
@@ -108,6 +108,7 @@ public:
     void setValue(const char *value);
     void setValue(osg::Matrixd m);
     void setValue(osg::Matrixf m);
+    void setValue(bool b);
     void setValue(float f);
     void setValue(osg::Vec3 v);
     void setValue(osg::Vec4 v);
@@ -253,6 +254,7 @@ public:
     void setData(covise::TokenBuffer &tb);
     void setMatrixUniform(const std::string &name, osg::Matrixd m);
     void setMatrixUniform(const std::string &name, osg::Matrixf m);
+    void setBoolUniform(const std::string &name, bool b);
     void setFloatUniform(const std::string &name, float f);
     void setVec3Uniform(const std::string &name, osg::Vec3 v);
     void setVec4Uniform(const std::string &name, osg::Vec4 v);
@@ -278,6 +280,7 @@ private:
     static coVRShaderList *s_instance;
     coVRShaderList();
     void loadMaterials();
+    std::vector<osg::ref_ptr<osg::Uniform>> lightEnabled;
     osg::ref_ptr<osg::Uniform> timeUniform;
     osg::ref_ptr<osg::Uniform> timeStepUniform;
     osg::ref_ptr<osg::Uniform> lightMatrix;
@@ -295,6 +298,7 @@ public:
     coVRShader *add(const std::string &name, std::string &dirName);
     static coVRShaderList *instance();
     void setData(covise::TokenBuffer &tb);
+    osg::Uniform *getLightEnabled(size_t lightnum);
     osg::Uniform *getTime();
     osg::Uniform *getTimeStep();
     osg::Uniform *getLight();

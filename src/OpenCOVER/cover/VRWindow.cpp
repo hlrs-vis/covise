@@ -274,24 +274,25 @@ VRWindow::update()
     for (int win=0; win<numWin; ++win)
     {
         //static int oldX=-1;
-        int currentW, currentH;
         const osg::GraphicsContext::Traits *traits = NULL;
         if (coVRConfig::instance()->windows[win].context)
             traits = coVRConfig::instance()->windows[win].context->getTraits();
         if (!traits)
             return;
         /*
-   int currentX = traits->x;
-   if(currentX!=oldX)
-   {
-       cerr<< "X pos: " << currentX << endl;
-   }
-   */
-        float initialWidth = coVRConfig::instance()->screens[0].hsize;
-        float initialHeight = coVRConfig::instance()->screens[0].vsize;
+        int currentX = traits->x;
+        if(currentX!=oldX)
+        {
+            cerr<< "X pos: " << currentX << endl;
+        }
+        */
 
-        currentW = traits->width;
-        currentH = traits->height;
+        auto &screen = coVRConfig::instance()->screens[0];
+        float initialWidth = screen.hsize;
+        float initialHeight = screen.vsize;
+
+        int currentW = traits->width;
+        int currentH = traits->height;
 
         if (oldWidth[win] == -1)
         {
@@ -299,15 +300,16 @@ VRWindow::update()
             oldHeight[win] = currentH;
             origWidth[win] = currentW;
             origHeight[win] = currentH;
-            if (coVRConfig::instance()->screens[0].hsize <= 0)
+            if (screen.hsize <= 0)
             {
                 aspectRatio[win] = 1;
             }
             else
             {
-                aspectRatio[win] = (initialHeight / initialWidth);
+                aspectRatio[win] = screen.configuredVsize/screen.configuredHsize;
             }
         }
+
         if (oldWidth[win] != currentW || oldHeight[win] != currentH || _firstTimeEmbedded)
         {
             if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[win].embedded))
@@ -316,14 +318,25 @@ VRWindow::update()
                 float height = (float)origVSize[0];
                 if(width >0 && height > 0)
                 {
-                    float vsize = coVRConfig::instance()->screens[0].hsize * (height / width);
-                    coVRConfig::instance()->screens[0].vsize = vsize;
+                    float vsize = screen.hsize * (height / width);
+                    screen.vsize = vsize;
                 }
                 _firstTimeEmbedded = false;
             }
             else if (origWidth[win] != 0)
-                coVRConfig::instance()->screens[0].hsize = (((initialHeight / (aspectRatio[win])) / origWidth[win]) * currentW) * origHeight[win] / currentH;
-            // wir aendern hier die Breite um das Seitenverhaeltnis konstant zu halten.
+            {
+                // change height or width so that configured screen area remains visible
+                if (currentW > 0 && currentH > aspectRatio[win]*currentW)
+                {
+                    screen.hsize = screen.configuredHsize;
+                    screen.vsize = (((screen.configuredHsize * (aspectRatio[win])) / origHeight[win]) * currentH) * origWidth[win] / currentW;
+                }
+                else
+                {
+                    screen.hsize = (((screen.configuredVsize / (aspectRatio[win])) / origWidth[win]) * currentW) * origHeight[win] / currentH;
+                    screen.vsize = screen.configuredVsize;
+                }
+            }
             coVRConfig::instance()->windows[win].sx = currentW;
             coVRConfig::instance()->windows[win].sy = currentH;
             oldWidth[win] = currentW;

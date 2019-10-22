@@ -46,9 +46,16 @@
 #include <ui/Button.h>
 #include <ui/Menu.h>
 #include <ui/SelectionList.h>
+#include <ui/Slider.h>
 
 using namespace opencover;
 using covise::coCoviseConfig;
+
+static void setSpecularLight(osg::Light *l, const osg::Vec4 &c, float f)
+{
+    if (l)
+        l->setSpecular(osg::Vec4(std::min(c[0]*f,1.f), std::min(c[1]*f,1.f), std::min(c[2]*f,1.f), 1.));
+}
 
 coVRLighting *coVRLighting::s_instance = NULL;
 
@@ -65,8 +72,8 @@ coVRLighting::coVRLighting()
     , headlightState(true)
     , switchOtherlights_(NULL)
     , otherlightsState(false)
-    , switchSpecularlight_(NULL)
-    , specularlightState(false)
+    , strengthSpecularlight_(NULL)
+    , specularlightStrength(0.f)
     , switchSpotlight_(NULL)
     , spotlightState(false)
     , light1(NULL)
@@ -117,7 +124,7 @@ void coVRLighting::config()
         fprintf(stderr, "coVRLighting::readConfigFile\n");
 
     spotlightState = coCoviseConfig::isOn("COVER.Spotlight", spotlightState);
-    specularlightState = coCoviseConfig::isOn("COVER.Specular", specularlightState);
+    specularlightStrength = coCoviseConfig::isOn("COVER.Specular", specularlightStrength>0.) ? 1.f : 0.f;
 }
 
 void coVRLighting::initSunLight()
@@ -144,8 +151,8 @@ void coVRLighting::initSunLight()
     {
         // save values in case we switch off specular
         headlightSpec = ((osg::Light *)headlight->getLight())->getSpecular();
-        if (!specularlightState)
-            ((osg::Light *)headlight->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
+        const auto f = specularlightStrength;
+        setSpecularLight(headlight->getLight(), headlightSpec, f);
 
         addLight(headlight);
         headlightState = coCoviseConfig::isOn("COVER.Headlight", headlightState);
@@ -206,8 +213,8 @@ void coVRLighting::initLampLight()
     if (spotlight)
     {
         spotlightSpec = ((osg::Light *)spotlight->getLight())->getSpecular();
-        if (!specularlightState)
-            ((osg::Light *)spotlight->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
+        const auto f = specularlightStrength;
+        setSpecularLight(spotlight->getLight(), spotlightSpec, f);
         addLight(spotlight, VRSceneGraph::instance()->getHandTransform());
         // turn on/off spotlight according to covise.config setting
         // COVERConfig.SPOTLIGHT
@@ -243,8 +250,8 @@ void coVRLighting::initOtherLight()
     if (light1)
     {
         light1Spec = ((osg::Light *)light1->getLight())->getSpecular();
-        if (!specularlightState)
-            ((osg::Light *)light1->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
+        const auto f = specularlightStrength;
+        setSpecularLight(light1->getLight(), light1Spec, f);
         addLight(light1);
         switchLight(light1, true);
         otherlightsState = true;
@@ -256,8 +263,8 @@ void coVRLighting::initOtherLight()
     if (light2)
     {
         light2Spec = ((osg::Light *)light2->getLight())->getSpecular();
-        if (!specularlightState)
-            ((osg::Light *)light2->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
+        const auto f = specularlightStrength;
+        setSpecularLight(light2->getLight(), light2Spec, f);
         addLight(light2);
         switchLight(light2, true);
         otherlightsState = true;
@@ -380,8 +387,6 @@ coVRLighting::createLightSource(const char *configName, const LightDef &def, boo
     return light;
 }
 
-#define RESERVED_TEX_UNITS 3
-
 int coVRLighting::addLight(osg::LightSource *ls, osg::Group *parent, osg::Node *root, const char *menuName)
 {
     // fprintf(stderr, "add light: %p to %p lighting %p (num=%lu)\n",
@@ -428,11 +433,8 @@ int coVRLighting::addLight(osg::LightSource *ls, osg::Group *parent, osg::Node *
 
     if (lightList.size() > 8)
     {
-        cerr << "ERROR" << endl;
-        cerr << "ERROR" << endl;
-        cerr << "To many lights " << (lightList.size()) << " only 8 are supported" << endl;
-        cerr << "ERROR" << endl;
-        cerr << "ERROR" << endl;
+        cerr << "ERROR: ";
+        cerr << "Too many lights " << (lightList.size()) << " only 8 are supported" << endl;
     }
     light->setLightNum(lightList.size() - 1);
 
@@ -532,32 +534,20 @@ void coVRLighting::initMenu()
         });
     }
 
-    switchSpecularlight_ = new ui::Button(lightingMenu_, "SpecularLight");
-    switchSpecularlight_->setText("Specular light");
-    switchSpecularlight_->setState(specularlightState);
-    switchSpecularlight_->setCallback([this](bool state){
-        specularlightState = state;
-        if (specularlightState)
-        {
-            (headlight->getLight())->setSpecular(headlightSpec);
-            if (light1)
-                (light1->getLight())->setSpecular(light1Spec);
-            if (light2)
-                (light2->getLight())->setSpecular(light2Spec);
-            if (spotlight)
-                (spotlight->getLight())->setSpecular(spotlightSpec);
-        }
-        else
-        {
-            osg::Vec4 black(0, 0, 0, 1);
-            (headlight->getLight())->setSpecular(black);
-            if (light1)
-                (light1->getLight())->setSpecular(black);
-            if (light2)
-                (light2->getLight())->setSpecular(black);
-            if (spotlight)
-                (spotlight->getLight())->setSpecular(black);
-        }
+    strengthSpecularlight_ = new ui::Slider(lightingMenu_, "SpecularLight");
+    strengthSpecularlight_->setText("Specular light");
+    strengthSpecularlight_->setValue(specularlightStrength);
+    strengthSpecularlight_->setBounds(0., 2.);
+    strengthSpecularlight_->setCallback([this](double value, bool released){
+        specularlightStrength = value;
+        if (headlight)
+            setSpecularLight(headlight->getLight(), headlightSpec, value);
+        if (spotlight)
+            setSpecularLight(spotlight->getLight(), spotlightSpec, value);
+        if (light1)
+            setSpecularLight(light1->getLight(), light1Spec, value);
+        if (light2)
+            setSpecularLight(light2->getLight(), light2Spec, value);
     });
 
     switchSpotlight_ = new ui::Button(lightingMenu_, "Spotlight");
@@ -599,7 +589,8 @@ osg::LightSource *coVRLighting::switchLight(osg::LightSource *ls, bool on, osg::
                 value = osg::StateAttribute::ON;
             }
 
-            lightList[i].on = on;
+            if (!limitToBranch)
+                lightList[i].on = on;
             osg::ref_ptr<osg::Node> root = limitToBranch;
             if (!root.get())
                 root = lightList[i].root;
@@ -623,6 +614,13 @@ osg::LightSource *coVRLighting::switchLight(osg::LightSource *ls, bool on, osg::
     return NULL;
 }
 
+bool coVRLighting::isLightEnabled(size_t ln) const
+{
+    if (ln >= lightList.size())
+        return false;
+
+    return lightList[ln].on;
+}
 
 void coVRLighting::setShadowLight(osg::LightSource *ls)
 {

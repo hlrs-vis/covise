@@ -18,7 +18,10 @@
 #include <netinet/in.h>
 
 #endif
-
+namespace vrb
+{
+	class UdpMessage;
+}
 #include <util/coExport.h>
 #include "message.h"
 
@@ -67,7 +70,7 @@ namespace covise
 class Host;
 class SimpleServerConnection;
 class SSLSocket;
-
+class UDPSocket;
 #ifdef CRAY
 #define WRITE_BUFFER_SIZE 393216
 #else
@@ -155,7 +158,7 @@ public:
     };
     virtual int receive(void *buf, unsigned nbyte); // receive from socket
     virtual int send(const void *buf, unsigned nbyte); // send into socket
-    virtual int recv_msg(Message *msg); // receive Message
+	virtual int recv_msg(Message *msg, char *ip = nullptr); // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
     virtual int recv_msg_fast(Message *msg); // high-performace receive Message
     virtual int send_msg(const Message *msg); // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
@@ -196,6 +199,15 @@ public:
     const char *get_hostname();
 };
 
+class NETEXPORT UDPConnection : public Connection
+{
+public:
+	UDPConnection(int id, int s_type, int p, const char* address);
+	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
+	bool recv_udp_msg(vrb::UdpMessage* msg);
+	//send udp message to ip, if no ip given use member address. Retun true on succsess
+	bool send_udp_msg(const vrb::UdpMessage* msg, const char* ip = nullptr);
+};
 // Connection that acts as server
 class NETEXPORT ServerConnection : public Connection
 {
@@ -219,6 +231,12 @@ public:
     ServerConnection *spawn_connection(); // accept after select for open socket
     // accept after select for open socket
     SimpleServerConnection *spawnSimpleConnection();
+};
+class NETEXPORT ServerUdpConnection : public ServerConnection
+{
+public:
+	ServerUdpConnection(UDPSocket* s);
+	bool sendMessageTo(Message* msg, const char* address);
 };
 
 // Connection that acts as server
@@ -296,11 +314,7 @@ public:
     ~ControllerConnection() // close connection
         {};
 };
-class NETEXPORT UDPConnection : public Connection
-{
-public:
-    UDPConnection(int id, int s_type, int p, char *address);
-};
+
 #ifdef MULTICAST
 class NETEXPORT MulticastConnection : public Connection
 {
