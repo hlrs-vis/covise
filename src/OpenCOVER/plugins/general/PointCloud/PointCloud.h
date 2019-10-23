@@ -24,6 +24,8 @@
 #include "FileInfo.h"
 #include <string>
 #include <vrbclient/SharedState.h>
+#include <osg/Switch>
+
 namespace opencover {
 namespace ui {
 class Element;

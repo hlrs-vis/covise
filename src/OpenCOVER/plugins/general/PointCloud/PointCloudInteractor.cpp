@@ -120,7 +120,7 @@ PointCloudInteractor::stopInteraction()
 					MovePoints(TraSnap);
 					osg::MatrixTransform *SnapCloud = new osg::MatrixTransform();
 					SnapCloud->setMatrix(TraSnap);
-					MoveCloud(SnapCloud, TRUE);
+					MoveCloud(SnapCloud, true);
 					selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 					selectedPoints.clear();
 				}
@@ -158,7 +158,7 @@ PointCloudInteractor::stopInteraction()
 					MovePoints(RotSnap);
 					MatrixTransform *SnapCloud = new MatrixTransform();
 					SnapCloud->setMatrix(RotSnap);
-					MoveCloud(SnapCloud, TRUE);
+					MoveCloud(SnapCloud, true);
 					selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 					selectedPoints.clear();
 				}
