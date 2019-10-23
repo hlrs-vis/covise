@@ -325,8 +325,8 @@ int UDPComm::receive(void *buffer, int numBytes, double timeout)
     struct timeval tv = { int(timeout), int((timeout-floor(timeout))*1e6) };
     if (0 == select(d_rsocket + 1, &readfds, NULL, NULL, &tv))
     {
-        if (UDPComm::getError_SW())
-            cerr << "No data received from Realtime Engine (receive - SW)" << endl;
+        //if (UDPComm::getError_SW())
+        //    cerr << "No data received from Realtime Engine (receive - SW)" << endl;
         return -1;
     }
 
