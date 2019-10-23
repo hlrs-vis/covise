@@ -34,6 +34,8 @@
 #include <fftw3.h>
 
 #define BINSIZE 1024
+const int numChannels = 16;
+const int numKeys = 127;
 
 namespace smf
 {
@@ -56,7 +58,59 @@ using namespace opencover;
 using namespace covise;
 using namespace smf;
 
+class controllerMapping
+{
+	controllerMapping();
+	~controllerMapping();
 
+	enum controlTypes
+	{
+		undefinedController = -1,
+		frequencyRadius1,
+		frequencyRadius2,
+		amplitudeRadius1,
+		amplitudeRadius2,
+		objectScale,
+		audioSpeed,
+		frequencyFactor,
+		amplitudeFactor,
+		speedFactor,
+		acceleration,
+		radialAcceleration,
+		spiralSpeed,
+		numControlTypes
+	};
+	const char* controllerName[numControlTypes + 2] = {
+		"UNDEFINED",
+		"frequencyRadius1",
+		"frequencyRadius2",
+		"amplitudeRadius1",
+		"amplitudeRadius2",
+		"objectScale",
+		"audioSpeed",
+		"frequencyFactor",
+		"amplitudeFactor",
+		"speedFactor",
+		"acceleration",
+		"radialAcceleration",
+		"spiralSpeed",
+		"numControllerTypes",
+	};
+	struct controllerInfo
+	{
+		float min;
+		float max;
+		controlTypes type;
+	};
+	struct controlInfo
+	{
+		float min;
+		float max;
+	};
+	controlInfo controlInfos[numControlTypes + 2];
+
+	controllerInfo controlID[numKeys][numChannels];
+};
 class NoteInfo
 {
 public:
