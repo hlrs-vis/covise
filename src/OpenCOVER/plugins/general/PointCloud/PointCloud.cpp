@@ -996,6 +996,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     NodeInfo ni;
                     ni.node = currentGeode;
                     fi.nodes.push_back(ni);
+					fi.filename = filename;
                 }
             }
             

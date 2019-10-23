@@ -60,6 +60,14 @@ PointCloudInteractor::startInteraction()
 
     // store hand mat
     const Matrix &initHandMat = cover->getPointerMat();
+	if (SaveMat && (m_translation || m_rotation))
+	//{
+	//	// store start mat for movin points
+	//	StartHandMat = initHandMat * cover->getInvBaseMat();
+	//	StartHandMat.inverse(StartHandMat);
+	//	OldVec = StartHandMat.preMult(Vec3(0.0, 1.0, 0.0));
+	//	SaveMat = false;
+	//}
     // get postion and direction of pointer
     m_initHandPos = initHandMat.preMult(Vec3(0.0, 0.0, 0.0));
     m_initHandDirection = initHandMat.preMult(Vec3(0.0, 1.0, 0.0));
@@ -80,8 +88,6 @@ PointCloudInteractor::stopInteraction()
     {
         previewPointsGroup->removeChild(0,1);
     }
-
-        }
     previewPoints.clear();
     if (!m_deselection)
     {
@@ -143,7 +149,6 @@ PointCloudInteractor::stopInteraction()
 					OrthoVec1 = Axis1 ^ (RotPt1 - PtVecs1[0]);
 					OrthoVec2 = Axis2 ^ (RotPt2 - PtVecs2[0]);
 					ang = acos((OrthoVec1 * OrthoVec2) / (OrthoVec1.length()* OrthoVec2.length()));
-					cout << "Angle: " << ang << endl;
 					Matrixd RotSnap;
 					TraSnap.makeTranslate(-PtVecs1[0]);
 					RotSnap.makeRotate(-ang, Axis2);
@@ -183,7 +188,6 @@ PointCloudInteractor::stopInteraction()
 								break;
 							}
 						}
-						//PrevMats = PrevMats * RotMat;
 						OldAngle = 0;
 						selectedPointsGroup->removeChildren(2, selectedPointsGroup->getNumChildren() - 2);
 						while (selectedPoints.size() > 2)
@@ -210,57 +214,12 @@ PointCloudInteractor::stopInteraction()
 								break;
 							}
 						}
-						//PrevMats =  PrevMats * TraMat;
 						TraMat.makeIdentity();
 						selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 						selectedPoints.clear();
+						SaveMat = true;
 					}					
 				}
-				//if (m_translation || m_rotation)
-				//{
-				//	MovedPTS.push_back(bestPoint);
-				//	int neededPts;
-				//	if (m_translation)
-				//	{
-				//		neededPts = 2;
-				//	}
-				//	if (m_rotation)
-				//	{
-				//		if (m_files->size() > 1)
-				//		{
-				//			neededPts = 6;
-				//		}
-				//		else
-				//		{
-				//			neededPts = 3;
-				//		}
-				//	}
-				//	if (MovedPTS.size() == neededPts)
-				//	{
-				//		//Vec3 CoorBestPoint = Vec3(bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].x,
-				//		//	bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].y,
-				//		//	bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].z);
-				//		std::vector<Vec3> PtsCoord1, PtsCoord2;
-				//		string filename = bestPoint.file->filename;
-				//		for (std::vector<pointSelection>::iterator iter = MovedPTS.begin(); iter != MovedPTS.end(); iter++)
-				//		{
-				//			int i = iter->pointSetIndex;
-				//			int j = iter->pointIndex;
-				//			if (iter->file->filename == filename)
-				//			{
-				//				PtsCoord1.push_back(Vec3(iter->file->pointSet[i].points[j].x, iter->file->pointSet[i].points[j].y, iter->file->pointSet[i].points[j].z));
-				//			}
-				//			else
-				//			{
-				//				PtsCoord2.push_back(Vec3(iter->file->pointSet[i].points[j].x, iter->file->pointSet[i].points[j].y, iter->file->pointSet[i].points[j].z));
-				//			}
-				//		}
-				//		CalcMoveVec(PtsCoord1, PtsCoord2, filename);
-				//		MovedPTS.clear();
-				//		selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
-				//		selectedPoints.clear();
-				//	}
-				//}
 			}
 		}
     }
@@ -268,7 +227,6 @@ PointCloudInteractor::stopInteraction()
     {
         deselectPoint();
     }
-	cout << "SnapOn Status: " << snapOn << endl;
 }
 
 bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
@@ -342,6 +300,8 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 				Vec3 OrthToPointer = currHandDirection / currHandDirection.length() *(Direct * currHandDirection / currHandDirection.length());
 				OrthToPointer = OrthToPointer * (Direct.length() / OrthToPointer.length());
 				newVec = currHandBegin + OrthToPointer - PtToMove;
+				//Vec3 Direct = PtToMove - OldVec;
+				//newVec = (StartHandMat * currHandMat).preMult(PtToMove) / ((PtToMove - currHandEnd).length() * Direct.length());
 
 				if (TraMat.getTrans() != newVec)
 				{
@@ -364,7 +324,6 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 			bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].x = newVec.x();
 			bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].y = newVec.y();
 			bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].z = newVec.z();
-			//highlightPoint(bestPoint, true);
 		}
 		else
 		{
@@ -509,7 +468,6 @@ PointCloudInteractor::MoveCloud(osg::MatrixTransform *MoveTra, bool Snap)
 				{
 					oldDrawing->asTransform()->asMatrixTransform()->setMatrix(oldDrawing->asTransform()->asMatrixTransform()->getMatrix() * MoveTra->getMatrix());
 					PrevMats[i] = oldDrawing->asTransform()->asMatrixTransform()->getMatrix();
-					cout << "Hello" << endl;
 				}
 				else
 				{
@@ -550,7 +508,6 @@ PointCloudInteractor::doInteraction()
 void  
 PointCloudInteractor::MovePoints(osg::Matrixd MoveMat)
 {
-	cout << "FIVec Size: " << UpdatedFIVec.size() << endl;
 	std::vector<FileInfo> Files;
 	Files = *m_files;
 	MovedPTSGroup->removeChildren(0, MovedPTSGroup->getNumChildren());
@@ -559,7 +516,6 @@ PointCloudInteractor::MovePoints(osg::Matrixd MoveMat)
 	{
 		FileInfo FI;
 		FI = *File;
-		cout << "SelectedPoint: " << selectedPoints[0].file->filename << endl;
 		if (filename == File->filename)
 		{
 			PointSet *PTSet;
@@ -587,133 +543,11 @@ PointCloudInteractor::MovePoints(osg::Matrixd MoveMat)
 			FI.filename = File->filename;
 			MovedPTSGroup->setName("Moved Group");
 			MovedPTSGroup->addChild(FI.nodes[0].node);
-			cout << "Succesfull!!" << endl;
 		}
-		cout << "Nodes" << FI.nodes.size() << endl;
 		UpdatedFIVec.push_back(FI);
-		cout << "Size: " << UpdatedFIVec.size() << endl;
-		cout << "Filename: " << FI.filename << endl;
 	}
 	updatePoints(&UpdatedFIVec);
-
 }
-
-//void 
-//PointCloudInteractor::CalcMoveVec(std::vector<Vec3> SelPts1, std::vector<Vec3> SelPts2, string filename)
-//{
-//	std::vector<FileInfo> Files;
-//	Files = *m_files;
-//	UpdatedFIVec.clear();
-//	int i = 1;
-//	bool done = true;
-//	MovedPTSGroup->removeChildren(0, MovedPTSGroup->getNumChildren());
-//	for (std::vector<FileInfo>::iterator File = Files.begin(); File != Files.end(); File++)
-//	{
-//		PointSet *PTSet;
-//		PTSet = File->pointSet;
-//		NodeInfo NI;
-//		FileInfo FI;
-//		FI = *File;
-//		osg::Matrixf *Move = new osg::Matrixf();
-//		if (done && File->filename == filename)
-//		{
-//			osg::MatrixTransform *MoTra = new osg::MatrixTransform();
-//			osg::Node *oldDrawing, *newDrawing, *nGroupNode = new osg::Node();
-//			for (unsigned int i = 0; i < cover->getObjectsRoot()->getNumChildren(); i++)
-//			{
-//				nGroupNode = cover->getObjectsRoot()->getChild(i);
-//				if (nGroupNode->getName() == filename)
-//				{
-//					oldDrawing = nGroupNode->asGroup()->getChild(0);
-//					break;
-//				}
-//			}
-//			osg::Matrixf *Move = new osg::Matrixf();
-//			if (m_translation)
-//			{
-//				Vec3 CoorBestPoint;
-//				if (SelPts2.size() > 0)
-//				{
-//					CoorBestPoint = SelPts2[0] - SelPts1[0];
-//				}
-//				else
-//				{
-//					CoorBestPoint = SelPts1[1] - SelPts1[0];
-//				}
-//				Move = MakeTranslate(CoorBestPoint, Move, PTSet);
-//			}
-//			if (m_rotation)
-//			{
-//				osg::Matrixf *Rot = new osg::Matrixf(), *Tran = new osg::Matrixf();
-//				Vec3 Norm1 = (SelPts1[1] - SelPts1[0]).operator^(SelPts1[2]- SelPts1[1]);
-//				Vec3 Norm2, TransVec;
-//				if (SelPts2.size() > 1)
-//				{
-//					Norm2= (SelPts2[1] - SelPts2[0]).operator^(SelPts2[2] - SelPts2[1]);
-//				}
-//				else
-//				{
-//					Norm2 = Norm1;
-//				}
-//				//for (int i = 0; i < PTSet->size; i++)
-//				//{
-//				//	Vec3 PtVec = Vec3(PTSet->points[i].x, PTSet->points[i].y, PTSet->points[i].z);
-//				//	double xmin, xmax, ymin, ymax, zmin, zmax;
-//				//	double distance = (SelPts1[1] - SelPts1[0]).length();
-//				//	Vec3 VerVec1 = SelPts1[1] - (Norm1 / Norm1.length() * 0.1);
-//				//	Vec3 VerVec2 = SelPts1[1] + (Norm1 / Norm1.length() * 0.1);
-//
-//				//	xmin = SelPts1[1].x - distance;
-//				//	xmax = SelPts1[1].x + distance;
-//				//	ymin = SelPts1[1].y - distance;
-//				//	ymax = SelPts1[1].y + distance;
-//				//	zmin = SelPts1[1].z - distance;
-//				//	zmax = SelPts1[1].z + distance;
-//				//	PTSet->points[i].x = PTSet->points[i].x - TraVec.x();
-//				//	PTSet->points[i].y = PTSet->points[i].y - TraVec.y();
-//				//	PTSet->points[i].z = PTSet->points[i].z - TraVec.z();
-//				//}
-//				TransVec = SelPts1[0] - SelPts2[0];
-//				Rot = MakeRotate(Norm1, Norm2, Rot, PTSet);
-//				Tran = MakeTranslate(TransVec, Tran, PTSet);
-//				Move = &Tran->operator*(*Rot);
-//			}
-//			Node *drawN = new osg::Node();
-//			drawN = MoTra;
-//			MoTra->setName("TraMa");
-//			MoTra->addChild(oldDrawing);
-//			MoTra->setMatrix(*Move);
-//			newDrawing = MoTra;
-//			newDrawing->setName("MovedGeode");
-//			nGroupNode->asGroup()->replaceChild(oldDrawing, newDrawing);
-//			done = false;		
-//		}
-//		else
-//		{
-//			MakeTranslate(Vec3(0, 0, 0), Move, PTSet);
-//		}
-//		FI.nodes.clear();
-//		FI.pointSet = PTSet;
-//		PointCloudGeometry *drawable = new PointCloudGeometry(FI.pointSet);
-//		drawable->changeLod(1.f);
-//		drawable->setPointSize(1.f);
-//		drawable->setName("Drawable Gedrehte Punkte");
-//		Geode *nGeode = new Geode();
-//		nGeode->addDrawable(drawable);
-//		nGeode->setName(FI.filename);
-//		NI.node = nGeode;
-//		FI.nodes.push_back(NI);
-//		FI.filename = File->filename;
-//		cout << "FI Size: " << FI.pointSet->size << endl;
-//		cout << "Punkt 1: x: " << FI.pointSet->points[0].x << " y: " << FI.pointSet->points[0].y << " z: " << FI.pointSet->points[0].z << endl;
-//		UpdatedFIVec.push_back(FI);
-//		cout << "Filename: " << FI.filename << endl;
-//		MovedPTSGroup->setName("Moved Group");
-//		MovedPTSGroup->addChild(nGeode);
-//		
-//	}
-//	updatePoints(&UpdatedFIVec);
-//}
 
 void
 PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview)

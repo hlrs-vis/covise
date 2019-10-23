@@ -85,7 +85,9 @@ private:
 	osg::Matrixd TraMat = osg::Matrixd();
 	std::vector<osg::Matrixd> PrevMats;
 	std::vector<std::string> MatNames;
-	//osg::Matrixd PrevMat = osg::Matrixd();
+	bool SaveMat = true;
+	osg::Matrix StartHandMat;
+	osg::Vec3 OldVec;
 
 	double OldAngle = 0;
 	double PreAngle = 0;
