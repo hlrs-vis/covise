@@ -39,12 +39,17 @@ public:
 
     typedef struct
     {
+		enum dataTypeEnum {
+			Number,
+			Tone
+		};
         int assoc;
         int col;
         std::string name;
         coDistributedObject **dataObjs;
         std::string objectName;
         float *x_d;
+		dataTypeEnum dataType;
 
     } VarInfo;
 
@@ -52,7 +57,7 @@ private:
     //  member functions
     virtual int compute(const char *port);
     virtual void param(const char *paraName, bool inMapLoading);
-
+	float toneToNumber(const char* buf);
     // ports
 
     // ------------------------------------------------------------

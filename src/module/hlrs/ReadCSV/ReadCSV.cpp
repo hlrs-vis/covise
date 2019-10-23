@@ -143,6 +143,40 @@ ReadCSV::param(const char *paramName, bool inMapLoading)
     }
 }
 
+float ReadCSV::toneToNumber(const char* buf)
+{
+
+	if (buf[0] == 'C' && buf[1] != '#')
+		return 0.0f;
+	else if (buf[0] == 'C' && buf[1] == '#')
+		return 0.01f;
+	else if (buf[0] == 'D' && buf[1] != '#')
+		return 0.02f;
+	else if (buf[0] == 'D' && buf[1] == '#')
+		return 0.03f;
+	else if (buf[0] == 'E' && buf[1] != '#')
+		return 0.04f;
+	else if (buf[0] == 'E' && buf[1] == '#')
+		return 0.05f;
+	else if (buf[0] == 'F' && buf[1] != '#')
+		return 0.06f;
+	else if (buf[0] == 'F' && buf[1] == '#')
+		return 0.07f;
+	else if (buf[0] == 'G' && buf[1] != '#')
+		return 0.08f;
+	else if (buf[0] == 'G' && buf[1] == '#')
+		return 0.09f;
+	else if (buf[0] == 'A' && buf[1] != '#')
+		return 0.10f;
+	else if (buf[0] == 'A' && buf[1] == '#')
+		return 0.11f;
+	else if (buf[0] == 'H' && buf[1] != '#')
+		return 0.12f;
+	else if (buf[0] == 'H' && buf[1] == '#')
+		return 0.13f;
+	return 0.0;
+}
+
 void ReadCSV::nextLine(FILE *fp)
 {
     if (fgets(buf, sizeof(buf), fp) == NULL)
@@ -179,6 +213,11 @@ int ReadCSV::readHeader()
         {
             VarInfo vi;
             vi.name = names[i];
+			vi.dataType = VarInfo::Number;
+			if (vi.name == "Tonhoehe")
+			{
+				vi.dataType = VarInfo::Tone;
+			}
             varInfos.push_back(vi);
         }
 
@@ -275,7 +314,14 @@ int ReadCSV::readASCIIData()
 
             if ((cbuf = strtok(buf, ",;")) != NULL)
             {
-                sscanf(cbuf, "%f", &tmpdat[0]);
+				if(varInfos[0].dataType == VarInfo::Tone)
+				{
+						tmpdat[0] = toneToNumber(cbuf);
+				}
+				else
+				{
+					sscanf(cbuf, "%f", &tmpdat[0]);
+				}
             }
             else
             {
@@ -286,7 +332,14 @@ int ReadCSV::readASCIIData()
             while ((cbuf = strtok(NULL, ";,")) != NULL)
             {
                 ii = ii + 1;
-                sscanf(cbuf, "%f", &tmpdat[ii]);
+				if (varInfos[ii].dataType == VarInfo::Tone)
+				{
+					tmpdat[ii] = toneToNumber(cbuf);
+				}
+				else
+				{
+					sscanf(cbuf, "%f", &tmpdat[ii]);
+				}
             }
 
             if (ii < varInfos.size() - 1)
