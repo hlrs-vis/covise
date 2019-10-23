@@ -37,6 +37,7 @@
 const int numChannels = 16;
 const int numKeys = 127;
 
+#include <UDPComm.h>
 namespace smf
 {
     // just for compiling with MidiFile inside and outside of smf namespace
@@ -292,6 +293,8 @@ private:
 	std::list<WaveSurface *>waveSurfaces;
 
 public:
+
+    UDPComm *udp= nullptr;
     static const size_t NUMMidiStreams = 16;
     double  tempo;
 	std::vector<std::unique_ptr<MidiInstrument>> instruments;

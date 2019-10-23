@@ -191,7 +191,7 @@ AudioInStream::~AudioInStream()
 void AudioInStream::update()
 {
 	int bytesProcessed = 0;
-	if (have.format == AUDIO_F32LSB)
+	if (have.format == AUDIO_F32LSB && bytesPerSample >0)
 	{
 #ifdef WIN32
 		while (((gBufferBytePosition - bytesProcessed) / bytesPerSample >= inputSize))
@@ -446,6 +446,8 @@ MidiPlugin::MidiPlugin()
 	MIDITab = NULL;
 	startTime = 0;
 	//Initialize SDL
+	
+    udp = new UDPComm("localhost", 51322, 51324);
 	if (coVRMSController::instance()->isMaster())
 	{
 		gRecordingDeviceCount = -1;
@@ -934,6 +936,96 @@ bool MidiPlugin::update()
 	{
 		(*it)->update();
 	}
+	struct UDPPacket
+	{
+	    unsigned char command;
+	    unsigned char key;
+	    unsigned char velocity;
+	    unsigned char channel;
+	};
+	int status = 0;
+	UDPPacket packet;
+
+
+
+
+
+	MidiEvent me;
+
+	if (coVRMSController::instance()->isMaster())
+	{
+	    do{
+		if (udp)
+		{
+		    status = udp->receive(&packet, sizeof(packet),0.001);
+		}
+		else
+		{
+		    status = -1;
+		}
+
+		me.setP0(0);
+		me.setP1(0);
+		me.setP2(0);
+		if (status == sizeof(packet))
+		{
+		    fprintf(stdout,"command %d, key %d, velocity %d, channel %d\n",(int)packet.command,(int)packet.key,(int)packet.velocity,(int)packet.channel);
+		    if(packet.command == 1 && packet.channel == 9)
+		    {
+			me.makeNoteOn(packet.channel, packet.key,packet.velocity);
+
+			addEvent(me, packet.channel);
+			signed char buf[4];
+			buf[0] = me.getP0();
+			buf[1] = me.getP1();
+			buf[2] = me.getP2();
+			coVRMSController::instance()->sendSlaves((char *)buf, 4);
+		    }
+		    //if(packet.command == 2)
+		    //me.makeNoteOff(packet.channel, packet.key,packet.velocity);
+		    //if(packet.command == 3)
+		    //me.makeController(packet.channel, packet.key,packet.velocity);
+		    //	keySym,mod);
+		}
+		else if (status == -1)
+		{
+		//std::cerr << "FlightGear::update: error while reading data" << std::endl;
+		//initUDP();
+		//return false;
+		}
+		else
+		{
+		//std::cerr << "FlightGear::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
+		//initUDP();
+		//return false;
+		}
+	    } while(status == sizeof(packet));
+
+	    signed char buf[4];
+	    buf[0] = me.getP0();
+	    buf[1] = me.getP1();
+	    buf[2] = me.getP2();
+	    coVRMSController::instance()->sendSlaves((char *)buf, 4);
+	}
+	else
+	{
+	     do{
+
+		  signed char buf[4];
+		  coVRMSController::instance()->readMaster((char *)buf, 4);
+		  me.setP0(buf[0]);
+		  me.setP1(buf[1]);
+		  me.setP2(buf[2]);
+		  if(me.getP0() != 0 || me.getP1() != 0)
+		  {
+		       addEvent(me, packet.channel);
+		  }
+
+	     } while(me.getP0() != 0 || me.getP1() != 0);
+	}
+	
+	
+	
 	return true;
 }
 
@@ -1576,6 +1668,8 @@ void Track::update()
 				   if (MidiPlugin::instance()->midifd[streamNum] > 0)
 				   {
 					 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
+        if(numRead > 0)
+	fprintf(stderr,"numRead %d streamnum %d buf[0] %d\n", numRead,streamNum,buf[0]);
 
 				   }
 				   else
@@ -1584,9 +1678,11 @@ void Track::update()
 				   }
 				   if (numRead > 0)
 				   {
-					 if (buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
+					 if (buf[0] == 127 || buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
 					 {
 			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
+	fprintf(stderr,"numRead %d buf[0] %d\n", numRead,streamNum,buf[0]);
+	fprintf(stderr,"numRead %d buf[1] %d\n", numRead,streamNum,buf[1]);
 						 if(numRead < 2)
 						 {
 		                			fprintf(stderr,"oopps %d %d\n",(int)buf[0],numRead);
@@ -1618,7 +1714,8 @@ void Track::update()
 				buf[2] = me.getP2();
 				buf[3] = numRead;
 				coVRMSController::instance()->sendSlaves((char *)buf, 4);
-	//fprintf(stderr,"sent: %01d %02d velo %03d chan %d numRead %d \n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
+if(numRead > 0)
+	fprintf(stderr,"sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead,streamNum);
 
 			}
 			else
