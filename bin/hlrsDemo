@@ -179,7 +179,7 @@ demo 73 "Haemoglobin" cover /data/pdb/4HHBhel.wrl
 demo 74 "Magnetgetriebe" covise  /data/covise_net/2007/ITE_streufeld_VR2_new.net
 demo 75 "starDust" cover /data/irs/sun.wrl
 demo 76 "Floops" cover /data/vrml/floops/index/index.wrl
-demo 77 "OptimaPharma" covisee /data/covise_net/2013/BaxterPraesentation.net
+demo 77 "OptimaPharma" covise /data/covise_net/2013/BaxterPraesentation.net
 demo 78 "Wasserturbine Taubenloch" cover /data/ihs/taubenloch/taubenloch.uwe.wrl
 demo 79 "Buran" cover /data/shabrov/praesentation.wrl
 demo 80 "Maschinenhalle" cover /data/Lionel/Labor.wrl
