@@ -117,8 +117,6 @@ protected:
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
     //NurbsSurface *nurbsSurface = nullptr;
-	//New Switch
-	osg::ref_ptr<osg::Switch> sw = nullptr;
 
     void changeAllLOD(float lod);
     void changeAllPointSize(float pointSize);
