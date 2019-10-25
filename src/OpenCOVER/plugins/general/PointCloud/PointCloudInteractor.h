@@ -71,12 +71,13 @@ public:
     void setSelectionSetIndex(int selectionSet);
     void setSelectionIsBoundary(bool selectionIsBoundary);
     bool getSelectionIsBoundary();
-	bool actionsuccess =0;
+	bool actionsuccess = 0;
+	void PointCloudInteractor::setFile(string filename);
 
 private:
 
     // needed for interaction
-    osg::Vec3 m_initHandPos, m_initHandDirection, OrgVec, RotAxis, PrevHandPos;
+    osg::Vec3 m_initHandPos, m_initHandDirection;
 	string filename;
 	void MoveCloud(osg::MatrixTransform *MoveMat, bool Snap);
 	bool snapOn = false;
@@ -86,14 +87,16 @@ private:
 	std::vector<osg::Matrixd> PrevMats;
 	std::vector<std::string> MatNames;
 	bool SaveMat = true;
+	osg::Matrix SaveHandMat;
 	osg::Matrix StartHandMat;
-	osg::Vec3 OldVec;
+	osg::Vec3 OrgDirect;
+	osg::Vec3 CenterPoint;
+	float RotRadius;
+	osg::Vec3 RotAxis;
+	string FileToMove;
 
-	double OldAngle = 0;
-	double PreAngle = 0;
-
-	void MovePoints(osg::Matrixd MoveMat);
-	void CloudMatrix();
+	void PointCloudInteractor::MovePoints(osg::Matrixd MoveMat);
+	void PointCloudInteractor::CloudMatrix();
 
     const std::vector<FileInfo> *m_files;
     bool m_selectedWithBox;

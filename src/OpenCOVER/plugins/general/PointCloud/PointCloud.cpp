@@ -57,7 +57,7 @@ using vrui::coInteraction;
 const int MAX_POINTS = 30000000;
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
 PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
-PointCloudInteractor *PointCloudPlugin::rightClick = NULL;
+PointCloudInteractor *PointCloudPlugin::secondary_Interactor = NULL;
 
 
 COVERPLUGIN(PointCloudPlugin)
@@ -151,62 +151,49 @@ bool PointCloudPlugin::init()
         } 
     });
 
-	// NEW 
-	// Menu for Moving Points by selection
-	//sw = new osg::Switch();
-	singleSelectButton = new ui::Button(selectionGroup, "MakeTranslate", selectionButtonGroup);
-	singleSelectButton->setText("Make Translate");
-	singleSelectButton->setCallback([this](bool state) {
+	translationButton = new ui::Button(selectionGroup, "MakeTranslate", selectionButtonGroup);
+	translationButton->setText("Make Translate");
+	translationButton->setCallback([this](bool state) {
 		if (state)
 		{
 			//enable interaction
-			//for (int i = 0; i < cover->getObjectsRoot()->getNumChildren(); i++)
-			//{
-			//	sw->addChild(cover->getObjectsRoot()->getChild(i));
-			//	cout << sw->getChild(i)->getName() << endl;
-			//}
-			//cover->getObjectsRoot()->addChild(sw);
-			//sw->setAllChildrenOff();
-			//cout << "Make Translate" << endl;
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
-			vrui::coInteractionManager::the()->registerInteraction(rightClick);
-			//s_pointCloudInteractor->setSelectedPts(rightClick->getSelectedPtS());
+			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
+			//s_pointCloudInteractor->setSelectedPts(secondary_Interactor->getSelectedPtS());
 			s_pointCloudInteractor->setTranslation(true);
-			//rightClick->setSelectedPts(s_pointCloudInteractor);
-			rightClick->setTranslation(true);
+			//secondary_Interactor->setSelectedPts(s_pointCloudInteractor);
+			secondary_Interactor->setTranslation(true);
 			//cover->addPlugin("NurbsSurface");
 		}
 		else
 		{
 			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
-			vrui::coInteractionManager::the()->unregisterInteraction(rightClick);
+			vrui::coInteractionManager::the()->unregisterInteraction(secondary_Interactor);
 			s_pointCloudInteractor->setTranslation(false);
-			rightClick->setTranslation(false);
+			secondary_Interactor->setTranslation(false);
 		}
 	});
-	singleSelectButton = new ui::Button(selectionGroup, "MakeRotate", selectionButtonGroup);
-	singleSelectButton->setText("Make Rotate");
-	singleSelectButton->setCallback([this](bool state) {
+	rotationButton = new ui::Button(selectionGroup, "MakeRotate", selectionButtonGroup);
+	rotationButton->setText("Make Rotate");
+	rotationButton->setCallback([this](bool state) {
 		if (state)
 		{
 			//enable interaction
 			cout << "Make Rotate" << endl;
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
-			vrui::coInteractionManager::the()->registerInteraction(rightClick);
+			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
 			s_pointCloudInteractor->setRotation(true);
-			rightClick->setRotation(true);
+			secondary_Interactor->setRotation(true);
 			//cover->addPlugin("NurbsSurface");
 		}
 		else
 		{
 			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
-			vrui::coInteractionManager::the()->unregisterInteraction(rightClick);
+			vrui::coInteractionManager::the()->unregisterInteraction(secondary_Interactor);
 			s_pointCloudInteractor->setRotation(false);
-			rightClick->setRotation(false);
+			secondary_Interactor->setRotation(false);
 		}
 	});
-
-	//End new buttons
 
     deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
     deselectButton->setText("Deselect Points");
@@ -215,15 +202,15 @@ bool PointCloudPlugin::init()
         {
         //enable interaction
         vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
-		vrui::coInteractionManager::the()->registerInteraction(rightClick);
+		vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
         s_pointCloudInteractor->setDeselection(true);
-		rightClick->setDeselection(true);
+		secondary_Interactor->setDeselection(true);
         }
         else
         {
         vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
         s_pointCloudInteractor->setDeselection(false);
-		rightClick->setDeselection(false);
+		secondary_Interactor->setDeselection(false);
         }
     });
     createNurbsSurface = new ui::Button(pointCloudMenu,"createNurbsSurface");
@@ -238,6 +225,11 @@ bool PointCloudPlugin::init()
             cover->removePlugin("NurbsSurface");
         }
     });
+	
+	fileButtonGroup = new ui::ButtonGroup(selectionGroup, "FileButtonGroup");
+	fileButtonGroup->enableDeselect(true);
+
+
 /*
     //Create main menu button
     imanPluginInstanceMenuItem = new coSubMenuItem("Point Model Plugin");
@@ -345,9 +337,9 @@ bool PointCloudPlugin::init()
     */
 
     assert(!s_pointCloudInteractor);
-	assert(!rightClick);
+	assert(!secondary_Interactor);
     s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
-	rightClick = new PointCloudInteractor(coInteraction::ButtonC, "PointCloud", coInteraction::High);
+	secondary_Interactor = new PointCloudInteractor(coInteraction::ButtonD, "PointCloud", coInteraction::High);
 
     return true;
 }
@@ -482,6 +474,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     const char *cfile = filename.c_str();
     if ((strcasecmp(cfile + strlen(cfile) - 3, "pts") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "ptx") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "xyz") == 0))
     {
+		addButton(filename);
         bool imwfLattice = false;
         intensityOnly = false;
         intColor = false;
@@ -686,6 +679,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     }
     else if (strcasecmp(cfile + strlen(cfile) - 3, "c2m") == 0)
     {
+		addButton(filename);
         cout << "iCloud2Max Data: " << filename << endl;
 
         ifstream file(filename.c_str(), ios::in | ios::binary);
@@ -748,6 +742,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     }
     else if (strcasecmp(cfile + strlen(cfile) - 3, "e57") == 0)
     {
+		addButton(filename);
         cout << "e57 Data: " << filename << endl;
         
 #ifdef HAVE_E57
@@ -1024,6 +1019,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     }
     else // ptsb binary randomized blocked
     {
+		addButton(filename);
         cout << "Input Data: " << filename << endl;
 
         ifstream file(filename.c_str(), ios::in | ios::binary);
@@ -1123,7 +1119,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         cerr << "closing the file" << endl;
         file.close();
         s_pointCloudInteractor->updatePoints(&files);
-		rightClick->updatePoints(&files);
+		secondary_Interactor->updatePoints(&files);
         return;
     }
 }
@@ -1262,17 +1258,17 @@ void PointCloudPlugin::preFrame()
 {
 	if (s_pointCloudInteractor->actionsuccess)
 	{
-		rightClick->getData(s_pointCloudInteractor);
+		secondary_Interactor->getData(s_pointCloudInteractor);
 		s_pointCloudInteractor->actionsuccess = false;
 	}
-	if (rightClick->actionsuccess)
+	if (secondary_Interactor->actionsuccess)
 	{
-		s_pointCloudInteractor->getData(rightClick);
-		rightClick->actionsuccess = false;
+		s_pointCloudInteractor->getData(secondary_Interactor);
+		secondary_Interactor->actionsuccess = false;
 	}
     //resize the speheres of selected and preview points
 	s_pointCloudInteractor->resize();
-	rightClick->resize();
+	secondary_Interactor->resize();
 
     if (!adaptLOD)
     {
@@ -1378,12 +1374,35 @@ void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
     {
         int *selectionSet = (int *)buf;
         s_pointCloudInteractor->setSelectionSetIndex(*selectionSet);
-		rightClick->setSelectionSetIndex(*selectionSet);
+		secondary_Interactor->setSelectionSetIndex(*selectionSet);
     }
     if (type == PluginMessageTypes::PointCloudSelectionIsBoundaryMsg)
     {
         bool *selectionIsBoundary = (bool *)buf;
         s_pointCloudInteractor->setSelectionIsBoundary(*selectionIsBoundary);
-		rightClick->setSelectionIsBoundary(*selectionIsBoundary);
+		secondary_Interactor->setSelectionIsBoundary(*selectionIsBoundary);
     }
 }
+
+void PointCloudPlugin::addButton(string filename)
+{
+	fileButton = new ui::Button(selectionGroup, filename, fileButtonGroup);
+	fileButton->setText(filename);
+	fileButton->setCallback([this](bool state) {
+		if (state)
+		{
+			//enable interaction
+			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			//cover->addPlugin("NurbsSurface");
+		}
+		else
+		{
+			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+		}
+		if (fileButtonGroup->activeButton())
+		{
+			s_pointCloudInteractor->setFile(fileButtonGroup->activeButton()->text());
+		}
+	});
+}
+
