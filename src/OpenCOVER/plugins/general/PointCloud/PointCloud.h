@@ -83,10 +83,12 @@ private:
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
-	static PointCloudInteractor *rightClick;
+	static PointCloudInteractor *secondary_Interactor;
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
+	void PointCloudPlugin::addButton(string filename);
+	string FileToMove = "";
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -103,10 +105,14 @@ protected:
     ui::Group *loadGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
+	ui::Button *translationButton = nullptr;
+	ui::Button *rotationButton = nullptr;
     ui::Button *deselectButton = nullptr;
+	ui::Button *fileButton = nullptr;
     ui::Button *createNurbsSurface = nullptr;
     //ui::Button *deleteButton = nullptr;
     ui::ButtonGroup *selectionButtonGroup = nullptr;
+	ui::ButtonGroup *fileButtonGroup = nullptr;
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
