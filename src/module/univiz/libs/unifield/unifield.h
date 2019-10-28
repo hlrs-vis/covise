@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // Structured Field
@@ -12,7 +5,7 @@
 // CGL ETH Zuerich
 // Filip Sadlo 2006 - 2007
 
-// Usage: define AVS or COVISE or VTK but not more than one
+// Usage: define VISTLE or AVS or COVISE or VTK but not more than one
 //        define also COVISE5 for Covise 5.x
 
 /* TODO
@@ -47,6 +40,13 @@ using namespace covise;
 #endif
 #endif
 
+#ifdef VISTLE
+#include <module/module.h>
+#include <core/unstr.h>
+#include <core/vec.h>
+#include <core/structuredgrid.h>
+#endif
+
 #ifdef VTK
 #include "vtkStructuredGrid.h"
 #include "vtkFloatArray.h"
@@ -59,7 +59,13 @@ using namespace std;
 using namespace covise;
 #endif
 
+#ifdef VISTLE
+#include "../vistle_ext/export.h"
+
+class V_UNIVIZEXPORT UniField
+#else
 class UniField
+#endif
 {
 
 public:
@@ -87,6 +93,14 @@ private:
     coDoVec3 *covVector3Data;
     std::vector<coOutputPort *> outPorts;
 #endif
+#endif
+
+#ifdef VISTLE
+    bool canModify = false;
+    vistle::StructuredGrid::ptr vistleGrid;
+    vistle::Vec<vistle::Scalar,1>::ptr vistleScalarData;
+    vistle::Vec<vistle::Scalar,2>::ptr vistleVector2Data;
+    vistle::Vec<vistle::Scalar,3>::ptr vistleVector3Data;
 #endif
 
 #ifdef VTK
@@ -141,6 +155,12 @@ public:
 #endif
 #endif
 
+#ifdef VISTLE
+    UniField();
+    UniField(vistle::Vec<vistle::Scalar>::const_ptr cScalarData, vistle::Vec<vistle::Scalar,2>::const_ptr cVector2Data);
+    UniField(vistle::Vec<vistle::Scalar>::const_ptr cScalarData, vistle::Vec<vistle::Scalar,3>::const_ptr cVector3Data);
+#endif
+
 #ifdef VTK
 #if 0
   UniField(float *data, float *positions);
@@ -171,6 +191,15 @@ public:
                   coDoFloat **covScalarData,
                   coDoVec3 **covVector3Data);
 #endif
+#endif
+
+#ifdef VISTLE
+    void getField(vistle::StructuredGrid::ptr *vistleGrid,
+                  vistle::Vec<vistle::Scalar>::ptr *covScalarData,
+                  vistle::Vec<vistle::Scalar,2>::ptr *covVector2Data);
+    void getField(vistle::StructuredGrid::ptr *vistleGrid,
+                  vistle::Vec<vistle::Scalar>::ptr *covScalarData,
+                  vistle::Vec<vistle::Scalar,3>::ptr *covVector3Data);
 #endif
 
 #ifdef VTK
@@ -219,6 +248,13 @@ inline int UniField::getDimNb(void)
     return 3; // ### TODO: OK? (seems that Covise fields are always 3D)
 #endif
 
+#ifdef VISTLE
+    vistle::Index dims[3];
+    for (int c=0; c<3; ++c)
+        dims[c] = vistleGrid->getNumDivisions(c);
+    return vistleGrid->dimensionality(dims);
+#endif
+
 #ifdef VTK
     return 3; // ### TODO: OK? (seems that VTK fields are always 3D)
 #endif
@@ -261,6 +297,10 @@ inline int UniField::getDim(int axis)
     }
 #endif
 
+#ifdef VISTLE
+    return vistleGrid->getNumDivisions(axis);
+#endif
+
 #ifdef VTK
 #if 0
   return dims[axis];
@@ -298,6 +338,16 @@ inline void UniField::setCoord(int i, vec3 pos)
 #else
     covGrid->getAddresses(&x, &y, &z);
 #endif
+    x[i] = pos[0];
+    y[i] = pos[1];
+    z[i] = pos[2];
+#endif
+
+#ifdef VISTLE
+    assert(canModify);
+    auto x = vistleGrid->x().data();
+    auto y = vistleGrid->x().data();
+    auto z = vistleGrid->x().data();
     x[i] = pos[0];
     y[i] = pos[1];
     z[i] = pos[2];
@@ -345,6 +395,17 @@ inline void UniField::setCoord(int i, int j, vec3 pos)
     z[i + j * nx] = pos[2];
 #endif
 
+#ifdef VISTLE
+    assert(canModify);
+    vistle::Index nx = vistleGrid->getNumDivisions(0);
+    auto x = vistleGrid->x().data();
+    auto y = vistleGrid->x().data();
+    auto z = vistleGrid->x().data();
+    x[i + j*nx] = pos[0];
+    y[i + j*nx] = pos[1];
+    z[i + j*nx] = pos[2];
+#endif
+
 #ifdef VTK
 #if 0
   vtkPositions[i * nSpace + j * dims[0] * nSpace + 0] = pos[0];
@@ -379,6 +440,15 @@ inline void UniField::getCoord(int i, vec3 pos)
 #else
     covGrid->getAddresses(&x, &y, &z);
 #endif
+    pos[0] = x[i];
+    pos[1] = y[i];
+    pos[2] = z[i];
+#endif
+
+#ifdef VISTLE
+    auto x = vistleGrid->x().data();
+    auto y = vistleGrid->x().data();
+    auto z = vistleGrid->x().data();
     pos[0] = x[i];
     pos[1] = y[i];
     pos[2] = z[i];
@@ -426,6 +496,16 @@ inline void UniField::getCoord(int i, int j, vec3 pos)
     pos[2] = z[i + j * nx];
 #endif
 
+#ifdef VISTLE
+    vistle::Index nx = vistleGrid->getNumDivisions(0);
+    auto x = vistleGrid->x().data();
+    auto y = vistleGrid->x().data();
+    auto z = vistleGrid->x().data();
+    pos[0] = x[i + j*nx];
+    pos[1] = y[i + j*nx];
+    pos[2] = z[i + j*nx];
+#endif
+
 #ifdef VTK
 #if 0
   pos[0] = vtkPositions[i * nSpace + j * dims[0] * nSpace + 0];
@@ -452,6 +532,9 @@ inline int UniField::getCompNb(void)
 #ifdef COVISE
     return 1;
 #endif
+#ifdef VISTLE
+    return 1;
+#endif
 #ifdef VTK
     return vtkFld->GetPointData()->GetNumberOfArrays();
 #endif
@@ -468,6 +551,12 @@ inline int UniField::getCompVecLen(int comp)
     else
         return 3;
 #endif
+#ifdef VISTLE
+    if (vistleVector2Data)
+        return 2;
+    else
+        return 3;
+#endif
 #ifdef VTK
     return vtkFld->GetPointData()->GetArray(comp)->GetNumberOfComponents();
 #endif
@@ -480,6 +569,20 @@ inline const char *UniField::getCompName(int comp)
 #endif
 #ifdef COVISE
     return NULL;
+#endif
+#ifdef VISTLE
+    static std::string fieldname;
+    fieldname.clear();
+    if (comp == 2 && vistleVector2Data) {
+        fieldname = vistleVector2Data->getAttribute("_species");
+    }
+    if (comp == 3 && vistleVector3Data) {
+        fieldname = vistleVector3Data->getAttribute("_species");
+    }
+    if (comp == 1 && vistleScalarData) {
+        fieldname = vistleScalarData->getAttribute("_species");
+    }
+    return fieldname.empty() ? nullptr : fieldname.c_str();
 #endif
 #ifdef VTK
     return vtkFld->GetPointData()->GetArrayName(comp);
@@ -525,6 +628,11 @@ inline void UniField::setScalar(int i, double val)
     dat[i] = val;
 #endif
 
+#ifdef VISTLE
+    assert(canModify);
+    vistleScalarData->x()[i] = val;
+#endif
+
 #ifdef VTK
 #if 0
   vtkFld[i] = val;
@@ -555,6 +663,12 @@ inline void UniField::setVectorComp(int i, int j, int vcomp, double value)
     dat[vcomp][i + j * nx] = value;
 #endif
 
+#ifdef VISTLE
+    assert(canModify);
+    vistle::Index nx = vistleGrid->getNumDivisions(0);
+    vistleVector2Data->x(vcomp)[i + j*nx] = value;
+#endif
+
 #ifdef VTK
 #if 0
   vtkFld[i * 2 + j * dims[0] * 2 + vcomp] = value;
@@ -576,6 +690,14 @@ inline double UniField::getVectorComp(int i, int vcomp)
 
 #ifdef COVISE
     printf("UniField::getVectorComp: COVISE version not yet implemented! ###\n");
+    return 0.0;
+#endif
+
+#ifdef VISTLE
+    if (vistleVector3Data)
+        return vistleVector3Data->x(vcomp)[i];
+    else if (vistleVector2Data)
+        return vistleVector2Data->x(vcomp)[i];
     return 0.0;
 #endif
 
@@ -602,6 +724,11 @@ inline double UniField::getVectorComp(int i, int j, int vcomp)
     covGrid->getGridSize(&nx, &ny, &nz);
 #endif
     return dat[vcomp][i + j * nx];
+#endif
+
+#ifdef VISTLE
+    vistle::Index nx = vistleGrid->getNumDivisions(0);
+    return vistleVector2Data->x(vcomp)[i + j*nx];
 #endif
 
 #ifdef VTK

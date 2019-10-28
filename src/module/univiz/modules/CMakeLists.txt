@@ -4,4 +4,4 @@
 #
 # @author Blasius Czink
 
-ADD_SUBDIRECTORY(covise)
+add_subdirectory(vistle)

@@ -1,7 +1,11 @@
-# @file
-# 
-# Simply descend to subdirectories
-#
-# @author Blasius Czink
+if (UNIVIZ_VISTLE)
+    add_definitions(-DVISTLE)
+    add_subdirectory(libs/vistle_ext)
+    add_subdirectory(modules/vistle)
+endif()
 
-ADD_SUBDIRECTORY(modules)
+if (UNIVIZ_COVISE)
+    add_definitions(-DCOVISE)
+    add_subdirectory(modules/covise)
+endif()
+

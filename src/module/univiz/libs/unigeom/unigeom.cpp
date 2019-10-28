@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // Geometry
@@ -12,11 +5,15 @@
 // CGL ETH Zuerich
 // Filip Sadlo 2006 - 2008
 
+#include "unigeom.h"
+
 #ifdef COVISE
 #include <do/coDoData.h>
 #endif
 
-#include "unigeom.h"
+#ifdef VISTLE
+using namespace vistle;
+#endif
 
 #ifdef AVS
 UniGeom::UniGeom(GEOMedit_list *geom)
@@ -90,6 +87,22 @@ UniGeom::UniGeom(coInputPort *geom)
 
 #endif
 
+#ifdef VISTLE
+UniGeom::UniGeom(vistle::Module *mod, vistle::Port *port, Object::const_ptr src)
+: mod(mod)
+, sourceObject(src)
+, outputPort(port)
+{
+}
+
+UniGeom::UniGeom(vistle::PortTask *task, vistle::Port *port, Object::const_ptr src)
+: task(task)
+, sourceObject(src)
+, outputPort(port)
+{
+}
+#endif
+
 #ifdef VTK
 UniGeom::UniGeom(vtkPolyData *vtkPolyD)
 {
@@ -130,6 +143,19 @@ void UniGeom::createObj(int geomT)
     geomType = geomT;
 #endif
 
+#ifdef VISTLE
+    geomType = geomT;
+    switch (geomT) {
+    case GT_LINE:
+        outLine.reset(new Lines(0,0,0));
+        break;
+    case GT_POLYHEDRON:
+        outPoly.reset(new Polygons(0,0,0));
+        break;
+    }
+
+#endif
+
 #ifdef VTK
     geomType = geomT;
     outputPoints = vtkPoints::New();
@@ -139,11 +165,7 @@ void UniGeom::createObj(int geomT)
 #endif
 }
 
-#ifndef COVISE
 void UniGeom::addPolyline(float *vertices, float *colors, int nvertices)
-#else
-void UniGeom::addPolyline(float *vertices, float *, int nvertices)
-#endif
 {
 #ifdef AVS
     GEOMadd_polyline(avsGeomObj, (float *)vertices, colors, nvertices, GEOM_COPY_DATA);
@@ -163,6 +185,23 @@ void UniGeom::addPolyline(float *vertices, float *, int nvertices)
     }
 
     lines.push_back(fv);
+#endif
+
+#ifdef VISTLE
+    assert(geomType == GT_LINE);
+    // ##### TODO: colors
+    auto &x = outLine->x();
+    auto &y = outLine->y();
+    auto &z = outLine->z();
+    auto &el = outLine->el();
+    auto &cl = outLine->cl();
+    for (Index v=0; v<nvertices; ++v) {
+        cl.emplace_back(cl.size());
+        x.emplace_back(vertices[v*3+0]);
+        y.emplace_back(vertices[v*3+1]);
+        z.emplace_back(vertices[v*3+2]);
+    }
+    el.emplace_back(cl.size());
 #endif
 
 #ifdef VTK
@@ -196,6 +235,18 @@ void UniGeom::addVertices(float *verts, int nvertices)
     }
 #endif
 
+#ifdef VISTLE
+    assert(geomType == GT_POLYHEDRON);
+    auto &x = outPoly->x();
+    auto &y = outPoly->y();
+    auto &z = outPoly->z();
+    for (Index v=0; v<nvertices; ++v) {
+        x.emplace_back(verts[v*3+0]);
+        y.emplace_back(verts[v*3+1]);
+        z.emplace_back(verts[v*3+2]);
+    }
+#endif
+
 #ifdef VTK
     for (int v = 0; v < nvertices; v++)
     {
@@ -217,6 +268,17 @@ void UniGeom::addPolygon(int nvertices, int *indices)
     }
     GEOMadd_polygon(avsGeomObj, nvertices, buf, 0, GEOM_COPY_DATA);
     delete[] buf;
+#endif
+
+#ifdef VISTLE
+    assert(geomType == GT_POLYHEDRON);
+    // ##### TODO: colors
+    auto &cl = outPoly->cl();
+    auto &el = outPoly->el();
+    for (Index v=0; v<nvertices; ++v) {
+        cl.emplace_back(indices[v]);
+    }
+    el.emplace_back(cl.size());
 #endif
 
 #ifdef COVISE
@@ -631,6 +693,25 @@ void UniGeom::assignObj(const char *)
     }
 #endif
 
+#ifdef VISTLE
+    switch (geomType) {
+    case GT_LINE:
+        outLine->copyAttributes(sourceObject);
+        if (task)
+            task->addObject(outputPort, outLine);
+        else if (mod)
+            mod->addObject(outputPort, outLine);
+        break;
+    case GT_POLYHEDRON:
+        outPoly->copyAttributes(sourceObject);
+        if (task)
+            task->addObject(outputPort, outPoly);
+        else if (mod)
+            mod->addObject(outputPort, outPoly);
+        break;
+    }
+#endif
+
 #ifdef VTK
     switch (geomType)
     {
@@ -658,4 +739,92 @@ void UniGeom::assignObj(const char *)
     if (outputNormals)
         outputNormals->Delete();
 #endif
+}
+
+void UniGeom::getVertex(int vertex, vec3 pos)
+{
+#ifdef AVS
+    // ###### TODO: HACK: fixed to polyhedra
+    pos[0] = PH(avsGeomObj).verts.l[vertex * 3 + 0];
+    pos[1] = PH(avsGeomObj).verts.l[vertex * 3 + 1];
+    pos[2] = PH(avsGeomObj).verts.l[vertex * 3 + 2];
+#endif
+
+#ifdef COVISE
+    if (covGeom)
+    {
+        pos[0] = vertices[(vertex)*3 + 0];
+        pos[1] = vertices[(vertex)*3 + 1];
+        pos[2] = vertices[(vertex)*3 + 2];
+    }
+    else if (covGeomIn)
+    {
+        if (geomType == GT_LINE)
+        {
+            coDoLines *lin = ((coDoLines *)covGeomIn->getCurrentObject());
+            float *x, *y, *z;
+            int *corL, *linL;
+            lin->getAddresses(&x, &y, &z, &corL, &linL);
+            pos[0] = x[vertex];
+            pos[1] = y[vertex];
+            pos[2] = z[vertex];
+        }
+        else if (geomType == GT_POLYHEDRON)
+        {
+            printf("UniGeom::getVertex not yet implemented for polygon type\n");
+        }
+    }
+#endif
+
+#ifdef VISTLE
+    auto &x = geomType==GT_LINE ? outLine->x() : outPoly->x();
+    auto &y = geomType==GT_LINE ? outLine->y() : outPoly->y();
+    auto &z = geomType==GT_LINE ? outLine->z() : outPoly->z();
+    pos[0] = x[vertex];
+    pos[1] = y[vertex];
+    pos[2] = z[vertex];
+#endif
+
+#ifdef VTK
+    outputPoints->GetPoint(vertex, pos);
+#endif
+}
+
+int UniGeom::getVertexCnt()
+{
+#ifdef AVS
+    printf("UniGeom::getVertexCnt: not yet implemented\n");
+#endif
+#ifdef COVISE
+    if (covGeom)
+    {
+        printf("UniGeom::getVertexCnt: not yet implemented for output object\n");
+    }
+    else if (covGeomIn)
+    {
+        if (geomType == GT_LINE)
+        {
+            coDoLines *lin = ((coDoLines *)covGeomIn->getCurrentObject());
+            return lin->getNumVertices();
+        }
+        else if (geomType == GT_POLYHEDRON)
+        {
+            printf("UniGeom::getVertexCnt: not yet implemented for polygon type\n");
+        }
+    }
+#endif
+#ifdef VISTLE
+    switch (geomType) {
+    case GT_LINE:
+        return outLine->getSize();
+        break;
+    case GT_POLYHEDRON:
+        return outPoly->cl().size();
+        break;
+    }
+#endif
+#ifdef VTK
+    printf("UniGeom::getVertexCnt: not yet implemented\n");
+#endif
+    return 0;
 }

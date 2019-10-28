@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // System
@@ -30,18 +23,30 @@
 #endif
 #endif
 
+#ifdef VISTLE
+#include <module/module.h>
+#endif
+
 #ifdef VTK
 #include "vtkAlgorithm.h"
 #endif
 
-using namespace std;
+#ifdef VISTLE
+#include "../vistle_ext/export.h"
 
+class V_UNIVIZEXPORT UniSys
+#else
 class UniSys
+#endif
 {
 
 private:
 #ifdef COVISE
     covise::coModule *covModule;
+#endif
+
+#ifdef VISTLE
+    vistle::Module *vistleModule;
 #endif
 
 #ifdef VTK
@@ -60,6 +65,13 @@ public:
     UniSys(covise::coModule *m)
     {
         covModule = m;
+    }
+#endif
+
+#ifdef VISTLE
+    UniSys(vistle::Module *mod)
+    {
+        vistleModule = mod;
     }
 #endif
 

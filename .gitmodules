@@ -13,3 +13,6 @@
 [submodule "src/tools/OpenFOAM-Exporter"]
 	path = src/tools/OpenFOAM-Exporter
 	url = https://github.com/hlrs-vis/OpenFOAM-Exporter.git
+[submodule "src/module/univiz"]
+	path = src/module/univiz
+	url = git://github.com/vistle/univiz.git
