@@ -72,7 +72,7 @@ public:
     void setSelectionIsBoundary(bool selectionIsBoundary);
     bool getSelectionIsBoundary();
 	bool actionsuccess = 0;
-	void PointCloudInteractor::setFile(string filename);
+	void setFile(string filename);
 
 private:
 
@@ -95,8 +95,8 @@ private:
 	osg::Vec3 RotAxis;
 	string FileToMove;
 
-	void PointCloudInteractor::MovePoints(osg::Matrixd MoveMat);
-	void PointCloudInteractor::CloudMatrix();
+	void MovePoints(osg::Matrixd MoveMat);
+	void CloudMatrix();
 
     const std::vector<FileInfo> *m_files;
     bool m_selectedWithBox;

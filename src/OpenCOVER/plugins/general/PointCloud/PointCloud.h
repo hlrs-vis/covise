@@ -87,7 +87,7 @@ private:
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
-	void PointCloudPlugin::addButton(string filename);
+	void addButton(string filename);
 	string FileToMove = "";
 
 protected:
