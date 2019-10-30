@@ -323,20 +323,17 @@ TracerInteraction::createMenuContents()
             inter_->executeModule();
     });
 
-    if (isComplex)
-    {
-        _taskType = new ui::SelectionList(menu_, "TaskType");
-        _taskType->setText("Task type");
-        _taskType->append("Streamlines");
-        _taskType->append("Moving points");
-        _taskType->append("Pathlines");
-        _taskType->append("Streaklines");
-        _taskType->select(0);
-        _taskType->setCallback([this](int idx){
-            inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, idx);
-            inter_->executeModule();
-        });
-    }
+    _taskType = new ui::SelectionList(menu_, "TaskType");
+    _taskType->setText("Task type");
+    _taskType->append("Streamlines");
+    _taskType->append("Moving points");
+    _taskType->append("Pathlines");
+    _taskType->append("Streaklines");
+    _taskType->select(0);
+    _taskType->setCallback([this](int idx){
+        inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, idx);
+        inter_->executeModule();
+    });
     _startStyle = new ui::SelectionList(menu_, "StartStyle");
     _startStyle->setText("Start style");
     _startStyle->append("Line");
