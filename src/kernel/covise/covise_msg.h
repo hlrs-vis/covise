@@ -136,7 +136,7 @@ public: // at the datamanager
 class COVISEEXPORT Param
 {
     friend class CtlMessage;
-    char *name;
+    char *name = nullptr;
     int type;
     int no;
 
@@ -169,7 +169,7 @@ public:
 class COVISEEXPORT ParamFloatScalar : public Param
 {
     friend class CtlMessage;
-    char *list;
+    char *list = nullptr;
 
 public:
     ParamFloatScalar(const char *na, char *l);
@@ -183,7 +183,7 @@ public:
 class COVISEEXPORT ParamIntScalar : public Param
 {
     friend class CtlMessage;
-    char *list;
+    char *list = nullptr;
 
 public:
     ParamIntScalar(const char *na, char *l);
@@ -194,7 +194,7 @@ public:
 class COVISEEXPORT ParamFloatVector : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamFloatVector(const char *na, int num, char **l);
@@ -205,7 +205,7 @@ public:
 class COVISEEXPORT ParamIntVector : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamIntVector(const char *na, int num, char **l);
@@ -216,7 +216,7 @@ public:
 class COVISEEXPORT ParamBrowser : public Param
 {
     friend class CtlMessage;
-    char *list;
+    char *list = nullptr;
 
 public:
     ParamBrowser(const char *na, char *l);
@@ -248,7 +248,7 @@ public:
 class COVISEEXPORT ParamText : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
     int line_num;
     int length;
 
@@ -268,7 +268,7 @@ public:
 class COVISEEXPORT ParamBoolean : public Param
 {
     friend class CtlMessage;
-    char *list;
+    char *list = nullptr;
 
 public:
     ParamBoolean(const char *na, char *l);
@@ -279,7 +279,7 @@ public:
 class COVISEEXPORT ParamFloatSlider : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamFloatSlider(const char *na, int num, char **l);
@@ -301,7 +301,7 @@ public:
 class COVISEEXPORT ParamTimer : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamTimer(const char *na, int num, char **l);
@@ -312,7 +312,7 @@ public:
 class COVISEEXPORT ParamPasswd : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamPasswd(const char *na, int num, char **l);
@@ -323,7 +323,7 @@ public:
 class COVISEEXPORT ParamChoice : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
     int sel;
 
 public:
@@ -335,7 +335,7 @@ public:
 class COVISEEXPORT ParamColormapChoice : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
     int sel;
 
 public:
@@ -347,7 +347,7 @@ public:
 class COVISEEXPORT ParamMaterial : public Param
 {
     friend class CtlMessage;
-    char *list;
+    char *list = nullptr;
 
 public:
     ParamMaterial(const char *na, char *l);
@@ -362,7 +362,7 @@ public:
 class COVISEEXPORT ParamColormap : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamColormap(const char *na, int num, char **l);
@@ -373,7 +373,7 @@ public:
 class COVISEEXPORT ParamColor : public Param
 {
     friend class CtlMessage;
-    char **list;
+    char **list = nullptr;
 
 public:
     ParamColor(const char *na, int num, char **l);
