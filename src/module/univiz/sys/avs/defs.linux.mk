@@ -1,4 +1,0 @@
-G += -DLITTLE_ENDIAN -DAVS
-EXTRALIBS=
-CXX = g++
-CC = gcc

@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="/ParaViewResources" >
-    <file>../DumpCFX_Client.xml</file>
-  </qresource>
-</RCC>
