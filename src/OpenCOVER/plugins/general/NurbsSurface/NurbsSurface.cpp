@@ -350,9 +350,7 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
         {
             if (iter->selectionIndex==currentSurface->surfaceIndex)
             {
-                Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
-                        iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
-                        iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
+				Vec3 newSelectedPoint = iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].coordinates;
                 if (iter->isBoundaryPoint)
                 {
                     currentSurface->receivedBoundaryPoints.push_back(newSelectedPoint);

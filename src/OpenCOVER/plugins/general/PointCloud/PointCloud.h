@@ -37,8 +37,6 @@ class Button;
 }
 
 using namespace opencover;
-
-
 /** Plugin
   @author 
 */
@@ -63,7 +61,6 @@ class PointCloudPlugin : public coVRPlugin, public ui::Owner
     };
 
 private:
-    std::vector<FileInfo> files;
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;
@@ -87,8 +84,8 @@ private:
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
-	void PointCloudPlugin::addButton(string filename);
-	string FileToMove = "";
+    void addButton(FileInfo &fInfo);
+    string FileToMove = "";
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -105,14 +102,15 @@ protected:
     ui::Group *loadGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
-	ui::Button *translationButton = nullptr;
-	ui::Button *rotationButton = nullptr;
-    ui::Button *deselectButton = nullptr;
+    ui::Button *translationButton = nullptr;
+    ui::Button *rotationButton = nullptr;
+    ui::Button *moveButton = nullptr;
 	ui::Button *fileButton = nullptr;
+    ui::Button *deselectButton = nullptr;
     ui::Button *createNurbsSurface = nullptr;
     //ui::Button *deleteButton = nullptr;
     ui::ButtonGroup *selectionButtonGroup = nullptr;
-	ui::ButtonGroup *fileButtonGroup = nullptr;
+    ui::ButtonGroup *fileButtonGroup = nullptr;
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
@@ -120,10 +118,11 @@ protected:
 
     void changeAllLOD(float lod);
     void changeAllPointSize(float pointSize);
-	void UpdatePointSizeValue(void);
+    void UpdatePointSizeValue(void);
 public:
     PointCloudPlugin();
     ~PointCloudPlugin();
+	std::vector<FileInfo> files;
     bool init();
     void preFrame();
     void postFrame();

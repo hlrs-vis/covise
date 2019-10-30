@@ -22,6 +22,7 @@
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 class FileInfo;
 class NodeInfo;
+class PointCloudPlugin;
 
 class PointCloudInteractor : public vrui::coTrackerButtonInteraction
 {
@@ -29,7 +30,7 @@ public:
     void boxSelect(osg::Vec3, osg::Vec3);
 
     // Interactor to pick spheres
-    PointCloudInteractor(coInteraction::InteractionType type, const char *name, vrui::coInteraction::InteractionPriority priority);
+    PointCloudInteractor(coInteraction::InteractionType type, const char *name, vrui::coInteraction::InteractionPriority priority, PointCloudPlugin *p);
 
     ~PointCloudInteractor();
     virtual bool destroy();
@@ -43,21 +44,16 @@ public:
     // start the interaction
     void startInteraction();
 
-	//calculate moving vector
-	void CalcMoveVec(std::vector<osg::Vec3>, std::vector<osg::Vec3>, string);
-
     void addSelectedPoint(osg::Vec3);
     void updateMessage(vector<pointSelection> points);
 
     // updates the temporary copy of the spheres
     // on them the intersection test takes place
-    void updatePoints(const std::vector<FileInfo> *allFiles)
-    {
-        this->m_files = allFiles;
-    };
+    
 	void getData(PointCloudInteractor *PCI);
 	void setTranslation(bool);
 	void setRotation(bool);
+	void setFreeMove(bool);
 
     void setDeselection(bool);
 
@@ -71,34 +67,32 @@ public:
     void setSelectionSetIndex(int selectionSet);
     void setSelectionIsBoundary(bool selectionIsBoundary);
     bool getSelectionIsBoundary();
-	bool actionsuccess = 0;
-	void PointCloudInteractor::setFile(string filename);
+    bool actionsuccess = 0;
+    void setFile(string filename);
 
 private:
 
     // needed for interaction
     osg::Vec3 m_initHandPos, m_initHandDirection;
-	string filename;
-	void MoveCloud(osg::MatrixTransform *MoveMat, bool Snap);
-	bool snapOn = false;
+	PointCloudPlugin *plugin = nullptr;
+	FileInfo currFI;
 
-	osg::Matrixd RotMat = osg::Matrixd();
-	osg::Matrixd TraMat = osg::Matrixd();
-	std::vector<osg::Matrixd> PrevMats;
-	std::vector<std::string> MatNames;
-	bool SaveMat = true;
-	osg::Matrix SaveHandMat;
-	osg::Matrix StartHandMat;
-	osg::Vec3 OrgDirect;
-	osg::Vec3 CenterPoint;
-	float RotRadius;
-	osg::Vec3 RotAxis;
-	string FileToMove;
+    osg::Matrixd rotMat = osg::Matrixd();
+    osg::Matrixd traMat = osg::Matrixd();
+    bool SaveMat = true;
+    osg::Matrix saveHandMat;
+    osg::Matrix startHandMat;
+    osg::Vec3 orgDirect;
+    osg::Vec3 centerPoint;
+	osg::Vec3 pointToMove;
+    float radius;
+    osg::Vec3 rotAxis;
+    string fileToMove;
+	osg::Matrix moveMat;
 
-	void PointCloudInteractor::MovePoints(osg::Matrixd MoveMat);
-	void PointCloudInteractor::CloudMatrix();
+    void MovePoints(osg::Matrixd MoveMat);
+	osg::StateSet *highlightActiveCloud();
 
-    const std::vector<FileInfo> *m_files;
     bool m_selectedWithBox;
 
     void swap(float &m, float &n);
@@ -108,11 +102,12 @@ private:
     bool hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, PointSet *pointset);
     double LinePointDistance(osg::Vec3 center, osg::Vec3 handPos, osg::Vec3 handDirection);
 
-	std::vector<FileInfo> UpdatedFIVec;
+    std::vector<FileInfo> UpdatedFIVec;
 
-	bool m_rotation = false;
+    bool m_rotation = false;
 
-	bool m_translation = false;
+    bool m_translation = false;
+    bool m_freemove = false;
 
     bool hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, osg::Vec3 center, float radius);
 
@@ -124,14 +119,12 @@ private:
 
     std::vector<pointSelection> selectedPoints;
     std::vector<pointSelection> previewPoints;
-	std::vector<pointSelection> MovedPTS;
     //pointSelection previewPoint;
 
     osg::ref_ptr<osg::MatrixTransform> highlight;
 
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
-	osg::ref_ptr<osg::Group> MovedPTSGroup;
 
     int selectionSetIndex = 0;
     bool m_selectionIsBoundary = false;

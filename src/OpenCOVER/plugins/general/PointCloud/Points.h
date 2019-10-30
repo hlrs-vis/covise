@@ -12,9 +12,7 @@ class FileInfo;
 
 struct Point
 {
-    float x;
-    float y;
-    float z;
+	osg::Vec3 coordinates;
 };
 
 struct Color

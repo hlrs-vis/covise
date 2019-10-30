@@ -179,7 +179,6 @@ bool PointCloudPlugin::init()
 		if (state)
 		{
 			//enable interaction
-			cout << "Make Rotate" << endl;
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
 			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
 			s_pointCloudInteractor->setRotation(true);
@@ -192,6 +191,26 @@ bool PointCloudPlugin::init()
 			vrui::coInteractionManager::the()->unregisterInteraction(secondary_Interactor);
 			s_pointCloudInteractor->setRotation(false);
 			secondary_Interactor->setRotation(false);
+		}
+	});
+	moveButton = new ui::Button(selectionGroup, "FreeMovement", selectionButtonGroup);
+	moveButton->setText("Free Movement");
+	moveButton->setCallback([this](bool state) {
+		if (state)
+		{
+			//enable interaction
+			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
+			s_pointCloudInteractor->setFreeMove(true);
+			secondary_Interactor->setFreeMove(true);
+			//cover->addPlugin("NurbsSurface");
+		}
+		else
+		{
+			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->unregisterInteraction(secondary_Interactor);
+			s_pointCloudInteractor->setFreeMove(false);
+			secondary_Interactor->setFreeMove(false);
 		}
 	});
 
@@ -338,8 +357,8 @@ bool PointCloudPlugin::init()
 
     assert(!s_pointCloudInteractor);
 	assert(!secondary_Interactor);
-    s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
-	secondary_Interactor = new PointCloudInteractor(coInteraction::ButtonD, "PointCloud", coInteraction::High);
+    s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High, this);
+	secondary_Interactor = new PointCloudInteractor(coInteraction::ButtonD, "PointCloud", coInteraction::Highest, this);
 
     return true;
 }
@@ -472,9 +491,15 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 {
     opencover::coVRShader *pointShader = opencover::coVRShaderList::instance()->get("Points");
     const char *cfile = filename.c_str();
+	FileInfo fi;
+	osg::ref_ptr<osg::MatrixTransform> matTra = new osg::MatrixTransform();
+	matTra->setName(filename);
+	fi.tranformMat = matTra;
+	parent->addChild(fi.tranformMat);
+	fi.filename = filename;
+	addButton(fi);
     if ((strcasecmp(cfile + strlen(cfile) - 3, "pts") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "ptx") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "xyz") == 0))
     {
-		addButton(filename);
         bool imwfLattice = false;
         intensityOnly = false;
         intColor = false;
@@ -561,7 +586,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
          while(!feof(fp))
          {
             fgets(buf,1000,fp);
-            sscanf(buf,"%f %f %f %f %f %f,",&pointSet[0].points[n].x,&pointSet[0].points[n].y,&pointSet[0].points[n].z,&pointSet[0].colors[n].r,&pointSet[0].colors[n].g,&pointSet[0].colors[n].b);
+            sscanf(buf,"%f %f %f %f %f %f,",&pointSet[0].points[n].coordinates.x(),&pointSet[0].points[n].coordinates.y(),&pointSet[0].points[n].coordinates.z(),&pointSet[0].colors[n].r,&pointSet[0].colors[n].g,&pointSet[0].colors[n].b);
             i++;
             n+=partSize;
             if(n>psize)
@@ -582,12 +607,12 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 int id=0;
                 char type[1000];
                 float dummy=0.f;
-                int numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &dummy);
+                int numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &dummy);
                 pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
             }
             else if (commaSeparated)
             {
-                int numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r);
+                int numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r);
                 if (numValues == 4)
                 {
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
@@ -600,7 +625,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             else if (intensityOnly)
             {
                 float intensity;
-                int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
+                int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
                 if (numValues == 7)
                 {
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
@@ -612,7 +637,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             }
             else
             {
-                int numValues = sscanf(buf, "%f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b);
+                int numValues = sscanf(buf, "%f %f %f %f %f %f,", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b);
                 if (numValues < 6)
                 {
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
@@ -641,16 +666,13 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             for (int i = 0; i < psize; i++)
             {
                 // convert to cartesian
-                float vx = sin(pointSet[0].points[i].x) * cos(pointSet[0].points[i].y);
-                float vy = sin(pointSet[0].points[i].x) * sin(pointSet[0].points[i].y);
-                float vz = cos(pointSet[0].points[i].x);
-                pointSet[0].points[i].x = vx * pointSet[0].points[i].z;
-                pointSet[0].points[i].y = vy * pointSet[0].points[i].z;
-                pointSet[0].points[i].z = vz * pointSet[0].points[i].z;
+				float vx = sin(pointSet[0].points[i].coordinates.x()) * cos(pointSet[0].points[i].coordinates.y());
+				float vy = sin(pointSet[0].points[i].coordinates.x()) * sin(pointSet[0].points[i].coordinates.y());
+				float vz = cos(pointSet[0].points[i].coordinates.x());
+				pointSet[0].points[i].coordinates = Vec3(vx * pointSet[0].points[i].coordinates.z(), vy * pointSet[0].points[i].coordinates.z(), vz * pointSet[0].points[i].coordinates.z());
             }
         }
 
-        FileInfo fi;
         fi.pointSetSize = pointSetSize;
         fi.pointSet = pointSet;
 
@@ -663,7 +685,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             Geode *currentGeode = new Geode();
             currentGeode->addDrawable(drawable);
             currentGeode->setName(filename);
-            parent->addChild(currentGeode);
+            matTra->addChild(currentGeode);
             NodeInfo ni;
             ni.node = currentGeode;
             fi.nodes.push_back(ni);
@@ -679,7 +701,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     }
     else if (strcasecmp(cfile + strlen(cfile) - 3, "c2m") == 0)
     {
-		addButton(filename);
         cout << "iCloud2Max Data: " << filename << endl;
 
         ifstream file(filename.c_str(), ios::in | ios::binary);
@@ -692,7 +713,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         {
             cerr << "Total num of sets is " << pointSetSize << endl;
             pointSet = new PointSet[pointSetSize];
-            FileInfo fi;
             fi.pointSetSize = pointSetSize;
             fi.pointSet = pointSet;
             for (int i = 0; i < pointSetSize; i++)
@@ -708,9 +728,9 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 {
                     // read point data
                     file.read(buf, 36);
-                    pointSet[i].points[n].x = ((float *)buf)[0];
-                    pointSet[i].points[n].y = ((float *)buf)[1];
-                    pointSet[i].points[n].z = ((float *)buf)[2];
+                    pointSet[i].points[n].coordinates.x() = ((float *)buf)[0];
+                    pointSet[i].points[n].coordinates.y() = ((float *)buf)[1];
+                    pointSet[i].points[n].coordinates.z() = ((float *)buf)[2];
                     pointSet[i].colors[n].r = (((unsigned char *)buf)[14]) / 255.0;
                     pointSet[i].colors[n].g = (((unsigned char *)buf)[13]) / 255.0;
                     pointSet[i].colors[n].b = (((unsigned char *)buf)[12]) / 255.0;
@@ -726,7 +746,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     Geode *currentGeode = new Geode();
                     currentGeode->addDrawable(drawable);
                     currentGeode->setName(filename);
-                    parent->addChild(currentGeode);
+					matTra->addChild(currentGeode);
                     NodeInfo ni;
                     ni.node = currentGeode;
                     fi.nodes.push_back(ni);
@@ -742,7 +762,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     }
     else if (strcasecmp(cfile + strlen(cfile) - 3, "e57") == 0)
     {
-		addButton(filename);
         cout << "e57 Data: " << filename << endl;
         
 #ifdef HAVE_E57
@@ -760,7 +779,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             e57::Data3D		scanHeader;
             cerr << "Total num of sets is " << data3DCount << endl;
             pointSet = new PointSet[data3DCount];
-            FileInfo fi;
             fi.pointSetSize = data3DCount;
             fi.pointSet = pointSet;
             for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
@@ -935,9 +953,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                         {
                             osg::Vec3 p(xData[i], yData[i], zData[i]);
                             p = p * m;
-                            point.x = p[0];
-                            point.y = p[1];
-                            point.z = p[2];
+							point.coordinates = p;
                             
                             if (bIntensity) {		//Normalize intensity to 0 - 1.
                                 float intensity = ((intData[i] - intOffset) / intRange);
@@ -987,16 +1003,14 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     Geode *currentGeode = new Geode();
                     currentGeode->addDrawable(drawable);
                     currentGeode->setName(filename);
-                    parent->addChild(currentGeode);
+					matTra->addChild(currentGeode);
                     NodeInfo ni;
                     ni.node = currentGeode;
                     fi.nodes.push_back(ni);
-					fi.filename = filename;
                 }
             }
             
             files.push_back(fi);
-            s_pointCloudInteractor->updatePoints(&files);
             eReader.Close();
             return;
         }
@@ -1019,7 +1033,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
     }
     else // ptsb binary randomized blocked
     {
-		addButton(filename);
         cout << "Input Data: " << filename << endl;
 
         ifstream file(filename.c_str(), ios::in | ios::binary);
@@ -1035,7 +1048,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         file.read((char *)&pointSetSize, sizeof(int));
         cerr << "Total num of sets is " << pointSetSize << endl;
         pointSet = new PointSet[pointSetSize];
-        FileInfo fi;
         fi.pointSetSize = pointSetSize;
         fi.pointSet = pointSet;
         for (int i = 0; i < pointSetSize; i++)
@@ -1071,7 +1083,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 Geode *currentGeode = new Geode();
                 currentGeode->addDrawable(drawable);
                 currentGeode->setName(filename);
-                parent->addChild(currentGeode);
+				matTra->addChild(currentGeode);
                 NodeInfo ni;
                 ni.node = currentGeode;
                 fi.nodes.push_back(ni);
@@ -1118,8 +1130,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         files.push_back(fi);
         cerr << "closing the file" << endl;
         file.close();
-        s_pointCloudInteractor->updatePoints(&files);
-		secondary_Interactor->updatePoints(&files);
         return;
     }
 }
@@ -1128,39 +1138,39 @@ void PointCloudPlugin::calcMinMax(PointSet& pointSet)
 {
     if (pointSet.size >0)
     {
-        pointSet.xmax = pointSet.xmin = pointSet.points[0].x;
-        pointSet.ymax = pointSet.ymin = pointSet.points[0].y;
-        pointSet.zmax = pointSet.zmin = pointSet.points[0].z;
+        pointSet.xmax = pointSet.xmin = pointSet.points[0].coordinates.x();
+        pointSet.ymax = pointSet.ymin = pointSet.points[0].coordinates.y();
+        pointSet.zmax = pointSet.zmin = pointSet.points[0].coordinates.z();
 
         if (pointSet.size >1)
         {
             for (int k=1; k<pointSet.size; k++)
             {
-                if(pointSet.points[k].x<pointSet.xmin)
+                if(pointSet.points[k].coordinates.x()<pointSet.xmin)
                 {
-                    pointSet.xmin= pointSet.points[k].x;
+                    pointSet.xmin= pointSet.points[k].coordinates.x();
                 }
-                else if (pointSet.points[k].x>pointSet.xmax)
+                else if (pointSet.points[k].coordinates.x()>pointSet.xmax)
                 {
-                    pointSet.xmax= pointSet.points[k].x;
-                }
-
-                if(pointSet.points[k].y<pointSet.ymin)
-                {
-                    pointSet.ymin= pointSet.points[k].y;
-                }
-                else if (pointSet.points[k].y>pointSet.ymax)
-                {
-                    pointSet.ymax= pointSet.points[k].y;
+                    pointSet.xmax= pointSet.points[k].coordinates.x();
                 }
 
-                if(pointSet.points[k].z<pointSet.zmin)
+                if(pointSet.points[k].coordinates.y()<pointSet.ymin)
                 {
-                    pointSet.zmin= pointSet.points[k].z;
+                    pointSet.ymin= pointSet.points[k].coordinates.y();
                 }
-                else if (pointSet.points[k].z> pointSet.zmax)
+                else if (pointSet.points[k].coordinates.y()>pointSet.ymax)
                 {
-                    pointSet.zmax= pointSet.points[k].z;
+                    pointSet.ymax= pointSet.points[k].coordinates.y();
+                }
+
+                if(pointSet.points[k].coordinates.z()<pointSet.zmin)
+                {
+                    pointSet.zmin= pointSet.points[k].coordinates.z();
+                }
+                else if (pointSet.points[k].coordinates.z()> pointSet.zmax)
+                {
+                    pointSet.zmax= pointSet.points[k].coordinates.z();
                 }
             }
         }
@@ -1384,16 +1394,16 @@ void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
     }
 }
 
-void PointCloudPlugin::addButton(string filename)
+void PointCloudPlugin::addButton(FileInfo &fInfo)
 {
-	fileButton = new ui::Button(selectionGroup, filename, fileButtonGroup);
-	fileButton->setText(filename);
+	fileButton = new ui::Button(selectionGroup, fInfo.filename , fileButtonGroup);	
+	fileButton->setText(fInfo.filename);
+	fInfo.fileButton = fileButton;
 	fileButton->setCallback([this](bool state) {
 		if (state)
 		{
-			//enable interaction
+			//enable interaction with that PointCloud
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
-			//cover->addPlugin("NurbsSurface");
 		}
 		else
 		{
@@ -1402,6 +1412,10 @@ void PointCloudPlugin::addButton(string filename)
 		if (fileButtonGroup->activeButton())
 		{
 			s_pointCloudInteractor->setFile(fileButtonGroup->activeButton()->text());
+		}
+		else
+		{
+			s_pointCloudInteractor->setFile("");
 		}
 	});
 }

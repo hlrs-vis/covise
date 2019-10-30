@@ -158,7 +158,7 @@ void PointCloudGeometry::updateBounds()
 
     for (int i = 0; i < pointSet->size; i++)
     {
-        box.expandBy(data[i].x, data[i].y, data[i].z);
+        box.expandBy(data[i].coordinates.x(), data[i].coordinates.y(), data[i].coordinates.z());
     }
     setInitialBound(box);
 }

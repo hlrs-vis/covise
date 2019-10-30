@@ -13,16 +13,18 @@ class NodeInfo
 public:
     osg::ref_ptr<osg::Geode> node;
 };
+class opencover::ui::Button;
 
 class FileInfo
 {
 public:
     std::string filename;
     std::vector<NodeInfo> nodes;
+	osg::ref_ptr<osg::MatrixTransform> tranformMat;
     int pointSetSize;
     PointSet *pointSet;
-	osg::Matrixd Rotation;
-	osg::Matrixd Translation;
+	osg::Matrix prevMat;
+	opencover::ui::Button *fileButton = nullptr;
 };
 
 #endif
