@@ -8,12 +8,17 @@
 
 struct PointSet;
 
+namespace opencover {
+namespace ui {
+class Button;
+}
+}
+
 class NodeInfo
 {
 public:
     osg::ref_ptr<osg::Geode> node;
 };
-class opencover::ui::Button;
 
 class FileInfo
 {

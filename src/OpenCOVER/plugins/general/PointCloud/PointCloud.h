@@ -84,7 +84,7 @@ private:
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
-	void addButton(string filename);
+	void addButton(FileInfo &fi);
 	string FileToMove = "";
 
 protected:
