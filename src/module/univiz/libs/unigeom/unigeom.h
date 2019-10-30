@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // Geometry
@@ -37,6 +30,13 @@
 #endif
 #endif
 
+#ifdef VISTLE
+#include <module/module.h>
+#include <core/port.h>
+#include <core/lines.h>
+#include <core/polygons.h>
+#endif
+
 #ifdef VTK
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
@@ -50,12 +50,18 @@ using namespace std;
 using namespace covise;
 #endif
 
+#ifdef VISTLE
+#include "../vistle_ext/export.h"
+class V_UNIVIZEXPORT UniGeom
+#else
 class UniGeom
+#endif
 {
 
 public:
     typedef enum
     {
+        GT_INVALID,
         GT_LINE,
         GT_POLYHEDRON
     } geomTypeEnum;
@@ -93,6 +99,18 @@ private:
     std::vector<std::vector<int> > polygons;
 #endif
 
+#ifdef VISTLE
+    int geomType = GT_INVALID;
+    vistle::Module *mod = nullptr;
+    vistle::PortTask *task = nullptr;
+    vistle::Object::const_ptr sourceObject;
+    vistle::Port *inputPort = nullptr;
+    vistle::Port *outputPort = nullptr;
+    vistle::Lines::ptr outLine;
+    vistle::Polygons::ptr outPoly;
+
+#endif
+
 #ifdef VTK
     int geomType;
     vtkPolyData *vtkPolyDat;
@@ -114,6 +132,11 @@ public:
     UniGeom(coOutputPort *geom, coOutputPort *normals = NULL);
     UniGeom(coInputPort *geom);
 #endif
+#endif
+
+#ifdef VISTLE
+    UniGeom(vistle::Module *mod, vistle::Port *outport, vistle::Object::const_ptr src=vistle::Object::const_ptr());
+    UniGeom(vistle::PortTask *task, vistle::Port *outport, vistle::Object::const_ptr src=vistle::Object::const_ptr());
 #endif
 
 #ifdef VTK // VTK constructor
@@ -145,73 +168,8 @@ public:
     void assignObj(const char *name);
 };
 
-inline void UniGeom::getVertex(int vertex, vec3 pos)
-{
-#ifdef AVS
-    // ###### TODO: HACK: fixed to polyhedra
-    pos[0] = PH(avsGeomObj).verts.l[vertex * 3 + 0];
-    pos[1] = PH(avsGeomObj).verts.l[vertex * 3 + 1];
-    pos[2] = PH(avsGeomObj).verts.l[vertex * 3 + 2];
-#endif
 
-#ifdef COVISE
-    if (covGeom)
-    {
-        pos[0] = vertices[(vertex)*3 + 0];
-        pos[1] = vertices[(vertex)*3 + 1];
-        pos[2] = vertices[(vertex)*3 + 2];
-    }
-    else if (covGeomIn)
-    {
-        if (geomType == GT_LINE)
-        {
-            coDoLines *lin = ((coDoLines *)covGeomIn->getCurrentObject());
-            float *x, *y, *z;
-            int *corL, *linL;
-            lin->getAddresses(&x, &y, &z, &corL, &linL);
-            pos[0] = x[vertex];
-            pos[1] = y[vertex];
-            pos[2] = z[vertex];
-        }
-        else if (geomType == GT_POLYHEDRON)
-        {
-            printf("UniGeom::getVertex not yet implemented for polygon type\n");
-        }
-    }
-#endif
 
-#ifdef VTK
-    outputPoints->GetPoint(vertex, pos);
-#endif
-}
 
-inline int UniGeom::getVertexCnt(void)
-{
-#ifdef AVS
-    printf("UniGeom::getVertexCnt: not yet implemented\n");
-#endif
-#ifdef COVISE
-    if (covGeom)
-    {
-        printf("UniGeom::getVertexCnt: not yet implemented for output object\n");
-    }
-    else if (covGeomIn)
-    {
-        if (geomType == GT_LINE)
-        {
-            coDoLines *lin = ((coDoLines *)covGeomIn->getCurrentObject());
-            return lin->getNumVertices();
-        }
-        else if (geomType == GT_POLYHEDRON)
-        {
-            printf("UniGeom::getVertexCnt: not yet implemented for polygon type\n");
-        }
-    }
-#endif
-#ifdef VTK
-    printf("UniGeom::getVertexCnt: not yet implemented\n");
-#endif
-    return 0;
-}
 
 #endif // _UNIGEOM_H_

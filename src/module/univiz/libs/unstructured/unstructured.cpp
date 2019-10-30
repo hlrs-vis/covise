@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // Unstructured Field
@@ -848,6 +841,374 @@ Unstructured::Unstructured(coDoUnstructuredGrid *grid,
                 (*vect)[co]->getAddresses(&up, &vp, &wp);
 //(*vect)[co]->get_addresses(&up, &vp, &wp);
 #endif
+                dp.ptrs.push_back(up);
+                dp.ptrs.push_back(vp);
+                dp.ptrs.push_back(wp);
+                dp.stride = 1; // Covise data is not interleaved
+
+                nodeComponentDataPtrs.push_back(dp);
+
+                //delete: (*vect)[co]->get_adresses(&nodeComponentDataPtrs[numNodeComp]);
+                if (vectorComponent < 0)
+                    vectorComponent = numNodeComp;
+                numNodeComp++;
+            }
+        }
+    }
+
+    // Vector quantity   (first component with veclen > 1)
+    vectorExists = vectorComponent >= 0;
+    if (vectorExists)
+    {
+#if DEBUG_OUTPUT
+        printf("unstructured[%s]: vector quantity initially at ucd component %d\n",
+               name, vectorComponent);
+#endif
+        selectVectorNodeData(vectorComponent);
+    }
+
+    // Scalar
+    scalarExists = scalarComponent >= 0;
+    if (scalarExists)
+    {
+#if DEBUG_OUTPUT
+        printf("unstructured[%s]: scalar quantity initially at ucd component %d\n",
+               name, scalarComponent);
+#endif
+        selectScalarNodeData(scalarComponent);
+    }
+
+    // Wall Distance
+    wallDistExists = false;
+    if (scalarExists)
+    {
+#if DEBUG_OUTPUT
+        printf("unstructured[%s]: warning: wall distance initially at scalar quantity ucd component\n", name);
+#endif
+        wallDist = p; // TODO: general case
+        wallDistExists = true;
+        wallDistComponent = scalarComponent;
+    }
+
+    // setup
+    divideVelocityByWalldist = false;
+    extrapolateToNoSlipBoundary = false;
+
+    // setup grid
+    searchGrid = 0;
+    cellRadiusSqr = 0;
+    cellCentroid = NULL;
+    nodeNeighbors = NULL;
+    cellNeighbors = NULL;
+    //vGradient = NULL;
+
+    computeBoundingBox();
+    computeCentroids();
+    computeTetDecomposition();
+
+    // initialize extra data arrays
+    for (int i = 0; i < nodeComponentNb; i++)
+    {
+        std::vector<DataDesc *> w;
+        nodeCompExtraData.push_back(w);
+    }
+
+    nodeComponentVecLenTot = 0;
+    nodeComponentVecLenCumulated.clear();
+    for (int i = 0; i < nodeComponentNb; i++)
+    {
+        nodeComponentVecLenCumulated.push_back(nodeComponentVecLenTot);
+        nodeComponentVecLenTot += getNodeCompVecLen(i);
+    }
+
+    if (nCells > 0)
+        loadCell(0, true);
+}
+#endif
+
+#ifdef VISTLE
+using namespace vistle;
+
+
+// Covise constructors
+// TODO #### check if planar cell types are supported by whole library
+//           or if they need to be excluded (skipped)
+Unstructured::Unstructured(UnstructuredGrid::const_ptr grid,
+                           std::vector<Vec<Scalar>::const_ptr> *scal,
+                           std::vector<Vec<Scalar,3>::const_ptr> *vect)
+{
+// Covise and AVS have zero-based vertex IDs
+// and element IDs (cell's offset into nodelist) hence still
+// no adaptation (kind of: bool zeroBased) of code necessary
+
+// TODO:
+// - support tensors DO_Unstructured_T3D_Data of type F3D:
+//    tensors must be (and are) interleaved in current version of Unstructured
+// - (support sets of DO_Unstructured_S3D_Data etc.)
+
+#if DEBUG_OUTPUT
+    printf("this is Unstructured %s\n", UNST_VERSION);
+#endif
+
+    if (scal)
+    {
+        bool bad = false;
+        if (scal->size() < 1)
+            bad = true;
+        for (int i = 0; i < scal->size(); i++)
+        {
+            if (!(*scal)[i])
+                bad = true;
+            else if (!grid)
+                grid = UnstructuredGrid::as((*scal)[i]->grid());
+        }
+        if (bad)
+        {
+            printf("Unstructured: got NULL pointer(s) in scalar data, aborting\n");
+            abort();
+            exit(1); // ###
+        }
+    }
+
+    if (vect)
+    {
+        bool bad = false;
+        if (vect->size() < 1)
+            bad = true;
+        for (int i = 0; i < vect->size(); i++)
+        {
+            if (!(*vect)[i])
+                bad = true;
+            else if (!grid)
+                grid = UnstructuredGrid::as((*vect)[i]->grid());
+        }
+        if (bad)
+        {
+            printf("Unstructured: got NULL pointer(s) in vector data, aborting\n");
+            abort();
+            exit(1); // ###
+        }
+    }
+
+    isCopy = false;
+    nameAllocated = false;
+    nodeListAllocated = true;
+    nodeListOffsetsAllocated = true;
+    cellTypesAllocated = true;
+    coordinatesAllocated = false;
+    allocatedNodeDataComponents.clear();
+    strictNodeCompExtraDeletion = false;
+    transientDataDict = NULL;
+    transientFile = NULL;
+    transient = false;
+    vector3CB = NULL;
+    transientZoneRotating = -1;
+
+    if (!grid) {
+
+    }
+    if (grid) {
+        name = const_cast<char *>(grid->getName().c_str()); // ### ok? (accesses DistributedObject base class)
+    } else {
+        name = nullptr;
+    }
+
+    //printf("name of unstructured grid: %s\n", name);
+
+#if 0
+    // rotating zones (experimental)
+    if (strncmp(name, "rotating", strlen("rotating")) == 0)
+    {
+        // there is a rotating zone
+        double angularSpeed;
+        sscanf(name, "%*s%d%lg,%lg,%lg%lg,%lg,%lg%lg",
+               &transientZoneRotating,
+               &transientZoneRotationCenter[0],
+               &transientZoneRotationCenter[1],
+               &transientZoneRotationCenter[2],
+               &transientZoneRotationVector[0],
+               &transientZoneRotationVector[1],
+               &transientZoneRotationVector[2],
+               &angularSpeed);
+        vec3nrm(transientZoneRotationVector, transientZoneRotationVector);
+        vec3scal(transientZoneRotationVector, angularSpeed, transientZoneRotationVector);
+        printf("rotating zone:\n id=%d\n center=%g,%g,%g\n axis=%g,%g,%g\n",
+               transientZoneRotating,
+               transientZoneRotationCenter[0],
+               transientZoneRotationCenter[1],
+               transientZoneRotationCenter[2],
+               transientZoneRotationVector[0],
+               transientZoneRotationVector[1],
+               transientZoneRotationVector[2]);
+        zoneComponent = 1; // ############## HACK !!!!!!!!! TODO TODO TODO
+    }
+    else
+    {
+        transientZoneRotating = -1;
+    }
+#endif
+
+    //grid->get_grid_size(&nCells, &nConn, &nNodes);
+    Index nConn = grid->getNumCorners();
+    nCells = grid->getNumElements();
+    nNodes = grid->getNumCoords();
+
+    edgeNb = -1;
+    faceNb = -1;
+
+//printf("### nConn=%d\n", nConn);
+
+// Cells and Coordinates
+    //grid->getAddresses(&nodeListOffset, &nodeList, &x, &y, &z);
+    {
+        auto el = &grid->el()[0];
+        nodeListOffset = new int[grid->getNumElements()];
+        for (Index i=0; i<grid->getNumElements(); ++i) {
+            nodeListOffset[i] = el[i];
+        }
+    }
+    {
+        auto cl = &grid->cl()[0];
+        nodeList = new int[grid->getNumCorners()];
+        for (Index i=0; i<grid->getNumCorners(); ++i) {
+            nodeList[i] = cl[i];
+        }
+    }
+    x = const_cast<float *>(&grid->x()[0]);
+    y = const_cast<float *>(&grid->y()[0]);
+    z = const_cast<float *>(&grid->z()[0]);
+    cStride = 1; // non-interleaved coordinate data
+
+// type definitions for tet, pyr, prism, and hex are ACTUALLY (### HACK TODO)
+// identical between AVS and Covise
+    {
+        auto tl = &grid->tl()[0];
+        cellType = new int[grid->getNumElements()];
+        for (Index i=0; i<nCells; ++i)
+            cellType[i] = tl[i] & UnstructuredGrid::TYPE_MASK;
+    }
+
+    // convert node order from Covise to AVS
+    // the node list buffer is allocated ###,
+    // this violates the philosophy to keep memory usage of Unstructured very small
+    // TODO: replace all direct accesses to nodelist by accessors and change
+    //       the node ordering inside the accessors instead of memory allocation
+    {
+        int *nodeListCov = nodeList;
+
+        nodeList = new int[nConn];
+        nodeListAllocated = true;
+
+        int nodeIdx = 0;
+        for (int c = 0; c < nCells; c++)
+        {
+
+            switch (cellType[c])
+            {
+            case CELL_TET:
+            {
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 3];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 0];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 1];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 2];
+            }
+            break;
+            case CELL_PYR:
+            {
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 4];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 0];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 1];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 2];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 3];
+            }
+            break;
+            case CELL_PRISM:
+            {
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 3];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 4];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 5];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 0];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 1];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 2];
+            }
+            break;
+            case CELL_HEX:
+            {
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 4];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 5];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 6];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 7];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 0];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 1];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 2];
+                nodeList[nodeIdx++] = nodeListCov[nodeListOffset[c] + 3];
+            }
+            break;
+            default:
+            {
+                printf("Unstructured-Vistle: ERROR: unsupported cell type: %d\n", cellType[c]);
+                // planar types have opposite orientation, but this should not matter
+                // TODO: copy nodes
+            }
+            }
+        }
+    }
+
+    // fake components: scalars come first
+    // TODO: support sets of DO_Unstructured_S3D_Data etc. ? (may interfere with Covise scheme to use sets for time-dependent data only
+    {
+        int numNodeComp = 0;
+        if (scal)
+            numNodeComp += int(scal->size());
+        if (vect)
+            numNodeComp += int(vect->size());
+
+        nodeComponentNb = numNodeComp;
+        nodeComponents = new int[nodeComponentNb];
+
+        nodeComponentLabels = new char *[nodeComponentNb];
+        // ### TODO: reference instead of copy
+        for (int c = 0; c < nodeComponentNb; c++)
+        {
+            nodeComponentLabels[c] = new char[256]; // ###
+            strcpy(nodeComponentLabels[c], "TODO");
+        }
+
+        // setup
+        numNodeComp = 0;
+        vectorComponent = -1;
+        scalarComponent = -1;
+        if (scal)
+        {
+            for (int co = 0; co < scal->size(); co++)
+            {
+                nodeComponents[numNodeComp] = 1;
+                float *wp = const_cast<float *>(&((*scal)[co]->x())[0]);
+
+                NodeCompDataPtr dp;
+                dp.ptrs.push_back(wp);
+                dp.stride = 1;
+
+                nodeComponentDataPtrs.push_back(dp);
+
+                //delete:(*scal)[co]->get_adress(&nodeComponentDataPtrs[numNodeComp]);
+                if (scalarComponent < 0)
+                    scalarComponent = numNodeComp;
+                numNodeComp++;
+            }
+        }
+        if (vect)
+        {
+            const int vveclen = 3;
+            for (int co = 0; co < vect->size(); co++)
+            {
+                nodeComponents[numNodeComp] = vveclen;
+
+                NodeCompDataPtr dp;
+
+                float *up = const_cast<float *>(&((*vect)[co]->x())[0]);
+                float *vp = const_cast<float *>(&((*vect)[co]->y())[0]);
+                float *wp = const_cast<float *>(&((*vect)[co]->z())[0]);
                 dp.ptrs.push_back(up);
                 dp.ptrs.push_back(vp);
                 dp.ptrs.push_back(wp);

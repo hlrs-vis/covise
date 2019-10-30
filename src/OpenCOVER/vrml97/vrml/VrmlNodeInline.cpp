@@ -208,7 +208,6 @@ void VrmlNodeInline::load(const char *relativeUrl, int parentId)
         sgObject = 0L;
         if (d_url.get(0) && strlen(d_url.get(0))>0)
         {
-#if 1
             if (isOnlyGeometry())
             {
                 sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
@@ -217,13 +216,6 @@ void VrmlNodeInline::load(const char *relativeUrl, int parentId)
                     setModified();
                 }
             }
-#else
-            if (strstr(name(), "Cached") != NULL)
-            {
-                setModified();
-                sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
-            }
-#endif
             if ((sgObject == 0L) && !VrmlScene::isWrl(url.url()))
             {
                 sgObject = System::the->getInline(url.url());

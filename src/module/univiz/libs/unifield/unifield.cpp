@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // Structured Field
@@ -13,6 +6,10 @@
 // Filip Sadlo 2006 - 2007
 
 #include "unifield.h"
+
+#ifdef VISTLE
+using namespace vistle;
+#endif
 
 #ifdef VTK
 #include "vtkPointData.h"
@@ -81,6 +78,40 @@ UniField::UniField(coDoStructuredGrid *cGrid,
 }
 #endif
 
+#ifdef VISTLE
+UniField::UniField(vistle::Vec<vistle::Scalar>::const_ptr cScalarData, vistle::Vec<vistle::Scalar,2>::const_ptr cVector2Data)
+{
+    if (cScalarData) {
+        vistleScalarData = std::const_pointer_cast<Vec<Scalar>>(cScalarData);
+        vistleGrid = StructuredGrid::as(std::const_pointer_cast<Object>(vistleScalarData->grid()));
+    }
+    if (cVector2Data) {
+        vistleVector2Data = std::const_pointer_cast<Vec<Scalar,2>>(cVector2Data);
+        if (!vistleGrid)
+            vistleGrid = StructuredGrid::as(std::const_pointer_cast<Object>(vistleVector2Data->grid()));
+        if (cVector2Data->grid() && vistleGrid != cVector2Data->grid()) {
+            std::cerr << "Unifield: grid mismatch" << std::endl;
+        }
+    }
+}
+
+UniField::UniField(vistle::Vec<vistle::Scalar>::const_ptr cScalarData, vistle::Vec<vistle::Scalar,3>::const_ptr cVector3Data)
+{
+    if (cScalarData) {
+        vistleScalarData = std::const_pointer_cast<Vec<Scalar>>(cScalarData);
+        vistleGrid = StructuredGrid::as(std::const_pointer_cast<Object>(vistleScalarData->grid()));
+    }
+    if (cVector3Data) {
+        vistleVector3Data = std::const_pointer_cast<Vec<Scalar,3>>(cVector3Data);
+        if (!vistleGrid)
+            vistleGrid = StructuredGrid::as(std::const_pointer_cast<Object>(vistleVector3Data->grid()));
+        if (cVector3Data->grid() && vistleGrid != cVector3Data->grid()) {
+            std::cerr << "Unifield: grid mismatch" << std::endl;
+        }
+    }
+}
+#endif
+
 #ifdef VTK
 #if 0
 UniField::UniField(float *data, float *positions)
@@ -122,6 +153,15 @@ void UniField::freeField()
 #ifdef COVISE
 // HACK ### actually assuming that field got assigned to a Covise output port
 // -> nothing to be done
+#endif
+
+#ifdef VISTLE
+    // smart pointers do the work
+    canModify = true;
+    vistleGrid.reset();
+    vistleScalarData.reset();
+    vistleVector2Data.reset();
+    vistleVector3Data.reset();
 #endif
 
 #ifdef VTK
@@ -237,6 +277,32 @@ bool UniField::allocField(int nDims, int *dims, int nSpace, bool, int nComp, int
         fprintf(stderr, "UniField: error: unsupported vector length\n");
     }
     return (covGrid && (covScalarData || covVector2Data || covVector3Data));
+#endif
+
+#ifdef VISTLE
+    canModify = true;
+    vistleGrid.reset(new StructuredGrid(dims[0], (nDims >= 2 ? dims[1] : 1), (nDims >= 3 ? dims[2] : 1)));
+    if (compVecLen[0] <= 1)
+    {
+        vistleScalarData.reset(new Vec<Scalar>(dims[0] * (nDims >= 2 ? dims[1] : 1) * (nDims >= 3 ? dims[2] : 1)));
+        vistleScalarData->setGrid(vistleGrid);
+    }
+    else if (compVecLen[0] == 2)
+    {
+        vistleVector2Data.reset(new Vec<Scalar,2>(dims[0] * (nDims >= 2 ? dims[1] : 1) * (nDims >= 3 ? dims[2] : 1)));
+        vistleVector2Data->setGrid(vistleGrid);
+    }
+
+    else if (compVecLen[0] == 3)
+    {
+        vistleVector3Data.reset(new Vec<Scalar,3>(dims[0] * (nDims >= 2 ? dims[1] : 1) * (nDims >= 3 ? dims[2] : 1)));
+        vistleVector3Data->setGrid(vistleGrid);
+    }
+    else
+    {
+        fprintf(stderr, "UniField: error: unsupported vector length\n");
+    }
+    return (vistleGrid && (vistleScalarData || vistleVector2Data || vistleVector3Data));
 #endif
 
 #ifdef VTK
@@ -359,6 +425,32 @@ void UniField::getField(coDoStructuredGrid **covGridP,
         *covScalarDataP = covScalarData;
     if (covVector3DataP)
         *covVector3DataP = covVector3Data;
+}
+#endif
+
+#ifdef VISTLE
+void UniField::getField(vistle::StructuredGrid::ptr *vistleGridP,
+                  vistle::Vec<vistle::Scalar>::ptr *vistleScalarDataP,
+                        vistle::Vec<vistle::Scalar,2>::ptr *vistleVector2DataP)
+{
+    if (vistleGridP)
+        *vistleGridP = vistleGrid;
+    if (vistleScalarDataP)
+        *vistleScalarDataP = vistleScalarData;
+    if (vistleVector2DataP)
+        *vistleVector2DataP = vistleVector2Data;
+}
+
+void UniField::getField(vistle::StructuredGrid::ptr *vistleGridP,
+                  vistle::Vec<vistle::Scalar>::ptr *vistleScalarDataP,
+                        vistle::Vec<vistle::Scalar,3>::ptr *vistleVector3DataP)
+{
+    if (vistleGridP)
+        *vistleGridP = vistleGrid;
+    if (vistleScalarDataP)
+        *vistleScalarDataP = vistleScalarData;
+    if (vistleVector3DataP)
+        *vistleVector3DataP = vistleVector3Data;
 }
 #endif
 

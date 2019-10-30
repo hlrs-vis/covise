@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 // Unification Library for Modular Visualization Systems
 //
 // Unstructured Field
@@ -52,6 +45,15 @@
 #include <do/coDoData.h>
 #include <do/coDoUnstructuredGrid.h>
 #endif
+#endif
+
+#ifdef VISTLE
+// Vistle
+#include <module/module.h>
+#include <core/vec.h>
+#include <core/unstr.h>
+
+#include "../vistle_ext/export.h"
 #endif
 
 #ifdef VTK
@@ -177,7 +179,11 @@ typedef struct NodeCompDataPtr
     int stride;
 } NodeCompDataPtr;
 
+#ifdef VISTLE
+class V_UNIVIZEXPORT Unstructured
+#else
 class Unstructured
+#endif
 {
 
 public:
@@ -219,7 +225,7 @@ public:
         GRAD_MEYER
     } gradientMethodEnum;
 
-    char *name;
+    char *name = nullptr;
     int nCells;
     int nNodes;
 
@@ -265,9 +271,9 @@ private:
     fvec3 *cellCentroid;
     float *cellRadiusSqr;
 
-    float *x;
-    float *y;
-    float *z;
+    float *x = nullptr;
+    float *y = nullptr;
+    float *z = nullptr;
 
     int vectorComponent;
     DataDesc *vectorComponentExtraData; // points to selected extra data, NULL otherwise
@@ -286,11 +292,11 @@ private:
     int vector3CBBackupComp;
     bool vector3CBRestrictToGrid;
 
-    float *u;
-    float *v;
-    float *w;
-    float *p;
-    float *wallDist;
+    float *u = nullptr;
+    float *v = nullptr;
+    float *w = nullptr;
+    float *p = nullptr;
+    float *wallDist = nullptr;
 
     int vStride; // stride for vector data
     int sStride; // stride for scalar data
@@ -300,10 +306,10 @@ private:
     bool wallDistExists;
 
     fvec3 boundingBoxMin, boundingBoxMax;
-    SearchGrid *searchGrid;
-    int *cellType;
-    int *nodeList;
-    int *nodeListOffset;
+    SearchGrid *searchGrid = nullptr;
+    int *cellType = nullptr;
+    int *nodeList = nullptr;
+    int *nodeListOffset = nullptr;
 
     int edgeNb;
     int faceNb;
@@ -345,6 +351,12 @@ public:
                  std::vector<covise::coDoFloat *> *scal,
                  std::vector<covise::coDoVec3 *> *vect);
 #endif
+#endif
+
+#ifdef VISTLE
+    Unstructured(vistle::UnstructuredGrid::const_ptr grid,
+                 std::vector<vistle::Vec<vistle::Scalar>::const_ptr> *scal,
+                 std::vector<vistle::Vec<vistle::Scalar,3>::const_ptr> *vect);
 #endif
 
 #ifdef VTK
@@ -439,7 +451,7 @@ public:
     void matrixInvert(int matComp, Unstructured *out, int outComp, bool mode2D = false);
     //DataDesc *gradient(int comp, bool onlyGetID=false, int *id=NULL);
 
-    char *getName(void);
+    const char *getName(void);
     int getEdgeNb(void);
     int getFaceNb(void);
     int getCellType(int cell)
@@ -552,7 +564,7 @@ public:
 
 // --- inlined accessors -------------------------------------------------------
 
-inline char *Unstructured::getName(void)
+inline const char *Unstructured::getName(void)
 {
     return name;
 }

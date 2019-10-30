@@ -67,8 +67,8 @@ public:
     void setSelectionSetIndex(int selectionSet);
     void setSelectionIsBoundary(bool selectionIsBoundary);
     bool getSelectionIsBoundary();
-    bool actionsuccess = 0;
-    void setFile(string filename);
+	bool actionsuccess = 0;
+	void setFile(string filename);
 
 private:
 

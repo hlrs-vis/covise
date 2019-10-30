@@ -1736,7 +1736,6 @@ void VrmlScene::removeAudioClip(VrmlNodeAudioClip *audio_clip)
 
 void VrmlScene::storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject)
 {
-#if 1
     if (System::the->getCacheMode() != System::CACHE_CREATE
             && System::the->getCacheMode() != System::CACHE_REWRITE)
         return;
@@ -1746,43 +1745,6 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
         return;
     std::cerr << "Cache store: " << pathname << " -> " << cachefile << std::endl;
     System::the->storeInline(cachefile.c_str(), d_viewerObject);
-#else
-    if (cache)
-    {
-        char *fileName = NULL;
-
-        int urlTime = 0;
-#ifdef _WIN32
-        struct _stat sbuf;
-        _stat(pathname, &sbuf);
-#else
-        struct stat sbuf;
-        int ret = stat(pathname, &sbuf);
-        if (ret == 0)
-#endif
-
-#ifdef __sgi
-        urlTime = sbuf.st_mtim.tv_sec;
-#else
-        urlTime = (int)sbuf.st_mtime;
-#endif
-        if (cacheEntry *e = cache->findEntry(url))
-        {
-            fileName = e->fileName;
-            e->time = urlTime;
-        }
-        else
-        {
-            fileName = new char[strlen(cache->directory) + 1000];
-            sprintf(fileName, "cache_%s_%lu", cache->fileBase, (unsigned long)cache->cacheList.size());
-            cache->cacheList.push_back(cacheEntry(url, fileName, urlTime, d_viewerObject));
-        }
-        std::stringstream str;
-        str << cache->directory << "/" << fileName;
-        cache->modified = true;
-        System::the->storeInline(str.str().c_str(), d_viewerObject);
-    }
-#endif
 }
 
 Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
@@ -1791,7 +1753,6 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
             || System::the->getCacheMode() == System::CACHE_REWRITE)
         return 0L;
 
-#if 1
     std::string cachefile = System::the->getCacheName(url, pathname);
     if (cachefile.empty())
     {
@@ -1846,35 +1807,6 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 
     std::cerr << "Cache load: " << pathname << " -> " << cachefile << std::endl;
     return System::the->getInline(cachefile.c_str());
-#else
-    //std::cerr << "VrmlScene::getCachedInline(url=" << url << ", local=" << (pathname?pathname:"<null>") << std::endl;
-    if (cache)
-    {
-        int urlTime = -1;
-#ifdef _WIN32
-        struct _stat sbuf;
-        _stat(url, &sbuf);
-#else
-        struct stat sbuf;
-        int ret = stat(pathname, &sbuf);
-        if (ret == 0)
-#endif
-#ifdef __sgi
-        urlTime = sbuf.st_mtim.tv_sec;
-#else
-        urlTime = (int)sbuf.st_mtime;
-#endif
-
-        cacheEntry *e = cache->findEntry(url);
-        if (e && urlTime == e->time)
-        {
-            std::stringstream str;
-            str << cache->directory << "/" << e->fileName;
-            return System::the->getInline(str.str().c_str());
-        }
-    }
-#endif
-    return 0L;
 }
 
 InlineCache::InlineCache(const char *vrmlfile)
