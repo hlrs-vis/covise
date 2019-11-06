@@ -1135,11 +1135,11 @@ void MidiPlugin::handleController(MidiEvent& me)
 	if (controllerID == 57)
 	{
 		frequencySurface->amplitudeFactor = (value-63)/12.0;
-		amplitudeSurface->amplitudeFactor = (value - 63) / 12.0;
+		//amplitudeSurface->amplitudeFactor = (value - 63) / 12.0;
 	}
 	if (controllerID == 62)
 	{
-		frequencySurface->frequencyFactor = (value - 63) / 12.0;
+		//frequencySurface->frequencyFactor = (value - 63) / 12.0;
 		amplitudeSurface->frequencyFactor = (value - 63) / 12.0;
 	}
 	if (controllerID == 52) // slider left
@@ -1153,6 +1153,12 @@ void MidiPlugin::handleController(MidiEvent& me)
 		{
 			lTrack[i]->setRotation(rotSpeed);
 		}
+	}
+	if (controllerID == 53) // slider right
+	{
+		float sliderValue = ((float)(value - 64) / 64.0)*0.3;
+		rAcceleration = sliderValue;
+		raccelSlider->setValue(sliderValue);
 	}
 	if (controllerID == 63) // distance sensor
 	{
