@@ -52,8 +52,8 @@ void directionalLight(in int i, in vec3 normal)
    float nDotHV;         // normal . light half vector
    float pf;             // power factor
 
-   nDotVP = abs(dot(normal, normalize(vec3 (gl_LightSource[i].position))));
-   nDotHV = abs(dot(normal, vec3 (gl_LightSource[i].halfVector)));
+   nDotVP = max(0.0, dot(normal, normalize(vec3 (gl_LightSource[i].position))));
+   nDotHV = max(0.0, dot(normal, vec3 (gl_LightSource[i].halfVector)));
 
    if (nDotVP == 0.0)
    {
@@ -75,7 +75,7 @@ void pointLight(in int i, in vec3 N, in vec3 eye)
    float d;            // distance from surface to light source
 
    vec3 L = normalize(gl_LightSource[i].position.xyz - V);
-   float NdotL = abs(dot(N,L));
+   float NdotL = max(0.0, dot(N,L));
    vec3 E = normalize(-V);
    vec3 R = normalize(-reflect(L,N));
 
@@ -93,7 +93,7 @@ void pointLight(in int i, in vec3 N, in vec3 eye)
    }
    else
    {
-       pf = pow(abs(dot(R,E)), gl_FrontMaterial.shininess);
+       pf = pow(max(0.0, dot(R,E)), gl_FrontMaterial.shininess);
    }
    Ambient  += gl_LightSource[i].ambient * attenuation;
    Diffuse  += gl_LightSource[i].diffuse * NdotL * attenuation;
@@ -130,7 +130,10 @@ void main (void)
         color.a = 1.0;
     }
 
-    gl_FragColor = flight(normalize(N), color);
+    if (gl_FrontFacing)
+        gl_FragColor = flight(normalize(N), color);
+    else
+        gl_FragColor = flight(-normalize(N), color);
 
     if (!blendWithMaterial)
     {
