@@ -84,7 +84,7 @@ private:
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
-	void addButton(string filename);
+	void addButton(FileInfo &fInfo);
 	string FileToMove = "";
 
 protected:
@@ -103,7 +103,8 @@ protected:
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
     ui::Button *translationButton = nullptr;
-    ui::Button *rotationButton = nullptr;
+    ui::Button *rotPointsButton = nullptr;
+	ui::Button *rotAxisButton = nullptr;
     ui::Button *moveButton = nullptr;
 	ui::Button *fileButton = nullptr;
     ui::Button *deselectButton = nullptr;

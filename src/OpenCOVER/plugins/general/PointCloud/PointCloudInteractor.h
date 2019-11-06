@@ -52,7 +52,8 @@ public:
     
 	void getData(PointCloudInteractor *PCI);
 	void setTranslation(bool);
-	void setRotation(bool);
+	void setRotPts(bool);
+	void setRotAxis(bool);
 	void setFreeMove(bool);
 
     void setDeselection(bool);
@@ -82,14 +83,15 @@ private:
     bool SaveMat = true;
     osg::Matrix saveHandMat;
     osg::Matrix startHandMat;
-    osg::Vec3 orgDirect;
     osg::Vec3 centerPoint;
 	osg::Vec3 pointToMove;
+	osg::Vec3 rotAxis;
+	osg::Vec3 axisStart;
     float radius;
-    osg::Vec3 rotAxis;
     string fileToMove;
 	osg::Matrix moveMat;
 
+	void showAxis(osg::Vec3 startPoint, osg::Vec3 endPoint);
     void MovePoints(osg::Matrixd MoveMat);
 	osg::StateSet *highlightActiveCloud();
 
@@ -105,7 +107,8 @@ private:
     std::vector<FileInfo> UpdatedFIVec;
 
     bool m_rotation = false;
-
+	bool m_rotpts = false;
+	bool m_rotaxis = false;
     bool m_translation = false;
     bool m_freemove = false;
 
@@ -125,6 +128,7 @@ private:
 
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
+	osg::ref_ptr<osg::Group> axisGroup;
 
     int selectionSetIndex = 0;
     bool m_selectionIsBoundary = false;

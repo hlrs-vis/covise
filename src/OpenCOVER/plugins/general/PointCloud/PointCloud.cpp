@@ -159,9 +159,7 @@ bool PointCloudPlugin::init()
 			//enable interaction
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
 			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
-			//s_pointCloudInteractor->setSelectedPts(secondary_Interactor->getSelectedPtS());
 			s_pointCloudInteractor->setTranslation(true);
-			//secondary_Interactor->setSelectedPts(s_pointCloudInteractor);
 			secondary_Interactor->setTranslation(true);
 			//cover->addPlugin("NurbsSurface");
 		}
@@ -173,24 +171,44 @@ bool PointCloudPlugin::init()
 			secondary_Interactor->setTranslation(false);
 		}
 	});
-	rotationButton = new ui::Button(selectionGroup, "MakeRotate", selectionButtonGroup);
-	rotationButton->setText("Make Rotate");
-	rotationButton->setCallback([this](bool state) {
+	rotPointsButton = new ui::Button(selectionGroup, "RotationbyPointsSelection", selectionButtonGroup);
+	rotPointsButton->setText("Rotation by Points Selection");
+	rotPointsButton->setCallback([this](bool state) {
 		if (state)
 		{
 			//enable interaction
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
 			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
-			s_pointCloudInteractor->setRotation(true);
-			secondary_Interactor->setRotation(true);
+			s_pointCloudInteractor->setRotPts(true);
+			secondary_Interactor->setRotPts(true);
 			//cover->addPlugin("NurbsSurface");
 		}
 		else
 		{
 			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
 			vrui::coInteractionManager::the()->unregisterInteraction(secondary_Interactor);
-			s_pointCloudInteractor->setRotation(false);
-			secondary_Interactor->setRotation(false);
+			s_pointCloudInteractor->setRotPts(false);
+			secondary_Interactor->setRotPts(false);
+		}
+	});
+	rotAxisButton = new ui::Button(selectionGroup, "RotationAxisbyPointer", selectionButtonGroup);
+	rotAxisButton->setText("Rotation Axis by Pointer");
+	rotAxisButton->setCallback([this](bool state) {
+		if (state)
+		{
+			//enable interaction
+			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
+			s_pointCloudInteractor->setRotAxis(true);
+			secondary_Interactor->setRotAxis(true);
+			//cover->addPlugin("NurbsSurface");
+		}
+		else
+		{
+			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->unregisterInteraction(secondary_Interactor);
+			s_pointCloudInteractor->setRotAxis(false);
+			secondary_Interactor->setRotAxis(false);
 		}
 	});
 	moveButton = new ui::Button(selectionGroup, "FreeMovement", selectionButtonGroup);
@@ -358,7 +376,7 @@ bool PointCloudPlugin::init()
     assert(!s_pointCloudInteractor);
 	assert(!secondary_Interactor);
     s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High, this);
-	secondary_Interactor = new PointCloudInteractor(coInteraction::ButtonD, "PointCloud", coInteraction::Highest, this);
+	secondary_Interactor = new PointCloudInteractor(coInteraction::ButtonC, "PointCloud", coInteraction::Highest, this);
 
     return true;
 }

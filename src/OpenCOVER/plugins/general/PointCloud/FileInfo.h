@@ -5,6 +5,7 @@
 #include <osg/Node>
 #include <string>
 #include <vector>
+#include <cover/ui/Button.h>
 
 struct PointSet;
 
