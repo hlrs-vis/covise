@@ -57,7 +57,7 @@ void WarningFunction(char *pstr, ...)
     vsprintf(buffer, pstr, argptr);
     va_end(argptr);
 #ifdef COVISE
-    covise.warning(buffer);
+    coviseI.warning(buffer);
 #endif
     *perr << buffer << endl;
 }
@@ -84,7 +84,7 @@ TException::TException(char *pstr, ...)
 void TException::Display()
 {
 #ifdef COVISE
-    covise.error(Description);
+    coviseI.error(Description);
 #endif
     *perr << Description << endl;
 }

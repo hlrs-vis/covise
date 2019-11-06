@@ -22,9 +22,8 @@ coviseInterface::~coviseInterface()
 
 void coviseInterface::run(int argc, char **argv)
 {
-    Trans3D *application = new Trans3D();
-
-    application->start(argc, argv);
+    Trans3D *application = new Trans3D(argc,argv);
+	application->start(argc, argv);
 }
 
 void coviseInterface::error(const char *buf)
@@ -51,4 +50,4 @@ void coviseInterface::info(const char *buf)
     return Covise::check_and_handle_event();
 }*/
 
-coviseInterface covise;
+coviseInterface coviseI;

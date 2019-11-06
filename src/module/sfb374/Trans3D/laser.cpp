@@ -211,7 +211,7 @@ TLaser TLaser::GetDimensional()
 {
     TMoveVect tm;
     TLaser l = *this;
-    int i, imax;
+    size_t i, imax;
 
     l.ndWavelength *= RefLength;
     l.ndHeight *= RefLength;
@@ -246,7 +246,7 @@ TLaser TLaser::GetDimensional()
 void TLaser::MakeNonDimensional()
 {
     TMoveVect tm;
-    int i, imax;
+	size_t i, imax;
 
     RefLength = Radius;
     RefVelocity = Material.RefDiffusivity / RefLength;
@@ -452,7 +452,7 @@ void TLaser::ReadMove()
 
 void TLaser::ReadPulse(prec *pLen, prec *pFlu, prec *pDuty)
 {
-    int i, imax;
+	size_t i, imax;
     prec x, y, l, f, d;
 
     if (pLen != 0)

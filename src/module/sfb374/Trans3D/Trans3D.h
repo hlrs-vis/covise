@@ -32,7 +32,7 @@ class Trans3D : public coModule
 
 private:
     //  member functions
-    virtual int compute();
+    virtual int compute(const char* port);
     virtual void quit();
     virtual float idle();
 
@@ -63,7 +63,7 @@ private:
     coFloatVectorParam *laserPos;
 
 public:
-    Trans3D();
+    Trans3D(int argc, char* argv[]);
     virtual ~Trans3D();
 };
 #endif

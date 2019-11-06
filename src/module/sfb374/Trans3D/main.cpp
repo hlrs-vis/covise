@@ -228,7 +228,7 @@ int strfind_entry(istrstream &sstr, const char *elist[])
         sstr.putback(s[n - m - 1]);
 
 #else
-    long ipos;
+	std::streampos ipos;
     ipos = sstr.tellg();
     sstr >> s;
     //sstr.clear();
@@ -244,7 +244,7 @@ int strfind_entry(istrstream &sstr, const char *elist[])
             for (m = 0; m < n; m++)
                 sstr >> c;
 #else
-            sstr.seekg(ipos + strlen(elist[i]));
+            sstr.seekg(ipos + (std::streampos)strlen(elist[i]));
 #endif
             break;
         }
@@ -262,7 +262,7 @@ const char *argslist[] = { "-in", "-out", "-h", "-?", "/h", "/?", "" };
 
 int parse_args(int argc, char *argv[])
 {
-    int i = 1;
+    size_t i = 1;
     char *pstr;
 
     while (i < argc)
@@ -1537,7 +1537,7 @@ int main(int argc, char *argv[])
 #ifdef COVISE
     if ((argc == 7) || (argc == 8))
     {
-        covise.run(argc, argv);
+        coviseI.run(argc, argv);
     }
     else
 #endif

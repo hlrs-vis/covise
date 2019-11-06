@@ -367,7 +367,8 @@ Source: {#OPENSCENEGRAPH}\bin\ot{#OSG_OT_SO_NUM}*.dll; DestDir: {#DLIB}; Compone
 Source: {#OPENSCENEGRAPH}\bin\osgPlugins-{#OSG_VER_NUM}\*; DestDir: {#DLIB}; Components: opencover
 ; now using VideoInput Source: {#EXTERNLIBS}\DSVL\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover               
+Source: {#EXTERNLIBS}\gdcm\bin\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\osgEphemeris\bin\*.dll; DestDir: {#DLIB}; Components: opencover          
 Source: C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll; DestDir: {#DLIB}; Components: opencover

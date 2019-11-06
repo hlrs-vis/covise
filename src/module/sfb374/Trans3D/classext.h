@@ -88,34 +88,34 @@ public:
     }
 
     T Get(prec);
-    prec GetX(int i) const
+    prec GetX(size_t i) const
     {
         return pDataX[i];
     }
-    T GetY(int i) const
+    T GetY(size_t i) const
     {
         return pDataY[i];
     }
     void Set(prec, T);
-    void SetX(int i, prec v)
+    void SetX(size_t i, prec v)
     {
         pDataX[i] = v;
     }
-    void SetY(int i, T v)
+    void SetY(size_t i, T v)
     {
         pDataY[i] = v;
     }
     void Delete();
-    void ReSize(int);
+    void ReSize(size_t);
     void Save(int, bool bText = true);
     void Read(int, bool bText = true);
     Interpolation<T> &operator=(const Interpolation<T> &);
     T Integrate(prec, prec);
-    int GetEntries() const
+    size_t GetEntries() const
     {
         return iPos;
     }
-    void SetEntries(int i)
+    void SetEntries(size_t i)
     {
         iPos = i;
     }
@@ -141,14 +141,14 @@ public:
 private:
     prec *pDataX;
     T *pDataY;
-    int iMaxSize;
-    int iPos;
+	size_t iMaxSize;
+	size_t iPos;
 };
 
 template <class T>
-inline void Interpolation<T>::ReSize(int iNewSize)
+inline void Interpolation<T>::ReSize(size_t iNewSize)
 {
-    int i;
+	size_t i;
 
     if (iNewSize == 0)
     {
@@ -203,7 +203,7 @@ inline void Interpolation<T>::Delete()
 template <class T>
 inline void Interpolation<T>::Set(prec x, T y)
 {
-    int i, iIns;
+	size_t i, iIns;
 
     if (iPos <= iMaxSize)
         ReSize(iMaxSize + 1);
@@ -315,7 +315,7 @@ inline void Interpolation<T>::Save(int unit, bool)
 {
     int i;
 
-    unitwrite(unit, iPos, "Eintraege =\t%i\n");
+    unitwrite(unit, (int)iPos, "Eintraege =\t%i\n");
     if (iPos < 1)
         return;
     for (i = 0; i < iPos; i++)
@@ -352,7 +352,7 @@ template <class T>
 inline ostream &operator<<(ostream &ps,
                            const Interpolation<T> &src)
 {
-    int imax = src.GetEntries();
+	size_t imax = src.GetEntries();
 
     ps << imax;
     if (imax == 1)
@@ -525,7 +525,7 @@ template <class T>
 T TStorage<T>::LastCondition(CondFunc cf, const T entry)
 {
     T tv;
-    int i, imax;
+	size_t i, imax;
 
     imax = size();
     if (imax == 0)
@@ -546,10 +546,10 @@ T TStorage<T>::LastCondition(CondFunc cf, const T entry)
 template <class T>
 void TStorage<T>::Save(int unit)
 {
-    int i, imax;
+	size_t i, imax;
 
     imax = size();
-    unitwrite(unit, imax, "Eintraege =\t%i\n");
+    unitwrite(unit, (int)imax, "Eintraege =\t%i\n");
     for (i = 0; i < imax; i++)
         (*this)[i].Save(unit);
 }
@@ -559,7 +559,7 @@ void TStorage<T>::Save(int unit)
 template <class T>
 void TStorage<T>::Read(int unit)
 {
-    int i, imax;
+	size_t i, imax;
 
     imax = readint(unit);
     resize(imax);
@@ -571,7 +571,7 @@ template <class T>
 inline ostream &operator<<(ostream &ps,
                            const TStorage<T> &src)
 {
-    int i, imax;
+    size_t i, imax;
 
     imax = src.size();
     ps << imax;
@@ -587,7 +587,7 @@ inline ostream &operator<<(ostream &ps,
 template <class T>
 inline istream &operator>>(istream &ps, TStorage<T> &src)
 {
-    int i, imax;
+	size_t i, imax;
 
     ps >> imax;
     ps.ignore(1000, '\n');

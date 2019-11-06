@@ -113,7 +113,7 @@ int trans3DInterface::Calculate(int numSteps)
                     dimtime, nstep, dtmax, Solid.ndMaxTemp,
                     Laser.ndAvePower, Solid.ndVapRate, Laser.iRays, Laser.iBadRays);
 
-            covise.info(buf);
+            coviseI.info(buf);
         }
     }
     catch (TException &ex)
@@ -140,14 +140,14 @@ int trans3DInterface::executeScript()
 int trans3DInterface::initCalculation()
 {
     int rv;
-    covise.info("initializing calculation...");
+    coviseI.info("initializing calculation...");
     try
     {
         if ((rv = Simulation.Initialize()) < 0)
             return rv;
 
         srand((unsigned)time(NULL));
-        covise.info("    Time     Step#    Max dT      Max T     AvePower"
+        coviseI.info("    Time     Step#    Max dT      Max T     AvePower"
                     "   RemRate  # Rays Bad Rays");
 
         nstep = 0;

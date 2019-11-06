@@ -891,8 +891,8 @@ public:
     // resize vector to NewSize and shift contents by nOffset
     void ReSize(int isize, int nOffset = 0)
     {
-        unsigned i, NewSize;
-        long iold;
+		size_t i, NewSize;
+		size_t iold;
         T *ptemp, DefT = T();
 
         NewSize = max(0, isize);
@@ -980,7 +980,7 @@ public:
 
 protected:
     T *p;
-    unsigned imax;
+	size_t imax;
 };
 
 template <class T>
@@ -1111,7 +1111,7 @@ public:
     {
         //, OldSize=imax*jmax
         unsigned i, j, NewSize = iNewSize * jNewSize;
-        long iold, jold, oldoff, newoff;
+        unsigned long iold, jold, oldoff, newoff;
         T *ptemp;
         T DefT = T();
 

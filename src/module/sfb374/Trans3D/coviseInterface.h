@@ -21,5 +21,5 @@ public:
 private:
 };
 
-extern coviseInterface covise;
+extern coviseInterface coviseI;
 #endif
