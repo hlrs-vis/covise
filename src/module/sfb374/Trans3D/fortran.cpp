@@ -14,13 +14,9 @@
  ***************************************************************************/
 
 #include <string>
-#ifndef __sgi
 #include <cstdio>
 #include <cstdarg>
-#else
-#include <stdio.h>
-#include <stdarg.h>
-#endif
+#include <cstring>
 #include <iostream>
 
 #include "fortran.h"
@@ -46,7 +42,7 @@ void init_stream()
 // open stream
 // ***************************************************************************
 
-int unitopen(int unit, const char *pname, int imode, bool bApp)
+int unitopen(int unit, const char *pname, std::ios::openmode imode, bool bApp)
 {
     char buffer[250], *pstr;
 

@@ -1515,19 +1515,19 @@ public:
         : Vector<T>(i){};
     MathVector(const MathVector<T> &vsrc)
     {
-        if (p)
-            delete[] p;
+        if (Vector<T>::p)
+            delete[] Vector<T>::p;
         try
         {
-            p = new T[vsrc.imax];
+            Vector<T>::p = new T[vsrc.imax];
         }
         catch (bad_alloc)
         {
             throw TException("ERROR: not enough memory");
         }
-        imax = vsrc.imax;
-        for (unsigned i = 0; i < imax; i++)
-            p[i] = vsrc.p[i];
+        Vector<T>::imax = vsrc.imax;
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] = vsrc.p[i];
     }
 
     /*    const MathVector<T>& operator = (const MathVector<T>& vsrc)
@@ -1545,10 +1545,10 @@ public:
       }*/
     MathVector<T> &operator+=(MathVector<T> vsrc)
     {
-        if (imax != vsrc.imax)
+        if (Vector<T>::imax != vsrc.imax)
             throw TException("ERROR: index out of range");
-        for (unsigned i = 0; i < imax; i++)
-            p[i] += vsrc.p[i];
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] += vsrc.p[i];
         return *this;
     }
     MathVector<T> operator+(MathVector<T> vsrc)
@@ -1558,10 +1558,10 @@ public:
     }
     MathVector<T> &operator-=(MathVector<T> vsrc)
     {
-        if (imax != vsrc.imax)
+        if (Vector<T>::imax != vsrc.imax)
             throw TException("ERROR: index out of range");
-        for (unsigned i = 0; i < imax; i++)
-            p[i] -= vsrc.p[i];
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] -= vsrc.p[i];
         return *this;
     }
     MathVector<T> operator-(MathVector<T> vsrc)
@@ -1572,20 +1572,20 @@ public:
     MathVector<T> operator-()
     {
         MathVector<T> v;
-        for (unsigned i = 0; i < imax; i++)
-            v[i] = -p[i];
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            v[i] = -Vector<T>::p[i];
         return v;
     }
     MathVector<T> &operator*=(prec t)
     {
-        for (unsigned i = 0; i < imax; i++)
-            p[i] *= t;
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] *= t;
         return *this;
     }
     MathVector<T> &operator*=(int t)
     {
-        for (unsigned i = 0; i < imax; i++)
-            p[i] *= t;
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] *= t;
         return *this;
     }
     MathVector<T> operator*(prec t)
@@ -1602,22 +1602,22 @@ public:
     {
         T t = 0;
 
-        if (imax != vsrc.imax)
+        if (Vector<T>::imax != vsrc.imax)
             throw TException("ERROR: index out of range");
-        for (unsigned i = 0; i < imax; i++)
-            t += p[i] * vsrc.p[i];
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            t += Vector<T>::p[i] * vsrc.p[i];
         return t;
     }
     MathVector<T> &operator/=(prec t)
     {
-        for (unsigned i = 0; i < imax; i++)
-            p[i] /= t;
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] /= t;
         return *this;
     }
     MathVector<T> &operator/=(int t)
     {
-        for (unsigned i = 0; i < imax; i++)
-            p[i] /= t;
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            Vector<T>::p[i] /= t;
         return *this;
     }
     MathVector<T> operator/(prec t)
@@ -1632,10 +1632,10 @@ public:
     }
     bool operator==(MathVector<T> vsrc)
     {
-        if (imax != vsrc.imax)
+        if (Vector<T>::imax != vsrc.imax)
             return false;
-        for (unsigned i = 0; i < imax; i++)
-            if (p[i] != vsrc.p[i])
+        for (unsigned i = 0; i < Vector<T>::imax; i++)
+            if (Vector<T>::p[i] != vsrc.p[i])
                 return false;
         return true;
     }
@@ -1792,21 +1792,21 @@ public:
         : Matrix<T>(i, j){};
     MathMatrix(const MathMatrix<T> &msrc)
     {
-        if (p)
-            delete[] p;
+        if (Matrix<T>::p)
+            delete[] Matrix<T>::p;
         try
         {
-            p = new T[msrc.imax * msrc.jmax];
+            Matrix<T>::p = new T[msrc.imax * msrc.jmax];
         }
         catch (bad_alloc)
         {
             throw TException("ERROR: not enough memory");
         }
-        imax = msrc.imax;
-        jmax = msrc.jmax;
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] = msrc(i, j);
+        Matrix<T>::imax = msrc.imax;
+        Matrix<T>::jmax = msrc.jmax;
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] = msrc(i, j);
     }
 
     /*    const MathMatrix<T>& operator = (const MathMatrix<T>& msrc)
@@ -1826,11 +1826,11 @@ public:
       }*/
     MathMatrix<T> &operator+=(MathMatrix<T> msrc)
     {
-        if (imax != msrc.imax || jmax != msrc.jmax)
+        if (Matrix<T>::imax != msrc.imax || Matrix<T>::jmax != msrc.jmax)
             throw TException("ERROR: index out of range");
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] += msrc(i, j);
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] += msrc(i, j);
         return *this;
     }
     MathMatrix<T> operator+(MathMatrix<T> msrc)
@@ -1840,11 +1840,11 @@ public:
     }
     MathMatrix<T> &operator-=(MathMatrix<T> msrc)
     {
-        if (imax != msrc.imax || jmax != msrc.jmax)
+        if (Matrix<T>::imax != msrc.imax || Matrix<T>::jmax != msrc.jmax)
             throw TException("ERROR: index out of range");
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] -= msrc(i, j);
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] -= msrc(i, j);
         return *this;
     }
     MathMatrix<T> operator-(MathMatrix<T> msrc)
@@ -1855,23 +1855,23 @@ public:
     MathMatrix<T> operator-()
     {
         MathMatrix<T> m;
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                v(i, j) = -p[i + imax * j];
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::v(i, j) = -Matrix<T>::p[i + Matrix<T>::imax * j];
         return m;
     }
     MathMatrix<T> &operator*=(prec t)
     {
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] *= t;
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] *= t;
         return *this;
     }
     MathMatrix<T> &operator*=(int t)
     {
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] *= t;
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] *= t;
         return *this;
     }
     MathMatrix<T> operator*(prec t)
@@ -1886,17 +1886,17 @@ public:
     }
     MathMatrix<T> operator*(MathMatrix<T> msrc)
     {
-        if (jmax != msrc.imax)
+        if (Matrix<T>::jmax != msrc.imax)
             throw TException("ERROR: index out of range");
 
-        MathMatrix<T> m(imax, msrc.jmax);
+        MathMatrix<T> m(Matrix<T>::imax, msrc.jmax);
 
         for (unsigned j = 0; j < msrc.jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
             {
                 m(i, j) = 0;
-                for (unsigned k = 0; k < jmax; k++)
-                    m(i, j) += p[i + imax * k] * msrc(k, j);
+                for (unsigned k = 0; k < Matrix<T>::jmax; k++)
+                    m(i, j) += Matrix<T>::p[i + Matrix<T>::imax * k] * msrc(k, j);
             }
         return m;
     }
@@ -1904,42 +1904,42 @@ public:
     {
         T t, *pnew;
 
-        if (jmax != msrc.imax)
+        if (Matrix<T>::jmax != msrc.imax)
             throw TException("ERROR: index out of range");
         try
         {
-            pnew = new T[imax * msrc.jmax];
+            pnew = new T[Matrix<T>::imax * msrc.jmax];
         }
         catch (bad_alloc)
         {
             throw TException("ERROR: not enough memory");
         }
         for (unsigned j = 0; j < msrc.jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
             {
                 t = 0;
-                for (unsigned k = 0; k < jmax; k++)
-                    t += p[i + imax * k] * msrc(k, j);
-                pnew[i + j * imax] = t;
+                for (unsigned k = 0; k < Matrix<T>::jmax; k++)
+                    t += Matrix<T>::p[i + Matrix<T>::imax * k] * msrc(k, j);
+                pnew[i + j * Matrix<T>::imax] = t;
             }
-        if (p)
-            delete[] p;
-        p = pnew;
-        jmax = msrc.jmax;
+        if (Matrix<T>::p)
+            delete[] Matrix<T>::p;
+        Matrix<T>::p = pnew;
+        Matrix<T>::jmax = msrc.jmax;
         return *this;
     }
     MathMatrix<T> &operator/=(prec t)
     {
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] /= t;
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] /= t;
         return *this;
     }
     MathMatrix<T> &operator/=(int t)
     {
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                p[i + imax * j] /= t;
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                Matrix<T>::p[i + Matrix<T>::imax * j] /= t;
         return *this;
     }
     MathMatrix<T> operator/(prec t)
@@ -1954,11 +1954,11 @@ public:
     }
     bool operator==(MathMatrix<T> msrc)
     {
-        if (imax != msrc.imax || jmax != msrc.jmax)
+        if (Matrix<T>::imax != msrc.imax || Matrix<T>::jmax != msrc.jmax)
             return false;
-        for (unsigned j = 0; j < jmax; j++)
-            for (unsigned i = 0; i < imax; i++)
-                if (p[i + imax * j] != msrc(i, j))
+        for (unsigned j = 0; j < Matrix<T>::jmax; j++)
+            for (unsigned i = 0; i < Matrix<T>::imax; i++)
+                if (Matrix<T>::p[i + Matrix<T>::imax * j] != msrc(i, j))
                     return false;
         return true;
     }
@@ -2059,23 +2059,23 @@ public:
         : Tensor<T>(i, j, k){};
     MathTensor(const MathTensor<T> &tsrc)
     {
-        if (p)
-            delete[] p;
+        if (Tensor<T>::p)
+            delete[] Tensor<T>::p;
         try
         {
-            p = new T[tsrc.imax * tsrc.jmax * tsrc.kmax];
+            Tensor<T>::p = new T[tsrc.imax * tsrc.jmax * tsrc.kmax];
         }
         catch (bad_alloc)
         {
             throw TException("ERROR: not enough memory");
         }
-        imax = tsrc.imax;
-        jmax = tsrc.jmax;
-        kmax = tsrc.kmax;
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] = tsrc(i, j, k);
+        Tensor<T>::imax = tsrc.imax;
+        Tensor<T>::jmax = tsrc.jmax;
+        Tensor<T>::kmax = tsrc.kmax;
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] = tsrc(i, j, k);
     }
 
     /*    const MathTensor<T>& operator = (const MathTensor<T>& tsrc)
@@ -2095,29 +2095,29 @@ public:
       }
       return *this;
       }*/
-    MathTensor<T> &operator+=(MathTensor<T> msrc)
+    MathTensor<T> &operator+=(MathTensor<T> tsrc)
     {
-        if (imax != tsrc.imax || jmax != tsrc.jmax || kmax != tsrc.kmax)
+        if (Tensor<T>::imax != tsrc.imax || Tensor<T>::jmax != tsrc.jmax || Tensor<T>::kmax != tsrc.kmax)
             throw TException("ERROR: index out of range");
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] += msrc(i, j, k);
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] += tsrc(i, j, k);
         return *this;
     }
-    MathTensor<T> operator+(MathTensor<T> msrc)
+    MathTensor<T> operator+(MathTensor<T> tsrc)
     {
         MathTensor<T> t = *this;
-        return t += msrc;
+        return t += tsrc;
     }
-    MathTensor<T> &operator-=(MathTensor<T> msrc)
+    MathTensor<T> &operator-=(MathTensor<T> tsrc)
     {
-        if (imax != tsrc.imax || jmax != tsrc.jmax || kmax != tsrc.kmax)
+        if (Tensor<T>::imax != tsrc.imax || Tensor<T>::jmax != tsrc.jmax || Tensor<T>::kmax != tsrc.kmax)
             throw TException("ERROR: index out of range");
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] -= msrc(i, j, k);
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] -= tsrc(i, j, k);
         return *this;
     }
     MathTensor<T> operator-(MathTensor<T> msrc)
@@ -2128,26 +2128,26 @@ public:
     MathTensor<T> operator-()
     {
         MathTensor<T> m;
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    m(i, j, k) = -p[i + imax * (j + jmax * k)];
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    m(i, j, k) = -Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)];
         return m;
     }
     MathTensor<T> &operator*=(prec t)
     {
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] *= t;
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] *= t;
         return *this;
     }
     MathTensor<T> &operator*=(int t)
     {
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] *= t;
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] *= t;
         return *this;
     }
     MathTensor<T> operator*(prec t)
@@ -2162,18 +2162,18 @@ public:
     }
     MathTensor<T> &operator/=(prec t)
     {
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] /= t;
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] /= t;
         return *this;
     }
     MathTensor<T> &operator/=(int t)
     {
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    p[i + imax * (j + jmax * k)] /= t;
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] /= t;
         return *this;
     }
     MathTensor<T> operator/(prec t)
@@ -2188,12 +2188,12 @@ public:
     }
     bool operator==(MathTensor<T> msrc)
     {
-        if (imax != msrc.imax || jmax != msrc.jmax || kmax != msrc.kmax)
+        if (Tensor<T>::imax != msrc.imax || Tensor<T>::jmax != msrc.jmax || Tensor<T>::kmax != msrc.kmax)
             return false;
-        for (unsigned k = 0; k < kmax; k++)
-            for (unsigned j = 0; j < jmax; j++)
-                for (unsigned i = 0; i < imax; i++)
-                    if (p[i + imax * (j + jmax * k)] != msrc(i, j, k))
+        for (unsigned k = 0; k < Tensor<T>::kmax; k++)
+            for (unsigned j = 0; j < Tensor<T>::jmax; j++)
+                for (unsigned i = 0; i < Tensor<T>::imax; i++)
+                    if (Tensor<T>::p[i + Tensor<T>::imax * (j + Tensor<T>::jmax * k)] != msrc(i, j, k))
                         return false;
         return true;
     }

@@ -153,10 +153,10 @@ istream &operator>>(istream &is, checkstrings cs)
 // does not read next character like endl!
 // ***************************************************************************
 
-bool CheckHeader(istream &ps, char *header)
+bool CheckHeader(istream &ps, const char *header)
 {
     char c;
-    char *pstr = header;
+    const char *pstr = header;
 
     ps >> ws;
     while (*pstr != '\0')
@@ -214,7 +214,7 @@ int find_entry(char *&pentry, const char *elist[])
     return i;
 }
 
-int strfind_entry(istrstream &sstr, const char *elist[])
+int strfind_entry(istringstream &sstr, const char *elist[])
 {
     int i = 0;
     string s;
@@ -1123,7 +1123,7 @@ int TScript::executeCommand(string &s)
     map<int, int>::iterator it1, it2;
     int i, j;
     prec p;
-    istrstream sstr(s.c_str());
+    istringstream sstr(s.c_str());
 
     sstr >> ws;
     if (sstr.peek() == -1)
@@ -1322,7 +1322,7 @@ void TScript::getBracketStart(int &ipos)
 
 // read number
 
-prec TScript::getValue(istrstream &sstr)
+prec TScript::getValue(istringstream &sstr)
 {
     prec d;
     int i;
@@ -1354,7 +1354,7 @@ prec TScript::getValue(istrstream &sstr)
 
 // evaluate expression
 
-prec TScript::getExpression(istrstream &sstr)
+prec TScript::getExpression(istringstream &sstr)
 {
     prec d1, d2;
     char ch;

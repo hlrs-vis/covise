@@ -14,15 +14,9 @@
 
 #include <iostream>
 #include <string>
-#ifdef __sgi
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#else
 #include <cstdlib>
 #include <cctype>
 #include <ctime>
-#endif
 
 #include "main.h"
 #include "fortran.h"

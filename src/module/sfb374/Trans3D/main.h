@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <string>
-#include <strstream>
+#include <sstream>
 #include <map>
 
 #include "arrays.h"
@@ -61,7 +61,7 @@ extern prec RefVelocity; // velocity scale
 
 void ResetVariables(); // set variables to default
 void UpdateVariables(); // update dependent variables
-bool CheckHeader(istream &, char *); // check header in file
+bool CheckHeader(istream &, const char *); // check header in file
 
 inline istream &endl(istream &ps)
 {
@@ -162,8 +162,8 @@ public:
     int getNumLines() const;
     int getLineIndex(int);
     void getBracketStart(int &);
-    prec getValue(istrstream &); // read number
-    prec getExpression(istrstream &); // evaluate expression
+    prec getValue(istringstream &); // read number
+    prec getExpression(istringstream &); // evaluate expression
     void Save(int unit);
     void Read(int unit);
 
@@ -195,7 +195,7 @@ template <class T>
 inline ostream &operator<<(ostream &os, map<int, T> m)
 {
     int imax;
-    map<int, T>::iterator it;
+    typename map<int, T>::iterator it;
 
     imax = m.size();
     os << "elements:" << tab << imax << endl;

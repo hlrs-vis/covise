@@ -20,6 +20,7 @@
 #include <fstream>
 
 #include "arrays.h"
+#include "fortran.h"
 
 // Transferstruktur für Fensterdateiroutinen
 
@@ -512,11 +513,9 @@ inline TStorage<T>::TStorage(const TStorage<T> &tv)
     //  if(this==&tv)
     //    return *this;
     imax = tv.size();
-    resize(imax);
+    vector<T>::resize(imax);
     for (i = 0; i < imax; i++)
         (*this)[i] = tv[i];
-
-    return *this;
 }
 
 // search for last element fulfilling condition cf
@@ -527,7 +526,7 @@ T TStorage<T>::LastCondition(CondFunc cf, const T entry)
     T tv;
 	size_t i, imax;
 
-    imax = size();
+    imax = vector<T>::size();
     if (imax == 0)
         return tv;
     for (i = 0; i < imax; i++)
@@ -548,7 +547,7 @@ void TStorage<T>::Save(int unit)
 {
 	size_t i, imax;
 
-    imax = size();
+    imax = vector<T>::size();
     unitwrite(unit, (int)imax, "Eintraege =\t%i\n");
     for (i = 0; i < imax; i++)
         (*this)[i].Save(unit);
@@ -562,7 +561,7 @@ void TStorage<T>::Read(int unit)
 	size_t i, imax;
 
     imax = readint(unit);
-    resize(imax);
+    vector<T>::resize(imax);
     for (i = 0; i < imax; i++)
         (*this)[i].Read(unit);
 }

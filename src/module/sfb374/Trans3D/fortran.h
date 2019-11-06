@@ -14,13 +14,12 @@
  ***************************************************************************/
 
 #ifndef _FORTRAN_H_
-
-#define _FORTRAN _H_
+#define _FORTRAN_H_
 
 #include <fstream>
 #include "arrays.h"
 
-int unitopen(int, const char *, int imode = ios::in, bool bApp = false);
+int unitopen(int, const char *, std::ios::openmode imode = ios::in, bool bApp = false);
 int unitwrite(int, const char *, ...);
 int unitwrite(int, int, const char *pstr = 0);
 int unitwrite(int, bool, const char *pstr = 0);

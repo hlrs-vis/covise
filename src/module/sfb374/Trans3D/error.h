@@ -20,8 +20,8 @@
 #define ERR_GENERAL -1
 #define ERR_ABORTED -2
 
-void ErrorFunction(char *, ...);
-void WarningFunction(char *, ...);
+void ErrorFunction(const char *, ...);
+void WarningFunction(const char *, ...);
 
 // ***************************************************************************
 // error class
@@ -30,7 +30,7 @@ void WarningFunction(char *, ...);
 class TException
 {
 public:
-    TException(char *pstr = "Unbekannter Fehler", ...);
+    TException(const char *pstr = "Unbekannter Fehler", ...);
 
     void Display();
 
