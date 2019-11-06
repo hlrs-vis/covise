@@ -272,6 +272,8 @@ coSphere::coSphere()
         if (!s_glPointParameterfARB || !s_glPointParameterfARB)
             s_pointSpritesChecked = true;
     }
+
+    setRenderMethod(m_renderMethod);
 }
 
 coSphere::coSphere(const coSphere &s, const osg::CopyOp &copyop)
@@ -804,7 +806,7 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             glEnable(GL_POINT_SPRITE_ARB);
             float minRad = m_maxRadius * 0.0001; // avoid opengl errors
 
-            bool array = false;
+            bool array = true;
 
             if (array)
             {
