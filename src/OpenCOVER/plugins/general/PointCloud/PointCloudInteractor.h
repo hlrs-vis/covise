@@ -128,7 +128,7 @@ private:
 
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
-	osg::ref_ptr<osg::Group> axisGroup;
+    osg::ref_ptr<osg::Geode> axisGeode;
 
     int selectionSetIndex = 0;
     bool m_selectionIsBoundary = false;
