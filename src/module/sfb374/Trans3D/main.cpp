@@ -1535,7 +1535,7 @@ int main(int argc, char *argv[])
 
     InitStream();
 #ifdef COVISE
-    if ((argc == 7) || (argc == 8))
+    if ((argc == 7) || (argc == 8) || (argc == 2 && std::string(argv[1]) == "-d"))
     {
         coviseI.run(argc, argv);
     }
