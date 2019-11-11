@@ -87,6 +87,7 @@ private:
 	osg::Vec3 pointToMove;
 	osg::Vec3 rotAxis;
 	osg::Vec3 axisStart;
+	osg::Vec3 firstPt;
     float radius;
     string fileToMove;
 	osg::Matrix moveMat;

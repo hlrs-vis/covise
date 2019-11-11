@@ -31,10 +31,10 @@ PointCloudInteractor::PointCloudInteractor(coInteraction::InteractionType type, 
     fprintf(stderr, "\nPointCloudInteractor\n");
     selectedPointsGroup = new osg::Group();
     previewPointsGroup = new osg::Group();
-        axisGeode = new osg::Geode();
+	axisGroup = new osg::Group();
     cover->getObjectsRoot()->addChild(selectedPointsGroup.get());
     cover->getObjectsRoot()->addChild(previewPointsGroup.get());
-        cover->getObjectsRoot()->addChild(axisGeode.get());
+	cover->getObjectsRoot()->addChild(axisGroup.get());
 }
 
 
@@ -58,6 +58,7 @@ PointCloudInteractor::startInteraction()
         fprintf(stderr, "\nPointCloudInteractor::startMove\n");
     }
 	actionsuccess = true;
+	currFI = FileInfo();
 	for (auto &i :plugin->files)
 	{
 		i.prevMat = i.tranformMat->getMatrix();
@@ -66,6 +67,7 @@ PointCloudInteractor::startInteraction()
 		traMat.makeIdentity();
 		rotMat.makeIdentity();
 		pointToMove = Vec3();
+		firstPt = Vec3();
 		centerPoint = Vec3();
 		radius = 0;
 		SaveMat = true;
@@ -74,6 +76,7 @@ PointCloudInteractor::startInteraction()
 			currFI = i;
 			currFI.prevMat = currFI.tranformMat->getMatrix();
 			// higlight currFI needs to be implemented
+			//highlightActiveCloud();
 		}
 	}
 
@@ -98,6 +101,15 @@ PointCloudInteractor::doInteraction()
 		if (hitPointSuccess)
 		{
 			highlightPoint(bestPoint, true);
+			if (m_rotpts && selectedPoints.size() == 1 && previewPoints.size() == 1)
+			{
+				axisStart = selectedPoints[0].file->pointSet[selectedPoints[0].pointSetIndex].points[selectedPoints[0].pointIndex].coordinates;
+				Vec3 axisEnd = previewPoints[0].file->pointSet[previewPoints[0].pointSetIndex].points[previewPoints[0].pointIndex].coordinates;
+				rotAxis = axisEnd - axisStart;
+				Vec3 startPoint = axisStart - rotAxis / rotAxis.length();
+				Vec3 endPoint = axisEnd + rotAxis / rotAxis.length();
+				showAxis(startPoint, endPoint);
+			}
 		}
 	}
 }
@@ -127,7 +139,7 @@ PointCloudInteractor::stopInteraction()
 			actionsuccess = true;
 			if (m_rotation)
 			{
-                                axisGeode->removeDrawables(0, 1);
+				axisGroup->removeChild(0, 1);
 				rotAxis = Vec3();
 				m_rotation = false;
 			}
@@ -165,12 +177,6 @@ PointCloudInteractor::stopInteraction()
 				highlightPoint(bestPoint);
 				if (m_rotpts && selectedPoints.size() == 2)
 				{
-					axisStart = selectedPoints[0].file->pointSet[selectedPoints[0].pointSetIndex].points[selectedPoints[0].pointIndex].coordinates;
-					Vec3 axisEnd = selectedPoints[1].file->pointSet[selectedPoints[1].pointSetIndex].points[selectedPoints[1].pointIndex].coordinates;
-					rotAxis = axisEnd - axisStart;
-					Vec3 startPoint = axisStart - rotAxis / rotAxis.length();
-					Vec3 endPoint = axisEnd + rotAxis / rotAxis.length();
-					showAxis(startPoint, endPoint);
 					m_rotation = true;
 				}
 			}
@@ -195,22 +201,21 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         Vec3 currHandEnd = currHandMat.preMult(Vec3(0.0, 1.0, 0.0));
 		osg::MatrixTransform *MoTra = new osg::MatrixTransform();
         Vec3 currHandDirection = currHandEnd - currHandBegin;
-		if (fileToMove == "" && previewPoints.size() != 0)
-		{
-			for (auto &i : plugin->files)
-			{
-				if (i.filename == previewPoints[0].file->filename)
-				{
-					currFI = i;
-					currFI.prevMat = currFI.tranformMat->getMatrix();
-					currFI.fileButton->setState(true);
-					fileToMove = currFI.filename;
-					// higlight currFI needs to be implemented
-				}
-			}
-		}
 		if (fileToMove != "")
 		{
+			if (currFI.filename == "")
+			{
+				for (auto &i : plugin->files)
+				{
+					if (i.filename == fileToMove)
+					{
+						currFI = i;
+						currFI.prevMat = currFI.tranformMat->getMatrix();
+						currFI.fileButton->setState(true);
+						// higlight currFI needs to be implemented
+					}
+				}
+			}
 			if (SaveMat)
 			{
 				startHandMat.invert(currHandMat);
@@ -223,15 +228,15 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 				axisStart = currHandBegin;
 			}
 		}
-		if (m_freemove)
+		if (m_freemove && currFI.filename != "")
 		{
 			currFI.tranformMat->setMatrix(currFI.prevMat * moveMat);
 		}
-		else if (m_translation && (previewPoints.size() != 0 || pointToMove.length() != 0))
+		else if (m_translation && (firstPt.length() != 0 || pointToMove.length() != 0))
 		{
 			if (pointToMove.length() == 0)
 			{
-				pointToMove = previewPoints[0].file->pointSet[previewPoints[0].pointSetIndex].points[previewPoints[0].pointIndex].coordinates;
+				pointToMove = firstPt;
 				previewPointsGroup->removeChild(0, 1);
 				previewPoints.clear();
 			}
@@ -240,13 +245,11 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 			traMat.makeTranslate(newVec - pointToMove);
 			currFI.tranformMat->setMatrix(currFI.prevMat * traMat);
 		}
-		else if (m_rotation && (previewPoints.size() == 1 || pointToMove.length() != 0))
+		else if (m_rotation && (firstPt.length() != 0 || pointToMove.length() != 0))
 		{
 			if (pointToMove.length() == 0)
 			{
-				pointToMove = previewPoints[0].file->pointSet[previewPoints[0].pointSetIndex].points[previewPoints[0].pointIndex].coordinates;
-				previewPointsGroup->removeChild(0, 1);
-				previewPoints.clear();
+				pointToMove = firstPt;
 				centerPoint = axisStart + (((rotAxis / rotAxis.length()) * ((pointToMove - axisStart)* rotAxis / rotAxis.length())));
 				radius = (pointToMove - centerPoint).length();
 				startHandMat.invert(currHandMat);
@@ -349,7 +352,20 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 						hitPointSuccess = false;
 					}
 				}
-			}			
+			}
+			if (m_freemove || m_translation || m_rotaxis || m_rotpts || m_rotation)
+			{
+				firstPt = bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].coordinates;
+				fileToMove = bestPoint.file->filename;
+				if (m_freemove || m_translation || m_rotation)
+				{
+					hitPointSuccess = false;
+				}
+				else
+				{
+					hitPointSuccess = true;
+				}
+			}
 		}
     }
     return hitPointSuccess;
@@ -660,7 +676,7 @@ void PointCloudInteractor::setRotPts(bool rotation)
 			selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 			selectedPoints.clear();
 		}
-                axisGeode->removeDrawables(0, 1);
+		axisGroup->removeChild(0, 1);
 		pointToMove = Vec3();
 		axisStart = Vec3();
 		rotAxis = Vec3();
@@ -684,7 +700,7 @@ void PointCloudInteractor::setRotAxis(bool rotaxis)
 			selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 			selectedPoints.clear();
 		}
-                axisGeode->removeDrawables(0, 1);
+		axisGroup->removeChild(0, 1);
 		pointToMove = Vec3();
 		axisStart = Vec3();
 		rotAxis = Vec3();
@@ -746,7 +762,7 @@ void PointCloudInteractor::getData(PointCloudInteractor *PCI)
 	selectedPointsGroup = PCI->selectedPointsGroup;
 	startHandMat = PCI->startHandMat;
 	traMat = PCI->traMat;
-        axisGeode = PCI->axisGeode;
+	axisGroup = PCI->axisGroup;
 	rotAxis = PCI->rotAxis;
 	m_rotation = PCI->m_rotation;
 }
@@ -783,23 +799,28 @@ osg::StateSet* PointCloudInteractor::highlightActiveCloud()
 
 void PointCloudInteractor::showAxis(Vec3 startPoint, Vec3 endPoint)
 {
-        if (axisGeode->getNumDrawables() != 0)
+	if (axisGroup->getNumChildren() != 0)
 	{
-                axisGeode->removeDrawables(0, axisGeode->getNumDrawables());
+		axisGroup->removeChildren(0, axisGroup->getNumChildren());
 	}
-	osg::ref_ptr<Geometry> beam(new osg::Geometry);
+	osg::Geometry *axisBeam = new osg::Geometry();
 	osg::ref_ptr<osg::Vec3Array> points = new osg::Vec3Array;
-	osg::LineWidth *linewidth = new osg::LineWidth();
-	linewidth->setWidth(5);
 	points->push_back(startPoint);
 	points->push_back(endPoint);
-	osg::ref_ptr<osg::Vec4Array> color = new osg::Vec4Array;
-	color->push_back(osg::Vec4(0.0, 0.6, 0.0, 1.0));
-	beam->setVertexArray(points.get());
-	beam->setColorArray(color.get());
-	beam->setColorBinding(osg::Geometry::BIND_OVERALL);
-	beam->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 2));
-	beam->getOrCreateStateSet()->setAttributeAndModes(linewidth, osg::StateAttribute::ON);
-	beam->setName("Rotation Axis");
-        axisGeode->addDrawable(beam);
+	osg::LineWidth *linewidth = new osg::LineWidth();
+	linewidth->setWidth(5);
+	osg::Material *beamColor = new osg::Material();
+	beamColor->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.6, 0.0, 1.0f));
+	beamColor->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.6, 0.0, 1.0f));
+	beamColor->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+	beamColor->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
+	beamColor->setColorMode(osg::Material::OFF);
+	axisBeam->setVertexArray(points.get());
+	axisBeam->setColorBinding(osg::Geometry::BIND_OVERALL);
+	axisBeam->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 2));
+	axisBeam->getOrCreateStateSet()->setAttribute(beamColor, osg::StateAttribute::ON);
+	axisBeam->getOrCreateStateSet()->setAttribute(linewidth, osg::StateAttribute::ON);
+	axisBeam->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	axisBeam->setName("Rotation Axis");
+	axisGroup->addChild(axisBeam);
 }

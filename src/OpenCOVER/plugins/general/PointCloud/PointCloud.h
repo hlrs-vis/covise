@@ -85,6 +85,7 @@ private:
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
 	void addButton(FileInfo &fInfo);
+	void saveMoves();
 	string FileToMove = "";
 
 protected:
@@ -106,6 +107,7 @@ protected:
     ui::Button *rotPointsButton = nullptr;
 	ui::Button *rotAxisButton = nullptr;
     ui::Button *moveButton = nullptr;
+	ui::Button *saveButton = nullptr;
 	ui::Button *fileButton = nullptr;
     ui::Button *deselectButton = nullptr;
     ui::Button *createNurbsSurface = nullptr;
