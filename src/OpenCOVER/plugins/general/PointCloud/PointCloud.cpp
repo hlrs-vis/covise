@@ -1047,7 +1047,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             return;
         }
 #else
-        cout << "Missing e75 library " << filename << endl;
+        cout << "Missing e57 library " << filename << endl;
 #endif
         
     }
@@ -1452,6 +1452,7 @@ void PointCloudPlugin::saveMoves()
 			{
 				filename.insert(filename.length() - 4, "_moved");
 			}
+#ifdef HAVE_E57
 			try
 			{
 				e57::Reader eReader(i.filename);
@@ -1684,6 +1685,9 @@ void PointCloudPlugin::saveMoves()
 				ex.report(__FILE__, __LINE__, __FUNCTION__);
 				return;
 			}
+#else
+        cout << "Missing e57 library " << filename << endl;
+#endif
 		}
 	}
 }
