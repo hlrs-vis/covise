@@ -422,7 +422,7 @@ void SumoTraCI::preFrame()
 		lastResultTime = currentTime;
 
 		getSimulationResults();
-                        fprintf(stderr,"%f\n",lastResultTime);
+                        //fprintf(stderr,"%f\n",lastResultTime);
 		processNewResults();
     }
     interpolateVehiclePosition();
@@ -633,7 +633,6 @@ void SumoTraCI::interpolateVehiclePosition()
 	osg::Vec3  speed;
 	double aSpeed;
 	float timeToDest = 1 - (currentTime - lastResultTime);
-                        fprintf(stderr,"%f\n",timeToDest);
 
         int v=0;
 	// loop over all entities and compute their new position
@@ -664,7 +663,8 @@ void SumoTraCI::interpolateVehiclePosition()
 		{
 			Transform trans = Transform(Vector3D(entity->currentPosition.x(), entity->currentPosition.y(), entity->currentPosition.z()), Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
 			pedestrian->setTransform(trans, M_PI);
-			double walkingSpeed = speed.length();
+			double walkingSpeed = pedestrian->speed.length();
+			
 			pedestrian->setWalkingSpeed(walkingSpeed);
 			if (pedestrian->isGeometryWithinLOD())
 			{
