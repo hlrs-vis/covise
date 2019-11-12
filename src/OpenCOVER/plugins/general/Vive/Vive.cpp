@@ -349,6 +349,8 @@ void Vive::postFrame()
 				case 'H':// the HMD
 					idx = 0;
 					break;
+				case '?':// whatever
+					break;
 				default:
 					cerr << "Vive:Unsupported device class:" << m_rDevClassChar[nDevice] << "  nDevice=" << nDevice << endl;
 					continue;
