@@ -311,6 +311,7 @@ printmenu() {
 
 
 
+VERBOSE=0
 while [ opt != '' ] 
 do
 
@@ -326,6 +327,9 @@ do
 
     if [ -n "${commands[$opt]}" ]; then
         echo -e "Starting ${titles[$opt]}..."
+        if [ "$VERBOSE" = "1" ]; then
+            echo ${commands[$opt]}
+        fi
         ${commands[$opt]}
     else
 
@@ -333,6 +337,9 @@ do
 
 # MENU
 
+    -v)
+        VERBOSE=1
+        ;;
 	q)
 	    exit;
 	    ;;
