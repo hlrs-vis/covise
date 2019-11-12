@@ -486,7 +486,7 @@ void ARToolKit::update()
         {
             float s = 1.0 / cover->getScale();
             ARToolKitMarker *marker = (*it);
-            if (marker->displayQuad->getState())
+            if (marker->displayQuad!=nullptr && marker->displayQuad->getState())
             {
                 marker->markerQuad->setMatrix(osg::Matrix::scale(s, s, s));
                 if (marker->lastVisible != marker->isVisible())
@@ -738,7 +738,261 @@ void ARToolKitMarker::setOffset(osg::Matrix &mat)
     tmpMat.makeScale(pattSize, pattSize, pattSize);
     posSize->setMatrix(tmpMat * offset);
 }
+void ARToolKitMarker::updateData(double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
+{
+	ARToolKitMarker* existingMarker = nullptr;
+	for (const auto& i : ARToolKit::instance()->markers)
+	{
+		if (i!=this && i->pattID == pattID)
+		{
+			existingMarker = i;
+			break;
+		}
+	}
+	offset = m;
+	coCoord offsetCoord(offset);
+	x = offsetCoord.xyz[0];
+	y = offsetCoord.xyz[1];
+	z = offsetCoord.xyz[2];
+	h = offsetCoord.hpr[0];
+	p = offsetCoord.hpr[1];
+	r = offsetCoord.hpr[2];
+	pattSize = markerSize;
 
+	if (VrmlToPf)
+		offset.preMult(PfToOpenGLMatrix);
+	osg::Matrix mat;
+	mat.makeScale(pattSize, pattSize, pattSize);
+	mat = mat * offset;
+
+	if (existingMarker == nullptr)
+	{
+		
+		size->setValue(pattSize);
+		vrmlToPfFlag->setState(VrmlToPf);
+		posX->setValue(x);
+		posY->setValue(y);
+		posZ->setValue(z);
+		rotH->setValue(h);
+		rotP->setValue(p);
+		rotR->setValue(r);
+	}
+	else
+	{
+		existingMarker->x = x;
+		existingMarker->y = y;
+		existingMarker->z = z;
+		existingMarker->h = h;
+		existingMarker->p = p;
+		existingMarker->r = r;
+
+		existingMarker->posX->setValue(x);
+		existingMarker->posY->setValue(y);
+		existingMarker->posZ->setValue(z);
+		existingMarker->rotH->setValue(h);
+		existingMarker->rotP->setValue(p);
+		existingMarker->rotR->setValue(r);
+		existingMarker->VrmlToPf = VrmlToPf;
+		existingMarker->vrmlToPfFlag->setState(VrmlToPf);
+		existingMarker->pattSize = pattSize;
+		existingMarker->size->setValue(pattSize);
+		existingMarker->offset = offset;
+
+		existingMarker->posSize->setMatrix(mat);
+	}
+
+	if (ARToolKit::instance()->arInterface)
+	{
+		ARToolKit::instance()->arInterface->updateMarkerParams();
+	}
+}
+
+ARToolKitMarker::ARToolKitMarker(std::string &configName,int MarkerID, double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
+{
+	ARToolKitMarker* existingMarker = nullptr;
+	for (const auto &i : ARToolKit::instance()->markers)
+	{
+		if (i->pattID == MarkerID)
+		{
+			existingMarker = i;
+			break;
+		}
+	}
+
+	ARToolKit::instance()->markers.push_back(this);
+	offset = m;
+	coCoord offsetCoord(offset);
+	x = offsetCoord.xyz[0];
+	y = offsetCoord.xyz[1];
+	z = offsetCoord.xyz[2];
+	h = offsetCoord.hpr[0];
+	p = offsetCoord.hpr[1];
+	r = offsetCoord.hpr[2];
+
+	visible = false;
+	lastVisible = false;
+	objectMarker = false;
+	pattCenter[0] = 0.0;
+	pattCenter[1] = 0.0;
+	Ctrans.makeIdentity();
+	std::string arToolKitVariant = ARToolKit::instance()->m_artoolkitVariant;
+	string pattern = std::to_string(MarkerID);
+	pattSize = markerSize;
+
+	OpenGLToOSGMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
+	PfToOpenGLMatrix.makeRotate(-M_PI / 2.0, 1, 0, 0);
+
+	VrmlToPf = vrmlToOsg;
+	if (VrmlToPf)
+		offset.preMult(PfToOpenGLMatrix);
+	osg::Matrix mat;
+	mat.makeScale(pattSize, pattSize, pattSize);
+	mat = mat * offset;
+
+	pattID = -1;
+	if (cover->debugLevel(3))
+		cerr << "ARToolKitMarker::ARToolKitMarker(): Loading pattern with ID = " << pattern.c_str() << endl;
+	if (ARToolKit::instance()->arInterface)
+	{
+		pattID = ARToolKit::instance()->arInterface->loadPattern(pattern.c_str());
+	}
+	if (pattID < 0)
+	{
+		pattID = atoi(pattern.c_str());
+		if (pattID <= 0)
+		{
+			fprintf(stderr, "pattern load error for %s!!\n", pattern.c_str());
+			pattID = 0;
+		}
+	}
+	if (existingMarker == nullptr)
+	{
+		char* label = new char[strlen(configName.c_str()) + 100];
+		sprintf(label, "%s:", configName.c_str());
+		markerLabel = new coTUILabel(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_posX", configName.c_str());
+		posX = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_vrmlToPf", configName.c_str());
+		vrmlToPfFlag = new coTUIToggleButton("VRML", ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_sizeY", configName.c_str());
+		size = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_posY", configName.c_str());
+		posY = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_posZ", configName.c_str());
+		posZ = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_rotH", configName.c_str());
+		rotH = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_rotP", configName.c_str());
+		rotP = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_rotR", configName.c_str());
+		rotR = new coTUIEditFloatField(label, ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_displayQuad", configName.c_str());
+		displayQuad = new coTUIToggleButton("displayQuad", ARToolKit::instance()->artTab->getID());
+		sprintf(label, "%s_calibrate", configName.c_str());
+		calibrate = new coTUIToggleButton("calibrate", ARToolKit::instance()->artTab->getID());
+		;
+		markerLabel->setEventListener(this);
+		size->setEventListener(this);
+		vrmlToPfFlag->setEventListener(this);
+		posX->setEventListener(this);
+		posY->setEventListener(this);
+		posZ->setEventListener(this);
+		rotH->setEventListener(this);
+		rotP->setEventListener(this);
+		rotR->setEventListener(this);
+		displayQuad->setEventListener(this);
+		calibrate->setEventListener(this);
+		size->setValue(pattSize);
+		vrmlToPfFlag->setState(VrmlToPf);
+		posX->setValue(x);
+		posY->setValue(y);
+		posZ->setValue(z);
+		rotH->setValue(h);
+		rotP->setValue(p);
+		rotR->setValue(r);
+
+		int pos = ARToolKit::instance()->markers.size();
+		markerLabel->setPos(0, 4 + pos * 4);
+		size->setPos(0, 4 + pos * 4 + 1);
+		vrmlToPfFlag->setPos(1, 4 + pos * 4 + 1);
+		posX->setPos(0, 4 + pos * 4 + 2);
+		posY->setPos(1, 4 + pos * 4 + 2);
+		posZ->setPos(2, 4 + pos * 4 + 2);
+		rotH->setPos(0, 4 + pos * 4 + 3);
+		rotP->setPos(1, 4 + pos * 4 + 3);
+		rotR->setPos(2, 4 + pos * 4 + 3);
+		displayQuad->setPos(2, 4 + pos * 4 + 1);
+		calibrate->setPos(3, 4 + pos * 4 + 1);
+		calibrate->setState(false);
+
+		float ZPOS = 0.0f;
+		float WIDTH = 1.0f;
+		float HEIGHT = 1.0f;
+
+		geom = new osg::Geometry();
+
+		osg::Vec3Array* vertices = new osg::Vec3Array(4);
+		// bottom left
+		(*vertices)[0].set(-WIDTH / 2.0, ZPOS, -HEIGHT / 2.0);
+		// bottom right
+		(*vertices)[1].set(WIDTH / 2.0, ZPOS, -HEIGHT / 2.0);
+		// top right
+		(*vertices)[2].set(WIDTH / 2.0, ZPOS, HEIGHT / 2.0);
+		// top left
+		(*vertices)[3].set(-WIDTH / 2.0, ZPOS, HEIGHT / 2.0);
+		geom->setVertexArray(vertices);
+
+		osg::Vec3Array* normals = new osg::Vec3Array(1);
+		(*normals)[0].set(0.0f, 0.0f, 1.0f);
+		geom->setNormalArray(normals);
+		geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+		colors = new osg::Vec4Array(1);
+		(*colors)[0].set(1.0, 0.0, 0.0, 1.0);
+		geom->setColorArray(colors);
+		geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+		geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, 4));
+
+		osg::StateSet* stateset = geom->getOrCreateStateSet();
+		stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+		quadGeode = new osg::Geode();
+		quadGeode->addDrawable(geom);
+		posSize = new osg::MatrixTransform();
+		posSize->addChild(quadGeode);
+		posSize->setMatrix(mat);
+		markerQuad = new osg::MatrixTransform();
+		markerQuad->addChild(posSize);
+		numCalibSamples = 0;
+	}
+	else
+	{
+	fprintf(stderr, "Marker with existing ID %d, reusing %s\n", pattID,existingMarker->markerLabel->getName().c_str());
+	existingMarker->x = x;
+	existingMarker->y = y;
+	existingMarker->z = z;
+	existingMarker->h = h;
+	existingMarker->p = p;
+	existingMarker->r = r;
+
+	existingMarker->posX->setValue(x);
+	existingMarker->posY->setValue(y);
+	existingMarker->posZ->setValue(z);
+	existingMarker->rotH->setValue(h);
+	existingMarker->rotP->setValue(p);
+	existingMarker->rotR->setValue(r);
+	existingMarker->VrmlToPf = VrmlToPf;
+	existingMarker->vrmlToPfFlag->setState(VrmlToPf);
+	existingMarker->pattSize = pattSize;
+	existingMarker->size->setValue(pattSize);
+	existingMarker->posSize->setMatrix(mat);
+	}
+
+	if (ARToolKit::instance()->arInterface)
+	{
+		cerr << "ARToolKitMarker::ARToolKitMarker(): init size pattern with ID = " << pattern.c_str() << endl;
+		ARToolKit::instance()->arInterface->updateMarkerParams();
+	}
+}
 ARToolKitMarker::ARToolKitMarker(const char *name)
 {
     ARToolKit::instance()->markers.push_back(this);

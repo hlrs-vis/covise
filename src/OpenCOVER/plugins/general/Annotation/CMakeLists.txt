@@ -1,7 +1,5 @@
 # OpenCOVER plugins general Annotation
 
-USING(Virvo:fileio)
-
 # INCLUDE_DIRECTORIES( )
 
 SET(HEADERS

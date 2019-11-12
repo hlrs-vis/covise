@@ -35,6 +35,8 @@
 // for AnnotationMessage:
 #include <../../general/Annotation/AnnotationPlugin.h>
 
+#include <cover/ARToolKit.h>
+
 #define REVIT_FEET_TO_M 0.304799999536704
 #define REVIT_M_TO_FEET 3.2808399
 
@@ -117,6 +119,26 @@ public:
     double x,y,z,h,p,r;
     std::string text;
     int ID;
+};
+
+
+class ARMarkerInfo
+{
+public:
+	ARMarkerInfo();
+	ARToolKitMarker* marker=nullptr;
+
+	osg::Matrix mat;
+	osg::Matrix hostMat;
+	std::string name;
+	int ID;
+	int MarkerID;
+	int hostID;
+	double offset;
+	double angle;
+	double size;
+	void setValues(int ID, int MarkerID, std::string& name, double angle, double offset, osg::Matrix& mat, osg::Matrix& hostMat, int hostID, double size);
+	void update();
 };
 
 class TextureInfo
@@ -240,38 +262,40 @@ public:
         //     The data type represents an element and is stored as the id of the element.
         ElementId = 4,
     };
-    enum MessageTypes
-    {
-        MSG_NewObject = 500,
-        MSG_DeleteObject = 501,
-        MSG_ClearAll = 502,
-        MSG_UpdateObject = 503,
-        MSG_NewGroup = 504,
-        MSG_NewTransform = 505,
-        MSG_EndGroup = 506,
-        MSG_AddView = 507,
-        MSG_DeleteElement = 508,
-        MSG_NewParameter = 509,
-        MSG_SetParameter = 510,
-        MSG_NewMaterial = 511,
-        MSG_NewPolyMesh = 512,
-        MSG_NewInstance = 513,
-        MSG_EndInstance = 514,
-        MSG_SetTransform = 515,
-        MSG_UpdateView = 516,
-        MSG_AvatarPosition = 517,
-        MSG_RoomInfo = 518,
-        MSG_NewAnnotation = 519,
-        MSG_ChangeAnnotation = 520,
-        MSG_ChangeAnnotationText = 521,
-        MSG_NewAnnotationID = 522,
-        MSG_Views = 523,
-        MSG_SetView = 524,
+	enum MessageTypes
+	{
+		MSG_NewObject = 500,
+		MSG_DeleteObject = 501,
+		MSG_ClearAll = 502,
+		MSG_UpdateObject = 503,
+		MSG_NewGroup = 504,
+		MSG_NewTransform = 505,
+		MSG_EndGroup = 506,
+		MSG_AddView = 507,
+		MSG_DeleteElement = 508,
+		MSG_NewParameter = 509,
+		MSG_SetParameter = 510,
+		MSG_NewMaterial = 511,
+		MSG_NewPolyMesh = 512,
+		MSG_NewInstance = 513,
+		MSG_EndInstance = 514,
+		MSG_SetTransform = 515,
+		MSG_UpdateView = 516,
+		MSG_AvatarPosition = 517,
+		MSG_RoomInfo = 518,
+		MSG_NewAnnotation = 519,
+		MSG_ChangeAnnotation = 520,
+		MSG_ChangeAnnotationText = 521,
+		MSG_NewAnnotationID = 522,
+		MSG_Views = 523,
+		MSG_SetView = 524,
 		MSG_Resend = 525,
-        MSG_NewDoorGroup = 526,
-        MSG_File = 527,
-        MSG_Finished = 528,
-        MSG_DocumentInfo = 529,
+		MSG_NewDoorGroup = 526,
+		MSG_File = 527,
+		MSG_Finished = 528,
+		MSG_DocumentInfo = 529,
+		MSG_NewPointCloud = 530,
+		MSG_NewARMarker = 531,
     };
     enum ObjectTypes
     {
@@ -314,7 +338,8 @@ public:
     void createNewAnnotation(int id, AnnotationMessage *am);
     void changeAnnotation(int id, AnnotationMessage *am);
 	std::list<DoorInfo *> doors;
-	std::list<DoorInfo *> activeDoors;
+	std::list<DoorInfo*> activeDoors;
+	std::map<int, ARMarkerInfo*> ARMarkers;
 protected:
     static RevitPlugin *plugin;
     coSubMenuItem *REVITButton = nullptr;

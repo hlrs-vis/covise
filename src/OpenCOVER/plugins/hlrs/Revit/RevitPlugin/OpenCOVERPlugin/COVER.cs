@@ -62,7 +62,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -71,6 +71,7 @@ namespace OpenCOVERPlugin
         private Autodesk.Revit.DB.Options mOptions;
         private Autodesk.Revit.DB.View3D View3D;
         private Autodesk.Revit.DB.Document document;
+        private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
 
         private EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs> idlingHandler;
@@ -199,9 +200,14 @@ namespace OpenCOVERPlugin
         public void setConnected(bool connected)
         {
             if (connected)
+            { 
                 pushButtonConnectToOpenCOVER.LargeImage = connectedImage;
+                cApplication.Idling += idlingHandler;
+            }
             else
+            {
                 pushButtonConnectToOpenCOVER.LargeImage = disconnectedImage;
+            }
 
         }
         private Level getLevel(Document document, double height)
@@ -514,11 +520,21 @@ namespace OpenCOVERPlugin
             if(elem is Autodesk.Revit.DB.PointCloudInstance)
             {
                 Autodesk.Revit.DB.PointCloudInstance pointcloud = (Autodesk.Revit.DB.PointCloudInstance)elem;
-                String n = pointcloud.Name; MessageBuffer mb = new MessageBuffer();
-                mb.add(elem.Id.IntegerValue);
+                String n = pointcloud.Name;
+                /*MessageBuffer mb = new MessageBuffer();
+                 * mb.add(elem.Id.IntegerValue);
                 mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                mb.add(n);
+                sendMessage(mb.buf, MessageTypes.NewPointCloud);*/
+
+
+                MessageBuffer mb = new MessageBuffer();
+                mb.add(elem.Id.IntegerValue);
                 mb.add(elem.Name);
-                sendMessage(mb.buf, MessageTypes.NewPointCloud);
+                mb.add((int)ObjectTypes.Inline);
+                mb.add(n+".e57");
+                sendMessage(mb.buf, MessageTypes.NewObject);
+                sendParameters(elem);
 
             }
 
@@ -885,16 +901,121 @@ namespace OpenCOVERPlugin
                 }
             }
         }
-            /// <summary>
-            /// Draw geometry of element.
-            /// </summary>
-            /// <param name="elementGeom"></param>
-            /// <remarks></remarks>
-            private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
+        /// <summary>
+        /// Return a location for the given element using
+        /// its LocationPoint Point property,
+        /// LocationCurve start point, whichever 
+        /// is available.
+        /// </summary>
+        /// <param name="p">Return element location point</param>
+        /// <param name="e">Revit Element</param>
+        /// <returns>True if a location point is available 
+        /// for the given element, otherwise false.</returns>
+        static public XYZ GetElementLocation(
+          Element e)
+        {
+            XYZ p = XYZ.Zero;
+            Location loc = e.Location;
+            if (null != loc)
+            {
+                LocationPoint lp = loc as LocationPoint;
+                if (null != lp)
+                {
+                    p = lp.Point;
+                }
+                else
+                {
+                    LocationCurve lc = loc as LocationCurve;
+
+                    // Debug.Assert(null != lc,
+                    //   "expected location to be either point or curve");
+                    if (lc != null)
+                    {
+                        p = lc.Curve.GetEndPoint(0);
+                    }
+                }
+            }
+            return p;
+        }
+
+        private String getString(FamilyInstance familyInstance, String paramName)
+        {
+            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            if (parameters.Count > 0)
+            {
+                return parameters[0].AsString();
+            }
+            return "";
+        }
+        private int getInt(FamilyInstance familyInstance, String paramName)
+        {
+            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            if (parameters.Count > 0)
+            {
+                return parameters[0].AsInteger();
+            }
+            return -1;
+        }
+        private double getDouble(FamilyInstance familyInstance, String paramName)
+        {
+            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            if (parameters.Count > 0)
+            {
+                return parameters[0].AsDouble();
+            }
+            return -1;
+        }
+        /// <summary>
+        /// Draw geometry of element.
+        /// </summary>
+        /// <param name="elementGeom"></param>
+        /// <remarks></remarks>
+        private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
         {
             if (elementGeom == null || elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1)
             {
                 return;
+            }
+            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+            if (fi!=null && fi.Symbol.Name == "ARMarker")
+            {
+                int MarkerID = getInt(fi, "MarkerID");
+                if(MarkerID>0)
+                {
+                    Autodesk.Revit.DB.FamilyInstance hfi = fi.Host as Autodesk.Revit.DB.FamilyInstance;
+                    Transform t = fi.GetTransform();
+                    Transform ht;
+                    if(hfi!=null)
+                    {
+                        ht = hfi.GetTransform();
+                    }
+                    else
+                    {
+                        ht = Transform.Identity;
+                    }
+                    Double Size = getDouble(fi, "MarkerSize");
+                    Double Offset = getDouble(fi, "Offset");
+                    Double Angle = getDouble(fi, "Angle");
+                    XYZ pos = GetElementLocation(elem);
+                    XYZ hostPos = GetElementLocation(fi.Host);
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Name + "_" + elem.Id.IntegerValue.ToString());
+                    mb.add(t.Origin);
+                    mb.add(t.BasisX);
+                    mb.add(t.BasisY);
+                    mb.add(t.BasisZ);
+                    mb.add(ht.Origin);
+                    mb.add(ht.BasisX);
+                    mb.add(ht.BasisY);
+                    mb.add(ht.BasisZ);
+                    mb.add(MarkerID);
+                    mb.add(Offset);
+                    mb.add(Angle);
+                    mb.add(fi.Host.Id.IntegerValue);
+                    mb.add(Size);
+                    sendMessage(mb.buf, MessageTypes.NewARMarker);
+                }
             }
             int num = 0;
             // check if subobject is an instance
@@ -909,22 +1030,21 @@ namespace OpenCOVERPlugin
             bbR.Max = new XYZ(-100000, -100000, -100000);
             bool hasStyle = false;
             if(elem.Category!=null)
-            { 
-            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
             {
-                hasStyle = false;
-            }
-            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
-            {
-                Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
-                Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
-                if (graphicsStyle != null)
-                    hasStyle = true;
-            }
+                if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
+                {
+                    hasStyle = false;
+                }
+                if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+                {
+                    Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
+                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                    if (graphicsStyle != null)
+                        hasStyle = true;
+                }
             }
 
 
-            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
             if (hasStyle && (fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
             {
                 bool hasLeft = false;
@@ -2211,11 +2331,12 @@ namespace OpenCOVERPlugin
         public void startup(UIControlledApplication application)
         {
             idlingHandler = new EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs>(idleUpdate);
-            application.Idling += idlingHandler;
+            cApplication = application;
         }
         public void shutdown(UIControlledApplication application)
         {
             application.Idling -= idlingHandler;
+            cApplication = application;
         }
         public class NoWarningsAndErrors : IFailuresPreprocessor
         {
@@ -2256,6 +2377,8 @@ namespace OpenCOVERPlugin
             UIApplication uiapp = sender as UIApplication;
             Document doc = uiapp.ActiveUIDocument.Document;
             UIDocument uidoc = uiapp.ActiveUIDocument;
+            if(!toCOVER.Connected)
+                cApplication.Idling -= idlingHandler;
 
             while (COVER.Instance.messageQueue.Count > 0)
             {

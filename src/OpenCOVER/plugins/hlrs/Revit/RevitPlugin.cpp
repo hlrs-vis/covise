@@ -80,6 +80,42 @@ static void array2matrix(osg::Matrix &m, const osg::Matrix::value_type *a)
 			m(x, y) = a[y * 4 + x];
 		}
 }
+ARMarkerInfo::ARMarkerInfo()
+{
+}
+
+void ARMarkerInfo::setValues(int id, int mid, std::string& n, double an, double of, osg::Matrix& m, osg::Matrix& hm, int hID, double s)
+{
+	ID = id;
+	MarkerID = mid;
+	name = n;
+	angle = an;
+	offset = of;
+	mat = m;
+	hostMat = hm;
+	hostID = hID;
+	size = s;
+	if (marker == nullptr)
+	{
+		marker = new ARToolKitMarker(("Revit_"+std::to_string(MarkerID)),MarkerID,size,mat,hostMat,true);
+	}
+	else
+	{
+		marker->updateData(size, mat, hostMat,true);
+	}
+}
+
+void ARMarkerInfo::update()
+{
+	if (marker)
+	{
+		if (marker->isVisible())
+		{
+			osg::Matrix m = marker->getMarkerTrans();
+			fprintf(stderr, "MarkerPos: %d %f %f %f", ID, m.getTrans().x(), m.getTrans().y(), m.getTrans().z());
+		}
+	}
+}
 
 RevitInfo::RevitInfo()
 {
@@ -978,6 +1014,84 @@ RevitPlugin::handleMessage(Message *m)
 		currentGroup.push(newTrans);
 	}
 	break;
+	case MSG_NewARMarker:
+	{
+		TokenBuffer tb(m);
+		int ID;
+		tb >> ID;
+		std::string name;
+		tb >> name;
+		float x, y, z;
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 pos(x, y, z);
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 ox(x, y, z);
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 oy(x, y, z);
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 oz(x, y, z);
+		osg::Matrix mat;
+		mat(0, 0) = ox.x(); mat(0, 1) = ox.y(); mat(0, 2) = ox.z();
+		mat(1, 0) = oy.x(); mat(1, 1) = oy.y(); mat(1, 2) = oy.z();
+		mat(2, 0) = oz.x(); mat(2, 1) = oz.y(); mat(2, 2) = oz.z();
+		mat(3, 0) = pos.x(); mat(3, 1) = pos.y(); mat(3, 2) = pos.z();
+
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 hostPos(x, y, z);
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 hox(x, y, z);
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 hoy(x, y, z);
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 hoz(x, y, z);
+		osg::Matrix hostMat;
+		hostMat(0, 0) = hox.x(); hostMat(0, 1) = hox.y(); hostMat(0, 2) = hox.z();
+		hostMat(1, 0) = hoy.x(); hostMat(1, 1) = hoy.y(); hostMat(1, 2) = hoy.z();
+		hostMat(2, 0) = hoz.x(); hostMat(2, 1) = hoz.y(); hostMat(2, 2) = hoz.z();
+		hostMat(3, 0) = hostPos.x(); hostMat(3, 1) = hostPos.y(); hostMat(3, 2) = hostPos.z();
+		int MarkerID;
+		tb >> MarkerID;
+		double offset;
+		tb >> offset;
+		double angle;
+		tb >> angle;
+		int hostID;
+		tb >> hostID;
+		double size;
+		tb >> size;
+		size = size * REVIT_FEET_TO_M * 1000;
+		mat.setTrans(mat.getTrans()* REVIT_FEET_TO_M * 1000);
+		hostMat.setTrans(hostMat.getTrans()* REVIT_FEET_TO_M * 1000);
+		ARMarkerInfo* mi;
+		auto it = ARMarkers.find(ID);
+		if (it != ARMarkers.end())
+		{
+			mi = it->second;
+		}
+		else
+		{
+			mi = new ARMarkerInfo();
+			ARMarkers[ID]=mi;
+		}
+		mi->setValues(ID, MarkerID, name, angle, offset, mat, hostMat, hostID,size);
+	}
+	break;
 	case MSG_DeleteElement:
 	{
 		TokenBuffer tb(m);
@@ -1804,6 +1918,10 @@ RevitPlugin::checkDoors()
 bool
 RevitPlugin::update()
 {
+	for (const auto& m : ARMarkers)
+	{
+		m.second->update();
+	}
     return checkDoors();
 }
 

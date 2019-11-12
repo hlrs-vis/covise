@@ -18,6 +18,8 @@ set(CMAKE_CSharp_FLAGS "/langversion:latest")
 
 SET(BINLIB_SUFFIX "lib")
 SET(MYPATH_POSTFIX )
+
+set_target_properties(OpenCOVERPlugin PROPERTIES FOLDER "Plugins/RevitPlugins")
 set_target_properties(OpenCOVERPlugin PROPERTIES OUTPUT_NAME OpenCOVERPlugin$<$<CONFIG:Debug>:_d>)
 
 IF(CMAKE_CONFIGURATION_TYPES)
