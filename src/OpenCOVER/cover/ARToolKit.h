@@ -191,7 +191,7 @@ private:
     coTUIEditFloatField *rotR = nullptr;
 
 public:
-	ARToolKitMarker(std::string &configName,int MarkerID,double size,osg::Matrix&mat, osg::Matrix& hostMat,bool VrmlToOSG);
+	ARToolKitMarker(const std::string &configName,int MarkerID,double size,osg::Matrix&mat, osg::Matrix& hostMat,bool VrmlToOSG);
 	ARToolKitMarker(const char* Name);
 	void updateData(double markerSize, osg::Matrix& mat, osg::Matrix& hostMat, bool vrmlToOsg);
     virtual ~ARToolKitMarker();

@@ -91,6 +91,7 @@ private:
     float radius;
     string fileToMove;
 	osg::Matrix moveMat;
+    osg::ref_ptr<osg::Group> axisGroup;
 
 	void showAxis(osg::Vec3 startPoint, osg::Vec3 endPoint);
     void MovePoints(osg::Matrixd MoveMat);

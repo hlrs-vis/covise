@@ -807,7 +807,7 @@ void ARToolKitMarker::updateData(double markerSize, osg::Matrix& m, osg::Matrix&
 	}
 }
 
-ARToolKitMarker::ARToolKitMarker(std::string &configName,int MarkerID, double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
+ARToolKitMarker::ARToolKitMarker(const std::string &configName,int MarkerID, double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
 {
 	ARToolKitMarker* existingMarker = nullptr;
 	for (const auto &i : ARToolKit::instance()->markers)
