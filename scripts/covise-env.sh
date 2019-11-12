@@ -86,15 +86,17 @@ if [ -z "$COENVERROR" ]; then
    fi
 
    primlibdir=lib
+   scndlibdir=lib64
    case "${ARCHSUFFIX%opt}" in
       linux64|amd64|x64|bishorn|fujisan|monshuygens|lycaeus|maunaloa|gorely|leonidas|constantine|goddard|laughlin|lovelock|verne|rhel3|rhel4|rhel5|rhel51|rhel52|rhel53|rhel6|rhel7|leguan|waran|basilisk|iguana|tuatara|mabuya|drusenkopf|lipinia|slowworm|neolamprologus|saara|julidochromis|indicus|mamba)
          primlibdir=lib64
+         scndlibdir=lib
          ;;
    esac
 
    ### add our own libraries
    if [ -d "$EXTERNLIBS" ]; then
-       eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:${EXTERNLIBS}/ALL/${primlibdir}:${EXTERNLIBS}/ALL/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+       eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:${EXTERNLIBS}/ALL/${primlibdir}:${EXTERNLIBS}/ALL/${scndlibdir}:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
    else
        eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
    fi
