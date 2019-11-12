@@ -25,7 +25,7 @@ ADD_SUBDIRECTORY(examples)
 #    ADD_SUBDIRECTORY(SCA)
 ENDIF()
 
-IF (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/module/univiz")
+IF (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/module/univiz"AND EXISTS ${PROJECT_SOURCE_DIR}/vistle/module/univiz/CMakeLists.txt)
     SET(UNIVIZ_COVISE TRUE)
     ADD_SUBDIRECTORY(univiz)
 ENDIF()
