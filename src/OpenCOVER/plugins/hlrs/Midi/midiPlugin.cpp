@@ -1687,8 +1687,8 @@ void Track::update()
 					 if (buf[0] == 127 || buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
 					 {
 			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
-	fprintf(stderr,"numRead %d buf[0] %d\n", numRead,streamNum,buf[0]);
-	fprintf(stderr,"numRead %d buf[1] %d\n", numRead,streamNum,buf[1]);
+	fprintf(stderr,"numRead %d buf[0] %d\n", numRead,buf[0]);
+	fprintf(stderr,"numRead %d buf[1] %d\n", numRead,buf[1]);
 						 if(numRead < 2)
 						 {
 		                			fprintf(stderr,"oopps %d %d\n",(int)buf[0],numRead);

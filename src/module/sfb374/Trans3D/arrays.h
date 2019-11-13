@@ -1456,7 +1456,7 @@ template <class T>
 ostream &operator<<(ostream &ps, Tensor<T> &src)
 {
     int i, j, k;
-    point3D pt = point(src.GetiMax(), src.GetjMax());
+    point3D pt = point3D(src.GetiMax(), src.GetjMax());
 
     ps << "tensor size:\t" << pt << endl;
     for (i = 0; i < pt.x; i++)
