@@ -824,5 +824,4 @@ void PointCloudInteractor::showAxis(Vec3 startPoint, Vec3 endPoint)
 	axisBeam->setName("Rotation Axis");
         osg::Geode *axisGeode = new osg::Geode();
         axisGeode->addDrawable(axisBeam);
-	axisGroup->addChild(axisGeode);
 }
