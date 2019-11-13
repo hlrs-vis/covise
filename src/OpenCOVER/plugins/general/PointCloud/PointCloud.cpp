@@ -1450,9 +1450,25 @@ void PointCloudPlugin::saveMoves()
 			string filename = i.filename;
 			if (strcasecmp(cfile + strlen(cfile) - 3, "e57") == 0)
 			{
-				filename.insert(filename.length() - 4, "_moved");
+				int found = filename.find("_V");
+				if (found != filename.npos)
+				{
+					string sub = filename.substr(found + 2);
+					sub.erase(sub.length() - 4);
+					int found2 = sub.find(".");
+					if (found2 != sub.npos)
+					{
+						string sub2 = sub.substr(found2 + 1);
+						int x = stoi(sub2) + 1;
+						cout << "add to Filename: " << x << endl;
+						filename.replace(found + 4, 1, to_string(x));
+					}
+				}
+				else
+				{
+					filename.insert(filename.length() - 4, "_V1.1");
+				}
 			}
-#ifdef HAVE_E57
 			try
 			{
 				e57::Reader eReader(i.filename);
@@ -1462,9 +1478,10 @@ void PointCloudPlugin::saveMoves()
 				e57::Writer eWriter(filename, rootHeader.coordinateMetadata);
 				int data3DCount = 0;
 				data3DCount = eReader.GetData3DCount();
-				for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
+ 				for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
 				{
 					eReader.ReadData3D(scanIndex, scanHeader);
+					scanHeader.originalGuids.empty();
 					osg::Matrix cloudMat;
 					osg::Matrix cloudTra;
 					cloudTra.makeTranslate(scanHeader.pose.translation.x, scanHeader.pose.translation.y, scanHeader.pose.translation.z);
@@ -1479,7 +1496,6 @@ void PointCloudPlugin::saveMoves()
 					scanHeader.pose.rotation.y = cloudMat.getRotate().y();
 					scanHeader.pose.rotation.z = cloudMat.getRotate().z();
 					scanHeader.pose.rotation.w = cloudMat.getRotate().w();
-
 					int64_t nColumn = 0;
 					int64_t nRow = 0;
 					int64_t nPointsSize = 0;	//Number of points
@@ -1560,7 +1576,6 @@ void PointCloudPlugin::saveMoves()
 						idElementValue = new int64_t[nGroupsSize];
 						startPointIndex = new int64_t[nGroupsSize];
 						pointCount = new int64_t[nGroupsSize];
-
 						if (!eReader.ReadData3DGroupsData(scanIndex, nGroupsSize, idElementValue,
 							startPointIndex, pointCount))
 						{
@@ -1598,9 +1613,20 @@ void PointCloudPlugin::saveMoves()
 						  rowIndex,			//!< pointer to a buffer with the rowIndex
 						  columnIndex			//!< pointer to a buffer with the columnIndex*/
 					);
-
 					scanHeader.pointFields.rowIndexField = false;
 					scanHeader.pointFields.columnIndexField = false;
+					//scanHeader.pointFields.cartesianInvalidStateField = false;
+					//scanHeader.pointFields.sphericalInvalidStateField = false;
+					//scanHeader.pointFields.cartesianXField = false;
+					//scanHeader.pointFields.cartesianYField = false;
+					//scanHeader.pointFields.cartesianZField = false;
+					//scanHeader.cartesianBounds.xMinimum = cloudMat.preMult(Vec3(scanHeader.cartesianBounds.xMinimum, 0, 0)).x();
+					//scanHeader.cartesianBounds.xMaximum = cloudMat.preMult(Vec3(scanHeader.cartesianBounds.xMaximum, 0, 0)).x();
+					//scanHeader.cartesianBounds.yMinimum = cloudMat.preMult(Vec3(0, scanHeader.cartesianBounds.yMinimum, 0)).y();
+					//scanHeader.cartesianBounds.yMaximum = cloudMat.preMult(Vec3(0, scanHeader.cartesianBounds.yMaximum, 0)).y();
+					//scanHeader.cartesianBounds.zMinimum = cloudMat.preMult(Vec3(0, 0, scanHeader.cartesianBounds.zMinimum)).z();
+					//scanHeader.cartesianBounds.zMaximum = cloudMat.preMult(Vec3(0, 0, scanHeader.cartesianBounds.zMaximum)).z();
+
 					int scanIndex2 = eWriter.NewData3D(scanHeader);
 					double *xData2 = new double[nSize];
 					double *yData2 = new double[nSize];
@@ -1644,13 +1670,10 @@ void PointCloudPlugin::saveMoves()
 								xData2[i] = xData[i];
 								yData2[i] = yData[i];
 								zData2[i] = zData[i];
-
 								if (bIntensity)
 								{	//Normalize intensity to 0 - 1.
 									intData2[i] = intData[i];
 								}
-
-
 								if (bColor)
 								{	//Normalize color to 0 - 1
 									redData2[i] = redData[i];
@@ -1661,10 +1684,8 @@ void PointCloudPlugin::saveMoves()
 						}
 						dataWriter.write(nSize);
 					}
-
 					dataWriter.close();
 					dataReader.close();
-
 					delete isInvalidData;
 					delete xData;
 					delete yData;
@@ -1685,9 +1706,6 @@ void PointCloudPlugin::saveMoves()
 				ex.report(__FILE__, __LINE__, __FUNCTION__);
 				return;
 			}
-#else
-        cout << "Missing e57 library " << filename << endl;
-#endif
 		}
 	}
 }

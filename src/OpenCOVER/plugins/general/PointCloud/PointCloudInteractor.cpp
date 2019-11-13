@@ -31,10 +31,10 @@ PointCloudInteractor::PointCloudInteractor(coInteraction::InteractionType type, 
     fprintf(stderr, "\nPointCloudInteractor\n");
     selectedPointsGroup = new osg::Group();
     previewPointsGroup = new osg::Group();
-	axisGroup = new osg::Group();
+	axisGeode = new osg::Geode();
     cover->getObjectsRoot()->addChild(selectedPointsGroup.get());
     cover->getObjectsRoot()->addChild(previewPointsGroup.get());
-	cover->getObjectsRoot()->addChild(axisGroup.get());
+	cover->getObjectsRoot()->addChild(axisGeode.get());
 }
 
 
@@ -139,7 +139,7 @@ PointCloudInteractor::stopInteraction()
 			actionsuccess = true;
 			if (m_rotation)
 			{
-				axisGroup->removeChild(0, 1);
+				axisGeode->removeChild(0, 1);
 				rotAxis = Vec3();
 				m_rotation = false;
 			}
@@ -676,7 +676,7 @@ void PointCloudInteractor::setRotPts(bool rotation)
 			selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 			selectedPoints.clear();
 		}
-		axisGroup->removeChild(0, 1);
+		axisGeode->removeChild(0, 1);
 		pointToMove = Vec3();
 		axisStart = Vec3();
 		rotAxis = Vec3();
@@ -700,7 +700,7 @@ void PointCloudInteractor::setRotAxis(bool rotaxis)
 			selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
 			selectedPoints.clear();
 		}
-		axisGroup->removeChild(0, 1);
+		axisGeode->removeChild(0, 1);
 		pointToMove = Vec3();
 		axisStart = Vec3();
 		rotAxis = Vec3();
@@ -762,7 +762,7 @@ void PointCloudInteractor::getData(PointCloudInteractor *PCI)
 	selectedPointsGroup = PCI->selectedPointsGroup;
 	startHandMat = PCI->startHandMat;
 	traMat = PCI->traMat;
-	axisGroup = PCI->axisGroup;
+	axisGeode = PCI->axisGeode;
 	rotAxis = PCI->rotAxis;
 	m_rotation = PCI->m_rotation;
 }
@@ -799,9 +799,9 @@ osg::StateSet* PointCloudInteractor::highlightActiveCloud()
 
 void PointCloudInteractor::showAxis(Vec3 startPoint, Vec3 endPoint)
 {
-	if (axisGroup->getNumChildren() != 0)
+	if (axisGeode->getNumChildren() != 0)
 	{
-		axisGroup->removeChildren(0, axisGroup->getNumChildren());
+		axisGeode->removeChildren(0, axisGeode->getNumChildren());
 	}
 	osg::Geometry *axisBeam = new osg::Geometry();
 	osg::ref_ptr<osg::Vec3Array> points = new osg::Vec3Array;
@@ -822,5 +822,5 @@ void PointCloudInteractor::showAxis(Vec3 startPoint, Vec3 endPoint)
 	axisBeam->getOrCreateStateSet()->setAttribute(linewidth, osg::StateAttribute::ON);
 	axisBeam->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	axisBeam->setName("Rotation Axis");
-	axisGroup->addChild(axisBeam);
+	axisGeode->addChild(axisBeam);
 }
