@@ -219,7 +219,8 @@ bool PointCloudPlugin::init()
 			s_pointCloudInteractor->setFreeMove(false);
 			secondary_Interactor->setFreeMove(false);
 		}
-	});
+    });
+#ifdef HAVE_E57
 	saveButton = new ui::Button(selectionGroup, "Save Moves", selectionButtonGroup);
 	saveButton->setText("Save Movest");
 	saveButton->setState(false);
@@ -233,7 +234,8 @@ bool PointCloudPlugin::init()
 		else
 		{
 		}
-	});
+    });
+#endif
     deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
     deselectButton->setText("Deselect Points");
     deselectButton->setCallback([this](bool state){
@@ -1442,6 +1444,7 @@ void PointCloudPlugin::addButton(FileInfo &fInfo)
 
 void PointCloudPlugin::saveMoves()
 {
+#ifdef HAVE_E57
 	for (auto &i : files)
 	{
 		if (i.fileButton->state())
@@ -1707,6 +1710,7 @@ void PointCloudPlugin::saveMoves()
 				return;
 			}
 		}
-	}
+    }
+#endif
 }
 
