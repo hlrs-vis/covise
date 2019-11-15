@@ -653,7 +653,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         cerr << "The File : " << fileName << " is already loaded" << endl;
         cerr << "Loading a file multiple times is currently not supported" << endl;
-        return doubleFile->second->node;
+        doubleFile->second->unload();
+        return doubleFile->second->load();
     }
     std::string adjustedFileName;
     std::string key;
