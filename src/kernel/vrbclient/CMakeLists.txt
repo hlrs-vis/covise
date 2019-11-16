@@ -5,6 +5,7 @@
 # @author Blasius Czink
 
 USING(BOOST)
+USING(Pthreads)
 ADD_DEFINITIONS(-DCOVISE_VRB)
 
 SET(VRBCLIENT_SOURCES

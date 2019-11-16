@@ -6,9 +6,9 @@ set(HEADERS
 set(SOURCES
     chatPlugin.cpp
     )
-cover_add_plugin(Chat)
 
 if(Qt5Multimedia_FOUND)
+    cover_add_plugin(Chat)
     qt_use_modules(Chat Multimedia)
 else(Qt5Multimedia_FOUND)
     return()

@@ -157,6 +157,8 @@ guess_archsuffix() {
                     export ARCHSUFFIX=rhel7
                   elif grep -i -q -s 'Red Hat Enterprise Linux.*release 7..' /etc/system-release; then
                     export ARCHSUFFIX=rhel7
+                  elif grep -i -q -s 'CentOS Linux release 8..' /etc/system-release; then
+                    export ARCHSUFFIX=rhel8
                   fi
                elif grep -i -q -s 'suse.*11.0' /etc/issue; then
                    export ARCHSUFFIX=mabuya
