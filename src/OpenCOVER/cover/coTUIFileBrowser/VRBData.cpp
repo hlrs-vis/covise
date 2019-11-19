@@ -409,6 +409,8 @@ std::string VRBData::getTmpFilename(const std::string url, int id)
     rt << TABLET_FB_FILE_SEL;
     rt << remotePoint.c_str();
     rt << path.c_str();
+	bool loadAll = false;
+	rt << loadAll;
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
@@ -531,6 +533,8 @@ void VRBData::reqRemoteFile(std::string filename, int pId)
     rt << TABLET_FB_FILE_SEL;
     rt << this->mIP.c_str();
     rt << path.c_str();
+	bool loadAll = false;
+	rt << loadAll;
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;

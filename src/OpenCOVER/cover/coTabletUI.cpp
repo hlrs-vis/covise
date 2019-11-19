@@ -256,13 +256,13 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
         //File selected for opening in OpenCOVER
         char *cstrFile = NULL;
         char *cstrDirectory = NULL;
-        int iLoadAll;
+		bool bLoadAll=false;
         std::string protocol;
 
         tb >> cstrFile;
         std::string strFile = cstrFile;
         tb >> cstrDirectory;
-        tb >> iLoadAll;
+        tb >> bLoadAll;
         std::string strDirectory = cstrDirectory;
 
         VRBData *locData = NULL;
@@ -288,7 +288,6 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
             mData = locData;
         }
 
-        bool bLoadAll = (bool)iLoadAll;
         //Decide whether to load for all partners or just locally
         if (bLoadAll)
         {
