@@ -402,6 +402,8 @@ namespace OpenCOVERPlugin
                 mb.add((byte)220);
                 mb.add((byte)255);
                 mb.add(-1); // material ID
+
+                mb.add(getDepthOny(elem));
                 sendMessage(mb.buf, MessageTypes.NewObject);
 
                 mb = new MessageBuffer();
@@ -533,6 +535,8 @@ namespace OpenCOVERPlugin
                 mb.add(elem.Name);
                 mb.add((int)ObjectTypes.Inline);
                 mb.add(n+".e57");
+
+                mb.add(getDepthOny(elem));
                 sendMessage(mb.buf, MessageTypes.NewObject);
                 sendParameters(elem);
 
@@ -767,11 +771,36 @@ namespace OpenCOVERPlugin
             }
             return ti;
         }
+        private bool getDepthOny(Autodesk.Revit.DB.Element elem)
+        {
 
+            OverrideGraphicSettings gs;
+            // try to get graphic overrides for DepthOnly rendering
+            bool depthOnly = false;
+            gs = View3D.GetCategoryOverrides(elem.Category.Id);
+            if (gs != null)
+            {
+                if (gs.Halftone)
+                {
+                    depthOnly = true;
+                }
+            }
+            gs = View3D.GetElementOverrides(elem.Id);
+            if (gs != null)
+            {
+                if (gs.Halftone)
+                {
+                    depthOnly = true;
+                }
+            }
+            return depthOnly;
+        }
         private void sendGeomElement(Autodesk.Revit.DB.Element elem, int num, Autodesk.Revit.DB.GeometryObject geomObject, bool createGroups)
         {
             if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
             {
+
+
                 if ((geomObject is Autodesk.Revit.DB.Curve))
                 {
                     //mb.add((int)ObjectTypes.Curve);
@@ -821,6 +850,7 @@ namespace OpenCOVERPlugin
                         mb.add((byte)255);
                         mb.add(-1); // material ID
                     }
+                    mb.add(getDepthOny(elem));
                     sendMessage(mb.buf, MessageTypes.NewObject);
                     if (num == 0)
                         sendParameters(elem);
@@ -896,6 +926,7 @@ namespace OpenCOVERPlugin
                     mb.add(elem.Name);
                     mb.add((int)ObjectTypes.Inline);
                     mb.add(p.AsString());
+                    mb.add(false);
                     sendMessage(mb.buf, MessageTypes.NewObject);
                     sendParameters(elem);
                 }
@@ -915,6 +946,8 @@ namespace OpenCOVERPlugin
           Element e)
         {
             XYZ p = XYZ.Zero;
+            if (e == null)
+                return p;
             Location loc = e.Location;
             if (null != loc)
             {
@@ -996,6 +1029,7 @@ namespace OpenCOVERPlugin
                     Double Size = getDouble(fi, "MarkerSize");
                     Double Offset = getDouble(fi, "Offset");
                     Double Angle = getDouble(fi, "Angle");
+                    String MarkerType = getString(fi, "MarkerType");
                     XYZ pos = GetElementLocation(elem);
                     XYZ hostPos = GetElementLocation(fi.Host);
                     MessageBuffer mb = new MessageBuffer();
@@ -1014,6 +1048,7 @@ namespace OpenCOVERPlugin
                     mb.add(Angle);
                     mb.add(fi.Host.Id.IntegerValue);
                     mb.add(Size);
+                    mb.add(MarkerType);
                     sendMessage(mb.buf, MessageTypes.NewARMarker);
                 }
             }
@@ -1343,6 +1378,8 @@ namespace OpenCOVERPlugin
             int triangles = 0;
             int maintriangles = 0;
             bool twoSided = false;
+            if(elem.Name == "" && elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
+                return;
 
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
             if (faces.Size == 0)
@@ -1490,6 +1527,7 @@ namespace OpenCOVERPlugin
                     mb.add((byte)(((100 - (m.Transparency)) / 100.0) * 255));
                     mb.add(m.Id.IntegerValue);
                 }
+                mb.add(getDepthOny(elem));
                 sendMessage(mb.buf, MessageTypes.NewObject);
             }
             else
@@ -1534,6 +1572,7 @@ namespace OpenCOVERPlugin
                                         mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
                                         mb.add(materialElement.Id.IntegerValue);
                                     }
+                                    mb.add(getDepthOny(elem));
                                     sendMessage(mb.buf, MessageTypes.NewObject);
                                 }
                                 num++;
@@ -1568,6 +1607,7 @@ namespace OpenCOVERPlugin
                                 mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
                                 mb.add(materialElement.Id.IntegerValue);
                             }
+                            mb.add(getDepthOny(elem));
                             sendMessage(mb.buf, MessageTypes.NewObject);
                         }
                         num++;

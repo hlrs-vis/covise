@@ -966,6 +966,7 @@ ARToolKitMarker::ARToolKitMarker(const std::string &configName,int MarkerID, dou
 	}
 	else
 	{
+	setObjectMarker(existingMarker->isObjectMarker());
 	fprintf(stderr, "Marker with existing ID %d, reusing %s\n", pattID,existingMarker->markerLabel->getName().c_str());
 	existingMarker->x = x;
 	existingMarker->y = y;

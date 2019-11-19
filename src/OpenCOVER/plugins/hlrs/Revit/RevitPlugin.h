@@ -128,16 +128,21 @@ public:
 	ARMarkerInfo();
 	ARToolKitMarker* marker=nullptr;
 
-	osg::Matrix mat;
-	osg::Matrix hostMat;
+	osg::Matrix mat; // marker coordinates in mm in Revit coordinate system (object coordinates)
+	osg::Matrix invMarker;
+	osg::Matrix invHost;
+	osg::Matrix MarkerToHost;
+	osg::Matrix hostMat; // host transformation in feet in Revit coordinate system
 	std::string name;
+	std::string markerType;
 	int ID;
 	int MarkerID;
 	int hostID;
 	double offset;
 	double angle;
 	double size;
-	void setValues(int ID, int MarkerID, std::string& name, double angle, double offset, osg::Matrix& mat, osg::Matrix& hostMat, int hostID, double size);
+	double lastUpdate = 0.0;
+	void setValues(int ID, int MarkerID, std::string& name, double angle, double offset, osg::Matrix& mat, osg::Matrix& hostMat, int hostID, double size, std::string markerType);
 	void update();
 };
 

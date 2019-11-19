@@ -178,8 +178,6 @@ private:
     osg::Matrix offset;
     osg::Matrix Ctrans;
     osg::Matrix Mtrans;
-    osg::Matrix OpenGLToOSGMatrix;
-    osg::Matrix PfToOpenGLMatrix;
     coTUILabel *markerLabel = nullptr;
     coTUIToggleButton *vrmlToPfFlag = nullptr;
     coTUIEditFloatField *size = nullptr;
@@ -225,6 +223,8 @@ public:
     osg::Matrix matrixSumm;
     bool lastVisible;
     void setOffset(osg::Matrix &mat);
+	osg::Matrix OpenGLToOSGMatrix;
+	osg::Matrix PfToOpenGLMatrix;
 };
 }
 #endif

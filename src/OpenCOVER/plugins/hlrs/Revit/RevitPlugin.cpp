@@ -29,6 +29,7 @@
 #include <cover/coVRTui.h>
 #include <cover/coVRShader.h>
 #include <cover/OpenCOVER.h>
+#include <cover/VRViewer.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -84,7 +85,7 @@ ARMarkerInfo::ARMarkerInfo()
 {
 }
 
-void ARMarkerInfo::setValues(int id, int mid, std::string& n, double an, double of, osg::Matrix& m, osg::Matrix& hm, int hID, double s)
+void ARMarkerInfo::setValues(int id, int mid, std::string& n, double an, double of, osg::Matrix& m, osg::Matrix& hm, int hID, double s, std::string mt)
 {
 	ID = id;
 	MarkerID = mid;
@@ -92,17 +93,30 @@ void ARMarkerInfo::setValues(int id, int mid, std::string& n, double an, double 
 	angle = an;
 	offset = of;
 	mat = m;
+	markerType = mt;
+	invHost.invert(hm);
+	invMarker.invert(m);
+	MarkerToHost = mat * invHost;
+
 	hostMat = hm;
 	hostID = hID;
 	size = s;
+	osg::Matrix offsetMat = mat;
+	if (markerType != "ObjectMarker")
+	{
+		offsetMat *= invMarker;
+	}
+	
 	if (marker == nullptr)
 	{
-		marker = new ARToolKitMarker(("Revit_"+std::to_string(MarkerID)),MarkerID,size,mat,hostMat,true);
+		marker = new ARToolKitMarker((markerType+std::to_string(MarkerID)),MarkerID,size, offsetMat,hostMat,true);
 	}
 	else
 	{
-		marker->updateData(size, mat, hostMat,true);
+		marker->updateData(size, offsetMat, hostMat,true);
 	}
+
+	fprintf(stderr, "ObjectMarkerPos in feet: %d %d   %f %f %f\n", this->MarkerID, ID, mat.getTrans().x() / (1000 * REVIT_FEET_TO_M), mat.getTrans().y() / (1000 * REVIT_FEET_TO_M), mat.getTrans().z() / (1000 * REVIT_FEET_TO_M));
 }
 
 void ARMarkerInfo::update()
@@ -111,8 +125,46 @@ void ARMarkerInfo::update()
 	{
 		if (marker->isVisible())
 		{
-			osg::Matrix m = marker->getMarkerTrans();
-			fprintf(stderr, "MarkerPos: %d %f %f %f", ID, m.getTrans().x(), m.getTrans().y(), m.getTrans().z());
+			if (!marker->isObjectMarker())
+			{
+
+				osg::Matrix mm = marker->getMarkerTrans();
+
+				osg::Matrix leftCameraTrans = VRViewer::instance()->getViewerMat();
+				if (coVRConfig::instance()->stereoState())
+				{
+					leftCameraTrans = osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0) * VRViewer::instance()->getViewerMat();
+				}
+				osg::Matrix MarkerInWorld = mm * leftCameraTrans;
+				osg::Matrix MarkerInLocalCoords = MarkerInWorld * cover->getInvBaseMat(); // unit is m
+				osg::Vec3 trans = MarkerInLocalCoords.getTrans();
+				trans *= REVIT_M_TO_FEET;
+				MarkerInLocalCoords.setTrans(trans);
+				MarkerInLocalCoords.orthoNormalize(MarkerInLocalCoords);
+
+				//mm = mm * marker->OpenGLToOSGMatrix;
+
+				
+				fprintf(stderr, "MarkerPos in feet: %d %d   %f %f %f\n", this->MarkerID, ID, MarkerInLocalCoords.getTrans().x() , MarkerInLocalCoords.getTrans().y(), MarkerInLocalCoords.getTrans().z() );
+
+				trans = MarkerInLocalCoords.getTrans() - hostMat.getTrans();
+				hostMat.setTrans(hostMat.getTrans() + trans);
+				trans[2] = 0;
+				if((cover->frameTime() - lastUpdate) > 1.0 && trans.length() > 0.2)
+				{
+					lastUpdate = cover->frameTime();
+					TokenBuffer stb;
+					stb << hostID;
+					stb << (double)trans.x();
+					stb << (double)trans.y();
+					stb << (double)trans.z();
+
+					Message message(stb);
+					message.type = (int)RevitPlugin::MSG_SetTransform;
+					RevitPlugin::instance()->sendMessage(message);
+					fprintf(stderr, "MarkerTrans: %d %d   %f %f %f\n", this->MarkerID,ID, trans.x(), trans.y(), trans.z());
+				}
+			}
 		}
 	}
 }
@@ -1075,9 +1127,10 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> hostID;
 		double size;
 		tb >> size;
+		std::string markerType;
+		tb >> markerType;
 		size = size * REVIT_FEET_TO_M * 1000;
 		mat.setTrans(mat.getTrans()* REVIT_FEET_TO_M * 1000);
-		hostMat.setTrans(hostMat.getTrans()* REVIT_FEET_TO_M * 1000);
 		ARMarkerInfo* mi;
 		auto it = ARMarkers.find(ID);
 		if (it != ARMarkers.end())
@@ -1089,7 +1142,7 @@ RevitPlugin::handleMessage(Message *m)
 			mi = new ARMarkerInfo();
 			ARMarkers[ID]=mi;
 		}
-		mi->setValues(ID, MarkerID, name, angle, offset, mat, hostMat, hostID,size);
+		mi->setValues(ID, MarkerID, name, angle, offset, mat, hostMat, hostID,size,markerType);
 	}
 	break;
 	case MSG_DeleteElement:
@@ -1558,8 +1611,14 @@ RevitPlugin::handleMessage(Message *m)
 				cullFace->setMode(osg::CullFace::BACK);
 				geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
 			}
-
-
+			bool isDepthOnly=false;
+			tb >> isDepthOnly;
+			if (isDepthOnly)
+			{
+				// after Video but before all normal geometry
+				geoState->setRenderBinDetails(-1, "RenderBin");
+				geoState->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
+			}
 			RevitInfo *info = new RevitInfo();
 			info->ObjectID = ID;
 			OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
@@ -1596,6 +1655,14 @@ RevitPlugin::handleMessage(Message *m)
 				mt->addChild(inlineNode);
 			}
 
+			bool isDepthOnly = false;
+			tb >> isDepthOnly;
+			if (isDepthOnly)
+			{
+				// after Video but before all normal geometry
+				mt->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
+				mt->getOrCreateStateSet()->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
+			}
 			ei->nodes.push_back(mt);
 			RevitInfo *info = new RevitInfo();
 			info->ObjectID = ID;
