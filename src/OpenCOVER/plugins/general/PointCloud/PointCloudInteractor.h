@@ -91,7 +91,6 @@ private:
     float radius;
     string fileToMove;
 	osg::Matrix moveMat;
-    osg::ref_ptr<osg::Group> axisGroup;
 
 	void showAxis(osg::Vec3 startPoint, osg::Vec3 endPoint);
     void MovePoints(osg::Matrixd MoveMat);
@@ -130,7 +129,7 @@ private:
 
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
-    osg::ref_ptr<osg::Group> axisGroup;
+    osg::ref_ptr<osg::Geode> axisGeode;
 
     int selectionSetIndex = 0;
     bool m_selectionIsBoundary = false;

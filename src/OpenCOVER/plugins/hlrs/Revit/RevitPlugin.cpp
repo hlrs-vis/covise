@@ -145,7 +145,7 @@ void ARMarkerInfo::update()
 				//mm = mm * marker->OpenGLToOSGMatrix;
 
 				
-				fprintf(stderr, "MarkerPos in feet: %d %d   %f %f %f\n", this->MarkerID, ID, MarkerInLocalCoords.getTrans().x() , MarkerInLocalCoords.getTrans().y(), MarkerInLocalCoords.getTrans().z() );
+				//fprintf(stderr, "MarkerPos in feet: %d %d   %f %f %f\n", this->MarkerID, ID, MarkerInLocalCoords.getTrans().x() , MarkerInLocalCoords.getTrans().y(), MarkerInLocalCoords.getTrans().z() );
 
 				trans = MarkerInLocalCoords.getTrans() - hostMat.getTrans();
 				hostMat.setTrans(hostMat.getTrans() + trans);
