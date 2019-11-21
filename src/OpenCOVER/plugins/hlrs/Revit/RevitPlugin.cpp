@@ -148,10 +148,10 @@ void ARMarkerInfo::update()
 				//fprintf(stderr, "MarkerPos in feet: %d %d   %f %f %f\n", this->MarkerID, ID, MarkerInLocalCoords.getTrans().x() , MarkerInLocalCoords.getTrans().y(), MarkerInLocalCoords.getTrans().z() );
 
 				trans = MarkerInLocalCoords.getTrans() - hostMat.getTrans();
-				hostMat.setTrans(hostMat.getTrans() + trans);
 				trans[2] = 0;
 				if((cover->frameTime() - lastUpdate) > 1.0 && trans.length() > 0.2)
 				{
+					hostMat.setTrans(hostMat.getTrans() + trans);
 					lastUpdate = cover->frameTime();
 					TokenBuffer stb;
 					stb << hostID;
@@ -478,6 +478,7 @@ void RevitPlugin::createMenu()
 	updateCameraButton->setMenuListener(this);
 	viewpointMenu->add(updateCameraButton);
 
+
 	cover->getMenu()->add(REVITButton);
 
 	revitTab = new coTUITab("Revit", coVRTui::instance()->mainFolder->getID());
@@ -518,6 +519,8 @@ RevitPlugin::RevitPlugin()
 	plugin = this;
 	MoveFinished = true;
     setViewpoint = true;
+	bool avail = false;
+	ignoreDepthOnly = coCoviseConfig::isOn("ignoreDepthOnly", "COVER.Plugin.Revit", false,&avail);
 	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
     textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
     localTextureDir = coCoviseConfig::getEntry("localTextures", "COVER.Plugin.Revit", "c:/tmp");
@@ -1613,7 +1616,7 @@ RevitPlugin::handleMessage(Message *m)
 			}
 			bool isDepthOnly=false;
 			tb >> isDepthOnly;
-			if (isDepthOnly)
+			if (isDepthOnly && !ignoreDepthOnly)
 			{
 				// after Video but before all normal geometry
 				geoState->setRenderBinDetails(-1, "RenderBin");
@@ -1657,7 +1660,7 @@ RevitPlugin::handleMessage(Message *m)
 
 			bool isDepthOnly = false;
 			tb >> isDepthOnly;
-			if (isDepthOnly)
+			if (isDepthOnly && !ignoreDepthOnly)
 			{
 				// after Video but before all normal geometry
 				mt->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");

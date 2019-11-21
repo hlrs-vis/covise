@@ -357,7 +357,8 @@ protected:
     coButtonMenuItem *addCameraButton = nullptr;
     coButtonMenuItem *updateCameraButton = nullptr;
     coTUIButton *addCameraTUIButton = nullptr;
-    coTUIButton *updateCameraTUIButton = nullptr;
+	coTUIButton* updateCameraTUIButton = nullptr;
+	bool ignoreDepthOnly = false;
     coTUIComboBox *viewsCombo = nullptr;
 
     ServerConnection *serverConn = nullptr;

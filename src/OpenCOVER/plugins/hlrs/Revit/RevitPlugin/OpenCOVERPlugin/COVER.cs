@@ -1046,7 +1046,10 @@ namespace OpenCOVERPlugin
                     mb.add(MarkerID);
                     mb.add(Offset);
                     mb.add(Angle);
-                    mb.add(fi.Host.Id.IntegerValue);
+                    if(fi.Host == null)
+                        mb.add(0);
+                    else
+                        mb.add(fi.Host.Id.IntegerValue);
                     mb.add(Size);
                     mb.add(MarkerType);
                     sendMessage(mb.buf, MessageTypes.NewARMarker);
