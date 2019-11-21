@@ -1463,7 +1463,6 @@ void PointCloudPlugin::saveMoves()
 					{
 						string sub2 = sub.substr(found2 + 1);
 						int x = stoi(sub2) + 1;
-						cout << "add to Filename: " << x << endl;
 						filename.replace(found + 4, 1, to_string(x));
 					}
 				}
@@ -1472,6 +1471,7 @@ void PointCloudPlugin::saveMoves()
 					filename.insert(filename.length() - 4, "_V1.1");
 				}
 			}
+
 			try
 			{
 				e57::Reader eReader(i.filename);
@@ -1630,7 +1630,9 @@ void PointCloudPlugin::saveMoves()
 					//scanHeader.cartesianBounds.zMinimum = cloudMat.preMult(Vec3(0, 0, scanHeader.cartesianBounds.zMinimum)).z();
 					//scanHeader.cartesianBounds.zMaximum = cloudMat.preMult(Vec3(0, 0, scanHeader.cartesianBounds.zMaximum)).z();
 
+
 					int scanIndex2 = eWriter.NewData3D(scanHeader);
+
 					double *xData2 = new double[nSize];
 					double *yData2 = new double[nSize];
 					double *zData2 = new double[nSize];
@@ -1638,6 +1640,18 @@ void PointCloudPlugin::saveMoves()
 					uint16_t *redData2 = new uint16_t[nSize];
 					uint16_t *greenData2 = new uint16_t[nSize];
 					uint16_t *blueData2 = new uint16_t[nSize];
+					for (size_t i = 0; i < nGroupsSize; i++)
+					{
+						if (startPointIndex[i] >= nPointsSize)
+						{
+							startPointIndex[i] = nPointsSize-1;
+						}
+						if (pointCount[i] >= nPointsSize)
+						{
+							pointCount[i] = nPointsSize-1;
+						}
+					}
+					eWriter.WriteData3DGroupsData(scanIndex2, nGroupsSize, idElementValue, startPointIndex, pointCount);
 					e57::CompressedVectorWriter dataWriter = eWriter.SetUpData3DPointsData(
 						scanIndex2,
 						nSize,
@@ -1687,6 +1701,7 @@ void PointCloudPlugin::saveMoves()
 						}
 						dataWriter.write(nSize);
 					}
+
 					dataWriter.close();
 					dataReader.close();
 					delete isInvalidData;
@@ -1713,4 +1728,3 @@ void PointCloudPlugin::saveMoves()
     }
 #endif
 }
-
