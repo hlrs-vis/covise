@@ -75,10 +75,13 @@ public:
 
     const std::vector<Sequence> &getSequences() const;
 
-    int getAnimationFrame()
+    int getAnimationFrame() const
     {
         return currentAnimationFrame;
-    };
+    }
+
+    int getNextFrame(int current = -1) const;
+
     bool requestAnimationFrame(int currentFrame);
     void requestAnimationTime(double t);
     float getAnimationSpeed();

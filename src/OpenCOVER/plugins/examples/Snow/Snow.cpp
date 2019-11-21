@@ -83,7 +83,7 @@ bool SnowPlugin::init()
     origin->addChild(geode);
     snow = new coSphere();
     geode->addDrawable(snow);
-    snow->setRenderMethod(coSphere::RENDER_METHOD_TEXTURE);
+    //snow->setRenderMethod(coSphere::RENDER_METHOD_CPU_BILLBOARDS);
     x = new float[NumFlakes];
     y = new float[NumFlakes];
     z = new float[NumFlakes];

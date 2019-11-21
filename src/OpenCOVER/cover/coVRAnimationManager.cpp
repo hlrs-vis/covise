@@ -337,38 +337,68 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
     }
 }
 
+int coVRAnimationManager::getNextFrame(int current) const
+{
+    if (current == -1)
+        current = currentAnimationFrame;
+
+    if (!animRunning)
+        return current;
+
+    int aniDirection = 0;
+    if (!animPingPongItem->state()) // normal loop mode
+    {
+        aniDirection = 1;
+    }
+    else // oscillate mode
+    {
+        if (current >= stopFrame) // check for end of sequence
+            aniDirection = -1;
+        if (current <= startFrame) // check for start of sequence
+            aniDirection = 1;
+    }
+
+    int next = current;
+    if (animSpeedItem->value() > 0.0)
+    {
+        next = current + aniDirection * aniSkip;
+    }
+    else if (animSpeedItem->value() < 0.0)
+    {
+        next = current - aniDirection * aniSkip;
+    }
+
+    if (numFrames == 0)
+    {
+        next = 0;
+    }
+    else
+    {
+        if (next < 0)
+            next = (next % numFrames) + numFrames;
+        next %= numFrames;
+    }
+
+    if (stopFrame >= startFrame)
+        next = (next - startFrame + stopFrame - startFrame + 1) % (stopFrame - startFrame + 1) + startFrame;
+    else
+        next = startFrame;
+
+    next = (next/aniSkip)*aniSkip;
+
+    return next;
+}
+
 bool
 coVRAnimationManager::updateAnimationFrame()
 {
     if (animRunning && !m_animationPaused && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
     {
-        if (!animPingPongItem->state()) // normal loop mode
-        {
-            aniDirection = 1;
-        }
-        else // oscillate mode
-        {
-            if (currentAnimationFrame >= stopFrame) // check for end of sequence
-                aniDirection = -1;
-            if (currentAnimationFrame <= startFrame) // check for start of sequence
-                aniDirection = 1;
-        }
-
-        if (animSpeedItem->value() > 0.0)
-        {
-            if ((cover->frameTime() - lastAnimationUpdate > 1.0 / animSpeedItem->value())
-                || (animSpeedItem->value() > AnimSliderMax - 0.001))
-            {
-                return requestAnimationFrame(currentAnimationFrame + aniDirection * aniSkip);
-            }
-        }
-        else if (animSpeedItem->value() < 0.0)
-        {
-            if ((cover->frameTime() - lastAnimationUpdate > -1.0 / animSpeedItem->value())
-                || (animSpeedItem->value() < AnimSliderMin + 0.001))
-            {
-                return requestAnimationFrame(currentAnimationFrame - aniDirection * aniSkip);
-            }
+        auto speed = animSkipItem->value();
+        if ((cover->frameTime() - lastAnimationUpdate >= 1.0 / std::abs(speed))
+            || (speed > 0. && speed > AnimSliderMax - 0.001)
+            || (speed < 0. && speed < AnimSliderMin + 0.001)) {
+            return requestAnimationFrame(getNextFrame());
         }
     }
     else
