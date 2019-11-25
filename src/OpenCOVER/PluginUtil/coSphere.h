@@ -186,6 +186,8 @@ private:
     }
 
     static int s_maxcontext;
+
+    void allocateColor();
 };
 }
 #endif

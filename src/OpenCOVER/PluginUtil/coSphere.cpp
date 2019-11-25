@@ -294,11 +294,14 @@ coSphere::coSphere(const coSphere &s, const osg::CopyOp &copyop)
     m_color = NULL;
     m_normals = NULL;
     setNumberOfSpheres(s.m_numSpheres);
+    if (s.m_color)
+        allocateColor();
     if (m_useVertexArrays)
     {
         memcpy(m_coord, s.m_coord, sizeof(float) * s.m_numSpheres * 3 * 4);
         memcpy(m_radii, s.m_radii, sizeof(float) * s.m_numSpheres * 3 * 4);
-        memcpy(m_color, s.m_color, sizeof(float) * s.m_numSpheres * 16);
+        if (m_color)
+            memcpy(m_color, s.m_color, sizeof(float) * s.m_numSpheres * 16);
         if (s.m_normals)
         {
             m_normals = new float[m_numSpheres * 3];
@@ -309,7 +312,8 @@ coSphere::coSphere(const coSphere &s, const osg::CopyOp &copyop)
     {
         memcpy(m_coord, s.m_coord, sizeof(float) * s.m_numSpheres * 3);
         memcpy(m_radii, s.m_radii, sizeof(float) * s.m_numSpheres);
-        memcpy(m_color, s.m_color, sizeof(float) * s.m_numSpheres * 4);
+        if (m_color)
+            memcpy(m_color, s.m_color, sizeof(float) * s.m_numSpheres * 4);
         if (s.m_normals)
         {
             m_normals = new float[m_numSpheres * 3];
@@ -712,14 +716,18 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
         if (m_useVertexArrays)
         {
             glEnableClientState(GL_VERTEX_ARRAY); // Enable Vertex Arrays
-            glEnableClientState(GL_COLOR_ARRAY); // Enable Color Arrays
             glEnableClientState(GL_TEXTURE_COORD_ARRAY); // Enable Texture Coord Arrays
             glVertexPointer(3, GL_FLOAT, 0, m_coord);
-            glColorPointer(4, GL_FLOAT, 0, m_color);
+            if (m_color)
+            {
+                glEnableClientState(GL_COLOR_ARRAY); // Enable Color Arrays
+                glColorPointer(4, GL_FLOAT, 0, m_color);
+            }
             glTexCoordPointer(3, GL_FLOAT, 0, m_radii);
             glDrawArrays(GL_QUADS, 0, m_numSpheres * 4); // Disable Pointers
             glDisableClientState(GL_VERTEX_ARRAY); // Disable Vertex Arrays
-            glDisableClientState(GL_COLOR_ARRAY); // Disable Color Arrays
+            if (m_color)
+                glDisableClientState(GL_COLOR_ARRAY); // Disable Color Arrays
             glDisableClientState(GL_TEXTURE_COORD_ARRAY); // Disable Texture Coord Arrays
         }
         else
@@ -728,10 +736,17 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             for (int i = 0; i < m_numSpheres; i++)
             {
                 {
+                    if (m_color)
+                    {
                     if (s_overrideTransparency)
                         glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], s_alpha * m_color[i * 4 + 3]);
                     else
                         glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
+                    }
+                    else
+                    {
+                        glColor4f(1, 1, 1, s_overrideTransparency ? s_alpha : 1);
+                    }
 
                     if (m_renderMethod == RENDER_METHOD_DISC || m_renderMethod == RENDER_METHOD_TEXTURE)
                     {
@@ -810,8 +825,11 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
 
             if (array)
             {
-                glEnableClientState(GL_COLOR_ARRAY);
-                glColorPointer(4, GL_FLOAT, 0, m_color);
+                if (m_color)
+                {
+                    glEnableClientState(GL_COLOR_ARRAY);
+                    glColorPointer(4, GL_FLOAT, 0, m_color);
+                }
                 glEnableClientState(GL_VERTEX_ARRAY);
                 glVertexPointer(3, GL_FLOAT, 0, m_coord);
 
@@ -826,7 +844,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
                 }
 
                 glDisableClientState(GL_VERTEX_ARRAY);
-                glDisableClientState(GL_COLOR_ARRAY);
+                if (m_color)
+                    glDisableClientState(GL_COLOR_ARRAY);
             }
             else
             {
@@ -843,7 +862,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
                         int i = *it;
                         assert(i >= 0);
                         assert(i < m_numSpheres);
-                        glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
+                        if (m_color)
+                            glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
                         glVertex3f(m_coord[i * 3 + 0], m_coord[i * 3 + 1], m_coord[i * 3 + 2]);
                     }
                     glEnd();
@@ -887,10 +907,17 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
 
         for (int i = 0; i < m_numSpheres; i++)
         {
+            if (m_color)
+            {
             if (s_overrideTransparency)
                 glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], s_alpha);
             else
                 glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
+            }
+            else
+            {
+                glColor4f(1, 1, 1, s_overrideTransparency ? s_alpha : 1);
+            }
 
             //-------------------------------------------------------------
             //
@@ -1042,17 +1069,16 @@ coSphere::setNumberOfSpheres(int no_of_points)
         delete[] m_color;
         delete[] m_normals;
         m_normals = NULL;
+        m_color = NULL;
         if (m_useVertexArrays)
         {
             m_coord = new float[4 * 3 * no_of_points];
             m_radii = new float[4 * 3 * no_of_points];
-            m_color = new float[16 * no_of_points];
         }
         else
         {
             m_coord = new float[3 * no_of_points];
             m_radii = new float[no_of_points];
-            m_color = new float[4 * no_of_points];
         }
     }
     m_numSpheres = no_of_points;
@@ -1546,6 +1572,8 @@ void coSphere::setRenderMethod(RenderMethod rm)
 
 void coSphere::setColor(const int index, float fR, float fG, float fB, float fA)
 {
+    allocateColor();
+
     if (m_useVertexArrays)
     {
         m_color[index * 16 + 0] = fR;
@@ -2012,6 +2040,21 @@ void coSphere::bindMatrices(int context) const
         cgGLSetStateMatrixParameter(s_CGVertexParam_modelViewIT[context], CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_INVERSE_TRANSPOSE);
     }
 #endif
+}
+
+void coSphere::allocateColor()
+{
+    if (m_color)
+        return;
+
+    if (m_useVertexArrays)
+    {
+        m_color = new float[16 * m_numSpheres];
+    }
+    else
+    {
+        m_color = new float[4 * m_numSpheres];
+    }
 }
 
 }
