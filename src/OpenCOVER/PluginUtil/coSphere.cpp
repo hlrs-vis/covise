@@ -1604,6 +1604,8 @@ void coSphere::setColor(const int index, float fR, float fG, float fB, float fA)
 
 void coSphere::updateColors(const float *r, const float *g, const float *b, const float *a)
 {
+    allocateColor();
+
     if (m_useVertexArrays)
     {
         for (int k = 0; k < m_numSpheres; k++)
@@ -1686,6 +1688,8 @@ void coSphere::updateColors(const float *r, const float *g, const float *b, cons
 
 void coSphere::updateColors(const int *pc)
 {
+    allocateColor();
+
     if (m_useVertexArrays)
     {
         for (int k = 0; k < m_numSpheres; k++)
