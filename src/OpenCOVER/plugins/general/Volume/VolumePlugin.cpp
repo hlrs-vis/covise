@@ -1658,6 +1658,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
             else
             {
                 cerr << "no data received" << endl;
+                return;
             }
 
             // add to timestep series if necessary
