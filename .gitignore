@@ -2,6 +2,7 @@ CMakeLists.txt.user
 CMakeLists.txt.user.*
 DIST
 build
+build-*
 extern_libs
 .envrc
 **/.*.swp
