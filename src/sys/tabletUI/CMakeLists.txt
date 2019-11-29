@@ -26,6 +26,8 @@ if(Qt5Positioning_FOUND)
 qt_use_modules(tabletUI Positioning Location)
 endif(Qt5Positioning_FOUND)
 
+add_covise_compile_flags(tabletUI "-Wno-error=deprecated-declarations")
+
 if(APPLE)
    set_target_properties(tabletUI PROPERTIES OUTPUT_NAME "TabletUI")
 endif(APPLE)

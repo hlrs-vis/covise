@@ -38,11 +38,11 @@ TUIColorButton::~TUIColorButton()
 void TUIColorButton::onColorButtonPressed()
 {
     QColor initC = colorButton->palette().color(QPalette::Button);
-    QRgb my = QColorDialog::getRgba(initC.rgba(), 0, colorButton);
-    int r = qRed(my);
-    int g = qGreen(my);
-    int b = qBlue(my);
-    int alpha = qAlpha(my);
+    QColor my = QColorDialog::getColor(initC.rgba(), colorButton);
+    int r = my.red();
+    int g = my.green();
+    int b = my.blue();
+    int alpha = my.alpha();
     QColor color = QColor(r, g, b, alpha);
     if (color.isValid())
     {
