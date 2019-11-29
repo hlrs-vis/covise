@@ -252,11 +252,15 @@ ENDIF(WIN32)
 set (BOOST_INCLUDEDIR /usr/include/boost169)  
 set (BOOST_LIBRARYDIR /usr/lib64/boost169)
 
-covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} QUIET)
+covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
 if (Boost_FOUND AND (NOT Boost_VERSION VERSION_LESS "105300"))
     set(COMPONENTS ${BOOST_COMPONENTS} atomic)
-    covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} QUIET)
+    covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} QUIET REQUIRED)
+    if (NOT Boost_FOUND)
+        message("Did not find boost_atomic")
+    endif()
 endif()
+USING(Boost)
 
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
