@@ -208,6 +208,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=werewolf
                elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
                    export ARCHSUFFIX=xerus
+               elif grep -i -q -s 'ubuntu.*18\.04' /etc/issue; then
+                   export ARCHSUFFIX=bionic
                elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
                    export ARCHSUFFIX=tahr
                elif grep -i -q -s 'ubuntu.*6\.06' /etc/issue; then
