@@ -185,6 +185,7 @@ private:
 
     bool showClipOutlines;
     bool followCoverClipping = true;
+    bool ignoreCoverClipping = false;
     bool opaqueClipping = true;
     bool singleSliceClipping = false;
     float lastRoll;

@@ -797,6 +797,13 @@ bool VolumePlugin::init()
         followCoverClipping = state;
     });
 
+    auto ignoreCoverClippingItem = new ui::Button(clipMenu, "ClipCoverIgnore");
+    ignoreCoverClippingItem->setText("Ignore clip planes");
+    ignoreCoverClippingItem->setState(ignoreCoverClipping);
+    ignoreCoverClippingItem->setCallback([this](bool state){
+        ignoreCoverClipping = state;
+    });
+
     if (enableSphereClipping)
     {
         // Initialize clip spheres
@@ -2293,7 +2300,12 @@ void VolumePlugin::preFrame()
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
-                    if (followCoverClipping || singleSliceClipping)
+                    if (ignoreCoverClipping)
+                    {
+                        state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), false);
+                    }
+                    else if (followCoverClipping || singleSliceClipping)
                     {
                         state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
                         drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), true);
