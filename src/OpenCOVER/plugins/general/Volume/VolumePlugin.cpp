@@ -559,8 +559,6 @@ bool VolumePlugin::init()
         cropVolume();
     });
 
-    clipMenu = new ui::Menu(volumeMenu, "Clipping");
-
     auto renderGroup = new ui::Group(volumeMenu, "Rendering");
 
     lightingItem = new ui::Button(renderGroup, "Lighting");
@@ -756,6 +754,8 @@ bool VolumePlugin::init()
     currentVolumeItem->setText("[]");
 
     // Create clipping menu
+    clipMenu = new ui::Menu(volumeMenu, "Clipping");
+
     auto clipSingleSlice = new ui::Button(clipMenu, "SingleSliceClipping");
     clipSingleSlice->setText("Single slice clipping");
     clipSingleSlice->setState(singleSliceClipping);
@@ -2296,12 +2296,12 @@ void VolumePlugin::preFrame()
                     if (followCoverClipping || singleSliceClipping)
                     {
                         state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), true);
                     }
                     else
                     {
                         state->removeMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum());
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), false);
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), false);
                     }
 
                     ++numClipPlanes;
