@@ -183,7 +183,7 @@ private:
 
     std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
-    bool showClipOutlines;
+    bool showClipOutlines = true;
     bool followCoverClipping = true;
     bool ignoreCoverClipping = false;
     bool opaqueClipping = true;

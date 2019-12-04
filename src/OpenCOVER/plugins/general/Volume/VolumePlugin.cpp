@@ -785,7 +785,7 @@ bool VolumePlugin::init()
 
     auto clipOutlinesItem = new ui::Button(clipMenu, "ClipOutlines");
     clipOutlinesItem->setText("Show box intersections");
-    clipOutlinesItem->setState(true);
+    clipOutlinesItem->setState(showClipOutlines);
     clipOutlinesItem->setCallback([this](bool state){
         showClipOutlines = state;
     });
@@ -2300,21 +2300,15 @@ void VolumePlugin::preFrame()
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
-                    if (ignoreCoverClipping)
+                    if (ignoreCoverClipping || followCoverClipping)
                     {
                         state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), false);
-                    }
-                    else if (followCoverClipping || singleSliceClipping)
-                    {
-                        state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), true);
                     }
                     else
                     {
                         state->removeMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum());
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), false);
                     }
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), singleSliceClipping || (!ignoreCoverClipping && followCoverClipping));
 
                     ++numClipPlanes;
                 }
