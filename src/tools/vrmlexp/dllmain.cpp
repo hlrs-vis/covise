@@ -87,7 +87,7 @@ BOOL WINAPI
         InitCommonControls();
 #endif
 
-        SetTimer(NULL, 0, 5000, coTabletUI::timerCallback);
+        SetTimer(NULL, 0, 500, coTabletUI::timerCallback);
     }
 
     switch (fdwReason)

@@ -54,264 +54,1077 @@ Initial revision
 \***********************************************************************/
 
 #undef DEBUG
-/*
-Message::Message(ShmPtr *ptr)
+MessageBase::MessageBase()
+	: conn(nullptr)
 {
-   if(ptr != (ShmPtr *) 0L)
-   {
-      type = MALLOC_OK;
-      length = 2 * sizeof(int);
-      int *idata = new int[2];
-      idata[0] = ptr->shm_seq_no;
-      idata[1] = ptr->offset;
-      data = (char *)idata;
-      //cerr << "Message ShmPtr: " << ptr->shm_seq_no <<
-      //     ": " << ptr->offset << "\n";
-   }
-   else
-   {
-      type = MALLOC_FAILED;
-      length = 0;
-      data = (char *) 0L;
-   }
-   //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-   print();
-}
-*/
 
-Message::Message(TokenBuffer *t)
-    : type(EMPTY)
-    , conn(0L)
+}
+MessageBase::MessageBase(TokenBuffer& tb)
 {
-    length = t->get_length();
-    data = (char *)t->get_data();
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    print();
+	data = tb.getData();
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+}
+MessageBase::MessageBase(DataHandle& dh)
+{
+	data = dh;
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
 }
 
-Message::Message(TokenBuffer &t)
-    : type(EMPTY)
-    , conn(0L)
+MessageBase::~MessageBase()
 {
-    length = t.get_length();
-    data = (char *)t.get_data();
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    print();
+}
+
+
+Message::Message(TokenBuffer& t)
+	:MessageBase(t)
+	, type(Message::EMPTY)
+{
 }
 
 void Message::print()
 {
 #ifdef DEBUG
-    fprintf(stderr, "Message: this=%p, sender=%d, sender_type=%d\n", this, sender, send_type);
-    fprintf(stderr, "  type=%s (%d), length=%d, conn=%p\n",
-            (type >= 0 && type < sizeof(covise_msg_types_array) / sizeof(covise_msg_types_array[0])) ? covise_msg_types_array[type] : (type == -1 ? "EMPTY" : "(invalid)"),
-            type, length, conn);
+	fprintf(stderr, "Message: this=%p, sender=%d, sender_type=%d\n", this, sender, send_type);
+	fprintf(stderr, "  type=%s (%d), length=%d, conn=%p\n",
+		(type >= 0 && type < sizeof(covise_msg_types_array) / sizeof(covise_msg_types_array[0])) ? covise_msg_types_array[type] : (type == -1 ? "EMPTY" : "(invalid)"),
+		type, length, conn);
 #endif
 }
 
-TokenBuffer &TokenBuffer::operator<<(const uint64_t i)
+Message::Message(const Message& src)
 {
-    if (buflen < length + 9)
-        incbuf();
-    *currdata = (unsigned char)i & 0xff;
-    currdata++;
-    *currdata = (i >> 8) & 0xff;
-    currdata++;
-    *currdata = (i >> 16) & 0xff;
-    currdata++;
-    *currdata = (i >> 24) & 0xff;
-    currdata++;
-    *currdata = (i >> 32) & 0xff;
-    currdata++;
-    *currdata = (i >> 40) & 0xff;
-    currdata++;
-    *currdata = (i >> 48) & 0xff;
-    currdata++;
-    *currdata = (i >> 56) & 0xff;
-    currdata++;
-    length += 8;
-    return (*this);
+	//    printf("+ in message no. %d for %x, line %d\n", new_count++, this, __LINE__);
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+	sender = src.sender;
+	send_type = src.send_type;
+	type = src.type;
+	int length = src.data.length();
+	char* c = new char[length];
+	memcpy(c, src.data.data(), length);
+	data = DataHandle(c, length);
+	conn = src.conn;
+	print();
+}
+Message::Message(int message_type, const DataHandle& dh)
+	:sender(-1)
+	, send_type(Message::UNDEFINED)
+	, type(message_type)
+{
+	data = dh;
+}
+Message& Message::operator=(const Message& src)
+{
+	//    printf("+ in message no. %d for %x, line %d\n", new_count++, this, __LINE__);
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+
+	// Check against self-assignment
+	if (&src != this)
+	{
+		// always cope these
+		sender = src.sender;
+		send_type = src.send_type;
+		type = src.type;
+		conn = src.conn;
+
+		data = DataHandle(src.data.length());
+		memcpy(data.accessData(), src.data.data(), data.length());
+
+	}
+	print();
+	return *this;
 }
 
-TokenBuffer &TokenBuffer::operator<<(const uint32_t i)
+void Message::copyAndReuseData(const Message& src)
 {
-    if (buflen < length + 5)
-        incbuf();
-    *currdata = i & 0x000000ff;
-    currdata++;
-    *currdata = (i & 0x0000ff00) >> 8;
-    currdata++;
-    *currdata = (i & 0x00ff0000) >> 16;
-    currdata++;
-    *currdata = (i & 0xff000000) >> 24;
-    currdata++;
-    length += 4;
-    return (*this);
+	sender = src.sender;
+	send_type = src.send_type;
+	type = src.type;
+	conn = src.conn;
+	data = src.data;
+}
+//char *Message::extract_data()
+//{
+//    char *tmpdata = data;
+//    data = NULL;
+//    return tmpdata;
+//}
+/*
+bool isVrbMessageType(int type)
+{
+	switch (type)
+	{
+	case COVISE_MESSAGE_VRB_REQUEST_FILE:
+	case COVISE_MESSAGE_VRB_SEND_FILE:
+	case COVISE_MESSAGE_VRB_CURRENT_FILE:
+	case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
+	case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
+	case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
+	case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
+	case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE:
+	case COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY:
+	case COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY:
+	case COVISE_MESSAGE_VRB_CONTACT:
+	case COVISE_MESSAGE_VRB_CONNECT_TO_COVISE:
+	case COVISE_MESSAGE_VRB_SET_USERINFO:
+	case COVISE_MESSAGE_RENDER:
+	case COVISE_MESSAGE_RENDER_MODULE: // send Message to all others in same group
+	case COVISE_MESSAGE_VRB_CHECK_COVER:
+	case COVISE_MESSAGE_VRB_GET_ID:
+	case COVISE_MESSAGE_VRB_SET_GROUP:
+	case COVISE_MESSAGE_VRB_SET_MASTER:
+	case COVISE_MESSAGE_SOCKET_CLOSED:
+	case COVISE_MESSAGE_CLOSE_SOCKET:
+	case COVISE_MESSAGE_VRB_FB_RQ:
+	case COVISE_MESSAGE_VRB_FB_REMREQ:
+		return true;
+
+	default:
+		return false;
+	}
+
+	return false;
 }
 
-TokenBuffer &TokenBuffer::operator<<(TokenBuffer *t)
+*/
+DataHandle::DataHandle()
+	:m_ManagedData(nullptr)
+	, m_length(0)
+	, m_dataPtr(nullptr)
 {
-    if (buflen < length + t->get_length() + 1)
-        incbuf(t->get_length() * 4);
-    memcpy(currdata, t->get_data(), t->get_length());
-    currdata += t->get_length();
-    length += t->get_length();
-    return (*this);
+}
+
+DataHandle::~DataHandle()
+{
+}
+
+DataHandle::DataHandle(char* data, const size_t length, bool doDelete)
+	: DataHandle(data, static_cast<int>(length), doDelete)
+{
+}
+DataHandle::DataHandle(char* data, const int length, bool doDelete)
+	: m_length(length)
+{
+	if (doDelete)
+	{
+		m_ManagedData.reset(data, std::default_delete<char[]>());
+		m_dataPtr = data;
+	}
+	else
+	{
+		m_dataPtr = data;
+	}
+}
+
+DataHandle::DataHandle(size_t size)
+{
+	m_ManagedData.reset(new char[size], std::default_delete<char[]>());
+	m_dataPtr = m_ManagedData.get();
+	m_length = static_cast<int>(size);
+}
+
+
+const char* DataHandle::data() const
+{
+	if (m_ManagedData.get() && m_dataPtr)
+	{
+		checkPtr();
+		return m_dataPtr;
+	}
+	else if (m_dataPtr && !m_ManagedData.get())
+	{
+		return m_dataPtr;
+	}
+	else if (!m_dataPtr && m_ManagedData.get())
+	{
+		return m_ManagedData.get();
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+char* DataHandle::accessData()
+{
+	return const_cast<char*>(data());
+}
+
+const int DataHandle::length() const
+{
+	return m_length;
+}
+
+
+const char* DataHandle::end() const
+{
+	return data() + m_length;
+}
+
+char* DataHandle::end()
+{
+	return accessData() + m_length;
+}
+
+void DataHandle::setLength(const int l)
+{
+	m_length = l;
+}
+
+void DataHandle::incLength(const int inc)
+{
+	m_length += inc;
+	assert(m_length > sizeof(*m_ManagedData));
+}
+
+void DataHandle::movePtr(int amount)
+{
+	m_dataPtr += amount;
+	checkPtr();
+}
+
+void DataHandle::checkPtr() const
+{
+
+}
+
+
+#define TB_DEBUG // define to enable debugging
+#define TB_DEBUG_TAG // include whether debug mode is enabled in first byte of TokenBuffer, for interoperability with debug-enabled TokenBuffer's
+
+#define CHECK(size_type, error_ret)                                                                                       \
+    do                                                                                                                    \
+    {                                                                                                                     \
+        if (currdata + sizeof(size_type) > data.end())                                                                 \
+        {                                                                                                                 \
+            std::cerr << "TokenBuffer: read past end (" << __FILE__ << ":" << __LINE__ << ")" << std::endl;               \
+            std::cerr << "  required: " << sizeof(size_type) << ", available: " << data.end() - currdata << std::endl; \
+            assert(0 == "read past end");                                                                                 \
+            abort();                                                                                                      \
+            return error_ret;                                                                                             \
+        }                                                                                                                 \
+    } while (false)
+
+
+
+TokenBuffer::TokenBuffer(const MessageBase* msg, bool nbo)
+{
+#ifndef TB_DEBUG_TAG
+#ifdef TB_DEBUG
+	debug = true;
+#endif
+#endif
+	//std::cerr << "new TokenBuffer(Message) " << this << ": debug=" << debug << std::endl;
+	assert(msg);
+
+	buflen = 0;
+	data = msg->data;
+	currdata = data.accessData();
+	networkByteOrder = nbo;
+
+	rewind();
+}
+
+TokenBuffer::TokenBuffer(const DataHandle& dh, bool nbo)
+{
+#ifndef TB_DEBUG_TAG
+#ifdef TB_DEBUG
+	debug = true;
+#endif
+#endif
+	buflen = 0;
+	data = dh;
+	networkByteOrder = nbo;
+	rewind();
+}
+
+
+TokenBuffer::TokenBuffer(const char* dat, int len, bool nbo)
+{
+#ifndef TB_DEBUG_TAG
+#ifdef TB_DEBUG
+	debug = true;
+#endif
+#endif
+	//std::cerr << "new TokenBuffer(data,len) " << this << ": debug=" << debug << std::endl;
+
+	buflen = 0;
+	data = DataHandle{ (char*)dat, len, false };
+	currdata = (char*)dat;
+	networkByteOrder = nbo;
+
+	rewind();
+}
+
+TokenBuffer::TokenBuffer()
+{
+#ifdef TB_DEBUG
+	debug = true;
+#endif
+	//std::cerr << "new TokenBuffer() " << this << ": debug=" << debug << std::endl;
+
+	networkByteOrder = false;
+}
+
+TokenBuffer::TokenBuffer(bool nbo)
+{
+#ifdef TB_DEBUG
+	debug = true;
+#endif
+	//std::cerr << "new TokenBuffer() " << this << ": debug=" << debug << std::endl;
+	networkByteOrder = nbo;
+}
+
+TokenBuffer::TokenBuffer(int al, bool nbo)
+{
+#ifdef TB_DEBUG
+	debug = true;
+#endif
+	//std::cerr << "new TokenBuffer(size) " << this << ": debug=" << debug << std::endl;
+
+#ifndef TB_DEBUG_TAG
+	buflen = al + 1;
+	data = DataHandle(new char[al + 1], 0);
+	if (al >= 1)
+	{
+		data.accessData()[0] = debug;
+		currdata = data.accessData() + 1;
+		++length;
+	}
+#else
+	buflen = al;
+	data = DataHandle(new char[al], 0);
+	currdata = data.accessData();
+#endif
+
+	networkByteOrder = nbo;
+}
+
+
+const DataHandle& TokenBuffer::getData()
+{
+	return data;
+}
+
+const char* TokenBuffer::getBinary(int n)
+{
+	checktype(TbBinary);
+	const char* c = currdata;
+	currdata += n;
+	return c;
+}
+
+void TokenBuffer::addBinary(const char* buf, int n)
+{
+	puttype(TbBinary);
+	if (buflen < data.length() + n + 1)
+		incbuf(n + 40);
+	memcpy(currdata, buf, n);
+	currdata += n;
+	data.incLength(n);
+}
+
+const char* TokenBuffer::allocBinary(int n)
+{
+	puttype(TbBinary);
+	if (buflen < data.length() + n + 1)
+		incbuf(n + 40);
+	const char* buf = currdata;
+	currdata += n;
+	data.incLength(n);
+	return buf;
+}
+
+TokenBuffer& TokenBuffer::operator<<(const int i)
+{
+	*this << (uint32_t)i;
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator>>(char*& c)
+{
+	checktype(TbString);
+	char* end = data.accessData() + data.length() - 1;
+	c = currdata;
+	while (*currdata)
+	{
+		currdata++;
+		if (currdata > end)
+		{
+			std::cerr << "TokenBuffer: string not terminated within range" << std::endl;
+			*end = '\0';
+			return (*this);
+		}
+	}
+	currdata++;
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator<<(const char c)
+{
+	puttype(TbChar);
+	if (buflen < data.length() + 2)
+		incbuf();
+	*currdata = c;
+	currdata++;
+	data.incLength(1);
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator>>(unsigned char& c)
+{
+	checktype(TbChar);
+	CHECK(c, *this);
+	c = *(unsigned char*)currdata;
+	currdata++;
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator>>(char& c)
+{
+	checktype(TbChar);
+	CHECK(c, *this);
+	c = *(char*)currdata;
+	currdata++;
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator>>(int& i)
+{
+	uint32_t u32;
+	*this >> u32;
+	i = *reinterpret_cast<int*>(&u32);
+	return *this;
+}
+
+
+TokenBuffer& TokenBuffer::operator<<(const char* c)
+{
+	puttype(TbString);
+	int l = 1;
+	if (c)
+		l = int(strlen(c) + 1);
+	if (buflen < data.length() + l + 1)
+		incbuf(l * 10);
+	strcpy(currdata, c ? c : "");
+	currdata += l;
+	data.incLength(l);
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator=(const TokenBuffer& other)
+{
+	data = other.data;
+	currdata = other.currdata;
+	buflen = other.buflen;
+	networkByteOrder = other.networkByteOrder;
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator>>(bool& b)
+{
+	checktype(TbBool);
+
+	char byte = 0;
+	CHECK(byte, *this);
+	(*this) >> byte;
+	b = byte > 0;
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator<<(const bool b)
+{
+	puttype(TbBool);
+
+	char byte = b ? 1 : 0;
+	return (*this) << byte;
+}
+
+TokenBuffer& TokenBuffer::operator<<(const uint64_t i)
+{
+	puttype(TbInt64);
+
+	if (buflen < data.length() + 9)
+		incbuf();
+	if (networkByteOrder)
+	{
+		*currdata = (i >> 56) & 0xff;
+		currdata++;
+		*currdata = (i >> 48) & 0xff;
+		currdata++;
+		*currdata = (i >> 40) & 0xff;
+		currdata++;
+		*currdata = (i >> 32) & 0xff;
+		currdata++;
+		*currdata = (i >> 24) & 0xff;
+		currdata++;
+		*currdata = (i >> 16) & 0xff;
+		currdata++;
+		*currdata = (i >> 8) & 0xff;
+		currdata++;
+		*currdata = i & 0xff;
+		currdata++;
+	}
+	else
+	{
+		*currdata = i & 0xff;
+		currdata++;
+		*currdata = (i >> 8) & 0xff;
+		currdata++;
+		*currdata = (i >> 16) & 0xff;
+		currdata++;
+		*currdata = (i >> 24) & 0xff;
+		currdata++;
+		*currdata = (i >> 32) & 0xff;
+		currdata++;
+		*currdata = (i >> 40) & 0xff;
+		currdata++;
+		*currdata = (i >> 48) & 0xff;
+		currdata++;
+		*currdata = (i >> 56) & 0xff;
+		currdata++;
+	}
+	data.incLength(8);
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator<<(const uint32_t i)
+{
+	puttype(TbInt32);
+
+	if (networkByteOrder)
+	{
+		if (buflen < data.length() + 5)
+			incbuf();
+		*currdata = (i & 0xff000000) >> 24;
+		currdata++;
+		*currdata = (i & 0x00ff0000) >> 16;
+		currdata++;
+		*currdata = (i & 0x0000ff00) >> 8;
+		currdata++;
+		*currdata = i & 0x000000ff;
+		currdata++;
+	}
+	else
+	{
+		if (buflen < data.length() + 5)
+			incbuf();
+		*currdata = i & 0x000000ff;
+		currdata++;
+		*currdata = (i & 0x0000ff00) >> 8;
+		currdata++;
+		*currdata = (i & 0x00ff0000) >> 16;
+		currdata++;
+		*currdata = (i & 0xff000000) >> 24;
+		currdata++;
+	}
+	data.incLength(4);
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator<<(const std::string& s)
+{
+	puttype(TbString);
+
+	int slen = (int)s.length() + 1;
+	if (buflen < data.length() + slen)
+		incbuf(slen);
+	memcpy(currdata, s.c_str(), slen);
+	currdata += slen;
+	data.incLength(slen);
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator<<(const DataHandle& d)
+{
+	puttype(TbTB);
+	*this << d.length();
+	this->addBinary(d.data(), d.length());
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator>>(DataHandle& d)
+{
+	checktype(TbTB);
+	int l;
+	*this >> l;
+	//d = data;
+	//d.movePtr(currdata - data.data());
+	//d.setLength(l);
+	//this->getBinary(l);
+
+	char* c = new char[l];
+	memcpy(c, this->getBinary(l), l);
+	d = DataHandle(c, l);
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator<<(const TokenBuffer& t)
+{
+	*this << t.data;
+	return *this;
+}
+
+TokenBuffer& TokenBuffer::operator>>(TokenBuffer& tb)
+{
+	*this >> tb.data;
+	tb.rewind();
+	return *this;
+}
+
+void TokenBuffer::puttype(TokenBuffer::Types t)
+{
+#ifdef TB_DEBUG
+	//std::cerr << "TokenBuffer " << this << ", puttype: " << t << ", length=" << length << std::endl;
+	assert(debug);
+
+	if (buflen <= data.length() + 1)
+		incbuf();
+	*currdata = (char)t;
+	++currdata;
+	data.incLength(1);
+	assert(data.end() == currdata);
+#else
+	assert(!debug);
+#endif
+}
+
+bool TokenBuffer::checktype(TokenBuffer::Types t)
+{
+	if (debug)
+	{
+		char tt = 0;
+		CHECK(tt, false);
+		//std::cerr << "TokenBuffer " << this << ", checktype: expecting " << t << ", have " << (int)*currdata << std::endl;
+		assert(data.end() > currdata);
+
+		if (*currdata != t)
+		{
+			std::cerr << "TokenBuffer::checktype: ERROR: expecting " << t << ", have " << (int)*currdata << std::endl;
+			assert(*currdata == t);
+			abort();
+			return false;
+		}
+		++currdata;
+	}
+
+	return true;
 }
 
 void TokenBuffer::incbuf(int size)
 {
-    buflen += size;
-    char *nb = new char[buflen];
-    if (data)
-        memcpy(nb, data, length);
-    delete[] data;
-    data = nb;
-    currdata = data + length;
+	assert((buflen == 0 && !data.data()) || (buflen > 0 && data.data()));
+	assert(!data.data() || data.end() == currdata);
+
+	buflen += size;
+#ifdef TB_DEBUG_TAG
+	if (!data.data())
+		buflen += 1;
+#endif
+	DataHandle nb(buflen);
+	if (data.data())
+	{
+		memcpy(nb.accessData(), data.data(), data.length());
+		nb.setLength(data.length());
+	}
+	else
+	{
+#ifdef TB_DEBUG_TAG
+		nb.accessData()[0] = debug;
+		nb.setLength(1);
+
+#else
+		nb.setLength(0);
+#endif
+	}
+	data = nb;
+	currdata = data.end();
 }
 
-void TokenBuffer::delete_data()
+TokenBuffer::~TokenBuffer()
 {
-    if (buflen)
-        delete[] data;
-    buflen = 0;
-    length = 0;
-    data = NULL;
-    currdata = NULL;
+}
+TokenBuffer& TokenBuffer::operator<<(const double f)
+{
+	puttype(TbDouble);
+
+	const uint64_t* i = (const uint64_t*)(void*)&f;
+
+	if (buflen < data.length() + 8)
+		incbuf();
+
+	if (networkByteOrder)
+	{
+
+		*currdata = char((*i & 0xff00000000000000LL) >> 56);
+		currdata++;
+		*currdata = char((*i & 0x00ff000000000000LL) >> 48);
+		currdata++;
+		*currdata = char((*i & 0x0000ff0000000000LL) >> 40);
+		currdata++;
+		*currdata = char((*i & 0x000000ff00000000LL) >> 32);
+		currdata++;
+		*currdata = char((*i & 0x00000000ff000000LL) >> 24);
+		currdata++;
+		*currdata = char((*i & 0x0000000000ff0000LL) >> 16);
+		currdata++;
+		*currdata = char((*i & 0x000000000000ff00LL) >> 8);
+		currdata++;
+		*currdata = char(*i & 0x00000000000000ffLL);
+		currdata++;
+	}
+	else
+	{
+		*currdata = char(*i & 0x00000000000000ffLL);
+		currdata++;
+		*currdata = char((*i & 0x000000000000ff00LL) >> 8);
+		currdata++;
+		*currdata = char((*i & 0x0000000000ff0000LL) >> 16);
+		currdata++;
+		*currdata = char((*i & 0x00000000ff000000LL) >> 24);
+		currdata++;
+		*currdata = char((*i & 0x000000ff00000000LL) >> 32);
+		currdata++;
+		*currdata = char((*i & 0x0000ff0000000000LL) >> 40);
+		currdata++;
+		*currdata = char((*i & 0x00ff000000000000LL) >> 48);
+		currdata++;
+		*currdata = char((*i & 0xff00000000000000LL) >> 56);
+		currdata++;
+	}
+
+	data.incLength(8);
+	return (*this);
 }
 
-TokenBuffer &TokenBuffer::operator<<(const float f)
+TokenBuffer& TokenBuffer::operator>>(double& f)
 {
-    uint32_t *i = (uint32_t *)&f;
-    if (buflen < length + 4)
-        incbuf();
-    *currdata = *i & 0x000000ff;
-    currdata++;
-    *currdata = (*i & 0x0000ff00) >> 8;
-    currdata++;
-    *currdata = (*i & 0x00ff0000) >> 16;
-    currdata++;
-    *currdata = (*i & 0xff000000) >> 24;
-    currdata++;
+	checktype(TbDouble);
 
-    length += 4;
-    return (*this);
+	f = 0.;
+	CHECK(f, *this);
+
+	uint64_t* i = (uint64_t*)(void*)&f;
+	if (networkByteOrder)
+	{
+		*i = ((uint64_t)(*(unsigned char*)currdata)) << 56;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 48;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 40;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 32;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 24;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 16;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 8;
+		currdata++;
+		*i |= *(unsigned char*)currdata;
+		currdata++;
+	}
+	else
+	{
+		*i = *(unsigned char*)currdata;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 8;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 16;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 24;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 32;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 40;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 48;
+		currdata++;
+		*i |= ((uint64_t)(*(unsigned char*)currdata)) << 56;
+		currdata++;
+	}
+	return (*this);
 }
 
-TokenBuffer &TokenBuffer::operator>>(float &f)
+TokenBuffer& TokenBuffer::operator<<(const float f)
 {
+	puttype(TbFloat);
 
-    uint32_t i;
-    i = *(unsigned char *)currdata;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 8;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 16;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 24;
-    currdata++;
-    f = *((float *)&i);
-    length += 4;
-    return (*this);
+	const uint32_t* i = (const uint32_t*)(void*)&f;
+	if (buflen < data.length() + 4)
+		incbuf();
+	if (networkByteOrder)
+	{
+		if (buflen < data.length() + 5)
+			incbuf();
+		*currdata = (*i & 0xff000000) >> 24;
+		currdata++;
+		*currdata = (*i & 0x00ff0000) >> 16;
+		currdata++;
+		*currdata = (*i & 0x0000ff00) >> 8;
+		currdata++;
+		*currdata = *i & 0x000000ff;
+		currdata++;
+	}
+	else
+	{
+		if (buflen < data.length() + 5)
+			incbuf();
+		*currdata = *i & 0x000000ff;
+		currdata++;
+		*currdata = (*i & 0x0000ff00) >> 8;
+		currdata++;
+		*currdata = (*i & 0x00ff0000) >> 16;
+		currdata++;
+		*currdata = (*i & 0xff000000) >> 24;
+		currdata++;
+	}
+
+	data.incLength(4);
+	return (*this);
+}
+
+TokenBuffer& TokenBuffer::operator>>(float& f)
+{
+	checktype(TbFloat);
+
+	f = 0.f;
+	CHECK(f, *this);
+
+	uint32_t* i = (uint32_t*)(void*)&f;
+	if (networkByteOrder)
+	{
+		*i = (*(unsigned char*)currdata) << 24;
+		currdata++;
+		*i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		*i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		*i |= *(unsigned char*)currdata;
+		currdata++;
+	}
+	else
+	{
+		*i = *(unsigned char*)currdata;
+		currdata++;
+		*i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		*i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		*i |= (*(unsigned char*)currdata) << 24;
+		currdata++;
+	}
+	return (*this);
 }
 
 float TokenBuffer::get_float_token()
 {
+	checktype(TbFloat);
+	CHECK(float, 0.f);
 
-    uint32_t i;
-    i = *(unsigned char *)currdata;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 8;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 16;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 24;
-    currdata++;
+	uint32_t i;
+	if (networkByteOrder)
+	{
+		i = (*(unsigned char*)currdata) << 24;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		i |= *(unsigned char*)currdata;
+		currdata++;
+	}
+	else
+	{
+		i = *(unsigned char*)currdata;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 24;
+		currdata++;
+	}
+	return (*((float*)(void*)&i));
+}
 
-    length += 4;
-    return (*((float *)&i));
+char* TokenBuffer::get_charp_token()
+{
+	checktype(TbString);
+	char* ret = currdata;
+	while (*currdata)
+		currdata++;
+	currdata++;
+	return (ret);
 }
 
 uint32_t TokenBuffer::get_int_token()
 {
+	checktype(TbInt32);
+	CHECK(uint32_t, 0);
 
-    uint32_t i;
-    i = *(unsigned char *)currdata;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 8;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 16;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 24;
-    currdata++;
-
-    length += 4;
-    return (i);
+	uint32_t i;
+	if (networkByteOrder)
+	{
+		i = (*(unsigned char*)currdata) << 24;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		i |= *(unsigned char*)currdata;
+		currdata++;
+	}
+	else
+	{
+		i = *(unsigned char*)currdata;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 24;
+		currdata++;
+	}
+	return (i);
 }
 
-TokenBuffer &TokenBuffer::operator>>(uint32_t &i)
+char TokenBuffer::get_char_token()
 {
-
-    i = *(unsigned char *)currdata;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 8;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 16;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 24;
-    currdata++;
-
-    length += 4;
-    return (*this);
+	checktype(TbChar);
+	char ret = *(char*)currdata;
+	currdata++;
+	return (ret);
 }
 
-TokenBuffer &TokenBuffer::operator>>(uint64_t &i)
+TokenBuffer& TokenBuffer::operator>>(uint32_t& i)
 {
+	checktype(TbInt32);
+	i = 0;
+	CHECK(i, *this);
 
-    i = *(unsigned char *)currdata;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 8;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 16;
-    currdata++;
-    i |= (*(unsigned char *)currdata) << 24;
-    currdata++;
-    i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
-    currdata++;
-    i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
-    currdata++;
-    i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
-    currdata++;
-    i |= ((uint64_t)(*(unsigned char *)currdata)) << 56;
-    currdata++;
-
-    length += 8;
-
-    return (*this);
+	if (networkByteOrder)
+	{
+		i = (*(unsigned char*)currdata) << 24;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		i |= *(unsigned char*)currdata;
+		currdata++;
+	}
+	else
+	{
+		i = *(unsigned char*)currdata;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 8;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 16;
+		currdata++;
+		i |= (*(unsigned char*)currdata) << 24;
+		currdata++;
+	}
+	return (*this);
 }
 
-char *Message::get_part(char *chdata)
+TokenBuffer& TokenBuffer::operator>>(uint64_t& i)
 {
-    static char *data_ptr = 0L;
-    char *part, *part_ptr;
-    int i;
+	checktype(TbInt64);
+	i = 0;
+	CHECK(i, *this);
+	if (networkByteOrder)
+	{
+		i = ((uint64_t)(*(unsigned char*)currdata)) << 56;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 48;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 40;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 32;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 24;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 16;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 8;
+		currdata++;
+		i |= *(unsigned char*)currdata;
+		currdata++;
+	}
+	else
+	{
+		i = *(unsigned char*)currdata;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 8;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 16;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 24;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 32;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 40;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 48;
+		currdata++;
+		i |= ((uint64_t)(*(unsigned char*)currdata)) << 56;
+		currdata++;
+	}
 
-    if (chdata)
-        data_ptr = chdata;
-    if (data_ptr == 0L)
-    {
-        //print_comment(__LINE__, __FILE__, "no data to get part of");
-        return 0L;
-    }
-    for (i = 0; data_ptr[i] != '\n'; i++)
-        ;
-    part_ptr = part = new char[i + 1];
-    while ((*part_ptr++ = *data_ptr++) != '\n')
-        ;
-    *(part_ptr - 1) = '\0';
-    return part;
+	data.incLength(8);
+
+	return (*this);
 }
 
+TokenBuffer& TokenBuffer::operator>>(std::string& s)
+{
+	checktype(TbString);
+	char* end = data.end() - 1;
+	const char* c = currdata;
+	while (*currdata)
+	{
+		currdata++;
+		if (currdata > end)
+		{
+			std::cerr << "TokenBuffer: string not terminated within range" << std::endl;
+			s = c;
+			*end = '\0';
+			return (*this);
+		}
+	}
+	currdata++;
+	s = c;
+	return (*this);
+}
+
+void TokenBuffer::rewind()
+{
+	currdata = data.accessData();
+	if (currdata)
+	{
+#ifdef TB_DEBUG_TAG
+		debug = *currdata;
+		++currdata;
+#endif
+	}
+
+	//std::cerr << "rewind TokenBuffer " << this << ": debug=" << debug << std::endl;
+}
+
+void TokenBuffer::reset()
+{
+	data = DataHandle();
+	currdata = data.accessData();
+	buflen = 0;
+#ifdef TB_DEBUG
+	debug = true;
+#else
+	debug = false;
+#endif
+	assert(!data.data() || data.end() == currdata);
+
+	//std::cerr << "reset TokenBuffer " << this << ": debug=" << debug << std::endl;
+}
+/*
 ShmMessage::ShmMessage(data_type *d, long *count, int no)
     : Message()
 {
@@ -1934,49 +2747,4 @@ RenderMessage::~RenderMessage()
     }
     delete[] object_names;
 }
-
-Message::Message(const Message &src)
-{
-    //    printf("+ in message no. %d for %x, line %d\n", new_count++, this, __LINE__);
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    sender = src.sender;
-    send_type = src.send_type;
-    type = src.type;
-    length = src.length;
-    data = new char[length];
-    memcpy(data, src.data, length);
-    conn = src.conn;
-    print();
-}
-
-Message &Message::operator=(const Message &src)
-{
-    //    printf("+ in message no. %d for %x, line %d\n", new_count++, this, __LINE__);
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-
-    // Check against self-assignment
-    if (&src != this)
-    {
-        // always cope these
-        sender = src.sender;
-        send_type = src.send_type;
-        type = src.type;
-        length = src.length;
-        conn = src.conn;
-
-        // copy data (if existent)
-        delete[] data;
-        data = new char[length];
-        if (length && src.data)
-            memcpy(data, src.data, length);
-    }
-    print();
-    return *this;
-}
-
-char *Message::extract_data()
-{
-    char *tmpdata = data;
-    data = 0L;
-    return tmpdata;
-}
+*/
