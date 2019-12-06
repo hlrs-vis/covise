@@ -22,7 +22,6 @@
  */
 
 #include <util/coTypes.h>
-#include <util/coDLList.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <queue>
@@ -1711,8 +1710,7 @@ signals:
 protected:
     std::string text;
     int selection;
-    covise::coDLList<std::string> elements;
-    covise::coDLListIter<std::string> iter;
+	std::list<std::string> elements;
 };
 /**
  * a listBox.
@@ -1745,8 +1743,7 @@ signals:
 protected:
     std::string text;
     int selection;
-    covise::coDLList<std::string> elements;
-    covise::coDLListIter<std::string> iter;
+	std::list<std::string> elements;
 };
 class COVEREXPORT MapData
 {
@@ -1776,8 +1773,7 @@ public:
     int mapNum;
 
 protected:
-    covise::coDLList<MapData *> maps;
-    covise::coDLListIter<MapData *> iter;
+	std::list<MapData *> maps;
 };
 /**
 * an earth Map Widget

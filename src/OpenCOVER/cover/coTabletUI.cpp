@@ -3208,22 +3208,18 @@ coTUIComboBox::~coTUIComboBox()
 
 void coTUIComboBox::parseMessage(TokenBuffer &tb)
 {
-    char *m;
-    tb >> m;
-    text = m;
-    iter = elements.first();
+    tb >> text;
     int i = 0;
     selection = -1;
-    while (iter)
-    {
-        if (*iter == text)
-        {
-            selection = i;
-            break;
-        }
-        iter++;
-        i++;
-    }
+	for (const auto& it : elements)
+	{
+		if (it == text)
+		{
+			selection = i;
+			break;
+		}
+		i++;
+	}
     emit tabletEvent();
     if (listener)
         listener->tabletEvent(this);
@@ -3231,7 +3227,7 @@ void coTUIComboBox::parseMessage(TokenBuffer &tb)
 
 void coTUIComboBox::addEntry(const std::string &t)
 {
-    elements.append(t);
+	elements.push_back(t);
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_ADD_ENTRY;
@@ -3248,21 +3244,19 @@ void coTUIComboBox::delEntry(const std::string &t)
     tb << ID;
     tb << t.c_str();
     tui()->send(tb);
-    iter = elements.first();
-    while (iter)
-    {
-        if (*iter == t)
-        {
-            iter.remove();
-            break;
-        }
-        iter++;
-    }
+	for (const auto& it : elements)
+	{
+		if (it == t)
+		{
+			elements.remove(it);
+			break;
+		}
+	}
 }
 
 int coTUIComboBox::getNumEntries()
 {
-    return elements.num();
+    return elements.size();
 }
 
 void coTUIComboBox::clear()
@@ -3272,7 +3266,7 @@ void coTUIComboBox::clear()
     tb << TABLET_REMOVE_ALL;
     tb << ID;
     tui()->send(tb);
-    elements.clean();
+    elements.clear();
 }
 
 void coTUIComboBox::setSelectedText(const std::string &t)
@@ -3284,18 +3278,17 @@ void coTUIComboBox::setSelectedText(const std::string &t)
     tb << ID;
     tb << text.c_str();
     tui()->send(tb);
-    int i = 0;
-    iter = elements.first();
-    while (iter)
-    {
-        if (*iter == text)
-        {
-            selection = i;
-            break;
-        }
-        iter++;
-        i++;
-    }
+	int i = 0;
+	selection = -1;
+	for (const auto& it : elements)
+	{
+		if (it == text)
+		{
+			selection = i;
+			break;
+		}
+		i++;
+	}
 }
 
 const std::string &coTUIComboBox::getSelectedText() const
@@ -3311,11 +3304,21 @@ int coTUIComboBox::getSelectedEntry() const
 void coTUIComboBox::setSelectedEntry(int e)
 {
     selection = e;
-    if (e >= elements.num())
-        selection = elements.num() - 1;
+    if (e >= elements.size())
+        selection = elements.size() - 1;
     if (selection < 0)
         return;
-    std::string selectedEntry = elements.item(selection);
+	std::string selectedEntry;
+	int i = 0;
+	for (const auto& it : elements)
+	{
+		if (i == selection)
+		{
+			selectedEntry = it;
+			break;
+		}
+		i++;
+	}
     text = selectedEntry;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -3334,18 +3337,16 @@ void coTUIComboBox::resend(bool create)
         tb << TABLET_REMOVE_ALL;
         tb << ID;
         tui()->send(tb);
-        iter = elements.first();
     }
-    while (iter)
-    {
-        TokenBuffer tb;
-        tb << TABLET_SET_VALUE;
-        tb << TABLET_ADD_ENTRY;
-        tb << ID;
-        tb << (*iter).c_str();
-        tui()->send(tb);
-        iter++;
-    }
+	for (const auto& it : elements)
+	{
+		TokenBuffer tb;
+		tb << TABLET_SET_VALUE;
+		tb << TABLET_ADD_ENTRY;
+		tb << ID;
+		tb << it;
+		tui()->send(tb);
+	}
     if (text != "")
     {
         TokenBuffer tb;
@@ -3380,22 +3381,17 @@ coTUIListBox::~coTUIListBox()
 
 void coTUIListBox::parseMessage(TokenBuffer &tb)
 {
-    char *m;
-    tb >> m;
-    text = m;
-    iter = elements.first();
-    int i = 0;
-    selection = -1;
-    while (iter)
-    {
-        if (*iter == text)
-        {
-            selection = i;
-            break;
-        }
-        iter++;
-        i++;
-    }
+	tb >> text;
+	int i = 0;
+	for (const auto& it : elements)
+	{
+		if (it == text)
+		{
+			selection = i;
+			break;
+		}
+		i++;
+	}
     emit tabletEvent();
     if (listener)
         listener->tabletEvent(this);
@@ -3403,7 +3399,7 @@ void coTUIListBox::parseMessage(TokenBuffer &tb)
 
 void coTUIListBox::addEntry(const std::string &t)
 {
-    elements.append(t);
+    elements.push_back(t);
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_ADD_ENTRY;
@@ -3420,16 +3416,14 @@ void coTUIListBox::delEntry(const std::string &t)
     tb << ID;
     tb << t.c_str();
     tui()->send(tb);
-    iter = elements.first();
-    while (iter)
-    {
-        if (*iter == text)
-        {
-            iter.remove();
-            break;
-        }
-        iter++;
-    }
+	for (const auto& it : elements)
+	{
+		if (it == t)
+		{
+			elements.remove(it);
+			break;
+		}
+	}
 }
 
 void coTUIListBox::setSelectedText(const std::string &t)
@@ -3441,18 +3435,16 @@ void coTUIListBox::setSelectedText(const std::string &t)
     tb << ID;
     tb << text.c_str();
     tui()->send(tb);
-    int i = 0;
-    iter = elements.first();
-    while (iter)
-    {
-        if (*iter == text)
-        {
-            selection = i;
-            break;
-        }
-        iter++;
-        i++;
-    }
+	int i = 0;
+	for (const auto& it : elements)
+	{
+		if (it == text)
+		{
+			selection = i;
+			break;
+		}
+		i++;
+	}
 }
 
 const std::string &coTUIListBox::getSelectedText() const
@@ -3468,11 +3460,21 @@ int coTUIListBox::getSelectedEntry() const
 void coTUIListBox::setSelectedEntry(int e)
 {
     selection = e;
-    if (e >= elements.num())
-        selection = elements.num() - 1;
+    if (e >= elements.size())
+        selection = elements.size() - 1;
     if (selection < 0)
         return;
-    text = elements.item(selection);
+	std::string selectedEntry;
+	int i = 0;
+	for (const auto& it : elements)
+	{
+		if (i == selection)
+		{
+			selectedEntry = it;
+			break;
+		}
+		i++;
+	}
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_SELECT_ENTRY;
@@ -3485,24 +3487,22 @@ void coTUIListBox::resend(bool create)
 {
     coTUIElement::resend(create);
 
-    iter = elements.first();
-    while (iter)
-    {
-        TokenBuffer tb;
-        tb << TABLET_SET_VALUE;
-        tb << TABLET_ADD_ENTRY;
-        tb << ID;
-        tb << (*iter).c_str();
-        tui()->send(tb);
-        iter++;
-    }
+	for (const auto& it : elements)
+	{
+		TokenBuffer tb;
+		tb << TABLET_SET_VALUE;
+		tb << TABLET_ADD_ENTRY;
+		tb << ID;
+		tb << it;
+		tui()->send(tb);
+	}
     if (text != "")
     {
         TokenBuffer tb;
         tb << TABLET_SET_VALUE;
         tb << TABLET_SELECT_ENTRY;
         tb << ID;
-        tb << text.c_str();
+        tb << text;
         tui()->send(tb);
     }
 }
@@ -3533,12 +3533,11 @@ coTUIMap::coTUIMap(const char *n, int pID)
 
 coTUIMap::~coTUIMap()
 {
-    iter = maps.first();
-    while (iter)
-    {
-        delete[] * iter;
-        iter++;
-    }
+	for (const auto& it : maps)
+	{
+		delete[] it;
+	}
+	maps.clear();
 }
 
 void coTUIMap::parseMessage(TokenBuffer &tb)
@@ -3555,7 +3554,7 @@ void coTUIMap::parseMessage(TokenBuffer &tb)
 void coTUIMap::addMap(const char *name, float ox, float oy, float xSize, float ySize, float height)
 {
     MapData *md = new MapData(name, ox, oy, xSize, ySize, height);
-    maps.append(md);
+	maps.push_back(md);
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_ADD_MAP;
@@ -3573,21 +3572,20 @@ void coTUIMap::resend(bool create)
 {
     coTUIElement::resend(create);
 
-    iter = maps.first();
-    while (iter)
-    {
+
+	for (const auto& it : maps)
+	{
         TokenBuffer tb;
         tb << TABLET_SET_VALUE;
         tb << TABLET_ADD_MAP;
         tb << ID;
-        tb << iter->name;
-        tb << iter->ox;
-        tb << iter->oy;
-        tb << iter->xSize;
-        tb << iter->ySize;
-        tb << iter->height;
+        tb << it->name;
+        tb << it->ox;
+        tb << it->oy;
+        tb << it->xSize;
+        tb << it->ySize;
+        tb << it->height;
         tui()->send(tb);
-        iter++;
     }
 }
 
