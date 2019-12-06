@@ -820,8 +820,15 @@ void ServerConnection::get_dataformat()
         return;
     }
     int retries = 60;
-    while (retries > 0 && sock->read(&dataformat, 1) < 1)
+	int ret = 0;
+    while (retries > 0 && (ret = sock->read(&dataformat, 1)) < 1)
     {
+		if (ret < 0)
+		{
+			// socket closed, no need to wait
+			LOGERROR("socket closed in get_dataformat\n");
+			return;
+		}
         retries--;
         if (retries < 50)
             sleep(1);

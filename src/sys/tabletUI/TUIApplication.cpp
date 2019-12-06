@@ -394,18 +394,22 @@ void TUIMainWindow::processMessages()
 
                 std::cerr << "SGBrowser port: " << port << std::endl;
 
-                if (sgConn->acceptOne(60) < 0)
+                if (sgConn->acceptOne(5) < 0)
                 {
-                    fprintf(stderr, "Could not open server port %d\n", port);
+                    fprintf(stderr, "Could not accept connection to sg port in time %d\n", port);
                     delete sgConn;
-                    sgConn = NULL;
+                    sgConn = nullptr;
+					delete clientConn;
+					clientConn = nullptr;
                     return;
                 }
                 if (!sgConn->getSocket())
                 {
-                    fprintf(stderr, "Could not open server port %d\n", port);
+					fprintf(stderr, "sg connection closed during connection %d\n", port);
                     delete sgConn;
-                    sgConn = NULL;
+                    sgConn = nullptr;
+					delete clientConn;
+					clientConn = nullptr;
                     return;
                 }
 
@@ -418,6 +422,8 @@ void TUIMainWindow::processMessages()
                     fprintf(stderr, "Could not open server port %d\n", port);
                     delete sgConn;
                     sgConn = NULL;
+					delete clientConn;
+					clientConn = nullptr;
                     return;
                 }
 
