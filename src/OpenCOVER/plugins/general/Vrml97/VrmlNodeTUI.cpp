@@ -36,7 +36,7 @@
 using std::cerr;
 using std::endl;
 
-covise::coDLPtrList<coTUIElement *> VrmlTUIElements;
+std::list<coTUIElement *> VrmlTUIElements;
 list<coTUITab *> VrmlNodeTUITab::VrmlTUITabs;
 list<coTUITabFolder *> VrmlNodeTUITabFolder::VrmlTUITabFolders;
 list<coTUIFrame *> VrmlNodeTUIFrame::VrmlTUIFrames;
@@ -82,8 +82,7 @@ VrmlNodeTUIElement::VrmlNodeTUIElement(VrmlScene *scene)
 
 VrmlNodeTUIElement::~VrmlNodeTUIElement()
 {
-    if (VrmlTUIElements.find(d_TUIElement))
-        VrmlTUIElements.remove();
+	VrmlTUIElements.remove(d_TUIElement);
     delete d_TUIElement;
 }
 
@@ -193,15 +192,12 @@ const VrmlField *VrmlNodeTUIElement::getField(const char *fieldName) const
 
 int VrmlNodeTUIElement::getID(const char *name)
 {
-    covise::coDLListIter<coTUIElement *> iter;
-    iter = VrmlTUIElements.first();
-    while (iter)
+	for(const auto &it: VrmlTUIElements)
     {
-        if (iter->getName() == name)
+        if (it->getName() == name)
         {
-            return iter->getID();
+            return it->getID();
         }
-        iter++;
     }
     return coVRTui::instance()->mainFolder->getID();
 }
@@ -285,8 +281,7 @@ void VrmlNodeTUITab::render(Viewer *viewer)
                     VrmlTUITabs.insert(++tuiListIter, d_TUITab);
                 d_TUIElement = (coTUIElement *)d_TUITab;
                 d_TUIElement->setEventListener(this);
-                VrmlTUIElements.append(d_TUIElement);
-                VrmlTUIElements.setNoDelete();
+                VrmlTUIElements.push_back(d_TUIElement);
                 d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             }
 
@@ -373,8 +368,7 @@ void VrmlNodeTUIProgressBar::render(Viewer *viewer)
         {
             d_TUIElement = (coTUIElement *)new coTUIProgressBar(d_elementName.get(), getID(d_parent.get()));
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             coTUIProgressBar *pb = (coTUIProgressBar *)d_TUIElement;
             pb->setMax(d_max.get());
@@ -475,8 +469,7 @@ void VrmlNodeTUITabFolder::render(Viewer *viewer)
                 d_TUIElement = (coTUIElement *)d_TUITabFolder;
 
                 d_TUIElement->setEventListener(this);
-                VrmlTUIElements.append(d_TUIElement);
-                VrmlTUIElements.setNoDelete();
+                VrmlTUIElements.push_back(d_TUIElement);
             }
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             VrmlNodeTUIElement::render(viewer);
@@ -566,8 +559,7 @@ void VrmlNodeTUIButton::render(Viewer *viewer)
         {
             d_TUIElement = (coTUIElement *)new coTUIButton(d_elementName.get(), getID(d_parent.get()));
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
         VrmlNodeTUIElement::render(viewer);
@@ -700,8 +692,7 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
         {
             d_TUIElement = (coTUIElement *)new coTUIToggleButton(d_elementName.get(), getID(d_parent.get()));
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
         d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
 		if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
 		{
@@ -810,8 +801,7 @@ void VrmlNodeTUIFrame::render(Viewer *viewer)
                 else
                     VrmlTUIFrames.insert(++tuiListIter, coFrame);
                 d_TUIElement = (coTUIElement *)coFrame;
-                VrmlTUIElements.append(d_TUIElement);
-                VrmlTUIElements.setNoDelete();
+                VrmlTUIElements.push_back(d_TUIElement);
                 d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             }
             VrmlNodeTUIElement::render(viewer);
@@ -902,8 +892,7 @@ void VrmlNodeTUISplitter::render(Viewer *viewer)
             coSplit->setStyle(d_style.get());
             coSplit->setOrientation(d_orientation.get());
             d_TUIElement = (coTUIElement *)coSplit;
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
         VrmlNodeTUIElement::render(viewer);
@@ -987,8 +976,7 @@ void VrmlNodeTUILabel::render(Viewer *viewer)
         if (d_TUIElement == NULL)
         {
             d_TUIElement = (coTUIElement *)new coTUILabel(d_elementName.get(), getID(d_parent.get()));
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
         VrmlNodeTUIElement::render(viewer);
@@ -1086,8 +1074,7 @@ void VrmlNodeTUIFloatSlider::render(Viewer *viewer)
             d_TUIElement = (coTUIElement *)fs;
 
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             fs = (coTUIFloatSlider *)d_TUIElement;
             fs->setMin(d_min.get());
             fs->setMax(d_max.get());
@@ -1320,8 +1307,7 @@ void VrmlNodeTUISlider::render(Viewer *viewer)
         {
             d_TUIElement = (coTUIElement *)new coTUISlider(d_elementName.get(), getID(d_parent.get()));
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             coTUISlider *ts = (coTUISlider *)d_TUIElement;
             ts->setMin(d_min.get());
             ts->setMax(d_max.get());
@@ -1504,8 +1490,7 @@ void VrmlNodeTUIComboBox::render(Viewer *viewer)
                 cb->setSelectedEntry(d_defaultChoice.get());
             d_TUIElement = (coTUIElement *)cb;
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
 
 			if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
@@ -1656,8 +1641,7 @@ void VrmlNodeTUIListBox::render(Viewer *viewer)
                 cb->setSelectedEntry(d_defaultChoice.get());
             d_TUIElement = (coTUIElement *)cb;
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
 			if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
 			{
@@ -1794,8 +1778,7 @@ void VrmlNodeTUIMap::render(Viewer *viewer)
                 cb->addMap(d_maps.get(i), d_ox[i], d_oy[i], d_xSize[i], d_ySize[i], d_height[i]);
             d_TUIElement = (coTUIElement *)cb;
             d_TUIElement->setEventListener(this);
-            VrmlTUIElements.append(d_TUIElement);
-            VrmlTUIElements.setNoDelete();
+            VrmlTUIElements.push_back(d_TUIElement);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
         VrmlNodeTUIElement::render(viewer);

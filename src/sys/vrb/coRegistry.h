@@ -10,7 +10,6 @@
 #ifndef regVar_H
 #define regVar_H
 #include <net/tokenbuffer.h>
-#include <util/coDLList.h>
 #include <net/covise_connect.h>
 
 class netModule;

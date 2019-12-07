@@ -8,7 +8,6 @@
 #ifndef YAC
 #include "covise/covise.h"
 #endif
-#include <util/coDLList.h>
 
 namespace covise
 {
@@ -35,7 +34,7 @@ public:
 private:
 };
 
-class VRBPClientList : public covise::coDLList<VRBPClient *>
+class VRBPClientList : public std::list<VRBPClient *>
 {
 
 public:
@@ -45,7 +44,6 @@ public:
 };
 
 extern VRBPClientList clients;
-covise::coDLListIter<VRBPClient *> iter;
 
 class VRBProxy
 {

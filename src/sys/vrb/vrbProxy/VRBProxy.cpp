@@ -115,7 +115,7 @@ void VRBProxy::handleMessages()
                     cerr << "new Connection" << endl;
                 setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-                clients.append(new VRBPClient(clientConn, this));
+                clients.push_back(new VRBPClient(clientConn, this));
             }
             else
             {
@@ -145,7 +145,7 @@ void VRBPClientList::sendMessage(Message *msg)
     {
         if ((msg->type == Message::SOCKET_CLOSED) || (msg->type == Message::CLOSE_SOCKET))
         {
-            findElem(cl).remove();
+			remove(cl);
             delete cl;
         }
         else
@@ -155,23 +155,16 @@ void VRBPClientList::sendMessage(Message *msg)
 
 void VRBPClientList::deleteAll()
 {
-    iter = first();
-    while (iter)
-    {
-        iter.remove();
-    }
+	clear();
 }
 
 VRBPClient *VRBPClientList::get(Connection *c)
 {
-    iter = first();
-    while (iter)
-    {
-
-        if (((*iter)->toClient == c) || ((*iter)->toVRB == c))
-            return (*iter);
-        iter++;
-    }
+	for (const auto &it : *this)
+	{
+		if ((it->toClient == c) || (it->toVRB == c))
+			return it;
+	}
     return NULL;
 }
 
