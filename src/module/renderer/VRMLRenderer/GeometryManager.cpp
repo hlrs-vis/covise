@@ -452,7 +452,7 @@ void GeometryManager::addPolygon(const char *object, const char *rootName, int n
     lob->set_timestep(object);
     lob->set_rootname((char *)rootName);
     lob->set_objPtr((void *)newbuf);
-    objlist->append(lob);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
 }
 
 //----------------------------------------------------------------
@@ -608,7 +608,7 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
     lob->set_boundingbox(bbox);
     lob->set_timestep(object);
 
-    objlist->append(lob);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
 }
 
 //----------------------------------------------------------------
@@ -747,7 +747,7 @@ void GeometryManager::addLine(const char *object, const char *rootName, int no_o
     LObject *lob = new LObject(object, rootName, newbuf);
     lob->set_boundingbox(bbox);
     lob->set_timestep(object);
-    objlist->append(lob);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
 }
 
 //----------------------------------------------------------------
@@ -853,7 +853,7 @@ void GeometryManager::addPoint(const char *object, const char *rootName, int no_
     lob->set_boundingbox(bbox);
     lob->set_timestep(object);
 
-    objlist->append(lob);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
 }
 
 //----------------------------------------------------------------
@@ -936,7 +936,7 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
     lob->set_boundingbox(bbox);
     lob->set_timestep(object);
 
-    objlist->append(lob);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
 }
 
 //----------------------------------------------------------------

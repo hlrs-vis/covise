@@ -426,7 +426,7 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
                 lob->m_is_timestep = 1;
                 lob->set_minmax(0, no_elems - 1);
                 lob->set_real_root(root);
-                objlist->append(lob);
+                objlist->push_back(std::unique_ptr<LObject>(lob));
                 objlist->incr_no_sw();
             }
             else
@@ -435,7 +435,7 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
                 lob->set_minmax(0, no_elems - 1);
                 lob->set_real_root(root);
                 lob->set_timestep(object);
-                objlist->append(lob);
+                objlist->push_back(std::unique_ptr<LObject>(lob));
             }
             for (i = 0; i < no_elems; i++)
             {
@@ -469,7 +469,7 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
                 }
             }
             LObject *lob = new LObject("Endset", object, (CharBuffer *)NULL);
-            objlist->append(lob);
+            objlist->push_back(std::unique_ptr<LObject>(lob));
         }
         else
         {

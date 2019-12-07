@@ -21,7 +21,7 @@
  \date
  */
 
-#include <util/DLinkList.h>
+#include <list>
 #include <util/coExport.h>
 
 #include <cstring>
@@ -46,7 +46,7 @@ private:
     void sendFeedback(const char *info, const char *key, const char *data = NULL);
 };
 
-class coInteractorList : public covise::DLinkList<coInteractor *>
+class coInteractorList : public std::list<coInteractor *>
 {
 public:
     coInteractorList();

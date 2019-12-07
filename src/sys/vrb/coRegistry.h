@@ -11,6 +11,7 @@
 #define regVar_H
 #include <net/tokenbuffer.h>
 #include <net/covise_connect.h>
+#include <list>
 
 class netModule;
 class coCharBuffer;
@@ -166,7 +167,7 @@ private:
     covise::TokenBuffer tb;
 	int type; //0 for undefined, 1 for char, 2 for tokenbuffer
 };
-class regClass : public covise::coDLPtrList<regVar *>
+class regClass : public std::list<regVar *>
 {
 private:
     char *name;
@@ -214,7 +215,7 @@ public:
  * @author Uwe Woessner
  * @version 1.0
  */
-class coRegistry : public covise::coDLPtrList<regClass *>
+class coRegistry : public std::list<regClass *>
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables

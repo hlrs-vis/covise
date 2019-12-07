@@ -20,7 +20,7 @@ using namespace opencover;
 coCoviseInteractor::coCoviseInteractor(const char *n, RenderObject *o, const char *attrib)
     : coBaseCoviseInteractor(n, o, attrib)
 {
-    interactorList.append(this);
+    interactorList.push_back(this);
 }
 
 coCoviseInteractor::~coCoviseInteractor()
@@ -55,23 +55,20 @@ void coCoviseInteractor::sendFeedbackMessage(int len, const char *data)
 
 coInteractorList::coInteractorList()
 {
-    noDelete = 1;
 }
 
 void coInteractorList::removeInteractor(coInteractor *i)
 {
-    if (find(i))
-        this->remove();
+    remove(i);
 }
 
 coInteractor *coInteractorList::findSame(coInteractor *inter)
 {
-    reset();
-    while (current())
+    for(const auto &it: *this)
     {
-        if (current()->isSameModule(inter))
+        if (it->isSameModule(inter))
         {
-            return current();
+            return it;
         }
     }
     return 0;
@@ -79,14 +76,7 @@ coInteractor *coInteractorList::findSame(coInteractor *inter)
 
 void coInteractorList::removedObject(const char *objName)
 {
-    reset();
-    while (current())
-    {
-        if (strcmp(current()->getObjName(), objName) == 0)
-        {
-            current()->removedObject();
-        }
-    }
+    remove_if([objName](coInteractor* it) { return (strcmp(it->getObjName(), objName) == 0); });
 }
 
 coInteractorList opencover::interactorList;

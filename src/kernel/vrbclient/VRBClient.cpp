@@ -184,11 +184,11 @@ int VRBClient::wait(Message *m)
 #endif
     if (isSlave)
         return 0;
-    if (messageQueue.num())
+    if (messageQueue.size())
     {
-        messageQueue.reset();
-        m = messageQueue.current();
-        messageQueue.remove();
+        *m = *(messageQueue.front()); // copy message
+        messageQueue.remove(messageQueue.front());
+        delete m;
         return 1;
     }
 
@@ -216,7 +216,7 @@ int VRBClient::wait(Message *m, int messageType)
         else
         {
             Message *msg = new Message(*m);
-            messageQueue.append(msg);
+            messageQueue.push_back(msg);
         }
         if(udpConn)
         {
@@ -228,7 +228,7 @@ int VRBClient::wait(Message *m, int messageType)
 		else
 		{
 			Message* msg = new Message(*m);
-			messageQueue.append(msg);
+			messageQueue.push_back(msg);
 		}
         }
 

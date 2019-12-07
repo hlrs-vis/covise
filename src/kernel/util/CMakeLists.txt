@@ -59,7 +59,6 @@ SET(UTIL_HEADERS
   coLog.h
   ChoiceList.h
   byteswap.h
-  coDLList.h
   coErr.h
   coExport.h
   coFileUtil.h

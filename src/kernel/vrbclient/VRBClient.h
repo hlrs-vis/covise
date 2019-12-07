@@ -13,7 +13,7 @@
 #endif
 #include <mutex>
 #include <string>
-#include <util/DLinkList.h>
+#include <list>
 #include <util/coTypes.h>
 
 
@@ -62,7 +62,7 @@ public:
 
     int getID();
     void setID(int ID);
-    DLinkList<Message *> messageQueue;
+    std::list<Message *> messageQueue;
     float getSendDelay();
 
 private:

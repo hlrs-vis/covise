@@ -21,7 +21,7 @@
  \date   28.09.1998
  */
 
-#include <util/DLinkList.h>
+#include <list>
 
 #include <osg/Node>
 
@@ -82,7 +82,7 @@ private:
     vrui::coTexturedBackground *imageBackground;
 };
 
-class coVRMenuList : public covise::DLinkList<coVRMenuImage *>, public vrui::coMenuListener
+class coVRMenuList : public std::list<std::unique_ptr<coVRMenuImage>>, public vrui::coMenuListener
 {
 public:
     static coVRMenuList *instance();

@@ -20,7 +20,6 @@
 #include <api/coModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>
-#include <util/DLinkList.h>
 #define MAX_CELL_ZONES 1000
 
 #define BUFSIZE 64000
@@ -174,7 +173,6 @@ private:
     int cellZoneIds[MAX_CELL_ZONES];
 
     Element **Elements;
-    //DLinkList<Element *> freeElements;
     Element **freeElements;
     int numFreeElements;
     int numFreeAlloc;

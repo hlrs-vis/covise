@@ -28,7 +28,7 @@
 \**************************************************************************/
 
 #include <covise/Covise_Util.h>
-#include <util/DLinkList.h>
+#include <list>
 #include <appl/RenderInterface.h>
 
 using namespace covise;
@@ -114,7 +114,7 @@ public:
 // ObjectList
 //================================================================
 
-class ObjectList : public DLinkList<LObject *>
+class ObjectList : public std::list<std::unique_ptr<LObject>>
 {
     int m_length;
     char *m_buff;

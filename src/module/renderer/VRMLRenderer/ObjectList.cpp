@@ -234,7 +234,6 @@ void ObjectList::write(FILE *fp)
     int numb = 0;
 
     fprintf(fp, "NavigationInfo {\n    type        \"EXAMINE\"\n}");
-    reset();
 
     float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
@@ -242,31 +241,28 @@ void ObjectList::write(FILE *fp)
             translation[0], translation[1], translation[2], scale[0], scale[1], scale[2],
             rotation[0], rotation[1], rotation[2], rotation[3] / 360.0 * 2 * M_PI);
 
-    while (current())
+    for (const auto& it : *this)
     {
-        if (strcmp("Endset", current()->name) == 0)
+        if (strcmp("Endset", it->name) == 0)
         {
             fprintf(fp, "]\n}\n");
-            next();
             numbeg--;
             if (numbeg == 0)
                 numtime = numt;
         }
-        else if (strcmp("Beginset", current()->name) == 0)
+        else if (strcmp("Beginset", it->name) == 0)
         {
             fprintf(fp, "Group {\n    children [\n");
-            next();
             if (numbeg == 1)
                 numt++;
             numbeg++;
         }
-        else if (strcmp("BeginTimeset", current()->name) == 0)
+        else if (strcmp("BeginTimeset", it->name) == 0)
         {
             bufs[numb] = new char[200];
-            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", current()->rootname);
+            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
             numb++;
-            fprintf(fp, "DEF SW_%s Switch {\n    choice [\n", current()->rootname);
-            next();
+            fprintf(fp, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
             numt = 0;
             hastime++;
             numbeg = 1;
@@ -274,7 +270,7 @@ void ObjectList::write(FILE *fp)
         else
         {
             float object_bbox[6];
-            current()->get_boundingbox(object_bbox);
+            it->get_boundingbox(object_bbox);
             for (i = 0; i < 3; i++)
                 if (object_bbox[i] < bbox[i])
                     bbox[i] = object_bbox[i];
@@ -282,14 +278,13 @@ void ObjectList::write(FILE *fp)
                 if (object_bbox[i] > bbox[i])
                     bbox[i] = object_bbox[i];
 
-            cb = current()->get_objPtr();
+            cb = it->get_objPtr();
             const char *tmp;
             if (cb)
             {
                 tmp = (const char *)(*cb);
-                fprintf(fp, "\n\n# Name: %s Group: %s\n\n", current()->name, current()->rootname);
+                fprintf(fp, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
                 fprintf(fp, "%s", tmp);
-                next();
             }
             if (numbeg == 1)
                 numt++;
@@ -357,45 +352,40 @@ void ObjectList::write(FILE *fp)
 }
 
 //=========================================================================
-// constructor : setup head and tail of list
 //=========================================================================
 void ObjectList::removeone(const char *n)
 {
-    //char *currname="irgendwas";
-    reset();
-    while (current())
+    for(auto it = begin();it!=end();it++)
     {
-        if (strcmp(current()->name, n) == 0)
+        if (strcmp((*it)->name, n) == 0)
         {
-            if (current()->m_is_timestep)
+            if ((*it)->m_is_timestep)
                 decr_no_sw();
-            this->remove();
+            it=erase(it);
             return;
         }
-        if (current()->rootname && current()->name && (strcmp(current()->rootname, n) == 0) && (strncmp(current()->name, "Begin", 5) == 0))
+        if ((*it)->rootname && (*it)->name && (strcmp((*it)->rootname, n) == 0) && (strncmp((*it)->name, "Begin", 5) == 0))
         {
             int numi = 1;
-            while (current())
+            while (it!=end())
             {
-                if (strncmp(current()->name, "Begin", 5) == 0)
+                if (strncmp((*it)->name, "Begin", 5) == 0)
                     numi++;
-                if (strcmp(current()->name, "Endset") == 0)
+                if (strcmp((*it)->name, "Endset") == 0)
                     numi--;
                 if (numi == 0)
                 {
-                    if (current()->m_is_timestep)
+                    if ((*it)->m_is_timestep)
                         decr_no_sw();
-                    this->remove();
+                    it = erase(it);
                     break;
                 }
-                if (current()->m_is_timestep)
+                if ((*it)->m_is_timestep)
                     decr_no_sw();
-                this->remove();
-                //next();
+                it = erase(it);
             }
             return;
         }
-        next();
     }
 }
 
@@ -403,19 +393,16 @@ void ObjectList::removeall(const char *n)
 {
     //char *currname="irgendwas";
     char buf[500];
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (current()->rootname)
+        if (it->rootname)
         {
-            if (current()->rootname && (strcmp(current()->rootname, n) == 0))
+            if (it->rootname && (strcmp(it->rootname, n) == 0))
             {
-
-                strcpy(buf, current()->name);
+                strcpy(buf, it->name);
                 removeone(buf);
             }
         }
-        next();
     }
 }
 
@@ -615,51 +602,46 @@ void ObjectList::parseObjects(void)
 
     sprintf(tmp_buff, "%s", " 2 #VRML V2.0 utf8  \n");
     m_length += (int)strlen(tmp_buff);
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (strcmp("Endset", current()->name) == 0)
+        if (strcmp("Endset", it->name) == 0)
         {
             sprintf(tmp_buff, "%s", "]\n}\n");
             m_length += (int)strlen(tmp_buff);
-            next();
             numbeg--;
             if (numbeg == 0)
                 numtime = numt;
         }
-        else if (strcmp("Beginset", current()->name) == 0)
+        else if (strcmp("Beginset", it->name) == 0)
         {
             sprintf(tmp_buff, "%s", "Group {\n    children [\n");
             m_length += (int)strlen(tmp_buff);
-            next();
             if (numbeg == 1)
                 numt++;
             numbeg++;
         }
-        else if (strcmp("BeginTimeset", current()->name) == 0)
+        else if (strcmp("BeginTimeset", it->name) == 0)
         {
             bufs[numb] = new char[200];
-            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", current()->rootname);
+            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
             numb++;
-            sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", current()->rootname);
+            sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
             m_length += (int)strlen(tmp_buff);
-            next();
             numt = 0;
             hastime++;
             numbeg = 1;
         }
         else
         {
-            cb = current()->get_objPtr();
+            cb = it->get_objPtr();
             const char *tmp;
             if (cb)
             {
                 tmp = (const char *)(*cb);
-                sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", current()->name, current()->rootname);
+                sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
                 m_length += (int)strlen(tmp_buff);
                 //fprintf(fp,tmp);
                 m_length += (int)strlen(tmp);
-                next();
             }
             if (numbeg == 1)
                 numt++;
@@ -710,81 +692,76 @@ int ObjectList::sendObjects(Connection *conn)
 
     char tmp_buff[10000];
 
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (strcmp("Endset", current()->name) == 0)
+        if (strcmp("Endset", it->name) == 0)
         {
-            next();
             numbeg--;
         }
-        else if (strcmp("Beginset", current()->name) == 0)
+        else if (strcmp("Beginset", it->name) == 0)
         {
             // add Group
-            if (current()->real_root)
+            if (it->real_root)
             {
-                sprintf(tmp_buff, " 7 %s@%s#%d\n", current()->rootname, current()->real_root, current()->get_timestep());
+                sprintf(tmp_buff, " 7 %s@%s#%d\n", it->rootname, it->real_root, it->get_timestep());
             }
             else
             {
-                sprintf(tmp_buff, " 7 %s@ROOT#%d\n", current()->rootname, current()->get_timestep());
+                sprintf(tmp_buff, " 7 %s@ROOT#%d\n", it->rootname, it->get_timestep());
             }
-            current()->m_new = 0;
+            it->m_new = 0;
             send_obj(conn, tmp_buff);
 
-            next();
             if (numbeg == 1)
                 numt++;
             numbeg++;
         }
-        else if (strcmp("BeginTimeset", current()->name) == 0)
+        else if (strcmp("BeginTimeset", it->name) == 0)
         {
 
             bufs[numb] = new char[200];
-            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", current()->rootname);
+            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
             numb++;
-            sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", current()->rootname);
+            sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
 
             // add Switch
-            if (current()->real_root)
+            if (it->real_root)
             {
-                sprintf(tmp_buff, " 8 %s@%s#%d#%d\n", current()->rootname, current()->real_root, current()->m_min_timestep, current()->m_max_timestep);
+                sprintf(tmp_buff, " 8 %s@%s#%d#%d\n", it->rootname, it->real_root, it->m_min_timestep, it->m_max_timestep);
             }
             else
             {
-                sprintf(tmp_buff, " 8 %s@ROOT#%d#%d\n", current()->rootname, current()->m_min_timestep, current()->m_max_timestep);
+                sprintf(tmp_buff, " 8 %s@ROOT#%d#%d\n", it->rootname, it->m_min_timestep, it->m_max_timestep);
             }
-            current()->m_new = 0;
+            it->m_new = 0;
             send_obj(conn, tmp_buff);
 
-            next();
             numt = 0;
             hastime++;
             numbeg = 1;
         }
         else
         {
-            cb = current()->get_objPtr();
+            cb = it->get_objPtr();
             const char *tmp;
             if (cb)
             {
                 tmp = (const char *)(*cb);
-                sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", current()->name, current()->rootname);
+                sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
 
                 // add Geometry
-                if (current()->rootname)
+                if (it->rootname)
                 {
-                    sprintf(tmp_buff, " 6 %s@%s#%d\n", current()->name, current()->rootname, current()->get_timestep());
+                    sprintf(tmp_buff, " 6 %s@%s#%d\n", it->name, it->rootname, it->get_timestep());
                 }
                 else
                 {
-                    sprintf(tmp_buff, " 6 %s@ROOT#%d\n", current()->name, current()->get_timestep());
+                    sprintf(tmp_buff, " 6 %s@ROOT#%d\n", it->name, it->get_timestep());
                 }
                 int add_l = (int)strlen(tmp);
                 send_obj(conn, tmp_buff, add_l);
-                current()->m_new = 0;
+                it->m_new = 0;
                 conn->send(tmp, add_l);
-                next();
             }
             if (numbeg == 1)
                 numt++;
@@ -808,50 +785,49 @@ int ObjectList::sendNewObjects(Connection *conn)
 
     char tmp_buff[10000];
 
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (current()->m_new)
+        if (it->m_new)
         {
-            if (strcmp("Endset", current()->name) == 0)
+            if (strcmp("Endset", it->name) == 0)
             {
                 numbeg--;
             }
-            else if (strcmp("Beginset", current()->name) == 0)
+            else if (strcmp("Beginset", it->name) == 0)
             {
                 // add Group
-                if (current()->real_root)
+                if (it->real_root)
                 {
-                    sprintf(tmp_buff, " 7 %s@%s#%d\n", current()->rootname, current()->real_root, current()->get_timestep());
+                    sprintf(tmp_buff, " 7 %s@%s#%d\n", it->rootname, it->real_root, it->get_timestep());
                 }
                 else
                 {
-                    sprintf(tmp_buff, " 7 %s@ROOT#%d\n", current()->rootname, current()->get_timestep());
+                    sprintf(tmp_buff, " 7 %s@ROOT#%d\n", it->rootname, it->get_timestep());
                 }
-                current()->m_new = 0;
+                it->m_new = 0;
                 send_obj(conn, tmp_buff);
                 if (numbeg == 1)
                     numt++;
                 numbeg++;
             }
-            else if (strcmp("BeginTimeset", current()->name) == 0)
+            else if (strcmp("BeginTimeset", it->name) == 0)
             {
 
                 bufs[numb] = new char[200];
-                sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", current()->rootname);
+                sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
                 numb++;
-                sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", current()->rootname);
+                sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
 
                 // add Switch
-                if (current()->real_root)
+                if (it->real_root)
                 {
-                    sprintf(tmp_buff, " 8 %s@%s#%d#%d\n", current()->rootname, current()->real_root, current()->m_min_timestep, current()->m_max_timestep);
+                    sprintf(tmp_buff, " 8 %s@%s#%d#%d\n", it->rootname, it->real_root, it->m_min_timestep, it->m_max_timestep);
                 }
                 else
                 {
-                    sprintf(tmp_buff, " 8 %s@ROOT#%d#%d\n", current()->rootname, current()->m_min_timestep, current()->m_max_timestep);
+                    sprintf(tmp_buff, " 8 %s@ROOT#%d#%d\n", it->rootname, it->m_min_timestep, it->m_max_timestep);
                 }
-                current()->m_new = 0;
+                it->m_new = 0;
                 send_obj(conn, tmp_buff);
                 numt = 0;
                 hastime++;
@@ -859,31 +835,30 @@ int ObjectList::sendNewObjects(Connection *conn)
             }
             else
             {
-                cb = current()->get_objPtr();
+                cb = it->get_objPtr();
                 const char *tmp;
                 if (cb)
                 {
                     tmp = (const char *)(*cb);
-                    sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", current()->name, current()->rootname);
+                    sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
                     // add Geometry
-                    if (current()->rootname)
+                    if (it->rootname)
                     {
-                        sprintf(tmp_buff, " 6 %s@%s#%d\n", current()->name, current()->rootname, current()->get_timestep());
+                        sprintf(tmp_buff, " 6 %s@%s#%d\n", it->name, it->rootname, it->get_timestep());
                     }
                     else
                     {
-                        sprintf(tmp_buff, " 6 %s@ROOT#%d\n", current()->name, current()->get_timestep());
+                        sprintf(tmp_buff, " 6 %s@ROOT#%d\n", it->name, it->get_timestep());
                     }
                     int add_l = (int)strlen(tmp);
                     send_obj(conn, tmp_buff, add_l);
-                    current()->m_new = 0;
+                    it->m_new = 0;
                     conn->send(tmp, add_l);
                 }
                 if (numbeg == 1)
                     numt++;
             }
         } // end new object
-        next();
     } // end while
 
     for (i = 0; i < numb; i++)
