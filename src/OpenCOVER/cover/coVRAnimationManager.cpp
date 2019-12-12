@@ -394,7 +394,7 @@ coVRAnimationManager::updateAnimationFrame()
 {
     if (animRunning && !m_animationPaused && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
     {
-        auto speed = animSkipItem->value();
+        auto speed = animSpeedItem->value();
         if ((cover->frameTime() - lastAnimationUpdate >= 1.0 / std::abs(speed))
             || (speed > 0. && speed > AnimSliderMax - 0.001)
             || (speed < 0. && speed < AnimSliderMin + 0.001)) {
