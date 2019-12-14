@@ -23,7 +23,6 @@
 #endif
 
 #include <util/unixcompat.h>
-#include <util/coDLList.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/Viewer.h>

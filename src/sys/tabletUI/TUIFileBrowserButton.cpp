@@ -258,9 +258,9 @@ void TUIFileBrowserButton::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_SET_MASTER)
     {
-        int state = false;
+        bool state = false;
         tb >> state;
-        emit updateLoadCheckBox((bool)state);
+        emit updateLoadCheckBox(state);
     }
     else
     {
