@@ -215,7 +215,7 @@ void coMaterialList::add(const char *dirname)
                 char *tmp2 = mdir->full_name(n);
                 char buf[300];
                 sprintf(buf, "%s %s", dirname, mdir->name(n));
-                append(new coMaterial(buf, tmp2));
+                push_back(new coMaterial(buf, tmp2));
                 delete[] tmp2;
             }
         }

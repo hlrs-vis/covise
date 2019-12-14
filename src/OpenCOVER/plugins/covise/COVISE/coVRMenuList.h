@@ -28,6 +28,7 @@
 #include <util/coTypes.h>
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coMenu.h>
+#include <memory>
 
 namespace vrui
 {
