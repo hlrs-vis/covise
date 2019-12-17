@@ -3,6 +3,7 @@
 #include "Act.h"
 #include "Trajectory.h"
 #include "Condition.h"
+#include "LaneChange.h"
 #include "RouteInfo.h"
 #include "FollowTrajectory.h"
 #include "Position.h"
@@ -21,6 +22,10 @@ OpenScenario::oscObjectBase *myFactory::create(const std::string &name)
 	if (name == "oscManeuver")
 	{
 		return new Maneuver();
+	}
+	if (name == "oscLaneChange")
+	{
+		return new LaneChange();
 	}
 	if (name == "oscAct")
 	{

@@ -1,6 +1,7 @@
 #include "ReferencePosition.h"
 #include <iostream>
 #include <math.h>
+#include "Entity.h"
 
 ReferencePosition::ReferencePosition():
     road(NULL),
@@ -11,6 +12,7 @@ ReferencePosition::ReferencePosition():
     roadLength(0.0),
     LS(NULL),
     roadId(""),
+	//offset(0.0),
     isUp2Date(false)
 {
 }
@@ -30,7 +32,7 @@ ReferencePosition::ReferencePosition(const ReferencePosition* oldRefPos)
     s = oldRefPos->s;
     t = oldRefPos->t;
     hdg = oldRefPos->hdg;
-
+	//offset = oldRefPos->offset;
     // Lane
     laneId = oldRefPos->laneId;
     LS = oldRefPos->LS;
@@ -39,13 +41,14 @@ ReferencePosition::ReferencePosition(const ReferencePosition* oldRefPos)
     xyz = oldRefPos->xyz;
 }
 
-void ReferencePosition::init(std::string init_roadId, int init_laneId, double init_s, RoadSystem* init_system)
+void ReferencePosition::init(std::string init_roadId, int init_laneId, double init_s, RoadSystem* init_system, double init_offset)
 // init from Lane
 {
     roadId = init_roadId;
     laneId = init_laneId;
     s = init_s;
     system = init_system;
+	offset = init_offset;
 
     road = system->getRoad(roadId);
 	if(road)
@@ -56,12 +59,13 @@ void ReferencePosition::init(std::string init_roadId, int init_laneId, double in
 		LS = road->getLaneSection(s);
 		Vector2D laneCenter = LS->getLaneCenter(laneId, s);
 
-		t = laneCenter[0];
+		t = laneCenter[0]+offset;
 
 		Transform vtrans = road->getRoadTransform(s, t);
 		xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 
 		roadLength = road->getLength();
+		
 	}
 	else
 	{
@@ -85,7 +89,8 @@ void ReferencePosition::init(std::string init_roadId,double init_s,double init_t
 
         LS = road->getLaneSection(s);
         laneId = LS->searchLane(s,t);
-
+		Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+		offset = t - laneCenter[0];
         Transform vtrans = road->getRoadTransform(s, t);
         xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 
@@ -120,6 +125,8 @@ void ReferencePosition::init(osg::Vec3 initPos, double init_hdg, RoadSystem* ini
         LS = newLS;
 
         laneId = LS->searchLane(s,t);
+		Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+		offset = t - laneCenter[0];
 
         Transform vtrans = road->getRoadTransform(s, t);
         xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
@@ -161,21 +168,33 @@ void ReferencePosition::move(double ds, double dt, float step)
         laneId =  road->searchLane(s,t);
         LS = newLS;
     }
+	Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+	offset = t - laneCenter[0];
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
     isUp2Date = true;
 }
 
-void ReferencePosition::move(osg::Vec3 dirVec,float step_distance)
+void ReferencePosition::move(osg::Vec3 dirVec, float step_distance)
 {
-    xyz = xyz+(dirVec*step_distance);
+	xyz = xyz+(dirVec*step_distance);
 }
+
 
 
 osg::Vec3 ReferencePosition::getPosition()
 {
     return xyz;
+}
+
+int ReferencePosition::getLane()
+{
+	auto actualLane = road->searchLane(s, t);
+	return actualLane;
+	
+	
+	
 }
 
 void ReferencePosition::update()
@@ -198,7 +217,6 @@ void ReferencePosition::update()
 
             s = stNew[0];
             t = stNew[1];
-
             LaneSection* newLS = road->getLaneSection(s);
             LS = newLS;
 
@@ -220,6 +238,8 @@ void ReferencePosition::update()
             laneId = LS->searchLane(s,t);
             roadLength = road->getLength();
             roadId = system->getRoadId(road);
+			Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+			offset = t - laneCenter[0];
         }
         else
         {
@@ -240,6 +260,8 @@ void ReferencePosition::update()
                 LS = newLS;
 
                 laneId = LS->searchLane(s,t);
+				Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+				offset = t - laneCenter[0];
             }
 
         }
@@ -264,7 +286,7 @@ void ReferencePosition::update(std::string init_roadId, double init_s, int init_
     LS = newLS;
 
     Vector2D laneCenter = LS->getLaneCenter(laneId, s);
-    t = laneCenter[0];
+    t = laneCenter[0]+offset;
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
@@ -288,6 +310,8 @@ void ReferencePosition::update(std::string init_roadId, double init_s, double in
     LS = newLS;
 
     laneId = LS->searchLane(s,t);
+	Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+	offset = t - laneCenter[0];
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());

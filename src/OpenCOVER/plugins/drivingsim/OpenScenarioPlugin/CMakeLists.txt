@@ -14,6 +14,7 @@ set(HEADERS
   OpenScenarioPlugin.h
   ScenarioManager.h
   Maneuver.h
+  LaneChange.h
   Condition.h
   Act.h
   Entity.h
@@ -37,6 +38,7 @@ set(SOURCES
   Maneuver.cpp
   Act.cpp
   Entity.cpp
+  LaneChange.cpp
   Condition.cpp
   myFactory.cpp
   FollowTrajectory.cpp

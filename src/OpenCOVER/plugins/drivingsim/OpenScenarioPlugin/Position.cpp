@@ -1,7 +1,6 @@
 #include "Position.h"
 #include "ReferencePosition.h"
 
-
 Position::Position():oscPosition()
 {}
 
@@ -215,7 +214,7 @@ ReferencePosition* Position::getRelObjectPos(std::string refObjectName, Entity* 
         if(refObjectName == (*refEntity)->name)
         {
             currentEntity->refObject = (*refEntity);
-            return (*refEntity)->refPos;
+            return (*refEntity)->refPos; 
         }
 
     }
@@ -233,6 +232,9 @@ osg::Vec3 Position::getAbsoluteWorld()
     y = World->y.getValue();
     z = World->z.getValue();
 
-    return osg::Vec3(x,y,z);
+    return osg::Vec3(x,y,z); 
 }
-
+void Position::getAbsolutePositionLc(ReferencePosition* relativePos, ReferencePosition* position)
+{
+	
+}

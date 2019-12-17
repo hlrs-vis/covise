@@ -55,6 +55,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Sequence.h"
 #include "Event.h"
 #include "Condition.h"
+#include "LaneChange.h"
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <osgDB/WriteFile>
@@ -215,7 +216,7 @@ void OpenScenarioPlugin::preSwapBuffers(int windowNumber)
 			glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			if (coco.windows[windowNumber].doublebuffer)
 				glReadBuffer(GL_BACK);
-			// for depth to work, it might be necessary to read from GL_FRONT (chang this, if it does not work like
+			// for depth to work, it might be necessary to read from GL_FRONT (change this, if it does not work like
 			// this)
 			if (image.get() == NULL)
 			{
@@ -325,9 +326,9 @@ bool OpenScenarioPlugin::advanceTime(double step)
                             for(list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
                             {
                                 Entity* currentEntity = (*entity_iter);
-                                for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
+                                for(auto action_iter = currentEvent->Action.begin(); action_iter != currentEvent->Action.end(); action_iter++)
                                 {
-                                    Action* currentAction = (*action_iter);
+                                    Action* currentAction = dynamic_cast<Action *>(*action_iter);
                                     cout << "Entity Action: " << currentAction->name.getValue() << endl;
                                     if(currentAction->Private.exists())
                                     {
@@ -358,6 +359,24 @@ bool OpenScenarioPlugin::advanceTime(double step)
 												currentEntity->longitudinalSpeedAction(currentEvent, targetspeed, shape);
 
 
+											}
+										}
+										else if (currentAction->Private->Lateral.exists())
+										{
+											if (currentAction->Private->Lateral->LaneChange.exists())
+											{
+												LaneChange* lc = dynamic_cast<LaneChange*>(currentAction->Private->Lateral->LaneChange.getObject());
+												if (lc != NULL)
+												{
+													//lc->doLaneChange(currentEntity);
+													unusedEntity.remove(currentEntity);
+													usedEntity.push_back(currentEntity);
+													usedEntity.sort(); usedEntity.unique();
+													
+													currentEntity->doLaneChange(lc,currentEvent); 
+													
+													
+												}
 											}
 										}
 									}
@@ -911,18 +930,18 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 									currentAction->setTrajectory(traj);
 
 
-									currentEvent->actionList.push_back(currentAction);
+									//currentEvent->actionList.push_back(currentAction);
 								}
 								else if (currentAction->Private->Routing->FollowRoute.exists())
 								{
 									currentAction->routeCatalogReference = currentAction->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
-									currentEvent->actionList.push_back(currentAction);
+									//currentEvent->actionList.push_back(currentAction);
 								}
 							}
 							if (currentAction->Private->Longitudinal.exists())
 							{
 
-								currentEvent->actionList.push_back(currentAction);
+								//currentEvent->actionList.push_back(currentAction);
 							}
 						}
 					}

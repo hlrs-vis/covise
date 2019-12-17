@@ -33,6 +33,9 @@ oscLaneChange()
     oscDouble targetLaneOffset;
     oscLaneChangeDynamicsMember Dynamics;
     oscLaneChangeTargetMember Target;
+	oscRelativeMember Relative;
+	oscAbsoluteMember Absolute;
+	
 
 };
 
