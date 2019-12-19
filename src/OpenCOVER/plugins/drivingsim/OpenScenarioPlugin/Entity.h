@@ -48,7 +48,7 @@ public:
     void longitudinalSpeedAction(Event *event, double init_targetSpeed, int shape);
 	void doLaneChange(LaneChange *lc, Event *event);
 	void finishedEntityActionCounter(Event* event);
-	void Entity::startDoLaneChange(LaneChange *lc);
+	void startDoLaneChange(LaneChange *lc);
 
     float &getSpeed();
     osg::Vec3 getPosition();
@@ -81,8 +81,8 @@ public:
 	double getRelativeLcDistance(int value, double targetOffset);
 	double getAbsoluteLcDistance(int value, double targetOffset);
 	void getDestinationPositionLc(ReferencePosition* relativePos, ReferencePosition* position,double width, double distance);
-	double Entity::sinusPosition(double s);
-	double Entity::cubicPosition(double x);
+	double sinusPosition(double s);
+	double cubicPosition(double x);
 	
     //Longitudinal attributes
     float dt;
