@@ -1,6 +1,6 @@
 #include "ReferencePosition.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "Entity.h"
 
 ReferencePosition::ReferencePosition():
@@ -230,7 +230,7 @@ void ReferencePosition::update()
 
         s = stNew[0];
         t = stNew[1];
-        if(!isnan(s))
+        if(!std::isnan(s))
         {
             LaneSection* newLS = road->getLaneSection(s);
             LS = newLS;

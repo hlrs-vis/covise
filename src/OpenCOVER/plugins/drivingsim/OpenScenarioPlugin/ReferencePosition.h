@@ -1,13 +1,8 @@
 #ifndef REFERENCEPOSITION_H
 #define REFERENCEPOSITION_H
 
-#include<string>
-#include<vector>
+#include <string>
 #include <osg/Vec3>
-#include <math.h>
-#include <iostream>
-#include <Position.h>
-#include "Entity.h"
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include <VehicleUtil/RoadSystem/Road.h>
 
