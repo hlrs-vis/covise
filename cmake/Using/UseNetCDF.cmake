@@ -1,5 +1,5 @@
 MACRO(USE_NETCDF)
-  FIND_PACKAGE(NetCDF)
+  COVISE_FIND_PACKAGE(NetCDF)
   USE_HDF5(optional)
   IF ((NOT NETCDF_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing NETCDF")
