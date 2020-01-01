@@ -237,7 +237,7 @@ namespace osg
 		ServerConnection* serverConn = nullptr;
 		Host* serverHost = nullptr;
 		Host* localHost = nullptr;
-		int port = 31802;
+		int port = 31804;
 		int ID = 3;
 		float timeout = 1.f;
 		bool debugTUIState = false;
