@@ -97,7 +97,7 @@ VrmlNodeScript::VrmlNodeScript(const VrmlNodeScript &n)
     for (i = n.d_eventOuts.begin(); i != n.d_eventOuts.end(); ++i)
         addEventOut((*i)->name, (*i)->type);
     for (i = n.d_fields.begin(); i != n.d_fields.end(); ++i)
-        addField((*i)->name, (*i)->type, (*i)->value);
+        addField((*i)->name, (*i)->type, (*i)->value, (*i)->exposed);
 }
 
 VrmlNodeScript::~VrmlNodeScript()
@@ -297,6 +297,12 @@ void VrmlNodeScript::initialize(double ts)
         d_script = ScriptObject::create(this, d_url, d_relativeUrl);
         if (d_script)
             d_script->activate(ts, "initialize", 0, 0);
+
+        FieldList::const_iterator i;
+        // For each modified eventOut, send an event
+        for (i = d_eventOuts.begin(); i != d_eventOuts.end(); ++i)
+            if ((*i)->modified && (*i)->value != nullptr)
+                eventOut(ts, (*i)->name, *((*i)->value));
     }
 }
 
@@ -359,6 +365,11 @@ void VrmlNodeScript::eventIn(double timeStamp,
             if ((*i)->modified)
                 eventOut(timeStamp, (*i)->name, *((*i)->value));
 
+        // For each modified exposedField, send an event
+        for (i = d_fields.begin(); i != d_fields.end(); ++i)
+            if ((*i)->exposed && (*i)->modified)
+                eventOut(timeStamp, (*i)->name, *((*i)->value));
+
         ++d_eventsReceived; // call eventsProcessed later
     }
 
@@ -383,9 +394,9 @@ void VrmlNodeScript::addEventOut(const char *ename, VrmlField::VrmlFieldType t)
 }
 
 void VrmlNodeScript::addField(const char *ename, VrmlField::VrmlFieldType t,
-                              VrmlField *val)
+                              VrmlField *val, bool exposed)
 {
-    add(d_fields, ename, t);
+    add(d_fields, ename, t, exposed);
     if (val)
         set(d_fields, ename, val);
 }
@@ -396,7 +407,7 @@ VrmlNodeScript::addExposedField(const char *ename,
                                 VrmlField *defaultValue)
 {
     char tmp[1000];
-    add(d_fields, ename, type);
+    add(d_fields, ename, type,true);
     if (defaultValue)
         set(d_fields, ename, defaultValue);
 
@@ -408,12 +419,14 @@ VrmlNodeScript::addExposedField(const char *ename,
 
 void VrmlNodeScript::add(FieldList &recs,
                          const char *ename,
-                         VrmlField::VrmlFieldType type)
+                         VrmlField::VrmlFieldType type,
+                         bool exposed)
 {
     ScriptField *r = new ScriptField;
     r->name = strdup(ename);
     r->type = type;
     r->value = 0;
+    r->exposed = exposed;
     recs.push_front(r);
 }
 
@@ -549,11 +562,14 @@ VrmlNodeScript::setEventIn(const char *fname, const VrmlField *value)
 void
 VrmlNodeScript::setEventOut(const char *fname, const VrmlField *value)
 {
-#if 0
-   cerr << "Script::" << name() << " setEventOut(" << fname << ", "
-      << (*value) << endl;
-#endif
     set(d_eventOuts, fname, value);
+}
+
+
+void
+VrmlNodeScript::setExposedField(const char* fname, const VrmlField* value)
+{
+    set(d_fields, fname, value);
 }
 
 void
