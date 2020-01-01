@@ -294,14 +294,22 @@ void VrmlNodeScript::initialize(double ts)
     d_eventsReceived = 0;
     if (d_url.size() > 0)
     {
+        FieldList::const_iterator i;
+        for (i = d_eventOuts.begin(); i != d_eventOuts.end(); ++i)
+            (*i)->modified = false;
+        for (i = d_fields.begin(); i != d_fields.end(); ++i)
+            (*i)->modified = false;
         d_script = ScriptObject::create(this, d_url, d_relativeUrl);
         if (d_script)
             d_script->activate(ts, "initialize", 0, 0);
 
-        FieldList::const_iterator i;
         // For each modified eventOut, send an event
         for (i = d_eventOuts.begin(); i != d_eventOuts.end(); ++i)
             if ((*i)->modified && (*i)->value != nullptr)
+                eventOut(ts, (*i)->name, *((*i)->value));
+        // For each modified exposedField, send an event
+        for (i = d_fields.begin(); i != d_fields.end(); ++i)
+            if ((*i)->exposed && (*i)->modified)
                 eventOut(ts, (*i)->name, *((*i)->value));
     }
 }
@@ -341,21 +349,30 @@ void VrmlNodeScript::eventIn(double timeStamp,
         eventName += 4;
         valid = hasEventIn(eventName);
     }
-#if 0
-   cerr << "eventIn Script::" << name() << "." << origEventName
-      << " " << (*fieldValue) << ", valid " << valid
-      << ", d_script " << (unsigned long)d_script
-      << endl;
-#endif
     if (valid)
     {
         setEventIn(eventName, fieldValue);
+    }
+    else
+    {
+        valid = hasField(eventName);
+        if (!valid && strncmp(eventName, "set_", 4) == 0)
+        {
+            eventName += 4;
+            valid = hasField(eventName);
+        }
+        setExposedField(eventName, fieldValue);
+    }
+    if (valid)
+    {
 
         VrmlSFTime ts(timeStamp);
         const VrmlField *args[] = { fieldValue, &ts };
 
         FieldList::const_iterator i;
         for (i = d_eventOuts.begin(); i != d_eventOuts.end(); ++i)
+            (*i)->modified = false;
+        for (i = d_fields.begin(); i != d_fields.end(); ++i)
             (*i)->modified = false;
 
         d_script->activate(timeStamp, eventName, 2, args);
@@ -376,7 +393,6 @@ void VrmlNodeScript::eventIn(double timeStamp,
     // Let the generic code handle the rest.
     else
         VrmlNode::eventIn(timeStamp, origEventName, fieldValue);
-
     // Scripts shouldn't generate redraws.
     clearModified();
 }
