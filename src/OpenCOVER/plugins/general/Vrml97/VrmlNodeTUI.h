@@ -50,11 +50,12 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIElement(VrmlScene *);
+    VrmlNodeTUIElement(const VrmlNodeTUIElement&);
     virtual ~VrmlNodeTUIElement();
 
     virtual std::ostream &printFields(std::ostream &os, int indent);
 
-    VrmlNode *cloneMe() const;
+    virtual VrmlNode *cloneMe() const;
     VrmlNodeTUIElement *toTUIElement() const;
     virtual void eventIn(double timeStamp,
                          const char *eventName,
@@ -83,7 +84,10 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIProgressBar(VrmlScene *);
+    VrmlNodeTUIProgressBar(const VrmlNodeTUIProgressBar&);
     virtual ~VrmlNodeTUIProgressBar();
+
+    virtual VrmlNode* cloneMe() const;
 
     virtual void render(Viewer *);
 
@@ -106,7 +110,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUITabFolder(VrmlScene *);
+    VrmlNodeTUITabFolder(const VrmlNodeTUITabFolder&);
     virtual ~VrmlNodeTUITabFolder();
+    virtual VrmlNode* cloneMe() const;
 
     virtual void render(Viewer *);
 
@@ -128,7 +134,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUITab(VrmlScene *);
+    VrmlNodeTUITab(const VrmlNodeTUITab&);
     virtual ~VrmlNodeTUITab();
+    virtual VrmlNode* cloneMe() const;
 
     virtual void render(Viewer *);
 
@@ -153,7 +161,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIButton(VrmlScene *);
+    VrmlNodeTUIButton(const VrmlNodeTUIButton&);
     virtual ~VrmlNodeTUIButton();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletPressEvent(coTUIElement *);
     virtual void tabletReleaseEvent(coTUIElement *);
 
@@ -172,9 +182,10 @@ public:
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
 	virtual void eventIn(double timeStamp, const char* eventName, const VrmlField* fieldValue);
     virtual VrmlNodeType *nodeType() const;
-
     VrmlNodeTUIToggleButton(VrmlScene *);
+    VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton&);
     virtual ~VrmlNodeTUIToggleButton();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
@@ -197,7 +208,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIFrame(VrmlScene *);
+    VrmlNodeTUIFrame(const VrmlNodeTUIFrame&);
     virtual ~VrmlNodeTUIFrame();
+    virtual VrmlNode* cloneMe() const;
 
     virtual void render(Viewer *);
 
@@ -219,7 +232,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUISplitter(VrmlScene *);
+    VrmlNodeTUISplitter(const VrmlNodeTUISplitter&);
     virtual ~VrmlNodeTUISplitter();
+    virtual VrmlNode* cloneMe() const;
 
     virtual void render(Viewer *);
 
@@ -241,7 +256,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUISlider(VrmlScene *);
+    VrmlNodeTUISlider(const VrmlNodeTUISlider&);
     virtual ~VrmlNodeTUISlider();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
@@ -268,7 +285,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIFloatSlider(VrmlScene *);
+    VrmlNodeTUIFloatSlider(const VrmlNodeTUIFloatSlider& n);
     virtual ~VrmlNodeTUIFloatSlider();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
@@ -287,6 +306,7 @@ private:
     std::unique_ptr<vrb::SharedState<float>> sharedState;
 };
 
+
 class VRML97COVEREXPORT VrmlNodeTUIComboBox : public VrmlNodeTUIElement
 {
 
@@ -296,7 +316,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIComboBox(VrmlScene *);
+    VrmlNodeTUIComboBox(const VrmlNodeTUIComboBox& n);
     virtual ~VrmlNodeTUIComboBox();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
@@ -321,7 +343,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIListBox(VrmlScene *);
+    VrmlNodeTUIListBox(const VrmlNodeTUIListBox& n);
     virtual ~VrmlNodeTUIListBox();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
@@ -346,7 +370,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUIMap(VrmlScene *);
+    VrmlNodeTUIMap(const VrmlNodeTUIMap& n);
     virtual ~VrmlNodeTUIMap();
+    virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
@@ -375,7 +401,9 @@ public:
     virtual VrmlNodeType *nodeType() const;
 
     VrmlNodeTUILabel(VrmlScene *);
+    VrmlNodeTUILabel(const VrmlNodeTUILabel& n);
     virtual ~VrmlNodeTUILabel();
+    virtual VrmlNode* cloneMe() const;
 
     virtual void render(Viewer *);
 

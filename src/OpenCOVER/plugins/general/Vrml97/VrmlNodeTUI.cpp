@@ -79,6 +79,16 @@ VrmlNodeTUIElement::VrmlNodeTUIElement(VrmlScene *scene)
 {
 }
 
+VrmlNodeTUIElement::VrmlNodeTUIElement(const VrmlNodeTUIElement& n): VrmlNodeChild(n.d_scene)
+, d_elementName(n.d_elementName)
+, d_parent(n.d_parent)
+, d_shaderParam(n.d_shaderParam)
+, d_pos(n.d_pos)
+, d_shared(n.d_shared)
+, d_TUIElement(NULL)
+{
+}
+
 VrmlNodeTUIElement::~VrmlNodeTUIElement()
 {
 	VrmlTUIElements.remove(d_TUIElement);
@@ -238,11 +248,19 @@ VrmlNodeTUITab::VrmlNodeTUITab(VrmlScene *scene)
     : VrmlNodeTUIElement(scene)
 {
 }
+VrmlNodeTUITab::VrmlNodeTUITab(const VrmlNodeTUITab& n)
+    : VrmlNodeTUIElement(n)
+{
+}
 
 VrmlNodeTUITab::~VrmlNodeTUITab()
 {
 
     VrmlTUITabs.remove(static_cast<coTUITab *>(d_TUIElement));
+}
+VrmlNode* VrmlNodeTUITab::cloneMe() const
+{
+    return new VrmlNodeTUITab(*this);
 }
 
 void VrmlNodeTUITab::tabletPressEvent(coTUIElement *)
@@ -346,9 +364,20 @@ VrmlNodeTUIProgressBar::VrmlNodeTUIProgressBar(VrmlScene *scene)
     , d_value(0)
 {
 }
+VrmlNodeTUIProgressBar::VrmlNodeTUIProgressBar(const VrmlNodeTUIProgressBar& n)
+    : VrmlNodeTUIElement(n)
+    , d_max(n.d_max)
+    , d_value(n.d_value)
+{
+}
 
 VrmlNodeTUIProgressBar::~VrmlNodeTUIProgressBar()
 {
+}
+
+VrmlNode* VrmlNodeTUIProgressBar::cloneMe() const
+{
+    return new VrmlNodeTUIProgressBar(*this);
 }
 
 void VrmlNodeTUIProgressBar::tabletPressEvent(coTUIElement *)
@@ -432,10 +461,18 @@ VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(VrmlScene *scene)
     : VrmlNodeTUIElement(scene)
 {
 }
+VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(const VrmlNodeTUITabFolder& n)
+    : VrmlNodeTUIElement(n)
+{
+}
 
 VrmlNodeTUITabFolder::~VrmlNodeTUITabFolder()
 {
     VrmlTUITabFolders.remove(static_cast<coTUITabFolder *>(d_TUIElement));
+}
+VrmlNode* VrmlNodeTUITabFolder::cloneMe() const
+{
+    return new VrmlNodeTUITabFolder(*this);
 }
 
 void VrmlNodeTUITabFolder::tabletPressEvent(coTUIElement *)
@@ -531,9 +568,19 @@ VrmlNodeTUIButton::VrmlNodeTUIButton(VrmlScene *scene)
     , d_touchTime(0.0)
 {
 }
+VrmlNodeTUIButton::VrmlNodeTUIButton(const VrmlNodeTUIButton& n)
+    : VrmlNodeTUIElement(n)
+    , d_touchTime(n.d_touchTime)
+{
+}
 
 VrmlNodeTUIButton::~VrmlNodeTUIButton()
 {
+}
+
+VrmlNode* VrmlNodeTUIButton::cloneMe() const
+{
+    return new VrmlNodeTUIButton(*this);
 }
 
 void VrmlNodeTUIButton::tabletPressEvent(coTUIElement *)
@@ -659,9 +706,17 @@ VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(VrmlScene *scene)
     , d_choice(-1)
 {
 }
+VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton& n): VrmlNodeTUIElement(n), d_state(n.d_state), d_choice(n.d_choice)
+{
+    
+}
 
 VrmlNodeTUIToggleButton::~VrmlNodeTUIToggleButton()
 {
+}
+VrmlNode* VrmlNodeTUIToggleButton::cloneMe() const
+{
+    return new VrmlNodeTUIToggleButton(*this);
 }
 
 void VrmlNodeTUIToggleButton::tabletEvent(coTUIElement *)
@@ -772,10 +827,20 @@ VrmlNodeTUIFrame::VrmlNodeTUIFrame(VrmlScene *scene)
     , d_style(0)
 {
 }
+VrmlNodeTUIFrame::VrmlNodeTUIFrame(const VrmlNodeTUIFrame& n)
+    : VrmlNodeTUIElement(n)
+    , d_shape(n.d_shape)
+    , d_style(n.d_style)
+{
+}
 
 VrmlNodeTUIFrame::~VrmlNodeTUIFrame()
 {
     VrmlTUIFrames.remove(static_cast<coTUIFrame *>(d_TUIElement));
+}
+VrmlNode* VrmlNodeTUIFrame::cloneMe() const
+{
+    return new VrmlNodeTUIFrame(*this);
 }
 
 void VrmlNodeTUIFrame::render(Viewer *viewer)
@@ -875,9 +940,20 @@ VrmlNodeTUISplitter::VrmlNodeTUISplitter(VrmlScene *scene)
     , d_orientation(0x1)
 {
 }
+VrmlNodeTUISplitter::VrmlNodeTUISplitter(const VrmlNodeTUISplitter& n)
+    : VrmlNodeTUIElement(n)
+    , d_shape(n.d_shape)
+    , d_style(n.d_style)
+    , d_orientation(n.d_orientation)
+{
+}
 
 VrmlNodeTUISplitter::~VrmlNodeTUISplitter()
 {
+}
+VrmlNode* VrmlNodeTUISplitter::cloneMe() const
+{
+    return new VrmlNodeTUISplitter(*this);
 }
 
 void VrmlNodeTUISplitter::render(Viewer *viewer)
@@ -963,9 +1039,17 @@ VrmlNodeTUILabel::VrmlNodeTUILabel(VrmlScene *scene)
     : VrmlNodeTUIElement(scene)
 {
 }
+VrmlNodeTUILabel::VrmlNodeTUILabel(const VrmlNodeTUILabel& n)
+    : VrmlNodeTUIElement(n)
+{
+}
 
 VrmlNodeTUILabel::~VrmlNodeTUILabel()
 {
+}
+VrmlNode* VrmlNodeTUILabel::cloneMe() const
+{
+    return new VrmlNodeTUILabel(*this);
 }
 
 void VrmlNodeTUILabel::render(Viewer *viewer)
@@ -1028,8 +1112,20 @@ VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(VrmlScene *scene)
 {
 }
 
+VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(const VrmlNodeTUIFloatSlider& n)
+    : VrmlNodeTUIElement(n)
+    , d_min(n.d_min)
+    , d_max(n.d_max)
+    , d_value(n.d_value)
+    , d_orientation(n.d_orientation)
+{
+}
 VrmlNodeTUIFloatSlider::~VrmlNodeTUIFloatSlider()
 {
+}
+VrmlNode* VrmlNodeTUIFloatSlider::cloneMe() const
+{
+    return new VrmlNodeTUIFloatSlider(*this);
 }
 
 void VrmlNodeTUIFloatSlider::tabletEvent(coTUIElement *)
@@ -1267,9 +1363,21 @@ VrmlNodeTUISlider::VrmlNodeTUISlider(VrmlScene *scene)
     , d_orientation("horizontal")
 {
 }
+VrmlNodeTUISlider::VrmlNodeTUISlider(const VrmlNodeTUISlider& n)
+    : VrmlNodeTUIElement(n)
+    , d_min(n.d_min)
+    , d_max(n.d_min)
+    , d_value(n.d_value)
+    , d_orientation(n.d_orientation)
+{
+}
 
 VrmlNodeTUISlider::~VrmlNodeTUISlider()
 {
+}
+VrmlNode* VrmlNodeTUISlider::cloneMe() const
+{
+    return new VrmlNodeTUISlider(*this);
 }
 
 void VrmlNodeTUISlider::tabletEvent(coTUIElement *)
@@ -1453,9 +1561,18 @@ VrmlNodeTUIComboBox::VrmlNodeTUIComboBox(VrmlScene *scene)
     , d_defaultChoice(0)
 {
 }
-
+VrmlNodeTUIComboBox::VrmlNodeTUIComboBox(const VrmlNodeTUIComboBox& n)
+    : VrmlNodeTUIElement(n.d_scene)
+    , d_withNone(n.d_withNone)
+    , d_defaultChoice(n.d_defaultChoice)
+{
+}
 VrmlNodeTUIComboBox::~VrmlNodeTUIComboBox()
 {
+}
+VrmlNode* VrmlNodeTUIComboBox::cloneMe() const
+{
+    return new VrmlNodeTUIComboBox(*this);
 }
 
 void VrmlNodeTUIComboBox::tabletEvent(coTUIElement *)
@@ -1604,9 +1721,19 @@ VrmlNodeTUIListBox::VrmlNodeTUIListBox(VrmlScene *scene)
     , d_defaultChoice(0)
 {
 }
+VrmlNodeTUIListBox::VrmlNodeTUIListBox(const VrmlNodeTUIListBox& n)
+    : VrmlNodeTUIElement(n.d_scene)
+    , d_withNone(n.d_withNone)
+    , d_defaultChoice(n.d_defaultChoice)
+{
+}
 
 VrmlNodeTUIListBox::~VrmlNodeTUIListBox()
 {
+}
+VrmlNode* VrmlNodeTUIListBox::cloneMe() const
+{
+    return new VrmlNodeTUIListBox(*this);
 }
 
 void VrmlNodeTUIListBox::tabletEvent(coTUIElement *)
@@ -1748,9 +1875,19 @@ VrmlNodeTUIMap::VrmlNodeTUIMap(VrmlScene *scene)
     , d_currentPos(0, 0, 0)
 {
 }
+VrmlNodeTUIMap::VrmlNodeTUIMap(const VrmlNodeTUIMap& n)
+    : VrmlNodeTUIElement(n)
+    , d_currentMap(n.d_currentMap)
+    , d_currentPos(n.d_currentPos)
+{
+}
 
 VrmlNodeTUIMap::~VrmlNodeTUIMap()
 {
+}
+VrmlNode* VrmlNodeTUIMap::cloneMe() const
+{
+    return new VrmlNodeTUIMap(*this);
 }
 
 void VrmlNodeTUIMap::tabletEvent(coTUIElement *)
