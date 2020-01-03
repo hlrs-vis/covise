@@ -183,7 +183,7 @@ public:
 	virtual void eventIn(double timeStamp, const char* eventName, const VrmlField* fieldValue);
     virtual VrmlNodeType *nodeType() const;
     VrmlNodeTUIToggleButton(VrmlScene *);
-    VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton&);
+    VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton&);
     virtual ~VrmlNodeTUIToggleButton();
     virtual VrmlNode* cloneMe() const;
     virtual void tabletEvent(coTUIElement *);

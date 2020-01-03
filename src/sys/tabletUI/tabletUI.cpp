@@ -27,11 +27,11 @@ TUIMainWindow *qaw = NULL;
 
 int main(int argc, char **argv)
 {
+    bool verbose = false;
 #ifdef _WIN32
     unsigned short wVersionRequested = MAKEWORD(1, 1);
     struct WSAData wsaData;
     int err = WSAStartup(wVersionRequested, &wsaData);
-    bool verbose = false;
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i], "-d") == 0)
