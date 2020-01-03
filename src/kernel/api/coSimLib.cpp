@@ -34,7 +34,7 @@
 
 #include <covise/covise_process.h>
 
-#ifdef __ia64
+#if defined(__ia64) || defined(__FreeBSD__)
 extern char **environ;
 #endif
 

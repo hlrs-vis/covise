@@ -7,6 +7,7 @@
 
 
 #include <covise/covise.h>
+#include <util/unixcompat.h>
 #include "istreamBLK.h"
 
 using namespace covise;

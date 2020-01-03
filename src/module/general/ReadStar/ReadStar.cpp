@@ -33,6 +33,7 @@
 #include <star/File16.h>
 #include "ReadStar.h"
 
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 

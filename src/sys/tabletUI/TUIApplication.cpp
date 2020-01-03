@@ -102,6 +102,7 @@
 
 #ifndef _WIN32
 #include <signal.h>
+#include <sys/socket.h>
 #endif
 
 #include <cassert>

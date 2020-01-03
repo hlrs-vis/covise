@@ -37,7 +37,7 @@
 
 using namespace covise;
 
-#if defined(__sgi) || defined(__alpha) || defined(_AIX) || defined(__APPLE__)
+#if defined(__sgi) || defined(__alpha) || defined(_AIX) || defined(__APPLE__) || defined(__FreeBSD__)
 extern "C" int rexec(char **ahost, int inport, char *user, char *passwd,
                      char *cmd, int *fd2p);
 #endif
@@ -185,7 +185,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         return NULL;
     }
     execport = se->s_port;
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_WIN32) || defined(__FreeBSD__)
     (void)tmphost;
     (void)user;
     (void)passwd;

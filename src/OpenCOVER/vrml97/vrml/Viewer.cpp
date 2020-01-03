@@ -1207,7 +1207,7 @@ void Viewer::scaleTexture(int w, int h,
     {
         // float "index" of row in src image
         float srcColFl = (col + 0.5f) * srcW / dstW - 0.5f;
-        register int idx = (int)srcColFl;
+        int idx = (int)srcColFl;
         colIdx[col] = idx;
 
         colFct1[col] = srcColFl - idx;
@@ -1240,10 +1240,10 @@ void Viewer::scaleTexture(int w, int h,
         for (int col = 0; col < newW; col++)
         {
             // calculate per-pixel invariants
-            register unsigned char *pix00 = srcRow0 + nc * colIdx[col];
-            register unsigned char *pix01 = pix00 + (colIdx[col] < w - 1 ? nc : 0);
-            register unsigned char *pix10 = srcRow1 + nc * colIdx[col];
-            register unsigned char *pix11 = pix10 + (colIdx[col] < w - 1 ? nc : 0);
+            unsigned char *pix00 = srcRow0 + nc * colIdx[col];
+            unsigned char *pix01 = pix00 + (colIdx[col] < w - 1 ? nc : 0);
+            unsigned char *pix10 = srcRow1 + nc * colIdx[col];
+            unsigned char *pix11 = pix10 + (colIdx[col] < w - 1 ? nc : 0);
 
             // loop for all colors
             for (int i = 0; i < nc; i++)

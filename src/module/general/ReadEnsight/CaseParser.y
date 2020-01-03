@@ -12,7 +12,6 @@
 #include "CaseFile.h"
 #include "DataItem.h"
 #ifndef _WIN32
-#include <alloca.h>
 #include <sys/stat.h>
 #endif
 

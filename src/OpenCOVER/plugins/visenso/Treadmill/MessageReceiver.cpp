@@ -21,9 +21,6 @@
 #include <sys/socket.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#ifndef __APPLE__
-#include <sys/prctl.h>
-#endif
 #ifdef __linux__
 #define sigset signal
 #endif

@@ -14,7 +14,7 @@
 
 #include <util/environment.h>
 
-#if defined(__linux__) || defined(__APPLE__) || defined(__sgi)
+#if defined(__linux__) || defined(__APPLE__) || defined(__sgi) || defined(__FreeBSD__)
 #include <dlfcn.h>
 #endif
 

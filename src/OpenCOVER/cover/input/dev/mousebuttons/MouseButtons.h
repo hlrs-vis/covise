@@ -34,7 +34,7 @@
 #include <unistd.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__FreeBSD__)
 #undef USE_XINPUT
 #define USE_LINUX
 #endif

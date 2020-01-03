@@ -82,7 +82,9 @@ using namespace opencover;
 #define NUM_BUTTONS 3
 #ifdef WIN32
 #else
+#ifdef __linux__
 #include <linux/joystick.h> // das muss nach osg kommen, wegen KEY_F1
+#endif
 #include <unistd.h>
 
 #include <X11/Xlib.h>

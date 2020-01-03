@@ -27,6 +27,7 @@
 #include <do/coDoData.h>
 #include <do/coDoIntArr.h>
 #include <do/coDoSet.h>
+#include <fcntl.h>
 
 Patran::Patran(int argc, char *argv[])
     : coModule(argc, argv, "Read Patran Neutral Files")

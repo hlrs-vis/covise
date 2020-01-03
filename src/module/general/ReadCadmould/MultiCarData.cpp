@@ -24,10 +24,12 @@
 #ifndef WIN32
 #include <sys/param.h>
 #include <sys/stat.h>
+#ifndef __FreeBSD__
 #include <sys/dir.h>
 #endif
+#endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
 #include <dirent.h>
 #endif
 

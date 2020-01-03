@@ -63,7 +63,7 @@ ui_list *userinterfaceList;
 //  be interpreted.
 Message m_dummyMessage;
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 static void sigHandler(int sigNo) //  catch SIGPWR as addpartner signal
 {
 #if !defined(_WIN32) && !defined(__APPLE__)
@@ -863,7 +863,7 @@ int CTRLHandler::parseCommandLine(int argc, char **argv)
             case 'P':
 
 //  initialize signal handler
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__FreeBSD__)
                 signal(SIGPWR, sigHandler);
 #endif
                 scan_add_partner_host = 1;

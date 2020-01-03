@@ -11,10 +11,10 @@
 #include "File16.h"
 #include "File09.h"
 #include <sys/stat.h>
+#include <fcntl.h>
 
 #ifdef _WIN32
 #include <io.h>
-#include <fcntl.h>
 #endif
 
 #ifdef _STANDARD_C_PLUS_PLUS

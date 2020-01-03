@@ -34,6 +34,7 @@
 #include <config/CoviseConfig.h>
 #include "VrmlNodeOffice.h"
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <cassert>
 
 #include <cover/ui/Manager.h>

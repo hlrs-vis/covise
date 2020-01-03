@@ -29,9 +29,9 @@
 
 #ifdef _WIN32
 #include <io.h>
-#include <fcntl.h>
 #endif
 
+#include <fcntl.h>
 #include "ReadDyna3D.h"
 #include <util/coviseCompat.h>
 

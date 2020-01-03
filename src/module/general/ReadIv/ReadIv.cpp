@@ -33,10 +33,10 @@
 
 #ifdef _WIN32
 #include <io.h>
-#include <fcntl.h>
 #endif
 
 #include <sys/stat.h>
+#include <fcntl.h>
 
 //
 // static stub callback functions calling the real class

@@ -43,8 +43,7 @@ darwin          Generic macOS
 libc++          Mac OS X 10.9-10.12, x86_64 with libc++
 macos           macOS, x86_64 with libc++
 
-
-
+freebsd         Generic FreeBSD
 
 
 #

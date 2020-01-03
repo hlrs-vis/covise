@@ -18,6 +18,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <unistd.h>
+#include <netinet/in.h>
 #endif
 #include <fcntl.h>
 #include <cstring>

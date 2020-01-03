@@ -39,21 +39,21 @@ using namespace covise;
 static const char *FobServerVersion = "2.0";
 
 // global variable for signal handler
-fob *flock = NULL;
+fob *flockOfBirds = NULL;
 
-// signal handler: correctly shut down flock
+// signal handler: correctly shut down flockOfBirds
 void sigHandler(int signo)
 {
-    if (flock)
+    if (flockOfBirds)
     {
         fprintf(stderr, "Shutting down flock for signal %d\n", signo);
 #ifdef VISENSO
 #ifndef WIN32
-        delete flock;
+        delete flockOfBirds;
         exit(0);
 #endif
 #endif
-        flock->setStopping();
+        flockOfBirds->setStopping();
     }
 }
 
@@ -331,44 +331,44 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    flock = new fob(serialPort, baudrate, numBirds, mode);
+    flockOfBirds = new fob(serialPort, baudrate, numBirds, mode);
 
-    if (!flock->testConnection())
+    if (!flockOfBirds->testConnection())
     {
         fprintf(stderr, "flock tracker not connected\n");
     }
 
-    flock->autoconfig();
+    flockOfBirds->autoconfig();
     if (mRate != -1.)
     {
-        flock->setMeasurementRate(mRate);
+        flockOfBirds->setMeasurementRate(mRate);
     }
-    flock->printSystemStatus();
-    fprintf(stderr, "found %d ERCs\n", flock->getNumERCs());
-    fprintf(stderr, "found %d receivers\n", flock->getNumReceivers());
+    flockOfBirds->printSystemStatus();
+    fprintf(stderr, "found %d ERCs\n", flockOfBirds->getNumERCs());
+    fprintf(stderr, "found %d receivers\n", flockOfBirds->getNumReceivers());
 
     // send to all bird
-    for (i = flock->getNumERCs() + 1; i < numBirds + 1; i++)
+    for (i = flockOfBirds->getNumERCs() + 1; i < numBirds + 1; i++)
     {
-        flock->setDataFormat(i, fob::FLOCK_POSITIONMATRIX);
-        flock->setHemisphere(i, hemisphere);
-        //flock->reportRate(i);
-        if (flock->getNumERCs() == 0)
+        flockOfBirds->setDataFormat(i, fob::FLOCK_POSITIONMATRIX);
+        flockOfBirds->setHemisphere(i, hemisphere);
+        //flockOfBirds->reportRate(i);
+        if (flockOfBirds->getNumERCs() == 0)
         {
-            flock->changeRange(i, 1); //fullrange
+            flockOfBirds->changeRange(i, 1); //fullrange
         }
     }
 
     if (mode)
-        flock->enableStreamMode();
+        flockOfBirds->enableStreamMode();
     else
         //POINT mode - initially sends the group mode command only
-        flock->sendGroupMode();
+        flockOfBirds->sendGroupMode();
 
 #ifdef VISENSO
 #ifndef _WIN32
     fprintf(stderr, "Starting Server Process ...\n");
-    flock->startServerProcess();
+    flockOfBirds->startServerProcess();
 #endif
 #endif
 
@@ -376,11 +376,11 @@ int main(int argc, char *argv[])
     while (true)
     {
 #ifndef VISENSO
-        flock->processSerialStream();
+        flockOfBirds->processSerialStream();
 #else
 #ifdef _WIN32
 
-        flock->processSerialStream();
+        flockOfBirds->processSerialStream();
 #endif
 #endif
         struct timeval delayT = delay; // select does not guarantee holding the value
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
             {
                 int birdId = birdIds[i];
 
-                flock->getPositionMatrix(birdId, &x, &y, &z, &(mat[0][0]), &(mat[0][1]), &(mat[0][2]), &(mat[1][0]), &(mat[1][1]), &(mat[1][2]), &(mat[2][0]), &(mat[2][1]), &(mat[2][2]));
+                flockOfBirds->getPositionMatrix(birdId, &x, &y, &z, &(mat[0][0]), &(mat[0][1]), &(mat[0][2]), &(mat[1][0]), &(mat[1][1]), &(mat[1][2]), &(mat[2][0]), &(mat[2][1]), &(mat[2][2]));
                 x /= 10.0;
                 y /= 10.0;
                 z /= 10.0;
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
                 }
 
                 unsigned short int buttons;
-                flock->getButtons(birdId, &buttons);
+                flockOfBirds->getButtons(birdId, &buttons);
 
                 if (buttons == 112)
                     buttons = 4;

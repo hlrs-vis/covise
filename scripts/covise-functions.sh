@@ -67,6 +67,10 @@ guess_archsuffix() {
         IRIX*)
             export ARCHSUFFIX=sgin32
             ;;
+
+        FreeBSD*)
+            export ARCHSUFFIX=freebsd
+            ;;
         
         HP-UX)
 	    export ARCHSUFFIX=hp

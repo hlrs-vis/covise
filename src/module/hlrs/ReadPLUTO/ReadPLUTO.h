@@ -33,9 +33,9 @@ using namespace covise;
 #include <do/coDoSet.h>
 #include <do/coDoStructuredGrid.h>
 
+#include <fcntl.h>
 #ifdef _WIN32
 #include <io.h>
-#include <fcntl.h>
 #endif
 
 #ifdef BYTESWAP

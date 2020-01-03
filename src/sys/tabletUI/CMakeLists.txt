@@ -28,7 +28,7 @@ endif(Qt5Positioning_FOUND)
 
 if(NOT WIN32)
 add_covise_compile_flags(tabletUI "-Wno-error=deprecated-declarations")
-endif(WIN32)
+endif(NOT WIN32)
 
 
 if(APPLE)

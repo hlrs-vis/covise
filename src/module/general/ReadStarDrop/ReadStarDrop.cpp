@@ -28,10 +28,10 @@
 #include <config/CoviseConfig.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 #ifdef _WIN32
 #include <io.h>
-#include <fcntl.h>
 #endif
 #include <float.h>
 

@@ -197,7 +197,7 @@ WINCOMPATINLINE char *strsep(char **s, const char *delim)
 }
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__FreeBSD__)
 WINCOMPATINLINE off_t lseek64(int fildes, off_t offset, int whence)
 {
     return lseek(fildes, offset, whence);
