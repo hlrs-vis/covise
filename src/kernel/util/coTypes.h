@@ -95,39 +95,11 @@ typedef int pid_t;
 
 /* +++++++++++ SGI type definitions : insure uses SGI compiler */
 
-#if defined(__sgi) || defined(__insure__)
-
-typedef unsigned char coUByte;
-
-typedef int coInt32;
-typedef unsigned int coUInt32;
-
-#if (_MIPS_SZLONG == 64)
-typedef long coInt64;
-typedef unsigned long coUInt64;
-#else
-typedef long long coInt64;
-typedef unsigned long long coUInt64;
-#endif
-
-/* SGI compilers introduce Symbol _BOOL if boolean types available
- * we have to use own symbol to prevent problems on other platforms
- * (HP-UX)
- */
-#ifdef _BOOL
-#define _BOOL_
-#endif
-#endif /* CO_sgi    SGI type definitions */
 
 /* +++++++++++ Windows type definitions */
 
 #ifdef _WIN32
 
-typedef unsigned char coUByte;
-typedef int coInt32;
-typedef unsigned int coUInt32;
-typedef long long coInt64;
-typedef unsigned long long coUInt64;
 typedef unsigned short ushort;
 /* typedef long            ssize_t; */
 
@@ -162,47 +134,20 @@ typedef unsigned int uint32_t;
 #endif
 #endif
 
-#define _BOOL_
 #endif /* _WIN32 */
+
+typedef unsigned char coUByte;
+typedef int32_t coInt32;
+typedef uint32_t coUInt32;
+typedef int64_t coInt64;
+typedef uint64_t coUInt64;
 
 /* +++++++++++ Cray-T3E type definitions */
 
 #ifdef CO_t3e
 
-typedef unsigned char coUByte;
-typedef short coInt32;
-typedef unsigned short coUInt32;
-typedef int coInt64;
-typedef unsigned int coUInt64;
-
 #define PARALLEL
 #endif /* CO_t3e */
-
-/* +++++++++++ Linux type definitions */
-
-#ifdef __linux__
-
-typedef unsigned char coUByte;
-typedef int coInt32;
-typedef unsigned int coUInt32;
-typedef long long coInt64;
-typedef unsigned long long coUInt64;
-
-#define _BOOL_
-#endif /* LINUX */
-
-/* +++++++++++ HP-UX type definitions (IA-64, PA-RISC not tested!) */
-
-#ifdef __hpux
-
-typedef unsigned char coUByte;
-typedef int coInt32;
-typedef unsigned int coUInt32;
-typedef long long coInt64;
-typedef unsigned long long coUInt64;
-
-#define _BOOL_
-#endif /* HP_UX */
 
 /* ++++++++++ Mac OS X type definitions */
 #ifdef __APPLE__
@@ -212,13 +157,19 @@ typedef unsigned long long coUInt64;
 #define BYTESWAP
 #endif
 #endif
-typedef unsigned char coUByte;
-typedef int coInt32;
-typedef unsigned int coUInt32;
-typedef long long coInt64;
-typedef unsigned long long coUInt64;
 
-#define _BOOL_
+#endif
+
+/* ++++++++++ FreeBSD */
+#ifdef __FreeBSD__
+
+#include <sys/endian.h>
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+#ifndef BYTESWAP
+#define BYTESWAP
+#endif
+#endif
+
 #endif
 
 /* Our data Data types are int's  ( @@@@ is that ok on T3E ) */
