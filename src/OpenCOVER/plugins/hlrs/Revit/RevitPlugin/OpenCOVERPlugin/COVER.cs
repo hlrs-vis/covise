@@ -1230,7 +1230,7 @@ namespace OpenCOVERPlugin
         private void sendViewpoint(Autodesk.Revit.DB.Element elem)
         {
             Autodesk.Revit.DB.View view = (Autodesk.Revit.DB.View)elem;
-            if (view is Autodesk.Revit.DB.View3D)
+            if (view is Autodesk.Revit.DB.View3D && view.IsTemplate != true)
             {
                 Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)view;
                 MessageBuffer mb = new MessageBuffer();
