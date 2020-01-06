@@ -554,6 +554,11 @@ namespace OpenCOVERPlugin
                     link.Load();
                 }*/
 
+                Document linkDoc = link.GetLinkDocument();
+                if(linkDoc!=null)
+                {
+
+
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
                 mb.add(elem.Name + "__" + elem.UniqueId.ToString());
@@ -572,10 +577,12 @@ namespace OpenCOVERPlugin
                     mb.add(new XYZ(0, 0, 0));
                 }
                 sendMessage(mb.buf, MessageTypes.NewTransform);
-                Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(link.GetLinkDocument());
-                COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, link.GetLinkDocument());
+                Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
+                COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
                 mb = new MessageBuffer();
                 sendMessage(mb.buf, MessageTypes.EndGroup);
+
+                }
 
             }
             // if it is a Group. we will need to look at its components.
