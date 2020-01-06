@@ -615,12 +615,11 @@ void RevitPlugin::menuEvent(coMenuItem *aButton)
 {
 	if (aButton == updateCameraButton)
 	{
-		for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
-			it != viewpointEntries.end(); it++)
+		for (const auto& it : viewpointEntries)
 		{
-			if ((*it)->isActive)
+			if (it->isActive)
 			{
-				(*it)->updateCamera();
+				it->updateCamera();
 			}
 		}
 	}
@@ -632,12 +631,11 @@ void RevitPlugin::tabletPressEvent(coTUIElement *tUIItem)
 {
 	if (tUIItem == updateCameraTUIButton)
 	{
-		for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
-			it != viewpointEntries.end(); it++)
+		for (const auto& it : viewpointEntries)
 		{
-			if ((*it)->isActive)
+			if (it->isActive)
 			{
-				(*it)->updateCamera();
+				it->updateCamera();
 			}
 		}
 	}
@@ -660,12 +658,11 @@ void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
 	}
 	else
 	{
-		for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
-			it != viewpointEntries.end(); it++)
+		for (const auto& it : viewpointEntries)
 		{
-			if ((*it)->getTUIItem() == tUIItem)
+			if (it->getTUIItem() == tUIItem)
 			{
-				(*it)->activate();
+				it->activate();
 				break;
 			}
 		}
@@ -674,10 +671,9 @@ void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
 
 void RevitPlugin::deactivateAllViewpoints()
 {
-	for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
-		it != viewpointEntries.end(); it++)
+	for (const auto& it : viewpointEntries)
 	{
-		(*it)->deactivate();
+		it->deactivate();
 	}
 }
 
@@ -1296,10 +1292,9 @@ RevitPlugin::handleMessage(Message *m)
 
 		// remove viewpoints
 		maxEntryNumber = 0;
-		for (std::list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
-			it != viewpointEntries.end(); it++)
+		for (const auto& it : viewpointEntries)
 		{
-			delete *it;
+			delete it;
 		}
 		viewpointEntries.clear();
 		for (std::map<int, ElementInfo *>::iterator it = ElementIDMap.begin(); it != ElementIDMap.end(); it++)
@@ -1396,13 +1391,12 @@ RevitPlugin::handleMessage(Message *m)
 
 		bool foundIt = false;
 
-		for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
-			it != viewpointEntries.end(); it++)
+		for (const auto &it : viewpointEntries)
 		{
-			if ((*it)->ID == ID)
+			if (it->ID == ID)
 			{
 				foundIt = true;
-				RevitViewpointEntry *vpe = (*it);
+				RevitViewpointEntry *vpe = it;
 				if (vpe->isActive)
 				{
 					vpe->setValues(pos, dir, up, name);
@@ -1424,9 +1418,27 @@ RevitPlugin::handleMessage(Message *m)
 			// add viewpoint to menu
 			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, menuEntry);
 			menuEntry->setMenuListener(vpe);
-			viewpointMenu->add(menuEntry);
+			for (const auto &it: viewpointEntries)
+			{
+				viewpointMenu->remove(it->getMenuItem());
+			}
+			//viewpointMenu->add(menuEntry);
 			vpe->setMenuItem(menuEntry);
 			viewpointEntries.push_back(vpe);
+			sort(viewpointEntries.begin(), viewpointEntries.end(), [](RevitViewpointEntry*& a, RevitViewpointEntry*& b) {
+				const std::string& an = a->getName();
+				const std::string& bn = b->getName();
+				for (size_t c = 0; c < an.size() && c < bn.size(); c++) {
+					if (std::tolower(an[c]) != std::tolower(bn[c]))
+						return (std::tolower(an[c]) < std::tolower(bn[c]));
+				}
+				return an.size() < bn.size();
+				});
+
+			for (const auto& it : viewpointEntries)
+			{
+				viewpointMenu->add(it->getMenuItem());
+			}
 
             if (setViewpoint && strncasecmp("Start", vpe->getName().c_str(),5) == 0)
                 vpe->activate();

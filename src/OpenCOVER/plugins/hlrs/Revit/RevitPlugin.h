@@ -72,6 +72,9 @@ public:
     virtual ~RevitViewpointEntry();
     virtual void menuEvent(coMenuItem *button);
     void setMenuItem(coCheckboxMenuItem *aMenuItem);
+    coCheckboxMenuItem* getMenuItem() {
+        return menuItem;
+    };
     coTUIToggleButton *getTUIItem()
     {
         return tuiItem;
@@ -85,7 +88,7 @@ public:
     int entryNumber;
     int ID;
     bool isActive = false;
-    std::string &getName() { return name; };
+    const std::string & getName()const { return name; };
 
 private:
     std::string name;
@@ -353,7 +356,7 @@ protected:
     coRowMenu *viewpointMenu = nullptr;
     coRowMenu *roomInfoMenu = nullptr;
     coCheckboxGroup *cbg = nullptr;
-    std::list<RevitViewpointEntry *> viewpointEntries;
+    std::vector<RevitViewpointEntry *> viewpointEntries;
     coButtonMenuItem *addCameraButton = nullptr;
     coButtonMenuItem *updateCameraButton = nullptr;
     coTUIButton *addCameraTUIButton = nullptr;
