@@ -531,6 +531,24 @@ namespace OpenCOVERPlugin
                     }
                 }
             }
+            if (elem is Autodesk.Revit.DB.Mullion)
+            {
+                Mullion p = elem as Autodesk.Revit.DB.Mullion;
+                if (p.Host != null)
+                {
+                    if (p.Host.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.Host.Category != null)
+                    {
+                        if (!p.Host.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
             if (elem.Category != null)
             {
                 if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
@@ -599,7 +617,8 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
                     LinkedFileName = linkDoc.Title;
                 COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
-                mb = new MessageBuffer();
+                    LinkedFileName = "";
+                    mb = new MessageBuffer();
                 sendMessage(mb.buf, MessageTypes.EndGroup);
 
                 }
