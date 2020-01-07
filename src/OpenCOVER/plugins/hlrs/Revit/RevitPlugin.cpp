@@ -1425,7 +1425,7 @@ RevitPlugin::handleMessage(Message *m)
 			//viewpointMenu->add(menuEntry);
 			vpe->setMenuItem(menuEntry);
 			viewpointEntries.push_back(vpe);
-			sort(viewpointEntries.begin(), viewpointEntries.end(), [](RevitViewpointEntry*& a, RevitViewpointEntry* const& b) {
+			sort(viewpointEntries.begin(), viewpointEntries.end(), [](const RevitViewpointEntry *a, const RevitViewpointEntry *b) {
 				const std::string& an = a->getName();
 				const std::string& bn = b->getName();
 				for (size_t c = 0; c < an.size() && c < bn.size(); c++) {
