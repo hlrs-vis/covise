@@ -292,7 +292,7 @@ namespace OpenCOVERPlugin
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
             sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
-            View3D = null;
+            
             if (uidoc !=null && uidoc.ActiveView is View3D)
             {
                 View3D = uidoc.ActiveView as View3D;
@@ -1965,7 +1965,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.Resend:
                     {
                         Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
-
+                    View3D = null;
                     COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
 
                         ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
