@@ -71,6 +71,8 @@ namespace OpenCOVERPlugin
         private Autodesk.Revit.DB.Options mOptions;
         private Autodesk.Revit.DB.View3D View3D;
         private String LinkedFileName="";
+        private int LinkedDocumentID = 0;
+        private int DocumentID = 0;
         private Autodesk.Revit.DB.Document document;
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
@@ -616,7 +618,9 @@ namespace OpenCOVERPlugin
                 sendMessage(mb.buf, MessageTypes.NewTransform);
                 Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
                     LinkedFileName = linkDoc.Title;
+                    DocumentID = LinkedDocumentID++;
                 COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
+                    DocumentID = 0;
                     LinkedFileName = "";
                     mb = new MessageBuffer();
                 sendMessage(mb.buf, MessageTypes.EndGroup);
@@ -1281,6 +1285,7 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)view;
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 if(LinkedFileName!="")
                     mb.add(LinkedFileName + ":" +elem.Name);
                 else
@@ -2009,6 +2014,8 @@ namespace OpenCOVERPlugin
                         Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
                     View3D = null;
                     LinkedFileName = "";
+                    LinkedDocumentID = 0;
+                    DocumentID = 0;
                     COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
 
                         ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));

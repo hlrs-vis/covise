@@ -68,7 +68,7 @@ using covise::ServerConnection;
 class RevitViewpointEntry : public coMenuListener
 {
 public:
-    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,coCheckboxMenuItem *me);
+    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,int docID,coCheckboxMenuItem *me);
     virtual ~RevitViewpointEntry();
     virtual void menuEvent(coMenuItem *button);
     void setMenuItem(coCheckboxMenuItem *aMenuItem);
@@ -87,6 +87,7 @@ public:
     void updateCamera();
     int entryNumber;
     int ID;
+    int documentID;
     bool isActive = false;
     const std::string & getName()const { return name; };
 

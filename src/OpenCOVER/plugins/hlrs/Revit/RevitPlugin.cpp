@@ -307,7 +307,7 @@ void RevitParameter::createTUI(coTUIFrame *frame, int pos)
 	tuiElement->setEventListener(this);
 }
 
-RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id, coCheckboxMenuItem *me)
+RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id, int docID, coCheckboxMenuItem *me)
 	: menuItem(NULL)
 {
 	myPlugin = plugin;
@@ -317,6 +317,7 @@ RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3
 	viewDirection = -dir;
 	upDirection = up;
 	ID = id;
+	documentID = docID;
 	menuEntry = me;
 	isActive = false;
 
@@ -1372,7 +1373,9 @@ RevitPlugin::handleMessage(Message *m)
 	{
 		TokenBuffer tb(m);
 		int ID;
+		int documentID;
 		tb >> ID;
+		tb >> documentID;
 		char *name;
 		tb >> name;
 		float x, y, z;
@@ -1393,7 +1396,7 @@ RevitPlugin::handleMessage(Message *m)
 
 		for (const auto &it : viewpointEntries)
 		{
-			if (it->ID == ID)
+			if (it->ID == ID && it->documentID == documentID)
 			{
 				foundIt = true;
 				RevitViewpointEntry *vpe = it;
@@ -1416,7 +1419,7 @@ RevitPlugin::handleMessage(Message *m)
 
 			menuEntry = new coCheckboxMenuItem(name, false, cbg);
 			// add viewpoint to menu
-			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, menuEntry);
+			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, documentID, menuEntry);
 			menuEntry->setMenuListener(vpe);
 			for (const auto &it: viewpointEntries)
 			{
