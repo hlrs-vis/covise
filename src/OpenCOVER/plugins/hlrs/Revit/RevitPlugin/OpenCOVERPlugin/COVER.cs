@@ -70,6 +70,7 @@ namespace OpenCOVERPlugin
         private System.Net.Sockets.TcpClient toCOVER;
         private Autodesk.Revit.DB.Options mOptions;
         private Autodesk.Revit.DB.View3D View3D;
+        private String LinkedFileName="";
         private Autodesk.Revit.DB.Document document;
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
@@ -512,6 +513,24 @@ namespace OpenCOVERPlugin
             {
                 return;
             }
+            if(elem is Autodesk.Revit.DB.Panel)
+            {
+                Panel p = elem as Autodesk.Revit.DB.Panel;
+                if(p.Host !=null)
+                {
+                    if (p.Host.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.Host.Category != null)
+                    {
+                        if (!p.Host.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
             if (elem.Category != null)
             {
                 if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
@@ -578,6 +597,7 @@ namespace OpenCOVERPlugin
                 }
                 sendMessage(mb.buf, MessageTypes.NewTransform);
                 Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
+                    LinkedFileName = linkDoc.Title;
                 COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
                 mb = new MessageBuffer();
                 sendMessage(mb.buf, MessageTypes.EndGroup);
@@ -1242,7 +1262,10 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)view;
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
-                mb.add(elem.Name);
+                if(LinkedFileName!="")
+                    mb.add(LinkedFileName + ":" +elem.Name);
+                else
+                    mb.add(elem.Name);
                 mb.add(v3d.Origin);
                 mb.add(v3d.ViewDirection);
                 mb.add(v3d.UpDirection);
@@ -1966,6 +1989,7 @@ namespace OpenCOVERPlugin
                     {
                         Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
                     View3D = null;
+                    LinkedFileName = "";
                     COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
 
                         ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
