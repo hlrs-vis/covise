@@ -209,7 +209,7 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
-    <Revit menu="on" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
     <TrackObjects menu="on" value="off" >
 	    <Objects>
