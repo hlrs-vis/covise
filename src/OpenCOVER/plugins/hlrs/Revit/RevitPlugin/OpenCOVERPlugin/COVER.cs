@@ -72,7 +72,7 @@ namespace OpenCOVERPlugin
         private Autodesk.Revit.DB.View3D View3D;
         private String LinkedFileName="";
         private int LinkedDocumentID = 0;
-        private int DocumentID = 0;
+        public int DocumentID = 0;
         private Autodesk.Revit.DB.Document document;
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
@@ -341,6 +341,7 @@ namespace OpenCOVERPlugin
         {
             MessageBuffer mb = new MessageBuffer();
             mb.add(ID.IntegerValue);
+            mb.add(DocumentID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
         }
 
@@ -367,6 +368,7 @@ namespace OpenCOVERPlugin
                     {
                         MessageBuffer mb = new MessageBuffer();
                         mb.add(ID);
+                        mb.add(DocumentID);
                         sendMessage(mb.buf, MessageTypes.DeleteObject);
                         SendElement(elem);
                         break;
@@ -394,6 +396,7 @@ namespace OpenCOVERPlugin
             {
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(elem.Name + "_FamilySymbol");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(false);
@@ -411,6 +414,7 @@ namespace OpenCOVERPlugin
 
                 mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(vrps.Size);
                 foreach (Autodesk.Revit.DB.Parameter para in vrps)
                 {
@@ -427,6 +431,7 @@ namespace OpenCOVERPlugin
                             //find out the name of the element
                             Autodesk.Revit.DB.ElementId id = para.AsElementId();
                             mb.add(id.IntegerValue);
+                            mb.add(DocumentID);
                             break;
                         case Autodesk.Revit.DB.StorageType.Integer:
                             mb.add(para.AsInteger());
@@ -465,6 +470,7 @@ namespace OpenCOVERPlugin
 
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(vrps.Size);
                 foreach (Autodesk.Revit.DB.Parameter para in vrps)
                 {
@@ -564,6 +570,7 @@ namespace OpenCOVERPlugin
                 String n = pointcloud.Name;
                 /*MessageBuffer mb = new MessageBuffer();
                  * mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
                 mb.add(elem.Name + "__" + elem.UniqueId.ToString());
                 mb.add(n);
                 sendMessage(mb.buf, MessageTypes.NewPointCloud);*/
@@ -571,6 +578,7 @@ namespace OpenCOVERPlugin
 
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(elem.Name);
                 mb.add((int)ObjectTypes.Inline);
                 mb.add(n+".e57");
@@ -600,7 +608,8 @@ namespace OpenCOVERPlugin
 
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
-                mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                    mb.add(DocumentID);
+                    mb.add(elem.Name + "__" + elem.UniqueId.ToString());
                 try
                 {
                     mb.add(link.GetTransform().BasisX.Multiply(link.GetTransform().Scale));
@@ -639,6 +648,7 @@ namespace OpenCOVERPlugin
 
                    MessageBuffer mb = new MessageBuffer();
                    mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
                    mb.add(elem.Name);
                    sendMessage(mb.buf, MessageTypes.NewGroup);
                    foreach (Autodesk.Revit.DB.Element elm in members)
@@ -684,6 +694,7 @@ namespace OpenCOVERPlugin
 
             MessageBuffer mb = new MessageBuffer();
             mb.add(materialElement.Id.IntegerValue);
+            mb.add(DocumentID);
             TextureInfo ti = getTexture(materialElement, elem, TextureTypes.Diffuse);
             if (ti != null)
             {
@@ -876,6 +887,7 @@ namespace OpenCOVERPlugin
                 {
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
                     mb.add(elem.Name + "_m_" + num.ToString());
                     mb.add((int)ObjectTypes.Mesh);
                     Autodesk.Revit.DB.Mesh meshObj = geomObject as Autodesk.Revit.DB.Mesh;
@@ -909,6 +921,7 @@ namespace OpenCOVERPlugin
                 {
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
                     mb.add(elem.Name + "_s_" + num.ToString());
                     Autodesk.Revit.DB.FaceArray faces = ((Autodesk.Revit.DB.Solid)geomObject).Faces;
                     if (faces.Size != 0)
@@ -973,6 +986,7 @@ namespace OpenCOVERPlugin
                 {
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
                     mb.add(elem.Name);
                     mb.add((int)ObjectTypes.Inline);
                     mb.add(p.AsString());
@@ -1084,6 +1098,7 @@ namespace OpenCOVERPlugin
                     XYZ hostPos = GetElementLocation(fi.Host);
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
                     mb.add(elem.Name + "_" + elem.Id.IntegerValue.ToString());
                     mb.add(t.Origin);
                     mb.add(t.BasisX);
@@ -1306,6 +1321,7 @@ namespace OpenCOVERPlugin
             {
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(tn.Coord);
                 mb.add(tn.Text);
                 sendMessage(mb.buf, MessageTypes.NewAnnotation);
@@ -1320,6 +1336,7 @@ namespace OpenCOVERPlugin
             int num = 0;
             MessageBuffer mb = new MessageBuffer();
             mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
             mb.add("DoorMovingParts"+name+"_" + elem.Name);
             mb.add(fi.HandFlipped);
             mb.add(fi.HandOrientation);
@@ -1381,6 +1398,7 @@ namespace OpenCOVERPlugin
 
             MessageBuffer mb = new MessageBuffer();
             mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
             mb.add(elem.Name + "__" + elem.UniqueId.ToString());
             try
             {
@@ -1540,6 +1558,7 @@ namespace OpenCOVERPlugin
             {
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(twoSided);
@@ -1576,6 +1595,7 @@ namespace OpenCOVERPlugin
                     mb.add((byte)220);
                     mb.add((byte)255);
                     mb.add(-1); // material ID
+                    mb.add(DocumentID);
                 }
                 else
                 {
@@ -1583,6 +1603,7 @@ namespace OpenCOVERPlugin
                     mb.add(m.Color);
                     mb.add((byte)(((100 - (m.Transparency)) / 100.0) * 255));
                     mb.add(m.Id.IntegerValue);
+                    mb.add(DocumentID);
                 }
                 mb.add(getDepthOny(elem));
                 sendMessage(mb.buf, MessageTypes.NewObject);
@@ -1608,6 +1629,7 @@ namespace OpenCOVERPlugin
                                 {
                                     MessageBuffer mb = new MessageBuffer();
                                     mb.add(elem.Id.IntegerValue);
+                                    mb.add(DocumentID);
                                     mb.add(elem.Name + "_f_" + num.ToString());
                                     mb.add((int)ObjectTypes.Mesh);
 
@@ -1628,6 +1650,7 @@ namespace OpenCOVERPlugin
                                         mb.add(materialElement.Color);
                                         mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
                                         mb.add(materialElement.Id.IntegerValue);
+                                        mb.add(DocumentID);
                                     }
                                     mb.add(getDepthOny(elem));
                                     sendMessage(mb.buf, MessageTypes.NewObject);
@@ -1643,6 +1666,7 @@ namespace OpenCOVERPlugin
                         {
                             MessageBuffer mb = new MessageBuffer();
                             mb.add(elem.Id.IntegerValue);
+                            mb.add(DocumentID);
                             mb.add(elem.Name + "_f_" + num.ToString());
                             mb.add((int)ObjectTypes.Mesh);
 
@@ -1663,6 +1687,7 @@ namespace OpenCOVERPlugin
                                 mb.add(materialElement.Color);
                                 mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
                                 mb.add(materialElement.Id.IntegerValue);
+                                mb.add(DocumentID);
                             }
                             mb.add(getDepthOny(elem));
                             sendMessage(mb.buf, MessageTypes.NewObject);
@@ -2030,6 +2055,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.SetParameter:
                     {
                         int elemID = buf.readInt();
+                        int docID = buf.readInt(); 
                         int paramID = buf.readInt();
 
                         Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
@@ -2106,6 +2132,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.SetTransform:
                     {
                         int elemID = buf.readInt();
+                        int docID = buf.readInt();
                         double x = buf.readDouble();
                         double y = buf.readDouble();
                         double z = buf.readDouble();
@@ -2124,6 +2151,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.UpdateView:
                     {
                         int elemID = buf.readInt();
+                        int docID = buf.readInt();
                         double ex = buf.readDouble();
                         double ey = buf.readDouble();
                         double ez = buf.readDouble();
@@ -2193,8 +2221,9 @@ namespace OpenCOVERPlugin
                 case MessageTypes.SetView:
                     {
                         int currentView = buf.readInt();
+                        int docID = buf.readInt();
 
-                        List<View3D> views = new List<View3D>(
+                    List<View3D> views = new List<View3D>(
             new FilteredElementCollector(doc)
               .OfClass(typeof(View3D))
               .Cast<View3D>()
@@ -2231,6 +2260,7 @@ namespace OpenCOVERPlugin
                     {
 
                         int elemID = buf.readInt();
+                        int docID = buf.readInt();
                         string labelText = buf.readString();
 
                         Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);

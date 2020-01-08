@@ -46,6 +46,7 @@ public:
     RevitInfo();
     ~RevitInfo();
     int ObjectID;
+    int DocumentID;
 };
 
 namespace vrui
@@ -111,6 +112,7 @@ public:
     std::list<RevitParameter *> parameters;
     void addParameter(RevitParameter *p);
     int ID;
+    int DocumentID;
     std::string name;
 
 private:
@@ -140,13 +142,14 @@ public:
 	std::string name;
 	std::string markerType;
 	int ID;
+    int DocumentID;
 	int MarkerID;
 	int hostID;
 	double offset;
 	double angle;
 	double size;
 	double lastUpdate = 0.0;
-	void setValues(int ID, int MarkerID, std::string& name, double angle, double offset, osg::Matrix& mat, osg::Matrix& hostMat, int hostID, double size, std::string markerType);
+	void setValues(int ID,int docID, int MarkerID, std::string& name, double angle, double offset, osg::Matrix& mat, osg::Matrix& hostMat, int hostID, double size, std::string markerType);
 	void update();
 };
 
@@ -174,6 +177,7 @@ public:
 	osg::StateSet *geoState;
 	coVRShader *shader;
 	int ID;
+    int DocumentID;
     void updateTexture(TextureInfo::textureType type, osg::Image *image);
     osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
 };
@@ -377,11 +381,12 @@ protected:
     osg::ref_ptr<osg::Material> globalmtl;
     osg::ref_ptr<osg::MatrixTransform> revitGroup;
     std::stack<osg::Group *> currentGroup;
-    std::map<int, ElementInfo *> ElementIDMap;
+    std::vector<std::map<int, ElementInfo *>> ElementIDMap;
     osg::Matrix invStartMoveMat;
     osg::Matrix lastMoveMat;
     bool MoveFinished;
     int MovedID;
+    int MovedDocumentID;
     RevitInfo  *info = nullptr;
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
