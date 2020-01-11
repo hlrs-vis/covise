@@ -573,6 +573,10 @@ Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Par
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif
 ; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
+          
+[UninstallDelete]   
+Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2020\FoamExporter.addin"
+Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2020\OpenCOVER.addin"
 
 [Code]
 
@@ -581,7 +585,7 @@ program Setup;
 
 var
 
-  CheckInstallForAll,CheckInstallRemoteDaemon,CheckInstallRemoteDaemonForAll: TCheckBox;
+  CheckInstallRevitPlugin,CheckInstallForAll,CheckInstallRemoteDaemon,CheckInstallRemoteDaemonForAll: TCheckBox;
   UNCPathName: TEdit;
   Page: TWizardPage;
 
@@ -656,6 +660,19 @@ begin
   CheckInstallForAll.Caption := 'Install ' + appname + ' for all users?';
   CheckInstallForAll.Checked := True;
   CheckInstallForAll.Parent := Page.Surface;
+                                                  
+    if RegValueExists(HKLM, 'Software\Autodesk\Revit\2020\Add-Ons', '(Standard)') then
+    begin
+     CheckInstallRevitPlugin := TCheckBox.Create(Page);
+     CheckInstallRevitPlugin.Top := Lbl11.Top + Lbl11.Height + ScaleY(8);
+     CheckInstallRevitPlugin.Width := Page.SurfaceWidth;
+     CheckInstallRevitPlugin.Height := ScaleY(17);
+     CheckInstallRevitPlugin.Caption := 'Install Revit plugin?';
+     CheckInstallRevitPlugin.Checked := True;
+     CheckInstallRevitPlugin.Parent := Page.Surface;
+    end;
+
+
     end;
 
   {note: in CyberClassroom installations there is no remote daemon}
@@ -771,7 +788,48 @@ begin
 
 end;
 
+      
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+   filecontent, filename: String;
+begin
+if CurStep = ssPostInstall then begin
+  filecontent :=  '<?xml version="1.0" encoding="utf-8"?>'+ #13#10 +
+'<RevitAddIns>'+ #13#10 +
+'  <AddIn Type="Application">'+ #13#10 +
+'    <Name>COVERToolbar</Name>'+ #13#10 +
+'    <Assembly>'+ExpandConstant('{#DLIB}')+'\OpenCOVERPlugin.dll</Assembly>'+ #13#10 +
+'    <AddInId>10a97048-ef29-446a-a2ef-ad092b7cd2cf</AddInId>'+ #13#10 +
+'    <FullClassName>OpenCOVERPlugin.COVERToolbar</FullClassName>'+ #13#10 +
+'    <VendorId>HLRS</VendorId>'+ #13#10 +
+'    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
+'  </AddIn>'+ #13#10 +
+'</RevitAddIns>'+ #13#10
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2020\OpenCOVER.addin');
+  SaveStringToFile(filename, filecontent, False);  
+  filecontent :=  '<?xml version="1.0" encoding="utf-8"?>'+ #13#10 +
+'<RevitAddIns>'+ #13#10 +
+'  <AddIn Type="Application">'+ #13#10 +
+'    <Name>OpenFOAMExporterUI</Name>'+ #13#10 +
+'    <Assembly>'+ExpandConstant('{#DLIB}')+'\OpenFOAMExporter.dll</Assembly>'+ #13#10 +
+'    <AddInId>10a97048-ef29-446a-a2ef-ad092b7cd2af</AddInId>'+ #13#10 +
+'    <FullClassName>BIM.OpenFOAMExport.OpenFOAMExporterUI</FullClassName>'+ #13#10 +
+'    <VendorId>HLRS</VendorId>'+ #13#10 +
+'    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
+'  </AddIn>'+ #13#10 +
+'</RevitAddIns>'+ #13#10
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2020\FoamExporter.addin');
+  SaveStringToFile(filename, filecontent, False);
+  end;
+end;
 
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+if CurUninstallStep = usPostUninstall then begin
+  // uninstall script
+  
+  end;
+end;
 
 function InstallForAll(): Boolean;
 begin
@@ -780,6 +838,16 @@ begin
   if IsAdminInstallMode then
   begin
      Result := CheckInstallForAll.Checked;
+  end;
+end;     
+
+function InstallRevitPlugin(): Boolean;
+begin
+
+  Result := False;
+  if IsAdminInstallMode then
+  begin
+     Result := CheckInstallRevitPlugin.Checked;
   end;
 end;
 

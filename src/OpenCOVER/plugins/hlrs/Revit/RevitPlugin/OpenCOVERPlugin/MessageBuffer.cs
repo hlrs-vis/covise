@@ -49,7 +49,7 @@ namespace OpenCOVERPlugin
             {
                 if(buf[currentPos] != (byte)expectedType)
                 {
-                    // Todo print error message
+                    System.Windows.Forms.MessageBox.Show("Wrong message type in message from OpenCOVER, expected " + expectedType + " got " + (int)buf[currentPos]);
                     System.Threading.Thread.Sleep(5000);
                 }
                 currentPos++;

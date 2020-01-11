@@ -85,9 +85,10 @@ ARMarkerInfo::ARMarkerInfo()
 {
 }
 
-void ARMarkerInfo::setValues(int id, int mid, std::string& n, double an, double of, osg::Matrix& m, osg::Matrix& hm, int hID, double s, std::string mt)
+void ARMarkerInfo::setValues(int id, int docID, int mid, std::string& n, double an, double of, osg::Matrix& m, osg::Matrix& hm, int hID, double s, std::string mt)
 {
 	ID = id;
+	DocumentID = docID;
 	MarkerID = mid;
 	name = n;
 	angle = an;
@@ -216,6 +217,7 @@ void RevitParameter::tabletEvent(coTUIElement *tUIItem)
 {
 	TokenBuffer tb;
 	tb << element->ID;
+	tb << element->DocumentID;
 	tb << ID;
 	switch (StorageType)
 	{
@@ -396,6 +398,7 @@ void RevitViewpointEntry::updateCamera()
 	std::string path;
 	TokenBuffer stb;
 	stb << ID;
+	stb << documentID;
 
 	osg::Matrix mat = cover->getXformMat();
 	osg::Matrix viewerTrans;
@@ -738,6 +741,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 				m = m* currentBaseMat;
 				TokenBuffer stb;
 				stb << MovedID;
+				stb << MovedDocumentID;
 				stb << (double)m.getTrans().x();
 				stb << (double)m.getTrans().y();
 				stb << (double)m.getTrans().z();
@@ -861,9 +865,10 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 	{
 		std::string text;
 		TokenBuffer tb((const char *)buf, len);
-		int id, owner;
+		int id, owner,docID;
 		char *ctext;
 		tb >> id;
+		tb >> docID;
 		tb >> owner;
 		tb >> ctext;
 		text = ctext;
@@ -872,6 +877,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 		{
 			TokenBuffer stb;
 			stb << AnnotationID;
+			stb << docID;
 			stb << text;
 
 			Message message(stb);
@@ -907,6 +913,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 				{
 					MoveFinished = false;
 					MovedID = info->ObjectID;
+					MovedDocumentID = info->DocumentID;
 					invStartMoveMat.invert(m);
 
 					/*   TokenBuffer stb;
@@ -990,11 +997,13 @@ RevitPlugin::handleMessage(Message *m)
 	{
 		TokenBuffer tb(m);
 		int ID;
+		int docID;
 		tb >> ID;
+		tb >> docID;
 		int numParams;
 		tb >> numParams;
-		std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
-		if (it != ElementIDMap.end())
+		std::map<int, ElementInfo *>::iterator it = ElementIDMap[docID].find(ID);
+		if (it != ElementIDMap[docID].end())
 		{
 			for (int i = 0; i < numParams; i++)
 			{
@@ -1035,8 +1044,9 @@ RevitPlugin::handleMessage(Message *m)
 	case MSG_NewGroup:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID,docID;
 		tb >> ID;
+		tb >> docID;
 		char *name;
 		tb >> name;
 		osg::Group *newGroup = new osg::Group();
@@ -1045,6 +1055,7 @@ RevitPlugin::handleMessage(Message *m)
 
 		RevitInfo *info = new RevitInfo();
 		info->ObjectID = ID;
+		info->DocumentID = docID;
 		OSGVruiUserDataCollection::setUserData(newGroup, "RevitInfo", info);
 		currentGroup.push(newGroup);
 	}
@@ -1052,8 +1063,9 @@ RevitPlugin::handleMessage(Message *m)
 	case MSG_NewDoorGroup:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID, docID;
 		tb >> ID;
+		tb >> docID;
 		char *name;
 		tb >> name;
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
@@ -1062,6 +1074,7 @@ RevitPlugin::handleMessage(Message *m)
 		doors.push_back(new DoorInfo(ID, name, newTrans, tb));
 		RevitInfo *info = new RevitInfo();
 		info->ObjectID = ID;
+		info->DocumentID = docID;
 		OSGVruiUserDataCollection::setUserData(newTrans, "RevitInfo", info);
 		currentGroup.push(newTrans);
 	}
@@ -1069,8 +1082,9 @@ RevitPlugin::handleMessage(Message *m)
 	case MSG_NewARMarker:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID, docID;
 		tb >> ID;
+		tb >> docID;
 		std::string name;
 		tb >> name;
 		float x, y, z;
@@ -1142,16 +1156,17 @@ RevitPlugin::handleMessage(Message *m)
 			mi = new ARMarkerInfo();
 			ARMarkers[ID]=mi;
 		}
-		mi->setValues(ID, MarkerID, name, angle, offset, mat, hostMat, hostID,size,markerType);
+		mi->setValues(ID,docID, MarkerID, name, angle, offset, mat, hostMat, hostID,size,markerType);
 	}
 	break;
 	case MSG_DeleteElement:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID, docID;
 		tb >> ID;
-		std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
-		if (it != ElementIDMap.end())
+		tb >> docID;
+		std::map<int, ElementInfo*>::iterator it = ElementIDMap[docID].find(ID);
+		if (it != ElementIDMap[docID].end())
 		{
 			//fprintf(stderr, "DFound: %d\n", ID);
 			ElementInfo *ei = it->second;
@@ -1188,15 +1203,16 @@ RevitPlugin::handleMessage(Message *m)
 				//fprintf(stderr, "DeleteID: %d\n", ID);
 			}
 			delete ei;
-			ElementIDMap.erase(it);
+			ElementIDMap[docID].erase(it);
 		}
 	}
 	break;
 	case MSG_NewTransform:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID, docID;
 		tb >> ID;
+		tb >> docID;
 		char *name;
 		tb >> name;
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
@@ -1241,8 +1257,9 @@ RevitPlugin::handleMessage(Message *m)
 	case MSG_NewInstance:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID, docID;
 		tb >> ID;
+		tb >> docID;
 		char *name;
 		tb >> name;
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
@@ -1298,9 +1315,12 @@ RevitPlugin::handleMessage(Message *m)
 			delete it;
 		}
 		viewpointEntries.clear();
-		for (std::map<int, ElementInfo *>::iterator it = ElementIDMap.begin(); it != ElementIDMap.end(); it++)
+		for (auto& iter : ElementIDMap)
 		{
-			delete (it->second);
+			for (std::map<int, ElementInfo*>::iterator it = iter.begin(); it != iter.end(); it++)
+			{
+				delete (it->second);
+			}
 		}
 		ElementIDMap.clear();
 		for (std::map<int, MaterialInfo *>::iterator it = MaterialInfos.begin(); it != MaterialInfos.end(); it++)
@@ -1321,7 +1341,9 @@ RevitPlugin::handleMessage(Message *m)
 	case MSG_NewAnnotation:
 	{
 		TokenBuffer tb(m);
-		int ID;
+		int ID, docID;
+		tb >> ID;
+		tb >> docID;
 		float x, y, z;
 		char *text;
 		tb >> ID;
@@ -1514,11 +1536,15 @@ RevitPlugin::handleMessage(Message *m)
 	{
 		TokenBuffer tb(m);
 		int ID;
+		int docID;
 		int GeometryType;
 		tb >> ID;
+		tb >> docID;
+		if (docID >= ElementIDMap.size())
+			ElementIDMap.resize(docID + 1);
 		ElementInfo *ei;
-		std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
-		if (it != ElementIDMap.end())
+		auto it = ElementIDMap[docID].find(ID);
+		if (it != ElementIDMap[docID].end())
 		{
 			ei = it->second;
 			//fprintf(stderr, "NFound: %d\n", ID);
@@ -1526,13 +1552,14 @@ RevitPlugin::handleMessage(Message *m)
 		else
 		{
 			ei = new ElementInfo();
-			ElementIDMap[ID] = ei;
+			ElementIDMap[docID][ID] = ei;
 			//fprintf(stderr, "NewID: %d\n", ID);
 		}
 		char *name;
 		tb >> name;
 		ei->name = name;
 		ei->ID = ID;
+		ei->DocumentID = docID;
 		tb >> GeometryType;
 		if (GeometryType == OBJ_TYPE_Mesh)
 		{
@@ -1571,6 +1598,10 @@ RevitPlugin::handleMessage(Message *m)
 				tb >> z;
 				vert->push_back(osg::Vec3(x, y, z));
 			}
+
+			bool isDepthOnly = false;
+			tb >> isDepthOnly;
+
 			unsigned char r, g, b, a;
 			int MaterialID;
 			tb >> r;
@@ -1629,8 +1660,6 @@ RevitPlugin::handleMessage(Message *m)
 				cullFace->setMode(osg::CullFace::BACK);
 				geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
 			}
-			bool isDepthOnly=false;
-			tb >> isDepthOnly;
 			if (isDepthOnly && !ignoreDepthOnly)
 			{
 				// after Video but before all normal geometry
@@ -2452,6 +2481,7 @@ TextureInfo::TextureInfo(TokenBuffer & tb)
 MaterialInfo::MaterialInfo(TokenBuffer & tb)
 {
 	tb >> ID;
+	tb >> DocumentID;
 	diffuseTexture = new TextureInfo(tb);
     diffuseTexture->type = TextureInfo::diffuse;
 	bumpTexture = new TextureInfo(tb);
