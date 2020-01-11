@@ -1598,6 +1598,10 @@ RevitPlugin::handleMessage(Message *m)
 				tb >> z;
 				vert->push_back(osg::Vec3(x, y, z));
 			}
+
+			bool isDepthOnly = false;
+			tb >> isDepthOnly;
+
 			unsigned char r, g, b, a;
 			int MaterialID;
 			tb >> r;
@@ -1656,8 +1660,6 @@ RevitPlugin::handleMessage(Message *m)
 				cullFace->setMode(osg::CullFace::BACK);
 				geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
 			}
-			bool isDepthOnly=false;
-			tb >> isDepthOnly;
 			if (isDepthOnly && !ignoreDepthOnly)
 			{
 				// after Video but before all normal geometry

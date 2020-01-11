@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Windows.Media;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using System.Reflection;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
@@ -272,7 +273,13 @@ namespace OpenCOVERPlugin
         {
             // create a panel named "Events Monitor";
             string panelName = "Virtual Reality";
-            
+
+            string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string assemblyname = typeof(COVERToolbar).Assembly.GetName().Name;
+            string dllName = directoryName + @"\" + assemblyname + ".dll";
+
+            PushButtonData setupData = new PushButtonData("OpenFOAM Simulate", "Simulate", dllName, "BIM.OpenFOAMExport.OpenFOAMSimulateCommand");
+
             // create a button on the panel.
             RibbonPanel ribbonPanelPushButtons = application.CreateRibbonPanel(panelName);
 
@@ -284,7 +291,7 @@ namespace OpenCOVERPlugin
 
 
             PushButton pushButtonSendGeometry = ribbonPanelPushButtons.AddItem(new PushButtonData("resend",
-                "resend", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                "resend", dllName,
                 "OpenCOVERPlugin.SendGeometry")) as PushButton;
             pushButtonSendGeometry.ToolTip = "Send Geometry to OpenCOVER";
 
@@ -295,19 +302,19 @@ namespace OpenCOVERPlugin
 
 
             PushButton pushButtonConnectToOpenCAVE = COVER.Instance.pushButtonConnectToOpenCOVER.AddPushButton(new PushButtonData("Connect To CAVE",
-                "CAVE", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                "CAVE", dllName,
                 "OpenCOVERPlugin.ConnectToCAVE")) as PushButton;
             pushButtonConnectToOpenCAVE.ToolTip = "Connect to CAVE";
             pushButtonConnectToOpenCAVE.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "cave32.png"), UriKind.Absolute));
 
             PushButton pushButtonConnectToLocalHost = COVER.Instance.pushButtonConnectToOpenCOVER.AddPushButton(new PushButtonData("Connect To LocalHost",
-                 "LocalHost", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                 "LocalHost", dllName,
                  "OpenCOVERPlugin.ConnectToLocalHost")) as PushButton;
             pushButtonConnectToLocalHost.ToolTip = "Connect to Revit on localhost";
             pushButtonConnectToLocalHost.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "localhost.png"), UriKind.Absolute));
 
             PushButton pushButtonConnectToAnyHost = COVER.Instance.pushButtonConnectToOpenCOVER.AddPushButton(new PushButtonData("Connect To OpenCOVER Prompt",
-                 "Details", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                 "Details", dllName,
                  "OpenCOVERPlugin.ConnectToCOVER")) as PushButton;
             pushButtonConnectToAnyHost.ToolTip = "Connect to OpenCOVER";
             pushButtonConnectToAnyHost.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "prompt.png"), UriKind.Absolute));
@@ -317,7 +324,7 @@ namespace OpenCOVERPlugin
 
 
             /* PushButton pushButtonExportCommand = ribbonPanelPushButtons.AddItem(new PushButtonData("RenderToCOVER",
-                 "ResendRender", System.Reflection.Assembly.GetExecutingAssembly().Location,
+                 "ResendRender", dllName,
                  "OpenCOVERPlugin.ExportCommand")) as PushButton;
              pushButtonExportCommand.ToolTip = "Send Geometry to OpenCOVER through the rendering interface";
              pushButtonExportCommand.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "resend_32.png"), UriKind.Absolute));*/

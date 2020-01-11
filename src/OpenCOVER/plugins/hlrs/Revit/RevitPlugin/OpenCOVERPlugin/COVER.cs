@@ -402,6 +402,7 @@ namespace OpenCOVERPlugin
                 mb.add(false);
                 mb.add(0);
 
+                mb.add(getDepthOny(elem));
 
                 mb.add((byte)220); // color
                 mb.add((byte)220);
@@ -409,7 +410,6 @@ namespace OpenCOVERPlugin
                 mb.add((byte)255);
                 mb.add(-1); // material ID
 
-                mb.add(getDepthOny(elem));
                 sendMessage(mb.buf, MessageTypes.NewObject);
 
                 mb = new MessageBuffer();
@@ -771,7 +771,7 @@ namespace OpenCOVERPlugin
                     if (ap.Name.Length - TextureName.Length >=0)
                     {
                         String endString = ap.Name.Substring(ap.Name.Length - TextureName.Length);
-                        if (endString == TextureName)
+                        if (endString == TextureName || ap.Name == "opaque_albedo")
                         {
                             if (ap.NumberOfConnectedProperties > 0)
                             {
@@ -821,6 +821,7 @@ namespace OpenCOVERPlugin
                                                 AssetPropertyDouble val = subproperty as AssetPropertyDouble;
                                                 ti.angle = val.Value;
                                             }
+                                            // texture_VScale
                                         }
 
                                     }
@@ -893,6 +894,7 @@ namespace OpenCOVERPlugin
                     Autodesk.Revit.DB.Mesh meshObj = geomObject as Autodesk.Revit.DB.Mesh;
                     SendMesh(meshObj, ref mb, true);// TODO get information on whether a mesh is twosided or not
 
+                    mb.add(getDepthOny(elem));
                     Autodesk.Revit.DB.ElementId materialID;
                     materialID = meshObj.MaterialElementId;
                     Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(materialID) as Autodesk.Revit.DB.Material;
@@ -912,7 +914,6 @@ namespace OpenCOVERPlugin
                         mb.add((byte)255);
                         mb.add(-1); // material ID
                     }
-                    mb.add(getDepthOny(elem));
                     sendMessage(mb.buf, MessageTypes.NewObject);
                     if (num == 0)
                         sendParameters(elem);
@@ -990,7 +991,7 @@ namespace OpenCOVERPlugin
                     mb.add(elem.Name);
                     mb.add((int)ObjectTypes.Inline);
                     mb.add(p.AsString());
-                    mb.add(false);
+                    mb.add(false); // DepthOnly
                     sendMessage(mb.buf, MessageTypes.NewObject);
                     sendParameters(elem);
                 }
@@ -1588,6 +1589,7 @@ namespace OpenCOVERPlugin
                     }
                 }
 
+                mb.add(getDepthOny(elem));
                 if (m == null)
                 {
                     mb.add((byte)220); // color
@@ -1595,7 +1597,6 @@ namespace OpenCOVERPlugin
                     mb.add((byte)220);
                     mb.add((byte)255);
                     mb.add(-1); // material ID
-                    mb.add(DocumentID);
                 }
                 else
                 {
@@ -1605,7 +1606,6 @@ namespace OpenCOVERPlugin
                     mb.add(m.Id.IntegerValue);
                     mb.add(DocumentID);
                 }
-                mb.add(getDepthOny(elem));
                 sendMessage(mb.buf, MessageTypes.NewObject);
             }
             else
@@ -1634,6 +1634,8 @@ namespace OpenCOVERPlugin
                                     mb.add((int)ObjectTypes.Mesh);
 
                                     SendMesh(geomMesh, ref mb, rface.IsTwoSided);
+
+                                    mb.add(getDepthOny(elem));
                                     if (rface.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
                                     {
                                         mb.add((byte)220); // color
@@ -1652,7 +1654,6 @@ namespace OpenCOVERPlugin
                                         mb.add(materialElement.Id.IntegerValue);
                                         mb.add(DocumentID);
                                     }
-                                    mb.add(getDepthOny(elem));
                                     sendMessage(mb.buf, MessageTypes.NewObject);
                                 }
                                 num++;
@@ -1671,6 +1672,7 @@ namespace OpenCOVERPlugin
                             mb.add((int)ObjectTypes.Mesh);
 
                             SendMesh(geomMesh, ref mb, face.IsTwoSided);
+                            mb.add(getDepthOny(elem));
                             if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
                             {
                                 mb.add((byte)220); // color
@@ -1689,7 +1691,6 @@ namespace OpenCOVERPlugin
                                 mb.add(materialElement.Id.IntegerValue);
                                 mb.add(DocumentID);
                             }
-                            mb.add(getDepthOny(elem));
                             sendMessage(mb.buf, MessageTypes.NewObject);
                         }
                         num++;
