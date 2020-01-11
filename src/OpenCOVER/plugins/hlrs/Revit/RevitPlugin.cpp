@@ -2446,6 +2446,7 @@ TextureInfo::TextureInfo(TokenBuffer & tb)
 	tb >> b;
 	amount = 1.0;
 	requestTexture=false;
+	image = nullptr;
 }
 
 MaterialInfo::MaterialInfo(TokenBuffer & tb)
