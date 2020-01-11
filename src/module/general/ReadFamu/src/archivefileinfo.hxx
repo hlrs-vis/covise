@@ -10,7 +10,9 @@
 #define __archivefileinfo_hxx__
 
 #include "os.h"
+#ifndef WIN32
 #include <sys/time.h>
+#endif
 #include <string>
 #include "serializable.hxx" // a serializable object.
 #include "objectinputstream.hxx" // a stream that can be used for deserialization.

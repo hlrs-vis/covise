@@ -34,7 +34,9 @@
 #include <config/CoviseConfig.h>
 #include "VrmlNodeOffice.h"
 #include <sys/stat.h>
+#ifndef WIN32
 #include <sys/socket.h>
+#endif
 #include <cassert>
 
 #include <cover/ui/Manager.h>

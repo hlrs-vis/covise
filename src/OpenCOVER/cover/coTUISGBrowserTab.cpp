@@ -7,7 +7,9 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include <iostream>
+#ifndef WIN32
 #include <sys/socket.h>
+#endif
 #include <util/unixcompat.h>
 
 namespace opencover {
