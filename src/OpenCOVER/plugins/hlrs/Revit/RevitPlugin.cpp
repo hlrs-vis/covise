@@ -2265,6 +2265,7 @@ const double intensity(const pixel& pPixel)
 
 const int repeat(int pX, int pMax)
 {
+	pMax -= 1;
 	if (pX > pMax)
 	{
 		return 0;
