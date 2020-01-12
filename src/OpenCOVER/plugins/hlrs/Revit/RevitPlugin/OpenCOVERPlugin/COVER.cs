@@ -45,6 +45,8 @@ namespace OpenCOVERPlugin
         public String textuerPath;
         public double sx;
         public double sy;
+        public double su;
+        public double sv;
         public double ox;
         public double oy;
         public double angle;
@@ -771,67 +773,118 @@ namespace OpenCOVERPlugin
                     if (ap.Name.Length - TextureName.Length >=0)
                     {
                         String endString = ap.Name.Substring(ap.Name.Length - TextureName.Length);
-                        if (endString == TextureName || ap.Name == "opaque_albedo")
+                        if (endString == TextureName)
                         {
-                            if (ap.NumberOfConnectedProperties > 0)
-                            {
-
-                                IList<AssetProperty> properties = ap.GetAllConnectedProperties();
-
-                                foreach (AssetProperty property in properties)
-                                {
-                                    if (property is Asset)
-                                    {
-                                        // Nested?
-
-                                        Asset asset = property as Asset;
-                                        int size = asset.Size;
-                                        for (int i = 0; i < size; i++)
-                                        {
-                                            AssetProperty subproperty = asset.Get(i);
-                                            if (subproperty.Name == "unifiedbitmap_Bitmap")
-                                            {
-
-                                                AssetPropertyString sproperty = subproperty as AssetPropertyString;
-                                                ti.textuerPath = sproperty.Value;
-                                                //TaskDialog.Show("TextureName2", ap.Name + "." + subproperty.Name + "   " + ti.textuerPath);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldScaleX")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldScaleY")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldOffsetX")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldOffsetY")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_WAngle")
-                                            {
-                                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
-                                                ti.angle = val.Value;
-                                            }
-                                            // texture_VScale
-                                        }
-
-                                    }
-                                }
-                            }
+                            getTextureInfo(ap,ti);
                         }
                     }
+                    if (tt == TextureTypes.Diffuse && (ap.Name == "opaque_albedo" ))
+                    { 
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Diffuse && (ap.Name == "surface_albedo" && (ti.textuerPath == "")))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Bump && (ap.Name == "surface_normal"))
+                    { 
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Bump && (ap.Name == "surface_roughness" && (ti.textuerPath == "")))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+
                 }
             }
             return ti;
+        }
+        private bool getTextureInfo(AssetProperty ap, TextureInfo ti)
+        {
+            if (ap.NumberOfConnectedProperties > 0)
+            {
+
+                IList<AssetProperty> properties = ap.GetAllConnectedProperties();
+
+                foreach (AssetProperty property in properties)
+                {
+                    if (property is Asset)
+                    {
+                        // Nested?
+
+                        Asset asset = property as Asset;
+                        int size = asset.Size;
+                        for (int i = 0; i < size; i++)
+                        {
+                            AssetProperty subproperty = asset.Get(i);
+                            if (subproperty.Name == "unifiedbitmap_Bitmap")
+                            {
+
+                                AssetPropertyString sproperty = subproperty as AssetPropertyString;
+                                ti.textuerPath = sproperty.Value;
+                                //TaskDialog.Show("TextureName2", ap.Name + "." + subproperty.Name + "   " + ti.textuerPath);
+                            }
+                            if (subproperty.Name == "bumpmap_Bitmap")
+                            {
+
+                                AssetPropertyString sproperty = subproperty as AssetPropertyString;
+                                ti.textuerPath = sproperty.Value;
+                                //TaskDialog.Show("TextureName2", ap.Name + "." + subproperty.Name + "   " + ti.textuerPath);
+                            }
+                            else if (subproperty.Name == "texture_RealWorldScaleX")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_UScale")
+                            {
+                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
+                                ti.su = val.Value;
+                            }
+                            else if (subproperty.Name == "texture_VScale")
+                            {
+                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
+                                ti.sv = val.Value;
+                            }
+                            else if (subproperty.Name == "texture_RealWorldScaleY")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_RealWorldOffsetX")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_RealWorldOffsetY")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_WAngle")
+                            {
+                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
+                                ti.angle = val.Value;
+                            }
+                            // texture_VScale
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
         }
         private bool getDepthOny(Autodesk.Revit.DB.Element elem)
         {

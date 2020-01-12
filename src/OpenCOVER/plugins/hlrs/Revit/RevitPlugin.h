@@ -174,7 +174,7 @@ public:
 	unsigned char r, g, b, a;
 	TextureInfo *bumpTexture;
 	TextureInfo *diffuseTexture;
-	osg::StateSet *geoState;
+	osg::ref_ptr<osg::StateSet> geoState;
 	coVRShader *shader;
 	int ID;
     int DocumentID;
