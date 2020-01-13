@@ -202,14 +202,17 @@ Geode *VolumePlugin::Volume::createImage(string &filename)
     return imageGeode;
 }
 
-void VolumePlugin::Volume::addToScene()
+void VolumePlugin::Volume::addToScene(osg::Group *group)
 {
 #ifdef VERBOSE
     cerr << "add volume to scene" << endl;
 #endif
     if (!inScene)
     {
-        cover->getObjectsRoot()->addChild(transform.get());
+        if (group)
+            group->addChild(transform.get());
+        else
+            cover->getObjectsRoot()->addChild(transform.get());
     }
 
     inScene = true;
@@ -1419,7 +1422,7 @@ void VolumePlugin::message(int toWhom, int type, int len, const void *buf)
     }
 }
 
-void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *, const RenderObject *colorObj, const RenderObject *)
+void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, const RenderObject *geometry, const RenderObject *, const RenderObject *colorObj, const RenderObject *)
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
     int shader = -1;
@@ -1431,244 +1434,246 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
     }
 
     // Check if valid volume data was added:
-    if (geometry && geometry->isUniformGrid())
+    if (!geometry || !geometry->isUniformGrid())
     {
-#ifdef VERBOSE
-        fprintf(stderr, "add volume: geo=%s, color=%s\n", geometry->getName(), colorObj->getName());
-#endif
-        int sizeX, sizeY, sizeZ;
-        geometry->getSize(sizeX, sizeY, sizeZ);
+        return;
+    }
 
-        if (sizeX<=1 || sizeY<=1 || sizeZ<=1)
+#ifdef VERBOSE
+    fprintf(stderr, "add volume: geo=%s, color=%s\n", geometry->getName(), colorObj->getName());
+#endif
+    int sizeX, sizeY, sizeZ;
+    geometry->getSize(sizeX, sizeY, sizeZ);
+
+    if (sizeX<=1 || sizeY<=1 || sizeZ<=1)
+    {
+        // ignore 2-dimensional grids: already handled by COVISE plugin
+        return;
+    }
+
+    float minX, maxX, minY, maxY, minZ, maxZ;
+    geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+
+    bool showEditor = showTFE;
+    if (colorObj)
+    {
+        const uchar *byteData = colorObj->getByte(Field::Byte);
+        const int *packedColor = colorObj->getInt(Field::RGBA);
+        const float *red = colorObj->getFloat(Field::Red), *green = colorObj->getFloat(Field::Green), *blue = colorObj->getFloat(Field::Blue);
+
+        std::vector<const uchar*> byteChannels(Field::NumChannels);
+        std::vector<const float*> floatChannels(Field::NumChannels);
+
+        bool have_byte_chans = false;
+        bool have_float_chans = false;
+
+        int noChan = 0;
+
+        float min[Field::NumChannels], max[Field::NumChannels], irange[Field::NumChannels];
+        for (int c = Field::Channel0; c < Field::NumChannels; ++c)
         {
-            // ignore 2-dimensional grids: already handled by COVISE plugin
-            return;
+            min[c] = colorObj->getMin(c);
+            max[c] = colorObj->getMax(c);
+            if (max[c] - min[c] <= 0.f)
+                irange[c] = 1.f;
+            else
+                irange[c] = 1.f/(max[c] - min[c]);
+
+            byteChannels[c] = colorObj->getByte((Field::Id)c);
+            if (byteChannels[c])
+                have_byte_chans = true;
+
+            floatChannels[c] = colorObj->getFloat((Field::Id)c);
+            if (floatChannels[c])
+                have_float_chans = true;
+
+            if (byteChannels[c] || floatChannels[c])
+                ++noChan;
         }
 
-        float minX, maxX, minY, maxY, minZ, maxZ;
-        geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
-
-        bool showEditor = showTFE;
-        if (colorObj)
+        uchar *data = NULL;
+        size_t noVox = sizeX * sizeY * sizeZ;
+        if (packedColor)
         {
-            const uchar *byteData = colorObj->getByte(Field::Byte);
-            const int *packedColor = colorObj->getInt(Field::RGBA);
-            const float *red = colorObj->getFloat(Field::Red), *green = colorObj->getFloat(Field::Green), *blue = colorObj->getFloat(Field::Blue);
-
-            std::vector<const uchar*> byteChannels(Field::NumChannels);
-            std::vector<const float*> floatChannels(Field::NumChannels);
-
-            bool have_byte_chans = false;
-            bool have_float_chans = false;
-
-            int noChan = 0;
-
-            float min[Field::NumChannels], max[Field::NumChannels], irange[Field::NumChannels];
-            for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+            showEditor = false;
+            noChan = 4;
+            data = new uchar[noVox * 4];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
             {
-                min[c] = colorObj->getMin(c);
-                max[c] = colorObj->getMax(c);
-                if (max[c] - min[c] <= 0.f)
-                    irange[c] = 1.f;
-                else
-                    irange[c] = 1.f/(max[c] - min[c]);
-
-                byteChannels[c] = colorObj->getByte((Field::Id)c);
-                if (byteChannels[c])
-                    have_byte_chans = true;
-
-                floatChannels[c] = colorObj->getFloat((Field::Id)c);
-                if (floatChannels[c])
-                    have_float_chans = true;
-
-                if (byteChannels[c] || floatChannels[c])
-                    ++noChan;
+                *p++ = (packedColor[i] >> 24) & 0xff;
+                *p++ = (packedColor[i] >> 16) & 0xff;
+                *p++ = (packedColor[i] >> 8) & 0xff;
+                *p++ = (packedColor[i] >> 0) & 0xff;
             }
-
-            uchar *data = NULL;
-            size_t noVox = sizeX * sizeY * sizeZ;
-            if (packedColor)
+        }
+        else if (have_byte_chans || have_float_chans)
+        {
+            data = new uchar[noVox * noChan];
+            uchar *p = data;
+            if (!have_byte_chans)
             {
-                showEditor = false;
-                noChan = 4;
-                data = new uchar[noVox * 4];
-                uchar *p = data;
+                const float *chan[Field::NumChannels];
+                float range[Field::NumChannels];
+                int ch=0;
+                for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                {
+                    if (floatChannels[c])
+                    {
+                        range[ch] = irange[c]*255.99f;
+                        chan[ch] = floatChannels[c];
+                        ++ch;
+                    }
+                }
+                assert(ch == noChan);
                 for (size_t i=0; i<noVox; ++i)
                 {
-                    *p++ = (packedColor[i] >> 24) & 0xff;
-                    *p++ = (packedColor[i] >> 16) & 0xff;
-                    *p++ = (packedColor[i] >> 8) & 0xff;
-                    *p++ = (packedColor[i] >> 0) & 0xff;
+                    for (int c = 0; c<noChan; ++c)
+                    {
+                        *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
+                    }
                 }
             }
-            else if (have_byte_chans || have_float_chans)
+            else if (!have_float_chans)
             {
-                data = new uchar[noVox * noChan];
-                uchar *p = data;
-                if (!have_byte_chans)
+                const uchar *chan[Field::NumChannels];
+                int ch=0;
+                for (int c = Field::Channel0; c < Field::NumChannels; ++c)
                 {
-                    const float *chan[Field::NumChannels];
-                    float range[Field::NumChannels];
-                    int ch=0;
-                    for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                    if (byteChannels[c])
                     {
-                        if (floatChannels[c])
-                        {
-                            range[ch] = irange[c]*255.99f;
-                            chan[ch] = floatChannels[c];
-                            ++ch;
-                        }
-                    }
-                    assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
-                    {
-                        for (int c = 0; c<noChan; ++c)
-                        {
-                            *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
-                        }
+                        chan[ch] = byteChannels[c];
+                        ++ch;
                     }
                 }
-                else if (!have_float_chans)
+                assert(ch == noChan);
+                for (size_t i=0; i<noVox; ++i)
                 {
-                    const uchar *chan[Field::NumChannels];
-                    int ch=0;
+                    for (int c = 0; c<noChan; ++c)
+                    {
+                        *p++ = chan[c][i];
+                    }
+                }
+            }
+            else
+            {
+                for (size_t i=0; i<noVox; ++i)
+                {
                     for (int c = Field::Channel0; c < Field::NumChannels; ++c)
                     {
                         if (byteChannels[c])
                         {
-                            chan[ch] = byteChannels[c];
-                            ++ch;
+                            *p++ = byteChannels[c][i];
                         }
-                    }
-                    assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
-                    {
-                        for (int c = 0; c<noChan; ++c)
+                        else if (floatChannels[c])
                         {
-                            *p++ = chan[c][i];
+                            *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                         }
                     }
-                }
-                else
-                {
-                    for (size_t i=0; i<noVox; ++i)
-                    {
-                        for (int c = Field::Channel0; c < Field::NumChannels; ++c)
-                        {
-                            if (byteChannels[c])
-                            {
-                                *p++ = byteChannels[c][i];
-                            }
-                            else if (floatChannels[c])
-                            {
-                                *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (red && green && blue)
-            {
-                noChan = 3;
-                data = new uchar[noVox * 3];
-                uchar *p = data;
-                for (size_t i=0; i<noVox; ++i)
-                {
-                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                    *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
-                    *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
-                }
-            }
-            else if (red && green)
-            {
-                noChan = 2;
-                data = new uchar[noVox * 2];
-                uchar *p = data;
-                for (size_t i=0; i<noVox; ++i)
-                {
-                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                    *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
-                }
-            }
-            else if (red)
-            {
-                noChan = 1;
-                data = new uchar[noVox];
-                uchar *p = data;
-                for (size_t i=0; i<noVox; ++i)
-                {
-                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                }
-            }
-            else if (byteData)
-            {
-                noChan = 1;
-                data = new uchar[noVox];
-                memcpy(data, byteData, noVox);
-            }
-            else
-            {
-                cerr << "no data received" << endl;
-                return;
-            }
-
-            // add to timestep series if necessary
-            if (container && container->getName() && volumes.find(container->getName()) != volumes.end())
-            {
-                volDesc->addFrame(data, vvVolDesc::ARRAY_DELETE);
-                volDesc->frames = volDesc->getStoredFrames();
-#ifdef VERBOSE
-                fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), (int)volDesc->frames);
-#endif
-            }
-            else
-            {
-                volDesc = new vvVolDesc("COVISEXX",
-                                        sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
-                volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, minX+maxX) * .5f;
-                volDesc->setDist((maxZ - minZ) / sizeZ,
-                                 (maxY - minY) / sizeY,
-                                 (maxX - minX) / sizeX);
-            }
-
-            if (packedColor)
-            {
-                volDesc->tf[0].setDefaultColors(3, 0., 1.);
-                volDesc->tf[0].setDefaultAlpha(0, 0., 1.);
-            }
-
-            for (size_t c = 0; c < volDesc->getChan(); ++c)
-            {
-                volDesc->range(c)[0] = colorObj->getMin(c);
-                volDesc->range(c)[1] = colorObj->getMax(c);
-
-                if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
-                    volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
-            }
-
-            if (container->getName())
-                updateVolume(container->getName(), volDesc, true, "", container);
-            else if (geometry && geometry->getName())
-                updateVolume(geometry->getName(), volDesc, true, "", container);
-            else
-                updateVolume("Anonymous COVISE object", volDesc, true, "", container);
-
-            if (shader >= 0 && currentVolume != volumes.end())
-            {
-                virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
-                if (drawable)
-                {
-                    drawable->setShader(shader);
                 }
             }
         }
-
-        // a volume file will be loaded now, so show the TFE
-        if (showEditor)
+        else if (red && green && blue)
         {
-            editor->show();
-            tfeItem->setState(true);
+            noChan = 3;
+            data = new uchar[noVox * 3];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
+            {
+                *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+                *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
+            }
         }
+        else if (red && green)
+        {
+            noChan = 2;
+            data = new uchar[noVox * 2];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
+            {
+                *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+            }
+        }
+        else if (red)
+        {
+            noChan = 1;
+            data = new uchar[noVox];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
+            {
+                *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+            }
+        }
+        else if (byteData)
+        {
+            noChan = 1;
+            data = new uchar[noVox];
+            memcpy(data, byteData, noVox);
+        }
+        else
+        {
+            cerr << "no data received" << endl;
+            return;
+        }
+
+        // add to timestep series if necessary
+        if (container && container->getName() && volumes.find(container->getName()) != volumes.end())
+        {
+            volDesc->addFrame(data, vvVolDesc::ARRAY_DELETE);
+            volDesc->frames = volDesc->getStoredFrames();
+#ifdef VERBOSE
+            fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), (int)volDesc->frames);
+#endif
+        }
+        else
+        {
+            volDesc = new vvVolDesc("COVISEXX",
+                                    sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
+            volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, minX+maxX) * .5f;
+            volDesc->setDist((maxZ - minZ) / sizeZ,
+                             (maxY - minY) / sizeY,
+                             (maxX - minX) / sizeX);
+        }
+
+        if (packedColor)
+        {
+            volDesc->tf[0].setDefaultColors(3, 0., 1.);
+            volDesc->tf[0].setDefaultAlpha(0, 0., 1.);
+        }
+
+        for (size_t c = 0; c < volDesc->getChan(); ++c)
+        {
+            volDesc->range(c)[0] = colorObj->getMin(c);
+            volDesc->range(c)[1] = colorObj->getMax(c);
+
+            if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
+                volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
+        }
+
+        if (container->getName())
+            updateVolume(container->getName(), volDesc, true, "", container, group);
+        else if (geometry && geometry->getName())
+            updateVolume(geometry->getName(), volDesc, true, "", container, group);
+        else
+            updateVolume("Anonymous COVISE object", volDesc, true, "", container, group);
+
+        if (shader >= 0 && currentVolume != volumes.end())
+        {
+            virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
+            if (drawable)
+            {
+                drawable->setShader(shader);
+            }
+        }
+    }
+
+    // a volume file will be loaded now, so show the TFE
+    if (showEditor)
+    {
+        editor->show();
+        tfeItem->setState(true);
     }
 }
 
@@ -1806,7 +1811,7 @@ void VolumePlugin::saveVolume()
     }
 }
 
-bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename, const RenderObject *container)
+bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename, const RenderObject *container, osg::Group *group)
 {
     if (!vd)
     {
@@ -1838,7 +1843,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
     if (volume == volumes.end())
     {
         volumes[name].transform->setName("Volume: "+name);
-        volumes[name].addToScene();
+        volumes[name].addToScene(group);
         volumes[name].filename = filename;
         volumes[name].multiDimTF = vd->getChan() == 1;
         volumes[name].preIntegration = preintItem->state();

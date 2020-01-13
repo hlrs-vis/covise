@@ -131,7 +131,7 @@ public:
     void removeObject(const char *, bool) override;
     void postFrame() override;
     void setTimestep(int) override;
-    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr);
+    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr, osg::Group *group=nullptr);
     void saveVolume();
     void cropVolume();
 	void syncTransferFunction();
@@ -212,7 +212,7 @@ private:
         osg::ref_ptr<osg::MatrixTransform> transform; ///< transform node for side-by-side display
         osg::ref_ptr<osg::Geode> node; ///< node volume is attached to
         osg::ref_ptr<virvo::VolumeDrawable> drawable;
-        void addToScene();
+        void addToScene(osg::Group *group = nullptr);
         osg::Geode *createImage(string &);
         void removeFromScene();
         osg::Vec3 min, max;
