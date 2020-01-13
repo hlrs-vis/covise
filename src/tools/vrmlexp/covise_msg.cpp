@@ -521,21 +521,26 @@ TokenBuffer& TokenBuffer::operator=(const TokenBuffer& other)
 
 TokenBuffer& TokenBuffer::operator>>(bool& b)
 {
-	checktype(TbBool);
+    checktype(TbBool);
 
-	char byte = 0;
-	CHECK(byte, *this);
-	(*this) >> byte;
-	b = byte > 0;
-	return *this;
+    char byte = 0;
+    CHECK(byte, *this);
+    byte = *(char*)currdata;
+    currdata++;
+    b = byte > 0;
+    return *this;
 }
 
 TokenBuffer& TokenBuffer::operator<<(const bool b)
 {
-	puttype(TbBool);
+    puttype(TbBool);
 
-	char byte = b ? 1 : 0;
-	return (*this) << byte;
+    if (buflen < data.length() + 2)
+        incbuf();
+    *currdata = b ? 1 : 0;
+    currdata++;
+    data.incLength(1);
+    return *this;
 }
 
 TokenBuffer& TokenBuffer::operator<<(const uint64_t i)

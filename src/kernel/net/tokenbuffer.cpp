@@ -295,7 +295,8 @@ TokenBuffer &TokenBuffer::operator>>(bool &b)
 
     char byte = 0;
     CHECK(byte, *this);
-    (*this) >> byte;
+    byte = *(char*)currdata;
+    currdata++;
     b = byte>0;
     return *this;
 }
@@ -304,8 +305,12 @@ TokenBuffer &TokenBuffer::operator<<(const bool b)
 {
     puttype(TbBool);
 
-    char byte = b?1:0;
-    return (*this) << byte;
+    if (buflen < data.length() + 2)
+        incbuf();
+    *currdata = b ? 1 : 0;
+    currdata++;
+    data.incLength(1);
+    return *this;
 }
 
 TokenBuffer &TokenBuffer::operator<<(const uint64_t i)

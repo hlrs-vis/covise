@@ -1346,7 +1346,6 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> docID;
 		float x, y, z;
 		char *text;
-		tb >> ID;
 		tb >> x;
 		tb >> y;
 		tb >> z;
@@ -1572,10 +1571,7 @@ RevitPlugin::handleMessage(Message *m)
 
 			// set up geometry
 			bool isTwoSided = false;
-			char tmpChar;
-			tb >> tmpChar;
-			if (tmpChar != '\0')
-				isTwoSided = true;
+			tb >> isTwoSided;
 
 			int numTriangles;
 			tb >> numTriangles;
@@ -1721,7 +1717,7 @@ RevitPlugin::handleMessage(Message *m)
     case MSG_File:
     {
         TokenBuffer tb(msg);
-        const char *buf;
+        const char *buf=nullptr;
         int numBytes;
         std::string fileName;
         int MatID;
@@ -1729,7 +1725,10 @@ RevitPlugin::handleMessage(Message *m)
         tb >> fileName;
         localTextureFile = localTextureDir + "/" + fileName;
         tb >> numBytes;
-        buf = tb.getBinary(numBytes);
+		if(numBytes > 0)
+		{
+            buf = tb.getBinary(numBytes);
+		}
         if (numBytes > 0)
         {
 #ifdef _WIN32
@@ -2566,16 +2565,12 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	ID = id;
 	name = Name;
 	transformNode = tn;
-	unsigned char boolValue;
-	tb >> boolValue;
-	HandFlipped = boolValue;
+	tb >> HandFlipped;
 	tb >> HandOrientation;
-	tb >> boolValue;
-	FaceFlipped = boolValue;
+	tb >> FaceFlipped;
 	tb >> FaceOrientation;
 	tb >> Origin;
-	tb >> boolValue;
-	isSliding = boolValue;
+	tb >> isSliding;
 	osg::Vec3 BBMin;
 	osg::Vec3 BBMax;
 	tb >> BBMin;
@@ -2598,8 +2593,8 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 		Direction = HandOrientation ^ FaceOrientation;
 		Direction.normalize();
 		maxDistance = M_PI_2;
-		fprintf(stderr, "HandFlipped %d\n", (int)HandFlipped);
-		fprintf(stderr, "FaceFlipped %d\n", (int)FaceFlipped);
+		//fprintf(stderr, "HandFlipped %d\n", (int)HandFlipped);
+		//fprintf(stderr, "FaceFlipped %d\n", (int)FaceFlipped);
 
 		Direction *= -1;
 		if(Origin.x() == 10000)

@@ -22,7 +22,7 @@ namespace OpenCOVERPlugin
 
         public byte[] buf;
         int currentPos;
-        bool typeInfo = false;
+        bool typeInfo = true;
         System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
         public MessageBuffer()
         {
@@ -147,7 +147,7 @@ namespace OpenCOVERPlugin
 
         public void add(bool num)
         {
-            addTypeInfo(Types.TbChar);
+            addTypeInfo(Types.TbBool);
             incsize(1);
             if (num)
                 buf[currentPos] = 1;
@@ -226,7 +226,7 @@ namespace OpenCOVERPlugin
         }
         public void add(string str)
         {
-            addTypeInfo(Types.TbDouble);
+            addTypeInfo(Types.TbString);
             if (str != null)
             {
                 byte[] ba = enc.GetBytes(str);

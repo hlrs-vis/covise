@@ -708,7 +708,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
 		std::string relPath(adjustedFileName);
 		makeRelativeToSharedDataLink(relPath);
-		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath));
+		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath)+std::to_string(uniqueNumber));
+        uniqueNumber++;
     }
 	if (isRoot)
 	{

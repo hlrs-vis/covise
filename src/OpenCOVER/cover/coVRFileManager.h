@@ -221,6 +221,7 @@ private:
     int m_loadCount = 0;
     std::unique_ptr<ui::Owner> m_owner;
     ui::Group *m_fileGroup = nullptr;
+    int uniqueNumber = 0;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;
