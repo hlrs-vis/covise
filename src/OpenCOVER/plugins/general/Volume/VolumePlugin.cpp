@@ -119,7 +119,9 @@ VolumePlugin::Volume::Volume()
     node->addDrawable(drawable.get());
 
     transform = new osg::MatrixTransform();
-    transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)));
+    auto mirror = osg::Matrix::identity();
+    mirror(0,0) = -1;
+    transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)) * mirror);
     transform->addChild(node);
 
     min = max = osg::Vec3(0., 0., 0.);
@@ -2218,13 +2220,11 @@ void VolumePlugin::preFrame()
         if (drawable)
         {
             const osg::Matrix &t = it->second.transform->getMatrix();
+            auto invT = osg::Matrix::inverse(t);
             drawable->setQuality(quality);
-            drawable->setViewDirection(viewDirObj*t);
-            drawable->setObjectDirection(objDirObj*t);
-        }
+            drawable->setViewDirection(viewDirObj*invT);
+            drawable->setObjectDirection(objDirObj*invT);
 
-        if (drawable)
-        {
             typedef vvRenderState::ParameterType PT;
 
             int maxClipPlanes = drawable->getMaxClipPlanes();
@@ -2237,11 +2237,11 @@ void VolumePlugin::preFrame()
                 for (int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
                 {
                     ClipPlane *cp = cn->getClipPlane(i);
-                    Vec4 v = cp->getClipPlane();
+                    Vec4 v = cp->getClipPlane() * invT;
 
                     boost::shared_ptr<vvClipPlane> plane = vvClipPlane::create();
-                    plane->normal = virvo::vec3(-v.z(), v.y(), -v.x());
-                    plane->offset = v.w();
+                    plane->normal = virvo::vec3(v.x(), v.y(), v.z());
+                    plane->offset = -v.w();
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
