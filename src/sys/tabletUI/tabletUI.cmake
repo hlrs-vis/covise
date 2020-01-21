@@ -52,6 +52,7 @@ SET(TUI_SOURCES
   TUIUI/TUIUIWidget.cpp
   TUIUI/TUIUIWidgetSet.cpp
   TUIUI/TUIUIScriptWidget.cpp
+  TUIWebview.cpp
 )
 
 SET(TUI_HEADERS
