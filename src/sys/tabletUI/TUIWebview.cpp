@@ -17,8 +17,8 @@
 #include <net/tokenbuffer.h>
 
 /// Constructor
-TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString url)
-    : TUIElement(id, type, w, parent, url)
+TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString name)
+    : TUIElement(id, type, w, parent, name)
 {
 	//connect()
 	
@@ -36,12 +36,12 @@ TUIWebview::~TUIWebview()
 //    TUIMainWindow::getInstance()->send(tb);
 //}
 
-void TUIWebview::urlChanged(QString url)
-{
-    covise::TokenBuffer tb;
-    tb << ID;
-    TUIMainWindow::getInstance()->send(tb);
-}
+//void TUIWebview::urlChanged(QString url)
+//{
+//    covise::TokenBuffer tb;
+//    tb << ID;
+//    TUIMainWindow::getInstance()->send(tb);
+//}
 
 const char *TUIWebview::getClassName() const
 {

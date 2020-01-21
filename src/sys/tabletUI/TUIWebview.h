@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_TUI_TOGGLEBUTTON_H
-#define CO_TUI_TOGGLEBUTTON_H
+#ifndef CO_TUI_WEBVIEW_H
+#define CO_TUI_WEBVIEW_H
 
 #include <QObject>
 
@@ -23,7 +23,7 @@ class TUIWebview : public QObject, public TUIElement
     Q_OBJECT
 
 public:
-    TUIWebview(int id, int type, QWidget *w, int parent, QString url);
+    TUIWebview(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIWebview();
 
     /// get the Element's classname

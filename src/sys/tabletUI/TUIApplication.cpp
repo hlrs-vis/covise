@@ -88,6 +88,7 @@
 #include "TUITextEdit.h"
 #include "TUIPopUp.h"
 #include "TUIUITab.h"
+#include "TUIWebview.h"
 
 #ifdef TABLET_PLUGIN
 #include "../mapeditor/handler/MEMainHandler.h"
@@ -601,6 +602,8 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
     default:
         std::cerr << "TUIapplication::createElement info: unknown element type: " << type << std::endl;
         break;
+	case TABLET_WEBVIEW:
+		return new TUIWebview(id, type, w, parent, name);
     }
     return NULL;
 }
