@@ -50,8 +50,8 @@ private:
     // methods
     virtual void param(const char *name, bool inMapLoading);
 
-    coFileBrowserParam *a_binaryData;                                           //eine Instanz der Klasse coFileBrowserParam, wird im Dialogfenster eingelesen
-    char *a_filename;                                                           //der Name der eingelesenen Datei wird gespeichert
+    coFileBrowserParam *binaryData;                                           //eine Instanz der Klasse coFileBrowserParam, wird im Dialogfenster eingelesen
+    char *filename;                                                           //der Name der eingelesenen Datei wird gespeichert
 
     typedef struct {
       double *vertices;
@@ -62,7 +62,7 @@ private:
       int dim;
     } Mesh;
     Mesh mesh;
-    int read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap);
+    int read_mesh(char *filename, Mesh *mesh, uint8_t bswap);
 
 	uint8_t bswap = 0;
 

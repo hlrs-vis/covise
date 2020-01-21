@@ -33,31 +33,35 @@ ReadBinary::ReadBinary(int argc, char *argv[])
 	mesh.cells = NULL;
 	grid = addOutputPort("mesh", "UnstructuredGrid", "unstructured grid");                                  //Output Gitter
 
-    a_binaryData = addFileBrowserParam("filename", "Specify the filename of the binary data file(s).");     //Dialogfenster zum Dateneinlesen
-    //a_binaryData->setValue("./mnt/raid/data/hidalgo/airflow/mesh_out.bin", "*.bin/");                     //Defaulf file, zulaessige Datentypen
-	//a_binaryData->setValue("./.", "*.bin/");																//Defaulf file, zulaessige Datentypen
+    binaryData = addFileBrowserParam("filename", "Specify the filename of the binary data file(s).");     //Dialogfenster zum Dateneinlesen
+    binaryData->setValue("./mnt/raid/data/hidalgo/airflow/mesh_out.bin", "*.bin/");                     //Defaulf file, zulaessige Datentypen
+	// Z:/data/hidalgo/airflow/mesh_out.bin
+																										  //binaryData->setValue("./.", "*.bin/");																//Defaulf file, zulaessige Datentypen
 
-    a_filename = new char[256];                                                                             //Dateiname der Binaerdaten speichern
-    strcpy(a_filename, a_binaryData->getValue());
+    filename = new char[256];                                                         // string //Dateiname der Binaerdaten speichern
+    strcpy(filename, binaryData->getValue());
 }
 // destructor
 ReadBinary::~ReadBinary()
 {
 	cout << "ReadBinary::~ReadBinary()" << endl;
-    if (a_filename != NULL)
+    if (filename != NULL)
     {
-        delete[] a_filename;
-        a_filename = NULL;
+        delete[] filename;
+        filename = NULL;
     }
 }
 
 // param function
 void ReadBinary::param(const char* name, bool inMapLoading)
 {
-	if (strcmp(name, a_binaryData->getName()) == 0)
+	if (strcmp(name, binaryData->getName()) == 0)
 	{
 		//filename aktualisieren nach Neueingabe
-		strcpy(a_filename, a_binaryData->getValue());
+		strcpy(filename, binaryData->getValue());  // name: filepath
+		sendInfo("filename = ", filename);
+		cout <<"filename = " << filename << endl;
+		cout << "binaryData->getValue() = " << binaryData->getValue() << endl;
 	}
 }
 
@@ -68,20 +72,20 @@ int ReadBinary::compute(const char *port)
 
     (void)port;
     sendInfo("Annas zweites Modul!");
-    read_mesh(a_filename, &mesh, bswap);		//binaerdatei wird gelesen und im filepointer mesh abgelegt
+    //read_mesh(filename, &mesh, bswap);		//binaerdatei wird gelesen und im filepointer mesh abgelegt
     getDataset();								// rename to "write output" or so 
 	return SUCCESS;
 }
 
 // read function as used in dolfin-post (c code)
-int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap) {
+int ReadBinary::read_mesh(char *filename, Mesh *mesh, uint8_t bswap) {
   BinaryFileHeader mesh_hdr;
   FILE *mesh_fp;
   int *tmp_cells;
   double *tmp_vertices;
 
-  if ( (mesh_fp = fopen(a_filename, "r")) == 0) {
-    perror(a_filename);
+  if ( (mesh_fp = fopen(filename, "r")) == 0) {
+    perror(filename);
     return -1;
   }
 
