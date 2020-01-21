@@ -354,7 +354,7 @@ DataFileGold::read(dimType dim, coDistributedObject **outObjects, const string &
                 // allocate memory for whole parts
                 if (actPart != NULL)
                 {
-                    int numVal = actPart->numCoords();
+                    numVal = actPart->numCoords();
                     if (actPart->isActive())
                     {
                         switch (dim_)
