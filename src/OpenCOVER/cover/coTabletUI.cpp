@@ -4624,3 +4624,15 @@ void coTUIGroupBox::parseMessage(TokenBuffer &tb)
         cerr << "unknown event " << i << endl;
     }
 }
+
+coTUIWebview::coTUIWebview(const std::string& n, int pID) : coTUIElement(n, pID, TABLET_WEBVIEW)
+{
+}
+
+coTUIWebview::~coTUIWebview()
+{
+}
+
+void coTUIWebview::parseMessage(TokenBuffer& tb)
+{
+}
