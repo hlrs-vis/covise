@@ -59,7 +59,6 @@ void ReadBinary::param(const char* name, bool inMapLoading)
 	{
 		//filename aktualisieren nach Neueingabe
 		strcpy(filename, binaryData->getValue());  // name: filepath
-		sendInfo("filename = ", filename);
 		cout <<"filename = " << filename << endl;
 		cout << "binaryData->getValue() = " << binaryData->getValue() << endl;
 	}
