@@ -1763,12 +1763,14 @@ void VolumePlugin::cropVolume()
 
 void VolumePlugin::syncTransferFunction()
 {
+    if (currentVolume == volumes.end())
+        return;
+
 	for (int i = 0; i < currentVolume->second.tf.size(); ++i)
 	{
 
 		*currentVolume->second.tfState[i] = currentVolume->second.tf[i];
 	}
-
 }
 
 void VolumePlugin::saveVolume()
