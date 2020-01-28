@@ -52,7 +52,6 @@ SET(TUI_SOURCES
   TUIUI/TUIUIWidget.cpp
   TUIUI/TUIUIWidgetSet.cpp
   TUIUI/TUIUIScriptWidget.cpp
-  TUIWebview.cpp
 )
 
 SET(TUI_HEADERS
@@ -102,7 +101,6 @@ SET(TUI_MOC_HEADERS
   TUIUI/TUIUIWidget.h
   TUIUI/TUIUIWidgetSet.h
   TUIUI/TUIUIScriptWidget.h
-  TUIWebview.h
 )
 if (WIRINGPI_FOUND)
    SET(TUI_SOURCES ${TUI_SOURCES}
@@ -131,3 +129,12 @@ if (COVISE_USE_VIRVO)
       )
 endif()
 
+
+if (COVISE_USE_WEBENGINE)
+   SET(TUI_MOC_HEADERS ${TUI_MOC_HEADERS}
+     TUIWebView.h
+   )
+   SET(TUI_SOURCES ${TUI_SOURCES}
+     TUIWebView.cpp
+   )
+endif()

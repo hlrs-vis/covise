@@ -9,8 +9,8 @@
 #define CO_TUI_WEBVIEW_H
 
 #include <QObject>
-
 #include "TUIElement.h"
+#include <QWebEngineView>
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -23,16 +23,14 @@ class TUIWebview : public QObject, public TUIElement
     Q_OBJECT
 
 public:
-    TUIWebview(int id, int type, QWidget *w, int parent, QString name);
+    TUIWebview(int id, int type, QWidget *w, int parent, QString name); //(QObject* parent, const std::string& n, int pID)
     virtual ~TUIWebview();
-
+    
     /// get the Element's classname
     virtual const char *getClassName() const override;
+    QWebEngineView* Webview;
 
 public slots:
-
-    //void valueChanged(bool pressed);
-	//void urlChanged(QString url);
 
 protected:
 };

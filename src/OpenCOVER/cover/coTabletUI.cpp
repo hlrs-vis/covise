@@ -33,6 +33,7 @@
 
 #include <QTextStream>
 #include <QFile>
+#include <QtWebView/qtwebviewfunctions.h>
 
 #include <iostream>
 
@@ -4626,6 +4627,19 @@ void coTUIGroupBox::parseMessage(TokenBuffer &tb)
 }
 
 coTUIWebview::coTUIWebview(const std::string& n, int pID) : coTUIElement(n, pID, TABLET_WEBVIEW)
+{
+    fprintf(stderr, "coTUIWebview::coTUIWebview\n");
+    const char* test = n.c_str();
+    fprintf(stderr, "n is %s \n", test);
+}
+
+coTUIWebview::coTUIWebview(coTabletUI* tui, const std::string& n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_WEBVIEW)
+{
+}
+
+coTUIWebview::coTUIWebview(QObject* parent, const std::string& n, int pID)
+    : coTUIElement(parent, n, pID, TABLET_WEBVIEW)
 {
 }
 

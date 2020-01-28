@@ -1845,8 +1845,13 @@ class COVEREXPORT coTUIWebview : public coTUIElement
     Q_OBJECT;
 public:
 	coTUIWebview(const std::string&, int pID = 1);
+    coTUIWebview(coTabletUI* tui, const std::string&, int pID = 1);
+    coTUIWebview(QObject* parent, const std::string&, int pID = 1);
 	virtual ~coTUIWebview();
 	virtual void parseMessage(covise::TokenBuffer& tb) override;
+
+    //virtual void resend(bool create) override;
+
 };
 }
 #endif

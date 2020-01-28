@@ -9,39 +9,23 @@
 #include "TUIWebview.h"
 #include "TUIApplication.h"
 #include <stdio.h>
-#include <qcheckbox.h>
-#include <qradiobutton.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qpixmap.h>
 #include <net/tokenbuffer.h>
 
 /// Constructor
-TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString name)
+TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString name)  //(QObject* parent, const std::string& n, int pID)
     : TUIElement(id, type, w, parent, name)
 {
-	//connect()
-	
+    fprintf(stderr, "TUIWebview::TUIWebview\n");
+
+    QWebEngineView* Webview = new QWebEngineView();
+    Webview->load(QUrl("http://qt-project.org/"));
+    Webview->show();
 }
 
 /// Destructor
 TUIWebview::~TUIWebview()
 {
 }
-
-//void TUIWebview::valueChanged(bool)
-//{
-//    covise::TokenBuffer tb;
-//    tb << ID;
-//    TUIMainWindow::getInstance()->send(tb);
-//}
-
-//void TUIWebview::urlChanged(QString url)
-//{
-//    covise::TokenBuffer tb;
-//    tb << ID;
-//    TUIMainWindow::getInstance()->send(tb);
-//}
 
 const char *TUIWebview::getClassName() const
 {

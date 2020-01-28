@@ -599,11 +599,11 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         return new TUIPopUp(id, type, w, parent, name);
     case TABLET_UI_TAB:
         return new TUIUITab(id, type, w, parent, name);
+    case TABLET_WEBVIEW:
+        return new TUIWebview(id, type, w, parent, name);
     default:
         std::cerr << "TUIapplication::createElement info: unknown element type: " << type << std::endl;
         break;
-	case TABLET_WEBVIEW:
-		return new TUIWebview(id, type, w, parent, name);
     }
     return NULL;
 }

@@ -22,12 +22,15 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+//#include <tabletUI/TUIWebview.h>
+#include "cover/coTabletUI.h"
 
-class TemplatePlugin : public opencover::coVRPlugin
+
+class WebviewPlugin : public opencover::coVRPlugin
 {
 public:
-    TemplatePlugin();
-    ~TemplatePlugin();
+    WebviewPlugin();
+    ~WebviewPlugin();
 
     // this will be called in PreFrame
     void preFrame();
@@ -48,6 +51,11 @@ public:
     // this will be called if a COVISE object has to be removed
     void removeObject(const char *objName, bool replace);
 
+    bool init();
+
+    opencover::coTUITab* WebviewTab;
+    opencover::coTUIWebview* Webview;
+    
 private:
 };
 #endif

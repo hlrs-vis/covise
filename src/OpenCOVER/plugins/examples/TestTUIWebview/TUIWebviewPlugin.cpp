@@ -22,30 +22,32 @@
 #include "TUIWebviewPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
+#include <cover/coVRTui.h>
 
 using namespace opencover;
 
-TemplatePlugin::TemplatePlugin()
+WebviewPlugin::WebviewPlugin()
 {
-    fprintf(stderr, "TemplatePlugin::TemplatePlugin\n");
+    //new TUIWebview(int id, int type, QWidget * w, int parent, QString name)
+    fprintf(stderr, "WebviewPlugin::WebviewPlugin\n");
 }
 
 // this is called if the plugin is removed at runtime
-TemplatePlugin::~TemplatePlugin()
+WebviewPlugin::~WebviewPlugin()
 {
-    fprintf(stderr, "TemplatePlugin::~TemplatePlugin\n");
+    fprintf(stderr, "WebviewPlugin::~WebviewPlugin\n");
 }
 
 // here we get the size and the current center of the cube
 void
-TemplatePlugin::newInteractor(RenderObject *container, coInteractor *i)
+WebviewPlugin::newInteractor(RenderObject *container, coInteractor *i)
 {
     (void)container;
     (void)i;
-    fprintf(stderr, "TemplatePlugin::newInteractor\n");
+    fprintf(stderr, "WebviewPlugin::newInteractor\n");
 }
 
-void TemplatePlugin::addObject(RenderObject *container,
+void WebviewPlugin::addObject(RenderObject *container,
                                RenderObject *obj, RenderObject *normObj,
                                RenderObject *colorObj, RenderObject *texObj,
                                osg::Group *root,
@@ -73,20 +75,33 @@ void TemplatePlugin::addObject(RenderObject *container,
     (void)yn;
     (void)zn;
     (void)transparency;
-    fprintf(stderr, "TemplatePlugin::addObject\n");
+    fprintf(stderr, "WebviewPlugin::addObject\n");
 }
 
 void
-TemplatePlugin::removeObject(const char *objName, bool replace)
+WebviewPlugin::removeObject(const char *objName, bool replace)
 {
     (void)objName;
     (void)replace;
-    fprintf(stderr, "TemplatePlugin::removeObject\n");
+    fprintf(stderr, "WebviewPlugin::removeObject\n");
 }
 
 void
-TemplatePlugin::preFrame()
+WebviewPlugin::preFrame()
 {
 }
 
-COVERPLUGIN(TemplatePlugin)
+bool WebviewPlugin::init()
+{
+    fprintf(stderr, "WebviewPlugin::WebviewPlugin\n");
+
+    WebviewTab = new coTUITab("Webview", coVRTui::instance()->mainFolder->getID());
+    WebviewTab->setPos(0, 0);
+
+    const std::string& n = "WebviewTest";
+    int pID = 0;
+    Webview = new coTUIWebview(n, pID);
+    return true;
+}
+
+COVERPLUGIN(WebviewPlugin)
