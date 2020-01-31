@@ -8,9 +8,11 @@
 // the includes
 %header{
 // standard includes
-#include <covise/covise.h>
 #include "CaseFile.h"
 #include "DataItem.h"
+#include <string>
+#include <iostream>
+#include <fstream>
 #ifndef _WIN32
 #include <sys/stat.h>
 #endif
@@ -53,25 +55,25 @@ inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
 %name CaseParser
 %define USE_CONST_TOKEN 1
 
-%define CONSTRUCTOR_PARAM const string &sFileName
+%define CONSTRUCTOR_PARAM const std::string &sFileName
 %define CONSTRUCTOR_INIT : inputFile_( NULL ), lexer_( NULL )
 %define CONSTRUCTOR_CODE init( sFileName );
 
 %define MEMBERS \
   public:   virtual   ~CaseParser(); \
   public:   void      yyerror( const char *msg ); \
-  public:   void      yyerror( const string &sMsg ); \
+  public:   void      yyerror( const std::string &sMsg ); \
   public:   void      setCaseObj(CaseFile &cs); \
   public:   CaseFile  getCaseObj(); \
   public:   bool      isOpen(); \
-  private:  ifstream  *inputFile_; \
+  private:  std::ifstream  *inputFile_; \
   private:  CaseLexer *lexer_; \
   private:  CaseFile  caseFile_; \
   private:  DataItem  *actIt_;\
   private:  TimeSet   *actTs_;\
   private:  bool      isOpen_;\
   private:  int       tsStart_; \
-  private:  int init( const string &sFileName ); \
+  private:  int init( const std::string &sFileName ); \
 
 
 %union 
@@ -331,13 +333,13 @@ any_identifier: IDENTIFIER
 
 model_spec: MODEL any_identifier 
           {
-        	string ensight_geofile($<token>2.szValue);
+        	std::string ensight_geofile($<token>2.szValue);
 		//	        fprintf(stderr,"  ENSIGHT MODEL <%s> found\n", ensight_geofile.c_str());
 	        caseFile_.setGeoFileNm( ensight_geofile );
           }
           | MODEL INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
           // check whether the integer is part of the filename
 	  // this integer is separated by a whitespace from the filename thus no need to add it to the filename
 	  // opening the file never works if you are not in the same directory as the case file
@@ -346,7 +348,7 @@ model_spec: MODEL any_identifier
           stat( ensight_geofile.c_str(), &buf);
           if( !S_ISREG(buf.st_mode) )
           {
-             string intStr($<token>2.szValue); 
+             std::string intStr($<token>2.szValue); 
 	         caseFile_.setGeoFileNm( intStr+ensight_geofile );
           }
           else
@@ -359,7 +361,7 @@ model_spec: MODEL any_identifier
           }
           | MODEL INTEGER INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>4.szValue);
+	      std::string ensight_geofile($<token>4.szValue);
 	      caseFile_.setGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
@@ -369,7 +371,7 @@ model_spec: MODEL any_identifier
 
           | MODEL INTEGER ASTNOTFN 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
 	      caseFile_.setGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
@@ -378,7 +380,7 @@ model_spec: MODEL any_identifier
           // we may find lines like: model bla_geo.**** in this case we set the timeset to 1 
           | MODEL ASTNOTFN 
           {	      
-	      string ensight_geofile($<token>2.szValue);
+	      std::string ensight_geofile($<token>2.szValue);
 	      caseFile_.setGeoFileNm( ensight_geofile );
 	      caseFile_.setGeoTsIdx(1);
 	      //	      fprintf(stderr,"  ENSIGHT MODEL <%s> TIMESET <%d> found\n", ensight_geofile.c_str(), ts);
@@ -387,26 +389,26 @@ model_spec: MODEL any_identifier
 
           | MEASURED any_identifier 
           {
-        	string ensight_geofile($<token>2.szValue);
+        	std::string ensight_geofile($<token>2.szValue);
 	        caseFile_.setMGeoFileNm( ensight_geofile );
           }
           | MEASURED INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
           }
           | MEASURED INTEGER INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>4.szValue);
+	      std::string ensight_geofile($<token>4.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
           }
           | MEASURED INTEGER ASTNOTFN 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
@@ -416,7 +418,7 @@ model_spec: MODEL any_identifier
           // we may find lines like: model bla_geo.**** in this case we set the timeset to 1 
           | MEASURED ASTNOTFN 
           {	      
-	      string ensight_geofile($<token>2.szValue);
+	      std::string ensight_geofile($<token>2.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      caseFile_.setGeoTsIdx(1);
           }
@@ -426,18 +428,18 @@ model_spec: MODEL any_identifier
 variable_spec: var_pre VAR_POST
           {
 	      	      fprintf(stderr," VAR_POST %s\n", $<token>2.szValue);
-	      string tmp($<token>2.szValue);
+	      std::string tmp($<token>2.szValue);
 	      size_t last = tmp.find(" ");
-	      if ( last == string::npos ) {
+	      if ( last == std::string::npos ) {
 		  last = tmp.find("\t");
-		  if ( last == string::npos ) {
-		      cerr << "CaseParser::yyparse() filename or description for variable missing" << endl;
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
 		  }
 	      }
-	      string desc( tmp.substr( 0, last ) );
+	      std::string desc( tmp.substr( 0, last ) );
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
-	      string fname( tmp.substr( snd, len-snd ) );
+	      std::string fname( tmp.substr( snd, len-snd ) );
 	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
 	      
 	      actIt_->setDesc( desc );
@@ -448,7 +450,7 @@ variable_spec: var_pre VAR_POST
 		  caseFile_.addDataIt( *actIt_ );
 	      }
 	      else {
-		  cerr << "CaseParser::yyparse() try to add NULL DataItem" << endl;
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
 	      }
 
 	      delete actIt_;
@@ -458,18 +460,18 @@ variable_spec: var_pre VAR_POST
           | var_pre VAR_INT VAR_POST
           {
 	      	      fprintf(stderr," VAR_INT VAR_POST_TS %s\n", $<token>3.szValue);
-	      string tmp($<token>3.szValue);
+	      std::string tmp($<token>3.szValue);
 	      size_t last = tmp.find(" ");
-	      if ( last == string::npos ) {
+	      if ( last == std::string::npos ) {
 		  last = tmp.find("\t");
-		  if ( last == string::npos ) {
-		      cerr << "CaseParser::yyparse() filename or description for variable missing" << endl;
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
 		  }
 	      }
-	      string desc( tmp.substr( 0, last ) );
+	      std::string desc( tmp.substr( 0, last ) );
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
-	      string fname( tmp.substr( snd, len-snd ) );
+	      std::string fname( tmp.substr( snd, len-snd ) );
 	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
 	      
 	      actIt_->setDesc( desc );
@@ -480,7 +482,7 @@ variable_spec: var_pre VAR_POST
 		  caseFile_.addDataIt( *actIt_ );
 	      }
 	      else {
-		  cerr << "CaseParser::yyparse() try to add NULL DataItem" << endl;
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
 	      }
 
 	      delete actIt_;
@@ -490,18 +492,18 @@ variable_spec: var_pre VAR_POST
           | var_pre VAR_INT VAR_INT VAR_POST
           {
 	      	      fprintf(stderr," VAR_INT VAR_POST_TS %s\n", $<token>4.szValue);
-	      string tmp($<token>4.szValue);
+	      std::string tmp($<token>4.szValue);
 	      size_t last = tmp.find(" ");
-	      if ( last == string::npos ) {
+	      if ( last == std::string::npos ) {
 		  last = tmp.find("\t");
-		  if ( last == string::npos ) {
-		      cerr << "CaseParser::yyparse() filename or description for variable missing" << endl;
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
 		  }
 	      }
-	      string desc( tmp.substr( 0, last ) );
+	      std::string desc( tmp.substr( 0, last ) );
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
-	      string fname( tmp.substr( snd, len-snd ) );
+	      std::string fname( tmp.substr( snd, len-snd ) );
 	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
 	      
 	      actIt_->setDesc( desc );
@@ -512,7 +514,7 @@ variable_spec: var_pre VAR_POST
 		  caseFile_.addDataIt( *actIt_ );
 	      }
 	      else {
-		  cerr << "CaseParser::yyparse() try to add NULL DataItem" << endl;
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
 	      }
 
 	      delete actIt_;
@@ -597,11 +599,11 @@ const_spec: CONSTANT var_rela POINT_IDENTIFIER INTEGER
 #include "DataItem.h"
 
 
-int CaseParser::init( const string &sFileName)
+int CaseParser::init( const std::string &sFileName)
 {
     isOpen_ = false;
 
-    inputFile_ = new ifstream( sFileName.c_str() );
+    inputFile_ = new std::ifstream( sFileName.c_str() );
     if (!inputFile_->is_open()) {
         fprintf(stderr,"could not open %s for reading",sFileName.c_str());
         delete inputFile_;
@@ -651,7 +653,7 @@ CaseParser::yylex()
 void 
 CaseParser::yyerror( char *szErrMsg )
 {
-  //    cerr << endl << szErrMsg << "(line " << lexer_->lineno() << ")";
+  //    std::cerr << std::endl << szErrMsg << "(line " << lexer_->lineno() << ")";
     fprintf(stderr,"%s (line: %d )\n",szErrMsg,lexer_->lineno());
 }
 
@@ -662,7 +664,7 @@ CaseParser::yyerror( const char *szErrMsg )
 }
 
 void 
-CaseParser::yyerror( const string &sMsg )
+CaseParser::yyerror( const std::string &sMsg )
 {
     yyerror( sMsg.c_str() );
 }

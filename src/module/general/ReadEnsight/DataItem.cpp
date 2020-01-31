@@ -28,7 +28,7 @@ DataItem::DataItem()
 {
 }
 
-DataItem::DataItem(const int &type, const string &file, const string &desc)
+DataItem::DataItem(const int &type, const std::string &file, const std::string &desc)
     : type_(type)
     , fileName_(file)
     , desc_(desc)

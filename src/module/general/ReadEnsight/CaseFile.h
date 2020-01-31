@@ -22,17 +22,18 @@
 #ifndef CASEFILE_H
 #define CASEFILE_H
 
-#include <util/coviseCompat.h>
-
 #include "DataItem.h"
+
+#include <vector>
+#include <string>
 
 class TimeSet;
 
-typedef vector<DataItem> DataList;
-typedef vector<TimeSet *> TimeSets;
+typedef std::vector<DataItem> DataList;
+typedef std::vector<TimeSet *> TimeSets;
 
 // helper: remove leading and trailing spaces
-string trim(const string &s);
+std::string trim(const std::string &s);
 
 class CaseFile
 {
@@ -54,30 +55,30 @@ public:
     ~CaseFile();
 
     void addDataIt(const DataItem &it);
-    void setGeoFileNm(const string &fn);
-    void setMGeoFileNm(const string &fn);
+    void setGeoFileNm(const std::string &fn);
+    void setMGeoFileNm(const std::string &fn);
     void setGeoTsIdx(const int &idx);
     int getGeoTsIdx();
     void setVersion(const int &v);
 
     // set the full name of the case file
-    void setFullFilename(const string &fn);
+    void setFullFilename(const std::string &fn);
 
     DataList getDataIts() const
     {
         return dataIts_;
     };
 
-    string getGeoFileNm() const;
-    string getMGeoFileNm() const;
+    std::string getGeoFileNm() const;
+    std::string getMGeoFileNm() const;
 
     // returns the directory in which the case file is found
-    string getDir();
+    std::string getDir();
 
     // returns the name of the case without extension
-    string getProjectName();
+    std::string getProjectName();
 
-    string printEnVersion();
+    std::string printEnVersion();
 
     int getVersion() const
     {
@@ -95,13 +96,13 @@ public:
 
 private:
     bool empty_;
-    string geoFileNm_;
-    string mgeoFileNm_;
+    std::string geoFileNm_;
+    std::string mgeoFileNm_;
     DataList dataIts_;
     int version_;
-    string fullFilename_;
-    string dir_;
-    string projectNm_;
+    std::string fullFilename_;
+    std::string dir_;
+    std::string projectNm_;
     TimeSets timeSets_;
     int geoTsIdx_; // time set index of geometry
 };
@@ -124,10 +125,10 @@ public:
 
     // crate array of filenames to read from a givene template in ensight
     // filename convention (asteriks)
-    vector<string> getFileNames(const string &templ);
+    std::vector<std::string> getFileNames(const std::string &templ);
 
     // get all real time values from case-file
-    vector<float> getRealTimes() const;
+    std::vector<float> getRealTimes() const;
 
     int size() const
     {
@@ -137,7 +138,7 @@ public:
 private:
     int num_; // number of *this
     int numTs_; // number of timesteps
-    vector<int> fileNums_; // file numbers
-    vector<float> rTimes_; // real times
+    std::vector<int> fileNums_; // file numbers
+    std::vector<float> rTimes_; // real times
 };
 #endif
