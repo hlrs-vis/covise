@@ -347,7 +347,7 @@ YY_@_CLASS::YY_@_CLASS(YY_@_CONSTRUCTOR_PARAM) YY_@_CONSTRUCTOR_INIT
 YY_@_DEBUG_FLAG=0;
 #endif
 YY_@_CONSTRUCTOR_CODE;
-};
+}
 #endif
 $ /* fattrs + tables */
 
