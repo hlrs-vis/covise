@@ -8,6 +8,7 @@ extern "C" {
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRStatsDisplay.h>
+#include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
 
 using namespace opencover;
@@ -22,10 +23,14 @@ bool NvTop::init()
     init_gpu_info_extraction();
     m_numdevs = initialize_device_info(&m_threadDevInfos, size_t(0xffffffffL));
 
+    m_deviceNum = covise::coCoviseConfig::getInt("device", "COVER.Plugin.NvTop", m_deviceNum);
+    if (m_deviceNum >= m_numdevs)
+        m_deviceNum = 0;
+
     auto stats = VRViewer::instance()->statsDisplay;
     if (m_numdevs>0 && stats) {
-        std::cerr << "NvTop: enabling GPU stats for " << m_threadDevInfos[0].device_name << std::endl;
-        stats->enableGpuStats(true, m_threadDevInfos[0].device_name);
+        std::cerr << "NvTop: enabling GPU stats for " << m_threadDevInfos[m_deviceNum].device_name << std::endl;
+        stats->enableGpuStats(true, m_threadDevInfos[m_deviceNum].device_name);
         m_devinfos = new device_info[m_numdevs];
     }
 
@@ -97,7 +102,7 @@ void NvTop::preFrame()
                 }
 
                 std::lock_guard<std::mutex> guard(m_mutex);
-                memcpy(m_devinfos, m_threadDevInfos, sizeof(m_devinfos[0])*m_numdevs);
+                memcpy(m_devinfos, m_threadDevInfos, sizeof(m_devinfos[m_deviceNum])*m_numdevs);
             }
         }));
     }
@@ -129,7 +134,7 @@ void NvTop::preFrame()
         }
     }
 
-    auto &dev = m_devinfos[0];
+    auto &dev = m_devinfos[m_deviceNum];
 
     if (stats && stats->collectStats("frame_rate"))
     {

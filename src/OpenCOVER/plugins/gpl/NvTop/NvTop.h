@@ -28,6 +28,7 @@ public:
 
 private:
     unsigned m_numdevs = 0;
+    unsigned m_deviceNum = 0;
     struct device_info *m_devinfos = nullptr, *m_threadDevInfos = nullptr;
 
     std::unique_ptr<std::thread> m_thread;
