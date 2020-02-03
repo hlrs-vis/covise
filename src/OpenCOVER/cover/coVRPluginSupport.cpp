@@ -474,6 +474,11 @@ void coVRPluginSupport::update()
     if (debugLevel(5))
         fprintf(stderr, "coVRPluginSupport::update\n");
 
+    for (auto nb: m_notifyBuf) {
+        if (nb)
+            nb->sync();
+    }
+
     if (Input::instance()->hasHand() && Input::instance()->isHandValid())
     {
         wasHandValid = true;
