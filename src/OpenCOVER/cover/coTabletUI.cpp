@@ -33,8 +33,6 @@
 
 #include <QTextStream>
 #include <QFile>
-#include <QtWebView/qtwebviewfunctions.h>
-
 #include <iostream>
 
 using namespace covise;
