@@ -99,9 +99,26 @@ bool WebviewPlugin::init()
     WebviewTab->setPos(0, 0);
 
     const std::string& n = "WebviewTest";
-    int pID = 0;
+    int pID = WebviewTab->getID();
     Webview = new coTUIWebview(n, pID);
     return true;
+
 }
 
+bool WebviewPlugin::update()
+{
+    if(cover->frameTime()-lastChangeTime>=5)
+    {
+        lastChangeTime = cover->frameTime();
+        std::string url1 = ("http://www.9gag.com");
+        std::string url2 = ("http://www.google.com");
+        if(urlSwitch)
+            Webview->setURL(url1);
+        else
+            Webview->setURL(url2);
+        urlSwitch = !urlSwitch;
+        return true;
+    }
+    return false;
+}
 COVERPLUGIN(WebviewPlugin)

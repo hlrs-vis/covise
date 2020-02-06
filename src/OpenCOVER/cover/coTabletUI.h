@@ -1849,7 +1849,7 @@ public:
     coTUIWebview(QObject* parent, const std::string&, int pID = 1);
 	virtual ~coTUIWebview();
 	virtual void parseMessage(covise::TokenBuffer& tb) override;
-
+    void setURL(const std::string& url);
     //virtual void resend(bool create) override;
 
 };

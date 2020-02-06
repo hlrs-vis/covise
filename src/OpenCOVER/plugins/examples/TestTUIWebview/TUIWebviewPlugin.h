@@ -34,6 +34,7 @@ public:
 
     // this will be called in PreFrame
     void preFrame();
+    bool update();
 
     // this will be called if an object with feedback arrives
     void newInteractor(opencover::RenderObject *container, opencover::coInteractor *i);
@@ -53,9 +54,10 @@ public:
 
     bool init();
 
-    opencover::coTUITab* WebviewTab;
-    opencover::coTUIWebview* Webview;
-    
 private:
+    opencover::coTUITab* WebviewTab = nullptr;
+    opencover::coTUIWebview* Webview = nullptr;
+    double lastChangeTime = 0;
+    bool urlSwitch = 0;
 };
 #endif

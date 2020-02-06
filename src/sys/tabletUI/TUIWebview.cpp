@@ -10,6 +10,8 @@
 #include "TUIApplication.h"
 #include <stdio.h>
 #include <net/tokenbuffer.h>
+#include <QQuickView>
+#include <qmainwindow.h>
 
 /// Constructor
 TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString name)  //(QObject* parent, const std::string& n, int pID)
@@ -17,9 +19,16 @@ TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString name)  
 {
     fprintf(stderr, "TUIWebview::TUIWebview\n");
 
-    QWebEngineView* Webview = new QWebEngineView();
-    Webview->load(QUrl("http://qt-project.org/"));
-    Webview->show();
+    Webview = new QWebEngineView(w);
+    Webview->load(QUrl("https://maps.google.com"));
+    WebviewLayout = new QHBoxLayout(w);
+    WebviewLayout->addWidget(Webview);
+    
+    /* use instead of Webview->load()
+    QWebEnginePage* page = Webview->page();
+    page->load(QUrl(QStringLiteral("https://maps.google.com")));
+    */
+
 }
 
 /// Destructor
@@ -31,3 +40,22 @@ const char *TUIWebview::getClassName() const
 {
     return "TUIWebview";
 }
+
+void TUIWebview::setValue(TabletValue type, covise::TokenBuffer& tb)
+{
+    if (type == TABLET_STRING)
+    {
+        char* v;
+        tb >> v;
+        //cerr << "TUIWebview::setValue " << value << endl;
+        Webview->load(QUrl(v)); //Fehler QUrl anschauen, datentyp
+    }
+    else
+    {
+        TUIElement::setValue(type, tb);
+    }
+    
+}
+
+
+//methode load website (url) bekommt nachricht von webviewplugin

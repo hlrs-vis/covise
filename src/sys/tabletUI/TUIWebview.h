@@ -11,6 +11,8 @@
 #include <QObject>
 #include "TUIElement.h"
 #include <QWebEngineView>
+#include <QBoxLayout>
+#include <qlineedit.h>
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -28,10 +30,9 @@ public:
     
     /// get the Element's classname
     virtual const char *getClassName() const override;
+    void setValue(TabletValue type, covise::TokenBuffer& tb);
     QWebEngineView* Webview;
+    QHBoxLayout* WebviewLayout;
 
-public slots:
-
-protected:
 };
 #endif

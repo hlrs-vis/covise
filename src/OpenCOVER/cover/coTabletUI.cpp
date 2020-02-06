@@ -4650,3 +4650,8 @@ coTUIWebview::~coTUIWebview()
 void coTUIWebview::parseMessage(TokenBuffer& tb)
 {
 }
+
+void coTUIWebview::setURL(const std::string& url)
+{
+    setVal(url);
+}
