@@ -105,15 +105,15 @@ bool WebviewPlugin::init()
 
 }
 
-bool WebviewPlugin::update()
+bool WebviewPlugin::update() ///trigger new rendering of the window
 {
-    if(cover->frameTime()-lastChangeTime>=5)
+    if(cover->frameTime()-lastChangeTime>=5) ///frameTime returns number of seconds
     {
-        lastChangeTime = cover->frameTime();
+        lastChangeTime = cover->frameTime(); ///time for url chancing is set to current time
         std::string url1 = ("http://www.9gag.com");
         std::string url2 = ("http://www.google.com");
         if(urlSwitch)
-            Webview->setURL(url1);
+            Webview->setURL(url1); ///sends url1 to TUI
         else
             Webview->setURL(url2);
         urlSwitch = !urlSwitch;

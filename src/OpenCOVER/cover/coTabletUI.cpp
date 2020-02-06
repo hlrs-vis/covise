@@ -4653,5 +4653,5 @@ void coTUIWebview::parseMessage(TokenBuffer& tb)
 
 void coTUIWebview::setURL(const std::string& url)
 {
-    setVal(url);
+    setVal(url);  ///url is passed to virtual function setVal of baseclass
 }

@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include "TUIWebview.h"
+#ifdef USE_WEBENGINE
 #include "TUIApplication.h"
 #include <stdio.h>
 #include <net/tokenbuffer.h>
@@ -20,7 +21,7 @@ TUIWebview::TUIWebview(int id, int type, QWidget *w, int parent, QString name)  
     fprintf(stderr, "TUIWebview::TUIWebview\n");
 
     Webview = new QWebEngineView(w);
-    Webview->load(QUrl("https://maps.google.com"));
+    Webview->load(QUrl("https://maps.google.com")); ///default website
     WebviewLayout = new QHBoxLayout(w);
     WebviewLayout->addWidget(Webview);
     
@@ -41,21 +42,18 @@ const char *TUIWebview::getClassName() const
     return "TUIWebview";
 }
 
-void TUIWebview::setValue(TabletValue type, covise::TokenBuffer& tb)
+void TUIWebview::setValue(TabletValue type, covise::TokenBuffer& tb) ///TUIWebview recieves a message from cover (tuiwebviewplugin)
 {
     if (type == TABLET_STRING)
     {
         char* v;
-        tb >> v;
+        tb >> v; ///pointer to the begin of tranfered string (url) is saved in v 
         //cerr << "TUIWebview::setValue " << value << endl;
-        Webview->load(QUrl(v)); //Fehler QUrl anschauen, datentyp
+        Webview->load(QUrl(v)); ///new url is loaded
     }
     else
     {
         TUIElement::setValue(type, tb);
     }
-    
 }
-
-
-//methode load website (url) bekommt nachricht von webviewplugin
+#endif

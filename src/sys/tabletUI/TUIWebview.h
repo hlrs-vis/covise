@@ -8,11 +8,16 @@
 #ifndef CO_TUI_WEBVIEW_H
 #define CO_TUI_WEBVIEW_H
 
+
+
 #include <QObject>
 #include "TUIElement.h"
+
+#ifdef USE_WEBENGINE
 #include <QWebEngineView>
 #include <QBoxLayout>
-#include <qlineedit.h>
+#endif
+
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -31,8 +36,9 @@ public:
     /// get the Element's classname
     virtual const char *getClassName() const override;
     void setValue(TabletValue type, covise::TokenBuffer& tb);
+#ifdef USE_WEBENGINE
     QWebEngineView* Webview;
     QHBoxLayout* WebviewLayout;
-
+#endif
 };
 #endif

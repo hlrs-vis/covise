@@ -600,7 +600,12 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
     case TABLET_UI_TAB:
         return new TUIUITab(id, type, w, parent, name);
     case TABLET_WEBVIEW:
+#ifdef USE_WEBENGINE
         return new TUIWebview(id, type, w, parent, name);
+#else
+        std::cerr << "TUIWebview is for Qt versions older than 5.4 not available" << std::endl;
+        break;
+#endif
     default:
         std::cerr << "TUIapplication::createElement info: unknown element type: " << type << std::endl;
         break;
