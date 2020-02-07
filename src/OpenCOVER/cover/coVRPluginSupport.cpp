@@ -85,8 +85,12 @@ class NotifyBuf: public std::stringbuf
     NotifyBuf(int level): level(level) {}
     int sync()
     {
-        coVRPluginList::instance()->notify(level, str().c_str());
-        str("");
+        auto s = str();
+        if (!s.empty())
+        {
+            coVRPluginList::instance()->notify(level, s.c_str());
+            str("");
+        }
         return 0;
     }
  private:

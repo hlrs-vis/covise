@@ -141,6 +141,9 @@ CovisePlugin::~CovisePlugin()
 
 void CovisePlugin::notify(NotificationLevel level, const char *text)
 {
+    if (!text || !text[0])
+        return;
+
     std::cerr << text << std::endl;
     switch(level)
     {
