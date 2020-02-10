@@ -34,8 +34,8 @@ public:
     virtual ~TUIWebview();
     
     /// get the Element's classname
-    virtual const char *getClassName() const override;
-    void setValue(TabletValue type, covise::TokenBuffer& tb);
+    const char *getClassName() const override;
+    void setValue(TabletValue type, covise::TokenBuffer& tb) override;
 #ifdef USE_WEBENGINE
     QWebEngineView* Webview;
     QHBoxLayout* WebviewLayout;
