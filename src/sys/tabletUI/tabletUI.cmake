@@ -132,9 +132,9 @@ endif()
 
 if (COVISE_USE_WEBENGINE)
    SET(TUI_MOC_HEADERS ${TUI_MOC_HEADERS}
-     TUIWebView.h
+     TUIWebview.h
    )
    SET(TUI_SOURCES ${TUI_SOURCES}
-     TUIWebView.cpp
+     TUIWebview.cpp
    )
 endif()
