@@ -527,9 +527,13 @@ Variant *VariantPlugin::getVariant(osg::Node *varNode)
 void VariantPlugin::setVariant(std::string var)
 {
         VariantPlugin::plugin->HideAllVariants();
-        TokenBuffer tb;
-        tb << var;
-        cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
+        std::stringstream ss(var);
+        std::string out;
+        while(std::getline(ss,out,';')) {
+            TokenBuffer tb;
+            tb << out;
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
+        }
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
