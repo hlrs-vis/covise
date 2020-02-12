@@ -305,24 +305,34 @@ MapDrape::compute(const char *)
 
 void MapDrape::transformCoordinates(int numCoords, float *xIn, float *yIn, float *zIn, float *xOut, float *yOut, float *zOut)
 {
-    bool source = p_mapSourceCS->getValue();
+	bool source = p_mapSourceCS->getValue();
+	bool angle=false;
+	if(p_mapping_from_->getValue()=="+proj=latlong")
+	{
+	    angle=true;
+	}
 	for (int i = 0; i < numCoords; i++)
 	{
 
-		double x = xIn[i] * DEG_TO_RAD;
-		double y = yIn[i] * DEG_TO_RAD;
-		double z = zIn[i];
-        if(source)
-        {
-            if (heightDataset)
-                z = getAlt(xIn[i], yIn[i]);
-        }
-		pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
-        if (!source)
-        {
-            if (heightDataset)
-                z = getAlt(x, y);
-        }
+        	double x = xIn[i];
+        	double y = yIn[i];
+        	if(angle)
+		{
+			   x*=DEG_TO_RAD;
+			   y*=DEG_TO_RAD;
+        	}
+			double z = zIn[i];
+        	if(source)
+        	{
+        	    if (heightDataset)
+                	z = getAlt(xIn[i], yIn[i]);
+        	}
+			pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
+        	if (!source)
+        	{
+        	    if (heightDataset)
+                	z = getAlt(x, y);
+        	}
 
 		xOut[i] = x + Offset[0];
 		yOut[i] = y + Offset[1];
