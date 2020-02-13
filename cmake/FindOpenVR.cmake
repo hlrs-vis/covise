@@ -22,10 +22,11 @@ FIND_PATH(OPENVR_INCLUDE_DIR "openvr.h" "openvr_capi.h"
   /opt/csw/include # Blastwave
   /opt/include
   DOC "OPENVR - Headers"
+  PATH_SUFFIXES openvr
 )
 
-SET(OPENVR_NAMES openvr_api64.lib openvr_api.lib)
-SET(OPENVR_DBG_NAMES openvr_api64d.lib openvr_apid.lib)
+SET(OPENVR_NAMES openvr_api openvr_api64.lib openvr_api.lib)
+SET(OPENVR_DBG_NAMES openvr_apid openvr_api64d.lib openvr_apid.lib)
 
 FIND_LIBRARY(OPENVR_LIBRARY NAMES ${OPENVR_NAMES}
   PATHS
