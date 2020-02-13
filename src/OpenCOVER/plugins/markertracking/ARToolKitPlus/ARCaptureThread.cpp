@@ -386,10 +386,10 @@ int gettimeofday(struct timeval *tp, int * /*tz*/)
 
     if (isFirstCall)
     {
-        struct timeb tb;
-        ftime(&tb);
-        tp->tv_sec = tb.time;
-        tp->tv_usec = 1000 * tb.millitm;
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        tp->tv_sec = ts.tv_sec;
+        tp->tv_usec = ts.tv_nsec/1000;
 
         // Also get our counter frequency:
         QueryPerformanceFrequency(&tickFrequency);
