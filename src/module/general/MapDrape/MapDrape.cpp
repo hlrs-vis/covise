@@ -307,7 +307,7 @@ void MapDrape::transformCoordinates(int numCoords, float *xIn, float *yIn, float
 {
 	bool source = p_mapSourceCS->getValue();
 	bool angle=false;
-	if(p_mapping_from_->getValue()=="+proj=latlong")
+	if(strcmp(p_mapping_from_->getValue(), "+proj=latlong")==0)
 	{
 	    angle=true;
 	}
