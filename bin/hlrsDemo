@@ -101,6 +101,14 @@ demo 35 "Hildesheim" cover /data/hildesheim/33-VR/out/praesentation.wrl
 		
 # URBAN PLANNING
 category="Urban Planning"
+run_stuttgart() {
+    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
+    SUMO=$!
+    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracer.vsl
+    kill $SUMO
+}
+demo 37 "Stuttgart with Sumo" run_stuttgart
+
 demo 38 "Spielplatz Stuttgart West" covise /data/covise_net/2017/Spielplatz.net
 run_herrenberg() {
     bash /data/reallabor/herrenberg/sumo/startSumo.sh &
