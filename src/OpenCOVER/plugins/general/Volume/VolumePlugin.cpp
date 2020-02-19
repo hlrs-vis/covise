@@ -2242,8 +2242,8 @@ void VolumePlugin::preFrame()
                     Vec4 v = cp->getClipPlane() * invT;
 
                     boost::shared_ptr<vvClipPlane> plane = vvClipPlane::create();
-                    plane->normal = virvo::vec3(v.x(), v.y(), v.z());
-                    plane->offset = -v.w();
+                    plane->normal = -virvo::vec3(v.x(), v.y(), v.z());
+                    plane->offset = v.w();
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
