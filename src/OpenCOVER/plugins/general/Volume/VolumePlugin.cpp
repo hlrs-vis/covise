@@ -1853,6 +1853,9 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         volumes[name].preIntegration = preintItem->state();
         volumes[name].lighting = lightingItem->state();
         volumes[name].mapTF = mapTF;
+        if (!container && volumes[name].transform) {
+            volumes[name].transform->setMatrix(osg::Matrix::identity());
+        }
         if (volumes[name].multiDimTF)
         {
             volumes[name].tf.resize(1);
