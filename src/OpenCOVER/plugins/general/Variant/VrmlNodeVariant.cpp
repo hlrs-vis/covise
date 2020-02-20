@@ -44,8 +44,9 @@ VrmlNodeVariant *VrmlNodeVariant::instance()
     {
         if(theVariantNode==NULL)
             theVariantNode=new VrmlNodeVariant();
+        return theVariantNode;
     }
-    return theVariantNode;
+    return nullptr;
 }
 
 
@@ -117,6 +118,9 @@ VrmlNodeVariant::VrmlNodeVariant(const VrmlNodeVariant &n)
 
 VrmlNodeVariant::~VrmlNodeVariant()
 {
+    if (this == theVariantNode) {
+        theVariantNode = nullptr;
+    }
 }
 
 VrmlNode *VrmlNodeVariant::cloneMe() const
