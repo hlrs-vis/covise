@@ -242,7 +242,7 @@ public:
     void setName(const char *nodeName, VrmlNamespace *ns = 0);
     inline const char *name() const
     {
-        return d_name;
+        return d_name.c_str();
     };
     VrmlNamespace *getNamespace() const;
 
@@ -375,7 +375,7 @@ protected:
 
 private:
     int d_refCount; // Number of active references
-    char *d_name;
+    std::string d_name;
 
     VrmlSFNode d_metadata;
 };

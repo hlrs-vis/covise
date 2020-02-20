@@ -47,8 +47,6 @@ VrmlNode::VrmlNode(VrmlScene *scene)
     , d_refCount(0)
     , d_metadata(0)
 {
-    d_name = new char[1];
-    d_name[0] = '\0';
     d_isDeletedInline = false;
 }
 
@@ -62,8 +60,6 @@ VrmlNode::VrmlNode(const VrmlNode &)
     , d_refCount(0)
     , d_metadata(0)
 {
-    d_name = new char[1];
-    d_name[0] = '\0';
     d_isDeletedInline = false;
 }
 
@@ -78,11 +74,11 @@ VrmlNode::~VrmlNode()
         d_scene->getIncomingSensorEventQueue()->removeNodeFromCache(this);
 
     // Remove the node's name (if any) from the map...
-    if (d_name && (d_name[0] != '\0'))
+    if (!d_name.empty())
     {
         if (d_scene && d_scene->scope())
             d_scene->scope()->removeNodeName(this);
-        delete[] d_name;
+        d_name.clear();
     }
     //  if(d_myNamespace)
     //     d_myNamespace->removeNodeName(this);
@@ -183,13 +179,9 @@ void VrmlNode::dereference()
 
 void VrmlNode::setName(const char *nodeName, VrmlNamespace *ns)
 {
-    if (d_name)
-        delete[] d_name;
-
     if (nodeName && *nodeName)
     {
-        d_name = new char[strlen(nodeName) + 1];
-        strcpy(d_name, nodeName);
+        d_name = nodeName;
         if (ns)
         {
             ns->addNodeName(this);
@@ -198,8 +190,7 @@ void VrmlNode::setName(const char *nodeName, VrmlNamespace *ns)
     }
     else
     {
-        d_name = new char[1];
-        d_name[0] = '\0';
+        d_name.clear();
     }
 }
 
