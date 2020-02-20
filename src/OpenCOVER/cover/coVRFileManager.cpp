@@ -375,6 +375,12 @@ osg::Node *LoadedFile::load()
     if (loaded)
         return node;
 
+    if (!parent)
+    {
+        std::cerr << "LoadedFile::load: no parent for " << url.str() << std::endl;
+        return nullptr;
+    }
+
     const char *covise_key = nullptr;
     if (!key.empty())
         covise_key = key.c_str();
