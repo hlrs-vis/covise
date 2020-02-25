@@ -26,7 +26,7 @@
 #include "cover/coTabletUI.h"
 
 
-class WebviewPlugin : public opencover::coVRPlugin
+class WebviewPlugin : public opencover::coVRPlugin, public opencover::coTUIListener
 {
 public:
     WebviewPlugin();
@@ -53,6 +53,7 @@ public:
     void removeObject(const char *objName, bool replace);
 
     bool init();
+    void tabletEvent(opencover::coTUIElement* tUIItem) override;
 
 private:
     opencover::coTUITab* WebviewTab = nullptr;

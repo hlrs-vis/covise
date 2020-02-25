@@ -1840,6 +1840,9 @@ protected:
     std::string text;
     bool immediate;
 };
+/**
+ * a Webview widget
+ */
 class COVEREXPORT coTUIWebview : public coTUIElement
 {
     Q_OBJECT;
@@ -1850,8 +1853,10 @@ public:
 	virtual ~coTUIWebview();
 	virtual void parseMessage(covise::TokenBuffer& tb) override;
     void setURL(const std::string& url);
-    //virtual void resend(bool create) override;
+    void doSomething();
 
+signals:
+    void tabletEvent();
 };
 }
 #endif

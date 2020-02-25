@@ -28,14 +28,11 @@ using namespace opencover;
 
 WebviewPlugin::WebviewPlugin()
 {
-    //new TUIWebview(int id, int type, QWidget * w, int parent, QString name)
-    fprintf(stderr, "WebviewPlugin::WebviewPlugin\n");
 }
 
 // this is called if the plugin is removed at runtime
 WebviewPlugin::~WebviewPlugin()
 {
-    fprintf(stderr, "WebviewPlugin::~WebviewPlugin\n");
 }
 
 // here we get the size and the current center of the cube
@@ -93,21 +90,20 @@ WebviewPlugin::preFrame()
 
 bool WebviewPlugin::init()
 {
-    fprintf(stderr, "WebviewPlugin::WebviewPlugin\n");
-
     WebviewTab = new coTUITab("Webview", coVRTui::instance()->mainFolder->getID());
     WebviewTab->setPos(0, 0);
 
     const std::string& n = "WebviewTest";
     int pID = WebviewTab->getID();
     Webview = new coTUIWebview(n, pID);
+    Webview->setEventListener(this);
     return true;
 
 }
 
 bool WebviewPlugin::update() ///trigger new rendering of the window
 {
-    if(cover->frameTime()-lastChangeTime>=5) ///frameTime returns number of seconds
+    if(cover->frameTime()-lastChangeTime>=7) ///frameTime returns number of seconds
     {
         lastChangeTime = cover->frameTime(); ///time for url chancing is set to current time
         std::string url1 = ("http://www.9gag.com");
@@ -120,5 +116,15 @@ bool WebviewPlugin::update() ///trigger new rendering of the window
         return true;
     }
     return false;
+}
+
+void WebviewPlugin::tabletEvent(coTUIElement* tUIItem)
+{
+    if (tUIItem == Webview)
+    {
+        //getLoadedURL
+        cerr << "tUIItem == Webview" << endl;
+        Webview->coTUIWebview::doSomething();
+    }
 }
 COVERPLUGIN(WebviewPlugin)

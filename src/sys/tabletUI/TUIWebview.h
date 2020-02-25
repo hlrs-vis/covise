@@ -36,6 +36,8 @@ public:
     /// get the Element's classname
     const char *getClassName() const override;
     void setValue(TabletValue type, covise::TokenBuffer& tb) override;
+public slots:
+    void sendURL(bool);
 #ifdef USE_WEBENGINE
     QWebEngineView* Webview;
     QHBoxLayout* WebviewLayout;
