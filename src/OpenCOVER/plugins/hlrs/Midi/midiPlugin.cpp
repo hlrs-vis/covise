@@ -24,6 +24,7 @@
 #include <config/CoviseConfig.h>
 #include "midiPlugin.h"
 #include <cover/coVRShader.h>
+#include <cover/VRSceneGraph.h>
 
 #include <osg/GL>
 #include <osg/Group>
@@ -547,8 +548,10 @@ MidiPlugin::MidiPlugin()
 	lineStateSet->ref();
 	lineStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
 	lineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-	lineStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+	lineStateSet->setMode(GL_BLEND, osg::StateAttribute::OFF);
 	lineStateSet->setNestRenderBins(false);
+	//lineStateSet->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+	lineStateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 	osg::LineWidth *lineWidth = new osg::LineWidth(4);
 	lineStateSet->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
 
@@ -1054,14 +1057,22 @@ void MidiPlugin::preFrame()
 			{
 				if (me.getVelocity() < 50)
 				{
-					lTrack[i]->reset();
+					for (int i = 0; i < NUMMidiStreams; i++)
+					{
+						lTrack[i]->reset();
+					}
 				}
 				else
 				{
+					for (int i = 0; i < NUMMidiStreams; i++)
+					{
+						MidiInstrument* inst = lTrack[i]->instrument;
 					lTrack[i]->store();
 					lTrack[i] = new Track(tracks.size(), true);
 					lTrack[i]->reset();
+					lTrack[i]->instrument = inst;
 					lTrack[i]->setVisible(true);
+					}
 				}
 			}
 			else
@@ -1112,6 +1123,50 @@ void MidiPlugin::handleController(MidiEvent& me)
 	fprintf(stderr, "Controller Nr.%d, value %d\n", me.getP1(), me.getP2());
 	int controllerID = me.getP1();
 	int value = me.getP2();
+	if (controllerID == 5)
+	{
+		if (value < 10)
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Points);
+			fprintf(stderr, "Points\n");
+		}
+		else if (value < 40)
+			{
+				VRSceneGraph::instance()->setWireframe(VRSceneGraph::HiddenLineBlack);
+			}
+		else if (value < 80)
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Disabled);
+		}
+		else if (value < 100)
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::HiddenLineWhite);
+		}
+		else
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
+		}
+
+	}
+	if (controllerID == 65)
+	{
+		if (value > 64)
+		{
+
+			spiralSpeed += 0.05;
+			if (spiralSpeed > 5)
+				spiralSpeed = 5;
+			spiralSpeedSlider->setValue(spiralSpeed);
+			
+		}
+		else
+		{
+			spiralSpeed -= 0.05;
+			if (spiralSpeed < -5)
+				spiralSpeed = -5;
+			spiralSpeedSlider->setValue(spiralSpeed);
+		}
+	}
 	if (controllerID == 55)
 	{
 		frequencySurface->radius1 = value;
@@ -1122,7 +1177,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 		frequencySurface->radius2 = value;
 		amplitudeSurface->radius2 = value;
 	}
-	if (controllerID == 61)
+	if ((controllerID == 61) || (controllerID == 34))
 	{
 		sphereScale = 0.1+((value/127.0)*10.0);
 		sphereScaleSlider->setValue(sphereScale);
@@ -1142,7 +1197,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 		//frequencySurface->frequencyFactor = (value - 63) / 12.0;
 		amplitudeSurface->frequencyFactor = (value - 63) / 12.0;
 	}
-	if (controllerID == 52) // slider left
+	if ((controllerID == 52) || (controllerID == 33)) // slider left
 	{
 		float sliderValue = ((float)(value - 64) / 64.0)*5.0;
 		osg::Vec3 rotSpeed;
@@ -1154,13 +1209,13 @@ void MidiPlugin::handleController(MidiEvent& me)
 			lTrack[i]->setRotation(rotSpeed);
 		}
 	}
-	if (controllerID == 53) // slider right
+	if ((controllerID == 53)|| (controllerID == 32)) // slider right
 	{
 		float sliderValue = ((float)(value - 64) / 64.0)*0.3;
 		rAcceleration = sliderValue;
 		raccelSlider->setValue(sliderValue);
 	}
-	if (controllerID == 63) // distance sensor
+	if ((controllerID == 63) || (controllerID == 15)) // distance sensor
 	{
 		float sliderValue = value / 127.0;
 		speedFactor = (100.0 * sliderValue) + 1.0;
