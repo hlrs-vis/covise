@@ -469,9 +469,10 @@ osg::Node *LoadedFile::load()
         //fprintf(stderr, "coVRFileManager::loadFile(name=%s)   else\n", fileName);
         //(fileName,fileTypeString);
         //obj-Objects must not be rotated
-        osgDB::ReaderWriter::Options *op = new osgDB::ReaderWriter::Options();
-        op->setOptionString("noRotation");
-        op->setOptionString("noTriStripPolygons"); // don't run optimizer on STL and OBJ files
+        osg::ref_ptr<osgDB::ReaderWriter::Options> op = new osgDB::ReaderWriter::Options("usemaxlodonly storegeomids optimize noRotation noTriStripPolygons");
+       // don't run optimizer on STL and OBJ files
+
+        osg::ref_ptr<osgDB::Options> options = new osgDB::Options();
 
         std::string tmpFileName = adjustedFileName;
         if (fb)
