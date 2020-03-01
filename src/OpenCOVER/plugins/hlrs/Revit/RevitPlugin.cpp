@@ -156,6 +156,7 @@ void ARMarkerInfo::update()
 					lastUpdate = cover->frameTime();
 					TokenBuffer stb;
 					stb << hostID;
+					stb << DocumentID;
 					stb << (double)trans.x();
 					stb << (double)trans.y();
 					stb << (double)trans.z();
