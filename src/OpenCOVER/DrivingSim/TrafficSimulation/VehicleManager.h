@@ -29,21 +29,21 @@ public:
     static void Destroy();
 
     void addVehicle(Vehicle *);
-    void removeVehicle(VehicleList::iterator, Road *);
-    void removeVehicle(Vehicle *, Road *);
+    void removeVehicle(VehicleList::iterator, vehicleUtil::Road *);
+    void removeVehicle(Vehicle *, vehicleUtil::Road *);
     void removeAllAgents(double maxVel = 1.0); // delete all vehicles slower than maxVel
-    void changeRoad(VehicleList::iterator, Road *, Road *, int);
-    void changeRoad(Vehicle *, Road *, Road *, int);
+    void changeRoad(VehicleList::iterator, vehicleUtil::Road *, vehicleUtil::Road *, int);
+    void changeRoad(Vehicle *, vehicleUtil::Road *, vehicleUtil::Road *, int);
     void moveVehicle(VehicleList::iterator, int);
     void moveVehicle(Vehicle *, int);
     Vehicle *getNextVehicle(VehicleList::iterator, int);
     Vehicle *getNextVehicle(Vehicle *, int);
     Vehicle *getNextVehicle(VehicleList::iterator, int, int);
     Vehicle *getNextVehicle(Vehicle *, int, int);
-    Vehicle *getFirstVehicle(Road *);
-    Vehicle *getLastVehicle(Road *);
-    Vehicle *getFirstVehicle(Road *, int);
-    Vehicle *getLastVehicle(Road *, int);
+    Vehicle *getFirstVehicle(vehicleUtil::Road *);
+    Vehicle *getLastVehicle(vehicleUtil::Road *);
+    Vehicle *getFirstVehicle(vehicleUtil::Road *, int);
+    Vehicle *getLastVehicle(vehicleUtil::Road *, int);
     Vehicle *getVehicleByID(unsigned int);
     HumanVehicle *getHumanVehicle();
 
@@ -56,9 +56,9 @@ public:
         return maximumNumberOfVehicles;
     }
 
-    void sortVehicleList(Road *);
+    void sortVehicleList(vehicleUtil::Road *);
 
-    const VehicleList &getVehicleList(Road *);
+    const VehicleList &getVehicleList(vehicleUtil::Road *);
 
     std::map<double, Vehicle *> getSurroundingVehicles(Vehicle *);
     std::map<double, Vehicle *> getSurroundingVehicles(VehicleList::iterator);
@@ -69,7 +69,7 @@ public:
     void unbindCamera();
     //void brakeCameraVehicle();
 
-    bool isJunctionEmpty(Junction *);
+    bool isJunctionEmpty(vehicleUtil::Junction *);
 
     void moveAllVehicles(double);
     void updateFiddleyards(double, osg::Vec2d);
@@ -80,23 +80,23 @@ public:
     void receiveDataFrom(PorscheFFZ *ffzBroadcaster);
     VehicleList getVehicleOverallList();
 
-    std::vector<Vector3D> acitve_fiddleyards;
+    std::vector<vehicleUtil::Vector3D> acitve_fiddleyards;
 
 protected:
     VehicleManager();
     static VehicleManager *__instance;
 
-    void insertVehicleAtFront(Vehicle *, Road *);
-    void insertVehicleAtBack(Vehicle *, Road *);
+    void insertVehicleAtFront(Vehicle *, vehicleUtil::Road *);
+    void insertVehicleAtBack(Vehicle *, vehicleUtil::Road *);
 
     void moveVehicleForward(VehicleList::iterator);
     void moveVehicleBackward(VehicleList::iterator);
 
-    void showVehicleList(Road *);
+    void showVehicleList(vehicleUtil::Road *);
 
-    RoadSystem *system;
+    vehicleUtil::RoadSystem *system;
 
-    std::map<Road *, VehicleList> roadVehicleListMap;
+    std::map<vehicleUtil::Road *, VehicleList> roadVehicleListMap;
 
     VehicleList vehicleOverallList;
     Vehicle *cameraVehicle;

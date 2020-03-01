@@ -52,9 +52,9 @@ OpenPASS::OpenPASS() : ui::Owner("OpenPASS", cover->ui)
 	busGroup->setName("busGroup");
 	cover->getObjectsRoot()->addChild(busGroup.get());
     pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
-    getPedestriansFromConfig();
+  /*  getPedestriansFromConfig();
     getVehiclesFromConfig();
-    loadAllVehicles(); 
+    loadAllVehicles(); */
 	lineUpAllPedestrianModels(); // preload pedestrians;
 }
 /*
@@ -98,7 +98,7 @@ OpenPASS::~OpenPASS()
 
 void OpenPASS::lineUpAllPedestrianModels()
 {
-    for (int i = 0; i < pedestrianModels.size(); i++)
+    /*for (int i = 0; i < pedestrianModels.size(); i++)
     {
         std::string ID = "pedestrianTest" + std::to_string(i);
         PedestrianAnimations a = PedestrianAnimations();
@@ -113,18 +113,18 @@ void OpenPASS::lineUpAllPedestrianModels()
 
         Transform trans = Transform(Vector3D(position.x(), position.y(), position.z()), Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
         pedgeom->setTransform(trans, M_PI);
-    }
+    }*/
 }
 
 bool OpenPASS::initUI()
 {
-	openpassMenu = new ui::Menu("OpenPASS", this);
+	/*openpassMenu = new ui::Menu("OpenPASS", this);
 	pedestriansVisible = new ui::Button(openpassMenu, "Pedestrians");
 	pedestriansVisible->setState(true);
 	pedestriansVisible->setCallback([this](bool state) {
 		setPedestriansVisible(state);
 		});
-    
+    */
     return true;
 }
 
@@ -133,7 +133,7 @@ void OpenPASS::preFrame()
 
 }
 
-
+/*
 AgentVehicle* OpenPASS::createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
 {
     AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
@@ -148,6 +148,6 @@ AgentVehicle* OpenPASS::createVehicle(const std::string &vehicleClass, const std
         vp.rangeLOD = 1600;
     }
     return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
-}
+}*/
 
 COVERPLUGIN(OpenPASS)

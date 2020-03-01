@@ -53,8 +53,8 @@ public:
 
     ReferencePosition *getAbsolutePosition(Entity* currentEntity, const std::list<Entity*> &entityList);
     void getAbsolutePosition(ReferencePosition *relativePos, ReferencePosition *position);
-    osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, int landeId);
-    osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, double t);
+    osg::Vec3 getAbsoluteFromRoad(vehicleUtil::Road* road, double s, int landeId);
+    osg::Vec3 getAbsoluteFromRoad(vehicleUtil::Road* road, double s, double t);
 	void getAbsolutePositionLc(ReferencePosition* relativePos, ReferencePosition* position);
 
     ReferencePosition* getRelObjectPos(std::string relObject, Entity* currentEntity, const std::list<Entity*> &entityList);

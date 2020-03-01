@@ -17,10 +17,10 @@ public:
     bool isUp2Date;
     // Road
     std::string roadId;
-    Road* road;
+    vehicleUtil::Road* road;
     double roadLength;
-    RoadSystem* system;
-	LaneSection* section;
+    vehicleUtil::RoadSystem* system;
+    vehicleUtil::LaneSection* section;
 
     double s;
     double t;
@@ -28,15 +28,15 @@ public:
 	double offset;
     // Lane
     int laneId;
-    LaneSection *LS;
+    vehicleUtil::LaneSection *LS;
 
     // Absolute
     osg::Vec3 xyz;
 
     // intialize ReferencePosition:
-    void init(std::string init_roadId, int init_laneId, double init_s, RoadSystem *system, double offset); // via Lane Coordinates
-    void init(osg::Vec3 initPos, double init_hdg, RoadSystem* init_system); // via World Coordinates
-    void init(std::string, double init_s, double init_t, RoadSystem* init_system); // via Road Coordinates
+    void init(std::string init_roadId, int init_laneId, double init_s, vehicleUtil::RoadSystem *system, double offset); // via Lane Coordinates
+    void init(osg::Vec3 initPos, double init_hdg, vehicleUtil::RoadSystem* init_system); // via World Coordinates
+    void init(std::string, double init_s, double init_t, vehicleUtil::RoadSystem* init_system); // via Road Coordinates
 
     void move(double ds, double dt, float step); // move Reference Position forward
     void move(osg::Vec3 dirVec,float step_distance); // move Reference Position forward (w/o Road)

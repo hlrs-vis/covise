@@ -121,7 +121,7 @@ struct TRAFFICSIMULATIONEXPORT VehicleState
 };
 /** VehicleState */
 
-class TRAFFICSIMULATIONEXPORT RoadTransitionList : public std::list<RoadTransition>
+class TRAFFICSIMULATIONEXPORT RoadTransitionList : public std::list<vehicleUtil::RoadTransition>
 {
 public:
     double getLength();
@@ -131,13 +131,13 @@ public:
 class TRAFFICSIMULATIONEXPORT RouteFindingNode
 {
 public:
-    RouteFindingNode(RoadTransition, const RoadTransition &, const Vector2D &, RouteFindingNode * = NULL);
+    RouteFindingNode(vehicleUtil::RoadTransition, const vehicleUtil::RoadTransition &, const vehicleUtil::Vector2D &, RouteFindingNode * = NULL);
     ~RouteFindingNode();
 
     void addChild(RouteFindingNode *);
 
-    Junction *getEndJunction();
-    const RoadTransition &getLastTransition();
+    vehicleUtil::Junction *getEndJunction();
+    const vehicleUtil::RoadTransition &getLastTransition();
 
     RouteFindingNode *getParent();
 
@@ -154,7 +154,7 @@ public:
 
 protected:
     RoadTransitionList transList;
-    Junction *endJunction;
+    vehicleUtil::Junction *endJunction;
     double sj;
     double sh;
     bool endNode;

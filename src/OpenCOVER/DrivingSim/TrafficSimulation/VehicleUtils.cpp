@@ -10,6 +10,8 @@
 
 #include <cover/coVRMSController.h>
 
+using namespace vehicleUtil;
+
 /** Visitor that calculates the Boundingbox. */
 
 /** Constructor.

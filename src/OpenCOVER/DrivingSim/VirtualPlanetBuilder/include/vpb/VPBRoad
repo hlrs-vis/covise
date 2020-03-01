@@ -13,7 +13,7 @@ class VPB_EXPORT VPBRoad
     ~VPBRoad();
 
     //VehicleUtil* vehicleUtil;
-    RoadSystem* system;
+    vehicleUtil::RoadSystem* system;
     std::string xodrDirectory;
     xercesc::DOMElement* rootElement;
     bool loadRoadSystem(std::string filename);

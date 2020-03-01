@@ -95,7 +95,7 @@ void Entity::moveLongitudinal()
 
         refPos->move(ds,0.0,step_distance);
 		
-        Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
+		vehicleUtil::Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
         agentVehicle->setTransform(vehicleTransform,hdg);
         //cout << name << " is driving on Road: " << refPos->roadId << endl;
     }

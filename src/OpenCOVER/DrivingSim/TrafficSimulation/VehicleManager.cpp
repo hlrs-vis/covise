@@ -17,6 +17,7 @@
 #include <osg/MatrixTransform>
 #include <algorithm>
 #include "PorscheFFZ.h"
+using namespace vehicleUtil;
 
 VehicleManager *VehicleManager::__instance = NULL;
 
@@ -60,7 +61,7 @@ void VehicleManager::addVehicle(Vehicle *veh)
     vehicleDecisionDeque.push_back(veh);
 }
 
-void VehicleManager::removeVehicle(VehicleList::iterator vehIt, Road *road)
+void VehicleManager::removeVehicle(VehicleList::iterator vehIt, vehicleUtil::Road *road)
 {
     VehicleDeque::iterator vehDecIt = find(vehicleDecisionDeque.begin(), vehicleDecisionDeque.end(), *vehIt);
     vehicleDecisionDeque.erase(vehDecIt);
@@ -76,7 +77,7 @@ void VehicleManager::removeVehicle(VehicleList::iterator vehIt, Road *road)
     VehicleFactory::Instance()->deleteRoadVehicle(*vehIt);
 }
 
-void VehicleManager::removeVehicle(Vehicle *veh, Road *road)
+void VehicleManager::removeVehicle(Vehicle *veh, vehicleUtil::Road *road)
 {
     VehicleDeque::iterator vehDecIt = find(vehicleDecisionDeque.begin(), vehicleDecisionDeque.end(), veh);
     vehicleDecisionDeque.erase(vehDecIt);
@@ -115,7 +116,7 @@ VehicleManager::
     std::cout << "Deleted " << count << " agent vehicles (slower than " << maxVel * 3.6 << " km/h)." << std::endl;
 }
 
-void VehicleManager::changeRoad(VehicleList::iterator vehIt, Road *from, Road *to, int dir)
+void VehicleManager::changeRoad(VehicleList::iterator vehIt, vehicleUtil::Road *from, vehicleUtil::Road *to, int dir)
 {
     Vehicle *veh = (*vehIt);
     //Road* from = (*vehIt)->getRoad();
@@ -127,7 +128,7 @@ void VehicleManager::changeRoad(VehicleList::iterator vehIt, Road *from, Road *t
         insertVehicleAtFront(veh, to);
 }
 
-void VehicleManager::changeRoad(Vehicle *veh, Road *from, Road *to, int dir)
+void VehicleManager::changeRoad(Vehicle *veh, vehicleUtil::Road *from, vehicleUtil::Road *to, int dir)
 {
     //Road* from = veh->getRoad();
     VehicleList::iterator vehIt = std::find(roadVehicleListMap[from].begin(), roadVehicleListMap[from].end(), veh);
@@ -151,7 +152,7 @@ void VehicleManager::moveVehicle(VehicleList::iterator vehIt, int dir)
 
 void VehicleManager::moveVehicle(Vehicle *veh, int dir)
 {
-    Road *road = veh->getRoad();
+    vehicleUtil::Road *road = veh->getRoad();
     VehicleList::iterator vehIt = std::find(roadVehicleListMap[road].begin(), roadVehicleListMap[road].end(), veh);
     if (vehIt != roadVehicleListMap[road].end())
     {
@@ -163,7 +164,7 @@ void VehicleManager::moveVehicle(Vehicle *veh, int dir)
 Vehicle *VehicleManager::getNextVehicle(VehicleList::iterator vehIt, int dir)
 {
     dir = (dir >= 0) ? 1 : -1;
-    Road *road = (*vehIt)->getRoad();
+    vehicleUtil::Road *road = (*vehIt)->getRoad();
 
     if (dir > 0 && (++vehIt) != roadVehicleListMap[road].end())
     {
@@ -181,7 +182,7 @@ Vehicle *VehicleManager::getNextVehicle(VehicleList::iterator vehIt, int dir)
 
 Vehicle *VehicleManager::getNextVehicle(Vehicle *veh, int dir)
 {
-    Road *road = veh->getRoad();
+    vehicleUtil::Road *road = veh->getRoad();
     VehicleList::iterator vehIt = std::find(roadVehicleListMap[road].begin(), roadVehicleListMap[road].end(), veh);
     if (vehIt != roadVehicleListMap[road].end())
     {
@@ -197,7 +198,7 @@ Vehicle *VehicleManager::getNextVehicle(Vehicle *veh, int dir)
 Vehicle *VehicleManager::getNextVehicle(VehicleList::iterator vehIt, int dir, int lane)
 {
     dir = (dir >= 0) ? 1 : -1;
-    Road *road = (*vehIt)->getRoad();
+    vehicleUtil::Road *road = (*vehIt)->getRoad();
 
     if (dir > 0 && vehIt != roadVehicleListMap[road].end())
     {
@@ -236,7 +237,7 @@ Vehicle *VehicleManager::getNextVehicle(VehicleList::iterator vehIt, int dir, in
 
 Vehicle *VehicleManager::getNextVehicle(Vehicle *veh, int dir, int lane)
 {
-    Road *road = veh->getRoad();
+    vehicleUtil::Road *road = veh->getRoad();
     VehicleList::iterator vehIt = std::find(roadVehicleListMap[road].begin(), roadVehicleListMap[road].end(), veh);
     if (vehIt != roadVehicleListMap[road].end())
     {
@@ -249,7 +250,7 @@ Vehicle *VehicleManager::getNextVehicle(Vehicle *veh, int dir, int lane)
     }
 }
 
-Vehicle *VehicleManager::getFirstVehicle(Road *road)
+Vehicle *VehicleManager::getFirstVehicle(vehicleUtil::Road *road)
 {
     VehicleList::iterator vehIt = roadVehicleListMap[road].begin();
     if (vehIt != roadVehicleListMap[road].end())
@@ -262,7 +263,7 @@ Vehicle *VehicleManager::getFirstVehicle(Road *road)
     }
 }
 
-Vehicle *VehicleManager::getLastVehicle(Road *road)
+Vehicle *VehicleManager::getLastVehicle(vehicleUtil::Road *road)
 {
     VehicleList::iterator vehIt = roadVehicleListMap[road].end();
     if (vehIt != roadVehicleListMap[road].begin())
@@ -275,7 +276,7 @@ Vehicle *VehicleManager::getLastVehicle(Road *road)
     }
 }
 
-Vehicle *VehicleManager::getFirstVehicle(Road *road, int lane)
+Vehicle *VehicleManager::getFirstVehicle(vehicleUtil::Road *road, int lane)
 {
     VehicleList::iterator vehIt = roadVehicleListMap[road].begin();
     Vehicle *nextVeh = NULL;
@@ -292,7 +293,7 @@ Vehicle *VehicleManager::getFirstVehicle(Road *road, int lane)
     return nextVeh;
 }
 
-Vehicle *VehicleManager::getLastVehicle(Road *road, int lane)
+Vehicle *VehicleManager::getLastVehicle(vehicleUtil::Road *road, int lane)
 {
     VehicleList::iterator vehIt = roadVehicleListMap[road].end();
     Vehicle *nextVeh = NULL;
@@ -314,7 +315,7 @@ Vehicle *VehicleManager::getLastVehicle(Road *road, int lane)
 
 std::map<double, Vehicle *> VehicleManager::getSurroundingVehicles(Vehicle *veh)
 {
-    Road *road = veh->getRoad();
+    vehicleUtil::Road *road = veh->getRoad();
     VehicleList::iterator vehIt = std::find(roadVehicleListMap[road].begin(), roadVehicleListMap[road].end(), veh);
     if (vehIt != roadVehicleListMap[road].end())
     {
@@ -331,7 +332,7 @@ std::map<double, Vehicle *> VehicleManager::getSurroundingVehicles(VehicleList::
 {
     std::map<double, Vehicle *> vehMap;
 
-    Road *road = (*vehIt)->getRoad();
+    vehicleUtil::Road *road = (*vehIt)->getRoad();
     if (!road)
     {
         return vehMap;
@@ -339,12 +340,12 @@ std::map<double, Vehicle *> VehicleManager::getSurroundingVehicles(VehicleList::
 
     //std::set<RoadTransition> transSet = road->getConnectingRoadTransitionSet((*vehIt)->getRoadTransition());
 
-    /*std::cout << "Road " << road->getId() << ", direction: " << (*vehIt)->getRoadTransition().direction << " connecting to: " << std::endl;
+    /*std::cout << "vehicleUtil::Road " << road->getId() << ", direction: " << (*vehIt)->getRoadTransition().direction << " connecting to: " << std::endl;
    for(std::set<RoadTransition>::iterator transSetIt = transSet.begin(); transSetIt != transSet.end(); ++transSetIt) {
       std::cout << "\tRoad: " << transSetIt->road->getId() << ", direction: " << transSetIt->direction << std::endl;
    }*/
 
-    std::vector<Road *> roadVector;
+    std::vector<vehicleUtil::Road *> roadVector;
     roadVector.push_back(road);
 
     RoadTransition trans = (*vehIt)->getRoadTransition();
@@ -363,7 +364,7 @@ std::map<double, Vehicle *> VehicleManager::getSurroundingVehicles(VehicleList::
 
     for (int i = 0; i < roadVector.size(); ++i)
     {
-        std::map<Road *, VehicleList>::iterator mapIt = roadVehicleListMap.find(roadVector[i]);
+        std::map<vehicleUtil::Road *, VehicleList>::iterator mapIt = roadVehicleListMap.find(roadVector[i]);
         for (VehicleList::iterator listIt = mapIt->second.begin(); listIt != mapIt->second.end(); ++listIt)
         {
             if ((*listIt) == (*vehIt))
@@ -378,21 +379,21 @@ std::map<double, Vehicle *> VehicleManager::getSurroundingVehicles(VehicleList::
     return vehMap;
 }
 
-void VehicleManager::sortVehicleList(Road *road)
+void VehicleManager::sortVehicleList(vehicleUtil::Road *road)
 {
-    std::map<Road *, VehicleList>::iterator mapIt = roadVehicleListMap.find(road);
+    std::map<vehicleUtil::Road *, VehicleList>::iterator mapIt = roadVehicleListMap.find(road);
     if (mapIt != roadVehicleListMap.end())
     {
         mapIt->second.sort(Vehicle::compare);
     }
 }
 
-const VehicleList &VehicleManager::getVehicleList(Road *road)
+const VehicleList &VehicleManager::getVehicleList(vehicleUtil::Road *road)
 {
     return roadVehicleListMap[road];
 }
 
-void VehicleManager::insertVehicleAtFront(Vehicle *veh, Road *road)
+void VehicleManager::insertVehicleAtFront(Vehicle *veh, vehicleUtil::Road *road)
 {
     VehicleList::iterator vehIt = roadVehicleListMap[road].begin();
     for (; vehIt != roadVehicleListMap[road].end(); ++vehIt)
@@ -405,7 +406,7 @@ void VehicleManager::insertVehicleAtFront(Vehicle *veh, Road *road)
     roadVehicleListMap[road].insert(vehIt, veh);
 }
 
-void VehicleManager::insertVehicleAtBack(Vehicle *veh, Road *road)
+void VehicleManager::insertVehicleAtBack(Vehicle *veh, vehicleUtil::Road *road)
 {
     VehicleList::iterator vehIt = roadVehicleListMap[road].end();
 
@@ -426,7 +427,7 @@ void VehicleManager::insertVehicleAtBack(Vehicle *veh, Road *road)
 
 void VehicleManager::moveVehicleForward(VehicleList::iterator vehIt)
 {
-    Road *road = (*vehIt)->getRoad();
+    vehicleUtil::Road *road = (*vehIt)->getRoad();
     Vehicle *veh = (*vehIt);
 
     vehIt = roadVehicleListMap[road].erase(vehIt);
@@ -444,7 +445,7 @@ void VehicleManager::moveVehicleForward(VehicleList::iterator vehIt)
 
 void VehicleManager::moveVehicleBackward(VehicleList::iterator vehIt)
 {
-    Road *road = (*vehIt)->getRoad();
+    vehicleUtil::Road *road = (*vehIt)->getRoad();
     Vehicle *veh = (*vehIt);
 
     vehIt = roadVehicleListMap[road].erase(vehIt);
@@ -461,7 +462,7 @@ void VehicleManager::moveVehicleBackward(VehicleList::iterator vehIt)
     roadVehicleListMap[road].insert(vehIt, veh);
 }
 
-void VehicleManager::showVehicleList(Road *road)
+void VehicleManager::showVehicleList(vehicleUtil::Road *road)
 {
     std::cout << "Vehicle list of road " << road->getId() << ":";
     for (VehicleList::iterator vehIt = roadVehicleListMap[road].begin(); vehIt != roadVehicleListMap[road].end(); ++vehIt)
@@ -532,15 +533,15 @@ bool VehicleManager::isJunctionEmpty(Junction *junction)
         return true;
     }
     //std::cout << "isJunctionEmpty(): " << std::endl;
-    std::map<Road *, PathConnectionSet> connSetMap = junction->getPathConnectionSetMap();
-    for (std::map<Road *, PathConnectionSet>::iterator connSetMapIt = connSetMap.begin(); connSetMapIt != connSetMap.end(); ++connSetMapIt)
+    std::map<vehicleUtil::Road *, PathConnectionSet> connSetMap = junction->getPathConnectionSetMap();
+    for (std::map<vehicleUtil::Road *, PathConnectionSet>::iterator connSetMapIt = connSetMap.begin(); connSetMapIt != connSetMap.end(); ++connSetMapIt)
     {
         //std::cout << "\t looking at incoming road " << connSetMapIt->first->getId() << std::endl;
         PathConnectionSet connSet = connSetMapIt->second;
         for (PathConnectionSet::iterator connSetIt = connSet.begin(); connSetIt != connSet.end(); ++connSetIt)
         {
             //std::cout << "\t\t looking at connecting path " << (*connSetIt)->getConnectingPath()->getId() << std::endl;
-            std::map<Road *, VehicleList>::iterator mapIt = roadVehicleListMap.find((*connSetIt)->getConnectingPath());
+            std::map<vehicleUtil::Road *, VehicleList>::iterator mapIt = roadVehicleListMap.find((*connSetIt)->getConnectingPath());
             if (mapIt != roadVehicleListMap.end())
             {
                 //std::cout << "\t\t\tsize of road vehicle list: " << mapIt->second.size() << std::endl;
@@ -572,7 +573,7 @@ void VehicleManager::moveAllVehicles(double dt)
 
         //Resorting
         //std::cout << ">> moveAllVehicles 1" << std::endl;
-        std::map<Road *, VehicleList>::iterator listMapIt = roadVehicleListMap.find(veh->getRoad());
+        std::map<vehicleUtil::Road *, VehicleList>::iterator listMapIt = roadVehicleListMap.find(veh->getRoad());
         //std::cout << ">> moveAllVehicles 2" << std::endl;
         if (listMapIt == roadVehicleListMap.end())
         {
@@ -630,7 +631,7 @@ void VehicleManager::moveAllVehicles(double dt)
         }
 
         //Trigger road sensors
-        Road *vehRoad = veh->getRoadTransition().road;
+        vehicleUtil::Road *vehRoad = veh->getRoadTransition().road;
         if (vehRoad)
         {
             std::map<double, RoadSensor *>::iterator roadSensorEntry = vehRoad->getRoadSensorMapEntry(vehU);

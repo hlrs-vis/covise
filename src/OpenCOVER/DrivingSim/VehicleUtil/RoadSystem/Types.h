@@ -15,6 +15,9 @@
 
 #include "RoadSystemVisitor.h"
 
+namespace vehicleUtil
+{
+
 class VEHICLEUTILEXPORT Vector2D
 {
 public:
@@ -1155,6 +1158,8 @@ inline Vector3D Transform::operator*(const Vector3D &vec) const
 inline bool Transform::isNaT() const
 {
     return (_v.isNaV() || _q.isNaQ());
+}
+
 }
 
 #endif

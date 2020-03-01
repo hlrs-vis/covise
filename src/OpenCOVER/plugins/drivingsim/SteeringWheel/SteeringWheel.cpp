@@ -43,6 +43,8 @@
 
 #include <util/unixcompat.h>
 
+using namespace vehicleUtil;
+
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_XINPUT
 #define USE_LINUX

@@ -12,19 +12,22 @@
 #include <string>
 #include <util/coExport.h>
 
-class VEHICLEUTILEXPORT Element
+namespace vehicleUtil
 {
-public:
-    Element(std::string);
-
-    std::string getId();
-
-    virtual ~Element()
+    class VEHICLEUTILEXPORT Element
     {
-    }
+    public:
+        Element(std::string);
 
-protected:
-    std::string id;
-};
+        std::string getId();
+
+        virtual ~Element()
+        {
+        }
+
+    protected:
+        std::string id;
+    };
+}
 
 #endif

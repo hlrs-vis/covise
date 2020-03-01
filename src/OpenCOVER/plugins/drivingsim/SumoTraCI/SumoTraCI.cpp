@@ -226,7 +226,7 @@ void SumoTraCI::lineUpAllPedestrianModels()
 
         osg::Quat orientation(osg::DegreesToRadians(0.0), osg::Vec3d(0, 0, -1));
 
-        Transform trans = Transform(Vector3D(position.x(), position.y(), position.z()), Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
+        vehicleUtil::Transform trans = vehicleUtil::Transform(vehicleUtil::Vector3D(position.x(), position.y(), position.z()), vehicleUtil::Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
         pedgeom->setTransform(trans, M_PI);
     }
 }
@@ -661,7 +661,7 @@ void SumoTraCI::interpolateVehiclePosition()
 		PedestrianGeometry* pedestrian = dynamic_cast<PedestrianGeometry *>(entity);
 		if (pedestrian)
 		{
-			Transform trans = Transform(Vector3D(entity->currentPosition.x(), entity->currentPosition.y(), entity->currentPosition.z()), Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
+            vehicleUtil::Transform trans = vehicleUtil::Transform(vehicleUtil::Vector3D(entity->currentPosition.x(), entity->currentPosition.y(), entity->currentPosition.z()), vehicleUtil::Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
 			pedestrian->setTransform(trans, M_PI);
 			double walkingSpeed = pedestrian->speed.length();
 			

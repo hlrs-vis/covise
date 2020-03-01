@@ -1,6 +1,7 @@
 #include "RouteInfo.h"
 
 using namespace std;
+using namespace vehicleUtil;
 
 RouteInfo::RouteInfo():
 oscRoute()
@@ -46,7 +47,7 @@ EntityInfo::EntityInfo(Entity *e)
 	currentLane = NULL;
 	osg::Vec3 pos = e->getPosition();
 	Vector3D p(pos.x(), pos.y(), pos.z());
-	Vector2D st = RoadSystem::Instance()->searchPosition(p, currentRoad, longPos);
+	Vector2D st = vehicleUtil::RoadSystem::Instance()->searchPosition(p, currentRoad, longPos);
 	s = st[0];
 	t = st[1];
 	if (currentRoad != NULL)

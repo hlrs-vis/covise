@@ -19,106 +19,109 @@
 #include <osg/Geode>
 #include <util/coExport.h>
 
-class PathConnection;
-
-struct VEHICLEUTILEXPORT PathConnectionCompare
+namespace vehicleUtil
 {
-    bool operator()(const PathConnection *, const PathConnection *) const;
-};
+    class PathConnection;
 
-//typedef std::multiset<PathConnection*, PathConnectionCompare> PathConnectionSet;
-class VEHICLEUTILEXPORT PathConnectionSet : public std::multiset<PathConnection *, PathConnectionCompare>
-{
-public:
-    PathConnectionSet();
+    struct VEHICLEUTILEXPORT PathConnectionCompare
+    {
+        bool operator()(const PathConnection*, const PathConnection*) const;
+    };
 
-    PathConnectionSet::iterator insert(PathConnection *&);
+    //typedef std::multiset<PathConnection*, PathConnectionCompare> PathConnectionSet;
+    class VEHICLEUTILEXPORT PathConnectionSet : public std::multiset<PathConnection*, PathConnectionCompare>
+    {
+    public:
+        PathConnectionSet();
 
-    double getConnectionFrequencySum();
+        PathConnectionSet::iterator insert(PathConnection*&);
 
-    PathConnection *choosePathConnection(double);
-    void remove(PathConnectionSet::iterator it);
+        double getConnectionFrequencySum();
+
+        PathConnection* choosePathConnection(double);
+        void remove(PathConnectionSet::iterator it);
 
 
-protected:
-    std::map<double, PathConnection *> frequencySumMap;
+    protected:
+        std::map<double, PathConnection*> frequencySumMap;
 
-    double connectionFrequencySum;
-};
+        double connectionFrequencySum;
+    };
 
-class VEHICLEUTILEXPORT Junction : public Tarmac
-{
-public:
-    Junction(std::string, std::string = "no name");
+    class VEHICLEUTILEXPORT Junction : public Tarmac
+    {
+    public:
+        Junction(std::string, std::string = "no name");
 
-    void addPathConnection(PathConnection *);
-    PathConnectionSet getPathConnectionSet(Road *);
-    PathConnectionSet getPathConnectionSet(Road *incoming, int incomingLane); // only return connections to the current lane
+        void addPathConnection(PathConnection*);
+        PathConnectionSet getPathConnectionSet(Road*);
+        PathConnectionSet getPathConnectionSet(Road* incoming, int incomingLane); // only return connections to the current lane
 
-    Road *getIncomingRoad(int);
-    double getNumIncomingRoads();
+        Road* getIncomingRoad(int);
+        double getNumIncomingRoads();
 
-    int getConnectingLane(Road *, Road *, int);
+        int getConnectingLane(Road*, Road*, int);
 
-    std::string getTypeSpecifier();
+        std::string getTypeSpecifier();
 
-    const std::map<Road *, PathConnectionSet> &getPathConnectionSetMap() const;
+        const std::map<Road*, PathConnectionSet>& getPathConnectionSetMap() const;
 
-    osg::Geode *getJunctionGeode();
+        osg::Geode* getJunctionGeode();
 
-    void accept(RoadSystemVisitor *);
+        void accept(RoadSystemVisitor*);
 
-    void addJunctionController(Controller *, const std::string &);
+        void addJunctionController(Controller*, const std::string&);
 
-    void update(const double &);
+        void update(const double&);
 
-    void setRoadPriorities();
+        void setRoadPriorities();
 
-protected:
-    std::map<Road *, PathConnectionSet> pathConnectionSetMap;
+    protected:
+        std::map<Road*, PathConnectionSet> pathConnectionSetMap;
 
-    std::vector<std::pair<Controller *, std::string> > junctionControllerVector;
-    unsigned int activeController;
-    double toggleJunctionControllerTime;
-    double timer;
-};
+        std::vector<std::pair<Controller*, std::string> > junctionControllerVector;
+        unsigned int activeController;
+        double toggleJunctionControllerTime;
+        double timer;
+    };
 
-typedef std::map<int, int> LaneConnectionMap;
+    typedef std::map<int, int> LaneConnectionMap;
 
-class VEHICLEUTILEXPORT PathConnection : public Element
-{
-public:
-    PathConnection(std::string, Road *, Road *, int = 1, double = 1);
+    class VEHICLEUTILEXPORT PathConnection : public Element
+    {
+    public:
+        PathConnection(std::string, Road*, Road*, int = 1, double = 1);
 
-    std::string getId();
+        std::string getId();
 
-    void addLaneLink(int, int);
+        void addLaneLink(int, int);
 
-    Road *getIncomingRoad();
-    Road *getConnectingPath();
-    int getConnectingPathDirection();
-    int getConnectingPathIndicator();
-    int getConnectingLane(int incomingLane, bool defaults=true); // if defaults is true this function returns default lane connections (1-1, 2-2 and so on) otherwise 1000 is returned if no connection is available 
-    double getFrequency();
+        Road* getIncomingRoad();
+        Road* getConnectingPath();
+        int getConnectingPathDirection();
+        int getConnectingPathIndicator();
+        int getConnectingLane(int incomingLane, bool defaults = true); // if defaults is true this function returns default lane connections (1-1, 2-2 and so on) otherwise 1000 is returned if no connection is available 
+        double getFrequency();
 
-    bool operator<(const PathConnection *) const;
+        bool operator<(const PathConnection*) const;
 
-    double getAngleDifference() const;
+        double getAngleDifference() const;
 
-    LaneConnectionMap getLaneConnectionMap();
+        LaneConnectionMap getLaneConnectionMap();
 
-    void accept(RoadSystemVisitor *);
+        void accept(RoadSystemVisitor*);
 
-private:
-    LaneConnectionMap laneConnectionMap;
+    private:
+        LaneConnectionMap laneConnectionMap;
 
-    Road *incomingRoad;
-    Road *connectingPath;
-    int connectingPathDirection;
-    int connectingPathIndicator;
+        Road* incomingRoad;
+        Road* connectingPath;
+        int connectingPathDirection;
+        int connectingPathIndicator;
 
-    double angle;
-    double frequency;
-};
+        double angle;
+        double frequency;
+    };
+}
 
 #endif

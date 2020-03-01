@@ -17,9 +17,11 @@
 #include <osg/Group>
 #include <osg/Node>
 #include <osg/Matrix>
-
-class Road;
-class RoadTransition;
+namespace vehicleUtil
+{
+	class Road;
+	class RoadTransition;
+}
 
 class TRAFFICSIMULATIONEXPORT Vehicle
 {
@@ -36,11 +38,11 @@ public:
         return vehicleID;
     }
 
-    virtual Road *getRoad() const = 0;
+    virtual vehicleUtil::Road *getRoad() const = 0;
 
     virtual double getU() const = 0;
     virtual double getDu() const = 0;
-    virtual RoadTransition getRoadTransition() const;
+    virtual vehicleUtil::RoadTransition getRoadTransition() const;
 
     virtual int getLane() const
     {
@@ -61,10 +63,10 @@ public:
     }
 
     virtual VehicleGeometry *getVehicleGeometry() = 0;
-    virtual Transform getVehicleTransform() = 0;
+    virtual vehicleUtil::Transform getVehicleTransform() = 0;
     virtual double getBoundingCircleRadius() = 0;
 
-    double getSquaredDistanceTo(Vector3D point);
+    double getSquaredDistanceTo(vehicleUtil::Vector3D point);
 
     static bool compare(const Vehicle *, const Vehicle *);
 

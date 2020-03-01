@@ -640,7 +640,7 @@ PorscheRealtimeDynamics::move(VrmlNodeVehicle *vehicle)
     osg::Matrix ffz1inertialToCogTransform;
     ffz1inertialToCogTransform.setTrans(osg::Vec3(-DSpaceData.ffz1_y, DSpaceData.ffz1_z, -DSpaceData.ffz1_x));
 
-    RoadSystem::dSpace_v = DSpaceData.Geschwindigkeit * 3.6;
+    vehicleUtil::RoadSystem::dSpace_v = DSpaceData.Geschwindigkeit * 3.6;
 
     //Neu 16-02-2011
     /*

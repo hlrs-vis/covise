@@ -29,164 +29,166 @@
 #include <xercesc/util/XMLUni.hpp>
 
 #define _tile_width 20
-
-struct RoadSystemHeader
+namespace vehicleUtil
 {
-    RoadSystemHeader()
-        : north(0.0)
-        , east(0.0)
-        , south(0.0)
-        , west(0.0)
-        , xoffset(0.0)
-        , yoffset(0.0)
-        , zoffset(0.0)
+    struct RoadSystemHeader
     {
-    }
+        RoadSystemHeader()
+            : north(0.0)
+            , east(0.0)
+            , south(0.0)
+            , west(0.0)
+            , xoffset(0.0)
+            , yoffset(0.0)
+            , zoffset(0.0)
+        {
+        }
 
-    std::string date;
-    std::string name;
-    double north;
-    double east;
-    double south;
-    double west;
-    int revMajor;
-    int revMinor;
-    double version;
-    double xoffset;
-    double yoffset;
-    double zoffset;
-};
+        std::string date;
+        std::string name;
+        double north;
+        double east;
+        double south;
+        double west;
+        int revMajor;
+        int revMinor;
+        double version;
+        double xoffset;
+        double yoffset;
+        double zoffset;
+    };
 
-//Typ für Rasterung
-class VEHICLEUTILEXPORT RoadLineSegment
-{
-public:
-    RoadLineSegment();
-    Road *getRoad();
-    void setRoad(Road *);
-    double get_smax();
-    double get_smin();
-    void set_smax(double);
-    void set_smin(double);
-    void check_s(double);
+    //Typ für Rasterung
+    class VEHICLEUTILEXPORT RoadLineSegment
+    {
+    public:
+        RoadLineSegment();
+        Road* getRoad();
+        void setRoad(Road*);
+        double get_smax();
+        double get_smin();
+        void set_smax(double);
+        void set_smin(double);
+        void check_s(double);
 
-private:
-    Road *road;
-    double smin, smax;
-};
+    private:
+        Road* road;
+        double smin, smax;
+    };
 
-class VEHICLEUTILEXPORT RoadSystem
-{
-public:
-    static RoadSystem *Instance();
-    static void Destroy();
+    class VEHICLEUTILEXPORT RoadSystem
+    {
+    public:
+        static RoadSystem* Instance();
+        static void Destroy();
 
-    const RoadSystemHeader &getHeader();
+        const RoadSystemHeader& getHeader();
 
-    void addRoad(Road *);
-    void addController(Controller *);
-    void addJunction(Junction *);
-    void addFiddleyard(Fiddleyard *);
-    void addPedFiddleyard(PedFiddleyard *);
-    void addRoadSignal(RoadSignal *);
-    void addRoadSensor(RoadSensor *);
+        void addRoad(Road*);
+        void addController(Controller*);
+        void addJunction(Junction*);
+        void addFiddleyard(Fiddleyard*);
+        void addPedFiddleyard(PedFiddleyard*);
+        void addRoadSignal(RoadSignal*);
+        void addRoadSensor(RoadSensor*);
 
-    Road *getRoad(int);
-    Road *getRoad(std::string);
-    int getNumRoads();
+        Road* getRoad(int);
+        Road* getRoad(std::string);
+        int getNumRoads();
 
-    Controller *getController(int);
-    int getNumControllers();
+        Controller* getController(int);
+        int getNumControllers();
 
-    Junction *getJunction(int);
-    int getNumJunctions();
+        Junction* getJunction(int);
+        int getNumJunctions();
 
-    Fiddleyard *getFiddleyard(int);
-    int getNumFiddleyards();
+        Fiddleyard* getFiddleyard(int);
+        int getNumFiddleyards();
 
-    PedFiddleyard *getPedFiddleyard(int);
-    int getNumPedFiddleyards();
-    void clearPedFiddleyards();
-    std::string getRoadId(Road *road);
+        PedFiddleyard* getPedFiddleyard(int);
+        int getNumPedFiddleyards();
+        void clearPedFiddleyards();
+        std::string getRoadId(Road* road);
 
-    RoadSignal *getRoadSignal(int);
-    int getNumRoadSignals();
+        RoadSignal* getRoadSignal(int);
+        int getNumRoadSignals();
 
-    RoadSensor *getRoadSensor(int);
-    int getNumRoadSensors();
+        RoadSensor* getRoadSensor(int);
+        int getNumRoadSensors();
 
-    void parseOpenDrive(xercesc::DOMElement *);
-    void parseOpenDrive(std::string);
+        void parseOpenDrive(xercesc::DOMElement*);
+        void parseOpenDrive(std::string);
 
-    void writeOpenDrive(std::string);
+        void writeOpenDrive(std::string);
 
-    void parseCinema4dXml(std::string);
+        void parseCinema4dXml(std::string);
 
-    void parseLandXml(std::string);
+        void parseLandXml(std::string);
 
-    void parseIntermapRoad(const std::string &, const std::string & = "+proj=latlong +datum=WGS84", const std::string & = "+proj=merc");
+        void parseIntermapRoad(const std::string&, const std::string & = "+proj=latlong +datum=WGS84", const std::string & = "+proj=merc");
 
-    Vector2D searchPosition(const Vector3D &, Road *&, double &);
-    Vector2D searchPositionFollowingRoad(const Vector3D &, Road *&, double &);
-	
-	std::vector<Road*> searchPositionList(const Vector3D &/*, int initialRoad*/);
+        Vector2D searchPosition(const Vector3D&, Road*&, double&);
+        Vector2D searchPositionFollowingRoad(const Vector3D&, Road*&, double&);
 
-    void analyzeForCrossingJunctionPaths();
+        std::vector<Road*> searchPositionList(const Vector3D&/*, int initialRoad*/);
 
-    void update(const double &);
+        void analyzeForCrossingJunctionPaths();
 
-    void scanStreets(void);
-    bool check_position(int, int);
+        void update(const double&);
 
-    std::list<RoadLineSegment *> getRLS_List(int x, int y);
+        void scanStreets(void);
+        bool check_position(int, int);
 
-    osg::Vec2d get_tile(double x, double y);
+        std::list<RoadLineSegment*> getRLS_List(int x, int y);
 
-    int current_tile_x;
-    int current_tile_y;
+        osg::Vec2d get_tile(double x, double y);
 
-    static int _tiles_x;
-    static int _tiles_y;
-    static float dSpace_v;
+        int current_tile_x;
+        int current_tile_y;
 
-protected:
-    RoadSystem();
+        static int _tiles_x;
+        static int _tiles_y;
+        static float dSpace_v;
 
-    std::vector<Road *> roadVector;
-    std::vector<Controller *> controllerVector;
-    std::vector<Junction *> junctionVector;
-    std::vector<Fiddleyard *> fiddleyardVector;
-    std::vector<PedFiddleyard *> pedFiddleyardVector;
-    std::map<std::string, Road *> roadIdMap;
-    std::map<std::string, Controller *> controllerIdMap;
-    std::map<std::string, Junction *> junctionIdMap;
-    std::map<std::string, Fiddleyard *> fiddleyardIdMap;
+    protected:
+        RoadSystem();
 
-    std::vector<RoadSignal *> signalVector;
-    std::map<std::string, RoadSignal *> signalIdMap;
+        std::vector<Road*> roadVector;
+        std::vector<Controller*> controllerVector;
+        std::vector<Junction*> junctionVector;
+        std::vector<Fiddleyard*> fiddleyardVector;
+        std::vector<PedFiddleyard*> pedFiddleyardVector;
+        std::map<std::string, Road*> roadIdMap;
+        std::map<std::string, Controller*> controllerIdMap;
+        std::map<std::string, Junction*> junctionIdMap;
+        std::map<std::string, Fiddleyard*> fiddleyardIdMap;
 
-    std::vector<RoadSensor *> sensorVector;
-    std::map<std::string, RoadSensor *> sensorIdMap;
+        std::vector<RoadSignal*> signalVector;
+        std::map<std::string, RoadSignal*> signalIdMap;
 
-    RoadSystemHeader header;
+        std::vector<RoadSensor*> sensorVector;
+        std::map<std::string, RoadSensor*> sensorIdMap;
 
-    double x_min;
-    double x_max;
-    double y_min;
-    double y_max;
-    double tile_width;
-    double tile_height;
+        RoadSystemHeader header;
 
-    //Vektor für die Rasterung des Straßenenetzes
-    std::vector<std::vector<std::list<RoadLineSegment *> > > rls_vector;
-    //vec<vec>: x , vec<rls>: y
+        double x_min;
+        double x_max;
+        double y_min;
+        double y_max;
+        double tile_width;
+        double tile_height;
 
-private:
-    static RoadSystem *__instance;
+        //Vektor für die Rasterung des Straßenenetzes
+        std::vector<std::vector<std::list<RoadLineSegment*> > > rls_vector;
+        //vec<vec>: x , vec<rls>: y
 
-    int getLineLength(std::vector<double> &XVector, std::vector<double> &YVector, int startIndex, int endIndex, double delta);
-};
+    private:
+        static RoadSystem* __instance;
 
-VEHICLEUTILEXPORT std::ostream &operator<<(std::ostream &, RoadSystem *);
+        int getLineLength(std::vector<double>& XVector, std::vector<double>& YVector, int startIndex, int endIndex, double delta);
+    };
+
+    VEHICLEUTILEXPORT std::ostream& operator<<(std::ostream&, RoadSystem*);
+}
 
 #endif

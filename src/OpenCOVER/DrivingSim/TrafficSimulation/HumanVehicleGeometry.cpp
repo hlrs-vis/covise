@@ -10,6 +10,7 @@
 #include <limits>
 #include <cover/coVRPluginSupport.h>
 using namespace opencover;
+using namespace vehicleUtil;
 
 HumanVehicleGeometry::HumanVehicleGeometry(std::string nodeName)
     : vehicleNodeName(nodeName)

@@ -7,6 +7,7 @@
 
 #include "Pedestrian.h"
 #include "TrafficSimulation.h"
+using namespace vehicleUtil;
 
 /**
  * Create a new pedestrian

@@ -7,6 +7,8 @@
 
 #include "Control.h"
 
+using namespace vehicleUtil;
+
 Control::Control(TrafficLightSignal *signal_, const std::string &type_)
     : signal(signal_)
     , type(type_)

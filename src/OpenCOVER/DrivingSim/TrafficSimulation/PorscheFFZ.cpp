@@ -38,6 +38,7 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace vehicleUtil;
 
 /** UDP BROADCASTER. Sends data via UDP.
  * This Broadcast was initially designed for sending data
@@ -259,7 +260,7 @@ PorscheFFZ::sendData(const VehicleList &vehicleList)
 
         // Lane //
         //
-        Road *road = human->getRoad();
+        vehicleUtil::Road *road = human->getRoad();
         dataSet.weatherType = 0;
         dataSet.visibilityRange = 10.0;
         if (road)

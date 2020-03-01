@@ -11,6 +11,8 @@
 #include <osgUtil/Tessellator>
 #include <osg/Version>
 
+using namespace vehicleUtil;
+
 bool PathConnectionCompare::operator()(const PathConnection *conna, const PathConnection *connb) const
 {
     return conna->getAngleDifference() < connb->getAngleDifference();

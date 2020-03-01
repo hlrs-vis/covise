@@ -59,7 +59,7 @@ public:
         myPed = p;
     }
 
-    void setTransform(Transform &, double);
+    void setTransform(vehicleUtil::Transform &, double);
 
     bool isGeometryWithinLOD();
     bool isGeometryWithinRange(const double r) const;

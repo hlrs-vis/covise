@@ -9,6 +9,8 @@
 #include "TrafficSimulation.h"
 #include <osg/Geometry>
 
+using namespace vehicleUtil;
+
 /**
  * Create PedestrianManager as a singleton
  */

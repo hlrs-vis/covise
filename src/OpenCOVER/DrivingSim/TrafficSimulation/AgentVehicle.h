@@ -88,14 +88,14 @@ typedef std::multimap<double, VehicleAction *> VehicleActionMap;
 class TRAFFICSIMULATIONEXPORT AgentVehicle : public Vehicle,public coEntity
 {
 public:
-    AgentVehicle(AgentVehicle *, std::string, const VehicleParameters & = VehicleParameters(), Road * = NULL, double = 0.0, int = -1, double = 100, int = 1);
-    AgentVehicle(std::string, CarGeometry * = NULL, const VehicleParameters & = VehicleParameters(), Road * = NULL, double = 0.0, int = -1, double = 100, int = 1);
+    AgentVehicle(AgentVehicle *, std::string, const VehicleParameters & = VehicleParameters(), vehicleUtil::Road * = NULL, double = 0.0, int = -1, double = 100, int = 1);
+    AgentVehicle(std::string, CarGeometry * = NULL, const VehicleParameters & = VehicleParameters(), vehicleUtil::Road * = NULL, double = 0.0, int = -1, double = 100, int = 1);
     ~AgentVehicle();
 
     void move(double dt);
 	void setPosition(osg::Vec3 &pos, osg::Vec3 &vec);
 	void setTransform(osg::Matrix m);
-	void setTransform(Transform vehicleTransform, double hdg);
+	void setTransform(vehicleUtil::Transform vehicleTransform, double hdg);
     void makeDecision();
 
     void checkForCrosswalk(double dt);
@@ -104,12 +104,12 @@ public:
         return canBePassed;
     }
 
-    Road *getRoad() const;
+    vehicleUtil::Road *getRoad() const;
 
     double getU() const;
     double getDu() const;
     double getYaw() const; // hinzugefügt Stefan: 24.07.12
-    RoadTransition getRoadTransition() const;
+    vehicleUtil::RoadTransition getRoadTransition() const;
 
     double getBoundingCircleRadius();
 
@@ -119,11 +119,11 @@ public:
 
     void brake();
 
-    void addRouteTransition(const RoadTransition &);
+    void addRouteTransition(const vehicleUtil::RoadTransition &);
     void setRepeatRoute(bool rr);
 
     VehicleGeometry *getVehicleGeometry();
-    Transform getVehicleTransform();
+    vehicleUtil::Transform getVehicleTransform();
     CarGeometry *getCarGeometry();
 
     const VehicleParameters &getVehicleParameters();
@@ -152,13 +152,13 @@ protected:
     void panicCantReachNextRoad();
     void vanish();
 
-    bool findRoute(RoadTransition);
+    bool findRoute(vehicleUtil::RoadTransition);
     bool planRoute();
 
     ObstacleRelation locateVehicle(int, int);
     double locateLaneEnd(int,bool resetIfLaneEnds=true);
 
-    void extendSignalBarrierList(const RoadTransition &);
+    void extendSignalBarrierList(const vehicleUtil::RoadTransition &);
 
     double getAcceleration(const ObstacleRelation &, const double &, const double &, const double & = 0.0, const double & = 0.0) const;
     double etd(double, double) const; //effective target distance
@@ -168,7 +168,7 @@ protected:
     VehicleParameters vehPars;
     VehicleState vehState;
 
-    LaneSection *currentSection;
+    vehicleUtil::LaneSection *currentSection;
     int currentLane;
 
     double u, v, s; //u, v, s im Straßensystem
@@ -190,16 +190,16 @@ protected:
     RoadTransitionList routeTransitionListBackup;
     std::list<RoadTransitionList::iterator> junctionPathLookoutList;
     RoadTransitionList::iterator currentTransition;
-    Road::RoadType currentRoadType;
+    vehicleUtil::Road::RoadType currentRoadType;
     VehicleActionMap vehiclePositionActionMap;
     VehicleActionMap vehicleTimerActionMap;
 
-    std::list<std::pair<RoadTransition, RoadSignal *> > signalBarrierList;
+    std::list<std::pair<vehicleUtil::RoadTransition, vehicleUtil::RoadSignal *> > signalBarrierList;
     double signalBarrierTimer;
 
     CarGeometry *geometry;
 
-    Transform vehicleTransform;
+    vehicleUtil::Transform vehicleTransform;
 
     double vel;
     double kv, dampingV, Tv;
@@ -218,13 +218,13 @@ protected:
     ObstacleData::ObstacleTypeEnum vehType;
 
     // For cooperating with pedestrians near crosswalks
-    Crosswalk *currentCrosswalk;
+    vehicleUtil::Crosswalk *currentCrosswalk;
     int crossId;
     bool crossing;
     double crossPollTimer;
     bool canBePassed;
 
-    std::set<Lane::LaneType> drivableLaneTypeSet; //Fahrbahntypen, auf denen der Fahrzeugagent fahren darf
+    std::set<vehicleUtil::Lane::LaneType> drivableLaneTypeSet; //Fahrbahntypen, auf denen der Fahrzeugagent fahren darf
 
     friend class VehicleAction;
     friend class DetermineNextRoadVehicleAction;

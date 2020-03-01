@@ -7,6 +7,8 @@
 
 #include "RoadSensor.h"
 
+using namespace vehicleUtil;
+
 RoadSensor::RoadSensor(const std::string &id_, const double &s_)
     : Element(id_)
     , s(s_)

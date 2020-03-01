@@ -93,7 +93,7 @@ public:
 
 private:
 
-    RoadSystem *system;
+    vehicleUtil::RoadSystem *system;
     VehicleManager *manager;
     PedestrianManager *pedestrianManager;
     VehicleFactory *factory;

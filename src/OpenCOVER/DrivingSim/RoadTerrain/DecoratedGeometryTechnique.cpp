@@ -169,7 +169,7 @@ void DecoratedGeometryTechnique::generateGeometry(BufferData &buffer, osgTerrain
     const TileID &tileId = _terrainTile->getTileID();
     std::map<int, std::map<int, double> > fillBorderMap;
 
-    const RoadSystemHeader &roadSysHeader = RoadSystem::Instance()->getHeader();
+    const vehicleUtil::RoadSystemHeader &roadSysHeader = vehicleUtil::RoadSystem::Instance()->getHeader();
     osg::Vec3d roadOffset(roadSysHeader.xoffset, roadSysHeader.yoffset, 0.0);
     osg::Vec3d roadSysToCenterModel = roadOffset - centerModel;
 

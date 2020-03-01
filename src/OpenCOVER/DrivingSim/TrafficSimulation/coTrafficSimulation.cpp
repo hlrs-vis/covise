@@ -54,6 +54,8 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace vehicleUtil;
+
 int coTrafficSimulation::counter = 0;
 int coTrafficSimulation::createFreq = 20;
 double coTrafficSimulation::min_distance = 800;
@@ -371,7 +373,7 @@ bool coTrafficSimulation::loadRoadSystem(const char *filename_chars)
         int numRoads = system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            vehicleUtil::Road *road = system->getRoad(i);
             osg::LOD *roadGeodeLOD = new osg::LOD();
 
             // Tesselation //

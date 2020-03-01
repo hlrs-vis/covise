@@ -17,7 +17,7 @@ public:
     {
     }
 
-    virtual void setTransform(Transform &, double) = 0;
+    virtual void setTransform(vehicleUtil::Transform &, double) = 0;
 
     virtual double getBoundingCircleRadius() = 0;
 

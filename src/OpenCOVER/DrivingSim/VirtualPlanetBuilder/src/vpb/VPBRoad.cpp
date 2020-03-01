@@ -14,6 +14,8 @@
 #endif
 #include <xercesc/util/PlatformUtils.hpp>
 
+using namespace vehicleUtil;
+
 VPBRoad::VPBRoad(std::string xodrName)
 {
     system = NULL;

@@ -19,6 +19,8 @@
 #include <cover/coVRMSController.h>
 #endif
 
+using namespace vehicleUtil;
+
 osg::Vec2d HumanVehicle::human_pos(0, 0);
 double HumanVehicle::human_v = 0.0;
 
@@ -39,7 +41,7 @@ HumanVehicle::HumanVehicle(std::string name)
     geometry = new HumanVehicleGeometry(name);
 }
 
-Road *HumanVehicle::getRoad() const
+vehicleUtil::Road *HumanVehicle::getRoad() const
 {
     return road;
 }
@@ -100,7 +102,7 @@ void HumanVehicle::move(double dt)
         return;
     }
     human_pos = osg::Vec2d(vehTrans.v().x(), vehTrans.v().y());
-    Road *newRoad = NULL;
+    vehicleUtil::Road *newRoad = NULL;
     bool foundPos = false;
 
     Vector2D pos(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
@@ -115,10 +117,10 @@ void HumanVehicle::move(double dt)
     }
     else
     {
-        std::set<Road *, bool (*)(Road *, Road *)> roadSet(Road::compare);
+        std::set<vehicleUtil::Road *, bool (*)(vehicleUtil::Road *, vehicleUtil::Road *)> roadSet(vehicleUtil::Road::compare);
         for (int roadIt = 0; roadIt < RoadSystem::Instance()->getNumRoads(); ++roadIt)
         {
-            Road *road = RoadSystem::Instance()->getRoad(roadIt);
+            vehicleUtil::Road *road = RoadSystem::Instance()->getRoad(roadIt);
             osg::BoundingBox roadBox = road->getRoadGeode()->getBoundingBox();
             roadBox.zMin() -= 1;
             roadBox.zMax() += 1;
@@ -130,7 +132,7 @@ void HumanVehicle::move(double dt)
 
         if (!roadSet.empty())
         {
-            for (std::set<Road *, bool (*)(Road *, Road *)>::iterator roadSetIt = roadSet.begin(); roadSetIt != roadSet.end(); ++roadSetIt)
+            for (std::set<vehicleUtil::Road *, bool (*)(vehicleUtil::Road *, vehicleUtil::Road *)>::iterator roadSetIt = roadSet.begin(); roadSetIt != roadSet.end(); ++roadSetIt)
             {
                 pos = (*roadSetIt)->searchPosition(vehTrans.v(), -1);
 

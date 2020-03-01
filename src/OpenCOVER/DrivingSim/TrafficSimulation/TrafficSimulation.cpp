@@ -54,6 +54,8 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace vehicleUtil;
+
 int TrafficSimulation::counter = 0;
 int TrafficSimulation::createFreq = 20;
 double TrafficSimulation::min_distance = 800;
@@ -348,7 +350,7 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
         int numRoads = system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            vehicleUtil::Road *road = system->getRoad(i);
             osg::LOD *roadGeodeLOD = new osg::LOD();
 
             // Tesselation //
@@ -898,7 +900,7 @@ TrafficSimulation::preFrame()
         if (RoadSystem::Instance())
         {
             Vector2D v_c(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
-            static Road *currentRoad = NULL;
+            static vehicleUtil::Road *currentRoad = NULL;
             static double currentLongPos = -1;
             Vector3D v_w(xr, yr, 0);
             if (currentRoad)
@@ -1122,7 +1124,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
         int numRoads = system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            vehicleUtil::Road *road = system->getRoad(i);
             if (true)
             {
                 fprintf(stderr, "2tessellateBatters %d\n", tessellateBatters);

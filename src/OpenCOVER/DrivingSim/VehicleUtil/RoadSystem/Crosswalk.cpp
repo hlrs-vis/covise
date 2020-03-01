@@ -11,6 +11,8 @@
 //using namespace covise;
 //using namespace opencover;
 
+using namespace vehicleUtil;
+
 const int Crosswalk::DONOTENTER = -2;
 const int Crosswalk::EXITERROR = -4;
 

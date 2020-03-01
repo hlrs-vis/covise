@@ -22,13 +22,13 @@ public:
 
     ~HumanVehicleGeometry();
 
-    void setTransform(Transform &, double);
+    void setTransform(vehicleUtil::Transform &, double);
 
     double getBoundingCircleRadius();
 
     const osg::Matrix &getVehicleTransformMatrix();
 
-    Transform getVehicleTransformation();
+    vehicleUtil::Transform getVehicleTransformation();
 
     osg::Node *getVehicleNode()
     {
@@ -42,8 +42,8 @@ protected:
 
     double boundingCircleRadius;
 
-    Transform vrmlTransform;
-    Transform vehicleTransform;
+    vehicleUtil::Transform vrmlTransform;
+    vehicleUtil::Transform vehicleTransform;
 
     void findVehicleNode();
     osg::Node *searchGroupByVehicleNodeName(osg::Group *);

@@ -90,7 +90,7 @@ public:
     float acceleration;
 	OpenScenario::oscVehicle *getVehicle() { return vehicle; };
 
-	Road *road;
+    vehicleUtil::Road *road;
 
 private:
 

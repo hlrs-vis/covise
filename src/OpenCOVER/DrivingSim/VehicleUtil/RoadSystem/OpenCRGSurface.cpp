@@ -10,6 +10,8 @@
 
 //#include <fftw3.h>
 
+using namespace vehicleUtil;
+
 OpenCRGSurface::OpenCRGSurface(const std::string &setFilename, double setSStart, double setSEnd)
     : filename(setFilename)
     , dataSetId(crgLoaderReadFile(filename.c_str()))

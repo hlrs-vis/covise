@@ -16,10 +16,10 @@
 class TRAFFICSIMULATIONEXPORT  DonkeyCar : public Vehicle
 {
 public:
-    DonkeyCar(std::string, Road *, double, double, double, double);
+    DonkeyCar(std::string, vehicleUtil::Road *, double, double, double, double);
     ~DonkeyCar();
 
-    Road *getRoad() const;
+    vehicleUtil::Road *getRoad() const;
 
     double getU() const;
     double getDu() const;
@@ -31,14 +31,14 @@ public:
     double getBoundingCircleRadius();
 
 protected:
-    Road *currentRoad;
+    vehicleUtil::Road *currentRoad;
     double u, v, du, h;
     int currentLane;
     int direction;
 
     VehicleGeometry *geometry;
 
-    Transform carTransform;
+    vehicleUtil::Transform carTransform;
 };
 
 #endif

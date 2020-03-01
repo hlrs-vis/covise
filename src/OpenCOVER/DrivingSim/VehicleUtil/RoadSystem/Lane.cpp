@@ -8,6 +8,8 @@
 #include "Lane.h"
 #include <iostream>
 
+using namespace vehicleUtil;
+
 const int Lane::NOLANE = -214748364;
 
 Lane::Lane(int laneId, std::string typeString, std::string levelString)

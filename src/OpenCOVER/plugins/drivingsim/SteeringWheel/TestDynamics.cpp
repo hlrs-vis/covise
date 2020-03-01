@@ -10,6 +10,7 @@
 #include <util/unixcompat.h>
 #include <math.h>
 
+using namespace vehicleUtil;
 
 TestDynamics::TestDynamics()
 	

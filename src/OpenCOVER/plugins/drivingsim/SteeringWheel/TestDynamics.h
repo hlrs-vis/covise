@@ -93,16 +93,16 @@ public:
 	osg::Matrix chassisTrans;
 	osg::Matrix bodyTrans;
 	
-	std::pair<Road *, double> getStartPositionOnRoad();
+	std::pair<vehicleUtil::Road *, double> getStartPositionOnRoad();
 	
 
 protected:
-	Road *currentRoad[4];
+	vehicleUtil::Road *currentRoad[4];
 	double currentLongPos[4];
-	std::pair<Road *, double> startPos;
+	std::pair<vehicleUtil::Road *, double> startPos;
 	bool leftRoad;
 	
-	std::vector<Road*> roadList[4];
+	std::vector<vehicleUtil::Road*> roadList[4];
 	std::string currentRoadName;
 	int currentRoadId;
 	double currentHeight;

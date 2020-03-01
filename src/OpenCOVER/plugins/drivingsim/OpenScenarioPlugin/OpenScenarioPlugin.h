@@ -72,7 +72,7 @@ public:
 
 	ScenarioManager *scenarioManager;
 	OpenScenario::OpenScenarioBase *osdb;
-	RoadSystem *getRoadSystem() { return system; };
+	vehicleUtil::RoadSystem *getRoadSystem() { return system; };
 
 	void preSwapBuffers(int windowNumber);
 
@@ -93,7 +93,7 @@ private:
 	xercesc::DOMElement *rootElement;
 	osg::PositionAttitudeTransform *roadGroup;
 	osg::Group *trafficSignalGroup;
-	RoadSystem *system;
+	vehicleUtil::RoadSystem *system;
 	std::list<Source *> sources;
 
 	VehicleManager *manager;

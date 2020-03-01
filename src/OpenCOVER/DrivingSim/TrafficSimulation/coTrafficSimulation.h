@@ -101,7 +101,7 @@ public:
 
 	bool loadRoadSystem(const char *filename);
 	void deleteRoadSystem();
-	RoadSystem *system;
+    vehicleUtil::RoadSystem *system;
 	VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
 	osg::PositionAttitudeTransform *roadGroup;

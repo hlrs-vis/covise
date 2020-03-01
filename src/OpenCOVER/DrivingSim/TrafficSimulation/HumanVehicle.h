@@ -25,7 +25,7 @@ public:
     {
     }
 
-    Road *getRoad() const;
+    vehicleUtil::Road *getRoad() const;
 
     double getU() const;
     double getDu() const;
@@ -39,18 +39,18 @@ public:
 	void setPosition(osg::Vec3 &pos, osg::Vec3 &direction);
 
     VehicleGeometry *getVehicleGeometry();
-    Transform getVehicleTransform();
+    vehicleUtil::Transform getVehicleTransform();
     double getBoundingCircleRadius();
     static osg::Vec2d human_pos;
     static double human_v;
 
 protected:
-    Road *road;
+    vehicleUtil::Road *road;
     double u, v;
     double oldU;
     double du;
     int currentLane;
-    LaneSection *currentSection;
+    vehicleUtil::LaneSection *currentSection;
     double hdg;
 
     HumanVehicleGeometry *geometry;

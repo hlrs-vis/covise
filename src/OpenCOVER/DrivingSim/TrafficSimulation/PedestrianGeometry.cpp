@@ -7,6 +7,8 @@
 
 #include "PedestrianGeometry.h"
 
+using namespace vehicleUtil;
+
 /**
  * Construct a new pedestrian geometry object
  */

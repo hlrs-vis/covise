@@ -1,6 +1,8 @@
 #include "Position.h"
 #include "ReferencePosition.h"
 
+using namespace vehicleUtil;
+
 Position::Position():oscPosition()
 {}
 
@@ -174,22 +176,22 @@ void Position::getAbsolutePosition(ReferencePosition *relativePos, ReferencePosi
     }
 }
 
-osg::Vec3 Position::getAbsoluteFromRoad(::Road* road, double s, int laneId)
+osg::Vec3 Position::getAbsoluteFromRoad(vehicleUtil::Road* road, double s, int laneId)
 {
     // convert absolute lane coorinates to absolute world coorinates
-    LaneSection* LS = road->getLaneSection(s);
-    Vector2D laneCenter = LS->getLaneCenter(laneId, s);
+    vehicleUtil::LaneSection* LS = road->getLaneSection(s);
+    vehicleUtil::Vector2D laneCenter = LS->getLaneCenter(laneId, s);
 
-    Transform vtrans = road->getRoadTransform(s, laneCenter[0]);
+    vehicleUtil::Transform vtrans = road->getRoadTransform(s, laneCenter[0]);
     osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 
     return pos;
 }
 
-osg::Vec3 Position::getAbsoluteFromRoad(::Road* road, double s, double t)
+osg::Vec3 Position::getAbsoluteFromRoad(vehicleUtil::Road* road, double s, double t)
 {
     // convert absolute road coorinates to absolute world coorinates
-    Transform vtrans = road->getRoadTransform(s, t);
+    vehicleUtil::Transform vtrans = road->getRoadTransform(s, t);
     osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 
     return pos;

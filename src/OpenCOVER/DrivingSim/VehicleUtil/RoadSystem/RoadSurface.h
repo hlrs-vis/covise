@@ -9,68 +9,70 @@
 #define RoadSurface_h
 
 #include "../opencrg/crgSurface.h"
-
-class RoadSurface
+namespace vehicleUtil
 {
-public:
-    virtual ~RoadSurface()
+    class RoadSurface
     {
-    }
-    virtual double height(double, double)
-    {
-        return 0.0;
-    }
+    public:
+        virtual ~RoadSurface()
+        {
+        }
+        virtual double height(double, double)
+        {
+            return 0.0;
+        }
 
-protected:
-};
-
-class crgSurface : public RoadSurface
-{
-public:
-    enum SurfaceOrientation
-    {
-        SAME = 1,
-        OPPOSITE = -1
+    protected:
     };
 
-    crgSurface(const std::string &, double, double, SurfaceOrientation = SAME, double = 0.0, double = 0.0, double = 0.0, double = 1.0);
-
-    virtual double height(double, double);
-
-    double getLength()
+    class crgSurface : public RoadSurface
     {
-        return surface.getLength();
-    }
-    double getWidth()
-    {
-        return surface.getWidth();
-    }
-    double getLongOffset()
-    {
-        return sOffset;
-    }
-    double getLatOffset()
-    {
-        return tOffset;
-    }
+    public:
+        enum SurfaceOrientation
+        {
+            SAME = 1,
+            OPPOSITE = -1
+        };
 
-    osg::Image *getParallaxMap();
+        crgSurface(const std::string&, double, double, SurfaceOrientation = SAME, double = 0.0, double = 0.0, double = 0.0, double = 1.0);
 
-    osg::Image *getPavementTextureImage();
+        virtual double height(double, double);
 
-protected:
-    opencrg::Surface surface;
+        double getLength()
+        {
+            return surface.getLength();
+        }
+        double getWidth()
+        {
+            return surface.getWidth();
+        }
+        double getLongOffset()
+        {
+            return sOffset;
+        }
+        double getLatOffset()
+        {
+            return tOffset;
+        }
 
-    double sStart;
-    double sEnd;
-    int orientation;
-    double sOffset;
-    double tOffset;
-    double zOffset;
-    double zScale;
+        osg::Image* getParallaxMap();
 
-    osg::Image *parallaxMap;
-    osg::Image *pavementTextureImage;
-};
+        osg::Image* getPavementTextureImage();
+
+    protected:
+        opencrg::Surface surface;
+
+        double sStart;
+        double sEnd;
+        int orientation;
+        double sOffset;
+        double tOffset;
+        double zOffset;
+        double zScale;
+
+        osg::Image* parallaxMap;
+        osg::Image* pavementTextureImage;
+    };
+}
 
 #endif

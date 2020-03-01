@@ -12,8 +12,9 @@
 #include <algorithm>
 #include <math.h>
 #include <float.h> //für die #INF-Abfrage (DBL_MAX und DBL_MIN)
+using namespace vehicleUtil;
 
-AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehicleParameters &vp, Road *r, double startu, int startLane, double startVel, int startDir)
+AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehicleParameters &vp, vehicleUtil::Road *r, double startu, int startLane, double startVel, int startDir)
     : Vehicle(name)
     , vehPars(vp)
     , vehState()

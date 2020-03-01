@@ -64,6 +64,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 using namespace OpenScenario;
 using namespace opencover;
+using namespace vehicleUtil;
 
 OpenScenarioPlugin *OpenScenarioPlugin::plugin = NULL;
 
@@ -647,8 +648,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 							if (vd != NULL && dd != NULL)
 							{
 								// find road
-								system = RoadSystem::Instance();
-								Road* myRoad = system->getRoad(position->object.getValue());
+								system = vehicleUtil::RoadSystem::Instance();
+								vehicleUtil::Road* myRoad = system->getRoad(position->object.getValue());
 								if (myRoad)
 								{
 									std::string name = "fiddleyard" + position->object.getValue();
@@ -983,7 +984,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 			xodrDirectory.append(filename, 0, lastSlashPos2);
 		}
 
-		system = RoadSystem::Instance();
+		system = vehicleUtil::RoadSystem::Instance();
 
 		xercesc::DOMElement *openDriveElement = getOpenDriveRootElement(filename);
 		if (!openDriveElement)
@@ -1017,7 +1018,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 		int numRoads = system->getNumRoads();
 		for (int i = 0; i < numRoads; ++i)
 		{
-			Road *road = system->getRoad(i);
+			vehicleUtil::Road *road = system->getRoad(i);
 			osg::LOD *roadGeodeLOD = new osg::LOD();
 
 			// Tesselation //
@@ -1119,12 +1120,12 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 
 	if (coVRMSController::instance()->isMaster() && (Carpool::Instance()->getPoolVector()).size() > 0)
 	{
-		if (RoadSystem::_tiles_y <= 400 && RoadSystem::_tiles_x <= 400)
+		if (vehicleUtil::RoadSystem::_tiles_y <= 400 && vehicleUtil::RoadSystem::_tiles_x <= 400)
 		{
 			//for (int i=0; i<=_tiles_y;i++) {
-			for (int i = RoadSystem::_tiles_y; i >= 0; i--)
+			for (int i = vehicleUtil::RoadSystem::_tiles_y; i >= 0; i--)
 			{
-				for (int j = 0; j <= RoadSystem::_tiles_x; j++)
+				for (int j = 0; j <= vehicleUtil::RoadSystem::_tiles_x; j++)
 				{
 					if ((system->getRLS_List(j, i)).size() == 0)
 						std::cout << "-";
@@ -1233,7 +1234,7 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
 				if (RoadTerrainLoader::instance())
 				{
 					osg::Vec3d offset(0, 0, 0);
-					const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
+					const RoadSystemHeader &header = vehicleUtil::RoadSystem::Instance()->getHeader();
 					offset.set(header.xoffset, header.yoffset, 0.0);
 					fprintf(stderr, "loading %s offset: %f %f\n", (xodrDirectory + "/" + vpbString).c_str(), offset[0], offset[1]);
 					RoadTerrainLoader::instance()->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);

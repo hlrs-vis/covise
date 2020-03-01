@@ -43,7 +43,7 @@ struct TRAFFICSIMULATIONEXPORT PedestrianParameters
 
 struct TRAFFICSIMULATIONEXPORT PedestrianLocation
 {
-    PedestrianLocation(Road *_r = NULL, int _ln = 0, Lane *_l = NULL, LaneSection *_ls = NULL, Crosswalk *_cw = NULL, int _d = 0)
+    PedestrianLocation(vehicleUtil::Road *_r = NULL, int _ln = 0, vehicleUtil::Lane *_l = NULL, vehicleUtil::LaneSection *_ls = NULL, vehicleUtil::Crosswalk *_cw = NULL, int _d = 0)
         : road(_r)
         , laneNum(_ln)
         , lane(_l)
@@ -53,17 +53,17 @@ struct TRAFFICSIMULATIONEXPORT PedestrianLocation
     {
     }
 
-    Road *road; // Current road
+    vehicleUtil::Road *road; // Current road
     int laneNum; // Lane number on current road
-    Lane *lane; // Pointer to current lane
-    LaneSection *laneSec; // Pointer to current lane section
-    Crosswalk *crosswalk; // Pointer to current crosswalk
+    vehicleUtil::Lane *lane; // Pointer to current lane
+    vehicleUtil::LaneSection *laneSec; // Pointer to current lane section
+    vehicleUtil::Crosswalk *crosswalk; // Pointer to current crosswalk
     int dir; // Current direction on road (positive towards higher s-values)
 };
 
 struct TRAFFICSIMULATIONEXPORT PedestrianState
 {
-    PedestrianState(bool _act = false, double _u = 0.0, double _v = 0.0, double _s = 0.0, double _dus = 0.0, double _dut = 0.0, double _du = 0.0, double _dv = 0.0, double _vs = 0.0, double _vt = 0.0, double _vo = 0.0, double _va = 0.0, double _ddu = 0.0, double _ddv = 0.0, double _hdg = 0.0, bool _or = false, bool _c = false, int _cid = Crosswalk::DONOTENTER, int _cwid = Crosswalk::DONOTENTER, double _cv = 0.0, double _cw = 0.0, int _cp = 0, bool _cd = false, bool _srch = false, bool _fnd = false, bool _ls = false, bool _ld = false, std::string _sink = "")
+    PedestrianState(bool _act = false, double _u = 0.0, double _v = 0.0, double _s = 0.0, double _dus = 0.0, double _dut = 0.0, double _du = 0.0, double _dv = 0.0, double _vs = 0.0, double _vt = 0.0, double _vo = 0.0, double _va = 0.0, double _ddu = 0.0, double _ddv = 0.0, double _hdg = 0.0, bool _or = false, bool _c = false, int _cid = vehicleUtil::Crosswalk::DONOTENTER, int _cwid = vehicleUtil::Crosswalk::DONOTENTER, double _cv = 0.0, double _cw = 0.0, int _cp = 0, bool _cd = false, bool _srch = false, bool _fnd = false, bool _ls = false, bool _ld = false, std::string _sink = "")
         : active(_act)
         , u(_u)
         , v(_v)
@@ -131,7 +131,7 @@ class PedestrianManager;
 class TRAFFICSIMULATIONEXPORT Pedestrian
 {
 public:
-    Pedestrian(std::string &name, Road *startRoad = NULL, int startLaneNum = 0, int startDir = 0, double startPos = 0.0, double startVOff = 0.0, double startVel = 0.0, double startAcc = 0.0, double headingAdj = 0.0, int dbg = 0, PedestrianGeometry *g = NULL);
+    Pedestrian(std::string &name, vehicleUtil::Road *startRoad = NULL, int startLaneNum = 0, int startDir = 0, double startPos = 0.0, double startVOff = 0.0, double startVel = 0.0, double startAcc = 0.0, double headingAdj = 0.0, int dbg = 0, PedestrianGeometry *g = NULL);
     ~Pedestrian();
 
     void updateActive();
@@ -163,7 +163,7 @@ public:
     {
         return geometry;
     }
-    Road *getRoad() const
+    vehicleUtil::Road *getRoad() const
     {
         return pedLoc.road;
     }
@@ -171,7 +171,7 @@ public:
     {
         return pedState.onRoad;
     }
-    Lane *getLane() const
+    vehicleUtil::Lane *getLane() const
     {
         return pedLoc.lane;
     }
@@ -236,7 +236,7 @@ public:
     void onRoad(const bool r);
 
     double getWalkwayWidth() const;
-    double getLaneWidth(LaneSection *ls, const int ln, const double s = 0.0) const;
+    double getLaneWidth(vehicleUtil::LaneSection *ls, const int ln, const double s = 0.0) const;
 
     void leaveSidewalk(const double v);
 
@@ -268,7 +268,7 @@ protected:
     PedestrianParameters pedParams; // Parameters of movement (e.g., velocity limits)
     PedestrianLocation pedLoc; // Location in road system (e.g., road, lane)
     PedestrianState pedState; // State at current location (e.g., position, velocity)
-    Transform pedTrans; // Current geometry transformation
+    vehicleUtil::Transform pedTrans; // Current geometry transformation
 
     Pedestrian *avoiding; // Fellow pedestrian currently being avoided (none if NULL)
     Pedestrian *passing; // Fellow pedestrian currently being passed (none if NULL)

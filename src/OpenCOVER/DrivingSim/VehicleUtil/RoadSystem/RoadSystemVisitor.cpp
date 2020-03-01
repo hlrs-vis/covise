@@ -19,6 +19,8 @@
 #include "Types.h"
 #include "LaneSection.h"
 
+using namespace vehicleUtil;
+
 void RoadSystemVisitor::visit(Tarmac *tarmac)
 {
     std::cout << "Vising Tarmac: " << tarmac->getId() << std::endl;

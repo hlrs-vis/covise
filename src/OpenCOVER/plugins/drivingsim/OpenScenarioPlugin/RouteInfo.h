@@ -20,8 +20,8 @@ public:
 private:
 	Entity *entity;
 	OpenScenario::oscPosition *currentWaypoint;
-	Road *currentRoad;
-	Lane *currentLane;
+	vehicleUtil::Road *currentRoad;
+	vehicleUtil::Lane *currentLane;
 	float s, t;
 	double longPos;
 };

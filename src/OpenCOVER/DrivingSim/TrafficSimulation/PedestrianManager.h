@@ -36,11 +36,11 @@ public:
     void scheduleRemoval(Pedestrian *p);
 
     void addPedestrian(Pedestrian *p);
-    void removePedestrian(Pedestrian *p, Road *r = NULL, const int l = 0);
+    void removePedestrian(Pedestrian *p, vehicleUtil::Road *r = NULL, const int l = 0);
 
-    void addToRoad(Pedestrian *p, Road *r, const int l);
-    void removeFromRoad(Pedestrian *p, Road *r, const int l);
-    void changeRoad(Pedestrian *p, Road *fromR, const int fromL, Road *toR, const int toL);
+    void addToRoad(Pedestrian *p, vehicleUtil::Road *r, const int l);
+    void removeFromRoad(Pedestrian *p, vehicleUtil::Road *r, const int l);
+    void changeRoad(Pedestrian *p, vehicleUtil::Road *fromR, const int fromL, vehicleUtil::Road *toR, const int toL);
 
     int numPeds() const;
 
@@ -52,8 +52,8 @@ protected:
     static PedestrianManager *__instance;
 
 private:
-    RoadSystem *roadSystem;
-    std::map<std::pair<Road *, int>, std::vector<Pedestrian *> > pedestrianListMap;
+    vehicleUtil::RoadSystem *roadSystem;
+    std::map<std::pair<vehicleUtil::Road *, int>, std::vector<Pedestrian *> > pedestrianListMap;
     std::vector<Pedestrian *> pedestrianOverallList;
     std::vector<Pedestrian *> pedestrianRemovalList;
 

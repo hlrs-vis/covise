@@ -3,6 +3,8 @@
 #include <cmath>
 #include "Entity.h"
 
+using namespace vehicleUtil;
+
 ReferencePosition::ReferencePosition():
     road(NULL),
     s(0.0),
@@ -41,7 +43,7 @@ ReferencePosition::ReferencePosition(const ReferencePosition* oldRefPos)
     xyz = oldRefPos->xyz;
 }
 
-void ReferencePosition::init(std::string init_roadId, int init_laneId, double init_s, RoadSystem* init_system, double init_offset)
+void ReferencePosition::init(std::string init_roadId, int init_laneId, double init_s, vehicleUtil::RoadSystem* init_system, double init_offset)
 // init from Lane
 {
     roadId = init_roadId;
@@ -74,7 +76,7 @@ void ReferencePosition::init(std::string init_roadId, int init_laneId, double in
     isUp2Date = true;
 }
 
-void ReferencePosition::init(std::string init_roadId,double init_s,double init_t,RoadSystem* init_system)
+void ReferencePosition::init(std::string init_roadId,double init_s,double init_t, vehicleUtil::RoadSystem* init_system)
 // init from Road
 {
     roadId = init_roadId;
@@ -103,7 +105,7 @@ void ReferencePosition::init(std::string init_roadId,double init_s,double init_t
     isUp2Date = true;
 }
 
-void ReferencePosition::init(osg::Vec3 initPos, double init_hdg, RoadSystem* init_system)
+void ReferencePosition::init(osg::Vec3 initPos, double init_hdg, vehicleUtil::RoadSystem* init_system)
 // init from World
 {
     hdg = init_hdg;
@@ -333,7 +335,7 @@ void ReferencePosition::getSuccessor()
     connection = road->getSuccessorConnection();
 	if (connection)
 	{
-		road = dynamic_cast<Road *>(connection->getConnectingTarmac());
+		road = dynamic_cast<vehicleUtil::Road *>(connection->getConnectingTarmac());
 
 		s = s - roadLength;
 		roadId = system->getRoadId(road);
@@ -348,7 +350,7 @@ void ReferencePosition::getPredecessor()
     connection = road->getPredecessorConnection();
     if(connection)
     {
-        Road *newRoad = dynamic_cast<Road *>(connection->getConnectingTarmac());
+        vehicleUtil::Road *newRoad = dynamic_cast<vehicleUtil::Road *>(connection->getConnectingTarmac());
         if(newRoad !=nullptr)
         {
             road = newRoad;

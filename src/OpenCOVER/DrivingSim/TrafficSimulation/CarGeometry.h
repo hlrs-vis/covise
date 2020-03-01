@@ -25,8 +25,8 @@ public:
     CarGeometry(std::string = "no name", std::string = "cars/hotcar.osg", bool = true, osg::Group *rootNode = NULL);
     ~CarGeometry();
 
-    void setTransform(Transform &, double);
-    void setTransformOrig(Transform &, double);
+    void setTransform(vehicleUtil::Transform &, double);
+    void setTransformOrig(vehicleUtil::Transform &, double);
 
 	void setTransformByCoordinates(osg::Vec3 &pos, osg::Vec3 &xVec);
 	void setTransform(osg::Matrix m);

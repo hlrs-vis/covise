@@ -19,6 +19,7 @@
 #include <cover/coVRConfig.h>
 
 using namespace opencover;
+using namespace vehicleUtil;
 
 RoadObject::RoadObject(const std::string &setId, const std::string &setFile, const std::string &setTextureFile, const std::string &setName, const std::string &setType, const double &setS,
                        const double &setT, const double &setZOffset, const double &setValidLength, OrientationType setOrientation, const double &setLength,

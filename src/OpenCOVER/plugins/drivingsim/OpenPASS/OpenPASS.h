@@ -90,15 +90,15 @@ private:
     
     PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
-    std::vector<pedestrianModel> pedestrianModels;
-    void getPedestriansFromConfig();
+    //std::vector<pedestrianModel> pedestrianModels;
+    //void getPedestriansFromConfig();
     void lineUpAllPedestrianModels();
 
     std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle","escooter"};
-    std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
+    //std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
 
-    void getVehiclesFromConfig();
-    void loadAllVehicles();
+    //void getVehiclesFromConfig();
+    //void loadAllVehicles();
 	bool connected;
 
 };
