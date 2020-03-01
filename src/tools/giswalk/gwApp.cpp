@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+#define _HAS_STD_BYTE 0 // hack to make windows happy in c++17 because of otherwise multiply defined byte
 #include <stdio.h>
 
 #include "giswalk.h"

@@ -8,7 +8,7 @@
 
 #ifndef TECFILE_H
 #define TECFILE_H
-
+#define _HAS_AUTO_PTR_ETC 1
 #include <mesh.h>
 
 #include <vector>

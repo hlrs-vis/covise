@@ -1505,7 +1505,7 @@ int DefineBCs(struct rechgrid *grid, struct rech_model *model, int number)
     int nelem_x = grid->nelem_x;
     int nelem_y = grid->nelem_y;
     int nelem_z = grid->nelem_z;
-    int ilo, ihi, jlo, jhi, klo, khi;
+    int ilo=0, ihi=0, jlo=0, jhi=0, klo=0, khi=0;
 
     // define bc types
     switch (number)

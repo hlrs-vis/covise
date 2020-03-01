@@ -7,7 +7,7 @@
 #COVISE_UNFINISHED()
 
 PROJECT(OpenCOVER C CXX)
-set (CMAKE_CXX_STANDARD 11)
+# this is already set in the top most CMakeLists.txt set (CMAKE_CXX_STANDARD 11)
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
 
     set(COVISE_EXPORTS_FILE "cover-exports.cmake")
