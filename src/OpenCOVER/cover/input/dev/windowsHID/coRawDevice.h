@@ -43,7 +43,7 @@ typedef WINUSERAPI BOOL(WINAPI *pRegisterRawInputDevices)(IN PCRAWINPUTDEVICE pR
 //============================================================
 
 #define RAW_SYS_MOUSE 0 // The sys device combines all the other usb mice into one
-#define MAX_RAW_MOUSE_BUTTONS 5
+#define MAX_RAW_MOUSE_BUTTONS 20
 
 //============================================================
 //	DATA TYPES

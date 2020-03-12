@@ -33,7 +33,7 @@ coRawDevice::coRawDevice(const char *deviceName)
         if(strlen(coRawDeviceManager::instance()->rawDevices[i].deviceName)>4)
         {
             fprintf(stderr, "try        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
-            if (strncasecmp(deviceName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
+            if ((coRawDeviceManager::instance()->rawDevices[i].type != RIM_TYPEHID) && strncasecmp(deviceName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
             {
                 // currently only one button device works TODO fix itbuttonNumber = i;
 
