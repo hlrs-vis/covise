@@ -129,8 +129,8 @@ if(gl_Normal.y &gt; 0.5|| gl_Normal.y &lt; -0.5)
 Texcoord = gl_Vertex.xz;
 if(gl_Normal.z &gt; 0.5|| gl_Normal.z&lt; -0.5)
 Texcoord = gl_Vertex.xy;
-Texcoord.x/=revitSX;
-Texcoord.y/=revitSY;
+Texcoord.x=(Texcoord.x+revitOX)/revitSX;
+Texcoord.y=(Texcoord.y+revitOY+0.5)/revitSY;
 #ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 #endif
