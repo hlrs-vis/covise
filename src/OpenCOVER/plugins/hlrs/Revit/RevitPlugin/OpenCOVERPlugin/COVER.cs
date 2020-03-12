@@ -1417,8 +1417,8 @@ namespace OpenCOVERPlugin
             if (family != null)
             {
                 bool sliding = false;
-                IList<Parameter> ifcs = family.GetParameters("Operation");
-                if (ifcs.Count > 0 && (ifcs[0].AsString() == "SlidingToLeft" || ifcs[0].AsString() == "SlidingToRight"))
+                String oper = family.get_Parameter(BuiltInParameter.DOOR_OPERATION_TYPE).AsString();
+                if (oper == "SlidingToLeft" || oper == "SlidingToRight")
                 {
                     sliding = true;
                 }
@@ -1447,14 +1447,11 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
 
                 Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
-                if (graphicsStyle != null)
+                if (graphicsStyle == null || (graphicsStyle.Name != "Frame/Mullion" && graphicsStyle.Name != "Rahmen/Pfosten"))
                 {
-                    if (graphicsStyle.Name != "Frame/Mullion" && graphicsStyle.Name != "Rahmen/Pfosten")
+                    if (namelen == 0 || (graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
                     {
-                        if (namelen == 0 || (graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
-                        {
-                            sendGeomElement(elem, num, geomObject, false);
-                        }
+                        sendGeomElement(elem, num, geomObject, false);
                     }
                 }
                 num++;
