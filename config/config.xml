@@ -140,6 +140,8 @@
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
    
+   <RhrClient mpiThread="false" />
+
    <NvTop menu="true" />
    <PBufferSnapShot menu="true" />
    <Video menu="true" />
