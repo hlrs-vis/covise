@@ -22,10 +22,11 @@
 ;compiler-related
 PrivilegesRequired=admin
 
-OutputDir={#COVISEDIR+"\DIST"}
+OutputDir={#COVISEDIR+"\DIST"}    
 
 #if ARCHSUFFIX == "zebuopt"
-OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
+OutputBaseFilename=HLRS_Max2020_x64_VRML_Exporter   
+ArchitecturesInstallIn64BitMode="x64"  
 #elif ARCHSUFFIX == "zackelopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yoroo"
@@ -33,13 +34,14 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yorooopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
-ArchitecturesInstallIn64BitMode="x64"
-OutputBaseFilename=HLRS_Max2020_x64_VRML_Exporter
+OutputBaseFilename=HLRS_Max2020_x64_VRML_Exporter    
+ArchitecturesInstallIn64BitMode="x64"  
+ProcessorsAllowed="x64"
 #endif
 
 ;installer-related
 AppName=VrmlExp
-AppVerName=an HLRS Version of the Vrml exporter for 3ds Max 2020
+AppVerName=HLRS Version of the Vrml exporter for 3ds Max 2020
 AppPublisher=HLRS
 AppPublisherURL=http://www.hlrs.de
 AppSupportURL=http://www.hlrs.de/covise
@@ -107,7 +109,7 @@ Filename: {app}\vcredist_x86.exe; Description: Install VisualStudio 2008 Runtime
 #elif ARCHSUFFIX == "zackelopt"
 Filename: {app}\vcredist_x86.exe; Description: Install VisualStudio 2008 Runtime; Flags: postinstall     
 #elif ARCHSUFFIX == "zebuopt"        
-Filename: {app}\VC_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2015-2019 Runtime; Flags: postinstall  
+Filename: {app}\bin\VC_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2015-2019 Runtime; Flags: postinstall  
 #endif
 
 [Code]
@@ -211,39 +213,15 @@ begin
 end;
 
 function InitializeSetup(): Boolean;
-var
-  I : integer;
-  Names: TArrayOfString;
 begin
   MaxVersion:=0;
   Result:=true;
-  
-  
-{ if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE', Names) then
-  begin
-  for I := 0 to GetArrayLength(Names)-1 do  
-   begin  
-    MsgBox('Subkey: ' + Names[I], mbInformation, MB_OK);
-    end;
-    // Successfully read the value
-  end;
-  }
-  
-  if(RegQueryStringValue(HKEY_LOCAL_MACHINE,'SOFTWARE\Autodesk\3dsMax\22.0','Installdir',MaxDir)) then
+                               
+      
+  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\22.0','Installdir',MaxDir)) then
       begin
-          MaxVersion:=22;
+          MaxVersion:=22;    
       end;
-  if(RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Autodesk\3dsMax', Names)) then
-  begin
-    for I := 0 to GetArrayLength(Names)-1 do
-    begin
-      if(RegQueryStringValue(HKEY_LOCAL_MACHINE,'SOFTWARE\Autodesk\3dsMax\'+Names[I]+'\','Installdir',MaxDir)) then
-      begin
-          MaxVersion:=23;
-      end;
-    end;
-  end;
-  
   
   if MaxVersion = 0 then
   begin
