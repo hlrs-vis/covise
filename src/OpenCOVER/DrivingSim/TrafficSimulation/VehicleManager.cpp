@@ -18,6 +18,7 @@
 #include <algorithm>
 #include "PorscheFFZ.h"
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 VehicleManager *VehicleManager::__instance = NULL;
 

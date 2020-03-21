@@ -11,6 +11,7 @@
 #include "VehicleUtils.h"
 
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 int Vehicle::vehicleIDs = 0;
 

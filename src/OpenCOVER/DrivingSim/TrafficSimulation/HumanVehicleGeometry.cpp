@@ -11,6 +11,7 @@
 #include <cover/coVRPluginSupport.h>
 using namespace opencover;
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 HumanVehicleGeometry::HumanVehicleGeometry(std::string nodeName)
     : vehicleNodeName(nodeName)

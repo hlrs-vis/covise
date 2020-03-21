@@ -45,6 +45,7 @@
 int gPrecision;
 
 using namespace opencover;
+using namespace TrafficSimulation;
 
 SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
 {

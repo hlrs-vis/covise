@@ -18,13 +18,12 @@
 
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Owner.h>
+#include <cover/ui/Menu.h>
 
 #include <osg/ShapeDrawable>
 
 #include <vector>
 #include <random>
-#include <TrafficSimulation/AgentVehicle.h>
-#include <TrafficSimulation/PedestrianFactory.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -45,6 +44,17 @@
 #include "CoreFramework/CoreShare/log.h"
 #include "runInstantiator.h"
 
+#include <OpenThreads/Thread>
+#include <OpenThreads/Barrier>
+#include <OpenThreads/Mutex>
+
+
+#if defined(OpenPASS_EXPORTS)
+#  define OPENPASS_EXPORT COEXPORT   //! Export of the dll-functions
+#else
+#  define OPENPASS_EXPORT COIMPORT   //! Import of the dll-functions
+#endif
+
 namespace opencover
 {
 namespace ui {
@@ -55,26 +65,109 @@ class Button;
 }
 }
 
+namespace TrafficSimulation
+{
+    class AgentVehicle;
+    class PedestrianFactory;
+    class PedestrianGeometry;
+    class coEntity;
+}
+namespace OpenScenario
+{
+    class OpenScenarioBase;
+}
+class OpenPASS; 
+namespace SimulationSlave
+{
+    class RunInstantiator;
+    class FrameworkModuleContainer;
+}
+struct FrameworkModules;
+struct ConfigurationFiles;
+class Directories;
+namespace Configuration
+{
+    class ConfigurationContainer;
+}
+namespace SimulationCommon
+{
+    class Callbacks;
+}
+
 using namespace opencover;
 
-class OpenPASS : public opencover::coVRPlugin , public ui::Owner
+struct pedestrianModel
+{
+    std::string fileName;
+    double scale;
+    pedestrianModel(std::string, double);
+};
+
+struct vehicleModel
+{
+    std::string vehicleName;
+    std::string fileName;
+    vehicleModel(std::string, std::string);
+    double scale = 1;
+    vehicleModel(std::string t, std::string n, double s);
+};
+
+class simOpenPASS : public OpenThreads::Thread
+{
+public:
+    simOpenPASS(OpenPASS* op);
+    ~simOpenPASS();
+
+    virtual void run(); 
+
+private:
+    OpenPASS* openPass;
+    SimulationSlave::RunInstantiator* runInstantiator;
+    Directories* directories;
+    FrameworkModules* frameworkModules;
+    ConfigurationFiles* configurationFiles;
+    Configuration::ConfigurationContainer* configurationContainer;
+    SimulationCommon::Callbacks* callbacks;
+    SimulationSlave::FrameworkModuleContainer* frameworkModuleContainer;
+};
+
+class OPENPASS_EXPORT OpenPASS : public opencover::coVRPlugin , public ui::Owner
 {
 public:
     OpenPASS();
     ~OpenPASS();
 
-    void preFrame();
-    bool initConnection();
+    bool update();
+    static OpenPASS* instance() { return plugin; };
+    void updateAgent(AgentInterface* agent);
+    void updateTime(int time, WorldInterface* world); // time in ms;
+    void addAgent(AgentInterface* agent); 
+    void postRun(const RunResultInterface& runResult);
+    void loadXosc(std::string file);
+    OpenThreads::Barrier barrier;
+    OpenThreads::Barrier barrierContinue;
+    OpenThreads::Barrier endBarrier;
 
 private:
+    static OpenPASS* plugin;
+    int oldTime;
+    bool restartSim = false;
+
+    simOpenPASS* sim;
+    std::string xodrDirectory;
+    std::string xoscDirectory;
 
     bool initUI();
-    ui::Menu *openPASSMenu;
-	ui::Button* pedestriansVisible;
+	ui::Menu* openPASSMenu;
+    ui::Action* startSim;
+    ui::Button* pedestriansVisible;
 
-    
-        std::map<std::string, AgentVehicle *> vehicleMap;
-        AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
+
+	std::map<std::string, TrafficSimulation::AgentVehicle*> vehicleMap;
+	TrafficSimulation::AgentVehicle* getAgentVehicle(int ID, const std::string& vehicleClass, AgentVehicleType vehicleType);
+	TrafficSimulation::AgentVehicle* createVehicle(int ID, const std::string& vehicleModelType, AgentVehicleType vehicleType);
+
+	OpenScenario::OpenScenarioBase* osdb;
 
     osg::Group *vehicleGroup;
     std::string vehicleDirectory;
@@ -82,24 +175,31 @@ private:
 	osg::ref_ptr<osg::Switch> pedestrianGroup;
 	osg::ref_ptr<osg::Switch> passengerGroup;
 	osg::ref_ptr<osg::Switch> bicycleGroup;
-	osg::ref_ptr<osg::Switch> busGroup;
+    osg::ref_ptr<osg::Switch> motorbikeGroup;
+    osg::ref_ptr<osg::Switch> truckGroup;
+    osg::ref_ptr<osg::Switch> busGroup;
+    osg::ref_ptr<osg::Switch> escooterGroup;
 
-    PedestrianFactory *pf;
-    typedef std::map<std::string, coEntity *> EntityMap;
+    TrafficSimulation::PedestrianFactory *pf;
+    typedef std::map<std::string, TrafficSimulation::coEntity *> EntityMap;
 	EntityMap loadedEntities;
     
-    PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    TrafficSimulation::PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
     //std::vector<pedestrianModel> pedestrianModels;
-    //void getPedestriansFromConfig();
+    void getPedestriansFromConfig();
     void lineUpAllPedestrianModels();
 
-    std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle","escooter"};
-    //std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
+    std::vector<std::string> vehicleClasses = {"passenger", "pedestrian", "motorbike", "bicycle", "truck", "bus","escooter"};
+    std::map<std::string, std::vector<vehicleModel>*> vehicleModelMap;
+    std::map<int, TrafficSimulation::AgentVehicle*> agentVehicles;
+    std::vector<pedestrianModel> pedestrianModels;
 
-    //void getVehiclesFromConfig();
-    //void loadAllVehicles();
-	bool connected;
+    void getVehiclesFromConfig();
+    void loadAllVehicles();
+    double currentTime;
+    double previousTime;
+    double framedt;
 
 };
 #endif

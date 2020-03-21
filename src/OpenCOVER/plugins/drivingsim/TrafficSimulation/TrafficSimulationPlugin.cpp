@@ -53,6 +53,7 @@
 using namespace covise;
 using namespace opencover;
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 TrafficSimulationPlugin::TrafficSimulationPlugin()
 {

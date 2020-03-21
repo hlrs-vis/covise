@@ -20,6 +20,7 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace TrafficSimulation;
 
 //#include <math.h>
 #define PI 3.141592653589793238

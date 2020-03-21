@@ -13,32 +13,35 @@
 
 #include <osg/MatrixTransform>
 
-class TRAFFICSIMULATIONEXPORT  DonkeyCar : public Vehicle
+namespace TrafficSimulation
 {
-public:
-    DonkeyCar(std::string, vehicleUtil::Road *, double, double, double, double);
-    ~DonkeyCar();
+    class TRAFFICSIMULATIONEXPORT  DonkeyCar : public Vehicle
+    {
+    public:
+        DonkeyCar(std::string, vehicleUtil::Road*, double, double, double, double);
+        ~DonkeyCar();
 
-    vehicleUtil::Road *getRoad() const;
+        vehicleUtil::Road* getRoad() const;
 
-    double getU() const;
-    double getDu() const;
+        double getU() const;
+        double getDu() const;
 
-    void move(double);
-	void setPosition(osg::Vec3 &pos, osg::Vec3 &direction);
+        void move(double);
+        void setPosition(osg::Vec3& pos, osg::Vec3& direction);
 
-    VehicleGeometry *getVehicleGeometry();
-    double getBoundingCircleRadius();
+        VehicleGeometry* getVehicleGeometry();
+        double getBoundingCircleRadius();
 
-protected:
-    vehicleUtil::Road *currentRoad;
-    double u, v, du, h;
-    int currentLane;
-    int direction;
+    protected:
+        vehicleUtil::Road* currentRoad;
+        double u, v, du, h;
+        int currentLane;
+        int direction;
 
-    VehicleGeometry *geometry;
+        VehicleGeometry* geometry;
 
-    vehicleUtil::Transform carTransform;
-};
+        vehicleUtil::Transform carTransform;
+    };
+}
 
 #endif

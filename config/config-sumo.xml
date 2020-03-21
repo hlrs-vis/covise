@@ -58,7 +58,6 @@
                             <BMW_Z3 value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_black_big_s_h_p.wrl" />
                             <Renault_Clio value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/renault/clio_grey_nrm_s_h_p.wrl" />
                             <Seat_Ibiza value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/seat/ibiza_orange_nrm_s_h_p.wrl" />
-                            <Mini value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl" />
                             <Smart value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/smart/smart_pink_sml_s_h_p.wrl" />
                             <Honda_Civic value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/honda/civic_green_nrm_s_h_p.wrl" />
                             <Landcruiser value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/toyota/landcruiser_brown_nrm_s_h_p.wrl" />
@@ -67,10 +66,16 @@
                             <BmW_Z3green value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_green_big_s_h_p.wrl" />
                             <VW_Golf value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/vw/golf3_grey_sml_s_h_p.wrl" />
                             <Audi_R8 value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/audi/r8/Audi_R8_s_h_p.wrl" />
+							<car_bmw_i3 value="/data/OpenPass/cars/bmw/i3.WRL"/>
+							<car_bmw_7_1 value="/data/OpenPass/cars/bmw/7_1.wrl"/>
+							<car_bmw_7_2 value="/data/OpenPass/cars/bmw/7_2.wrl"/>
+							<car_bmw_3 value="/data/OpenPass/cars/bmw/3.wrl"/>
+							<car_mini_cooper value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl"/>
                         </passenger>
                         <truck>
                             <DAF_white value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl" />
                             <DAF_blue value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl" />
+							<bus value="/data/OpenPass/cars/bus/Citaro.wrl"/>
                         </truck>
                         <bus>
                             <Shuttle value="/data/campus/Shuttle/Shuttle.wrl" />

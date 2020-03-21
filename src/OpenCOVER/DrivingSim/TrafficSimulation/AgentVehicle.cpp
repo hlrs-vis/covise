@@ -13,6 +13,7 @@
 #include <math.h>
 #include <float.h> //für die #INF-Abfrage (DBL_MAX und DBL_MIN)
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehicleParameters &vp, vehicleUtil::Road *r, double startu, int startLane, double startVel, int startDir)
     : Vehicle(name)

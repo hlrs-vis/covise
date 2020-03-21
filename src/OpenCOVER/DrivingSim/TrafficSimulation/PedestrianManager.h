@@ -12,71 +12,74 @@
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include <cover/coVRPluginSupport.h>
 
-class Pedestrian;
-class TRAFFICSIMULATIONEXPORT PedestrianManager
+namespace TrafficSimulation
 {
-public:
-    static PedestrianManager *Instance();
-    static void Destroy();
-
-    void generateAutoFiddleyards();
-    void generateMovingFiddleyards();
-    void enableMovingFiddleyards();
-
-    void setSpawnRange(const double r)
+    class Pedestrian;
+    class TRAFFICSIMULATIONEXPORT PedestrianManager
     {
-        spawnRange = r;
-        spawnRangeSq = r * r;
-    }
+    public:
+        static PedestrianManager* Instance();
+        static void Destroy();
 
-    void setReportInterval(const double i);
-    void setAvoidCount(const int c);
-    void setAvoidTime(const double l);
+        void generateAutoFiddleyards();
+        void generateMovingFiddleyards();
+        void enableMovingFiddleyards();
 
-    void scheduleRemoval(Pedestrian *p);
+        void setSpawnRange(const double r)
+        {
+            spawnRange = r;
+            spawnRangeSq = r * r;
+        }
 
-    void addPedestrian(Pedestrian *p);
-    void removePedestrian(Pedestrian *p, vehicleUtil::Road *r = NULL, const int l = 0);
+        void setReportInterval(const double i);
+        void setAvoidCount(const int c);
+        void setAvoidTime(const double l);
 
-    void addToRoad(Pedestrian *p, vehicleUtil::Road *r, const int l);
-    void removeFromRoad(Pedestrian *p, vehicleUtil::Road *r, const int l);
-    void changeRoad(Pedestrian *p, vehicleUtil::Road *fromR, const int fromL, vehicleUtil::Road *toR, const int toL);
+        void scheduleRemoval(Pedestrian* p);
 
-    int numPeds() const;
+        void addPedestrian(Pedestrian* p);
+        void removePedestrian(Pedestrian* p, vehicleUtil::Road* r = NULL, const int l = 0);
 
-    void moveAllPedestrians(const double dt);
-    void updateFiddleyards(const double dt);
+        void addToRoad(Pedestrian* p, vehicleUtil::Road* r, const int l);
+        void removeFromRoad(Pedestrian* p, vehicleUtil::Road* r, const int l);
+        void changeRoad(Pedestrian* p, vehicleUtil::Road* fromR, const int fromL, vehicleUtil::Road* toR, const int toL);
 
-protected:
-    PedestrianManager();
-    static PedestrianManager *__instance;
+        int numPeds() const;
 
-private:
-    vehicleUtil::RoadSystem *roadSystem;
-    std::map<std::pair<vehicleUtil::Road *, int>, std::vector<Pedestrian *> > pedestrianListMap;
-    std::vector<Pedestrian *> pedestrianOverallList;
-    std::vector<Pedestrian *> pedestrianRemovalList;
+        void moveAllPedestrians(const double dt);
+        void updateFiddleyards(const double dt);
 
-    void performRemovals();
+    protected:
+        PedestrianManager();
+        static PedestrianManager* __instance;
 
-    std::vector<Pedestrian *> getClosestNeighbors(Pedestrian *p, int n);
-    void performAvoidance(Pedestrian *p, const double time);
-    double collisionIn(Pedestrian *a, Pedestrian *b) const;
+    private:
+        vehicleUtil::RoadSystem* roadSystem;
+        std::map<std::pair<vehicleUtil::Road*, int>, std::vector<Pedestrian*> > pedestrianListMap;
+        std::vector<Pedestrian*> pedestrianOverallList;
+        std::vector<Pedestrian*> pedestrianRemovalList;
 
-    double squaredDistTo(double x, double y, double z);
+        void performRemovals();
 
-    double spawnRange;
-    double spawnRangeSq;
+        std::vector<Pedestrian*> getClosestNeighbors(Pedestrian* p, int n);
+        void performAvoidance(Pedestrian* p, const double time);
+        double collisionIn(Pedestrian* a, Pedestrian* b) const;
 
-    double reportTimer;
-    double repeatTime;
-    double nextTime;
-    int avoidCount;
-    double avoidTime;
+        double squaredDistTo(double x, double y, double z);
 
-    bool autoFiddleyards;
-    bool movingFiddleyards;
-    osg::Vec3d viewPosLastUpdated;
-};
+        double spawnRange;
+        double spawnRangeSq;
+
+        double reportTimer;
+        double repeatTime;
+        double nextTime;
+        int avoidCount;
+        double avoidTime;
+
+        bool autoFiddleyards;
+        bool movingFiddleyards;
+        osg::Vec3d viewPosLastUpdated;
+    };
+}
 
 #endif

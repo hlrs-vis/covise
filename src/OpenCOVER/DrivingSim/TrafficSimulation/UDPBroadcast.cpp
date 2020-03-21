@@ -44,6 +44,7 @@ typedef unsigned long in_addr_t;
 #ifndef _WIN32
 #define closesocket close
 #endif
+using namespace TrafficSimulation;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++  Static Variable initializers

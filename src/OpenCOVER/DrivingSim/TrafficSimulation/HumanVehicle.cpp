@@ -20,6 +20,7 @@
 #endif
 
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 osg::Vec2d HumanVehicle::human_pos(0, 0);
 double HumanVehicle::human_v = 0.0;

@@ -11,22 +11,25 @@
 #include <osg/Vec3>
 
 
-class TRAFFICSIMULATIONEXPORT coEntity // base class for vehicles and pedestrians(pedestrianGeometries) 
+namespace TrafficSimulation
 {
-public:
-    coEntity();
-    virtual ~coEntity();
-	bool isActive() { return activeState; };
-	void setActive(bool state) { activeState = state; };
-	double newAngle;
-	double currentAngle;
-        float aSpeed=0.0;
-	osg::Vec3 speed;
-	osg::Vec3 newPosition;
-	osg::Vec3 currentPosition;
+	class TRAFFICSIMULATIONEXPORT coEntity // base class for vehicles and pedestrians(pedestrianGeometries) 
+	{
+	public:
+		coEntity();
+		virtual ~coEntity();
+		bool isActive() { return activeState; };
+		void setActive(bool state) { activeState = state; };
+		double newAngle;
+		double currentAngle;
+		float aSpeed = 0.0;
+		osg::Vec3 speed;
+		osg::Vec3 newPosition;
+		osg::Vec3 currentPosition;
 
-protected:
-	bool activeState = true;
-};
+	protected:
+		bool activeState = true;
+	};
+}
 
 #endif

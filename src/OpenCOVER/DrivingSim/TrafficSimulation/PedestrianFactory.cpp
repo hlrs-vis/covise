@@ -12,6 +12,7 @@
 using std::pair;
 using std::list;
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 /**
  * Create PedestrianFactory as a singleton

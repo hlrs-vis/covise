@@ -129,8 +129,8 @@ private:
     libsumo::SubscriptionResults pedestrianSimResults;
     std::vector<simData> currentResults;
     std::vector<simData> previousResults;
-        std::map<std::string, AgentVehicle *> vehicleMap;
-        AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
+        std::map<std::string, TrafficSimulation::AgentVehicle *> vehicleMap;
+        TrafficSimulation::AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
 
     osg::Group *vehicleGroup;
     std::string vehicleDirectory;
@@ -140,11 +140,11 @@ private:
 	osg::ref_ptr<osg::Switch> bicycleGroup;
 	osg::ref_ptr<osg::Switch> busGroup;
 
-    PedestrianFactory *pf;
-    typedef std::map<std::string, coEntity *> EntityMap;
+    TrafficSimulation::PedestrianFactory *pf;
+    typedef std::map<std::string, TrafficSimulation::coEntity *> EntityMap;
 	EntityMap loadedEntities;
     
-    PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    TrafficSimulation::PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
     std::vector<pedestrianModel> pedestrianModels;
     void getPedestriansFromConfig();
@@ -171,7 +171,7 @@ private:
 
     void subscribeToSimulation();
     void processNewResults();
-    AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    TrafficSimulation::AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     void interpolateVehiclePosition();
     osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
 void sendSimResults();

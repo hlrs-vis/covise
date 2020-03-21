@@ -17,6 +17,7 @@
 #include "TrafficSimulation.h"
 
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 VehicleFactory *VehicleFactory::__instance = NULL;
 

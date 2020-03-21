@@ -11,6 +11,7 @@
 #include <cover/coVRMSController.h>
 
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 /** Visitor that calculates the Boundingbox. */
 

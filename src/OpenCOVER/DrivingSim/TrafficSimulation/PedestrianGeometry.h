@@ -19,88 +19,91 @@
 #include <osgCal/CoreModel>
 #include <osgCal/Model>
 
-struct TRAFFICSIMULATIONEXPORT PedestrianAnimations
+namespace TrafficSimulation
 {
-    PedestrianAnimations(int _i = 0, double _iv = 0.0f, int _s = 1, double _sv = 0.6f, int _w = 2, double _wv = 1.5f, int _j = 3, double _jv = 3.0f, int _li = 4, int _wi = 5)
-        : idleIdx(_i)
-        , idleVel(_iv)
-        , slowIdx(_s)
-        , slowVel(_sv)
-        , walkIdx(_w)
-        , walkVel(_wv)
-        , jogIdx(_j)
-        , jogVel(_jv)
-        , lookIdx(_li)
-        , waveIdx(_wi)
+    struct TRAFFICSIMULATIONEXPORT PedestrianAnimations
     {
-    }
+        PedestrianAnimations(int _i = 0, double _iv = 0.0f, int _s = 1, double _sv = 0.6f, int _w = 2, double _wv = 1.5f, int _j = 3, double _jv = 3.0f, int _li = 4, int _wi = 5)
+            : idleIdx(_i)
+            , idleVel(_iv)
+            , slowIdx(_s)
+            , slowVel(_sv)
+            , walkIdx(_w)
+            , walkVel(_wv)
+            , jogIdx(_j)
+            , jogVel(_jv)
+            , lookIdx(_li)
+            , waveIdx(_wi)
+        {
+        }
 
-    int idleIdx;
-    double idleVel;
-    int slowIdx;
-    double slowVel;
-    int walkIdx;
-    double walkVel;
-    int jogIdx;
-    double jogVel;
-    int lookIdx;
-    int waveIdx;
-};
+        int idleIdx;
+        double idleVel;
+        int slowIdx;
+        double slowVel;
+        int walkIdx;
+        double walkVel;
+        int jogIdx;
+        double jogVel;
+        int lookIdx;
+        int waveIdx;
+    };
 
-class Pedestrian;
-class TRAFFICSIMULATIONEXPORT PedestrianGeometry: public coEntity
-{
-public:
-    PedestrianGeometry(std::string &name, std::string &modelFile, double scale, double lod, const PedestrianAnimations &a, osg::Group *group);
-    ~PedestrianGeometry();
-
-    void setPedestrian(Pedestrian *p)
+    class Pedestrian;
+    class TRAFFICSIMULATIONEXPORT PedestrianGeometry : public coEntity
     {
-        myPed = p;
-    }
+    public:
+        PedestrianGeometry(std::string& name, std::string& modelFile, double scale, double lod, const PedestrianAnimations& a, osg::Group* group);
+        ~PedestrianGeometry();
 
-    void setTransform(vehicleUtil::Transform &, double);
+        void setPedestrian(Pedestrian* p)
+        {
+            myPed = p;
+        }
 
-    bool isGeometryWithinLOD();
-    bool isGeometryWithinRange(const double r) const;
+        void setTransform(vehicleUtil::Transform&, double);
 
-    void removeFromSceneGraph();
+        bool isGeometryWithinLOD();
+        bool isGeometryWithinRange(const double r) const;
 
-    void setWalkingSpeed(double speed);
+        void removeFromSceneGraph();
 
-    void update(double dt);
+        void setWalkingSpeed(double speed);
 
-    void executeLook(double factor = 1.0);
-    void executeWave(double factor = 1.0);
-    void executeAction(int idx, double factor = 1.0);
-	bool isActive() { return activeState; };
-	void setActive(bool state) { activeState = state; };
+        void update(double dt);
 
-protected:
-    bool floatEq(double a, double b);
-	bool activeState = true;
+        void executeLook(double factor = 1.0);
+        void executeWave(double factor = 1.0);
+        void executeAction(int idx, double factor = 1.0);
+        bool isActive() { return activeState; };
+        void setActive(bool state) { activeState = state; };
 
-    std::string geometryName;
+    protected:
+        bool floatEq(double a, double b);
+        bool activeState = true;
 
-    osg::ref_ptr<osg::Group> pedGroup;
-    osg::ref_ptr<osg::MatrixTransform> pedTransform;
-    osg::ref_ptr<osg::LOD> pedLOD;
+        std::string geometryName;
 
-    osg::ref_ptr<osgCal::Model> pedModel;
-    osg::ref_ptr<osgCal::BasicMeshAdder> meshAdder;
+        osg::ref_ptr<osg::Group> pedGroup;
+        osg::ref_ptr<osg::MatrixTransform> pedTransform;
+        osg::ref_ptr<osg::LOD> pedLOD;
 
-    PedestrianAnimations anim;
-    osg::Matrix mScale;
-    double rangeLOD;
-    double timeFactorScale;
-    double animOffset;
+        osg::ref_ptr<osgCal::Model> pedModel;
+        osg::ref_ptr<osgCal::BasicMeshAdder> meshAdder;
 
-    double currentSpeed;
-    double lastSpeed;
+        PedestrianAnimations anim;
+        osg::Matrix mScale;
+        double rangeLOD;
+        double timeFactorScale;
+        double animOffset;
 
-    osg::Node::NodeMask mask;
+        double currentSpeed;
+        double lastSpeed;
 
-    Pedestrian *myPed;
-};
+        osg::Node::NodeMask mask;
+
+        Pedestrian* myPed;
+    };
+}
 
 #endif

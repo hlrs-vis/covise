@@ -17,97 +17,99 @@
 
 #include <cover/coTabletUI.h>
 
+namespace TrafficSimulation
+{
 // forward declarations //
 //
-class HumanVehicle;
-class PorscheFFZ;
+	class HumanVehicle;
+	class PorscheFFZ;
 
-class TRAFFICSIMULATIONEXPORT VehicleManager
-{
-public:
-    static VehicleManager *Instance();
-    static void Destroy();
-
-    void addVehicle(Vehicle *);
-    void removeVehicle(VehicleList::iterator, vehicleUtil::Road *);
-    void removeVehicle(Vehicle *, vehicleUtil::Road *);
-    void removeAllAgents(double maxVel = 1.0); // delete all vehicles slower than maxVel
-    void changeRoad(VehicleList::iterator, vehicleUtil::Road *, vehicleUtil::Road *, int);
-    void changeRoad(Vehicle *, vehicleUtil::Road *, vehicleUtil::Road *, int);
-    void moveVehicle(VehicleList::iterator, int);
-    void moveVehicle(Vehicle *, int);
-    Vehicle *getNextVehicle(VehicleList::iterator, int);
-    Vehicle *getNextVehicle(Vehicle *, int);
-    Vehicle *getNextVehicle(VehicleList::iterator, int, int);
-    Vehicle *getNextVehicle(Vehicle *, int, int);
-    Vehicle *getFirstVehicle(vehicleUtil::Road *);
-    Vehicle *getLastVehicle(vehicleUtil::Road *);
-    Vehicle *getFirstVehicle(vehicleUtil::Road *, int);
-    Vehicle *getLastVehicle(vehicleUtil::Road *, int);
-    Vehicle *getVehicleByID(unsigned int);
-    HumanVehicle *getHumanVehicle();
-
-    void setMaximumNumberOfVehicles(unsigned int maxNum)
+    class TRAFFICSIMULATIONEXPORT VehicleManager
     {
-        maximumNumberOfVehicles = maxNum;
-    }
-    unsigned int getMaximumNumberOfVehicles()
-    {
-        return maximumNumberOfVehicles;
-    }
+    public:
+        static VehicleManager* Instance();
+        static void Destroy();
 
-    void sortVehicleList(vehicleUtil::Road *);
+        void addVehicle(Vehicle*);
+        void removeVehicle(VehicleList::iterator, vehicleUtil::Road*);
+        void removeVehicle(Vehicle*, vehicleUtil::Road*);
+        void removeAllAgents(double maxVel = 1.0); // delete all vehicles slower than maxVel
+        void changeRoad(VehicleList::iterator, vehicleUtil::Road*, vehicleUtil::Road*, int);
+        void changeRoad(Vehicle*, vehicleUtil::Road*, vehicleUtil::Road*, int);
+        void moveVehicle(VehicleList::iterator, int);
+        void moveVehicle(Vehicle*, int);
+        Vehicle* getNextVehicle(VehicleList::iterator, int);
+        Vehicle* getNextVehicle(Vehicle*, int);
+        Vehicle* getNextVehicle(VehicleList::iterator, int, int);
+        Vehicle* getNextVehicle(Vehicle*, int, int);
+        Vehicle* getFirstVehicle(vehicleUtil::Road*);
+        Vehicle* getLastVehicle(vehicleUtil::Road*);
+        Vehicle* getFirstVehicle(vehicleUtil::Road*, int);
+        Vehicle* getLastVehicle(vehicleUtil::Road*, int);
+        Vehicle* getVehicleByID(unsigned int);
+        HumanVehicle* getHumanVehicle();
 
-    const VehicleList &getVehicleList(vehicleUtil::Road *);
+        void setMaximumNumberOfVehicles(unsigned int maxNum)
+        {
+            maximumNumberOfVehicles = maxNum;
+        }
+        unsigned int getMaximumNumberOfVehicles()
+        {
+            return maximumNumberOfVehicles;
+        }
 
-    std::map<double, Vehicle *> getSurroundingVehicles(Vehicle *);
-    std::map<double, Vehicle *> getSurroundingVehicles(VehicleList::iterator);
+        void sortVehicleList(vehicleUtil::Road*);
 
-    void setCameraVehicle(int);
-    void switchToNextCamera();
-    void switchToPreviousCamera();
-    void unbindCamera();
-    //void brakeCameraVehicle();
+        const VehicleList& getVehicleList(vehicleUtil::Road*);
 
-    bool isJunctionEmpty(vehicleUtil::Junction *);
+        std::map<double, Vehicle*> getSurroundingVehicles(Vehicle*);
+        std::map<double, Vehicle*> getSurroundingVehicles(VehicleList::iterator);
 
-    void moveAllVehicles(double);
-    void updateFiddleyards(double, osg::Vec2d);
+        void setCameraVehicle(int);
+        void switchToNextCamera();
+        void switchToPreviousCamera();
+        void unbindCamera();
+        //void brakeCameraVehicle();
 
-    //void sendDataTo(coTUIMap* operatorMap);
-    void sendDataTo(PorscheFFZ *ffzBroadcaster);
+        bool isJunctionEmpty(vehicleUtil::Junction*);
 
-    void receiveDataFrom(PorscheFFZ *ffzBroadcaster);
-    VehicleList getVehicleOverallList();
+        void moveAllVehicles(double);
+        void updateFiddleyards(double, osg::Vec2d);
 
-    std::vector<vehicleUtil::Vector3D> acitve_fiddleyards;
+        //void sendDataTo(coTUIMap* operatorMap);
+        void sendDataTo(PorscheFFZ* ffzBroadcaster);
 
-protected:
-    VehicleManager();
-    static VehicleManager *__instance;
+        void receiveDataFrom(PorscheFFZ* ffzBroadcaster);
+        VehicleList getVehicleOverallList();
 
-    void insertVehicleAtFront(Vehicle *, vehicleUtil::Road *);
-    void insertVehicleAtBack(Vehicle *, vehicleUtil::Road *);
+        std::vector<vehicleUtil::Vector3D> acitve_fiddleyards;
 
-    void moveVehicleForward(VehicleList::iterator);
-    void moveVehicleBackward(VehicleList::iterator);
+    protected:
+        VehicleManager();
+        static VehicleManager* __instance;
 
-    void showVehicleList(vehicleUtil::Road *);
+        void insertVehicleAtFront(Vehicle*, vehicleUtil::Road*);
+        void insertVehicleAtBack(Vehicle*, vehicleUtil::Road*);
 
-    vehicleUtil::RoadSystem *system;
+        void moveVehicleForward(VehicleList::iterator);
+        void moveVehicleBackward(VehicleList::iterator);
 
-    std::map<vehicleUtil::Road *, VehicleList> roadVehicleListMap;
+        void showVehicleList(vehicleUtil::Road*);
 
-    VehicleList vehicleOverallList;
-    Vehicle *cameraVehicle;
-    VehicleList::iterator cameraVehicleIt;
+        vehicleUtil::RoadSystem* system;
 
-    VehicleDeque vehicleDecisionDeque;
+        std::map<vehicleUtil::Road*, VehicleList> roadVehicleListMap;
 
-    unsigned int maximumNumberOfVehicles;
+        VehicleList vehicleOverallList;
+        Vehicle* cameraVehicle;
+        VehicleList::iterator cameraVehicleIt;
 
-private:
-    HumanVehicle *humanVehicle; // lazy initialization, so use getHumanVehicle()
-};
+        VehicleDeque vehicleDecisionDeque;
 
+        unsigned int maximumNumberOfVehicles;
+
+    private:
+        HumanVehicle* humanVehicle; // lazy initialization, so use getHumanVehicle()
+    };
+}
 #endif

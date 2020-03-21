@@ -39,6 +39,7 @@
 using namespace covise;
 using namespace opencover;
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 /** UDP BROADCASTER. Sends data via UDP.
  * This Broadcast was initially designed for sending data

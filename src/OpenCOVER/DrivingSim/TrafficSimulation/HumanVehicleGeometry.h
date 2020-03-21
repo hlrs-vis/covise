@@ -15,38 +15,41 @@
 #include <osg/Transform>
 #include <osg/MatrixTransform>
 
-class TRAFFICSIMULATIONEXPORT HumanVehicleGeometry : public VehicleGeometry
+namespace TrafficSimulation
 {
-public:
-    HumanVehicleGeometry(std::string);
-
-    ~HumanVehicleGeometry();
-
-    void setTransform(vehicleUtil::Transform &, double);
-
-    double getBoundingCircleRadius();
-
-    const osg::Matrix &getVehicleTransformMatrix();
-
-    vehicleUtil::Transform getVehicleTransformation();
-
-    osg::Node *getVehicleNode()
+    class TRAFFICSIMULATIONEXPORT HumanVehicleGeometry : public VehicleGeometry
     {
-        return vehicleNode;
-    }
+    public:
+        HumanVehicleGeometry(std::string);
 
-protected:
-    std::string vehicleNodeName;
+        ~HumanVehicleGeometry();
 
-    osg::Node *vehicleNode;
+        void setTransform(vehicleUtil::Transform&, double);
 
-    double boundingCircleRadius;
+        double getBoundingCircleRadius();
 
-    vehicleUtil::Transform vrmlTransform;
-    vehicleUtil::Transform vehicleTransform;
+        const osg::Matrix& getVehicleTransformMatrix();
 
-    void findVehicleNode();
-    osg::Node *searchGroupByVehicleNodeName(osg::Group *);
-};
+        vehicleUtil::Transform getVehicleTransformation();
+
+        osg::Node* getVehicleNode()
+        {
+            return vehicleNode;
+        }
+
+    protected:
+        std::string vehicleNodeName;
+
+        osg::Node* vehicleNode;
+
+        double boundingCircleRadius;
+
+        vehicleUtil::Transform vrmlTransform;
+        vehicleUtil::Transform vehicleTransform;
+
+        void findVehicleNode();
+        osg::Node* searchGroupByVehicleNodeName(osg::Group*);
+    };
+}
 
 #endif

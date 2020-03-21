@@ -7,6 +7,7 @@
 #include <math.h>
 #include <list>
 using namespace std;
+using namespace TrafficSimulation;
 
 
 class Spline;

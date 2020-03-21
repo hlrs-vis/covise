@@ -15,9 +15,10 @@ using namespace OpenScenario;
 Entity::Entity(oscObject* obj) :
 	object(obj),
 	name(obj->name),
-	refPos(NULL),
-	newRefPos(NULL),
-	dt(0.0)
+	refPos(nullptr),
+	newRefPos(nullptr),
+	dt(0.0),
+	agentVehicle(nullptr)
 {
 	directionVector.set(1, 0, 0);
 	lateralVector.set(0, 1, 0);
@@ -25,15 +26,18 @@ Entity::Entity(oscObject* obj) :
 	std::string catalogReferenceName= object->CatalogReference->entryName;
 	vehicle = ((oscVehicle*)(OpenScenarioPlugin::instance()->osdb->getCatalogObjectByCatalogReference("VehicleCatalog", catalogReferenceName)));
 
-	std::string geometryFileName;
-	for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it != vehicle->Properties->File.end(); it++)
+	if (vehicle)
 	{
-		oscFile* file = ((oscFile*)(*it));
-		geometryFileName = file->filepath.getValue();
-		break;
-	}
+		std::string geometryFileName;
+		for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it != vehicle->Properties->File.end(); it++)
+		{
+			oscFile* file = ((oscFile*)(*it));
+			geometryFileName = file->filepath.getValue();
+			break;
+		}
 
-	agentVehicle = new AgentVehicle(name, new CarGeometry(name, geometryFileName, true));
+		agentVehicle = new AgentVehicle(name, new CarGeometry(name, geometryFileName, true));
+	}
 }
 
 Entity::~Entity()
@@ -67,8 +71,10 @@ void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
         directionVector[1] = sin(init_refPos->hdg);
 		
 
-
-		agentVehicle->setPosition(entityPosition, directionVector);
+		if (agentVehicle)
+		{
+			agentVehicle->setPosition(entityPosition, directionVector);
+		}
 
    // }
 
@@ -77,7 +83,7 @@ void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 
 void Entity::moveLongitudinal()
 {
-    if(refPos->road != NULL && speed > 0)
+    if(refPos->road != NULL && speed > 0 && agentVehicle)
     {
         float step_distance = speed*OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
         double ds;
@@ -101,7 +107,10 @@ void Entity::moveLongitudinal()
     }
     else
     {
-		agentVehicle->setPosition(refPos->xyz, directionVector);
+		if(agentVehicle)
+		{
+			agentVehicle->setPosition(refPos->xyz, directionVector);
+		}
     }
 
 }

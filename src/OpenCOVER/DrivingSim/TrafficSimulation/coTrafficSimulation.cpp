@@ -55,6 +55,7 @@
 using namespace covise;
 using namespace opencover;
 using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 int coTrafficSimulation::counter = 0;
 int coTrafficSimulation::createFreq = 20;

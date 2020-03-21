@@ -7,6 +7,7 @@
 
 #include "coEntity.h"
 
+using namespace TrafficSimulation;
 coEntity::coEntity()
 {
 }
