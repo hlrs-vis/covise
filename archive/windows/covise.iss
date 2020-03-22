@@ -215,8 +215,9 @@ Name: surfacecover; Description: MS Surface VR renderer; Types: standard custom
 ;Source: {#COVISEDIR}\README.windows; DestDir: {app}; DestName: README.txt; Components: core
 Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core 
-Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core   
 Source: {#COVISEDIR}\config\config-midi.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config-sumo.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config-spray.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
@@ -432,6 +433,10 @@ Source: {#SIMDATA}\example_data\gate_mini.cfg; DestDir: {#SIMDATAOUT}\example_da
 Source: {#SIMDATA}\example_data\my_dummy.bc; DestDir: {#SIMDATAOUT}\example_data; Components: application/simulation
 #endif
 
+             
+[Dirs]
+Name: "{app}"; 
+Name: "{app}\config"; Permissions: everyone-full
 
 
 
