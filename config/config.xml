@@ -295,6 +295,7 @@
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
 <INCLUDE global="1" configname="spray" >config-spray.xml </INCLUDE>
 <INCLUDE global="1" configname="midi" >config-midi.xml </INCLUDE>
+<INCLUDE global="1" configname="sumo" >config-sumo.xml </INCLUDE>
 
  <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
  <!-- this config is required by the ViNCE Renderer-->

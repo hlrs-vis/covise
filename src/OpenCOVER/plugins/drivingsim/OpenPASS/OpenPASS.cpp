@@ -92,11 +92,25 @@ static bool CheckDirectories(const Directories* directories);
 simOpenPASS::simOpenPASS(OpenPASS* op)
 {
     openPass = op;
-    int argc = 1;
-    char* argv[] = { "c:/src/simopenpass/build/OpenPASS/testit.exe" };
+
+    char* opHome = getenv("OPENPASS_HOME");
+    if (opHome == nullptr)
+    {
+        opHome = "c:/src/simopenpass/build/OpenPASS";
+    }
+    char* covisedir = getenv("COVISEDIR");
+    if (covisedir == nullptr)
+    {
+        covisedir = "c:/src/covise";
+    }
+    char* archsuffix = getenv("ARCHSUFFIX");
+    if (archsuffix == nullptr)
+    {
+        archsuffix = "zebuopt";
+    }
 
     int logLevel = 5;
-    directories = new Directories("c:/src/simopenpass/build/OpenPASS",
+    directories = new Directories(opHome,
         "lib",
         "configs",
         "results");
@@ -126,11 +140,7 @@ simOpenPASS::simOpenPASS(OpenPASS* op)
         libraries.at("StochasticsLibrary"),
         libraries.at("WorldLibrary")
     );
-#ifndef NDEBUG
-    *((std::string*)(&frameworkModules->observationLibrary)) = "c:/src/covise/zebu/lib/OpenCOVER/plugins/observationCOVERd";
-#else
-    * ((std::string*)(&frameworkModules->observationLibrary)) = "c:/src/covise/zebuopt/lib/OpenCOVER/plugins/observationCOVER";
-#endif
+    * ((std::string*)(&frameworkModules->observationLibrary)) = std::string(covisedir) + "/" + archsuffix + "/lib/OpenCOVER/plugins/observationCOVER";
     callbacks = new SimulationCommon::Callbacks;
     frameworkModuleContainer = new FrameworkModuleContainer(*frameworkModules, configurationContainer, callbacks);
     configurationContainer->GetSlaveConfig()->GetExperimentConfig().numberOfInvocations = 100000000;
