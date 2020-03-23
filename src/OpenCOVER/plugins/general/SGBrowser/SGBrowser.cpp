@@ -1412,15 +1412,15 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
             StateSet *stateset = NULL;
             StateAttribute *stateAttrib = NULL;
             Material *mat = NULL;
-            if (geode)
+            if (geode && geode->getNumDrawables() > 0)
             {
-                Drawable *drawable = geode->getDrawable(0);
+                Drawable* drawable = geode->getDrawable(0);
                 if (drawable)
                 {
-                    stateset = drawable->getOrCreateStateSet();
+                    stateset = drawable->getStateSet();
                 }
             }
-            else
+            if (stateset == nullptr)
             {
                 stateset = propNode->getOrCreateStateSet();
             }
@@ -1546,10 +1546,10 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
                 Drawable *drawable = geode->getDrawable(0);
                 if (drawable)
                 {
-                    stateset = drawable->getOrCreateStateSet();
+                    stateset = drawable->getStateSet();
                 }
             }
-            else
+            if(stateset == nullptr)
             {
                 stateset = propNode->getOrCreateStateSet();
             }
