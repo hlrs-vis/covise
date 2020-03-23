@@ -952,11 +952,18 @@ int CutGeometry::compute(const char *)
         {
             if (pl_out.size() == 0)
                 geo_return = new coDoPolygons(p_geo_out->getObjName(), 0, 0, 0);
-            else
+            else {
+
                 geo_return = new coDoPolygons(p_geo_out->getObjName(), (int)x_out.size(),
                                               &x_out[0], &y_out[0], &z_out[0],
                                               (int)vl_out.size(), &vl_out[0],
                                               (int)pl_out.size(), &pl_out[0]);
+
+                /*sendInfo("number of points in output grid: %d",x_out.size());
+                sendInfo("number of points in input grid: %d", num_coord);*/
+                if(num_coord != 0)
+                    sendInfo("cut off area in percent: %0.1f", ((float)((float)x_out.size()/(float)num_coord))*100.0f);
+            }
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
