@@ -1068,8 +1068,15 @@ coVRFileManager::coVRFileManager()
 	}
 	else
 	{
-		std::string tmp = fs::temp_directory_path().string() + "/OpenCOVER";
-		fs::create_directory(tmp);
+		std::string tmp = fs::temp_directory_path().string() + "/OpenCOVER"; 
+        try
+        {
+            fs::create_directory(tmp);
+        }
+        catch (...)
+        {
+            fprintf(stderr, "Could not create directory %s\n", tmp.c_str());
+        }
 		remoteFetchPath = tmp;
 	}
 }

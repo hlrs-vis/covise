@@ -436,7 +436,8 @@ Source: {#SIMDATA}\example_data\my_dummy.bc; DestDir: {#SIMDATAOUT}\example_data
              
 [Dirs]
 Name: "{app}"; 
-Name: "{app}\config"; Permissions: everyone-full
+Name: "{app}\config"; Permissions: everyone-full    
+Name: "{app}\share\covise\catalogs"; Permissions: everyone-full
 
 
 
