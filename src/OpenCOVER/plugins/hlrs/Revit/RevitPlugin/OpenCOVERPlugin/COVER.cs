@@ -60,6 +60,23 @@ namespace OpenCOVERPlugin
             color = new Color(255, 255, 255);
         }
     }
+    public class cDesignOptionSet
+    {
+        public ElementId ID;
+        public String name;
+        public List<cDesignOption> designOptions;
+        public cDesignOptionSet()
+        {
+            designOptions = new List<cDesignOption>();
+        }
+    }
+    public class cDesignOption
+    {
+        public DesignOption des;
+        public String name;
+        public cDesignOptionSet designOptionSet;
+        public bool visible;
+    }
 
     public sealed class COVER
     {
@@ -79,6 +96,53 @@ namespace OpenCOVERPlugin
         private Autodesk.Revit.DB.Document document;
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
+
+
+        public List<cDesignOptionSet> designOptionSets;
+        public void updateVisibility(Document doc)
+        {
+
+            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    if(des.des.Id == activeOptId) // this optionSet contains the activeOptionId, disable all other DesignOptions in this set
+                    {
+                        des.visible = true;
+                        foreach (cDesignOption designoption in os.designOptions)
+                        {
+                            if(designoption != des)
+                            {
+                                designoption.visible = false;
+                            }
+                        }
+                        break;
+                    }
+                    if(des.des.IsPrimary)
+                    {
+                        des.visible = true;
+                    }
+                    else
+                    {
+                        des.visible = false;
+                    }
+                }
+            }
+        }
+        public bool isVisible(ElementId id)
+        {
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    if (des.des.Id == id)
+                        return des.visible;
+                }
+            }
+            return false;
+        }
+
 
         private EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs> idlingHandler;
         // DLL imports from user32.dll to set focus to
@@ -173,6 +237,7 @@ namespace OpenCOVERPlugin
         COVER()
         {
 
+            designOptionSets = new List<cDesignOptionSet>();
             mOptions = new Autodesk.Revit.DB.Options();
             mOptions.DetailLevel = Autodesk.Revit.DB.ViewDetailLevel.Fine;
             try
@@ -201,6 +266,14 @@ namespace OpenCOVERPlugin
             {
                 return Nested.instance;
             }
+        }
+        public bool isConnected()
+        {
+            if(toCOVER!=null && toCOVER.Connected==true)
+            {
+                return true;
+            }
+            return false;
         }
 
         public void setConnected(bool connected)
@@ -286,7 +359,53 @@ namespace OpenCOVERPlugin
 
         public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, UIDocument uidoc, Document doc)
         {
-            if(uidoc !=null) // this is a child document don't clear
+            designOptionSets.Clear();
+            //FilteredElementCollector collector = new FilteredElementCollector(doc);
+            //collector.WhereElementIsElementType().OfClass(typeof(DesignOption));
+
+            FilteredElementCollector collector
+              = new FilteredElementCollector(doc);
+
+            collector.OfCategory(BuiltInCategory.OST_DesignOptions);
+
+            foreach (DesignOption des in collector)
+            {
+                cDesignOption cdes = new cDesignOption();
+                cdes.des = des;
+                cdes.name = des.Name;
+                cdes.visible = false;
+                Autodesk.Revit.DB.Parameter para = des.get_Parameter(BuiltInParameter.OPTION_SET_ID);
+                if (para != null)
+                {
+                    bool found = false;
+                    ElementId osID = para.AsElementId();
+                    foreach (cDesignOptionSet os in designOptionSets)
+                    {
+                        if(os.ID == osID)
+                        {
+                            found = true;
+                            cdes.designOptionSet = os;
+                            os.designOptions.Add(cdes);
+                            break;
+                        }
+                    }
+                    if(!found)
+                    {
+                        cDesignOptionSet os = new cDesignOptionSet();
+                        os.designOptions.Add(cdes);
+                        Element el = doc.GetElement(osID);
+                        Autodesk.Revit.DB.Parameter paraName = el.get_Parameter(BuiltInParameter.OPTION_SET_NAME);
+                        String OptionSetName = paraName.AsString();
+                        os.name = OptionSetName;
+                        os.ID = osID;
+                        cdes.designOptionSet = os;
+                        designOptionSets.Add(os);
+                    }
+                }
+            }
+            updateVisibility(doc);
+
+            if (uidoc !=null) // this is a child document don't clear
             { 
             if (MaterialInfos == null)
                 MaterialInfos = new Dictionary<ElementId, bool>();
@@ -316,12 +435,11 @@ namespace OpenCOVERPlugin
                     // this one handles Group.
                 }
             }
-            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
             iter.Reset();
             while (iter.MoveNext())
             {
                 Autodesk.Revit.DB.Element el = iter.Current as Autodesk.Revit.DB.Element;
-                if (el.DesignOption == null || el.DesignOption.Id == activeOptId)
+                if (el.DesignOption == null || isVisible(el.DesignOption.Id))
                 {
                     SendElement(el);
                 }
@@ -346,6 +464,26 @@ namespace OpenCOVERPlugin
             mb.add(ID.IntegerValue);
             mb.add(DocumentID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
+        }
+        public void designOptionsChanged(Document doc, DesignOption des)
+        {
+            Autodesk.Revit.DB.Parameter para = des.get_Parameter(BuiltInParameter.OPTION_SET_ID);
+            if(para!=null)
+            {
+                Element el = doc.GetElement(para.AsElementId());
+                Autodesk.Revit.DB.Parameter paraName = el.get_Parameter(BuiltInParameter.OPTION_SET_NAME);
+                String OptionSetName = paraName.AsString();
+                /*
+                foreach (Autodesk.Revit.DB.Parameter para2 in el.Parameters)
+                {
+                    if (para2.Definition.Name != null && para2.Definition.Name.Length > 4)
+                    {
+                        if (String.Compare(para2.Definition.Name, 0, "coVR", 0, 4, true) == 0)
+                        {
+                        }
+                    }
+                }*/
+            }
         }
 
         public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, List<int> IDs)
@@ -640,6 +778,12 @@ namespace OpenCOVERPlugin
                 sendMessage(mb.buf, MessageTypes.EndGroup);
 
                 }
+
+            }
+            else if (elem is Autodesk.Revit.DB.DesignOption)
+            {
+                Autodesk.Revit.DB.DesignOption des = (Autodesk.Revit.DB.DesignOption)elem;
+                
 
             }
             // if it is a Group. we will need to look at its components.

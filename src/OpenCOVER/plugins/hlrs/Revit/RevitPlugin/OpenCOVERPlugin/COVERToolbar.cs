@@ -338,29 +338,41 @@ namespace OpenCOVERPlugin
         /// <param name="e"></param>
         void CtrlApp_DocumentChanged(object sender, Autodesk.Revit.DB.Events.DocumentChangedEventArgs e)
         {
-            // get the current document.
-            Document doc = e.GetDocument();
-
-            List<int> IDs = new List<int>();
-
-            // dump the element information
-            ICollection<Autodesk.Revit.DB.ElementId> addedElem = e.GetAddedElementIds();
-            foreach (ElementId id in addedElem)
+            if(OpenCOVERPlugin.COVER.Instance.isConnected())
             {
-                OpenCOVERPlugin.COVER.Instance.SendElement(doc.GetElement(id));
-            }
+                // get the current document.
+                Document doc = e.GetDocument();
 
-            ICollection<Autodesk.Revit.DB.ElementId> deletedElem = e.GetDeletedElementIds();
-            foreach (ElementId id in deletedElem)
-            {
-                OpenCOVERPlugin.COVER.Instance.deleteElement(id);
-            }
+                List<int> IDs = new List<int>();
 
-            ICollection<ElementId> modifiedElem = e.GetModifiedElementIds();
-            foreach (ElementId id in modifiedElem)
-            {
-                OpenCOVERPlugin.COVER.Instance.deleteElement(id);
-                OpenCOVERPlugin.COVER.Instance.SendElement(doc.GetElement(id));
+                // dump the element information
+                ICollection<Autodesk.Revit.DB.ElementId> addedElem = e.GetAddedElementIds();
+                foreach (ElementId id in addedElem)
+                {
+                    OpenCOVERPlugin.COVER.Instance.SendElement(doc.GetElement(id));
+                }
+
+                ICollection<Autodesk.Revit.DB.ElementId> deletedElem = e.GetDeletedElementIds();
+                foreach (ElementId id in deletedElem)
+                {
+                    OpenCOVERPlugin.COVER.Instance.deleteElement(id);
+                }
+
+                ICollection<ElementId> modifiedElem = e.GetModifiedElementIds();
+                foreach (ElementId id in modifiedElem)
+                {
+                    Element el = doc.GetElement(id);
+                    if (el is Autodesk.Revit.DB.DesignOption)
+                    {
+                        // design option changed // resend only changes
+                        OpenCOVERPlugin.COVER.Instance.designOptionsChanged(doc, (Autodesk.Revit.DB.DesignOption)el);
+                    }
+                    else
+                    {
+                        OpenCOVERPlugin.COVER.Instance.deleteElement(id);
+                        OpenCOVERPlugin.COVER.Instance.SendElement(el);
+                    }
+                }
             }
 
         }
