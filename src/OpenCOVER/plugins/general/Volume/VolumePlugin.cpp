@@ -1654,12 +1654,15 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
                 volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
         }
 
-        if (container->getName())
+        if (container->getName()){
             updateVolume(container->getName(), volDesc, true, "", container, group);
-        else if (geometry && geometry->getName())
+            updateData(container->getName());
+        }else if (geometry && geometry->getName()) {
             updateVolume(geometry->getName(), volDesc, true, "", container, group);
-        else
+            updateData(geometry->getName());
+        }else {
             updateVolume("Anonymous COVISE object", volDesc, true, "", container, group);
+        }
 
         if (shader >= 0 && currentVolume != volumes.end())
         {
@@ -1676,6 +1679,99 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
     {
         editor->show();
         tfeItem->setState(true);
+    }
+}
+
+bool VolumePlugin::sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2) {
+    std::string name1 = it1->first;
+    std::string name2 = it2->first;
+    if (std::isdigit(name1.c_str()[0])) {
+        if (std::strncmp(name1.c_str(), name2.c_str(),2)==0)
+            return true;
+    }
+    return false;
+}
+
+void VolumePlugin::updateData(const std::string &name)
+{
+    VolumeMap::iterator ref = volumes.find(name);
+    float min_new[Field::NumChannels], max_new[Field::NumChannels], range_new[Field::NumChannels];
+    for(size_t c = 0; c < Field::NumChannels ;++c) {
+        min_new[c] =volumes.begin()->second.drawable->getVolumeDescription()->range(c)[0];
+        max_new[c] =volumes.begin()->second.drawable->getVolumeDescription()->range(c)[1];
+    }
+        
+    for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
+        if (sameObject(ref, it)) {
+            vvVolDesc *vd = it->second.drawable->getVolumeDescription();
+            for(size_t c = 0; c < Field::NumChannels ;++c) {
+                if ((vd->getChan()-1)>=c) {
+                   if (min_new[c] > vd->range(c)[0]) {
+                       min_new[c] = vd->range(c)[0];
+                   }
+                   if (max_new[c] < vd->range(c)[1]) {
+                       max_new[c] = vd->range(c)[1];
+                   }
+                }
+            }
+        }
+    }
+    for(size_t c = 0; c < Field::NumChannels ;++c) {
+        if (max_new[c] - min_new[c] <= 0.f)
+            range_new[c] = 1.f;
+        else
+            range_new[c] = 1.f/(max_new[c] - min_new[c]);
+    }
+    for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
+        if (sameObject(ref, it)) {
+            vvVolDesc *vd = it->second.drawable->getVolumeDescription();
+            int noChan = vd->bpc;
+            int ival;
+            float fval;
+            float min_old[noChan], max_old[noChan], range_old[noChan];
+
+            for (int c = 0; c<noChan; ++c) {
+                min_old[c] = vd->range(c)[0];
+                max_old[c] = vd->range(c)[1];
+                switch (noChan)
+                {
+                    case 1:
+                        range_old[c] = (max_old[c]-min_old[c]) <= 0.f ? 255.f : 255.f/(max_old[c]-min_old[c]) ;
+                        break;
+                    case 2:
+                        range_old[c] = (max_old[c]-min_old[c]) <= 0.f ? 65535.0f : 65535.0f/(max_old[c]-min_old[c]) ;
+                        break;
+                }
+            }
+
+            for (size_t f=0; f<vd->getStoredFrames(); ++f)
+            {
+                uint8_t * old_data = vd->getRaw(f);
+                for (size_t i=0; i<vd->getFrameVoxels(); ++i)
+                {
+                    for (int c = 0; c<noChan; ++c)
+                    {
+                        switch (noChan)
+                        {
+                            case 1:
+                                fval = float(*old_data)/(range_old[c]) + min_old[c];
+                                ival = int(255.0f*(fval-min_new[c]) * range_new[c]);
+                                ival = ts_clamp(ival, 0, 255);
+                                *old_data++ = uint8_t(ival);
+                                break;
+                            case 2:
+                                //TODO: raw is uint16_t
+                                break;
+                        }
+                    }
+                }
+            }
+            for(size_t c = 0; c < vd->getChan(); ++c) {
+                 vd->range(c)[0] = min_new[c];
+                 vd->range(c)[1] = max_new[c];
+            }
+            updateVolume(it->first,vd,true);
+        }
     }
 }
 

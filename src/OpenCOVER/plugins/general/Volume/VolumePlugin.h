@@ -135,6 +135,7 @@ public:
     void saveVolume();
     void cropVolume();
 	void syncTransferFunction();
+    void updateData(const std::string &name);
 
 
     //tablet UI listener
@@ -262,6 +263,7 @@ private:
     int fpsMissed;
     float chosenFPS;
     float radiusScale[NumClipSpheres];
+    bool sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2);
 
     struct TFApplyCBData
     {
