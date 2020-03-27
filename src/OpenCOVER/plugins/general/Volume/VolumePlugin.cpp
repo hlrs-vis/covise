@@ -1633,7 +1633,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
         {
             volDesc = new vvVolDesc("COVISEXX",
                                     sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
-            volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, minX+maxX) * .5f;
+            volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, -minX-maxX) * .5f;
             volDesc->setDist((maxZ - minZ) / sizeZ,
                              (maxY - minY) / sizeY,
                              (maxX - minX) / sizeX);
@@ -2211,7 +2211,7 @@ void VolumePlugin::preFrame()
         {
             center = it->second.roiPosObj;
         }
-        Vec3 centerWorld = center * cover->getBaseMat();
+        Vec3 centerWorld = center;// * cover->getBaseMat();
         Vec3 viewerPosWorld = cover->getViewerMat().getTrans();
         Vec3 objDirWorld = centerWorld - viewerPosWorld;
         Vec3 objDirObj = osg::Matrix::transform3x3(objDirWorld, cover->getInvBaseMat()); // 3x3 only
