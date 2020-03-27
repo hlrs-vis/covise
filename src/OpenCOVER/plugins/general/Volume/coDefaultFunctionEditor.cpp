@@ -414,7 +414,7 @@ void coDefaultFunctionEditor::update()
     cube->update();
     pinedit->update();
 
-    float range = getMax() - getMin();
+    float range = 1.f;
     topWidth->setMax(2 * range);
     botWidth->setMax(2 * range);
 }
@@ -483,7 +483,7 @@ void coDefaultFunctionEditor::remoteOngoing(const char *message)
     {
     case 'C':
     {
-        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultColors(defaultColors++,0,1);
         if (defaultColors >= theTransferFunc[activeChannel].getNumDefaultColors())
             defaultColors = 0;
         pinedit->updatePinList();
@@ -491,7 +491,7 @@ void coDefaultFunctionEditor::remoteOngoing(const char *message)
     break;
     case 'A':
     {
-        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++,0,1);
         if (defaultAlpha >= theTransferFunc[activeChannel].getNumDefaultAlpha())
             defaultAlpha = 0;
         pinedit->updatePinList();
@@ -580,7 +580,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
              && (recentlyPressedButton == defColor))
     {
         putUndoBuffer();
-        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, 0,1);
         if (defaultColors >= theTransferFunc[activeChannel].getNumDefaultColors())
             defaultColors = 0;
         updatePinList();
@@ -590,7 +590,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
              && (recentlyPressedButton == defAlpha)) // default alpha
     {
         putUndoBuffer();
-        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, 0,1);
         if (defaultAlpha >= theTransferFunc[activeChannel].getNumDefaultAlpha())
             defaultAlpha = 0;
         updatePinList();

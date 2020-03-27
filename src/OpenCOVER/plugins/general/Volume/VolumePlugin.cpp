@@ -956,7 +956,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                     delete[] functionEditorTab -> histogramData;
                     functionEditorTab->histogramData = NULL;
                     functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
-                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
+                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,0 , 1);
 
                     functionEditorTab->sendHistogramData();
                 }
@@ -1881,8 +1881,8 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 for (int i = 0; i < volumes[name].tf.size(); ++i)
                 {
-                    volumes[name].tf[i].setDefaultColors(4 + i, vd->range(i)[0], vd->range(i)[1]);
-                    volumes[name].tf[i].setDefaultAlpha(0, vd->range(i)[0], vd->range(i)[1]);
+                    volumes[name].tf[i].setDefaultColors(4 + i, 0, 1);
+                    volumes[name].tf[i].setDefaultAlpha(0, 0, 1);
                 }
             }
             else
@@ -2021,7 +2021,7 @@ void VolumePlugin::updateTFEData()
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
+                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, 0,1);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
                         editor->pinedit->setBackgroundType(0); // histogram
                         editor->enableHistogram(true);
@@ -2068,12 +2068,10 @@ void VolumePlugin::updateTFEData()
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
                         if (vd->getChan() == 1)
-                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
-                        else
+                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, 0,1);
+                            else
                             //TODO: allow to pass in multiple min/max pairs
-                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,
-                                              std::min(vd->range(0)[0], vd->range(1)[0]),
-                                              std::max(vd->range(0)[1], vd->range(1)[1]));
+                                vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,0,1);
                         editor->enableHistogram(true);
                         std::cerr << "enabling histogram" << std::endl;
                     }
