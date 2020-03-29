@@ -36,6 +36,13 @@
 #include <../../general/Annotation/AnnotationPlugin.h>
 
 #include <cover/ARToolKit.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Group.h>
+#include <cover/ui/SelectionList.h>
 
 #define REVIT_FEET_TO_M 0.304799999536704
 #define REVIT_M_TO_FEET 3.2808399
@@ -66,23 +73,41 @@ using namespace opencover;
 using covise::Message;
 using covise::ServerConnection;
 
-class RevitViewpointEntry : public coMenuListener
+class RevitDesignOption;
+class RevitDesignOptionSet;
+
+class RevitDesignOption
 {
 public:
-    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,int docID,coCheckboxMenuItem *me);
+    RevitDesignOption(RevitDesignOptionSet *s);
+    RevitDesignOptionSet *set;
+    std::string name;
+    int ID;
+    bool visible;
+};
+
+class RevitDesignOptionSet
+{
+public:
+    RevitDesignOptionSet();
+    ~RevitDesignOptionSet();
+    std::string name;
+    int ID;
+    int DocumentID;
+    ui::SelectionList* designoptionsCombo=nullptr;
+    std::list<RevitDesignOption> designOptions;
+    void createSelectionList();
+};
+
+class RevitViewpointEntry
+{
+public:
+    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,int docID);
     virtual ~RevitViewpointEntry();
-    virtual void menuEvent(coMenuItem *button);
-    void setMenuItem(coCheckboxMenuItem *aMenuItem);
-    coCheckboxMenuItem* getMenuItem() {
-        return menuItem;
-    };
-    coTUIToggleButton *getTUIItem()
-    {
-        return tuiItem;
-    };
     
     void setValues(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, std::string n);
     void activate();
+    void setActive(bool);
     void deactivate();
     
     void updateCamera();
@@ -98,9 +123,7 @@ private:
     osg::Vec3 eyePosition;
     osg::Vec3 viewDirection;
     osg::Vec3 upDirection;
-    coCheckboxMenuItem *menuItem = nullptr;
-    coTUIToggleButton *tuiItem = nullptr;
-    coCheckboxMenuItem *menuEntry = nullptr;
+    ui::Button * menuEntry = nullptr;
 };
 
 class ElementInfo
@@ -116,7 +139,7 @@ public:
     std::string name;
 
 private:
-    coTUIFrame *frame = nullptr;
+    ui::Group *group = nullptr;
     static int yPos;
 };
 class AnnotationInfo
@@ -212,7 +235,7 @@ public:
 };
 
 
-class RevitParameter : public coTUIListener
+class RevitParameter
 {
 public:
     RevitParameter(int i, std::string n, int st, int pt, int num, ElementInfo *ele)
@@ -233,11 +256,10 @@ public:
     int ElementReferenceID;
     int i;
     std::string s;
-    void createTUI(coTUIFrame *frame, int pos);
-    virtual void tabletEvent(coTUIElement *tUIItem);
+    void createUI(ui::Group *group, int pos);
 
-    coTUILabel *tuiLabel = nullptr;
-    coTUIElement *tuiElement = nullptr;
+    ui::Label *uiLabel = nullptr;
+    ui::Element *uiElement = nullptr;
 
 private:
 };
@@ -246,7 +268,7 @@ private:
 
 
 
-class RevitPlugin : public coVRPlugin, public coMenuListener, public coTUIListener
+class RevitPlugin : public coVRPlugin, public opencover::ui::Owner
 {
 public:
     // Summary:
@@ -309,6 +331,8 @@ public:
 		MSG_DocumentInfo = 529,
 		MSG_NewPointCloud = 530,
 		MSG_NewARMarker = 531,
+        MSG_DesignOptionSets = 532,
+        MSG_SelectDesignOption = 533
     };
     enum ObjectTypes
     {
@@ -336,12 +360,12 @@ public:
 
     void destroyMenu();
     void createMenu();
-    virtual void menuEvent(coMenuItem *aButton);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
 
     int maxEntryNumber;
-    coTUITab *revitTab = nullptr;
+    ui::Menu *revitMenu = nullptr;
+    ui::ButtonGroup* viewpointGroup = nullptr;
+    ui::Menu* viewpointMenu = nullptr;
+    ui::Menu* parameterMenu = nullptr;
     bool sendMessage(Message &m);
     
     void message(int toWhom, int type, int len, const void *buf);
@@ -353,21 +377,17 @@ public:
 	std::list<DoorInfo *> doors;
 	std::list<DoorInfo*> activeDoors;
 	std::map<int, ARMarkerInfo*> ARMarkers;
+    std::list<RevitDesignOptionSet*> designOptionSets;
 protected:
     static RevitPlugin *plugin;
-    coSubMenuItem *REVITButton = nullptr;
-    coSubMenuItem *roomInfoButton = nullptr;
-    coLabelMenuItem *label1 = nullptr;
-    coRowMenu *viewpointMenu = nullptr;
-    coRowMenu *roomInfoMenu = nullptr;
-    coCheckboxGroup *cbg = nullptr;
+    ui::Label *label1 = nullptr;
+    ui::SelectionList* viewsCombo;
+    ui::Menu *roomInfoMenu = nullptr;
     std::vector<RevitViewpointEntry *> viewpointEntries;
-    coButtonMenuItem *addCameraButton = nullptr;
-    coButtonMenuItem *updateCameraButton = nullptr;
-    coTUIButton *addCameraTUIButton = nullptr;
-	coTUIButton* updateCameraTUIButton = nullptr;
+    ui::Action *addCameraButton = nullptr;
+    ui::Action *updateCameraButton = nullptr;
+
 	bool ignoreDepthOnly = false;
-    coTUIComboBox *viewsCombo = nullptr;
 
     ServerConnection *serverConn = nullptr;
     ServerConnection *toRevit = nullptr;

@@ -81,7 +81,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -96,9 +96,11 @@ namespace OpenCOVERPlugin
         private Autodesk.Revit.DB.Document document;
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
-
+        public ElementId oldDesignOption = null;
 
         public List<cDesignOptionSet> designOptionSets;
+        private DesignOptionModifier.Switcher designoptionMod;
+
         public void updateVisibility(Document doc)
         {
 
@@ -238,6 +240,7 @@ namespace OpenCOVERPlugin
         {
 
             designOptionSets = new List<cDesignOptionSet>();
+            designoptionMod = new DesignOptionModifier.Switcher();
             mOptions = new Autodesk.Revit.DB.Options();
             mOptions.DetailLevel = Autodesk.Revit.DB.ViewDetailLevel.Fine;
             try
@@ -359,6 +362,9 @@ namespace OpenCOVERPlugin
 
         public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, UIDocument uidoc, Document doc)
         {
+
+            // document might have changed so set it again.
+            document = doc;
             designOptionSets.Clear();
             //FilteredElementCollector collector = new FilteredElementCollector(doc);
             //collector.WhereElementIsElementType().OfClass(typeof(DesignOption));
@@ -403,16 +409,33 @@ namespace OpenCOVERPlugin
                     }
                 }
             }
+
             updateVisibility(doc);
+            MessageBuffer mb = new MessageBuffer();
+            mb.add(DocumentID);
+            mb.add(designOptionSets.Count);
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                mb.add(os.ID.IntegerValue);
+                mb.add(os.name);
+                mb.add(os.designOptions.Count);
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    mb.add(des.des.Id.IntegerValue);
+                    mb.add(des.des.Name);
+                    mb.add(des.visible);
+                }
+            }
+            sendMessage(mb.buf, MessageTypes.DesignOptionSets);
 
             if (uidoc !=null) // this is a child document don't clear
-            { 
-            if (MaterialInfos == null)
-                MaterialInfos = new Dictionary<ElementId, bool>();
-            MaterialInfos.Clear();
-            MessageBuffer mb = new MessageBuffer();
-            mb.add(1);
-            sendMessage(mb.buf, MessageTypes.ClearAll);
+            {
+                if (MaterialInfos == null)
+                    MaterialInfos = new Dictionary<ElementId, bool>();
+                MaterialInfos.Clear();
+                mb = new MessageBuffer();
+                mb.add(1);
+                sendMessage(mb.buf, MessageTypes.ClearAll);
             }
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
@@ -467,22 +490,45 @@ namespace OpenCOVERPlugin
         }
         public void designOptionsChanged(Document doc, DesignOption des)
         {
-            Autodesk.Revit.DB.Parameter para = des.get_Parameter(BuiltInParameter.OPTION_SET_ID);
-            if(para!=null)
+            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+            if (activeOptId != oldDesignOption)
             {
-                Element el = doc.GetElement(para.AsElementId());
-                Autodesk.Revit.DB.Parameter paraName = el.get_Parameter(BuiltInParameter.OPTION_SET_NAME);
-                String OptionSetName = paraName.AsString();
-                /*
-                foreach (Autodesk.Revit.DB.Parameter para2 in el.Parameters)
+                foreach (cDesignOptionSet os in designOptionSets)
                 {
-                    if (para2.Definition.Name != null && para2.Definition.Name.Length > 4)
+                    foreach (cDesignOption des2 in os.designOptions)
                     {
-                        if (String.Compare(para2.Definition.Name, 0, "coVR", 0, 4, true) == 0)
+                        if (des2.visible)
                         {
+                            FilteredElementCollector designOptionElements = new FilteredElementCollector(doc);
+
+                            designOptionElements.ContainedInDesignOption(des2.des.Id);
+
+                            foreach (Element el in designOptionElements)
+                            {
+                                deleteElement(el.Id);
+                            }
                         }
                     }
-                }*/
+                }
+                updateVisibility(doc);
+                foreach (cDesignOptionSet os in designOptionSets)
+                {
+                    foreach (cDesignOption des2 in os.designOptions)
+                    {
+                        if (des2.visible)
+                        {
+                            FilteredElementCollector designOptionElements = new FilteredElementCollector(doc);
+
+                            designOptionElements.ContainedInDesignOption(des2.des.Id);
+
+                            foreach (Element el in designOptionElements)
+                            {
+                                OpenCOVERPlugin.COVER.Instance.SendElement(el);
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
@@ -894,10 +940,18 @@ namespace OpenCOVERPlugin
                     if (ap.Name == "common_Tint_color")
                     {
                         AssetPropertyDoubleArray4d val = ap as AssetPropertyDoubleArray4d;
-                        ti.color = val.GetValueAsColor();
+                        if(ti.color.Red == 255 && ti.color.Green == 255 && ti.color.Blue == 255 )
+                        { // color has not been set et, use generic color
+                            ti.color = val.GetValueAsColor();
+                        }
 
                     }
-                    if(ap.Name.Length - 12 >= 0)
+                    if (ap.Name == "ceramic_color")
+                    {
+                        AssetPropertyDoubleArray4d val = ap as AssetPropertyDoubleArray4d;
+                        ti.color = val.GetValueAsColor();
+                    }
+                    if (ap.Name.Length - 12 >= 0)
                     {
                         if (ap.Name.Substring(ap.Name.Length - 12) == "_bump_amount")
                         {
@@ -925,6 +979,12 @@ namespace OpenCOVERPlugin
                             getTextureInfo(ap,ti);
                         }
                     }
+                    if (tt == TextureTypes.Diffuse && ap.Name.Length > 6 && (ap.Name.Substring(ap.Name.Length - 6) == "_color"))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
                     if (tt == TextureTypes.Diffuse && (ap.Name == "opaque_albedo" ))
                     { 
                         {
@@ -939,6 +999,12 @@ namespace OpenCOVERPlugin
                     }
                     if (tt == TextureTypes.Bump && (ap.Name == "surface_normal"))
                     { 
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Bump && ap.Name.Length > 12 && (ap.Name.Substring(ap.Name.Length - 12) == "_pattern_map"))
+                    {
                         {
                             getTextureInfo(ap, ti);
                         }
@@ -2540,6 +2606,17 @@ namespace OpenCOVERPlugin
                             f.Close();
                     }
                     break;
+                case MessageTypes.SelectDesignOption:
+                {
+                    int elemID = buf.readInt();
+                    int docID = buf.readInt();
+
+                    Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                    Autodesk.Revit.DB.Element elem = document.GetElement(id);
+                    DesignOption des = (DesignOption)elem;
+                    designoptionMod.SetSelection(des.Name);
+                }
+                break;
 
                 case MessageTypes.AvatarPosition:
                     {
@@ -2871,7 +2948,10 @@ namespace OpenCOVERPlugin
             ByteSwap.swapTo((uint)msgType, data, 2 * 4);
             ByteSwap.swapTo((uint)messageData.Length, data, 3 * 4);
             messageData.CopyTo(data, 4 * 4);
-            toCOVER.GetStream().Write(data, 0, len);
+            if(toCOVER != null)
+            { 
+                toCOVER.GetStream().Write(data, 0, len);
+            }
         }
 
         class Nested

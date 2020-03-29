@@ -4,6 +4,7 @@ include(CSharpUtilities)
 
 add_library(OpenCOVERPlugin SHARED
 ByteSwap.cs
+DesignOptionChanger.cs
 ConnectionDialog.cs
 ConnectionDialog.Designer.cs
 ConnectionDialog.resx
@@ -61,6 +62,8 @@ set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_REFERENCES
     "System.Data"
     "System.Drawing"
     "System.Windows.Forms"
+    "UIAutomationClient"
+    "UIAutomationTypes"
     "System.Windows.Presentation"
     "System.Xaml"
     "System.Xml"

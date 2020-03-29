@@ -11,10 +11,10 @@
  ** Description: Revit Plugin (connection to Autodesk Revit Architecture)    **
  **                                                                          **
  **                                                                          **
- ** Author: U.Woessner		                                                  **
+ ** Author: U.Woessner		                                                 **
  **                                                                          **
- ** History:  								                                         **
- ** Mar-09  v1	    				       		                                   **
+ ** History:  								                                 **
+ ** Mar-09  v1	    				       		                             **
  **                                                                          **
  **                                                                          **
  \****************************************************************************/
@@ -30,6 +30,7 @@
 #include <cover/coVRShader.h>
 #include <cover/OpenCOVER.h>
 #include <cover/VRViewer.h>
+#include <cover/ui/EditField.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -64,6 +65,55 @@ using covise::coCoviseConfig;
 
 int ElementInfo::yPos = 3;
 
+RevitDesignOption::RevitDesignOption(RevitDesignOptionSet *s)
+{
+	set = s;
+	ID = -1;
+}
+
+RevitDesignOptionSet::RevitDesignOptionSet()
+{
+	ID = -1;
+}
+RevitDesignOptionSet::~RevitDesignOptionSet()
+{
+	delete designoptionsCombo;
+}
+
+void RevitDesignOptionSet::createSelectionList()
+{
+	delete designoptionsCombo;
+	std::string ItemName = name;
+	std::transform(ItemName.begin(), ItemName.end(), ItemName.begin(), [](char ch) {
+		return ch == ' ' ? '_' : ch;
+		});
+	designoptionsCombo = new ui::SelectionList(RevitPlugin::instance()->revitMenu, ItemName +std::to_string(ID));
+	designoptionsCombo->setText(name);
+
+	std::vector<std::string> items;
+	for (const auto& des : designOptions)
+		items.push_back(des.name);
+	designoptionsCombo->setList(items);
+	designoptionsCombo->setCallback([this](int item)
+		{
+			int num = 0;
+			for (const auto& des : designOptions)
+			{
+				if (item == num)
+				{
+					TokenBuffer tb;
+					tb << des.ID;
+					tb << DocumentID;
+					Message m(tb);
+					m.type = (int)RevitPlugin::MSG_SelectDesignOption;
+					RevitPlugin::instance()->sendMessage(m);
+					break;
+				}
+				num++;
+			}
+			
+		});
+}
 static void matrix2array(const osg::Matrix &m, osg::Matrix::value_type *a)
 {
 	for (unsigned y = 0; y < 4; ++y)
@@ -180,7 +230,7 @@ RevitInfo::~RevitInfo()
 
 ElementInfo::ElementInfo()
 {
-	frame = NULL;
+	group = nullptr;
 };
 
 ElementInfo::~ElementInfo()
@@ -190,128 +240,128 @@ ElementInfo::~ElementInfo()
 	{
 		delete *it;
 	}
-	delete frame;
+	delete group;
 };
 void ElementInfo::addParameter(RevitParameter *p)
 {
-	if (frame == NULL)
+	if (group == NULL)
 	{
-		frame = new coTUIFrame(name, RevitPlugin::instance()->revitTab->getID());
-		frame->setPos(0, yPos);
-	}
-	if (yPos > 200)
-	{
-		return;
+		group = new ui::Group(RevitPlugin::instance()->parameterMenu,name);
 	}
 	yPos++;
-	p->createTUI(frame, parameters.size());
+	p->createUI(group, parameters.size());
 	parameters.push_back(p);
 }
 
 RevitParameter::~RevitParameter()
 {
-	delete tuiLabel;
-	delete tuiElement;
+	delete uiLabel;
+	delete uiElement;
 }
 
-void RevitParameter::tabletEvent(coTUIElement *tUIItem)
+void RevitParameter::createUI(ui::Group *group, int pos)
 {
-	TokenBuffer tb;
-	tb << element->ID;
-	tb << element->DocumentID;
-	tb << ID;
+	uiLabel = new ui::Label(group,name);
+	uiLabel->setText(name);
+	uiElement = nullptr;
 	switch (StorageType)
 	{
 	case RevitPlugin::Double:
 	{
-		coTUIEditFloatField *ef = (coTUIEditFloatField *)tUIItem;
-		tb << (double)ef->getValue();
-	}
-	break;
-	case RevitPlugin::ElementId:
-	{
-		coTUIEditIntField *ef = (coTUIEditIntField *)tUIItem;
-		tb << ef->getValue();
-	}
-	break;
-	case RevitPlugin::Integer:
-	{
-		coTUIEditIntField *ef = (coTUIEditIntField *)tUIItem;
-		tb << ef->getValue();
-	}
-	break;
-	case RevitPlugin::String:
-	{
-		coTUIEditField *ef = (coTUIEditField *)tUIItem;
-		tb << ef->getText();
-	}
-	break;
-	default:
-	{
-		coTUIEditField *ef = (coTUIEditField *)tUIItem;
-		tb << ef->getText();
-	}
-	break;
-	}
-	Message m(tb);
-	m.type = (int)RevitPlugin::MSG_SetParameter;
-	RevitPlugin::instance()->sendMessage(m);
-}
-void RevitParameter::createTUI(coTUIFrame *frame, int pos)
-{
-	tuiLabel = new coTUILabel(name, frame->getID());
-	tuiLabel->setLabel(name);
-	tuiLabel->setPos(0, pos);
-	tuiElement = NULL;
-	switch (StorageType)
-	{
-	case RevitPlugin::Double:
-	{
-		coTUIEditFloatField *ef = new coTUIEditFloatField(name + "ef", frame->getID());
-		ef->setPos(1, pos);
+		ui::EditField *ef = new ui::EditField(group,name + "ef");
 		ef->setValue(d);
-		tuiElement = ef;
+		ef->setCallback([this,ef](std::string value)
+			{
+				TokenBuffer tb;
+				tb << element->ID;
+				tb << element->DocumentID;
+				tb << ID;
+				tb << std::stod(ef->value());
+				Message m(tb);
+				m.type = (int)RevitPlugin::MSG_SetParameter;
+				RevitPlugin::instance()->sendMessage(m);
+			});
+		uiElement = ef;
 	}
 	break;
 	case RevitPlugin::ElementId:
 	{
-		coTUIEditIntField *ef = new coTUIEditIntField(name + "ei", frame->getID());
-		ef->setPos(1, pos);
+		ui::EditField* ef = new ui::EditField(group, name + "eid");
 		ef->setValue(i);
-		tuiElement = ef;
+		ef->setCallback([this, ef](std::string value)
+			{
+				TokenBuffer tb;
+				tb << element->ID;
+				tb << element->DocumentID;
+				tb << ID;
+				tb << std::stoi(ef->value());
+				Message m(tb);
+				m.type = (int)RevitPlugin::MSG_SetParameter;
+				RevitPlugin::instance()->sendMessage(m);
+			});
+		uiElement = ef;
 	}
 	break;
 	case RevitPlugin::Integer:
 	{
-		coTUIEditIntField *ef = new coTUIEditIntField(name + "ei", frame->getID());
-		ef->setPos(1, pos);
+		ui::EditField* ef = new ui::EditField(group, name + "ei");
 		ef->setValue(i);
-		tuiElement = ef;
+		ef->setCallback([this, ef](std::string value)
+			{
+				TokenBuffer tb;
+				tb << element->ID;
+				tb << element->DocumentID;
+				tb << ID;
+				tb << std::stoi(ef->value());
+				Message m(tb);
+				m.type = (int)RevitPlugin::MSG_SetParameter;
+				RevitPlugin::instance()->sendMessage(m);
+			});
+		uiElement = ef;
 	}
 	break;
 	case RevitPlugin::String:
 	{
-		coTUIEditField *ef = new coTUIEditField(name + "e", frame->getID());
-		ef->setPos(1, pos);
-		ef->setText(s);
-		tuiElement = ef;
+		ui::EditField* ef = new ui::EditField(group, name + "e");
+		ef->setValue(s);
+		ef->setCallback([this, ef](std::string value)
+			{
+				TokenBuffer tb;
+				tb << element->ID;
+				tb << element->DocumentID;
+				tb << ID;
+				tb << ef->value();
+				Message m(tb);
+				m.type = (int)RevitPlugin::MSG_SetParameter;
+				RevitPlugin::instance()->sendMessage(m);
+			});
+		uiElement = ef;
 	}
 	break;
 	default:
 	{
-		coTUIEditField *ef = new coTUIEditField(name + "e", frame->getID());
-		ef->setPos(1, pos);
-		ef->setText(s);
-		tuiElement = ef;
+		ui::EditField* ef = new ui::EditField(group, name + "et");
+		ef->setValue(s);
+		ef->setCallback([this, ef](std::string value)
+			{
+				TokenBuffer tb;
+				tb << element->ID;
+				tb << element->DocumentID;
+				tb << ID;
+				tb << ef->value();
+				Message m(tb);
+				m.type = (int)RevitPlugin::MSG_SetParameter;
+				RevitPlugin::instance()->sendMessage(m);
+			});
+		uiElement = ef;
 	}
 	break;
 	}
 
-	tuiElement->setEventListener(this);
 }
 
-RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id, int docID, coCheckboxMenuItem *me)
-	: menuItem(NULL)
+RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id, int docID)
+	: menuEntry(NULL)
 {
 	myPlugin = plugin;
 	name = n;
@@ -321,12 +371,13 @@ RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3
 	upDirection = up;
 	ID = id;
 	documentID = docID;
-	menuEntry = me;
+
+	menuEntry = new ui::Button(plugin->viewpointMenu,"viewpoint"+std::to_string(entryNumber),plugin->viewpointGroup);
+	menuEntry->setText(name);
+	menuEntry->setState(false);
+	menuEntry->setCallback([this](bool state) {if (state) activate(); });
 	isActive = false;
 
-	tuiItem = new coTUIToggleButton(name.c_str(), plugin->revitTab->getID());
-	tuiItem->setEventListener(plugin);
-	tuiItem->setPos((int)(entryNumber / 10.0) + 1, entryNumber % 10);
 }
 
 void RevitViewpointEntry::setValues(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, std::string n)
@@ -339,26 +390,23 @@ void RevitViewpointEntry::setValues(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, 
 
 RevitViewpointEntry::~RevitViewpointEntry()
 {
-	delete menuItem;
+	delete menuEntry;
 }
 
-void RevitViewpointEntry::setMenuItem(coCheckboxMenuItem *aButton)
-{
-	menuItem = aButton;
-}
 void RevitViewpointEntry::deactivate()
 {
 	menuEntry->setState(false);
-	tuiItem->setState(false);
 	isActive = false;
 }
 
+void RevitViewpointEntry::setActive(bool a)
+{
+	menuEntry->setState(a);
+}
 void RevitViewpointEntry::activate()
 {
-	RevitPlugin::instance()->deactivateAllViewpoints();
-
-	tuiItem->setState(true);
-	menuEntry->setState(true);
+	if(!menuEntry->state())
+	    menuEntry->setState(true);
 	isActive = true;
 	osg::Matrix mat, rotMat;
 	mat.makeTranslate(-eyePosition[0] * REVIT_FEET_TO_M, -eyePosition[1] * REVIT_FEET_TO_M, -eyePosition[2] * REVIT_FEET_TO_M);
@@ -451,74 +499,82 @@ void RevitViewpointEntry::updateCamera()
 }
 
 
-void RevitViewpointEntry::menuEvent(coMenuItem *aButton)
+/*
+void RevitPlugin::tabletEvent(coTUIElement* tUIItem)
 {
-	if (((coCheckboxMenuItem *)aButton)->getState())
+	if (tUIItem == addCameraTUIButton)
 	{
-		activate();
 	}
-}
+	else if (tUIItem == viewsCombo)
+	{
+		TokenBuffer tb;
+		tb << viewsCombo->getSelectedEntry();
+		Message message(tb);
+		message.type = (int)RevitPlugin::MSG_SetView;
+		RevitPlugin::instance()->sendMessage(message);
+		message.type = (int)RevitPlugin::MSG_Resend;
+		RevitPlugin::instance()->sendMessage(message);
+	}
+	else
+	{
+		for (const auto& it : viewpointEntries)
+		{
+			if (it->getTUIItem() == tUIItem)
+			{
+				it->activate();
+				break;
+			}
+		}
+	}
+}*/
 
 void RevitPlugin::createMenu()
 {
 
-	maxEntryNumber = 0;
-	cbg = new coCheckboxGroup();
-	viewpointMenu = new coRowMenu("Revit Viewpoints");
 
-	REVITButton = new coSubMenuItem("Revit");
-	REVITButton->setMenu(viewpointMenu);
+	revitMenu = new ui::Menu("Revit", this);
+	revitMenu->setText("Revit");
 
-	roomInfoMenu = new coRowMenu("Room Information");
+	viewpointMenu = new ui::Menu(revitMenu, "RevitViewpoints");
+	viewpointMenu->setText("Viewpoints");
+	parameterMenu = new ui::Menu(revitMenu, "RevitParameters");
+	parameterMenu->setText("Parameters");
+	roomInfoMenu = new ui::Menu(revitMenu,"RoomInfo");
+	roomInfoMenu->setText("Room Info");
+	viewpointGroup = new ui::ButtonGroup(viewpointMenu, "revitViewpoints");
+	viewsCombo = new ui::SelectionList(revitMenu, "views");
 
-	roomInfoButton = new coSubMenuItem("Room Info");
-	roomInfoButton->setMenu(roomInfoMenu);
-	viewpointMenu->add(roomInfoButton);
-	label1 = new coLabelMenuItem("No Room");
-	roomInfoMenu->add(label1);
-	addCameraButton = new coButtonMenuItem("Add Camera");
-	addCameraButton->setMenuListener(this);
-	viewpointMenu->add(addCameraButton);
-	updateCameraButton = new coButtonMenuItem("UpdateCamera");
-	updateCameraButton->setMenuListener(this);
-	viewpointMenu->add(updateCameraButton);
+	label1 = new ui::Label(roomInfoMenu,"RoomInfoLabel1");
+	label1->setText("No Room");
 
+	addCameraButton = new ui::Action(viewpointMenu,"AddCamera");
+	addCameraButton->setText("Add Camera");
+    addCameraButton->setCallback([this]() {
+		//sendClipplaneModeToGui();
+		});
+	updateCameraButton = new ui::Action(viewpointMenu, "UpdateCamera");
+	updateCameraButton->setText("Update Camera");
+	updateCameraButton->setCallback([this]() {
+		for (const auto& it : viewpointEntries)
+		{
+			if (it->isActive)
+			{
+				it->updateCamera();
+			}
+		}
+		});
 
-	cover->getMenu()->add(REVITButton);
-
-	revitTab = new coTUITab("Revit", coVRTui::instance()->mainFolder->getID());
-	revitTab->setPos(0, 0);
-
-	updateCameraTUIButton = new coTUIButton("Update Camera", revitTab->getID());
-	updateCameraTUIButton->setEventListener(this);
-	updateCameraTUIButton->setPos(0, 0);
-
-
-	addCameraTUIButton = new coTUIButton("Add Camera", revitTab->getID());
-	addCameraTUIButton->setEventListener(this);
-	addCameraTUIButton->setPos(0, 1);
-
-	viewsCombo = new coTUIComboBox("views", revitTab->getID());
-	viewsCombo->setEventListener(this);
-	viewsCombo->setPos(0, 2);
 }
 
 void RevitPlugin::destroyMenu()
 {
-	delete roomInfoButton;
-	delete roomInfoMenu;
-	delete label1;
-	delete viewpointMenu;
-	delete REVITButton;
-	delete cbg;
-
-	delete addCameraTUIButton;
-	delete updateCameraTUIButton;
-	delete viewsCombo;
-	delete revitTab;
+	for (const auto& set : designOptionSets)
+		delete set;
+	designOptionSets.clear();
+	delete revitMenu;
 }
 
-RevitPlugin::RevitPlugin()
+RevitPlugin::RevitPlugin() : ui::Owner("RevitPlugin", cover->ui)
 {
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
 	plugin = this;
@@ -616,63 +672,6 @@ RevitPlugin::~RevitPlugin()
 	toRevit = NULL;
 }
 
-void RevitPlugin::menuEvent(coMenuItem *aButton)
-{
-	if (aButton == updateCameraButton)
-	{
-		for (const auto& it : viewpointEntries)
-		{
-			if (it->isActive)
-			{
-				it->updateCamera();
-			}
-		}
-	}
-	if (aButton == addCameraButton)
-	{
-	}
-}
-void RevitPlugin::tabletPressEvent(coTUIElement *tUIItem)
-{
-	if (tUIItem == updateCameraTUIButton)
-	{
-		for (const auto& it : viewpointEntries)
-		{
-			if (it->isActive)
-			{
-				it->updateCamera();
-			}
-		}
-	}
-}
-
-void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
-{
-	if (tUIItem == addCameraTUIButton)
-	{
-	}
-	else if (tUIItem == viewsCombo)
-	{
-		TokenBuffer tb;
-		tb << viewsCombo->getSelectedEntry();
-		Message message(tb);
-		message.type = (int)RevitPlugin::MSG_SetView;
-		RevitPlugin::instance()->sendMessage(message);
-		message.type = (int)RevitPlugin::MSG_Resend;
-		RevitPlugin::instance()->sendMessage(message);
-	}
-	else
-	{
-		for (const auto& it : viewpointEntries)
-		{
-			if (it->getTUIItem() == tUIItem)
-			{
-				it->activate();
-				break;
-			}
-		}
-	}
-}
 
 void RevitPlugin::deactivateAllViewpoints()
 {
@@ -953,13 +952,14 @@ RevitPlugin::handleMessage(Message *m)
 		TokenBuffer tb(m);
 		int numViews;
 		tb >> numViews;
-		viewsCombo->clear();
+		std::vector<std::string> items;
 		for (int i = 0; i < numViews; i++)
 		{
 			std::string ViewName;
 			tb >> ViewName;
-			viewsCombo->addEntry(ViewName);
+			items.push_back(ViewName);
 		}
+		viewsCombo->setList(items);
 	}
 	break;
     case MSG_Finished:
@@ -990,7 +990,7 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> levelName;
 		char info[1000];
 		sprintf(info, "Nr.: %s\n%s\nArea: %3.7lfm^2\nLevel: %s", roomNumber, roomName, area / 10.0, levelName);
-		label1->setLabel(info);
+		label1->setText(info);
 		//fprintf(stderr,"Room %s %s Area: %lf Level: %s\n", roomNumber,roomName,area,levelName);
 	}
 	break;
@@ -1391,6 +1391,37 @@ RevitPlugin::handleMessage(Message *m)
         }
         break;
     }
+	case MSG_DesignOptionSets:
+	{
+		for (const auto &set: designOptionSets)
+			delete set;
+		designOptionSets.clear();
+		TokenBuffer tb(m);
+		int documentID;
+		tb >> documentID;
+		int numSets;
+		tb >> numSets;
+		for (int i = 0; i < numSets; i++)
+		{
+			RevitDesignOptionSet *set = new RevitDesignOptionSet();
+			designOptionSets.push_back(set);
+			set->DocumentID = documentID;
+			tb >> set->ID;
+			tb >> set->name;
+			int numDOs;
+			tb >> numDOs;
+			for(int n = 0; n < numDOs; n++)
+			{
+				RevitDesignOption DO(set);
+				tb >> DO.ID;
+				tb >> DO.name;
+				tb >> DO.visible;
+				set->designOptions.push_back(DO);
+			}
+			set->createSelectionList();
+		}
+		break;
+	}
 	case MSG_AddView:
 	{
 		TokenBuffer tb(m);
@@ -1429,6 +1460,7 @@ RevitPlugin::handleMessage(Message *m)
 				}
                 if (setViewpoint && strncasecmp("Start",vpe->getName().c_str(),5)==0)
                 {
+					vpe->setActive(true);
                     vpe->activate();
                 }
 				break;
@@ -1437,20 +1469,10 @@ RevitPlugin::handleMessage(Message *m)
 		if (!foundIt)
 		{
 
-			coCheckboxMenuItem *menuEntry;
-
-			menuEntry = new coCheckboxMenuItem(name, false, cbg);
 			// add viewpoint to menu
-			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, documentID, menuEntry);
-			menuEntry->setMenuListener(vpe);
-			for (const auto &it: viewpointEntries)
-			{
-				viewpointMenu->remove(it->getMenuItem());
-			}
-			//viewpointMenu->add(menuEntry);
-			vpe->setMenuItem(menuEntry);
+			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, documentID);
 			viewpointEntries.push_back(vpe);
-			sort(viewpointEntries.begin(), viewpointEntries.end(), [](const RevitViewpointEntry *a, const RevitViewpointEntry *b) {
+		/*	sort(viewpointEntries.begin(), viewpointEntries.end(), [](const RevitViewpointEntry *a, const RevitViewpointEntry *b) {
 				const std::string& an = a->getName();
 				const std::string& bn = b->getName();
 				for (size_t c = 0; c < an.size() && c < bn.size(); c++) {
@@ -1463,10 +1485,14 @@ RevitPlugin::handleMessage(Message *m)
 			for (const auto& it : viewpointEntries)
 			{
 				viewpointMenu->add(it->getMenuItem());
-			}
+			}*/
 
-            if (setViewpoint && strncasecmp("Start", vpe->getName().c_str(),5) == 0)
-                vpe->activate();
+			if (setViewpoint && strncasecmp("Start", vpe->getName().c_str(), 5) == 0)
+			{
+				vpe->setActive(true);
+				vpe->activate();
+				viewpointGroup->setDefaultValue(viewpointEntries.size() - 1);
+			}
 		}
 	}
 	break;
