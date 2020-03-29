@@ -1728,7 +1728,7 @@ void VolumePlugin::updateData(const std::string &name)
             int noChan = vd->bpc;
             int ival;
             float fval;
-            float min_old[noChan], max_old[noChan], range_old[noChan];
+            float min_old[2], max_old[2], range_old[2];
 
             for (int c = 0; c<noChan; ++c) {
                 min_old[c] = vd->range(c)[0];
