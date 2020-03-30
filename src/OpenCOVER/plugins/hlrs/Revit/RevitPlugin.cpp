@@ -1248,6 +1248,10 @@ RevitPlugin::handleMessage(Message *m)
 		newTrans->setName(name);
 		currentGroup.top()->addChild(newTrans);
 		currentGroup.push(newTrans);
+		RevitInfo* info = new RevitInfo();
+		info->ObjectID = ID;
+		info->DocumentID = docID;
+		OSGVruiUserDataCollection::setUserData(newTrans, "RevitInfo", info);
 	}
 	break;
 	case MSG_EndGroup:
@@ -1689,9 +1693,13 @@ RevitPlugin::handleMessage(Message *m)
 				geoState->setRenderBinDetails(-1, "RenderBin");
 				geoState->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
 			}
-			RevitInfo *info = new RevitInfo();
-			info->ObjectID = ID;
-			OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
+			if(currentGroup.size() == 1)// only add Revit Move info to top level geometry, otherwise the group node already has a RevitInfo
+			{
+				RevitInfo* info = new RevitInfo();
+				info->DocumentID = docID;
+				info->ObjectID = ID;
+				OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
+			}
 			currentGroup.top()->addChild(geode);
 		}
 		else if (GeometryType == OBJ_TYPE_Inline)
@@ -1736,6 +1744,7 @@ RevitPlugin::handleMessage(Message *m)
 			ei->nodes.push_back(mt);
 			RevitInfo *info = new RevitInfo();
 			info->ObjectID = ID;
+			info->DocumentID = docID;
 			OSGVruiUserDataCollection::setUserData(mt, "RevitInfo", info);
 		}
 

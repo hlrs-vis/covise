@@ -424,6 +424,10 @@ bool Move::selectionChanged()
         parentIter--;
         const char *name = (*nodeIter)->getName().c_str();
         selectedNode = (*nodeIter).get();
+        if (selectedNode == nullptr)
+        {
+            fprintf(stderr, "deselect\n");
+        }
         selectedNodesParent = (*parentIter).get();
         if (name)
             moveObjectName->setLabel(name);
@@ -592,16 +596,19 @@ void Move::preFrame()
     {
         if ((interactionA->getState() != coInteraction::Active) && (interactionB->getState() != coInteraction::Active))
         {
-            oldNode = NULL;
-            node = NULL;
-            candidateNode = NULL;
-            selectedNode = NULL;
-            if (moveSelection)
+            if(!(interactionA->wasStopped() || interactionB->wasStopped()))
             {
-                coVRSelectionManager::instance()->clearSelection();
-                moveSelection = false;
-            }
-    //coVRMSController::instance()->syncInt(1004);
+				oldNode = NULL;
+				node = NULL;
+				candidateNode = NULL;
+				selectedNode = NULL;
+				if (moveSelection)
+				{
+					coVRSelectionManager::instance()->clearSelection();
+					moveSelection = false;
+				}
+			}
+			//coVRMSController::instance()->syncInt(1004);
         }
     }
     //coVRMSController::instance()->syncInt(1024);
@@ -615,19 +622,6 @@ void Move::preFrame()
             coInteractionManager::the()->registerInteraction(interactionA);
     //coVRMSController::instance()->syncInt(1005);
         }
-    }
-    // if we don't point to a node or point to a non candidate Node
-    if (!node || (((node != candidateNode) && (node != selectedNode)) && ((interactionB->isRegistered()) || (interactionA->isRegistered()))))
-    { //unregister if possible;
-        if (interactionA->isRegistered() && (interactionA->getState() != coInteraction::Active))
-        {
-            coInteractionManager::the()->unregisterInteraction(interactionA);
-        }
-        if (interactionB->isRegistered() && (interactionB->getState() != coInteraction::Active))
-        {
-            coInteractionManager::the()->unregisterInteraction(interactionB);
-        }
-    //coVRMSController::instance()->syncInt(1006);
     }
 
     if (interactionA->wasStarted())
@@ -721,9 +715,9 @@ void Move::preFrame()
                     }
                     
                     vrui::vruiUserData  *RevitInfo = OSGVruiUserDataCollection::getUserData(currentNode, "RevitInfo");
-                    if(RevitInfo!=NULL && numLevels == 1)
+                    if(RevitInfo!=NULL)
                     {
-                        level = 1;
+                        level = numLevels;
                     }
                     info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
 
@@ -792,6 +786,7 @@ void Move::preFrame()
                     coInteractionManager::the()->registerInteraction(interactionB);
                 }
                 allowMove = false;
+                didMove = false;
             }
             if ((!isObject) && (selectedNode))
             {
@@ -799,6 +794,7 @@ void Move::preFrame()
                 selectedNode = NULL;
                 numLevels = 0;
                 allowMove = false;
+                didMove = false;
             }
         }
     }
@@ -815,6 +811,7 @@ void Move::preFrame()
         selectedNode = NULL;
         numLevels = 0;
         allowMove = false;
+        didMove = false;
     }
 
     // do the movement
@@ -1102,12 +1099,24 @@ void Move::preFrame()
                         }
                     }
                 }
-                didMove = false;
             }
             allowMove = true;
         }
     }
     //coVRMSController::instance()->syncInt(1012);
+    // if we don't point to a node or point to a non candidate Node
+    if (!node || (((node != candidateNode) && (node != selectedNode)) && ((interactionB->isRegistered()) || (interactionA->isRegistered()))))
+    { //unregister if possible;
+        if (interactionA->isRegistered() && (interactionA->getState() != coInteraction::Active))
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionA);
+        }
+        if (interactionB->isRegistered() && (interactionB->getState() != coInteraction::Active))
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionB);
+        }
+        //coVRMSController::instance()->syncInt(1006);
+    }
 }
 
 void Move::restrict(osg::Matrix &mat, bool noRot, bool noTrans)
