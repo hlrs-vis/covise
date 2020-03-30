@@ -28,7 +28,9 @@ PROJECT(covise VERSION 2019 LANGUAGES CXX C)
 set(COVISE_EXPORTS_FILE "covise-exports.cmake")
 
 ########## General setup ##########
-set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+if(WIN32)
+  set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+ENDIF()
 
 # this is used to override some of cmake's original find-modules
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
