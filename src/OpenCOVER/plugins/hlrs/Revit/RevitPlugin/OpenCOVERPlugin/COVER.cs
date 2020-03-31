@@ -1152,6 +1152,13 @@ namespace OpenCOVERPlugin
                 }
                 else if ((geomObject is Autodesk.Revit.DB.Mesh))
                 {
+
+                    string prefix="";
+                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                    if (graphicsStyle != null)
+                    {
+                        prefix = graphicsStyle.Name + '.';
+                    }
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
                     mb.add(DocumentID);
@@ -1186,6 +1193,12 @@ namespace OpenCOVERPlugin
                 }
                 else if ((geomObject is Autodesk.Revit.DB.Solid))
                 {
+                    string prefix = "";
+                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                    if (graphicsStyle != null)
+                    {
+                        prefix = graphicsStyle.Name + '.';
+                    }
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
                     mb.add(DocumentID);

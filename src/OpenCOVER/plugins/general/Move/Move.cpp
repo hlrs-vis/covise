@@ -250,7 +250,7 @@ bool Move::init()
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local coords", true);
+    local = new coCheckboxMenuItem("local coords", false);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
@@ -525,7 +525,7 @@ void Move::preFrame()
                 else if (explicitMode)
                 {
                     // do not touch nodes underneeth NoMove nodes
-                    if (nodeName && strncmp(nodeName, "DoMove", 6) == 0)
+                    if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
                     {
                         isObject = true;
                         doUndo = true;
@@ -844,6 +844,7 @@ void Move::preFrame()
             startMoveDCSMat = moveDCS->getMatrix();
             startCompleteMat = startBaseMat;
             startCompleteMat.preMult(startMoveDCSMat);
+            
 
             if (doUndo)
             {
@@ -855,7 +856,12 @@ void Move::preFrame()
                 fprintf(stderr, "Move::inv startCompleteMat is singular\n");
             if (!invStartHandMat.invert(cover->getPointerMat()))
                 fprintf(stderr, "Move::inv getPointerMat is singular\n");
+
             startPickPos = cover->getIntersectionHitPointWorld();
+            startPointerOffsetMat = osg::Matrix::translate(startPickPos - cover->getPointerMat().getTrans());
+            if (!invStartPointerOffsetMat.invert(startPointerOffsetMat))
+                fprintf(stderr, "Move::inv getPointerMat is singular\n");
+
             startTime = cover->frameTime();
             //coVRMSController::instance()->syncFloat(startTime);
         }
@@ -864,7 +870,6 @@ void Move::preFrame()
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
 
     //coVRMSController::instance()->syncInt(1009);
-            moveMat.mult(invStartHandMat, cover->getPointerMat());
 
             osg::Node *currentNode = NULL;
             if (moveDCS->getNumParents() > 0)
@@ -888,30 +893,52 @@ void Move::preFrame()
             }
             if (!invcurrentBaseMat.invert(currentBaseMat))
                 fprintf(stderr, "Move::inv currentBaseMat is singular\n");
+
+
+            moveMat.mult(invStartHandMat, cover->getPointerMat());
             // frei
             if (!local->getState())
             {
-                coCoord coord = moveMat;
+               /* coCoord coord = moveMat;
                 coord.xyz[0] = coord.xyz[1] = coord.xyz[2] = 0;
                 osg::Matrix rotMat;
                 coord.makeMat(rotMat);
-                restrict(rotMat, true, false);
+                restrict(rotMat, true, false);*/
                 
                 osg::Vec3 newPickPos = startPickPos * moveMat;
                 osg::Matrix transMat = osg::Matrix::translate(newPickPos - startPickPos);
-                restrict(transMat, true, false);
-                moveMat = transMat * rotMat;
+                transMat = currentBaseMat * transMat * invcurrentBaseMat;
+                if (!movex->getState())
+                {
+                    transMat(3,0) = 0;
+                }
+                if (!movey->getState())
+                {
+                    transMat(3, 1) = 0;
+                }
+                if (!movez->getState())
+                {
+                    transMat(3, 2) = 0;
+                }
+                transMat = invcurrentBaseMat * transMat * currentBaseMat;
+                moveMat = transMat;// *rotMat;
 
             }
 
-            tmpMat.mult(startCompleteMat, moveMat);
+           /* tmpMat.mult(startCompleteMat, moveMat);
             localRot.mult(tmpMat, invStartCompleteMat);
             if (local->getState())
             {
                 restrict(localRot, true, false);
             }
             currentNewMat.mult(localRot, startCompleteMat);
-            newDCSMat.mult(currentNewMat, invcurrentBaseMat);
+            newDCSMat.mult(currentNewMat, invcurrentBaseMat);*/
+
+
+            tmpMat.mult(startCompleteMat, moveMat);
+            newDCSMat.mult(tmpMat, invcurrentBaseMat);
+
+
             if (allowMove)
             {
 
