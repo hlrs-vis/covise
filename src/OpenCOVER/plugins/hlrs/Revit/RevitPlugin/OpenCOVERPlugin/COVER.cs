@@ -493,6 +493,7 @@ namespace OpenCOVERPlugin
             ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
             if (activeOptId != oldDesignOption)
             {
+                oldDesignOption = activeOptId;
                 foreach (cDesignOptionSet os in designOptionSets)
                 {
                     foreach (cDesignOption des2 in os.designOptions)
