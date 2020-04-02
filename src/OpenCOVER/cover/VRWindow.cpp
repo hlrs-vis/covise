@@ -114,11 +114,7 @@ VRWindow::VRWindow()
 }
 
 VRWindow::~VRWindow()
-{
-    if (cover->debugLevel(2))
-    {
-        fprintf(stderr, "\ndelete VRWindow\n");
-    }
+{ // don't use singletons in destructors
     destroy();
     delete[] origVSize;
     delete[] origHSize;

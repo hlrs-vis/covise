@@ -1418,7 +1418,6 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
-    delete coVRConfig::instance();
     delete VRWindow::instance();
 
     delete coVRPluginList::instance();
@@ -1437,6 +1436,7 @@ OpenCOVER::~OpenCOVER()
     delete Input::instance();
     delete cover;
     cover = NULL;
+    delete coVRConfig::instance();
 #ifdef DOTIMING
     coTimer::quit();
 #endif

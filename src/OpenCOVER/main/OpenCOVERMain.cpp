@@ -328,6 +328,7 @@ int main(int argc, char *argv[])
     Renderer->run();
     delete Renderer;
 
+
 #ifdef MPI_COVER
     if (!mpiinit)
         MPI_Finalize();
