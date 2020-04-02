@@ -458,170 +458,173 @@ void Move::preFrame()
     
     // for debug only
     //coVRMSController::instance()->syncInt((int)(node!=NULL));
-    bool isSceneNode = false;
-    if (node)
+
+
+
+    if ((interactionA->getState() != coInteraction::Active) && (interactionB->getState() != coInteraction::Active)) // only check for new nodes if currently not moving.
     {
-    //fprintf(stderr,"%s\n",node->getName().c_str());
-    //coVRMSController::instance()->syncInt(1001);
-        for (std::vector<osg::Node *>::const_iterator iter = intersectedNodePath.begin();
-             iter != intersectedNodePath.end(); ++iter)
+        bool isSceneNode = false;
+        if (node)
         {
-            if ((*iter) == cover->getObjectsRoot())
+            //fprintf(stderr,"%s\n",node->getName().c_str());
+            //coVRMSController::instance()->syncInt(1001);
+            for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin();
+                iter != intersectedNodePath.end(); ++iter)
             {
-                isSceneNode = true;
-                break;
+                if ((*iter) == cover->getObjectsRoot())
+                {
+                    isSceneNode = true;
+                    break;
+                }
             }
         }
-    }
-    if (isSceneNode && (!coVRSelectionManager::isHelperNode(node)))
-    {
-        if (showNames->getState())
+        if (isSceneNode && (!coVRSelectionManager::isHelperNode(node)))
         {
-            if (node && !node->getName().empty())
+            if (showNames->getState())
             {
+                if (node && !node->getName().empty())
+                {
 
-                label->setString(node->getName().c_str());
-                label->setPosition(cover->getIntersectionHitPointWorld());
-                label->show();
+                    label->setString(node->getName().c_str());
+                    label->setPosition(cover->getIntersectionHitPointWorld());
+                    label->show();
+                }
+                else
+                    label->hide();
             }
             else
                 label->hide();
-        }
-        else
-            label->hide();
 
-    //coVRMSController::instance()->syncInt(1002);
-        bool isObject = false;
-        //bool isNewObject=false;
-        //select a node
-        if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode))
-        {
-    //coVRMSController::instance()->syncInt(1022);
-            // this might be a new candidate for a movable node
-
-            osg::Matrix mat; //,dcsMat;
-            mat.makeIdentity();
-            osg::Node *currentNode;
-            currentNode = node;
-            //cerr << "test: " << node << endl;
-            //cerr << "lev: " << level << endl;
-            while (currentNode != NULL)
+            //coVRMSController::instance()->syncInt(1002);
+            bool isObject = false;
+            //bool isNewObject=false;
+            //select a node
+            if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode))
             {
-                const char *nodeName = currentNode->getName().c_str();
-                if (moveTransformMode)
+                //coVRMSController::instance()->syncInt(1022);
+                        // this might be a new candidate for a movable node
+
+                osg::Matrix mat; //,dcsMat;
+                mat.makeIdentity();
+                osg::Node* currentNode;
+                currentNode = node;
+                //cerr << "test: " << node << endl;
+                //cerr << "lev: " << level << endl;
+                while (currentNode != NULL)
                 {
-                    NodeRoMap::iterator it = nodeRoMap.find(currentNode);
-                    if (it != nodeRoMap.end())
+                    const char* nodeName = currentNode->getName().c_str();
+                    if (moveTransformMode)
                     {
-                        isObject = true;
-                        doUndo = true;
-                    }
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        //isNewObject = true;
-                        break;
-                    }
-                }
-                else if (explicitMode)
-                {
-                    // do not touch nodes underneeth NoMove nodes
-                    if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
-                    {
-                        isObject = true;
-                        doUndo = true;
-                    }
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        //isNewObject = true;
-                        break;
-                    }
-                }
-                else
-                {
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        isObject = true;
-                        //isNewObject = true;
-                        doUndo = true;
-                        break;
-                    }
-                }
-                // do not touch nodes underneeth NoMove nodes
-                if (nodeName && strncmp(nodeName, "NoMove", 6) == 0)
-                {
-                    isObject = false;
-                    //isNewObject = false;
-                    doUndo = false;
-                    break;
-                }
-                if (currentNode == selectedNode)
-                {
-                    isObject = true; // already selected
-                    //isNewObject = false;
-                    doUndo = true;
-                    break;
-                }
-                if (currentNode->getNumParents() > 0)
-                {
-                    std::vector<osg::Node *>::const_iterator iter = intersectedNodePath.end();
-                    for (iter--; iter != intersectedNodePath.begin(); iter--)
-                    {
-                        if ((*iter) == currentNode)
+                        NodeRoMap::iterator it = nodeRoMap.find(currentNode);
+                        if (it != nodeRoMap.end())
                         {
-                            iter--;
-                            currentNode = *iter;
+                            isObject = true;
+                            doUndo = true;
+                        }
+                        if (currentNode == cover->getObjectsRoot())
+                        {
+                            //isNewObject = true;
+                            break;
                         }
                     }
+                    else if (explicitMode)
+                    {
+                        // do not touch nodes underneeth NoMove nodes
+                        if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
+                        {
+                            isObject = true;
+                            doUndo = true;
+                        }
+                        if (currentNode == cover->getObjectsRoot())
+                        {
+                            //isNewObject = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (currentNode == cover->getObjectsRoot())
+                        {
+                            isObject = true;
+                            //isNewObject = true;
+                            doUndo = true;
+                            break;
+                        }
+                    }
+                    // do not touch nodes underneeth NoMove nodes
+                    if (nodeName && strncmp(nodeName, "NoMove", 6) == 0)
+                    {
+                        isObject = false;
+                        //isNewObject = false;
+                        doUndo = false;
+                        break;
+                    }
+                    if (currentNode == selectedNode)
+                    {
+                        isObject = true; // already selected
+                        //isNewObject = false;
+                        doUndo = true;
+                        break;
+                    }
+                    if (currentNode->getNumParents() > 0)
+                    {
+                        std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.end();
+                        for (iter--; iter != intersectedNodePath.begin(); iter--)
+                        {
+                            if ((*iter) == currentNode)
+                            {
+                                iter--;
+                                currentNode = *iter;
+                            }
+                        }
+                    }
+                    else
+                        currentNode = NULL;
+                }
+                if (isObject /*|| isNewObject*/)
+                {
+                    candidateNode = node;
                 }
                 else
-                    currentNode = NULL;
+                {
+                    candidateNode = NULL;
+                }
+                //coVRMSController::instance()->syncInt(1003);
             }
-            if (isObject /*|| isNewObject*/)
-            {
-                candidateNode = node;
-            }
-            else
+            if (node == NULL)
             {
                 candidateNode = NULL;
             }
-    //coVRMSController::instance()->syncInt(1003);
+            oldNode = node;
         }
-        if (node == NULL)
+        else
         {
-            candidateNode = NULL;
-        }
-        oldNode = node;
-    }
-    else
-    {
-        if ((interactionA->getState() != coInteraction::Active) && (interactionB->getState() != coInteraction::Active))
-        {
-            if(!(interactionA->wasStopped() || interactionB->wasStopped()))
+            if (!(interactionA->wasStopped() || interactionB->wasStopped()))
             {
-				oldNode = NULL;
-				node = NULL;
-				candidateNode = NULL;
-				selectedNode = NULL;
-				if (moveSelection)
-				{
-					coVRSelectionManager::instance()->clearSelection();
-					moveSelection = false;
-				}
+                oldNode = NULL;
+                node = NULL;
+                candidateNode = NULL;
+                selectedNode = NULL;
+                if (moveSelection)
+                {
+                    coVRSelectionManager::instance()->clearSelection();
+                    moveSelection = false;
+                }
+            }
+            //coVRMSController::instance()->syncInt(1004);
+        }
+		//coVRMSController::instance()->syncInt(1024);
+		// for debug only
+		//coVRMSController::instance()->syncInt(interactionA->getState());
+		// if we point towards a selected or candidate Node
+		if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode)))
+		{ // register the interactions
+			if (!interactionA->isRegistered())
+			{
+				coInteractionManager::the()->registerInteraction(interactionA);
+				//coVRMSController::instance()->syncInt(1005);
 			}
-			//coVRMSController::instance()->syncInt(1004);
-        }
-    }
-    //coVRMSController::instance()->syncInt(1024);
-    // for debug only
-    //coVRMSController::instance()->syncInt(interactionA->getState());
-    // if we point towards a selected or candidate Node
-    if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode)))
-    { // register the interactions
-        if (!interactionA->isRegistered())
-        {
-            coInteractionManager::the()->registerInteraction(interactionA);
-    //coVRMSController::instance()->syncInt(1005);
-        }
+		}
     }
 
     if (interactionA->wasStarted())
@@ -645,7 +648,7 @@ void Move::preFrame()
                 if (explicitMode)
                 {
                     // do not touch nodes underneeth NoMove nodes
-                    if (nodeName && strncmp(nodeName, "DoMove", 6) == 0)
+                    if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
                     {
                         isObject = true;
                         doUndo = true;

@@ -1217,7 +1217,7 @@ namespace OpenCOVERPlugin
                             {
                                 sendMessage(mb.buf, MessageTypes.NewGroup);
                             }
-                            SendSolid((Autodesk.Revit.DB.Solid)geomObject, elem);
+                            SendSolid(prefix,(Autodesk.Revit.DB.Solid)geomObject, elem);
                             mb = new MessageBuffer();
                             if (createGroups)
                             {
@@ -1737,7 +1737,7 @@ namespace OpenCOVERPlugin
             }
             return false;
         }
-        private void SendSolid(Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem)
+        private void SendSolid(string prefix,Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem)
         {
             Autodesk.Revit.DB.Material m = null;
             bool sameMaterial = true;
@@ -1850,7 +1850,7 @@ namespace OpenCOVERPlugin
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
                 mb.add(DocumentID);
-                mb.add(elem.Name + "_combined");
+                mb.add(prefix+elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(twoSided);
                 mb.add(maintriangles);
@@ -1920,7 +1920,7 @@ namespace OpenCOVERPlugin
                                     MessageBuffer mb = new MessageBuffer();
                                     mb.add(elem.Id.IntegerValue);
                                     mb.add(DocumentID);
-                                    mb.add(elem.Name + "_f_" + num.ToString());
+                                    mb.add(prefix+elem.Name + "_f_" + num.ToString());
                                     mb.add((int)ObjectTypes.Mesh);
 
                                     SendMesh(geomMesh, ref mb, rface.IsTwoSided);
@@ -1958,7 +1958,7 @@ namespace OpenCOVERPlugin
                             MessageBuffer mb = new MessageBuffer();
                             mb.add(elem.Id.IntegerValue);
                             mb.add(DocumentID);
-                            mb.add(elem.Name + "_f_" + num.ToString());
+                            mb.add(prefix+elem.Name + "_f_" + num.ToString());
                             mb.add((int)ObjectTypes.Mesh);
 
                             SendMesh(geomMesh, ref mb, face.IsTwoSided);
