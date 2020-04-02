@@ -200,6 +200,7 @@
 
   <COVER>
 
+   <Stereo value="true" />
    <Spheres><UseVertexArrays value="on"/></Spheres>
    <OMPThreads value="off"/>
    <!--IconSize value="20"/-->
