@@ -69,7 +69,6 @@ ObjectManager::ObjectManager()
     : filename(NULL)
 {
     anzset = 0;
-    list = new ObjectList();
     gm = new GeometryManager();
     file_writing = 1;
 };
@@ -133,8 +132,92 @@ void ObjectManager::addObject(char *object)
 
         if (fp)
         {
-            fprintf(fp, "#VRML V2.0 utf8\n\n");
+            if(outputMode == OutputMode::VRML97)
+            {
+             fprintf(fp, "#VRML V2.0 utf8\n\n");
+            }
+            else if(outputMode == OutputMode::X3DOM)
+            {
+                fputs(" \n\
+                <!DOCTYPE html>\n\
+                    <html style = 'width:100%; height:100%; border:0; margin:0; padding:0;'>\n\
+                    <head>\n\
+                    <meta http - equiv = 'X-UA-Compatible' content = 'chrome=1'/>\n\
+                    <meta http - equiv = 'X-UA-Compatible' content = 'IE=edge'/>\n\
+                    <meta http - equiv = 'Content-Type' content = 'text/html;charset=utf-8'/>\n\
+                    <link rel = 'stylesheet' type = 'text/css' href = 'http://www.x3dom.org/x3dom/release/x3dom.css'/>\n\
+                    <script type = 'text/javascript' src = 'http://www.x3dom.org/x3dom/release/x3dom.js'></script>\n\
+                    <style>.x3dom - logContainer{ bottom: 0px; position: absolute; }\n\
+                    </style>\n\
+                    </head>\n\
+                    <body style = 'width:100%; height:100%; border:0; margin:0; padding:0;'>\n\
+                    <div id = 'HUDs_Div'>\n\
+                    <div id = 'X3DOM_HLRS_Links' class = 'group' style = 'margin:26px 2px 2px; padding:4px; background-color:rgba(199,202,204,.7); position:absolute; z-index:1000;'>\n\
+                    \n\
+                    </a>created with\n\
+                    <a href = 'https://www.hlrs.de/covise'>COVISE</a> by <a href = 'https://www.hlrs.de'>HLRS</a>.\n\
+                    </div>\n\
+                    <div id = 'Interaction_Toolbox' style = 'margin:2px; padding:4px 150px 4px 4px; background-color:rgba(199,202,204,.7); position:absolute; z-index:1000; right:0px; top:0px;'>\n\
+                    <table>\n\
+                    <tr>\n\
+                    <td>Navigation Mode :\n\
+                </td>\n\
+                    <td align = 'right'>\n\
+                    <select style = 'float:right;' onchange = 'document.getElementById(&apos;x3dElement&apos;).runtime[value]();'>\n\
+                    <option selected = 'selected' value = 'examine'>Examine\n\
+                    </option>\n\
+                    <option value = 'turnTable'>TurnTable\n\
+                    </option>\n\
+                    <option value = 'lookAt'>LookAt\n\
+                    </option>\n\
+                    <option value = 'lookAround'>LookAround\n\
+                    </option>\n\
+                    <option value = 'fly'>Fly\n\
+                    </option>\n\
+                    <option value = 'freeFly'>FreeFly\n\
+                    </option>\n\
+                    <option value = 'helicopter'>Helicopter\n\
+                    </option>\n\
+                    <option value = 'walk'>Walk\n\
+                    </option>\n\
+                    <option value = 'noNav'>None\n\
+                    </option>\n\
+                    </select>\n\
+                    </td>\n\
+                    </tr>\n\
+                    <tr>\n\
+                    <td>Debug Display :\n\
+                </td>\n\
+                    <td align = 'right'>\n\
+                    <input type = 'checkbox' onclick = 'document.getElementById(&apos;x3dElement&apos;).runtime.statistics(this.checked);'>\n\
+                    </input> Stats\n\
+                    <input type = 'checkbox' onclick = 'document.getElementById(&apos;x3dElement&apos;).runtime.debug();'>\n\
+                    </input> Log\n\
+                    </td>\n\
+                    </tr>\n\
+                    <tr>\n\
+                    <td>\n\
+                    <button onclick = 'document.getElementById(&apos;x3dElement&apos;).runtime.showAll();'> Show Everything\n\
+                    </button>\n\
+                    </td>\n\
+                    <td>\n\
+                    <button onclick = 'document.getElementById(&apos;x3dElement&apos;).runtime.resetView();'> Reset View\n\
+                    </button>\n\
+                    </td>\n\
+                    </tr>\n\
+                    </table>\n\
+                    </div>\n\
+                    </div>\n\
+                    <x3d id = 'x3dElement' showStat = 'false' showLog = 'false' style = 'width:100%; height:100%; border:0; margin:0; padding:0;'>\n\
+                    <scene DEF = 'scene'>\n",fp);
+            }
             objlist->write(fp);
+            fprintf(fp, " \n\
+                    </scene>\n\
+                </x3d>\n\
+            </body>\n\
+        </html>\n\
+                    \n");
             fclose(fp);
         }
         else

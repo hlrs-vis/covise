@@ -33,6 +33,107 @@
 
 extern ObjectList *objlist;
 
+class NewCharBuffer
+{
+    char* buf;
+    int len;
+    int incSize;
+
+public:
+    int cur_len;
+    NewCharBuffer()
+    {
+        incSize = 1000;
+        cur_len = 0;
+        len = 0;
+        buf = NULL;
+    };
+    NewCharBuffer(NewCharBuffer* obuf)
+    {
+        incSize = 1000;
+        cur_len = obuf->cur_len;
+        len = cur_len + 1;
+        buf = new char[len];
+        strcpy(buf, obuf->getbuf());
+    };
+    NewCharBuffer(int def)
+    {
+        incSize = def;
+        cur_len = 0;
+        len = def;
+        buf = new char[len];
+    };
+    ~NewCharBuffer() { delete[] buf; };
+    char* return_data()
+    {
+        char* tmp = buf;
+        buf = NULL;
+        cur_len = 0;
+        len = 0;
+        return (tmp);
+    };
+    int strlen() { return (cur_len); };
+    void operator+=(const char* const s)
+    {
+        int l = (int)::strlen(s);
+        if (cur_len + l >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        strcpy(buf + cur_len, s);
+        cur_len += l;
+    };
+    void operator+=(char c)
+    {
+        if (cur_len + 1 >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        buf[cur_len] = c;
+        cur_len++;
+        buf[cur_len] = 0;
+    };
+    void operator+=(int n)
+    {
+        CharNum s(n);
+        int l = (int)::strlen(s);
+        if (cur_len + l >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        strcpy(buf + cur_len, s);
+        cur_len += l;
+    };
+    void operator+=(float n)
+    {
+        CharNum s(n);
+        int l = (int)::strlen(s);
+        if (cur_len + l >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        strcpy(buf + cur_len, s);
+        cur_len += l;
+    };
+    operator const char* () const { return (buf); };
+    const char* getbuf() { return (buf); };
+};
 //================================================================
 // GeoemtryManager
 //================================================================
@@ -175,6 +276,8 @@ public:
     // void replaceIv(char *object, char *IvDescription);
 
     void remove_geometry(const char *name);
+
+    void addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, NewCharBuffer& buf);
 
     ~GeometryManager()
     {

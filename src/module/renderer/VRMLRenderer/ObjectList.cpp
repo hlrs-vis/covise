@@ -221,9 +221,18 @@ void ObjectList::printViewPoint(FILE *fp, char *desc, float fov,
                                 float p_x, float p_y, float p_z,
                                 float o_x, float o_y, float o_z, float o_d)
 {
-
-    fprintf(fp, "\nViewpoint {\n    fieldOfView %f\n    jump TRUE\n    position %f %f %f\n    orientation %f %f %f %f\n    description \"%s\"\n}\n", fov,
+    if (outputMode == OutputMode::VRML97)
+    {
+        fprintf(fp, "\nViewpoint {\n    fieldOfView %f\n    jump TRUE\n    position %f %f %f\n    orientation %f %f %f %f\n    description \"%s\"\n}\n", fov,
             p_x, p_y, p_z, o_x, o_y, o_z, o_d, desc);
+    }
+    else
+    {
+        fprintf(fp, "\n<viewpoint\n    fieldOfView='%f'\n    jump='TRUE'\n    position='%f %f %f'\n    orientation='%f %f %f %f'\n    description='%s'></viewpoint>\n", fov,
+            p_x, p_y, p_z, o_x, o_y, o_z, o_d, desc);
+    }
+
+   
 }
 
 void ObjectList::write(FILE *fp)
@@ -232,37 +241,78 @@ void ObjectList::write(FILE *fp)
     CharBuffer *cb;
     char *bufs[200];
     int numb = 0;
-
-    fprintf(fp, "NavigationInfo {\n    type        \"EXAMINE\"\n}");
+    if (outputMode == OutputMode::VRML97)
+    {
+        fprintf(fp, "NavigationInfo {\n    type        \"EXAMINE\"\n}");
+    }
+    else
+    {
+        fprintf(fp, "<navigationInfo type='\"EXAMINE\"'></navigationInfo>\n");
+    }
 
     float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
+    if (outputMode == OutputMode::VRML97)
+    {
     fprintf(fp, "\n\nTransform {\n  translation %f %f %f\n  scale %f %f %f\n  rotation %f %f %f %f\n  children [\n",
             translation[0], translation[1], translation[2], scale[0], scale[1], scale[2],
             rotation[0], rotation[1], rotation[2], rotation[3] / 360.0 * 2 * M_PI);
+    }
+    else
+    {
+        fprintf(fp, "\n\n<transform\n  translation='%f %f %f'\n  scale='%f %f %f'\n  rotation='%f %f %f %f'\n>\n",
+            translation[0], translation[1], translation[2], scale[0], scale[1], scale[2],
+            rotation[0], rotation[1], rotation[2], rotation[3] / 360.0 * 2 * M_PI);
+        
+    }
 
     for (const auto& it : *this)
     {
         if (strcmp("Endset", it->name) == 0)
         {
-            fprintf(fp, "]\n}\n");
+            if (outputMode == OutputMode::VRML97)
+            {
+                fprintf(fp, "]\n}\n");
+            }
+            else
+            {
+                fprintf(fp, "</transform>\n");
+            }
             numbeg--;
             if (numbeg == 0)
                 numtime = numt;
         }
         else if (strcmp("Beginset", it->name) == 0)
         {
-            fprintf(fp, "Group {\n    children [\n");
+            if (outputMode == OutputMode::VRML97)
+            {
+                fprintf(fp, "Group {\n    children [\n");
+            }
+            else
+            {
+                fprintf(fp, "<transform>\n");
+            }
             if (numbeg == 1)
                 numt++;
             numbeg++;
         }
         else if (strcmp("BeginTimeset", it->name) == 0)
         {
-            bufs[numb] = new char[200];
-            sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
-            numb++;
-            fprintf(fp, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
+            if (outputMode == OutputMode::VRML97)
+            {
+
+                bufs[numb] = new char[200];
+                sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
+                numb++;
+                fprintf(fp, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
+            }
+            else
+            {
+                //bufs[numb] = new char[200];
+                // TODO add code to switch timesteps sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
+                numb++;
+                fprintf(fp, "<Switch id=\"SW_%s\">\n", it->rootname);
+            }
             numt = 0;
             hastime++;
             numbeg = 1;
@@ -282,8 +332,15 @@ void ObjectList::write(FILE *fp)
             const char *tmp;
             if (cb)
             {
-                tmp = (const char *)(*cb);
-                fprintf(fp, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
+                if (outputMode == OutputMode::VRML97)
+                {
+                    fprintf(fp, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
+                }
+                else
+                {
+                    fprintf(fp, "\n\n<!-- Name: %s Group: %s -->\n\n", it->name, it->rootname);
+                }
+                tmp = (const char*)(*cb);
                 fprintf(fp, "%s", tmp);
             }
             if (numbeg == 1)
@@ -306,25 +363,38 @@ void ObjectList::write(FILE *fp)
 
     float dist = MAX(distance[0], MAX(distance[1], distance[2]));
 
-    //printf("bounding box: (%f, %f, %f) (%f, %f, %f)\n", bbox[0], bbox[1], bbox[2], bbox[3], bbox[4], bbox[5]);
-    fprintf(fp, "  ] # transform children\n} # transform\n");
+    if (outputMode == OutputMode::VRML97)
+    {
+        fprintf(fp, "  ] # transform children\n} # transform\n");
+    }
+    else
+    {
+        fprintf(fp, "</transform>\n");
+    }
     if (hastime > 0)
     {
-        fprintf(fp, SLIDER);
-        fprintf(fp, SLIDER2);
-        fprintf(fp, SLIDER3);
-        fprintf(fp, SLIDER4);
+        if (outputMode == OutputMode::VRML97)
+        {
+            fprintf(fp, SLIDER);
+            fprintf(fp, SLIDER2);
+            fprintf(fp, SLIDER3);
+            fprintf(fp, SLIDER4);
 
-        //      fprintf(fp, "\nDEF StaticCaveSlider Transform {\n translation %f %f %f\n scale %f %f %f\n children [\n", middle[0], bbox[2], middle[2], dist / 6, dist / 6, dist / 6);
-        fprintf(fp, "\nDEF StaticCaveSlider Transform {\n translation %f %f %f\n scale %f %f %f\n children [\n", 10.88, -600.0, -1.15, 300.0, 300.0, 300.0);
-        fprintf(fp, SLIDER5);
-        fprintf(fp, SLIDER6);
-        fprintf(fp, "\n] }\n");
+            //      fprintf(fp, "\nDEF StaticCaveSlider Transform {\n translation %f %f %f\n scale %f %f %f\n children [\n", middle[0], bbox[2], middle[2], dist / 6, dist / 6, dist / 6);
+            fprintf(fp, "\nDEF StaticCaveSlider Transform {\n translation %f %f %f\n scale %f %f %f\n children [\n", 10.88, -600.0, -1.15, 300.0, 300.0, 300.0);
+            fprintf(fp, SLIDER5);
+            fprintf(fp, SLIDER6);
+            fprintf(fp, "\n] }\n");
 
-        fprintf(fp, SLIDER7);
-        fprintf(fp, SLIDER8);
-        fprintf(fp, "field SFInt32 sizeOfSwitch %d\n}\n", numtime);
-        fprintf(fp, ROUTES);
+            fprintf(fp, SLIDER7);
+            fprintf(fp, SLIDER8);
+            fprintf(fp, "field SFInt32 sizeOfSwitch %d\n}\n", numtime);
+            fprintf(fp, ROUTES);
+        }
+        else
+        {
+            // add java script code for animation control
+        }
     }
     for (i = 0; i < numb; i++)
     {

@@ -31,107 +31,6 @@
 
 #include <float.h>
 
-class NewCharBuffer
-{
-    char *buf;
-    int len;
-    int incSize;
-
-public:
-    int cur_len;
-    NewCharBuffer()
-    {
-        incSize = 1000;
-        cur_len = 0;
-        len = 0;
-        buf = NULL;
-    };
-    NewCharBuffer(NewCharBuffer *obuf)
-    {
-        incSize = 1000;
-        cur_len = obuf->cur_len;
-        len = cur_len + 1;
-        buf = new char[len];
-        strcpy(buf, obuf->getbuf());
-    };
-    NewCharBuffer(int def)
-    {
-        incSize = def;
-        cur_len = 0;
-        len = def;
-        buf = new char[len];
-    };
-    ~NewCharBuffer() { delete[] buf; };
-    char *return_data()
-    {
-        char *tmp = buf;
-        buf = NULL;
-        cur_len = 0;
-        len = 0;
-        return (tmp);
-    };
-    int strlen() { return (cur_len); };
-    void operator+=(const char *const s)
-    {
-        int l = (int)::strlen(s);
-        if (cur_len + l >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        strcpy(buf + cur_len, s);
-        cur_len += l;
-    };
-    void operator+=(char c)
-    {
-        if (cur_len + 1 >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        buf[cur_len] = c;
-        cur_len++;
-        buf[cur_len] = 0;
-    };
-    void operator+=(int n)
-    {
-        CharNum s(n);
-        int l = (int)::strlen(s);
-        if (cur_len + l >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        strcpy(buf + cur_len, s);
-        cur_len += l;
-    };
-    void operator+=(float n)
-    {
-        CharNum s(n);
-        int l = (int)::strlen(s);
-        if (cur_len + l >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        strcpy(buf + cur_len, s);
-        cur_len += l;
-    };
-    operator const char *() const { return (buf); };
-    const char *getbuf() { return (buf); };
-};
 
 //================================================================
 // GeometryManager methods
@@ -313,6 +212,116 @@ void GeometryManager::addSGrid(const char *object, const char *rootName, int xsi
     CoviseRender::sendInfo("Adding a structured grid");
 }
 
+
+void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, NewCharBuffer& buf)
+{
+    char line[500];
+    if (material)
+    {
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
+            sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
+            buf += line;
+            buf += "emissiveColor ";
+            sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
+            buf += line;
+            buf += "ambientIntensity ";
+            sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
+            buf += line;
+            buf += "specularColor ";
+            sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
+            buf += line;
+            buf += "transparency ";
+            sprintf(line, " %1g ", material->transparency);
+            buf += line;
+            buf += "shininess ";
+            sprintf(line, " %1g ", material->shininess);
+            buf += line;
+            buf += "}}";
+        }
+        else
+        {
+            buf += "<shape>\n<appearance>\n<material diffuseColor='";
+            sprintf(line, "%1g %1g %1g'", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
+            buf += line;
+            buf += " emissiveColor='";
+            sprintf(line, "%1g %1g %1g'", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
+            buf += line;
+            buf += " ambientIntensity='";
+            sprintf(line, "%1g'", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
+            buf += line;
+            buf += " specularColor='";
+            sprintf(line, "%1g %1g %1g'", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
+            buf += line;
+            buf += " transparency='";
+            sprintf(line, "%1g'", material->transparency);
+            buf += line;
+            buf += " shininess='";
+            sprintf(line, "%1g'", material->shininess);
+            buf += line;
+            buf += "></material>\n</appearance>";
+        }
+    }
+    else if (colorbinding == CO_PER_VERTEX)
+    {
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += "Shape{ appearance Appearance { material Material { }}\n";
+        }
+        else
+        {
+            buf += "<shape>  <appearance> <material> </material> </appearance> ";
+        }
+    }
+    else
+    {
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                unpackRGBA(pc, 0, &r, &g, &b, &a);
+                sprintf(line, " %1g %1g %1g ", r, g, b);
+            }
+            else if (colorbinding != CO_NONE && r)
+            {
+                sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
+            }
+            else
+            {
+                sprintf(line, " 1 1 1 ");
+            }
+            buf += line;
+            buf += "}}";
+        }
+        else
+        {
+            buf += "<shape>  <appearance> <material diffuseColor='";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                unpackRGBA(pc, 0, &r, &g, &b, &a);
+                sprintf(line, "%1g %1g %1g'", r, g, b);
+            }
+            else if (colorbinding != CO_NONE && r)
+            {
+                sprintf(line, "%1g %1g %1g'", r[0], g[0], b[0]);
+            }
+            else
+            {
+                sprintf(line, "1 1 1'");
+            }
+            buf += line;
+            buf += "></material> </appearance>";
+        }
+    }
+
+}
+
 //----------------------------------------------------------------
 //
 //----------------------------------------------------------------
@@ -334,114 +343,156 @@ void GeometryManager::addPolygon(const char *object, const char *rootName, int n
     char line[500];
     int i;
     int n = 0;
-    if (material)
+
+    addMaterial(material, colorbinding, colorpacking,r,g,b,pc, buf);
+
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
+        buf += "geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
     }
-    else if (colorbinding == CO_PER_VERTEX)
-        buf += "Shape{ appearance Appearance { material Material { }}\n geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
     else
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
+        buf += "<indexedFaceSet\n";
+    }
 
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE && r)
-        {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_coords; i++)
+
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}\ncoordIndex [";
-    n = 0;
-    for (i = 0; i < no_of_vertices; i++)
-    {
-        if ((n < (no_of_polygons - 1)) && (l_l[n + 1] == i))
+        for (i = 0; i < no_of_coords; i++)
         {
-            buf += "-1 ";
-            n++;
-        }
-        sprintf(line, "%d ", v_l[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += ']';
-    if (normalbinding == CO_PER_VERTEX)
-    {
-        buf += "\n normal Normal {\nvector[";
-        for (i = 0; i < no_of_normals; i++)
-        {
-            sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
+            sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
             buf += line;
             if ((i % 10) == 0)
                 buf += '\n';
         }
-        buf += "]}\nnormalPerVertex TRUE\n";
-    }
-    if (colorbinding == CO_PER_VERTEX)
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
+        buf += "]}\ncoordIndex [";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
         {
-            float r, g, b, a;
+            if ((n < (no_of_polygons - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
+        }
+        buf += ']';
+        if (normalbinding == CO_PER_VERTEX)
+        {
+            buf += "\n normal Normal {\nvector[";
+            for (i = 0; i < no_of_normals; i++)
+            {
+                sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
+                buf += line;
+                if ((i % 10) == 0)
+                    buf += '\n';
+            }
+            buf += "]}\nnormalPerVertex TRUE\n";
+        }
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n color Color {\ncolor[";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
 
-            for (i = 0; i < no_of_colors; i++)
-            {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g,", r, g, b);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
             }
-        }
-        else
-        {
-            for (i = 0; i < no_of_colors; i++)
+            else
             {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
             }
+            buf += "]}\ncolorPerVertex TRUE\n";
         }
-        buf += "]}\ncolorPerVertex TRUE\n";
+        buf += "solid FALSE\nccw TRUE\nconvex TRUE}}\n";
     }
-    buf += "solid FALSE\ncreaseAngle 0\nccw TRUE\nconvex TRUE}}\n";
+    else
+    {
+        buf += "coordIndex='";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_polygons - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+        }
+        buf += "'\n";
+
+        buf += "solid='false'\nccw='true'\nconvex='true'\n";
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "colorPerVertex = 'true'\n";
+        }
+
+        buf += ">\n";
+
+        buf += "<coordinate point = '";
+        for (i = 0; i < no_of_coords; i++)
+        {
+            sprintf(line, "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+        }
+        buf += "'>\n</coordinate>\n ";
+        if (normalbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Normal vector=";
+            for (i = 0; i < no_of_normals; i++)
+            {
+                sprintf(line, "%1g %1g %1g ", nx[i], ny[i], nz[i]);
+                buf += line;
+            }
+            buf += "'\n";
+            buf += "><Normal>\nnormalPerVertex='true'\n";
+        }
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Color color='";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g ", r, g, b);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            buf += "'>\n";
+            buf += "</Color>\n";
+        }
+        buf += "</indexedFaceSet> </shape>\n";
+    }
 
     boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
 
@@ -477,130 +528,192 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
     char line[500];
     int i;
     int n = 0;
-    if (material)
+
+
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, buf);
+
+
+
+
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
+        buf += "geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
     }
-    else if (colorbinding == CO_PER_VERTEX)
-        buf += "Shape{appearance Appearance { material Material { }}\n geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
     else
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
+        buf += "<indexedFaceSet\n";
+    }
 
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE)
-        {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_coords; i++)
-    {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}\ncoordIndex [";
-    n = 0;
-    for (i = 0; i < no_of_strips; i++)
-    {
 
-        if (i == (no_of_strips - 1))
-        {
-            for (n = 2; n < (no_of_vertices - s_l[i]); n++)
-            {
-                if (n % 2)
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
-                else
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
-                buf += line;
-            }
-        }
-        else
-        {
-            for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
-            {
-                if (n % 2)
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
-                else
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
-                buf += line;
-            }
-        }
-        if ((i % 5) == 0)
-            buf += '\n';
-    }
-    buf += ']';
-    if (normalbinding == CO_PER_VERTEX)
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "\n normal Normal {\nvector[";
-        for (i = 0; i < no_of_normals; i++)
+        for (i = 0; i < no_of_coords; i++)
         {
-            sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
+            sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
             buf += line;
             if ((i % 10) == 0)
                 buf += '\n';
         }
-        buf += "]}\nnormalPerVertex TRUE\n";
-    }
-    if (colorbinding == CO_PER_VERTEX)
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
+        buf += "]}\ncoordIndex [";
+        n = 0;
+        for (i = 0; i < no_of_strips; i++)
         {
-            float r, g, b, a;
 
-            for (i = 0; i < no_of_colors; i++)
+            if (i == (no_of_strips - 1))
             {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
+                for (n = 2; n < (no_of_vertices - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
             }
+            else
+            {
+                for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+            if ((i % 5) == 0)
+                buf += '\n';
         }
-        else
+        buf += ']';
+        if (normalbinding == CO_PER_VERTEX)
         {
-            for (i = 0; i < no_of_colors; i++)
+            buf += "\n normal Normal {\nvector[";
+            for (i = 0; i < no_of_normals; i++)
             {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
                 buf += line;
                 if ((i % 10) == 0)
                     buf += '\n';
             }
+            buf += "]}\nnormalPerVertex TRUE\n";
         }
-        buf += "]}\ncolorPerVertex TRUE\n";
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n color Color {\ncolor[";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g,", r, g, b);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            buf += "]}\ncolorPerVertex TRUE\n";
+        }
+        buf += "solid FALSE\nccw TRUE\nconvex TRUE}}\n";
     }
-    buf += "solid FALSE\ncreaseAngle 0\nccw TRUE\nconvex TRUE}}\n";
+    else
+    {
+        buf += "coordIndex='";
+        n = 0;
+        for (i = 0; i < no_of_strips; i++)
+        {
+
+            if (i == (no_of_strips - 1))
+            {
+                for (n = 2; n < (no_of_vertices - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+        }
+        buf += "'\n";
+
+        buf += "solid='false'\nccw='true'\nconvex='true'\n";
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "colorPerVertex = 'true'\n";
+        }
+
+        buf += ">\n";
+
+        buf += "<coordinate point = '";
+        for (i = 0; i < no_of_coords; i++)
+        {
+            sprintf(line, "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+        }
+        buf += "'>\n</coordinate>\n ";
+        if (normalbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Normal vector=";
+            for (i = 0; i < no_of_normals; i++)
+            {
+                sprintf(line, "%1g %1g %1g ", nx[i], ny[i], nz[i]);
+                buf += line;
+            }
+            buf += "'\n";
+            buf += "><Normal>\nnormalPerVertex='true'\n";
+        }
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Color color='";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g ", r, g, b);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            buf += "'>\n";
+            buf += "</Color>\n";
+        }
+        buf += "</indexedFaceSet> </shape>\n";
+    }
     boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
 
     NewCharBuffer *newbuf = new NewCharBuffer(&buf);
@@ -637,111 +750,158 @@ void GeometryManager::addLine(const char *object, const char *rootName, int no_o
     char line[500];
     int i;
     int n = 0;
-    if (material)
+
+
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, buf);
+
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry IndexedLineSet {\n coord Coordinate{\npoint[";
+        buf += "geometry IndexedLineSet {\n coord Coordinate{\npoint[";
     }
-    else if ((colorbinding == CO_PER_VERTEX)
-             || (colorbinding == CO_PER_FACE))
-        buf += "Shape{  appearance Appearance { material Material {emissiveColor 1 1 1}}geometry IndexedLineSet {\n coord Coordinate{\npoint[";
     else
     {
-        buf += "Shape{  appearance Appearance { material Material {emissiveColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
+        buf += "<indexedLineSet lit='false' solid='false'\n";
+    }
 
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE)
-        {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry IndexedLineSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_coords; i++)
-    {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}\ncoordIndex [";
-    n = 0;
-    for (i = 0; i < no_of_vertices; i++)
-    {
-        if ((n < (no_of_lines - 1)) && (l_l[n + 1] == i))
-        {
-            buf += "-1 ";
-            n++;
-        }
-        sprintf(line, "%d ", v_l[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += ']';
-    if ((colorbinding == CO_PER_VERTEX)
-        || (colorbinding == CO_PER_FACE))
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
 
-            for (i = 0; i < no_of_colors; i++)
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        for (i = 0; i < no_of_coords; i++)
+        {
+            sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
+        }
+        buf += "]}\ncoordIndex [";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_lines - 1)) && (l_l[n + 1] == i))
             {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
+        }
+        buf += ']';
+        if (normalbinding == CO_PER_VERTEX)
+        {
+            buf += "\n normal Normal {\nvector[";
+            for (i = 0; i < no_of_normals; i++)
+            {
+                sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
                 buf += line;
                 if ((i % 10) == 0)
                     buf += '\n';
             }
-        }
-        else
-        {
-            for (i = 0; i < no_of_colors; i++)
-            {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
+            buf += "]}\nnormalPerVertex TRUE\n";
         }
         if (colorbinding == CO_PER_VERTEX)
         {
+            buf += "\n color Color {\ncolor[";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g,", r, g, b);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
             buf += "]}\ncolorPerVertex TRUE\n";
         }
-        else
-        {
-            buf += "]}\ncolorPerVertex FALSE\n";
-        }
+        buf += "solid FALSE\n\nccw TRUE\nconvex TRUE}}\n";
     }
-    buf += "}}\n";
+    else
+    {
+        buf += "coordIndex='";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_lines - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+        }
+        buf += "'\n";
+
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "colorPerVertex = 'true'\n";
+        }
+
+        buf += ">\n";
+
+        buf += "<coordinate point = '";
+        for (i = 0; i < no_of_coords; i++)
+        {
+            sprintf(line, "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+        }
+        buf += "'>\n</coordinate>\n ";
+        if (normalbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Normal vector=";
+            for (i = 0; i < no_of_normals; i++)
+            {
+                sprintf(line, "%1g %1g %1g ", nx[i], ny[i], nz[i]);
+                buf += line;
+            }
+            buf += "'\n";
+            buf += "><Normal>\nnormalPerVertex='true'\n";
+        }
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Color color='";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g ", r, g, b);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_colors; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            buf += "'>\n";
+            buf += "</Color>\n";
+        }
+        buf += "</indexedLineSet> </shape>\n";
+    }
+
+
     NewCharBuffer *newbuf = new NewCharBuffer(&buf);
     boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
     LObject *lob = new LObject(object, rootName, newbuf);
@@ -765,88 +925,107 @@ void GeometryManager::addPoint(const char *object, const char *rootName, int no_
 
     float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
-    if (material)
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, buf);
+
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry PointSet {\n coord Coordinate{\npoint[";
+        buf += "geometry PointSet {\n coord Coordinate{\npoint[";
     }
-    else if (colorbinding == CO_PER_VERTEX)
-        buf += "Shape{ appearance Appearance { material Material { }}\n geometry PointSet {\n coord Coordinate{\npoint[";
     else
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
+        buf += "<pointSet\n";
+    }
 
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE)
-        {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry PointSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_points; i++)
-    {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}";
-    if (colorbinding == CO_PER_VERTEX)
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
 
-            for (i = 0; i < no_of_points; i++)
-            {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
-        }
-        else
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        for (i = 0; i < no_of_points; i++)
         {
-            for (i = 0; i < no_of_points; i++)
-            {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
+            sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
         }
-        buf += "]}";
+        buf += "]}\n";
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n color Color {\ncolor[";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_points; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g,", r, g, b);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_points; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            buf += "]}\ncolorPerVertex TRUE\n";
+        }
+        buf += "}}\n";
     }
-    buf += "}}\n";
+    else
+    {
+        
+        buf += "\n";
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "colorPerVertex = 'true'\n";
+        }
+
+        buf += ">\n";
+
+        buf += "<coordinate point = '";
+        for (i = 0; i < no_of_points; i++)
+        {
+            sprintf(line, "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+        }
+        buf += "'>\n</coordinate>\n ";
+        if (colorbinding == CO_PER_VERTEX)
+        {
+            buf += "\n <Color color='";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
+
+                for (i = 0; i < no_of_points; i++)
+                {
+                    unpackRGBA(pc, i, &r, &g, &b, &a);
+                    sprintf(line, "%1g %1g %1g ", r, g, b);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (i = 0; i < no_of_points; i++)
+                {
+                    sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                    buf += line;
+                    if ((i % 10) == 0)
+                        buf += '\n';
+                }
+            }
+            buf += "'>\n";
+            buf += "</Color>\n";
+        }
+        buf += "</pointSet> </shape>\n";
+    }
+
+
     boundingBox(x_c, y_c, z_c, no_of_points, bbox);
     NewCharBuffer *newbuf = new NewCharBuffer(&buf);
     LObject *lob = new LObject(object, rootName, newbuf);
@@ -869,66 +1048,60 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
     char line[500];
     float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
-    buf += "Group { children [\n";
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "Group { children [\n";
+    }
+    else
+    {
+        buf += "<transform>\n";
+    }
     for (int i = 0; i < no_of_points; ++i)
     {
-        buf += "Transform { translation ";
-        sprintf(line, "%g %g %g", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        buf += " children [";
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (material)
+        if (objlist->outputMode == OutputMode::VRML97)
         {
-            sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
+            buf += "Transform { translation ";
+            sprintf(line, "%g %g %g", x_c[i], y_c[i], z_c[i]);
             buf += line;
-            buf += "emissiveColor ";
-            sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-            buf += line;
-            buf += "ambientIntensity ";
-            sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-            buf += line;
-            buf += "specularColor ";
-            sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-            buf += line;
-            buf += "transparency ";
-            sprintf(line, " %1g ", material->transparency);
-            buf += line;
-            buf += "shininess ";
-            sprintf(line, " %1g ", material->shininess);
-            buf += line;
+            buf += " children [";
         }
         else
         {
-            if (colorbinding == CO_NONE)
-            {
-                sprintf(line, " 1 1 1 ");
-            }
-            else
-            {
-                int index = (colorbinding == CO_PER_VERTEX) ? i : 0;
-                if (colorpacking == CO_RGBA && pc)
-                {
-                    float r, g, b, a;
-                    unpackRGBA(pc, index, &r, &g, &b, &a);
-                    sprintf(line, " %1g %1g %1g ", r, g, b);
-                }
-                else
-                {
-                    sprintf(line, " %1g %1g %1g ", r[index], g[index], b[index]);
-                }
-            }
+            buf += "<transform translation='\n";
+            sprintf(line, "%g %g %g '>", x_c[i], y_c[i], z_c[i]);
             buf += line;
         }
-        buf += "}}";
 
-        buf += " geometry Sphere { radius ";
-        sprintf(line, "%g", r_c[i]);
-        buf += line;
-        buf += " }";
 
-        buf += "} ] }\n"; // Shape + Transform
+
+        addMaterial(material, colorbinding, colorpacking, r, g, b, pc, buf);
+
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += " geometry Sphere { radius ";
+            sprintf(line, "%g", r_c[i]);
+            buf += line;
+            buf += " }";
+            buf += "} ] }\n"; // Shape + Transform
+        }
+        else
+        {
+            buf += "<sphere radius='";
+            sprintf(line, "%g'>", r_c[i]);
+            buf += line;
+            buf += "</shape> </transform>";
+        }
+
+
     }
-    buf += "] }\n";
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "] }\n";
+    }
+    else
+    {
+        buf += "</transform>";
+    }
 
     boundingBox(x_c, y_c, z_c, r_c, no_of_points, bbox);
     NewCharBuffer *newbuf = new NewCharBuffer(&buf);

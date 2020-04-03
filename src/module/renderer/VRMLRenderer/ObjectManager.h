@@ -64,7 +64,7 @@ private:
 
     GeometryManager *gm;
 
-    ObjectList *list;
+    OutputMode outputMode;
 
     int file_writing;
 
@@ -90,13 +90,17 @@ public:
     void set_write_file(int write_mode);
     ~ObjectManager()
     {
-        delete list;
         delete gm;
     }
     void setFilename(const char *fn)
     {
         filename = fn;
     }
+    void setOutputMode(OutputMode om)
+    {
+        outputMode = om;
+    }
+    
 };
 
 #endif

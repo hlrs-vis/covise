@@ -36,6 +36,7 @@
 
 #include <stdlib.h>
 
+
 namespace covise
 {
 class ApplicationProcess;
@@ -78,6 +79,8 @@ public:
         VRML,
         WEB
     };
+
+    OutputMode outputMode;
 
     Mode rendererMode;
     ApplicationProcess *m_app;

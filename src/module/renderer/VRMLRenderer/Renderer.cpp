@@ -87,7 +87,7 @@ Renderer::Renderer(int argc, char *argv[])
 
     CoviseRender::set_module_description("VRML Renderer");
     CoviseRender::add_port(INPUT_PORT, "RenderData", "Geometry|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines|Points|Spheres", "render geometry");
-
+    outputMode = X3DOM;
     // check type, use VRML as default if illegal name
     bool useDefault = false;
     if (strstr(argv[0], "VRML"))
@@ -102,13 +102,17 @@ Renderer::Renderer(int argc, char *argv[])
     if (rendererMode == VRML)
     {
         CoviseRender::add_port(PARIN, "Filename", "Browser", "Output file name");
+        CoviseRender::add_port(PARIN, "OutputMode", "Choice", "Vrml97 or X3DOM");
         CoviseRender::add_port(PARIN, "translate", "FloatVector", "(x, y, z) translation of the VRML model");
         CoviseRender::add_port(PARIN, "scale", "FloatVector", "scale of the VRML model");
         CoviseRender::add_port(PARIN, "axis_of_rotation", "FloatVector", "rotation of the VRML model");
         CoviseRender::add_port(PARIN, "angle_of_rotation", "FloatScalar", "rotation of the VRML model");
         static char defVal[256];
-        snprintf(defVal, sizeof(defVal), "./%s_%s.wrl *.wrl", argv[0], argv[4]);
+        snprintf(defVal, sizeof(defVal), "./%s_%s.wrl", argv[0], argv[4]);
         CoviseRender::set_port_default("Filename", defVal);
+        CoviseRender::set_port_default("OutputMode", "2 Vrml97 X3DOM");
+
+        //CoviseRender::update_choice_param(d_name, d_numChoices, d_choice, d_activeChoice);
         CoviseRender::set_port_default("translate", "0 0 0");
         CoviseRender::set_port_default("scale", "1 1 1");
         CoviseRender::set_port_default("axis_of_rotation", "0 0 1");
@@ -141,6 +145,7 @@ Renderer::Renderer(int argc, char *argv[])
     m_obj_needed = 0;
     om = new ObjectManager();
     om->setFilename(wrlFilename);
+    om->setOutputMode(outputMode);
 
     CoviseRender::set_render_callback(Renderer::renderCallback, this);
     CoviseRender::set_master_switch_callback(Renderer::masterSwitchCallback, this);
@@ -193,6 +198,14 @@ void Renderer::param(const char *paraName)
     if (strcmp("CAMERA", paraName) == 0)
     {
         CoviseRender::sendInfo("got camera position parameter");
+    }
+    else if (strcmp("OutputMode", paraName) == 0)
+    {
+        int val = 0;
+        if (CoviseRender::get_reply_choice(&val))
+        {
+            outputMode = (OutputMode)val;
+        }
     }
     else if (strcmp("Filename", paraName) == 0)
     {

@@ -31,6 +31,13 @@
 #include <list>
 #include <appl/RenderInterface.h>
 
+
+enum OutputMode
+{
+    VRML97 = 0,
+    X3DOM = 1
+};
+
 using namespace covise;
 //================================================================
 // Object
@@ -153,6 +160,7 @@ public:
         if (m_telepMsg != NULL)
             delete[] m_telepMsg;
     };
+    OutputMode outputMode;
     void write(FILE *fp);
     void removeone(const char *);
     void removeall(const char *);
@@ -176,6 +184,10 @@ public:
     void setScale(float x, float y, float z);
     void setRotation(float x, float y, float z);
     void setRotationAngle(float d);
+    void setOutputMode(OutputMode om)
+    {
+        outputMode = om;
+    }
 };
 
 #endif
