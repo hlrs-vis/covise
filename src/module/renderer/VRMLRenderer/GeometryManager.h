@@ -30,6 +30,7 @@
 #include <appl/RenderInterface.h>
 #include "ObjectList.h"
 #include <util/coMaterial.h>
+#include <do/coDoTexture.h>
 
 extern ObjectList *objlist;
 
@@ -154,7 +155,7 @@ public:
                   int no_of_colors, int colorbinding, int colorpacking,
                   float *r, float *g, float *b, int *pc, int no_of_normals,
                   int normalbinding,
-                  float *nx, float *ny, float *nz, float transparency, coMaterial *material);
+                  float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture);
 
     void addRGrid(const char *object, const char *rootName, int xsize, int ysize,
                   int zsize, float *x_c, float *y_c,
@@ -162,7 +163,7 @@ public:
                   int no_of_colors, int colorbinding, int colorpacking,
                   float *r, float *g, float *b, int *pc, int no_of_normals,
                   int normalbinding,
-                  float *nx, float *ny, float *nz, float transparency, coMaterial *material);
+                  float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture);
 
     void addSGrid(const char *object, const char *rootName, int xsize, int ysize,
                   int zsize, float *x_c, float *y_c,
@@ -170,7 +171,7 @@ public:
                   int no_of_colors, int colorbinding, int colorpacking,
                   float *r, float *g, float *b, int *pc, int no_of_normals,
                   int normalbinding,
-                  float *nx, float *ny, float *nz, float transparency, coMaterial *material);
+                  float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture);
 
     void addPolygon(const char *object, const char *rootName, int no_of_polygons, int no_of_vertices,
                     int no_of_coords, float *x_c, float *y_c,
@@ -180,7 +181,7 @@ public:
                     float *r, float *g, float *b, int *pc, int no_of_normals,
                     int normalbinding,
                     float *nx, float *ny, float *nz, float transparency,
-                    int vertexOrder, coMaterial *material);
+                    int vertexOrder, coMaterial *material, coDoTexture *texture);
 
     void addTriangleStrip(const char *object, const char *rootName, int no_of_strips, int no_of_vertices,
                           int no_of_coords, float *x_c, float *y_c,
@@ -190,7 +191,7 @@ public:
                           float *r, float *g, float *b, int *pc, int no_of_normals,
                           int normalbinding,
                           float *nx, float *ny, float *nz, float transparency,
-                          int vertexOrder, coMaterial *material);
+                          int vertexOrder, coMaterial *material, coDoTexture *texture);
 
     void addLine(const char *object, const char *rootName, int no_of_lines, int no_of_vertices,
                  int no_of_coords, float *x_c, float *y_c,
@@ -199,15 +200,15 @@ public:
                  int no_of_colors, int colorbinding, int colorpacking,
                  float *r, float *g, float *b, int *pc, int no_of_normals,
                  int normalbinding,
-                 float *nx, float *ny, float *nz, int isTrace, coMaterial *material);
+                 float *nx, float *ny, float *nz, int isTrace, coMaterial *material, coDoTexture *texture);
 
     void addPoint(const char *object, const char *rootName, int no_of_points,
                   float *x_c, float *y_c, float *z_c,
-                  int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material);
+                  int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material, coDoTexture *texture);
 
     void addSphere(const char *object, const char *rootName, int no_of_points,
                    float *x_c, float *y_c, float *z_c, float *r_c,
-                   int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material);
+                   int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material, coDoTexture *texture);
 
     // void addIv(char *object,char *rootName, char *IvDescription, int size);
 
@@ -277,7 +278,7 @@ public:
 
     void remove_geometry(const char *name);
 
-    void addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, NewCharBuffer& buf);
+    void addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *, NewCharBuffer& buf);
 
     ~GeometryManager()
     {

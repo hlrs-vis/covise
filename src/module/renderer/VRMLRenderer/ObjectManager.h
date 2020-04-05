@@ -78,7 +78,7 @@ private:
 
     void add_geometry(const char *object, int is_timestep, const char *root,
                       const coDistributedObject *geometry, const coDistributedObject *normals,
-                      const coDistributedObject *colors, const coDoGeometry *container);
+                      const coDistributedObject *colors, const coDistributedObject* texture, const coDoGeometry *container);
 
     void remove_geometry(char *name);
 

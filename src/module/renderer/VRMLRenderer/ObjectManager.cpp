@@ -41,6 +41,7 @@
 #include <do/coDoLines.h>
 #include <do/coDoPolygons.h>
 #include <do/coDoTriangleStrips.h>
+#include <do/coDoTexture.h>
 #include <do/coDoUniformGrid.h>
 
 #include <appl/RenderInterface.h>
@@ -79,7 +80,8 @@ ObjectManager::ObjectManager()
 void ObjectManager::addObject(char *object)
 {
     const coDistributedObject *dobj = 0L;
-    const coDistributedObject *colors = 0L;
+    const coDistributedObject* colors = 0L;
+    const coDistributedObject* textures = 0L;
     const coDistributedObject *normals = 0L;
     const coDoGeometry *geometry = 0L;
     const coDoText *Text = 0L;
@@ -102,8 +104,9 @@ void ObjectManager::addObject(char *object)
                 dobj = geometry->getGeometry();
                 normals = geometry->getNormals();
                 colors = geometry->getColors();
+                textures = geometry->getTexture();
                 gtype = dobj->getType();
-                add_geometry(object, is_timestep, NULL, dobj, normals, colors, geometry);
+                add_geometry(object, is_timestep, NULL, dobj, normals, colors, textures, geometry);
             }
             delete geometry;
         }
@@ -115,7 +118,7 @@ void ObjectManager::addObject(char *object)
         }
         else
         {
-            add_geometry(object, is_timestep, NULL, data_obj, NULL, NULL, NULL);
+            add_geometry(object, is_timestep, NULL, data_obj, NULL, NULL, NULL,NULL);
         }
     }
 
@@ -360,17 +363,19 @@ static unsigned int create_named_color(const char *cname)
 //
 //----------------------------------------------------------------
 void ObjectManager::add_geometry(const char *object, int is_timestep, const char *root, const coDistributedObject *geometry,
-                                 const coDistributedObject *normals, const coDistributedObject *colors, const coDoGeometry *container)
+                                 const coDistributedObject *normals, const coDistributedObject *colors, const coDistributedObject* texture, const coDoGeometry *container)
 {
     const coDistributedObject *const *dobjsg = NULL; // Geometry Set elements
     const coDistributedObject *const *dobjsc = NULL; // Color Set elements
-    const coDistributedObject *const *dobjsn = NULL; // Normal Set elements
+    const coDistributedObject* const* dobjsn = NULL; // Normal Set elements
+    const coDistributedObject* const* dobjst = NULL; // Normal Set elements
     const coDoVec3 *normal_udata = NULL;
     const coDoVec3 *color_udata = NULL;
     const coDoRGBA *color_pdata = NULL;
     const coDoPoints *points = NULL;
     const coDoSpheres *spheres = NULL;
     const coDoLines *lines = NULL;
+    const coDoTexture* texobject = NULL;
     const coDoPolygons *poly = NULL;
     const coDoTriangleStrips *strip = NULL;
     const coDoUniformGrid *ugrid = NULL;
@@ -379,7 +384,7 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
     const coDoUnstructuredGrid *unsgrid = NULL;
     const coDoSet *set = NULL;
     // number of elements per geometry,color and normal set
-    int no_elems = 0, no_c = 0, no_n = 0;
+    int no_elems = 0, no_c = 0, no_n = 0, no_t=0;
     int normalbinding = CO_NONE, colorbinding = CO_NONE;
     int colorpacking = CO_NONE;
     int vertexOrder = 0;
@@ -398,7 +403,7 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
     float *x_c = 0, *y_c = 0, *z_c = 0;
     float *r_c = NULL;
     float transparency = 0.0;
-    const char *gtype, *ntype, *ctype;
+    const char *gtype, *ntype, *ctype, *ttype;
     const char *vertexOrderStr, *transparencyStr;
     const char *bindingType, *objName;
     char buf[300];
@@ -459,6 +464,37 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
                         {
                             print_comment(__LINE__, __FILE__, "ERROR: number of normalelements does not match geometry set");
                             no_n = 0;
+                        }
+                    }
+                    else
+                    {
+                        print_comment(__LINE__, __FILE__, "ERROR: ...got bad normal set");
+                    }
+                }
+            }
+
+            if (texobject != nullptr)
+            {
+                ttype = texobject->getType();
+                if (strcmp(ntype, "SETELE") != 0)
+                {
+                    print_comment(__LINE__, __FILE__, "ERROR: ...did not get a normal set");
+                }
+                else
+                {
+                    set = (coDoSet*)texobject;
+                    if (set != NULL)
+                    {
+                        // Get Set
+                        dobjst = set->getAllElements(&no_t);
+                        if (no_t == no_elems)
+                        {
+                            print_comment(__LINE__, __FILE__, "... got texture set");
+                        }
+                        else
+                        {
+                            print_comment(__LINE__, __FILE__, "ERROR: number of textureelements does not match geometry set");
+                            no_t = 0;
                         }
                     }
                     else
@@ -530,26 +566,17 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
                 }
                 elemnames[curset][i] = new char[strlen(objName) + 1];
                 strcpy(elemnames[curset][i], objName);
-                if ((no_c > 0) && (no_n > 0))
-                {
-                    //cerr << "\nAdding (recursively) set geometry named " << object << " now"  << endl;
-                    add_geometry(objName, is_timestep, object, dobjsg[i], dobjsn[i], dobjsc[i], container);
-                }
-                else if (no_c > 0)
-                {
-                    //cerr << "\nAdding (recursively) set geometry named " << object << " now"  << endl;
-                    add_geometry(objName, is_timestep, object, dobjsg[i], NULL, dobjsc[i], container);
-                }
-                else if (no_n > 0)
-                {
-                    //cerr << "\nAdding (recursively) set geometry named " << object << " now"  << endl;
-                    add_geometry(objName, is_timestep, object, dobjsg[i], dobjsn[i], NULL, container);
-                }
-                else
-                {
-                    //cerr << "\nAdding (recursively) set geometry named " << object << " now"  << endl;
-                    add_geometry(objName, is_timestep, object, dobjsg[i], NULL, NULL, container);
-                }
+                const coDistributedObject* dobjg = dobjsg[i];
+                const coDistributedObject* dobjn = nullptr;
+                const coDistributedObject* dobjc = nullptr;
+                const coDistributedObject* dobjt = nullptr;
+                if (no_c)
+                    dobjc = dobjsc[i];
+                if (no_n)
+                    dobjn = dobjsn[i];
+                if (no_t)
+                    dobjt = dobjst[i];
+                add_geometry(objName, is_timestep, object, dobjg, dobjn, dobjc, dobjt, container);
             }
             LObject *lob = new LObject("Endset", object, (CharBuffer *)NULL);
             objlist->push_back(std::unique_ptr<LObject>(lob));
@@ -697,7 +724,28 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
                 }
             }
         }
-
+        else if (no_c == 0)
+        {
+            bindingType = geometry->getAttribute("COLOR");
+            if (bindingType != NULL)
+            {
+                colorbinding = CO_OVERALL;
+                colorpacking = CO_RGBA;
+                no_c = 1;
+                // open ascii file for color names
+                if (!isopen)
+                {
+                    fp = covise::CoviseRender::fopen("share/covise/rgb.txt", "r");
+                    if (fp != 0L)
+                        isopen = 1;
+                }
+                if (isopen)
+                {
+                    rgba = create_named_color(bindingType);
+                    pc = (int *)&rgba;
+                }
+            }
+        }
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
         //// Now the geometrical primitives
@@ -996,29 +1044,29 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
         if (strcmp(gtype, "UNIGRD") == 0)
             gm->addUGrid(object, root, xsize, ysize, zsize, xmin, xmax, ymin, ymax, zmin, zmax,
                          no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                         no_n, normalbinding, xn, yn, zn, transparency, material);
+                         no_n, normalbinding, xn, yn, zn, transparency, material, (coDoTexture*)texture);
         if (strcmp(gtype, "RCTGRD") == 0)
             gm->addRGrid(object, root, xsize, ysize, zsize, x_c, y_c, z_c,
                          no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                         no_n, normalbinding, xn, yn, zn, transparency, material);
+                         no_n, normalbinding, xn, yn, zn, transparency, material, (coDoTexture*)texture);
         if (strcmp(gtype, "STRGRD") == 0)
             gm->addSGrid(object, root, xsize, ysize, zsize, x_c, y_c, z_c,
                          no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                         no_n, normalbinding, xn, yn, zn, transparency, material);
+                         no_n, normalbinding, xn, yn, zn, transparency, material, (coDoTexture*)texture);
         if (strcmp(gtype, "POLYGN") == 0)
             gm->addPolygon(object, root, no_poly, no_vert,
                            no_points, x_c, y_c, z_c,
                            v_l, l_l,
                            no_c, colorbinding, colorpacking, rc, gc, bc, pc,
                            no_n, normalbinding, xn, yn, zn, transparency,
-                           vertexOrder, material);
+                           vertexOrder, material, (coDoTexture*)texture);
         if (strcmp(gtype, "TRIANG") == 0)
             gm->addTriangleStrip(object, root, no_strip, no_vert,
                                  no_points, x_c, y_c, z_c,
                                  v_l, l_l,
                                  no_c, colorbinding, colorpacking, rc, gc, bc, pc,
                                  no_n, normalbinding, xn, yn, zn, transparency,
-                                 vertexOrder, material);
+                                 vertexOrder, material, (coDoTexture*)texture);
 
         if (strcmp(gtype, "LINES") == 0)
         {
@@ -1029,15 +1077,15 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
 
             gm->addLine(object, root, no_lines, no_vert, no_points,
                         x_c, y_c, z_c, v_l, l_l, no_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                        no_n, normalbinding, xn, yn, zn, isTrace, material);
+                        no_n, normalbinding, xn, yn, zn, isTrace, material, (coDoTexture*)texture);
         }
         if ((strcmp(gtype, "POINTS") == 0) || (strcmp(gtype, "UNSGRD") == 0))
             gm->addPoint(object, root, no_points,
-                         x_c, y_c, z_c, colorbinding, colorpacking, rc, gc, bc, pc, material);
+                         x_c, y_c, z_c, colorbinding, colorpacking, rc, gc, bc, pc, material, (coDoTexture*)texture);
 
         if (strcmp(gtype, "SPHERE") == 0)
             gm->addSphere(object, root, no_points,
-                          x_c, y_c, z_c, r_c, colorbinding, colorpacking, rc, gc, bc, pc, material);
+                          x_c, y_c, z_c, r_c, colorbinding, colorpacking, rc, gc, bc, pc, material, (coDoTexture*)texture);
     }
 }
 
