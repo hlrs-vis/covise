@@ -19,6 +19,30 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
-#include <config/CoviseConfig.h>
-#include <cover/coVRMSController.h>
+#include <vector>
+#include <memory>
 
+
+#include <cover/coVRPlugin.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/ui/Owner.h>
+class Camera
+{
+
+};
+class SafetyZone
+{
+
+};
+class SensorPlacementPlugin :public opencover::coVRPlugin, public opencover::ui::Owner
+{
+    public:
+    SensorPlacementPlugin();
+    ~SensorPlacementPlugin();
+    bool init() override;
+    void preFrame() override;
+
+    private:
+    std::vector<std::unique_ptr<Camera>> cameras;
+    std::vector<std::unique_ptr<SafetyZone>> safetyZones;
+};

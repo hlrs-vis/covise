@@ -1,5 +1,6 @@
 SET(HEADERS
  Profiling.h
+ openGA.h
  SensorPlacement.h
 )
 SET(SOURCES
