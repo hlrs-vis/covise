@@ -6,9 +6,11 @@
 
 using namespace opencover;
 
+
 bool SensorPlacementPlugin::init()
 {
     std::cout<<"SensorPlacementPlugin loaded"<<std::endl;
+
     return true;
 }
 void SensorPlacementPlugin::preFrame()
@@ -17,7 +19,6 @@ void SensorPlacementPlugin::preFrame()
 }
 SensorPlacementPlugin::SensorPlacementPlugin() : ui::Owner("SensorPlacementPlugin", cover->ui)
 {
-
 }
 SensorPlacementPlugin::~SensorPlacementPlugin()
 {

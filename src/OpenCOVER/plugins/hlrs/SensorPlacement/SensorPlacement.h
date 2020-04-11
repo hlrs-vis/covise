@@ -34,6 +34,45 @@ class SafetyZone
 {
 
 };
+
+
+typedef std::unique_ptr<Camera> upCamera;
+typedef std::unique_ptr<SafetyZone> upSafetyZone;
+
+//Singleton Class
+class Data
+{
+public:
+    Data(const Data& other) = delete;
+    Data operator=(const Data& other) = delete;
+    
+    static Data& GetInstance()
+    {
+        static Data instance;
+        return instance;
+    }
+
+    static const std::vector<upCamera>& GetCameras(){return GetInstance().m_Cameras;}
+    static const std::vector<upSafetyZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
+
+    static void AddCamera(upCamera camera)
+    {
+        GetInstance().m_Cameras.push_back(std::move(camera));
+    }
+    static void AddSafetyZone(upSafetyZone safetyZone)
+    {
+        GetInstance().m_SafetyZones.push_back(std::move(safetyZone));
+    }
+
+private:
+    Data(){}
+
+    std::vector<upCamera>& IGetCameras(){return m_Cameras;}
+    std::vector<upSafetyZone>& IGetSafetyZones(){return m_SafetyZones;}
+
+    std::vector<upCamera> m_Cameras;
+    std::vector<upSafetyZone> m_SafetyZones;
+};
 class SensorPlacementPlugin :public opencover::coVRPlugin, public opencover::ui::Owner
 {
     public:
@@ -43,6 +82,5 @@ class SensorPlacementPlugin :public opencover::coVRPlugin, public opencover::ui:
     void preFrame() override;
 
     private:
-    std::vector<std::unique_ptr<Camera>> cameras;
-    std::vector<std::unique_ptr<SafetyZone>> safetyZones;
+    
 };
