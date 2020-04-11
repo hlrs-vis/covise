@@ -28,6 +28,14 @@
 #include <cover/ui/Owner.h>
 class Camera
 {
+public:
+    void calcVisibilityMatrix()
+    {
+        std::cout<<"calc"<<std::endl;
+    }
+
+private:
+    std::vector<int> visMat;
 
 };
 class SafetyZone
@@ -77,7 +85,6 @@ class SensorPlacementPlugin :public opencover::coVRPlugin, public opencover::ui:
 {
     public:
     SensorPlacementPlugin();
-    ~SensorPlacementPlugin();
     bool init() override;
     void preFrame() override;
 
