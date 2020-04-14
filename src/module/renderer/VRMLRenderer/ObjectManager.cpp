@@ -208,6 +208,16 @@ void ObjectManager::addObject(char *object)
                     </button>\n\
                     </td>\n\
                     </tr>\n\
+                    <tr>\n\
+                    <td>\n\
+                    Visible variants :\n\
+                    <br>\n\
+                    no variants\n\
+                    <input type = 'range' id = 'VariantSlider' min = '-1' max = '2' step = '1' value = '0' onchange = 'changeVisibleVariant(this.value)'/>\n\
+                    <br>\n\
+                    <span id = 'visibleVariant' style = 'color:#00CC00'>Showing variant # 0 </span>\n\
+                    </td>\n\
+                    </tr>\n\
                     </table>\n\
                     </div>\n\
                     </div>\n\
@@ -218,6 +228,16 @@ void ObjectManager::addObject(char *object)
             fprintf(fp, " \n\
                     </scene>\n\
                 </x3d>\n\
+                    <script>\n\
+                    function changeVisibleVariant(variant) {\n\
+                    document.getElementById('sliderVariants').setAttribute('whichChoice', variant);\n\
+                    \n\
+                    if (variant == -1)\n\
+                        document.getElementById('visibleVariant').innerHTML = 'No variant visible!'; \n\
+                    else\n\
+                        document.getElementById('visibleVariant').innerHTML = 'Showing variant # ' + variant; \n\
+                    }\n\
+                    </script>\n\
             </body>\n\
         </html>\n\
                     \n");
