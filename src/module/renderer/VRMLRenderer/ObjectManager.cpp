@@ -217,7 +217,7 @@ void ObjectManager::addObject(char* object)
                 //add checkbox for every variant
                 for (const auto& it : *objlist) {
                     fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
-                            <label for = 'box_%s'>%s</label><br>\n\ ", it->name, it->name, it->name, it->name);
+                            <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, it->name);
                 }
                 //end of GUI elements; begin of scene elements
                 fputs("</td>\n\
