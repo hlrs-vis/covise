@@ -1,18 +1,19 @@
 #include <iostream>
 #include <memory> 
-
+#include <future>
 #include "SensorPlacement.h"
-
-
+#include "Profiling.h"
+#include "Helper.h"
 using namespace opencover;
-namespace myHelpers{
-template<typename T, typename... Args>
-    std::unique_ptr<T> make_unique(Args&&... args)
+
+/*void Data::UpdateCameras()
+{
+    for(const auto& cam : Data::GetCameras())
     {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+       GetInstance().m_Futures.push_back(std::async(std::Launch::async,Camera::calcVisibilityMatrix,cam));
     }
 }
-
+*/
 bool SensorPlacementPlugin::init()
 {
     std::cout<<"SensorPlacementPlugin loaded"<<std::endl;
@@ -21,15 +22,35 @@ bool SensorPlacementPlugin::init()
 }
 void SensorPlacementPlugin::preFrame()
 {
-
+    zone->preFrame();
 }
 SensorPlacementPlugin::SensorPlacementPlugin() : ui::Owner("SensorPlacementPlugin", cover->ui)
 {
-     for(size_t i{};i<100000;i++)
-        Data::AddCamera(myHelpers::make_unique<Camera>());
+    SP_PROFILE_BEGIN_SESSION("Init","SensorPlacement-Startup.json");
 
+    SP_PROFILE_FUNCTION();
+     for(size_t i{};i<100000;i++)
+     {
+        SP_PROFILE_SCOPE();
+     //   Data::AddCamera(myHelpers::make_unique<Camera>());
+     }
+     std::cout<<"first profile ended"<<std::endl;
      for(const auto& cam : Data::GetCameras())
-        cam->calcVisibilityMatrix();
+     {
+        SP_PROFILE_SCOPE();
+     }
+    //Data::UpdateCameras();
+    osg::Matrix m;
+    zone = new Zone(m);
+
+
 };
+
+SensorPlacementPlugin::~SensorPlacementPlugin()
+{
+    std::cout<<"Shut down Sensor Placement"<<std::endl;
+    SP_PROFILE_END_SESSION();
+
+}
 
 COVERPLUGIN(SensorPlacementPlugin)
