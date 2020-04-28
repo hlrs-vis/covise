@@ -16,6 +16,9 @@
 #include <osg/Geode>
 #include <osg/PositionAttitudeTransform>
 
+using namespace vehicleUtil;
+
+
 FourWheelDynamicsRealtime::FourWheelDynamicsRealtime()
     :
 #ifdef __XENO__
@@ -298,7 +301,7 @@ void FourWheelDynamicsRealtime::move(VrmlNodeVehicle *vehicle)
         y_frame = this->y;
         coVRMSController::instance()->sendSlaves((char *)&y_frame, sizeof(cardyn::StateVectorType));
 
-        if (VehicleUtil::instance()->getVehicleState() == VehicleUtil::KEYIN_ERUNNING)
+        if (vehicleUtil::VehicleUtil::instance()->getVehicleState() == vehicleUtil::VehicleUtil::KEYIN_ERUNNING)
         {
             rpms = ((cardyn::w_e) * (1.0 / (2.0 * M_PI)))(y_frame)[0];
             if (rpms < 13.33)

@@ -18,6 +18,8 @@
 #include <VehicleUtil/VehicleUtil.h>
 
 #include <deque>
+using namespace vehicleUtil;
+
 
 EinspurDynamikRealtime::EinspurDynamikRealtime()
 #ifdef MERCURY
@@ -155,7 +157,7 @@ double EinspurDynamikRealtime::getEngineSpeed()
 {
     if (coVRMSController::instance()->isMaster())
     {
-        if (VehicleUtil::instance()->getVehicleState() == VehicleUtil::KEYIN_ERUNNING)
+        if (vehicleUtil::VehicleUtil::instance()->getVehicleState() == vehicleUtil::VehicleUtil::KEYIN_ERUNNING)
         {
             if (pause)
             {
