@@ -11,6 +11,8 @@
 #include "CanController.h"
 
 #include <cstring>
+namespace vehicleUtil
+{
 
 class VEHICLEUTILEXPORT CanOpenController : public CanController
 {
@@ -58,5 +60,5 @@ inline void CanOpenController::writeRPDO(uint8_t nodeid, uint8_t pdo, uint8_t *d
 
     memcpy(frame->data, data, numData);
 }
-
+}
 #endif

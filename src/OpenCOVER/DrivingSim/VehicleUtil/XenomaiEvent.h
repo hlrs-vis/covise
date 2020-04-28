@@ -15,6 +15,8 @@
 #include <native/event.h>
 #endif
 
+namespace vehicleUtil
+{
 
 class XenomaiEvent
 {
@@ -81,5 +83,5 @@ public:
 protected:
     RT_EVENT rt_event_desc;
 };
-
+}
 #endif

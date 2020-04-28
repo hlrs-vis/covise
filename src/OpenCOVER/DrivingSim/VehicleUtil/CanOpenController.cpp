@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "CanOpenController.h"
+using namespace vehicleUtil;
 
 CanOpenController::CanOpenController(const std::string &device)
     : CanController(device)

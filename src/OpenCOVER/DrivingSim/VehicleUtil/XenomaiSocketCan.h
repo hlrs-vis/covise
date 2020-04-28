@@ -25,6 +25,9 @@ typedef canid_t can_id_t;
 #include <stdio.h>
 
 VEHICLEUTILEXPORT std::ostream &operator<<(std::ostream &, const can_frame &);
+namespace vehicleUtil
+{
+
 
 class VEHICLEUTILEXPORT XenomaiSocketCan
 {
@@ -113,5 +116,5 @@ inline int XenomaiSocketCan::sendFrame(const can_frame &frame, int flags) const
 
     return ret_send;
 }
-
+}
 #endif

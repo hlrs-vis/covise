@@ -30,6 +30,9 @@
 #include "CanOpenDevice.h"
 #include <stdlib.h>
 #include <list>
+namespace vehicleUtil
+{
+
 
 class CanOpenDevice; // forward class declaration
 class CANProvider; // forward class declaration
@@ -100,5 +103,5 @@ private:
     volatile bool isRunning;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

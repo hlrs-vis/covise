@@ -11,6 +11,9 @@
 #include "XenomaiSocketCan.h"
 
 #include <map>
+namespace vehicleUtil
+{
+
 
 class CanController : public XenomaiSocketCan
 {
@@ -95,6 +98,8 @@ inline void CanController::sendPDO()
         sendFrame(mapIt->second);
         //std::cerr << "send: " << mapIt->second << std::endl;
     }
+}
+
 }
 
 #endif

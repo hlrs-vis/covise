@@ -32,6 +32,9 @@
 #include <iostream>
 #include <native/timer.h>
 
+namespace vehicleUtil
+{
+
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
 class GasPedal : public HMIDeviceIface
@@ -116,5 +119,5 @@ private:
     can_frame demandFrame;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

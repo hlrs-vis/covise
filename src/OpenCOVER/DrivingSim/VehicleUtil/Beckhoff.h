@@ -42,6 +42,8 @@
 #include <deque>
 #include <cstdlib>
 
+namespace vehicleUtil
+{
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
 class VEHICLEUTILEXPORT Beckhoff : public CanOpenDevice, public HMIDeviceIface
@@ -95,6 +97,7 @@ protected:
     uint8_t RPDOAnalog[8];
     uint8_t *TPDOAnalog;
 };
+}
 //--------------------------------------------------------------------
 
 #endif

@@ -12,6 +12,9 @@
 
 #include <vector>
 
+namespace vehicleUtil
+{
+
 class VEHICLEUTILEXPORT CanOpenDevice
 {
 public:
@@ -43,5 +46,5 @@ protected:
     CanOpenController *controller;
     uint8_t nodeid;
 };
-
+}
 #endif

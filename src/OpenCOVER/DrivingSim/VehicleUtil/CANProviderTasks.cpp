@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <unistd.h>
 
+using namespace vehicleUtil;
+
 //SendTask////////////////////////////////////////////////////////////
 
 // constructor, destructor, instance ---------------------------------

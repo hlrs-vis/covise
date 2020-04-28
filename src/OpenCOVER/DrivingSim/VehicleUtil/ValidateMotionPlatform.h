@@ -17,6 +17,8 @@
 #include <cmath>
 #include <unistd.h>
 #include <osg/Matrix>
+namespace vehicleUtil
+{
 
 class VEHICLEUTILEXPORT ValidateMotionPlatform : public XenomaiTask, public XenomaiSocketCan
 {
@@ -410,5 +412,6 @@ inline osg::Matrix ValidateMotionPlatform::motionPlatformPosition()
 	
 	
 	return outMatrix;
+}
 }
 #endif

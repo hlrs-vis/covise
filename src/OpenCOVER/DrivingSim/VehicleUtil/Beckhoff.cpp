@@ -8,6 +8,8 @@
 #include "Beckhoff.h"
 
 //Beckhoff/////////////////////////////////////////////////////
+using namespace vehicleUtil;
+
 
 // set protected static pointer for singleton to NULL
 Beckhoff *Beckhoff::p_Beckhoff = NULL;
