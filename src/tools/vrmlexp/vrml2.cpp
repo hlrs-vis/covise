@@ -7950,13 +7950,13 @@ VRML2Export::VrmlOutTopLevelFog(int level, INode *node, BOOL topLevel)
 	int type;
 	fog->pblock->GetValue(PB_COLOR, mIp->GetTime(), p, FOREVER);
 	fog->pblock->GetValue(PB_TYPE, mIp->GetTime(), type, FOREVER);
-	fog->pblock->GetValue(PB_VIS_LIMIT, mIp->GetTime(), visLimit, FOREVER);
+	fog->pblock->GetValue(PB_VIS_RANGE, mIp->GetTime(), visLimit, FOREVER);
 	Indent(level);
 	MSTREAMPRINTF("DEF %s Fog {\n"), mNodes.GetNodeName(node));
 	Indent(level + 1);
 	MSTREAMPRINTF("color %s\n"), color(p));
 	Indent(level + 1);
-	MSTREAMPRINTF("fogType \"%s\"\n"), type == 0 ? _T("LINEAR") :
+	MSTREAMPRINTF("fogType \"%s\"\n"), type == 1 ? _T("LINEAR") :
 		_T("EXPONENTIAL"));
 		Indent(level + 1);
 		MSTREAMPRINTF("visibilityRange %s\n"), floatVal(visLimit));

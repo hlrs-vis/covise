@@ -23,7 +23,7 @@ using Bitmap = System.Drawing.Bitmap;
 using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
 using IWin32Window = System.Windows.Forms.IWin32Window;
-
+//using System.Windows.Media.Media3D;
 
 namespace OpenCOVERPlugin
 {
@@ -38,6 +38,14 @@ namespace OpenCOVERPlugin
             message = m;
             messageType = mt;
         }
+    }
+    public class AxisInfo
+    {
+        public XYZ origin;
+        public XYZ direction;
+        public int level;
+        public double min;
+        public double max;
     }
     public class TextureInfo
     {
@@ -81,7 +89,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -779,7 +787,7 @@ namespace OpenCOVERPlugin
 
             if (elem is Autodesk.Revit.DB.TextNote)
             {
-                sendTextNote(elem);
+                //sendTextNote(elem);
             }
             if(elem is Autodesk.Revit.DB.RevitLinkInstance)
             {
@@ -1413,7 +1421,86 @@ namespace OpenCOVERPlugin
             bbR.Min = new XYZ(100000, 100000, 100000);
             bbR.Max = new XYZ(-100000, -100000, -100000);
             bool hasStyle = false;
-            if(elem.Category!=null)
+            bool hasIK = false;
+            if(fi != null)
+            {
+                Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
+                if (family != null)
+                {
+                    String Name = family.FamilyName;
+                    if (Name.Contains("Kinematics"))
+                    {
+                        // This object contains kinematics information
+                        // search for lines representing axis
+
+                        Options geometryOptions = new Options();
+                        geometryOptions.IncludeNonVisibleObjects = true;
+                        geometryOptions.ComputeReferences = true;
+                        List<AxisInfo> rotationAxis = new List<AxisInfo>();
+                        GeometryElement geom = elem.get_Geometry(geometryOptions);
+                        if ((geom != null) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                        {
+                            GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                            if (geomInst != null)
+                            {
+                                GeometryElement geom2 = geomInst.GetSymbolGeometry();
+                                IEnumerator<Autodesk.Revit.DB.GeometryObject> lineObjects = geom2.GetEnumerator();
+                                while (lineObjects.MoveNext())
+                                {
+                                    Autodesk.Revit.DB.GeometryObject geomObject = lineObjects.Current;
+                                    if (geomObject is Autodesk.Revit.DB.Line)
+                                    {
+                                        Line l = geomObject as Line;
+                                        Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                                        if (graphicsStyle != null)
+                                        {
+                                            if (graphicsStyle.Name.StartsWith("Axis") == true)
+                                            {
+                                                int axisnumber = 0;
+                                                int length = 1;
+                                                if(graphicsStyle.Name.Length > 5 && graphicsStyle.Name[5]>='0' && graphicsStyle.Name[5] <= '9')
+                                                    length = 2;
+                                                if (Int32.TryParse(graphicsStyle.Name.Substring(4,length), out axisnumber))
+                                                {
+                                                    // you know that the parsing attempt
+                                                    // was successful
+                                                    //we found a rotation axis
+                                                    AxisInfo ai = new AxisInfo();
+                                                    ai.origin = l.Origin;
+                                                    ai.direction = l.Direction;
+                                                    ai.min = 0;
+                                                    ai.max = 0;
+                                                    ai.level = axisnumber;
+                                                    rotationAxis.Add(ai);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (rotationAxis.Count > 0)
+                        {
+                            MessageBuffer mb = new MessageBuffer();
+                            mb.add(elem.Id.IntegerValue);
+                            mb.add(DocumentID);
+                            mb.add(rotationAxis.Count);
+
+                            foreach (AxisInfo ai in rotationAxis)
+                            {
+                                mb.add(ai.level);
+                                mb.add(ai.origin);
+                                mb.add(ai.direction);
+                                mb.add(ai.min);
+                                mb.add(ai.max);
+                            }
+                            sendMessage(mb.buf, MessageTypes.IKInfo);
+                            hasIK = true;
+                        }
+                    }
+                }
+            }
+            if (elem.Category!=null)
             {
                 if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
                 {
@@ -1488,43 +1575,21 @@ namespace OpenCOVERPlugin
                     bbR.Min = new XYZ(0, -0.01, -1);
                     bbR.Max = new XYZ(2, 0.01, 1);
                 }
-                // try to find out the pivot point of rotating doors by searching for arcs in the floor plan.
-                // multiple arcs might be from multiple door wings or of the same door if they share the same origin.
-                /*Reference panelPlane = fi.GetReferenceByName("PanelPlane");
-                Reference rotPlane = fi.GetReferenceByName("RotPlane");
-                Element el = elem.Document.GetElement(panelPlane.ElementId);
-                ReferencePlane rp = elem.Document.GetElement(panelPlane.ElementId) as Autodesk.Revit.DB.ReferencePlane;
+                
 
-                IList<Reference> refList = fi.GetReferences(FamilyInstanceReferenceType.WeakReference);
-                foreach (Reference r in refList)
-                {
-                    String test = r.ToString();
+                XYZ CenterLeft = new XYZ(10000, 0, 0);
+                XYZ CenterRight = new XYZ(10000, 0, 0);
 
-                }
-                 ViewFamilyType vd = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>().FirstOrDefault(q => q.ViewFamily == ViewFamily.FloorPlan);
-                 using (Transaction transaction = new Transaction(elem.Document))
-                 {
-                     if (transaction.Start("changeParameters") == TransactionStatus.Started)
-                     {
-                         View tempView = ViewPlan.Create(elem.Document, vd.Id, elem.LevelId);
-                         Options geometryOptions = elem.Docu
-                             geometryOptions.view = tempView;
-                         fi.get_Geometry(geometryOptions);
-                     }
-                     transaction.RollBack();
-                 }*/
-                ViewPlan arbitaryFloorPlan = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewPlan)).Cast<ViewPlan>().Where(x => !x.IsTemplate).FirstOrDefault();
-                Options geometryOptions = new Options();
-                geometryOptions.IncludeNonVisibleObjects = true;
-                geometryOptions.ComputeReferences = true;
-                geometryOptions.View = arbitaryFloorPlan;
-                GeometryElement geom = elem.get_Geometry(geometryOptions);
-                XYZ CenterLeft = new XYZ(10000,0,0);
-                XYZ CenterRight = new XYZ(10000, 0, 0); ;
-                if ((geom != null ) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                // try to find arcs with GraphicsStype _Left or _Right
+                Options geometryOptionsArc = new Options();
+                geometryOptionsArc.IncludeNonVisibleObjects = true;
+                geometryOptionsArc.ComputeReferences = true;
+                List<AxisInfo> rotationAxis = new List<AxisInfo>();
+                GeometryElement geomArc = elem.get_Geometry(geometryOptionsArc);
+                if ((geomArc != null) && (geomArc.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
                 {
-                    GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
-                    if(geomInst !=null)
+                    GeometryInstance geomInst = geomArc.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                    if (geomInst != null)
                     {
                         GeometryElement geom2 = geomInst.GetSymbolGeometry();
                         IEnumerator<Autodesk.Revit.DB.GeometryObject> arcObjects = geom2.GetEnumerator();
@@ -1534,14 +1599,60 @@ namespace OpenCOVERPlugin
                             if (geomObject is Autodesk.Revit.DB.Arc)
                             {
                                 Arc a = geomObject as Arc;
-                                XYZ c = a.Center;
-                                if (CenterLeft.X == 10000)
+                                Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                                if (graphicsStyle != null)
                                 {
-                                    CenterLeft = c;
+                                    XYZ c = a.Center;
+                                    if (graphicsStyle.Name.EndsWith("_Left"))
+                                        CenterLeft = c;
+                                    if (graphicsStyle.Name.EndsWith("_Right"))
+                                        CenterRight = c;
                                 }
-                                if (CenterLeft != c)
+                            }
+                        }
+                    }
+                }
+
+                if (CenterLeft.X == 10000)
+                {
+                    // find arcs in floor plan
+                    ViewPlan arbitaryFloorPlan = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewPlan)).Cast<ViewPlan>().Where(x => !x.IsTemplate).FirstOrDefault();
+                    Options geometryOptions = new Options();
+                    geometryOptions.IncludeNonVisibleObjects = true;
+                    geometryOptions.ComputeReferences = true;
+                    geometryOptions.View = arbitaryFloorPlan;
+                    GeometryElement geom = elem.get_Geometry(geometryOptions);
+                    if ((geom != null) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                    {
+                        GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                        if (geomInst != null)
+                        {
+                            GeometryElement geom2 = geomInst.GetSymbolGeometry();
+                            IEnumerator<Autodesk.Revit.DB.GeometryObject> arcObjects = geom2.GetEnumerator();
+                            while (arcObjects.MoveNext())
+                            {
+                                Autodesk.Revit.DB.GeometryObject geomObject = arcObjects.Current;
+                                if (geomObject is Autodesk.Revit.DB.Arc)
                                 {
-                                    CenterRight = c;
+                                    Arc a = geomObject as Arc;
+                                    XYZ c = a.Center;
+
+                                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                                    if (graphicsStyle != null)
+                                    {
+                                        if (graphicsStyle.Name.EndsWith("_Left"))
+                                            CenterLeft = c;
+                                        if (graphicsStyle.Name.EndsWith("_Right"))
+                                            CenterRight = c;
+                                    }
+                                        if (CenterLeft.X == 10000)
+                                        {
+                                            CenterLeft = c;
+                                        }
+                                        if (CenterLeft != c && CenterRight.X == 10000)
+                                        {
+                                            CenterRight = c;
+                                        }
                                 }
                             }
                         }
@@ -1561,6 +1672,15 @@ namespace OpenCOVERPlugin
             }
             else
             {
+
+                if (hasIK)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name);
+                    sendMessage(mb.buf, MessageTypes.NewGroup);
+                }
                 IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator();
                 while (Objects.MoveNext())
                 {
@@ -1569,6 +1689,14 @@ namespace OpenCOVERPlugin
                     sendGeomElement(elem,num, geomObject,false);
                     num++;
 
+                }
+                if (hasIK)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name);
+                    sendMessage(mb.buf, MessageTypes.EndGroup);
                 }
             }
         }
@@ -1640,25 +1768,29 @@ namespace OpenCOVERPlugin
             Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
             if (family != null)
             {
-                bool sliding = false;
+                int sliding = 0;
                 String oper = family.get_Parameter(BuiltInParameter.DOOR_OPERATION_TYPE).AsString();
-                if (oper == "SlidingToLeft" || oper == "SlidingToRight")
+                if (oper == "SlidingToLeft" )
                 {
-                    sliding = true;
+                    sliding = -1;
+                }
+                else if (oper == "SlidingToRight")
+                {
+                    sliding = 1;
                 }
                 else
                 {
                     IList<Parameter> ps = family.GetParameters("isSliding");
                     if ((ps.Count > 0) && (ps[0] != null))
                     {
-                        sliding = (ps[0].AsInteger() != 0);
+                        sliding = ps[0].AsInteger();
                     }
                 }
                 mb.add(sliding);
             }
             else
             {
-                mb.add(false);
+                mb.add(0);
             }
             mb.add(bb.Min);
             mb.add(bb.Max);
@@ -1673,7 +1805,7 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
                 if (graphicsStyle == null || (graphicsStyle.Name != "Frame/Mullion" && graphicsStyle.Name != "Rahmen/Pfosten"))
                 {
-                    if (namelen == 0 || (graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
+                    if (namelen == 0 || (graphicsStyle !=null && graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
                     {
                         sendGeomElement(elem, num, geomObject, false);
                     }

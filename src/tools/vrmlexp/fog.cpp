@@ -194,8 +194,8 @@ FogObject::FogObject()
                                            CURRENT_VERSION);
     pb->SetValue(PB_TYPE, 0, 0);
     pb->SetValue(PB_COLOR, 0, Point3(1, 1, 1));
-    pb->SetValue(PB_VIS_RANGE, 0, 0.0f);
-    pb->SetValue(PB_FOG_SIZE, 1, 1.0f);
+    pb->SetValue(PB_VIS_RANGE, 0, 10.0f);
+    pb->SetValue(PB_FOG_SIZE, 0, 1.0f);
 #if MAX_PRODUCT_VERSION_MAJOR > 8
     ReplaceReference(0, pb);
 #else

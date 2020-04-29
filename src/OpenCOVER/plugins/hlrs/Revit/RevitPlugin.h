@@ -150,6 +150,29 @@ public:
     int ID;
 };
 
+class IKAxisInfo
+{
+public:
+    IKAxisInfo();
+    osg::Matrix mat;
+    osg::Matrix invMat;
+    osg::Matrix sumMat;
+    osg::Matrix invSumMat;
+    osg::Vec3 origin;
+    osg::Vec3 direction;
+    double min;
+    double max;
+    osg::MatrixTransform* transform;
+};
+
+class IKInfo
+{
+public:
+    IKInfo();
+    int ID;
+    int DocumentID;
+    std::vector<IKAxisInfo> axis;
+};
 
 class ARMarkerInfo
 {
@@ -209,13 +232,16 @@ public:
 class DoorInfo
 {
 public:
+
+    enum SlidingDirection { dirLeft=-1, dirNone=0,dirRight=1 };
+
 	DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuffer &tb);
 	std::string name;
 	osg::MatrixTransform *transformNode;
 	int ID;
 	bool HandFlipped;
 	bool FaceFlipped;
-	bool isSliding;
+    SlidingDirection isSliding;
 	osg::Vec3 HandOrientation;
 	osg::Vec3 FaceOrientation;
 	osg::Vec3 Direction;
@@ -332,7 +358,8 @@ public:
 		MSG_NewPointCloud = 530,
 		MSG_NewARMarker = 531,
         MSG_DesignOptionSets = 532,
-        MSG_SelectDesignOption = 533
+        MSG_SelectDesignOption = 533,
+        MSG_IKInfo = 534
     };
     enum ObjectTypes
     {
@@ -402,6 +429,7 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> revitGroup;
     std::stack<osg::Group *> currentGroup;
     std::vector<std::map<int, ElementInfo *>> ElementIDMap;
+    std::vector<IKInfo*> ikInfos;
     osg::Matrix invStartMoveMat;
     osg::Matrix lastMoveMat;
     bool MoveFinished;

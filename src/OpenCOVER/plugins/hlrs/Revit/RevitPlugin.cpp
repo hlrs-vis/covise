@@ -64,6 +64,14 @@ using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
 int ElementInfo::yPos = 3;
+IKAxisInfo::IKAxisInfo()
+{
+	transform = nullptr;
+}
+IKInfo::IKInfo()
+{
+
+}
 
 RevitDesignOption::RevitDesignOption(RevitDesignOptionSet *s)
 {
@@ -1205,6 +1213,13 @@ RevitPlugin::handleMessage(Message *m)
 			}
 			delete ei;
 			ElementIDMap[docID].erase(it);
+			for (auto& ik : ikInfos)
+			{
+				if (ik->ID == ID && ik->DocumentID == docID)
+				{
+					delete ik;
+				}
+			}
 		}
 	}
 	break;
@@ -1338,9 +1353,45 @@ RevitPlugin::handleMessage(Message *m)
 		{
 			delete *it;
 		}
+		ikInfos.clear();
 		doors.clear();
 		activeDoors.clear();
 
+	}
+	break;
+	case MSG_IKInfo:
+	{
+		TokenBuffer tb(m);
+		IKInfo* iki = new IKInfo();
+		tb >> iki->ID;
+		tb >> iki->DocumentID;
+		int numAxis = 0;
+		tb >> numAxis;
+		iki->axis.resize(numAxis);
+		osg::Matrix mat,iMat;
+		for (int i = 0; i < numAxis; i++)
+		{
+			int level;
+			tb >> level;
+			level--;
+			tb >> iki->axis[level].origin;
+			tb >> iki->axis[level].direction;
+			tb >> iki->axis[level].min;
+			tb >> iki->axis[level].max;
+		}
+		for (int i = 0; i < numAxis; i++)
+		{
+			osg::Matrix m,r;
+			iki->axis[i].sumMat = mat;
+			iki->axis[i].invSumMat = iMat;
+			m.makeTranslate(iki->axis[i].origin);
+			r.makeRotate(osg::Vec3(0, 0, 1), iki->axis[i].direction);
+			mat = r*m;
+			iMat.invert(mat);
+			iki->axis[i].mat = mat * iki->axis[i].invSumMat;
+			iki->axis[i].invMat.invert(iki->axis[i].mat);
+		}
+		ikInfos.push_back(iki);
 	}
 	break;
 	case MSG_NewAnnotation:
@@ -1591,6 +1642,21 @@ RevitPlugin::handleMessage(Message *m)
 		ei->ID = ID;
 		ei->DocumentID = docID;
 		tb >> GeometryType;
+		IKInfo* currentIK = nullptr;
+		int level = -1;
+		for (auto const& ik : ikInfos)
+		{
+			if (ik->ID == ID && ik->DocumentID == docID)
+			{
+				currentIK = ik;
+				size_t pos = ei->name.find("Part");
+				if (pos != std::string::npos)
+				{
+					level = std::stoi(ei->name.substr(pos + 4));
+					level--; // level should start at 0
+				}
+			}
+		}
 		if (GeometryType == OBJ_TYPE_Mesh)
 		{
 
@@ -1624,6 +1690,16 @@ RevitPlugin::handleMessage(Message *m)
 				tb >> y;
 				tb >> z;
 				vert->push_back(osg::Vec3(x, y, z));
+			}
+
+			if (currentIK && level >= 0)
+			{
+				//transform all vertices
+				osg::Matrix m = currentIK->axis[level].invMat * currentIK->axis[level].invSumMat;
+				for (int i=0;i<vert->size();i++)
+				{
+					(*vert)[i] = (*vert)[i] *m;
+				}
 			}
 
 			bool isDepthOnly = false;
@@ -1700,7 +1776,49 @@ RevitPlugin::handleMessage(Message *m)
 				info->ObjectID = ID;
 				OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
 			}
-			currentGroup.top()->addChild(geode);
+			if (currentIK && level >= 0)
+			{
+				if (currentIK->axis[level].transform == nullptr)
+				{
+					currentIK->axis[level].transform = new osg::MatrixTransform();
+					currentIK->axis[level].transform->setName(std::string("level") + std::to_string(level+1));
+					currentIK->axis[level].transform->setMatrix(currentIK->axis[level].mat);
+					if (level == 0)
+					{
+						currentGroup.top()->addChild(currentIK->axis[level].transform);
+					}
+					else
+					{
+						for (int i = 0; i < level; i++)
+						{
+							if (currentIK->axis[i].transform == nullptr)
+							{
+								currentIK->axis[i].transform = new osg::MatrixTransform();
+								currentIK->axis[i].transform->setName(std::string("level") + std::to_string(i+1));
+								currentIK->axis[i].transform->setMatrix(currentIK->axis[i].mat);
+								{
+
+									if (i == 0)
+									{
+										currentGroup.top()->addChild(currentIK->axis[i].transform);
+									}
+									else
+									{
+										currentIK->axis[i - 1].transform->addChild(currentIK->axis[i].transform);
+									}
+								}
+							}
+						}
+						currentIK->axis[level - 1].transform->addChild(currentIK->axis[level].transform);
+					}
+				}
+				currentIK->axis[level].transform->addChild(geode);
+
+			}
+			else
+			{
+				currentGroup.top()->addChild(geode);
+			}
 		}
 		else if (GeometryType == OBJ_TYPE_Inline)
 		{
@@ -2606,19 +2724,33 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	tb >> FaceFlipped;
 	tb >> FaceOrientation;
 	tb >> Origin;
-	tb >> isSliding;
+	int dir;
+	tb >> dir;
+	isSliding = SlidingDirection(dir);
 	osg::Vec3 BBMin;
 	osg::Vec3 BBMax;
 	tb >> BBMin;
 	tb >> BBMax;
 	boundingBox.set(BBMin, BBMax);
-	if (isSliding)
+	if (isSliding != SlidingDirection::dirNone)
 	{
 		maxDistance = boundingBox.xMax() - boundingBox.xMin();
 		if (maxDistance == 0)
 			maxDistance = 1;
 		HandOrientation.normalize(); // HandOrientation is in Revit World coordinates so either transform this back to local coordinates orjust use X for now.
-		Direction = osg::Vec3(-1, 0, 0)*maxDistance;
+		Direction = osg::Vec3(1, 0, 0)*maxDistance;
+		if (strncmp(Name, "DoorMovingParts_Right", 21) == 0)
+		{
+			//Direction *= -1;
+		}
+		else if(strncmp(Name, "DoorMovingParts_Left", 20) == 0)
+		{
+			Direction *= -1;
+		}
+		else
+		{
+			Direction *= isSliding;
+		}
 	//	if (!HandFlipped)
 	//	{
 	//		Direction *= -1;
