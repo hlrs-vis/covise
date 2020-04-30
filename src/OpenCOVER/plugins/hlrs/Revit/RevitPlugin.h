@@ -163,6 +163,7 @@ public:
     double min;
     double max;
     osg::MatrixTransform* transform;
+    osg::MatrixTransform* rotTransform;
 };
 
 class IKInfo

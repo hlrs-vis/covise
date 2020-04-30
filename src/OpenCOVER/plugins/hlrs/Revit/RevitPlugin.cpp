@@ -1388,7 +1388,7 @@ RevitPlugin::handleMessage(Message *m)
 			r.makeRotate(osg::Vec3(0, 0, 1), iki->axis[i].direction);
 			mat = r*m;
 			iMat.invert(mat);
-			iki->axis[i].mat = mat * iki->axis[i].invSumMat;
+			iki->axis[i].mat = mat * iki->axis[i].invSumMat ;
 			iki->axis[i].invMat.invert(iki->axis[i].mat);
 		}
 		ikInfos.push_back(iki);
@@ -1695,7 +1695,7 @@ RevitPlugin::handleMessage(Message *m)
 			if (currentIK && level >= 0)
 			{
 				//transform all vertices
-				osg::Matrix m = currentIK->axis[level].invMat * currentIK->axis[level].invSumMat;
+				osg::Matrix m =  currentIK->axis[level].invSumMat * currentIK->axis[level].invMat;
 				for (int i=0;i<vert->size();i++)
 				{
 					(*vert)[i] = (*vert)[i] *m;
@@ -1783,6 +1783,11 @@ RevitPlugin::handleMessage(Message *m)
 					currentIK->axis[level].transform = new osg::MatrixTransform();
 					currentIK->axis[level].transform->setName(std::string("level") + std::to_string(level+1));
 					currentIK->axis[level].transform->setMatrix(currentIK->axis[level].mat);
+
+					currentIK->axis[level].rotTransform = new osg::MatrixTransform();
+					currentIK->axis[level].rotTransform->setName(std::string("rot") + std::to_string(level + 1));
+					currentIK->axis[level].transform->addChild(currentIK->axis[level].rotTransform);
+
 					if (level == 0)
 					{
 						currentGroup.top()->addChild(currentIK->axis[level].transform);
@@ -1796,6 +1801,10 @@ RevitPlugin::handleMessage(Message *m)
 								currentIK->axis[i].transform = new osg::MatrixTransform();
 								currentIK->axis[i].transform->setName(std::string("level") + std::to_string(i+1));
 								currentIK->axis[i].transform->setMatrix(currentIK->axis[i].mat);
+
+								currentIK->axis[i].rotTransform = new osg::MatrixTransform();
+								currentIK->axis[i].rotTransform->setName(std::string("rot") + std::to_string(i + 1));
+								currentIK->axis[i].transform->addChild(currentIK->axis[i].rotTransform);
 								{
 
 									if (i == 0)
@@ -1804,15 +1813,15 @@ RevitPlugin::handleMessage(Message *m)
 									}
 									else
 									{
-										currentIK->axis[i - 1].transform->addChild(currentIK->axis[i].transform);
+										currentIK->axis[i - 1].rotTransform->addChild(currentIK->axis[i].transform);
 									}
 								}
 							}
 						}
-						currentIK->axis[level - 1].transform->addChild(currentIK->axis[level].transform);
+						currentIK->axis[level - 1].rotTransform->addChild(currentIK->axis[level].transform);
 					}
 				}
-				currentIK->axis[level].transform->addChild(geode);
+				currentIK->axis[level].rotTransform->addChild(geode);
 
 			}
 			else

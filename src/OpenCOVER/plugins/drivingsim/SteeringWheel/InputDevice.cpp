@@ -26,11 +26,11 @@
 #endif
 #include "FourWheelDynamicsRealtime.h"
 #include "EinspurDynamikRealtime.h"
+using namespace vehicleUtil;
+
 #endif
 
 #include <OpenVRUI/osg/mathUtils.h>
-
-using namespace vehicleUtil;
 
 #ifndef USE_CAR_SOUND
 Player *InputDevice::player = NULL;
