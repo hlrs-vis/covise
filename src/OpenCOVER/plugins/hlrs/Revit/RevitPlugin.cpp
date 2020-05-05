@@ -62,15 +62,139 @@
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
+/*
+using namespace RigidBodyDynamics;
+using namespace RigidBodyDynamics::Math;
+*/
 
 int ElementInfo::yPos = 3;
 IKAxisInfo::IKAxisInfo()
 {
 	transform = nullptr;
 }
+
+//void IKAxisInfo::initIK(RigidBodyDynamics::Model* model, unsigned int parent_id)
+/*	body = Body(1., Vector3d(origin.x() / 2.0, origin.y() / 2.0, origin.z() / 2.0), Vector3d(0.1, 0.1, 0.1));
+	joint = Joint(RigidBodyDynamics::JointTypeRevolute, Vector3d(direction.x(), direction.y(), direction.z()));
+	body_id = model->AddBody(parent_id, Xtrans(Vector3d(origin.x(), origin.y(), origin.z())), joint, body);*/
+void IKAxisInfo::initIK(IKInfo* iki,ik_node_t* parent, unsigned int myID)
+{
+	ikinfo = iki;
+	node = ikinfo->solver->node->create_child(parent,myID);
+	node->position.x = origin.x();
+	node->position.y = origin.y();
+	node->position.z = origin.z();
+	osg::Quat q;
+	q.set(mat);
+	node->rotation.x = q.x();
+	node->rotation.y = q.y();
+	node->rotation.z = q.z();
+	node->rotation.w = q.w();
+
+	rotTransform = new MatrixTransform();
+}
+
 IKInfo::IKInfo()
 {
 
+	solver = ik.solver.create(IK_FABRIK);
+	base = solver->node->create(0);
+	
+
+}
+void IKInfo::intiIK()
+{
+
+	/* attach an end-effector to the tip node */
+	effector = solver->effector->create();
+
+	/* We want to calculate rotations as well as positions */
+	solver->flags |= IK_ENABLE_TARGET_ROTATIONS;
+	solver->flags |= IK_ENABLE_CONSTRAINTS;
+
+	ik.solver.set_tree(solver, base);
+	ik.solver.rebuild(solver);
+	ik.solver.solve(solver);
+
+/*	Q = VectorNd::Constant((size_t)model->dof_count, 0.);
+	QDot = VectorNd::Constant((size_t)model->dof_count, 0.);
+	QDDot = VectorNd::Constant((size_t)model->dof_count, 0.);
+	Tau = VectorNd::Constant((size_t)model->dof_count, 0.);
+
+	for (int i = 0; i < axis.size(); i++)
+	{
+		Q[i] = 0.0;
+	}
+
+	VectorNd Qres = VectorNd::Zero((size_t)model->dof_count);
+
+	unsigned int lastBodyID = axis[axis.size()-1].body_id;
+	Vector3d bodyPoint = Vector3d(0.1, 0., 0.);
+
+	Vector3d target(1.3, 0., 0.);
+
+	updateGeometry();
+	target = CalcBodyToBaseCoordinates(*model, Q, lastBodyID, bodyPoint, false);
+	target[0] += 0.1;
+	target[1] += 0.1;
+	target[2] -= 0.5;
+	RevitPlugin::instance()->xPos->setValue(target[0]);
+	RevitPlugin::instance()->yPos->setValue(target[1]);
+	RevitPlugin::instance()->zPos->setValue(target[2]);
+
+	body_ids.clear();
+	body_points.clear();
+	target_pos.clear();
+
+	body_ids.push_back(lastBodyID);
+	body_points.push_back(bodyPoint);
+	target_pos.push_back(target);
+
+	bool res = InverseKinematics(*model, Q, body_ids, body_points, target_pos, Qres);
+	if (res)
+	{
+		Q = Qres;
+		updateGeometry();
+	}
+
+	Vector3d effector;
+	effector = CalcBodyToBaseCoordinates(*model, Qres, lastBodyID, bodyPoint, false);*/
+}
+
+
+void IKInfo::updateIK()
+{
+	/*VectorNd Qres =Q;
+	Vector3d target(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
+	target_pos.clear();
+	target_pos.push_back(target);
+	bool res = InverseKinematics(*model, Q, body_ids, body_points, target_pos, Qres);
+	if (res)
+	{
+		Q = Qres;
+		updateGeometry();
+	}*/
+}
+
+void RevitPlugin::updateIK()
+{
+	for (auto& iki : ikInfos)
+	{
+		iki->updateIK();
+	}
+}
+
+void IKInfo::updateGeometry()
+{
+	/*UpdateKinematicsCustom(*model, &Q, NULL, NULL);
+
+	for (int i = 0; i < axis.size(); i++)
+	{
+		if (axis[i].rotTransform)
+		{
+			axis[i].rotTransform->setMatrix(osg::Matrix::rotate(Q[i], osg::Vec3(0, 0, 1)));
+		}
+	}*/
 }
 
 RevitDesignOption::RevitDesignOption(RevitDesignOptionSet *s)
@@ -542,7 +666,18 @@ void RevitPlugin::createMenu()
 
 	revitMenu = new ui::Menu("Revit", this);
 	revitMenu->setText("Revit");
-
+	xPos = new ui::EditField(revitMenu, "X");
+	yPos = new ui::EditField(revitMenu, "Y");
+	zPos = new ui::EditField(revitMenu, "Z");
+	xPos->setCallback([this](const std::string &) {
+		updateIK();
+		});
+	yPos->setCallback([this](const std::string&) {
+		updateIK();
+		});
+	zPos->setCallback([this](const std::string&) {
+		updateIK();
+		});
 	viewpointMenu = new ui::Menu(revitMenu, "RevitViewpoints");
 	viewpointMenu->setText("Viewpoints");
 	parameterMenu = new ui::Menu(revitMenu, "RevitParameters");
@@ -574,6 +709,7 @@ void RevitPlugin::createMenu()
 
 }
 
+
 void RevitPlugin::destroyMenu()
 {
 	for (const auto& set : designOptionSets)
@@ -585,6 +721,11 @@ void RevitPlugin::destroyMenu()
 RevitPlugin::RevitPlugin() : ui::Owner("RevitPlugin", cover->ui)
 {
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
+
+
+	ik_init();
+	ik_log_init();
+
 	plugin = this;
 	MoveFinished = true;
     setViewpoint = true;
@@ -653,6 +794,9 @@ bool RevitPlugin::init()
 	currentGroup.push(revitGroup.get());
 	cover->getObjectsRoot()->addChild(revitGroup.get());
 	createMenu();
+
+
+
 	return true;
 }
 // this is called if the plugin is removed at runtime
@@ -1379,6 +1523,8 @@ RevitPlugin::handleMessage(Message *m)
 			tb >> iki->axis[level].min;
 			tb >> iki->axis[level].max;
 		}
+		unsigned int node_id = 0;
+		ik_node_t* parent = iki->base;
 		for (int i = 0; i < numAxis; i++)
 		{
 			osg::Matrix m,r;
@@ -1390,7 +1536,14 @@ RevitPlugin::handleMessage(Message *m)
 			iMat.invert(mat);
 			iki->axis[i].mat = mat * iki->axis[i].invSumMat ;
 			iki->axis[i].invMat.invert(iki->axis[i].mat);
+
+			node_id++;
+			iki->axis[i].initIK(parent, node_id);
+			parent = iki->axis[i].node;
 		}
+		iki->intiIK();
+
+
 		ikInfos.push_back(iki);
 	}
 	break;
@@ -1784,7 +1937,6 @@ RevitPlugin::handleMessage(Message *m)
 					currentIK->axis[level].transform->setName(std::string("level") + std::to_string(level+1));
 					currentIK->axis[level].transform->setMatrix(currentIK->axis[level].mat);
 
-					currentIK->axis[level].rotTransform = new osg::MatrixTransform();
 					currentIK->axis[level].rotTransform->setName(std::string("rot") + std::to_string(level + 1));
 					currentIK->axis[level].transform->addChild(currentIK->axis[level].rotTransform);
 
@@ -1802,7 +1954,6 @@ RevitPlugin::handleMessage(Message *m)
 								currentIK->axis[i].transform->setName(std::string("level") + std::to_string(i+1));
 								currentIK->axis[i].transform->setMatrix(currentIK->axis[i].mat);
 
-								currentIK->axis[i].rotTransform = new osg::MatrixTransform();
 								currentIK->axis[i].rotTransform->setName(std::string("rot") + std::to_string(i + 1));
 								currentIK->axis[i].transform->addChild(currentIK->axis[i].rotTransform);
 								{

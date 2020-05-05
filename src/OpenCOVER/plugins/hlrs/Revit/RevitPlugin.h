@@ -42,7 +42,17 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Group.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+
+#include <ik/ik.h>
+
+/*
+#include "rbdl/rbdl_mathutils.h"
+#include "rbdl/Model.h"
+#include "rbdl/Kinematics.h"
+#include "rbdl/Dynamics.h"
+*/
 
 #define REVIT_FEET_TO_M 0.304799999536704
 #define REVIT_M_TO_FEET 3.2808399
@@ -164,15 +174,43 @@ public:
     double max;
     osg::MatrixTransform* transform;
     osg::MatrixTransform* rotTransform;
+
+   /* RigidBodyDynamics::Body body;
+    RigidBodyDynamics::Joint joint;
+    unsigned int body_id;
+
+    void initIK(RigidBodyDynamics::Model* model, unsigned int parent_id);*/
+    IKInfo* ikinfo=nullptr;
+    ik_node_t* node;
+    void initIK(IKInfo* iki, ik_node_t* parent, unsigned int myID);
 };
 
 class IKInfo
 {
 public:
-    IKInfo();
+    IKInfo(); 
+    void IKInfo::intiIK();
+    void updateIK();
+    void updateGeometry();
     int ID;
     int DocumentID;
     std::vector<IKAxisInfo> axis;
+
+    ik_node_t* base;
+    ik_effector_t* effector;
+    ik_solver_t* solver;
+
+  /*  RigidBodyDynamics::Model* model;
+
+
+    RigidBodyDynamics::Math::VectorNd Q;
+    RigidBodyDynamics::Math::VectorNd QDot;
+    RigidBodyDynamics::Math::VectorNd QDDot;
+    RigidBodyDynamics::Math::VectorNd Tau;
+
+    std::vector<unsigned int> body_ids;
+    std::vector<RigidBodyDynamics::Math::Vector3d> body_points;
+    std::vector<RigidBodyDynamics::Math::Vector3d> target_pos;*/
 };
 
 class ARMarkerInfo
@@ -388,12 +426,16 @@ public:
 
     void destroyMenu();
     void createMenu();
+    void updateIK();
 
     int maxEntryNumber;
     ui::Menu *revitMenu = nullptr;
     ui::ButtonGroup* viewpointGroup = nullptr;
     ui::Menu* viewpointMenu = nullptr;
     ui::Menu* parameterMenu = nullptr;
+    ui::EditField* xPos;
+    ui::EditField* yPos;
+    ui::EditField* zPos;
     bool sendMessage(Message &m);
     
     void message(int toWhom, int type, int len, const void *buf);
@@ -452,5 +494,6 @@ protected:
     
 
     Message *msg = nullptr;
+
 };
 #endif
