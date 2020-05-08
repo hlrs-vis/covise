@@ -1,7 +1,9 @@
 #include "CRobot.h"
 #include "CMatrixFactory.h"
 #include <iostream>
+#include <osg/Matrix>
 
+#define CONVERT_TO_RAD(x) x*(M_PI/180.0)
 bool CRobot::LoadConfig( const dh_table & tbl )
 {
     unsigned int sz = tbl.size();
@@ -29,6 +31,20 @@ bool CRobot::LoadConfig( const dh_table & tbl )
     CaclulateFullTransormationMatrix();
     
     return true;            
+}
+bool CRobot::setMatrix(IN unsigned int ind, const osg::Matrix& m)
+{
+   
+	Eigen::Matrix4f em;
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			em(i, j) = m(j, i);
+	
+    if (hmtx.size() <= ind)
+        hmtx.resize(ind + 1);
+	hmtx[ind]=em;
+   
+    return true;
 }
 
 CRobot::CRobot( Vector3f & vec ) : zero_origin(vec) , matrix_algo(CMatrixFactory::GetInstance()) , number_of_var_parameters(0)
@@ -178,12 +194,16 @@ bool CRobot::CalculateJoint( unsigned int ind )
     //TODO
     //add checking
     //Recalculate HM for specified joint
+    osg::Matrix m = osg::Matrix::rotate(-CONVERT_TO_RAD(jhandle[ind].GetRotationParametr_theta()), osg::Vec3d(0, 0, 1))* origHmtx[ind] ;
+    setMatrix(ind, m);
+    /*
     hmtx[ind] = matrix_algo->CalculateHTranslationMatrix(
                                                                 linkhadle[ind].GetZAxisRotationParametr_aplha(),
                                                                 linkhadle[ind].GetCommonNormalParametr_a(),
                                                                 jhandle[ind].GetDisplasmentParametr_d(),
                                                                 jhandle[ind].GetRotationParametr_theta()
                                                          );
+                                                         */
 
     CaclulateFullTransormationMatrix();
 

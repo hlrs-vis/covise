@@ -1,7 +1,7 @@
 #ifndef __JACOBIANTYPES__
 #define __JACOBIANTYPES__
 
-#include <Dense>
+#include <Eigen/Dense>
 #include <vector>
 
 #include "SharedTypes.h"

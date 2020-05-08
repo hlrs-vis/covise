@@ -9,6 +9,22 @@ CDumpedLeastSquares::CDumpedLeastSquares( IN VectorXf & desired_position , IN CR
 {
     current_position.resize(6);
 }
+template<typename _Matrix_Type_>
+bool pseudoInverse(const _Matrix_Type_& a, _Matrix_Type_& result, double
+	epsilon = std::numeric_limits<typename _Matrix_Type_::Scalar>::epsilon())
+{
+	if (a.rows() < a.cols())
+		return false;
+	Eigen::JacobiSVD< _Matrix_Type_ > svd = a.jacobiSvd(ComputeThinU | ComputeThinV);
+
+	typename _Matrix_Type_::Scalar tolerance = epsilon * std::max(a.cols(),
+		a.rows()) * svd.singularValues().array().abs().maxCoeff();
+
+	result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() >
+		tolerance).select(svd.singularValues().
+			array().inverse(), 0)).asDiagonal() * svd.matrixU().adjoint();
+    return true;
+ }
 
 OUT VectorXf CDumpedLeastSquares::CalculateData()
 {
@@ -25,16 +41,45 @@ OUT VectorXf CDumpedLeastSquares::CalculateData()
     //Desired accuracy
     float epsilon = 0.1f;
 
-    for (;;)
+    for (int it=0;it< 1000;it++)
     {
         jac->CalculateJacobian(_robot.GiveMeMatrixHolder(),_robot.GiveMeJoints(),_robot.GiveMeFullHM());
+
+        float thetaX;
+        float thetaY;
+        float thetaZ;
+        if (_robot.GiveMeFullHM()(2, 0) < +1)
+        {
+            if (_robot.GiveMeFullHM()(2, 0) > -1)
+            {
+                thetaY = asin(-_robot.GiveMeFullHM()(2, 0));
+                thetaX = atan2(_robot.GiveMeFullHM()(1, 0), _robot.GiveMeFullHM()(0, 0));
+                thetaZ = atan2(_robot.GiveMeFullHM()(2, 1), _robot.GiveMeFullHM()(2, 2));
+            }
+            else
+            {
+                thetaY = M_PI / 2;
+                thetaX = -atan2(-_robot.GiveMeFullHM()(1, 2), _robot.GiveMeFullHM()(1, 1));
+                thetaZ = 0;
+            }
+        }
+        else//r02=+1
+        {
+            thetaY = -M_PI / 2;
+            thetaX = atan2(-_robot.GiveMeFullHM()(1, 2), _robot.GiveMeFullHM()(1, 1));
+            thetaZ = 0;
+        }
+
         //calculation delta
         current_position << _robot.GiveMeFullHM()(0,3) ,    //X
             _robot.GiveMeFullHM()(1,3) ,    //Y
             _robot.GiveMeFullHM()(2,3) ,    //Z
-            0.0f,                           //Orientation
-            0.0f,                           //Orientation
-            0.0f;                           //Orientation
+            0,                           //Orientation
+            0,                           //Orientation
+            0;                           //Orientation
+		
+
+
 
 #ifdef JACOBIANDEBUGOUTPUT
         std::cout<<"Current position"<<std::endl<<current_position<<std::endl;
@@ -50,6 +95,7 @@ OUT VectorXf CDumpedLeastSquares::CalculateData()
         float n = delta_translation.norm();
         if (n < epsilon)
         {
+            fprintf(stderr, "foundSolution\n");
             //Done
             break;
         }
@@ -65,9 +111,11 @@ OUT VectorXf CDumpedLeastSquares::CalculateData()
         MatrixXf result = two + id ;
         MatrixXf result_out;
 
-        JacobiSVD<MatrixXf> svd;
-        svd.compute(result , Eigen::ComputeThinU | Eigen::ComputeThinV);
-        svd.pinv(result_out);
+        //JacobiSVD<MatrixXf> svd;
+        //svd.compute(result , Eigen::ComputeThinU | Eigen::ComputeThinV);
+        //was:         svd.pinv(result_out);
+        //now:
+        pseudoInverse(result, result_out);
 
 #ifdef JACOBIANDEBUGOUTPUT
         std::cout<<"Result"<<std::endl<<result_out<<std::endl;

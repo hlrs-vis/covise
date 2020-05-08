@@ -35,7 +35,7 @@ OUT VectorXf CJacobianTranspose::CalculateData()
     //Desired accuracy
     float epsilon = 0.1f;
 
-    for (;;)
+    for (int it = 0; it < 1000; it++)
     {
         jac->CalculateJacobian(_robot.GiveMeMatrixHolder(),_robot.GiveMeJoints(),_robot.GiveMeFullHM());
         //calculation delta

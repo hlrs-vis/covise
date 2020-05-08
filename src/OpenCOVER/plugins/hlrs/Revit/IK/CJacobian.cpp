@@ -59,12 +59,30 @@ CJacobian * CJacobian::GetInstance()
     return _instance;
 }
 
+template<typename _Matrix_Type_>
+bool mypseudoInverse(const _Matrix_Type_& a, _Matrix_Type_& result, double
+    epsilon = std::numeric_limits<typename _Matrix_Type_::Scalar>::epsilon())
+{
+    if (a.rows() < a.cols())
+        return false;
+    Eigen::JacobiSVD< _Matrix_Type_ > svd = a.jacobiSvd(ComputeThinU | ComputeThinV);
+
+    typename _Matrix_Type_::Scalar tolerance = epsilon * std::max(a.cols(),
+        a.rows()) * svd.singularValues().array().abs().maxCoeff();
+
+    result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() >
+        tolerance).select(svd.singularValues().
+            array().inverse(), 0)).asDiagonal() * svd.matrixU().adjoint();
+}
+
+
 OUT MatrixXf CJacobian::PsevdoInverse()
 {
     MatrixXf inv;
-    JacobiSVD<MatrixXf> svd;
+   /* JacobiSVD<MatrixXf> svd;
     svd.compute(_jacobian , Eigen::ComputeThinU | Eigen::ComputeThinV);
-    svd.pinv(inv);
+    svd.pinv(inv);*/
+    mypseudoInverse(_jacobian, inv);
     return inv;
 }
 

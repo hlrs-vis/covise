@@ -1427,8 +1427,18 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
                 if (family != null)
                 {
+                    bool hasGeometry = false;
+                    IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator();
+                    if (Objects.MoveNext())
+                    {
+                        Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
+                        if(!(geomObject is Autodesk.Revit.DB.GeometryInstance))
+                        {
+                            hasGeometry = true;
+                        }
+                    }
                     String Name = family.FamilyName;
-                    if (Name.Contains("Kinematics"))
+                    if (hasGeometry && Name.Contains("Kinematics"))
                     {
                         // This object contains kinematics information
                         // search for lines representing axis

@@ -3,9 +3,11 @@
 
 #include "RobotTypes.h"
 #include "CMatrixFactory.h"
+#include <osg/Matrix>
 
 class CRobot
 {
+public:
 /************************************************************************/
 /* Original robot configuration                                         */
 /************************************************************************/
@@ -21,6 +23,7 @@ class CRobot
     JointHandler    jhandle;
     LinkHandler     linkhadle;
     HomMatrixHolder hmtx;
+    std::vector<osg::Matrix> origHmtx;
 /************************************************************************/
 /* Full transformation matrix (from i frame to 0 frame)                 */
 /************************************************************************/
@@ -29,9 +32,10 @@ class CRobot
 /* Matrix factory (not pattern)                                         */
 /************************************************************************/
     CMatrixFactory * matrix_algo;
-public:
     CRobot(Vector3f & vec);
-    bool LoadConfig(IN const dh_table & tbl);
+    bool LoadConfig(IN const dh_table& tbl);
+    bool setMatrix(IN unsigned int ind, const osg::Matrix& m);
+    
     void SetOrigin(IN Vector3f & newOrigin);
 
     bool RotateJoint(IN unsigned int ind , IN float angle);

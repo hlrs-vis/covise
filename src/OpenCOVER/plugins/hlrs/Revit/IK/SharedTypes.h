@@ -5,8 +5,8 @@
 #include <map>
 #include <string>
 
-#include <Dense>
-#include <StdVector>
+#include <Eigen/Dense>
+#include <Vector>
 #include "sigslot.h"
 
 using namespace Eigen;

@@ -1,7 +1,7 @@
 #ifndef __CLINEFACTORY__
 #define __CLINEFACTORY__
 
-#include <Dense>
+#include <Eigen/Dense>
 #include <vector>
 #include "SharedTypes.h"
 

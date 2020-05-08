@@ -32,6 +32,7 @@
 #include <map>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
 // for AnnotationMessage:
 #include <../../general/Annotation/AnnotationPlugin.h>
 
@@ -45,17 +46,15 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
 
-#include <ik/ik.h>
+#include "IK/CRobot.h"
+#include "IK/CAlgoFactory.h"
 
-/*
-#include "rbdl/rbdl_mathutils.h"
-#include "rbdl/Model.h"
-#include "rbdl/Kinematics.h"
-#include "rbdl/Dynamics.h"
-*/
 
 #define REVIT_FEET_TO_M 0.304799999536704
 #define REVIT_M_TO_FEET 3.2808399
+
+#include <PluginUtil/coSensor.h>
+
 
 class RevitInfo : public vrui::vruiUserData
 {
@@ -175,43 +174,75 @@ public:
     osg::MatrixTransform* transform;
     osg::MatrixTransform* rotTransform;
 
-   /* RigidBodyDynamics::Body body;
-    RigidBodyDynamics::Joint joint;
-    unsigned int body_id;
-
-    void initIK(RigidBodyDynamics::Model* model, unsigned int parent_id);*/
-    IKInfo* ikinfo=nullptr;
-    ik_node_t* node;
-    void initIK(IKInfo* iki, ik_node_t* parent, unsigned int myID);
+    void initIK( unsigned int myID);
 };
 
+inline double getAngle(osg::Vec3& v1, osg::Vec3& v2, osg::Vec3& rotAxis) // v1 and v2  need to be normalized
+{
+    osg::Vec3 tmp = v1 ^ v2;
+    float sp = v1 * v2;
+    if (sp > 1)
+        sp = 1;
+    if (sp < -1)
+        sp = -1;
+    if (tmp * rotAxis > 0)
+        return (acos(sp));
+    else
+        return (-acos(sp));
+}
+class IKSensor;
 class IKInfo
 {
 public:
-    IKInfo(); 
+    IKInfo();
+    ~IKInfo();
+    void update();
+    void addHandle(osg::Node *n);
     void IKInfo::intiIK();
-    void updateIK();
+    void updateIK(osg::Vec3& targetPos, osg::Vec3& targetDir);
     void updateGeometry();
+    osg::Vec3 getPosition();
+    osg::Vec3 getOrientation();
     int ID;
     int DocumentID;
     std::vector<IKAxisInfo> axis;
 
-    ik_node_t* base;
-    ik_effector_t* effector;
-    ik_solver_t* solver;
+    CRobot* robot = nullptr;
 
-  /*  RigidBodyDynamics::Model* model;
+    float rA, rB, rC;
+    float initialAngleA, initialAngleB, initialAngleC;
+    osg::Vec3 basePos;
+    osg::Vec3 vA;
+    osg::Vec3 vB;
+    osg::Vec3 vC;
+    IKSensor* iks=nullptr;
 
-
-    RigidBodyDynamics::Math::VectorNd Q;
-    RigidBodyDynamics::Math::VectorNd QDot;
-    RigidBodyDynamics::Math::VectorNd QDDot;
-    RigidBodyDynamics::Math::VectorNd Tau;
-
-    std::vector<unsigned int> body_ids;
-    std::vector<RigidBodyDynamics::Math::Vector3d> body_points;
-    std::vector<RigidBodyDynamics::Math::Vector3d> target_pos;*/
 };
+
+
+class IKSensor : public coPickSensor
+{
+private:
+    IKInfo* myIKI;
+    RevitPlugin* revitPlugin;
+    bool scheduleUnregister = false;;
+public:
+    IKSensor(RevitPlugin *r,IKInfo* a, osg::Node* n);
+    ~IKSensor();
+    vrui::coCombinedButtonInteraction* getInteraction() { return interaction; };
+
+    virtual void miss();
+    virtual int hit(vruiHit* hit);
+    virtual void update();
+
+    // this method is called if intersection just started
+    // and should be overloaded
+    virtual void activate();
+
+    // should be overloaded, is called if intersection finishes
+    virtual void disactivate();
+};
+
 
 class ARMarkerInfo
 {
@@ -417,7 +448,6 @@ public:
     {
         return plugin;
     };
-
 	bool update();
     // this will be called in PreFrame
 	void preFrame();
@@ -436,6 +466,20 @@ public:
     ui::EditField* xPos;
     ui::EditField* yPos;
     ui::EditField* zPos;
+    ui::EditField* xOri;
+    ui::EditField* yOri;
+    ui::EditField* zOri;
+
+
+    IKInfo *currentIKI=nullptr;
+    osg::Matrix startCompleteMat;
+    osg::Matrix invStartCompleteMat;
+    osg::Matrix startHand, invStartHand;
+    osg::Vec3 startPosition;
+    osg::Vec3 startOrientation;
+    void registerInteraction(IKInfo* i);
+    void unregisterInteraction(IKInfo* i);
+
     bool sendMessage(Message &m);
     
     void message(int toWhom, int type, int len, const void *buf);
