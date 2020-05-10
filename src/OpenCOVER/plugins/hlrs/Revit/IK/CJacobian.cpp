@@ -73,6 +73,8 @@ bool mypseudoInverse(const _Matrix_Type_& a, _Matrix_Type_& result, double
     result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() >
         tolerance).select(svd.singularValues().
             array().inverse(), 0)).asDiagonal() * svd.matrixU().adjoint();
+
+    return true;
 }
 
 

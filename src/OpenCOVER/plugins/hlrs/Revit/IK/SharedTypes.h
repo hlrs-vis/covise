@@ -6,7 +6,6 @@
 #include <string>
 
 #include <Eigen/Dense>
-#include <Vector>
 #include "sigslot.h"
 
 using namespace Eigen;

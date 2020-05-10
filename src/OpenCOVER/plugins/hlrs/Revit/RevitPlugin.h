@@ -177,7 +177,7 @@ public:
     void initIK( unsigned int myID);
 };
 
-inline double getAngle(osg::Vec3& v1, osg::Vec3& v2, osg::Vec3& rotAxis) // v1 and v2  need to be normalized
+inline double getAngle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& rotAxis) // v1 and v2  need to be normalized
 {
     osg::Vec3 tmp = v1 ^ v2;
     float sp = v1 * v2;
@@ -198,8 +198,8 @@ public:
     ~IKInfo();
     void update();
     void addHandle(osg::Node *n);
-    void IKInfo::intiIK();
-    void updateIK(osg::Vec3& targetPos, osg::Vec3& targetDir);
+    void intiIK();
+    void updateIK(const osg::Vec3& targetPos, const osg::Vec3& targetDir);
     void updateGeometry();
     osg::Vec3 getPosition();
     osg::Vec3 getOrientation();

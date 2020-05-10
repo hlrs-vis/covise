@@ -201,7 +201,7 @@ void IKInfo::intiIK()
 }
 
 
-void IKInfo::updateIK(osg::Vec3 &targetPos, osg::Vec3 & targetDir)
+void IKInfo::updateIK(const osg::Vec3 &targetPos, const osg::Vec3 & targetDir)
 {
 
 	vC = targetPos - axis[2].origin;
@@ -274,9 +274,10 @@ void IKInfo::updateIK(osg::Vec3 &targetPos, osg::Vec3 & targetDir)
 		}
 		m = axis[i].rotTransform->getMatrix() * m;
 	}
-	targetDir.normalize();
+	auto td = targetDir;
+    td.normalize();
 	osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
-	float newAngle = getAngle(my, targetDir, axis[4].direction);
+	float newAngle = getAngle(my, td, axis[4].direction);
 	osg::Matrix oldMat = axis[4].rotTransform->getMatrix();
 	axis[4].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
 

@@ -7,8 +7,9 @@
 
 #include "SharedTypes.h"
 
-#define PI 3.14159265
-#define CONVERT_TO_RAD(x) x*(PI/180)
+#define CMAT_PI 3.14159265
+#define PI CMAT_PI
+#define CONVERT_TO_RAD(x) x*(CMAT_PI/180.0)
 
 class CMatrixFactory
 {

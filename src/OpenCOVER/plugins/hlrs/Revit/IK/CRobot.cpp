@@ -3,7 +3,7 @@
 #include <iostream>
 #include <osg/Matrix>
 
-#define CONVERT_TO_RAD(x) x*(M_PI/180.0)
+//#define CONVERT_TO_RAD(x) x*(M_PI/180.0)
 bool CRobot::LoadConfig( const dh_table & tbl )
 {
     unsigned int sz = tbl.size();
@@ -47,7 +47,7 @@ bool CRobot::setMatrix(IN unsigned int ind, const osg::Matrix& m)
     return true;
 }
 
-CRobot::CRobot( Vector3f & vec ) : zero_origin(vec) , matrix_algo(CMatrixFactory::GetInstance()) , number_of_var_parameters(0)
+CRobot::CRobot( const Vector3f & vec ) : zero_origin(vec) , matrix_algo(CMatrixFactory::GetInstance()) , number_of_var_parameters(0)
 {}
 
 void CRobot::SetOrigin( Vector3f & newOrigin )

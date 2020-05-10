@@ -32,7 +32,7 @@ public:
 /* Matrix factory (not pattern)                                         */
 /************************************************************************/
     CMatrixFactory * matrix_algo;
-    CRobot(Vector3f & vec);
+    CRobot(const Vector3f & vec);
     bool LoadConfig(IN const dh_table& tbl);
     bool setMatrix(IN unsigned int ind, const osg::Matrix& m);
     
