@@ -37,21 +37,17 @@ WebviewPlugin::~WebviewPlugin()
 
 // here we get the size and the current center of the cube
 void
-WebviewPlugin::newInteractor(RenderObject *container, coInteractor *i)
+WebviewPlugin::newInteractor(const RenderObject *container, coInteractor *i)
 {
     (void)container;
     (void)i;
     fprintf(stderr, "WebviewPlugin::newInteractor\n");
 }
 
-void WebviewPlugin::addObject(RenderObject *container,
-                               RenderObject *obj, RenderObject *normObj,
-                               RenderObject *colorObj, RenderObject *texObj,
+void WebviewPlugin::addObject(const RenderObject *container,
                                osg::Group *root,
-                               int numCol, int colorBinding, int colorPacking,
-                               float *r, float *g, float *b, int *packedCol,
-                               int numNormals, int normalBinding,
-                               float *xn, float *yn, float *zn, float transparency)
+                               const RenderObject *obj, const RenderObject *normObj,
+                               const RenderObject *colorObj, const RenderObject *texObj)
 {
     (void)container;
     (void)obj;
@@ -59,19 +55,6 @@ void WebviewPlugin::addObject(RenderObject *container,
     (void)colorObj;
     (void)texObj;
     (void)root;
-    (void)numCol;
-    (void)colorBinding;
-    (void)colorPacking;
-    (void)r;
-    (void)g;
-    (void)b;
-    (void)packedCol;
-    (void)numNormals;
-    (void)normalBinding;
-    (void)xn;
-    (void)yn;
-    (void)zn;
-    (void)transparency;
     fprintf(stderr, "WebviewPlugin::addObject\n");
 }
 
