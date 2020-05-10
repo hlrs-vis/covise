@@ -2077,6 +2077,7 @@ RevitPlugin::handleMessage(Message *m)
 		int docID;
 		int GeometryType;
 		bool isHandle = false;
+		bool doWalk;
 		tb >> ID;
 		tb >> docID;
 		if (docID >= ElementIDMap.size())
@@ -2100,6 +2101,7 @@ RevitPlugin::handleMessage(Message *m)
 		ei->ID = ID;
 		ei->DocumentID = docID;
 		tb >> GeometryType;
+		tb >> doWalk;
 		IKInfo* currentIK = nullptr;
 		int level = -1;
 		for (auto const& ik : ikInfos)
@@ -2133,6 +2135,11 @@ RevitPlugin::handleMessage(Message *m)
 			osg::Geometry *geom = new osg::Geometry();
 			cover->setRenderStrategy(geom);
 			geode->addDrawable(geom);
+
+			if (!doWalk) // don't walk on anything else than objects marked with doWalk
+			{
+				geode->setNodeMask(geode->getNodeMask() & ~Isect::Walk);
+			}
 
 			// set up geometry
 			bool isTwoSided = false;
@@ -2329,6 +2336,11 @@ RevitPlugin::handleMessage(Message *m)
 			{
 				mt->addChild(inlineNode);
 			}
+			if (!doWalk) // don't walk on anything else than objects marked with doWalk
+			{
+				inlineNode->setNodeMask(inlineNode->getNodeMask() & ~Isect::Walk);
+			}
+
 
 			bool isDepthOnly = false;
 			tb >> isDepthOnly;

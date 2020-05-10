@@ -595,6 +595,7 @@ namespace OpenCOVERPlugin
                 mb.add(DocumentID);
                 mb.add(elem.Name + "_FamilySymbol");
                 mb.add((int)ObjectTypes.Mesh);
+                mb.add(false);//doWalk
                 mb.add(false);
                 mb.add(0);
 
@@ -777,6 +778,7 @@ namespace OpenCOVERPlugin
                 mb.add(DocumentID);
                 mb.add(elem.Name);
                 mb.add((int)ObjectTypes.Inline);
+                mb.add(false);//doWalk
                 mb.add(n+".e57");
 
                 mb.add(getDepthOny(elem));
@@ -1132,7 +1134,7 @@ namespace OpenCOVERPlugin
             }
             return depthOnly;
         }
-        private void sendGeomElement(Autodesk.Revit.DB.Element elem, int num, Autodesk.Revit.DB.GeometryObject geomObject, bool createGroups)
+        private void sendGeomElement(Autodesk.Revit.DB.Element elem, int num, Autodesk.Revit.DB.GeometryObject geomObject, bool createGroups, bool doWalk)
         {
             if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
             {
@@ -1173,6 +1175,7 @@ namespace OpenCOVERPlugin
                     mb.add(DocumentID);
                     mb.add(elem.Name + "_m_" + num.ToString());
                     mb.add((int)ObjectTypes.Mesh);
+                    mb.add(doWalk);
                     Autodesk.Revit.DB.Mesh meshObj = geomObject as Autodesk.Revit.DB.Mesh;
                     SendMesh(meshObj, ref mb, true);// TODO get information on whether a mesh is twosided or not
 
@@ -1225,7 +1228,7 @@ namespace OpenCOVERPlugin
                             {
                                 sendMessage(mb.buf, MessageTypes.NewGroup);
                             }
-                            SendSolid(prefix,(Autodesk.Revit.DB.Solid)geomObject, elem);
+                            SendSolid(prefix,(Autodesk.Revit.DB.Solid)geomObject, elem,doWalk);
                             mb = new MessageBuffer();
                             if (createGroups)
                             {
@@ -1278,6 +1281,7 @@ namespace OpenCOVERPlugin
                     mb.add(DocumentID);
                     mb.add(elem.Name);
                     mb.add((int)ObjectTypes.Inline);
+                    mb.add(false);//doWalk
                     mb.add(p.AsString());
                     mb.add(false); // DepthOnly
                     sendMessage(mb.buf, MessageTypes.NewObject);
@@ -1422,11 +1426,18 @@ namespace OpenCOVERPlugin
             bbR.Max = new XYZ(-100000, -100000, -100000);
             bool hasStyle = false;
             bool hasIK = false;
-            if(fi != null)
+            bool doWalk = false;
+            if (fi != null)
             {
                 Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
                 if (family != null)
                 {
+
+                    IList<Parameter> ps = family.GetParameters("doWalk");
+                    if ((ps.Count > 0) && (ps[0] != null))
+                    {
+                        doWalk = ps[0].AsInteger() != 0;
+                    }
                     bool hasGeometry = false;
                     IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator();
                     if (Objects.MoveNext())
@@ -1515,8 +1526,29 @@ namespace OpenCOVERPlugin
                 if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
                 {
                     hasStyle = false;
+                    doWalk = true;
                 }
-                if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsRuns)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsLandings)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsTrisers)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Ramps)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Floors)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
                 {
                     Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
                     Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
@@ -1541,7 +1573,7 @@ namespace OpenCOVERPlugin
                     {
                         if (graphicsStyle.Name == "Frame/Mullion" || graphicsStyle.Name == "Rahmen/Pfosten")
                         {
-                            sendGeomElement(elem, num, geomObject,false);
+                            sendGeomElement(elem, num, geomObject,false,false);
                         }
                         if (graphicsStyle.Name.Length > 5 && graphicsStyle.Name.Substring(graphicsStyle.Name.Length-5) == "_Left")
                         {
@@ -1696,7 +1728,7 @@ namespace OpenCOVERPlugin
                 {
 
                     Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
-                    sendGeomElement(elem,num, geomObject,false);
+                    sendGeomElement(elem,num, geomObject,false,doWalk);
                     num++;
 
                 }
@@ -1817,7 +1849,7 @@ namespace OpenCOVERPlugin
                 {
                     if (namelen == 0 || (graphicsStyle !=null && graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
                     {
-                        sendGeomElement(elem, num, geomObject, false);
+                        sendGeomElement(elem, num, geomObject, false,false);
                     }
                 }
                 num++;
@@ -1879,7 +1911,7 @@ namespace OpenCOVERPlugin
             }
             return false;
         }
-        private void SendSolid(string prefix,Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem)
+        private void SendSolid(string prefix,Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem,bool doWalk)
         {
             Autodesk.Revit.DB.Material m = null;
             bool sameMaterial = true;
@@ -1994,6 +2026,7 @@ namespace OpenCOVERPlugin
                 mb.add(DocumentID);
                 mb.add(prefix+elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
+                mb.add(doWalk);
                 mb.add(twoSided);
                 mb.add(maintriangles);
 
@@ -2064,6 +2097,7 @@ namespace OpenCOVERPlugin
                                     mb.add(DocumentID);
                                     mb.add(prefix+elem.Name + "_f_" + num.ToString());
                                     mb.add((int)ObjectTypes.Mesh);
+                                    mb.add(doWalk);
 
                                     SendMesh(geomMesh, ref mb, rface.IsTwoSided);
 
@@ -2102,6 +2136,7 @@ namespace OpenCOVERPlugin
                             mb.add(DocumentID);
                             mb.add(prefix+elem.Name + "_f_" + num.ToString());
                             mb.add((int)ObjectTypes.Mesh);
+                            mb.add(doWalk);
 
                             SendMesh(geomMesh, ref mb, face.IsTwoSided);
                             mb.add(getDepthOny(elem));
