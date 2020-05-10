@@ -227,6 +227,9 @@ void CRobot::PrintConfiguration()
             case REVOLUTE:
                 std::cout<<"Revolute, VAR = ";
                 break;
+            case CONSTANTJOINT:
+            case NOTSET:
+                break;
         }
 
         std::cout<<jvar<<std::endl;

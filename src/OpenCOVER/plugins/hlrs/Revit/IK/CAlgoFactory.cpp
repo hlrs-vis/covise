@@ -25,6 +25,9 @@ CAlgoAbstract * CAlgoFactory::GiveMeSolver(
     case SELECTIVEDUMPEDLEASTSQUARES:
         //TODO
         break;
+    case CCD:
+        //TODO as well?
+        break;
     }
 
     return ptr;

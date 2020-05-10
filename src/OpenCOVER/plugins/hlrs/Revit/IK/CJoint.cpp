@@ -30,6 +30,9 @@ OUT float CJoint::GiveMeVariableParametr()
         return theta;
     case PRISMATIC:
         return d;
+    case CONSTANTJOINT:
+    case NOTSET:
+        return 0.0f;
     }
 
     return 0.0f;
