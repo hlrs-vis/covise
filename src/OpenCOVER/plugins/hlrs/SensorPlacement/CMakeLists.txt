@@ -5,9 +5,15 @@ SET(HEADERS
  openGA.h
  SensorPlacement.h
  Zone.h
+ Sensor.h
+ UI.h
+ DataManager.h
 )
 SET(SOURCES
   SensorPlacement.cpp
   Zone.cpp
+  Sensor.cpp
+  UI.cpp
+  DataManager.cpp
 )
 cover_add_plugin(SensorPlacement ${HEADERS} ${SOURCES})

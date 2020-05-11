@@ -3,7 +3,13 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <PluginUtil/coVR3DTransInteractor.h>
 
+#include <osg/ShapeDrawable>
+#include <osg/Geometry>
+
+#include "Sensor.h"
+
 using namespace opencover;
+
 
 class GridPoint;
 
@@ -28,22 +34,22 @@ class Zone
 {
 public:
     Zone(osg::Matrix matrix);
-    //virtual ~Zone();  --> make Destructor virtual!
+    virtual ~Zone(){std::cout<<"Zone Destructor\n";};
+    virtual void createGrid() = 0;
 
-    void preFrame();
+    bool preFrame();
     
     void setPosition(osg::Matrix matrix);
     void setDistance(float distance);
 
-    int getNbrControlPoints()const;
-
+    osg::ref_ptr<osg::MatrixTransform> getZone(){return m_LocalDCS;}
 private:
 
-    float m_Distance;
-    float m_Length{1};
-    float m_Width{1};
-    float m_Height{0.1};
-    osg::Vec4 m_Color;
+    float m_Distance{2};
+    float m_Length{10};
+    float m_Width{5};
+    float m_Height{3};
+    osg::Vec4 m_Color{1,0,0,1};
     
     osg::ref_ptr<osg::Vec3Array> m_Verts;
     osg::ref_ptr<osg::Geometry> m_Geom;
@@ -53,18 +59,16 @@ private:
 
     std::unique_ptr<coVR3DTransRotInteractor> m_Interactor;
     std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor;
-
-    
+    //std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor;
 
     std::vector<GridPoint> m_GridPoints;
 
     osg::Geode* draw();
-   // void setStateSet(osg::StateSet *stateSet);
 
     void createGridPoints();
     void deleteGridPoints();
+    void create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign);
     void updateGeometry(osg::Vec3& vec);
-    void createPoints();
     void deletePoints();
 
 };
@@ -77,14 +81,15 @@ struct SafetyZoneProperties
         PRIO2
     };
 
-
-
 };
-/*
+
 class SafetyZone : public Zone
 {
 
 public:
+    SafetyZone(osg::Matrix matrix):Zone(matrix){std::cout<<"Safety Zone created\n";}
+    ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
+    void createGrid()override{};
 
 private:
     osg::Vec4 m_ColorVisible;
@@ -100,13 +105,29 @@ struct SensorZoneProperties
 class SensorZone : public Zone
 {
 public:
+    SensorZone(osg::Matrix matrix):Zone(matrix){std::cout<<"Sensor Zone created\n";}
+    ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
+    void createGrid()override{};
+
 
 private:
+    std::unique_ptr<SensorPosition> m_PSensor;  
+
 };
-*/
+
 
 class GridPoint
 {
 public:
-    GridPoint(osg::Vec3 position);
+    GridPoint(osg::Vec3 position,osg::Vec4& color);
+    osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
+
+    osg::ref_ptr<osg::MatrixTransform> getPoint()const{return m_LocalDCS.get();} //muss man hier ref_ptr übergeben?
+
+
+private:
+    osg::Vec4 m_Color;
+    osg::ref_ptr<osg::Geode> m_Geode;
+    osg::ref_ptr<osg::Sphere> m_Sphere;
+    osg::ref_ptr<osg::ShapeDrawable> m_SphereDrawable;
 };
