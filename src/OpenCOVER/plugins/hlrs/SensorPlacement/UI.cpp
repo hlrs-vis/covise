@@ -5,6 +5,8 @@
 
 using namespace opencover;
 
+bool UI::m_DeleteStatus{false};
+
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 {
    // Main menu
@@ -15,6 +17,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddCamera-> setCallback([]()
     {
        osg::Matrix m;
+       m.setTrans(osg::Vec3(20,20,20));
        DataManager::AddSensor(myHelpers::make_unique<Camera>(m));
     }
     );
@@ -24,6 +27,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddSafetyZone-> setCallback([]()
     {
        osg::Matrix m;
+       m.setTrans(osg::Vec3(20,20,20));
        DataManager::AddSafetyZone(myHelpers::make_unique<SafetyZone>(m));
     }
     );

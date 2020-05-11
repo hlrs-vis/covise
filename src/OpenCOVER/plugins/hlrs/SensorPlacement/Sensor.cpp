@@ -1,5 +1,6 @@
 #include "Sensor.h"
 #include "Helper.h"
+#include "UI.h"
 
 #include <osg/Geometry>
 #include <osg/Material>
@@ -29,7 +30,7 @@ SensorPosition::SensorPosition(osg::Matrix matrix):m_Orientation(matrix)
 Camera::Camera(osg::Matrix matrix)
     :SensorWithMultipleOrientations(matrix)
 {
-    float _interSize = cover->getSceneSize() ;
+    float _interSize = cover->getSceneSize() / 50 ;
     m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     m_Interactor->show();
     m_Interactor->enableIntersection();
@@ -148,15 +149,21 @@ osg::Geode* Camera::drawCam()
 
 bool Camera::preFrame()
 {
-    if(m_Interactor->isRunning())
+    
+    if(m_Interactor->wasStarted())
+    {   
+        if(UI::m_DeleteStatus)
+            return false;
+    }
+    else if(m_Interactor->isRunning())
     {
         m_CameraMatrix->setMatrix(m_Interactor->getMatrix());
         //update Orientation of Sensor Base class! 
     }
     else if(m_Interactor->wasStopped())
     {
-        return false;
         //calculate intersections !
     }
+
     return true;
 }

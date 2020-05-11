@@ -8,6 +8,7 @@
 
 #include "Helper.h"
 #include "Zone.h"
+#include "UI.h"
 using namespace opencover;
 
 
@@ -156,6 +157,9 @@ bool Zone::preFrame()
     static osg::Matrix startMatrix_Interactor_to_w,startMatrix_Interactor_to_w_inverse;
     if(m_Interactor->wasStarted())
     {
+        if(UI::m_DeleteStatus)
+            return false;
+            
         osg::Matrix interactor_to_w = m_Interactor->getMatrix();
         startPos_SizeInteractor_w = m_SizeInteractor->getPos();
         //startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();

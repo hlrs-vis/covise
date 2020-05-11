@@ -26,14 +26,13 @@ namespace opencover
 
 using namespace opencover;
 
+//Singleton Class
 class UI : public opencover::ui::Owner
 {
-
 public:
     UI();
 
-    bool m_DeleteStatus{false};
-
+    static bool m_DeleteStatus;
 
 private:
 
@@ -41,8 +40,5 @@ private:
     ui::Action* m_AddCamera, *m_AddSafetyZone;
     ui::Slider* m_Visibility;
     ui::Button * m_Delete;
-
-
-
 
 };
