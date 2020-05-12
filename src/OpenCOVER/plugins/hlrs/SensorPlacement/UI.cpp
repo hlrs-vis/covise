@@ -2,6 +2,7 @@
 #include "Helper.h"
 
 #include "SensorPlacement.h"
+#include "Factory.h"
 
 using namespace opencover;
 
@@ -16,9 +17,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddCamera-> setText("Add Camera");
     m_AddCamera-> setCallback([]()
     {
-       osg::Matrix m;
-       m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSensor(myHelpers::make_unique<Camera>(m));
+       DataManager::AddSensor(createSensor(SensorType::Camera));
     }
     );
 
@@ -28,7 +27,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(myHelpers::make_unique<SafetyZone>(m));
+       DataManager::AddSafetyZone(createZone(ZoneType::SensorZone));
     }
     );
 

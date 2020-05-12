@@ -8,6 +8,7 @@ SET(HEADERS
  Sensor.h
  UI.h
  DataManager.h
+ Factory.h
 )
 SET(SOURCES
   SensorPlacement.cpp
