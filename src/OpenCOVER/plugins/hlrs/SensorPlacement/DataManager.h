@@ -7,6 +7,8 @@
 #include<osg/Group>
 
 #include "Zone.h"
+#include "Sensor.h"
+
 void setStateSet(osg::StateSet *stateSet);
 
 

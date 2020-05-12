@@ -11,6 +11,19 @@
 #include "UI.h"
 using namespace opencover;
 
+float findLargestOf3Numbers(float n1,float n2, float n3)
+{
+    if (n1 >= n2 && n1 >= n3)
+    {
+        
+    }
+    if(n2 >= n1 && n2 >= n3)
+    {
+    }
+    if(n3 >= n1 && n3 >= n2)
+    {
+    }
+}
 
 Zone::Zone(osg::Matrix matrix)
 {
@@ -30,12 +43,11 @@ Zone::Zone(osg::Matrix matrix)
     m_SizeInteractor->show();
     m_SizeInteractor->enableIntersection();
 
-    //startPosSizeInteractor= (m_Verts->at(2)-osg::Vec3(m_Length/2,0,0))*matrix;
-    //m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
-    //m_DistanceInteractor->show();
-    //m_DistanceInteractor->enableIntersection();
+    startPosSizeInteractor= (m_Verts->at(2)-osg::Vec3(m_Distance,0,0))*matrix;
+    m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
+    m_DistanceInteractor->show();
+    m_DistanceInteractor->enableIntersection();
 
-  //  cover->getObjectsRoot()->addChild(m_LocalDCS.get());
     createGridPoints();
 
 };
@@ -149,7 +161,7 @@ bool Zone::preFrame()
 {
     m_Interactor->preFrame();
     m_SizeInteractor->preFrame();
-    //m_DistanceInteractor->preFrame();
+    m_DistanceInteractor->preFrame();
 
     static osg::Vec3 startPos_SizeInteractor_w,startPos_SizeInteractor_o;
     static osg::Vec3 startPos_DistanceInteractor_w,startPos_DistanceInteractor_o;
@@ -159,14 +171,14 @@ bool Zone::preFrame()
     {
         if(UI::m_DeleteStatus)
             return false;
-            
+
         osg::Matrix interactor_to_w = m_Interactor->getMatrix();
         startPos_SizeInteractor_w = m_SizeInteractor->getPos();
-        //startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
+        startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
 
         osg::Vec3 interactor_pos_w = interactor_to_w.getTrans();
         startPos_SizeInteractor_o= osg::Matrix::transform3x3(startPos_SizeInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
-        //startPos_DistanceInteractor_o= osg::Matrix::transform3x3(startPos_DistanceInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
+        startPos_DistanceInteractor_o= osg::Matrix::transform3x3(startPos_DistanceInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
 
     }
     else if(m_Interactor->isRunning())
@@ -182,7 +194,7 @@ bool Zone::preFrame()
 
         osg::Vec3 distanceInteractor_pos_w = osg::Matrix::transform3x3(startPos_DistanceInteractor_o, interactor_to_w);
         distanceInteractor_pos_w +=interactor_pos_w;
-        //m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
+        m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
     }
     else if(m_Interactor->wasStopped())
     {
@@ -200,34 +212,40 @@ bool Zone::preFrame()
     {        
         // update vertices
         osg::Vec3 verts_o= osg::Matrix::transform3x3(m_SizeInteractor->getPos()-startMatrix_Interactor_to_w.getTrans(), startMatrix_Interactor_to_w_inverse);
-        updateGeometry(verts_o);        
+        updateGeometry(verts_o);   
+        //findLargestOf3Numbers(std::abs(m_Verts->at(2)-),std::abs(),std::abs();     
     }
     else if(m_SizeInteractor->wasStopped())
     {
         createGridPoints();
     }
+    else if(m_DistanceInteractor->wasStarted())
+    {
+        osg::Matrix interactor_to_w = m_Interactor->getMatrix();
+        startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
+        startPos_DistanceInteractor_o= osg::Matrix::transform3x3(startPos_DistanceInteractor_w, interactor_to_w.inverse(interactor_to_w));
+    }
+    else if(m_DistanceInteractor->isRunning())
+    {        
+        //restrict directions of m_DistanceInteractor
+        osg::Matrix interactor_to_w = m_Interactor->getMatrix();
+        osg::Vec3 distanceInteractor_pos_o = osg::Matrix::transform3x3(m_DistanceInteractor->getPos(),interactor_to_w.inverse(interactor_to_w));
+        distanceInteractor_pos_o.y() = startPos_DistanceInteractor_o.y(); //set y value to old y value
+        distanceInteractor_pos_o.z() = startPos_DistanceInteractor_o.z(); //set z value to old z value
+        osg::Vec3 distanceInteractor_pos_w = osg::Matrix::transform3x3(distanceInteractor_pos_o,interactor_to_w);
+        m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
+    }
+    else if(m_DistanceInteractor->wasStopped())
+    {
+        float a = m_Interactor->getMatrix().getTrans().x();
+        float b = m_DistanceInteractor->getMatrix().getTrans().x();
+        m_Distance = std::abs(a-b);
+        std::cout<<m_Distance<<std::endl;
+                deleteGridPoints();
 
-    // else if(m_DistanceInteractor->wasStarted())
-    // {
-    //     osg::Matrix interactor_to_w = m_Interactor->getMatrix();
-    //     startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
-    //     startPos_DistanceInteractor_o= osg::Matrix::transform3x3(startPos_DistanceInteractor_w, interactor_to_w.inverse(interactor_to_w));
+                createGridPoints();
 
-    // }
-    // else if(m_DistanceInteractor->isRunning())
-    // {        
-    //    //restrict directions of m_DistanceInteractor
-    //     osg::Matrix interactor_to_w = m_Interactor->getMatrix();
-    //     osg::Vec3 distanceInteractor_pos_o = osg::Matrix::transform3x3(m_DistanceInteractor->getPos(),interactor_to_w.inverse(interactor_to_w));
-    //     distanceInteractor_pos_o.y() = startPos_DistanceInteractor_o.y(); //set y value to old y value
-    //     distanceInteractor_pos_o.z() = startPos_DistanceInteractor_o.z(); //set z value to old z value
-    //     osg::Vec3 distanceInteractor_pos_w = osg::Matrix::transform3x3(distanceInteractor_pos_o,interactor_to_w);
-    //     m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
-    // }
-    // else if(m_DistanceInteractor->wasStopped())
-    // {
-       
-    // }
+    }
     return true;
 };
 void Zone::updateGeometry(osg::Vec3& vec)
@@ -270,27 +288,56 @@ void Zone::deleteGridPoints()
 
 void Zone::create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign)
 {
-    static int count{0};
     float incrementLength{0.0f}, incrementWidth{0.0f}, incrementHeight{0.0f};
     
+    // while(incrementWidth < m_Width-m_Distance)
+    // {
+    //     while(incrementLength < m_Length-m_Distance)
+    //     {
+    //         while(incrementHeight < m_Height-m_Distance)
+    //         {
+    //             osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+    //             m_GridPoints.push_back(GridPoint(point,m_Color));
+    //             m_LocalDCS->addChild(m_GridPoints.back().getPoint());
+    //             incrementHeight += m_Distance;
+    //         }
+    //         incrementHeight = 0.0;
+    //         incrementLength += m_Distance;
+            
+    //     }
+    //     incrementLength = 0.0;
+    //     incrementWidth += m_Distance;
+    // }
     while(incrementWidth < m_Width-m_Distance)
-    {
-        while(incrementLength < m_Length-m_Distance)
         {
-            while(incrementHeight < m_Height-m_Distance)
+            while(incrementLength < m_Length-m_Distance)
             {
-                osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+                while(incrementHeight < m_Height-m_Distance)
+                {
+                    osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+                    m_GridPoints.push_back(GridPoint(point,m_Color));
+                    m_LocalDCS->addChild(m_GridPoints.back().getPoint());
+                    incrementHeight += m_Distance;
+                }
+                
+                osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*m_Height);
                 m_GridPoints.push_back(GridPoint(point,m_Color));
                 m_LocalDCS->addChild(m_GridPoints.back().getPoint());
-                incrementHeight += m_Distance;
+
+                incrementHeight = 0.0;
+                incrementLength += m_Distance;
+
+                
             }
-            incrementHeight = 0.0;
-            incrementLength += m_Distance;
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*m_Height);
+                m_GridPoints.push_back(GridPoint(point,m_Color));
+                m_LocalDCS->addChild(m_GridPoints.back().getPoint());
+                
+            incrementLength = 0.0;
+            incrementWidth += m_Width;
         }
-        incrementLength = 0.0;
-        incrementWidth += m_Distance;
-    }
-};
+
+}
 
 void Zone::createGridPoints()
 {
@@ -298,7 +345,8 @@ void Zone::createGridPoints()
     float diffX = m_Verts.get()->at(2).x()-m_Verts.get()->at(1).x();
     float diffZ = m_Verts.get()->at(6).z()-m_Verts.get()->at(2).z();
 
-    osg::Vec3 startPoint = m_Verts.get()->at(2);//+osg::Vec3(-m_Distance, m_Distance, 0);
+    //osg::Vec3 startPoint = m_Verts.get()->at(2)+osg::Vec3(-m_Distance, m_Distance, m_Distance);
+    osg::Vec3 startPoint = m_Verts.get()->at(2);
 
     //create 3D Grid
     if(diffY > 0 && diffX > 0 && diffZ > 0 )           

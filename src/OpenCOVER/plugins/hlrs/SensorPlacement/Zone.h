@@ -59,7 +59,7 @@ private:
 
     std::unique_ptr<coVR3DTransRotInteractor> m_Interactor;
     std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor;
-    //std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor;
+    std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor;
 
     std::vector<GridPoint> m_GridPoints;
 
@@ -123,7 +123,7 @@ public:
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
 
     osg::ref_ptr<osg::MatrixTransform> getPoint()const{return m_LocalDCS.get();} //muss man hier ref_ptr übergeben?
-
+    osg::Vec3 getPosition()const{return m_LocalDCS->getMatrix().getTrans();}
 
 private:
     osg::Vec4 m_Color;
