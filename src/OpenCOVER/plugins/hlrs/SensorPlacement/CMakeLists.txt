@@ -9,6 +9,7 @@ SET(HEADERS
  UI.h
  DataManager.h
  Factory.h
+ GA.h
 )
 SET(SOURCES
   SensorPlacement.cpp
@@ -16,5 +17,6 @@ SET(SOURCES
   Sensor.cpp
   UI.cpp
   DataManager.cpp
+  GA.cpp
 )
 cover_add_plugin(SensorPlacement ${HEADERS} ${SOURCES})
