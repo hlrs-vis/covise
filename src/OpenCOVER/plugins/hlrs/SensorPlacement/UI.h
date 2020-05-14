@@ -36,8 +36,8 @@ public:
 
 private:
 
-    ui::Menu* m_MainMenu,*m_CameraProps;
-    ui::Action* m_AddCamera, *m_AddSafetyZone;
+    ui::Menu* m_MainMenu,*m_CameraProps,*m_Optimization;
+    ui::Action* m_AddCamera, *m_AddSafetyZone, *m_MaxCoverage1,*m_MaxCoverage2;
     ui::Slider* m_Visibility;
     ui::Button * m_Delete;
 

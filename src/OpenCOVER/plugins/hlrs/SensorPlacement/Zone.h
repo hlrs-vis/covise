@@ -6,12 +6,11 @@
 #include <osg/ShapeDrawable>
 #include <osg/Geometry>
 
-#include "Sensor.h"
-
 using namespace opencover;
 
 
 class GridPoint;
+class SensorPosition;
 
 struct ZoneProperties
 {

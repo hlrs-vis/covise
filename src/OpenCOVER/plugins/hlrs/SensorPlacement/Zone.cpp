@@ -9,6 +9,8 @@
 #include "Helper.h"
 #include "Zone.h"
 #include "UI.h"
+#include "Sensor.h"
+
 using namespace opencover;
 
 float findLargestOf3Numbers(float n1,float n2, float n3)

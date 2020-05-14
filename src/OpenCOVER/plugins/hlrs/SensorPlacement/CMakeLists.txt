@@ -1,6 +1,5 @@
 SET(HEADERS
  Profiling.h
- pch.h
  Helper.h
  openGA.h
  SensorPlacement.h

@@ -1,8 +1,9 @@
 #include "UI.h"
 #include "Helper.h"
 
-#include "SensorPlacement.h"
+#include "DataManager.h"
 #include "Factory.h"
+#include "GA.h"
 
 using namespace opencover;
 
@@ -40,7 +41,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
          std::cout<<"Delete Status"<<m_DeleteStatus<<std::endl;
     });
 
-   // Camera properties
+   // Camera
     m_CameraProps = new ui::Menu(m_MainMenu,"CameraProps");
     m_CameraProps->setText("Camera Properties");
 
@@ -51,5 +52,29 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
 
     });
+
+   //Optimization
+   m_Optimization = new ui::Menu(m_MainMenu, "Optimization");
+   m_Optimization->setText("Optimization");
+   
+   m_MaxCoverage1 = new ui::Action(m_Optimization,"MaxCoverage1");
+   m_MaxCoverage1-> setText("MaxCoverage1");
+   m_MaxCoverage1-> setCallback([]()
+   {
+      auto up(myHelpers::make_unique<GA>(maxCoverage1));
+      //TODO only on master
+   }
+   );
+
+   m_MaxCoverage2 = new ui::Action(m_Optimization,"MaxCoverage2");
+   m_MaxCoverage2-> setText("MaxCoverage2");
+   m_MaxCoverage2-> setCallback([]()
+   {
+      auto up(myHelpers::make_unique<GA>(maxCoverage2));
+      //TODO only on master
+
+   }
+   );
+
 
 };

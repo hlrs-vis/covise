@@ -6,6 +6,8 @@
 #include <algorithm>
 
 #include "DataManager.h"
+#include "Zone.h"
+#include "Sensor.h"
 
 void setStateSet(osg::StateSet *stateSet)
 {

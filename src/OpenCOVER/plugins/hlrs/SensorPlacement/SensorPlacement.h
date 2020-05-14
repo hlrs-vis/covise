@@ -1,3 +1,5 @@
+#pragma once
+
 /* This file is part of COVISE.
 
    You can use it under the terms of the GNU Lesser General Public License
@@ -5,7 +7,6 @@
 
  * License: LGPL 2+ */
 
-#pragma once
 /****************************************************************************\
  **                                                            (C)2020 HLRS  **
  **                                                                          **
@@ -19,30 +20,22 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
-#include <vector>
-#include <memory>
 
+#include <memory>
 
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
 
-#include "Zone.h"
-#include "Helper.h"
-#include "Sensor.h"
-#include "UI.h"
-#include "DataManager.h"
-
-
+class UI;
 class SensorPlacementPlugin :public opencover::coVRPlugin 
 {
-    public:
-    SensorPlacementPlugin();
-    ~SensorPlacementPlugin();
-    bool init() override;
-    bool destroy() override;
-    void preFrame() override;
+public:
+  SensorPlacementPlugin();
+  ~SensorPlacementPlugin();
+  bool init() override;
+  bool destroy() override;
+  void preFrame() override;
 
-    private:
-
-    std::unique_ptr<UI> m_UI;
+private:
+  std::unique_ptr<UI> m_UI;
 };
