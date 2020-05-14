@@ -262,12 +262,12 @@ public:
 
 };
 
-std::mutex mtx_rand;
 
 template<typename GeneType,typename MiddleCostType>
 class Genetic
 {
 private:
+	std::mutex mtx_rand;
 	std::mt19937_64 rng; // random generator
 	std::uniform_real_distribution<double> unif_dist;
 	int average_stall_count;
