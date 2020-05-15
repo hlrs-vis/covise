@@ -2,6 +2,8 @@
 
 #include <unistd.h>
 
+using namespace vehicleUtil;
+
 RoadPointFinder::RoadPointFinder()
 #ifdef MERCURY
     : XenomaiTask::XenomaiTask("RoadPointFinderTask", 0, 99, 0)

@@ -8,6 +8,7 @@
 #include "CANMsgDB.h"
 #include <stdio.h>
 #include <string.h>
+using namespace vehicleUtil;
 
 // constructor, destructor, instance ---------------------------------
 CANMsgDB::CANMsgDB()

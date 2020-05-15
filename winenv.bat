@@ -5,7 +5,7 @@ if defined COMMON_ACTIVE (
 )
 
 set VCPKG_DEFAULT_TRIPLET=x64-windows
-set VCPKG_OSGVER=3.6.3
+set VCPKG_OSGVER=3.6.4
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
    echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt,zebu, zebuopt mingw, mingwopt"
@@ -24,8 +24,10 @@ set BASEARCHSUFFIX=%ARCHSUFFIX:opt=%
 if not defined EXTERNLIBS (
    if not defined EXTERNLIBSROOT (
       echo EXTERNLIBS and EXTERNLIBSROOT are not set
-      pause
-      goto END
+      if "%BASEARCHSUFFIX%" NEQ "vcpkg" (
+         pause
+         goto END
+      )
    ) else (
       set EXTERNLIBS=%EXTERNLIBSROOT%\%BASEARCHSUFFIX%
    )

@@ -8,6 +8,8 @@
 #include "Seat.h"
 #include <cover/coVRPluginSupport.h>
 
+using namespace vehicleUtil;
+
 // Seat //////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

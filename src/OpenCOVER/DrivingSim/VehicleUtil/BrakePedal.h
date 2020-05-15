@@ -42,6 +42,9 @@
 #endif
 
 
+namespace vehicleUtil
+{
+
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
 class BrakePedal : public CanOpenDevice, public HMIDeviceIface
@@ -64,5 +67,6 @@ protected:
     static const int32_t pressedPosition = 268032844;
 };
 //--------------------------------------------------------------------
+}
 
 #endif

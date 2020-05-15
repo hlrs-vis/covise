@@ -27,6 +27,8 @@
 
 #include "HMIDeviceIface.h"
 #include <OpenVRUI/coUpdateManager.h>
+namespace vehicleUtil
+{
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
@@ -70,5 +72,5 @@ private:
     int m_keynumber;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

@@ -34,6 +34,9 @@
 #include "CanOpenController.h"
 #include <config/CoviseConfig.h>
 
+namespace vehicleUtil
+{
+
 class SendTask; // fwd class declaration
 class CANDRecvTask; // fwd class declaration
 class CANKRecvTask; // fwd class declaration
@@ -90,6 +93,7 @@ private:
     };
     int m_state;
 };
+}
 //--------------------------------------------------------------------
 
 #endif

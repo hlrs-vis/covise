@@ -33,6 +33,9 @@
 #include "fasiUpdateManager.h"
 #include <math.h>
 #include <time.h>
+namespace vehicleUtil
+{
+
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
@@ -165,5 +168,5 @@ private:
     BlinkerTask *bt;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

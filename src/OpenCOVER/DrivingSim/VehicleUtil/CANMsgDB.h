@@ -32,6 +32,9 @@
 #include <map>
 #include "XenomaiSocketCan.h" // needed for use of can_id_t
 
+namespace vehicleUtil
+{
+
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
 class CANMsgDB
@@ -124,6 +127,7 @@ private:
     void addCANKRecvMsgs();
     void createSimMaps();
 };
+}
 //--------------------------------------------------------------------
 
 #endif

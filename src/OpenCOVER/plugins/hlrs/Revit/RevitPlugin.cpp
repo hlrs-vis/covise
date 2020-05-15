@@ -18,6 +18,7 @@
  **                                                                          **
  **                                                                          **
  \****************************************************************************/
+#define QT_NO_EMIT
 
 #include "RevitPlugin.h"
 #include <cover/coVRPluginSupport.h>
@@ -31,6 +32,8 @@
 #include <cover/OpenCOVER.h>
 #include <cover/VRViewer.h>
 #include <cover/ui/EditField.h>
+
+#include <OpenVRUI/coInteractionManager.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -64,6 +67,377 @@ using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
 int ElementInfo::yPos = 3;
+IKAxisInfo::IKAxisInfo()
+{
+	transform = nullptr;
+}
+
+//void IKAxisInfo::initIK(RigidBodyDynamics::Model* model, unsigned int parent_id)
+/*	body = Body(1., Vector3d(origin.x() / 2.0, origin.y() / 2.0, origin.z() / 2.0), Vector3d(0.1, 0.1, 0.1));
+	joint = Joint(RigidBodyDynamics::JointTypeRevolute, Vector3d(direction.x(), direction.y(), direction.z()));
+	body_id = model->AddBody(parent_id, Xtrans(Vector3d(origin.x(), origin.y(), origin.z())), joint, body);*/
+void IKAxisInfo::initIK(unsigned int myID)
+{
+
+	rotTransform = new osg::MatrixTransform();
+}
+
+IKInfo::IKInfo()
+{
+	robot = new  CRobot(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+	
+
+}
+
+IKInfo::~IKInfo()
+{
+	delete iks;
+}
+
+void IKInfo::update()
+{
+	if (iks)
+	{
+		iks->update();
+	}
+}
+
+void IKInfo::addHandle(osg::Node* n)
+{
+    iks = new IKSensor(RevitPlugin::instance(), this, n);
+}
+
+osg::Vec3 IKInfo::getPosition()
+{
+	osg::Matrix m;
+	m.makeIdentity();
+	for (unsigned int i = 0; i < axis.size()-1; ++i)
+	{
+		if (axis[i].transform)
+		{
+			m = axis[i].transform->getMatrix() * m;
+		}
+		m = axis[i].rotTransform->getMatrix() * m;
+	}
+	float z = m(3, 2);
+	if (axis[axis.size() - 1].transform)
+	{
+		m = axis[axis.size() - 1].transform->getMatrix() * m;
+	}
+	m = axis[axis.size() - 1].rotTransform->getMatrix() * m;
+	float x = m(3, 0), y = m(3, 1);
+	return osg::Vec3(x, y, z);
+}
+osg::Vec3 IKInfo::getOrientation()
+{
+	osg::Matrix m;
+	m.makeIdentity();
+	for (unsigned int i = 0; i < axis.size(); ++i)
+	{
+		if (axis[i].transform)
+		{
+			m = axis[i].transform->getMatrix() * m;
+		}
+		m = axis[i].rotTransform->getMatrix() * m;
+	}
+	return osg::Vec3(m(1, 0), m(1, 1), m(1, 2));
+}
+
+
+void IKInfo::intiIK()
+{
+	int numAxis = axis.size();
+	if (numAxis == 6)
+	{
+		numAxis = 4;
+	}
+	for (unsigned int i = 0; i < numAxis; ++i)
+	{
+		//Saving joint data to robot
+		robot->jhandle.push_back(CJoint(0,0, REVOLUTE, "unknown")); // this is the 0 theta position, everything is relative to this
+		//Saving link data  to robot
+		robot->linkhadle.push_back(CLink(1/*a*/, 0/*alpha*/));
+		//Calculating h_matrix and saving to robot
+		Eigen::Matrix4f em;
+		for (int n = 0; n < 4; n++)
+			for (int m = 0; m < 4; m++)
+				em(n, m) = axis[i].mat(m, n);
+
+		robot->hmtx.push_back(em);
+		robot->origHmtx.push_back(axis[i].mat);
+	}
+	robot->CaclulateFullTransormationMatrix();
+	osg::Vec3 xAxis(1, 0, 0);
+	basePos = axis[0].origin;
+	vA = axis[1].origin- basePos;
+	vA.z() = 0;
+	rA = vA.length();
+
+	vB = axis[4].origin- axis[1].origin;
+	vB.z() = 0;
+	rB = vB.length();
+	osg::Vec3 vAn = vA;
+	vAn.normalize();
+	osg::Vec3 vBn = vB; 
+	vBn.normalize();
+
+	osg::Vec3 rotA = axis[0].direction;
+	rotA.normalize();
+	osg::Vec3 rotB = axis[1].direction;
+	rotA.normalize();
+	osg::Vec3 rotC = axis[2].direction;
+	rotC.normalize();
+
+	initialAngleA = getAngle(vAn,xAxis,rotA);
+	initialAngleB = getAngle(vBn, vAn, rotB);
+
+	vC = axis[3].origin - axis[2].origin;
+	rC = vC.length();
+	float dH = vC.z();
+
+	initialAngleC = asin(dH / rC);
+
+
+}
+
+
+void IKInfo::updateIK(const osg::Vec3 &targetPos, const osg::Vec3 & targetDir)
+{
+
+	vC = targetPos - axis[2].origin;
+	float dH = vC.z();
+	if (dH < -(rC - 0.10))
+		dH = -(rC - 0.10);
+	if (dH > 1)
+		dH = 1;
+
+	float currentAngleC = asin(dH / rC);
+	rB = rC * cos(currentAngleC);
+
+	axis[2].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
+	axis[3].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
+
+	osg::Vec3 toNew = targetPos - basePos;
+	toNew.z() = 0;
+	float newD = toNew.length();
+	if (newD > 0.1 && newD < rA + rB)
+	{
+
+		osg::Vec3 xAxis(1, 0, 0);
+		osg::Vec3 baseP = basePos;
+		baseP.z() = 0;
+		osg::Vec3 targetP = targetPos;
+		targetP.z() = 0;
+		float x = (rA * rA + newD * newD - rB * rB) / (2 * newD);
+		float y=0;
+		float sqd = rA * rA - x * x;
+		if (sqd>0)
+		{
+			y = sqrt(sqd);
+		}
+		float qx =  (x * ((targetP.x() - baseP.x()) / newD)) - (y * ((targetP.y() - baseP.y()) / newD));
+		float qy =  (x * ((targetP.y() - baseP.y()) / newD)) + (y * ((targetP.x() - baseP.x()) / newD));
+		osg::Vec3 vQ(qx, qy,0);
+		osg::Vec3 tToB = baseP - targetP;
+		osg::Vec3 dirA = vQ;
+		osg::Vec3 dirB = (tToB + vQ)*-1;
+		dirA.normalize();
+		dirB.normalize();
+
+		osg::Vec3 rotA = axis[0].direction;
+		rotA.normalize();
+		osg::Vec3 rotB = axis[1].direction;
+		rotA.normalize();
+
+		float newAngleA = getAngle(dirA, xAxis, rotA);
+		float newAngleB = getAngle(dirB, dirA, rotB);
+		if (std::isnan(newAngleA) || std::isnan(newAngleB))
+		{
+			fprintf(stderr, "isnan\n");
+		}
+		else
+		{
+			axis[0].rotTransform->setMatrix(osg::Matrix::rotate(newAngleA - initialAngleA, osg::Vec3(0, 0, -1)));
+			axis[1].rotTransform->setMatrix(osg::Matrix::rotate(newAngleB - initialAngleB, osg::Vec3(0, 0, -1)));
+		}
+		
+	} // else  zu weit auseinander
+
+	// rotate end so that y axis points towards the specified y direction
+	osg::Matrix m;
+	m.makeIdentity();
+	for (unsigned int i = 0; i < axis.size(); ++i)
+	{
+		if (axis[i].transform)
+		{
+			m = axis[i].transform->getMatrix() * m;
+		}
+		m = axis[i].rotTransform->getMatrix() * m;
+	}
+	auto td = targetDir;
+    td.normalize();
+	osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
+	float newAngle = getAngle(my, td, axis[4].direction);
+	osg::Matrix oldMat = axis[4].rotTransform->getMatrix();
+	axis[4].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
+
+
+	/*CAlgoFactory factory;
+	VectorXf des(6);
+	float speccfc = 0.001f;
+	des << RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number(), RevitPlugin::instance()->xOri->number(), RevitPlugin::instance()->yOri->number(), RevitPlugin::instance()->zOri->number();
+
+	CAlgoAbstract* pJpt = factory.GiveMeSolver(JACOBIANTRANSPOSE, des, *robot); //JACOBIANTRANSPOSE , DUMPEDLEASTSQUARES
+	pJpt->SetAdditionalParametr(speccfc);
+	pJpt->CalculateData();
+	robot->PrintConfiguration();
+	bool verticalEnd = false;
+
+	int numAxis = axis.size();
+	if (numAxis == 5)
+	{
+		numAxis = 3;
+		verticalEnd = true;
+	}
+	osg::Matrix m;
+	m.makeIdentity();
+	for (unsigned int i = 0; i < numAxis; ++i)
+	{
+		
+
+		osg::Matrix mat;
+		for (int n = 0; n < 4; n++)
+			for (int m = 0; m < 4; m++)
+				mat(n, m) = robot->hmtx[i](m, n);
+		if(axis[i].transform)
+		axis[i].transform->setMatrix(mat);
+		m = mat * m;
+	}
+	osg::Vec3 z(0, 0, 1);
+	if (verticalEnd)
+	{
+		m = axis[3].mat * m;
+		m = axis[4].mat * m;
+		osg::Vec3 z5(m(2, 0), m(2, 1), m(2, 2));
+		float angle = acos(z5*z);
+		axis[3].rotTransform->setMatrix(osg::Matrix::rotate(angle, z));
+	}
+
+	*/
+
+	/*VectorNd Qres =Q;
+	Vector3d target(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
+	target_pos.clear();
+	target_pos.push_back(target);
+	bool res = InverseKinematics(*model, Q, body_ids, body_points, target_pos, Qres);
+	if (res)
+	{
+		Q = Qres;
+		updateGeometry();
+	}*/
+}
+
+
+IKSensor::IKSensor(RevitPlugin *r,IKInfo* i, osg::Node* n)
+	: coPickSensor(n)
+{
+	myIKI = i;
+	revitPlugin = r;
+}
+
+IKSensor::~IKSensor()
+{
+
+	if (interaction->isRegistered())
+	{
+		coInteractionManager::the()->unregisterInteraction(interaction);
+	}
+
+	RevitPlugin::instance()->unregisterInteraction(myIKI);
+	if (active)
+		disactivate();
+}
+void IKSensor::miss()
+{
+	scheduleUnregister = true;
+	hitActive = false;
+	//fprintf(stderr, "miss\n");
+}
+int IKSensor::hit(vruiHit* hit)
+{
+	int ret = coPickSensor::hit(hit);
+	scheduleUnregister = false;
+	RevitPlugin::instance()->registerInteraction(myIKI);
+	//fprintf(stderr, "hit\n");
+	return ret;
+}
+void IKSensor::update()
+{
+	if (scheduleUnregister && interaction->isRegistered()&& !interaction->isRunning())
+	{
+		scheduleUnregister = false;
+		coInteractionManager::the()->unregisterInteraction(interaction);
+		RevitPlugin::instance()->unregisterInteraction(myIKI);
+	}
+}
+/*
+* Called when the mouse is over the Annotation. No Click necessary!
+*
+*/
+void IKSensor::activate()
+{
+	revitPlugin->registerInteraction(myIKI);
+	active = 1;
+	//myAnnotation->setIcon(1);
+}
+
+/*
+* Called when the mouse is no more over the annotation
+*
+*/
+void IKSensor::disactivate()
+{
+	revitPlugin->unregisterInteraction(myIKI);
+	active = 0;
+	//myAnnotation->setIcon(0);
+}
+
+void RevitPlugin::registerInteraction(IKInfo* i)
+{
+	currentIKI = i;
+	//fprintf(stderr, "RevitPlugin::registerInteraction\n");
+}
+void RevitPlugin::unregisterInteraction(IKInfo* i)
+{
+	currentIKI = nullptr;
+	//fprintf(stderr, "RevitPlugin::unregisterInteraction\n");
+}
+
+void RevitPlugin::updateIK()
+{
+	for (auto& iki : ikInfos)
+	{
+
+		osg::Vec3 targetPos(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
+		osg::Vec3 targetDir(RevitPlugin::instance()->xOri->number(), RevitPlugin::instance()->yOri->number(), RevitPlugin::instance()->zOri->number());
+
+
+		iki->updateIK(targetPos, targetDir);
+	}
+}
+
+void IKInfo::updateGeometry()
+{
+	/*UpdateKinematicsCustom(*model, &Q, NULL, NULL);
+
+	for (int i = 0; i < axis.size(); i++)
+	{
+		if (axis[i].rotTransform)
+		{
+			axis[i].rotTransform->setMatrix(osg::Matrix::rotate(Q[i], osg::Vec3(0, 0, 1)));
+		}
+	}*/
+}
 
 RevitDesignOption::RevitDesignOption(RevitDesignOptionSet *s)
 {
@@ -534,7 +908,30 @@ void RevitPlugin::createMenu()
 
 	revitMenu = new ui::Menu("Revit", this);
 	revitMenu->setText("Revit");
-
+	xPos = new ui::EditField(revitMenu, "X");
+	yPos = new ui::EditField(revitMenu, "Y");
+	zPos = new ui::EditField(revitMenu, "Z");
+	xPos->setCallback([this](const std::string &) {
+		updateIK();
+		});
+	yPos->setCallback([this](const std::string&) {
+		updateIK();
+		});
+	zPos->setCallback([this](const std::string&) {
+		updateIK();
+		});
+	xOri = new ui::EditField(revitMenu, "H");
+	yOri = new ui::EditField(revitMenu, "P");
+	zOri = new ui::EditField(revitMenu, "R");
+	xOri->setCallback([this](const std::string&) {
+		updateIK();
+		});
+	yOri->setCallback([this](const std::string&) {
+		updateIK();
+		});
+	zOri->setCallback([this](const std::string&) {
+		updateIK();
+		});
 	viewpointMenu = new ui::Menu(revitMenu, "RevitViewpoints");
 	viewpointMenu->setText("Viewpoints");
 	parameterMenu = new ui::Menu(revitMenu, "RevitParameters");
@@ -566,6 +963,7 @@ void RevitPlugin::createMenu()
 
 }
 
+
 void RevitPlugin::destroyMenu()
 {
 	for (const auto& set : designOptionSets)
@@ -577,6 +975,52 @@ void RevitPlugin::destroyMenu()
 RevitPlugin::RevitPlugin() : ui::Owner("RevitPlugin", cover->ui)
 {
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
+
+/*
+	std::string str = "robot.xml";
+	//Set origin at O_zero
+	CRobot robot(Vector3f(0.0f, 0.0f, 0.0f));
+	dh_table dht;
+	dh_parametrs joint1;
+	joint1.joint_name = "joint1";
+	joint1.alpha = 0;  //Angle between zi and zi - 1 along xi
+	joint1.d = 0;
+	joint1.a = 200;    //Length of common normal
+	joint1.theta = 0;  //Angle between xi and xi-1 along zi    (variavle for revolute)
+	joint1.z_joint_type = REVOLUTE; //Joint type at z-1 axis
+	dht.push_back(joint1);
+
+	dh_parametrs joint2;
+	joint2.joint_name = "joint2";
+	joint2.alpha = 0;  //Angle between zi and zi - 1 along xi
+	joint2.d = 0;
+	joint2.a = 200;    //Length of common normal
+	joint2.theta = 0;  //Angle between xi and xi-1 along zi    (variavle for revolute)
+	joint2.z_joint_type = REVOLUTE; //Joint type at z-1 axis
+	dht.push_back(joint2);
+
+	dh_parametrs joint3;
+	joint3.joint_name = "joint3";
+	joint3.alpha = 90;  //Angle between zi and zi - 1 along xi
+	joint3.d = 0;
+	joint3.a = 200;    //Length of common normal
+	joint3.theta = 0;  //Angle between xi and xi-1 along zi    (variavle for revolute)
+	joint3.z_joint_type = REVOLUTE; //Joint type at z-1 axis
+	//dht.push_back(joint3);
+
+	robot.LoadConfig(dht);
+	CAlgoFactory factory;
+	VectorXf des(6);
+	float speccfc = 0.001f;
+	des << 200.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f;
+
+	CAlgoAbstract* pJpt = factory.GiveMeSolver(DUMPEDLEASTSQUARES, des, robot); //JACOBIANTRANSPOSE 
+	pJpt->SetAdditionalParametr(speccfc);
+	pJpt->CalculateData();
+	robot.PrintConfiguration();*/
+
+	
+	
 	plugin = this;
 	MoveFinished = true;
     setViewpoint = true;
@@ -645,6 +1089,8 @@ bool RevitPlugin::init()
 	currentGroup.push(revitGroup.get());
 	cover->getObjectsRoot()->addChild(revitGroup.get());
 	createMenu();
+
+
 	return true;
 }
 // this is called if the plugin is removed at runtime
@@ -1174,11 +1620,11 @@ RevitPlugin::handleMessage(Message *m)
 			for (std::list<osg::Node *>::iterator nodesIt = ei->nodes.begin(); nodesIt != ei->nodes.end(); nodesIt++)
 			{
 				osg::Node *n = *nodesIt;
-				const MatrixTransform *mt = dynamic_cast<const MatrixTransform *>(n);
+				const osg::MatrixTransform *mt = dynamic_cast<const osg::MatrixTransform *>(n);
 				if (mt != NULL)
 				{// this could be a door
 
-					for (std::list<DoorInfo *>::iterator it = activeDoors.begin(); it != activeDoors.end();)
+					for (std::list<DoorInfo *>::iterator it = activeDoors.begin(); it != activeDoors.end();it++)
 					{
 						if ((*it)->transformNode == mt)
 						{
@@ -1205,6 +1651,15 @@ RevitPlugin::handleMessage(Message *m)
 			}
 			delete ei;
 			ElementIDMap[docID].erase(it);
+			for (int i = 0; i < ikInfos.size(); i++)
+			{
+				if (ikInfos[i]->ID == ID && ikInfos[i]->DocumentID == docID)
+				{
+					delete ikInfos[i];
+					ikInfos.erase(ikInfos.begin()+i);
+					break;
+				}
+			}
 		}
 	}
 	break;
@@ -1311,7 +1766,7 @@ RevitPlugin::handleMessage(Message *m)
 		while (currentGroup.size() > 1)
 			currentGroup.pop();
 
-		revitGroup->removeChild(0, revitGroup->getNumChildren());
+		revitGroup->removeChild(0, revitGroup->getNumChildren()); 
 
 		// remove viewpoints
 		maxEntryNumber = 0;
@@ -1338,9 +1793,62 @@ RevitPlugin::handleMessage(Message *m)
 		{
 			delete *it;
 		}
+		ikInfos.clear();
 		doors.clear();
 		activeDoors.clear();
 
+	}
+	break;
+	case MSG_IKInfo:
+	{
+		TokenBuffer tb(m);
+		IKInfo* iki = new IKInfo();
+		tb >> iki->ID;
+		tb >> iki->DocumentID;
+		int numAxis = 0;
+		tb >> numAxis;
+		iki->axis.resize(numAxis);
+		osg::Matrix mat,iMat;
+		for (int i = 0; i < numAxis; i++)
+		{
+			int level;
+			tb >> level;
+			level--;
+			tb >> iki->axis[level].origin;
+			tb >> iki->axis[level].direction;
+			tb >> iki->axis[level].min;
+			tb >> iki->axis[level].max;
+		}
+		unsigned int node_id = 0;
+		for (int i = 0; i < numAxis; i++)
+		{
+			osg::Matrix m,r;
+			iki->axis[i].sumMat = mat;
+			iki->axis[i].invSumMat = iMat;
+			m.makeTranslate(iki->axis[i].origin);
+			r.makeRotate(osg::Vec3(0, 0, 1), iki->axis[i].direction);
+			mat = r*m;
+			iMat.invert(mat);
+			iki->axis[i].mat = mat * iki->axis[i].invSumMat ;
+			iki->axis[i].invMat.invert(iki->axis[i].mat);
+
+			node_id++;
+			iki->axis[i].initIK( node_id);
+		}
+		iki->intiIK();
+		ikInfos.push_back(iki);
+		osg::Matrix m;
+		m.makeIdentity();
+		if (numAxis == 5)
+			numAxis = 4;
+		for (int i = 0; i < numAxis; i++)
+		{
+			m =iki->axis[i].mat*m;
+		}
+		xPos->setValue(iki->axis[4].origin.x());
+		yPos->setValue(iki->axis[4].origin.y());
+		zPos->setValue(iki->axis[3].origin.z());
+		yOri->setValue(1.0);
 	}
 	break;
 	case MSG_NewAnnotation:
@@ -1568,6 +2076,8 @@ RevitPlugin::handleMessage(Message *m)
 		int ID;
 		int docID;
 		int GeometryType;
+		bool isHandle = false;
+		bool doWalk;
 		tb >> ID;
 		tb >> docID;
 		if (docID >= ElementIDMap.size())
@@ -1591,6 +2101,32 @@ RevitPlugin::handleMessage(Message *m)
 		ei->ID = ID;
 		ei->DocumentID = docID;
 		tb >> GeometryType;
+		tb >> doWalk;
+		IKInfo* currentIK = nullptr;
+		int level = -1;
+		for (auto const& ik : ikInfos)
+		{
+			if (ik->ID == ID && ik->DocumentID == docID)
+			{
+				currentIK = ik;
+				size_t pos = ei->name.find("Part");
+				if (pos != std::string::npos)
+				{
+					level = std::stoi(ei->name.substr(pos + 4));
+					level--; // level should start at 0
+				}
+				else
+				{
+
+					size_t pos = ei->name.find("IKHandle"); // Handle is last level
+					if (pos != std::string::npos)
+					{
+						level = ik->axis.size() - 1;
+						isHandle = true;
+					}
+				}
+			}
+		}
 		if (GeometryType == OBJ_TYPE_Mesh)
 		{
 
@@ -1599,6 +2135,11 @@ RevitPlugin::handleMessage(Message *m)
 			osg::Geometry *geom = new osg::Geometry();
 			cover->setRenderStrategy(geom);
 			geode->addDrawable(geom);
+
+			if (!doWalk) // don't walk on anything else than objects marked with doWalk
+			{
+				geode->setNodeMask(geode->getNodeMask() & ~Isect::Walk);
+			}
 
 			// set up geometry
 			bool isTwoSided = false;
@@ -1624,6 +2165,16 @@ RevitPlugin::handleMessage(Message *m)
 				tb >> y;
 				tb >> z;
 				vert->push_back(osg::Vec3(x, y, z));
+			}
+
+			if (currentIK && level >= 0)
+			{
+				//transform all vertices
+				osg::Matrix m =  currentIK->axis[level].invSumMat * currentIK->axis[level].invMat;
+				for (int i=0;i<vert->size();i++)
+				{
+					(*vert)[i] = (*vert)[i] *m;
+				}
 			}
 
 			bool isDepthOnly = false;
@@ -1691,7 +2242,7 @@ RevitPlugin::handleMessage(Message *m)
 			{
 				// after Video but before all normal geometry
 				geoState->setRenderBinDetails(-1, "RenderBin");
-				geoState->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
+				geoState->setAttributeAndModes(cover->getNoFrameBuffer().get(), osg::StateAttribute::ON);
 			}
 			if(currentGroup.size() == 1)// only add Revit Move info to top level geometry, otherwise the group node already has a RevitInfo
 			{
@@ -1700,7 +2251,60 @@ RevitPlugin::handleMessage(Message *m)
 				info->ObjectID = ID;
 				OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
 			}
-			currentGroup.top()->addChild(geode);
+			if (currentIK && level >= 0)
+			{
+				if (currentIK->axis[level].transform == nullptr)
+				{
+					currentIK->axis[level].transform = new osg::MatrixTransform();
+					currentIK->axis[level].transform->setName(std::string("level") + std::to_string(level+1));
+					currentIK->axis[level].transform->setMatrix(currentIK->axis[level].mat);
+
+					currentIK->axis[level].rotTransform->setName(std::string("rot") + std::to_string(level + 1));
+					currentIK->axis[level].transform->addChild(currentIK->axis[level].rotTransform);
+
+					if (level == 0)
+					{
+						currentGroup.top()->addChild(currentIK->axis[level].transform);
+					}
+					else
+					{
+						for (int i = 0; i < level; i++)
+						{
+							if (currentIK->axis[i].transform == nullptr)
+							{
+								currentIK->axis[i].transform = new osg::MatrixTransform();
+								currentIK->axis[i].transform->setName(std::string("level") + std::to_string(i+1));
+								currentIK->axis[i].transform->setMatrix(currentIK->axis[i].mat);
+
+								currentIK->axis[i].rotTransform->setName(std::string("rot") + std::to_string(i + 1));
+								currentIK->axis[i].transform->addChild(currentIK->axis[i].rotTransform);
+								{
+
+									if (i == 0)
+									{
+										currentGroup.top()->addChild(currentIK->axis[i].transform);
+									}
+									else
+									{
+										currentIK->axis[i - 1].rotTransform->addChild(currentIK->axis[i].transform);
+									}
+								}
+							}
+						}
+						currentIK->axis[level - 1].rotTransform->addChild(currentIK->axis[level].transform);
+					}
+				}
+				currentIK->axis[level].rotTransform->addChild(geode);
+				if (isHandle)
+				{
+					currentIK->addHandle(geode);
+				}
+
+			}
+			else
+			{
+				currentGroup.top()->addChild(geode);
+			}
 		}
 		else if (GeometryType == OBJ_TYPE_Inline)
 		{
@@ -1732,6 +2336,11 @@ RevitPlugin::handleMessage(Message *m)
 			{
 				mt->addChild(inlineNode);
 			}
+			if (!doWalk) // don't walk on anything else than objects marked with doWalk
+			{
+				inlineNode->setNodeMask(inlineNode->getNodeMask() & ~Isect::Walk);
+			}
+
 
 			bool isDepthOnly = false;
 			tb >> isDepthOnly;
@@ -1739,7 +2348,7 @@ RevitPlugin::handleMessage(Message *m)
 			{
 				// after Video but before all normal geometry
 				mt->getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
-				mt->getOrCreateStateSet()->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
+				mt->getOrCreateStateSet()->setAttributeAndModes(cover->getNoFrameBuffer().get(), osg::StateAttribute::ON);
 			}
 			ei->nodes.push_back(mt);
 			RevitInfo *info = new RevitInfo();
@@ -2067,6 +2676,43 @@ RevitPlugin::checkDoors()
 bool
 RevitPlugin::update()
 {
+	for (auto & iki : ikInfos)
+	{
+		iki->update();
+	}
+	if (currentIKI && currentIKI->iks->getInteraction()->wasStarted())
+	{
+
+			startCompleteMat.makeIdentity();
+			osg::Node* parent = currentIKI->axis[0].transform;
+			while (parent!=nullptr && (parent = parent->getParent(0))!=nullptr)
+			{
+				osg::MatrixTransform* mt = dynamic_cast<osg::MatrixTransform*>(parent);
+				if (mt)
+				{
+					startCompleteMat = startCompleteMat  * mt->getMatrix() ;
+				}
+				if (parent == revitGroup)
+					break;
+			}
+		    invStartCompleteMat.invert(startCompleteMat);
+			startHand = cover->getPointerMat(); 
+			invStartHand.invert(startHand);
+
+			startPosition = currentIKI->getPosition();
+			startOrientation = currentIKI->getOrientation();
+	}
+	if (currentIKI)
+	{
+		//if(!currentIKI->iks->getInteraction()->isRunning())
+		//fprintf(stderr, "notRunning\n");
+	}
+	if (currentIKI && currentIKI->iks->getInteraction()->isRunning())
+	{
+			osg::Matrix moveMat = startCompleteMat * cover->getBaseMat() * invStartHand * cover->getPointerMat() * cover->getInvBaseMat() * invStartCompleteMat;
+		
+			currentIKI->updateIK(startPosition * moveMat, osg::Matrix::transform3x3(startOrientation, moveMat));
+	}
 	for (const auto& m : ARMarkers)
 	{
 		m.second->update();
@@ -2606,19 +3252,33 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	tb >> FaceFlipped;
 	tb >> FaceOrientation;
 	tb >> Origin;
-	tb >> isSliding;
+	int dir;
+	tb >> dir;
+	isSliding = SlidingDirection(dir);
 	osg::Vec3 BBMin;
 	osg::Vec3 BBMax;
 	tb >> BBMin;
 	tb >> BBMax;
 	boundingBox.set(BBMin, BBMax);
-	if (isSliding)
+	if (isSliding != SlidingDirection::dirNone)
 	{
 		maxDistance = boundingBox.xMax() - boundingBox.xMin();
 		if (maxDistance == 0)
 			maxDistance = 1;
 		HandOrientation.normalize(); // HandOrientation is in Revit World coordinates so either transform this back to local coordinates orjust use X for now.
-		Direction = osg::Vec3(-1, 0, 0)*maxDistance;
+		Direction = osg::Vec3(1, 0, 0)*maxDistance;
+		if (strncmp(Name, "DoorMovingParts_Right", 21) == 0)
+		{
+			//Direction *= -1;
+		}
+		else if(strncmp(Name, "DoorMovingParts_Left", 20) == 0)
+		{
+			Direction *= -1;
+		}
+		else
+		{
+			Direction *= isSliding;
+		}
 	//	if (!HandFlipped)
 	//	{
 	//		Direction *= -1;
@@ -2649,14 +3309,14 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 
 	Center = boundingBox.center();
 	// transform Center to Object Coordinates
-	Matrix tr;
+	osg::Matrix tr;
 	tr.makeIdentity();
 	//cerr << "LocalToVRML: hitPoint: "<<hitPoint[0]<<' '<<hitPoint[1]<<' '<<hitPoint[2]<<endl;
-	const Node *parent = transformNode->getParent(0);
+	const osg::Node *parent = transformNode->getParent(0);
 	while (parent != NULL && parent != cover->getObjectsRoot())
 	{
-		Matrix dcsMat;
-		const MatrixTransform *mtParent = dynamic_cast<const MatrixTransform *>(parent);
+		osg::Matrix dcsMat;
+		const osg::MatrixTransform *mtParent = dynamic_cast<const osg::MatrixTransform *>(parent);
 		if (mtParent)
 		{
 			dcsMat = mtParent->getMatrix();

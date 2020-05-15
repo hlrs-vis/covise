@@ -263,7 +263,7 @@ void ObjectList::write(FILE *fp)
         fprintf(fp, "\n\n<transform\n  translation='%f %f %f'\n  scale='%f %f %f'\n  rotation='%f %f %f %f'\n>\n",
             translation[0], translation[1], translation[2], scale[0], scale[1], scale[2],
             rotation[0], rotation[1], rotation[2], rotation[3] / 360.0 * 2 * M_PI);
-        
+        //fprintf(fp, "\n\n<switch whichChoice = '0' id = 'sliderVariants'>");
     }
 
     for (const auto& it : *this)
@@ -369,6 +369,7 @@ void ObjectList::write(FILE *fp)
     }
     else
     {
+        //fprintf(fp, "</switch>\n");
         fprintf(fp, "</transform>\n");
     }
     if (hastime > 0)

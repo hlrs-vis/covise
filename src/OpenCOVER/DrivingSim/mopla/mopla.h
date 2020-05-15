@@ -18,6 +18,8 @@
 #include "IgnitionLock.h"
 #include <sys/time.h>
 
+using namespace vehicleUtil;
+
 namespace opencover
 {
 class mopla: public XenomaiTask

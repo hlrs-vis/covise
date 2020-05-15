@@ -7,6 +7,8 @@
 
 #include "HMIDeviceIface.h"
 
+using namespace vehicleUtil;
+
 // HMIDeviceIface ////////////////////////////////////////////////////
 
 // constructor, destructor, instance ---------------------------------

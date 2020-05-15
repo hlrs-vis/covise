@@ -28,6 +28,9 @@
 #include "HMIDeviceIface.h"
 #include "Beckhoff.h"
 #include "fasiUpdateManager.h"
+namespace vehicleUtil
+{
+
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
@@ -86,5 +89,5 @@ protected:
     double startTime;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

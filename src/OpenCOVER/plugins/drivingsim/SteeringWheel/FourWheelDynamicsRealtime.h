@@ -32,6 +32,9 @@
 
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 
+using namespace vehicleUtil;
+
+
 //#include <deque>
 
 #ifdef __XENO__

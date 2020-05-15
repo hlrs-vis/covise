@@ -16,6 +16,7 @@
 #include <vrbclient/SharedStateManager.h>
 
 using namespace opencover;
+using namespace vehicleUtil;
 
 
 int main(int argc, char* const* argv)

@@ -473,7 +473,7 @@ void addColors(float* r, float* g, float* b, int *pc, int numColors, int colorpa
     }
 }
 
-void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *texture, NewCharBuffer& buf)
+void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *texture, NewCharBuffer& buf, const char* object)
 {
     char line[500];
     if (objlist->outputMode == OutputMode::VRML97)
@@ -483,6 +483,9 @@ void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int co
     else
     {
         buf += "<shape>\n<appearance>\n<material ";
+        buf += "id='";
+        sprintf(line, "%s'", object);
+        buf += line;
     }
     if (material)
     {
@@ -620,7 +623,7 @@ void GeometryManager::addPolygon(const char *object, const char *rootName, int n
     int i;
     int n = 0;
 
-    addMaterial(material, colorbinding, colorpacking,r,g,b,pc,texture, buf);
+    addMaterial(material, colorbinding, colorpacking,r,g,b,pc,texture, buf, object);
 
     if (objlist->outputMode == OutputMode::VRML97)
     {
@@ -720,7 +723,7 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
     int i;
     int n = 0;
 
-    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf);
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
 
     if (objlist->outputMode == OutputMode::VRML97)
     {
@@ -857,7 +860,7 @@ void GeometryManager::addLine(const char *object, const char *rootName, int no_o
     int n = 0;
 
 
-    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf);
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
 
     if (objlist->outputMode == OutputMode::VRML97)
     {
@@ -946,7 +949,7 @@ void GeometryManager::addPoint(const char *object, const char *rootName, int no_
     float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
 
-    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf);
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
 
     if (objlist->outputMode == OutputMode::VRML97)
     {
@@ -1026,7 +1029,7 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
 
 
 
-        addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf);
+        addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
 
         if (objlist->outputMode == OutputMode::VRML97)
         {

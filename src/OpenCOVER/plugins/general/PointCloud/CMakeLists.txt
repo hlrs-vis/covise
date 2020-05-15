@@ -51,9 +51,24 @@ IF(UNIX OR MINGW)
          ADD_COVISE_COMPILE_FLAGS(PointSort "-fopenmp")
          ADD_COVISE_LINK_FLAGS(PointSort "-fopenmp")
       ENDIF()
-   ENDIF(UNIX OR MINGW)
+ENDIF(UNIX OR MINGW)
 
-   IF(MSVC)
+IF(MSVC)
       ADD_COVISE_COMPILE_FLAGS(PointSort "/openmp")
-   ENDIF(MSVC)
+ENDIF(MSVC)
 
+
+if (NOT E57_FOUND)
+    return()
+endif()
+
+SET(HEADERS
+)
+SET(SOURCES
+  TransformE57.cpp
+)
+
+ADD_COVISE_EXECUTABLE(TransformE57)
+COVISE_WNOERROR(TransformE57)
+
+TARGET_LINK_LIBRARIES(TransformE57 ${EXTRA_LIBS} ${OPENSCENEGRAPH_LIBRARIES} )

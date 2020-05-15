@@ -7,6 +7,8 @@
 
 #include "Klima.h"
 
+using namespace vehicleUtil;
+
 //Klima//////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

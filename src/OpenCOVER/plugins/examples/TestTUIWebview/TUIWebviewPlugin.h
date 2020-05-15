@@ -33,26 +33,22 @@ public:
     ~WebviewPlugin();
 
     // this will be called in PreFrame
-    void preFrame();
-    bool update();
+    void preFrame() override;
+    bool update() override;
 
     // this will be called if an object with feedback arrives
-    void newInteractor(opencover::RenderObject *container, opencover::coInteractor *i);
+    void newInteractor(const opencover::RenderObject *container, opencover::coInteractor *i) override;
 
     // this will be called if a COVISE object arrives
-    void addObject(opencover::RenderObject *container,
-                   opencover::RenderObject *obj, opencover::RenderObject *normObj,
-                   opencover::RenderObject *colorObj, opencover::RenderObject *texObj,
+    void addObject(const opencover::RenderObject *container,
                    osg::Group *root,
-                   int numCol, int colorBinding, int colorPacking,
-                   float *r, float *g, float *b, int *packedCol,
-                   int numNormals, int normalBinding,
-                   float *xn, float *yn, float *zn, float transparency);
+                   const opencover::RenderObject *obj, const opencover::RenderObject *normObj,
+                   const opencover::RenderObject *colorObj, const opencover::RenderObject *texObj) override;
 
     // this will be called if a COVISE object has to be removed
-    void removeObject(const char *objName, bool replace);
+    void removeObject(const char *objName, bool replace) override;
 
-    bool init();
+    bool init() override;
     void tabletEvent(opencover::coTUIElement* tUIItem) override;
 
 private:

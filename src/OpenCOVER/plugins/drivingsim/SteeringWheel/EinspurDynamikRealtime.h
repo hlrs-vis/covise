@@ -14,7 +14,7 @@
 #include <VehicleUtil/CanOpenController.h>
 #include <VehicleUtil/XenomaiTask.h>
 #include <VehicleUtil/XenomaiSteeringWheel.h>
-
+using namespace vehicleUtil;
 class EinspurDynamikRealtimeState
 {
 public:

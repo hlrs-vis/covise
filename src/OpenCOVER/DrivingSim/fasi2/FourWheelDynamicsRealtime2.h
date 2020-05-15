@@ -21,6 +21,8 @@
 
 #include "RoadSystem/RoadSystem.h"
 #include "KLSM.h"
+using namespace vehicleUtil;
+
 
 class FourWheelDynamicsRealtime2 : public XenomaiTask
 {

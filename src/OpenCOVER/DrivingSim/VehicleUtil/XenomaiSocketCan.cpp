@@ -34,6 +34,8 @@
 #define rt_dev_close close
 #else
 #endif
+using namespace vehicleUtil;
+
 void XenomaiSocketCan::printFrame(const char *text, const can_frame &frame)
 {
     fprintf(stderr, text);

@@ -17,7 +17,7 @@
 #include "RoadSystem/RoadSystem.h"
 #include "KLSM.h"
 
-class FourWheelDynamicsRealtime : public XenomaiTask
+class FourWheelDynamicsRealtime : public VehicleUtil::XenomaiTask
 {
 public:
     FourWheelDynamicsRealtime();

@@ -8,6 +8,8 @@
 #include "XenomaiTask.h"
 
 #include <sys/mman.h>
+using namespace vehicleUtil;
+
 
 XenomaiTask::XenomaiTask(const std::string &name, int stacksize, int prio, int mode)
 {

@@ -278,7 +278,7 @@ public:
 
     void remove_geometry(const char *name);
 
-    void addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *, NewCharBuffer& buf);
+    void addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *, NewCharBuffer& buf, const char* object);
 
     ~GeometryManager()
     {

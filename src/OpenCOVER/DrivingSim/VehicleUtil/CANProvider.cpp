@@ -7,6 +7,8 @@
 
 #include "CANProvider.h"
 
+using namespace vehicleUtil;
+
 // set protected static pointer for singleton to NULL
 CANProvider *CANProvider::p_CANProv = NULL;
 

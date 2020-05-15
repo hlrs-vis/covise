@@ -17,6 +17,9 @@
 #include <native/task.h>
 #endif
 
+namespace vehicleUtil
+{
+
 class VEHICLEUTILEXPORT XenomaiTask
 {
 public:
@@ -40,5 +43,5 @@ protected:
 
     RT_TASK rt_task_desc;
 };
-
+}
 #endif

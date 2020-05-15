@@ -15,6 +15,8 @@
 
 #include <cmath>
 #include <cstdlib>
+using namespace vehicleUtil;
+
 
 LinearMotorControlTask::LinearMotorControlTask(XenomaiSocketCan &setCan)
     : XenomaiTask("LinearMotorControlTask")

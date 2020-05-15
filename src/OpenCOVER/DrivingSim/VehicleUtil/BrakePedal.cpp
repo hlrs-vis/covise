@@ -8,6 +8,7 @@
 #include "BrakePedal.h"
 
 // BrakePedal ////////////////////////////////////////////////////////
+using namespace vehicleUtil;
 
 // set protected static pointer for singleton to NULL
 BrakePedal *BrakePedal::p_brakepedal = NULL;

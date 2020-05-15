@@ -32,6 +32,7 @@
 #include <map>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
 // for AnnotationMessage:
 #include <../../general/Annotation/AnnotationPlugin.h>
 
@@ -42,10 +43,18 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Group.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+
+#include "IK/CRobot.h"
+#include "IK/CAlgoFactory.h"
+
 
 #define REVIT_FEET_TO_M 0.304799999536704
 #define REVIT_M_TO_FEET 3.2808399
+
+#include <PluginUtil/coSensor.h>
+
 
 class RevitInfo : public vrui::vruiUserData
 {
@@ -150,6 +159,90 @@ public:
     int ID;
 };
 
+class IKAxisInfo
+{
+public:
+    IKAxisInfo();
+    osg::Matrix mat;
+    osg::Matrix invMat;
+    osg::Matrix sumMat;
+    osg::Matrix invSumMat;
+    osg::Vec3 origin;
+    osg::Vec3 direction;
+    double min;
+    double max;
+    osg::MatrixTransform* transform;
+    osg::MatrixTransform* rotTransform;
+
+    void initIK( unsigned int myID);
+};
+
+inline double getAngle(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& rotAxis) // v1 and v2  need to be normalized
+{
+    osg::Vec3 tmp = v1 ^ v2;
+    float sp = v1 * v2;
+    if (sp > 1)
+        sp = 1;
+    if (sp < -1)
+        sp = -1;
+    if (tmp * rotAxis > 0)
+        return (acos(sp));
+    else
+        return (-acos(sp));
+}
+class IKSensor;
+class IKInfo
+{
+public:
+    IKInfo();
+    ~IKInfo();
+    void update();
+    void addHandle(osg::Node *n);
+    void intiIK();
+    void updateIK(const osg::Vec3& targetPos, const osg::Vec3& targetDir);
+    void updateGeometry();
+    osg::Vec3 getPosition();
+    osg::Vec3 getOrientation();
+    int ID;
+    int DocumentID;
+    std::vector<IKAxisInfo> axis;
+
+    CRobot* robot = nullptr;
+
+    float rA, rB, rC;
+    float initialAngleA, initialAngleB, initialAngleC;
+    osg::Vec3 basePos;
+    osg::Vec3 vA;
+    osg::Vec3 vB;
+    osg::Vec3 vC;
+    IKSensor* iks=nullptr;
+
+};
+
+
+class IKSensor : public coPickSensor
+{
+private:
+    IKInfo* myIKI;
+    RevitPlugin* revitPlugin;
+    bool scheduleUnregister = false;;
+public:
+    IKSensor(RevitPlugin *r,IKInfo* a, osg::Node* n);
+    ~IKSensor();
+    vrui::coCombinedButtonInteraction* getInteraction() { return interaction; };
+
+    virtual void miss();
+    virtual int hit(vruiHit* hit);
+    virtual void update();
+
+    // this method is called if intersection just started
+    // and should be overloaded
+    virtual void activate();
+
+    // should be overloaded, is called if intersection finishes
+    virtual void disactivate();
+};
+
 
 class ARMarkerInfo
 {
@@ -209,13 +302,16 @@ public:
 class DoorInfo
 {
 public:
+
+    enum SlidingDirection { dirLeft=-1, dirNone=0,dirRight=1 };
+
 	DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuffer &tb);
 	std::string name;
 	osg::MatrixTransform *transformNode;
 	int ID;
 	bool HandFlipped;
 	bool FaceFlipped;
-	bool isSliding;
+    SlidingDirection isSliding;
 	osg::Vec3 HandOrientation;
 	osg::Vec3 FaceOrientation;
 	osg::Vec3 Direction;
@@ -332,7 +428,8 @@ public:
 		MSG_NewPointCloud = 530,
 		MSG_NewARMarker = 531,
         MSG_DesignOptionSets = 532,
-        MSG_SelectDesignOption = 533
+        MSG_SelectDesignOption = 533,
+        MSG_IKInfo = 534
     };
     enum ObjectTypes
     {
@@ -351,7 +448,6 @@ public:
     {
         return plugin;
     };
-
 	bool update();
     // this will be called in PreFrame
 	void preFrame();
@@ -360,12 +456,30 @@ public:
 
     void destroyMenu();
     void createMenu();
+    void updateIK();
 
     int maxEntryNumber;
     ui::Menu *revitMenu = nullptr;
     ui::ButtonGroup* viewpointGroup = nullptr;
     ui::Menu* viewpointMenu = nullptr;
     ui::Menu* parameterMenu = nullptr;
+    ui::EditField* xPos;
+    ui::EditField* yPos;
+    ui::EditField* zPos;
+    ui::EditField* xOri;
+    ui::EditField* yOri;
+    ui::EditField* zOri;
+
+
+    IKInfo *currentIKI=nullptr;
+    osg::Matrix startCompleteMat;
+    osg::Matrix invStartCompleteMat;
+    osg::Matrix startHand, invStartHand;
+    osg::Vec3 startPosition;
+    osg::Vec3 startOrientation;
+    void registerInteraction(IKInfo* i);
+    void unregisterInteraction(IKInfo* i);
+
     bool sendMessage(Message &m);
     
     void message(int toWhom, int type, int len, const void *buf);
@@ -402,6 +516,7 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> revitGroup;
     std::stack<osg::Group *> currentGroup;
     std::vector<std::map<int, ElementInfo *>> ElementIDMap;
+    std::vector<IKInfo*> ikInfos;
     osg::Matrix invStartMoveMat;
     osg::Matrix lastMoveMat;
     bool MoveFinished;
@@ -423,5 +538,6 @@ protected:
     
 
     Message *msg = nullptr;
+
 };
 #endif

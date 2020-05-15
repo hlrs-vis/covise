@@ -19,6 +19,8 @@
 #include <sys/time.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <net/covise_connect.h>
+using namespace vehicleUtil;
+
 
 namespace opencover
 {

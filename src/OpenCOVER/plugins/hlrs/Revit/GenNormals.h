@@ -25,7 +25,6 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-using namespace osg;
 
 /** A smoothing visitor for calculating smoothed normals for
   * osg::GeoSet's which contains surface primitives.

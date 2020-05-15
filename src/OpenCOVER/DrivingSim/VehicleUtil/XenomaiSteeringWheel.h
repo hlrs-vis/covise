@@ -14,6 +14,9 @@
 #include "XenomaiMutex.h"
 #include <deque>
 
+namespace vehicleUtil
+{
+
 class VEHICLEUTILEXPORT XenomaiSteeringWheel : public CanOpenDevice, public XenomaiTask
 {
 public:
@@ -189,5 +192,5 @@ inline double XenomaiSteeringWheel::getDrillElasticity()
 {
     return drillElasticity;
 }
-
+}
 #endif
