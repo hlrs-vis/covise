@@ -19,6 +19,7 @@ std::unique_ptr<SensorPosition> createSensor(SensorType sensor)
     else{
         assert(false);
     }
+    return std::unique_ptr<SensorPosition>();
 }
 
 enum class ZoneType
@@ -43,4 +44,5 @@ std::unique_ptr<Zone> createZone(ZoneType zone)
     else{
         assert(false);
     }
+    return std::unique_ptr<Zone>();
 }

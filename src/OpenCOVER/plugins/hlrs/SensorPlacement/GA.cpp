@@ -3,13 +3,14 @@
 bool maxCoverage1(const Solution& p, MiddleCost &c)
 {
     std::cout<<"Fitness: max Coverage 1" <<std::endl;
+    return false; //FIXME
 }
 
 bool maxCoverage2(const Solution& p, MiddleCost &c)
 {
     std::cout<<"Fitness: max Coverage 2" <<std::endl;
+    return false; //FIXME
 }
-
 
 GA::GA(FitnessFunction fitness) : m_FitnessFunction(fitness)
 {
@@ -53,15 +54,15 @@ void GA::init_genes(Solution& p,const std::function<double(void)> &rnd01)
 }
 Solution GA::mutate(const Solution& X_base,const std::function<double(void)> &rnd01,double shrink_scale)
 {
-
+    return X_base; //FIXME
 }
 Solution GA::crossover(const Solution& X1, const Solution& X2,const std::function<double(void)> &rnd01)
 {
-
+    return X1; //FIXME
 }
 double GA::calculate_SO_total_fitness(const GA_Type::thisChromosomeType &X)
 {
-
+    return 0.; //FIXME
 }
 void GA::SO_report_generation(int generation_number,const EA::GenerationType<Solution,MiddleCost> &last_generation,const Solution& best_genes)
 {

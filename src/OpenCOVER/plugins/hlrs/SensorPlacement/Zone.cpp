@@ -13,20 +13,6 @@
 
 using namespace opencover;
 
-float findLargestOf3Numbers(float n1,float n2, float n3)
-{
-    if (n1 >= n2 && n1 >= n3)
-    {
-        
-    }
-    if(n2 >= n1 && n2 >= n3)
-    {
-    }
-    if(n3 >= n1 && n3 >= n2)
-    {
-    }
-}
-
 Zone::Zone(osg::Matrix matrix)
 {
     m_LocalDCS = new osg::MatrixTransform(matrix);
