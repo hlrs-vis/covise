@@ -11,7 +11,7 @@
 
  Instrumentor::Get().BeginSession("Session Name");        // Begin session 
  {
-     Instrum/*entationTimer timer("Profiled Scope Name");   // Place code like this in scopes you'd like to include in profiling Code
+     InstrumentationTimer timer("Profiled Scope Name");   // Place code like this in scopes you'd like to include in profiling Code
  }
  Instrumentor::Get().EndSession();                        // End Session
  */
