@@ -16,7 +16,7 @@
 #ifndef CROSSFALLEDITORTOOL_HPP
 #define CROSSFALLEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -24,7 +24,7 @@
 
 class QDoubleSpinBox;
 
-class CrossfallEditorTool : public Tool
+class CrossfallEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -59,9 +59,9 @@ signals:
 
 public slots:
     void activateEditor();
+	void activateRibbonEditor();
     void handleToolClick(int);
     void setRadius();
-	void activateRibbonEditor();
 	void handleRibbonToolClick(int);
 	void setRibbonRadius();
 
@@ -74,6 +74,7 @@ private:
 	Ui::CrossfallRibbon *ui_;
 
     QDoubleSpinBox *radiusEdit_;
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class CrossfallEditorToolAction : public ToolAction

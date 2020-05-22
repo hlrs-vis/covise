@@ -88,7 +88,7 @@ ShapeSectionItem::init()
 
 	if (shapeSection_->isElementSelected())
 	{
-		shapeSectionPolynomialItems_ = new ShapeSectionPolynomialItems(getProfileGraph(), shapeSection_);
+		shapeSectionPolynomialItems_ = new ShapeSectionPolynomialItems(shapeEditor_->getProfileGraph(), shapeSection_);
 		shapeEditor_->addSelectedShapeSection(shapeSection_);
 	}
 

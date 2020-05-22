@@ -18,6 +18,8 @@
 
 #include "projecteditor.hpp"
 
+#include <QGraphicsItem>
+
 class ProjectData;
 class TopviewGraph;
 
@@ -66,11 +68,18 @@ private:
     LaneEditor(const LaneEditor &); /* not allowed */
     LaneEditor &operator=(const LaneEditor &); /* not allowed */
 
+	void clearToolObjectSelection();
+
     //################//
     // SLOTS          //
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply();
+	virtual void reject();
+	virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -91,6 +100,14 @@ private:
 //	bool borderEditMode_;
 
 	QList<BaseLaneMoveHandle *> selectedLaneMoveHandles_;
+
+	// Lane Editing //
+	//
+	QGraphicsItem *laneItem_;
+
+	// necessary selected elements to make APPLY visible //
+	//
+	int applyCount_;
 };
 
 #endif // LANEEDITOR_HPP

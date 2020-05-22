@@ -30,8 +30,10 @@ ToolWidget::setToolBoxIndex(int index)
 void
 ToolWidget::activateWidget(int index)
 {
-    if (index == index_)
-    {
-        emit activated();
-    }
+	if (index == index_)
+	{
+		emit activated();
+	}
 }
+
+

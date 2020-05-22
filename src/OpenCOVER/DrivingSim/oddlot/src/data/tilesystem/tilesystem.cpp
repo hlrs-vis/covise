@@ -69,6 +69,11 @@ TileSystem::addTile(Tile *tile)
     tiles_.insert(tile->getID(), tile);
     addTileSystemChanges(TileSystem::CTS_TileChange);
 
+	if (!odrIDs[odrID::ID_Tile].contains(tile->getID().getID()))
+	{
+		odrIDs[odrID::ID_Tile].insert(tile->getID().getID());
+	}
+
     setCurrentTile(tile);
 }
 
@@ -220,3 +225,20 @@ TileSystem::acceptForTiles(Visitor *visitor)
         child->accept(visitor);
     }
 }
+
+int32_t TileSystem::uniqueID(odrID::IDType t)
+{
+	int32_t id = odrIDs[t].size();
+	if (odrIDs[t].contains(id))
+	{
+		// ID numbers are higher than number of IDs thus there must be empty spaces, search from scratch
+		id = 0;
+		while (odrIDs[t].contains(id))
+		{
+			id++;
+		}
+	}
+	odrIDs[t].insert(id);
+	return id;
+}
+

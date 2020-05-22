@@ -621,12 +621,20 @@ RoadSystem::changeUniqueId(RSystemElement *element, const odrID &newId)
 
 odrID RoadSystem::getID(const QString &name, odrID::IDType t)
 {
+	if (t == odrID::ID_Tile)
+	{
+		int32_t id = getProjectData()->getTileSystem()->uniqueID(t);
+		return odrID(id, id, name, t);
+	}
+
 	if (getProjectData() && getProjectData()->getTileSystem()->getCurrentTile())
 	{
-		return odrID(getProjectData()->getTileSystem()->getCurrentTile()->uniqueID(t), getProjectData()->getTileSystem()->getCurrentTile()->getID().getID(), name, t);
+		return odrID(getProjectData()->getTileSystem()->uniqueID(t), getProjectData()->getTileSystem()->getCurrentTile()->getID().getID(), name, t);
 	}
-	return odrID(uniqueID(), 0, name, t);
+
+	return odrID(getProjectData()->getTileSystem()->uniqueID(t), 0, name, t);
 }
+
 odrID RoadSystem::getID(int32_t tileID, odrID::IDType t)
 {
 	return odrID(uniqueID(), tileID, "unknown",t);

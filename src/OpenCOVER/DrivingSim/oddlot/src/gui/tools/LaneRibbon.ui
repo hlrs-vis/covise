@@ -41,6 +41,18 @@
       <string>Selection Tools</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item row="1" column="0">
        <widget class="QPushButton" name="select">
         <property name="text">
@@ -67,16 +79,21 @@
    <item>
     <widget class="QGroupBox" name="laneBox">
      <property name="title">
-      <string>LaneSection Tools</string>
+      <string>Edit LaneSection</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Width</string>
-        </property>
-       </widget>
-      </item>
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item row="2" column="0">
        <widget class="QPushButton" name="laneDelete">
         <property name="text">
@@ -97,10 +114,35 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QDoubleSpinBox" name="widthEdit"/>
-      </item>
-      <item row="1" column="2">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="controlPointBox">
+     <property name="title">
+      <string>Edit Lane</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <item row="0" column="1">
        <widget class="QPushButton" name="laneAddWidth">
         <property name="text">
          <string>Add Control Point</string>
@@ -110,11 +152,28 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="widthEdit"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Enter Width at Control Point:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="insertButton">
+        <property name="text">
+         <string>Insert Lane</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_type">
+    <widget class="Line" name="line_type_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>

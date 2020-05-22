@@ -19,6 +19,7 @@
 #include "src/graph/items/graphelement.hpp"
 
 class JunctionLaneSectionItem;
+class JunctionEditor;
 
 class JunctionLaneItem : public GraphElement
 {
@@ -29,7 +30,7 @@ class JunctionLaneItem : public GraphElement
     //################//
 
 public:
-    explicit JunctionLaneItem(JunctionLaneSectionItem *parentJunctionLaneSectionItem, Lane *lane);
+    explicit JunctionLaneItem(JunctionEditor *junctionEditor, JunctionLaneSectionItem *parentJunctionLaneSectionItem, Lane *lane);
     virtual ~JunctionLaneItem();
 
     // Lane //
@@ -76,7 +77,7 @@ public slots:
     //################//
 
 protected:
-    //	virtual void			mousePressEvent(QGraphicsSceneMouseEvent * event);
+   	virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
@@ -85,6 +86,7 @@ protected:
     //################//
 
 private:
+	JunctionEditor *junctionEditor_;
     JunctionLaneSectionItem *parentJunctionLaneSectionItem_;
 
     LaneSection *parentLaneSection_;

@@ -105,7 +105,6 @@ public:
 
 	void enableSplineEditing(bool state);
 
-
 protected:
     virtual void init();
     virtual void kill();
@@ -121,6 +120,11 @@ private:
 
 public slots:
 	void changeDirectories();
+	// Parameter Settings //
+	//
+	virtual void apply() {};
+	virtual void reject() {};
+	virtual void reset() {};
 
     //################//
     // PROPERTIES     //

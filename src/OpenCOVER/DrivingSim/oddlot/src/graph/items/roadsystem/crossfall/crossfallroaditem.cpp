@@ -82,7 +82,7 @@ CrossfallRoadItem::init()
     else
     {
         crossfallEditor_->delSelectedRoad(getRoad());
-    }
+    } 
 }
 
 void

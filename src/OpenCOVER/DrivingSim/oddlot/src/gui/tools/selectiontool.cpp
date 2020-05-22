@@ -33,7 +33,7 @@
 //################//
 
 SelectionTool::SelectionTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
 {
 
     // Connect //

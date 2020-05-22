@@ -37,7 +37,7 @@
 /*! \todo Ownership/destructor
 */
 ShapeEditorTool::ShapeEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TRS_SELECT)
 {
     // Connect emitted ToolActions to ToolManager //
@@ -103,16 +103,16 @@ ShapeEditorTool::initToolWidget()
     ui_ = new Ui::ShapeRibbon();
     ui_->setupUi(ribbonWidget);
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
+    ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui_->select, ODD::TRS_SELECT);
-    ribbonToolGroup->addButton(ui_->shapeAdd, ODD::TRS_ADD);
-    ribbonToolGroup->addButton(ui_->shapeDelete, ODD::TRS_DEL);
+	ribbonToolGroup_->addButton(ui_->select, ODD::TRS_SELECT);
+	ribbonToolGroup_->addButton(ui_->shapeAdd, ODD::TRS_ADD);
+	ribbonToolGroup_->addButton(ui_->shapeDelete, ODD::TRS_DEL);
 
-    toolManager_->addRibbonWidget(ribbonWidget, tr("RoadShape"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("RoadShape"), ODD::ERS);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -137,13 +137,18 @@ ShapeEditorTool::activateEditor()
     delete action;
 }
 
+
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
 void
 ShapeEditorTool::activateRibbonEditor()
 {
-	ShapeEditorToolAction *action = new ShapeEditorToolAction(toolId_);
-	emit toolAction(action);
-	delete action;
+	ToolAction *action = toolManager_->getLastToolAction(ODD::ERS);
+
+	ribbonToolGroup_->button(action->getToolId())->click();
+
 }
+
 
 /*! \brief Gets called when a tool has been selected.
 *
@@ -170,7 +175,7 @@ ShapeEditorTool::handleRibbonToolClick(int id)
 	//
 	ShapeEditorToolAction *action = new ShapeEditorToolAction(toolId_);
 	emit toolAction(action);
-	delete action;
+//	delete action;
 }
 
 

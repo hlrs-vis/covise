@@ -34,7 +34,7 @@
 //################//
 
 MapTool::MapTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     ,
     //		keepRatio_(true),
     //		lastX_(0.0),

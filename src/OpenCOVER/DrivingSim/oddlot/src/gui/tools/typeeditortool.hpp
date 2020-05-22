@@ -16,7 +16,7 @@
 #ifndef TYPEEDITORTOOL_HPP
 #define TYPEEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -29,8 +29,9 @@ class QGroupBox;
 class QAction;
 class QMenu;
 class QToolButton;
+class RoadTypeComboBox;
 
-class TypeEditorTool : public Tool
+class TypeEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -65,10 +66,9 @@ signals:
 public slots:
     void activateProject(bool hasActive);
     void activateEditor();
+	void activateRibbonEditor();
     void handleToolClick(int);
     void handleRoadTypeSelection(int);
-    void handleRoadTypeAction(QAction *);
-    void handleRoadTypeToolButton();
 
     //################//
     // PROPERTIES     //
@@ -82,9 +82,9 @@ private:
     //
     QMap<QString, TypeSection::RoadType> roadTypes_;
     QGroupBox *selectGroupBox_;
-    QGroupBox *selectGroupBox2_;
     QMenu *roadTypeToolButtonMenu_;
     QToolButton *roadTypeToolButton_;
+	ToolButtonGroup *ribbonToolGroup_;
 
     bool active_;
 };
@@ -97,19 +97,9 @@ class TypeEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit TypeEditorToolAction(ODD::ToolId toolId, TypeSection::RoadType roadType = TypeSection::RTP_NONE, bool applyRoadType = false);
+    explicit TypeEditorToolAction(ODD::ToolId toolId);
     virtual ~TypeEditorToolAction()
     { /* does nothing */
-    }
-
-    TypeSection::RoadType getRoadType() const
-    {
-        return roadType_;
-    }
-
-    bool isApplyingRoadType() const
-    {
-        return applyRoadType_;
     }
 
 private:
@@ -122,9 +112,6 @@ private:
     //################//
 
 private:
-    TypeSection::RoadType roadType_;
-
-    bool applyRoadType_;
 };
 
 #endif // TYPEEDITORTOOL_HPP

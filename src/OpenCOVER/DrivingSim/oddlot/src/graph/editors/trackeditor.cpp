@@ -15,6 +15,8 @@
 
 #include "trackeditor.hpp"
 
+#include "src/mainwindow.hpp"
+
 // Project //
 //
 #include "src/gui/projectwidget.hpp"
@@ -58,11 +60,15 @@
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/roadmark/roadmarkitem.hpp"
 
+// GUI //
+//
+#include "src/gui/parameters/toolvalue.hpp"
+#include "src/gui/parameters/toolparametersettings.hpp"
+
 // Tools //
 //
 #include "src/gui/tools/trackeditortool.hpp"
 #include "src/gui/mouseaction.hpp"
-#include "src/gui/keyaction.hpp"
 
 // Visitor //
 //
@@ -95,8 +101,11 @@ TrackEditor::TrackEditor(ProjectWidget *projectWidget, ProjectData *projectData,
     , currentRoadSystemPrototype_(NULL)
     , state_(TrackEditor::STE_NONE)
     , sectionHandle_(NULL)
-	, lastEditorTool_(ODD::TNO_TOOL)
+	, mergeItem_(NULL)
+	, appendItem_(NULL)
 {
+	prototypeManager_ = ODD::mainWindow()->getPrototypeManager();
+	geometryPrimitiveType_ = GeometryPrimitive::LINE;
 }
 
 TrackEditor::~TrackEditor()
@@ -118,6 +127,31 @@ TrackEditor::getSectionHandle() const
 // TOOL           //
 //################//
 
+ToolParameter *
+TrackEditor::addToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const QString &labelText)
+{
+	QStringList text;
+	QList<PrototypeContainer<RSystemElementRoad *> *> prototypes = prototypeManager_->getRoadPrototypes(type);
+	int i = 0;
+	for (; i < prototypes.size(); i++)
+	{
+		text.append(prototypes.at(i)->getPrototypeName());
+	}
+
+	ToolValue<int> *param = new ToolValue<int>(getCurrentTool(), toolId, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), labelText);
+	if (!currentPrototypes_.value(type))
+	{
+		currentPrototypes_.insert(type, prototypeManager_->getRoadPrototypes(type).at(0));
+		param->setValue(0);
+	}
+	else
+	{
+		param->setValue(text.indexOf(currentPrototypes_.value(type)->getPrototypeName()));
+	}
+
+	return param;
+}
+
 /*! \brief Handles the ToolActions.
 *
 */
@@ -129,14 +163,283 @@ TrackEditor::toolAction(ToolAction *toolAction)
     ODD::ToolId lastTool = getCurrentTool();
     ProjectEditor::toolAction(toolAction);
 
-    // Change Tool //
-    //
+	TrackEditorToolAction *trackEditorToolAction = dynamic_cast<TrackEditorToolAction *>(toolAction);
+	if (trackEditorToolAction)
+	{
+		if ((trackEditorToolAction->getToolId() == ODD::TTE_ROAD_NEW) || (trackEditorToolAction->getToolId() == ODD::TTE_ADD) 
+			|| (trackEditorToolAction->getToolId() == ODD::TTE_ADD_PROTO) || (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_CIRCLE))
+		{
+			ODD::ToolId paramTool = trackEditorToolAction->getParamToolId();
+
+			if ((paramTool == ODD::TNO_TOOL) && !tool_)
+			{
+				getTopviewGraph()->getScene()->deselectAll();
+
+				tool_ = new Tool(getCurrentTool(), 1);
+				if (trackEditorToolAction->getToolId() != ODD::TTE_ROAD_CIRCLE)
+				{
+					ToolValue<int> *paramValue = new ToolValue<int>(getCurrentTool(), getCurrentTool(), 0, ToolParameter::ParameterTypes::ENUM, "LINE, ARC/SPIRAL CURVE, POLYNOMIAL", "Geometry Primitive Type");
+					switch (geometryPrimitiveType_)
+					{
+					case GeometryPrimitive::LINE:
+						paramValue->setValue(0);
+						break;
+					case GeometryPrimitive::ARC_SPIRAL:
+						paramValue->setValue(1);
+						break;
+					case GeometryPrimitive::POLYNOMIAL:
+						paramValue->setValue(2);
+					}
+
+					tool_->readParams(paramValue);
+				}
+
+
+				ToolParameter *param = addToolParameter(PrototypeManager::PTP_TrackPrototype, ODD::TTE_PROTO_TRACK, "Track Prototype");
+				tool_->readParams(param);
+
+				param = addToolParameter(PrototypeManager::PTP_LaneSectionPrototype, ODD::TTE_PROTO_LANE, "LaneSection Prototype");
+				tool_->readParams(param);
+
+				param = addToolParameter(PrototypeManager::PTP_RoadTypePrototype, ODD::TTE_PROTO_TYPE, "RoadType Prototype");
+				tool_->readParams(param);
+
+				param = addToolParameter(PrototypeManager::PTP_ElevationPrototype, ODD::TTE_PROTO_ELEVATION, "Elevation Prototype");
+				tool_->readParams(param);
+
+				param = addToolParameter(PrototypeManager::PTP_SuperelevationPrototype, ODD::TTE_PROTO_SUPERELEVATION, "Superelevation Prototype");
+				tool_->readParams(param);
+
+				param = addToolParameter(PrototypeManager::PTP_CrossfallPrototype, ODD::TTE_PROTO_CROSSFALL, "Crossfall Prototype");
+				tool_->readParams(param);
+
+				param = addToolParameter(PrototypeManager::PTP_RoadShapePrototype, ODD::TTE_PROTO_ROADSHAPE, "RoadShape Prototype");
+				tool_->readParams(param);
+
+				createToolParameterSettings(tool_, ODD::ETE);
+				if (isCurrentTool(ODD::TTE_ROAD_NEW))
+				{
+					ODD::mainWindow()->showParameterDialog(true, "New Road", "Choose a geometry primitive and the prototypes and draw a line.");
+				}
+				else if (isCurrentTool(ODD::TTE_ROAD_CIRCLE))
+				{
+					ODD::mainWindow()->showParameterDialog(true, "Circular Road", "Choose the prototypes and draw.");
+				}
+				else
+				{
+					ODD::mainWindow()->showParameterDialog(true, "Add Track (ESC to deselect)", "Choose a geometry primitive and the prototypes and append the new track.");
+				}
+
+				// Initialize prototypes //
+				//
+				delete currentRoadPrototype_;
+
+				currentRoadPrototype_ = new RSystemElementRoad("prototype");
+
+				// Superpose user prototypes //
+				//
+				foreach(PrototypeContainer<RSystemElementRoad *> *container, currentPrototypes_)
+				{
+					currentRoadPrototype_->superposePrototype(container->getPrototype());
+				}
+			}
+		}
+		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROADSYSTEM_ADD)
+		{
+			ODD::ToolId paramTool = trackEditorToolAction->getParamToolId();
+
+			if ((paramTool == ODD::TNO_TOOL) && !tool_)
+			{
+				getTopviewGraph()->getScene()->deselectAll();
+
+				QStringList text;
+				int i = 0;
+				QList<PrototypeContainer<RoadSystem *>*> roadSystemContainer = prototypeManager_->getRoadSystemPrototypes();
+				for (; i < roadSystemContainer.size(); i++)
+				{
+					text.append(roadSystemContainer.at(i)->getPrototypeName());
+				}
+
+				ToolValue<int> *paramValue = new ToolValue<int>(ODD::TTE_ROADSYSTEM_ADD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), "RoadSystem Prototype");
+				if (!currentRoadSystemPrototype_)
+				{
+					currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(0);
+					paramValue->setValue(0);
+				}
+				else
+				{
+					paramValue->setValue(text.indexOf(currentRoadSystemPrototype_->getPrototypeName()));
+				}
+
+				tool_ = new Tool(getCurrentTool(), 1);
+				tool_->readParams(paramValue);
+
+				createToolParameterSettings(tool_, ODD::ETE);
+				ODD::mainWindow()->showParameterDialog(true, "Draw Roadsystem", "Choose a prototype and draw.");
+			}
+		}
+		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_MERGE)
+		{
+			ODD::ToolId paramTool = trackEditorToolAction->getParamToolId();
+
+			if ((paramTool == ODD::TNO_TOOL) && !tool_)
+			{
+				getTopviewGraph()->getScene()->deselectAll();
+
+				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road");
+				tool_ = new Tool(ODD::TTE_ROAD_MERGE, 4);
+				tool_->readParams(param);
+				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append");
+				tool_->readParams(roadParam);
+
+				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
+				ODD::mainWindow()->showParameterDialog(true, "Append Second Road at End of First", "SELECT the two roads and press APPLY");
+
+				applyCount_ = 2;
+			}
+		}
+		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_SNAP)
+		{
+			ODD::ToolId paramTool = trackEditorToolAction->getParamToolId();
+
+			if ((paramTool == ODD::TNO_TOOL) && !tool_)
+			{
+				getTopviewGraph()->getScene()->deselectAll();
+
+				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road");
+				tool_ = new Tool(ODD::TTE_ROAD_SNAP, 4);
+				tool_->readParams(param);
+				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road");
+				tool_->readParams(roadParam);
+
+				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
+				ODD::mainWindow()->showParameterDialog(true, "Extend one road to fill the gap between two roads", "SELECT the two roads and press APPLY");
+
+				applyCount_ = 2;
+			}
+		}
+	}
+	else
+	{
+		ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
+		if (action)
+		{
+			if ((action->getToolId() == ODD::TTE_ROAD_NEW) || (action->getToolId() == ODD::TTE_ADD) 
+				|| (action->getToolId() == ODD::TTE_ADD_PROTO) || (action->getToolId() == ODD::TTE_ROAD_CIRCLE))
+			{
+				int index = action->getParamId();
+				if (action->getToolId() == action->getParamToolId())
+				{
+					if (index == 0)
+					{
+						geometryPrimitiveType_ = GeometryPrimitive::LINE;
+					}
+					else if (index == 1)
+					{
+						geometryPrimitiveType_ = GeometryPrimitive::ARC_SPIRAL;
+					}
+					else
+					{
+						geometryPrimitiveType_ = GeometryPrimitive::POLYNOMIAL;
+					}
+
+					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
+					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
+					v->setValue(index);
+				}
+				else
+				{
+					PrototypeContainer<RSystemElementRoad *> *container;
+					if (toolAction->getParamToolId() == ODD::TTE_PROTO_TRACK)
+					{
+						currentRoadPrototype_->delTrackSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_TrackPrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_TrackPrototype, container);
+					}
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_LANE)
+					{
+						currentRoadPrototype_->delLaneSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_LaneSectionPrototype, container);
+					}
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ELEVATION)
+					{
+						currentRoadPrototype_->delElevationSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_ElevationPrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_ElevationPrototype, container);
+					}
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_SUPERELEVATION)
+					{
+						currentRoadPrototype_->delSuperelevationSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_SuperelevationPrototype, container);
+					}
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_CROSSFALL)
+					{
+						currentRoadPrototype_->delCrossfallSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_CrossfallPrototype, container);
+					}
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_TYPE)
+					{
+						currentRoadPrototype_->delTypeSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_RoadTypePrototype, container);
+					}
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ROADSHAPE)
+					{
+						currentRoadPrototype_->delShapeSections();
+						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype).at(index);
+						currentPrototypes_.insert(PrototypeManager::PTP_RoadShapePrototype, container);
+					}
+
+					currentRoadPrototype_->superposePrototype(container->getPrototype());
+
+					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
+					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
+					v->setValue(index);
+				}
+			}
+			else if (action->getToolId() == ODD::TTE_ROADSYSTEM_ADD)
+			{
+				int index = action->getParamId();
+				{
+					currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(index);
+				}
+			}
+			else if (action->getToolId() == ODD::TTE_ROAD_MERGE)
+			{
+				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
+				{
+					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road");
+					tool_ = new Tool(ODD::TTE_ROAD_MERGE, 4);
+					tool_->readParams(param);
+					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append");
+					tool_->readParams(roadParam);
+
+					generateToolParameterUI(tool_);
+				}
+			}
+			else if (action->getToolId() == ODD::TTE_ROAD_SNAP)
+			{
+				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
+				{
+					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road");
+					tool_ = new Tool(ODD::TTE_ROAD_SNAP, 4);
+					tool_->readParams(param);
+					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road");
+					tool_->readParams(roadParam);
+
+					generateToolParameterUI(tool_);
+				}
+			}
+		}
+	}
+
+	// Change Tool //
+	//
 	if (lastTool != getCurrentTool())
 	{
-		if ((state_ == TrackEditor::STE_NEW_PRESSED) && (lastEditorTool_ == ODD::TTE_ADD_POLY))
-		{
-			newRoadPolyItem_->hide();
-		}
 
 		// State //
 		//
@@ -149,15 +452,6 @@ TrackEditor::toolAction(ToolAction *toolAction)
 			selectedRoads_.clear();
 		}
 
-
-		if (getCurrentTool() == ODD::TTE_ROAD_MERGE)
-		{
-			selectedRoads_.clear();
-		}
-		if (getCurrentTool() == ODD::TTE_ROAD_SNAP)
-		{
-			selectedRoads_.clear();
-		}
 		// Move and Rotate Tool //
 		//
 		else if (getCurrentTool() == ODD::TTE_MOVE_ROTATE)
@@ -170,17 +464,15 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
 		// Add Tool //
 		//
-		else if (getCurrentTool() == ODD::TTE_ADD
-			|| getCurrentTool() == ODD::TTE_ADD_LINE
-			|| getCurrentTool() == ODD::TTE_ADD_CURVE
-			|| getCurrentTool() == ODD::TTE_ADD_POLY)
+		else if ((toolAction->getToolId() == ODD::TTE_ADD) || (toolAction->getToolId() == ODD::TTE_ADD_PROTO))
 		{
-			if (trackRoadSystemItem_)
+			ODD::ToolId paramTool = getCurrentParameterTool();
+			if ((paramTool == ODD::TNO_TOOL) && trackRoadSystemItem_)
 			{
 				trackRoadSystemItem_->rebuildAddHandles();
 			}
-			lastEditorTool_ = getCurrentTool();
 		}
+
 
 		// Move & Rotate Tool //
 		//
@@ -208,56 +500,23 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
 	}
 
-    // Prototypes //
-    //
-    TrackEditorToolAction *trackEditorToolAction = dynamic_cast<TrackEditorToolAction *>(toolAction);
-    if (trackEditorToolAction)
-    {
-        if (isCurrentTool(ODD::TTE_ADD)
-            || isCurrentTool(ODD::TTE_ADD_LINE)
-            || isCurrentTool(ODD::TTE_ADD_CURVE)
-			|| isCurrentTool(ODD::TTE_ADD_POLY)
-			|| isCurrentTool(ODD::TTE_ROAD_NEW)
-			|| isCurrentTool(ODD::TTE_ROAD_CIRCLE))
-        {
-            delete currentRoadPrototype_;
 
-            currentRoadPrototype_ = new RSystemElementRoad("prototype");
+	if (trackEditorToolAction)
+	{
 
-            // Superpose user prototypes //
-            //
-            foreach (RSystemElementRoad *road, trackEditorToolAction->getPrototypes())
-            {
-                currentRoadPrototype_->superposePrototype(road);
-            }
+		if (isCurrentTool(ODD::TTE_TILE_NEW))
+		{
+			Tile *tile = new Tile(getProjectData()->getRoadSystem()->getID(odrID::ID_Tile));
+			NewTileCommand *command = new NewTileCommand(tile, getProjectData()->getTileSystem(), NULL);
+			getProjectGraph()->executeCommand(command);
+		}
+		else if (isCurrentTool(ODD::TTE_TILE_DELETE))
+		{
+			RemoveTileCommand *command = new RemoveTileCommand(getProjectData()->getTileSystem()->getCurrentTile(), getProjectData()->getRoadSystem(), NULL);
+			getProjectGraph()->executeCommand(command);
+		}
+	}
 
-			if (isCurrentTool(ODD::TTE_ADD_LINE) || isCurrentTool(ODD::TTE_ADD_POLY))
-			{
-				lastEditorTool_ = getCurrentTool();
-			}
-        }
-
-        if (isCurrentTool(ODD::TTE_ROADSYSTEM_ADD))
-        {
-            //			if(currentRoadSystemPrototype_ != trackEditorToolAction->getRoadSystemPrototype())
-            //			{
-            //				delete currentRoadSystemPrototype_; // do not delete this, it's owned by the prototype manager
-            currentRoadSystemPrototype_ = trackEditorToolAction->getRoadSystemPrototype();
-            //			}
-        }
-
-        else if (isCurrentTool(ODD::TTE_TILE_NEW))
-        {
-            Tile *tile = new Tile(getProjectData()->getRoadSystem()->getID(odrID::ID_Tile));
-            NewTileCommand *command = new NewTileCommand(tile, getProjectData()->getTileSystem(), NULL);
-            getProjectGraph()->executeCommand(command);
-        }
-        else if (isCurrentTool(ODD::TTE_TILE_DELETE))
-        {
-            RemoveTileCommand *command = new RemoveTileCommand(getProjectData()->getTileSystem()->getCurrentTile(), getProjectData()->getRoadSystem(), NULL);
-            getProjectGraph()->executeCommand(command);
-        }
-    }
 }
 
 //################//
@@ -274,10 +533,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
     // ADD //
     //
-    if (getCurrentTool() == ODD::TTE_ADD
-        || getCurrentTool() == ODD::TTE_ADD_LINE
-        || getCurrentTool() == ODD::TTE_ADD_CURVE
-		|| getCurrentTool() == ODD::TTE_ADD_POLY)
+    if ((getCurrentTool() == ODD::TTE_ADD) || (getCurrentTool() == ODD::TTE_ADD_PROTO))
     {
         if (selectedTrackAddHandles_.size() == 0)
         {
@@ -290,7 +546,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             {
                 // Intercept mouse action //
                 //
-                mouseAction->intercept();
+//                mouseAction->intercept();
 
                 // Abort //
                 //
@@ -307,300 +563,302 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                     RSystemElementRoad *road = selectedTrackAddHandles_.begin().value()->getRoad();
                     pressPoint_ = mouseAction->getEvent()->scenePos();
 
-                    // Line //
-                    //
-					if (getCurrentTool() == ODD::TTE_ADD_LINE)
+					if (getCurrentTool() == ODD::TTE_ADD)
 					{
-						TrackComponent *track = NULL;
-						RSystemElementRoad *linePrototype = NULL;
-						double length = 0.0;
-
-						if (isStart)
-						{
-							// Last track (at the front) where the new one should be appended //
-							//
-							track = road->getTrackComponent(0.0);
-
-							// Calculate Length //
-							//
-							QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
-							QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_); // length != 1
-							length = QVector2D::dotProduct(t, d);
-						}
-						else
-						{
-							// Last track (at the end) where the new one should be appended //
-							//
-							track = road->getTrackComponent(road->getLength());
-
-							// Calculate Length //
-							//
-							QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
-							QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())); // length != 1
-							length = QVector2D::dotProduct(t, d);
-						}
-
-						if (length <= 1.0)
-						{
-							printStatusBarMsg(tr("A line can not be inserted here."), 4000);
-							return; // line with this length not possible
-						}
-
-						// Protoype //
+						// Line //
 						//
-						TrackElementLine *line = new TrackElementLine(0.0, 0.0, 0.0, 0.0, length);
-
-						linePrototype = new RSystemElementRoad("prototype");
-						linePrototype->addTrackComponent(line);
-
-						// Append Prototype //
-						//
-						linePrototype->superposePrototype(currentRoadPrototype_);
-
-						getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
-						AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, linePrototype, isStart, NULL);
-						getProjectGraph()->executeCommand(command);
-						LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
-						getProjectGraph()->executeCommand(linkLanesCommand);
-						getProjectData()->getUndoStack()->endMacro();
-					}
-
-					// Polynomial //
-					//
-
-					// Curve //
-					//
-					else if ((getCurrentTool() == ODD::TTE_ADD_CURVE) || (getCurrentTool() == ODD::TTE_ADD_POLY))
-					{
-						// Declarations //
-						//
-						TrackComponent *track = NULL;
-						RSystemElementRoad *spiralPrototype = NULL;
-						double newHeadingDeg = 0.0;
-						bool foundHandle = false;
-						bool foundHandleIsStart = false;
-
-						// Look for existing handles //
-						//
-						foreach(QGraphicsItem *item, getTopviewGraph()->getScene()->items(pressPoint_, Qt::IntersectsItemShape, Qt::AscendingOrder, getTopviewGraph()->getView()->viewportTransform()))
+						if (geometryPrimitiveType_ == GeometryPrimitive::LINE)
 						{
-							if (!foundHandle)
+							TrackComponent *track = NULL;
+							RSystemElementRoad *linePrototype = NULL;
+							double length = 0.0;
+
+							if (isStart)
 							{
-								TrackAddHandle *handle = dynamic_cast<TrackAddHandle *>(item);
-								if (handle)
-								{
-									pressPoint_ = handle->pos();
-									newHeadingDeg = handle->rotation();
-									foundHandle = true;
-									foundHandleIsStart = handle->isStart();
-								}
-							}
-						}
-
-
-						// Adjust translation and rotation //
-						//
-						if (isStart)
-						{
-							// Old code: see backups until 18.06.2010
-
-							// Last track (at the front) where the new one should be appended //
-							//
-							track = road->getTrackComponent(0.0);
-
-							// Calculate Transformation //
-							//
-							QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
-							QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_).normalized(); // length = 1
-							if (!foundHandle)
-							{
-								newHeadingDeg = track->getGlobalHeading(track->getSStart()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
-
-							}
-
-							QPointF startPoint = track->getGlobalPoint(track->getSStart());
-							double startHeadingDeg = track->getGlobalHeading(track->getSStart());
-
-							QTransform trafo;
-							trafo.translate(pressPoint_.x(), pressPoint_.y());
-							trafo.rotate(newHeadingDeg);
-
-
-							if (getCurrentTool() == ODD::TTE_ADD_CURVE)
-							{
-								if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
-								{
-									printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-									return; // symmetric curve not possible
-								}
-
-								// Protoype //
+								// Last track (at the front) where the new one should be appended //
 								//
-								TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg, 0.5);
+								track = road->getTrackComponent(0.0);
 
-								if (!spiral->validParameters())
-								{
-									delete spiral;
-
-									// Try opposite heading // (neccessary when the found handle points to the other direction)
-									//
-									trafo.rotate(180);
-									spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg + 180, 0.5);
-									;
-									if (!spiral->validParameters())
-									{
-										delete spiral;
-										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-										return;
-									}
-								}
-
-								spiralPrototype = new RSystemElementRoad("prototype");
-								spiralPrototype->addTrackComponent(spiral);
+								// Calculate Length //
+								//
+								QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
+								QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_); // length != 1
+								length = QVector2D::dotProduct(t, d);
 							}
 							else
 							{
-								// Protoype //
+								// Last track (at the end) where the new one should be appended //
 								//
+								track = road->getTrackComponent(road->getLength());
 
-								if (foundHandle && foundHandleIsStart)
+								// Calculate Length //
+								//
+								QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
+								QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())); // length != 1
+								length = QVector2D::dotProduct(t, d);
+							}
+
+							if (length <= 1.0)
+							{
+								printStatusBarMsg(tr("A line can not be inserted here."), 4000);
+								return; // line with this length not possible
+							}
+
+							// Protoype //
+							//
+							TrackElementLine *line = new TrackElementLine(0.0, 0.0, 0.0, 0.0, length);
+
+							linePrototype = new RSystemElementRoad("prototype");
+							linePrototype->addTrackComponent(line);
+
+							// Append Prototype //
+							//
+							linePrototype->superposePrototype(currentRoadPrototype_);
+
+							getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
+							AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, linePrototype, isStart, NULL);
+							getProjectGraph()->executeCommand(command);
+							LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+							getProjectGraph()->executeCommand(linkLanesCommand);
+							getProjectData()->getUndoStack()->endMacro();
+						}
+
+						// Polynomial //
+						//
+
+						// Curve //
+						//
+						else if ((geometryPrimitiveType_ == GeometryPrimitive::ARC_SPIRAL) || (geometryPrimitiveType_ == GeometryPrimitive::POLYNOMIAL))
+						{
+							// Declarations //
+							//
+							TrackComponent *track = NULL;
+							RSystemElementRoad *spiralPrototype = NULL;
+							double newHeadingDeg = 0.0;
+							bool foundHandle = false;
+							bool foundHandleIsStart = false;
+
+							// Look for existing handles //
+							//
+							foreach(QGraphicsItem *item, getTopviewGraph()->getScene()->items(pressPoint_, Qt::IntersectsItemShape, Qt::AscendingOrder, getTopviewGraph()->getView()->viewportTransform()))
+							{
+								if (!foundHandle)
 								{
+									TrackAddHandle *handle = dynamic_cast<TrackAddHandle *>(item);
+									if (handle)
+									{
+										pressPoint_ = handle->pos();
+										newHeadingDeg = handle->rotation();
+										foundHandle = true;
+										foundHandleIsStart = handle->isStart();
+									}
+								}
+							}
+
+
+							// Adjust translation and rotation //
+							//
+							if (isStart)
+							{
+								// Old code: see backups until 18.06.2010
+
+								// Last track (at the front) where the new one should be appended //
+								//
+								track = road->getTrackComponent(0.0);
+
+								// Calculate Transformation //
+								//
+								QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
+								QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_).normalized(); // length = 1
+								if (!foundHandle)
+								{
+									newHeadingDeg = track->getGlobalHeading(track->getSStart()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
+
+								}
+
+								QPointF startPoint = track->getGlobalPoint(track->getSStart());
+								double startHeadingDeg = track->getGlobalHeading(track->getSStart());
+
+								QTransform trafo;
+								trafo.translate(pressPoint_.x(), pressPoint_.y());
+								trafo.rotate(newHeadingDeg);
+
+
+								if (geometryPrimitiveType_ == GeometryPrimitive::ARC_SPIRAL)
+								{
+									if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
+									{
+										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+										return; // symmetric curve not possible
+									}
+
+									// Protoype //
+									//
+									TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg, 0.5);
+
+									if (!spiral->validParameters())
+									{
+										delete spiral;
+
+										// Try opposite heading // (neccessary when the found handle points to the other direction)
+										//
+										trafo.rotate(180);
+										spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg + 180, 0.5);
+										;
+										if (!spiral->validParameters())
+										{
+											delete spiral;
+											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+											return;
+										}
+									}
+
+									spiralPrototype = new RSystemElementRoad("prototype");
+									spiralPrototype->addTrackComponent(spiral);
+								}
+								else
+								{
+									// Protoype //
+									//
+
+									if (foundHandle && foundHandleIsStart)
+									{
 										newHeadingDeg += 180;
 										trafo.rotate(180);
-								}
-								QPointF mappedPoint = trafo.inverted().map(startPoint);
-								
-								while (newHeadingDeg > 360) newHeadingDeg -= 360.0;
-								while (newHeadingDeg < -360) newHeadingDeg += 360.0;
-								double angle = startHeadingDeg - newHeadingDeg;
-								double absAngle = fabs(angle);
+									}
+									QPointF mappedPoint = trafo.inverted().map(startPoint);
 
-								if (absAngle >= 90.0 && absAngle <= 270.0)
-								{
-									if (foundHandle)
+									while (newHeadingDeg > 360) newHeadingDeg -= 360.0;
+									while (newHeadingDeg < -360) newHeadingDeg += 360.0;
+									double angle = startHeadingDeg - newHeadingDeg;
+									double absAngle = fabs(angle);
+
+									if (absAngle >= 90.0 && absAngle <= 270.0)
 									{
-										if (angle < 180)
+										if (foundHandle)
 										{
-											newHeadingDeg += 180;
+											if (angle < 180)
+											{
+												newHeadingDeg += 180;
+											}
+											else
+											{
+												newHeadingDeg -= 180;
+											}
 										}
 										else
 										{
-											newHeadingDeg -= 180;
+											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+											return;
 										}
+
 									}
-									else
+
+
+									double df1 = tan(angle * 2.0 * M_PI / 360.0);
+									Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
+
+									if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
 									{
 										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
 										return;
 									}
 
-								}
-
-
-								double df1 = tan(angle * 2.0 * M_PI / 360.0);
-								Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
-
-								if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
-								{
-									printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
-									return;
-								}
-
-								// Track //
-								//
-								TrackElementPoly3 *poly = new TrackElementPoly3(pressPoint_.x(), pressPoint_.y(), newHeadingDeg, 0.0, poly3->getCurveLength(0.0, mappedPoint.x()), *poly3);
-
-
-								spiralPrototype = new RSystemElementRoad("prototype");
-								spiralPrototype->addTrackComponent(poly);
-
-							}
-
-
-                        }
-						else
-						{
-							// Old code: see backups until 18.06.2010
-
-							// Last track (at the end) where the new one should be appended //
-							//
-							track = road->getTrackComponent(road->getLength());
-
-							// Calculate Transformation //
-							//
-							QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
-							QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())).normalized(); // length = 1
-							if (!foundHandle)
-							{
-								newHeadingDeg = track->getGlobalHeading(track->getSEnd()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
-							}
-
-							QPointF startPoint = track->getGlobalPoint(track->getSEnd());
-							double startHeadingDeg = track->getGlobalHeading(track->getSEnd());
-
-							QTransform trafo;
-							trafo.translate(startPoint.x(), startPoint.y());
-							trafo.rotate(startHeadingDeg);
-
-							if (getCurrentTool() == ODD::TTE_ADD_CURVE)
-							{
-
-								if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
-								{
-									printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-									return; // symmetric curve not possible
-								}
-
-								// Protoype //
-								//
-								TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg, 0.5);
-								if (!spiral->validParameters())
-								{
-									delete spiral;
-
-									// Try opposite heading // (neccessary when the found handle points to the other direction)
+									// Track //
 									//
-									spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg + 180.0, 0.5);
-									if (!spiral->validParameters())
-									{
-										delete spiral;
-										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-										return;
-									}
+									TrackElementPoly3 *poly = new TrackElementPoly3(pressPoint_.x(), pressPoint_.y(), newHeadingDeg, 0.0, poly3->getCurveLength(0.0, mappedPoint.x()), *poly3);
+
+
+									spiralPrototype = new RSystemElementRoad("prototype");
+									spiralPrototype->addTrackComponent(poly);
+
 								}
 
-								spiralPrototype = new RSystemElementRoad("prototype");
-								spiralPrototype->addTrackComponent(spiral);
+
 							}
 							else
 							{
+								// Old code: see backups until 18.06.2010
 
-								// Prototype //
+								// Last track (at the end) where the new one should be appended //
 								//
-								double angle = newHeadingDeg - startHeadingDeg;
-								while (angle > 360) angle -= 360.0;
-								while (angle < -360) angle += 360.0;
-								double absAngle = fabs(angle);
+								track = road->getTrackComponent(road->getLength());
 
-								if (absAngle >= 90.0 && absAngle <= 270.0)
+								// Calculate Transformation //
+								//
+								QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
+								QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())).normalized(); // length = 1
+								if (!foundHandle)
 								{
-									if (foundHandle)
+									newHeadingDeg = track->getGlobalHeading(track->getSEnd()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
+								}
+
+								QPointF startPoint = track->getGlobalPoint(track->getSEnd());
+								double startHeadingDeg = track->getGlobalHeading(track->getSEnd());
+
+								QTransform trafo;
+								trafo.translate(startPoint.x(), startPoint.y());
+								trafo.rotate(startHeadingDeg);
+
+								if (geometryPrimitiveType_ == GeometryPrimitive::ARC_SPIRAL)
+								{
+
+									if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
 									{
-										if (absAngle < 180)
+										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+										return; // symmetric curve not possible
+									}
+
+									// Protoype //
+									//
+									TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg, 0.5);
+									if (!spiral->validParameters())
+									{
+										delete spiral;
+
+										// Try opposite heading // (neccessary when the found handle points to the other direction)
+										//
+										spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg + 180.0, 0.5);
+										if (!spiral->validParameters())
 										{
-											angle += 180;
+											delete spiral;
+											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+											return;
+										}
+									}
+
+									spiralPrototype = new RSystemElementRoad("prototype");
+									spiralPrototype->addTrackComponent(spiral);
+								}
+								else
+								{
+
+									// Prototype //
+									//
+									double angle = newHeadingDeg - startHeadingDeg;
+									while (angle > 360) angle -= 360.0;
+									while (angle < -360) angle += 360.0;
+									double absAngle = fabs(angle);
+
+									if (absAngle >= 90.0 && absAngle <= 270.0)
+									{
+										if (foundHandle)
+										{
+											if (absAngle < 180)
+											{
+												angle += 180;
+											}
+											else
+											{
+												angle -= 180;
+											}
 										}
 										else
 										{
-											angle -= 180;
+											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+											return;
 										}
 									}
-									else
-									{
-										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
-										return;
-									}
-								}
 
 
 									/*						QTransform rot;
@@ -643,43 +901,44 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
 
 
-								QPointF mappedPoint = trafo.inverted().map(pressPoint_);
-								double df1 = tan(angle * 2.0 * M_PI / 360.0);
-								Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
-								if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
-								{
-									printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
-									return;
+									QPointF mappedPoint = trafo.inverted().map(pressPoint_);
+									double df1 = tan(angle * 2.0 * M_PI / 360.0);
+									Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
+									if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
+									{
+										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+										return;
+									}
+
+									// Track //
+									//
+									double s = track->getSEnd();
+									TrackElementPoly3 *poly = new TrackElementPoly3(startPoint.x(), startPoint.y(), track->getLocalHeading(s), 0.0, poly3->getCurveLength(0.0, mappedPoint.x()), *poly3);
+
+									spiralPrototype = new RSystemElementRoad("prototype");
+									spiralPrototype->addTrackComponent(poly);
+
+
 								}
-
-								// Track //
-								//
-								double s = track->getSEnd();
-								TrackElementPoly3 *poly = new TrackElementPoly3(startPoint.x(), startPoint.y(), track->getLocalHeading(s), 0.0, poly3->getCurveLength(0.0, mappedPoint.x()), *poly3);
-
-								spiralPrototype = new RSystemElementRoad("prototype");
-								spiralPrototype->addTrackComponent(poly);
-
-
 							}
+
+							// Append Prototype //
+							//
+							spiralPrototype->superposePrototype(currentRoadPrototype_);
+
+							getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
+
+							AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, spiralPrototype, isStart, NULL);
+							getProjectGraph()->executeCommand(command);
+							LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+							getProjectGraph()->executeCommand(linkLanesCommand);
+							getProjectData()->getUndoStack()->endMacro();
 						}
-
-                        // Append Prototype //
-                        //
-                        spiralPrototype->superposePrototype(currentRoadPrototype_);
-
-                        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
-
-                        AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, spiralPrototype, isStart, NULL);
-                        getProjectGraph()->executeCommand(command);
-                        LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
-                        getProjectGraph()->executeCommand(linkLanesCommand);
-                        getProjectData()->getUndoStack()->endMacro();  
-                   }
+					}
 
                     // Prototypes //
                     //
-                    else if (getCurrentTool() == ODD::TTE_ADD)
+                    else if (getCurrentTool() == ODD::TTE_ADD_PROTO)
                     {
                         getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
                         AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, currentRoadPrototype_, isStart, NULL);
@@ -701,248 +960,102 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
         }
     }
 
-    else if ((getCurrentTool() == ODD::TTE_ROAD_MERGE) || (getCurrentTool() == ODD::TTE_ROAD_SNAP))
-    {
-        if (selectedRoads_.size() == 0)
-        {
-            // do nothing
-        }
-        else if (selectedRoads_.size() == 1)
-        {
-            if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
-            {
+	else if ((getCurrentTool() == ODD::TTE_ROAD_MERGE) || (getCurrentTool() == ODD::TTE_ROAD_SNAP))
+	{
+		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
+		{
+			if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
+			{
+				if (mouseAction->getEvent()->button() == Qt::LeftButton)
+				{
+					QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+					for (int i = 0; i < selectedItems.size(); i++)
+					{
+						QGraphicsItem *item = selectedItems.at(i);
+						TrackElementItem *trackItem = dynamic_cast<TrackElementItem *>(item);
+						if (trackItem && (item != mergeItem_) && (item != appendItem_))
+						{
+							if (mergeItem_)
+							{
+								mergeItem_->setSelected(false);
+								int index = selectedItems.indexOf(mergeItem_);
+								if (index > i)
+								{
+									selectedItems.removeAt(index);
+								}
+							}
 
-                // Intercept mouse action //
-                //
-                mouseAction->intercept();
+							RSystemElementRoad *road = trackItem->getParentTrackRoadItem()->getRoad();
+							setToolValue<RSystemElementRoad>(road, road->getIdName());
 
-                // Abort //
-                //
-                if (mouseAction->getEvent()->button() == Qt::RightButton)
-                {
-                    selectedRoads_.clear(); // deselect
-                }
+							mergeItem_ = item;
+						}
+						else if ((item != mergeItem_) && (item != appendItem_))
+						{
+							item->setSelected(false);
+						}
+					}
+					mouseAction->intercept();
 
-                // Add //
-                //
-                else if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    pressPoint_ = mouseAction->getEvent()->scenePos();
+					// verify if apply can be displayed //
+					if (tool_->verify())
+					{
+						settingsApplyBox_->setApplyButtonVisible(true);
+					}
+				}
+			}
+		}
+	}
+	else if (getCurrentTool() == ODD::TTE_ROAD_APPEND)
+	{
+		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
+		{
+			if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
+			{
+				if (mouseAction->getEvent()->button() == Qt::LeftButton)
+				{
+					QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+					for (int i = 0; i < selectedItems.size(); i++)
+					{
+						QGraphicsItem *item = selectedItems.at(i);
+						TrackElementItem *trackItem = dynamic_cast<TrackElementItem *>(item);
+						if (trackItem && (item != appendItem_) && (item != mergeItem_))
+						{
+							if (appendItem_)
+							{
+								appendItem_->setSelected(false);
+								int index = selectedItems.indexOf(appendItem_);
+								if (index > i)
+								{
+									selectedItems.removeAt(index);
+								}
+							}
 
-                    RSystemElementRoad *firstRoad = selectedRoads_.first();
-                    RSystemElementRoad *secondRoad = NULL;
-                    selectedRoads_.clear();
+							RSystemElementRoad *road = trackItem->getParentTrackRoadItem()->getRoad();
+							setToolValue<RSystemElementRoad>(road, road->getIdName());
 
-                    foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->items(pressPoint_, Qt::IntersectsItemShape, Qt::AscendingOrder, getTopviewGraph()->getView()->viewportTransform()))
-                    {
-                        RoadMarkItem *maybeRoad = dynamic_cast<RoadMarkItem *>(item);
-                        if (maybeRoad)
-                        {
-                            secondRoad = maybeRoad->getParentRoad();
-                            if(secondRoad != firstRoad)
-                                break;
-                            else
-                                secondRoad = NULL;
-                        }
-                        TrackElementItem *maybeTrack = dynamic_cast<TrackElementItem *>(item);
-                        if (maybeTrack)
-                        {
-                            secondRoad = maybeTrack->getParentTrackRoadItem()->getRoad();
-                            if(secondRoad != firstRoad)
-                                break;
-                            else
-                                secondRoad = NULL;
-                        }
-                    }
+							appendItem_ = item;
+						}
+						else if ((item != mergeItem_) && (item != appendItem_))
+						{
+							item->setSelected(false);
+						}
+					}
+					mouseAction->intercept();
 
-                    if (secondRoad)
-                    {
-                        if (getCurrentTool() == ODD::TTE_ROAD_SNAP)
-                        {
-                            // Find closest positions of the two roads
-                            double lineLength[4];
-
-                            lineLength[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
-                            lineLength[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
-                            lineLength[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
-                            lineLength[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
-
-                            short int min = 0;
-
-                            for (short int k = 1; k < 4; k++)
-                            {
-                                if (lineLength[k] < lineLength[min])
-                                {
-                                    min = k;
-                                }
-                            }
-                            short int roadPosition[4] = { SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd, SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd };
-
-                            // Validate //
-                            //
-                            bool valid = false;
-                            for (int i = 0; i < 2; i++)
-                            {
-                                TrackComponent *track;
-
-                                TrackMoveValidator *validationVisitor = new TrackMoveValidator();
-
-                                switch (roadPosition[min])
-                                {
-                                case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
-                                {
-                                    track = secondRoad->getTrackComponent(0.0);
-                                    validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
-                                    validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0));
-                                }
-                                break;
-                                case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
-                                {
-                                    track = secondRoad->getTrackComponent(0.0);
-                                    validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
-                                    validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0));
-                                }
-                                break;
-                                case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
-                                {
-                                    track = secondRoad->getTrackComponent(secondRoad->getLength());
-                                    validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
-                                    validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength()));
-                                }
-                                break;
-                                case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
-                                {
-                                    track = secondRoad->getTrackComponent(secondRoad->getLength());
-                                    validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
-                                    validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength()));
-                                }
-                                }
-
-                                track->accept(validationVisitor);
-
-                                TrackSpiralArcSpiral *maybeSparc = dynamic_cast<TrackSpiralArcSpiral *>(track);
-
-                                if (!maybeSparc || !validationVisitor->isValid())
-                                {
-                                    delete validationVisitor;
-                                    if (i > 0)
-                                    {
-                                        qDebug() << "Validate Move: not valid or tracks are not SpiralArcSpiral";
-                                        return; // not valid => no translation
-                                    }
-                                    else
-                                    {
-                                        RSystemElementRoad *tmpRoad = firstRoad;
-                                        firstRoad = secondRoad;
-                                        secondRoad = tmpRoad;
-                                        if (min == 1)
-                                        {
-                                            roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
-                                        }
-                                        else if (min == 3)
-                                        {
-                                            roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
-                                        }
-                                        continue;
-                                    }
-                                }
-
-                                switch (roadPosition[min])
-                                {
-                                case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
-                                {
-                                    validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
-                                    validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0) + 180);
-                                }
-                                break;
-                                case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
-                                {
-                                    validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
-                                    validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()));
-                                }
-                                break;
-                                case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
-                                {
-                                    validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
-                                    validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()) + 180);
-                                }
-                                break;
-                                case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
-                                {
-                                    validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
-                                    validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0));
-                                }
-                                break;
-                                }
-
-                                track->accept(validationVisitor);
-
-                                if (!validationVisitor->isValid())
-                                {
-                                    delete validationVisitor;
-
-                                    if (i > 0)
-                                    {
-                                        qDebug() << "Validate Rotate: not valid";
-                                        return; // not valid => no rotation
-                                    }
-                                    else
-                                    {
-                                        RSystemElementRoad *tmpRoad = firstRoad;
-                                        firstRoad = secondRoad;
-                                        secondRoad = tmpRoad;
-                                        if (min == 1)
-                                        {
-                                            roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
-                                        }
-                                        else if (min == 3)
-                                        {
-                                            roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
-                                        }
-                                        continue;
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            SnapRoadsCommand *command = new SnapRoadsCommand(firstRoad, secondRoad, roadPosition[min]);
-                            getProjectGraph()->executeCommand(command);
-                        }
-                        else
-                        {
-                            // Find closest positions of the two roads
-                            double distances[4];
-
-                            distances[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
-                            distances[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
-                            distances[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
-                            distances[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
-                            MergeRoadsCommand *command=NULL;
-                            if(distances[0] < distances[1] && distances[0] < distances[2] && distances[0] < distances[3])
-                                command = new MergeRoadsCommand(firstRoad, secondRoad, true,true);
-                            if(distances[1] < distances[0] && distances[1] < distances[2] && distances[1] < distances[3])
-                                command = new MergeRoadsCommand(firstRoad, secondRoad, false,true);
-                            if(distances[2] < distances[0] && distances[2] < distances[1] && distances[2] < distances[3])
-                                command = new MergeRoadsCommand(firstRoad, secondRoad, false,false);
-                            if(distances[3] < distances[0] && distances[3] < distances[1] && distances[3] < distances[2])
-                                command = new MergeRoadsCommand(firstRoad, secondRoad, true,false);
-                            if(command)
-                            {
-                                getProjectGraph()->executeCommand(command);
-                            }
-                        }
-
-                        selectedRoads_.clear();
-                    }
-                }
-            }
-        }
-    }
-
+					// verify if apply can be displayed //
+					if (tool_->verify())
+					{
+						settingsApplyBox_->setApplyButtonVisible(true);
+					}
+				}
+			}
+		}
+	}
+ 
     // NEW //
     //
-    else if (getCurrentTool() == ODD::TTE_ROAD_NEW)
+    else if (tool_ && (tool_->getToolId() == ODD::TTE_ROAD_NEW))
     {
         QPointF mousePoint = mouseAction->getEvent()->scenePos();
 
@@ -961,120 +1074,25 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
         if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
         {
-            if (mouseEvent->button() == Qt::LeftButton)
-            {
-                if (mouseEvent->modifiers() & Qt::ControlModifier)
-                {
-                    pressPoint_ = QPointF(floor(mouseAction->getEvent()->scenePos().x() + 0.5), floor(mouseAction->getEvent()->scenePos().y() + 0.5)); // rounded = floor(x+0.5)
-                }
-                else
-                {
-                    pressPoint_ = mouseAction->getEvent()->scenePos();
-                }
-				
-				if ((lastEditorTool_  == ODD::TNO_TOOL) || (lastEditorTool_ == ODD::TTE_ADD_LINE))
+			if (mouseEvent->button() == Qt::LeftButton)
+			{
+				if (mouseEvent->modifiers() & Qt::ControlModifier)
 				{
-					newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
-					newRoadLineItem_->show();
-
-					state_ = TrackEditor::STE_NEW_PRESSED;
+					pressPoint_ = QPointF(floor(mouseAction->getEvent()->scenePos().x() + 0.5), floor(mouseAction->getEvent()->scenePos().y() + 0.5)); // rounded = floor(x+0.5)
 				}
-				else if (lastEditorTool_ == ODD::TTE_ADD_POLY) 
+				else
 				{
-					if (state_ == STE_NONE)
-					{
-						if (currentRoadPrototype_)
-						{
-							newRoadPolyItem_->setPos(pressPoint_);
-							newRoadPolyItem_->show();
-							state_ = TrackEditor::STE_NEW_PRESSED;
-
-							// Road //
-							//
-							newPolyRoad_ = new RSystemElementRoad("unnamed");
-							// Append Prototype //
-							//
-							newPolyRoad_->superposePrototype(currentRoadPrototype_);
-
-						}
-						else
-						{
-							printStatusBarMsg("New road: Please reselect a Prototype.", 8000);
-						}
-					}
-					else
-					{
-						newRoadPolyItem_->hide();
-
-						// Calculate Transformation //
-						//
-						QVector2D d = QVector2D(pressPoint_ - newRoadPolyItem_->pos()); 
-
-						Polynomial *poly3 = new Polynomial(0.0, 0.0, 0.0, 0.0);  // always start with a straight line
-
-						// Track //
-						//
-						TrackElementPoly3 *poly = new TrackElementPoly3(newRoadPolyItem_->pos().x(), newRoadPolyItem_->pos().y(), atan2(d.y(), d.x()) * 180 / M_PI, 0.0, d.length(), *poly3);
-						newPolyRoad_->addTrackComponent(poly);
-						
-
-				/*		double df1;
-
-						if ((d.x() < 0) && (d.x() < -NUMERICAL_ZERO3))
-						{
-							QTransform rot;
-							rot.rotate(180.0);
-							double tx, ty;
-							rot.map(d.x(), d.y(), &tx, &ty);
-							df1 = ty / tx;
-
-							Polynomial *poly3 = new Polynomial(0.0, 0.0, rot.map(pressPoint_ - newRoadPolyItem_->pos()).y(), df1, rot.map(pressPoint_ - newRoadPolyItem_->pos()).x());
-
-							// Track //
-							//
-							TrackElementPoly3 *poly = new TrackElementPoly3(newRoadPolyItem_->pos().x(), newRoadPolyItem_->pos().y(), 180.0, 0.0, poly3->getCurveLength(0.0, rot.map(pressPoint_ - newRoadPolyItem_->pos()).x()), *poly3);
-							newPolyRoad_->addTrackComponent(poly);
-
-
-						} 
-						else
-						{
-							Polynomial *poly3;
-							if (abs(d.x()) < NUMERICAL_ZERO3)
-							{
-								poly3 = new Polynomial(0.0, 0.0, 0.0, 0.0);
-							}
-							else
-							{ 
-								df1 = d.y() / d.x();
-								poly3 = new Polynomial(0.0, 0.0, pressPoint_.y() - newRoadPolyItem_->pos().y(), df1, pressPoint_.x() - newRoadPolyItem_->pos().x());
-							} */
-
-							// Track //
-							//
-				/*			TrackElementPoly3 *poly = new TrackElementPoly3(newRoadPolyItem_->pos().x(), newRoadPolyItem_->pos().y(), 0.0, 0.0, poly3->getCurveLength(0.0, pressPoint_.x() - newRoadPolyItem_->pos().x()), *poly3);
-							newPolyRoad_->addTrackComponent(poly);
-						} */
-
-						NewRoadCommand *command = new NewRoadCommand(newPolyRoad_, getProjectData()->getRoadSystem(), NULL);
-						if (command->isValid())
-						{
-							getProjectData()->getUndoStack()->push(command);
-						}
-						else
-						{
-							printStatusBarMsg(command->text(), 4000);
-							delete command;
-							return; // usually not the case, only if road or prototype are NULL
-						}
-
-						state_ = TrackEditor::STE_NONE;
-					}
+					pressPoint_ = mouseAction->getEvent()->scenePos();
 				}
-            }
+
+				newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
+				newRoadLineItem_->show();
+
+				state_ = TrackEditor::STE_NEW_PRESSED;
+			}
         }
 
-        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_MOVE) && ((lastEditorTool_ == ODD::TNO_TOOL) || (lastEditorTool_ == ODD::TTE_ADD_LINE)))
+        else if (mouseAction->getMouseActionType() == MouseAction::ATM_MOVE)
         {
             if (state_ == TrackEditor::STE_NEW_PRESSED)
             {
@@ -1083,7 +1101,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             }
         }
 
-        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE) && ((lastEditorTool_ == ODD::TNO_TOOL) || (lastEditorTool_ == ODD::TTE_ADD_LINE)))
+        else if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
         {
             if (mouseAction->getEvent()->button() == Qt::LeftButton)
             {
@@ -1094,39 +1112,47 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                 {
                     printStatusBarMsg("New road: to short. Please click and drag.", 4000);
                 }
-                else
-                {
-                    if (currentRoadPrototype_)
-                    {
-                        // Road //
-                        //
-                        RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed");
+				else
+				{
+					// Road //
+					//
+					RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed");
 
-                        // Track //
-                        //
-                        TrackElementLine *line = new TrackElementLine(pressPoint_.x(), pressPoint_.y(), atan2(mouseLine.y(), mouseLine.x()) * 360.0 / (2.0 * M_PI), 0.0, length);
-                        newRoad->addTrackComponent(line);
+					// Track //
+					//
+					if ((geometryPrimitiveType_ == GeometryPrimitive::ARC_SPIRAL) || (geometryPrimitiveType_ == GeometryPrimitive::LINE))
+					{
+						TrackElementLine *line = new TrackElementLine(pressPoint_.x(), pressPoint_.y(), atan2(mouseLine.y(), mouseLine.x()) * 360.0 / (2.0 * M_PI), 0.0, length);
+						newRoad->addTrackComponent(line);
+					}
+					else
+					{
 
-                        // Append Prototype //
-                        //
-                        newRoad->superposePrototype(currentRoadPrototype_);
-                        NewRoadCommand *command = new NewRoadCommand(newRoad, getProjectData()->getRoadSystem(), NULL);
-                        if (command->isValid())
-                        {
-                            getProjectData()->getUndoStack()->push(command);
-                        }
-                        else
-                        {
-                            printStatusBarMsg(command->text(), 4000);
-                            delete command;
-                            return; // usually not the case, only if road or prototype are NULL
-                        }
-                    }
-                    else
-                    {
-                        printStatusBarMsg("New road: Please reselect a Prototype.", 8000);
-                    }
-                }
+						Polynomial *poly3 = new Polynomial(0.0, 0.0, 0.0, 0.0);  // always start with a straight line
+
+						// Track //
+						//
+						TrackElementPoly3 *poly = new TrackElementPoly3(pressPoint_.x(), pressPoint_.y(), atan2(mouseLine.y(), mouseLine.x()) * 180 / M_PI, 0.0, mouseLine.length(), *poly3);
+						newRoad->addTrackComponent(poly);
+					}
+
+
+					// Superpose user prototypes //
+					//
+					newRoad->superposePrototype(currentRoadPrototype_);
+
+					NewRoadCommand *command = new NewRoadCommand(newRoad, getProjectData()->getRoadSystem(), NULL);
+					if (command->isValid())
+					{
+						getProjectData()->getUndoStack()->push(command);
+					}
+					else
+					{
+						printStatusBarMsg(command->text(), 4000);
+						delete command;
+						return; // usually not the case, only if road or prototype are NULL
+					}
+				}
             }
         }
     }
@@ -1194,37 +1220,30 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 				}
 				else
 				{
-					if (currentRoadPrototype_)
+					// Road //
+					//
+					RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed");
+
+					// Track //
+					//
+					QPointF diff = pressPoint_ - mousePoint;
+					double radius = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
+					TrackElementArc *arc1 = new TrackElementArc(pressPoint_.x(), pressPoint_.y() - radius, 0.0, 0.0, 2 * M_PI*radius, 1 / radius);
+					newRoad->addTrackComponent(arc1);
+
+					// Append Prototype //
+					//
+					newRoad->superposePrototype(currentRoadPrototype_);
+					NewRoadCommand *command = new NewRoadCommand(newRoad, getProjectData()->getRoadSystem(), NULL);
+					if (command->isValid())
 					{
-						// Road //
-						//
-						RSystemElementRoad *newRoad = new RSystemElementRoad("unnamed");
-
-						// Track //
-						//
-						QPointF diff = pressPoint_ - mousePoint;
-						double radius = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
-						TrackElementArc *arc1 = new TrackElementArc(pressPoint_.x(), pressPoint_.y()- radius, 0.0, 0.0, 2*M_PI*radius, 1/radius);
-						newRoad->addTrackComponent(arc1);
-
-						// Append Prototype //
-						//
-						newRoad->superposePrototype(currentRoadPrototype_);
-						NewRoadCommand *command = new NewRoadCommand(newRoad, getProjectData()->getRoadSystem(), NULL);
-						if (command->isValid())
-						{
-							getProjectData()->getUndoStack()->push(command);
-						}
-						else
-						{
-							printStatusBarMsg(command->text(), 4000);
-							delete command;
-							return; // usually not the case, only if road or prototype are NULL
-						}
+						getProjectData()->getUndoStack()->push(command);
 					}
 					else
 					{
-						printStatusBarMsg("New road: Please reselect a Prototype.", 8000);
+						printStatusBarMsg(command->text(), 4000);
+						delete command;
+						return; // usually not the case, only if road or prototype are NULL
 					}
 				}
 			}
@@ -1270,7 +1289,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                 state_ = TrackEditor::STE_NONE;
                 addRoadSystemHandle_->setVisible(false);
 
-                AddRoadSystemPrototypeCommand *command = new AddRoadSystemPrototypeCommand(getProjectData()->getRoadSystem(), currentRoadSystemPrototype_, addRoadSystemHandle_->getPos(), addRoadSystemHandle_->getAngle());
+                AddRoadSystemPrototypeCommand *command = new AddRoadSystemPrototypeCommand(getProjectData()->getRoadSystem(), currentRoadSystemPrototype_->getPrototype(), addRoadSystemHandle_->getPos(), addRoadSystemHandle_->getAngle());
                 //				AddRoadSystemPrototypeCommand * command = new AddRoadSystemPrototypeCommand(getProjectData()->getRoadSystem(), currentRoadSystemPrototype_, QPointF(0.0, 0.0), 0.0);
                 if (command->isValid())
                 {
@@ -1869,4 +1888,230 @@ TrackEditor::kill()
     //
     selectedTrackMoveHandles_.clear();
     selectedTrackAddHandles_.clear();
+}
+
+void
+TrackEditor::apply()
+{
+	clearToolObjectSelection();
+
+	ODD::ToolId toolId = tool_->getToolId();
+	if (toolId == ODD::TTE_ROAD_MERGE)
+	{
+		RSystemElementRoad *firstRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT))->getValue();
+		RSystemElementRoad *secondRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT))->getValue();
+
+		// Find closest positions of the two roads
+		double distances[4];
+
+		distances[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
+		distances[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
+		distances[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
+		distances[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
+		MergeRoadsCommand *command = NULL;
+		if (distances[0] < distances[1] && distances[0] < distances[2] && distances[0] < distances[3])
+			command = new MergeRoadsCommand(firstRoad, secondRoad, true, true);
+		if (distances[1] < distances[0] && distances[1] < distances[2] && distances[1] < distances[3])
+			command = new MergeRoadsCommand(firstRoad, secondRoad, false, true);
+		if (distances[2] < distances[0] && distances[2] < distances[1] && distances[2] < distances[3])
+			command = new MergeRoadsCommand(firstRoad, secondRoad, false, false);
+		if (distances[3] < distances[0] && distances[3] < distances[1] && distances[3] < distances[2])
+			command = new MergeRoadsCommand(firstRoad, secondRoad, true, false);
+		if (command)
+		{
+			getProjectGraph()->executeCommand(command);
+		}
+	
+	}
+	else if (toolId == ODD::TTE_ROAD_SNAP)
+	{
+		RSystemElementRoad *firstRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT))->getValue();
+		RSystemElementRoad *secondRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT))->getValue();
+
+		// Find closest positions of the two roads
+		double lineLength[4];
+
+		lineLength[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
+		lineLength[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
+		lineLength[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
+		lineLength[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
+
+		short int min = 0;
+
+		for (short int k = 1; k < 4; k++)
+		{
+			if (lineLength[k] < lineLength[min])
+			{
+				min = k;
+			}
+		}
+		short int roadPosition[4] = { SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd, SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd };
+
+		// Validate //
+		//
+		bool valid = false;
+		for (int i = 0; i < 2; i++)
+		{
+			TrackComponent *track;
+
+			TrackMoveValidator *validationVisitor = new TrackMoveValidator();
+
+			switch (roadPosition[min])
+			{
+			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
+			{
+				track = secondRoad->getTrackComponent(0.0);
+				validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
+				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0));
+			}
+			break;
+			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
+			{
+				track = secondRoad->getTrackComponent(0.0);
+				validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
+				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0));
+			}
+			break;
+			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
+			{
+				track = secondRoad->getTrackComponent(secondRoad->getLength());
+				validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
+				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength()));
+			}
+			break;
+			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
+			{
+				track = secondRoad->getTrackComponent(secondRoad->getLength());
+				validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
+				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength()));
+			}
+			}
+
+			track->accept(validationVisitor);
+
+			TrackSpiralArcSpiral *maybeSparc = dynamic_cast<TrackSpiralArcSpiral *>(track);
+
+			if (!maybeSparc || !validationVisitor->isValid())
+			{
+				delete validationVisitor;
+				if (i > 0)
+				{
+					printStatusBarMsg(tr("Validate Move: not valid or tracks are not SpiralArcSpiral"), 4000);
+					return; // not valid => no translation
+				}
+				else
+				{
+					RSystemElementRoad *tmpRoad = firstRoad;
+					firstRoad = secondRoad;
+					secondRoad = tmpRoad;
+					if (min == 1)
+					{
+						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
+					}
+					else if (min == 3)
+					{
+						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
+					}
+					continue;
+				}
+			}
+
+			switch (roadPosition[min])
+			{
+			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
+			{
+				validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
+				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0) + 180);
+			}
+			break;
+			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
+			{
+				validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
+				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()));
+			}
+			break;
+			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
+			{
+				validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
+				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()) + 180);
+			}
+			break;
+			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
+			{
+				validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
+				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0));
+			}
+			break;
+			}
+
+			track->accept(validationVisitor);
+
+			if (!validationVisitor->isValid())
+			{
+				delete validationVisitor;
+
+				if (i > 0)
+				{
+					printStatusBarMsg(tr("Validate Rotate: not valid"), 4000);
+					return; // not valid => no rotation
+				}
+				else
+				{
+					RSystemElementRoad *tmpRoad = firstRoad;
+					firstRoad = secondRoad;
+					secondRoad = tmpRoad;
+					if (min == 1)
+					{
+						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
+					}
+					else if (min == 3)
+					{
+						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
+					}
+					continue;
+				}
+			}
+
+			break;
+		}
+
+		SnapRoadsCommand *command = new SnapRoadsCommand(firstRoad, secondRoad, roadPosition[min]);
+		getProjectGraph()->executeCommand(command);
+
+	}
+}
+
+void
+TrackEditor::clearToolObjectSelection()
+{
+	if (mergeItem_)
+	{
+		mergeItem_->setSelected(false);
+		mergeItem_ = NULL;
+	}
+
+	if (appendItem_)
+	{
+		appendItem_->setSelected(false);
+		appendItem_ = NULL;
+	}
+}
+
+
+void
+TrackEditor::reset()
+{
+	ODD::ToolId toolId = tool_->getToolId();
+	clearToolObjectSelection();
+	delToolParameters();
+}
+
+void 
+TrackEditor::reject()
+{
+	ProjectEditor::reject();
+
+	clearToolObjectSelection();
+	deleteToolParameterSettings();
+	ODD::mainWindow()->showParameterDialog(false);
 }

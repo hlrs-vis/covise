@@ -65,6 +65,7 @@ public:
     {
         return circleCenter_;
     };
+	void createCircle(double radius);
 	void deleteCircle();
 
     void resetViewTransformation();
@@ -193,6 +194,7 @@ private:
     QPoint mp_;
     QRubberBand *rubberBand_;
     bool additionalSelection_;
+	bool paramToolAdditionalSelection_;
 
     // ScenerySystem //
     //

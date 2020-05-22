@@ -28,10 +28,11 @@
 //
 #include "junctionlanesectionitem.hpp"
 #include "src/graph/items/roadsystem/lanes/lanelinkitem.hpp"
+#include "src/graph/topviewgraph.hpp"
 
 // Editor //
 //
-//#include "src/graph/editors/
+#include "src/graph/editors/junctioneditor.hpp"
 
 // Utils //
 //
@@ -57,8 +58,9 @@
 // CONSTRUCTOR    //
 //################//
 
-JunctionLaneItem::JunctionLaneItem(JunctionLaneSectionItem *parentJunctionLaneSectionItem, Lane *lane)
+JunctionLaneItem::JunctionLaneItem(JunctionEditor *junctionEditor, JunctionLaneSectionItem *parentJunctionLaneSectionItem, Lane *lane)
     : GraphElement(parentJunctionLaneSectionItem, lane)
+	, junctionEditor_(junctionEditor)
     , parentJunctionLaneSectionItem_(parentJunctionLaneSectionItem)
     , parentLaneSection_(parentJunctionLaneSectionItem->getLaneSection())
     , lane_(lane)
@@ -314,16 +316,20 @@ JunctionLaneItem::updateObserver()
 // EVENTS         //
 //################//
 
-//void
-//	LaneItem
-//	::mousePressEvent(QGraphicsSceneMouseEvent * event)
-//{
-//}
+void
+JunctionLaneItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
+	if (!(((junctionEditor_->getCurrentTool() == ODD::TJE_LINK_ROADS)  || (junctionEditor_->getCurrentTool() == ODD::TJE_UNLINK_ROADS)) && (junctionEditor_->getCurrentParameterTool() == ODD::TNO_TOOL)))
+	{
+		GraphElement::mousePressEvent(event);
+	}
+}
 
 void
 JunctionLaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     parentJunctionLaneSectionItem_->mouseReleaseEvent(event);
+
 }
 
 //void

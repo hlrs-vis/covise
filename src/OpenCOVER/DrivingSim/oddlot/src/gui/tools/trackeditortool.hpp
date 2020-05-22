@@ -16,22 +16,17 @@
 #ifndef TRACKEDITORTOOL_HPP
 #define TRACKEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
-
-#include "src/data/prototypemanager.hpp"
 
 // Qt //
 //
 #include <QMap>
 class QGroupBox;
-//class QAction;
-//class QMenu;
-//class QToolButton;
 
-class TrackEditorTool : public Tool
+class TrackEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -57,7 +52,7 @@ public:
     //################//
 
 public:
-    explicit TrackEditorTool(PrototypeManager *prototypeManager, ToolManager *toolManager);
+    explicit TrackEditorTool(ToolManager *toolManager);
     virtual ~TrackEditorTool()
     { /* does nothing */
     }
@@ -85,16 +80,8 @@ signals:
 public slots:
     void sendToolAction();
 
-    void activateEditor();
+	void activateRibbonEditor();
     void handleToolClick(int);
-    void handleRoadTypeSelection(int);
-    void handleTrackSelection(int);
-    void handleElevationSelection(int);
-    void handleSuperelevationSelection(int);
-    void handleCrossfallSelection(int);
-	void handleShapeSelection(int);
-    void handleLaneSectionSelection(int);
-    void handleRoadSystemSelection(int);
 
     //################//
     // PROPERTIES     //
@@ -102,18 +89,10 @@ public slots:
 
 protected:
 private:
-    PrototypeManager *prototypeManager_;
 
     ODD::ToolId toolId_;
 
-    QMap<PrototypeManager::PrototypeType, RSystemElementRoad *> currentPrototypes_;
-    RoadSystem *currentRoadSystemPrototype_;
-
-    // GUI Elements //
-    //
-    QGroupBox *sectionPrototypesGroupBox_;
-    QGroupBox *trackPrototypesGroupBox_;
-    QGroupBox *roadSystemPrototypesGroupBox_;
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class TrackEditorToolAction : public ToolAction
@@ -124,23 +103,9 @@ class TrackEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit TrackEditorToolAction(ODD::ToolId toolId, QMap<PrototypeManager::PrototypeType, RSystemElementRoad *> prototypes, RoadSystem *roadSystemPrototype);
+    explicit TrackEditorToolAction(ODD::ToolId toolId);
     virtual ~TrackEditorToolAction()
     { /* does nothing */
-    }
-
-    // RoadPrototype //
-    //
-    QMap<PrototypeManager::PrototypeType, RSystemElementRoad *> getPrototypes() const
-    {
-        return prototypes_;
-    }
-
-    // RoadSystemPrototype //
-    //
-    RoadSystem *getRoadSystemPrototype() const
-    {
-        return roadSystemPrototype_;
     }
 
 protected:
@@ -155,13 +120,6 @@ private:
 
 protected:
 private:
-    // RoadPrototype //
-    //
-    QMap<PrototypeManager::PrototypeType, RSystemElementRoad *> prototypes_;
-
-    // RoadSystemPrototype //
-    //
-    RoadSystem *roadSystemPrototype_;
 };
 
 #endif // TRACKEDITORTOOL_HPP

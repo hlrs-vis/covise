@@ -77,9 +77,10 @@ public:
         ribbon_=r;
     }
     void addToolBoxWidget(ToolWidget *widget, const QString &title);
-    void addRibbonWidget(ToolWidget *widget, const QString &title);
+    void addRibbonWidget(ToolWidget *widget, const QString &title, int index);
 
     void resendCurrentTool(ProjectWidget *project);
+	void resendStandardTool(ProjectWidget *project);
 
     SelectionTool *getSelectionTool()
     {
@@ -98,10 +99,12 @@ public:
 
 	// Save Project Editing State //
 	//
-	void addProjectEditingState(ProjectWidget *);
+	void addProjectEditingState(ProjectWidget *, ToolAction *toolAction);
 	void setProjectEditingState(ProjectWidget *project, ToolAction*);
-	ODD::ToolId getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId);
+	ToolAction *getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId);
 	ToolAction *getProjectEditingState(ProjectWidget *project);
+	ToolAction *getLastToolAction(ODD::EditorId editorID);
+
 
 protected:
 private:
@@ -117,6 +120,8 @@ private:
 
 public slots:
     void toolActionSlot(ToolAction *);
+	void loadProjectEditor(bool active);
+	void loadEditor(int);
 
 //################//
 // SIGNALS        //
@@ -169,8 +174,11 @@ private:
 	// Project, EditorTool, Toolaction //
 	//
 	QMap<ProjectWidget *, QList<ToolAction *>> editingStates_;
-	ProjectWidget *currentProject_;
+	QMap<int, ToolAction *> standardToolAction_;
 
+	// MainWindow //
+	//
+	MainWindow *mainWindow_;
 
 };
 

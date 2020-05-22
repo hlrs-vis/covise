@@ -55,6 +55,15 @@ public:
     }
     void setCurrentRoadType(TypeSection::RoadType roadType);
 
+	int setRoadTypeSelection(TypeSection::RoadType type);
+	void setRoadType(int);
+
+	// Parameter Settings //
+	//
+	virtual void apply() {};
+	virtual void reject();
+	virtual void reset() {};
+
 protected:
     virtual void init();
     virtual void kill();

@@ -96,6 +96,9 @@ public:
 
     virtual void acceptForTiles(Visitor *visitor);
 
+
+	int32_t uniqueID(odrID::IDType t);
+
 private:
     //	TileSystem(); /* not allowed */
     TileSystem(const TileSystem &); /* not allowed */
@@ -120,6 +123,10 @@ private:
 
     QMap<odrID, Tile *> tiles_;
     Tile *currentTile_;
+
+	// Unique IDs //
+	//
+	QSet<int32_t> odrIDs[odrID::NUM_IDs];
 };
 
 #endif // TILESYSTEM_HPP

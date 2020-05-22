@@ -43,7 +43,7 @@
 /*! \todo Ownership/destructor
 */
 RoadLinkEditorTool::RoadLinkEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TRL_SELECT)
 {
     // Connect emitted ToolActions to ToolManager //
@@ -125,19 +125,17 @@ RoadLinkEditorTool::initToolWidget()
     ui = new Ui::RoadLinkRibbon();
     ui->setupUi(ribbonWidget);
     
-	ToolButtonGroup *ribbonToolGroup = new ToolButtonGroup(toolManager_);
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
+	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
-    ribbonToolGroup->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
-    ribbonToolGroup->addButton(ui->roadLink, ODD::TRL_ROADLINK);
-    ribbonToolGroup->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
-	ribbonToolGroup->addButton(ui->select, ODD::TRL_SELECT);
-	connect(toolManager_, SIGNAL(pressButton(int)), ribbonToolGroup, SLOT(setButtonPressed(int)));
-    
-    connect(ui->thresholdSpinBox, SIGNAL(editingFinished()), this, SLOT(setRibbonThreshold()));
+	ribbonToolGroup_->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
+	ribbonToolGroup_->addButton(ui->roadLink, ODD::TRL_ROADLINK);
+	ribbonToolGroup_->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
+	ribbonToolGroup_->addButton(ui->select, ODD::TRL_SELECT);
+	connect(toolManager_, SIGNAL(pressButton(int)), ribbonToolGroup_, SLOT(setButtonPressed(int)));
 
-    toolManager_->addRibbonWidget(ribbonWidget, tr("Road Link"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Road Link"), ODD::ERL);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -155,19 +153,21 @@ RoadLinkEditorTool::initToolBar()
 void
 RoadLinkEditorTool::activateEditor()
 {
-    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_, thresholdEdit_->value());
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_);
     emit toolAction(action);
     delete action;
 }
 
-/*! \brief Gets called when this widget (tab) has been activated.
-*/
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
 void
 RoadLinkEditorTool::activateRibbonEditor()
 {
-    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_, ui->thresholdSpinBox->value());
-    emit toolAction(action);
-    delete action;
+	ToolAction *action = toolManager_->getLastToolAction(ODD::ERL);
+	RoadLinkEditorToolAction *roadLinkEditorToolAction = dynamic_cast<RoadLinkEditorToolAction *>(action);
+
+	ribbonToolGroup_->button(action->getToolId())->click();
+
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -179,7 +179,7 @@ RoadLinkEditorTool::handleToolClick(int id)
 
     // Set a tool //
     //
-    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_, thresholdEdit_->value());
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_);
     emit toolAction(action);
     delete action;
 }
@@ -193,9 +193,9 @@ RoadLinkEditorTool::handleRibbonToolClick(int id)
 
     // Set a tool //
     //
-    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_, ui->thresholdSpinBox->value());
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_);
     emit toolAction(action);
-    delete action;
+ //   delete action;
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -203,23 +203,11 @@ RoadLinkEditorTool::handleRibbonToolClick(int id)
 void
 RoadLinkEditorTool::setThreshold()
 {
+	ODD::ToolId toolId_ = (ODD::ToolId)ribbonToolGroup_->checkedId();
 
     // Set a tool //
     //
-    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(ODD::TRL_SELECT, thresholdEdit_->value());
-    emit toolAction(action);
-    delete action;
-}
-
-/*! \brief Gets called when a tool has been selected.
-*/
-void
-RoadLinkEditorTool::setRibbonThreshold()
-{
-
-    // Set a tool //
-    //
-    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(ODD::TRL_SELECT, ui->thresholdSpinBox->value());
+    RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_);
     emit toolAction(action);
     delete action;
 }
@@ -230,13 +218,8 @@ RoadLinkEditorTool::setRibbonThreshold()
 //                //
 //################//
 
-RoadLinkEditorToolAction::RoadLinkEditorToolAction(ODD::ToolId toolId, double threshold)
-    : ToolAction(ODD::ERL, toolId)
-    , threshold_(threshold)
+RoadLinkEditorToolAction::RoadLinkEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId)
+    : ToolAction(ODD::ERL, toolId, paramToolId)
 {
 }
 
-void RoadLinkEditorToolAction::setThreshold(double threshold)
-{
-    threshold_ = threshold;
-}

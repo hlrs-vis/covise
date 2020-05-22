@@ -320,6 +320,8 @@ CrossfallEditor::init()
 void
 CrossfallEditor::kill()
 {
+	selectedCrossfallRoadItems_.clear();
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 

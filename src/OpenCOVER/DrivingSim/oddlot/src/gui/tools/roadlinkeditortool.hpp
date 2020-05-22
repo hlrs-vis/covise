@@ -16,7 +16,7 @@
 #ifndef ROADLINKEDITORTOOL_HPP
 #define ROADLINKEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -25,7 +25,7 @@
 
 class QDoubleSpinBox;
 
-class RoadLinkEditorTool : public Tool
+class RoadLinkEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -64,7 +64,6 @@ public slots:
     void handleToolClick(int);
 	void handleRibbonToolClick(int);
     void setThreshold();
-	void setRibbonThreshold();
 
     //################//
     // PROPERTIES     //
@@ -74,6 +73,7 @@ private:
 	Ui::RoadLinkRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *thresholdEdit_;
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class RoadLinkEditorToolAction : public ToolAction
@@ -84,16 +84,10 @@ class RoadLinkEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit RoadLinkEditorToolAction(ODD::ToolId toolId, double threshold);
+    explicit RoadLinkEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId = ODD::TNO_TOOL);
     virtual ~RoadLinkEditorToolAction()
     { /* does nothing */
     }
-
-    double getThreshold() const
-    {
-        return threshold_;
-    }
-    void setThreshold(double threshold);
 
 private:
     RoadLinkEditorToolAction(); /* not allowed */
@@ -105,7 +99,6 @@ private:
     //################//
 
 private:
-    double threshold_;
 };
 
 #endif // ROADLINKEDITORTOOL_HPP

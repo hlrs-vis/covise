@@ -840,9 +840,7 @@ DomParser::parseTile(QDomElement &root)
 			if (param.length() > 1)
 			{
 				int intID = param[0].toInt();
-				odrID id;
-				id.setID(intID);
-				id.setName(param[1]);
+				odrID id = odrID(intID, intID, param[1], odrID::ID_Tile);
 				tileSystem_->addTile(new Tile(id));
 			}
 		}
@@ -945,7 +943,7 @@ void DomParser::StringToID(QString id, odrID &ID, odrID::IDType t, int TileID)
 	if (tileSystem_ != NULL)
 	{
 		Tile *tile = tileSystem_->getTile(TileID);
-		ID.setID(tile->uniqueID(t));
+		ID.setID(tileSystem_->uniqueID(t));
 	}
 	else
 	{

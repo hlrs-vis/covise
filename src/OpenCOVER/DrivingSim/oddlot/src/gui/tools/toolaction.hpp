@@ -31,7 +31,7 @@ class ToolAction
     //################//
 
 public:
-    explicit ToolAction(ODD::EditorId editorId = ODD::ENO_EDITOR, ODD::ToolId toolId = ODD::TNO_TOOL);
+    explicit ToolAction(ODD::EditorId editorId = ODD::ENO_EDITOR, ODD::ToolId toolId = ODD::TNO_TOOL, ODD::ToolId paramToolId = ODD::TNO_TOOL);
     virtual ~ToolAction()
     { /* does nothing */
     }
@@ -44,6 +44,15 @@ public:
     {
         return toolID_;
     }
+	ODD::ToolId getParamToolId() const
+	{
+		return paramToolId_;
+	}
+
+	void setParamToolId(const ODD::ToolId &id)
+	{
+		paramToolId_ = id;
+	}
 
 protected:
 private:
@@ -58,6 +67,7 @@ private:
 protected:
     ODD::EditorId editorId_;
     ODD::ToolId toolID_;
+	ODD::ToolId paramToolId_;
 
 private:
 };

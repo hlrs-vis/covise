@@ -99,6 +99,11 @@ private:
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply() {};
+	virtual void reject() {};
+	virtual void reset() {};
 
     //################//
     // PROPERTIES     //

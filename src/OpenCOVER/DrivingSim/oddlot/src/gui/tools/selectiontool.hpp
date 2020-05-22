@@ -16,14 +16,14 @@
 #ifndef SELECTIONTOOL_HPP
 #define SELECTIONTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 #include "toolaction.hpp"
 #include "src/gui/keyaction.hpp"
 
 #include <QPushButton>
 #include <QAction>
 
-class SelectionTool : public Tool
+class SelectionTool : public EditorTool
 {
     Q_OBJECT
 

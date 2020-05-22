@@ -16,7 +16,7 @@
 #ifndef SIGNALEDITORTOOL_HPP
 #define SIGNALEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -25,7 +25,7 @@
 
 class QGroupBox;
 
-class SignalEditorTool : public Tool
+class SignalEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -62,6 +62,7 @@ signals:
 public slots:
     void activateProject(bool hasActive);
     void activateEditor();
+	void activateRibbonEditor();
     void handleToolClick(int);
 
     //################//
@@ -71,6 +72,7 @@ public slots:
 private:
     ODD::ToolId toolId_;
 	Ui::SignalRibbon *ui;
+	ToolButtonGroup *ribbonToolGroup_;
 
     bool active_;
 };

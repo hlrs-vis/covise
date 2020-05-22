@@ -69,6 +69,7 @@ ElevationSectionItem::ElevationSectionItem(ElevationEditor *elevationEditor, Roa
 
 ElevationSectionItem::~ElevationSectionItem()
 {
+
 }
 
 void

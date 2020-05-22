@@ -284,6 +284,7 @@ OpenScenarioEditor::init()
 void
 OpenScenarioEditor::kill()
 {
+	catalogTree_ = NULL;
 
 	if (oscRoadSystemItem_)
 	{
@@ -1149,7 +1150,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			catalogElement_ = action->getText();
 		}
 	}
-	else if (currentTool == ODD::TOS_BASE)
+	else if ((currentTool == ODD::TOS_ENTITIES) || (currentTool == ODD::TOS_FILEHEADER) || (currentTool == ODD::TOS_ROADNETWORK) || (currentTool == ODD::TOS_STORYBOARD))
 	{
 		OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
 

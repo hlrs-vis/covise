@@ -488,6 +488,9 @@ ShapeEditor::kill()
 
 	foreach (ShapeSectionPolynomialItems *polynomialItems, selectedShapeSectionItems_)
 	{
+		selectedShapeSectionItems_.remove(selectedShapeSectionItems_.key(polynomialItems));
 		delete polynomialItems;
 	}
+
+	selectedShapeSectionItems_.clear();
 }

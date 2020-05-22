@@ -23,6 +23,7 @@ class RSystemElementRoad;
 class RoadSystemItem;
 class RoadLinkItem;
 class RoadLinkSinkItem;
+class RoadLinkEditor;
 
 class RoadLinkRoadItem : public RoadItem
 {
@@ -33,7 +34,7 @@ class RoadLinkRoadItem : public RoadItem
     //################//
 
 public:
-    explicit RoadLinkRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road);
+    explicit RoadLinkRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road, RoadLinkEditor *editor);
     virtual ~RoadLinkRoadItem();
 
     // Graphics //
@@ -72,11 +73,14 @@ private:
 
 public slots:
 
+
     //################//
     // PROPERTIES     //
     //################//
 
 private:
+	RoadLinkEditor *editor_;
+
     RoadLinkItem *predecessor_;
     RoadLinkItem *successor_;
 

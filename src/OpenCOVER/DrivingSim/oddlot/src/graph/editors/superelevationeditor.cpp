@@ -313,6 +313,8 @@ SuperelevationEditor::init()
 void
 SuperelevationEditor::kill()
 {
+	selectedSuperelevationRoadItems_.clear();
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 

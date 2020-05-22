@@ -96,6 +96,7 @@ public:
     //	virtual void			mouseAction(MouseAction * mouseAction);
     //	virtual void			keyAction(KeyAction * keyAction);
 
+
 protected:
     virtual void init();
     virtual void kill();
@@ -110,6 +111,11 @@ private:
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply() {};
+	virtual void reject() {};
+	virtual void reset() {};
 
     //################//
     // PROPERTIES     //

@@ -351,10 +351,17 @@ AddToJunctionCommand::redo()
 {
     road_->setJunction(junction_->getID());
 
-    for (int i = 0; i < connections_.size(); i ++)
-    {
-        junction_->addConnection(connections_.at(i));
-    }
+	if (connections_.size() == 0)
+	{
+		junction_->addJunctionChanges(RSystemElementJunction::CJN_ConnectionChanged);
+	}
+	else
+	{
+		for (int i = 0; i < connections_.size(); i++)
+		{
+			junction_->addConnection(connections_.at(i));
+		}
+	}
 
     /*
 		JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
@@ -372,10 +379,17 @@ AddToJunctionCommand::undo()
 {
     road_->setJunction(oldJunctionID_);
 
-    for (int i = 0; i < connections_.size(); i++)
-    {
-        junction_->delConnection(connections_.at(i));
-    }
+	if (connections_.size() == 0)
+	{
+		junction_->addJunctionChanges(RSystemElementJunction::CJN_ConnectionChanged);
+	}
+	else
+	{
+		for (int i = 0; i < connections_.size(); i++)
+		{
+			junction_->delConnection(connections_.at(i));
+		}
+	}
 
     setUndone();
 }

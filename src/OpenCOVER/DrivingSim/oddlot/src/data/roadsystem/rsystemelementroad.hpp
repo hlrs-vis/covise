@@ -158,6 +158,7 @@ public:
     bool delTypeSection(TypeSection *section);
     bool moveTypeSection(double oldS, double newS);
     void setTypeSections(QMap<double, TypeSection *> newSections);
+	void delTypeSections();
 
     TypeSection *getTypeSection(double s) const;
     TypeSection *getTypeSectionBefore(double s) const;
@@ -188,6 +189,7 @@ public:
     {
         return trackSections_;
     }
+	void delTrackSections();
 
     void rebuildTrackComponentList();
 
@@ -207,6 +209,7 @@ public:
     bool delElevationSection(ElevationSection *section);
     bool moveElevationSection(double oldS, double newS);
     void setElevationSections(QMap<double, ElevationSection *> newSections);
+	void delElevationSections();
 
     ElevationSection *getElevationSection(double s) const;
     ElevationSection *getElevationSectionBefore(double s) const;
@@ -223,6 +226,7 @@ public:
     bool delSuperelevationSection(SuperelevationSection *section);
     bool moveSuperelevationSection(double oldS, double newS);
     void setSuperelevationSections(QMap<double, SuperelevationSection *> newSections);
+	void delSuperelevationSections();
 
     SuperelevationSection *getSuperelevationSection(double s) const;
     SuperelevationSection *getSuperelevationSectionBefore(double s) const;
@@ -238,6 +242,7 @@ public:
     bool delCrossfallSection(CrossfallSection *section);
     bool moveCrossfallSection(double oldS, double newS);
     void setCrossfallSections(QMap<double, CrossfallSection *> newSections);
+	void delCrossfallSections();
 
     CrossfallSection *getCrossfallSection(double s) const;
     CrossfallSection *getCrossfallSectionBefore(double s) const;
@@ -253,6 +258,7 @@ public:
 	bool delShapeSection(ShapeSection *section);
 	bool moveShapeSection(double oldS, double newS);
 	void setShapeSections(QMap<double, ShapeSection *> newSections);
+	void delShapeSections();
 
 	ShapeSection *getShapeSection(double s) const;
 	ShapeSection *getShapeSectionBefore(double s) const;
@@ -268,7 +274,7 @@ public:
     bool delLaneSection(LaneSection *laneSection);
     bool moveLaneSection(double oldS, double newS);
     void setLaneSections(QMap<double, LaneSection *> newSections);
-
+	void delLaneSections();
 
 
     LaneSection *getLaneSection(double s) const;

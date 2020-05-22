@@ -28,8 +28,9 @@
 // CONSTRUCTOR    //
 //################//
 
-RoadLinkRoadSystemItem::RoadLinkRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem)
+RoadLinkRoadSystemItem::RoadLinkRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem, RoadLinkEditor *editor)
     : RoadSystemItem(topviewGraph, roadSystem)
+	, editor_(editor)
 {
     init();
 }
@@ -43,7 +44,7 @@ RoadLinkRoadSystemItem::init()
 {
     foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
     {
-        new RoadLinkRoadItem(this, road);
+        new RoadLinkRoadItem(this, road, editor_);
     }
 }
 
@@ -77,7 +78,7 @@ RoadLinkRoadSystemItem::updateObserver()
             {
                 // SectionItem //
                 //
-                new RoadLinkRoadItem(this, road);
+                new RoadLinkRoadItem(this, road, editor_);
             }
         }
     }

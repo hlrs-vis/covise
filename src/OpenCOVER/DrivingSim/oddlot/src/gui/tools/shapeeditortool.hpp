@@ -16,14 +16,14 @@
 #ifndef SHAPEEDITORTOOL_HPP
 #define SHAPEEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
 #include "ui_ShapeRibbon.h"
 
 
-class ShapeEditorTool : public Tool
+class ShapeEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -58,8 +58,8 @@ signals:
 
 public slots:
     void activateEditor();
-    void handleToolClick(int);
 	void activateRibbonEditor();
+    void handleToolClick(int);
 	void handleRibbonToolClick(int);
 
     //################//
@@ -69,6 +69,8 @@ public slots:
 private:
     ODD::ToolId toolId_;
 	Ui::ShapeRibbon *ui_;
+
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class ShapeEditorToolAction : public ToolAction

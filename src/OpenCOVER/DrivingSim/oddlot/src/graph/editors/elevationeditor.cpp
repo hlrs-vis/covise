@@ -193,16 +193,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
     ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(toolAction);
     if (elevationEditorToolAction)
     {
-        if (elevationEditorToolAction->getType() == ElevationEditorToolAction::Radius)
-        {
-            // Smooth radius //
-            //
-            if (elevationEditorToolAction->getRadius() > 0.0)
-            {
-                smoothRadius_ = elevationEditorToolAction->getRadius();
-            }
-        }
-        else if (selectedMoveHandles_.size() > 0 && (elevationEditorToolAction->getType() == ElevationEditorToolAction::Height || elevationEditorToolAction->getType() == ElevationEditorToolAction::IncrementalHeight))
+		if (selectedMoveHandles_.size() > 0 && ((toolAction->getToolId() == ODD::TEL_HEIGHT) || (toolAction->getToolId() == ODD::TEL_IHEIGHT)))
         {
 
             QList<ElevationSection *> endPointSections;
@@ -224,7 +215,15 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 
             // Command //
             //
-            ElevationSetHeightCommand *command = new ElevationSetHeightCommand(endPointSections, startPointSections, elevationEditorToolAction->getHeight(), elevationEditorToolAction->getType() == ElevationEditorToolAction::Height, NULL);
+			ElevationSetHeightCommand *command;
+			if (toolAction->getToolId() == ODD::TEL_HEIGHT)
+			{
+				command = new ElevationSetHeightCommand(endPointSections, startPointSections, elevationEditorToolAction->getHeight(), true, NULL);
+			}
+			else
+			{
+				command = new ElevationSetHeightCommand(endPointSections, startPointSections, elevationEditorToolAction->getIHeight(), false, NULL);
+			}
             if (command->isValid())
             {
                 getProjectData()->getUndoStack()->push(command);
@@ -244,6 +243,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
         }
         else if (elevationEditorToolAction->getToolId() == ODD::TEL_SMOOTH)
         {
+			smoothRadius_ = elevationEditorToolAction->getRadius();
             QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
 
             QList<ElevationSection *> elevationSections;
@@ -411,6 +411,7 @@ ElevationEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mo
 void
 ElevationEditor::init()
 {
+	qDebug("init Elevation Editor");
     // Graph //
     //
     if (!roadSystemItem_)
@@ -444,6 +445,8 @@ ElevationEditor::init()
 void
 ElevationEditor::kill()
 {
+	selectedElevationRoadItems_.clear();
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 

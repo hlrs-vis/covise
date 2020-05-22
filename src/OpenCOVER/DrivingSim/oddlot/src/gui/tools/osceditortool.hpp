@@ -16,7 +16,7 @@
 #ifndef OSCEDITORTOOL_HPP
 #define OSCEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -26,7 +26,7 @@
 #include "ui_OSCRibbon.h"
 
 
-class OpenScenarioEditorTool : public Tool
+class OpenScenarioEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -65,7 +65,7 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
+	void activateRibbonEditor();
 	void handleToolClick(int);
 	void handleCatalogSelection(int);
 	void handleGraphState(bool);
@@ -79,7 +79,7 @@ private:
 	bool graphEdit_;
 	Ui::OSCRibbon *ui;
 
-	QButtonGroup *ribbonToolGroup_;
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class OpenScenarioEditorToolAction : public ToolAction

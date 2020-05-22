@@ -16,7 +16,7 @@
 #ifndef ELEVATIONEDITORTOOL_HPP
 #define ELEVATIONEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -24,7 +24,7 @@
 
 class QDoubleSpinBox;
 
-class ElevationEditorTool : public Tool
+class ElevationEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -65,9 +65,9 @@ public slots:
     void setRadius();
     void setHeight();
     void setIHeight();
-    void setRRadius();
     void setRHeight();
     void setRIHeight();
+	void setRRadius();
 
     //################//
     // PROPERTIES     //
@@ -76,6 +76,7 @@ public slots:
 private:
     Ui::ElevationRibbon *ui;
     ODD::ToolId toolId_;
+	ToolButtonGroup *ribbonToolGroup_;
 
     QDoubleSpinBox *radiusEdit_;
     QDoubleSpinBox *heightEdit_;
@@ -90,14 +91,7 @@ class ElevationEditorToolAction : public ToolAction
     //################//
 
 public:
-    enum ActionType
-    {
-        Radius,
-        Height,
-        IncrementalHeight,
-        ButtonPressed
-    };
-    explicit ElevationEditorToolAction(ODD::ToolId toolId, ActionType at, double value);
+    explicit ElevationEditorToolAction(ODD::ToolId toolId, double radius, double height, double iHeight);
     virtual ~ElevationEditorToolAction()
     { /* does nothing */
     }
@@ -109,13 +103,15 @@ public:
     void setRadius(double radius);
     double getHeight() const
     {
-        return height;
+        return height_;
     }
-    void setHeight(double r);
-    ActionType getType() const
-    {
-        return type;
-    }
+    void setHeight(double height);
+	double getIHeight()
+	{
+		return iHeight_;
+	}
+	void setIHeight(double iHeight);
+
 
 private:
     ElevationEditorToolAction(); /* not allowed */
@@ -128,8 +124,8 @@ private:
 
 private:
     double radius_;
-    double height;
-    ActionType type;
+    double height_;
+	double iHeight_;
 };
 
 #endif // ELEVATIONEDITORTOOL_HPP

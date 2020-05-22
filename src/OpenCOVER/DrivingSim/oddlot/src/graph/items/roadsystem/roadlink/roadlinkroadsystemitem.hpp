@@ -18,6 +18,8 @@
 
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 
+class RoadLinkEditor;
+
 class RoadLinkRoadSystemItem : public RoadSystemItem
 {
 
@@ -26,7 +28,7 @@ class RoadLinkRoadSystemItem : public RoadSystemItem
     //################//
 
 public:
-    explicit RoadLinkRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem);
+    explicit RoadLinkRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem, RoadLinkEditor *editor);
     virtual ~RoadLinkRoadSystemItem();
 
     // Obsever Pattern //
@@ -45,6 +47,7 @@ private:
     //################//
 
 private:
+	RoadLinkEditor *editor_;
 };
 
 #endif // ROADLINKROADSYSTEMITEM_HPP

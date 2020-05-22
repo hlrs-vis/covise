@@ -37,16 +37,21 @@
 #include "src/gui/projectwidget.hpp"
 #include "src/gui/lodsettings.hpp"
 
+// Graph //
+//
+#include "src/graph/editors/roadlinkeditor.hpp"
+
 // Qt //
 //
 #include <QBrush>
 #include <QPen>
 #include <QCursor>
 
-RoadLinkRoadItem::RoadLinkRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road)
+RoadLinkRoadItem::RoadLinkRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road, RoadLinkEditor *editor)
     : RoadItem(roadSystemItem, road)
     , predecessor_(NULL)
     , successor_(NULL)
+	, editor_(editor)
 {
     init();
 }

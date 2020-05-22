@@ -267,3 +267,13 @@ JunctionItem::deleteRequest()
 {
     return removeJunction();
 }
+
+//################//
+// EVENTS         //
+//################//
+
+
+void
+JunctionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+}

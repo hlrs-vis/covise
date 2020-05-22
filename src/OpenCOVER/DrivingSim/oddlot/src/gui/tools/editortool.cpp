@@ -13,7 +13,7 @@
 **
 **************************************************************************/
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolmanager.hpp"
 
@@ -23,7 +23,7 @@
 // CONSTRUCTOR    //
 //################//
 
-Tool::Tool(ToolManager *toolManager)
+EditorTool::EditorTool(ToolManager *toolManager)
     : QObject(toolManager)
     , toolManager_(toolManager)
 {

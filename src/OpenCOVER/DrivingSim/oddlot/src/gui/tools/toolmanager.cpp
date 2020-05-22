@@ -15,9 +15,11 @@
 
 #include "toolmanager.hpp"
 
+#include "src/mainwindow.hpp"
+
 // Tools //
 //
-#include "tool.hpp"
+#include "editortool.hpp"
 #include "toolwidget.hpp"
 
 #include "zoomtool.hpp"
@@ -38,7 +40,9 @@
 #include "maptool.hpp"
 
 #include "src/gui/projectwidget.hpp"
+#include "src/graph/editors/projecteditor.hpp"
 
+#include "src/gui/parameters/toolparametersettings.hpp"
 // Qt //
 //
 #include <QToolBox>
@@ -51,8 +55,8 @@ ToolManager::ToolManager(PrototypeManager *prototypeManager, QObject *parent)
     : QObject(parent)
     , prototypeManager_(prototypeManager)
     , lastToolAction_(NULL)
-	, currentProject_(NULL)
 {
+	mainWindow_ = dynamic_cast<MainWindow *>(parent);
     initTools();
 }
 
@@ -73,16 +77,17 @@ ToolManager::addToolBoxWidget(ToolWidget *widget, const QString &title)
 {
     int index = toolBox_->addItem(widget, title);
     widget->setToolBoxIndex(index);
-    connect(toolBox_, SIGNAL(currentChanged(int)), widget, SLOT(activateWidget(int)));
+ //   connect(toolBox_, SIGNAL(currentChanged(int)), widget, SLOT(activateWidget(int)));
     // parentship of the widget is not set? TODO (toolmanager is no widget)
 }
 
 void
-ToolManager::addRibbonWidget(ToolWidget *widget, const QString &title)
+ToolManager::addRibbonWidget(ToolWidget *widget, const QString &title, int index)
 {
-    int index = ribbon_->addTab(widget,title);
+  //  int index = ribbon_->addTab(widget,title);
+	ribbon_->insertTab(index, widget, title);
     widget->setToolBoxIndex(index);
-    connect(ribbon_, SIGNAL(currentChanged(int)), widget, SLOT(activateWidget(int)));
+	connect(ribbon_, SIGNAL(currentChanged(int)), widget, SLOT(activateWidget(int)));
 }
 void
 ToolManager::initTools()
@@ -110,40 +115,51 @@ ToolManager::initTools()
     // RoadLinkEditor //
     //
     RoadLinkEditorTool *defaultEditor = new RoadLinkEditorTool(this);
+	standardToolAction_.insert(ODD::ERL, new RoadLinkEditorToolAction(ODD::TRL_SELECT));
 
     // TypeEditor //
     //
     new TypeEditorTool(this);
+	standardToolAction_.insert(ODD::ERT, new TypeEditorToolAction(ODD::TRT_MOVE));
+
 
     // TrackEditor //
     //
-    new TrackEditorTool(prototypeManager_, this);
+    new TrackEditorTool(this);
+	standardToolAction_.insert(ODD::ETE, new TrackEditorToolAction(ODD::TTE_ROAD_MOVE_ROTATE));
 
     // ElevationEditor //
     //
     new ElevationEditorTool(this);
+	standardToolAction_.insert(ODD::EEL, new ElevationEditorToolAction(ODD::TEL_SELECT, 900.0, 10.0, 0.0));
 
     // SuperelevationEditor //
     //
     new SuperelevationEditorTool(this);
+	standardToolAction_.insert(ODD::ESE, new SuperelevationEditorToolAction(ODD::TSE_SELECT, 2000.0));
 
     // CrossfallEditor //
     //
     new CrossfallEditorTool(this);
+	standardToolAction_.insert(ODD::ECF, new CrossfallEditorToolAction(ODD::TCF_SELECT, 2000.0));
 
 	// RoadShapeEditor //
 	//
 	new ShapeEditorTool(this);
+	standardToolAction_.insert(ODD::ERS, new ShapeEditorToolAction(ODD::TRS_SELECT));
 
     // LaneEditor //
     //
     new LaneEditorTool(this);
+	standardToolAction_.insert(ODD::ELN, new LaneEditorToolAction(ODD::TLE_SELECT, 0.0));
 
     // JunctionEditor //
     new JunctionEditorTool(this);
+	standardToolAction_.insert(ODD::EJE, new JunctionEditorToolAction(ODD::TJE_SELECT));
 
     // Signal and Object Editor
     signalEditorTool_ = new SignalEditorTool(this);
+	standardToolAction_.insert(ODD::ESG, new SignalEditorToolAction(ODD::TSG_SELECT));
 
     // Map //
     //
@@ -152,6 +168,7 @@ ToolManager::initTools()
 	// OpenScenario //
 	//
 	oscEditorTool_ = new OpenScenarioEditorTool(this);
+	standardToolAction_.insert(ODD::EOS, new OpenScenarioEditorToolAction(ODD::TOS_SELECT, ""));
 
     // Default //
     //
@@ -163,15 +180,27 @@ ToolManager::initTools()
 void
 ToolManager::resendCurrentTool(ProjectWidget *project)
 {
-	currentProject_ = project;
-	lastToolAction_ = getProjectEditingState(project);
-    if (lastToolAction_)
+	ToolAction *lastToolAction = getProjectEditingState(project);
+    if (lastToolAction)
     {
-		ribbon_->setCurrentIndex(lastToolAction_->getEditorId());
+		ribbon_->setCurrentIndex(lastToolAction->getEditorId());
 
-		emit(pressButton(lastToolAction_->getToolId()));
-		emit(toolAction(lastToolAction_));
     }
+}
+
+void
+ToolManager::resendStandardTool(ProjectWidget *project)
+{
+	ToolAction *lastToolAction = getProjectEditingState(project);
+	lastToolAction = standardToolAction_.value(lastToolAction->getEditorId());
+	setProjectEditingState(project, lastToolAction);
+
+	ToolWidget * widget = dynamic_cast<ToolWidget *>(ribbon_->currentWidget());
+	widget->activateWidget(lastToolAction->getEditorId());
+
+/*	lastToolAction_ = standardToolAction_.value(lastToolAction_->getEditorId());
+	emit(pressButton(lastToolAction_->getToolId()));
+	emit toolAction(lastToolAction_); */
 }
 
 
@@ -200,13 +229,12 @@ ToolManager::setPushButtonColor(const QString &name, QColor color)
 }
 
 void
-ToolManager::addProjectEditingState(ProjectWidget *project)
+ToolManager::addProjectEditingState(ProjectWidget *project, ToolAction *toolAction)
 {
 	if (!editingStates_.contains(project))
 	{
 		QList<ToolAction *> toolList;
-		lastToolAction_ = new ToolAction(ODD::ERL, ODD::TRL_SELECT);
-		toolList.append(lastToolAction_);
+		toolList.append(toolAction);
 		editingStates_.insert(project, toolList);
 	}
 }
@@ -214,22 +242,35 @@ ToolManager::addProjectEditingState(ProjectWidget *project)
 void
 ToolManager::setProjectEditingState(ProjectWidget *project, ToolAction *toolAction)
 {
+	int editorId = toolAction->getEditorId();
+
 	QMap<ProjectWidget *, QList<ToolAction *>>::iterator it = editingStates_.find(project);
 	if (it != editingStates_.end())
 	{
 		QList<ToolAction *> *toolList = &it.value();
-		if (toolList->contains(toolAction))
+		if (toolList->first() == toolAction)
 		{
 			return;
 		}
 
-		int editorId = toolAction->getEditorId();
 		foreach(ToolAction *tool, *toolList)
 		{
 			if (tool->getEditorId() == editorId)
 			{
-				toolList->removeOne(tool);
-				toolList->prepend(toolAction);
+				ParameterToolAction *toolParams = dynamic_cast<ParameterToolAction *>(toolAction);
+				if (toolParams)
+				{
+					toolList->first()->setParamToolId(toolParams->getParamToolId());
+				}
+				else
+				{
+					toolList->removeOne(tool);
+					if ((tool != standardToolAction_.value(editorId)) && (tool != toolAction))
+					{
+						delete tool;
+					}
+					toolList->prepend(toolAction);
+				}
 				return;
 			}
 		}
@@ -237,15 +278,21 @@ ToolManager::setProjectEditingState(ProjectWidget *project, ToolAction *toolActi
 	}
 	else
 	{
-		addProjectEditingState(project);
+		addProjectEditingState(project, toolAction);
 	}
 }
 
 // Gets the toolId of Editor editorId and inserts the related ToolAction as first element of the list
 //
-ODD::ToolId 
+ToolAction * 
 ToolManager::getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId)
 {
+	if (!project)
+	{
+		MainWindow *mainWindow = dynamic_cast<MainWindow *>(parent());
+		project = mainWindow->getActiveProject();
+	}
+
 	QMap<ProjectWidget *, QList<ToolAction *>>::iterator it = editingStates_.find(project);
 	if (it != editingStates_.end())
 	{
@@ -254,14 +301,12 @@ ToolManager::getProjectEditingState(ProjectWidget *project, ODD::EditorId editor
 		{
 			if (tool->getEditorId() == editorId)
 			{
-				toolList->removeOne(tool);
-				toolList->prepend(tool);
-				return tool->getToolId();
+				return tool;
 			}
 		}
 	}
 
-	return ODD::TNO_TOOL;
+	return NULL;
 }
 
 
@@ -277,41 +322,91 @@ ToolManager::getProjectEditingState(ProjectWidget *project)
 	return NULL;
 }
 
+void
+ToolManager::loadEditor(int id)
+{
+/*	ODD::EditorId editorId = (ODD::EditorId) id;
+	ODD::ToolId lastParamToolId;
+	ProjectWidget *currentProject = mainWindow_->getActiveProject();
+	ODD::ToolId lastToolId = getProjectEditingState(currentProject, editorId);
+	if (lastToolId != ODD::TNO_TOOL)
+	{
+		emit(pressButton(lastToolId));
+		lastToolAction_ = new ToolAction(editorId, lastToolId, lastParamToolId);
+		emit(toolAction(lastToolAction_));
+	}
+	else
+	{
+		lastToolAction_ = standardToolAction_.value(editorId);
+		emit(pressButton(lastToolAction_->getToolId()));
+		setProjectEditingState(currentProject, lastToolAction_);
+		emit(toolAction(lastToolAction_));
+	} */
+}
+
+ToolAction *
+ToolManager::getLastToolAction(ODD::EditorId editorID)
+{
+	ProjectWidget *currentProject = mainWindow_->getActiveProject();
+	ToolAction *lastToolAction = getProjectEditingState(currentProject, editorID);
+	if (!lastToolAction)
+	{
+		lastToolAction = standardToolAction_.value(editorID);
+		setProjectEditingState(currentProject, lastToolAction);
+	}
+
+	return lastToolAction;
+}
+
+
 //################//
 // SLOTS          //
 //################//
+void
+ToolManager::loadProjectEditor(bool active)
+{
+	if (active) /* project has changed */
+	{
+		ProjectWidget *currentProject = mainWindow_->getActiveProject();
+
+		ToolAction *lastToolAction = getProjectEditingState(currentProject);
+		if (!lastToolAction)
+		{
+			lastToolAction = standardToolAction_.value(ODD::ERL);
+			setProjectEditingState(currentProject, lastToolAction);
+		}
+
+		if (ribbon_->currentIndex() == lastToolAction->getEditorId())
+		{
+			ToolWidget * widget = dynamic_cast<ToolWidget *>(ribbon_->currentWidget());
+			widget->activateWidget(lastToolAction->getEditorId());
+		}
+		else
+		{
+			ribbon_->setCurrentIndex(lastToolAction->getEditorId());
+		}
+	}
+}
 
 void
 ToolManager::toolActionSlot(ToolAction *action)
 {
-	static ODD::EditorId lastEditor = ODD::ENO_EDITOR;
+	static QSet<ODD::ToolId> forgetEditingStateTools = QSet<ODD::ToolId>() << ODD::TNO_TOOL << ODD::TOS_CREATE_CATALOG << ODD::TOS_GRAPHELEMENT << ODD::TOS_ELEMENT;
 
 	ODD::EditorId editorId = action->getEditorId();
 	ODD::ToolId toolId = action->getToolId();
-	if (editorId != ODD::ENO_EDITOR)
+
+	ProjectWidget *currentProject = mainWindow_->getActiveProject();
+	
+	if (currentProject && (editorId != ODD::ENO_EDITOR))
 	{
-		if (currentProject_ && (editorId != lastEditor))
+		if (!forgetEditingStateTools.contains(toolId))
 		{
-			ODD::ToolId lastToolId = getProjectEditingState(currentProject_, editorId);
-			if (lastToolId != ODD::TNO_TOOL)
-			{
-				emit(pressButton(toolId));
-			}
-			else
-			{
-				lastToolAction_ = new ToolAction(editorId, toolId);
-				setProjectEditingState(currentProject_, lastToolAction_);
-			}
+
+			setProjectEditingState(currentProject, action);
+
 		}
-		else if (toolId != ODD::TNO_TOOL)
-		{
-			lastToolAction_ = new ToolAction(editorId, toolId);
-			if (currentProject_)
-			{
-				setProjectEditingState(currentProject_, lastToolAction_);
-			}
-		}
-		lastEditor = editorId;
-	}
+	} 
+
 	emit(toolAction(action));
 }

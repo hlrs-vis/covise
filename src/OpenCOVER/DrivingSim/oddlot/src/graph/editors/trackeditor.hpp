@@ -18,6 +18,7 @@
 
 #include "projecteditor.hpp"
 #include "src/data/roadsystem/odrID.hpp"
+#include "src/data/prototypemanager.hpp"
 
 #include <QMultiMap>
 #include <QPointF>
@@ -42,6 +43,8 @@ class QGraphicsEllipseItem;
 class CircularRotateHandle;
 
 class TrackRoadSystemItem;
+
+class ToolParameter;
 
 
 // TODO
@@ -85,6 +88,13 @@ private:
         double heading;
         short int transform;
     };
+
+	enum GeometryPrimitive
+	{
+		LINE,
+		ARC_SPIRAL,
+		POLYNOMIAL
+	};
 
     //################//
     // FUNCTIONS      //
@@ -133,6 +143,7 @@ public:
     // Register Roads //
     void registerRoad(RSystemElementRoad *road);
 
+
 #if 0
 	// RotateHandles //
 	//
@@ -149,16 +160,25 @@ protected:
     virtual void init();
     virtual void kill();
 
+	void clearToolObjectSelection();
+
 private:
     TrackEditor(); /* not allowed */
     TrackEditor(const TrackEditor &); /* not allowed */
     TrackEditor &operator=(const TrackEditor &); /* not allowed */
+
+	ToolParameter *addToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const QString &labelText);
 
     //################//
     // SLOTS          //
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply();
+	virtual void reject();
+	virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -168,6 +188,14 @@ private:
     // RoadSystem //
     //
     TrackRoadSystemItem *trackRoadSystemItem_;
+
+	// Prototype Manager //
+	//
+	PrototypeManager *prototypeManager_;
+
+	// Selected roads //
+	//
+	QList<RSystemElementRoad *> selectedRoads_;
 
     // MouseAction //
     //
@@ -201,12 +229,10 @@ private:
     QMultiMap<int, RoadMoveHandle *> selectedRoadMoveHandles_;
     QMultiMap<int, RoadRotateHandle *> selectedRoadRotateHandles_;
 
-    QList<RSystemElementRoad *> selectedRoads_;
-
     // Add Tool //
     //
     RSystemElementRoad *currentRoadPrototype_;
-    RoadSystem *currentRoadSystemPrototype_;
+    PrototypeContainer<RoadSystem *> *currentRoadSystemPrototype_;
 
     // Move Tile Tool //
     //
@@ -219,9 +245,19 @@ private:
     // TODO
     SectionHandle *sectionHandle_;
 
-	// Line or Polynomial chosen for new road
+	// Prototypes
 	//
-	ODD::ToolId lastEditorTool_;
+	QMap<PrototypeManager::PrototypeType, PrototypeContainer<RSystemElementRoad *> *> currentPrototypes_;
+	GeometryPrimitive geometryPrimitiveType_;
+
+	// Road_MERGE Road_SNAP
+	//
+	QGraphicsItem *mergeItem_;
+	QGraphicsItem *appendItem_;
+
+	// necessary selected elements to make APPLY visible //
+	//
+	int applyCount_;
 };
 
 #endif // TRACKEDITOR_HPP
