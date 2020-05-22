@@ -28,6 +28,7 @@ void PluginMenu::Plugin::add(ui::Menu *menu, bool onlyTui)
     if (!configured)
         button->setPriority(ui::Element::Low);
     button->setState(plugin != nullptr);
+	button->setShared(false);
     button->setCallback([this](bool load){
         plugin = coVRPluginList::instance()->getPlugin(name.c_str());
         if (load)
@@ -154,7 +155,7 @@ void PluginMenu::scanPlugins()
 
     for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
-        coDirectory *dir = coDirectory::open(it->c_str());
+        std::unique_ptr<coDirectory> dir(coDirectory::open(it->c_str()));
         for (int i = 0; dir && i < dir->count(); i++)
         {
             if (dir->match(dir->name(i),

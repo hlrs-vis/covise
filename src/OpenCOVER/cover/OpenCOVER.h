@@ -30,6 +30,7 @@
 namespace covise
 {
 class VRBClient;
+class Message;
 }
 
 namespace opencover
@@ -101,6 +102,8 @@ public:
     coHud *hud;
     double beginAppTraversal;
     double endAppTraversal;
+    double lastUpdateTime = -1.0, lastFrameTime = -1.0;
+    std::deque<double> frameDurations;
     void setIgnoreMouseEvents(bool ign)
     {
         ignoreMouseEvents = ign;
@@ -118,15 +121,22 @@ public:
     size_t numTuis() const;
     coTabletUI *tui(size_t idx) const;
     coTUITabFolder *tuiTab(size_t idx) const;
+
+    //! register filedescriptor fd for watching so that scene will be re-rendererd when it is ready
+    bool watchFileDescriptor(int fd);
+    //! remove fd from filedescriptors to watch
+    bool unwatchFileDescriptor(int fd);
+
 private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
 #endif
     bool m_renderNext;
     bool m_initialized = false;
-
     std::vector<coTabletUI *> tabletUIs;
     std::vector<coTUITabFolder *> tabletTabs;
+
+    std::set<int> m_watchedFds;
 };
 }
 #endif

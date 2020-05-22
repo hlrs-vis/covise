@@ -9,41 +9,43 @@
 #define RoadSensor_h
 
 #include "Element.h"
-
-class RoadSensorTriggerAction
+namespace vehicleUtil
 {
-public:
-    virtual void operator()(const std::string &) = 0;
-    /*{
-      std::cout << "RoadSensorTriggerAction::operator(): null operator..." << std::endl;
-   }*/
-};
-
-class VEHICLEUTILEXPORT RoadSensor : public Element
-{
-public:
-    RoadSensor(const std::string &, const double &);
-
-    const double &getS() const
+    class RoadSensorTriggerAction
     {
-        return s;
-    }
+    public:
+        virtual void operator()(const std::string&) = 0;
+        /*{
+          std::cout << "RoadSensorTriggerAction::operator(): null operator..." << std::endl;
+       }*/
+    };
 
-    void setTriggerAction(RoadSensorTriggerAction *);
-
-    void trigger(const std::string &info)
+    class VEHICLEUTILEXPORT RoadSensor : public Element
     {
-        if (triggerAction)
+    public:
+        RoadSensor(const std::string&, const double&);
+
+        const double& getS() const
         {
-            std::cout << "RoadSensor::trigger(): Sensor " << getId() << ": TriggeringAction! Info: " << info << std::endl;
-            (*triggerAction)(info);
+            return s;
         }
-    }
 
-protected:
-    double s;
+        void setTriggerAction(RoadSensorTriggerAction*);
 
-    RoadSensorTriggerAction *triggerAction;
-};
+        void trigger(const std::string& info)
+        {
+            if (triggerAction)
+            {
+                std::cout << "RoadSensor::trigger(): Sensor " << getId() << ": TriggeringAction! Info: " << info << std::endl;
+                (*triggerAction)(info);
+            }
+        }
+
+    protected:
+        double s;
+
+        RoadSensorTriggerAction* triggerAction;
+    };
+}
 
 #endif

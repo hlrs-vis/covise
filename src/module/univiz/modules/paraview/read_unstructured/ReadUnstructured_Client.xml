@@ -1,8 +1,0 @@
-<ParaViewReaders>
-
-  <Reader name="ReadUnstructured"
-          extensions="unst"
-          file_description="Unstructured Files">
-  </Reader>
-
-</ParaViewReaders>

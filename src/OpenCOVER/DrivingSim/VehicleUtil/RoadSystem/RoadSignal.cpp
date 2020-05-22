@@ -12,6 +12,8 @@
 #include <cover/coVRFileManager.h>
 #include <cover/coVRConfig.h>
 
+using namespace vehicleUtil;
+
 TrafficLightSignalTurnCallback::TrafficLightSignalTurnCallback(osgSim::MultiSwitch *ms)
     : multiSwitch(ms)
 {

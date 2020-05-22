@@ -7,6 +7,8 @@
 
 #include "KLSM.h"
 
+using namespace vehicleUtil;
+
 //KLSM//////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

@@ -161,6 +161,11 @@ void LinearDimension::update()
         osg::Vec3 t1 = m1.getTrans();
         osg::Vec3 dist = t1 - t0;
         len = dist.length();
+        if (cover->debugLevel(0) && len != oldDist)
+        {
+            fprintf(stderr,"T0: x = %f, y = %f, z=%f \n",t0.x(), t0.y(), t0.z());
+            fprintf(stderr,"T1: x = %f, y = %f, z=%f \n",t1.x(), t1.y(), t1.z());
+        }
     }
 
     if (marks[1])
@@ -232,7 +237,8 @@ Dimension::Dimension(int idParam, Measure *m)
     int i;
     for (i = 0; i < 2; i++)
     {
-        marks[i] = NULL;
+        //marks[i] = new Mark(i, this);
+		marks[i] = nullptr;
     }
     myDCS = new osg::MatrixTransform();
     geos = new osg::Switch();
@@ -388,8 +394,8 @@ void Mark::update()
             cover->sendMessage(Measure::plugin,
                                coVRPluginSupport::TO_SAME,
                                PluginMessageTypes::Measure0,
-                               tb.get_length(),
-                               tb.get_data());
+                               tb.getData().length(),
+                               tb.getData().data());
         }
         if (interactionA->wasStarted()) // button pressed
         {
@@ -441,10 +447,10 @@ void Mark::update()
                     }
                 }
                 cover->sendMessage(Measure::plugin,
-                                   coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::Measure0,
-                                   tb.get_length(),
-                                   tb.get_data());
+                    coVRPluginSupport::TO_SAME,
+                    PluginMessageTypes::Measure0,
+                    tb.getData().length(),
+                    tb.getData().data());
             }
             if (interactionA->wasStopped())
             {
@@ -503,7 +509,7 @@ otherwise ACTION_DONE is returned
 */
 int Mark::hit(vruiHit *)
 {
-    if ((coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if ((coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
          && !coVRCollaboration::instance()->isMaster())
         || placing)
         return ACTION_CALL_ON_MISS;
@@ -678,7 +684,7 @@ Measure::removeMenuEntry()
 void Measure::menuEvent(coMenuItem *item)
 {
 
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return;
     TokenBuffer tb;
@@ -689,10 +695,10 @@ void Measure::menuEvent(coMenuItem *item)
             tb << NEW_DIMENSION;
             tb << maxDimID;
             cover->sendMessage(this,
-                               coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::Measure0,
-                               tb.get_length(),
-                               tb.get_data());
+                coVRPluginSupport::TO_SAME,
+                PluginMessageTypes::Measure0,
+                tb.getData().length(),
+                tb.getData().data());
         }
         else
         {
@@ -753,13 +759,13 @@ void Measure::menuEvent(coMenuItem *item)
     }
 }
 
-void Measure::message(int toWhom, int type, int len, const void *buf)
+void Measure::message(int toWhom, int type, int len, const void* buf)
 {
 
     if (type != PluginMessageTypes::Measure0 && type != PluginMessageTypes::Measure1)
         return;
 
-    TokenBuffer tb((char *)buf, len);
+    TokenBuffer tb{covise::DataHandle{(char*)buf, len, false}};
     char msgType;
     tb >> msgType;
     switch (msgType)
@@ -798,8 +804,15 @@ void Measure::message(int toWhom, int type, int len, const void *buf)
                 break;
             }
         }
-        if (dim)
-            dim->marks[Mid]->setPos(mat);
+		if (dim)
+		{
+			if (!dim->marks[Mid])
+			{
+				dim->marks[Mid] = new Mark(Mid, dim);
+			}
+			dim->marks[Mid]->setPos(mat);
+		}
+            
     }
     break;
     case REMOVE: // Remove

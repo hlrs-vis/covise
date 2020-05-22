@@ -75,14 +75,18 @@ public:
 
     const std::vector<Sequence> &getSequences() const;
 
-    int getAnimationFrame()
+    int getAnimationFrame() const
     {
         return currentAnimationFrame;
-    };
+    }
+
+    int getNextFrame(int current = -1) const;
+
     bool requestAnimationFrame(int currentFrame);
     void requestAnimationTime(double t);
     float getAnimationSpeed();
     void setAnimationSpeed(float speed);
+    void setAnimationSkip(int frames);
     bool animationRunning();
     void enableAnimation(bool state);
     void setRemoteAnimationFrame(int currentFrame);
@@ -124,6 +128,7 @@ private:
     float timeState;
 
     int aniDirection; // added for ping pong mode
+    int aniSkip = 1; // step width for automatic animation
 
     int numFrames;
     int startFrame, stopFrame;
@@ -146,6 +151,7 @@ private:
     ui::Slider *animStartItem, *animStopItem;
     ui::Slider *presentationStep;
     ui::Menu *animRowMenu;
+    ui::Slider *animSkipItem = nullptr;
 
     bool animRunning;
     double lastAnimationUpdate;
@@ -154,10 +160,6 @@ private:
 
     typedef std::map<const void *, int> TimestepMap;
     TimestepMap timestepMap;
-
-    void sendAnimationStateMessage();
-    void sendAnimationSpeedMessage();
-    void sendAnimationStepMessage();
 
     double timestepScale, timestepBase;
     std::string timestepUnit;

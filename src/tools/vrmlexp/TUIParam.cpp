@@ -268,18 +268,18 @@ static INT_PTR CALLBACK TUIParamDlgProc(
             if (IsDlgButtonChecked(hWnd, IDC_TUIORIENTATION_SLIDER))
             {
                 if (theTUIParam->myElem->myObject->iObjParams != NULL)
-                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, theTUIParam->myElem->myObject->iObjParams->GetTime(), coTUIFloatSlider::Vertical);
+                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, theTUIParam->myElem->myObject->iObjParams->GetTime(), coTUIFloatSlider::VERTICAL);
                 else
-                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, 0, coTUIFloatSlider::Vertical);
-                static_cast<coTUIFloatSlider *>(theTUIParam->myElem->myTuiElem)->setOrientation(coTUIFloatSlider::Vertical);
+                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, 0, coTUIFloatSlider::VERTICAL);
+                static_cast<coTUIFloatSlider *>(theTUIParam->myElem->myTuiElem)->setOrientation(coTUIFloatSlider::VERTICAL);
             }
             else
             {
                 if (theTUIParam->myElem->myObject->iObjParams != NULL)
-                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, theTUIParam->myElem->myObject->iObjParams->GetTime(), coTUIFloatSlider::Horizontal);
+                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, theTUIParam->myElem->myObject->iObjParams->GetTime(), coTUIFloatSlider::HORIZONTAL);
                 else
-                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, 0, coTUIFloatSlider::Horizontal);
-                static_cast<coTUIFloatSlider *>(theTUIParam->myElem->myTuiElem)->setOrientation(coTUIFloatSlider::Horizontal);
+                    theTUIParam->pTUIParamBlock->SetValue(PB_S_VAL, 0, coTUIFloatSlider::HORIZONTAL);
+                static_cast<coTUIFloatSlider *>(theTUIParam->myElem->myTuiElem)->setOrientation(coTUIFloatSlider::HORIZONTAL);
             }
             break;
 

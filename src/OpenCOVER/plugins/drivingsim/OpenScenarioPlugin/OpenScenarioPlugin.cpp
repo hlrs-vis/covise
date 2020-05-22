@@ -55,6 +55,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Sequence.h"
 #include "Event.h"
 #include "Condition.h"
+#include "LaneChange.h"
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <osgDB/WriteFile>
@@ -63,6 +64,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 using namespace OpenScenario;
 using namespace opencover;
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 OpenScenarioPlugin *OpenScenarioPlugin::plugin = NULL;
 
@@ -215,7 +218,7 @@ void OpenScenarioPlugin::preSwapBuffers(int windowNumber)
 			glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			if (coco.windows[windowNumber].doublebuffer)
 				glReadBuffer(GL_BACK);
-			// for depth to work, it might be necessary to read from GL_FRONT (chang this, if it does not work like
+			// for depth to work, it might be necessary to read from GL_FRONT (change this, if it does not work like
 			// this)
 			if (image.get() == NULL)
 			{
@@ -325,9 +328,9 @@ bool OpenScenarioPlugin::advanceTime(double step)
                             for(list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
                             {
                                 Entity* currentEntity = (*entity_iter);
-                                for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
+                                for(auto action_iter = currentEvent->Action.begin(); action_iter != currentEvent->Action.end(); action_iter++)
                                 {
-                                    Action* currentAction = (*action_iter);
+                                    Action* currentAction = dynamic_cast<Action *>(*action_iter);
                                     cout << "Entity Action: " << currentAction->name.getValue() << endl;
                                     if(currentAction->Private.exists())
                                     {
@@ -358,6 +361,24 @@ bool OpenScenarioPlugin::advanceTime(double step)
 												currentEntity->longitudinalSpeedAction(currentEvent, targetspeed, shape);
 
 
+											}
+										}
+										else if (currentAction->Private->Lateral.exists())
+										{
+											if (currentAction->Private->Lateral->LaneChange.exists())
+											{
+												LaneChange* lc = dynamic_cast<LaneChange*>(currentAction->Private->Lateral->LaneChange.getObject());
+												if (lc != NULL)
+												{
+													//lc->doLaneChange(currentEntity);
+													unusedEntity.remove(currentEntity);
+													usedEntity.push_back(currentEntity);
+													usedEntity.sort(); usedEntity.unique();
+													
+													currentEntity->doLaneChange(lc,currentEvent); 
+													
+													
+												}
 											}
 										}
 									}
@@ -468,31 +489,29 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 		delete osdb;
 		osdb = nullptr;
 
-		//neu
-		std::string filename(file);
-		xoscDirectory.clear();
-		if (filename[0] != '/' && filename[0] != '\\' && (!(filename[1] == ':' && (filename[2] == '/' || filename[2] == '\\'))))
-		{ // / or backslash or c:/
-			char *workingDir = getcwd(NULL, 0);
-			xoscDirectory.assign(workingDir);
-			free(workingDir);
-		}
-		size_t lastSlashPos = filename.find_last_of('/');
-		size_t lastSlashPos2 = filename.find_last_of('\\');
-		if (lastSlashPos != filename.npos && (lastSlashPos2 == filename.npos || lastSlashPos2 < lastSlashPos))
-		{
-			if (!xoscDirectory.empty())
-				xoscDirectory += "/";
-			xoscDirectory.append(filename, 0, lastSlashPos);
-		}
-		if (lastSlashPos2 != filename.npos && (lastSlashPos == filename.npos || lastSlashPos < lastSlashPos2))
-		{
-			if (!xoscDirectory.empty())
-				xoscDirectory += "\\";
-			xoscDirectory.append(filename, 0, lastSlashPos2);
-		}
-		//neu
 		return -1;
+	}
+	std::string filename(file);
+	xoscDirectory.clear();
+	if (filename[0] != '/' && filename[0] != '\\' && (!(filename[1] == ':' && (filename[2] == '/' || filename[2] == '\\'))))
+	{ // / or backslash or c:/
+		char* workingDir = getcwd(NULL, 0);
+		xoscDirectory.assign(workingDir);
+		free(workingDir);
+	}
+	size_t lastSlashPos = filename.find_last_of('/');
+	size_t lastSlashPos2 = filename.find_last_of('\\');
+	if (lastSlashPos != filename.npos && (lastSlashPos2 == filename.npos || lastSlashPos2 < lastSlashPos))
+	{
+		if (!xoscDirectory.empty())
+			xoscDirectory += "/";
+		xoscDirectory.append(filename, 0, lastSlashPos);
+	}
+	if (lastSlashPos2 != filename.npos && (lastSlashPos == filename.npos || lastSlashPos < lastSlashPos2))
+	{
+		if (!xoscDirectory.empty())
+			xoscDirectory += "\\";
+		xoscDirectory.append(filename, 0, lastSlashPos2);
 	}
 	if (osdb->FileHeader.exists())
 	{
@@ -628,8 +647,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 							if (vd != NULL && dd != NULL)
 							{
 								// find road
-								system = RoadSystem::Instance();
-								Road* myRoad = system->getRoad(position->object.getValue());
+								system = vehicleUtil::RoadSystem::Instance();
+								vehicleUtil::Road* myRoad = system->getRoad(position->object.getValue());
 								if (myRoad)
 								{
 									std::string name = "fiddleyard" + position->object.getValue();
@@ -716,7 +735,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 		{
 			Entity *currentEntity = (*entity_iter);
 			oscVehicle* vehicle = currentEntity->getVehicle();
-			if (vehicle->ParameterDeclaration.exists())
+			if (vehicle && vehicle->ParameterDeclaration.exists())
 			{
 				for (int i = 0; i < vehicle->ParameterDeclaration->Parameter.size(); i++)
 				{
@@ -767,7 +786,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 						osg::Matrix rotMat;
 						rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
 
-						CameraSensor *camera = new CameraSensor(currentEntity, vehicle, rotMat*cameraMat, FOV);
+						CameraSensor* camera = new CameraSensor(currentEntity, vehicle, rotMat * cameraMat, FOV);
 						cameras.push_back(camera);
 						if (currentCamera == NULL)
 							currentCamera = camera;
@@ -845,84 +864,87 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 		for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
 		{
 			Act* currentAct = (*act_iter);
-			//Act Start Condition
-			for (oscConditionArrayMember::iterator it = currentAct->Conditions->Start->ConditionGroup.begin(); it != currentAct->Conditions->Start->ConditionGroup.end(); it++)
+			if (currentAct->Conditions.exists())
 			{
-				oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
-				for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
+				//Act Start Condition
+				for (oscConditionArrayMember::iterator it = currentAct->Conditions->Start->ConditionGroup.begin(); it != currentAct->Conditions->Start->ConditionGroup.end(); it++)
 				{
-					Condition* condition = ((Condition*)(*it));
-					scenarioManager->initializeCondition(condition);
-					currentAct->addStartCondition(condition);
-				}
-			}
-			//Act End Condition
-			for (oscConditionArrayMember::iterator it = currentAct->Conditions->End->ConditionGroup.begin(); it != currentAct->Conditions->End->ConditionGroup.end(); it++)
-			{
-				oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
-				for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
-				{
-					Condition* condition = ((Condition*)(*it));
-					scenarioManager->initializeCondition(condition);
-					currentAct->addEndCondition(condition);
-				}
-			}
-
-			// get Maneuver StartConditions
-			for (list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
-			{
-				Sequence* currentSequence = (*sequence_iter);
-				for (list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
-				{
-					Maneuver* currentManeuver = (*maneuver_iter);
-					for (list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+					oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
+					for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
 					{
-						Event* currentEvent = (*event_iter);
-						//currentEvent->initialize();
-						if (currentEvent->StartConditions.exists())
-						{
-							for (oscStartConditionsArrayMember::iterator it = currentEvent->StartConditions->ConditionGroup.begin(); it != currentEvent->StartConditions->ConditionGroup.end(); it++)
-							{
-								oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
-								for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
-								{
-									Condition* condition = ((Condition*)(*it));
-									scenarioManager->initializeCondition(condition);
-									currentEvent->addCondition(condition);
-								}
-							}
-						}
-						//get trajectoryCatalogReference
-						for (oscActionArrayMember::iterator it = currentEvent->Action.begin(); it != currentEvent->Action.end(); it++)
-						{
-							Action* currentAction = ((Action*)(*it));
-							if (currentAction->Private->Routing.exists())
-							{
-								if (currentAction->Private->Routing->FollowTrajectory.exists())
-								{
-									currentAction->trajectoryCatalogReference = currentAction->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+						Condition* condition = ((Condition*)(*it));
+						scenarioManager->initializeCondition(condition);
+						currentAct->addStartCondition(condition);
+					}
+				}
+				//Act End Condition
+				for (oscConditionArrayMember::iterator it = currentAct->Conditions->End->ConditionGroup.begin(); it != currentAct->Conditions->End->ConditionGroup.end(); it++)
+				{
+					oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
+					for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
+					{
+						Condition* condition = ((Condition*)(*it));
+						scenarioManager->initializeCondition(condition);
+						currentAct->addEndCondition(condition);
+					}
+				}
 
-									oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", currentAction->trajectoryCatalogReference);
-									Trajectory* traj = ((Trajectory*)(trajectoryClass));
-									if (traj == NULL)
+				// get Maneuver StartConditions
+				for (list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
+				{
+					Sequence* currentSequence = (*sequence_iter);
+					for (list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
+					{
+						Maneuver* currentManeuver = (*maneuver_iter);
+						for (list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+						{
+							Event* currentEvent = (*event_iter);
+							//currentEvent->initialize();
+							if (currentEvent->StartConditions.exists())
+							{
+								for (oscStartConditionsArrayMember::iterator it = currentEvent->StartConditions->ConditionGroup.begin(); it != currentEvent->StartConditions->ConditionGroup.end(); it++)
+								{
+									oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
+									for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
 									{
-										fprintf(stderr, "Trajectory %s not found in TrajectoryCatalog\n", currentAction->trajectoryCatalogReference.c_str());
+										Condition* condition = ((Condition*)(*it));
+										scenarioManager->initializeCondition(condition);
+										currentEvent->addCondition(condition);
 									}
-									currentAction->setTrajectory(traj);
-
-
-									currentEvent->actionList.push_back(currentAction);
-								}
-								else if (currentAction->Private->Routing->FollowRoute.exists())
-								{
-									currentAction->routeCatalogReference = currentAction->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
-									currentEvent->actionList.push_back(currentAction);
 								}
 							}
-							if (currentAction->Private->Longitudinal.exists())
+							//get trajectoryCatalogReference
+							for (oscActionArrayMember::iterator it = currentEvent->Action.begin(); it != currentEvent->Action.end(); it++)
 							{
+								Action* currentAction = ((Action*)(*it));
+								if (currentAction->Private->Routing.exists())
+								{
+									if (currentAction->Private->Routing->FollowTrajectory.exists())
+									{
+										currentAction->trajectoryCatalogReference = currentAction->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
 
-								currentEvent->actionList.push_back(currentAction);
+										oscObjectBase* trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", currentAction->trajectoryCatalogReference);
+										Trajectory* traj = ((Trajectory*)(trajectoryClass));
+										if (traj == NULL)
+										{
+											fprintf(stderr, "Trajectory %s not found in TrajectoryCatalog\n", currentAction->trajectoryCatalogReference.c_str());
+										}
+										currentAction->setTrajectory(traj);
+
+
+										//currentEvent->actionList.push_back(currentAction);
+									}
+									else if (currentAction->Private->Routing->FollowRoute.exists())
+									{
+										currentAction->routeCatalogReference = currentAction->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+										//currentEvent->actionList.push_back(currentAction);
+									}
+								}
+								if (currentAction->Private->Longitudinal.exists())
+								{
+
+									//currentEvent->actionList.push_back(currentAction);
+								}
 							}
 						}
 					}
@@ -964,7 +986,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 			xodrDirectory.append(filename, 0, lastSlashPos2);
 		}
 
-		system = RoadSystem::Instance();
+		system = vehicleUtil::RoadSystem::Instance();
 
 		xercesc::DOMElement *openDriveElement = getOpenDriveRootElement(filename);
 		if (!openDriveElement)
@@ -998,7 +1020,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 		int numRoads = system->getNumRoads();
 		for (int i = 0; i < numRoads; ++i)
 		{
-			Road *road = system->getRoad(i);
+			vehicleUtil::Road *road = system->getRoad(i);
 			osg::LOD *roadGeodeLOD = new osg::LOD();
 
 			// Tesselation //
@@ -1100,12 +1122,12 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 
 	if (coVRMSController::instance()->isMaster() && (Carpool::Instance()->getPoolVector()).size() > 0)
 	{
-		if (RoadSystem::_tiles_y <= 400 && RoadSystem::_tiles_x <= 400)
+		if (vehicleUtil::RoadSystem::_tiles_y <= 400 && vehicleUtil::RoadSystem::_tiles_x <= 400)
 		{
 			//for (int i=0; i<=_tiles_y;i++) {
-			for (int i = RoadSystem::_tiles_y; i >= 0; i--)
+			for (int i = vehicleUtil::RoadSystem::_tiles_y; i >= 0; i--)
 			{
-				for (int j = 0; j <= RoadSystem::_tiles_x; j++)
+				for (int j = 0; j <= vehicleUtil::RoadSystem::_tiles_x; j++)
 				{
 					if ((system->getRLS_List(j, i)).size() == 0)
 						std::cout << "-";
@@ -1214,7 +1236,7 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
 				if (RoadTerrainLoader::instance())
 				{
 					osg::Vec3d offset(0, 0, 0);
-					const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
+					const RoadSystemHeader &header = vehicleUtil::RoadSystem::Instance()->getHeader();
 					offset.set(header.xoffset, header.yoffset, 0.0);
 					fprintf(stderr, "loading %s offset: %f %f\n", (xodrDirectory + "/" + vpbString).c_str(), offset[0], offset[1]);
 					RoadTerrainLoader::instance()->loadTerrain(xodrDirectory + "/" + vpbString, offset, voidBoundingAreaVector, shapeFileNameVector);

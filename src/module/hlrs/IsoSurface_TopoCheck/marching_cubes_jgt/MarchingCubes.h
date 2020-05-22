@@ -298,7 +298,7 @@ protected:
    * \param n    the number of triangles to produce
    * \param v12  the index of the interior vertex to use, if necessary
    */
-    void add_triangle(const char *trig, char n, int v12 = -1);
+    void add_triangle(const signed char *trig, char n, int v12 = -1);
 
     /** tests and eventually doubles the vertex buffer capacity for a new vertex insertion */
     void test_vertex_addition();

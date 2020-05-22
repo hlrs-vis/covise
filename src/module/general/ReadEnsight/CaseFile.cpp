@@ -20,17 +20,18 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "CaseFile.h"
-#include <util/coviseCompat.h>
+#include <string>
+#include <vector>
 
 //
 // helper
 //
-string trim(const string &s)
+std::string trim(const std::string &s)
 {
-    int i;
-    string tmp, ret;
+    std::string tmp, ret;
 
-    for (i = 0; i < s.size(); ++i)
+    size_t i=0;
+    for (; i < s.size(); ++i)
     {
         if (!isspace(s[i]))
             break;
@@ -69,14 +70,14 @@ CaseFile::CaseFile(const CaseFile &cf)
 }
 
 void
-CaseFile::setGeoFileNm(const string &fn)
+CaseFile::setGeoFileNm(const std::string &fn)
 {
     empty_ = false;
     geoFileNm_ = fn;
 }
 
 void
-CaseFile::setMGeoFileNm(const string &fn)
+CaseFile::setMGeoFileNm(const std::string &fn)
 {
     empty_ = false;
     mgeoFileNm_ = fn;
@@ -87,30 +88,30 @@ CaseFile::setVersion(const int &v)
 {
     empty_ = false;
     version_ = v;
-};
+}
 
-string
+std::string
 CaseFile::getGeoFileNm() const
 {
     // return empty string if no filename is given
     if (geoFileNm_.empty())
     {
-        string dummy;
+        std::string dummy;
         return dummy;
     }
-    return dir_ + string("/") + geoFileNm_;
+    return dir_ + std::string("/") + geoFileNm_;
 }
 
-string
+std::string
 CaseFile::getMGeoFileNm() const
 {
     // return empty string if no filename is given
     if (mgeoFileNm_.empty())
     {
-        string dummy;
+       std::string dummy;
         return dummy;
     }
-    return dir_ + string("/") + mgeoFileNm_;
+    return dir_ + std::string("/") + mgeoFileNm_;
 }
 
 //
@@ -122,40 +123,40 @@ CaseFile::addDataIt(const DataItem &it)
     dataIts_.push_back(it);
 }
 
-string
+std::string
 CaseFile::printEnVersion()
 {
 
-    string out;
+   std::string out;
     switch (version_)
     {
     case CaseFile::v6:
-        out = string("ensight v6");
+        out = std::string("ensight v6");
         break;
     case CaseFile::gold:
-        out = string("ensight gold");
+        out = std::string("ensight gold");
         break;
     default:
-        out = string("no version");
+        out = std::string("no version");
         break;
     }
     return out;
 }
 
 void
-CaseFile::setFullFilename(const string &fn)
+CaseFile::setFullFilename(const std::string &fn)
 {
     fullFilename_ = trim(fn);
     size_t id(fullFilename_.find_last_of("/"));
     size_t id2(fullFilename_.find_last_of("\\"));
-    if (id2 != string::npos)
+    if (id2 != std::string::npos)
     {
-        if (id == string::npos || id2 > id)
+        if (id == std::string::npos || id2 > id)
             id = id2;
     }
-    if (id == string::npos)
+    if (id == std::string::npos)
     {
-        dir_ = string(".");
+        dir_ = std::string(".");
         projectNm_ = fullFilename_;
     }
     else
@@ -170,13 +171,13 @@ CaseFile::setFullFilename(const string &fn)
         dir_ = dir_.substr(0, dirlen - 1);
 }
 
-string
+std::string
 CaseFile::getDir()
 {
     return dir_;
 }
 
-string
+std::string
 CaseFile::getProjectName()
 {
     return projectNm_;
@@ -259,46 +260,46 @@ TimeSet::getNumTs() const
     return numTs_;
 }
 
-vector<string>
-TimeSet::getFileNames(const string &t)
+std::vector<std::string>
+TimeSet::getFileNames(const std::string &t)
 {
     // take care of ensight filename convention for time-dependent data
-    vector<string> ret;
+   std::vector<std::string> ret;
 
     size_t beg(t.find_first_of("*"));
     // return input name if NO asterix is found
-    if (beg == string::npos)
+    if (beg == std::string::npos)
     {
         ret.push_back(t);
         return ret;
     }
 
     size_t end(t.find_first_not_of("*", beg));
-    if (end == string::npos)
+    if (end == std::string::npos)
     {
         end = t.size();
     }
 
-    string pre(t.substr(0, beg));
-    string stars(t.substr(beg, end - beg));
-    string post(t.substr(end));
+    std::string pre(t.substr(0, beg));
+    std::string stars(t.substr(beg, end - beg));
+    std::string post(t.substr(end));
 
     int width(stars.size());
 
-    vector<int>::iterator it;
+    std::vector<int>::iterator it;
 
     char ch[64]; // that's more then enough
     for (it = fileNums_.begin(); it != fileNums_.end(); it++)
     {
         sprintf(ch, "%0*d", width, *it);
-        string fname(pre + string(ch) + post);
+        std::string fname(pre + std::string(ch) + post);
         ret.push_back(fname);
     }
 
     return ret;
 }
 
-vector<float>
+std::vector<float>
 TimeSet::getRealTimes() const
 {
     return rTimes_;

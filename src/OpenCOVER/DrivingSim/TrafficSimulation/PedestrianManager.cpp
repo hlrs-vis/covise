@@ -9,6 +9,9 @@
 #include "TrafficSimulation.h"
 #include <osg/Geometry>
 
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
+
 /**
  * Create PedestrianManager as a singleton
  */
@@ -521,6 +524,8 @@ void PedestrianManager::moveAllPedestrians(const double dt)
 
             // Move the pedestrian
             p->move(dt);
+			if (p->isActive())
+				p->getPedestrianGeometry()->update(dt);
 
             // auto-sink: Remove pedestrians outside the viewer's range (new ones should be added by auto-sources)
             if (autoFiddleyards || movingFiddleyards)

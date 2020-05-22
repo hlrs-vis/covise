@@ -5,10 +5,13 @@
 
  * License: LGPL 2+ */
 
-#include <iostream.h>
-#include <stdio.h>
+#include <iostream>
+#include <cstdio>
+#ifndef WIN32
 #include <unistd.h>
-#include <ctype.h>
+#endif
+#include <cctype>
+#include <cstring>
 
 static void
 byteSwap(int no_points, void *buffer)
@@ -26,7 +29,7 @@ byteSwap(int no_points, void *buffer)
 }
 
 /////////////////////////////////////////////////////
-FILE *covOpenOutFile(char *filename)
+FILE *covOpenOutFile(const char *filename)
 {
     FILE *fi = fopen(filename, "w");
     if (fi == NULL)
@@ -74,8 +77,8 @@ int main(int argc, char *argv[])
 {
     if (argc == 1)
     {
-        cerr << "Call: " << argv[0] << " <file> <file> ..." << endl;
-        exit(1);
+        std::cerr << "Call: " << argv[0] << " <file> <file> ..." << std::endl;
+        return(1);
     }
 
     FILE *dataFile = covOpenOutFile("data.covise");
@@ -93,9 +96,9 @@ int main(int argc, char *argv[])
         if (!fi)
         {
             perror(argv[fileNo + 1]);
-            exit(0);
+            return(0);
         }
-        cout << "File " << argv[fileNo + 1] << endl;
+        std::cout << "File " << argv[fileNo + 1] << std::endl;
 
         struct
         {

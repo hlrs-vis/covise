@@ -87,10 +87,6 @@ bool initCudaGlInterop()
     {
         fprintf(stderr, "initCudaGlInterop: did not find a CUDA device\n");
     }
-    else if (cudaGLSetGLDevice(dev) != cudaSuccess)
-    {
-        fprintf(stderr, "initCudaGlInterop: error setting GL device %d\n", dev);
-    }
 #endif
 
     done = true;

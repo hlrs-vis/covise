@@ -71,7 +71,8 @@ bool VariantPlugin::init()
         variant_menu = new ui::Menu("Variants", this);
 
         options_menu = new ui::Menu(variant_menu, "Options");
-        showHideLabels = new ui::Button(options_menu, "Show Labels");
+        showHideLabels = new ui::Button(options_menu, "ShowLabels");
+        showHideLabels->setText("Show labels");
         showHideLabels->setState(false);
         showHideLabels->setCallback([this](bool state){
             if (state)
@@ -86,7 +87,8 @@ bool VariantPlugin::init()
             tui_showLabel->setState(state);
         });
 
-        roi_menu = new ui::Menu(variant_menu, "Region of Interest");
+        roi_menu = new ui::Menu(variant_menu, "RegionOfInterest");
+        roi_menu->setText("Region of interest");
         define_roi = new ui::Button(roi_menu, "Define");
         define_roi->setState(false);
         define_roi->setCallback([this](bool state){
@@ -448,7 +450,7 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                            TokenBuffer tb2;
                            tb2 << path;
                            tb2 << pPath;
-                           cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.get_length(), tb2.get_data());
+                           cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
                            setMenuItem(vari, (false));
                            setQDomElemState(vari, false);
                        }
@@ -525,9 +527,13 @@ Variant *VariantPlugin::getVariant(osg::Node *varNode)
 void VariantPlugin::setVariant(std::string var)
 {
         VariantPlugin::plugin->HideAllVariants();
-        TokenBuffer tb;
-        tb << var;
-        cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+        std::stringstream ss(var);
+        std::string out;
+        while(std::getline(ss,out,';')) {
+            TokenBuffer tb;
+            tb << out;
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
+        }
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -700,7 +706,7 @@ void VariantPlugin::message(int toWhom, int type, int len, const void *buf)
             tb2 << pPath;
             if (type == PluginMessageTypes::VariantHide)
             {
-                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.get_length(), tb2.get_data());
+                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
                 setMenuItem(var, (false));
                 setQDomElemState(var, false);
             }
@@ -708,7 +714,7 @@ void VariantPlugin::message(int toWhom, int type, int len, const void *buf)
             {
                 if (VrmlNodeVariant::instance())
                     VrmlNodeVariant::instance()->setVariant(VariantName);
-                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb2.get_length(), tb2.get_data());
+                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb2.getData().length(), tb2.getData().data());
                 setMenuItem(var, (true));
                 setQDomElemState(var, true);
             }
@@ -999,9 +1005,9 @@ int VariantPlugin::parseXML(QDomDocument *qxmlDoc)
                     tb << pPath;
 
                     if (state != "0")
-                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
                     else
-                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+                        cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.getData().length(), tb.getData().data());
                 }
                 //--
                 if (tagName == "transform")
@@ -1074,7 +1080,7 @@ void VariantPlugin::HideAllVariants()
         std::string vName = (*varlIter)->getVarname();
         TokenBuffer tb;
         tb << vName;
-        cover->sendMessage(this, "Variant", PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+        cover->sendMessage(this, "Variant", PluginMessageTypes::VariantHide, tb.getData().length(), tb.getData().data());
     }
 }
 

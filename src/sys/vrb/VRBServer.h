@@ -8,61 +8,74 @@
 #ifndef VRB_SERVER_H
 #define VRB_SERVER_H
 
-#include "coRegistry.h"
-#include <util/coTabletUIMessages.h>
-
+#include <string>
 #include <QObject>
 #include <QString>
-#include <QStringList>
+#include <map>
+#include <set>
+#include <memory>
+#include <vrbclient/SessionID.h>
+#include <vrbserver/VrbMessageHandler.h>
+
 
 namespace covise
 {
 class ServerConnection;
+class ServerUdpConnection;
 class Connection;
 class ConnectionList;
 class Message;
 }
+class QTreeWidgetItem;
 class QSocketNotifier;
-class VRBSClient;
 
-#ifdef Q_MOC_RUN
-#define GUI
-#endif
-//
-//
-//
-#ifndef GUI
-class VRBServer
-#else
-class VRBServer : public QObject
-#endif
+namespace vrb
 {
+	class VrbServerRegistry;
+class VRBClientList;
+class UdpMessage;
+}
+extern vrb::VRBClientList *vrbClients;
 
-#ifdef GUI
-    Q_OBJECT
-
+//
+//
+class VRBServer : public QObject, public vrb::ServerInterface
+{
+Q_OBJECT
 private slots:
-#endif
-    void processMessages();
 
+    void processMessages();
+	void processUdpMessages();
 public:
-    VRBServer();
+    VRBServer(bool gui);
     ~VRBServer();
     void loop();
+
+	bool startUdpServer();
     int openServer();
     void closeServer();
-    coRegistry registry;
+    void removeConnection(covise::Connection *conn) override;
+
 
 private:
-    covise::ServerConnection *sConn;
-    QSocketNotifier *serverSN;
-    covise::ConnectionList *connections;
-    int port; // port Number (default: 31800) covise.config: VRB.TCPPort
-    void handleClient(covise::Message *);
-    void RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path);
-    covise::Message *msg;
-    bool requestToQuit;
-    VRBSClient *currentFileClient;
-    char *currentFile;
+    bool m_gui;
+    QPixmap *pix_master = NULL;
+    QPixmap *pix_slave = NULL;
+    covise::ServerConnection *sConn = nullptr;
+	covise::UDPConnection* udpConn = nullptr;
+    QSocketNotifier *serverSN = nullptr;
+
+    vrb::VrbMessageHandler *handler;
+
+    covise::ConnectionList *connections = nullptr;
+    int m_tcpPort, m_udpPort; // port Number (default: 31800) covise.config: VRB.TCPPort
+  
+    covise::Message *msg = nullptr;
+	vrb::UdpMessage* udpMsg = nullptr;
+	char* ip = new char[16];
+    bool requestToQuit = false;
+
 };
 #endif
+
+

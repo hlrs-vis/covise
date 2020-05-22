@@ -40,28 +40,39 @@
 #endif
 #endif
 
-#include <limits.h>
 #include <osg/Matrix>
 #include <osg/Geode>
+#include <osg/Drawable>
 #include <osg/ClipNode>
+#include <osg/MatrixTransform>
 #include <osgViewer/GraphicsWindow>
 #include <osg/BoundingBox>
 
-#include <deque>
 #include <list>
 #include <ostream>
+
 #include <OpenVRUI/sginterface/vruiButtons.h>
+
 #include "coVRPlugin.h"
 
-#include "ui/Manager.h"
-#include "ui/Menu.h"
-#include "ui/ButtonGroup.h"
-#include "ui/VruiView.h"
+#include <vrbclient/VrbMessageSenderInterface.h>
+#include <net/message_types.h>
 
 namespace opencover {
 namespace ui {
+class ButtonGroup;
 class Menu;
+class Manager;
+class VruiView;
 }
+}
+
+namespace covise {
+class Message;
+}
+
+namespace grmsg {
+class coGRMsg;
 }
 
 #define MAX_NUMBER_JOYSTICKS 64
@@ -70,7 +81,10 @@ namespace osg
 {
 class MatrixTransform;
 }
-
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace osgText
 {
 class Font;
@@ -99,6 +113,12 @@ class coVRPlugin;
 class RenderObject;
 class coInteractor;
 class NotifyBuf;
+class VRBMessageSender : public vrb::VrbMessageSenderInterface
+{
+public:
+    bool sendMessage(const covise::Message *msg);
+    bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
+};
 struct Isect
 {
     enum IntersectionBits
@@ -180,6 +200,9 @@ private:
 class COVEREXPORT coVRPluginSupport
 {
     friend class OpenCOVER;
+    friend class fasi;
+    friend class fasi2;
+    friend class mopla;
     friend class coVRMSController;
     friend class coIntersection;
 
@@ -193,7 +216,7 @@ public:
           4,
           5 all functions which are called continously */
     bool debugLevel(int level) const;
-
+    void initUI();
     // show a message to the user
     std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
     std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
@@ -282,6 +305,11 @@ public:
     /*! use this cached value instead of inverting getBaseMat() yourself */
     const osg::Matrix &getInvBaseMat() const;
 
+    //! register filedescriptor fd for watching so that scene will be re-rendererd when it is ready
+    void watchFileDescriptor(int fd);
+    //! remove fd from filedescriptors to watch
+    void unwatchFileDescriptor(int fd);
+
     vrui::coUpdateManager *getUpdateManager() const;
 
     //! get the scene size defined in covise.config
@@ -292,8 +320,11 @@ public:
 
     bool isVRBconnected();
 
-    //! send a message either via COVISE connection or via VRB
+    //! send a message either via COVISE connection or via tcp to VRB
     bool sendVrbMessage(const covise::Message *msg) const;
+
+	//! send a message either via COVISE connection or via udp to VRB
+	bool sendVrbUdpMessage(const vrb::UdpMessage* msg) const;
 
     // tracker data
 
@@ -357,6 +388,13 @@ public:
 
     //! check if keyboard is grabbed
     bool isKeyboardGrabbed();
+
+    //! let plugin request control over viewer position
+    bool grabViewer(coVRPlugin *);
+    //! release control over viewer position
+    void releaseViewer(coVRPlugin *);
+    //! whether a plugins controls viewer position
+    bool isViewerGrabbed() const;
 
     //! forbid saving of scenegraph
     void protectScenegraph();
@@ -497,8 +535,14 @@ public:
     void setFrameTime(double ft);
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
+    VRBMessageSender *getSender();
+	void connectToCovise(bool connected);
+	bool connectedToCovise();
 
+    bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
 private:
+	bool m_connectedToCovise = false;
+    VRBMessageSender m_sender;
     void setFrameRealTime(double ft);
 
     //! calls the callback
@@ -524,7 +568,7 @@ private:
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     bool cursorVisible = true;
     vrml::Player *player = nullptr;
-    std::list<void (*)()> playerUseList;
+    std::set<void (*)()> playerUseList;
 
     int activeClippingPlane;
 

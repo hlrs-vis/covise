@@ -1,5 +1,4 @@
 tap 'homebrew/core'
-tap 'homebrew/science'
 tap 'hlrs-vis/tap'
 
 brew 'cmake'
@@ -22,23 +21,28 @@ brew 'swig'
 brew 'python3'
 brew 'freetype'
 brew 'libarchive'
+brew 'libzip'
+brew 'fftw'
 
 brew 'snappy'
 brew 'teem'
 brew 'gdcm'
 brew 'hlrs-vis/tap/volpack'
 
-brew 'mpich'
+brew 'open-mpi'
 brew 'open-scene-graph'
 brew 'audiofile'
 brew 'freealut'
 brew 'proj'
 brew 'gdal'
 brew 'eigen'
+brew 'hidapi'
+brew 'sdl'
 brew 'hlrs-vis/tap/osgcal'
 brew 'hlrs-vis/tap/opencrg'
 
+brew 'qt'
+
 #brew 'tbb'
-#brew 'homebrew/science/hdf5', args: ['with-mpi']
 #brew 'hlrs-vis/tap/covise'
 #brew 'hlrs-vis/tap/libvncserver'

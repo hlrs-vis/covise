@@ -16,7 +16,6 @@ class Event : public::OpenScenario::oscEvent, public StoryElement
 public:
     Event();
 
-    std::list<::Action*> actionList;
     void start(Sequence *currentSequence);
     void stop();
     int finishedEntityActions;

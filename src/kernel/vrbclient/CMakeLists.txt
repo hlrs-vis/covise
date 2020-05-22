@@ -4,16 +4,33 @@
 #
 # @author Blasius Czink
 
+USING(BOOST)
+#USING(Pthreads)
 ADD_DEFINITIONS(-DCOVISE_VRB)
 
 SET(VRBCLIENT_SOURCES
   VRBClient.cpp
   VRBMessage.cpp
+  VrbRegistry.cpp
+  VrbClientRegistry.cpp
+  regClass.cpp
+  SessionID.cpp	
+  SharedState.cpp
+  SharedStateManager.cpp
+  SharedStateSerializer.cpp
 )
 
 SET(VRBCLIENT_HEADERS
   VRBClient.h
   VRBMessage.h
+  VrbRegistry.h
+  VrbClientRegistry.h
+  VrbMessageSenderInterface.h
+  regClass.h
+  SessionID.h
+  SharedState.h
+  SharedStateManager.h
+  SharedStateSerializer.h
 )
 
 ADD_COVISE_LIBRARY(coVRBClient ${COVISE_LIB_TYPE} ${VRBCLIENT_SOURCES} ${VRBCLIENT_HEADERS})

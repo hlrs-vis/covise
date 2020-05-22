@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRSetDocScaleMsg::coGRSetDocScaleMsg(const char *document_name, float s)

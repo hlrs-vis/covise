@@ -35,15 +35,15 @@ vcpkg           Visual Studio 2015 Update 3, Visual Studio 2017 with 3rd party l
 
 linux32         Generic x86 Linux
 linux64         Generic x86_64 Linux
-cray64         Cray x86_64 Linux software rendering
-rhel7           Red Hat Enterprise Linux 7 with updates on x86_64 (64 bit mode)
+cray64          Cray x86_64 Linux software rendering
+rhel7           Red Hat Enterprise Linux/CentOS 7 with updates on x86_64 (64 bit mode)
+rhel8           Red Hat Enterprise Linux/CentOS 8 with updates on x86_64 (64 bit mode)
 
 darwin          Generic macOS
 libc++          Mac OS X 10.9-10.12, x86_64 with libc++
 macos           macOS, x86_64 with libc++
 
-
-
+freebsd         Generic FreeBSD
 
 
 #
@@ -165,6 +165,7 @@ tahr            Ubuntu 14.04 Trusty Tahr and Linux Mint 17 on x86_64 (64 bit mod
 vervet          Ubuntu 15.04 Vivid Vervet on x86_64 (64 bit mode)
 werewolf        Ubuntu 15.10 Wily Werewolf on x86_64 (64 bit mode)
 xerus           Ubuntu 16.04 Xenial Xerus on x86_64 (64 bit mode)
+bionic          Ubuntu 18.04 Bionic Beaver on x86_64 (64 bit mode)
 
 sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1

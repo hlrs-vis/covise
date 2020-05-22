@@ -24,7 +24,7 @@
 #endif
 #include <string.h>
 #include <signal.h>
-#if !defined(WIN32) && !defined(__hpux)
+#if !defined(WIN32) && !defined(__hpux) && !defined(__FreeBSD__)
 #include <sys/prctl.h>
 #include <errno.h>
 #endif
@@ -130,10 +130,10 @@ int main(int argc, char *argv[])
     signal(SIGPIPE, sigHandler);
     signal(SIGCHLD, sigHandler);
     signal(SIGHUP, sigHandler);
-#ifndef __linux__
-    prctl(PR_TERMCHILD); // Exit when parent does
-#else
+#ifdef __linux__
     prctl(PR_SET_PDEATHSIG, SIGTERM);
+#elif !defined(__FreeBSD__)
+    prctl(PR_TERMCHILD); // Exit when parent does
 #endif
 #endif
 

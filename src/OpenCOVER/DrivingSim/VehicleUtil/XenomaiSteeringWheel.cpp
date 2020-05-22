@@ -16,6 +16,8 @@
 
 #include <cstdlib>
 
+using namespace vehicleUtil;
+
 XenomaiSteeringWheel::XenomaiSteeringWheel(CanOpenController &con, uint8_t id)
     : CanOpenDevice(con, id)
     , XenomaiTask("XenomaiSteeringWheel")

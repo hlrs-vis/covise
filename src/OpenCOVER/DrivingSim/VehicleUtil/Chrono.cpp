@@ -8,6 +8,8 @@
 #include "Chrono.h"
 #include <cover/coVRPluginSupport.h>
 
+using namespace vehicleUtil;
+
 // Chrono ////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

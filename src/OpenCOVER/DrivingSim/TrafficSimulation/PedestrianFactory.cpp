@@ -7,9 +7,12 @@
 
 #include "PedestrianFactory.h"
 #include <utility>
+#include <cover/coVRPluginSupport.h>
 
 using std::pair;
 using std::list;
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 /**
  * Create PedestrianFactory as a singleton
@@ -32,7 +35,7 @@ PedestrianFactory::PedestrianFactory()
     : maximumPeds(-1)
 {
     // Set default values (hardcoded, can be overridden in .xodr)
-    pedDefaults = PedestrianSettings("", "", "300", "0", // id, name, rangeLOD, debugLvl,
+    pedDefaults = PedestrianSettings("", "", "50", "0", // id, name, rangeLOD, debugLvl,
                                      "cally", "0.01", "0.0", // modelFile, scale, heading,
                                      "road", "1", "1", "0.0", "0.0", "1.2", "0.6", // road, lane, dir, sOff, vOff, vel, acc,
                                      "0", "0.0", "1", "0.6", "2", "1.5", "3", "3.0", "-1", "-1"); // animation mapping
@@ -40,7 +43,9 @@ PedestrianFactory::PedestrianFactory()
     // Create OSG group for pedestrians
     pedestrianGroup = new osg::Group();
     pedestrianGroup->setName("PedestrianSystem");
+	pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~opencover::Isect::Update); // don't use the update traversal, tey are updated manually when in range
     opencover::cover->getObjectsRoot()->addChild(pedestrianGroup);
+
 }
 
 PedestrianFactory::~PedestrianFactory()
@@ -80,7 +85,7 @@ osgCal::CoreModel *PedestrianFactory::getCoreModel(const std::string &modelFile)
         if (pos != std::string::npos)
             tmpModelFile.erase(pos, tmpModelFile.length());
 
-        tmpModelFile = std::string(getenv("COVISEDIR")) + std::string("/data/cal3d/") + tmpModelFile + std::string("/") + tmpModelFile + std::string(".cfg");
+        tmpModelFile = std::string("/data/cal3d/") + tmpModelFile + std::string("/") + tmpModelFile + std::string(".cfg");
     }
 
     // If some core models have already been loaded, we need to perform a search

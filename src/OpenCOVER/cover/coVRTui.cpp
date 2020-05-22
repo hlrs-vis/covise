@@ -829,7 +829,7 @@ void coVRTui::update()
         ScaleSlider->setValue(ScaleValue);
     }
 
-    if ((driveNav->down || panNav->down) && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM)))
+    if ((driveNav->down || panNav->down))
     {
 
         if (navigationMode == coVRNavigationManager::Walk || navigationMode == coVRNavigationManager::Glide)

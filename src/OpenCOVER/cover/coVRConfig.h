@@ -50,8 +50,10 @@ class coVRPlugin;
 //! describes a physical screen, such as one wall of a CAVE
 struct screenStruct
 {
-    float hsize; // horizontal size in mm
-    float vsize; // vertical size in mm
+    float hsize; // current horizontal size in mm
+    float vsize; // current vertical size in mm
+    float configuredHsize = 0.f; // configured horizontal size in mm
+    float configuredVsize = 0.f; // configured vertical size in mm
     osg::Vec3 xyz; // screen center in mm
     osg::Vec3 hpr; // screen orientation in degree euler angles
     std::string name;
@@ -85,12 +87,11 @@ struct channelStruct
     int screenNum; // screen index
 
     osg::ref_ptr<osg::Camera> camera;
-    osg::ref_ptr<osgUtil::SceneView> sceneView;
     osg::DisplaySettings *ds;
     bool stereo;
     int stereoMode;
     bool fixedViewer;
-    float viewerOffset;
+    float stereoOffset;
     osg::Matrixd leftView, rightView;
     osg::Matrixd leftProj, rightProj;
 
@@ -103,7 +104,7 @@ struct channelStruct
     , stereo(true)
     , stereoMode(osg::DisplaySettings::LEFT_EYE)
     , fixedViewer(false)
-    , viewerOffset(0.f)
+    , stereoOffset(0.f)
     {}
 };
 
@@ -296,7 +297,8 @@ public:
     float getSceneSize() const;
 
     int stereoMode() const;
-    int parseStereoMode(const char *modeName, bool *stereo=NULL);
+    static int parseStereoMode(const char *modeName, bool *stereo=NULL);
+    static bool requiresTwoViewpoints(int stereomode);
     // have all the screens the same orientation?
     bool haveFlatDisplay() const;
 
@@ -495,7 +497,6 @@ private:
     osg::Multisample::Mode multisampleMode;
 
     int m_dLevel; // debugLevel
-    bool m_mouseNav;
     bool m_useWiiMote;
     bool m_useWiiNavVisenso;
 

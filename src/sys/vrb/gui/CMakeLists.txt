@@ -3,11 +3,10 @@
 # CMakeLists.txt for sys vrb vrb (gui)
 #
 # @author Blasius Czink
-
+USING(BOOST)
 ADD_DEFINITIONS(-DGUI)
 
 INCLUDE_DIRECTORIES(
-  "${COVISEDIR}/src/OpenCOVER/cover"
   ..
 )
 
@@ -18,18 +17,13 @@ SET(VRB_SOURCES
   VRBCurve.cpp
   VRBFileDialog.cpp
   coRegister.cpp
-  ../coRegistry.cpp
   ../VRBServer.cpp
-  ../VRBClientList.cpp
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/NetHelp.cpp"
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/FileSysAccess.cpp"
+  ../VrbUiClientList.cpp
+  ../VrbUiMessageHandler.cpp
 )
 
 SET(VRB_HEADERS
   ../coRegistry.h
-  ../VRBClientList.h
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/NetHelp.h"
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/FileSysAccess.h"
 )
 
 SET(VRB_MOC_HEADERS
@@ -39,6 +33,8 @@ SET(VRB_MOC_HEADERS
   VRBFileDialog.h
   coRegister.h
   ../VRBServer.h
+  ../VrbUiClientList.h
+  ../VrbUiMessageHandler.h
 )
 
 QT_WRAP_CPP(VRB_MOC_SRCS ${VRB_MOC_HEADERS})
@@ -50,6 +46,6 @@ IF(BASEARCHSUFFIX STREQUAL "gecko" OR BASEARCHSUFFIX STREQUAL "heiner")
 ENDIF()
 # COVISE_WNOERROR(coVRML BASEARCH gecko heiner)
 
-TARGET_LINK_LIBRARIES(vrb coVRBClient coNet coUtil)
+TARGET_LINK_LIBRARIES(vrb coVRBServer coVRBClient coNet coUtil coQtUtil)
 
 COVISE_INSTALL_TARGET(vrb)

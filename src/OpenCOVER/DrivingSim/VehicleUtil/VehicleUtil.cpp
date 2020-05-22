@@ -8,6 +8,8 @@
 #include "VehicleUtil.h"
 #include <unistd.h>
 
+using namespace vehicleUtil;
+
 // VehicleUtil ///////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

@@ -21,31 +21,51 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
-#include <cover/ui/Menu.h>
-#include <cover/ui/Action.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/Slider.h>
-#include <cover/ui/Label.h>
-
-#include <osg/Group>
+#include <osg/Geode>
 
 #include <Blood.h>
+
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+}
+}
 
 using namespace opencover;
 
 class BloodPlugin : public opencover::coVRPlugin, public ui::Owner
 {
-public:
+public:	
+	
+    Weapon knife;
+    std::list<Droplet*> particleList;
+    std::list<Droplet*> particlesOnGround;
+    
+    //member variables for displaying knife
+    osg::ref_ptr<osg::MatrixTransform> knifeTransform;
+    osg::Matrix knifeBaseTransform;
+
     BloodPlugin();
     ~BloodPlugin(); 
+
     virtual bool init();
     virtual bool update();
     void doAddBlood();
-    osg::ref_ptr<osg::Group> bloodNode;
-    std::list<Blood *> bloodJunks;
+    osg::Vec3 particleSlip(Droplet* p);
+    
+    osg::ref_ptr<osg::Geode> bloodGeode;
+    std::list<Blood*> bloodJunks;
     static BloodPlugin *instance();
+
+    osg::Matrix hand;
+    osg::Matrix handInObjectsRoot;
+
 private:
+    int numParticles = 0;
+    
     static BloodPlugin *inst;
     ui::Menu* bloodMenu = nullptr;
     ui::Action* addBlood = nullptr;

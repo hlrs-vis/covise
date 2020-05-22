@@ -5,8 +5,15 @@
 #include <osg/Node>
 #include <string>
 #include <vector>
+#include <cover/ui/Button.h>
 
-class PointSet;
+struct PointSet;
+
+namespace opencover {
+namespace ui {
+class Button;
+}
+}
 
 class NodeInfo
 {
@@ -19,8 +26,11 @@ class FileInfo
 public:
     std::string filename;
     std::vector<NodeInfo> nodes;
+	osg::ref_ptr<osg::MatrixTransform> tranformMat;
     int pointSetSize;
     PointSet *pointSet;
+	osg::Matrix prevMat;
+	opencover::ui::Button *fileButton = nullptr;
 };
 
 #endif

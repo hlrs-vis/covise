@@ -10,20 +10,24 @@
 
 #include <VehicleUtil/RoadSystem/Types.h>
 
-class TRAFFICSIMULATIONEXPORT VehicleGeometry
+namespace TrafficSimulation
 {
-public:
-    virtual ~VehicleGeometry()
+
+    class TRAFFICSIMULATIONEXPORT VehicleGeometry
     {
-    }
+    public:
+        virtual ~VehicleGeometry()
+        {
+        }
 
-    virtual void setTransform(Transform &, double) = 0;
+        virtual void setTransform(vehicleUtil::Transform&, double) = 0;
 
-    virtual double getBoundingCircleRadius() = 0;
+        virtual double getBoundingCircleRadius() = 0;
 
-    virtual const osg::Matrix &getVehicleTransformMatrix() = 0;
+        virtual const osg::Matrix& getVehicleTransformMatrix() = 0;
 
-protected:
-};
+    protected:
+    };
+}
 
 #endif

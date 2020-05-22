@@ -7,6 +7,8 @@
 
 #include "Tarmac.h"
 
+using namespace vehicleUtil;
+
 Tarmac::Tarmac(std::string id, std::string n)
     : Element(id)
     , name(n)

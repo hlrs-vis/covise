@@ -56,7 +56,7 @@ private:
     SignalTreeWidget(const SignalTreeWidget &); /* not allowed */
     SignalTreeWidget &operator=(const SignalTreeWidget &); /* not allowed */
 
-    QDrag* PrepareDrag();
+    void PrepareDrag(const QIcon &icon);
     void init();
 
     //################//

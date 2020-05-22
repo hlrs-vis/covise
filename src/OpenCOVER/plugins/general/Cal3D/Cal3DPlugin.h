@@ -8,29 +8,19 @@
 #ifndef _Cal3D_NODE_PLUGIN_H
 #define _Cal3D_NODE_PLUGIN_H
 
-#include <util/common.h>
-
 #include <osgCal/CoreModel>
 #include <osgCal/Model>
 
-#include <OpenVRUI/sginterface/vruiActionUserData.h>
-
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coMenu.h>
-//#include <cover/coTabletUI.h>
+#include <iostream>
+#include <list>
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
+
 #include <osg/Group>
 
-#include <cover/VRViewer.h>
-#include <cover/coVRPluginSupport.h>
-
-#include <cover/coVRMSController.h>
-#include <cover/coVRPluginSupport.h>
-
-#include <config/CoviseConfig.h>
+#include <cover/coVRPlugin.h>
 
 #include <util/coTypes.h>
 
@@ -71,7 +61,7 @@ public:
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual ostream &printFields(ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
@@ -119,7 +109,7 @@ public:
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual ostream &printFields(ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,

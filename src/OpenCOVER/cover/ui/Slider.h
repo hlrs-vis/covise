@@ -89,6 +89,8 @@ class COVER_UI_EXPORT Slider: public Element {
     void save(covise::TokenBuffer &buf) const override;
     void load(covise::TokenBuffer &buf) override;
 
+    void setShared(bool state) override;
+
  private:
     bool m_integral = false;
     Presentation m_presentation = AsSlider;
@@ -98,6 +100,10 @@ class COVER_UI_EXPORT Slider: public Element {
     ValueType m_min = std::numeric_limits<ValueType>::lowest();
     ValueType m_max = std::numeric_limits<ValueType>::max();
     std::function<void(double, bool)> m_callback;
+
+protected:
+    typedef vrb::SharedState<double> SharedValue;
+    void updateSharedState() override;
 };
 
 }

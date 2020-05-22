@@ -57,8 +57,6 @@ class coCombinedButtonInteraction;
 
 namespace opencover
 {
-class coVRStatsDisplay;
-
 class COVEREXPORT VRSceneGraph: public ui::Owner
 {
 public:
@@ -86,6 +84,10 @@ public:
     osg::Group *getMenuGroup()
     {
         return m_menuGroupNode.get();
+    }
+    osg::Group *getAlwaysVisibleGroup()
+    {
+        return m_alwaysVisibleGroupNode.get();
     }
     bool menuVisible() const;
     void toggleMenu();
@@ -269,6 +271,7 @@ private:
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
     osg::ref_ptr<osg::MatrixTransform> m_worldAxis, m_handAxis, m_viewerAxis, m_objectAxis, m_smallSceneAxis;
     osg::ref_ptr<osg::Group> m_menuGroupNode;
+    osg::ref_ptr<osg::Group> m_alwaysVisibleGroupNode;
     osg::ref_ptr<osg::MatrixTransform> m_pointerDepthTransform;
     float m_pointerDepth;
     osg::ref_ptr<osg::Node> m_handPlane;
@@ -324,7 +327,6 @@ private:
 
     osg::ref_ptr<osg::MatrixTransform> m_objectsTransform;
     osg::ref_ptr<osg::Multisample> m_Multisample;
-    coVRStatsDisplay *statsDisplay;
     typedef std::set<osg::Node *> NodeSet;
     NodeSet m_specialBoundsNodeList;
     void dirtySpecialBounds();

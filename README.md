@@ -103,15 +103,8 @@ Build Requirements
 - **GLEW**:
   Used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
 - **OpenSceneGraph**:
-  3.2 or newer is required, 3.4 or newer highly recommended for the VR renderer OpenCOVER
-- **Open Inventor**
-  The desktop renderer on Linux requires Open Inventor.
-  The binaries shipped with most Linux distributions do not correctly render fonts on 64
-  bit systems.
-  Install a fixed version:
-        git clone https://github.com/aumuell/open-inventor.git
-        cd open-inventor
-        make IVPREFIX=$EXTERNLIBS/inventor install
+  3.2 or newer is required, 3.4 or newer highly recommended for the VR and desktop renderer OpenCOVER
+
 
 Optional dependencies
 ---------------------
@@ -120,6 +113,14 @@ Optional dependencies
   Version 6 is required.
 - **Flex** and **Bison**
   Lexer/Parser generators, required to build VRML plugin.
+- **Open Inventor**
+  The old desktop renderer on Linux requires Open Inventor.
+  The binaries shipped with most Linux distributions do not correctly render fonts on 64
+  bit systems.
+  Install a fixed version:
+        git clone https://github.com/aumuell/open-inventor.git
+        cd open-inventor
+        make IVPREFIX=$EXTERNLIBS/inventor install
 
 CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.

@@ -160,7 +160,8 @@ public:
     /// set string parameter
     void setStringParam(const char *name, const char *val);
 
-    /// set choice parameter, pos starts with 1
+    /// set choice parameter, pos starts with 0
+    void setChoiceParam(const char *name, int pos);
     void setChoiceParam(const char *name, int num, const char *const *list, int pos);
 
     /// set browser parameter

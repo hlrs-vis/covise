@@ -23,9 +23,7 @@
 
 #include "TiledDisplayDefines.h"
 
-#include <cover/coVRPluginSupport.h>
-using namespace covise;
-using namespace opencover;
+#include <cover/coVRPlugin.h>
 
 #include <osg/Camera>
 
@@ -35,6 +33,8 @@ class TiledDisplayClient;
 class TiledDisplayServer;
 class TiledDisplayDimension;
 class TiledDisplayCompositor;
+
+using namespace opencover;
 
 class TiledDisplay : public coVRPlugin, public osg::Camera::DrawCallback
 {

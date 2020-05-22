@@ -6,7 +6,6 @@
  * License: LGPL 2+ */
 
 #include <cover/coVRSelectionManager.h>
-#include <virvo/vvtoolshed.h>
 #include "Annotation.h"
 #include <cover/coVRMSController.h>
 #include <cover/coOnscreenDebug.h>
@@ -125,7 +124,34 @@ void Annotation::setColor(float hue)
 {
     float r, g, b;
     _hue = hue;
-    vvToolshed::HSBtoRGB(_hue, 1, 1, &r, &g, &b);
+    //vvToolshed::HSBtoRGB(_hue, 1, 1, &r, &g, &b);
+
+	float f, p, q, t;
+	int i;
+
+
+	// Convert hue:
+	if (_hue == 1.0f) _hue = 0.0f;
+	_hue *= 360.0f;
+
+	
+	{
+		_hue /= 60.0;
+		i = int(_hue);
+		f = _hue - i;
+		p = 1 * (1.0f - 1);
+		q = 1 * (1.0f - (1 * f));
+		t = 1 * (1.0f - (1 * (1.0f - f)));
+		switch (i)
+		{
+		case 0: r = 1; g = t; b = p; break;
+		case 1: r = q; g = 1; b = p; break;
+		case 2: r = p; g = 1; b = t; break;
+		case 3: r = p; g = q; b = 1; break;
+		case 4: r = t; g = p; b = 1; break;
+		case 5: r = 1; g = p; b = q; break;
+		}
+	}
     osg::Vec4 color(r, g, b, 1.0);
     arrow->setColor(color);
     label->setFGColor(color);

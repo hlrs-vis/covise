@@ -14,13 +14,9 @@
  ***************************************************************************/
 
 #include <string>
-#ifndef __sgi
 #include <cstdio>
 #include <cstdarg>
-#else
-#include <stdio.h>
-#include <stdarg.h>
-#endif
+#include <cstring>
 #include <iostream>
 
 #include "fortran.h"
@@ -46,7 +42,7 @@ void init_stream()
 // open stream
 // ***************************************************************************
 
-int unitopen(int unit, const char *pname, int imode, bool bApp)
+int unitopen(int unit, const char *pname, std::ios::openmode imode, bool bApp)
 {
     char buffer[250], *pstr;
 
@@ -330,11 +326,11 @@ prec readreal(int unit, bool bFortran)
         if (fp[unit]->fail())
             return -1;
         c = fp[unit]->get();
-        if ((isdigit(c) != 0 || strchr("+-.", c) != 0)
+        if (c>0 && ((isdigit(c) != 0 || strchr("+-.", c) != 0))
             && strchr(",= \t\n\r", buffer[0]) == 0 && bFortran == true)
             c = '?';
         buffer[0] = c;
-    } while (isdigit(buffer[0]) == 0 && strchr("+-.", buffer[0]) == 0);
+    } while (buffer[0] > 0 && (isdigit(buffer[0]) == 0 && strchr("+-.", buffer[0]) == 0));
 
     i = 0;
     do

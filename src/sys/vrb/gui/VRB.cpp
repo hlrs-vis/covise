@@ -22,21 +22,65 @@
 
 #include "VRBapplication.h"
 
-VRBServer server;
+
 ApplicationWindow *mw;
 
 int main(int argc, char **argv)
 {
     covise::setupEnvironment(argc, argv);
-
-    QApplication a(argc, argv);
-    mw = new ApplicationWindow();
-    mw->setWindowTitle("VRB");
-    mw->show();
-    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
-    if (server.openServer() < 0)
+    bool gui = true;
+    for (size_t i = 0; i < argc; i++)
     {
-        return -1;
+        if (strcmp(argv[i], "--console")==0)
+        {
+            gui = false;
+        }
     }
-    return a.exec();
+    if (gui)
+    {
+		QApplication a(argc, argv);
+#ifdef __APPLE__
+        a.setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
+        mw = new ApplicationWindow();
+        mw->setWindowTitle("VRB");
+        mw->show();
+        a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+		VRBServer server(gui);
+		if (server.openServer() < 0)
+		{
+			return -1;
+		}
+		if (!server.startUdpServer())
+		{
+			cerr << "failed to open udp socket" << endl;
+		}
+		int exitcode = a.exec();
+
+		server.closeServer();
+		return exitcode;
+    }
+	else
+	{
+		VRBServer server(gui);
+		if (server.openServer() < 0)
+		{
+			return -1;
+		}
+		if (!server.startUdpServer())
+		{
+			cerr << "failed to open udp socket" << endl;
+		}
+		if (!gui)
+		{
+			server.loop();
+		}
+		int exitcode = 0;
+
+		server.closeServer();
+		return exitcode;
+	}
+
+
+
 }

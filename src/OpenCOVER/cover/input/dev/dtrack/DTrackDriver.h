@@ -51,6 +51,8 @@ class DTrackDriver : public opencover::InputDevice
     virtual bool poll();
     void initArrays();
 
+    int timeoutcount = 0;
+
 public:
     DTrackDriver(const std::string &name);
     virtual ~DTrackDriver();

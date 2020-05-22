@@ -8,11 +8,7 @@
 #include "TUIAnnotationTab.h"
 
 #include <sstream>
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include "wce_msg.h"
-#endif
 
 //*************************************************************
 //*****                 Constructor / Deconstructor       *****

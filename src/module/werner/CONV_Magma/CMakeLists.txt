@@ -1,0 +1,41 @@
+
+
+
+SET(HEADERS
+)
+SET(SOURCES
+  magmaData2cov.cpp
+)
+
+ADD_COVISE_EXECUTABLE(magmaData2cov)
+COVISE_WNOERROR(magmaData2cov)
+
+TARGET_LINK_LIBRARIES(magmaData2cov ${EXTRA_LIBS} )
+
+
+SET(SOURCES
+  magmaFill2cov.cpp
+)
+
+ADD_COVISE_EXECUTABLE(magmaFill2cov)
+COVISE_WNOERROR(magmaFill2cov)
+
+TARGET_LINK_LIBRARIES(magmaFill2cov ${EXTRA_LIBS} )
+
+SET(SOURCES
+  magmaMesh2cov.cpp
+)
+
+ADD_COVISE_EXECUTABLE(magmaMesh2cov)
+COVISE_WNOERROR(magmaMesh2cov)
+
+TARGET_LINK_LIBRARIES(magmaMesh2cov ${EXTRA_LIBS} )
+
+SET(SOURCES
+  magmaVect2cov.cpp
+)
+
+ADD_COVISE_EXECUTABLE(magmaVect2cov)
+COVISE_WNOERROR(magmaVect2cov)
+
+TARGET_LINK_LIBRARIES(magmaVect2cov ${EXTRA_LIBS} )

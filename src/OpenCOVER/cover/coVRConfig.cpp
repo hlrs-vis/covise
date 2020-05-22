@@ -69,6 +69,7 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
         else if (strcasecmp(modeName, "CHECKERBOARD") == 0)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
         else if (strcasecmp(modeName, "MONO") == 0
+                || strcasecmp(modeName, "MIDDLE") == 0
                 || strcasecmp(modeName, "NONE") == 0
                 || strcasecmp(modeName, "") == 0)
         {
@@ -76,7 +77,9 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
             stereoMode = osg::DisplaySettings::LEFT_EYE;
         }
         else
+        {
             cerr << "Unknown stereo mode \"" << modeName << "\"" << endl;
+        }
     }
 
     if (stereo)
@@ -86,11 +89,23 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
     return stereoMode;
 }
 
+bool coVRConfig::requiresTwoViewpoints(int stereomode)
+{
+    using osg::DisplaySettings;
+
+    switch (stereomode) {
+    case DisplaySettings::LEFT_EYE:
+    case DisplaySettings::RIGHT_EYE:
+        return false;
+    }
+
+    return true;
+}
+
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
     , m_useVirtualGL(false)
     , m_orthographic(false)
-    , m_mouseNav(true)
     , m_useWiiMote(false)
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
@@ -104,8 +119,6 @@ coVRConfig::coVRConfig()
     
     int hsize, vsize, x, y, z;
     m_passiveStereo = false;
-
-    m_mouseNav = coCoviseConfig::isOn("COVER.Input.MouseNav", m_mouseNav);
 
     constFrameTime = 0.1;
     constantFrameRate = false;
@@ -206,9 +219,6 @@ coVRConfig::coVRConfig()
             }
         }
     }
-    m_stereoState = coCoviseConfig::isOn("COVER.Stereo", false);
-    if (!m_stereoState)
-        m_stereoSeparation = 0.f;
 
     m_monoView = MONO_MIDDLE;
 
@@ -303,7 +313,9 @@ coVRConfig::coVRConfig()
             
             screens[i].render = coCoviseConfig::isOn("render", str, true);
             screens[i].hsize = (float)hsize;
+            screens[i].configuredHsize = screens[i].hsize;
             screens[i].vsize = (float)vsize;
+            screens[i].configuredVsize = screens[i].vsize;
             screens[i].xyz.set((float)x, (float)y, (float)z);
             screens[i].hpr.set(h, p, r);
         }
@@ -367,6 +379,7 @@ coVRConfig::coVRConfig()
         w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
     }
 
+    m_stereoState = false;
     for (size_t i = 0; i < channels.size(); i++)
     {
         std::string stereoM;
@@ -392,12 +405,16 @@ coVRConfig::coVRConfig()
                 {
                     channels[i].stereoMode = osg::DisplaySettings::LEFT_EYE;
                 }
+                channels[i].stereo = true;
             }
             else
             {
                 channels[i].stereoMode = m_stereoMode;
             }
         }
+
+        if (channels[i].stereo)
+            m_stereoState = true;
 
         if (channels[i].stereoMode == osg::DisplaySettings::VERTICAL_INTERLACE || channels[i].stereoMode == osg::DisplaySettings::HORIZONTAL_INTERLACE || channels[i].stereoMode == osg::DisplaySettings::CHECKERBOARD)
         {
@@ -406,7 +423,7 @@ coVRConfig::coVRConfig()
 
         bool exists = false;
         channels[i].fixedViewer = coCoviseConfig::isOn("fixedViewer", str, false, &exists);
-        channels[i].viewerOffset = coCoviseConfig::getFloat("viewerOffset", str, 0.f);
+        channels[i].stereoOffset = coCoviseConfig::getFloat("stereoOffset", str, 0.f);
         
         channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
         if(channels[i].PBONum == -1)
@@ -423,8 +440,9 @@ coVRConfig::coVRConfig()
             std::cerr << "screenIndex " << channels[i].screenNum << " for channel " << i << " out of range (max: " << screens.size()-1 << ")" << std::endl;
             exit(1);
         }
-        
     }
+    m_stereoState = coCoviseConfig::isOn("COVER.Stereo", m_stereoState);
+
     for (size_t i = 0; i < PBOs.size(); i++)
     {
         std::string stereoM;
@@ -712,7 +730,7 @@ coVRConfig::setDebugLevel(int level)
 
 bool coVRConfig::mouseNav() const
 {
-    return m_mouseNav;
+    return Input::instance()->hasMouse();
 }
 
 bool coVRConfig::has6DoFInput() const

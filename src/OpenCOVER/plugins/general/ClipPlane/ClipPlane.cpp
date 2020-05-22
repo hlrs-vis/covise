@@ -126,11 +126,13 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
 
         plane[planeNumber].clip->setClipPlane(eq);
         plane[planeNumber].valid = true;
+        *sharedPlanes[planeNumber].get()= std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
+
     }
 }
 
 ClipPlanePlugin::ClipPlanePlugin()
-: ui::Owner("ClipPlane", cover->ui)
+    : ui::Owner("ClipPlane", cover->ui)
 {
 }
 
@@ -144,6 +146,14 @@ bool ClipPlanePlugin::init()
     {
         char name[100];
         sprintf(name, "Plane%d", i);
+        //SharedState update functions
+        sharedPlanes[i].reset(new vrb::SharedState<std::vector<double>>(("ClipPlane_Plane_" + std::to_string(i)), std::vector<double>{0, 0, 0, 0}, vrb::USE_COUPLING_MODE));
+        sharedPlanes[i]->setUpdateFunction([this,i]() {
+            std::vector<double> v = sharedPlanes[i]->value();
+            Vec4d vec4 (v[0], v[1], v[2], v[3]);
+            plane[i].clip->setClipPlane(vec4);
+            plane[i].valid = true;
+        });
 
         plane[i].UiGroup = new ui::Group(clipMenu, name);
         auto group = plane[i].UiGroup;
@@ -153,6 +163,7 @@ bool ClipPlanePlugin::init()
         sprintf(name, "Enable plane %d", i);
         plane[i].EnableButton = new ui::Button(group, "Enable"+std::to_string(i));
         plane[i].EnableButton->setText(name);
+        plane[i].EnableButton->setShared(true);
         //plane[i].EnableButton->setPos(0, i);
         plane[i].EnableButton->setCallback([this, i](bool state){
             ClipNode *clipNode = cover->getObjectsRoot();
@@ -171,6 +182,7 @@ bool ClipPlanePlugin::init()
         sprintf(name, "Pick interactor for plane %d", i);
         plane[i].PickInteractorButton = new ui::Button(group, "Pick"+std::to_string(i));
         plane[i].PickInteractorButton->setText(name);
+        plane[i].PickInteractorButton->setShared(true);
         //plane[i].PickInteractorButton->setPos(1, i);
         plane[i].PickInteractorButton->setCallback([this, i](bool state){
             ClipNode *clipNode = cover->getObjectsRoot();
@@ -184,7 +196,7 @@ bool ClipPlanePlugin::init()
                 plane[i].EnableButton->setState(true);
                 clipNode->addClipPlane(plane[i].clip.get());
 
-                if (!plane[i].valid)
+                if (!plane[i].valid && !plane[i].pickInteractor->isInitializedThroughSharedState())
                 {
                     setInitialEquation(i);
                 }
@@ -242,8 +254,9 @@ bool ClipPlanePlugin::init()
         interSize = coCoviseConfig::getFloat("COVER.IconSize", interSize);
         // if defined, COVERConfigCuttingSurfacePlugin.IconSize overrides both
         interSize = coCoviseConfig::getFloat("COVER.Plugin.Cuttingsurface.IconSize", interSize);
-        plane[i].pickInteractor = new coVR3DTransRotInteractor(m, interSize, coInteraction::ButtonA, "hand", "ClipPlane", coInteraction::Medium);
+        plane[i].pickInteractor = new coVR3DTransRotInteractor(m, interSize, coInteraction::ButtonA, "hand", ("ClipPlane_" + std::to_string(i)).c_str(), coInteraction::Medium);
         plane[i].pickInteractor->hide();
+        plane[i].pickInteractor->setShared(true);
 
         plane[i].clip = cover->getClipPlane(i);
     }
@@ -332,18 +345,15 @@ void ClipPlanePlugin::preFrame()
             coord.makeMat(m_w);
             interactorTransform->setMatrix(m_w);
 
-            covise::TokenBuffer tb;
-
-            tb << cover->getActiveClippingPlane();
-
             Vec4d eq;
             eq = matrixToEquation(m_o);
+            std::vector<double> eqV;
             for (int j = 0; j < 4; j++)
-                tb << eq[j];
-
-            cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::ClipPlaneMessage,
-                               tb.get_length(), tb.get_data());
+                eqV.push_back(eq[j]);
+            
+            *sharedPlanes[i] = eqV;
+            plane[i].clip->setClipPlane(eq);
+            plane[i].valid = true;
         }
 
 
@@ -381,13 +391,13 @@ void ClipPlanePlugin::preFrame()
 
             eq = matrixToEquation(pointerMatrix_o);
 
+            std::vector<double> eqV;
             for (int j = 0; j < 4; j++)
-                tb << eq[j];
+                eqV.push_back(eq[j]);
 
-            cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::ClipPlaneMessage,
-                               tb.get_length(), tb.get_data());
-
+            *sharedPlanes[i] = eqV;
+            plane[i].clip->setClipPlane(eq);
+            plane[i].valid = true;
             plane[i].pickInteractor->updateTransform(pointerMatrix_o);
         }
 
@@ -487,50 +497,39 @@ void ClipPlanePlugin::setInitialEquation(int i)
         m.makeRotate(-1.5, 0, 0, 1);
         m.setTrans(-d, 0, 0);
         eq = matrixToEquation(m);
-        plane[0].clip->setClipPlane(eq);
-        plane[0].pickInteractor->updateTransform(m);
     }
     else if (i == 1)
     {
         m.makeRotate(1.5, 0, 0, 1);
         m.setTrans(d, 0, 0);
         eq = matrixToEquation(m);
-        plane[1].clip->setClipPlane(eq);
-        plane[1].pickInteractor->updateTransform(m);
     }
     else if (i == 1)
     {
         m.makeRotate(0, 0, 0, 1);
         m.setTrans(0, -d, 0);
         eq = matrixToEquation(m);
-        plane[2].clip->setClipPlane(eq);
-        plane[2].pickInteractor->updateTransform(m);
     }
     else if (i == 3)
     {
         m.makeRotate(3, 0, 0, 1);
         m.setTrans(0, d, 0);
         eq = matrixToEquation(m);
-        plane[3].clip->setClipPlane(eq);
-        plane[3].pickInteractor->updateTransform(m);
     }
-
     else if (i == 4)
     {
         m.makeRotate(1.5, 1, 0, 0);
         m.setTrans(0, 0, -d);
         eq = matrixToEquation(m);
-        plane[4].clip->setClipPlane(eq);
-        plane[4].pickInteractor->updateTransform(m);
     }
     else if (i == 5)
     {
         m.makeRotate(-1.5, 1, 0, 0);
         m.setTrans(0, 0, d);
         eq = matrixToEquation(m);
-        plane[5].clip->setClipPlane(eq);
-        plane[5].pickInteractor->updateTransform(m);
     }
+    plane[i].clip->setClipPlane(eq);
+    plane[i].pickInteractor->updateTransform(m);
 }
 
 

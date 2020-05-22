@@ -109,7 +109,8 @@ public:
     /// set string parameter
     virtual void setStringParam(const char *name, const char *val);
 
-    /// set choice parameter, pos starts with 1
+    /// set choice parameter, pos starts with 0
+    virtual void setChoiceParam(const char *name, int pos);
     virtual void setChoiceParam(const char *name, int num, const char *const *list, int pos);
 };
 }

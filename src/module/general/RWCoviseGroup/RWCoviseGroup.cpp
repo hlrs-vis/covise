@@ -265,7 +265,7 @@ void RWCoviseGroup::parse_name(const char *filename)
 
     if (add_ending)
     {
-        char buf[400];
+        char buf[1000];
         sprintf(buf, "RWGroup:%s", GroupFileName);
         setTitle(buf);
         strcat(GroupFileName, ".covgrp");

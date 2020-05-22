@@ -14,6 +14,9 @@
 #include <fasi2.h>
 #include <iostream>
 #include <fstream>
+using namespace opencover;
+using namespace vehicleUtil;
+
 
 FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2()
 #ifdef MERCURY

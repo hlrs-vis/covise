@@ -159,7 +159,15 @@ TIME[ \t]* {
     return( CaseParser::TIME_VAL );
 }
 
-<VARS>[^ ]{1,99}[ \t]+[\.a-zA-Z0-9]+[^ ^\n]+$ {
+FILE[ \t]* {
+    return( CaseParser::FILE_SEC );
+}
+"file set"[ \t]*: {
+    return( CaseParser::FILE_SET );
+}
+
+
+<VARS>[^ ]{1,99}[ \t]+[\.a-zA-Z0-9]+[^ ^\n]+[ \t\n]*$ {
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
     BEGIN 0;
@@ -167,7 +175,12 @@ TIME[ \t]* {
 } 
 
 
-<VARS>[0-9]+ {
+<VARS>[0-9]+[ \t]* {
+    // read integer digits
+    pToken->token.iVal = atoi(yytext);
+    // also provide characters
+    strncpy( pToken->token.szValue, yytext, yyleng );
+    pToken->token.szValue[ yyleng ] = '\0';
     return( CaseParser::VAR_INT );
 }
 

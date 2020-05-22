@@ -64,14 +64,14 @@ public slots:
 private slots:
     void saveValueEntry(const QString &variable,
                         const QString &value, const QString &section,
-                        const QString &host = QString::null);
+                        const QString &host = QString());
     void deleteValueEntry(const QString &variable, const QString &section);
 
 signals:
     void saveValue(const QString &variable, const QString &value,
-                   const QString &section, const QString &targetHost = QString::null);
+                   const QString &section, const QString &targetHost = QString());
     void deleteValue(const QString &variable, const QString &section,
-                     const QString &targetHost = QString::null);
+                     const QString &targetHost = QString());
     void showStatusBar(const QString &message, int timeout = 0);
     void hideYourselfInfoWidgets();
     void showYourselfInfoWidgets();

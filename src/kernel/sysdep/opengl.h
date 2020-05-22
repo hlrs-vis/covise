@@ -31,6 +31,8 @@
 #include <GL/glu.h>
 #endif
 
+#ifndef GL_GLEXT_VERSION
 #include "khronos-glext.h"
+#endif
 
 #endif

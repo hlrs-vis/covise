@@ -16,6 +16,7 @@
 #include <config/CoviseConfig.h>
 #include <cover/OpenCOVER.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Manager.h>
 #include <net/message_types.h>
 #include <net/message.h>
 
@@ -29,7 +30,7 @@
 #include <grmsg/coGRObjTransformCaseMsg.h>
 #include <grmsg/coGRGraphicRessourceMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
-
+#include <cover/coVRPluginList.h>
 #include <osgDB/WriteFile>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
@@ -214,11 +215,7 @@ CfdGuiPlugin::sendPresentationForwardMsgToGui()
     {
         //fprintf(stderr,"CfdGuiPlugin::sendPresentationForwardMsgToGui\n");
         coGRKeyWordMsg keyWordMsg("PRESENTATION_FORWARD", false);
-        Message grmsg;
-        grmsg.type = covise::COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 
@@ -232,11 +229,7 @@ CfdGuiPlugin::sendPresentationReloadMsgToGui()
     {
         //fprintf(stderr,"CfdGuiPlugin::sendPresentationReloadMsgToGui\n");
         coGRKeyWordMsg keyWordMsg("PRESENTATION_RELOAD", false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 
@@ -251,11 +244,7 @@ CfdGuiPlugin::sendPresentationBackwardMsgToGui()
 
         //fprintf(stderr,"CfdGuiPlugin::sendPresentationBackwardMsgToGui\n");
         coGRKeyWordMsg keyWordMsg("PRESENTATION_BACKWARD", false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 void
@@ -265,11 +254,7 @@ CfdGuiPlugin::sendPresentationPlayMsgToGui()
     {
 
         coGRKeyWordMsg keyWordMsg("PRESENTATION_PLAY", false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 void
@@ -282,11 +267,7 @@ CfdGuiPlugin::sendPresentationStopMsgToGui()
     {
 
         coGRKeyWordMsg keyWordMsg("PRESENTATION_STOP", false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 
@@ -300,11 +281,7 @@ CfdGuiPlugin::sendPresentationToStartMsgToGui()
     {
         //fprintf(stderr,"CfdGuiPlugin::sendPresentationToStartMsgToGui\n");
         coGRKeyWordMsg keyWordMsg("PRESENTATION_GO_TO_START", false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 
@@ -319,11 +296,7 @@ CfdGuiPlugin::sendPresentationToEndMsgToGui()
         //fprintf(stderr,"CfdGuiPlugin::sendPresentationToEndMsgToGui\n");
 
         coGRKeyWordMsg keyWordMsg("PRESENTATION_GO_TO_END", false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(keyWordMsg);
     }
 }
 
@@ -382,22 +355,14 @@ void CfdGuiPlugin::key(int type, int keySym, int mod)
             {
                 //fprintf(stderr,"CfdGuiPlugin::sendPresentationBackwardMsgToGui\n");
                 coGRKeyWordMsg keyWordMsg("PRESENTATION_BACKWARD", false);
-                Message grmsg;
-                grmsg.type = COVISE_MESSAGE_UI;
-                grmsg.data = (char *)(keyWordMsg.c_str());
-                grmsg.length = strlen(grmsg.data) + 1;
-                cover->sendVrbMessage(&grmsg);
+                cover->sendGrMessage(keyWordMsg);
             }
 
             if (keySym == 'p' || keySym == 'P')
             {
                 //fprintf(stderr,"CfdGuiPlugin::sendPresentationForwardMsgToGui\n");
                 coGRKeyWordMsg keyWordMsg("PRESENTATION_FORWARD", false);
-                Message grmsg;
-                grmsg.type = COVISE_MESSAGE_UI;
-                grmsg.data = (char *)(keyWordMsg.c_str());
-                grmsg.length = strlen(grmsg.data) + 1;
-                cover->sendVrbMessage(&grmsg);
+                cover->sendGrMessage(keyWordMsg);
             }
         }
     }

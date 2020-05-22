@@ -23,7 +23,7 @@
 #ifndef DATAITEM_H
 #define DATAITEM_H
 
-#include <util/coviseCompat.h>
+#include <string>
 
 class DataItem
 {
@@ -37,7 +37,7 @@ public:
 
     // default CONSTRUCTOR
     DataItem();
-    DataItem(const int &type, const string &file, const string &desc);
+    DataItem(const int &type, const std::string &file, const std::string &desc);
 
     // DESTRUCTOR
     virtual ~DataItem();
@@ -46,11 +46,11 @@ public:
     {
         type_ = tp;
     };
-    void setFileName(const string &fn)
+    void setFileName(const std::string &fn)
     {
         fileName_ = fn;
     };
-    void setDesc(const string &ds)
+    void setDesc(const std::string &ds)
     {
         desc_ = ds;
     };
@@ -71,19 +71,19 @@ public:
     {
         return type_;
     };
-    string getFileName() const
+    std::string getFileName() const
     {
         return fileName_;
     };
-    string getDesc() const
+    std::string getDesc() const
     {
         return desc_;
     };
 
 private:
     int type_; // scalar vector tensor
-    string fileName_;
-    string desc_;
+    std::string fileName_;
+    std::string desc_;
     bool perVertex_;
     bool measured_;
 };

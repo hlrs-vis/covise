@@ -9,6 +9,7 @@ IF(COVISE_BUILD_WEBSERVICE)
 ENDIF()
 
 SET(CONTROLLER_SOURCES
+    Token.cpp
 	CTRLMain.cpp
 	CTRLHandler.cpp
 	CTRLGlobal.cpp
@@ -24,6 +25,7 @@ SET(CONTROLLER_SOURCES
 )
 
 SET(CONTROLLER_HEADERS
+    Token.h
 	CTRLHandler.h
 	CTRLGlobal.h
 	covise_module.h
@@ -52,7 +54,7 @@ if(OPENSSL_FOUND)
 endif()
 
 ADD_COVISE_EXECUTABLE(covise ${CONTROLLER_SOURCES} ${CONTROLLER_HEADERS})
-TARGET_LINK_LIBRARIES(covise coAppl coApi coCore coConfig coUtil) 
+TARGET_LINK_LIBRARIES(covise coAppl coApi coCore coConfig coUtil coVRBServer) 
 qt_use_modules(covise Core)
 
 COVISE_INSTALL_TARGET(covise)

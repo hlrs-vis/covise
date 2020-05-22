@@ -2280,22 +2280,51 @@ osg::Node *GeometryManager::addLine(const char *object_name,
     osg::Vec3Array *vert = new osg::Vec3Array;
     if (linestrips)
     {
-        osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
-        for (int i = 0; i < no_of_lines; i++)
+        if (indexed)
         {
-            int numv;
-            if (i == no_of_lines - 1)
-                numv = no_of_vertices - i_l[i];
-            else
-                numv = i_l[i + 1] - i_l[i];
-            primitives->push_back(numv);
-            for (int n = 0; n < numv; n++)
+            osg::DrawElementsUInt *primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::LINES);
+            for (int i = 0; i < no_of_lines; i++)
             {
-                int v = v_l[i_l[i] + n];
-                vert->push_back(osg::Vec3(x_c[v], y_c[v], z_c[v]));
+                int numv;
+                if (i == no_of_lines - 1)
+                    numv = no_of_vertices - i_l[i];
+                else
+                    numv = i_l[i + 1] - i_l[i];
+
+                if (numv < 2)
+                    continue;
+
+                for (int t = 0; t <= numv - 2; ++t)
+                {
+                    primitives->push_back(v_l[i_l[i] + 0 + t]);
+                    primitives->push_back(v_l[i_l[i] + 1 + t]);
+                }
+            }
+            geom->addPrimitiveSet(primitives);
+            for (int n = 0; n < no_of_coords; n++)
+            {
+                vert->push_back(osg::Vec3(x_c[n], y_c[n], z_c[n]));
             }
         }
-        geom->addPrimitiveSet(primitives);
+        else
+        {
+            osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
+            for (int i = 0; i < no_of_lines; i++)
+            {
+                int numv;
+                if (i == no_of_lines - 1)
+                    numv = no_of_vertices - i_l[i];
+                else
+                    numv = i_l[i + 1] - i_l[i];
+                primitives->push_back(numv);
+                for (int n = 0; n < numv; n++)
+                {
+                    int v = v_l[i_l[i] + n];
+                    vert->push_back(osg::Vec3(x_c[v], y_c[v], z_c[v]));
+                }
+            }
+            geom->addPrimitiveSet(primitives);
+        }
     }
     else
     {

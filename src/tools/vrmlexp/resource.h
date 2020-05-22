@@ -462,7 +462,9 @@
 #define IDC_COVISEOOBJECT_SIZE_SPINNER  1359
 #define IDC_COVISEOOBJECT_BBOX_SIZE     1360
 #define IDC_COVISEOOBJECT_BBOX_DEF      1361
+#ifndef _MSC_VER
 #define _MSC_VER                        1900
+#endif
 #define IDS_PANELTITLE                  5012
 #define IDS_TUIPARAM_EDITOR             5017
 #define IDS_DS_CREATE                   10008

@@ -13,13 +13,9 @@
     email                : ruf@ifsw.uni-stuttgart.de
  ***************************************************************************/
 
-#ifndef __sgi
 #include <cstdio>
 #include <cstdarg>
-#else
-#include <stdio.h>
-#include <stdarg.h>
-#endif
+#include <cstring>
 #include <iostream>
 
 #include "error.h"
@@ -32,7 +28,7 @@
 // throw exception
 // ***************************************************************************
 
-void ErrorFunction(char *pstr, ...)
+void ErrorFunction(const char *pstr, ...)
 {
     char buffer[200];
     va_list argptr;
@@ -48,7 +44,7 @@ void ErrorFunction(char *pstr, ...)
 // show warning
 // ***************************************************************************
 
-void WarningFunction(char *pstr, ...)
+void WarningFunction(const char *pstr, ...)
 {
     char buffer[200];
     va_list argptr;
@@ -57,7 +53,7 @@ void WarningFunction(char *pstr, ...)
     vsprintf(buffer, pstr, argptr);
     va_end(argptr);
 #ifdef COVISE
-    covise.warning(buffer);
+    coviseI.warning(buffer);
 #endif
     *perr << buffer << endl;
 }
@@ -68,7 +64,7 @@ void WarningFunction(char *pstr, ...)
 
 // constructor
 
-TException::TException(char *pstr, ...)
+TException::TException(const char *pstr, ...)
 {
     char buffer[200];
     va_list argptr;
@@ -84,7 +80,7 @@ TException::TException(char *pstr, ...)
 void TException::Display()
 {
 #ifdef COVISE
-    covise.error(Description);
+    coviseI.error(Description);
 #endif
     *perr << Description << endl;
 }

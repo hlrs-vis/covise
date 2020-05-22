@@ -29,15 +29,15 @@ class DataFileGoldBin : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    DataFileGoldBin(const coModule *mod,
+    DataFileGoldBin(ReadEnsight *mod,
                     const string &name,
                     const int &dim,
                     const int &numVals,
                     const EnFile::BinType &binType = CBIN);
 
-    void read();
+    void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
-    void readCells();
+    void readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
     /// DESTRUCTOR
     ~DataFileGoldBin();

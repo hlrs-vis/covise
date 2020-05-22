@@ -7,6 +7,8 @@
 
 #include "GasPedal.h"
 
+using namespace vehicleUtil;
+
 //GasPedal////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

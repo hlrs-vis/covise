@@ -7,6 +7,8 @@
 
 #include "CANProvider.h"
 
+using namespace vehicleUtil;
+
 // set protected static pointer for singleton to NULL
 CANProvider *CANProvider::p_CANProv = NULL;
 
@@ -37,6 +39,10 @@ CANProvider::CANProvider()
 
     m_state = KEYOUT;
 }
+int CANProvider::numUninitializedDevices()
+{
+    return p_CANSendTask->numUninitializedDevices();
+};
 
 CANProvider::~CANProvider()
 {

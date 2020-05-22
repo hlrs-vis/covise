@@ -27,9 +27,6 @@
  *									*
  ************************************************************************/
 
-#include "ui/Menu.h"
-#include "ui/Action.h"
-
 #include <util/common.h>
 #include "VRWindow.h"
 #include "coCommandLine.h"
@@ -37,6 +34,10 @@
 #include <config/CoviseConfig.h>
 #include "coVRConfig.h"
 #include "OpenCOVER.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/Menu.h"
+#include "ui/View.h"
 
 #include "coVRPluginSupport.h"
 #include "coVRPluginList.h"
@@ -87,14 +88,33 @@ VRWindow::VRWindow()
     }
     origVSize = NULL;
     origHSize = NULL;
+
+
+    if (cover->viewOptionsMenu)
+    {
+        auto fs = new ui::Button(cover->viewOptionsMenu, "FullScreen");
+        fs->setText("Full screen");
+        fs->setState(false);
+        fs->addShortcut("Ctrl+f");
+        fs->addShortcut("Alt+f");
+        fs->setCallback([this](bool state){
+            VRWindow::instance()->makeFullScreen(state);
+        });
+        fs->setVisible(false, ui::View::VR);
+        m_fullScreenButton = fs;
+
+        auto lfs = new ui::Action(cover->viewOptionsMenu, "LeaveFullScreen");
+        lfs->setText("Exit full screen");
+        lfs->setShortcut("Escape");
+        lfs->setCallback([this](){
+            VRWindow::instance()->makeFullScreen(false);
+        });
+        lfs->setVisible(false);
+    }
 }
 
 VRWindow::~VRWindow()
-{
-    if (cover->debugLevel(2))
-    {
-        fprintf(stderr, "\ndelete VRWindow\n");
-    }
+{ // don't use singletons in destructors
     destroy();
     delete[] origVSize;
     delete[] origHSize;
@@ -172,15 +192,53 @@ VRWindow::config()
     return true;
 }
 
-void VRWindow::destroy()
+bool VRWindow::unconfig()
 {
     auto &conf = *coVRConfig::instance();
-    for (int i=0; i<conf.numWindows(); ++i)
+
+    for (int i = 0; i < conf.numWindows(); i++)
     {
+        origVSize[i] = -1;
+        origHSize[i] = -1;
+
+        if (!destroyWin(i))
+            return false;
+
         if (conf.windows[i].windowPlugin)
             conf.windows[i].windowPlugin->windowDestroy(i);
     }
 
+    oldWidth.clear();
+    oldHeight.clear();
+    origWidth.clear();
+    origHeight.clear();
+    aspectRatio.clear();
+
+    return true;
+}
+
+bool VRWindow::isFullScreen() const
+{
+    return m_fullscreen;
+}
+
+void VRWindow::makeFullScreen(bool state)
+{
+    m_fullscreen = state;
+    if (m_fullScreenButton)
+        m_fullScreenButton->setState(state);
+
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<conf.numWindows(); ++i)
+    {
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowFullScreen(i, state);
+    }
+}
+
+void VRWindow::destroy()
+{
+    unconfig();
     coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Window);
 }
 
@@ -188,6 +246,7 @@ void
 VRWindow::update()
 {
     auto &conf = *coVRConfig::instance();
+    const auto &numWin = conf.numWindows();
     for (int i=0; i<conf.numWindows(); ++i)
     {
         if (conf.windows[i].windowPlugin)
@@ -200,65 +259,85 @@ VRWindow::update()
     if (coVRConfig::instance()->numWindows() > 1)
         return;
 
-    static int oldWidth = -1, oldHeight = -1;
-    static int origWidth = -1, origHeight = -1;
-    //static int oldX=-1;
-    static float Aspect = 1;
-    int currentW, currentH;
-    const osg::GraphicsContext::Traits *traits = NULL;
-    if (coVRConfig::instance()->windows[0].context)
-        traits = coVRConfig::instance()->windows[0].context->getTraits();
-    if (!traits)
-        return;
-    /*
-   int currentX = traits->x;
-   if(currentX!=oldX)
-   {
-       cerr<< "X pos: " << currentX << endl;
-   }
-   */
-    float initialWidth = coVRConfig::instance()->screens[0].hsize;
-    float initialHeight = coVRConfig::instance()->screens[0].vsize;
-
-    currentW = traits->width;
-    currentH = traits->height;
-
-    if (oldWidth == -1)
-    {
-        oldWidth = currentW;
-        oldHeight = currentH;
-        origWidth = currentW;
-        origHeight = currentH;
-        if (coVRConfig::instance()->screens[0].hsize <= 0)
-        {
-            Aspect = 1;
-        }
-        else
-        {
-            Aspect = (initialHeight / initialWidth);
-        }
+    if (oldWidth.size() < numWin) {
+        oldWidth.resize(numWin, -1);
+        oldHeight.resize(numWin, -1);
+        aspectRatio.resize(numWin, -1.f);
+        origWidth.resize(numWin, -1);
+        origHeight.resize(numWin, -1);
     }
-    if (oldWidth != currentW || oldHeight != currentH || _firstTimeEmbedded)
+
+    for (int win=0; win<numWin; ++win)
     {
-        if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[0].embedded))
+        //static int oldX=-1;
+        const osg::GraphicsContext::Traits *traits = NULL;
+        if (coVRConfig::instance()->windows[win].context)
+            traits = coVRConfig::instance()->windows[win].context->getTraits();
+        if (!traits)
+            return;
+        /*
+        int currentX = traits->x;
+        if(currentX!=oldX)
         {
-            float width, height;
-            width = (float)origHSize[0];
-            height = (float)origVSize[0];
-			if(width >0 && height > 0)
-			{
-                float vsize = coVRConfig::instance()->screens[0].hsize * (height / width);
-                coVRConfig::instance()->screens[0].vsize = vsize;
-			}
-            _firstTimeEmbedded = false;
+            cerr<< "X pos: " << currentX << endl;
         }
-        else if (origWidth != 0)
-            coVRConfig::instance()->screens[0].hsize = (((initialHeight / (Aspect)) / origWidth) * currentW) * origHeight / currentH;
-        // wir aendern hier die Breite um das Seitenverhaeltnis konstant zu halten.
-        coVRConfig::instance()->windows[0].sx = currentW;
-        coVRConfig::instance()->windows[0].sy = currentH;
-        oldWidth = currentW;
-        oldHeight = currentH;
+        */
+
+        auto &screen = coVRConfig::instance()->screens[0];
+        float initialWidth = screen.hsize;
+        float initialHeight = screen.vsize;
+
+        int currentW = traits->width;
+        int currentH = traits->height;
+
+        if (oldWidth[win] == -1)
+        {
+            oldWidth[win] = currentW;
+            oldHeight[win] = currentH;
+            origWidth[win] = currentW;
+            origHeight[win] = currentH;
+            if (screen.hsize <= 0)
+            {
+                aspectRatio[win] = 1;
+            }
+            else
+            {
+                aspectRatio[win] = screen.configuredVsize/screen.configuredHsize;
+            }
+        }
+
+        if (oldWidth[win] != currentW || oldHeight[win] != currentH || _firstTimeEmbedded)
+        {
+            if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[win].embedded))
+            {
+                float width = (float)origHSize[0];
+                float height = (float)origVSize[0];
+                if(width >0 && height > 0)
+                {
+                    float vsize = screen.hsize * (height / width);
+                    screen.vsize = vsize;
+                }
+                _firstTimeEmbedded = false;
+            }
+            else if (origWidth[win] != 0)
+            {
+                // change height or width so that configured screen area remains visible
+                if (currentW > 0 && currentH > aspectRatio[win]*currentW)
+                {
+                    screen.hsize = screen.configuredHsize;
+                    screen.vsize = (((screen.configuredHsize * (aspectRatio[win])) / origHeight[win]) * currentH) * origWidth[win] / currentW;
+                }
+                else
+                {
+                    screen.hsize = (((screen.configuredVsize / (aspectRatio[win])) / origWidth[win]) * currentW) * origHeight[win] / currentH;
+                    screen.vsize = screen.configuredVsize;
+                }
+            }
+            coVRConfig::instance()->windows[win].sx = currentW;
+            coVRConfig::instance()->windows[win].sy = currentH;
+            oldWidth[win] = currentW;
+            oldHeight[win] = currentH;
+        }
     }
 }
 
@@ -283,6 +362,7 @@ VRWindow::createWin(int i)
     }
 
     auto &conf = *coVRConfig::instance();
+    auto &win = conf.windows[i];
     /*   int multisample_feature, stereo_feature;
 
       /// colle
@@ -302,6 +382,12 @@ VRWindow::createWin(int i)
         {
             std::cerr << "creating window " << i << " with GL context version " << coVRConfig::instance()->glVersion << ", OpenGL3=" << opengl3 << std::endl;
         }
+    }
+
+    if (conf.windows[i].stereo && !conf.windows[i].type.empty())
+    {
+        std::cerr << "VRWindow: ignoring window type " << conf.windows[i].type << ", because stereo visual was requested" << std::endl;
+        conf.windows[i].type.clear();
     }
 
     if (!conf.windows[i].type.empty())
@@ -466,21 +552,22 @@ VRWindow::createWin(int i)
     }
     coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(coVRConfig::instance()->windows[i].context.get());
     bool syncToVBlankConfigured = false;
-    bool syncToVBlank = covise::coCoviseConfig::isOn("COVER.SyncToVBlank", true, &syncToVBlankConfigured);
+    bool syncToVBlank = covise::coCoviseConfig::isOn("COVER.SyncToVBlank", false, &syncToVBlankConfigured);
     if (syncToVBlankConfigured)
     {
         if (auto win = coVRConfig::instance()->windows[i].window)
         {
+	fprintf(stderr,"syncToVBlank=%d\n",(int)syncToVBlank);
             win->setSyncToVBlank(syncToVBlank);
         }
     }
 
     if (opengl3)
     {
-        // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
+    // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
         // you don't need thse two lines on GL3/GL4 and GLES2 specific builds as these will be enable by default.
-        coVRConfig::instance()->windows[i].context->getState()->setUseModelViewAndProjectionUniforms(true);
-        //coVRConfig::instance()->windows[i].context->getState()->setUseVertexAttributeAliasing(true);
+    coVRConfig::instance()->windows[i].context->getState()->setUseModelViewAndProjectionUniforms(true);
+    //coVRConfig::instance()->windows[i].context->getState()->setUseVertexAttributeAliasing(true);
     }
 
 #if 0
@@ -516,4 +603,19 @@ VRWindow::createWin(int i)
         fprintf(stderr, "VRWindow::createWin %d --- finished\n", i);
     //sleep(200);
     return true;
+}
+
+    bool VRWindow::destroyWin(int i)
+    {
+        auto &conf = *coVRConfig::instance();
+        auto &win = conf.windows[i];
+
+        win.window = nullptr;
+        if (win.context)
+        {
+            win.context->close();
+            win.context = nullptr;
+        }
+
+        return true;
 }

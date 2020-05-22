@@ -29,13 +29,14 @@
 namespace covise
 {
 class Message;
-};
+class DataHandle;
+}
 
 namespace osg
 {
 class Node;
 class Group;
-};
+}
 
 namespace opencover
 {
@@ -126,9 +127,11 @@ public:
     void setTimestep(int timestep);
     //! send a message to all plugins
     void message(int toWhom, int t, int l, const void *b) const;
+	//! send a UDPmessage to all plugins
+	void UDPmessage(int type, const covise::DataHandle &dh) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
-    void forwardMessage(int len, const void *buf) const;
+    void forwardMessage(const covise::DataHandle &dh) const;
     //! request to terminate COVER or COVISE session
     void requestQuit(bool killSession) const;
     //! send a message to COVISE/visualisation system - delivered via only one plugin
@@ -171,6 +174,11 @@ private:
     }
     int pointerGrabbed;
     coVRPlugin *keyboardPlugin;
+
+    void grabViewer(coVRPlugin *);
+    coVRPlugin *viewerGrabber() const;
+    coVRPlugin *viewerPlugin = nullptr;
+
     static coVRPluginList *singleton;
     void updateState();
 

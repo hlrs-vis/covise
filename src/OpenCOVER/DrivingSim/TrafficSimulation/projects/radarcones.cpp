@@ -25,6 +25,9 @@
 
 #define MAXRADARS 8
 
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
+
 /** Constructor
 *
 */

@@ -110,6 +110,7 @@ protected:
     char *read_buf;
     Host *other_host;
     int hostid; //hostid of remote host
+	int* header_int;
     void (*remove_socket)(int);
     int get_id()
     {
@@ -131,6 +132,8 @@ public:
         hostid = -1;
         peer_id_ = 0;
         peer_type_ = UNDEFINED; // prepare connection (for subclasses)
+
+		header_int = new int[4];
     };
     Connection(int sfd)
     {
@@ -150,10 +153,12 @@ public:
         // we do not know, what will arrive
         peer_id_ = 0;
         peer_type_ = UNDEFINED; // initializae connection with existing socket
+		header_int = new int[4];
     };
     virtual ~Connection() // close connection (for subclasses)
     {
         delete[] read_buf;
+		delete[] header_int;
         delete sock;
     };
 
@@ -173,8 +178,10 @@ public:
     };
     int receive(void *buf, unsigned nbyte); // receive from socket
     int send(const void *buf, unsigned nbyte); // send into socket
-    int recv_msg(Message *msg); // receive Message
-    int send_msg(const Message *msg); // send Message
+	virtual int recv_msg(Message* msg, char* ip = nullptr); // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
+	virtual int recv_msg_fast(Message* msg); // high-performace receive Message
+	virtual int send_msg(const Message* msg); // send Message
+	virtual int send_msg_fast(const Message* msg); // high-performance send Message
     int check_for_input(float time = 0.0); // issue select call and return TRUE if there is an event or 0L otherwise
     int get_port() // give port number
     {

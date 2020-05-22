@@ -144,6 +144,14 @@ coMaterialList::coMaterialList(const char *dirname)
     add(dirname);
 }
 
+covise::coMaterialList::~coMaterialList()
+{
+    for (const auto& it : *this)
+    {
+        delete it;
+    }
+}
+
 void coMaterialList::add(const char *dirname)
 {
     char *coviseDir;
@@ -186,7 +194,7 @@ void coMaterialList::add(const char *dirname)
                     char *tmp2 = new char[strlen(tmp) + strlen(file.name) + 10];
                     sprintf(tmp2, "%s\\%s", tmp, file.name);
                     sprintf(buf, "%s %s", dirname, file.name);
-                    append(new coMaterial(buf, tmp2));
+                    push_back(new coMaterial(buf, tmp2));
                 }
 
                 find = _findnext(dir_handle, &file);
@@ -207,7 +215,7 @@ void coMaterialList::add(const char *dirname)
                 char *tmp2 = mdir->full_name(n);
                 char buf[300];
                 sprintf(buf, "%s %s", dirname, mdir->name(n));
-                append(new coMaterial(buf, tmp2));
+                push_back(new coMaterial(buf, tmp2));
                 delete[] tmp2;
             }
         }
@@ -253,12 +261,10 @@ delete dir;
 
 coMaterial *coMaterialList::get(const char *n)
 {
-    reset();
-    while (current())
+    for(const auto &it: *this)
     {
-        if (strcasecmp(current()->name, n) == 0)
-            return (current());
-        next();
+        if (strcasecmp(it->name, n) == 0)
+            return (it);
     }
     return (NULL);
 }

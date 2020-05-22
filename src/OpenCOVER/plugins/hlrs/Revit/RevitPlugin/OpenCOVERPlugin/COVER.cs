@@ -23,7 +23,7 @@ using Bitmap = System.Drawing.Bitmap;
 using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
 using IWin32Window = System.Windows.Forms.IWin32Window;
-
+//using System.Windows.Media.Media3D;
 
 namespace OpenCOVERPlugin
 {
@@ -39,12 +39,22 @@ namespace OpenCOVERPlugin
             messageType = mt;
         }
     }
+    public class AxisInfo
+    {
+        public XYZ origin;
+        public XYZ direction;
+        public int level;
+        public double min;
+        public double max;
+    }
     public class TextureInfo
     {
 
         public String textuerPath;
         public double sx;
         public double sy;
+        public double su;
+        public double sv;
         public double ox;
         public double oy;
         public double angle;
@@ -58,20 +68,91 @@ namespace OpenCOVERPlugin
             color = new Color(255, 255, 255);
         }
     }
+    public class cDesignOptionSet
+    {
+        public ElementId ID;
+        public String name;
+        public List<cDesignOption> designOptions;
+        public cDesignOptionSet()
+        {
+            designOptions = new List<cDesignOption>();
+        }
+    }
+    public class cDesignOption
+    {
+        public DesignOption des;
+        public String name;
+        public cDesignOptionSet designOptionSet;
+        public bool visible;
+    }
 
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished };
-        public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo };
+        public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
 
         private System.Net.Sockets.TcpClient toCOVER;
         private Autodesk.Revit.DB.Options mOptions;
         private Autodesk.Revit.DB.View3D View3D;
+        private String LinkedFileName="";
+        private Autodesk.Revit.DB.RevitLinkInstance CurrentLink=null;
+        private int LinkedDocumentID = 0;
+        public int DocumentID = 0;
         private Autodesk.Revit.DB.Document document;
+        private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
+        public ElementId oldDesignOption = null;
+
+        public List<cDesignOptionSet> designOptionSets;
+        private DesignOptionModifier.Switcher designoptionMod;
+
+        public void updateVisibility(Document doc)
+        {
+
+            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    if(des.des.Id == activeOptId) // this optionSet contains the activeOptionId, disable all other DesignOptions in this set
+                    {
+                        des.visible = true;
+                        foreach (cDesignOption designoption in os.designOptions)
+                        {
+                            if(designoption != des)
+                            {
+                                designoption.visible = false;
+                            }
+                        }
+                        break;
+                    }
+                    if(des.des.IsPrimary)
+                    {
+                        des.visible = true;
+                    }
+                    else
+                    {
+                        des.visible = false;
+                    }
+                }
+            }
+        }
+        public bool isVisible(ElementId id)
+        {
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    if (des.des.Id == id)
+                        return des.visible;
+                }
+            }
+            return false;
+        }
+
 
         private EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs> idlingHandler;
         // DLL imports from user32.dll to set focus to
@@ -166,6 +247,8 @@ namespace OpenCOVERPlugin
         COVER()
         {
 
+            designOptionSets = new List<cDesignOptionSet>();
+            designoptionMod = new DesignOptionModifier.Switcher();
             mOptions = new Autodesk.Revit.DB.Options();
             mOptions.DetailLevel = Autodesk.Revit.DB.ViewDetailLevel.Fine;
             try
@@ -195,13 +278,26 @@ namespace OpenCOVERPlugin
                 return Nested.instance;
             }
         }
+        public bool isConnected()
+        {
+            if(toCOVER!=null && toCOVER.Connected==true)
+            {
+                return true;
+            }
+            return false;
+        }
 
         public void setConnected(bool connected)
         {
             if (connected)
+            { 
                 pushButtonConnectToOpenCOVER.LargeImage = connectedImage;
+                cApplication.Idling += idlingHandler;
+            }
             else
+            {
                 pushButtonConnectToOpenCOVER.LargeImage = disconnectedImage;
+            }
 
         }
         private Level getLevel(Document document, double height)
@@ -272,19 +368,88 @@ namespace OpenCOVERPlugin
             | ((source & 0xFF000000) >> 24)));
         }
 
-        public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, Autodesk.Revit.UI.UIApplication application)
+        public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, UIDocument uidoc, Document doc)
         {
-            UIDocument uidoc = application.ActiveUIDocument;
-            Application app = application.Application;
-            Document doc = uidoc.Document;
-            if (MaterialInfos == null)
-                MaterialInfos = new Dictionary<ElementId, bool>();
-            MaterialInfos.Clear();
+
+            // document might have changed so set it again.
+            document = doc;
+            designOptionSets.Clear();
+            //FilteredElementCollector collector = new FilteredElementCollector(doc);
+            //collector.WhereElementIsElementType().OfClass(typeof(DesignOption));
+
+            FilteredElementCollector collector
+              = new FilteredElementCollector(doc);
+
+            collector.OfCategory(BuiltInCategory.OST_DesignOptions);
+
+            foreach (DesignOption des in collector)
+            {
+                cDesignOption cdes = new cDesignOption();
+                cdes.des = des;
+                cdes.name = des.Name;
+                cdes.visible = false;
+                Autodesk.Revit.DB.Parameter para = des.get_Parameter(BuiltInParameter.OPTION_SET_ID);
+                if (para != null)
+                {
+                    bool found = false;
+                    ElementId osID = para.AsElementId();
+                    foreach (cDesignOptionSet os in designOptionSets)
+                    {
+                        if(os.ID == osID)
+                        {
+                            found = true;
+                            cdes.designOptionSet = os;
+                            os.designOptions.Add(cdes);
+                            break;
+                        }
+                    }
+                    if(!found)
+                    {
+                        cDesignOptionSet os = new cDesignOptionSet();
+                        os.designOptions.Add(cdes);
+                        Element el = doc.GetElement(osID);
+                        Autodesk.Revit.DB.Parameter paraName = el.get_Parameter(BuiltInParameter.OPTION_SET_NAME);
+                        String OptionSetName = paraName.AsString();
+                        os.name = OptionSetName;
+                        os.ID = osID;
+                        cdes.designOptionSet = os;
+                        designOptionSets.Add(os);
+                    }
+                }
+            }
+
+            updateVisibility(doc);
             MessageBuffer mb = new MessageBuffer();
-            mb.add(1);
-            sendMessage(mb.buf, MessageTypes.ClearAll);
-            View3D = null;
-            if (uidoc.ActiveView is View3D)
+            mb.add(DocumentID);
+            mb.add(designOptionSets.Count);
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                mb.add(os.ID.IntegerValue);
+                mb.add(os.name);
+                mb.add(os.designOptions.Count);
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    mb.add(des.des.Id.IntegerValue);
+                    mb.add(des.des.Name);
+                    mb.add(des.visible);
+                }
+            }
+            sendMessage(mb.buf, MessageTypes.DesignOptionSets);
+
+            if (uidoc !=null) // this is a child document don't clear
+            {
+                if (MaterialInfos == null)
+                    MaterialInfos = new Dictionary<ElementId, bool>();
+                MaterialInfos.Clear();
+                mb = new MessageBuffer();
+                mb.add(1);
+                sendMessage(mb.buf, MessageTypes.ClearAll);
+            }
+            MessageBuffer mbdocinfo = new MessageBuffer();
+            mbdocinfo.add(doc.PathName);
+            sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
+            
+            if (uidoc !=null && uidoc.ActiveView is View3D)
             {
                 View3D = uidoc.ActiveView as View3D;
             }
@@ -301,12 +466,11 @@ namespace OpenCOVERPlugin
                     // this one handles Group.
                 }
             }
-            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
             iter.Reset();
             while (iter.MoveNext())
             {
                 Autodesk.Revit.DB.Element el = iter.Current as Autodesk.Revit.DB.Element;
-                if (el.DesignOption == null || el.DesignOption.Id == activeOptId)
+                if (el.DesignOption == null || isVisible(el.DesignOption.Id))
                 {
                     SendElement(el);
                 }
@@ -329,7 +493,52 @@ namespace OpenCOVERPlugin
         {
             MessageBuffer mb = new MessageBuffer();
             mb.add(ID.IntegerValue);
+            mb.add(DocumentID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
+        }
+        public void designOptionsChanged(Document doc, DesignOption des)
+        {
+            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+            if (activeOptId != oldDesignOption)
+            {
+                oldDesignOption = activeOptId;
+                foreach (cDesignOptionSet os in designOptionSets)
+                {
+                    foreach (cDesignOption des2 in os.designOptions)
+                    {
+                        if (des2.visible)
+                        {
+                            FilteredElementCollector designOptionElements = new FilteredElementCollector(doc);
+
+                            designOptionElements.ContainedInDesignOption(des2.des.Id);
+
+                            foreach (Element el in designOptionElements)
+                            {
+                                deleteElement(el.Id);
+                            }
+                        }
+                    }
+                }
+                updateVisibility(doc);
+                foreach (cDesignOptionSet os in designOptionSets)
+                {
+                    foreach (cDesignOption des2 in os.designOptions)
+                    {
+                        if (des2.visible)
+                        {
+                            FilteredElementCollector designOptionElements = new FilteredElementCollector(doc);
+
+                            designOptionElements.ContainedInDesignOption(des2.des.Id);
+
+                            foreach (Element el in designOptionElements)
+                            {
+                                OpenCOVERPlugin.COVER.Instance.SendElement(el);
+                            }
+                        }
+                    }
+                }
+
+            }
         }
 
         public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, List<int> IDs)
@@ -355,6 +564,7 @@ namespace OpenCOVERPlugin
                     {
                         MessageBuffer mb = new MessageBuffer();
                         mb.add(ID);
+                        mb.add(DocumentID);
                         sendMessage(mb.buf, MessageTypes.DeleteObject);
                         SendElement(elem);
                         break;
@@ -382,21 +592,26 @@ namespace OpenCOVERPlugin
             {
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(elem.Name + "_FamilySymbol");
                 mb.add((int)ObjectTypes.Mesh);
+                mb.add(false);//doWalk
                 mb.add(false);
                 mb.add(0);
 
+                mb.add(getDepthOny(elem));
 
                 mb.add((byte)220); // color
                 mb.add((byte)220);
                 mb.add((byte)220);
                 mb.add((byte)255);
                 mb.add(-1); // material ID
+
                 sendMessage(mb.buf, MessageTypes.NewObject);
 
                 mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(vrps.Size);
                 foreach (Autodesk.Revit.DB.Parameter para in vrps)
                 {
@@ -413,6 +628,7 @@ namespace OpenCOVERPlugin
                             //find out the name of the element
                             Autodesk.Revit.DB.ElementId id = para.AsElementId();
                             mb.add(id.IntegerValue);
+                            mb.add(DocumentID);
                             break;
                         case Autodesk.Revit.DB.StorageType.Integer:
                             mb.add(para.AsInteger());
@@ -451,6 +667,7 @@ namespace OpenCOVERPlugin
 
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(vrps.Size);
                 foreach (Autodesk.Revit.DB.Parameter para in vrps)
                 {
@@ -489,7 +706,7 @@ namespace OpenCOVERPlugin
         //
         public void SendElement(Autodesk.Revit.DB.Element elem)
         {
-           /* if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
+            /* if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
             {
                 return;
             }*/
@@ -501,6 +718,42 @@ namespace OpenCOVERPlugin
             {
                 return;
             }
+            if(elem is Autodesk.Revit.DB.Panel)
+            {
+                Panel p = elem as Autodesk.Revit.DB.Panel;
+                if(p.Host !=null)
+                {
+                    if (p.Host.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.Host.Category != null)
+                    {
+                        if (!p.Host.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Mullion)
+            {
+                Mullion p = elem as Autodesk.Revit.DB.Mullion;
+                if (p.Host != null)
+                {
+                    if (p.Host.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.Host.Category != null)
+                    {
+                        if (!p.Host.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
             if (elem.Category != null)
             {
                 if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
@@ -508,13 +761,90 @@ namespace OpenCOVERPlugin
                     return;
                 }
             }
+            if(elem is Autodesk.Revit.DB.PointCloudInstance)
+            {
+                Autodesk.Revit.DB.PointCloudInstance pointcloud = (Autodesk.Revit.DB.PointCloudInstance)elem;
+                String n = pointcloud.Name;
+                /*MessageBuffer mb = new MessageBuffer();
+                 * mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
+                mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                mb.add(n);
+                sendMessage(mb.buf, MessageTypes.NewPointCloud);*/
+
+
+                MessageBuffer mb = new MessageBuffer();
+                mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
+                mb.add(elem.Name);
+                mb.add((int)ObjectTypes.Inline);
+                mb.add(false);//doWalk
+                mb.add(n+".e57");
+
+                mb.add(getDepthOny(elem));
+                sendMessage(mb.buf, MessageTypes.NewObject);
+                sendParameters(elem);
+
+            }
 
             if (elem is Autodesk.Revit.DB.TextNote)
             {
-                sendTextNote(elem);
+                //sendTextNote(elem);
+            }
+            if(elem is Autodesk.Revit.DB.RevitLinkInstance)
+            {
+                Autodesk.Revit.DB.RevitLinkInstance link = (Autodesk.Revit.DB.RevitLinkInstance)elem;
+                /*if(!Autodesk.Revit.DB.RevitLinkType.IsLoaded(document,link.Id))
+                {
+                    link.Load();
+                }*/
+
+                Document linkDoc = link.GetLinkDocument();
+                if(linkDoc!=null)
+                {
+
+
+                MessageBuffer mb = new MessageBuffer();
+                mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                try
+                {
+                    mb.add(link.GetTransform().BasisX.Multiply(link.GetTransform().Scale));
+                    mb.add(link.GetTransform().BasisY.Multiply(link.GetTransform().Scale));
+                    mb.add(link.GetTransform().BasisZ.Multiply(link.GetTransform().Scale));
+                    mb.add(link.GetTransform().Origin);
+                }
+                catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+                {
+                    mb.add(new XYZ(1, 0, 0));
+                    mb.add(new XYZ(0, 1, 0));
+                    mb.add(new XYZ(0, 0, 1));
+                    mb.add(new XYZ(0, 0, 0));
+                }
+                sendMessage(mb.buf, MessageTypes.NewTransform);
+                Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
+                    LinkedFileName = linkDoc.Title;
+                    CurrentLink = link;
+                    DocumentID = LinkedDocumentID++;
+                COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
+                    DocumentID = 0;
+                    LinkedFileName = "";
+                    CurrentLink = null;
+                    mb = new MessageBuffer();
+                sendMessage(mb.buf, MessageTypes.EndGroup);
+
+                }
+
+            }
+            else if (elem is Autodesk.Revit.DB.DesignOption)
+            {
+                Autodesk.Revit.DB.DesignOption des = (Autodesk.Revit.DB.DesignOption)elem;
+                
+
             }
             // if it is a Group. we will need to look at its components.
-            if (elem is Autodesk.Revit.DB.Group)
+            else if (elem is Autodesk.Revit.DB.Group)
             {
 
                 /* if we add this, the elements of the Group are duplicates
@@ -524,6 +854,7 @@ namespace OpenCOVERPlugin
 
                    MessageBuffer mb = new MessageBuffer();
                    mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
                    mb.add(elem.Name);
                    sendMessage(mb.buf, MessageTypes.NewGroup);
                    foreach (Autodesk.Revit.DB.Element elm in members)
@@ -569,6 +900,7 @@ namespace OpenCOVERPlugin
 
             MessageBuffer mb = new MessageBuffer();
             mb.add(materialElement.Id.IntegerValue);
+            mb.add(DocumentID);
             TextureInfo ti = getTexture(materialElement, elem, TextureTypes.Diffuse);
             if (ti != null)
             {
@@ -619,10 +951,18 @@ namespace OpenCOVERPlugin
                     if (ap.Name == "common_Tint_color")
                     {
                         AssetPropertyDoubleArray4d val = ap as AssetPropertyDoubleArray4d;
-                        ti.color = val.GetValueAsColor();
+                        if(ti.color.Red == 255 && ti.color.Green == 255 && ti.color.Blue == 255 )
+                        { // color has not been set et, use generic color
+                            ti.color = val.GetValueAsColor();
+                        }
 
                     }
-                    if(ap.Name.Length - 12 >= 0)
+                    if (ap.Name == "ceramic_color")
+                    {
+                        AssetPropertyDoubleArray4d val = ap as AssetPropertyDoubleArray4d;
+                        ti.color = val.GetValueAsColor();
+                    }
+                    if (ap.Name.Length - 12 >= 0)
                     {
                         if (ap.Name.Substring(ap.Name.Length - 12) == "_bump_amount")
                         {
@@ -647,70 +987,159 @@ namespace OpenCOVERPlugin
                         String endString = ap.Name.Substring(ap.Name.Length - TextureName.Length);
                         if (endString == TextureName)
                         {
-                            if (ap.NumberOfConnectedProperties > 0)
-                            {
-
-                                IList<AssetProperty> properties = ap.GetAllConnectedProperties();
-
-                                foreach (AssetProperty property in properties)
-                                {
-                                    if (property is Asset)
-                                    {
-                                        // Nested?
-
-                                        Asset asset = property as Asset;
-                                        int size = asset.Size;
-                                        for (int i = 0; i < size; i++)
-                                        {
-                                            AssetProperty subproperty = asset.Get(i);
-                                            if (subproperty.Name == "unifiedbitmap_Bitmap")
-                                            {
-
-                                                AssetPropertyString sproperty = subproperty as AssetPropertyString;
-                                                ti.textuerPath = sproperty.Value;
-                                                //TaskDialog.Show("TextureName2", ap.Name + "." + subproperty.Name + "   " + ti.textuerPath);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldScaleX")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldScaleY")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldOffsetX")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_RealWorldOffsetY")
-                                            {
-                                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-                                                ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-                                            }
-                                            else if (subproperty.Name == "texture_WAngle")
-                                            {
-                                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
-                                                ti.angle = val.Value;
-                                            }
-                                        }
-
-                                    }
-                                }
-                            }
+                            getTextureInfo(ap,ti);
                         }
                     }
+                    if (tt == TextureTypes.Diffuse && ap.Name.Length > 6 && (ap.Name.Substring(ap.Name.Length - 6) == "_color"))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Diffuse && (ap.Name == "opaque_albedo" ))
+                    { 
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Diffuse && (ap.Name == "surface_albedo" && (ti.textuerPath == "")))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Bump && (ap.Name == "surface_normal"))
+                    { 
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Bump && ap.Name.Length > 12 && (ap.Name.Substring(ap.Name.Length - 12) == "_pattern_map"))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+                    if (tt == TextureTypes.Bump && (ap.Name == "surface_roughness" && (ti.textuerPath == "")))
+                    {
+                        {
+                            getTextureInfo(ap, ti);
+                        }
+                    }
+
                 }
             }
             return ti;
         }
+        private bool getTextureInfo(AssetProperty ap, TextureInfo ti)
+        {
+            if (ap.NumberOfConnectedProperties > 0)
+            {
 
-        private void sendGeomElement(Autodesk.Revit.DB.Element elem, int num, Autodesk.Revit.DB.GeometryObject geomObject, bool createGroups)
+                IList<AssetProperty> properties = ap.GetAllConnectedProperties();
+
+                foreach (AssetProperty property in properties)
+                {
+                    if (property is Asset)
+                    {
+                        // Nested?
+
+                        Asset asset = property as Asset;
+                        int size = asset.Size;
+                        for (int i = 0; i < size; i++)
+                        {
+                            AssetProperty subproperty = asset.Get(i);
+                            if (subproperty.Name == "unifiedbitmap_Bitmap")
+                            {
+
+                                AssetPropertyString sproperty = subproperty as AssetPropertyString;
+                                ti.textuerPath = sproperty.Value;
+                                //TaskDialog.Show("TextureName2", ap.Name + "." + subproperty.Name + "   " + ti.textuerPath);
+                            }
+                            if (subproperty.Name == "bumpmap_Bitmap")
+                            {
+
+                                AssetPropertyString sproperty = subproperty as AssetPropertyString;
+                                ti.textuerPath = sproperty.Value;
+                                //TaskDialog.Show("TextureName2", ap.Name + "." + subproperty.Name + "   " + ti.textuerPath);
+                            }
+                            else if (subproperty.Name == "texture_RealWorldScaleX")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_UScale")
+                            {
+                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
+                                ti.su = val.Value;
+                            }
+                            else if (subproperty.Name == "texture_VScale")
+                            {
+                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
+                                ti.sv = val.Value;
+                            }
+                            else if (subproperty.Name == "texture_RealWorldScaleY")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_RealWorldOffsetX")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_RealWorldOffsetY")
+                            {
+                                AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+                                ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+                            }
+                            else if (subproperty.Name == "texture_WAngle")
+                            {
+                                AssetPropertyDouble val = subproperty as AssetPropertyDouble;
+                                ti.angle = val.Value;
+                            }
+                            // texture_VScale
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool getDepthOny(Autodesk.Revit.DB.Element elem)
+        {
+
+            OverrideGraphicSettings gs;
+            // try to get graphic overrides for DepthOnly rendering
+            bool depthOnly = false;
+            gs = View3D.GetCategoryOverrides(elem.Category.Id);
+            if (gs != null)
+            {
+                if (gs.Halftone)
+                {
+                    depthOnly = true;
+                }
+            }
+            gs = View3D.GetElementOverrides(elem.Id);
+            if (gs != null)
+            {
+                if (gs.Halftone)
+                {
+                    depthOnly = true;
+                }
+            }
+            return depthOnly;
+        }
+        private void sendGeomElement(Autodesk.Revit.DB.Element elem, int num, Autodesk.Revit.DB.GeometryObject geomObject, bool createGroups, bool doWalk)
         {
             if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
             {
+
+
                 if ((geomObject is Autodesk.Revit.DB.Curve))
                 {
                     //mb.add((int)ObjectTypes.Curve);
@@ -734,13 +1163,23 @@ namespace OpenCOVERPlugin
                 }
                 else if ((geomObject is Autodesk.Revit.DB.Mesh))
                 {
+
+                    string prefix="";
+                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                    if (graphicsStyle != null)
+                    {
+                        prefix = graphicsStyle.Name + '.';
+                    }
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
                     mb.add(elem.Name + "_m_" + num.ToString());
                     mb.add((int)ObjectTypes.Mesh);
+                    mb.add(doWalk);
                     Autodesk.Revit.DB.Mesh meshObj = geomObject as Autodesk.Revit.DB.Mesh;
                     SendMesh(meshObj, ref mb, true);// TODO get information on whether a mesh is twosided or not
 
+                    mb.add(getDepthOny(elem));
                     Autodesk.Revit.DB.ElementId materialID;
                     materialID = meshObj.MaterialElementId;
                     Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(materialID) as Autodesk.Revit.DB.Material;
@@ -766,8 +1205,15 @@ namespace OpenCOVERPlugin
                 }
                 else if ((geomObject is Autodesk.Revit.DB.Solid))
                 {
+                    string prefix = "";
+                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                    if (graphicsStyle != null)
+                    {
+                        prefix = graphicsStyle.Name + '.';
+                    }
                     MessageBuffer mb = new MessageBuffer();
                     mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
                     mb.add(elem.Name + "_s_" + num.ToString());
                     Autodesk.Revit.DB.FaceArray faces = ((Autodesk.Revit.DB.Solid)geomObject).Faces;
                     if (faces.Size != 0)
@@ -782,7 +1228,7 @@ namespace OpenCOVERPlugin
                             {
                                 sendMessage(mb.buf, MessageTypes.NewGroup);
                             }
-                            SendSolid((Autodesk.Revit.DB.Solid)geomObject, elem);
+                            SendSolid(prefix,(Autodesk.Revit.DB.Solid)geomObject, elem,doWalk);
                             mb = new MessageBuffer();
                             if (createGroups)
                             {
@@ -820,6 +1266,95 @@ namespace OpenCOVERPlugin
                 Z = ebb.Max.Z;
             bb.Max = new XYZ(X, Y, Z);
         }
+
+        private void SendInline(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
+        {
+            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+            Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
+            if (family != null)
+            {
+                Parameter p = elem.LookupParameter("url");
+                if (p != null)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name);
+                    mb.add((int)ObjectTypes.Inline);
+                    mb.add(false);//doWalk
+                    mb.add(p.AsString());
+                    mb.add(false); // DepthOnly
+                    sendMessage(mb.buf, MessageTypes.NewObject);
+                    sendParameters(elem);
+                }
+            }
+        }
+        /// <summary>
+        /// Return a location for the given element using
+        /// its LocationPoint Point property,
+        /// LocationCurve start point, whichever 
+        /// is available.
+        /// </summary>
+        /// <param name="p">Return element location point</param>
+        /// <param name="e">Revit Element</param>
+        /// <returns>True if a location point is available 
+        /// for the given element, otherwise false.</returns>
+        static public XYZ GetElementLocation(
+          Element e)
+        {
+            XYZ p = XYZ.Zero;
+            if (e == null)
+                return p;
+            Location loc = e.Location;
+            if (null != loc)
+            {
+                LocationPoint lp = loc as LocationPoint;
+                if (null != lp)
+                {
+                    p = lp.Point;
+                }
+                else
+                {
+                    LocationCurve lc = loc as LocationCurve;
+
+                    // Debug.Assert(null != lc,
+                    //   "expected location to be either point or curve");
+                    if (lc != null)
+                    {
+                        p = lc.Curve.GetEndPoint(0);
+                    }
+                }
+            }
+            return p;
+        }
+
+        private String getString(FamilyInstance familyInstance, String paramName)
+        {
+            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            if (parameters.Count > 0)
+            {
+                return parameters[0].AsString();
+            }
+            return "";
+        }
+        private int getInt(FamilyInstance familyInstance, String paramName)
+        {
+            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            if (parameters.Count > 0)
+            {
+                return parameters[0].AsInteger();
+            }
+            return -1;
+        }
+        private double getDouble(FamilyInstance familyInstance, String paramName)
+        {
+            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            if (parameters.Count > 0)
+            {
+                return parameters[0].AsDouble();
+            }
+            return -1;
+        }
         /// <summary>
         /// Draw geometry of element.
         /// </summary>
@@ -827,9 +1362,56 @@ namespace OpenCOVERPlugin
         /// <remarks></remarks>
         private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
         {
-            if (elementGeom == null)
+            if (elementGeom == null || elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1)
             {
                 return;
+            }
+            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+            if (fi!=null && fi.Symbol.Name == "ARMarker")
+            {
+                int MarkerID = getInt(fi, "MarkerID");
+                if(MarkerID>0)
+                {
+                    Autodesk.Revit.DB.FamilyInstance hfi = fi.Host as Autodesk.Revit.DB.FamilyInstance;
+                    Transform t = fi.GetTransform();
+                    Transform ht;
+                    if(hfi!=null)
+                    {
+                        ht = hfi.GetTransform();
+                    }
+                    else
+                    {
+                        ht = Transform.Identity;
+                    }
+                    Double Size = getDouble(fi, "MarkerSize");
+                    Double Offset = getDouble(fi, "Offset");
+                    Double Angle = getDouble(fi, "Angle");
+                    String MarkerType = getString(fi, "MarkerType");
+                    XYZ pos = GetElementLocation(elem);
+                    XYZ hostPos = GetElementLocation(fi.Host);
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name + "_" + elem.Id.IntegerValue.ToString());
+                    mb.add(t.Origin);
+                    mb.add(t.BasisX);
+                    mb.add(t.BasisY);
+                    mb.add(t.BasisZ);
+                    mb.add(ht.Origin);
+                    mb.add(ht.BasisX);
+                    mb.add(ht.BasisY);
+                    mb.add(ht.BasisZ);
+                    mb.add(MarkerID);
+                    mb.add(Offset);
+                    mb.add(Angle);
+                    if(fi.Host == null)
+                        mb.add(0);
+                    else
+                        mb.add(fi.Host.Id.IntegerValue);
+                    mb.add(Size);
+                    mb.add(MarkerType);
+                    sendMessage(mb.buf, MessageTypes.NewARMarker);
+                }
             }
             int num = 0;
             // check if subobject is an instance
@@ -843,23 +1425,139 @@ namespace OpenCOVERPlugin
             bbR.Min = new XYZ(100000, 100000, 100000);
             bbR.Max = new XYZ(-100000, -100000, -100000);
             bool hasStyle = false;
-            if(elem.Category!=null)
-            { 
-            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
+            bool hasIK = false;
+            bool doWalk = false;
+            if (fi != null)
             {
-                hasStyle = false;
+                Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
+                if (family != null)
+                {
+
+                    IList<Parameter> ps = family.GetParameters("doWalk");
+                    if ((ps.Count > 0) && (ps[0] != null))
+                    {
+                        doWalk = ps[0].AsInteger() != 0;
+                    }
+                    bool hasGeometry = false;
+                    IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator();
+                    if (Objects.MoveNext())
+                    {
+                        Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
+                        if(!(geomObject is Autodesk.Revit.DB.GeometryInstance))
+                        {
+                            hasGeometry = true;
+                        }
+                    }
+                    String Name = family.FamilyName;
+                    if (hasGeometry && Name.Contains("Kinematics"))
+                    {
+                        // This object contains kinematics information
+                        // search for lines representing axis
+
+                        Options geometryOptions = new Options();
+                        geometryOptions.IncludeNonVisibleObjects = true;
+                        geometryOptions.ComputeReferences = true;
+                        List<AxisInfo> rotationAxis = new List<AxisInfo>();
+                        GeometryElement geom = elem.get_Geometry(geometryOptions);
+                        if ((geom != null) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                        {
+                            GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                            if (geomInst != null)
+                            {
+                                GeometryElement geom2 = geomInst.GetSymbolGeometry();
+                                IEnumerator<Autodesk.Revit.DB.GeometryObject> lineObjects = geom2.GetEnumerator();
+                                while (lineObjects.MoveNext())
+                                {
+                                    Autodesk.Revit.DB.GeometryObject geomObject = lineObjects.Current;
+                                    if (geomObject is Autodesk.Revit.DB.Line)
+                                    {
+                                        Line l = geomObject as Line;
+                                        Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                                        if (graphicsStyle != null)
+                                        {
+                                            if (graphicsStyle.Name.StartsWith("Axis") == true)
+                                            {
+                                                int axisnumber = 0;
+                                                int length = 1;
+                                                if(graphicsStyle.Name.Length > 5 && graphicsStyle.Name[5]>='0' && graphicsStyle.Name[5] <= '9')
+                                                    length = 2;
+                                                if (Int32.TryParse(graphicsStyle.Name.Substring(4,length), out axisnumber))
+                                                {
+                                                    // you know that the parsing attempt
+                                                    // was successful
+                                                    //we found a rotation axis
+                                                    AxisInfo ai = new AxisInfo();
+                                                    ai.origin = l.Origin;
+                                                    ai.direction = l.Direction;
+                                                    ai.min = 0;
+                                                    ai.max = 0;
+                                                    ai.level = axisnumber;
+                                                    rotationAxis.Add(ai);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (rotationAxis.Count > 0)
+                        {
+                            MessageBuffer mb = new MessageBuffer();
+                            mb.add(elem.Id.IntegerValue);
+                            mb.add(DocumentID);
+                            mb.add(rotationAxis.Count);
+
+                            foreach (AxisInfo ai in rotationAxis)
+                            {
+                                mb.add(ai.level);
+                                mb.add(ai.origin);
+                                mb.add(ai.direction);
+                                mb.add(ai.min);
+                                mb.add(ai.max);
+                            }
+                            sendMessage(mb.buf, MessageTypes.IKInfo);
+                            hasIK = true;
+                        }
+                    }
+                }
             }
-            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+            if (elem.Category!=null)
             {
-                Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
-                Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
-                if (graphicsStyle != null)
-                    hasStyle = true;
-            }
+                if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
+                {
+                    hasStyle = false;
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsRuns)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsLandings)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsTrisers)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Ramps)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Floors)
+                {
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+                {
+                    Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
+                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                    if (graphicsStyle != null)
+                        hasStyle = true;
+                }
             }
 
 
-            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
             if (hasStyle && (fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
             {
                 bool hasLeft = false;
@@ -875,7 +1573,7 @@ namespace OpenCOVERPlugin
                     {
                         if (graphicsStyle.Name == "Frame/Mullion" || graphicsStyle.Name == "Rahmen/Pfosten")
                         {
-                            sendGeomElement(elem, num, geomObject,false);
+                            sendGeomElement(elem, num, geomObject,false,false);
                         }
                         if (graphicsStyle.Name.Length > 5 && graphicsStyle.Name.Substring(graphicsStyle.Name.Length-5) == "_Left")
                         {
@@ -919,43 +1617,21 @@ namespace OpenCOVERPlugin
                     bbR.Min = new XYZ(0, -0.01, -1);
                     bbR.Max = new XYZ(2, 0.01, 1);
                 }
-                // try to find out the pivot point of rotating doors by searching for arcs in the floor plan.
-                // multiple arcs might be from multiple door wings or of the same door if they share the same origin.
-                /*Reference panelPlane = fi.GetReferenceByName("PanelPlane");
-                Reference rotPlane = fi.GetReferenceByName("RotPlane");
-                Element el = elem.Document.GetElement(panelPlane.ElementId);
-                ReferencePlane rp = elem.Document.GetElement(panelPlane.ElementId) as Autodesk.Revit.DB.ReferencePlane;
+                
 
-                IList<Reference> refList = fi.GetReferences(FamilyInstanceReferenceType.WeakReference);
-                foreach (Reference r in refList)
-                {
-                    String test = r.ToString();
+                XYZ CenterLeft = new XYZ(10000, 0, 0);
+                XYZ CenterRight = new XYZ(10000, 0, 0);
 
-                }
-                 ViewFamilyType vd = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>().FirstOrDefault(q => q.ViewFamily == ViewFamily.FloorPlan);
-                 using (Transaction transaction = new Transaction(elem.Document))
-                 {
-                     if (transaction.Start("changeParameters") == TransactionStatus.Started)
-                     {
-                         View tempView = ViewPlan.Create(elem.Document, vd.Id, elem.LevelId);
-                         Options geometryOptions = elem.Docu
-                             geometryOptions.view = tempView;
-                         fi.get_Geometry(geometryOptions);
-                     }
-                     transaction.RollBack();
-                 }*/
-                ViewPlan arbitaryFloorPlan = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewPlan)).Cast<ViewPlan>().Where(x => !x.IsTemplate).FirstOrDefault();
-                Options geometryOptions = new Options();
-                geometryOptions.IncludeNonVisibleObjects = true;
-                geometryOptions.ComputeReferences = true;
-                geometryOptions.View = arbitaryFloorPlan;
-                GeometryElement geom = elem.get_Geometry(geometryOptions);
-                XYZ CenterLeft = new XYZ(10000,0,0);
-                XYZ CenterRight = new XYZ(10000, 0, 0); ;
-                if ((geom != null ) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                // try to find arcs with GraphicsStype _Left or _Right
+                Options geometryOptionsArc = new Options();
+                geometryOptionsArc.IncludeNonVisibleObjects = true;
+                geometryOptionsArc.ComputeReferences = true;
+                List<AxisInfo> rotationAxis = new List<AxisInfo>();
+                GeometryElement geomArc = elem.get_Geometry(geometryOptionsArc);
+                if ((geomArc != null) && (geomArc.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
                 {
-                    GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
-                    if(geomInst !=null)
+                    GeometryInstance geomInst = geomArc.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                    if (geomInst != null)
                     {
                         GeometryElement geom2 = geomInst.GetSymbolGeometry();
                         IEnumerator<Autodesk.Revit.DB.GeometryObject> arcObjects = geom2.GetEnumerator();
@@ -965,14 +1641,60 @@ namespace OpenCOVERPlugin
                             if (geomObject is Autodesk.Revit.DB.Arc)
                             {
                                 Arc a = geomObject as Arc;
-                                XYZ c = a.Center;
-                                if (CenterLeft.X == 10000)
+                                Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                                if (graphicsStyle != null)
                                 {
-                                    CenterLeft = c;
+                                    XYZ c = a.Center;
+                                    if (graphicsStyle.Name.EndsWith("_Left"))
+                                        CenterLeft = c;
+                                    if (graphicsStyle.Name.EndsWith("_Right"))
+                                        CenterRight = c;
                                 }
-                                if (CenterLeft != c)
+                            }
+                        }
+                    }
+                }
+
+                if (CenterLeft.X == 10000)
+                {
+                    // find arcs in floor plan
+                    ViewPlan arbitaryFloorPlan = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewPlan)).Cast<ViewPlan>().Where(x => !x.IsTemplate).FirstOrDefault();
+                    Options geometryOptions = new Options();
+                    geometryOptions.IncludeNonVisibleObjects = true;
+                    geometryOptions.ComputeReferences = true;
+                    geometryOptions.View = arbitaryFloorPlan;
+                    GeometryElement geom = elem.get_Geometry(geometryOptions);
+                    if ((geom != null) && (geom.ElementAt(0) is Autodesk.Revit.DB.GeometryInstance))
+                    {
+                        GeometryInstance geomInst = geom.ElementAt(0) as Autodesk.Revit.DB.GeometryInstance;
+                        if (geomInst != null)
+                        {
+                            GeometryElement geom2 = geomInst.GetSymbolGeometry();
+                            IEnumerator<Autodesk.Revit.DB.GeometryObject> arcObjects = geom2.GetEnumerator();
+                            while (arcObjects.MoveNext())
+                            {
+                                Autodesk.Revit.DB.GeometryObject geomObject = arcObjects.Current;
+                                if (geomObject is Autodesk.Revit.DB.Arc)
                                 {
-                                    CenterRight = c;
+                                    Arc a = geomObject as Arc;
+                                    XYZ c = a.Center;
+
+                                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
+                                    if (graphicsStyle != null)
+                                    {
+                                        if (graphicsStyle.Name.EndsWith("_Left"))
+                                            CenterLeft = c;
+                                        if (graphicsStyle.Name.EndsWith("_Right"))
+                                            CenterRight = c;
+                                    }
+                                        if (CenterLeft.X == 10000)
+                                        {
+                                            CenterLeft = c;
+                                        }
+                                        if (CenterLeft != c && CenterRight.X == 10000)
+                                        {
+                                            CenterRight = c;
+                                        }
                                 }
                             }
                         }
@@ -992,14 +1714,31 @@ namespace OpenCOVERPlugin
             }
             else
             {
+
+                if (hasIK)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name);
+                    sendMessage(mb.buf, MessageTypes.NewGroup);
+                }
                 IEnumerator<Autodesk.Revit.DB.GeometryObject> Objects = elementGeom.GetEnumerator();
                 while (Objects.MoveNext())
                 {
 
                     Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
-                    sendGeomElement(elem,num, geomObject,false);
+                    sendGeomElement(elem,num, geomObject,false,doWalk);
                     num++;
 
+                }
+                if (hasIK)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name);
+                    sendMessage(mb.buf, MessageTypes.EndGroup);
                 }
             }
         }
@@ -1007,16 +1746,33 @@ namespace OpenCOVERPlugin
         private void sendViewpoint(Autodesk.Revit.DB.Element elem)
         {
             Autodesk.Revit.DB.View view = (Autodesk.Revit.DB.View)elem;
-            if (view is Autodesk.Revit.DB.View3D)
+            if (view is Autodesk.Revit.DB.View3D && view.IsTemplate != true)
             {
+              
                 Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)view;
+                if(v3d.CanResetCameraTarget())
+                { 
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
-                mb.add(elem.Name);
-                mb.add(v3d.Origin);
-                mb.add(v3d.ViewDirection);
-                mb.add(v3d.UpDirection);
+                mb.add(DocumentID);
+                if(LinkedFileName!="")
+                    mb.add(LinkedFileName + ":" +elem.Name);
+                else
+                    mb.add(elem.Name);
+                XYZ tmpPos = v3d.Origin;
+                XYZ tmpDir = v3d.ViewDirection;
+                XYZ tmpUp = v3d.UpDirection;
+                if(CurrentLink != null)
+                {
+                    tmpPos = CurrentLink.GetTransform().OfPoint(tmpPos);
+                    tmpDir = CurrentLink.GetTransform().OfVector(tmpDir);
+                    tmpUp = CurrentLink.GetTransform().OfVector(tmpUp);
+                }
+                mb.add(tmpPos);
+                mb.add(tmpDir);
+                mb.add(tmpUp);
                 sendMessage(mb.buf, MessageTypes.AddView);
+                }
             }
             else
             {
@@ -1029,6 +1785,7 @@ namespace OpenCOVERPlugin
             {
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
                 mb.add(tn.Coord);
                 mb.add(tn.Text);
                 sendMessage(mb.buf, MessageTypes.NewAnnotation);
@@ -1043,6 +1800,7 @@ namespace OpenCOVERPlugin
             int num = 0;
             MessageBuffer mb = new MessageBuffer();
             mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
             mb.add("DoorMovingParts"+name+"_" + elem.Name);
             mb.add(fi.HandFlipped);
             mb.add(fi.HandOrientation);
@@ -1052,17 +1810,29 @@ namespace OpenCOVERPlugin
             Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
             if (family != null)
             {
-                IList<Parameter> ps = family.GetParameters("isSliding");
-                if ((ps.Count > 0) && (ps[0] != null))
+                int sliding = 0;
+                String oper = family.get_Parameter(BuiltInParameter.DOOR_OPERATION_TYPE).AsString();
+                if (oper == "SlidingToLeft" )
                 {
-                    mb.add((ps[0].AsInteger() != 0));
+                    sliding = -1;
+                }
+                else if (oper == "SlidingToRight")
+                {
+                    sliding = 1;
                 }
                 else
-                    mb.add(false);
+                {
+                    IList<Parameter> ps = family.GetParameters("isSliding");
+                    if ((ps.Count > 0) && (ps[0] != null))
+                    {
+                        sliding = ps[0].AsInteger();
+                    }
+                }
+                mb.add(sliding);
             }
             else
             {
-                mb.add(false);
+                mb.add(0);
             }
             mb.add(bb.Min);
             mb.add(bb.Max);
@@ -1075,14 +1845,11 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.GeometryObject geomObject = Objects.Current;
 
                 Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
-                if (graphicsStyle != null)
+                if (graphicsStyle == null || (graphicsStyle.Name != "Frame/Mullion" && graphicsStyle.Name != "Rahmen/Pfosten"))
                 {
-                    if (graphicsStyle.Name != "Frame/Mullion" && graphicsStyle.Name != "Rahmen/Pfosten")
+                    if (namelen == 0 || (graphicsStyle !=null && graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
                     {
-                        if (namelen == 0 || (graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
-                        {
-                            sendGeomElement(elem, num, geomObject, false);
-                        }
+                        sendGeomElement(elem, num, geomObject, false,false);
                     }
                 }
                 num++;
@@ -1096,6 +1863,7 @@ namespace OpenCOVERPlugin
 
             MessageBuffer mb = new MessageBuffer();
             mb.add(elem.Id.IntegerValue);
+            mb.add(DocumentID);
             mb.add(elem.Name + "__" + elem.UniqueId.ToString());
             try
             {
@@ -1114,7 +1882,14 @@ namespace OpenCOVERPlugin
             sendMessage(mb.buf, MessageTypes.NewTransform);
             //Autodesk.Revit.DB.GeometryElement ge = geomInstance.GetInstanceGeometry(geomInstance.Transform);
             Autodesk.Revit.DB.GeometryElement ge = geomInstance.GetSymbolGeometry();
-            SendElement(ge, elem);
+            if (elem.Name == "VrmlInline")
+            {
+                SendInline(ge, elem);
+            }
+            else
+            {
+                SendElement(ge, elem);
+            }
 
             mb = new MessageBuffer();
             sendMessage(mb.buf, MessageTypes.EndGroup);
@@ -1136,13 +1911,15 @@ namespace OpenCOVERPlugin
             }
             return false;
         }
-        private void SendSolid(Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem)
+        private void SendSolid(string prefix,Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem,bool doWalk)
         {
             Autodesk.Revit.DB.Material m = null;
             bool sameMaterial = true;
             int triangles = 0;
             int maintriangles = 0;
             bool twoSided = false;
+            if(elem.Name == "" && elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
+                return;
 
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
             if (faces.Size == 0)
@@ -1246,8 +2023,10 @@ namespace OpenCOVERPlugin
             {
                 MessageBuffer mb = new MessageBuffer();
                 mb.add(elem.Id.IntegerValue);
-                mb.add(elem.Name + "_combined");
+                mb.add(DocumentID);
+                mb.add(prefix+elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
+                mb.add(doWalk);
                 mb.add(twoSided);
                 mb.add(maintriangles);
 
@@ -1275,6 +2054,7 @@ namespace OpenCOVERPlugin
                     }
                 }
 
+                mb.add(getDepthOny(elem));
                 if (m == null)
                 {
                     mb.add((byte)220); // color
@@ -1289,6 +2069,7 @@ namespace OpenCOVERPlugin
                     mb.add(m.Color);
                     mb.add((byte)(((100 - (m.Transparency)) / 100.0) * 255));
                     mb.add(m.Id.IntegerValue);
+                    mb.add(DocumentID);
                 }
                 sendMessage(mb.buf, MessageTypes.NewObject);
             }
@@ -1313,10 +2094,14 @@ namespace OpenCOVERPlugin
                                 {
                                     MessageBuffer mb = new MessageBuffer();
                                     mb.add(elem.Id.IntegerValue);
-                                    mb.add(elem.Name + "_f_" + num.ToString());
+                                    mb.add(DocumentID);
+                                    mb.add(prefix+elem.Name + "_f_" + num.ToString());
                                     mb.add((int)ObjectTypes.Mesh);
+                                    mb.add(doWalk);
 
                                     SendMesh(geomMesh, ref mb, rface.IsTwoSided);
+
+                                    mb.add(getDepthOny(elem));
                                     if (rface.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
                                     {
                                         mb.add((byte)220); // color
@@ -1333,6 +2118,7 @@ namespace OpenCOVERPlugin
                                         mb.add(materialElement.Color);
                                         mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
                                         mb.add(materialElement.Id.IntegerValue);
+                                        mb.add(DocumentID);
                                     }
                                     sendMessage(mb.buf, MessageTypes.NewObject);
                                 }
@@ -1347,10 +2133,13 @@ namespace OpenCOVERPlugin
                         {
                             MessageBuffer mb = new MessageBuffer();
                             mb.add(elem.Id.IntegerValue);
-                            mb.add(elem.Name + "_f_" + num.ToString());
+                            mb.add(DocumentID);
+                            mb.add(prefix+elem.Name + "_f_" + num.ToString());
                             mb.add((int)ObjectTypes.Mesh);
+                            mb.add(doWalk);
 
                             SendMesh(geomMesh, ref mb, face.IsTwoSided);
+                            mb.add(getDepthOny(elem));
                             if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
                             {
                                 mb.add((byte)220); // color
@@ -1367,6 +2156,7 @@ namespace OpenCOVERPlugin
                                 mb.add(materialElement.Color);
                                 mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
                                 mb.add(materialElement.Id.IntegerValue);
+                                mb.add(DocumentID);
                             }
                             sendMessage(mb.buf, MessageTypes.NewObject);
                         }
@@ -1715,7 +2505,12 @@ namespace OpenCOVERPlugin
                 case MessageTypes.Resend:
                     {
                         Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
-                        COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), app);
+                    View3D = null;
+                    LinkedFileName = "";
+                    CurrentLink = null;
+                    LinkedDocumentID = 0;
+                    DocumentID = 0;
+                    COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
 
                         ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
                         FilteredElementCollector FamilyCollector = new FilteredElementCollector(uidoc.Document);
@@ -1729,6 +2524,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.SetParameter:
                     {
                         int elemID = buf.readInt();
+                        int docID = buf.readInt(); 
                         int paramID = buf.readInt();
 
                         Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
@@ -1805,6 +2601,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.SetTransform:
                     {
                         int elemID = buf.readInt();
+                        int docID = buf.readInt();
                         double x = buf.readDouble();
                         double y = buf.readDouble();
                         double z = buf.readDouble();
@@ -1823,6 +2620,7 @@ namespace OpenCOVERPlugin
                 case MessageTypes.UpdateView:
                     {
                         int elemID = buf.readInt();
+                        int docID = buf.readInt();
                         double ex = buf.readDouble();
                         double ey = buf.readDouble();
                         double ez = buf.readDouble();
@@ -1892,8 +2690,9 @@ namespace OpenCOVERPlugin
                 case MessageTypes.SetView:
                     {
                         int currentView = buf.readInt();
+                        int docID = buf.readInt();
 
-                        List<View3D> views = new List<View3D>(
+                    List<View3D> views = new List<View3D>(
             new FilteredElementCollector(doc)
               .OfClass(typeof(View3D))
               .Cast<View3D>()
@@ -1930,6 +2729,7 @@ namespace OpenCOVERPlugin
                     {
 
                         int elemID = buf.readInt();
+                        int docID = buf.readInt();
                         string labelText = buf.readString();
 
                         Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
@@ -1997,6 +2797,17 @@ namespace OpenCOVERPlugin
                             f.Close();
                     }
                     break;
+                case MessageTypes.SelectDesignOption:
+                {
+                    int elemID = buf.readInt();
+                    int docID = buf.readInt();
+
+                    Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                    Autodesk.Revit.DB.Element elem = document.GetElement(id);
+                    DesignOption des = (DesignOption)elem;
+                    designoptionMod.SetSelection(des.Name);
+                }
+                break;
 
                 case MessageTypes.AvatarPosition:
                     {
@@ -2130,11 +2941,12 @@ namespace OpenCOVERPlugin
         public void startup(UIControlledApplication application)
         {
             idlingHandler = new EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs>(idleUpdate);
-            application.Idling += idlingHandler;
+            cApplication = application;
         }
         public void shutdown(UIControlledApplication application)
         {
             application.Idling -= idlingHandler;
+            cApplication = application;
         }
         public class NoWarningsAndErrors : IFailuresPreprocessor
         {
@@ -2175,6 +2987,8 @@ namespace OpenCOVERPlugin
             UIApplication uiapp = sender as UIApplication;
             Document doc = uiapp.ActiveUIDocument.Document;
             UIDocument uidoc = uiapp.ActiveUIDocument;
+            if(!toCOVER.Connected)
+                cApplication.Idling -= idlingHandler;
 
             while (COVER.Instance.messageQueue.Count > 0)
             {
@@ -2226,7 +3040,10 @@ namespace OpenCOVERPlugin
             {
                 if (toCOVER != null)
                 {
-                    messageThread.Abort(); // stop reading from the old toCOVER connection
+                    if(messageThread != null)
+                    {
+                        messageThread.Abort(); // stop reading from the old toCOVER connection
+                    }
                     toCOVER.Close();
                     toCOVER = null;
                     setConnected(false);
@@ -2322,7 +3139,10 @@ namespace OpenCOVERPlugin
             ByteSwap.swapTo((uint)msgType, data, 2 * 4);
             ByteSwap.swapTo((uint)messageData.Length, data, 3 * 4);
             messageData.CopyTo(data, 4 * 4);
-            toCOVER.GetStream().Write(data, 0, len);
+            if(toCOVER != null)
+            { 
+                toCOVER.GetStream().Write(data, 0, len);
+            }
         }
 
         class Nested

@@ -79,6 +79,7 @@
    <AnimationSpeed min="0.0" max="25.0" default="24.0" />
    <MultiThreaded value="off" />
    <SaveFile value="/tmp/test.osg" />
+    <Freeze value="on" />
 
    <Plugin>
 
@@ -144,7 +145,7 @@
      <Attachment value="TOP" />
      <Scale value=".2" />
      <Position x="-150" y="180" z="30" />
-      <Orientation h="0" p="0" r="0" />
+      <Orientation h="0" p="-50" r="0" />
      <ShortCut value="viewall" name="viewall" />
      <ShortCut value="xform" name="xform" />
      <ShortCut value="scale" name="scale" />

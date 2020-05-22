@@ -269,8 +269,9 @@ public:
 #endif
 };
 
-Model::Model(const std::string &archiveOrDirectory)
-    : container(archiveOrDirectory)
+Model::Model(const std::string &archiveOrDirectory, Format format)
+    : format(format)
+    , container(archiveOrDirectory)
     , root(this)
 {
     d.reset(new ModelPrivate);
@@ -278,6 +279,7 @@ Model::Model(const std::string &archiveOrDirectory)
     d->zipfile = zip_open(archiveOrDirectory.c_str(), 0, nullptr);
     if (d->zipfile) {
         archive = true;
+        format = FormatZip;
         auto nument = zip_get_num_entries(d->zipfile, 0);
         for (auto idx=0; idx<nument; ++idx) {
             std::string pathname = zip_get_name(d->zipfile, idx, 0);
@@ -285,11 +287,19 @@ Model::Model(const std::string &archiveOrDirectory)
                 file->index = idx;
             }
         }
+    } else if (format == FormatZip) {
+        std::cerr << "failed to open archive with libzip: " << archiveOrDirectory << std::endl;
+    }
+#else
+    if (format == FormatZip) {
+        throw std::runtime_error("failed to open archive " + archiveOrDirectory + " in zip format: not compiled with libzip");
     }
 #endif
 
     if (!archive) {
-#ifdef HAVE_LIBARCHIVE
+#ifndef HAVE_LIBARCHIVE
+        throw std::runtime_error("failed to open archive " + archiveOrDirectory + ": not compiled with libarchive");
+#else
         archive = true;
         struct archive *a = archive_read_new();
         Cleaner archiveCleaner([a](){
@@ -346,10 +356,6 @@ Model::Model(const std::string &archiveOrDirectory)
             //std::cerr << prev->path().string() << " OFFSET: " << prev->offset << std::endl;
         }
 #endif
-#else
-
-        if (!archive)
-            throw std::runtime_error("failed to open archive " + archiveOrDirectory + ": not compiled with libarchive");
 #endif
     }
 }
@@ -546,9 +552,8 @@ archive_streambuf::archive_streambuf(const fs::File *file) {
     }
     else
 #endif
-
-#ifdef HAVE_LIBARCHIVE
     {
+#ifdef HAVE_LIBARCHIVE
         auto a = archive_read_new();
         archive = a;
         archive_read_support_format_tar(a);
@@ -573,10 +578,10 @@ archive_streambuf::archive_streambuf(const fs::File *file) {
         archive_read_free(a);
         archive = nullptr;
         throw std::runtime_error("did not find " + file->pathname + " in archive " + container);
-    }
 #else
-    throw std::runtime_error("cannot read from " + file->pathname + " from " + container + ": not compiled with libarchive");
+        throw std::runtime_error("cannot read from " + file->pathname + " from " + container + ": not compiled with libarchive");
 #endif
+    }
 }
 
 archive_streambuf::~archive_streambuf() {
@@ -587,14 +592,14 @@ archive_streambuf::~archive_streambuf() {
     }
     else
 #endif
-#ifdef HAVE_LIBARCHIVE
     {
-    auto a = static_cast<struct archive *>(archive);
-    archive_read_close(a);
-    archive_read_free(a);
-    archive = nullptr;
-    }
+#ifdef HAVE_LIBARCHIVE
+        auto a = static_cast<struct archive *>(archive);
+        archive_read_close(a);
+        archive_read_free(a);
+        archive = nullptr;
 #endif
+    }
 }
 
 std::streambuf::int_type archive_streambuf::underflow() {
@@ -612,15 +617,15 @@ std::streambuf::int_type archive_streambuf::underflow() {
     }
     else
 #endif
-#ifdef HAVE_LIBARCHIVE
     {
-    auto a = static_cast<struct archive *>(archive);
-    auto n = archive_read_data(a, buf, sizeof(buf));
-    if (n == 0)
-        return EOF;
-    nread += n;
-    setg(buf, buf, buf+n);
-    }
+#ifdef HAVE_LIBARCHIVE
+        auto a = static_cast<struct archive *>(archive);
+        auto n = archive_read_data(a, buf, sizeof(buf));
+        if (n == 0)
+            return EOF;
+        nread += n;
+        setg(buf, buf, buf+n);
 #endif
+    }
     return traits_type::to_int_type(*gptr());
 }

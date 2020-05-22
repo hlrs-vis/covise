@@ -148,9 +148,9 @@ void OSGVruiSlider::updateSlider()
 {
     float r, step;
 
-    float value = slider->getValue();
-    float minVal = slider->getMin();
-    float maxVal = slider->getMax();
+    float value = slider->getLinearValue();
+    float minVal = slider->getLinearMin();
+    float maxVal = slider->getLinearMax();
     int precision = slider->getPrecision();
 
     slider->adjustSlider(minVal, maxVal, value, step, precision);
@@ -198,7 +198,6 @@ ref_ptr<Geode> OSGVruiSlider::createText(float xPos)
         textNode = new Geode();
 
         numberText = new Text();
-        numberText->setDataVariance(Object::DYNAMIC);
         numberText->setFont(OSGVruiPresets::getFontFile());
         numberText->setDrawMode(Text::TEXT);
         numberText->setColor(Vec4(1.0f, 1.0f, 1.0f, 1.0f));

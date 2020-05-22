@@ -184,9 +184,21 @@ void VrmlNodeIFaceSet::cloneChildren(VrmlNamespace *ns)
 
 bool VrmlNodeIFaceSet::isModified() const
 {
-    return (d_modified || (d_color.get() && d_color.get()->isModified()) || (d_coord.get() && d_coord.get()->isModified()) || (d_normal.get() && d_normal.get()->isModified()) || (d_texCoord.get() && d_texCoord.get()->isModified()) ||
+    return (d_modified
+            || (d_color.get() && d_color.get()->isModified())
+            || (d_coord.get() && d_coord.get()->isModified())
+            || (d_normal.get() && d_normal.get()->isModified())
+            || (d_texCoord.get() && d_texCoord.get()->isModified())
             // additional fields for multi-texturing
-            (d_texCoord2.get() && d_texCoord2.get()->isModified()) || (d_texCoord3.get() && d_texCoord3.get()->isModified()) || (d_texCoord4.get() && d_texCoord4.get()->isModified()) || (d_texCoord5.get() && d_texCoord5.get()->isModified()) || (d_texCoord6.get() && d_texCoord6.get()->isModified()) || (d_texCoord7.get() && d_texCoord7.get()->isModified()) || (d_texCoord8.get() && d_texCoord8.get()->isModified()) || (d_texCoord9.get() && d_texCoord9.get()->isModified()) || (d_texCoord10.get() && d_texCoord10.get()->isModified()));
+            || (d_texCoord2.get() && d_texCoord2.get()->isModified())
+            || (d_texCoord3.get() && d_texCoord3.get()->isModified())
+            || (d_texCoord4.get() && d_texCoord4.get()->isModified())
+            || (d_texCoord5.get() && d_texCoord5.get()->isModified())
+            || (d_texCoord6.get() && d_texCoord6.get()->isModified())
+            || (d_texCoord7.get() && d_texCoord7.get()->isModified())
+            || (d_texCoord8.get() && d_texCoord8.get()->isModified())
+            || (d_texCoord9.get() && d_texCoord9.get()->isModified())
+            || (d_texCoord10.get() && d_texCoord10.get()->isModified()));
 }
 
 void VrmlNodeIFaceSet::clearFlags()

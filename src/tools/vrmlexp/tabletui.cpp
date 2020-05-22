@@ -1020,8 +1020,8 @@ BOOL CALLBACK
         }
         case IDC_RECONNECT:
         {
-            if (coTabletUI::tUI)
-                coTabletUI::tUI->tryConnect();
+            if (coTabletUI::instance())
+                coTabletUI::instance()->tryConnect();
             break;
         }
         break;
@@ -2034,8 +2034,7 @@ void TabletUIObject::clearTabletUI()
         }
     }
 
-    delete coTabletUI::tUI;
-    coTabletUI::tUI = NULL;
+    coTabletUI::destroy();
 }
 
 void TabletUIObject::updateTabletUI()
@@ -2109,8 +2108,7 @@ void TabletUIObject::tabletUIComboEntry(coTUIComboBox *tuiComboBox, TUIParamComb
 
 void TabletUIObject::addcoTabletUIElement(TabletUIElement *el)
 {
-    if (coTabletUI::tUI == NULL)
-        coTabletUI::tUI = new coTabletUI();
+        coTabletUI::instance();
 
     int xp = 0, yp = 0, min = 0, max = 0, value = 0, val = 0;
     float fmin = 0.0, fmax = 0.0, fvalue = 0.0;
@@ -2122,7 +2120,7 @@ void TabletUIObject::addcoTabletUIElement(TabletUIElement *el)
     if ((el->parent != NULL) && (el->parent->myTuiElem != NULL))
         parentID = el->parent->myTuiElem->getID();
     else
-        parentID = coTabletUI::tUI->mainFolder->getID();
+        parentID = coTabletUI::instance()->mainFolder->getID();
 
     coTUIElement *te = NULL;
     TSTR tmpS = el->name;
@@ -2165,9 +2163,9 @@ void TabletUIObject::addcoTabletUIElement(TabletUIElement *el)
         tuiFloatSlider->setMax(fmax);
         tuiFloatSlider->setValue(fvalue);
         if (val == 0)
-            tuiFloatSlider->setOrientation(coTUIFloatSlider::Vertical);
+            tuiFloatSlider->setOrientation(coTUIFloatSlider::VERTICAL);
         else
-            tuiFloatSlider->setOrientation(coTUIFloatSlider::Horizontal);
+            tuiFloatSlider->setOrientation(coTUIFloatSlider::HORIZONTAL);
         te = dynamic_cast<coTUIElement *>(tuiFloatSlider);
     }
     else if (type == TabletUIElement::TUIFrame)

@@ -28,6 +28,7 @@ class InputDevice;
 class COVEREXPORT TrackingBody: public InputSource
 {
     friend class Input;
+    friend class coMousePointer;
 
 public:
     const osg::Matrix &getMat() const;

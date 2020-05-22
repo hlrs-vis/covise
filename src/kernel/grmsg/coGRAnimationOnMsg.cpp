@@ -11,6 +11,7 @@
 #include <cstdio>
 
 using namespace grmsg;
+using namespace std;
 
 GRMSGEXPORT coGRAnimationOnMsg::coGRAnimationOnMsg(const char *msg)
     : coGRMsg(msg)

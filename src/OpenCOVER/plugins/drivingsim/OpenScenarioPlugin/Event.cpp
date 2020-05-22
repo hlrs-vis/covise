@@ -4,6 +4,7 @@
 #include "Action.h"
 #include "Sequence.h"
 #include "Entity.h"
+#include "LaneChange.h"
 
 Event::Event():
     StoryElement(),
@@ -18,9 +19,10 @@ void Event::start(Sequence *currentSequence)
     for (auto entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
     {
         Entity* currentEntity = (*entity_iter);
-        for (auto action_iter = actionList.begin(); action_iter != actionList.end(); action_iter++)
+        for (auto action_iter = Action.begin(); action_iter != Action.end(); action_iter++)
         {
-            ::Action* currentAction = (*action_iter);
+            //::Action* currentAction = *action_iter);
+			::Action* currentAction = dynamic_cast<::Action*>(*action_iter);
             if (currentAction->Private.exists())
             {
                 if (currentAction->Private->Routing.exists())
@@ -34,8 +36,20 @@ void Event::start(Sequence *currentSequence)
                             currentEntity->startFollowTrajectory(currentTrajectory);
 
                         }
+						
                     }
                 }
+				if (currentAction->Private->Lateral.exists())
+				{
+					if (currentAction->Private->Lateral->LaneChange.exists())
+					{
+						if (currentAction->Private->Lateral->LaneChange->Dynamics.exists())
+						{
+							LaneChange* lc = dynamic_cast<LaneChange*>(currentAction->Private->Lateral->LaneChange.getObject());
+							currentEntity->startDoLaneChange(lc);
+						}
+					}
+				}
             }
         }
     }

@@ -104,7 +104,15 @@ std::string OpenScenario::generateRandomString(const size_t numOfChars)
 char *
 OpenScenario::XMLChTranscodeUtf(const XMLCh *in)
 {
-	return  (char *)xercesc::TranscodeToStr(in, xercesc::XMLString::stringLen(in), "utf-8").adopt(); 
+	    XMLSize_t len =  xercesc::XMLString::stringLen(in);
+        if(len == 0)
+        {
+            char *tmp = (char *)xercesc::XMLPlatformUtils::fgMemoryManager->allocate(1);
+            tmp[0]='\0';
+            return tmp;
+        }
+        else
+	        return  (char *)xercesc::TranscodeToStr(in, xercesc::XMLString::stringLen(in), "utf-8").adopt(); 
 }
 
 XMLCh *

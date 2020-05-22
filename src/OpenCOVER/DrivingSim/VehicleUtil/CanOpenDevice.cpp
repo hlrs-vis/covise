@@ -15,6 +15,7 @@
 #include <native/timer.h>
 #endif
 
+using namespace vehicleUtil;
 
 CanOpenDevice::CanOpenDevice(CanOpenController &setCon, uint8_t setId)
     : controller(&setCon)

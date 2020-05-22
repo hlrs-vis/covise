@@ -40,8 +40,8 @@ while(0)
 do {(a) += (val); (b) -= (val);} \
 while(0)
 
-#define scopy(n, a, b) (float *)memcpy((void *)(b), (void *)(a), sizeof(float)*(n))
-#define idxcopy(n, a, b) (idxtype *)memcpy((void *)(b), (void *)(a), sizeof(idxtype)*(n))
+#define scopy(n, a, b) memcpy((void *)(b), (void *)(a), sizeof(float)*(n))
+#define idxcopy(n, a, b) memcpy((void *)(b), (void *)(a), sizeof(idxtype)*(n))
 
 #define HASHFCT(key, size) ((key)%(size))
 

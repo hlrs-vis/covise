@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  WriteObj.cpp
+)
+
+SET(EXTRASOURCES
+  WriteObj.h
+)
+
+ADD_COVISE_MODULE(IO WriteObj ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(WriteObj  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(WriteObj)

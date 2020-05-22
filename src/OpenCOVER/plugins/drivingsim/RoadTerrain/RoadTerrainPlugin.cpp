@@ -235,7 +235,7 @@ void RoadTerrainPlugin::tabletEvent(coTUIElement *tUIItem)
     if (tUIItem == loadTerrainButton)
     {
         osg::Vec3d offset(0, 0, 0);
-        const RoadSystemHeader &header = RoadSystem::Instance()->getHeader();
+        const vehicleUtil::RoadSystemHeader &header = vehicleUtil::RoadSystem::Instance()->getHeader();
         offset.set(header.xoffset, header.yoffset, 0.0);
         std::cout << "Header: xoffset: " << header.xoffset << ", yoffset: " << header.yoffset << std::endl;
 

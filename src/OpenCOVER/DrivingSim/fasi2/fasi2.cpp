@@ -10,6 +10,12 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <xenomai/init.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRMSController.h>
+#include <vrbclient/SharedStateManager.h>
+
+using namespace opencover;
+using namespace vehicleUtil;
 
 int main(int argc, char* const* argv)
 {
@@ -32,6 +38,8 @@ fasi2::fasi2(const char *filename)
 {
     system = NULL;
     myFasi = this;
+    new vrb::SharedStateManager(NULL);
+    opencover::cover = new opencover::coVRPluginSupport();
     serverConn = new covise::ServerConnection(31880, 1234, -1);
     if (!serverConn->getSocket())
     {

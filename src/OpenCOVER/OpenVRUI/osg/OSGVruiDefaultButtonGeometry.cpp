@@ -117,7 +117,6 @@ ref_ptr<Text> OSGVruiDefaultButtonGeometry::createText(const string &textString,
 
     ref_ptr<Text> text = new Text();
 
-    text->setDataVariance(Object::DYNAMIC);
     text->setText(textString, String::ENCODING_UTF8);
     text->setFont(OSGVruiPresets::getFontFile());
     text->setAlignment(align);

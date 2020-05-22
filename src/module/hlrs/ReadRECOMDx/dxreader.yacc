@@ -9,10 +9,6 @@
 #include <covise/covise.h>
 
 
-#if defined(__hpux) || defined(__sgi)
-#include <alloca.h>
-#endif
-
 /* #include <FlexLexer.h> */
 #include "attribute.h"
 #include "scanner.h"

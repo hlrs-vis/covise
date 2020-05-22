@@ -314,7 +314,14 @@ bool PointReader::readFile(std::string filename,
         }
 
         std::cout << "PointReader::readFile() building bvh for file " << filename.c_str() << std::endl;
-        bvh_vector.emplace_back(visionaray::build<host_bvh_type>(points.data(), points.size()));
+
+        binned_sah_builder builder;
+
+        bvh_vector.emplace_back(builder.build(
+                host_bvh_type{},
+                points.data(),
+                points.size()
+                ));
 
         if (useCache && !boost::filesystem::exists(binaryPath)) //don't overwrite..
         {

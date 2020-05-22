@@ -14,21 +14,24 @@
 #include <osg/Transform>
 #include <osg/Switch>
 #include <osg/Node>
+#include <osg/Group>
 #include <osg/LOD>
 #include <osgDB/ReadFile>
 
 using namespace covise;
 using namespace opencover;
+using namespace TrafficSimulation;
 
 //#include <math.h>
 #define PI 3.141592653589793238
 
 std::map<std::string, osg::Node *> CarGeometry::filenameNodeMap;
 
-CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
+CarGeometry::CarGeometry(CarGeometry *geo, std::string name, osg::Group* rootNode)
     : carNode(NULL)
     , carParts(NULL)
     , boundingCircleRadius(0.0)
+	
 {
     // new instance of already loaded car geometry //
 
@@ -42,7 +45,18 @@ CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
     carTransform->setName(name);
     // no need to do intersection tests on cars
     carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
-    cover->getObjectsRoot()->addChild(carTransform);
+	if(geo->parentGroup)
+		parentGroup = geo->parentGroup;
+	if (rootNode != nullptr)
+		parentGroup = rootNode;
+	if (parentGroup != nullptr)
+	{
+		parentGroup->addChild(carTransform);
+	}
+	else
+	{
+		cover->getObjectsRoot()->addChild(carTransform);
+	}
 
     // LOD //
     //
@@ -111,12 +125,21 @@ CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
         }
     }
 
+    if (carPartsTransformList.find("wheelFL") != carPartsTransformList.end())
+        wheelFL = carPartsTransformList["wheelFL"];
+    if (carPartsTransformList.find("wheelFR") != carPartsTransformList.end())
+        wheelFR = carPartsTransformList["wheelFR"];
+    if (carPartsTransformList.find("wheelBL") != carPartsTransformList.end())
+        wheelBL = carPartsTransformList["wheelBL"];
+    if (carPartsTransformList.find("wheelBR") != carPartsTransformList.end())
+        wheelBR = carPartsTransformList["wheelBR"];
+
     // bounding radius //
     osg::BoundingSphere boundingSphere = carTransform->computeBound();
     boundingCircleRadius = (boundingSphere.center() - carTransform->getMatrix().getTrans()).length() + boundingSphere.radius();
 }
 
-CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGraph)
+CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGraph, osg::Group* rootNode)
     : carNode(NULL)
     , carParts(NULL)
     , boundingCircleRadius(0.0)
@@ -130,11 +153,21 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
     // TRANSFORMATION //
     //
     carTransform = new osg::MatrixTransform();
+	if (rootNode != nullptr)
+		parentGroup = rootNode;
     if (addToSceneGraph)
     {
-        cover->getObjectsRoot()->addChild(carTransform);
+		
+		if (parentGroup != nullptr)
+		{
+			parentGroup->addChild(carTransform);
+		}
+		else
+		{
+			cover->getObjectsRoot()->addChild(carTransform);
+		}
         // no need to do intersection tests on cars
-        carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
+        carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk | Isect::Update));
     }
     carTransform->setName(name);
 
@@ -195,7 +228,8 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
 
 CarGeometry::~CarGeometry()
 {
-    cover->getObjectsRoot()->removeChild(carTransform);
+	while(carTransform->getNumParents()>0)
+        carTransform->getParent(0)->removeChild(carTransform);
 }
 
 void
@@ -390,19 +424,39 @@ CarGeometry::updateCarParts(double t, double dt, VehicleState &vehState)
     double phi = vehState.du / WHEEL_RADIUS * dt; // w*t = v/r * t
     osg::Matrix addPhi;
     addPhi.makeRotate(-phi, osg::Vec3(0.0, 0.0, 1.0)); // (VRML axis)
-    if (wheelFL != NULL)
+    if (wheelFL != NULL )
     {
         wheelFL->preMult(addPhi);
+    }
+    if (wheelFR != NULL)
+    {
         wheelFR->preMult(addPhi);
+    }
+    if (wheelBL != NULL)
+    {
         wheelBL->preMult(addPhi);
+    }
+    if (wheelBR != NULL)
+    {
         wheelBR->preMult(addPhi);
     }
 }
 
-void CarGeometry::setTransform(Transform &roadTransform, double heading)
+void CarGeometry::setTransform(vehicleUtil::Transform &roadTransform, double heading)
 {
     osg::Matrix m;
     m.makeRotate(heading, 0, 0, 1);
+    m.setTrans(roadTransform.v().x(), roadTransform.v().y(), roadTransform.v().z());
+    carTransform->setMatrix(m);
+}
+
+void CarGeometry::setTransformOrig(vehicleUtil::Transform &roadTransform, double heading)
+{
+    vehicleUtil::Quaternion qzaaa(heading, vehicleUtil::Vector3D(0, 0, 1));
+
+    vehicleUtil::Quaternion q = roadTransform.q() * qzaaa;
+    osg::Matrix m;
+    m.makeRotate(osg::Quat(q.x(), q.y(), q.z(), q.w()));
     m.setTrans(roadTransform.v().x(), roadTransform.v().y(), roadTransform.v().z());
     carTransform->setMatrix(m);
 }
@@ -511,7 +565,8 @@ osg::Node *CarGeometry::getCarNode(std::string file)
 
 void CarGeometry::removeFromSceneGraph()
 {
-    cover->getObjectsRoot()->removeChild(carTransform);
+	while (carTransform->getNumParents() > 0)
+		carTransform->getParent(0)->removeChild(carTransform);
 }
 
 osg::Node *CarGeometry::getDefaultCarNode()

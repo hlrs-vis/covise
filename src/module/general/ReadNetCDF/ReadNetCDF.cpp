@@ -122,9 +122,9 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
                 {
                     sprintf(dispListEntry, "%s (%dD) : [", var->name(),
                             var->num_dims());
-                    for (int i = 0; i < var->num_dims() - 1; i++)
+                    for (int j = 0; j < var->num_dims() - 1; j++)
                         sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var->get_dim(i)->name());
+                                var->get_dim(j)->name());
                     sprintf(dispListEntry, "%s %s ]", dispListEntry,
                             var->get_dim(var->num_dims() - 1)->name());
                 }
@@ -234,17 +234,35 @@ int ReadNetCDF::compute(const char *)
         // Fill the _coord arrays for all grid points (memcpy faster?)
         // FIXME: Should depend on var?->num_dims().
         float scale = p_verticalScale->getValue();
-        int m, n = 0;
-        for (int i = 0; i < nx; i++)
+        if(varX->num_vals()==nx)
         {
-            m = 0;
-            for (int j = 0; j < ny; j++)
-                for (int k = 0; k < nz; k++, m++, n++)
-                {
-                    x_coord[n] = xVals[m];
-                    y_coord[n] = yVals[m];
-                    z_coord[n] = zVals[i] * scale;
-                }
+         int m, n = 0;
+         for (int i = 0; i < nx; i++)
+         {
+             m = 0;
+             for (int j = 0; j < ny; j++)
+                 for (int k = 0; k < nz; k++, m++, n++)
+                 {
+                     x_coord[n] = xVals[i];
+                     y_coord[n] = yVals[j];
+                     z_coord[n] = zVals[k] * scale;
+                 }
+         }
+        }
+        else
+        {
+         int m, n = 0;
+         for (int i = 0; i < nx; i++)
+         {
+             m = 0;
+             for (int j = 0; j < ny; j++)
+                 for (int k = 0; k < nz; k++, m++, n++)
+                 {
+                     x_coord[n] = xVals[m];
+                     y_coord[n] = yVals[m];
+                     z_coord[n] = zVals[i] * scale;
+                 }
+         }
         }
 
         // Now for the 2D variables, we create a surface
@@ -255,7 +273,20 @@ int ReadNetCDF::compute(const char *)
         outSurface->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
         // Fill the _coord arrays (memcpy faster?)
         // FIXME: Should depend on var?->num_dims(). (fix with pointers?)
+        int n = 0;
         n = 0;
+        if(varY->num_vals()==ny)
+        {
+        for (int j = 0; j < ny; j++)
+            for (int k = 0; k < nz; k++, n++)
+            {
+                x_coord[n] = xVals[j];
+                y_coord[n] = yVals[k];
+                z_coord[n] = 0; //zVals[0];
+            }
+        }
+        else
+        {
         for (int j = 0; j < ny; j++)
             for (int k = 0; k < nz; k++, n++)
             {
@@ -263,7 +294,7 @@ int ReadNetCDF::compute(const char *)
                 y_coord[n] = yVals[n];
                 z_coord[n] = 0; //zVals[0];
             }
-
+        }
         // Fill the vertex list
         n = 0;
         for (int j = 1; j < ny; j++)

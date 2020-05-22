@@ -11,9 +11,10 @@
 
 #include <config/CoviseConfig.h>
 #include "cover/coTranslator.h"
+#include "cover/coVRPluginSupport.h"
 
 #include <osg/ShapeDrawable>
-#include <osgUtil/IntersectVisitor>
+#include <cover/coIntersection.h>
 #include <osgText/Text>
 
 #include "HfT_string.h"
@@ -360,16 +361,18 @@ ref_ptr<Drawable> HfT_osg_Plugin01_NormalschnittAnimation::Schnittkurvenberechnu
         Vec3d A = Vec3((*m_geradenPunkteNeu)[i]);
         Vec3d B = Vec3((*m_geradenPunkteNeu)[i + 1]);
 
-        ref_ptr<osgUtil::IntersectVisitor> iv = new osgUtil::IntersectVisitor();
-        ref_ptr<osg::LineSegment> segment = new osg::LineSegment();
-        segment->set(B, A);
-        iv->addLineSegment(segment.get());
-        surf->accept(*iv);
 
-        if (iv->hits())
+        opencover::coIntersector* isect = opencover::coIntersection::instance()->newIntersector(A, B);
+        osgUtil::IntersectionVisitor visitor(isect);
+        visitor.setTraversalMask(opencover::Isect::Pick);
+
+        surf->accept(visitor);
+
+        if (isect->containsIntersections())
         {
-            osgUtil::IntersectVisitor::HitList hitList = iv->getHitList(segment.get());
-            Vec3d intersecPnt = hitList[0].getWorldIntersectPoint();
+            auto results = isect->getFirstIntersection();
+
+            Vec3d intersecPnt = results.getWorldIntersectPoint();
             vertices->push_back(intersecPnt);
         }
     }
@@ -711,16 +714,17 @@ bool HfT_osg_Plugin01_NormalschnittAnimation::Hauptkruemmungen(HfT_osg_Plugin01_
         Vec3d A = Vec3((*punkteH1o)[i]);
         Vec3d B = Vec3((*punkteH1u)[i]);
 
-        ref_ptr<osgUtil::IntersectVisitor> iv = new osgUtil::IntersectVisitor();
-        ref_ptr<osg::LineSegment> segment = new osg::LineSegment();
-        segment->set(A, B);
-        iv->addLineSegment(segment.get());
-        surf->accept(*iv);
 
-        if (iv->hits())
+        opencover::coIntersector* isect = opencover::coIntersection::instance()->newIntersector(A, B);
+        osgUtil::IntersectionVisitor visitor(isect);
+        visitor.setTraversalMask(opencover::Isect::Pick);
+
+        surf->accept(visitor);
+
+        if (isect->containsIntersections())
         {
-            osgUtil::IntersectVisitor::HitList hitList = iv->getHitList(segment.get());
-            Vec3d intersecPnt = hitList[0].getWorldIntersectPoint();
+            auto results = isect->getFirstIntersection();
+            Vec3d intersecPnt = results.getWorldIntersectPoint();
             schnittpunkte1->push_back(intersecPnt);
         }
     }
@@ -731,16 +735,18 @@ bool HfT_osg_Plugin01_NormalschnittAnimation::Hauptkruemmungen(HfT_osg_Plugin01_
         Vec3d A = Vec3((*punkteH2o)[i]);
         Vec3d B = Vec3((*punkteH2u)[i]);
 
-        ref_ptr<osgUtil::IntersectVisitor> iv = new osgUtil::IntersectVisitor();
-        ref_ptr<osg::LineSegment> segment = new osg::LineSegment();
-        segment->set(A, B);
-        iv->addLineSegment(segment.get());
-        surf->accept(*iv);
 
-        if (iv->hits())
+
+        opencover::coIntersector* isect = opencover::coIntersection::instance()->newIntersector(A, B);
+        osgUtil::IntersectionVisitor visitor(isect);
+        visitor.setTraversalMask(opencover::Isect::Pick);
+
+        surf->accept(visitor);
+
+        if (isect->containsIntersections())
         {
-            osgUtil::IntersectVisitor::HitList hitList = iv->getHitList(segment.get());
-            Vec3d intersecPnt = hitList[0].getWorldIntersectPoint();
+            auto results = isect->getFirstIntersection();
+            Vec3d intersecPnt = results.getWorldIntersectPoint();
             schnittpunkte2->push_back(intersecPnt);
         }
     }

@@ -18,6 +18,8 @@
 #include <limits>
 
 #include <cuda_runtime_api.h>
+#include <cuda_runtime.h>
+#include <cuda_gl_interop.h>
 
 using namespace std;
 
@@ -80,7 +82,8 @@ int SimCudaHelper::Init(int cudaDevice)
 void SimCudaHelper::InitializeGL(int cudaDevice)
 {
     cudaDevice = Init(cudaDevice);
-    cudaError res = cudaGLSetGLDevice(cudaDevice);
+    //cudaError res = cudaGLSetGLDevice(cudaDevice);
+    cudaError res = cudaSetDevice(cudaDevice);
     if (res != cudaSuccess)
     {
         CheckError("cudaGLSetGLDevice failed");
@@ -107,12 +110,15 @@ void SimCudaHelper::InitializeGL(int cudaDevice)
 
 cudaError_t SimCudaHelper::MapBuffer(void **devPtr, GLuint bufObj)
 {
-    return cudaGLMapBufferObject(devPtr, bufObj);
+    cudaError_t err =  cudaGraphicsMapRessources(1,&bufObj);
+    size_t size;
+    cudaGraphicsResourceGetMappedPointer(devPtr, &size, bufObj);
+    return err;
 }
 
 cudaError_t SimCudaHelper::UnmapBuffer(void **devPtr, GLuint bufObj)
 {
-    cudaError err = cudaGLUnmapBufferObject(bufObj);
+    cudaError err =cudaGraphicsUnmapResources(1, &bufObj, 0);
     *devPtr = 0;
     return err;
 }

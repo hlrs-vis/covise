@@ -1,8 +1,10 @@
+
 if(NOT COVISE_USE_OPENCV3)
     return()
 endif()
 
-USING(GLUT ARUCO OpenCV)
+USING(OpenCV)
+USING(ARUCO)
 
 SET(ARUCO_USE_CUDA FALSE)
 

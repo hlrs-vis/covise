@@ -23,6 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/RenderObject.h>
+#include <config/CoviseConfig.h>
 
 #include "TiledDisplay.h"
 #include "TiledDisplayClientVV.h"
@@ -39,6 +40,8 @@
 
 using namespace std;
 using namespace osg;
+
+using covise::coConfig;
 
 #define TILED_DISPLAY_TEX_SIZE 1024
 

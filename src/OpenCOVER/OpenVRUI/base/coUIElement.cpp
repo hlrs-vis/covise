@@ -23,6 +23,33 @@ namespace vrui
 {
 
 /// Constructor.
+vruiMatrix *coUIElement::getMatrixFromPositionHprScale(float x, float y, float z, float h, float p, float r, float scale)
+{
+    vruiMatrix *transMatrix = vruiRendererInterface::the()->createMatrix();
+    vruiMatrix *rotateMatrix = vruiRendererInterface::the()->createMatrix();
+    vruiMatrix *scaleMatrix = vruiRendererInterface::the()->createMatrix();
+    vruiMatrix *matrix = vruiRendererInterface::the()->createMatrix();
+    vruiMatrix *rxMatrix = vruiRendererInterface::the()->createMatrix();
+
+    transMatrix->makeTranslate(x, y, z);
+    rotateMatrix->makeEuler(h, p, r);
+    scaleMatrix->makeScale(scale, scale, scale);
+    rxMatrix->makeEuler(0.0, 90.0, 0.0);
+
+    matrix->makeIdentity();
+    matrix->mult(rxMatrix);
+    matrix->mult(scaleMatrix);
+    matrix->mult(rotateMatrix);
+    matrix->mult(transMatrix);
+
+    vruiRendererInterface::the()->deleteMatrix(transMatrix);
+    vruiRendererInterface::the()->deleteMatrix(rotateMatrix);
+    vruiRendererInterface::the()->deleteMatrix(scaleMatrix);
+    vruiRendererInterface::the()->deleteMatrix(rxMatrix);
+
+    return matrix;
+}
+
 coUIElement::coUIElement()
 {
 

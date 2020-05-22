@@ -325,8 +325,8 @@ int UDPComm::receive(void *buffer, int numBytes, double timeout)
     struct timeval tv = { int(timeout), int((timeout-floor(timeout))*1e6) };
     if (0 == select(d_rsocket + 1, &readfds, NULL, NULL, &tv))
     {
-        if (UDPComm::getError_SW())
-            cerr << "No data received from Realtime Engine (receive - SW)" << endl;
+        //if (UDPComm::getError_SW())
+        //    cerr << "No data received from Realtime Engine (receive - SW)" << endl;
         return -1;
     }
 
@@ -334,7 +334,7 @@ int UDPComm::receive(void *buffer, int numBytes, double timeout)
     // receive a package
     int numbytes = recvfrom(d_rsocket, (char *)buffer, numBytes, 0, 0, 0);
 
-    if (numbytes != numBytes)
+    if (numbytes <=0)
     {
         fprintf(stderr, "UDPComm: Message to short, expected %d but got %d, socket: %d\n", numBytes, numbytes, d_rsocket);
 #ifdef WIN32
@@ -388,7 +388,7 @@ UDPComm::getIP(const char *hostname)
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
 	hints.ai_socktype = 0; /* any type of socket */
-	hints.ai_flags = AI_ADDRCONFIG;
+	//hints.ai_flags = AI_ADDRCONFIG; // this prevents localhost from being resolved if no network is connected on windows
 	hints.ai_protocol = 0;          /* Any protocol */
 
 	char *cPtr = (char *)&v4.s_addr;

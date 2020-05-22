@@ -8,6 +8,8 @@
 #include "KI.h"
 #include <sys/time.h>
 
+using namespace vehicleUtil;
+
 // KI ////////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

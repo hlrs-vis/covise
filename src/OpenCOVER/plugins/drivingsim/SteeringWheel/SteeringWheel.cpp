@@ -43,6 +43,8 @@
 
 #include <util/unixcompat.h>
 
+using namespace vehicleUtil;
+
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_XINPUT
 #define USE_LINUX
@@ -1700,7 +1702,7 @@ SteeringWheelPlugin::preFrame()
 
             cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,
                                PluginMessageTypes::HLRS_SteeringWheelRemoteVehiclePosition,
-                               tb.get_length(), tb.get_data());
+                               tb.getData().length(), tb.getData().data());
         }
     }
     UpdateInputState();

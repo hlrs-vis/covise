@@ -17,6 +17,8 @@
 
 #include "XenomaiTask.h"
 #include "XenomaiSocketCan.h"
+namespace vehicleUtil
+{
 
 class LinearMotorControlTask : public XenomaiTask
 {
@@ -302,5 +304,5 @@ inline unsigned long LinearMotorControlTask::getPeriodicTaskOverruns()
 {
     return overruns;
 }
-
+}
 #endif

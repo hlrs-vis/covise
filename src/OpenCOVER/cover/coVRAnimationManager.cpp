@@ -26,6 +26,9 @@
 #include <grmsg/coGRSetAnimationSpeedMsg.h>
 #include <grmsg/coGRSetTimestepMsg.h>
 
+#include <vrbclient/VRBMessage.h>
+//#include <net/message.h>
+//#include <net/message_types.h>
 using namespace opencover;
 using namespace grmsg;
 using namespace covise;
@@ -150,8 +153,6 @@ void coVRAnimationManager::initAnimMenu()
 
     animPingPongItem = new ui::Button(animRowMenu, "Oscillate");
     animPingPongItem->setState(false);
-    animSyncItem = new ui::Button(animRowMenu, "Synchronize");
-    animSyncItem->setState(false);
 
     animSpeedItem = new ui::Slider(animRowMenu, "Speed");
     animSpeedItem->setPresentation(ui::Slider::AsDial);
@@ -159,6 +160,15 @@ void coVRAnimationManager::initAnimMenu()
     animSpeedItem->setValue(animSpeedStartValue);
     animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
         setAnimationSpeed(val);
+    });
+
+    animSkipItem = new ui::Slider(animRowMenu, "Step");
+    animSkipItem->setPresentation(ui::Slider::AsSlider);
+    animSkipItem->setIntegral(true);
+    animSkipItem->setBounds(1, 10);
+    animSkipItem->setValue(1);
+    animSkipItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        setAnimationSkip(val);
     });
 
     animLimitGroup = new ui::Group(animRowMenu, "LimitGroup");
@@ -185,6 +195,16 @@ void coVRAnimationManager::initAnimMenu()
             setStopFrame(val);
     });
     animStopItem->setPriority(ui::Element::Low);
+
+	animSyncItem = new ui::Button(animRowMenu, "Synchronize");
+	animSyncItem->setState(false);
+	animSyncItem->setCallback([this](bool state)
+		{
+			animFrameItem->setShared(state);
+			animSpeedItem->setShared(state);
+			animToggleItem->setShared(state);
+			
+		});
 }
 
 void coVRAnimationManager::setOscillate(bool state)
@@ -241,8 +261,7 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
     {
         if (currentFrame < 0)
             currentFrame = (currentFrame % numFrames) + numFrames;
-        if (numFrames > 0)
-            currentFrame %= numFrames;
+        currentFrame %= numFrames;
     }
 
     if (stopFrame >= startFrame)
@@ -250,32 +269,18 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
     else
         currentFrame = startFrame;
 
-    bool change = currentAnimationFrame != currentFrame;
+    currentFrame = (currentFrame/aniSkip)*aniSkip;
 
-    if (requestedAnimationFrame == -1 && change)
+    bool change = false;
+    if (currentAnimationFrame != currentFrame && requestedAnimationFrame == -1)
     {
+        change = true;
         requestedAnimationFrame = currentFrame;
         coVRPluginList::instance()->requestTimestep(currentFrame);
     }
 
     if ((currentFrame != oldFrame) && animSyncItem->state())
     {
-        if (animRunning && !m_animationPaused)
-        {
-            if (coVRCollaboration::instance()->isMaster()) // send update ot others if we are the Master
-            {
-                char num[100];
-                sprintf(num, "%d", currentFrame);
-                cover->sendBinMessage("TIMESTEP", num, strlen(num) + 1);
-            }
-        }
-        else
-        {
-            // send update to other users
-            char num[100];
-            sprintf(num, "%d", currentFrame);
-            cover->sendBinMessage("TIMESTEP", num, strlen(num) + 1);
-        }
         oldFrame = currentFrame;
         change = true;
     }
@@ -329,8 +334,59 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
         if (animFrameItem && numFrames != 0)
             animFrameItem->setValue(timestepBase + timestepScale * currentFrame);
         lastAnimationUpdate = cover->frameTime();
-        sendAnimationStepMessage();
     }
+}
+
+int coVRAnimationManager::getNextFrame(int current) const
+{
+    if (current == -1)
+        current = currentAnimationFrame;
+
+    if (!animRunning)
+        return current;
+
+    int aniDirection = 0;
+    if (!animPingPongItem->state()) // normal loop mode
+    {
+        aniDirection = 1;
+    }
+    else // oscillate mode
+    {
+        if (current >= stopFrame) // check for end of sequence
+            aniDirection = -1;
+        if (current <= startFrame) // check for start of sequence
+            aniDirection = 1;
+    }
+
+    int next = current;
+    if (animSpeedItem->value() > 0.0)
+    {
+        next = current + aniDirection * aniSkip;
+    }
+    else if (animSpeedItem->value() < 0.0)
+    {
+        next = current - aniDirection * aniSkip;
+    }
+
+    if (numFrames == 0)
+    {
+        next = 0;
+    }
+    else
+    {
+        if (next < 0)
+            next = (next % numFrames) + numFrames;
+        next %= numFrames;
+    }
+
+    if (stopFrame >= startFrame)
+        next = (next - startFrame + stopFrame - startFrame + 1) % (stopFrame - startFrame + 1) + startFrame;
+    else
+        next = startFrame;
+
+    next = (next/aniSkip)*aniSkip;
+
+    return next;
 }
 
 bool
@@ -338,33 +394,11 @@ coVRAnimationManager::updateAnimationFrame()
 {
     if (animRunning && !m_animationPaused && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
     {
-        if (!animPingPongItem->state()) // normal loop mode
-        {
-            aniDirection = 1;
-        }
-        else // oscillate mode
-        {
-            if (currentAnimationFrame >= stopFrame) // check for end of sequence
-                aniDirection = -1;
-            if (currentAnimationFrame <= startFrame) // check for start of sequence
-                aniDirection = 1;
-        }
-
-        if (animSpeedItem->value() > 0.0)
-        {
-            if ((cover->frameTime() - lastAnimationUpdate > 1.0 / animSpeedItem->value())
-                || (animSpeedItem->value() > AnimSliderMax - 0.001))
-            {
-                return requestAnimationFrame(currentAnimationFrame + aniDirection);
-            }
-        }
-        else if (animSpeedItem->value() < 0.0)
-        {
-            if ((cover->frameTime() - lastAnimationUpdate > -1.0 / animSpeedItem->value())
-                || (animSpeedItem->value() < AnimSliderMin + 0.001))
-            {
-                return requestAnimationFrame(currentAnimationFrame - aniDirection);
-            }
+        auto speed = animSpeedItem->value();
+        if ((cover->frameTime() - lastAnimationUpdate >= 1.0 / std::abs(speed))
+            || (speed > 0. && speed > AnimSliderMax - 0.001)
+            || (speed < 0. && speed < AnimSliderMin + 0.001)) {
+            return requestAnimationFrame(getNextFrame());
         }
     }
     else
@@ -398,7 +432,17 @@ coVRAnimationManager::setAnimationSpeed(float speed)
         speed = animSpeedItem->max();
 
     animSpeedItem->setValue(speed);
-    sendAnimationSpeedMessage();
+}
+
+void coVRAnimationManager::setAnimationSkip(int frames)
+{
+    if (frames < animSkipItem->min())
+        frames = animSkipItem->min();
+    if (frames > animSkipItem->max())
+        frames = animSkipItem->max();
+
+    animSkipItem->setValue(frames);
+    aniSkip = frames;
 }
 
 bool
@@ -412,8 +456,6 @@ coVRAnimationManager::enableAnimation(bool state)
 {
     animRunning = state;
     animToggleItem->setState(animRunning);
-    cover->sendBinMessage("TIMESTEP_ANIMATE", animRunning ? "1" : "0", 2);
-    sendAnimationStateMessage();
 }
 
 bool
@@ -606,49 +648,6 @@ void coVRAnimationManager::removeTimestepProvider(const void *who)
 {
     setNumTimesteps(0, who);
     timestepMap.erase(who);
-}
-
-void coVRAnimationManager::sendAnimationStateMessage()
-{
-    // send animation mode to gui
-    if (coVRMSController::instance()->isMaster())
-    {
-        coGRAnimationOnMsg animationModeMsg(animationRunning());
-        Message grmsg;
-        grmsg.type = Message::UI;
-        grmsg.data = (char *)(animationModeMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
-    }
-}
-
-void coVRAnimationManager::sendAnimationSpeedMessage()
-{
-    // send animation speed to gui
-    if (coVRMSController::instance()->isMaster())
-    {
-
-        coGRSetAnimationSpeedMsg animationSpeedMsg(getAnimationSpeed(), animSpeedItem->min(), animSpeedItem->max());
-        Message grmsg;
-        grmsg.type = Message::UI;
-        grmsg.data = (char *)(animationSpeedMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
-    }
-}
-
-void coVRAnimationManager::sendAnimationStepMessage()
-{
-    // send animation step to gui
-    if (coVRMSController::instance()->isMaster())
-    {
-        coGRSetTimestepMsg timestepMsg(getAnimationFrame(), getNumTimesteps());
-        Message grmsg;
-        grmsg.type = Message::UI;
-        grmsg.data = (char *)(timestepMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
-    }
 }
 
 void coVRAnimationManager::setTimestepUnit(const char *unit)

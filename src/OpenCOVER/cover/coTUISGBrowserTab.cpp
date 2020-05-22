@@ -7,6 +7,9 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include <iostream>
+#ifndef WIN32
+#include <sys/socket.h>
+#endif
 #include <util/unixcompat.h>
 
 namespace opencover {
@@ -375,7 +378,7 @@ void coTUISGBrowserTab::sendTexture()
     tb << _indexList.front();
     tb << _lengthList.front();
 
-    int length = _heightList.front() * _widthList.front() * _depthList.front() / 8;
+    int length = _heightList.front() * _widthList.front() * (_depthList.front() / 8);
     tb.addBinary(_dataList.front(), length);
     this->send(tb);
     _heightList.pop();

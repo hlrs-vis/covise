@@ -32,6 +32,11 @@
 #include <sstream>
 
 #include <GL/glew.h>
+#ifdef USE_X11
+#include <GL/glxew.h>
+#include <osgViewer/api/X11/GraphicsWindowX11>
+#undef Status
+#endif
 
 #include <osg/GL>
 #include <osg/GLExtensions>
@@ -39,6 +44,7 @@
 #include <osg/Notify>
 
 #include <config/CoviseConfig.h>
+#include "coVRConfig.h"
 
 #include "InitGLOperation.h"
 
@@ -89,6 +95,8 @@ typedef void (GL_APIENTRY *GLDebugMessageCallbackPROC)(GLDEBUGPROC callback, voi
 #define GL_DEBUG_OUTPUT 0x92E0
 #define GL_CONTEXT_FLAG_DEBUG_BIT 0x00000002
 
+namespace opencover {
+
 InitGLOperation::InitGLOperation()
 : osg::GraphicsOperation("InitGLOperation", false)
 {
@@ -102,11 +110,20 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         return;
     }
 
+#if defined(USE_X11) && defined(glxewInit)
+    if (glxewInit() != GLEW_OK)
+    {
+        std::cerr << "glxewInit() failed" << std::endl;
+    }
+#endif
+
     const bool glDebug = covise::coCoviseConfig::isOn("COVER.GLDebug", false);
     bool glDebugLevelExists = false;
     int glDebugLevel = covise::coCoviseConfig::getInt("level", "COVER.GLDebug", 1, &glDebugLevelExists);
+    bool abortOnErrorExists = false;
+    bool abortOnError = covise::coCoviseConfig::isOn("abortOnError", "COVER.GLDebug", false, &abortOnErrorExists);
 
-    if (glDebug || (glDebugLevelExists && glDebugLevel > 0)) {
+    if (glDebug || (glDebugLevelExists && glDebugLevel > 0) || abortOnError) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
 
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(m_mutex);
@@ -149,7 +166,7 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
             return;
         }
 
-        m_callbackData = { contextId, glDebugLevel };
+        m_callbackData = { contextId, glDebugLevel, abortOnError };
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
@@ -165,6 +182,46 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
         glEnable(GL_FRAMEBUFFER_SRGB);
     }
+
+    // setup swap groups and swap barriers
+#ifdef USE_X11
+    if (glXJoinSwapGroupNV && glXBindSwapBarrierNV)
+    {
+        auto &conf = *opencover::coVRConfig::instance();
+        for(int i=0; i<conf.numWindows();i++)
+        {
+            if(conf.windows[i].context == gc)
+            {
+                osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(gc);
+                if (!window)
+                    continue;
+                if(conf.windows[i].swapGroup > 0)
+                {
+                    if (!glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),conf.windows[i].swapGroup))
+                    {
+                        std::cerr << "Failed to join GL swap group " << conf.windows[i].swapGroup << std::endl;
+                    }
+                    else if(conf.windows[i].swapBarrier > 0)
+                    {
+                        if (!glXBindSwapBarrierNV(window->getDisplayToUse(),conf.windows[i].swapGroup,conf.windows[i].swapBarrier))
+                        {
+                            std::cerr << "Failed to bind GL swap group " << conf.windows[i].swapGroup << " to barrier " << conf.windows[i].swapBarrier << std::endl;
+                        }
+                        else
+                        {
+                            m_boundSwapBarrier = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif
+}
+
+bool InitGLOperation::boundSwapBarrier() const
+{
+    return m_boundSwapBarrier;
 }
 
 void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
@@ -191,7 +248,6 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
     }
 
     std::string typeStr = "UNDEFINED";
-
     switch(type)
     {
 
@@ -216,12 +272,52 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
         break;
     }
 
-    std::stringstream msg;
-    msg << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << std::string(message, length);
+    std::string severityStr = "";
+    switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH:
+        severityStr = "HIGH";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        severityStr = "MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        severityStr = "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        severityStr = "NOTIFICATION";
+        break;
+    }
 
-    bool printMsg = (cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR)
+    bool printMsg = severity==GL_DEBUG_SEVERITY_HIGH;
+    if (cbdata.debugLevel >= 1 && severity==GL_DEBUG_SEVERITY_MEDIUM)
+        printMsg = true;
+    if (cbdata.debugLevel >= 2 && severity==GL_DEBUG_SEVERITY_LOW)
+    {
+        // filter warnings about non full-screen clears
+        if (type != GL_DEBUG_TYPE_OTHER && source != GL_DEBUG_SOURCE_API)
+            printMsg = true;
+        else if (cbdata.debugLevel >= 3)
+            printMsg = true;
+    }
+    if (cbdata.debugLevel >= 3 && severity==GL_DEBUG_SEVERITY_NOTIFICATION)
+        printMsg = true;
+
+    std::stringstream msg;
+    msg << "GL ctx " << ctxId << ": " << typeStr << " (" << severityStr << ")" <<  " [" << srcStr <<"]: " << std::string(message, length);
+
+    bool print = (cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR)
                  || (cbdata.debugLevel >= 2 && type == GL_DEBUG_TYPE_PERFORMANCE)
                  ||  cbdata.debugLevel >= 3;
-    if (printMsg)
+    if (cbdata.abortOnError && type==GL_DEBUG_TYPE_ERROR)
+        print = true;
+
+    if (print || printMsg)
         std::cerr << msg.str() << std::endl;
+
+    if (cbdata.abortOnError && type==GL_DEBUG_TYPE_ERROR)
+    {
+        abort();
+    }
+}
+
 }

@@ -5,6 +5,8 @@
 #include "XenomaiMutex.h"
 
 #include "RoadSystem/RoadSystem.h"
+namespace vehicleUtil
+{
 
 class VEHICLEUTILEXPORT RoadPointFinder : public XenomaiTask
 {
@@ -129,5 +131,5 @@ inline void RoadPointFinder::checkLoadingRoads(bool loadingState)
 {
 	loadingRoad = loadingState;
 }
-
+}
 #endif

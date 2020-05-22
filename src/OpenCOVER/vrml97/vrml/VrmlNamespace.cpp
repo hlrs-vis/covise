@@ -30,6 +30,7 @@
 #include "System.h"
 #include <stdio.h>
 #include <list>
+#include <set>
 using std::list;
 
 using namespace vrml;
@@ -39,22 +40,26 @@ list<VrmlNodeType *> VrmlNamespace::builtInList;
 NamespaceList VrmlNamespace::allNamespaces;
 bool VrmlNamespace::definedBuiltins;
 
-static int numNamespaces = 0;
+static std::map<int, std::set<int>> numNamespaces{ std::pair<int, std::set<int>>(-1, std::set<int>{0}) };
 
 VrmlNamespace::VrmlNamespace(VrmlNamespace *parent)
     : d_parent(parent)
 {
-    // Initialize typeList with built in nodes
-    if (!definedBuiltins)
-    {
-        definedBuiltins = true;
-        defineBuiltIns();
-    }
+	if (parent)
+	{
+		init(parent->getNumber().first);
+	}
+	else
+	{
+		init(-1);
+	}
+}
 
-    namespaceNum = numNamespaces++;
-    allNamespaces.push_back(this);
-    //fprintf(stderr,"new Namespace %d",namespaceNum);
-    //fprintf(stderr,".");
+vrml::VrmlNamespace::VrmlNamespace(int parentId)
+	:d_parent(nullptr)
+{
+	init(parentId);
+
 }
 
 VrmlNamespace::~VrmlNamespace()
@@ -72,15 +77,39 @@ VrmlNamespace::~VrmlNamespace()
     // remove myself from allNamespaces
 
     allNamespaces.remove(this);
-    /*       NamespaceList::iterator it;
-   for (it = allNamespaces.begin(); it != allNamespaces.end(); it++)
-   {
-      if(*it==this)
-      {
-         break;
-      }
-   }
-   */
+	//reset namespace counter 
+	bool found = false;
+	for (auto ns : allNamespaces)
+	{
+		if (ns->namespaceNum ==namespaceNum)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		numNamespaces[namespaceNum.first].erase(namespaceNum.second);
+	}
+
+}
+
+void vrml::VrmlNamespace::init(int parentId)
+{
+	// Initialize typeList with built in nodes
+	if (!definedBuiltins)
+	{
+		definedBuiltins = true;
+		defineBuiltIns();
+	}
+	auto &it = numNamespaces[parentId];
+	int id = 0;
+	do
+	{
+		++id;
+	} while (!it.insert(id).second);
+	namespaceNum = NamespaceNum(parentId, id);
+	allNamespaces.push_back(this);
 }
 
 //
@@ -174,6 +203,24 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 #include "VrmlNodeViewpoint.h"
 #include "VrmlNodeVisibilitySensor.h"
 #include "VrmlNodeWorldInfo.h"
+
+
+void vrml::VrmlNamespace::resetNamespaces(int parentId)
+{
+	auto it = allNamespaces.begin();
+	while (it != allNamespaces.end())
+	{
+		if ((*it)->getNumber().first == parentId)
+		{
+			it = allNamespaces.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	numNamespaces.erase(parentId);
+}
 
 void VrmlNamespace::defineBuiltIns()
 {
@@ -398,10 +445,10 @@ VrmlNode *VrmlNamespace::findNode(const char *name)
     return 0;
 }
 
-VrmlNode *VrmlNamespace::findNode(const char *name, int num)
+VrmlNode *VrmlNamespace::findNode(const char *name, NamespaceNum num)
 {
     VrmlNamespace *ns = NULL;
-    if (num >= 0)
+    if (num.second >= 0)
     {
         NamespaceList::iterator it;
 

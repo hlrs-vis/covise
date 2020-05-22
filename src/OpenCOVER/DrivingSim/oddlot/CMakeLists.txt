@@ -663,5 +663,12 @@ TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS} ${OPENCRG_LIBRARIES}
 ) 
 
+# ignore deprecation of QSignalMapper for now
+if(CMAKE_COMPILER_IS_GNUCXX)
+    add_covise_compile_flags(oddlot "-Wno-error=deprecated-declarations")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_covise_compile_flags(oddlot "-Wno-error=deprecated-declarations")
+endif()
+
 source_group("testit" FILES src/cover/coverconnection.cpp coverconnection.cpp .*cover.*)
 covise_install_target(oddlot)

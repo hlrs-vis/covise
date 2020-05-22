@@ -10,7 +10,7 @@
 
 #include <QMap>
 #include <QStringList>
-
+#include <vrbserver/VrbMessageHandler.h>
 #include "CTRLGlobal.h"
 
 class QString;
@@ -26,7 +26,7 @@ class AppModule;
 class SSLClient;
 
 // == == == == == == == == == == == == == == == == == == == == == == == ==
-class CTRLHandler
+class CTRLHandler : public vrb::ServerInterface
 // == == == == == == == == == == == == == == == == == == == == == == == ==
 {
 public:
@@ -41,6 +41,7 @@ public:
 
     bool m_miniGUI, m_rgbTextOpen;
     int m_numRunning, m_numRendererRunning;
+	vrb::VrbMessageHandler m_handler;
 
     ControlConfig *Config;
     AccessGridDaemon *m_accessGridDaemon;
@@ -55,11 +56,10 @@ public:
     vector<string> splitString(string text, const string &sep);
     bool recreate(string buffer, readMode mode);
     void sendMessage();
-
+    void removeConnection(covise::Connection *conn) override;
 private:
     static CTRLHandler *singleton;
     FILE *fp;
-
     string m_globalFilename, m_netfile, m_clipboardBuffer, m_collaborationRoom;
     string m_localUser, m_scriptName, m_filename, m_filePartnerHost, m_pyFile;
 

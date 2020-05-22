@@ -7,7 +7,7 @@
 #COVISE_UNFINISHED()
 
 PROJECT(OpenCOVER C CXX)
-set (CMAKE_CXX_STANDARD 11)
+# this is already set in the top most CMakeLists.txt set (CMAKE_CXX_STANDARD 11)
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
 
     set(COVISE_EXPORTS_FILE "cover-exports.cmake")
@@ -27,6 +27,9 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     option(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
     option(COVISE_USE_OSMESA "Use OSMesa OpenGL library for CPU based off-screen rendering" OFF)
 endif()
+
+option(COVER_ENABLE_VOIP "Enable VoIP linphone client plugin" OFF)
+mark_as_advanced(COVER_ENABLE_VOIP)
 
 macro (GETENV_PATH var name)
    set(${var} $ENV{${name}})
@@ -49,6 +52,7 @@ if(COVISE_OPENCOVER_INTERNAL_PROJECT)
    set(COVISE_SHM_LIBRARY coShm)
    set(COVISE_CONFIG_LIBRARY coConfig)
    set(COVISE_VRBCLIENT_LIBRARY coVRBClient)
+   set(COVISE_VRBCLIENT_LIBRARY coVRBServer)
    set(COVISE_GRMSG_LIBRARY coGRMsg)
    set(COVISE_GPU_LIBRARY coGPU)
    set(COVISE_ALG_LIBRARY coAlg)
@@ -57,7 +61,7 @@ if(COVISE_OPENCOVER_INTERNAL_PROJECT)
 
    set(COVISE_GPU_LIBRARIES ${COVISE_GPU_LIBRARY})
 
-   set(COVISE_INCLUDE_DIR ../kernel)
+   set(COVISE_INCLUDE_DIRS ../kernel)
    set(COVISE_FOUND TRUE)
 else()
    cmake_minimum_required(VERSION 3.1)
@@ -131,11 +135,11 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
         set(CMAKE_BUILD_TYPE "RelWithDebInfo")
     endif()
     message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-    if(COVISE_USE_X11)
-        add_definitions(-DUSE_X11)
-    endif()
 endif()
 
+if(COVISE_USE_X11)
+    add_definitions(-DUSE_X11)
+endif()
 
 # find dependencies for coVRML library
 using(FLEX optional)
@@ -184,6 +188,8 @@ ADD_SUBDIRECTORY(mpiwrapper)
 
 ADD_SUBDIRECTORY(vrml97)
 ADD_SUBDIRECTORY(plugins)
+ADD_SUBDIRECTORY(ManagedOpenCOVER)
+ADD_SUBDIRECTORY(Sur40COVER)
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     IF(${CMAKE_VERSION} VERSION_GREATER "2.8.2")

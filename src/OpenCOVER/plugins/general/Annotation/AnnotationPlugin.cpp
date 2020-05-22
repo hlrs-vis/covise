@@ -118,8 +118,9 @@ bool AnnotationPlugin::init()
     annotationsMenu->add(annotationsMenuCheckbox);
     annotationsMenuCheckbox->setMenuListener(this);
 
+    
     // hide all annotations
-    hideMenuCheckbox = new coCheckboxMenuItem("Display Annotations", true);
+    hideMenuCheckbox = new coCheckboxMenuItem("Display Annotations", !coCoviseConfig::isOn("COVER.DisplayAnnotations", false));
     annotationsMenu->add(hideMenuCheckbox);
     hideMenuCheckbox->setMenuListener(this);
 
@@ -710,9 +711,9 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 tb2 << activeAnnotation->getOwnerID();
                 tb2 << text;
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::AnnotationTextMessage, tb2.get_length(), tb2.get_data());
+                                   PluginMessageTypes::AnnotationTextMessage, tb2.getData().length(), tb2.getData().data());
                 cover->sendMessage(this, "Revit",
-                                   PluginMessageTypes::AnnotationTextMessage, tb2.get_length(), tb2.get_data());
+                                   PluginMessageTypes::AnnotationTextMessage, tb2.getData().length(), tb2.getData().data());
             }
             break;
         }
@@ -924,6 +925,8 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 
                 curr
                     = new Annotation(mm->id, mm->sender, pick, scaleMenuPoti->getValue(), orientation);
+                if (hideMenuCheckbox->getState() == true)
+                    curr->setVisible(false);
                 curr->setOwnerID(mm->sender);
                 previousAnnotation = activeAnnotation; //remember last selected annotation
                 if (previousAnnotation)
@@ -1176,7 +1179,7 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 
     else if (type == PluginMessageTypes::AnnotationTextMessage)
     {
-        TokenBuffer tb((char *)buf, len);
+        TokenBuffer tb(DataHandle((char *)buf, len, false));
         int id;
         tb >> id;
         int owner;

@@ -21,7 +21,8 @@ namespace covise
 class ALGEXPORT coChemicalElement
 {
  public:
-   int number;
+   bool valid = false;
+   int number = 0;
    std::string name;
    std::string symbol;
    float radius;

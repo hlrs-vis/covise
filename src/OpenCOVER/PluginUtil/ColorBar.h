@@ -35,60 +35,44 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 namespace opencover
 {
+namespace ui
+{
+class SpecialElement;
+}
 
-class PLUGIN_UTILEXPORT ColorBar : public vrui::coMenuListener, public opencover::coTUIListener
+class PLUGIN_UTILEXPORT ColorBar: public ui::Owner
 {
 private:
-    coColorBar *colorbar_;
-    vrui::coMenu *pinboard_;
-    vrui::coSubMenuItem *colorsButton_, *myColorsButton_;
-    vrui::coRowMenu *colorsMenu_;
-    char *title_;
-    char *name_;
-    char *species_;
-    vrui::coSliderMenuItem *minSlider_;
-    vrui::coSliderMenuItem *maxSlider_;
-    vrui::coSliderMenuItem *stepSlider_;
-    vrui::coCheckboxMenuItem *autoScale_;
-    vrui::coButtonMenuItem *execute_;
+    vrui::vruiMatrix *floatingMat_ = nullptr;
+    coColorBar *colorbar_ = nullptr, *hudbar_ = nullptr;
+    ui::Menu *colorsMenu_ = nullptr;
+    std::string title_;
+    std::string name_;
+    std::string species_;
+    ui::SpecialElement *uiColorBar_ = nullptr;
+    ui::Slider *minSlider_ = nullptr;
+    ui::Slider *maxSlider_ = nullptr;
+    ui::Slider *stepSlider_ = nullptr;
+    ui::Button *autoScale_ = nullptr;
+    ui::Action *execute_ = nullptr;
+    ui::Slider *center_ = nullptr;
+    ui::Slider *compress_ = nullptr;
+    ui::Slider *insetCenter_ = nullptr;
+    ui::Slider *insetWidth_ = nullptr;
+    ui::Slider *opacityFactor_ = nullptr;
+    ui::Button *show_ = nullptr;
 
-    opencover::coInteractor *inter_;
+    opencover::coInteractor *inter_ = nullptr;
 
-    void menuEvent(vrui::coMenuItem *);
-    void menuReleaseEvent(vrui::coMenuItem *);
+    void updateTitle();
 
-    bool tabUI;
-
-    void tabletPressEvent(opencover::coTUIElement *);
-    void createMenuEntry(const char *name, float min, float max, int numColors, int tabID);
-    void removeMenuEntry();
-
-    /// The TabletUI Interface
-    opencover::coTUITab *_tab;
-    opencover::coTUIEditFloatField *_min;
-    opencover::coTUIEditFloatField *_max;
-    opencover::coTUIEditIntField *_steps;
-    opencover::coTUILabel *_minL;
-    opencover::coTUILabel *_maxL;
-    opencover::coTUILabel *_stepL;
-
-    opencover::coTUIToggleButton *_autoScale;
-    opencover::coTUIButton *_execute;
+    float min = 0.0;
+    float max = 1.0;
+    int numColors = 0;
+    std::vector<float> r, g, b, a;
+    bool hudVisible_ = false;
 
 public:
-    /** constructor
-       *  create create containers, texture and labels
-       *  @param name the name of the colorbar, identical with module name, eg, g, Colors_1
-       *  @param species data species name, currently not displayed
-       *  @param min data minimum
-       *  @param max data maximum
-       *  @param numColors number of different colors in colorbar
-       *  @param r red colors
-       *  @param g green colors
-       *  @param b blue colors
-       *  @param a red colors
-       */
-    ColorBar(const char *name, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
 
     /** constructor when the colorbar is not to be opened from the pinboard
        *  create create containers, texture and labels
@@ -103,10 +87,13 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    ColorBar(vrui::coSubMenuItem *colorsButton, vrui::coRowMenu *moduleMenu, const char *name, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a, int tabID = -1);
+    ColorBar(ui::Menu *menu);
 
     /// destructor
     ~ColorBar();
+
+    bool hudVisible() const;
+    void setHudPosition(osg::Vec3 pos, osg::Vec3 hpr, float size);
 
     /** colorbar update
        *  @param species title bar content
@@ -118,7 +105,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    void update(const char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    void update(const std::string &species, float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a);
 
     /** set name */
     void setName(const char *name);
@@ -139,14 +126,16 @@ public:
        * @param b: blue (the client should delete this pointer)
        * @param a: alpha (the client should delete this pointer)
        */
-    static void parseAttrib(const char *attrib, char *&species,
+    static void parseAttrib(const char *attrib, std::string &species,
                             float &min, float &max, int &numColors,
-                            float *&r, float *&g, float *&b, float *&a);
+                            std::vector<float> &r, std::vector<float> &g, std::vector<float> &b, std::vector<float> &a);
 
+    void parseAttrib(const char *attrib);
     void setVisible(bool);
     bool isVisible();
 
     void addInter(opencover::coInteractor *inter);
+    void updateInteractor();
 };
 }
 #endif

@@ -9,11 +9,7 @@
 #include "TUITab.h"
 #include "TUIApplication.h"
 #include "TUIFunctionEditorTab.h"
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 #include <QLabel>
 #include <QColor>
 #include <QLineEdit>
@@ -454,7 +450,7 @@ void TUIFunctionEditorTab::makeEditor()
     tfval = new QLineEdit(widget);
     tfval->setText("NONE");
     tfval->setToolTip("Current value");
-    connect(tfval, SIGNAL(returnPressed()), this, SLOT(newWidgetValue()));
+    connect(tfval, SIGNAL(editingFinished()), this, SLOT(newWidgetValue()));
     hb->addWidget(tfval);
     hb->addStretch(5);
 

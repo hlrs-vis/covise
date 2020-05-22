@@ -37,6 +37,7 @@
 #include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
 #include <OpenVRUI/osg/mathUtils.h>
 
+
 #include <PluginUtil/PluginMessageTypes.h>
 
 
@@ -48,7 +49,7 @@
 #include <osg/CullFace>
 #include <osg/MatrixTransform>
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
+#include <cover/coIntersection.h>
 
 
 #include <net/covise_host.h>
@@ -118,6 +119,31 @@ void OddlotPlugin::destroyMenu()
     delete oddlotTab;
 }
 
+
+osg::Matrixd OddlotPlugin::computeLeftEyeProjection(const osg::Matrixd &projection) const
+{
+	(void)projection;
+	return projMat;
+}
+
+osg::Matrixd OddlotPlugin::computeLeftEyeView(const osg::Matrixd &view) const
+{
+	(void)view;
+	return viewMat;
+}
+
+osg::Matrixd OddlotPlugin::computeRightEyeProjection(const osg::Matrixd &projection) const
+{
+	(void)projection;
+	return projMat;
+}
+
+osg::Matrixd OddlotPlugin::computeRightEyeView(const osg::Matrixd &view) const
+{
+	(void)view;
+	return viewMat;
+}
+
 OddlotPlugin::OddlotPlugin()
 {
     fprintf(stderr, "OddlotPlugin::OddlotPlugin\n");
@@ -134,6 +160,10 @@ OddlotPlugin::OddlotPlugin()
         delete serverConn;
         serverConn = NULL;
     }
+    else
+    {
+        cover->watchFileDescriptor(serverConn->getSocket()->get_id());
+    }
 
     struct linger linger;
     linger.l_onoff = 0;
@@ -148,8 +178,10 @@ OddlotPlugin::OddlotPlugin()
         if (!serverConn->is_connected()) // could not open server port
         {
             fprintf(stderr, "Could not open server port %d\n", port);
+            cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
             delete serverConn;
             serverConn = NULL;
+
         }
     }
     msg = new Message;
@@ -188,8 +220,12 @@ bool OddlotPlugin::init()
 OddlotPlugin::~OddlotPlugin()
 {
     destroyMenu();
+    if (serverConn && serverConn->getSocket())
+        cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
     delete serverConn;
     serverConn = NULL;
+    if (toOddlot && toOddlot->getSocket())
+        cover->unwatchFileDescriptor(toOddlot->getSocket()->get_id());
     delete toOddlot;
     delete msg;
     
@@ -208,7 +244,7 @@ void OddlotPlugin::setProjection(float xPos, float yPos, float width, float heig
     float hh = height/2.0;
     // ProjectionMatrix //
     //
-    osg::Matrix projMat = osg::Matrix::ortho(-hw, hw, -hh, hh, 10000.0, 4000000.0);
+    projMat = osg::Matrix::ortho(-hw, hw, -hh, hh, 10000.0, 4000000.0);
 
     // ViewMatrix //
     //
@@ -216,7 +252,7 @@ void OddlotPlugin::setProjection(float xPos, float yPos, float width, float heig
     //osg::Matrix viewMat = cover->getInvBaseMat();
     //viewMat.postMult(osg::Matrix::lookAt(osg::Vec3d(xPos+hw, yPos+hh, 1800000.0), osg::Vec3d(xPos+hw, yPos+hh, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0)));
     osg::Matrix tmpMat = osg::Matrix::lookAt(osg::Vec3d(xPos+hw, yPos+hh, 1800000.0), osg::Vec3d(xPos+hw, yPos+hh, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0));
-    osg::Matrix viewMat = cover->getInvBaseMat() *osg::Matrix::translate(-(xPos+hw), -(yPos+hh), -1800000.0);
+    viewMat = cover->getInvBaseMat() *osg::Matrix::translate(-(xPos+hw), -(yPos+hh), -1800000.0);
 
 
     camera->setProjectionMatrix(projMat);
@@ -261,6 +297,9 @@ void OddlotPlugin::createCamera()
     camera->setLODScale(0.0); // always highest LOD
     renderer->getSceneView(0)->setSceneData(cover->getScene());
     renderer->getSceneView(1)->setSceneData(cover->getScene());
+
+	renderer->getSceneView(0)->setComputeStereoMatricesCallback(this);
+	renderer->getSceneView(1)->setComputeStereoMatricesCallback(this);
 }
 
 void OddlotPlugin::menuEvent(coMenuItem *aButton)
@@ -292,10 +331,7 @@ void OddlotPlugin::message(int toWhom, int type, int len, const void *buf)
     }
     else if(type >= PluginMessageTypes::HLRS_Oddlot_Message && type <= (PluginMessageTypes::HLRS_Oddlot_Message+100))
     {
-        Message m;
-        m.type = type-PluginMessageTypes::HLRS_Oddlot_Message + MSG_GetHeight;
-        m.length = len;
-        m.data = (char *)buf;
+        Message m{ type - PluginMessageTypes::HLRS_Oddlot_Message + MSG_GetHeight , covise::DataHandle{(char *)buf, len, false} };
         handleMessage(&m);
     }
 
@@ -340,29 +376,25 @@ OddlotPlugin::handleMessage(Message *m)
                         double minHeightValue = 100000000.0;
                         double maxHeightValue = -100000000.0;
 
-                        osg::LineSegment *ray = new osg::LineSegment();
 
                         osg::Vec3 rayP = osg::Vec3(x, y, 9999999);
                         osg::Vec3 rayQ = osg::Vec3(x, y, -9999999);
 
-                        ray->set(rayP, rayQ);
+                        coIntersector* isect = coIntersection::instance()->newIntersector(rayP, rayQ);
+                        osgUtil::IntersectionVisitor visitor(isect);
+                        visitor.setTraversalMask(Isect::Collision);
 
-                        osgUtil::IntersectVisitor intersectVisitor;
-                        intersectVisitor.addLineSegment(ray);
+                        cover->getObjectsXform()->accept(visitor);
 
-                        cover->getObjectsXform()->accept(intersectVisitor);
-
-                        osgUtil::IntersectVisitor::HitList hits;
-                        hits = intersectVisitor.getHitList(ray);
-
-                        if (hits.empty())
+                        //std::cerr << "Hits ray num: " << num1 << ", down (" << ray->start()[0] << ", " << ray->start()[1] <<  ", " << ray->start()[2] << "), up (" << ray->end()[0] << ", " << ray->end()[1] <<  ", " << ray->end()[2] << ")" <<  std::endl;
+                        if (!isect->containsIntersections())
                         {
                             rtb << 0.0f;
                         }
                         else
                         {
-                            osgUtil::Hit results;
-                            results = hits.front();
+                            auto results = isect->getFirstIntersection();
+
                             osg::Vec3d terrainHeight = results.getWorldIntersectPoint();
 
                             double height = terrainHeight.z() / 1000.0;
@@ -411,6 +443,7 @@ OddlotPlugin::handleMessage(Message *m)
         {
         case Message::SOCKET_CLOSED:
         case Message::CLOSE_SOCKET:
+            cover->unwatchFileDescriptor(toOddlot->getSocket()->get_id());
             delete toOddlot;
             toOddlot = NULL;
 
@@ -433,6 +466,7 @@ OddlotPlugin::preFrame()
         if (toOddlot && toOddlot->is_connected())
         {
             fprintf(stderr, "Connected to Oddlot\n");
+            cover->watchFileDescriptor(toOddlot->getSocket()->get_id());
         }
     }
     char gotMsg = '\0';
@@ -456,7 +490,7 @@ OddlotPlugin::preFrame()
                 coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
                 coVRMSController::instance()->sendSlaves(msg);
                 
-                cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Oddlot_Message+msg->type-MSG_GetHeight,msg->length, msg->data);
+                cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Oddlot_Message+msg->type-MSG_GetHeight,msg->data.length(), msg->data.data());
                 handleMessage(msg);
             }
             else

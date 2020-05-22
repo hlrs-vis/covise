@@ -16,6 +16,9 @@
 #include "VehicleManager.h"
 #include "TrafficSimulation.h"
 
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
+
 VehicleFactory *VehicleFactory::__instance = NULL;
 
 VehicleFactory *VehicleFactory::Instance()
@@ -54,7 +57,7 @@ void VehicleFactory::deleteRoadVehicle(Vehicle *veh)
     }
 }
 
-Vehicle *VehicleFactory::cloneRoadVehicle(std::string id, std::string name, Road *road, double pos, int lane, double vel, int dir)
+Vehicle *VehicleFactory::cloneRoadVehicle(std::string id, std::string name, vehicleUtil::Road *road, double pos, int lane, double vel, int dir)
 {
     std::map<std::string, Vehicle *>::iterator vehIt = roadVehicleMap.find(id);
     if (vehIt != roadVehicleMap.end())
@@ -102,7 +105,7 @@ Vehicle *VehicleFactory::createRoadVehicle(std::string id, std::string name, Roa
     return veh;
 }
 
-Vehicle *VehicleFactory::createRoadVehicle(std::string id, std::string name, Road *road, double pos, int lane, int dir, double vel, RoadVehicleType, IntelligenceType intelType, std::string modelfile)
+Vehicle *VehicleFactory::createRoadVehicle(std::string id, std::string name, vehicleUtil::Road *road, double pos, int lane, int dir, double vel, RoadVehicleType, IntelligenceType intelType, std::string modelfile)
 {
     Vehicle *veh = NULL;
 
@@ -157,7 +160,7 @@ Vehicle *VehicleFactory::createRoadVehicle(std::string id, std::string name, std
 
 Vehicle *VehicleFactory::createRoadVehicle(std::string id, std::string name, std::string roadId, double pos, int lane, int dir, double vel, std::string vehTypeString, std::string intelTypeString, std::string modelfile)
 {
-    Road *road = RoadSystem::Instance()->getRoad(roadId);
+    vehicleUtil::Road *road = RoadSystem::Instance()->getRoad(roadId);
     RoadVehicleType vehType = ROADVEHICLE_CAR;
     IntelligenceType intelType = INTELLIGENCE_AGENT;
 
@@ -388,7 +391,7 @@ void VehicleFactory::parseOpenDrive(xercesc::DOMElement *rootElement, const std:
                                         if (routeChildElement && xercesc::XMLString::compareIString(routeChildElement->getTagName(), t4 = xercesc::XMLString::transcode("road")) == 0)
                                         {
                                             std::string idString = ch = xercesc::XMLString::transcode(routeChildElement->getAttribute(t15 = xercesc::XMLString::transcode("id"))); xercesc::XMLString::release(&ch); xercesc::XMLString::release(&t15);
-                                            Road *road = RoadSystem::Instance()->getRoad(idString);
+                                            vehicleUtil::Road *road = RoadSystem::Instance()->getRoad(idString);
                                             std::string dirString = ch = xercesc::XMLString::transcode(routeChildElement->getAttribute(t15 = xercesc::XMLString::transcode("contactPoint"))); xercesc::XMLString::release(&ch); xercesc::XMLString::release(&t15);
                                             int dir = (dirString == "end") ? -1 : 1;
                                             AgentVehicle *routeVeh = dynamic_cast<AgentVehicle *>(veh);

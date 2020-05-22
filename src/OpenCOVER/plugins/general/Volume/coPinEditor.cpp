@@ -370,9 +370,7 @@ void coPinEditor::setTopWidth(float s, int context)
         vvTFPyramid *pyr = dynamic_cast<vvTFPyramid *>(myPin->jPin);
         if (pyr)
         {
-            ((coAlphaHatPin *)myPin)->setTopWidth(fabs(s),
-                                                  myFunctionEditor->getMin(),
-                                                  myFunctionEditor->getMax());
+            ((coAlphaHatPin *)myPin)->setTopWidth(fabs(s),0,1);
         }
         updateColorBar();
     }
@@ -394,11 +392,11 @@ void coPinEditor::setBotWidth(float w, int context)
     {
         if (coAlphaHatPin *pin = dynamic_cast<coAlphaHatPin *>(myPin))
         {
-            pin->setBotWidth(w, myFunctionEditor->getMin(), myFunctionEditor->getMax());
+            pin->setBotWidth(w,0,1);
         }
         else if (coAlphaBlankPin *pin = dynamic_cast<coAlphaBlankPin *>(myPin))
         {
-            pin->setWidth(w, myFunctionEditor->getMin(), myFunctionEditor->getMax());
+            pin->setWidth(w,0,1);
         }
         updateColorBar();
     }
@@ -419,7 +417,7 @@ void coPinEditor::setMax(float m, int context)
     {
         if (coAlphaHatPin *pin = dynamic_cast<coAlphaHatPin *>(myPin))
         {
-            pin->setMax(m, myFunctionEditor->getMin(), myFunctionEditor->getMax());
+            pin->setMax(m,0,1);
         }
         updateColorBar();
     }
@@ -427,7 +425,7 @@ void coPinEditor::setMax(float m, int context)
 
 int coPinEditor::hit(vruiHit *hit)
 {
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return ACTION_DONE;
 
@@ -548,10 +546,8 @@ int coPinEditor::hit(vruiHit *hit)
     {
         float valuex = x - currentPin->handleTrans();
         x = ts_clamp(x, 0.0f, 1.0f);
-        valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
-        currentPin->setPos(valuex,
-                           myFunctionEditor->getMin(),
-                           myFunctionEditor->getMax());
+        //valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
+        currentPin->setPos(valuex,0,1);
         sprintf(message, "X%f %f %f", x, .5, .5);
         sendOngoingMessage(message);
         vvTFColor *col = dynamic_cast<vvTFColor *>(currentPin->jPin);
@@ -668,10 +664,7 @@ int coPinEditor::hit(vruiHit *hit)
                 sendOngoingMessage(message);
                 x = ts_clamp(x, 0.0f, 1.0f);
                 x = x - currentPin->handleTrans();
-                float valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
-                currentPin->setPos(valuex,
-                                   myFunctionEditor->getMin(),
-                                   myFunctionEditor->getMax());
+                currentPin->setPos(x,0,1);
                 updateColorBar();
                 sortPins();
             }
@@ -765,7 +758,7 @@ void coPinEditor::update()
     }
 
     static int oldSyncMode = -1;
-    if (oldSyncMode != coVRCollaboration::instance()->getSyncMode())
+    if (oldSyncMode != coVRCollaboration::instance()->getCouplingMode())
     {
         if (currentPin)
         {
@@ -777,9 +770,9 @@ void coPinEditor::update()
                 sendOngoingMessage(message);
             }
         }
-        oldSyncMode = coVRCollaboration::instance()->getSyncMode();
+        oldSyncMode = coVRCollaboration::instance()->getCouplingMode();
     }
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return;
     if (interactionB->isRunning())
@@ -835,19 +828,15 @@ void coPinEditor::update()
                         {
                             if (myValue < 0.0)
                                 myValue = 0.0;
-                            ((coAlphaHatPin *)currentPin)->setTopWidth(myValue,
-                                                                       myFunctionEditor->getMin(),
-                                                                       myFunctionEditor->getMax());
+                            ((coAlphaHatPin *)currentPin)->setTopWidth(myValue,0,1);
                             myFunctionEditor->topWidth->setValue(myValue);
                             sprintf(message, "S%f", myValue);
                             sendOngoingMessage(message);
                         }
                         else
                         {
-                            myValue = ts_clamp(myValue, myFunctionEditor->getMin(), myFunctionEditor->getMax());
-                            ((coAlphaHatPin *)currentPin)->setBotWidth(myValue,
-                                                                       myFunctionEditor->getMin(),
-                                                                       myFunctionEditor->getMax());
+                            myValue = ts_clamp(myValue, 0.f,1.f);
+                            ((coAlphaHatPin *)currentPin)->setBotWidth(myValue,0,1);
                             myFunctionEditor->botWidth->setValue(myValue);
                             sprintf(message, "A%f", myValue);
                             sendOngoingMessage(message);
@@ -991,7 +980,7 @@ void coPinEditor::selectPin(float x, float y)
       }*/
         currentPin = minPin;
         highlightCurrent();
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
         {
             static char message[100];
             sprintf(message, "E%d", currentPin->getID());
@@ -1131,7 +1120,7 @@ void coPinEditor::addPin(int type, int local)
         jPin = pyrPin;
         pyrPin->_top[0] = 0.f;
         pyrPin->_opacity = 1.f;
-        pyrPin->_bottom[0] = myFunctionEditor->getMax() - myFunctionEditor->getMin();
+        pyrPin->_bottom[0] = 1.f;// myFunctionEditor->getMax() - myFunctionEditor->getMin();
         coAlphaHatPin *pin = new coAlphaHatPin(pinDCS.get(), H, W, pyrPin);
         currentPin = pin;
     }
@@ -1140,12 +1129,12 @@ void coPinEditor::addPin(int type, int local)
     {
         vvTFSkip *skipPin = new vvTFSkip();
         jPin = skipPin;
-        skipPin->_size[0] = (myFunctionEditor->getMax() - myFunctionEditor->getMin()) / 255.;
+        skipPin->_size[0] = 1.f/255.;//(myFunctionEditor->getMax() - myFunctionEditor->getMin()) / 255.;
         currentPin = new coAlphaBlankPin(pinDCS.get(), H, W, skipPin);
     }
     }
-    float x = myFunctionEditor->getMin();
-    currentPin->setPos(x, myFunctionEditor->getMin(), myFunctionEditor->getMax());
+    float x =0;
+    currentPin->setPos(x,0,1);
     pinList.push_back(currentPin);
     if (jPin)
         myTransFunc->_widgets.push_back(jPin);
@@ -1254,7 +1243,7 @@ void coPinEditor::deletePin(int ID)
 
 void coPinEditor::updateColorBar()
 {
-    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData, myFunctionEditor->getMin(), myFunctionEditor->getMax(), true);
+    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData,0,1,true);
 
     Image *image = tex->getImage();
     image->setImage(TEXTURE_RES_COLOR, 2, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -1315,8 +1304,8 @@ void coPinEditor::updatePinList()
     selectedRegion = -1;
     setMode(SELECTION);
     currentPin = NULL;
-    float minv = myFunctionEditor->getMin();
-    float maxv = myFunctionEditor->getMax();
+    float minv = 0;
+    float maxv = 1;
     for (std::vector<vvTFWidget *>::const_iterator it = myTransFunc->_widgets.begin();
          it != myTransFunc->_widgets.end(); ++it)
     {
@@ -1608,7 +1597,7 @@ osg::ref_ptr<osg::Group> coPinEditor::createBackgroundGroup()
     tex->setWrap(Texture::WRAP_T, Texture::CLAMP);
 
     textureData = new unsigned char[3 * 4 * TEXTURE_RES_COLOR];
-    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData, myFunctionEditor->getMin(), myFunctionEditor->getMax(), true);
+    myTransFunc->makeColorBar(TEXTURE_RES_COLOR, textureData,0,1,true);
 
     ref_ptr<Image> image = new Image();
     image->setImage(TEXTURE_RES_COLOR, 2, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,

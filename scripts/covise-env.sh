@@ -42,7 +42,7 @@ fi
 
 if [ -z "$COENVERROR" ]; then
 
-   if [ -z "$EXTERNLIBS" ]; then
+   if [ -z "$EXTERNLIBS" -a -d "$EXTERNLIBS" ]; then
       export EXTERNLIBS=`sh -c "cd $COVISEDIR/extern_libs/$ARCHSUFFIX ; pwd -P"`
    fi
 
@@ -55,9 +55,11 @@ if [ -z "$COENVERROR" ]; then
    fi
 fi
 
-ALVAR_PLUGIN_PATH=${EXTERNLIBS}/alvar/bin/alvarplugins
-if [ -d "${ALVAR_PLUGIN_PATH}" ]; then
-    export ALVAR_PLUGIN_PATH
+if [ -d "$EXTERNLIBS" ]; then
+    ALVAR_PLUGIN_PATH=${EXTERNLIBS}/alvar/bin/alvarplugins
+    if [ -d "${ALVAR_PLUGIN_PATH}" ]; then
+        export ALVAR_PLUGIN_PATH
+    fi
 fi
 
 if [ -z "$COENVERROR" ]; then
@@ -84,14 +86,20 @@ if [ -z "$COENVERROR" ]; then
    fi
 
    primlibdir=lib
+   scndlibdir=lib64
    case "${ARCHSUFFIX%opt}" in
       linux64|amd64|x64|bishorn|fujisan|monshuygens|lycaeus|maunaloa|gorely|leonidas|constantine|goddard|laughlin|lovelock|verne|rhel3|rhel4|rhel5|rhel51|rhel52|rhel53|rhel6|rhel7|leguan|waran|basilisk|iguana|tuatara|mabuya|drusenkopf|lipinia|slowworm|neolamprologus|saara|julidochromis|indicus|mamba)
          primlibdir=lib64
+         scndlibdir=lib
          ;;
    esac
 
    ### add our own libraries
-   eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:${EXTERNLIBS}/ALL/${primlibdir}:${EXTERNLIBS}/ALL/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+   if [ -d "$EXTERNLIBS" ]; then
+       eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:${EXTERNLIBS}/ALL/${primlibdir}:${EXTERNLIBS}/ALL/${scndlibdir}:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+   else
+       eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+   fi
 
    # Sanity: remove dummy/lib
    eval export ${libvar}=\`echo \$${libvar} \| sed -e 's+:dummy/lib\[0-9\]\*:+:+g'\`

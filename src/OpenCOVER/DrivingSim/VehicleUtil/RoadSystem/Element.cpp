@@ -7,6 +7,8 @@
 
 #include "Element.h"
 
+using namespace vehicleUtil;
+
 Element::Element(std::string setid)
     : id(setid)
 {

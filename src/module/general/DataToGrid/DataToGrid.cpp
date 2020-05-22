@@ -17,10 +17,10 @@ DataToGrid::DataToGrid(int argc, char *argv[])
 {
     // Create ports:
     piData = addInputPort("DataIn0", "Float|Vec3", "data describing grid or points");
-    piTopGrid = addInputPort("GridIn0", "UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid",
+    piTopGrid = addInputPort("GridIn0", "UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons",
                              "grid for copying topology");
     piTopGrid->setRequired(0);
-    poGrid = addOutputPort("GridOut0", "StructuredGrid|Points|UnstructuredGrid", "generated structured grid or points");
+    poGrid = addOutputPort("GridOut0", "StructuredGrid|Points|UnstructuredGrid|Polygons", "generated structured grid or points");
 
     pcDataDirection = addChoiceParam("DataDirection", "axis along which scalar data describes the grid");
     const char *axes[] = { "X-axis", "Y-axis", "Z-axis" };
@@ -65,7 +65,9 @@ int DataToGrid::compute(const char *)
     int resX = 0, resY = 0, resZ = 0;
     float sizeX =.0, sizeY=.0, sizeZ=.0;
     coDoUnstructuredGrid *unstr = NULL;
-    const coDoUnstructuredGrid *top = dynamic_cast<const coDoUnstructuredGrid *>(topObj);
+    coDoPolygons* polygons = NULL;
+    const coDoUnstructuredGrid* top = dynamic_cast<const coDoUnstructuredGrid*>(topObj);
+    const coDoPolygons* topPoly = dynamic_cast<const coDoPolygons*>(topObj);
     if (top)
     {
         // copy connectivity, but change cell coords
@@ -109,6 +111,36 @@ int DataToGrid::compute(const char *)
         // create a structured grid, but use resolution of topology input grid
         str->getGridSize(&resX, &resY, &resZ);
     }
+    else if (topPoly)
+    {
+        int no_elem, no_corn, no_coord;
+        no_elem = topPoly->getNumPolygons(); //number of polygons
+        no_corn = topPoly->getNumVertices(); //number of corners
+        no_coord = topPoly->getNumPoints(); //number of coordinates
+        if (no_data != no_coord)
+        {
+            sendInfo("data not compatible with topology grid, ignoring topology");
+            return STOP_PIPELINE;
+        }
+        else
+        {
+            polygons = new coDoPolygons(poGrid->getObjName(), no_coord, no_corn, no_elem);
+            int* top_elem, * top_corn;
+            float* dummy;
+            topPoly->getAddresses(&dummy, &dummy, &dummy, &top_corn, &top_elem);
+            int* elem, * corn;
+            polygons->getAddresses(&px, &py, &pz, &corn, &elem);
+            for (int i = 0; i < no_elem; i++)
+            {
+                elem[i] = top_elem[i];
+            }
+            for (int i = 0; i < no_corn; i++)
+            {
+                corn[i] = top_corn[i];
+            }
+        }
+
+    }
     else
     {
         // create a structured grid of user-specified size
@@ -131,9 +163,9 @@ int DataToGrid::compute(const char *)
         float *dx, *dy, *dz;
         data->getAddresses(&dx, &dy, &dz);
 
-        if (top || !pbStrGrid->getValue())
+        if (top || topPoly || !pbStrGrid->getValue())
         {
-            if (!unstr)
+            if (!unstr && !polygons)
             {
                 points = new coDoPoints(poGrid->getObjName(), no_data);
                 points->getAddresses(&px, &py, &pz);
@@ -242,6 +274,10 @@ int DataToGrid::compute(const char *)
     else if (points)
     {
         poGrid->setCurrentObject(points);
+    }
+    else if (polygons)
+    {
+        poGrid->setCurrentObject(polygons);
     }
     else
     {

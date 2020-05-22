@@ -18,192 +18,196 @@
 #include <osg/BoundingBox>
 #include <osg/MatrixTransform>
 
-/** Visitor that calculates the Boundingbox.
- * Traverses all child nodes and calculates a Boundingbox.
- * Supported nodes: MatrixTransform, Geode.
- */
-class TRAFFICSIMULATIONEXPORT calculateBoundingBoxVisitor : public osg::NodeVisitor
+namespace TrafficSimulation
 {
-public:
-    calculateBoundingBoxVisitor();
 
-    osg::BoundingBox &getBoundingBox()
-    {
-        return boundingbox_;
-    }
+	/** Visitor that calculates the Boundingbox.
+	 * Traverses all child nodes and calculates a Boundingbox.
+	 * Supported nodes: MatrixTransform, Geode.
+	 */
+	class TRAFFICSIMULATIONEXPORT calculateBoundingBoxVisitor : public osg::NodeVisitor
+	{
+	public:
+		calculateBoundingBoxVisitor();
 
-    virtual void apply(osg::Geode &geode);
-    virtual void apply(osg::MatrixTransform &node);
+		osg::BoundingBox& getBoundingBox()
+		{
+			return boundingbox_;
+		}
 
-protected:
-    osg::BoundingBox boundingbox_;
-    osg::Matrix transformationMatrix_;
-};
-/** calculateBoundingBoxVisitor */
+		virtual void apply(osg::Geode& geode);
+		virtual void apply(osg::MatrixTransform& node);
 
-/** Visitor to find nodes with a specific name.
- * Traverses all child nodes.
- * Supported nodes: all
- */
-typedef std::vector<osg::Node *> nodeList_t;
+	protected:
+		osg::BoundingBox boundingbox_;
+		osg::Matrix transformationMatrix_;
+	};
+	/** calculateBoundingBoxVisitor */
 
-class TRAFFICSIMULATIONEXPORT findNodesByNameVisitor : public osg::NodeVisitor
-{
-public:
-    findNodesByNameVisitor();
-    findNodesByNameVisitor(const std::string &searchName);
+	/** Visitor to find nodes with a specific name.
+	 * Traverses all child nodes.
+	 * Supported nodes: all
+	 */
+	typedef std::vector<osg::Node*> nodeList_t;
 
-    void setNameToFind(const std::string &searchName);
-    virtual void apply(osg::Node &searchNode);
-    //virtual void	apply(osg::Transform &searchNode);
+	class TRAFFICSIMULATIONEXPORT findNodesByNameVisitor : public osg::NodeVisitor
+	{
+	public:
+		findNodesByNameVisitor();
+		findNodesByNameVisitor(const std::string& searchName);
 
-    osg::Node *getFirst();
-    nodeList_t &getNodeList()
-    {
-        return foundNodeList;
-    }
-    int getListLength()
-    {
-        return lengthNodeList;
-    }
+		void setNameToFind(const std::string& searchName);
+		virtual void apply(osg::Node& searchNode);
+		//virtual void	apply(osg::Transform &searchNode);
 
-private:
-    std::string searchForName;
+		osg::Node* getFirst();
+		nodeList_t& getNodeList()
+		{
+			return foundNodeList;
+		}
+		int getListLength()
+		{
+			return lengthNodeList;
+		}
 
-    nodeList_t foundNodeList;
-    int lengthNodeList;
-};
-/** findNodesByNameVisitor */
+	private:
+		std::string searchForName;
 
-/** VehicleState.
- * Todo: The whole vehicle state in one struct or class.
- */
-struct TRAFFICSIMULATIONEXPORT VehicleState
-{
-    VehicleState(double _u = 0.0, double _v = 0.0, double _du = 0.0, double _dv = 0.0, double _ddu = 0.0, double _hdg = 0.0, int _dir = 1)
-        : u(_u)
-        , v(_v)
-        , du(_du)
-        , dv(_dv)
-        , ddu(_ddu)
-        , hdg(_hdg)
-        , dir(_dir)
-        , indicatorLeft(false)
-        , indicatorRight(false)
-        , brakeLight(false)
-        , flashState(false)
-        , indicatorTstart(0.0)
-        , junctionState(VehicleState::JUNCTION_NONE)
-    {
-    }
+		nodeList_t foundNodeList;
+		int lengthNodeList;
+	};
+	/** findNodesByNameVisitor */
 
-    double u; // longitudinal position
-    double v; // transversal
-    double du; // longitudinal speed
-    double dv; // transversal
-    double ddu; // longitudinal acceleration
-    double hdg; // heading
-    int dir; // positive or negative direction on street
+	/** VehicleState.
+	 * Todo: The whole vehicle state in one struct or class.
+	 */
+	struct TRAFFICSIMULATIONEXPORT VehicleState
+	{
+		VehicleState(double _u = 0.0, double _v = 0.0, double _du = 0.0, double _dv = 0.0, double _ddu = 0.0, double _hdg = 0.0, int _dir = 1)
+			: u(_u)
+			, v(_v)
+			, du(_du)
+			, dv(_dv)
+			, ddu(_ddu)
+			, hdg(_hdg)
+			, dir(_dir)
+			, indicatorLeft(false)
+			, indicatorRight(false)
+			, brakeLight(false)
+			, flashState(false)
+			, indicatorTstart(0.0)
+			, junctionState(VehicleState::JUNCTION_NONE)
+		{
+		}
 
-    bool indicatorLeft; // true if driving to the left
-    bool indicatorRight;
-    bool brakeLight;
-    bool flashState;
-    double indicatorTstart; // start time of lane change
+		double u; // longitudinal position
+		double v; // transversal
+		double du; // longitudinal speed
+		double dv; // transversal
+		double ddu; // longitudinal acceleration
+		double hdg; // heading
+		int dir; // positive or negative direction on street
 
-    enum junctionState_t
-    {
-        JUNCTION_LEFT,
-        JUNCTION_RIGHT,
-        JUNCTION_NONE,
-    };
-    junctionState_t junctionState;
-};
-/** VehicleState */
+		bool indicatorLeft; // true if driving to the left
+		bool indicatorRight;
+		bool brakeLight;
+		bool flashState;
+		double indicatorTstart; // start time of lane change
 
-class TRAFFICSIMULATIONEXPORT RoadTransitionList : public std::list<RoadTransition>
-{
-public:
-    double getLength();
-    double getLength(RoadTransitionList::iterator, RoadTransitionList::iterator);
-};
+		enum junctionState_t
+		{
+			JUNCTION_LEFT,
+			JUNCTION_RIGHT,
+			JUNCTION_NONE,
+		};
+		junctionState_t junctionState;
+	};
+	/** VehicleState */
 
-class TRAFFICSIMULATIONEXPORT RouteFindingNode
-{
-public:
-    RouteFindingNode(RoadTransition, const RoadTransition &, const Vector2D &, RouteFindingNode * = NULL);
-    ~RouteFindingNode();
+	class TRAFFICSIMULATIONEXPORT RoadTransitionList : public std::list<vehicleUtil::RoadTransition>
+	{
+	public:
+		double getLength();
+		double getLength(RoadTransitionList::iterator, RoadTransitionList::iterator);
+	};
 
-    void addChild(RouteFindingNode *);
+	class TRAFFICSIMULATIONEXPORT RouteFindingNode
+	{
+	public:
+		RouteFindingNode(vehicleUtil::RoadTransition, const vehicleUtil::RoadTransition&, const vehicleUtil::Vector2D&, RouteFindingNode* = NULL);
+		~RouteFindingNode();
 
-    Junction *getEndJunction();
-    const RoadTransition &getLastTransition();
+		void addChild(RouteFindingNode*);
 
-    RouteFindingNode *getParent();
+		vehicleUtil::Junction* getEndJunction();
+		const vehicleUtil::RoadTransition& getLastTransition();
 
-    bool isEndNode();
-    bool foundGoal();
+		RouteFindingNode* getParent();
 
-    double getDistanceToNode();
+		bool isEndNode();
+		bool foundGoal();
 
-    double getHeuristicNodeToGoal();
+		double getDistanceToNode();
 
-    double getCost();
+		double getHeuristicNodeToGoal();
 
-    RoadTransitionList &backchainTransitionList();
+		double getCost();
 
-protected:
-    RoadTransitionList transList;
-    Junction *endJunction;
-    double sj;
-    double sh;
-    bool endNode;
-    bool goalFound;
+		RoadTransitionList& backchainTransitionList();
 
-    RouteFindingNode *parent;
-    std::list<RouteFindingNode *> childrenList;
-};
+	protected:
+		RoadTransitionList transList;
+		vehicleUtil::Junction* endJunction;
+		double sj;
+		double sh;
+		bool endNode;
+		bool goalFound;
 
-struct TRAFFICSIMULATIONEXPORT RouteFindingNodeCompare
-{
-    bool operator()(RouteFindingNode *leftNode, RouteFindingNode *rightNode) const
-    {
-        return (leftNode->getCost() < rightNode->getCost());
-    }
-};
+		RouteFindingNode* parent;
+		std::list<RouteFindingNode*> childrenList;
+	};
 
-struct TRAFFICSIMULATIONEXPORT ObstacleRelation
-{
-    ObstacleRelation()
-        : vehicle(NULL)
-        , diffU(std::numeric_limits<float>::signaling_NaN())
-        , diffDu(std::numeric_limits<float>::signaling_NaN())
-    {
-    }
+	struct TRAFFICSIMULATIONEXPORT RouteFindingNodeCompare
+	{
+		bool operator()(RouteFindingNode* leftNode, RouteFindingNode* rightNode) const
+		{
+			return (leftNode->getCost() < rightNode->getCost());
+		}
+	};
 
-    ObstacleRelation(Vehicle *veh, double dU, double dDu)
-        : vehicle(veh)
-        , diffU(dU)
-        , diffDu(dDu)
-    {
-    }
+	struct TRAFFICSIMULATIONEXPORT ObstacleRelation
+	{
+		ObstacleRelation()
+			: vehicle(NULL)
+			, diffU(std::numeric_limits<float>::signaling_NaN())
+			, diffDu(std::numeric_limits<float>::signaling_NaN())
+		{
+		}
 
-    Vehicle *vehicle;
-    double diffU;
-    double diffDu;
+		ObstacleRelation(Vehicle* veh, double dU, double dDu)
+			: vehicle(veh)
+			, diffU(dU)
+			, diffDu(dDu)
+		{
+		}
 
-    bool noOR() const
-    {
-        //if(vehicle==NULL && diffU!=diffU && diffDu!=diffDu) {
-        if (vehicle == NULL)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-};
+		Vehicle* vehicle;
+		double diffU;
+		double diffDu;
 
+		bool noOR() const
+		{
+			//if(vehicle==NULL && diffU!=diffU && diffDu!=diffDu) {
+			if (vehicle == NULL)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	};
+
+}
 #endif

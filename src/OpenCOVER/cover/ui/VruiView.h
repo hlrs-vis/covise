@@ -20,7 +20,7 @@ namespace opencover {
 namespace ui {
 
 //! store the data for the representation of a UI Element within a VruiView
-struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
+struct COVER_UI_EXPORT VruiViewElement: public View::ViewElement, public vrui::coMenuListener
 {
    VruiViewElement(Element *elem);
    ~VruiViewElement();
@@ -69,6 +69,7 @@ class VruiView: public View
  private:
    VruiViewElement *vruiElement(const std::string &path) const;
    VruiViewElement *vruiElement(const Element *elem) const;
+   bool isReparented(const Element *elem) const;
    VruiViewElement *vruiParent(const Element *elem) const;
    VruiViewElement *vruiContainer(const Element *elem) const;
 
@@ -84,8 +85,7 @@ class VruiView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
-   void updateValue(const EditField *input) override;
-   void updateValue(const FileBrowser *fb) override;
+   void updateValue(const TextField *input) override;
    void updateFilter(const FileBrowser *fb) override;
 
    VruiViewElement *elementFactoryImplementation(Menu *menu) override;
@@ -97,6 +97,8 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
    VruiViewElement *elementFactoryImplementation(EditField *input) override;
    VruiViewElement *elementFactoryImplementation(FileBrowser *fb) override;
+   VruiViewElement *elementFactoryImplementation(CollaborativePartner *cp) override;
+   VruiViewElement *elementFactoryImplementation(SpecialElement *se) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
    VruiViewElement *m_root = nullptr;

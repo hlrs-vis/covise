@@ -42,6 +42,7 @@ const int MAX_LIST_SIZE(500000000);
 class ReadEnsight : public coReader
 {
 public:
+    
     /// default CONSTRUCTOR
     ReadEnsight(int argc, char *argv[]);
 
@@ -53,6 +54,18 @@ public:
     /// compute call-back
     virtual int compute(const char *port);
 
+    // create distributed objects using parts preserving the part Structure
+    // geometry
+    coDistributedObject **createGeoOutObj(const string &baseName2d,
+        const string &baseName3d, const int &step);
+    // data
+
+    coDistributedObject **createDataOutObj(EnFile::dimType dim, const string &baseName,
+        DataCont &dc,
+        const int &step, int numTimeSteps, const bool &perVertex = true);
+
+    vector<PartList> globalParts_;
+	PartList masterPL_;
 private:
     // write a list of parts to the map editor (info channel)
     void createMasterPL();
@@ -97,23 +110,7 @@ private:
                                           const int &dim = 1,
                                           const int &idx = -1);
 
-    // create distributed objects using parts preserving the part Structure
-    // geometry
-    coDistributedObject **createGeoOutObj(const string &baseName2d,
-                                          const string &baseName3d, const int &step);
-    // data
-    coDistributedObject **createDataOutObj(const string &baseName2d,
-                                           const string &baseName3d,
-                                           DataCont &dc,
-                                           const int &step, const bool &perVertex = true);
 
-    coDistributedObject **createDataOutObj2d(const string &baseName2d,
-                                             DataCont &dc,
-                                             const int &step, const bool &perVertex = true);
-
-    coDistributedObject **createDataOutObj3d(const string &baseName3d,
-                                             DataCont &dc,
-                                             const int &step, const bool &perVertex = true);
 
     void incrRefCnt(const coDistributedObject *obj);
 
@@ -131,7 +128,6 @@ private:
     EnFile::BinType MbinType_;
 
     bool dataByteSwap_;
-    vector<PartList> globalParts_;
 
     coBooleanParam *transformToVert_;
 
@@ -147,7 +143,6 @@ private:
 
     coBooleanParam *includePolyederParam_;
 
-    PartList masterPL_;
 
     coDistributedObject *geoObj_;
     coDistributedObject *geoObjs_[3];

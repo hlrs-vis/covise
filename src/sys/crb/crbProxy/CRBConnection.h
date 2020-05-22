@@ -18,20 +18,18 @@
 #include <net/covise_host.h>
 #include <covise/covise_global.h>
 #include "Proxy.h"
-#include <util/coDLList.h>
 
 #ifndef _WIN32
 #include <sys/param.h>
 #endif
 
-typedef covise::coDLListIter<Proxy *> ProxyIter;
 
 class CRBConnection
 {
     char *host;
     int port;
     int id;
-    covise::coDLPtrList<Proxy *> modules;
+    std::list<Proxy *> modules;
 
 public:
     covise::ConnectionList *listOfConnections; // list of all connections

@@ -9,7 +9,9 @@
 #define _CO_VR_3D_TRANSROT_INTERACTOR_H
 
 #include <cover/coVRIntersectionInteractor.h>
-
+#include <vrbclient/SharedStateSerializer.h>
+#include <cover/MatrixSerializer.h>
+#include <net/tokenbuffer.h>
 namespace opencover
 {
 
@@ -39,7 +41,8 @@ private:
 
 protected:
     virtual void createGeometry() override;
-
+    void updateSharedState() override;
+    typedef vrb::SharedState<osg::Matrix> SharedMatrix;
 public:
     coVR3DTransRotInteractor(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
 
@@ -56,6 +59,7 @@ public:
     {
         return _interMat_o;
     }
+    void setShared(bool state) override;
 };
 }
 #endif

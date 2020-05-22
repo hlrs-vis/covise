@@ -37,6 +37,7 @@
 #include <time.h>
 
 using namespace opencover;
+using namespace vehicleUtil;
 
 osg::StateSet *Road::roadStateSet = NULL;
 osg::StateSet *Road::batterStateSet = NULL;

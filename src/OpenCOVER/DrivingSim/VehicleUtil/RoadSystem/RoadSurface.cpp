@@ -7,6 +7,8 @@
 
 #include "RoadSurface.h"
 
+using namespace vehicleUtil;
+
 crgSurface::crgSurface(const std::string &filename, double setSStart, double setSEnd, SurfaceOrientation setOrient, double setSOff, double setTOff, double setZOff, double setZScale)
     : surface(filename)
     , sStart(setSStart)

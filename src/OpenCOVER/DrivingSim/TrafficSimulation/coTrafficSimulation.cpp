@@ -54,6 +54,9 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
+
 int coTrafficSimulation::counter = 0;
 int coTrafficSimulation::createFreq = 20;
 double coTrafficSimulation::min_distance = 800;
@@ -145,8 +148,7 @@ unsigned long coTrafficSimulation::getIntegerRandomNumber()
 
 double coTrafficSimulation::getZeroOneRandomNumber()
 {
-    auto r = std::bind(uniformDist, mersenneTwisterEngine);
-    return r();
+    return uniformDist(mersenneTwisterEngine);
 }
 
 
@@ -361,6 +363,7 @@ bool coTrafficSimulation::loadRoadSystem(const char *filename_chars)
         //roadGroup = new osg::Group;
         roadGroup = new osg::PositionAttitudeTransform;
         roadGroup->setName("RoadSystem");
+		roadGroup->setNodeMask(roadGroup->getNodeMask() & ~opencover::Isect::Update); // don't use the update traversal
         //roadGroup->setPosition(osg::Vec3d(5.0500000000000000e+05, 5.3950000000000000e+06, 0.0));
         //roadGroup->setPosition(osg::Vec3d(960128.3125, 6158421.5, 0.0));
 
@@ -371,7 +374,7 @@ bool coTrafficSimulation::loadRoadSystem(const char *filename_chars)
         int numRoads = system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            vehicleUtil::Road *road = system->getRoad(i);
             osg::LOD *roadGeodeLOD = new osg::LOD();
 
             // Tesselation //
@@ -424,6 +427,7 @@ bool coTrafficSimulation::loadRoadSystem(const char *filename_chars)
 
         trafficSignalGroup = new osg::Group;
         trafficSignalGroup->setName("TrafficSignals");
+		trafficSignalGroup->setNodeMask(trafficSignalGroup->getNodeMask() & ~opencover::Isect::Update); // don't use the update traversal
         //Traffic control
         for (int i = 0; i < system->getNumRoadSignals(); ++i)
         {

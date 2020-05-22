@@ -11,6 +11,8 @@
 #include "Owner.h"
 #include "Element.h"
 
+#include <net/tokenbuffer.h>
+
 namespace covise {
 class TokenBuffer;
 }
@@ -61,11 +63,11 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! update allowed value range for slider on all attached views
    void updateBounds(const Slider *slider) const;
    //! update input value on all attached views
-   void updateValue(const EditField *input) const;
-   //! update selected file on all attached views
-   void updateValue(const FileBrowser *fb) const;
+   void updateValue(const TextField *input) const;
    //! update the file filter on all views
    void updateFilter(const FileBrowser *fb) const;
+   //! update viewpoint on all views
+   void updateViewpoint(const CollaborativePartner *cp) const;
 
    //! add elem to list of managed user interface items
    void add(Element *elem);
@@ -105,10 +107,10 @@ class COVER_UI_EXPORT Manager: public Owner {
    std::map<const std::string, View *> m_views;
 
    int m_numUpdates = 0;
-   std::map<int, std::pair<Element::UpdateMaskType, std::shared_ptr<covise::TokenBuffer>>> m_elemState;
-   std::shared_ptr<covise::TokenBuffer> m_updates;
+   std::map<int, std::pair<Element::UpdateMaskType, covise::TokenBuffer>> m_elemState;
+   covise::TokenBuffer m_updates;
    void flushUpdates();
-   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed);
+   void processUpdates(covise::TokenBuffer &updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed);
 
    int m_modifiers = 0;
    std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;

@@ -9,6 +9,7 @@
 #define EC_CONNECTION_H
 
 #include <iostream>
+#include <vector>
 
 #include <fcntl.h>
 #ifdef _WIN32
@@ -17,9 +18,11 @@
 #include <netinet/in.h>
 
 #endif
-
+namespace vrb
+{
+	class UdpMessage;
+}
 #include <util/coExport.h>
-#include <util/covise_list.h>
 #include "message.h"
 
 typedef struct ssl_st SSL;
@@ -67,7 +70,7 @@ namespace covise
 class Host;
 class SimpleServerConnection;
 class SSLSocket;
-
+class UDPSocket;
 #ifdef CRAY
 #define WRITE_BUFFER_SIZE 393216
 #else
@@ -155,7 +158,7 @@ public:
     };
     virtual int receive(void *buf, unsigned nbyte); // receive from socket
     virtual int send(const void *buf, unsigned nbyte); // send into socket
-    virtual int recv_msg(Message *msg); // receive Message
+	virtual int recv_msg(Message *msg, char *ip = nullptr); // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
     virtual int recv_msg_fast(Message *msg); // high-performace receive Message
     virtual int send_msg(const Message *msg); // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
@@ -196,6 +199,15 @@ public:
     const char *get_hostname();
 };
 
+class NETEXPORT UDPConnection : public Connection
+{
+public:
+	UDPConnection(int id, int s_type, int p, const char* address);
+	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
+	bool recv_udp_msg(vrb::UdpMessage* msg);
+	//send udp message to ip, if no ip given use member address. Retun true on succsess
+	bool send_udp_msg(const vrb::UdpMessage* msg, const char* ip = nullptr);
+};
 // Connection that acts as server
 class NETEXPORT ServerConnection : public Connection
 {
@@ -219,6 +231,12 @@ public:
     ServerConnection *spawn_connection(); // accept after select for open socket
     // accept after select for open socket
     SimpleServerConnection *spawnSimpleConnection();
+};
+class NETEXPORT ServerUdpConnection : public ServerConnection
+{
+public:
+	ServerUdpConnection(UDPSocket* s);
+	bool sendMessageTo(Message* msg, const char* address);
 };
 
 // Connection that acts as server
@@ -246,7 +264,7 @@ class NETEXPORT ClientConnection : public Connection
 public:
     // connect to server at port p on host h
     //   ClientConnection(Host *h, int p, int id, int st);
-    ClientConnection(Host *, int, int, int, int retries = 20, double timeout = 0.0);
+    ClientConnection(Host *host, int port, int id, int senderType, int retries = 20, double timeout = 0.0);
     ~ClientConnection(); // close connection
 };
 
@@ -296,11 +314,7 @@ public:
     ~ControllerConnection() // close connection
         {};
 };
-class NETEXPORT UDPConnection : public Connection
-{
-public:
-    UDPConnection(int id, int s_type, int p, char *address);
-};
+
 #ifdef MULTICAST
 class NETEXPORT MulticastConnection : public Connection
 {
@@ -311,7 +325,8 @@ public:
 
 class NETEXPORT ConnectionList // list connections in a way that select can be used
 {
-    List<Connection> *connlist; // list of connections
+    long curidx = -1; // current index into vector
+    std::vector<Connection *> connlist; // list of connections
     fd_set fdvar; // field for select call
     int maxfd; // maximum socket id
     ServerConnection *open_sock; // socket for listening
@@ -323,23 +338,14 @@ public:
     void add(Connection *c); // add connection
     void remove(Connection *c); // remove connection
     void deleteConnection(Connection *c);
-    Connection *get_last() // get connection made recently
-    {
-        return connlist->get_last();
-    };
+    Connection *get_last();
     Connection *wait_for_input(); // issue select call and return the
     // connection that shows the first event
     // issue select call and return a
     Connection *check_for_input(float time = 0.0);
     // connection if there is an event or 0L otherwise
-    void reset() //
-    {
-        connlist->reset();
-    };
-    Connection *next() //
-    {
-        return connlist->next();
-    };
+    void reset();
+    Connection *next();
     //Connection at(int index);					  // get specific entry from listpos i
     int count(); // returns the number of current elements
 };

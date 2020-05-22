@@ -13,63 +13,66 @@
 
 #include "Lane.h"
 
-class VEHICLEUTILEXPORT LaneSection
+namespace vehicleUtil
 {
-public:
-    LaneSection(Road *road, double);
+    class VEHICLEUTILEXPORT LaneSection
+    {
+    public:
+        LaneSection(Road* road, double);
 
-    double getStart();
+        double getStart();
 
-    void addLane(Lane *);
-    Lane *getLane(int);
-    void addBatter(Batter *);
+        void addLane(Lane*);
+        Lane* getLane(int);
+        void addBatter(Batter*);
 
-    int searchLane(double, double);
-    int searchLane(double, double, double &, double &);
+        int searchLane(double, double);
+        int searchLane(double, double, double&, double&);
 
-    int getLanePredecessor(int);
-    int getLaneSuccessor(int);
+        int getLanePredecessor(int);
+        int getLaneSuccessor(int);
 
-    double getLaneWidth(double, int = 0);
-    double getBatterWidth(double, int = 0);
-    double getBatterFall(double, int = 0);
-    bool getBatterShouldBeTessellated(int);
-    std::map<int, Batter *> getBatterMap();
-    double getLaneWidthSlope(double, int = 0);
-    double getLaneSpanWidth(int, int, double);
+        double getLaneWidth(double, int = 0);
+        double getBatterWidth(double, int = 0);
+        double getBatterFall(double, int = 0);
+        bool getBatterShouldBeTessellated(int);
+        std::map<int, Batter*> getBatterMap();
+        double getLaneWidthSlope(double, int = 0);
+        double getLaneSpanWidth(int, int, double);
 
-    double getDistanceToLane(double, int);
-    Vector2D getLaneCenter(int, double);
+        double getDistanceToLane(double, int);
+        Vector2D getLaneCenter(int, double);
 
-    void getRoadWidth(double, double &, double &);
+        void getRoadWidth(double, double&, double&);
 
-    int getNumLanesLeft();
-    int getNumLanesRight();
+        int getNumLanesLeft();
+        int getNumLanesRight();
 
-    bool isSidewalk(int ln);
+        bool isSidewalk(int ln);
 
-    RoadMark *getLaneRoadMark(double, int = 0);
+        RoadMark* getLaneRoadMark(double, int = 0);
 
-    int getTopRightLane();
-    int getTopLeftLane();
+        int getTopRightLane();
+        int getTopLeftLane();
 
-    std::map<int, Lane *> getLaneMap();
+        std::map<int, Lane*> getLaneMap();
 
-    double getHeight(double, double);
-    void getLaneBorderHeights(double, int, double &, double &);
+        double getHeight(double, double);
+        void getLaneBorderHeights(double, int, double&, double&);
 
-    void accept(XodrWriteRoadSystemVisitor *);
+        void accept(XodrWriteRoadSystemVisitor*);
 
-    void checkAndFixLanes();
+        void checkAndFixLanes();
 
-protected:
-    double start;
-	Road *road;
+    protected:
+        double start;
+        Road* road;
 
-    std::map<int, Lane *> laneMap;
-    std::map<int, Batter *> batterMap;
-    int numLanesLeft;
-    int numLanesRight;
-};
+        std::map<int, Lane*> laneMap;
+        std::map<int, Batter*> batterMap;
+        int numLanesLeft;
+        int numLanesRight;
+    };
+}
 
 #endif

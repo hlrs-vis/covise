@@ -30,6 +30,7 @@
 #include <stack>
 #include <map>
 #include <cover/coTabletUI.h>
+#include <cover/coVRSceneView.h>
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 #include "oddlotMessageTypes.h"
 
@@ -64,7 +65,7 @@ private:
     OddlotPlugin *plugin;
 };
 
-class OddlotPlugin : public coVRPlugin, public coMenuListener, public coTUIListener
+class OddlotPlugin : public coVRPlugin, public coMenuListener, public coTUIListener, public osgUtil::SceneView::ComputeStereoMatricesCallback
 {
 public:
 
@@ -93,7 +94,11 @@ public:
     void message(int toWhom, int type, int len, const void *buf);
     void sendImage();
 protected:
-    
+
+	virtual osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const;
+	virtual osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const;
+	virtual osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const;
+	virtual osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const;
     void setProjection(float xPos, float yPos, float width, float height);
     static OddlotPlugin *plugin;
 
@@ -109,5 +114,7 @@ protected:
     int xRes,yRes;
     void handleMessage(Message *m);
     Message *msg;
+	osg::Matrix projMat;
+	osg::Matrix viewMat;
 };
 #endif

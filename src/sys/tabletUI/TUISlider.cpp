@@ -15,11 +15,7 @@
 #include <QLineEdit>
 #include <QGridLayout>
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 
 #include "TUISlider.h"
 #include "TUIApplication.h"
@@ -38,7 +34,7 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
 
     string = new QLineEdit(w);
 
-    connect(string, SIGNAL(returnPressed()), this, SLOT(released()));
+    connect(string, SIGNAL(editingFinished()), this, SLOT(released()));
     slider->setMinimum(0);
     slider->setMaximum(1000);
 

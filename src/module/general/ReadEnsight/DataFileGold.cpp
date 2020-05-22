@@ -20,6 +20,7 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "DataFileGold.h"
+#include "ReadEnsight.h"
 
 #if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ > 2)
 #pragma GCC diagnostic warning "-Wuninitialized"
@@ -28,7 +29,7 @@
 //
 // Constructor
 //
-DataFileGold::DataFileGold(const coModule *mod, const string &name, const int &dim, const int &numVals)
+DataFileGold::DataFileGold(ReadEnsight *mod, const string &name, const int &dim, const int &numVals)
     : EnFile(mod, name, dim)
     , lineCnt_(0)
     , numVals_(numVals)
@@ -57,7 +58,7 @@ DataFileGold::DataFileGold(const coModule *mod, const string &name, const int &d
 }
 
 void
-DataFileGold::readCells()
+DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -304,12 +305,13 @@ DataFileGold::readCells()
             }
         }
     }
+    createDataOutObj(dim, outObjects, baseName, timeStep,false);
 }
 //
 // Method
 //
 void
-DataFileGold::read()
+DataFileGold::read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     //cerr << "DataFileGold::read() called" << endl;
 
@@ -352,7 +354,7 @@ DataFileGold::read()
                 // allocate memory for whole parts
                 if (actPart != NULL)
                 {
-                    int numVal = actPart->numCoords();
+                    numVal = actPart->numCoords();
                     if (actPart->isActive())
                     {
                         switch (dim_)
@@ -453,6 +455,7 @@ DataFileGold::read()
             }
         }
     }
+    createDataOutObj(dim, outObjects, baseName, timeStep, numTimeSteps);
 }
 
 //

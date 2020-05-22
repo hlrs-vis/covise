@@ -26,7 +26,7 @@ bool readPLM(const char *xml_file, double (*positionen)[MAX_CUBES][3],
 {
     //  osg::ref_ptr<osg::Group> wurzel(new osg::Group());
 
-    DOMDocument *document;
+    DOMDocument *document=nullptr;
 
     PLMXMLParser myParser;
 

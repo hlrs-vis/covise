@@ -24,11 +24,13 @@
 #include <list>
 #include <limits.h>
 #include <map>
+#include <memory>
 #include <osg/ref_ptr>
 #include <osg/Texture2D>
-
+#include <string>
+#include <vector>
+#include <vrbclient/SharedState.h>
 #include <OpenVRUI/coUpdateManager.h>
-#include "ui/Owner.h"
 
 namespace osg
 {
@@ -41,15 +43,19 @@ namespace osgText
 {
 class Font;
 }
-
+namespace covise
+{
+class Message;
+}
 namespace opencover
 {
 
 namespace ui
 {
+class Owner;
 class Group;
 class FileBrowser;
-};
+}
 
 class coTUIFileBrowserButton;
 class coVRIOReader;
@@ -103,7 +109,9 @@ typedef struct
     const char *extension;
 } FileHandler;
 
-class COVEREXPORT coVRFileManager : public vrui::coUpdateable, public ui::Owner
+
+
+class COVEREXPORT coVRFileManager : public vrui::coUpdateable
 {
     friend struct LoadedFile;
     static coVRFileManager *s_instance;
@@ -116,7 +124,14 @@ public:
 
     // returns the full path for file
     const char *getName(const char *file);
-
+    //if filePath starts with sharedDataPath, return true and remove sharedDataPath from filePath. Ignore upper/lower case differences
+    bool makeRelativeToSharedDataLink(std::string &fileName);
+	//return true if fileName contains tmp path
+	bool isInTmpDir(const std::string& fileName);
+	//changes fileName to be relative to basePath
+	bool makeRelativePath(std::string& fileName, const std::string& basePath);
+    //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found. Use isTmp to eventually delete tmp files
+    std::string findOrGetFile(const std::string &fileName, bool *isTmp = (bool *)false);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -152,7 +167,7 @@ public:
     // tries to fopen() fileName
     // returns true if exists otherwise false
     bool fileExist(const char *fileName);
-
+	bool fileExist(const std::string& fileName);
     // builds filename for icon files, looks in covise/icons/$LookAndFeel or covise/icons for filename.rgb
     const char *buildFileName(const char *);
 
@@ -164,10 +179,10 @@ public:
     int unregisterFileHandler(const FileHandler *handler);
     int unregisterFileHandler(coVRIOReader *handler);
 
-    // get list of extensioins as required by a filebrowser
+    // get list of extensions as required by a filebrowser
     std::string getFilterList();
 
-    // get list of extensioins for saving as required by a filebrowser
+    // get list of extensions for saving as required by a filebrowser
     std::string getWriteFilterList();
 
     // get a loader for a file type, if available
@@ -184,14 +199,29 @@ public:
     void SetDefaultFB(coTUIFileBrowserButton *fb);
 
     virtual bool update();
+    //send a requested File to vrb
+    void sendFile(covise::TokenBuffer &tb);
+
+	///request the file from vrb -> file gets copied to tmp
+	std::string remoteFetch(const std::string &filePath, int fileOwner = -1);
+	///compares the url with m_sharedFiles. If found returns its position in, else -1;
+	int getFileId(const char* url);
+
+	///get the filename + extension from a path: path/fileName -> fileName
+	std::string getFileName(const std::string& filePath);
 
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
-
+	//set in 'config/system/vrb/RemoteFetch value = "on" to enable remote fetch in local usr tmp directory. 
+	bool remoteFetchEnabled = false;
+	//set in 'config/system/vrb/RemoteFetch path="your path" to chose a differen directory to remote Fetch to. 
+	std::string remoteFetchPath;
     std::string viewPointFile;
     int m_loadCount = 0;
+    std::unique_ptr<ui::Owner> m_owner;
     ui::Group *m_fileGroup = nullptr;
+    int uniqueNumber = 0;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;
@@ -202,7 +232,7 @@ private:
     typedef std::map<std::string, osg::ref_ptr<osg::Texture2D> > TextureMap;
     TextureMap textureList;
     std::map<std::string, coTUIFileBrowserButton *> fileFBMap;
-    coTUIFileBrowserButton *mDefaultFB;
+    coTUIFileBrowserButton *mDefaultFB = nullptr;
 
     struct IOReadOperation
     {
@@ -224,6 +254,40 @@ private:
     LoadedFile *m_lastFile = nullptr;
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
+	typedef std::pair<std::string, int> fileOwner;
+	///map of fileowners(client id) and file paths
+	typedef std::vector<fileOwner> fileOwnerList;
+    vrb::SharedState<fileOwnerList> m_sharedFiles;
+    void loadPartnerFiles();
+    struct Compare {
+        bool operator()(const std::string& first, const std::string& second) {
+            return first.size() > second.size();
+        }
+    };
+    ///returns the full path of the symbolic link that points to the shared data
+    ///the link should be in COVISE_PATH/.. and named sharedData
+    void getSharedDataPath();
+    std::string m_sharedDataLink;
+	///convert all backslashes to forward slashes
+    void convertBackslash(std::string &path);
+	///cut the filename from path:  path/fileName --> path
+    std::string cutFileName(const std::string & filePath);
+    ///removs non-aphanumeric characters
+    std::string reduceToAlphanumeric(const std::string & str);
+
+	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
+	std::string writeFile(const std::string& fileName, const char* content, int size);
+	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
+	int guessFileOwner(const std::string& filePath);
+	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
+	std::vector<covise::Message*> m_sendFileMessages;
+
+	//utility
+	public:
+		///return the substring of s until the delimiter(delimiter is cut off)
+		static std::string cutStringAt(const std::string &s, char delimiter);
+		///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
+		static std::string resolveEnvs(const std::string& s);
 };
 }
 #endif

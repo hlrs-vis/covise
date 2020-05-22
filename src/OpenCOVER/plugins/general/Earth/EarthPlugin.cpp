@@ -331,7 +331,11 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
             // close to the ground, you may not need this.
             if (externals.hasChild("autoclip"))
             {
+#if OSGEARTH_VERSION_GREATER_THAN(2,10,0)
+                useAutoClip = externals.child("autoclip").valueAs(useAutoClip);
+#else
                 useAutoClip = externals.child("autoclip").boolValue(useAutoClip);
+#endif
             }
 
             if (useSky || useAutoClip || useOcean)

@@ -983,9 +983,6 @@ void MEMainHandler::saveNetwork(const QString &filename)
     QString tmp = buffer.join("\n");
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
     buffer.clear();
-
-    // store also the current history
-    mapEditor->printMessage("Network saved as " + filename);
 }
 
 //!

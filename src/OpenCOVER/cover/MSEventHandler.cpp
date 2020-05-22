@@ -170,6 +170,7 @@ bool MSEventHandler::update()
         if (handleTerminal)
         {
             bool escape = false;
+            bool withKey = false;
 
             int key = -1;
             while ((key = getch()) != -1)
@@ -189,6 +190,10 @@ bool MSEventHandler::update()
                     mod |= osgGA::GUIEventAdapter::MODKEY_ALT;
                     escape = false;
                 }
+                else
+                {
+                    withKey = true;
+                }
 
                 if (key == 10)
                 {
@@ -207,6 +212,12 @@ bool MSEventHandler::update()
 		
 		eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYDOWN, mod, key));
 		eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYUP, mod, key));
+            }
+
+            if (escape && !withKey)
+            {
+                eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYDOWN, 0, osgGA::GUIEventAdapter::KEY_Escape));
+                eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYUP, 0, osgGA::GUIEventAdapter::KEY_Escape));
             }
         }
 #endif

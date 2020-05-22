@@ -387,6 +387,11 @@ if(APPLE)
    add_covise_compile_flags(coVRML "-Wno-error=unknown-warning-option")
 endif()
 
+if (NOT MSVC)
+    set_source_files_properties(${FLEX_VrmlScanner_OUTPUTS} PROPERTIES COMPILE_FLAGS -Wno-error)
+    set_source_files_properties(${BISON_VrmlParser_OUTPUTS} PROPERTIES COMPILE_FLAGS -Wno-error)
+endif()
+
 COVISE_WNOERROR(coVRML BASEARCH chuckwalla stromboli waran gecko skink zebu dornteufel lurchi basilisk neuffen leopard)
 
 TARGET_LINK_LIBRARIES(coVRML

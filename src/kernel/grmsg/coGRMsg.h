@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 #include <util/coExport.h>
-using namespace std;
 
 #ifdef WIN32
 #define strdup _strdup
@@ -112,8 +111,7 @@ public:
     /// destructor
     virtual ~coGRMsg()
     {
-        if (str_)
-            delete[] str_;
+        delete[] str_;
     };
 
     /// whether recreate was succesful
@@ -126,15 +124,12 @@ public:
     virtual void print_stdout();
 
     /// access to private variables
-    Mtype getType()
+    Mtype getType() const
     {
         return type_;
     };
-    const char *c_str();
-    string getString()
-    {
-        return content_;
-    };
+    const char *c_str() const;
+    std::string getString() const;
 
 protected:
     /// construct used by child class
@@ -144,13 +139,13 @@ protected:
     void addToken(const char *token);
 
     /// read first token in the message
-    string getFirstToken();
+    std::string getFirstToken();
 
     /// read and delete first token in the message
-    string extractFirstToken();
+    std::string extractFirstToken();
 
     /// read all tokens at once
-    vector<string> getAllTokens();
+    std::vector<std::string> getAllTokens();
 
     /// valid can be overwritten by children if their recreation was not succesful
     int is_valid_;
@@ -160,10 +155,10 @@ private:
     const char SplitToken;
 
     /// string put to the header to identify the type Gui2RenderMessage
-    const string MsgID;
+    const std::string MsgID;
 
     Mtype type_;
-    string content_;
+    std::string content_;
     /// char representation of content
     char *str_;
 };

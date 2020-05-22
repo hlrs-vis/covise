@@ -71,6 +71,11 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int argc, char *argv[])
 {
     int mpiinit = 0;
     MPI_Initialized(&mpiinit);
+    if (!mpiinit)
+    {
+        std::cerr << "MPI has not been initialized" << std::endl;
+        return -1;
+    }
     assert(mpiinit);
 
 #ifdef _WIN32

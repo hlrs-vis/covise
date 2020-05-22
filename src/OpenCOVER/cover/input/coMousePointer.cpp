@@ -36,6 +36,7 @@
 
 #include "coMousePointer.h"
 #include "buttondevice.h"
+#include "trackingbody.h"
 #include "input.h"
 
 using namespace opencover;
@@ -47,10 +48,9 @@ coMousePointer::coMousePointer()
         fprintf(stderr, "new coMousePointer\n");
 
     buttons = Input::instance()->getButtons("Mouse");
+    body = Input::instance()->getBody("Mouse");
 
     wheelCounter[0] = wheelCounter[1] = newWheelCounter[0] = newWheelCounter[1] = 0;
-
-    matrix = osg::Matrix::identity();
 
     mouseTime = cover->frameRealTime();
     mouseButtonTime = mouseTime - 1.0;
@@ -300,14 +300,16 @@ coMousePointer::update()
 
     direction = mouse3D - viewerPos;
     direction.normalize();
-    matrix.makeRotate(YPos, direction);
-    matrix.rotate(osg::inDegrees(90.0), osg::Vec3(0.0, 1.0, 0.0));
+    osg::Matrix mat;
+    mat.makeRotate(YPos, direction);
+    mat.rotate(osg::inDegrees(90.0), osg::Vec3(0.0, 1.0, 0.0));
     osg::Matrix tmp;
     tmp.makeTranslate(direction[0] * wc, direction[1] * wc, direction[2] * wc);
-    matrix.postMult(tmp);
+    mat.postMult(tmp);
 
     tmp.makeTranslate(viewerPos[0], viewerPos[1], viewerPos[2]);
-    matrix.postMult(tmp);
+    mat.postMult(tmp);
+    body->setMat(mat);
 
     //cerr << " VP:" << viewerPos[0] << " , "<< viewerPos[1] << " , "<< viewerPos[2] << " , "<< endl;
     //mouse3D /=10; // umrechnung in cm (scheisse!!!!!!)
@@ -346,14 +348,16 @@ float coMousePointer::screenHeight() const
 
 const osg::Matrix &coMousePointer::getMatrix() const
 {
-    return matrix;
+    return body->getMat();
 }
 
+#if 0
 void coMousePointer::setMatrix(const osg::Matrix &mat)
 {
 
     matrix = mat;
 }
+#endif
 
 int coMousePointer::wheel(size_t num) const
 {

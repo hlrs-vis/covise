@@ -13,38 +13,39 @@
 
 #include "Element.h"
 #include "RoadSystemVisitor.h"
-
-class TarmacConnection;
-
-class VEHICLEUTILEXPORT Tarmac : public Element
+namespace vehicleUtil
 {
-public:
-    Tarmac(std::string, std::string);
+    class TarmacConnection;
 
-    void setName(std::string);
-    void setId(std::string);
+    class VEHICLEUTILEXPORT Tarmac : public Element
+    {
+    public:
+        Tarmac(std::string, std::string);
 
-    std::string getName();
+        void setName(std::string);
+        void setId(std::string);
 
-    virtual std::string getTypeSpecifier();
+        std::string getName();
 
-    virtual void accept(RoadSystemVisitor *);
+        virtual std::string getTypeSpecifier();
 
-protected:
-    std::string name;
-};
+        virtual void accept(RoadSystemVisitor*);
 
-class VEHICLEUTILEXPORT TarmacConnection
-{
-public:
-    TarmacConnection(Tarmac *, int);
+    protected:
+        std::string name;
+    };
 
-    Tarmac *getConnectingTarmac();
-    int getConnectingTarmacDirection();
+    class VEHICLEUTILEXPORT TarmacConnection
+    {
+    public:
+        TarmacConnection(Tarmac*, int);
 
-private:
-    Tarmac *connectingTarmac;
-    int connectingTarmacDirection;
-};
+        Tarmac* getConnectingTarmac();
+        int getConnectingTarmacDirection();
 
+    private:
+        Tarmac* connectingTarmac;
+        int connectingTarmacDirection;
+    };
+}
 #endif

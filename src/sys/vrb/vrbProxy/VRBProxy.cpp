@@ -115,7 +115,7 @@ void VRBProxy::handleMessages()
                     cerr << "new Connection" << endl;
                 setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-                clients.append(new VRBPClient(clientConn, this));
+                clients.push_back(new VRBPClient(clientConn, this));
             }
             else
             {
@@ -145,7 +145,7 @@ void VRBPClientList::sendMessage(Message *msg)
     {
         if ((msg->type == Message::SOCKET_CLOSED) || (msg->type == Message::CLOSE_SOCKET))
         {
-            findElem(cl).remove();
+			remove(cl);
             delete cl;
         }
         else
@@ -155,23 +155,16 @@ void VRBPClientList::sendMessage(Message *msg)
 
 void VRBPClientList::deleteAll()
 {
-    iter = first();
-    while (iter)
-    {
-        iter.remove();
-    }
+	clear();
 }
 
 VRBPClient *VRBPClientList::get(Connection *c)
 {
-    iter = first();
-    while (iter)
-    {
-
-        if (((*iter)->toClient == c) || ((*iter)->toVRB == c))
-            return (*iter);
-        iter++;
-    }
+	for (const auto &it : *this)
+	{
+		if ((it->toClient == c) || (it->toVRB == c))
+			return it;
+	}
     return NULL;
 }
 
@@ -184,7 +177,7 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
     if (debugOn)
         std::cerr << "new Client" << std::endl;
     Host *serverHost = NULL;
-    int port = coCoviseConfig::getInt("port", "System.VRB.Server", 31800);
+    int tcp_p = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
     std::string line = coCoviseConfig::getEntry("System.VRB.Server");
     if (!line.empty())
     {
@@ -197,12 +190,12 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
     {
         serverHost = NULL;
     }
-    toVRB = new ClientConnection(serverHost, port, 0, 0, 0);
+    toVRB = new ClientConnection(serverHost, tcp_p, 0, 0, 0);
     if (toVRB)
     {
         if (!toVRB->is_connected()) // could not open server port
         {
-            fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);
+            fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), tcp_p);
             delete toVRB;
             toVRB = NULL;
         }

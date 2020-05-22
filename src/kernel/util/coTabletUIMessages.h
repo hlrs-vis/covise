@@ -54,6 +54,7 @@ enum TabletObjectType
     TABLET_UI_TAB,
     TABLET_GROUPBOX,
     TABLET_EARTHMAP,
+	TABLET_WEBVIEW,
 };
 
 ////////////////////////////////////////////////////////////

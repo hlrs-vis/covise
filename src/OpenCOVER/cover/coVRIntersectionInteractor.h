@@ -13,11 +13,18 @@
 #include <OpenVRUI/sginterface/vruiIntersection.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>
 #include <osg/MatrixTransform>
+#include <memory>
 
 namespace osg
 {
 class Geode;
 class Node;
+}
+namespace vrb
+{
+class SharedStateBase;
+template<class T>
+class SharedState;
 }
 
 namespace opencover
@@ -49,9 +56,9 @@ class COVEREXPORT coVRIntersectionInteractor : public vrui::coAction, public vru
 {
 private:
     osg::StateSet *loadDefaultGeostate();
-    bool constantInteractorSize_;
+    bool constantInteractorSize_ = true;
     float iconSize_;
-    bool firstTime;
+    bool firstTime = true;
 
     osg::Geode *findGeode(osg::Node *n);
 
@@ -60,26 +67,26 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> moveTransform;
     osg::ref_ptr<osg::MatrixTransform> scaleTransform;
     osg::ref_ptr<osg::MatrixTransform> interactorCaseTransform;
-    osg::MatrixTransform *parent;
-    char *_interactorName;
-    char *labelStr_;
+    osg::MatrixTransform *parent = nullptr;
+    char *_interactorName = nullptr;
+    char *labelStr_ = nullptr;
 
-    bool _hit;
-    bool _intersectionEnabled;
-    bool _justHit;
-    bool _wasHit;
-    bool _standardHL;
+    bool _hit = false;
+    bool _intersectionEnabled = true;
+    bool _justHit = false;
+    bool _wasHit = false;
+    bool _standardHL = true;
     osg::ref_ptr<osg::Node> _hitNode;
     osg::Vec3 _hitPos;
-    vrui::OSGVruiNode *vNode;
+    vrui::OSGVruiNode *vNode = nullptr;
 
     osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;
 
-    coVRLabel *label_;
-
+    coVRLabel *label_ = nullptr;
+    bool m_isInitializedThroughSharedState = false;
     float _interSize; // size in mm in world coordinates
     float _scale = 1.; // scale factor for retaining screen size of interactor
-
+    std::unique_ptr<vrb::SharedStateBase> m_sharedState;
     // the geosets are created in the derived classes
     virtual void createGeometry() = 0;
 
@@ -91,6 +98,10 @@ protected:
 
     const osg::Matrix &getPointerMat() const;
 
+    //! reimplement in derived class for updating value of m_sharedState
+    virtual void updateSharedState();
+
+    
 public:
     // size: size in world coordinates, the size of the sphere is fixed, even if the user scales the world
     // buttonId: ButtonA, ButtonB etc.
@@ -132,6 +143,14 @@ public:
 
     // make the interactor invisible
     void hide();
+
+    // gives information whether this item has been initialized through a sharedState call
+    bool isInitializedThroughSharedState();
+    //! make state shared among partners in a collaborative session
+    virtual void setShared(bool state);
+
+    //! query whether Element state is shared among collaborative partners
+    virtual bool isShared() const;
 
     virtual void addIcon(); // highlight and add
 

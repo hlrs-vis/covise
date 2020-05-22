@@ -150,8 +150,12 @@ covise::coAtomInfo::coAtomInfo()
     myInstance = this;
     for (int i = 0; i < numStaticAtoms; i++)
     {
-        all.push_back(allStatic[i]);
-        idMap[allStatic[i].symbol] = i;
+        auto &a = allStatic[i];
+        int num = a.number;
+        if (all.size() <= num)
+            all.resize(num+1);
+        all[num] = a;
+        idMap[a.symbol] = num;
     }
 
     coConfigGroup *m_mapConfig;
@@ -183,12 +187,14 @@ covise::coAtomInfo::coAtomInfo()
     const char **curEntry = mapEntry;
     while (curEntry && *curEntry)
     {
+        int num = atoi(curEntry[0]);
         float ac[4];
         char acType[100];
         coChemicalElement ce;
         int iScanResult = sscanf(curEntry[1], "%s %s %f %f %f %f %f", acType, cAtomName, &radius, &ac[0], &ac[1], &ac[2], &ac[3]);
         if (iScanResult == 7)
         {
+            ce.valid = true;
             ce.symbol = acType;
             ce.name = cAtomName;
             ce.radius = radius;
@@ -198,15 +204,19 @@ covise::coAtomInfo::coAtomInfo()
             ce.color[3] = ac[3];
             //try to find this atom, if found overwrite the built in data, otherwise append it
             auto elem = idMap.find(ce.symbol);
+            if (num < 0)
+                num = all.size();
+            ce.number = num;
             if (elem != idMap.end())
             {
                 all[elem->second] = ce;
             }
             else
             {
-                size_t num = all.size();
-                all.push_back(ce);
-                idMap[all[num].symbol] = (int)num;
+                if (all.size() <= num)
+                    all.resize(num+1);
+                all[num] = ce;
+                idMap[all[num].symbol] = num;
             }
         }
         curEntry += 2;
@@ -225,6 +235,7 @@ covise::coChemicalElement::coChemicalElement()
 
 covise::coChemicalElement::coChemicalElement(int num, std::string n, std::string sym, float r, float re, float g, float b)
 {
+    valid = true;
     number = num;
     name = n;
     symbol = sym;
@@ -237,6 +248,7 @@ covise::coChemicalElement::coChemicalElement(int num, std::string n, std::string
 
 covise::coChemicalElement::coChemicalElement(const coChemicalElement & ce)
 {
+    valid = ce.valid;
     number = ce.number;
     name = ce.name;
     symbol = ce.symbol;

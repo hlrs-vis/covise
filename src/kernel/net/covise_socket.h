@@ -171,7 +171,8 @@ public:
     int acceptOnly(int); // wait for and accept a connection (server) wait max secondes
     // returns -1 when no accept, 0 otherwise
     virtual int read(void *buf, unsigned nbyte);
-    virtual int Read(void *buf, unsigned nbyte); // does not exit when read failes but returns -1
+	//can also sets ip to the ip adress of the msg sender
+    virtual int Read(void *buf, unsigned nbyte, char *ip = nullptr); // does not exit when read fails, but returns -1
 
     int setNonBlocking(bool on);
     //int read_non_blocking(void *buf, unsigned nbyte);
@@ -221,7 +222,7 @@ public:
     ~SSLSocket();
 
     int read(void *buf, unsigned int nbyte);
-    int Read(void *buf, unsigned int nbyte);
+    int Read(void *buf, unsigned int nbyte,char *ip = nullptr);
     //int accept(SSLSocket* sock);
 
     int write(const void *buf, unsigned int nbyte);
@@ -242,10 +243,13 @@ protected:
 class NETEXPORT UDPSocket : public Socket
 {
 public:
-    UDPSocket(char *address, int p);
+    //if no adress is given udp configuration for server
+	UDPSocket( int p, const char *address = nullptr);
     ~UDPSocket();
-    int read(void *buf, unsigned nbyte);
-    int write(const void *buf, unsigned nbyte);
+    int read(void *buf, unsigned nbyte) override;
+	int Read(void* buf, unsigned nbyte, char* ip = nullptr) override;
+    int write(const void *buf, unsigned nbyte) override;
+	int writeTo(const void* buf, unsigned nbyte, const char* addr);
 };
 
 #ifdef HAVEMULTICAST

@@ -9,6 +9,9 @@
 
 #include <VehicleUtil/RoadSystem/Road.h>
 
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
+
 DonkeyCar::DonkeyCar(std::string n, Road *r, double startu, double startv, double starth, double startdu)
     : Vehicle(n)
     , currentRoad(r)

@@ -511,6 +511,24 @@ void coBaseCoviseInteractor::setFileBrowserParam(const char *name, const char *v
     delete[] buf;
 }
 
+void coBaseCoviseInteractor::setChoiceParam(const char *name, int pos)
+{
+    char *buf;
+
+    int size = 1; // final '\0'
+    size += 2; // number of params
+    size += strlen(name) + 1;
+    size += strlen("Choice") + 1;
+    size += 5; // number of parameter tokens
+    size += 5; // num of selections
+    size += 5; // selected pos
+    buf = new char[size]; // see ApplInterface.cpp CoviseRender::update_choice_param
+
+    sprintf(buf, "%s\nChoice\n%d ", name, pos + 1);
+    sendFeedback(d_feedbackInfo, "PARAM", buf);
+    delete[] buf;
+}
+
 void coBaseCoviseInteractor::setChoiceParam(const char *name, int num, const char *const *list, int pos)
 {
     char *buf;

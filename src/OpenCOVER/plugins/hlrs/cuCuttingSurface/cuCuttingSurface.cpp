@@ -19,6 +19,7 @@
 #include <cover/RenderObject.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Manager.h>
 
 #include <osg/Geode>
 #include <osg/ref_ptr>
@@ -136,8 +137,8 @@ ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
         const char *attr = tex->getAttribute("COLORMAP");
         if (attr)
         {
-            char *species;
-            float *r = NULL, *g = NULL, *b = NULL, *a = NULL;
+            std::string species;
+            std::vector<float> r,g,b,a;
             int numColors;
             float min, max;
             ColorBar::parseAttrib(attr, species, min, max,
@@ -146,11 +147,6 @@ ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
             minMax[container->getName()] = m;
 
             //ColorBar *bar = new ColorBar(name, species, min, max, numColors, r, g, b, a);
-
-            delete[] r;
-            delete[] g;
-            delete[] b;
-            delete[] a;
         }
     }
     else
@@ -526,11 +522,13 @@ CuttingDrawable::CuttingDrawable(ui::Button *m,
 
         name = geom->getName();
     }
-
-    menu->setCallback([this](bool state){
-            if (!state)
-            interactorChanged = true;
-    });
+	if (menu)
+	{
+		menu->setCallback([this](bool state) {
+			if (!state)
+				interactorChanged = true;
+			});
+	}
 }
 
 CuttingDrawable::~CuttingDrawable()

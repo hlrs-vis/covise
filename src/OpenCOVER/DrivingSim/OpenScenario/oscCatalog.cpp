@@ -341,15 +341,17 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 			}
 
 			xercesc::DOMNodeList *catalogList = rootElem->getElementsByTagName(t1 = XMLChTranscodeUtf("Catalog")); xercesc::XMLString::release(&t1);
-			xercesc::DOMNamedNodeMap *attributes = catalogList->item(0)->getAttributes();
-			xercesc::DOMNode *attribute = attributes->getNamedItem(t1 = XMLChTranscodeUtf("name")); xercesc::XMLString::release(&t1);
-
-
-			if (attribute)
+			if(catalogList->getLength()>0)
 			{
-				fileObject->catalogName = XMLChTranscodeUtf(attribute->getNodeValue());
-			}
+				xercesc::DOMNamedNodeMap* attributes = catalogList->item(0)->getAttributes();
+				xercesc::DOMNode* attribute = attributes->getNamedItem(t1 = XMLChTranscodeUtf("name")); xercesc::XMLString::release(&t1);
 
+
+				if (attribute)
+				{
+					fileObject->catalogName = XMLChTranscodeUtf(attribute->getNodeValue());
+				}
+			}
 			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(t1 = XMLChTranscodeUtf(m_catalogName.c_str())); xercesc::XMLString::release(&t1);
 
 			for(int it = 0;it<list->getLength();it++)

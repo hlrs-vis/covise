@@ -58,6 +58,9 @@ private:
     std::string Unique_Name;
 
 public:
+    // it is the callers' responsibility to delete the returned matrix by calling vruiRendererInterface::the()->deleteMatrix(matrix);
+    static vruiMatrix *getMatrixFromPositionHprScale(float x, float y, float z, float h, float p, float r, float scale);
+
     /// Color definitions, to be used whenever a material is needed.
     enum Material
     {

@@ -101,6 +101,9 @@ protected:
     QWidget *createWidget(QWidget *parent) override;
     //void deleteWidget(QWidget *parent) override;
 
+private slots:
+    void actionChanged();
+
 private:
     QString m_text, m_tip, m_widthText;
     int m_value = 0;
@@ -149,8 +152,7 @@ class QtView: public QObject, public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
-   void updateValue(const EditField *input) override;
-   void updateValue(const FileBrowser *fb) override;
+   void updateValue(const TextField *input) override;
    void updateFilter(const FileBrowser *fb) override;
 
    QtViewElement *elementFactoryImplementation(Menu *menu) override;

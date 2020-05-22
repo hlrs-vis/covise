@@ -111,6 +111,7 @@ public:
     void setSize(float width, float height, float depth);
     void setInteger(bool on);
     void setIncrement(float increment);
+    void setLogarithmic(bool on);
 
     void setState(float min, float max, float value,
                   bool isInt, float inc = 0.0f);
@@ -120,6 +121,7 @@ public:
     virtual bool isInteger() const;
     virtual bool isDiscrete() const;
     virtual float getIncrement() const;
+    virtual bool isLogarithmic() const;
 
     virtual float getXSize() const;
     virtual float getYSize() const;
@@ -162,6 +164,7 @@ protected:
     bool integer; ///< true if adjustable value is an integer
     float increment; ///< step size this poti, 0.0 if continuous
     bool discrete;
+    bool logarithmic = false; ///< true if scale is logarithmic
     bool labelVisible; ///< true if label is visible
 
     virtual void remoteLock(const char *message);

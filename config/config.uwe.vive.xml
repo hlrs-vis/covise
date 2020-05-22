@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+  <Module>
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <Fenfloss>
+    <Verbose value="1" />
+    <Timeout value="300" />
+    <Startup value="gate %0 %1 %e" name="v3" />
+    <Startup value="tube %0 %1 %e" name="v4" />
+    <Startup value="axial %0 %1 %e" name="v5" />
+    <Startup value="radial %0 %1 %e" name="v6" />
+    <Startup value="sc2004booth %0 %1 %e" name="v7" />
+    <Startup value="archflow %0 %1 %e" name="v8" />
+    <Startup value="other %0 %1 %e" name="v9" />
+    <Startup value="dgrid /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /usr/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V //data1/HLRS/hlrs/%2/fen_covise_gate'" name="v10" />
+    <Application value="p_covise_fen6.3.0.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+    <Application value="p_fen7.0" name="v3"/>
+   </Fenfloss>
+
+   <StarCD>
+    <Verbose value="1" />
+    <Timeout value="300" />
+    <Server value="m" />
+    <Startup value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <Startup value="dummy d" name="v2" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+
+   <Material>
+    <MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263"  emissive="0 0 0" shininess="0.0363636" transparency="0" />
+   </Material>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+  </Module>
+
+  <System>
+  <VRB>
+    <!--Server value="169.254.32.217" port="31200" /-->
+   </VRB>
+<!--   <ShmSize value="2097152"/> -->
+   <!--<ShmSize value="33554432"/>-->
+    <WSInterface value="false" />
+   <CRB>
+    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias ARCH="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
+    <ModuleAlias value="IO/ReadCGNS-spbgpu" name="IO/ReadCGNS" />
+   </CRB>
+  </System>
+
+  <COVER>
+      <Snap value="ON" />
+      <DebugTUI value="OFF" />
+	  
+    <!--LODScale value="0.000000000001" /-->
+    <DepthPeeling value="false" />
+    <LODScale value="1" />
+    <SyncToVBlank value="OFF" device="DFP-0" />
+
+    <CudaNumThreads value="128" />        
+        
+     <TabletPC>
+         <Server value="127.0.0.1"/>
+       </TabletPC>
+   <CheckForOpenGLErrors value="true" />
+   <UseVertexBufferObjects value="false" />
+   <UseDisplayLists value="true" />
+   <NavigationMode value="XForm" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+   <MultiThreaded value="off" />
+   <StencilBits value="8" />
+   <Stencil value="true" />
+   <VRUI>
+     <VNC>
+       <Menu>
+         <Orientation h="-90" p="0" r="0" />
+         <Position x="1400" y="-500" z="500" />
+       </Menu>
+     </VNC>
+   </VRUI>
+
+    <FloorHeight value="-1500" />
+   <Input>
+    <MouseNav value="ON" />
+        <Device>
+           <Vive driver="Vive">
+		   
+		      <!--Offset x="0" y="0" z="-1500" />
+              <Orientation h="-90" p="90" r="0" /-->
+		      <Offset x="-746.202" y="-4146.46" z="-1500" />
+              <Orientation h="202.672" p="90" r="62.3064" />
+			  
+			  
+              <CalibrationPoint x="-1000" y="-300" z="-1000" info="left_front" name="0"/>
+              <CalibrationPoint x="1000" y="-300" z="-1000" info="right_front" name="1"/>
+              <CalibrationPoint x="-1000" y="-2000" z="-1000" info="left_back" name="2"/>
+			  <Device serial = "LHR-93C74C3C" index = "0" controllerID = "-1" name="0" />
+			  <Device serial = "LHB-4949C2CC" index = "1" controllerID = "-1" name="1" />
+              <Device serial = "LHB-A0B479A6" index = "2" controllerID = "-1" name="2" />
+              <Device serial = "LHR-FF479D45" index = "4" controllerID = "1" name="4" />
+              <Device serial = "LHR-FFEDF945" index = "3" controllerID = "0" name="3" />
+			   <Device serial = "LHB-4567A9FB" index = "1" controllerID = "-1" name="5" />
+			   <Device serial = "LHB-184E9CAD" index = "2" controllerID = "-1" name="6" />
+			   
+			    <Device serial = "LHR-FFE60CA7" index = "0" controllerID = "-1" name="7" />
+				<Device serial = "LHB-E5C1DFCB" index = "1" controllerID = "-1" name="8" />
+				<Device serial = "LHB-AC044906" index = "4" controllerID = "-1" name="9" />
+				<Device serial = "LHB-20166447" index = "5" controllerID = "-1" name="10" />
+				<Device serial = "LHR-2DB3F634" index = "2" controllerID = "1" name="11" />
+				<Device serial = "LHR-12988AE9" index = "3" controllerID = "0" name="12" />
+				<Device serial = "LHB-4ECF2E5A" index = "6" controllerID = "-1" name="13" />
+			   
+			   
+			   <TransformOriginToCamera value="FALSE" />
+           </Vive>
+        </Device>
+
+        <Body>
+           <ConstHead>
+              <Offset x="0" y="-2000" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </ConstHead>
+
+           <ViveHead device="Vive" bodyIndex="0">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="-90" r="0" />
+           </ViveHead>
+
+           <ViveHand device="Vive" bodyIndex="3">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="-90" r="0" />
+           </ViveHand>
+           <ViveHandLeft device="Vive" bodyIndex="2">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="-90" r="0" />
+           </ViveHandLeft>
+
+        </Body>
+
+        <Buttons>
+           <ViveRight device="Vive" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="2" value="XFORM_BUTTON" />
+              <Map name="3" value="MENU_BUTTON" />
+              <Map name="1" value="DRIVE_BUTTON" />
+           </ViveRight>
+           <ViveLeft device="Vive" >
+              <Map name="4" value="ACTION_BUTTON" />
+              <Map name="6" value="XFORM_BUTTON" />
+              <Map name="7" value="MENU_BUTTON" />
+              <Map name="5" value="DRIVE_BUTTON" />
+           </ViveLeft>
+        </Buttons>
+
+        <Valuator>
+           <CaveJoyX device="Vive" valuatorIndex="0" />
+           <CaveJoyY device="Vive" valuatorIndex="1" />
+        </Valuator>
+
+        <Persons>
+           <Person name="Vive" head="ViveHead" hand="ViveHand" buttons="ViveRight" />
+           <Person name="ViveLeft" head="ViveHead" hand="ViveHandLeft" buttons="ViveLeft" />
+           <Person name="Const" head="ConstHead" hand="ViveHand" buttons="ViveRight" />
+        </Persons>
+   </Input>
+   <HMD distance="1000" tracked="true" />
+
+	<!--Console value="on" file="/tmp/coverlog"/-->
+   <Plugin>
+   <Vive value="on" trackingOnly="false"/>
+   <Measure menu="true" />
+   <ViewPoint value="true" />
+   <Revit value="true" />
+   <PointCloud>
+   <!--PointSize value="10" /-->
+   </PointCloud>
+    <Bullet value="off" />
+    <Earth value="off" />
+    <COVERScript value="off" />
+    <cuCuttingSurface value="off" />
+    <cuIsoSurface value="off" />
+    <SGBrowser value="on" />
+    <Volume value="off" />
+    <TouchTable value="off" />
+     <CaveCAD>
+       <DataDir value="/data/calit2/CaveCAD" />
+     </CaveCAD>
+     <Maze>
+       <DataDir value="/data/calit2/maze" />
+     </Maze>
+
+
+     <Vrml97 value="on" >    
+      <!--SmallTextures value="true" /-->
+      <!--MaxTextureSize value="1024" /-->
+	  <ViewpointType value = "standardNoFov"/>
+	  <GenerateTriangleStrips value = "false"/>
+     <Audio value="Aserver" />
+     <ViewpointType value = "standardNoFov"/>
+    </Vrml97>
+
+    <DistortViewer value="off" />
+    <Move value="off" menu="true" />
+    <ClipPlane value="on" />
+    <PLMXML value="off">
+	 <LoadSTL value="false" />
+	 <LoadVRML value="true" />
+	 <UndoVRMLRotate value="false" />
+	</PLMXML>
+	
+
+    <PDB value="off" menu="true" >
+     <PDBPluginPymolDir value="/var/tmp/pymol/" />
+     <PDBPluginTempDir value="/var/tmp/pdb/" />
+     <PDBUrl value="www.pdb.org/pdb/files/" />
+     <AnimationURL value="www.molmovdb.org/uploads/" />
+     <PDBAnimationUrl value="www.molmovdb.org/uploads" />
+
+     <Scale value="1" />
+     <ViewerDistance value="70" />
+     <FadeDistance value="40" />
+
+     <Structures>
+          <Gleevec value="1XBB" />
+          <Luciferin value="2D1S" />
+          <Hemoglobin value="4HHB" />
+          <HIV_Protease value="1HVR" />
+          <Smad4 value="1YGS" />
+          <Photosystem_I value="1JBO" />
+          <Cytochrome_c_Oxidase value="1OCO" />
+          <MHC_Class_II value="1DLH" />
+          <Potassium_Channel_A value="1BL8" />
+          <Potassium_Channel_B value="1FQY" />
+          <SARS value="2D2D" />
+          <Acetylcholine_Receptor value="2BG9" />
+          <Acetylcholine_Cobratoxin value="1YI5" />
+          <Thermus_Thermophilus value="1J5E" />
+          <Polyketide_Synthase value="1U0M" />
+          <Calcium_Pump value="1SU4" />
+          <Antibody_bound_Influenza value="1KEN" />
+          <Thermatoga value="2F8J" />
+     </Structures>
+
+     <Animations>
+          <Serotonin_N_Acetyltransferase value="22943-38" />
+          <Calcium_Pump value="396506-12995" />
+          <FecA_transporter value="829808-15750" />
+          <Actin value="763408-1487" />
+          <Calmodulin value="17833-29779" />
+     </Animations>
+    </PDB>
+
+    <AKToolbar value="false" menu="false">
+     <Attachment value="TOP" />
+     <Scale value=".8" />
+     <MinClickTime value="0.2" />
+     <Position x="-980" y="0" z="630" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="walk" name="walk" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+    </AKToolbar>
+
+    <Amber value="off"/>  
+	<StereoVideoPlayer>
+	<MoviePlayer value="ffmpeg"/>
+	<UseTextureRectangle value="true"/>
+	<AudioOffset value="0.0"/>
+  </StereoVideoPlayer>
+
+    <StereoVideoPlayer>
+        <UseTextureRectangle value="on" />
+	<AudioOffset value="0.0" />
+    </StereoVideoPlayer>
+
+
+   </Plugin>
+
+   <Menu>
+    <Position x="800" y="0" z="500" />
+   </Menu>
+   <ViewerPosition x="0" y="-2500" z="0" />
+   <SceneSize value="1000" />
+   <DebugLevel value="1" />
+   <FPS value="true" />
+   <Stereo value="true" />
+
+   <PipeConfig>
+       <Pipe name="0" useDISPLAY="true" />
+   </PipeConfig>
+
+   <WindowConfig>
+    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="40" name="0" decoration="true" />
+    <!--Window width="2560" comment="FRONT" window="0" pipeIndex="0" height="2048" left="100" top="100" name="0" decoration="true" /-->
+   </WindowConfig>
+
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+
+   <ViewportConfig>
+      <!-- each channel needs at least one Viewport -->
+    <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+   </ViewportConfig>
+   
+   <NumWindows value="1" />
+    <NumChannels value="2" />
+  <!-- <NumPBOs value="2" />
+   
+   <PBOConfig>
+      <PBO name="0" width="1920" height="1080" windowIndex="0" />
+      <PBO name="1" width="1920" height="1080" windowIndex="0" />
+   </PBOConfig>
+
+   -->
+  
+   <ChannelConfig>
+    <Channel comment="MAINL" channel="0" stereoMode="LEFT" windowIndex="0" PBOIndex="0" name="0" screenIndex="0"/>
+    <Channel comment="MAINR" channel="1" stereoMode="RIGHT" windowIndex="0" PBOIndex="1" name="1" screenIndex="0"/>
+   </ChannelConfig> 
+   
+     <TestImage value="D:/data/enbw/bilder/Fotomontagen/neu/2010_11_05_RFW_033_3840_2160_4k.jpg" />
+   <!--Background r="1.0" g="1.0" b="1.0"/-->
+  </COVER>
+
+
+  <!-- position of transfer editor menu>
+
+      <TFE>
+         <MenuPosition value="-200 0 80" >
+         <MenuSize value="0.15" >
+      </TFE--><!--position of error message window (PDBplugin)>
+
+      <Messages>
+         <MenuPosition value="100 0 120" />
+         <MenuSize value="0.15" />
+      </Messages--> </GLOBAL>
+
+ <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+ <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
+ <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
+ 
+ <TRYINCLUDE global="1" configname="private" ARCH="unix" >/data/hlrs/config-hlrs-private.xml</TRYINCLUDE>
+ <TRYINCLUDE global="1" configname="private" ARCH="windows" >c:/data/hlrs/config-hlrs-private.xml</TRYINCLUDE>
+ <!-- this config is required by the ViNCE Renderer-->
+ <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
+</COCONFIG>

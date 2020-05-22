@@ -30,6 +30,8 @@
 #include "VehicleUtil.h"
 #include "CANProvider.h"
 #include <iostream>
+namespace vehicleUtil
+{
 
 //--------------------------------------------------------------------
 class HMIDeviceIface
@@ -64,5 +66,5 @@ protected:
     int m_state;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

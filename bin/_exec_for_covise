@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 ## default place for Covise installation: directory above this script
 ##                                        if not set otherwise
@@ -136,6 +136,10 @@ else
        echo $runcmd does not exist
        exit 1
     fi
+fi
+
+if [ -f $HOME/.valgrind ]; then
+    exec valgrind "$runcmd" "$@"
 fi
 
 if [ "$basename" = "_exec_for_covise" ]; then

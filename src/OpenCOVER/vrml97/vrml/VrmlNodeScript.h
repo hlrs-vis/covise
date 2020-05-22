@@ -72,8 +72,8 @@ public:
     void addEventIn(const char *name, VrmlField::VrmlFieldType type);
     void addEventOut(const char *name, VrmlField::VrmlFieldType type);
     void addExposedField(const char *name, VrmlField::VrmlFieldType typeVrml, VrmlField *defaultValue = 0);
-    void addField(const char *name, VrmlField::VrmlFieldType type,
-                  VrmlField *defaultVal = 0);
+    void addField(const char* name, VrmlField::VrmlFieldType type,
+        VrmlField* defaultVal = 0, bool exposed = false);
 
     // Access to eventIns/Outs/fields for ScriptObjects
 
@@ -84,6 +84,7 @@ public:
         VrmlField *value;
         VrmlField::VrmlFieldType type;
         bool modified;
+        bool exposed;
     } ScriptField;
 
     typedef std::list<ScriptField *> FieldList;
@@ -97,7 +98,8 @@ public:
     VrmlField *getField(const char *fname) const;
     // Set field/event values
     void setEventIn(const char *, const VrmlField *);
-    void setEventOut(const char *, const VrmlField *);
+    void setEventOut(const char*, const VrmlField*);
+    void setExposedField(const char*, const VrmlField*);
     // setField declared above as virtual
 
     // Fields and events defined for this Script
@@ -138,7 +140,7 @@ private:
     FieldList d_fields;
 
     // Generic field/event add/test/value methods
-    void add(FieldList &, const char *, VrmlField::VrmlFieldType);
+    void add(FieldList&, const char*, VrmlField::VrmlFieldType, bool exposed = false);
     VrmlField::VrmlFieldType has(const FieldList &, const char *) const;
     VrmlField *get(const FieldList &, const char *) const;
     void set(const FieldList &, const char *, const VrmlField *);

@@ -37,7 +37,7 @@ void coVRPlugin::commitTimestep(int t)
     {
         std::cerr << "Plugin " << m_name << ": timestep " << t << " committed, but " << m_outstandingTimestep << " was outstanding" << std::endl;
     }
-    assert(m_outstandingTimestep == t);
+    assert(m_outstandingTimestep == -1 || m_outstandingTimestep == t);
     m_outstandingTimestep = -1;
     coVRPluginList::instance()->commitTimestep(t, this);
 }

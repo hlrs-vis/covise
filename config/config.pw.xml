@@ -93,7 +93,7 @@
 
 
    <VRB>
-    <!--Server value="141.58.8.5" port="31200" /-->
+    <!--Server value="141.58.8.5" tcpPort="31200" /-->
    </VRB>
 
    <HostConfig>
@@ -426,7 +426,6 @@
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <Stereo enable="ON" value="ON" />
    <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
    <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
    <ViewerPosition x="0" y="-1500" z="400" />

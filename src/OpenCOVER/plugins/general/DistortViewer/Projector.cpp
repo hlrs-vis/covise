@@ -678,7 +678,7 @@ void Projector::update()
 
 osg::Geometry *Projector::drawScreen(osg::Vec4 color)
 {
-    osg::ref_ptr<osg::Geometry> geomProjScreen = new osg::Geometry();
+    osg::Geometry *geomProjScreen = new osg::Geometry();
 
     // Eckpunkte setzen
     geomProjScreen->setVertexArray(cornerPnts.get());
@@ -697,7 +697,7 @@ osg::Geometry *Projector::drawScreen(osg::Vec4 color)
     geomProjScreen->setNormalArray(normals.get());
     geomProjScreen->setNormalBinding(osg::Geometry::BIND_OVERALL);
 
-    return geomProjScreen.release();
+    return geomProjScreen;
 }
 
 //#define GET_HPR(m,h,p,r)          { float cp; p= asin(m(1,2)); cp = cos(p); r = acos(m(2,2)/cp); h = -asin(m(1,0)/cp);  }

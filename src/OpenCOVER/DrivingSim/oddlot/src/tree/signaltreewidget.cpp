@@ -56,7 +56,7 @@ SignalTreeWidget::SignalTreeWidget(SignalManager *signalManager, MainWindow *mai
 	: QTreeWidget()
 	, signalManager_(signalManager)
 	, mainWindow_(mainWindow)
-	, projectWidget_(NULL)
+    , projectWidget_(NULL)
 	, signalEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
 {
@@ -65,7 +65,7 @@ SignalTreeWidget::SignalTreeWidget(SignalManager *signalManager, MainWindow *mai
 
 SignalTreeWidget::~SignalTreeWidget()
 {
-    
+
 }
 
 //################//
@@ -136,7 +136,7 @@ SignalTreeWidget::init()
 				categoryMap.insert(signCategory,categoryWidget); 
 				QColor color;
 	            color.setHsv(signalManager_->getCategoryNumber(signCategory) * colorIndex, 255, 255, 255);
-				categoryWidget->setBackgroundColor(1, color);
+				categoryWidget->setBackground(1, QBrush(color));
 			}
 			QTreeWidgetItem *signs = new QTreeWidgetItem(categoryWidget); 
 			signs->setText(0,container->getSignalName());
@@ -164,7 +164,7 @@ SignalTreeWidget::init()
 				categoryMap.insert(objectCategory, categoryWidget); 
 				QColor color;
 	            color.setHsv(signalManager_->getCategoryNumber(objectCategory) * colorIndex, 255, 255, 255);
-				categoryWidget->setBackgroundColor(1, color);
+				categoryWidget->setBackground(1, QBrush(color));
 			}
 			QTreeWidgetItem *object = new QTreeWidgetItem(categoryWidget); 
 			object->setText(0,container->getObjectType());	
@@ -177,7 +177,7 @@ SignalTreeWidget::init()
 	bridgeWidget->setText(1,tr(""));
 	QColor color;
 	color.setHsv((categorySize - 1) * colorIndex, 255, 255, 255);
-	bridgeWidget->setBackgroundColor(1, color);
+	bridgeWidget->setBackground(1, QBrush(color));
 	rootList.append(bridgeWidget);
 
 	// add tunnel
@@ -185,7 +185,7 @@ SignalTreeWidget::init()
 	tunnelWidget->setText(0, "Tunnel");
 	tunnelWidget->setText(1,tr(""));
 	color.setHsv(categorySize * colorIndex, 255, 255, 255);
-	tunnelWidget->setBackgroundColor(1, color);
+	tunnelWidget->setBackground(1, QBrush(color));
 	rootList.append(tunnelWidget);
 
 	insertTopLevelItems(0,rootList);
@@ -340,38 +340,34 @@ void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
     QTreeWidget::mouseMoveEvent(event);
     if(signalContainer)
     {
-        QDrag *drag = PrepareDrag();//new QDrag(this);
-        /*QMimeData *mimeData = new QMimeData;
-
-        QTreeWidgetItem *item = selectedItems().at(0);
-        const QString text = item->text(0);
-        //Signal *signal = dynamic_cast<Signal *>(projectWidget_->getProjectData()->getSelectedElements().at(0));
-        //QString signalName = signal->getName();
-        std::string entryName = text.toUtf8().constData();
-
-        mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
-        drag->setMimeData(mimeData);*/
         QIcon signalIcon = signalContainer->getSignalIcon();
-        drag->setPixmap(signalIcon.pixmap(QSize(35,35)));
-
-        Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+        if(!signalIcon.isNull())
+        {
+            PrepareDrag(signalIcon);
+            signalManager_->setSelectedSignalContainer(NULL);
+        }
     }
-    /*else
+    else
     {
         ObjectContainer* objectContainer = signalManager_->getSelectedObjectContainer();
         if(objectContainer)
         {
-            //QTreeWidgetItem *item = selectedItems().at(0);
-            //const QString text = item->text(0);
-            QDrag* drag = PrepareDrag();
             QIcon objectIcon = objectContainer->getObjectIcon();
-            drag->setPixmap(objectIcon.pixmap(QSize(35,35)));
-            Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+            if(!objectIcon.isNull())
+            {
+                PrepareDrag(objectIcon);
+                signalManager_->setSelectedObjectContainer(NULL);
+            }
         }
-    }*/
+    }
 }
 
-QDrag* SignalTreeWidget::PrepareDrag()
+/**
+ * @brief SignalTreeWidget::PrepareDrag
+ * Initialize a drag pointer with mimedata and set the icon.
+ * @param icon
+ */
+void SignalTreeWidget::PrepareDrag(const QIcon& icon)
 {
     QDrag* drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData;
@@ -384,6 +380,8 @@ QDrag* SignalTreeWidget::PrepareDrag()
 
     mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
     drag->setMimeData(mimeData);
-    return drag;
+    drag->setPixmap(icon.pixmap(QSize(35,35)));
+    drag->exec(Qt::CopyAction | Qt::MoveAction);
+    //return drag;
 }
 

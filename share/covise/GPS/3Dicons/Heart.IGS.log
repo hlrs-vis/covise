@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="10">
+<e class_id="0" class_name="TranslationStartEvent" tracking_level="0" version="0">
+	<Event class_id="1" tracking_level="0" version="0"></Event>
+</e>
+<e class_id="2" class_name="TranslationProgressEvent" tracking_level="0" version="0">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id_reference="2">
+	<Event></Event>
+</e>
+<e class_id="3" class_name="TranslationEndEvent" tracking_level="0" version="0">
+	<Event></Event>
+</e>

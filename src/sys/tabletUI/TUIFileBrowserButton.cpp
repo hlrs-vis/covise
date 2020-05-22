@@ -13,11 +13,7 @@
 #include <QPixmap>
 #include <QMessageBox>
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 #include "TUIFileBrowserButton.h"
 #include "TUIApplication.h"
 
@@ -262,9 +258,9 @@ void TUIFileBrowserButton::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_SET_MASTER)
     {
-        int state = false;
+        bool state = false;
         tb >> state;
-        emit updateLoadCheckBox((bool)state);
+        emit updateLoadCheckBox(state);
     }
     else
     {

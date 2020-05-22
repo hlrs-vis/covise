@@ -134,6 +134,10 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
     {
         sh.symbol = osgGA::GUIEventAdapter::KEY_Escape;
     }
+    else if (key == "space")
+    {
+        sh.symbol = osgGA::GUIEventAdapter::KEY_Space;
+    }
     else if ((key.length()==2 || key.length()==3) && key[0] == 'f')
     {
         int fnum = atoi(key.substr(1).c_str());

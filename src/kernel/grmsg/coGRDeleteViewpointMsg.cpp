@@ -11,6 +11,7 @@
 #include <cstdio>
 
 using namespace grmsg;
+using namespace std;
 
 GRMSGEXPORT coGRDeleteViewpointMsg::coGRDeleteViewpointMsg(const char *msg)
     : coGRMsg(msg)

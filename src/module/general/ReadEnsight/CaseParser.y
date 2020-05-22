@@ -8,11 +8,12 @@
 // the includes
 %header{
 // standard includes
-#include <covise/covise.h>
 #include "CaseFile.h"
 #include "DataItem.h"
+#include <string>
+#include <iostream>
+#include <fstream>
 #ifndef _WIN32
-#include <alloca.h>
 #include <sys/stat.h>
 #endif
 
@@ -30,30 +31,49 @@ class CaseLexer;
 // define a constant for the maximum length of a string token
 #define MaxTokenLength 1024
 #define YYDEBUG 9
+// trim from left
+inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    s.erase(0, s.find_first_not_of(t));
+    return s;
+}
+
+// trim from right
+inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
+// trim from left & right
+inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    return ltrim(rtrim(s, t), t);
+}
 %}
 
 %name CaseParser
 %define USE_CONST_TOKEN 1
 
-%define CONSTRUCTOR_PARAM const string &sFileName
+%define CONSTRUCTOR_PARAM const std::string &sFileName
 %define CONSTRUCTOR_INIT : inputFile_( NULL ), lexer_( NULL )
 %define CONSTRUCTOR_CODE init( sFileName );
 
 %define MEMBERS \
   public:   virtual   ~CaseParser(); \
   public:   void      yyerror( const char *msg ); \
-  public:   void      yyerror( const string &sMsg ); \
+  public:   void      yyerror( const std::string &sMsg ); \
   public:   void      setCaseObj(CaseFile &cs); \
   public:   CaseFile  getCaseObj(); \
   public:   bool      isOpen(); \
-  private:  ifstream  *inputFile_; \
+  private:  std::ifstream  *inputFile_; \
   private:  CaseLexer *lexer_; \
   private:  CaseFile  caseFile_; \
   private:  DataItem  *actIt_;\
   private:  TimeSet   *actTs_;\
   private:  bool      isOpen_;\
   private:  int       tsStart_; \
-  private:  int init( const string &sFileName ); \
+  private:  int init( const std::string &sFileName ); \
 
 
 %union 
@@ -84,7 +104,8 @@ class CaseLexer;
 %token VARDESC TENSOR_SYMM
 %token ENSIGHTV ENSIGHT_GOLD ASTNOTFN FN_NUMS FLOAT
 %token PER_M_NODE PER_M_ELEMENT
-%token VAR_POST VAR_POST_TS VAR_POST_TS_FS VAR_INT
+%token VAR_POST VAR_POST_TS VAR_INT
+%token FILE_SEC FILE_SET
 
 %left LOGICAL_OR 
 %left LOGICAL_AND 
@@ -107,6 +128,7 @@ sect_key: FORMAT_SEC
         | GEOMETRY_SEC
         | VARIABLE_SEC
         | TIME_SEC
+        | FILE_SEC
 
 spec: spec_line
     | spec spec_line
@@ -116,17 +138,24 @@ spec_line: type_spec
          | model_spec 
          | variable_spec
          | ts_spec
+         | fs_spec
          | const_spec
 
 
 ts_spec: ts_hdr ts_opts
+         {
+	     	     fprintf(stderr, "ts_hdr ts_opts %s %s\n",$<token>1.szValue, $<token>2.szValue);
+         }
         |ts_spec ts_hdr ts_opts
+         {
+	     	     fprintf(stderr, "ts_hdr ts_opts %s %s\n",$<token>1.szValue, $<token>2.szValue);
+         }
 
 ts_hdr: TIME_SET INTEGER NUM_OF_STEPS INTEGER 
          {
 	     int ts( $<token>2.iVal );
 	     int ns( $<token>4.iVal );
-	     //	     fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
+	     	     fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
 	     actTs_ = new TimeSet( ts, ns );
 
 	 }
@@ -134,7 +163,7 @@ ts_hdr: TIME_SET INTEGER NUM_OF_STEPS INTEGER
          {
 	     int ts( $<token>2.iVal );
 	     int ns( $<token>5.iVal );
-	     //	     fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
+	          fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
 	     actTs_ = new TimeSet( ts, ns );
 
 	 } 
@@ -149,13 +178,13 @@ ts_fn_start: FN_ST_NUM INTEGER
          {
 	     int fs( $<token>2.iVal );
 	     tsStart_ = fs;
-	     //	     fprintf(stderr, " FIELNAME START %d ", fs);
+	     	     fprintf(stderr, " FIELNAME START %d ", fs);
 	 }
 
 ts_fn_incr: FN_INCR INTEGER
          {
 	     int incr( $<token>2.iVal ); 
-	     //	     fprintf(stderr, " FIELNAME INCREMENT %d ", incr);
+	     	     fprintf(stderr, " FIELNAME INCREMENT %d ", incr);
 	     if (actTs_ != NULL) {
 		 int i;
 		 int j(0);
@@ -175,11 +204,13 @@ ts_fn_incr: FN_INCR INTEGER
 
 ts_fnum_sec: FN_NUMS ts_fn_nums 
          {
-	     //	     fprintf(stderr, " FILENAME NUMBERS ");
+	     	     fprintf(stderr, " FILENAME NUMBERS ");
 	 }
 
 ts_fn_nums: ts_fn_nums INTEGER
          {
+		 
+	     	     fprintf(stderr, " INTEGER ");
 	     int nf( $<token>2.iVal ); 
 	     if (actTs_ != NULL) {
 		 actTs_->addFileNr(nf); 		 	     
@@ -192,6 +223,7 @@ ts_fn_nums: ts_fn_nums INTEGER
 	 }
          |  INTEGER
          {
+	     	     fprintf(stderr, " INTEGER ");
 	     int nf( $<token>1.iVal ); 
 	     //	     fprintf(stderr, " %d ", nf);
 	     if (actTs_ != NULL) {
@@ -206,13 +238,27 @@ ts_fn_nums: ts_fn_nums INTEGER
 
 ts_tval_secc: TIME_VAL ts_tvals
          {
+	     	     fprintf(stderr, " TIME_VAL ts_tvals ");
 	     if ( actTs_ != NULL ) {
 	     }
 	 }
 
 ts_tvals: ts_tvals DOUBLE
          {
+	     	     fprintf(stderr, " ts_tvals DOUBLE ");
 	     float rt( (float) $<token>2.dVal );
+	     if (actTs_ != NULL) {
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	     else {
+		 actTs_ = caseFile_.getLastTimeSet();
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	 }
+	 | ts_tvals INTEGER
+         {
+	     	     fprintf(stderr, " ts_tvals INTEGER ");
+	     float rt( (float) $<token>2.iVal );
 	     if (actTs_ != NULL) {
 		 actTs_->addRealTimeVal(rt); 
 	     }
@@ -224,6 +270,7 @@ ts_tvals: ts_tvals DOUBLE
 
         | DOUBLE
          {
+	     	     fprintf(stderr, " DOUBLE ");
 	     float rt( (float)$<token>1.dVal );
 	     if (actTs_ != NULL) {
 		 actTs_->addRealTimeVal(rt); 
@@ -233,7 +280,40 @@ ts_tvals: ts_tvals DOUBLE
 		 actTs_->addRealTimeVal(rt); 
 	     }
 	 }
+        | INTEGER
+         {
+	     	     fprintf(stderr, " INTEGER ");
+	     float rt( (float)$<token>1.iVal );
+	     if (actTs_ != NULL) {
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	     else {
+		 actTs_ = caseFile_.getLastTimeSet();
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	 }
 	 
+	 
+
+fs_spec: fs_hdr
+        |fs_spec fs_hdr
+		
+fs_hdr: FILE_SET INTEGER NUM_OF_STEPS INTEGER 
+         {
+	     int ts( $<token>2.iVal );
+	     int ns( $<token>4.iVal );
+	     	     fprintf(stderr, "DEFINITION FILESET %d  STEPS %d\n", ts, ns);
+	     //actTs_ = new TimeSet( ts, ns );
+
+	 }
+         | FILE_SET INTEGER IDENTIFIER NUM_OF_STEPS INTEGER 
+         {
+	     int ts( $<token>2.iVal );
+	     int ns( $<token>5.iVal );
+	     	     fprintf(stderr, "DEFINITION FILESET %d  STEPS %d\n", ts, ns);
+	     //actTs_ = new TimeSet( ts, ns );
+
+	 } 
 
 
 type_spec: TYPE ENSIGHTV
@@ -253,13 +333,13 @@ any_identifier: IDENTIFIER
 
 model_spec: MODEL any_identifier 
           {
-        	string ensight_geofile($<token>2.szValue);
+        	std::string ensight_geofile($<token>2.szValue);
 		//	        fprintf(stderr,"  ENSIGHT MODEL <%s> found\n", ensight_geofile.c_str());
 	        caseFile_.setGeoFileNm( ensight_geofile );
           }
           | MODEL INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
           // check whether the integer is part of the filename
 	  // this integer is separated by a whitespace from the filename thus no need to add it to the filename
 	  // opening the file never works if you are not in the same directory as the case file
@@ -268,7 +348,7 @@ model_spec: MODEL any_identifier
           stat( ensight_geofile.c_str(), &buf);
           if( !S_ISREG(buf.st_mode) )
           {
-             string intStr($<token>2.szValue); 
+             std::string intStr($<token>2.szValue); 
 	         caseFile_.setGeoFileNm( intStr+ensight_geofile );
           }
           else
@@ -281,7 +361,7 @@ model_spec: MODEL any_identifier
           }
           | MODEL INTEGER INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>4.szValue);
+	      std::string ensight_geofile($<token>4.szValue);
 	      caseFile_.setGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
@@ -291,7 +371,7 @@ model_spec: MODEL any_identifier
 
           | MODEL INTEGER ASTNOTFN 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
 	      caseFile_.setGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
@@ -300,7 +380,7 @@ model_spec: MODEL any_identifier
           // we may find lines like: model bla_geo.**** in this case we set the timeset to 1 
           | MODEL ASTNOTFN 
           {	      
-	      string ensight_geofile($<token>2.szValue);
+	      std::string ensight_geofile($<token>2.szValue);
 	      caseFile_.setGeoFileNm( ensight_geofile );
 	      caseFile_.setGeoTsIdx(1);
 	      //	      fprintf(stderr,"  ENSIGHT MODEL <%s> TIMESET <%d> found\n", ensight_geofile.c_str(), ts);
@@ -309,26 +389,26 @@ model_spec: MODEL any_identifier
 
           | MEASURED any_identifier 
           {
-        	string ensight_geofile($<token>2.szValue);
+        	std::string ensight_geofile($<token>2.szValue);
 	        caseFile_.setMGeoFileNm( ensight_geofile );
           }
           | MEASURED INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
           }
           | MEASURED INTEGER INTEGER any_identifier 
           {
-	      string ensight_geofile($<token>4.szValue);
+	      std::string ensight_geofile($<token>4.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
           }
           | MEASURED INTEGER ASTNOTFN 
           {
-	      string ensight_geofile($<token>3.szValue);
+	      std::string ensight_geofile($<token>3.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
@@ -338,7 +418,7 @@ model_spec: MODEL any_identifier
           // we may find lines like: model bla_geo.**** in this case we set the timeset to 1 
           | MEASURED ASTNOTFN 
           {	      
-	      string ensight_geofile($<token>2.szValue);
+	      std::string ensight_geofile($<token>2.szValue);
 	      caseFile_.setMGeoFileNm( ensight_geofile );
 	      caseFile_.setGeoTsIdx(1);
           }
@@ -347,29 +427,30 @@ model_spec: MODEL any_identifier
 
 variable_spec: var_pre VAR_POST
           {
-	      string tmp($<token>2.szValue);
+	      	      fprintf(stderr," VAR_POST %s\n", $<token>2.szValue);
+	      std::string tmp($<token>2.szValue);
 	      size_t last = tmp.find(" ");
-	      if ( last == string::npos ) {
+	      if ( last == std::string::npos ) {
 		  last = tmp.find("\t");
-		  if ( last == string::npos ) {
-		      cerr << "CaseParser::yyparse() filename or description for variable missing" << endl;
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
 		  }
 	      }
-	      string desc( tmp.substr( 0, last ) );
+	      std::string desc( tmp.substr( 0, last ) );
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
-	      string fname( tmp.substr( snd, len-snd ) );
+	      std::string fname( tmp.substr( snd, len-snd ) );
 	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
 	      
 	      actIt_->setDesc( desc );
 
-	      actIt_->setFileName( fname );
+	      actIt_->setFileName( trim(fname) );
 	      
 	      if ( actIt_ != NULL ) {
 		  caseFile_.addDataIt( *actIt_ );
 	      }
 	      else {
-		  cerr << "CaseParser::yyparse() try to add NULL DataItem" << endl;
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
 	      }
 
 	      delete actIt_;
@@ -378,30 +459,30 @@ variable_spec: var_pre VAR_POST
 	  }
           | var_pre VAR_INT VAR_POST
           {
-	      //	      fprintf(stderr," VAR_POST_TS %s\n", $<token>3.szValue);
-	      string tmp($<token>3.szValue);
+	      	      fprintf(stderr," VAR_INT VAR_POST_TS %s\n", $<token>3.szValue);
+	      std::string tmp($<token>3.szValue);
 	      size_t last = tmp.find(" ");
-	      if ( last == string::npos ) {
+	      if ( last == std::string::npos ) {
 		  last = tmp.find("\t");
-		  if ( last == string::npos ) {
-		      cerr << "CaseParser::yyparse() filename or description for variable missing" << endl;
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
 		  }
 	      }
-	      string desc( tmp.substr( 0, last ) );
+	      std::string desc( tmp.substr( 0, last ) );
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
-	      string fname( tmp.substr( snd, len-snd ) );
+	      std::string fname( tmp.substr( snd, len-snd ) );
 	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
 	      
 	      actIt_->setDesc( desc );
 
-	      actIt_->setFileName( fname );
+	      actIt_->setFileName( trim(fname) );
 	      
 	      if ( actIt_ != NULL ) {
 		  caseFile_.addDataIt( *actIt_ );
 	      }
 	      else {
-		  cerr << "CaseParser::yyparse() try to add NULL DataItem" << endl;
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
 	      }
 
 	      delete actIt_;
@@ -410,58 +491,62 @@ variable_spec: var_pre VAR_POST
 	  }
           | var_pre VAR_INT VAR_INT VAR_POST
           {
-	      //fprintf(stderr," VAR_POST_TS_FS <%s>\n", $<token>4.szValue);
-	      string tmp($<token>4.szValue);
+	      	      fprintf(stderr," VAR_INT VAR_POST_TS %s\n", $<token>4.szValue);
+	      std::string tmp($<token>4.szValue);
 	      size_t last = tmp.find(" ");
-	      if ( last == string::npos ) {
+	      if ( last == std::string::npos ) {
 		  last = tmp.find("\t");
-		  if ( last == string::npos ) {
-		      cerr << "CaseParser::yyparse() filename or description for variable missing" << endl;
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
 		  }
 	      }
-	      string desc( tmp.substr( 0, last ) );
+	      std::string desc( tmp.substr( 0, last ) );
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
-	      string fname( tmp.substr( snd, len-snd ) );
-
+	      std::string fname( tmp.substr( snd, len-snd ) );
+	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
+	      
 	      actIt_->setDesc( desc );
 
-	      actIt_->setFileName( fname );
+	      actIt_->setFileName( trim(fname) );
 	      
 	      if ( actIt_ != NULL ) {
 		  caseFile_.addDataIt( *actIt_ );
 	      }
 	      else {
-		  cerr << "CaseParser::yyparse() try to add NULL DataItem" << endl;
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
 	      }
 
 	      delete actIt_;
 	      actIt_ = NULL;
-	  }
 
+	  }
           | var_pre IDENTIFIER DOUBLE
+          {
+	      	      fprintf(stderr," var_type var_rela %s\n", $<token>3.szValue);
+	  }
 
 var_pre :  var_type var_rela 
           {
-
+	      	      fprintf(stderr," var_type var_rela\n");
 	  }
 
 var_type: SCALAR
           {  
 	      actIt_ = new DataItem;
-	      //	      fprintf(stderr,"     ENSIGHT SCALAR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT SCALAR VARIABLE ");
 	      actIt_->setType( DataItem::scalar );
 	  }
           | VECTOR 
           {  
 	      actIt_ = new DataItem;
-	      //	      fprintf(stderr,"     ENSIGHT VECTOR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT VECTOR VARIABLE ");
 	      actIt_->setType( DataItem::vector );
 	  }
           | TENSOR_SYMM 
           {  
 	      actIt_ = new DataItem;
-	      //	      fprintf(stderr,"     ENSIGHT SYMMETRIC TENSOR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT SYMMETRIC TENSOR VARIABLE ");
 	      actIt_->setType( DataItem::tensor );
 	  }
 
@@ -470,29 +555,29 @@ var_rela: PER_ELEMENT
           {  
 	      actIt_->setDataType(false);
 	      actIt_->setMeasured(false);
-	      //	      fprintf(stderr," PER ELEMENT DATA");
+	      	      fprintf(stderr," PER ELEMENT DATA");
 	  }
           | PER_NODE
           {  
 	      actIt_->setDataType(true);
 	      actIt_->setMeasured(false);
-	      //	      fprintf(stderr," PER NODE DATA");
+	      	      fprintf(stderr," PER NODE DATA");
 	  }
           | PER_M_NODE
           {  
 	      actIt_->setDataType(true);
 	      actIt_->setMeasured(true);
-	      //	      fprintf(stderr," PER NODE DATA");
+	      	      fprintf(stderr," PER NODE DATA");
 	  }
           | PER_M_ELEMENT
           {  
 	      actIt_->setDataType(false);
 	      actIt_->setMeasured(true);
-	      //	      fprintf(stderr," PER NODE DATA");
+	      	      fprintf(stderr," PER NODE DATA");
 	  }
           | PER_CASE
           {  
-	      //	      fprintf(stderr," PER CASE ");
+	      	      fprintf(stderr," PER CASE ");
 	  }
 
 const_spec: CONSTANT var_rela POINT_IDENTIFIER INTEGER
@@ -514,11 +599,11 @@ const_spec: CONSTANT var_rela POINT_IDENTIFIER INTEGER
 #include "DataItem.h"
 
 
-int CaseParser::init( const string &sFileName)
+int CaseParser::init( const std::string &sFileName)
 {
     isOpen_ = false;
 
-    inputFile_ = new ifstream( sFileName.c_str() );
+    inputFile_ = new std::ifstream( sFileName.c_str() );
     if (!inputFile_->is_open()) {
         fprintf(stderr,"could not open %s for reading",sFileName.c_str());
         delete inputFile_;
@@ -568,7 +653,7 @@ CaseParser::yylex()
 void 
 CaseParser::yyerror( char *szErrMsg )
 {
-  //    cerr << endl << szErrMsg << "(line " << lexer_->lineno() << ")";
+  //    std::cerr << std::endl << szErrMsg << "(line " << lexer_->lineno() << ")";
     fprintf(stderr,"%s (line: %d )\n",szErrMsg,lexer_->lineno());
 }
 
@@ -579,7 +664,7 @@ CaseParser::yyerror( const char *szErrMsg )
 }
 
 void 
-CaseParser::yyerror( const string &sMsg )
+CaseParser::yyerror( const std::string &sMsg )
 {
     yyerror( sMsg.c_str() );
 }

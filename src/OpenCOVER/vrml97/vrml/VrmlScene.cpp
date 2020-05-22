@@ -103,6 +103,7 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
     , oldNi(0)
     , resetVPFlag(true)
     , d_WasEncrypted(false)
+	, d_loadSuccess(false)
 {
     d_nodes.addToScene(this, sceneUrl);
     d_backgrounds = new VrmlNodeList;
@@ -132,8 +133,14 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
         {
             cache = new InlineCache(localCopy);
         }
-        if (!load(sceneUrl, localCopy))
-            System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		if (!load(sceneUrl, localCopy))
+		{
+			System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		}
+		else
+		{
+			d_loadSuccess = true;
+		}
     }
 }
 
@@ -144,7 +151,11 @@ void VrmlScene::setMenuVisible(bool vis)
 
 VrmlScene::~VrmlScene()
 {
-    System::the->destroyMenu();
+	if (d_namespace != NULL)
+	{
+		VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	}
+	System::the->destroyMenu();
     d_nodes.addToScene(0, 0);
     d_nodes.removeChildren();
 
@@ -403,8 +414,8 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
     {
         tryUrl = new Doc(url, d_url);
     }
-
-    VrmlNamespace *newScope = new VrmlNamespace();
+	;
+    VrmlNamespace *newScope = new VrmlNamespace(System::the->getFileId(url));
     bool wasEncrypted = false;
     VrmlMFNode *newNodes = readWrl(tryUrl, newScope, &wasEncrypted);
     d_WasEncrypted = d_WasEncrypted | wasEncrypted;
@@ -654,6 +665,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             VrmlNamespace nodeDefs;
             if (ns)
                 yyNodeTypes = ns;
+			
             else
                 yyNodeTypes = &nodeDefs;
 
@@ -783,13 +795,13 @@ VrmlMFNode *VrmlScene::readFunction(LoadCB cb, Doc *url, VrmlNamespace *ns)
 // This should read only PROTOs and return when the first/specified PROTO
 // is read...
 
-VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative)
+VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative, int parentId)
 {
     // This is a problem. The nodeType of the EXTERNPROTO has a namespace
     // that refers back to this namespace (protos), which will be invalid
     // after we exit this function. I guess it needs to be allocated and
     // ref counted too...
-    VrmlNamespace *protos = new VrmlNamespace(); // Leek, but better than deleting
+    VrmlNamespace *protos = new VrmlNamespace(parentId); // Leek, but better than deleting
     // because this would destroy the just read PROTO
     Doc urlDoc;
     VrmlNodeType *def = 0;
@@ -1724,7 +1736,6 @@ void VrmlScene::removeAudioClip(VrmlNodeAudioClip *audio_clip)
 
 void VrmlScene::storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject)
 {
-#if 1
     if (System::the->getCacheMode() != System::CACHE_CREATE
             && System::the->getCacheMode() != System::CACHE_REWRITE)
         return;
@@ -1734,43 +1745,6 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
         return;
     std::cerr << "Cache store: " << pathname << " -> " << cachefile << std::endl;
     System::the->storeInline(cachefile.c_str(), d_viewerObject);
-#else
-    if (cache)
-    {
-        char *fileName = NULL;
-
-        int urlTime = 0;
-#ifdef _WIN32
-        struct _stat sbuf;
-        _stat(pathname, &sbuf);
-#else
-        struct stat sbuf;
-        int ret = stat(pathname, &sbuf);
-        if (ret == 0)
-#endif
-
-#ifdef __sgi
-        urlTime = sbuf.st_mtim.tv_sec;
-#else
-        urlTime = (int)sbuf.st_mtime;
-#endif
-        if (cacheEntry *e = cache->findEntry(url))
-        {
-            fileName = e->fileName;
-            e->time = urlTime;
-        }
-        else
-        {
-            fileName = new char[strlen(cache->directory) + 1000];
-            sprintf(fileName, "cache_%s_%lu", cache->fileBase, (unsigned long)cache->cacheList.size());
-            cache->cacheList.push_back(cacheEntry(url, fileName, urlTime, d_viewerObject));
-        }
-        std::stringstream str;
-        str << cache->directory << "/" << fileName;
-        cache->modified = true;
-        System::the->storeInline(str.str().c_str(), d_viewerObject);
-    }
-#endif
 }
 
 Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
@@ -1779,7 +1753,6 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
             || System::the->getCacheMode() == System::CACHE_REWRITE)
         return 0L;
 
-#if 1
     std::string cachefile = System::the->getCacheName(url, pathname);
     if (cachefile.empty())
     {
@@ -1834,35 +1807,6 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 
     std::cerr << "Cache load: " << pathname << " -> " << cachefile << std::endl;
     return System::the->getInline(cachefile.c_str());
-#else
-    //std::cerr << "VrmlScene::getCachedInline(url=" << url << ", local=" << (pathname?pathname:"<null>") << std::endl;
-    if (cache)
-    {
-        int urlTime = -1;
-#ifdef _WIN32
-        struct _stat sbuf;
-        _stat(url, &sbuf);
-#else
-        struct stat sbuf;
-        int ret = stat(pathname, &sbuf);
-        if (ret == 0)
-#endif
-#ifdef __sgi
-        urlTime = sbuf.st_mtim.tv_sec;
-#else
-        urlTime = (int)sbuf.st_mtime;
-#endif
-
-        cacheEntry *e = cache->findEntry(url);
-        if (e && urlTime == e->time)
-        {
-            std::stringstream str;
-            str << cache->directory << "/" << e->fileName;
-            return System::the->getInline(str.str().c_str());
-        }
-    }
-#endif
-    return 0L;
 }
 
 InlineCache::InlineCache(const char *vrmlfile)

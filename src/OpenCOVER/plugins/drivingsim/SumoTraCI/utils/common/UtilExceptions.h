@@ -1,13 +1,11 @@
 /****************************************************************************/
 // Eclipse SUMO, Simulation of Urban MObility; see https://eclipse.org/sumo
-// Copyright (C) 2001-2017 German Aerospace Center (DLR) and others.
-/****************************************************************************/
-//
-//   This program and the accompanying materials
-//   are made available under the terms of the Eclipse Public License v2.0
-//   which accompanies this distribution, and is available at
-//   http://www.eclipse.org/legal/epl-v20.html
-//
+// Copyright (C) 2001-2018 German Aerospace Center (DLR) and others.
+// This program and the accompanying materials
+// are made available under the terms of the Eclipse Public License v2.0
+// which accompanies this distribution, and is available at
+// http://www.eclipse.org/legal/epl-v20.html
+// SPDX-License-Identifier: EPL-2.0
 /****************************************************************************/
 /// @file    UtilExceptions.h
 /// @author  Daniel Krajzewicz
@@ -26,11 +24,7 @@
 // ===========================================================================
 // included modules
 // ===========================================================================
-#ifdef _MSC_VER
-#include <windows_config.h>
-#else
 #include <config.h>
-#endif
 
 #include <string>
 #include <stdexcept>
@@ -41,9 +35,8 @@
 // ===========================================================================
 /**
  * ProcessError
- * A general exception type that may be thrown when the process is no
- * longer able to proceed due to any reason. The reason itself is mostly
- * reported before throwing the exception
+ * The base class for all exceptions in SUMO. The reason itself can either be
+ * reported before throwing the exception or in the message parameter.
  */
 class ProcessError : public std::runtime_error {
 public:
@@ -59,8 +52,8 @@ public:
 
 /**
  * InvalidArgument
- * Thrown when an argument was not proper in the current context
- * A message will be supplied
+ * Thrown when an argument was not proper in the current context.
+ * A message will be supplied.
  */
 class InvalidArgument : public ProcessError {
 public:
@@ -74,11 +67,11 @@ public:
  * EmptyData
  * Thrown when data required by a method is missing
  */
-class EmptyData : public std::runtime_error {
+class EmptyData : public ProcessError {
 public:
     /// @brief constructor
     EmptyData()
-        : std::runtime_error("Empty Data") {}
+        : ProcessError("Empty Data") {}
 };
 
 
@@ -87,11 +80,11 @@ public:
  * Thrown when a string that shall be converted into
  * something else contained the wrong characters
  */
-class FormatException : public std::runtime_error {
+class FormatException : public ProcessError {
 public:
     /// @brief constructor
     FormatException(const std::string& msg)
-        : std::runtime_error(msg) {}
+        : ProcessError(msg) {}
 };
 
 
@@ -104,8 +97,8 @@ public:
 class NumberFormatException : public FormatException {
 public:
     /// @brief constructor
-    NumberFormatException()
-        : FormatException("Number Format") {}
+    NumberFormatException(const std::string& data)
+        : FormatException("Invalid Number Format '" + data + "'") {}
 };
 
 
@@ -117,8 +110,8 @@ public:
 class BoolFormatException : public FormatException {
 public:
     /// @brief constructor
-    BoolFormatException()
-        : FormatException("Bool Format") {}
+    BoolFormatException(const std::string& data)
+        : FormatException("Invalid Bool Format '" + data + "'") {}
 };
 
 
@@ -127,28 +120,28 @@ public:
  * Thrown when an array element out of the array's
  * bounderies is accessed
  */
-class OutOfBoundsException : public std::runtime_error {
+class OutOfBoundsException : public ProcessError {
 public:
     /// @brief constructor
     OutOfBoundsException()
-        : std::runtime_error("Out Of Bounds") {}
+        : ProcessError("Out Of Bounds") {}
 };
 
 
 /**
  * UnknownElement
- * Thrown when a named element is tried to be accesed
+ * Thrown when a named element is tried to be accessed
  * which is not known to the container
  */
-class UnknownElement : public std::runtime_error {
+class UnknownElement : public ProcessError {
 public:
     /// @brief constructor
     UnknownElement()
-        : std::runtime_error("Unknown Element") {}
+        : ProcessError("Unknown Element") {}
 
     /// @brief constructor
     UnknownElement(const std::string& msg)
-        : std::runtime_error(msg) {}
+        : ProcessError(msg) {}
 };
 
 
@@ -159,6 +152,16 @@ public:
         : ProcessError(message) {}
 };
 
+/// define SOFT_ASSERT raise an assertion in debug mode everywhere except on the windows test server
+#ifdef MSVC_TEST_SERVER
+  #ifdef _DEBUG
+    #define SOFT_ASSERT(expr) if (!(expr)) {throw ProcessError("should not happen");}
+  #else
+    #define SOFT_ASSERT(expr)
+  #endif
+#else
+  #define SOFT_ASSERT(expr) assert(expr);
+#endif
 
 #endif
 

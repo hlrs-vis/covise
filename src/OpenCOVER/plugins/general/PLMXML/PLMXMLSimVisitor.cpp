@@ -56,7 +56,7 @@ void PLMXMLSimVisitor::apply(osg::Group &node)
                 tb << nodePath;
                 tb << simNode->getName();
                 tb << *nameIter;
-                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::PLMXMLSetSimPair, tb.get_length(), tb.get_data()); //gottlieb: message to /covise/src/renderer/OpenCOVER/plugins/general/SGBrowser/SGBrowser.cpp->SGBrowser::message
+                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::PLMXMLSetSimPair, tb.getData().length(), tb.getData().data()); //gottlieb: message to /covise/src/renderer/OpenCOVER/plugins/general/SGBrowser/SGBrowser.cpp->SGBrowser::message
                 // cover->sendMessage ( plugin,"SGBrowser", 12, tb.get_length(),tb.get_data() );
             }
             nameIter++;

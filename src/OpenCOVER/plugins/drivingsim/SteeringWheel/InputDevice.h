@@ -33,8 +33,9 @@
 #endif
 
 #include <string>
-
 #ifdef __XENO__
+namespace vehicleUtil
+{
 class KI;
 class KLSM;
 class Klima;
@@ -42,6 +43,8 @@ class VehicleUtil;
 class Beckhoff;
 class GasPedal;
 class IgnitionLock;
+}
+using namespace vehicleUtil;
 //#include <VehicleUtil/GasPedal.h>
 //#include <VehicleUtil/KI.h>
 //#include <VehicleUtil/KLSM.h>

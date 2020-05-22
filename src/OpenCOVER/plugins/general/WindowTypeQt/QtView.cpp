@@ -11,6 +11,7 @@
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/FileBrowser.h>
+#include <cover/ui/Manager.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -529,6 +530,8 @@ void QtView::updateText(const Element *elem)
     else if (auto a = dynamic_cast<QAction *>(o))
     {
         a->setText(t);
+        if (t == "Quit")
+            a->setMenuRole(QAction::QuitRole);
     }
     else if (auto m = dynamic_cast<QMenu *>(o))
     {
@@ -677,14 +680,9 @@ void QtView::updateBounds(const Slider *slider)
     }
 }
 
-void QtView::updateValue(const EditField *input)
+void QtView::updateValue(const TextField *input)
 {
     updateText(input);
-}
-
-void QtView::updateValue(const FileBrowser *fb)
-{
-    updateText(fb);
 }
 
 void QtView::updateFilter(const FileBrowser *fb)
@@ -798,7 +796,11 @@ void QtSliderWidget::setText(const QString &text)
 void QtSliderWidget::setWidthText(const QString &text)
 {
     QFontMetrics fm(m_label->font());
+#if QT_VERSION >= 0x050c00
+    int w = fm.horizontalAdvance(text);
+#else
     int w = fm.width(text);
+#endif
     m_label->setMinimumWidth(w);
     //std::cerr << "Slider label width " << w << " for " << text.toStdString() << std::endl;
 }
@@ -828,9 +830,18 @@ int QtSliderWidget::maximum() const
     return m_slider->maximum();
 }
 
+
+
 QtSliderAction::QtSliderAction(QObject *parent)
 : QWidgetAction(parent)
 {
+    connect(this, &QAction::changed, this, &QtSliderAction::actionChanged);
+}
+
+void QtSliderAction::actionChanged()
+{
+    for (auto w: createdWidgets())
+        w->setVisible(isVisible());
 }
 
 void QtSliderAction::setToolTip(const QString &tip)
@@ -926,6 +937,7 @@ QWidget *QtSliderAction::createWidget(QWidget *parent)
     s->setValue(m_value);
     s->setText(m_text);
     s->setWidthText(m_widthText);
+    s->setVisible(isVisible());
     connect(s, &QtSliderWidget::sliderMoved, [this, s](int value){
         m_value = value;
         for (auto w: createdWidgets())

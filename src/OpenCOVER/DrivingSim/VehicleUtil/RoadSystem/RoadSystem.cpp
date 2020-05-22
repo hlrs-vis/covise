@@ -26,9 +26,11 @@
 
 #include <proj_api.h>
 
-int RoadSystem::_tiles_x = 0;
-int RoadSystem::_tiles_y = 0;
-float RoadSystem::dSpace_v = -1;
+using namespace vehicleUtil;
+
+int vehicleUtil::RoadSystem::_tiles_x = 0;
+int vehicleUtil::RoadSystem::_tiles_y = 0;
+float vehicleUtil::RoadSystem::dSpace_v = -1;
 RoadSystem *RoadSystem::__instance = NULL;
 
 RoadSystem *RoadSystem::Instance()
@@ -1775,7 +1777,7 @@ void RoadSystem::writeOpenDrive(std::string filename)
     visitor->writeToFile(filename);
 }
 
-std::ostream &operator<<(std::ostream &os, RoadSystem *system)
+std::ostream & vehicleUtil::operator<<(std::ostream &os, RoadSystem *system)
 {
 
     // Debuggin informations

@@ -142,7 +142,6 @@ void OSGVruiValuePoti::initText()
     textStateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
 
     text = new Text();
-    text->setDataVariance(Object::DYNAMIC);
     text->setFont(OSGVruiPresets::getFontFile());
     text->setDrawMode(Text::TEXT);
     text->setAlignment(Text::LEFT_BASE_LINE);

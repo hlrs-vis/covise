@@ -18,13 +18,16 @@
 #include <util/coTimer.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfig.h>
-#include <util/Token.h>
 #include <util/coFileUtil.h>
 #include <net/covise_connect.h>
+#include <net/tokenbuffer.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
 #include <appl/CoviseBase.h>
 
+#include <vrbserver/VrbClientList.h>
+
+#include "Token.h"
 #include "CTRLHandler.h"
 #include "CTRLGlobal.h"
 #include "AccessGridDaemon.h"
@@ -60,7 +63,7 @@ ui_list *userinterfaceList;
 //  be interpreted.
 Message m_dummyMessage;
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
 static void sigHandler(int sigNo) //  catch SIGPWR as addpartner signal
 {
 #if !defined(_WIN32) && !defined(__APPLE__)
@@ -138,6 +141,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     , m_startScript(0)
     , m_accessGridDaemonPort(0)
     , m_writeUndoBuffer(true)
+    , m_handler(this)
 // == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 {
 
@@ -175,9 +179,8 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     m_autosavefile = file.toStdString();
 
     m_dummyMessage.type = COVISE_MESSAGE_LAST_DUMMY_MESSAGE; //  initialize dummy message
-    m_dummyMessage.data = (char *)" ";
-    m_dummyMessage.length = 2;
-
+    m_dummyMessage.data = DataHandle(2);
+    memcpy(m_dummyMessage.data.accessData(), " ", 2);
     m_SSLDaemonPort = 0;
     m_SSLClient = NULL;
 
@@ -240,15 +243,14 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
             {
                 //  set timeout to 500 seconds
                 char partner_host[128], partner_name[128];
-                char partner_msg[400];
+                DataHandle partner_msg(400);
                 input.getline(partner_host, 128);
                 input.getline(partner_name, 128);
 
-                sprintf(partner_msg, "ADDPARTNER\n%s\n%s\nNONE\n%d\n500\n \n",
+                sprintf(partner_msg.accessData(), "ADDPARTNER\n%s\n%s\nNONE\n%d\n500\n \n",
                         partner_host, partner_name, m_startScript ? COVISE_SCRIPT : COVISE_MANUAL);
-
+                partner_msg.setLength(strlen(partner_msg.data()) + 1);
                 msg->data = partner_msg;
-                msg->length = (int)strlen(msg->data) + 1;
                 msg->type = COVISE_MESSAGE_UI;
                 startMainLoop = false;
             }
@@ -289,8 +291,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     string copyMessageData;
 
     //  copy message to a secure place
-    if (msg->length > 0)
-        copyMessageData = msg->data;
+    if (msg->data.length() > 0)
+        copyMessageData = msg->data.data();
 
     //  Switch across message types
 
@@ -303,7 +305,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_SOCKET_CLOSED:
     {
-        handleClosedMsg(msg);
+        	m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
+			handleClosedMsg(msg);
         break;
     }
 
@@ -316,7 +319,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
         break;
 
     case COVISE_MESSAGE_QUIT:
-        handleQuit(msg);
+		m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
+		handleQuit(msg);
         break;
 
     //  FINALL: Module says it has finished
@@ -339,7 +343,7 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
                 if (m_quitAfterExececute)
                 {
                     m_quitNow = 1;
-                    msg->length = 0;
+                    msg->data.setLength(0);
                     copyMessageData.clear();
                 }
 
@@ -620,6 +624,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     }
 
     default:
+        //check if it is a vrb message
+        m_handler.handleMessage(msg);
         break;
     } //  end message switch
 
@@ -683,13 +689,8 @@ void CTRLHandler::handleClosedMsg(Message *msg)
             if (del_mod)
             {
                 sprintf(msg_txt, "DIED\n%s\n%s\n%s\n", name.c_str(), nr.c_str(), host.c_str());
-                Message *msg = new Message;
-                msg->type = COVISE_MESSAGE_UI;
-                msg->data = msg_txt;
-                msg->length = (int)strlen(msg->data) + 1;
-                global->userinterfaceList->send_all(msg);
-                delete msg;
-                msg = NULL;
+                Message msg{ COVISE_MESSAGE_UI, DataHandle{msg_txt, strlen(msg_txt) + 1, false} };
+                global->userinterfaceList->send_all(&msg);
 
                 //  the last running module to delete = >finished exec
                 if (p_mod->get_status() != 0 && CTRLHandler::m_numRunning == 1)
@@ -862,7 +863,7 @@ int CTRLHandler::parseCommandLine(int argc, char **argv)
             case 'P':
 
 //  initialize signal handler
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__FreeBSD__)
                 signal(SIGPWR, sigHandler);
 #endif
                 scan_add_partner_host = 1;
@@ -1137,9 +1138,9 @@ void CTRLHandler::loadNetworkFile()
 void CTRLHandler::handleAccessGridDaemon(Message *msg)
 {
 
-    if (strncmp(msg->data, "join", 4) == 0)
+    if (strncmp(msg->data.data(), "join", 4) == 0)
     {
-        const char *hname = msg->data + 5;
+        const char *hname = msg->data.data() + 5;
         const char *passwd = "sessionpwd";
         const char *user_id = "AG2User";
         const char *c = strchr(hname, ':');
@@ -1175,14 +1176,8 @@ void CTRLHandler::handleAccessGridDaemon(Message *msg)
             char *msg_tmp = new char[200];
             sprintf(msg_tmp, "ADDPARTNER_FAILED\n%s\n%s\nPassword\n", hostname.c_str(), user_id);
 
-            Message *f_msg = new Message;
-            f_msg->type = COVISE_MESSAGE_UI;
-            f_msg->data = msg_tmp;
-            f_msg->length = (int)strlen(msg_tmp) + 1;
-            CTRLGlobal::getInstance()->userinterfaceList->send_master(f_msg);
-
-            delete[] f_msg -> data;
-            delete f_msg;
+            Message f_msg{ COVISE_MESSAGE_UI , DataHandle{msg_tmp, strlen(msg_tmp) + 1} };
+            CTRLGlobal::getInstance()->userinterfaceList->send_master(&f_msg);
         }
     }
 }
@@ -1401,7 +1396,7 @@ void CTRLHandler::handleFinall(Message *msg, string copyMessageData)
         if (m_quitAfterExececute)
         {
             m_quitNow = 1;
-            msg->length = 0;
+            msg->data.setLength(0);
             copyMessageData.clear();
         }
 
@@ -1507,6 +1502,45 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
             flags = Start::Memcheck;
         initModuleNode(name, nr, host, posx, posy, "", 0, flags);
     }
+    else if (key == "GETDESC")
+    {
+        string name = list[iel];
+        iel++;
+        string nr = list[iel];
+        iel++;
+        string host = list[iel];
+        iel++;
+
+        net_module *module = CTRLGlobal::getInstance()->netList->get(name, nr, host);
+
+        if (module)
+        {
+
+            ostringstream buffer;
+            buffer << "PARAMDESC\n" << name << "\n" << nr << "\n" << host << "\n";
+            vector<string> name_list;
+            vector<string> type_list;
+            vector<string> val_list;
+            vector<string> panel_list;
+            int n_pc = module->get_inpars_values(&name_list, &type_list, &val_list, &panel_list);
+
+            buffer << n_pc << "\n";
+            // loop over all input parameters
+            for (int i = 0; i < n_pc; i++)
+            {
+                buffer << name_list[i]<<"\n";
+                buffer << val_list[i] << "\n";
+            }
+            Message *tmpmsg = new Message(COVISE_MESSAGE_PARAMDESC, buffer.str());
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(tmpmsg);
+            delete tmpmsg;
+        }
+        else
+        {
+            std::cerr << "CTRLHandler.cpp: GETDESC: did not find module: name=" << name << ", nr=" << nr << ", host=" << host << std::endl;
+        }
+    }
+
 
     //       UI::COPY  (SYNC)
     // ----------------------------------------------------------
@@ -2750,8 +2784,8 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         iel++;
         if (!hostname.empty())
         {
-            int exectype = Config->getexectype(hostname.c_str());
-            int timeout = Config->gettimeout(hostname.c_str());
+            int exectype = Config->getexectype(hostname);
+            int timeout = Config->gettimeout(hostname);
             ostringstream buffer;
             buffer << "HOSTINFO\n" << exectype << "\n" << timeout << "\n" << hostname;
 
@@ -3285,7 +3319,9 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
                                 int posx, int posy, const string &title, int action, Start::Flags flags)
 {
     CTRLGlobal::getInstance()->s_nodeID++;
-    int count = CTRLGlobal::getInstance()->netList->init(CTRLGlobal::getInstance()->s_nodeID, name, nr, host, posx, posy, 0, flags);
+    int s_nodeID = CTRLGlobal::getInstance()->s_nodeID;
+    int count = CTRLGlobal::getInstance()->netList->init(s_nodeID, name, nr, host, posx, posy, 0, flags);
+    //create vrb client for OpenCOVER
     if (count != 0)
     {
         // send INIT message
@@ -3305,9 +3341,8 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
         }
 
         // send DESC message
-        net_module *n_mod = CTRLGlobal::getInstance()->netList->get(CTRLGlobal::getInstance()->s_nodeID);
+        net_module *n_mod = CTRLGlobal::getInstance()->netList->get(s_nodeID);
         module *module = n_mod->get_type();
-
         ostringstream oss;
         oss << "DESC\n";
         if (module)
@@ -3330,7 +3365,7 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
         tmp_msg = new Message(COVISE_MESSAGE_UI, osss.str());
         CTRLGlobal::getInstance()->userinterfaceList->send_all(tmp_msg);
         delete tmp_msg;
-        return CTRLGlobal::getInstance()->s_nodeID;
+        return s_nodeID;
     }
 
     else
@@ -3520,7 +3555,7 @@ string CTRLHandler::handleBrowserPath(const string &name, const string &nr, cons
             module->recv_msg(rmsg);
             if (rmsg->type == COVISE_MESSAGE_UI)
             {
-                vector<string> revList = splitString(rmsg->data, "\n");
+                vector<string> revList = splitString(rmsg->data.data(), "\n");
                 value = revList[7];
             }
             delete rmsg;
@@ -3859,6 +3894,11 @@ bool CTRLHandler::recreate(string content, readMode mode)
     return true;
 }
 
+void covise::CTRLHandler::removeConnection(covise::Connection * conn)
+{
+    //implement here
+}
+
 bool CTRLHandler::checkModule(const string &modname, const string &modhost)
 {
 
@@ -4092,9 +4132,9 @@ void CTRLHandler::getAllConnections()
 void CTRLHandler::handleSSLDaemon(Message *msg)
 {
 
-    if (strncmp(msg->data, "join", 4) == 0)
+    if (strncmp(msg->data.data(), "join", 4) == 0)
     {
-        const char *hname = msg->data + 5;
+        const char *hname = msg->data.data() + 5;
         const char *passwd = "<empty>";
         const char *user_id = "<empty>";
         const char *c = strchr(hname, ':');
@@ -4130,13 +4170,8 @@ void CTRLHandler::handleSSLDaemon(Message *msg)
             char *msg_tmp = new char[200];
             sprintf(msg_tmp, "ADDPARTNER_FAILED\n%s\n%s\nPassword\n", hostname.c_str(), user_id);
 
-            Message *f_msg = new Message;
-            f_msg->type = COVISE_MESSAGE_UI;
-            f_msg->data = msg_tmp;
-            f_msg->length = (int)strlen(msg_tmp) + 1;
-            CTRLGlobal::getInstance()->userinterfaceList->send_master(f_msg);
-            delete[] f_msg -> data;
-            delete f_msg;
+            Message f_msg{ COVISE_MESSAGE_UI , DataHandle{msg_tmp, strlen(msg_tmp) + 1} };
+            CTRLGlobal::getInstance()->userinterfaceList->send_master(&f_msg);
         }
     }
 }

@@ -32,7 +32,6 @@ SET(UTIL_SOURCES
   coStringTable.cpp
   coTimer.cpp
   Triangulator.cpp
-  Token.cpp
   coLog.cpp
   string_util.cpp
   ChoiceList.cpp
@@ -44,7 +43,6 @@ SET(UTIL_SOURCES
   coFileUtil.cpp
   coObjID.cpp
   coWristWatch.cpp
-  coRunRec.cpp
   environment.cpp
   coMaterial.cpp
 )
@@ -56,14 +54,11 @@ SET(UTIL_HEADERS
   coStringTable.h
   coTimer.h
   coIdent.h
-  Token.h
   coMatrix.h
   Triangulator.h
   coLog.h
   ChoiceList.h
   byteswap.h
-  coDeque.h
-  coDLList.h
   coErr.h
   coExport.h
   coFileUtil.h
@@ -72,14 +67,11 @@ SET(UTIL_HEADERS
   coHashIter.h
   coIntHash.h
   coIntMultiHash.h
-  coList.h
   common.h
   coMultiHash.h
   coMultiHashBase.h
   coObjID.h
   coRestraint.h
-  coRunRec.h
-  coStringMultiHash.h
   coTabletUIMessages.h
   coTypes.h
   coVector.h

@@ -13,7 +13,6 @@
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 
 EinspurDynamik::EinspurDynamik()
 {

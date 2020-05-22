@@ -115,9 +115,21 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     case 38400:
         dcb.BaudRate = CBR_38400;
         break;
-    case 57600:
-        dcb.BaudRate = CBR_57600;
+    case 56000:
+        dcb.BaudRate = CBR_56000;
         break;
+	case 57600:
+		dcb.BaudRate = CBR_57600;
+		break;
+	case 115200:
+		dcb.BaudRate = CBR_115200;
+		break;
+	case 128000:
+		dcb.BaudRate = CBR_128000;
+		break;
+	case 256000:
+		dcb.BaudRate = CBR_256000;
+		break;
 
     default:
         dcb.BaudRate = CBR_19200;
@@ -186,6 +198,14 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     case 38400:
         SerialSpeed |= B38400;
         break;
+	case 115200:
+		SerialSpeed |= B115200;
+		break;
+#ifdef B1500000
+	case 1500000:
+		SerialSpeed |= B1500000;
+		break;
+#endif
     default:
         sprintf(d_error, "Serial Speed %s not valid", strerror(errno));
         return;
@@ -196,11 +216,19 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     else
         SerialBits = CS8;
 
+#ifdef TCGETA
     if (ioctl(d_channel, TCGETA, &TermPar) == -1)
     {
         sprintf(d_error, "Error serial ioctl: %s", strerror(errno));
         return;
     }
+#else
+    if (tcgetattr(d_channel, &TermPar) == -1)
+    {
+        sprintf(d_error, "Error tcgetattr: %s", strerror(errno));
+        return;
+    }
+#endif
 
     /* change values and flags in term_par struct */
     TermPar.c_oflag &= ~OPOST; /* no character conversion */
@@ -215,6 +243,7 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
 
 #if defined(__linux__) || defined(__hpux)
     TermPar.c_line = 0;
+#elif defined(__FreeBSD__)
 #else
     TermPar.c_line = LDISC1;
 #endif
@@ -253,11 +282,19 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     };
 
     /* Put back values */
+#ifdef TCSETAF
     if ((ioctl(d_channel, TCSETAF, &TermPar)) == -1)
     {
         sprintf(d_error, "Error serial ioctl: %s", strerror(errno));
         return;
     }
+#else
+    if (tcsetattr(d_channel, TCSAFLUSH, &TermPar) == -1)
+    {
+        sprintf(d_error, "Error tcsetattr: %s", strerror(errno));
+        return;
+    }
+#endif
 #else
     (void)device;
     (void)baudrate;

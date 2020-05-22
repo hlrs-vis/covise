@@ -200,10 +200,10 @@ VrmlNodeType::setFieldDefault(const char *fname, VrmlField *defaultValue)
 
 // Download the EXTERNPROTO definition
 
-void VrmlNodeType::fetchImplementation()
+void VrmlNodeType::fetchImplementation(int parentId)
 {
     // Get the PROTO def from the url (relative to original scene url).
-    VrmlNodeType *proto = VrmlScene::readPROTO(d_url, d_relative);
+    VrmlNodeType *proto = VrmlScene::readPROTO(d_url, d_relative, parentId);
     if (proto)
     {
         // check type of first node...
@@ -235,10 +235,11 @@ void VrmlNodeType::fetchImplementation()
     }
 }
 
-VrmlMFNode *VrmlNodeType::getImplementationNodes()
+VrmlMFNode *VrmlNodeType::getImplementationNodes(int parentId)
 {
-    if (!d_implementation && d_url)
-        fetchImplementation();
+
+	if (!d_implementation && d_url)
+        fetchImplementation(parentId);
 
     // Now that the nodes are here, initialize any IS'd fields
     // to the default values (could do it at instantiation...)

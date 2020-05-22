@@ -52,6 +52,8 @@
 
 using namespace covise;
 using namespace opencover;
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
 TrafficSimulationPlugin::TrafficSimulationPlugin()
 {
@@ -439,7 +441,7 @@ TrafficSimulationPlugin::preFrame()
         if (RoadSystem::Instance())
         {
             Vector2D v_c(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
-            static Road *currentRoad = NULL;
+            static vehicleUtil::Road *currentRoad = NULL;
             static double currentLongPos = -1;
             Vector3D v_w(xr, yr, 0);
             if (currentRoad)
@@ -582,7 +584,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
         int numRoads = coTrafficSimulation::instance()->system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = coTrafficSimulation::instance()->system->getRoad(i);
+            vehicleUtil::Road *road = coTrafficSimulation::instance()->system->getRoad(i);
             if (true)
             {
                 fprintf(stderr, "2tessellateBatters %d\n", coTrafficSimulation::instance()->tessellateBatters);

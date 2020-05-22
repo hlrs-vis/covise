@@ -13,13 +13,6 @@
 class IsoSurfacePoint;
 class IsoSurfacePlugin;
 
-#ifdef VRUI
-namespace vrui
-{
-class coCheckboxMenuItem;
-class coSliderMenuItem;
-}
-#else
 namespace opencover
 {
 namespace ui
@@ -28,7 +21,6 @@ class Button;
 class Slider;
 }
 }
-#endif
 
 namespace opencover
 {
@@ -46,6 +38,13 @@ public:
 
     static const char *ISOPOINT;
     static const char *ISOVALUE;
+    static const char *INTERACTOR;
+    enum
+    {
+        INTERACTOR_POINT = 0,
+        INTERACTOR_VALUE = 1,
+    };
+
     IsoSurfacePlugin *plugin;
 
 private:
@@ -58,10 +57,6 @@ private:
     void deleteMenu();
     void updateInteractorVisibility();
     ui::Slider *valueSlider_;
-#ifdef VRUI
-    virtual void menuEvent(vrui::coMenuItem *menuItem);
-    virtual void menuReleaseEvent(vrui::coMenuItem *menuItem);
-#endif
 };
 }
 #endif

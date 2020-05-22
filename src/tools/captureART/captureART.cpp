@@ -14,7 +14,13 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+
+#ifdef WIN32
 #include <sys/timeb.h>
+#else
+#include <time.h>
+#endif //WIN32
+
 
 #include "captureART.h"
 DTrackSDK *dt; ///ART DTrack SDK class
@@ -52,7 +58,12 @@ int main(int argc, char **argv)
 	if (!dt->receive())
 		cout << "Error receiving data!" << endl;
 
-	struct timeb frameTime;
+    
+#ifdef WIN32
+    struct timeb frameTime;
+#else
+    struct timespec frameTime;
+#endif // WIN32
 
 	dt->startMeasurement();
 
@@ -86,10 +97,16 @@ int main(int argc, char **argv)
 		}
 		for (int i = 0; i < dt->getNumBody(); i++)
 		{
-			ftime(&frameTime);
-			const DTrack_Body_Type_d *b = dt->getBody(i);
-			fprintf(fp, "body %ld; %ld, %d: %f %f %f %f %f %f %f %f %f %f %f %f\n", (long)frameTime.time, (long)frameTime.millitm, i, b->loc[0], b->loc[1], b->loc[2], b->rot[0], b->rot[1], b->rot[2], b->rot[3], b->rot[4], b->rot[5], b->rot[6], b->rot[7], b->rot[8]);
-		}
+#ifdef WIN32
+            ftime(&frameTime);
+            const DTrack_Body_Type_d* b = dt->getBody(i);
+            fprintf(fp, "body %ld; %ld, %d: %f %f %f %f %f %f %f %f %f %f %f %f\n", (long)frameTime.time, (long)frameTime.millitm, i, b->loc[0], b->loc[1], b->loc[2], b->rot[0], b->rot[1], b->rot[2], b->rot[3], b->rot[4], b->rot[5], b->rot[6], b->rot[7], b->rot[8]);
+#else
+            clock_gettime(CLOCK_MONOTONIC, &frameTime);
+            const DTrack_Body_Type_d* b = dt->getBody(i);
+            fprintf(fp, "body %ld; %ld, %d: %f %f %f %f %f %f %f %f %f %f %f %f\n", (long)frameTime.tv_sec, (long)frameTime.tv_nsec / 1000, i, b->loc[0], b->loc[1], b->loc[2], b->rot[0], b->rot[1], b->rot[2], b->rot[3], b->rot[4], b->rot[5], b->rot[6], b->rot[7], b->rot[8]);
+#endif // WIN32
+}
 	}
 
 	fclose(fp);

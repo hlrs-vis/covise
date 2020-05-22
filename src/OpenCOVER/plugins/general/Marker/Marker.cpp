@@ -259,7 +259,6 @@ Mark::Mark(int i, string host, osg::Group *node, float initscale)
 
     // create label for the the marker
     osgText::Text *markerLabel = new osgText::Text;
-    markerLabel->setDataVariance(Object::DYNAMIC);
     markerLabel->setCharacterSize(basevalue * cover->getScale());
 
     // set host name

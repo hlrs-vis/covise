@@ -250,7 +250,7 @@ bool Move::init()
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local coords", true);
+    local = new coCheckboxMenuItem("local coords", false);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
@@ -378,7 +378,7 @@ void Move::message(int toWhom, int type, int len, const void *buf)
     {
         osg::Matrix m;
         std::string path;
-        TokenBuffer tb((const char *)buf, len);
+        TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
         tb >> path;
         selectedNodesParent = dynamic_cast<osg::Group *>(coVRSelectionManager::validPath(path));
         tb >> path;
@@ -424,6 +424,10 @@ bool Move::selectionChanged()
         parentIter--;
         const char *name = (*nodeIter)->getName().c_str();
         selectedNode = (*nodeIter).get();
+        if (selectedNode == nullptr)
+        {
+            fprintf(stderr, "deselect\n");
+        }
         selectedNodesParent = (*parentIter).get();
         if (name)
             moveObjectName->setLabel(name);
@@ -454,180 +458,173 @@ void Move::preFrame()
     
     // for debug only
     //coVRMSController::instance()->syncInt((int)(node!=NULL));
-    bool isSceneNode = false;
-    if (node)
+
+
+
+    if ((interactionA->getState() != coInteraction::Active) && (interactionB->getState() != coInteraction::Active)) // only check for new nodes if currently not moving.
     {
-    //fprintf(stderr,"%s\n",node->getName().c_str());
-    //coVRMSController::instance()->syncInt(1001);
-        for (std::vector<osg::Node *>::const_iterator iter = intersectedNodePath.begin();
-             iter != intersectedNodePath.end(); ++iter)
+        bool isSceneNode = false;
+        if (node)
         {
-            if ((*iter) == cover->getObjectsRoot())
+            //fprintf(stderr,"%s\n",node->getName().c_str());
+            //coVRMSController::instance()->syncInt(1001);
+            for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin();
+                iter != intersectedNodePath.end(); ++iter)
             {
-                isSceneNode = true;
-                break;
+                if ((*iter) == cover->getObjectsRoot())
+                {
+                    isSceneNode = true;
+                    break;
+                }
             }
         }
-    }
-    if (isSceneNode && (!coVRSelectionManager::isHelperNode(node)))
-    {
-        if (showNames->getState())
+        if (isSceneNode && (!coVRSelectionManager::isHelperNode(node)))
         {
-            if (node && !node->getName().empty())
+            if (showNames->getState())
             {
+                if (node && !node->getName().empty())
+                {
 
-                label->setString(node->getName().c_str());
-                label->setPosition(cover->getIntersectionHitPointWorld());
-                label->show();
+                    label->setString(node->getName().c_str());
+                    label->setPosition(cover->getIntersectionHitPointWorld());
+                    label->show();
+                }
+                else
+                    label->hide();
             }
             else
                 label->hide();
-        }
-        else
-            label->hide();
 
-    //coVRMSController::instance()->syncInt(1002);
-        bool isObject = false;
-        //bool isNewObject=false;
-        //select a node
-        if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode))
-        {
-    //coVRMSController::instance()->syncInt(1022);
-            // this might be a new candidate for a movable node
-
-            osg::Matrix mat; //,dcsMat;
-            mat.makeIdentity();
-            osg::Node *currentNode;
-            currentNode = node;
-            //cerr << "test: " << node << endl;
-            //cerr << "lev: " << level << endl;
-            while (currentNode != NULL)
+            //coVRMSController::instance()->syncInt(1002);
+            bool isObject = false;
+            //bool isNewObject=false;
+            //select a node
+            if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode))
             {
-                const char *nodeName = currentNode->getName().c_str();
-                if (moveTransformMode)
+                //coVRMSController::instance()->syncInt(1022);
+                        // this might be a new candidate for a movable node
+
+                osg::Matrix mat; //,dcsMat;
+                mat.makeIdentity();
+                osg::Node* currentNode;
+                currentNode = node;
+                //cerr << "test: " << node << endl;
+                //cerr << "lev: " << level << endl;
+                while (currentNode != NULL)
                 {
-                    NodeRoMap::iterator it = nodeRoMap.find(currentNode);
-                    if (it != nodeRoMap.end())
+                    const char* nodeName = currentNode->getName().c_str();
+                    if (moveTransformMode)
                     {
-                        isObject = true;
-                        doUndo = true;
-                    }
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        //isNewObject = true;
-                        break;
-                    }
-                }
-                else if (explicitMode)
-                {
-                    // do not touch nodes underneeth NoMove nodes
-                    if (nodeName && strncmp(nodeName, "DoMove", 6) == 0)
-                    {
-                        isObject = true;
-                        doUndo = true;
-                    }
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        //isNewObject = true;
-                        break;
-                    }
-                }
-                else
-                {
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        isObject = true;
-                        //isNewObject = true;
-                        doUndo = true;
-                        break;
-                    }
-                }
-                // do not touch nodes underneeth NoMove nodes
-                if (nodeName && strncmp(nodeName, "NoMove", 6) == 0)
-                {
-                    isObject = false;
-                    //isNewObject = false;
-                    doUndo = false;
-                    break;
-                }
-                if (currentNode == selectedNode)
-                {
-                    isObject = true; // already selected
-                    //isNewObject = false;
-                    doUndo = true;
-                    break;
-                }
-                if (currentNode->getNumParents() > 0)
-                {
-                    std::vector<osg::Node *>::const_iterator iter = intersectedNodePath.end();
-                    for (iter--; iter != intersectedNodePath.begin(); iter--)
-                    {
-                        if ((*iter) == currentNode)
+                        NodeRoMap::iterator it = nodeRoMap.find(currentNode);
+                        if (it != nodeRoMap.end())
                         {
-                            iter--;
-                            currentNode = *iter;
+                            isObject = true;
+                            doUndo = true;
+                        }
+                        if (currentNode == cover->getObjectsRoot())
+                        {
+                            //isNewObject = true;
+                            break;
                         }
                     }
+                    else if (explicitMode)
+                    {
+                        // do not touch nodes underneeth NoMove nodes
+                        if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
+                        {
+                            isObject = true;
+                            doUndo = true;
+                        }
+                        if (currentNode == cover->getObjectsRoot())
+                        {
+                            //isNewObject = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (currentNode == cover->getObjectsRoot())
+                        {
+                            isObject = true;
+                            //isNewObject = true;
+                            doUndo = true;
+                            break;
+                        }
+                    }
+                    // do not touch nodes underneeth NoMove nodes
+                    if (nodeName && strncmp(nodeName, "NoMove", 6) == 0)
+                    {
+                        isObject = false;
+                        //isNewObject = false;
+                        doUndo = false;
+                        break;
+                    }
+                    if (currentNode == selectedNode)
+                    {
+                        isObject = true; // already selected
+                        //isNewObject = false;
+                        doUndo = true;
+                        break;
+                    }
+                    if (currentNode->getNumParents() > 0)
+                    {
+                        std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.end();
+                        for (iter--; iter != intersectedNodePath.begin(); iter--)
+                        {
+                            if ((*iter) == currentNode)
+                            {
+                                iter--;
+                                currentNode = *iter;
+                            }
+                        }
+                    }
+                    else
+                        currentNode = NULL;
+                }
+                if (isObject /*|| isNewObject*/)
+                {
+                    candidateNode = node;
                 }
                 else
-                    currentNode = NULL;
+                {
+                    candidateNode = NULL;
+                }
+                //coVRMSController::instance()->syncInt(1003);
             }
-            if (isObject /*|| isNewObject*/)
-            {
-                candidateNode = node;
-            }
-            else
+            if (node == NULL)
             {
                 candidateNode = NULL;
             }
-    //coVRMSController::instance()->syncInt(1003);
+            oldNode = node;
         }
-        if (node == NULL)
+        else
         {
-            candidateNode = NULL;
-        }
-        oldNode = node;
-    }
-    else
-    {
-        if ((interactionA->getState() != coInteraction::Active) && (interactionB->getState() != coInteraction::Active))
-        {
-            oldNode = NULL;
-            node = NULL;
-            candidateNode = NULL;
-            selectedNode = NULL;
-            if (moveSelection)
+            if (!(interactionA->wasStopped() || interactionB->wasStopped()))
             {
-                coVRSelectionManager::instance()->clearSelection();
-                moveSelection = false;
+                oldNode = NULL;
+                node = NULL;
+                candidateNode = NULL;
+                selectedNode = NULL;
+                if (moveSelection)
+                {
+                    coVRSelectionManager::instance()->clearSelection();
+                    moveSelection = false;
+                }
             }
-    //coVRMSController::instance()->syncInt(1004);
+            //coVRMSController::instance()->syncInt(1004);
         }
-    }
-    //coVRMSController::instance()->syncInt(1024);
-    // for debug only
-    //coVRMSController::instance()->syncInt(interactionA->getState());
-    // if we point towards a selected or candidate Node
-    if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode)))
-    { // register the interactions
-        if (!interactionA->isRegistered())
-        {
-            coInteractionManager::the()->registerInteraction(interactionA);
-    //coVRMSController::instance()->syncInt(1005);
-        }
-    }
-    // if we don't point to a node or point to a non candidate Node
-    if (!node || (((node != candidateNode) && (node != selectedNode)) && ((interactionB->isRegistered()) || (interactionA->isRegistered()))))
-    { //unregister if possible;
-        if (interactionA->isRegistered() && (interactionA->getState() != coInteraction::Active))
-        {
-            coInteractionManager::the()->unregisterInteraction(interactionA);
-        }
-        if (interactionB->isRegistered() && (interactionB->getState() != coInteraction::Active))
-        {
-            coInteractionManager::the()->unregisterInteraction(interactionB);
-        }
-    //coVRMSController::instance()->syncInt(1006);
+		//coVRMSController::instance()->syncInt(1024);
+		// for debug only
+		//coVRMSController::instance()->syncInt(interactionA->getState());
+		// if we point towards a selected or candidate Node
+		if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode)))
+		{ // register the interactions
+			if (!interactionA->isRegistered())
+			{
+				coInteractionManager::the()->registerInteraction(interactionA);
+				//coVRMSController::instance()->syncInt(1005);
+			}
+		}
     }
 
     if (interactionA->wasStarted())
@@ -651,7 +648,7 @@ void Move::preFrame()
                 if (explicitMode)
                 {
                     // do not touch nodes underneeth NoMove nodes
-                    if (nodeName && strncmp(nodeName, "DoMove", 6) == 0)
+                    if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
                     {
                         isObject = true;
                         doUndo = true;
@@ -721,9 +718,9 @@ void Move::preFrame()
                     }
                     
                     vrui::vruiUserData  *RevitInfo = OSGVruiUserDataCollection::getUserData(currentNode, "RevitInfo");
-                    if(RevitInfo!=NULL && numLevels == 1)
+                    if(RevitInfo!=NULL)
                     {
-                        level = 1;
+                        level = numLevels;
                     }
                     info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
 
@@ -792,6 +789,7 @@ void Move::preFrame()
                     coInteractionManager::the()->registerInteraction(interactionB);
                 }
                 allowMove = false;
+                didMove = false;
             }
             if ((!isObject) && (selectedNode))
             {
@@ -799,6 +797,7 @@ void Move::preFrame()
                 selectedNode = NULL;
                 numLevels = 0;
                 allowMove = false;
+                didMove = false;
             }
         }
     }
@@ -815,6 +814,7 @@ void Move::preFrame()
         selectedNode = NULL;
         numLevels = 0;
         allowMove = false;
+        didMove = false;
     }
 
     // do the movement
@@ -847,6 +847,7 @@ void Move::preFrame()
             startMoveDCSMat = moveDCS->getMatrix();
             startCompleteMat = startBaseMat;
             startCompleteMat.preMult(startMoveDCSMat);
+            
 
             if (doUndo)
             {
@@ -858,7 +859,12 @@ void Move::preFrame()
                 fprintf(stderr, "Move::inv startCompleteMat is singular\n");
             if (!invStartHandMat.invert(cover->getPointerMat()))
                 fprintf(stderr, "Move::inv getPointerMat is singular\n");
+
             startPickPos = cover->getIntersectionHitPointWorld();
+            startPointerOffsetMat = osg::Matrix::translate(startPickPos - cover->getPointerMat().getTrans());
+            if (!invStartPointerOffsetMat.invert(startPointerOffsetMat))
+                fprintf(stderr, "Move::inv getPointerMat is singular\n");
+
             startTime = cover->frameTime();
             //coVRMSController::instance()->syncFloat(startTime);
         }
@@ -867,7 +873,6 @@ void Move::preFrame()
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
 
     //coVRMSController::instance()->syncInt(1009);
-            moveMat.mult(invStartHandMat, cover->getPointerMat());
 
             osg::Node *currentNode = NULL;
             if (moveDCS->getNumParents() > 0)
@@ -891,30 +896,52 @@ void Move::preFrame()
             }
             if (!invcurrentBaseMat.invert(currentBaseMat))
                 fprintf(stderr, "Move::inv currentBaseMat is singular\n");
+
+
+            moveMat.mult(invStartHandMat, cover->getPointerMat());
             // frei
             if (!local->getState())
             {
-                coCoord coord = moveMat;
+               /* coCoord coord = moveMat;
                 coord.xyz[0] = coord.xyz[1] = coord.xyz[2] = 0;
                 osg::Matrix rotMat;
                 coord.makeMat(rotMat);
-                restrict(rotMat, true, false);
+                restrict(rotMat, true, false);*/
                 
                 osg::Vec3 newPickPos = startPickPos * moveMat;
                 osg::Matrix transMat = osg::Matrix::translate(newPickPos - startPickPos);
-                restrict(transMat, true, false);
-                moveMat = transMat * rotMat;
+                transMat = currentBaseMat * transMat * invcurrentBaseMat;
+                if (!movex->getState())
+                {
+                    transMat(3,0) = 0;
+                }
+                if (!movey->getState())
+                {
+                    transMat(3, 1) = 0;
+                }
+                if (!movez->getState())
+                {
+                    transMat(3, 2) = 0;
+                }
+                transMat = invcurrentBaseMat * transMat * currentBaseMat;
+                moveMat = transMat;// *rotMat;
 
             }
 
-            tmpMat.mult(startCompleteMat, moveMat);
+           /* tmpMat.mult(startCompleteMat, moveMat);
             localRot.mult(tmpMat, invStartCompleteMat);
             if (local->getState())
             {
                 restrict(localRot, true, false);
             }
             currentNewMat.mult(localRot, startCompleteMat);
-            newDCSMat.mult(currentNewMat, invcurrentBaseMat);
+            newDCSMat.mult(currentNewMat, invcurrentBaseMat);*/
+
+
+            tmpMat.mult(startCompleteMat, moveMat);
+            newDCSMat.mult(tmpMat, invcurrentBaseMat);
+
+
             if (allowMove)
             {
 
@@ -931,13 +958,13 @@ void Move::preFrame()
     //coVRMSController::instance()->syncFloat(newDCSMat(0,0));
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                                   PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
                
                 vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
                 if(info!=NULL)
                 {
                     cover->sendMessage(this, "Revit",
-                        PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                        PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
                 }
             }
             else
@@ -997,13 +1024,13 @@ void Move::preFrame()
                         tb << newDCSMat(i, j);
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                                   PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
             
                 vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
                 if(info!=NULL)
                 {
                     cover->sendMessage(this, "Revit",
-                        PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                        PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
                 }
             }
             else
@@ -1049,7 +1076,7 @@ void Move::preFrame()
                     if(info!=NULL)
                     {
                         cover->sendMessage(this, "Revit",
-                            PluginMessageTypes::MoveMoveNodeFinished, tb.get_length(), tb.get_data());
+                            PluginMessageTypes::MoveMoveNodeFinished, tb.getData().length(), tb.getData().data());
                     }
 		    
                     addUndo(mat, moveDCS.get());
@@ -1102,12 +1129,24 @@ void Move::preFrame()
                         }
                     }
                 }
-                didMove = false;
             }
             allowMove = true;
         }
     }
     //coVRMSController::instance()->syncInt(1012);
+    // if we don't point to a node or point to a non candidate Node
+    if (!node || (((node != candidateNode) && (node != selectedNode)) && ((interactionB->isRegistered()) || (interactionA->isRegistered()))))
+    { //unregister if possible;
+        if (interactionA->isRegistered() && (interactionA->getState() != coInteraction::Active))
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionA);
+        }
+        if (interactionB->isRegistered() && (interactionB->getState() != coInteraction::Active))
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionB);
+        }
+        //coVRMSController::instance()->syncInt(1006);
+    }
 }
 
 void Move::restrict(osg::Matrix &mat, bool noRot, bool noTrans)

@@ -202,7 +202,7 @@ public:
     }
     void setValue(const QString &value)
     {
-        value_ = value_;
+        value_ = value;
     }
 
 private:

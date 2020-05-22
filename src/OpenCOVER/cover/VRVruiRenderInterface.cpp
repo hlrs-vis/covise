@@ -28,6 +28,7 @@
 #include "VRSceneGraph.h"
 #include "coVRTouchTable.h"
 #include "coVRConfig.h"
+#include "VRSceneGraph.h"
 
 #undef START
 #undef STOP
@@ -119,6 +120,8 @@ VRVruiRenderInterface::VRVruiRenderInterface()
 
 VRVruiRenderInterface::~VRVruiRenderInterface()
 {
+    delete alwaysVisibleNode;
+    alwaysVisibleNode = nullptr;
     delete groupNode;
     groupNode = 0;
     delete sceneNode;
@@ -135,6 +138,17 @@ VRVruiRenderInterface::~VRVruiRenderInterface()
 
     //delete coIntersection::instance();
     vruiRendererInterface::theInterface = 0;
+}
+
+vruiNode *VRVruiRenderInterface::getAlwaysVisibleGroup()
+{
+    if (!alwaysVisibleNode)
+    {
+        Group *group = VRSceneGraph::instance()->getAlwaysVisibleGroup();
+        alwaysVisibleNode = new OSGVruiNode(group);
+    }
+    return alwaysVisibleNode;
+
 }
 
 vruiNode *VRVruiRenderInterface::getMenuGroup()
@@ -414,7 +428,7 @@ coAction::Result VRVruiRenderInterface::hit(coAction *action, vruiHit *)
 
     if (dynamic_cast<coButton *>(action) || dynamic_cast<coRotButton *>(action) || dynamic_cast<coSlider *>(action) || dynamic_cast<coValuePoti *>(action))
     {
-        if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
             && !coVRCollaboration::instance()->isMaster())
             return coAction::ACTION_DONE;
     }
@@ -458,7 +472,7 @@ coJoystickManager *VRVruiRenderInterface::getJoystickManager()
 void VRVruiRenderInterface::removePointerIcon(const string &name)
 {
     OSGVruiNode *iconNode = dynamic_cast<OSGVruiNode *>(getIcon(name, true));
-    if ((coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling || coVRCollaboration::instance()->isMaster()) && iconNode && iconNode->getNodePtr())
+    if ((coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling || coVRCollaboration::instance()->isMaster()) && iconNode && iconNode->getNodePtr())
     {
         VRSceneGraph::instance()->removePointerIcon(iconNode->getNodePtr());
     }
@@ -467,7 +481,7 @@ void VRVruiRenderInterface::removePointerIcon(const string &name)
 void VRVruiRenderInterface::addPointerIcon(const string &name)
 {
     OSGVruiNode *iconNode = dynamic_cast<OSGVruiNode *>(getIcon(name, true));
-    if ((coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling || coVRCollaboration::instance()->isMaster()) && iconNode && iconNode->getNodePtr())
+    if ((coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling || coVRCollaboration::instance()->isMaster()) && iconNode && iconNode->getNodePtr())
     {
         VRSceneGraph::instance()->addPointerIcon(iconNode->getNodePtr());
     }
@@ -552,7 +566,7 @@ bool VRVruiRenderInterface::isMultiTouchDevice() const
 
 void VRVruiRenderInterface::sendCollabMessage(vruiCollabInterface *myinterface, const char *buffer, int length)
 {
-    if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
         || coVRCollaboration::instance()->isMaster())
     {
         coCOIM *coim = dynamic_cast<coCOIM *>(myinterface->getManager());
@@ -564,21 +578,20 @@ void VRVruiRenderInterface::sendCollabMessage(vruiCollabInterface *myinterface, 
     }
 }
 
-void VRVruiRenderInterface::remoteLock(int ID)
+int VRVruiRenderInterface::getClientId()
 {
-    coVRCommunication::instance()->RILock(ID);
+    return coVRCommunication::instance()->getID();
 }
-void VRVruiRenderInterface::remoteUnLock(int ID)
+
+bool VRVruiRenderInterface::isRemoteBlockNececcary()
 {
-    coVRCommunication::instance()->RIUnLock(ID);
-}
-bool VRVruiRenderInterface::isLocked(int ID)
-{
-    return coVRCommunication::instance()->isRILocked(ID);
-}
-bool VRVruiRenderInterface::isLockedByMe(int ID)
-{
-    return coVRCommunication::instance()->isRILockedByMe(ID);
+	//block in tightcoupling and as slave
+	if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::LooseCoupling ||
+		(coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling && coVRCollaboration::instance()->isMaster()))
+	{
+		return false;
+	} 
+	return true;
 }
 
 double VRVruiRenderInterface::getFrameTime() const

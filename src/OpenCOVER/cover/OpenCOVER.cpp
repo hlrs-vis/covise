@@ -60,6 +60,7 @@
 #include <osgGA/GUIActionAdapter>
 
 #include <vrbclient/VRBClient.h>
+#include <vrbclient/SharedStateManager.h>
 
 #include "coVRAnimationManager.h"
 #include "coVRCollaboration.h"
@@ -83,12 +84,13 @@
 
 #include <input/input.h>
 #include <input/coMousePointer.h>
-
 #include "ui/VruiView.h"
 #include "ui/TabletView.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
+#include "ui/Manager.h"
+
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -185,8 +187,6 @@ OpenCOVER::OpenCOVER()
 {
     initCudaGlInterop();
 
-	// always parse floats with . as separator
-	setlocale(LC_NUMERIC, "C");
 #ifdef WIN32
     parentWindow = NULL;
 #else
@@ -266,6 +266,8 @@ void OpenCOVER::waitForWindowID()
 
 bool OpenCOVER::run()
 {
+	// always parse floats with . as separator
+	setlocale(LC_NUMERIC, "C");
     int dl = coCoviseConfig::getInt("COVER.DebugLevel", 0);
 
     if (init())
@@ -296,21 +298,32 @@ bool OpenCOVER::init()
     if (m_initialized)
         return true;
 
+    covise::Socket::initialize();
     setlocale(LC_NUMERIC, "C");
 
     installSignalHandlers();
 
 #ifdef _WIN32
-    unsigned short wVersionRequested;
-    struct WSAData wsaData;
-    wVersionRequested = MAKEWORD(2, 2);
-    WSAStartup(wVersionRequested, &wsaData);
 	// Require at least 4 processors, otherwise the process could occupy the machine.
 	if (OpenThreads::GetNumberOfProcessors() >= 4)
 	{
 		SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 	}
 #endif
+
+    std::string startCommand = coCoviseConfig::getEntry("COVER.StartCommand");
+    if (!startCommand.empty())
+    {
+        int ret = system(startCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
 
     m_visPlugin = NULL;
     Socket::initialize();
@@ -337,8 +350,8 @@ bool OpenCOVER::init()
     vrbHost = NULL;
     vrbPort = 0;
     int c = 0;
-    std::string collaborativeOptionsFile, viewpointsFile;
-    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::")) != -1)
+    std::string collaborativeOptionsFile, viewpointsFile, startSession;
+    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::g:")) != -1)
     {
         switch (c)
         {
@@ -371,6 +384,11 @@ bool OpenCOVER::init()
             }
             break;
         }
+		case 'g':
+		{
+			startSession = optarg;
+		}
+		break;
         case 'h':
             usage();
             exit(EXIT_SUCCESS);
@@ -423,6 +441,7 @@ bool OpenCOVER::init()
 
     coVRConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
+    coVRConfig::instance()->m_stereoState = coVRMSController::instance()->allReduceOr(coVRConfig::instance()->m_stereoState);
 
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "default");
@@ -518,9 +537,15 @@ bool OpenCOVER::init()
         putenv(envStr);
     }
     if (coCoviseConfig::isOn("COVER.SyncToVBlank", false))
+    {
         putenv((char *)"__GL_SYNC_TO_VBLANK=1");
+        fprintf(stderr,"__GL_SYNC_TO_VBLANK=1\n");
+    }
     else
+    {
         putenv((char *)"__GL_SYNC_TO_VBLANK=0");
+        fprintf(stderr,"__GL_SYNC_TO_VBLANK=0\n");
+	}
     std::string syncDevice = coCoviseConfig::getEntry("device", "COVER.SyncToVBlank");
     if (!syncDevice.empty())
     {
@@ -532,7 +557,10 @@ bool OpenCOVER::init()
 #ifndef _WIN32
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
-    cover = new coVRPluginSupport();
+	coVRCommunication::instance();
+	cover = new coVRPluginSupport();
+	coVRCommunication::instance()->init();
+    cover->initUI();
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\nnew OpenCOVER\n");
@@ -560,6 +588,7 @@ bool OpenCOVER::init()
 
     cover->updateTime();
 
+   
     coVRPluginList::instance();
 
 	Input::instance()->init();
@@ -579,10 +608,11 @@ bool OpenCOVER::init()
     VRViewer::instance();
 
     coVRAnimationManager::instance();
-    coVRShaderList::instance()->update();
+    coVRShaderList::instance();
 
     // init scene graph
     VRSceneGraph::instance()->init();
+    coVRShaderList::instance()->update();
     VRViewer::instance()->setSceneData(cover->getScene());
 
 	Input::instance()->update(); // requires scenegraph
@@ -612,11 +642,11 @@ bool OpenCOVER::init()
         //fprintf(stderr, "no covise connection\n");
     }
     hud = coHud::instance();
-
+	cover->connectToCovise(loadCovisePlugin);
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
-        m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
+		m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
         if (!m_visPlugin)
         {
             fprintf(stderr, "failed to load COVISE plugin\n");
@@ -641,21 +671,7 @@ bool OpenCOVER::init()
     }
 
 
-    if (coVRMSController::instance()->isMaster())
-    {
-        coVRMSController::SlaveData sd(sizeof(haveWindows));
-        coVRMSController::instance()->readSlaves(&sd);
-        for (size_t i=0; i<coVRMSController::instance()->getNumSlaves(); ++i)
-        {
-            if (!*(bool*)sd.data[i])
-                haveWindows = false;
-        }
-    }
-    else
-    {
-        coVRMSController::instance()->sendMaster(&haveWindows, sizeof(haveWindows));
-    }
-    haveWindows = coVRMSController::instance()->syncBool(haveWindows);
+    haveWindows = coVRMSController::instance()->allReduceOr(haveWindows);
     if (!haveWindows)
         return false;
 
@@ -679,9 +695,9 @@ bool OpenCOVER::init()
         hud->show();
         hud->redraw();
     }
-
+	coVRMSController::instance()->setStartSession(startSession);
     // Connect to VRBroker, if available
-    if (coVRMSController::instance()->isMaster())
+    if (!loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
         if (vrbHost == NULL)
         {
@@ -689,7 +705,7 @@ bool OpenCOVER::init()
             hud->setText3("to VRB");
             hud->redraw();
             vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-            vrbc->connectToServer();
+            vrbc->connectToServer(startSession);
         }
         else
         {
@@ -697,7 +713,7 @@ bool OpenCOVER::init()
             hud->setText3("AG mode");
             hud->redraw();
             vrbc = new VRBClient("COVER", vrbHost, vrbPort, coVRMSController::instance()->isSlave());
-            vrbc->connectToServer();
+            vrbc->connectToServer(startSession);
         }
     }
 
@@ -818,14 +834,45 @@ bool OpenCOVER::init()
 
     if (!coVRConfig::instance()->continuousRendering())
     {
-        if (cover->debugLevel(1))
+        if (cover->debugLevel(2))
         {
             fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
         }
         VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
     }
 
+    if (cover->viewOptionsMenu) {
+        auto cr = new ui::Button(cover->viewOptionsMenu, "ContinuousRendering");
+        cr->setText("Continuous rendering");
+        cr->setState(coVRConfig::instance()->continuousRendering());
+        cr->setCallback([this](bool state){
+           if (state)
+               VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::CONTINUOUS);
+           else
+               VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+        });
+    }
+
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
+    //connect to covise vrb
+	if (loadCovisePlugin && coVRMSController::instance()->isMaster())
+    {
+		char * coviseModuleID = coCommandLine::argv(4);
+        char *ipAdress = coCommandLine::argv(5);
+		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;
+        TokenBuffer tb;
+        tb << "CRB";
+        tb << ipAdress;
+        tb << coviseModuleID;
+        Message msg(tb);
+        msg.type = COVISE_MESSAGE_VRB_CONTACT;
+        cover->sendVrbMessage(&msg);
+		//cerr << "_____________________________" << endl;
+		//for (size_t i = 0; i < coCommandLine::argc(); i++)
+		//{
+		//	cerr << "[" << i << "] " << coCommandLine::argv(i) << endl;
+		//}
+    }
     frame();
     double frameEnd = cover->currentTime();
     hud->hideLater();
@@ -1017,12 +1064,25 @@ bool OpenCOVER::frame()
 
     DeletionManager::the()->run();
 
-    bool render = false;
+    bool render = m_renderNext;
+    m_renderNext = false;
 
     //MARK0("COVER reading input devices");
 
     cover->updateTime();
-    
+
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
+    {
+        auto stats = VRViewer::instance()->getViewerStats();
+        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
+        double updateTime = VRViewer::instance()->elapsedTime();
+        double deltaUpdateTime = updateTime - lastUpdateTime;
+        lastUpdateTime = updateTime;
+        stats->setAttribute(fn, "Update duration", deltaUpdateTime);
+        stats->setAttribute(fn, "Update rate", 1.0/deltaUpdateTime);
+    }
+
+
     // update window size and process events
     VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
@@ -1063,15 +1123,36 @@ bool OpenCOVER::frame()
     // update transformations node according to interaction
     coVRNavigationManager::instance()->update();
     VRSceneGraph::instance()->update();
-    coVRCollaboration::instance()->update();
-
-    // update viewer position and channels
-    if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+    if (coVRCollaboration::instance()->update())
     {
+        
         if (cover->debugLevel(4))
-            std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
+            std::cerr << "OpenCOVER::frame: rendering because of collaborative action" << std::endl;
         render = true;
-        VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+    }
+    if (vrb::SharedStateManager::instance())
+    {
+        vrb::SharedStateManager::instance()->frame(cover->frameTime());
+    }
+    // update viewer position and channels
+    if (cover->isViewerGrabbed())
+    {
+        if (coVRPluginList::instance()->viewerGrabber()->updateViewer())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of plugin updated viewer" << std::endl;
+            render = true;
+        }
+    }
+    else
+    {
+        if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
+            render = true;
+            VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+        }
     }
     if (VRViewer::instance()->update())
     {
@@ -1132,36 +1213,61 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+    if (VRViewer::instance()->getRunFrameScheme() != osgViewer::Viewer::ON_DEMAND)
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
+        render = true;
+    }
+
+    if (VRViewer::instance()->checkNeedToDoFrame())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
+        render = true;
+    }
+
+    if (m_renderNext)
+        render = true;
+
+    if (coVRMSController::instance()->syncVRBMessages())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of VRB message" << std::endl;
+        render = true;
+    }
+
+    render = coVRMSController::instance()->syncBool(render);
     if (!render)
     {
-        if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)
-        {
-            if (!VRViewer::instance()->checkNeedToDoFrame())
-            {
-                if (!m_renderNext)
-                {
-                    usleep(10000);
-                    return false;
-                }
-                m_renderNext = false;
-                if (cover->debugLevel(4))
-                    std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
-            }
-            else
-            {
-                if (cover->debugLevel(4))
-                    std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
-            }
+        int maxfd = -1;
+        fd_set fds;
+        FD_ZERO(&fds);
+        for (const auto &fd: m_watchedFds) {
+            FD_SET(fd, &fds);
+            if (maxfd < fd)
+                maxfd = fd;
         }
-        else
+        struct timeval tenms {0, 10000};
+        int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
+
+        if (nready > 0)
         {
             if (cover->debugLevel(4))
-                std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
+                std::cerr << "OpenCOVER::frame: rendering because of filedescriptor activity" << std::endl;
+            render = true;
         }
+        render = coVRMSController::instance()->syncBool(render);
+    }
+
+    if (!render)
+    {
+        return render;
     }
 
     if (frameNum > 2)
     {
+        double beginPreFrameTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1173,6 +1279,10 @@ bool OpenCOVER::frame()
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
+
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe begin time", beginPreFrameTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe end time", endTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe time taken", endTime - beginPreFrameTime);
         }
     }
     ARToolKit::instance()->update();
@@ -1217,7 +1327,7 @@ bool OpenCOVER::frame()
         cover->setCursorVisible(false);
     }
 
-    coVRMSController::instance()->syncVRBMessages();
+    coVRShaderList::instance()->update();
 
     if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
     {
@@ -1228,13 +1338,31 @@ bool OpenCOVER::frame()
         VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
-    coVRShaderList::instance()->update();
     VRViewer::instance()->frame();
     beginAppTraversal = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
         coVRPluginList::instance()->postFrame();
 
-    hud->update();
+    if (hud->update())
+        m_renderNext = true;
+
+    double frameTime = VRViewer::instance()->elapsedTime();
+    double frameDuration = frameTime - lastFrameTime;
+    lastFrameTime = frameTime;
+    frameDurations.push_back(frameDuration);
+    if (frameDurations.size() > 20)
+        frameDurations.pop_front();
+
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
+    {
+        auto stats = VRViewer::instance()->getViewerStats();
+        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
+        double maxDuration = -1.;
+        for (auto &d: frameDurations) {
+            maxDuration = std::max(maxDuration, d);
+        }
+        stats->setAttribute(fn, "Max frame duration", maxDuration);
+    }
 
     //cerr << "OpenCOVER::frame EMD " << frameCount << endl;
     return render;
@@ -1250,6 +1378,19 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
+    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
+    if (!exitCommand.empty())
+    {
+        int ret = system(exitCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
 
     if (cover->debugLevel(2))
     {
@@ -1265,10 +1406,10 @@ OpenCOVER::~OpenCOVER()
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
     //delete vrbHost;
-    delete coVRPartnerList::instance();
     delete coVRAnimationManager::instance();
     delete coVRNavigationManager::instance();
     delete coVRCommunication::instance();
+    delete coVRPartnerList::instance();
     delete ARToolKit::instance();
     delete coVRTui::instance();
 
@@ -1277,7 +1418,6 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
-    delete coVRConfig::instance();
     delete VRWindow::instance();
 
     delete coVRPluginList::instance();
@@ -1296,6 +1436,7 @@ OpenCOVER::~OpenCOVER()
     delete Input::instance();
     delete cover;
     cover = NULL;
+    delete coVRConfig::instance();
 #ifdef DOTIMING
     coTimer::quit();
 #endif
@@ -1391,3 +1532,19 @@ coTUITabFolder *OpenCOVER::tuiTab(size_t idx) const
 
     return tabletTabs[idx];
 }
+
+bool OpenCOVER::watchFileDescriptor(int fd)
+{
+    return m_watchedFds.insert(fd).second;
+}
+
+bool OpenCOVER::unwatchFileDescriptor(int fd)
+{
+    auto it = m_watchedFds.find(fd);
+    if (it == m_watchedFds.end())
+
+    m_watchedFds.erase(it);
+    return true;
+}
+
+

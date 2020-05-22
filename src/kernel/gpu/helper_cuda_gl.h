@@ -91,7 +91,6 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV)
         fprintf(stderr, "Using device %d: %s\n", dev, deviceProp.name);
     }
 
-    checkCudaErrors(cudaGLSetGLDevice(dev));
     return dev;
 }
 
@@ -116,7 +115,6 @@ inline int findCudaGLDevice(int argc, const char **argv)
     {
         // Otherwise pick the device with highest Gflops/s
         devID = gpuGetMaxGflopsDeviceId();
-        cudaGLSetGLDevice(devID);
     }
 
     return devID;

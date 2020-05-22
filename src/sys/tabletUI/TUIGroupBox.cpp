@@ -18,11 +18,7 @@
 
 #include "TUIGroupBox.h"
 #include "TUIApplication.h"
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 
 /// Constructor
 TUIGroupBox::TUIGroupBox(int id, int type, QWidget *w, int parent, QString name)

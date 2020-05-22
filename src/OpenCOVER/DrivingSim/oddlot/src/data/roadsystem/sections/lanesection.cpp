@@ -438,21 +438,24 @@ double LaneSection::getLaneSpanWidth(int fromLane, int toLane, double s) const
 
 		for (int i = fromLane; i <= endLane; i++)
 		{
-			if (getLane(i)->isWidthActive())
+			if (getLane(i))
 			{
-				width += getLaneWidth(i, s);
-			}
-			else
-			{
-				if (endLane == -1)
+				if (getLane(i)->isWidthActive())
 				{
 					width += getLaneWidth(i, s);
 				}
 				else
 				{
-					width += getLaneWidth(i, s) - getLaneSpanWidth(endLane + 1, -1, s);
+					if (endLane == -1)
+					{
+						width += getLaneWidth(i, s);
+					}
+					else
+					{
+						width += getLaneWidth(i, s) - getLaneSpanWidth(endLane + 1, -1, s);
+					}
+					break;
 				}
-				break;
 			}
 		}
 
@@ -471,21 +474,24 @@ double LaneSection::getLaneSpanWidth(int fromLane, int toLane, double s) const
 
 	for (int i = toLane; i >= fromLane; i--)
 	{
-		if (getLane(i)->isWidthActive())
+		if (getLane(i))
 		{
-			width += getLaneWidth(i, s);
-		}
-		else
-		{
-			if (fromLane == 1)
+			if (getLane(i)->isWidthActive())
 			{
 				width += getLaneWidth(i, s);
 			}
 			else
 			{
-				width += getLaneWidth(i, s) - getLaneSpanWidth(fromLane - 1, 1, s);
+				if (fromLane == 1)
+				{
+					width += getLaneWidth(i, s);
+				}
+				else
+				{
+					width += getLaneWidth(i, s) - getLaneSpanWidth(fromLane - 1, 1, s);
+				}
+				return width;
 			}
-			return width;
 		}
 	}
 
@@ -515,22 +521,25 @@ LaneSection::getPolynomialSum(int fromLane, int toLane, double s) const
 		for (int i = fromLane; i <= endLane; i++)
 		{
 			Lane * lane = getLane(i);
-			if (lane->isWidthActive())
+			if (lane)
 			{
-				poly += *lane->getWidthEntryContains(s);
-			}
-			else
-			{
-				if (endLane == -1)
+				if (lane->isWidthActive())
 				{
-					poly += *lane->getBorderEntryContains(s);
+					poly += *lane->getWidthEntryContains(s);
 				}
 				else
 				{
-					poly += *lane->getBorderEntryContains(s);
-					poly -= getPolynomialSum(endLane + 1, -1, s);
+					if (endLane == -1)
+					{
+						poly += *lane->getBorderEntryContains(s);
+					}
+					else
+					{
+						poly += *lane->getBorderEntryContains(s);
+						poly -= getPolynomialSum(endLane + 1, -1, s);
+					}
+					break;
 				}
-				break;
 			}
 		}
 
@@ -550,22 +559,25 @@ LaneSection::getPolynomialSum(int fromLane, int toLane, double s) const
 	for (int i = toLane; i >= fromLane; i--)
 	{
 		Lane * lane = getLane(i);
-		if (lane->isWidthActive())
+		if (lane)
 		{
-			poly += *lane->getWidthEntryContains(s);
-		}
-		else
-		{
-			if (fromLane == 1)
+			if (lane->isWidthActive())
 			{
-				poly += *lane->getBorderEntryContains(s);
+				poly += *lane->getWidthEntryContains(s);
 			}
 			else
 			{
-				poly += *lane->getBorderEntryContains(s);
-				poly -= getPolynomialSum(fromLane - 1, 1, s);
+				if (fromLane == 1)
+				{
+					poly += *lane->getBorderEntryContains(s);
+				}
+				else
+				{
+					poly += *lane->getBorderEntryContains(s);
+					poly -= getPolynomialSum(fromLane - 1, 1, s);
+				}
+				return poly;
 			}
-			return poly;
 		}
 	}
 

@@ -90,6 +90,9 @@ public:
         SGBrowserSetInputType = 2015,
         SGBrowserSetOutputType = 2016,
 
+        //Vistle messages
+        VistleMessage = 9000,
+
         // HLRS plugins start with 10000 ----------------------------------------
         HLRS_ACInterfaceSnapshotPath = 10333,
         HLRS_ACInterfaceModelLoadedPath,

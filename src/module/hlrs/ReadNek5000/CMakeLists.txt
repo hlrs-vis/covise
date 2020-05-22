@@ -1,0 +1,13 @@
+USING(BOOST)
+set(HEADERS
+  ReadNek5000.h
+)
+
+set(SOURCES
+  ReadNek5000.cpp
+)
+
+ADD_COVISE_MODULE(IO ReadNek5000 ${EXTRASOURCES})
+covise_wnoerror(ReadNek5000)
+TARGET_LINK_LIBRARIES(ReadNek5000 coApi coAppl coCore coUtil) 
+COVISE_INSTALL_TARGET(ReadNek5000)

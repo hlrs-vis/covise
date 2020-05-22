@@ -39,6 +39,32 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <vrbclient/SharedState.h>
+#include <vrbclient/SharedStateSerializer.h>
+
+namespace vrb {
+
+	template <>
+    SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type);
+
+	/*
+	template <>
+	void serialize(covise::TokenBuffer& tb, const vvTransFunc& value)
+	{
+		//tb << getSharedStateType(value.first);
+		//tb << getSharedStateType(value.second);
+		//serialize(tb, value.first);
+		//serialize(tb, value.second);
+	}
+	template<class T>
+	void deserialize(covise::TokenBuffer& tb, vvTransFunc& value)
+	{
+		//tb >> value;
+	}
+	*/
+
+}
+
 namespace covise
 {
 class coDoGeometry;
@@ -105,9 +131,12 @@ public:
     void removeObject(const char *, bool) override;
     void postFrame() override;
     void setTimestep(int) override;
-    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr);
+    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr, osg::Group *group=nullptr);
     void saveVolume();
     void cropVolume();
+	void syncTransferFunction();
+    void updateData(const std::string &name);
+
 
     //tablet UI listener
     void tabletPressEvent(coTUIElement *tUIItem) override;
@@ -155,9 +184,11 @@ private:
 
     std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
-    bool showClipOutlines;
+    bool showClipOutlines = true;
     bool followCoverClipping = true;
-    bool opaqueClipping = false;
+    bool ignoreCoverClipping = false;
+    bool opaqueClipping = true;
+    bool singleSliceClipping = false;
     float lastRoll;
     float roiCellSize;
     float roiMaxSize;
@@ -182,7 +213,7 @@ private:
         osg::ref_ptr<osg::MatrixTransform> transform; ///< transform node for side-by-side display
         osg::ref_ptr<osg::Geode> node; ///< node volume is attached to
         osg::ref_ptr<virvo::VolumeDrawable> drawable;
-        void addToScene();
+        void addToScene(osg::Group *group = nullptr);
         osg::Geode *createImage(string &);
         void removeFromScene();
         osg::Vec3 min, max;
@@ -195,7 +226,8 @@ private:
         bool boundaries;
         virvo::VolumeDrawable::BlendMode blendMode;
         std::string filename;
-        std::vector<vvTransFunc> tf;
+		std::vector<vvTransFunc> tf;
+		std::vector< std::unique_ptr < vrb::SharedState<vvTransFunc>>> tfState;
         bool mapTF;
         int curChannel;
         bool multiDimTF;
@@ -231,6 +263,7 @@ private:
     int fpsMissed;
     float chosenFPS;
     float radiusScale[NumClipSpheres];
+    bool sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2);
 
     struct TFApplyCBData
     {
@@ -247,6 +280,7 @@ private:
 
     void updateTFEData();
     bool computeHistogram;
+    size_t maxHistogramVoxels = 60000000;
     bool showTFE; ///< initially show TFE
     bool lighting;
     bool preIntegration;

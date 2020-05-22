@@ -14,11 +14,7 @@
 #include <QString>
 #include <QLineEdit>
 #include "TUIContainer.h"
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 
 /// Constructor
 TUIProgressBar::TUIProgressBar(int id, int type, QWidget *w, int parent, QString name)

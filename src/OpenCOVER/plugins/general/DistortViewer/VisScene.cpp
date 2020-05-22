@@ -268,7 +268,7 @@ osg::Group *VisScene::makeVisGroup()
 
     viewer.setSceneData(viewerGroup);
     viewer.setUpViewInWindow(100, 100, 512, 512, 0);
-    viewer.run();
+    viewer.frame(cover->frameTime());
 
     //---------------------------------------
     //Quad zur Ergebisvisualisierung erstellen

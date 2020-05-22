@@ -19,7 +19,6 @@
 /************************************************************************/
 
 #ifdef WIN32
-#include <fcntl.h>
 #include <io.h>
 #include <sys/types.h>
 #endif
@@ -32,6 +31,7 @@
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
 
+#include <fcntl.h>
 #include <sys/stat.h>
 
 int bigEndian = 1;

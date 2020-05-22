@@ -8,6 +8,7 @@
 #include <cstring>
 #include "coGRObjSetNameMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjSetNameMsg::coGRObjSetNameMsg(Mtype type, const char *obj_name, const char *newName)

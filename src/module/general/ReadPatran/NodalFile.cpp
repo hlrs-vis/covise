@@ -9,6 +9,7 @@
 #include "AscStream.h"
 #include "istreamFTN.h"
 #include <util/coviseCompat.h>
+#include <fcntl.h>
 
 NodalFile::NodalFile(const char *filename, int filetype)
     : dataTab(NULL)

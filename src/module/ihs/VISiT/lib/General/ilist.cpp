@@ -7,7 +7,7 @@
 
 void Add2Ilist(struct Ilist *ilist, int ind)
 {
-   char buf[200];
+   char buf[1000];
 
    if ((ilist->num+1) >= ilist->max)
    {
@@ -39,7 +39,7 @@ struct Ilist * AllocIlistStruct(int portion)
 
 void FreeIlistStruct(struct Ilist *ilist)
 {
-   char buf[50];
+   char buf[1000];
 
    if (ilist)
    {

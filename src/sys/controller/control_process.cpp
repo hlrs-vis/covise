@@ -37,7 +37,7 @@
 
 using namespace covise;
 
-#if defined(__sgi) || defined(__alpha) || defined(_AIX) || defined(__APPLE__)
+#if defined(__sgi) || defined(__alpha) || defined(_AIX) || defined(__APPLE__) || defined(__FreeBSD__)
 extern "C" int rexec(char **ahost, int inport, char *user, char *passwd,
                      char *cmd, int *fd2p);
 #endif
@@ -46,7 +46,7 @@ extern "C" int rexec(char **ahost, int inport, char *user, char *passwd,
 AppModule *Controller::start_datamanager(const string &name)
 {
     char chport[10];
-    char chid[10];
+    char chid[16];
     int port;
 
     module_count += 2;
@@ -137,7 +137,7 @@ AppModule *Controller::start_datamanager(const string &name)
 
     {
         Host thisHost;
-        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(thisHost.get_ipv4())) < 0)
+        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout(thisHost)) < 0)
         {
             delete conn;
             cerr << "* timelimit in accept for crb exceeded!!" << endl;
@@ -185,7 +185,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         return NULL;
     }
     execport = se->s_port;
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_WIN32) || defined(__FreeBSD__)
     (void)tmphost;
     (void)user;
     (void)passwd;
@@ -209,7 +209,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         list_of_connections->add(tmp_conn);
     }
 #endif
-    if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
+    if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout(*rhost)) < 0)
     {
         delete conn;
         cerr << "* timelimit in accept for crb exceeded!!" << endl;
@@ -230,9 +230,9 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
 {
     //std::cerr << "Controller::start_datamanager: name=" << name << ", rhost name=" <<  rhost->getName() << ", v4=" << rhost->get_ipv4() << std::endl;
     char chport[10];
-    char chid[10];
+    char chid[16];
     int port;
-    char *dsp = CTRLHandler::instance()->Config->getDisplayIP(rhost->get_ipv4());
+    char *dsp = CTRLHandler::instance()->Config->getDisplayIP(*rhost);
 
     CTRLGlobal *global = CTRLGlobal::getInstance();
 
@@ -481,7 +481,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         conn->acceptOne(-1);
     else
     {
-        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
+        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout(*rhost)) < 0)
         {
             cerr << "* timelimit in accept for crb exceeded!!" << endl;
             delete conn;
@@ -501,7 +501,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     //std::cerr << "Controller::start_applicationmodule: dmod host name=" << dmod->get_host()->getName() << std::endl;
     char remote_command[300];
     int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());
+    int timeout = CTRLHandler::instance()->Config->gettimeout(*dmod->get_host());
 
     module_count++;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
@@ -513,12 +513,12 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()))
+    if (CTRLHandler::instance()->Config->getDisplayIP((*dmod->get_host())))
         sprintf(remote_command, "\001 %s %d %s %d %s %s %s %s",
                 name, port, h->getAddress(), module_count, instance,
                 dmod->get_host()->getAddress(),
                 dmod->get_host()->getName(),
-                CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
     else
         sprintf(remote_command, "\001 %s %d %s %d %s %s %s",
                 name, port, h->getAddress(), module_count, instance,
@@ -539,10 +539,8 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         msg->type = COVISE_MESSAGE_CRB_EXEC;
         break;
     }
-    msg->data = remote_command;
-    msg->length = (int)strlen(msg->data) + 1;
+    msg->data = DataHandle{remote_command, strlen(remote_command) + 1, false};
     dmod->send_msg(msg);
-    msg->data = NULL;
     delete msg;
 
     if (conn->acceptOne(timeout) < 0)
@@ -564,7 +562,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 {
     char remote_command[300];
     int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());
+    int timeout = CTRLHandler::instance()->Config->gettimeout(*(dmod->get_host()));
 
     module_count++;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
@@ -595,7 +593,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             dmod->recv_msg(rmsg);
             if (rmsg->type == COVISE_MESSAGE_UI)
             {
-                if (rmsg->data && strcmp(rmsg->data, "YES") == 0)
+                if (rmsg->data.data() && strcmp(rmsg->data.data(), "YES") == 0)
                     flag = true;
             }
             delete rmsg;
@@ -607,13 +605,13 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()))
+    if (CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()))
     {
         sprintf(remote_command, "%s %s %d %s %d %s %s %s %s",
                 name, cat, port, h->getAddress(), module_count, instance,
                 dmod->get_host()->getAddress(),
                 dmod->get_host()->getName(),
-                CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
     }
     else
     {
@@ -637,8 +635,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         msg->type = COVISE_MESSAGE_CRB_EXEC;
         break;
     }
-    msg->data = remote_command;
-    msg->length = (int)strlen(msg->data) + 1;
+    msg->data = DataHandle{ remote_command, strlen(remote_command) + 1, false };
 
     // start renderer (OPENSG) inside the mapeditor
     // inform CRB
@@ -669,7 +666,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 {
     char remote_command[3000];
     int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());
+    int timeout = CTRLHandler::instance()->Config->gettimeout(*(dmod->get_host()));
 
     module_count++;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
@@ -699,7 +696,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             dmod->recv_msg(rmsg);
             if (rmsg->type == COVISE_MESSAGE_UI)
             {
-                if (rmsg->data && strcmp(rmsg->data, "YES") == 0)
+                if (rmsg->data.data() && strcmp(rmsg->data.data(), "YES") == 0)
                     flag = true;
             }
             delete rmsg;
@@ -711,20 +708,20 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()))
+    if (CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()))
     {
         if (param)
             sprintf(remote_command, "%s %s %s %d %s %d %s %s %s %s",
                     name, cat, param, port, h->getAddress(), module_count, instance,
                     dmod->get_host()->getAddress(),
                     dmod->get_host()->getName(),
-                    CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                    CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
         else
             sprintf(remote_command, "%s %s %d %s %d %s %s %s %s",
                     name, cat, port, h->getAddress(), module_count, instance,
                     dmod->get_host()->getAddress(),
                     dmod->get_host()->getName(),
-                    CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                    CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
     }
     else
     {
@@ -754,8 +751,8 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         msg->type = COVISE_MESSAGE_CRB_EXEC;
         break;
     }
-    msg->data = remote_command;
-    msg->length = (int)strlen(msg->data) + 1;
+    msg->data = DataHandle{ remote_command, strlen(remote_command) + 1, false };;
+
 
     // start renderer (OPENSG) inside the mapeditor
     // inform CRB
@@ -782,20 +779,18 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 
 void Controller::get_shared_memory(AppModule *dmod)
 {
-    Message *msg = new Message(COVISE_MESSAGE_GET_SHM_KEY, 0, (char *)NULL);
+    Message msg{ COVISE_MESSAGE_GET_SHM_KEY , DataHandle{} };
 
     print_comment(__LINE__, __FILE__, "in get_shared_memory");
-    dmod->send_msg(msg);
-    dmod->recv_msg(msg);
-    if (msg->type == COVISE_MESSAGE_GET_SHM_KEY)
+    dmod->send_msg(&msg);
+    dmod->recv_msg(&msg);
+    if (msg.type == COVISE_MESSAGE_GET_SHM_KEY)
     {
-        print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d length: %d", *(int *)msg->data,
-                      ((int *)msg->data)[1], ((int *)msg->data)[2], msg->length);
-        shm = new ShmAccess(msg->data, 0);
+        print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d length: %d", *(int *)msg.data.data(),
+                      ((int *)msg.data.data())[1], ((int *)msg.data.data())[2], msg.data.length());
+        shm = new ShmAccess(msg.data.accessData(), 0);
     }
     // data of received message can be deleted
-    msg->delete_data();
-    delete msg;
 }
 
 void Controller::handle_shm_msg(Message *msg)
@@ -804,8 +799,8 @@ void Controller::handle_shm_msg(Message *msg)
 
     if (msg->conn->get_sender_id() == 1)
     {
-        tmpkey = ((int *)msg->data)[0];
-        size = ((int *)msg->data)[1];
+        tmpkey = ((int *)msg->data.data())[0];
+        size = ((int *)msg->data.data())[1];
         shm->add_new_segment(tmpkey, size);
         print_comment(__LINE__, __FILE__, "new SharedMemory");
     }

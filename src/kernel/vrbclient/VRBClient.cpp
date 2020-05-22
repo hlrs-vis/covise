@@ -22,18 +22,18 @@
 #include <net/tokenbuffer.h>
 #include <net/covise_host.h>
 #include <net/message.h>
+#include <net/udpMessage.h>
+#include <net/udp_message_types.h>
 #include <net/message_types.h>
 
 using namespace covise;
 
 VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, bool slave)
     : sendDelay(0.1f)
+	,isSlave(slave)
 {
-    isSlave = slave;
     name = new char[strlen(n) + 1];
     strcpy(name, n);
-    serverHost = NULL;
-    port = 31800;
     if (collaborativeConfigurationFile != NULL)
     {
         FILE *fp = fopen(collaborativeConfigurationFile, "r");
@@ -66,12 +66,13 @@ VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, 
                 else if (strncmp(buf, "port:", 5) == 0)
                 {
                     size_t retval;
-                    retval = sscanf(buf, "port:%d", &port);
+                    retval = sscanf(buf, "port:%d", &m_tcpPort);
                     if (retval != 1)
                     {
                         std::cerr << ": sscanf failed" << std::endl;
                         return;
                     }
+					m_udpPort = m_tcpPort + 1;
                 }
             }
             fclose(fp);
@@ -79,7 +80,8 @@ VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, 
     }
     if (serverHost == NULL)
     {
-        port = coCoviseConfig::getInt("port", "System.VRB.Server", port);
+		m_tcpPort = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
+		m_udpPort = coCoviseConfig::getInt("udpPort", "System.VRB.Server", m_tcpPort + 1);
         std::string line = coCoviseConfig::getEntry("System.VRB.Server");
         if (!line.empty())
         {
@@ -93,19 +95,18 @@ VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, 
             serverHost = NULL;
         }
     }
-    sConn = NULL;
-    ID = -1;
 }
 
-VRBClient::VRBClient(const char *n, const char *host, int pPort, bool slave)
+VRBClient::VRBClient(const char *n, const char *host, int tcp_p, int udp_p, bool slave)
     : sendDelay(0.1f)
+	, isSlave(slave)
 {
-    isSlave = slave;
     name = new char[strlen(n) + 1];
     strcpy(name, n);
     serverHost = NULL;
     //port = 31800;
-    port = pPort;
+    m_tcpPort = tcp_p;
+	m_udpPort = udp_p;
     if (host && strcmp(host, ""))
     {
         serverHost = new Host(host);
@@ -116,7 +117,7 @@ VRBClient::VRBClient(const char *n, const char *host, int pPort, bool slave)
         if (!line.empty())
         {
             size_t retval;
-            retval = sscanf(line.c_str(), "%d", &port);
+            retval = sscanf(line.c_str(), "%d", &m_tcpPort);
             if (retval != 1)
             {
                 std::cerr << "VRBClient::VRBClient: sscanf failed" << std::endl;
@@ -144,6 +145,9 @@ VRBClient::~VRBClient()
 {
     delete[] name;
     delete sConn;
+
+	delete udpConn;
+
 }
 
 int VRBClient::getID()
@@ -160,9 +164,18 @@ int VRBClient::poll(Message *m)
         sConn->recv_msg(m);
         return 1;
     }
-    return 0;
-}
+	return 0;
 
+
+}
+bool VRBClient::pollUdp(vrb::UdpMessage* m)
+{
+	if (!udpConn)
+	{
+		return false;
+	}
+	return udpConn->recv_udp_msg(m);
+}
 int VRBClient::wait(Message *m)
 {
 #ifdef MB_DEBUG
@@ -171,13 +184,14 @@ int VRBClient::wait(Message *m)
 #endif
     if (isSlave)
         return 0;
-    if (messageQueue.num())
+    if (messageQueue.size())
     {
-        messageQueue.reset();
-        m = messageQueue.current();
-        messageQueue.remove();
+        *m = *(messageQueue.front()); // copy message
+        messageQueue.remove(messageQueue.front());
+        delete m;
         return 1;
     }
+
     return sConn->recv_msg(m);
 }
 
@@ -202,8 +216,23 @@ int VRBClient::wait(Message *m, int messageType)
         else
         {
             Message *msg = new Message(*m);
-            messageQueue.append(msg);
+            messageQueue.push_back(msg);
         }
+        if(udpConn)
+        {
+		ret = udpConn->recv_msg(m);
+		if (m->type == messageType)
+		{
+			return ret;
+		}
+		else
+		{
+			Message* msg = new Message(*m);
+			messageQueue.push_back(msg);
+		}
+        }
+
+
     }
     return ret;
 }
@@ -226,45 +255,77 @@ int VRBClient::setUserInfo(const char *userInfo)
 
 int VRBClient::sendMessage(const Message *m)
 {
+	if (!sConn || (!sConn->is_connected())) // not connected to a server
+	{
+		return 0;
+	}
+	return sendMessage(m, sConn);
+}
+
+void covise::VRBClient::sendMessage(TokenBuffer & tb, int type)
+{
+    Message m(tb);
+    m.type = type;
+    sendMessage(&m);
+}
+
+int VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
+{
+	if (!udpConn) // not connected to a server
+	{
+		return 0;
+	}
+    m->sender = ID;
+	return udpConn->send_udp_msg(m);
+
+}
+
+void covise::VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender)
+{
+	vrb::UdpMessage m(tb);
+	m.type = type;
+	m.sender = sender;
+	sendUdpMessage(&m);
+}
+
+
+int covise::VRBClient::sendMessage(const Message* m, Connection* conn)
+{
 #ifdef MB_DEBUG
-    std::cerr << "VRBCLIENT::SENDMESSAGE: Sending Message: " << m->type << std::endl;
-    std::cerr << "VRBCLIENT::SENDMESSAGE: Data: " << m->data << std::endl;
+	std::cerr << "VRBCLIENT::SENDMESSAGE: Sending Message: " << m->type << std::endl;
+	std::cerr << "VRBCLIENT::SENDMESSAGE: Data: " << m->data << std::endl;
 #endif
 
-    if (serverHost == NULL)
-        return 0;
-    //cerr << "sendMessage " << sConn << endl;
-    if (!sConn || (!sConn->is_connected())) // not connected to a server
-    {
-        return 0;
-    }
+	if (serverHost == NULL)
+		return 0;
+	//cerr << "sendMessage " << conn << endl;
 
 #ifdef _MSC_VER
-    struct __timeb64 start;
-    _ftime64(&start);
+	struct __timeb64 start;
+	_ftime64(&start);
 #else
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
 #endif
 
-    sConn->send_msg(m);
+	conn->send_msg(m);
 #ifdef _MSC_VER
-    struct __timeb64 end;
-    _ftime64(&end);
+	struct __timeb64 end;
+	_ftime64(&end);
 #else
-    gettimeofday(&end, NULL);
+	gettimeofday(&end, NULL);
 #endif
 
 #ifdef _MSC_VER
-    float delay = (end.millitm - start.millitm) * 1e-6f + end.time - start.time;
+	float delay = (end.millitm - start.millitm) * 1e-6f + end.time - start.time;
 #else
-    float delay = (end.tv_usec - start.tv_usec) * 1e-6f + end.tv_sec - start.tv_sec;
+	float delay = (end.tv_usec - start.tv_usec) * 1e-6f + end.tv_sec - start.tv_sec;
 #endif
 
-    if (m->length > 1000)
-        delay /= m->length / 1000;
-    sendDelay = 0.99f * sendDelay + delay * 0.01f;
-    return 1;
+	if (m->data.length() > 1000)
+		delay /= m->data.length() / 1000;
+	sendDelay = 0.99f * sendDelay + delay * 0.01f;
+	return 1;
 }
 
 int VRBClient::isConnected()
@@ -276,37 +337,91 @@ int VRBClient::isConnected()
     return sConn->is_connected();
 }
 
-int VRBClient::connectToServer()
+int VRBClient::connectToServer(std::string sessionName)
 {
-    if (isSlave)
+	if (!udpConn && !isSlave)
+	{
+		setupUdpConn();
+	}
+	if (isSlave || serverHost == NULL|| sConn != nullptr)
         return 0;
-    if (serverHost == NULL)
-        return 0;
-    sConn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0);
-    if (!sConn->is_connected()) // could not open server port
+
+    connMutex.lock();
+    if (!connFuture.valid())
     {
-        fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
+        connFuture = std::async(std::launch::async, [this]() -> ClientConnection *
+        {
+            ClientConnection *myConn = new ClientConnection(serverHost, m_tcpPort, 0, (sender_type)0,0, 1.0);
+            if (!myConn->is_connected()) // could not open server port
+            {
+                if (firstVrbConnection)
+                {
+                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_tcpPort);
+                    firstVrbConnection = false;
+                }
+
+                delete myConn;
+                myConn = NULL;
+                sleep(1);
+                return nullptr;
+            }
+            struct linger linger;
+            linger.l_onoff = 0;
+            linger.l_linger = 1;
+            setsockopt(myConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+            return myConn;
+        });
     }
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 1;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+    connMutex.unlock();
+    if (connFuture.valid())
+    {
+        connMutex.lock();
+        auto status = connFuture.wait_for(std::chrono::seconds(0));
+        if (status == std::future_status::ready)
+        {
+            sConn = connFuture.get();
+            if(sConn != nullptr)
+            {
+                Host host;
 
-    Host host;
+                TokenBuffer tb;
+				if (sessionName == "")
+				{
+					tb << name;
+					tb << host.getAddress();
+				}
+				else
+				{
+					tb << "-g";
+					tb << host.getAddress();
+					tb << sessionName.c_str();
+				}
 
-    TokenBuffer tb;
 
-    tb << name;
-    tb << host.getAddress();
+                Message msg(tb);
+                msg.type = COVISE_MESSAGE_VRB_CONTACT;
+                sConn->send_msg(&msg);
+            }
+        }
+        connMutex.unlock();
+    }
 
-    Message msg(tb);
-    msg.type = COVISE_MESSAGE_VRB_CONTACT;
-    sConn->send_msg(&msg);
 
-    return 1;
+    if (!sConn)
+    {
+        return false;
+    }
+    return true;
+}
+
+
+void VRBClient::setupUdpConn() 
+{
+    if(serverHost)
+    {
+	udpConn = new UDPConnection(0, 0, m_udpPort, serverHost->getAddress());
+    }
 }
 
 void VRBClient::setID(int i)
@@ -331,7 +446,6 @@ int VRBClient::isCOVERRunning()
     sConn->send_msg(&msg);
     if (sConn->check_for_input(5))
     {
-        msg.data = NULL;
         sConn->recv_msg(&msg);
         if (msg.type == COVISE_MESSAGE_VRB_CHECK_COVER)
         {

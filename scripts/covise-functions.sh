@@ -53,7 +53,7 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=libc++
                     ;;
 
-                15.*|16.*|17.*|18.*)
+                15.*|16.*|17.*|18.*|19.*)
 	            export ARCHSUFFIX=macos
                     ;;
 
@@ -66,6 +66,10 @@ guess_archsuffix() {
 
         IRIX*)
             export ARCHSUFFIX=sgin32
+            ;;
+
+        FreeBSD*)
+            export ARCHSUFFIX=freebsd
             ;;
         
         HP-UX)
@@ -157,6 +161,8 @@ guess_archsuffix() {
                     export ARCHSUFFIX=rhel7
                   elif grep -i -q -s 'Red Hat Enterprise Linux.*release 7..' /etc/system-release; then
                     export ARCHSUFFIX=rhel7
+                  elif grep -i -q -s 'CentOS Linux release 8..' /etc/system-release; then
+                    export ARCHSUFFIX=rhel8
                   fi
                elif grep -i -q -s 'suse.*11.0' /etc/issue; then
                    export ARCHSUFFIX=mabuya
@@ -206,6 +212,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=werewolf
                elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
                    export ARCHSUFFIX=xerus
+               elif grep -i -q -s 'ubuntu.*18\.04' /etc/issue; then
+                   export ARCHSUFFIX=bionic
                elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
                    export ARCHSUFFIX=tahr
                elif grep -i -q -s 'ubuntu.*6\.06' /etc/issue; then

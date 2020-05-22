@@ -1,0 +1,73 @@
+<_AddLogo><uniform name="tex1" type="sampler2D" value="0"/><uniform name="tex2" type="sampler2D" value="1"/><vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+    varying vec2 Texcoord2;
+  
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Texcoord = gl_MultiTexCoord0.xy;
+        Texcoord2 = gl_MultiTexCoord1.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif     
+	gl_Position = ftransform();	
+    }
+  </vertexProgram><fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+    varying vec2 Texcoord2;
+   
+    uniform sampler2D tex1;
+    uniform sampler2D tex2;
+   
+    void main( void )
+    {
+      vec4 final_color = texture2D( tex1, Texcoord );
+      vec4 colorLogo = texture2D( tex2, Texcoord2 );
+	  float alpha = colorLogo.a;
+	  colorLogo.a=1.0;
+if(alpha &gt;0.5)
+	  final_color = (colorLogo * alpha);
+
+      	
+      							
+      
+      vec3 N = normalize(normal);
+      
+      vec3 nEyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm &gt; 0.0)
+      {
+//if(N[2]&gt; 0.5)
+//{
+//final_color = vec4(1,1,1,1);
+//}
+//else
+{
+      	//final_color += vec4(1,1,1,1) * 
+      	  //             colormapColor * 
+	final_color*=	  lambertTerm *1.0;	
+  }          		
+      	vec3 E = normalize(nEyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                20 );
+      	//final_color +=  vec4(0.1,0.1,0.1,0.1)*  specular;	
+      	}
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram></_AddLogo>

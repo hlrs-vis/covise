@@ -22,13 +22,15 @@
  */
 
 #include <util/coTypes.h>
-#include <util/coDLList.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <queue>
 #include <map>
 #include <string>
+
+#ifndef _M_CEE //no future in Managed OpenCOVER
 #include <future>
+#endif
 //#ifndef WIN32
 //#include <stdint.h>
 //#define FILESYS_SEP "\\"
@@ -130,7 +132,9 @@ protected:
     bool firstConnection = true;
 
     covise::Connection *conn = nullptr;
+#ifndef _M_CEE //no future in Managed OpenCOVER
     std::future<covise::Host *> connFuture;
+#endif
 };
 
 
@@ -1706,8 +1710,7 @@ signals:
 protected:
     std::string text;
     int selection;
-    covise::coDLList<std::string> elements;
-    covise::coDLListIter<std::string> iter;
+	std::list<std::string> elements;
 };
 /**
  * a listBox.
@@ -1740,8 +1743,7 @@ signals:
 protected:
     std::string text;
     int selection;
-    covise::coDLList<std::string> elements;
-    covise::coDLListIter<std::string> iter;
+	std::list<std::string> elements;
 };
 class COVEREXPORT MapData
 {
@@ -1771,8 +1773,7 @@ public:
     int mapNum;
 
 protected:
-    covise::coDLList<MapData *> maps;
-    covise::coDLListIter<MapData *> iter;
+	std::list<MapData *> maps;
 };
 /**
 * an earth Map Widget
@@ -1838,6 +1839,24 @@ public slots:
 protected:
     std::string text;
     bool immediate;
+};
+/**
+ * a Webview widget
+ */
+class COVEREXPORT coTUIWebview : public coTUIElement
+{
+    Q_OBJECT;
+public:
+	coTUIWebview(const std::string&, int pID = 1);
+    coTUIWebview(coTabletUI* tui, const std::string&, int pID = 1);
+    coTUIWebview(QObject* parent, const std::string&, int pID = 1);
+	virtual ~coTUIWebview();
+	virtual void parseMessage(covise::TokenBuffer& tb) override;
+    void setURL(const std::string& url);
+    void doSomething();
+
+signals:
+    void tabletEvent();
 };
 }
 #endif

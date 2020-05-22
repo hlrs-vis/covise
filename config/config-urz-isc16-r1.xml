@@ -17,11 +17,11 @@
 
             <NumChannels value="5" />
             <ChannelConfig>
-                <Channel name="0" channel="0" screenIndex="0" comment="view0" stereoMode="MONO" fixedViewer="true" viewerOffset="100" PBOIndex="0" />
-                <Channel name="1" channel="1" screenIndex="0" comment="view1" stereoMode="MONO" fixedViewer="true" viewerOffset="50" PBOIndex="1" />
-                <Channel name="2" channel="2" screenIndex="0" comment="view2" stereoMode="MONO" fixedViewer="true" viewerOffset="0"   PBOIndex="2" />
-                <Channel name="3" channel="3" screenIndex="0" comment="view3" stereoMode="MONO" fixedViewer="true" viewerOffset="-50"  PBOIndex="3" />
-                <Channel name="4" channel="4" screenIndex="0" comment="view4" stereoMode="MONO" fixedViewer="true" viewerOffset="-100"  PBOIndex="4" />
+                <Channel name="0" channel="0" screenIndex="0" comment="view0" stereoMode="MONO" fixedViewer="true" stereoOffset="100" PBOIndex="0" />
+                <Channel name="1" channel="1" screenIndex="0" comment="view1" stereoMode="MONO" fixedViewer="true" stereoOffset="50" PBOIndex="1" />
+                <Channel name="2" channel="2" screenIndex="0" comment="view2" stereoMode="MONO" fixedViewer="true" stereoOffset="0"   PBOIndex="2" />
+                <Channel name="3" channel="3" screenIndex="0" comment="view3" stereoMode="MONO" fixedViewer="true" stereoOffset="-50"  PBOIndex="3" />
+                <Channel name="4" channel="4" screenIndex="0" comment="view4" stereoMode="MONO" fixedViewer="true" stereoOffset="-100"  PBOIndex="4" />
             </ChannelConfig>
 
             <NumViewports value="1" />

@@ -44,7 +44,7 @@ struct Ilist *AllocIlistStruct(int portion)
 
 void FreeIlistStruct(struct Ilist *ilist)
 {
-    char buf[50];
+    char buf[128];
 
     if (ilist)
     {

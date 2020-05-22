@@ -743,19 +743,23 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
 
 			//set location of schema for elements without namespace
 			// (in schema file no global namespace is used)
-			parser->setExternalNoNamespaceSchemaLocation(m_xsdPathFileName.c_str());
+            std::string s = xsdPathFileName.string();
+            XMLCh *xs = XMLChTranscodeUtf(s.c_str());
+			parser->setExternalNoNamespaceSchemaLocation(xs);
 
 			//read the schema grammar file (.xsd) and cache it
 			try
 			{
-				parser->loadGrammar(m_xsdPathFileName.c_str(), xercesc::Grammar::SchemaGrammarType, true);
+				parser->loadGrammar(xs, xercesc::Grammar::SchemaGrammarType, true);
 			}
 			catch (...)
 			{
+		    xercesc::XMLString::release(&xs);
 			std::cerr << "\nError! Can't load XML Schema '" << m_xsdPathFileName << "'.\n" << std::endl;
 
 			return NULL;
 			} 
+		    xercesc::XMLString::release(&xs);
 		}
 
 
@@ -855,18 +859,22 @@ xercesc::DOMElement *OpenScenarioBase::getDefaultXML(const std::string &fileType
     parser->setDoXInclude(true);
     //parse without validation
     parser->setDoSchema(false);
+    std::string s = xsdPathFileName.string();
+    XMLCh *xs = XMLChTranscodeUtf(s.c_str());
 
     //parse the file
     try
     {
-        parser->parse(xsdPathFileName.c_str());
+        parser->parse(xs);
     }
     catch (...)
     {
+        xercesc::XMLString::release(&xs);
         std::cerr << "\nErrors during parse of the document '" << xsdPathFileName << "'.\n" << std::endl;
 
         return NULL;
     }
+    xercesc::XMLString::release(&xs);
 
     xercesc::DOMElement *tmpRootElem = NULL;
     std::string tmpRootElemName;

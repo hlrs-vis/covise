@@ -31,6 +31,9 @@
 #include <list>
 #include <iostream>
 
+namespace vehicleUtil
+{
+
 class HMIDeviceIface; // fwd declaration
 
 //--------------------------------------------------------------------
@@ -72,5 +75,5 @@ private:
     int m_vehiclestate;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

@@ -504,6 +504,9 @@ void ARTracePlugin::addObject(const RenderObject *container, osg::Group *, const
 {
     unsigned int i;
     const char *feedbackInfo;
+	if (obj == nullptr) // todo: obj is null in vistle due to delayload
+		return;
+	
     feedbackInfo = obj->getAttribute("FEEDBACK");
 
     char moduleName[200];

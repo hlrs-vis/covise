@@ -18,6 +18,7 @@
 #undef setw
 #endif
 
+
 #include <QSocketNotifier>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -50,7 +51,7 @@
 #include <config/coConfig.h>
 #endif
 
-#include "TUIApplication.h"
+
 #include "TUITab.h"
 #include "TUISGBrowserTab.h"
 #include "TUIAnnotationTab.h"
@@ -87,6 +88,7 @@
 #include "TUITextEdit.h"
 #include "TUIPopUp.h"
 #include "TUIUITab.h"
+#include "TUIWebview.h"
 
 #ifdef TABLET_PLUGIN
 #include "../mapeditor/handler/MEMainHandler.h"
@@ -96,17 +98,18 @@
 #include "icons/covise.xpm"
 #endif
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include "wce_msg.h"
-#endif
+#include <net/message_types.h>
 
 #ifndef _WIN32
 #include <signal.h>
+#include <sys/socket.h>
 #endif
 
 #include <cassert>
+#ifdef HAVE_WIRINGPI
+#include "Thyssen.h"
+#endif
 
 
 TUIMainWindow *TUIMainWindow::appwin = 0;
@@ -178,6 +181,11 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 {
     // init some values
     appwin = this;
+
+#ifdef HAVE_WIRINGPI
+    thyssenPanel = new ThyssenPanel();
+    thyssenPanel->led->setLED(0,true);
+#endif
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
     port = covise::coCoviseConfig::getInt("port", "COVER.TabletUI", port);
@@ -388,18 +396,22 @@ void TUIMainWindow::processMessages()
 
                 std::cerr << "SGBrowser port: " << port << std::endl;
 
-                if (sgConn->acceptOne(60) < 0)
+                if (sgConn->acceptOne(5) < 0)
                 {
-                    fprintf(stderr, "Could not open server port %d\n", port);
+                    fprintf(stderr, "Could not accept connection to sg port in time %d\n", port);
                     delete sgConn;
-                    sgConn = NULL;
+                    sgConn = nullptr;
+					delete clientConn;
+					clientConn = nullptr;
                     return;
                 }
                 if (!sgConn->getSocket())
                 {
-                    fprintf(stderr, "Could not open server port %d\n", port);
+					fprintf(stderr, "sg connection closed during connection %d\n", port);
                     delete sgConn;
-                    sgConn = NULL;
+                    sgConn = nullptr;
+					delete clientConn;
+					clientConn = nullptr;
                     return;
                 }
 
@@ -412,6 +424,8 @@ void TUIMainWindow::processMessages()
                     fprintf(stderr, "Could not open server port %d\n", port);
                     delete sgConn;
                     sgConn = NULL;
+					delete clientConn;
+					clientConn = nullptr;
                     return;
                 }
 
@@ -585,6 +599,13 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         return new TUIPopUp(id, type, w, parent, name);
     case TABLET_UI_TAB:
         return new TUIUITab(id, type, w, parent, name);
+    case TABLET_WEBVIEW:
+#ifdef USE_WEBENGINE
+        return new TUIWebview(id, type, w, parent, name);
+#else
+        std::cerr << "TUIWebview is for Qt versions older than 5.4 not available" << std::endl;
+        break;
+#endif
     default:
         std::cerr << "TUIapplication::createElement info: unknown element type: " << type << std::endl;
         break;
@@ -632,6 +653,8 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
 {
     if((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
+        std::cerr << "TUIMainWindow: socket closed" << std::endl;
+
         delete clientSN;
         clientSN = NULL;
         connections->remove(msg->conn); //remove connection;
@@ -683,6 +706,10 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
             if (parentElement && !parentElem)
                 std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
+#if 0
+            else if (!parentElement)
+                std::cerr << "TUIApplication::handleClient warn: no parent for: " << ID << std::endl;
+#endif
 
             QWidget *parentWidget = mainFrame;
             if (parentElem)
@@ -696,20 +723,6 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
                 QString parentName;
                 if (parentElem)
                     parentName = parentElem->getName();
-                std::string blacklist = "COVER.TabletUI.Blacklist:";
-                QString qname(name);
-                qname.replace(".", "").replace(":", "");
-                blacklist += qname.toStdString();
-// TODO: won't work for items with identical names but different parents - a random item will be found
-//std::string value = covise::coCoviseConfig::getEntry(blacklist);
-
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
-                std::string parent = covise::coCoviseConfig::getEntry("parent", blacklist);
-                if (covise::coCoviseConfig::isOn(blacklist, false) && (parent.empty() || parent == parentName.toStdString()))
-                {
-                    newElement->setHidden(true);
-                }
-#endif
             }
 
 #ifdef TABLET_PLUGIN

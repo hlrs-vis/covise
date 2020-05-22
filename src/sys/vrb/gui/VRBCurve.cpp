@@ -8,8 +8,7 @@
 
 //#include "application.h"
 #include "VRBCurve.h"
-#include "VRBClientList.h"
-
+#include "VrbUiClientList.h"
 #ifndef YAC
 #include <covise/covise.h>
 #endif
@@ -59,7 +58,7 @@ VRBCurve::~VRBCurve()
 {
 }
 
-void VRBCurve::setClient(VRBSClient *client)
+void VRBCurve::setClient(VrbUiClient *client)
 {
     vrb = client;
 }
@@ -101,7 +100,6 @@ void VRBCurve::hideEvent(QHideEvent *)
 
 void VRBCurve::animate()
 {
-    QString s;
     int p, pval, y;
     //static int  def = 0;
 
@@ -112,8 +110,8 @@ void VRBCurve::animate()
 
     pval = vrb->getSentBPS() / 1000;
     y = pval;
-    s.sprintf("%d KBit/s", pval);
-    label->setText(s);
+    QString s("%1 KBit/s");
+    label->setText(s.arg(QString::number(pval)));
 
     //y    = (((Range-FrameWidth) * def)/100);
     //def++;

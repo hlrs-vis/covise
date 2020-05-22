@@ -13,6 +13,8 @@
 #else
 #include <native/mutex.h>
 #endif
+namespace vehicleUtil
+{
 
 class XenomaiMutex
 {
@@ -58,5 +60,5 @@ public:
 protected:
     RT_MUTEX rt_mutex_desc;
 };
-
+}
 #endif

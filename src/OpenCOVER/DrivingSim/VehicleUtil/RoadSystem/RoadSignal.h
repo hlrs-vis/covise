@@ -20,244 +20,246 @@ using std::unordered_map;
 #include <tr1/unordered_map>
 using std::tr1::unordered_map;
 #endif
-
-class SignalTurnCallback
+namespace vehicleUtil
 {
-public:
-    virtual void on() = 0;
-    virtual void off() = 0;
-    virtual ~SignalTurnCallback(){};
-};
-class SignalPrototype
-{
-public:
-    SignalPrototype(std::string name, std::string country, int type, int subtype, std::string subclass, bool isFlat, bool realScale);
-    ~SignalPrototype();
-
-    void createGeometry(bool realScale);
-    osg::ref_ptr<osg::Node> signalNode;
-    osg::ref_ptr<osg::Node> signalPost;
-	float aspectRatio;
-    std::string name;
-    int type;
-    int subtype;
-    std::string subclass;
-    std::string country;
-    bool flat;
-    osg::ref_ptr<osg::Material> streetmarkMaterial;
-};
-
-class VEHICLEUTILEXPORT TrafficLightSignalTurnCallback : public SignalTurnCallback
-{
-public:
-    virtual ~TrafficLightSignalTurnCallback(){};
-    TrafficLightSignalTurnCallback(osgSim::MultiSwitch *);
-
-    void on();
-    void off();
-
-protected:
-    osgSim::MultiSwitch *multiSwitch;
-};
-
-class VEHICLEUTILEXPORT RoadSignal : public Element
-{
-public:
-    enum OrientationType
+    class SignalTurnCallback
     {
-        POSITIVE_TRACK_DIRECTION = 1,
-        NEGATIVE_TRACK_DIRECTION = -1,
-        BOTH_DIRECTIONS = 0
+    public:
+        virtual void on() = 0;
+        virtual void off() = 0;
+        virtual ~SignalTurnCallback() {};
+    };
+    class SignalPrototype
+    {
+    public:
+        SignalPrototype(std::string name, std::string country, int type, int subtype, std::string subclass, bool isFlat, bool realScale);
+        ~SignalPrototype();
+
+        void createGeometry(bool realScale);
+        osg::ref_ptr<osg::Node> signalNode;
+        osg::ref_ptr<osg::Node> signalPost;
+        float aspectRatio;
+        std::string name;
+        int type;
+        int subtype;
+        std::string subclass;
+        std::string country;
+        bool flat;
+        osg::ref_ptr<osg::Material> streetmarkMaterial;
     };
 
-    RoadSignal(const std::string &, const std::string &, const double &, const double &, const bool &, const OrientationType &,
-               const double &, const std::string &, const int &, const int &, const std::string &, const double &, const double &,
-               const double &, const double &, const double &, const std::string &setUnit, const std::string &setText, const double &setWidth, const double &setHeight);
+    class VEHICLEUTILEXPORT TrafficLightSignalTurnCallback : public SignalTurnCallback
+    {
+    public:
+        virtual ~TrafficLightSignalTurnCallback() {};
+        TrafficLightSignalTurnCallback(osgSim::MultiSwitch*);
 
-    const std::string &getName()
-    {
-        return name;
-    }
-    const double &getS()
-    {
-        return s;
-    }
-    const double &getT()
-    {
-        return t;
-    }
-    const bool &isDynamic()
-    {
-        return dynamic;
-    }
-    const OrientationType &getOrientation()
-    {
-        return orientation;
-    }
-    const double &getZOffset()
-    {
-        return zOffset;
-    }
-    const std::string &getCountry()
-    {
-        return country;
-    }
-    const int &getType()
-    {
-        return type;
-    }
-    const int &getSubtype()
-    {
-        return subtype;
-    }
-    const double &getValue()
-    {
-        return value;
-    }
-	const std::string &getUnit()
-	{
-		return unit;
-	}
-	const std::string &getText()
-	{
-		return text;
-	}
-	const double &getWidth()
-	{
-		return width;
-	}
-	const double &getHeight()
-	{
-		return height;
-	}
-    const double &getHdg()
-    {
-        return hdg;
-    }
-    const double &getPitch()
-    {
-        return pitch;
-    }
-    const double &getRoll()
-    {
-        return roll;
-    }
+        void on();
+        void off();
 
-    void setValue(const double &setVal)
-    {
-        value = setVal;
-    }
-
-    void setTransform(const Transform &_transform);
-    const Transform &getTransform() const
-    {
-        return signalTransform;
-    }
-    //virtual void update(const double&) { }
-
-    //virtual void signalGo() { }
-    //virtual void signalStop() { }
-    virtual osg::PositionAttitudeTransform *getRoadSignalNode();
-    virtual osg::PositionAttitudeTransform *getRoadSignalPost();
-
-protected:
-    std::string name;
-    double s;
-    double t;
-    double size;
-    bool dynamic;
-    OrientationType orientation;
-    double zOffset;
-    std::string country;
-    int type;
-    int subtype;
-    std::string subclass;
-    double value;
-	std::string unit;
-	std::string text;
-	double width;
-	double height;
-    double hdg;
-    double pitch;
-    double roll;
-	float aspectRatio;
-
-    Transform signalTransform;
-
-    osg::PositionAttitudeTransform *roadSignalNode;
-    osg::PositionAttitudeTransform *roadSignalPost;
-
-    static unordered_map<std::string, SignalPrototype *> signalsMap;
-};
-
-class TrafficLightPrototype
-{
-public:
-    TrafficLightPrototype(std::string name, std::string country, int type, int subtype, std::string subclass);
-    ~TrafficLightPrototype();
-
-    osg::ref_ptr<osg::Node> getTrafficLightNode()
-    {
-        return trafficLightNode;
-    }
-
-private:
-    osg::Node * createGeometry();
-    osg::ref_ptr<osg::Node> trafficLightNode;
-    std::string name;
-    int type;
-    int subtype;
-    std::string subclass;
-    std::string country;
-};
-
-class VEHICLEUTILEXPORT TrafficLightSignal : public RoadSignal
-{
-public:
-    enum SignalSwitchType
-    {
-        ON = 1,
-        OFF = -1
-    };
-    enum SignalType
-    {
-        GREEN,
-        YELLOW,
-        RED
+    protected:
+        osgSim::MultiSwitch* multiSwitch;
     };
 
-    TrafficLightSignal(const std::string &, const std::string &, const double &, const double &, const bool &, const OrientationType &,
-                       const double &, const std::string &, const int &, const int &, const std::string &setSubclass, const double &setSize, const double &,
-                       const double &, const double &, const double &, const std::string &setUnit, const std::string &setText, const double &setWidth, const double &setHeight);
+    class VEHICLEUTILEXPORT RoadSignal : public Element
+    {
+    public:
+        enum OrientationType
+        {
+            POSITIVE_TRACK_DIRECTION = 1,
+            NEGATIVE_TRACK_DIRECTION = -1,
+            BOTH_DIRECTIONS = 0
+        };
 
-    void setSignalGreenCallback(SignalTurnCallback *);
-    void setSignalYellowCallback(SignalTurnCallback *);
-    void setSignalRedCallback(SignalTurnCallback *);
+        RoadSignal(const std::string&, const std::string&, const double&, const double&, const bool&, const OrientationType&,
+            const double&, const std::string&, const int&, const int&, const std::string&, const double&, const double&,
+            const double&, const double&, const double&, const std::string& setUnit, const std::string& setText, const double& setWidth, const double& setHeight);
 
-    void switchGreenSignal(SignalSwitchType);
-    void switchYellowSignal(SignalSwitchType);
-    void switchRedSignal(SignalSwitchType);
+        const std::string& getName()
+        {
+            return name;
+        }
+        const double& getS()
+        {
+            return s;
+        }
+        const double& getT()
+        {
+            return t;
+        }
+        const bool& isDynamic()
+        {
+            return dynamic;
+        }
+        const OrientationType& getOrientation()
+        {
+            return orientation;
+        }
+        const double& getZOffset()
+        {
+            return zOffset;
+        }
+        const std::string& getCountry()
+        {
+            return country;
+        }
+        const int& getType()
+        {
+            return type;
+        }
+        const int& getSubtype()
+        {
+            return subtype;
+        }
+        const double& getValue()
+        {
+            return value;
+        }
+        const std::string& getUnit()
+        {
+            return unit;
+        }
+        const std::string& getText()
+        {
+            return text;
+        }
+        const double& getWidth()
+        {
+            return width;
+        }
+        const double& getHeight()
+        {
+            return height;
+        }
+        const double& getHdg()
+        {
+            return hdg;
+        }
+        const double& getPitch()
+        {
+            return pitch;
+        }
+        const double& getRoll()
+        {
+            return roll;
+        }
 
-    osg::PositionAttitudeTransform *getRoadSignalNode();
+        void setValue(const double& setVal)
+        {
+            value = setVal;
+        }
 
-    //void signalGo();
-    //void signalStop();
+        void setTransform(const Transform& _transform);
+        const Transform& getTransform() const
+        {
+            return signalTransform;
+        }
+        //virtual void update(const double&) { }
 
-    //virtual void update(const double&);
+        //virtual void signalGo() { }
+        //virtual void signalStop() { }
+        virtual osg::PositionAttitudeTransform* getRoadSignalNode();
+        virtual osg::PositionAttitudeTransform* getRoadSignalPost();
 
-protected:
-    SignalTurnCallback *signalGreenCallback;
-    SignalTurnCallback *signalYellowCallback;
-    SignalTurnCallback *signalRedCallback;
+    protected:
+        std::string name;
+        double s;
+        double t;
+        double size;
+        bool dynamic;
+        OrientationType orientation;
+        double zOffset;
+        std::string country;
+        int type;
+        int subtype;
+        std::string subclass;
+        double value;
+        std::string unit;
+        std::string text;
+        double width;
+        double height;
+        double hdg;
+        double pitch;
+        double roll;
+        float aspectRatio;
 
-    osg::PositionAttitudeTransform *trafficSignalNode;
-    static osg::Node *trafficSignalNodeTemplate;
-    //SignalSwitchType signalTurn;
-    //bool signalTurnFinished;
-    //double yellowPhaseTime;
-    //double timer;
+        Transform signalTransform;
 
-    static unordered_map<std::string, TrafficLightPrototype *> trafficLightsMap;
-};
+        osg::PositionAttitudeTransform* roadSignalNode;
+        osg::PositionAttitudeTransform* roadSignalPost;
+
+        static unordered_map<std::string, SignalPrototype*> signalsMap;
+    };
+
+    class TrafficLightPrototype
+    {
+    public:
+        TrafficLightPrototype(std::string name, std::string country, int type, int subtype, std::string subclass);
+        ~TrafficLightPrototype();
+
+        osg::ref_ptr<osg::Node> getTrafficLightNode()
+        {
+            return trafficLightNode;
+        }
+
+    private:
+        osg::Node* createGeometry();
+        osg::ref_ptr<osg::Node> trafficLightNode;
+        std::string name;
+        int type;
+        int subtype;
+        std::string subclass;
+        std::string country;
+    };
+
+    class VEHICLEUTILEXPORT TrafficLightSignal : public RoadSignal
+    {
+    public:
+        enum SignalSwitchType
+        {
+            ON = 1,
+            OFF = -1
+        };
+        enum SignalType
+        {
+            GREEN,
+            YELLOW,
+            RED
+        };
+
+        TrafficLightSignal(const std::string&, const std::string&, const double&, const double&, const bool&, const OrientationType&,
+            const double&, const std::string&, const int&, const int&, const std::string& setSubclass, const double& setSize, const double&,
+            const double&, const double&, const double&, const std::string& setUnit, const std::string& setText, const double& setWidth, const double& setHeight);
+
+        void setSignalGreenCallback(SignalTurnCallback*);
+        void setSignalYellowCallback(SignalTurnCallback*);
+        void setSignalRedCallback(SignalTurnCallback*);
+
+        void switchGreenSignal(SignalSwitchType);
+        void switchYellowSignal(SignalSwitchType);
+        void switchRedSignal(SignalSwitchType);
+
+        osg::PositionAttitudeTransform* getRoadSignalNode();
+
+        //void signalGo();
+        //void signalStop();
+
+        //virtual void update(const double&);
+
+    protected:
+        SignalTurnCallback* signalGreenCallback;
+        SignalTurnCallback* signalYellowCallback;
+        SignalTurnCallback* signalRedCallback;
+
+        osg::PositionAttitudeTransform* trafficSignalNode;
+        static osg::Node* trafficSignalNodeTemplate;
+        //SignalSwitchType signalTurn;
+        //bool signalTurnFinished;
+        //double yellowPhaseTime;
+        //double timer;
+
+        static unordered_map<std::string, TrafficLightPrototype*> trafficLightsMap;
+    };
+}
 
 #endif

@@ -38,6 +38,9 @@
 #include <native/timer.h>
 #endif
 
+namespace vehicleUtil
+{
+
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
@@ -135,5 +138,5 @@ private:
     int round(double d);
 };
 //--------------------------------------------------------------------
-
+}
 #endif

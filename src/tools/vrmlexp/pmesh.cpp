@@ -710,7 +710,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
             }
         }
 
-        if (mIsTextured2)
+        if (mIsTextured2 && mOrgMesh.mapFaces(2)!=NULL)
         {
             if (edge.GetFaceFlags(0) & EDGE_A)
             {
@@ -728,7 +728,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                 t2V1 = mOrgMesh.mapFaces(2)[eFace].t[0];
             }
         }
-        if (mIsTextured3)
+        if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
         {
             if (edge.GetFaceFlags(0) & EDGE_A)
             {
@@ -746,7 +746,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                 t3V1 = mOrgMesh.mapFaces(3)[eFace].t[0];
             }
         }
-        if (mIsTextured4)
+        if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
         {
             if (edge.GetFaceFlags(0) & EDGE_A)
             {
@@ -764,7 +764,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                 t4V1 = mOrgMesh.mapFaces(4)[eFace].t[0];
             }
         }
-        if (mIsTextured5)
+        if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
         {
             if (edge.GetFaceFlags(0) & EDGE_A)
             {
@@ -782,7 +782,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                 t5V1 = mOrgMesh.mapFaces(5)[eFace].t[0];
             }
         }
-        if (mIsTextured6)
+        if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
         {
             if (edge.GetFaceFlags(0) & EDGE_A)
             {
@@ -855,7 +855,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert(&tVert);
                             mPolygons[polyNum].AddToTPolygon(tV0);
                         }
-                        if (mIsTextured2)
+                        if (mIsTextured2 && mOrgMesh.mapFaces(2) != NULL)
                         {
                             if (!mTVMapping2[t2V0])
                                 mTVMapping2.Set(t2V0);
@@ -863,7 +863,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert2(&tVert);
                             mPolygons[polyNum].AddToTPolygon2(t2V0);
                         }
-                        if (mIsTextured3)
+                        if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
                         {
                             if (!mTVMapping3[t3V0])
                                 mTVMapping3.Set(t3V0);
@@ -871,7 +871,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert3(&tVert);
                             mPolygons[polyNum].AddToTPolygon3(t3V0);
                         }
-                        if (mIsTextured4)
+                        if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
                         {
                             if (!mTVMapping4[t4V0])
                                 mTVMapping4.Set(t4V0);
@@ -879,7 +879,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert4(&tVert);
                             mPolygons[polyNum].AddToTPolygon4(t4V0);
                         }
-                        if (mIsTextured5)
+                        if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
                         {
                             if (!mTVMapping5[t5V0])
                                 mTVMapping5.Set(t5V0);
@@ -887,7 +887,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert5(&tVert);
                             mPolygons[polyNum].AddToTPolygon5(t5V0);
                         }
-                        if (mIsTextured6)
+                        if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
                         {
                             if (!mTVMapping6[t6V0])
                                 mTVMapping6.Set(t6V0);
@@ -997,7 +997,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert(&tVert);
                             mPolygons[polyNum].AddToTPolygon(tV1);
                         }
-                        if (mIsTextured2)
+                        if (mIsTextured2 && mOrgMesh.mapFaces(2) != NULL)
                         {
                             if (!mTVMapping2[t2V1])
                                 mTVMapping2.Set(t2V1);
@@ -1005,7 +1005,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert2(&tVert);
                             mPolygons[polyNum].AddToTPolygon2(t2V1);
                         }
-                        if (mIsTextured3)
+                        if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
                         {
                             if (!mTVMapping3[t3V1])
                                 mTVMapping3.Set(t3V1);
@@ -1013,7 +1013,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert3(&tVert);
                             mPolygons[polyNum].AddToTPolygon3(t3V1);
                         }
-                        if (mIsTextured4)
+                        if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
                         {
                             if (!mTVMapping4[t4V1])
                                 mTVMapping4.Set(t4V1);
@@ -1021,7 +1021,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert4(&tVert);
                             mPolygons[polyNum].AddToTPolygon4(t4V1);
                         }
-                        if (mIsTextured5)
+                        if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
                         {
                             if (!mTVMapping5[t5V1])
                                 mTVMapping5.Set(t5V1);
@@ -1029,7 +1029,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             mPolygons[polyNum].AddTVert5(&tVert);
                             mPolygons[polyNum].AddToTPolygon5(t5V1);
                         }
-                        if (mIsTextured6)
+                        if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
                         {
                             if (!mTVMapping6[t6V1])
                                 mTVMapping6.Set(t6V1);
@@ -1107,7 +1107,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon(tVert0);
                         }
-                        if (mIsTextured2)
+                        if (mIsTextured2 && mOrgMesh.mapFaces(2) != NULL)
                         {
                             if (firstEdge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1123,7 +1123,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon2(tVert0);
                         }
-                        if (mIsTextured3)
+                        if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
                         {
                             if (firstEdge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1139,7 +1139,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon3(tVert0);
                         }
-                        if (mIsTextured4)
+                        if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
                         {
                             if (firstEdge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1155,7 +1155,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon4(tVert0);
                         }
-                        if (mIsTextured5)
+                        if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
                         {
                             if (firstEdge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1171,7 +1171,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon5(tVert0);
                         }
-                        if (mIsTextured6)
+                        if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
                         {
                             if (firstEdge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1208,7 +1208,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon(tVert0);
                         }
-                        if (mIsTextured2)
+                        if (mIsTextured2 && mOrgMesh.mapFaces(2) != NULL)
                         {
                             if (edge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1224,7 +1224,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon2(tVert0);
                         }
-                        if (mIsTextured3)
+                        if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
                         {
                             if (edge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1240,7 +1240,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon3(tVert0);
                         }
-                        if (mIsTextured4)
+                        if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
                         {
                             if (edge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1256,7 +1256,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon4(tVert0);
                         }
-                        if (mIsTextured5)
+                        if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
                         {
                             if (edge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1272,7 +1272,7 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                             }
                             mPolygons[polyNum].AddToTPolygon5(tVert0);
                         }
-                        if (mIsTextured6)
+                        if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
                         {
                             if (edge.GetFaceFlags(0) & EDGE_A)
                             {
@@ -1318,31 +1318,31 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                         mPolygons[polyNum].RemoveLastFromTPolygon();
                         mTVMapping.Clear(tV0);
                     }
-                    if (mIsTextured2)
+                    if (mIsTextured2 && mOrgMesh.mapFaces(2) != NULL)
                     {
                         mPolygons[polyNum].RemoveLastTVert2();
                         mPolygons[polyNum].RemoveLastFromTPolygon2();
                         mTVMapping2.Clear(t2V0);
                     }
-                    if (mIsTextured3)
+                    if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
                     {
                         mPolygons[polyNum].RemoveLastTVert3();
                         mPolygons[polyNum].RemoveLastFromTPolygon3();
                         mTVMapping3.Clear(t3V0);
                     }
-                    if (mIsTextured4)
+                    if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
                     {
                         mPolygons[polyNum].RemoveLastTVert4();
                         mPolygons[polyNum].RemoveLastFromTPolygon4();
                         mTVMapping4.Clear(t4V0);
                     }
-                    if (mIsTextured5)
+                    if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
                     {
                         mPolygons[polyNum].RemoveLastTVert5();
                         mPolygons[polyNum].RemoveLastFromTPolygon5();
                         mTVMapping5.Clear(t5V0);
                     }
-                    if (mIsTextured6)
+                    if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
                     {
                         mPolygons[polyNum].RemoveLastTVert6();
                         mPolygons[polyNum].RemoveLastFromTPolygon6();
@@ -1369,31 +1369,31 @@ PMesh::GetNextEdge(int polyNum, int v0Prev, int vertNum,
                         mPolygons[polyNum].RemoveFirstFromTPolygon();
                         mTVMapping.Clear(tV1);
                     }
-                    if (mIsTextured2)
+                    if (mIsTextured2 && mOrgMesh.mapFaces(2) != NULL)
                     {
                         mPolygons[polyNum].RemoveFirstTVert2();
                         mPolygons[polyNum].RemoveFirstFromTPolygon2();
                         mTVMapping2.Clear(t2V1);
                     }
-                    if (mIsTextured3)
+                    if (mIsTextured3 && mOrgMesh.mapFaces(3) != NULL)
                     {
                         mPolygons[polyNum].RemoveFirstTVert3();
                         mPolygons[polyNum].RemoveFirstFromTPolygon3();
                         mTVMapping3.Clear(t3V1);
                     }
-                    if (mIsTextured4)
+                    if (mIsTextured4 && mOrgMesh.mapFaces(4) != NULL)
                     {
                         mPolygons[polyNum].RemoveFirstTVert4();
                         mPolygons[polyNum].RemoveFirstFromTPolygon4();
                         mTVMapping4.Clear(t4V1);
                     }
-                    if (mIsTextured5)
+                    if (mIsTextured5 && mOrgMesh.mapFaces(5) != NULL)
                     {
                         mPolygons[polyNum].RemoveFirstTVert5();
                         mPolygons[polyNum].RemoveFirstFromTPolygon5();
                         mTVMapping5.Clear(t5V1);
                     }
-                    if (mIsTextured6)
+                    if (mIsTextured6 && mOrgMesh.mapFaces(6) != NULL)
                     {
                         mPolygons[polyNum].RemoveFirstTVert6();
                         mPolygons[polyNum].RemoveFirstFromTPolygon6();

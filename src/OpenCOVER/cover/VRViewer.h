@@ -33,6 +33,7 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Matrix>
+#include "ui/Owner.h"
 
 namespace osg
 {
@@ -45,8 +46,10 @@ namespace opencover
 class MSEventHandler;
 class ARToolKitMarker;
 class angleStruct;
+class coVRStatsDisplay;
+class InitGLOperation;
 
-class COVEREXPORT VRViewer : public osgViewer::Viewer
+class COVEREXPORT VRViewer : public osgViewer::Viewer, public ui::Owner
 {
     friend class OpenCOVER;
 public:
@@ -72,12 +75,15 @@ public:
     void setRenderToTexture(bool);
     void flipStereo();
 
+    void setFullscreen(bool state);
+    bool isFullscreen() const;
+
     /** initiate shut down */
     void disableSync();
 
 private:
     static VRViewer *s_singleton;
-    MSEventHandler *myeh;
+    MSEventHandler *myeh = nullptr;
 
     // stereo parameters
     char stereoCommand[500];
@@ -89,18 +95,17 @@ private:
     // view
     osg::Vec3 viewPos, viewDir; //, viewYDir;
     osg::Vec3 initialViewPos;
-    osg::Vec3 leftViewPos, rightViewPos, middleViewPos;
     osg::Matrix viewMat;
-    osgViewer::StatsHandler *statsHandler;
+    osgViewer::StatsHandler *statsHandler = nullptr;
 
     angleStruct *screen_angle; // Screen angle: IWR movable screen
 
     void readConfigFile();
 
-    void detectStereoMode();
     void setStereoMode();
 
     void createChannels(int i);
+    void destroyChannels(int i);
 
     int isHeadtracking;
     bool fixViewer;
@@ -113,7 +118,9 @@ private:
     
     osg::Geometry *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
+    void destroyViewportCameras(int i);
     void createBlendingCameras(int i);
+    void destroyBlendingCameras(int i);
     float requestedSeparation, separation;
     int animateSeparation;
     bool stereoOn;
@@ -122,7 +129,29 @@ private:
     void setAffinity();
 
 public:
+    struct FrustumAndView
+    {
+        osg::Matrix view;
+        osg::Matrix proj;
+    };
+    struct FrustaAndViews
+    {
+        FrustumAndView left;
+        FrustumAndView right;
+        FrustumAndView middle;
+    };
+
+    FrustaAndViews computeFrustumAndView(int i);
+
     void setFrustumAndView(int i);
+
+    enum Eye {
+        EyeMiddle,
+        EyeLeft,
+        EyeRight,
+    };
+
+    osg::Vec3 eyeOffset(Eye eye) const;
 
     static VRViewer *instance();
     void setSeparation(float stereoSep);
@@ -131,6 +160,7 @@ public:
     virtual ~VRViewer();
 
     void config();
+    void unconfig();
 
     virtual void getCameras(Cameras &cameras, bool onlyActive = true);
     virtual void getContexts(Contexts &contexts, bool onlyValid = true);
@@ -179,7 +209,6 @@ public:
     bool clearWindow = true; // if set to true, the whole window is cleared once
     int numClears = 0;
 
-    void toggleStatistics();
     void overwriteViewAndProjectionMatrix(bool state)
     {
         overwritePAndV = state;
@@ -195,6 +224,17 @@ public:
     osg::Node::NodeMask getCullMask() /*const*/;
     osg::Node::NodeMask getCullMaskLeft() /*const*/;
     osg::Node::NodeMask getCullMaskRight() /*const*/;
+    std::vector<osg::ref_ptr<osg::Camera>> viewportCamera;
+    std::vector<osg::ref_ptr<osg::Camera>> blendingCamera;
+
+    bool m_fullscreen = false;
+
+    coVRStatsDisplay *statsDisplay = nullptr;
+    InitGLOperation *m_initGlOp = nullptr;
+
+    bool m_requireGlFinish = true;
 };
+
+std::pair<osg::Matrix, osg::Matrix> COVEREXPORT computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const osg::Vec3 &xyz, const osg::Vec3 &hpr, const osg::Vec2 &size, double near, double far, bool ortho=false, double worldAngle=0.f);
 }
 #endif

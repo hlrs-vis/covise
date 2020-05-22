@@ -8,6 +8,7 @@
 #include <cstring>
 #include "coGRObjMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjMsg::coGRObjMsg(const char *msg)

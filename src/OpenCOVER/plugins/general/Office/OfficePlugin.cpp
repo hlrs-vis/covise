@@ -34,6 +34,9 @@
 #include <config/CoviseConfig.h>
 #include "VrmlNodeOffice.h"
 #include <sys/stat.h>
+#ifndef WIN32
+#include <sys/socket.h>
+#endif
 #include <cassert>
 
 #include <cover/ui/Manager.h>
@@ -83,6 +86,9 @@ OfficeConnection::OfficeConnection(ServerConnection *to)
 
 OfficeConnection::~OfficeConnection()
 {
+    if (toOffice && toOffice->getSocket())
+        cover->unwatchFileDescriptor(toOffice->getSocket()->get_id());
+    delete toOffice;
 }
 
 void OfficeConnection::sendMessage(Message &m)
@@ -201,6 +207,10 @@ bool OfficePlugin::init()
             delete serverConn;
             serverConn = NULL;
         }
+        else
+        {
+            cover->watchFileDescriptor(serverConn->getSocket()->get_id());
+        }
 
         struct linger linger;
         linger.l_onoff = 0;
@@ -215,6 +225,7 @@ bool OfficePlugin::init()
             if (!serverConn->is_connected()) // could not open server port
             {
                 fprintf(stderr, "Could not open server port %d\n", port);
+                cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
                 delete serverConn;
                 serverConn = NULL;
             }
@@ -242,6 +253,8 @@ OfficePlugin *OfficePlugin::instance()
 OfficePlugin::~OfficePlugin()
 {
     destroyMenu();
+    if (serverConn && serverConn->getSocket())
+        cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
     delete serverConn;
     serverConn = NULL;
     plugin = nullptr;
@@ -249,7 +262,7 @@ OfficePlugin::~OfficePlugin()
 
 void OfficePlugin::message(int toWhom, int type, int len, const void *buf)
 {
-    TokenBuffer tb((const char *)buf,len);
+    TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
     if (type == PluginMessageTypes::PBufferDoneSnapshot)
     {
         std::string fileName;
@@ -317,6 +330,7 @@ void OfficePlugin::preFrame()
             if (toOffice && toOffice->is_connected())
             {
                 fprintf(stderr, "Connected to Office system\n");
+                cover->watchFileDescriptor(toOffice->getSocket()->get_id());
             }
             else
             {
@@ -385,7 +399,7 @@ void officeList::checkAndHandleMessages()
                     coVRMSController::instance()->sendSlaves(&sc, sizeof(sc));
                     coVRMSController::instance()->sendSlaves(msg);
 
-                    cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg->type-OfficePlugin::MSG_String,msg->length, msg->data);
+                    cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg->type-OfficePlugin::MSG_String,msg->data.length(), msg->data.data());
                     OfficePlugin::instance()->handleMessage(oc,msg);
                     if(deletedConnection)
                         break;
@@ -420,7 +434,7 @@ void officeList::checkAndHandleMessages()
                 }
                 Message msg;
                 coVRMSController::instance()->readMaster(&msg);
-                cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg.type-OfficePlugin::MSG_String,msg.length, msg.data);
+                cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg.type-OfficePlugin::MSG_String,msg.data.length(), msg.data.data());
                 if(localOc)
                 {
                     OfficePlugin::instance()->handleMessage(localOc,&msg);

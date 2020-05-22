@@ -1042,10 +1042,29 @@ void BPA::loadDxf(std::string filename)
     if (fp)
     {
         char buf[1000];
+        char lastText=' ';
+        char *useTexts = new char[1000];
+        useTexts[0] = '\0';
+        int numChars = 0;
         while (!feof(fp))
         {
             if (fgets(buf, 1000, fp) != NULL)
             {
+                if (strncmp(buf, "USELINES", 8) == 0)
+                {
+                    strncpy(useTexts, buf + 9, 1000);
+                    numChars = strlen(useTexts);
+                }
+                if (strncmp(buf, "TEXT", 4) == 0)
+                {
+                    if (fgets(buf, 1000, fp) != NULL)
+                    {
+                        if (fgets(buf, 1000, fp) != NULL)
+                        {
+                            lastText = buf[0];
+                        }
+                    }
+                }
                 if (strncmp(buf, "POLYLINE", 8) == 0)
                 {
                     int vert = 0;
@@ -1080,6 +1099,17 @@ void BPA::loadDxf(std::string filename)
                         }
                         if (strncmp(buf, "SEQEND", 6) == 0)
                         {
+                            bool found = false;
+                            for(int i=0;i<numChars;i++)
+                            {
+                                if (lastText == useTexts[i])
+                                {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(numChars == 0 || found )
+                            {
                             Trajectory *t = new Trajectory(this);
                             t->startPos = v[1];
                             t->startVelocity = v[0] - v[1];
@@ -1096,6 +1126,7 @@ void BPA::loadDxf(std::string filename)
 			    t->Rho = 1055.0;
 			    t->D = 2 * pow((3 * t->Vol / pow(10, 9) / (t->kappa * 4 * M_PI)), 1.0 / 3.0); // from dried volume (Vol) to D, kappa is drying ratio ~0.15
                             t->createGeometry();
+                            }
                             break;
                         }
                     }

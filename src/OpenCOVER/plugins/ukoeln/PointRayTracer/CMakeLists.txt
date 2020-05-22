@@ -3,6 +3,7 @@
 
 USING(GLEW)
 USING(VISIONARAY)
+
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 function(do_cuda_compile outfiles)

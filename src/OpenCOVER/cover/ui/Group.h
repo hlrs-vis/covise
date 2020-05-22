@@ -14,8 +14,9 @@ class COVER_UI_EXPORT Group: public Element, public Container {
     Group(Group *parent, const std::string &name);
     ~Group();
 
-
-    bool add(Element *elem, int where=Back) override;
+    //! add an Element to this Group
+    bool add(Element *elem, int where=Append) override;
+    //! remove an Element from this Group
     bool remove(Element *elem) override;
 };
 

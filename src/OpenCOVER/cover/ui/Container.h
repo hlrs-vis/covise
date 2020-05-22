@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+
 #include "Export.h"
 
 namespace opencover {
@@ -13,20 +14,33 @@ class Element;
 //! mix-in class for containers of UI \ref Element "elements"
 class COVER_UI_EXPORT Container {
  public:
+    //! special arguments for where parameter fo add method
     enum Position {
-        Front = -1,
-        Back = -2,
+        KeepFirst = -1,
+        Front = KeepFirst,
+        Append = -2,
+        Back = Append,
+        KeepLast = -3,
     };
     virtual ~Container();
 
-    virtual bool add(Element *elem, int where=Back);
+    virtual bool add(Element *elem, int where=Append);
     virtual bool remove(Element *elem);
 
     size_t numChildren() const;
     Element *child(size_t index) const;
+    int index(const Element *elem) const;
 
  protected:
-    std::vector<Element *> m_children;
+    struct Child
+    {
+        Child(Element *elem, int where)
+        : elem(elem), where(where)
+        {}
+        Element *elem = nullptr;
+        int where = 0;
+    };
+    std::vector<Child> m_children;
     void clearChildren();
 };
 

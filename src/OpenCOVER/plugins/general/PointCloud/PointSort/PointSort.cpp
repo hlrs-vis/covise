@@ -265,10 +265,13 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 
 
 							if (bColor) {			//Normalize color to 0 - 255
+							     if(!intensityOnly)
+							     {
 								int r = ((redData[i] - colorRedOffset)*255.0) / colorRedRange;
 								int g = ((greenData[i] - colorGreenOffset)*255.0) / colorBlueRange;
 								int b = ((blueData[i] - colorBlueOffset)*255.0) / colorBlueRange;
 								point.rgba = r | g << 8 | b << 16;
+							     }
 
 							}
 							vec.push_back(point);
@@ -280,14 +283,14 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 
 				dataReader.close();
 
-				if (isInvalidData) delete isInvalidData;
-				if (xData) delete xData;
-				if (yData) delete yData;
-				if (zData) delete zData;
-				if (intData) delete intData;
-				if (redData) delete redData;
-				if (greenData) delete greenData;
-				if (blueData) delete blueData;
+				delete[] isInvalidData;
+				delete[] xData;
+				delete[] yData;
+				delete[] zData;
+				delete[] intData;
+				delete[] redData;
+				delete[] greenData;
+				delete[] blueData;
 
 			}
 

@@ -1,0 +1,12 @@
+
+SET(HEADERS
+  ReadCSVTime.h
+)
+
+SET(SOURCES
+  ReadCSVTime.cpp
+)
+
+ADD_COVISE_MODULE(IO ReadCSVTime ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadCSVTime  coReader coApi coAppl coCore coUtil)
+COVISE_INSTALL_TARGET(ReadCSVTime)

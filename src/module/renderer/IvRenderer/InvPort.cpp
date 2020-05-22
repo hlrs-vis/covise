@@ -93,23 +93,23 @@ void InvPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
     // look for message and decide action
     //
 
-    while ((msg = appmod->check_for_ctl_msg()) != NULL)
+    while ((msg = appmod->check_for_ctl_msg()) != nullptr)
     {
         InvCommunication *cm = new InvCommunication();
 
-        if (msg->length > 0)
+        if (msg->data.length() > 0)
         {
             //DBG  cerr << "RENDERER: message data length > 0 " << endl;
-            token[0] = NULL;
-            token[1] = NULL;
-            token[2] = NULL;
-            token[3] = NULL;
-            msgdata = msg->data; // we have to delete ;-) it later (aw)
-            cm->parseMessage(msg->data, &token[0], MAXTOKENS, sep);
+            token[0] = nullptr;
+            token[1] = nullptr;
+            token[2] = nullptr;
+            token[3] = nullptr;
+            msgdata = msg->data.accessData(); 
+            cm->parseMessage(msgdata, &token[0], MAXTOKENS, sep);
         }
         else
         {
-            msgdata = NULL; // so we are allowed to delete it later (aw)
+            msgdata = nullptr;
         }
 
         switch (msg->type)
@@ -149,7 +149,6 @@ void InvPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
 
             cm->receiveDeleteAll();
             //cm->sendQuitMessage();  //writing to a closed socket
-            msg->data = 0L;
             delete appmod;
             delete msg;
             exit(1);
@@ -344,7 +343,7 @@ void InvPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
             if (strcmp(token[0], "") != 0)
             {
                 // AW: try to create the object, so we know whether it is empty
-                const coDistributedObject *data_obj = NULL;
+                const coDistributedObject *data_obj = nullptr;
                 data_obj = coDistributedObject::createFromShm(token[0]);
                 if (data_obj)
                 {
@@ -376,12 +375,12 @@ void InvPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
         ////////////////////////////////////////////////////////////////////////////////
         case COVISE_MESSAGE_REPLACE_OBJECT:
 
-            if (token[0] == NULL || token[1] == NULL)
+            if (token[0] == nullptr || token[1] == nullptr)
                 print_comment(__LINE__, __FILE__, "ERROR: got empty object name");
             else
             {
                 // AW: try to create the object, so we know whether it is empty
-                const coDistributedObject *data_obj = NULL;
+                const coDistributedObject *data_obj = nullptr;
                 data_obj = coDistributedObject::createFromShm(token[1]);
 
                 // if both object's names are different
@@ -440,7 +439,6 @@ void InvPort::socketCommunicationCB(XtPointer, int *, XtInputId *)
 
         } // end switch
         delete cm;
-        delete[] msgdata;
         delete msg;
 
     } // end while

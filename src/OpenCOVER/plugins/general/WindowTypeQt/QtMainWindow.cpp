@@ -32,6 +32,17 @@ void QtMainWindow::closeEvent(QCloseEvent *ev)
     ev->accept();
 }
 
+void QtMainWindow::changeEvent(QEvent *ev)
+{
+    if (ev->type() != QEvent::WindowStateChange)
+        return;
+
+    bool fullscreen = windowState() & Qt::WindowFullScreen;
+    if (fullscreen != m_fullscreen)
+        emit fullScreenChanged(fullscreen);
+    m_fullscreen = fullscreen;
+}
+
 }
 
 #include "moc_QtMainWindow.cpp"

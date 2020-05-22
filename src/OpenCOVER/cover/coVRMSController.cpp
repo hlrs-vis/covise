@@ -13,6 +13,7 @@
 #include <net/covise_connect.h>
 #include <net/covise_socket.h>
 #include <net/covise_host.h>
+#include <net/udpMessage.h>
 #include "coVRSlave.h"
 #include "coVRPluginSupport.h"
 #include "coVRCommunication.h"
@@ -92,7 +93,10 @@ coVRMSController::SlaveData::~SlaveData()
 
 coVRMSController *coVRMSController::instance()
 {
-    assert(s_singleton);
+    if(s_singleton == NULL)
+    {
+        s_singleton = new coVRMSController();
+    }
     return s_singleton;
 }
 
@@ -443,7 +447,10 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     if (covise::coConfigConstants::getRank() != myID) {
         std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
     }
+    if(AmyID != -1)
+    {
     assert(covise::coConfigConstants::getRank() == myID);
+    }
 }
 
 #ifdef HAS_MPI
@@ -632,6 +639,11 @@ void coVRMSController::setDrawStatistics(bool enable)
     m_drawStatistics = enable;
 }
 
+void coVRMSController::setStartSession(const std::string& sessionName)
+{
+	startSession = sessionName;
+}
+
 void coVRMSController::checkMark(const char *file, int line)
 {
     cerr << file << line << endl;
@@ -688,7 +700,7 @@ void coVRMSController::sendSlaves(const Message *msg)
         header_int[0] = msg->sender;
         header_int[1] = msg->send_type;
         header_int[2] = msg->type;
-        header_int[3] = msg->length;
+        header_int[3] = msg->data.length();
 
         // Write header via multicast
         if (multicast->write_mcast(header, headerSize) != Rel_Mcast::RM_OK)
@@ -698,22 +710,22 @@ void coVRMSController::sendSlaves(const Message *msg)
         }
 
         // Write data via multicast (split up into pieces if necessary)
-        int numMsg = msg->length / multicastMaxLength;
-        if (msg->length % multicastMaxLength != 0)
+        int numMsg = msg->data.length() / multicastMaxLength;
+        if (msg->data.length() % multicastMaxLength != 0)
             numMsg++;
         int curMsg;
 
         // Write first numMsg-1 messages
         for (curMsg = 1; curMsg < numMsg; curMsg++)
         {
-            if (multicast->write_mcast(msg->data + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
+            if (multicast->write_mcast(msg->data.data() + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
             {
                 delete multicast;
                 exit(0);
             }
         }
         // Write numMsg message
-        if (multicast->write_mcast(msg->data + multicastMaxLength * (curMsg - 1), msg->length % multicastMaxLength) != Rel_Mcast::RM_OK)
+        if (multicast->write_mcast(msg->data.data() + multicastMaxLength * (curMsg - 1), msg->data.length() % multicastMaxLength) != Rel_Mcast::RM_OK)
         {
             delete multicast;
             exit(0);
@@ -732,7 +744,13 @@ void coVRMSController::sendSlaves(const Message *msg)
 #endif
     }
 }
-
+void coVRMSController::sendSlaves(const vrb::UdpMessage* msg)
+{
+	for (int i = 0; i < numSlaves; i++)
+	{
+		slaves[i]->sendMessage(msg);
+	}
+}
 int coVRMSController::readMaster(Message *msg)
 {
     assert(isSlave());
@@ -757,33 +775,32 @@ int coVRMSController::readMaster(Message *msg)
         msg->sender = header_int[0];
         msg->send_type = (sender_type)header_int[1];
         msg->type = header_int[2];
-        msg->length = header_int[3];
-        msg->data = new char[msg->length];
+        msg->data = DataHandle{ header_int[3] };
 
         // Read data via multicast (Read piece-by-piece if necessary)
-        int numMsg = msg->length / multicastMaxLength;
-        if (msg->length % multicastMaxLength != 0)
+        int numMsg = msg->data.length() / multicastMaxLength;
+        if (msg->data.length() % multicastMaxLength != 0)
             numMsg++;
         int curMsg;
 
         // Read first numMsg-1 messages
         for (curMsg = 1; curMsg < numMsg; curMsg++)
         {
-            if (multicast->read_mcast(msg->data + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
+            if (multicast->read_mcast(msg->data.accessData() + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
             {
                 delete multicast;
                 exit(0);
             }
         }
         // Read numMsg message
-        if (multicast->read_mcast(msg->data + multicastMaxLength * (curMsg - 1), msg->length % multicastMaxLength) != Rel_Mcast::RM_OK)
+        if (multicast->read_mcast(msg->data.accessData() + multicastMaxLength * (curMsg - 1), msg->data.length() % multicastMaxLength) != Rel_Mcast::RM_OK)
         {
             delete multicast;
             exit(0);
         }
 
         // Return size
-        return msg->length + headerSize;
+        return msg->data.length() + headerSize;
     }
     else
 #endif
@@ -803,11 +820,10 @@ int coVRMSController::readMaster(Message *msg)
         msg->sender = bufferInt[0];
         msg->send_type = bufferInt[1];
         msg->type = bufferInt[2];
-        msg->length = bufferInt[3];
 
-        msg->data = new char[msg->length];
+        msg->data = DataHandle(bufferInt[3]);
 
-        return received + readMaster(msg->data, msg->length);
+        return received + readMaster(msg->data.accessData(), msg->data.length());
     }
     else
 #endif
@@ -824,17 +840,16 @@ int coVRMSController::readMaster(Message *msg)
         msg->sender = read_buf_int[0];
         msg->send_type = read_buf_int[1];
         msg->type = read_buf_int[2];
-        msg->length = read_buf_int[3];
-        msg->data = new char[msg->length];
+        msg->data = DataHandle(read_buf_int[3]);
 #ifdef DEBUG_MESSAGES
         debugMessagesCheck = false;
 #endif
-        while (bytesRead < msg->length)
+        while (bytesRead < msg->data.length())
         {
-            toRead = msg->length - bytesRead;
+            toRead = msg->data.length() - bytesRead;
             if (toRead > READ_BUFFER_SIZE)
                 toRead = READ_BUFFER_SIZE;
-            int ret = readMaster(msg->data + bytesRead, toRead);
+            int ret = readMaster(msg->data.accessData() + bytesRead, toRead);
             if (ret < toRead)
             {
                 //cerr << "Short Message" << ret << endl;
@@ -862,10 +877,10 @@ void coVRMSController::sendMaster(const Message *msg)
         header[0] = msg->sender;
         header[1] = msg->send_type;
         header[2] = msg->type;
-        header[3] = msg->length;
+        header[3] = msg->data.length();
 
         sendMaster(reinterpret_cast<char *>(&header[0]), 4 * sizeof(int));
-        sendMaster(msg->data, msg->length);
+        sendMaster(msg->data.data(), msg->data.length());
     }
     else
 #endif
@@ -873,7 +888,7 @@ void coVRMSController::sendMaster(const Message *msg)
         char write_buf[WRITE_BUFFER_SIZE];
         int *write_buf_int;
         int headerSize = 4 * sizeof(int);
-        int len = msg->length + headerSize;
+        int len = msg->data.length() + headerSize;
         int toWrite;
         int written = 0;
         toWrite = len;
@@ -883,10 +898,10 @@ void coVRMSController::sendMaster(const Message *msg)
         write_buf_int[0] = msg->sender;
         write_buf_int[1] = msg->send_type;
         write_buf_int[2] = msg->type;
-        write_buf_int[3] = msg->length;
+        write_buf_int[3] = msg->data.length();
         if (toWrite > WRITE_BUFFER_SIZE)
             toWrite = WRITE_BUFFER_SIZE;
-        memcpy(write_buf + headerSize, msg->data, toWrite - headerSize);
+        memcpy(write_buf + headerSize, msg->data.data(), toWrite - headerSize);
         sendMaster(write_buf, toWrite);
         written += toWrite;
         while (written < len)
@@ -894,12 +909,31 @@ void coVRMSController::sendMaster(const Message *msg)
             toWrite = len - written;
             if (toWrite > WRITE_BUFFER_SIZE)
                 toWrite = WRITE_BUFFER_SIZE;
-            sendMaster(msg->data + written - headerSize, toWrite);
+            sendMaster(msg->data.data() + written - headerSize, toWrite);
             written += toWrite;
         }
     }
 }
 
+int coVRMSController::readMaster(vrb::UdpMessage* msg)
+{
+	char read_buf[UDP_MESSAGE_HEADER_SIZE];
+	int ret = readMaster(read_buf, UDP_MESSAGE_HEADER_SIZE);
+	if (ret < UDP_MESSAGE_HEADER_SIZE)
+		return -1;
+	int* read_buf_int = (int*)read_buf;
+	msg->type = (vrb::udp_msg_type)read_buf_int[0];
+	msg->sender = read_buf_int[1];
+	//cerr << "reading master, type = " << read_buf_int[0] << " sender = " << read_buf_int[1] << " length = " << read_buf_int[2] << endl;
+	if (read_buf_int[2] >  WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
+	{
+		cerr << "udp message of type " << msg->type << " was too long to read;" << endl;
+		return 0;
+	}
+    msg->data = DataHandle(read_buf_int[2]);
+	ret = readMaster(msg->data.accessData(), msg->data.length());
+	return ret;
+}
 void coVRMSController::sendMaster(const std::string &s)
 {
     int sz = s.size();
@@ -2303,14 +2337,14 @@ int coVRMSController::syncMessage(covise::Message *msg)
     int buffer[headerSize];
 
     if (!coVRMSController::instance()->isCluster())
-        return sizeof(buffer)+msg->length;
+        return sizeof(buffer)+msg->data.length();
 
     if (coVRMSController::instance()->isMaster())
     {
         buffer[0] = msg->sender;
         buffer[1] = msg->send_type;
         buffer[2] = msg->type;
-        buffer[3] = msg->length;
+        buffer[3] = msg->data.length();
     }
     int ret = syncData(&buffer[0], sizeof(buffer));
     if (ret >= 0)
@@ -2320,10 +2354,9 @@ int coVRMSController::syncMessage(covise::Message *msg)
             msg->sender = buffer[0];
             msg->send_type = buffer[1];
             msg->type = buffer[2];
-            msg->length = buffer[3];
-            msg->data = new char[msg->length];
+            msg->data = DataHandle(buffer[3]);
         }
-        int n = syncData(msg->data, msg->length);
+        int n = syncData(msg->data.accessData(), msg->data.length());
         if (n >= 0)
             return ret + n;
     }
@@ -2332,10 +2365,105 @@ int coVRMSController::syncMessage(covise::Message *msg)
 
 bool coVRMSController::syncBool(bool state)
 {
-    char c = state;
+    char c = state ? 1 : 0;
     syncData(&c, 1);
-    state = (c != 0);
-    return state;
+    return (c != 0);
+}
+
+
+
+bool coVRMSController::reduceOr(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LOR, 0, appComm);
+        return out != 0;
+    }
+#endif
+
+    if (isMaster())
+    {
+        SlaveData sd(sizeof(bool));
+        instance()->readSlaves(&sd);
+        for (int s=0; s<getNumSlaves(); ++s) {
+            bool sval = *static_cast<bool *>(sd.data[s]);
+            val = val || sval;
+         }
+    }
+    else
+    {
+        sendMaster(&val, sizeof(val));
+    }
+    return val;
+}
+
+bool coVRMSController::reduceAnd(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LAND, 0, appComm);
+        return out != 0;
+    }
+#endif
+
+    if (isMaster())
+    {
+        SlaveData sd(sizeof(bool));
+        instance()->readSlaves(&sd);
+        for (int s=0; s<getNumSlaves(); ++s) {
+            bool sval = *static_cast<bool *>(sd.data[s]);
+            val = val && sval;
+         }
+    }
+    else
+    {
+        sendMaster(&val, sizeof(val));
+    }
+    return val;
+}
+
+bool coVRMSController::allReduceOr(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LOR, appComm);
+        return out != 0;
+    }
+#endif
+
+    return syncBool(reduceOr(val));
+}
+
+bool coVRMSController::allReduceAnd(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LAND, appComm);
+        return out != 0;
+    }
+#endif
+
+    return syncBool(reduceAnd(val));
 }
 
 std::string coVRMSController::syncString(const std::string &s)
@@ -2369,89 +2497,130 @@ std::string coVRMSController::syncString(const std::string &s)
     }
 }
 
-void coVRMSController::syncVRBMessages()
+bool coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
     Message *vrbMsgs[MAX_VRB_MESSAGES];
+	vrb::UdpMessage* udpMsgs[MAX_VRB_MESSAGES];
     int numVrbMessages = 0;
-    //if (numSlaves == 0) // we have to handle vrb messages also in non cluster mode
-    //    return;
+	int numUdpMessages = 0;
 
     if (cover->debugLevel(4))
         fprintf(stderr, "\ncoVRMSController::syncVRBMessages\n");
 
     Message *vrbMsg = new Message;
-    if (master)
-    {
-        if (vrbc && vrbc->isConnected())
-        {
-            while (vrbc->poll(vrbMsg))
-            {
-                vrbMsgs[numVrbMessages] = vrbMsg;
-                numVrbMessages++;
-                vrbMsg = new Message;
-                if (numVrbMessages >= MAX_VRB_MESSAGES)
-                {
-                    cerr << "to many VRB Messages!!" << endl;
-                    break;
-                }
-                if (!vrbc->isConnected())
-                    break;
-            }
-        }
-        else
-        {
-            static double oldSec = 0;
-            double curSec;
-            curSec = cover->frameTime();
+	vrb::UdpMessage* udpMsg = new vrb::UdpMessage;
+	if (!cover->connectedToCovise())
+	{
+		if (master)
+		{
+			if (vrbc && vrbc->isConnected())
+			{
+				//poll tcp messages
+				while (vrbc->poll(vrbMsg))
+				{
+					vrbMsgs[numVrbMessages] = vrbMsg;
+					numVrbMessages++;
+					vrbMsg = new Message;
+					if (numVrbMessages >= MAX_VRB_MESSAGES)
+					{
+						cerr << "too many VRB Messages!!" << endl;
+						break;
+					}
+					if (!vrbc->isConnected())
+						break;
+				}
+				//poll udp messages
+				while (vrbc->pollUdp(udpMsg))
+				{
+					udpMsgs[numUdpMessages] = udpMsg;
+					numUdpMessages++;
+					udpMsg = new vrb::UdpMessage;
+					if (numVrbMessages >= MAX_VRB_MESSAGES)
+					{
+						cerr << "too many UDP Messages!!" << endl;
+						break;
+					}
+					if (!vrbc->isConnected())
+						break;
+				}
+			}
+			else
+			{
+				static double oldSec = 0;
+				double curSec;
+				curSec = cover->frameTime();
 
-            // try to reconnect
-            if ((curSec - oldSec) > 2.0)
-            {
-                if (cover->debugLevel(3))
-                {
-                    fprintf(stderr, "trying to establish VRB connection\n");
-                }
+				// try to reconnect
+				if ((curSec - oldSec) > 2.0)
+				{
+					if (cover->debugLevel(3))
+					{
+						fprintf(stderr, "trying to establish VRB connection\n");
+					}
 
-                if (vrbc == NULL)
-                    vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
-                vrbc->connectToServer();
-                oldSec = curSec;
-            }
-        }
-        sendSlaves(&numVrbMessages, sizeof(int));
-        //cerr << "numMasterMSGS " <<  numVrbMessages << endl;
-        int i;
-        for (i = 0; i < numVrbMessages; i++)
-        {
-            sendSlaves(vrbMsgs[i]);
-            coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
-            vrbMsgs[i]->data = NULL;
-            delete vrbMsgs[i];
-        }
-    }
-    else
-    {
-        //get number of Messages
-        if (readMaster(&numVrbMessages, sizeof(int)) < 0)
-        {
-            cerr << "sync_exit16 myID=" << myID << endl;
-            exit(0);
-        }
-        //cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
-        int i;
-        for (i = 0; i < numVrbMessages; i++)
-        {
-            if (readMaster(vrbMsg) < 0)
-            {
-                cerr << "sync_exit17 myID=" << myID << endl;
-                exit(0);
-            }
-            coVRCommunication::instance()->handleVRB(vrbMsg);
-        }
-    }
-    vrbMsg->data = NULL;
+					if (vrbc == NULL)
+						vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
+					vrbc->connectToServer(startSession);
+					oldSec = curSec;
+				}
+			}
+			sendSlaves(&numVrbMessages, sizeof(int));
+			//cerr << "numMasterMSGS " <<  numVrbMessages << endl;
+			int i;
+			for (i = 0; i < numVrbMessages; i++)
+			{
+				sendSlaves(vrbMsgs[i]);
+				coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
+				delete vrbMsgs[i];
+			}
+			sendSlaves(&numUdpMessages, sizeof(int));
+			for (i = 0; i < numUdpMessages; i++)
+			{
+				sendSlaves(udpMsgs[i]);
+				coVRCommunication::instance()->handleUdp(udpMsgs[i]);
+				delete udpMsgs[i];
+			}
+		}
+		else
+		{
+			//get number of Messages
+			if (readMaster(&numVrbMessages, sizeof(int)) < 0)
+			{
+				cerr << "sync_exit16 myID=" << myID << endl;
+				exit(0);
+			}
+			//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
+			int i;
+			for (i = 0; i < numVrbMessages; i++)
+			{
+				if (readMaster(vrbMsg) < 0)
+				{
+					cerr << "sync_exit17 myID=" << myID << endl;
+					exit(0);
+				}
+				coVRCommunication::instance()->handleVRB(vrbMsg);
+			}
+			if (readMaster(&numUdpMessages, sizeof(int)) < 0)
+			{
+				cerr << "sync_exit160 myID=" << myID << endl;
+				exit(0);
+			}
+			//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
+			for (i = 0; i < numUdpMessages; i++)
+			{
+				if (readMaster(udpMsg) < 0)
+				{
+					cerr << "sync_exit170 myID=" << myID << endl;
+					exit(0);
+				}
+				coVRCommunication::instance()->handleUdp(udpMsg);
+			}
+		}
+	}
     delete vrbMsg;
+	delete udpMsg;
+    return numVrbMessages>0;
 }
 
 void coVRMSController::loadFile(const char *filename)

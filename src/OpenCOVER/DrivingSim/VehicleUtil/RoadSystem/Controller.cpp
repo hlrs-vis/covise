@@ -7,6 +7,8 @@
 
 #include "Controller.h"
 
+using namespace vehicleUtil;
+
 Controller::Controller(const std::string &setId, const std::string &setName, const std::string &setScriptName, const double &setCycleTime)
     : Element(setId)
     , name(setName)

@@ -139,6 +139,8 @@ private:
     MoveInfo *info;
     osg::Matrix invStartHandMat;
     osg::Matrix startCompleteMat;
+    osg::Matrix startPointerOffsetMat;
+    osg::Matrix invStartPointerOffsetMat;
     osg::Matrix invStartCompleteMat;
     osg::Matrix startMoveDCSMat;
     osg::Matrix startBaseMat;

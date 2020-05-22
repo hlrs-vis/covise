@@ -108,16 +108,6 @@ QStringList *FileBrowser::Filename()
     return NULL;
 }
 
-opencover::IData *FileBrowser::DataObject()
-{
-    return NULL;
-}
-
-void FileBrowser::DataObject(opencover::IData *value)
-{
-    Q_UNUSED(value);
-}
-
 QString FileBrowser::LocationPath()
 {
     return NULL;

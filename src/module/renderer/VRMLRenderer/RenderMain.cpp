@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 
     Renderer *renderer = new Renderer(argc, argv);
     objlist = new ObjectList();
+    objlist->setOutputMode(renderer->outputMode);
     //renderer->run();
     renderer->start();
 

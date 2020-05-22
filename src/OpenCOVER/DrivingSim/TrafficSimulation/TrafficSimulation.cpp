@@ -50,25 +50,29 @@
 #include "PorscheFFZ.h"
 #include <RoadTerrain/RoadTerrainLoader.h>
 
+#include <functional>
+
 using namespace covise;
 using namespace opencover;
-int TrafficSimulation::counter = 0;
-int TrafficSimulation::createFreq = 20;
-double TrafficSimulation::min_distance = 800;
-int TrafficSimulation::delete_delta = 50;
-double TrafficSimulation::delete_at = 230;
-//int TrafficSimulation::min_distance_50 = 180;
-//int TrafficSimulation::min_distance_100 = 800;
-int TrafficSimulation::useCarpool = 1;
-float TrafficSimulation::td_multiplier = 1.0;
-float TrafficSimulation::placeholder = -1;
-int TrafficSimulation::minVel = 50;
-int TrafficSimulation::maxVel = 100;
-int TrafficSimulation::min_distance_tui = 180;
-int TrafficSimulation::max_distance_tui = 800;
-int TrafficSimulation::maxVehicles = 0;
+using namespace vehicleUtil;
 
-TrafficSimulation::TrafficSimulation()
+int TrafficSimulation::TrafficSimulation::counter = 0;
+int TrafficSimulation::TrafficSimulation::createFreq = 20;
+double TrafficSimulation::TrafficSimulation::min_distance = 800;
+int TrafficSimulation::TrafficSimulation::delete_delta = 50;
+double TrafficSimulation::TrafficSimulation::delete_at = 230;
+//int TrafficSimulation::TrafficSimulation::min_distance_50 = 180;
+//int TrafficSimulation::TrafficSimulation::min_distance_100 = 800;
+int TrafficSimulation::TrafficSimulation::useCarpool = 1;
+float TrafficSimulation::TrafficSimulation::td_multiplier = 1.0;
+float TrafficSimulation::TrafficSimulation::placeholder = -1;
+int TrafficSimulation::TrafficSimulation::minVel = 50;
+int TrafficSimulation::TrafficSimulation::maxVel = 100;
+int TrafficSimulation::TrafficSimulation::min_distance_tui = 180;
+int TrafficSimulation::TrafficSimulation::max_distance_tui = 800;
+int TrafficSimulation::TrafficSimulation::maxVehicles = 0;
+
+TrafficSimulation::TrafficSimulation::TrafficSimulation()
     : system(NULL)
     , manager(NULL)
     , pedestrianManager(NULL)
@@ -94,7 +98,7 @@ TrafficSimulation::TrafficSimulation()
         pedestrianManager = PedestrianManager::Instance();
 }
 
-TrafficSimulation *TrafficSimulation::instance()
+TrafficSimulation::TrafficSimulation *TrafficSimulation::TrafficSimulation::instance()
 {
     static TrafficSimulation *singleton = NULL;
     if (!singleton)
@@ -103,38 +107,38 @@ TrafficSimulation *TrafficSimulation::instance()
 }
 
 
-void TrafficSimulation::runSimulation()
+void TrafficSimulation::TrafficSimulation::runSimulation()
 {
     runSim = true;
 }
 
-void TrafficSimulation::haltSimulation()
+void TrafficSimulation::TrafficSimulation::haltSimulation()
 {
     runSim = false;
 }
 
-unsigned long TrafficSimulation::getIntegerRandomNumber()
+unsigned long TrafficSimulation::TrafficSimulation::getIntegerRandomNumber()
 {
     return mersenneTwisterEngine();
 }
 
-double TrafficSimulation::getZeroOneRandomNumber()
+double TrafficSimulation::TrafficSimulation::getZeroOneRandomNumber()
 {
     auto r = std::bind(uniformDist, mersenneTwisterEngine);
     return r();
 }
 
-VehicleManager *TrafficSimulation::getVehicleManager()
+TrafficSimulation::VehicleManager *TrafficSimulation::TrafficSimulation::getVehicleManager()
 {
     return manager;
 }
 
-PedestrianManager *TrafficSimulation::getPedestrianManager()
+TrafficSimulation::PedestrianManager *TrafficSimulation::TrafficSimulation::getPedestrianManager()
 {
     return pedestrianManager;
 }
 
-xercesc::DOMElement *TrafficSimulation::getOpenDriveRootElement(std::string filename)
+xercesc::DOMElement *TrafficSimulation::TrafficSimulation::getOpenDriveRootElement(std::string filename)
 {
     try
     {
@@ -169,7 +173,7 @@ xercesc::DOMElement *TrafficSimulation::getOpenDriveRootElement(std::string file
     return rootElement;
 }
 
-void TrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
+void TrafficSimulation::TrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
 {
 	XMLCh *t1 = NULL, *t2 = NULL, *t3 = NULL, *t4 = NULL, *t5 = NULL;
 	char *ch;
@@ -282,7 +286,7 @@ void TrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
     }
 }
 
-bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
+bool TrafficSimulation::TrafficSimulation::loadRoadSystem(const char *filename_chars)
 {
     std::string filename(filename_chars);
     std::cerr << "Loading road system!" << std::endl;
@@ -335,6 +339,7 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
         //roadGroup = new osg::Group;
         roadGroup = new osg::PositionAttitudeTransform;
         roadGroup->setName("RoadSystem");
+		roadGroup->setNodeMask(roadGroup->getNodeMask() & ~opencover::Isect::Update); // don't use the update traversal
         //roadGroup->setPosition(osg::Vec3d(5.0500000000000000e+05, 5.3950000000000000e+06, 0.0));
         //roadGroup->setPosition(osg::Vec3d(960128.3125, 6158421.5, 0.0));
 
@@ -345,7 +350,7 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
         int numRoads = system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            vehicleUtil::Road *road = system->getRoad(i);
             osg::LOD *roadGeodeLOD = new osg::LOD();
 
             // Tesselation //
@@ -398,6 +403,7 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
 
 		trafficSignalGroup = new osg::Group;
         trafficSignalGroup->setName("TrafficSignals");
+		trafficSignalGroup->setNodeMask(trafficSignalGroup->getNodeMask() & ~opencover::Isect::Update); // don't use the update traversal
         //Traffic control
         for (int i = 0; i < system->getNumRoadSignals(); ++i)
         {
@@ -494,7 +500,7 @@ bool TrafficSimulation::loadRoadSystem(const char *filename_chars)
     return true;
 }
 
-void TrafficSimulation::deleteRoadSystem()
+void TrafficSimulation::TrafficSimulation::deleteRoadSystem()
 {
 
     system = NULL;
@@ -524,7 +530,7 @@ void TrafficSimulation::deleteRoadSystem()
 	
 }
 
-bool TrafficSimulation::init()
+bool TrafficSimulation::TrafficSimulation::init()
 {
 
     cover->setScale(1000);
@@ -698,7 +704,7 @@ bool TrafficSimulation::init()
     /*createFreqButton = new coTUIButton("Create Vehicles every x Frames:", pluginTab->getID());
  *         createFreqButton->setEventListener(this);
  *                 createFreqButton->setPos(0,pos);*/
-    createFreq_ = TrafficSimulation::createFreq;
+    createFreq_ = TrafficSimulation::TrafficSimulation::createFreq;
     createFreqSlider = new coTUISlider("Create Vehicles", createFrame->getID());
     createFreqSlider->setEventListener(this);
     createFreqSlider->setPos(1, pos++);
@@ -881,7 +887,7 @@ bool TrafficSimulation::init()
 }
 
 void
-TrafficSimulation::preFrame()
+TrafficSimulation::TrafficSimulation::preFrame()
 {
     if (debugRoadButton->getState())
     {
@@ -894,7 +900,7 @@ TrafficSimulation::preFrame()
         if (RoadSystem::Instance())
         {
             Vector2D v_c(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
-            static Road *currentRoad = NULL;
+            static vehicleUtil::Road *currentRoad = NULL;
             static double currentLongPos = -1;
             Vector3D v_w(xr, yr, 0);
             if (currentRoad)
@@ -995,7 +1001,7 @@ TrafficSimulation::preFrame()
                     //      std::cout << "xxx Distance: " << distance << " Removed Vehicle " << (*it)->getVehicleID() << /*" on Road " << (*it)->getRoad()->getId() <<*/std::endl;
                     //}*/
 
-                    TrafficSimulation::instance()->getVehicleManager()->removeVehicle((*it), (*it)->getRoad());
+                    TrafficSimulation::TrafficSimulation::instance()->getVehicleManager()->removeVehicle((*it), (*it)->getRoad());
                 }
             }
         }
@@ -1049,7 +1055,7 @@ TrafficSimulation::preFrame()
     }
 }
 
-void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
+void TrafficSimulation::TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == saveButton)
     {
@@ -1118,7 +1124,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
         int numRoads = system->getNumRoads();
         for (int i = 0; i < numRoads; ++i)
         {
-            Road *road = system->getRoad(i);
+            vehicleUtil::Road *road = system->getRoad(i);
             if (true)
             {
                 fprintf(stderr, "2tessellateBatters %d\n", tessellateBatters);
@@ -1197,7 +1203,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
         {
             createVehiclesAtMin_ = createVehiclesAtMax_;
         }
-        TrafficSimulation::min_distance_tui = createVehiclesAtMin_;
+        TrafficSimulation::TrafficSimulation::min_distance_tui = createVehiclesAtMin_;
         createVehiclesAtMin_Slider->setValue(createVehiclesAtMin_);
     }
     else if (tUIItem == createVehiclesAtMax_Slider)
@@ -1208,7 +1214,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
         {
             createVehiclesAtMax_ = createVehiclesAtMin_;
         }
-        TrafficSimulation::max_distance_tui = createVehiclesAtMax_;
+        TrafficSimulation::TrafficSimulation::max_distance_tui = createVehiclesAtMax_;
         //std::cout << std::endl << " >>> Slider TabletEvent - max_distance_tui: " << max_distance_tui << " <<<" << std::endl <<std::endl;
         createVehiclesAtMax_Slider->setValue(createVehiclesAtMax_);
     }
@@ -1220,7 +1226,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
             minVel_ = maxVel_;
 
         minVel_Slider->setValue(minVel_);
-        TrafficSimulation::minVel = minVel_;
+        TrafficSimulation::TrafficSimulation::minVel = minVel_;
     }
     else if (tUIItem == maxVel_Slider)
     {
@@ -1230,26 +1236,26 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
             maxVel_ = minVel_;
 
         maxVel_Slider->setValue(maxVel_);
-        TrafficSimulation::maxVel = maxVel_;
+        TrafficSimulation::TrafficSimulation::maxVel = maxVel_;
     }
     else if (tUIItem == removeVehiclesAtSlider)
     {
         removeVehiclesDelta_ = removeVehiclesAtSlider->getValue();
-        TrafficSimulation::delete_delta = removeVehiclesDelta_;
+        TrafficSimulation::TrafficSimulation::delete_delta = removeVehiclesDelta_;
         removeVehiclesAtSlider->setValue(removeVehiclesDelta_);
         //std::cout << std::endl << " >>> delete_delta: " << delete_delta << " , delete Distance: " << (delete_delta+TrafficSimualtion::min_distance) <<"m <<<" << std::endl <<std::endl;
     }
     else if (tUIItem == createFreqSlider)
     {
         createFreq_ = createFreqSlider->getValue();
-        TrafficSimulation::createFreq = createFreq_;
+        TrafficSimulation::TrafficSimulation::createFreq = createFreq_;
         createFreqSlider->setValue(createFreq_);
         //std::cout << std::endl << " >>> Create new vehicles every  " << createFreq << " Frames <<<" << std::endl <<std::endl;
     }
     else if (tUIItem == td_valueSlider)
     {
         placeholder_ = td_valueSlider->getValue();
-        TrafficSimulation::placeholder = placeholder_;
+        TrafficSimulation::TrafficSimulation::placeholder = placeholder_;
         //std::cout << std::endl << " >>> Traffic density on ALL roads: " << td_value << " vehicles/100m <<< placeholder_" << placeholder_ << std::endl <<std::endl;
         //td_valueSlider->setValue(td_value);
         tdField->setText("ON");
@@ -1262,7 +1268,7 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
     else if (tUIItem == td_multSlider)
     {
         td_mult_ = td_multSlider->getValue();
-        TrafficSimulation::td_multiplier = td_mult_;
+        TrafficSimulation::TrafficSimulation::td_multiplier = td_mult_;
         //std::cout << std::endl << " >>> Traffic density multiplier: " << td_multiplier << " <<<" << std::endl <<std::endl;
         //td_multSlider->setValue(td_multiplier);
         tdField->setText("OFF");
@@ -1270,18 +1276,18 @@ void TrafficSimulation::tabletEvent(coTUIElement *tUIItem)
         multiField->setText("ON");
         tdMultField->setColor(Qt::darkGreen);
         placeholder_ = -1;
-        TrafficSimulation::placeholder = -1;
+        TrafficSimulation::TrafficSimulation::placeholder = -1;
         td_multSlider->setValue(td_mult_);
     }
     else if (tUIItem == maxVehiclesSlider)
     {
         maxVehicles_ = maxVehiclesSlider->getValue();
-        TrafficSimulation::maxVehicles = maxVehicles_;
+        TrafficSimulation::TrafficSimulation::maxVehicles = maxVehicles_;
         maxVehiclesSlider->setValue(maxVehicles_);
     }
 }
 
-void TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
+void TrafficSimulation::TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == startButton)
     {
@@ -1322,7 +1328,7 @@ void TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
             if (useCarpool_ == 0)
             {
                 useCarpool_ = 1;
-                TrafficSimulation::useCarpool = useCarpool_;
+                TrafficSimulation::TrafficSimulation::useCarpool = useCarpool_;
                 //carpoolStateField->setValue(useCarpool_);
                 std::cout << std::endl << " !! Bewegliche Fiddleyards aktiviert !!" << std::endl << std::endl;
                 carpoolField->setText("ON");
@@ -1333,7 +1339,7 @@ void TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
             else
             {
                 useCarpool_ = 0;
-                TrafficSimulation::useCarpool = useCarpool_;
+                TrafficSimulation::TrafficSimulation::useCarpool = useCarpool_;
                 //carpoolStateField->setValue(useCarpool_);
                 std::cout << std::endl << " !! Bewegliche Fiddleyards deaktiviert !!" << std::endl << std::endl;
                 carpoolStateField->setColor(Qt::red);
@@ -1343,7 +1349,7 @@ void TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
         else
         {
             useCarpool_ = 0;
-            TrafficSimulation::useCarpool = useCarpool_;
+            TrafficSimulation::TrafficSimulation::useCarpool = useCarpool_;
             std::cout << std::endl << " !! Es wurde kein Carpool definiert !!" << std::endl << std::endl;
             carpoolStateField->setColor(Qt::red);
             carpoolField->setText("OFF");
@@ -1370,7 +1376,7 @@ void TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
             carpoolField->setText("OFF");
             carpoolStateField->setColor(Qt::red);
             useCarpool_ = 0;
-            TrafficSimulation::useCarpool = 0;
+            TrafficSimulation::TrafficSimulation::useCarpool = 0;
         }
         else if (useCarpool_ == 1)
         {
@@ -1385,7 +1391,7 @@ void TrafficSimulation::tabletPressEvent(coTUIElement *tUIItem)
     }
 }
 
-void TrafficSimulation::key(int type, int keySym, int mod)
+void TrafficSimulation::TrafficSimulation::key(int type, int keySym, int mod)
 {
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {

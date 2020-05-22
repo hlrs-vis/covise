@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+using namespace vehicleUtil;
+
 LaneSection::LaneSection(Road *r, double s)
 {
 	road = r;

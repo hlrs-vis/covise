@@ -111,22 +111,20 @@ coVRMenuList::~coVRMenuList()
 
 void coVRMenuList::menuEvent(coMenuItem *menuItem)
 {
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (current()->menuItem == menuItem)
+        if (it->menuItem == menuItem)
         {
-            if (current()->menuItem->getState())
+            if (it->menuItem->getState())
             {
-                current()->show();
+                it->show();
             }
             else
             {
-                current()->hide();
+                it->hide();
             }
             break;
         }
-        next();
     }
 }
 
@@ -155,7 +153,7 @@ bool coVRMenuList::add(RenderObject *dobj, osg::Node *n)
                 pinboardEntry->setMenu(plotMenu);
             }
             menuImage = new coVRMenuImage(attrib, n);
-            append(menuImage);
+            push_back(std::unique_ptr<coVRMenuImage>(menuImage));
         }
         sprintf(buf, "MENU_IMAGE%d", i++);
     }
@@ -166,12 +164,10 @@ bool coVRMenuList::add(RenderObject *dobj, osg::Node *n)
 
 coVRMenuImage *coVRMenuList::find(std::string &name)
 {
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (current()->getName() == name)
-            return (current());
-        next();
+        if (it->getName() == name)
+            return (it.get());
     }
 
     return (NULL);
@@ -179,13 +175,10 @@ coVRMenuImage *coVRMenuList::find(std::string &name)
 
 coVRMenuImage *coVRMenuList::find(osg::Node *n)
 {
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        if (current()->node == n)
-            return (current());
-
-        next();
+        if (it->node == n)
+            return (it.get());
     }
 
     return (NULL);
@@ -193,23 +186,14 @@ coVRMenuImage *coVRMenuList::find(osg::Node *n)
 
 void coVRMenuList::removeAll(std::string nodeName)
 {
-    reset();
-    while (current())
-    {
-        if (current()->getNodeName() == nodeName)
-            remove();
-        else
-            next();
-    }
+    remove_if([nodeName](std::unique_ptr<coVRMenuImage> &it) { return it->getNodeName()== nodeName; });
 }
 
 void coVRMenuList::update()
 {
-    reset();
-    while (current())
+    for (const auto& it : *this)
     {
-        current()->update();
-        next();
+        it->update();
     }
 }
 

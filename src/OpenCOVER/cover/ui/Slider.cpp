@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include <vrbclient/SharedState.h>
 #include <net/tokenbuffer.h>
 
 namespace opencover {
@@ -109,6 +110,34 @@ void Slider::load(covise::TokenBuffer &buf)
     buf >> m_max;
     buf >> m_value;
     buf >> m_moving;
+    updateSharedState();
+}
+
+void Slider::setShared(bool shared)
+{
+    if (shared)
+    {
+        if (!m_sharedState)
+        {
+            m_sharedState.reset(new SharedValue("ui."+path(), m_value));
+            m_sharedState->setUpdateFunction([this](){
+                setValue(*static_cast<SharedValue *>(m_sharedState.get()));
+                triggerImplementation();
+            });
+        }
+    }
+    else
+    {
+        m_sharedState.reset();
+    }
+}
+
+void Slider::updateSharedState()
+{
+    if (auto st = static_cast<SharedValue *>(m_sharedState.get()))
+    {
+        *st = m_value;
+    }
 }
 
 Slider::ValueType Slider::value() const
@@ -125,6 +154,7 @@ void Slider::setValue(Slider::ValueType val)
     if (m_value != val)
     {
         m_value = val;
+        updateSharedState();
         manager()->queueUpdate(this, UpdateValue);
     }
 }

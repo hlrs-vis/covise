@@ -19,7 +19,11 @@
 #include <sys/time.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <net/covise_connect.h>
+using namespace vehicleUtil;
 
+
+namespace opencover
+{
 class fasi2
 {
 public:
@@ -31,12 +35,12 @@ public:
         float A;
         float rpm;
         float torque;
-		float slipFL;
-		float slipFR;
-		float slipRL;
-		float slipRR;
+	float slipFL;
+	float slipFR;
+	float slipRL;
+	float slipRR;
         osg::Matrix chassisTransform;
-		osg::Matrix motionPlatformTransform;
+	osg::Matrix motionPlatformTransform;
         int buttonStates;
         int gear;
     };
@@ -89,4 +93,5 @@ public:
     covise::SimpleServerConnection *toClientConn;
     bool readClientVal(void *buf, unsigned int numBytes);
 };
+}
 #endif

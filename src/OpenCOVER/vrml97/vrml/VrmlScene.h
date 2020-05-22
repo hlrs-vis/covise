@@ -99,7 +99,7 @@ public:
     typedef int (*LoadCB)(char *buf, int bufSize);
     static VrmlMFNode *readFunction(LoadCB cb, Doc *url, VrmlNamespace *ns);
 
-    static VrmlNodeType *readPROTO(VrmlMFString *url, Doc *relative = 0);
+    static VrmlNodeType *readPROTO(VrmlMFString *url, Doc *relative = nullptr, int parentId = -1);
 
     //
     VrmlScene(const char *url = 0, const char *localCopy = 0);
@@ -298,6 +298,7 @@ public:
     Viewer::Object getCachedInline(const char *url, const char *pathname);
 
     bool wasEncrypted() const;
+	bool loadSucceeded() {return d_loadSuccess;	};
 
 protected:
     bool headlightOn();
@@ -415,6 +416,7 @@ protected:
 
 private:
     bool d_WasEncrypted;
+	bool d_loadSuccess;
 };
 }
 #endif // _VRMLSCENE_

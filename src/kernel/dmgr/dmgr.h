@@ -15,6 +15,8 @@
 #include <covise/covise_signal.h>
 #include <covise/covise.h>
 #include <signal.h>
+
+#include <net/dataHandle.h>
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
@@ -53,14 +55,13 @@ int kill(pid_t pid, int sig);
 
 namespace covise
 {
-
 class DMEntry;
 
 class DMGREXPORT ObjectEntry
 {
     friend int ObjectEntry_compare(ObjectEntry *, ObjectEntry *);
     friend class DataManagerProcess;
-    char *name; // name of the object
+    DataHandle name; // name of the object
     int version; // version of the object
     int shm_seq_no; // shm_seq_no of the object
     int offset; // offset of the object
@@ -77,28 +78,29 @@ public:
         version = 1;
         access = new List<AccessEntry>;
     };
-    ObjectEntry(char *n);
-    ObjectEntry(char *n, int type, int no, int o, Connection *c, DMEntry *dm = 0L);
-    ObjectEntry(char *n, int no, int o, Connection *c, DMEntry *dm = 0L);
+    ObjectEntry(const DataHandle& n);
+    ObjectEntry(const DataHandle &n, int type, int no, int o, Connection *c, DMEntry *dm = 0L);
+    ObjectEntry(const DataHandle &n, int no, int o, Connection *c, DMEntry *dm = 0L);
+
     int operator==(ObjectEntry &oe)
     {
-        return (strcmp(name, oe.name) == 0 ? 1 : 0);
+        return (strcmp(name.data(), oe.name.data()) == 0 ? 1 : 0);
     };
     int operator>=(ObjectEntry &oe)
     {
-        return (strcmp(name, oe.name) >= 0 ? 1 : 0);
+        return (strcmp(name.data(), oe.name.data()) >= 0 ? 1 : 0);
     };
     int operator<=(ObjectEntry &oe)
     {
-        return (strcmp(name, oe.name) <= 0 ? 1 : 0);
+        return (strcmp(name.data(), oe.name.data()) <= 0 ? 1 : 0);
     };
     int operator>(ObjectEntry &oe)
     {
-        return (strcmp(name, oe.name) > 0 ? 1 : 0);
+        return (strcmp(name.data(), oe.name.data()) > 0 ? 1 : 0);
     };
     int operator<(ObjectEntry &oe)
     {
-        return (strcmp(name, oe.name) < 0 ? 1 : 0);
+        return (strcmp(name.data(), oe.name.data()) < 0 ? 1 : 0);
     };
     void add_access(Connection *c, access_type a, access_type c_a);
     void set_current_access(Connection *c, access_type c_a);
@@ -297,23 +299,22 @@ public:
     // wait for specific messages
     Message *wait_for_msg(int *, int, Connection *);
     // take action according to msg
-    int handle_msg(Message *msg, bool &localAlloc);
-    void deleteMessageData(Message *msg);
+    int handle_msg(Message *msg);
     void ask_for_object(Message *msg); // answer requests immediately
     void has_object_changed(Message *msg); // answer requests immediately
-    char *get_all_hosts_for_object(char *); // looks for all hosts that have object
+    DataHandle get_all_hosts_for_object(const DataHandle &n); // looks for all hosts that have object
     // add new object in database
-    int add_object(char *n, int no, int o, Connection *c);
+    int add_object(const DataHandle &n, int no, int o, Connection *c);
     // add new object in database
-    int add_object(char *n, int otype, int no, int o, Connection *c);
+    int add_object(const DataHandle &n, int otype, int no, int o, Connection *c);
     int add_object(ObjectEntry *oe); // add new object in database
-    ObjectEntry *get_object(char *n); // get object from database
+    ObjectEntry *get_object(const DataHandle &n); // get object from database
     // get object from database and take care that the
     // accesses are updated correctly:
-    ObjectEntry *get_object(char *n, Connection *c);
-    ObjectEntry *get_local_object(char *n); // get object only from local database
-    int delete_object(char *n); // delete object from database
-    int destroy_object(char *n, Connection *c); // remove obj from sharedmem.
+    ObjectEntry *get_object(const DataHandle& n, Connection *c);
+    ObjectEntry *get_local_object(const DataHandle &n); // get object only from local database
+    int delete_object(const DataHandle& n); // delete object from database
+    int destroy_object(const DataHandle &n, Connection *c); // remove obj from sharedmem.
     // create transferred object
     ObjectEntry *create_object_from_msg(Message *msg, DMEntry *dme);
     // update from transferred object

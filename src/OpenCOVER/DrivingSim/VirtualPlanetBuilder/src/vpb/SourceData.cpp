@@ -34,6 +34,7 @@
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 
 using namespace vpb;
+using namespace vehicleUtil;
 
 struct ValidValueOperator
 {

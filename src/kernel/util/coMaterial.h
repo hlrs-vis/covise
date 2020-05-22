@@ -9,7 +9,7 @@
 
 #define __coMaterial_H
 
-#include "DLinkList.h"
+#include "list"
 #include "coTypes.h"
 
 namespace covise
@@ -30,10 +30,11 @@ public:
     ~coMaterial();
 };
 
-class UTILEXPORT coMaterialList : public DLinkList<coMaterial *>
+class UTILEXPORT coMaterialList : public std::list<coMaterial *>
 {
 public:
     coMaterialList(const char *);
+    ~coMaterialList();
     void add(const char *);
     coMaterial *get(const char *str);
 };

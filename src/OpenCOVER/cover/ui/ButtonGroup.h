@@ -36,7 +36,7 @@ class COVER_UI_EXPORT ButtonGroup: public Element, public Container {
     void setActiveButton(Button *button);
 
     //! add Button to this ButtonGroup, toggling its state to fulfill constraint that exactly one button be active
-    virtual bool add(Element *elem, int where=Back) override;
+    virtual bool add(Element *elem, int where=Append) override;
     //! remove Button from this ButtonGroup, toggling other Button's state to fulfill constraint that exactly one button be active
     virtual bool remove(Element *elem) override;
 

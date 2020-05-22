@@ -24,6 +24,7 @@ namespace ui {
 class Menu;
 class Action;
 class Button;
+class Slider;
 }
 }
 
@@ -156,7 +157,7 @@ private:
     std::vector<osg::Quat> maxQuat;
     bool record;
     bool activated_; ///< whether we have once
-    string vwpPath;
+    std::string vwpPath;
     bool videoBeingCaptured;
 
     FILE *fp;

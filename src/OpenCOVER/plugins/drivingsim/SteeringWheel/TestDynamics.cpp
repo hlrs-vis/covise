@@ -7,10 +7,10 @@
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 #include <util/unixcompat.h>
 #include <math.h>
 
+using namespace vehicleUtil;
 
 TestDynamics::TestDynamics()
 	

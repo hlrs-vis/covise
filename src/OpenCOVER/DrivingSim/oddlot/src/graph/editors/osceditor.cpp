@@ -488,7 +488,20 @@ OpenScenarioEditor::getCatalog(std::string name)
 		std::string catalogsDir = catalogDir.toStdString();
 		if (!bf::exists(bf::path(catalogsDir)))
 		{
-			bf::create_directory(catalogsDir);
+			try {
+			    bf::create_directory(catalogsDir);
+			}
+			catch (const bf::filesystem_error& e)
+			{
+				if (e.code() == boost::system::errc::permission_denied)
+				{
+					std::cout << "Permission is denied while creating directory " << catalogsDir << "\n";
+				}
+				else
+				{
+					std::cout << "create_directory(" << catalogsDir << ") failed with " << e.code().message() << '\n';
+				}
+			}
 		}
 
 		OpenScenario::oscDirectory *dir = dynamic_cast<oscDirectory *>(catalog->getObjectByName("Directory"));

@@ -8,6 +8,8 @@
 #include "IgnitionLock.h"
 #include <sys/time.h>
 
+using namespace vehicleUtil;
+
 //Seat////////////////////////////////////////////////////////////////
 
 // set protected static pointer for singleton to NULL

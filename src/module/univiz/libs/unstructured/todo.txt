@@ -1,2 +1,0 @@
-circumvent excessive use of ucd_combine:
-- add optional ucd input ports

@@ -3904,6 +3904,51 @@ static VrmlField *jsvalToVrmlField(JSContext *cx,
     }
 }
 
+static JSBool
+exposedField_setProperty(JSContext* cx, JSObject* obj, jsval id, jsval* val)
+{
+    JSString* str = JS_ValueToString(cx, id);
+    if (!str)
+        return JS_FALSE;
+    const char* eventName = JS_GetStringBytes(str);
+
+    // The ScriptJS object pointer is stored as a global property value:
+    ScriptJS* script = objToScript(cx, obj);
+    if (!script)
+        return JS_FALSE;
+    VrmlNodeScript* scriptNode = script->scriptNode();
+
+    // Validate the type
+    VrmlField::VrmlFieldType t = scriptNode->hasExposedField(eventName);
+    if (!t)
+        return JS_FALSE;
+
+    // Convert to a vrmlField and set the eventOut value
+    VrmlField* f = jsvalToVrmlField(cx, *val, t);
+    if (!f)
+    {
+        System::the->error("Error: invalid type in assignment to eventOut %s\n",
+            eventName);
+        return JS_FALSE;
+    }
+
+    scriptNode->setExposedField(eventName, f);
+    if (f)
+        delete f;
+
+    /*
+    no idea why this should be done.
+    val is the value that is assigned to an event out
+    _eventOut Properties should only be added to event our fields not to the values that are assigned to an event out...
+    it causes fields to be destroyed when assigned to an event out.
+    // Don't overwrite the property value.
+    if (JSVAL_IS_OBJECT(*val) && JSVAL_TO_OBJECT(*val) != 0 && !JS_DefineProperty(cx, JSVAL_TO_OBJECT(*val), "_eventOut", PRIVATE_TO_JSVAL((intptr_t)eventName), 0, 0, JSPROP_READONLY | JSPROP_PERMANENT))
+        System::the->error("JS_DefineProp _eventOut failed\n");
+        */
+
+    return JS_TRUE;
+}
+
 // Must assign the proper type to eventOuts
 
 static JSBool
@@ -3966,11 +4011,22 @@ void ScriptJS::defineFields()
         else
             cout << "field " << (*i)->name << " <no value>\n";
 #endif
+        if ((*i)->exposed)
+        {
+            if (!JS_DefineProperty(d_cx, d_globalObj, (*i)->name, val,
+                //getter, setter, ...
+                0, exposedField_setProperty,
+                JSPROP_PERMANENT))
+                System::the->error("JS_DefineProp %s failed\n", (*i)->name);
+        }
+        else
+        {
         if (!JS_DefineProperty(d_cx, d_globalObj, (*i)->name, val,
                                //getter, setter, ...
                                0, 0,
                                JSPROP_PERMANENT))
             System::the->error("JS_DefineProp %s failed\n", (*i)->name);
+        }
     }
 
     end = d_node->eventOuts().end();

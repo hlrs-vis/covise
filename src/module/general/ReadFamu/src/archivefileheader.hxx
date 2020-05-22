@@ -10,6 +10,7 @@
 #define __archivefileheader_hxx__
 
 #include "os.h"
+#include <ctime>
 #include <string>
 #include "serializable.hxx" // a serializable object.
 #include "objectinputstream.hxx" // a stream that can be used for deserialization.

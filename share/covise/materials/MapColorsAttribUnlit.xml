@@ -1,0 +1,46 @@
+<MapColorsAttrib>
+<!-- also used by Vistle -->
+<attribute name="dataAttrib" type="float" value="10"/>
+
+<uniform name="rangeMin" type="float" value="0."/>
+<uniform name="rangeMax" type="float" value="1."/>
+<uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="blendWithMaterial" type="bool" value="false"/>
+
+<vertexProgram>
+attribute float dataAttrib;
+varying float data;
+
+void main (void)
+{
+    data = dataAttrib;
+
+    // Do fixed functionality vertex transform
+    gl_Position = ftransform();
+#ifdef __GLSL_CG_DATA_TYPES
+    gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+}
+</vertexProgram>
+
+<fragmentProgram>
+uniform sampler1D texUnit1;
+uniform float rangeMin, rangeMax;
+uniform bool blendWithMaterial;
+
+varying float data;
+
+void main (void) 
+{
+    float t = (data-rangeMin)/(rangeMax-rangeMin);
+    vec4 color = texture1D(texUnit1, t);
+    if (blendWithMaterial)
+    {
+        color = mix(gl_FrontMaterial.diffuse, color, color.a);
+        color.a = 1.0;
+    }
+
+    gl_FragColor = color;
+}
+</fragmentProgram>
+</MapColorsAttrib>

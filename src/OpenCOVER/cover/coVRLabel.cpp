@@ -73,7 +73,6 @@ coVRLabel::coVRLabel(const char *name, float fontsize, float lineLen, osg::Vec4 
     //labelString->setMat(m);
 
     text = new osgText::Text();
-    text->setDataVariance(osg::Object::DYNAMIC);
     text->setAlignment(osgText::Text::CENTER_BASE_LINE);
     text->setColor(osg::Vec4(fgc[0], fgc[1], fgc[2], fgc[3]));
     text->setFont(font);

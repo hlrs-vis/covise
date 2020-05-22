@@ -11,11 +11,12 @@
 #include "Bicycle.h"
 #include <cover/coVRTui.h>
 #include <cover/coVRCommunication.h>
+#include <cover/coIntersection.h>
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 #include "AVRserialcom.h"
 #include <util/unixcompat.h>
+#include <osgUtil/IntersectionVisitor>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_X11
@@ -173,6 +174,9 @@ VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
 {
     setModified();
     bikeTrans.makeIdentity();
+    fgPlaneZeroPos[0] = 0.0;
+    fgPlaneZeroPos[1] = 0.0;
+    fgPlaneZeroPos[2] = 0.0;
 }
 
 // --------------------------------------------------------------------
@@ -186,6 +190,9 @@ VrmlNodeBicycle::VrmlNodeBicycle(const VrmlNodeBicycle &n)
 {
     setModified();
     bikeTrans.makeIdentity();
+    fgPlaneZeroPos[0] = 0.0;
+    fgPlaneZeroPos[1] = 0.0;
+    fgPlaneZeroPos[2] = 0.0;
 }
 
 // --------------------------------------------------------------------
@@ -356,7 +363,8 @@ void VrmlNodeBicycle::render(Viewer *)
             if (BicyclePlugin::plugin->isBike)
                 buttonState = BicyclePlugin::plugin->tacx->getButtons();
 
-            if (flightgearReset)   //buttonState)
+            osg::Vec3d currentPosition(BicyclePlugin::plugin->flightgear->getPosition());
+            if ((currentPosition[0] != 0.0 && fgPlaneZeroPos[0] == 0.0) || flightgearReset)   //buttonState)
             {
                 osg::Vec3d referenceCoordSys(0,1,0); 
                 osg::Vec3d zeroPosition(BicyclePlugin::plugin->flightgear->getPosition());
@@ -372,7 +380,6 @@ void VrmlNodeBicycle::render(Viewer *)
                 flightgearReset=false;
                 fgPlaneZeroPos=fgPlaneRot.preMult(osg::Vec3d(BicyclePlugin::plugin->flightgear->getPosition())); 
             } 
-            osg::Vec3d currentPosition(BicyclePlugin::plugin->flightgear->getPosition());
             newPos = fgPlaneRot.preMult(currentPosition)-fgPlaneZeroPos;
 
             /*	fprintf(stderr, "\r");
@@ -383,7 +390,15 @@ void VrmlNodeBicycle::render(Viewer *)
             osg::Vec3d newOrientation = currentOrientation;
             newOrientation.normalize();
             osg::Matrix planeOrientationMatrix;
-            planeOrientationMatrix.makeRotate(currentOrientation.length(),newOrientation);
+            double len = currentOrientation.length();
+            if (len > 0)
+            {
+                planeOrientationMatrix.makeRotate(len, newOrientation);
+            }
+            else
+            {
+                planeOrientationMatrix.makeIdentity();
+            }
 
             osg::Matrix viewcorrectionMatrix;
             viewcorrectionMatrix.makeRotate(M_PI/3*2,osg::Vec3d(-1,-1,1));
@@ -657,96 +672,73 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
     p0.set(pos[0], pos[1], pos[2] + 1500.0);
     q0.set(pos[0], pos[1], pos[2] - 40000.0);
 
-    osg::ref_ptr<osg::LineSegment> ray1 = new osg::LineSegment();
-    ray1->set(p0, q0);
+
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[2];
+
+    intersector[0] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[0]);
 
     // down segment 2
     p0.set(pos[0], pos[1] + 1000, pos[2] + 1500.0);
     q0.set(pos[0], pos[1] + 1000, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(p0, q0);
 
-    osgUtil::IntersectVisitor visitor;
+    intersector[1] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[1]);
+
+
+    osg::Vec3 hitPoint[2];
+    osg::Vec3 hitNormal[2];
+
+    osgUtil::IntersectionVisitor visitor(igroup);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(ray1.get());
-    visitor.addLineSegment(ray2.get());
 
     cover->getObjectsXform()->accept(visitor);
-    int num1 = visitor.getNumHits(ray1.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    //fprintf(stderr, "num1%d\n", num1);
-    //fprintf(stderr, "num2%d\n", num2);
-    if (num1 || num2)
+    bool hit1 = intersector[0]->containsIntersections();
+    bool hit2 = intersector[1]->containsIntersections();
+    if (hit1 || hit2)
     {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray1.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-
-        if (num1 || num2)
+        if (hit1 || hit2)
         {
             float dist = 0.0;
             osg::Vec3 normal(0, 0, 1);
             osg::Vec3 normal2(0, 0, 1);
-            osg::Geode *geode = NULL;
-            if (num1 && !num2)
+            osg::Node *geode = NULL;
+            if (hit1 && !hit2)
             {
-                normal = hitInformation1.getWorldIntersectNormal();
-                dist = pos[2] - hitInformation1.getWorldIntersectPoint()[2];
-                geode = hitInformation1.getGeode();
+                auto isect = intersector[0]->getFirstIntersection();
+                normal = isect.getWorldIntersectNormal();
+                dist = pos[2] - isect.getWorldIntersectPoint()[2];
+                geode = *isect.nodePath.end();
             }
-            else if (!num1 && num2)
+            else if (!hit1 && hit2)
             {
-                normal = hitInformation2.getWorldIntersectNormal();
-                dist = pos[2] - hitInformation2.getWorldIntersectPoint()[2];
-                geode = hitInformation2.getGeode();
+                auto isect = intersector[1]->getFirstIntersection();
+                normal = isect.getWorldIntersectNormal();
+                dist = pos[2] - isect.getWorldIntersectPoint()[2];
+                geode = *isect.nodePath.end();
             }
-            else if (num1 && num2)
+            else if (hit1 && hit2)
             {
 
-                normal = hitInformation1.getWorldIntersectNormal();
-                normal2 = hitInformation2.getWorldIntersectNormal();
+                auto isect1 = intersector[0]->getFirstIntersection();
+                auto isect2 = intersector[1]->getFirstIntersection();
+                normal = isect1.getWorldIntersectNormal();
+                dist = pos[2] - isect1.getWorldIntersectPoint()[2];
+                geode = *isect1.nodePath.end();
+
+                normal2 = isect2.getWorldIntersectNormal();
+
                 normal += normal2;
                 normal *= 0.5;
-                dist = pos[2] - hitInformation1.getWorldIntersectPoint()[2];
-                geode = hitInformation1.getGeode();
-                if (fabs(pos[2] - hitInformation2.getWorldIntersectPoint()[2]) < fabs(dist))
+
+                if (fabs(pos[2] - isect2.getWorldIntersectPoint()[2]) < fabs(dist))
                 {
-                    dist = pos[2] - hitInformation2.getWorldIntersectPoint()[2];
-                    geode = hitInformation2.getGeode();
+                    dist = pos[2] - isect2.getWorldIntersectPoint()[2];
+                    geode = *isect2.nodePath.end();
                 }
             }
-            /*if(geode)
-	   {
-	   std::string geodeName = geode->getName();
-	   if(!geodeName.empty())
-	   {
-	   if((geodeName.find("ROAD"))!=std::string::npos)
-	   {
-	   if(BicyclePlugin::plugin->sitzkiste) {
-	   SteeringWheelPlugin::plugin->sitzkiste->setRoadFactor(0.0); //0 == Road 1 == rough
-	   }
-	   if(SteeringWheelPlugin::plugin->dynamics) {
-	   SteeringWheelPlugin::plugin->dynamics->setRoadType(0);
-	   lastRoadPos = carTrans;
-	   }
-	   }
-	   else
-	   {
-	   if(SteeringWheelPlugin::plugin->sitzkiste) {
-	   SteeringWheelPlugin::plugin->sitzkiste->setRoadFactor(1.0); //0 == Road 1 == rough
-	   }
-	   if(SteeringWheelPlugin::plugin->dynamics) {
-	   SteeringWheelPlugin::plugin->dynamics->setRoadType(1);
-	   }
-	   }
-	   }
-	   }*/
             osg::Vec3 carNormal(carTransWorld(1, 0), carTransWorld(1, 1), carTransWorld(1, 2));
-            //osg::Vec3 carNormal(carTrans(1,0),carTrans(1,1),carTrans(1,2));
-            //osg::Vec3 carNormal(carTrans(1,0),-carTrans(1,2),carTrans(1,1));
             tmp.makeTranslate(0, 0, -dist);
             osg::Matrix rMat;
             carNormal.normalize();
@@ -780,30 +772,17 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
                     if (f > 1.)
                         f = 1.;
 
-#if 0
-	       //setBicycleBreak((int)(s*100000.0));
-	       if(s < -0.5)
-		  s=-0.5;
-	       if(s > 0.5)
-		  s=0.5;
-	       s+=0.5;
-#endif
+
                     BicyclePlugin::plugin->tacx->setForce(f);
                     //cerr << "Slope: " << s << ", Force: " << f << endl;
                 }
             }
-            //cerr <<" carNormal: " << carNormal[0]  << " "<< carNormal[1] << " "<< carNormal[2] << endl;
-            //cerr <<" normal: " << normal[0]<< " " << normal[1]<< " " << normal[2] << endl;
-            //cerr <<" sprod: " << sprod << endl;
             if (sprod > 0.8) // only rotate the car if the angle is not more the 45 degrees
             {
-                // rMat.makeRotate(carNormal,normal);
-                //  tmp.preMult(rMat);
                 carTrans.postMult(VRMLRotMat * baseMat * tmp * invBaseMat * invVRMLRotMat);
             }
             else
             {
-
                 carTrans.postMult(VRMLRotMat * baseMat * tmp * invBaseMat * invVRMLRotMat);
             }
         }
@@ -818,6 +797,8 @@ bool BicyclePlugin::init()
     plugin = this;
     flightgear = NULL;
     tacx = NULL;
+    mouse1 = 0;
+    mouse2 = 0;
 
     isPlane=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.FlightGear",false));
     isBike=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isBike",false));
@@ -1040,7 +1021,15 @@ bool BicyclePlugin::init()
 BicyclePlugin::~BicyclePlugin()
 {
     fprintf(stderr, "BicyclePlugin::~BicyclePlugin\n");
-    close(mouse1);
+    if (flightgear)
+    {
+        flightgear->stop();
+        delete flightgear;
+    }
+    if (mouse1 > 0)
+    {
+        close(mouse1);
+    }
     running = false;
     //AVRClose();
 }
@@ -1085,7 +1074,7 @@ BicyclePlugin::preFrame()
 
 void BicyclePlugin::key(int type, int keySym, int mod)
 {
-/*    fprintf(stderr, "type: %d \n ", type);
+    /*fprintf(stderr, "type: %d \n ", type);
     fprintf(stderr, "keySym: %d \n ", keySym);
     fprintf(stderr, "mod: %d \n " , mod);*/
     if(type == 32) 
@@ -1095,6 +1084,30 @@ void BicyclePlugin::key(int type, int keySym, int mod)
 	    case 114:
 		flightgearReset=true;
 		break;
+        case 'p':
+        case 'P':
+            if (flightgear)
+            {
+                if (flightgear->getPause()==1.0)
+                {
+                flightgear->doPause(0.01);
+                fprintf(stderr, "Pause\n");
+                }
+                else
+                {
+                    flightgear->doPause(1.0);
+                    fprintf(stderr, "Resume\n");
+                }
+            }
+            break;
+        case 'u':
+        case 'U':
+            if (flightgear)
+            {
+                flightgear->doUp();
+                fprintf(stderr, "Up\n");
+            }
+            break;
 	}
 }
 

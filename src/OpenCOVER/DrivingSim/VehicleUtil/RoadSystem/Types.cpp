@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 
+using namespace vehicleUtil;
+
 Polynom::Polynom(double s, double a, double b, double c, double d)
 {
     start = s;
@@ -773,7 +775,7 @@ void roadShapeSections::addPolynom(ShapePolynom *sp)
 	}
 }
 
-std::ostream &operator<<(std::ostream &os, const Vector3D &vec)
+std::ostream & vehicleUtil::operator<<(std::ostream &os, const vehicleUtil::Vector3D &vec)
 {
     os << "( " << vec[0] << " \t" << vec[1] << " \t" << vec[2] << " \t)" << std::endl;
     return os;
@@ -809,7 +811,7 @@ std::ostream &operator<<(std::ostream &os, const Matrix3D3D &mat)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const Quaternion &quat)
+std::ostream & vehicleUtil::operator<<(std::ostream &os, const vehicleUtil::Quaternion &quat)
 {
     os << "Hallllooooooooooooooooo ";
     os << "(" << quat.w() << ", [" << quat.x() << ", " << quat.y() << ", " << quat.z() << "])" << std::endl;
@@ -817,7 +819,7 @@ std::ostream &operator<<(std::ostream &os, const Quaternion &quat)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const Transform &trans)
+std::ostream &operator<<(std::ostream &os, const vehicleUtil::Transform &trans)
 {
     os << "Translation: " << trans.v() << "Rotation: " << trans.q();
 

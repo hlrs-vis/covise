@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: ARUCO Plugin                                                **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Mar-16  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #ifndef GLUT_NO_LIB_PRAGMA
 #define GLUT_NO_LIB_PRAGMA
 #endif
@@ -31,7 +17,9 @@
 #define POINTER_64
 #endif
 #endif
+
 #include "ARUCOTrackerPlugin.h"
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
@@ -43,13 +31,23 @@
 #include <cover/coVRMSController.h>
 #include <opencv2/calib3d/calib3d.hpp>
 
+#include <cover/coVRFileManager.h>
+
+
+#include <cover/coTabletUI.h>
+#include <cover/coVRPlugin.h>
+#include <cover/coInteractor.h>
+#include <util/unixcompat.h>
+
 #include <vector>
 #include <string>
 
 using std::cout;
 using std::endl;
+
 #include <signal.h>
 #include <osg/MatrixTransform>
+#include <osg/io_utils>
 
 #ifdef __MINGW32__
 #include <GL/glext.h>
@@ -61,90 +59,33 @@ using std::endl;
 #include <asm/ioctls.h>
 #define sigset signal
 #endif
+
 #ifndef _WIN32
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #endif
 
+//#define ARUCO_DEBUG
+
+// ----------------------------------------------------------------------------
+
 using namespace cv;
 
-
+#ifndef _WIN32
 struct myMsgbuf
 {
     long mtype;
     char mtext[100];
 };
+#endif
 
-int ARUCOPlugin::loadPattern(const char *p)
-{
-    int pattID = atoi(p);
-    if (pattID <= 0)
-    {
-        fprintf(stderr, "pattern load error !!\n");
-        pattID = 0;
-    }
-    if (pattID > 1000)
-    {
-        fprintf(stderr, "Pattern ID out of range !!\n");
-        pattID = 0;
-    }
-    return pattID;
-}
-
-bool ARUCOPlugin::isVisible(int pattID)
-{
-    for (size_t i = 0; i < ids.size(); i++)
-    {
-        if (ids[i] == pattID)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-double pattSize;
-double pattCenter[2];
-double pattTrans[3][4];
-osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4])
-{
-
-    osg::Matrix markerTrans;
-    markerTrans.makeIdentity();
-    
-    for (size_t i = 0; i < ids.size(); i++)
-    {
-        if (ids[i] == pattID)
-        {
-            
-            double markerPosed[16];
-            cv::Mat markerPoseMat(4, 4, CV_64F, markerPosed);
-            cv::Rodrigues(rvecs[i], markerPoseMat);
-            markerPoseMat.at<double>(0, 3) = tvecs[i][0];
-            markerPoseMat.at<double>(1, 3) = tvecs[i][1];
-            markerPoseMat.at<double>(2, 3) = tvecs[i][2];
-
-            int u, v;
-            for (u = 0; u < 4; u++)
-                for (v = 0; v < 4; v++)
-                    markerTrans(v, u) = markerPosed[(u * 4) + v];
-
-            /*	if(pattID==(*ARToolKit::instance()->markers.begin())->getPattern())
-            {
-            return OpenGLToOSGMatrix*markerTrans*OpenGLToOSGMatrix*(*ARToolKit::instance()->markers.begin())->getOffset();
-            }
-            else*/
-            {
-                return OpenGLToOSGMatrix * markerTrans * OpenGLToOSGMatrix;
-            }
-        }
-    }
-
-    return OpenGLToOSGMatrix * markerTrans * OpenGLToOSGMatrix;
-}
-
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 ARUCOPlugin::ARUCOPlugin()
+    : ui::Owner("ARUCO", cover->ui)
 {
+    //std::cerr << "ARUCOPlugin::ARUCOPlugin()" << std::endl;
+    
     marker_num = 0;
 
     OpenGLToOSGMatrix.makeRotate(M_PI / -2.0, 1, 0, 0);
@@ -154,17 +95,88 @@ ARUCOPlugin::ARUCOPlugin()
     dataPtr = NULL;
 }
 
+// ----------------------------------------------------------------------------
+//! this is called if the plugin is removed at runtime or destroyed
+// ----------------------------------------------------------------------------
+ARUCOPlugin::~ARUCOPlugin()
+{
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::~ARUCOPlugin()" << std::endl;
+#endif
+
+    delete ARToolKit::instance()->remoteAR;
+    ARToolKit::instance()->remoteAR = 0;
+    ARToolKit::instance()->arInterface = NULL;
+    ARToolKit::instance()->running = false;
+   
+    if(inputVideo.isOpened())
+    {
+        inputVideo.release();
+
+#ifndef _WIN32
+        if (msgQueue >= 0)
+        {
+            msgctl(msgQueue, IPC_RMID, NULL);
+
+        }
+#endif
+    }
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool ARUCOPlugin::init()
 {
-    //sleep(6);
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::init()" << std::endl;
+#endif
+    
+    // check for opencv version
+    
+    std::cerr << "using opencv version " << CV_VERSION << std::endl;
+
+    if (CV_MAJOR_VERSION < 3 || (CV_MAJOR_VERSION == 3 && CV_MINOR_VERSION < 1))
+    {
+        std::cerr << "error: ARUCOPlugin requires opencv version >= 3.1" << std::endl;
+        return false;
+    }
+
+    // class init
+    
+    bDrawDetMarker = true;
+    bDrawRejMarker = false;
+    
+    // ui init
+
+    uiMenu = new ui::Menu("uiMenu", this);
+    uiMenu->setText("ARUCO");
+
+    uiBtnDrawDetMarker = new ui::Button(uiMenu, "uiBtnDrawDetMarker");
+    uiBtnDrawDetMarker->setText("draw detected markers");
+    uiBtnDrawDetMarker->setEnabled(true);
+    uiBtnDrawDetMarker->setState(bDrawDetMarker);
+    uiBtnDrawDetMarker->setCallback([this](bool state)
+    {
+        bDrawDetMarker = state;
+    });
+    
+    uiBtnDrawRejMarker = new ui::Button(uiMenu, "uiBtnDrawRejMarker");
+    uiBtnDrawRejMarker->setText("draw rejected markers");
+    uiBtnDrawRejMarker->setEnabled(true);
+    uiBtnDrawRejMarker->setState(bDrawRejMarker);
+    uiBtnDrawRejMarker->setCallback([this](bool state)
+    {
+        bDrawRejMarker = state;
+    });
+
+    // AR init
+    
     ARToolKit::instance()->arInterface = this;
     ARToolKit::instance()->remoteAR = NULL;
 
     doCalibrate = false;
     calibrated = false;
     calibCount = 0;
-
-    fprintf(stderr, "ARUCOPlugin::ARUCOPlugin\n");
 
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.Capture", false))
     {
@@ -173,154 +185,420 @@ bool ARUCOPlugin::init()
             ARToolKit::instance()->videoMirrorRight = true;
         if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.MirrorLeft", false))
             ARToolKit::instance()->videoMirrorLeft = true;
-        if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.RemoteAR.Transmit", true))
-        {
-            bitrateSlider = new coTUISlider("Bitrate", ARToolKit::instance()->artTab->getID());
-            bitrateSlider->setValue(300);
-            bitrateSlider->setTicks(4950);
-            bitrateSlider->setMin(50);
-            bitrateSlider->setMax(5000);
-            bitrateSlider->setPos(3, 0);
-            bitrateSlider->setEventListener(this);
-        }
+
         ARToolKit::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipHorizontal", false);
         flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferH", false);
         flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferV", true);
         std::string VideoDevice = coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.VideoDevice", "0");
-        calibrationFilename = coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.CameraCalibrationFile", "/data/ARToolKit/defaultCalib.xml");
+
+        calibrationFilename = coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.CameraCalibrationFile", "/data/aruco/cameras/default.yaml");
+
         xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", 640);
         ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", 480);
-        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.dictionaryId", 1);
+
+        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7);
+
         thresh = coCoviseConfig::getInt("COVER.Plugin.ARUCO.Threshold", 100);
         
         detectorParams = aruco::DetectorParameters::create();
+        
 #if (CV_VERSION_MAJOR < 3 || (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR < 3))
         detectorParams->doCornerRefinement = true; // do corner refinement in markers
 #else
         detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_CONTOUR;
 #endif
         
+        markerSize = 150; // set default marker size
+        updateMarkerParams(); // update marker sizes from config
+        
         dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
         msgQueue = -1;
+       
+        int selectedDevice = atoi(VideoDevice.c_str());
 
-        arDebugButton = new coTUIToggleButton("Debug", ARToolKit::instance()->artTab->getID());
-        arDebugButton->setPos(0, 0);
-        arDebugButton->setEventListener(this);
-        arSettingsButton = new coTUIButton("Settings", ARToolKit::instance()->artTab->getID());
-        arSettingsButton->setPos(1, 1);
-        arSettingsButton->setEventListener(this);
-
-        calibrateButton = new coTUIToggleButton("CalibrateCamera", ARToolKit::instance()->artTab->getID());
-        calibrateButton->setPos(2, 1);
-        calibrateButton->setEventListener(this);
-        calibrateLabel = new coTUILabel("notCalibrated", ARToolKit::instance()->artTab->getID());
-        calibrateLabel->setPos(3, 1);
-
-        visualizeButton = new coTUIToggleButton("VisualizeMarkers", ARToolKit::instance()->artTab->getID());
-        visualizeButton->setPos(4, 1);
-        visualizeButton->setEventListener(this);
-
-        detectAdditional = new coTUIToggleButton("DetectAdditional", ARToolKit::instance()->artTab->getID());
-        detectAdditional->setPos(5, 1);
-        detectAdditional->setEventListener(this);
-        detectAdditional->setState(false);
-
-        useSFM = new coTUIToggleButton("useSFM", ARToolKit::instance()->artTab->getID());
-        useSFM->setPos(6, 1);
-        useSFM->setEventListener(this);
-        useSFM->setState(false);
-
-        //if(coCoviseConfig::isOn("COVER.Plugin.ARUCO.Stereo", false))
-        //captureRightVideo();
-        
-        int selectedDevice;
-        selectedDevice = atoi(VideoDevice.c_str());
-        inputVideo.open(selectedDevice);
-        if(inputVideo.isOpened())
+        for (int cap: {CAP_V4L2, CAP_ANY})
         {
-            inputVideo.set(CV_CAP_PROP_FRAME_WIDTH,xsize);
-            inputVideo.set(CV_CAP_PROP_FRAME_HEIGHT,ysize);
+            if (inputVideo.open(selectedDevice, cap))
+                break;
+        }
+        
+        if (inputVideo.isOpened())
+        {
+            cout << "capture device: device " << selectedDevice << " is open" << endl;
 
-            
+            bool exists = false;
+            std::string fourcc = coCoviseConfig::getEntry("fourcc", "COVER.Plugin.ARUCO.VideoDevice", "", &exists);
+            if (fourcc.length() == 4)
+            {
+                std::cerr << "Setting FOURCC to " << fourcc << std::endl;
+                inputVideo.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc(fourcc[0], fourcc[1], fourcc[2], fourcc[3]));
+                std::cerr << "FOURCC: " << inputVideo.get(cv::CAP_PROP_FOURCC) << std::endl;
+            }
+
+            float fps = coCoviseConfig::getFloat("fps", "COVER.Plugin.ARUCO.VideoDevice", 0.f, &exists);
+            if (fps > 0.f)
+            {
+                std::cerr << "Setting FPS to " << fps << std::endl;
+                inputVideo.set(cv::CAP_PROP_FPS, fps);
+                std::cerr << "Frame rate: " << inputVideo.get(cv::CAP_PROP_FPS) << std::endl;
+            }
+
+            int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
+            int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
+            std::cout << "   current size  = " << width << "x" << height << std::endl;
+            xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
+            ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
+
+            if ((xsize != width) || (ysize != height))
+            {
+                inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, xsize);
+                inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, ysize);
+
+                width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
+                height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
+
+                if ((xsize != width) || (ysize != height))
+                {
+                    std::cout << "WARNING: could not set capture frame size" << std::endl;
+                }
+                else
+                {
+                    std::cout << "   new size  = " << width << "x" << height << std::endl;
+                }
+            }
+
+            //inputVideo.set(cv::CAP_PROP_CONVERT_RGB, false);
+
             cv::Mat image;
-            inputVideo.retrieve(image);
-                ARToolKit::instance()->running = true;
 
-                ARToolKit::instance()->videoMode = GL_BGR;
-                //ARToolKit::instance()->videoData=new unsigned char[xsize*ysize*3];
-                ARToolKit::instance()->videoDepth = 3;
-                ARToolKit::instance()->videoWidth = image.cols;
-                ARToolKit::instance()->videoHeight = image.rows;
+            std::cout << "capture first frame after resetting camera" << std::endl;
+            try
+            {
+                inputVideo >> image;
+            }
+            catch (cv::Exception &ex)
+            {
+                std::cerr << "OpenCV exception: " << ex.what() << std::endl;
+            }
 
-                adjustScreen();
+            ARToolKit::instance()->running = true;
+            ARToolKit::instance()->videoMode = GL_BGR;
+            //ARToolKit::instance()->videoData=new unsigned char[xsize*ysize*3];
+            ARToolKit::instance()->videoDepth = 3;
+            ARToolKit::instance()->videoWidth = image.cols;
+            ARToolKit::instance()->videoHeight = image.rows;
+
+            std::cout << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
+
+            adjustScreen();
+
+            // load calib data from file
+
+            // calibrationFilename = coVRFileManager::instance()->getName(calibrationFilename.c_str());
+
+            std::cout << "loading calibration data from file " << calibrationFilename << std::endl;
+
+            cv::FileStorage fs;
+
+            fs.open(calibrationFilename, cv::FileStorage::READ);
+            if (fs.isOpened())
+            {
+                fs["camera_matrix"] >> matCameraMatrix;
+                fs["dist_coefs"] >> matDistCoefs;
+
+                std::cout << "camera matrix: " << std::endl;
+                std::cout << matCameraMatrix << std::endl;
+                std::cout << "dist coefs: " << std::endl;
+                std::cout << matDistCoefs << std::endl;
             }
             else
             {
-                std::cout << "Could not open selected camera &d\n" << selectedDevice << std::endl;
-            }
-    }
+                std::cout << "failed to open camera calibration file " << calibrationFilename << std::endl;
+                std::cout << "trying to guess a calibration ... " << std::endl;
 
+                double matCameraData[9] = {0, 0, 0, 0, 0, 0, 0, 0, 1};
+                // approximately normal focal length
+                matCameraData[0] = 2 * width / 3;
+                matCameraData[4] = 2 * width / 3;
+                matCameraData[2] = width / 2;
+                matCameraData[5] = height / 2;
+                cv::Mat matC = cv::Mat(3, 3, CV_64F, matCameraData);
+                matCameraMatrix = matC.clone();
+
+                double matDistData[5] = {0, 0, 0, 0, 0};
+                cv::Mat matD = cv::Mat(1, 5, CV_64F, matDistData);
+                matDistCoefs = matD.clone();
+
+                std::cout << "camera matrix: " << std::endl;
+                std::cout << matCameraMatrix << std::endl;
+                std::cout << "dist coefs: " << std::endl;
+                std::cout << matDistCoefs << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "capture device: failed to open " << selectedDevice << std::endl;
+            return false;
+        }
+    }
     ARToolKit::instance()->remoteAR = new RemoteAR();
+
+    opencvRunning = true;
+    opencvThread = std::thread([this](){
+        opencvLoop();
+    });
+
     return true;
 }
 
-// this is called if the plugin is removed at runtime
-// which currently never happens
-ARUCOPlugin::~ARUCOPlugin()
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+bool ARUCOPlugin::destroy()
 {
-    delete ARToolKit::instance()->remoteAR;
-    ARToolKit::instance()->remoteAR = 0;
-    ARToolKit::instance()->arInterface = NULL;
-
-    ARToolKit::instance()->running = false;
-    fprintf(stderr, "ARUCOPlugin::~ARUCOPlugin\n");
-    if(inputVideo.isOpened())
-    {
-        inputVideo.release();
-        if (msgQueue >= 0)
-        {
-#ifndef _WIN32
-            msgctl(msgQueue, IPC_RMID, NULL);
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::destroy()" << std::endl;
 #endif
+
+    std::unique_lock<std::mutex> guard(opencvMutex);
+    opencvRunning = false;
+    guard.unlock();
+    if (opencvThread.joinable())
+        opencvThread.join();
+
+    delete uiMenu;
+    return true;
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void ARUCOPlugin::preFrame()
+{
+    if (ARToolKit::instance()->running)
+    {
+
+#ifndef _WIN32
+        if (msgQueue > 0)
+        {
+            struct myMsgbuf message;
+            // allow right capture process to continue
+            message.mtype = 1;
+            msgsnd(msgQueue, &message, 1, 0);
         }
+#endif
+
+        std::lock_guard<std::mutex> guard(opencvMutex);
+        displayIdx = readyIdx;
+
+        ARToolKit::instance()->videoData = (unsigned char *)image[displayIdx].ptr();
     }
 }
 
-void ARUCOPlugin::updateMarkerParams()
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void ARUCOPlugin::opencvLoop()
 {
-    //delete multiMarkerInitializer;
- /*   delete multiMarkerBundle;
-    vector<int> ids;
-    std::list<ARToolKitMarker *>::iterator it;
-    for (it = ARToolKit::instance()->markers.begin(); it != ARToolKit::instance()->markers.end(); it++)
+    for (;;)
     {
-        marker_detector.SetMarkerSizeForId((*it)->getPattern(), (*it)->getSize());
-        ids.push_back((*it)->getPattern());
+        std::unique_lock<std::mutex> guard(opencvMutex);
+        if (!opencvRunning)
+            return;
+        guard.unlock();
+
+        if (inputVideo.isOpened())
+        {
+            guard.lock();
+            while (captureIdx == displayIdx || captureIdx == readyIdx) {
+                captureIdx = (captureIdx+1)%3;
+            }
+
+            guard.unlock();
+
+            inputVideo >> image[captureIdx];
+            
+            ids[captureIdx].clear();
+            corners.clear();
+            rejected.clear();
+            rvecs[captureIdx].clear();
+            tvecs[captureIdx].clear();
+
+            // detect markers and estimate pose
+            
+            cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
+
+            if(ids[captureIdx].size() > 0)
+            {
+                //cout << "#marker detected " << ids[captureIdx].size() << endl;
+                //cout << "#marker rejected " << rejected.size() << endl;
+
+                try
+                {
+                    // todo: uses default marker size only
+                    cv::aruco::estimatePoseSingleMarkers(corners, markerSize / 1000.0, matCameraMatrix,
+                                                         matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
+                    // estimatePoseSingleMarker(corners, markerSize / 1000.0, matCameraMatrix,
+                    //                          matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
+                }
+                catch (cv::Exception &ex)
+                {
+                    std::cerr << "OpenCV exception: " << ex.what() << std::endl;
+                    ids[captureIdx].clear();
+                    rvecs[captureIdx].clear();
+                    tvecs[captureIdx].clear();
+                }
+            }
+
+            // draw results
+            
+            if (bDrawDetMarker && ids[captureIdx].size() > 0)
+            {
+                aruco::drawDetectedMarkers(image[captureIdx], corners, ids[captureIdx]);
+
+                for(unsigned int i = 0; i < ids[captureIdx].size(); ++i)
+                {
+                    cv::aruco::drawAxis(image[captureIdx], matCameraMatrix, matDistCoefs,
+                                        rvecs[captureIdx][i], tvecs[captureIdx][i],
+                                        0.1); //markerLength * 0.5f);
+                }
+            }
+
+            if (bDrawRejMarker && rejected.size() > 0)
+            {
+                aruco::drawDetectedMarkers(image[captureIdx], rejected, noArray(), Scalar(100, 0, 255));
+            }
+
+            guard.lock();
+            readyIdx = captureIdx;
+            guard.unlock();
+        }
+
+        guard.lock();
+        if (!opencvRunning)
+            return;
+        guard.unlock();
+
+        usleep(5000);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+bool ARUCOPlugin::update()
+{
+    return ARToolKit::instance()->running;
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+bool ARUCOPlugin::isVisible(int pattID)
+{
+// #ifdef ARUCO_DEBUG
+//     std::cout << "ARUCOPlugin::isVisible(" << pattID << ")" << std::endl;
+// #endif
+
+    for (size_t i = 0; i < ids[displayIdx].size(); i++)
+    {
+        if (ids[displayIdx][i] == pattID)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4])
+{
+// #ifdef ARUCO_DEBUG
+//     std::cout << "ARUCOPlugin::getMat()" << std::endl;
+// #endif
+
+    osg::Matrix markerTrans;
+    markerTrans.makeIdentity();
+
+    for (size_t i = 0; i < ids[displayIdx].size(); i++)
+    {
+        if (ids[displayIdx][i] == pattID)
+        {
+            // get rotation matrix
+            cv::Mat markerRotMat(3, 3, CV_64F);
+            cv::setIdentity(markerRotMat);
+            cv::Rodrigues(rvecs[displayIdx][i], markerRotMat);
+            
+            // transform matrix
+            double markerTransformData[16];
+            cv::Mat markerTransformMat(4, 4, CV_64F, markerTransformData);
+            cv::setIdentity(markerTransformMat);
+                     
+            // copy rot matrix to transform matrix
+            markerTransformMat.at<double>(0, 0) = markerRotMat.at<double>(0, 0);
+            markerTransformMat.at<double>(1, 0) = markerRotMat.at<double>(1, 0);
+            markerTransformMat.at<double>(2, 0) = markerRotMat.at<double>(2, 0);
+
+            markerTransformMat.at<double>(0, 1) = markerRotMat.at<double>(0, 1);
+            markerTransformMat.at<double>(1, 1) = markerRotMat.at<double>(1, 1);
+            markerTransformMat.at<double>(2, 1) = markerRotMat.at<double>(2, 1);
+
+            markerTransformMat.at<double>(0, 2) = markerRotMat.at<double>(0, 2);
+            markerTransformMat.at<double>(1, 2) = markerRotMat.at<double>(1, 2);
+            markerTransformMat.at<double>(2, 2) = markerRotMat.at<double>(2, 2);
+
+            // copy trans vector to transform matrix
+            markerTransformMat.at<double>(0, 3) = tvecs[displayIdx][i][0] * 1000;
+            markerTransformMat.at<double>(1, 3) = tvecs[displayIdx][i][1] * 1000;
+            markerTransformMat.at<double>(2, 3) = tvecs[displayIdx][i][2] * 1000;
+
+            // cout << "---------------------------------------" << endl;
+            // cout << markerTransformMat << endl;
+            // cout << "---------------------------------------" << endl;
+            
+            int u, v;
+            for (u = 0; u < 4; u++)
+                for (v = 0; v < 4; v++)
+                    markerTrans(v, u) = markerTransformData[(u * 4) + v];
+
+            return OpenGLToOSGMatrix * markerTrans * OpenGLToOSGMatrix;
+        }
     }
 
-    multiMarkerInitializer = new alvar::MultiMarkerInitializer(ids);
-    multiMarkerBundle = new alvar::MultiMarkerBundle(ids);*/
-    /*	for(it=ARToolKit::instance()->markers.begin();it!=ARToolKit::instance()->markers.end();it++)
-	{
-        alvar::Pose pose;
-		pose.Reset();
-		osg::Matrix markerTrans= OSGToOpenGLMatrix*(*it)->getOffset()*OpenGLToOSGMatrix;
-		CvMat *posMat = cvCreateMat(4, 4, CV_64F);
+    return OpenGLToOSGMatrix * markerTrans * OpenGLToOSGMatrix;
+}
 
-		int u,v;
-		for(u=0;u<4;u++)
-			for(v=0;v<4;v++)
-				posMat->data.db[(u*4)+v] = markerTrans(v,u);
-		pose.SetMatrix(posMat);
-		multiMarkerBundle->PointCloudAdd((*it)->getPattern(), (*it)->getSize(), pose);
-	}*/
-};
+// ----------------------------------------------------------------------------
+//! set new marker sizes according to tabletUI
+// ----------------------------------------------------------------------------
+void ARUCOPlugin::updateMarkerParams()
+{
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::updateMarkerParams()" << std::endl;
+#endif
+    
+    std::list<ARToolKitMarker *>::iterator it;
+    for (it = ARToolKit::instance()->markers.begin();
+         it != ARToolKit::instance()->markers.end();
+         it++)
+    {
+        // cout << "--------------------- getsize: " << (*it)->getSize() << endl;
+        // cout << "--------------------- getsize: " << (*it)->getPattern() << endl;
 
+        // todo: set individual markers sizes
+
+        // ALVAR: marker_detector.SetMarkerSizeForId((*it)->getPattern(), (*it)->getSize());
+    }
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void ARUCOPlugin::adjustScreen()
 {
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::adjustScreen()" << std::endl;
+#endif
+
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.AdjustScreenParameters", true))
     {
-  /*      osg::Vec3 viewPos;
+/*
+        osg::Vec3 viewPos;
 
         float sxsize = xsize;
         float sysize = ysize;
@@ -339,49 +617,67 @@ void ARUCOPlugin::adjustScreen()
         osg::Matrix viewMat;
         viewMat.makeIdentity();
         viewMat.setTrans(viewPos);
-        VRViewer::instance()->setViewerMat(viewMat);*/
+        VRViewer::instance()->setViewerMat(viewMat);
+*/
     }
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void ARUCOPlugin::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == useSFM)
-    {
-        if (useSFM->getState())
-        {
-        }
-        else
-        {
-        }
-    }
-    if (tUIItem == arDebugButton)
-    {
-        //arDebug = arDebugButton->getState();
-    }
-    if (tUIItem == arSettingsButton)
-    {
-#ifdef WIN32
-//arVideoShowDialog(1);
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::tabletEvent()" << std::endl;
 #endif
-    }
-    if (tUIItem == bitrateSlider)
-    {
-        ARToolKit::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
-    }
-    else if (tUIItem == calibrateButton)
-    {
-        doCalibrate = calibrateButton->getState();
-    }
+
+//     if (tUIItem == useSFM)
+//     {
+//         if (useSFM->getState())
+//         {
+//         }
+//         else
+//         {
+//         }
+//     }
+//     if (tUIItem == arDebugButton)
+//     {
+//         //arDebug = arDebugButton->getState();
+//     }
+//     if (tUIItem == arSettingsButton)
+//     {
+// #ifdef WIN32
+// //arVideoShowDialog(1);
+// #endif
+//     }
+//     if (tUIItem == bitrateSlider)
+//     {
+//         ARToolKit::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
+//     }
+//     else if (tUIItem == calibrateButton)
+//     {
+//         doCalibrate = calibrateButton->getState();
+//     }
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void ARUCOPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 {
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::tabletPressEvent()" << std::endl;
+#endif
+
 }
 
-/**
-  * @brief Return object points for the system centered in a single marker, given the marker length
-  */
-static void _getSingleMarkerObjectPoints(float markerLength, OutputArray _objPoints) {
+// ----------------------------------------------------------------------------
+//! return object points for the system centered in a single marker, 
+//! given the marker length
+// ----------------------------------------------------------------------------
+static void _getSingleMarkerObjectPoints(float markerLength, OutputArray _objPoints)
+{
+#ifdef ARUCO_DEBUG
+    std::cout << "static _getSingleMarkerObjectPoints" << std::endl;
+#endif
 
     CV_Assert(markerLength > 0);
 
@@ -394,201 +690,90 @@ static void _getSingleMarkerObjectPoints(float markerLength, OutputArray _objPoi
     objPoints.ptr< Vec3f >(0)[3] = Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
 }
 
-
-/**
-  * ParallelLoopBody class for the parallelization of the single markers pose estimation
-  * Called from function estimatePoseSingleMarkers()
-  */
-class SinglePoseEstimationParallel : public ParallelLoopBody {
-    public:
+// ----------------------------------------------------------------------------
+//! ParallelLoopBody class for the parallelization of the single markers pose estimation
+//! Called from function estimatePoseSingleMarkers()
+// ----------------------------------------------------------------------------
+class SinglePoseEstimationParallel : public ParallelLoopBody
+{
+public:
     SinglePoseEstimationParallel(std::vector<int> &_IDs, InputArrayOfArrays _corners,
                                  InputArray _cameraMatrix, InputArray _distCoeffs,
                                  Mat& _rvecs, Mat& _tvecs)
         : IDs(_IDs), corners(_corners), cameraMatrix(_cameraMatrix),
           distCoeffs(_distCoeffs), rvecs(_rvecs), tvecs(_tvecs) {}
-
-    void operator()(const Range &range) const {
-        const int begin = range.start;
-        const int end = range.end;
-
-        for(int i = begin; i < end; i++) {
+    
+    void operator()(const Range &range) const
+        {
+            const int begin = range.start;
+            const int end = range.end;
             
-            Mat markerObjPoints;
-            float size=-1;
-            std::list<ARToolKitMarker *>::iterator it;
-            for (it = ARToolKit::instance()->markers.begin(); it != ARToolKit::instance()->markers.end(); it++)
-            {
-                if((*it)->getPattern() == IDs[i])
+            for(int i = begin; i < end; i++) {
+                
+                Mat markerObjPoints;
+                float size=-1;
+                std::list<ARToolKitMarker *>::iterator it;
+                for (it = ARToolKit::instance()->markers.begin(); it != ARToolKit::instance()->markers.end(); it++)
                 {
-                    size = (*it)->getSize();
+                    if((*it)->getPattern() == IDs[i])
+                    {
+                        size = (*it)->getSize();
+                    }
+                }
+                if(size < 0) // marker not configured
+                {
+                    char sizeName[100];
+                    sprintf(sizeName,"%d",IDs[i]);
+                    ARToolKitMarker *objMarker = new ARToolKitMarker(sizeName);
+                    objMarker->setObjectMarker(true);
+                    ARToolKit::instance()->addMarker(objMarker);
+                    size = objMarker->getSize();
+                }
+                if(size > 0) //only if Marker is configured
+                {
+                    _getSingleMarkerObjectPoints(size, markerObjPoints);
+                    cv::solvePnP(markerObjPoints, corners.getMat(i), cameraMatrix, distCoeffs,
+                                 rvecs.at<Vec3d>(0, i), tvecs.at<Vec3d>(0, i));
                 }
             }
-            if(size < 0) // marker not configured
-            {
-                char sizeName[100];
-                sprintf(sizeName,"%d",IDs[i]);
-                ARToolKitMarker *objMarker = new ARToolKitMarker(sizeName);
-                objMarker->setObjectMarker(true);
-                ARToolKit::instance()->addMarker(objMarker);
-                size = objMarker->getSize();
-            }
-            if(size > 0) //only if Marker is configured
-            {
-                _getSingleMarkerObjectPoints(size, markerObjPoints);
-                cv::solvePnP(markerObjPoints, corners.getMat(i), cameraMatrix, distCoeffs,
-                    rvecs.at<Vec3d>(0, i), tvecs.at<Vec3d>(0, i));
-            }
         }
-    }
 
-    private:
+private:
     SinglePoseEstimationParallel &operator=(const SinglePoseEstimationParallel &); // to quiet MSVC
-
+    
     InputArrayOfArrays corners;
     InputArray cameraMatrix, distCoeffs;
     std::vector<int> &IDs;
     Mat& rvecs, tvecs;
 };
 
-/**
-  */
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void ARUCOPlugin::estimatePoseSingleMarker(InputArrayOfArrays _corners,
-                               InputArray _cameraMatrix, InputArray _distCoeffs,
-                               OutputArrayOfArrays _rvecs, OutputArrayOfArrays _tvecs) {
+                                           InputArray _cameraMatrix,
+                                           InputArray _distCoeffs,
+                                           OutputArrayOfArrays _rvecs,
+                                           OutputArrayOfArrays _tvecs)
+{
+#ifdef ARUCO_DEBUG
+    std::cout << "ARUCOPlugin::estimatePoseSingleMarker()" << std::endl;
+#endif
 
     CV_Assert(markerLength > 0);
-
+    
     int nMarkers = (int)_corners.total();
     _rvecs.create(nMarkers, 1, CV_64FC3);
     _tvecs.create(nMarkers, 1, CV_64FC3);
-
+    
     Mat rvecs = _rvecs.getMat(), tvecs = _tvecs.getMat();
-
+    
     parallel_for_(Range(0, nMarkers),
-                  SinglePoseEstimationParallel(ids, _corners, _cameraMatrix,
+                  SinglePoseEstimationParallel(ids[captureIdx], _corners, _cameraMatrix,
                                                _distCoeffs, rvecs, tvecs));
 }
-void
-ARUCOPlugin::preFrame()
-{
-#ifndef _WIN32
-    struct myMsgbuf message;
-#endif
-    if (ARToolKit::instance()->running)
-    {
-#ifndef _WIN32
-        if (msgQueue > 0)
-        {
-            // allow right capture process to continue
-            message.mtype = 1;
-            msgsnd(msgQueue, &message, 1, 0);
-        }
-#endif
-        if (inputVideo.isOpened())
-        {
-            
-        inputVideo.retrieve(image);
-        
-                ARToolKit::instance()->videoData = (unsigned char *)image.ptr();
-
-        double tick = (double)getTickCount();
-        
-        ids.clear();
-        corners.clear();
-        rejected.clear();
-        rvecs.clear();
-        tvecs.clear();
-
-        // detect markers and estimate pose
-        aruco::detectMarkers(image, dictionary, corners, ids, detectorParams, rejected);
-        if(ids.size() > 0)
-        {
-            estimatePoseSingleMarker(corners, camMatrix, distCoeffs, rvecs,
-                                             tvecs);
-            
-        }
-
-      
-        // draw results
-        image.copyTo(imageCopy);
-        if(ids.size() > 0 && visualizeButton->getState()) {
-            aruco::drawDetectedMarkers(imageCopy, corners, ids);
-                for(unsigned int i = 0; i < ids.size(); i++)
-                    aruco::drawAxis(imageCopy, camMatrix, distCoeffs, rvecs[i], tvecs[i],
-                                    markerLength * 0.5f);
-        }
-
-        if(visualizeButton->getState() && rejected.size() > 0)
-            aruco::drawDetectedMarkers(imageCopy, rejected, noArray(), Scalar(100, 0, 255));
-
-        
-                ARToolKit::instance()->videoData = (unsigned char *)image.ptr();
-                ARToolKit::instance()->videoData = (unsigned char *)imageCopy.ptr();
 
 
-
-                if (doCalibrate)
-                {
-
-                 /*   const int calibCountMax = 50;
-                    const int calibRows = 6;
-                    const int calibColumns = 8;
-                    if (!calibrated)
-                    {
-                        // If we have already collected enough data to make the calibration
-                        // - We are ready to end the capture loop
-                        // - Calibrate
-                        // - Save the calibration file
-                        if (calibCount >= calibCountMax)
-                        {
-                            std::cout << "Calibrating..." << endl;
-                            calibCount = 0;
-                            cam.Calibrate(projPoints);
-                            projPoints.Reset();
-                            cam.SaveCalib(calibrationFilename.c_str());
-                            std::cout << "Saving calibration: " << calibrationFilename << endl;
-                            adjustScreen();
-                            calibrated = true;
-                        }
-                        // If we are still collecting calibration data
-                        // - For every 1.5s add calibration data from detected 7*9 chessboard (and visualize it if true)
-                        else
-                        {
-                            static double lastTime = 0;
-                            double currentTime = cover->frameTime();
-                            if (currentTime > (lastTime + 0.5))
-                            {
-                                if (projPoints.AddPointsUsingChessboard(frame, 2.42, calibRows, calibColumns, true))
-                                {
-                                    lastTime = currentTime;
-                                    calibCount++;
-                                    //cout<<calibCount<<"/"<<calibCountMax<<endl;
-                                    char tmpText[100];
-                                    sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax)) * 100.0);
-                                    calibrateLabel->setLabel(tmpText);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (projPoints.AddPointsUsingChessboard(frame, 2.5, calibRows, calibColumns, true))
-                        {
-                            alvar::Pose pose;
-                            cam.CalcExteriorOrientation(projPoints.object_points, projPoints.image_points, &pose);
-                            cam.ProjectPoints(projPoints.object_points, &pose, projPoints.image_points);
-                            for (size_t i = 0; i < projPoints.image_points.size(); i++)
-                            {
-                                cvCircle(frame, cvPoint((int)projPoints.image_points[i].x, (int)projPoints.image_points[i].y), 6, CV_RGB(0, 0, 255));
-                            }
-                            projPoints.Reset();
-                        }
-                    }
-                }*/
-            }
-        }
-    }
-}
-
-
+    
+// ----------------------------------------------------------------------------
 COVERPLUGIN(ARUCOPlugin)

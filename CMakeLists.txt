@@ -9,7 +9,9 @@
 
 # 2.8.7 is too old for identifying clang
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 11) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
+set (CXX_STANDARD_REQUIRED ON) 
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(COVISE_BUILDING_COVISE TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -21,20 +23,17 @@ IF(in_source_build)
 ENDIF(in_source_build)
 
 # covise project
-PROJECT(covise CXX C)
+PROJECT(covise VERSION 2019 LANGUAGES CXX C)
 
 set(COVISE_EXPORTS_FILE "covise-exports.cmake")
 
 ########## General setup ##########
+if(WIN32)
+  set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+ENDIF()
 
 # this is used to override some of cmake's original find-modules
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-
-###########workaround to find vtk-5.8
-#INCLUDE_DIRECTORIES(vtk-5.8)
-#LINK_DIRECTORIES(/usr/lib64/vtk-5.8)
-#######################################
-
 IF(WIN32)
   SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/windows;${CMAKE_MODULE_PATH}")
 ENDIF()
@@ -56,8 +55,12 @@ SET(COVISEDIR "${CMAKE_SOURCE_DIR}")
 SET(ARCHSUFFIX "$ENV{ARCHSUFFIX}")
 # archsuffix has to be set
 IF(ARCHSUFFIX STREQUAL "")
-   MATH(EXPR BITS '${CMAKE_SIZEOF_VOID_P}*8')
-   SET(ARCHSUFFIX ${CMAKE_SYSTEM_NAME}${BITS})
+   set(BITS "")
+   if (NOT CMAKE_SIZEOF_VOID_P STREQUAL "")
+       MATH(EXPR BITS ${CMAKE_SIZEOF_VOID_P}*8)
+   endif()
+   SET(ARCHSUFFIX ${CMAKE_SYSTEM_NAME}${BITS}opt)
+   STRING(TOLOWER "${ARCHSUFFIX}" ARCHSUFFIX)
    MESSAGE(WARNING "Environment variable ARCHSUFFIX was not set, using ARCHSUFFIX=${ARCHSUFFIX}")
 ENDIF()
 
@@ -88,7 +91,6 @@ ENDIF()
 
 # figure out COVISE version
 FIND_PACKAGE(Git)
-# TODO: get version from COVISE_VERSION environment variable if it is set
 
 set(COVISE_VERSION_YEAR 2015)
 set(COVISE_VERSION_MONTH 1)
@@ -127,6 +129,17 @@ MESSAGE("COVISEDIR=${COVISEDIR}")
 MESSAGE("ARCHSUFFIX=${ARCHSUFFIX}, BASEARCHSUFFIX=${BASEARCHSUFFIX}")
 MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DATE}")
 
+# CLANG-TIDY option
+OPTION(BUILD_USE_CLANG_TIDY "use clang-tidy framework for diagnosing and fixing typical programming errors" OFF)
+MARK_AS_ADVANCED(BUILD_USE_CLANG_TIDY)
+if (BUILD_USE_CLANG_TIDY)
+    SET(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,boost-*,bugprone-*,cert-*,clang-analyzer-*,misc-*,performance-*,readability-*,cppcoreguidelines-*)
+    #SET(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,boost-*,bugprone-*,cert-*,clang-analyzer-*,misc-*,modernize-*,performance-*,readability-redundant-*,readability-string-compare,google-readability-casting,cppcoreguidelines-avoid-goto,readability-function-size,-modernize-use-trailing-return-type)
+    MARK_AS_ADVANCED(CMAKE_CXX_CLANG_TIDY)
+else()
+    UNSET(CMAKE_CXX_CLANG_TIDY)
+endif()
+
 # COVISE global options
 option(COVISE_CMAKE_VERBOSE "more verbose CMake output" OFF)
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
@@ -142,15 +155,14 @@ OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<arc
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 IF(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
-  if (CMAKE_GENERATOR STREQUAL "Ninja")
-      OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
-  else()
-      OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
-  endif()
 ELSE(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" OFF)
-  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
 ENDIF(UNIX)
+if (CMAKE_GENERATOR STREQUAL "Ninja")
+  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
+else()
+  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
+endif()
 
 set(COVISE_CPU_ARCH "native" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
 
@@ -195,6 +207,7 @@ else()
 endif()
 
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
+OPTION(COVISE_BUILD_COVER "Build OpenCOVER VR/desktop renderer" ON)
 OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 
 IF(COVISE_USE_FOLDERS)
@@ -215,6 +228,10 @@ INCLUDE(Qt4-5)
 # preset some initial values for install dir and CFLAGS etc.
 INCLUDE(CovisePresets)
 covise_cmake_policy()
+if (POLICY CMP0074)
+  # make find_include/find_library search in <PackageName>_ROOT prefix
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 INCLUDE(CoviseHelperMacros)
 
@@ -231,6 +248,24 @@ FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
 # Create macro list for USING
 CREATE_USING()
 
+set(BOOST_COMPONENTS chrono program_options system thread filesystem iostreams date_time serialization regex locale)
+IF(WIN32)
+    #set(BOOST_COMPONENTS ${BOOST_COMPONENTS} zlib)
+ENDIF(WIN32)
+
+set (BOOST_INCLUDEDIR /usr/include/boost169)  
+set (BOOST_LIBRARYDIR /usr/lib64/boost169)
+
+covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
+if (Boost_FOUND AND (NOT Boost_VERSION VERSION_LESS "105300"))
+    set(COMPONENTS ${BOOST_COMPONENTS} atomic)
+    covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} QUIET REQUIRED)
+    if (NOT Boost_FOUND)
+        message("Did not find boost_atomic")
+    endif()
+endif()
+USING(Boost)
+
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
     IF(APPLE)
@@ -241,7 +276,9 @@ if (NOT COVISE_BUILD_ONLY_FILE)
         COVISE_FIND_PACKAGE(GSOAP)
     ENDIF(COVISE_BUILD_WEBSERVICE)
     find_qt()
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
     COVISE_FIND_PACKAGE(Threads)
+    COVISE_FIND_PACKAGE(Pthreads)
     COVISE_FIND_PACKAGE(OpenSSL)
     set(OpenGL_GL_PREFERENCE LEGACY)
     COVISE_FIND_PACKAGE(OpenGL)
@@ -279,6 +316,9 @@ endif()
 if (APPLE)
     add_definitions(-DGL_SILENCE_DEPRECATION)
 endif()
+if(MSVC)
+    add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
+endif()
 
 # descend to sources
 ADD_SUBDIRECTORY(src)
@@ -310,6 +350,7 @@ INSTALL(FILES
     config/config-filetypes.xml
     config/config-ar.xml
     config/config-spray.xml
+    config/config-midi.xml
     DESTINATION config)
 
 INSTALL(DIRECTORY share bin scripts

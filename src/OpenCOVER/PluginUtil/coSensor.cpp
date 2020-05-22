@@ -6,50 +6,14 @@
  * License: LGPL 2+ */
 
 #include <coSensor.h>
-#include <cover/coVRPluginSupport.h>
-#include <cover/VRSceneGraph.h>
-#include <cover/coVRNavigationManager.h>
-#include <cover/coVRAnimationManager.h>
-#include <cover/coVRCollaboration.h>
-#include <cover/coVRMSController.h>
-#include <cover/coVRCommunication.h>
-#include <cover/OpenCOVER.h>
-#include <OpenVRUI/coUpdateManager.h>
-#include <OpenVRUI/sginterface/vruiButtons.h>
-#include <config/CoviseConfig.h>
-#include <cover/coHud.h>
-#include <assert.h>
-#include <util/coStringMultiHash.h>
-#include <cover/VRViewer.h>
-#include <cover/coTabletUI.h>
-#include <cover/coIntersection.h>
-#ifdef DOTIMING
-#include <util/coTimer.h>
-#endif
-
-#include <osg/MatrixTransform>
-#include <osg/Texture2D>
-#include <osg/DrawPixels>
-#include <osg/BoundingSphere>
-#include <osg/Geode>
-#include <osg/Light>
-#include <osg/LightSource>
-#include <osg/TexGen>
-#include <osgDB/ReadFile>
-#include <osg/LineSegment>
-#include <osgUtil/IntersectionVisitor>
-#include <osgText/Font>
-#include <util/unixcompat.h>
-#include <util/coHashIter.h>
-
-#ifdef __DARWIN_OSX__
-#include <Carbon/Carbon.h>
-#endif
+#include <cassert>
 
 // undef this to get no START/END messaged
 #undef VERBOSE
 
 #ifdef VERBOSE
+#include <cstdio>
+
 #define START(msg) fprintf(stderr, "START: %s\n", (msg))
 #define END(msg) fprintf(stderr, "END:   %s\n", (msg))
 #else
@@ -58,7 +22,6 @@
 #endif
 
 using namespace vrui;
-using namespace opencover;
 
 coSensor::coSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
 {

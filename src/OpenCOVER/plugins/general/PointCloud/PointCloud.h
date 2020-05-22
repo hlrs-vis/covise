@@ -22,10 +22,21 @@
 //#include "plugins/general/NurbsSurface/NurbsSurface.h"
 
 #include "FileInfo.h"
+#include <string>
+#include <vrbclient/SharedState.h>
+#include <osg/Switch>
+
+namespace opencover {
+namespace ui {
+class Element;
+class Group;
+class Slider;
+class Menu;
+class Button;
+}
+}
 
 using namespace opencover;
-
-
 /** Plugin
   @author 
 */
@@ -50,7 +61,6 @@ class PointCloudPlugin : public coVRPlugin, public ui::Owner
     };
 
 private:
-    std::vector<FileInfo> files;
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;
@@ -66,12 +76,17 @@ private:
     float intensityScale;
     bool intColor;
     bool polar;
-    float pointSizeValue;
+	float pointSizeValue;
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
+	static PointCloudInteractor *secondary_Interactor;
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
+    void calcMinMax(PointSet& pointSet);
+	void addButton(FileInfo &fInfo);
+	void saveMoves();
+	string FileToMove = "";
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -88,10 +103,17 @@ protected:
     ui::Group *loadGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
+    ui::Button *translationButton = nullptr;
+    ui::Button *rotPointsButton = nullptr;
+	ui::Button *rotAxisButton = nullptr;
+    ui::Button *moveButton = nullptr;
+	ui::Button *saveButton = nullptr;
+	ui::Button *fileButton = nullptr;
     ui::Button *deselectButton = nullptr;
     ui::Button *createNurbsSurface = nullptr;
     //ui::Button *deleteButton = nullptr;
     ui::ButtonGroup *selectionButtonGroup = nullptr;
+    ui::ButtonGroup *fileButtonGroup = nullptr;
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
@@ -99,22 +121,24 @@ protected:
 
     void changeAllLOD(float lod);
     void changeAllPointSize(float pointSize);
-
+    void UpdatePointSizeValue(void);
 public:
     PointCloudPlugin();
     ~PointCloudPlugin();
+	std::vector<FileInfo> files;
     bool init();
     void preFrame();
     void postFrame();
-    float pointSize()
-    {
-        return pointSizeValue;
-    };
+	inline float pointSize()
+	{
+		return pointSizeValue;
+	}
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
-    int unloadFile(std::string filename);
+    int unloadFile(const std::string &filename);
     static PointCloudPlugin *plugin;
     ui::Group *FileGroup;
+	std::vector<pointSelection>& getInteractor();
 };
 
 #endif

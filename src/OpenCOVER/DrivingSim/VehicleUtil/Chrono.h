@@ -30,6 +30,9 @@
 #include "CANProvider.h"
 #include <OpenVRUI/coUpdateManager.h>
 
+namespace vehicleUtil
+{
+
 //--------------------------------------------------------------------
 class Chrono : public HMIDeviceIface, public vrui::coUpdateable
 {
@@ -62,5 +65,5 @@ private:
     double m_tstamp_chrono;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

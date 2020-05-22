@@ -20,21 +20,22 @@ FIND_PATH(TBB_ROOT include/tbb/task_scheduler_init.h
           "C:/Program Files (x86)/Intel/Composer XE/tbb" 
           /opt/intel/composerxe/tbb 
           /usr/local/opt/tbb
+		  $ENV{EXTERNLIBS}/tbb
 	  /usr
 )
-UNSET(TBB_INCLUDE_DIR CACHE)
-UNSET(TBB_LIBRARY CACHE)
-UNSET(TBB_LIBRARY_MALLOC CACHE)
+#UNSET(TBB_INCLUDE_DIR CACHE)
+#UNSET(TBB_LIBRARY CACHE)
+#UNSET(TBB_LIBRARY_MALLOC CACHE)
 
 INCLUDE(FindPackageHandleStandardArgs)
 
 IF (WIN32)
   
-  IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  #IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
     SET(TBB_ARCH intel64)
-  ELSE()
-    SET(TBB_ARCH ia32)
-  ENDIF()
+  #ELSE()
+  #  SET(TBB_ARCH ia32)
+  #ENDIF()
 
   IF (MSVC10)
     SET(TBB_VCVER vc10)

@@ -22,14 +22,13 @@ coviseInterface::~coviseInterface()
 
 void coviseInterface::run(int argc, char **argv)
 {
-    Trans3D *application = new Trans3D();
-
-    application->start(argc, argv);
+    Trans3D *application = new Trans3D(argc,argv);
+	application->start(argc, argv);
 }
 
 void coviseInterface::error(const char *buf)
 {
-    Covise::sendError(buf);
+    Covise::sendError("%s", buf);
 }
 
 void coviseInterface::warning(const char *buf)
@@ -37,13 +36,13 @@ void coviseInterface::warning(const char *buf)
     char *b = new char[strlen(buf) + 20];
     strcpy(b, "WARNING: ");
     strcat(b, buf);
-    Covise::sendInfo(b);
+    Covise::sendInfo("%s", b);
     delete[] b;
 }
 
 void coviseInterface::info(const char *buf)
 {
-    Covise::sendInfo(buf);
+    Covise::sendInfo("%s", buf);
 }
 
 /*int  coviseInterface::checkForMessages()
@@ -51,4 +50,4 @@ void coviseInterface::info(const char *buf)
     return Covise::check_and_handle_event();
 }*/
 
-coviseInterface covise;
+coviseInterface coviseI;

@@ -41,6 +41,7 @@ class coMenuItem;
 namespace covise
 {
 class Message;
+class DataHandle;
 }
 
 // use COVERPLUGIN(YourMainPluginClass) in your plugin implementation
@@ -246,6 +247,13 @@ public:
         (void)length;
         (void)data;
     }
+	// this function is called if a UDPmessage arrives
+	virtual void UDPmessage(int type, const covise::DataHandle& dh)
+	{
+		(void)type;
+		(void)dh;
+	}
+
 
     //! this functions is called when the current timestep is changed
     //! plugins should display this timestep if possible
@@ -340,6 +348,18 @@ public:
     virtual void windowDestroy(int num)
     {
         (void)num;
+    }
+
+    virtual void windowFullScreen(int num, bool state)
+    {
+        (void)num;
+        (void)state;
+    }
+
+    //! let the plugin that has a grab on viewer update viewer matrix
+    virtual bool updateViewer()
+    {
+        return false; // no update, no re-render required
     }
 
 protected:

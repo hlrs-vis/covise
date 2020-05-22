@@ -13,6 +13,9 @@
 #include <vector>
 
 #include <boost/make_shared.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #include "VolumePlugin.h"
 
@@ -65,6 +68,16 @@
 using namespace osg;
 using namespace vrui;
 
+covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id);
+covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id);
+
+namespace vrb
+{
+	template <>
+	SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type) {
+		return TRANSFERFUCTION;
+	}
+}
 #undef VERBOSE
 
 VolumePlugin *VolumePlugin::plugin = NULL;
@@ -106,7 +119,9 @@ VolumePlugin::Volume::Volume()
     node->addDrawable(drawable.get());
 
     transform = new osg::MatrixTransform();
-    transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)));
+    auto mirror = osg::Matrix::identity();
+    mirror(0,0) = -1;
+    transform->setMatrix(osg::Matrix::rotate(M_PI*0.5, osg::Vec3(0,1,0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1,0,0)) * mirror);
     transform->addChild(node);
 
     min = max = osg::Vec3(0., 0., 0.);
@@ -189,14 +204,17 @@ Geode *VolumePlugin::Volume::createImage(string &filename)
     return imageGeode;
 }
 
-void VolumePlugin::Volume::addToScene()
+void VolumePlugin::Volume::addToScene(osg::Group *group)
 {
 #ifdef VERBOSE
     cerr << "add volume to scene" << endl;
 #endif
     if (!inScene)
     {
-        cover->getObjectsRoot()->addChild(transform.get());
+        if (group)
+            group->addChild(transform.get());
+        else
+            cover->getObjectsRoot()->addChild(transform.get());
     }
 
     inScene = true;
@@ -420,6 +438,7 @@ bool VolumePlugin::init()
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", true, &ignore);
+    maxHistogramVoxels = covise::coCoviseConfig::getLong("value", "COVER.Plugin.Volume.MaxHistogramVoxels", maxHistogramVoxels);
     showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
@@ -544,8 +563,6 @@ bool VolumePlugin::init()
     cropItem->setCallback([this](){
         cropVolume();
     });
-
-    clipMenu = new ui::Menu(volumeMenu, "Clipping");
 
     auto renderGroup = new ui::Group(volumeMenu, "Rendering");
 
@@ -742,13 +759,16 @@ bool VolumePlugin::init()
     currentVolumeItem->setText("[]");
 
     // Create clipping menu
-    auto clipModeItem = new ui::Button(clipMenu, "OpaqueClipping");
-    clipModeItem->setText("Opaque clipping");
-    clipModeItem->setState(opaqueClipping);
-    clipModeItem->setCallback([this](bool state){
-        opaqueClipping = state;
+    clipMenu = new ui::Menu(volumeMenu, "Clipping");
+
+    auto clipSingleSlice = new ui::Button(clipMenu, "SingleSliceClipping");
+    clipSingleSlice->setText("Single slice clipping");
+    clipSingleSlice->setState(singleSliceClipping);
+    clipSingleSlice->setCallback([this](bool state){
+        singleSliceClipping = state;
         applyToVolumes([this, state](Volume &vol){
             vol.drawable->setSingleSliceClipping(state);
+            vol.drawable->setOpaqueClipping(opaqueClipping && state);
             if (state)
                 vol.drawable->setLighting(false);
             else
@@ -756,9 +776,21 @@ bool VolumePlugin::init()
         });
     });
 
+    auto clipOpaqueItem = new ui::Button(clipMenu, "OpaqueClipping");
+    clipOpaqueItem->setText("Opaque clipping");
+    clipOpaqueItem->setState(opaqueClipping);
+    clipOpaqueItem->setCallback([this](bool state){
+        opaqueClipping = state;
+        applyToVolumes([this, state](Volume &vol){
+            if (singleSliceClipping) {
+                vol.drawable->setOpaqueClipping(state);
+            }
+        });
+    });
+
     auto clipOutlinesItem = new ui::Button(clipMenu, "ClipOutlines");
     clipOutlinesItem->setText("Show box intersections");
-    clipOutlinesItem->setState(true);
+    clipOutlinesItem->setState(showClipOutlines);
     clipOutlinesItem->setCallback([this](bool state){
         showClipOutlines = state;
     });
@@ -768,6 +800,13 @@ bool VolumePlugin::init()
     followCoverClippingItem->setState(followCoverClipping);
     followCoverClippingItem->setCallback([this](bool state){
         followCoverClipping = state;
+    });
+
+    auto ignoreCoverClippingItem = new ui::Button(clipMenu, "ClipCoverIgnore");
+    ignoreCoverClippingItem->setText("Ignore clip planes");
+    ignoreCoverClippingItem->setState(ignoreCoverClipping);
+    ignoreCoverClippingItem->setCallback([this](bool state){
+        ignoreCoverClipping = state;
     });
 
     if (enableSphereClipping)
@@ -917,7 +956,7 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                     delete[] functionEditorTab -> histogramData;
                     functionEditorTab->histogramData = NULL;
                     functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
-                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
+                    vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,0 , 1);
 
                     functionEditorTab->sendHistogramData();
                 }
@@ -1282,7 +1321,7 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent, const vvVolDes
     const char *fn = coVRFileManager::instance()->getName(fName);
     if (!fn)
     {
-        cerr << "Invalid file name" << endl;
+        cerr << "Invalid file name: " << (fName ? fName : "(null)") << endl;
         return 0;
     }
 
@@ -1362,7 +1401,7 @@ void VolumePlugin::message(int toWhom, int type, int len, const void *buf)
                 drawable->setROISize(pd->size);
             }
 
-            if ((coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::TightCoupling))
+            if ((coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::TightCoupling))
             {
                 if (drawable && drawable->getROISize() > 0.)
                 {
@@ -1385,7 +1424,7 @@ void VolumePlugin::message(int toWhom, int type, int len, const void *buf)
     }
 }
 
-void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const RenderObject *geometry, const RenderObject *, const RenderObject *colorObj, const RenderObject *)
+void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, const RenderObject *geometry, const RenderObject *, const RenderObject *colorObj, const RenderObject *)
 {
     vvDebugMsg::msg(1, "VolumePlugin::VRAddObject()");
     int shader = -1;
@@ -1397,247 +1436,341 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
     }
 
     // Check if valid volume data was added:
-    if (geometry && geometry->isUniformGrid())
+    if (!geometry || !geometry->isUniformGrid())
     {
-#ifdef VERBOSE
-        fprintf(stderr, "add volume: %s\n", geometry->getName());
-#endif
-        int sizeX, sizeY, sizeZ;
-        geometry->getSize(sizeX, sizeY, sizeZ);
+        return;
+    }
 
-        if (sizeX<=1 || sizeY<=1 || sizeZ<=1)
+#ifdef VERBOSE
+    fprintf(stderr, "add volume: geo=%s, color=%s\n", geometry->getName(), colorObj->getName());
+#endif
+    int sizeX, sizeY, sizeZ;
+    geometry->getSize(sizeX, sizeY, sizeZ);
+
+    if (sizeX<=1 || sizeY<=1 || sizeZ<=1)
+    {
+        // ignore 2-dimensional grids: already handled by COVISE plugin
+        return;
+    }
+
+    float minX, maxX, minY, maxY, minZ, maxZ;
+    geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+
+    bool showEditor = showTFE;
+    if (colorObj)
+    {
+        const uchar *byteData = colorObj->getByte(Field::Byte);
+        const int *packedColor = colorObj->getInt(Field::RGBA);
+        const float *red = colorObj->getFloat(Field::Red), *green = colorObj->getFloat(Field::Green), *blue = colorObj->getFloat(Field::Blue);
+
+        std::vector<const uchar*> byteChannels(Field::NumChannels);
+        std::vector<const float*> floatChannels(Field::NumChannels);
+
+        bool have_byte_chans = false;
+        bool have_float_chans = false;
+
+        int noChan = 0;
+
+        float min[Field::NumChannels], max[Field::NumChannels], irange[Field::NumChannels];
+        for (int c = Field::Channel0; c < Field::NumChannels; ++c)
         {
-            // ignore 2-dimensional grids: already handled by COVISE plugin
-            return;
+            min[c] = colorObj->getMin(c);
+            max[c] = colorObj->getMax(c);
+            if (max[c] - min[c] <= 0.f)
+                irange[c] = 1.f;
+            else
+                irange[c] = 1.f/(max[c] - min[c]);
+
+            byteChannels[c] = colorObj->getByte((Field::Id)c);
+            if (byteChannels[c])
+                have_byte_chans = true;
+
+            floatChannels[c] = colorObj->getFloat((Field::Id)c);
+            if (floatChannels[c])
+                have_float_chans = true;
+
+            if (byteChannels[c] || floatChannels[c])
+                ++noChan;
         }
 
-        float minX, maxX, minY, maxY, minZ, maxZ;
-        geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
-
-#ifdef VERBOSE
-        cerr << "@ APP @@\n";
-        cerr << "@ APP @@ Color object type is " << colorObj->getType() << endl;
-#endif
-
-        bool showEditor = showTFE;
-        if (colorObj)
+        uchar *data = NULL;
+        size_t noVox = sizeX * sizeY * sizeZ;
+        if (packedColor)
         {
-            const uchar *byteData = colorObj->getByte(Field::Byte);
-            const int *packedColor = colorObj->getInt(Field::RGBA);
-            const float *red = colorObj->getFloat(Field::Red), *green = colorObj->getFloat(Field::Green), *blue = colorObj->getFloat(Field::Blue);
-
-            std::vector<const uchar*> byteChannels(Field::NumChannels);
-            std::vector<const float*> floatChannels(Field::NumChannels);
-
-            bool have_byte_chans = false;
-            bool have_float_chans = false;
-
-            int noChan = 0;
-
-            float min[Field::NumChannels], max[Field::NumChannels], irange[Field::NumChannels];
-            for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+            showEditor = false;
+            noChan = 4;
+            data = new uchar[noVox * 4];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
             {
-                min[c] = colorObj->getMin(c);
-                max[c] = colorObj->getMax(c);
-                if (max[c] - min[c] <= 0.f)
-                    irange[c] = 1.f;
-                else
-                    irange[c] = 1.f/(max[c] - min[c]);
-
-                byteChannels[c] = colorObj->getByte((Field::Id)c);
-                if (byteChannels[c])
-                    have_byte_chans = true;
-
-                floatChannels[c] = colorObj->getFloat((Field::Id)c);
-                if (floatChannels[c])
-                    have_float_chans = true;
-
-                if (byteChannels[c] || floatChannels[c])
-                    ++noChan;
+                *p++ = (packedColor[i] >> 24) & 0xff;
+                *p++ = (packedColor[i] >> 16) & 0xff;
+                *p++ = (packedColor[i] >> 8) & 0xff;
+                *p++ = (packedColor[i] >> 0) & 0xff;
             }
-
-            uchar *data = NULL;
-            size_t noVox = sizeX * sizeY * sizeZ;
-            if (packedColor)
+        }
+        else if (have_byte_chans || have_float_chans)
+        {
+            data = new uchar[noVox * noChan];
+            uchar *p = data;
+            if (!have_byte_chans)
             {
-                showEditor = false;
-                noChan = 4;
-                data = new uchar[noVox * 4];
-                uchar *p = data;
+                const float *chan[Field::NumChannels];
+                float range[Field::NumChannels];
+                int ch=0;
+                for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                {
+                    if (floatChannels[c])
+                    {
+                        range[ch] = irange[c]*255.99f;
+                        chan[ch] = floatChannels[c];
+                        ++ch;
+                    }
+                }
+                assert(ch == noChan);
                 for (size_t i=0; i<noVox; ++i)
                 {
-                    *p++ = (packedColor[i] >> 24) & 0xff;
-                    *p++ = (packedColor[i] >> 16) & 0xff;
-                    *p++ = (packedColor[i] >> 8) & 0xff;
-                    *p++ = (packedColor[i] >> 0) & 0xff;
+                    for (int c = 0; c<noChan; ++c)
+                    {
+                        *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
+                    }
                 }
             }
-            else if (have_byte_chans || have_float_chans)
+            else if (!have_float_chans)
             {
-                data = new uchar[noVox * noChan];
-                uchar *p = data;
-                if (!have_byte_chans)
+                const uchar *chan[Field::NumChannels];
+                int ch=0;
+                for (int c = Field::Channel0; c < Field::NumChannels; ++c)
                 {
-                    const float *chan[Field::NumChannels];
-                    float range[Field::NumChannels];
-                    int ch=0;
-                    for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                    if (byteChannels[c])
                     {
-                        if (floatChannels[c])
-                        {
-                            range[ch] = irange[c]*255.99f;
-                            chan[ch] = floatChannels[c];
-                            ++ch;
-                        }
-                    }
-                    assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
-                    {
-                        for (int c = 0; c<noChan; ++c)
-                        {
-                            *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
-                        }
+                        chan[ch] = byteChannels[c];
+                        ++ch;
                     }
                 }
-                else if (!have_float_chans)
+                assert(ch == noChan);
+                for (size_t i=0; i<noVox; ++i)
                 {
-                    const uchar *chan[Field::NumChannels];
-                    int ch=0;
+                    for (int c = 0; c<noChan; ++c)
+                    {
+                        *p++ = chan[c][i];
+                    }
+                }
+            }
+            else
+            {
+                for (size_t i=0; i<noVox; ++i)
+                {
                     for (int c = Field::Channel0; c < Field::NumChannels; ++c)
                     {
                         if (byteChannels[c])
                         {
-                            chan[ch] = byteChannels[c];
-                            ++ch;
+                            *p++ = byteChannels[c][i];
                         }
-                    }
-                    assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
-                    {
-                        for (int c = 0; c<noChan; ++c)
+                        else if (floatChannels[c])
                         {
-                            *p++ = chan[c][i];
+                            *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                         }
                     }
-                }
-                else
-                {
-                    for (size_t i=0; i<noVox; ++i)
-                    {
-                        for (int c = Field::Channel0; c < Field::NumChannels; ++c)
-                        {
-                            if (byteChannels[c])
-                            {
-                                *p++ = byteChannels[c][i];
-                            }
-                            else if (floatChannels[c])
-                            {
-                                *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (red && green && blue)
-            {
-                noChan = 3;
-                data = new uchar[noVox * 3];
-                uchar *p = data;
-                for (size_t i=0; i<noVox; ++i)
-                {
-                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                    *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
-                    *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
-                }
-            }
-            else if (red && green)
-            {
-                noChan = 2;
-                data = new uchar[noVox * 2];
-                uchar *p = data;
-                for (size_t i=0; i<noVox; ++i)
-                {
-                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                    *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
-                }
-            }
-            else if (red)
-            {
-                noChan = 1;
-                data = new uchar[noVox];
-                uchar *p = data;
-                for (size_t i=0; i<noVox; ++i)
-                {
-                    *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
-                }
-            }
-            else if (byteData)
-            {
-                noChan = 1;
-                data = new uchar[noVox];
-                memcpy(data, byteData, noVox);
-            }
-            else
-            {
-                cerr << "no data received" << endl;
-            }
-
-            // add to timestep series if necessary
-            if (container && container->getName() && volumes.find(container->getName()) != volumes.end())
-            {
-                volDesc->addFrame(data, vvVolDesc::ARRAY_DELETE);
-                volDesc->frames = volDesc->getStoredFrames();
-#ifdef VERBOSE
-                fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), volDesc->frames);
-#endif
-            }
-            else
-            {
-                volDesc = new vvVolDesc("COVISEXX",
-                                        sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
-                volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, minX+maxX) * .5f;
-                volDesc->setDist((maxZ - minZ) / sizeZ,
-                                 (maxY - minY) / sizeY,
-                                 (maxX - minX) / sizeX);
-            }
-
-            if (packedColor)
-            {
-                volDesc->tf[0].setDefaultColors(3, 0., 1.);
-                volDesc->tf[0].setDefaultAlpha(0, 0., 1.);
-            }
-
-            for (size_t c = 0; c < volDesc->getChan(); ++c)
-            {
-                volDesc->range(c)[0] = colorObj->getMin(c);
-                volDesc->range(c)[1] = colorObj->getMax(c);
-
-                if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
-                    volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
-            }
-
-            if (container->getName())
-                updateVolume(container->getName(), volDesc, true, "", container);
-            else if (geometry && geometry->getName())
-                updateVolume(geometry->getName(), volDesc, true, "", container);
-            else
-                updateVolume("Anonymous COVISE object", volDesc, true, "", container);
-
-            if (shader >= 0 && currentVolume != volumes.end())
-            {
-                virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
-                if (drawable)
-                {
-                    drawable->setShader(shader);
                 }
             }
         }
-
-        // a volume file will be loaded now, so show the TFE
-        if (showEditor)
+        else if (red && green && blue)
         {
-            editor->show();
-            tfeItem->setState(true);
+            noChan = 3;
+            data = new uchar[noVox * 3];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
+            {
+                *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+                *p++ = (uchar)((blue[i]-min[2])*irange[2] * 255.99);
+            }
+        }
+        else if (red && green)
+        {
+            noChan = 2;
+            data = new uchar[noVox * 2];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
+            {
+                *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+                *p++ = (uchar)((green[i]-min[1])*irange[1] * 255.99);
+            }
+        }
+        else if (red)
+        {
+            noChan = 1;
+            data = new uchar[noVox];
+            uchar *p = data;
+            for (size_t i=0; i<noVox; ++i)
+            {
+                *p++ = (uchar)((red[i]-min[0])*irange[0] * 255.99);
+            }
+        }
+        else if (byteData)
+        {
+            noChan = 1;
+            data = new uchar[noVox];
+            memcpy(data, byteData, noVox);
+        }
+        else
+        {
+            cerr << "no data received" << endl;
+            return;
+        }
+
+        // add to timestep series if necessary
+        if (container && container->getName() && volumes.find(container->getName()) != volumes.end())
+        {
+            volDesc->addFrame(data, vvVolDesc::ARRAY_DELETE);
+            volDesc->frames = volDesc->getStoredFrames();
+#ifdef VERBOSE
+            fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), (int)volDesc->frames);
+#endif
+        }
+        else
+        {
+            volDesc = new vvVolDesc("COVISEXX",
+                                    sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
+            volDesc->pos = vvVector3(minZ+maxZ, -minY-maxY, -minX-maxX) * .5f;
+            volDesc->setDist((maxZ - minZ) / sizeZ,
+                             (maxY - minY) / sizeY,
+                             (maxX - minX) / sizeX);
+        }
+
+        if (packedColor)
+        {
+            volDesc->tf[0].setDefaultColors(3, 0., 1.);
+            volDesc->tf[0].setDefaultAlpha(0, 0., 1.);
+        }
+
+        for (size_t c = 0; c < volDesc->getChan(); ++c)
+        {
+            volDesc->range(c)[0] = colorObj->getMin(c);
+            volDesc->range(c)[1] = colorObj->getMax(c);
+
+            if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
+                volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
+        }
+
+        if (container->getName()){
+            updateVolume(container->getName(), volDesc, true, "", container, group);
+            updateData(container->getName());
+        }else if (geometry && geometry->getName()) {
+            updateVolume(geometry->getName(), volDesc, true, "", container, group);
+            updateData(geometry->getName());
+        }else {
+            updateVolume("Anonymous COVISE object", volDesc, true, "", container, group);
+        }
+
+        if (shader >= 0 && currentVolume != volumes.end())
+        {
+            virvo::VolumeDrawable *drawable = currentVolume->second.drawable.get();
+            if (drawable)
+            {
+                drawable->setShader(shader);
+            }
+        }
+    }
+
+    // a volume file will be loaded now, so show the TFE
+    if (showEditor)
+    {
+        editor->show();
+        tfeItem->setState(true);
+    }
+}
+
+bool VolumePlugin::sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2) {
+    std::string name1 = it1->first;
+    std::string name2 = it2->first;
+    if (std::isdigit(name1.c_str()[0])) {
+        if (std::strncmp(name1.c_str(), name2.c_str(),2)==0)
+            return true;
+    }
+    return false;
+}
+
+void VolumePlugin::updateData(const std::string &name)
+{
+    VolumeMap::iterator ref = volumes.find(name);
+    float min_new[Field::NumChannels], max_new[Field::NumChannels], range_new[Field::NumChannels];
+    for(size_t c = 0; c < Field::NumChannels ;++c) {
+        min_new[c] =volumes.begin()->second.drawable->getVolumeDescription()->range(c)[0];
+        max_new[c] =volumes.begin()->second.drawable->getVolumeDescription()->range(c)[1];
+    }
+        
+    for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
+        if (sameObject(ref, it)) {
+            vvVolDesc *vd = it->second.drawable->getVolumeDescription();
+            for(size_t c = 0; c < Field::NumChannels ;++c) {
+                if ((vd->getChan()-1)>=c) {
+                   if (min_new[c] > vd->range(c)[0]) {
+                       min_new[c] = vd->range(c)[0];
+                   }
+                   if (max_new[c] < vd->range(c)[1]) {
+                       max_new[c] = vd->range(c)[1];
+                   }
+                }
+            }
+        }
+    }
+    for(size_t c = 0; c < Field::NumChannels ;++c) {
+        if (max_new[c] - min_new[c] <= 0.f)
+            range_new[c] = 1.f;
+        else
+            range_new[c] = 1.f/(max_new[c] - min_new[c]);
+    }
+    for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
+        if (sameObject(ref, it)) {
+            vvVolDesc *vd = it->second.drawable->getVolumeDescription();
+            int noChan = vd->bpc;
+            int ival;
+            float fval;
+            float min_old[2], max_old[2], range_old[2];
+
+            for (int c = 0; c<noChan; ++c) {
+                min_old[c] = vd->range(c)[0];
+                max_old[c] = vd->range(c)[1];
+                switch (noChan)
+                {
+                    case 1:
+                        range_old[c] = (max_old[c]-min_old[c]) <= 0.f ? 255.f : 255.f/(max_old[c]-min_old[c]) ;
+                        break;
+                    case 2:
+                        range_old[c] = (max_old[c]-min_old[c]) <= 0.f ? 65535.0f : 65535.0f/(max_old[c]-min_old[c]) ;
+                        break;
+                }
+            }
+
+            for (size_t f=0; f<vd->getStoredFrames(); ++f)
+            {
+                uint8_t * old_data = vd->getRaw(f);
+                for (size_t i=0; i<vd->getFrameVoxels(); ++i)
+                {
+                    for (int c = 0; c<noChan; ++c)
+                    {
+                        switch (noChan)
+                        {
+                            case 1:
+                                fval = float(*old_data)/(range_old[c]) + min_old[c];
+                                ival = int(255.0f*(fval-min_new[c]) * range_new[c]);
+                                ival = ts_clamp(ival, 0, 255);
+                                *old_data++ = uint8_t(ival);
+                                break;
+                            case 2:
+                                //TODO: raw is uint16_t
+                                break;
+                        }
+                    }
+                }
+            }
+            for(size_t c = 0; c < vd->getChan(); ++c) {
+                 vd->range(c)[0] = min_new[c];
+                 vd->range(c)[1] = max_new[c];
+            }
+            updateVolume(it->first,vd,true);
         }
     }
 }
@@ -1724,6 +1857,18 @@ void VolumePlugin::cropVolume()
     currentVolume->second.roiCellSize = roiCellSize;
 }
 
+void VolumePlugin::syncTransferFunction()
+{
+    if (currentVolume == volumes.end())
+        return;
+
+	for (int i = 0; i < currentVolume->second.tf.size(); ++i)
+	{
+
+		*currentVolume->second.tfState[i] = currentVolume->second.tf[i];
+	}
+}
+
 void VolumePlugin::saveVolume()
 {
     if (coVRMSController::instance()->isSlave())
@@ -1766,7 +1911,7 @@ void VolumePlugin::saveVolume()
     }
 }
 
-bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename, const RenderObject *container)
+bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename, const RenderObject *container, osg::Group *group)
 {
     if (!vd)
     {
@@ -1798,15 +1943,19 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
     if (volume == volumes.end())
     {
         volumes[name].transform->setName("Volume: "+name);
-        volumes[name].addToScene();
+        volumes[name].addToScene(group);
         volumes[name].filename = filename;
         volumes[name].multiDimTF = vd->getChan() == 1;
         volumes[name].preIntegration = preintItem->state();
         volumes[name].lighting = lightingItem->state();
         volumes[name].mapTF = mapTF;
+        if (!container && volumes[name].transform) {
+            volumes[name].transform->setMatrix(osg::Matrix::identity());
+        }
         if (volumes[name].multiDimTF)
         {
             volumes[name].tf.resize(1);
+			volumes[name].tfState.resize(1);
             if (vd->tf[0].isEmpty())
             {
                 volumes[name].tf[0] = editor->getTransferFunc(0);
@@ -1815,22 +1964,34 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 volumes[name].tf[0] = vd->tf[0];
             }
+			volumes[name].tfState[0].reset(new vrb::SharedState<vvTransFunc>(("TransFunc" + name + "0"), volumes[name].tf[0], vrb::ALWAYS_SHARE));
+			volumes[name].tfState[0]->setUpdateFunction([this, name]() {
+				volumes[name].tf[0] = volumes[name].tfState[0]->value();
+				});
         }
         else
         {
-            volumes[name].tf.resize(vd->getChan());
+			volumes[name].tf.resize(vd->getChan());
+			volumes[name].tfState.resize(vd->getChan());
             if (vd->tf.empty() || vd->tf.size() != vd->getChan())
             {
                 for (int i = 0; i < volumes[name].tf.size(); ++i)
                 {
-                    volumes[name].tf[i].setDefaultColors(4 + i, vd->range(i)[0], vd->range(i)[1]);
-                    volumes[name].tf[i].setDefaultAlpha(0, vd->range(i)[0], vd->range(i)[1]);
+                    volumes[name].tf[i].setDefaultColors(4 + i, 0, 1);
+                    volumes[name].tf[i].setDefaultAlpha(0, 0, 1);
                 }
             }
             else
             {
                 volumes[name].tf = vd->tf;
             }
+			for (int i = 0; i < volumes[name].tf.size(); ++i)
+			{
+				volumes[name].tfState[i].reset(new vrb::SharedState<vvTransFunc>(("TransFunc" + name + std::to_string(i)), volumes[name].tf[i], vrb::ALWAYS_SHARE));
+				volumes[name].tfState[i]->setUpdateFunction([this, name, i]() {
+					volumes[name].tf[i] = volumes[name].tfState[i]->value();
+					});
+			}
 
             if (vd->channelWeights.size() != vd->getChan())
             {
@@ -1952,13 +2113,18 @@ void VolumePlugin::updateTFEData()
                 vvVolDesc *vd = tfApplyCBData.drawable->getVolumeDescription();
                 if (vd)
                 {
-                    if (computeHistogram)
+                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
+                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, 0,1);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
                         editor->pinedit->setBackgroundType(0); // histogram
+                        editor->enableHistogram(true);
+                    }
+                    else
+                    {
+                        editor->enableHistogram(false);
                     }
 
                     editor->setNumChannels(vd->getChan());
@@ -1994,16 +2160,21 @@ void VolumePlugin::updateTFEData()
                         coTUIFunctionEditorTab::histogramBuckets,
                         vd->getChan() == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
                     };
-                    if (computeHistogram)
+                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
                         if (vd->getChan() == 1)
-                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, vd->range(0)[0], vd->range(0)[1]);
-                        else
+                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, 0,1);
+                            else
                             //TODO: allow to pass in multiple min/max pairs
-                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,
-                                              std::min(vd->range(0)[0], vd->range(1)[0]),
-                                              std::max(vd->range(0)[1], vd->range(1)[1]));
+                                vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,0,1);
+                        editor->enableHistogram(true);
+                        std::cerr << "enabling histogram" << std::endl;
+                    }
+                    else
+                    {
+                        std::cerr << "disabling histogram" << std::endl;
+                        editor->enableHistogram(false);
                     }
                 }
             }
@@ -2136,7 +2307,7 @@ void VolumePlugin::preFrame()
         {
             center = it->second.roiPosObj;
         }
-        Vec3 centerWorld = center * cover->getBaseMat();
+        Vec3 centerWorld = center;// * cover->getBaseMat();
         Vec3 viewerPosWorld = cover->getViewerMat().getTrans();
         Vec3 objDirWorld = centerWorld - viewerPosWorld;
         Vec3 objDirObj = osg::Matrix::transform3x3(objDirWorld, cover->getInvBaseMat()); // 3x3 only
@@ -2148,13 +2319,11 @@ void VolumePlugin::preFrame()
         if (drawable)
         {
             const osg::Matrix &t = it->second.transform->getMatrix();
+            auto invT = osg::Matrix::inverse(t);
             drawable->setQuality(quality);
-            drawable->setViewDirection(viewDirObj*t);
-            drawable->setObjectDirection(objDirObj*t);
-        }
+            drawable->setViewDirection(viewDirObj*invT);
+            drawable->setObjectDirection(objDirObj*invT);
 
-        if (drawable)
-        {
             typedef vvRenderState::ParameterType PT;
 
             int maxClipPlanes = drawable->getMaxClipPlanes();
@@ -2167,25 +2336,24 @@ void VolumePlugin::preFrame()
                 for (int i = 0; i < std::min((int)cn->getNumClipPlanes(), maxClipPlanes); ++i)
                 {
                     ClipPlane *cp = cn->getClipPlane(i);
-                    Vec4 v = cp->getClipPlane();
+                    Vec4 v = cp->getClipPlane() * invT;
 
                     boost::shared_ptr<vvClipPlane> plane = vvClipPlane::create();
-                    plane->normal = virvo::vec3(-v.z(), v.y(), -v.x());
+                    plane->normal = -virvo::vec3(v.x(), v.y(), v.z());
                     plane->offset = v.w();
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
-                    if (followCoverClipping || opaqueClipping)
+                    if (ignoreCoverClipping || followCoverClipping)
                     {
                         state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
                     }
                     else
                     {
                         state->removeMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum());
-                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), false);
                     }
+                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + cp->getClipPlaneNum()), singleSliceClipping || (!ignoreCoverClipping && followCoverClipping));
 
                     ++numClipPlanes;
                 }
@@ -2293,11 +2461,11 @@ void VolumePlugin::preFrame()
         {
             if (drawable->getROISize() <= 0.0f)
                 drawable->setROISize(0.00001f);
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+            if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
             {
                 drawable->setROIPosition(currentVolume->second.roiPosObj);
-                if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+                if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
                 {
                     sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
                 }
@@ -2306,7 +2474,7 @@ void VolumePlugin::preFrame()
     }
     if (interactionB->isRunning())
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
         {
             bool mouse = interactionB->is2D();
@@ -2333,7 +2501,7 @@ void VolumePlugin::preFrame()
                 {
                     currentVolume->second.roiCellSize = roiCellSize;
                 }
-                if (drawable && coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+                if (drawable && coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
                 {
                     sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
                 }
@@ -2342,7 +2510,7 @@ void VolumePlugin::preFrame()
     }
     if (interactionA->wasStopped())
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             if (!roiVisible())
@@ -2364,7 +2532,7 @@ void VolumePlugin::preFrame()
                 return;
             }
 
-            if (drawable && coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+            if (drawable && coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
             {
                 sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
             }
@@ -2437,7 +2605,7 @@ void VolumePlugin::setROIMode(bool newMode)
                 roiCellSize = 1.0f;
             currentVolume->second.roiMode = true;
         }
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             roiMode = true;
@@ -2449,7 +2617,7 @@ void VolumePlugin::setROIMode(bool newMode)
     }
     else
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             roiCellSize = 0.0f;
@@ -2470,10 +2638,10 @@ void VolumePlugin::setROIMode(bool newMode)
     {
         drawable->setROISize(roiCellSize);
 
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+            if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
             {
                 sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
             }
@@ -2501,3 +2669,51 @@ virvo::VolumeDrawable *VolumePlugin::getCurrentDrawable()
 }
 
 COVERPLUGIN(VolumePlugin)
+
+covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id)
+{
+	std::vector<char> buf;
+	typedef boost::iostreams::back_insert_device<std::vector<char> > sink_type;
+	typedef boost::iostreams::stream<sink_type> stream_type;
+
+	sink_type sink(buf);
+	stream_type stream(sink);
+
+	// Create a serializer
+	boost::archive::binary_oarchive archive(stream);
+
+	// Serialize the message
+	archive << id;
+
+	// Don't forget to flush the stream!!!
+	stream.flush();
+	tb << int(buf.size());
+	tb.addBinary(&buf[0], buf.size());
+	return tb;
+}
+
+covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id)
+{
+	int size;
+	tb >> size;
+	std::vector<char> buf;
+	buf.reserve(size);
+	for (int i = 0; i < size; i++)
+	{
+		char c;
+		tb >> c;
+		buf.push_back(c);
+	}
+	typedef boost::iostreams::basic_array_source<char> source_type;
+	typedef boost::iostreams::stream<source_type> stream_type;
+
+	source_type source(&buf[0], buf.size());
+	stream_type stream(source);
+
+	// Create a deserialzer
+	boost::archive::binary_iarchive archive(stream);
+
+	// Deserialize the message
+	archive >> id;
+	return tb;
+}

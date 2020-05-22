@@ -86,7 +86,14 @@ VrmlNodeInline *VrmlNodeInline::toInline() const
 void VrmlNodeInline::addToScene(VrmlScene *s, const char *relativeUrl)
 {
     d_scene = s;
-    load(relativeUrl);
+	if (s)
+	{
+		load(relativeUrl, System::the->getFileId(s->urlDoc()->url()));
+	}
+	else
+	{
+		load(relativeUrl);
+	}
     VrmlNodeGroup::addToScene(s, relativeUrl);
 }
 
@@ -150,7 +157,7 @@ void VrmlNodeInline::render(Viewer *viewer)
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
-            if (d_viewerObject && (strstr(name(), "NotCached") == NULL) && isOnlyGeometry())
+            if (d_viewerObject && isOnlyGeometry())
             {
                 d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
                 Doc url;
@@ -173,7 +180,7 @@ void VrmlNodeInline::render(Viewer *viewer)
 
 //  Load the children from the URL
 
-void VrmlNodeInline::load(const char *relativeUrl)
+void VrmlNodeInline::load(const char *relativeUrl, int parentId)
 {
     if (!relativeUrl)
         //URL is empty, should not occur -> return
@@ -201,19 +208,14 @@ void VrmlNodeInline::load(const char *relativeUrl)
         sgObject = 0L;
         if (d_url.get(0) && strlen(d_url.get(0))>0)
         {
-#if 1
-            sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
-            if (sgObject)
+            if (isOnlyGeometry())
             {
-                setModified();
-            }
-#else
-            if (strstr(name(), "Cached") != NULL)
-            {
-                setModified();
                 sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
+                if (sgObject)
+                {
+                    setModified();
+                }
             }
-#endif
             if ((sgObject == 0L) && !VrmlScene::isWrl(url.url()))
             {
                 sgObject = System::the->getInline(url.url());
@@ -222,7 +224,7 @@ void VrmlNodeInline::load(const char *relativeUrl)
         }
         if (sgObject == 0L)
         {
-            VrmlNamespace *ns = new VrmlNamespace();
+            VrmlNamespace *ns = new VrmlNamespace(parentId);
             VrmlMFNode *kids = 0;
             Doc url;
             int i, n = d_url.size();

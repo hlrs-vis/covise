@@ -36,7 +36,7 @@
 #include <cover/coVRTui.h>
 
 #ifndef _WIN32
-#include <sys/dir.h>
+#include <dirent.h>
 #else
 #include <stdio.h>
 #include <process.h>

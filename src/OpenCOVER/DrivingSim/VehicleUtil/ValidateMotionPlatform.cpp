@@ -7,6 +7,8 @@
 
 #include "ValidateMotionPlatform.h"
 
+using namespace vehicleUtil;
+
 ValidateMotionPlatform *ValidateMotionPlatform::instancePointer = NULL;
 
 ValidateMotionPlatform::ValidateMotionPlatform(const std::string &channelId, int stacksize, int prio, int mode, const can_id_t &syncid,

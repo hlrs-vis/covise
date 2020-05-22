@@ -83,6 +83,6 @@ Player *PlayerFactory::createPlayer()
         return NULL;
     }
 
-    //CERR << "unknown player type: " << type << endl;
+    CERR << "unknown player type: " << type << endl;
     return NULL;
 }

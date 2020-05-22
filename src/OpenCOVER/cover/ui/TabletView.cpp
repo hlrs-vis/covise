@@ -1,6 +1,7 @@
 #include "TabletView.h"
 
 #include <cassert>
+#include <iostream>
 
 #include "Element.h"
 #include "Menu.h"
@@ -15,6 +16,8 @@
 
 #include <cover/coVRPluginSupport.h>
 
+#include <config/CoviseConfig.h>
+
 namespace opencover {
 namespace ui {
 
@@ -22,6 +25,18 @@ const bool GroupAsGroupbox = false;
 const bool GroupWithTitle = true;
 const bool SlidersOnOwnRow = true;
 const int SliderLength = 2;
+
+namespace {
+
+std::string configPath(const std::string &path)
+{
+    if (path.empty())
+        return "COVER.UI";
+
+    return "COVER.UI." + path;
+}
+
+}
 
 TabletView::TabletView(const std::string &name, coTabletUI *tui)
 : View(name)
@@ -80,6 +95,21 @@ TabletViewElement *TabletView::tuiParent(const Element *elem) const
 {
     if (!elem)
         return nullptr;
+
+    bool exists = false;
+    std::string parentPath = covise::coCoviseConfig::getEntry("tuiParent", configPath(elem->path()), &exists);
+    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    if (exists)
+    {
+        if (parentPath.empty())
+        {
+            return m_root;
+        }
+        if (auto parent = tuiElement(parentPath))
+            return parent;
+
+        std::cerr << "ui::Vrui: did not find configured parent '" << parentPath << "' for '" << elem->path() << "'" << std::endl;
+    }
 
     if (elem->parent())
         return tuiElement(elem->parent());
@@ -205,13 +235,19 @@ void TabletView::updateEnabled(const Element *elem)
 
 void TabletView::updateVisible(const Element *elem)
 {
-    //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << ")" << std::endl;
+    //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << "): visible=" << elem->visible() << std::endl;
     auto ve = tuiElement(elem);
     if (!ve)
+    {
+        //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << "): visible=" << elem->visible() << ": NO view element" << std::endl;
         return;
+    }
     auto te = ve->m_elem;
     if (!te)
+    {
+        //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << "): visible=" << elem->visible() << ": NO tablet element" << std::endl;
         return;
+    }
     te->setHidden(!elem->visible(this));
 }
 
@@ -339,7 +375,7 @@ void TabletView::updateBounds(const Slider *slider)
     }
 }
 
-void TabletView::updateValue(const EditField *input)
+void TabletView::updateValue(const TextField *input)
 {
     auto ve = tuiElement(input);
     if (!ve)
@@ -352,16 +388,9 @@ void TabletView::updateValue(const EditField *input)
     {
         vs->setText(input->value());
     }
-}
-
-void TabletView::updateValue(const FileBrowser *fb)
-{
-    auto ve = tuiElement(fb);
-    if (!ve)
-        return;
-    if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
+    else if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
     {
-        te->setCurDir(fb->value().c_str());
+        te->setCurDir(input->value().c_str());
     }
 }
 
@@ -563,13 +592,11 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
         if (auto ts = dynamic_cast<coTUIFloatSlider *>(elem))
         {
             s->setValue(ts->getValue());
-            s->setMoving(true);
             s->trigger();
         }
         else if (auto ts = dynamic_cast<coTUISlider *>(elem))
         {
             s->setValue(ts->getValue());
-            s->setMoving(true);
             s->trigger();
         }
     }
@@ -607,6 +634,19 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
 void TabletViewElement::tabletPressEvent(coTUIElement *elem)
 {
     //std::cerr << "tabletPressEvent: " << element->path() << std::endl;
+    if (auto s = dynamic_cast<Slider *>(element))
+    {
+        if (auto ts = dynamic_cast<coTUIFloatSlider *>(elem))
+        {
+            s->setMoving(true);
+            s->trigger();
+        }
+        else if (auto ts = dynamic_cast<coTUISlider *>(elem))
+        {
+            s->setMoving(true);
+            s->trigger();
+        }
+    }
 }
 
 void TabletViewElement::tabletReleaseEvent(coTUIElement *elem)

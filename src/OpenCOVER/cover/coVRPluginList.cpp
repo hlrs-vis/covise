@@ -457,6 +457,16 @@ void coVRPluginList::grabKeyboard(coVRPlugin *p)
     keyboardPlugin = p;
 }
 
+void coVRPluginList::grabViewer(coVRPlugin *p)
+{
+    viewerPlugin = p;
+}
+
+coVRPlugin *coVRPluginList::viewerGrabber() const
+{
+    return viewerPlugin;
+}
+
 bool coVRPluginList::key(int type, int keySym, int mod) const
 {
     if (keyboardPlugin)
@@ -511,6 +521,11 @@ void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
     DOALL(plugin->message(toWhom, t, l, b));
 }
 
+void coVRPluginList::UDPmessage(int type, const covise::DataHandle& dh) const
+{
+	DOALL(plugin->UDPmessage(type, dh));
+}
+
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 {
     PluginMap::const_iterator it = m_plugins.find(name);
@@ -553,14 +568,15 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
     return m;
 }
 
-void coVRPluginList::forwardMessage(int len, const void *buf) const
+void coVRPluginList::forwardMessage(const covise::DataHandle& dh) const
 {
     int headerSize = 2 * sizeof(int);
-    if (len < headerSize)
+    if (dh.length() < headerSize)
     {
         cerr << "wrong Message received in coVRPluginList::forwardMessage" << endl;
         return;
     }
+    const char* buf = dh.data();
     int toWhom = *((int *)buf);
     int type = *(((int *)buf) + 1);
 #ifdef BYTESWAP
@@ -571,7 +587,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         || (toWhom == coVRPluginSupport::TO_ALL_OTHERS)
         || (toWhom == coVRPluginSupport::VRML_EVENT))
     {
-        message(toWhom, type, len - headerSize, ((const char *)buf) + headerSize);
+        message(toWhom, type, dh.length() - headerSize, buf + headerSize);
     }
     else
     {
@@ -580,7 +596,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         if (mod)
         {
             int ssize = strlen(name) + 1 + (8 - ((strlen(name) + 1) % 8));
-            mod->message(toWhom, type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
+            mod->message(toWhom, type, dh.length() - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
         }
     }
 }

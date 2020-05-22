@@ -3,7 +3,9 @@
 
 #include <osgViewer/GraphicsWindow>
 #include <mutex>
+#ifndef _M_CEE //no future in Managed OpenCOVER
 #include <future>
+#endif
 #include <memory>
 
 extern "C" {
@@ -158,7 +160,9 @@ private:
     coTUIToggleButton *saveButton;
 
     xercesc::DOMImplementation *impl;
+#ifndef _M_CEE //no future in Managed OpenCOVER
     std::unique_ptr<std::future<bool>> encodeFuture;
+#endif
 };
 
 #endif

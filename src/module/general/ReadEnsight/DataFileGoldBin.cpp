@@ -20,12 +20,13 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "DataFileGoldBin.h"
+#include "ReadEnsight.h"
 #include <util/byteswap.h>
 
 //
 // Constructor
 //
-DataFileGoldBin::DataFileGoldBin(const coModule *mod,
+DataFileGoldBin::DataFileGoldBin(ReadEnsight *mod,
                                  const string &name,
                                  const int &dim,
                                  const int &numVals,
@@ -58,22 +59,49 @@ DataFileGoldBin::DataFileGoldBin(const coModule *mod,
 }
 
 void
-DataFileGoldBin::readCells()
+DataFileGoldBin::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
-        // 1 lines decription - ignore it
-        getStr();
+        bool written = false;
         size_t id(0);
         int actPartNr;
         EnPart *actPart(NULL);
         int eleCnt2d = 0, eleCnt3d = 0;
 
-        while (!feof(in_))
-        {
-            string tmp(getStr());
+        // 1 lines decription - ignore it
+        string currentLine(getStr());
 
-            id = tmp.find("part");
+        while (!feof(in_)) // read all timesteps
+        {
+            size_t tt = currentLine.find("END TIME STEP");
+            if (tt != string::npos)
+            {
+                currentLine = getStr(); // read description
+                                        // create DO's
+
+                coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep,false);
+
+
+                if (oOut[0] != NULL)
+                    outObjects[timeStep] = oOut[0];
+
+                timeStep++;
+                if(timeStep < ens->globalParts_.size())
+                {
+                    setPartList(&ens->globalParts_[timeStep]); // make sure we use the current part list for this timestep
+                }
+                written = true;
+            }
+            tt = currentLine.find("BEGIN TIME STEP");
+            if (tt != string::npos)
+            {
+                currentLine = getStr(); // read description
+            }
+
+            currentLine = getStr(); // this should be the part line or an element name
+
+            id = currentLine.find("part");
             if (id != string::npos)
             {
                 // part line found   -- we skip it for the moment --
@@ -131,11 +159,14 @@ DataFileGoldBin::readCells()
                         actPart->d3dz_ = NULL;
                     }
                 }
+                currentLine = getStr(); // this should be the elementName now
             }
+
+            string elemName(currentLine); 
 
             if ((actPart != NULL) && (actPart->isActive()))
             {
-                string elementType(strip(tmp));
+                string elementType(strip(elemName));
                 EnElement elem(elementType);
                 int anzEle(0);
                 // we have a valid ENSIGHT element
@@ -251,8 +282,8 @@ DataFileGoldBin::readCells()
                 // skip data
                 while ((!feof(in_)) && (numParts > 0))
                 {
-                    tmp = getStr();
-                    string elementType(strip(tmp));
+                    currentLine = getStr();
+                    string elementType(strip(currentLine));
                     EnElement elem(elementType);
                     int anzEle(0);
                     // we have a valid ENSIGHT element
@@ -276,15 +307,23 @@ DataFileGoldBin::readCells()
                     numParts--;
                 }
             }
+
         }
+        if (written)
+        {
+            //dc_.cleanAll();
+        }
+        else
+            createDataOutObj(dim, outObjects, baseName, timeStep,numTimeSteps,false);
     }
+
 }
 
 //
 // Method
 //
 void
-DataFileGoldBin::read()
+DataFileGoldBin::read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -397,6 +436,8 @@ DataFileGoldBin::read()
         }
     }
     //buildParts(true);
+
+    createDataOutObj(dim, outObjects, baseName, timeStep, numTimeSteps);
 }
 
 //

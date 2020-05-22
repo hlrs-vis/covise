@@ -16,7 +16,11 @@
 #include <osgFX/Outline>
 #include <osg/MatrixTransform>
 
+#include <net/tokenbuffer.h>
 #include <util/string_util.h>
+#include <vrbclient/VRBMessage.h>
+#include <net/message.h>
+#include <net/message_types.h>
 
 using namespace opencover;
 using namespace vrui;
@@ -376,16 +380,13 @@ void coVRSelectionManager::showhideSelection(int mode)
     SelOnOff = mode;
 }
 
-void coVRSelectionManager::receiveAdd(const char *messageData)
+void coVRSelectionManager::receiveAdd(covise::TokenBuffer &messageData)
 {
-    if (!messageData)
-        return;
+    std::string parentPath; 
+    std::string nodePath; 
 
-    std::string str(messageData);
-    std::vector<std::string> tokens = split(str, '?');
-
-    std::string &parentPath = tokens[0];
-    std::string &nodePath = tokens[1];
+    messageData >> parentPath;
+    messageData >> nodePath;
 
     osg::Node *parent = validPath(parentPath);
     osg::Node *node = validPath(nodePath);
@@ -402,12 +403,13 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
 
     if (send)
     {
-        std::string msg = generatePath(parent);
-        msg.append("?");
-        msg.append(generatePath(selectedNode));
-        char *charmsg = (char *)msg.c_str();
-        int len = strlen(charmsg) + 1;
-        cover->sendBinMessage("ADD_SELECTION", charmsg, len);
+        covise::TokenBuffer tb;
+        tb << vrb::ADD_SELECTION;
+        tb <<generatePath(parent);
+        tb << generatePath(selectedNode);
+        covise::Message msg;
+        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
     }
 
     osg::Group *selectionNode = NULL;
@@ -503,7 +505,11 @@ void coVRSelectionManager::clearSelection(bool send)
 {
     if (send)
     {
-        cover->sendBinMessage("CLEAR_SELECTION", "", 0);
+        covise::TokenBuffer tb;
+        tb << vrb::CLEAR_SELECTION;
+        covise::Message msg;
+        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
     }
 
     while (!selectionNodeList.empty())
@@ -926,7 +932,7 @@ osg::Node *coVRSelectionManager::validPath(std::string path)
     while (isHelperNode(returnValue))
     {
         help = returnValue->asGroup();
-        if (help)
+        if (help!=NULL && help->getNumChildren()>0)
             returnValue = help->getChild(0);
         else
             returnValue = NULL;

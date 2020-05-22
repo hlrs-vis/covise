@@ -178,20 +178,20 @@ private:
     osg::Matrix offset;
     osg::Matrix Ctrans;
     osg::Matrix Mtrans;
-    osg::Matrix OpenGLToOSGMatrix;
-    osg::Matrix PfToOpenGLMatrix;
-    coTUILabel *markerLabel;
-    coTUIToggleButton *vrmlToPfFlag;
-    coTUIEditFloatField *size;
-    coTUIEditFloatField *posX;
-    coTUIEditFloatField *posY;
-    coTUIEditFloatField *posZ;
-    coTUIEditFloatField *rotH;
-    coTUIEditFloatField *rotP;
-    coTUIEditFloatField *rotR;
+    coTUILabel *markerLabel = nullptr;
+    coTUIToggleButton *vrmlToPfFlag = nullptr;
+    coTUIEditFloatField *size = nullptr;
+    coTUIEditFloatField *posX = nullptr;
+    coTUIEditFloatField *posY = nullptr;
+    coTUIEditFloatField *posZ = nullptr;
+    coTUIEditFloatField *rotH = nullptr;
+    coTUIEditFloatField *rotP = nullptr;
+    coTUIEditFloatField *rotR = nullptr;
 
 public:
-    ARToolKitMarker(const char *Name);
+	ARToolKitMarker(const std::string &configName,int MarkerID,double size,osg::Matrix&mat, osg::Matrix& hostMat,bool VrmlToOSG);
+	ARToolKitMarker(const char* Name);
+	void updateData(double markerSize, osg::Matrix& mat, osg::Matrix& hostMat, bool vrmlToOsg);
     virtual ~ARToolKitMarker();
     osg::Matrix &getCameraTrans();
     osg::Matrix &getMarkerTrans();
@@ -212,17 +212,19 @@ public:
         objectMarker = o;
     };
     void setColor(float r, float g, float b);
-    osg::Geode *quadGeode;
+    osg::Geode *quadGeode = nullptr;
     osg::ref_ptr<osg::MatrixTransform> markerQuad;
-    osg::MatrixTransform *posSize;
-    osg::Vec4Array *colors;
-    osg::Geometry *geom;
-    coTUIToggleButton *displayQuad;
-    coTUIToggleButton *calibrate;
+    osg::MatrixTransform *posSize=nullptr;
+    osg::Vec4Array *colors = nullptr;
+    osg::Geometry *geom = nullptr;
+    coTUIToggleButton *displayQuad = nullptr;
+    coTUIToggleButton *calibrate = nullptr;
     int numCalibSamples;
     osg::Matrix matrixSumm;
     bool lastVisible;
     void setOffset(osg::Matrix &mat);
+	osg::Matrix OpenGLToOSGMatrix;
+	osg::Matrix PfToOpenGLMatrix;
 };
 }
 #endif

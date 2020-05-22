@@ -109,7 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
     importSettings = new ImportSettings();
 	exportSettings = new ExportSettings();
     lodSettings = new LODSettings();
-	oscSettings = new OSCSettings(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/");
+	oscSettings = new OSCSettings(covisedir_ + "/share/covise/catalogs/");
 
  //---------------------------------------//
     coverConnection = COVERConnection::instance();

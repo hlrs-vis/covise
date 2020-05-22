@@ -9,6 +9,7 @@
 #include <QInputEvent>
 #include <QWindow>
 #include <QOpenGLContext>
+#include <QOpenGLFunctions>
 #include <QApplication>
 
 #include <cover/VRViewer.h>
@@ -182,7 +183,7 @@ bool QtGraphicsWindow::realizeImplementation()
             qApp->sendPostedEvents();
             qApp->processEvents();
         }
-		setDefaultFboId(m_glWidget->defaultFramebufferObject()); // make the FBO ID available to OpenSceneGraph so that it can restore it after rendering to ther FBOs
+        setDefaultFboId(m_glWidget->defaultFramebufferObject()); // make the FBO ID available to OpenSceneGraph so that it can restore it after rendering to ther FBOs
     }
     else
     {
@@ -216,7 +217,13 @@ bool QtGraphicsWindow::setWindowRectangleImplementation(int x, int y, int width,
 void QtGraphicsWindow::swapBuffersImplementation()
 {
     if (m_glWidget && m_glWidget->context())
+    {
+#ifdef Q_OS_MAC
+        // seems to be necessary on OS X: otherwise screen flickering
+        m_glWidget->context()->functions()->glFinish();
+#endif
         m_glWidget->context()->swapBuffers(m_glWidget->context()->surface());
+    }
 }
 
 void QtGraphicsWindow::useCursor(bool cursorOn)
@@ -268,15 +275,24 @@ void QtGraphicsWindow::setCursor(MouseCursor cursor)
 
 bool QtGraphicsWindow::setWindowDecorationImplementation(bool flag)
 {
+    auto f = m_glWidget->windowFlags();
     auto win = dynamic_cast<QWindow *>(m_glWidget->parent());
     if (win)
     {
-        auto f = win->flags();
-        if (flag)
-            f |= Qt::FramelessWindowHint;
-        else
-            f &= ~Qt::FramelessWindowHint;
+        f = win->flags();
+    }
+    if (flag)
+        f |= Qt::FramelessWindowHint;
+    else
+        f &= ~Qt::FramelessWindowHint;
+    if (win)
+    {
         win->setFlags(f);
+        return true;
+    }
+    else
+    {
+        m_glWidget->setWindowFlags(f);
         return true;
     }
     return false;
@@ -328,6 +344,7 @@ void QtOsgWidget::paintEvent(QPaintEvent *paintEvent)
     //opencover::VRViewer::instance()->requestRedraw();
 }
 
+
 void QtOsgWidget::initializeGL()
 {
 }
@@ -338,7 +355,7 @@ void QtOsgWidget::paintGL()
 
 void QtOsgWidget::resizeGL(int width, int height)
 {
-    auto pr = devicePixelRatio();
+    auto pr = pixelRatio();
     getEventQueue()->windowResize(x()*pr, y()*pr, width*pr, height*pr);
     m_graphicsWindow->resized(x()*pr, y()*pr, width*pr, height*pr);
 }
@@ -383,7 +400,7 @@ void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 void QtOsgWidget::mouseMoveEvent(QMouseEvent *event )
 {
     setKeyboardModifiers(event);
-    auto pr = devicePixelRatio();
+    auto pr = pixelRatio();
     getEventQueue()->mouseMotion(event->x()*pr, event->y()*pr);
 }
 
@@ -409,7 +426,7 @@ void QtOsgWidget::mousePressEvent(QMouseEvent *event)
         break;
     }
 
-    auto pr = devicePixelRatio();
+    auto pr = pixelRatio();
     getEventQueue()->mouseButtonPress(event->x()*pr, event->y()*pr, button);
 }
 
@@ -435,7 +452,7 @@ void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
         break;
     }
 
-    auto pr = devicePixelRatio();
+    auto pr = pixelRatio();
     getEventQueue()->mouseButtonRelease(event->x()*pr, event->y()*pr, button);
 }
 
@@ -455,6 +472,15 @@ void QtOsgWidget::wheelEvent(QWheelEvent *event)
 osgGA::EventQueue* QtOsgWidget::getEventQueue() const
 {
     return m_graphicsWindow->getEventQueue();
+}
+
+float QtOsgWidget::pixelRatio() const
+{
+#if QT_VERSION >= 0x050600
+    return devicePixelRatioF();
+#else
+    return devicePixelRatio();
+#endif
 }
 
 #include "moc_QtOsgWidget.cpp"

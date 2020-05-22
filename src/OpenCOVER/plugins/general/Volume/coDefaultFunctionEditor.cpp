@@ -84,17 +84,8 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     channelLabel->setPos(80, -68, 1);
     channelLabel->setFontSize(8);
 
-    bool ignore;
-    const bool useHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
-    if (useHistogram)
-    {
-        hist = new coToggleButton(new coSquareButtonGeometry("Volume/histogram"), this);
-        hist->setPos(67, -70.8);
-    }
-    else
-    {
-        hist = NULL;
-    }
+    hist = new coToggleButton(new coSquareButtonGeometry("Volume/histogram"), this);
+    hist->setPos(67, -70.8);
     apply = new coPushButton(new coSquareButtonGeometry("Volume/apply"), this);
     apply->setPos(77, -70.8);
     load = new coPushButton(new coSquareButtonGeometry("Volume/load"), this);
@@ -146,10 +137,7 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     panel->addElement(defColor);
     panel->addElement(defAlpha);
     panel->addElement(undo);
-    if (useHistogram)
-    {
-        panel->addElement(hist);
-    }
+    panel->addElement(hist);
     panel->addElement(apply);
     panel->addElement(load);
     panel->addElement(save);
@@ -182,6 +170,9 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
 
     pinedit->init();
     updatePinList();
+
+    hist->setState(true);
+    enableHistogram(useHistogram);
 
     enqueueTransfuncFilenames(".");
 }
@@ -423,7 +414,7 @@ void coDefaultFunctionEditor::update()
     cube->update();
     pinedit->update();
 
-    float range = getMax() - getMin();
+    float range = 1.f;
     topWidth->setMax(2 * range);
     botWidth->setMax(2 * range);
 }
@@ -478,6 +469,7 @@ void coDefaultFunctionEditor::potiReleased(coValuePoti *poti, int context)
 
 void coDefaultFunctionEditor::updateVolume()
 {
+	VolumePlugin::plugin->syncTransferFunction();
     if (instantClassification)
     {
         (*applyFunction)(userData);
@@ -491,7 +483,7 @@ void coDefaultFunctionEditor::remoteOngoing(const char *message)
     {
     case 'C':
     {
-        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultColors(defaultColors++,0,1);
         if (defaultColors >= theTransferFunc[activeChannel].getNumDefaultColors())
             defaultColors = 0;
         pinedit->updatePinList();
@@ -499,7 +491,7 @@ void coDefaultFunctionEditor::remoteOngoing(const char *message)
     break;
     case 'A':
     {
-        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++,0,1);
         if (defaultAlpha >= theTransferFunc[activeChannel].getNumDefaultAlpha())
             defaultAlpha = 0;
         pinedit->updatePinList();
@@ -588,7 +580,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
              && (recentlyPressedButton == defColor))
     {
         putUndoBuffer();
-        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultColors(defaultColors++, 0,1);
         if (defaultColors >= theTransferFunc[activeChannel].getNumDefaultColors())
             defaultColors = 0;
         updatePinList();
@@ -598,7 +590,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
              && (recentlyPressedButton == defAlpha)) // default alpha
     {
         putUndoBuffer();
-        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, getMin(), getMax());
+        theTransferFunc[activeChannel].setDefaultAlpha(defaultAlpha++, 0,1);
         if (defaultAlpha >= theTransferFunc[activeChannel].getNumDefaultAlpha())
             defaultAlpha = 0;
         updatePinList();
@@ -731,4 +723,19 @@ void coDefaultFunctionEditor::setActiveChannel(int num)
     coFunctionEditor::setActiveChannel(num);
     updatePinList();
     updateLabels();
+}
+
+void coDefaultFunctionEditor::enableHistogram(bool enable)
+{
+    useHistogram = enable;
+    if (useHistogram)
+    {
+        panel->show(hist);
+        pinedit->setBackgroundType(!hist->getState());
+    }
+    else
+    {
+        panel->hide(hist);
+        pinedit->setBackgroundType(1);
+    }
 }

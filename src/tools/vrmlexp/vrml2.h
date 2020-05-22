@@ -83,6 +83,8 @@ class TabletUIElement;
 class TabletUIElementList;
 class Cal3DObject;
 
+typedef std::pair<float, INode *> childInfo;
+
 struct AnimRoute
 {
     AnimRoute()
@@ -575,7 +577,7 @@ Matrix3 GetLocalTM(INode *node, TimeValue t);
     void OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level,
                              int textureNum);
     NormalTable *OutputNormals(Mesh &mesh, int level);
-    BOOL OutputMaxLOD(INode *node, Object *obj, int level, int numLevels, float *distances, INode **children, int numChildren, BOOL mirrored);
+    BOOL OutputMaxLOD(INode *node, Object *obj, int level, int numLevels, const std::vector<childInfo> &, BOOL mirrored);
     void OutputTriObject(INode *node, TriObject *obj, BOOL multiMat,
                          BOOL isWire, BOOL twoSided, int level,
                          int textureNum, BOOL pMirror);

@@ -13,13 +13,7 @@
 #define TABLET_UI_ELEMENT_H
 
 #include <QString>
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
-#include <covise/covise_msg.h>
 #include <net/covise_connect.h>
-#else
-#include "wce_msg.h"
-#include "wce_connect.h"
-#endif
 #include <util/coTabletUIMessages.h>
 #include <set>
 class TUIContainer;
@@ -56,11 +50,9 @@ public:
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
     virtual void setColor(Qt::GlobalColor color);
-    virtual void setVisible(bool);
     virtual void setHidden(bool hidden);
     virtual bool isEnabled();
     virtual bool isHighlighted();
-    virtual bool isVisible();
     virtual bool isHidden() const;
     virtual void deActivate(TUITab *activedTab)
     {
@@ -105,7 +97,6 @@ public:
 
 protected:
     int ID;
-    int ParentID;
     int xPos, yPos;
     int height = 1, width = 1;
     QString label;
@@ -114,7 +105,6 @@ protected:
     std::set<QWidget *> widgets;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
-    bool visible; ///< true if UI element is visible, false if not visible but still present in scene tree
     bool hidden; ///< true if UI element is to be hidden at any time
     QString name;
 };

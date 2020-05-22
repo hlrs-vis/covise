@@ -30,6 +30,9 @@
 #include "CanOpenDevice.h"
 #include <stdlib.h>
 #include <list>
+namespace vehicleUtil
+{
+
 
 class CanOpenDevice; // forward class declaration
 class CANProvider; // forward class declaration
@@ -43,6 +46,7 @@ public:
     ~SendTask();
     void registerDevice(CanOpenDevice *d);
     void shutdown();
+    int numUninitializedDevices(){return initCanOpenDevices.size();};
 
 protected:
     void run(); // override Xenomai Method
@@ -99,5 +103,5 @@ private:
     volatile bool isRunning;
 };
 //--------------------------------------------------------------------
-
+}
 #endif

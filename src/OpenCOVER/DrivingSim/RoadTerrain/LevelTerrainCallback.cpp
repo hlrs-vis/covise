@@ -154,9 +154,9 @@ void LevelTerrainCallback::loaded(osgTerrain::TerrainTile *tile, const osgDB::Re
         return;
     }
 
-    for (int i = 0; i < RoadSystem::Instance()->getNumRoads(); ++i)
+    for (int i = 0; i < vehicleUtil::RoadSystem::Instance()->getNumRoads(); ++i)
     {
-        Road *road = RoadSystem::Instance()->getRoad(i);
+        vehicleUtil::Road *road = vehicleUtil::RoadSystem::Instance()->getRoad(i);
         double roadLength = road->getLength();
 
         const osg::BoundingBox &roadBB = road->getRoadGeode()->getBoundingBox();
@@ -165,7 +165,7 @@ void LevelTerrainCallback::loaded(osgTerrain::TerrainTile *tile, const osgDB::Re
         {
             //double h = sqrt(tileXInterval*tileXInterval + tileYInterval*tileYInterval);
             double h = 20.0;
-            std::deque<RoadPoint> pointDeque(4);
+            std::deque<vehicleUtil::RoadPoint> pointDeque(4);
             double widthRight, widthLeft;
             road->getRoadSideWidths(0.0, widthRight, widthLeft);
             pointDeque.pop_front();

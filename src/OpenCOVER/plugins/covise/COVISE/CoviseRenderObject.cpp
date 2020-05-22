@@ -101,6 +101,16 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         this->assignedTo = coVRDistributionManager::instance().assign(co);
     }
 
+#define ADDCHAN(c) \
+    tb.addBinary((char *)farr[c], size*sizeof(float)); \
+    addFloat(min_[c]); \
+    addFloat(max_[c]);
+#define COPYCHAN(c) \
+    farr[c] = new float[size]; \
+    memcpy(farr[c], tb.getBinary(size * sizeof(float)), size * sizeof(float)); \
+    copyFloat(min_[c]); \
+    copyFloat(max_[c]);
+
     if (coVRMSController::instance()->isMaster())
     {
         TokenBuffer tb;
@@ -402,8 +412,8 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((char *)farr[0], size * sizeof(float));
-                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    ADDCHAN(0);
+                    ADDCHAN(1);
                 }
             }
             else if (strcmp(type, "USTVDT") == 0)
@@ -424,9 +434,9 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((char *)farr[0], size * sizeof(float));
-                    tb.addBinary((char *)farr[1], size * sizeof(float));
-                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    ADDCHAN(0);
+                    ADDCHAN(1);
+                    ADDCHAN(2);
                 }
             }
             else if (strcmp(type, "TEXTUR") == 0)
@@ -466,10 +476,22 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoByte *bytes = (coDoByte *)co;
                 bytes->getAddress(&barr[0]);
                 size = bytes->getNumPoints();
+                if (const char *min = bytes->getAttribute("MIN"))
+                {
+                    std::stringstream s(min);
+                    s >> min_[0];
+                }
+                if (const char *max = bytes->getAttribute("MAX"))
+                {
+                    std::stringstream s(max);
+                    s >> max_[0];
+                }
                 if (cluster)
                 {
                     addInt(size);
                     tb.addBinary((const char *)barr[0], size);
+                    addFloat(min_[0]);
+                    addFloat(max_[0]);
                 }
             }
             else if (strcmp(type, "USTSDT") == 0)
@@ -490,9 +512,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 if (cluster)
                 {
                     addInt(size);
-                    addFloat(min_[0]);
-                    addFloat(max_[0]);
-                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    ADDCHAN(0);
                 }
             }
             else if (strcmp(type, "COLMAP") == 0)
@@ -744,20 +764,15 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         else if (strcmp(type, "USTSTD") == 0)
         {
             copyInt(size);
-            farr[0] = new float[size];
-            farr[1] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            COPYCHAN(0);
+            COPYCHAN(1);
         }
-        else if (strcmp(type, "USTVDT") == 0 || strcmp(type, "STRVDT") == 0)
+        else if (strcmp(type, "USTVDT") == 0)
         {
             copyInt(size);
-            farr[0] = new float[size];
-            farr[1] = new float[size];
-            farr[2] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            COPYCHAN(0);
+            COPYCHAN(1);
+            COPYCHAN(2);
         }
         else if (strcmp(type, "TEXTUR") == 0)
         {
@@ -784,12 +799,13 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             copyInt(size);
             barr[0] = new unsigned char[size];
             memcpy(barr[0], tb.getBinary(size), size);
+            copyFloat(min_[0]);
+            copyFloat(max_[0]);
         }
-        else if (strcmp(type, "STRSDT") == 0 || strcmp(type, "USTSDT") == 0)
+        else if (strcmp(type, "USTSDT") == 0)
         {
             copyInt(size);
-            farr[0] = new float[size];
-            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            COPYCHAN(0);
         }
         else if (strcmp(type, "COLMAP") == 0)
         {

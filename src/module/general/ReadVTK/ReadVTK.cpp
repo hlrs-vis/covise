@@ -118,7 +118,7 @@ ReadVTK::ReadVTK(int argc, char *argv[])
 {
     m_filename = new char[256];
 
-    m_portGrid = addOutputPort("GridOut0", "UniformGrid|StructuredGrid|UnstructuredGrid|RectilinearGrid|Polygons|Lines", "Grid output");
+    m_portGrid = addOutputPort("GridOut0", "UniformGrid|StructuredGrid|UnstructuredGrid|RectilinearGrid|Polygons|Lines|Points", "Grid output");
 
     m_portNormals = addOutputPort("DataOut2", "Vec3", "normals");
 

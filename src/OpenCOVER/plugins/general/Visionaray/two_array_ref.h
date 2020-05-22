@@ -44,6 +44,11 @@ struct two_array_ref
             return data2[i - size1];
     }
 
+    operator bool() const
+    {
+        return size1 != 0;
+    }
+
     const T *data1;
     size_t size1;
 
@@ -80,6 +85,12 @@ struct two_array_ref<thrust::device_vector<T>>
             return data1[i];
         else
             return data2[i - size1];
+    }
+
+    __host__ __device__
+    operator bool() const
+    {
+        return size1 != 0;
     }
 
     const T *data1;

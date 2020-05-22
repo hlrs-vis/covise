@@ -9,6 +9,7 @@
 #include <cstring>
 #include "coGRObjMoveObjMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjMoveObjMsg::coGRObjMoveObjMsg(const char *obj_name, const char *moveName, float x, float y, float z)

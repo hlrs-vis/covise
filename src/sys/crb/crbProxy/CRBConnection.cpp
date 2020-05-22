@@ -65,20 +65,18 @@ void CRBConnection::forwardMessage(Message *msg, Connection *conn)
         toCrb->send_msg(msg);
         return;
     }
-    ProxyIter iter = modules.first();
-    while (iter)
-    {
-        if (iter->moduleConn == conn) // message coming from module
+	for(const auto &it:modules)
+	{
+        if (it->moduleConn == conn) // message coming from module
         {
-            iter->ctrlConn->send_msg(msg);
+            it->ctrlConn->send_msg(msg);
             break;
         }
-        else if (iter->ctrlConn == conn) // message to module
+        else if (it->ctrlConn == conn) // message to module
         {
-            iter->moduleConn->send_msg(msg);
+            it->moduleConn->send_msg(msg);
             break;
         }
-        iter++;
     }
 }
 
@@ -97,16 +95,15 @@ void CRBConnection::processMessages()
         case COVISE_MESSAGE_SOCKET_CLOSED:
         {
             forwardMessage(msg, conn);
-            ProxyIter iter = modules.first();
-            while (iter)
-            {
+			for (const auto& it : modules)
+			{
                 // message coming from module
-                if ((iter->moduleConn == conn) || (iter->ctrlConn == conn))
+                if ((it->moduleConn == conn) || (it->ctrlConn == conn))
                 {
-                    iter.remove();
+					modules.remove(it);
+					delete it;
                     break;
                 }
-                iter++;
             }
             if ((conn == toCrb) || (conn == toController))
             {
@@ -119,7 +116,7 @@ void CRBConnection::processMessages()
         //break;
         break;
         case COVISE_MESSAGE_CRB_EXEC:
-            modules.append(new Proxy(msg->data, this));
+            modules.push_back(new Proxy(msg->data.accessData(), this));
             break;
         default:
             forwardMessage(msg, conn);

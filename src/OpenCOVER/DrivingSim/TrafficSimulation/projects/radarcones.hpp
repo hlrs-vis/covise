@@ -25,32 +25,34 @@
 #include "../HumanVehicle.h"
 #include "../PorscheFFZ.h"
 
-class RadarCones
+namespace TrafficSimulation
 {
-public:
-    RadarCones(HumanVehicle *humanVehicle);
+    class RadarCones
+    {
+    public:
+        RadarCones(HumanVehicle* humanVehicle);
 
-    //	void setTransform(osg::Transform&, double);
-    //	const osg::Transform& getVehicleTransformation();
+        //	void setTransform(osg::Transform&, double);
+        //	const osg::Transform& getVehicleTransformation();
 
-    void update(RadarConesData *data);
+        void update(RadarConesData* data);
 
-private:
-    void init();
-    void updateCone(int i);
+    private:
+        void init();
+        void updateCone(int i);
 
-private:
-    HumanVehicle *humanVehicle_;
+    private:
+        HumanVehicle* humanVehicle_;
 
-    RadarConesData *conesData_;
+        RadarConesData* conesData_;
 
-    // osg //
-    //
-    osg::Transform *humanVehicleTransform_;
-    osg::Group *cones_;
-    osg::StateSet *coneStateSet_;
+        // osg //
+        //
+        osg::Transform* humanVehicleTransform_;
+        osg::Group* cones_;
+        osg::StateSet* coneStateSet_;
 
-    std::vector<osg::Geometry *> coneGeometries_;
-};
-
+        std::vector<osg::Geometry*> coneGeometries_;
+    };
+}
 #endif // RADARCONES_HPP

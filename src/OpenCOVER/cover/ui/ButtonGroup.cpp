@@ -38,7 +38,7 @@ void ButtonGroup::enableDeselect(bool flag)
     if (!m_allowDeselect)
     {
         if (numChildren() > 0)
-            toggle(dynamic_cast<Button *>(m_children[0]));
+            toggle(dynamic_cast<Button *>(m_children[0].elem));
     }
 }
 
@@ -47,9 +47,9 @@ int ButtonGroup::value() const
     int id = defaultValue();
 
     int numSet = 0;
-    for (auto e: m_children)
+    for (auto c: m_children)
     {
-        auto b = dynamic_cast<Button *>(e);
+        auto b = dynamic_cast<Button *>(c.elem);
         assert(b);
         if (b->state())
         {
@@ -60,9 +60,9 @@ int ButtonGroup::value() const
     if (numSet > 1)
     {
         std::cerr << "ui::ButtonGroup " << path() << " has " << numSet << " values set:";
-        for (auto e: m_children)
+        for (auto c: m_children)
         {
-            auto b = dynamic_cast<Button *>(e);
+            auto b = dynamic_cast<Button *>(c.elem);
             if (b->state())
             {
                 std::cerr << " " << b->name();
@@ -79,9 +79,9 @@ Button *ButtonGroup::activeButton() const
 {
     Button *ret = nullptr;
     int numSet = 0;
-    for (auto e: m_children)
+    for (auto c: m_children)
     {
-        auto b = dynamic_cast<Button *>(e);
+        auto b = dynamic_cast<Button *>(c.elem);
         assert(b);
         if (b->state())
         {
@@ -96,9 +96,9 @@ Button *ButtonGroup::activeButton() const
 
 void ButtonGroup::setActiveButton(Button *button)
 {
-    for (auto e: m_children)
+    for (auto c: m_children)
     {
-        auto b = dynamic_cast<Button *>(e);
+        auto b = dynamic_cast<Button *>(c.elem);
         assert(b);
         if (b == button)
         {
@@ -166,9 +166,9 @@ void ButtonGroup::toggle(const Button *b)
 {
     //std::cerr << "TOGGLE: group=" << path() << ", toggle=" << b->path() << ", state=" << b->state() << std::endl;
     Button *bset = nullptr, *bthis = nullptr;;
-    for (auto e: m_children)
+    for (auto c: m_children)
     {
-        auto bb = dynamic_cast<Button *>(e);
+        auto bb = dynamic_cast<Button *>(c.elem);
         assert(bb);
         if (b == bb)
             bthis = bb;

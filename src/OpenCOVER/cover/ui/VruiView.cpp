@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <map>
+#include <iostream>
 
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
@@ -34,9 +35,13 @@
 #include "SelectionList.h"
 #include "EditField.h"
 #include "FileBrowser.h"
+#include "CollaborativePartner.h"
+#include "SpecialElement.h"
+#include "Manager.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>
+#include <cover/VruiPartnerMenuItem.h>
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
 
@@ -220,6 +225,27 @@ VruiViewElement *VruiView::vruiElement(const Element *elem) const
     return ve;
 }
 
+bool VruiView::isReparented(const Element *elem) const {
+    if (!elem)
+        return false;
+
+    bool exists = false;
+    std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath(elem->path()), &exists);
+    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    if (exists)
+    {
+        if (parentPath.empty())
+        {
+            return true;
+        }
+        if (auto parent = vruiElement(parentPath))
+            return true;
+
+    }
+
+    return false;
+}
+
 VruiViewElement *VruiView::vruiParent(const Element *elem) const
 {
     if (!elem)
@@ -277,13 +303,13 @@ void VruiView::add(VruiViewElement *ve, const Element *elem)
         {
             ve->m_toolboxItem->setParentMenu(tb);
             int n = tb->index(m_root->m_toolboxItem);
-            if (n >= 0)
+            if (n < 0)
             {
-                tb->insert(ve->m_toolboxItem, n);
+                tb->add(ve->m_toolboxItem);
             }
             else
             {
-                tb->add(ve->m_toolboxItem);
+                tb->insert(ve->m_toolboxItem, n);
             }
         }
     }
@@ -305,65 +331,30 @@ void VruiView::updateEnabled(const Element *elem)
 
 void VruiView::updateVisible(const Element *elem)
 {
-    //std::cerr << "Vrui: updateVisible(" << elem->path() << ")" << std::endl;
     auto ve = vruiElement(elem);
     if (!ve)
         return;
 
     bool inMenu = elem->priority() >= ui::Element::Default;
+    bool visible = elem->visible(this) && inMenu;
 
-    if (auto m = dynamic_cast<const Menu *>(elem))
+    if (!visible)
     {
-        if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
+        if (auto m = dynamic_cast<const Menu *>(elem))
         {
-            if (!m->visible(this) || !inMenu)
+            if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
             {
                 smi->closeSubmenu();
-                delete smi;
-                ve->m_menuItem = nullptr;
-            }
-        } else if (!ve->m_menuItem) {
-            if (m->visible(this) && inMenu)
-            {
-                auto smi = new coSubMenuItem(m->text()+"...");
-                smi->setMenu(ve->m_menu);
-                ve->m_menuItem = smi;
-                add(ve, m);
             }
         }
+
         if (ve->m_menu)
-        {
-            if (!elem->visible(this) || !inMenu)
-                ve->m_menu->setVisible(elem->visible(this));
-        }
+            ve->m_menu->setVisible(false);
     }
-    else if (ve->m_menuItem)
+
+    if (ve->m_menuItem)
     {
-        auto container = vruiContainer(elem);
-        if (container)
-        {
-            //std::cerr << "changing visible to " << elem->visible(this) << ": elem=" << elem->path() << ", container=" << (container&&container->element ? container->element->path() : "(null)") << std::endl;
-            //auto m = dynamic_cast<const Menu *>(container->element);
-            //auto mve = vruiElement(m);
-            //if (mve)
-            //{
-                auto menu = container->m_menu;
-                if (menu)
-                {
-                auto idx = menu->index(ve->m_menuItem);
-                if ((inMenu && elem->visible(this)) && idx < 0)
-                {
-                    if (menu)
-                        menu->add(ve->m_menuItem);
-                }
-                else if ((!elem->visible(this) || !inMenu) && idx >= 0)
-                {
-                    if (menu)
-                        menu->remove(ve->m_menuItem);
-                }
-                }
-            //}
-        }
+        ve->m_menuItem->setVisible(visible);
     }
 }
 
@@ -426,7 +417,11 @@ void VruiView::updateParent(const Element *elem)
             auto parent = vruiContainer(elem);
             if (parent && parent->m_menu)
             {
-                parent->m_menu->add(ve->m_menuItem);
+                auto idx =  elem->parent()->index(elem);
+                if (idx < 0 || isReparented(elem))
+                    parent->m_menu->add(ve->m_menuItem);
+                else
+                    parent->m_menu->insert(ve->m_menuItem, idx);
             }
             else
             {
@@ -510,6 +505,18 @@ void VruiView::updateIntegral(const Slider *slider)
 
 void VruiView::updateScale(const Slider *slider)
 {
+    auto ve = vruiElement(slider);
+    if (!ve)
+        return;
+    if (auto vslider = dynamic_cast<coSliderMenuItem *>(ve->m_menuItem)) {
+        vslider->setLogarithmic(slider->scale() == Slider::Logarithmic);
+    } else if (auto vpoti = dynamic_cast<coPotiMenuItem *>(ve->m_menuItem)) {
+        vpoti->setLogarithmic(slider->scale() == Slider::Logarithmic);
+    }
+
+    if (auto tslider = dynamic_cast<coSliderToolboxItem *>(ve->m_toolboxItem)) {
+        tslider->setLogarithmic(slider->scale() == Slider::Logarithmic);
+    }
     updateBounds(slider);
     updateValue(slider);
 }
@@ -556,14 +563,9 @@ void VruiView::updateBounds(const Slider *slider)
     }
 }
 
-void VruiView::updateValue(const EditField *input)
+void VruiView::updateValue(const TextField *input)
 {
     updateText(input);
-}
-
-void VruiView::updateValue(const FileBrowser *fb)
-{
-    updateText(fb);
 }
 
 void VruiView::updateFilter(const FileBrowser *fb)
@@ -650,7 +652,6 @@ VruiViewElement *VruiView::elementFactoryImplementation(SelectionList *sl)
     ve->m_menuItem = smi;
     ve->m_menu = new coRowMenu(ve->m_text.c_str(), parent ? parent->m_menu : m_rootMenu);
     smi->setMenu(ve->m_menu);
-    smi->closeSubmenu();
     add(ve, sl);
 
     auto t = new coLabelSubMenuToolboxItem(sl->name());
@@ -676,6 +677,26 @@ VruiViewElement *VruiView::elementFactoryImplementation(FileBrowser *fb)
     auto ve = new VruiViewElement(fb);
     //ve->m_menuItem = new coLabelMenuItem(fb->text());
     add(ve, fb);
+    return ve;
+}
+
+VruiViewElement *VruiView::elementFactoryImplementation(CollaborativePartner *cp)
+{
+    auto ve = new VruiViewElement(cp);
+    auto parent = vruiParent(cp);
+    vrui::coCheckboxGroup *vrg = nullptr;
+    if (parent)
+        vrg = parent->m_group;
+    ve->m_menuItem = new VruiPartnerMenuItem(cp->text(), cp->state(), vrg);
+
+    add(ve, cp);
+    return ve;
+}
+
+VruiViewElement *VruiView::elementFactoryImplementation(SpecialElement *se)
+{
+    auto ve = new VruiViewElement(se);
+    add(ve, se);
     return ve;
 }
 
@@ -764,6 +785,11 @@ VruiViewElement::VruiViewElement(Element *elem)
 
 VruiViewElement::~VruiViewElement()
 {
+    if (auto se = dynamic_cast<SpecialElement *>(element))
+    {
+        se->destroy(this);
+    }
+
     if (m_menu)
     {
         m_menu->closeMenu();

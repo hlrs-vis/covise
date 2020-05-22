@@ -20,12 +20,15 @@ public:
     QMenu *createPopupMenu() override;
     void addContextAction(QAction *act);
     void closeEvent(QCloseEvent *ev) override;
+    void changeEvent(QEvent *ev) override;
 
 signals:
+    void fullScreenChanged(bool);
     void closing();
 
 private:
     QList<QAction *> m_contextActions;
+    bool m_fullscreen = false;
 
 };
 

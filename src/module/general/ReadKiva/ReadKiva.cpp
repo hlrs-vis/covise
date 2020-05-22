@@ -26,6 +26,7 @@
 
 #include "ReadKiva.h"
 #include <do/coDoSet.h>
+#include <fcntl.h>
 
 ReadKiva::ReadKiva(int argc, char **argv)
     : coSimpleModule(argc, argv, "Read KIVA")

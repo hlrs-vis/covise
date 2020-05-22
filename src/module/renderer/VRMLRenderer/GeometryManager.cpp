@@ -28,110 +28,10 @@
 //#include <Covise_Util.h>
 #include "ObjectManager.h"
 #include "ObjectList.h"
+#include <do/coDoPixelImage.h>
 
 #include <float.h>
 
-class NewCharBuffer
-{
-    char *buf;
-    int len;
-    int incSize;
-
-public:
-    int cur_len;
-    NewCharBuffer()
-    {
-        incSize = 1000;
-        cur_len = 0;
-        len = 0;
-        buf = NULL;
-    };
-    NewCharBuffer(NewCharBuffer *obuf)
-    {
-        incSize = 1000;
-        cur_len = obuf->cur_len;
-        len = cur_len + 1;
-        buf = new char[len];
-        strcpy(buf, obuf->getbuf());
-    };
-    NewCharBuffer(int def)
-    {
-        incSize = def;
-        cur_len = 0;
-        len = def;
-        buf = new char[len];
-    };
-    ~NewCharBuffer() { delete[] buf; };
-    char *return_data()
-    {
-        char *tmp = buf;
-        buf = NULL;
-        cur_len = 0;
-        len = 0;
-        return (tmp);
-    };
-    int strlen() { return (cur_len); };
-    void operator+=(const char *const s)
-    {
-        int l = (int)::strlen(s);
-        if (cur_len + l >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        strcpy(buf + cur_len, s);
-        cur_len += l;
-    };
-    void operator+=(char c)
-    {
-        if (cur_len + 1 >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        buf[cur_len] = c;
-        cur_len++;
-        buf[cur_len] = 0;
-    };
-    void operator+=(int n)
-    {
-        CharNum s(n);
-        int l = (int)::strlen(s);
-        if (cur_len + l >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        strcpy(buf + cur_len, s);
-        cur_len += l;
-    };
-    void operator+=(float n)
-    {
-        CharNum s(n);
-        int l = (int)::strlen(s);
-        if (cur_len + l >= len)
-        {
-            len += incSize;
-            char *nbuf = new char[len];
-            strcpy(nbuf, buf);
-            delete[] buf;
-            buf = nbuf;
-        }
-        strcpy(buf + cur_len, s);
-        cur_len += l;
-    };
-    operator const char *() const { return (buf); };
-    const char *getbuf() { return (buf); };
-};
 
 //================================================================
 // GeometryManager methods
@@ -206,7 +106,7 @@ void GeometryManager::addUGrid(const char *object, const char *rootName, int xsi
                                int no_of_colors, int colorbinding, int colorpacking,
                                float *r, float *g, float *b, int *pc, int no_of_normals,
                                int normalbinding,
-                               float *nx, float *ny, float *nz, float transparency, coMaterial *material)
+                               float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture)
 
 {
     (void)object;
@@ -234,6 +134,7 @@ void GeometryManager::addUGrid(const char *object, const char *rootName, int xsi
     (void)nz;
     (void)transparency;
     (void)material;
+    (void)texture;
 
     CoviseRender::sendInfo("Adding a uniform grid");
 }
@@ -247,7 +148,7 @@ void GeometryManager::addRGrid(const char *object, const char *rootName, int xsi
                                int no_of_colors, int colorbinding, int colorpacking,
                                float *r, float *g, float *b, int *pc, int no_of_normals,
                                int normalbinding,
-                               float *nx, float *ny, float *nz, float transparency, coMaterial *material)
+                               float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture* texture)
 
 {
     (void)object;
@@ -272,6 +173,7 @@ void GeometryManager::addRGrid(const char *object, const char *rootName, int xsi
     (void)nz;
     (void)transparency;
     (void)material;
+    (void)texture;
 
     CoviseRender::sendInfo("Adding a rectilinear grid");
 }
@@ -285,7 +187,7 @@ void GeometryManager::addSGrid(const char *object, const char *rootName, int xsi
                                int no_of_colors, int colorbinding, int colorpacking,
                                float *r, float *g, float *b, int *pc, int no_of_normals,
                                int normalbinding,
-                               float *nx, float *ny, float *nz, float transparency, coMaterial *material)
+                               float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture* texture)
 {
     (void)object;
     (void)rootName;
@@ -309,576 +211,288 @@ void GeometryManager::addSGrid(const char *object, const char *rootName, int xsi
     (void)nz;
     (void)transparency;
     (void)material;
+    (void)texture;
 
     CoviseRender::sendInfo("Adding a structured grid");
 }
 
-//----------------------------------------------------------------
-//
-//----------------------------------------------------------------
-void GeometryManager::addPolygon(const char *object, const char *rootName, int no_of_polygons, int no_of_vertices,
-                                 int no_of_coords, float *x_c, float *y_c,
-                                 float *z_c,
-                                 int *v_l, int *l_l,
-                                 int no_of_colors, int colorbinding, int colorpacking,
-                                 float *r, float *g, float *b, int *pc, int no_of_normals,
-                                 int normalbinding,
-                                 float *nx, float *ny, float *nz, float transparency,
-                                 int vertexOrder, coMaterial *material)
+
+void addPixelTexture(coDoTexture* texture, NewCharBuffer& buf)
 {
-    (void)vertexOrder;
-    (void)transparency;
-    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+    int sizeu, sizev, sizew;
+    float** textureCoords;
+    unsigned char* imageData;
+    if (texture)
+    {
+        coDoPixelImage* img = texture->getBuffer();
+        imageData = (unsigned char*)(img->getPixels());
+        sizeu = img->getWidth();
+        sizev = img->getHeight();
+        sizew = img->getPixelsize();
+		textureCoords = texture->getCoordinates();
 
-    NewCharBuffer buf(10000);
-    char line[500];
-    int i;
-    int n = 0;
-    if (material)
-    {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    }
-    else if (colorbinding == CO_PER_VERTEX)
-        buf += "Shape{ appearance Appearance { material Material { }}\n geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    else
-    {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
-
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE && r)
-        {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_coords; i++)
-    {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}\ncoordIndex [";
-    n = 0;
-    for (i = 0; i < no_of_vertices; i++)
-    {
-        if ((n < (no_of_polygons - 1)) && (l_l[n + 1] == i))
-        {
-            buf += "-1 ";
-            n++;
-        }
-        sprintf(line, "%d ", v_l[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += ']';
-    if (normalbinding == CO_PER_VERTEX)
-    {
-        buf += "\n normal Normal {\nvector[";
-        for (i = 0; i < no_of_normals; i++)
-        {
-            sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
-            buf += line;
-            if ((i % 10) == 0)
-                buf += '\n';
-        }
-        buf += "]}\nnormalPerVertex TRUE\n";
-    }
-    if (colorbinding == CO_PER_VERTEX)
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
-
-            for (i = 0; i < no_of_colors; i++)
+		char line[500];
+		if (objlist->outputMode == OutputMode::VRML97)
+		{
+		}
+		else
+		{
+			const char* wm = texture->getAttribute("WRAP_MODE");
+			const char* repeateString = "'false'";
+			if (wm && strncasecmp(wm, "repeat", 6) == 0)
+			{
+				repeateString = "'true'";
+			}
+			const char* minfm = texture->getAttribute("MIN_FILTER");
+			const char* magfm = texture->getAttribute("MAG_FILTER");
+			buf += "<PixelTexture ";
+			buf += "image=";
+			sprintf(line, "'%d,%d,%d ", sizeu, sizev, sizew);
+			buf += line;
+            int uv = 0;
+            for (int i = 0; i < sizeu; i++)
             {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
+                for (int j = 0; j < sizev; j++)
+                {
+                    uv = ((sizev * i) + j) * sizew;
+                    buf += " 0x";
+                    for (int k = 0; k < sizew; k++)
+                    {
+                        sprintf(line, "%02x", imageData[uv+k]);
+                        buf += line;
+                    }
+                }
             }
-        }
-        else
-        {
-            for (i = 0; i < no_of_colors; i++)
-            {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
-        }
-        buf += "]}\ncolorPerVertex TRUE\n";
+            buf += "'\n";
+			buf += "repeatS=";
+			buf += repeateString;
+			buf += "repeatT=";
+			buf += repeateString;
+			buf += ">\n";
+
+			buf += "<TextureProperties\n";
+			if (magfm != nullptr)
+			{
+				buf += "magnificationFilter='\n";
+				buf += magfm;
+				buf += "'\n";
+			}
+			if (minfm != nullptr)
+			{
+				buf += "minificationFilter='\n";
+				buf += minfm;
+				buf += "'\n";
+			}
+			buf += "></TextureProperties>\n";
+
+			buf += "</PixelTexture>\n";
+		}
     }
-    buf += "solid FALSE\ncreaseAngle 0\nccw TRUE\nconvex TRUE}}\n";
-
-    boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
-
-    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
-    LObject *lob = new LObject();
-    lob->set_boundingbox(bbox);
-    lob->set_name((char *)object);
-    lob->set_timestep(object);
-    lob->set_rootname((char *)rootName);
-    lob->set_objPtr((void *)newbuf);
-    objlist->append(lob);
 }
 
-//----------------------------------------------------------------
-//
-//----------------------------------------------------------------
-void GeometryManager::addTriangleStrip(const char *object, const char *rootName, int no_of_strips, int no_of_vertices,
-                                       int no_of_coords, float *x_c, float *y_c,
-                                       float *z_c,
-                                       int *v_l, int *s_l,
-                                       int no_of_colors, int colorbinding, int colorpacking,
-                                       float *r, float *g, float *b, int *pc, int no_of_normals,
-                                       int normalbinding,
-                                       float *nx, float *ny, float *nz, float transparency,
-                                       int vertexOrder, coMaterial *material)
+void addTexture(coDoTexture* texture, NewCharBuffer& buf)
 {
-
-    (void)transparency;
-    (void)vertexOrder;
-    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-
-    NewCharBuffer buf(10000);
-    char line[500];
-    int i;
-    int n = 0;
-    if (material)
+    int numTC = 0;
+    float** textureCoords;
+    if (texture)
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    }
-    else if (colorbinding == CO_PER_VERTEX)
-        buf += "Shape{appearance Appearance { material Material { }}\n geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    else
-    {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
+        textureCoords = texture->getCoordinates();
 
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE)
+        char line[500];
+        numTC = texture->getNumCoordinates();
+        if (objlist->outputMode == OutputMode::VRML97)
         {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry IndexedFaceSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_coords; i++)
-    {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}\ncoordIndex [";
-    n = 0;
-    for (i = 0; i < no_of_strips; i++)
-    {
+            buf += "texCoord TextureCoordinate { \npoint[\n";
 
-        if (i == (no_of_strips - 1))
-        {
-            for (n = 2; n < (no_of_vertices - s_l[i]); n++)
+            for (int i = 0; i < numTC; i++)
             {
-                if (n % 2)
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
-                else
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
-                buf += line;
-            }
-        }
-        else
-        {
-            for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
-            {
-                if (n % 2)
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
-                else
-                    sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
-                buf += line;
-            }
-        }
-        if ((i % 5) == 0)
-            buf += '\n';
-    }
-    buf += ']';
-    if (normalbinding == CO_PER_VERTEX)
-    {
-        buf += "\n normal Normal {\nvector[";
-        for (i = 0; i < no_of_normals; i++)
-        {
-            sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
-            buf += line;
-            if ((i % 10) == 0)
-                buf += '\n';
-        }
-        buf += "]}\nnormalPerVertex TRUE\n";
-    }
-    if (colorbinding == CO_PER_VERTEX)
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
-
-            for (i = 0; i < no_of_colors; i++)
-            {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
+                sprintf(line, "%1g %1g,", textureCoords[0][i], textureCoords[1][i]);
                 buf += line;
                 if ((i % 10) == 0)
                     buf += '\n';
             }
+            buf += "]}\n";
         }
         else
         {
-            for (i = 0; i < no_of_colors; i++)
+
+            buf += "<TextureCoordinate point = '";
+            for (int i = 0; i < numTC; i++)
             {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+                sprintf(line, "%1g %1g ", textureCoords[0][i], textureCoords[1][i]);
                 buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
             }
+            buf += "'>\n</TextureCoordinate>\n ";
         }
-        buf += "]}\ncolorPerVertex TRUE\n";
     }
-    buf += "solid FALSE\ncreaseAngle 0\nccw TRUE\nconvex TRUE}}\n";
-    boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
-
-    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
-    LObject *lob = new LObject(object, rootName, newbuf);
-    lob->set_boundingbox(bbox);
-    lob->set_timestep(object);
-
-    objlist->append(lob);
 }
-
-//----------------------------------------------------------------
-//
-//----------------------------------------------------------------
-void GeometryManager::addLine(const char *object, const char *rootName, int no_of_lines, int no_of_vertices,
-                              int no_of_coords, float *x_c, float *y_c,
-                              float *z_c,
-                              int *v_l, int *l_l,
-                              int no_of_colors, int colorbinding, int colorpacking,
-                              float *r, float *g, float *b, int *pc, int no_of_normals,
-                              int normalbinding,
-                              float *nx, float *ny, float *nz, int isTrace, coMaterial *material)
-
+void addBindings(int colorbinding, int normalbinding,NewCharBuffer& buf)
 {
-    (void)no_of_normals;
-    (void)normalbinding;
-    (void)nx;
-    (void)ny;
-    (void)nz;
-    (void)isTrace;
-
-    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-
-    NewCharBuffer buf(10000);
-    char line[500];
-    int i;
-    int n = 0;
-    if (material)
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry IndexedLineSet {\n coord Coordinate{\npoint[";
-    }
-    else if ((colorbinding == CO_PER_VERTEX)
-             || (colorbinding == CO_PER_FACE))
-        buf += "Shape{  appearance Appearance { material Material {emissiveColor 1 1 1}}geometry IndexedLineSet {\n coord Coordinate{\npoint[";
-    else
-    {
-        buf += "Shape{  appearance Appearance { material Material {emissiveColor ";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
-
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
-        }
-        else if (colorbinding != CO_NONE)
-        {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
-        }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry IndexedLineSet {\n coord Coordinate{\npoint[";
-    }
-    for (i = 0; i < no_of_coords; i++)
-    {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += "]}\ncoordIndex [";
-    n = 0;
-    for (i = 0; i < no_of_vertices; i++)
-    {
-        if ((n < (no_of_lines - 1)) && (l_l[n + 1] == i))
-        {
-            buf += "-1 ";
-            n++;
-        }
-        sprintf(line, "%d ", v_l[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
-    }
-    buf += ']';
-    if ((colorbinding == CO_PER_VERTEX)
-        || (colorbinding == CO_PER_FACE))
-    {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
-
-            for (i = 0; i < no_of_colors; i++)
-            {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
-        }
-        else
-        {
-            for (i = 0; i < no_of_colors; i++)
-            {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
-        }
         if (colorbinding == CO_PER_VERTEX)
         {
-            buf += "]}\ncolorPerVertex TRUE\n";
+            buf += "colorPerVertex TRUE\n";
         }
-        else
+        if (normalbinding == CO_PER_VERTEX)
         {
-            buf += "]}\ncolorPerVertex FALSE\n";
+            buf += "normalPerVertex TRUE\n";
         }
     }
-    buf += "}}\n";
-    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
-    boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
-    LObject *lob = new LObject(object, rootName, newbuf);
-    lob->set_boundingbox(bbox);
-    lob->set_timestep(object);
-    objlist->append(lob);
-}
-
-//----------------------------------------------------------------
-//
-//----------------------------------------------------------------
-void GeometryManager::addPoint(const char *object, const char *rootName, int no_of_points,
-                               float *x_c, float *y_c, float *z_c,
-                               int colorbinding, int colorpacking,
-                               float *r, float *g, float *b, int *pc, coMaterial *material)
-
-{
-    NewCharBuffer buf(10000);
-    char line[500];
-    int i;
-
-    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-
-    if (material)
-    {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
-        buf += line;
-        buf += "emissiveColor ";
-        sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
-        buf += line;
-        buf += "ambientIntensity ";
-        sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
-        buf += line;
-        buf += "specularColor ";
-        sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
-        buf += line;
-        buf += "transparency ";
-        sprintf(line, " %1g ", material->transparency);
-        buf += line;
-        buf += "shininess ";
-        sprintf(line, " %1g ", material->shininess);
-        buf += line;
-        buf += "}}geometry PointSet {\n coord Coordinate{\npoint[";
-    }
-    else if (colorbinding == CO_PER_VERTEX)
-        buf += "Shape{ appearance Appearance { material Material { }}\n geometry PointSet {\n coord Coordinate{\npoint[";
     else
     {
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (colorpacking == CO_RGBA && pc)
+        if (colorbinding == CO_PER_VERTEX)
         {
-            float r, g, b, a;
-
-            unpackRGBA(pc, 0, &r, &g, &b, &a);
-            sprintf(line, " %1g %1g %1g ", r, g, b);
+            buf += "colorPerVertex = 'true'\n";
         }
-        else if (colorbinding != CO_NONE)
+        if (normalbinding == CO_PER_VERTEX)
         {
-            sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
+            buf += "normalPerVertex = 'true'\n";
         }
-        else
-        {
-            sprintf(line, " 1 1 1 ");
-        }
-        buf += line;
-        buf += "}}geometry PointSet {\n coord Coordinate{\npoint[";
+        buf += ">\n";
     }
-    for (i = 0; i < no_of_points; i++)
+}
+void addCoordinates(float *x_c, float *y_c, float *z_c, int numCoords, NewCharBuffer& buf)
+{
+    char line[500];
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
-        buf += line;
-        if ((i % 10) == 0)
-            buf += '\n';
+        buf += "coord Coordinate{ \npoint[\n";
+        
+        for (int i = 0; i < numCoords; i++)
+        {
+            sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
+        }
+        buf += "]}\n";
     }
-    buf += "]}";
-    if (colorbinding == CO_PER_VERTEX)
+    else
     {
-        buf += "\n color Color {\ncolor[";
-        if (colorpacking == CO_RGBA && pc)
-        {
-            float r, g, b, a;
 
-            for (i = 0; i < no_of_points; i++)
-            {
-                unpackRGBA(pc, i, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g,", r, g, b);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
-        }
-        else
+        buf += "<coordinate point = '";
+        for (int i = 0; i < numCoords; i++)
         {
-            for (i = 0; i < no_of_points; i++)
-            {
-                sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
-                buf += line;
-                if ((i % 10) == 0)
-                    buf += '\n';
-            }
+            sprintf(line, "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
+            buf += line;
         }
-        buf += "]}";
+        buf += "'>\n</coordinate>\n ";
     }
-    buf += "}}\n";
-    boundingBox(x_c, y_c, z_c, no_of_points, bbox);
-    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
-    LObject *lob = new LObject(object, rootName, newbuf);
-    lob->set_boundingbox(bbox);
-    lob->set_timestep(object);
-
-    objlist->append(lob);
 }
 
-//----------------------------------------------------------------
-//
-//----------------------------------------------------------------
-void GeometryManager::addSphere(const char *object, const char *rootName, int no_of_points,
-                                float *x_c, float *y_c, float *z_c, float *r_c,
-                                int colorbinding, int colorpacking,
-                                float *r, float *g, float *b, int *pc, coMaterial *material)
-
+void addNormals(float* nx, float* ny, float* nz, int numNormals, NewCharBuffer& buf)
 {
-    NewCharBuffer buf(10000);
-    char line[500];
-    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+	char line[500];
+	if (numNormals > 0)
+	{
+		if (objlist->outputMode == OutputMode::VRML97)
+		{
+			buf += "\n normal Normal {\nvector[";
+			for (int i = 0; i < numNormals; i++)
+			{
+				sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
+				buf += line;
+				if ((i % 10) == 0)
+					buf += '\n';
+			}
+			buf += "]}\n";
+		}
+		else
+		{
+			buf += "\n <Normal vector='";
+			for (int i = 0; i < numNormals; i++)
+			{
+				sprintf(line, "%1g %1g %1g ", nx[i], ny[i], nz[i]);
+				buf += line;
+			}
+			buf += "'\n";
+			buf += "><Normal>\n";
+		}
+	}
+}
+void addColors(float* r, float* g, float* b, int *pc, int numColors, int colorpacking, NewCharBuffer& buf)
+{
+	char line[500];
+	if (numColors > 0)
+	{
+		if (objlist->outputMode == OutputMode::VRML97)
+		{
+			buf += "\n color Color {\ncolor[";
+			if (colorpacking == CO_RGBA && pc)
+			{
+				float r, g, b, a;
 
-    buf += "Group { children [\n";
-    for (int i = 0; i < no_of_points; ++i)
+				for (int i = 0; i < numColors; i++)
+				{
+					unpackRGBA(pc, i, &r, &g, &b, &a);
+					sprintf(line, "%1g %1g %1g,", r, g, b);
+					buf += line;
+					if ((i % 10) == 0)
+						buf += '\n';
+				}
+			}
+			else
+			{
+				for (int i = 0; i < numColors; i++)
+				{
+					sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+					buf += line;
+					if ((i % 10) == 0)
+						buf += '\n';
+				}
+			}
+			buf += "]}\n\n";
+		}
+		else
+		{
+			buf += "\n <Color color='";
+			if (colorpacking == CO_RGBA && pc)
+			{
+				float r, g, b, a;
+
+				for (int i = 0; i < numColors; i++)
+				{
+					unpackRGBA(pc, i, &r, &g, &b, &a);
+					sprintf(line, "%1g %1g %1g ", r, g, b);
+					buf += line;
+				}
+			}
+			else
+			{
+				for (int i = 0; i < numColors; i++)
+				{
+					sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+					buf += line;
+					if ((i % 10) == 0)
+						buf += '\n';
+				}
+			}
+			buf += "'></Color>\n";
+		}
+    }
+}
+
+void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *texture, NewCharBuffer& buf, const char* object)
+{
+    char line[500];
+    if (objlist->outputMode == OutputMode::VRML97)
     {
-        buf += "Transform { translation ";
-        sprintf(line, "%g %g %g", x_c[i], y_c[i], z_c[i]);
+        buf += "Shape{  appearance Appearance { material Material {";
+    }
+    else
+    {
+        buf += "<shape>\n<appearance>\n<material ";
+        buf += "id='";
+        sprintf(line, "%s'", object);
         buf += line;
-        buf += " children [";
-        buf += "Shape{  appearance Appearance { material Material {diffuseColor ";
-        if (material)
+    }
+    if (material)
+    {
+
+        if (objlist->outputMode == OutputMode::VRML97)
         {
+            buf += "diffuseColor ";
             sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
             buf += line;
             buf += "emissiveColor ";
@@ -899,36 +513,550 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
         }
         else
         {
-            if (colorbinding == CO_NONE)
+            buf += "diffuseColor='";
+            sprintf(line, "%1g %1g %1g'", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
+            buf += line;
+            buf += " emissiveColor='";
+            sprintf(line, "%1g %1g %1g'", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
+            buf += line;
+            buf += " ambientIntensity='";
+            sprintf(line, "%1g'", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
+            buf += line;
+            buf += " specularColor='";
+            sprintf(line, "%1g %1g %1g'", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
+            buf += line;
+            buf += " transparency='";
+            sprintf(line, "%1g'", material->transparency);
+            buf += line;
+            buf += " shininess='";
+            sprintf(line, "%1g'", material->shininess);
+            buf += line;
+        }
+    }
+    else if (colorbinding == CO_PER_VERTEX)
+    {
+    }
+    else
+    {
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += "diffuseColor ";
+            if (colorpacking == CO_RGBA && pc)
             {
-                sprintf(line, " 1 1 1 ");
+                float r, g, b, a;
+
+                unpackRGBA(pc, 0, &r, &g, &b, &a);
+                sprintf(line, " %1g %1g %1g ", r, g, b);
+            }
+            else if (colorbinding != CO_NONE && r)
+            {
+                sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
             }
             else
             {
-                int index = (colorbinding == CO_PER_VERTEX) ? i : 0;
-                if (colorpacking == CO_RGBA && pc)
-                {
-                    float r, g, b, a;
-                    unpackRGBA(pc, index, &r, &g, &b, &a);
-                    sprintf(line, " %1g %1g %1g ", r, g, b);
-                }
-                else
-                {
-                    sprintf(line, " %1g %1g %1g ", r[index], g[index], b[index]);
-                }
+                sprintf(line, " 1 1 1 ");
             }
             buf += line;
         }
-        buf += "}}";
+        else
+        {
+            buf += " diffuseColor='";
+            if (colorpacking == CO_RGBA && pc)
+            {
+                float r, g, b, a;
 
-        buf += " geometry Sphere { radius ";
-        sprintf(line, "%g", r_c[i]);
-        buf += line;
-        buf += " }";
+                unpackRGBA(pc, 0, &r, &g, &b, &a);
+                sprintf(line, "%1g %1g %1g'", r, g, b);
+            }
+            else if (colorbinding != CO_NONE && r)
+            {
+                sprintf(line, "%1g %1g %1g'", r[0], g[0], b[0]);
+            }
+            else
+            {
+                sprintf(line, "1 1 1'");
+            }
+            buf += line;
+        }
 
-        buf += "} ] }\n"; // Shape + Transform
     }
-    buf += "] }\n";
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "}";
+    }
+    else
+    {
+        buf += "></material> ";
+    }
+    addPixelTexture(texture, buf);
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "}";
+    }
+    else
+    {
+        buf += "</appearance>";
+    }
+
+}
+
+//----------------------------------------------------------------
+//
+//----------------------------------------------------------------
+void GeometryManager::addPolygon(const char *object, const char *rootName, int no_of_polygons, int no_of_vertices,
+                                 int no_of_coords, float *x_c, float *y_c,
+                                 float *z_c,
+                                 int *v_l, int *l_l,
+                                 int no_of_colors, int colorbinding, int colorpacking,
+                                 float *r, float *g, float *b, int *pc, int no_of_normals,
+                                 int normalbinding,
+                                 float *nx, float *ny, float *nz, float transparency,
+                                 int vertexOrder, coMaterial *material, coDoTexture* texture)
+{
+    (void)vertexOrder;
+    (void)transparency;
+    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+    NewCharBuffer buf(10000);
+    char line[500];
+    int i;
+    int n = 0;
+
+    addMaterial(material, colorbinding, colorpacking,r,g,b,pc,texture, buf, object);
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "geometry IndexedFaceSet {\n";
+        buf += "solid FALSE\nccw TRUE\nconvex TRUE\n";
+    }
+    else
+    {
+        buf += "<indexedFaceSet\n";
+        buf += "solid='false'\nccw='true'\nconvex='true'\n";
+    }
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "coordIndex [";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_polygons - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
+        }
+        buf += ']';
+    }
+    else
+    {
+        buf += "coordIndex='";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_polygons - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+        }
+        buf += "'\n";
+
+    }
+
+    addBindings(colorbinding, normalbinding, buf);
+
+    addCoordinates(x_c,y_c,z_c,no_of_coords,buf);
+    addNormals(nx, ny, nz, no_of_normals,buf);
+    addColors(r, g, b, pc, no_of_colors, colorpacking,buf);
+    addTexture(texture, buf);
+
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "} }\n";
+    }
+    else
+    {
+        buf += "</indexedFaceSet> </shape>\n";
+    }
+
+    boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
+
+    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
+    LObject *lob = new LObject();
+    lob->set_boundingbox(bbox);
+    lob->set_name((char *)object);
+    lob->set_timestep(object);
+    lob->set_rootname((char *)rootName);
+    lob->set_objPtr((void *)newbuf);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
+}
+
+//----------------------------------------------------------------
+//
+//----------------------------------------------------------------
+void GeometryManager::addTriangleStrip(const char *object, const char *rootName, int no_of_strips, int no_of_vertices,
+                                       int no_of_coords, float *x_c, float *y_c,
+                                       float *z_c,
+                                       int *v_l, int *s_l,
+                                       int no_of_colors, int colorbinding, int colorpacking,
+                                       float *r, float *g, float *b, int *pc, int no_of_normals,
+                                       int normalbinding,
+                                       float *nx, float *ny, float *nz, float transparency,
+                                       int vertexOrder, coMaterial *material, coDoTexture* texture)
+{
+
+    (void)transparency;
+    (void)vertexOrder;
+    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+    NewCharBuffer buf(10000);
+    char line[500];
+    int i;
+    int n = 0;
+
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "geometry IndexedFaceSet {\n";
+        buf += "solid FALSE\nccw TRUE\nconvex TRUE\n";
+    }
+    else
+    {
+        buf += "<indexedFaceSet\n";
+        buf += "solid='false'\nccw='true'\nconvex='true'\n";
+    }
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "coordIndex [";
+
+        n = 0;
+        for (i = 0; i < no_of_strips; i++)
+        {
+
+            if (i == (no_of_strips - 1))
+            {
+                for (n = 2; n < (no_of_vertices - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+            if ((i % 5) == 0)
+                buf += '\n';
+        }
+        buf += ']';
+    }
+    else
+    {
+        buf += "coordIndex='";
+        n = 0;
+        for (i = 0; i < no_of_strips; i++)
+        {
+
+            if (i == (no_of_strips - 1))
+            {
+                for (n = 2; n < (no_of_vertices - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+            else
+            {
+                for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
+                {
+                    if (n % 2)
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                    else
+                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                    buf += line;
+                }
+            }
+        }
+        buf += "'\n";
+
+    }
+
+    addBindings(colorbinding, normalbinding, buf);
+
+    addCoordinates(x_c, y_c, z_c, no_of_coords, buf);
+    addNormals(nx, ny, nz, no_of_normals, buf);
+    addColors(r, g, b, pc, no_of_colors, colorpacking, buf);
+    addTexture(texture, buf);
+
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "} }\n";
+    }
+    else
+    {
+        buf += "</indexedFaceSet> </shape>\n";
+    }
+
+
+    boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
+
+    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
+    LObject *lob = new LObject(object, rootName, newbuf);
+    lob->set_boundingbox(bbox);
+    lob->set_timestep(object);
+
+    objlist->push_back(std::unique_ptr<LObject>(lob));
+}
+
+//----------------------------------------------------------------
+//
+//----------------------------------------------------------------
+void GeometryManager::addLine(const char *object, const char *rootName, int no_of_lines, int no_of_vertices,
+                              int no_of_coords, float *x_c, float *y_c,
+                              float *z_c,
+                              int *v_l, int *l_l,
+                              int no_of_colors, int colorbinding, int colorpacking,
+                              float *r, float *g, float *b, int *pc, int no_of_normals,
+                              int normalbinding,
+                              float *nx, float *ny, float *nz, int isTrace, coMaterial *material, coDoTexture* texture)
+
+{
+    (void)no_of_normals;
+    (void)normalbinding;
+    (void)nx;
+    (void)ny;
+    (void)nz;
+    (void)isTrace;
+
+    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+    NewCharBuffer buf(10000);
+    char line[500];
+    int i;
+    int n = 0;
+
+
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "geometry IndexedLineSet {\n";
+        buf += "solid FALSE\nccw TRUE\nconvex TRUE\n";
+    }
+    else
+    {
+        buf += "<indexedLineSet\n";
+        buf += "solid='false'\nccw='true'\nconvex='true'\n";
+    }
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "coordIndex [";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_lines - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+            if ((i % 10) == 0)
+                buf += '\n';
+        }
+        buf += ']';
+    }
+    else
+    {
+        buf += "coordIndex='";
+        n = 0;
+        for (i = 0; i < no_of_vertices; i++)
+        {
+            if ((n < (no_of_lines - 1)) && (l_l[n + 1] == i))
+            {
+                buf += "-1 ";
+                n++;
+            }
+            sprintf(line, "%d ", v_l[i]);
+            buf += line;
+        }
+        buf += "'\n";
+
+    }
+
+    addBindings(colorbinding, normalbinding, buf);
+
+    addCoordinates(x_c, y_c, z_c, no_of_coords, buf);
+    addNormals(nx, ny, nz, no_of_normals, buf);
+    addColors(r, g, b, pc, no_of_colors, colorpacking, buf);
+    addTexture(texture, buf);
+
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "} }\n";
+    }
+    else
+    {
+        buf += "</indexedLineSet> </shape>\n";
+    }
+
+
+
+    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
+    boundingBox(x_c, y_c, z_c, no_of_coords, bbox);
+    LObject *lob = new LObject(object, rootName, newbuf);
+    lob->set_boundingbox(bbox);
+    lob->set_timestep(object);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
+}
+
+//----------------------------------------------------------------
+//
+//----------------------------------------------------------------
+void GeometryManager::addPoint(const char *object, const char *rootName, int no_of_points,
+                               float *x_c, float *y_c, float *z_c,
+                               int colorbinding, int colorpacking,
+                               float *r, float *g, float *b, int *pc, coMaterial *material, coDoTexture* texture)
+
+{
+    NewCharBuffer buf(10000);
+
+    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+
+    addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "geometry PointSet {\n";
+        buf += "solid FALSE\nccw TRUE\nconvex TRUE\n";
+    }
+    else
+    {
+        buf += "<pointSet\n";
+        buf += "solid='false'\nccw='true'\nconvex='true'\n";
+    }
+    addBindings(colorbinding, CO_NONE, buf);
+
+    addCoordinates(x_c, y_c, z_c, no_of_points, buf);
+    if(colorbinding == CO_PER_VERTEX)
+    {
+		addColors(r, g, b, pc, no_of_points, colorpacking, buf);
+    }
+    addTexture(texture, buf);
+
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "} }\n";
+    }
+    else
+    {
+        buf += "</pointSet> </shape>\n";
+    }
+
+
+    boundingBox(x_c, y_c, z_c, no_of_points, bbox);
+    NewCharBuffer *newbuf = new NewCharBuffer(&buf);
+    LObject *lob = new LObject(object, rootName, newbuf);
+    lob->set_boundingbox(bbox);
+    lob->set_timestep(object);
+
+    objlist->push_back(std::unique_ptr<LObject>(lob));
+}
+
+//----------------------------------------------------------------
+//
+//----------------------------------------------------------------
+void GeometryManager::addSphere(const char *object, const char *rootName, int no_of_points,
+                                float *x_c, float *y_c, float *z_c, float *r_c,
+                                int colorbinding, int colorpacking,
+                                float *r, float *g, float *b, int *pc, coMaterial *material, coDoTexture* texture)
+
+{
+    NewCharBuffer buf(10000);
+    char line[500];
+    float bbox[6] = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "Group { children [\n";
+    }
+    else
+    {
+        buf += "<transform>\n";
+    }
+    for (int i = 0; i < no_of_points; ++i)
+    {
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += "Transform { translation ";
+            sprintf(line, "%g %g %g", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+            buf += " children [";
+        }
+        else
+        {
+            buf += "<transform translation='\n";
+            sprintf(line, "%g %g %g '>", x_c[i], y_c[i], z_c[i]);
+            buf += line;
+        }
+
+
+
+        addMaterial(material, colorbinding, colorpacking, r, g, b, pc, texture, buf, object);
+
+        if (objlist->outputMode == OutputMode::VRML97)
+        {
+            buf += " geometry Sphere { radius ";
+            sprintf(line, "%g", r_c[i]);
+            buf += line;
+            buf += " }";
+            buf += "} ] }\n"; // Shape + Transform
+        }
+        else
+        {
+            buf += "<sphere radius='";
+            sprintf(line, "%g'>", r_c[i]);
+            buf += line;
+            buf += "</shape> </transform>";
+        }
+
+
+    }
+    if (objlist->outputMode == OutputMode::VRML97)
+    {
+        buf += "] }\n";
+    }
+    else
+    {
+        buf += "</transform>";
+    }
 
     boundingBox(x_c, y_c, z_c, r_c, no_of_points, bbox);
     NewCharBuffer *newbuf = new NewCharBuffer(&buf);
@@ -936,7 +1064,7 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
     lob->set_boundingbox(bbox);
     lob->set_timestep(object);
 
-    objlist->append(lob);
+    objlist->push_back(std::unique_ptr<LObject>(lob));
 }
 
 //----------------------------------------------------------------

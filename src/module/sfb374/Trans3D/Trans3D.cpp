@@ -42,25 +42,23 @@
 #include "Trans3D.h"
 #include "trans3DInterface.h"
 #include <api/coFeedback.h>
+#include <do/coDoData.h>
+#include <do/coDoStructuredGrid.h>
 
 extern void read_file(const char *pname);
 
-void CoviseMain(int argc, char *argv[])
-{
-    Trans3D *application = new Trans3D();
-    application->start(argc, argv);
-}
 
-Trans3D::Trans3D()
+Trans3D::Trans3D(int argc, char* argv[])
+	: coModule(argc, argv, "Calib file Reader")
 {
 
     // this info appears in the module setup window
     set_module_description("Read Trans3D(IFSW) Grid and Data in ASCII Format");
 
     // the output ports
-    gridPort = addOutputPort("grid", "coDoStructuredGrid", "Structured Grid");
-    TDataPort = addOutputPort("T", "coDoFloat", "Temperature");
-    QDataPort = addOutputPort("Q", "coDoFloat", "Q");
+    gridPort = addOutputPort("grid", "StructuredGrid", "Structured Grid");
+    TDataPort = addOutputPort("T", "Float", "Temperature");
+    QDataPort = addOutputPort("Q", "Float", "Q");
 
     fileParam = addFileBrowserParam("Trans3DInputFile", "Trans3D INPUT File");
     fileParam->setValue("data/ifsw/Trans3D/alufid.in", "*.in");
@@ -165,7 +163,7 @@ float Trans3D::idle()
     }
 }
 
-int Trans3D::compute()
+int Trans3D::compute(const char* port)
 {
     char infobuf[500]; // buffer for COVISE info and error messages
     char infobuf2[500]; // buffer for COVISE info and error messages
@@ -222,8 +220,8 @@ void Trans3D::createObjects()
     coDoFloat *Q; // Q output
     trans3D.getGridSize(xDim, yDim, zDim);
     Grid = new coDoStructuredGrid(gridPort->getObjName(), xDim, yDim, zDim);
-    T = new coDoFloat(TDataPort->getObjName(), xDim, yDim, zDim);
-    Q = new coDoFloat(QDataPort->getObjName(), xDim, yDim, zDim);
+    T = new coDoFloat(TDataPort->getObjName(), xDim*yDim*zDim);
+    Q = new coDoFloat(QDataPort->getObjName(), xDim*yDim*zDim);
     gridPort->setCurrentObject(Grid);
     TDataPort->setCurrentObject(T);
     QDataPort->setCurrentObject(Q);
@@ -361,3 +359,5 @@ xc++;yc++;zc++;t++;q++;
 }
 
 }*/
+
+//MODULE_MAIN(Simulation, Trans3D)

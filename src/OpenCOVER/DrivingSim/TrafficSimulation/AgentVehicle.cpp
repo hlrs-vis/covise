@@ -12,8 +12,10 @@
 #include <algorithm>
 #include <math.h>
 #include <float.h> //für die #INF-Abfrage (DBL_MAX und DBL_MIN)
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
 
-AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehicleParameters &vp, Road *r, double startu, int startLane, double startVel, int startDir)
+AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehicleParameters &vp, vehicleUtil::Road *r, double startu, int startLane, double startVel, int startDir)
     : Vehicle(name)
     , vehPars(vp)
     , vehState()
@@ -108,7 +110,7 @@ AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehiclePar
         geometry = geo;
         boundRadius = geo->getBoundingCircleRadius();
         geometry->setLODrange(vehPars.rangeLOD);
-        geometry->setTransform(vehicleTransform, hdg);
+        geometry->setTransformOrig(vehicleTransform, hdg);
         junctionWaitTriggerDist += boundRadius + vehPars.deltaSmin;
     }
 
@@ -199,7 +201,7 @@ AgentVehicle::AgentVehicle(std::string name, CarGeometry *geo, const VehiclePara
         geometry = geo;
         boundRadius = geo->getBoundingCircleRadius();
         geometry->setLODrange(vehPars.rangeLOD);
-        geometry->setTransform(vehicleTransform, hdg);
+        geometry->setTransformOrig(vehicleTransform, hdg);
         junctionWaitTriggerDist += boundRadius + vehPars.deltaSmin;
     }
 
@@ -835,7 +837,7 @@ void AgentVehicle::move(double dt)
     // UPDATE GEOMETRY //
     //
     vehicleTransform = currentTransition->road->getRoadTransform(u, v);
-    geometry->setTransform(vehicleTransform, hdg);
+    geometry->setTransformOrig(vehicleTransform, hdg);
     geometry->updateCarParts(timer, dt, vehState);
 
     //alter Code von Florian Seybold - war bereits auskommentiert

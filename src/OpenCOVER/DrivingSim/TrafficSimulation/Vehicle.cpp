@@ -10,6 +10,9 @@
 #include <VehicleUtil/RoadSystem/Road.h>
 #include "VehicleUtils.h"
 
+using namespace vehicleUtil;
+using namespace TrafficSimulation;
+
 int Vehicle::vehicleIDs = 0;
 
 Vehicle::Vehicle(std::string n)

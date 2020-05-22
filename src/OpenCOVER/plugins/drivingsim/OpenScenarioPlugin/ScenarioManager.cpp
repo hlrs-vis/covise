@@ -7,6 +7,7 @@
 #include "Maneuver.h"
 #include "Event.h"
 #include "Condition.h"
+#include "Position.h"
 #include "../../../DrivingSim/OpenScenario/schema/oscEntity.h"
 #include "OpenScenarioPlugin.h"
 #include <OpenScenario/schema/oscPrivate.h>
@@ -43,9 +44,12 @@ void ScenarioManager::restart()
 						for (list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
 						{
 							Entity* currentEntity = (*entity_iter);
-							for (list<Action*>::iterator currentAction = currentEvent->actionList.begin(); currentAction != currentEvent->actionList.end(); currentAction++)
+							
+							for (auto currentAction = currentEvent->Action.begin(); currentAction != currentEvent->Action.end(); currentAction++)
 							{
-								(*currentAction)->stop();
+								Action* action = dynamic_cast<Action*>(*currentAction);
+								if(action!=NULL)
+								   action->stop();
 							}
 						}
 
@@ -119,7 +123,7 @@ void ScenarioManager::initializeEntities()
 						if (initPos->Lane.exists())
 						{
 							ReferencePosition* refPos = new ReferencePosition();
-							refPos->init(initPos->Lane->roadId.getValue(), initPos->Lane->laneId.getValue(), initPos->Lane->s.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
+							refPos->init(initPos->Lane->roadId.getValue(), initPos->Lane->laneId.getValue(), initPos->Lane->s.getValue(), OpenScenarioPlugin::instance()->getRoadSystem(), initPos->Lane->offset.getValue());
 							currentEntity->setInitEntityPosition(refPos);
 						}
 						else if (initPos->World.exists())
@@ -262,7 +266,7 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
                 }
                 if(currentEvent->isRunning())
                 {
-                    if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
+                    if(currentEvent->activeEntites*currentEvent->Action.size() == currentEvent->finishedEntityActions)
                     {
                         // lieber running actions und dann abziehen
                         currentEvent->finish();

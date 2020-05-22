@@ -23,21 +23,22 @@
 #define DATAFILEBIN_H
 
 #include "EnFile.h"
+#include "ReadEnsight.h"
 
 class DataFileBin : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    DataFileBin(const coModule *mod);
-    DataFileBin(const coModule *mod,
+    DataFileBin(ReadEnsight *mod);
+    DataFileBin(ReadEnsight *mod,
                 const string &name,
                 const int &dim,
                 const int &numVals,
                 const EnFile::BinType &binType = CBIN);
 
-    void read();
+    void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
-    void readCells();
+    void readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
     virtual coDistributedObject *getDataObject(std::string s);
 

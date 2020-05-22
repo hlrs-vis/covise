@@ -8,9 +8,13 @@
 #ifndef TokenBuffer_H
 #define TokenBuffer_H
 
+#include "dataHandle.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
+#include <string>
+
 
 #include <util/coExport.h>
 #include <util/byteswap.h>
@@ -64,189 +68,98 @@
  **                                                                     **
  **                                                                     **
 \***********************************************************************/
-
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace covise
 {
 
-class Message;
+class MessageBase;
+class DataHandle;
 
-class NETEXPORT TokenBuffer // class for tokens
+class NETEXPORT TokenBuffer// class for tokens
 {
 private:
-    TokenBuffer(const TokenBuffer &other) = delete;
-    TokenBuffer &operator=(const TokenBuffer &other) = delete;
+    enum Types
+    {
+        TbBool = 7,
+        TbInt64,
+        TbInt32,
+        TbFloat,
+        TbDouble,
+        TbString,
+        TbChar,
+        TbTB, //TokenBuffer or DataHandle
+        TbBinary,
+    };
+    DataHandle data;
+    void puttype(Types t);
+    bool checktype(Types t);
 
+    bool debug = false;
     int buflen = 0; // number of allocated bytes
-    int length = 0; // number of used bytes
-    char *data = nullptr; // pointer to the tokens
+
     char *currdata = nullptr; // pointer to the tokens
     bool networkByteOrder = false;
 
     void incbuf(int size = 100);
 
 public:
-    TokenBuffer(bool nbo = false)
-    {
-        buflen = length = 0;
-        data = currdata = NULL;
-        networkByteOrder = nbo;
-    }
-    TokenBuffer(int al, bool nbo = false)
-    {
-        buflen = al;
-        length = 0;
-        data = currdata = new char[al];
-        networkByteOrder = nbo;
-    }
-    virtual ~TokenBuffer();
-    void delete_data();
-    TokenBuffer(const Message *msg, bool nbo = false);
+    TokenBuffer();
+    explicit TokenBuffer(bool nbo);
+    //creates a TokenBuffer with allocated memory
+    TokenBuffer(int al, bool nbo = false);
+
+    TokenBuffer(const MessageBase *msg, bool nbo = false);
+    TokenBuffer(const DataHandle& dh, bool nbo = false);
     TokenBuffer(const char *dat, int len, bool nbo = false);
+    virtual ~TokenBuffer();
+    TokenBuffer &operator=(const TokenBuffer &other);
 
-    const char *getBinary(int n)
-    {
-        const char *c = currdata;
-        currdata += n;
-        return c;
-    }
-
-    void addBinary(const char *buf, int n)
-    {
-        if (buflen < length + n + 1)
-            incbuf(n + 40);
-        memcpy(currdata, buf, n);
-        currdata += n;
-        length += n;
-    }
-    const char *allocBinary(int n)
-    {
-        if (buflen < length + n + 1)
-            incbuf(n + 40);
-        const char *buf = currdata;
-        currdata += n;
-        length += n;
-        return buf;
-    }
+    const DataHandle& getData();
+    const char *getBinary(int n);
+    void addBinary(const char *buf, int n);
+    const char *allocBinary(int n);
 
     TokenBuffer &operator<<(const bool b);
     TokenBuffer &operator<<(const uint64_t i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
-//TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
+    //TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
 #endif
     TokenBuffer &operator<<(const uint32_t i);
-    TokenBuffer &operator<<(const int i)
-    {
-        return (*this << (uint32_t)i);
-    }
+    TokenBuffer &operator<<(const int i);
     TokenBuffer &operator<<(const std::string &s);
-    TokenBuffer &operator<<(const char c)
-    {
-        if (buflen < length + 2)
-            incbuf();
-        *currdata = c;
-        currdata++;
-        length++;
-        return (*this);
-    }
+    TokenBuffer &operator<<(const char c);
     TokenBuffer &operator<<(const float f);
     TokenBuffer &operator<<(const double f);
-    TokenBuffer &operator<<(const char *c)
-    {
-        int l = int(strlen(c) + 1);
-        if (buflen < length + l + 1)
-            incbuf(l * 10);
-        strcpy(currdata, c);
-        currdata += l;
-        length += l;
-        return (*this);
-    }
-    TokenBuffer &operator<<(const TokenBuffer *t);
-    TokenBuffer &operator<<(const TokenBuffer &t)
-    {
-        if (buflen < length + t.get_length() + 1)
-            incbuf(t.get_length() * 4);
-        memcpy(currdata, t.get_data(), t.get_length());
-        currdata += t.get_length();
-        length += t.get_length();
-        return (*this);
-    }
+    TokenBuffer &operator<<(const char *c);
+    TokenBuffer& operator<<(const DataHandle& d);
+    TokenBuffer &operator<<(const TokenBuffer &t);
 
     TokenBuffer &operator>>(bool &b);
     TokenBuffer &operator>>(uint64_t &i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
-//TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }
+    //TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }
 #endif
     TokenBuffer &operator>>(uint32_t &i);
-    TokenBuffer &operator>>(int &i)
-    {
-        return (*this >> *((uint32_t *)&i));
-    }
-    TokenBuffer &operator>>(char &c)
-    {
-        c = *(char *)currdata;
-        currdata++;
-        return (*this);
-    }
-    TokenBuffer &operator>>(unsigned char &c)
-    {
-        c = *(unsigned char *)currdata;
-        currdata++;
-        return (*this);
-    }
+    TokenBuffer &operator>>(int &i);
+    TokenBuffer &operator>>(char &c);
+    TokenBuffer &operator>>(unsigned char &c);
     TokenBuffer &operator>>(float &f);
     TokenBuffer &operator>>(double &f);
     TokenBuffer &operator>>(std::string &s);
-    TokenBuffer &operator>>(char *&c)
-    {
-        char *end = data + length - 1;
-        c = currdata;
-        while (*currdata)
-        {
-            currdata++;
-            if (currdata > end)
-            {
-                std::cerr << "string not terminated within range" << std::endl;
-                *end = '\0';
-                return (*this);
-            }
-        }
-        currdata++;
-        return (*this);
-    }
-
+    TokenBuffer &operator>>(char *&c);
+    TokenBuffer& operator>>(DataHandle& d);
+    TokenBuffer &operator>>(TokenBuffer &tb);
     uint32_t get_int_token();
-    char get_char_token()
-    {
-        char ret = *(char *)currdata;
-        currdata++;
-        return (ret);
-    };
+    char get_char_token();
     float get_float_token();
-    char *get_charp_token()
-    {
-        char *ret = currdata;
-        while (*currdata)
-            currdata++;
-        currdata++;
-        return (ret);
-    };
-    int get_length() const
-    {
-        return (length);
-    };
-    const char *get_data() const
-    {
-        return (data);
-    };
-    void reset()
-    {
-        currdata = data;
-        length = 0;
-        if (data)
-            data[0] = 0;
-    };
+    char *get_charp_token();
 
+    void reset();
     void rewind();
 };
 }
+
 #endif

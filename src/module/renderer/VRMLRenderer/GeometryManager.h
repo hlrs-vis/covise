@@ -30,9 +30,111 @@
 #include <appl/RenderInterface.h>
 #include "ObjectList.h"
 #include <util/coMaterial.h>
+#include <do/coDoTexture.h>
 
 extern ObjectList *objlist;
 
+class NewCharBuffer
+{
+    char* buf;
+    int len;
+    int incSize;
+
+public:
+    int cur_len;
+    NewCharBuffer()
+    {
+        incSize = 1000;
+        cur_len = 0;
+        len = 0;
+        buf = NULL;
+    };
+    NewCharBuffer(NewCharBuffer* obuf)
+    {
+        incSize = 1000;
+        cur_len = obuf->cur_len;
+        len = cur_len + 1;
+        buf = new char[len];
+        strcpy(buf, obuf->getbuf());
+    };
+    NewCharBuffer(int def)
+    {
+        incSize = def;
+        cur_len = 0;
+        len = def;
+        buf = new char[len];
+    };
+    ~NewCharBuffer() { delete[] buf; };
+    char* return_data()
+    {
+        char* tmp = buf;
+        buf = NULL;
+        cur_len = 0;
+        len = 0;
+        return (tmp);
+    };
+    int strlen() { return (cur_len); };
+    void operator+=(const char* const s)
+    {
+        int l = (int)::strlen(s);
+        if (cur_len + l >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        strcpy(buf + cur_len, s);
+        cur_len += l;
+    };
+    void operator+=(char c)
+    {
+        if (cur_len + 1 >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        buf[cur_len] = c;
+        cur_len++;
+        buf[cur_len] = 0;
+    };
+    void operator+=(int n)
+    {
+        CharNum s(n);
+        int l = (int)::strlen(s);
+        if (cur_len + l >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        strcpy(buf + cur_len, s);
+        cur_len += l;
+    };
+    void operator+=(float n)
+    {
+        CharNum s(n);
+        int l = (int)::strlen(s);
+        if (cur_len + l >= len)
+        {
+            len += incSize;
+            char* nbuf = new char[len];
+            strcpy(nbuf, buf);
+            delete[] buf;
+            buf = nbuf;
+        }
+        strcpy(buf + cur_len, s);
+        cur_len += l;
+    };
+    operator const char* () const { return (buf); };
+    const char* getbuf() { return (buf); };
+};
 //================================================================
 // GeoemtryManager
 //================================================================
@@ -53,7 +155,7 @@ public:
                   int no_of_colors, int colorbinding, int colorpacking,
                   float *r, float *g, float *b, int *pc, int no_of_normals,
                   int normalbinding,
-                  float *nx, float *ny, float *nz, float transparency, coMaterial *material);
+                  float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture);
 
     void addRGrid(const char *object, const char *rootName, int xsize, int ysize,
                   int zsize, float *x_c, float *y_c,
@@ -61,7 +163,7 @@ public:
                   int no_of_colors, int colorbinding, int colorpacking,
                   float *r, float *g, float *b, int *pc, int no_of_normals,
                   int normalbinding,
-                  float *nx, float *ny, float *nz, float transparency, coMaterial *material);
+                  float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture);
 
     void addSGrid(const char *object, const char *rootName, int xsize, int ysize,
                   int zsize, float *x_c, float *y_c,
@@ -69,7 +171,7 @@ public:
                   int no_of_colors, int colorbinding, int colorpacking,
                   float *r, float *g, float *b, int *pc, int no_of_normals,
                   int normalbinding,
-                  float *nx, float *ny, float *nz, float transparency, coMaterial *material);
+                  float *nx, float *ny, float *nz, float transparency, coMaterial *material, coDoTexture *texture);
 
     void addPolygon(const char *object, const char *rootName, int no_of_polygons, int no_of_vertices,
                     int no_of_coords, float *x_c, float *y_c,
@@ -79,7 +181,7 @@ public:
                     float *r, float *g, float *b, int *pc, int no_of_normals,
                     int normalbinding,
                     float *nx, float *ny, float *nz, float transparency,
-                    int vertexOrder, coMaterial *material);
+                    int vertexOrder, coMaterial *material, coDoTexture *texture);
 
     void addTriangleStrip(const char *object, const char *rootName, int no_of_strips, int no_of_vertices,
                           int no_of_coords, float *x_c, float *y_c,
@@ -89,7 +191,7 @@ public:
                           float *r, float *g, float *b, int *pc, int no_of_normals,
                           int normalbinding,
                           float *nx, float *ny, float *nz, float transparency,
-                          int vertexOrder, coMaterial *material);
+                          int vertexOrder, coMaterial *material, coDoTexture *texture);
 
     void addLine(const char *object, const char *rootName, int no_of_lines, int no_of_vertices,
                  int no_of_coords, float *x_c, float *y_c,
@@ -98,15 +200,15 @@ public:
                  int no_of_colors, int colorbinding, int colorpacking,
                  float *r, float *g, float *b, int *pc, int no_of_normals,
                  int normalbinding,
-                 float *nx, float *ny, float *nz, int isTrace, coMaterial *material);
+                 float *nx, float *ny, float *nz, int isTrace, coMaterial *material, coDoTexture *texture);
 
     void addPoint(const char *object, const char *rootName, int no_of_points,
                   float *x_c, float *y_c, float *z_c,
-                  int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material);
+                  int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material, coDoTexture *texture);
 
     void addSphere(const char *object, const char *rootName, int no_of_points,
                    float *x_c, float *y_c, float *z_c, float *r_c,
-                   int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material);
+                   int colorbinding, int colorpacking, float *r, float *g, float *b, int *pc, coMaterial *material, coDoTexture *texture);
 
     // void addIv(char *object,char *rootName, char *IvDescription, int size);
 
@@ -175,6 +277,8 @@ public:
     // void replaceIv(char *object, char *IvDescription);
 
     void remove_geometry(const char *name);
+
+    void addMaterial(coMaterial* material, int colorbinding, int colorpacking, float* r, float* g, float* b, int* pc, coDoTexture *, NewCharBuffer& buf, const char* object);
 
     ~GeometryManager()
     {

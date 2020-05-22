@@ -5,10 +5,13 @@
 
  * License: LGPL 2+ */
 
-#include <iostream.h>
-#include <stdio.h>
+#include <iostream>
+#include <cstdio>
+#ifndef WIN32
 #include <unistd.h>
-#include <ctype.h>
+#endif
+#include <cctype>
+#include <cstring>
 
 static void
 byteSwap(int no_points, void *buffer)
@@ -26,7 +29,7 @@ byteSwap(int no_points, void *buffer)
 }
 
 /////////////////////////////////////////////////////
-FILE *covOpenOutFile(char *filename)
+FILE *covOpenOutFile(const char *filename)
 {
     FILE *fi = fopen(filename, "w");
     if (fi == NULL)
@@ -76,8 +79,8 @@ int main(int argc, char *argv[])
 
     if (argc != 2)
     {
-        cerr << "Call: " << argv[0] << " Meshfile" << endl;
-        exit(1);
+        std::cerr << "Call: " << argv[0] << " Meshfile" << std::endl;
+        return(1);
     }
 
     FILE *input = fopen(argv[1], "r");
@@ -154,7 +157,7 @@ int main(int argc, char *argv[])
     const char *attribVal[] = { "magma2cov v1.0" };
 
     FILE *outfile = covOpenOutFile("Mesh.covise");
-    static char *rectgrd = "RCTGRD";
+    static const char *rectgrd = "RCTGRD";
     fwrite(rectgrd, 6, 1, outfile);
 
     // buffer > all individual sizes
@@ -203,21 +206,21 @@ int main(int argc, char *argv[])
     fwrite(&size, sizeof(int), 1, outfile);
 
     /// cell centers  Z
-    buffer[0] = hdr.zMin + 0.5 * dz[0];
+    buffer[0] = hdr.zMin + 0.5f * dz[0];
     for (i = 1; i < hdr.nz; i++)
-        buffer[i] = buffer[i - 1] + 0.5 * (dz[i - 1] + dz[i]);
+        buffer[i] = buffer[i - 1] + 0.5f * (dz[i - 1] + dz[i]);
     fwrite(buffer, sizeof(int), hdr.nz, outfile);
 
     /// cell centers  Y
-    buffer[0] = hdr.yMin + 0.5 * dy[0];
+    buffer[0] = hdr.yMin + 0.5f * dy[0];
     for (i = 1; i < hdr.ny; i++)
-        buffer[i] = buffer[i - 1] + 0.5 * (dy[i - 1] + dy[i]);
+        buffer[i] = buffer[i - 1] + 0.5f * (dy[i - 1] + dy[i]);
     fwrite(buffer, sizeof(int), hdr.ny, outfile);
 
     /// cell centers  X
-    buffer[0] = hdr.xMin + 0.5 * dx[0];
+    buffer[0] = hdr.xMin + 0.5f * dx[0];
     for (i = 1; i < hdr.nx; i++)
-        buffer[i] = buffer[i - 1] + 0.5 * (dx[i - 1] + dx[i]);
+        buffer[i] = buffer[i - 1] + 0.5f * (dx[i - 1] + dx[i]);
     fwrite(buffer, sizeof(int), hdr.nx, outfile);
 
     covWriteAttrib(outfile, 1, attribName, attribVal);

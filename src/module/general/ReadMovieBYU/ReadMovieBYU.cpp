@@ -724,7 +724,7 @@ void Application::read_displace(char *datapath, int nj, int time, int skip, floa
 {
     int j, i, d, zahl;
 
-    char partpath[200];
+    char partpath[512];
     char mainpath[500];
     char *t;
 

@@ -16,8 +16,6 @@
 //#include <algorithm> // sort, max_element, random_shuffle, remove_if, lower_bound
 //#include <functional> // greater, bind2nd
 
-using namespace std;
-
 namespace SimLib
 {
 
@@ -103,7 +101,7 @@ public:
     {
         if (mSettingsMap.find(settingName) == mSettingsMap.end())
         {
-            cout << "SimSettings::SetValue (" << settingName << ") failed, no such setting\n";
+            std::cout << "SimSettings::SetValue (" << settingName << ") failed, no such setting\n";
             return;
         }
 
@@ -111,7 +109,7 @@ public:
 
         if (oldVal != value)
         {
-            cout << "SETTING: " << setw(30) << settingName << " " << setw(15) << oldVal << setw(5) << " -> " << setw(15) << value << "\n";
+            std::cout << "SETTING: " << std::setw(30) << settingName << " " << std::setw(15) << oldVal << std::setw(5) << " -> " << std::setw(15) << value << "\n";
             mSettingsMap[settingName].value = value;
             for (CallbacksType::const_iterator it = mCallbacks.begin(); it != mCallbacks.end(); ++it)
             {
@@ -124,7 +122,7 @@ public:
     {
         if (mSettingsMap.find(settingName) == mSettingsMap.end())
         {
-            cout << "SimSettings::GetValue(" + settingName + ") failed, no such setting\n";
+            std::cout << "SimSettings::GetValue(" + settingName + ") failed, no such setting\n";
             return 0.0;
         }
         return mSettingsMap[settingName].value;
@@ -132,15 +130,15 @@ public:
 
     void Print()
     {
-        cout << "\n*** Simulation Library Settings ***:\n";
+        std::cout << "\n*** Simulation Library Settings ***:\n";
         for (SettingsType::const_iterator it = mSettingsMap.begin(); it != mSettingsMap.end(); ++it)
         {
-            cout << setw(30) << it->first;
-            cout << setw(5) << "\t";
-            cout << it->second.value;
-            cout << "\n";
+            std::cout << std::setw(30) << it->first;
+            std::cout << std::setw(5) << "\t";
+            std::cout << it->second.value;
+            std::cout << "\n";
         }
-        cout << "\n";
+        std::cout << "\n";
     }
 };
 

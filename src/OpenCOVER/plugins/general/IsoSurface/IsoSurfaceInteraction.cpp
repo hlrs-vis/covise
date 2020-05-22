@@ -14,19 +14,16 @@
 #include <cover/coInteractor.h>
 #include <cover/coVRPluginSupport.h>
 
-#ifdef VRUI
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-using namespace vrui;
-#else
 #include <cover/ui/Slider.h>
 #include <cover/ui/Button.h>
-#endif
+#include <cover/ui/Menu.h>
 
 using namespace opencover;
 
+// match these with COVISE and Vistle IsoSurface modules
 const char *IsoSurfaceInteraction::ISOVALUE = "isovalue";
 const char *IsoSurfaceInteraction::ISOPOINT = "isopoint";
+const char *IsoSurfaceInteraction::INTERACTOR = "point_or_value";
 
 IsoSurfaceInteraction::IsoSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, IsoSurfacePlugin *p)
     : ModuleInteraction(container, inter, pluginName)
@@ -78,33 +75,6 @@ IsoSurfaceInteraction::preFrame()
     isoPoint_->preFrame();
 }
 
-#ifdef VRUI
-void
-IsoSurfaceInteraction::menuEvent(coMenuItem *menuItem)
-{
-    ModuleInteraction::menuEvent(menuItem);
-
-    updateInteractorVisibility();
-}
-
-void
-IsoSurfaceInteraction::menuReleaseEvent(coMenuItem *menuItem)
-{
-    if (menuItem == valueSlider_)
-    {
-        inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
-        isoValue_ = valueSlider_->getValue();
-        plugin->getSyncInteractors(inter_);
-        plugin->setSliderParam("isovalue", minValue_, maxValue_, isoValue_);
-        plugin->executeModule();
-    }
-    else
-    {
-        ModuleInteraction::menuReleaseEvent(menuItem);
-    }
-}
-#endif
-
 void
 IsoSurfaceInteraction::createMenu()
 {
@@ -120,7 +90,8 @@ IsoSurfaceInteraction::createMenu()
         inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
         isoValue_ = value;
         plugin->getSyncInteractors(inter_);
-        plugin->setSliderParam("isovalue", minValue_, maxValue_, isoValue_);
+        plugin->setSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
+        plugin->setChoiceParam(INTERACTOR, INTERACTOR_VALUE);
         plugin->executeModule();
     });
 }

@@ -1,9 +1,21 @@
 [submodule "src/3rdparty/deskvox"]
 	path = src/3rdparty/deskvox
-	url = git://github.com/deskvox/deskvox.git
+	url = https://github.com/deskvox/deskvox
 [submodule "share/covise/web/noVNC"]
 	path = share/covise/web/noVNC
-	url = git://github.com/kanaka/noVNC.git
+	url = https://github.com/kanaka/noVNC
 [submodule "src/3rdparty/visionaray"]
 	path = src/3rdparty/visionaray
-	url = git://github.com/szellmann/visionaray.git
+	url = https://github.com/szellmann/visionaray
+[submodule "src/OpenCOVER/plugins/gpl/NvTop/nvtop"]
+	path = src/OpenCOVER/plugins/gpl/NvTop/nvtop
+	url = https://github.com/hlrs-vis/nvtop.git
+[submodule "src/tools/OpenFOAM-Exporter"]
+	path = src/tools/OpenFOAM-Exporter
+	url = https://github.com/hlrs-vis/OpenFOAM-Exporter.git
+[submodule "src/module/univiz"]
+	path = src/module/univiz
+	url = git://github.com/vistle/univiz.git
+[submodule "src/kernel/file"]
+	path = src/kernel/file
+	url = git://github.com/hlrs-vis/covise-file.git

@@ -8,6 +8,7 @@
 #include "coGRObjAttachedClipPlaneMsg.h"
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjAttachedClipPlaneMsg::coGRObjAttachedClipPlaneMsg(Mtype type, const char *obj_name, int index, float offset, bool flip)

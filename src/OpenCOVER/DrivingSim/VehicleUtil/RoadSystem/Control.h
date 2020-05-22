@@ -11,43 +11,46 @@
 //#include "Element.h"
 #include "RoadSignal.h"
 
-class Control
+namespace vehicleUtil
 {
-public:
-    Control(TrafficLightSignal *, const std::string &);
+    class Control
+    {
+    public:
+        Control(TrafficLightSignal*, const std::string&);
 
-    TrafficLightSignal *getSignal()
-    {
-        return signal;
-    }
-    const std::string &getControlType()
-    {
-        return type;
-    }
+        TrafficLightSignal* getSignal()
+        {
+            return signal;
+        }
+        const std::string& getControlType()
+        {
+            return type;
+        }
 
-    void switchGreenLight(bool);
-    void switchYellowLight(bool);
-    void switchRedLight(bool);
+        void switchGreenLight(bool);
+        void switchYellowLight(bool);
+        void switchRedLight(bool);
 
-    bool getGreenLight()
-    {
-        return greenState;
-    }
-    bool getYellowLight()
-    {
-        return yellowState;
-    }
-    bool getRedLight()
-    {
-        return redState;
-    }
+        bool getGreenLight()
+        {
+            return greenState;
+        }
+        bool getYellowLight()
+        {
+            return yellowState;
+        }
+        bool getRedLight()
+        {
+            return redState;
+        }
 
-protected:
-    TrafficLightSignal *signal;
-    std::string type;
-    bool greenState;
-    bool yellowState;
-    bool redState;
-};
+    protected:
+        TrafficLightSignal* signal;
+        std::string type;
+        bool greenState;
+        bool yellowState;
+        bool redState;
+    };
+}
 
 #endif

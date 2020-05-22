@@ -39,7 +39,7 @@ IF (MSVC)
     STRING(REGEX MATCH "[mM][tT][dD]" MTD_COMPILE_OPTION ${CMAKE_C_FLAGS_DEBUG})
     IF (MTD_COMPILE_OPTION)
       # MESSAGE("Using static MS-Runtime !!!")
-      FIND_LIBRARY(CURL_LIBRARY_DEBUG NAMES curld libcurld curllibd libcurld_imp curllibd_static
+      FIND_LIBRARY(CURL_LIBRARY_DEBUG NAMES curld libcurld curllibd libcurld_imp libcurl-d_imp curllibd_static
         PATHS
         $ENV{CURL_HOME}/lib
         $ENV{EXTERNLIBS}/CURL/lib
@@ -50,7 +50,7 @@ IF (MSVC)
         $ENV{EXTERNLIBS}/CURL/lib
       )
     ELSE (MTD_COMPILE_OPTION)
-      FIND_LIBRARY(CURL_LIBRARY_DEBUG NAMES curld libcurld curllibd libcurld_imp curllibd_static
+      FIND_LIBRARY(CURL_LIBRARY_DEBUG NAMES curld libcurld curllibd libcurld_imp libcurl-d_imp curllibd_static
         PATHS
         $ENV{CURL_HOME}/lib
         $ENV{EXTERNLIBS}/CURL/lib

@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+using namespace vehicleUtil;
+
 fasiUpdateManager *fasiUpdateManager::fum = NULL;
 fasiUpdateable::~fasiUpdateable()
 {

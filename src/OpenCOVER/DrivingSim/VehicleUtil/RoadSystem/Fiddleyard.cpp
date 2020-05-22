@@ -9,6 +9,8 @@
 
 #include <sstream>
 
+using namespace vehicleUtil;
+
 Carpool *Carpool::__instance = NULL;
 
 FiddleRoad::FiddleRoad(Fiddleyard *fy, std::string id, std::string name, double l, Junction *junc, bool geo)

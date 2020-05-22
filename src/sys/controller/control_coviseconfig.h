@@ -56,13 +56,12 @@ private:
         int timeout;
         char *display;
     };
-    typedef std::map<uint32_t, HostInfo> HostMap;
+    typedef std::map<std::string, HostInfo> HostMap;
     HostMap hostMap;
 
-    HostMap::iterator getOrCreateHostInfo(uint32_t ip);
-    uint32_t genip(const char *n);
-    void addhostinfo(const char *name, int s_mode, int e_mode, int t);
-    void addhostinfo_from_config(const char *name);
+    HostMap::iterator getOrCreateHostInfo(const std::string &);
+    void addhostinfo(const std::string &name, int s_mode, int e_mode, int t);
+    void addhostinfo_from_config(const std::string &name);
 
 public:
     ControlConfig()
@@ -72,24 +71,18 @@ public:
     {
     }
 
-    int getshminfo(const char *n);
-    int getexectype(const char *n);
-    int gettimeout(const char *n);
+    int getshminfo(const std::string &n);
+    int getexectype(const std::string &n);
+	int gettimeout(const std::string &n);
+	int gettimeout(const covise::Host &h);
 
-    int gettimeout_ip(uint32_t ip);
-    int getshminfo_ip(uint32_t ip);
-    int getexectype_ip(uint32_t ip);
-    char *getDisplayIP(uint32_t ip);
+	char *getDisplayIP(const covise::Host &h);
 
-    int set_shminfo(const char *n, const char *shm_mode);
-    int set_timeout(const char *n, const char *t);
-    int set_exectype(const char *n, const char *e);
-    char *set_display(const char *n, const char *e);
+    int set_shminfo(const std::string &n, const char *shm_mode);
+    int set_timeout(const std::string &n, const char *t);
+    int set_exectype(const std::string &n, const char *e);
+    char *set_display(const std::string &n, const char *e);
 
-    int set_shminfo_ip(uint32_t ip, const char *shm_mode);
-    int set_timeout_ip(uint32_t ip, const char *t);
-    int set_exectype_ip(uint32_t ip, const char *e);
-    char *set_display_ip(uint32_t ip, const char *e);
 };
 }
 #endif

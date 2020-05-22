@@ -33,13 +33,12 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRTouchTable.h>
+#include <cover/coIntersection.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
-
 #include <util/byteswap.h>
 
 #include "VrmlNodeMultiTouchSensor.h"
@@ -295,27 +294,18 @@ void VrmlNodeMultiTouchSensor::render(Viewer *viewer)
 				 p0.set(pos[0],  pos[1]+100.0,  pos[2]);
 				 q0.set(pos[0],  pos[1]-100.0, pos[2]);
 
-				 osg::ref_ptr<osg::LineSegment> ray = new osg::LineSegment();
-				 ray->set(p0,q0);
 
-
-				 osgUtil::IntersectVisitor visitor;
+                 coIntersector* isect = coIntersection::instance()->newIntersector(p0, q0);
+                 osgUtil::IntersectionVisitor visitor(isect);
 				 visitor.setTraversalMask(Isect::Collision);
-				 visitor.addLineSegment(ray.get());
 
 				 ViewerOsg::viewer->VRMLRoot->accept(visitor);
-				 int num1 = visitor.getNumHits(ray.get());
 
 				 //std::cerr << "Hits ray num: " << num1 << ", down (" << ray->start()[0] << ", " << ray->start()[1] <<  ", " << ray->start()[2] << "), up (" << ray->end()[0] << ", " << ray->end()[1] <<  ", " << ray->end()[2] << ")" <<  std::endl;
-				 if (num1)
+				 if (isect->containsIntersections())
 				 {
-					 osgUtil::Hit hitInformation1;
-					 hitInformation1 = visitor.getHitList(ray.get()).front();
+                     auto hitInformation1 = isect->getFirstIntersection();
 
-					 float dist = 0.0;
-					 osg::Vec3 normal(0,0,1);
-					 osg::Vec3 normal2(0,0,1);
-					 normal = hitInformation1.getLocalIntersectNormal();
 					 pos[1] = hitInformation1.getLocalIntersectPoint()[1];
 
 				 }
