@@ -215,11 +215,20 @@ void ObjectManager::addObject(char* object)
                     </td>\n\
                     <td align = 'left'>", fp);
                 //add checkbox for every variant
+                int tmp = 0;
                 for (const auto& it : *objlist) {
-                    fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
+                    if (strcmp("BeginTimeset", it->name) != 0) {
+                        fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
                             <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, it->name);
+                        ++tmp;
+                    }
+                    else{
+                        ++tmp;
+                    }
                 }
                 //end of GUI elements; begin of scene elements
+                fprintf(fp, "%i \n", tmp);
+
                 fputs("</td>\n\
                     </tr>\n\
                     <tr>\n\
@@ -256,10 +265,10 @@ void ObjectManager::addObject(char* object)
                 function changeVisibleVariant(checkBoxElement) {\n\
                         var shape = document.getElementById(checkBoxElement.dataset.binding);\n\
                     if (checkBoxElement.checked == true) {\n\
-                        shape.transparency = '0';\n\
+                        shape.alphaFactor = '1';\n\
                     }\n\
                     else {\n\
-                        shape.transparency = '1';\n\
+                        shape.alphaFactor = '0';\n\
                     }\n\
                 }\n\
                     </script>\n\

@@ -308,7 +308,7 @@ void ObjectList::write(FILE *fp)
             }
             else
             {
-                //bufs[numb] = new char[200];
+                bufs[numb] = new char[200];
                 // TODO add code to switch timesteps sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
                 numb++;
                 fprintf(fp, "<Switch id=\"SW_%s\">\n", it->rootname);
@@ -370,7 +370,7 @@ void ObjectList::write(FILE *fp)
     else
     {
         //fprintf(fp, "</switch>\n");
-        fprintf(fp, "</transform>\n");
+        fprintf(fp, "</transform>\n"); 
     }
     if (hastime > 0)
     {
@@ -395,6 +395,7 @@ void ObjectList::write(FILE *fp)
         else
         {
             // add java script code for animation control
+
         }
     }
     for (i = 0; i < numb; i++)
