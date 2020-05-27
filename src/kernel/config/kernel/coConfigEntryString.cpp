@@ -86,10 +86,7 @@ coConfigEntryStringList::~coConfigEntryStringList()
 coConfigEntryStringList coConfigEntryStringList::merge(coConfigEntryStringList &list)
 {
 
-    COCONFIGDBG("coConfigEntryStringList::merge info: merging \n" << *this
-                                                                  << "\n" << list);
-
-    if (size()>0)
+    if (list.size()>0)
     {
         std::list<coConfigEntryString>::iterator iterator = list.begin();
 
@@ -101,10 +98,6 @@ coConfigEntryStringList coConfigEntryStringList::merge(coConfigEntryStringList &
         }
 
         this->listType = list.listType;
-    }
-    else
-    {
-        COCONFIGDBG("coConfigEntryStringList::merge info: list was empty, skipped");
     }
     return *this;
 }
