@@ -42,8 +42,10 @@ public:
     void setDistance(float distance);
 
     osg::ref_ptr<osg::MatrixTransform> getZone(){return m_LocalDCS;}
-private:
+    int getNumberOfPoints()const{return m_GridPoints.size();}
 
+    std::vector<osg::Vec3> getWorldPositionOfPoints();
+private:
     float m_Distance{2};
     float m_Length{10};
     float m_Width{5};
@@ -66,7 +68,7 @@ private:
 
     void createGridPoints();
     void deleteGridPoints();
-    void create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign);
+    void create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& signconst, float widthLimit, const float lengthLimit, const float heightLimit);
     void updateGeometry(osg::Vec3& vec);
     void deletePoints();
 
@@ -124,6 +126,8 @@ public:
     osg::ref_ptr<osg::MatrixTransform> getPoint()const{return m_LocalDCS.get();} //muss man hier ref_ptr übergeben?
     osg::Vec3 getPosition()const{return m_LocalDCS->getMatrix().getTrans();}
 
+    void setColor(const osg::Vec4& color);
+    void setOriginalColor();
 private:
     osg::Vec4 m_Color;
     osg::ref_ptr<osg::Geode> m_Geode;

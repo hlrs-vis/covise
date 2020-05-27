@@ -274,57 +274,28 @@ void Zone::deleteGridPoints()
     m_GridPoints.clear();
 };
 
-void Zone::create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign)
+void Zone::create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const float widthLimit, const float lengthLimit, const float heightLimit)
 {
     float incrementLength{0.0f}, incrementWidth{0.0f}, incrementHeight{0.0f};
     
-    // while(incrementWidth < m_Width-m_Distance)
-    // {
-    //     while(incrementLength < m_Length-m_Distance)
-    //     {
-    //         while(incrementHeight < m_Height-m_Distance)
-    //         {
-    //             osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
-    //             m_GridPoints.push_back(GridPoint(point,m_Color));
-    //             m_LocalDCS->addChild(m_GridPoints.back().getPoint());
-    //             incrementHeight += m_Distance;
-    //         }
-    //         incrementHeight = 0.0;
-    //         incrementLength += m_Distance;
-            
-    //     }
-    //     incrementLength = 0.0;
-    //     incrementWidth += m_Distance;
-    // }
-    while(incrementWidth < m_Width-m_Distance)
+    while(incrementWidth < widthLimit)
+    {
+        while(incrementLength < lengthLimit)
         {
-            while(incrementLength < m_Length-m_Distance)
+            while(incrementHeight < heightLimit)
             {
-                while(incrementHeight < m_Height-m_Distance)
-                {
-                    osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
-                    m_GridPoints.push_back(GridPoint(point,m_Color));
-                    m_LocalDCS->addChild(m_GridPoints.back().getPoint());
-                    incrementHeight += m_Distance;
-                }
-                
-                osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*m_Height);
+                osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
                 m_GridPoints.push_back(GridPoint(point,m_Color));
                 m_LocalDCS->addChild(m_GridPoints.back().getPoint());
-
-                incrementHeight = 0.0;
-                incrementLength += m_Distance;
-
-                
+                incrementHeight += m_Distance;
             }
-            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*m_Height);
-                m_GridPoints.push_back(GridPoint(point,m_Color));
-                m_LocalDCS->addChild(m_GridPoints.back().getPoint());
-                
-            incrementLength = 0.0;
-            incrementWidth += m_Width;
+            incrementHeight = 0.0;
+            incrementLength += m_Distance;
+            
         }
-
+        incrementLength = 0.0;
+        incrementWidth += m_Distance;
+    }
 }
 
 void Zone::createGridPoints()
@@ -333,27 +304,78 @@ void Zone::createGridPoints()
     float diffX = m_Verts.get()->at(2).x()-m_Verts.get()->at(1).x();
     float diffZ = m_Verts.get()->at(6).z()-m_Verts.get()->at(2).z();
 
-    //osg::Vec3 startPoint = m_Verts.get()->at(2)+osg::Vec3(-m_Distance, m_Distance, m_Distance);
-    osg::Vec3 startPoint = m_Verts.get()->at(2);
+    osg::Vec3 corner = m_Verts.get()->at(2);
+    osg::Vec3 distance{m_Distance, m_Distance, m_Distance};
+    float widthLimit{m_Width-m_Distance}, lengthLimit{m_Length-m_Distance}, heightLimit{m_Height-m_Distance};
 
+    if(m_Width-m_Distance < 0) 
+    {
+        distance[1] = m_Width / 2;
+        widthLimit = m_Width / 2;
+    }
+    
+    if(m_Length - m_Distance < 0)
+    {
+        distance[0] = m_Length / 2;  
+        lengthLimit = m_Length / 2;    
+    }
+   
+    if(m_Height - m_Distance < 0)
+    {
+        distance[2] = m_Height / 2;
+        heightLimit = m_Height / 2;
+    }
+    
     //create 3D Grid
-    if(diffY > 0 && diffX > 0 && diffZ > 0 )           
-        create3DGrid(startPoint,osg::Vec3(-1,1,1));
+    if(diffY > 0 && diffX > 0 && diffZ > 0 )  
+    {   
+        osg::Vec3 sign{-1,1,1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
+    }
     else if(diffY < 0 && diffX > 0 && diffZ > 0 )
-        create3DGrid(startPoint,osg::Vec3(-1,-1,1));
+    {
+        osg::Vec3 sign{-1,-1,1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());  
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
+    }
     else if(diffY > 0 && diffX > 0 && diffZ < 0 )
-        create3DGrid(startPoint,osg::Vec3(-1,1,-1));
+    {
+        osg::Vec3 sign{-1,1,-1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
+    }
     else if(diffY < 0 && diffX > 0 && diffZ < 0 )
-        create3DGrid(startPoint,osg::Vec3(-1,-1,-1)); 
+    {
+        osg::Vec3 sign{-1,-1,-1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit); 
+    }
     else if(diffY > 0 && diffX < 0 && diffZ > 0 )
-        create3DGrid(startPoint,osg::Vec3(1,1,1));
+    {
+        osg::Vec3 sign{1,1,1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
+    }
     else if(diffY < 0 && diffX < 0 && diffZ > 0 )
-        create3DGrid(startPoint,osg::Vec3(1,-1,1)); 
+    {
+        osg::Vec3 sign{1,-1,1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
+    } 
     else if(diffY > 0 && diffX < 0 && diffZ < 0 )
-        create3DGrid(startPoint,osg::Vec3(1,1,-1));
+    {
+        osg::Vec3 sign{1,1,-1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
+    }
     else if(diffY < 0 && diffX < 0 && diffZ < 0 )
-        create3DGrid(startPoint,osg::Vec3(1,-1,-1));     
-};
+    {
+        osg::Vec3 sign{1,-1,-1};
+        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
+        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);   
+    }  
+}
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)
 {
@@ -371,4 +393,31 @@ GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)
     m_Geode->setName("Point");
     m_Geode->addDrawable(m_SphereDrawable);
     m_LocalDCS->addChild(m_Geode.get());
-};
+}
+
+std::vector<osg::Vec3> Zone::getWorldPositionOfPoints()
+{
+    std::vector<osg::Vec3> result;
+    result.reserve(m_GridPoints.size());
+    for(const auto& point : m_GridPoints)
+    {
+        result.push_back(point.getPosition()*m_LocalDCS->getMatrix());
+    }
+    return result;
+}
+
+void GridPoint::setColor(const osg::Vec4& color)
+{
+    m_SphereDrawable->setColor(color);
+}
+
+void GridPoint::setOriginalColor()
+{
+    m_SphereDrawable->setColor(m_Color);
+}
+
+
+
+
+
+
