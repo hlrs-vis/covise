@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include <QRegExp>
-#include <QLinkedList>
+#include <list>
 
 #include <xercesc/dom/DOM.hpp>
 
@@ -54,7 +54,7 @@ coConfigEntry::coConfigEntry(const coConfigEntry *source)
     {
         coConfigEntry *childClone = (*child)->clone();
         if (childClone)
-            this->children.append(childClone);
+            this->children.push_back(childClone);
         else
             COCONFIGDBG("coConfigEntry::<init> err: child clone returned 0");
     }
@@ -262,7 +262,7 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
         if (xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
         {
             if (coConfigXercesEntry *xentry = dynamic_cast<coConfigXercesEntry *>(entry))
-                xentry->children.append(coConfigXercesEntry::restoreFromDom(static_cast<xercesc::DOMElement *>(nodeList->item(i)), configName));
+                xentry->children.push_back(coConfigXercesEntry::restoreFromDom(static_cast<xercesc::DOMElement *>(nodeList->item(i)), configName));
         }
     }
     //COCONFIGLOG( "coConfigEntry::restoreFromDom info: new entry : "<< path );
@@ -294,7 +294,7 @@ void coConfigEntry::merge(const coConfigEntry *with)
         }
 
         if (myEntry == children.end())
-            children.append((*entry)->clone());
+            children.push_back((*entry)->clone());
     }
 
     // FIXME Merge attributes
@@ -427,7 +427,7 @@ coConfigEntryStringList coConfigEntry::getScopeList(QString scope)
         for (QStringList::iterator it = textNodes.begin(); it != textNodes.end(); ++it)
         {
             coConfigEntryString listEntry(*it, configScope, configName);
-            list.append(listEntry);
+            list.push_back(listEntry);
         }
         list.setListType(coConfigEntryStringList::PLAIN_LIST);
     }
@@ -438,7 +438,7 @@ coConfigEntryStringList coConfigEntry::getScopeList(QString scope)
              entry != children.end(); ++entry)
         {
             coConfigEntryString listEntry((*entry)->getName(), configScope, configName);
-            list.append(listEntry);
+            list.push_back(listEntry);
         }
         list.setListType(coConfigEntryStringList::VARIABLE);
     }
@@ -472,7 +472,7 @@ coConfigEntryStringList coConfigEntry::getVariableList(QString scope)
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
         {
             if ((*child)->getName() == childname)
-                list += (*child)->getVariableList(scope);
+                (*child)->appendVariableList(list,scope);
         }
 
         return list;
@@ -485,11 +485,58 @@ coConfigEntryStringList coConfigEntry::getVariableList(QString scope)
         coConfigEntryString listEntry((*key), configScope, configName);
         if (isListNode)
             listEntry.setListItem(true);
-        list.append(listEntry);
+        list.push_back(listEntry);
     }
 
     return list;
 }
+
+void coConfigEntry::appendVariableList(coConfigEntryStringList& list, QString scope)
+{
+
+    list.setListType(coConfigEntryStringList::VARIABLE);
+
+    if (matchingAttributes())
+    {
+        if (!scope.isNull())
+        {
+
+            QString childname;
+
+            if (scope.contains('.'))
+            {
+                childname = scope.section('.', 0, 0);
+                scope = scope.section('.', 1);
+            }
+            else
+            {
+                childname = scope;
+                scope = QString();
+            }
+
+            for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
+            {
+                if ((*child)->getName() == childname)
+                    (*child)->appendVariableList(list,scope);
+            }
+
+        }
+        else
+        {
+
+            QList<QString> keys = attributes.keys();
+
+            for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
+            {
+                coConfigEntryString listEntry((*key), configScope, configName);
+                if (isListNode)
+                    listEntry.setListItem(true);
+                list.push_back(listEntry);
+            }
+        }
+    }
+}
+
 
 coConfigEntryString coConfigEntry::getValue(const QString &variable, QString scope)
 {
@@ -712,7 +759,7 @@ void coConfigEntry::addValue(const QString &variable, const QString &value, cons
     coConfigEntryPtrList *listSwap;
 
     // Filling list with this coConfigEntry
-    listTwo->append(this);
+    listTwo->push_back(this);
 
     // Traverse the whole section
     while (!scope.isNull())
@@ -741,18 +788,18 @@ void coConfigEntry::addValue(const QString &variable, const QString &value, cons
                 if ((*index)->getName() == childname)
                 {
                     // As long as there are entries with the section name, add those to listOne
-                    listOne->append(*index);
+                    listOne->push_back(*index);
                 }
             }
         }
 
-        if (listOne->isEmpty())
+        if (listOne->size()==0)
         {
             // New entry, make section and possibly subsections
             if (scope.length() > 0)
-                listTwo->first()->makeSection(childname + "." + scope);
+                (*(listTwo->begin()))->makeSection(childname + "." + scope);
             else
-                listTwo->first()->makeSection(childname);
+                (*(listTwo->begin()))->makeSection(childname);
             break;
         }
         else
@@ -805,7 +852,7 @@ void coConfigEntry::makeSection(const QString &section)
 
     entry->setPath(path + "." + variable);
 
-    children.append(entry);
+    children.push_back(entry);
 
     if (section.contains('.'))
     {
@@ -931,7 +978,7 @@ bool coConfigEntry::hasValues() const
 
 bool coConfigEntry::hasChildren() const
 {
-    return !children.isEmpty();
+    return children.size()>0;
 }
 
 bool coConfigEntry::isList() const

@@ -386,7 +386,7 @@ coCoviseConfig::ScopeEntries::ScopeEntries(const char *scope, const char *name)
 
     COCONFIGDBG(QString("coCoviseConfig::ScopeEntries::<init>(%1,%2): size = %3").arg(scope, QString(name), qPrintable(QString::number(list.size()))));
 
-    if (list.isEmpty())
+    if (list.size()==0)
         return;
 
     QString scopeEntry(scope);

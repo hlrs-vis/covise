@@ -40,6 +40,7 @@ public:
 
     coConfigEntryStringList getScopeList(QString scope);
     coConfigEntryStringList getVariableList(QString scope);
+    void appendVariableList(coConfigEntryStringList &list,QString scope);
 
     coConfigEntryString getValue(const QString &variable, QString scope);
     //coConfigEntryStringList getValues(const QString & variable, QString scope);

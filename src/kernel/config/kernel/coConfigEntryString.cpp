@@ -89,14 +89,14 @@ coConfigEntryStringList coConfigEntryStringList::merge(coConfigEntryStringList &
     COCONFIGDBG("coConfigEntryStringList::merge info: merging \n" << *this
                                                                   << "\n" << list);
 
-    if (!list.isEmpty())
+    if (size()>0)
     {
-        QLinkedList<coConfigEntryString>::iterator iterator = list.begin();
+        std::list<coConfigEntryString>::iterator iterator = list.begin();
 
         while (iterator != list.end())
         {
-            removeAll(*iterator);
-            append(*iterator);
+            remove(*iterator);
+            push_back(*iterator);
             iterator++;
         }
 
@@ -116,13 +116,13 @@ coConfigEntryStringList coConfigEntryStringList::filter(const QRegExp &filter) c
 
     coConfigEntryStringList list;
 
-    for (coConfigEntryStringList::ConstIterator iterator = begin();
+    for (coConfigEntryStringList::const_iterator iterator = begin();
          iterator != end(); ++iterator)
     {
 
         if (filter.exactMatch(*iterator))
         {
-            list.append(*iterator);
+            list.push_back(*iterator);
         }
     }
 
@@ -138,7 +138,7 @@ coConfigEntryStringList::operator QStringList()
 
     QStringList list;
 
-    for (coConfigEntryStringList::ConstIterator iterator = begin();
+    for (coConfigEntryStringList::const_iterator iterator = begin();
          iterator != end(); ++iterator)
     {
 
@@ -168,7 +168,7 @@ QTextStream &operator<<(QTextStream &out, const coConfigEntryStringList list)
 
     out << "[";
 
-    coConfigEntryStringList::ConstIterator iterator = list.begin();
+    coConfigEntryStringList::const_iterator iterator = list.begin();
     while (iterator != list.end())
     {
 

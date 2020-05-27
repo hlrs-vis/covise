@@ -8,7 +8,7 @@
 #ifndef COCONFIGENTRYPTRLIST_H
 #define COCONFIGENTRYPTRLIST_H
 
-#include <QLinkedList>
+#include <list>
 #include <QString>
 #include <QStringList>
 
@@ -20,7 +20,7 @@ namespace covise
 
 class coConfigEntry;
 
-class CONFIGEXPORT coConfigEntryPtrList : public QLinkedList<coConfigEntry *>
+class CONFIGEXPORT coConfigEntryPtrList : public std::list<coConfigEntry *>
 {
 
 public:
