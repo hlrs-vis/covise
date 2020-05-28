@@ -274,10 +274,10 @@ void Zone::deleteGridPoints()
     m_GridPoints.clear();
 };
 
-void Zone::create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const float widthLimit, const float lengthLimit, const float heightLimit)
+void Zone::createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit)
 {
     float incrementLength{0.0f}, incrementWidth{0.0f}, incrementHeight{0.0f};
-    
+    float widthLimit{limit.y()}, lengthLimit{limit.x()}, heightLimit{limit.z()};
     while(incrementWidth < widthLimit)
     {
         while(incrementLength < lengthLimit)
@@ -298,83 +298,213 @@ void Zone::create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, cons
     }
 }
 
-void Zone::createGridPoints()
+void Zone::addPointToVec(osg::Vec3 point) // use rvalue here ? 
+{
+    m_GridPoints.push_back(GridPoint(point,m_Color));
+    m_LocalDCS->addChild(m_GridPoints.back().getPoint());
+}
+
+void Zone::createOuter3DGrid(const osg::Vec3& sign)
+{
+    float incrementLength{0.0f}, incrementWidth{0.0f}, incrementHeight{0.0f};
+
+    // right side
+    osg::Vec3 startPoint = m_Verts.get()->at(2);
+    while(incrementWidth < m_Width)
+    {
+        while(incrementHeight < m_Height)
+        {   
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+            addPointToVec(point);
+            incrementHeight += m_Distance;
+        }
+        incrementHeight = 0.0;
+        incrementWidth += m_Distance;
+    }
+
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    // left side
+    startPoint = m_Verts.get()->at(1);
+    while(incrementWidth < m_Width)
+    {
+        while(incrementHeight < m_Height)
+        {   
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+            addPointToVec(point);
+
+            incrementHeight += m_Distance;
+        }
+        incrementHeight = 0.0;
+        incrementWidth += m_Distance;
+    }
+
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    // bottom
+    startPoint = m_Verts.get()->at(2) + osg::Vec3(m_Distance * sign.x(),0,0);
+    while(incrementLength < m_Length - m_Distance)
+    {
+        while(incrementWidth < m_Width )
+        {   
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+            addPointToVec(point);
+
+            incrementWidth += m_Distance;
+        }
+        incrementWidth = 0.0;
+        incrementLength += m_Distance;
+    }
+
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    // top
+    startPoint = m_Verts.get()->at(6) ;
+    while(incrementLength < m_Length)
+    {
+        while(incrementWidth < m_Width )
+        {   
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+            addPointToVec(point);
+
+            incrementWidth += m_Distance;
+        }
+        incrementWidth = 0.0;
+        incrementLength += m_Distance;
+    }
+
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    // front
+    startPoint = m_Verts.get()->at(2)+osg::Vec3(m_Distance*sign.x(), 0, m_Distance*sign.z());
+    while(incrementLength < m_Length -m_Distance)
+    {
+        while(incrementHeight < m_Height -m_Distance )
+        {   
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+            addPointToVec(point);
+
+            incrementHeight += m_Distance;
+        }
+        incrementHeight = 0.0;
+        incrementLength += m_Distance; 
+    }
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    // back
+    startPoint = m_Verts.get()->at(3);
+    while(incrementLength < m_Length )
+    {
+        while(incrementHeight < m_Height  )
+        {   
+            osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+            addPointToVec(point);
+
+            incrementHeight += m_Distance;
+        }
+        incrementHeight = 0.0;
+        incrementLength += m_Distance;
+    }
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    //missing line from 7 to 4
+    startPoint = m_Verts.get()->at(7);
+    while(incrementLength < m_Length -m_Distance )
+    {   
+        osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+        addPointToVec(point);
+        incrementLength += m_Distance;
+    }
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    //missing line from 5 to 4 
+    startPoint = m_Verts.get()->at(5);
+    while(incrementWidth < m_Width -m_Distance )
+    {   
+        osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+        addPointToVec(point);
+        incrementWidth += m_Distance;
+    }
+    incrementWidth = incrementLength = incrementHeight = 0;
+
+    //missing line from 0 to 4
+    startPoint = m_Verts.get()->at(0);
+    while(incrementHeight < m_Height -m_Distance )
+    {   
+        osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
+        addPointToVec(point);
+        incrementHeight += m_Distance;
+    }
+    incrementWidth = incrementLength = incrementHeight = 0;
+};
+
+osg::Vec3 Zone::calcSign() const
 {
     float diffY= m_Verts.get()->at(3).y()-m_Verts.get()->at(2).y();
     float diffX = m_Verts.get()->at(2).x()-m_Verts.get()->at(1).x();
     float diffZ = m_Verts.get()->at(6).z()-m_Verts.get()->at(2).z();
 
-    osg::Vec3 corner = m_Verts.get()->at(2);
-    osg::Vec3 distance{m_Distance, m_Distance, m_Distance};
-    float widthLimit{m_Width-m_Distance}, lengthLimit{m_Length-m_Distance}, heightLimit{m_Height-m_Distance};
+    osg::Vec3 sign;
 
-    if(m_Width-m_Distance < 0) 
-    {
-        distance[1] = m_Width / 2;
-        widthLimit = m_Width / 2;
-    }
+    if(diffY > 0 && diffX > 0 && diffZ > 0 )    
+         sign = {-1,1,1};  
+    else if(diffY < 0 && diffX > 0 && diffZ > 0 )
+       sign = {-1,-1,1};     
+    else if(diffY > 0 && diffX > 0 && diffZ < 0 )
+       sign = {-1,1,-1};
+    else if(diffY < 0 && diffX > 0 && diffZ < 0 ) 
+        sign = {-1,-1,-1};      
+    else if(diffY > 0 && diffX < 0 && diffZ > 0 )   
+        sign = {1,1,1};      
+    else if(diffY < 0 && diffX < 0 && diffZ > 0 ) 
+        sign = {1,-1,1};   
+    else if(diffY > 0 && diffX < 0 && diffZ < 0 )
+        sign = {1,1,-1};     
+    else if(diffY < 0 && diffX < 0 && diffZ < 0 )
+        sign = {1,-1,-1};
+
+    return sign;
+}
+
+osg::Vec3 Zone::defineStartPointForInnerGrid()const
+{
+    osg::Vec3 corner = m_Verts.get()->at(2);
+    osg::Vec3 diff = {m_Distance,m_Distance,m_Distance};
     
     if(m_Length - m_Distance < 0)
-    {
-        distance[0] = m_Length / 2;  
-        lengthLimit = m_Length / 2;    
-    }
-   
-    if(m_Height - m_Distance < 0)
-    {
-        distance[2] = m_Height / 2;
-        heightLimit = m_Height / 2;
-    }
+        diff[0] = m_Length / 2;  
     
-    //create 3D Grid
-    if(diffY > 0 && diffX > 0 && diffZ > 0 )  
-    {   
-        osg::Vec3 sign{-1,1,1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
-    }
-    else if(diffY < 0 && diffX > 0 && diffZ > 0 )
-    {
-        osg::Vec3 sign{-1,-1,1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());  
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
-    }
-    else if(diffY > 0 && diffX > 0 && diffZ < 0 )
-    {
-        osg::Vec3 sign{-1,1,-1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
-    }
-    else if(diffY < 0 && diffX > 0 && diffZ < 0 )
-    {
-        osg::Vec3 sign{-1,-1,-1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit); 
-    }
-    else if(diffY > 0 && diffX < 0 && diffZ > 0 )
-    {
-        osg::Vec3 sign{1,1,1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
-    }
-    else if(diffY < 0 && diffX < 0 && diffZ > 0 )
-    {
-        osg::Vec3 sign{1,-1,1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
-    } 
-    else if(diffY > 0 && diffX < 0 && diffZ < 0 )
-    {
-        osg::Vec3 sign{1,1,-1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);
-    }
-    else if(diffY < 0 && diffX < 0 && diffZ < 0 )
-    {
-        osg::Vec3 sign{1,-1,-1};
-        osg::Vec3 startpoint = corner +osg::Vec3(distance.x()*sign.x(),distance.y()*sign.y(), distance.z()*sign.z());      
-        create3DGrid(startpoint,sign,widthLimit,lengthLimit,heightLimit);   
-    }  
+    if(m_Width-m_Distance < 0)    
+        diff[1] = m_Width / 2; 
+
+    if(m_Height - m_Distance < 0)
+        diff[2] = m_Height / 2;
+    
+    osg::Vec3 sign = calcSign();
+
+    return  corner + osg::Vec3(diff.x()*sign.x(),diff.y()*sign.y(), diff.z()*sign.z());
+}
+
+osg::Vec3 Zone::defineLimitsOfInnerGridPoints()const
+{
+    osg::Vec3 limits{m_Length-m_Distance,m_Width-m_Distance,m_Height-m_Distance};
+
+    // if distance between Points is larger than one specific site -> position of gridpoints is in the center
+    if(m_Length - m_Distance < 0)
+        limits[0] = m_Length / 2; 
+
+    if(m_Width-m_Distance < 0)    
+        limits[1] = m_Width / 2;  
+
+    if(m_Height - m_Distance < 0)
+        limits[2] = m_Height / 2;
+
+    return limits;
+}
+void Zone::createGridPoints()
+{
+  createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
+  createOuter3DGrid(calcSign());
 }
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)

@@ -16,7 +16,7 @@ struct ZoneProperties
 {
 
 };
-/*   * Vertices of the Zone 
+/*   * Vertices of a Zone 
      *    4*    *7
      *
      * 5*----*6
@@ -25,8 +25,10 @@ struct ZoneProperties
      * 1*----*2
      * 
      * Coordinate System is centered at 2
-     * width = 7-6
-     * length = 5-6
+     * Size interactor located at 4
+     * width = 7-6 (y-direction)
+     * length = 5-6 (x-direction)
+     * height = 6-2 (z-direction)
 */
 
 class Zone
@@ -66,11 +68,15 @@ private:
 
     osg::Geode* draw();
 
-    void createGridPoints();
+    virtual void createGridPoints();
+    osg::Vec3 calcSign()const;
+    osg::Vec3 defineStartPointForInnerGrid()const;
+    osg::Vec3 defineLimitsOfInnerGridPoints()const;
+    void addPointToVec(osg::Vec3 point);
     void deleteGridPoints();
-    void create3DGrid(const osg::Vec3& startPoint, const osg::Vec3& signconst, float widthLimit, const float lengthLimit, const float heightLimit);
+    void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
+    void createOuter3DGrid(const osg::Vec3& sign );
     void updateGeometry(osg::Vec3& vec);
-    void deletePoints();
 
 };
 
