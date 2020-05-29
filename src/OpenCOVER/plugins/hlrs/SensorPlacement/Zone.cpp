@@ -220,19 +220,26 @@ bool Zone::preFrame()
         osg::Vec3 distanceInteractor_pos_o = osg::Matrix::transform3x3(m_DistanceInteractor->getPos(),interactor_to_w.inverse(interactor_to_w));
         distanceInteractor_pos_o.y() = startPos_DistanceInteractor_o.y(); //set y value to old y value
         distanceInteractor_pos_o.z() = startPos_DistanceInteractor_o.z(); //set z value to old z value
+        
+        // distanceInteractor_pos_o.x() not smaller / bigger than x pos of m_SizeInterator or m_Interactor
+        osg::Vec3 sizeInteractor_pos_o = osg::Matrix::transform3x3(m_SizeInteractor->getPos(),interactor_to_w.inverse(interactor_to_w));
+        osg::Vec3 interactor_pos_o = osg::Matrix::transform3x3(interactor_to_w.getTrans(),interactor_to_w.inverse(interactor_to_w));
+        if(distanceInteractor_pos_o.x() < sizeInteractor_pos_o.x() )
+            distanceInteractor_pos_o.x() = sizeInteractor_pos_o.x();
+       // else if (distanceInteractor_pos_o.x() > interactor_pos_o.x())  
+       //     distanceInteractor_pos_o.x() = interactor_pos_o.x();  
+
         osg::Vec3 distanceInteractor_pos_w = osg::Matrix::transform3x3(distanceInteractor_pos_o,interactor_to_w);
         m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
     }
     else if(m_DistanceInteractor->wasStopped())
     {
-        float a = m_Interactor->getMatrix().getTrans().x();
-        float b = m_DistanceInteractor->getMatrix().getTrans().x();
-        m_Distance = std::abs(a-b);
-        std::cout<<m_Distance<<std::endl;
-                deleteGridPoints();
+        float xpos_Interactor = m_Interactor->getMatrix().getTrans().x();
+        float xpos_DistanceInteractor = m_DistanceInteractor->getMatrix().getTrans().x();
 
-                createGridPoints();
-
+        m_Distance = std::abs(xpos_Interactor-xpos_DistanceInteractor);
+        deleteGridPoints();
+        createGridPoints();
     }
     return true;
 };
