@@ -16,6 +16,7 @@ SET(SOURCES
   Sensor.cpp
   UI.cpp
   DataManager.cpp
+  Factory.cpp
   GA.cpp
 )
 cover_add_plugin(SensorPlacement ${HEADERS} ${SOURCES})
