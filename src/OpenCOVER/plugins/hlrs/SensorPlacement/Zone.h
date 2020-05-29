@@ -34,7 +34,7 @@ struct ZoneProperties
 class Zone
 {
 public:
-    Zone(osg::Matrix matrix);
+    Zone(osg::Matrix matrix,osg::Vec4 color);
     virtual ~Zone(){std::cout<<"Zone Destructor\n";};
     virtual void createGrid() = 0;
 
@@ -52,9 +52,10 @@ private:
     float m_Length{10};
     float m_Width{5};
     float m_Height{3};
-    osg::Vec4 m_Color{1,0,0,1};
+    osg::Vec4 m_Color;
     
     osg::ref_ptr<osg::Vec3Array> m_Verts;
+    osg::ref_ptr<osg::Vec4Array> m_Colors;
     osg::ref_ptr<osg::Geometry> m_Geom;
     osg::ref_ptr<osg::Geode> m_Geode;
 
@@ -94,7 +95,7 @@ class SafetyZone : public Zone
 {
 
 public:
-    SafetyZone(osg::Matrix matrix):Zone(matrix){std::cout<<"Safety Zone created\n";}
+    SafetyZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0.5,0,1}){std::cout<<"Safety Zone created\n";}
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
     void createGrid()override{};
 
@@ -112,7 +113,7 @@ struct SensorZoneProperties
 class SensorZone : public Zone
 {
 public:
-    SensorZone(osg::Matrix matrix):Zone(matrix){std::cout<<"Sensor Zone created\n";}
+    SensorZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1}){std::cout<<"Sensor Zone created\n";}
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
     void createGrid()override{};
 

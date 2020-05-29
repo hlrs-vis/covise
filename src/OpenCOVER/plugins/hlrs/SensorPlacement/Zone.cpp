@@ -10,10 +10,11 @@
 #include "Zone.h"
 #include "UI.h"
 #include "Sensor.h"
+#include <cover/VRSceneGraph.h>
 
 using namespace opencover;
 
-Zone::Zone(osg::Matrix matrix)
+Zone::Zone(osg::Matrix matrix,osg::Vec4 color):m_Color(color)
 {
     m_LocalDCS = new osg::MatrixTransform(matrix);
     m_Geode = draw();
@@ -45,12 +46,12 @@ osg::Geode* Zone::draw()
     osg::Geode* geode = new osg::Geode();
     geode->setName("Wireframee");
     m_Geom = new osg::Geometry();
-    osg::StateSet *stateset = geode->getOrCreateStateSet();
+    osg::StateSet *stateset = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);
+    geode->setStateSet(stateset);
    // setStateSet(stateset);
     //necessary for dynamic redraw (command:dirty)
     m_Geom->setDataVariance(osg::Object::DataVariance::DYNAMIC) ;
     m_Geom->setUseDisplayList(false);
-    m_Geom->setColorBinding(osg::Geometry::BIND_OVERALL);
     m_Geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
     m_Geom->setUseVertexBufferObjects(true);
     geode->addDrawable(m_Geom);
@@ -141,7 +142,13 @@ osg::Geode* Zone::draw()
     m_Geom->addPrimitiveSet(line);
 
     osg::LineWidth *lw = new osg::LineWidth(3.0);
-    stateset->setAttribute(lw);
+   // stateset->setAttribute(lw);
+
+    m_Colors = new osg::Vec4Array;
+    m_Colors->push_back(m_Color);
+    m_Geom->setColorArray(m_Colors);
+    m_Geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+    geode->getStateSet()->setAttribute(lw);
     return geode;
 };
 
