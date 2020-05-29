@@ -10,7 +10,6 @@
 
 #include <cover/coVRPluginSupport.h>
 
-
 namespace opencover
 {
     namespace ui
@@ -39,7 +38,7 @@ public:
 private:
     //Main Menu
     ui::Menu *m_MainMenu;
-    ui::Action *m_AddCamera, *m_AddSafetyZone; 
+    ui::Action *m_AddCamera, *m_AddSafetyZone, *m_AddSensorZone; 
     ui::Button *m_Delete;
 
     //Camera Menu

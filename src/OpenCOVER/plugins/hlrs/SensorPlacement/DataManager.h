@@ -32,9 +32,9 @@ public:
     static const std::vector<upZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
-    static void AddSafetyZone(upZone zone);
+    static void AddZone(upZone zone);
     static void AddSensor(upSensor sensor);
-    
+
     template<typename T>
     static void Remove(T* object);
 
@@ -44,6 +44,7 @@ private:
     DataManager();
     std::vector<upSensor> m_Sensors;
     std::vector<upZone> m_SafetyZones;
+    std::vector<upZone> m_SensorZones;
     osg::ref_ptr<osg::Group> m_Root;
 
 

@@ -28,7 +28,17 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(createZone(ZoneType::ROIzone));
+       DataManager::AddZone(createZone(ZoneType::ROIzone));
+    }
+    );
+
+    m_AddSensorZone = new ui::Action(m_MainMenu,"AddSensorZone");
+    m_AddSensorZone-> setText("Add Sensor Zone");
+    m_AddSensorZone-> setCallback([]()
+    {
+       osg::Matrix m;
+       m.setTrans(osg::Vec3(20,20,20));
+       DataManager::AddZone(createZone(ZoneType::SensorZone));
     }
     );
 

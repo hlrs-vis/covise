@@ -5,12 +5,13 @@
 #include<osg/LightModel>
 
 #include <cover/coVRPluginSupport.h>
+#include <cover/VRSceneGraph.h>
 
 #include "Helper.h"
 #include "Zone.h"
 #include "UI.h"
 #include "Sensor.h"
-#include <cover/VRSceneGraph.h>
+#include "Factory.h"
 
 using namespace opencover;
 
@@ -519,6 +520,38 @@ void Zone::createGridPoints()
 {
   createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
   createOuter3DGrid(calcSign());
+}
+
+SensorZone::SensorZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1})
+{
+    addSensor();
+   // addSensor();
+   // addSensor();
+}
+
+bool SensorZone::preFrame()
+{
+    bool status = Zone::preFrame();
+
+    for(const auto& sensor : m_Sensors)
+        sensor->preFrame();
+    
+    return status;
+}
+
+osg::Vec3 SensorZone::getFreeSensorPosition() const
+{
+    int nbrOfSensors = m_Sensors.size();
+    return m_GridPoints.at(m_GridPoints.size() - nbrOfSensors -1).getPosition() ;
+}
+
+std::unique_ptr<SensorPosition> SensorZone::addSensor()
+{
+    osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition());
+    osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
+    matrix.setRotate(q);
+    m_Sensors.push_back(createSensor(SensorType::Camera,matrix));
+    //m_LocalDCS->addChild(m_Sensors.back()->getSensor());
 }
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)

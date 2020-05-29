@@ -40,6 +40,12 @@ void DataManager::preFrame()
         */
     }
 
+    for(const auto& zone : GetInstance().m_SensorZones)
+    {
+        bool status = zone->preFrame();
+      
+    }
+
     for(const auto& sensor : GetInstance().m_Sensors)
     {
         bool status = sensor->preFrame();
@@ -75,11 +81,15 @@ const std::vector<osg::Vec3> DataManager::GetWorldPosOfObervationPoints()
     return allPoints;
 }
 
-
-void DataManager::AddSafetyZone(upZone zone)
+void DataManager::AddZone(upZone zone)
 {
     GetInstance().m_Root->addChild(zone.get()->getZone().get());
-    GetInstance().m_SafetyZones.push_back(std::move(zone));        
+
+    if(dynamic_cast<SafetyZone*>(zone.get()))
+        GetInstance().m_SafetyZones.push_back(std::move(zone));  
+        
+    else if(dynamic_cast<SensorZone*>(zone.get()))
+        GetInstance().m_SensorZones.push_back(std::move(zone));        
 }
 
 void DataManager::AddSensor(upSensor sensor)
