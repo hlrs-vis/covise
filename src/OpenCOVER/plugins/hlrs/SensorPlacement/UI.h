@@ -33,12 +33,22 @@ public:
     UI();
 
     static bool m_DeleteStatus;
+    void checkForObstacles()const;
+    void checkVisibility()const;
 
 private:
+    //Main Menu
+    ui::Menu *m_MainMenu;
+    ui::Action *m_AddCamera, *m_AddSafetyZone; 
+    ui::Button *m_Delete;
 
-    ui::Menu* m_MainMenu,*m_CameraProps,*m_Optimization;
-    ui::Action* m_AddCamera, *m_AddSafetyZone, *m_MaxCoverage1,*m_MaxCoverage2;
-    ui::Slider* m_Visibility;
-    ui::Button * m_Delete;
+    //Camera Menu
+    ui::Menu *m_CameraProps;
+    ui::Slider *m_Visibility;
+
+    //Optimization Menu
+    ui::Menu *m_Optimization;
+    ui::Action *m_MaxCoverage1, *m_MaxCoverage2;
+    
 
 };

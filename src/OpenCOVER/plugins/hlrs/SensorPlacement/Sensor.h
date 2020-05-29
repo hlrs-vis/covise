@@ -9,50 +9,60 @@
 #include<osg/MatrixTransform>
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
-struct VisbilityMatrix;
-void checkForObstacles(osg::Vec3& sensorPos);
-void checkVisibility(const osg::Matrix& sensorMatrix, VisbilityMatrix& visMat);
+std::vector<osg::Vec3> Vec2DimToVec(std::vector<std::vector<int>> input);
 
-struct VisbilityMatrix
-{
-public:
-   // VisbilityMatrix(std::vector<float>&& visMat):m_VisibilityMatrix(visMat){};
-    std::vector<float> m_VisibilityMatrix;
-};
+
+template<typename T>
+using VisibilityMatrix = std::vector<T>;
+
 class Orientation
 {
-    public:
-       // Orientation(osg::Matrix matrix, VisbilityMatrix visMat)
-       //     :m_Matrix(matrix),m_VisibilityMatrix(visMat){};
-    Orientation(osg::Matrix matrix):m_Matrix(matrix){};
+public:
 
-    bool operator >> (const Orientation& other) const;
+    Orientation(osg::Matrix matrix,VisibilityMatrix<float>&& visMat);
+    Orientation(coCoord euler,VisibilityMatrix<float>&& visMat);
+    Orientation(osg::Matrix);
+    //bool operator >> (const Orientation& other) const;
 
-    private:
+    const osg::Matrix& getMatrix()const{return m_Matrix;}
+    const coCoord& getEuler()const{return m_Euler;}
+    const VisibilityMatrix<float>& getVisibilityMatrix()const{return m_VisibilityMatrix;}
+
+    void setMatrix(osg::Matrix matrix);
+    void setMatrix(coCoord euler);
+    void setVisibilityMatrix(VisibilityMatrix<float>&& visMat);
+
+private:
     osg::Matrix m_Matrix;
-    VisbilityMatrix m_VisibilityMatrix;
+    coCoord m_Euler;
+    VisibilityMatrix<float> m_VisibilityMatrix;
+
 };
+
 
 class SensorPosition
 {
-
-    public:
+public:
     SensorPosition(osg::Matrix matrix);
     virtual ~SensorPosition(){}; //do I now need to implement move ....
-    virtual void calcVisibilityMatrix() = 0;
-    virtual bool preFrame() = 0;
-    virtual osg::ref_ptr<osg::Group> getSensor() = 0;
     
+    virtual bool preFrame() = 0;
+    virtual VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) = 0;
+    virtual osg::ref_ptr<osg::Group> getSensor() = 0;
+
     void checkForObstacles();
 
-    private:
-    Orientation m_Orientation; //each Sensor has at least one Orientation / Position 
-   // SensorGraphics m_graphicalRepresentation;
+protected:    
+    virtual double calcRangeDistortionFactor(const osg::Vec3& point)const = 0;
+    virtual double calcWidthDistortionFactor(const osg::Vec3& point)const = 0;
+    virtual double calcHeightDistortionFactor(const osg::Vec3& point)const = 0;
 
+    Orientation m_Orientation; //each Sensor has at least one Orientation / Position 
+    VisibilityMatrix<float> m_VisMatSensorPos; 
 
 };
-
 struct SensorProps
 {
     //Step sizes for the Orientations in Degree
@@ -63,15 +73,19 @@ struct SensorProps
 
 class SensorWithMultipleOrientations : public SensorPosition
 {
-    public:
-        ~SensorWithMultipleOrientations() override{};
-        SensorWithMultipleOrientations(osg::Matrix matrix):SensorPosition(matrix){};
-    private:
-        SensorProps m_SensorProps;
-        std::vector<Orientation> m_Orientations;
-       // SensorGraphics m_graphicalRepresentationOfOrientations;
-    public:
+public:
+    ~SensorWithMultipleOrientations() override{};
+    SensorWithMultipleOrientations(osg::Matrix matrix):SensorPosition(matrix){};
+protected:
+    std::vector<Orientation> m_Orientations;
+    void createSensorOrientations();
 
+    virtual bool compareOrientations(const Orientation& lhs, const Orientation& rhs);
+private:
+    SensorProps m_SensorProps;
+
+    void decideWhichOrientationsAreRequired(const Orientation&& orientation);
+    void replaceOrientationWithLastElement(int index);
 };
 
 struct CameraProps
@@ -91,20 +105,25 @@ public:
     void updateFoV(float fov);
     void updateDepthView(float dof);
 
+    int getImageHeightPixel()const{return m_ImageHeightPixel;}
+    int getImageWidthPixel()const{return m_ImageWidthPixel;}
 
 };
 
 class Camera : public SensorWithMultipleOrientations
 {
-
 public:
     Camera(osg::Matrix matrix);
     ~Camera()override{};
-    void calcVisibilityMatrix() override{}
+    
     bool preFrame() override;
+    VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) override;
     osg::ref_ptr<osg::Group> getSensor() override{return m_CameraMatrix;}
 
-
+protected:
+    double calcRangeDistortionFactor(const osg::Vec3& point)const override;
+    double calcWidthDistortionFactor(const osg::Vec3& point)const override;
+    double calcHeightDistortionFactor(const osg::Vec3& point)const override;
 
 private:
     CameraProps m_CameraProps;
@@ -116,8 +135,10 @@ private:
     osg::ref_ptr<osg::Geometry> m_Geometry;
     osg::ref_ptr<osg::MatrixTransform> m_CameraMatrix;
 
+    std::vector<osg::ref_ptr<osg::MatrixTransform>> m_OrientationsDrawables;
 
     osg::Geode* drawCam();
     osg::Vec4 m_Color{0,1,0,1};
     float m_Scale{1};
 };
+

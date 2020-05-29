@@ -28,7 +28,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(createZone(ZoneType::SensorZone));
+       DataManager::AddSafetyZone(createZone(ZoneType::ROIzone));
     }
     );
 
@@ -59,22 +59,38 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    
    m_MaxCoverage1 = new ui::Action(m_Optimization,"MaxCoverage1");
    m_MaxCoverage1-> setText("MaxCoverage1");
-   m_MaxCoverage1-> setCallback([]()
+   m_MaxCoverage1-> setCallback([this]()
    {
-      auto up(myHelpers::make_unique<GA>(maxCoverage1));
+      this->checkForObstacles();
+      this->checkVisibility();
+     // auto up(myHelpers::make_unique<GA>(maxCoverage1));
       //TODO only on master
    }
    );
 
    m_MaxCoverage2 = new ui::Action(m_Optimization,"MaxCoverage2");
    m_MaxCoverage2-> setText("MaxCoverage2");
-   m_MaxCoverage2-> setCallback([]()
+   m_MaxCoverage2-> setCallback([this]()
    {
-      auto up(myHelpers::make_unique<GA>(maxCoverage2));
+      this->checkForObstacles();
+      this->checkVisibility();
+
+     // auto up(myHelpers::make_unique<GA>(maxCoverage2));
       //TODO only on master
 
    }
    );
 
-
 };
+
+void UI::checkForObstacles()const
+{
+   for(const auto& sensor : DataManager::GetInstance().GetSensors())
+      sensor->checkForObstacles();
+}
+
+void UI::checkVisibility()const
+{
+   //for(const auto& sensor : DataManager::GetInstance().GetSensors())
+      //sensor->calcVisibilityMatrix();
+}

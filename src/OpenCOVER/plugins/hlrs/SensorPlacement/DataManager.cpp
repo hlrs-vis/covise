@@ -20,6 +20,7 @@ DataManager::DataManager()
 {
     m_Root = new osg::Group();
     m_Root->setName("SensorPlacement");
+   // m_Root->setNodeMask(m_Root->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
     osg::StateSet *mystateset = m_Root->getOrCreateStateSet();
     setStateSet(mystateset);
     cover->getObjectsRoot()->addChild(m_Root.get());
@@ -54,6 +55,26 @@ void DataManager::Destroy()
     GetInstance().m_Root->getParent(0)->removeChild(GetInstance().m_Root.get());
 
 };
+
+const std::vector<osg::Vec3> DataManager::GetWorldPosOfObervationPoints()
+{
+    std::vector<osg::Vec3> allPoints;
+    size_t reserve_size {0};
+    
+    for(const auto& i : GetInstance().m_SafetyZones)
+        reserve_size += i->getNumberOfPoints();
+
+    allPoints.reserve(reserve_size);
+
+    for(const auto& points :  GetInstance().m_SafetyZones)
+    {
+        auto vecWorldPositions = points->getWorldPositionOfPoints();
+        allPoints.insert(allPoints.end(),vecWorldPositions.begin(),vecWorldPositions.end());
+    }
+
+    return allPoints;
+}
+
 
 void DataManager::AddSafetyZone(upZone zone)
 {

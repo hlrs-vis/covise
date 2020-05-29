@@ -31,6 +31,7 @@ public:
     static void Destroy();
     static const std::vector<upZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
+    static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
     static void AddSafetyZone(upZone zone);
     static void AddSensor(upSensor sensor);
     
