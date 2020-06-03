@@ -43,13 +43,17 @@ public:
     void setPosition(osg::Matrix matrix);
     void setDistance(float distance);
 
-    osg::ref_ptr<osg::MatrixTransform> getZone(){return m_LocalDCS;}
+    osg::ref_ptr<osg::Group> getZone(){return m_Group;}
     int getNumberOfPoints()const{return m_GridPoints.size();}
 
     std::vector<osg::Vec3> getWorldPositionOfPoints();
 protected:
+    osg::ref_ptr<osg::Group> m_Group;
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
     std::vector<GridPoint> m_GridPoints;
+
+    std::unique_ptr<coVR3DTransRotInteractor> m_Interactor;
+
 private:
     float m_Distance{2};
     float m_Length{10};
@@ -63,7 +67,6 @@ private:
     osg::ref_ptr<osg::Geode> m_Geode;
 
 
-    std::unique_ptr<coVR3DTransRotInteractor> m_Interactor;
     std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor;
     std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor;
 
@@ -110,17 +113,23 @@ struct SensorZoneProperties
 
 };
 
+enum class SensorType;
 class SensorZone : public Zone
 {
 public:
-    SensorZone(osg::Matrix matrix);
+    SensorZone(SensorType type,osg::Matrix matrix);
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
     bool preFrame() override;
     void createGrid() override{};
-    std::unique_ptr<SensorPosition> addSensor();
+    void addSensor(int nbrSensors = 1);
+    void removeAllSensors();
 
 private:
-    std::vector<std::unique_ptr<SensorPosition>> m_Sensors;  
+    int m_NbrOfSensors{2};
+    SensorType m_SensorType;
+    std::vector<std::unique_ptr<SensorPosition>> m_Sensors; 
+    osg::ref_ptr<osg::Group> m_SensorGroup;
+ 
     osg::Vec3 getFreeSensorPosition()const;
 };
 

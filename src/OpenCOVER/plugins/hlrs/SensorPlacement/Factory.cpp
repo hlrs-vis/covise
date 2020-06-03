@@ -20,9 +20,9 @@ std::unique_ptr<Zone> createZone(ZoneType zone)
         
         return myHelpers::make_unique<SafetyZone>(position);
     }
-    else if(zone == ZoneType::SensorZone){
+    else if(zone == ZoneType::CameraZone){
 
-        return myHelpers::make_unique<SensorZone>(position);
+        return myHelpers::make_unique<SensorZone>(SensorType::Camera,position);
     }
     else{
         assert(false);

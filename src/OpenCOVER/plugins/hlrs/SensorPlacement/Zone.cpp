@@ -21,6 +21,9 @@ Zone::Zone(osg::Matrix matrix,osg::Vec4 color):m_Color(color)
     m_Geode = draw();
     m_LocalDCS->addChild(m_Geode);
 
+    m_Group = new osg::Group;
+    m_Group->addChild(m_LocalDCS.get());
+
     float _interSize = cover->getSceneSize() / 50;
 
     osg::Matrix startPosInterator= osg::Matrix::translate(m_Verts->at(2)*matrix);
@@ -522,20 +525,24 @@ void Zone::createGridPoints()
   createOuter3DGrid(calcSign());
 }
 
-SensorZone::SensorZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1})
+SensorZone::SensorZone(SensorType type, osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1}), m_SensorType(type)
 {
-    addSensor();
-   // addSensor();
-   // addSensor();
+    m_SensorGroup = new osg::Group();
+    m_Group->addChild(m_SensorGroup.get());
+    addSensor(m_NbrOfSensors);
 }
 
 bool SensorZone::preFrame()
 {
     bool status = Zone::preFrame();
 
-    for(const auto& sensor : m_Sensors)
-        sensor->preFrame();
-    
+    if(m_Interactor->wasStarted())
+    {
+        removeAllSensors();
+    }
+    if(m_Interactor->wasStopped())
+        addSensor(m_NbrOfSensors);
+
     return status;
 }
 
@@ -545,13 +552,22 @@ osg::Vec3 SensorZone::getFreeSensorPosition() const
     return m_GridPoints.at(m_GridPoints.size() - nbrOfSensors -1).getPosition() ;
 }
 
-std::unique_ptr<SensorPosition> SensorZone::addSensor()
+void SensorZone::addSensor(int nbrOfSensors)
 {
-    osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition());
-    osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
-    matrix.setRotate(q);
-    m_Sensors.push_back(createSensor(SensorType::Camera,matrix));
-    //m_LocalDCS->addChild(m_Sensors.back()->getSensor());
+    for(size_t i{0};i<nbrOfSensors;i++)
+    {
+        osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition()*m_LocalDCS->getMatrix());
+        osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
+        matrix.setRotate(q);
+        m_Sensors.push_back(createSensor(m_SensorType, matrix));
+        m_SensorGroup->addChild(m_Sensors.back()->getSensor());
+    }
+}
+
+void SensorZone::removeAllSensors()
+{
+    m_Sensors.clear();
+    m_SensorGroup->removeChildren(0,m_Group->getNumChildren());
 }
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)
