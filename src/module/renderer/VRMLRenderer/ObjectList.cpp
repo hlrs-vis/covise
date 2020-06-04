@@ -310,8 +310,9 @@ void ObjectList::write(FILE *fp)
             {
                 bufs[numb] = new char[200];
                 // TODO add code to switch timesteps sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
-                numb++;
-                fprintf(fp, "<Switch id=\"SW_%s\">\n", it->rootname);
+
+                //numb++;
+                fprintf(fp, "<switch id=\"SW_%s\">\n </switch>\n", it->rootname);
             }
             numt = 0;
             hastime++;
