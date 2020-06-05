@@ -276,7 +276,7 @@ void ObjectList::write(FILE *fp)
             }
             else
             {
-                fprintf(fp, "</transform>\n");
+                fprintf(fp, "</switch>\n");
             }
             numbeg--;
             if (numbeg == 0)
@@ -312,7 +312,7 @@ void ObjectList::write(FILE *fp)
                 // TODO add code to switch timesteps sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
 
                 //numb++;
-                fprintf(fp, "<switch id=\"SW_%s\">\n </switch>\n", it->rootname);
+                fprintf(fp, "<switch id=\"SW_%s\">\n", it->rootname);
             }
             numt = 0;
             hastime++;

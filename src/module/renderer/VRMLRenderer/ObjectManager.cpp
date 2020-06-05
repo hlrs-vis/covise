@@ -135,12 +135,14 @@ void ObjectManager::addObject(char* object)
 
 		if (fp)
 		{
+			std::string nameTimeset;			//todo: array for names of all timesets
 			if (outputMode == OutputMode::VRML97)
 			{
 				fprintf(fp, "#VRML V2.0 utf8\n\n");
 			}
 			else if (outputMode == OutputMode::X3DOM)
 			{
+
 				//beginn writing html document; generate GUI elements
 				fputs(" \n\
                 <!DOCTYPE html>\n\
@@ -220,6 +222,7 @@ void ObjectManager::addObject(char* object)
 				for (const auto& it : *objlist) {
 					if (strcmp("BeginTimeset", it->name) == 0) {
 						istimeset = true;
+						nameTimeset = it->rootname;
 					}
 					else if (strcmp("Endset", it->name) == 0) {
 						istimeset = false;
@@ -231,7 +234,6 @@ void ObjectManager::addObject(char* object)
 						fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
                             <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, it->name);
 					}
-
 				}
 				//end of GUI elements; begin of scene elements
 				fprintf(fp, "</td>\n\
@@ -251,16 +253,17 @@ void ObjectManager::addObject(char* object)
                     </div>\n\
                     <x3d id = 'x3dElement' showStat = 'false' showLog = 'false' style = 'width:100%; height:100%; border:0; margin:0; padding:0;'>\n\
                     <scene DEF = 'scene'>\n ", numberoftimesteps);
-			}
+			}  //to do: carefullly sepparate vrml and x3dom sections
 			//write scene elements to html
 			objlist->write(fp);
 			//java script for interactions
+			const char* lol = nameTimeset.c_str();  //to do: use char*, fprintf OR std:str,iostream
 			fprintf(fp, " \n\
                     </scene>\n\
                 </x3d>\n\
                     <script>\n\
                     function changeVisibleTimestep(timestep) {\n\
-                    document.getElementById('sliderTimesteps').setAttribute('whichChoice', timestep);\n\
+                    document.getElementById('SW_%s').setAttribute('whichChoice', timestep);\n\
                     \n\
                     if (timestep == -1)\n\
                         document.getElementById('visibleTimestep').innerHTML = 'No timestep visible!'; \n\
@@ -279,8 +282,9 @@ void ObjectManager::addObject(char* object)
                     </script>\n\
             </body>\n\
         </html>\n\
-                    \n");
+                    \n", lol, lol, lol);
 			fclose(fp);
+			//delete lol;
 		}
 		else
 			CoviseRender::sendError("%s", strerror(errno));
