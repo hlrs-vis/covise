@@ -154,13 +154,10 @@ LaneEditor::toolAction(ToolAction *toolAction)
 	{
 		if (laneEditorToolAction->getToolId() == ODD::TLE_SET_WIDTH)
 		{
-			LaneEditorToolAction *laneEditorToolAction = dynamic_cast<LaneEditorToolAction *>(toolAction);
-			if (laneEditorToolAction)
+
+			if (selectedLaneMoveHandles_.size() > 0)
 			{
-				if (selectedLaneMoveHandles_.size() > 0)
-				{
-					translateLaneBorder(QPointF(0, 0), QPointF(0, 0), laneEditorToolAction->getWidth(), true);
-				}
+				translateLaneBorder(QPointF(0, 0), QPointF(0, 0), laneEditorToolAction->getWidth(), true);
 			}
 		}
 		else if (laneEditorToolAction->getToolId() == ODD::TLE_INSERT)

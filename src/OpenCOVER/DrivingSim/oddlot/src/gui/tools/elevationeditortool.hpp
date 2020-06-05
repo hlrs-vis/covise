@@ -68,6 +68,7 @@ public slots:
     void setRHeight();
     void setRIHeight();
 	void setRRadius();
+	void setSectionStart();
 
     //################//
     // PROPERTIES     //
@@ -91,7 +92,7 @@ class ElevationEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit ElevationEditorToolAction(ODD::ToolId toolId, double radius, double height, double iHeight);
+    explicit ElevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius, double height, double iHeight, double sectionStart=0.0);
     virtual ~ElevationEditorToolAction()
     { /* does nothing */
     }
@@ -111,6 +112,11 @@ public:
 		return iHeight_;
 	}
 	void setIHeight(double iHeight);
+	double getSectionStart() const
+	{
+		return start_;
+	}
+	void setSectionStart(double start);
 
 
 private:
@@ -126,6 +132,7 @@ private:
     double radius_;
     double height_;
 	double iHeight_;
+	double start_;
 };
 
 #endif // ELEVATIONEDITORTOOL_HPP

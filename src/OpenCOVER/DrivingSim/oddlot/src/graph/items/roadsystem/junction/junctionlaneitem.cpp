@@ -319,7 +319,8 @@ JunctionLaneItem::updateObserver()
 void
 JunctionLaneItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-	if (!(((junctionEditor_->getCurrentTool() == ODD::TJE_LINK_ROADS)  || (junctionEditor_->getCurrentTool() == ODD::TJE_UNLINK_ROADS)) && (junctionEditor_->getCurrentParameterTool() == ODD::TNO_TOOL)))
+	if ((junctionEditor_->getCurrentTool() == ODD::TJE_SELECT) || (junctionEditor_->getCurrentTool() == ODD::TJE_CIRCLE) 
+		|| (junctionEditor_->getCurrentTool() == ODD::TJE_SPLIT) || (junctionEditor_->getCurrentTool() == ODD::TJE_MOVE))
 	{
 		GraphElement::mousePressEvent(event);
 	}

@@ -167,6 +167,9 @@
         <property name="text">
          <string>Insert Lane</string>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>

@@ -131,7 +131,7 @@ ToolManager::initTools()
     // ElevationEditor //
     //
     new ElevationEditorTool(this);
-	standardToolAction_.insert(ODD::EEL, new ElevationEditorToolAction(ODD::TEL_SELECT, 900.0, 10.0, 0.0));
+	standardToolAction_.insert(ODD::EEL, new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TNO_TOOL, 900.0, 0.0, 0.0));
 
     // SuperelevationEditor //
     //
@@ -191,16 +191,13 @@ ToolManager::resendCurrentTool(ProjectWidget *project)
 void
 ToolManager::resendStandardTool(ProjectWidget *project)
 {
+
 	ToolAction *lastToolAction = getProjectEditingState(project);
 	lastToolAction = standardToolAction_.value(lastToolAction->getEditorId());
 	setProjectEditingState(project, lastToolAction);
 
 	ToolWidget * widget = dynamic_cast<ToolWidget *>(ribbon_->currentWidget());
 	widget->activateWidget(lastToolAction->getEditorId());
-
-/*	lastToolAction_ = standardToolAction_.value(lastToolAction_->getEditorId());
-	emit(pressButton(lastToolAction_->getToolId()));
-	emit toolAction(lastToolAction_); */
 }
 
 

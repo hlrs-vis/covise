@@ -210,6 +210,7 @@ ElevationSectionItem::updateObserver()
         //
         createPath();
         updateColor();
+
     }
 }
 
@@ -250,7 +251,7 @@ ElevationSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (tool == ODD::TEL_SELECT)
     {
         // parent: selection //
-        SectionItem::mouseReleaseEvent(event); // pass to baseclass
+      // SectionItem::mouseReleaseEvent(event); // pass to baseclass
     }
     else if (tool == ODD::TEL_ADD && (event->button() == Qt::LeftButton))
     {

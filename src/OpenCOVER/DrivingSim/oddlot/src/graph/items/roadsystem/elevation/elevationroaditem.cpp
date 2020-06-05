@@ -121,7 +121,7 @@ ElevationRoadItem::updateObserver()
     //
     int dataElementChanges = getRoad()->getDataElementChanges();
     if ((dataElementChanges & DataElement::CDE_SelectionChange)
-        || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
+       || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
     {
         // Selection //
         //

@@ -78,6 +78,10 @@ private:
     // Handles //
     //
     QGraphicsPathItem *moveHandles_;
+
+	// Selected section //
+	//
+	ElevationSection *currentSection_;
 };
 
 #endif // ELEVATIONROADPOLYNOMIALITEM_HPP

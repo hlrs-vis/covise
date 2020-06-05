@@ -201,7 +201,7 @@ GraphView::shapeEditing(bool edit)
 void
 GraphView::toolAction(ToolAction *toolAction)
 {
-	static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TEL_SELECT << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT;
+	static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT;
 
     // Zoom //
     //

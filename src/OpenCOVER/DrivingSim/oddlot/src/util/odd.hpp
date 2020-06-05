@@ -171,6 +171,10 @@ public:
 		TEL_SMOOTH,
 		TEL_HEIGHT,
 		TEL_IHEIGHT,
+		TEL_RADIUS,
+		TEL_SMOOTH_SECTION,
+		TEL_SLOPE,
+		TEL_PERCENTAGE,
 
 		// Superelevation Editor
 		TSE_SELECT,

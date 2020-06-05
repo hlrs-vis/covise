@@ -164,7 +164,6 @@ void
 RoadLinkEditorTool::activateRibbonEditor()
 {
 	ToolAction *action = toolManager_->getLastToolAction(ODD::ERL);
-	RoadLinkEditorToolAction *roadLinkEditorToolAction = dynamic_cast<RoadLinkEditorToolAction *>(action);
 
 	ribbonToolGroup_->button(action->getToolId())->click();
 

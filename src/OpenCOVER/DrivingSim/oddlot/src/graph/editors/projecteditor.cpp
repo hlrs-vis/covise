@@ -63,6 +63,8 @@ void ProjectEditor::setToolValue<RoadLinkSinkItem>(RoadLinkSinkItem *, const QSt
 template
 void ProjectEditor::setToolValue<RoadLinkHandle>(RoadLinkHandle *, const QString &);
 template
+void ProjectEditor::setToolValue<ElevationSection>(ElevationSection *, const QString &);
+template
 void ProjectEditor::createToolParameters<RSystemElementRoad>(RSystemElementRoad *object);
 template
 void ProjectEditor::removeToolParameters<RSystemElementRoad>(RSystemElementRoad *object);
