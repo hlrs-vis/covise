@@ -25,7 +25,7 @@ struct ZoneProperties
      * 1*----*2
      * 
      * Coordinate System is centered at 2
-     * Size interactor located at 4
+     * Size interactor located at 0
      * width = 7-6 (y-direction)
      * length = 5-6 (x-direction)
      * height = 6-2 (z-direction)
@@ -52,7 +52,10 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
     std::vector<GridPoint> m_GridPoints;
 
-    std::unique_ptr<coVR3DTransRotInteractor> m_Interactor;
+    std::unique_ptr<coVR3DTransRotInteractor> m_Interactor; // located at 2
+    std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor; // located at 0
+    std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor; // always located along longest side
+
 
 private:
     float m_Distance{2};
@@ -66,14 +69,11 @@ private:
     osg::ref_ptr<osg::Geometry> m_Geom;
     osg::ref_ptr<osg::Geode> m_Geode;
 
-
-    std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor;
-    std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor;
-
     osg::Geode* draw();
 
     virtual void createGridPoints();
     osg::Vec3 calcSign()const;
+    osg::Vec3 findLongestSide()const;
     osg::Vec3 defineStartPointForInnerGrid()const;
     osg::Vec3 defineLimitsOfInnerGridPoints()const;
     void addPointToVec(osg::Vec3 point);
@@ -101,6 +101,8 @@ public:
     SafetyZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0.5,0,1}){std::cout<<"Safety Zone created\n";}
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
     void createGrid()override{};
+    
+    void highlitePoints(std::vector<float>& visiblePoints);
 
 private:
     osg::Vec4 m_ColorVisible;

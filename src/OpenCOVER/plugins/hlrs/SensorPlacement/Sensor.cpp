@@ -154,6 +154,11 @@ bool SensorPosition::preFrame()
     return m_SensorVisualization->preFrame();
 }
 
+osg::Matrix SensorPosition::getMatrix()const 
+{
+    return m_Orientation.getMatrix();
+}
+
 void SensorPosition::checkForObstacles()
 {
     auto allObservationPoints = DataManager::GetInstance().GetWorldPosOfObervationPoints();
@@ -313,6 +318,12 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
 
 }
 
+SensorVisualization::SensorVisualization(SensorPosition* sensor):m_Sensor(sensor)
+{
+    m_Group = new osg::Group();
+    m_Matrix = new osg::MatrixTransform(m_Sensor->getMatrix());
+    m_Group->addChild(m_Matrix.get());
+}
 
 bool SensorVisualization::preFrame()
 {
@@ -348,12 +359,7 @@ bool SensorVisualization::preFrame()
     return true;
 }
 
-SensorVisualization::SensorVisualization(SensorPosition* sensor):m_Sensor(sensor)
-{
-    m_Group = new osg::Group();
-    m_Matrix = new osg::MatrixTransform(m_Sensor->getMatrix());
-    m_Group->addChild(m_Matrix.get());
-}
+
 
 
 

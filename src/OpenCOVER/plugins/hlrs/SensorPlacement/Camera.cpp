@@ -12,6 +12,97 @@ Camera::Camera(osg::Matrix matrix)
     m_SensorVisualization = myHelpers::make_unique<CameraVisualization>(this);
 }
 
+VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)//hier muss Matrix als input Rein! damit für alle Orientierungen nutzbar!
+{
+    VisibilityMatrix<float> result = m_VisMatSensorPos;
+    //  std::cout<<"Before Visibility Calculation"<<std::endl;
+    // for(const auto& x : result)
+    //        std::cout<<x<<std::endl;
+    osg::Matrix matrix;
+    euler.makeMat(matrix);
+    osg::Matrix T = osg::Matrix::translate(-matrix.getTrans());
+    osg::Matrix zRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[0]), osg::Z_AXIS);
+    osg::Matrix yRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[1]), osg::X_AXIS);
+    osg::Matrix xRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[2]), osg::Y_AXIS);
+
+    auto ItPoint = DataManager::GetWorldPosOfObervationPoints().begin();
+    auto ItVisMat = result.begin();
+
+    if(result.size() == DataManager::GetWorldPosOfObervationPoints().size())
+    {
+        while(ItPoint != DataManager::GetWorldPosOfObervationPoints().end() || ItVisMat != result.end())
+        {
+            if(*ItVisMat != 0) // no Obstacles in line of sight -> could be visible
+            {
+                osg::Vec3 point_CameraCoo = *ItPoint * T * zRot * yRot * xRot;
+                point_CameraCoo.set(point_CameraCoo.x(),point_CameraCoo.y()*-1,point_CameraCoo.z());
+
+                if((point_CameraCoo.y() <= m_CameraProps.m_DepthView ) &&
+                   (point_CameraCoo.y() >= 0 ) && //TODO: too close is also not visible !
+                   (std::abs(point_CameraCoo.x()) <= m_CameraProps.m_ImgWidth/2 * point_CameraCoo.y()/m_CameraProps.m_DepthView) &&
+                   (std::abs(point_CameraCoo.z()) <= m_CameraProps.m_ImgHeight/2 * point_CameraCoo.y()/m_CameraProps.m_DepthView))
+                {
+                    // Point is in FoV
+                    *ItVisMat = calcRangeDistortionFactor(point_CameraCoo)*calcWidthDistortionFactor(point_CameraCoo)*calcHeightDistortionFactor(point_CameraCoo);
+                }
+                else
+                    *ItVisMat = 0;
+            }
+            // increment iterators
+            if(ItVisMat != result.end())
+            {
+                ++ItVisMat;
+                ++ItPoint;
+            }
+        }
+    }
+    else
+    {
+        //TODO: Throw error ! 
+    }
+
+    // std::cout<<"After Visibility Calculation"<<std::endl;
+    // for(const auto& x : result)
+    //        std::cout<<x<<std::endl;
+
+    return result;
+}
+
+double Camera::calcRangeDistortionFactor(const osg::Vec3& point)const
+{
+    double y = point.y(); //distance between point and sensor in depth direction
+
+    //SRC = Sensor Range Coefficient
+    double calibratedValue = 70; // Parameter rangeDisortionDepth was calibrated for DephtView of 70;
+    double SRCcoefficient = 23; // Rayleigh distribution with coefficient value of 23 looks reasonable for a camera with depthView of 70m
+    double omega = SRCcoefficient * m_CameraProps.m_DepthView  / calibratedValue; // adapt calibratedValue to new depthView
+    //normalized Rayleigh distribution function
+    double SRC = omega*exp(0.5) * (y / pow(omega,2)) * exp(-(pow(y,2)) / (2*pow(omega,2)));
+    return SRC;
+}
+
+double Camera::calcWidthDistortionFactor(const osg::Vec3& point)const
+{
+    double widthFOVatPoint = point.y()*std::tan(m_CameraProps.m_FoV/2*osg::PI/180);
+    double x = std::abs(point.x()); //distance between point and sensor in width direction
+
+    double x_scaled = calcValueInRange(0,widthFOVatPoint,0,1,x);
+    //SWC = Sensor Width Coefficient SWC = -x² +1
+    double SWC = - std::pow(x_scaled,2) + 1;
+    return SWC;
+}
+
+double Camera::calcHeightDistortionFactor(const osg::Vec3& point)const
+{
+    double widthFOVatPoint = point.y()*std::tan(m_CameraProps.m_FoV/2 * osg::PI/180);
+    double heightFOVatPoint = widthFOVatPoint/(m_CameraProps.getImageWidthPixel()/m_CameraProps.getImageHeightPixel());
+    double z = std::abs(point.z()); //distance between point and sensor in width direction
+    double z_scaled = calcValueInRange(0,heightFOVatPoint,0,1,z);
+    //SWC = Sensor Width Coefficient SWC = -x² +1
+    double SHC = - std::pow(z_scaled,2) + 1;
+    return SHC;
+}
+
 CameraVisualization::CameraVisualization(Camera* camera):SensorVisualization(camera), m_Camera(camera)
 {
     float _interSize = cover->getSceneSize() / 50 ;
@@ -127,101 +218,3 @@ osg::Geode* CameraVisualization::draw()
     return geode;
 
 };
-
-// bool Camera::preFrame()
-// {
-    
-    
-// }
-
-VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)//hier muss Matrix als input Rein! damit für alle Orientierungen nutzbar!
-{
-    VisibilityMatrix<float> result = m_VisMatSensorPos;
-    //  std::cout<<"Before Visibility Calculation"<<std::endl;
-    // for(const auto& x : result)
-    //        std::cout<<x<<std::endl;
-    osg::Matrix matrix;
-    euler.makeMat(matrix);
-    osg::Matrix T = osg::Matrix::translate(-matrix.getTrans());
-    osg::Matrix zRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[0]), osg::Z_AXIS);
-    osg::Matrix yRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[1]), osg::X_AXIS);
-    osg::Matrix xRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[2]), osg::Y_AXIS);
-
-    auto ItPoint = DataManager::GetWorldPosOfObervationPoints().begin();
-    auto ItVisMat = result.begin();
-
-    if(result.size() == DataManager::GetWorldPosOfObervationPoints().size())
-    {
-        while(ItPoint != DataManager::GetWorldPosOfObervationPoints().end() || ItVisMat != result.end())
-        {
-            if(*ItVisMat != 0) // no Obstacles in line of sight -> could be visible
-            {
-                osg::Vec3 point_CameraCoo = *ItPoint * T * zRot * yRot * xRot;
-                point_CameraCoo.set(point_CameraCoo.x(),point_CameraCoo.y()*-1,point_CameraCoo.z());
-
-                if((point_CameraCoo.y() <= m_CameraProps.m_DepthView ) &&
-                   (point_CameraCoo.y() >= 0 ) && //TODO: too close is also not visible !
-                   (std::abs(point_CameraCoo.x()) <= m_CameraProps.m_ImgWidth/2 * point_CameraCoo.y()/m_CameraProps.m_DepthView) &&
-                   (std::abs(point_CameraCoo.z()) <= m_CameraProps.m_ImgHeight/2 * point_CameraCoo.y()/m_CameraProps.m_DepthView))
-                {
-                    // Point is in FoV
-                    *ItVisMat = calcRangeDistortionFactor(point_CameraCoo)*calcWidthDistortionFactor(point_CameraCoo)*calcHeightDistortionFactor(point_CameraCoo);
-                }
-                else
-                    *ItVisMat = 0;
-            }
-            // increment iterators
-            if(ItVisMat != result.end())
-            {
-                ++ItVisMat;
-                ++ItPoint;
-            }
-        }
-    }
-    else
-    {
-        //TODO: Throw error ! 
-    }
-
-    // std::cout<<"After Visibility Calculation"<<std::endl;
-    // for(const auto& x : result)
-    //        std::cout<<x<<std::endl;
-
-    return result;
-}
-
-double Camera::calcRangeDistortionFactor(const osg::Vec3& point)const
-{
-    double y = point.y(); //distance between point and sensor in depth direction
-
-    //SRC = Sensor Range Coefficient
-    double calibratedValue = 70; // Parameter rangeDisortionDepth was calibrated for DephtView of 70;
-    double SRCcoefficient = 23; // Rayleigh distribution with coefficient value of 23 looks reasonable for a camera with depthView of 70m
-    double omega = SRCcoefficient * m_CameraProps.m_DepthView  / calibratedValue; // adapt calibratedValue to new depthView
-    //normalized Rayleigh distribution function
-    double SRC = omega*exp(0.5) * (y / pow(omega,2)) * exp(-(pow(y,2)) / (2*pow(omega,2)));
-    return SRC;
-}
-
-double Camera::calcWidthDistortionFactor(const osg::Vec3& point)const
-{
-    double widthFOVatPoint = point.y()*std::tan(m_CameraProps.m_FoV/2*osg::PI/180);
-    double x = std::abs(point.x()); //distance between point and sensor in width direction
-
-    double x_scaled = calcValueInRange(0,widthFOVatPoint,0,1,x);
-    //SWC = Sensor Width Coefficient SWC = -x² +1
-    double SWC = - std::pow(x_scaled,2) + 1;
-    return SWC;
-}
-
-double Camera::calcHeightDistortionFactor(const osg::Vec3& point)const
-{
-    double widthFOVatPoint = point.y()*std::tan(m_CameraProps.m_FoV/2 * osg::PI/180);
-    double heightFOVatPoint = widthFOVatPoint/(m_CameraProps.getImageWidthPixel()/m_CameraProps.getImageHeightPixel());
-    double z = std::abs(point.z()); //distance between point and sensor in width direction
-    double z_scaled = calcValueInRange(0,heightFOVatPoint,0,1,z);
-    //SWC = Sensor Width Coefficient SWC = -x² +1
-    double SHC = - std::pow(z_scaled,2) + 1;
-    return SHC;
-}
-

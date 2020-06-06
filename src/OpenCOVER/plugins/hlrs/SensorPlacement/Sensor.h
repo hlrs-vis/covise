@@ -54,7 +54,7 @@ public:
     virtual void setMatrix(osg::Matrix matrix);
     void checkForObstacles();
 
-    osg::Matrix getMatrix()const{return m_Orientation.getMatrix();}
+    osg::Matrix getMatrix()const;
     SensorVisualization& getSensorVisualization(){return *m_SensorVisualization;}
 protected:    
     virtual double calcRangeDistortionFactor(const osg::Vec3& point)const = 0;
@@ -98,6 +98,7 @@ public:
     virtual bool preFrame();
     virtual osg::Geode* draw(){};
     void setMatrix(osg::Matrix matrix){m_Matrix->setMatrix(matrix);}
+    osg::Matrix getMatrix()const{return m_Matrix->getMatrix();}
     virtual osg::ref_ptr<osg::Group> getSensorVisualization()const{return m_Group.get();}
 protected:
     int m_Scale{10};

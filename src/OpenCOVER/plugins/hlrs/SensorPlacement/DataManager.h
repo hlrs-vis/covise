@@ -32,6 +32,7 @@ public:
     static const std::vector<upZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
+    static void highlitePoints(std::vector<float>& points);
     static void AddZone(upZone zone);
     static void AddSensor(upSensor sensor);
 

@@ -67,7 +67,6 @@ class CameraVisualization : public SensorVisualization
 {
 public:
     CameraVisualization(Camera* camera);
-    osg::ref_ptr<osg::Group> getSensorVisualization()const{return m_Group.get();}
 protected:
     osg::Geode* draw() override;
 private:

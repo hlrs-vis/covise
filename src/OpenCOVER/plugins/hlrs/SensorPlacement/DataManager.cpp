@@ -120,3 +120,13 @@ void DataManager::Remove(T* object)
     
     std::cout <<"after: "<<GetInstance().m_Sensors.size()<<std::endl;
 }
+
+
+void DataManager::highlitePoints(std::vector<float>& points)
+{
+   for(const auto& zone : GetSafetyZones())
+   {
+
+   } 
+}
+
