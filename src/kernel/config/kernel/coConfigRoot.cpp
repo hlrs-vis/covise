@@ -351,7 +351,7 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
 
                 QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("HOST"))));
 
-                QStringList hosts = hostTemp.split(',', QString::SkipEmptyParts);
+                QStringList hosts = hostTemp.split(',', Qt::SkipEmptyParts);
                 for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
                 {
                     QString hostname = (*i).trimmed().toLower();
@@ -389,7 +389,7 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
 
                 QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("MASTER"))));
 
-                QStringList hosts = hostTemp.split(',', QString::SkipEmptyParts);
+                QStringList hosts = hostTemp.split(',', Qt::SkipEmptyParts);
                 for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
                 {
                     QString hostname = (*i).trimmed().toLower();

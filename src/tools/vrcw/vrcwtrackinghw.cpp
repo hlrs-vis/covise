@@ -357,7 +357,7 @@ int VRCWTrackingHw::processGuiInput(const int& index,
          {
             hostToLookup = getGuiMoStarIPAddr();
             QStringList ipParts = hostToLookup.split(
-                  ".", QString::SkipEmptyParts);
+                  ".", Qt::SkipEmptyParts);
 
             //es werden nur IP-Adressen mit vollstaendig gefuellten Feldern
             //akzeptiert
@@ -868,7 +868,7 @@ bool VRCWTrackingHw::getGuiCheckArtHost() const
 QString VRCWTrackingHw::getGuiArtHost() const
 {
    QStringList artHostList = ui.artHostIPLineEdit->text().split(
-         QRegExp("\\s+"), QString::SkipEmptyParts);
+         QRegExp("\\s+"), Qt::SkipEmptyParts);
 
    //we only use the first entry
    if (artHostList.isEmpty())
@@ -891,7 +891,7 @@ int VRCWTrackingHw::getGuiArtRPort() const
 QString VRCWTrackingHw::getGuiViconHost() const
 {
    QStringList viconHostList = ui.viconHostIPLineEdit->text().split(
-         QRegExp("\\s+"), QString::SkipEmptyParts);
+         QRegExp("\\s+"), Qt::SkipEmptyParts);
 
    //we only use the first entry
    if (viconHostList.isEmpty())
@@ -908,7 +908,7 @@ QString VRCWTrackingHw::getGuiPolFobSPort() const
    if (sPort == OTHER)
    {
       QStringList sPortList = ui.polFobSPortLineEdit->text().split(
-            QRegExp("\\s+"), QString::SkipEmptyParts);
+            QRegExp("\\s+"), Qt::SkipEmptyParts);
 
       //we only use the first entry
       if (sPortList.isEmpty())

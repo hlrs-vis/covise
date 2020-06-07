@@ -386,9 +386,9 @@ void coConfigDefaultPaths::setNames()
         searchPath = QStringList();
 
 #ifdef _WIN32
-    searchPath += sPath.split(';', QString::SkipEmptyParts);
+    searchPath += sPath.split(';', Qt::SkipEmptyParts);
 #else
-    searchPath += sPath.split(':', QString::SkipEmptyParts);
+    searchPath += sPath.split(':', Qt::SkipEmptyParts);
 #endif
 }
 

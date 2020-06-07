@@ -103,7 +103,7 @@ void MEVectorPort::defineParam(QString value, int apptype)
 
 #else
 
-    QStringList list = value.split(" ", QString::SkipEmptyParts);
+    QStringList list = value.split(" ", Qt::SkipEmptyParts);
     m_nVect = list.count();
 
     for (int i = 0; i < m_nVect; i++)

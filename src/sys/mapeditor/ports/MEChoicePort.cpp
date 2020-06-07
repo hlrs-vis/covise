@@ -85,7 +85,7 @@ void MEChoicePort::defineParam(QString value, int apptype)
 
     // choices - send only current index of list
     // choices - send the complete list
-    QStringList list = value.split(" ", QString::SkipEmptyParts);
+    QStringList list = value.split(" ", Qt::SkipEmptyParts);
     int count = list.count();
 
     // current index to choice list

@@ -55,7 +55,7 @@ void ReadCommandPlugin::run()
         if (!input.isNull())
         {
             lock.lock();
-            ostream << "ReadCommandPlugin::preFrame info: got command \"" << input << "\"" << endl;
+            ostream << "ReadCommandPlugin::preFrame info: got command \"" << input << "\"" << Qt::endl;
             queue.append(input);
             lock.unlock();
         }

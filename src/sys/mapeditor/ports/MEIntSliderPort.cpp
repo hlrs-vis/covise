@@ -125,7 +125,7 @@ void MEIntSliderPort::defineParam(QString svalue, int apptype)
 
 #else
 
-    QStringList list = svalue.split(" ", QString::SkipEmptyParts);
+    QStringList list = svalue.split(" ", Qt::SkipEmptyParts);
 
     m_min = list[0].toLong();
     m_max = list[1].toLong();

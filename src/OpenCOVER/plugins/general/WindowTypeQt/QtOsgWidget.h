@@ -14,7 +14,7 @@ class QtOsgWidget: public QOpenGLWidget
     Q_OBJECT
 
 public:
-    QtOsgWidget(QWidget* parent=nullptr, Qt::WindowFlags f=0);
+    QtOsgWidget(QWidget* parent=nullptr, Qt::WindowFlags f=Qt::WindowFlags());
     virtual ~QtOsgWidget();
 
     osgViewer::GraphicsWindowEmbedded *graphicsWindow() const;

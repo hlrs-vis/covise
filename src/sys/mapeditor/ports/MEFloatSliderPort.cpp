@@ -118,7 +118,7 @@ void MEFloatSliderPort::moduleParameterRequest()
 //!
 void MEFloatSliderPort::defineParam(QString svalue, int apptype)
 {
-    QStringList list = svalue.split(" ", QString::SkipEmptyParts);
+    QStringList list = svalue.split(" ", Qt::SkipEmptyParts);
 
     m_min = list[0].toFloat();
     m_max = list[1].toFloat();

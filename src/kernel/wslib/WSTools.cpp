@@ -63,7 +63,7 @@ bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, con
     }
     else if (parameter->getType() == "Choice")
     {
-        QStringList list = value.split(' ', QString::SkipEmptyParts);
+        QStringList list = value.split(' ', Qt::SkipEmptyParts);
         int selection = list.takeFirst().toInt() - 1;
         if (list.size() > 1)
             changed = dynamic_cast<WSChoiceParameter *>(parameter)->setValue(list, selection);
@@ -72,7 +72,7 @@ bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, con
     }
     else if (parameter->getType() == "ColormapChoice")
     {
-        QStringList list = value.split(' ', QString::SkipEmptyParts);
+        QStringList list = value.split(' ', Qt::SkipEmptyParts);
         int selection = list.takeFirst().toInt() - 1;
         if (list.size() > 1)
         {
@@ -115,7 +115,7 @@ bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, con
     }
     else if (parameter->getType() == "IntSlider")
     {
-        QStringList vList = value.split(' ', QString::SkipEmptyParts);
+        QStringList vList = value.split(' ', Qt::SkipEmptyParts);
         if (vList.size() > 1)
         {
             changed = dynamic_cast<WSIntSliderParameter *>(parameter)->setValue(vList[2].toInt(),
@@ -129,7 +129,7 @@ bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, con
     }
     else if (parameter->getType() == "IntVector")
     {
-        QStringList vList = value.split(' ', QString::SkipEmptyParts);
+        QStringList vList = value.split(' ', Qt::SkipEmptyParts);
         QVector<int> values;
         foreach (QString v, vList)
             values.push_back(v.toInt());
@@ -141,7 +141,7 @@ bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, con
     }
     else if (parameter->getType() == "FloatSlider")
     {
-        QStringList vList = value.split(' ', QString::SkipEmptyParts);
+        QStringList vList = value.split(' ', Qt::SkipEmptyParts);
         if (vList.size() > 1)
         {
             changed = dynamic_cast<WSFloatSliderParameter *>(parameter)->setValue(vList[2].toFloat(),
@@ -155,7 +155,7 @@ bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, con
     }
     else if (parameter->getType() == "FloatVector")
     {
-        QStringList vList = value.split(' ', QString::SkipEmptyParts);
+        QStringList vList = value.split(' ', Qt::SkipEmptyParts);
         QVector<float> values;
         foreach (QString v, vList)
             values.push_back(v.toFloat());

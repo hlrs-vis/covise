@@ -24,33 +24,33 @@ public:
 }
 #define COCONFIGMSG(message)                          \
     {                                                 \
-        covise::coConfigLog::cout << message << endl; \
+        covise::coConfigLog::cout << message << Qt::endl; \
     }
 
 #define COCONFIGLOG(message)                          \
     {                                                 \
-        covise::coConfigLog::cerr << message << endl; \
+        covise::coConfigLog::cerr << message << Qt::endl; \
     }
 
 #define COCONFIGDBG(message)                                                 \
     {                                                                        \
         if (covise::coConfig::getDebugLevel() == covise::coConfig::DebugAll) \
         {                                                                    \
-            covise::coConfigLog::cerr << message << endl;                    \
+            covise::coConfigLog::cerr << message << Qt::endl;                    \
         }                                                                    \
     }
 #define COCONFIGDBG_GET_SET(message)                                             \
     {                                                                            \
         if (covise::coConfig::getDebugLevel() >= covise::coConfig::DebugGetSets) \
         {                                                                        \
-            covise::coConfigLog::cerr << message << endl;                        \
+            covise::coConfigLog::cerr << message << Qt::endl;                        \
         }                                                                        \
     }
 #define COCONFIGDBG_DEFAULT(message)                      \
     {                                                     \
         if (covise::coConfig::isDebug())                  \
         {                                                 \
-            covise::coConfigLog::cerr << message << endl; \
+            covise::coConfigLog::cerr << message << Qt::endl; \
         }                                                 \
     }
 

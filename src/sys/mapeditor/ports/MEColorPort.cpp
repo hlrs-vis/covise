@@ -106,7 +106,7 @@ void MEColorPort::defineParam(QString value, int apptype)
 
 #else
 
-    QStringList list = value.split(" ", QString::SkipEmptyParts);
+    QStringList list = value.split(" ", Qt::SkipEmptyParts);
     if (list.count() != 4)
     {
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";

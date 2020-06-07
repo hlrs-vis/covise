@@ -112,7 +112,7 @@ QVector<int> VRCWProjectionResSize::getGuiRes() const
 
       //RegExp: \D+ : Matches one or more non-digit
       QStringList resStrList = resStr.split(QRegExp("\\D+"),
-            QString::SkipEmptyParts);
+            Qt::SkipEmptyParts);
 
       //in CAVE mode it can happen that the string is empty or of size 1
       //because getGuiRes() is executed more than once. It is triggered with

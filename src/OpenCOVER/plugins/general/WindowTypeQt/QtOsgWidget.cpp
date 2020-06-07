@@ -460,13 +460,16 @@ void QtOsgWidget::wheelEvent(QWheelEvent *event)
 {
     setKeyboardModifiers(event);
     event->accept();
-    int delta = event->delta();
 
-    osgGA::GUIEventAdapter::ScrollingMotion motion =
-            delta>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
-    if (event->orientation() == Qt::Horizontal)
-            motion = delta>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
-    getEventQueue()->mouseScroll(motion);
+    auto ad = event->angleDelta();
+    if (ad.x() != 0) {
+        osgGA::GUIEventAdapter::ScrollingMotion motion = ad.x() > 0 ? osgGA::GUIEventAdapter::SCROLL_RIGHT : osgGA::GUIEventAdapter::SCROLL_LEFT;
+        getEventQueue()->mouseScroll(motion);
+    }
+    if (ad.y() != 0) {
+        osgGA::GUIEventAdapter::ScrollingMotion motion = ad.y() > 0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
+        getEventQueue()->mouseScroll(motion);
+    }
 }
 
 osgGA::EventQueue* QtOsgWidget::getEventQueue() const

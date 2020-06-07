@@ -163,7 +163,7 @@ execMode VRCWHost::getGuiExec() const
 QVector<QString> VRCWHost::readHostLineEdit() const
 {
    return ((ui.hostsLineEdit->text()).split(
-         QRegExp("\\s+"), QString::SkipEmptyParts)).toVector();
+         QRegExp("\\s+"), Qt::SkipEmptyParts)).toVector();
 }
 
 //OS-Version des Programms ausgeben

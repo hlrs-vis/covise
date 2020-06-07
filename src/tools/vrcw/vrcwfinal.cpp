@@ -383,7 +383,7 @@ void VRCWFinal::genWindowConfig()
       }
 
       QStringList wallStrings = hostProjectionData[i][0].split(QRegExp("[-_]"),
-            QString::SkipEmptyParts);
+            Qt::SkipEmptyParts);
       cWall wall = strToCWall(wallStrings[0]);
 
       //determine the fitting index in caveWallDimData or pWallDimData for wall
@@ -545,7 +545,7 @@ void VRCWFinal::genChannelViewportConfig()
       }
 
       QStringList wallStrings = hostProjectionData[i][0].split(QRegExp("[-_]"),
-            QString::SkipEmptyParts);
+            Qt::SkipEmptyParts);
       cWall wall = strToCWall(wallStrings[0]);
 
       //determine the fitting index in caveWallDimData for wall
@@ -874,7 +874,7 @@ void VRCWFinal::genScreenConfig()
       }
 
       QStringList wallStrings = hostProjectionData[i][0].split(QRegExp("[-_]"),
-            QString::SkipEmptyParts);
+            Qt::SkipEmptyParts);
       cWall wall = strToCWall(wallStrings[0]);
 
       //determine the fitting index in caveWallDimData or pWallDimData for wall
@@ -913,7 +913,7 @@ void VRCWFinal::genScreenConfig()
          //Row-1_Col-1 -> 1, 1
          //RegExp: \D+ : Matches one or more non-digit
          QStringList rcNum = hostProjectionData[i][0].split(QRegExp("\\D+"),
-               QString::SkipEmptyParts);
+               Qt::SkipEmptyParts);
          int rowNr = rcNum[0].toInt();
          int colNr = rcNum[1].toInt();
 

@@ -212,7 +212,7 @@ void MEFileBrowserPort::setFilter(QString value)
 
     // set filter if parameter is given
     QStringList filterList;
-    filterList = value.split("/", QString::SkipEmptyParts);
+    filterList = value.split("/", Qt::SkipEmptyParts);
     browser->setFilterList(filterList);
 
 #endif
@@ -602,7 +602,7 @@ void MEFileBrowserPort::setValues(covise::coRecvBuffer &tb)
 
     tb >> filter;
     QString tmp = filter;
-    browserFilter = tmp.split(" ", QString::SkipEmptyParts);
+    browserFilter = tmp.split(" ", Qt::SkipEmptyParts);
     currentFilter = 0;
     browser->setFilterList(browserFilter);
 
