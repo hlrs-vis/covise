@@ -34,12 +34,12 @@ char *nullable;
 void
 set_nullable()
 {
-  register short *r;
-  register short *s1;
-  register short *s2;
-  register int ruleno;
-  register int symbol;
-  register shorts *p;
+  short *r;
+  short *s1;
+  short *s2;
+  int ruleno;
+  int symbol;
+  shorts *p;
 
   short *squeue;
   short *rcount;

@@ -99,12 +99,12 @@ initialize_closure(int n)
 void
 set_fderives()
 {
-  register unsigned *rrow;
-  register unsigned *vrow;
-  register int j;
-  register unsigned cword;
-  register short *rp;
-  register int b;
+  unsigned *rrow;
+  unsigned *vrow;
+  int j;
+  unsigned cword;
+  short *rp;
+  int b;
 
   int ruleno;
   int i;
@@ -159,11 +159,11 @@ set_fderives()
 void
 set_firsts()
 {
-  register unsigned *row;
-/*   register int done; JF unused */
-  register int symbol;
-  register short *sp;
-  register int rowsize;
+  unsigned *row;
+/*   int done; JF unused */
+  int symbol;
+  short *sp;
+  int rowsize;
 
   int i;
 
@@ -199,11 +199,11 @@ set_firsts()
 void
 closure(short* core, int n)
 {
-  register int ruleno;
-  register unsigned word;
-  register short *csp;
-  register unsigned *dsp;
-  register unsigned *rsp;
+  int ruleno;
+  unsigned word;
+  short *csp;
+  unsigned *dsp;
+  unsigned *rsp;
 
   short *csend;
   unsigned *rsend;
@@ -252,7 +252,7 @@ closure(short* core, int n)
 	}
       else
 	{
-	  register int b;
+	  int b;
 
 	  for (b = 0; b < BITS_PER_WORD; b++)
 	    {
@@ -292,7 +292,7 @@ finalize_closure()
 
 print_closure(int n)
 {
-  register short *isp;
+  short *isp;
 
   printf("\n\nn = %d\n\n", n);
   for (isp = itemset; isp < itemsetend; isp++)
@@ -303,9 +303,9 @@ print_closure(int n)
 
 print_firsts()
 {
-  register int i;
-  register int j;
-  register unsigned *rowp;
+  int i;
+  int j;
+  unsigned *rowp;
 
   printf("\n\n\nFIRSTS\n\n");
 
@@ -325,9 +325,9 @@ print_firsts()
 
 print_fderives()
 {
-  register int i;
-  register int j;
-  register unsigned *rp;
+  int i;
+  int j;
+  unsigned *rp;
 
   printf("\n\n\nFDERIVES\n");
 

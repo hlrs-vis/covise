@@ -81,8 +81,8 @@ grow_token_buffer (char* p)
 int
 skip_white_space()
 {
-  register int c;
-  register int inside;
+  int c;
+  int inside;
 
   c = getc(finput);
 
@@ -157,8 +157,8 @@ unlex(int token)
 int
 lex()
 {
-  register int c;
-  register char *p;
+  int c;
+  char *p;
 
   if (unlexed >= 0)
     {
@@ -224,7 +224,7 @@ lex()
 
       c = getc(finput);
       {
-	register int code = 0;
+	int code = 0;
 
 	if (c == '\\')
 	  {
@@ -427,8 +427,8 @@ lex()
 int
 parse_percent_token ()
 {
-  register int c;
-  register char *p;
+  int c;
+  char *p;
 
   p = token_buffer;
   c = getc(finput);

@@ -62,7 +62,7 @@ terse()
 void
 verbose()
 {
-  register int i;
+  int i;
 
   if (any_conflicts)
     verbose_conflict_log();
@@ -95,12 +95,12 @@ print_state(int state)
 void
 print_core(int state)
 {
-  register int i;
-  register int k;
-  register int rule;
-  register core *statep;
-  register short *sp;
-  register short *sp1;
+  int i;
+  int k;
+  int rule;
+  core *statep;
+  short *sp;
+  short *sp1;
 
   statep = state_table[state];
   k = statep->nitems;
@@ -141,14 +141,14 @@ print_core(int state)
 void
 print_actions(int state)
 {
-  register int i;
-  register int k;
-  register int state1;
-  register int symbol;
-  register shifts *shiftp;
-  register errs *errp;
-  register reductions *redp;
-  register int rule;
+  int i;
+  int k;
+  int state1;
+  int symbol;
+  shifts *shiftp;
+  errs *errp;
+  reductions *redp;
+  int rule;
 
   shiftp = shift_table[state];
   redp = reduction_table[state];

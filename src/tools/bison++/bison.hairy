@@ -120,14 +120,14 @@ YYLTYPE loc;
 
 
 yyrestore(first, last)
-register short *first;
-register short *last;
+short *first;
+short *last;
 {
-  register short *ssp;
-  register short *rp;
-  register int symbol;
-  register int state;
-  register int tvalsaved;
+  short *ssp;
+  short *rp;
+  int symbol;
+  int state;
+  int tvalsaved;
 
   ssp = yygssp;
   yyunlex(yychar, yylval, yylloc);
@@ -182,12 +182,12 @@ register short *last;
 int
 yyparse()
 {
-  register int yystate;
-  register int yyn;
-  register short *yyssp;
-  register short *yyrq0;
-  register short *yyptr;
-  register YYSTYPE *yyvsp;
+  int yystate;
+  int yyn;
+  short *yyssp;
+  short *yyrq0;
+  short *yyptr;
+  YYSTYPE *yyvsp;
 
   int yylen;
   YYLTYPE *yylsp;
