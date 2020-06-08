@@ -25,7 +25,7 @@ PrivilegesRequired=admin
 OutputDir={#COVISEDIR+"\DIST"}    
 
 #if ARCHSUFFIX == "zebuopt"
-OutputBaseFilename=HLRS_Max2020_x64_VRML_Exporter   
+OutputBaseFilename=HLRS_Max2021_x64_VRML_Exporter   
 ArchitecturesInstallIn64BitMode="x64"  
 #elif ARCHSUFFIX == "zackelopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
@@ -34,14 +34,14 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yorooopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
-OutputBaseFilename=HLRS_Max2020_x64_VRML_Exporter    
+OutputBaseFilename=HLRS_Max2021_x64_VRML_Exporter    
 ArchitecturesInstallIn64BitMode="x64"  
 ProcessorsAllowed="x64"
 #endif
 
 ;installer-related
 AppName=VrmlExp
-AppVerName=HLRS Version of the Vrml exporter for 3ds Max 2020
+AppVerName=HLRS Version of the Vrml exporter for 3ds Max 2021
 AppPublisher=HLRS
 AppPublisherURL=http://www.hlrs.de
 AppSupportURL=http://www.hlrs.de/covise
@@ -218,15 +218,15 @@ begin
   Result:=true;
                                
       
-  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\22.0','Installdir',MaxDir)) then
+  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\23.0','Installdir',MaxDir)) then
       begin
-          MaxVersion:=22;    
+          MaxVersion:=23;    
       end;
   
   if MaxVersion = 0 then
   begin
       Result:=false;
-      MsgBox('Did not find 3ds Max, please install 3ds Max 2020 first!', mbError, MB_OK);
+      MsgBox('Did not find 3ds Max, please install 3ds Max 2021 first!', mbError, MB_OK);
   end;
 
 end;
