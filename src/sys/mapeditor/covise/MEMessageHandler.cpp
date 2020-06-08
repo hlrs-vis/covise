@@ -142,7 +142,7 @@ void MEMessageHandler::dataReceived(int)
             }
             else
             {
-                QStringList list = QString(msg->data.data()).split("\n", Qt::SkipEmptyParts);
+                QStringList list = QString(msg->data.data()).split("\n", QString::SkipEmptyParts);
 
 #if 0
             qDebug() << "Message received _________________________";
@@ -157,7 +157,7 @@ void MEMessageHandler::dataReceived(int)
                 {
                 case covise::COVISE_MESSAGE_CRB_EXEC:
                 {
-                    QStringList message = list[0].split(" ", Qt::SkipEmptyParts);
+                    QStringList message = list[0].split(" ", QString::SkipEmptyParts);
                     if (message[0] == "ViNCE" || message[0] == "Renderer")
                         MEUserInterface::instance()->startRenderer(message);
                 }

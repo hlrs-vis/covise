@@ -247,7 +247,7 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
             if (!nodeValue.trimmed().isEmpty())
             {
                 entry->isListNode = true;
-                QStringList textlist = nodeValue.split("\n", Qt::SkipEmptyParts);
+                QStringList textlist = nodeValue.split("\n", QString::SkipEmptyParts);
                 for (QStringList::iterator i = textlist.begin(); i != textlist.end(); ++i)
                 {
                     QString singleNodeValue = (*i).trimmed();

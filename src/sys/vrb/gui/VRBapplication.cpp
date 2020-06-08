@@ -293,7 +293,7 @@ void ApplicationWindow::createTabWidget(QSplitter *split)
 
         curve[j] = new VRBCurve(wtab[0]);
         curve[j]->setLabel(text);
-        grid[0]->addWidget(curve[j], row, 0, 1, 2);
+        grid[0]->addWidget(curve[j], row, 0, 1, 2, 0);
         row++;
     }
 
@@ -389,7 +389,7 @@ void ApplicationWindow::createCurves(VrbUiClient *vrb)
         vrb->myLabels[j * 2 + 1] = text;
         curve->setClient(vrb);
         curve->setLabel(text);
-        grid[j + 1]->addWidget(curve, currRow + 1, 0, 1, 2);
+        grid[j + 1]->addWidget(curve, currRow + 1, 0, 1, 2, 0);
         curve->run();
     }
 

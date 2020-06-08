@@ -61,7 +61,7 @@ QString VRCWHSensBIndex::getGuiButtonDevice() const
    if (bDev == OTHER)
    {
       QStringList bDevList = ui.buttonDevLineEdit->text().split(
-            QRegExp("\\s+"), Qt::SkipEmptyParts);
+            QRegExp("\\s+"), QString::SkipEmptyParts);
 
       //we only use the first entry
       if (bDevList.isEmpty())

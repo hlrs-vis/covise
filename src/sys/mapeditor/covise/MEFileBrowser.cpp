@@ -332,7 +332,7 @@ void MEFileBrowser::updateButtonList(const QString &path)
     }
     buttonList.clear();
 
-    QStringList list = path.split("/", Qt::SkipEmptyParts);
+    QStringList list = path.split("/", QString::SkipEmptyParts);
     int no = list.count();
     if (!path.endsWith("/"))
         no--;

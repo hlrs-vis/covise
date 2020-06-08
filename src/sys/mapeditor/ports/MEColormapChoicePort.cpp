@@ -108,7 +108,7 @@ void MEColormapChoicePort::defineParam(QString value, int apptype)
     m_colorMap->hide();
 
     // define  colormap & choices
-    QStringList list = value.split(' ', Qt::SkipEmptyParts);
+    QStringList list = value.split(' ', QString::SkipEmptyParts);
 
     int ie = 0;
     m_currentChoice = list[ie].toInt() - 1;
@@ -170,7 +170,7 @@ void MEColormapChoicePort::modifyParameter(QString lvalue)
     m_values.clear();
 
     // define  new olormap & choices
-    QStringList list = lvalue.split(' ', Qt::SkipEmptyParts);
+    QStringList list = lvalue.split(' ', QString::SkipEmptyParts);
     int count = list.count();
 
     // check

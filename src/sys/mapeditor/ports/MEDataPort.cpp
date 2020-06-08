@@ -367,7 +367,7 @@ void MEDataPort::setDataObject(int id1, int id2, int id3, int block, int timeste
 //!
 void MEDataPort::setDataTypes(const QString &connections)
 {
-    m_datatypes = connections.split("|", Qt::SkipEmptyParts);
+    m_datatypes = connections.split("|", QString::SkipEmptyParts);
     m_datatypes.sort();
 
     for (int i = 0; i < m_datatypes.size() - 1; ++i)
@@ -407,7 +407,7 @@ void MEDataPort::setDemandType(const QString &dtype)
 
     else if (dtype.contains("dep") != 0)
     {
-        QStringList list = dtype.split(" ", Qt::SkipEmptyParts);
+        QStringList list = dtype.split(" ", QString::SkipEmptyParts);
         demand = DEP;
         dependency = list[1];
     }

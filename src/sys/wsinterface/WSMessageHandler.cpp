@@ -227,7 +227,7 @@ void covise::WSMessageHandler::dataReceived(int)
 
             else
             {
-                QStringList list = QString(msg->data).split("\n", Qt::SkipEmptyParts);
+                QStringList list = QString(msg->data).split("\n", QString::SkipEmptyParts);
 
 #if 0
             qDebug() << "Message received _________________________";

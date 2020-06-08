@@ -86,7 +86,7 @@ coConfigImportReader::coConfigImportReader(const QString &aSource,
     {
         COCONFIGLOG("coConfigImportReader::parse err: error reading transform file "
                     << transform->fileName() << " in line "
-                    << errorLine << ", column " << errorColumn << ":" << Qt::endl
+                    << errorLine << ", column " << errorColumn << ":" << endl
                     << "   " << errorMessage);
     }
 
@@ -228,7 +228,7 @@ QDomDocument coConfigImportReader::parse()
         if (line.contains(':'))
         {
             section = line.section(':', 0, 0).simplified();
-            QStringList hostList = line.section(':', 1).split(QRegExp("[,:\\s]"), Qt::SkipEmptyParts);
+            QStringList hostList = line.section(':', 1).split(QRegExp("[,:\\s]"), QString::SkipEmptyParts);
             hosts = hostList.join(",");
             //COCONFIGLOG("coConfigImportReader::parse info: original (host only) section " << section);
         }
@@ -761,7 +761,7 @@ void coConfigImportReader::updateApplyInstruction(QDomElement &node, QDomElement
         }
 
         // Look if we have a composed entry like COVER.Tracking.Joystick that has to be disassembled
-        QStringList sections = target.split('.', Qt::KeepEmptyParts);
+        QStringList sections = target.split('.', QString::KeepEmptyParts);
 
         for (QStringList::iterator section = sections.begin(); section != sections.end(); ++section)
         {
@@ -800,8 +800,8 @@ void coConfigImportReader::updateApplyInstruction(QDomElement &node, QDomElement
         QString splitWhat = instruction.attribute("attribute");
         QString splitFrom = node.attribute(splitWhat);
 
-        QStringList splitKey = instruction.attribute("to").split(' ', Qt::SkipEmptyParts);
-        QStringList splitValue = splitFrom.split(' ', Qt::SkipEmptyParts);
+        QStringList splitKey = instruction.attribute("to").split(' ', QString::SkipEmptyParts);
+        QStringList splitValue = splitFrom.split(' ', QString::SkipEmptyParts);
 
         node.removeAttribute(splitWhat);
         while (!splitKey.isEmpty() && !splitValue.isEmpty())
@@ -842,7 +842,7 @@ void coConfigImportReader::updateApplyInstruction(QDomElement &node, QDomElement
         QDomElement parent = node.parentNode().toElement();
 
         QString target = instruction.attribute("into");
-        QStringList sections = target.split('.', Qt::KeepEmptyParts);
+        QStringList sections = target.split('.', QString::KeepEmptyParts);
         QDomNode insertReference = node;
 
         QDomElement into;
@@ -1090,7 +1090,7 @@ inline static int countIndent(const QString &input)
 QString coConfigImportReader::domToString(const QDomDocument &doc) const
 {
 
-    QStringList lines = doc.toString().split('\n', Qt::KeepEmptyParts);
+    QStringList lines = doc.toString().split('\n', QString::KeepEmptyParts);
     QString rv;
     QString indent;
 

@@ -482,9 +482,9 @@ void MainWidget::wheelEvent(QWheelEvent *wheelEvent)
 {
     if (!handlingTouchEvents && rrServer /* && rrServer->isConnected() */)
     {
-        QPointF pos = mapMousePosition(wheelEvent->position());
+        QPointF pos = mapMousePosition(QPointF(wheelEvent->pos()));
 
-        rrServer->sendEvent(rrxevent(RREV_WHEEL, pos.x(), pos.y(), wheelEvent->angleDelta().y() / 120, 0));
+        rrServer->sendEvent(rrxevent(RREV_WHEEL, pos.x(), pos.y(), wheelEvent->delta() / 120, 0));
     }
 }
 
