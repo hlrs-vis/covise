@@ -43,7 +43,6 @@ addons:
             - libxerces-c-dev
             - libpng-dev
             - libopenscenegraph-dev
-            - libosgearth-dev
             - libavcodec-dev
             - libswscale-dev
 
