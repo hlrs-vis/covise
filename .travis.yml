@@ -7,7 +7,7 @@ notifications:
     - covise-commits@listserv.uni-stuttgart.de
 
 sudo: false
-dist: trusty
+dist: bionic
 
 language: cpp
 os:
