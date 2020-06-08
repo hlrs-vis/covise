@@ -41,7 +41,7 @@ addons:
             - libqt5opengl5-dev
             - libqt5webkit5-dev
             - libxerces-c-dev
-            - libpng12-dev
+            - libpng-dev
             - libopenscenegraph-dev
             - libosgearth-dev
             - libavcodec-dev
