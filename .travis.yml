@@ -45,6 +45,8 @@ addons:
             - libopenscenegraph-dev
             - libavcodec-dev
             - libswscale-dev
+            - libjpeg-dev
+            - libtiff-dev
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew update; fi
