@@ -68,7 +68,7 @@ script:
     - if [ "$APP" = "cover" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_ONLY_COVER_PREREQ:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
     - export COVISE_CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX="${HOME}"/install "$COVISE_CMAKE_OPTIONS
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export ARCHSUFFIX=macos; fi
-    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export ARCHSUFFIX=tahr; fi
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export ARCHSUFFIX=bionic; fi
     - if [ "${BUILD_TYPE}" != "Debug" ]; then export ARCHSUFFIX=${ARCHSUFFIX}opt; fi
     - source .covise.sh
     - if [ "$APP" = "covise" ]; then make covise -j6; fi
