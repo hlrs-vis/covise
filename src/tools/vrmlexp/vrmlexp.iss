@@ -25,7 +25,7 @@ PrivilegesRequired=admin
 OutputDir={#COVISEDIR+"\DIST"}    
 
 #if ARCHSUFFIX == "zebuopt"
-OutputBaseFilename=HLRS_Max2021_x64_VRML_Exporter   
+OutputBaseFilename=HLRS_Max2021.1_x64_VRML_Exporter   
 ArchitecturesInstallIn64BitMode="x64"  
 #elif ARCHSUFFIX == "zackelopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
@@ -34,7 +34,7 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yorooopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
-OutputBaseFilename=HLRS_Max2021_x64_VRML_Exporter    
+OutputBaseFilename=HLRS_Max2021.1_x64_VRML_Exporter    
 ArchitecturesInstallIn64BitMode="x64"  
 ProcessorsAllowed="x64"
 #endif
@@ -226,7 +226,7 @@ begin
   if MaxVersion = 0 then
   begin
       Result:=false;
-      MsgBox('Did not find 3ds Max, please install 3ds Max 2021 first!', mbError, MB_OK);
+      MsgBox('Did not find 3ds Max, please install 3ds Max 2021.1 first!', mbError, MB_OK);
   end;
 
 end;
