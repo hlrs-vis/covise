@@ -162,6 +162,7 @@ public:
 class IKAxisInfo
 {
 public:
+    enum AxisType { Rot=0, Trans,Scale };
     IKAxisInfo();
     osg::Matrix mat;
     osg::Matrix invMat;
@@ -171,6 +172,7 @@ public:
     osg::Vec3 direction;
     double min;
     double max;
+    AxisType type= AxisType::Rot;
     osg::MatrixTransform* transform;
     osg::MatrixTransform* rotTransform;
 
@@ -194,6 +196,7 @@ class IKSensor;
 class IKInfo
 {
 public:
+    enum IKType { Rot = 0, RotTrans, Trans };
     IKInfo();
     ~IKInfo();
     void update();
@@ -215,6 +218,7 @@ public:
     osg::Vec3 vA;
     osg::Vec3 vB;
     osg::Vec3 vC;
+    IKType type = IKType::Rot;
     IKSensor* iks=nullptr;
 
 };

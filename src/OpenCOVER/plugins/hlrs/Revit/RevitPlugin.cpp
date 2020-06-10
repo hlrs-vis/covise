@@ -151,6 +151,14 @@ void IKInfo::intiIK()
 	{
 		numAxis = 4;
 	}
+	if (numAxis < 1)
+	{
+		return;
+	}
+	if (axis[0].type == IKAxisInfo::AxisType::Trans)
+		type = IKInfo::IKType::Trans;
+	if (numAxis == 4 && axis[1].type == IKAxisInfo::AxisType::Trans)
+		type = IKInfo::IKType::RotTrans;
 	for (unsigned int i = 0; i < numAxis; ++i)
 	{
 		//Saving joint data to robot
@@ -167,35 +175,52 @@ void IKInfo::intiIK()
 		robot->origHmtx.push_back(axis[i].mat);
 	}
 	robot->CaclulateFullTransormationMatrix();
-	osg::Vec3 xAxis(1, 0, 0);
-	basePos = axis[0].origin;
-	vA = axis[1].origin- basePos;
-	vA.z() = 0;
-	rA = vA.length();
+	if (type == IKInfo::IKType::Rot)
+	{
+		osg::Vec3 xAxis(1, 0, 0);
+		basePos = axis[0].origin;
+		vA = axis[1].origin - basePos;
+		vA.z() = 0;
+		rA = vA.length();
 
-	vB = axis[4].origin- axis[1].origin;
-	vB.z() = 0;
-	rB = vB.length();
-	osg::Vec3 vAn = vA;
-	vAn.normalize();
-	osg::Vec3 vBn = vB; 
-	vBn.normalize();
+		vB = axis[4].origin - axis[1].origin;
+		vB.z() = 0;
+		rB = vB.length();
+		osg::Vec3 vAn = vA;
+		vAn.normalize();
+		osg::Vec3 vBn = vB;
+		vBn.normalize();
 
-	osg::Vec3 rotA = axis[0].direction;
-	rotA.normalize();
-	osg::Vec3 rotB = axis[1].direction;
-	rotA.normalize();
-	osg::Vec3 rotC = axis[2].direction;
-	rotC.normalize();
+		osg::Vec3 rotA = axis[0].direction;
+		rotA.normalize();
+		osg::Vec3 rotB = axis[1].direction;
+		rotA.normalize();
+		osg::Vec3 rotC = axis[2].direction;
+		rotC.normalize();
 
-	initialAngleA = getAngle(vAn,xAxis,rotA);
-	initialAngleB = getAngle(vBn, vAn, rotB);
+		initialAngleA = getAngle(vAn, xAxis, rotA);
+		initialAngleB = getAngle(vBn, vAn, rotB);
 
-	vC = axis[3].origin - axis[2].origin;
-	rC = vC.length();
-	float dH = vC.z();
+		vC = axis[3].origin - axis[2].origin;
+		rC = vC.length();
+		float dH = vC.z();
 
-	initialAngleC = asin(dH / rC);
+		initialAngleC = asin(dH / rC);
+	}
+	else if (type == IKInfo::IKType::RotTrans)
+	{
+		osg::Vec3 xAxis(1, 0, 0);
+		osg::Vec3 rotA = axis[0].direction;
+		rotA.normalize();
+		basePos = axis[0].origin;
+		vA = axis[2].origin - basePos;
+		osg::Vec3 vAn = vA;
+		vAn.normalize();
+		initialAngleA = getAngle(vAn, xAxis, rotA);
+	}
+	else if (type == IKInfo::IKType::Trans)
+	{
+	}
 
 
 }
@@ -203,138 +228,92 @@ void IKInfo::intiIK()
 
 void IKInfo::updateIK(const osg::Vec3 &targetPos, const osg::Vec3 & targetDir)
 {
-
-	vC = targetPos - axis[2].origin;
-	float dH = vC.z();
-	if (dH < -(rC - 0.10))
-		dH = -(rC - 0.10);
-	if (dH > 1)
-		dH = 1;
-
-	float currentAngleC = asin(dH / rC);
-	rB = rC * cos(currentAngleC);
-
-	axis[2].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
-	axis[3].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
-
-	osg::Vec3 toNew = targetPos - basePos;
-	toNew.z() = 0;
-	float newD = toNew.length();
-	if (newD > 0.1 && newD < rA + rB)
+	if (type == IKInfo::IKType::Rot)
 	{
+		vC = targetPos - axis[2].origin;
+		float dH = vC.z();
+		if (dH < -(rC - 0.10))
+			dH = -(rC - 0.10);
+		if (dH > 1)
+			dH = 1;
 
-		osg::Vec3 xAxis(1, 0, 0);
-		osg::Vec3 baseP = basePos;
-		baseP.z() = 0;
-		osg::Vec3 targetP = targetPos;
-		targetP.z() = 0;
-		float x = (rA * rA + newD * newD - rB * rB) / (2 * newD);
-		float y=0;
-		float sqd = rA * rA - x * x;
-		if (sqd>0)
+		float currentAngleC = asin(dH / rC);
+		rB = rC * cos(currentAngleC);
+
+		axis[2].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
+		axis[3].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
+
+		osg::Vec3 toNew = targetPos - basePos;
+		toNew.z() = 0;
+		float newD = toNew.length();
+		if (newD > 0.1 && newD < rA + rB)
 		{
-			y = sqrt(sqd);
-		}
-		float qx =  (x * ((targetP.x() - baseP.x()) / newD)) - (y * ((targetP.y() - baseP.y()) / newD));
-		float qy =  (x * ((targetP.y() - baseP.y()) / newD)) + (y * ((targetP.x() - baseP.x()) / newD));
-		osg::Vec3 vQ(qx, qy,0);
-		osg::Vec3 tToB = baseP - targetP;
-		osg::Vec3 dirA = vQ;
-		osg::Vec3 dirB = (tToB + vQ)*-1;
-		dirA.normalize();
-		dirB.normalize();
 
-		osg::Vec3 rotA = axis[0].direction;
-		rotA.normalize();
-		osg::Vec3 rotB = axis[1].direction;
-		rotA.normalize();
+			osg::Vec3 xAxis(1, 0, 0);
+			osg::Vec3 baseP = basePos;
+			baseP.z() = 0;
+			osg::Vec3 targetP = targetPos;
+			targetP.z() = 0;
+			float x = (rA * rA + newD * newD - rB * rB) / (2 * newD);
+			float y = 0;
+			float sqd = rA * rA - x * x;
+			if (sqd > 0)
+			{
+				y = sqrt(sqd);
+			}
+			float qx = (x * ((targetP.x() - baseP.x()) / newD)) - (y * ((targetP.y() - baseP.y()) / newD));
+			float qy = (x * ((targetP.y() - baseP.y()) / newD)) + (y * ((targetP.x() - baseP.x()) / newD));
+			osg::Vec3 vQ(qx, qy, 0);
+			osg::Vec3 tToB = baseP - targetP;
+			osg::Vec3 dirA = vQ;
+			osg::Vec3 dirB = (tToB + vQ) * -1;
+			dirA.normalize();
+			dirB.normalize();
 
-		float newAngleA = getAngle(dirA, xAxis, rotA);
-		float newAngleB = getAngle(dirB, dirA, rotB);
-		if (std::isnan(newAngleA) || std::isnan(newAngleB))
+			osg::Vec3 rotA = axis[0].direction;
+			rotA.normalize();
+			osg::Vec3 rotB = axis[1].direction;
+			rotA.normalize();
+
+			float newAngleA = getAngle(dirA, xAxis, rotA);
+			float newAngleB = getAngle(dirB, dirA, rotB);
+			if (std::isnan(newAngleA) || std::isnan(newAngleB))
+			{
+				fprintf(stderr, "isnan\n");
+			}
+			else
+			{
+				axis[0].rotTransform->setMatrix(osg::Matrix::rotate(newAngleA - initialAngleA, osg::Vec3(0, 0, -1)));
+				axis[1].rotTransform->setMatrix(osg::Matrix::rotate(newAngleB - initialAngleB, osg::Vec3(0, 0, -1)));
+			}
+
+		} // else  zu weit auseinander
+
+		// rotate end so that y axis points towards the specified y direction
+		osg::Matrix m;
+		m.makeIdentity();
+		for (unsigned int i = 0; i < axis.size(); ++i)
 		{
-			fprintf(stderr, "isnan\n");
+			if (axis[i].transform)
+			{
+				m = axis[i].transform->getMatrix() * m;
+			}
+			m = axis[i].rotTransform->getMatrix() * m;
 		}
-		else
-		{
-			axis[0].rotTransform->setMatrix(osg::Matrix::rotate(newAngleA - initialAngleA, osg::Vec3(0, 0, -1)));
-			axis[1].rotTransform->setMatrix(osg::Matrix::rotate(newAngleB - initialAngleB, osg::Vec3(0, 0, -1)));
-		}
-		
-	} // else  zu weit auseinander
+		auto td = targetDir;
+		td.normalize();
+		osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
+		float newAngle = getAngle(my, td, axis[4].direction);
+		osg::Matrix oldMat = axis[4].rotTransform->getMatrix();
+		axis[4].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
 
-	// rotate end so that y axis points towards the specified y direction
-	osg::Matrix m;
-	m.makeIdentity();
-	for (unsigned int i = 0; i < axis.size(); ++i)
-	{
-		if (axis[i].transform)
-		{
-			m = axis[i].transform->getMatrix() * m;
-		}
-		m = axis[i].rotTransform->getMatrix() * m;
 	}
-	auto td = targetDir;
-    td.normalize();
-	osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
-	float newAngle = getAngle(my, td, axis[4].direction);
-	osg::Matrix oldMat = axis[4].rotTransform->getMatrix();
-	axis[4].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
-
-
-	/*CAlgoFactory factory;
-	VectorXf des(6);
-	float speccfc = 0.001f;
-	des << RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number(), RevitPlugin::instance()->xOri->number(), RevitPlugin::instance()->yOri->number(), RevitPlugin::instance()->zOri->number();
-
-	CAlgoAbstract* pJpt = factory.GiveMeSolver(JACOBIANTRANSPOSE, des, *robot); //JACOBIANTRANSPOSE , DUMPEDLEASTSQUARES
-	pJpt->SetAdditionalParametr(speccfc);
-	pJpt->CalculateData();
-	robot->PrintConfiguration();
-	bool verticalEnd = false;
-
-	int numAxis = axis.size();
-	if (numAxis == 5)
+	else if (type == IKInfo::IKType::RotTrans)
 	{
-		numAxis = 3;
-		verticalEnd = true;
 	}
-	osg::Matrix m;
-	m.makeIdentity();
-	for (unsigned int i = 0; i < numAxis; ++i)
+	else if (type == IKInfo::IKType::Trans)
 	{
-		
-
-		osg::Matrix mat;
-		for (int n = 0; n < 4; n++)
-			for (int m = 0; m < 4; m++)
-				mat(n, m) = robot->hmtx[i](m, n);
-		if(axis[i].transform)
-		axis[i].transform->setMatrix(mat);
-		m = mat * m;
 	}
-	osg::Vec3 z(0, 0, 1);
-	if (verticalEnd)
-	{
-		m = axis[3].mat * m;
-		m = axis[4].mat * m;
-		osg::Vec3 z5(m(2, 0), m(2, 1), m(2, 2));
-		float angle = acos(z5*z);
-		axis[3].rotTransform->setMatrix(osg::Matrix::rotate(angle, z));
-	}
-
-	*/
-
-	/*VectorNd Qres =Q;
-	Vector3d target(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
-	target_pos.clear();
-	target_pos.push_back(target);
-	bool res = InverseKinematics(*model, Q, body_ids, body_points, target_pos, Qres);
-	if (res)
-	{
-		Q = Qres;
-		updateGeometry();
-	}*/
 }
 
 
@@ -1818,6 +1797,9 @@ RevitPlugin::handleMessage(Message *m)
 			tb >> iki->axis[level].direction;
 			tb >> iki->axis[level].min;
 			tb >> iki->axis[level].max;
+			int type=IKAxisInfo::Rot;
+			tb >> type;
+			iki->axis[level].type=IKAxisInfo::AxisType(type);
 		}
 		unsigned int node_id = 0;
 		for (int i = 0; i < numAxis; i++)
