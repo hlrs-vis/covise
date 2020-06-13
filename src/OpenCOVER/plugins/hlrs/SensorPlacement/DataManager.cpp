@@ -16,11 +16,35 @@ void setStateSet(osg::StateSet *stateSet)
     stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
 }
 
+std::vector<VisibilityMatrix<float>> convertVisMatTo2D(const VisibilityMatrix<float>& visMat)
+{
+    std::vector<int> sizes;
+    for(const auto& zone : DataManager::GetSafetyZones())
+    {
+        sizes.push_back(zone->getNumberOfPoints());
+    } 
+    
+    std::vector<VisibilityMatrix<float>> result;
+    result.reserve(sizes.size());
+    
+    size_t startPos{0};
+    size_t endPos;
+    for(const auto& size : sizes)
+    {
+        endPos = startPos + size;
+        VisibilityMatrix<float> temp = {visMat.begin() + startPos,visMat.begin() + endPos};
+        result.push_back(std::move(temp));
+        startPos += size;
+    }
+    
+    return result;
+}
+
 DataManager::DataManager()
 {
     m_Root = new osg::Group();
     m_Root->setName("SensorPlacement");
-   // m_Root->setNodeMask(m_Root->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+    m_Root->setNodeMask(m_Root->getNodeMask() & ~ 4096);
     osg::StateSet *mystateset = m_Root->getOrCreateStateSet();
     setStateSet(mystateset);
     cover->getObjectsRoot()->addChild(m_Root.get());
@@ -122,11 +146,23 @@ void DataManager::Remove(T* object)
 }
 
 
-void DataManager::highlitePoints(std::vector<float>& points)
+void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 {
-   for(const auto& zone : GetSafetyZones())
-   {
+   auto visMat2D = convertVisMatTo2D(visMat);
 
-   } 
+    size_t count{0};
+    for(const auto& zone : GetSafetyZones())
+    {
+        zone->highlitePoints(visMat2D.at(count));
+        count ++;
+    }
+
 }
+
+void DataManager::setOriginalPointColor()
+{
+    for(const auto& zone : GetSafetyZones())
+        zone->setOriginalColor();
+}
+
 

@@ -566,15 +566,15 @@ osg::Vec3 Zone::defineLimitsOfInnerGridPoints()const
 }
 void Zone::createGridPoints()
 {
-  createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
+  //createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
   createOuter3DGrid(calcSign());
 }
 
-void SafetyZone::highlitePoints(std::vector<float>& visiblePoints)
+void Zone::highlitePoints(std::vector<float>& visiblePoints)
 {
     if(visiblePoints.size() == m_GridPoints.size())
     {
-        for(auto it = visiblePoints.begin(); it != visiblePoints.end();++it)
+        for(auto it = visiblePoints.begin(); it != visiblePoints.end(); ++it)
         {
             if(*it != 0)
                 m_GridPoints.at(std::distance(visiblePoints.begin(), it)).setColor(osg::Vec4(1,1,0,1));
@@ -582,6 +582,12 @@ void SafetyZone::highlitePoints(std::vector<float>& visiblePoints)
     }
     else
         std::cout<<"error this shouldn't happen !"<<std::endl; //TODO Abort !!!!
+}
+
+void Zone::setOriginalColor()
+{
+    for(auto& point : m_GridPoints)
+        point.setOriginalColor();
 }
 
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1}), m_SensorType(type)
@@ -608,7 +614,7 @@ bool SensorZone::preFrame()
         sensor->preFrame();
         if(sensor->getMatrix().getTrans().z()>m_SizeInteractor->getMatrix().getTrans().z())
         {  
-            std::cout<<"error"<<std::endl;
+            //std::cout<<"error"<<std::endl;
             //osg::Matrix m = sensor->getMatrix();
             //m.setTrans(m.getTrans().x(),m.getTrans().y(),m_SizeInteractor->getMatrix().getTrans().z()); 
             //sensor->setMatrix(m);

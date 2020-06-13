@@ -146,7 +146,7 @@ osg::ref_ptr<osg::Group> SensorPosition::getSensor()const
 void SensorPosition::setMatrix(osg::Matrix matrix)
 {
     m_Orientation.setMatrix(matrix);
-    m_SensorVisualization->setMatrix(matrix);
+    //m_SensorVisualization->setMatrix(matrix);
 }
 
 bool SensorPosition::preFrame()
@@ -175,28 +175,26 @@ void SensorPosition::checkForObstacles()
         intersectorGroup->addIntersector( intersector.get() );
     }
     osgUtil::IntersectionVisitor visitor(intersectorGroup.get());
+    visitor.setTraversalMask(~DataManager::GetRootNode()->getNodeMask()); //make nodes of sensor placement plugin not pickable by the visitor
     cover->getObjectsRoot()->accept(visitor);
 
-    if(intersectorGroup->containsIntersections())
+    osgUtil::IntersectorGroup::Intersectors& intersectors = intersectorGroup->getIntersectors();
+    for(osgUtil::IntersectorGroup::Intersectors::iterator intersector_itr = intersectors.begin();
+        intersector_itr != intersectors.end(); 
+        ++intersector_itr)
     {
-        osgUtil::IntersectorGroup::Intersectors& intersectors = intersectorGroup->getIntersectors();
-        for(osgUtil::IntersectorGroup::Intersectors::iterator intersector_itr = intersectors.begin();
-            intersector_itr != intersectors.end(); 
-            ++intersector_itr)
+        osgUtil::LineSegmentIntersector* lsi = dynamic_cast<osgUtil::LineSegmentIntersector*>(intersector_itr->get());
+        if(lsi)
         {
-            osgUtil::LineSegmentIntersector* lsi = dynamic_cast<osgUtil::LineSegmentIntersector*>(intersector_itr->get());
-            if(lsi)
-            {
-                osgUtil::LineSegmentIntersector::Intersections& hits = lsi->getIntersections();
-                //std::cout<<hits.size()<<std::endl;
-                if(hits.size() > 1 )//TODO Geometrien des SensorPlacement müssen vom Intersection Test ausgeschlossen werden! 
-                    m_VisMatSensorPos.push_back(0);
-                else
-                    m_VisMatSensorPos.push_back(1);
-            }
+            osgUtil::LineSegmentIntersector::Intersections& hits = lsi->getIntersections();
+            //std::cout<<hits.size()<<std::endl;
+            if(hits.size() > 0 ) 
+                m_VisMatSensorPos.push_back(0); // not visible
+            else
+                m_VisMatSensorPos.push_back(1); // visible
         }
     }
-
+  
 };
 
 void SensorWithMultipleOrientations::createSensorOrientations()
@@ -232,7 +230,7 @@ void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
 {
     SensorPosition::setMatrix(matrix);
 
-    createSensorOrientations();
+    //createSensorOrientations();
 };
 
 void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Orientation&& orientation)
@@ -341,10 +339,12 @@ bool SensorVisualization::preFrame()
         osg::Matrix matrix= m_Interactor->getMatrix();
 
         m_Sensor->setMatrix(matrix);
-        // *m_Sensor->checkForObstacles();
+        m_Sensor->checkForObstacles();
 
-        // m_Orientation.setMatrix(matrix);
-        // m_Orientation.setVisibilityMatrix(calcVisibilityMatrix(euler));
+        coCoord euler = matrix;
+        m_Sensor->setVisibilityMatrix(m_Sensor->calcVisibilityMatrix(euler));
+        DataManager::highlitePoints(m_Sensor->getVisibilityMatrix());
+
 
         // createSensorOrientations();
 

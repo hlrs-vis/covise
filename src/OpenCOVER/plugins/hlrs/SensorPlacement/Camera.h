@@ -18,8 +18,8 @@ public:
     float m_ImgWidth{2*m_DepthView*std::tan(m_FoV/2*(float)osg::PI/180)};
     float m_ImgHeight{m_ImgWidth / (m_ImageWidthPixel/m_ImageHeightPixel)};
 
-    void updateFoV(float fov);
-    void updateDepthView(float dof);
+    //void updateFoV(float fov);
+    //void updateDepthView(float dof);
 
     int getImageHeightPixel()const{return m_ImageHeightPixel;}
     int getImageWidthPixel()const{return m_ImageWidthPixel;}
@@ -67,8 +67,11 @@ class CameraVisualization : public SensorVisualization
 {
 public:
     CameraVisualization(Camera* camera);
+    bool preFrame()override;
 protected:
     osg::Geode* draw() override;
+    void showOriginalSensorSize() override;
+    void showIconSensorSize() override;
 private:
     Camera *m_Camera;
     osg::Vec4 m_Color{0,1,0,1};

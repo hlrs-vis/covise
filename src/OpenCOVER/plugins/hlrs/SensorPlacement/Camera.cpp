@@ -12,14 +12,12 @@ Camera::Camera(osg::Matrix matrix)
     m_SensorVisualization = myHelpers::make_unique<CameraVisualization>(this);
 }
 
-VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)//hier muss Matrix als input Rein! damit für alle Orientierungen nutzbar!
+VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
 {
     VisibilityMatrix<float> result = m_VisMatSensorPos;
-    //  std::cout<<"Before Visibility Calculation"<<std::endl;
-    // for(const auto& x : result)
-    //        std::cout<<x<<std::endl;
     osg::Matrix matrix;
     euler.makeMat(matrix);
+
     osg::Matrix T = osg::Matrix::translate(-matrix.getTrans());
     osg::Matrix zRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[0]), osg::Z_AXIS);
     osg::Matrix yRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[1]), osg::X_AXIS);
@@ -60,10 +58,6 @@ VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)//hier muss 
     {
         //TODO: Throw error ! 
     }
-
-    // std::cout<<"After Visibility Calculation"<<std::endl;
-    // for(const auto& x : result)
-    //        std::cout<<x<<std::endl;
 
     return result;
 }
@@ -218,3 +212,40 @@ osg::Geode* CameraVisualization::draw()
     return geode;
 
 };
+
+bool CameraVisualization::preFrame()
+{
+    bool status = SensorVisualization::preFrame();
+
+    if(m_Interactor->wasStarted())
+        showOriginalSensorSize();
+    else if(m_Interactor->wasStopped())
+        showIconSensorSize();
+
+    return status;
+}
+
+void CameraVisualization::showOriginalSensorSize()
+{
+    auto cameraProps = m_Camera->getCameraProps();
+
+    m_Verts->at(0) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2); // 0 upper  front base
+    m_Verts->at(1) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2); // 1 lower front base
+    m_Verts->at(2) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2); // 3 lower  back  base
+    m_Verts->at(3) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2) ;// 2 upper back  base
+    m_Verts->at(4) = osg::Vec3( 0,  0,  0); // 4 peak
+    m_Verts->dirty();
+    m_Geometry->dirtyBound();
+}
+void CameraVisualization::showIconSensorSize()
+{
+    auto cameraProps = m_Camera->getCameraProps();
+
+    m_Verts->at(0) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2)/m_Scale; // 0 upper  front base
+    m_Verts->at(1) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2)/m_Scale; // 1 lower front base
+    m_Verts->at(2) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2)/m_Scale; // 3 lower  back  base
+    m_Verts->at(3) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2)/m_Scale;// 2 upper back  base
+    m_Verts->at(4) = osg::Vec3( 0,  0,  0); // 4 peak
+    m_Verts->dirty();
+    m_Geometry->dirtyBound();
+}

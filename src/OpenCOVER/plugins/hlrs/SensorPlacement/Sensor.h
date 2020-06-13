@@ -56,6 +56,9 @@ public:
 
     osg::Matrix getMatrix()const;
     SensorVisualization& getSensorVisualization(){return *m_SensorVisualization;}
+    const VisibilityMatrix<float>& getVisibilityMatrix()const{return m_Orientation.getVisibilityMatrix();}
+
+    void setVisibilityMatrix(VisibilityMatrix<float>&& visMat){m_Orientation.setVisibilityMatrix(std::move(visMat));}
 protected:    
     virtual double calcRangeDistortionFactor(const osg::Vec3& point)const = 0;
     virtual double calcWidthDistortionFactor(const osg::Vec3& point)const = 0;
@@ -106,8 +109,10 @@ protected:
     std::unique_ptr<opencover::coVRIntersectionInteractor> m_Interactor; 
     osg::ref_ptr<osg::Group> m_Group;
     osg::ref_ptr<osg::MatrixTransform> m_Matrix;
+
+    virtual void showOriginalSensorSize() = 0;
+    virtual void showIconSensorSize() = 0;
+
 };
-
-
 
 

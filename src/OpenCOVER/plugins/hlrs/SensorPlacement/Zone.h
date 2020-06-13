@@ -6,6 +6,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/Geometry>
 
+#include "Sensor.h"
 using namespace opencover;
 
 
@@ -47,6 +48,9 @@ public:
     int getNumberOfPoints()const{return m_GridPoints.size();}
 
     std::vector<osg::Vec3> getWorldPositionOfPoints();
+    void highlitePoints(VisibilityMatrix<float>& visiblePoints);
+    void setOriginalColor();
+
 protected:
     osg::ref_ptr<osg::Group> m_Group;
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
@@ -102,8 +106,6 @@ public:
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
     void createGrid()override{};
     
-    void highlitePoints(std::vector<float>& visiblePoints);
-
 private:
     osg::Vec4 m_ColorVisible;
 
