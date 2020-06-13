@@ -6,7 +6,6 @@ notifications:
   email:
     - covise-commits@listserv.uni-stuttgart.de
 
-sudo: false
 dist: bionic
 
 language: cpp
@@ -34,7 +33,6 @@ addons:
             - libglew-dev
             - libxi-dev
             - libxmu-dev
-            - freeglut3-dev
             - qttools5-dev
             - qtscript5-dev
             - libqt5scripttools5
