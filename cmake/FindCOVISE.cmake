@@ -108,7 +108,11 @@ find_path(COVISE_EXPORTS_FILEPATH "covise-exports.cmake"
 if (COVISE_EXPORTS_FILEPATH)
     if (NOT COVISE_EXPORTS_IMPORT)
         set(COVISE_EXPORTS_IMPORT "${COVISE_EXPORTS_FILEPATH}/covise-exports.cmake")
-        include(${COVISE_EXPORTS_IMPORT})
+        include(${COVISE_EXPORTS_IMPORT} OPTIONAL
+            RESULT_VARIABLE COVISE_EXPORTS_IMPORT_FILE)
+        if (NOT COVISE_EXPORTS_IMPORT_FILE)
+            message("COVISE: CMake library exports file not found")
+        endif()
     endif()
 else()
     message("COVISE: CMake library exports file not found")
@@ -526,7 +530,8 @@ ENDMACRO(USING_MESSAGE)
 include(CoviseUsingMacros.cmake OPTIONAL RESULT_VARIABLE COVISE_USING_FILE)
 if (NOT COVISE_USING_FILE)
     if (COVISE_OPTIONS_FILEPATH)
-        include("${COVISE_OPTIONS_FILEPATH}/CoviseUsingMacros.cmake")
+        include("${COVISE_OPTIONS_FILEPATH}/CoviseUsingMacros.cmake"
+            OPTIONAL RESULT_VARIABLE COVISE_USING_FILE)
     endif()
 endif()
 
