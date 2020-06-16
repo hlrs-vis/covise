@@ -175,6 +175,7 @@ public:
     AxisType type= AxisType::Rot;
     osg::MatrixTransform* transform;
     osg::MatrixTransform* rotTransform;
+    osg::MatrixTransform* scaleTransform;
 
     void initIK( unsigned int myID);
 };
@@ -214,6 +215,7 @@ public:
 
     float rA, rB, rC;
     float initialAngleA, initialAngleB, initialAngleC;
+    float initialLength;
     osg::Vec3 basePos;
     osg::Vec3 vA;
     osg::Vec3 vB;
@@ -483,6 +485,7 @@ public:
     osg::Vec3 startOrientation;
     void registerInteraction(IKInfo* i);
     void unregisterInteraction(IKInfo* i);
+    bool isInteractionRunning();
 
     bool sendMessage(Message &m);
     

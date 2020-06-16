@@ -757,6 +757,96 @@ namespace OpenCOVERPlugin
                     }
                 }
             }
+            if (elem is Autodesk.Revit.DB.Architecture.StairsRun)
+            {
+                StairsRun p = elem as Autodesk.Revit.DB.Architecture.StairsRun;
+                if (p.GetStairs() != null)
+                {
+                    if (p.GetStairs().IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.GetStairs().Category != null)
+                    {
+                        if (!p.GetStairs().Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.StairsLanding)
+            {
+                StairsLanding p = elem as Autodesk.Revit.DB.Architecture.StairsLanding;
+                if (p.GetStairs() != null)
+                {
+                    if (p.GetStairs().IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.GetStairs().Category != null)
+                    {
+                        if (!p.GetStairs().Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.HandRail)
+            {
+                HandRail h = elem as Autodesk.Revit.DB.Architecture.HandRail;
+                Railing p = elem.Document.GetElement(h.HostRailingId) as Autodesk.Revit.DB.Architecture.Railing;
+                
+                if (p!=null )
+                {
+                    if (p.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.Category != null)
+                    {
+                        if (!p.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                    if( p.HasHost)
+                    {
+                        Autodesk.Revit.DB.Element hostElem = elem.Document.GetElement(p.HostId);
+                        if (hostElem.IsHidden(View3D))
+                        {
+                            return;
+                        }
+                        if (hostElem.Category != null)
+                        {
+                            if (!hostElem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.Railing)
+            {
+                Railing p = elem as Autodesk.Revit.DB.Architecture.Railing;
+                if (p.HasHost)
+                {
+                    Autodesk.Revit.DB.Element hostElem = elem.Document.GetElement(p.HostId);
+                    if (hostElem.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (hostElem.Category != null)
+                    {
+                        if (!hostElem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
             if (elem.Category != null)
             {
                 if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
@@ -1531,6 +1621,7 @@ namespace OpenCOVERPlugin
                                 mb.add(ai.direction);
                                 mb.add(ai.min);
                                 mb.add(ai.max);
+                                mb.add((int)ai.type);
                             }
                             sendMessage(mb.buf, MessageTypes.IKInfo);
                             hasIK = true;

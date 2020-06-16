@@ -572,6 +572,8 @@ Matrix3 GetLocalTM(INode *node, TimeValue t);
     BOOL HasTexture(INode *node, BOOL &isWire);
     TSTR PrefixUrl(TSTR &fileName);
     TextureDesc *GetMtlTex(Mtl *mtl, BOOL &isWire, int mapChannel = 1, int askForSubTexture = 0);
+
+    TextureDesc* GetTexmapTex(Texmap* tm, BOOL& isWire, int textureNumber=1, int askForSubTexture=0);
     TextureDesc *GetMatTex(INode *node, BOOL &isWire, int mapChannel = 1, int askForSubTexture = 0);
     void GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc **tds);
     void OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level,

@@ -106,6 +106,335 @@ enum elementTypes
 	TUITabFolder,
 	TUIToggleButton
 };
+//Physical material helper class
+
+struct PhysicalMaterial
+{
+	float anisoangle = 0;
+	float anisotropy = 0;
+	float base_weight = 0;
+	float brdf_curve = 0;
+	float brdf_high = 0;
+	float brdf_low = 0;
+	float bump_map_amt = 0;
+	float clearcoat_bump_map_amt = 0;
+	float coat_affect_color = 0;
+	float coat_affect_roughness = 0;
+	float coat_ior = 0;
+	float coat_roughness = 0;
+	float coating = 0;
+	float diff_roughness = 0;
+	float displacement_map_amt = 0;
+	float emission = 0;
+	float emit_kelvin = 0;
+	float emit_luminance = 0;
+	float metalness = 0;
+	float reflectivity = 0;
+	float roughness = 0;
+	float scattering = 0;
+	float sss_depth = 0;
+	float sss_scale = 0;
+	float trans_depth = 0;
+	float trans_ior = 0;
+	float trans_roughness = 0;
+	float transparency = 0;
+	int aniso_channel = 0;
+	int aniso_mode = 0;
+	int material_mode = 0;
+	Texmap* aniso_angle_map = 0;
+	Texmap* anisotropy_map = 0;
+	Texmap* base_color_map = 0;
+	Texmap* base_weight_map = 0;
+	Texmap* bump_map = 0;
+	Texmap* coat_bump_map = 0;
+	Texmap* coat_color_map = 0;
+	Texmap* coat_map = 0;
+	Texmap* coat_rough_map = 0;
+	Texmap* cutout_map = 0;
+	Texmap* diff_rough_map = 0;
+	Texmap* displacement_map = 0;
+	Texmap* emission_map = 0;
+	Texmap* emit_color_map = 0;
+	Texmap* mapM0 = 0;
+	Texmap* mapM1 = 0;
+	Texmap* mapM10 = 0;
+	Texmap* mapM11 = 0;
+	Texmap* mapM12 = 0;
+	Texmap* mapM13 = 0;
+	Texmap* mapM14 = 0;
+	Texmap* mapM15 = 0;
+	Texmap* mapM16 = 0;
+	Texmap* mapM17 = 0;
+	Texmap* mapM18 = 0;
+	Texmap* mapM19 = 0;
+	Texmap* mapM2 = 0;
+	Texmap* mapM20 = 0;
+	Texmap* mapM3 = 0;
+	Texmap* mapM4 = 0;
+	Texmap* mapM5 = 0;
+	Texmap* mapM6 = 0;
+	Texmap* mapM7 = 0;
+	Texmap* mapM8 = 0;
+	Texmap* mapM9 = 0;
+	Texmap* metalness_map = 0;
+	Texmap* refl_color_map = 0;
+	Texmap* reflectivity_map = 0;
+	Texmap* roughness_map = 0;
+	Texmap* scattering_map = 0;
+	Texmap* sss_color_map = 0;
+	Texmap* sss_scale_map = 0;
+	Texmap* trans_color_map = 0;
+	Texmap* trans_ior_map = 0;
+	Texmap* trans_rough_map = 0;
+	Texmap* transparency_map = 0;
+	Point4* base_color = 0;
+	Point4* coat_color = 0;
+	Point4* emit_color = 0;
+	Point4* refl_color = 0;
+	Point4* sss_color = 0;
+	Point4* sss_scatter_color = 0;
+	Point4* trans_color = 0;
+	bool aniso_angle_map_on = 0;
+	bool anisotropy_map_on = 0;
+	bool base_color_map_on = 0;
+	bool base_weight_map_on = 0;
+	bool brdf_mode = 0;
+	bool bump_map_on = 0;
+	bool coat_bump_map_on = 0;
+	bool coat_color_map_on = 0;
+	bool coat_map_on = 0;
+	bool coat_rough_map_on = 0;
+	bool coat_roughness_inv = 0;
+	bool cutout_map_on = 0;
+	bool diff_rough_map_on = 0;
+	bool displacement_map_on = 0;
+	bool emission_map_on = 0;
+	bool emit_color_map_on = 0;
+	bool metalness_map_on = 0;
+	bool refl_color_map_on = 0;
+	bool reflectivity_map_on = 0;
+	bool roughness_inv = 0;
+	bool roughness_map_on = 0;
+	bool scattering_map_on = 0;
+	bool sss_color_map_on = 0;
+	bool sss_scale_map_on = 0;
+	bool thin_walled = 0;
+	bool trans_color_map_on = 0;
+	bool trans_ior_map_on = 0;
+	bool trans_rough_map_on = 0;
+	bool trans_roughness_inv = 0;
+	bool trans_roughness_lock = 0;
+	bool transparency_map_on = 0;
+
+	void setFloatMember(const std::wstring& name, const float f)
+	{
+#define SET_FLOAT(memberName) if (name == L#memberName) memberName = f; 
+		SET_FLOAT(anisoangle)
+			SET_FLOAT(anisotropy)
+			SET_FLOAT(base_weight)
+			SET_FLOAT(brdf_curve)
+			SET_FLOAT(brdf_high)
+			SET_FLOAT(brdf_low)
+			SET_FLOAT(bump_map_amt)
+			SET_FLOAT(clearcoat_bump_map_amt)
+			SET_FLOAT(coat_affect_color)
+			SET_FLOAT(coat_affect_roughness)
+			SET_FLOAT(coat_ior)
+			SET_FLOAT(coat_roughness)
+			SET_FLOAT(coating)
+			SET_FLOAT(diff_roughness)
+			SET_FLOAT(displacement_map_amt)
+			SET_FLOAT(emission)
+			SET_FLOAT(emit_kelvin)
+			SET_FLOAT(emit_luminance)
+			SET_FLOAT(metalness)
+			SET_FLOAT(reflectivity)
+			SET_FLOAT(roughness)
+			SET_FLOAT(scattering)
+			SET_FLOAT(sss_depth)
+			SET_FLOAT(sss_scale)
+			SET_FLOAT(trans_depth)
+			SET_FLOAT(trans_ior)
+			SET_FLOAT(trans_roughness)
+			SET_FLOAT(transparency)
+	}
+
+
+
+	void setIntMember(const std::wstring& name, const int i)
+	{
+#define SET_INT(memberName) if (name == L#memberName) memberName = i; 
+		SET_INT(aniso_channel)
+			SET_INT(aniso_mode)
+			SET_INT(material_mode)
+	}
+
+
+
+	void setBoolMember(const std::wstring& name, const bool b)
+	{
+#define SET_BOOL(memberName) if (name == L#memberName) memberName = b; 
+		SET_BOOL(aniso_angle_map_on)
+			SET_BOOL(anisotropy_map_on)
+			SET_BOOL(base_color_map_on)
+			SET_BOOL(base_weight_map_on)
+			SET_BOOL(brdf_mode)
+			SET_BOOL(bump_map_on)
+			SET_BOOL(coat_bump_map_on)
+			SET_BOOL(coat_color_map_on)
+			SET_BOOL(coat_map_on)
+			SET_BOOL(coat_rough_map_on)
+			SET_BOOL(coat_roughness_inv)
+			SET_BOOL(cutout_map_on)
+			SET_BOOL(diff_rough_map_on)
+			SET_BOOL(displacement_map_on)
+			SET_BOOL(emission_map_on)
+			SET_BOOL(emit_color_map_on)
+			SET_BOOL(metalness_map_on)
+			SET_BOOL(refl_color_map_on)
+			SET_BOOL(reflectivity_map_on)
+			SET_BOOL(roughness_inv)
+			SET_BOOL(roughness_map_on)
+			SET_BOOL(scattering_map_on)
+			SET_BOOL(sss_color_map_on)
+			SET_BOOL(sss_scale_map_on)
+			SET_BOOL(thin_walled)
+			SET_BOOL(trans_color_map_on)
+			SET_BOOL(trans_ior_map_on)
+			SET_BOOL(trans_rough_map_on)
+			SET_BOOL(trans_roughness_inv)
+			SET_BOOL(trans_roughness_lock)
+			SET_BOOL(transparency_map_on)
+
+	}
+
+
+
+	void setPoint4Member(const std::wstring& name, Point4* p4)
+	{
+#define SET_POINT4(memberName) if (name == L#memberName) memberName = p4; 
+		SET_POINT4(base_color)
+			SET_POINT4(coat_color)
+			SET_POINT4(emit_color)
+			SET_POINT4(refl_color)
+			SET_POINT4(sss_color)
+			SET_POINT4(sss_scatter_color)
+			SET_POINT4(trans_color)
+	}
+
+
+
+	void setTexmapMember(const std::wstring& name, Texmap* texmap)
+	{
+#define SET_TEXMAP(memberName) if (name == L#memberName) memberName = texmap;
+		SET_TEXMAP(aniso_angle_map)
+			SET_TEXMAP(anisotropy_map)
+			SET_TEXMAP(base_color_map)
+			SET_TEXMAP(base_weight_map)
+			SET_TEXMAP(bump_map)
+			SET_TEXMAP(coat_bump_map)
+			SET_TEXMAP(coat_color_map)
+			SET_TEXMAP(coat_map)
+			SET_TEXMAP(coat_rough_map)
+			SET_TEXMAP(cutout_map)
+			SET_TEXMAP(diff_rough_map)
+			SET_TEXMAP(displacement_map)
+			SET_TEXMAP(emission_map)
+			SET_TEXMAP(emit_color_map)
+			SET_TEXMAP(mapM0)
+			SET_TEXMAP(mapM1)
+			SET_TEXMAP(mapM10)
+			SET_TEXMAP(mapM11)
+			SET_TEXMAP(mapM12)
+			SET_TEXMAP(mapM13)
+			SET_TEXMAP(mapM14)
+			SET_TEXMAP(mapM15)
+			SET_TEXMAP(mapM16)
+			SET_TEXMAP(mapM17)
+			SET_TEXMAP(mapM18)
+			SET_TEXMAP(mapM19)
+			SET_TEXMAP(mapM2)
+			SET_TEXMAP(mapM20)
+			SET_TEXMAP(mapM3)
+			SET_TEXMAP(mapM4)
+			SET_TEXMAP(mapM5)
+			SET_TEXMAP(mapM6)
+			SET_TEXMAP(mapM7)
+			SET_TEXMAP(mapM8)
+			SET_TEXMAP(mapM9)
+			SET_TEXMAP(metalness_map)
+			SET_TEXMAP(refl_color_map)
+			SET_TEXMAP(reflectivity_map)
+			SET_TEXMAP(roughness_map)
+			SET_TEXMAP(scattering_map)
+			SET_TEXMAP(sss_color_map)
+			SET_TEXMAP(sss_scale_map)
+			SET_TEXMAP(trans_color_map)
+			SET_TEXMAP(trans_ior_map)
+			SET_TEXMAP(trans_rough_map)
+			SET_TEXMAP(transparency_map)
+
+	}
+
+
+};
+
+void convertToPhysicalMaterial(Mtl* maxMtl, PhysicalMaterial& physicalMaterial)
+{
+	// the following is based on this code https://forums.autodesk.com/t5/3ds-max-programming/getting-parameters-and-maps-of-physical-material/td-p/7466752
+	int nref = maxMtl->NumRefs();
+	for (int i = 0; i < nref; i++)
+	{
+		ReferenceTarget* ref = maxMtl->GetReference(i);
+
+		if (!ref)
+		{
+			continue;
+		}
+
+		MSTR className;
+		ref->GetClassName(className);
+		if (className == L"ParamBlock2")
+		{
+			Class_ID clsid = ref->ClassID();
+			IParamBlock2* pb = dynamic_cast<IParamBlock2*>(ref);
+			if (!pb)
+				continue;
+
+			const int num_param = pb->NumParams();
+			for (int j = 0; j < num_param; ++j)
+			{
+				const ParamID id = pb->IndextoID(j);
+
+				const ParamDef& param_def = pb->GetParamDef(id);
+				PB2Value& pb2_val = pb->GetPB2Value(id, 0);
+
+				switch (param_def.type)
+				{
+				case TYPE_FLOAT:
+					physicalMaterial.setFloatMember(param_def.int_name, pb2_val.f);
+					break;
+				case TYPE_INT:
+					physicalMaterial.setIntMember(param_def.int_name, pb2_val.i);
+					break;
+				case TYPE_BOOL:
+					physicalMaterial.setBoolMember(param_def.int_name, pb2_val.i != 0);
+					break;
+				case TYPE_FRGBA:
+					physicalMaterial.setPoint4Member(param_def.int_name, pb2_val.p4);
+					break;
+				case TYPE_TEXMAP:
+					physicalMaterial.setTexmapMember(param_def.int_name, pb->GetTexmap(id));
+					break;
+				default:
+					// big error
+					break;
+				}
+			}
+		}
+	}
+
+}
 
 #define MAX_TEXTURES 6
 
@@ -616,7 +945,7 @@ VRML2Export::OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level,
 					n = rv->rn.getNormal();
 					continue;
 				}
-				else if ((norCnt = (int)(rv->rFlags & NORCT_MASK)) && smGroup)
+				else if ((norCnt = (int)(rv->rFlags & NORCT_MASK)) /*&& smGroup*/)
 				{
 					if (norCnt == 1)
 						n = rv->rn.getNormal();
@@ -653,7 +982,8 @@ VRML2Export::OutputNormals(Mesh &mesh, int level)
 	NormalTable *normTab;
 
 	//mesh.buildRenderNormals();
-	mesh.buildNormals();
+	//mesh.buildNormals();
+	mesh.checkNormals(true);
 
 	if (MeshIsAllOneSmoothingGroup(mesh))
 	{
@@ -675,7 +1005,7 @@ VRML2Export::OutputNormals(Mesh &mesh, int level)
 			{
 				normTab->AddNormal(rv->rn.getNormal());
 			}
-			else if ((norCnt = (int)(rv->rFlags & NORCT_MASK)) && smGroup)
+			else if ((norCnt = (int)(rv->rFlags & NORCT_MASK))/* && smGroup*/)
 			{
 				if (norCnt == 1)
 					normTab->AddNormal(rv->rn.getNormal());
@@ -1905,7 +2235,7 @@ VRML2Export::GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc *
 	int minMapVal = ID_DI;
 	if (mtl == NULL)
 		return;
-	if (mtl->ClassID() == Class_ID(DMTL_CLASS_ID, 0))
+	if (mtl->IsSubClassOf(Class_ID(DMTL_CLASS_ID, 0)))
 	{
 		stdMap = true;
 	}
@@ -1913,29 +2243,198 @@ VRML2Export::GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc *
 	{
 		minMapVal = 0;
 	}
-
-	for (id = minMapVal; id <= ID_DP; id++)
+	if (mtl->IsSubClassOf(Class_ID(0x3d6b1cec, 0xdeadc001)))
 	{
-		if (id != ID_OP)
+		PhysicalMaterial physicalMaterial;
+		convertToPhysicalMaterial(mtl, physicalMaterial);
+		if (physicalMaterial.base_color_map)
 		{
-			tds[numTexDesks] = GetMtlTex(mtl, isWire, id, askForSubTexture);
-			if (tds[numTexDesks])
-			{
-				if (tds[numTexDesks]->hasSubTextures)
-				{
-					askForSubTexture++;
-					id--; // same ID again
-				}
-				numTexDesks++;
-			}
-			else
-			{
-				askForSubTexture = 0;
-			}
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.base_color_map, isWire, ID_DI);
+			numTexDesks++;
+		}
+		if (physicalMaterial.bump_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.bump_map, isWire, ID_BU);
+			numTexDesks++;
+		}
+		if (physicalMaterial.refl_color_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.refl_color_map, isWire, ID_RL);
+			numTexDesks++;
+		}
+		if (physicalMaterial.anisotropy_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.anisotropy_map, isWire, ID_SP);
+			numTexDesks++;
+		}
+		if (physicalMaterial.coat_color_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.coat_color_map, isWire, ID_SH);
+			numTexDesks++;
+		}
+		if (physicalMaterial.trans_color_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.trans_color_map, isWire, ID_AM);
+			numTexDesks++;
+		}
+		if (physicalMaterial.sss_color_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.sss_color_map, isWire, ID_SS);
+			numTexDesks++;
+		}
+		if (physicalMaterial.emit_color_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.emit_color_map, isWire, ID_SI);
+			numTexDesks++;
+		}
+		if (physicalMaterial.transparency_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.transparency_map, isWire, ID_OP);
+			numTexDesks++;
+		}
+		if (physicalMaterial.scattering_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.scattering_map, isWire, ID_RR);
+			numTexDesks++;
+		}
+		if (physicalMaterial.displacement_map)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.displacement_map, isWire, ID_DP);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM0)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM0, isWire, 10);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM1)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM1, isWire, 11);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM2)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM2, isWire, 12);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM3)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM3, isWire, 13);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM4)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM4, isWire, 14);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM5)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM5, isWire, 15);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM6)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM6, isWire, 16);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM7)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM7, isWire, 17);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM8)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM8, isWire, 18);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM9)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM9, isWire, 19);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM10)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM10, isWire, 20);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM11)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM11, isWire, 21);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM12)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM12, isWire, 22);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM13)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM13, isWire, 23);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM14)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM14, isWire, 24);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM15)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM15, isWire, 25);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM16)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM16, isWire, 26);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM17)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM17, isWire, 27);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM18)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM18, isWire, 28);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM19)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM19, isWire, 29);
+			numTexDesks++;
+		}
+		if (physicalMaterial.mapM20)
+		{
+			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM20, isWire, 30);
+			numTexDesks++;
+		}
 
-			if (numTexDesks >= MAX_TEXTURES)
+	}
+	else
+	{
+
+		for (id = minMapVal; id <= ID_DP; id++)
+		{
+			if (id != ID_OP)
 			{
-				break;
+				tds[numTexDesks] = GetMtlTex(mtl, isWire, id, askForSubTexture);
+					if (tds[numTexDesks])
+					{
+						if (tds[numTexDesks]->hasSubTextures)
+						{
+							askForSubTexture++;
+							id--; // same ID again
+						}
+						numTexDesks++;
+					}
+					else
+					{
+						askForSubTexture = 0;
+					}
+
+				if (numTexDesks >= MAX_TEXTURES)
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -1944,29 +2443,28 @@ VRML2Export::GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc *
 }
 
 TextureDesc *
-VRML2Export::GetMtlTex(Mtl *mtl, BOOL &isWire, int textureNumber, int askForSubTexture)
+VRML2Export::GetMtlTex(Mtl* mtl, BOOL& isWire, int textureNumber, int askForSubTexture)
 {
 	if (!mtl)
 		return NULL;
-	bool hasSubTextures = false;
 	if (mtl && mtl->ClassID() == Class_ID(BAKE_SHELL_CLASS_ID, 0))
 	{
 		mtl = mtl->GetSubMtl(1);
 	}
 
-	StdMat *sm = NULL;
-	if (mtl->ClassID() == Class_ID(DMTL_CLASS_ID, 0))
+	StdMat* sm = NULL;
+	if (mtl->IsSubClassOf(Class_ID(DMTL_CLASS_ID, 0)))
 	{
 
-		sm = (StdMat *)mtl;
+		sm = (StdMat*)mtl;
 		isWire = sm->GetWire();
 	}
 
-	Texmap *tm = NULL;
+	Texmap* tm = NULL;
 	if (sm)
 	{
 		// Check for texture map
-		tm = (BitmapTex *)sm->GetSubTexmap(textureNumber);
+		tm = (BitmapTex*)sm->GetSubTexmap(textureNumber);
 		if (!sm->MapEnabled(textureNumber))
 			return NULL;
 	}
@@ -1974,11 +2472,18 @@ VRML2Export::GetMtlTex(Mtl *mtl, BOOL &isWire, int textureNumber, int askForSubT
 	{
 
 		// Check for texture map
-		tm = (BitmapTex *)mtl->GetSubTexmap(textureNumber);
+		tm = (BitmapTex*)mtl->GetSubTexmap(textureNumber);
 	}
 	if (!tm)
 		return NULL;
+	return GetTexmapTex(tm, isWire, textureNumber, askForSubTexture);
+}
 
+TextureDesc*
+VRML2Export::GetTexmapTex(Texmap* tm, BOOL& isWire, int textureNumber, int askForSubTexture)
+{
+
+	bool hasSubTextures = false;
 	Class_ID id;
 	id = tm->ClassID();
 #define GNORMAL_CLASS_ID Class_ID(0x243e22c6, 0x63f6a014)
@@ -2515,7 +3020,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 
 	StdMat *sm = NULL;
 	// If no material is assigned, use the wire color
-	if (!((mtl->ClassID() != Class_ID(DMTL_CLASS_ID, 0) && mtl->ClassID() != Class_ID(0x3e0810d6, 0x603532f0))))
+	if (!((!mtl->IsSubClassOf(Class_ID(DMTL_CLASS_ID, 0)) && mtl->ClassID() != Class_ID(0x3e0810d6, 0x603532f0))))
 	{
 
 		sm = (StdMat *)mtl;
@@ -5551,7 +6056,7 @@ MtlHasTexture(Mtl *mtl)
 	{
 		mtl = mtl->GetSubMtl(1);
 	}
-	if (mtl->ClassID() != Class_ID(DMTL_CLASS_ID, 0))
+	if (!mtl->IsSubClassOf(Class_ID(DMTL_CLASS_ID, 0)))
 		return FALSE;
 
 	StdMat *sm = (StdMat *)mtl;
