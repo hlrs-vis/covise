@@ -107,15 +107,6 @@ ElevationEditor::insertSelectedRoad(RSystemElementRoad *road)
 		{
 			ElevationRoadPolynomialItem *roadItem = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, road);
 			selectedElevationRoadItems_.insert(road, roadItem);
-
-			QList<DataElement *> elements;
-			foreach(ElevationSection *section, road->getElevationSections())
-			{
-				elements.append(section);
-			}
-
-			SelectDataElementCommand *command = new SelectDataElementCommand(elements);
-			getProjectGraph()->executeCommand(command);
 		}
 	}
 }

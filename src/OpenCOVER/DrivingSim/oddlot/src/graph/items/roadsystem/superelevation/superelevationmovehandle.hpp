@@ -21,6 +21,8 @@
 class SuperelevationEditor;
 class SuperelevationSection;
 
+class TextHandle;
+
 class SuperelevationMoveHandle : public MoveHandle
 {
     Q_OBJECT
@@ -51,6 +53,8 @@ public:
     }
     void setDOF(int dof);
 
+	const QString getText();
+
     // Observer Pattern //
     //
     virtual void updateObserver();
@@ -78,6 +82,8 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
     //################//
@@ -95,6 +101,10 @@ private:
 
     QAction *removeAction_;
     QAction *smoothAction_;
+
+	// Height //
+	//
+	TextHandle *heightTextItem_;
 };
 
 #endif // SUPERELEVATIONMOVEHANDLE_HPP

@@ -136,12 +136,12 @@ ToolManager::initTools()
     // SuperelevationEditor //
     //
     new SuperelevationEditorTool(this);
-	standardToolAction_.insert(ODD::ESE, new SuperelevationEditorToolAction(ODD::TSE_SELECT, 2000.0));
+	standardToolAction_.insert(ODD::ESE, new SuperelevationEditorToolAction(ODD::TSE_SELECT, ODD::TNO_TOOL, 2000.0));
 
     // CrossfallEditor //
     //
     new CrossfallEditorTool(this);
-	standardToolAction_.insert(ODD::ECF, new CrossfallEditorToolAction(ODD::TCF_SELECT, 2000.0));
+	standardToolAction_.insert(ODD::ECF, new CrossfallEditorToolAction(ODD::TCF_SELECT, ODD::TNO_TOOL, 2000.0));
 
 	// RoadShapeEditor //
 	//

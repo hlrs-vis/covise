@@ -181,12 +181,14 @@ public:
 		TSE_ADD,
 		TSE_DEL,
 		TSE_MOVE,
+		TSE_RADIUS,
 
 		// Crossfall Editor
 		TCF_SELECT,
 		TCF_ADD,
 		TCF_DEL,
 		TCF_MOVE,
+		TCF_RADIUS,
 
 		// Crossfall Editor
 		TLN_SELECT,

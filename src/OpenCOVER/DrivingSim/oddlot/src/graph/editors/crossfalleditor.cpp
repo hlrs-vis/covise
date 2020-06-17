@@ -169,15 +169,24 @@ CrossfallEditor::toolAction(ToolAction *toolAction)
     // Tools //
     //
     CrossfallEditorToolAction *crossfallEditorToolAction = dynamic_cast<CrossfallEditorToolAction *>(toolAction);
-    if (crossfallEditorToolAction)
-    {
-        // Smooth radius //
-        //
-        if (crossfallEditorToolAction->getRadius() > 0.0)
-        {
-            smoothRadius_ = crossfallEditorToolAction->getRadius();
-        }
-    }
+
+	if (crossfallEditorToolAction)
+	{
+		if (crossfallEditorToolAction->getToolId() == ODD::TCF_SELECT)
+		{
+			if (crossfallEditorToolAction->getParamToolId() == ODD::TCF_RADIUS)
+			{
+				if (crossfallEditorToolAction->getRadius() > 0.0)
+				{
+					smoothRadius_ = crossfallEditorToolAction->getRadius();
+				}
+			}
+		}
+		else if ((crossfallEditorToolAction->getToolId() == ODD::TCF_ADD) || (crossfallEditorToolAction->getToolId() == ODD::TCF_DEL))
+		{
+			getTopviewGraph()->getScene()->deselectAll();
+		}
+	}
 }
 
 //################//

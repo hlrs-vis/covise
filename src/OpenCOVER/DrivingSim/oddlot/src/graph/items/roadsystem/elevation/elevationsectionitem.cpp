@@ -25,7 +25,7 @@
 
 // Graph //
 //
-#include "src/graph/items/roadsystem/roaditem.hpp"
+#include "src/graph/items/roadsystem/elevation/elevationroaditem.hpp"
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/roadtextitem.hpp"
 
@@ -65,6 +65,8 @@ ElevationSectionItem::ElevationSectionItem(ElevationEditor *elevationEditor, Roa
     // Init //
     //
     init();
+
+	parentRoadItem_ = dynamic_cast<ElevationRoadItem *>(parentRoadItem);
 }
 
 ElevationSectionItem::~ElevationSectionItem()
@@ -237,6 +239,7 @@ ElevationSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
+		parentRoadItem_->mousePressEvent(event);
     }
     else
     {

@@ -85,7 +85,7 @@ class CrossfallEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit CrossfallEditorToolAction(ODD::ToolId toolId, double radius);
+    explicit CrossfallEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius);
     virtual ~CrossfallEditorToolAction()
     { /* does nothing */
     }

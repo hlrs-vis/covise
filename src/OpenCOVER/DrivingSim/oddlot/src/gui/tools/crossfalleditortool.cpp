@@ -158,7 +158,7 @@ CrossfallEditorTool::initToolBar()
 void
 CrossfallEditorTool::activateEditor()
 {
-    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, radiusEdit_->value());
+    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, toolId_, radiusEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -192,7 +192,7 @@ CrossfallEditorTool::handleToolClick(int id)
 
     // Set a tool //
     //
-    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, radiusEdit_->value());
+    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, ODD::TNO_TOOL, radiusEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -204,7 +204,7 @@ CrossfallEditorTool::handleRibbonToolClick(int id)
 
 	// Set a tool //
 	//
-	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, ui_->radiusEdit->value());
+	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, ODD::TNO_TOOL, ui_->radiusEdit->value());
 	emit toolAction(action);
 //	delete action;
 }
@@ -216,7 +216,7 @@ CrossfallEditorTool::handleRibbonToolClick(int id)
 void
 CrossfallEditorTool::setRadius()
 {
-    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, ui_->radiusEdit->value());
+    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, ODD::TCF_RADIUS, ui_->radiusEdit->value());
     emit toolAction(action);
     delete action;
 }
@@ -226,7 +226,7 @@ CrossfallEditorTool::setRibbonRadius()
 {
 	ODD::ToolId toolId = (ODD::ToolId)ribbonToolGroup_->checkedId();
 
-	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, ui_->radiusEdit->value());
+	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, ODD::TCF_RADIUS, ui_->radiusEdit->value());
 	emit toolAction(action);
 //	delete action;
 }
@@ -237,8 +237,8 @@ CrossfallEditorTool::setRibbonRadius()
 //                //
 //################//
 
-CrossfallEditorToolAction::CrossfallEditorToolAction(ODD::ToolId toolId, double radius)
-    : ToolAction(ODD::ECF, toolId)
+CrossfallEditorToolAction::CrossfallEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius)
+    : ToolAction(ODD::ECF, toolId, paramToolId)
     , radius_(radius)
 {
 }

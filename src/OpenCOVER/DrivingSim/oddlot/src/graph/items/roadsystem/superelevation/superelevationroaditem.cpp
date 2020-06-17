@@ -53,6 +53,7 @@ SuperelevationRoadItem::SuperelevationRoadItem(RoadSystemItem *roadSystemItem, R
 
 SuperelevationRoadItem::~SuperelevationRoadItem()
 {
+	superelevationSectionItems_.clear();
 }
 
 void
@@ -70,7 +71,7 @@ SuperelevationRoadItem::init()
     //
     foreach (SuperelevationSection *section, getRoad()->getSuperelevationSections())
     {
-        new SuperelevationSectionItem(superelevationEditor_, this, section);
+        superelevationSectionItems_.insert(section->getSStart(), new SuperelevationSectionItem(superelevationEditor_, this, section));
     }
 
     // Selection //
@@ -118,14 +119,23 @@ SuperelevationRoadItem::updateObserver()
     {
         // A section has been added.
         //
-        foreach (SuperelevationSection *section, getRoad()->getSuperelevationSections())
+		QMap<double, SuperelevationSection *> roadSections = getRoad()->getSuperelevationSections();
+        foreach (SuperelevationSection *section, roadSections)
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
-                new SuperelevationSectionItem(superelevationEditor_, this, section);
+                superelevationSectionItems_.insert(section->getSStart(), new SuperelevationSectionItem(superelevationEditor_, this, section));
             }
         }
+
+		foreach(double s, superelevationSectionItems_.keys())
+		{
+			if (!roadSections.contains(s))
+			{
+				superelevationSectionItems_.remove(s);
+			}
+		}
     }
 
     // DataElement //
@@ -145,4 +155,23 @@ SuperelevationRoadItem::updateObserver()
             superelevationEditor_->delSelectedRoad(getRoad());
         }
     }
+}
+
+//################//
+// EVENTS         //
+//################//
+
+void
+SuperelevationRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+
+	// SectionItems //
+	//
+	if (getRoad()->isChildElementSelected())
+	{
+		foreach(SuperelevationSectionItem *sectionItem, superelevationSectionItems_)
+		{
+			sectionItem->setSelected(true);
+		}
+	}
 }

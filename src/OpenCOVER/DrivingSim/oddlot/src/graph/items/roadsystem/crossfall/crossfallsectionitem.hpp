@@ -20,6 +20,7 @@
 
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 
+class CrossfallRoadItem;
 class CrossfallEditor;
 
 class CrossfallSectionItem : public SectionItem
@@ -85,6 +86,8 @@ protected:
     //################//
 
 private:
+	CrossfallRoadItem *parentRoadItem_;
+
     CrossfallEditor *crossfallEditor_;
 
     CrossfallSection *crossfallSection_;

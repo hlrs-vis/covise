@@ -85,7 +85,7 @@ class SuperelevationEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit SuperelevationEditorToolAction(ODD::ToolId toolId, double radius);
+    explicit SuperelevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius);
     virtual ~SuperelevationEditorToolAction()
     { /* does nothing */
     }

@@ -23,8 +23,10 @@
 //
 #include "src/data/projectdata.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/commands/superelevationsectioncommands.hpp"
+#include "src/data/commands/dataelementcommands.hpp"
 
 // Graph //
 //
@@ -169,15 +171,24 @@ SuperelevationEditor::toolAction(ToolAction *toolAction)
     // Tools //
     //
     SuperelevationEditorToolAction *superelevationEditorToolAction = dynamic_cast<SuperelevationEditorToolAction *>(toolAction);
-    if (superelevationEditorToolAction)
-    {
-        // Smooth radius //
-        //
-        if (superelevationEditorToolAction->getRadius() > 0.0)
-        {
-            smoothRadius_ = superelevationEditorToolAction->getRadius();
-        }
-    }
+
+	if (superelevationEditorToolAction)
+	{
+		if (superelevationEditorToolAction->getToolId() == ODD::TSE_SELECT)
+		{
+			if (superelevationEditorToolAction->getParamToolId() == ODD::TSE_RADIUS)
+			{
+				if (superelevationEditorToolAction->getRadius() > 0.0)
+				{
+					smoothRadius_ = superelevationEditorToolAction->getRadius();
+				}
+			}
+		}
+		else if ((superelevationEditorToolAction->getToolId() == ODD::TSE_ADD) || (superelevationEditorToolAction->getToolId() == ODD::TSE_DEL))
+		{
+			getTopviewGraph()->getScene()->deselectAll();
+		}
+	}
 }
 
 //################//

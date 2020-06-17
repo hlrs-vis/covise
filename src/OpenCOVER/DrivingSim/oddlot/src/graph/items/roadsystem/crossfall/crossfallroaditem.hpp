@@ -20,6 +20,7 @@
 
 class RSystemElementRoad;
 class RoadSystemItem;
+class CrossfallSectionItem;
 
 class CrossfallEditor;
 
@@ -56,12 +57,16 @@ private:
 public:
     //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
 
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
     //################//
     // PROPERTIES     //
     //################//
 
 private:
     CrossfallEditor *crossfallEditor_;
+
+	QMap<double, CrossfallSectionItem *> crossfallSectionItems_;
 };
 
 #endif // CROSSFALLROADITEM_HPP

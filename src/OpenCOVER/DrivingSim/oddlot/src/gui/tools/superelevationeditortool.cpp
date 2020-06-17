@@ -157,7 +157,7 @@ SuperelevationEditorTool::initToolBar()
 void
 SuperelevationEditorTool::activateEditor()
 {
-	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, radiusEdit_->value());
+	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, toolId_, radiusEdit_->value());
 	emit toolAction(action);
 	delete action;
 }
@@ -191,7 +191,7 @@ SuperelevationEditorTool::handleToolClick(int id)
 	
     // Set a tool //
     //
-    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, radiusEdit_->value());
+    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, ODD::TNO_TOOL, radiusEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -203,7 +203,7 @@ SuperelevationEditorTool::handleRibbonToolClick(int id)
 
 	// Set a tool //
 	//
-	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, ui_->radiusEdit->value());
+	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui_->radiusEdit->value());
 	emit toolAction(action);
 //	delete action;
 }
@@ -215,7 +215,7 @@ SuperelevationEditorTool::handleRibbonToolClick(int id)
 void
 SuperelevationEditorTool::setRadius()
 {
-    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, radiusEdit_->value());
+    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, ODD::TSE_SELECT, radiusEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -225,7 +225,7 @@ SuperelevationEditorTool::setRibbonRadius()
 {
 	ODD::ToolId toolId = (ODD::ToolId)ribbonToolGroup_->checkedId();
 
-	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId, ui_->radiusEdit->value());
+	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, ODD::TSE_RADIUS , ui_->radiusEdit->value());
 	emit toolAction(action);
 //	delete action;
 }
@@ -236,8 +236,8 @@ SuperelevationEditorTool::setRibbonRadius()
 //                //
 //################//
 
-SuperelevationEditorToolAction::SuperelevationEditorToolAction(ODD::ToolId toolId, double radius)
-    : ToolAction(ODD::ESE, toolId)
+SuperelevationEditorToolAction::SuperelevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius)
+    : ToolAction(ODD::ESE, toolId, paramToolId)
     , radius_(radius)
 {
 }

@@ -25,6 +25,7 @@
 //
 #include "src/graph/profilegraph.hpp"
 #include "src/graph/editors/superelevationeditor.hpp"
+#include "src/graph/items/handles/texthandle.hpp"
 
 // Qt //
 //
@@ -63,6 +64,13 @@ SuperelevationMoveHandle::SuperelevationMoveHandle(SuperelevationEditor *superel
 
     connect(removeAction_, SIGNAL(triggered()), this, SLOT(removeCorner()));
     connect(smoothAction_, SIGNAL(triggered()), this, SLOT(smoothCorner()));
+
+	// Text //
+	//
+
+	heightTextItem_ = new TextHandle("", this, true);
+	heightTextItem_->setZValue(1.0); // stack before siblings
+	heightTextItem_->setVisible(false);
 }
 
 SuperelevationMoveHandle::~SuperelevationMoveHandle()
@@ -173,6 +181,25 @@ SuperelevationMoveHandle::updateColor()
         setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
         setPen(QPen(ODD::instance()->colors()->darkGreen()));
     }
+}
+
+const QString
+SuperelevationMoveHandle::getText()
+{
+	// Text //
+		//
+	QString text;
+
+	if (highSlot_)
+	{
+		text = QString("%1,%2").arg(highSlot_->getSStart()).arg(highSlot_->f(0.0), 0, 'f', 2);
+	}
+	else if (lowSlot_)
+	{
+		text = QString("%1,%2").arg(lowSlot_->getSEnd()).arg(lowSlot_->f(lowSlot_->getSEnd() - lowSlot_->getSStart()), 0, 'f', 2);
+	}
+
+	return text;
 }
 
 //################//
@@ -365,8 +392,40 @@ SuperelevationMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         superelevationEditor_->translateMoveHandles(scenePos(), event->scenePos());
     }
+	heightTextItem_->setText(getText());
 
     MoveHandle::mouseMoveEvent(event); // pass to baseclass
+}
+
+void
+SuperelevationMoveHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+
+	setFocus();
+
+	heightTextItem_->setText(getText());
+	heightTextItem_->setVisible(true);
+
+	heightTextItem_->setPos(mapFromScene(event->scenePos()));
+
+
+	// Parent //
+	//
+//	MoveHandle::hoverEnterEvent(event); // pass to baseclass
+}
+
+void
+SuperelevationMoveHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+
+
+	// Text //
+	//
+	heightTextItem_->setVisible(false);
+
+	// Parent //
+	//
+	MoveHandle::hoverLeaveEvent(event); // pass to baseclass
 }
 
 void

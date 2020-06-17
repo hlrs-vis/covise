@@ -18,10 +18,13 @@
 
 #include "src/graph/items/roadsystem/roaditem.hpp"
 
+#include <QList>
+
 class RSystemElementRoad;
 class RoadSystemItem;
 
 class ElevationEditor;
+class ElevationSectionItem;
 
 class ElevationRoadItem : public RoadItem
 {
@@ -56,12 +59,16 @@ private:
 public:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
     //################//
     // PROPERTIES     //
     //################//
 
 private:
     ElevationEditor *elevationEditor_;
+
+	QMap<double, ElevationSectionItem *> elevationSectionItems_;
 };
 
 #endif // ELEVATIONROADITEM_HPP
