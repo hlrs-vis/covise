@@ -1,15 +1,27 @@
 #include "Camera.h"
 #include "Helper.h"
 #include "DataManager.h"
+#include "UI.h"
 
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <cover/coVRPluginSupport.h>
 
-Camera::Camera(osg::Matrix matrix)
-    :SensorWithMultipleOrientations(matrix)
+Camera::Camera(osg::Matrix matrix):
+    SensorWithMultipleOrientations(matrix)
 {
-    m_SensorVisualization = myHelpers::make_unique<CameraVisualization>(this);
+    float _interSize = cover->getSceneSize() / 50 ;
+    m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    m_Interactor->show();
+    m_Interactor->enableIntersection();
+
+    m_Geode = draw();
+    m_Geode->setNodeMask(m_Geode->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+    m_SensorMatrix->addChild(m_Geode.get());
+
+    m_GeodeOrientation = drawOrientation();
+    m_GeodeOrientation->setNodeMask(m_GeodeOrientation->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+
 }
 
 VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
@@ -97,19 +109,24 @@ double Camera::calcHeightDistortionFactor(const osg::Vec3& point)const
     return SHC;
 }
 
-CameraVisualization::CameraVisualization(Camera* camera):SensorVisualization(camera), m_Camera(camera)
-{
-    float _interSize = cover->getSceneSize() / 50 ;
-    m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(camera->getMatrix(), _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
-    m_Interactor->show();
-    m_Interactor->enableIntersection();
+// CameraVisualization::CameraVisualization(Camera* camera):SensorVisualization(camera), m_Camera(camera)
+// {
+//     float _interSize = cover->getSceneSize() / 50 ;
+//     m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(camera->getMatrix(), _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+//     m_Interactor->show();
+//     m_Interactor->enableIntersection();
 
-    m_Geode = draw();
-    m_Geode->setNodeMask(m_Geode->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
-    m_Matrix->addChild(m_Geode.get());
-}
+//     m_Geode = draw();
+//     m_Geode->setNodeMask(m_Geode->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+//     m_Matrix->addChild(m_Geode.get());
 
-osg::Geode* CameraVisualization::draw()
+//     m_Orientations = new osg::Group();
+//     m_Group->addChild(m_Orientations.get());
+//     m_GeodeOrientation = drawOrientation();
+//     m_GeodeOrientation->setNodeMask(m_GeodeOrientation->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+// }
+
+osg::Geode* Camera::draw()
 {
     osg::Geode* geode = new osg::Geode();
     geode->setName("Camera");
@@ -127,13 +144,12 @@ osg::Geode* CameraVisualization::draw()
     geode->getStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
     geode->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    // Declare an array of vertices to create a simple pyramid.
-    auto cameraProps = m_Camera->getCameraProps();
+    // Declare an array of vertices to create a simple pyramid
     m_Verts = new osg::Vec3Array;
-    m_Verts->push_back( osg::Vec3( -cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2 )/m_Scale ); // 0 upper  front base
-    m_Verts->push_back( osg::Vec3( -cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2 )/m_Scale ); // 1 lower front base
-    m_Verts->push_back( osg::Vec3(  cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2 )/m_Scale ); // 3 lower  back  base
-    m_Verts->push_back( osg::Vec3(  cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2 )/m_Scale ); // 2 upper back  base
+    m_Verts->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 0 upper  front base
+    m_Verts->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 1 lower front base
+    m_Verts->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 3 lower  back  base
+    m_Verts->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 2 upper back  base
     m_Verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
 
     // Associate this set of vertices with the Geometry.
@@ -213,38 +229,79 @@ osg::Geode* CameraVisualization::draw()
 
 };
 
-bool CameraVisualization::preFrame()
+bool Camera::preFrame()
 {
-    bool status = SensorVisualization::preFrame();
+    bool status = SensorWithMultipleOrientations::preFrame();
 
     if(m_Interactor->wasStarted())
         showOriginalSensorSize();
     else if(m_Interactor->wasStopped())
+    {
         showIconSensorSize();
-
+       if(UI::m_showOrientations)
+       {
+            for(const auto& orient : m_Orientations)
+            {
+                osg::ref_ptr<osg::MatrixTransform> matrixTransform = new osg::MatrixTransform(orient.getMatrix());
+                matrixTransform->setName("Rotation matrix");
+                matrixTransform->addChild(m_GeodeOrientation.get());
+                m_OrientationsGroup->addChild(matrixTransform.get());
+            }
+       }
+    }
     return status;
 }
 
-void CameraVisualization::showOriginalSensorSize()
+osg::Geode* Camera::drawOrientation()
 {
-    auto cameraProps = m_Camera->getCameraProps();
+    osg::Geode* geode = new osg::Geode;
+    geode->setName("Camera orientation");
+    m_GeometryOrientation = new osg::Geometry;
+    osg::StateSet *stateset = geode->getOrCreateStateSet();
+    geode->getStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
-    m_Verts->at(0) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2); // 0 upper  front base
-    m_Verts->at(1) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2); // 1 lower front base
-    m_Verts->at(2) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2); // 3 lower  back  base
-    m_Verts->at(3) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2) ;// 2 upper back  base
+    geode->addDrawable(m_GeometryOrientation);
+    
+    m_VertsOrientation = new osg::Vec3Array;
+    m_VertsOrientation->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 0 upper  front base
+    m_VertsOrientation->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 1 lower front base
+    m_VertsOrientation->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 3 lower  back  base
+    m_VertsOrientation->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 2 upper back  base
+
+    m_GeometryOrientation->setVertexArray(m_VertsOrientation);
+
+    osg::DrawElementsUInt* face = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0); // müsste ref_ptr sein ? 
+    face->push_back(3);
+    face->push_back(2);
+    face->push_back(1);
+    face->push_back(0);
+    m_GeometryOrientation->addPrimitiveSet(face);
+
+    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
+    colors->push_back(osg::Vec4(1,0,1,0.3));
+    m_GeometryOrientation->setColorArray(colors);
+    m_GeometryOrientation->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+
+    return geode;
+}
+
+void Camera::showOriginalSensorSize()
+{
+    m_Verts->at(0) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2); // 0 upper  front base
+    m_Verts->at(1) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2); // 1 lower front base
+    m_Verts->at(2) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2); // 3 lower  back  base
+    m_Verts->at(3) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2) ;// 2 upper back  base
     m_Verts->at(4) = osg::Vec3( 0,  0,  0); // 4 peak
     m_Verts->dirty();
     m_Geometry->dirtyBound();
 }
-void CameraVisualization::showIconSensorSize()
-{
-    auto cameraProps = m_Camera->getCameraProps();
 
-    m_Verts->at(0) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2)/m_Scale; // 0 upper  front base
-    m_Verts->at(1) = osg::Vec3(-cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2)/m_Scale; // 1 lower front base
-    m_Verts->at(2) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView,-cameraProps.m_ImgHeight/2)/m_Scale; // 3 lower  back  base
-    m_Verts->at(3) = osg::Vec3( cameraProps.m_ImgWidth/2,-cameraProps.m_DepthView, cameraProps.m_ImgHeight/2)/m_Scale;// 2 upper back  base
+void Camera::showIconSensorSize()
+{
+    m_Verts->at(0) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2)/m_Scale; // 0 upper  front base
+    m_Verts->at(1) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2)/m_Scale; // 1 lower front base
+    m_Verts->at(2) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2)/m_Scale; // 3 lower  back  base
+    m_Verts->at(3) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2)/m_Scale;// 2 upper back  base
     m_Verts->at(4) = osg::Vec3( 0,  0,  0); // 4 peak
     m_Verts->dirty();
     m_Geometry->dirtyBound();

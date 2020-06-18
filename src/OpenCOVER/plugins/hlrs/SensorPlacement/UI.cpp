@@ -8,6 +8,7 @@
 using namespace opencover;
 
 bool UI::m_DeleteStatus{false};
+bool UI::m_showOrientations{true};
 
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 {
@@ -45,14 +46,27 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_Delete = new ui::Button(m_MainMenu,"Delete");
     m_Delete->setText("Remove");
     m_Delete->setState(m_DeleteStatus);
-    m_Delete->setCallback([this](bool state){
+    m_Delete->setCallback([this](bool state)
+    {
       m_DeleteStatus = state;
       if(m_DeleteStatus)
          std::cout<<"Delete Status"<<m_DeleteStatus<<std::endl;
     });
 
+   // Sensor
+   m_SensorProps = new ui::Menu(m_MainMenu,"SensorProps");
+   m_SensorProps->setText("Sensor Properties");
+
+   m_ShowOrientations = new ui::Button(m_SensorProps,"ShowOrientations");
+   m_ShowOrientations->setText("Show Orientations");
+   m_ShowOrientations->setState(m_showOrientations);
+   m_ShowOrientations->setCallback([this](bool state)
+   {
+      m_showOrientations = state;
+   });
+
    // Camera
-    m_CameraProps = new ui::Menu(m_MainMenu,"CameraProps");
+    m_CameraProps = new ui::Menu(m_SensorProps,"CameraProps");
     m_CameraProps->setText("Camera Properties");
 
     m_Visibility = new ui::Slider(m_CameraProps,"Visibility");

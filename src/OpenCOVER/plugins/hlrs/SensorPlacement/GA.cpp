@@ -1,4 +1,6 @@
 #include "GA.h"
+#include "DataManager.h"
+#include "Sensor.h"
 
 bool maxCoverage1(const Solution& p, MiddleCost &c)
 {
@@ -48,22 +50,31 @@ bool GA::optimizationStrategy(const Solution& p, MiddleCost &c)
 	return m_FitnessFunction(p,c);
 }
 
+// SensorPosition* GA::getRandomSensor(int sensorPosition ,const std::function<double(void)> &rnd01)
+// {
+
+// }
+
 void GA::init_genes(Solution& p,const std::function<double(void)> &rnd01)
 {
 
 }
+
 Solution GA::mutate(const Solution& X_base,const std::function<double(void)> &rnd01,double shrink_scale)
 {
     return X_base; //FIXME
 }
+
 Solution GA::crossover(const Solution& X1, const Solution& X2,const std::function<double(void)> &rnd01)
 {
     return X1; //FIXME
 }
+
 double GA::calculate_SO_total_fitness(const GA_Type::thisChromosomeType &X)
 {
     return 0.; //FIXME
 }
+
 void GA::SO_report_generation(int generation_number,const EA::GenerationType<Solution,MiddleCost> &last_generation,const Solution& best_genes)
 {
 

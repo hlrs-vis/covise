@@ -32,6 +32,7 @@ public:
     UI();
 
     static bool m_DeleteStatus;
+    static bool m_showOrientations;
     void checkForObstacles()const;
     void checkVisibility()const;
 
@@ -40,6 +41,10 @@ private:
     ui::Menu *m_MainMenu;
     ui::Action *m_AddCamera, *m_AddSafetyZone, *m_AddSensorZone; 
     ui::Button *m_Delete;
+
+    //Sensor Menu
+    ui::Menu *m_SensorProps;
+    ui::Button *m_ShowOrientations;
 
     //Camera Menu
     ui::Menu *m_CameraProps;

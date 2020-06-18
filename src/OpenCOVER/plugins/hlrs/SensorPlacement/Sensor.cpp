@@ -134,29 +134,56 @@ void Orientation::setVisibilityMatrix(VisibilityMatrix<float>&& visMat)
 // }
 
 
-SensorPosition::SensorPosition(osg::Matrix matrix):m_Orientation(matrix)
+SensorPosition::SensorPosition(osg::Matrix matrix):m_CurrentOrientation(matrix)
 {
+    m_SensorGroup = new osg::Group();
+    m_SensorGroup->setName("Sensor");
 
+    m_SensorMatrix = new osg::MatrixTransform(matrix);
+    m_SensorMatrix->setName("Sensor matrix");
+
+    m_SensorGroup->addChild(m_SensorMatrix.get());
 }
 osg::ref_ptr<osg::Group> SensorPosition::getSensor()const
 {
-    return m_SensorVisualization->getSensorVisualization();
+    return m_SensorGroup;
 }
 
 void SensorPosition::setMatrix(osg::Matrix matrix)
 {
-    m_Orientation.setMatrix(matrix);
-    //m_SensorVisualization->setMatrix(matrix);
+    m_CurrentOrientation.setMatrix(matrix);
+    m_SensorMatrix->setMatrix(matrix);
 }
 
 bool SensorPosition::preFrame()
 {
-    return m_SensorVisualization->preFrame();
+    if(m_Interactor->wasStarted())
+    {   
+        if(UI::m_DeleteStatus)
+            return false;
+    }
+    else if(m_Interactor->isRunning())
+    {
+        m_SensorMatrix->setMatrix(m_Interactor->getMatrix());
+    }
+    else if(m_Interactor->wasStopped())
+    {
+        osg::Matrix matrix= m_Interactor->getMatrix();
+
+        checkForObstacles();
+        setMatrix(matrix);
+        coCoord euler = matrix;
+        m_CurrentOrientation.setVisibilityMatrix(calcVisibilityMatrix(euler)); // do this is camera!
+        //DataManager::highlitePoints(m_Sensor->getVisibilityMatrix());
+    }
+
+    return true;
+ 
 }
 
 osg::Matrix SensorPosition::getMatrix()const 
 {
-    return m_Orientation.getMatrix();
+    return m_SensorMatrix->getMatrix();
 }
 
 void SensorPosition::checkForObstacles()
@@ -168,7 +195,7 @@ void SensorPosition::checkForObstacles()
     
     osg::ref_ptr<osgUtil::IntersectorGroup> intersectorGroup = new osgUtil::IntersectorGroup();
 
-    osg::Vec3 sensorPos = m_Orientation.getMatrix().getTrans();
+    osg::Vec3 sensorPos = m_SensorMatrix->getMatrix().getTrans();
     for(const auto& point : allObservationPoints)
     {
         osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(sensorPos, point);
@@ -197,11 +224,33 @@ void SensorPosition::checkForObstacles()
   
 };
 
+SensorWithMultipleOrientations::SensorWithMultipleOrientations(osg::Matrix matrix):SensorPosition(matrix)
+{
+    m_OrientationsGroup = new osg::Group();
+    m_OrientationsGroup->setName("Orientations");
+    m_SensorGroup->addChild(m_OrientationsGroup.get());
+}
+
+bool SensorWithMultipleOrientations::preFrame()
+{
+    bool status = SensorPosition::preFrame();
+    if(m_Interactor->wasStarted())
+        deleteSensorOrientations();
+
+    if(m_Interactor->wasStopped())
+    {   
+        if(UI::m_showOrientations)
+            createSensorOrientations();
+    }
+
+    return status;
+}
+
 void SensorWithMultipleOrientations::createSensorOrientations()
 {
     m_Orientations.clear();
-    //m_Orientations.reserve() // sinnvoll weil kann auch nur eine übrig bleiben? 
-    osg::Vec3 pos = m_Orientation.getMatrix().getTrans();
+    //m_Orientations.reserve(); // sinnvoll weil kann auch nur eine übrig bleiben? 
+    osg::Vec3 pos = m_CurrentOrientation.getMatrix().getTrans();
     osg::Matrix matrix = osg::Matrix::translate(pos);
     coCoord euler = matrix;
 
@@ -226,15 +275,23 @@ void SensorWithMultipleOrientations::createSensorOrientations()
     }
 }
 
+void SensorWithMultipleOrientations::deleteSensorOrientations()
+{
+    m_Orientations.clear();
+    m_OrientationsGroup->removeChildren(0,m_OrientationsGroup->getNumChildren());
+}
+
+
 void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
 {
     SensorPosition::setMatrix(matrix);
-
-    //createSensorOrientations();
 };
 
 void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Orientation&& orientation)
 {
+    if(isVisibilityMatrixEmpty(orientation))
+        return; // this orientation isn't required
+
     if(!m_Orientations.empty())
     {
         auto it = m_Orientations.begin();
@@ -257,6 +314,16 @@ void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Or
     }
 
     m_Orientations.push_back(orientation);
+}
+
+bool SensorWithMultipleOrientations::isVisibilityMatrixEmpty(const Orientation& orientation)
+{
+    //is inti i correct // better auto ? 
+    bool empty = std::all_of(orientation.getVisibilityMatrix().begin(), orientation.getVisibilityMatrix().end(), [](float i) { return i==0.0; });
+    if(empty)
+        return true;
+    else
+        return false;
 }
 
 void SensorWithMultipleOrientations::replaceOrientationWithLastElement(int index)
@@ -296,11 +363,11 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
         }
     }
 
-    if(onlyVisibleForLhsSensor != 0 && onlyVisibleForRhsSensor == 0)
-        return true;// Lhs sensor can see points, which Rhs can't see
-    else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor != 0)
-        return false; // Rhs sensor can see points, which Lhs can't see
-    else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor == 0)
+    if(onlyVisibleForLhsSensor != 0 && onlyVisibleForRhsSensor == 0) // Lhs sensor can see points, which Rhs can't see
+        return true;
+    else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor != 0) // Rhs sensor can see points, which Lhs can't see
+        return false; 
+    else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor == 0) // both sensors see exactly the same points --> check other Sensor characteristics
     {
         //TODO: prefere no Rotation around own axis !
         //TODO: Lhs is specific to sensor Type ????? 
@@ -316,48 +383,48 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
 
 }
 
-SensorVisualization::SensorVisualization(SensorPosition* sensor):m_Sensor(sensor)
-{
-    m_Group = new osg::Group();
-    m_Matrix = new osg::MatrixTransform(m_Sensor->getMatrix());
-    m_Group->addChild(m_Matrix.get());
-}
+// SensorVisualization::SensorVisualization(SensorPosition* sensor):m_Sensor(sensor)
+// {
+//     m_Group = new osg::Group();
+//     m_Matrix = new osg::MatrixTransform(m_Sensor->getMatrix());
+//     m_Group->addChild(m_Matrix.get());
+// }
 
-bool SensorVisualization::preFrame()
-{
-    if(m_Interactor->wasStarted())
-    {   
-        if(UI::m_DeleteStatus)
-            return false;
-    }
-    else if(m_Interactor->isRunning())
-    {
-        m_Matrix->setMatrix(m_Interactor->getMatrix());
-    }
-    else if(m_Interactor->wasStopped())
-    {
-        osg::Matrix matrix= m_Interactor->getMatrix();
+// bool SensorVisualization::preFrame()
+// {
+//     if(m_Interactor->wasStarted())
+//     {   
+//         if(UI::m_DeleteStatus)
+//             return false;
+//     }
+//     else if(m_Interactor->isRunning())
+//     {
+//         m_Matrix->setMatrix(m_Interactor->getMatrix());
+//     }
+//     else if(m_Interactor->wasStopped())
+//     {
+//         osg::Matrix matrix= m_Interactor->getMatrix();
 
-        m_Sensor->setMatrix(matrix);
-        m_Sensor->checkForObstacles();
+//         m_Sensor->setMatrix(matrix);
+//         m_Sensor->checkForObstacles();
 
-        coCoord euler = matrix;
-        m_Sensor->setVisibilityMatrix(m_Sensor->calcVisibilityMatrix(euler));
-        DataManager::highlitePoints(m_Sensor->getVisibilityMatrix());
+//         coCoord euler = matrix;
+//         m_Sensor->setVisibilityMatrix(m_Sensor->calcVisibilityMatrix(euler));
+//         DataManager::highlitePoints(m_Sensor->getVisibilityMatrix());
 
 
-        // createSensorOrientations();
+//         // createSensorOrientations();
 
-        // m_OrientationsDrawables.clear();
-        // for(const auto& mat: m_Orientations)
-        // {
-        //     m_OrientationsDrawables.push_back(new osg::MatrixTransform(mat.getMatrix()));
-        //     m_OrientationsDrawables.back()->addChild(m_Geode.get());
-        //     m_CameraMatrix->addChild(m_OrientationsDrawables.back().get());
-        // }
-    }
-    return true;
-}
+//         // m_OrientationsDrawables.clear();
+//         // for(const auto& mat: m_Orientations)
+//         // {
+//         //     m_OrientationsDrawables.push_back(new osg::MatrixTransform(mat.getMatrix()));
+//         //     m_OrientationsDrawables.back()->addChild(m_Geode.get());
+//         //     m_CameraMatrix->addChild(m_OrientationsDrawables.back().get());
+//         // }
+//     }
+//     return true;
+// }
 
 
 

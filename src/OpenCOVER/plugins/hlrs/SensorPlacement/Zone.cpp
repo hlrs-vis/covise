@@ -577,7 +577,7 @@ void Zone::highlitePoints(std::vector<float>& visiblePoints)
         for(auto it = visiblePoints.begin(); it != visiblePoints.end(); ++it)
         {
             if(*it != 0)
-                m_GridPoints.at(std::distance(visiblePoints.begin(), it)).setColor(osg::Vec4(1,1,0,1));
+                m_GridPoints.at(std::distance(visiblePoints.begin(), it)).setColor(osg::Vec4(0,1,0,1));
         }
     }
     else
@@ -644,7 +644,7 @@ void SensorZone::addSensor(int nbrOfSensors)
 void SensorZone::removeAllSensors()
 {
     m_Sensors.clear();
-    m_SensorGroup->removeChildren(0,m_Group->getNumChildren());
+    m_SensorGroup->removeChildren(0,m_SensorGroup->getNumChildren());
 }
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)

@@ -3,6 +3,7 @@
 #include "Sensor.h"
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <cover/coVRPluginSupport.h>
 
 struct CameraProps
 {  
@@ -29,54 +30,37 @@ public:
 class Camera : public SensorWithMultipleOrientations
 {
 public:
+   
     Camera(osg::Matrix matrix);
     ~Camera()override{};
     
-    //bool preFrame() override;
+    bool preFrame() override;
+    osg::Geode* draw() override;
     VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) override;
+
     const CameraProps& getCameraProps()const {return m_CameraProps;}
-    //osg::ref_ptr<osg::Group> getSensor() override{return m_CameraMatrix;}
-    // void setMatrix(osg::Matrix matrix)
-    // {
-    //     m_Interactor->updateTransform(m_Interactor->getMatrix()* matrix);
-    // }
 
 protected:
     double calcRangeDistortionFactor(const osg::Vec3& point)const override;
     double calcWidthDistortionFactor(const osg::Vec3& point)const override;
     double calcHeightDistortionFactor(const osg::Vec3& point)const override;
 
-private:
-    CameraProps m_CameraProps;
-    // std::unique_ptr<opencover::coVR3DTransRotInteractor> m_Interactor;
+    osg::Geode* drawOrientation() override;
 
-    // osg::ref_ptr<osg::Vec3Array> m_Verts;
-    // osg::ref_ptr<osg::Vec4Array> m_Colors;
-    // osg::ref_ptr<osg::Geode> m_Geode;
-    // osg::ref_ptr<osg::Geometry> m_Geometry;
-    // osg::ref_ptr<osg::MatrixTransform> m_CameraMatrix;
-
-    // std::vector<osg::ref_ptr<osg::MatrixTransform>> m_OrientationsDrawables;
-
-    // osg::Geode* drawCam();
-    // osg::Vec4 m_Color{0,1,0,1};
-    // float m_Scale{1};
-};
-
-class CameraVisualization : public SensorVisualization
-{
-public:
-    CameraVisualization(Camera* camera);
-    bool preFrame()override;
-protected:
-    osg::Geode* draw() override;
     void showOriginalSensorSize() override;
     void showIconSensorSize() override;
+
 private:
-    Camera *m_Camera;
+    CameraProps m_CameraProps;
+
     osg::Vec4 m_Color{0,1,0,1};
     osg::ref_ptr<osg::Vec3Array> m_Verts;
     osg::ref_ptr<osg::Vec4Array> m_Colors;
     osg::ref_ptr<osg::Geode> m_Geode;
     osg::ref_ptr<osg::Geometry> m_Geometry;
+
+    osg::ref_ptr<osg::Vec3Array> m_VertsOrientation;
+    osg::ref_ptr<osg::Geode> m_GeodeOrientation;
+    osg::ref_ptr<osg::Geometry> m_GeometryOrientation;
 };
+

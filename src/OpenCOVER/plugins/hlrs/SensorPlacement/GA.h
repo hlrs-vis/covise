@@ -1,10 +1,12 @@
 #pragma once
 #include <openGA.h>
+#include <Sensor.h>
 
 #include <fstream>
 
 struct Solution{
 
+    std::vector<SensorPosition*> sensorNetwork;
 
 };
 
