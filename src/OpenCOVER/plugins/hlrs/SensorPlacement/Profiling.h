@@ -11,10 +11,12 @@
 
  Instrumentor::Get().BeginSession("Session Name");        // Begin session 
  {
-     Instrum/*entationTimer timer("Profiled Scope Name");   // Place code like this in scopes you'd like to include in profiling Code
+     InstrumentationTimer timer("Profiled Scope Name");   // Place code like this in scopes you'd like to include in profiling Code
  }
  Instrumentor::Get().EndSession();                        // End Session
  */
+
+#define SP_PROFILE 0
 
 namespace SP
 {
@@ -131,7 +133,6 @@ namespace SP
         }
     };
 }
-#define SP_PROFILE 1
 
 #if SP_PROFILE
     // Resolve which function signature macro will be used. Note that this only

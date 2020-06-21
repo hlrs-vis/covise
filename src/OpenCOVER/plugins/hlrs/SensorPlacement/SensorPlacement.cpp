@@ -26,11 +26,7 @@ SensorPlacementPlugin::SensorPlacementPlugin()
 {
   DataManager::GetInstance(); //Create Instance of Singleton
   m_UI = myHelpers::make_unique<UI>();
-    
-  SP_PROFILE_BEGIN_SESSION("Init","SensorPlacement-Startup.json");
-
-  SP_PROFILE_FUNCTION();
-
+  
 }
 
 bool SensorPlacementPlugin::destroy()
@@ -44,7 +40,6 @@ bool SensorPlacementPlugin::destroy()
 SensorPlacementPlugin::~SensorPlacementPlugin()
 {
   std::cout<<"Destructor Sensor Placement"<<std::endl;
-  SP_PROFILE_END_SESSION();
 }
 
 COVERPLUGIN(SensorPlacementPlugin)

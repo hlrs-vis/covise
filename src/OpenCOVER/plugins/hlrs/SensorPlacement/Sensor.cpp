@@ -2,6 +2,7 @@
 #include "Helper.h"
 #include "UI.h"
 #include "DataManager.h"
+#include "Profiling.h"
 
 #include <osg/Geometry>
 
@@ -169,6 +170,8 @@ bool SensorPosition::preFrame()
     else if(m_Interactor->wasStopped())
     {
         osg::Matrix matrix= m_Interactor->getMatrix();
+        
+        SP_PROFILE_BEGIN_SESSION("CreateOrientations","SensorPlacement-CreateOrientations.json");
 
         checkForObstacles();
         setMatrix(matrix);
@@ -188,6 +191,8 @@ osg::Matrix SensorPosition::getMatrix()const
 
 void SensorPosition::checkForObstacles()
 {
+    SP_PROFILE_FUNCTION();
+
     auto allObservationPoints = DataManager::GetInstance().GetWorldPosOfObervationPoints();
     
     m_VisMatSensorPos.clear();
@@ -224,6 +229,11 @@ void SensorPosition::checkForObstacles()
   
 };
 
+const Orientation* SensorPosition::getRandomOrientation()const
+{
+    return &m_CurrentOrientation;
+}
+
 SensorWithMultipleOrientations::SensorWithMultipleOrientations(osg::Matrix matrix):SensorPosition(matrix)
 {
     m_OrientationsGroup = new osg::Group();
@@ -241,13 +251,23 @@ bool SensorWithMultipleOrientations::preFrame()
     {   
         if(UI::m_showOrientations)
             createSensorOrientations();
+        
+        SP_PROFILE_END_SESSION();
     }
 
     return status;
 }
 
+const Orientation* SensorWithMultipleOrientations::getRandomOrientation()const
+{
+    //TODO: add random
+    return &m_Orientations.at(0);
+}
+
 void SensorWithMultipleOrientations::createSensorOrientations()
 {
+    SP_PROFILE_FUNCTION();
+
     m_Orientations.clear();
     //m_Orientations.reserve(); // sinnvoll weil kann auch nur eine übrig bleiben? 
     osg::Vec3 pos = m_CurrentOrientation.getMatrix().getTrans();
@@ -289,6 +309,8 @@ void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
 
 void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Orientation&& orientation)
 {
+    SP_PROFILE_FUNCTION();
+
     if(isVisibilityMatrixEmpty(orientation))
         return; // this orientation isn't required
 
@@ -318,6 +340,8 @@ void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Or
 
 bool SensorWithMultipleOrientations::isVisibilityMatrixEmpty(const Orientation& orientation)
 {
+    SP_PROFILE_FUNCTION();
+
     //is inti i correct // better auto ? 
     bool empty = std::all_of(orientation.getVisibilityMatrix().begin(), orientation.getVisibilityMatrix().end(), [](float i) { return i==0.0; });
     if(empty)
@@ -328,6 +352,8 @@ bool SensorWithMultipleOrientations::isVisibilityMatrixEmpty(const Orientation& 
 
 void SensorWithMultipleOrientations::replaceOrientationWithLastElement(int index)
 {
+    SP_PROFILE_FUNCTION();
+
     if(!m_Orientations.empty())
     {
         m_Orientations.at(index) = m_Orientations.back();
@@ -337,6 +363,8 @@ void SensorWithMultipleOrientations::replaceOrientationWithLastElement(int index
 
 bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs, const Orientation& rhs)
 {
+    SP_PROFILE_FUNCTION();
+
     size_t onlyVisibleForLhsSensor{0}, onlyVisibleForRhsSensor{0};
 
     auto ItLhsSensor = lhs.getVisibilityMatrix().begin(); 

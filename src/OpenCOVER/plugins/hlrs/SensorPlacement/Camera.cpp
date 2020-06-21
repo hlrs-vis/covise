@@ -2,6 +2,7 @@
 #include "Helper.h"
 #include "DataManager.h"
 #include "UI.h"
+#include "Profiling.h"
 
 #include <osg/Material>
 #include <osg/LineWidth>
@@ -26,6 +27,8 @@ Camera::Camera(osg::Matrix matrix):
 
 VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
 {
+    SP_PROFILE_FUNCTION();
+
     VisibilityMatrix<float> result = m_VisMatSensorPos;
     osg::Matrix matrix;
     euler.makeMat(matrix);
@@ -40,7 +43,8 @@ VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
 
     if(result.size() == DataManager::GetWorldPosOfObervationPoints().size())
     {
-        while(ItPoint != DataManager::GetWorldPosOfObervationPoints().end() || ItVisMat != result.end())
+        auto worldPosEnd = DataManager::GetWorldPosOfObervationPoints().end();
+        while(ItPoint !=  worldPosEnd || ItVisMat != result.end())
         {
             if(*ItVisMat != 0) // no Obstacles in line of sight -> could be visible
             {

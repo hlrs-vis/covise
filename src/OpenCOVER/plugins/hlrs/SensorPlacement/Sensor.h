@@ -50,6 +50,7 @@ public:
     virtual bool preFrame();
     virtual osg::Geode* draw() = 0;
 
+    virtual const Orientation* getRandomOrientation()const;
     virtual VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) = 0;
     void checkForObstacles();
 
@@ -90,7 +91,9 @@ class SensorWithMultipleOrientations : public SensorPosition
 public:
     SensorWithMultipleOrientations(osg::Matrix matrix);
     ~SensorWithMultipleOrientations() override{};
-    bool preFrame() override;
+    
+    bool preFrame() override;  
+    const Orientation* getRandomOrientation()const final;
 
     void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
     std::vector<Orientation>& getOrientations(){return m_Orientations;}

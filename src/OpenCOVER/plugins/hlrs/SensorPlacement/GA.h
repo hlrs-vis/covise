@@ -45,4 +45,6 @@ private:
     double calculate_SO_total_fitness(const GA_Type::thisChromosomeType &X);
     void SO_report_generation(int generation_number,const EA::GenerationType<Solution,MiddleCost> &last_generation,const Solution& best_genes);
     bool optimizationStrategy(const Solution& p, MiddleCost &c);
+
+    const Orientation* getRandomSensor(int sensorPosition ,const std::function<double(void)> &rnd01)const;
 };

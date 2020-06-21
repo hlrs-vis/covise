@@ -1,21 +1,28 @@
 #include "GA.h"
 #include "DataManager.h"
 #include "Sensor.h"
+#include "Profiling.h"
 
 bool maxCoverage1(const Solution& p, MiddleCost &c)
 {
+    SP_PROFILE_FUNCTION();
+
     std::cout<<"Fitness: max Coverage 1" <<std::endl;
     return false; //FIXME
 }
 
 bool maxCoverage2(const Solution& p, MiddleCost &c)
 {
+    SP_PROFILE_FUNCTION();
+
     std::cout<<"Fitness: max Coverage 2" <<std::endl;
     return false; //FIXME
 }
 
 GA::GA(FitnessFunction fitness) : m_FitnessFunction(fitness)
 {
+    SP_PROFILE_BEGIN_SESSION("SensorPlacement-Optimization","SensorPlacement-Optimization.json");
+
 	EA::Chronometer timer;
 	timer.tic();	
 	using std::bind;
@@ -43,6 +50,7 @@ GA::GA(FitnessFunction fitness) : m_FitnessFunction(fitness)
     ga_obj.solve();
 	
 	std::cout<<"The problem is optimized in "<<timer.toc()<<" seconds."<<std::endl;
+    SP_PROFILE_END_SESSION();
 }
 
 bool GA::optimizationStrategy(const Solution& p, MiddleCost &c)
@@ -50,28 +58,35 @@ bool GA::optimizationStrategy(const Solution& p, MiddleCost &c)
 	return m_FitnessFunction(p,c);
 }
 
-// SensorPosition* GA::getRandomSensor(int sensorPosition ,const std::function<double(void)> &rnd01)
-// {
-
-// }
+const Orientation* GA::getRandomSensor(int sensorPosition ,const std::function<double(void)> &rnd01)const
+{
+   return DataManager::GetSensors().at(sensorPosition)->getRandomOrientation(); 
+}
 
 void GA::init_genes(Solution& p,const std::function<double(void)> &rnd01)
 {
+    SP_PROFILE_FUNCTION();
 
 }
 
 Solution GA::mutate(const Solution& X_base,const std::function<double(void)> &rnd01,double shrink_scale)
 {
+    SP_PROFILE_FUNCTION();
+
     return X_base; //FIXME
 }
 
 Solution GA::crossover(const Solution& X1, const Solution& X2,const std::function<double(void)> &rnd01)
 {
+    SP_PROFILE_FUNCTION();
+
     return X1; //FIXME
 }
 
 double GA::calculate_SO_total_fitness(const GA_Type::thisChromosomeType &X)
 {
+    SP_PROFILE_FUNCTION();
+
     return 0.; //FIXME
 }
 
