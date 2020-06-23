@@ -3693,7 +3693,11 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         // Name and Icon //
         //
         QString name = parseToQString(sign, "name", "", false); // mandatory
-        QString icon = ":/signalIcons/" + parseToQString(sign, "icon", "", true); // optional
+		QString icon = parseToQString(sign, "icon", "", true); // optional
+		if (!icon.isEmpty())
+		{
+			icon = ":/signalIcons/" + icon;
+		}
         QString type = parseToQString(sign, "type", "-1", false);
         QString typeSubclass = parseToQString(sign, "subclass", "", true);
         QString subType = parseToQString(sign, "subtype", "-1", true);
@@ -3726,7 +3730,11 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &cate
         //
         QString name = parseToQString(object, "name", "", false); // mandatory
         QString file = parseToQString(object, "file", "", true); // optional 
-        QString icon = ":/signalIcons/" + parseToQString(object, "icon", "", true); // optional
+		QString icon = parseToQString(object, "icon", "", true); // optional
+		if (!icon.isEmpty())
+		{
+			icon = ":/signalIcons/" + icon;
+		}
         QString type = parseToQString(object, "type", "", true);
         double length = parseToDouble(object, "length", 0.0, true);
         double width = parseToDouble(object, "width", 0.0, true);

@@ -1774,7 +1774,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
 					// verify if apply can be displayed //
 
-					int objectCount = tool_->getObjectCount(tool_->getToolId());
+					int objectCount = tool_->getObjectCount(tool_->getToolId(), getCurrentParameterTool());
 					if ((objectCount >= applyCount_) && junction_)
 					{
 						settingsApplyBox_->setApplyButtonVisible(true);

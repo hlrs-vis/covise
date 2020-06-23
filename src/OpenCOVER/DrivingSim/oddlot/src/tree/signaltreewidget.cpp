@@ -47,6 +47,7 @@
 #include <QMouseEvent>
 #include <QDrag>
 #include <QMimeData>
+#include <QLabel>
 
 //################//
 // CONSTRUCTOR    //
@@ -83,7 +84,8 @@ SignalTreeWidget::init()
 		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager_, SLOT(toolActionSlot(ToolAction *)));
 	}
 
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
+    setSelectionMode(QAbstractItemView::SingleSelection);
+	setSelectionBehavior(QAbstractItemView::SelectRows);
     setUniformRowHeights(true);
 	setIndentation(6);
 
@@ -326,40 +328,52 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 		clearSelection();
 		clearFocus();
 		update();
-	}
+	} 
 
+}
+
+void SignalTreeWidget::mousePressEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton)
+		dragStartPosition_ = event->pos();
+
+	QTreeWidget::mousePressEvent(event);
 }
 
 void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
 {
+	QTreeWidget::mouseMoveEvent(event);
+
     if (!(event->buttons() & Qt::LeftButton))
         return;
     if ((event->pos() - dragStartPosition_).manhattanLength() < QApplication::startDragDistance())
         return;
-    SignalContainer *signalContainer = signalManager_->getSelectedSignalContainer();
-    QTreeWidget::mouseMoveEvent(event);
-    if(signalContainer)
-    {
-        QIcon signalIcon = signalContainer->getSignalIcon();
-        if(!signalIcon.isNull())
-        {
-            PrepareDrag(signalIcon);
-            signalManager_->setSelectedSignalContainer(NULL);
-        }
-    }
-    else
-    {
-        ObjectContainer* objectContainer = signalManager_->getSelectedObjectContainer();
-        if(objectContainer)
-        {
-            QIcon objectIcon = objectContainer->getObjectIcon();
-            if(!objectIcon.isNull())
-            {
-                PrepareDrag(objectIcon);
-                signalManager_->setSelectedObjectContainer(NULL);
-            }
-        }
-    }
+
+	switch (currentTool_)
+	{
+	case ODD::TSG_SIGNAL: {
+		SignalContainer *signalContainer = signalManager_->getSelectedSignalContainer();
+		if (signalContainer)
+		{
+			QIcon signalIcon = signalContainer->getSignalIcon();
+			PrepareDrag(&signalIcon);
+			signalManager_->setSelectedSignalContainer(NULL);
+		}
+		break; }
+	case ODD::TSG_OBJECT: {
+		ObjectContainer* objectContainer = signalManager_->getSelectedObjectContainer();
+		if (objectContainer)
+		{
+			QIcon objectIcon = objectContainer->getObjectIcon();
+			PrepareDrag(&objectIcon);
+			signalManager_->setSelectedObjectContainer(NULL);
+		}
+		break; }
+	case ODD::TSG_BRIDGE: 
+	case ODD::TSG_TUNNEL:
+		PrepareDrag();
+		break;
+	}
 }
 
 /**
@@ -367,21 +381,38 @@ void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
  * Initialize a drag pointer with mimedata and set the icon.
  * @param icon
  */
-void SignalTreeWidget::PrepareDrag(const QIcon& icon)
+void SignalTreeWidget::PrepareDrag(QIcon *icon)
 {
     QDrag* drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData;
 
     QTreeWidgetItem *item = selectedItems().at(0);
     const QString text = item->text(0);
-    //Signal *signal = dynamic_cast<Signal *>(projectWidget_->getProjectData()->getSelectedElements().at(0));
-    //QString signalName = signal->getName();
     std::string entryName = text.toUtf8().constData();
 
     mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
     drag->setMimeData(mimeData);
-    drag->setPixmap(icon.pixmap(QSize(35,35)));
-    drag->exec(Qt::CopyAction | Qt::MoveAction);
+	if (icon && !icon->isNull())
+	{
+		drag->setPixmap(icon->pixmap(QSize(35, 35)));
+	}
+	else
+	{
+		QLabel *label = new QLabel(text, this);
+		label->setAutoFillBackground(true);
+		label->setFrameShape(QFrame::Panel);
+		label->setFrameShadow(QFrame::Raised);
+		label->setAlignment(Qt::AlignCenter);
+		//	qreal dpr = devicePixelRatio();
+		//	QPixmap pixmap(label->size() * dpr);
+		//	pixmap.setDevicePixelRatio(dpr);
+		QPixmap pixmap(label->size());
+		label->render(&pixmap);
+		drag->setPixmap(pixmap);
+	}
+
+	Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
     //return drag;
 }
+
 

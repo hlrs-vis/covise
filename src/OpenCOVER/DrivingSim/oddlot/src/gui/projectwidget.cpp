@@ -310,6 +310,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
         //
         if (projectEditor_)
         {
+			mainWindow_->hideDock(editors_.key(projectEditor_));
             projectEditor_->hide();
             //projectData_->getChangeManager()->unregisterAll(); // clear Subject-Observer list
             // This should be unnecessary if every observer detaches itself. It is even wrong,
@@ -333,16 +334,8 @@ ProjectWidget::setEditor(ODD::EditorId id)
         }
 
 
-        // Signal tree //
+        // Signal and catalog trees //
         //
-   /*     if (id == ODD::ESG)
-        {
-            mainWindow_->showSignalsDock(true);
-        }
-        else
-        {
-            mainWindow_->showSignalsDock(false);
-        } */
 		mainWindow_->showDock(id);
 
         topviewGraph_->postEditorChange();
@@ -1868,10 +1861,7 @@ ProjectWidget::toolAction(ToolAction *toolAction)
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
-	if (id != lastId)
-	{
-		mainWindow_->hideDock(lastId);
-	}
+
     if ((id != lastId || projectData_ != lastProjectData) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);

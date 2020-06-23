@@ -23,6 +23,7 @@
 //
 #include "src/data/projectdata.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
 
 // Graph //
 //
@@ -53,6 +54,8 @@
 #include "src/mainwindow.hpp"
 
 template
+void ProjectEditor::setToolValue<RSystemElementController>(RSystemElementController *, const QString &);
+template
 void ProjectEditor::setToolValue<Lane>(Lane *, const QString &);
 template
 void ProjectEditor::setToolValue<RSystemElementRoad>(RSystemElementRoad *, const QString &);
@@ -68,6 +71,10 @@ template
 void ProjectEditor::createToolParameters<RSystemElementRoad>(RSystemElementRoad *object);
 template
 void ProjectEditor::removeToolParameters<RSystemElementRoad>(RSystemElementRoad *object);
+template
+void ProjectEditor::createToolParameters<Signal>(Signal *);
+template
+void ProjectEditor::removeToolParameters<Signal>(Signal *);
 
 ProjectEditor::ProjectEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
     : QObject(projectWidget)

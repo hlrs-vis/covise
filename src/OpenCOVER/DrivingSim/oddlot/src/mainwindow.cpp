@@ -1631,20 +1631,6 @@ MainWindow::setErrorMessageTree(QWidget *widget)
 }
 
 void 
-	MainWindow::showSignalsDock(bool visible)
-{
-	if (visible)
-	{
-		signalsDock_->show();
-		signalsDock_->raise();
-	}
-	else
-	{
-		signalsDock_->hide();
-	}
-}
-
-void 
 MainWindow::showDock(ODD::EditorId editor)
 {
 	switch (editor)

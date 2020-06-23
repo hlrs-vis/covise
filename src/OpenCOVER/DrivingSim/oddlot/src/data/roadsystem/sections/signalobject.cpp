@@ -106,6 +106,19 @@ Signal::Signal(const odrID &id, const QString &name, double s, SignalProperties 
 {
 }
 
+QString
+Signal::getIdName() const
+{
+	QString text = id_.speakingName();
+	if (!name_.isEmpty())
+	{
+		text.append(" (");
+		text.append(name_);
+		text.append(")");
+	}
+	return text;
+}
+
 
 //##################//
 // Observer Pattern //

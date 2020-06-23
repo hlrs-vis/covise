@@ -135,7 +135,6 @@ SignalEditorTool::initToolWidget()
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
-	ribbonToolGroup_->addButton(ui->deleteController, ODD::TSG_DEL);
 	ribbonToolGroup_->addButton(ui->newController, ODD::TSG_CONTROLLER);
 	ribbonToolGroup_->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
 	ribbonToolGroup_->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);

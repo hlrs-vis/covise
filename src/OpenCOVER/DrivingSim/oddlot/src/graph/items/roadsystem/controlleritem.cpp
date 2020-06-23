@@ -34,6 +34,8 @@
 //
 #include "roadsystemitem.hpp"
 #include "src/graph/items/handles/texthandle.hpp"
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/graphscene.hpp"
 
 // Widget //
 //
@@ -70,9 +72,6 @@ ControllerItem::init()
 {
     // Selection/Hovering //
     //
-    //	setAcceptHoverEvents(true);
-    // Hover Events //
-    //
     setAcceptHoverEvents(true);
     setSelectable();
 
@@ -82,17 +81,17 @@ ControllerItem::init()
 
     // Text //
     //
-    textHandle_ = new TextHandle(controller_->getID().speakingName(), this);
-    textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-    textHandle_->setPen(QPen(ODD::instance()->colors()->darkOrange()));
-    textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
-    textHandle_->setFlag(QGraphicsItem::ItemIsMovable, false);
-    textHandle_->setZValue(1.0);
+	textItem_ = new QGraphicsTextItem(controller_->getID().speakingName(), this);
+	textItem_->setFlag(QGraphicsItem::ItemIsSelectable, false);
+	QTransform trafo;
+	trafo.rotate(180, Qt::XAxis);
+	textItem_->setTransform(trafo);
+	textItem_->setZValue(1.0); 
 
     setBrush(ODD::instance()->colors()->brightOrange());
     setPen(ODD::instance()->colors()->darkOrange());
 
-    updatePath();
+	updatePath();
 
     // ContextMenu //
     //
@@ -112,6 +111,7 @@ ControllerItem::init()
 void
 ControllerItem::updatePath()
 {
+
     QPainterPath thePath;
     QVector<QPointF> points;
     foreach (Signal *signal, controller_->getSignals())
@@ -120,15 +120,29 @@ ControllerItem::updatePath()
         points.append(road->getGlobalPoint(signal->getSStart()));
     }
 
-    thePath.addPolygon(QPolygonF(points));
-    setPath(thePath);
 
+	QTransform trafo;
+	trafo.rotate(180, Qt::XAxis);
     // Text //
     //
     if (points.count() > 0)
     {
-        textHandle_->setPos(points[0]);
+        textItem_->setPos(points[0]);
+		QRectF rect = textItem_->boundingRect();
+		trafo.mapRect(rect);
+		rect.translate(points[0] - rect.bottomLeft());
+		thePath.addRect(rect);
+		thePath.addPolygon(QPolygonF(points));
     }
+	else
+	{
+		
+		textItem_->setPos(getTopviewGraph()->getScene()->sceneRect().center());
+		thePath.addRect(trafo.mapRect(textItem_->boundingRect()));
+		setPath(thePath);
+
+	}
+	setPath(thePath);
 }
 
 //################//
@@ -138,7 +152,7 @@ ControllerItem::updatePath()
 bool
 ControllerItem::removeController()
 {
-    RemoveControllerCommand *command = new RemoveControllerCommand(controller_, NULL);
+    RemoveControllerCommand *command = new RemoveControllerCommand(controller_, roadSystemItem_->getRoadSystem());
     return getProjectGraph()->executeCommand(command);
 }
 
@@ -151,59 +165,6 @@ ControllerItem::addToCurrentTile()
     getProjectGraph()->executeCommand(command);
 }
 
-//################//
-// EVENTS         //
-//################//
-
-void
-ControllerItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-
-    // Text //
-    //
-   // textHandle_->setVisible(true);
-   // textHandle_->setPos(event->scenePos());
-
-    // Parent //
-    //
-    //GraphElement::hoverEnterEvent(event); // pass to baseclass
-}
-
-void
-ControllerItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-
-    // Text //
-    //
-  //  textHandle_->setVisible(false);
-
-    // Parent //
-    //
-    //GraphElement::hoverLeaveEvent(event); // pass to baseclass
-}
-
-void
-ControllerItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-
-    // Parent //
-    //
-    //GraphElement::hoverMoveEvent(event);
-}
-
-void
-ControllerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Bridge
-    if (tool == ODD::TSG_DEL)
-    {
-        removeController();
-    }
-    else
-    {
-        GraphElement::mousePressEvent(event); // pass to baseclass
-    }
-}
 
 //##################//
 // Observer Pattern //

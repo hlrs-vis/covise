@@ -108,6 +108,8 @@ public:
         name_ = name;
     }
 
+	QString getIdName() const;
+
     double getT() const
     {
         return signalProps_.t;

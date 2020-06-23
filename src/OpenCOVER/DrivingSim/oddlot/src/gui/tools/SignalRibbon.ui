@@ -99,7 +99,7 @@
       <item row="1" column="1">
        <widget class="QPushButton" name="newController">
         <property name="text">
-         <string>New</string>
+         <string>New Controller from Signs</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -109,30 +109,20 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="addSignal">
+      <item row="2" column="2">
+       <widget class="QPushButton" name="removeSignal">
         <property name="text">
-         <string>Add Signal</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+         <string>Remove Signals</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QPushButton" name="deleteController">
+       <widget class="QPushButton" name="addSignal">
         <property name="text">
-         <string>Delete</string>
+         <string>Add Signals</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="removeSignal">
-        <property name="text">
-         <string>Remove Signal</string>
         </property>
        </widget>
       </item>

@@ -171,7 +171,6 @@ public:
 	//
 	void setErrorMessageTree(QWidget *widget);
 
-	void showSignalsDock(bool visible);
 	void showDock(ODD::EditorId editor);
 	void hideDock(ODD::EditorId editor);
 
