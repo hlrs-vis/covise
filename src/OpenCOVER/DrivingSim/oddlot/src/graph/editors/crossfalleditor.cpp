@@ -296,6 +296,18 @@ CrossfallEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mo
 void
 CrossfallEditor::init()
 {
+
+	// ProfileGraph //
+	//
+	if (!roadSystemItemPolyGraph_)
+	{
+		// Root item //
+		//
+		roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
+		profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
+		profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
+	}
+
     // Graph //
     //
     if (!roadSystemItem_)

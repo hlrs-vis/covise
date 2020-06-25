@@ -183,7 +183,12 @@ SignalEditorTool::activateRibbonEditor()
 {
 	ToolAction *action = toolManager_->getLastToolAction(ODD::ESG);
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+/*	if (action->getToolId() == ODD::TSG_SELECT)
+	{
+		ribbonToolGroup_->button(action->getToolId())->click();
+	} */
+
+	ribbonToolGroup_->button(ODD::TSG_SELECT)->click();
 
 }
 

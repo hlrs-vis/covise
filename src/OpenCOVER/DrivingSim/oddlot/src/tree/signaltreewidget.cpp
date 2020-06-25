@@ -317,7 +317,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			//
 			SignalEditorToolAction *action = new SignalEditorToolAction(currentTool_);
 			emit toolAction(action);
-			delete action;
+	//		delete action;
 		}
 
 

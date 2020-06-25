@@ -76,14 +76,11 @@ SuperelevationRoadItem::init()
 
     // Selection //
     //
-    if (getRoad()->isElementSelected())
+    if ((getRoad()->isElementSelected()) || (getRoad()->isChildElementSelected()))
     {
         superelevationEditor_->addSelectedRoad(getRoad());
     }
-    else
-    {
-        superelevationEditor_->delSelectedRoad(getRoad());
-    }
+
 }
 
 void

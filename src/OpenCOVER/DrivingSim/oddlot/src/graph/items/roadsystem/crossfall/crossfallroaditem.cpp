@@ -76,14 +76,10 @@ CrossfallRoadItem::init()
 
     // Selection //
     //
-    if (getRoad()->isElementSelected())
-    {
-        crossfallEditor_->addSelectedRoad(getRoad());
-    }
-    else
-    {
-        crossfallEditor_->delSelectedRoad(getRoad());
-    } 
+	if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
+	{
+		crossfallEditor_->addSelectedRoad(getRoad());
+	}
 }
 
 void

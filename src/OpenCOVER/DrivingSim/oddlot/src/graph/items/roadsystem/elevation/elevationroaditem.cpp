@@ -73,6 +73,11 @@ ElevationRoadItem::init()
     {
         elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
     }
+
+	if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
+	{
+		elevationEditor_->insertSelectedRoad(getRoad());
+	}
 }
 
 void

@@ -722,7 +722,18 @@ ElevationEditor::selectionChangedRoadSection()
 void
 ElevationEditor::init()
 {
-	qDebug("init Elevation Editor");
+
+	// ProfileGraph //
+	//
+	if (!roadSystemItemPolyGraph_)
+	{
+		// Root item //
+		//
+		roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
+		profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
+		profileGraph_->getScene()->setSceneRect(-1000.0, -1000.0, 20000.0, 2000.0);
+	}
+
     // Graph //
     //
     if (!roadSystemItem_)
@@ -731,17 +742,6 @@ ElevationEditor::init()
         //
         roadSystemItem_ = new ElevationRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
         getTopviewGraph()->getScene()->addItem(roadSystemItem_);
-    }
-
-    // ProfileGraph //
-    //
-    if (!roadSystemItemPolyGraph_)
-    {
-        // Root item //
-        //
-        roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
-        profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
-        profileGraph_->getScene()->setSceneRect(-1000.0, -1000.0, 20000.0, 2000.0);
     }
 
     // Section Handle //
