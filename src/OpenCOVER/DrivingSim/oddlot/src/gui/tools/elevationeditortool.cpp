@@ -320,16 +320,14 @@ ElevationEditorTool::setRRadius()
 void
 ElevationEditorTool::setRHeight()
 {
-	if (fabs(ui->heightEdit->value()) > NUMERICAL_ZERO3)
-	{
-		ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
-		emit toolAction(action);
-		//   delete action;
 
-		ui->heightEdit->blockSignals(true);
-		ui->heightEdit->setValue(0.0);
-		ui->heightEdit->blockSignals(false);
-	}
+	ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+	emit toolAction(action);
+	//   delete action;
+
+	ui->heightEdit->blockSignals(true);
+	ui->heightEdit->setValue(0.0);
+	ui->heightEdit->blockSignals(false);
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -339,12 +337,15 @@ ElevationEditorTool::setRHeight()
 void
 ElevationEditorTool::setRIHeight()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
-    emit toolAction(action);
- //   delete action;
-	ui->iHeightEdit->blockSignals(true);
-    ui->iHeightEdit->setValue(0.0);
-	ui->iHeightEdit->blockSignals(false);
+	if (fabs(ui->iHeightEdit->value()) > NUMERICAL_ZERO3)
+	{
+		ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+		emit toolAction(action);
+		//   delete action;
+		ui->iHeightEdit->blockSignals(true);
+		ui->iHeightEdit->setValue(0.0);
+		ui->iHeightEdit->blockSignals(false);
+	}
 }
 
 /*! \brief Gets called when the start of the section has been changed.

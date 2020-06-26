@@ -65,7 +65,7 @@ JunctionItem::init()
 {
     // Selection/Hovering //
     //
-    //	setAcceptHoverEvents(true);
+    setAcceptHoverEvents(true);
     setSelectable();
 
     // Text //

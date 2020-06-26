@@ -414,10 +414,34 @@ LaneEditor::apply()
 		LaneRoadMark *roadMark = new LaneRoadMark(0.0, LaneRoadMark::RMT_SOLID, LaneRoadMark::RMW_STANDARD, LaneRoadMark::RMC_STANDARD, 0.12);
 		newLane->addRoadMarkEntry(roadMark);
 
-		InsertLaneCommand *command = new InsertLaneCommand(lane->getParentLaneSection(), newLane);
+		LaneSection *parentLaneSection = lane->getParentLaneSection();
+		InsertLaneCommand *command = new InsertLaneCommand(parentLaneSection, newLane);
 		if (command)
 		{
 			getProjectGraph()->executeCommand(command);
+		}
+
+		int id = newLane->getId();
+		RSystemElementRoad * road = parentLaneSection->getParentRoad();
+		LaneSection *neighborSection = road->getLaneSectionNext(parentLaneSection->getSStart());
+		if (neighborSection) 
+		{
+			Lane *neighborLane = neighborSection->getLane(id);
+			if (neighborLane && (neighborLane->getPredecessor() == -99))
+			{
+				newLane->setSuccessor(id);
+				neighborLane->setPredecessor(id);
+			}
+		}
+		neighborSection = road->getLaneSectionBefore(parentLaneSection->getSStart());
+		if (neighborSection)
+		{
+			Lane *neighborLane = neighborSection->getLane(id);
+			if (neighborLane && (neighborLane->getSuccessor() == -99))
+			{
+				newLane->setPredecessor(id);
+				neighborLane->setSuccessor(id);
+			}
 		}
 
 		DeselectDataElementCommand *deselectCommand = new DeselectDataElementCommand(lane, NULL);
