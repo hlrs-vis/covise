@@ -262,6 +262,13 @@
 
 
 
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp} % for \text...superior
+\usepackage{newunicodechar}
+\newunicodechar{²}{\ifmmode{}^2\else\texttwosuperior\fi}
+\newunicodechar{³}{\ifmmode{}^3\else\textthreesuperior\fi}
+%\usepackage{unicode-math}
+
 %%%==================================================	
 %%% neue Kommandos fuer Titelseite und nächste Seite
 %%%==================================================	

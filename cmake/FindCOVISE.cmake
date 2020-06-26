@@ -525,7 +525,9 @@ ENDMACRO(USING_MESSAGE)
 
 include(CoviseUsingMacros.cmake OPTIONAL RESULT_VARIABLE COVISE_USING_FILE)
 if (NOT COVISE_USING_FILE)
-    include("${COVISE_OPTIONS_FILEPATH}/CoviseUsingMacros.cmake")
+    if (COVISE_OPTIONS_FILEPATH)
+        include("${COVISE_OPTIONS_FILEPATH}/CoviseUsingMacros.cmake")
+    endif()
 endif()
 
 # Macro to add covise libraries

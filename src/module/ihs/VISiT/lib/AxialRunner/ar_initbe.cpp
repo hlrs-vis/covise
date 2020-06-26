@@ -71,6 +71,8 @@ int InitAR_BladeElements(struct axial *ar)
    }
 
    // prepare meridional data
+   if (ar->be_num < 0)
+      fatal("memory for (struct meridian *)");
    if ((ar->me = (struct meridian **)calloc(ar->be_num, sizeof(struct meridian *))) == NULL)
       fatal("memory for (struct meridian *)");
    for (i = 0; i < ar->be_num; i++)

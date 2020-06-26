@@ -200,7 +200,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     coConfigEntryStringList list = coConfig::getInstance()->getScopeList("System.Siblings");
 
     //std::list<std::pair<std::string,std::string>> siblings;
-    QLinkedList<coConfigEntryString>::iterator listentry = list.begin();
+    std::list<coConfigEntryString>::iterator listentry = list.begin();
     while (listentry != list.end() && (!list.empty()))
     {
         cerr << "Sibling: " << (*listentry).toStdString() << endl;

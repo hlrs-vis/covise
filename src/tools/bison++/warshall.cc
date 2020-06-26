@@ -29,12 +29,12 @@ the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
 void
 TC(unsigned* R, int n)
 {
-  register int rowsize;
-  register unsigned mask;
-  register unsigned *rowj;
-  register unsigned *rp;
-  register unsigned *rend;
-  register unsigned *ccol;
+  int rowsize;
+  unsigned mask;
+  unsigned *rowj;
+  unsigned *rp;
+  unsigned *rend;
+  unsigned *ccol;
 
   unsigned *relend;
   unsigned *cword;
@@ -87,10 +87,10 @@ TC(unsigned* R, int n)
 void
 RTC(unsigned* R, int n)
 {
-  register int rowsize;
-  register unsigned mask;
-  register unsigned *rp;
-  register unsigned *relend;
+  int rowsize;
+  unsigned mask;
+  unsigned *rp;
+  unsigned *relend;
 
   TC(R, n);
 

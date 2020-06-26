@@ -39,7 +39,7 @@ getargs(argc,argv)
      int argc;
      char *argv[];
 {
-  register char *cp;
+  char *cp;
   static char Input_File[256];
   static char output_spec[256], name_prefix_spec[256], file_prefix_spec[256];
   extern char *infile;

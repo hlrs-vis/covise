@@ -35,12 +35,12 @@ short **derives;
 void
 set_derives()
 {
-  register int i;
-  register int lhs;
-  register shorts *p;
-  register short *q;
-  register shorts **dset;
-  register shorts *delts;
+  int i;
+  int lhs;
+  shorts *p;
+  short *q;
+  shorts **dset;
+  shorts *delts;
 
   dset = NEW2(nvars, shorts *) - ntokens;
   delts = NEW2(nrules + 1, shorts);
@@ -94,8 +94,8 @@ free_derives()
 
 print_derives()
 {
-  register int i;
-  register short *sp;
+  int i;
+  short *sp;
 
   extern char **tags;
 

@@ -8,13 +8,13 @@
 \begin{covimg2}	{}{rmRen}{0.7}\end{covimg2}
 
 The map above shows you how to connect the output ports of ReadModule without
-using normals (OpenCOVER_1) and with using normals (OpenCOVER_3).
+using normals (OpenCOVER\_1) and with using normals (OpenCOVER\_3).
 
-Polygon output in OpenCOVER_1:  
+Polygon output in OpenCOVER\_1:  
 
 \begin{covimg2}	{}{spider1}{0.6}\end{covimg2} 
 
-Polygon and normal output in OpenCOVER_3:  
+Polygon and normal output in OpenCOVER\_3:  
 
 \begin{covimg2}	{}{spider}{0.6}\end{covimg2} 
 

@@ -15,9 +15,9 @@ coConfigEntryPtrList::coConfigEntryPtrList()
 
 coConfigEntryPtrList::~coConfigEntryPtrList()
 {
-    while (!isEmpty())
+    while (size()>0)
     {
-        delete takeFirst();
+        delete *begin();
     }
 }
 

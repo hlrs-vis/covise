@@ -8,7 +8,7 @@
 #include <config/coConfigImportReader.h>
 #include <config/coConfigLog.h>
 
-#include <QLinkedList>
+#include <list>
 
 #include <QtXml>
 #include <QFile>
@@ -607,13 +607,13 @@ void coConfigImportReader::update(QDomElement &rootNode, QDomElement &updater)
         if (name.isNull())
             name = currentUpdate.attribute("index");
         COCONFIGDBG("coConfigImportReader::update info: updating " << name);
-        QLinkedList<QDomNode> scopeNodeList = makeNonLiveList(rootNode.childNodes());
+        std::list<QDomNode> scopeNodeList = makeNonLiveList(rootNode.childNodes());
 
         // 2nd Level: GLOBAL and LOCAL scope nodes
-        for (QLinkedList<QDomNode>::iterator scopeIt = scopeNodeList.begin(); scopeIt != scopeNodeList.end(); ++scopeIt)
+        for (std::list<QDomNode>::iterator scopeIt = scopeNodeList.begin(); scopeIt != scopeNodeList.end(); ++scopeIt)
         {
-            QLinkedList<QDomNode> nodeList = makeNonLiveList((*scopeIt).childNodes());
-            for (QLinkedList<QDomNode>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
+            std::list<QDomNode> nodeList = makeNonLiveList((*scopeIt).childNodes());
+            for (std::list<QDomNode>::iterator nodeIt = nodeList.begin(); nodeIt != nodeList.end(); ++nodeIt)
             {
                 QDomElement node = (*nodeIt).toElement();
                 if (node.isNull())
@@ -682,8 +682,8 @@ void coConfigImportReader::updateEntry(QDomElement &node, QDomElement &updateIns
         if (updateInstruction.attribute("scope") == "AllChildren")
         {
             COCONFIGDBG("coConfigImportReader::updateEntry info: applying to all children");
-            QLinkedList<QDomNode> nodes = makeNonLiveList(node.childNodes());
-            for (QLinkedList<QDomNode>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
+            std::list<QDomNode> nodes = makeNonLiveList(node.childNodes());
+            for (std::list<QDomNode>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
             {
                 QDomElement uNode = (*nodeIt).toElement();
                 updateApplyInstruction(uNode, instruction);
@@ -703,8 +703,8 @@ void coConfigImportReader::updateEntry(QDomElement &node, QDomElement &updateIns
                         << childRegEx.pattern()
                         << (childNameRegEx.pattern() == "" ? "" : QString(":%1").arg(childNameRegEx.pattern()).toLatin1()));
 
-            QLinkedList<QDomNode> nodes = makeNonLiveList(node.childNodes());
-            for (QLinkedList<QDomNode>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
+            std::list<QDomNode> nodes = makeNonLiveList(node.childNodes());
+            for (std::list<QDomNode>::iterator nodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt)
             {
                 QDomElement uNode = (*nodeIt).toElement();
                 if (childRegEx.exactMatch(uNode.tagName()))
@@ -1071,11 +1071,11 @@ void coConfigImportReader::updateMergeNodes(QDomElement &section, QDomElement &n
  *
  * This has to be done as a QDomNodeList changes as nodes are added to / removed from the tree.
  */
-QLinkedList<QDomNode> coConfigImportReader::makeNonLiveList(QDomNodeList liveList) const
+std::list<QDomNode> coConfigImportReader::makeNonLiveList(QDomNodeList liveList) const
 {
-    QLinkedList<QDomNode> list;
+    std::list<QDomNode> list;
     for ( int ctr = 0; ctr < liveList.length(); ++ctr)
-        list.append(liveList.item(ctr));
+        list.push_back(liveList.item(ctr));
     return list;
 }
 

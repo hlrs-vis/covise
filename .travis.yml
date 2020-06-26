@@ -6,10 +6,10 @@ notifications:
   email:
     - covise-commits@listserv.uni-stuttgart.de
 
-sudo: false
-dist: trusty
+dist: bionic
 
 language: cpp
+cache: ccache
 os:
     - linux
     - osx
@@ -33,7 +33,6 @@ addons:
             - libglew-dev
             - libxi-dev
             - libxmu-dev
-            - freeglut3-dev
             - qttools5-dev
             - qtscript5-dev
             - libqt5scripttools5
@@ -41,11 +40,12 @@ addons:
             - libqt5opengl5-dev
             - libqt5webkit5-dev
             - libxerces-c-dev
-            - libpng12-dev
+            - libpng-dev
             - libopenscenegraph-dev
-            - libosgearth-dev
             - libavcodec-dev
             - libswscale-dev
+            - libjpeg-dev
+            - libtiff-dev
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew update; fi
@@ -63,11 +63,12 @@ script:
 
     - export COVISE_CMAKE_OPTIONS=-DCMAKE_BUILD_TYPE=${BUILD_TYPE}
     - export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_RENDERER:BOOL=OFF "$COVISE_CMAKE_OPTIONS
+    - export COVISE_CMAKE_OPTIONS="-DCOVISE_CPU_ARCH:STRING=core-avx2 "$COVISE_CMAKE_OPTIONS
     - if [ "$APP" = "covise" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_COVER:BOOL=OFF "$COVISE_CMAKE_OPTIONS; fi
     - if [ "$APP" = "cover" ];  then export COVISE_CMAKE_OPTIONS="-DCOVISE_BUILD_ONLY_COVER_PREREQ:BOOL=ON "$COVISE_CMAKE_OPTIONS; fi
     - export COVISE_CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX="${HOME}"/install "$COVISE_CMAKE_OPTIONS
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export ARCHSUFFIX=macos; fi
-    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export ARCHSUFFIX=tahr; fi
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export ARCHSUFFIX=bionic; fi
     - if [ "${BUILD_TYPE}" != "Debug" ]; then export ARCHSUFFIX=${ARCHSUFFIX}opt; fi
     - source .covise.sh
     - if [ "$APP" = "covise" ]; then make covise -j6; fi

@@ -93,9 +93,9 @@ static char *c_suffixes[]=
 char*
 stringappend(char* string1, int end1, char* string2)
 {
-  register char *ostring;
-  register char *cp, *cp1;
-  register int i;
+  char *ostring;
+  char *cp, *cp1;
+  int i;
 
   cp = string2;  i = 0;
   while (*cp++) i++;
@@ -121,7 +121,7 @@ void
 openfiles()
 {
   char *name_base;
-  register char *cp;
+  char *cp;
   char *filename;
   int base_length;
   int short_base_length;
@@ -364,7 +364,7 @@ done(int k)
   if (k == 0 && ftable)
     {
       FILE *ftmp;
-      register int c;
+      int c;
 
       ftmp=tryopen(tabfile, "w");
 /* avoid reloading the definitions of tab.h */

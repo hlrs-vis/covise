@@ -41,11 +41,14 @@ namespace OpenCOVERPlugin
     }
     public class AxisInfo
     {
+        public enum AxisType { Rot = 0, Trans=1, Scale=2};
+
         public XYZ origin;
         public XYZ direction;
         public int level;
         public double min;
         public double max;
+        public AxisType type;
     }
     public class TextureInfo
     {
@@ -748,6 +751,96 @@ namespace OpenCOVERPlugin
                     if (p.Host.Category != null)
                     {
                         if (!p.Host.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.StairsRun)
+            {
+                StairsRun p = elem as Autodesk.Revit.DB.Architecture.StairsRun;
+                if (p.GetStairs() != null)
+                {
+                    if (p.GetStairs().IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.GetStairs().Category != null)
+                    {
+                        if (!p.GetStairs().Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.StairsLanding)
+            {
+                StairsLanding p = elem as Autodesk.Revit.DB.Architecture.StairsLanding;
+                if (p.GetStairs() != null)
+                {
+                    if (p.GetStairs().IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.GetStairs().Category != null)
+                    {
+                        if (!p.GetStairs().Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.HandRail)
+            {
+                HandRail h = elem as Autodesk.Revit.DB.Architecture.HandRail;
+                Railing p = elem.Document.GetElement(h.HostRailingId) as Autodesk.Revit.DB.Architecture.Railing;
+                
+                if (p!=null )
+                {
+                    if (p.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (p.Category != null)
+                    {
+                        if (!p.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                        {
+                            return;
+                        }
+                    }
+                    if( p.HasHost)
+                    {
+                        Autodesk.Revit.DB.Element hostElem = elem.Document.GetElement(p.HostId);
+                        if (hostElem.IsHidden(View3D))
+                        {
+                            return;
+                        }
+                        if (hostElem.Category != null)
+                        {
+                            if (!hostElem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            if (elem is Autodesk.Revit.DB.Architecture.Railing)
+            {
+                Railing p = elem as Autodesk.Revit.DB.Architecture.Railing;
+                if (p.HasHost)
+                {
+                    Autodesk.Revit.DB.Element hostElem = elem.Document.GetElement(p.HostId);
+                    if (hostElem.IsHidden(View3D))
+                    {
+                        return;
+                    }
+                    if (hostElem.Category != null)
+                    {
+                        if (!hostElem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
                         {
                             return;
                         }
@@ -1479,9 +1572,22 @@ namespace OpenCOVERPlugin
                                             {
                                                 int axisnumber = 0;
                                                 int length = 1;
-                                                if(graphicsStyle.Name.Length > 5 && graphicsStyle.Name[5]>='0' && graphicsStyle.Name[5] <= '9')
+                                                int numberStart = 4;
+                                                AxisInfo.AxisType type = AxisInfo.AxisType.Rot;
+                                                if(graphicsStyle.Name[numberStart]=='T')
+                                                { 
+                                                    type = AxisInfo.AxisType.Trans;
+                                                    numberStart++;
+                                                }
+                                                if (graphicsStyle.Name[numberStart] == 'S')
+                                                {
+                                                    type = AxisInfo.AxisType.Scale;
+                                                    numberStart++;
+                                                }
+
+                                                if (graphicsStyle.Name.Length > numberStart+1 && graphicsStyle.Name[numberStart+1] >='0' && graphicsStyle.Name[numberStart+1] <= '9')
                                                     length = 2;
-                                                if (Int32.TryParse(graphicsStyle.Name.Substring(4,length), out axisnumber))
+                                                if (Int32.TryParse(graphicsStyle.Name.Substring(numberStart, length), out axisnumber))
                                                 {
                                                     // you know that the parsing attempt
                                                     // was successful
@@ -1492,6 +1598,7 @@ namespace OpenCOVERPlugin
                                                     ai.min = 0;
                                                     ai.max = 0;
                                                     ai.level = axisnumber;
+                                                    ai.type = type;
                                                     rotationAxis.Add(ai);
                                                 }
                                             }
@@ -1514,6 +1621,7 @@ namespace OpenCOVERPlugin
                                 mb.add(ai.direction);
                                 mb.add(ai.min);
                                 mb.add(ai.max);
+                                mb.add((int)ai.type);
                             }
                             sendMessage(mb.buf, MessageTypes.IKInfo);
                             hasIK = true;

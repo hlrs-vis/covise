@@ -459,18 +459,28 @@ PMesh::GenPolygons()
     int numTVerts2 = mOrgMesh.getNumMapVerts(2);
     mTVMapping2.SetSize(numTVerts2);
     mTVMapping2.ClearAll();
+    if (numTVerts2 == 0)
+        mIsTextured2 = 0;
     int numTVerts3 = mOrgMesh.getNumMapVerts(3);
     mTVMapping3.SetSize(numTVerts3);
     mTVMapping3.ClearAll();
+    if (numTVerts3 == 0)
+        mIsTextured3 = 0;
     int numTVerts4 = mOrgMesh.getNumMapVerts(4);
     mTVMapping4.SetSize(numTVerts4);
     mTVMapping4.ClearAll();
+    if (numTVerts4 == 0)
+        mIsTextured4 = 0;
     int numTVerts5 = mOrgMesh.getNumMapVerts(5);
     mTVMapping5.SetSize(numTVerts5);
     mTVMapping5.ClearAll();
+    if (numTVerts5 == 0)
+        mIsTextured5 = 0;
     int numTVerts6 = mOrgMesh.getNumMapVerts(6);
     mTVMapping6.SetSize(numTVerts6);
     mTVMapping6.ClearAll();
+    if (numTVerts6 == 0)
+        mIsTextured6 = 0;
 
     // keep track of which vertices have been added
     BitArray aVerts;

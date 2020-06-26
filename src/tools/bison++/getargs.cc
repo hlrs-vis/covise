@@ -77,7 +77,7 @@ Usage: %s [-dltvyVu] [-b file-prefix] [-p name-prefix]\n\
 void
 getargs(int argc, char** argv)
 {
-  register int c;
+  int c;
 
   verboseflag = 0;
   definesflag = 0;

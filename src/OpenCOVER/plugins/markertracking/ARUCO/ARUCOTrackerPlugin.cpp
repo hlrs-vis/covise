@@ -216,11 +216,15 @@ bool ARUCOPlugin::init()
        
         int selectedDevice = atoi(VideoDevice.c_str());
 
+#if CV_VERSION_MAJOR > 3 || (CV_VERSION_MAJOR==3 && CV_VERSION_MINOR>1)
         for (int cap: {CAP_V4L2, CAP_ANY})
         {
             if (inputVideo.open(selectedDevice, cap))
                 break;
         }
+#else
+        inputVideo.open(selectedDevice);
+#endif
         
         if (inputVideo.isOpened())
         {

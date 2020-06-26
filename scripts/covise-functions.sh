@@ -214,6 +214,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=xerus
                elif grep -i -q -s 'ubuntu.*18\.04' /etc/issue; then
                    export ARCHSUFFIX=bionic
+               elif grep -i -q -s 'ubuntu.*20\.04' /etc/issue; then
+                   export ARCHSUFFIX=focal
                elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
                    export ARCHSUFFIX=tahr
                elif grep -i -q -s 'ubuntu.*6\.06' /etc/issue; then
