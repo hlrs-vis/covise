@@ -1671,6 +1671,9 @@ MainWindow::hideDock(ODD::EditorId editor)
 	case ODD::ESG:
 		signalsDock_->hide();
 		break;
+    default:
+        // make compiler happy
+        break;
 	}
 }
 

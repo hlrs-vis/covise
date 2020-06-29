@@ -373,6 +373,8 @@ void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
 	case ODD::TSG_TUNNEL:
 		PrepareDrag();
 		break;
+    default:
+        break;
 	}
 }
 

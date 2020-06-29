@@ -668,6 +668,8 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 
 					getProjectGraph()->executeCommand(command);
 					break; }
+                default:
+                    break;
 				}
 			}
 
