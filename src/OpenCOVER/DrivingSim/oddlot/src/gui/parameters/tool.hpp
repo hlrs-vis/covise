@@ -17,13 +17,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define TOOL_HPP
 
 
-class ToolParameter;
-template<class T>
-class ToolValue;
-
 #include <QMap>
 
 #include "src/util/odd.hpp"
+#include "toolparameter.hpp"
+#include "toolvalue.hpp"
 
 class Tool
 {

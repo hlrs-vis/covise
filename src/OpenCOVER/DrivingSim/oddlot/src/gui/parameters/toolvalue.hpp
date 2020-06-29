@@ -39,14 +39,14 @@ public:
 		value_ = NULL;
 	}
 
-	ToolValue<T> *ToolValue<T>::clone()
+	ToolValue<T> *clone()
 	{
 		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), value_);
 
 		return value;
 	}
 
-	ToolValue<T> *ToolValue<T>::parameterClone()
+	ToolValue<T> *parameterClone()
 	{
 		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText());
 
