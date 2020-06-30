@@ -12,7 +12,7 @@ bool UI::m_showOrientations{true};
 
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 {
-   // Main menu
+   // Main menu-------------------------------------------------------------------------------
     m_MainMenu = new ui::Menu("SensorPlacement",this);
 
     m_AddCamera = new ui::Action(m_MainMenu,"AddCamera");
@@ -35,11 +35,11 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 
     m_AddSensorZone = new ui::Action(m_MainMenu,"AddSensorZone");
     m_AddSensorZone-> setText("Add Sensor Zone");
-    m_AddSensorZone-> setCallback([]()
+    m_AddSensorZone-> setCallback([this]()
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddZone(createZone(ZoneType::CameraZone));
+       DataManager:: AddSensorZone(createSensorZone());
     }
     );
 
@@ -53,7 +53,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
          std::cout<<"Delete Status"<<m_DeleteStatus<<std::endl;
     });
 
-   // Sensor
+   // Sensor Menu-------------------------------------------------------------------------------
    m_SensorProps = new ui::Menu(m_MainMenu,"SensorProps");
    m_SensorProps->setText("Sensor Properties");
 
@@ -65,7 +65,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
       m_showOrientations = state;
    });
 
-   // Camera
+   // Camera Menu------------------------------------------------------------------------------------
     m_CameraProps = new ui::Menu(m_SensorProps,"CameraProps");
     m_CameraProps->setText("Camera Properties");
 
@@ -77,7 +77,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 
     });
 
-   //Optimization
+   //Optimization Menu-------------------------------------------------------------------------------
    m_Optimization = new ui::Menu(m_MainMenu, "Optimization");
    m_Optimization->setText("Optimization");
    
@@ -85,8 +85,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage1-> setText("MaxCoverage1");
    m_MaxCoverage1-> setCallback([this]()
    {
-      this->checkForObstacles();
-      this->checkVisibility();
+      this->calcVisibility();
      // auto up(myHelpers::make_unique<GA>(maxCoverage1));
       //TODO only on master
    }
@@ -96,8 +95,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setText("MaxCoverage2");
    m_MaxCoverage2-> setCallback([this]()
    {
-      this->checkForObstacles();
-      this->checkVisibility();
+      this->calcVisibility();
 
      // auto up(myHelpers::make_unique<GA>(maxCoverage2));
       //TODO only on master
@@ -107,14 +105,11 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 
 };
 
-void UI::checkForObstacles()const
+void UI::calcVisibility()const
 {
    for(const auto& sensor : DataManager::GetInstance().GetSensors())
-      sensor->checkForObstacles();
-}
+      sensor->calcVisibility();
 
-void UI::checkVisibility()const
-{
-   //for(const auto& sensor : DataManager::GetInstance().GetSensors())
-      //sensor->calcVisibilityMatrix();
+   for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
+      sensorZone->createAllSensors();
 }

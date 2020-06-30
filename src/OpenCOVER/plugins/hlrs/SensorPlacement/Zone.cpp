@@ -14,6 +14,7 @@
 #include "UI.h"
 #include "Sensor.h"
 #include "Factory.h"
+#include "Profiling.h"
 
 using namespace opencover;
 
@@ -42,9 +43,6 @@ Zone::Zone(osg::Matrix matrix,osg::Vec4 color):m_Color(color)
     m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
     m_DistanceInteractor->show();
     m_DistanceInteractor->enableIntersection();
-
-    createGridPoints();
-
 };
 
 osg::Geode* Zone::draw()
@@ -261,7 +259,7 @@ bool Zone::preFrame()
         m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
 
         m_DistanceInteractor->show();
-        createGridPoints();
+        createGrid();
     }
     else if(m_DistanceInteractor->wasStarted())
     {
@@ -295,7 +293,7 @@ bool Zone::preFrame()
 
       //  m_Distance = std::abs(xpos_Interactor-xpos_DistanceInteractor);
         deleteGridPoints();
-        createGridPoints();
+        createGrid();
     }
     return true;
 };
@@ -564,11 +562,6 @@ osg::Vec3 Zone::defineLimitsOfInnerGridPoints()const
 
     return limits;
 }
-void Zone::createGridPoints()
-{
-  //createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
-  createOuter3DGrid(calcSign());
-}
 
 void Zone::highlitePoints(std::vector<float>& visiblePoints)
 {
@@ -590,11 +583,30 @@ void Zone::setOriginalColor()
         point.setOriginalColor();
 }
 
+SafetyZone::SafetyZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0.5,0,1})
+{
+    createGrid();
+}
+
+void SafetyZone::createGrid()
+{
+  //createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
+  createOuter3DGrid(calcSign());
+}
+
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1}), m_SensorType(type)
 {
+    createGrid();
     m_SensorGroup = new osg::Group();
     m_Group->addChild(m_SensorGroup.get());
-    addSensor(m_NbrOfSensors);
+
+    for(size_t i{0};i<m_NbrOfSensors;i++)
+    {
+        osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition()*m_LocalDCS->getMatrix());
+        osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
+        matrix.setRotate(q);
+        addSensor(matrix,true);
+    }
 }
 
 bool SensorZone::preFrame()
@@ -602,12 +614,18 @@ bool SensorZone::preFrame()
     bool status = Zone::preFrame();
 
     if(m_Interactor->wasStarted() || m_SizeInteractor->wasStarted())
-    {
         removeAllSensors();
-    }
+        
     if(m_Interactor->wasStopped() || m_SizeInteractor->wasStopped())
-        addSensor(m_NbrOfSensors);
-
+    { 
+        for(size_t i{0};i<m_NbrOfSensors;i++)
+        {
+            osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition()*m_LocalDCS->getMatrix());
+            osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
+            matrix.setRotate(q);
+            addSensor(matrix,true);
+        }
+    }
     //check & restrict all sensors positions
     for(const auto& sensor : m_Sensors)
     {
@@ -623,28 +641,52 @@ bool SensorZone::preFrame()
     return status;
 }
 
+void SensorZone::createGrid()
+{
+  createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
+  //createOuter3DGrid(calcSign());
+}
+
 osg::Vec3 SensorZone::getFreeSensorPosition() const
 {
     int nbrOfSensors = m_Sensors.size();
     return m_GridPoints.at(m_GridPoints.size() - nbrOfSensors -1).getPosition() ;
 }
 
-void SensorZone::addSensor(int nbrOfSensors)
+void SensorZone::addSensor(osg::Matrix matrix, bool visible)
 {
-    for(size_t i{0};i<nbrOfSensors;i++)
-    {
-        osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition()*m_LocalDCS->getMatrix());
-        osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
-        matrix.setRotate(q);
-        m_Sensors.push_back(createSensor(m_SensorType, matrix));
+   // for(size_t i{0};i<nbrOfSensors;i++)
+   // {
+       // osg::Matrix matrix = osg::Matrix::translate(getFreeSensorPosition()*m_LocalDCS->getMatrix());
+       // osg::Quat q(osg::DegreesToRadians(50.0),osg::X_AXIS);
+       // matrix.setRotate(q);
+        m_Sensors.push_back(createSensor(m_SensorType, matrix,visible));
         m_SensorGroup->addChild(m_Sensors.back()->getSensor());
-    }
+   // }
 }
 
 void SensorZone::removeAllSensors()
 {
     m_Sensors.clear();
     m_SensorGroup->removeChildren(0,m_SensorGroup->getNumChildren());
+}
+
+void SensorZone::createAllSensors()
+{
+    SP_PROFILE_BEGIN_SESSION("CreateSensorZone","SensorPlacement-CreateSensorZone.json");
+
+    SP_PROFILE_FUNCTION();
+    
+    removeAllSensors();
+  
+    auto worldpositions = getWorldPositionOfPoints();
+    for(const auto& worldpos : worldpositions)
+        addSensor(osg::Matrix::translate(worldpos),true);
+    
+    for(const auto& sensor : m_Sensors)
+        sensor->calcVisibility();
+
+    SP_PROFILE_END_SESSION();
 }
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)

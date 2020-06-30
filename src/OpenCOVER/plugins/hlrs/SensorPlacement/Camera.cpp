@@ -8,21 +8,18 @@
 #include <osg/LineWidth>
 #include <cover/coVRPluginSupport.h>
 
-Camera::Camera(osg::Matrix matrix):
+Camera::Camera(osg::Matrix matrix, bool visible):
     SensorWithMultipleOrientations(matrix)
 {
     float _interSize = cover->getSceneSize() / 50 ;
     m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
-    m_Interactor->show();
     m_Interactor->enableIntersection();
 
     m_Geode = draw();
-    m_Geode->setNodeMask(m_Geode->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
     m_SensorMatrix->addChild(m_Geode.get());
 
     m_GeodeOrientation = drawOrientation();
-    m_GeodeOrientation->setNodeMask(m_GeodeOrientation->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
-
+    VisualizationVisible(visible);
 }
 
 VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
@@ -240,7 +237,7 @@ bool Camera::preFrame()
     if(m_Interactor->wasStarted())
         showOriginalSensorSize();
     else if(m_Interactor->wasStopped())
-    {
+    {   
         showIconSensorSize();
        if(UI::m_showOrientations)
        {
@@ -310,3 +307,14 @@ void Camera::showIconSensorSize()
     m_Verts->dirty();
     m_Geometry->dirtyBound();
 }
+
+void Camera::VisualizationVisible(bool status)const
+{
+    SensorPosition::VisualizationVisible(status);
+
+    if(!status)  
+        m_Interactor->hide();
+    else
+        m_Interactor->show();    
+}
+

@@ -25,7 +25,6 @@ namespace opencover
 
 using namespace opencover;
 
-//Singleton Class
 class UI : public opencover::ui::Owner
 {
 public:
@@ -33,9 +32,9 @@ public:
 
     static bool m_DeleteStatus;
     static bool m_showOrientations;
-    void checkForObstacles()const;
-    void checkVisibility()const;
+    void calcVisibility()const;
 
+   
 private:
     //Main Menu
     ui::Menu *m_MainMenu;
@@ -53,6 +52,6 @@ private:
     //Optimization Menu
     ui::Menu *m_Optimization;
     ui::Action *m_MaxCoverage1, *m_MaxCoverage2;
-    
+
 
 };

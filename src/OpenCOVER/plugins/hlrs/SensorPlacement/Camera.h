@@ -31,12 +31,13 @@ class Camera : public SensorWithMultipleOrientations
 {
 public:
    
-    Camera(osg::Matrix matrix);
+    Camera(osg::Matrix matrix, bool visible);
     ~Camera()override{};
     
     bool preFrame() override;
     osg::Geode* draw() override;
     VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) override;
+    void VisualizationVisible(bool status)const override;
 
     const CameraProps& getCameraProps()const {return m_CameraProps;}
 
@@ -46,7 +47,6 @@ protected:
     double calcHeightDistortionFactor(const osg::Vec3& point)const override;
 
     osg::Geode* drawOrientation() override;
-
     void showOriginalSensorSize() override;
     void showIconSensorSize() override;
 

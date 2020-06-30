@@ -10,6 +10,7 @@
 
 #include <OpenVRUI/osg/mathUtils.h>
 #include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <cover/coVRPluginSupport.h>
 
 double calcValueInRange(double oldMin, double oldMax, double newMin, double newMax, double oldValue);
 
@@ -44,19 +45,19 @@ class SensorVisualization;
 class SensorPosition
 {
 public:
-    SensorPosition(osg::Matrix matrix);
+    SensorPosition(osg::Matrix matrix, bool visible);
     virtual ~SensorPosition(){}; //do I now need to implement move ....
     
     virtual bool preFrame();
     virtual osg::Geode* draw() = 0;
 
     virtual const Orientation* getRandomOrientation()const;
-    virtual VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) = 0;
-    void checkForObstacles();
+    virtual void calcVisibility();
 
     virtual void setMatrix(osg::Matrix matrix);
     void setVisibilityMatrix(VisibilityMatrix<float>&& visMat){m_CurrentOrientation.setVisibilityMatrix(std::move(visMat));}
 
+    virtual void VisualizationVisible(bool status)const;
     osg::ref_ptr<osg::Group> getSensor()const;
     osg::Matrix getMatrix()const;
     const VisibilityMatrix<float>& getVisibilityMatrix()const{return m_CurrentOrientation.getVisibilityMatrix();}
@@ -69,14 +70,18 @@ protected:
 
     virtual void showOriginalSensorSize() = 0;
     virtual void showIconSensorSize() = 0;
+
+    virtual VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) = 0;
+    void checkForObstacles();
     
+    const unsigned int m_NodeMask = UINT32_MAX & ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
     std::unique_ptr<opencover::coVRIntersectionInteractor> m_Interactor; 
     Orientation m_CurrentOrientation; 
     VisibilityMatrix<float> m_VisMatSensorPos; //
-
     int m_Scale{10}; //Scale factor for sensor visualization
     osg::ref_ptr<osg::Group> m_SensorGroup;
     osg::ref_ptr<osg::MatrixTransform> m_SensorMatrix;
+
 };
 struct SensorProps
 {
@@ -93,14 +98,18 @@ public:
     ~SensorWithMultipleOrientations() override{};
     
     bool preFrame() override;  
+    void calcVisibility() override;
     const Orientation* getRandomOrientation()const final;
 
     void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
     std::vector<Orientation>& getOrientations(){return m_Orientations;}
+
 protected:
     virtual osg::Geode* drawOrientation() = 0;
 
     void createSensorOrientations();
+    void deleteSensorOrientations();
+
     virtual bool compareOrientations(const Orientation& lhs, const Orientation& rhs);
 
     std::vector<Orientation> m_Orientations;
@@ -112,28 +121,9 @@ private:
     void replaceOrientationWithLastElement(int index);
     bool isVisibilityMatrixEmpty(const Orientation& orientation);
 
-    void deleteSensorOrientations();
     
     SensorProps m_SensorProps;
 };
 
-// class SensorVisualization
-// {
-// public:
-//     SensorVisualization(SensorPosition* sensor);
-//     virtual bool preFrame();
-//     virtual osg::Geode* draw(){};
-//     void setMatrix(osg::Matrix matrix){m_Matrix->setMatrix(matrix);}
-//     osg::Matrix getMatrix()const{return m_Matrix->getMatrix();}
-//     virtual osg::ref_ptr<osg::Group> getSensorVisualization()const{return m_Group.get();}
-// protected:
-//     int m_Scale{10};
-//     SensorPosition* m_Sensor;  
-//     osg::ref_ptr<osg::Group> m_Group;
-//     osg::ref_ptr<osg::MatrixTransform> m_Matrix;
-
-    
-
-// };
 
 

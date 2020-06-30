@@ -111,9 +111,12 @@ void DataManager::AddZone(upZone zone)
 
     if(dynamic_cast<SafetyZone*>(zone.get()))
         GetInstance().m_SafetyZones.push_back(std::move(zone));  
-        
-    else if(dynamic_cast<SensorZone*>(zone.get()))
-        GetInstance().m_SensorZones.push_back(std::move(zone));        
+}
+
+void DataManager::AddSensorZone(upSensorZone zone)
+{
+    GetInstance().m_Root->addChild(zone.get()->getZone().get());
+    GetInstance().m_SensorZones.push_back(std::move(zone));  
 }
 
 void DataManager::AddSensor(upSensor sensor)

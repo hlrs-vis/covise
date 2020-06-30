@@ -16,6 +16,8 @@ std::vector<VisibilityMatrix<float>> convertVisMatTo2D(const VisibilityMatrix<fl
 typedef std::unique_ptr<SensorPosition> upSensor;
 typedef std::unique_ptr<Zone> upZone;
 typedef std::unique_ptr<SafetyZone> upSafetyZone;
+typedef std::unique_ptr<SensorZone> upSensorZone;
+
 //Singleton Class
 class DataManager
 {
@@ -31,12 +33,14 @@ public:
     }
     static void Destroy();
     static const std::vector<upZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
+    static const std::vector<upSensorZone>& GetSensorZones(){return GetInstance().m_SensorZones;}
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
     static const osg::ref_ptr<osg::Group>& GetRootNode() {return GetInstance().m_Root;}
     static void highlitePoints(const VisibilityMatrix<float>& visMat);
     static void setOriginalPointColor();
     static void AddZone(upZone zone);
+    static void AddSensorZone(upSensorZone zone);
     static void AddSensor(upSensor sensor);
 
     template<typename T>
@@ -48,7 +52,7 @@ private:
     DataManager();
     std::vector<upSensor> m_Sensors;
     std::vector<upZone> m_SafetyZones;
-    std::vector<upZone> m_SensorZones;
+    std::vector<upSensorZone> m_SensorZones;
     osg::ref_ptr<osg::Group> m_Root;
 
 };

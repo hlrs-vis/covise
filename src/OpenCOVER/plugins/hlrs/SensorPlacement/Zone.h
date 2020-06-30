@@ -11,7 +11,6 @@ using namespace opencover;
 
 
 class GridPoint;
-class SensorPosition;
 
 struct ZoneProperties
 {
@@ -37,7 +36,6 @@ class Zone
 public:
     Zone(osg::Matrix matrix,osg::Vec4 color);
     virtual ~Zone(){std::cout<<"Zone Destructor\n";};
-    virtual void createGrid() = 0;
 
     virtual bool preFrame();
     
@@ -52,6 +50,15 @@ public:
     void setOriginalColor();
 
 protected:
+    virtual void createGrid() = 0;
+
+    osg::Vec3 calcSign()const;
+    osg::Vec3 findLongestSide()const;
+    osg::Vec3 defineStartPointForInnerGrid()const;
+    osg::Vec3 defineLimitsOfInnerGridPoints()const;
+    void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
+    void createOuter3DGrid(const osg::Vec3& sign );
+
     osg::ref_ptr<osg::Group> m_Group;
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
     std::vector<GridPoint> m_GridPoints;
@@ -75,15 +82,10 @@ private:
 
     osg::Geode* draw();
 
-    virtual void createGridPoints();
-    osg::Vec3 calcSign()const;
-    osg::Vec3 findLongestSide()const;
-    osg::Vec3 defineStartPointForInnerGrid()const;
-    osg::Vec3 defineLimitsOfInnerGridPoints()const;
+    
     void addPointToVec(osg::Vec3 point);
     void deleteGridPoints();
-    void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
-    void createOuter3DGrid(const osg::Vec3& sign );
+    
     void updateGeometry(osg::Vec3& vec);
 
 };
@@ -102,11 +104,11 @@ class SafetyZone : public Zone
 {
 
 public:
-    SafetyZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0.5,0,1}){std::cout<<"Safety Zone created\n";}
+    SafetyZone(osg::Matrix matrix);
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
-    void createGrid()override{};
     
 private:
+    void createGrid() override;    
     osg::Vec4 m_ColorVisible;
 
 
@@ -120,13 +122,14 @@ struct SensorZoneProperties
 enum class SensorType;
 class SensorZone : public Zone
 {
+
 public:
     SensorZone(SensorType type,osg::Matrix matrix);
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
     bool preFrame() override;
-    void createGrid() override{};
-    void addSensor(int nbrSensors = 1);
-    void removeAllSensors();
+    void createGrid() override;
+    void addSensor(osg::Matrix matrix, bool visible);
+    void createAllSensors();
 
 private:
     int m_NbrOfSensors{2};
@@ -135,6 +138,7 @@ private:
     osg::ref_ptr<osg::Group> m_SensorGroup;
  
     osg::Vec3 getFreeSensorPosition()const;
+    void removeAllSensors();
 };
 
 
