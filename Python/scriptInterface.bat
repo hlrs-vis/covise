@@ -29,11 +29,15 @@ IF /i "%ARCHSUFFIX%" == "win32opt" (
           IF /i "%ARCHSUFFIX%" == "angusopt" (
             set USE_OPT_LIBS=1
           ) ELSE (
+          IF /i "%ARCHSUFFIX%" == "zebuopt" (
+            set USE_OPT_LIBS=1
+          ) ELSE (
 	    IF /i "%ARCHSUFFIX%" == "mingw" (
               set USE_OPT_LIBS=1
             ) ELSE (
               set USE_OPT_LIBS=0
 	    )
+          )
           )
           )
         )
