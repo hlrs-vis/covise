@@ -257,7 +257,7 @@ void ObjectManager::addObject(char* object)
 			//write scene elements to html
 			objlist->write(fp);
 			//java script for interactions
-			const char* lol = nameTimeset.c_str();  //to do: use char*, fprintf OR std:str,iostream
+			const char* lol = nameTimeset.c_str();
 			fprintf(fp, " \n\
                     </scene>\n\
                 </x3d>\n\
@@ -284,7 +284,6 @@ void ObjectManager::addObject(char* object)
         </html>\n\
                     \n", lol, lol, lol);
 			fclose(fp);
-			//delete lol;
 		}
 		else
 			CoviseRender::sendError("%s", strerror(errno));
@@ -566,6 +565,36 @@ void ObjectManager::add_geometry(const char* object, int is_timestep, const char
 					}
 				}
 			}
+			if (texture != nullptr)
+			{
+				//ttype = texture->getType();
+				//if (strcmp(ntype, "SETELE") != 0)
+				//{
+				//	print_comment(__LINE__, __FILE__, "ERROR: ...did not get a normal set");
+				//}
+				//else
+				//{
+					set = (coDoSet*)texture;
+					if (set != NULL)
+					{
+						// Get Set
+						dobjst = set->getAllElements(&no_t);
+						if (no_t == no_elems)
+						{
+							print_comment(__LINE__, __FILE__, "... got texture set");
+						}
+						else
+						{
+							print_comment(__LINE__, __FILE__, "ERROR: number of textureelements does not match geometry set");
+							no_t = 0;
+						}
+					}
+					else
+					{
+						print_comment(__LINE__, __FILE__, "ERROR: ...got bad normal set");
+					}
+				//}
+			}
 			if (colors != NULL)
 			{
 				ctype = colors->getType();
@@ -639,7 +668,8 @@ void ObjectManager::add_geometry(const char* object, int is_timestep, const char
 					dobjn = dobjsn[i];
 				if (no_t)
 					dobjt = dobjst[i];
-				add_geometry(objName, is_timestep, object, dobjg, dobjn, dobjc, dobjt, container);
+				add_geometry(objName, is_timestep, object, dobjg, dobjn, dobjc, dobjt, container); 
+				////(const char* object, int is_timestep, const char* root, const coDistributedObject* geometry, const coDistributedObject* normals, const coDistributedObject* colors, const coDistributedObject* texture, const coDoGeometry* container)
 			}
 			LObject* lob = new LObject("Endset", object, (CharBuffer*)NULL);
 			objlist->push_back(std::unique_ptr<LObject>(lob));
