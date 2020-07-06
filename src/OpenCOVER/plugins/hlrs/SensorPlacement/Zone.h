@@ -53,7 +53,6 @@ protected:
     virtual void createGrid() = 0;
 
     osg::Vec3 calcSign()const;
-    osg::Vec3 findLongestSide()const;
     osg::Vec3 defineStartPointForInnerGrid()const;
     osg::Vec3 defineLimitsOfInnerGridPoints()const;
     void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
@@ -82,7 +81,13 @@ private:
 
     osg::Geode* draw();
 
-    
+    void drawGrid(); // calls virtual createGrid() function
+
+    void calcPositionOfDistanceInteractor(osg::Vec3& startPosInteractor);
+    void restrictDistanceInteractor(osg::Vec3& startPosInteractor);
+    osg::Vec3 findLongestSide()const;
+    float findLargestVectorComponent(osg::Vec3 vec) const;
+    float calculateGridPointDistance() const;
     void addPointToVec(osg::Vec3 point);
     void deleteGridPoints();
     
@@ -97,7 +102,6 @@ struct SafetyZoneProperties
         PRIO1,
         PRIO2
     };
-
 };
 
 class SafetyZone : public Zone
@@ -128,7 +132,6 @@ public:
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
     bool preFrame() override;
     void createGrid() override;
-    void addSensor(osg::Matrix matrix, bool visible);
     void createAllSensors();
 
 private:
@@ -137,6 +140,8 @@ private:
     std::vector<std::unique_ptr<SensorPosition>> m_Sensors; 
     osg::ref_ptr<osg::Group> m_SensorGroup;
  
+    void createSpecificNbrOfSensors();
+    void addSensor(osg::Matrix matrix, bool visible);
     osg::Vec3 getFreeSensorPosition()const;
     void removeAllSensors();
 };
