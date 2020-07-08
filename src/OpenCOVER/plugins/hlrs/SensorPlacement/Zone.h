@@ -133,6 +133,8 @@ public:
     bool preFrame() override;
     void createGrid() override;
     void createAllSensors();
+    SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
+    int getNumberOfSensors(){return m_NbrOfSensors;}
 
 private:
     int m_NbrOfSensors{2};

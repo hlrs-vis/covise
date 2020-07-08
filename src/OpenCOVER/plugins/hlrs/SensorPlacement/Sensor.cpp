@@ -164,6 +164,13 @@ void SensorPosition::setMatrix(osg::Matrix matrix)
     m_SensorMatrix->setMatrix(matrix);
 }
 
+void SensorPosition::setCurrentOrientation(Orientation orientation)
+{
+    m_CurrentOrientation = orientation;
+    //Missing update Interactor !!! not possible here? 
+    m_SensorMatrix->setMatrix(orientation.getMatrix());
+}
+
 bool SensorPosition::preFrame()
 {
     if(m_Interactor->wasStarted())
@@ -236,11 +243,6 @@ void SensorPosition::checkForObstacles()
   
 };
 
-const Orientation* SensorPosition::getRandomOrientation()const
-{
-    return &m_CurrentOrientation;
-}
-
 void SensorPosition::VisualizationVisible(bool status)const
 {
     if(status)
@@ -280,11 +282,11 @@ void SensorWithMultipleOrientations::calcVisibility()
     createSensorOrientations();
 }
 
-const Orientation* SensorWithMultipleOrientations::getRandomOrientation()const
-{
-    //TODO: add random
-    return &m_Orientations.at(0);
-}
+// const Orientation* SensorWithMultipleOrientations::getRandomOrientation()const
+// {
+//     //TODO: add random
+//     return &m_Orientations.at(0);
+// }
 
 void SensorWithMultipleOrientations::createSensorOrientations()
 {

@@ -51,16 +51,20 @@ public:
     virtual bool preFrame();
     virtual osg::Geode* draw() = 0;
 
-    virtual const Orientation* getRandomOrientation()const;
+    //virtual const Orientation* getRandomOrientation()const;
     virtual void calcVisibility();
 
     virtual void setMatrix(osg::Matrix matrix);
     void setVisibilityMatrix(VisibilityMatrix<float>&& visMat){m_CurrentOrientation.setVisibilityMatrix(std::move(visMat));}
+    void setCurrentOrientation(Orientation);
 
+    virtual int getNbrOfOrientations()const{return 1;}
     virtual void VisualizationVisible(bool status)const;
+
     osg::ref_ptr<osg::Group> getSensor()const;
     osg::Matrix getMatrix()const;
     const VisibilityMatrix<float>& getVisibilityMatrix()const{return m_CurrentOrientation.getVisibilityMatrix();}
+    virtual Orientation* getSpecificOrientation(int position){return &m_CurrentOrientation;}
 
 
 protected:    
@@ -76,9 +80,9 @@ protected:
     
     const unsigned int m_NodeMask = UINT32_MAX & ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
     std::unique_ptr<opencover::coVRIntersectionInteractor> m_Interactor; 
-    Orientation m_CurrentOrientation; 
-    VisibilityMatrix<float> m_VisMatSensorPos; //
-    int m_Scale{10}; //Scale factor for sensor visualization
+    Orientation m_CurrentOrientation;                                       // Visualized orientation
+    VisibilityMatrix<float> m_VisMatSensorPos;                              // VisibilityMatrix(only contains intersections with obstacles)
+    int m_Scale{10};                                                        // Scale factor for sensor visualization
     osg::ref_ptr<osg::Group> m_SensorGroup;
     osg::ref_ptr<osg::MatrixTransform> m_SensorMatrix;
 
@@ -99,9 +103,10 @@ public:
     
     bool preFrame() override;  
     void calcVisibility() override;
-    const Orientation* getRandomOrientation()const final;
+    int getNbrOfOrientations()const override{return m_Orientations.size();}
 
     void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
+    Orientation* getSpecificOrientation(int position)override{return &m_Orientations.at(position);}
     std::vector<Orientation>& getOrientations(){return m_Orientations;}
 
 protected:

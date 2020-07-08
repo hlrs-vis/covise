@@ -1,3 +1,4 @@
+
 #include "UI.h"
 #include "Helper.h"
 
@@ -86,30 +87,16 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage1-> setCallback([this]()
    {
       this->calcVisibility();
-     // auto up(myHelpers::make_unique<GA>(maxCoverage1));
-      //TODO only on master
-   }
-   );
+      
+   });
+   
 
    m_MaxCoverage2 = new ui::Action(m_Optimization,"MaxCoverage2");
    m_MaxCoverage2-> setText("MaxCoverage2");
    m_MaxCoverage2-> setCallback([this]()
    {
       this->calcVisibility();
-
-     // auto up(myHelpers::make_unique<GA>(maxCoverage2));
-      //TODO only on master
-
-   }
-   );
-
+     
+   });
 };
 
-void UI::calcVisibility()const
-{
-   for(const auto& sensor : DataManager::GetInstance().GetSensors())
-      sensor->calcVisibility();
-
-   for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
-      sensorZone->createAllSensors();
-}

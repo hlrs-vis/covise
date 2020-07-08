@@ -26,6 +26,15 @@
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
 
+class Orientation;
+enum class FitnessFunctionType;
+
+//Free functions
+int calcNumberOfSensors();
+void calcVisibility();
+void optimize(FitnessFunctionType);
+void updateAllSensors(std::vector<Orientation>);
+
 class UI;
 class SensorPlacementPlugin :public opencover::coVRPlugin 
 {
