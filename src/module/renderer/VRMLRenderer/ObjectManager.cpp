@@ -251,7 +251,7 @@ void ObjectManager::addObject(char* object)
                     </table>\n\
                     </div>\n\
                     </div>\n\
-                    <x3d id = 'x3dElement' showStat = 'false' showLog = 'false' style = 'width:100%; height:100%; border:0; margin:0; padding:0;'>\n\
+                    <x3d id = 'x3dElement' showStat = 'false' showLog = 'false' style = 'width:100%%; height:100%%; border:0; margin:0; padding:0;'>\n\
                     <scene DEF = 'scene'>\n ", numberoftimesteps);
 			}  //to do: carefullly sepparate vrml and x3dom sections
 			//write scene elements to html
@@ -282,7 +282,7 @@ void ObjectManager::addObject(char* object)
                     </script>\n\
             </body>\n\
         </html>\n\
-                    \n", lol, lol, lol);
+                    \n", lol);
 			fclose(fp);
 		}
 		else
