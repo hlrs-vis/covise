@@ -854,37 +854,11 @@ namespace OpenCOVERPlugin
                     return;
                 }
             }
-            if(elem is Autodesk.Revit.DB.PointCloudInstance)
-            {
-                Autodesk.Revit.DB.PointCloudInstance pointcloud = (Autodesk.Revit.DB.PointCloudInstance)elem;
-                String n = pointcloud.Name;
-                /*MessageBuffer mb = new MessageBuffer();
-                 * mb.add(elem.Id.IntegerValue);
-            mb.add(DocumentID);
-                mb.add(elem.Name + "__" + elem.UniqueId.ToString());
-                mb.add(n);
-                sendMessage(mb.buf, MessageTypes.NewPointCloud);*/
-
-
-                MessageBuffer mb = new MessageBuffer();
-                mb.add(elem.Id.IntegerValue);
-                mb.add(DocumentID);
-                mb.add(elem.Name);
-                mb.add((int)ObjectTypes.Inline);
-                mb.add(false);//doWalk
-                mb.add(n+".e57");
-
-                mb.add(getDepthOny(elem));
-                sendMessage(mb.buf, MessageTypes.NewObject);
-                sendParameters(elem);
-
-            }
-
             if (elem is Autodesk.Revit.DB.TextNote)
             {
                 //sendTextNote(elem);
             }
-            if(elem is Autodesk.Revit.DB.RevitLinkInstance)
+            else if(elem is Autodesk.Revit.DB.RevitLinkInstance)
             {
                 Autodesk.Revit.DB.RevitLinkInstance link = (Autodesk.Revit.DB.RevitLinkInstance)elem;
                 /*if(!Autodesk.Revit.DB.RevitLinkType.IsLoaded(document,link.Id))
@@ -1455,6 +1429,10 @@ namespace OpenCOVERPlugin
         /// <remarks></remarks>
         private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
         {
+
+            
+
+            
             if (elementGeom == null || elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1)
             {
                 return;
@@ -1634,6 +1612,10 @@ namespace OpenCOVERPlugin
                 if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
                 {
                     hasStyle = false;
+                    doWalk = true;
+                }
+                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Topography)
+                {
                     doWalk = true;
                 }
                 else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsRuns)
@@ -1975,9 +1957,14 @@ namespace OpenCOVERPlugin
             mb.add(elem.Name + "__" + elem.UniqueId.ToString());
             try
             {
-                mb.add(geomInstance.Transform.BasisX.Multiply(geomInstance.Transform.Scale));
-                mb.add(geomInstance.Transform.BasisY.Multiply(geomInstance.Transform.Scale));
-                mb.add(geomInstance.Transform.BasisZ.Multiply(geomInstance.Transform.Scale));
+                double scale = geomInstance.Transform.Scale;
+                if (elem is Autodesk.Revit.DB.PointCloudInstance)
+                {
+                    scale = 1/3.28084;
+                }
+                mb.add(geomInstance.Transform.BasisX.Multiply(scale));
+                mb.add(geomInstance.Transform.BasisY.Multiply(scale));
+                mb.add(geomInstance.Transform.BasisZ.Multiply(scale));
                 mb.add(geomInstance.Transform.Origin);
             }
             catch (Autodesk.Revit.Exceptions.InvalidOperationException)
@@ -1997,6 +1984,31 @@ namespace OpenCOVERPlugin
             else
             {
                 SendElement(ge, elem);
+                if (elem is Autodesk.Revit.DB.PointCloudInstance)
+                {
+                    Autodesk.Revit.DB.PointCloudInstance pointcloud = (Autodesk.Revit.DB.PointCloudInstance)elem;
+                    String n = pointcloud.Name;
+                    /*MessageBuffer mb = new MessageBuffer();
+                     * mb.add(elem.Id.IntegerValue);
+                mb.add(DocumentID);
+                    mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                    mb.add(n);
+                    sendMessage(mb.buf, MessageTypes.NewPointCloud);*/
+
+
+                    MessageBuffer mbpc = new MessageBuffer();
+                    mbpc.add(elem.Id.IntegerValue);
+                    mbpc.add(DocumentID);
+                    mbpc.add(elem.Name);
+                    mbpc.add((int)ObjectTypes.Inline);
+                    mbpc.add(false);//doWalk
+                    mbpc.add(n + ".e57");
+
+                    mbpc.add(getDepthOny(elem));
+                    sendMessage(mbpc.buf, MessageTypes.NewObject);
+                    sendParameters(elem);
+
+                }
             }
 
             mb = new MessageBuffer();

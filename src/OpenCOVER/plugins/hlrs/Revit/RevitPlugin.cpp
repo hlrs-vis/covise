@@ -2501,7 +2501,10 @@ RevitPlugin::handleMessage(Message *m)
 			}
 			if (!doWalk) // don't walk on anything else than objects marked with doWalk
 			{
+				if(inlineNode)
+				{
 				inlineNode->setNodeMask(inlineNode->getNodeMask() & ~Isect::Walk);
+				}
 			}
 
 
