@@ -1562,6 +1562,8 @@ MainWindow::findProject(const QString &fileName)
     //
     // Absolute path without symbolic links or redundant "." or ".." elements.
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
+    if (canonicalFilePath.length() == 0) // file not found
+        canonicalFilePath = fileName;
 
     // Search for project with that file name //
     //
