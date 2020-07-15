@@ -962,7 +962,11 @@ VRML2Export::OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level,
 				else
 					n = mesh.getFaceNormal(i);
 				int index = normTab->GetIndex(n);
-				assert(index != -1);
+				if (index == -1)
+				{
+					index = 0;
+				}
+				//assert(index != -1);
 				width += MSTREAMPRINTFNOSTRINGS("%d, "), index);
 				width = MaybeNewLine(width, level + 1);
 			}
@@ -2250,56 +2254,67 @@ VRML2Export::GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc *
 		if (physicalMaterial.base_color_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.base_color_map, isWire, ID_DI);
+			if(tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.bump_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.bump_map, isWire, ID_BU);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.refl_color_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.refl_color_map, isWire, ID_RL);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.anisotropy_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.anisotropy_map, isWire, ID_SP);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.coat_color_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.coat_color_map, isWire, ID_SH);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.trans_color_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.trans_color_map, isWire, ID_AM);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.sss_color_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.sss_color_map, isWire, ID_SS);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.emit_color_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.emit_color_map, isWire, ID_SI);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.transparency_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.transparency_map, isWire, ID_OP);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.scattering_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.scattering_map, isWire, ID_RR);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.displacement_map)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.displacement_map, isWire, ID_DP);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM0)
@@ -2310,101 +2325,121 @@ VRML2Export::GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc *
 		if (physicalMaterial.mapM1)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM1, isWire, 11);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM2)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM2, isWire, 12);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM3)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM3, isWire, 13);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM4)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM4, isWire, 14);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM5)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM5, isWire, 15);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM6)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM6, isWire, 16);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM7)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM7, isWire, 17);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM8)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM8, isWire, 18);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM9)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM9, isWire, 19);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM10)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM10, isWire, 20);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM11)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM11, isWire, 21);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM12)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM12, isWire, 22);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM13)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM13, isWire, 23);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM14)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM14, isWire, 24);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM15)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM15, isWire, 25);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM16)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM16, isWire, 26);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM17)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM17, isWire, 27);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM18)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM18, isWire, 28);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM19)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM19, isWire, 29);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 		if (physicalMaterial.mapM20)
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.mapM20, isWire, 30);
+			if (tds[numTexDesks])
 			numTexDesks++;
 		}
 
