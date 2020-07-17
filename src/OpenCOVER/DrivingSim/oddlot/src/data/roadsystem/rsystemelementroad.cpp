@@ -3509,7 +3509,7 @@ RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
 		name = object->getName();
 	}
 
-	objectReference->setId(getRoadSystem()->getID(name, odrID::ID_Road));
+	objectReference->setId(getRoadSystem()->getID(name, odrID::ID_Object));
 
 	// Insert and Notify //
 	//
@@ -3754,7 +3754,7 @@ RSystemElementRoad::addSignal(Signal *signal)
     //
     QString name = signal->getName();
 
-    odrID id = getRoadSystem()->getID(name,  odrID::ID_Object);
+    odrID id = getRoadSystem()->getID(name,  odrID::ID_Signal);
         signal->setId(id);
         if (name != signal->getName())
         {
@@ -3876,7 +3876,7 @@ RSystemElementRoad::addSignalReference(SignalReference *signalReference)
 		name = signal->getName();
 	}
 
-	odrID id = getRoadSystem()->getID(name, odrID::ID_Object);
+	odrID id = getRoadSystem()->getID(name, odrID::ID_Signal);
 	signalReference->setId(id);
 
 	// Insert and Notify //

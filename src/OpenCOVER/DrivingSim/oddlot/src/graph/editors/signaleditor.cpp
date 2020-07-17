@@ -663,7 +663,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 				case ODD::TSG_TUNNEL: {
 					// Add new tunnel //
 					//
-					Tunnel *newTunnel = new Tunnel(getProjectData()->getRoadSystem()->getID("tunnel", odrID::ID_Object), "", "", Tunnel::TT_STANDARD, s, 100.0, 0.0, 0.0);
+					Tunnel *newTunnel = new Tunnel(getProjectData()->getRoadSystem()->getID("tunnel", odrID::ID_Bridge), "", "", Tunnel::TT_STANDARD, s, 100.0, 0.0, 0.0);
 					AddBridgeCommand *command = new AddBridgeCommand(newTunnel, road, NULL);
 
 					getProjectGraph()->executeCommand(command);

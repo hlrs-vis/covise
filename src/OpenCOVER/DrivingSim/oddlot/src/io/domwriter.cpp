@@ -1640,7 +1640,7 @@ DomWriter::visit(RSystemElementController *controller)
             QDomElement controlElement = doc_->createElement("control");
             ControlEntry *control = controller->getControlEntries().at(i);
 
-            controlElement.setAttribute("signalId", control->getSignalId().writeString());
+            controlElement.setAttribute("signalId", getIDString(control->getSignalId(), ""));
             controlElement.setAttribute("type", control->getType());
 
             controllerElement.appendChild(controlElement);

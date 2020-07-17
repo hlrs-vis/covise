@@ -1663,7 +1663,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 		double daylight = parseToDouble(child, "daylight", 0.0, false);
 
 		odrID ID;
-		StringToID(id, ID, odrID::ID_Object,tileID);
+		StringToID(id, ID, odrID::ID_Bridge,tileID);
 		// Construct tunnel object
 		Tunnel *tunnel = new Tunnel(ID, modelFile, name, Tunnel::parseTunnelType(type), s, length, lighting, daylight);
 
@@ -1713,7 +1713,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 				crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
 		}
 
-		StringToID(id, ID, odrID::ID_Object,tileID);
+		StringToID(id, ID, odrID::ID_Signal,tileID);
 		// Construct signal object
 		Signal *signal = new Signal(ID, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
 		// Add to road
@@ -1873,7 +1873,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road)
         }
 
 		odrID ID;
-		StringToID(id, ID, odrID::ID_Object,tileID);
+		StringToID(id, ID, odrID::ID_Signal,tileID);
         if ((type == "625") && (subtype == "10") && (typeSubclass == "20"))
         {
             hOffset = name.toDouble();
@@ -1892,6 +1892,10 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road)
 
         // Add to road
         road->addSignal(signal);
+		if (signal->getId() != ID) // Signal ID has changed, controller has to use new id
+		{
+			changedSignalIDs_.insert(ID, signal->getId());
+		}
 
         // Attempt to locate another signal
         child = child.nextSiblingElement("signal");
@@ -2553,6 +2557,7 @@ DomParser::parseControllerElement(QDomElement &controllerElement)
 
 		odrID signalID;
 		StringToID(signalId, signalID, odrID::ID_Signal,tileID);
+		signalID = changedSignalIDs_.value(signalID, signalID);
         ControlEntry *entry = new ControlEntry(signalID, type);
         controlEntries.append(entry);
 
