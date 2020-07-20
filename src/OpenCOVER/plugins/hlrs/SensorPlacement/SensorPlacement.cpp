@@ -43,13 +43,13 @@ void optimize(FitnessFunctionType fitnessFunction)
     auto ga(myHelpers::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
   }
-  else if(!coVRMSController::instance()->isMaster())
-    finalSensorOrientations.resize(calcNumberOfSensors());
+  // TODO: resize Vector of SensorPosition. Problem: size of Orientation Object not knwon
   
-  coVRMSController::instance()->syncData(finalSensorOrientations.data(),sizeof(Orientation) * calcNumberOfSensors());
-
-  updateAllSensors(finalSensorOrientations);   
+  //else if(!coVRMSController::instance()->isMaster())
+  //  finalSensorOrientations.resize(calcNumberOfSensors());
   
+  //coVRMSController::instance()->syncData(finalSensorOrientations.data(),sizeof(Orientation) * calcNumberOfSensors());
+  //updateAllSensors(finalSensorOrientations);   
 }
 
 void updateAllSensors(std::vector<Orientation> orientations) // finish here ------------------------------------------------

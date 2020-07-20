@@ -5,6 +5,7 @@
 #include "DataManager.h"
 #include "Factory.h"
 #include "GA.h"
+#include "SensorPlacement.h"
 
 using namespace opencover;
 
@@ -86,8 +87,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage1-> setText("MaxCoverage1");
    m_MaxCoverage1-> setCallback([this]()
    {
-      this->calcVisibility();
-      
+      calcVisibility();
    });
    
 
@@ -95,7 +95,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setText("MaxCoverage2");
    m_MaxCoverage2-> setCallback([this]()
    {
-      this->calcVisibility();
+      calcVisibility();
      
    });
 };

@@ -32,7 +32,6 @@ public:
 
     static bool m_DeleteStatus;
     static bool m_showOrientations;
-    void calcVisibility()const;
 
    
 private:
