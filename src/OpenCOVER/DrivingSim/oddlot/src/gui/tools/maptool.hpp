@@ -16,7 +16,7 @@
 #ifndef MAPTOOL_HPP
 #define MAPTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 #include "toolaction.hpp"
 
 #include <QComboBox>
@@ -24,7 +24,7 @@
 #include <QString>
 #include <QDoubleSpinBox>
 
-class MapTool : public Tool
+class MapTool : public EditorTool
 {
     Q_OBJECT
 

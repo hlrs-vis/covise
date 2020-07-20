@@ -20,6 +20,7 @@
 
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 
+class ElevationRoadItem;
 class ElevationEditor;
 class ProjectEditor;
 
@@ -76,7 +77,7 @@ public slots:
     //################//
 
 protected:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    //virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -91,6 +92,7 @@ protected:
     //################//
 
 private:
+	ElevationRoadItem *parentRoadItem_;
     ElevationEditor *elevationEditor_;
 
     ElevationSection *elevationSection_;

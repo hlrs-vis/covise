@@ -358,11 +358,17 @@ LaneItem::updateObserver()
 // EVENTS         //
 //################//
 
-//void
-//	LaneItem
-//	::mousePressEvent(QGraphicsSceneMouseEvent * event)
-//{
-//}
+void
+LaneItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
+	LaneEditor *editor = parentLaneSectionItem_->getLaneEditor();
+	if ((editor->getCurrentTool() == ODD::TLE_INSERT) && (editor->getCurrentParameterTool() != ODD::TPARAM_SELECT))
+	{
+		return;
+	}
+
+	QGraphicsItem::mousePressEvent(event);
+}
 
 void
 LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

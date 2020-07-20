@@ -52,9 +52,6 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
 {
     ui->setupUi(this);
 
-	activateInsertGroupBox(false);
-	connect(ui->insertPushButton, SIGNAL(clicked(bool)), this, SLOT(activateInsertGroupBox(bool)));
-
     // List //
     //
     QStringList typeNames;
@@ -110,10 +107,6 @@ void
 LaneSettings::updateId()
 {
     ui->idBox->setValue(lane_->getId());
-
-    ui->newIdBox->setMinimum(lane_->getParentLaneSection()->getRightmostLaneId() - 1);
-    ui->newIdBox->setMaximum(lane_->getParentLaneSection()->getLeftmostLaneId() + 1);
-    ui->newIdBox->setValue(lane_->getId());
 }
 
 void
@@ -272,40 +265,6 @@ LaneSettings::on_successorBox_valueChanged(int i)
         SetLaneSuccessorIdCommand *command = new SetLaneSuccessorIdCommand(lane_, i);
         getProjectSettings()->executeCommand(command);
     }
-}
-
-void
-LaneSettings::on_addButton_released()
-{
-    Lane *newLane = new Lane(ui->newIdBox->value(), Lane::LT_DRIVING);
-
-    LaneWidth *width = new LaneWidth(0.0, ui->widthBox->value(), 0.0, 0.0, 0.0);
-    newLane->addWidthEntry(width);
-
-    LaneRoadMark *roadMark = new LaneRoadMark(0.0, LaneRoadMark::RMT_SOLID, LaneRoadMark::RMW_STANDARD, LaneRoadMark::RMC_STANDARD, 0.12);
-    newLane->addRoadMarkEntry(roadMark);
-
-    InsertLaneCommand *command = new InsertLaneCommand(lane_->getParentLaneSection(), newLane);
-    getProjectSettings()->executeCommand(command);
-}
-
-
-void
-LaneSettings::activateInsertGroupBox(bool activ)
-{
-	ui->insertGroupBox->setVisible(activ);
-	double y;
-	if (activ)
-	{
-		y = ui->insertFrame->height() + ui->insertFrame->geometry().y();
-	}
-	else
-	{
-		y = ui->insertPushButton->height() + ui->insertFrame->geometry().y();
-	}
-	QRect geometry = ui->editFrame->geometry();
-	geometry.setY(y + 6);
-	ui->editFrame->setGeometry(geometry);
 }
 
 

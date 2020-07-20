@@ -42,7 +42,7 @@
 /*! \todo Ownership/destructor
 */
 ElevationEditorTool::ElevationEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TEL_SELECT)
 {
     // Connect emitted ToolActions to ToolManager //
@@ -156,21 +156,22 @@ ElevationEditorTool::initToolWidget()
     ui = new Ui::ElevationRibbon();
     ui->setupUi(ribbonWidget);
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
+    ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
-    
-    ribbonToolGroup->addButton(ui->select, ODD::TEL_SELECT);
-    ribbonToolGroup->addButton(ui->elevationAdd, ODD::TEL_ADD);
-    ribbonToolGroup->addButton(ui->elevationDelete, ODD::TEL_DEL);
-	ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
+    ribbonToolGroup_->addButton(ui->select, ODD::TEL_SELECT);
+    ribbonToolGroup_->addButton(ui->elevationAdd, ODD::TEL_ADD);
+    ribbonToolGroup_->addButton(ui->elevationDelete, ODD::TEL_DEL);
+	ribbonToolGroup_->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
+	ribbonToolGroup_->addButton(ui->slopeEdit, ODD::TEL_SLOPE);
     
     connect(ui->heightEdit, SIGNAL(editingFinished()), this, SLOT(setRHeight()));
     connect(ui->iHeightEdit, SIGNAL(editingFinished()), this, SLOT(setRIHeight()));
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
+	connect(ui->startEdit, SIGNAL(editingFinished()), this, SLOT(setSectionStart()));
 
-    toolManager_->addRibbonWidget(ribbonWidget, tr("Elevation"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Elevation"), ODD::EEL);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -190,23 +191,33 @@ ElevationEditorTool::initToolBar()
 void
 ElevationEditorTool::activateEditor()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, radiusEdit_->value());
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
     emit toolAction(action);
     delete action;
 }
 
-/*! \brief Gets called when this widget (tab) has been activated.
-*
-* Sends a ToolAction with the current ToolId and Radius.
-*/
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
 void
 ElevationEditorTool::activateRibbonEditor()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, ui->radiusEdit->value());
-    emit toolAction(action);
-    delete action;
+	ToolAction *action = toolManager_->getLastToolAction(ODD::EEL);
+	ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(action);
+
+	if (elevationEditorToolAction)
+	{
+		if (elevationEditorToolAction->getRadius() != ui->radiusEdit->value())
+		{
+			ui->radiusEdit->blockSignals(true);
+			ui->radiusEdit->setValue(elevationEditorToolAction->getRadius());
+			ui->radiusEdit->blockSignals(false);
+		}
+	}
+
+	ribbonToolGroup_->button(action->getToolId())->click();
 
 }
+
 
 /*! \brief Gets called when a tool has been selected.
 *
@@ -223,15 +234,15 @@ ElevationEditorTool::handleToolClick(int id)
 	switch (toolId_)
 	{
 	case ODD::TEL_SMOOTH:
-		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
+		action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
 		emit toolAction(action);
 		delete action;
 
 		toolId_ = ODD::TEL_SELECT;
-		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
+		action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
 		break;
 	default:
-		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, radiusEdit_->value());
+		action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
 	}
 
 
@@ -247,26 +258,10 @@ void
 ElevationEditorTool::handleRibbonToolClick(int id)
 {
     toolId_ = (ODD::ToolId)id;
-    ElevationEditorToolAction *action;
+	 
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+	emit toolAction(action);
 
-    // Set a tool //
-    //
-	switch (toolId_)
-	{
-	case ODD::TEL_SMOOTH:
-		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
-		emit toolAction(action);
-		delete action;
-
-		toolId_ = ODD::TEL_SELECT;
-		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::ButtonPressed, 0.0);
-		break;
-	default:
-		action = new ElevationEditorToolAction(toolId_, ElevationEditorToolAction::Radius, ui->radiusEdit->value());
-	}
-
-    emit toolAction(action);
-    delete action;
 }
 
 /*! \brief Gets called when the radius has been changed.
@@ -276,7 +271,7 @@ ElevationEditorTool::handleRibbonToolClick(int id)
 void
 ElevationEditorTool::setRadius()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::Radius, radiusEdit_->value());
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_RADIUS, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -288,7 +283,7 @@ ElevationEditorTool::setRadius()
 void
 ElevationEditorTool::setHeight()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::Height, heightEdit_->value());
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -300,7 +295,7 @@ ElevationEditorTool::setHeight()
 void
 ElevationEditorTool::setIHeight()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::IncrementalHeight, iHeightEdit_->value());
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
     emit toolAction(action);
     delete action;
     iHeightEdit_->setValue(0.0);
@@ -308,14 +303,14 @@ ElevationEditorTool::setIHeight()
 
 /*! \brief Gets called when the radius has been changed.
 *
-* Sends a ToolAction with the current ToolId and Radius.
+* Sends a ToolAction with the current ToolId and Height.
 */
 void
 ElevationEditorTool::setRRadius()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::Radius, ui->radiusEdit->value());
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_RADIUS, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
     emit toolAction(action);
-    delete action;
+ //   delete action;
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -325,9 +320,14 @@ ElevationEditorTool::setRRadius()
 void
 ElevationEditorTool::setRHeight()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::Height, ui->heightEdit->value());
-    emit toolAction(action);
-    delete action;
+
+	ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+	emit toolAction(action);
+	//   delete action;
+
+	ui->heightEdit->blockSignals(true);
+	ui->heightEdit->setValue(0.0);
+	ui->heightEdit->blockSignals(false);
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -337,10 +337,35 @@ ElevationEditorTool::setRHeight()
 void
 ElevationEditorTool::setRIHeight()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ElevationEditorToolAction::IncrementalHeight, ui->iHeightEdit->value());
-    emit toolAction(action);
-    delete action;
-    iHeightEdit_->setValue(0.0);
+	if (fabs(ui->iHeightEdit->value()) > NUMERICAL_ZERO3)
+	{
+		ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+		emit toolAction(action);
+		//   delete action;
+		ui->iHeightEdit->blockSignals(true);
+		ui->iHeightEdit->setValue(0.0);
+		ui->iHeightEdit->blockSignals(false);
+	}
+}
+
+/*! \brief Gets called when the start of the section has been changed.
+*
+* Sends a ToolAction with the current ToolId and Height.
+*/
+void
+ElevationEditorTool::setSectionStart()
+{
+
+	if (fabs(ui->startEdit->value()) > NUMERICAL_ZERO3)
+	{
+		ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_MOVE, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+		emit toolAction(action);
+		//   delete action;
+
+		ui->startEdit->blockSignals(true);
+		ui->startEdit->setValue(0.0);
+		ui->startEdit->blockSignals(false);
+	}
 }
 
 
@@ -350,14 +375,13 @@ ElevationEditorTool::setRIHeight()
 //                //
 //################//
 
-ElevationEditorToolAction::ElevationEditorToolAction(ODD::ToolId toolId, ActionType at, double value)
-    : ToolAction(ODD::EEL, toolId)
+ElevationEditorToolAction::ElevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius, double height, double iHeight, double sectionStart)
+    : ToolAction(ODD::EEL, toolId, paramToolId),
+	radius_(radius),
+	height_(height),
+	iHeight_(iHeight),
+	start_(sectionStart)
 {
-    type = at;
-    if (type == Radius)
-        radius_ = value;
-    else if (type == Height || type == IncrementalHeight)
-        height = value;
 }
 
 void
@@ -369,5 +393,17 @@ ElevationEditorToolAction::setRadius(double radius)
 void
 ElevationEditorToolAction::setHeight(double h)
 {
-    height = h;
+    height_ = h;
+}
+
+void
+ElevationEditorToolAction::setIHeight(double h)
+{
+	iHeight_ = h;
+}
+
+void
+ElevationEditorToolAction::setSectionStart(double sectionStart)
+{
+	start_ = sectionStart;
 }

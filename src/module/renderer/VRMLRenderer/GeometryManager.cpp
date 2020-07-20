@@ -482,10 +482,11 @@ void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int co
     }
     else
     {
-        buf += "<shape>\n<appearance>\n<material ";
+        buf += "<shape>\n<appearance>\n<CommonSurfaceShader ";
         buf += "id='";
         sprintf(line, "%s'", object);
         buf += line;
+        buf += " alphaFactor='1'></CommonSurfaceShader>\n<material";
     }
     if (material)
     {

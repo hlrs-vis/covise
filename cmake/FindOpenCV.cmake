@@ -16,7 +16,7 @@ SET(OPENCV_EXTERNLIBS $ENV{EXTERNLIBS}/OpenCV/build/)
 ENDIF(COVISE_USE_OPENCV3)
 
 
-FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
+FIND_PATH(OPENCV_INCLUDE_DIR "opencv2/core/core.hpp"
   PATHS
   ${OPENCV_EXTERNLIBS}/include
   $ENV{OPENCV_HOME}/include
@@ -31,9 +31,7 @@ FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
   /usr/local/opt/opencv/include
   /usr/local/opt/opencv@3/include
   DOC "OpenCV - Headers"
-)
-FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
-  DOC "OpenCV - Headers"
+  PATH_SUFFIXES opencv4 opencv3
 )
 
 INCLUDE(FindPackageHandleStandardArgs)

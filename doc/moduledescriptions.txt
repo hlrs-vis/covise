@@ -61,6 +61,7 @@ HLRS/sc2004booth:  sc2004booth
 HLRS/SurfaceDemo:  SurfaceDemo
 Interpolator/CellToVert:  interpolates per-cell data to per-vertex data
 Interpolator/Interpolate:  Interpolation module
+Interpolator/NNSample:  Sample values of points to a grid using neares neighbor method
 Interpolator/Sample:  Sample data on points, unstructured and uniform grids to a uniform grid
 IO/CoverDocument:  Cover Document Viewer access module
 IO/ExtractTexCoords:  extract texture coords of polygon objects for LIC
@@ -77,6 +78,7 @@ IO/ReadASCII:  Read files to create points (w or w/o scalar or vector values) or
 IO/ReadAstroOld:  Read files to create a list of points (stars) and scalar parameters.
 IO/ReadAstroPh1:  Read Astro files containing lists of atom positions and their element types for several time steps.
 IO/ReadAtomProbe:  Read atom Probbe point clouds.
+IO/ReadBinary:  Annas first Reader
 IO/ReadCadmould:  Read Cadmould
 IO/ReadCalculix:  Calculix Reader
 IO/ReadCalib:  Calib file Reader
@@ -88,6 +90,7 @@ IO/ReadCGNS-spbgpu:  CGNS Reader alpha
 IO/ReadCOMSOLData:  Read COMSOLData mesh and data
 IO/ReadCSV:  Read CSV data
 IO/ReadCSVPoly:  Read polygons stored as CSV
+IO/ReadCSVTime:  Read CSV data with timestamps
 IO/ReadCUBE:  Read CUBE files containing atom positions and electron densities
 IO/ReadDasim:  Dasim Reader
 IO/ReadDepthmapXMIF:  Read MIF or CSV data
@@ -135,7 +138,6 @@ IO/ReadNeuron:  Read IWRs Neurons
 IO/ReadObj:  Wavefront OBJ Reader
 IO/ReadPandora:  simple reader for Pandora HDF5 data
 IO/ReadPatran:  Read Patran Neutral Files
-IO/ReadPlot3D:  
 IO/ReadPLUTO:  Read PLUTO
 IO/ReadPLY:  Read Stanford PLY files.
 IO/ReadPress:  Reader for MPA PDB files
@@ -165,8 +167,10 @@ IO/RWCoviseASCII:  Read/write COVISE ASCII files
 IO/RWCoviseBlock:  Write COVISE-data blockwise
 IO/RWCoviseGroup:  Read/Write group of COVISE files
 IO/SGen_ihs:  IHS Schaufelgenerator
+IO/Snap2Surface:  Snap points to a polygonal surface
 IO/WriteASC:  Generate ASCII file from Covise Object
 IO/WriteCGNS:  Write Unstructured Grid to cgns file
+IO/WriteObj:  Generate Wavefront obj file from Covise Object
 IO/WritePatran:  Writing of Geometry in Patran Format
 IO/WritePolygon:  Write Stl or VRML97 files
 IO/writeToCgns:  writeToCgns
@@ -176,6 +180,7 @@ Mapper/AtomColors:  Map colors to atoms
 Mapper/Colors:  Map scalars to colors
 Mapper/CuttingSurface:  Extract a plane from a data set
 Mapper/CuttingSurfaceComp:  Extract a plane from a data set
+Mapper/DomainSurface:  Domain surfaces of grids
 Mapper/IsoCutter:  Crops polygons along iso lines
 Mapper/IsoLines:  compute ISO-lines
 Mapper/IsoSurface:  Determine an isosurface by a point or value
@@ -195,13 +200,14 @@ Obsolete/TracerUsg:  Generate streamlines from an unstr. data set
 Renderer/IvRenderer:  OpenInventor 2.0 Renderer
 Renderer/OpenCOVER:  VR-Renderer
 Renderer/Plot:  XMGR Plot Module
-Renderer/QtRenderer:  
 Renderer/VRMLRenderer:  VRML Renderer
+Renderer/WebGL:  WebGL
 Simulation/CFX:  CFX Simulation
 Simulation/CoolEmAllServerRoom:  rechenraum
 Simulation/CoolEmAllSimulation:  CoolEmAllSimulation; starts shell script to run simulation of flow and heat inside one RECS module
 Simulation/CoolEmAllToDatabase:  CoolEmAllToDatabase, world! program
 Simulation/Frieder:  Frieder Simulation Interface
+Simulation/Trans3d:  Read Trans3D(IFSW) Grid and Data in ASCII Format
 Simulation/weather:  Rainer Kellers Klimate Simulation Interface
 Test/ReadVTU:  Reads (a set) of VTK-files
 Test/TxtReader:  No description given

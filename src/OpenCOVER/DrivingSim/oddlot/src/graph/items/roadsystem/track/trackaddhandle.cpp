@@ -171,7 +171,7 @@ TrackAddHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     // NOTE: position is relative to parent!!! //
     //
-    if (change == QGraphicsItem::ItemSelectedHasChanged)
+	if (change == QGraphicsItem::ItemSelectedHasChanged)
     {
         if (value.toBool())
         {
@@ -200,3 +200,4 @@ TrackAddHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     setCursor(Qt::ArrowCursor);
     Handle::hoverLeaveEvent(event);
 }
+

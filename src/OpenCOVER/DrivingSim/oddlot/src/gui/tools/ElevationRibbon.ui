@@ -41,6 +41,12 @@
       <string>Selection Tools</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item row="1" column="0">
        <widget class="QPushButton" name="select">
         <property name="text">
@@ -79,27 +85,12 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="3">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Height:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>iHeight:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Smooth Radius</string>
-        </property>
-       </widget>
-      </item>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item row="2" column="0">
        <widget class="QPushButton" name="elevationDelete">
         <property name="text">
@@ -110,16 +101,6 @@
         </property>
         <property name="checked">
          <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QDoubleSpinBox" name="radiusEdit">
-        <property name="maximum">
-         <double>10000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>900.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -136,27 +117,57 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="elevationSmooth">
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Smooth Roads</string>
+         <string>Enter Position of Control Point</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
-       <widget class="QDoubleSpinBox" name="heightEdit">
-        <property name="minimum">
-         <double>-1000.000000000000000</double>
-        </property>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="startEdit">
         <property name="maximum">
-         <double>8000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>10.000000000000000</double>
+         <double>10000.000000000000000</double>
         </property>
        </widget>
       </item>
-      <item row="2" column="4">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="heightBox">
+     <property name="title">
+      <string>Edit Heights</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Enter Height at Control Point:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
        <widget class="QDoubleSpinBox" name="iHeightEdit">
         <property name="minimum">
          <double>-1000.000000000000000</double>
@@ -166,11 +177,99 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2" colspan="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Add Height at Control Point:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QDoubleSpinBox" name="heightEdit">
+        <property name="minimum">
+         <double>-1000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>8000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="slopeEdit">
+        <property name="text">
+         <string>Edit Slope</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_type_2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="smoothBox">
+     <property name="title">
+      <string>Smoothing</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="elevationSmooth">
+        <property name="text">
+         <string>Smooth Roads</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="radiusEdit">
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>900.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Radius</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>

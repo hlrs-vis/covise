@@ -48,15 +48,12 @@ public:
 
 	void setSignalEditor(SignalEditor *signalEditor);
 
-protected:
-
-    virtual void mouseMoveEvent(QMouseEvent *event);
 private:
     SignalTreeWidget(); /* not allowed */
     SignalTreeWidget(const SignalTreeWidget &); /* not allowed */
     SignalTreeWidget &operator=(const SignalTreeWidget &); /* not allowed */
 
-    void PrepareDrag(const QIcon &icon);
+    void PrepareDrag(QIcon *icon = NULL);
     void init();
 
     //################//
@@ -65,6 +62,9 @@ private:
 
 public:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+protected:
+	virtual void mousePressEvent(QMouseEvent *event);
+	virtual void mouseMoveEvent(QMouseEvent *event);
 
 	//################//
 	// SIGNALS        //

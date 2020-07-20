@@ -10,7 +10,7 @@
 
 #include <util/coTypes.h>
 
-#include <QLinkedList>
+#include <list>
 #include <QMap>
 #include <QTextStream>
 #include <QtXml>
@@ -53,7 +53,7 @@ private:
     inline void updateEntry(QDomElement &node, QDomElement &updateInstruction);
     inline void updateApplyInstruction(QDomElement &node, QDomElement &updateInstruction);
     inline void updateMergeNodes(QDomElement &section, QDomElement &node);
-    inline QLinkedList<QDomNode> makeNonLiveList(QDomNodeList liveList) const;
+    inline std::list<QDomNode> makeNonLiveList(QDomNodeList liveList) const;
 
     inline QString domToString(const QDomDocument &doc) const;
 

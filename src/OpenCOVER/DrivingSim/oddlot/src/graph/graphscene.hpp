@@ -36,6 +36,8 @@ public:
     explicit GraphScene(const QRectF &sceneRect, QObject *parent = 0);
     virtual ~GraphScene();
 
+	void deselectAll();
+
     // Tools, Mouse & Key //
     //
     //	void						toolAction(ToolAction *);

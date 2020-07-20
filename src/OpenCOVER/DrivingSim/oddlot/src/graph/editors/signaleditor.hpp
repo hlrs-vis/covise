@@ -34,6 +34,7 @@ class RSystemElementRoad;
 class SignalManager;
 class Object;
 class Bridge;
+class RSystemElementController;
 
 class SignalEditor : public ProjectEditor
 {
@@ -93,11 +94,18 @@ private:
     SignalEditor(const SignalEditor &); /* not allowed */
     SignalEditor &operator=(const SignalEditor &); /* not allowed */
 
+	void clearToolObjectSelection();
+
     //################//
     // SLOTS          //
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply();
+	virtual void reject();
+	virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -123,11 +131,23 @@ private:
 
     ODD::ToolId lastTool_;
 
+	// List of selected signals //
+	//
+	QList<Signal *> selectedSignals_;
+
+	// Selected Controller //
+	//
+	RSystemElementController *controller_;
+
 
 	// Signal Tree //
 	//
 	SignalTreeWidget *signalTree_;
 	SignalManager *signalManager_;
+
+	// necessary selected elements to make APPLY visible //
+	//
+	int applyCount_;
 
     // RoadType //
     //

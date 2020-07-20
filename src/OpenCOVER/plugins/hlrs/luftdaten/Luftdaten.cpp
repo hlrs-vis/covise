@@ -369,7 +369,12 @@ bool LuftdatenPlugin::loadFile(std::string fileName)
     osg::Group * timestepGroup;
     std::string groupName = "timestep"+std::to_string(timestep);
     
-    fgets(buf,lineSize,fp);
+    if (!fgets(buf,lineSize,fp))
+    {
+        fclose(fp);
+        return false;
+    }
+
     bool firstLine = true;
     
     while (!feof(fp))

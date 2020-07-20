@@ -31,7 +31,7 @@ signals:
     void activated();
 
 public slots:
-    void activateWidget(int);
+	void activateWidget(int);
 
 private:
     int index_;

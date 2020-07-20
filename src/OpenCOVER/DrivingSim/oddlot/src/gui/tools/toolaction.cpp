@@ -21,8 +21,10 @@
 // CONSTRUCTOR    //
 //################//
 
-ToolAction::ToolAction(ODD::EditorId editorId, ODD::ToolId toolId)
+ToolAction::ToolAction(ODD::EditorId editorId, ODD::ToolId toolId, ODD::ToolId paramToolId)
     : editorId_(editorId)
     , toolID_(toolId)
+	, paramToolId_(paramToolId)
 {
 }
+

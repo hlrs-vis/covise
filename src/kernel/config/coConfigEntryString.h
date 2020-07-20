@@ -10,7 +10,7 @@
 
 #include <QStringList>
 #include <QTextStream>
-#include <QLinkedList>
+#include <list>
 
 class QRegExp;
 
@@ -50,7 +50,7 @@ private:
     bool listItem;
 };
 
-class CONFIGEXPORT coConfigEntryStringList : public QLinkedList<coConfigEntryString>
+class CONFIGEXPORT coConfigEntryStringList : public std::list<coConfigEntryString>
 {
 
 public:

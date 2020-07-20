@@ -192,7 +192,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	}*/
 
     pos_ = event->scenePos();
-    if ((tool == ODD::TSG_SIGNAL) || (tool == ODD::TSG_OBJECT))
+ /*   if ((tool == ODD::TSG_SIGNAL) || (tool == ODD::TSG_OBJECT))
     {
         // Add new Signal //
         //
@@ -238,7 +238,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		AddBridgeCommand *command = new AddBridgeCommand(newTunnel, road_, NULL);
 
 		getProjectGraph()->executeCommand(command);
-	}
+	} */
 }
 
 void

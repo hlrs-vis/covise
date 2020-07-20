@@ -80,6 +80,7 @@ void IKAxisInfo::initIK(unsigned int myID)
 {
 
 	rotTransform = new osg::MatrixTransform();
+	scaleTransform = nullptr;
 }
 
 IKInfo::IKInfo()
@@ -151,6 +152,15 @@ void IKInfo::intiIK()
 	{
 		numAxis = 4;
 	}
+	if (numAxis < 1)
+	{
+		return;
+	}
+	type = IKInfo::IKType::Rot;
+	if (axis[0].type == IKAxisInfo::AxisType::Trans)
+		type = IKInfo::IKType::Trans;
+	else if (numAxis == 4 && axis[1].type == IKAxisInfo::AxisType::Trans)
+		type = IKInfo::IKType::RotTrans;
 	for (unsigned int i = 0; i < numAxis; ++i)
 	{
 		//Saving joint data to robot
@@ -167,174 +177,270 @@ void IKInfo::intiIK()
 		robot->origHmtx.push_back(axis[i].mat);
 	}
 	robot->CaclulateFullTransormationMatrix();
-	osg::Vec3 xAxis(1, 0, 0);
-	basePos = axis[0].origin;
-	vA = axis[1].origin- basePos;
-	vA.z() = 0;
-	rA = vA.length();
-
-	vB = axis[4].origin- axis[1].origin;
-	vB.z() = 0;
-	rB = vB.length();
-	osg::Vec3 vAn = vA;
-	vAn.normalize();
-	osg::Vec3 vBn = vB; 
-	vBn.normalize();
-
-	osg::Vec3 rotA = axis[0].direction;
-	rotA.normalize();
-	osg::Vec3 rotB = axis[1].direction;
-	rotA.normalize();
-	osg::Vec3 rotC = axis[2].direction;
-	rotC.normalize();
-
-	initialAngleA = getAngle(vAn,xAxis,rotA);
-	initialAngleB = getAngle(vBn, vAn, rotB);
-
-	vC = axis[3].origin - axis[2].origin;
-	rC = vC.length();
-	float dH = vC.z();
-
-	initialAngleC = asin(dH / rC);
-
-
-}
-
-
-void IKInfo::updateIK(const osg::Vec3 &targetPos, const osg::Vec3 & targetDir)
-{
-
-	vC = targetPos - axis[2].origin;
-	float dH = vC.z();
-	if (dH < -(rC - 0.10))
-		dH = -(rC - 0.10);
-	if (dH > 1)
-		dH = 1;
-
-	float currentAngleC = asin(dH / rC);
-	rB = rC * cos(currentAngleC);
-
-	axis[2].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
-	axis[3].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
-
-	osg::Vec3 toNew = targetPos - basePos;
-	toNew.z() = 0;
-	float newD = toNew.length();
-	if (newD > 0.1 && newD < rA + rB)
+	if (type == IKInfo::IKType::Rot)
 	{
-
 		osg::Vec3 xAxis(1, 0, 0);
-		osg::Vec3 baseP = basePos;
-		baseP.z() = 0;
-		osg::Vec3 targetP = targetPos;
-		targetP.z() = 0;
-		float x = (rA * rA + newD * newD - rB * rB) / (2 * newD);
-		float y=0;
-		float sqd = rA * rA - x * x;
-		if (sqd>0)
-		{
-			y = sqrt(sqd);
-		}
-		float qx =  (x * ((targetP.x() - baseP.x()) / newD)) - (y * ((targetP.y() - baseP.y()) / newD));
-		float qy =  (x * ((targetP.y() - baseP.y()) / newD)) + (y * ((targetP.x() - baseP.x()) / newD));
-		osg::Vec3 vQ(qx, qy,0);
-		osg::Vec3 tToB = baseP - targetP;
-		osg::Vec3 dirA = vQ;
-		osg::Vec3 dirB = (tToB + vQ)*-1;
-		dirA.normalize();
-		dirB.normalize();
+		basePos = axis[0].origin;
+		vA = axis[1].origin - basePos;
+		vA.z() = 0;
+		rA = vA.length();
+
+		vB = axis[4].origin - axis[1].origin;
+		vB.z() = 0;
+		rB = vB.length();
+		osg::Vec3 vAn = vA;
+		vAn.normalize();
+		osg::Vec3 vBn = vB;
+		vBn.normalize();
 
 		osg::Vec3 rotA = axis[0].direction;
 		rotA.normalize();
 		osg::Vec3 rotB = axis[1].direction;
 		rotA.normalize();
+		osg::Vec3 rotC = axis[2].direction;
+		rotC.normalize();
 
-		float newAngleA = getAngle(dirA, xAxis, rotA);
-		float newAngleB = getAngle(dirB, dirA, rotB);
-		if (std::isnan(newAngleA) || std::isnan(newAngleB))
+		initialAngleA = getAngle(vAn, xAxis, rotA);
+		initialAngleB = getAngle(vBn, vAn, rotB);
+
+		vC = axis[3].origin - axis[2].origin;
+		rC = vC.length();
+		float dH = vC.z();
+
+		initialAngleC = asin(dH / rC);
+	}
+	else if (type == IKInfo::IKType::RotTrans)
+	{
+		osg::Vec3 xAxis(1, 0, 0);
+		osg::Vec3 rotA = axis[0].direction;
+		rotA.normalize();
+		basePos = axis[0].origin;
+		vA = axis[2].origin - basePos;
+		osg::Vec3 vAn = vA;
+		vAn.normalize();
+		initialAngleA = getAngle(vAn, xAxis, rotA);
+		osg::Vec3 tmpVec = axis[2].origin - axis[0].origin;
+		tmpVec[2] = 0;
+		initialLength = tmpVec.length();
+	}
+	else if (type == IKInfo::IKType::Trans)
+	{
+	}
+
+
+}
+
+
+void IKInfo::updateIK(const osg::Vec3& targetPos, const osg::Vec3& targetDir)
+{
+	if (type == IKInfo::IKType::Rot)
+	{
+		vC = targetPos - axis[2].origin;
+		float dH = vC.z();
+		if (dH < -(rC - 0.10))
+			dH = -(rC - 0.10);
+		if (dH > 1)
+			dH = 1;
+
+		float currentAngleC = asin(dH / rC);
+		rB = rC * cos(currentAngleC);
+
+		axis[2].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
+		axis[3].rotTransform->setMatrix(osg::Matrix::rotate(currentAngleC - initialAngleC, osg::Vec3(0, 0, -1)));
+
+		osg::Vec3 toNew = targetPos - basePos;
+		toNew.z() = 0;
+		float newD = toNew.length();
+		if (newD > 0.1 && newD < rA + rB)
 		{
-			fprintf(stderr, "isnan\n");
-		}
-		else
+
+			osg::Vec3 xAxis(1, 0, 0);
+			osg::Vec3 baseP = basePos;
+			baseP.z() = 0;
+			osg::Vec3 targetP = targetPos;
+			targetP.z() = 0;
+			float x = (rA * rA + newD * newD - rB * rB) / (2 * newD);
+			float y = 0;
+			float sqd = rA * rA - x * x;
+			if (sqd > 0)
+			{
+				y = sqrt(sqd);
+			}
+			float qx = (x * ((targetP.x() - baseP.x()) / newD)) - (y * ((targetP.y() - baseP.y()) / newD));
+			float qy = (x * ((targetP.y() - baseP.y()) / newD)) + (y * ((targetP.x() - baseP.x()) / newD));
+			osg::Vec3 vQ(qx, qy, 0);
+			osg::Vec3 tToB = baseP - targetP;
+			osg::Vec3 dirA = vQ;
+			osg::Vec3 dirB = (tToB + vQ) * -1;
+			dirA.normalize();
+			dirB.normalize();
+
+			osg::Vec3 rotA = axis[0].direction;
+			rotA.normalize();
+			osg::Vec3 rotB = axis[1].direction;
+			rotB.normalize();
+
+			float newAngleA = getAngle(dirA, xAxis, rotA);
+			float newAngleB = getAngle(dirB, dirA, rotB);
+			if (std::isnan(newAngleA) || std::isnan(newAngleB))
+			{
+				fprintf(stderr, "isnan\n");
+			}
+			else
+			{
+				axis[0].rotTransform->setMatrix(osg::Matrix::rotate(newAngleA - initialAngleA, osg::Vec3(0, 0, -1)));
+				axis[1].rotTransform->setMatrix(osg::Matrix::rotate(newAngleB - initialAngleB, osg::Vec3(0, 0, -1)));
+			}
+
+		} // else  zu weit auseinander
+
+		// rotate end so that y axis points towards the specified y direction
+		osg::Matrix m;
+		m.makeIdentity();
+		for (unsigned int i = 0; i < axis.size(); ++i)
 		{
-			axis[0].rotTransform->setMatrix(osg::Matrix::rotate(newAngleA - initialAngleA, osg::Vec3(0, 0, -1)));
-			axis[1].rotTransform->setMatrix(osg::Matrix::rotate(newAngleB - initialAngleB, osg::Vec3(0, 0, -1)));
+			if (axis[i].transform)
+			{
+				m = axis[i].transform->getMatrix() * m;
+			}
+			m = axis[i].rotTransform->getMatrix() * m;
 		}
-		
-	} // else  zu weit auseinander
+		auto td = targetDir;
+		td[2] = 0;
+		td.normalize();
+		osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
+		my[2] = 0;
+		my.normalize();
+		float newAngle = getAngle(my, td, axis[4].direction);
+		osg::Matrix oldMat = axis[4].rotTransform->getMatrix();
+		axis[4].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
 
-	// rotate end so that y axis points towards the specified y direction
-	osg::Matrix m;
-	m.makeIdentity();
-	for (unsigned int i = 0; i < axis.size(); ++i)
+	}
+	else if (type == IKInfo::IKType::RotTrans)
 	{
-		if (axis[i].transform)
+
+		osg::Vec3 xAxis(1, 0, 0);
+		vC = targetPos - getPosition();
+		float dH = -vC.z();
+		osg::Matrix oldMat = axis[2].rotTransform->getMatrix();
+		axis[2].rotTransform->setMatrix(oldMat * osg::Matrix::translate(0, 0, dH));
+		//scale
+		float length = axis[2].rotTransform->getMatrix().getTrans().z();
+		/*if (length < axis[2].min)
 		{
-			m = axis[i].transform->getMatrix() * m;
+			axis[2].rotTransform->setMatrix(oldMat);
+			length = axis[2].min;
+		}*/
+		float scale = 1 + (length / axis[3].transform->getMatrix().getTrans().z());
+		if (axis[2].scaleTransform)
+			axis[2].scaleTransform->setMatrix(osg::Matrix::scale(1, 1, scale));
+
+		// translation Axis 1
+		osg::Matrix m;
+		m.makeIdentity();
+		if (axis[0].transform)
+		{
+			m = axis[0].transform->getMatrix() * m;
 		}
-		m = axis[i].rotTransform->getMatrix() * m;
+		m = axis[0].rotTransform->getMatrix() * m;
+		if (axis[1].transform)
+		{
+			m = axis[1].transform->getMatrix() * m;
+		}
+		osg::Matrix invM;
+		invM.invert(m);
+		osg::Vec3 toPos = targetPos * invM;
+		axis[1].rotTransform->setMatrix(osg::Matrix::translate(0, 0, toPos[2] - axis[2].transform->getMatrix().getTrans().z())); // -initial z position
+
+		toPos = targetPos - axis[0].origin;
+		toPos[2] = 0;
+		//axis[1].rotTransform->setMatrix(oldMat * osg::Matrix::translate(0, 0, toPos.length() - initialLength));
+
+		toPos.normalize();
+		osg::Vec3 axis0 = axis[0].direction;
+		axis0.normalize();
+		float newAngleA = getAngle(toPos, xAxis, axis0);
+
+		axis[0].rotTransform->setMatrix(osg::Matrix::rotate(newAngleA - initialAngleA, osg::Vec3(0, 0, -1)));
+
+		// rotate end so that y axis points towards the specified y direction
+		m.makeIdentity();
+		for (unsigned int i = 0; i < axis.size(); ++i)
+		{
+			if (axis[i].transform)
+			{
+				m = axis[i].transform->getMatrix() * m;
+			}
+			m = axis[i].rotTransform->getMatrix() * m;
+		}
+		auto td = targetDir;
+		td[2] = 0;
+		td.normalize();
+		osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
+		my[2] = 0;
+		my.normalize();
+		float newAngle = getAngle(my, td, axis[3].direction);
+		oldMat = axis[3].rotTransform->getMatrix();
+		axis[3].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
 	}
-	auto td = targetDir;
-    td.normalize();
-	osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
-	float newAngle = getAngle(my, td, axis[4].direction);
-	osg::Matrix oldMat = axis[4].rotTransform->getMatrix();
-	axis[4].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
-
-
-	/*CAlgoFactory factory;
-	VectorXf des(6);
-	float speccfc = 0.001f;
-	des << RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number(), RevitPlugin::instance()->xOri->number(), RevitPlugin::instance()->yOri->number(), RevitPlugin::instance()->zOri->number();
-
-	CAlgoAbstract* pJpt = factory.GiveMeSolver(JACOBIANTRANSPOSE, des, *robot); //JACOBIANTRANSPOSE , DUMPEDLEASTSQUARES
-	pJpt->SetAdditionalParametr(speccfc);
-	pJpt->CalculateData();
-	robot->PrintConfiguration();
-	bool verticalEnd = false;
-
-	int numAxis = axis.size();
-	if (numAxis == 5)
+	else if (type == IKInfo::IKType::Trans)
 	{
-		numAxis = 3;
-		verticalEnd = true;
+		osg::Vec3 xAxis(1, 0, 0);
+		vC = targetPos - getPosition();
+		float dH = -vC.z();
+		osg::Matrix oldMat = axis[2].rotTransform->getMatrix();
+		axis[2].rotTransform->setMatrix(oldMat * osg::Matrix::translate(0, 0, dH));
+		//scale
+		float length = axis[2].rotTransform->getMatrix().getTrans().z();
+		/*if (length < axis[2].min)
+		{
+			axis[2].rotTransform->setMatrix(oldMat);
+			length = axis[2].min;
+		}*/
+		float scale = 1+(length / axis[3].transform->getMatrix().getTrans().z());
+		if (axis[2].scaleTransform)
+			axis[2].scaleTransform->setMatrix(osg::Matrix::scale(1,1,scale));
+		// translation Axis 1
+		osg::Matrix m;
+		m.makeIdentity();
+		if (axis[0].transform)
+		{
+			m = axis[0].transform->getMatrix() * m;
+		}
+		osg::Matrix invM;
+		invM.invert(m);
+		osg::Vec3 toPos = targetPos * invM ;
+		axis[0].rotTransform->setMatrix(osg::Matrix::translate(0, 0, toPos[2] - axis[1].transform->getMatrix().getTrans().z())); // -initial z position
+		m = axis[0].rotTransform->getMatrix() * m;
+		if (axis[1].transform)
+		{
+			m = axis[1].transform->getMatrix() * m;
+		}
+		invM.invert(m);
+		toPos = targetPos * invM;
+		axis[1].rotTransform->setMatrix(osg::Matrix::translate(0, 0, toPos[2] - axis[2].transform->getMatrix().getTrans().z()));// -initial z position
+		// translation Axis 2
+
+		// rotate end so that y axis points towards the specified y direction
+		m.makeIdentity();
+		for (unsigned int i = 0; i < axis.size(); ++i)
+		{
+			if (axis[i].transform)
+			{
+				m = axis[i].transform->getMatrix() * m;
+			}
+			m = axis[i].rotTransform->getMatrix() * m;
+		}
+		auto td = targetDir;
+		td[2] = 0;
+		td.normalize();
+		osg::Vec3 my(m(1, 0), m(1, 1), m(1, 2));
+		my[2] = 0;
+		my.normalize();
+		float newAngle = getAngle(my, td, axis[3].direction);
+		oldMat = axis[3].rotTransform->getMatrix();
+		axis[3].rotTransform->setMatrix(oldMat * osg::Matrix::rotate(newAngle, osg::Vec3(0, 0, 1)));
 	}
-	osg::Matrix m;
-	m.makeIdentity();
-	for (unsigned int i = 0; i < numAxis; ++i)
-	{
-		
-
-		osg::Matrix mat;
-		for (int n = 0; n < 4; n++)
-			for (int m = 0; m < 4; m++)
-				mat(n, m) = robot->hmtx[i](m, n);
-		if(axis[i].transform)
-		axis[i].transform->setMatrix(mat);
-		m = mat * m;
-	}
-	osg::Vec3 z(0, 0, 1);
-	if (verticalEnd)
-	{
-		m = axis[3].mat * m;
-		m = axis[4].mat * m;
-		osg::Vec3 z5(m(2, 0), m(2, 1), m(2, 2));
-		float angle = acos(z5*z);
-		axis[3].rotTransform->setMatrix(osg::Matrix::rotate(angle, z));
-	}
-
-	*/
-
-	/*VectorNd Qres =Q;
-	Vector3d target(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
-	target_pos.clear();
-	target_pos.push_back(target);
-	bool res = InverseKinematics(*model, Q, body_ids, body_points, target_pos, Qres);
-	if (res)
-	{
-		Q = Qres;
-		updateGeometry();
-	}*/
 }
 
 
@@ -373,7 +479,7 @@ int IKSensor::hit(vruiHit* hit)
 }
 void IKSensor::update()
 {
-	if (scheduleUnregister && interaction->isRegistered()&& !interaction->isRunning())
+	if (scheduleUnregister && interaction->isRegistered()&& !interaction->isRunning() &&!RevitPlugin::instance()->isInteractionRunning())
 	{
 		scheduleUnregister = false;
 		coInteractionManager::the()->unregisterInteraction(interaction);
@@ -402,16 +508,27 @@ void IKSensor::disactivate()
 	//myAnnotation->setIcon(0);
 }
 
+bool RevitPlugin::isInteractionRunning()
+{
+	if (currentIKI)
+	{
+		return(currentIKI->iks->getInteraction()->isRunning());
+	}
+	return false;
+}
 void RevitPlugin::registerInteraction(IKInfo* i)
 {
+	if(!isInteractionRunning())
 	currentIKI = i;
 	//fprintf(stderr, "RevitPlugin::registerInteraction\n");
 }
 void RevitPlugin::unregisterInteraction(IKInfo* i)
 {
+	if (!isInteractionRunning())
 	currentIKI = nullptr;
 	//fprintf(stderr, "RevitPlugin::unregisterInteraction\n");
 }
+
 
 void RevitPlugin::updateIK()
 {
@@ -1818,6 +1935,9 @@ RevitPlugin::handleMessage(Message *m)
 			tb >> iki->axis[level].direction;
 			tb >> iki->axis[level].min;
 			tb >> iki->axis[level].max;
+			int type=IKAxisInfo::Rot;
+			tb >> type;
+			iki->axis[level].type=IKAxisInfo::AxisType(type);
 		}
 		unsigned int node_id = 0;
 		for (int i = 0; i < numAxis; i++)
@@ -1845,9 +1965,25 @@ RevitPlugin::handleMessage(Message *m)
 		{
 			m =iki->axis[i].mat*m;
 		}
-		xPos->setValue(iki->axis[4].origin.x());
-		yPos->setValue(iki->axis[4].origin.y());
-		zPos->setValue(iki->axis[3].origin.z());
+		if (iki->type == IKInfo::IKType::Rot)
+		{
+			xPos->setValue(iki->axis[4].origin.x());
+			yPos->setValue(iki->axis[4].origin.y());
+			zPos->setValue(iki->axis[3].origin.z());
+		}
+		else if(iki->type == IKInfo::IKType::RotTrans)
+		{
+			xPos->setValue(iki->axis[3].origin.x());
+			yPos->setValue(iki->axis[3].origin.y());
+			zPos->setValue(iki->axis[3].origin.z());
+		}
+		else if (iki->type == IKInfo::IKType::Trans)
+		{
+			xPos->setValue(iki->axis[3].origin.x());
+			yPos->setValue(iki->axis[3].origin.y());
+			zPos->setValue(iki->axis[3].origin.z());
+		}
+
 		yOri->setValue(1.0);
 	}
 	break;
@@ -2258,8 +2394,16 @@ RevitPlugin::handleMessage(Message *m)
 					currentIK->axis[level].transform = new osg::MatrixTransform();
 					currentIK->axis[level].transform->setName(std::string("level") + std::to_string(level+1));
 					currentIK->axis[level].transform->setMatrix(currentIK->axis[level].mat);
-
-					currentIK->axis[level].rotTransform->setName(std::string("rot") + std::to_string(level + 1));
+					if (currentIK->axis[level].type == IKAxisInfo::Scale)
+					{
+						currentIK->axis[level].scaleTransform = new osg::MatrixTransform();
+						currentIK->axis[level].scaleTransform->setName(std::string("scale") + std::to_string(level + 1)); 
+						currentIK->axis[level].transform->addChild(currentIK->axis[level].scaleTransform);
+					}
+					if(currentIK->axis[level].type == IKAxisInfo::Trans)
+						currentIK->axis[level].rotTransform->setName(std::string("trans") + std::to_string(level + 1));
+					else
+						currentIK->axis[level].rotTransform->setName(std::string("rot") + std::to_string(level + 1));
 					currentIK->axis[level].transform->addChild(currentIK->axis[level].rotTransform);
 
 					if (level == 0)
@@ -2272,11 +2416,23 @@ RevitPlugin::handleMessage(Message *m)
 						{
 							if (currentIK->axis[i].transform == nullptr)
 							{
+								if (currentIK->axis[i].type == IKAxisInfo::Scale)
+								{
+									currentIK->axis[i].scaleTransform = new osg::MatrixTransform();
+									currentIK->axis[i].scaleTransform->setName(std::string("scale") + std::to_string(i + 1));
+								}
 								currentIK->axis[i].transform = new osg::MatrixTransform();
 								currentIK->axis[i].transform->setName(std::string("level") + std::to_string(i+1));
 								currentIK->axis[i].transform->setMatrix(currentIK->axis[i].mat);
 
-								currentIK->axis[i].rotTransform->setName(std::string("rot") + std::to_string(i + 1));
+								if (currentIK->axis[i].type == IKAxisInfo::Trans || currentIK->axis[i].type == IKAxisInfo::Scale)
+									currentIK->axis[i].rotTransform->setName(std::string("trans") + std::to_string(i + 1));
+								else
+									currentIK->axis[i].rotTransform->setName(std::string("rot") + std::to_string(i + 1));
+								if (currentIK->axis[i].scaleTransform)
+								{
+									currentIK->axis[i].transform->addChild(currentIK->axis[i].scaleTransform);
+								}
 								currentIK->axis[i].transform->addChild(currentIK->axis[i].rotTransform);
 								{
 
@@ -2294,7 +2450,14 @@ RevitPlugin::handleMessage(Message *m)
 						currentIK->axis[level - 1].rotTransform->addChild(currentIK->axis[level].transform);
 					}
 				}
-				currentIK->axis[level].rotTransform->addChild(geode);
+				if (currentIK->axis[level].type == IKAxisInfo::Scale)
+				{
+					currentIK->axis[level].scaleTransform->addChild(geode);
+				}
+				else
+				{ 
+					currentIK->axis[level].rotTransform->addChild(geode);
+				}
 				if (isHandle)
 				{
 					currentIK->addHandle(geode);
@@ -2338,7 +2501,10 @@ RevitPlugin::handleMessage(Message *m)
 			}
 			if (!doWalk) // don't walk on anything else than objects marked with doWalk
 			{
+				if(inlineNode)
+				{
 				inlineNode->setNodeMask(inlineNode->getNodeMask() & ~Isect::Walk);
+				}
 			}
 
 

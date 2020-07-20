@@ -138,8 +138,9 @@ int main(int argc, char *argv[])
              << "VR-Renderer"
              << "\"" << endl;
 
-        cout << "Parameters:   " << 2 << endl;
-        cout << "  \"Viewpoints\" \"Browser\" \"./default.vwp *.vwp\" \"Viewpoints\" \"START\"" << endl;
+        cout << "Parameters:   " << 4 << endl;
+        cout << "  \"Viewpoints\" \"Browser\" \"./default.vwp\" \"Viewpoints\" \"IMM\"" << endl;
+        cout << "  \"Viewpoints___filter\" \"BrowserFilter\" \"./default.vwp *.vwp\" \"Viewpoints\" \"IMM\"" << endl;
         cout << "  \"Plugins\" \"String\" \"\" \"Additional plugins\" \"START\"" << endl;
         cout << "  \"WindowID\" \"IntScalar\" \"0\" \"window ID to render to\" \"START\"" << endl;
         cout << "OutPorts:     " << 0 << endl;

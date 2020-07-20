@@ -13,14 +13,15 @@
 **
 **************************************************************************/
 
-#ifndef TOOL_HPP
-#define TOOL_HPP
+#ifndef EDITORTOOL_HPP
+#define EDITORTOOL_HPP
 
 #include <QObject>
+#include <QButtonGroup>
 
 class ToolManager;
 
-class Tool : public QObject
+class EditorTool : public QObject
 {
     Q_OBJECT
 
@@ -29,16 +30,16 @@ class Tool : public QObject
     //################//
 
 public:
-    explicit Tool(ToolManager *toolManager);
-    virtual ~Tool()
+    explicit EditorTool(ToolManager *toolManager);
+    virtual ~EditorTool()
     { /* does nothing */
     }
 
 protected:
 private:
-    Tool(); /* not allowed */
-    Tool(const Tool &); /* not allowed */
-    Tool &operator=(const Tool &); /* not allowed */
+	EditorTool(); /* not allowed */
+	EditorTool(const EditorTool &); /* not allowed */
+	EditorTool &operator=(const EditorTool &); /* not allowed */
 
     //################//
     // SIGNALS        //
@@ -59,4 +60,30 @@ protected:
 private:
 };
 
-#endif // TOOL_HPP
+class ToolButtonGroup : public QButtonGroup
+{
+	Q_OBJECT
+
+public:
+	explicit ToolButtonGroup(ToolManager *toolManager);
+	virtual ~ToolButtonGroup()
+	{ /* does nothing */
+	}
+
+protected:
+private:
+	ToolButtonGroup(); /* not allowed */
+	ToolButtonGroup(const ToolButtonGroup &); /* not allowed */
+	ToolButtonGroup &operator=(const ToolButtonGroup &); /* not allowed */
+
+protected:
+	// ToolManager //
+	//
+	ToolManager *toolManager_;
+
+private slots:
+	void setButtonPressed(int i);
+};
+
+
+#endif // EDITORTOOL_HPP

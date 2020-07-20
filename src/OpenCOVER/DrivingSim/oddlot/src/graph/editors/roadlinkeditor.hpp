@@ -26,6 +26,8 @@ class RSystemElementRoad;
 class LaneSection;
 class Lane;
 
+class QGraphicsItem;
+
 class RoadLinkEditor : public ProjectEditor
 {
     Q_OBJECT
@@ -41,6 +43,9 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *);
+	virtual void mouseAction(MouseAction *mouseAction);
+
+	void clearToolObjectSelection();
 
 protected:
     virtual void init();
@@ -56,6 +61,11 @@ private:
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply();
+	virtual void reject();
+	virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -65,9 +75,29 @@ private:
     // RoadSystem //
     //
     RoadLinkRoadSystemItem *roadSystemItem_;
-    double threshold_;
 
     void removeZeroWidthLanes(RSystemElementRoad * road); 
+
+	// List of selected roads //
+	//
+	QList<RSystemElementRoad *> selectedRoads_;
+
+	// Selected handles //
+	//
+	QGraphicsItem *linkItem_;
+	QGraphicsItem *sinkItem_;
+
+	//Threshold for the linking roads
+	//
+	double threshold_;
+
+	// Currently selected Parameter //
+	//
+	int currentParamId_;
+
+	// necessary selected elements to make APPLY visible //
+	//
+	int applyCount_;
 };
 
 #endif // ROADLINKEDITOR_HPP

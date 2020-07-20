@@ -445,22 +445,15 @@ ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	pressPos_ = lastPos_ = event->scenePos();
 	closestRoad_ = road_;
-    ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Object
-    if (tool == ODD::TSG_DEL)
-    {
-        removeObject();
-    }
-    else
-    {
-		doPan_ = true;
 
-		if (copyPan_)
-		{
-			signalEditor_->duplicate();
-		}
+	doPan_ = true;
 
-        GraphElement::mousePressEvent(event); // pass to baseclass
-    }
+	if (copyPan_)
+	{
+		signalEditor_->duplicate();
+	}
+
+	GraphElement::mousePressEvent(event); // pass to baseclass
 }
 
 void

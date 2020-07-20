@@ -65,7 +65,7 @@ JunctionItem::init()
 {
     // Selection/Hovering //
     //
-    //	setAcceptHoverEvents(true);
+    setAcceptHoverEvents(true);
     setSelectable();
 
     // Text //
@@ -266,4 +266,14 @@ bool
 JunctionItem::deleteRequest()
 {
     return removeJunction();
+}
+
+//################//
+// EVENTS         //
+//################//
+
+
+void
+JunctionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
 }

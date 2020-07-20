@@ -39,8 +39,13 @@ class QMenu;
 
 class QLabel;
 
+class QGroupBox;
+
 class ToolManager;
 class ToolAction;
+
+class ToolParameterSettings;
+class Tool;
 
 class PrototypeManager;
 class SignalManager;
@@ -48,6 +53,7 @@ class SignalTreeWidget;
 class WizardManager;
 class OsmImport;
 class COVERConnection;
+class PopUpDialog;
 
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
@@ -165,7 +171,8 @@ public:
 	//
 	void setErrorMessageTree(QWidget *widget);
 
-	void showSignalsDock(bool visible);
+	void showDock(ODD::EditorId editor);
+	void hideDock(ODD::EditorId editor);
 
     // ProjectSettings //
     //
@@ -181,7 +188,16 @@ public:
 	// add Catalog dock widgets when the project is openend
 	QDockWidget  *createCatalog(const QString &, QWidget *widget);
 
+	void showParameterDialog(bool show, const QString &windowTitle = "", const QString &helpText = "");
 
+	QFrame *getParameterBox()
+	{
+		return paramBox_;
+	}
+	QFrame *getParameterDialogBox()
+	{
+		return dialogBox_;
+	}
 
     void updateCOVERConnectionIcon(const QIcon &icon);
 
@@ -211,6 +227,7 @@ private:
     void createSettings();
     void createWizards();
 	void createErrorMessageTab();
+	void createParameterSettings();
 
     ProjectionSettings *projectionSettings;
 
@@ -231,6 +248,7 @@ private:
     // Project //
     //
     ProjectWidget *createProject();
+	const QString  createProjectFilename();
     QMdiSubWindow *findProject(const QString &fileName);
 
     //################//
@@ -247,6 +265,7 @@ protected:
 
 signals:
     void hasActiveProject(bool);
+	void activated();
 
     //################//
     // SLOTS          //
@@ -299,6 +318,11 @@ private slots:
 
 
     void openCOVERSettings();
+
+
+	void reject();
+
+
     //################//
     // PROPERTIES     //
     //################//
@@ -350,8 +374,13 @@ private:
     QWidget *emptySignalsWidget_;
 	SignalTreeWidget *signalTree_;
 
+	QList<QDockWidget*> catalogsDock_;
     QDockWidget *settingsDock_;
     QWidget *emptySettingsWidget_;
+
+	PopUpDialog *parameterDialog_;
+	QFrame *paramBox_;
+	QFrame *dialogBox_;
 
     // StatusBar //
     //

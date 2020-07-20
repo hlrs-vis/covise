@@ -53,6 +53,7 @@ CrossfallRoadItem::CrossfallRoadItem(RoadSystemItem *roadSystemItem, RSystemElem
 
 CrossfallRoadItem::~CrossfallRoadItem()
 {
+	crossfallSectionItems_.clear();
 }
 
 void
@@ -70,19 +71,15 @@ CrossfallRoadItem::init()
     //
     foreach (CrossfallSection *section, getRoad()->getCrossfallSections())
     {
-        new CrossfallSectionItem(crossfallEditor_, this, section);
+        crossfallSectionItems_.insert(section->getSStart(), new CrossfallSectionItem(crossfallEditor_, this, section));
     }
 
     // Selection //
     //
-    if (getRoad()->isElementSelected())
-    {
-        crossfallEditor_->addSelectedRoad(getRoad());
-    }
-    else
-    {
-        crossfallEditor_->delSelectedRoad(getRoad());
-    }
+	if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
+	{
+		crossfallEditor_->addSelectedRoad(getRoad());
+	}
 }
 
 void
@@ -118,14 +115,23 @@ CrossfallRoadItem::updateObserver()
     {
         // A section has been added.
         //
-        foreach (CrossfallSection *section, getRoad()->getCrossfallSections())
+		QMap<double, CrossfallSection *> roadSections = getRoad()->getCrossfallSections();
+        foreach (CrossfallSection *section, roadSections)
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
-                new CrossfallSectionItem(crossfallEditor_, this, section);
+                crossfallSectionItems_.insert(section->getSStart(), new CrossfallSectionItem(crossfallEditor_, this, section));
             }
         }
+
+		foreach(double s, crossfallSectionItems_.keys())
+		{
+			if (!roadSections.contains(s))
+			{
+				crossfallSectionItems_.remove(s);
+			}
+		}
     }
 
     // DataElement //
@@ -145,4 +151,23 @@ CrossfallRoadItem::updateObserver()
             crossfallEditor_->delSelectedRoad(getRoad());
         }
     }
+}
+
+//################//
+// EVENTS         //
+//################//
+
+void
+CrossfallRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+
+	// SectionItems //
+	//
+	if (getRoad()->isChildElementSelected())
+	{
+		foreach(CrossfallSectionItem *sectionItem, crossfallSectionItems_)
+		{
+			sectionItem->setSelected(true);
+		}
+	}
 }

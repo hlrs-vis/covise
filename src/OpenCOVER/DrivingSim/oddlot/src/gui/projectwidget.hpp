@@ -107,7 +107,7 @@ public:
 
     // File Handling //
     //
-    void newFile();
+    void newFile(const QString &filename);
 	bool loadFile(const QString &fileName, FileType = FT_All);
     bool loadTile(const QString &fileName);
     void setFile(const QString &fileName);
@@ -269,6 +269,9 @@ private:
     // ChangeManager //
     //
     ChangeManager *changeManager_; // owned
+
+	// Active Project //
+	bool active_;
 };
 
 #endif // PROJECTWIDGET_HPP

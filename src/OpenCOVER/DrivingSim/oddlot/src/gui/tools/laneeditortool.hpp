@@ -16,7 +16,7 @@
 #ifndef LANEEDITORTOOL_HPP
 #define LANEEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -24,7 +24,7 @@
 
 class QDoubleSpinBox;
 
-class LaneEditorTool : public Tool
+class LaneEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -37,6 +37,7 @@ public:
     virtual ~LaneEditorTool()
     { /* does nothing */
     }
+
 
 private:
     LaneEditorTool(); /* not allowed */
@@ -74,6 +75,8 @@ private:
     Ui::LaneRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *widthEdit_;
+
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class LaneEditorToolAction : public ToolAction
@@ -84,25 +87,16 @@ class LaneEditorToolAction : public ToolAction
     //################//
 
 public:
-    enum ActionType
-    {
-        Width,
-		ButtonPressed
-    };
-    explicit LaneEditorToolAction(ODD::ToolId toolId, ActionType at, double value);
+    explicit LaneEditorToolAction(ODD::ToolId toolId, double width);
     virtual ~LaneEditorToolAction()
     { /* does nothing */
     }
 
     double getWidth() const
     {
-        return width;
+        return width_;
     }
     void setWidth(double w);
-    ActionType getType() const
-    {
-        return type;
-    }
 
 private:
     LaneEditorToolAction(); /* not allowed */
@@ -114,8 +108,7 @@ private:
     //################//
 
 private:
-    double width;
-    ActionType type;
+    double width_;
 };
 
 #endif // LANEEDITORTOOL_HPP

@@ -43,7 +43,7 @@
 /*! \todo Ownership/destructor
 */
 LaneEditorTool::LaneEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TLE_SELECT)
 {
     // Connect emitted ToolActions to ToolManager //
@@ -125,20 +125,21 @@ LaneEditorTool::initToolWidget()
     ui = new Ui::LaneRibbon();
     ui->setupUi(ribbonWidget);
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
+	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui->select, ODD::TLE_SELECT);
-    ribbonToolGroup->addButton(ui->laneAdd, ODD::TLE_ADD);
-    ribbonToolGroup->addButton(ui->laneDelete, ODD::TLE_DEL);
-    ribbonToolGroup->addButton(ui->laneAddWidth, ODD::TLE_ADD_WIDTH);
+	ribbonToolGroup_->addButton(ui->select, ODD::TLE_SELECT);
+	ribbonToolGroup_->addButton(ui->laneAdd, ODD::TLE_ADD);
+	ribbonToolGroup_->addButton(ui->laneDelete, ODD::TLE_DEL);
+	ribbonToolGroup_->addButton(ui->laneAddWidth, ODD::TLE_ADD_WIDTH);
+	ribbonToolGroup_->addButton(ui->insertButton, ODD::TLE_INSERT);
 
     
     connect(ui->widthEdit, SIGNAL(editingFinished()), this, SLOT(setRibbonWidth()));
 
-    toolManager_->addRibbonWidget(ribbonWidget, tr("Lane"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Lane"), ODD::ELN);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -158,17 +159,28 @@ LaneEditorTool::initToolBar()
 void
 LaneEditorTool::activateEditor()
 {
-    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::Width, widthEdit_->value());
+    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, widthEdit_->value());
     emit toolAction(action);
     delete action;
 }
 
-void
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
+void 
 LaneEditorTool::activateRibbonEditor()
 {
-    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::Width, ui->widthEdit->value());
-    emit toolAction(action);
-    delete action;
+	ToolAction *action = toolManager_->getLastToolAction(ODD::ELN);
+
+	if (action->getToolId() == ODD::TLE_SET_WIDTH)
+	{
+		LaneEditorToolAction *laneEditorToolAction = dynamic_cast<LaneEditorToolAction *>(action);
+		emit toolAction(laneEditorToolAction);
+	}
+	else
+	{
+		ribbonToolGroup_->button(action->getToolId())->click();
+	}
+
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -182,7 +194,7 @@ LaneEditorTool::handleToolClick(int id)
 
     // Set a tool //
     //
-	LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::ButtonPressed, widthEdit_->value());
+	LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, widthEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -194,9 +206,9 @@ LaneEditorTool::handleRibbonToolClick(int id)
 
     // Set a tool //
     //
-    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::ButtonPressed, ui->widthEdit->value());
+    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, ui->widthEdit->value());
     emit toolAction(action);
-    delete action;
+ //   delete action;
 }
 
 /*! \brief Gets called when the width has been changed.
@@ -206,7 +218,7 @@ LaneEditorTool::handleRibbonToolClick(int id)
 void
 LaneEditorTool::setWidth()
 {
-    LaneEditorToolAction *action = new LaneEditorToolAction(ODD::TLE_SELECT, LaneEditorToolAction::Width, widthEdit_->value());
+    LaneEditorToolAction *action = new LaneEditorToolAction(ODD::TLE_SET_WIDTH, widthEdit_->value());
     emit toolAction(action);
     delete action;
 
@@ -221,9 +233,9 @@ LaneEditorTool::setWidth()
 void
 LaneEditorTool::setRibbonWidth()
 {
-    LaneEditorToolAction *action = new LaneEditorToolAction(ODD::TLE_SELECT, LaneEditorToolAction::Width, ui->widthEdit->value());
+    LaneEditorToolAction *action = new LaneEditorToolAction(ODD::TLE_SET_WIDTH, ui->widthEdit->value());
     emit toolAction(action);
-    delete action;
+  //  delete action;
 
     QWidget * focusWidget = QApplication::focusWidget();
     if (focusWidget)
@@ -253,10 +265,9 @@ LaneEditorTool::setEditMode()
 //                //
 //################//
 
-LaneEditorToolAction::LaneEditorToolAction(ODD::ToolId toolId, ActionType at, double value)
-    : ToolAction(ODD::ELN, toolId)
+LaneEditorToolAction::LaneEditorToolAction(ODD::ToolId toolId, double width)
+    : ToolAction(ODD::ELN, toolId),
+	width_(width)
 {
-    type = at;
-    if (type == Width)
-        width = value;
+
 }

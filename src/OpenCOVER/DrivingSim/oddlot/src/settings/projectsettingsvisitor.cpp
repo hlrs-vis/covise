@@ -148,7 +148,7 @@ ProjectSettingsVisitor::visit(TrackElementPoly3 *acceptor)
 void
 ProjectSettingsVisitor::visit(ElevationSection *section)
 {
-    settingsElement_ = new ElevationSettings(projectSettings_, NULL, section);
+   // settingsElement_ = new ElevationSettings(projectSettings_, NULL, section);
 }
 
 void

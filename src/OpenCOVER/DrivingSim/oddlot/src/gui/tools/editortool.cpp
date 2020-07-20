@@ -13,17 +13,36 @@
 **
 **************************************************************************/
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolmanager.hpp"
+
+#include <QAbstractButton>
 
 //################//
 // CONSTRUCTOR    //
 //################//
 
-Tool::Tool(ToolManager *toolManager)
+EditorTool::EditorTool(ToolManager *toolManager)
     : QObject(toolManager)
     , toolManager_(toolManager)
 {
     // does nothing //
+}
+
+ToolButtonGroup::ToolButtonGroup(ToolManager *toolManager)
+	: QButtonGroup() 
+	, toolManager_(toolManager) 
+{
+	connect(toolManager_, SIGNAL(pressButton(int)), this, SLOT(setButtonPressed(int)));
+};
+
+void
+ToolButtonGroup::setButtonPressed(int i)
+{
+	QAbstractButton *button = QButtonGroup::button(i);
+	if (button)
+	{
+		button->setChecked(true);
+	}
 }

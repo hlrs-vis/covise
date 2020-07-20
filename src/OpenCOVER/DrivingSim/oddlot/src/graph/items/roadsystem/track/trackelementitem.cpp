@@ -299,7 +299,7 @@ TrackElementItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
         else if ((tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP))
         {
-            getTrackEditor()->registerRoad(getParentTrackRoadItem()->getRoad());
+			return;
         }
     }
 
@@ -379,6 +379,10 @@ TrackElementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             getProjectGraph()->executeCommand(command);
             return;
         }
+		else if ((tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP))
+		{
+			return;
+		}
         //		else if(tool == ODD::TTE_MOVE)
         //		{
         //			return; // does nothing

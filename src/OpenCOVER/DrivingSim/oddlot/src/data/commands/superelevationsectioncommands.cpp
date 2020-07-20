@@ -455,6 +455,7 @@ SmoothSuperelevationSectionCommand::SmoothSuperelevationSectionCommand(Superelev
     newSectionHigh_ = new SuperelevationSection(sHigh_, oldSectionHigh_->getSuperelevationDegrees(sHigh_), oldSectionHigh_->getB(), 0.0, 0.0);
     if (oldSectionHigh_->isElementSelected())
     {
+		newSection_->setElementSelected(true);
         newSectionHigh_->setElementSelected(true);
     }
 

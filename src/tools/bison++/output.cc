@@ -200,14 +200,14 @@ extern char *version_string;
 
 #define	GUARDSTR	"\n#include \"%s\"\nextern int yyerror;\n\
 extern int yycost;\nextern char * yymsg;\nextern YYSTYPE yyval;\n\n\
-yyguard(n, yyvsp, yylsp)\nregister int n;\nregister YYSTYPE *yyvsp;\n\
-register YYLTYPE *yylsp;\n\
+yyguard(n, yyvsp, yylsp)\nint n;\nYYSTYPE *yyvsp;\n\
+YYLTYPE *yylsp;\n\
 {\n  yyerror = 0;\nyycost = 0;\n  yymsg = 0;\nswitch (n)\n    {"
 
 #define	ACTSTR		"\n#include \"%s\"\nextern YYSTYPE yyval;\
 \nextern int yychar;\
-yyaction(n, yyvsp, yylsp)\nregister int n;\nregister YYSTYPE *yyvsp;\n\
-register YYLTYPE *yylsp;\n{\n  switch (n)\n{"
+yyaction(n, yyvsp, yylsp)\nint n;\nYYSTYPE *yyvsp;\n\
+YYLTYPE *yylsp;\n{\n  switch (n)\n{"
 
 #define	ACTSTR_SIMPLE	"\n  switch (yyn) {\n"
 
@@ -371,8 +371,8 @@ output()
 void
 output_token_translations()
 {
-  register int i, j;
-/*   register short *sp; JF unused */
+  int i, j;
+/*   short *sp; JF unused */
 
   if (translations)
     {
@@ -415,9 +415,9 @@ output_token_translations()
 void
 output_gram()
 {
-  register int i;
-  register int j;
-  register short *sp;
+  int i;
+  int j;
+  short *sp;
 
   /* With the ordinary parser,
      yyprhs and yyrhs are needed only for yydebug.  */
@@ -479,8 +479,8 @@ output_gram()
 void
 output_stos()
 {
-  register int i;
-  register int j;
+  int i;
+  int j;
 
   fprintf(ftable, "\nstatic const short yystos[] = {     0");
 
@@ -509,8 +509,8 @@ output_stos()
 void
 output_rule_data()
 {
-  register int i;
-  register int j;
+  int i;
+  int j;
 
   fprintf(ftable, 
      "\n#if (YY_%s_DEBUG != 0) || defined(YY_%s_ERROR_VERBOSE) \nstatic const short yyrline[] = { 0",parser_name,parser_name);
@@ -542,7 +542,7 @@ output_rule_data()
   j = strlen (tags[0]) + 44;
   for (i = 1; i <= nsyms; i++)
     {
-      register char *p;
+      char *p;
       putc(',', ftable);
       j++;
 
@@ -696,9 +696,9 @@ output_actions()
 void
 token_actions()
 {
-  register int i;
-  register int j;
-  register int k;
+  int i;
+  int j;
+  int k;
 
   actrow = NEW2(ntokens, short);
 
@@ -746,23 +746,23 @@ token_actions()
 int
 action_row(int state)
 {
-  register int i;
-  register int j;
-  register int k;
-  register int m;
-  register int n;
-  register int count;
-  register int default_rule;
-  register int nreds;
-  register int max;
-  register int rule;
-  register int shift_state;
-  register int symbol;
-  register unsigned mask;
-  register unsigned *wordp;
-  register reductions *redp;
-  register shifts *shiftp;
-  register errs *errp;
+  int i;
+  int j;
+  int k;
+  int m;
+  int n;
+  int count;
+  int default_rule;
+  int nreds;
+  int max;
+  int rule;
+  int shift_state;
+  int symbol;
+  unsigned mask;
+  unsigned *wordp;
+  reductions *redp;
+  shifts *shiftp;
+  errs *errp;
   int nodefault = 0;  /* set nonzero to inhibit having any default reduction */
 
   for (i = 0; i < ntokens; i++)
@@ -909,11 +909,11 @@ action_row(int state)
 void
 save_row(int state)
 {
-  register int i;
-  register int count;
-  register short *sp;
-  register short *sp1;
-  register short *sp2;
+  int i;
+  int count;
+  short *sp;
+  short *sp1;
+  short *sp2;
 
   count = 0;
   for (i = 0; i < ntokens; i++)
@@ -953,9 +953,9 @@ save_row(int state)
 void
 goto_actions()
 {
-  register int i;
-  register int j;
-  register int k;
+  int i;
+  int j;
+  int k;
 
   state_count = NEW2(nstates, short);
 
@@ -992,11 +992,11 @@ goto_actions()
 int
 default_goto(int symbol)
 {
-  register int i;
-  register int m;
-  register int n;
-  register int default_state;
-  register int max;
+  int i;
+  int m;
+  int n;
+  int default_state;
+  int max;
 
   m = goto_map[symbol];
   n = goto_map[symbol + 1];
@@ -1029,14 +1029,14 @@ default_goto(int symbol)
 void
 save_column(int symbol, int default_state)
 {
-  register int i;
-  register int m;
-  register int n;
-  register short *sp;
-  register short *sp1;
-  register short *sp2;
-  register int count;
-  register int symno;
+  int i;
+  int m;
+  int n;
+  short *sp;
+  short *sp1;
+  short *sp2;
+  int count;
+  int symno;
 
   m = goto_map[symbol];
   n = goto_map[symbol + 1];
@@ -1077,11 +1077,11 @@ save_column(int symbol, int default_state)
 void
 sort_actions()
 {
-  register int i;
-  register int j;
-  register int k;
-  register int t;
-  register int w;
+  int i;
+  int j;
+  int k;
+  int t;
+  int w;
 
   order = NEW2(nvectors, short);
   nentries = 0;
@@ -1113,9 +1113,9 @@ sort_actions()
 void
 pack_table()
 {
-  register int i;
-  register int place;
-  register int state;
+  int i;
+  int place;
+  int state;
 
   base = NEW2(nvectors, short);
   pos = NEW2(nentries, short);
@@ -1162,13 +1162,13 @@ pack_table()
 int
 matching_state(int vector)
 {
-  register int i;
-  register int j;
-  register int k;
-  register int t;
-  register int w;
-  register int match;
-  register int prev;
+  int i;
+  int j;
+  int k;
+  int t;
+  int w;
+  int match;
+  int prev;
 
   i = order[vector];
   if (i >= nstates)
@@ -1202,14 +1202,14 @@ matching_state(int vector)
 int
 pack_vector(int vector)
 {
-  register int i;
-  register int j;
-  register int k;
-  register int t;
-  register int loc;
-  register int ok;
-  register short *from;
-  register short *to;
+  int i;
+  int j;
+  int k;
+  int t;
+  int loc;
+  int ok;
+  short *from;
+  short *to;
 
   i = order[vector];
   t = tally[i];
@@ -1271,8 +1271,8 @@ pack_vector(int vector)
 void
 output_base()
 {
-  register int i;
-  register int j;
+  int i;
+  int j;
 
   fprintf(ftable, "\nstatic const short yypact[] = {%6d", base[0]);
 
@@ -1322,8 +1322,8 @@ output_base()
 void
 output_table()
 {
-  register int i;
-  register int j;
+  int i;
+  int j;
 
   fprintf(ftable, "\n\n#define\tYYLAST\t\t%d\n\n", high);
   fprintf(ftable, "\nstatic const short yytable[] = {%6d", table[0]);
@@ -1354,8 +1354,8 @@ output_table()
 void
 output_check()
 {
-  register int i;
-  register int j;
+  int i;
+  int j;
 
   fprintf(ftable, "\nstatic const short yycheck[] = {%6d", check[0]);
 
@@ -1388,7 +1388,7 @@ output_check()
 void
  output_parser()
 {
- register int c;
+ int c;
  output_section(fparser,ftable);
  rewind(faction);
  for(c=getc(faction);c!=EOF;c=getc(faction))
@@ -1398,7 +1398,7 @@ void
 void
 output_section(FILE* fin,FILE* fout)
 {
-  register int c;
+  int c;
   int dummy;
   int *pcounter=&dummy;
   char *fil_name;
@@ -1442,7 +1442,7 @@ output_section(FILE* fin,FILE* fout)
 void
 output_program()
 {
-  register int c;
+  int c;
   extern int lineno;
   int is_escaped=0,is_commented=0;
   char quoted='\0',last='\0';
@@ -1508,7 +1508,7 @@ output_program()
 void
 free_itemsets()
 {
-  register core *cp,*cptmp;
+  core *cp,*cptmp;
 
   FREE(state_table);
 
@@ -1522,7 +1522,7 @@ free_itemsets()
 void
 free_shifts()
 {
-  register shifts *sp,*sptmp;/* JF derefrenced freed ptr */
+  shifts *sp,*sptmp;/* JF derefrenced freed ptr */
 
   FREE(shift_table);
 
@@ -1536,7 +1536,7 @@ free_shifts()
 void
 free_reductions()
 {
-  register reductions *rp,*rptmp;/* JF fixed freed ptr */
+  reductions *rp,*rptmp;/* JF fixed freed ptr */
 
   FREE(reduction_table);
 
@@ -1550,7 +1550,7 @@ void output_token_const_def();
 void output_token_const_decl();
 
 void output_about_token()
-{ register int i;
+{ int i;
  
   output_section(fparser,ftable);
   output_token_defines(ftable);
@@ -1625,8 +1625,8 @@ output_token_defines_fmt(FILE* file,char* fmt,int notrans)
 
       if ('\'' != *tags[bp->value] && bp != errtoken)
 	{
-	  register char *cp = tags[bp->value];
-	  register char c;
+	  char *cp = tags[bp->value];
+	  char c;
 
 	  /* Don't #define nonliteral tokens whose names contain periods.  */
 

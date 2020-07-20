@@ -29,7 +29,7 @@ extern char *program_name;
 char *
 xmalloc (unsigned n)
 {
-  register char *block;
+  char *block;
 
   /* Avoid uncertainty about what an arg of 0 will do.  */
   if (n == 0)

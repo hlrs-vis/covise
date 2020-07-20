@@ -65,17 +65,6 @@ public slots:
     bool removeController();
     void addToCurrentTile();
 
-    //################//
-    // EVENTS         //
-    //################//
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
- protected:
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-
-
 
 public:
     //################//
@@ -97,7 +86,7 @@ private:
 
     // Text //
     //
-    TextHandle *textHandle_;
+	QGraphicsTextItem *textItem_;
 };
 
 #endif // CONTROLLERITEM_HPP

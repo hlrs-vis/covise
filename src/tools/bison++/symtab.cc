@@ -34,8 +34,8 @@ bucket *lastsymbol;
 int
 hash(char* key)
 {
-  register char *cp;
-  register int k;
+  char *cp;
+  int k;
 
   cp = key;
   k = 0;
@@ -50,9 +50,9 @@ hash(char* key)
 char *
 copys(char* s)
 {
-  register int i;
-  register char *cp;
-  register char *result;
+  int i;
+  char *cp;
+  char *result;
 
   i = 1;
   for (cp = s; *cp; cp++)
@@ -67,7 +67,7 @@ copys(char* s)
 void
 tabinit()
 {
-/*   register int i; JF unused */
+/*   int i; JF unused */
 
   symtab = NEW2(TABSIZE, bucket *);
 
@@ -79,9 +79,9 @@ tabinit()
 bucket *
 getsym(char* key)
 {
-  register int hashval;
-  register bucket *bp;
-  register int found;
+  int hashval;
+  bucket *bp;
+  int found;
 
   hashval = hash(key);
   bp = symtab[hashval];
@@ -126,8 +126,8 @@ getsym(char* key)
 void
 free_symtab()
 {
-  register int i;
-  register bucket *bp,*bptmp;/* JF don't use ptr after free */
+  int i;
+  bucket *bp,*bptmp;/* JF don't use ptr after free */
 
   for (i = 0; i < TABSIZE; i++)
     {

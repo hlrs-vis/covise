@@ -45,9 +45,9 @@
 #include "src/gui/tools/zoomtool.hpp"
 #include "src/gui/tools/selectiontool.hpp"
 #include "src/gui/tools/maptool.hpp"
-#include "src/gui/tools/junctioneditortool.hpp"
 #include "src/gui/tools/osceditortool.hpp"
 #include "src/gui/projectwidget.hpp"
+#include "src/gui/parameters/toolparametersettings.hpp"
 
 // Graph //
 //
@@ -68,6 +68,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QMimeData>
+#include <QGraphicsPathItem>
 
 
 // Utils //
@@ -97,6 +98,7 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     , circleItem_(NULL)
     , shapeItem_(NULL)
     , additionalSelection_(false)
+	, paramToolAdditionalSelection_(false)
 {
     // ScenerySystem //
     //
@@ -199,7 +201,7 @@ GraphView::shapeEditing(bool edit)
 void
 GraphView::toolAction(ToolAction *toolAction)
 {
-	static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TEL_SELECT << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT;
+	static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT;
 
     // Zoom //
     //
@@ -238,36 +240,14 @@ GraphView::toolAction(ToolAction *toolAction)
  
     // Circular Cutting Tool
     //
-    JunctionEditorToolAction *junctionEditorAction = dynamic_cast<JunctionEditorToolAction *>(toolAction);
-    if (junctionEditorAction)
-    {
-        ODD::ToolId id = junctionEditorAction->getToolId();
+	ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
+	if (action)
+	{
+		ODD::ToolId id = action->getToolId();
 
-        if (id == ODD::TJE_CIRCLE)
-        {
-			if (doCircleSelect_ == CircleOff)
-            {
-                doCircleSelect_ = CircleActive;
-                radius_ = junctionEditorAction->getThreshold();
-
-                QPen pen(Qt::DashLine);
-                pen.setColor(ODD::instance()->colors()->brightBlue());
-
-                circleItem_ = new QGraphicsPathItem();
-                circleItem_->setPen(pen);
-                scene()->addItem(circleItem_);
-            }
-		}
-		else
+		if ((id == ODD::TJE_CIRCLE) && (action->getParamToolId() == ODD::TPARAM_VALUE))
 		{
-			if (id == ODD::TJE_THRESHOLD)
-			{
-				radius_ = junctionEditorAction->getThreshold();
-			}
-			else if (circleItem_)
-			{
-				deleteCircle();
-			}
+			radius_ = action->getValue();
 		}
 
     }
@@ -344,9 +324,15 @@ GraphView::toolAction(ToolAction *toolAction)
 		{
 			select_ = true;
 		}
+		else if (selectionToolIds.contains(toolAction->getParamToolId()))
+		{
+			select_ = true;
+			paramToolAdditionalSelection_ = true;
+		}
 		else
 		{
 			select_ = false;
+			paramToolAdditionalSelection_ = false;
 		}
 	}
 }
@@ -1150,7 +1136,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
 		if (select_)
 		{
 			QGraphicsItem *item = NULL;
-			if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+			if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && !paramToolAdditionalSelection_)
 			{
 				item = scene()->itemAt(mapToScene(event->pos()), QGraphicsView::transform());
 			}
@@ -1163,7 +1149,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
 			{
 				doBoxSelect_ = BBActive;
 
-				if ((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0)
+				if (((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0) || paramToolAdditionalSelection_)
 				{
 					additionalSelection_ = true;
 				}
@@ -1301,7 +1287,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 			if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
 			{
-				if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0)
+				if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0) || paramToolAdditionalSelection_)
 				{
 
 					// Deselect element from the previous selection
@@ -1309,6 +1295,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 					QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
 
 					QGraphicsView::mousePressEvent(event); // pass to baseclass
+					QList<QGraphicsItem *> selection = scene()->selectedItems();
 
 					QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
 
@@ -1316,9 +1303,10 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 					{
 						item->setSelected(true);
 					}
+
 					if (selectedItem)
 					{
-						if (((event->modifiers() & Qt::ControlModifier) != 0) && !oldSelection.contains(selectedItem))
+						if ((((event->modifiers() & Qt::ControlModifier) != 0) || paramToolAdditionalSelection_) && !oldSelection.contains(selectedItem))
 						{
 							selectedItem->setSelected(true);
 						}
@@ -1326,6 +1314,11 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 						{
 							selectedItem->setSelected(false);
 						}
+					}
+
+					if (paramToolAdditionalSelection_)
+					{
+						QGraphicsView::mouseReleaseEvent(event); // pass to baseclass
 					}
 				}
 				else
@@ -1357,7 +1350,8 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 			// Compare old and new selection lists and invert the selection state of elements contained in both
 
 			QList<QGraphicsItem *> selectList = scene()->selectedItems();
-			foreach (QGraphicsItem *item, oldSelection)
+
+			foreach(QGraphicsItem *item, oldSelection)
 			{
 				if (selectList.contains(item))
 				{
@@ -1369,6 +1363,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 					item->setSelected(true);
 				}
 			}
+
 
 			// deselect elements which were not in the oldSelection
 
@@ -1384,7 +1379,8 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 		}
 
-		if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+
+		if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) || paramToolAdditionalSelection_)
 		{
 			QGraphicsView::mouseReleaseEvent(event);
 		}
@@ -1523,6 +1519,20 @@ GraphView::contextMenuEvent(QContextMenuEvent *event)
 	{
 		QGraphicsView::contextMenuEvent(event);
 	}
+}
+
+void
+GraphView::createCircle(double radius)
+{
+	radius_ = radius;
+	doCircleSelect_ = CircleActive;
+
+	QPen pen(Qt::DashLine);
+	pen.setColor(ODD::instance()->colors()->brightBlue());
+
+	circleItem_ = new QGraphicsPathItem();
+	circleItem_->setPen(pen);
+	scene()->addItem(circleItem_);
 }
 
 void

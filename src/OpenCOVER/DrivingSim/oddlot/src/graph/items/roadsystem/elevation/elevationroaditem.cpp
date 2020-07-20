@@ -53,6 +53,7 @@ ElevationRoadItem::ElevationRoadItem(RoadSystemItem *roadSystemItem, RSystemElem
 
 ElevationRoadItem::~ElevationRoadItem()
 {
+	elevationSectionItems_.clear();
 }
 
 void
@@ -70,8 +71,13 @@ ElevationRoadItem::init()
     //
     foreach (ElevationSection *section, getRoad()->getElevationSections())
     {
-        new ElevationSectionItem(elevationEditor_, this, section);
+        elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
     }
+
+	if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
+	{
+		elevationEditor_->insertSelectedRoad(getRoad());
+	}
 }
 
 void
@@ -107,21 +113,31 @@ ElevationRoadItem::updateObserver()
     {
         // A section has been added.
         //
-        foreach (ElevationSection *section, getRoad()->getElevationSections())
-        {
-            if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-                || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-            {
-                new ElevationSectionItem(elevationEditor_, this, section);
-            }
-        }
-    }
+		QMap<double, ElevationSection *> roadSections = getRoad()->getElevationSections();
+		foreach(ElevationSection *section, roadSections)
+		{
+			int dataElementChanges = section->getDataElementChanges();
+			if ((dataElementChanges & DataElement::CDE_DataElementCreated)
+				|| (dataElementChanges & DataElement::CDE_DataElementAdded))
+			{
+				elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
+			}
+		}
+
+		foreach(double s, elevationSectionItems_.keys())
+		{
+			if (!roadSections.contains(s))
+			{
+				elevationSectionItems_.remove(s);
+			}
+		}
+	}
 
     // DataElement //
     //
     int dataElementChanges = getRoad()->getDataElementChanges();
     if ((dataElementChanges & DataElement::CDE_SelectionChange)
-        || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
+       || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
     {
         // Selection //
         //
@@ -159,4 +175,19 @@ ElevationRoadItem::itemChange(GraphicsItemChange change, const QVariant &value)
     }
 
     return RoadItem::itemChange(change, value);
+}
+
+void
+ElevationRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+
+	// SectionItems //
+	//
+	if (getRoad()->isChildElementSelected())
+	{
+		foreach(ElevationSectionItem *sectionItem, elevationSectionItems_)
+		{
+			sectionItem->setSelected(true);
+		}
+	}
 }

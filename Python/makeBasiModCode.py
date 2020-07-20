@@ -360,6 +360,9 @@ class Conversion:
             self.fcnt_ = self.fcnt_ + 1
         else:
             self.scnt_ = self.scnt_ + 1
+            w.close()
+            r.close()
+            e.close()
             
 
     def convertGroups( self, dir, repFile, ignorefilelist):
@@ -370,7 +373,7 @@ class Conversion:
                 # It's a directory therefore it must be a COVISE group
                 for ff in os.listdir(pathname):
                     execName = '%s/%s' % (pathname, ff)
-                    if not execName.endswith(".pdb") and not execName.endswith(".ilk") and not execName.endswith(".exp") and not execName.endswith(".lib") and not execName.endswith(".suo"):
+                    if not execName.endswith(".pdb") and not execName.endswith(".ilk") and not execName.endswith(".exp") and not execName.endswith(".lib") and not execName.endswith(".xml") and not execName.endswith(".dll") and not execName.endswith(".suo"):
                         skipfile = False
                         # check to see, if filename is to be ignored
                         if (ignorefilelist != None):

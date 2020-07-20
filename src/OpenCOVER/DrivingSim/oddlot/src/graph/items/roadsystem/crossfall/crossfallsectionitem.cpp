@@ -26,6 +26,7 @@
 // Graph //
 //
 #include "src/graph/items/roadsystem/roaditem.hpp"
+#include "src/graph/items/roadsystem/crossfall/crossfallroaditem.hpp"
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/roadtextitem.hpp"
 
@@ -65,6 +66,8 @@ CrossfallSectionItem::CrossfallSectionItem(CrossfallEditor *crossfallEditor, Roa
     // Init //
     //
     init();
+
+	parentRoadItem_ = dynamic_cast<CrossfallRoadItem *>(parentRoadItem);
 }
 
 CrossfallSectionItem::~CrossfallSectionItem()
@@ -234,6 +237,7 @@ CrossfallSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
+		parentRoadItem_->mousePressEvent(event);
     }
     else
     {
@@ -248,7 +252,7 @@ CrossfallSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (tool == ODD::TCF_SELECT)
     {
         // parent: selection //
-        SectionItem::mouseReleaseEvent(event); // pass to baseclass
+       // SectionItem::mouseReleaseEvent(event); // pass to baseclass
     }
     else if (tool == ODD::TCF_ADD && (event->button() == Qt::LeftButton))
     {

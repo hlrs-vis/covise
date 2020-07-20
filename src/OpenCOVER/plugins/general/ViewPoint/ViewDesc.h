@@ -227,7 +227,6 @@ public:
     {
         return vp_line.c_str();
     }
-    const char *getClipPlane(int i);
     bool getFlightState()
     {
         return flightState_;

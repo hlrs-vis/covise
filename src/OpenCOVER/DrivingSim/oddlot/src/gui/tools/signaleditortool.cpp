@@ -40,7 +40,7 @@
 /*! \todo Ownership/destructor
 */
 SignalEditorTool::SignalEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TSG_SELECT)
     , active_(false)
 	, ui(new Ui::SignalRibbon)
@@ -131,20 +131,19 @@ SignalEditorTool::initToolWidget()
     ui->setupUi(ribbonWidget);
     
     
-	QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
-    ribbonToolGroup->addButton(ui->deleteController, ODD::TSG_DEL);
-    ribbonToolGroup->addButton(ui->newController, ODD::TSG_CONTROLLER);
-    ribbonToolGroup->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
-    ribbonToolGroup->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);
-	ribbonToolGroup->addButton(ui->select, ODD::TSG_SELECT);
-	ribbonToolGroup->addButton(ui->invisibleButton, ODD::TSG_NONE);
+	ribbonToolGroup_->addButton(ui->newController, ODD::TSG_CONTROLLER);
+	ribbonToolGroup_->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
+	ribbonToolGroup_->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);
+	ribbonToolGroup_->addButton(ui->select, ODD::TSG_SELECT);
+	ribbonToolGroup_->addButton(ui->invisibleButton, ODD::TSG_NONE);
 	ui->invisibleButton->hide();
 
-    toolManager_->addRibbonWidget(ribbonWidget, tr("Signals and Objects"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Signals and Objects"), ODD::ESG);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -176,6 +175,23 @@ SignalEditorTool::activateEditor()
     delete action;
 }
 
+
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
+void
+SignalEditorTool::activateRibbonEditor()
+{
+	ToolAction *action = toolManager_->getLastToolAction(ODD::ESG);
+
+/*	if (action->getToolId() == ODD::TSG_SELECT)
+	{
+		ribbonToolGroup_->button(action->getToolId())->click();
+	} */
+
+	ribbonToolGroup_->button(ODD::TSG_SELECT)->click();
+
+}
+
 /*! \brief
 *
 */
@@ -188,7 +204,7 @@ SignalEditorTool::handleToolClick(int id)
     //
     SignalEditorToolAction *action = new SignalEditorToolAction(toolId_);
     emit toolAction(action);
-    delete action;
+ //   delete action;
 
 }
 

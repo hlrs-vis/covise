@@ -22,6 +22,7 @@ class RSystemElementRoad;
 class RoadSystemItem;
 
 class SuperelevationEditor;
+class SuperelevationSectionItem;
 
 class SuperelevationRoadItem : public RoadItem
 {
@@ -56,12 +57,16 @@ private:
 public:
     //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
 
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
     //################//
     // PROPERTIES     //
     //################//
 
 private:
     SuperelevationEditor *superelevationEditor_;
+
+	QMap<double, SuperelevationSectionItem *> superelevationSectionItems_;
 };
 
 #endif // SUPERELEVATIONROADITEM_HPP

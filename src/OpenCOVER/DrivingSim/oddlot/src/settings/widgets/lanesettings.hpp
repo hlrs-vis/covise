@@ -74,8 +74,6 @@ private slots:
     void on_predecessorBox_valueChanged(int i);
     void on_successorCheckBox_stateChanged(int state);
     void on_successorBox_valueChanged(int i);
-    void on_addButton_released();
-	void activateInsertGroupBox(bool);
 
     //################//
     // PROPERTIES     //

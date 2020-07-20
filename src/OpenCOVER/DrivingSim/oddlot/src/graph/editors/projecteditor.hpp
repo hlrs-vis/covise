@@ -24,6 +24,10 @@ class ProjectWidget;
 class ProjectData;
 class ProjectGraph;
 class TopviewGraph;
+class ToolParameter;
+class ToolParameterSettings;
+class ToolParameterSettingsApplyBox;
+class Tool;
 
 class ToolAction;
 class MouseAction;
@@ -53,6 +57,11 @@ public:
     {
         return currentTool_;
     }
+	void setParameterTool(ODD::ToolId id);
+	ODD::ToolId getCurrentParameterTool()
+	{
+		return currentParameterTool_;
+	}
     bool isCurrentTool(ODD::ToolId toolId)
     {
         if (toolId == currentTool_)
@@ -90,6 +99,21 @@ protected:
     virtual void init() = 0;
     virtual void kill() = 0;
 
+	// ToolParameters //
+	//
+	void createToolParameterSettingsApplyBox(Tool *tool, const ODD::EditorId &editorID);
+	void createToolParameterSettings(Tool *tool, const ODD::EditorId &editorID);
+	void deleteToolParameterSettings();
+	void generateToolParameterUI(Tool *tool);
+	void updateToolParameterUI(ToolParameter *param);
+	void delToolParameters();
+	template<class T>
+	void setToolValue(T *object, const QString &valueDisplayed);
+	template<class T>
+	void createToolParameters(T *object);
+	template<class T>
+	void removeToolParameters(T *object);
+
 private:
     ProjectEditor(); /* not allowed */
     ProjectEditor(const ProjectEditor &); /* not allowed */
@@ -103,9 +127,22 @@ public slots:
     void show();
     void hide();
 
+	// Parameter Settings //
+	//
+	virtual void apply() = 0;
+	virtual void reject();
+	virtual void reset() = 0;
+
     //################//
     // PROPERTIES     //
     //################//
+protected:
+
+	// ToolParameters //
+	//
+	Tool *tool_;
+	ToolParameterSettingsApplyBox *settingsApplyBox_;
+	ToolParameterSettings *settings_;
 
 private:
     // Project, Data, Graph //
@@ -113,10 +150,13 @@ private:
     ProjectWidget *projectWidget_;
     ProjectData *projectData_;
     TopviewGraph *topviewGraph_;
+	MainWindow *mainWindow_;
 
     // Tool //
     //
     ODD::ToolId currentTool_;
+	ODD::ToolId currentParameterTool_;
+
 };
 
 #endif // PROJECTEDITOR_HPP

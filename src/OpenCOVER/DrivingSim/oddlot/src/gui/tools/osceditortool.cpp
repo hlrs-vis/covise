@@ -38,7 +38,7 @@
 /*! \todo Ownership/destructor
 */
 OpenScenarioEditorTool::OpenScenarioEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TOS_SELECT)
 	, ui(new Ui::OSCRibbon)
 {
@@ -71,24 +71,24 @@ OpenScenarioEditorTool::initToolWidget()
     handleCatalogSelection(0); // ... so do it yourself
 
     
-    ribbonToolGroup_ = new QButtonGroup;
+    ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     
     ribbonToolGroup_->addButton(ui->oscSave, ODD::TOS_SAVE_CATALOG); 
 	ribbonToolGroup_->addButton(ui->select, ODD::TOS_SELECT);
 	ribbonToolGroup_->addButton(ui->invisibleButton, ODD::TOS_NONE);
-	ribbonToolGroup_->addButton(ui->fileHeaderButton, ODD::TOS_BASE);
-	ribbonToolGroup_->addButton(ui->roadNetworkButton, ODD::TOS_BASE);
-	ribbonToolGroup_->addButton(ui->entitiesButton, ODD::TOS_BASE);
-	ribbonToolGroup_->addButton(ui->storyboardButton, ODD::TOS_BASE);
+	ribbonToolGroup_->addButton(ui->fileHeaderButton, ODD::TOS_FILEHEADER);
+	ribbonToolGroup_->addButton(ui->roadNetworkButton, ODD::TOS_ROADNETWORK);
+	ribbonToolGroup_->addButton(ui->entitiesButton, ODD::TOS_ENTITIES);
+	ribbonToolGroup_->addButton(ui->storyboardButton, ODD::TOS_STORYBOARD);
 	ui->invisibleButton->hide();
 
 //	ribbonToolGroup_->addButton(ui->graphEditButton, ODD::TOS_GRAPHELEMENT);
 	connect(ui->graphEditButton, SIGNAL(clicked(bool)), this, SLOT(handleGraphState(bool)));
 
    
-    toolManager_->addRibbonWidget(ribbonWidget, tr("OpenScenario"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("OpenScenario"), ODD::EOS);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -106,19 +106,20 @@ void OpenScenarioEditorTool::objectSelection(bool state)
 // SLOTS          //
 //################//
 
-/*! \brief Gets called when this widget (tab) has been activated.
-*/
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
 void
-OpenScenarioEditorTool::activateEditor()
+OpenScenarioEditorTool::activateRibbonEditor()
 {
-    ui->graphEditButton->setEnabled(false);
-    ui->graphEditButton->setVisible(false);
-	ui->graphEditButton->setChecked(false); 
+	ui->graphEditButton->setEnabled(false);
+	ui->graphEditButton->setVisible(false);
+	ui->graphEditButton->setChecked(false);
 	graphEdit_ = false;
 
-    OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(toolId_, "");
-    emit toolAction(action);
-    delete action;
+	ToolAction *action = toolManager_->getLastToolAction(ODD::EOS);
+
+	ribbonToolGroup_->button(action->getToolId())->click();
+
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -128,6 +129,11 @@ OpenScenarioEditorTool::handleToolClick(int id)
 {
     toolId_ = (ODD::ToolId)id;
 
+	if (toolId_ == ODD::TOS_NONE)
+	{
+		return;
+	}
+
 	if (graphEdit_)
 	{
 		handleGraphState(false);
@@ -136,21 +142,24 @@ OpenScenarioEditorTool::handleToolClick(int id)
 
 	OpenScenarioEditorToolAction *action;
 
-
-	if (toolId_ == ODD::TOS_BASE)
-	{
+	switch (toolId_)
+	{ 
+	case ODD::TOS_ENTITIES:
+	case ODD::TOS_ROADNETWORK:
+	case ODD::TOS_STORYBOARD:
+	case ODD::TOS_FILEHEADER:
 		action = new OpenScenarioEditorToolAction(toolId_, ribbonToolGroup_->checkedButton()->text());
-	}
-	else if (toolId_ != ODD::TOS_NONE)
-	{
+		break;
+	default:
 		action = new OpenScenarioEditorToolAction(toolId_, "");
 		if (ui->graphEditButton->isVisible())
 		{
 			enableGraphEdit(false);
 		}
+		break;
 	}
 	emit toolAction(action);
-	delete action;
+//	delete action;
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -220,13 +229,13 @@ OpenScenarioEditorTool::setButtonColor(const QString &name, QColor color)
 //################//
 
 OpenScenarioEditorToolAction::OpenScenarioEditorToolAction(ODD::ToolId toolId, const QString &text)
-    : ToolAction(ODD::EOS, toolId)
+    : ToolAction(ODD::EOS, toolId, ODD::TNO_TOOL)
 	, text_(text)
 {
 }
 
 OpenScenarioEditorToolAction::OpenScenarioEditorToolAction(ODD::ToolId toolId, bool state)
-    : ToolAction(ODD::EOS, toolId)
+    : ToolAction(ODD::EOS, toolId, ODD::TNO_TOOL)
 	, state_(state)
 {
 }

@@ -840,9 +840,7 @@ DomParser::parseTile(QDomElement &root)
 			if (param.length() > 1)
 			{
 				int intID = param[0].toInt();
-				odrID id;
-				id.setID(intID);
-				id.setName(param[1]);
+				odrID id = odrID(intID, intID, param[1], odrID::ID_Tile);
 				tileSystem_->addTile(new Tile(id));
 			}
 		}
@@ -945,7 +943,7 @@ void DomParser::StringToID(QString id, odrID &ID, odrID::IDType t, int TileID)
 	if (tileSystem_ != NULL)
 	{
 		Tile *tile = tileSystem_->getTile(TileID);
-		ID.setID(tile->uniqueID(t));
+		ID.setID(tileSystem_->uniqueID(t));
 	}
 	else
 	{
@@ -1665,7 +1663,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 		double daylight = parseToDouble(child, "daylight", 0.0, false);
 
 		odrID ID;
-		StringToID(id, ID, odrID::ID_Object,tileID);
+		StringToID(id, ID, odrID::ID_Bridge,tileID);
 		// Construct tunnel object
 		Tunnel *tunnel = new Tunnel(ID, modelFile, name, Tunnel::parseTunnelType(type), s, length, lighting, daylight);
 
@@ -1715,7 +1713,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 				crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
 		}
 
-		StringToID(id, ID, odrID::ID_Object,tileID);
+		StringToID(id, ID, odrID::ID_Signal,tileID);
 		// Construct signal object
 		Signal *signal = new Signal(ID, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
 		// Add to road
@@ -1875,7 +1873,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road)
         }
 
 		odrID ID;
-		StringToID(id, ID, odrID::ID_Object,tileID);
+		StringToID(id, ID, odrID::ID_Signal,tileID);
         if ((type == "625") && (subtype == "10") && (typeSubclass == "20"))
         {
             hOffset = name.toDouble();
@@ -1894,6 +1892,10 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road)
 
         // Add to road
         road->addSignal(signal);
+		if (signal->getId() != ID) // Signal ID has changed, controller has to use new id
+		{
+			changedSignalIDs_.insert(ID, signal->getId());
+		}
 
         // Attempt to locate another signal
         child = child.nextSiblingElement("signal");
@@ -2555,6 +2557,7 @@ DomParser::parseControllerElement(QDomElement &controllerElement)
 
 		odrID signalID;
 		StringToID(signalId, signalID, odrID::ID_Signal,tileID);
+		signalID = changedSignalIDs_.value(signalID, signalID);
         ControlEntry *entry = new ControlEntry(signalID, type);
         controlEntries.append(entry);
 
@@ -3695,7 +3698,11 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         // Name and Icon //
         //
         QString name = parseToQString(sign, "name", "", false); // mandatory
-        QString icon = ":/signalIcons/" + parseToQString(sign, "icon", "", true); // optional
+		QString icon = parseToQString(sign, "icon", "", true); // optional
+		if (!icon.isEmpty())
+		{
+			icon = ":/signalIcons/" + icon;
+		}
         QString type = parseToQString(sign, "type", "-1", false);
         QString typeSubclass = parseToQString(sign, "subclass", "", true);
         QString subType = parseToQString(sign, "subtype", "-1", true);
@@ -3728,7 +3735,11 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &cate
         //
         QString name = parseToQString(object, "name", "", false); // mandatory
         QString file = parseToQString(object, "file", "", true); // optional 
-        QString icon = ":/signalIcons/" + parseToQString(object, "icon", "", true); // optional
+		QString icon = parseToQString(object, "icon", "", true); // optional
+		if (!icon.isEmpty())
+		{
+			icon = ":/signalIcons/" + icon;
+		}
         QString type = parseToQString(object, "type", "", true);
         double length = parseToDouble(object, "length", 0.0, true);
         double width = parseToDouble(object, "width", 0.0, true);

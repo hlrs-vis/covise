@@ -444,6 +444,15 @@ RSystemElementRoad::getTrackComponentNext(double s) const
     return i.value();
 }
 
+void
+RSystemElementRoad::delTrackSections()
+{
+	foreach (TrackComponent *child, trackSections_)
+		delete child;
+
+	trackSections_.clear();
+}
+
 /*! \brief .
 *
 *
@@ -931,6 +940,15 @@ RSystemElementRoad::moveTypeSection(double oldS, double newS)
     return true;
 }
 
+void
+RSystemElementRoad::delTypeSections()
+{
+	foreach(TypeSection *child, typeSections_)
+		delete child;
+
+	typeSections_.clear();
+}
+
 //###################//
 // road:surface      //
 //###################//
@@ -1143,6 +1161,15 @@ RSystemElementRoad::setElevationSections(QMap<double, ElevationSection *> newSec
     addRoadChanges(RSystemElementRoad::CRD_ElevationSectionChange);
 }
 
+void 
+RSystemElementRoad::delElevationSections()
+{
+	foreach (ElevationSection *child, elevationSections_)
+		delete child;
+
+	elevationSections_.clear();
+}
+
 //####################################//
 // road:lateralProfile:superelevation //
 //####################################//
@@ -1326,6 +1353,15 @@ RSystemElementRoad::setSuperelevationSections(QMap<double, SuperelevationSection
 
     superelevationSections_ = newSections;
     addRoadChanges(RSystemElementRoad::CRD_SuperelevationSectionChange);
+}
+
+void 
+RSystemElementRoad::delSuperelevationSections()
+{
+	foreach(SuperelevationSection *child, superelevationSections_)
+		delete child;
+
+	superelevationSections_.clear();
 }
 
 //###############################//
@@ -1513,6 +1549,13 @@ RSystemElementRoad::setCrossfallSections(QMap<double, CrossfallSection *> newSec
     addRoadChanges(RSystemElementRoad::CRD_CrossfallSectionChange);
 }
 
+void 
+RSystemElementRoad::delCrossfallSections()
+{
+	foreach(CrossfallSection *child, crossfallSections_)
+		delete child;
+}
+
 //####################################//
 // road:lateralProfile:shape //
 //####################################//
@@ -1696,6 +1739,15 @@ RSystemElementRoad::setShapeSections(QMap<double, ShapeSection *> newSections)
 
 	shapeSections_ = newSections;
 	addRoadChanges(RSystemElementRoad::CRD_ShapeSectionChange);
+}
+
+void 
+RSystemElementRoad::delShapeSections()
+{
+	foreach(ShapeSection *child, shapeSections_)
+		delete child;
+
+	shapeSections_.clear();
 }
 
 //###################//
@@ -1911,6 +1963,15 @@ RSystemElementRoad::setLaneSections(QMap<double, LaneSection *> newSections)
 
     laneSections_ = newSections;
     addRoadChanges(RSystemElementRoad::CRD_LaneSectionChange);
+}
+
+void 
+RSystemElementRoad::delLaneSections()
+{
+	foreach(LaneSection *child, laneSections_)
+		delete child;
+
+	laneSections_.clear();
 }
 
 //###################//
@@ -3448,7 +3509,7 @@ RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
 		name = object->getName();
 	}
 
-	objectReference->setId(getRoadSystem()->getID(name, odrID::ID_Road));
+	objectReference->setId(getRoadSystem()->getID(name, odrID::ID_Object));
 
 	// Insert and Notify //
 	//
@@ -3693,7 +3754,7 @@ RSystemElementRoad::addSignal(Signal *signal)
     //
     QString name = signal->getName();
 
-    odrID id = getRoadSystem()->getID(name,  odrID::ID_Object);
+    odrID id = getRoadSystem()->getID(name,  odrID::ID_Signal);
         signal->setId(id);
         if (name != signal->getName())
         {
@@ -3815,7 +3876,7 @@ RSystemElementRoad::addSignalReference(SignalReference *signalReference)
 		name = signal->getName();
 	}
 
-	odrID id = getRoadSystem()->getID(name, odrID::ID_Object);
+	odrID id = getRoadSystem()->getID(name, odrID::ID_Signal);
 	signalReference->setId(id);
 
 	// Insert and Notify //
@@ -4101,7 +4162,7 @@ RSystemElementRoad::getClone() const
 {
     // New Road //
     //
-    RSystemElementRoad *clonedRoad = new RSystemElementRoad(getName(), getID(), junction_);
+    RSystemElementRoad *clonedRoad = new RSystemElementRoad(getName(), odrID::invalidID(), junction_ );
 
     // RoadSections //
     //

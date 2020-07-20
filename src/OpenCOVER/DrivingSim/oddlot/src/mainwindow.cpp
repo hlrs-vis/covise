@@ -20,9 +20,17 @@
 //
 #include "src/data/prototypemanager.hpp"
 #include "src/data/signalmanager.hpp"
+#include "src/wizards/wizardmanager.hpp"
+
+// GUI //
+//
 #include "src/gui/tools/toolmanager.hpp"
 #include "src/gui/osmimport.hpp"
-#include "src/wizards/wizardmanager.hpp"
+#include "src/gui/parameters/toolparametersettings.hpp"
+
+// Graph //
+//
+#include "src/graph/editors/projecteditor.hpp"
 
 // Qt //
 //
@@ -37,10 +45,13 @@
 #include <QToolBox>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QGroupBox>
+#include <QVBoxLayout>
 
 // Utils //
 //
 #include "src/util/odd.hpp"
+#include "src/util/popupdialog.hpp"
 
 // tree //
 //
@@ -92,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
     createTools();
 	createSignals();
     createWizards();
+	createParameterSettings();
 
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
@@ -575,6 +587,7 @@ MainWindow::createTools()
     //
     toolManager_ = new ToolManager(prototypeManager_, this);
     connect(toolManager_, SIGNAL(toolAction(ToolAction *)), this, SLOT(toolAction(ToolAction *)));
+	connect(this, SIGNAL(hasActiveProject(bool)), toolManager_, SLOT(loadProjectEditor(bool)));
     
     toolDock_->setWidget(toolManager_->getToolBox());
     toolDock_->hide();
@@ -593,6 +606,77 @@ MainWindow::createTools()
 
     ribbonToolDock_->setWidget(toolManager_->getRibbonWidget());
 
+}
+
+void
+MainWindow::createParameterSettings()
+{
+
+	parameterDialog_ = new PopUpDialog(this);
+	parameterDialog_->setWindowTitle("ParameterSettings");
+	parameterDialog_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	QVBoxLayout *layout = new QVBoxLayout();
+
+	paramBox_ = new QFrame();
+	dialogBox_ = new QFrame();
+
+	QGroupBox *groupBox = new QGroupBox(parameterDialog_);
+	QVBoxLayout *paramLayout = new QVBoxLayout();
+//	paramLayout->setContentsMargins(0.0, 0.0, 0.0, 0.0);
+	paramLayout->addWidget(paramBox_);
+	paramLayout->addWidget(dialogBox_);
+	paramLayout->setSizeConstraint(QLayout::SetFixedSize);
+	
+	groupBox->setLayout(paramLayout);
+	layout->addWidget(groupBox);
+	layout->setSizeConstraint(QLayout::SetFixedSize);
+	layout->addStrut(300);
+	parameterDialog_->setLayout(layout);
+
+	connect(parameterDialog_, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+
+void
+MainWindow::showParameterDialog(bool show, const QString &windowTitle, const QString &helpText)
+{
+	if (show)
+	{
+		parameterDialog_->setWindowTitle(windowTitle);
+		parameterDialog_->setWhatsThis(helpText);
+
+		ribbonToolDock_->setDisabled(true);
+		fileMenu_->setDisabled(true);
+		fileToolBar_->setDisabled(true);
+		QMdiSubWindow *activeProjectWindow = mdiArea_->activeSubWindow();
+		QList<QMdiSubWindow *>windowList = mdiArea_->subWindowList();
+		for (int i = 0; i < windowList.size(); i++)
+		{
+			if (windowList.at(i) != activeProjectWindow)
+			{
+				windowList.at(i)->setDisabled(true);
+			}
+		}
+
+		parameterDialog_->show();
+	}
+	else
+	{
+		parameterDialog_->hide();
+
+		ribbonToolDock_->setEnabled(true);
+		fileMenu_->setEnabled(true);
+		fileToolBar_->setEnabled(true);
+		QMdiSubWindow *activeProjectWindow = mdiArea_->activeSubWindow();
+		QList<QMdiSubWindow *>windowList = mdiArea_->subWindowList();
+		for (int i = 0; i < windowList.size(); i++)
+		{
+			if (!windowList.at(i)->isEnabled())
+			{
+				windowList.at(i)->setEnabled(true);
+			}
+		}
+	}
 }
 
 /*! \brief Creates the WizardManager.
@@ -737,6 +821,7 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
     catalogDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	catalogDock->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 	catalogDock->setFixedWidth(200);
+	catalogsDock_.prepend(catalogDock);
 
     addDockWidget(Qt::RightDockWidgetArea, catalogDock);
 	tabifyDockWidget(treeDock_, catalogDock);
@@ -775,7 +860,8 @@ MainWindow::newFile()
 	}
 
     project = createProject();
-    project->newFile();
+
+    project->newFile(createProjectFilename());
  //   project->show();
     project->showMaximized();
     return;
@@ -1160,7 +1246,7 @@ MainWindow::importCSVRoad()
     if (project == NULL)
     {
         project = createProject();
-        project->newFile();
+        project->newFile(createProjectFilename());
     }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
@@ -1186,7 +1272,7 @@ MainWindow::importCSVSign()
     if (project == NULL)
     {
         project = createProject();
-        project->newFile();
+        project->newFile(createProjectFilename());
     }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
@@ -1212,7 +1298,7 @@ MainWindow::importCarMakerRoad()
     if (project == NULL)
     {
         project = createProject();
-        project->newFile();
+        project->newFile(createProjectFilename());
     }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
@@ -1238,7 +1324,7 @@ MainWindow::importOSMFile()
     if (project == NULL)
     {
         project = createProject();
-        project->newFile();
+        project->newFile(createProjectFilename());
     }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
@@ -1262,7 +1348,7 @@ MainWindow::importOSMRoad()
     if (project == NULL)
     {
         project = createProject();
-        project->newFile();
+        project->newFile(createProjectFilename());
     }
     osmi->setProject(project);
     osmi->exec();
@@ -1274,6 +1360,7 @@ MainWindow::importOSMRoad()
 		}*/
     return;
 }
+
 
 /*! \brief Displays an "about" message box.
 */
@@ -1291,6 +1378,20 @@ MainWindow::openRecentFile()
 {
     // TODO
     return;
+}
+
+
+void
+MainWindow::reject()
+{
+	ProjectWidget *project = getActiveProject();
+	if (project)
+	{
+		ProjectEditor *editor = project->getProjectEditor();
+		editor->reject();
+		toolManager_->resendStandardTool(project);
+	}
+
 }
 
 /*! \brief Routes a ToolAction to the active project.
@@ -1347,6 +1448,11 @@ MainWindow::createProject()
     connect(projectMenuAction, SIGNAL(triggered()), project, SLOT(show()));
     connect(projectMenuAction, SIGNAL(triggered()), project, SLOT(setFocus()));
 
+	// save current editor and tool in toolmanager
+//	toolManager_->addProjectEditingState(project);
+ //   toolManager_->resendCurrentTool(project);
+//	toolManager_->resendStandardTool(project);
+
     return project;
 }
 
@@ -1374,7 +1480,8 @@ MainWindow::activateProject()
 		ProjectWidget *lastProject = getLastActiveProject();
 		if (lastProject)
 		{
-			lastProject->removeCatalogTrees();
+			lastProject->setEditor(ODD::ENO_EDITOR);
+			lastProject->setProjectActive(false);
 		}
 
         // Tell project that it has been activated //
@@ -1383,7 +1490,7 @@ MainWindow::activateProject()
 
         // Pass currently selected tools //
         //
-        toolManager_->resendCurrentTool();
+        toolManager_->resendCurrentTool(project);
 
 		// Pass selected project to signal treewidget //
 		//
@@ -1431,6 +1538,21 @@ MainWindow::getLastActiveProject()
 	return NULL;
 }
 
+const QString  
+MainWindow::createProjectFilename()
+{
+	// Create a unique name by counting up numbers.
+	static int documentNumber = 0;
+	QString fileName;
+	do
+	{
+		++documentNumber;
+		fileName = tr("untitled%1").arg(documentNumber);
+	} while (findProject(fileName + ".xodr"));
+
+	return fileName;
+}
+
 /*! \brief Returns the project subwindow of a already opened file (if possible).
 */
 QMdiSubWindow *
@@ -1440,6 +1562,8 @@ MainWindow::findProject(const QString &fileName)
     //
     // Absolute path without symbolic links or redundant "." or ".." elements.
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
+    if (canonicalFilePath.length() == 0) // file not found
+        canonicalFilePath = fileName;
 
     // Search for project with that file name //
     //
@@ -1509,16 +1633,49 @@ MainWindow::setErrorMessageTree(QWidget *widget)
 }
 
 void 
-	MainWindow::showSignalsDock(bool visible)
+MainWindow::showDock(ODD::EditorId editor)
 {
-	if (visible)
+	switch (editor)
 	{
+	case ODD::EOS:
+		if (!catalogsDock_.empty())
+		{
+			for (int i = 0; i < catalogsDock_.size(); i++)
+			{
+				catalogsDock_.at(i)->show();
+			}
+			catalogsDock_.first()->raise();
+		}
+		break;
+	case ODD::ESG:
 		signalsDock_->show();
 		signalsDock_->raise();
+		break;
+	default:
+		treeDock_->raise();
 	}
-	else
+}
+
+void
+MainWindow::hideDock(ODD::EditorId editor)
+{
+	switch (editor)
 	{
+	case ODD::EOS:
+		if (!catalogsDock_.empty())
+		{
+			for (int i = 0; i < catalogsDock_.size(); i++)
+			{
+				catalogsDock_.at(i)->hide();
+			}
+		}
+		break;
+	case ODD::ESG:
 		signalsDock_->hide();
+		break;
+    default:
+        // make compiler happy
+        break;
 	}
 }
 
@@ -1573,3 +1730,4 @@ MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
     }
 }
+

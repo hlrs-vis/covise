@@ -70,6 +70,12 @@
 using namespace covise;
 using namespace std;
 
+
+#if MHD_VERSION < 0x00097000
+typedef int MHD_Result;
+#endif
+
+
 float mvm[16];
 float viewIndex = 0;
 
@@ -456,7 +462,7 @@ void WebGLRenderer::deleteFileBuffers(const char *name)
  * The javascript code that represents COVISE objects is built in 
  * WebGLRenderer::addGeometry
  */
-static int handler(void *cls, struct MHD_Connection *connection,
+static MHD_Result handler(void *cls, struct MHD_Connection *connection,
                    const char *url, const char * /*method*/,
                    const char * /*version*/,
                    const char * /*upload_data*/,
@@ -469,7 +475,7 @@ static int handler(void *cls, struct MHD_Connection *connection,
 {
     WebGLRenderer *renderer = (WebGLRenderer *)cls;
     struct MHD_Response *response = NULL;
-    int ret = MHD_NO;
+    MHD_Result ret = MHD_NO;
     static int dummy;
 
     pmesg(6, "WebGLRenderer::handler [%s]\n", url);

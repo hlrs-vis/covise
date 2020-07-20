@@ -34,7 +34,7 @@
 //################//
 
 ZoomTool::ZoomTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
 {
     // Connect //
     //

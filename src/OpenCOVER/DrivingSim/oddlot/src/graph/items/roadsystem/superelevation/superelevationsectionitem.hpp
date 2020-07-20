@@ -20,6 +20,7 @@
 
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 
+class SuperelevationRoadItem;
 class SuperelevationEditor;
 
 class SuperelevationSectionItem : public SectionItem
@@ -85,6 +86,8 @@ protected:
     //################//
 
 private:
+	SuperelevationRoadItem *parentRoadItem_;
+
     SuperelevationEditor *superelevationEditor_;
 
     SuperelevationSection *superelevationSection_;

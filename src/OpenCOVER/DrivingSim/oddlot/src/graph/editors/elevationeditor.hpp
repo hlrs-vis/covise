@@ -39,6 +39,8 @@ class ElevationRoadPolynomialItem;
 #include <QMap>
 #include <QMultiMap>
 #include <QRectF>
+#include <QGraphicsItem>
+
 
 class ElevationEditor : public ProjectEditor
 {
@@ -89,12 +91,14 @@ public:
     void registerMoveHandle(ElevationMoveHandle *handle);
     int unregisterMoveHandle(ElevationMoveHandle *handle);
     bool translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos);
+	bool selectionChangedRoadSection();
 
     // Tool, Mouse & Key //
     //
     virtual void toolAction(ToolAction *toolAction);
-    //	virtual void			mouseAction(MouseAction * mouseAction);
+    virtual void mouseAction(MouseAction * mouseAction);
     //	virtual void			keyAction(KeyAction * keyAction);
+
 
 protected:
     virtual void init();
@@ -105,11 +109,18 @@ private:
     ElevationEditor(const ElevationEditor &); /* not allowed */
     ElevationEditor &operator=(const ElevationEditor &); /* not allowed */
 
+	void clearToolObjectSelection();
+
     //################//
     // SLOTS          //
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply();
+	virtual void reject();
+	virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -128,9 +139,10 @@ private:
     // TODO look for better solution
     SectionHandle *insertSectionHandle_;
 
-    // Smooth Radius //
+    // Smooth Radius and Slope //
     //
     double smoothRadius_;
+	double slope_;
 
     // ProfileGraph: Selected Items //
     //
@@ -141,6 +153,12 @@ private:
     //
     QRectF boundingBox_;
     qreal xtrans_;
+
+
+	// Elevation Editing //
+	//
+	QGraphicsItem *elevationSectionItem_;
+	QGraphicsItem *elevationSectionAdjacentItem_;
 };
 
 #endif // ELEVATIONEDITOR_HPP

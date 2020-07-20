@@ -126,7 +126,7 @@ SET(ODDLOT_SOURCES
 	 src/graph/items/svgelement.cpp
 	 src/graph/items/basegraphelement.cpp
 	 src/gui/tools/toolmanager.cpp
-	 src/gui/tools/tool.cpp
+	 src/gui/tools/editortool.cpp
 	 src/gui/tools/zoomtool.cpp
 	 src/gui/tools/selectiontool.cpp
 	 src/gui/tools/toolaction.cpp
@@ -393,6 +393,10 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
 	src/graph/items/handles/baselanemovehandle.cpp
+	src/gui/parameters/tool.cpp
+	src/gui/parameters/toolparameter.cpp
+	src/gui/parameters/toolparametersettings.cpp
+	src/util/popupdialog.cpp
 )
 SET(ODDLOT_MOC_HEADERS
     src/data/changemanager.hpp
@@ -487,6 +491,7 @@ SET(ODDLOT_MOC_HEADERS
     src/gui/lodsettings.hpp
     src/gui/oscsettings.hpp
     src/gui/osmimport.hpp
+	src/gui/parameters/toolparametersettings.hpp
     src/gui/projectionsettings.hpp
     src/gui/projectwidget.hpp
 
@@ -505,7 +510,7 @@ SET(ODDLOT_MOC_HEADERS
     src/gui/tools/shapeeditortool.hpp
     src/gui/tools/signaleditortool.hpp
     src/gui/tools/superelevationeditortool.hpp
-    src/gui/tools/tool.hpp
+    src/gui/tools/editortool.hpp
     src/gui/tools/toolmanager.hpp
     src/gui/tools/toolwidget.hpp
     src/gui/tools/trackeditortool.hpp
@@ -578,6 +583,7 @@ SET(ODDLOT_MOC_HEADERS
     src/wizards/roadlinkwizard.hpp
     src/wizards/superelevationwizard.hpp
     src/wizards/wizardmanager.hpp
+	src/util/popupdialog.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui

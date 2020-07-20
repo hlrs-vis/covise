@@ -23,8 +23,14 @@
 // Graph //
 //
 #include "src/graph/projectgraph.hpp"
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/editors/projecteditor.hpp"
 
 #include "roadlinkitem.hpp"
+
+// GUI //
+//
+#include "src/gui/projectwidget.hpp"
 
 // Qt //
 //
@@ -58,14 +64,14 @@ void
 RoadLinkHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     setCursor(Qt::ClosedHandCursor);
-    Handle::mousePressEvent(event); // pass to baseclass
+	Handle::mousePressEvent(event); // pass to baseclass
 }
 
 void
 RoadLinkHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     setCursor(Qt::OpenHandCursor);
-    Handle::mouseReleaseEvent(event); // pass to baseclass
+	Handle::mouseReleaseEvent(event); // pass to baseclass
 }
 
 void

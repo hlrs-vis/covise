@@ -93,6 +93,8 @@ BaseLaneMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		pressPos_ = newPos;
 	}
 
+	widthTextItem_->setText(getText());
+
 	MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
 

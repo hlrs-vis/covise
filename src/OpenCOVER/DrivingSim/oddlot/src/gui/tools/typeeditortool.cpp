@@ -49,7 +49,7 @@
 /*! \todo Ownership/destructor
 */
 TypeEditorTool::TypeEditorTool(ToolManager *toolManager)
-    : Tool(toolManager)
+    : EditorTool(toolManager)
     , toolId_(ODD::TRT_MOVE)
     , roadType_(TypeSection::RTP_UNKNOWN)
     , // default, note: should be the same as in the comboBox
@@ -137,28 +137,19 @@ TypeEditorTool::initToolWidget()
     //ribbonWidget->
     Ui::TypeRibbon *ui = new Ui::TypeRibbon();
     ui->setupUi(ribbonWidget);
-    ribbonWidget->setObjectName("Ribbon");
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
-    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
-    ribbonToolGroup->addButton(ui->select, ODD::TRT_MOVE);
+	ribbonToolGroup_->addButton(ui->select, ODD::TRT_MOVE);
     ui->select->setChecked(true);
-    ribbonToolGroup->addButton(ui->typeAdd, ODD::TRT_ADD);
-    ribbonToolGroup->addButton(ui->typeDelete, ODD::TRT_DEL);
+    ribbonToolGroup_->addButton(ui->typeAdd, ODD::TRT_ADD);
+    ribbonToolGroup_->addButton(ui->typeDelete, ODD::TRT_DEL);
     
-    RoadTypeComboBox *ribbonRoadTypeBox_ = new RoadTypeComboBox();
-    selectGroupBox2_ = new QGroupBox(tr("Add Settings"));
-    selectGroupBox2_->setLayout(ribbonRoadTypeBox_->getGridLayout());
-    selectGroupBox2_->setEnabled(false);
-    selectGroupBox2_->setVisible(false);
-    ui->horizontalLayout->insertWidget(2,selectGroupBox2_);
 
-    connect(ribbonRoadTypeBox_->getComboBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(handleRoadTypeSelection(int)));
-
-    toolManager_->addRibbonWidget(ribbonWidget, tr("Road Type"));
-    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Road Type"), ODD::ERT);
+	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 //################//
@@ -188,6 +179,18 @@ TypeEditorTool::activateEditor()
     delete action;
 }
 
+/*! \brief Is called by the toolmanager to initialize the UI */
+/* UI sets the values of the current project */
+void
+TypeEditorTool::activateRibbonEditor()
+{
+	ToolAction *action = toolManager_->getLastToolAction(ODD::ERT);
+
+	TypeEditorToolAction *typeEditorToolAction = dynamic_cast<TypeEditorToolAction *>(action);
+
+	ribbonToolGroup_->button(action->getToolId())->click();
+}
+
 /*! \brief
 *
 */
@@ -201,50 +204,21 @@ TypeEditorTool::handleToolClick(int id)
     if (toolId_ == ODD::TRT_ADD)
     {
         selectGroupBox_->setEnabled(true);
-        selectGroupBox2_->setEnabled(true);
         selectGroupBox_->setVisible(true);
-        selectGroupBox2_->setVisible(true);
     }
     else
     {
         selectGroupBox_->setEnabled(false);
-        selectGroupBox2_->setEnabled(false);
         selectGroupBox_->setVisible(false);
-        selectGroupBox2_->setVisible(false);
     }
 
     // Set a tool //
     //
     TypeEditorToolAction *action = new TypeEditorToolAction(toolId_);
     emit toolAction(action);
-    delete action;
+ //   delete action;
 }
 
-/*! \brief
-*
-*/
-void
-TypeEditorTool::handleRoadTypeToolButton()
-{
-    handleRoadTypeAction(roadTypeToolButtonMenu_->defaultAction());
-}
-
-/*! \brief
-*
-*/
-void
-TypeEditorTool::handleRoadTypeAction(QAction *action)
-{
-    roadTypeToolButtonMenu_->setDefaultAction(action);
-    roadTypeToolButton_->setIcon(roadTypeToolButtonMenu_->defaultAction()->icon());
-
-    // Apply RoadType //
-    //
-    TypeSection::RoadType roadType = roadTypes_.value(action->data().value<QString>());
-    TypeEditorToolAction *toolAct = new TypeEditorToolAction(ODD::TNO_TOOL, roadType, true);
-    emit toolAction(toolAct);
-    delete toolAct;
-}
 
 /*! \brief
 *
@@ -279,10 +253,11 @@ TypeEditorTool::handleRoadTypeSelection(int id)
 
     // Set RoadType //
     //
-    TypeEditorToolAction *action = new TypeEditorToolAction(toolId_, roadType_);
+    TypeEditorToolAction *action = new TypeEditorToolAction(ODD::TRT_ADD);
     emit toolAction(action);
-    delete action;
+ //   delete action;
 }
+
 
 //################//
 //                //
@@ -290,9 +265,8 @@ TypeEditorTool::handleRoadTypeSelection(int id)
 //                //
 //################//
 
-TypeEditorToolAction::TypeEditorToolAction(ODD::ToolId toolId, TypeSection::RoadType roadType, bool applyRoadType)
+TypeEditorToolAction::TypeEditorToolAction(ODD::ToolId toolId)
     : ToolAction(ODD::ERT, toolId)
-    , roadType_(roadType)
-    , applyRoadType_(applyRoadType)
+
 {
 }

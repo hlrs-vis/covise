@@ -26,6 +26,7 @@
 // Graph //
 //
 #include "src/graph/items/roadsystem/roaditem.hpp"
+#include "src/graph/items/roadsystem/superelevation/superelevationroaditem.hpp"
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/roadtextitem.hpp"
 
@@ -65,6 +66,8 @@ SuperelevationSectionItem::SuperelevationSectionItem(SuperelevationEditor *super
     // Init //
     //
     init();
+
+	parentRoadItem_ = dynamic_cast<SuperelevationRoadItem *>(parentRoadItem);
 }
 
 SuperelevationSectionItem::~SuperelevationSectionItem()
@@ -235,6 +238,7 @@ SuperelevationSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
+		parentRoadItem_->mousePressEvent(event);
     }
     else
     {
@@ -249,7 +253,7 @@ SuperelevationSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (tool == ODD::TSE_SELECT)
     {
         // parent: selection //
-        SectionItem::mouseReleaseEvent(event); // pass to baseclass
+    //    SectionItem::mouseReleaseEvent(event); // pass to baseclass
     }
     else if (tool == ODD::TSE_ADD && (event->button() == Qt::LeftButton))
     {

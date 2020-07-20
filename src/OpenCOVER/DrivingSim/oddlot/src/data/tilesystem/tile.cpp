@@ -101,22 +101,6 @@ void Tile::removeOSCID(const QString &ID)
 	oscIDs.remove(ID);
 }
 
-int32_t Tile::uniqueID(odrID::IDType t)
-{
-	int32_t id = odrIDs[t].size();
-	if(odrIDs[t].contains(id))
-	{
-		// ID numbers are higher than number of IDs thus there must be empty spaces, search from scratch
-		id = 0;
-		while (odrIDs[t].contains(id))
-		{
-			id++;
-		}
-	}
-	odrIDs[t].insert(id);
-	return id;
-}
-
 const QString
 Tile::getUniqueOSCID(const QString &suggestion, const QString &name)
 {
@@ -152,7 +136,7 @@ Tile::getUniqueOSCID(const QString &suggestion, const QString &name)
 	
 
 	QString id;
-		id = QString("%1_%2_%3").arg(uniqueID(odrID::ID_OSC)).arg(getID().getID()).arg(myName);
+		id = QString("%1_%2_%3").arg(tileSystem_->uniqueID(odrID::ID_OSC)).arg(getID().getID()).arg(myName);
 
 	oscIDs.insert(id);
 	return id;

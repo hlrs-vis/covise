@@ -73,7 +73,7 @@ JunctionLaneSectionItem::init()
     {
         if (lane->getId() != 0)
         {
-            new JunctionLaneItem(this, lane);
+            new JunctionLaneItem(junctionEditor_, this, lane);
         }
     }
 }
@@ -111,11 +111,28 @@ JunctionLaneSectionItem::updateObserver()
             {
                 if (lane->getId() != 0)
                 {
-                    new JunctionLaneItem(this, lane);
+                    new JunctionLaneItem(junctionEditor_, this, lane);
                 }
             }
         }
     }
+
+/*	changes = laneSection_->getDataElementChanges();
+	if (changes & DataElement::CDE_ChildSelectionChange)
+	{
+		ODD::ToolId tool = junctionEditor_->getCurrentTool();
+		if (tool == ODD::TJE_LINK_ROADS)
+		{
+			if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)
+			{
+				junctionEditor_->createToolParameters(laneSection_->getParentRoad());
+			}
+			else if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_REMOVE)
+			{
+				junctionEditor_->removeToolParameters(laneSection_->getParentRoad());
+			}
+		}
+	} */
 }
 
 //################//
@@ -152,21 +169,7 @@ void
 JunctionLaneSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = junctionEditor_->getCurrentTool();
-    if (tool == ODD::TJE_CREATE_LANE)
-    {
-        // parent: selection //
-        //SectionItem::mouseReleaseEvent(event); // do not pass selection to baseclass, we select individual lanes, not laneSections
-        Lane *lane = dynamic_cast<Lane *>(getLaneSection()->getSelectedChildElements().first());
-        junctionEditor_->registerLane(lane);
-    }
-    else if (tool == ODD::TJE_CREATE_ROAD)
-    {
-        // parent: selection //
-        //SectionItem::mouseReleaseEvent(event); // do not pass selection to baseclass, we select individual lanes, not laneSections
-        RSystemElementRoad *road = laneSection_->getParentRoad();
-        junctionEditor_->registerRoad(road);
-    }
-    else if (tool == ODD::TJE_SPLIT)
+	if (tool == ODD::TJE_SPLIT)
     {
         RSystemElementRoad *road = laneSection_->getParentRoad();
         double s = road->getSFromGlobalPoint(event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());

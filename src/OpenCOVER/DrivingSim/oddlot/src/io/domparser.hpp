@@ -182,6 +182,7 @@ private:
     DomParser::Mode mode_;
 
     QMap<QString, odrID> elementIDs_[odrID::NUM_IDs];
+	QMap<odrID, odrID> changedSignalIDs_;
 	bool disableWarnings;
 };
 

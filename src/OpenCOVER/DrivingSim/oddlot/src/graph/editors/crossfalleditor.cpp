@@ -169,15 +169,24 @@ CrossfallEditor::toolAction(ToolAction *toolAction)
     // Tools //
     //
     CrossfallEditorToolAction *crossfallEditorToolAction = dynamic_cast<CrossfallEditorToolAction *>(toolAction);
-    if (crossfallEditorToolAction)
-    {
-        // Smooth radius //
-        //
-        if (crossfallEditorToolAction->getRadius() > 0.0)
-        {
-            smoothRadius_ = crossfallEditorToolAction->getRadius();
-        }
-    }
+
+	if (crossfallEditorToolAction)
+	{
+		if (crossfallEditorToolAction->getToolId() == ODD::TCF_SELECT)
+		{
+			if (crossfallEditorToolAction->getParamToolId() == ODD::TCF_RADIUS)
+			{
+				if (crossfallEditorToolAction->getRadius() > 0.0)
+				{
+					smoothRadius_ = crossfallEditorToolAction->getRadius();
+				}
+			}
+		}
+		else if ((crossfallEditorToolAction->getToolId() == ODD::TCF_ADD) || (crossfallEditorToolAction->getToolId() == ODD::TCF_DEL))
+		{
+			getTopviewGraph()->getScene()->deselectAll();
+		}
+	}
 }
 
 //################//
@@ -287,6 +296,18 @@ CrossfallEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mo
 void
 CrossfallEditor::init()
 {
+
+	// ProfileGraph //
+	//
+	if (!roadSystemItemPolyGraph_)
+	{
+		// Root item //
+		//
+		roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
+		profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
+		profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
+	}
+
     // Graph //
     //
     if (!roadSystemItem_)
@@ -320,6 +341,8 @@ CrossfallEditor::init()
 void
 CrossfallEditor::kill()
 {
+	selectedCrossfallRoadItems_.clear();
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 

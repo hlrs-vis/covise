@@ -70,13 +70,12 @@
       <string>SuperelevationSection Tools</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Smooth Radius</string>
-        </property>
-       </widget>
-      </item>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
       <item row="2" column="0">
        <widget class="QPushButton" name="elevationDelete">
         <property name="text">
@@ -100,7 +99,30 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="smoothBox">
+     <property name="title">
+      <string>Smoothing</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Radius</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QDoubleSpinBox" name="radiusEdit">
         <property name="maximum">
          <double>100000.000000000000000</double>
@@ -110,18 +132,11 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="elevationSmooth">
-        <property name="text">
-         <string>Smooth</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_type">
+    <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>

@@ -16,7 +16,7 @@
 #ifndef JUNCTIONEDITORTOOL_HPP
 #define JUNCTIONEDITORTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
@@ -35,7 +35,7 @@ class QGroupBox;
 //class QMenu;
 //class QToolButton;
 
-class JunctionEditorTool : public Tool
+class JunctionEditorTool : public EditorTool
 {
     Q_OBJECT
 
@@ -96,9 +96,6 @@ public slots:
 	void activateRibbonEditor();
     void handleToolClick(int);
 	void handleRibbonToolClick(int);
-	void setRadius();
-	void setRRadius(double);
-    void setRRadius();
 
     //################//
     // PROPERTIES     //
@@ -108,8 +105,9 @@ protected:
 private:
     Ui::JunctionRibbon *ui;
     ODD::ToolId toolId_;
-    QDoubleSpinBox *thresholdEdit_;
     QPushButton *cuttingCircleButton_;
+
+	ToolButtonGroup *ribbonToolGroup_;
 };
 
 class JunctionEditorToolAction : public ToolAction
@@ -120,16 +118,11 @@ class JunctionEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit JunctionEditorToolAction(ODD::ToolId toolId, double threshold);
+    explicit JunctionEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId = ODD::TNO_TOOL);
     virtual ~JunctionEditorToolAction()
     { /* does nothing */
     }
 
-    double getThreshold() const
-    {
-        return threshold_;
-    }
-    void setThreshold(double threshold);
 
 protected:
 private:
@@ -143,7 +136,7 @@ private:
 
 protected:
 private:
-    double threshold_;
+
 };
 
 #endif // JUNCTIONEDITORTOOL_HPP

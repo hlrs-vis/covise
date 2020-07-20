@@ -411,6 +411,10 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 				  int *cov_coord_num, int *cov_coord_joi, int *cov_lnods_joi,
 				  int *cov_coord_mod, int *cov_lnods_mod, int *cov_coord_proz)
 {
+	if(pgridbase=NULL)
+		return;
+	else
+	{
 #ifndef YAC
 	char buf[256];
 #endif
@@ -482,7 +486,7 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 	for (i=0;i<GNUM;i++)
 		delete geo[i];
 }
-
+}
 
 #define  RNUM  14
 void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,int *nsyme_geb,
@@ -493,6 +497,10 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 				  int *cov_conv_el,int *cov_conv_kn,int *cov_conv_num,
 				  float *cov_displ_wert, int *reicheck)
 {
+	if(pbocobase=NULL)
+		return;
+	else
+	{
 #ifndef YAC
 	char buf[256];
 #endif
@@ -563,7 +571,7 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 	// delete
 	for (i=0;i<RNUM-1;i++)
 		delete boc[i];
-
+	}
 }
 
 

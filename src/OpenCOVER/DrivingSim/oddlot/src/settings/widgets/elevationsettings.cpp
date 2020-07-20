@@ -178,35 +178,36 @@ ElevationSettings::on_slopeSpinBox_editingFinished()
     QList<ElevationSection *> startPointSections;
     endPointSections.append(elevationSection_);
     ElevationSection *sectionNext = elevationSection_->getParentRoad()->getElevationSectionNext(elevationSection_->getSStart());
-    if (sectionNext)
-    {
-        if (sectionNext->getDegree() > 1)
-        {
-            return;
-        }
-        else
-        {
-            startPointSections.append(sectionNext);
-        }
-    }
+	if (sectionNext)
+	{
+		if (sectionNext->getDegree() > 1)
+		{
+			return;
+		}
+		else
+		{
+			startPointSections.append(sectionNext);
+		}
 
-    // Command //
-    //
-    double s = 100 * fabs(elevationSection_->getElevation(elevationSection_->getSStart()) - elevationSection_->getElevation(elevationSection_->getSEnd())) / ui->slopeSpinBox->value() + elevationSection_->getSStart();
-    if (s < elevationSection_->getParentRoad()->getLength())
-    {
-        QPointF dPos = QPointF(s - sectionNext->getSStart(), 0.0);
-        ElevationMovePointsCommand *command = new ElevationMovePointsCommand(endPointSections, startPointSections, dPos, NULL);
 
-        if (command->isValid())
-        {
-            getProjectData()->getUndoStack()->push(command);
-        }
-        else
-        {
-            delete command;
-        }
-    }
+		// Command //
+		//
+		double s = 100 * fabs(elevationSection_->getElevation(elevationSection_->getSStart()) - elevationSection_->getElevation(elevationSection_->getSEnd())) / ui->slopeSpinBox->value() + elevationSection_->getSStart();
+		if (s < elevationSection_->getParentRoad()->getLength())
+		{
+			QPointF dPos = QPointF(s - sectionNext->getSStart(), 0.0);
+			ElevationMovePointsCommand *command = new ElevationMovePointsCommand(endPointSections, startPointSections, dPos, NULL);
+
+			if (command->isValid())
+			{
+				getProjectData()->getUndoStack()->push(command);
+			}
+			else
+			{
+				delete command;
+			}
+		}
+	}
 }
 
 ElevationMoveHandle *

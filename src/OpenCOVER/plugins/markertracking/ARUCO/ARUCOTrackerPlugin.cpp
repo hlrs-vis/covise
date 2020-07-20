@@ -71,11 +71,13 @@ using std::endl;
 
 using namespace cv;
 
+#ifndef _WIN32
 struct myMsgbuf
 {
     long mtype;
     char mtext[100];
 };
+#endif
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -213,15 +215,41 @@ bool ARUCOPlugin::init()
         msgQueue = -1;
        
         int selectedDevice = atoi(VideoDevice.c_str());
+
+#if CV_VERSION_MAJOR > 3 || (CV_VERSION_MAJOR==3 && CV_VERSION_MINOR>1)
+        for (int cap: {CAP_V4L2, CAP_ANY})
+        {
+            if (inputVideo.open(selectedDevice, cap))
+                break;
+        }
+#else
+        inputVideo.open(selectedDevice);
+#endif
         
-        if (inputVideo.open(selectedDevice))
+        if (inputVideo.isOpened())
         {
             cout << "capture device: device " << selectedDevice << " is open" << endl;
+
+            bool exists = false;
+            std::string fourcc = coCoviseConfig::getEntry("fourcc", "COVER.Plugin.ARUCO.VideoDevice", "", &exists);
+            if (fourcc.length() == 4)
+            {
+                std::cerr << "Setting FOURCC to " << fourcc << std::endl;
+                inputVideo.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc(fourcc[0], fourcc[1], fourcc[2], fourcc[3]));
+                std::cerr << "FOURCC: " << inputVideo.get(cv::CAP_PROP_FOURCC) << std::endl;
+            }
+
+            float fps = coCoviseConfig::getFloat("fps", "COVER.Plugin.ARUCO.VideoDevice", 0.f, &exists);
+            if (fps > 0.f)
+            {
+                std::cerr << "Setting FPS to " << fps << std::endl;
+                inputVideo.set(cv::CAP_PROP_FPS, fps);
+                std::cerr << "Frame rate: " << inputVideo.get(cv::CAP_PROP_FPS) << std::endl;
+            }
 
             int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
             int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
             std::cout << "   current size  = " << width << "x" << height << std::endl;
-
             xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
             ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
 
@@ -243,6 +271,8 @@ bool ARUCOPlugin::init()
                 }
             }
 
+            //inputVideo.set(cv::CAP_PROP_CONVERT_RGB, false);
+
             cv::Mat image;
 
             std::cout << "capture first frame after resetting camera" << std::endl;
@@ -261,6 +291,8 @@ bool ARUCOPlugin::init()
             ARToolKit::instance()->videoDepth = 3;
             ARToolKit::instance()->videoWidth = image.cols;
             ARToolKit::instance()->videoHeight = image.rows;
+
+            std::cout << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
 
             adjustScreen();
 
@@ -345,16 +377,13 @@ bool ARUCOPlugin::destroy()
 // ----------------------------------------------------------------------------
 void ARUCOPlugin::preFrame()
 {
-#ifndef _WIN32
-    struct myMsgbuf message;
-#endif
-
     if (ARToolKit::instance()->running)
     {
 
 #ifndef _WIN32
         if (msgQueue > 0)
         {
+            struct myMsgbuf message;
             // allow right capture process to continue
             message.mtype = 1;
             msgsnd(msgQueue, &message, 1, 0);

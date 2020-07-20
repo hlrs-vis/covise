@@ -26,6 +26,7 @@
 //
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
+#include <QGraphicsItem>
 
 GraphScene::GraphScene(const QRectF &sceneRect, QObject *parent)
     : QGraphicsScene(sceneRect, parent)
@@ -39,6 +40,17 @@ GraphScene::~GraphScene()
     //	// Observer //
     //	//
     //	dataElement_->detachObserver(this);
+}
+
+/*! \brief Deselects all selected items
+*/
+void
+GraphScene::deselectAll()
+{
+	foreach(QGraphicsItem *item, selectedItems())
+	{
+			item->setSelected(false);
+	}
 }
 
 //################//

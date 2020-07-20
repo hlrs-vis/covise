@@ -133,6 +133,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     , topviewGraph_(NULL)
     , projectEditor_(NULL)
     , changeManager_(NULL)
+	, active_(false)
 {
     // Layout //
     //
@@ -309,6 +310,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
         //
         if (projectEditor_)
         {
+			mainWindow_->hideDock(editors_.key(projectEditor_));
             projectEditor_->hide();
             //projectData_->getChangeManager()->unregisterAll(); // clear Subject-Observer list
             // This should be unnecessary if every observer detaches itself. It is even wrong,
@@ -317,7 +319,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // Show new one //
         //
-        projectEditor_ = it.value();
+		projectEditor_ = it.value();
         projectEditor_->show();
 
         // ProfileGraph //
@@ -332,16 +334,9 @@ ProjectWidget::setEditor(ODD::EditorId id)
         }
 
 
-        // Signal tree //
+        // Signal and catalog trees //
         //
-        if (id == ODD::ESG)
-        {
-            mainWindow_->showSignalsDock(true);
-        }
-        else
-        {
-            mainWindow_->showSignalsDock(false);
-        }
+		mainWindow_->showDock(id);
 
         topviewGraph_->postEditorChange();
     }
@@ -369,14 +364,12 @@ ProjectWidget::setEditor(ODD::EditorId id)
 * Flags the project as untitled.
 */
 void
-ProjectWidget::newFile()
+ProjectWidget::newFile(const QString &filename)
 {
-    // Create a unique name by counting up numbers.
-    static int documentNumber = 0;
-    ++documentNumber;
-    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg("xodr");
-    strippedFileName_ = fileName_;
-	oscFileName_ = tr("untitled%1.%2").arg(documentNumber).arg("xosc");
+
+    fileName_ = filename + ".xodr";
+	strippedFileName_ = fileName_;
+	oscFileName_ = filename + "xosc";
 
     // Set name in window title and project menu.
     setWindowTitle(strippedFileName_ + "[*]"); // [*] is the place for unsaved-marker
@@ -1830,7 +1823,8 @@ ProjectWidget::setProjectActive(bool active)
     }
 	else
 	{
-		removeCatalogTrees();
+//		removeCatalogTrees();
+		setEditor(ODD::ENO_EDITOR);
 	}
 
     projectData_->projectActivated(active); // Undo, etc
@@ -1839,6 +1833,8 @@ ProjectWidget::setProjectActive(bool active)
 
     projectTree_->projectActivated(active);
     projectSettings_->projectActivated(active);
+
+	active_ = active;
 }
 
 /*! \brief Called when this project has been modified.
@@ -1865,6 +1861,7 @@ ProjectWidget::toolAction(ToolAction *toolAction)
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
+
     if ((id != lastId || projectData_ != lastProjectData) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
@@ -1873,7 +1870,7 @@ ProjectWidget::toolAction(ToolAction *toolAction)
     }
 
     // Pass to Editor/Graph //
-    if (projectEditor_)
+    if (projectEditor_ && (id != ODD::ENO_EDITOR))
     {
         projectEditor_->toolAction(toolAction);
     }
@@ -1890,23 +1887,26 @@ ProjectWidget::toolAction(ToolAction *toolAction)
 void
 ProjectWidget::mouseAction(MouseAction *mouseAction)
 {
-    // Editor //
-    //
-    if (projectEditor_)
-    {
-        projectEditor_->mouseAction(mouseAction);
-    }
-    else
-    {
-        qDebug("TODO: ProjectWidget, mouseAction, NEED EDITOR AT STARTUP!");
-    }
+	if (active_)
+	{
+		// Editor //
+		//
+		if (projectEditor_)
+		{
+			projectEditor_->mouseAction(mouseAction);
+		}
+		else
+		{
+			qDebug("TODO: ProjectWidget, mouseAction, NEED EDITOR AT STARTUP!");
+		}
 
-    // Graph //
-    //
-    if (!mouseAction->isIntercepted())
-    {
-        topviewGraph_->mouseAction(mouseAction);
-    }
+		// Graph //
+		//
+		if (!mouseAction->isIntercepted())
+		{
+			topviewGraph_->mouseAction(mouseAction);
+		}
+	}
 }
 
 /*! \brief Passes a KeyAction to the Editor and Graph.

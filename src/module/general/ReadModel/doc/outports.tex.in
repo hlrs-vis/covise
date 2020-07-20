@@ -8,9 +8,9 @@
 \hline
    \bf{Name} & \bf{Type} & \bf{Description} \endhead
 \hline\hline
-	\GridOut0{output}{polygons} & Generated polygons or points, if imported mesh does not contain faces \\
+	GridOut0{output}{polygons} & Generated polygons or points, if imported mesh does not contain faces \\
 \hline
-	\DataOut0{output}{normals} & Generated normals, if imported mesh contains normals \\
+	DataOut0{output}{normals} & Generated normals, if imported mesh contains normals \\
 \hline
 \end{longtable}
 %=============================================================

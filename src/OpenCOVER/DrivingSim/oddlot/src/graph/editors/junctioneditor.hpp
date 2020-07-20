@@ -20,6 +20,7 @@
 
 #include <QMultiMap>
 #include <QPointF>
+#include <QGraphicsItem>
 
 class ProjectData;
 class TopviewGraph;
@@ -41,6 +42,8 @@ class CircularRotateHandle;
 
 class JunctionRoadSystemItem;
 class JunctionLaneRoadSystemItem;
+
+class Tool;
 
 // TODO
 class SectionHandle;
@@ -92,11 +95,6 @@ public:
     void registerJunctionAddHandle(JunctionAddHandle *handle);
     int unregisterJunctionAddHandle(JunctionAddHandle *handle);
 
-    // AddLanes //
-    //
-    void registerLane(Lane *lane);
-    void registerRoad(RSystemElementRoad *road);
-
 #if 0
 	// RotateHandles //
 	//
@@ -127,6 +125,11 @@ public:
 
     double widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth); // calculates the offset of a lane from the center of the road
 
+	void deselectLanes(RSystemElementRoad *road);
+	void clearToolObjectSelection();
+
+	//bool validateToolParameters();
+
 protected:
     virtual void init();
     virtual void kill();
@@ -141,12 +144,18 @@ private:
     //################//
 
 public slots:
+	// Parameter Settings //
+	//
+	virtual void apply();
+	virtual void reject();
+	virtual void reset();
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
+
     // RoadSystem //
     //
     JunctionRoadSystemItem *junctionRoadSystemItem_;
@@ -187,11 +196,11 @@ private:
     //
     JunctionLaneRoadSystemItem *laneRoadSystemItem_;
 
-    // Map of pairs of incoming lanes //
+    // List of selected lanes //
     //
     QList<Lane *> selectedLanes_;
 
-    // Map of pairs of incoming roads //
+    // List of selected roads //
     //
     QList<RSystemElementRoad *> selectedRoads_;
 
@@ -202,6 +211,15 @@ private:
     //Threshold for the cutting circle
     //
     double threshold_;
+
+	// Currently selected Parameter //
+	//
+	int currentParamId_;
+
+	// necessary selected elements to make APPLY visible //
+	//
+	int applyCount_;
+
 };
 
 #endif // TRACKEDITOR_HPP

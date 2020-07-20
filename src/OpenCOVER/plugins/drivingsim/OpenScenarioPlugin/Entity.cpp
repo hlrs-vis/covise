@@ -614,7 +614,7 @@ void Entity::doLaneChange(LaneChange* lc, Event* event)
 							}
 						}
 					}
-					else if (timeLc = simulationStep) {
+					else if (timeLc == simulationStep) {
 						if (fabs(stepDistanceT) > 0)
 						{
 							refPos->move(travelDistanceS, stepDistanceT, stepWidth);

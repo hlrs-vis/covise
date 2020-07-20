@@ -626,16 +626,6 @@ ViewDesc::addClipPlane(const char *planeString)
     }
 }
 
-const char *ViewDesc::getClipPlane(int i)
-{
-    stringstream ret;
-    if (clipPlanes[i].enabled)
-        ret << i << " " << clipPlanes[i].a << " " << clipPlanes[i].b << " " << clipPlanes[i].c << " " << clipPlanes[i].d;
-    else
-        ret << "";
-    return ret.str().c_str();
-}
-
 void ViewDesc::activate(bool clipplane)
 {
     if (cover->debugLevel(4))

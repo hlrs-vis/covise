@@ -16,14 +16,14 @@
 #ifndef ZOOMTOOL_HPP
 #define ZOOMTOOL_HPP
 
-#include "tool.hpp"
+#include "editortool.hpp"
 #include "toolaction.hpp"
 
 #include <QComboBox>
 #include <QAction>
 #include <QDoubleSpinBox>
 
-class ZoomTool : public Tool
+class ZoomTool : public EditorTool
 {
     Q_OBJECT
 

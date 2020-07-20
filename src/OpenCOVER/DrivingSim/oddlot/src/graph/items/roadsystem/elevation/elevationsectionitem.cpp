@@ -25,7 +25,7 @@
 
 // Graph //
 //
-#include "src/graph/items/roadsystem/roaditem.hpp"
+#include "src/graph/items/roadsystem/elevation/elevationroaditem.hpp"
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/roadtextitem.hpp"
 
@@ -65,10 +65,13 @@ ElevationSectionItem::ElevationSectionItem(ElevationEditor *elevationEditor, Roa
     // Init //
     //
     init();
+
+	parentRoadItem_ = dynamic_cast<ElevationRoadItem *>(parentRoadItem);
 }
 
 ElevationSectionItem::~ElevationSectionItem()
 {
+
 }
 
 void
@@ -209,6 +212,7 @@ ElevationSectionItem::updateObserver()
         //
         createPath();
         updateColor();
+
     }
 }
 
@@ -235,6 +239,7 @@ ElevationSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
+		parentRoadItem_->mousePressEvent(event);
     }
     else
     {
@@ -249,7 +254,7 @@ ElevationSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (tool == ODD::TEL_SELECT)
     {
         // parent: selection //
-        SectionItem::mouseReleaseEvent(event); // pass to baseclass
+      // SectionItem::mouseReleaseEvent(event); // pass to baseclass
     }
     else if (tool == ODD::TEL_ADD && (event->button() == Qt::LeftButton))
     {

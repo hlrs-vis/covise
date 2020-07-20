@@ -452,6 +452,7 @@ SmoothElevationSectionCommand::SmoothElevationSectionCommand(ElevationSection *e
     newSectionHigh_ = new ElevationSection(sHigh_, oldSectionHigh_->getElevation(sHigh_), oldSectionHigh_->getB(), 0.0, 0.0);
     if (oldSectionHigh_->isElementSelected())
     {
+		newSection_->setElementSelected(true);
         newSectionHigh_->setElementSelected(true);
     }
 
