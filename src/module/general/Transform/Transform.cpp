@@ -81,11 +81,11 @@ Transform::Transform(int argc, char *argv[])
                                   "Flip or else translate tile");
     p_flipTile_->setValue(1);
 
-    p_tiling_min_ = addInt32VectorParam("TilingMin", "Tiling pattern");
+    p_tiling_min_ = addInt32VectorParam("TilingMin", "Tiling pattern",2);
     const long defaultMinTilingPattern[] = { 0, 0 };
     p_tiling_min_->setValue(2, defaultMinTilingPattern);
 
-    p_tiling_max_ = addInt32VectorParam("TilingMax", "Tiling pattern");
+    p_tiling_max_ = addInt32VectorParam("TilingMax", "Tiling pattern",2);
     const long defaultMaxTilingPattern[] = { 3, 3 };
     p_tiling_max_->setValue(2, defaultMaxTilingPattern);
 
