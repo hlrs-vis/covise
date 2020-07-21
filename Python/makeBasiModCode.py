@@ -231,11 +231,18 @@ class makePyMod :
                 else:
                     argList = "( self, x, y )"
             else:
-                try:
-                    argList = argListDict[ ky ]
-                except KeyError:
-                    sys.stderr.write(" key '" + ky + "' not handled in module " + self.name_ + "-- exiting\n")
-                    sys.exit(1)
+                if ( ky == "IntVector"):
+                    vals = ii[2].split('_')
+                    if (len(vals) == 3):
+                        argList = "( self, x, y, z )"
+                    else:
+                        argList = "( self, x, y )"
+                else:
+                    try:
+                        argList = argListDict[ ky ]
+                    except KeyError:
+                        sys.stderr.write(" key '" + ky + "' not handled in module " + self.name_ + "-- exiting\n")
+                        sys.exit(1)
             idx = allParamItems.index( ii )
             oPname = allRawParamNames[idx] 
             #function names must not contain the following characters +-()/:*.
@@ -258,7 +265,14 @@ class makePyMod :
                 else:
                     print("        valstr = \"%f\" % x + \" %f\" % y")
             else:
-                print("        valstr = "+valstrDict[ky])
+                if (ky == "IntVector"):
+                    vals = ii[2].split('_')
+                    if (len(vals) == 3):
+                        print("        valstr = "+valstrDict[ky])
+                    else:
+                        print("        valstr = \"%f\" % x + \" %f\" % y")
+                else:
+                    print("        valstr = "+valstrDict[ky])
             print("        self.setParamValue( \"" + oPname + "\", valstr )")
             paramMemberName= "get_" + pname + "( self ) :"
             print("    def", paramMemberName)
