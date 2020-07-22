@@ -7,8 +7,13 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
 
-#include </home/AD.EKUPD.COM/matthias.epple/libs-src/HLRS/libGizmo/LibGizmo/inc/IGizmo.h>
+#include "IGizmo.h"
 
+#ifndef GIZMO_DRAWABLE_H
+#define GIZMO_DRAWABLE_H
+
+/** GizmoDrawable - 
+*/
 class GizmoDrawable : public osg::Drawable
 {
 public:
@@ -21,30 +26,37 @@ public:
             if ( !ev || !gizmoDrawable ) return;
             
             const osgGA::EventQueue::Events& events = ev->getEvents();
+            std::cout<<"number of Events: "<< ev->getEvents().size() << std::endl;
+            
             for ( osgGA::EventQueue::Events::const_iterator itr=events.begin();
                   itr!=events.end(); ++itr )
             {
                 const osgGA::GUIEventAdapter* ea = (*itr)->asGUIEventAdapter();
                 int x = ea->getX(), y = ea->getY();
+                std::cout<<"xPos: "<< x <<" yPos: "<< y <<std::endl;
+                if ( gizmoDrawable->getGizmoObject() )
+                        gizmoDrawable->getGizmoObject()->OnMouseMove( x, y );   
                 if ( ea->getMouseYOrientation()==osgGA::GUIEventAdapter::Y_INCREASING_UPWARDS )
                     y = ea->getWindowHeight() - y;
-                
                 switch ( ea->getEventType() )
                 {
                 case osgGA::GUIEventAdapter::SCROLL:
                     // you would have other methods to select among gizmos, this is only an example
                     {
-                        int mode = gizmoDrawable->getGizmoMode();
-                        if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_UP )
-                            mode = (mode==GizmoDrawable::NO_GIZMO ? GizmoDrawable::SCALE_GIZMO : mode-1);
-                        else if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_DOWN )
-                            mode = (mode==GizmoDrawable::SCALE_GIZMO ? GizmoDrawable::NO_GIZMO : mode+1);
-                        gizmoDrawable->setGizmoMode( (GizmoDrawable::Mode)mode );
+                        //int mode = gizmoDrawable->getGizmoMode();
+                        //if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_UP )
+                        //    mode = (mode==GizmoDrawable::NO_GIZMO ? GizmoDrawable::SCALE_GIZMO : mode-1);
+                        //else if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_DOWN )
+                        //    mode = (mode==GizmoDrawable::SCALE_GIZMO ? GizmoDrawable::NO_GIZMO : mode+1);
+                        //gizmoDrawable->setGizmoMode( (GizmoDrawable::Mode)mode );
                     }
                     break;
                 case osgGA::GUIEventAdapter::PUSH:
                     if ( gizmoDrawable->getGizmoObject() )
-                        gizmoDrawable->getGizmoObject()->OnMouseDown( x, y );
+                        {
+                            gizmoDrawable->getGizmoObject()->OnMouseDown( x, y );
+                            std::cout<<"Mouse Down"<<std::endl;
+                        }
                     break;
                 case osgGA::GUIEventAdapter::RELEASE:
                     if ( gizmoDrawable->getGizmoObject() )
@@ -67,98 +79,28 @@ public:
         }
     };
     
-    GizmoDrawable() : _gizmo(0), _mode(NO_GIZMO)
-    {
-        osg::Matrix matrix;
-        for ( int i=0; i<16; ++i )
-            _editMatrix[i] = *(matrix.ptr() + i);
-        _screenSize[0] = 800;
-        _screenSize[1] = 600;
-        
-        setEventCallback( new GizmoEventCallback );
-        setSupportsDisplayList( false );
-        getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-        getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-    }
-    
-    GizmoDrawable( const GizmoDrawable& copy, osg::CopyOp op=osg::CopyOp::SHALLOW_COPY )
-    :   osg::Drawable(copy, op),
-        _transform(copy._transform), _gizmo(copy._gizmo), _mode(copy._mode)
-    {
-    }
-    
+    GizmoDrawable();
+    GizmoDrawable(const GizmoDrawable& copy, osg::CopyOp op=osg::CopyOp::SHALLOW_COPY);
+
     enum Mode { NO_GIZMO=0, MOVE_GIZMO, ROTATE_GIZMO, SCALE_GIZMO };
-    void setGizmoMode( Mode m, IGizmo::LOCATION loc=IGizmo::LOCATE_LOCAL )
-    {
-        _mode = m;
-        if ( _gizmo ) delete _gizmo;
-        switch ( m )
-        {
-        case MOVE_GIZMO: _gizmo = CreateMoveGizmo(); break;
-        case ROTATE_GIZMO: _gizmo = CreateRotateGizmo(); break;
-        case SCALE_GIZMO: _gizmo = CreateScaleGizmo(); break;
-        default: _gizmo = NULL; return;
-        }
-        
-        if ( _gizmo )
-        {
-            _gizmo->SetEditMatrix( _editMatrix );
-            _gizmo->SetScreenDimension( _screenSize[0], _screenSize[1] );
-            _gizmo->SetLocation( loc );
-            //_gizmo->SetDisplayScale( 0.5f );
-        }
-    }
+    void setGizmoMode( Mode m, IGizmo::LOCATION loc=IGizmo::LOCATE_LOCAL );
     
     Mode getGizmoMode() const { return _mode; }
     IGizmo* getGizmoObject() { return _gizmo; }
     const IGizmo* getGizmoObject() const { return _gizmo; }
     
-    void setTransform( osg::MatrixTransform* node )
-    {
-        _transform = node;
-        if ( !node ) return;
-        
-        const osg::Matrix& matrix = node->getMatrix();
-        for ( int i=0; i<16; ++i )
-            _editMatrix[i] = *(matrix.ptr() + i);
-    }
+    void setTransform( osg::MatrixTransform* node );
     
     osg::MatrixTransform* getTransform() { return _transform.get(); }
     const osg::MatrixTransform* getTransform() const { return _transform.get(); }
     
-    void setScreenSize( int w, int h )
-    {
-        _screenSize[0] = w;
-        _screenSize[1] = h;
-        if ( _gizmo )
-            _gizmo->SetScreenDimension( w, h );
-    }
+    void setScreenSize( int w, int h );
     
-    void applyTransform()
-    {
-        if ( _gizmo && _transform.valid() )
-            _transform->setMatrix( osg::Matrix(_editMatrix) );
-    }
+    void applyTransform();
     
     META_Object( osg, GizmoDrawable );
     
-    virtual void drawImplementation( osg::RenderInfo& renderInfo ) const
-    {
-        osg::State* state = renderInfo.getState();
-        state->disableAllVertexArrays();
-        state->disableTexCoordPointer( 0 );
-        
-        glPushMatrix();
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
-		if ( _gizmo )
-		{
-		    _gizmo->SetCameraMatrix( osg::Matrixf(state->getModelViewMatrix()).ptr(),
-		                             osg::Matrixf(state->getProjectionMatrix()).ptr() );
-		    _gizmo->Draw();
-        }
-        glPopAttrib();
-        glPopMatrix();
-    }
+    virtual void drawImplementation( osg::RenderInfo& renderInfo ) const;
     
 protected:
     virtual ~GizmoDrawable() {}
@@ -216,3 +158,4 @@ public:
 //     }
 // 	return viewer.run();
 // }
+#endif

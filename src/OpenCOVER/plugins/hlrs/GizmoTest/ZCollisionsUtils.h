@@ -115,7 +115,7 @@ inline tvector3 CollisionClosestPointOnTriangle( tvector3 & point, tvector3 & ve
 
 inline char HitBoundingBox(float *minB, float *maxB, float *origin, float *dir,float *coord)
 {
-	char inside = TRUE;
+	char inside = true;
 	char quadrant[NUMDIM];
 	register int i;
 	int whichPlane;
@@ -128,11 +128,11 @@ inline char HitBoundingBox(float *minB, float *maxB, float *origin, float *dir,f
 		if(origin[i] < minB[i]) {
 			quadrant[i] = 1;
 			candidatePlane[i] = minB[i];
-			inside = FALSE;
+			inside = false;
 		}else if (origin[i] > maxB[i]) {
 			quadrant[i] = 0;
 			candidatePlane[i] = maxB[i];
-			inside = FALSE;
+			inside = false;
 		}else	{
 			quadrant[i] = 2;
 		}
@@ -140,7 +140,7 @@ inline char HitBoundingBox(float *minB, float *maxB, float *origin, float *dir,f
 	/* Ray origin inside bounding box */
 	if(inside)	{
 		coord = origin;
-		return (TRUE);
+		return (true);
 	}
 
 
@@ -158,16 +158,16 @@ inline char HitBoundingBox(float *minB, float *maxB, float *origin, float *dir,f
 			whichPlane = i;
 
 	/* Check final candidate actually inside box */
-	if (maxT[whichPlane] < 0.) return (FALSE);
+	if (maxT[whichPlane] < 0.) return (false);
 	for (i = 0; i < NUMDIM; i++)
 		if (whichPlane != i) {
 			coord[i] = origin[i] + maxT[whichPlane] *dir[i];
 			if (coord[i] < minB[i] || coord[i] > maxB[i])
-				return (FALSE);
+				return (false);
 		} else {
 			coord[i] = candidatePlane[i];
 		}
-	return (TRUE);				/* ray hits box */
+	return (true);				/* ray hits box */
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,10 +246,10 @@ inline bool isRayAABBoxIntersect(const tvector3& aMinB, const tvector3& aMaxB, c
             inside++;
 
     if (inside==3)
-        return TRUE;
+        return true;
 
     if (tmax<0.0f)
-        return FALSE;
+        return false;
 
     // Check final candidate actually inside box
     tvector3 V = aDir * tmax;
@@ -261,9 +261,9 @@ inline bool isRayAABBoxIntersect(const tvector3& aMinB, const tvector3& aMaxB, c
 
     if (dmin.x>0.0f || dmin.y>0.0f || dmin.z>0.0f ||
         dmax.x<0.0f || dmax.y <0.0f || dmax.z<0.0f)
-        return FALSE;
+        return false;
 
-    return TRUE;    // ray hits box
+    return true;    // ray hits box
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

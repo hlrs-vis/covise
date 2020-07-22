@@ -77,7 +77,7 @@ const tulong PSM_CLIP_PARTIAL = 1;
 const tulong PSM_CLIP_INSIDE  = 2;
 
 // Inlines ////////////////////////////////////////////////////////////////////////////////////////
-#if (defined(LINUX) || defined(MAC_OS))
+#if (defined(__linux__) || defined(MAC_OS))
 #define __forceinline inline
 #endif
 

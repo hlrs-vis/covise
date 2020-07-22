@@ -238,36 +238,6 @@ SET(DEVICE_HEADERS
    input/coMousePointer.h
 )
 
-SET(COVRGIZMO_SOURCES
-    coVRGizmo/coVRGizmo.cpp
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformMove.cpp       
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformRotate.cpp 
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformRender.cpp     
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformScale.cpp   
-    coVRGizmo/LibGizmo/src/libgizmo/ZBaseMaths.cpp 
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformRenderDX9.cpp 
-    coVRGizmo/LibGizmo/src/libgizmo/ZMathsFunc.cpp 
-    coVRGizmo/LibGizmo/src/libgizmo/stdafx.cpp
-)
-
-SET(COVRGIZMO_HEADERS
-    coVRGizmo/coVRGizmo.h
-    coVRGizmo/LibGizmo/inc/IGizmo.h
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransform.h             
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformRender.h    
-    coVRGizmo/LibGizmo/src/libgizmo/LibBase.h                 
-    coVRGizmo/LibGizmo/src/libgizmo/stdafx.h        
-    coVRGizmo/LibGizmo/src/libgizmo/ZBaseMaths.inl
-    coVRGizmo/LibGizmo/src/libgizmo/targetver.h     
-    coVRGizmo/LibGizmo/src/libgizmo/ZCollisionsUtils.h
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformMove.h         
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformRotate.h    
-    coVRGizmo/LibGizmo/src/libgizmo/ZBaseDefs.h     
-    coVRGizmo/LibGizmo/src/libgizmo/ZMathsFunc.h
-    coVRGizmo/LibGizmo/src/libgizmo/GizmoTransformScale.h                     
-    coVRGizmo/LibGizmo/src/libgizmo/ZBaseMaths.h
-)
-
 IF(HAVE_NORM) # or NORM_FOUND ... TODO
     LIST(APPEND COVER_SOURCES rel_mcast.cpp)
   LIST(APPEND COVER_HEADERS rel_mcast.h)
@@ -285,8 +255,8 @@ SET(COVER_MOCS ${TMP_COVER_MOCS})
 
 QT_WRAP_CPP(MOCS ${COVER_MOCS})
 
-SET(ALL_HEADERS ${COVER_HEADERS} ${DEVICE_HEADERS} ${UI_HEADERS} ${COVRGIZMO_HEADERS})
-SET(ALL_SOURCES ${COVER_SOURCES} ${DEVICE_SOURCES} ${UI_SOURCES} ${COVRGIZMO_SOURCES})
+SET(ALL_HEADERS ${COVER_HEADERS} ${DEVICE_HEADERS} ${UI_HEADERS})
+SET(ALL_SOURCES ${COVER_SOURCES} ${DEVICE_SOURCES} ${UI_SOURCES})
 
 ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_SOURCES} ${MOCS})
 
@@ -327,6 +297,5 @@ COVISE_INSTALL_TARGET(${COVERKERNEL_TARGET})
 COVISE_INSTALL_HEADERS(cover ${COVER_HEADERS} ${COVER_MOCS})
 COVISE_INSTALL_HEADERS(cover/ui ${UI_HEADERS})
 COVISE_INSTALL_HEADERS(cover/input ${DEVICE_HEADERS})
-COVISE_INSTALL_HEADERS(cover/coVRGizmo ${COVRGIZMO_HEADERS})
 
 qt_use_modules(${COVERKERNEL_TARGET} Core Network)
