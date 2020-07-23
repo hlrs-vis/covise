@@ -1244,90 +1244,7 @@ inline void tmatrix::Identity()
 		0,0,1,0,
 		0,0,0,1);
 }
-#ifdef WIN32
-inline void SSE_MatrixF_x_MatrixF(const float *matA, const float *matB, float *result)
-{
-	__asm
-	{
-		mov         ecx, matA
-			mov         edx, matB
-			mov         eax, result
 
-			movss       xmm0, [edx]
-		movups      xmm1, [ecx]
-		shufps      xmm0, xmm0, 0
-			movss       xmm2, [edx+4]
-		mulps       xmm0, xmm1
-			shufps      xmm2, xmm2, 0
-			movups      xmm3, [ecx+10h]
-		movss       xmm7, [edx+8]
-		mulps       xmm2, xmm3
-			shufps      xmm7, xmm7, 0
-			addps       xmm0, xmm2
-			movups      xmm4, [ecx+20h]
-		movss       xmm2, [edx+0Ch]
-		mulps       xmm7, xmm4
-			shufps      xmm2, xmm2, 0
-			addps       xmm0, xmm7
-			movups      xmm5, [ecx+30h]
-		movss       xmm6, [edx+10h]
-		mulps       xmm2, xmm5
-			movss       xmm7, [edx+14h]
-		shufps      xmm6, xmm6, 0
-			addps       xmm0, xmm2
-			shufps      xmm7, xmm7, 0
-			movlps      [eax], xmm0
-			movhps      [eax+8], xmm0
-			mulps       xmm7, xmm3
-			movss       xmm0, [edx+18h]
-		mulps       xmm6, xmm1
-			shufps      xmm0, xmm0, 0
-			addps       xmm6, xmm7
-			mulps       xmm0, xmm4
-			movss       xmm2, [edx+24h]
-		addps       xmm6, xmm0
-			movss       xmm0, [edx+1Ch]
-		movss       xmm7, [edx+20h]
-		shufps      xmm0, xmm0, 0
-			shufps      xmm7, xmm7, 0
-			mulps       xmm0, xmm5
-			mulps       xmm7, xmm1
-			addps       xmm6, xmm0
-			shufps      xmm2, xmm2, 0
-			movlps      [eax+10h], xmm6
-			movhps      [eax+18h], xmm6
-			mulps       xmm2, xmm3
-			movss       xmm6, [edx+28h]
-		addps       xmm7, xmm2
-			shufps      xmm6, xmm6, 0
-			movss       xmm2, [edx+2Ch]
-		mulps       xmm6, xmm4
-			shufps      xmm2, xmm2, 0
-			addps       xmm7, xmm6
-			mulps       xmm2, xmm5
-			movss       xmm0, [edx+34h]
-		addps       xmm7, xmm2
-			shufps      xmm0, xmm0, 0
-			movlps      [eax+20h], xmm7
-			movss       xmm2, [edx+30h]
-		movhps      [eax+28h], xmm7
-			mulps       xmm0, xmm3
-			shufps      xmm2, xmm2, 0
-			movss       xmm6, [edx+38h]
-		mulps       xmm2, xmm1
-			shufps      xmm6, xmm6, 0
-			addps       xmm2, xmm0
-			mulps       xmm6, xmm4
-			movss       xmm7, [edx+3Ch]
-		shufps      xmm7, xmm7, 0
-			addps       xmm2, xmm6
-			mulps       xmm7, xmm5
-			addps       xmm2, xmm7
-			movups      [eax+30h], xmm2
-	}
-}
-
-#endif
 inline void FPU_MatrixF_x_MatrixF(const float *a, const float *b, float *r)
 {
 	r[0] = a[0]*b[0] + a[1]*b[4] + a[2]*b[8]  + a[3]*b[12];
@@ -3531,8 +3448,8 @@ inline void tquaternion::ToEuler(float &heading, float &attitude, float &bank)
 	float sqy = y*y;
 	float sqz = z*z;
 	heading = atan2(2*y*w-2*x*z , 1 - 2*sqy - 2*sqz);
-	attitude = asin(2*test);
-	bank = atan2(2*x*w-2*y*z , 1 - 2*sqx - 2*sqz);
+	attitude = asin(2.0f*test);
+	bank = atan2(2.0f*x*w-2.0f*y*z , 1.0f - 2.0f*sqx - 2.0f*sqz);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
