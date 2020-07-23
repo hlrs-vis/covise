@@ -31,9 +31,14 @@ public:
   GizmoTest();
 
 private:
-  osg::ref_ptr<osg::Node> _node;
-  osg::ref_ptr<osg::Geode> _geode;
-  osg::ref_ptr<osg::MatrixTransform> _transform;
+  osg::ref_ptr<osg::MatrixTransform> _scene;
+  osg::ref_ptr<osg::Geode> _gizmoGeode;
+  osg::ref_ptr<osg::MatrixTransform> _root;
   osg::ref_ptr<GizmoDrawable> _gizmo;
+  osg::ref_ptr<osg::Node> _node;
+
+  osg::ref_ptr<osg::Geode> _cube1;
+  osg::ref_ptr<osg::Geode> _cube2;
+
 
 };

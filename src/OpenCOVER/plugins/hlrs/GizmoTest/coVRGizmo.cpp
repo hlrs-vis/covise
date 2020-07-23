@@ -50,7 +50,6 @@ void GizmoDrawable::setGizmoMode( Mode m, IGizmo::LOCATION loc)
         _gizmo->SetLocation( loc );
         //_gizmo->SetDisplayScale( 0.5f );
     }
-    std::cout<<"setGizmoMode"<<std::endl;
 
 }
        
@@ -94,41 +93,6 @@ void GizmoDrawable:: drawImplementation( osg::RenderInfo& renderInfo ) const
     }
     glPopAttrib();
     glPopMatrix();
-    std::cout<<"drawImplementation"<<std::endl;
+    //std::cout<<"drawImplementation"<<std::endl;
 }
     
-// int main( int argc, char** argv )
-// {
-//     osg::ref_ptr<osg::MatrixTransform> scene = new osg::MatrixTransform;
-//     scene->addChild( osgDB::readNodeFile("/home/AD.EKUPD.COM/matthias.epple/trailer.3ds") );
-    
-//     osg::ref_ptr<GizmoDrawable> gizmo = new GizmoDrawable;
-//     gizmo->setTransform( scene.get() );
-//     gizmo->setGizmoMode( GizmoDrawable::MOVE_GIZMO );
-    
-//     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-//     geode->addDrawable( gizmo.get() );
-//     geode->setCullingActive( false );  // allow gizmo to always display
-//     geode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );  // always show at last
-    
-//     osg::ref_ptr<osg::MatrixTransform> root = new osg::MatrixTransform;
-//     root->addChild( scene.get() );
-//     root->addChild( geode.get() );
-    
-//     osgViewer::Viewer viewer;
-//     viewer.setSceneData( root.get() );
-//     viewer.setCameraManipulator( new MyTrackballManipulator );
-//     viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );
-//     viewer.addEventHandler( new osgViewer::StatsHandler );
-//     viewer.addEventHandler( new osgViewer::WindowSizeHandler );
-// 	viewer.realize();
-    
-//     osgViewer::GraphicsWindow* gw = dynamic_cast<osgViewer::GraphicsWindow*>( viewer.getCamera()->getGraphicsContext() );
-//     if ( gw )
-//     {
-//         // Send window size for libGizmo to initialize
-//         int x, y, w, h; gw->getWindowRectangle( x, y, w, h );
-//         viewer.getEventQueue()->windowResize( x, y, w, h );
-//     }
-// 	return viewer.run();
-// }

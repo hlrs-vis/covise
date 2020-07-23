@@ -12,7 +12,16 @@
 #ifndef GIZMO_DRAWABLE_H
 #define GIZMO_DRAWABLE_H
 
-/** GizmoDrawable - 
+/* ToDo:
+- How to get Curser position x,y ? 
+- Mouse position and selection doesn't match
+- Camera Manipulator necessary to disable world rotation, if gizmo is active
+- FIXED: Mouse movement & gizmo Movement are contrary 
+- Gizmo movement is much more sensitive than mouse movement
+- use another key (not SCROLL) to switch between gizmo methods 
+*/
+
+/** GizmoDrawable - add Description
 */
 class GizmoDrawable : public osg::Drawable
 {
@@ -26,29 +35,28 @@ public:
             if ( !ev || !gizmoDrawable ) return;
             
             const osgGA::EventQueue::Events& events = ev->getEvents();
-            std::cout<<"number of Events: "<< ev->getEvents().size() << std::endl;
             
             for ( osgGA::EventQueue::Events::const_iterator itr=events.begin();
                   itr!=events.end(); ++itr )
             {
                 const osgGA::GUIEventAdapter* ea = (*itr)->asGUIEventAdapter();
                 int x = ea->getX(), y = ea->getY();
-                std::cout<<"xPos: "<< x <<" yPos: "<< y <<std::endl;
-                if ( gizmoDrawable->getGizmoObject() )
-                        gizmoDrawable->getGizmoObject()->OnMouseMove( x, y );   
-                if ( ea->getMouseYOrientation()==osgGA::GUIEventAdapter::Y_INCREASING_UPWARDS )
+               // std::cout<<"xPos: "<< x <<" yPos: "<< y <<std::endl;
+   
+                if ( ea->getMouseYOrientation() == osgGA::GUIEventAdapter::Y_INCREASING_UPWARDS )
                     y = ea->getWindowHeight() - y;
                 switch ( ea->getEventType() )
                 {
                 case osgGA::GUIEventAdapter::SCROLL:
                     // you would have other methods to select among gizmos, this is only an example
                     {
-                        //int mode = gizmoDrawable->getGizmoMode();
-                        //if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_UP )
-                        //    mode = (mode==GizmoDrawable::NO_GIZMO ? GizmoDrawable::SCALE_GIZMO : mode-1);
-                        //else if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_DOWN )
-                        //    mode = (mode==GizmoDrawable::SCALE_GIZMO ? GizmoDrawable::NO_GIZMO : mode+1);
-                        //gizmoDrawable->setGizmoMode( (GizmoDrawable::Mode)mode );
+                        // int mode = gizmoDrawable->getGizmoMode();
+                        // if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_UP )
+                            // mode = (mode==GizmoDrawable::NO_GIZMO ? GizmoDrawable::SCALE_GIZMO : mode-1);
+                        // else if ( ea->getScrollingMotion()==osgGA::GUIEventAdapter::SCROLL_DOWN )
+                            // mode = (mode==GizmoDrawable::SCALE_GIZMO ? GizmoDrawable::NO_GIZMO : mode+1);
+                        // gizmoDrawable->setGizmoMode( (GizmoDrawable::Mode)mode );
+                        // std::cout<<"change Gizmo Mode"<<std::endl;
                     }
                     break;
                 case osgGA::GUIEventAdapter::PUSH:
@@ -60,18 +68,33 @@ public:
                     break;
                 case osgGA::GUIEventAdapter::RELEASE:
                     if ( gizmoDrawable->getGizmoObject() )
+                    {
                         gizmoDrawable->getGizmoObject()->OnMouseUp( x, y );
+                        std::cout<<"Mouse Up"<<std::endl;
+                    }
+
                     break;
                 case osgGA::GUIEventAdapter::MOVE:
                 case osgGA::GUIEventAdapter::DRAG:
-                    if ( gizmoDrawable->getGizmoObject() )
+                    if ( gizmoDrawable->getGizmoObject() ){
+                        //gizmoDrawable->setScreenSize( ea->getWindowWidth(), ea->getWindowHeight() );
+                       // std::cout <<"ScreenSize: " << "Width: "<<ea->getWindowWidth()<<" Heigth: "<<ea->getWindowHeight()<<std::endl;
                         gizmoDrawable->getGizmoObject()->OnMouseMove( x, y );
+                        //std::cout <<"Mouse movement detected" <<std::endl;
+                    }
                     break;
                 case osgGA::GUIEventAdapter::RESIZE:
+                {
                     gizmoDrawable->setScreenSize( ea->getWindowWidth(), ea->getWindowHeight() );
+                    std::cout <<"resize Screen: "<< "Width: "<<ea->getWindowWidth()<<" Heigth: "<<ea->getWindowHeight()<<std::endl; 
+
+                }
                     break;
                 case osgGA::GUIEventAdapter::FRAME:
+                {
                     gizmoDrawable->applyTransform();
+                   // std::cout<<"Transform"<<std::endl;
+                }
                     break;
                 default: break;
                 }
@@ -122,6 +145,9 @@ public:
         return osgGA::TrackballManipulator::handle(ea, aa);
     }
 };
+#endif
+
+//example: how to use GizmoDrawable with osgViewer: 
 
 // int main( int argc, char** argv )
 // {
@@ -158,4 +184,3 @@ public:
 //     }
 // 	return viewer.run();
 // }
-#endif
