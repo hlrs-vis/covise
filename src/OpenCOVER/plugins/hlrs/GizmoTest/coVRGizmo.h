@@ -6,6 +6,7 @@
 #include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
+#include <osg/Version>
 
 #include "IGizmo.h"
 
@@ -39,7 +40,7 @@ public:
             for ( osgGA::EventQueue::Events::const_iterator itr=events.begin();
                   itr!=events.end(); ++itr )
             {
-#if OSG_MIN_VERSION_REQUIRED(3,3,1)
+#if OSG_VERSION_GREATER_OR_EQUAL(3,3,1)
                 const osgGA::GUIEventAdapter* ea = (*itr)->asGUIEventAdapter();
 #else 
                 const osgGA::GUIEventAdapter* ea = itr->get();
