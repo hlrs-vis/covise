@@ -5,8 +5,11 @@
 #include "Profiling.h"
 
 #include <osg/Geometry>
-
+#ifdef WIN32
+#include <numeric>
+#else
 #include <bits/stdc++.h>
+#endif
 
 using namespace opencover;
 
@@ -47,6 +50,8 @@ std::vector<osg::Vec3> Vec2DimToVec(std::vector<std::vector<osg::Vec3>> input)
         result.insert(result.end(),tmp.begin(),tmp.end());
     }
     */
+    std::vector<osg::Vec3> result;
+    return result;
 }
 
 /*void checkVisibility(const osg::Matrix& sensorMatrix, VisbilityMatrix& visMat)
@@ -431,6 +436,7 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
         else
             return true;  
     }
+    return false;
 
 }
 

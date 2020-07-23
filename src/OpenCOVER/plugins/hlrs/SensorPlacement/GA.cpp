@@ -3,7 +3,7 @@
 #include "Sensor.h"
 #include "Profiling.h"
 #include "SensorPlacement.h"
-
+#include <numeric>
 
 bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
 {
