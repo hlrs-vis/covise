@@ -28,7 +28,7 @@ class GizmoDrawable : public osg::Drawable
 public:
     struct GizmoEventCallback : public osg::Drawable::EventCallback
     {
-        virtual void event( osg::NodeVisitor* nv, osg::Drawable* drawable )
+        virtual void event( osg::NodeVisitor* nv, osg::Drawable* drawable ) override
         {
             osgGA::EventVisitor* ev = static_cast<osgGA::EventVisitor*>( nv );
             GizmoDrawable* gizmoDrawable = dynamic_cast<GizmoDrawable*>( drawable );
@@ -39,7 +39,11 @@ public:
             for ( osgGA::EventQueue::Events::const_iterator itr=events.begin();
                   itr!=events.end(); ++itr )
             {
+#if OSG_MIN_VERSION_REQUIRED(3,3,1)
                 const osgGA::GUIEventAdapter* ea = (*itr)->asGUIEventAdapter();
+#else 
+                const osgGA::GUIEventAdapter* ea = itr->get();
+#endif
                 int x = ea->getX(), y = ea->getY();
                // std::cout<<"xPos: "<< x <<" yPos: "<< y <<std::endl;
    
@@ -123,7 +127,7 @@ public:
     
     META_Object( osg, GizmoDrawable );
     
-    virtual void drawImplementation( osg::RenderInfo& renderInfo ) const;
+    virtual void drawImplementation( osg::RenderInfo& renderInfo ) const override;
     
 protected:
     virtual ~GizmoDrawable() {}
