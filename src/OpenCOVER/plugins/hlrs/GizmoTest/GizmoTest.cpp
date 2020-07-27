@@ -7,6 +7,11 @@
 
 using namespace opencover;
 
+void GizmoTest::preFrame()
+{
+    _transgizmo->preFrame();
+}
+
 GizmoTest::GizmoTest()
 {
     //_node = osgDB::readNodeFile("/home/AD.EKUPD.COM/matthias.epple/trailer.3ds");
@@ -40,11 +45,17 @@ GizmoTest::GizmoTest()
     _gizmoGeode->setCullingActive( false );  // allow gizmo to always display
     _gizmoGeode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );  // always show at last
     
-    _root = new osg::MatrixTransform;
-    _root->addChild(_scene.get());
-    _root->addChild(_gizmoGeode.get());
+    ///_root = new osg::MatrixTransform;
+    ///_root->addChild(_scene.get());
+    ///_root->addChild(_gizmoGeode.get());
     //_root->addChild(_cube2.get());
 
+    osg::Matrix matrix = osg::Matrix::translate(osg::Vec3(0,0,0));
+    float _interSize = cover->getSceneSize() / 50 ;
+    _transgizmo = new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    _transgizmo->setName("Gizmo");
+    _transgizmo->enableIntersection();
+    _transgizmo->show();
 
     cover->getObjectsRoot()->addChild(_root.get());
 }

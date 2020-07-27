@@ -234,6 +234,7 @@ coVR3DTransRotInteractor::startInteraction()
     }
 
     coVRIntersectionInteractor::startInteraction();
+
 }
 
 void

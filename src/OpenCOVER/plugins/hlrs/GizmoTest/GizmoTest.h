@@ -24,11 +24,13 @@
 #include <cover/coVRPluginSupport.h>
 #include "coVRGizmo.h"
 #include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <PluginUtil/coVR3DTransGizmo.h>
 
 class GizmoTest :public opencover::coVRPlugin 
 {
 public:
   GizmoTest();
+  void preFrame() override;
 
 private:
   osg::ref_ptr<osg::MatrixTransform> _scene;
@@ -39,6 +41,9 @@ private:
 
   osg::ref_ptr<osg::Geode> _cube1;
   osg::ref_ptr<osg::Geode> _cube2;
+
+  opencover::coVR3DTransGizmo* _transgizmo;
+  opencover::coVR3DTransRotInteractor* _transRotInteractor;
 
 
 };
