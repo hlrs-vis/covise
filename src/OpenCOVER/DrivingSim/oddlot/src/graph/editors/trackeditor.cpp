@@ -167,7 +167,8 @@ TrackEditor::toolAction(ToolAction *toolAction)
 	if (trackEditorToolAction)
 	{
 		if ((trackEditorToolAction->getToolId() == ODD::TTE_ROAD_NEW) || (trackEditorToolAction->getToolId() == ODD::TTE_ADD) 
-			|| (trackEditorToolAction->getToolId() == ODD::TTE_ADD_PROTO) || (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_CIRCLE))
+			|| (trackEditorToolAction->getToolId() == ODD::TTE_ADD_PROTO) || (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_CIRCLE)
+			|| (trackEditorToolAction->getToolId() == ODD::TTE_ROADSYSTEM_ADD))
 		{
 			ODD::ToolId paramTool = trackEditorToolAction->getParamToolId();
 
@@ -176,7 +177,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				getTopviewGraph()->getScene()->deselectAll();
 
 				tool_ = new Tool(getCurrentTool(), 1);
-				if (trackEditorToolAction->getToolId() != ODD::TTE_ROAD_CIRCLE)
+				if ((trackEditorToolAction->getToolId() == ODD::TTE_ROAD_NEW) || (trackEditorToolAction->getToolId() == ODD::TTE_ADD))
 				{
 					ToolValue<int> *paramValue = new ToolValue<int>(getCurrentTool(), getCurrentTool(), 0, ToolParameter::ParameterTypes::ENUM, "LINE, ARC/SPIRAL CURVE, POLYNOMIAL", "Geometry Primitive Type");
 					switch (geometryPrimitiveType_)
@@ -194,11 +195,35 @@ TrackEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(paramValue);
 				}
 
+				if (trackEditorToolAction->getToolId() == ODD::TTE_ROADSYSTEM_ADD)
+				{
+					QStringList text;
+					int i = 0;
+					QList<PrototypeContainer<RoadSystem *>*> roadSystemContainer = prototypeManager_->getRoadSystemPrototypes();
+					for (; i < roadSystemContainer.size(); i++)
+					{
+						text.append(roadSystemContainer.at(i)->getPrototypeName());
+					}
 
-				ToolParameter *param = addToolParameter(PrototypeManager::PTP_TrackPrototype, ODD::TTE_PROTO_TRACK, "Track Prototype");
-				tool_->readParams(param);
+					ToolValue<int> *paramValue = new ToolValue<int>(ODD::TTE_ROADSYSTEM_ADD, ODD::TTE_PROTO_ROADSYSTEM, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), "RoadSystem Prototype");
+					if (!currentRoadSystemPrototype_)
+					{
+						currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(0);
+						paramValue->setValue(0);
+					}
+					else
+					{
+						paramValue->setValue(text.indexOf(currentRoadSystemPrototype_->getPrototypeName()));
+					}
+					tool_->readParams(paramValue);
+				}
+				else if (trackEditorToolAction->getToolId() == ODD::TTE_ADD_PROTO)
+				{
+					ToolParameter *param = addToolParameter(PrototypeManager::PTP_TrackPrototype, ODD::TTE_PROTO_TRACK, "Track Prototype");
+					tool_->readParams(param);
+				}
 
-				param = addToolParameter(PrototypeManager::PTP_LaneSectionPrototype, ODD::TTE_PROTO_LANE, "LaneSection Prototype");
+				ToolParameter *param = addToolParameter(PrototypeManager::PTP_LaneSectionPrototype, ODD::TTE_PROTO_LANE, "LaneSection Prototype");
 				tool_->readParams(param);
 
 				param = addToolParameter(PrototypeManager::PTP_RoadTypePrototype, ODD::TTE_PROTO_TYPE, "RoadType Prototype");
@@ -216,7 +241,9 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				param = addToolParameter(PrototypeManager::PTP_RoadShapePrototype, ODD::TTE_PROTO_ROADSHAPE, "RoadShape Prototype");
 				tool_->readParams(param);
 
+
 				createToolParameterSettings(tool_, ODD::ETE);
+
 				if (isCurrentTool(ODD::TTE_ROAD_NEW))
 				{
 					ODD::mainWindow()->showParameterDialog(true, "New Road", "Choose a geometry primitive and the prototypes and draw a line.");
@@ -224,6 +251,10 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				else if (isCurrentTool(ODD::TTE_ROAD_CIRCLE))
 				{
 					ODD::mainWindow()->showParameterDialog(true, "Circular Road", "Choose the prototypes and draw.");
+				}
+				else if (isCurrentTool(ODD::TTE_ROADSYSTEM_ADD))
+				{
+					ODD::mainWindow()->showParameterDialog(true, "Draw Roadsystem", "Choose a prototype and draw.");
 				}
 				else
 				{
@@ -242,40 +273,6 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				{
 					currentRoadPrototype_->superposePrototype(container->getPrototype());
 				}
-			}
-		}
-		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROADSYSTEM_ADD)
-		{
-			ODD::ToolId paramTool = trackEditorToolAction->getParamToolId();
-
-			if ((paramTool == ODD::TNO_TOOL) && !tool_)
-			{
-				getTopviewGraph()->getScene()->deselectAll();
-
-				QStringList text;
-				int i = 0;
-				QList<PrototypeContainer<RoadSystem *>*> roadSystemContainer = prototypeManager_->getRoadSystemPrototypes();
-				for (; i < roadSystemContainer.size(); i++)
-				{
-					text.append(roadSystemContainer.at(i)->getPrototypeName());
-				}
-
-				ToolValue<int> *paramValue = new ToolValue<int>(ODD::TTE_ROADSYSTEM_ADD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), "RoadSystem Prototype");
-				if (!currentRoadSystemPrototype_)
-				{
-					currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(0);
-					paramValue->setValue(0);
-				}
-				else
-				{
-					paramValue->setValue(text.indexOf(currentRoadSystemPrototype_->getPrototypeName()));
-				}
-
-				tool_ = new Tool(getCurrentTool(), 1);
-				tool_->readParams(paramValue);
-
-				createToolParameterSettings(tool_, ODD::ETE);
-				ODD::mainWindow()->showParameterDialog(true, "Draw Roadsystem", "Choose a prototype and draw.");
 			}
 		}
 		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_MERGE)
@@ -325,7 +322,8 @@ TrackEditor::toolAction(ToolAction *toolAction)
 		if (action)
 		{
 			if ((action->getToolId() == ODD::TTE_ROAD_NEW) || (action->getToolId() == ODD::TTE_ADD) 
-				|| (action->getToolId() == ODD::TTE_ADD_PROTO) || (action->getToolId() == ODD::TTE_ROAD_CIRCLE))
+				|| (action->getToolId() == ODD::TTE_ADD_PROTO) || (action->getToolId() == ODD::TTE_ROAD_CIRCLE)
+				|| (action->getToolId() == ODD::TTE_ROADSYSTEM_ADD))
 			{
 				int index = action->getParamId();
 				if (action->getToolId() == action->getParamToolId())
@@ -346,6 +344,10 @@ TrackEditor::toolAction(ToolAction *toolAction)
 					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
 					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
 					v->setValue(index);
+				}
+				else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ROADSYSTEM)
+				{
+					currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(index);
 				}
 				else
 				{
@@ -398,13 +400,6 @@ TrackEditor::toolAction(ToolAction *toolAction)
 					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
 					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
 					v->setValue(index);
-				}
-			}
-			else if (action->getToolId() == ODD::TTE_ROADSYSTEM_ADD)
-			{
-				int index = action->getParamId();
-				{
-					currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(index);
 				}
 			}
 			else if (action->getToolId() == ODD::TTE_ROAD_MERGE)
@@ -1288,6 +1283,17 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             {
                 state_ = TrackEditor::STE_NONE;
                 addRoadSystemHandle_->setVisible(false);
+
+				foreach(RSystemElementRoad *road, currentRoadSystemPrototype_->getPrototype()->getRoads())
+				{
+					road->delLaneSections();
+					road->delTypeSections();
+					road->delElevationSections();
+					road->delSuperelevationSections();
+					road->delCrossfallSections();
+					road->delShapeSections();
+					road->superposePrototype(currentRoadPrototype_);
+				}
 
                 AddRoadSystemPrototypeCommand *command = new AddRoadSystemPrototypeCommand(getProjectData()->getRoadSystem(), currentRoadSystemPrototype_->getPrototype(), addRoadSystemHandle_->getPos(), addRoadSystemHandle_->getAngle());
                 //				AddRoadSystemPrototypeCommand * command = new AddRoadSystemPrototypeCommand(getProjectData()->getRoadSystem(), currentRoadSystemPrototype_, QPointF(0.0, 0.0), 0.0);
