@@ -342,7 +342,7 @@ ElevationMoveHandle::smoothCorner()
     }
     else
     {
-        elevationEditor_->printStatusBarMsg(command->text(), 4000);
+        elevationEditor_->printStatusBarMsg(command->text(), 0);
         delete command;
     }
 }

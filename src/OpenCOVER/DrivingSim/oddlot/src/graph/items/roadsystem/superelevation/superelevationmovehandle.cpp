@@ -341,7 +341,7 @@ SuperelevationMoveHandle::smoothCorner()
     }
     else
     {
-        superelevationEditor_->printStatusBarMsg(command->text(), 4000);
+        superelevationEditor_->printStatusBarMsg(command->text(), 0);
         delete command;
     }
 }

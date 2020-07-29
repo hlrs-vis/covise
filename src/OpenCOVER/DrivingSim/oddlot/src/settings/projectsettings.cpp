@@ -116,7 +116,7 @@ ProjectSettings::addToGarbage(SettingsElement *item)
 bool
 ProjectSettings::executeCommand(DataCommand *command)
 {
-    ODD::mainWindow()->statusBar()->showMessage(command->text(), 4000);
+    ODD::mainWindow()->statusBar()->showMessage(command->text(), 0);
     if (command->isValid())
     {
         getProjectData()->getUndoStack()->push(command);

@@ -250,13 +250,13 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 
 						// Message //
 						//
-						printStatusBarMsg(QString("setHeight to: %1").arg(elevationEditorToolAction->getHeight()), 1000);
+						printStatusBarMsg(QString("setHeight to: %1").arg(elevationEditorToolAction->getHeight()), 0);
 					}
 					else
 					{
 						if (command->text() != "")
 						{
-							printStatusBarMsg(command->text(), 4000);
+							printStatusBarMsg(command->text(), 0);
 						}
 						delete command;
 					}
@@ -548,13 +548,13 @@ ElevationEditor::registerMoveHandle(ElevationMoveHandle *handle)
 
         // Message //
         //
-        printStatusBarMsg(QString("Select Elevation Section "), 100);
+        printStatusBarMsg(QString("Select Elevation Section "), 0);
     }
     else
     {
         if (command->text() != "")
         {
-            printStatusBarMsg(command->text(), 4000);
+            printStatusBarMsg(command->text(), 0);
         }
         delete command;
     }
@@ -589,7 +589,7 @@ ElevationEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mo
     //
     if (selectedMoveHandles_.count(1) > 0)
     {
-        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 4000);
+        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 0);
         qDebug("One DOF not supported yet");
         return false;
     }
@@ -623,13 +623,13 @@ ElevationEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mo
 
         // Message //
         //
-        printStatusBarMsg(QString("Move to: %1, %2").arg(pressPos.x()).arg(pressPos.y() + dPos.y()), 1000);
+        printStatusBarMsg(QString("Move to: %1, %2").arg(pressPos.x()).arg(pressPos.y() + dPos.y()), 0);
     }
     else
     {
         if (command->text() != "")
         {
-            printStatusBarMsg(command->text(), 4000);
+            printStatusBarMsg(command->text(), 0);
         }
         delete command;
     }

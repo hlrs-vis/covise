@@ -686,7 +686,7 @@ JunctionEditor::apply()
 		}
 		else
 		{
-			printStatusBarMsg(command->text(), 4000);
+			printStatusBarMsg(command->text(), 0);
 			delete command;
 			return; // usually not the case, only if road or prototype are NULL
 		}
@@ -704,7 +704,7 @@ JunctionEditor::apply()
 			}
 			else
 			{
-				printStatusBarMsg(command->text(), 4000);
+				printStatusBarMsg(command->text(), 0);
 				delete command;
 				return; // usually not the case, only if road or prototype are NULL
 			}
@@ -718,7 +718,7 @@ JunctionEditor::apply()
 	{
 		if (!junction_)
 		{
-			printStatusBarMsg(tr("First a junction has to be selected."), 4000);
+			printStatusBarMsg(tr("First a junction has to be selected."), 0);
 			return;
 		}
 
@@ -736,7 +736,7 @@ JunctionEditor::apply()
 			}
 			else
 			{
-				printStatusBarMsg(command->text(), 4000);
+				printStatusBarMsg(command->text(), 0);
 				delete command;
 				return; // usually not the case, only if road or prototype are NULL
 			}
@@ -751,7 +751,7 @@ JunctionEditor::apply()
 	{
 		if (!junction_)
 		{
-			printStatusBarMsg("No junction selected", 4000);
+			printStatusBarMsg("No junction selected", 0);
 			return;
 		}
 
@@ -768,7 +768,7 @@ JunctionEditor::apply()
 			}
 			else
 			{
-				printStatusBarMsg(command->text(), 4000);
+				printStatusBarMsg(command->text(), 0);
 				delete command;
 				return; // usually not the case, only if road or prototype are NULL
 			}
@@ -782,7 +782,7 @@ JunctionEditor::apply()
 			}
 			else
 			{
-				printStatusBarMsg(command->text(), 4000);
+				printStatusBarMsg(command->text(), 0);
 				delete junctionRemoveCommand;
 				return; // usually not the case, only if road or prototype are NULL
 			}
@@ -1314,7 +1314,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
         d = QVector2D(startPoint - endPoint).normalized();
         if (QVector2D::dotProduct(t, d) <= 0.1)
         {
-            printStatusBarMsg(tr("A curve cannot be inserted here."), 4000);
+            printStatusBarMsg(tr("A curve cannot be inserted here."), 0);
             return NULL;
         }
 
@@ -1338,7 +1338,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             if (!spiral->validParameters())
             {
                 delete spiral;
-                printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+                printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
                 return NULL;
             }
         }
@@ -1375,7 +1375,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
         d = QVector2D(endPoint - startPoint).normalized();
         if (QVector2D::dotProduct(t, d) <= 0.1)
         {
-            printStatusBarMsg(tr("A curve cannot be inserted here."), 4000);
+            printStatusBarMsg(tr("A curve cannot be inserted here."), 0);
             return NULL;
         }
 
@@ -1397,7 +1397,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             if (!spiral->validParameters())
             {
                 delete spiral;
-                printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+                printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
                 return NULL;
             }
         }
@@ -1448,13 +1448,13 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
 
         // Message //
         //
-        printStatusBarMsg(QString("setHeight to: %1").arg(height2), 1000);
+        printStatusBarMsg(QString("setHeight to: %1").arg(height2), 0);
     }
     else
     {
         if (command->text() != "")
         {
-            printStatusBarMsg(command->text(), 4000);
+            printStatusBarMsg(command->text(), 0);
         }
         delete command;
     }
@@ -1471,13 +1471,13 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
 
         // Message //
         //
-        printStatusBarMsg(QString("setHeight to: %1").arg(height1), 1000);
+        printStatusBarMsg(QString("setHeight to: %1").arg(height1), 0);
     }
     else
     {
         if (command->text() != "")
         {
-            printStatusBarMsg(command->text(), 4000);
+            printStatusBarMsg(command->text(), 0);
         }
         delete command;
     }
@@ -1569,7 +1569,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
             if (state_ == JunctionEditor::STE_NEW_PRESSED)
             {
                 newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
-                printStatusBarMsg(QString("New road: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 4000);
+                printStatusBarMsg(QString("New road: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 0);
             }
         }
 
@@ -1582,7 +1582,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                 if (length < 10.0)
                 {
-                    printStatusBarMsg("New road: to short. Please click and drag.", 4000);
+                    printStatusBarMsg("New road: to short. Please click and drag.", 0);
                 }
                 else
                 {
@@ -1614,7 +1614,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                     }
                     //					else
                     {
-                        printStatusBarMsg("New road: Please reselect a Prototype.", 8000);
+                        printStatusBarMsg("New road: Please reselect a Prototype.", 0);
                     }
                 }
             }
@@ -1980,7 +1980,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                     }
                     else
                     {
-                        printStatusBarMsg(junctionCommand->text(), 4000);
+                        printStatusBarMsg(junctionCommand->text(), 0);
                         delete junctionCommand;
                         return; // usually not the case, only if road or prototype are NULL
                     }
@@ -2050,7 +2050,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 }
                                 else
                                 {
-                                    printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                    printStatusBarMsg(addToJunctionCommand->text(), 0);
                                     delete addToJunctionCommand;
                                 }
                             }
@@ -2104,7 +2104,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 }
                                 else
                                 {
-                                    printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                    printStatusBarMsg(addToJunctionCommand->text(), 0);
                                     delete addToJunctionCommand;
                                 }
                             }
@@ -2145,7 +2145,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                     }
                                     else
                                     {
-                                        printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                        printStatusBarMsg(addToJunctionCommand->text(), 0);
                                         delete addToJunctionCommand;
                                     }
                                 }
@@ -2193,7 +2193,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                     }
                                     else
                                     {
-                                        printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                        printStatusBarMsg(addToJunctionCommand->text(), 0);
                                         delete addToJunctionCommand;
                                     }
                                 }
@@ -2243,7 +2243,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                     }
                                     else
                                     {
-                                        printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                        printStatusBarMsg(addToJunctionCommand->text(), 0);
                                         delete addToJunctionCommand;
                                     }
                                 }
@@ -2298,7 +2298,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 }
                                 else
                                 {
-                                    printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                    printStatusBarMsg(addToJunctionCommand->text(), 0);
                                     delete addToJunctionCommand;
                                 }
 
@@ -2704,7 +2704,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 }
                                 else
                                 {
-                                    printStatusBarMsg(addToJunctionCommand->text(), 4000);
+                                    printStatusBarMsg(addToJunctionCommand->text(), 0);
                                     delete addToJunctionCommand;
                                 }
 
@@ -3150,7 +3150,7 @@ JunctionEditor::translateLaneMoveHandles(const QPointF &pressPos, const QPointF 
     //
     if (selectedLaneMoveHandles_.count(1) > 0)
     {
-        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 4000);
+        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 0);
         qDebug("One DOF not supported yet");
         return false;
     }
@@ -3188,7 +3188,7 @@ JunctionEditor::translateLaneMoveHandles(const QPointF &pressPos, const QPointF 
     {
         if (command->text() != "")
         {
-            printStatusBarMsg(command->text(), 4000);
+            printStatusBarMsg(command->text(), 0);
         }
         delete command;
     }

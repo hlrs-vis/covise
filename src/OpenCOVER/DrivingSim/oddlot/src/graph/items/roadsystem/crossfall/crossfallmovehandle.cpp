@@ -340,7 +340,7 @@ CrossfallMoveHandle::smoothCorner()
     }
     else
     {
-        crossfallEditor_->printStatusBarMsg(command->text(), 4000);
+        crossfallEditor_->printStatusBarMsg(command->text(), 0);
         delete command;
     }
 }

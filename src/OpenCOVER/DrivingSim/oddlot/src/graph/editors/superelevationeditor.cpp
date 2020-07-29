@@ -234,7 +234,7 @@ SuperelevationEditor::translateMoveHandles(const QPointF &pressPos, const QPoint
     //
     if (selectedMoveHandles_.count(1) > 0)
     {
-        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 4000);
+        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 0);
         qDebug("One DOF not supported yet");
         return false;
     }
@@ -267,13 +267,13 @@ SuperelevationEditor::translateMoveHandles(const QPointF &pressPos, const QPoint
 
         // Message //
         //
-        printStatusBarMsg(QString("Move to: %1, %2").arg(pressPos.x()).arg(pressPos.y() + dPos.y()), 1000);
+        printStatusBarMsg(QString("Move to: %1, %2").arg(pressPos.x()).arg(pressPos.y() + dPos.y()), 0);
     }
     else
     {
         if (command->text() != "")
         {
-            printStatusBarMsg(command->text(), 4000);
+            printStatusBarMsg(command->text(), 0);
         }
         delete command;
     }

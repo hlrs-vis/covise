@@ -600,7 +600,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
 							if (length <= 1.0)
 							{
-								printStatusBarMsg(tr("A line can not be inserted here."), 4000);
+								printStatusBarMsg(tr("A line can not be inserted here."), 0);
 								return; // line with this length not possible
 							}
 
@@ -688,7 +688,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 								{
 									if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
 									{
-										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
 										return; // symmetric curve not possible
 									}
 
@@ -708,7 +708,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										if (!spiral->validParameters())
 										{
 											delete spiral;
-											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
 											return;
 										}
 									}
@@ -748,7 +748,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										}
 										else
 										{
-											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
 											return;
 										}
 
@@ -760,7 +760,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
 									if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
 									{
-										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
 										return;
 									}
 
@@ -805,7 +805,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
 									if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
 									{
-										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
 										return; // symmetric curve not possible
 									}
 
@@ -822,7 +822,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										if (!spiral->validParameters())
 										{
 											delete spiral;
-											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
 											return;
 										}
 									}
@@ -855,7 +855,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										}
 										else
 										{
-											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
 											return;
 										}
 									}
@@ -906,7 +906,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 									Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
 									if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
 									{
-										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
 										return;
 									}
 
@@ -1097,7 +1097,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             if (state_ == TrackEditor::STE_NEW_PRESSED)
             {
                 newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
-                printStatusBarMsg(QString("New road: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 4000);
+                printStatusBarMsg(QString("New road: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 0);
             }
         }
 
@@ -1110,7 +1110,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
                 if (length < 10.0)
                 {
-                    printStatusBarMsg("New road: to short. Please click and drag.", 4000);
+                    printStatusBarMsg("New road: to short. Please click and drag.", 0);
                 }
 				else
 				{
@@ -1148,7 +1148,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 					}
 					else
 					{
-						printStatusBarMsg(command->text(), 4000);
+						printStatusBarMsg(command->text(), 0);
 						delete command;
 						return; // usually not the case, only if road or prototype are NULL
 					}
@@ -1203,7 +1203,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 				double radius = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
 				state_ = TrackEditor::STE_NEW_PRESSED;
 				newRoadCircleItem_->setRect(pressPoint_.x() - radius, pressPoint_.y() - radius, radius * 2, radius * 2);
-				printStatusBarMsg(QString("New circle: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 4000);
+				printStatusBarMsg(QString("New circle: (%1, %2) to (%3, %4). Length: %5.").arg(pressPoint_.x()).arg(pressPoint_.y()).arg(mousePoint.x()).arg(mousePoint.y()).arg(length), 0);
 			}
 		}
 
@@ -1216,7 +1216,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
 				if (length < 10.0)
 				{
-					printStatusBarMsg("New circle: to short. Please click and drag.", 4000);
+					printStatusBarMsg("New circle: to short. Please click and drag.", 0);
 				}
 				else
 				{
@@ -1241,7 +1241,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 					}
 					else
 					{
-						printStatusBarMsg(command->text(), 4000);
+						printStatusBarMsg(command->text(), 0);
 						delete command;
 						return; // usually not the case, only if road or prototype are NULL
 					}
@@ -1269,7 +1269,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                 addRoadSystemHandle_->setPos(mouseEvent->scenePos());
                 addRoadSystemHandle_->setMousePos(mouseEvent->scenePos());
                 state_ = TrackEditor::STE_ROADSYSTEM_ADD;
-                printStatusBarMsg(QString("Add Prototype at (%1,%2), angle %3").arg(addRoadSystemHandle_->getPos().x()).arg(addRoadSystemHandle_->getPos().y()).arg(addRoadSystemHandle_->getAngle()), 4000);
+                printStatusBarMsg(QString("Add Prototype at (%1,%2), angle %3").arg(addRoadSystemHandle_->getPos().x()).arg(addRoadSystemHandle_->getPos().y()).arg(addRoadSystemHandle_->getAngle()), 0);
             }
         }
 
@@ -1278,7 +1278,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             if (state_ == TrackEditor::STE_ROADSYSTEM_ADD)
             {
                 addRoadSystemHandle_->setMousePos(mouseEvent->scenePos());
-                printStatusBarMsg(QString("Add Prototype at (%1,%2), angle %3").arg(addRoadSystemHandle_->getPos().x()).arg(addRoadSystemHandle_->getPos().y()).arg(addRoadSystemHandle_->getAngle()), 4000);
+                printStatusBarMsg(QString("Add Prototype at (%1,%2), angle %3").arg(addRoadSystemHandle_->getPos().x()).arg(addRoadSystemHandle_->getPos().y()).arg(addRoadSystemHandle_->getAngle()), 0);
             }
         }
 
@@ -1297,7 +1297,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                 }
                 else
                 {
-                    printStatusBarMsg(command->text(), 4000);
+                    printStatusBarMsg(command->text(), 0);
                     delete command;
                     return; // usually not the case, only if road or prototype are NULL
                 }
@@ -1996,7 +1996,7 @@ TrackEditor::apply()
 				delete validationVisitor;
 				if (i > 0)
 				{
-					printStatusBarMsg(tr("Validate Move: not valid or tracks are not SpiralArcSpiral"), 4000);
+					printStatusBarMsg(tr("Validate Move: not valid or tracks are not SpiralArcSpiral"), 0);
 					return; // not valid => no translation
 				}
 				else
@@ -2052,7 +2052,7 @@ TrackEditor::apply()
 
 				if (i > 0)
 				{
-					printStatusBarMsg(tr("Validate Rotate: not valid"), 4000);
+					printStatusBarMsg(tr("Validate Rotate: not valid"), 0);
 					return; // not valid => no rotation
 				}
 				else

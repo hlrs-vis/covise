@@ -169,14 +169,14 @@ MainWindow::createStatusBar()
     locationLabel_ = new QLabel(" [-99999.999, -99999.999] ");
     locationLabel_->setAlignment(Qt::AlignHCenter);
     locationLabel_->setMinimumSize(locationLabel_->sizeHint());
-    statusBar()->addWidget(locationLabel_);
+    statusBar()->addPermanentWidget(locationLabel_);
     updateStatusBarPos(QPointF(0.0, 0.0));
 }
 
 void
 MainWindow::updateStatusBarPos(const QPointF &pos)
 {
-    locationLabel_->setText(QString(" [%1").arg(pos.x(), 10, 'f', 3, ' ').append(", %2] ").arg(pos.y(), 10, 'f', 3, ' '));
+    locationLabel_->setText(QString(" [ %1").arg(pos.x(), 10, 'f', 3, ' ').append(", %2 ] ").arg(pos.y(), 10, 'f', 3, ' '));
 }
 
 void
@@ -902,7 +902,7 @@ MainWindow::open()
 
         if (project->loadFile(fileName))
         {
-            statusBar()->showMessage(tr("File has been loaded."), 2000);
+            statusBar()->showMessage(tr("File has been loaded."), 0);
 
             // [workaround_0]
             mdiArea_->addSubWindow(project);
@@ -959,7 +959,7 @@ MainWindow::open(QString fileName, ProjectWidget::FileType type)
 
         if (project->loadFile(fileName, type))
         {
-            statusBar()->showMessage(tr("File has been loaded."), 2000);
+            statusBar()->showMessage(tr("File has been loaded."), 0);
 
             // [workaround_0]
             mdiArea_->addSubWindow(project);
@@ -1062,7 +1062,7 @@ MainWindow::save()
 {
     if (getActiveProject() && getActiveProject()->save())
     {
-        statusBar()->showMessage(tr("File has been saved."), 2000);
+        statusBar()->showMessage(tr("File has been saved."), 0);
     }
     return;
 }
@@ -1074,7 +1074,7 @@ MainWindow::saveAs()
 {
     if (getActiveProject() && getActiveProject()->saveAs())
     {
-        statusBar()->showMessage(tr("File has been saved."), 2000);
+        statusBar()->showMessage(tr("File has been saved."), 0);
     }
     return;
 }
@@ -1090,7 +1090,7 @@ MainWindow::saveAsXODR()
 		{
 			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenDrive))
 			{
-				statusBar()->showMessage(tr("File has been saved."), 2000);
+				statusBar()->showMessage(tr("File has been saved."), 0);
 			}
 		}
 	}
@@ -1107,7 +1107,7 @@ MainWindow::saveAsXOSC()
 		{
 			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenScenario))
 			{
-				statusBar()->showMessage(tr("File has been saved."), 2000);
+				statusBar()->showMessage(tr("File has been saved."), 0);
 			}
 		}
 	}
@@ -1121,7 +1121,7 @@ MainWindow::exportSpline()
 {
     if (getActiveProject() && getActiveProject()->exportSpline())
     {
-        statusBar()->showMessage(tr("File has been exported."), 2000);
+        statusBar()->showMessage(tr("File has been exported."), 0);
     }
     return;
 }
@@ -1229,7 +1229,7 @@ MainWindow::importIntermapRoad()
 
         if (project->importIntermapFile(fileName))
         {
-            statusBar()->showMessage(tr("File has been imported."), 2000);
+            statusBar()->showMessage(tr("File has been imported."), 0);
             project->show();
         }
     }
@@ -1255,7 +1255,7 @@ MainWindow::importCSVRoad()
 
         if (project->importCSVRoadFile(fileName))
         {
-            statusBar()->showMessage(tr("File has been imported."), 2000);
+            statusBar()->showMessage(tr("File has been imported."), 0);
             project->show();
         }
     }
@@ -1281,7 +1281,7 @@ MainWindow::importCSVSign()
 
         if (project->importCSVSignFile(fileName))
         {
-            statusBar()->showMessage(tr("File has been imported."), 2000);
+            statusBar()->showMessage(tr("File has been imported."), 0);
             project->show();
         }
     }
@@ -1307,7 +1307,7 @@ MainWindow::importCarMakerRoad()
 
         if (project->importCarMakerFile(fileName))
         {
-            statusBar()->showMessage(tr("File has been imported."), 2000);
+            statusBar()->showMessage(tr("File has been imported."), 0);
             project->show();
         }
     }
@@ -1332,7 +1332,7 @@ MainWindow::importOSMFile()
         osmi->setProject(project);
         if (osmi->importOSMFile(fileName))
         {
-            statusBar()->showMessage(tr("File has been imported."), 2000);
+            statusBar()->showMessage(tr("File has been imported."), 0);
             project->show();
         }
     }
