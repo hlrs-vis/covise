@@ -767,8 +767,7 @@ RW_ASCII::readSETELE(const char *name, char *command, istream &str)
 
     // create an object
     int i;
-    char *attribs[100000];
-    int numAttr = 0;
+    std::vector<char *>attribs;
     coDistributedObject **objs = new coDistributedObject *[numElem + 1];
 
     objs[numElem] = NULL;
@@ -821,9 +820,8 @@ RW_ASCII::readSETELE(const char *name, char *command, istream &str)
         }
         else if (strncasecmp("ATTR", command, 4) == 0)
         {
-            attribs[numAttr] = strcpy(new char[strlen(command) + 1], command);
+            attribs.push_back(strcpy(new char[strlen(command) + 1], command));
 
-            numAttr++;
             command = getLine(str, buffer, 100000);
         }
         else
@@ -846,13 +844,14 @@ RW_ASCII::readSETELE(const char *name, char *command, istream &str)
     // clean up
     delete[] objs;
 
-    for (i = 0; i < numAttr; i++)
+    for (i = 0; i < attribs.size(); i++)
     {
         readAttrib(setele, attribs[i]);
 
         // clean up
         delete[] attribs[i];
     }
+    attribs.clear();
 
     if (readElem == numElem)
         return setele;
