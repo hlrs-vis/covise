@@ -41,6 +41,8 @@ SET(PLUGINUTIL_HEADERS
   coVR3DTransRotInteractor.h
   coVR3DRotCenterInteractor.h
   coVR3DTransGizmo.h
+  coVR3DRotGizmo.h
+  coVR3DScaleGizmo.h
   FileReference.h
   SimReference.h
   coInstanceRenderer.h
@@ -74,6 +76,8 @@ SET(SOURCES
   coVR3DTransRotInteractor.cpp
   coVR3DRotCenterInteractor.cpp
   coVR3DTransGizmo.cpp
+  coVR3DRotGizmo.cpp
+  coVR3DScaleGizmo.cpp
   FileReference.cpp
   SimReference.cpp
   coInstanceRenderer.cpp

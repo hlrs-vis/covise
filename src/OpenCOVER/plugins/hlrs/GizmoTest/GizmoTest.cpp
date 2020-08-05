@@ -2,63 +2,95 @@
 #include<osg/ShapeDrawable>
 
 #include "GizmoTest.h"
+#include <osgSim/SphereSegment>
 
-
+#include <cover/VRSceneGraph.h>
+#include <osg/Material>
 
 using namespace opencover;
 
 void GizmoTest::preFrame()
 {
     _transgizmo->preFrame();
+    _rotgizmo->preFrame();
+    _scalegizmo->preFrame();
+    _transRotInteractor->preFrame();
 }
 
 GizmoTest::GizmoTest()
 {
-    //_node = osgDB::readNodeFile("/home/AD.EKUPD.COM/matthias.epple/trailer.3ds");
-    
+   
     osg::Box *unitCube1 = new osg::Box(osg::Vec3(0, 0, 0), 20.0f);
     osg::ShapeDrawable *unitCubeDrawable1 = new osg::ShapeDrawable(unitCube1);
 
 
     _cube1 = new osg::Geode();
-    _cube2 = new osg::Geode();
     _cube1->setName("cube1");
-    _cube2->setName("cube2");
 
     _cube1->addDrawable(unitCubeDrawable1);
-    _cube2->addDrawable(unitCubeDrawable1);
 
 
     _scene = new osg::MatrixTransform;
     _scene->setName("Scene");
-    //_scene->setMatrix(osg::Matrix::translate(osg::Vec3(200,200,200)));
+    _scene->setMatrix(osg::Matrix::translate(osg::Vec3(0,20,0)));
     _scene->addChild(_cube1.get());
-    //_scene->addChild(_node.get());
 
-    _gizmo = new GizmoDrawable;
-    _gizmo->setTransform( _scene.get() );
-    _gizmo->setGizmoMode( GizmoDrawable::MOVE_GIZMO );  
-
-    _gizmoGeode = new osg::Geode;
-    _gizmoGeode->setName("Gizmo");
-    _gizmoGeode->addDrawable( _gizmo.get() );
-    _gizmoGeode->setCullingActive( false );  // allow gizmo to always display
-    _gizmoGeode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );  // always show at last
+    // _gizmo = new GizmoDrawable;
+    // _gizmo->setTransform( _scene.get() );
+    // _gizmo->setGizmoMode( GizmoDrawable::MOVE_GIZMO );  
+// 
+    // _gizmoGeode = new osg::Geode;
+    // _gizmoGeode->setName("Gizmo");
+    // _gizmoGeode->addDrawable( _gizmo.get() );
+    // _gizmoGeode->setCullingActive( false );  // allow gizmo to always display
+    // _gizmoGeode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );  // always show at last
     
     ///_root = new osg::MatrixTransform;
     ///_root->addChild(_scene.get());
     ///_root->addChild(_gizmoGeode.get());
     //_root->addChild(_cube2.get());
 
-    osg::Matrix matrix = osg::Matrix::translate(osg::Vec3(0,0,0));
+    osg::Matrix matrix = osg::Matrix::translate(osg::Vec3(40,0,0));
     float _interSize = cover->getSceneSize() / 50 ;
     _transgizmo = new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     _transgizmo->setName("Gizmo");
     _transgizmo->enableIntersection();
     _transgizmo->show();
 
-    cover->getObjectsRoot()->addChild(_root.get());
-}
+    osg::Matrix matrix2;
+    _rotgizmo = new coVR3DRotGizmo(matrix2, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    _rotgizmo->setName("RotGizmo");
+    _rotgizmo->enableIntersection();
+    _rotgizmo->show();
 
+    osg::Matrix matrix3 = osg::Matrix::translate(osg::Vec3(-40,0,0)); 
+    _scalegizmo = new coVR3DScaleGizmo(matrix3, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    _scalegizmo->setName("ScaleGizmo");
+    _scalegizmo->enableIntersection();
+    _scalegizmo->show();
+
+    osg::Matrix matrix4 = osg::Matrix::translate(osg::Vec3(0,0,40)); 
+    _transRotInteractor = new coVR3DTransRotInteractor(matrix4, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    _transRotInteractor->setName("TransRot");
+    _transRotInteractor->enableIntersection();
+    _transRotInteractor->show();
+
+
+
+
+    // osgSim::SphereSegment *circleGeode = new osgSim::SphereSegment(osg::Vec3(0,0,0),1.0,0.0,M_PI/10,0,M_PI,32);
+    // circleGeode->setDrawMask(osgSim::SphereSegment::DrawMask(osgSim::SphereSegment::SURFACE));
+    // circleGeode->setAllColors(osg::Vec4(1,0,0,1));
+    // circleGeode->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+    // cover->getObjectsRoot()->addChild(circleGeode);
+
+    //cover->getObjectsRoot()->addChild(_root.get());
+    cover->getObjectsRoot()->addChild(_scene.get());
+
+
+
+    //_circle = circles(0,32);
+    //cover->getObjectsRoot()->addChild(_circle.get());
+}
 
 COVERPLUGIN(GizmoTest)

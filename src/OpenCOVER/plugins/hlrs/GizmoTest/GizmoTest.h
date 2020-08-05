@@ -25,6 +25,10 @@
 #include "coVRGizmo.h"
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <PluginUtil/coVR3DTransGizmo.h>
+#include <PluginUtil/coVR3DRotGizmo.h>
+#include <PluginUtil/coVR3DScaleGizmo.h>
+
+
 
 class GizmoTest :public opencover::coVRPlugin 
 {
@@ -39,11 +43,21 @@ private:
   osg::ref_ptr<GizmoDrawable> _gizmo;
   osg::ref_ptr<osg::Node> _node;
 
+  osg::ref_ptr<osg::MatrixTransform> _scale;
+
   osg::ref_ptr<osg::Geode> _cube1;
   osg::ref_ptr<osg::Geode> _cube2;
 
   opencover::coVR3DTransGizmo* _transgizmo;
+  opencover::coVR3DRotGizmo* _rotgizmo;
+  opencover::coVR3DScaleGizmo* _scalegizmo;
   opencover::coVR3DTransRotInteractor* _transRotInteractor;
 
+
+
+  osg::ref_ptr<osg::Geode> _circle;
+
+  osg::Vec3Array* circleVerts(int plane, int approx);
+  osg::Geode* circles( int plane, int approx );
 
 };
