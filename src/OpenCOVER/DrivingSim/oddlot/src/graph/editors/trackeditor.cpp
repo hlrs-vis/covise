@@ -664,6 +664,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 							if (length <= 1.0)
 							{
 								printStatusBarMsg(tr("A line can not be inserted here."), 0);
+								mouseAction->intercept();
 								return; // line with this length not possible
 							}
 
@@ -752,6 +753,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 									if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
 									{
 										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
+										mouseAction->intercept();
 										return; // symmetric curve not possible
 									}
 
@@ -772,6 +774,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										{
 											delete spiral;
 											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
+											mouseAction->intercept();
 											return;
 										}
 									}
@@ -812,6 +815,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										else
 										{
 											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
+											mouseAction->intercept();
 											return;
 										}
 
@@ -824,6 +828,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 									if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
 									{
 										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
+										mouseAction->intercept();
 										return;
 									}
 
@@ -869,6 +874,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 									if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
 									{
 										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
+										mouseAction->intercept();
 										return; // symmetric curve not possible
 									}
 
@@ -886,6 +892,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										{
 											delete spiral;
 											printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 0);
+											mouseAction->intercept();
 											return;
 										}
 									}
@@ -919,6 +926,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 										else
 										{
 											printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
+											mouseAction->intercept();
 											return;
 										}
 									}
@@ -970,6 +978,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 									if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
 									{
 										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 0);
+										mouseAction->intercept();
 										return;
 									}
 
@@ -997,6 +1006,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 							getProjectGraph()->executeCommand(linkLanesCommand);
 							getProjectData()->getUndoStack()->endMacro();
 						}
+						mouseAction->intercept();
 					}
 
                     // Prototypes //
