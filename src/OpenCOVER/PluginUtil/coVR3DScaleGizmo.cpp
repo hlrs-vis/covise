@@ -32,29 +32,6 @@ coVR3DScaleGizmo::~coVR3DScaleGizmo()
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete ~coVR3DScaleGizmo\n");
 }
-void
-coVR3DScaleGizmo::drawCircle()
-{
-    osg::TessellationHints *hint = new osg::TessellationHints();
-    hint->setDetailRatio(0.5);
-
-    //osg::ShapeDrawable *cylDrawable, *sphereSegm;
-    // auto sphereSegm = new osgSim::SphereSegment(osg::Vec3(0,0,0),1.0,0,M_PI*2,0.0,0.0,32);
-    // auto cyl = new osg::Cylinder(osg::Vec3(0,0,0), 0.1, 1.0);
-    //cylDrawable = new osg::ShapeDrawable(sphereSegm, hint);
-    //circleGeode = new osg::Geode();
-    //circleGeode = new osgSim::SphereSegment(osg::Vec3(0,0,0),1.0,0,M_PI/2,0,M_PI/2,1);
-   // circleGeode->addChild(cylDrawable);
-    //cover->getObjectsRoot()->addChild(circleGeode.get());
-    //testTransform = new osg::MatrixTransform();
-    //circleGeode = new osgSim::SphereSegment(osg::Vec3(0,0,0),5.0,0,M_PI/50,0,M_PI,16);
-    //circleGeode->setAllColors(osg::Vec4(1,1,0,1));
-    //circleGeode->setDrawMask(osgSim::SphereSegment::DrawMask(osgSim::SphereSegment::SURFACE|osgSim::SphereSegment::SPOKES));
-    //testTransform->addChild(circleGeode.get());
-    //axisTransform->addChild(testTransform);
-    //cover->getObjectsRoot()->addChild(circleGeode.get());
-
-}
 
 void
 coVR3DScaleGizmo::createGeometry()
@@ -84,7 +61,6 @@ coVR3DScaleGizmo::createGeometry()
     sphereGeode->addDrawable(sphereDrawable);
     axisTransform->addChild(sphereGeode.get());
 
-    //Merke die Geodes die gebraucht werden, werden im originial in if(restricted erzeugt) alle anderen sind temporär
     //create axis
     auto cyl = new osg::Cylinder(origin, 0.15, ArrowLength);
     xCylDrawable = new osg::ShapeDrawable(cyl, hint);
@@ -151,18 +127,7 @@ coVR3DScaleGizmo::createGeometry()
     tempxAxisTransform = new osg::MatrixTransform();
     tempyAxisTransform = new osg::MatrixTransform();
     tempzAxisTransform = new osg::MatrixTransform();
-    //############################ remove this stuff here !!!!!!!!
-    // osg::Material *selMaterial = new osg::Material();
-    // selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.5, 0.5, 0.5, 1.0));
-    // selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.5, 0.5, 0.5, 1.0));
-    // selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
-    // selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
-    // selMaterial->setColorMode(osg::Material::OFF);
-// 
-    // osg::ref_ptr<osg::StateSet> ss = new osg::StateSet();
-    // ss->setAttribute(selMaterial,osg::StateAttribute::ON & osg::StateAttribute::PROTECTED);
-    // tempxAxisTransform->setStateSet(ss);
-
+    
     axisTransform->addChild(tempxAxisTransform);
     axisTransform->addChild(tempyAxisTransform);
     axisTransform->addChild(tempzAxisTransform);
@@ -173,7 +138,7 @@ void coVR3DScaleGizmo::updateSharedState()
 {
     if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
     {
-        *st = _oldInteractorXformMat_o;//myPosition
+        *st = _oldInteractorXformMat_o;
     }
 }
 void coVR3DScaleGizmo::startInteraction()
@@ -183,54 +148,43 @@ void coVR3DScaleGizmo::startInteraction()
     
     osg::Vec3 origin(0, 0, 0);
     osg::Vec3 yaxis(0, 1, 0);
-    osg::Matrix currHandMat = getPointerMat();
     osg::Matrix o_to_w = cover->getBaseMat();
-    // get hand mat in object coords
     osg::Matrix w_to_o = cover->getInvBaseMat();
+    osg::Matrix currHandMat = getPointerMat();
     osg::Matrix currHandMat_o = currHandMat * w_to_o;
-    auto lp1_o = origin * currHandMat_o;
-    auto lp2_o = yaxis * currHandMat_o; 
-    auto pointerDir_o = lp2_o - lp1_o;
+
+    osg::Vec3 lp1_o = origin * currHandMat_o;
+    osg::Vec3 lp2_o = yaxis * currHandMat_o; 
+    osg::Vec3 pointerDir_o = lp2_o - lp1_o;
     pointerDir_o.normalize();   
     // get hand pos in object coords
-    auto currHandPos_o = currHandMat_o.getTrans();  
-     _startInterPos = currHandPos_o + pointerDir_o * _distance + _diff;
+    osg::Vec3 currHandPos_o = currHandMat_o.getTrans();  
+    _startInterPos = currHandPos_o + pointerDir_o * _distance;// + _diff; //here don't use diff
 
-    //osg::Matrix w_to_o = cover->getInvBaseMat();
-    //osg::Matrix o_to_w = cover->getBaseMat();
-
-    osg::Matrix hm = getPointerMat(); // hand matrix weltcoord
-    osg::Matrix hm_o = hm * w_to_o; // hand matrix objekt coord
-    _oldHandMat = hm;
-    _invOldHandMat_o.invert(hm_o); // store the inv hand matrix
-
-    //my stuff
-     // get hand mat in object coords
-    osg::Matrix startHandMat = getPointerMat();
-   // _startHandMat_o = startHandMat * w_to_o;
-//##################################################
-
-    osg::Matrix interMat = _interMat_o * o_to_w;
-
+    
+    _oldHandMat = currHandMat;
+    _invOldHandMat_o.invert(currHandMat_o); // store the inv hand matrix
     _oldInteractorXformMat_o = _interMat_o;
-
+    osg::Matrix interMat = _interMat_o * o_to_w;
     osg::Vec3 interPos = getMatrix().getTrans();
+
     // get diff between intersection point and sphere center
     _diff = interPos - _hitPos;
-    _distance = (_hitPos - hm_o.getTrans()).length(); 
-
+    _distance = (_hitPos - currHandMat_o.getTrans()).length(); 
     osg::Vec3 hitPos_o = _hitPos* w_to_o;
 
-    std::cout<<"diff: "<<_diff.x()<< " " << _diff.y() << "" <<_diff.z() <<std::endl;
-    std::cout<< "distance: "<< _distance<<std::endl;
-    std::cout<<"hitPos"<<_hitPos<< " hitPos_o"<<hitPos_o<<std::endl;
-    std::cout<<"interMat " << interMat.getTrans() <<"interMat_o "<<_interMat_o.getTrans(); 
+    // std::cout<<"diff: "<<_diff.x()<< " " << _diff.y() << "" <<_diff.z() <<std::endl;
+    // std::cout<< "distance: "<< _distance<<std::endl;
+    // std::cout<<"hitPos"<<_hitPos<< " hitPos_o"<<hitPos_o<<std::endl;
+    // std::cout<<"interMat " << interMat.getTrans() <<"interMat_o "<<_interMat_o.getTrans(); 
     //stt::cout <<"own"<<_oldInteractorXformMat_o.getTrans()-
 
     _scaleXonly =_hitNode == scaleXSphereGeode;// (_hitNode == scaleXaxisGeode) | (_hitNode == scaleXSphereGeode); // OR operation
     _scaleYonly =_hitNode == scaleYSphereGeode;// (_hitNode == scaleYaxisGeode) | (_hitNode == scaleYSphereGeode);
     _scaleZonly =_hitNode == scaleZSphereGeode;// (_hitNode == scaleZaxisGeode) | (_hitNode == scaleZSphereGeode);
     _scaleAll =_hitNode == sphereGeode;
+
+    //create Cylinders which show the scale
     osg::ShapeDrawable *tempCylDrawable;
     auto cyl = new osg::Cylinder(osg::Vec3(0,0,0), 0.3, ArrowLength); 
     osg::TessellationHints *hint = new osg::TessellationHints();
@@ -247,22 +201,18 @@ void coVR3DScaleGizmo::startInteraction()
         tempxAxisTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(90.), 0, 1, 0)*osg::Matrix::translate(osg::Vec3(ArrowLength, 0, 0)*0.5));
         tempxAxisTransform->addChild(tmpGeode);
         _startxAxisMatrix = tempxAxisTransform->getMatrix();
-
     }
     else if(_scaleYonly)
     {
         tempyAxisTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 1, 0, 0)*osg::Matrix::translate(osg::Vec3(0, ArrowLength, 0)*0.5));
         tempyAxisTransform->addChild(tmpGeode);
         _startyAxisMatrix = tempyAxisTransform->getMatrix();
-
     }
     else if(_scaleZonly)
     {
         tempzAxisTransform->setMatrix(osg::Matrix::translate(osg::Vec3(0, 0, ArrowLength)*0.5));;
         tempzAxisTransform->addChild(tmpGeode);
         _startzAxisMatrix = tempzAxisTransform->getMatrix();
-
-
     }
     else if(_scaleAll) // allow scale in all directions
     {
@@ -294,8 +244,8 @@ void coVR3DScaleGizmo::doInteraction()
     
     osg::Vec3 origin(0, 0, 0);
     osg::Vec3 yaxis(0, 1, 0);
-
     osg::Matrix currHandMat = getPointerMat();
+
     // forbid translation in y-direction if traverseInteractors is on ############## wozu brauche ich das ? 
     if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
     {
@@ -305,31 +255,28 @@ void coVR3DScaleGizmo::doInteraction()
     }
 
     osg::Matrix o_to_w = cover->getBaseMat();
-    // get hand mat in object coords
     osg::Matrix w_to_o = cover->getInvBaseMat();
     osg::Matrix currHandMat_o = currHandMat * w_to_o;
-   // std::cout<<"currHandMat_o"<<currHandMat_o.getTrans()<<std::endl;
-    // translate from interactor to hand and back
+   
+   // translate from interactor to hand and back
     osg::Matrix transToHand_o, revTransToHand_o;
-
     transToHand_o.makeTranslate(currHandMat_o.getTrans() - _oldInteractorXformMat_o.getTrans());
     revTransToHand_o.makeTranslate(_oldInteractorXformMat_o.getTrans() - currHandMat_o.getTrans());
-
     osg::Matrix relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
     osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
 
-    auto lp1_o = origin * currHandMat_o;
-    auto lp2_o = yaxis * currHandMat_o; 
-    auto pointerDir_o = lp2_o - lp1_o;
+    osg::Vec3 lp1_o = origin * currHandMat_o;
+    osg::Vec3 lp2_o = yaxis * currHandMat_o; 
+    osg::Vec3 pointerDir_o = lp2_o - lp1_o;
     pointerDir_o.normalize();   
     // get hand pos in object coords
-    auto currHandPos_o = currHandMat_o.getTrans();  
-    auto interPos = currHandPos_o + pointerDir_o * _distance + _diff;
+    osg::Vec3 currHandPos_o = currHandMat_o.getTrans();  
+    osg::Vec3 interPos = currHandPos_o + pointerDir_o * _distance;// + _diff;
     float sizingFactor = 0.08;
     if(_scaleXonly)
     {
         //float scaleFactor = std::abs(interPos.x() / _startInterPos.x());
-        float scaleFactor = 1 + (interPos.x() - _startInterPos.x())*sizingFactor;
+        float scaleFactor = 1 + (interPos.x() - _startInterPos.x())*sizingFactor / getScale();
 
         tempxAxisTransform->setMatrix(_startxAxisMatrix * osg::Matrix::scale(scaleFactor,1,1));  
         // std::cout<< "startInterPos"<<_startInterPos<<std::endl;
@@ -339,7 +286,7 @@ void coVR3DScaleGizmo::doInteraction()
     else if(_scaleYonly)
     {
         //float scaleFactor = std::abs(interPos.y() / _startInterPos.y());
-        float scaleFactor = 1 + (interPos.y() - _startInterPos.y())*sizingFactor;
+        float scaleFactor = 1 + (interPos.y() - _startInterPos.y())*sizingFactor / getScale();
 
         tempyAxisTransform->setMatrix(_startyAxisMatrix * osg::Matrix::scale(1, scaleFactor, 1));
         //std::cout << "y scale Factor: "<< scaleFactor << std::endl;
@@ -348,7 +295,7 @@ void coVR3DScaleGizmo::doInteraction()
     else if(_scaleZonly)
     {
         //float scaleFactor = std::abs(interPos.z() / _startInterPos.z());
-        float scaleFactor = 1 + (interPos.z() - _startInterPos.z())*sizingFactor;
+        float scaleFactor = 1 + (interPos.z() - _startInterPos.z())*sizingFactor / getScale();
 
         tempzAxisTransform->setMatrix(_startzAxisMatrix * osg::Matrix::scale(1, 1, scaleFactor));
        // std::cout<< "interPos z" << interPos.z() <<std::endl;
@@ -358,11 +305,11 @@ void coVR3DScaleGizmo::doInteraction()
     }
     else if(_scaleAll)// allow scale in all directions
     {
-        float scaleFactorX = (interPos.x() - _startInterPos.x())*sizingFactor+1;
-        float scaleFactorY = (interPos.y() - _startInterPos.y())*sizingFactor+1;
-        float scaleFactorZ = (interPos.z() - _startInterPos.z())*sizingFactor+1;
+        // float scaleFactorX = (interPos.x() - _startInterPos.x())*sizingFactor+1;
+        // float scaleFactorY = (interPos.y() - _startInterPos.y())*sizingFactor+1;
+        // float scaleFactorZ = (interPos.z() - _startInterPos.z())*sizingFactor+1;
         float distance = (interPos - _startInterPos).length();
-        float scale = distance;// + 1;
+        float scale = distance / getScale();// + 1;
        // std::cout <<"distance" <<distance<<std::endl;
         tempxAxisTransform->setMatrix(_startxAxisMatrix * osg::Matrix::scale(scale, 1, 1));
         tempyAxisTransform->setMatrix(_startyAxisMatrix * osg::Matrix::scale(1, scale, 1));
@@ -372,7 +319,7 @@ void coVR3DScaleGizmo::doInteraction()
     // save old transformation
     //_oldInteractorXformMat_o = interactorXformMat_o;
 
-    _oldHandMat = currHandMat; // save current hand for rotation start
+    _oldHandMat = currHandMat; 
     _invOldHandMat_o.invert(currHandMat_o);
 
     if (cover->restrictOn())
@@ -432,7 +379,7 @@ void coVR3DScaleGizmo::setShared(bool shared)
     {
         if (!m_sharedState)
         {
-            m_sharedState.reset(new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o));//myPosition
+            m_sharedState.reset(new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o));
             m_sharedState->setUpdateFunction([this]() {
                 m_isInitializedThroughSharedState = true;
                 osg::Matrix interactorXformMat_o = *static_cast<SharedMatrix *>(m_sharedState.get());

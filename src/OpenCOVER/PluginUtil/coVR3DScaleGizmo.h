@@ -19,6 +19,8 @@ private:
     osg::Matrix _oldInteractorXformMat_o;
     osg::Vec3 _startInterPos;
     osg::Matrix  _startxAxisMatrix,_startyAxisMatrix, _startzAxisMatrix;
+    float _distance{0.0f};
+    osg::Vec3 _diff;
 
     osg::ref_ptr<osg::MatrixTransform> axisTransform;       // all the Geometry
     osg::ref_ptr<osg::MatrixTransform> xAxisTransform;
@@ -40,11 +42,6 @@ private:
     osg::ref_ptr<osg::Geode> scaleYSphereGeode;
     osg::ref_ptr<osg::Geode> scaleZSphereGeode;
     
-    float _distance{0.0f};
-    osg::Vec3 _diff;
-
-    void drawCircle();
-
 protected:
     virtual void createGeometry() override;
     void updateSharedState() override;
