@@ -1554,6 +1554,8 @@ RSystemElementRoad::delCrossfallSections()
 {
 	foreach(CrossfallSection *child, crossfallSections_)
 		delete child;
+
+	crossfallSections_.clear();
 }
 
 //####################################//

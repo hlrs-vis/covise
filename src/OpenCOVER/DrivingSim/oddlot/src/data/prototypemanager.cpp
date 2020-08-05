@@ -157,3 +157,22 @@ RSystemElementRoad *PrototypeManager::getRoadPrototype(PrototypeManager::Prototy
         rp = values.first()->getPrototype();
     return rp;
 }
+
+int 
+PrototypeManager::getIndexOfLastInsertedPrototype(PrototypeManager::PrototypeType type)
+{
+	PrototypeContainer<RSystemElementRoad *> *lastInserted = roadPrototypes_.value(type, NULL); // recently inserted value
+	if (!lastInserted)
+	{
+		return -1;
+	}
+
+	QList<PrototypeContainer<RSystemElementRoad *> *> prototypeList = roadPrototypes_.values(type);
+	int i = 0;
+	while (prototypeList.at(i) != lastInserted)
+	{
+		i++;
+	}
+
+	return i;
+}

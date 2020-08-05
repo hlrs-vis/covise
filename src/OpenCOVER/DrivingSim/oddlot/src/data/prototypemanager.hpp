@@ -159,6 +159,8 @@ public:
     {
         return roadPrototypes_.values(type);
     }
+
+	int getIndexOfLastInsertedPrototype(PrototypeManager::PrototypeType type);
     
     RSystemElementRoad *getRoadPrototype(PrototypeManager::PrototypeType type,QString typeName);
 

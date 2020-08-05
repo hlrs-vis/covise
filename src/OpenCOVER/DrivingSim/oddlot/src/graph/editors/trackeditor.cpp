@@ -152,6 +152,28 @@ TrackEditor::addToolParameter(const PrototypeManager::PrototypeType &type, const
 	return param;
 }
 
+void
+TrackEditor::appendToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const ODD::ToolId &paramToolId, RSystemElementRoad *road)
+{
+	QString text = road->getIdName();
+	QList<PrototypeContainer<RSystemElementRoad *> *> prototypes = prototypeManager_->getRoadPrototypes(type);
+	int i = 0;
+	for (; i < prototypes.size(); i++)
+	{
+		if (prototypes.at(i)->getPrototypeName() == text)
+		{
+			settings_->setComboBoxIndex(tool_->getParam(toolId, paramToolId), text);
+			break;
+		}
+	}
+	if (i == prototypes.size())
+	{
+		QString empty = "";
+		prototypeManager_->addRoadPrototype(text, QIcon(empty), road, type, empty, empty, empty);
+		settings_->addComboBoxEntry(tool_->getParam(toolId, paramToolId), prototypeManager_->getIndexOfLastInsertedPrototype(type), text);
+	}
+}
+
 /*! \brief Handles the ToolActions.
 *
 */
@@ -241,6 +263,8 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				param = addToolParameter(PrototypeManager::PTP_RoadShapePrototype, ODD::TTE_PROTO_ROADSHAPE, "RoadShape Prototype");
 				tool_->readParams(param);
 
+				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(trackEditorToolAction->getToolId(), ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Fetch Prototypes from Road");
+				tool_->readParams(roadParam);
 
 				createToolParameterSettings(tool_, ODD::ETE);
 
@@ -273,6 +297,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				{
 					currentRoadPrototype_->superposePrototype(container->getPrototype());
 				}
+
 			}
 		}
 		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_MERGE)
@@ -325,81 +350,84 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				|| (action->getToolId() == ODD::TTE_ADD_PROTO) || (action->getToolId() == ODD::TTE_ROAD_CIRCLE)
 				|| (action->getToolId() == ODD::TTE_ROADSYSTEM_ADD))
 			{
-				int index = action->getParamId();
-				if (action->getToolId() == action->getParamToolId())
+				if (action->getParamToolId() != ODD::TPARAM_SELECT)
 				{
-					if (index == 0)
+					int index = action->getParamId();
+					if (action->getToolId() == action->getParamToolId())
 					{
-						geometryPrimitiveType_ = GeometryPrimitive::LINE;
+						if (index == 0)
+						{
+							geometryPrimitiveType_ = GeometryPrimitive::LINE;
+						}
+						else if (index == 1)
+						{
+							geometryPrimitiveType_ = GeometryPrimitive::ARC_SPIRAL;
+						}
+						else
+						{
+							geometryPrimitiveType_ = GeometryPrimitive::POLYNOMIAL;
+						}
+
+						ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
+						ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
+						v->setValue(index);
 					}
-					else if (index == 1)
+					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ROADSYSTEM)
 					{
-						geometryPrimitiveType_ = GeometryPrimitive::ARC_SPIRAL;
+						currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(index);
 					}
 					else
 					{
-						geometryPrimitiveType_ = GeometryPrimitive::POLYNOMIAL;
-					}
+						PrototypeContainer<RSystemElementRoad *> *container;
+						if (toolAction->getParamToolId() == ODD::TTE_PROTO_TRACK)
+						{
+							currentRoadPrototype_->delTrackSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_TrackPrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_TrackPrototype, container);
+						}
+						else if (toolAction->getParamToolId() == ODD::TTE_PROTO_LANE)
+						{
+							currentRoadPrototype_->delLaneSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_LaneSectionPrototype, container);
+						}
+						else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ELEVATION)
+						{
+							currentRoadPrototype_->delElevationSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_ElevationPrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_ElevationPrototype, container);
+						}
+						else if (toolAction->getParamToolId() == ODD::TTE_PROTO_SUPERELEVATION)
+						{
+							currentRoadPrototype_->delSuperelevationSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_SuperelevationPrototype, container);
+						}
+						else if (toolAction->getParamToolId() == ODD::TTE_PROTO_CROSSFALL)
+						{
+							currentRoadPrototype_->delCrossfallSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_CrossfallPrototype, container);
+						}
+						else if (toolAction->getParamToolId() == ODD::TTE_PROTO_TYPE)
+						{
+							currentRoadPrototype_->delTypeSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_RoadTypePrototype, container);
+						}
+						else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ROADSHAPE)
+						{
+							currentRoadPrototype_->delShapeSections();
+							container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype).at(index);
+							currentPrototypes_.insert(PrototypeManager::PTP_RoadShapePrototype, container);
+						}
 
-					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
-					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
-					v->setValue(index);
-				}
-				else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ROADSYSTEM)
-				{
-					currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(index);
-				}
-				else
-				{
-					PrototypeContainer<RSystemElementRoad *> *container;
-					if (toolAction->getParamToolId() == ODD::TTE_PROTO_TRACK)
-					{
-						currentRoadPrototype_->delTrackSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_TrackPrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_TrackPrototype, container);
-					}
-					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_LANE)
-					{
-						currentRoadPrototype_->delLaneSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_LaneSectionPrototype, container);
-					}
-					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ELEVATION)
-					{
-						currentRoadPrototype_->delElevationSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_ElevationPrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_ElevationPrototype, container);
-					}
-					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_SUPERELEVATION)
-					{
-						currentRoadPrototype_->delSuperelevationSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_SuperelevationPrototype, container);
-					}
-					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_CROSSFALL)
-					{
-						currentRoadPrototype_->delCrossfallSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_CrossfallPrototype, container);
-					}
-					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_TYPE)
-					{
-						currentRoadPrototype_->delTypeSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_RoadTypePrototype, container);
-					}
-					else if (toolAction->getParamToolId() == ODD::TTE_PROTO_ROADSHAPE)
-					{
-						currentRoadPrototype_->delShapeSections();
-						container = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype).at(index);
-						currentPrototypes_.insert(PrototypeManager::PTP_RoadShapePrototype, container);
-					}
+						currentRoadPrototype_->superposePrototype(container->getPrototype());
 
-					currentRoadPrototype_->superposePrototype(container->getPrototype());
-
-					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
-					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
-					v->setValue(index);
+						ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
+						ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
+						v->setValue(index);
+					}
 				}
 			}
 			else if (action->getToolId() == ODD::TTE_ROAD_MERGE)
@@ -526,9 +554,49 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 {
     QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
 
+	if ((getCurrentParameterTool() == ODD::TPARAM_SELECT) && (getCurrentTool() != ODD::TTE_ROAD_MERGE) && (getCurrentTool() != ODD::TTE_ROAD_SNAP))
+	{
+		//Pick a road and set the protoypes
+
+		if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
+		{
+			if (mouseAction->getEvent()->button() == Qt::LeftButton)
+			{
+				RSystemElementRoad *road = NULL;
+				QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+				for (int i = 0; i < selectedItems.size(); i++)
+				{
+					QGraphicsItem *item = selectedItems.at(i);
+					if (road)
+					{
+						item->setSelected(false);
+						continue;
+					}
+
+					TrackElementItem *trackItem = dynamic_cast<TrackElementItem *>(item);
+					if (trackItem)
+					{
+						road = trackItem->getParentTrackRoadItem()->getRoad();
+						setToolValue<RSystemElementRoad>(road, road->getIdName());
+
+						appendToolParameter(PrototypeManager::PTP_LaneSectionPrototype, getCurrentTool(), ODD::TTE_PROTO_LANE, road);
+						appendToolParameter(PrototypeManager::PTP_RoadTypePrototype, getCurrentTool(), ODD::TTE_PROTO_TYPE, road);
+						appendToolParameter(PrototypeManager::PTP_ElevationPrototype, getCurrentTool(), ODD::TTE_PROTO_ELEVATION, road);
+						appendToolParameter(PrototypeManager::PTP_SuperelevationPrototype, getCurrentTool(), ODD::TTE_PROTO_SUPERELEVATION, road);
+						appendToolParameter(PrototypeManager::PTP_CrossfallPrototype, getCurrentTool(), ODD::TTE_PROTO_CROSSFALL, road);
+						appendToolParameter(PrototypeManager::PTP_RoadShapePrototype, getCurrentTool(), ODD::TTE_PROTO_ROADSHAPE, road);	
+
+						item->setSelected(false);
+					}
+				}
+				mouseAction->intercept();
+			}
+		}
+	}
+
     // ADD //
     //
-    if ((getCurrentTool() == ODD::TTE_ADD) || (getCurrentTool() == ODD::TTE_ADD_PROTO))
+    else if ((getCurrentTool() == ODD::TTE_ADD) || (getCurrentTool() == ODD::TTE_ADD_PROTO))
     {
         if (selectedTrackAddHandles_.size() == 0)
         {
@@ -1052,6 +1120,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
     //
     else if (tool_ && (tool_->getToolId() == ODD::TTE_ROAD_NEW))
     {
+
         QPointF mousePoint = mouseAction->getEvent()->scenePos();
 
         // Length //

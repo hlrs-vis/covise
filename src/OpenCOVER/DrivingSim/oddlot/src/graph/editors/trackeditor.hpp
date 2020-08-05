@@ -168,6 +168,7 @@ private:
     TrackEditor &operator=(const TrackEditor &); /* not allowed */
 
 	ToolParameter *addToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const QString &labelText);
+	void appendToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const ODD::ToolId &paramToolId, RSystemElementRoad *road);
 
     //################//
     // SLOTS          //

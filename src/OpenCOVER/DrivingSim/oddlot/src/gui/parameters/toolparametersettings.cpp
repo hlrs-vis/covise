@@ -241,6 +241,44 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p, boo
 }
 
 void
+ToolParameterSettings::setComboBoxIndex(ToolParameter *p, const QString &text)
+{
+	QString name = QString::number(params_->key(p));
+	QList<QWidget *> widgetList = memberWidgets_.values(name);
+	for (int i = 0; i < widgetList.size();)
+	{
+		QWidget *widget = widgetList.takeAt(i);
+		QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
+		if (comboBox)
+		{
+			int index = comboBox->findText(text);
+			comboBox->setCurrentIndex(index);
+			return;
+		}
+	}
+}
+
+void 
+ToolParameterSettings::addComboBoxEntry(ToolParameter *p, int index, const QString &text)
+{
+	QString name = QString::number(params_->key(p));
+	QList<QWidget *> widgetList = memberWidgets_.values(name);
+	for (int i = 0; i < widgetList.size();)
+	{
+		QWidget *widget = widgetList.takeAt(i);
+		QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
+		if (comboBox)
+		{
+			comboBox->blockSignals(true);
+			comboBox->insertItem(index, text);
+			comboBox->blockSignals(false);
+			comboBox->setCurrentIndex(index);
+			return;
+		}
+	}
+}
+
+void
 ToolParameterSettings::updateSpinBoxAndLabels(ToolParameter *p)
 {
 	int paramIndex = params_->key(p);
@@ -443,7 +481,10 @@ ToolParameterSettings::generateUI(QFrame *box)
 		it++;
 	}
 
-
+	if (buttonGroup_->buttons().size() < 2)
+	{
+		buttonGroup_->setExclusive(false);
+	}
 	connect(buttonGroup_, SIGNAL(buttonPressed(int)), this, SLOT(onButtonPressed(int)));
 
 	box->setLayout(layout_);
@@ -641,6 +682,11 @@ ToolParameterSettings::setObjectSelected(int id, const QString &objectName, cons
 	currentParamId_ = id;
 
 	setLabels(id, objectName, buttonText);
+
+	if (!buttonGroup_->exclusive() && buttonGroup_->checkedButton())
+	{
+		buttonGroup_->checkedButton()->setChecked(false);
+	}
 }
 
 void 
