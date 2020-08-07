@@ -29,8 +29,8 @@
 using namespace vrui;
 using namespace opencover;
 
-coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, enum coInteraction::InteractionPriority priority = Medium)
-    : coCombinedButtonInteraction(type, iconName, priority)
+coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, enum coInteraction::InteractionPriority priority = Medium, bool highliteHitNodeOnly)
+    : coCombinedButtonInteraction(type, iconName, priority), _highliteHitNodeOnly(highliteHitNodeOnly)
 {
     //fprintf(stderr,"coVRIntersectionInteractor::coVRIntersectionInteractor interactionName=%s InteractionType=%d\n", interactorName, type);
 
@@ -274,7 +274,21 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
         auto osgvruinode = dynamic_cast<OSGVruiNode *>(hit->getNode());
         if (osgvruinode)
         {
-            _hitNode = osgvruinode->getNodePtr();
+            if(_highliteHitNodeOnly)
+            {
+                osg::Node* oldHitNode = _hitNode.get(); 
+                osg::Node* newHitNode =  osgvruinode->getNodePtr();
+
+                if(oldHitNode != nullptr && oldHitNode != newHitNode && _interactionHitNode == nullptr ) // reset color, if you move from one hit node directly to another hit node                                                                                                                                                                                                                                                                                                                           
+                    _hitNode->setStateSet(NULL);                
+                
+                _hitNode = osgvruinode->getNodePtr();
+
+                if(_interactionHitNode == nullptr && _hitNode->getStateSet() != _intersectedHl)
+                    _hitNode->setStateSet(_intersectedHl.get());
+            }
+            else
+                _hitNode = osgvruinode->getNodePtr();
         }
         else
         {
@@ -328,7 +342,7 @@ osg::Geode *coVRIntersectionInteractor::findGeode(osg::Node *n)
 
 void coVRIntersectionInteractor::addIcon()
 {
-    // add icon to zeigestrahl and hilight the interactor
+    // add icon to zeigestrahl and hilight the interactor (if _highliteHitNodeOnly = true the interactor gets highlited in the hit() function)
 
     //fprintf(stderr,"coVRIntersectionInteractor(%s)::addIcon and show intersected hl\n", _interactorName);
     coInteraction::addIcon();
@@ -377,8 +391,8 @@ void coVRIntersectionInteractor::addIcon()
             selMaterial->setColorMode(osg::Material::OFF);
             _intersectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
         }
-
-        moveTransform->setStateSet(_intersectedHl.get());
+        if(!_highliteHitNodeOnly)
+            moveTransform->setStateSet(_intersectedHl.get()); 
     }
     // else it is still active and we want to keep the selected hlight
 }
@@ -393,6 +407,16 @@ void coVRIntersectionInteractor::resetState()
 {
     _oldHl = NULL;
     moveTransform->setStateSet(NULL);
+    
+    if(_hitNode)    
+        _hitNode->setStateSet(NULL);
+    
+    if(_interactionHitNode != nullptr)         
+    {
+        _interactionHitNode->setStateSet(NULL);
+        _interactionHitNode = nullptr;
+    }
+    
 }
 
 void coVRIntersectionInteractor::startInteraction()
@@ -442,7 +466,14 @@ void coVRIntersectionInteractor::startInteraction()
         selMaterial->setColorMode(osg::Material::OFF);
         _selectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
     }
-    moveTransform->setStateSet(_selectedHl.get());
+    if(_highliteHitNodeOnly)
+    {
+        _interactionHitNode = _hitNode.get();
+        if(_interactionHitNode != nullptr)
+            _interactionHitNode->setStateSet(_selectedHl.get());
+    }
+    else
+        moveTransform->setStateSet(_selectedHl.get());
 
     //Interactor 0-5 are of clipplane
 }
@@ -454,9 +485,9 @@ void coVRIntersectionInteractor::stopInteraction()
 
     // in case that miss was called before but interaction was ongoing
     // we have to unregister
-
-    moveTransform->setStateSet(_oldHl.get());
-
+    if(!_highliteHitNodeOnly)
+        moveTransform->setStateSet(_oldHl.get());
+   
     resetState();
 }
 

@@ -15,7 +15,7 @@
 using namespace opencover;
 
 coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
-    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority)
+    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority, true)
 {
     if (cover->debugLevel(2))
     {

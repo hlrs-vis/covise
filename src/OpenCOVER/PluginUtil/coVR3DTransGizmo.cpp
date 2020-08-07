@@ -15,7 +15,7 @@ const float ArrowLength = 5.0f;
 using namespace opencover;
 
 coVR3DTransGizmo::coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
-    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority)
+    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority, true)
 {
     if (cover->debugLevel(2))
     {
@@ -84,12 +84,15 @@ coVR3DTransGizmo::createGeometry()
     zAxisTransform->setMatrix(osg::Matrix::translate(osg::Vec3(0, 0, ArrowLength)*0.5));
 
     translateXaxisGeode = new osg::Geode;
+    translateXaxisGeode->setName("xAxis");
     translateXaxisGeode->addDrawable(xCylDrawable);
     xAxisTransform->addChild(translateXaxisGeode);
     translateYaxisGeode = new osg::Geode;
+    translateYaxisGeode->setName("yAxis");
     translateYaxisGeode->addDrawable(yCylDrawable);
     yAxisTransform->addChild(translateYaxisGeode);
     translateZaxisGeode = new osg::Geode;
+    translateZaxisGeode->setName("zAxis");
     translateZaxisGeode->addDrawable(zCylDrawable);
     zAxisTransform->addChild(translateZaxisGeode);
 
@@ -112,15 +115,19 @@ coVR3DTransGizmo::createGeometry()
     xyPlaneTransform = new osg::MatrixTransform();
     xyPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 1, 0, 0)*osg::Matrix::translate(osg::Vec3(ArrowLength/2, ArrowLength/2, 0)));
     yzPlaneTransform = new osg::MatrixTransform();
+
     yzPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 0, 0, 1)*osg::Matrix::translate(osg::Vec3(0, ArrowLength/2, ArrowLength/2)));
 
     translateXZplaneGeode = new osg::Geode;
+    translateXZplaneGeode->setName("xz");
     translateXZplaneGeode->addDrawable(xzPlaneDrawable);
     xzPlaneTransform->addChild(translateXZplaneGeode);
     translateXYplaneGeode = new osg::Geode;
+    translateXYplaneGeode->setName("xy");
     translateXYplaneGeode->addDrawable(xyPlaneDrawable);
     xyPlaneTransform->addChild(translateXYplaneGeode);
     translateYZplaneGeode = new osg::Geode;
+    translateYZplaneGeode->setName("yz");
     translateYZplaneGeode->addDrawable(yzPlaneDrawable);
     yzPlaneTransform->addChild(translateYZplaneGeode);
 

@@ -59,6 +59,7 @@ private:
     bool constantInteractorSize_ = true;
     float iconSize_;
     bool firstTime = true;
+    bool _highliteHitNodeOnly;
 
     osg::Geode *findGeode(osg::Node *n);
 
@@ -76,7 +77,9 @@ protected:
     bool _justHit = false;
     bool _wasHit = false;
     bool _standardHL = true;
-    osg::ref_ptr<osg::Node> _hitNode;
+    osg::ref_ptr<osg::Node> _hitNode; // current node under cursor
+    osg::Node *_interactionHitNode = nullptr; // this is the node which was hit, when interaction started
+
     osg::Vec3 _hitPos;
     vrui::OSGVruiNode *vNode = nullptr;
 
@@ -108,7 +111,8 @@ public:
     // iconName: name of the inventor file in covise/icons
     // interactorName: name which appears in the scene graph
     // priority: interaction priority, default medium
-    coVRIntersectionInteractor(float size, coInteraction::InteractionType buttonId, const char *iconName, const char *interactorName, enum coInteraction::InteractionPriority priority);
+    // highliteHitNodeOnly:  true: only the node under the cursor gets highlited - false: if any child node of the geometryNode gets hit all children are highlited
+    coVRIntersectionInteractor(float size, coInteraction::InteractionType buttonId, const char *iconName, const char *interactorName, enum coInteraction::InteractionPriority priority, bool highliteHitNodeOnly = false);
 
     // delete scene graph
     virtual ~coVRIntersectionInteractor();
