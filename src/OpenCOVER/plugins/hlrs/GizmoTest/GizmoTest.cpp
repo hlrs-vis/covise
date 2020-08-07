@@ -35,21 +35,7 @@ GizmoTest::GizmoTest()
     _scene->setMatrix(osg::Matrix::translate(osg::Vec3(0,20,0)));
     _scene->addChild(_cube1.get());
 
-    // _gizmo = new GizmoDrawable;
-    // _gizmo->setTransform( _scene.get() );
-    // _gizmo->setGizmoMode( GizmoDrawable::MOVE_GIZMO );  
-// 
-    // _gizmoGeode = new osg::Geode;
-    // _gizmoGeode->setName("Gizmo");
-    // _gizmoGeode->addDrawable( _gizmo.get() );
-    // _gizmoGeode->setCullingActive( false );  // allow gizmo to always display
-    // _gizmoGeode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );  // always show at last
-    
-    ///_root = new osg::MatrixTransform;
-    ///_root->addChild(_scene.get());
-    ///_root->addChild(_gizmoGeode.get());
-    //_root->addChild(_cube2.get());
-
+   
     osg::Matrix matrix = osg::Matrix::translate(osg::Vec3(40,0,0));
     float _interSize = cover->getSceneSize() / 50 ;
     _transgizmo = new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);

@@ -22,7 +22,6 @@
 
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
-#include "coVRGizmo.h"
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <PluginUtil/coVR3DTransGizmo.h>
 #include <PluginUtil/coVR3DRotGizmo.h>
@@ -40,7 +39,6 @@ private:
   osg::ref_ptr<osg::MatrixTransform> _scene;
   osg::ref_ptr<osg::Geode> _gizmoGeode;
   osg::ref_ptr<osg::MatrixTransform> _root;
-  osg::ref_ptr<GizmoDrawable> _gizmo;
   osg::ref_ptr<osg::Node> _node;
 
   osg::ref_ptr<osg::MatrixTransform> _scale;
