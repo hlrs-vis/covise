@@ -5,11 +5,7 @@
 #include "Profiling.h"
 
 #include <osg/Geometry>
-#ifdef WIN32
 #include <numeric>
-#else
-#include <bits/stdc++.h>
-#endif
 
 using namespace opencover;
 
