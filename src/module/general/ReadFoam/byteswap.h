@@ -9,7 +9,19 @@
 
 #include <boost/type_traits.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 106500
+#include <boost/predef/other/endian.h>
+#else
 #include <boost/detail/endian.hpp>
+#if defined(BOOST_LITTLE_ENDIAN)
+#define BOOST_ENDIAN_LITTLE_BYTE
+#elif defined(BOOST_BIG_ENDIAN)
+#define BOOST_ENDIAN_BIG_BYTE
+#else
+#error "unable to determine system endianness"
+#endif
+#endif
 #include <stdexcept>
 
 // Little-endian operating systems:
@@ -35,9 +47,9 @@ enum endianness
     big_endian,
     network_endian = big_endian,
     
-    #if defined(BOOST_LITTLE_ENDIAN)
+    #if defined(BOOST_ENDIAN_LITTLE_BYTE)
         host_endian = little_endian
-    #elif defined(BOOST_BIG_ENDIAN)
+    #elif defined(BOOST_ENDIAN_BIG_BYTE)
         host_endian = big_endian
     #else
         #error "unable to determine system endianness"
@@ -51,7 +63,7 @@ struct swap_bytes
 {
     inline T operator()(T val)
     {
-        VV_UNUSED(val);
+        (void)val;
         throw std::out_of_range("data size");
     }
 };
