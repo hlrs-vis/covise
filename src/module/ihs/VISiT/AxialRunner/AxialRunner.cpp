@@ -336,10 +336,13 @@ int AxialRunner::compute(const char *)
 		omega = float(geo->ar->des->revs*M_PI/30.0);
 		Covise::getname(name,startFile->getValue());
 		strcat(name, ".new");
-		p_RunFENFLOSS->setValue(0);                 // push off button
-		sprintf(runsh, "%s %.2f %.2f %.2f %d %s", "runFEN.pl",
-				vnorm,lnorm,omega,geo->ar->nob, name);
-		if (system(runsh) == -1)
+		p_RunFENFLOSS->setValue(0);   
+				sprintf(runsh, "%s %.2f %.2f %.2f %d ", "runFEN.pl",
+				vnorm,lnorm,omega,geo->ar->nob);              // push off button
+		std::string runstr(runsh);
+		runstr += name;
+
+		if (system(runstr.c_str()) == -1)
         {
             dprintf(1, "AxialRunner::system() failed\n");
         }

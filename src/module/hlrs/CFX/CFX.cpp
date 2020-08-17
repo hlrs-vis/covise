@@ -33,6 +33,8 @@
 #endif
 #include "CFX.h"
 
+#include <string>
+#include <sstream>
 //// Constructor : set up User Interface//
 
 #define VERBOSE
@@ -1192,12 +1194,12 @@ int CFX::compute(const char *port)
 int CFX::PrepareSimStart()
 {
     ww_.reset();
-    char startString[1000];
-    char locationString[1000] = "";
-    char location[25];
+    std::string startString;
+    std::string locationString;
+    std::string location;
 
     //	alphabet = new string [26];
-    char alphabet[26] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+    const char alphabet[26] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
                           'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 #ifndef WIN32
     char *xterm;
@@ -1256,11 +1258,10 @@ int CFX::PrepareSimStart()
     locationString[1] = '\0';
     for (i = 0; i < numblades; i++)
     {
-        sprintf(location, "Primitive\\\\ 3D\\\\ %c,", alphabet[i]);
-        // 	    fprintf (stderr,"location: %s\n",location);
-        strcat(locationString, location);
+        location = "Primitive\\\\ 3D\\\\" + alphabet[i];
+        // 	    fprintf (stderr,"location: %s\n",location.c_str());
+        locationString += location;
     }
-    locationString[strlen(locationString) - 1] = '\0';
 
 // 	fprintf (stderr,"\nLocation string: %s\n",locationString);
 
@@ -1270,8 +1271,7 @@ int CFX::PrepareSimStart()
     char delims[] = ",";
     int numParts = 0;
     int anzahl = 0;
-    char newhosts[500];
-    newhosts[0] = '\0';
+    std::string newhosts;
 
     char *iflocal = strtok(strdup(hosts), "*");
     char *hostfirst = strtok(strdup(hosts), ","); //zuerst wird vor dem Komma getrennt
@@ -1325,8 +1325,8 @@ int CFX::PrepareSimStart()
         {
             if ((numProc - numParts) > 0)
             {
-                strcat(newhosts, onehost);
-                strcat(newhosts, "*1,");
+                newhosts += onehost;
+                newhosts += "*1,";
                 numParts++;
             }
             // 			fprintf(stderr,"numParts: %d\n",numParts);
@@ -1337,17 +1337,14 @@ int CFX::PrepareSimStart()
 
             if (numProc - numParts >= anzahl)
             {
-                strcat(newhosts, onehost);
-                strcat(newhosts, ",");
+                newhosts += onehost;
+                newhosts += ",";
             }
             else
             {
                 size_t len = strlen(onehost)-strlen(asterisk);
-                size_t pos = strlen(newhosts);
-                if (len+pos > sizeof(newhosts))
-                    len = sizeof(newhosts)-pos;
-                memcpy(newhosts+pos, onehost, len);
-                sprintf(newhosts, "%s*%d,", newhosts, numProc - numParts);
+                newhosts.append(onehost, len);
+                newhosts += std::to_string(numProc - numParts);
             }
             numParts = numParts + anzahl;
             // 			fprintf(stderr,"numParts: %d\n",numParts);
@@ -1355,7 +1352,6 @@ int CFX::PrepareSimStart()
         onehost = strtok(NULL, delims);
     }
 
-    newhosts[strlen(newhosts) - 1] = '\0';
     // 	fprintf(stderr, "newhost is \"%s\"\n", newhosts );
 
     if (numProc > numParts)
@@ -1376,6 +1372,7 @@ int CFX::PrepareSimStart()
     }
 #endif
 
+    std::stringstream ss;
 #ifndef WIN32
     if (connMeth == 0)
     {
@@ -1385,23 +1382,37 @@ int CFX::PrepareSimStart()
       strcat(newhosts,localh);
       strcat(newhosts, "\0");
       }*/
-        fprintf(stderr, "p_ConnectionMethod is local\n");
+    fprintf(stderr, "p_ConnectionMethod is local\n");
 #ifndef WIN32
-        sprintf(startString, "%s %s numProc %d Hostlist %s MachineType %s startup \"%s\" revolutions %d deffile %s maxIterations %d locationString \\\\\\\"%s\\\\\\\" CO_SIMLIB_CONN", xterm, startScript->getValue(), numProc, newhosts, machineType, startup, revolutions, p_deffile->getValue(), maxIterations, locationString);
+    ss << xterm << " ";
+#endif// !WIN32
+    ss << startScript->getValue() << " numProc " << numProc;
+#ifndef WIN32
+    ss << " Hostlist " <<  newhosts;
+#endif // !WIN32
+    ss << " MachineType " << machineType;
+#ifndef WIN32
+    ss << " startup \"" << startup << "\" revolutions "; 
 #else
-    sprintf(startString, "%s numProc %d MachineType %s startup \\\"%s\\\" revolutions %d deffile %s maxIterations %d locationString \\\\\\\"%s\\\\\\\" CO_SIMLIB_CONN", startScript->getValue(), numProc, machineType, startup, revolutions, p_deffile->getValue(), maxIterations, locationString);
-#endif
-        fprintf(stderr, "startString: %s\n", startString);
-        setUserArg(0, startString);
+    ss << " startup \\\"" << startup << "\\\" revolutions "; 
+#endif // !WIN32
+    ss << revolutions << " deffile " << p_deffile->getValue();
+    ss << " maxIterations " << maxIterations << " locationString \\\\\\\"" << locationString << "\\\\\\\" CO_SIMLIB_CONN"; 
+    startString = ss.str();
+
+    fprintf(stderr, "startString: %s\n", startString.c_str());
+    setUserArg(0, startString.c_str());
 #ifndef WIN32
     }
     else if (connMeth == 1)
     {
         fprintf(stderr, "p_ConnectionMethod is ssh\n");
-        sprintf(startString, "ssh -l %s %s %s %s numProc %d Hostlist %s MachineType %s startup \\\"%s\\\" revolutions %d deffile %s maxIterations %d locationString \\\\\\\"%s\\\\\\\" CO_SIMLIB_CONN", p_username->getValue(), p_Hostname->getValue(), xterm, startScript->getValue(), numProc, newhosts, machineType, startup, revolutions, p_deffile->getValue(), maxIterations, locationString);
-
-        fprintf(stderr, "startString: %s\n", startString);
-        setUserArg(0, startString);
+        ss << "ssh -l " << p_username->getValue() << " " << p_Hostname->getValue() << " " << xterm << startScript->getValue();
+        ss << " numProc " << numProc << " Hostlist " << newhosts << " MachineType " << machineType << " startup \\\"" << startup << "\\\" revolutions " << revolutions;
+        ss << " deffile " << p_deffile->getValue() << " maxIteration " << maxIterations << " locationString \\\\\\\"" << locationString << "\\\\\\\" CO_SIMLIB_CONN";
+        startString = ss.str();
+        fprintf(stderr, "startString: %s\n", startString.c_str());
+        setUserArg(0, startString.c_str());
     }
 #endif
     Covise::sendInfo("complete run of PrepareSimStart: %6.3f s\n", ww_.elapsed());
