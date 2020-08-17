@@ -45,11 +45,7 @@ coVR3DTransGizmo::createGeometry()
 
     osg::Vec3 origin(0, 0, 0), px(1, 0, 0), py(0, 1, 0), pz(0, 0, 1);
     osg::Vec3 yaxis(0, 1, 0);
-    osg::Vec4 red(1, 0, 0, 1), green(0, 1, 0, 1), blue(0, 0, 1, 1), color(0.5, 0.5, 0.5, 1);
-    //warum initialisierung und dann das ? 
-    red.set(0.5, 0.2, 0.2, 1.0);
-    green.set(0.2, 0.5, 0.2, 1.0);
-    blue.set(0.2, 0.2, 0.5, 1.0);
+    osg::Vec4 red(0.5, 0.2, 0.2, 1.0), green(0.2, 0.5, 0.2, 1.0), blue(0.2, 0.2, 0.5, 1.0), color(0.5, 0.5, 0.5, 1);
 
     axisTransform = new osg::MatrixTransform();
     axisTransform->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
@@ -84,15 +80,12 @@ coVR3DTransGizmo::createGeometry()
     zAxisTransform->setMatrix(osg::Matrix::translate(osg::Vec3(0, 0, ArrowLength)*0.5));
 
     translateXaxisGeode = new osg::Geode;
-    translateXaxisGeode->setName("xAxis");
     translateXaxisGeode->addDrawable(xCylDrawable);
     xAxisTransform->addChild(translateXaxisGeode);
     translateYaxisGeode = new osg::Geode;
-    translateYaxisGeode->setName("yAxis");
     translateYaxisGeode->addDrawable(yCylDrawable);
     yAxisTransform->addChild(translateYaxisGeode);
     translateZaxisGeode = new osg::Geode;
-    translateZaxisGeode->setName("zAxis");
     translateZaxisGeode->addDrawable(zCylDrawable);
     zAxisTransform->addChild(translateZaxisGeode);
 
@@ -119,15 +112,12 @@ coVR3DTransGizmo::createGeometry()
     yzPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 0, 0, 1)*osg::Matrix::translate(osg::Vec3(0, ArrowLength/2, ArrowLength/2)));
 
     translateXZplaneGeode = new osg::Geode;
-    translateXZplaneGeode->setName("xz");
     translateXZplaneGeode->addDrawable(xzPlaneDrawable);
     xzPlaneTransform->addChild(translateXZplaneGeode);
     translateXYplaneGeode = new osg::Geode;
-    translateXYplaneGeode->setName("xy");
     translateXYplaneGeode->addDrawable(xyPlaneDrawable);
     xyPlaneTransform->addChild(translateXYplaneGeode);
     translateYZplaneGeode = new osg::Geode;
-    translateYZplaneGeode->setName("yz");
     translateYZplaneGeode->addDrawable(yzPlaneDrawable);
     yzPlaneTransform->addChild(translateYZplaneGeode);
 

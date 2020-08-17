@@ -54,109 +54,106 @@ void coVR3DRotGizmo::createGeometry()
     _sphereGeode->addDrawable(sphereDrawable);
     _axisTransform->addChild(_sphereGeode.get());
 
-    _rotateXaxisGeode = circles(1,32,red);
-    _rotateYaxisGeode = circles(2,32,green);
-    _rotateZaxisGeode = circles(3,32,blue);
+    _xRotCylGroup = circlesFromCylinders(RotationAxis::X, 24, red, _radius/4);
+    _yRotCylGroup = circlesFromCylinders(RotationAxis::Y, 24, green, _radius/4);
+    _zRotCylGroup = circlesFromCylinders(RotationAxis::Z, 24, blue, _radius/4);
 
-    _xAxisTransform = new osg::MatrixTransform();
-    _yAxisTransform = new osg::MatrixTransform();
-    _zAxisTransform = new osg::MatrixTransform();
+    _axisTransform->addChild(_xRotCylGroup);
+    _axisTransform->addChild(_yRotCylGroup);
+    _axisTransform->addChild(_zRotCylGroup);
 
-    _xAxisTransform->addChild(_rotateXaxisGeode.get());
-    _yAxisTransform->addChild(_rotateYaxisGeode.get());
-    _zAxisTransform->addChild(_rotateZaxisGeode.get());
-
-
-    _axisTransform->addChild(_xAxisTransform);
-    _axisTransform->addChild(_yAxisTransform);
-    _axisTransform->addChild(_zAxisTransform);
-
-    //temporary cylinders:
-    osg::ShapeDrawable *xCylDrawable,*yCylDrawable,*zCylDrawable;
-    auto cyl = new osg::Cylinder(origin, 0.15, _radius*2);
-    xCylDrawable = new osg::ShapeDrawable(cyl, hint);
-    yCylDrawable = new osg::ShapeDrawable(cyl, hint);
-    zCylDrawable = new osg::ShapeDrawable(cyl, hint);
-    
-    xCylDrawable->setColor(red);
-    yCylDrawable->setColor(green);
-    zCylDrawable->setColor(blue);
-        
-     
-    _xRotCylTransform = new osg::MatrixTransform();
-    //_xRotCylTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(0.0), 1, 0, 0));
-    _yRotCylTransform = new osg::MatrixTransform();
-    _yRotCylTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(90.0), 0, 1, 0));
-    _zRotCylTransform = new osg::MatrixTransform();
-    _zRotCylTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(90.0), 1, 0, 0));
-
-       
-    _xRotCylGeode = new osg::Geode;
-    _xRotCylGeode->addDrawable(xCylDrawable);
-    _xRotCylTransform->addChild(_xRotCylGeode); 
-    _yRotCylGeode = new osg::Geode;
-    _yRotCylGeode->addDrawable(yCylDrawable);
-    _yRotCylTransform->addChild(_yRotCylGeode);  
-    _zRotCylGeode = new osg::Geode;
-    _zRotCylGeode->addDrawable(zCylDrawable);
-    _zRotCylTransform->addChild(_zRotCylGeode);
-        
-    _axisTransform->addChild(_xRotCylTransform);
-    _axisTransform->addChild(_yRotCylTransform);
-    _axisTransform->addChild(_zRotCylTransform);
-
-    
 }
 
-osg::Vec3Array* coVR3DRotGizmo::circleVerts(int plane, int approx)
+osg::Vec3Array* coVR3DRotGizmo::circleVerts(RotationAxis axis, int approx)
 {
     const double angle( osg::PI * 2. / (double) approx );
     osg::Vec3Array* v = new osg::Vec3Array;
     int idx;
+
     for( idx=0; idx<approx; idx++)
     {
         double cosAngle = cos(idx*angle);
         double sinAngle = sin(idx*angle);
         double x(0.), y(0.), z(0.);
-        switch (plane) {
-            case 1 : // X
+        switch (axis) {
+            case RotationAxis::Z: 
+                x = cosAngle*_radius;
+                y = sinAngle*_radius;
+                break;
+            case RotationAxis::X:
                 y = cosAngle*_radius;
                 z = sinAngle*_radius;
                 break;
-            case 2 : // Y
+            case RotationAxis::Y: 
                 x = cosAngle*_radius;
                 z = sinAngle*_radius;
-                break;
-            case 3: // Z
-                x = cosAngle*_radius;
-                y = sinAngle*_radius;
                 break;
         }
         v->push_back( osg::Vec3( x, y, z ) );
     }
+    
     return v;
 }
 
-osg::Geode* coVR3DRotGizmo:: circles( int plane, int approx, osg::Vec4 color )
+osg::Geode* coVR3DRotGizmo:: circles( RotationAxis axis, int approx, osg::Vec4 color )
 {
-osg::Geode* geode = new osg::Geode;
-osg::LineWidth* lw = new osg::LineWidth( 4. );
-geode->getOrCreateStateSet()->setAttributeAndModes( lw,
-osg::StateAttribute::ON );
+    osg::Geode* geode = new osg::Geode;
+    osg::LineWidth* lw = new osg::LineWidth( 4. );
+    geode->getOrCreateStateSet()->setAttributeAndModes( lw,
+    osg::StateAttribute::ON );
 
 
-osg::Geometry* geom = new osg::Geometry;
-osg::Vec3Array* v = circleVerts( plane, approx );
-geom->setVertexArray( v );
+    osg::Geometry* geom = new osg::Geometry;
+    osg::Vec3Array* v = circleVerts( axis, approx );
+    geom->setVertexArray( v );
 
-osg::Vec4Array* c = new osg::Vec4Array;
-c->push_back( color );
-geom->setColorArray( c );
-geom->setColorBinding( osg::Geometry::BIND_OVERALL );
-geom->addPrimitiveSet( new osg::DrawArrays( GL_LINE_LOOP, 0, approx ) );
+    osg::Vec4Array* c = new osg::Vec4Array;
+    c->push_back( color );
+    geom->setColorArray( c );
+    geom->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geom->addPrimitiveSet( new osg::DrawArrays( GL_LINE_LOOP, 0, approx ) );
 
-geode->addDrawable( geom );
-return geode;
+    geode->addDrawable( geom );
+    return geode;
+}
+
+osg::Group* coVR3DRotGizmo:: circlesFromCylinders( RotationAxis axis, int approx, osg::Vec4 color, float cylLength )
+{
+    osg::Group* parent = new osg::Group;
+    osg::ShapeDrawable *cylDrawable;
+    auto cyl = new osg::Cylinder(osg::Vec3(0,0,0), 0.15, cylLength);
+    cylDrawable = new osg::ShapeDrawable(cyl);
+    cylDrawable->setColor(color);
+    osg::Geode* geode = new osg::Geode;
+    geode->addDrawable(cylDrawable);
+    
+    osg::Vec3Array* v = circleVerts(axis, approx );
+
+    const double angle( 360.0 / (double) approx );
+    double incrementAngle{0.0};
+
+    osg::Vec3Array::iterator vitr = v->begin();
+    for(vitr; vitr != v->end(); vitr++)
+    {
+        coCoord euler;
+        euler.xyz = *vitr;
+        if(axis == RotationAxis::Z)
+            euler.hpr[1] = 90; 
+    
+        euler.hpr[(int)axis] = incrementAngle; 
+        osg::Matrix matrix;
+        euler.makeMat(matrix);
+
+        osg::MatrixTransform *matrixTransform = new osg::MatrixTransform(matrix);
+        matrixTransform->addChild(geode);
+        parent->addChild(matrixTransform);
+        if(axis == RotationAxis::X || axis == RotationAxis::Z )
+            incrementAngle += angle;
+        else if(axis == RotationAxis::Y  )
+            incrementAngle -= angle;
+    }
+
+    return parent;
 }
 
 void coVR3DRotGizmo::updateSharedState()
@@ -188,12 +185,11 @@ void coVR3DRotGizmo::startInteraction()
     // get diff between intersection point and sphere center
     _diff = interPos - _hitPos;
     _distance = (_hitPos - hm_o.getTrans()).length();
-
-    _rotateZonly = _hitNode == _zRotCylGeode;
-    _rotateYonly = _hitNode == _yRotCylGeode;
-    _rotateXonly = _hitNode == _xRotCylGeode;
-
-
+    
+    _rotateZonly = rotateAroundSpecificAxis(_zRotCylGroup.get());
+    _rotateYonly = rotateAroundSpecificAxis(_yRotCylGroup.get());
+    _rotateXonly = rotateAroundSpecificAxis(_xRotCylGroup.get());
+   
 
     // if (!_rotateOnly && !_translateOnly)
     // {
@@ -203,6 +199,21 @@ void coVR3DRotGizmo::startInteraction()
     coVRIntersectionInteractor::startInteraction();
 
 }
+//check if hitNode is child of specific rotation group
+bool coVR3DRotGizmo::rotateAroundSpecificAxis(osg::Group *group) const
+{
+    bool foundNode{false};
+    int numChildren = group->getNumChildren();
+
+    for(int i{0}; i < numChildren; i++)
+    {
+         auto node = group->getChild(i);
+         if(_hitNode->getParent(0) == node)
+            foundNode = true;
+    }
+    return foundNode;
+}
+
 
 void coVR3DRotGizmo::doInteraction()
 {
@@ -241,7 +252,6 @@ void coVR3DRotGizmo::doInteraction()
         interactorXformMat_o = calcRotation(osg::Y_AXIS, osg::Vec3(-1, 0, 0));
     else if(_rotateXonly)
         interactorXformMat_o = calcRotation(osg::X_AXIS, osg::Vec3(0, 0, 1));
-
     else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {
         // move old mat to hand position, apply rel hand movement and move it back to
