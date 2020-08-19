@@ -93,6 +93,7 @@ void ObjectManager::addObject(char* object)
 	//cerr << endl << "Start ObjectManager::addObject -> " << object << endl;
 
 	data_obj = coDistributedObject::createFromShm(object);
+
 	if (data_obj != 0L)
 	{
 		gtype = data_obj->getType();
@@ -231,9 +232,20 @@ void ObjectManager::addObject(char* object)
 						++numberoftimesteps;
 					}
 					else {
+						data_obj = coDistributedObject::createFromShm(it->name);
+						if (data_obj != 0L)
+						{ 
+						const auto variant_name = data_obj->getAttribute("VARIANT");
 						fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
+                            <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, variant_name);
+						}
+						else
+						{
+							fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
                             <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, it->name);
+						}
 					}
+
 				}
 				//end of GUI elements; begin of scene elements
 				fprintf(fp, "</td>\n\
@@ -257,7 +269,7 @@ void ObjectManager::addObject(char* object)
 			//write scene elements to html
 			objlist->write(fp);
 			//java script for interactions
-			const char* lol = nameTimeset.c_str();
+			const char* nameTimesetStr = nameTimeset.c_str();
 			fprintf(fp, " \n\
                     </scene>\n\
                 </x3d>\n\
@@ -282,7 +294,7 @@ void ObjectManager::addObject(char* object)
                     </script>\n\
             </body>\n\
         </html>\n\
-                    \n", lol);
+                    \n", nameTimesetStr, nameTimesetStr, nameTimesetStr);
 			fclose(fp);
 		}
 		else
