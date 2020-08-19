@@ -132,8 +132,7 @@ osg::Group* coVR3DRotGizmo:: circlesFromCylinders( RotationAxis axis, int approx
     const double angle( 360.0 / (double) approx );
     double incrementAngle{0.0};
 
-    osg::Vec3Array::iterator vitr = v->begin();
-    for(vitr; vitr != v->end(); vitr++)
+    for(osg::Vec3Array::iterator vitr = v->begin(); vitr != v->end(); ++vitr)
     {
         coCoord euler;
         euler.xyz = *vitr;
