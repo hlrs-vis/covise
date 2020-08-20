@@ -48,7 +48,7 @@ coPlane::getPointDistance(osg::Vec3 &p)
 }
 
 bool
-coPlane::getLineIntersectionPoint(osg::Vec3 &lp1, osg::Vec3 &lp2, osg::Vec3 &isectPoint)
+coPlane::getLineIntersectionPoint(const osg::Vec3 &lp1, const osg::Vec3 &lp2, osg::Vec3 &isectPoint) const
 {
     //fprintf(stderr,"coPlane::getLineIntersectionPoint\n");
 
