@@ -24,6 +24,9 @@ coVR3DTransGizmo::coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::Intera
 
     createGeometry();
 
+    _plane.reset(new opencover::coPlane(osg::Vec3(0.0, 0.0, 1.0), osg::Vec3(0.0, 0.0, 0.0)));
+    _line.reset(new opencover::coLine(osg::Vec3(0.0, 0.0, 0.0), osg::Vec3(0.0, 0.0, 1.0)));
+
     coVR3DTransGizmo::updateTransform(m);
 }
 
@@ -31,6 +34,7 @@ coVR3DTransGizmo::~coVR3DTransGizmo()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete ~coVR3DTransGizmo\n");
+
 }
 
 void
@@ -39,7 +43,6 @@ coVR3DTransGizmo::createGeometry()
    if (cover->debugLevel(4))
         fprintf(stderr, "\ncoVR3DTransGizmo::createGeometry\n");
 
-    bool restrictedInteraction = true; 
 
     osg::ShapeDrawable *sphereDrawable, *xCylDrawable, *yCylDrawable, *zCylDrawable, *xyPlaneDrawable,*xzPlaneDrawable,*yzPlaneDrawable;
 
@@ -61,7 +64,6 @@ coVR3DTransGizmo::createGeometry()
     sphereGeode->addDrawable(sphereDrawable);
     axisTransform->addChild(sphereGeode.get());
 
-    //Merke die Geodes die gebraucht werden, werden im originial in if(restricted erzeugt) alle anderen sind temporär
     //create axis
     auto cyl = new osg::Cylinder(origin, 0.15, ArrowLength);
     xCylDrawable = new osg::ShapeDrawable(cyl, hint);
@@ -99,17 +101,16 @@ coVR3DTransGizmo::createGeometry()
     xyPlaneDrawable = new osg::ShapeDrawable(plane, hint);
     yzPlaneDrawable = new osg::ShapeDrawable(plane, hint);
 
-    xyPlaneDrawable->setColor(blue);
-    xzPlaneDrawable->setColor(green);
-    yzPlaneDrawable->setColor(red);
+    xyPlaneDrawable->setColor(color);
+    xzPlaneDrawable->setColor(color);
+    yzPlaneDrawable->setColor(color);
 
     xzPlaneTransform = new osg::MatrixTransform();
-    xzPlaneTransform->setMatrix(osg::Matrix::translate(osg::Vec3(ArrowLength/2, 0, ArrowLength/2)));
+    xzPlaneTransform->setMatrix(osg::Matrix::translate(osg::Vec3(ArrowLength/3, 0, ArrowLength/3)));
     xyPlaneTransform = new osg::MatrixTransform();
-    xyPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 1, 0, 0)*osg::Matrix::translate(osg::Vec3(ArrowLength/2, ArrowLength/2, 0)));
+    xyPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 1, 0, 0)*osg::Matrix::translate(osg::Vec3(ArrowLength/3, ArrowLength/3, 0)));
     yzPlaneTransform = new osg::MatrixTransform();
-
-    yzPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 0, 0, 1)*osg::Matrix::translate(osg::Vec3(0, ArrowLength/2, ArrowLength/2)));
+    yzPlaneTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 0, 0, 1)*osg::Matrix::translate(osg::Vec3(0, ArrowLength/3, ArrowLength/3)));
 
     translateXZplaneGeode = new osg::Geode;
     translateXZplaneGeode->addDrawable(xzPlaneDrawable);
@@ -149,7 +150,6 @@ void coVR3DTransGizmo::startInteraction()
     osg::Matrix hm = getPointerMat(); // hand matrix weltcoord
     osg::Matrix hm_o = hm * w_to_o; // hand matrix objekt coord
     _oldHandMat = hm;
-    _invOldHandMat_o.invert(hm_o); // store the inv hand matrix
 
     osg::Matrix interMat = _interMat_o * o_to_w;
 
@@ -167,6 +167,7 @@ void coVR3DTransGizmo::startInteraction()
     _translateXZonly = _hitNode == translateXZplaneGeode;
     _translateYZonly = _hitNode == translateYZplaneGeode;
 
+   
     /* wie setze ich das hier um, brauch man das ? ###################################
     if (!_rotateOnly && !_translateOnly)
     {
@@ -175,27 +176,39 @@ void coVR3DTransGizmo::startInteraction()
     */
 
     coVRIntersectionInteractor::startInteraction();
-    /* add sphere to show old position of gizmo
-    osg::ShapeDrawable *sphereDrawable;
-    osg::Sphere *mySphere = new osg::Sphere(interPos, 0.2);
-    osg::TessellationHints *hint = new osg::TessellationHints();
-    hint->setDetailRatio(0.5);
-    sphereDrawable = new osg::ShapeDrawable(mySphere, hint);
-    sphereDrawable->setColor(osg::Vec4(0,1,1,1));
-    sphereOldPosGeode = new osg::Geode();
-    sphereOldPosGeode->addDrawable(sphereDrawable);
-    geometryNode->addChild(sphereOldPosGeode);
-    */
+    
 }
 void coVR3DTransGizmo::doInteraction()
 {
+
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DTransGizmo::move\n");
     
     osg::Vec3 origin(0, 0, 0);
     osg::Vec3 yaxis(0, 1, 0);
-
+    osg::Matrix o_to_w = cover->getBaseMat();
+    osg::Matrix w_to_o = cover->getInvBaseMat();
     osg::Matrix currHandMat = getPointerMat();
+    osg::Matrix currHandMat_o = currHandMat * w_to_o;
+    osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
+
+
+    // pointer direction in world coordinates
+    osg::Vec3 lp0 = origin * currHandMat;
+    osg::Vec3 lp1 = yaxis *currHandMat;
+    // pointer direction in object coordinates
+    osg::Vec3 lp0_o = lp0 * w_to_o;
+    osg::Vec3 lp1_o = lp1 * w_to_o;
+    osg::Vec3 pointerDir_o = lp1_o - lp0_o;
+    pointerDir_o.normalize();
+
+    osg::Vec3 currHandPos_o = currHandMat_o.getTrans();  
+    osg::Vec3 interPos = currHandPos_o + pointerDir_o * _distance + _diff;
+
+    
+    
+    /*  check if necessary !!! Achtung an richtiger Stelle platzieren, da currHandMat modifiziert wird! 
+
     // forbid translation in y-direction if traverseInteractors is on ############## wozu brauche ich das ? 
     if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
     {
@@ -204,69 +217,34 @@ void coVR3DTransGizmo::doInteraction()
         currHandMat.setTrans(trans);
     }
 
-    osg::Matrix o_to_w = cover->getBaseMat();
-    // get hand mat in object coords
-    osg::Matrix w_to_o = cover->getInvBaseMat();
-    osg::Matrix currHandMat_o = currHandMat * w_to_o;
+    */
 
-    // translate from interactor to hand and back
-    osg::Matrix transToHand_o, revTransToHand_o;
-
-    transToHand_o.makeTranslate(currHandMat_o.getTrans() - _oldInteractorXformMat_o.getTrans());
-    revTransToHand_o.makeTranslate(_oldInteractorXformMat_o.getTrans() - currHandMat_o.getTrans());
-
-    osg::Matrix relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
-    osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
-
-    auto lp1_o = origin * currHandMat_o;
-    auto lp2_o = yaxis * currHandMat_o; 
-    auto pointerDir_o = lp2_o - lp1_o;
-    pointerDir_o.normalize();   
-    // get hand pos in object coords
-    auto currHandPos_o = currHandMat_o.getTrans();  
-    auto interPos = currHandPos_o + pointerDir_o * _distance + _diff;
 
     if(_translateXonly)
-    {
-        interPos.y() = _oldInteractorXformMat_o.getTrans().y();
-        interPos.z() = _oldInteractorXformMat_o.getTrans().z();
-        interactorXformMat_o.setTrans(interPos); 
-    }
+        interactorXformMat_o.setTrans(calculatePointOfShortestDistance(lp0_o, lp1_o, osg::X_AXIS)); 
+
     else if(_translateYonly)
-    {
-        interPos.x() = _oldInteractorXformMat_o.getTrans().x();
-        interPos.z() = _oldInteractorXformMat_o.getTrans().z();
-        interactorXformMat_o.setTrans(interPos); 
-    }
+        interactorXformMat_o.setTrans(calculatePointOfShortestDistance(lp0_o, lp1_o, osg::Y_AXIS)); 
+
     else if(_translateZonly)
-    {
-        interPos.y() = _oldInteractorXformMat_o.getTrans().y();
-        interPos.x() = _oldInteractorXformMat_o.getTrans().x();
-        interactorXformMat_o.setTrans(interPos); 
-    }
+        interactorXformMat_o.setTrans(calculatePointOfShortestDistance(lp0_o, lp1_o, osg::Z_AXIS)); 
+
     else if(_translateXYonly)
-    {
-        interPos.z() = _oldInteractorXformMat_o.getTrans().z();
-        interactorXformMat_o.setTrans(interPos);    
-    }
+        interactorXformMat_o.setTrans(calcPlaneLineIntersection(lp0_o, lp1_o, osg::Z_AXIS)); 
+
     else if(_translateXZonly)
-    {  
-        interPos.y() = _oldInteractorXformMat_o.getTrans().y();
-        interactorXformMat_o.setTrans(interPos); 
-    }
+        interactorXformMat_o.setTrans(calcPlaneLineIntersection(lp0_o, lp1_o, osg::Y_AXIS)); 
+
     else if(_translateYZonly)
-    {
-        interPos.x() = _oldInteractorXformMat_o.getTrans().x();
-        interactorXformMat_o.setTrans(interPos); 
-    }
-    else // allow translatation in all directions
+        interactorXformMat_o.setTrans(calcPlaneLineIntersection(lp0_o, lp1_o, osg::X_AXIS)); 
+
+    else // allow translatation in all directions 
         interactorXformMat_o.setTrans(interPos); 
 
     // save old transformation
     //_oldInteractorXformMat_o = interactorXformMat_o;
 
     _oldHandMat = currHandMat; // save current hand for rotation start
-    _invOldHandMat_o.invert(currHandMat_o);
 
     if (cover->restrictOn())
     {
@@ -277,6 +255,7 @@ void coVR3DTransGizmo::doInteraction()
         interactorXformMat_o.setTrans(restrictedPos_o);
     }
 
+    // Snapping wird bei Translation auch nicht gebraucht ??? 
     if (coVRNavigationManager::instance()->isSnapping())
     {
         if (coVRNavigationManager::instance()->isDegreeSnapping())
@@ -290,11 +269,61 @@ void coVR3DTransGizmo::doInteraction()
             snapTo45Degrees(&interactorXformMat_o);
         }
     }
-
-
+     
     // and now we apply it
     updateTransform(interactorXformMat_o);
 }
+
+
+osg::Vec3 coVR3DTransGizmo::calculatePointOfShortestDistance(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis) const
+{
+    osg::Vec3 newPos, pointLine1, pointLine2;
+
+    _line->update(osg::Vec3(0,0,0)*getMatrix(),  axis*getMatrix());
+    // if(_line->getPointsOfShortestDistance(lp0, lp1, pointLine1, pointLine2))  what happens if lines are parallel ? 
+    // {
+        _line->getPointsOfShortestDistance(lp0, lp1, pointLine1, pointLine2);
+        newPos = pointLine1 + _diff;
+        if(axis == osg::X_AXIS)
+        {
+            newPos.z() = _oldInteractorXformMat_o.getTrans().z();
+            newPos.y() = _oldInteractorXformMat_o.getTrans().y();   
+        }
+        else if(axis == osg::Y_AXIS)
+        {
+            newPos.z() = _oldInteractorXformMat_o.getTrans().z();
+            newPos.x() = _oldInteractorXformMat_o.getTrans().x();
+        }
+        else if(axis == osg::Z_AXIS)
+        {
+            newPos.x() = _oldInteractorXformMat_o.getTrans().x();
+            newPos.y() = _oldInteractorXformMat_o.getTrans().y();
+        }
+    // }
+    // else
+        // newPos = _oldInteractorXformMat_o.getTrans();
+        
+    return newPos;
+}
+
+osg::Vec3 coVR3DTransGizmo::calcPlaneLineIntersection(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 fixAxis) const
+{
+    osg::Vec3 isectPoint, newPos;
+    _plane->update(fixAxis , getMatrix().getTrans()); // FIXME: Orientierung multiplizieren mit Axen !!!!?
+    bool intersect = _plane->getLineIntersectionPoint( lp0, lp1, isectPoint);
+    newPos  = isectPoint + _diff;
+
+    if(fixAxis == osg::X_AXIS)
+        newPos.x() = _oldInteractorXformMat_o.getTrans().x();
+    else if(fixAxis == osg::Y_AXIS)
+        newPos.y() = _oldInteractorXformMat_o.getTrans().y();
+    else if(fixAxis == osg::Z_AXIS)
+        newPos.z() = _oldInteractorXformMat_o.getTrans().z();
+
+    return newPos; //FIXME what happens if lines are parallel ? 
+}
+
+
 
 void coVR3DTransGizmo::updateTransform(osg::Matrix m)
 {

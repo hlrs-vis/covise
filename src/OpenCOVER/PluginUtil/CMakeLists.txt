@@ -34,6 +34,7 @@ SET(PLUGINUTIL_HEADERS
   PluginMessageTypes.h
   coArrow.h
   coPlane.h
+  coLine.h
   coVR1DTransInteractor.h
   coVR2DTransInteractor.h
   coVR3DRotInteractor.h
@@ -69,6 +70,7 @@ SET(SOURCES
   BoxSelectionInteractor.cpp
   coArrow.cpp
   coPlane.cpp
+  coLine.cpp
   coVR1DTransInteractor.cpp
   coVR2DTransInteractor.cpp
   coVR3DRotInteractor.cpp
