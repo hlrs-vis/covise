@@ -39,6 +39,9 @@
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
 
+#include "src/data/projectdata.hpp"
+#include "src/data/visitors/boundingboxvisitor.hpp"
+
 #include "math.h"
 
 //#########################//
@@ -68,6 +71,8 @@ AppendRoadPrototypeCommand::AppendRoadPrototypeCommand(RSystemElementRoad *road,
     oldCrossfallSections_ = road->getCrossfallSections();
     oldLaneSections_ = road->getLaneSections();
 	oldShapeSections_ = road->getShapeSections();
+
+	roadSystem_ = road->getRoadSystem();
 
     if (atStart_)
     {
@@ -99,6 +104,9 @@ AppendRoadPrototypeCommand::AppendRoadPrototypeCommand(RSystemElementRoad *road,
             //
             trackSections_.insert(clone->getSStart(), clone);
         }
+		
+		QRectF boundingBox = getBoundingBox(trackSections_.first()->getGlobalPoint(trackSections_.firstKey()), road_->getGlobalPoint(0.0));
+		boundingBoxChanged_ = roadSystem_->getProjectDimensions(boundingBox, &north_, &south_, &east_, &west_, &newNorth_, &newSouth_, &newEast_, &newWest_);
     }
     else
     {
@@ -133,9 +141,13 @@ AppendRoadPrototypeCommand::AppendRoadPrototypeCommand(RSystemElementRoad *road,
             //
             trackSections_.insert(clone->getSStart(), clone);
         }
+
+		QRectF boundingBox = getBoundingBox(road_->getGlobalPoint(road_->getLength()), trackSections_.last()->getGlobalPoint(trackSections_.last()->getSEnd()));
+		boundingBoxChanged_ = roadSystem_->getProjectDimensions(boundingBox, &north_, &south_, &east_, &west_, &newNorth_, &newSouth_, &newEast_, &newWest_);
     }
 
     double deltaS = road_->getLength();
+	projectData_ = roadSystem_->getParentProjectData();
 
     // TypeSections //
     //
@@ -257,6 +269,7 @@ AppendRoadPrototypeCommand::~AppendRoadPrototypeCommand()
     {
         // nothing to be done (tracks are now owned by the road)
     }
+
 }
 
 /*! \brief .
@@ -381,6 +394,11 @@ AppendRoadPrototypeCommand::redo()
 		}
     }
 
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(newNorth_, newSouth_, newEast_, newWest_);
+	}
+
     setRedone();
 }
 
@@ -492,7 +510,41 @@ AppendRoadPrototypeCommand::undo()
 		}
     }
 
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(north_, south_, east_, west_);
+	}
+
     setUndone();
+}
+
+QRectF 
+AppendRoadPrototypeCommand::getBoundingBox(const QPointF &P, const QPointF &Q)
+{
+	QRectF boundingBox(P, Q);
+
+	if (boundingBox.isValid())
+	{
+		return boundingBox;
+	}
+
+	if (boundingBox.width() < 0)
+	{
+		if (boundingBox.height() < 0)
+		{
+			boundingBox = QRectF(Q, P);
+		}
+		else
+		{
+			boundingBox = QRectF(QPointF(Q.x(), P.y()), QPointF(P.x(), Q.y()));
+		}
+	}
+	else
+	{
+		boundingBox = QRectF(QPointF(P.x(), Q.y()), QPointF(Q.x(), P.y()));
+	}
+
+	return boundingBox;
 }
 
 //#########################//
@@ -628,6 +680,13 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
 		newShapeSections_.insert(clone->getSStart(), clone);
 	}
 
+	projectData_ = roadSystem_->getProjectData();
+	QRectF boundingRect;
+	BoundingBoxVisitor *visitor = new BoundingBoxVisitor();
+	road2_->accept(visitor);
+
+	boundingBoxChanged_ = roadSystem_->getProjectDimensions(visitor->getBoundingBox().translated(road1_->getGlobalPoint(road1_->getLength()) - road2_->getGlobalPoint(0.0)), &north_, &south_, &east_, &west_, &newNorth_, &newSouth_, &newEast_, &newWest_);
+
     // Done //
     //
     setValid();
@@ -715,6 +774,11 @@ MergeRoadsCommand::redo()
 		road1_->addShapeSection(section);
 	}
 
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(newNorth_, newSouth_, newEast_, newWest_);
+	}
+
     setRedone();
 }
 
@@ -754,6 +818,11 @@ MergeRoadsCommand::undo()
 		road1_->delShapeSection(section);
 	}
     roadSystem_->addRoad(road2_);
+
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(north_, south_, east_, west_);
+	}
 
     setUndone();
 }
@@ -2506,6 +2575,11 @@ NewRoadCommand::NewRoadCommand(RSystemElementRoad *newRoad, RoadSystem *roadSyst
         setValid();
         setText(QObject::tr("New Road"));
     }
+	projectData_ = roadSystem_->getParentProjectData();
+
+	BoundingBoxVisitor *visitor = new BoundingBoxVisitor();
+	newRoad->accept(visitor);
+	boundingBoxChanged_ = roadSystem_->getProjectDimensions(visitor->getBoundingBox(), &north_, &south_, &east_, &west_, &newNorth_, &newSouth_, &newEast_, &newWest_);
 }
 
 /*! \brief .
@@ -2532,6 +2606,10 @@ void
 NewRoadCommand::redo()
 {
     roadSystem_->addRoad(newRoad_);
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(newNorth_, newSouth_, newEast_, newWest_);
+	}
 
     setRedone();
 }
@@ -2543,6 +2621,10 @@ void
 NewRoadCommand::undo()
 {
     roadSystem_->delRoad(newRoad_);
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(north_, south_, east_, west_);
+	}
 
     setUndone();
 }
@@ -2570,6 +2652,7 @@ RemoveRoadCommand::RemoveRoadCommand(RSystemElementRoad *road, DataCommand *pare
         setValid();
         setText(QObject::tr("Remove Road"));
     }
+
 }
 
 /*! \brief .
@@ -2636,6 +2719,17 @@ MoveRoadCommand::MoveRoadCommand(const QList<RSystemElementRoad *> &roads, const
         return;
     }
 
+	roadSystem_ = roads.first()->getRoadSystem();
+	projectData_ = roadSystem_->getProjectData();
+	QRectF boundingRect;
+	BoundingBoxVisitor *visitor = new BoundingBoxVisitor();
+
+	foreach(RSystemElementRoad *road, roads_)
+	{
+		road->accept(visitor);
+	}
+	boundingBoxChanged_ = roadSystem_->getProjectDimensions(visitor->getBoundingBox().translated(dPos), &north_, &south_, &east_, &west_, &newNorth_, &newSouth_, &newEast_, &newWest_);
+
     // Old Points //
     //
     //	foreach(RSystemElementRoad * road, roads_)
@@ -2670,6 +2764,11 @@ MoveRoadCommand::redo()
         }
     }
 
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(newNorth_, newSouth_, newEast_, newWest_);
+	}
+
     setRedone();
 }
 
@@ -2689,6 +2788,11 @@ MoveRoadCommand::undo()
 
         ++i;
     }
+
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(north_, south_, east_, west_);
+	}
 
     setUndone();
 }
@@ -2755,6 +2859,25 @@ RotateRoadAroundPointCommand::RotateRoadAroundPointCommand(const QList<RSystemEl
         return;
     }
 
+	roadSystem_ = roads.first()->getRoadSystem();
+	projectData_ = roadSystem_->getProjectData();
+	QRectF boundingRect;
+	BoundingBoxVisitor *visitor = new BoundingBoxVisitor();
+
+	foreach(RSystemElementRoad *road, roads_)
+	{
+		road->accept(visitor);
+	}
+
+	QTransform redoTrafo;
+	redoTrafo.rotate(angleDegrees_);
+
+	QRectF BB = visitor->getBoundingBox();
+	QPointF topLeft = redoTrafo.map(BB.topLeft() - pivotPoint_);
+	QPointF bottomRight = redoTrafo.map(BB.bottomRight() - pivotPoint_);
+
+	boundingBoxChanged_ = roadSystem_->getProjectDimensions(QRectF(topLeft, bottomRight), &north_, &south_, &east_, &west_, &newNorth_, &newSouth_, &newEast_, &newWest_);
+
     // Done //
     //
     setValid();
@@ -2816,6 +2939,11 @@ RotateRoadAroundPointCommand::redo()
         }
     }
 
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(newNorth_, newSouth_, newEast_, newWest_);
+	}
+
     setRedone();
 }
 
@@ -2837,6 +2965,11 @@ RotateRoadAroundPointCommand::undo()
             track->setLocalRotation(track->getGlobalHeading(track->getSStart()) - angleDegrees_);
         }
     }
+
+	if (boundingBoxChanged_)
+	{
+		projectData_->setDimensions(north_, south_, east_, west_);
+	}
 
     setUndone();
 }

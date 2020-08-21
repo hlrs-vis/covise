@@ -48,6 +48,8 @@
 #include "src/graph/editors/projecteditor.hpp"
 
 #include "src/graph/profilegraph.hpp"
+#include "src/graph/graphscene.hpp"
+#include "src/graph/graphview.hpp"
 
 // Editor //
 //

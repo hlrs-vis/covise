@@ -554,7 +554,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 {
     QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
 
-	if ((getCurrentParameterTool() == ODD::TPARAM_SELECT) && (getCurrentTool() != ODD::TTE_ROAD_MERGE) && (getCurrentTool() != ODD::TTE_ROAD_SNAP))
+	if ((getCurrentParameterTool() == ODD::TPARAM_SELECT) && (getCurrentTool() != ODD::TTE_ROAD_MERGE) && (getCurrentTool() != ODD::TTE_ROAD_SNAP) && (getCurrentTool() != ODD::TTE_ROAD_APPEND))
 	{
 		//Pick a road and set the protoypes
 
@@ -1226,6 +1226,8 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 						delete command;
 						return; // usually not the case, only if road or prototype are NULL
 					}
+
+					
 				}
             }
         }
@@ -1987,11 +1989,11 @@ TrackEditor::apply()
 		RSystemElementRoad *secondRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT))->getValue();
 
 		// Find closest positions of the two roads
-		double distances[4];
+	/*	double distances[4];
 
 		distances[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
-		distances[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
-		distances[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
+		distances[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End Start
+		distances[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End End
 		distances[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
 		MergeRoadsCommand *command = NULL;
 		if (distances[0] < distances[1] && distances[0] < distances[2] && distances[0] < distances[3])
@@ -2001,7 +2003,9 @@ TrackEditor::apply()
 		if (distances[2] < distances[0] && distances[2] < distances[1] && distances[2] < distances[3])
 			command = new MergeRoadsCommand(firstRoad, secondRoad, false, false);
 		if (distances[3] < distances[0] && distances[3] < distances[1] && distances[3] < distances[2])
-			command = new MergeRoadsCommand(firstRoad, secondRoad, true, false);
+			command = new MergeRoadsCommand(firstRoad, secondRoad, true, false); */
+
+		MergeRoadsCommand *command = new MergeRoadsCommand(firstRoad, secondRoad, false, true);
 		if (command)
 		{
 			getProjectGraph()->executeCommand(command);

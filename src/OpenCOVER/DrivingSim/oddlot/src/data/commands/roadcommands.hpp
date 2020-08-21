@@ -60,6 +60,8 @@ private:
     AppendRoadPrototypeCommand(const AppendRoadPrototypeCommand &); /* not allowed */
     AppendRoadPrototypeCommand &operator=(const AppendRoadPrototypeCommand &); /* not allowed */
 
+	QRectF getBoundingBox(const QPointF &P, const QPointF &Q);
+
 private:
     RSystemElementRoad *road_; // linked
     RSystemElementRoad *prototype_; // now owned
@@ -67,6 +69,12 @@ private:
     bool atStart_;
 
     double prototypeLength_;
+
+	RoadSystem *roadSystem_;
+	ProjectData *projectData_;
+	double north_, south_, east_, west_;
+	double newNorth_, newSouth_, newEast_, newWest_;
+	bool boundingBoxChanged_;
 
     QMap<double, TypeSection *> newTypeSections_;
     QMap<double, TypeSection *> oldTypeSections_;
@@ -122,6 +130,11 @@ private:
 
     double secondRoadLength_;
     QPointF secondEnd_;
+
+	ProjectData *projectData_;
+	double north_, south_, east_, west_;
+	double newNorth_, newSouth_, newEast_, newWest_;
+	bool boundingBoxChanged_;
 
     QMap<double, TypeSection *> newTypeSections_;
     QMap<double, TypeSection *> oldTypeSections_;
@@ -452,6 +465,11 @@ private:
 private:
     RSystemElementRoad *newRoad_;
     RoadSystem *roadSystem_;
+	ProjectData *projectData_;
+
+	double north_, south_, east_, west_;
+	double newNorth_, newSouth_, newEast_, newWest_;
+	bool boundingBoxChanged_;
 };
 
 //#########################//
@@ -511,6 +529,12 @@ private:
     QList<RSystemElementRoad *> roads_;
     QPointF dPos_;
 
+	RoadSystem *roadSystem_;
+	ProjectData *projectData_;
+	double north_, south_, east_, west_;
+	double newNorth_, newSouth_, newEast_, newWest_;
+	bool boundingBoxChanged_;
+
     //	QList<QPointF>			oldStartPoints_;
 };
 
@@ -545,6 +569,12 @@ private:
     QPointF pivotPoint_;
 
     double angleDegrees_;
+
+	RoadSystem *roadSystem_;
+	ProjectData *projectData_;
+	double north_, south_, east_, west_;
+	double newNorth_, newSouth_, newEast_, newWest_;
+	bool boundingBoxChanged_;
 };
 
 //#########################//

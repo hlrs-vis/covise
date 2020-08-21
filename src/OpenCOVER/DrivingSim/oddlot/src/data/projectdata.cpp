@@ -32,6 +32,9 @@
 #include "changemanager.hpp"
 #include "georeference.hpp"
 
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/graphview.hpp"
+
 // GUI //
 //
 #include "src/gui/oscsettings.hpp"
@@ -191,6 +194,31 @@ ProjectData::setWest(double west)
         west_ = west;
         addProjectDataChanges(ProjectData::CPD_SizeChange);
     }
+}
+
+void 
+ProjectData::setDimensions(double north, double south, double east, double west)
+{
+	north_ = north;
+	south_ = south;
+	east_ = east;
+	west_ = west;
+
+	addProjectDataChanges(ProjectData::CPD_SizeChange);
+}
+
+bool 
+ProjectData::adaptView(double north, double south, double east, double west)
+{
+	GraphView *view = projectWidget_->getTopviewGraph()->getView();
+	QRectF poly = view->mapToScene(view->rect()).boundingRect();
+
+	if ((south < poly.top()) || (north > poly.bottom()) || (west < poly.left()) || (east > poly.right()))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void 
