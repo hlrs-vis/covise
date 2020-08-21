@@ -294,7 +294,7 @@ void ObjectManager::addObject(char* object)
                     </script>\n\
             </body>\n\
         </html>\n\
-                    \n", nameTimesetStr, nameTimesetStr, nameTimesetStr);
+                    \n", nameTimesetStr);
 			fclose(fp);
 		}
 		else
