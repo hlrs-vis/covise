@@ -153,6 +153,42 @@ RoadSystem::delRoad(RSystemElementRoad *road)
     }
 }
 
+bool 
+RoadSystem::getProjectDimensions(QRectF &box, double *north, double *south, double *east, double *west, double *newNorth, double *newSouth, double *newEast, double *newWest)
+{
+	// decide if the box is inside the current BoundingBox
+
+	*north = parentProjectData_->getNorth();
+	*south = parentProjectData_->getSouth();
+	*west = parentProjectData_->getWest();
+	*east = parentProjectData_->getEast();
+	double width = (*east - *west) * 10 / 12;
+	double height = (*north - *south) * 10 / 12;
+	QRectF BB(*west + 0.1 * width, *south + 0.1 * height, width, height);
+
+	if (!BB.contains(box))
+	{
+		QRectF BBUnited = BB.united(box);
+		QPointF center = BB.center();
+		box.translate(-box.topLeft() - box.bottomRight() + 2 * center);
+		BB = BBUnited.united(box);
+
+		*newNorth = BB.bottom() + 0.1 * BB.height();
+		*newSouth = BB.top() - 0.1 * BB.height();
+		*newEast = BB.right() + 0.1 * BB.width();
+		*newWest = BB.left() - 0.1 * BB.width();
+
+		return parentProjectData_->adaptView(*newNorth, *newSouth, *newEast, *newWest);
+	}
+	else
+	{
+		return false; // bounding box has not changed
+	}
+
+	return true;
+}
+
+
 RSystemElementController *
 RoadSystem::getController(const odrID &id) const
 {

@@ -1258,7 +1258,7 @@ int CFX::PrepareSimStart()
     locationString[1] = '\0';
     for (i = 0; i < numblades; i++)
     {
-        location = "Primitive\\\\ 3D\\\\" + alphabet[i];
+        location = "Primitive\\\\ 3D\\\\" + std::string(1, alphabet[i]);
         // 	    fprintf (stderr,"location: %s\n",location.c_str());
         locationString += location;
     }

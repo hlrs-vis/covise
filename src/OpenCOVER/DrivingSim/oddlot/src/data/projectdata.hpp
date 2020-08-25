@@ -135,6 +135,8 @@ public:
     void setSouth(double south);
     void setEast(double east);
     void setWest(double west);
+	void setDimensions(double north, double south, double east, double west);
+	bool adaptView(double north, double south, double east, double west);
 
 	void setGeoReference(GeoReference *geoParams);
     void setProj4ReferenceTo(projPJ proj);
