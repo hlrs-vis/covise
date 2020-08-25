@@ -20,7 +20,7 @@ void GizmoTest::preFrame()
 GizmoTest::GizmoTest()
 {
    
-    osg::Box *unitCube1 = new osg::Box(osg::Vec3(0, 0, 0), 20.0f);
+    osg::Box *unitCube1 = new osg::Box(osg::Vec3(0, 0, 0), 10.0f);
     osg::ShapeDrawable *unitCubeDrawable1 = new osg::ShapeDrawable(unitCube1);
 
 
@@ -43,7 +43,7 @@ GizmoTest::GizmoTest()
     _transgizmo->enableIntersection();
     _transgizmo->show();
 
-    osg::Matrix matrix2;
+    osg::Matrix matrix2 = osg::Matrix::translate(osg::Vec3(-80,0,0)); 
     _rotgizmo = new coVR3DRotGizmo(matrix2, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     _rotgizmo->setName("RotGizmo");
     _rotgizmo->enableIntersection();

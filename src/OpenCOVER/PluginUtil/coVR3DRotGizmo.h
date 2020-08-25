@@ -4,6 +4,9 @@
 #include <vrbclient/SharedStateSerializer.h>
 #include <cover/MatrixSerializer.h>
 #include <net/tokenbuffer.h>
+#include <OpenVRUI/osg/mathUtils.h>
+
+#include <PluginUtil/coPlane.h>
 
 
 namespace opencover
@@ -19,6 +22,10 @@ private:
     osg::Matrix _interMat_o, _oldHandMat;
     osg::Matrix _invOldHandMat_o;
     osg::Matrix _oldInteractorXformMat_o;
+    coCoord _start_o;
+    osg::Vec3 _startPos;
+    osg::Vec3 _result_o;
+    coCoord startAngle_o;
 
     enum class RotationAxis { Z = 0, X, Y };
 
@@ -28,13 +35,24 @@ private:
     osg::ref_ptr<osg::Group> _zRotCylGroup;
     osg::ref_ptr<osg::Group> _yRotCylGroup;
 
+    std::unique_ptr<opencover::coPlane> _plane; 
+
+
 
     osg::Geode* circles( RotationAxis axis, int approx, osg::Vec4 color );                                    // draw circles with osg::DrawArrays (not intersectable)
     osg::Group* circlesFromCylinders( RotationAxis axis, int approx, osg::Vec4 color, float cylinderLength ); // draw circles with cylinders
-    osg::Vec3Array* circleVerts(RotationAxis axis, int approx);                                               // calc verts for circles
+    osg::Vec3Array* circleVerts(RotationAxis axis, int approx);
+    
+    osg::Vec3 calcPlaneLineIntersection(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis) const;
+                                               // calc verts for circles
 
-    osg::Matrix calcRotation(osg::Vec3 rotationAxis, osg::Vec3 cylinderDirectionVector);
+    osg::Matrix calcRotation2D(osg::Vec3 rotationAxis, osg::Vec3 cylinderDirectionVector); //cylinderDirectionVector brauch man nicht!
+    osg::Matrix calcRotation3D(osg::Vec3 rotationAxis);
+    osg::Matrix calcRotationTest(const osg::Vec3& lp0, const osg::Vec3& lp1,osg::Vec3 rotationAxis)const;
+
     bool rotateAroundSpecificAxis(osg::Group *group)const;
+
+    float closestDistanceLineCircle(const osg::Vec3& lp0, const osg::Vec3& lp1,osg::Vec3 rotationAxis, osg::Vec3& closestPoint) const;
 
 
 protected:
@@ -55,10 +73,10 @@ public:
 
     virtual void updateTransform(osg::Matrix m);
 
-    //const osg::Matrix &getMatrix() const
-    //{
-    //    return _interMat_o;
-    //}
+    const osg::Matrix &getMatrix() const
+    {
+        return _interMat_o;
+    }
     void setShared(bool state) override;
 
 };
