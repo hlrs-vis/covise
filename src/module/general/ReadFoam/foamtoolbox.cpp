@@ -1629,7 +1629,6 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
     int64_t offset = 0;
     size_t size = 0;
     bool intar = false;
-    bool inzip = false;
     bool partialfile = false;
     archive_streambuf *buf = nullptr;
     if (archived) {
@@ -1656,7 +1655,6 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
                     partialfile = true;
                 } else if (format == FormatZip) {
                     buf = new archive_streambuf(file);
-                    inzip = true;
                 }
             }
         }
