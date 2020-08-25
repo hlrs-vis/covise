@@ -35,12 +35,13 @@ VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
     osg::Matrix yRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[1]), osg::X_AXIS);
     osg::Matrix xRot = osg::Matrix::rotate(-osg::DegreesToRadians(euler.hpr[2]), osg::Y_AXIS);
 
-    auto ItPoint = DataManager::GetWorldPosOfObervationPoints().begin();
+    auto points = DataManager::GetWorldPosOfObervationPoints();
+    auto ItPoint = points.begin();
     auto ItVisMat = result.begin();
 
-    if(result.size() == DataManager::GetWorldPosOfObervationPoints().size())
+    if(result.size() == points.size())
     {
-        auto worldPosEnd = DataManager::GetWorldPosOfObervationPoints().end();
+        auto worldPosEnd = points.end();
         while(ItPoint !=  worldPosEnd || ItVisMat != result.end())
         {
             if(*ItVisMat != 0) // no Obstacles in line of sight -> could be visible
