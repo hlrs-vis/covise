@@ -28,7 +28,7 @@ namespace Tipsify {
 template<class Index>
 struct Neighbors {
     Index maxIndex = 0;
-    std::vector<Index> use; // no. of triangles where vertex is used
+    std::vector<int> use; // no. of triangles where vertex is used
     std::vector<Index> tl; // list of triangles
     std::vector<Index> offset; // offset into list of triangles where sublist for a vertex starts
 };
