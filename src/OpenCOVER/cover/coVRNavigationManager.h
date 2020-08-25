@@ -341,7 +341,8 @@ private:
     ui::Slider *driveSpeedSlider_=nullptr;
     ui::Action *scaleUpAction_=nullptr, *scaleDownAction_=nullptr;
     ui::Slider *scaleSlider_=nullptr;
-
+    ui::Action *centerViewButton = nullptr;
+    ui::Action *printObjectTransform = nullptr;
     osg::Vec3 rotPointVec;
     osg::ref_ptr<osg::MatrixTransform> rotPoint;
 
@@ -355,9 +356,9 @@ private:
     void initMenu();
     void initShowName();
     void initMeasure();
-
+    
     osg::Vec3 getCenter() const;
-
+    void centerView();
     osg::Vec3 mouseNavCenter;
 };
 }
