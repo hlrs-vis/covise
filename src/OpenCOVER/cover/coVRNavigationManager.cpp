@@ -30,6 +30,7 @@
 
 #include <math.h>
 #include <cstdlib>
+#include <array>
 
 #include <util/common.h>
 #include <config/CoviseConfig.h>
