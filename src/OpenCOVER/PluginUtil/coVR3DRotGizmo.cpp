@@ -24,10 +24,14 @@ coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::Interactio
 
     createGeometry();
 
-    _plane.reset(new opencover::coPlane(osg::Vec3(0.0, 0.0, 1.0), osg::Vec3(0.0, 0.0, 0.0)));
+    _plane.reset(new opencover::coPlane(osg::Vec3(0.0, 0.0, 1.0), osg::Vec3(0.0, 0.0, 0.0))); //add getMatrix
+    _line.reset(new opencover::coLine(osg::Vec3(0.0, 0.0, 1.0)*getMatrix(), osg::Vec3(0.0, 0.0, 0.0)*getMatrix()));
+
 
 
     coVR3DRotGizmo::updateTransform(m);
+
+    
 }
 
 coVR3DRotGizmo::~coVR3DRotGizmo()
@@ -64,6 +68,8 @@ void coVR3DRotGizmo::createGeometry()
     _axisTransform->addChild(_xRotCylGroup);
     _axisTransform->addChild(_yRotCylGroup);
     _axisTransform->addChild(_zRotCylGroup);
+
+
 
 }
 
@@ -179,6 +185,8 @@ void coVR3DRotGizmo::startInteraction()
     osg::Matrix currHandMat_o = currHandMat * w_to_o;
     osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
     startAngle_o = interactorXformMat_o;
+    _startMatrix = getMatrix();//interactorXformMat_o;
+    _oldInteractorXformMat_o = _startMatrix;
 
 
     // pointer direction in world coordinates
@@ -188,9 +196,8 @@ void coVR3DRotGizmo::startInteraction()
     osg::Vec3 lp0_o = lp0 * w_to_o;
     osg::Vec3 lp1_o = lp1 * w_to_o;
     
-    _startPos = calcPlaneLineIntersection(lp0_o, lp1_o, osg::Z_AXIS);
-    closestDistanceLineCircle(lp0_o, lp1_o, osg::Z_AXIS, _result_o);
-    std::cout <<"result_o " <<_result_o <<std::endl;
+   coCoord euler = getMatrix();
+   //std::cout << "euler startInteraction"<< "z: " <<euler.hpr[0] << " x:" <<euler.hpr[1] << "y: " <<euler.hpr[2] <<std::endl; 
 
 /*
     osg::Matrix w_to_o = cover->getInvBaseMat();
@@ -214,6 +221,40 @@ void coVR3DRotGizmo::startInteraction()
     _rotateZonly = rotateAroundSpecificAxis(_zRotCylGroup.get());
     _rotateYonly = rotateAroundSpecificAxis(_yRotCylGroup.get());
     _rotateXonly = rotateAroundSpecificAxis(_xRotCylGroup.get());
+
+    if(_rotateZonly)
+    {
+        _plane->update(osg::Z_AXIS * getMatrix(),osg::Vec3(0,0,0)*getMatrix());
+        _startPos = calcPlaneLineIntersection(lp0_o, lp1_o, osg::Z_AXIS * getMatrix());
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::Z_AXIS * getMatrix(), _result_o);
+
+        _line->setColor(osg::Vec4(0.2, 0.2, 0.5, 1.0));
+        _line->update(osg::Vec3(0,0,-_radius*3*getScale())*getMatrix(),osg::Vec3(0,0,_radius*3*getScale())*getMatrix());
+        _line->show();
+
+        
+
+    }
+    else if(_rotateYonly)
+    {
+        _plane->update(osg::Y_AXIS * getMatrix(),osg::Vec3(0,0,0));
+        _startPos = calcPlaneLineIntersection(lp0_o, lp1_o, osg::Y_AXIS* getMatrix());
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::Y_AXIS* getMatrix(), _result_o);
+
+        _line->setColor(osg::Vec4(0.2, 0.5, 0.2, 1.0));
+        _line->update(osg::Vec3(0,-_radius*3*getScale(),0)*getMatrix(),osg::Vec3(0,_radius*3*getScale(),0)*getMatrix());
+        _line->show();
+    }
+    else if(_rotateXonly)
+    {
+        _plane->update(osg::X_AXIS * getMatrix(),osg::Vec3(0,0,0));
+        _startPos = calcPlaneLineIntersection(lp0_o, lp1_o, osg::X_AXIS* getMatrix());
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::X_AXIS* getMatrix(), _result_o);
+
+        _line->setColor(osg::Vec4(0.5, 0.2, 0.2, 1.0));
+        _line->update(osg::Vec3(-_radius*3*getScale(),0,0)*getMatrix(),osg::Vec3(_radius*3*getScale(),0,0)*getMatrix());
+        _line->show();
+    }
    
 
     // if (!_rotateOnly && !_translateOnly)
@@ -280,30 +321,56 @@ void coVR3DRotGizmo::doInteraction()
     osg::Matrix relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
     //std::cout << "rel Hand Movement:" <<relHandMoveMat_o.getTrans() <<"..."<< std::endl;
     osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
-
+    static double sumAngle{0.0};
     if (_rotateZonly)
     {
         //if(is2D())
-            interactorXformMat_o = calcRotation2D(osg::Z_AXIS, osg::Vec3(0, -1, 0));
+          //  interactorXformMat_o = calcRotation2D(osg::Z_AXIS, osg::Vec3(0, -1, 0));
         //else 
         //    interactorXformMat_o = calcRotation3D(osg::Z_AXIS);
-       /*
+        _plane->update(osg::Z_AXIS*getMatrix(),osg::Vec3(0,0,0)); //ffix vec here !!!
+
         osg::Vec3 result;
-        closestDistanceLineCircle(lp0_o, lp1_o, osg::Z_AXIS, result);
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::Z_AXIS*getMatrix(), result);
         osg::Vec3 dir1 = result;// - getMatrix().getTrans();
         osg::Vec3 dir2 = _result_o;// - getMatrix().getTrans();
         dir1.normalize();
         dir2.normalize();
-        double angle_rad = std::acos(dir1 * dir2);
+        double dotProduct = dir1 * dir2;
+        if(dotProduct > 1.0) //catch calculation imprecision where dotproduct is smaller / bigger +-1 (acos is only defined for the range between -1 and 1 )
+            dotProduct = 1.0;
+        else if(dotProduct < -1.0)
+            dotProduct = -1.0;
+        double angle_rad = std::acos(dotProduct);
         double angle_deg = osg::RadiansToDegrees(angle_rad);
-        std::cout << "angle deg: " << angle_deg << " angle rad: " << angle_rad<<std::endl;
-        _result_o = result;
+        // std::cout <<"dir1 * dir2 (dot)"<<dir1 * dir2 <<std::endl;
+        // std::cout << "dir1: " << dir1 << " dir2: " << dir2<<std::endl;
+        // std::cout << "angle deg: " << angle_deg << " angle rad: " << angle_rad<<std::endl;
+        //_result_o = result;
         if(std::isnan(angle_deg))
             angle_deg = 0.0f;
         if(std::isnan(angle_deg))
             angle_rad = 0.0f;
 
+        osg::Vec3 x = dir1^dir2;
+        int sign;
+        double c;
+        osg::Vec3 refVec=osg::Vec3(0,0,1) * getMatrix();
+        if(x*refVec > 0)
+            sign = 1;
+        else if (x*refVec <0)
+            sign = -1;
+        //x.normalize();
+        c = sign * x.length();
+        double a = osg::RadiansToDegrees( atan2(c,dir1*dir2) );
+        // std::cout << " a" << a << "..."  <<std::endl;
 
+
+        // sumAngle += angle_deg;
+        // std::cout <<"sum angle: " << sumAngle <<std::endl;
+        // osg::Matrix rotate;
+        // rotate.makeRotate(angle_deg, osg::Z_AXIS);
+        // interactorXformMat_o =    getMatrix() * rotate;
         //static bool bigger{false};
         // if(angle_deg > 175.0)
             // bigger = true;
@@ -311,17 +378,49 @@ void coVR3DRotGizmo::doInteraction()
         // if(bigger)
             // angle_deg = 175 + 175 - angle_deg;
 
+        coCoord euler = interactorXformMat_o;
+        //euler.hpr[0] =  startAngle_o.hpr[0] + angle_deg;
+        //osg::Vec3 refVec= osg::Vec3(0,0,1) *getMatrix();
+        euler.hpr[0] =  startAngle_o.hpr[0] + vecAngle360(dir1, dir2, -refVec);
+
+       
+        osg::Matrix rotate;
+        double angle = osg::DegreesToRadians(vecAngle360(dir1, dir2, -refVec));
+        //std::cout <<"angle: " << osg::RadiansToDegrees( angle ) <<std::endl;
+        rotate.makeRotate(angle, osg::Z_AXIS *getMatrix());
+        interactorXformMat_o = _startMatrix*rotate;
+
         
-        // euler.hpr[0] =  startAngle_o.hpr[0] + angle_deg;
+
  
-        // euler.makeMat(interactorXformMat_o);
-        interactorXformMat_o = interactorXformMat_o * osg::Matrix::rotate(angle_rad, osg::Z_AXIS);
-        */
+        //euler.makeMat(interactorXformMat_o);
+        // interactorXformMat_o = interactorXformMat_o * osg::Matrix::rotate(angle_rad, osg::Z_AXIS);
+        
     }
     else if(_rotateYonly)
     {
         if(is2D())
-            interactorXformMat_o = calcRotation2D(osg::Y_AXIS, osg::Vec3(-1, 0, 0));
+        {   
+            _plane->update(osg::Y_AXIS * getMatrix(), osg::Vec3(0,0,0));
+            osg::Vec3 result;
+            closestDistanceLineCircle(lp0_o, lp1_o, osg::Y_AXIS*getMatrix(), result);
+            osg::Vec3 dir1 = result;// - getMatrix().getTrans();
+            osg::Vec3 dir2 = _result_o;// - getMatrix().getTrans();
+            dir1.normalize();
+            dir2.normalize();
+
+            coCoord euler = interactorXformMat_o;
+            osg::Vec3 refVec= osg::Vec3(0,1,0)*getMatrix();
+            // euler.hpr[2] =  startAngle_o.hpr[2] + vecAngle360(dir1, dir2, -refVec);
+            // euler.makeMat(interactorXformMat_o);
+
+            osg::Matrix rotate;
+            rotate.makeRotate(osg::DegreesToRadians(vecAngle360(dir1, dir2, -refVec)), osg::Y_AXIS *getMatrix());
+            interactorXformMat_o = _startMatrix*rotate;
+
+            //interactorXformMat_o = calcRotation2D(osg::Y_AXIS, osg::Vec3(-1, 0, 0));
+
+        }
         else
             interactorXformMat_o = calcRotation3D(osg::Y_AXIS);
 
@@ -329,7 +428,25 @@ void coVR3DRotGizmo::doInteraction()
     else if(_rotateXonly)
     {
         if(is2D())
-            interactorXformMat_o = calcRotation2D(osg::X_AXIS, osg::Vec3(0, 0, 1));
+        {
+            _plane->update(osg::X_AXIS*getMatrix(),osg::Vec3(0,0,0)); //ffix vec here !!!
+            osg::Vec3 result;
+            closestDistanceLineCircle(lp0_o, lp1_o, osg::X_AXIS*getMatrix(), result);
+            osg::Vec3 dir1 = result;// - getMatrix().getTrans();
+            osg::Vec3 dir2 = _result_o;// - getMatrix().getTrans();
+            dir1.normalize();
+            dir2.normalize();
+
+            coCoord euler = interactorXformMat_o;
+            osg::Vec3 refVec = osg::Vec3(1,0,0)*getMatrix();
+            // euler.hpr[1] =  startAngle_o.hpr[1] + vecAngle360(dir1, dir2, refVec);
+            // euler.makeMat(interactorXformMat_o);
+
+            osg::Matrix rotate;
+            rotate.makeRotate(osg::DegreesToRadians(vecAngle360(dir1, dir2, -refVec)), osg::X_AXIS *getMatrix());
+            interactorXformMat_o = _startMatrix*rotate;
+            //interactorXformMat_o = calcRotation2D(osg::X_AXIS, osg::Vec3(0, 0, 1));
+        }
         else
             interactorXformMat_o = calcRotation3D(osg::X_AXIS);
     }
@@ -376,14 +493,14 @@ void coVR3DRotGizmo::doInteraction()
 
 
     // and now we apply it
-    updateTransform(interactorXformMat_o);
+     updateTransform(interactorXformMat_o);
 
 }
 
 osg::Vec3 coVR3DRotGizmo::calcPlaneLineIntersection(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 fixAxis) const
 {
     osg::Vec3 isectPoint, newPos;
-    _plane->update(fixAxis , osg::Vec3(0,0,0));//--> das hier fixen! // FIXME: Orientierung multiplizieren mit Axen !!!!?
+    _plane->update(fixAxis, osg::Vec3(0,0,0));//--> das hier fixen! // FIXME: Orientierung multiplizieren mit Axen !!!!?
     bool intersect = _plane->getLineIntersectionPoint( lp0, lp1, isectPoint);
     newPos  = isectPoint + _diff;
 
@@ -397,34 +514,63 @@ osg::Vec3 coVR3DRotGizmo::calcPlaneLineIntersection(const osg::Vec3& lp0, const 
     return newPos; //FIXME what happens if lines are parallel ? 
 }
 
-osg::Matrix coVR3DRotGizmo::calcRotationTest(const osg::Vec3& lp0, const osg::Vec3& lp1,osg::Vec3 rotationAxis) const
-{
-    osg::Vec3 isec = calcPlaneLineIntersection(lp0, lp1, rotationAxis);
-    osg::Vec3 result = isec - _startPos;
-    double angle = osg::RadiansToDegrees(std::atan2(result.y(),result.x()));
-    //std::cout << "angle: " << angle << " ..." << std::endl;
-    osg::Matrix resultMatrix;
-    coCoord euler;
-    euler.hpr[0] = angle;
-    euler.makeMat(resultMatrix);
-
-    return resultMatrix;
-}
 
 float coVR3DRotGizmo::closestDistanceLineCircle(const osg::Vec3& lp0, const osg::Vec3& lp1,const osg::Vec3 rotationAxis, osg::Vec3 &closestPoint) const
 {
     osg::Vec3 isectPoint;
     _plane->update(rotationAxis, getMatrix().getTrans());
     bool intersect = _plane->getLineIntersectionPoint( lp0, lp1, isectPoint);
-    std::cout <<"intersect: " <<intersect << "..." <<std::endl;
     //newPos  = isectPoint + _diff;
     osg::Vec3 normalized = isectPoint - getMatrix().getTrans();
+    //std::cout <<"isect Point" << isectPoint <<std::endl;
     normalized.normalize();
     closestPoint = getMatrix().getTrans() +  normalized.operator*(_radius); // veränder sich der Radius beim Zoomen ?
     // std::cout <<" closest Point" <<closestPoint<<"..." <<std::endl;
-    return 1.0f;
+    return 1.0f; // FIXME: if no intersection!! 
 }
 
+//math is from here: https://itectec.com/matlab/matlab-angle-betwen-two-3d-vectors-in-the-range-0-360-degree/
+double coVR3DRotGizmo::vecAngle360(const osg::Vec3 vec1, const osg::Vec3 &vec2, const osg::Vec3& refVec)
+{
+    osg::Vec3 cross = vec1^vec2;
+    int sign;
+
+    if(cross*refVec >= 0)
+        sign = 1;
+    else if (cross*refVec <0)
+        sign = -1;
+    
+    double angle = osg::RadiansToDegrees(std::atan2(sign * cross.length(), vec1*vec2));
+    // std::cout <<"angle: " <<angle << ".." << std::endl;
+    return angle;
+}
+
+osg::Geode* coVR3DRotGizmo::createLine(osg::Vec3 point1, osg::Vec3 point2, osg::Vec4 color)
+{
+    osg::Geode *geode = new osg::Geode();
+    geode->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+    osg::Geometry* lineGeom = new osg::Geometry();
+    osg::Vec3Array* vertices = new osg::Vec3Array(2);
+    // osg::Vec3 point1 = osg::Vec3(0,0,-10) *getMatrix() ;
+    // osg::Vec3 point2 = osg::Vec3(0,0,10) *getMatrix();
+    
+
+    (*vertices)[0].set(point1);
+    (*vertices)[1].set(point2);
+
+    lineGeom->setVertexArray(vertices);
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back(color);
+    lineGeom->setColorArray(colors);
+    lineGeom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    lineGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,0,2));
+
+    geode->addDrawable(lineGeom);
+
+    return geode;
+}
 
 
 osg::Matrix coVR3DRotGizmo::calcRotation2D(osg::Vec3 rotationAxis, osg::Vec3 cylinderDirectionVector)
@@ -563,6 +709,8 @@ void coVR3DRotGizmo::updateTransform(osg::Matrix m)
     //fprintf(stderr, "coVR3DTransGizmo:setMatrix\n");
     _interMat_o = m;
     moveTransform->setMatrix(m);
+    coCoord eulerMove = moveTransform-> getMatrix();
+
     if (m_sharedState)
     {
     if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
@@ -570,6 +718,15 @@ void coVR3DRotGizmo::updateTransform(osg::Matrix m)
       *st = m;
     }
     }
+
+    // coCoord euler1 =m;
+    // std::cout << "euler constructor first"<< "z: " <<euler1.hpr[0] << " x:" <<euler1.hpr[1] << "y: " <<euler1.hpr[2] <<std::endl;
+    // coCoord euler = getMatrix();
+    // std::cout << "euler constructor late"<< "z: " <<euler.hpr[0] << " x:" <<euler.hpr[1] << "y: " <<euler.hpr[2] <<std::endl; 
+    // coCoord interMat = _interMat_o;
+    // std::cout << "interMat_o"<< "z: " <<interMat.hpr[0] << " x:" <<interMat.hpr[1] << "y: " <<interMat.hpr[2] <<std::endl; 
+// 
+    // std::cout << "euler Move"<< "z: " <<eulerMove.hpr[0] << " x:" <<eulerMove.hpr[1] << "y: " <<eulerMove.hpr[2] <<std::endl; 
 }
 
 void coVR3DRotGizmo::setShared(bool shared)
@@ -617,3 +774,11 @@ void coVR3DRotGizmo::preFrame()
 {
     coVRIntersectionInteractor::preFrame();
 }
+
+void coVR3DRotGizmo::stopInteraction() 
+{
+    
+    _line->hide();
+    coVRIntersectionInteractor::stopInteraction();
+}
+

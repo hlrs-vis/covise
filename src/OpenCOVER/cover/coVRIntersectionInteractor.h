@@ -207,6 +207,11 @@ public:
         return moveTransform->getMatrix();
     }
 
+    const osg::Matrix& getMatrix() const
+    {
+        return moveTransform->getMatrix();
+    }
+
     void setCaseTransform(osg::MatrixTransform *);
 };
 }
