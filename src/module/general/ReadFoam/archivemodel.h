@@ -75,7 +75,7 @@ public:
    File(const Directory *dir, const std::string &name);
    size_t size = 0;
    size_t offset = 0; // offset within archive
-   int index = -1; // index of entry in zip file
+   int64_t index = -1; // index of entry in zip file
 };
 
 class Directory: public Entry {
