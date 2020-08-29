@@ -203,7 +203,7 @@ macro(covise_find_component comp)
    set(COVISE_COMP_VARS ${COVISE_COMP_VARS};COVISE_${compvar}_LIBRARY)
    
    covise_find_library(COVISE_${compvar} ${complib})
-   if (${CMAKE_VERSION} VERSION_LESS "3.18")
+   if (${CMAKE_VERSION} VERSION_LESS "3.17")
        set (NAME_MISMATCHED "")
    else()
        set (NAME_MISMATCHED "NAME_MISMATCHED")
