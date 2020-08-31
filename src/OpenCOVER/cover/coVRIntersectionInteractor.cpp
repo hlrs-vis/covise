@@ -83,8 +83,8 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     {
         // set default materials
         osg::Material *selMaterial = new osg::Material();
-        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.6, 0.0, 1.0f));
-        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.6, 0.0, 1.0f));
+        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.0, 0.3, 0.0, 1.0f));
+        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.0, 0.3, 0.0, 1.0f));
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
