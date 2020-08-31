@@ -32,6 +32,12 @@
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
 
+#if VTK_MAJOR_VERSION < 9
+#define IDCONST
+#else
+#define IDCONST const
+#endif
+
 ReadPDB::ReadPDB(int argc, char *argv[])
     : coModule(argc, argv, "Read PDB files")
 {
@@ -270,7 +276,8 @@ void ReadPDB::readPDBFile()
                 iType[i] = m_pReader->GetAtomType(i) + 1;
             }
 
-            vtkIdType npts = 0, *pts = NULL;
+            vtkIdType npts = 0;
+            IDCONST vtkIdType *pts = NULL;
 
             // VTK LINES
             int k = 0;

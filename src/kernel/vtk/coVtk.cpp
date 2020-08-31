@@ -60,6 +60,12 @@
 
 #include "coVtk.h"
 
+#if VTK_MAJOR_VERSION < 9
+#define IDCONST
+#else
+#define IDCONST const
+#endif
+
 using namespace covise;
 
 #define CHECK_AND_RETURN(obj)                                                               \
@@ -139,7 +145,7 @@ static coDoGrid *vtkUGrid2Covise(const coObjInfo &info, vtkUnstructuredGrid *vug
         elems[i] = k;
 
         vtkIdType npts = 0;
-        vtkIdType *pts = NULL;
+        IDCONST vtkIdType *pts = NULL;
         vcellarray->GetNextCell(npts, pts);
         if (typelist[i] == TYPE_POLYHEDRON && npts > 0)
         {
@@ -488,7 +494,8 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
 
         int k = 0;
         strips->InitTraversal();
-        vtkIdType npts = 0, *pts = NULL;
+        vtkIdType npts = 0;
+        IDCONST vtkIdType *pts = NULL;
         for (int i = 0; i < nstrips; ++i)
         {
             if (i == 0)
@@ -511,7 +518,8 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
         strips->InitTraversal();
         for (int i = 0; i < nstrips; ++i)
         {
-            vtkIdType npts = 0, *pts = NULL;
+            vtkIdType npts = 0;
+            IDCONST vtkIdType *pts = NULL;
             strips->GetNextCell(npts, pts);
             nstriptris += npts - 2;
         }
@@ -530,7 +538,8 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
         {
             polylist[i] = k;
 
-            vtkIdType npts = 0, *pts = NULL;
+            vtkIdType npts = 0;
+            IDCONST vtkIdType *pts = NULL;
             polys->GetNextCell(npts, pts);
             for (int j = 0; j < npts; ++j)
             {
@@ -543,7 +552,8 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
         for (int i = 0; i < nstrips; ++i)
         {
             polylist[npolys + i] = k;
-            vtkIdType npts = 0, *pts = NULL;
+            vtkIdType npts = 0;
+            IDCONST vtkIdType *pts = NULL;
             strips->GetNextCell(npts, pts);
             for (int j = 0; j < npts - 2; ++j)
             {
@@ -578,7 +588,8 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
         {
             linelist[i] = k;
 
-            vtkIdType npts = 0, *pts = NULL;
+            vtkIdType npts = 0;
+            IDCONST vtkIdType *pts = NULL;
             lines->GetNextCell(npts, pts);
             for (int j = 0; j < npts; ++j)
             {
