@@ -41,7 +41,7 @@ protected:
     std::unique_ptr<opencover::coPlane> _helperPlane; 
     std::unique_ptr<opencover::coLine> _helperLine;   
 
-    virtual void createGeometry() = 0;
+    void createGeometry() override = 0;
     void updateSharedState() override; // braucht man das ?
     typedef vrb::SharedState<osg::Matrix> SharedMatrix; // check if I need this
 
