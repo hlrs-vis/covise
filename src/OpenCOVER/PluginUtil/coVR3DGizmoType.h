@@ -8,11 +8,25 @@
 
 #include <PluginUtil/coPlane.h>
 #include <PluginUtil/coLine.h>
+
+#include <OpenVRUI/coAction.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
+#include <OpenVRUI/sginterface/vruiHit.h>
+#include <OpenVRUI/osg/OSGVruiHit.h>
+
 namespace opencover
 {
 
+class coVR3DGizmo;
 class coVR3DGizmoType : public coVRIntersectionInteractor
 {
+private:
+    bool _changeGizmoType{false};
+    coVR3DGizmo* _observer{nullptr};                             // if coVR3DGizmoType is constructed from a coVR3DGizmo the Gizmotype can be changed
+    std::unique_ptr<coCombinedButtonInteraction> _interactionB;  // interaction to switch GizmoType
+
+    void changeGizmoType(); 
+
 protected:
 
     float _distance{0};
@@ -22,6 +36,7 @@ protected:
     osg::Matrix _interMat_o;            // current Matrix
     osg::Matrix _oldInterMat_o;         // last Matrix
     osg::Matrix _startInterMat_o;       // Matrix when interaction was started
+
 
     std::unique_ptr<opencover::coPlane> _helperPlane; 
     std::unique_ptr<opencover::coLine> _helperLine;   
@@ -37,13 +52,17 @@ protected:
     void calculatePointerDirection_o(osg::Vec3& lp0_o, osg::Vec3& lp1_o, osg::Vec3& pointerDirVec ) const;
     
 public:
-    coVR3DGizmoType(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
+    coVR3DGizmoType(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority ,coVR3DGizmo* gizmoPointer = nullptr);
 
     virtual ~coVR3DGizmoType();
+    virtual void updateTransform(osg::Matrix m);
 
+    void preFrame() override;
     void startInteraction() override;
     void stopInteraction() override; 
-    virtual void updateTransform(osg::Matrix m);
+    int hit(vrui::vruiHit *hit) override;
+    void miss() override;
+    void update() override;
 
     const osg::Matrix &getMatrix() const
     {

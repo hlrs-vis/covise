@@ -45,6 +45,7 @@ SET(PLUGINUTIL_HEADERS
   coVR3DRotGizmo.h
   coVR3DScaleGizmo.h
   coVR3DGizmoType.h
+  coVR3DGizmo.h
   FileReference.h
   SimReference.h
   coInstanceRenderer.h
@@ -82,6 +83,7 @@ SET(SOURCES
   coVR3DRotGizmo.cpp
   coVR3DScaleGizmo.cpp
   coVR3DGizmoType.cpp
+  coVR3DGizmo.cpp
   FileReference.cpp
   SimReference.cpp
   coInstanceRenderer.cpp

@@ -38,7 +38,7 @@ protected:
     virtual void createGeometry() override;
 
 public:
-    coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
+    coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority, coVR3DGizmo* gizmoPointer = nullptr);
     virtual ~coVR3DTransGizmo();
 
     virtual void startInteraction() override;

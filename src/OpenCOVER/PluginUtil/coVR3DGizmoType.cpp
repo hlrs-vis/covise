@@ -10,11 +10,15 @@
 #include <osg/io_utils>
 #include <vrbclient/SharedState.h>
 
+#include <PluginUtil/coVR3DGizmo.h>
+
+
+
 using namespace opencover;
 
 
-coVR3DGizmoType::coVR3DGizmoType(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
-    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority, true)
+coVR3DGizmoType::coVR3DGizmoType(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium, coVR3DGizmo *gizmoPointer)
+    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority, true),_observer{gizmoPointer}
 {
     if (cover->debugLevel(2))
     {
@@ -24,6 +28,9 @@ coVR3DGizmoType::coVR3DGizmoType(osg::Matrix m, float s, coInteraction::Interact
     _helperPlane.reset(new opencover::coPlane(osg::Vec3(0.0, 0.0, 1.0), osg::Vec3(0.0, 0.0, 0.0)));
     _helperLine.reset(new opencover::coLine(osg::Vec3(0.0, 0.0, 0.0), osg::Vec3(0.0, 0.0, 1.0)));
 
+    _interactionB.reset(new coCombinedButtonInteraction(coInteraction::ButtonC, "ChangeGizmo",coInteraction::InteractionPriority::Medium));
+
+
     updateTransform(m);
 }
 
@@ -31,6 +38,55 @@ coVR3DGizmoType::~coVR3DGizmoType()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete ~coVR3DGizmoType\n");
+
+}
+
+int coVR3DGizmoType::hit(vrui::vruiHit *hit)
+{
+    if (cover->debugLevel(4))
+        fprintf(stderr, "coVR3DGizmoType(%s)::hit\n", _interactorName);
+
+    if(!_interactionB->isRegistered())   
+       vrui::coInteractionManager::the()->registerInteraction(_interactionB.get());   // _interactionB->setHitByMouse(hit->isMouseHit());      // std::cout <<"registered"<<std::endl;
+    
+    coVRIntersectionInteractor::hit(hit);
+
+
+}
+
+void coVR3DGizmoType::miss()
+{
+    if(_interactionB->isRegistered())
+       vrui::coInteractionManager::the()->unregisterInteraction(_interactionB.get());
+
+    coVRIntersectionInteractor::miss();
+}
+
+void coVR3DGizmoType::update()
+{
+    if (_interactionB->wasStopped())
+        _changeGizmoType = true;
+
+    coCombinedButtonInteraction::update();
+}
+
+void coVR3DGizmoType::preFrame()
+{
+    
+    if(_changeGizmoType)    
+        changeGizmoType();
+    else
+        coVRIntersectionInteractor::preFrame();
+
+}
+
+
+void coVR3DGizmoType::changeGizmoType()
+{
+    if(_observer != nullptr)
+        _observer->changeGizmoType();
+
+    _changeGizmoType = false;
 
 }
 
@@ -53,7 +109,6 @@ void coVR3DGizmoType::startInteraction()
     coVRIntersectionInteractor::startInteraction();
 
 }
-
 
 void coVR3DGizmoType::stopInteraction()
 {}

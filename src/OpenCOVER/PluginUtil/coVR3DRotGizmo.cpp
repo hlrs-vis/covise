@@ -14,8 +14,8 @@
 
 using namespace opencover;
 
-coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
-    :coVR3DGizmoType(m, s, type, iconName, interactorName, priority)
+coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium, coVR3DGizmo* gizmoPointer)
+    :coVR3DGizmoType(m, s, type, iconName, interactorName, priority, gizmoPointer)
 {
     if (cover->debugLevel(2))
     {
@@ -455,8 +455,9 @@ osg::Matrix coVR3DRotGizmo::calcRotation2D(const osg::Vec3& lp0_o, const osg::Ve
     osg::Vec3 closestPoint;
     _helperPlane->update(rotationAxis*getMatrix(),osg::Vec3(0,0,0)); //fix Vector here !!!!!!!!!!!!!
     closestDistanceLineCircle(lp0_o, lp1_o, rotationAxis*getMatrix(), closestPoint);
-    osg::Vec3 dir1 = closestPoint;
-    osg::Vec3 dir2 = _closestStartPoint_o;
+    osg::Vec3 dir1 = closestPoint; // hier muss Nulltpunkt abgezogen werden !! -getMatrix.getTrans();
+    std::cout <<"closestPoint: " <<closestPoint <<std::endl;
+    osg::Vec3 dir2 = _closestStartPoint_o; // hier muss Nulltpunkt abgezogen werden !! -getMatrix.getTrans();
     dir1.normalize();
     dir2.normalize();
     

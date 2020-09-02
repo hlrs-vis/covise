@@ -14,7 +14,7 @@ const float ArrowLength = 5.0f;
 
 using namespace opencover;
 
-coVR3DScaleGizmo::coVR3DScaleGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
+coVR3DScaleGizmo::coVR3DScaleGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium,coVR3DGizmo* gizmoPointer)
     :coVRIntersectionInteractor(s, type, iconName, interactorName, priority, true)
 {
     if (cover->debugLevel(2))

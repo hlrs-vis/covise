@@ -13,8 +13,8 @@
 
 using namespace opencover;
 
-coVR3DTransGizmo::coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
-    : coVR3DGizmoType(m, s, type, iconName, interactorName, priority) 
+coVR3DTransGizmo::coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium,coVR3DGizmo* gizmoPointer)
+    : coVR3DGizmoType(m, s, type, iconName, interactorName, priority, gizmoPointer) 
 {
     if (cover->debugLevel(2))
     {

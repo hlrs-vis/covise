@@ -10,7 +10,7 @@
 
 namespace opencover
 {
-
+class coVR3DGizmo;
 class PLUGIN_UTILEXPORT coVR3DScaleGizmo : public coVRIntersectionInteractor
 {
 private:
@@ -56,7 +56,7 @@ protected:
 
 
 public:
-    coVR3DScaleGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
+    coVR3DScaleGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority,coVR3DGizmo* gizmoPointer = nullptr);
 
     // delete scene graph
     virtual ~coVR3DScaleGizmo();
