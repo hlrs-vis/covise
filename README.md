@@ -1,12 +1,16 @@
 [![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
 
-COVISE and OpenCOVER
+COVISE, OpenCOVER, OddLOT (OpenDRIVE editor), vrmlEXP (3dsMax VRML exporter)
 ====================
 
 [COVISE][1], the collaborative visualization and simulation environment, is a modular distributed visualization system.
 As its focus is on visualization of scientific data in virtual environments, it comprises the VR renderer [OpenCOVER][2].
 COVISE development is headed by [HLRS][3].
 It is portable to Windows and UNIX. We do regular builds on x86_64 Windows, Linux and Mac OS X.
+Also included in this repository are OddLOT, an OpenDRIVE editor and vrmlExp, a VRML97 and X3D exporter for Autodesk 3DStudio Max.
+If you want to compile OddLOT only, please have a look at https://github.com/hbanzhaf/docker_covise
+Windows binaries which include COVISE, OpenCOVER and OddLOT can be found here: https://fs.hlrs.de/projects/covise/support/download/
+A separate installer for the VRML exporter is also available on the same webpage.
 
 License
 -------
