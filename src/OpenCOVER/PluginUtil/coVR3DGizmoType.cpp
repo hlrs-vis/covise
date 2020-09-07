@@ -49,7 +49,7 @@ int coVR3DGizmoType::hit(vrui::vruiHit *hit)
     if(!_interactionB->isRegistered())   
        vrui::coInteractionManager::the()->registerInteraction(_interactionB.get());   // _interactionB->setHitByMouse(hit->isMouseHit());      // std::cout <<"registered"<<std::endl;
     
-    coVRIntersectionInteractor::hit(hit);
+    return coVRIntersectionInteractor::hit(hit);
 
 
 }
