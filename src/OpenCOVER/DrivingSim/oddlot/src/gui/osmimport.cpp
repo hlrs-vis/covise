@@ -264,8 +264,10 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *import
             if (node->id == ref)
             {
                 double x, y, z;
-                x = node->latitude * DEG_TO_RAD;
-                y = node->longitude * DEG_TO_RAD;
+                x = node->longitude * DEG_TO_RAD;
+                y = node->latitude * DEG_TO_RAD;
+                //if (y > M_PI_2)
+                    //y = y - 2* M_PI;
                 z = 0.0;
                 importer->project->getProjectionSettings()->transform(x,y,z);
                 XVector.push_back(x);

@@ -137,10 +137,45 @@ cmake .. -G "Visual Studio 16 2019" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 
 #jsbsim
 cmake .. -G "Visual Studio 16 2019" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/jsbsim -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/simage;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+#sqlite3
+cl sqlite3.c -link -dll -out:sqlite3.dll
+cl sqlite3.c -link -dll -debug  -out:sqlite3d.dll
+dumpbin /exports sqlite3.dll > exports.txt
+echo LIBRARY SQLITE3 > sqlite3.def
+echo EXPORTS >> sqlite3.def
+for /f "skip=19 tokens=4" %A in (exports.txt) do echo %A >> sqlite3.def
+lib /def:sqlite3.def /out:sqlite3.lib
+dumpbin /exports sqlite3d.dll > exportsd.txt
+echo LIBRARY SQLITE3D > sqlite3d.def
+echo EXPORTS >> sqlite3d.def
+for /f "skip=19 tokens=4" %A in (exportsd.txt) do echo %A >> sqlite3d.def
+lib /def:sqlite3d.def /out:sqlite3d.lib
+mkdir c:\src\externlibs\zebu\sqlite3
+mkdir c:\src\externlibs\zebu\sqlite3\bin
+mkdir c:\src\externlibs\zebu\sqlite3\lib
+mkdir c:\src\externlibs\zebu\sqlite3\include
+copy *.h  c:\src\externlibs\zebu\sqlite3\include
+copy *.lib  c:\src\externlibs\zebu\sqlite3\lib
+copy *.dll  c:\src\externlibs\zebu\sqlite3\bin
+copy *.pdb  c:\src\externlibs\zebu\sqlite3\bin
+cl shell.c sqlite3.c -Fesqlite3.exe
+copy sqlite3.exe c:\src\externlibs\zebu\sqlite3\bin
+
+static libs:
+
+cl /c /EHsc /DEBUG sqlite3.c
+rename sqlite3.obj sqlite3d.obj
+lib sqlite3d.obj
+cl /c /EHsc sqlite3.c
+lib sqlite3.obj
+copy *.lib c:\src\externlibs\zebu\sqlite3\lib
 
 #proj.4
 git clone https://github.com/OSGeo/proj.4.git
-cmake .. -G "Visual Studio 16 2019" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/proj4 -DCMAKE_DEBUG_POSTFIX=d
+cmake .. -G "Visual Studio 16 2019" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/proj4 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/sqlite3;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/curl -DCMAKE_DEBUG_POSTFIX=d
+cmake-gui
+disable testing and tiff
+
 #gdal
 edit nmake.opt adjust Python path
 

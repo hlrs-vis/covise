@@ -777,7 +777,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     TrackElementLine *lastLineElement=NULL;
     for (size_t i = 0; i < XVector.size() - 1; i++)
     {
-        if(fabs(dxs) < 0.0001 && fabs(dys) < 0.0001)
+        if(fabs(dxs) < 0.0001 && fabs(dys) < 0.0001 && (i+2 < XVector.size()))
         {
 
             dxs = XVector[i+2] - XVector[i+1];
