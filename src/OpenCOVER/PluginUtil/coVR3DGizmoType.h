@@ -18,7 +18,7 @@ namespace opencover
 {
 
 class coVR3DGizmo;
-class coVR3DGizmoType : public coVRIntersectionInteractor
+class PLUGIN_UTILEXPORT coVR3DGizmoType : public coVRIntersectionInteractor
 {
 private:
     bool _changeGizmoType{false};
