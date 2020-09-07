@@ -25,4 +25,5 @@ void FileSettings::addTab(QWidget *widget)
 void FileSettings::okClicked()
 {
     emit emitOK();
+    hide();
 }
