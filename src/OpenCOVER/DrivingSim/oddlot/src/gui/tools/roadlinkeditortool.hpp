@@ -73,7 +73,7 @@ private:
 	Ui::RoadLinkRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *thresholdEdit_;
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class RoadLinkEditorToolAction : public ToolAction

@@ -69,6 +69,7 @@ private:
     LaneEditor &operator=(const LaneEditor &); /* not allowed */
 
 	void clearToolObjectSelection();
+	void setItemsSelectable(bool selectable);
 
     //################//
     // SLOTS          //
@@ -108,6 +109,9 @@ private:
 	// necessary selected elements to make APPLY visible //
 	//
 	int applyCount_;
+
+	bool selectControls_;
+	ODD::ToolId lastTool_;
 };
 
 #endif // LANEEDITOR_HPP

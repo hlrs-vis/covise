@@ -84,7 +84,7 @@ private:
     QGroupBox *selectGroupBox_;
     QMenu *roadTypeToolButtonMenu_;
     QToolButton *roadTypeToolButton_;
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 
     bool active_;
 };

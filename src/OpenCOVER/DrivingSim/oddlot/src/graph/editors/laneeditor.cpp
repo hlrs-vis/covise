@@ -69,6 +69,7 @@ LaneEditor::LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, T
     , insertSectionHandle_(NULL)
 	, pointHandle_(NULL)
 	, laneItem_(NULL)
+	, selectControls_(false)
 {
 }
 
@@ -104,6 +105,11 @@ LaneEditor::init()
 		pointHandle_ = new PointHandle(roadSystemItem_);
 		pointHandle_->hide();
     }
+
+	if (selectControls_)
+	{
+		setItemsSelectable(false);
+	}
 }
 
 /*!
@@ -145,11 +151,14 @@ LaneEditor::getAddWidthHandle() const
 void
 LaneEditor::toolAction(ToolAction *toolAction)
 {
+	lastTool_ = getCurrentTool();
+
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
 
 	LaneEditorToolAction *laneEditorToolAction = dynamic_cast<LaneEditorToolAction *>(toolAction);
+
 	if (laneEditorToolAction)
 	{
 		if (laneEditorToolAction->getToolId() == ODD::TLE_SET_WIDTH)
@@ -185,6 +194,19 @@ LaneEditor::toolAction(ToolAction *toolAction)
 
 				applyCount_ = 1;
 			}
+		}
+		else if (selectControls_ && (laneEditorToolAction->getToolId() == ODD::TLE_SELECT_ALL))
+		{
+			selectControls_ = false;
+			if (lastTool_ == ODD::TLE_SELECT)
+			{
+				setItemsSelectable(true);
+			}
+		}
+		else if (!selectControls_ && (laneEditorToolAction->getToolId() == ODD::TLE_SELECT_CONTROLS))
+		{
+			selectControls_ = true;
+			setItemsSelectable(false);
 		}
 	}
 	else
@@ -241,12 +263,31 @@ void
 LaneEditor::mouseAction(MouseAction *mouseAction)
 {
 	QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
+	ODD::ToolId tool = getCurrentTool();
 
-	if (getCurrentTool() == ODD::TTE_ROAD_NEW)
+	if ((tool != lastTool_) && (tool != ODD::TLE_SELECT_CONTROLS) && (tool != ODD::TLE_SELECT_ALL))
+	{
+		if (selectControls_)
+		{
+			if ((tool == ODD::TLE_SELECT) && (lastTool_ != ODD::TLE_SELECT_CONTROLS))
+			{
+				setItemsSelectable(false);
+			}
+			else if (tool != ODD::TLE_SELECT) 
+			{
+				setItemsSelectable(true);
+			}
+		}
+
+		lastTool_ = tool;
+	}
+
+
+	if (tool == ODD::TTE_ROAD_NEW)
 	{
 		QPointF mousePoint = mouseAction->getEvent()->scenePos();
 	}
-	else if (getCurrentTool() == ODD::TLE_INSERT)
+	else if (tool == ODD::TLE_INSERT)
 	{
 		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
 		{
@@ -294,6 +335,25 @@ LaneEditor::mouseAction(MouseAction *mouseAction)
 						settingsApplyBox_->setApplyButtonVisible(true);
 					}
 				}
+			}
+		}
+	}
+}
+
+void 
+LaneEditor::setItemsSelectable(bool selectable)
+{
+	QList<QGraphicsItem *> itemList = getTopviewGraph()->getScene()->items();
+	foreach(QGraphicsItem * item, itemList)
+	{
+		Handle *handle = dynamic_cast<Handle *>(item);
+		if (!handle)
+		{
+			GraphElement *graphElement = dynamic_cast<GraphElement *>(item);
+			if (graphElement)
+			{
+				item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+				item->setSelected(graphElement->getDataElement()->isElementSelected());
 			}
 		}
 	}

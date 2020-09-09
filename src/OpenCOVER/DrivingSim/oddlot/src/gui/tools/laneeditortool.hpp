@@ -65,6 +65,7 @@ public slots:
     void setRibbonWidth();
     void handleToolClick(int);
 	void handleRibbonToolClick(int);
+	void onCheckBoxStateChanged(int);
 //	void setEditMode();
 
     //################//
@@ -76,7 +77,7 @@ private:
     ODD::ToolId toolId_;
     QDoubleSpinBox *widthEdit_;
 
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class LaneEditorToolAction : public ToolAction
@@ -96,7 +97,6 @@ public:
     {
         return width_;
     }
-    void setWidth(double w);
 
 private:
     LaneEditorToolAction(); /* not allowed */

@@ -107,7 +107,7 @@ private:
     ODD::ToolId toolId_;
     QPushButton *cuttingCircleButton_;
 
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class JunctionEditorToolAction : public ToolAction

@@ -71,7 +71,7 @@ OpenScenarioEditorTool::initToolWidget()
     handleCatalogSelection(0); // ... so do it yourself
 
     
-    ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     
     ribbonToolGroup_->addButton(ui->oscSave, ODD::TOS_SAVE_CATALOG); 

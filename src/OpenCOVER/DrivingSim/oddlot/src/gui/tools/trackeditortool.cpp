@@ -50,7 +50,7 @@ TrackEditorTool::initToolWidget()
     Ui::TrackRibbon *ui = new Ui::TrackRibbon();
     ui->setupUi(ribbonWidget);
     
-    ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     ribbonToolGroup_->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
     ribbonToolGroup_->addButton(ui->trackAppend, ODD::TTE_ADD);

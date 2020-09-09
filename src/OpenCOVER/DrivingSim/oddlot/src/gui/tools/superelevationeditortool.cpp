@@ -125,7 +125,7 @@ SuperelevationEditorTool::initToolWidget()
     ui_ = new Ui::SuperelevationRibbon();
     ui_->setupUi(ribbonWidget);
     
-	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+	ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     

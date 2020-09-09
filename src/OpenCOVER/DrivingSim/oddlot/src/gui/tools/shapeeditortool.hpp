@@ -70,7 +70,7 @@ private:
     ODD::ToolId toolId_;
 	Ui::ShapeRibbon *ui_;
 
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class ShapeEditorToolAction : public ToolAction

@@ -189,7 +189,7 @@ JunctionEditorTool::initToolWidget()
     ui = new Ui::JunctionRibbon();
     ui->setupUi(ribbonWidget);
     
-	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+	ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     ribbonToolGroup_->addButton(ui->connectingLane, ODD::TJE_CREATE_LANE);

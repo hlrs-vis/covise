@@ -74,7 +74,7 @@ private:
 	Ui::CrossfallRibbon *ui_;
 
     QDoubleSpinBox *radiusEdit_;
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class CrossfallEditorToolAction : public ToolAction

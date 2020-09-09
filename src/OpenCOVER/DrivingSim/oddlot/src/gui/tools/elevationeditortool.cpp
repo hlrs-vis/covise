@@ -156,7 +156,7 @@ ElevationEditorTool::initToolWidget()
     ui = new Ui::ElevationRibbon();
     ui->setupUi(ribbonWidget);
     
-    ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     ribbonToolGroup_->addButton(ui->select, ODD::TEL_SELECT);
@@ -257,6 +257,7 @@ ElevationEditorTool::handleToolClick(int id)
 void
 ElevationEditorTool::handleRibbonToolClick(int id)
 {
+	qDebug("RibbonToolClick");
     toolId_ = (ODD::ToolId)id;
 	 
     ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());

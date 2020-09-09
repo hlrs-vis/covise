@@ -17,7 +17,6 @@
 
 #include "toolmanager.hpp"
 
-#include <QAbstractButton>
 
 //################//
 // CONSTRUCTOR    //
@@ -30,19 +29,5 @@ EditorTool::EditorTool(ToolManager *toolManager)
     // does nothing //
 }
 
-ToolButtonGroup::ToolButtonGroup(ToolManager *toolManager)
-	: QButtonGroup() 
-	, toolManager_(toolManager) 
-{
-	connect(toolManager_, SIGNAL(pressButton(int)), this, SLOT(setButtonPressed(int)));
-};
 
-void
-ToolButtonGroup::setButtonPressed(int i)
-{
-	QAbstractButton *button = QButtonGroup::button(i);
-	if (button)
-	{
-		button->setChecked(true);
-	}
-}
+

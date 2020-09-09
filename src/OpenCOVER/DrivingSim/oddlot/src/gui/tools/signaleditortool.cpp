@@ -131,7 +131,7 @@ SignalEditorTool::initToolWidget()
     ui->setupUi(ribbonWidget);
     
     
-	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+	ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);

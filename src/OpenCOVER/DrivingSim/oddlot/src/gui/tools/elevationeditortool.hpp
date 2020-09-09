@@ -77,7 +77,7 @@ public slots:
 private:
     Ui::ElevationRibbon *ui;
     ODD::ToolId toolId_;
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 
     QDoubleSpinBox *radiusEdit_;
     QDoubleSpinBox *heightEdit_;

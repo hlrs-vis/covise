@@ -72,7 +72,7 @@ public slots:
 private:
     ODD::ToolId toolId_;
 	Ui::SignalRibbon *ui;
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 
     bool active_;
 };

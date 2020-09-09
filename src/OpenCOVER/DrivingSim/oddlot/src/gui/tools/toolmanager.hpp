@@ -121,7 +121,6 @@ private:
 public slots:
     void toolActionSlot(ToolAction *);
 	void loadProjectEditor(bool active);
-	void loadEditor(int);
 
 //################//
 // SIGNALS        //
@@ -129,7 +128,6 @@ public slots:
 
 signals:
     void toolAction(ToolAction *);
-	void pressButton(int i);
 
     //################//
     // PROPERTIES     //

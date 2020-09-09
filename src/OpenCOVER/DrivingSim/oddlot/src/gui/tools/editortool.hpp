@@ -60,30 +60,6 @@ protected:
 private:
 };
 
-class ToolButtonGroup : public QButtonGroup
-{
-	Q_OBJECT
-
-public:
-	explicit ToolButtonGroup(ToolManager *toolManager);
-	virtual ~ToolButtonGroup()
-	{ /* does nothing */
-	}
-
-protected:
-private:
-	ToolButtonGroup(); /* not allowed */
-	ToolButtonGroup(const ToolButtonGroup &); /* not allowed */
-	ToolButtonGroup &operator=(const ToolButtonGroup &); /* not allowed */
-
-protected:
-	// ToolManager //
-	//
-	ToolManager *toolManager_;
-
-private slots:
-	void setButtonPressed(int i);
-};
 
 
 #endif // EDITORTOOL_HPP

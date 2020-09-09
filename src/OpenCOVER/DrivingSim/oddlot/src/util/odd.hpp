@@ -200,6 +200,8 @@ public:
 
 		// Lane Editor
 		TLE_SELECT,
+		TLE_SELECT_CONTROLS,
+		TLE_SELECT_ALL,
 		TLE_ADD,
 		TLE_DEL,
 		TLE_ADD_WIDTH,

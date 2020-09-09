@@ -92,7 +92,7 @@ private:
 
     ODD::ToolId toolId_;
 
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class TrackEditorToolAction : public ToolAction

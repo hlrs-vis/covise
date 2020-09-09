@@ -74,7 +74,7 @@ private:
 	Ui::SuperelevationRibbon *ui_;
 
     QDoubleSpinBox *radiusEdit_;
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class SuperelevationEditorToolAction : public ToolAction

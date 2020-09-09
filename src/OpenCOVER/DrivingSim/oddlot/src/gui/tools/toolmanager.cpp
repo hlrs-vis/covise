@@ -191,7 +191,6 @@ ToolManager::resendCurrentTool(ProjectWidget *project)
 void
 ToolManager::resendStandardTool(ProjectWidget *project)
 {
-
 	ToolAction *lastToolAction = getProjectEditingState(project);
 	lastToolAction = standardToolAction_.value(lastToolAction->getEditorId());
 	setProjectEditingState(project, lastToolAction);
@@ -319,27 +318,6 @@ ToolManager::getProjectEditingState(ProjectWidget *project)
 	return NULL;
 }
 
-void
-ToolManager::loadEditor(int id)
-{
-/*	ODD::EditorId editorId = (ODD::EditorId) id;
-	ODD::ToolId lastParamToolId;
-	ProjectWidget *currentProject = mainWindow_->getActiveProject();
-	ODD::ToolId lastToolId = getProjectEditingState(currentProject, editorId);
-	if (lastToolId != ODD::TNO_TOOL)
-	{
-		emit(pressButton(lastToolId));
-		lastToolAction_ = new ToolAction(editorId, lastToolId, lastParamToolId);
-		emit(toolAction(lastToolAction_));
-	}
-	else
-	{
-		lastToolAction_ = standardToolAction_.value(editorId);
-		emit(pressButton(lastToolAction_->getToolId()));
-		setProjectEditingState(currentProject, lastToolAction_);
-		emit(toolAction(lastToolAction_));
-	} */
-}
 
 ToolAction *
 ToolManager::getLastToolAction(ODD::EditorId editorID)

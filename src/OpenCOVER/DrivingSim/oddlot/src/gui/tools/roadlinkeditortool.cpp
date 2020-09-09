@@ -125,14 +125,13 @@ RoadLinkEditorTool::initToolWidget()
     ui = new Ui::RoadLinkRibbon();
     ui->setupUi(ribbonWidget);
     
-	ribbonToolGroup_ = new ToolButtonGroup(toolManager_);
+	ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
 	ribbonToolGroup_->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
 	ribbonToolGroup_->addButton(ui->roadLink, ODD::TRL_ROADLINK);
 	ribbonToolGroup_->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
 	ribbonToolGroup_->addButton(ui->select, ODD::TRL_SELECT);
-	connect(toolManager_, SIGNAL(pressButton(int)), ribbonToolGroup_, SLOT(setButtonPressed(int)));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Road Link"), ODD::ERL);
 	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));

@@ -79,7 +79,7 @@ private:
 	bool graphEdit_;
 	Ui::OSCRibbon *ui;
 
-	ToolButtonGroup *ribbonToolGroup_;
+	QButtonGroup *ribbonToolGroup_;
 };
 
 class OpenScenarioEditorToolAction : public ToolAction
