@@ -41,7 +41,7 @@ rhel8           Red Hat Enterprise Linux/CentOS 8 with updates on x86_64 (64 bit
 
 darwin          Generic macOS
 libc++          Mac OS X 10.9-10.12, x86_64 with libc++
-macos           macOS, x86_64 with libc++
+macos           macOS, x86_64 or arm64 with libc++
 
 freebsd         Generic FreeBSD
 

@@ -14,8 +14,8 @@
 
 using namespace opencover;
 
-coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium)
-    :coVRIntersectionInteractor(s, type, iconName, interactorName, priority, true)
+coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority = Medium, coVR3DGizmo* gizmoPointer)
+    :coVR3DGizmoType(m, s, type, iconName, interactorName, priority, gizmoPointer)
 {
     if (cover->debugLevel(2))
     {
@@ -24,7 +24,9 @@ coVR3DRotGizmo::coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::Interactio
 
     createGeometry();
 
-    coVR3DRotGizmo::updateTransform(m);
+    updateTransform(m);
+
+    
 }
 
 coVR3DRotGizmo::~coVR3DRotGizmo()
@@ -36,7 +38,6 @@ coVR3DRotGizmo::~coVR3DRotGizmo()
 void coVR3DRotGizmo::createGeometry()
 {
     osg::ShapeDrawable *sphereDrawable;
-    osg::Vec4 red(0.5, 0.2, 0.2, 1.0), green(0.2, 0.5, 0.2, 1.0), blue(0.2, 0.2, 0.5, 1.0), color(0.5, 0.5, 0.5, 1);
     osg::Vec3 origin(0, 0, 0);
 
     _axisTransform = new osg::MatrixTransform();
@@ -49,19 +50,18 @@ void coVR3DRotGizmo::createGeometry()
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
     sphereDrawable = new osg::ShapeDrawable(mySphere, hint);
-    sphereDrawable->setColor(color);
+    sphereDrawable->setColor(_grey);
     _sphereGeode = new osg::Geode();
     _sphereGeode->addDrawable(sphereDrawable);
     _axisTransform->addChild(_sphereGeode.get());
 
-    _xRotCylGroup = circlesFromCylinders(RotationAxis::X, 24, red, _radius/4);
-    _yRotCylGroup = circlesFromCylinders(RotationAxis::Y, 24, green, _radius/4);
-    _zRotCylGroup = circlesFromCylinders(RotationAxis::Z, 24, blue, _radius/4);
+    _xRotCylGroup = circlesFromCylinders(RotationAxis::X, 24, _red, _radius/4);
+    _yRotCylGroup = circlesFromCylinders(RotationAxis::Y, 24, _green, _radius/4);
+    _zRotCylGroup = circlesFromCylinders(RotationAxis::Z, 24, _blue, _radius/4);
 
     _axisTransform->addChild(_xRotCylGroup);
     _axisTransform->addChild(_yRotCylGroup);
     _axisTransform->addChild(_zRotCylGroup);
-
 }
 
 osg::Vec3Array* coVR3DRotGizmo::circleVerts(RotationAxis axis, int approx)
@@ -155,39 +155,54 @@ osg::Group* coVR3DRotGizmo:: circlesFromCylinders( RotationAxis axis, int approx
     return parent;
 }
 
-void coVR3DRotGizmo::updateSharedState()
-{
-    // if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
-    // {
-        // *st = _oldInteractorXformMat_o;//myPosition
-    // }
-}
+
 
 void coVR3DRotGizmo::startInteraction()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DRotGizmo::startInteraction\n");
 
-    osg::Matrix w_to_o = cover->getInvBaseMat();
-    osg::Matrix o_to_w = cover->getBaseMat();
 
-    osg::Matrix hm = getPointerMat(); // hand matrix weltcoord
-    osg::Matrix hm_o = hm * w_to_o;   // hand matrix objekt coord
-    _oldHandMat = hm;
-    _invOldHandMat_o.invert(hm_o); // store the inv hand matrix
-
-    osg::Matrix interMat = _interMat_o * o_to_w;
-
-    _oldInteractorXformMat_o = _interMat_o;
-
-    osg::Vec3 interPos = getMatrix().getTrans();
-    // get diff between intersection point and sphere center
-    _diff = interPos - _hitPos;
-    _distance = (_hitPos - hm_o.getTrans()).length();
+    osg::Vec3 lp0_o, lp1_o, pointerDir_o;
+    calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
     
+    coVRIntersectionInteractor::startInteraction();
+
+    _startInterMat_o = getMatrix();
+    _oldInterMat_o = _startInterMat_o;
+    _startHandMat = getPointerMat();
+
     _rotateZonly = rotateAroundSpecificAxis(_zRotCylGroup.get());
     _rotateYonly = rotateAroundSpecificAxis(_yRotCylGroup.get());
     _rotateXonly = rotateAroundSpecificAxis(_xRotCylGroup.get());
+
+    if(_rotateZonly)
+    {
+        _helperPlane->update(osg::Z_AXIS * getMatrix(),osg::Vec3(0,0,0)*getMatrix());
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::Z_AXIS * getMatrix(), _closestStartPoint_o);
+
+        _helperLine->setColor(_blue);
+        _helperLine->update(osg::Vec3(0,0,-_radius*3*getScale())*getMatrix(),osg::Vec3(0,0,_radius*3*getScale())*getMatrix());
+        _helperLine->show();
+    }
+    else if(_rotateYonly)
+    {
+        _helperPlane->update(osg::Y_AXIS * getMatrix(),osg::Vec3(0,0,0));
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::Y_AXIS* getMatrix(), _closestStartPoint_o);
+
+        _helperLine->setColor(_green);
+        _helperLine->update(osg::Vec3(0,-_radius*3*getScale(),0)*getMatrix(),osg::Vec3(0,_radius*3*getScale(),0)*getMatrix());
+        _helperLine->show();
+    }
+    else if(_rotateXonly)
+    {
+        _helperPlane->update(osg::X_AXIS * getMatrix(),osg::Vec3(0,0,0));
+        closestDistanceLineCircle(lp0_o, lp1_o, osg::X_AXIS* getMatrix(), _closestStartPoint_o);
+
+        _helperLine->setColor(_red);
+        _helperLine->update(osg::Vec3(-_radius*3*getScale(),0,0)*getMatrix(),osg::Vec3(_radius*3*getScale(),0,0)*getMatrix());
+        _helperLine->show();
+    }
    
 
     // if (!_rotateOnly && !_translateOnly)
@@ -195,7 +210,6 @@ void coVR3DRotGizmo::startInteraction()
     //     _translateOnly = is2D();
     // }
 
-    coVRIntersectionInteractor::startInteraction();
 
 }
 //check if hitNode is child of specific rotation group
@@ -220,9 +234,12 @@ void coVR3DRotGizmo::doInteraction()
         fprintf(stderr, "\ncoVR3DRotGizmo::rot\n");
 
     osg::Vec3 origin(0, 0, 0);
-
-
+    osg::Vec3 yaxis(0, 1, 0);
+    osg::Matrix o_to_w = cover->getBaseMat();
+    osg::Matrix w_to_o = cover->getInvBaseMat();
     osg::Matrix currHandMat = getPointerMat();
+    osg::Matrix currHandMat_o = currHandMat * w_to_o;
+
     // forbid translation in y-direction if traverseInteractors is on --> why do we need this ???? ###############################
     // if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
     // {
@@ -230,40 +247,52 @@ void coVR3DRotGizmo::doInteraction()
     //     trans[1] = _oldHandMat.getTrans()[1];
     //     currHandMat.setTrans(trans);
     // }
-
-    osg::Matrix o_to_w = cover->getBaseMat();
-    // get hand mat in object coords
-    osg::Matrix w_to_o = cover->getInvBaseMat();
-    osg::Matrix currHandMat_o = currHandMat * w_to_o;
+    osg::Vec3 lp0_o, lp1_o, pointerDir_o;
+    calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
 
     // translate from interactor to hand and back
     osg::Matrix transToHand_o, revTransToHand_o;
 
-    transToHand_o.makeTranslate(currHandMat_o.getTrans() - _oldInteractorXformMat_o.getTrans());
-    revTransToHand_o.makeTranslate(_oldInteractorXformMat_o.getTrans() - currHandMat_o.getTrans());
+    transToHand_o.makeTranslate(currHandMat_o.getTrans() - _oldInterMat_o.getTrans());
+    revTransToHand_o.makeTranslate(_oldInterMat_o.getTrans() - currHandMat_o.getTrans());
 
     osg::Matrix relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
-
-    osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
+    //std::cout << "rel Hand Movement:" <<relHandMoveMat_o.getTrans() <<"..."<< std::endl;
+    osg::Matrix newInteractorMatrix = _oldInterMat_o;
     if (_rotateZonly)
-        interactorXformMat_o = calcRotation(osg::Z_AXIS, osg::Vec3(0, -1, 0));
+    {
+        if(is2D())
+            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
+        else
+            newInteractorMatrix = calcRotation3D(osg::Z_AXIS);
+    }
     else if(_rotateYonly)
-        interactorXformMat_o = calcRotation(osg::Y_AXIS, osg::Vec3(-1, 0, 0));
+    {
+        if(is2D())
+            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
+        else
+            newInteractorMatrix = calcRotation3D(osg::Y_AXIS);
+    }
     else if(_rotateXonly)
-        interactorXformMat_o = calcRotation(osg::X_AXIS, osg::Vec3(0, 0, 1));
+    {
+        if(is2D())
+            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);
+        else
+            newInteractorMatrix = calcRotation3D(osg::X_AXIS);
+    }
     else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {
         // move old mat to hand position, apply rel hand movement and move it back to
-        interactorXformMat_o = _oldInteractorXformMat_o * transToHand_o * relHandMoveMat_o * revTransToHand_o;
+        newInteractorMatrix = _oldInterMat_o * transToHand_o * relHandMoveMat_o * revTransToHand_o;
     }
     else
     {
-        // apply rel hand movement
-        interactorXformMat_o = _oldInteractorXformMat_o * relHandMoveMat_o;
+        //if(!is2D())
+            newInteractorMatrix = _oldInterMat_o * relHandMoveMat_o; // apply rel hand movement
     }
 
     // save old transformation
-    _oldInteractorXformMat_o = interactorXformMat_o;
+    _oldInterMat_o = newInteractorMatrix;
 
     _oldHandMat = currHandMat; // save current hand for rotation start
     _invOldHandMat_o.invert(currHandMat_o);
@@ -272,9 +301,9 @@ void coVR3DRotGizmo::doInteraction()
     {
         // restrict to visible scene
         osg::Vec3 pos_o, restrictedPos_o;
-        pos_o = interactorXformMat_o.getTrans();
+        pos_o = newInteractorMatrix.getTrans();
         restrictedPos_o = restrictToVisibleScene(pos_o);
-        interactorXformMat_o.setTrans(restrictedPos_o);
+        newInteractorMatrix.setTrans(restrictedPos_o);
     }
 
     if (coVRNavigationManager::instance()->isSnapping())
@@ -282,22 +311,53 @@ void coVR3DRotGizmo::doInteraction()
         if (coVRNavigationManager::instance()->isDegreeSnapping())
         {
             // snap orientation
-            snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &interactorXformMat_o);
+            snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &newInteractorMatrix);
         }
         else
         {
             // snap orientation to 45 degree
-            snapTo45Degrees(&interactorXformMat_o);
+            snapTo45Degrees(&newInteractorMatrix);
         }
     }
 
 
     // and now we apply it
-    updateTransform(interactorXformMat_o);
+     updateTransform(newInteractorMatrix);
 
 }
 
-osg::Matrix coVR3DRotGizmo::calcRotation(osg::Vec3 rotationAxis, osg::Vec3 cylinderDirectionVector)
+float coVR3DRotGizmo::closestDistanceLineCircle(const osg::Vec3& lp0, const osg::Vec3& lp1,const osg::Vec3 rotationAxis, osg::Vec3 &closestPoint) const
+{
+    osg::Vec3 isectPoint;
+    _helperPlane->update(rotationAxis, getMatrix().getTrans());
+    bool intersect = _helperPlane->getLineIntersectionPoint( lp0, lp1, isectPoint);
+    //newPos  = isectPoint + _diff;
+    osg::Vec3 normalized = isectPoint - getMatrix().getTrans();
+    //std::cout <<"isect Point" << isectPoint <<std::endl;
+    normalized.normalize();
+    closestPoint = getMatrix().getTrans() +  normalized.operator*(_radius); // veränder sich der Radius beim Zoomen ?
+    // std::cout <<" closest Point" <<closestPoint<<"..." <<std::endl;
+    return 1.0f; // FIXME: if no intersection!! 
+}
+
+//math is from here: https://itectec.com/matlab/matlab-angle-betwen-two-3d-vectors-in-the-range-0-360-degree/
+double coVR3DRotGizmo::vecAngle360(const osg::Vec3 vec1, const osg::Vec3 &vec2, const osg::Vec3& refVec)
+{
+    osg::Vec3 cross = vec1^vec2;
+    int sign;
+
+    if(cross*refVec >= 0)
+        sign = 1;
+    else if (cross*refVec <0)
+        sign = -1;
+    
+    double angle = osg::RadiansToDegrees(std::atan2(sign * cross.length(), vec1*vec2));
+    // std::cout <<"angle: " <<angle << ".." << std::endl;
+    return angle;
+}
+
+/*
+osg::Matrix coVR3DRotGizmo::calcRotation2D(osg::Vec3 rotationAxis, osg::Vec3 cylinderDirectionVector)
 {
     osg::Matrix interactorXformMat_o; 
     osg::Matrix w_to_o = cover->getInvBaseMat();
@@ -359,11 +419,12 @@ osg::Matrix coVR3DRotGizmo::calcRotation(osg::Vec3 rotationAxis, osg::Vec3 cylin
         
         // restrict rotation to specific axis (therefor we use euler: h=zAxis, p=xAxis, r=yAxis)
         coCoord euler = interactorXformMat_o;
-        coCoord Oldeuler = _oldInteractorXformMat_o;
+        coCoord Oldeuler = _oldInterMat_o;
         if(rotationAxis == osg::Z_AXIS)
         {
             euler.hpr[1] = Oldeuler.hpr[1]; 
             euler.hpr[2] = Oldeuler.hpr[2]; 
+            //std::cout << "diff: " << euler.hpr[0] - _start_o.hpr[0] << " " << std::endl;
         }
         else if(rotationAxis == osg::Y_AXIS)
         {
@@ -386,64 +447,49 @@ osg::Matrix coVR3DRotGizmo::calcRotation(osg::Vec3 rotationAxis, osg::Vec3 cylin
 
     return interactorXformMat_o;
 }
+*/
 
-void coVR3DRotGizmo::updateTransform(osg::Matrix m)
+osg::Matrix coVR3DRotGizmo::calcRotation2D(const osg::Vec3& lp0_o, const osg::Vec3& lp1_o, osg::Vec3 rotationAxis)
 {
-    if (cover->debugLevel(5))
-    //fprintf(stderr, "coVR3DTransGizmo:setMatrix\n");
-    _interMat_o = m;
-    moveTransform->setMatrix(m);
-    if (m_sharedState)
-    {
-    if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
-    {
-      *st = m;
-    }
-    }
+    osg::Matrix interMatrix;
+    osg::Vec3 closestPoint;
+    _helperPlane->update(rotationAxis*getMatrix(),osg::Vec3(0,0,0)); //fix Vector here !!!!!!!!!!!!!
+    closestDistanceLineCircle(lp0_o, lp1_o, rotationAxis*getMatrix(), closestPoint);
+    osg::Vec3 dir1 = closestPoint; // hier muss Nulltpunkt abgezogen werden !! -getMatrix.getTrans();
+    std::cout <<"closestPoint: " <<closestPoint <<std::endl;
+    osg::Vec3 dir2 = _closestStartPoint_o; // hier muss Nulltpunkt abgezogen werden !! -getMatrix.getTrans();
+    dir1.normalize();
+    dir2.normalize();
+    
+    osg::Vec3 refVec= rotationAxis*getMatrix();
+
+    osg::Matrix rotate;
+    rotate.makeRotate(osg::DegreesToRadians(vecAngle360(dir1, dir2, -refVec)), rotationAxis *getMatrix());
+    interMatrix = _startInterMat_o*rotate;
+
+    return interMatrix;
 }
 
-void coVR3DRotGizmo::setShared(bool shared)
+osg::Matrix coVR3DRotGizmo::calcRotation3D(osg::Vec3 rotationAxis)
 {
-    // if (shared)
-    // {
-    //     if (!m_sharedState)
-    //     {
-    //         m_sharedState.reset(new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o));//myPosition
-    //         m_sharedState->setUpdateFunction([this]() {
-    //             m_isInitializedThroughSharedState = true;
-    //             osg::Matrix interactorXformMat_o = *static_cast<SharedMatrix *>(m_sharedState.get());
-    //             if (cover->restrictOn())
-    //             {
-    //                 // restrict to visible scene
-    //                 osg::Vec3 pos_o, restrictedPos_o;
-    //                 pos_o = interactorXformMat_o.getTrans();
-    //                 restrictedPos_o = restrictToVisibleScene(pos_o);
-    //                 interactorXformMat_o.setTrans(restrictedPos_o);
-    //             }
+    
+    osg::Matrix interMatrix;
+    coCoord startEuler = _startHandMat;
+    coCoord currentEuler = getPointerMat();
 
-    //             if (coVRNavigationManager::instance()->isSnapping())
-    //             {
-    //                 if (coVRNavigationManager::instance()->isDegreeSnapping())
-    //                 {
-    //                     // snap orientation
-    //                     snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &interactorXformMat_o);
-    //                 }
-    //                 else
-    //                 {
-    //                     // snap orientation to 45 degree
-    //                     snapTo45Degrees(&interactorXformMat_o);
-    //                 }
-    //             }
-    //             updateTransform(interactorXformMat_o);
-    //         });
-    //     }
-    // }
-    // else
-    // {
-    //     m_sharedState.reset(nullptr);
-    // }
+    float angle = currentEuler.hpr[2] - startEuler.hpr[2];
+    std::cout <<"angle: " <<angle <<" ..."<<std::endl;
+
+    osg::Matrix rotate;
+    rotate.makeRotate(osg::DegreesToRadians(angle), rotationAxis *getMatrix());
+    interMatrix = _startInterMat_o*rotate;  
+
+    return interMatrix; 
 }
-void coVR3DRotGizmo::preFrame()
+
+void coVR3DRotGizmo::stopInteraction() 
 {
-    coVRIntersectionInteractor::preFrame();
+    _helperLine->hide();
+    coVR3DGizmoType::stopInteraction();
 }
+

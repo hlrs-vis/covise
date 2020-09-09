@@ -203,7 +203,16 @@ macro(covise_find_component comp)
    set(COVISE_COMP_VARS ${COVISE_COMP_VARS};COVISE_${compvar}_LIBRARY)
    
    covise_find_library(COVISE_${compvar} ${complib})
-   find_package_handle_standard_args(COVISE_${compvar} DEFAULT_MSG COVISE_${compvar}_LIBRARY COVISE_INCLUDE_DIR)
+   if (${CMAKE_VERSION} VERSION_LESS "3.17")
+       set (NAME_MISMATCHED "")
+   else()
+       set (NAME_MISMATCHED "NAME_MISMATCHED")
+   endif()
+   find_package_handle_standard_args(COVISE_${compvar}
+       FOUND_VAR COVISE_${compvar}_FOUND
+       REQUIRED_VARS COVISE_${compvar}_LIBRARY COVISE_INCLUDE_DIR
+       ${NAME_MISMATCHED}
+   )
 
    if (COVISE_${compvar}_FOUND)
       set(COVISE_${compvar}_INCLUDE_DIRS ${COVISE_INCLUDE_DIR})

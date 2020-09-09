@@ -26,9 +26,12 @@
 #include <vtk/coVtk.h>
 #include <vtkDataSetReader.h>
 #include <vtkXMLGenericDataObjectReader.h>
+#include <vtkXMLMultiBlockDataReader.h>
+#include <vtkCompositeDataSet.h>
 #include <vtkDataSet.h>
+#include <vtkMultiBlockDataSet.h>
 #include <vtkPointData.h>
-#include <vtkCellData.h>
+#include <vtkCellData.h> 
 #if VTK_MAJOR_VERSION < 5
 #include <vtkIdType.h>
 #endif
@@ -41,38 +44,43 @@
 const size_t FilenameLength = 2048;
 
 template<class Reader>
-vtkDataSet *readFile(const char *filename)
+vtkDataObject*readFile(const char *filename)
 {
     vtkSmartPointer<Reader> reader = vtkSmartPointer<Reader>::New();
     reader->SetFileName(filename);
     reader->Update();
     if (reader->GetOutput())
         reader->GetOutput()->Register(reader);
-    return vtkDataSet::SafeDownCast(reader->GetOutput());
+    return vtkDataObject::SafeDownCast(reader->GetOutput());
 }
 
-vtkDataSet *getDataSet(const char *filename)
+vtkDataObject*getDataSet(const char *filename)
 {
     char fn[FilenameLength] = "";
     Covise::getname(fn, filename);
     if (fn[0] == '\0')
         return NULL;
-    vtkDataSet *ds = NULL;
+    vtkDataObject *vdo = NULL;
     const char *ext = "";
     size_t len = strlen(fn);
     if (len >= 4)
         ext = fn+len-4;
     if (strcmp(ext, ".vtk")==0)
     {
-        ds = readFile<vtkDataSetReader>(fn);
+        vdo = readFile<vtkDataSetReader>(fn);
     }
-    if (!ds)
-        ds = readFile<vtkXMLGenericDataObjectReader>(fn);
-    if (!ds && strcmp(ext, ".vtk")!=0)
+    if (strcmp(ext, ".vtm") == 0)
     {
-        ds = readFile<vtkDataSetReader>(fn);
+        vdo = readFile<vtkXMLMultiBlockDataReader>(fn);
+        
     }
-    return ds;
+    if (!vdo)
+        vdo = readFile<vtkXMLGenericDataObjectReader>(fn);
+    if (!vdo && strcmp(ext, ".vtk")!=0)
+    {
+        vdo = readFile<vtkDataSetReader>(fn);
+    }
+    return vdo;
 }
 
 std::vector<std::string> getFields(vtkFieldData *dsa)
@@ -217,6 +225,54 @@ bool ReadVTK::FileExists(const char *filename)
     return true;
 }
 
+void ReadVTK::createDataObjects(std::string &grid_name, std::string &normal_name, std::string pointDataName[NumPorts], std::string cellDataName[NumPorts], vtkDataSet* vdata)
+{
+    coDoGrid* grid = coVtk::vtkGrid2Covise(grid_name, vdata);
+    sdogrid = nullptr;
+    sdonormal = nullptr;
+    for (int i = 0; i < NumPorts; ++i)
+    {
+        sdopoint[i] = nullptr;
+        sdocell[i] = nullptr;
+    }
+    if (grid)
+    {
+        sdogrid = grid;
+
+        vtkFieldData* fieldData = vdata->GetFieldData();
+        vtkDataSetAttributes* pointData = vdata->GetPointData();
+        vtkDataSetAttributes* cellData = vdata->GetCellData();
+        for (int i = 0; i < NumPorts; ++i)
+        {
+            if (pointData && m_pointDataChoice[i]->getValue() > 0)
+            {
+                std::vector<std::string> fields = getFields(pointData);
+                std::string label = fields[m_pointDataChoice[i]->getValue() - 1];
+                if (coDistributedObject* pdata = coVtk::vtkData2Covise(pointDataName[i], pointData, coVtk::Any, label.c_str(), dynamic_cast<coDoAbstractStructuredGrid*>(grid)))
+                    sdopoint[i] = pdata;
+
+            }
+            else if (fieldData && m_pointDataChoice[i]->getValue() > 0)
+            {
+                std::vector<std::string> fields = getFields(fieldData);
+                std::string label = fields[m_pointDataChoice[i]->getValue() - 1];
+                int index = -1;
+                vtkDataArray* varr = fieldData->GetArray(label.c_str(), index);
+                if (coDistributedObject* pdata = coVtk::vtkData2Covise(pointDataName[i], varr, dynamic_cast<coDoAbstractStructuredGrid*>(grid)))
+                    sdopoint[i] = pdata;
+            }
+            if (cellData && m_cellDataChoice[i]->getValue() > 0)
+            {
+                std::vector<std::string> fields = getFields(cellData);
+                std::string label = fields[m_cellDataChoice[i]->getValue() - 1];
+                if (coDistributedObject* cdata = coVtk::vtkData2Covise(cellDataName[i], cellData, coVtk::Any, label.c_str(), dynamic_cast<coDoAbstractStructuredGrid*>(grid)))
+                    sdocell[i] = cdata;
+            }
+        }
+    }
+    if (coDistributedObject* normdata = coVtk::vtkData2Covise(normal_name, vdata, coVtk::Normals, NULL, dynamic_cast<coDoAbstractStructuredGrid*>(grid)))
+        sdonormal = normdata;
+}
 void ReadVTK::update()
 {
 
@@ -231,7 +287,10 @@ void ReadVTK::update()
     
     bool timesteps = m_pTime->getValue();
 
-    std::vector<coDistributedObject *> dogrid, dopoint[NumPorts], docell[NumPorts], donormal;
+    m_iTimestepMax = m_pTimeMax->getValue();
+    m_iTimestepMin = m_pTimeMin->getValue();
+
+    std::vector<coDistributedObject*> dogrid, dopoint[NumPorts], docell[NumPorts], donormal;
     for (int iTimestep = m_iTimestepMin; iTimestep <= m_iTimestepMax; iTimestep++)
     {
         std::string grid_name = m_portGrid->getObjName();
@@ -243,7 +302,7 @@ void ReadVTK::update()
             cellDataName[i] = m_portCellData[i]->getObjName();
         }
 
-        vtkDataSet *vdata = NULL;
+        vtkDataObject *vdata = NULL;
         if (timesteps)
         {
             const char *filenamepattern = m_pParamFilePattern->getValue();
@@ -284,47 +343,65 @@ void ReadVTK::update()
             Covise::sendInfo("could not read: %s", m_filename);
             return;
         }
-        coDoGrid *grid = coVtk::vtkGrid2Covise(grid_name, vdata);
-        /* if (!grid)
-      {
-         Covise::sendInfo("not supported: %s", vdata->GetClassName());
-         return;
-      }*/
-
-        dogrid.push_back(grid);
-
-        vtkFieldData *fieldData = vdata->GetFieldData();
-        vtkDataSetAttributes *pointData = vdata->GetPointData();
-        vtkDataSetAttributes *cellData = vdata->GetCellData();
-        for (int i=0; i<NumPorts; ++i)
+        vtkDataSet* ds = dynamic_cast<vtkDataSet*>(vdata);
+        if(ds)
         {
-            if (pointData && m_pointDataChoice[i]->getValue() > 0)
+			createDataObjects(grid_name, normal_name, pointDataName, cellDataName, ds);
+			dogrid.push_back(sdogrid);
+			for (int i = 0; i < NumPorts; ++i)
+			{
+				dopoint[i].push_back(sdopoint[i]);
+				docell[i].push_back(sdocell[i]);
+			}
+			donormal.push_back(sdonormal);
+        }
+        vtkMultiBlockDataSet* mds = dynamic_cast<vtkMultiBlockDataSet*>(vdata);
+        if (mds)
+        {
+            std::vector<coDistributedObject*> bdogrid, bdopoint[NumPorts], bdocell[NumPorts], bdonormal;
+            for (int n = 0; n < mds->GetNumberOfBlocks(); n++)
             {
-                std::vector<std::string> fields = getFields(pointData);
-                std::string label = fields[m_pointDataChoice[i]->getValue()-1];
-                if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], pointData, coVtk::Any, label.c_str(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
-                    dopoint[i].push_back(pdata);
+                vtkDataObject* vdo = mds->GetBlock(n);
+                vtkMultiBlockDataSet* mds = dynamic_cast<vtkMultiBlockDataSet*>(vdo);
+                if(mds && mds->GetNumberOfBlocks()==1)
+                {
+                    vdo = mds->GetBlock(0);
+                }
+                std::string cn = vdo->GetClassName();
+                vtkDataSet* ds = dynamic_cast<vtkDataSet*>(vdo);
+                if(ds)
+				{
+					std::string nGridName = grid_name + "_b" + std::to_string(n);
+					std::string nNormalName = normal_name + "_b" + std::to_string(n);
+					std::string npointDataName[NumPorts];
+					std::string ncellDataName[NumPorts];
+					for (int i = 0; i < NumPorts; ++i)
+					{
+						ncellDataName[i] = cellDataName[i] + "_b" + std::to_string(n);
+						npointDataName[i] = pointDataName[i] + "_b" + std::to_string(n);
+					}
+					createDataObjects(nGridName, nNormalName, npointDataName, ncellDataName, ds);
+					bdogrid.push_back(sdogrid);
+					for (int i = 0; i < NumPorts; ++i)
+					{
+						bdopoint[i].push_back(sdopoint[i]);
+						bdocell[i].push_back(sdocell[i]);
+					}
+					bdonormal.push_back(sdonormal);
+				}
             }
-            else if (fieldData && m_pointDataChoice[i]->getValue() > 0)
+			if (bdogrid.size())
+				dogrid.push_back(new coDoSet(grid_name, (int)bdogrid.size(), &bdogrid[0]));
+			if (bdonormal.size())
+				donormal.push_back(new coDoSet(normal_name, (int)bdonormal.size(), &bdonormal[0]));
+            for (int i = 0; i < NumPorts; ++i)
             {
-                std::vector<std::string> fields = getFields(fieldData);
-                std::string label = fields[m_pointDataChoice[i]->getValue()-1];
-                int index = -1;
-                vtkDataArray *varr = fieldData->GetArray(label.c_str(), index);
-                if (coDistributedObject *pdata = coVtk::vtkData2Covise(pointDataName[i], varr, dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
-                    dopoint[i].push_back(pdata);
-            }
-            if (cellData && m_cellDataChoice[i]->getValue() > 0)
-            {
-                std::vector<std::string> fields = getFields(cellData);
-                std::string label = fields[m_cellDataChoice[i]->getValue()-1];
-                if (coDistributedObject *cdata = coVtk::vtkData2Covise(cellDataName[i], cellData, coVtk::Any, label.c_str(), dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
-                    docell[i].push_back(cdata);
+                if (bdopoint[i].size())
+                    dopoint[i].push_back(new coDoSet(pointDataName[i], (int)bdopoint[i].size(), &bdopoint[i][0]));
+                if (bdocell[i].size())
+                    docell[i].push_back(new coDoSet(cellDataName[i], (int)bdocell[i].size(), &bdocell[i][0]));
             }
         }
-
-        if (coDistributedObject *normdata = coVtk::vtkData2Covise(normal_name, vdata, coVtk::Normals, NULL, dynamic_cast<coDoAbstractStructuredGrid *>(grid)))
-            donormal.push_back(normdata);
     }
 
     coDistributedObject *outGrid = NULL, *outNormals = NULL;
@@ -398,9 +475,24 @@ void ReadVTK::update()
     }
 }
 
-void ReadVTK::setChoices(vtkDataSet *ds)
+void ReadVTK::setChoices()
 {
     std::vector<std::string> cellFields;
+    vtkDataSet* ds = dynamic_cast<vtkDataSet*>(m_dataSet.Get());
+    if (ds == NULL)
+    {
+        vtkMultiBlockDataSet *mds = dynamic_cast<vtkMultiBlockDataSet*>(m_dataSet.Get());
+        if (mds)
+        {
+            vtkDataObject* vdo = mds->GetBlock(0);
+            vtkMultiBlockDataSet* mds = dynamic_cast<vtkMultiBlockDataSet*>(vdo);
+            if (mds && mds->GetNumberOfBlocks() == 1)
+            {
+                vdo = mds->GetBlock(0);
+            }
+            ds = dynamic_cast<vtkDataSet*>(vdo);
+        }
+    }
     if (ds)
         cellFields = getFields(ds->GetCellData());
     for (int i=0; i<NumPorts; ++i)
@@ -425,7 +517,7 @@ void ReadVTK::param(const char *name, bool inMapLoading)
         m_dataSet = getDataSet(m_pParamFile->getValue());
 	if(!inMapLoading)
 	{
-        setChoices(m_dataSet);
+        setChoices();
 	
         if (strcmp(m_pParamFilePattern->getValue(), "") == 0)
         {
@@ -465,7 +557,7 @@ void ReadVTK::param(const char *name, bool inMapLoading)
     }
     else if (strcmp(name, m_pTimeMax->getName()) == 0)
     {
-        m_iTimestepMax = m_pTimeMax->getValue();
+      /* this is not working m_iTimestepMax = m_pTimeMax->getValue();
         if (m_iTimestepMax < m_iTimestepMin)
         {
 	if(!inMapLoading)
@@ -531,7 +623,7 @@ void ReadVTK::param(const char *name, bool inMapLoading)
 	{
         m_pTimeMax->setMin(m_iTimestepMin);
 	}
-        std::cout << "iTimestepMin = " << m_iTimestepMin << std::endl;
+        std::cout << "iTimestepMin = " << m_iTimestepMin << std::endl;*/
     }
 }
 

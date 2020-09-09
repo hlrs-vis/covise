@@ -5,11 +5,12 @@
 #include <vrbclient/SharedStateSerializer.h>
 #include <cover/MatrixSerializer.h>
 #include <net/tokenbuffer.h>
+#include <PluginUtil/coLine.h>
 
 
 namespace opencover
 {
-
+class coVR3DGizmo;
 class PLUGIN_UTILEXPORT coVR3DScaleGizmo : public coVRIntersectionInteractor
 {
 private:
@@ -17,7 +18,7 @@ private:
     osg::Matrix _interMat_o, _oldHandMat;
     osg::Matrix _invOldHandMat_o;
     osg::Matrix _oldInteractorXformMat_o;
-    osg::Vec3 _startInterPos;
+    osg::Vec3 _startInterPos, _startPointerDirection_o;
     osg::Matrix  _startxAxisMatrix,_startyAxisMatrix, _startzAxisMatrix;
     float _distance{0.0f};
     osg::Vec3 _diff;
@@ -41,6 +42,12 @@ private:
     osg::ref_ptr<osg::Geode> scaleXSphereGeode;
     osg::ref_ptr<osg::Geode> scaleYSphereGeode;
     osg::ref_ptr<osg::Geode> scaleZSphereGeode;
+
+    std::unique_ptr<opencover::coLine> _line;   
+
+
+    osg::Vec3 calculatePointOfShortestDistance(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis = osg::Vec3(0,0,0)) const;
+
     
 protected:
     virtual void createGeometry() override;
@@ -49,7 +56,7 @@ protected:
 
 
 public:
-    coVR3DScaleGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
+    coVR3DScaleGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority,coVR3DGizmo* gizmoPointer = nullptr);
 
     // delete scene graph
     virtual ~coVR3DScaleGizmo();

@@ -17,8 +17,6 @@
 
 namespace {
 
-const int TarHeaderSize = 512;
-
 struct Cleaner {
 
     Cleaner(std::function<void()> task)
@@ -280,8 +278,8 @@ Model::Model(const std::string &archiveOrDirectory, Format format)
     if (d->zipfile) {
         archive = true;
         format = FormatZip;
-        auto nument = zip_get_num_entries(d->zipfile, 0);
-        for (auto idx=0; idx<nument; ++idx) {
+        int64_t nument = zip_get_num_entries(d->zipfile, 0);
+        for (int64_t idx=0; idx<nument; ++idx) {
             std::string pathname = zip_get_name(d->zipfile, idx, 0);
             if (auto file = dynamic_cast<File *>(addPath(pathname))) {
                 file->index = idx;
@@ -330,7 +328,7 @@ Model::Model(const std::string &archiveOrDirectory, Format format)
             prev = nullptr;
 #endif
             if (type == AE_IFDIR) {
-                auto dir = dynamic_cast<Directory *>(addPath(pathname));
+                /* auto dir = dynamic_cast<Directory *>(addPath(pathname)); */
             } else if (type == AE_IFREG) {
                 auto file = dynamic_cast<File *>(addPath(pathname));
                 if (file) {
@@ -568,9 +566,11 @@ archive_streambuf::archive_streambuf(const fs::File *file) {
         while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
             std::string pathname = archive_entry_pathname(entry);
             if (pathname == file->pathname) {
+#ifndef NDEBUG
                 auto type = archive_entry_filetype(entry);
                 assert(type == AE_IFREG);
-                size_t sz = archive_entry_size(entry);
+#endif
+                /* size_t sz = archive_entry_size(entry); */
                 return;
             }
         }

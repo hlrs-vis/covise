@@ -109,9 +109,8 @@ istream &operator>>(istream &is, checkstring cs)
         if (!is || tolower(c) != tolower(cs.pstr[i]))
         {
             is.clear();
-            if (c != char(EOF))
-                ;
-            is.putback(c);
+            if (c != char(EOF)) // i hope this was intended
+                is.putback(c);
             while (i > 0)
             {
                 i--;

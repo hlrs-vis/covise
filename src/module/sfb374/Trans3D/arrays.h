@@ -24,6 +24,7 @@
 #include <cmath>
 #endif
 #include <complex>
+#include <algorithm>
 
 #include "error.h"
 
@@ -32,19 +33,6 @@ using namespace std;
 typedef double prec; // definition variable precision
 typedef complex<prec> cmplx;
 
-#if defined(WIN32)
-template <class T>
-inline const T &min(const T &a, const T &b)
-{
-    return b < a ? b : a;
-}
-
-template <class T>
-inline const T &max(const T &a, const T &b)
-{
-    return a < b ? b : a;
-}
-#endif
 
 template <class T>
 T sqr(T t)

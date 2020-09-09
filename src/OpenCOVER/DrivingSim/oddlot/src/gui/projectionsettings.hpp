@@ -38,8 +38,10 @@ class ProjectionSettings : public QDialog
 public:
     enum Preset {
         None = 0,
-        WGS84_to_Potsdam = 1,
-        WGS84_to_WGS84_Ellipsoid = 2,
+        WGS84_UTM_Zone_32 = 1,
+        WGS84_to_Potsdam = 2,
+        WGS84_to_WGS84_Ellipsoid = 3,
+        WGS84_UTM_Zone_45 = 4,
     };
     //Q_ENUM(Preset)
 
@@ -60,7 +62,8 @@ public:
     };*/
 
 private:
-    QMap<Preset,QString> presets;
+    std::vector<std::string> presets;
+    std::vector<std::string> presetNames;
     //static ProjectionSettings *inst;
     /*struct Presets
     {
@@ -74,7 +77,6 @@ private:
     void checkProjForEPSG(const QString &proj);
     void checkProjForPreset(const QString &proj);
     QString prepareString(const QString &src);
-    Preset resolvePreset(const QString &input);
     //################//
     // SLOTS          //
     //################//

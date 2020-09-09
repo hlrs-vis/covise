@@ -50,7 +50,7 @@ public:
     // defined by lp1 and lp2 and the plane
     // returns true, if an intersection point was found
     // false if the line and plane are parallel
-    bool getLineIntersectionPoint(osg::Vec3 &lp1, osg::Vec3 &lp2, osg::Vec3 &isectPoint);
+    bool getLineIntersectionPoint(const osg::Vec3 &lp1, const osg::Vec3 &lp2, osg::Vec3 &isectPoint)const;
 
     // get the intersection point between a finite line (Linie)
     // and the plane

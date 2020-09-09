@@ -35,6 +35,12 @@
 #if VTK_MAJOR_VERSION < 6
 #define SetInputData SetInput
 #endif
+
+#if VTK_MAJOR_VERSION < 9
+#define IDCONST
+#else
+#define IDCONST const
+#endif
 #endif
 
 //#include <algorithm>
@@ -1015,7 +1021,8 @@ SimplifySurface::compute(const char *)
             fcoordz[i] = static_cast<float>(vtkSurface->GetPoint(i)[2]);
         }
 
-        vtkIdType npts = 0, *pts = NULL;
+        vtkIdType npts = 0;
+        IDCONST vtkIdType *pts = NULL;
         j = 0;
 
         // connectivity

@@ -78,7 +78,7 @@ public:
 
     void addRoad(RSystemElementRoad *road);
     bool delRoad(RSystemElementRoad *road);
-	bool getProjectDimensions(QRectF &boundingBox, double *north, double *south, double *east, double *west, double *newNorth, double *newSouth, double *newEast, double *newWest);
+	bool getProjectDimensions(const QRectF &boundingBox, double *north, double *south, double *east, double *west, double *newNorth, double *newSouth, double *newEast, double *newWest);
 
     RSystemElementController *getController(const odrID &id) const;
     QMap<uint32_t, RSystemElementController *> getControllers() const

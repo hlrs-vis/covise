@@ -26,6 +26,7 @@
 #include <PluginUtil/coVR3DTransGizmo.h>
 #include <PluginUtil/coVR3DRotGizmo.h>
 #include <PluginUtil/coVR3DScaleGizmo.h>
+#include <PluginUtil/coVR3DGizmo.h>
 
 
 
@@ -50,6 +51,9 @@ private:
   opencover::coVR3DRotGizmo* _rotgizmo;
   opencover::coVR3DScaleGizmo* _scalegizmo;
   opencover::coVR3DTransRotInteractor* _transRotInteractor;
+  opencover::coVR3DGizmo* _gizmo;
+
+
 
 
 

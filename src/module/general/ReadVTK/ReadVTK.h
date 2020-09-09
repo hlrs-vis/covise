@@ -36,6 +36,7 @@ using namespace covise;
 #include <util/coviseCompat.h>
 
 #include <vtkSmartPointer.h>
+#include <vtkDataObject.h>
 
 class vtkDataSet;
 class vtkDataSetReader;
@@ -63,11 +64,11 @@ private:
     void update();
 
 private:
-    void setChoices(vtkDataSet *dataSet);
+    void setChoices();
     char *m_filename;
     int blockSize;
 
-    vtkSmartPointer<vtkDataSet> m_dataSet;
+    vtkSmartPointer<vtkDataObject> m_dataSet;
 
     coOutputPort *m_portGrid, *m_portNormals;
     coOutputPort *m_portPointData[NumPorts], *m_portCellData[NumPorts];
@@ -76,10 +77,13 @@ private:
     coStringParam *m_pParamFilePattern;
     coChoiceParam *m_pointDataChoice[NumPorts];
     coChoiceParam *m_cellDataChoice[NumPorts];
+    coDistributedObject* sdogrid, *sdopoint[NumPorts], *sdocell[NumPorts], *sdonormal;
+    void createDataObjects(std::string &grid_name, std::string &normal_name, std::string pointDataName[NumPorts], std::string cellDataName[NumPorts], vtkDataSet* vdata);
 
     coBooleanParam *m_pTime;
     coIntSliderParam *m_pTimeMin;
     coIntSliderParam *m_pTimeMax;
+
 
     int m_iTimestep;
     int m_iTimestepMin;

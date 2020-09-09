@@ -235,15 +235,18 @@ void ObjectManager::addObject(char* object)
 						data_obj = coDistributedObject::createFromShm(it->name);
 						if (data_obj != 0L)
 						{ 
-						const auto variant_name = data_obj->getAttribute("VARIANT");
-						fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
-                            <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, variant_name);
+							const auto variant_name = data_obj->getAttribute("VARIANT");
+							fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
+								<label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, variant_name);
+							//delete variant_name;
+							delete data_obj;
 						}
 						else
 						{
 							fprintf(fp, "<input type='checkbox' id='box_%s' data-binding='%s' onclick='changeVisibleVariant(this)' checked>\n\
                             <label for = 'box_%s'>%s</label><br>\n", it->name, it->name, it->name, it->name);
 						}
+						
 					}
 
 				}

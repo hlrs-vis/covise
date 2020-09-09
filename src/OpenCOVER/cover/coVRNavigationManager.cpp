@@ -30,6 +30,7 @@
 
 #include <math.h>
 #include <cstdlib>
+#include <array>
 
 #include <util/common.h>
 #include <config/CoviseConfig.h>
@@ -360,11 +361,23 @@ void coVRNavigationManager::initMenu()
     m_viewAll->setPriority(ui::Element::Toolbar);
     m_viewAll->setIcon("zoom-fit-best");
 
+
+
+
+    centerViewButton = new ui::Action(navMenu_, "centerView");
+    centerViewButton->setText("Center view");
+    centerViewButton->setCallback([this, protectNav]() {
+        protectNav([this]() {
+            centerView();
+        });
+    });
+    centerViewButton->setIcon("zoom-in");
+
     m_resetView = new ui::Action(navMenu_, "ResetView");
     m_resetView->setText("Reset view");
     m_resetView->setShortcut("Shift+V");
-    m_resetView->setCallback([this, protectNav](){
-        protectNav([](){
+    m_resetView->setCallback([this, protectNav]() {
+        protectNav([]() {
             VRSceneGraph::instance()->viewAll(true);
         });
     });
@@ -376,8 +389,8 @@ void coVRNavigationManager::initMenu()
     scaleSlider_->setBounds(1e-5, 1e5);
     scaleSlider_->setScale(ui::Slider::Logarithmic);
     scaleSlider_->setValue(cover->getScale());
-    scaleSlider_->setCallback([this, protectNav](double val, bool released){
-        protectNav([this, val](){
+    scaleSlider_->setCallback([this, protectNav](double val, bool released) {
+        protectNav([this, val]() {
             startMouseNav();
             doMouseScale(val);
             stopMouseNav();
@@ -387,8 +400,8 @@ void coVRNavigationManager::initMenu()
     scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
     scaleUpAction_->setText("Scale up");
     scaleUpAction_->setVisible(false);
-    scaleUpAction_->setCallback([this, protectNav](){
-        protectNav([this](){
+    scaleUpAction_->setCallback([this, protectNav]() {
+        protectNav([this]() {
             startMouseNav();
             doMouseScale(cover->getScale() * 1.1f);
             stopMouseNav();
@@ -401,8 +414,8 @@ void coVRNavigationManager::initMenu()
     scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
     scaleDownAction_->setText("Scale down");
     scaleDownAction_->setVisible(false);
-    scaleDownAction_->setCallback([this, protectNav](){
-        protectNav([this](){
+    scaleDownAction_->setCallback([this, protectNav]() {
+        protectNav([this]() {
             startMouseNav();
             doMouseScale(cover->getScale() / 1.1f);
             stopMouseNav();
@@ -447,26 +460,27 @@ void coVRNavigationManager::initMenu()
     traverseInteractorButton_->setText("Traverse interactors");
     traverseInteractorButton_->setEnabled(false);
     traverseInteractorButton_->setVisible(false);
-    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
+    navGroup_->setCallback([this](int value) { setNavMode(NavMode(value), false); });
 
     driveSpeedSlider_ = new ui::Slider(navMenu_, "DriveSpeed");
     driveSpeedSlider_->setText("Drive speed");
     driveSpeedSlider_->setBounds(0., 30.);
-    driveSpeedSlider_->setValue(driveSpeed);;
-    driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+    driveSpeedSlider_->setValue(driveSpeed);
+    ;
+    driveSpeedSlider_->setCallback([this](double val, bool released) { driveSpeed = val; });
     collisionButton_ = new ui::Button(navMenu_, "Collision");
     collisionButton_->setText("Collision detection");
     collisionButton_->setState(collision);
-    collisionButton_->setCallback([this](bool state){collision = state;});
+    collisionButton_->setCallback([this](bool state) { collision = state; });
 
     snapButton_ = new ui::Button(navMenu_, "Snap");
     snapButton_->setState(snapping);
-    snapButton_->setCallback([this](bool state){snapping=state;});
+    snapButton_->setCallback([this](bool state) { snapping = state; });
 
     auto restrictButton = new ui::Button(navMenu_, "Restrict");
     restrictButton->setText("Restrict interactors");
     restrictButton->setState(m_restrict);
-    restrictButton->setCallback([this](bool state){
+    restrictButton->setCallback([this](bool state) {
         m_restrict = state;
     });
     restrictButton->setVisible(true);
@@ -531,6 +545,68 @@ Vec3 coVRNavigationManager::getCenter() const
     }
 
     return osg::Vec3(0,0,0);
+}
+
+void coVRNavigationManager::centerView(){
+    osg::Vec3d eye,center,up;
+        cover->getXformMat().getLookAt(eye, center, up);
+        std::array<float, 6> angles;
+        for (size_t i = 0; i < 3; i++)
+        {
+            osg::Vec3 v;
+            v[i] = 1;
+            angles[i] = std::acos(up * v);
+            angles[i+3] = std::acos(up * (-v));
+        }
+        auto maxAngle = std::min_element(angles.begin(), angles.end());
+        size_t maxAngleIndex = maxAngle - angles.begin();
+        up.set(0, 0, 0);
+        if (maxAngleIndex < 3)
+        {
+            up[maxAngleIndex] = 1;
+        }
+        else
+        {
+            up[maxAngleIndex - 3] = -1;
+        }
+
+        center.set( up [0] ? eye.x() : center.x(),
+                    up [1] ? eye.y() : center.y(),
+                    up [2] ? eye.z() : center.z()); //removes inclination
+
+        
+        float minDif = -1;
+        size_t minDifIndex = 0, staySameIndex = 0;
+        for (size_t i = 0; i < 3; i++)
+        {
+            if (up[i])
+            {
+                center[i] = eye[i];
+            }
+            else if(std::abs(center[i] - eye[i]) < minDif || minDif == -1)
+            {
+                minDif = std::abs(center[i] - eye[i]);
+                minDifIndex = i;
+            }else
+            {
+                staySameIndex = i;
+            }
+        }
+        if (center[staySameIndex] != eye[staySameIndex])
+        {
+            center[minDifIndex] = eye[minDifIndex];
+        }
+
+        if (eye == center)
+        {
+            std::cerr << "failed to center camera: eye = center" << std::endl;
+            return;
+        }
+
+        osg::Matrix newMat;
+        newMat.makeLookAt(eye, center, up);
+
+        cover->setXformMat(newMat);
 }
 
 // process key events

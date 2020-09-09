@@ -154,7 +154,7 @@ RoadSystem::delRoad(RSystemElementRoad *road)
 }
 
 bool 
-RoadSystem::getProjectDimensions(QRectF &box, double *north, double *south, double *east, double *west, double *newNorth, double *newSouth, double *newEast, double *newWest)
+RoadSystem::getProjectDimensions(const QRectF &box, double *north, double *south, double *east, double *west, double *newNorth, double *newSouth, double *newEast, double *newWest)
 {
 	// decide if the box is inside the current BoundingBox
 
@@ -170,8 +170,9 @@ RoadSystem::getProjectDimensions(QRectF &box, double *north, double *south, doub
 	{
 		QRectF BBUnited = BB.united(box);
 		QPointF center = BB.center();
-		box.translate(-box.topLeft() - box.bottomRight() + 2 * center);
-		BB = BBUnited.united(box);
+		QRectF box2(box);
+        box2.translate(-box.topLeft() - box.bottomRight() + 2 * center);
+		BB = BBUnited.united(box2);
 
 		*newNorth = BB.bottom() + 0.1 * BB.height();
 		*newSouth = BB.top() - 0.1 * BB.height();
