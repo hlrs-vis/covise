@@ -25,6 +25,9 @@
 
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
+#include "UDP.h"
+
+#define SHOW_UDP_LIVE_OBJECTS 1 // if 1 use udp to visualize livedata
 
 class Orientation;
 enum class FitnessFunctionType;
@@ -42,9 +45,12 @@ public:
   SensorPlacementPlugin();
   ~SensorPlacementPlugin();
   bool init() override;
-  bool destroy() override;
+  bool update() override;
   void preFrame() override;
+  bool destroy() override;
+
 
 private:
   std::unique_ptr<UI> m_UI;
+  std::unique_ptr<UDP> m_udp;
 };

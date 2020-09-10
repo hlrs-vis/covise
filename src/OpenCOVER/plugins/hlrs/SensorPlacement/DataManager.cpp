@@ -56,17 +56,22 @@ void DataManager::preFrame()
     for(const auto& zone : GetInstance().m_SafetyZones)
     {
         bool status = zone->preFrame();
-       /* if(status)
+        if(!status)
         {
-            GetInstance().Remove(zone.get());
+            GetInstance().RemoveZone(zone.get());
             return;
         }
-        */
+        
     }
 
     for(const auto& zone : GetInstance().m_SensorZones)
     {
         bool status = zone->preFrame();
+        if(!status)
+        {
+            GetInstance().RemoveZone(zone.get());
+            return;
+        } 
       
     }
 
@@ -75,9 +80,14 @@ void DataManager::preFrame()
         bool status = sensor->preFrame();
         if(!status)
         {
-            GetInstance().Remove(sensor.get());
+            GetInstance().RemoveSensor(sensor.get());
             return;
         }
+    }
+
+    for(const auto& udpSensor : GetInstance().m_UDPSensors)
+    {
+        bool status = udpSensor->preFrame();
     }
 };
 void DataManager::Destroy()
@@ -125,29 +135,35 @@ void DataManager::AddSensor(upSensor sensor)
     GetInstance().m_Sensors.push_back(std::move(sensor));     
 }
 
-template<typename T>
-void DataManager::Remove(T* object)
+void DataManager::AddUDPSensor(upSensor sensor)
 {
-    std::cout <<"befor: "<<GetInstance().m_Sensors.size()<<std::endl;
-    if(dynamic_cast<SensorPosition*>(object))
-    {
-        std::cout<<"Cast successful"<<std::endl;
-        GetInstance().m_Root->removeChild(object->getSensor());
-        GetInstance().m_Sensors.erase(std::remove_if(GetInstance().m_Sensors.begin(),GetInstance().m_Sensors.end(),[object](std::unique_ptr<SensorPosition>const& it){return object == it.get();}));
-    }
-    // else if(dynamic_cast<Zone*>(object))
-    // {
-        // GetInstance().m_Root->removeChild(object->getZone());
-        // GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[object](std::unique_ptr<Zone>const& it){return object == it.get();}));
-    // }
-    else
-    {
-        std::cout<<"Object of unknown Type can't be removed"<<std::endl;
-    }
-    
-    std::cout <<"after: "<<GetInstance().m_Sensors.size()<<std::endl;
+    GetInstance().m_Root->addChild(sensor.get()->getSensor().get());
+    GetInstance().m_UDPSensors.push_back(std::move(sensor));     
 }
 
+void DataManager::RemoveUDPSensor(int pos)
+{
+    GetInstance().m_Root->removeChild(GetInstance().m_UDPSensors.at(pos)->getSensor());
+    GetInstance().m_UDPSensors.erase(GetInstance().m_UDPSensors.begin() + pos);
+}
+
+void DataManager::RemoveSensor(SensorPosition* sensor)
+{  
+    GetInstance().m_Root->removeChild(sensor->getSensor());
+
+    GetInstance().m_Sensors.erase(std::remove_if(GetInstance().m_Sensors.begin(),GetInstance().m_Sensors.end(),[sensor](std::unique_ptr<SensorPosition>const& it){return sensor == it.get();}));  
+}
+
+void DataManager::RemoveZone(Zone* zone)
+{
+    GetInstance().m_Root->removeChild(zone->getZone());
+
+    if(dynamic_cast<SensorZone*>(zone))
+         GetInstance().m_SensorZones.erase(std::remove_if(GetInstance().m_SensorZones.begin(),GetInstance().m_SensorZones.end(),[zone](std::unique_ptr<SensorZone>const& it){return zone == it.get();}));
+    else if(dynamic_cast<SafetyZone*>(zone))
+        GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[zone](std::unique_ptr<Zone>const& it){return zone == it.get();}));
+
+}
 
 void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 {
@@ -161,6 +177,18 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
     }
 
 }
+
+void DataManager::updateUDPSensorPosition(int pos, const osg::Matrix& mat)
+{
+    GetInstance().m_UDPSensors.at(pos)->setMatrix(mat);
+};
+
+void DataManager::UpdateZone(int pos, const osg::Matrix& mat)
+{
+    GetInstance().m_SafetyZones.at(pos)->setPosition(mat);
+}; 
+
+
 
 void DataManager::setOriginalPointColor()
 {

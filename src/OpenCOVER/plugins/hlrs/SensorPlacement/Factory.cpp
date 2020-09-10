@@ -1,9 +1,9 @@
 #include "Factory.h"
 
-std::unique_ptr<SensorPosition> createSensor(SensorType sensor, osg::Matrix matrix, bool visible)
+std::unique_ptr<SensorPosition> createSensor(SensorType sensor, osg::Matrix matrix, bool visible, osg::Vec4 color)
 {
     if(sensor == SensorType::Camera){
-        return myHelpers::make_unique<Camera>(matrix, visible);
+        return myHelpers::make_unique<Camera>(matrix, visible, color);
     }
     else{
         assert(false);
@@ -11,18 +11,16 @@ std::unique_ptr<SensorPosition> createSensor(SensorType sensor, osg::Matrix matr
     return std::unique_ptr<SensorPosition>();
 }
 
-std::unique_ptr<Zone> createZone(ZoneType zone)
+std::unique_ptr<Zone> createZone(ZoneType zone, osg::Matrix matrix,float length, float width , float height)
 {
-    osg::Matrix position;
-    position.setTrans(8,8,8);
-
+   
     if(zone == ZoneType::ROIzone){
         
-        return myHelpers::make_unique<SafetyZone>(position);
+        return myHelpers::make_unique<SafetyZone>(matrix,length,width,height);
     }
     else if(zone == ZoneType::CameraZone){
 
-        return myHelpers::make_unique<SensorZone>(SensorType::Camera,position);
+        return myHelpers::make_unique<SensorZone>(SensorType::Camera, matrix,length,width,height);
     }
     else{
         assert(false);

@@ -34,7 +34,7 @@ struct ZoneProperties
 class Zone
 {
 public:
-    Zone(osg::Matrix matrix,osg::Vec4 color);
+    Zone(osg::Matrix matrix,osg::Vec4 color, float length = 10.0f, float width = 5.0f, float height = 3.0f);
     virtual ~Zone(){std::cout<<"Zone Destructor\n";};
 
     virtual bool preFrame();
@@ -68,10 +68,10 @@ protected:
 
 
 private:
-    float m_Distance{2};
-    float m_Length{10};
-    float m_Width{5};
-    float m_Height{3};
+    float m_Distance;
+    float m_Length;
+    float m_Width;
+    float m_Height;
     osg::Vec4 m_Color;
     
     osg::ref_ptr<osg::Vec3Array> m_Verts;
@@ -108,7 +108,7 @@ class SafetyZone : public Zone
 {
 
 public:
-    SafetyZone(osg::Matrix matrix);
+    SafetyZone(osg::Matrix matrix,float length = 10.0f, float width = 5.0f, float height = 3.0f);
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
     
 private:
@@ -128,7 +128,7 @@ class SensorZone : public Zone
 {
 
 public:
-    SensorZone(SensorType type,osg::Matrix matrix);
+    SensorZone(SensorType type,osg::Matrix matrix,float length = 10.0f, float width = 5.0f, float height = 3.0f);
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
     bool preFrame() override;
     void createGrid() override;
@@ -152,7 +152,7 @@ private:
 class GridPoint
 {
 public:
-    GridPoint(osg::Vec3 position,osg::Vec4& color);
+    GridPoint(osg::Vec3 position,osg::Vec4& color, float radius);
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
 
     osg::ref_ptr<osg::MatrixTransform> getPoint()const{return m_LocalDCS.get();} //muss man hier ref_ptr übergeben?

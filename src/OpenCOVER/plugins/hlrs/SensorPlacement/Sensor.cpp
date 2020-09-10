@@ -146,6 +146,10 @@ SensorPosition::SensorPosition(osg::Matrix matrix, bool visible = true):m_Curren
 
     m_SensorGroup->addChild(m_SensorMatrix.get());
 
+    float _interSize = cover->getSceneSize() / 50 ;
+    m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    m_Interactor->enableIntersection();
+
 }
 void SensorPosition::calcVisibility()
 {
@@ -163,6 +167,7 @@ void SensorPosition::setMatrix(osg::Matrix matrix)
 {
     m_CurrentOrientation.setMatrix(matrix);
     m_SensorMatrix->setMatrix(matrix);
+    m_Interactor->updateTransform(matrix);
 }
 
 void SensorPosition::setCurrentOrientation(Orientation orientation)

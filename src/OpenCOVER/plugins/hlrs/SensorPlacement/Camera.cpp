@@ -8,13 +8,9 @@
 #include <osg/LineWidth>
 #include <cover/coVRPluginSupport.h>
 
-Camera::Camera(osg::Matrix matrix, bool visible):
-    SensorWithMultipleOrientations(matrix)
+Camera::Camera(osg::Matrix matrix, bool visible, osg::Vec4 color):
+    SensorWithMultipleOrientations(matrix), m_Color{color}
 {
-    float _interSize = cover->getSceneSize() / 50 ;
-    m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
-    m_Interactor->enableIntersection();
-
     m_Geode = draw();
     m_SensorMatrix->addChild(m_Geode.get());
 
