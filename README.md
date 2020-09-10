@@ -1,26 +1,29 @@
 [![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
 
-COVISE, OpenCOVER, OddLOT (OpenDRIVE editor), vrmlEXP (3dsMax VRML exporter)
+Software in This Repository
 ====================
+
+COVISE and OpenCOVER
+--------------------
 
 [COVISE][1], the collaborative visualization and simulation environment, is a modular distributed visualization system.
 As its focus is on visualization of scientific data in virtual environments, it comprises the VR renderer [OpenCOVER][2].
 COVISE development is headed by [HLRS][3].
-It is portable to Windows and UNIX. We do regular builds on x86_64 Windows, Linux and Mac OS X.
-Also included in this repository are OddLOT, an OpenDRIVE editor and vrmlExp, a VRML97 and X3D exporter for Autodesk 3DStudio Max.
-If you want to compile OddLOT only, please have a look at https://github.com/hbanzhaf/docker_covise
-Windows binaries which include COVISE, OpenCOVER and OddLOT can be found here: https://fs.hlrs.de/projects/covise/support/download/
-A separate installer for the VRML exporter is also available on the same webpage.
+It is portable to Windows and UNIX. We do regular builds on x86_64 Windows, Linux and macOS.
+
+Other Software
+--------------
+Also included in this repository are [OddLOT][8], an OpenDRIVE editor, as well as vrmlExp, a VRML97 and X3D exporter for Autodesk 3ds Max.
 
 License
--------
+=======
 
-If not stated otherwise, COVISE and OpenCOVER source code is licensed under the LGPL v2.1. See `lgpl-2.1.txt` for
-details.
+If not stated otherwise, the source code in this repository is licensed under the LGPL v2.1.
+See `lgpl-2.1.txt` for details.
 
 
 Support & Mailing Lists
------------------------
+=======================
 
 As a user of COVISE, you might get answers to your questions on the [covise-users][4] mailing list.
 Please direct any questions related to installing/building/using COVISE there.
@@ -28,10 +31,33 @@ Please direct any questions related to installing/building/using COVISE there.
 You can receive notifications of changes to COVISE on the [covise-commits][5] list.
 
 
-Getting COVISE
---------------
+Getting Binaries and Automated Installation
+===========================================
 
-### UNIX
+If you need OddLOT only, please have a look at [https://github.com/hbanzhaf/docker_covise][9].
+
+macOS
+-----
+
+There is a [Homebrew][6] formula for COVISE. If you have it on your system, then you can simply
+
+      brew install hlrs-vis/tap/covise
+
+This will install COVISE, OpenCOVER, and OddLOT with all their dependencies.
+
+
+Windows
+-------
+
+Windows binaries, which include COVISE, OpenCOVER and OddLOT, can be found on the [COVISE download page][7].
+A separate installer for the VRML exporter vrmlExp is also available on the same webpage.
+
+
+Getting the Source Code
+=======================
+
+UNIX and Command Line
+---------------------
 
 Getting COVISE is as easy as
 
@@ -43,14 +69,20 @@ Update your existing copy to the current version by
       git submodule sync
       git submodule update --init --recursive # update submodules to latest required version
 
-#### macOS
 
-There is a [Homebrew][6] formula for COVISE. If you have it on your system, then you can simply
 
-      brew install hlrs-vis/tap/covise
 
-This will install COVISE with all its dependencies.
+Working with Git
+---------------
 
+### UNIX
+      cd covise
+      git pull -r #-r requests a rebase of your changes to avoid trivial branching
+      git submodule update --init --recursive # update submodules to latest required version
+
+
+Building COVISE and OpenCOVER
+=============================
 
 Build Requirements
 ------------------
@@ -110,7 +142,7 @@ Build Requirements
   3.2 or newer is required, 3.4 or newer highly recommended for the VR and desktop renderer OpenCOVER
 
 
-Optional dependencies
+Optional Dependencies
 ---------------------
 - **JPEG Turbo**
 - **VTK**
@@ -122,10 +154,15 @@ Optional dependencies
   The binaries shipped with most Linux distributions do not correctly render fonts on 64
   bit systems.
   Install a fixed version:
+
         git clone https://github.com/aumuell/open-inventor.git
         cd open-inventor
-        make IVPREFIX=$EXTERNLIBS/inventor install
+        cmake -DCMAKE_INSTALL_PREFIX=$EXTERNLIBS/inventor ..
+        cmake --build . --target all
+        cmake --build . --target install
 
+Tracking Dependencies
+---------------------
 CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
 
@@ -138,19 +175,8 @@ EXTERNLIBS.
 You should install e.g. OpenSceneGraph into $EXTERNLIBS/openscenegraph, and
 it will be discovered during the build process.
 
-
-Working with Git
----------------
-
-### UNIX
-      cd covise
-      git pull -r #-r requests a rebase of your changes to avoid trivial branching
-      git submodule update --init --recursive # update submodules to latest required version
-
-Building COVISE and OpenCOVER
------------------------------
-
-### UNIX
+Building on UNIX
+----------------
 
       cd covise
       source .covise.sh #set environment variables
@@ -164,7 +190,8 @@ subdirectories of `covise/src`.
 
 No installation is required: you can use COVISE directly from the build tree.
 
-### Windows
+Building on Windows
+-------------------
 Also on Windows, you should work from a command prompt:
 
        REM set COVISEDIR to location of your COVISE checkout
@@ -179,24 +206,6 @@ Also on Windows, you should work from a command prompt:
        cmake-gui ..
        REM open Visual Studio - either directly or with the button from CMake GUI
        devenv
-
-
-Building Documentation
-----------------------
-
-COVISE retrieves documentation from the web server at HLRS.
-But you also can build the documentation locally. You need the following
-tools:
-
-- pdflatex
-- latex2html
-- doxygen
-- graphviz
-
-Then you can:
-
-    cd ${COVISEDIR}/doc
-    make
 
 
 Changing CMake Settings
@@ -218,16 +227,36 @@ This might help you work around build problems.
 After changing any of these settings, you have to restart the build process.
 
 
-Invoking COVISE
----------------
+Building Documentation
+======================
 
-### UNIX
+COVISE retrieves documentation from the web server at HLRS.
+But you also can build the documentation locally. You need the following
+tools:
+
+- pdflatex
+- latex2html
+- doxygen
+- graphviz
+
+Then you can:
+
+    cd ${COVISEDIR}/doc
+    make
+
+
+Invoking COVISE
+===============
+
+UNIX
+----
 
 Add .../covise/bin to your PATH.
 
       covise
 
-### Windows
+Windows
+-------
 
 COVISE can be used without installation, provided you take the same steps as
 for building:
@@ -237,14 +266,14 @@ for building:
 	   REM set EXTERNLIBS to correct location of all your dependancies
        set EXTERNLIBSROOT=c:\src\externlibs
        cd %COVISEDIR%
-	   REM call winenv.bat with appropriate archsuffix for debug or release (tamarau for Visual Studio 2012 and zebu for 2015)
+	   REM call winenv.bat with appropriate archsuffix for debug or release (tamarau for Visual Studio 2012 and zebu for 2015 Update 3, 2017 or 2019)
        call %COVISEDIR%\winenv.bat zebuopt
        covise
        opencover
 
 
 Source Code Organization
-------------------------
+========================
 
 - `cmake`:
   cmake files
@@ -283,9 +312,13 @@ Source Code Organization
     VR renderer with its plug-ins
 
 
+
 [1]:   http://www.hlrs.de/covise/
 [2]:   http://www.hlrs.de/solutions-services/service-portfolio/visualization/covise/opencover/
 [3]:   http://www.hlrs.de/
 [4]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-users
 [5]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-commits
 [6]:   http://brew.sh
+[7]:   https://fs.hlrs.de/projects/covise/support/download/
+[8]:   http://www.hlrs.de/oddlot/
+[9]:   https://github.com/hbanzhaf/docker_covise
