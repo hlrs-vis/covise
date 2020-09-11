@@ -6,6 +6,10 @@
 #include "DataManager.h"
 #include "Factory.h"
 
+
+#include <osgDB/ReadFile>
+#include <iostream>
+#include <experimental/filesystem>
 using namespace opencover;
 
 UDP::UDP()
@@ -56,7 +60,7 @@ void UDP::processIncomingMessage(const Message& message)
             DataManager::AddUDPSensor(createSensor(SensorType::Camera, MessageToMatrix(msgWithTimestamp._message),true,osg::Vec4(0.5,0.5,1,1)));  
         }
         else    //if the id was found then update the position
-            DataManager::updateUDPSensorPosition(updatePos, MessageToMatrix(msgWithTimestamp._message) );  
+            DataManager::UpdateUDPSensorPosition(updatePos, MessageToMatrix(msgWithTimestamp._message) );  
     }
     else if(message.type == MessageType::ROI)
     {
@@ -64,10 +68,27 @@ void UDP::processIncomingMessage(const Message& message)
         if(updatePos == -1) //if the id is not in the vector than add it
         {
             _udpROI.push_back(msgWithTimestamp);
-            DataManager::AddZone(createZone(ZoneType::ROIzone,MessageToMatrix(msgWithTimestamp._message), 0.4, 0.6, 0.2));
+            DataManager::AddUDPZone(createZone(ZoneType::ROIzone,MessageToMatrix(msgWithTimestamp._message), 0.324, 0.163, 0.02));
         }
         else    //if the id was found then update the position
-            DataManager::UpdateZone(updatePos, MessageToMatrix(msgWithTimestamp._message) );  
+            DataManager::UpdateUDPZone(updatePos, MessageToMatrix(msgWithTimestamp._message) );  
+    }
+    else if(message.type == MessageType::Obstacle)
+    {
+        int updatePos = replaceMessage(_udpObstacle, msgWithTimestamp);
+        if(updatePos == -1) //if the id is not in the vector than add it
+        {
+            _udpObstacle.push_back(msgWithTimestamp);
+            const char *covisedir = getenv("COVISEDIR");
+            osg::ref_ptr<osg::Node> node = osgDB::readNodeFile( std::string(covisedir)+ "/obstacle.3ds" );
+            if (!node.valid())
+            {
+                osg::notify( osg::FATAL ) << "Unable to load node data file. Exiting." << std::endl;
+            }
+            DataManager::AddUDPObstacle(std::move(node), MessageToMatrix(msgWithTimestamp._message));
+        }
+         else    //if the id was found then update the position
+             DataManager::UpdateUDPObstacle(updatePos, MessageToMatrix(msgWithTimestamp._message)); 
     }
 }
 
@@ -118,20 +139,34 @@ void UDP::deleteOutOfDateMessages()
         }
     }
 
-    // if(!_udpROI.empty())
-    // {
-        // int count{0};
-        // for(const auto& roi : _udpROI)
-        // {
-            // if( timestamp - roi._timestamp > maxValue)
-            // {
-                // _udpROI.erase(_udpROI.begin()+count);
-                // DataManager::RemoveZone(_udpROI.begin()+count);
-            // }
-            // count++;
-        // }
-    // }
-// 
+    if(!_udpROI.empty())
+    {
+        int count{0};
+        for(const auto& roi : _udpROI)
+        {
+            if( timestamp - roi._timestamp > maxValue)
+            {
+                _udpROI.erase(_udpROI.begin()+count);
+                DataManager::RemoveUDPZone(count);
+            }
+            count++;
+        }
+    }
+
+      if(!_udpObstacle.empty())
+    {
+        int count{0};
+        for(const auto& obstacle : _udpObstacle)
+        {
+            if( timestamp - obstacle._timestamp > maxValue)
+            {
+                _udpObstacle.erase(_udpObstacle.begin()+count);
+                DataManager::RemoveUDPObstacle(count);
+            }
+            count++;
+        }
+    }
+ 
     //this didn't work !!! --> try with algorithm !!
     // _udpCameras.erase( std::remove_if(_udpCameras.begin(), _udpCameras.end(), [&timestamp](const MessageWithTimestamp& obst)
             // {   
@@ -166,7 +201,7 @@ bool UDP::update()
         }
         else if(bytes == -1)
         {
-            std::cerr << "SensorPlacement::update: error while reading data" << std::endl;   
+            std::cerr << "SensorPlacement::update: no incoming data" << std::endl;   
             returnValue = false;
         }
         else
@@ -187,9 +222,8 @@ void UDP::run()
 {   
     while(_doRun)
     {
-         update();
+        update();
         int worked = microSleep(10);
-        std::cout << "worked: " <<worked <<std::endl;
         //fprintf(stderr, "running\n");
     }
 

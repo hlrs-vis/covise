@@ -11,6 +11,7 @@ enum class MessageType
     ROI = 2
 };
 
+
 // this is the data structure of the incoming UDP message
 struct Message
 {   
@@ -59,6 +60,8 @@ private:
 
     std::vector<MessageWithTimestamp> _udpCameras;
     std::vector<MessageWithTimestamp> _udpROI;
+    std::vector<MessageWithTimestamp> _udpObstacle;
+
 
     OpenThreads::Barrier _endBarrier; // braucht man das ??? 
     void processIncomingMessage(const Message& message);

@@ -476,7 +476,10 @@ void Zone::createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign,
 
 void Zone::addPointToVec(osg::Vec3 point) // use rvalue here ? 
 {
-    m_GridPoints.push_back(GridPoint(point,m_Color,findLargestVectorComponent(findLongestSide()/15)));
+    float radius = findLargestVectorComponent(findLongestSide()/15);
+    if(radius>0.5)
+        radius = 0.5;
+    m_GridPoints.push_back(GridPoint(point,m_Color,radius));
     m_LocalDCS->addChild(m_GridPoints.back().getPoint());
 }
 

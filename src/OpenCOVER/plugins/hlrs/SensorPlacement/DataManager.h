@@ -18,6 +18,7 @@ typedef std::unique_ptr<Zone> upZone;
 typedef std::unique_ptr<SafetyZone> upSafetyZone;
 typedef std::unique_ptr<SensorZone> upSensorZone;
 
+// Data Members need mutex ? :https://stackoverflow.com/questions/27035446/do-we-need-mutex-for-accessing-the-data-field-in-singleton-object-in-c11-mul
 //Singleton Class
 class DataManager
 {
@@ -43,18 +44,26 @@ public:
     static void AddZone(upZone zone);
     static void AddSensorZone(upSensorZone zone);
     static void AddSensor(upSensor sensor);
-    static void UpdateZone(int pos, const osg::Matrix& mat);
 
     static void RemoveSensor(SensorPosition* sensor);
     static void RemoveZone(Zone* zone);
 
 
-    // Functions to handle UDP sensors
+    // Functions to handle incoming UDP messages
     static void RemoveUDPSensor(int pos);
+    static void RemoveUDPZone(int pos);
+    static void RemoveUDPObstacle(int pos);
+
     static void AddUDPSensor(upSensor sensor);
-    static void updateUDPSensorPosition(int pos, const osg::Matrix& mat);
+    static void AddUDPZone(upZone zone);
+    static void AddUDPObstacle(osg::ref_ptr<osg::Node> node,const osg::Matrix& mat);
+
+    static void UpdateUDPSensorPosition(int pos, const osg::Matrix& mat);
+    static void UpdateUDPZone(int pos, const osg::Matrix& mat);
+    static void UpdateUDPObstacle(int pos, const osg::Matrix& mat);
 
 
+    
     static void preFrame();
 
 private:
@@ -62,7 +71,13 @@ private:
     std::vector<upSensor> m_Sensors;            // virtual sensor positions
     std::vector<upZone> m_SafetyZones;//TODO: should use safety zone here as type ?           
     std::vector<upSensorZone> m_SensorZones;
-    std::vector<upSensor> m_UDPSensors;        // current live position of UDP sensors
+    
+    // live UDP positions
+    std::vector<upSensor> m_UDPSensors;        
+    std::vector<upZone> m_UDPSafetyZones;
+    std::vector<osg::ref_ptr<osg::MatrixTransform>> m_UDPObstacles;
+
+
     osg::ref_ptr<osg::Group> m_Root;
 
 };

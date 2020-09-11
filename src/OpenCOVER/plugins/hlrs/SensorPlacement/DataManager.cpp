@@ -135,16 +135,28 @@ void DataManager::AddSensor(upSensor sensor)
     GetInstance().m_Sensors.push_back(std::move(sensor));     
 }
 
+
 void DataManager::AddUDPSensor(upSensor sensor)
 {
     GetInstance().m_Root->addChild(sensor.get()->getSensor().get());
     GetInstance().m_UDPSensors.push_back(std::move(sensor));     
 }
 
-void DataManager::RemoveUDPSensor(int pos)
+void DataManager::AddUDPZone(upZone zone)
 {
-    GetInstance().m_Root->removeChild(GetInstance().m_UDPSensors.at(pos)->getSensor());
-    GetInstance().m_UDPSensors.erase(GetInstance().m_UDPSensors.begin() + pos);
+    GetInstance().m_Root->addChild(zone.get()->getZone().get());
+
+    if(dynamic_cast<SafetyZone*>(zone.get()))
+        GetInstance().m_UDPSafetyZones.push_back(std::move(zone));  
+}
+
+void DataManager::AddUDPObstacle(osg::ref_ptr<osg::Node> node, const osg::Matrix& mat)
+{
+    osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform(mat);
+    mt->addChild(node);
+
+    GetInstance().m_UDPObstacles.push_back(mt);
+    GetInstance().m_Root->addChild(mt);
 }
 
 void DataManager::RemoveSensor(SensorPosition* sensor)
@@ -152,6 +164,12 @@ void DataManager::RemoveSensor(SensorPosition* sensor)
     GetInstance().m_Root->removeChild(sensor->getSensor());
 
     GetInstance().m_Sensors.erase(std::remove_if(GetInstance().m_Sensors.begin(),GetInstance().m_Sensors.end(),[sensor](std::unique_ptr<SensorPosition>const& it){return sensor == it.get();}));  
+}
+
+void DataManager::RemoveUDPSensor(int pos)
+{
+    GetInstance().m_Root->removeChild(GetInstance().m_UDPSensors.at(pos)->getSensor());
+    GetInstance().m_UDPSensors.erase(GetInstance().m_UDPSensors.begin() + pos);
 }
 
 void DataManager::RemoveZone(Zone* zone)
@@ -162,7 +180,19 @@ void DataManager::RemoveZone(Zone* zone)
          GetInstance().m_SensorZones.erase(std::remove_if(GetInstance().m_SensorZones.begin(),GetInstance().m_SensorZones.end(),[zone](std::unique_ptr<SensorZone>const& it){return zone == it.get();}));
     else if(dynamic_cast<SafetyZone*>(zone))
         GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[zone](std::unique_ptr<Zone>const& it){return zone == it.get();}));
+}
 
+void DataManager::RemoveUDPObstacle(int pos)
+{
+    GetInstance().m_Root->removeChild(GetInstance().m_UDPObstacles.at(pos));
+    GetInstance().m_UDPObstacles.erase(GetInstance().m_UDPObstacles.begin() + pos);
+
+}
+
+void DataManager::RemoveUDPZone(int pos)
+{
+    GetInstance().m_Root->removeChild(GetInstance().m_UDPSafetyZones.at(pos)->getZone());
+    GetInstance().m_UDPSafetyZones.erase(GetInstance().m_UDPSafetyZones.begin() + pos);
 }
 
 void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
@@ -178,15 +208,20 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 
 }
 
-void DataManager::updateUDPSensorPosition(int pos, const osg::Matrix& mat)
+void DataManager::UpdateUDPSensorPosition(int pos, const osg::Matrix& mat)
 {
     GetInstance().m_UDPSensors.at(pos)->setMatrix(mat);
 };
 
-void DataManager::UpdateZone(int pos, const osg::Matrix& mat)
+void DataManager::UpdateUDPZone(int pos, const osg::Matrix& mat)
 {
-    GetInstance().m_SafetyZones.at(pos)->setPosition(mat);
+    GetInstance().m_UDPSafetyZones.at(pos)->setPosition(mat);
 }; 
+
+void DataManager::UpdateUDPObstacle(int pos, const osg::Matrix& mat)
+{
+    GetInstance().m_UDPObstacles.at(pos)->setMatrix(mat);
+};
 
 
 
