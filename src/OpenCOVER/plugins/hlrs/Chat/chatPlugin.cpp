@@ -154,13 +154,13 @@ void ChatPlugin::postFrame()
 	// we do not need to care about animation (auto or step) here,
 	// because it's in the main program
 }
-void ChatPlugin::UDPmessage(int type, int length, const void* data)
+void ChatPlugin::UDPmessage(vrb::UdpMessage* msg)
 {
-	if (type == vrb::AUDIO_STREAM)
+	if (msg->type == vrb::AUDIO_STREAM)
 	{
 		if(outStream)
 		{
-			int outSize = decodeSpeex(data, length);
+			int outSize = decodeSpeex(msg->data.data(), msg->data.length());
 			outStream->write((const char*)outputDataShort, outSize);
 		}
 	}

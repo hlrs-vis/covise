@@ -64,7 +64,7 @@ public:
     bool update();
     void preFrame();
     void postFrame();
-	virtual void UDPmessage(int type, int length, const void* data);
+	virtual void UDPmessage(vrb::UdpMessage* msg);
 
     void key(int type, int keySym, int mod);
 

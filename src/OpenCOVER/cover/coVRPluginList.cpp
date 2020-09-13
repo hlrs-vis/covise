@@ -521,9 +521,9 @@ void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
     DOALL(plugin->message(toWhom, t, l, b));
 }
 
-void coVRPluginList::UDPmessage(int type, const covise::DataHandle& dh) const
+void coVRPluginList::UDPmessage(vrb::UdpMessage* msg) const
 {
-	DOALL(plugin->UDPmessage(type, dh));
+	DOALL(plugin->UDPmessage(msg));
 }
 
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const

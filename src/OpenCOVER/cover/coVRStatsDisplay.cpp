@@ -329,7 +329,6 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 
         auto stats = viewer->getViewerStats();
         unsigned int first = stats->getEarliestFrameNumber(), last = stats->getLatestFrameNumber();
-        double dummy;
         if (_gpuStats)
         {
             _switch->setValue(_gpuUtilChildNum, true);

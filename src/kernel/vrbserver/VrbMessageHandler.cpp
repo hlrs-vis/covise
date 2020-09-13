@@ -1439,7 +1439,7 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 		return;
 	}
 	msg->conn = sender->conn;
-	covise::TokenBuffer tb(msg);
+	/*covise::TokenBuffer tb(msg);
 	switch (msg->type)
 	{
 	case vrb::EMPTY:
@@ -1452,12 +1452,12 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 	std:string m;
 		tb >> m;
 		cerr << "received udp message: " << m << endl;
-		clients.passOnMessage(msg, sender->getSession());
 	}
 	break;
 	default:
 		break;
-	}
+	}*/
+    clients.passOnMessage(msg, sender->getSession());
 }
 void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, const covise::DataHandle &value)
 {
