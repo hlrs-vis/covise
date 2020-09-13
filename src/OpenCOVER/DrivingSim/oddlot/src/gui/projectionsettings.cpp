@@ -84,7 +84,7 @@ ProjectionSettings::ProjectionSettings()
     if (covisedir == "")
         covisedir = getenv("COVISEDIR");
 #endif
-    std::string dir = covisedir + "/share/covise/"; 
+    std::string dir = covisedir.toStdString() + "/share/covise/"; 
 
     presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=utm +zone=32 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0", "UTM Zone 32"));
     presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=utm +zone=50 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0", "UTM Zone 50"));

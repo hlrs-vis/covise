@@ -443,7 +443,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		me.makeNoteOn(11, keySym, 1);
 
 		TokenBuffer tb;
-		tb << unsigned char(0);
+		tb << (unsigned char)0;
 		tb << me.getP0();
 		tb << me.getP1();
 		tb << me.getP2();
@@ -462,7 +462,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		MidiEvent me;
 		me.makeNoteOff(11, keySym, 0);
 		TokenBuffer tb;
-		tb << unsigned char(0);
+		tb << (unsigned char)0;
 		tb << me.getP0();
 		tb << me.getP1();
 		tb << me.getP2();
