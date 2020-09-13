@@ -288,7 +288,7 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		MidiEvent me(md.mStatus, md.mParam1, md.mParam2);
 
 		TokenBuffer tb;
-		tb << unsigned char(dwInstance);
+		tb << int(dwInstance);
 		tb << me.getP0();
 		tb << me.getP1();
 		tb << me.getP2();
@@ -359,9 +359,8 @@ void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
 {
 	MidiEvent me;
 	int dummy;
-	unsigned char c;
 	TokenBuffer tb(msg);
-	tb >> c;
+	tb >> dummy;
 	me.setChannel(dummy);
 	tb >> dummy;
 	me.setP0(dummy);
@@ -443,7 +442,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		me.makeNoteOn(11, keySym, 1);
 
 		TokenBuffer tb;
-		tb << (unsigned char)0;
+		tb << (int)0;
 		tb << me.getP0();
 		tb << me.getP1();
 		tb << me.getP2();
@@ -462,7 +461,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		MidiEvent me;
 		me.makeNoteOff(11, keySym, 0);
 		TokenBuffer tb;
-		tb << (unsigned char)0;
+		tb << (int)0;
 		tb << me.getP0();
 		tb << me.getP1();
 		tb << me.getP2();
@@ -1022,7 +1021,7 @@ bool MidiPlugin::update()
 			me.makeNoteOn(packet.channel, packet.key,packet.velocity);
 
 			TokenBuffer tb;
-			tb << packet.channel;
+			tb << (int)packet.channel;
 			tb << me.getP0();
 			tb << me.getP1();
 			tb << me.getP2();
