@@ -2541,6 +2541,7 @@ bool coVRMSController::syncVRBMessages()
 						cerr << "too many UDP Messages!!" << endl;
 						break;
 					}
+                    cerr << "received udp msg from client " << udpMsg->sender << ": " << udpMsg->type << "" << endl;
 					if (!vrbc->isConnected())
 						break;
 				}

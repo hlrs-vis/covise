@@ -9,7 +9,11 @@
 
 #include <osgDB/ReadFile>
 #include <iostream>
+#ifndef WIN32
 #include <experimental/filesystem>
+#else
+#include <filesystem>
+#endif
 using namespace opencover;
 
 UDP::UDP()

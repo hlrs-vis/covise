@@ -23,10 +23,10 @@ UdpMessage::UdpMessage(TokenBuffer &t)
 {
 }
 
-UdpMessage::UdpMessage(covise::TokenBuffer& tb, udp_msg_type type)
+UdpMessage::UdpMessage(covise::TokenBuffer& tb, udp_msg_type t)
 	:UdpMessage(tb)
 {
-	type = type;
+	type = t;
 }
 
 void UdpMessage::print()
