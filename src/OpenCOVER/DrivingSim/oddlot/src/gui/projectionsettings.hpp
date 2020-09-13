@@ -27,6 +27,14 @@ namespace Ui
 class ProjectionSettings;
 }
 
+class PresetInfo
+{
+public:
+    PresetInfo(std::string f, std::string t, std::string n) :to(t), from(f), name(n) {};
+    std::string to;
+    std::string from;
+    std::string name;
+};
 class ProjectionSettings : public QDialog
 {
     Q_OBJECT
@@ -36,14 +44,6 @@ class ProjectionSettings : public QDialog
     //################//
 
 public:
-    enum Preset {
-        None = 0,
-        WGS84_UTM_Zone_32 = 1,
-        WGS84_to_Potsdam = 2,
-        WGS84_to_WGS84_Ellipsoid = 3,
-        WGS84_UTM_Zone_45 = 4,
-    };
-    //Q_ENUM(Preset)
 
     explicit ProjectionSettings();
     virtual ~ProjectionSettings();
@@ -62,8 +62,7 @@ public:
     };*/
 
 private:
-    std::vector<std::string> presets;
-    std::vector<std::string> presetNames;
+    std::vector<PresetInfo> presets;
     //static ProjectionSettings *inst;
     /*struct Presets
     {

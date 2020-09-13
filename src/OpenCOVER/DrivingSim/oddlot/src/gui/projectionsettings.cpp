@@ -32,12 +32,12 @@ void ProjectionSettings::okPressed()
 
 void ProjectionSettings::PresetIndexChanged(const QString &change)
 {
-    Preset pre;
-    for (int i = 0; i < presetNames.size(); i++)
+    for (int i = 0; i < presets.size(); i++)
     {
-        if (change.toStdString() == presetNames[i])
+        if (change.toStdString() == presets[i].name)
         {
-            ui->Proj4Edit->setText(presets[i].c_str());
+            ui->ProjectionEdit->setText(presets[i].to.c_str());
+            ui->SourceEdit->setText(presets[i].from.c_str());
         }
     }
     updateUi();
@@ -69,20 +69,34 @@ ProjectionSettings::ProjectionSettings()
     //QString s = QVariant::fromValue(ProjectionSettings::None).value<QString>();
 
     ui->presetBox->addItem("None");
-    ui->presetBox->addItem("UTM Zone 32");
-    ui->presetBox->addItem("Gaus Krueger");
-    ui->presetBox->addItem("UTM Zone 50");
-    ui->presetBox->addItem("UTM Zone 45");
 
-    presetNames.push_back("UTM Zone 32");
-    presetNames.push_back("Gaus Krueger");
-    presetNames.push_back("UTM Zone 50");
-    presetNames.push_back("UTM Zone 45");
+#ifdef WIN32
+    char* pValue;
+    size_t len;
+    errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+    if (err || pValue == NULL || strlen(pValue) == 0)
+        err = _dupenv_s(&pValue, &len, "COVISEDIR");
+    if (err)
+        pValue = "";
+    std::string covisedir = pValue;
+#else
+    QString covisedir = getenv("ODDLOTDIR");
+    if (covisedir == "")
+        covisedir = getenv("COVISEDIR");
+#endif
+    std::string dir = covisedir + "/share/covise/"; 
 
-    presets.push_back("+proj=longlat +datum=WGS84 +to +proj=utm +zone=32 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0");
-    presets.push_back("+proj=longlat +datum=WGS84 +to +proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam");
-    presets.push_back("+proj=longlat +datum=WGS84 +to +proj=utm +zone=50 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0");
-    presets.push_back("+proj=longlat +datum=WGS84 +to +proj=utm +zone=45 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0");
+    presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=utm +zone=32 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0", "UTM Zone 32"));
+    presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=utm +zone=50 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0", "UTM Zone 50"));
+    presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=utm +zone=45 +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0", "UTM Zone 45"));
+    presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam", "Gauss Krueger BW"));
+    presets.push_back(PresetInfo("+proj=longlat +datum=WGS84", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=" + dir + "BETA2007.gsb", "Gauss Krueger BW + Korrektur "));
+
+    for (int i = 0; i < presets.size(); i++)
+    {
+        ui->presetBox->addItem(presets[i].name.c_str());
+    }
+
 
     ui->XOffsetSpin->setDecimals(10);
     ui->XOffsetSpin->setMaximum(10000000);
@@ -203,7 +217,9 @@ void ProjectionSettings::update()
     }
     else
     {
-        ui->Proj4Edit->setText(projectData_->getGeoReference()->getParams());
+        //ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+        ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(),0));
+        ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(),0));
         updateUi();
     }
 }
@@ -233,10 +249,8 @@ QString ProjectionSettings::prepareString(const QString &src)
 void ProjectionSettings::updateSettings()
 {
     QMessageBox msg;
-    QString proj = ui->Proj4Edit->text();
-    QString projTo = prepareString(proj.section("+to ",1));
-    QString projFrom = prepareString(proj);
-    (projFrom).remove(" +to ");
+    QString projTo = ui->ProjectionEdit->text();
+    QString projFrom = ui->SourceEdit->text();
     projPJ new_pj_from,new_pj_to;
     XOffset = ui->XOffsetSpin->value();
     YOffset = ui->YOffsetSpin->value();
@@ -260,7 +274,7 @@ void ProjectionSettings::updateSettings()
         else
         {
             projectData_->setProj4ReferenceTo(new_pj_to);
-            projectData_->setGeoReference(new GeoReference(proj));
+            projectData_->setGeoReference(new GeoReference(projTo));
             updateUi();
         }
     }
@@ -286,6 +300,6 @@ void ProjectionSettings::checkProjForPreset(const QString &proj)
 
 void ProjectionSettings::updateUi()
 {
-    checkProjForEPSG(ui->Proj4Edit->text());
-    checkProjForPreset(ui->Proj4Edit->text());
+    //checkProjForEPSG(ui->Proj4Edit->text());
+    //checkProjForPreset(ui->Proj4Edit->text());
 }
