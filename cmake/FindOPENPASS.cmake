@@ -3,6 +3,7 @@
 ##############################################################################
 SET(OPENPASS_INCLUDE_SEARCH_DIRS
   $ENV{EXTERNLIBS}/OpenPASS/include
+  $ENV{OPENPASS_HOME}/../../OpenPass_Source_Code/OpenPASS
   $ENV{COVISEDIR}/../simopenpass/OpenPass_Source_Code/OpenPASS
   ${GLOBAL_EXT_DIR}/OpenPASS/include
   ${GLOBAL_EXT_DIR}/include/OpenPASS
