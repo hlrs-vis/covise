@@ -359,9 +359,10 @@ void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
 {
 	MidiEvent me;
 	int dummy;
+	int channel;
 	TokenBuffer tb(msg);
-	tb >> dummy;
-	me.setChannel(dummy);
+	tb >> channel;
+	me.setChannel(channel);
 	tb >> dummy;
 	me.setP0(dummy);
 	tb >> dummy;
@@ -370,7 +371,7 @@ void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
 	me.setP2(dummy);
 	tb >> dummy;
 	me.setP3(dummy);
-	addEvent(me, c);
+	addEvent(me, channel);
 }
 int MidiPlugin::loadMidi(const char *filename, osg::Group *parent, const char *)
 {
