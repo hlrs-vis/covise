@@ -30,8 +30,8 @@
 # ARCHSUFFIX    Meaning
 # ----------------------------------------------------------------------
 
-zebu            Visual Studio 2015 Update 3, Visual Studio 2017 for x86_64
-vcpkg           Visual Studio 2015 Update 3, Visual Studio 2017 with 3rd party libraries from vcpkg
+zebu            Visual Studio 2015 Update 3, 2017 or 2019 for x86_64
+vcpkg           Visual Studio 2015 Update 3, 2017 or 2019 with 3rd party libraries from vcpkg
 
 linux32         Generic x86 Linux
 linux64         Generic x86_64 Linux
