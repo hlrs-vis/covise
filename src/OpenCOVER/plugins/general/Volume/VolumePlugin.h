@@ -135,8 +135,6 @@ public:
     void saveVolume();
     void cropVolume();
 	void syncTransferFunction();
-    void updateData(const std::string &name);
-
 
     //tablet UI listener
     void tabletPressEvent(coTUIElement *tUIItem) override;
@@ -264,6 +262,7 @@ private:
     float chosenFPS;
     float radiusScale[NumClipSpheres];
     bool sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2);
+    void mapTFToMinMax(VolumeMap::iterator it, vvVolDesc *vd);
 
     struct TFApplyCBData
     {
@@ -277,7 +276,9 @@ private:
     virvo::VolumeDrawable *getCurrentDrawable();
     void applyToVolumes(std::function<void(Volume &)> func);
 
-
+    //std::vector<float> minData, maxData;
+    std::map<int,std::vector<float>> minData, maxData;
+    
     void updateTFEData();
     bool computeHistogram;
     size_t maxHistogramVoxels = 60000000;
