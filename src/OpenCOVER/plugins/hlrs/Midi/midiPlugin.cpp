@@ -1779,67 +1779,70 @@ void Track::update()
 			me.setP2(0);
 			if (coVRMSController::instance()->isMaster())
 			{
-				   if (MidiPlugin::instance()->midifd[streamNum] > 0)
-				   {
-					 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
-        if(numRead > 0)
-	fprintf(stderr,"numRead %d streamnum %d buf[0] %d\n", numRead,streamNum,buf[0]);
+				if (MidiPlugin::instance()->midifd[streamNum] > 0)
+				{
+					numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
+					if (numRead > 0)
+						fprintf(stderr, "numRead %d streamnum %d buf[0] %d\n", numRead, streamNum, buf[0]);
 
-				   }
-				   else
-				   {
-				      numRead = -1;
-				   }
-				   if (numRead > 0)
-				   {
-					 if (buf[0] == 127 || buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
-					 {
-			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
-	fprintf(stderr,"numRead %d buf[0] %d\n", numRead,buf[0]);
-	fprintf(stderr,"numRead %d buf[1] %d\n", numRead,buf[1]);
-						 if(numRead < 2)
-						 {
-		                			fprintf(stderr,"oopps %d %d\n",(int)buf[0],numRead);
-						 }
+				}
+				else
+				{
+					numRead = -1;
+				}
+				if (numRead > 0)
+				{
+					if (buf[0] == 127 || buf[0] == -112 || buf[0] == -119 || buf[0] == -103 || buf[0] == -80)
+					{
+						numRead = read(MidiPlugin::instance()->midifd[streamNum], buf + 1, 2);
+						fprintf(stderr, "numRead %d buf[0] %d\n", numRead, buf[0]);
+						fprintf(stderr, "numRead %d buf[1] %d\n", numRead, buf[1]);
+						if (numRead < 2)
+						{
+							fprintf(stderr, "oopps %d %d\n", (int)buf[0], numRead);
+						}
 
-							 me.setP0(buf[0]);
-							 me.setP1(buf[1]);
-							 me.setP2(buf[2]);
-							 
+						me.setP0(buf[0]);
+						me.setP1(buf[1]);
+						me.setP2(buf[2]);
 
-					 }
-					 else
-					 {
-                                             if(buf[0]!=-2 && buf[0]!=-8 )
-{
-		                			fprintf(stderr,"unknown message %d %d\n",(int)buf[0],numRead);
-}
-			                      buf[0] = 0;
-			                      buf[1] = 0;
-			                      buf[2] = 0;
-					 }
-				   }
-				   
-				   
-				   
+
+					}
+					else
+					{
+						if (buf[0] != -2 && buf[0] != -8)
+						{
+							fprintf(stderr, "unknown message %d %d\n", (int)buf[0], numRead);
+						}
+						buf[0] = 0;
+						buf[1] = 0;
+						buf[2] = 0;
+					}
+				}
+
+
+
 				signed char buf[4];
 				buf[0] = me.getP0();
 				buf[1] = me.getP1();
 				buf[2] = me.getP2();
 				buf[3] = numRead;
-				coVRMSController::instance()->sendSlaves((char *)buf, 4);
+				coVRMSController::instance()->sendSlaves((char*)buf, 4);
 
-				TokenBuffer tb;
-				tb << me.getChannel();
-				tb << me.getP0();
-				tb << me.getP1();
-				tb << me.getP2();
-				tb << me.getP3();
-				vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
-				cover->sendVrbUdpMessage(&um);
-if(numRead > 0)
-	fprintf(stderr,"sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead,streamNum);
 
+				if (numRead > 0)
+				{
+					TokenBuffer tb;
+					tb << me.getChannel();
+					tb << me.getP0();
+					tb << me.getP1();
+					tb << me.getP2();
+					tb << me.getP3();
+					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+					cover->sendVrbUdpMessage(&um);
+
+					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
+				}
 			}
 			else
 			{
