@@ -294,7 +294,10 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		tb << me.getP2();
 		tb << me.getP3();
 		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		if(me.isNoteOn() || me.isNoteOff() || (me.isController() && me.getP1()>2))
+		{
 		cover->sendVrbUdpMessage(&um);
+		}
 		MidiPlugin::instance()->addEvent(me, dwInstance);
 		if (MidiPlugin::instance()->hMidiDeviceOut != NULL)
 		{
@@ -357,6 +360,8 @@ static FileHandler handlers[] = {
 
 void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
 {
+	if(msg->type==vrb::MIDI_STREAM)
+	{
 	MidiEvent me;
 	int dummy;
 	int channel;
@@ -369,9 +374,15 @@ void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
 	me.setP1(dummy);
 	tb >> dummy;
 	me.setP2(dummy);
-	tb >> dummy;
-	me.setP3(dummy);
+	//tb >> dummy;
+	//me.setP3(dummy);
+	fprintf(stderr, "received UDP Message %d %d", me.isNoteOn(), me.isNoteOff());
 	addEvent(me, channel);
+	}
+	else
+	{
+		fprintf(stderr, "received UDP Message %d ", msg->type);
+	}
 }
 int MidiPlugin::loadMidi(const char *filename, osg::Group *parent, const char *)
 {
@@ -451,8 +462,8 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
 		cover->sendVrbUdpMessage(&um);
 		addEvent(me, 0);
-		//fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
-		//	keySym,mod);
+		fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
+			keySym,mod);
 		return;
 		//}else{
 		//fprintf(stdout,"--- coVRKey called (KeyRelease, keySym=%d)\n",keySym);
@@ -461,7 +472,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 	{
 		MidiEvent me;
 		me.makeNoteOff(11, keySym, 0);
-		TokenBuffer tb;
+ 		TokenBuffer tb;
 		tb << (int)0;
 		tb << me.getP0();
 		tb << me.getP1();
@@ -470,6 +481,8 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
 		cover->sendVrbUdpMessage(&um);
 		addEvent(me, 0);
+		fprintf(stdout, "--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
+			keySym, mod);
 	}
 
 	switch (keySym)
@@ -1029,6 +1042,7 @@ bool MidiPlugin::update()
 			tb << me.getP3();
 			vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
 			cover->sendVrbUdpMessage(&um);
+			cerr << "sending MIDI comming from UDP" << endl;
 
 			addEvent(me, packet.channel);
 			signed char buf[4];
@@ -1832,7 +1846,7 @@ void Track::update()
 
 				if (numRead > 0)
 				{
-					TokenBuffer tb;
+					/*TokenBuffer tb;
 					tb << me.getChannel();
 					tb << me.getP0();
 					tb << me.getP1();
@@ -1840,8 +1854,8 @@ void Track::update()
 					tb << me.getP3();
 					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
 					cover->sendVrbUdpMessage(&um);
-
-					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
+					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
+					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/
 				}
 			}
 			else
