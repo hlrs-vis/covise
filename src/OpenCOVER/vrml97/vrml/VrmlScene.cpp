@@ -661,6 +661,15 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
 #else
             fseek(YYIN, 0, SEEK_SET);
 #endif
+            if (magicP[0] == 0xef && magicP[1] == 0xbb && magicP[2] == 0xbf)
+            {
+                //we have an utf8 with BOM, skip three characters
+#if HAVE_LIBPNG
+                readBytes = gzread(YYIN, &magic, 3);
+#else
+                readBytes = fread(&magic, 1, 3, YYIN);
+#endif
+            }
             // If the caller is not interested in PROTO defs, use a local namespace
             VrmlNamespace nodeDefs;
             if (ns)
