@@ -416,7 +416,7 @@ PlayerAServer::Source::loadAudio(const Audio *audio)
         return;
 
     char msg[MAX_BUFLEN];
-    char filename[MAX_BUFLEN];
+    char filename[MAX_BUFLEN - 100];
     if (audio->url() && strlen(audio->url()) > 0)
     {
         strcpy(filename, audio->url());
