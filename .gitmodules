@@ -15,7 +15,7 @@
 	url = https://github.com/hlrs-vis/OpenFOAM-Exporter.git
 [submodule "src/module/univiz"]
 	path = src/module/univiz
-	url = git://github.com/vistle/univiz.git
+	url = https://github.com/vistle/univiz.git
 [submodule "src/kernel/file"]
 	path = src/kernel/file
-	url = git://github.com/hlrs-vis/covise-file.git
+	url = https://github.com/hlrs-vis/covise-file.git
