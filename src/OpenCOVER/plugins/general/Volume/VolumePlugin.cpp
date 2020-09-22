@@ -1124,7 +1124,8 @@ void VolumePlugin::tabletPressEvent(coTUIElement *tUIItem)
                             it->second.tf[tfe->getActiveChannel()] = func;
                             it->second.drawable->setTransferFunctions(it->second.tf);
                             if (it->second.mapTF)
-                                it->second.drawable->mapTransferFunctionsFrom01();
+                                mapTFToMinMax(it, vd);
+
                             it->second.useChannelWeights = tfe->getUseChannelWeights();
                             it->second.drawable->setUseChannelWeights(it->second.useChannelWeights);
                             it->second.channelWeights = tfe->getChannelWeights();
@@ -1236,10 +1237,13 @@ void VolumePlugin::applyAllTransferFunctions(void *userData)
         {
             if (it->second.drawable == data->drawable || allVolumesActive)
             {
+                vvVolDesc *vd = it->second.drawable.get()->getVolumeDescription();
+
                 it->second.tf = tfe->getTransferFuncs();
                 it->second.drawable->setTransferFunctions(it->second.tf);
                 if (it->second.mapTF)
-                    it->second.drawable->mapTransferFunctionsFrom01();
+                    mapTFToMinMax(it, vd);
+                  
                 it->second.useChannelWeights = tfe->getUseChannelWeights();
                 it->second.channelWeights = tfe->getChannelWeights();
                 it->second.drawable->setChannelWeights(it->second.channelWeights);
@@ -1653,13 +1657,60 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
             if (volDesc->range(c)[1] == 0 && volDesc->range(c)[0] == 0)
                 volDesc->findMinMax(c, volDesc->range(c)[0], volDesc->range(c)[1]);
         }
+        
+        int groupID = -1;
+        std::string objName;
+        if (container)
+            objName= container->getName();
+        else if (geometry)
+            objName= geometry->getName();
+        
+        groupID = std::isdigit(objName[0]) ? objName[0] : -1;
 
+        if (groupID >= 0){
+            if(minData.find(groupID) == minData.end()){
+                std::vector<float> newVec;
+                minData[groupID] = newVec;
+                maxData[groupID] = newVec;
+            }
+            if (minData[groupID].size() < volDesc->getChan()){
+                minData[groupID].clear();
+                maxData[groupID].clear();
+                for (size_t c = 0; c < volDesc->getChan(); ++c)
+                {
+                    minData[groupID].push_back(colorObj->getMin(c));
+                    maxData[groupID].push_back(colorObj->getMax(c));
+                }
+            }else{
+                bool updateAll = false;
+                for (size_t c = 0; c < volDesc->getChan(); ++c)
+                {
+                    updateAll = false;
+                    if(minData[groupID][c]>colorObj->getMin(c)){
+                        minData[groupID][c] = colorObj->getMin(c);
+                        updateAll = true;
+                    }
+                    if(maxData[groupID][c]<colorObj->getMax(c)){
+                        maxData[groupID][c] = colorObj->getMax(c);
+                        updateAll = true;
+                    }
+                    if (updateAll) {
+                        for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
+                            std::string itName = it->first;
+                            if (std::strncmp(objName.c_str(), itName.c_str(),2)==0) {
+                                vvVolDesc *vd = it->second.drawable->getVolumeDescription();
+                                updateVolume(it->first,vd,true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         if (container->getName()){
             updateVolume(container->getName(), volDesc, true, "", container, group);
-            updateData(container->getName());
         }else if (geometry && geometry->getName()) {
             updateVolume(geometry->getName(), volDesc, true, "", container, group);
-            updateData(geometry->getName());
         }else {
             updateVolume("Anonymous COVISE object", volDesc, true, "", container, group);
         }
@@ -1682,6 +1733,24 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
     }
 }
 
+void VolumePlugin::mapTFToMinMax(VolumeMap::iterator it, vvVolDesc *vd){
+    int groupID = std::isdigit(it->first.c_str()[0]) ? it->first.c_str()[0] : -1;
+    typedef std::vector<vvTFWidget *> Widgets;
+    for (size_t chan = 0; chan < vd->tf.size(); ++chan)
+    {
+        for (Widgets::iterator widg = vd->tf[chan]._widgets.begin();
+             widg != vd->tf[chan]._widgets.end();
+             ++widg)
+        {
+            vvTFWidget *w = *widg;
+            if (groupID<0)
+                w->mapFrom01(vd->range(chan)[0], vd->range(chan)[1]);
+            else
+                w->mapFrom01(minData[groupID][chan], maxData[groupID][chan]);
+        }
+    }
+}
+
 bool VolumePlugin::sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2) {
     std::string name1 = it1->first;
     std::string name2 = it2->first;
@@ -1690,89 +1759,6 @@ bool VolumePlugin::sameObject(VolumeMap::iterator it1, VolumeMap::iterator it2) 
             return true;
     }
     return false;
-}
-
-void VolumePlugin::updateData(const std::string &name)
-{
-    VolumeMap::iterator ref = volumes.find(name);
-    float min_new[Field::NumChannels], max_new[Field::NumChannels], range_new[Field::NumChannels];
-    for(size_t c = 0; c < Field::NumChannels ;++c) {
-        min_new[c] =volumes.begin()->second.drawable->getVolumeDescription()->range(c)[0];
-        max_new[c] =volumes.begin()->second.drawable->getVolumeDescription()->range(c)[1];
-    }
-        
-    for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
-        if (sameObject(ref, it)) {
-            vvVolDesc *vd = it->second.drawable->getVolumeDescription();
-            for(size_t c = 0; c < Field::NumChannels ;++c) {
-                if ((vd->getChan()-1)>=c) {
-                   if (min_new[c] > vd->range(c)[0]) {
-                       min_new[c] = vd->range(c)[0];
-                   }
-                   if (max_new[c] < vd->range(c)[1]) {
-                       max_new[c] = vd->range(c)[1];
-                   }
-                }
-            }
-        }
-    }
-    for(size_t c = 0; c < Field::NumChannels ;++c) {
-        if (max_new[c] - min_new[c] <= 0.f)
-            range_new[c] = 1.f;
-        else
-            range_new[c] = 1.f/(max_new[c] - min_new[c]);
-    }
-    for (VolumeMap::iterator it = volumes.begin(); it != volumes.end(); it++) {
-        if (sameObject(ref, it)) {
-            vvVolDesc *vd = it->second.drawable->getVolumeDescription();
-            int noChan = vd->bpc;
-            int ival;
-            float fval;
-            float min_old[2], max_old[2], range_old[2];
-
-            for (int c = 0; c<noChan; ++c) {
-                min_old[c] = vd->range(c)[0];
-                max_old[c] = vd->range(c)[1];
-                switch (noChan)
-                {
-                    case 1:
-                        range_old[c] = (max_old[c]-min_old[c]) <= 0.f ? 255.f : 255.f/(max_old[c]-min_old[c]) ;
-                        break;
-                    case 2:
-                        range_old[c] = (max_old[c]-min_old[c]) <= 0.f ? 65535.0f : 65535.0f/(max_old[c]-min_old[c]) ;
-                        break;
-                }
-            }
-
-            for (size_t f=0; f<vd->getStoredFrames(); ++f)
-            {
-                uint8_t * old_data = vd->getRaw(f);
-                for (size_t i=0; i<vd->getFrameVoxels(); ++i)
-                {
-                    for (int c = 0; c<noChan; ++c)
-                    {
-                        switch (noChan)
-                        {
-                            case 1:
-                                fval = float(*old_data)/(range_old[c]) + min_old[c];
-                                ival = int(255.0f*(fval-min_new[c]) * range_new[c]);
-                                ival = ts_clamp(ival, 0, 255);
-                                *old_data++ = uint8_t(ival);
-                                break;
-                            case 2:
-                                //TODO: raw is uint16_t
-                                break;
-                        }
-                    }
-                }
-            }
-            for(size_t c = 0; c < vd->getChan(); ++c) {
-                 vd->range(c)[0] = min_new[c];
-                 vd->range(c)[1] = max_new[c];
-            }
-            updateVolume(it->first,vd,true);
-        }
-    }
 }
 
 void VolumePlugin::setTimestep(int t)
@@ -2021,7 +2007,9 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
     makeVolumeCurrent(volume);
 
     drawable->setTransferFunctions(volume->second.tf);
-    if (mapTF) drawable->mapTransferFunctionsFrom01();
+    if (mapTF)
+        mapTFToMinMax(volume, vd);
+         
     drawable->setPreintegration(volume->second.preIntegration);
     drawable->setLighting(volume->second.lighting);
     drawable->setChannelWeights(volume->second.channelWeights);
@@ -2130,19 +2118,20 @@ void VolumePlugin::updateTFEData()
                     editor->setNumChannels(vd->getChan());
 
                     editor->setTransferFuncs(currentVolume->second.tf);
-
+                    
+                    int objID = std::isdigit(currentVolume->first.c_str()[0]) ? currentVolume->first.c_str()[0] : -1;
                     for (int c = 0; c < vd->getChan(); ++c)
                     {
                         editor->setActiveChannel(c);
-                        editor->setMin(vd->range(c)[0]);
-                        editor->setMax(vd->range(c)[1]);
+                        editor->setMin(objID > 0 ? minData[objID][c] : vd->range(c)[0]);
+                        editor->setMax(objID > 0 ? maxData[objID][c] : vd->range(c)[1]);
                     }
 
                     editor->setActiveChannel(currentVolume->second.curChannel);
                     tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
                     if (tfApplyCBData.volume->mapTF)
-                        tfApplyCBData.drawable->mapTransferFunctionsFrom01();
-
+                        mapTFToMinMax(currentVolume, vd);
+                    
                     tfApplyCBData.drawable->setChannelWeights(editor->getChannelWeights());
                     tfApplyCBData.drawable->setUseChannelWeights(editor->getUseChannelWeights());
 

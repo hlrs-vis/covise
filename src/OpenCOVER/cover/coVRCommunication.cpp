@@ -875,7 +875,7 @@ void coVRCommunication::handleUdp(vrb::UdpMessage* msg)
 	case vrb::AVATAR_CONTROLLER_POSITION:
 		break;
 	default:
-		coVRPluginList::instance()->UDPmessage(msg->type, msg->data);
+		coVRPluginList::instance()->UDPmessage(msg);
 		break;
 	}
 

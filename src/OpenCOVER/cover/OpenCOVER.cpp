@@ -106,10 +106,12 @@ static void usage()
 {
     fprintf(stderr, "OpenCOVER\n");
     fprintf(stderr, "       (C) HLRS, University of Stuttgart (2004)\n\n");
-    fprintf(stderr, "usage: cover [-v <viewpoints file>] [-s <collaborative config file>] [-h] <data file>\n\n");
+    fprintf(stderr, "usage: cover [-g sessionName] [-C vrbServer:port] [-v <viewpoints file>] [-s <collaborative config file>] [-h] <data file>\n\n");
     fprintf(stderr, "       -h : print this message\n");
     fprintf(stderr, "       -v : automatically load the indicated viewpoint file\n");
     fprintf(stderr, "       -s : collaborative VR configuration file, used by web interface\n");
+    fprintf(stderr, "       -C : vrb to connect to in form host:port\n");
+    fprintf(stderr, "       -g : Collaborative Session to load\n");
 }
 
 //Signal handler

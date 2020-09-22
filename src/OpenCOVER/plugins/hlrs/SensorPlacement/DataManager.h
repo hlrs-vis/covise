@@ -18,6 +18,7 @@ typedef std::unique_ptr<Zone> upZone;
 typedef std::unique_ptr<SafetyZone> upSafetyZone;
 typedef std::unique_ptr<SensorZone> upSensorZone;
 
+// Data Members need mutex ? :https://stackoverflow.com/questions/27035446/do-we-need-mutex-for-accessing-the-data-field-in-singleton-object-in-c11-mul
 //Singleton Class
 class DataManager
 {
@@ -28,7 +29,7 @@ public:
         std::cout<<"Singleton is Destroyed!"<<std::endl;}
     static DataManager& GetInstance()
     {
-        static DataManager instance;
+        static DataManager instance;    //Static variable with block scope -> should be thread safe! 
         return instance;
     }
     static void Destroy();
@@ -37,22 +38,46 @@ public:
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
     static const osg::ref_ptr<osg::Group>& GetRootNode() {return GetInstance().m_Root;}
+    
     static void highlitePoints(const VisibilityMatrix<float>& visMat);
     static void setOriginalPointColor();
     static void AddZone(upZone zone);
     static void AddSensorZone(upSensorZone zone);
     static void AddSensor(upSensor sensor);
 
-    template<typename T>
-    static void Remove(T* object);
+    static void RemoveSensor(SensorPosition* sensor);
+    static void RemoveZone(Zone* zone);
 
+
+    // Functions to handle incoming UDP messages
+    static void RemoveUDPSensor(int pos);
+    static void RemoveUDPZone(int pos);
+    static void RemoveUDPObstacle(int pos);
+
+    static void AddUDPSensor(upSensor sensor);
+    static void AddUDPZone(upZone zone);
+    static void AddUDPObstacle(osg::ref_ptr<osg::Node> node,const osg::Matrix& mat);
+
+    static void UpdateUDPSensorPosition(int pos, const osg::Matrix& mat);
+    static void UpdateUDPZone(int pos, const osg::Matrix& mat);
+    static void UpdateUDPObstacle(int pos, const osg::Matrix& mat);
+
+
+    
     static void preFrame();
 
 private:
     DataManager();
-    std::vector<upSensor> m_Sensors;
-    std::vector<upZone> m_SafetyZones;
+    std::vector<upSensor> m_Sensors;            // virtual sensor positions
+    std::vector<upZone> m_SafetyZones;//TODO: should use safety zone here as type ?           
     std::vector<upSensorZone> m_SensorZones;
+    
+    // live UDP positions
+    std::vector<upSensor> m_UDPSensors;        
+    std::vector<upZone> m_UDPSafetyZones;
+    std::vector<osg::ref_ptr<osg::MatrixTransform>> m_UDPObstacles;
+
+
     osg::ref_ptr<osg::Group> m_Root;
 
 };

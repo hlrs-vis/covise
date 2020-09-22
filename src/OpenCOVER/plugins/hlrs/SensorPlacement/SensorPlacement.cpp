@@ -70,6 +70,18 @@ void updateAllSensors(std::vector<Orientation> orientations) // finish here ----
   }
 }
 
+SensorPlacementPlugin::SensorPlacementPlugin()
+{
+  DataManager::GetInstance(); //Create Instance of Singleton
+  m_UI = myHelpers::make_unique<UI>();
+  
+  #if SHOW_UDP_LIVE_OBJECTS
+    m_udp = myHelpers::make_unique<UDP>();
+    std::cout << "Sensorplacement: UDP is turned Off" <<std::endl;
+  #endif
+  
+}
+
 bool SensorPlacementPlugin::init()
 {
     std::cout<<"SensorPlacementPlugin loaded"<<std::endl;
@@ -77,17 +89,20 @@ bool SensorPlacementPlugin::init()
     return true;
 }
 
-void SensorPlacementPlugin::preFrame()
+bool SensorPlacementPlugin::update()
 {
-   DataManager::preFrame();
+  #if SHOW_UDP_LIVE_OBJECTS
+    return true;              
+  #else 
+    return false;
+  #endif
 }
 
-SensorPlacementPlugin::SensorPlacementPlugin()
+void SensorPlacementPlugin::preFrame()
 {
-  DataManager::GetInstance(); //Create Instance of Singleton
-  m_UI = myHelpers::make_unique<UI>();
-  
+  DataManager::preFrame();
 }
+
 
 bool SensorPlacementPlugin::destroy()
 {

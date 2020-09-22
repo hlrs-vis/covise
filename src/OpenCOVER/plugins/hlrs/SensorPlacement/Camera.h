@@ -9,12 +9,12 @@ struct CameraProps
 {  
 private:
     // Full HD Camera
-    float m_ImageHeightPixel{1080};
-    float m_ImageWidthPixel{1920};
+    float m_ImageHeightPixel{768};
+    float m_ImageWidthPixel{1024};
 
 public:
-    float m_FoV{60.f};
-    float m_DepthView{40.f};
+    float m_FoV{90.f};
+    float m_DepthView{4.f};
  
     float m_ImgWidth{2*m_DepthView*std::tan(m_FoV/2*(float)osg::PI/180)};
     float m_ImgHeight{m_ImgWidth / (m_ImageWidthPixel/m_ImageHeightPixel)};
@@ -31,7 +31,7 @@ class Camera : public SensorWithMultipleOrientations
 {
 public:
    
-    Camera(osg::Matrix matrix, bool visible);
+    Camera(osg::Matrix matrix, bool visible, osg::Vec4 color = osg::Vec4(0,1,0,1));
     ~Camera()override{};
     
     bool preFrame() override;
@@ -53,7 +53,7 @@ protected:
 private:
     CameraProps m_CameraProps;
 
-    osg::Vec4 m_Color{0,1,0,1};
+    osg::Vec4 m_Color;
     osg::ref_ptr<osg::Vec3Array> m_Verts;
     osg::ref_ptr<osg::Vec4Array> m_Colors;
     osg::ref_ptr<osg::Geode> m_Geode;

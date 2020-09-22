@@ -29,6 +29,7 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
+#include <net/udpMessage.h>
 #include <SDL_audio.h>
 #include <SDL.h>
 #include <fftw3.h>
@@ -58,6 +59,16 @@ class AudioInStream;
 using namespace opencover;
 using namespace covise;
 using namespace smf;
+
+class UDPMidiMessage
+{
+public:
+	UDPMidiMessage(int t, unsigned char s, unsigned char p1, unsigned char p2) { mTime = t; mStatus = s; mParam1 = p1; mParam2 = p2; };
+	int mTime;
+	unsigned char mStatus;
+	unsigned char mParam1;
+	unsigned char mParam2;
+};
 
 class controllerMapping
 {
@@ -355,6 +366,8 @@ public:
     bool update();
     void preFrame();
     void postFrame();
+
+	void UDPmessage(vrb::UdpMessage* msg);
 
     void key(int type, int keySym, int mod);
 

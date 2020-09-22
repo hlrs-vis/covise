@@ -18,8 +18,12 @@
 
 using namespace opencover;
 
-Zone::Zone(osg::Matrix matrix,osg::Vec4 color):m_Color(color)
+Zone::Zone(osg::Matrix matrix,osg::Vec4 color,float length, float width , float height)
+    : m_Color(color), m_Length(length), m_Width(width), m_Height(height)
 {
+    m_Distance = findLargestVectorComponent(findLongestSide()) / 5;
+    std::cout <<"Distance"<<m_Distance <<std::endl;
+
     m_LocalDCS = new osg::MatrixTransform(matrix);
     m_Geode = draw();
     m_LocalDCS->addChild(m_Geode);
@@ -456,10 +460,9 @@ void Zone::createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign,
         while(incrementLength < lengthLimit)
         {
             while(incrementHeight < heightLimit)
-            {
+            {   
                 osg::Vec3f point = startPoint+osg::Vec3(sign.x()*incrementLength,sign.y()*incrementWidth,sign.z()*incrementHeight);
-                m_GridPoints.push_back(GridPoint(point,m_Color));
-                m_LocalDCS->addChild(m_GridPoints.back().getPoint());
+                addPointToVec(point);
                 incrementHeight += m_Distance;
             }
             incrementHeight = 0.0;
@@ -473,7 +476,10 @@ void Zone::createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign,
 
 void Zone::addPointToVec(osg::Vec3 point) // use rvalue here ? 
 {
-    m_GridPoints.push_back(GridPoint(point,m_Color));
+    float radius = findLargestVectorComponent(findLongestSide()/15);
+    if(radius>0.5)
+        radius = 0.5;
+    m_GridPoints.push_back(GridPoint(point,m_Color,radius));
     m_LocalDCS->addChild(m_GridPoints.back().getPoint());
 }
 
@@ -695,7 +701,7 @@ void Zone::setOriginalColor()
         point.setOriginalColor();
 }
 
-SafetyZone::SafetyZone(osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0.5,0,1})
+SafetyZone::SafetyZone(osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0.5,0,1}, length,width,height)
 {
     createGrid();
 }
@@ -706,7 +712,7 @@ void SafetyZone::createGrid()
   createOuter3DGrid(calcSign());
 }
 
-SensorZone::SensorZone(SensorType type, osg::Matrix matrix):Zone(matrix,osg::Vec4{1,0,1,1}), m_SensorType(type)
+SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)
 {
     createGrid();
     m_SensorGroup = new osg::Group();
@@ -801,14 +807,14 @@ void SensorZone::createSpecificNbrOfSensors()
     
 }
 
-GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color)
+GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius)
 {
     osg::Matrix local;
     local.setTrans(pos);
     m_LocalDCS = new osg::MatrixTransform();
     m_LocalDCS->setMatrix(local);
     m_LocalDCS->setName("Translation");
-    m_Sphere = new osg::Sphere(osg::Vec3(0,0,0), 0.45);
+    m_Sphere = new osg::Sphere(osg::Vec3(0,0,0), radius);
     m_SphereDrawable = new osg::ShapeDrawable(m_Sphere);
     m_SphereDrawable->setColor(color);
     m_Geode = new osg::Geode();

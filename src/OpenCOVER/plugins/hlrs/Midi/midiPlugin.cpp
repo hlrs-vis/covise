@@ -286,6 +286,18 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		md.mParam1 = (UCHAR)((dwParam1 >> 8) & 0xFF);
 		md.mParam2 = (UCHAR)((dwParam1 >> 16) & 0xFF);
 		MidiEvent me(md.mStatus, md.mParam1, md.mParam2);
+
+		TokenBuffer tb;
+		tb << int(dwInstance);
+		tb << me.getP0();
+		tb << me.getP1();
+		tb << me.getP2();
+		tb << me.getP3();
+		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		if(me.isNoteOn() || me.isNoteOff() || (me.isController() && me.getP1()>2))
+		{
+		cover->sendVrbUdpMessage(&um);
+		}
 		MidiPlugin::instance()->addEvent(me, dwInstance);
 		if (MidiPlugin::instance()->hMidiDeviceOut != NULL)
 		{
@@ -346,6 +358,32 @@ static FileHandler handlers[] = {
 	  "mid" }
 };
 
+void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
+{
+	if(msg->type==vrb::MIDI_STREAM)
+	{
+	MidiEvent me;
+	int dummy;
+	int channel;
+	TokenBuffer tb(msg);
+	tb >> channel;
+	me.setChannel(channel);
+	tb >> dummy;
+	me.setP0(dummy);
+	tb >> dummy;
+	me.setP1(dummy);
+	tb >> dummy;
+	me.setP2(dummy);
+	//tb >> dummy;
+	//me.setP3(dummy);
+	fprintf(stderr, "received UDP Message %d %d", me.isNoteOn(), me.isNoteOff());
+	addEvent(me, channel);
+	}
+	else
+	{
+		fprintf(stderr, "received UDP Message %d ", msg->type);
+	}
+}
 int MidiPlugin::loadMidi(const char *filename, osg::Group *parent, const char *)
 {
 
@@ -414,9 +452,18 @@ void MidiPlugin::key(int type, int keySym, int mod)
 	{
 		MidiEvent me;
 		me.makeNoteOn(11, keySym, 1);
+
+		TokenBuffer tb;
+		tb << (int)0;
+		tb << me.getP0();
+		tb << me.getP1();
+		tb << me.getP2();
+		tb << me.getP3();
+		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		cover->sendVrbUdpMessage(&um);
 		addEvent(me, 0);
-		//fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
-		//	keySym,mod);
+		fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
+			keySym,mod);
 		return;
 		//}else{
 		//fprintf(stdout,"--- coVRKey called (KeyRelease, keySym=%d)\n",keySym);
@@ -425,7 +472,17 @@ void MidiPlugin::key(int type, int keySym, int mod)
 	{
 		MidiEvent me;
 		me.makeNoteOff(11, keySym, 0);
+ 		TokenBuffer tb;
+		tb << (int)0;
+		tb << me.getP0();
+		tb << me.getP1();
+		tb << me.getP2();
+		tb << me.getP3();
+		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		cover->sendVrbUdpMessage(&um);
 		addEvent(me, 0);
+		fprintf(stdout, "--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
+			keySym, mod);
 	}
 
 	switch (keySym)
@@ -976,6 +1033,16 @@ bool MidiPlugin::update()
 		    if(packet.command == 1 && packet.channel == 9)
 		    {
 			me.makeNoteOn(packet.channel, packet.key,packet.velocity);
+
+			TokenBuffer tb;
+			tb << (int)packet.channel;
+			tb << me.getP0();
+			tb << me.getP1();
+			tb << me.getP2();
+			tb << me.getP3();
+			vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+			cover->sendVrbUdpMessage(&um);
+			cerr << "sending MIDI comming from UDP" << endl;
 
 			addEvent(me, packet.channel);
 			signed char buf[4];
@@ -1726,58 +1793,70 @@ void Track::update()
 			me.setP2(0);
 			if (coVRMSController::instance()->isMaster())
 			{
-				   if (MidiPlugin::instance()->midifd[streamNum] > 0)
-				   {
-					 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
-        if(numRead > 0)
-	fprintf(stderr,"numRead %d streamnum %d buf[0] %d\n", numRead,streamNum,buf[0]);
+				if (MidiPlugin::instance()->midifd[streamNum] > 0)
+				{
+					numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
+					if (numRead > 0)
+						fprintf(stderr, "numRead %d streamnum %d buf[0] %d\n", numRead, streamNum, buf[0]);
 
-				   }
-				   else
-				   {
-				      numRead = -1;
-				   }
-				   if (numRead > 0)
-				   {
-					 if (buf[0] == 127 || buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
-					 {
-			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
-	fprintf(stderr,"numRead %d buf[0] %d\n", numRead,buf[0]);
-	fprintf(stderr,"numRead %d buf[1] %d\n", numRead,buf[1]);
-						 if(numRead < 2)
-						 {
-		                			fprintf(stderr,"oopps %d %d\n",(int)buf[0],numRead);
-						 }
+				}
+				else
+				{
+					numRead = -1;
+				}
+				if (numRead > 0)
+				{
+					if (buf[0] == 127 || buf[0] == -112 || buf[0] == -119 || buf[0] == -103 || buf[0] == -80)
+					{
+						numRead = read(MidiPlugin::instance()->midifd[streamNum], buf + 1, 2);
+						fprintf(stderr, "numRead %d buf[0] %d\n", numRead, buf[0]);
+						fprintf(stderr, "numRead %d buf[1] %d\n", numRead, buf[1]);
+						if (numRead < 2)
+						{
+							fprintf(stderr, "oopps %d %d\n", (int)buf[0], numRead);
+						}
 
-							 me.setP0(buf[0]);
-							 me.setP1(buf[1]);
-							 me.setP2(buf[2]);
-							 
+						me.setP0(buf[0]);
+						me.setP1(buf[1]);
+						me.setP2(buf[2]);
 
-					 }
-					 else
-					 {
-                                             if(buf[0]!=-2 && buf[0]!=-8 )
-{
-		                			fprintf(stderr,"unknown message %d %d\n",(int)buf[0],numRead);
-}
-			                      buf[0] = 0;
-			                      buf[1] = 0;
-			                      buf[2] = 0;
-					 }
-				   }
-				   
-				   
-				   
+
+					}
+					else
+					{
+						if (buf[0] != -2 && buf[0] != -8)
+						{
+							fprintf(stderr, "unknown message %d %d\n", (int)buf[0], numRead);
+						}
+						buf[0] = 0;
+						buf[1] = 0;
+						buf[2] = 0;
+					}
+				}
+
+
+
 				signed char buf[4];
 				buf[0] = me.getP0();
 				buf[1] = me.getP1();
 				buf[2] = me.getP2();
 				buf[3] = numRead;
-				coVRMSController::instance()->sendSlaves((char *)buf, 4);
-if(numRead > 0)
-	fprintf(stderr,"sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead,streamNum);
+				coVRMSController::instance()->sendSlaves((char*)buf, 4);
 
+
+				if (numRead > 0)
+				{
+					/*TokenBuffer tb;
+					tb << me.getChannel();
+					tb << me.getP0();
+					tb << me.getP1();
+					tb << me.getP2();
+					tb << me.getP3();
+					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+					cover->sendVrbUdpMessage(&um);
+					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
+					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/
+				}
 			}
 			else
 			{

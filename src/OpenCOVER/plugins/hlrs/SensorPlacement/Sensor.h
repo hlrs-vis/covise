@@ -79,7 +79,7 @@ protected:
     void checkForObstacles();
     
     const unsigned int m_NodeMask = UINT32_MAX & ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
-    std::unique_ptr<opencover::coVRIntersectionInteractor> m_Interactor; 
+    std::unique_ptr<opencover::coVR3DTransRotInteractor> m_Interactor; 
     Orientation m_CurrentOrientation;                                       // Visualized orientation
     VisibilityMatrix<float> m_VisMatSensorPos;                              // VisibilityMatrix(only contains intersections with obstacles)
     int m_Scale{10};                                                        // Scale factor for sensor visualization

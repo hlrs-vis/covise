@@ -136,8 +136,8 @@ void mopla::run()
 
 		if (st == movingUp)
 		{
-			double relativeSpeed = 0.1;
-			double relativeAccel = 0.1;
+			double relativeSpeed = 0.9;
+			double relativeAccel = 0.9;
 		
 			if(motPlat->isMiddleLifted())
 			{
@@ -160,8 +160,8 @@ void mopla::run()
     
 		if (st == running)
 		{
-			double amplitude = 0.05; //meters
-			double wavePeriod = 2.0; //seconds
+			double amplitude = 0.1; //meters
+			double wavePeriod = 0.9; //seconds
 			double time = (opencover::cover->frameTime()) - startTime;
 			double newPosition = amplitude*(sin((2*M_PI/wavePeriod)*time));
 

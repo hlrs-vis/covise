@@ -2536,11 +2536,12 @@ bool coVRMSController::syncVRBMessages()
 					udpMsgs[numUdpMessages] = udpMsg;
 					numUdpMessages++;
 					udpMsg = new vrb::UdpMessage;
-					if (numVrbMessages >= MAX_VRB_MESSAGES)
+					if (numUdpMessages >= MAX_VRB_MESSAGES)
 					{
 						cerr << "too many UDP Messages!!" << endl;
 						break;
 					}
+                    cerr << "received udp msg from client " << udpMsg->sender << ": " << udpMsg->type << "" << endl;
 					if (!vrbc->isConnected())
 						break;
 				}
