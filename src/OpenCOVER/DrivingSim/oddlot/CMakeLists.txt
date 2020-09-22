@@ -293,6 +293,7 @@ SET(ODDLOT_SOURCES
     src/graph/items/roadsystem/roadmark/roadmarkitem.cpp
     src/settings/widgets/lanesettings.cpp
     src/graph/items/handles/texthandle.cpp
+	src/graph/items/handles/editablehandle.cpp
     src/graph/items/roadsystem/roadtextitem.cpp
     src/graph/items/roadsystem/junctionitem.cpp
     src/wizards/roadlinkwizard.cpp
@@ -427,6 +428,7 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/items/handles/slidermovehandle.hpp
     src/graph/items/handles/splinemovehandle.hpp
     src/graph/items/handles/texthandle.hpp
+	src/graph/items/handles/editablehandle.hpp
     src/graph/items/oscsystem/oscbaseitem.hpp
     src/graph/items/oscsystem/oscitem.hpp
     src/graph/items/oscsystem/oscshapeitem.hpp

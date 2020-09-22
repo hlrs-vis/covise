@@ -110,6 +110,7 @@ LaneEditor::init()
 	{
 		setItemsSelectable(false);
 	}
+
 }
 
 /*!
@@ -380,7 +381,7 @@ bool
 LaneEditor::translateLaneBorder(const QPointF &pressPos, const QPointF &mousePosConst, double width, bool setWidth)
 {
 
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
 	foreach (BaseLaneMoveHandle *baseMoveHandle, selectedLaneMoveHandles_)
 	{
 		LaneMoveProperties *props = new LaneMoveProperties();
@@ -404,7 +405,7 @@ LaneEditor::translateLaneBorder(const QPointF &pressPos, const QPointF &mousePos
 			}
 		}
 
-		QMap<double, LaneMoveProperties *> propsMap;
+		QMultiMap<double, LaneMoveProperties *> propsMap;
 		if (selectedLaneMoveProps.find(road) != selectedLaneMoveProps.end())
 		{
 			propsMap = selectedLaneMoveProps.value(road);

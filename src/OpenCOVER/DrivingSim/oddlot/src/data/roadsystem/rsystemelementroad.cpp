@@ -2211,7 +2211,7 @@ RSystemElementRoad::getMinWidth(double s) const
 * of the lane widths
 */
 void 
-RSystemElementRoad::calculateLaneWidths(const QMap<double, WidthPoints *> *points)
+RSystemElementRoad::calculateLaneWidths(const QMultiMap<double, WidthPoints *> *points)
 {
 	int n = points->size() - 1;
 	Eigen::VectorXd b(n), c(n);
@@ -2345,16 +2345,16 @@ RSystemElementRoad::calculateLaneWidths(const QMap<double, WidthPoints *> *point
 * the new polynomial functions.
 */
 void 
-RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList)
+RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList)
 {
 	QMultiMap<Lane *, LaneWidth *> newPointList;  // get all lanes with changed type
 	for (int i = 0; i < pointList.size(); i++)
 	{
-		QMap<double, WidthPoints*> *points = pointList.at(i);
+		QMultiMap<double, WidthPoints*> *points = pointList.at(i);
 
 		calculateLaneWidths(points);
 
-		QMap<double, WidthPoints *>::const_iterator pointIt = points->constBegin();  // Move width entries with changed offset
+		QMultiMap<double, WidthPoints *>::const_iterator pointIt = points->constBegin();  // Move width entries with changed offset
 
 		while (pointIt != points->constEnd())
 		{
@@ -2453,8 +2453,8 @@ RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double,
 * lanes are the adjacent lanes, their polynomials have to be computed
 * points are the points laying on the polynomial
 */
-QMap<double, LaneMoveProperties *> 
-RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool gradientChange, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList)
+QMultiMap<double, LaneMoveProperties *> 
+RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool gradientChange, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList)
 {
 	QMap<double, LaneMoveProperties *> newPropsList;
 
@@ -2462,7 +2462,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 	QMapIterator<double, LaneMoveProperties *> it(propsList);
 	while (it.hasNext())
 	{
-		QMap<double, WidthPoints* > *points = new QMap<double, WidthPoints* >();
+		QMultiMap<double, WidthPoints* > *points = new QMultiMap<double, WidthPoints* >();
 		it.next();
 		double s = it.key();
 		LaneMoveProperties *props = it.value();
@@ -2493,9 +2493,23 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 				{
 					laneSide = -1;
 				}
+
+				int k = -1;
 				if (propsList.find(startS) != propsList.end())  // dPos only has to be added to points in the list
 				{
+					QList<LaneMoveProperties *> valueList = propsList.values(startS);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->highSlot == low)
+						{
+							k = i;
+							break;
+						}
+					}
+				}
 
+				if (k >= 0)
+				{
 					if (lane->getWidthEntryBefore(low->getSSectionStart()))
 					{
 						QPointF point;
@@ -2569,7 +2583,21 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 					}
 				}
 
+				LaneMoveProperties *moveProps = NULL;
 				if (propsList.find(s) != propsList.end())  // dPos only has to be added to points in the list
+				{
+					QList<LaneMoveProperties *> valueList = propsList.values(s);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->lowSlot == low)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+
+				if (moveProps)
 				{
 					int laneSide = 1;
 					if (lane->getId() < 0)
@@ -2634,7 +2662,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 
 					if ((low != props->lowSlot) || !props->highSlot)
 					{
-						newPropsList.insert(wp->pEnd.x(), propsList.find(s).value());
+						newPropsList.insert(wp->pEnd.x(), moveProps);
 					}
 				}
 				else
@@ -2701,7 +2729,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 			if ((gradientChange && (gradientDiff < NUMERICAL_ZERO3)) || (!gradientChange && (gradientDiff > NUMERICAL_ZERO3)))
 			{
 				pointList.append(points);
-				points = new QMap<double, WidthPoints* >();
+				points = new QMultiMap<double, WidthPoints* >();
 
 			}
 		}
@@ -2728,9 +2756,22 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 					laneSide = -1;
 				}
 
-				if (propsList.find(s) != propsList.end())
+				LaneMoveProperties *moveProps = NULL;
+				if (propsList.find(s) != propsList.end())  // dPos only has to be added to points in the list
 				{
-
+					QList<LaneMoveProperties *> valueList = propsList.values(s);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->highSlot == high)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+	
+				if (moveProps)
+				{
 					if (low && (lane == low->getParentLane()))
 					{
 						QPointF point;
@@ -2787,7 +2828,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 						wp->pStart = QPointF(s, QVector2D(point - pointNextLane).length());
 					}
 
-					newPropsList.insert(wp->pStart.x(), propsList.find(s).value());
+					newPropsList.insert(wp->pStart.x(), moveProps);
 				}
 				else
 				{
@@ -2806,7 +2847,22 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 				}
 				
 				double sEnd = high->getSSectionEnd();
-				if (propsList.find(sEnd) != propsList.end())
+
+				moveProps = NULL;
+				if (propsList.find(sEnd) != propsList.end())  // dPos only has to be added to points in the list
+				{
+					QList<LaneMoveProperties *> valueList = propsList.values(sEnd);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->lowSlot == high)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+
+				if (moveProps)
 				{
 					int laneSide = 1;
 					if (lane->getId() < 0)
@@ -2932,15 +2988,15 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 * lanes are the adjacent lanes, their polynomials have to be computed
 * points are the points laying on the polynomial
 */
-QMap<double, LaneMoveProperties *>
-RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, double width, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList)
+QMultiMap<double, LaneMoveProperties *>
+RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, double width, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList)
 {
-	QMap<double, LaneMoveProperties *> newPropsList;
+	QMultiMap<double, LaneMoveProperties *> newPropsList;
 
 	QMapIterator<double, LaneMoveProperties *> it(propsList);
 	while (it.hasNext())
 	{
-		QMap<double, WidthPoints* > *points = new QMap<double, WidthPoints* >();
+		QMultiMap<double, WidthPoints* > *points = new QMultiMap<double, WidthPoints* >();
 		it.next();
 		double s = it.key();
 		LaneMoveProperties *props = it.value();
@@ -2966,7 +3022,21 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 					laneSide = -1;
 				}
 
+				LaneMoveProperties *moveProps = NULL;
 				if (propsList.find(low->getSSectionStartAbs()) != propsList.end())  // dPos only has to be added to points in the list
+				{
+					QList<LaneMoveProperties *> valueList = propsList.values(low->getSSectionStartAbs());
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->highSlot == low)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+
+				if (moveProps)  // dPos only has to be added to points in the list
 				{
 					wp->pStart = QPointF(low->getSSectionStartAbs(), width);
 
@@ -2989,13 +3059,27 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 					}
 				}
 
+				moveProps = NULL;
 				if (propsList.find(s) != propsList.end())  // dPos only has to be added to points in the list
+				{
+					QList<LaneMoveProperties *> valueList = propsList.values(s);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->lowSlot == low)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+
+				if (moveProps)  // dPos only has to be added to points in the list
 				{
 					wp->pEnd = QPointF(s, width);
 
 					if ((low != props->lowSlot) || !props->highSlot)
 					{
-						newPropsList.insert(wp->pEnd.x(), propsList.find(s).value());
+						newPropsList.insert(wp->pEnd.x(), moveProps);
 					}
 				}
 				else
@@ -3048,7 +3132,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 			if (gradientDiff > NUMERICAL_ZERO3)
 			{
 				pointList.append(points);
-				points = new QMap<double, WidthPoints* >();
+				points = new QMultiMap<double, WidthPoints* >();
 
 			}
 		}
@@ -3071,7 +3155,21 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 					laneSide = -1;
 				}
 
-				if (propsList.find(s) != propsList.end())
+				LaneMoveProperties *moveProps = NULL;
+				if (propsList.find(s) != propsList.end())  // dPos only has to be added to points in the list
+				{
+					QList<LaneMoveProperties *> valueList = propsList.values(s);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->highSlot == high)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+
+				if (moveProps)
 				{
 					wp->pStart = QPointF(s, width);
 
@@ -3080,7 +3178,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 						wp->typeChanged = true;
 					}
 
-					newPropsList.insert(wp->pStart.x(), propsList.find(s).value());
+					newPropsList.insert(wp->pStart.x(), moveProps);
 				}
 				else
 				{
@@ -3095,7 +3193,21 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 					}
 				}
 
+				moveProps = NULL;
 				if (propsList.find(high->getSSectionEnd()) != propsList.end())  // dPos only has to be added to points in the list
+				{
+					QList<LaneMoveProperties *> valueList = propsList.values(high->getSSectionEnd());
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						if (valueList.at(i)->lowSlot == high)
+						{
+							moveProps = valueList.at(i);
+							break;
+						}
+					}
+				}
+
+				if (moveProps)  // dPos only has to be added to points in the list
 				{
 					wp->pEnd = QPointF(high->getSSectionEnd(), width);
 				}
@@ -3154,16 +3266,16 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 * lanes are the adjacent lanes, their polynomials have to be computed
 * points are the points laying on the polynomial
 */
-QMap<double, LaneMoveProperties *>
-RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList)
+QMultiMap<double, LaneMoveProperties *>
+RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, bool changeGradient, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList)
 {
-	QMap<double, LaneMoveProperties *> newPropsList;
+	QMultiMap<double, LaneMoveProperties *> newPropsList;
 	bool widthType;
 
 	QMapIterator<double, LaneMoveProperties *> it(propsList);
 	while (it.hasNext())
 	{
-		QMap<double, WidthPoints* > *points = new QMap<double, WidthPoints* >();
+		QMultiMap<double, WidthPoints* > *points = new QMultiMap<double, WidthPoints* >();
 		it.next();
 		double s = it.key();
 		LaneMoveProperties *props = it.value();
@@ -3220,12 +3332,24 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 
 				points->insert(low->getSSectionStartAbs(), wp);
 
+				
 				if (propsList.find(s) != propsList.end())  // dPos only has to be added to points in the list
 				{
+
 					if ((low != props->lowSlot) || !props->highSlot)
 					{
-						newPropsList.insert(wp->pEnd.x(), propsList.find(s).value());
+						QList<LaneMoveProperties *> valueList = propsList.values(s);
+						for (int i = 0; i < valueList.size(); i++)
+						{
+							LaneMoveProperties *valueProp = valueList.at(i);
+							if (valueProp->lowSlot == low)
+							{
+								newPropsList.insert(wp->pEnd.x(), propsList.find(s).value());
+								break;
+							}
+						}
 					}
+
 				}
 
 				high = low;
@@ -3264,7 +3388,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 			if ((changeGradient && (gradientDiff < NUMERICAL_ZERO3)) || (!changeGradient && (gradientDiff > NUMERICAL_ZERO3)))
 			{
 				pointList.append(points);
-				points = new QMap<double, WidthPoints* >();
+				points = new QMultiMap<double, WidthPoints* >();
 
 			}
 		}
@@ -3320,7 +3444,16 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 
 				if (propsList.find(s) != propsList.end())
 				{
-					newPropsList.insert(wp->pStart.x(), propsList.find(s).value());
+					QList<LaneMoveProperties *> valueList = propsList.values(s);
+					for (int i = 0; i < valueList.size(); i++)
+					{
+						LaneMoveProperties *valueProp = valueList.at(i);
+						if (valueProp->highSlot == high)
+						{
+							newPropsList.insert(wp->pStart.x(), propsList.find(s).value());
+							break;
+						}
+					}
 				}
 
 				low = high;

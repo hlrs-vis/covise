@@ -308,11 +308,11 @@ public:
 
 	// LaneWidth //
 	//
-	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
-	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, double width, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
-	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
-	void translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
-	void calculateLaneWidths(const QMap<double, WidthPoints *> *points);
+	QMultiMap<double, LaneMoveProperties *> getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool changeGradient, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList);
+	QMultiMap<double, LaneMoveProperties *> getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, double width, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList);
+	QMultiMap<double, LaneMoveProperties *> getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, bool changeGradient, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList);
+	void translateLaneWidths(QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints*> *> &pointList);
+	void calculateLaneWidths(const QMultiMap<double, WidthPoints *> *points);
 
 
     // check if the lanes are linked at their ends

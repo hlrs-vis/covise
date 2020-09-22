@@ -21,7 +21,7 @@
 
 class LaneEditor;
 class LaneWidth;
-class TextHandle;
+class EditableHandle;
 
 
 
@@ -42,6 +42,7 @@ public:
 	virtual LaneWidth *getLowSlot() = 0;
 	virtual LaneWidth *getHighSlot() = 0;
 
+	void updateWidthItemValue();
 
 private:
 	BaseLaneMoveHandle(); /* not allowed */
@@ -49,7 +50,7 @@ private:
 	BaseLaneMoveHandle &operator=(const BaseLaneMoveHandle &); /* not allowed */
 
 protected:
-	virtual const QString getText() = 0;
+	virtual const double getWidth() = 0;
 
 	//################//
 	// SLOTS          //
@@ -59,6 +60,7 @@ protected:
 	virtual void removeCorner() = 0;
 	virtual void smoothCorner() = 0;
 	virtual void corner() = 0;
+	virtual void setLaneWidth(double width) = 0;
 
 	//################//
 	// EVENTS         //
@@ -70,6 +72,7 @@ protected:
 	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+	virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 
 
@@ -90,7 +93,7 @@ private:
 	QAction *smoothAction_;
 	QAction *cornerAction_;
 
-	TextHandle *widthTextItem_;
+	EditableHandle *widthItem_;
 
 };
 
