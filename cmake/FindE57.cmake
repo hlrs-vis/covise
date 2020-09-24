@@ -23,7 +23,7 @@ FIND_PATH(E57_INCLUDE_DIR "e57/E57Simple.h"
   DOC "E57 - Headers"
 )
 
-SET(E57_NAMES e57 libE57RefImpl.a E57RefImpl.lib)
+SET(E57_NAMES e57 E57RefImpl libE57RefImpl.a E57RefImpl.lib)
 SET(E57_DBG_NAMES e57D libE57RefImplD.a E57RefImpl-d.lib)
 
 FIND_LIBRARY(E57_LIBRARY NAMES ${E57_NAMES}
