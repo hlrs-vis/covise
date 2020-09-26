@@ -642,6 +642,7 @@ SET(ODDLOT_OTHER_FILES
 	 prototypes/TJunctionTown.odd
 )
 IF(COVISE_FOUND)
+    ADD_DEFINITIONS(-DCOVER_CONNECTION)
     SET(ODDLOT_SOURCES ${ODDLOT_SOURCES} 
         src/cover/coverconnection.cpp
     )

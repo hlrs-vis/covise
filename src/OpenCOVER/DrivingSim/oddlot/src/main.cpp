@@ -42,7 +42,9 @@ int main(int argc, char *argv[])
     {
         w.open(args.at(1));
     }
+#ifdef COVER_CONNECTION
     COVERConnection::instance()->setMainWindow(&w); // create a cover connection
+#endif
 
 	QFile File(":/oddstylesheet.qss");
 	if (File.open(QFile::ReadOnly))

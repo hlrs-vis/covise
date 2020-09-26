@@ -728,7 +728,13 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
 {
     // Check for validity //
     //
-    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected())|| sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+    if (!road
+            || (maps.isEmpty()
+#ifdef COVER_CONNECTION
+                && !COVERConnection::instance()->isConnected()
+#endif
+                )
+            || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
@@ -759,6 +765,7 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     // Read superelevations //
     //
     double *sampleSuperelevations = new double[pointCount];
+#ifdef COVER_CONNECTION
     if(COVERConnection::instance()->isConnected())
     {
         covise::TokenBuffer tb;
@@ -820,6 +827,7 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
         
     }
     else
+#endif
     {
         for (int i = 0; i < pointCount; ++i)
         {

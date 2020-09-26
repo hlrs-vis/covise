@@ -365,7 +365,9 @@ GraphView::rebuildRulers()
     double width = viewport()->size().width() / matrix().m11();
     double height = viewport()->size().height() / matrix().m22();
 
+#ifdef COVER_CONNECTION
     COVERConnection::instance()->resizeMap(pos.x(),pos.y(),width,height);
+#endif
 
     if (!rulersActive_)
     {

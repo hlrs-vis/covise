@@ -40,6 +40,8 @@
 
 #include "src/cover/coverconnection.hpp"
 #include "src/data/prototypemanager.hpp"
+#include "src/mainwindow.hpp"
+
 #include <qdialogbuttonbox.h>
 #include <qpushbutton.h>
 #include <qundostack.h>

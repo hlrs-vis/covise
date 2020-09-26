@@ -1371,7 +1371,13 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 {
     // Check for validity //
     //
-    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected())|| sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+    if (!road
+            || (maps.isEmpty()
+#ifdef COVER_CONNECTION
+                && !COVERConnection::instance()->isConnected()
+#endif
+               )
+            || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
@@ -1403,6 +1409,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     // Read Heights //
     //
     double *sampleHeights = new double[pointCount];
+#ifdef COVER_CONNECTION
     if(COVERConnection::instance()->isConnected())
     {
         covise::TokenBuffer tb;
@@ -1452,6 +1459,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
         
     }
     else
+#endif
     {
         for (int i = 0; i < pointCount; ++i)
         {

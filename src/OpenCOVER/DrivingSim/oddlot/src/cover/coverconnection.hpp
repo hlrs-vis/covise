@@ -14,13 +14,17 @@
 **************************************************************************/
 #ifndef COVERConnection_HPP
 #define COVERConnection_HPP
+
+#ifdef COVER_CONNECTION
 #include <net/covise_socket.h>
 #include <net/covise_connect.h>
 #include <qsocketnotifier.h>
 #include <qtimer.h>
+#include <qdialog.h>
 #include "../../plugins/hlrs/OddlotLink/oddlotMessageTypes.h"
 #include <net/tokenbuffer.h>
-#include "../mainwindow.hpp"
+
+class MainWindow;
 
 namespace Ui
 {
@@ -98,4 +102,5 @@ private:
 
 };
 
+#endif // COVER_CONNECTION
 #endif // COVERConnection_HPP

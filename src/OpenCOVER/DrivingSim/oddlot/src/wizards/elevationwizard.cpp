@@ -163,7 +163,12 @@ ElevationWizard::validateRunButton()
 {
     // Enable the apply button only if there are selected roads and maps //
     //
-    if (ui->roadsList->selectedItems().isEmpty() || (ui->heightmapsList->selectedItems().isEmpty() && !COVERConnection::instance()->isConnected()))
+    if (ui->roadsList->selectedItems().isEmpty()
+            || (ui->heightmapsList->selectedItems().isEmpty()
+#ifdef COVER_CONNECTION
+                && !COVERConnection::instance()->isConnected()
+#endif
+                ))
     {
         ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
     }
