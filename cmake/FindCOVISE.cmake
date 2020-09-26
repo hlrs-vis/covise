@@ -145,6 +145,9 @@ ENDMACRO(COVISE_FIND_PACKAGE PACKAGE)
 
 include(FindPackageHandleStandardArgs)
 include(Qt4-5)
+include(CoviseHelperMacros)
+
+covise_find_boost()
 
 macro(covise_find_library module library)
    #message("covise_find_library(${module} ${library}: searching ${COVISEDIR}/${COVISE_ARCHSUFFIX}")
