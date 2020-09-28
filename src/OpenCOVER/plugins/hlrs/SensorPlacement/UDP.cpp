@@ -5,6 +5,7 @@
 #include <cover/coVRMSController.h>
 #include "DataManager.h"
 #include "Factory.h"
+#include "UI.h"
 
 
 #include <osgDB/ReadFile>
@@ -35,7 +36,7 @@ UDP::~UDP()
 void UDP::initUDP()
 {
     _udp.reset(nullptr);
-    const std::string host = covise::coCoviseConfig::getEntry("value", "SensorPlacement.serverHost", "10.65.5.241");
+    const std::string host = covise::coCoviseConfig::getEntry("value", "SensorPlacement.serverHost", "10.42.0.2");
     _serverPort = covise::coCoviseConfig::getInt("SensorPlacement.serverPort", 5555);
     _localPort = covise::coCoviseConfig::getInt("SensorPlacement.serverHost", 5555);
     std::cerr << "SensorPlacement: UDP: serverHost: " << host << ", localPort: " << _localPort << ", serverPort: " << _serverPort << std::endl;
@@ -51,7 +52,6 @@ void UDP::initUDP()
 
 void UDP::processIncomingMessage(const Message& message)
 {
-
     double timestamp = cover->frameTime();
     MessageWithTimestamp msgWithTimestamp(message, timestamp);   
 
@@ -61,38 +61,57 @@ void UDP::processIncomingMessage(const Message& message)
         if(updatePos == -1) //if the id is not in the vector than add it
         {
             _udpCameras.push_back(msgWithTimestamp);
-            DataManager::AddUDPSensor(createSensor(SensorType::Camera, MessageToMatrix(msgWithTimestamp._message),true,osg::Vec4(0.5,0.5,1,1)));  
+            DataManager::AddUDPSensor(createSensor(SensorType::Camera, msgWithTimestamp._message.matrix,true,osg::Vec4(0.5,0.5,1,1)));  
         }
         else    //if the id was found then update the position
-            DataManager::UpdateUDPSensorPosition(updatePos, MessageToMatrix(msgWithTimestamp._message) );  
+            DataManager::UpdateUDPSensorPosition(updatePos, msgWithTimestamp._message.matrix );  
     }
     else if(message.type == MessageType::ROI)
     {
-        int updatePos = replaceMessage(_udpROI, msgWithTimestamp);
+        osg::Matrix translate = osg::Matrix::translate(osg::Vec3(0,0,0.02)); // translate ROI in z direction, that it is flat on table
+        int updatePos = replaceMessage(_udpROI, message, timestamp);
+
         if(updatePos == -1) //if the id is not in the vector than add it
         {
-            _udpROI.push_back(msgWithTimestamp);
-            DataManager::AddUDPZone(createZone(ZoneType::ROIzone,MessageToMatrix(msgWithTimestamp._message), 0.324, 0.163, 0.02));
+            DataManager::AddUDPZone(createZone(ZoneType::ROIzone,  translate * message.matrix, 0.297, 0.210, 0.02)); 
+            _udpROI.push_back(DetectedObject(message, timestamp));
+
         }
         else    //if the id was found then update the position
-            DataManager::UpdateUDPZone(updatePos, MessageToMatrix(msgWithTimestamp._message) );  
+        {
+            osg::Matrix matrix;
+            if(UI::m_showShortestUDPPositions)
+                matrix =  translate * _udpROI.at(updatePos).getMatrixFromClosestCamera();
+            else if(UI::m_showAverageUDPPositions)
+                matrix = translate *_udpROI.at(updatePos).getAverageMatrix();
+
+            DataManager::UpdateUDPZone(updatePos, matrix, _udpROI.at(updatePos).getNbrOfCameras() );  
+        }
     }
     else if(message.type == MessageType::Obstacle)
     {
-        int updatePos = replaceMessage(_udpObstacle, msgWithTimestamp);
+        int updatePos = replaceMessage(_udpObstacle, message, timestamp);
         if(updatePos == -1) //if the id is not in the vector than add it
         {
-            _udpObstacle.push_back(msgWithTimestamp);
+            _udpObstacle.push_back(DetectedObject(message, timestamp));
             const char *covisedir = getenv("COVISEDIR");
             osg::ref_ptr<osg::Node> node = osgDB::readNodeFile( std::string(covisedir)+ "/obstacle.3ds" );
             if (!node.valid())
             {
                 osg::notify( osg::FATAL ) << "Unable to load node data file. Exiting." << std::endl;
             }
-            DataManager::AddUDPObstacle(std::move(node), MessageToMatrix(msgWithTimestamp._message));
+            DataManager::AddUDPObstacle(std::move(node), message.matrix);
         }
          else    //if the id was found then update the position
-             DataManager::UpdateUDPObstacle(updatePos, MessageToMatrix(msgWithTimestamp._message)); 
+         {
+            osg::Matrix matrix;
+            if(UI::m_showShortestUDPPositions)
+                matrix =  _udpObstacle.at(updatePos).getMatrixFromClosestCamera();
+            else if(UI::m_showAverageUDPPositions)
+                matrix = _udpObstacle.at(updatePos).getAverageMatrix();
+
+            DataManager::UpdateUDPObstacle(updatePos, matrix ); 
+         }
     }
 }
 
@@ -124,6 +143,55 @@ int UDP::replaceMessage(std::vector<MessageWithTimestamp>& vec, const MessageWit
     else return updatePos;
 }
 
+int UDP::replaceMessage(std::vector<DetectedObject>& vec, const Message& message, double timestamp )
+{
+    if(vec.empty())
+        return -1;
+
+    bool replaced{false}; //found message with can be replaced with newer one  ?
+    int updatePos{0};    
+    size_t iterator{0}; 
+
+    for(auto& obj : vec) // go over all objects and check if it already exists
+    {
+        if(obj._id == message.id)
+        {
+            replaced = true;
+            updatePos = iterator;
+
+            bool cameraAlreadyAvailable{false};
+            for(auto& cam : obj._cameras) // go over all cameras which can see this object
+            {
+                if(cam._cameraID == message.cameraID) 
+                {
+                    cam._distance = message.distanceCamera;
+                    cam._objectMatrix = message.matrix;
+                    cam._timestamp = timestamp;
+                    cam._objectMatrix = message.matrix;
+
+                    cameraAlreadyAvailable = true;
+                    break; // camera was found jump out of loop
+                }
+            }
+            if(!cameraAlreadyAvailable)
+                obj.addCamera(message, timestamp);
+            
+            break; // object was found break out! 
+        }
+        if(replaced == true)
+        {
+            return updatePos;
+        }
+        iterator ++;
+    }
+    
+    if(!replaced) 
+        return -1;
+    else
+        return updatePos;
+
+}
+
 void UDP::deleteOutOfDateMessages()
 {
     const float maxValue{3.0}; // after "maxValue" seconds of no new data delete objects
@@ -143,31 +211,31 @@ void UDP::deleteOutOfDateMessages()
         }
     }
 
-    if(!_udpROI.empty())
+    if(!_udpObstacle.empty())
     {
         int count{0};
-        for(const auto& roi : _udpROI)
+        for(auto& obstacle : _udpObstacle)
         {
-            if( timestamp - roi._timestamp > maxValue)
+            if(obstacle.deleteObject(maxValue, timestamp))
             {
-                _udpROI.erase(_udpROI.begin()+count);
-                DataManager::RemoveUDPZone(count);
+                _udpObstacle.erase(_udpObstacle.begin()+count);
+                DataManager::RemoveUDPObstacle(count); 
             }
             count++;
         }
     }
 
-      if(!_udpObstacle.empty())
+    if(!_udpROI.empty())
     {
         int count{0};
-        for(const auto& obstacle : _udpObstacle)
+        for(auto& object : _udpROI)
         {
-            if( timestamp - obstacle._timestamp > maxValue)
+            if(object.deleteObject(maxValue, timestamp))
             {
-                _udpObstacle.erase(_udpObstacle.begin()+count);
-                DataManager::RemoveUDPObstacle(count);
+                _udpROI.erase(_udpROI.begin()+count);
+                DataManager::RemoveUDPZone(count); 
             }
-            count++;
+            count++;    
         }
     }
  
@@ -199,6 +267,7 @@ bool UDP::update()
 
         if(bytes == sizeof(Message))
         {
+            UDPMatrix2CoviseMatrix(temp);
             processIncomingMessage(temp);
             std::cout<< "SensorPlacement::update: successfully received message" <<std::endl;
             temp.printMessage();
@@ -215,9 +284,19 @@ bool UDP::update()
         }
 
         deleteOutOfDateMessages(); // --> maybe don't do this every Frame ! 
+
+        for(const auto& x : _udpROI)
+        {
+            std::cout << "Nbr Cameras for ROI id " << x._id << " :" << x.getNbrOfCameras() <<std::endl;
+        }
+
+         for(const auto& x : _udpObstacle)
+        {
+            std::cout << "Nbr Cameras for Obstacle id " << x._id << " :" << x.getNbrOfCameras() <<std::endl;
+        }
     }
 
-    Message::printSize();
+    //Message::printSize();
 
     return returnValue;
 }
@@ -242,20 +321,26 @@ void UDP::syncMasterSlave()
 }
 
 
-osg::Matrix UDP::MessageToMatrix( const Message& input)
+// osg::Matrix UDP::MessageToMatrix( const Message& input)
+// {
+//     osg::Matrix matrix;
+//     if(input.type == MessageType::Camera)
+//     {
+//         osg::Matrix udpCam2CoviseCam = osg::Matrix::rotate(osg::DegreesToRadians(-90.0), osg::X_AXIS);
+//         matrix = udpCam2CoviseCam * input.matrix ;
+//     } 
+//     else
+//         matrix = input.matrix;
+
+//     return matrix;
+// }
+
+void UDP::UDPMatrix2CoviseMatrix(Message& input) const 
 {
-    coCoord euler;
-    euler.xyz[0] = input.translation[0];
-    euler.xyz[1] = input.translation[1];
-    euler.xyz[2] = input.translation[2];
-
-    euler.hpr[0] = 180 + input.rotation[2];
-    euler.hpr[1] = -90 + input.rotation[0];
-    euler.hpr[2] = input.rotation[1]; 
-
-
-    osg::Matrix matrix;
-    euler.makeMat(matrix);
-
-    return matrix;
+    if(input.type == MessageType::Camera)
+    {
+        osg::Matrix udpCam2CoviseCam = osg::Matrix::rotate(osg::DegreesToRadians(-90.0), osg::X_AXIS);
+        input.matrix = udpCam2CoviseCam * input.matrix ;
+    } 
+    
 }

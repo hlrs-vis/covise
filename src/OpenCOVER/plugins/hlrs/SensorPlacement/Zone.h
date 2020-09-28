@@ -5,6 +5,7 @@
 
 #include <osg/ShapeDrawable>
 #include <osg/Geometry>
+#include <osgText/Text>
 
 #include "Sensor.h"
 using namespace opencover;
@@ -49,7 +50,11 @@ public:
     void highlitePoints(VisibilityMatrix<float>& visiblePoints);
     void setOriginalColor();
 
+    virtual void setCurrentNbrOfSensors(int sensors){}; // shuld only be available in Safety Zone -> but couldn't call
+
 protected:
+    osg::Vec4 m_Color;
+
     virtual void createGrid() = 0;
 
     osg::Vec3 calcSign()const;
@@ -72,7 +77,6 @@ private:
     float m_Length;
     float m_Width;
     float m_Height;
-    osg::Vec4 m_Color;
     
     osg::ref_ptr<osg::Vec3Array> m_Verts;
     osg::ref_ptr<osg::Vec4Array> m_Colors;
@@ -110,11 +114,15 @@ class SafetyZone : public Zone
 public:
     SafetyZone(osg::Matrix matrix,float length = 10.0f, float width = 5.0f, float height = 3.0f);
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
+    void setCurrentNbrOfSensors(int sensors) override;                            
+
     
 private:
     void createGrid() override;    
     osg::Vec4 m_ColorVisible;
+    int m_CurrentNbrOfSensors; // Nbr of Sensors which currently see this zone
 
+    osg::ref_ptr<osgText::Text> m_Text;
 
 };
 

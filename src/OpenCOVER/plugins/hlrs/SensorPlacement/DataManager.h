@@ -59,7 +59,7 @@ public:
     static void AddUDPObstacle(osg::ref_ptr<osg::Node> node,const osg::Matrix& mat);
 
     static void UpdateUDPSensorPosition(int pos, const osg::Matrix& mat);
-    static void UpdateUDPZone(int pos, const osg::Matrix& mat);
+    static void UpdateUDPZone(int pos, const osg::Matrix& mat, int nbrOfSensors);
     static void UpdateUDPObstacle(int pos, const osg::Matrix& mat);
 
 

@@ -213,9 +213,11 @@ void DataManager::UpdateUDPSensorPosition(int pos, const osg::Matrix& mat)
     GetInstance().m_UDPSensors.at(pos)->setMatrix(mat);
 };
 
-void DataManager::UpdateUDPZone(int pos, const osg::Matrix& mat)
+void DataManager::UpdateUDPZone(int pos, const osg::Matrix& mat, int nbrOfSensors)
 {
     GetInstance().m_UDPSafetyZones.at(pos)->setPosition(mat);
+    GetInstance().m_UDPSafetyZones.at(pos)->setCurrentNbrOfSensors(nbrOfSensors);
+
 }; 
 
 void DataManager::UpdateUDPObstacle(int pos, const osg::Matrix& mat)

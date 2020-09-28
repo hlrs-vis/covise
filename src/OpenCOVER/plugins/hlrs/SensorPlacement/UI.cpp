@@ -11,6 +11,9 @@ using namespace opencover;
 
 bool UI::m_DeleteStatus{false};
 bool UI::m_showOrientations{true};
+bool UI::m_showAverageUDPPositions{false};
+bool UI::m_showShortestUDPPositions{true};
+
 
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 {
@@ -96,7 +99,31 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setCallback([this]()
    {
       calcVisibility();
-     
    });
+
+
+    //UDP Menu-------------------------------------------------------------------------------
+   m_UDP = new ui::Menu(m_MainMenu, "UDP");
+   m_UDP->setText("UDP");
+
+
+   m_showAverageUDPObjectionPosition = new ui::Button(m_UDP,"Average positions");
+   m_showAverageUDPObjectionPosition->setText("Average positions");
+   m_showAverageUDPObjectionPosition->setState(m_showAverageUDPPositions);
+   m_showAverageUDPObjectionPosition->setCallback([this](bool state)
+   {
+      m_showAverageUDPPositions = state;
+   });
+
+   m_showShortestUDPObjectionPosition = new ui::Button(m_UDP,"Shortest positions");
+   m_showShortestUDPObjectionPosition->setText("Shortest positions");
+   m_showShortestUDPObjectionPosition->setState(m_showAverageUDPPositions);
+   m_showShortestUDPObjectionPosition->setCallback([this](bool state)
+   {
+      m_showShortestUDPPositions = state;
+   });
+
+
+
 };
 

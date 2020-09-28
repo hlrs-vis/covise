@@ -704,12 +704,33 @@ void Zone::setOriginalColor()
 SafetyZone::SafetyZone(osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0.5,0,1}, length,width,height)
 {
     createGrid();
+
+   
+    m_Text = new osgText::Text;
+    //m_Text->setFont(font);
+    m_Text->setColor(m_Color);
+    m_Text->setCharacterSize(0.1);
+    m_Text->setText(std::to_string(m_CurrentNbrOfSensors));
+
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+    osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform();
+    mt->setMatrix(osg::Matrix::rotate(osg::DegreesToRadians(90.0), osg::X_AXIS));
+    mt->addChild(geode);
+    geode->addDrawable(m_Text);
+    m_LocalDCS->addChild(mt);
 }
 
 void SafetyZone::createGrid()
 {
   //createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
   createOuter3DGrid(calcSign());
+}
+
+void SafetyZone::setCurrentNbrOfSensors(int sensors){
+
+    m_CurrentNbrOfSensors = sensors;
+    m_Text->setText(std::to_string(m_CurrentNbrOfSensors));
+
 }
 
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)

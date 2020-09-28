@@ -77,6 +77,7 @@ SensorPlacementPlugin::SensorPlacementPlugin()
   
   #if SHOW_UDP_LIVE_OBJECTS
     m_udp = myHelpers::make_unique<UDP>();
+  #else  
     std::cout << "Sensorplacement: UDP is turned Off" <<std::endl;
   #endif
   
