@@ -6,29 +6,29 @@
 
 enum class MessageType
 {
-    Camera = 0,
-    Obstacle = 1,
-    ROI = 2
+    Camera = 0,         // detected a calibration marker
+    Obstacle = 1,       // detected an obstacle
+    ROI = 2             // detected a ROI
 };
 
 
 // this is the data structure of the incoming UDP message
 struct Message
 {   
-    MessageType type;
-    int cameraID;              // id of camera, which can see the object
-    int id;                    // each Objects has it's own id
-    osg::Matrixf matrix;
-    float distanceCamera;      // distance from camera to center of object 
+    MessageType _type;
+    int _cameraID;              // id of camera, which can see the object
+    int _id;                    // each Objects has it's own id, in case of a detected calibration marker that's the marker id
+    osg::Matrixf _matrix;       // matrix of the detected object. In case of a detected calibration marker that's the camera matrix
+    float _distanceCamera;      // distance from camera to center of the object or the calibration marker
 
     void printMessage()
     {
-        std::cout << "type:"<<(int)this->type <<" id:"<<this->id<<
-        " x:"<<this->matrix.getTrans().x() <<" y:" << this->matrix.getTrans().y()<<" z:" <<this->matrix.getTrans().z() << std::endl;
+        std::cout << "type:"<<(int)this->_type <<" id:"<<this->_id<<
+        " x:"<<this->_matrix.getTrans().x() <<" y:" << this->_matrix.getTrans().y()<<" z:" <<this->_matrix.getTrans().z() << std::endl;
     }
     static void printSize()
     {
-        size_t sum = sizeof(type) + sizeof(cameraID) + sizeof(id) + sizeof(matrix) + sizeof(distanceCamera);
+        size_t sum = sizeof(_type) + sizeof(_cameraID) + sizeof(_id) + sizeof(_matrix) + sizeof(_distanceCamera);
         size_t sumMatrix = sizeof(sumMatrix);
 
         std::cout<<"Size of datatype 'Message': "<< sizeof(Message) <<" bytes" << ", sum of the individual datatypes: " << sum <<"bytes" <<std::endl;
@@ -40,76 +40,52 @@ struct Message
     }
 };
 
-// camera id with corresponding timestamp of last incoming message
-struct CameraIDwithTimestamp
-{
-    int _cameraID;
-    double _timestamp;
-    osg::Matrixf _matrix;
-};
 
-struct MessageWithTimestamp
+/* 
+    This is either a detected camera, ROI or obstacle
+    if (Type == Camera): _id == cameraId, _markers == all calibrations markers which this camera can see
+    else : _id == obstacle or ROI id, _markers == all cameras which can see this object
+*/
+struct DetectedCameraOrObject
 {
-    double _timestamp;
-    Message _message;
-
-   MessageWithTimestamp(Message message, double timestamp)
-    :_message(message), _timestamp(timestamp){};
-};
-
-struct DetectedObject
-{
-    struct Camera //Camera which can see the detected Object
+    struct Marker
     {
-        int _cameraID;
+        int _markerID;
         double _timestamp;
-        osg::Matrixf _objectMatrix; // Matrix of the detected Object calculated from this camera
-        float _distance; // Distance from this camera to the object
+        osg::Matrixf _Matrix;        
+        float _distance;             // distance marker - camera
+        
+        Marker(const Message& message, const double& timestamp)
+        :_timestamp(timestamp), _Matrix(message._matrix), _distance(message._distanceCamera)
+        {
+            if(message._type == MessageType::Camera)
+                _markerID = message._id;
+            else
+                _markerID = message._cameraID;
+        };
+    };
 
-        Camera(Message message, double timestamp)
-        :_cameraID(message.cameraID),_timestamp(timestamp), _objectMatrix(message.matrix), _distance(message.distanceCamera)
-        {};
+    DetectedCameraOrObject(const Message& message, const double& timestamp)
+    :_type(message._type)
+    {
+        if(message._type == MessageType::Camera)
+            _id = message._cameraID;
+        else
+            _id = message._id;
+
+        _markers.push_back(Marker(message, timestamp));
     };
 
     MessageType _type;
-    int _id;                      // id of this object
-    std::vector<Camera> _cameras; // all cameras, which can see this object
+    int _id;                        
+    std::vector<Marker> _markers;
 
-    DetectedObject(Message message, double timestamp)
-    :_type(message.type), _id(message.id)
+    void addMarker(const Message& message, const double& timestamp)
     {
-        _cameras.push_back(Camera(message, timestamp));
+        _markers.push_back(Marker(message, timestamp));
     };
-
-    void addCamera(Message message, double timestamp)
-    {
-        _cameras.push_back(Camera(message, timestamp));
-    };
-
-    bool deleteObject(const float& maxValue, const double& timestamp) // delete this object if no camera can see it
-    {
-        if(!_cameras.empty())
-        {
-            size_t count{0};
-            for(const auto& cam : _cameras)
-            {
-                if(timestamp - cam._timestamp > maxValue)
-                {
-                    _cameras.erase(_cameras.begin() + count);
-                    if(_cameras.empty())
-                    {
-                        return true;
-                    }
-                }
-                count++;
-            }
-        }
-
-        return false;
-    }
     
-
-    int getNbrOfCameras()const {return _cameras.size();}
+    int getNbrOfMarkers()const {return _markers.size();}
 
     osg::Matrix getAverageMatrix()
     {
@@ -119,14 +95,40 @@ struct DetectedObject
 
     osg::Matrix getMatrixFromClosestCamera()
     {
-        std::vector<Camera>::iterator result = std::min_element(_cameras.begin(), _cameras.end(),[](const Camera& cam1, const Camera& cam2)
+        std::vector<Marker>::iterator result = std::min_element(_markers.begin(), _markers.end(),[](const Marker& marker1, const Marker& marker2)
         {
-            return cam1._distance < cam2._distance;
+            return marker1._distance < marker2._distance;
         }); 
 
-        std::cout<<"smallest distance" << _cameras.at(std::distance(_cameras.begin(), result))._distance << std::endl;
-        return _cameras.at(std::distance(_cameras.begin(), result))._objectMatrix;
+        int pos = std::distance(_markers.begin(), result);
+        if(_type == MessageType::Camera)
+            std::cout<<"Camera Id: " << _id << " closest Marker: "<< _markers.at(pos)._distance << "meters"<<" from id: "<<_markers.at(pos)._markerID<< std::endl;
+        else
+            std::cout<<"Marker Id: " << _id << " closest Camera: "<< _markers.at(pos)._distance << "meters"<<" from id: "<<_markers.at(pos)._markerID<< std::endl;
+
+        return _markers.at(pos)._Matrix;
     };
+
+    bool isVisible(const float& maxValue, const double& timestamp) // check if this camera / marker is still alive
+    {
+        if(!_markers.empty())
+        {
+            size_t count{0};
+            for(const auto& marker : _markers)
+            {
+                if(timestamp - marker._timestamp > maxValue)
+                {
+                    _markers.erase(_markers.begin() + count);
+                    if(_markers.empty())
+                    {
+                        return true;
+                    }
+                }
+                count++;
+            }
+        }
+        return false;
+    }
 };
 
 class UDP : public OpenThreads::Thread
@@ -140,24 +142,21 @@ private:
     bool _doRun; //if true thread is running, should only be true on master
 
 
-    std::vector<MessageWithTimestamp> _udpCameras;
-    std::vector<DetectedObject> _udpObstacle;
-    std::vector<DetectedObject> _udpROI;
+    std::vector<DetectedCameraOrObject> _udpCameras;
+    std::vector<DetectedCameraOrObject> _udpObstacle;
+    std::vector<DetectedCameraOrObject> _udpROI;
 
     OpenThreads::Barrier _endBarrier; // braucht man das ??? 
     void processIncomingMessage(const Message& message);
 
     // returns positions in vec which was replaced, if no message was replaced adds new message to vec and returns -1
-    int replaceMessage(std::vector<MessageWithTimestamp>& vec, const MessageWithTimestamp& message);    // don't need this anymore!
-    int replaceMessage(std::vector<DetectedObject>& vec, const Message& message, double timestamp); 
+    int replaceMessage(std::vector<DetectedCameraOrObject>& vec, const Message& message, double timestamp); 
+    
+    // delete all messages and the corresponding Objects where no new data is received
+    void deleteOutOfDateMessages();
 
-
-    void deleteOutOfDateMessages(); // delete all messages and the corresponding Objects where no new data is received
-
-
-    //osg::Matrix MessageToMatrix( const Message& input);
-    void UDPMatrix2CoviseMatrix(Message& input) const ;        // make cooSytstem of the demonstrator fit to Covise cooSystem
-    bool isSameId(const Message &ob1, const Message& ob2) const;
+    // make cooSystem of the demonstrator fit to Covise cooSystem
+    void UDPMatrix2CoviseMatrix(Message& input) const ;       
 public:
     UDP();
     ~UDP();
@@ -165,7 +164,6 @@ public:
     void initUDP();
     void run() override;          //Master only sending and receiving Thread! 
 
-    void syncMasterSlave();       // sync master and slaves!
     bool update();
 
 };
