@@ -28,20 +28,46 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
                                                                                               
         std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients 
     }
+    /*for(const auto& x : sensorsPerPoint)
+        std::cout <<"sensors per Point: " << x << std::endl;
     
-    // check if visible:
+    for(const auto& x : sumVisMat)
+        std::cout <<"sum Vismat: " << x << std::endl;
+    */
+    //##################################### check if visible:
     std::vector<float> coveredPoints;
     coveredPoints.reserve(m_NumberOfObservationPoints);
+
+    int penaltyCounterPRIO1{0};
+    int penaltyCounterPRIO2{0};
+    int sumCoveredPrio1Points{0};
+    int sumCoveredPrio2Points{0};
 
     auto ItsensorsPerPoint = sensorsPerPoint.begin();
     auto ItRequiredSensors = m_RequiredSensorsPerPoint.begin();
 
     while( ItsensorsPerPoint != sensorsPerPoint.end())
     {
-        if(*ItsensorsPerPoint >= *ItRequiredSensors)
-            coveredPoints.push_back(1);
-        else 
-            coveredPoints.push_back(0);
+        int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
+        int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
+        if( diff >=0 && (sumVisMat.at(distance) / m_RequiredSensorsPerPoint.at(distance) >= m_PropsMaxCoverage1.thresholdVisibility) )
+        {
+            if( m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
+               sumCoveredPrio1Points += diff;
+            else if(m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO2)
+                sumCoveredPrio2Points +=diff;
+
+            //coveredPoints.push_back(diff);  // braucht man das ?
+        }
+        else
+        {
+            if( m_RequiredSensorsPerPoint.at(distance) == 2)
+                penaltyCounterPRIO1 += std::abs(diff);
+            else if(m_RequiredSensorsPerPoint.at(distance) == 1)
+                penaltyCounterPRIO2 += std::abs(diff);
+
+            //coveredPoints.push_back(0); // braucht man das ?
+        }
         
         // increment iterators
         if( ItsensorsPerPoint != sensorsPerPoint.end())
@@ -50,36 +76,79 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
             ++ItRequiredSensors;
         }
     }
+        
+    c.objective = -(m_PropsMaxCoverage1.weightingFactorPRIO1 * (sumCoveredPrio1Points - penaltyCounterPRIO1) + sumCoveredPrio2Points -penaltyCounterPRIO2);
 
-    int sumCoveredPoints = std::accumulate(coveredPoints.begin(), coveredPoints.end(),0);
-    
-    c.objective = -(sumCoveredPoints);
-
-
-    
-    // std::cout<<"Cameras: "<<std::endl;
-    // for(const auto& x : sensorsPerPoint)
-    // {
-    // std::cout<< x<<", ";
-    // }
-    // std::cout<<""<<std::endl;
-    // std::cout<<"VisMat"<<std::endl;
-    // for(const auto& x :sumVisMat)
-    // {
-    //     std::cout<< x <<", ";
-    // }
-    // std::cout<<""<<std::endl;
-
-   
     return true;
 }
 
-bool GA::maxCoverage2(const Solution& p, MiddleCost &c)
+bool GA::maxCoverage2(const Solution &sensorNetwork, MiddleCost &c)
 {
     SP_PROFILE_FUNCTION();
+    std::vector<int> sensorsPerPoint(m_NumberOfObservationPoints,0);
+    std::vector<float> sumVisMat(m_NumberOfObservationPoints,0.0f);
 
-    std::cout<<"Fitness: max Coverage 2" <<std::endl;
-    return false; //FIXME
+    for(const auto& sensor : sensorNetwork.sensors)
+    {
+        std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sensorsPerPoint.begin(), sensorsPerPoint.begin(),[](float i, int j ) {return (i == 0.0f ? j : j+1);});  // count nbrOf sensors 
+                                                                                              
+        std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients 
+    }
+
+    int sumCoveredPrio1 = sumOfCoveredPrio1Points(sensorsPerPoint, m_RequiredSensorsPerPoint, sumVisMat);
+    int penalty{0};
+    if(sumCoveredPrio1 > 0 && sumCoveredPrio1 < m_PropsMaxCoverage2.m_RequiredCoverage * m_NumberOfPrio1Points)
+        penalty = m_PropsMaxCoverage2.m_PenaltyConstant * m_NumberOfPrio1Points / sumCoveredPrio1;
+    else if(sumCoveredPrio1 == 0)
+        penalty = m_PropsMaxCoverage2.m_PenaltyConstant * m_NumberOfPrio1Points;
+    else if(sumCoveredPrio1 > m_PropsMaxCoverage2.m_RequiredCoverage * m_NumberOfPrio1Points)
+        penalty = 0;
+    
+    int covered = coverEachPointWithMin1Sensor(sensorsPerPoint, sumVisMat);
+    std::cout<<"c_i: "<<covered <<"..."<<std::endl;
+    std::cout <<"penalty" <<penalty<<"..."<<std::endl;
+    c.objective = - ( covered - penalty);
+    return true; 
+}
+
+int GA::coverEachPointWithMin1Sensor(std::vector<int>& nbrOfSensors, std::vector<float> &sumVisMat)
+{
+    int counter{0};
+    int c{0};
+    for(const auto& nbr : nbrOfSensors)
+    {
+        if(nbr - 1 >= 0 && (sumVisMat.at(counter) / 1 >= m_PropsMaxCoverage2.m_ThresholdVisibility) ) //geteilt durch n_min <--- checken! 
+            c += nbr - 1;
+        else
+            c+=0;
+
+        counter ++;
+    }
+    return c;
+}
+
+int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const std::vector<int>& requiredSensorsPerPoint, const std::vector<float>& sumVisMat) const
+{
+    auto ItsensorsPerPoint = sensorsPerPoint.begin();
+    auto ItRequiredSensors = requiredSensorsPerPoint.begin();
+    int sumCoveredPrio1{0};
+
+    while( ItsensorsPerPoint != sensorsPerPoint.end())
+    {
+        int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
+        int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
+        if( diff >=0 && (sumVisMat.at(distance) /  requiredSensorsPerPoint.at(distance) >= m_PropsMaxCoverage1.thresholdVisibility) )
+        {
+            if( requiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
+                sumCoveredPrio1 += diff;
+        }
+        // increment iterators
+        if( ItsensorsPerPoint != sensorsPerPoint.end())
+        {
+            ++ItsensorsPerPoint;
+            ++ItRequiredSensors;
+        }
+    }
 }
 
 bool rejectSameSensorPosition(SensorPosition* newPos, SensorPosition* oldPos)
@@ -90,7 +159,12 @@ bool rejectSameSensorPosition(SensorPosition* newPos, SensorPosition* oldPos)
 GA::GA(FitnessFunctionType fitness)
 {
     m_NumberOfSensors = calcNumberOfSensors();
-    calcZonePriorities();
+    calcZonePriorities(); //--> maybe do this as free function
+    m_NumberOfObservationPoints = m_RequiredSensorsPerPoint.size();
+    m_NumberOfPrio1Points = std::accumulate(m_RequiredSensorsPerPoint.begin(), m_RequiredSensorsPerPoint.end(), 0, [](int accValue, int currValue)
+                                                                                                                    { return (currValue == (int)SafetyZone::Priority::PRIO1 ? accValue +=1 : accValue );});
+
+    std::cout <<"nbr of prio1 points: " << m_NumberOfPrio1Points << std::endl;                                                                                                            
 
     SP_PROFILE_BEGIN_SESSION("SensorPlacement-Optimization","SensorPlacement-Optimization.json");
 
@@ -202,48 +276,8 @@ void GA::SO_report_generation(int generation_number,const EA::GenerationType<Sol
 void GA:: calcZonePriorities()
 {
     for(const auto& zone : DataManager::GetSafetyZones())
-    {
-        int priority = 1; //FIX ME get real priority
-        m_RequiredSensorsPerPoint.insert(m_RequiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), priority);
-    }
-    m_NumberOfObservationPoints = m_RequiredSensorsPerPoint.size();
-}
+        m_RequiredSensorsPerPoint.insert(m_RequiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
 
-
-SensorPool::SensorPool()
-{
-    for(const auto& sensor : DataManager::GetSensors())
-        m_Sensors.push_back(sensor.get());
-
-    for(const auto& zone : DataManager::GetSensorZones())
-        m_SensorZones.push_back(zone.get());
-}
-
-Orientation* SensorPool::getRandomOrientation(int pos, const std::function<double(void)> &rnd01) const
-{
-    Orientation* result{nullptr};
-
-    // better Solution create Class Random Generator and use it in openGA and in Sensors Class to return random Sensor
-    if( pos <= m_Sensors.size() )
-    {
-        int numberOfOrientations = m_Sensors.at(pos)->getNbrOfOrientations();
-        int random = std::roundl(rnd01() * (numberOfOrientations - 1));
-
-        result = m_Sensors.at(pos)->getSpecificOrientation(random);
-    }
-    else if(pos > m_Sensors.size() && pos <= m_SensorZones.size())
-    {
-        int numberOfSensors = m_SensorZones.at(pos)->getNumberOfSensors();
-        int randomSensor = std::roundl(rnd01() * (numberOfSensors - 1));
-        int numberOfOrientations = m_SensorZones.at(pos)->getSpecificSensor(randomSensor)->getNbrOfOrientations();
-        int randomOrientation = std::roundl(rnd01() * (numberOfOrientations - 1));
-
-        result = m_SensorZones.at(pos)->getSpecificSensor(randomSensor)->getSpecificOrientation(randomOrientation);
-    }
-    else
-        std::cout << "No sensor at this position available" << std::endl;
-    
-    return result;
 }
 
 std::vector<Orientation> GA::getFinalOrientations() const
@@ -254,4 +288,45 @@ std::vector<Orientation> GA::getFinalOrientations() const
                    std::back_inserter(finalOrientations),[](Orientation* orient){return *orient;});
     
     return finalOrientations; 
+}
+
+SensorPool::SensorPool()
+{
+    for(const auto& sensor : DataManager::GetSensors())
+        m_Sensors.push_back(sensor.get());
+
+    for(const auto& zone : DataManager::GetSensorZones())
+        m_SensorZones.push_back(zone.get());
+}
+
+
+Orientation* SensorPool::getRandomOrientation(int pos, const std::function<double(void)> &rnd01) const
+{
+    Orientation* result{nullptr};
+
+    // better Solution create Class Random Generator and use it in openGA and in Sensors Class to return random Sensor
+    if( pos < m_Sensors.size() )
+    {
+        int numberOfOrientations = m_Sensors.at(pos)->getNbrOfOrientations();
+        int random = std::roundl(rnd01() * (numberOfOrientations - 1));
+
+        result = m_Sensors.at(pos)->getSpecificOrientation(random);
+    }
+    else if(pos >= m_Sensors.size() && pos <= m_SensorZones.size())
+    {
+
+
+
+
+        int numberOfSensors = m_SensorZones.at(pos)->getNumberOfSensors();
+        int randomSensor = std::roundl(rnd01() * (numberOfSensors - 1));
+        int numberOfOrientations = m_SensorZones.at(pos)->getSpecificSensor(randomSensor)->getNbrOfOrientations();
+        int randomOrientation = std::roundl(rnd01() * (numberOfOrientations - 1));
+
+        result = m_SensorZones.at(pos)->getSpecificSensor(randomSensor)->getSpecificOrientation(randomOrientation);
+    }
+    else
+        std::cout << "No sensor at this position available" << std::endl;
+
+    return result;
 }

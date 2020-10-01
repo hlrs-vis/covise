@@ -105,7 +105,7 @@ public:
     void calcVisibility() override;
     int getNbrOfOrientations()const override{return m_Orientations.size();}
 
-    void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
+    //void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
     Orientation* getSpecificOrientation(int position)override{return &m_Orientations.at(position);}
     std::vector<Orientation>& getOrientations(){return m_Orientations;}
 

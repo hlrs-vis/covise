@@ -115,12 +115,10 @@ const std::vector<osg::Vec3> DataManager::GetWorldPosOfObervationPoints()
     return allPoints;
 }
 
-void DataManager::AddZone(upZone zone)
-{
+void DataManager::AddSafetyZone(upSafetyZone zone)
+{   
     GetInstance().m_Root->addChild(zone.get()->getZone().get());
-
-    if(dynamic_cast<SafetyZone*>(zone.get()))
-        GetInstance().m_SafetyZones.push_back(std::move(zone));  
+    GetInstance().m_SafetyZones.push_back(std::move(zone));  
 }
 
 void DataManager::AddSensorZone(upSensorZone zone)
@@ -142,12 +140,10 @@ void DataManager::AddUDPSensor(upSensor sensor)
     GetInstance().m_UDPSensors.push_back(std::move(sensor));     
 }
 
-void DataManager::AddUDPZone(upZone zone)
+void DataManager::AddUDPZone(upSafetyZone zone)
 {
     GetInstance().m_Root->addChild(zone.get()->getZone().get());
-
-    if(dynamic_cast<SafetyZone*>(zone.get()))
-        GetInstance().m_UDPSafetyZones.push_back(std::move(zone));  
+    GetInstance().m_UDPSafetyZones.push_back(std::move(zone));  
 }
 
 void DataManager::AddUDPObstacle(osg::ref_ptr<osg::Node> node, const osg::Matrix& mat)
@@ -179,7 +175,7 @@ void DataManager::RemoveZone(Zone* zone)
     if(dynamic_cast<SensorZone*>(zone))
          GetInstance().m_SensorZones.erase(std::remove_if(GetInstance().m_SensorZones.begin(),GetInstance().m_SensorZones.end(),[zone](std::unique_ptr<SensorZone>const& it){return zone == it.get();}));
     else if(dynamic_cast<SafetyZone*>(zone))
-        GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[zone](std::unique_ptr<Zone>const& it){return zone == it.get();}));
+        GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[zone](std::unique_ptr<SafetyZone>const& it){return zone == it.get();}));
 }
 
 void DataManager::RemoveUDPObstacle(int pos)
@@ -206,6 +202,36 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
         count ++;
     }
 
+}
+
+void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
+{
+    auto size =  GetInstance().m_Sensors.size();
+    size_t incrementor{0}; // incrementor is also used in the loop later!
+    for(incrementor; incrementor< size; incrementor++)
+        GetInstance().m_Sensors.at(incrementor)->setCurrentOrientation(orientations.at(incrementor));
+
+    //maybe increment incrementor here ?
+
+    std::cout<<"incrementor befor second loop: " << incrementor << std::endl;
+    for(const auto& zone : GetInstance().m_SensorZones)
+    {
+        int nbrOfSensors = zone->getNumberOfSensors();
+        std::vector<osg::Matrix> matrixesForOneSZ;
+        for(int cnt{0}; cnt<nbrOfSensors; cnt++)
+        {
+            matrixesForOneSZ.push_back(orientations.at(incrementor).getMatrix());
+            incrementor++;
+        }
+        zone->createSpecificNbrOfSensors(matrixesForOneSZ);
+    }
+
+
+    // SensorZones -> wie viele Sensoren pro Zone ?
+
+    //  was wenn Sensoren gelöscht werden müssen
+
+    //  Exception wenn an Anzahl der Sensoren nicht passt
 }
 
 void DataManager::UpdateUDPSensorPosition(int pos, const osg::Matrix& mat)

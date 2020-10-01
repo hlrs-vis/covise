@@ -701,10 +701,11 @@ void Zone::setOriginalColor()
         point.setOriginalColor();
 }
 
-SafetyZone::SafetyZone(osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0.5,0,1}, length,width,height)
+
+SafetyZone::SafetyZone(osg::Matrix matrix, Priority prio, float length, float width , float height):m_Priority(prio),Zone(matrix,calcColor(prio), length,width,height)
 {
     createGrid();
-
+    
    
     m_Text = new osgText::Text;
     //m_Text->setFont(font);
@@ -731,6 +732,17 @@ void SafetyZone::setCurrentNbrOfSensors(int sensors){
     m_CurrentNbrOfSensors = sensors;
     m_Text->setText(std::to_string(m_CurrentNbrOfSensors));
 
+}
+
+osg::Vec4 SafetyZone::calcColor( Priority prio)const
+{
+    osg::Vec4 color;
+    if(prio == Priority::PRIO1)
+        color = osg::Vec4(1,0.5,0,1);
+    else if(prio == Priority::PRIO2)
+        color = osg::Vec4(1,0.75,0,1);
+
+    return color;
 }
 
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)
@@ -826,6 +838,18 @@ void SensorZone::createSpecificNbrOfSensors()
     else
         std::cout <<"Sensor Zone: No sensors created, not enough grid points available" << std::endl;
     
+}
+
+void SensorZone::createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes)
+{
+    if(sensorMatrixes.size() != m_NbrOfSensors)
+        throw std::invalid_argument( "received not the correct amount of sensors for sensor zone" );
+
+    removeAllSensors();
+    for(const auto& matrix : sensorMatrixes)
+    {
+        addSensor(matrix,true);
+    }
 }
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius)

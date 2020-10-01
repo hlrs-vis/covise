@@ -15,11 +15,48 @@ using namespace opencover;
 
 int calcNumberOfSensors()
 {
-    int numberOfZones{0};
+    int numberOfSensorsInZones{0};
     for(const auto& zone : DataManager::GetSensorZones())
-        numberOfZones += zone->getNumberOfSensors();
+        numberOfSensorsInZones += zone->getNumberOfSensors();
 
-    return DataManager::GetSensors().size() + numberOfZones;
+    return DataManager::GetSensors().size() + numberOfSensorsInZones;
+}
+
+//
+int convert(int sensorPos) // finish me !!!!!
+{
+    if(sensorPos < DataManager::GetSensors().size())
+    {
+        std::cout<< "is a single sensor"<< std::endl;
+        return -1;
+    }
+    else if(sensorPos >= calcNumberOfSensors())
+    {
+        std::cout<<"not a sensor anymore!"<< std::endl;
+        return -1;
+}
+    int posOfSafetyZone{0};
+    int pos = sensorPos - DataManager::GetSensors().size();;
+    int nbrOfSensors{0};
+
+    for(const auto& zone : DataManager::GetSensorZones())
+    {
+        nbrOfSensors += zone->getNumberOfSensors();
+
+        if(nbrOfSensors < pos )
+            posOfSafetyZone++;
+        else
+            break;
+
+        /*if(pos >= nbrOfSensors)
+            posOfSafetyZone++;
+        if(pos <= nbrOfSensors)
+            break;
+
+        */
+    }
+    std::cout<<"Sensor Pos: " <<posOfSafetyZone<<".."<<std::endl;
+    return posOfSafetyZone;
 }
 
 void calcVisibility()
@@ -43,6 +80,8 @@ void optimize(FitnessFunctionType fitnessFunction)
     auto ga(myHelpers::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
   }
+
+  DataManager::UpdateAllSensors(finalSensorOrientations);
   // TODO: resize Vector of SensorPosition. Problem: size of Orientation Object not knwon
   
   //else if(!coVRMSController::instance()->isMaster())

@@ -28,13 +28,23 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     }
     );
 
-    m_AddSafetyZone = new ui::Action(m_MainMenu,"AddSafetyZoe");
-    m_AddSafetyZone-> setText("Add Safety Zone");
-    m_AddSafetyZone-> setCallback([]()
+    m_AddSafetyZonePrio1 = new ui::Action(m_MainMenu,"AddSafetyZonePRIO1");
+    m_AddSafetyZonePrio1-> setText("Add PRIO1 Zone");
+    m_AddSafetyZonePrio1-> setCallback([]()
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddZone(createZone(ZoneType::ROIzone));
+       DataManager::AddSafetyZone(createSafetyZone(SafetyZone::Priority::PRIO1));
+    }
+    );
+
+    m_AddSafetyZonePrio2 = new ui::Action(m_MainMenu,"AddSafetyZonePRIO2");
+    m_AddSafetyZonePrio2-> setText("Add PRIO2 Zone");
+    m_AddSafetyZonePrio2-> setCallback([]()
+    {
+       osg::Matrix m;
+       m.setTrans(osg::Vec3(20,20,20));
+       DataManager::AddSafetyZone(createSafetyZone(SafetyZone::Priority::PRIO2));
     }
     );
 
@@ -91,6 +101,8 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage1-> setCallback([this]()
    {
       calcVisibility();
+      optimize(FitnessFunctionType::MaxCoverage1);
+      
    });
    
 
@@ -99,6 +111,15 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setCallback([this]()
    {
       calcVisibility();
+      optimize(FitnessFunctionType::MaxCoverage2);
+      // convert(0);
+      // convert(1);
+      // convert(2);
+      // convert(3);
+      // convert(4);
+      // convert(5);
+      // convert(6);
+      // convert(9);
    });
 
 
@@ -107,7 +128,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_UDP->setText("UDP");
 
 
-   m_showAverageUDPObjectionPosition = new ui::Button(m_UDP,"Average positions");
+   m_showAverageUDPObjectionPosition = new ui::Button(m_UDP,"Average_positions");
    m_showAverageUDPObjectionPosition->setText("Average positions");
    m_showAverageUDPObjectionPosition->setState(m_showAverageUDPPositions);
    m_showAverageUDPObjectionPosition->setCallback([this](bool state)
@@ -115,9 +136,9 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
       m_showAverageUDPPositions = state;
    });
 
-   m_showShortestUDPObjectionPosition = new ui::Button(m_UDP,"Shortest positions");
+   m_showShortestUDPObjectionPosition = new ui::Button(m_UDP,"Shortest_positions");
    m_showShortestUDPObjectionPosition->setText("Shortest positions");
-   m_showShortestUDPObjectionPosition->setState(m_showAverageUDPPositions);
+   m_showShortestUDPObjectionPosition->setState(m_showShortestUDPPositions);
    m_showShortestUDPObjectionPosition->setCallback([this](bool state)
    {
       m_showShortestUDPPositions = state;

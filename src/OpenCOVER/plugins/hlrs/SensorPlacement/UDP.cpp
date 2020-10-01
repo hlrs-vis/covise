@@ -80,7 +80,7 @@ void UDP::processIncomingMessage(const Message& message)
 
         if(updatePos == -1) //if the id is not in the vector than add it
         {
-            DataManager::AddUDPZone(createZone(ZoneType::ROIzone,  translate * message._matrix, 0.297, 0.210, 0.02)); 
+            DataManager::AddUDPZone(createSafetyZone(SafetyZone::Priority::PRIO1, translate * message._matrix, 0.297, 0.210, 0.02)); 
             _udpROI.push_back(DetectedCameraOrObject(message, timestamp));
 
         }

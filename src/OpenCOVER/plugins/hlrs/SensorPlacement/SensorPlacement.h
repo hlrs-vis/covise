@@ -27,13 +27,14 @@
 #include <cover/coVRPluginSupport.h>
 #include "UDP.h"
 
-#define SHOW_UDP_LIVE_OBJECTS 1 // if 1 use udp to visualize livedata
+#define SHOW_UDP_LIVE_OBJECTS 0 // if 1 use udp to visualize livedata
 
 class Orientation;
 enum class FitnessFunctionType;
 
 //Free functions
 int calcNumberOfSensors();
+int convert(int sensorPos);
 void calcVisibility();
 void optimize(FitnessFunctionType);
 void updateAllSensors(std::vector<Orientation>);

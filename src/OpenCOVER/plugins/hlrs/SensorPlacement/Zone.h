@@ -99,30 +99,27 @@ private:
 
 };
 
-struct SafetyZoneProperties
-{
-    enum
-    {
-        PRIO1,
-        PRIO2
-    };
-};
 
 class SafetyZone : public Zone
 {
 
 public:
-    SafetyZone(osg::Matrix matrix,float length = 10.0f, float width = 5.0f, float height = 3.0f);
+    enum struct Priority{PRIO1 = 2, PRIO2 = 1};
+
+    SafetyZone(osg::Matrix matrix, Priority priority, float length = 10.0f, float width = 5.0f, float height = 3.0f);
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
     void setCurrentNbrOfSensors(int sensors) override;                            
 
-    
+    Priority getPriority()const {return m_Priority;}
 private:
-    void createGrid() override;    
+    Priority m_Priority;
     osg::Vec4 m_ColorVisible;
     int m_CurrentNbrOfSensors; // Nbr of Sensors which currently see this zone
 
     osg::ref_ptr<osgText::Text> m_Text;
+
+    osg::Vec4 calcColor( Priority prio) const;
+    void createGrid() override;    
 
 };
 
@@ -143,6 +140,7 @@ public:
     void createAllSensors();
     SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
     int getNumberOfSensors(){return m_NbrOfSensors;}
+    void createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
 
 private:
     int m_NbrOfSensors{2};
@@ -150,7 +148,8 @@ private:
     std::vector<std::unique_ptr<SensorPosition>> m_Sensors; 
     osg::ref_ptr<osg::Group> m_SensorGroup;
  
-    void createSpecificNbrOfSensors();
+    void createSpecificNbrOfSensors(); //This function creates as many sensors as in m_NbrOfSensors defined
+
     void addSensor(osg::Matrix matrix, bool visible);
     osg::Vec3 getFreeSensorPosition()const;
     void removeAllSensors();

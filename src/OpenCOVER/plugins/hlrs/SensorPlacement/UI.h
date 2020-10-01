@@ -39,7 +39,7 @@ public:
 private:
     //Main Menu
     ui::Menu *m_MainMenu;
-    ui::Action *m_AddCamera, *m_AddSafetyZone, *m_AddSensorZone; 
+    ui::Action *m_AddCamera, *m_AddSafetyZonePrio1, *m_AddSafetyZonePrio2, *m_AddSensorZone; 
     ui::Button *m_Delete;
 
     //Sensor Menu

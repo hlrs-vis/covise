@@ -173,8 +173,7 @@ void SensorPosition::setMatrix(osg::Matrix matrix)
 void SensorPosition::setCurrentOrientation(Orientation orientation)
 {
     m_CurrentOrientation = orientation;
-    //Missing update Interactor !!! not possible here? 
-    m_SensorMatrix->setMatrix(orientation.getMatrix());
+    setMatrix(orientation.getMatrix());
 }
 
 bool SensorPosition::preFrame()
@@ -332,10 +331,10 @@ void SensorWithMultipleOrientations::deleteSensorOrientations()
 }
 
 
-void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
-{
-    SensorPosition::setMatrix(matrix);
-};
+//void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
+//{
+//    SensorPosition::setMatrix(matrix);
+//};
 
 void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Orientation&& orientation)
 {

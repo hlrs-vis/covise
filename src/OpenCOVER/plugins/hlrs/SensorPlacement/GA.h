@@ -33,6 +33,21 @@ enum class FitnessFunctionType
     MaxCoverage2
 };
 
+struct PropertiesMaxCoverage1
+{
+    float weightingFactorPRIO1{3.0};
+    //float PenaltyFactorPRIO1{1.0};      //not necessary ?
+    //float PenaltyFactorPRIO2{1.0};      //not necessary ?
+    float thresholdVisibility{0.5};     //the sum(all Vismats)/ RequiredSensorsForThisPoint > thresholdVisibility
+};
+
+struct PropertiesMaxCoverage2
+{
+    float m_PenaltyConstant;
+    float m_RequiredCoverage{0.8};  
+    float m_ThresholdVisibility{0.5};
+};
+
 class GA
 {
 public:
@@ -55,7 +70,11 @@ private:
     SensorPool m_SensorPool{};
     int m_NumberOfSensors;
     int m_NumberOfObservationPoints;
+    int m_NumberOfPrio1Points;
     std::vector<int> m_RequiredSensorsPerPoint; 
+    
+    PropertiesMaxCoverage1 m_PropsMaxCoverage1;
+    PropertiesMaxCoverage2 m_PropsMaxCoverage2;
 
     typedef EA::Genetic<Solution,MiddleCost> GA_Type;
     typedef EA::GenerationType<Solution,MiddleCost> Generation_Type;
@@ -73,6 +92,10 @@ private:
     bool maxCoverage1(const Solution& p, MiddleCost &c);
     bool maxCoverage2(const Solution& p, MiddleCost &c);
 
+    int coverEachPointWithMin1Sensor(std::vector<int>& nbrOfCameras, std::vector<float> &sumVisMat); 
+    int sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const std::vector<int>& requiredSensorsPerPoint, const std::vector<float>& sumVisMat) const;
+    
+    
     const Orientation* getRandomSensor(int sensorPosition ,const std::function<double(void)> &rnd01)const;
     void calcZonePriorities();
 };

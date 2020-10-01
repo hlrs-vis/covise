@@ -33,7 +33,7 @@ public:
         return instance;
     }
     static void Destroy();
-    static const std::vector<upZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
+    static const std::vector<upSafetyZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
     static const std::vector<upSensorZone>& GetSensorZones(){return GetInstance().m_SensorZones;}
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
@@ -41,12 +41,14 @@ public:
     
     static void highlitePoints(const VisibilityMatrix<float>& visMat);
     static void setOriginalPointColor();
-    static void AddZone(upZone zone);
+    static void AddSafetyZone(upSafetyZone zone);
     static void AddSensorZone(upSensorZone zone);
     static void AddSensor(upSensor sensor);
 
     static void RemoveSensor(SensorPosition* sensor);
     static void RemoveZone(Zone* zone);
+
+    static void UpdateAllSensors(std::vector<Orientation>& orientations);
 
 
     // Functions to handle incoming UDP messages
@@ -55,7 +57,7 @@ public:
     static void RemoveUDPObstacle(int pos);
 
     static void AddUDPSensor(upSensor sensor);
-    static void AddUDPZone(upZone zone);
+    static void AddUDPZone(upSafetyZone zone);
     static void AddUDPObstacle(osg::ref_ptr<osg::Node> node,const osg::Matrix& mat);
 
     static void UpdateUDPSensorPosition(int pos, const osg::Matrix& mat);
@@ -69,12 +71,12 @@ public:
 private:
     DataManager();
     std::vector<upSensor> m_Sensors;            // virtual sensor positions
-    std::vector<upZone> m_SafetyZones;//TODO: should use safety zone here as type ?           
+    std::vector<upSafetyZone> m_SafetyZones;//TODO: should use safety zone here as type ?           
     std::vector<upSensorZone> m_SensorZones;
     
     // live UDP positions
     std::vector<upSensor> m_UDPSensors;        
-    std::vector<upZone> m_UDPSafetyZones;
+    std::vector<upSafetyZone> m_UDPSafetyZones;
     std::vector<osg::ref_ptr<osg::MatrixTransform>> m_UDPObstacles;
 
 

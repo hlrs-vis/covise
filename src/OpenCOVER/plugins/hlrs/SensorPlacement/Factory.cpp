@@ -11,7 +11,7 @@ std::unique_ptr<SensorPosition> createSensor(SensorType sensor, osg::Matrix matr
     return std::unique_ptr<SensorPosition>();
 }
 
-std::unique_ptr<Zone> createZone(ZoneType zone, osg::Matrix matrix,float length, float width , float height)
+/*std::unique_ptr<Zone> createZone(ZoneType zone, osg::Matrix matrix,float length, float width , float height)
 {
    
     if(zone == ZoneType::ROIzone){
@@ -26,6 +26,12 @@ std::unique_ptr<Zone> createZone(ZoneType zone, osg::Matrix matrix,float length,
         assert(false);
     }
     return std::unique_ptr<Zone>();
+}
+*/
+
+std::unique_ptr<SafetyZone> createSafetyZone(SafetyZone::Priority prio, osg::Matrix matrix, float length, float width , float height)
+{
+    return myHelpers::make_unique<SafetyZone>(matrix, prio, length, width, height);
 }
 
 std::unique_ptr<SensorZone> createSensorZone()
