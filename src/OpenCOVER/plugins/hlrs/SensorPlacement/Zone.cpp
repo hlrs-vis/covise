@@ -1,4 +1,5 @@
 #include <iterator>
+#include <future>
 
 #include<osg/Geode>
 #include<osg/Geometry>
@@ -815,8 +816,9 @@ void SensorZone::createAllSensors()
     for(const auto& worldpos : worldpositions)
         addSensor(osg::Matrix::translate(worldpos),true);
     
+    std::vector<std::future<void>> futures;
     for(const auto& sensor : m_Sensors)
-        sensor->calcVisibility();
+        futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
 
     SP_PROFILE_END_SESSION();
 }

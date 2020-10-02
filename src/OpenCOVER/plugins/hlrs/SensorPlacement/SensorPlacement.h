@@ -35,8 +35,10 @@ enum class FitnessFunctionType;
 //Free functions
 int calcNumberOfSensors();
 int convert(int sensorPos);
+
 void calcVisibility();
 void optimize(FitnessFunctionType);
+
 void updateAllSensors(std::vector<Orientation>);
 
 class UI;

@@ -100,9 +100,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage1-> setText("MaxCoverage1");
    m_MaxCoverage1-> setCallback([this]()
    {
-      calcVisibility();
-      optimize(FitnessFunctionType::MaxCoverage1);
-      
+      optimize(FitnessFunctionType::MaxCoverage1); 
    });
    
 
@@ -110,16 +108,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setText("MaxCoverage2");
    m_MaxCoverage2-> setCallback([this]()
    {
-      calcVisibility();
       optimize(FitnessFunctionType::MaxCoverage2);
-      // convert(0);
-      // convert(1);
-      // convert(2);
-      // convert(3);
-      // convert(4);
-      // convert(5);
-      // convert(6);
-      // convert(9);
    });
 
 

@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <memory> 
+#include <future>
 
 #include <cover/coVRMSController.h>
 
@@ -61,11 +62,16 @@ int convert(int sensorPos) // finish me !!!!!
 
 void calcVisibility()
 {
-   for(const auto& sensor : DataManager::GetInstance().GetSensors())
-      sensor->calcVisibility();
+  std::vector<std::future<void>> futures;
 
-   for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
-      sensorZone->createAllSensors();
+  auto sensors = DataManager::GetInstance().GetSensors();
+  for(const auto& sensor : sensors)  
+    futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
+  
+  // useful to use async here and also in SensorZone::createAllSensors ? 
+  auto zones = DataManager::GetInstance().GetSensorZones();
+  for(const auto& sensorZone : zones )
+    futures.push_back(std::async(std::launch::async, &SensorZone::createAllSensors, sensorZone.get()));
 }
 
 void optimize(FitnessFunctionType fitnessFunction)
