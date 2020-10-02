@@ -6,11 +6,11 @@
 #include "Factory.h"
 #include "GA.h"
 #include "SensorPlacement.h"
+#include "Sensor.h"
 
 using namespace opencover;
 
 bool UI::m_DeleteStatus{false};
-bool UI::m_showOrientations{true};
 bool UI::m_showAverageUDPPositions{false};
 bool UI::m_showShortestUDPPositions{true};
 
@@ -72,13 +72,70 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_SensorProps = new ui::Menu(m_MainMenu,"SensorProps");
    m_SensorProps->setText("Sensor Properties");
 
+   m_Rotx = new ui::Button(m_SensorProps,"Rotate X");
+   m_Rotx->setText("Rotate X");
+   m_Rotx->setState(SensorWithMultipleOrientations::s_SensorProps.getRotX());
+   m_Rotx->setCallback([this](bool state)
+   {
+      SensorWithMultipleOrientations::s_SensorProps.setRotX(state);
+   });
+
+   m_Roty = new ui::Button(m_SensorProps,"Rotate Y");
+   m_Roty->setText("Rotate Y");
+   m_Roty->setState(SensorWithMultipleOrientations::s_SensorProps.getRotY());
+   m_Roty->setCallback([this](bool state)
+   {
+      SensorWithMultipleOrientations::s_SensorProps.setRotY(state);
+   });
+
+   m_Rotz = new ui::Button(m_SensorProps,"Rotate Z");
+   m_Rotz->setText("Rotate Z");
+   m_Rotz->setState(SensorWithMultipleOrientations::s_SensorProps.getRotZ());
+   m_Rotz->setCallback([this](bool state)
+   {
+      SensorWithMultipleOrientations::s_SensorProps.setRotZ(state);
+   });
+
+   m_SliderStepSizeX = new ui::Slider(m_SensorProps,"StepSizeX");
+   m_SliderStepSizeX->setIntegral(true);
+   m_SliderStepSizeX->setText("Step size X[°]");
+   m_SliderStepSizeX->setBounds(1, 90);
+   m_SliderStepSizeX->setValue(SensorWithMultipleOrientations::s_SensorProps.getStepSizeX());
+   m_SliderStepSizeX->setCallback([](double value, bool released)
+   {
+      SensorWithMultipleOrientations::s_SensorProps.setStepSizeX(value);
+   });
+
+   m_SliderStepSizeY = new ui::Slider(m_SensorProps,"StepSizeY");
+   m_SliderStepSizeY->setIntegral(true);
+   m_SliderStepSizeY->setText("Step size Y[°]");
+   m_SliderStepSizeY->setBounds(1, 90);
+   m_SliderStepSizeY->setValue(SensorWithMultipleOrientations::s_SensorProps.getStepSizeY());
+   m_SliderStepSizeY->setCallback([](double value, bool released)
+   {
+      SensorWithMultipleOrientations::s_SensorProps.setStepSizeY(value);
+   });
+
+   m_SliderStepSizeZ = new ui::Slider(m_SensorProps,"StepSizeZ");
+   m_SliderStepSizeZ->setIntegral(true);
+   m_SliderStepSizeZ->setText("Step size Z[°]");
+   m_SliderStepSizeZ->setBounds(1, 90);
+   m_SliderStepSizeZ->setValue(SensorWithMultipleOrientations::s_SensorProps.getStepSizeZ());
+   m_SliderStepSizeZ->setCallback([](double value, bool released)
+   {
+      SensorWithMultipleOrientations::s_SensorProps.setStepSizeZ(value);
+   });
+
+
    m_ShowOrientations = new ui::Button(m_SensorProps,"ShowOrientations");
    m_ShowOrientations->setText("Show Orientations");
-   m_ShowOrientations->setState(m_showOrientations);
+   m_ShowOrientations->setState(SensorWithMultipleOrientations::s_SensorProps.getVisualizeOrientations());
    m_ShowOrientations->setCallback([this](bool state)
    {
-      m_showOrientations = state;
+      SensorWithMultipleOrientations::s_SensorProps.setVisualizeOrientations(state);
    });
+
+  
 
    // Camera Menu------------------------------------------------------------------------------------
     m_CameraProps = new ui::Menu(m_SensorProps,"CameraProps");

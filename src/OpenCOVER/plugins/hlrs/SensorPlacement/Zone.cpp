@@ -854,7 +854,7 @@ void SensorZone::createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sens
     }
 }
 
-GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius)
+GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius):m_Color(color)
 {
     osg::Matrix local;
     local.setTrans(pos);

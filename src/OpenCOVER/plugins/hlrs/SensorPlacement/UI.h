@@ -31,10 +31,8 @@ public:
     UI();
 
     static bool m_DeleteStatus;
-    static bool m_showOrientations;
     static bool m_showAverageUDPPositions;
     static bool m_showShortestUDPPositions;
-
    
 private:
     //Main Menu
@@ -45,6 +43,9 @@ private:
     //Sensor Menu
     ui::Menu *m_SensorProps;
     ui::Button *m_ShowOrientations;
+    ui::Button *m_Rotx,*m_Roty,*m_Rotz;
+    ui::Slider *m_SliderStepSizeX, *m_SliderStepSizeY, *m_SliderStepSizeZ;
+
 
     //Camera Menu
     ui::Menu *m_CameraProps;

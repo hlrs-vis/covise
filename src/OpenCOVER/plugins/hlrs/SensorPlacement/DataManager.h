@@ -40,7 +40,7 @@ public:
     static const osg::ref_ptr<osg::Group>& GetRootNode() {return GetInstance().m_Root;}
     
     static void highlitePoints(const VisibilityMatrix<float>& visMat);
-    static void setOriginalPointColor();
+    static void setOriginalZoneColor();
     static void AddSafetyZone(upSafetyZone zone);
     static void AddSensorZone(upSensorZone zone);
     static void AddSensor(upSensor sensor);

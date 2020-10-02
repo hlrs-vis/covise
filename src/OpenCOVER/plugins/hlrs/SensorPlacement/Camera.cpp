@@ -236,7 +236,7 @@ bool Camera::preFrame()
     else if(m_Interactor->wasStopped())
     {   
         showIconSensorSize();
-       if(UI::m_showOrientations)
+       if(s_SensorProps.getVisualizeOrientations())
        {
             for(const auto& orient : m_Orientations)
             {

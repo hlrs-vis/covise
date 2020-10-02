@@ -193,7 +193,7 @@ void DataManager::RemoveUDPZone(int pos)
 
 void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 {
-   auto visMat2D = convertVisMatTo2D(visMat);
+    auto visMat2D = convertVisMatTo2D(visMat);
 
     size_t count{0};
     for(const auto& zone : GetSafetyZones())
@@ -253,7 +253,7 @@ void DataManager::UpdateUDPObstacle(int pos, const osg::Matrix& mat)
 
 
 
-void DataManager::setOriginalPointColor()
+void DataManager::setOriginalZoneColor()
 {
     for(const auto& zone : GetSafetyZones())
         zone->setOriginalColor();
