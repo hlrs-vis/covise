@@ -35,7 +35,7 @@ int convert(int sensorPos) // finish me !!!!!
     {
         std::cout<<"not a sensor anymore!"<< std::endl;
         return -1;
-}
+    }
     int posOfSafetyZone{0};
     int pos = sensorPos - DataManager::GetSensors().size();;
     int nbrOfSensors{0};
@@ -64,13 +64,11 @@ void calcVisibility()
 {
   std::vector<std::future<void>> futures;
 
-  auto sensors = DataManager::GetInstance().GetSensors();
-  for(const auto& sensor : sensors)  
+  for(const auto& sensor :  DataManager::GetInstance().GetSensors())  
     futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
   
   // useful to use async here and also in SensorZone::createAllSensors ? 
-  auto zones = DataManager::GetInstance().GetSensorZones();
-  for(const auto& sensorZone : zones )
+  for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
     futures.push_back(std::async(std::launch::async, &SensorZone::createAllSensors, sensorZone.get()));
 }
 
