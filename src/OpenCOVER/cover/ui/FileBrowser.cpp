@@ -1,6 +1,5 @@
 #include "FileBrowser.h"
 #include "Manager.h"
-#include <net/tokenbuffer.h>
 
 #include <sstream>
 #include <cstdlib>
