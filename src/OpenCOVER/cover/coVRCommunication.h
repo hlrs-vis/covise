@@ -29,7 +29,7 @@ class Message;
 
 #include <map>
 #include <set>
-#include <vrbclient/regClass.h>
+#include <vrbclient/RegistryClass.h>
 #include <vrbclient/SharedState.h>
 #include "ui/Owner.h"
 #include <vrbclient/SessionID.h>
@@ -77,9 +77,15 @@ public:
     static const char *getHostaddress();
     static std::string getUsername();
     int getID();
-    vrb::SessionID &getPrivateSessionIDx();
+    const vrb::SessionID &getPrivateSessionIDx() const;
     const vrb::SessionID &getSessionID() const;
+    const vrb::SessionID &getUsedSessionID() const;
+
     void setSessionID(const vrb::SessionID &id);
+
+    void saveSessionFile(covise::TokenBuffer &tb);
+    void loadSessionFile(const std::string &fileName);
+
     int getNumberOfPartners();
     void setFBData(IData *data);
     void handleVRB(covise::Message *msg);

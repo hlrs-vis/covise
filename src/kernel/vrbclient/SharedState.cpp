@@ -7,7 +7,6 @@
 
 #include "SharedState.h"
 #include "SharedStateManager.h"
-#include "regClass.h"
 #include "VrbClientRegistry.h"
 
 #include <chrono>
@@ -83,7 +82,7 @@ std::string SharedStateBase::getName() const
 
 void SharedStateBase::update(clientRegVar *theChangedVar)
 {
-    if (theChangedVar->getName() != variableName || theChangedVar->isDeleted())
+    if (theChangedVar->name() != variableName || theChangedVar->isDeleted())
     {
         return;
     }

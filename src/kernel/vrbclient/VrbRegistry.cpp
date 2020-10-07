@@ -6,44 +6,59 @@
  * License: LGPL 2+ */
 
 #include "VrbRegistry.h"
-#include "regClass.h"
 namespace vrb
 {
-void VrbRegistry::readClass(std::ifstream& file)
+
+const regClass* VrbRegistry::getClass(const std::string& name) const
 {
-	std::string className, delimiter, space;
-	file >> className;
-	file >> space;
-	std::shared_ptr<regClass> cl = createClass(className, -1); // -1 = nobodies client ID
-	myClasses[className] = cl;
-	cl->readVar(file);
+	return const_cast<VrbRegistry *>(this)->getClass(name);
 }
 
-regClass* VrbRegistry::getClass(const std::string& name) const
+regClass* VrbRegistry::getClass(const std::string& name)
 {
-
-	auto cl = myClasses.find(name);
-	if (cl == myClasses.end())
+	auto cl = findClass(name);
+	if (cl == end())
 	{
 		return nullptr;
 	}
-	return cl->second.get();
+	return cl->get();
 }
 
-void VrbRegistry::loadRegistry(std::ifstream& inFile) {
 
-	while (!inFile.eof())
+void VrbRegistry::deserialize(covise::TokenBuffer& tb) {
+
+	size_t size;
+	tb >> size;
+	m_classes = ContainerType{size, createClass("", -1)};// -1 = nobodies client ID
+	for(auto &cl : m_classes)
 	{
-		readClass(inFile);
-	}
-
-}
-
-void VrbRegistry::saveRegistry(std::ofstream& outFile) const {
-	for (const auto& cl : myClasses)
-	{
-		outFile << "\n";
-		cl.second->writeClass(outFile);
+		vrb::deserialize(tb, *cl);
 	}
 }
+void VrbRegistry::serialize(covise::TokenBuffer& tb) const{
+	tb << m_classes.size();
+	for (const auto &cl : m_classes)
+	{
+		vrb::serialize(tb, *cl);
+	}
 }
+
+VrbRegistry::ContainerType::iterator VrbRegistry::begin() {
+	return m_classes.begin();
+}
+VrbRegistry::ContainerType::const_iterator VrbRegistry::begin() const {
+	return m_classes.begin();
+}
+VrbRegistry::ContainerType::iterator VrbRegistry::end() {
+	return m_classes.end();
+}
+VrbRegistry::ContainerType::const_iterator VrbRegistry::end() const {
+	return m_classes.end();
+}
+
+VrbRegistry::ContainerType::iterator VrbRegistry::findClass(const std::string &className){
+return std::find_if(begin(), end(), [className](std::shared_ptr<regClass> cl) { return cl->name() == className; });
+}
+
+}
+

@@ -103,27 +103,6 @@ std::string SessionID::toText() const
 }
 
 
-covise::TokenBuffer & operator<<(covise::TokenBuffer & tb, const vrb::SessionID & id)
-{
-    tb << id.owner();
-    tb << id.name();
-    tb << id.isPrivate();
-    return tb;
-}
-
-covise::TokenBuffer & operator>>(covise::TokenBuffer & tb, vrb::SessionID & id)
-{
-    int owner;
-    std::string name;
-    bool isPrivate;
-    tb >> owner;
-    tb >> name;
-    tb >> isPrivate;
-    id.setOwner(owner);
-    id.setName(name);
-    id.setPrivate(isPrivate);
-    return tb;
-}
 }
 
 

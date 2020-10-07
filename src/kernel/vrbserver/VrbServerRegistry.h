@@ -6,15 +6,15 @@
  * License: LGPL 2+ */
 
 
+#include "VrbClientList.h"
+
 #include <map>
 #include <memory>
 
 #include <net/tokenbuffer.h>
-
-#include <vrbclient/VrbRegistry.h>
-#include <vrbclient/regClass.h>
-#include <VrbClientList.h>
+#include <vrbclient/RegistryClass.h>
 #include <vrbclient/SessionID.h>
+#include <vrbclient/VrbRegistry.h>
 
 
 
@@ -36,9 +36,9 @@ class VrbServerRegistry : public VrbRegistry
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables
-    VrbServerRegistry(SessionID &session);
+    explicit VrbServerRegistry(const SessionID &session);
 
-
+    const SessionID& sessionID() const;
     /// set a Value or create new Entry, s for isStatic
     void setVar(int ID, const std::string &className, const std::string &name, const covise::DataHandle &value, bool s = false);
     /// create new Entry
@@ -70,7 +70,7 @@ public:
        */
     void saveNetwork(coCharBuffer &cb);
     void setOwner(int id);
-    int getOwner();
+    int getOwner() const;
 
     int getID() override
     {
@@ -78,7 +78,7 @@ public:
     }
     std::shared_ptr<regClass> createClass(const std::string &name, int id) override;
 private:
-    SessionID sessionID;
+    SessionID m_sessionID;
     int owner;
 };
 

@@ -30,28 +30,23 @@ class Menu;
 class Group;
 class SelectionList;
 class Slider;
-
+class FileBrowser;
 }
 
 class VrbMenue: public ui::Owner
 {
 private:
-    ui::Group *sessionGroup;
-    ui::Group *ioGroup;
-    ui::EditField *newSessionEf;
-    ui::Action *newSessionBtn;
-    ui::SelectionList *sessionsSl;
-    ui::Action *saveBtn;
-    ui::SelectionList *loadSL;
-    std::vector<std::string> savedRegistries;
-    std::vector<vrb::SessionID> availiableSessions;
+    ui::Group *m_sessionGroup;
+    ui::Group *m_ioGroup;
+    ui::EditField *m_newSessionEf;
+    ui::Action *m_newSessionBtn;
+    ui::SelectionList *m_sessionsSl;
+    ui::FileBrowser *m_saveSession, *m_loadSession;
+    std::vector<std::string> m_savedRegistries;
+    std::vector<vrb::SessionID> m_availiableSessions;
 
-	vrb::SharedMap<std::string, std::string> test;
-    vrb::SharedState<std::vector<float>> test2;
-    void saveSession();
-    void loadSession(int index);
+    void saveSession(const std::string &file);
     void loadSession(const std::string &filename);
-    void unloadAll();
     void requestNewSession(const std::string & name);
     void selectSession(int id);
     const std::string noSavedSession = "nothing";
@@ -59,7 +54,6 @@ public:
     VrbMenue();
 	void initFileMenue();
 	void updateState(bool state);
-    void updateRegistries(const std::vector<std::string> &registries);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
     void setCurrentSession(const vrb::SessionID &session);
 

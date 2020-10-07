@@ -7,32 +7,39 @@
 #ifndef VrbRegistry_h 
 #define VrbRegistry_h
 
-#include "regClass.h"
+#include "RegistryClass.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <ctime> 
-
+#include "SharedStateSerializer.h"
 namespace vrb
 {
 class VRBEXPORT VrbRegistry
 {
-protected:
-    std::map<const std::string, std::shared_ptr<regClass>> myClasses;
-
-    ///changes name to the read name and return the char which contains the classes variables
-	void readClass(std::ifstream& file);
-
-   
-    void clearRegistry() {
-        //delete all entries and inform their observers
-    }
-
 public:
-	regClass* getClass(const std::string& name) const;
+	const regClass* getClass(const std::string& name) const;
+	regClass* getClass(const std::string& name);
+
     virtual int getID() = 0;
     virtual std::shared_ptr<regClass> createClass(const std::string &name, int id) = 0;
-	void loadRegistry(std::ifstream& inFile);
-	void saveRegistry(std::ofstream& outFile) const;
+	void deserialize(covise::TokenBuffer& tb);
+	void serialize(covise::TokenBuffer& tb) const;
+
+    typedef std::vector<std::shared_ptr<regClass>> ContainerType;
+    ContainerType::iterator begin();
+    ContainerType::const_iterator begin() const;
+    ContainerType::iterator end();
+    ContainerType::const_iterator end() const;
+
+    virtual ~VrbRegistry() = default;
+protected:
+    ContainerType m_classes;
+    ContainerType::iterator findClass(const std::string &className);
+    void clearRegistry()
+    {
+        //delete all entries and inform their observers
+    }
 };
+
 }
 #endif // !VrbRegistry_h 

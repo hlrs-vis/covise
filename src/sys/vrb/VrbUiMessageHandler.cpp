@@ -27,29 +27,29 @@
 
 using namespace covise;
 
-void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, const covise::DataHandle& value)
+void VrbUiMessageHandler::updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle& value)
 {
     char * charVal;
 	TokenBuffer tb(value);
-    if (strcmp(cl, "SharedState") == 0)
+    if (cl == "SharedState")
     {
-		appwin->registry->updateEntry(cl, sender, var, vrb::tokenBufferToString(std::move(tb)).c_str());
+		appwin->registry->updateEntry(cl.c_str(), sender, var.c_str(), vrb::tokenBufferToString(std::move(tb)).c_str());
     }
-	else if (strcmp(cl, "SharedMap") == 0)
+	else if (cl == "SharedMap")
 	{
 		std::string t("SharedMap");
-		appwin->registry->updateEntry(cl, sender, var, t.c_str());
+		appwin->registry->updateEntry(cl.c_str(), sender, var.c_str(), t.c_str());
 	}
     else
     {
 		tb >> charVal;
-		appwin->registry->updateEntry(cl, sender, var, charVal);
+		appwin->registry->updateEntry(cl.c_str(), sender, var.c_str(), charVal);
     }
 }
 
-void VrbUiMessageHandler::removeEntryFromApplicationWindow(const char * cl, int sender, const char * var)
+void VrbUiMessageHandler::removeEntryFromApplicationWindow(const std::string& cl, int sender, const std::string& var)
 {
-    appwin->registry->removeEntry(cl, sender, var);
+    appwin->registry->removeEntry(cl.c_str(), sender, var.c_str());
 }
 
 void VrbUiMessageHandler::removeEntriesFromApplicationWindow(int sender)

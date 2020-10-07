@@ -87,7 +87,7 @@ void VRBSClient::setSession(const vrb::SessionID &g)
     m_publicSession = g;
 }
 
-vrb::SessionID & VRBSClient::getPrivateSession()
+const vrb::SessionID & VRBSClient::getPrivateSession() const
 {
     return m_privateSession;
 }
@@ -97,7 +97,7 @@ void VRBSClient::setPrivateSession(vrb::SessionID & g)
     m_privateSession = g;
 }
 
-int VRBSClient::getMaster()
+bool VRBSClient::isMaster()
 {
     return m_master;
 }
@@ -177,7 +177,7 @@ int VRBSClient::getID() const
     return myID;
 }
 
-vrb::SessionID &VRBSClient::getSession()
+const vrb::SessionID &VRBSClient::getSession() const
 {
     return m_publicSession;
 }
@@ -291,7 +291,7 @@ int VRBClientList::numInSession(vrb::SessionID &session)
     return num;
 }
 
-int VRBClientList::numberOfClients()
+size_t VRBClientList::numberOfClients()
 {
     return m_clients.size();
 }
@@ -382,7 +382,7 @@ VRBSClient * VRBClientList::getMaster(const vrb::SessionID &session)
 {
     for (auto cl : m_clients)
     {
-        if (cl->getSession() == session && cl->getMaster())
+        if (cl->getSession() == session && cl->isMaster())
         {
             return cl;
         }

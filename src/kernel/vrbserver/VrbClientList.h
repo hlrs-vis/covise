@@ -55,11 +55,11 @@ public:
     std::string getName() const;
     std::string getIP() const;
     int getID() const;
-    vrb::SessionID &getSession();
+    const vrb::SessionID &getSession() const;
     virtual void setSession(const vrb::SessionID &g);
-    vrb::SessionID &getPrivateSession();
+    const vrb::SessionID &getPrivateSession() const;
     void setPrivateSession(vrb::SessionID &g);
-    int getMaster();
+    bool isMaster();
     virtual void setMaster(bool m);
     std::string getUserInfo();
     std::string getUserName();
@@ -78,7 +78,7 @@ protected:
     std::string userInfo;
     int myID = -1;
     vrb::SessionID m_publicSession, m_privateSession;
-    int m_master = false;
+    bool m_master = false;
     long bytesSent = 0;
     long bytesReceived = 0;
     double lastRecTime = -1.;
@@ -120,7 +120,7 @@ public:
     void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
 	static std::string cutFileName(const std::string& fileName);
     int numInSession(vrb::SessionID &Group);
-    int numberOfClients();
+    size_t numberOfClients();
     void addClient(VRBSClient *cl);
     void removeClient(VRBSClient *cl);
 	/// remove client with connection c

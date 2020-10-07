@@ -57,9 +57,9 @@ void VrbClientRegistry::setID(int clID, const SessionID &session)
     {
         sessionID = session;
         clientID = clID;
-        for (const auto cl : myClasses)
+        for (auto cl : m_classes)
         {
-            cl.second->setID(clientID);
+            cl->setID(clientID);
         }
     }
 }
@@ -79,11 +79,11 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
         m_sender->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
     }
     // resubscribe all registry entries on reconnect
-    for (const auto cl : myClasses)
+    for (const auto cl : m_classes)
     {
-        if (cl.first != "SharedState")
+        if (cl->name() != "SharedState")
         {
-           std::dynamic_pointer_cast<vrb::clientRegClass>(cl.second)->resubscribe(sessionID);
+           std::dynamic_pointer_cast<vrb::clientRegClass>(cl)->resubscribe(sessionID);
         }
     }
 }
@@ -105,8 +105,7 @@ clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, co
     clientRegClass *rc = getClass(cl);
     if (!rc) //class does not exist
     {
-        rc = new clientRegClass(cl, clientID, this);
-        myClasses[cl].reset(rc);
+        rc = dynamic_cast<clientRegClass*>(m_classes.emplace(end(), std::make_shared<clientRegClass>(cl, clientID, this))->get());
     }
     rc->subscribe(ob, sessionID);
     return rc;
@@ -118,8 +117,7 @@ clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const 
     clientRegClass *rc = getClass(cl);
     if (!rc) //class does not exist
     {
-        rc = new clientRegClass(cl, clientID, this);
-        myClasses[cl].reset(rc);
+        rc = dynamic_cast<clientRegClass*>(m_classes.emplace(end(), std::make_shared<clientRegClass>(cl, clientID, this))->get());
     }
     clientRegVar *rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
     if (!rv)
@@ -134,8 +132,8 @@ clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const 
 
 void VrbClientRegistry::unsubscribeClass(const SessionID &sessionID, const std::string &cl)
 {
-    clientRegClass *rc = getClass(cl);
-    if (rc)
+    auto rc = findClass(cl);
+    if (rc != end())
     {
         TokenBuffer tb;
         // compose message
@@ -143,7 +141,7 @@ void VrbClientRegistry::unsubscribeClass(const SessionID &sessionID, const std::
         tb << clientID;
         tb << cl;
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS);
-        myClasses.erase(cl);
+        m_classes.erase(rc);
 
     }
 }
@@ -179,7 +177,7 @@ void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &
     tb << clientID;
     tb << cl;
     tb << var;
-    serialize(tb, value);
+    tb << value;
     tb << isStatic;
     sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
@@ -213,7 +211,7 @@ void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl,
     tb << clientID;// local client ID
     tb << cl;
     tb << var;
-	serialize(tb, value);
+    tb << value;
 
     sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 }
@@ -230,6 +228,7 @@ void VrbClientRegistry::destroyVar(const SessionID sessionID, const std::string 
             // compose message
             TokenBuffer tb;
             tb << sessionID;
+            tb << clientID;
             tb << cl;
             tb << var;
             sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY);
@@ -239,12 +238,12 @@ void VrbClientRegistry::destroyVar(const SessionID sessionID, const std::string 
 
 clientRegClass *VrbClientRegistry::getClass(const std::string &name)
 {
-    auto it = myClasses.find(name);
-    if (it == myClasses.end())
+    auto it = findClass(name);
+    if (it == m_classes.end())
     {
-        return (NULL);
+        return nullptr;
     }
-    return std::dynamic_pointer_cast<vrb::clientRegClass>(it->second).get();
+    return dynamic_cast<vrb::clientRegClass*>(it->get());
 }
 // called by controller if registry entry has changed
 void VrbClientRegistry::update(TokenBuffer &tb, int reason)
@@ -264,9 +263,9 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
 	{
 
 		DataHandle  valueData;
-		deserialize(tb, valueData);
+        tb >> valueData;
 
-		// call all class specific observers
+        // call all class specific observers
 		rc = getClass(cl);
 		if (rc)
 		{

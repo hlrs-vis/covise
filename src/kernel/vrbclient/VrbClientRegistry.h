@@ -10,7 +10,7 @@
 
 #include <net/tokenbuffer.h>
 #include <map>
-#include "regClass.h"
+#include "RegistryClass.h"
 #include <util/coExport.h>
 #include "VrbRegistry.h"
 #include "SessionID.h"

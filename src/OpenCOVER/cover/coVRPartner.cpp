@@ -144,9 +144,7 @@ void coVRPartner::setInfo(TokenBuffer &tb)
     tb >> name; // name
     tb >> tmp; // userInfo
     tb >> m_sessionID;
-    int master = -1;
-    tb >> master;
-    m_isMaster = master ? true : false;
+    tb >> m_isMaster;
 
     char *c = tmp;
     while ((*c != '\"') && (*c != '\0'))

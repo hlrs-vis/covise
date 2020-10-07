@@ -40,8 +40,27 @@ private:
     std::string m_name = "";
     bool m_isPrivate = true;
 };
-VRBEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const vrb::SessionID &id);
-VRBEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, vrb::SessionID &id);
+template<typename Stream>
+Stream& operator<<(Stream& s, const vrb::SessionID& id) {
+    s << id.owner();
+    s << id.name();
+    s << id.isPrivate();
+    return s;
+}
+template<typename Stream>
+Stream& operator>>(Stream& s, vrb::SessionID& id) {
+    int owner;
+    std::string name;
+    bool isPrivate;
+    s >> owner;
+    s >> name;
+    s >> isPrivate;
+    id.setOwner(owner);
+    id.setName(name);
+    id.setPrivate(isPrivate);
+    return s;
+}
+
 }
 
 #endif // !SESSION_H

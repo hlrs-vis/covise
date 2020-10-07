@@ -153,7 +153,7 @@ void coVRCommunication::update(clientRegClass *theChangedClass)
 {
     if (theChangedClass)
     {
-        if (theChangedClass->getName() == "VRMLFile")
+        if (theChangedClass->name() == "VRMLFile")
         {
             for (std::map<const std::string, std::shared_ptr<regVar>>::iterator it = theChangedClass->getAllVariables().begin();
                 it != theChangedClass->getAllVariables().end(); ++it)
@@ -166,9 +166,9 @@ void coVRCommunication::update(clientRegClass *theChangedClass)
                 }
                 if ((p = coVRPartnerList::instance()->get(remoteID)))
                 {
-                    p->setFile(it->second->getValue().data());
-                    cerr << theChangedClass->getName() << endl;
-                    cerr << it->second->getValue().data() << endl;
+                    p->setFile(it->second->value().data());
+                    cerr << theChangedClass->name() << endl;
+                    cerr << it->second->value().data() << endl;
                 }
             }
         }
@@ -185,7 +185,7 @@ int coVRCommunication::getID()
     return myID;
 }
 
-vrb::SessionID & opencover::coVRCommunication::getPrivateSessionIDx()
+const vrb::SessionID & opencover::coVRCommunication::getPrivateSessionIDx() const
 {
     return m_privateSessionID;
 }
@@ -195,6 +195,17 @@ const vrb::SessionID &opencover::coVRCommunication::getSessionID() const
     return me->getSessionID();
 }
 
+const vrb::SessionID &opencover::coVRCommunication::getUsedSessionID() const
+{
+    if (getSessionID().isPrivate())
+    {
+        return getPrivateSessionIDx();
+    }
+    else
+    {
+        return getSessionID();
+    }
+}
 void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
 {
     if (id.isPrivate())
@@ -524,10 +535,7 @@ void coVRCommunication::handleVRB(Message *msg)
             registry->setID(id, session);
             coVRCollaboration::instance()->updateSharedStates();
         }
-        else
-        {
-            coVRPartnerList::instance()->setSessionID(id, session);
-        }
+        coVRPartnerList::instance()->setSessionID(id, session);
         if (vrbc)
         {
             vrbc->setID(id);
@@ -541,10 +549,6 @@ void coVRCommunication::handleVRB(Message *msg)
             sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
         }
         m_vrbMenue->updateState(true);
-        //prepare for saving and loading sessions on the vrb
-        TokenBuffer ftb;
-        ftb << id;
-        sendMessage(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
     }
     break;
     case COVISE_MESSAGE_VRB_SET_MASTER:
@@ -812,18 +816,9 @@ void coVRCommunication::handleVRB(Message *msg)
 
     }
     break;
-    case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
+    case COVISE_MESSAGE_VRB_SAVE_SESSION:
     {
-        int size;
-        tb >> size;
-        std::vector<std::string> registries;
-        for (size_t i = 0; i < size; i++)
-        {
-            std::string file;
-            tb >> file;
-            registries.push_back(file);
-        }
-        m_vrbMenue->updateRegistries(registries);
+        saveSessionFile(tb);
     }
     break;
     case COVISE_MESSAGE_VRB_LOAD_SESSION:
@@ -912,6 +907,45 @@ void coVRCommunication::setCurrentFile(const char *filename)
     //    cover->sendMessage(NULL, "ACInterface", PluginMessageTypes::HLRS_ACInterfaceModelLoadedPath, tb.get_length(), tb.get_data());
     //    tb.delete_data();
     //}
+}
+
+void coVRCommunication::saveSessionFile(covise::TokenBuffer &tb)
+{
+        string fileName;
+        TokenBuffer data;
+        tb >> fileName;
+        tb >> data;
+        
+        auto size = data.getData().length();
+        cerr << "saving session " << fileName << " with data size " << size << endl;
+        std::fstream out(fileName, std::ios_base::out | std::ios_base::binary);
+        if (!out.is_open())
+        {
+            cerr << "error opening file " << fileName << endl;
+        }
+        out.write((char *)&size, sizeof(size));
+        out.write(data.getData().data(), size);
+}
+
+void coVRCommunication::loadSessionFile(const std::string &fileName)
+{
+    int start = 0;
+    const char* file_prefix_added_by_tablet_ui_but_not_from_cover = "file://";
+    auto count = fileName.compare(0, sizeof(file_prefix_added_by_tablet_ui_but_not_from_cover) -1, file_prefix_added_by_tablet_ui_but_not_from_cover);
+    if (!count)
+    {
+        start = sizeof(file_prefix_added_by_tablet_ui_but_not_from_cover) - 1;
+    }
+    TokenBuffer tb;
+    tb << coVRCommunication::instance()->getID();
+    tb << coVRCommunication::instance()->getUsedSessionID();    
+    std::fstream in(fileName.substr(start), std::ios_base::in | std::ios_base::binary);
+    int l = 0;
+    in.read((char*)&l, sizeof(l));
+    DataHandle dh{(size_t)l};
+    in.read(dh.accessData(), l);
+    tb << dh;
+    cover->getSender()->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
 }
 
 int coVRCommunication::getNumberOfPartners()
