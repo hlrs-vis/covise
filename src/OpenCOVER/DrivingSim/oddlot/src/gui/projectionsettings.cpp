@@ -216,13 +216,18 @@ void ProjectionSettings::update()
     if(projectData_->getGeoReference() == nullptr) {
         ui->presetBox->setCurrentIndex(1);
     }
-    else
-    {
-        //ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
-        ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(),0));
-        ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(),0));
-        updateUi();
-    }
+	else if (projectData_->getProj4ReferenceTo() && projectData_->getProj4ReferenceFrom())
+	{
+		//ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+		ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(), 0));
+		ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(), 0));
+		updateUi();
+	}
+	else
+	{
+		ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+		updateUi();
+	}
 }
 
 void ProjectionSettings::setProjectData(ProjectData *pd)

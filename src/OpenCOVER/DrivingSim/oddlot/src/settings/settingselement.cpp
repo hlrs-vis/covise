@@ -129,6 +129,11 @@ SettingsElement::updateObserver()
     //
     if (changes & DataElement::CDE_SelectionChange)
     {
+		if (!dataElement_->isElementSelected())
+		{
+			registerForDeletion();
+			return;
+		}
         //		// Selection //
         //		//
         //		if(isSelected() != dataElement_->isElementSelected())

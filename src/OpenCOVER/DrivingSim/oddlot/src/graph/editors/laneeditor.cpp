@@ -30,6 +30,7 @@
 #include "src/data/commands/lanesectioncommands.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/roadlink.hpp"
 
 #include "src/data/commands/dataelementcommands.hpp"
 
@@ -468,42 +469,25 @@ LaneEditor::apply()
 		Lane *lane = dynamic_cast<ToolValue<Lane> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT))->getValue();
 
 		Lane *newLane = new Lane(laneId, Lane::LT_DRIVING);
-
-		LaneWidth *laneWidth = new LaneWidth(0.0, width, 0.0, 0.0, 0.0);
-		newLane->addWidthEntry(laneWidth);
-
-		LaneRoadMark *roadMark = new LaneRoadMark(0.0, LaneRoadMark::RMT_SOLID, LaneRoadMark::RMW_STANDARD, LaneRoadMark::RMC_STANDARD, 0.12);
-		newLane->addRoadMarkEntry(roadMark);
-
 		LaneSection *parentLaneSection = lane->getParentLaneSection();
-		InsertLaneCommand *command = new InsertLaneCommand(parentLaneSection, newLane);
+
+		if (laneId != 0)
+		{
+
+			LaneWidth *laneWidth = new LaneWidth(0.0, width, 0.0, 0.0, 0.0);
+			newLane->addWidthEntry(laneWidth);
+
+			LaneRoadMark *roadMark = new LaneRoadMark(0.0, LaneRoadMark::RMT_SOLID, LaneRoadMark::RMW_STANDARD, LaneRoadMark::RMC_STANDARD, 0.12);
+			newLane->addRoadMarkEntry(roadMark);
+
+		}
+
+		InsertLaneCommand *command = new InsertLaneCommand(parentLaneSection, newLane, lane);
 		if (command)
 		{
 			getProjectGraph()->executeCommand(command);
 		}
 
-		int id = newLane->getId();
-		RSystemElementRoad * road = parentLaneSection->getParentRoad();
-		LaneSection *neighborSection = road->getLaneSectionNext(parentLaneSection->getSStart());
-		if (neighborSection) 
-		{
-			Lane *neighborLane = neighborSection->getLane(id);
-			if (neighborLane && (neighborLane->getPredecessor() == -99))
-			{
-				newLane->setSuccessor(id);
-				neighborLane->setPredecessor(id);
-			}
-		}
-		neighborSection = road->getLaneSectionBefore(parentLaneSection->getSStart());
-		if (neighborSection)
-		{
-			Lane *neighborLane = neighborSection->getLane(id);
-			if (neighborLane && (neighborLane->getSuccessor() == -99))
-			{
-				newLane->setPredecessor(id);
-				neighborLane->setSuccessor(id);
-			}
-		}
 
 		DeselectDataElementCommand *deselectCommand = new DeselectDataElementCommand(lane, NULL);
 		getProjectGraph()->executeCommand(deselectCommand);

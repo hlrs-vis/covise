@@ -44,7 +44,7 @@ class InsertLaneCommand : public DataCommand
 {
 
 public:
-    explicit InsertLaneCommand(LaneSection *laneSection, Lane *lane, DataCommand *parent = NULL);
+    explicit InsertLaneCommand(LaneSection *laneSection, Lane *newLane, Lane *lane = NULL, DataCommand *parent = NULL);
     virtual ~InsertLaneCommand();
 
     virtual int id() const
@@ -62,7 +62,7 @@ private:
 
 private:
     LaneSection *laneSection_;
-    Lane *newLane_;
+    Lane *newLane_, *lane_;
 
     int id_;
 };
@@ -95,6 +95,9 @@ private:
     Lane *oldLane_;
 
     int id_;
+
+	Lane *rightmostLane_;
+	Lane *leftmostLane_;
 };
 
 //################//
