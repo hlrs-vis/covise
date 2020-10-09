@@ -104,12 +104,27 @@ const std::vector<osg::Vec3> DataManager::GetWorldPosOfObervationPoints()
     for(const auto& i : GetInstance().m_SafetyZones)
         reserve_size += i->getNumberOfPoints();
 
+    if(!GetInstance().m_UDPSafetyZones.empty())
+    {
+        for(const auto& i : GetInstance().m_UDPSafetyZones)
+            reserve_size += i->getNumberOfPoints();
+    }
+
     allPoints.reserve(reserve_size);
 
     for(const auto& points :  GetInstance().m_SafetyZones)
     {
         auto vecWorldPositions = points->getWorldPositionOfPoints();
         allPoints.insert(allPoints.end(),vecWorldPositions.begin(),vecWorldPositions.end());
+    }
+
+    if(!GetInstance().m_UDPSafetyZones.empty())
+    {
+        for(const auto& points :  GetInstance().m_UDPSafetyZones)
+        {
+            auto vecWorldPositions = points->getWorldPositionOfPoints();
+            allPoints.insert(allPoints.end(),vecWorldPositions.begin(),vecWorldPositions.end());
+        }
     }
 
     return allPoints;
@@ -207,31 +222,24 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
 {
     auto size =  GetInstance().m_Sensors.size();
-    size_t incrementor{0}; // incrementor is also used in the loop later!
+    size_t incrementor{0}; 
     for(incrementor; incrementor< size; incrementor++)
         GetInstance().m_Sensors.at(incrementor)->setCurrentOrientation(orientations.at(incrementor));
 
-    //maybe increment incrementor here ?
-
-    std::cout<<"incrementor befor second loop: " << incrementor << std::endl;
     for(const auto& zone : GetInstance().m_SensorZones)
+        zone->removeAllSensors();
+
+    // create sensors in sensor zones
+    for(auto it = orientations.begin() + size; it != orientations.end(); ++it)
     {
-        int nbrOfSensors = zone->getNumberOfSensors();
-        std::vector<osg::Matrix> matrixesForOneSZ;
-        for(int cnt{0}; cnt<nbrOfSensors; cnt++)
+        for(const auto& zone : GetInstance().m_SensorZones)
         {
-            matrixesForOneSZ.push_back(orientations.at(incrementor).getMatrix());
-            incrementor++;
+            auto worldPositions = zone->getWorldPositionOfPoints();
+            auto itFound = std::find_if(worldPositions.begin(), worldPositions.end(),[&it](const osg::Vec3& worldPos){return (it->getMatrix().getTrans() == worldPos ? true : false); });
+            if(itFound != worldPositions.end());
+                zone->createSensor(it->getMatrix());
         }
-        zone->createSpecificNbrOfSensors(matrixesForOneSZ);
     }
-
-
-    // SensorZones -> wie viele Sensoren pro Zone ?
-
-    //  was wenn Sensoren gelöscht werden müssen
-
-    //  Exception wenn an Anzahl der Sensoren nicht passt
 }
 
 void DataManager::UpdateUDPSensorPosition(int pos, const osg::Matrix& mat)

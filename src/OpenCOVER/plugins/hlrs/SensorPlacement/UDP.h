@@ -3,6 +3,8 @@
 #include "UDPComm.h"
 #include <cover/coVRPluginSupport.h>
 
+//void calcAverageMatrix(osg::Matrix& result, const osg::Matrix& input);    
+
 
 enum class MessageType
 {
@@ -54,6 +56,8 @@ struct DetectedCameraOrObject
         double _timestamp;
         osg::Matrixf _Matrix;        
         float _distance;             // distance marker - camera
+        int _frameCounter{0};
+        bool _send{false};          //gets true if an average matrix could be calculated from enough frames
         
         Marker(const Message& message, const double& timestamp)
         :_timestamp(timestamp), _Matrix(message._matrix), _distance(message._distanceCamera)
@@ -63,6 +67,10 @@ struct DetectedCameraOrObject
             else
                 _markerID = message._cameraID;
         };
+
+        void calcAverageMatrix(const Message& newMessage);
+
+
     };
 
     DetectedCameraOrObject(const Message& message, const double& timestamp)
@@ -76,11 +84,15 @@ struct DetectedCameraOrObject
         _markers.push_back(Marker(message, timestamp));
     };
 
+    static bool s_frameAverage;
     MessageType _type;
     int _id;                        
     std::vector<Marker> _markers;
+    int _frameCounter{0};
+    bool update(const Message& newMessage, const double& timestamp);
 
-    void addMarker(const Message& message, const double& timestamp)
+
+    void addNewMarker(const Message& message, const double& timestamp)
     {
         _markers.push_back(Marker(message, timestamp));
     };
@@ -93,7 +105,7 @@ struct DetectedCameraOrObject
         return osg::Matrix();
     };
 
-    osg::Matrix getMatrixFromClosestCamera()
+    bool getMatrixFromClosestCamera(osg::Matrix& resultMatrix)
     {
         std::vector<Marker>::iterator result = std::min_element(_markers.begin(), _markers.end(),[](const Marker& marker1, const Marker& marker2)
         {
@@ -106,7 +118,11 @@ struct DetectedCameraOrObject
         else
             std::cout<<"Marker Id: " << _id << " closest Camera: "<< _markers.at(pos)._distance << "meters"<<" from id: "<<_markers.at(pos)._markerID<< std::endl;
 
-        return _markers.at(pos)._Matrix;
+        resultMatrix = _markers.at(pos)._Matrix;
+        if(s_frameAverage)
+            return (_markers.at(pos)._send == true ? true : false);
+        else
+            return true;
     };
 
     bool isVisible(const float& maxValue, const double& timestamp) // check if this camera / marker is still alive
@@ -156,7 +172,7 @@ private:
     void deleteOutOfDateMessages();
 
     // make cooSystem of the demonstrator fit to Covise cooSystem
-    void UDPMatrix2CoviseMatrix(Message& input) const ;       
+    void UDPMatrix2CoviseMatrix(Message& input) const ;   
 public:
     UDP();
     ~UDP();

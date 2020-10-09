@@ -23,42 +23,65 @@ int calcNumberOfSensors()
     return DataManager::GetSensors().size() + numberOfSensorsInZones;
 }
 
-//
-int convert(int sensorPos) // finish me !!!!!
+
+int getSensorInSensorZone(int sensorPos) 
 {
-    if(sensorPos < DataManager::GetSensors().size())
+
+ if(sensorPos < DataManager::GetSensors().size())
+  {
+     // std::cout<< "is a single sensor"<< std::endl;
+      return -1;
+  }
+  else if(sensorPos >= calcNumberOfSensors())
+  {
+     // std::cout<<"not a sensor anymore!"<< std::endl;
+      return -1;
+  }
+
+  sensorPos = sensorPos - DataManager::GetSensors().size();
+  std::vector<int> sensorsPerZone;
+  for(const auto& zone : DataManager::GetSensorZones())
+    sensorsPerZone.push_back(zone->getNumberOfSensors());
+
+  int nbrOfCameras{0};
+  int first{0};
+  int pos{0};
+  for(const auto& c : sensorsPerZone)
+  {
+    nbrOfCameras += c;
+    //std::cout<<"sensorPos"<<sensorPos << " first " <<first <<" nbrOfCameras "<< nbrOfCameras <<std::endl;
+    if(sensorPos >= first && sensorPos < nbrOfCameras)
     {
-        std::cout<< "is a single sensor"<< std::endl;
-        return -1;
+     // std::cout<<"return Pos: " <<pos<<".."<<std::endl;
+      return pos;
     }
-    else if(sensorPos >= calcNumberOfSensors())
-    {
-        std::cout<<"not a sensor anymore!"<< std::endl;
-        return -1;
-    }
-    int posOfSafetyZone{0};
-    int pos = sensorPos - DataManager::GetSensors().size();;
-    int nbrOfSensors{0};
+    first+= c;
+    pos++;
+  }
+  //std::cout <<"sth not correct" <<std::endl; 
+  
 
-    for(const auto& zone : DataManager::GetSensorZones())
-    {
-        nbrOfSensors += zone->getNumberOfSensors();
 
-        if(nbrOfSensors < pos )
-            posOfSafetyZone++;
-        else
-            break;
+ 
 
-        /*if(pos >= nbrOfSensors)
-            posOfSafetyZone++;
-        if(pos <= nbrOfSensors)
-            break;
+  // int posOfSafetyZone{0};
+  // int pos = sensorPos - DataManager::GetSensors().size();
+  // int nbrOfSensors{0};
+  // for(const auto& zone : DataManager::GetSensorZones())
+  // {
+  //     nbrOfSensors += zone->getNumberOfSensors();
+  //     std::cout <<"nbr of sensors" << nbrOfSensors << "input: "<< sensorPos << std::endl;
+  //     if(pos <=nbrOfSensors)
+  //       break;
+      
+  //     posOfSafetyZone++;
+  // }
 
-        */
-    }
-    std::cout<<"Sensor Pos: " <<posOfSafetyZone<<".."<<std::endl;
-    return posOfSafetyZone;
+  // std::cout<<"return Pos: " <<posOfSafetyZone<<".."<<std::endl;
+  // return posOfSafetyZone;
+
 }
+
 
 void calcVisibility()
 {
@@ -93,24 +116,6 @@ void optimize(FitnessFunctionType fitnessFunction)
   
   //coVRMSController::instance()->syncData(finalSensorOrientations.data(),sizeof(Orientation) * calcNumberOfSensors());
   //updateAllSensors(finalSensorOrientations);   
-}
-
-void updateAllSensors(std::vector<Orientation> orientations) // finish here ------------------------------------------------
-{
-  size_t count{0};
-  if(orientations.size() != calcNumberOfSensors())
-  {
-    std::cout<< " "<<std::endl;
-    return;
-  }
-  else
-  {
-    for(const auto& sensor : DataManager::GetSensors())
-    {
-      sensor->setCurrentOrientation(orientations.at(count));
-      count++;
-    }
-  }
 }
 
 SensorPlacementPlugin::SensorPlacementPlugin()

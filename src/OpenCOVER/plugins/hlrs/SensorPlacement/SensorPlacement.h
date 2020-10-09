@@ -34,12 +34,10 @@ enum class FitnessFunctionType;
 
 //Free functions
 int calcNumberOfSensors();
-int convert(int sensorPos);
+int getSensorInSensorZone(int sensorPos);
 
 void calcVisibility();
 void optimize(FitnessFunctionType);
-
-void updateAllSensors(std::vector<Orientation>);
 
 class UI;
 class SensorPlacementPlugin :public opencover::coVRPlugin 

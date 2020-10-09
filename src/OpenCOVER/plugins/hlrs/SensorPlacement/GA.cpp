@@ -105,8 +105,8 @@ bool GA::maxCoverage2(const Solution &sensorNetwork, MiddleCost &c)
         penalty = 0;
     
     int covered = coverEachPointWithMin1Sensor(sensorsPerPoint, sumVisMat);
-    std::cout<<"c_i: "<<covered <<"..."<<std::endl;
-    std::cout <<"penalty" <<penalty<<"..."<<std::endl;
+   // std::cout<<"c_i: "<<covered <<"..."<<std::endl;
+   // std::cout <<"penalty" <<penalty<<"..."<<std::endl;
     c.objective = - ( covered - penalty);
     return true; 
 }
@@ -151,10 +151,7 @@ int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const s
     }
 }
 
-bool rejectSameSensorPosition(SensorPosition* newPos, SensorPosition* oldPos)
-{
-    return true;
-}
+
 
 GA::GA(FitnessFunctionType fitness)
 {
@@ -208,12 +205,30 @@ bool GA::optimizationStrategy(const Solution& p, MiddleCost &c)
 	return m_FitnessFunction(p,c);
 }
 
+// reject sensors which have same position!
+bool rejectSensorPosition(const Solution& sensorNetwork, Orientation* newPos)
+{
+    auto itFound = std::find_if(sensorNetwork.sensors.begin(),sensorNetwork.sensors.end(),[&newPos](const Orientation* orientation){return (orientation->getMatrix().getTrans() == newPos->getMatrix().getTrans() ? true : false); }); 
+    
+    return (itFound == sensorNetwork.sensors.end() ? false : true);
+}
+
 void GA::init_genes(Solution& sensorNetwork,const std::function<double(void)> &rnd01)
 {
     SP_PROFILE_FUNCTION();
 
-    for(int i{0}; i < m_NumberOfSensors; ++i)
-        sensorNetwork.sensors.push_back(m_SensorPool.getRandomOrientation(i, rnd01));
+    int count{0};
+    while(count < m_NumberOfSensors )
+    {
+        Orientation* orient = m_SensorPool.getRandomOrientation(count, rnd01);
+        if(!rejectSensorPosition(sensorNetwork, orient))
+        {
+            sensorNetwork.sensors.push_back(orient);
+            count ++;
+        }
+    }
+    // for(int i{0}; i < m_NumberOfSensors; ++i)
+        // sensorNetwork.sensors.push_back(m_SensorPool.getRandomOrientation(i, rnd01));
     
 }
 
@@ -227,8 +242,14 @@ Solution GA::mutate(const Solution& X_base,const std::function<double(void)> &rn
     while(count != 0)
     {
         int randomPos = std::roundl(rnd01()*(m_NumberOfSensors-1));
-        X_new.sensors.at(randomPos) = m_SensorPool.getRandomOrientation(randomPos, rnd01);
-        count--;
+        Orientation* randomOrient = m_SensorPool.getRandomOrientation(randomPos, rnd01);
+        
+        
+        if(!rejectSensorPosition(X_new, randomOrient));
+        {
+            X_new.sensors.at(randomPos) = randomOrient;
+            count--;
+        }
     }
 
     return X_new;
@@ -238,11 +259,33 @@ Solution GA::crossover(const Solution& X1, const Solution& X2,const std::functio
 {
     SP_PROFILE_FUNCTION();
 
-    int cutPoint = roundl(rnd01() * m_NumberOfSensors);
-    Solution X_new;
-    X_new.sensors.clear(); // brauch man das ? 
-    X_new.sensors.insert(X_new.sensors.begin(), X1.sensors.begin(), X1.sensors.begin() + cutPoint);
-    X_new.sensors.insert(X_new.sensors.end(), X2.sensors.begin() + cutPoint,X2.sensors.end());
+    // std::vector<int> possibleCutPoints;
+    // for(int i{0}; i < m_SensorPool.getNbrOfSingleSensors(); i++)
+    // {
+    //     if(possibleCutPoints.empty())
+    //         possibleCutPoints.push_back(1);
+    //     else
+    //         possibleCutPoints.push_back(possibleCutPoints.back() + 1);
+    // }
+    // auto sensorsPerZone = m_SensorPool.getNbrOfSensorsPerZone();
+    
+    // for(const auto& spz : sensorsPerZone)
+    // {
+    //     if(possibleCutPoints.empty())
+    //         possibleCutPoints.push_back(spz);
+    //     else
+    //         possibleCutPoints.push_back(possibleCutPoints.back() + spz);
+    // }    
+    // //int cutPoint = roundl(rnd01() * m_NumberOfSensors);
+    // int random = roundl(rnd01() * (possibleCutPoints.size()-1));
+    // int cutPoint = possibleCutPoints.at(random);
+    // std::cout << "random "<< random<< "CutPoint: "<<cutPoint <<std::endl;
+
+
+    // Solution X_new;
+    // X_new.sensors.clear(); // brauch man das ? 
+    // X_new.sensors.insert(X_new.sensors.begin(), X1.sensors.begin(), X1.sensors.begin() + cutPoint);
+    // X_new.sensors.insert(X_new.sensors.end(), X2.sensors.begin() + cutPoint,X2.sensors.end());
 
     return X1;
 }
@@ -278,6 +321,12 @@ void GA:: calcZonePriorities()
     for(const auto& zone : DataManager::GetSafetyZones())
         m_RequiredSensorsPerPoint.insert(m_RequiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
 
+    if(!DataManager::GetUDPSafetyZones().empty())
+    {
+        for(const auto& zone : DataManager::GetUDPSafetyZones())
+            m_RequiredSensorsPerPoint.insert(m_RequiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
+    }
+
 }
 
 std::vector<Orientation> GA::getFinalOrientations() const
@@ -304,7 +353,7 @@ Orientation* SensorPool::getRandomOrientation(int pos, const std::function<doubl
 {
     Orientation* result{nullptr};
 
-    // better Solution create Class Random Generator and use it in openGA and in Sensors Class to return random Sensor
+    // better Solution: create Class Random Generator and use it in openGA and in Sensors Class to return random Sensor
     if( pos < m_Sensors.size() )
     {
         int numberOfOrientations = m_Sensors.at(pos)->getNbrOfOrientations();
@@ -312,21 +361,31 @@ Orientation* SensorPool::getRandomOrientation(int pos, const std::function<doubl
 
         result = m_Sensors.at(pos)->getSpecificOrientation(random);
     }
-    else if(pos >= m_Sensors.size() && pos <= m_SensorZones.size())
+    else if(pos >= m_Sensors.size() && pos <= calcNumberOfSensors())
     {
+        //pos = pos - m_Sensors.size();
 
+        int sensorZonePos = getSensorInSensorZone(pos);
 
-
-
-        int numberOfSensors = m_SensorZones.at(pos)->getNumberOfSensors();
+        int numberOfSensors = m_SensorZones.at(sensorZonePos)->getNumberOfPoints();
         int randomSensor = std::roundl(rnd01() * (numberOfSensors - 1));
-        int numberOfOrientations = m_SensorZones.at(pos)->getSpecificSensor(randomSensor)->getNbrOfOrientations();
+        int numberOfOrientations = m_SensorZones.at(sensorZonePos)->getSpecificSensor(randomSensor)->getNbrOfOrientations();
         int randomOrientation = std::roundl(rnd01() * (numberOfOrientations - 1));
 
-        result = m_SensorZones.at(pos)->getSpecificSensor(randomSensor)->getSpecificOrientation(randomOrientation);
+        result = m_SensorZones.at(sensorZonePos)->getSpecificSensor(randomSensor)->getSpecificOrientation(randomOrientation);
+        //std::cout <<"Sensor Pos:"<<pos <<"Orientations Pos: "<<randomOrientation <<std::endl;
     }
     else
-        std::cout << "No sensor at this position available" << std::endl;
+        //std::cout << "No sensor at this position available" << std::endl;
 
     return result;
+}
+
+std::vector<int> SensorPool::getNbrOfSensorsPerZone()const
+{
+    std::vector<int> sensors;
+    for(const auto& zone : m_SensorZones)
+        sensors.push_back(zone->getNumberOfSensors());
+
+    return sensors;
 }

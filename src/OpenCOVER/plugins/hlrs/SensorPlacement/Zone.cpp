@@ -161,6 +161,20 @@ osg::Geode* Zone::draw()
     return geode;
 };
 
+void Zone::hide()
+{
+    m_Interactor->hide();
+    m_SizeInteractor->hide();
+    m_DistanceInteractor->hide();
+}
+
+void Zone::show()
+{
+    m_Interactor->show();
+    m_SizeInteractor->show();
+    m_DistanceInteractor->show();
+}
+
 bool Zone::preFrame()
 {
     m_Interactor->preFrame();
@@ -475,6 +489,55 @@ void Zone::createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign,
     }
 }
 
+void Zone::createCircle()
+{
+    std::vector<osg::Vec3> temp;
+    std::vector<osg::Vec3> verts;
+
+    temp = circleVerts(osg::Z_AXIS, 0.70, 20, 0.0f);
+    verts.insert(verts.begin(),temp.begin(), temp.end());
+
+    temp = circleVerts(osg::Z_AXIS, 0.60, 20, 0.10f);
+    verts.insert(verts.begin(),temp.begin(), temp.end());
+
+
+    for(const auto& point : verts)
+        addPointToVec(point);
+
+}
+
+std::vector<osg::Vec3> Zone::circleVerts(osg::Vec3 axis, float radius ,int approx, float height)
+{
+    const double angle( osg::PI * 2. / (double) approx );
+    std::vector<osg::Vec3> v;
+    int idx;   
+    for( idx=0; idx<approx; idx++)
+    {
+        double cosAngle = cos(idx*angle);
+        double sinAngle = sin(idx*angle);
+        double x(0.), y(0.), z(0.);     
+        if(axis == osg::Z_AXIS)
+        {
+            x = cosAngle*radius;
+            y = sinAngle*radius; 
+        }
+        // else if(axis == osg::X_AXIS)
+        // {
+            // y = cosAngle*radius;
+            // z = sinAngle*radius;
+        // }
+        // else if(axis == osg::Y_AXIS)
+        // {
+            // x = cosAngle*radius;
+            // z = sinAngle*radius;
+        // }
+        //v.push_back( osg::Vec3( x, y, z ) );    
+        v.push_back( osg::Vec3( x, y, height ) );    
+
+    }
+    return v;
+}
+
 void Zone::addPointToVec(osg::Vec3 point) // use rvalue here ? 
 {
     float radius = findLargestVectorComponent(findLongestSide()/15);
@@ -748,7 +811,8 @@ osg::Vec4 SafetyZone::calcColor( Priority prio)const
 
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height):Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)
 {
-    createGrid();
+    //createGrid();
+    createCircle();
     m_SensorGroup = new osg::Group();
     m_Group->addChild(m_SensorGroup.get());
 
@@ -794,7 +858,7 @@ osg::Vec3 SensorZone::getFreeSensorPosition() const
 
 void SensorZone::addSensor(osg::Matrix matrix, bool visible)
 {
-    m_Sensors.push_back(createSensor(m_SensorType, matrix,visible));
+    m_Sensors.push_back(Factory::createSensor(m_SensorType, matrix,visible));
     m_SensorGroup->addChild(m_Sensors.back()->getSensor());
 }
 
@@ -842,7 +906,12 @@ void SensorZone::createSpecificNbrOfSensors()
     
 }
 
-void SensorZone::createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes)
+void SensorZone::createSensor(const osg::Matrix& matrix)
+{
+    addSensor(matrix, true);
+}
+
+/*void SensorZone::createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes)
 {
     if(sensorMatrixes.size() != m_NbrOfSensors)
         throw std::invalid_argument( "received not the correct amount of sensors for sensor zone" );
@@ -853,6 +922,7 @@ void SensorZone::createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sens
         addSensor(matrix,true);
     }
 }
+*/
 
 GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius):m_Color(color)
 {

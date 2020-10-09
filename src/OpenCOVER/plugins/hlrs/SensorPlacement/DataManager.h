@@ -34,7 +34,10 @@ public:
     }
     static void Destroy();
     static const std::vector<upSafetyZone>& GetSafetyZones(){return GetInstance().m_SafetyZones;}
+    static const std::vector<upSafetyZone>& GetUDPSafetyZones(){return GetInstance().m_UDPSafetyZones;}
+
     static const std::vector<upSensorZone>& GetSensorZones(){return GetInstance().m_SensorZones;}
+    static const std::vector<upSensor>& GetUDPSensors(){return GetInstance().m_UDPSensors;}
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
     static const osg::ref_ptr<osg::Group>& GetRootNode() {return GetInstance().m_Root;}

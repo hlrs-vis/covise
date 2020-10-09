@@ -31,6 +31,26 @@ struct ZoneProperties
      * length = 5-6 (x-direction)
      * height = 6-2 (z-direction)
 */
+class ZoneShape
+{
+    virtual float getLongestSide() const = 0;
+    float getDistance()const {return m_Distance;}
+private:
+    float m_Distance;
+};
+
+class ZoneCircle : public ZoneShape
+{
+private:
+    float m_Radius;
+};
+
+class ZoneRectangle : public ZoneShape
+{
+
+}
+
+
 
 class Zone
 {
@@ -42,6 +62,8 @@ public:
     
     void setPosition(osg::Matrix matrix);
     void setDistance(float distance);
+    void hide();
+    void show();
 
     osg::ref_ptr<osg::Group> getZone(){return m_Group;}
     int getNumberOfPoints()const{return m_GridPoints.size();}
@@ -62,6 +84,8 @@ protected:
     osg::Vec3 defineLimitsOfInnerGridPoints()const;
     void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
     void createOuter3DGrid(const osg::Vec3& sign );
+    void createCircle();
+    std::vector<osg::Vec3> circleVerts(osg::Vec3 axis, float radius, int approx, float height);
 
     osg::ref_ptr<osg::Group> m_Group;
     osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
@@ -140,8 +164,10 @@ public:
     void createAllSensors();
     SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
     int getNumberOfSensors(){return m_NbrOfSensors;}
-    void createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
-
+    //void createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
+    void createSensor(const osg::Matrix& matrix);
+    void removeAllSensors();
+ 
 private:
     int m_NbrOfSensors{2};
     SensorType m_SensorType;
@@ -152,7 +178,8 @@ private:
 
     void addSensor(osg::Matrix matrix, bool visible);
     osg::Vec3 getFreeSensorPosition()const;
-    void removeAllSensors();
+
+    
 };
 
 

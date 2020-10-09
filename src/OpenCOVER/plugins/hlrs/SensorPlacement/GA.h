@@ -21,7 +21,8 @@ struct SensorPool
 public:
     SensorPool();
     Orientation* getRandomOrientation(int pos, const std::function<double(void)> &rnd01) const; 
-
+    int getNbrOfSingleSensors()const{return m_Sensors.size();}
+    std::vector<int> getNbrOfSensorsPerZone()const;
 private:
     std::vector<SensorPosition*> m_Sensors;
     std::vector<SensorZone*> m_SensorZones;

@@ -1,6 +1,6 @@
 #include "Factory.h"
 
-std::unique_ptr<SensorPosition> createSensor(SensorType sensor, osg::Matrix matrix, bool visible, osg::Vec4 color)
+std::unique_ptr<SensorPosition> Factory::createSensor(SensorType sensor, osg::Matrix matrix, bool visible, osg::Vec4 color)
 {
     if(sensor == SensorType::Camera){
         return myHelpers::make_unique<Camera>(matrix, visible, color);
@@ -29,14 +29,14 @@ std::unique_ptr<SensorPosition> createSensor(SensorType sensor, osg::Matrix matr
 }
 */
 
-std::unique_ptr<SafetyZone> createSafetyZone(SafetyZone::Priority prio, osg::Matrix matrix, float length, float width , float height)
+std::unique_ptr<SafetyZone> Factory::createSafetyZone(SafetyZone::Priority prio, osg::Matrix matrix, float length, float width , float height)
 {
     return myHelpers::make_unique<SafetyZone>(matrix, prio, length, width, height);
 }
 
-std::unique_ptr<SensorZone> createSensorZone()
+std::unique_ptr<SensorZone> Factory::createSensorZone()
 {
     osg::Matrix position;
-    position.setTrans(8,8,8);
-    return myHelpers::make_unique<SensorZone>(SensorType::Camera,position);
+    //position.setTrans(8,8,8);
+    return myHelpers::make_unique<SensorZone>(SensorType::Camera,position, 5.0, 7.0,1.0);
 }

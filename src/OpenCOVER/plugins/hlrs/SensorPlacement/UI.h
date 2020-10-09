@@ -59,6 +59,6 @@ private:
     ui::Menu *m_UDP;
     ui::Button *m_showAverageUDPObjectionPosition; //  calculated the average position of an object from all markers or cameras, which can see the object and show it
     ui::Button *m_showShortestUDPObjectionPosition; // show the calculated position from the marker or camera which is cloesest to the detected object
-
+    ui::Button *m_AverageFrames;                    //calculated the average positions from the last x frames;
 
 };

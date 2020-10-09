@@ -65,6 +65,8 @@ public:
 
     virtual int getNbrOfOrientations()const{return 1;}
     virtual void VisualizationVisible(bool status)const;
+    void showInteractor(bool status)const {if(status)m_Interactor->show(); else m_Interactor->hide();}
+
 
     osg::ref_ptr<osg::Group> getSensor()const;
     osg::Matrix getMatrix()const;
@@ -103,8 +105,8 @@ public:
     {
     private:
         int m_StepSizeX{10}, m_StepSizeY{45}, m_StepSizeZ{5}; // Step sizes for the Orientations in Degree
-        bool m_RotX{true}, m_RotY{true}, m_RotZ{true};
-        bool m_VisualizeOrientations{true};
+        bool m_RotX{true}, m_RotY{false}, m_RotZ{true};
+        bool m_VisualizeOrientations{false};
 
     public:
         void setProps(int stepX, int stepY, int stepZ){m_StepSizeX = stepX; m_StepSizeY = stepY; m_StepSizeZ = stepZ;};
@@ -136,7 +138,13 @@ public:
     int getNbrOfOrientations()const override{return m_Orientations.size();}
 
     //void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
-    Orientation* getSpecificOrientation(int position)override{return &m_Orientations.at(position);}
+    Orientation* getSpecificOrientation(int position)override
+    {
+        if(!m_Orientations.empty())
+            return &m_Orientations.at(position);
+        else
+            return &m_CurrentOrientation;
+    }
     std::vector<Orientation>& getOrientations(){return m_Orientations;}
     
 protected:

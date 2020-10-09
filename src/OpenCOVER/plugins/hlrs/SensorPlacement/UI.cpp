@@ -24,7 +24,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddCamera-> setText("Add Camera");
     m_AddCamera-> setCallback([]()
     {
-       DataManager::AddSensor(createSensor(SensorType::Camera));
+       DataManager::AddSensor(Factory::createSensor(SensorType::Camera));
     }
     );
 
@@ -34,7 +34,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(createSafetyZone(SafetyZone::Priority::PRIO1));
+       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO1));
     }
     );
 
@@ -44,7 +44,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(createSafetyZone(SafetyZone::Priority::PRIO2));
+       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO2));
     }
     );
 
@@ -54,7 +54,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(20,20,20));
-       DataManager:: AddSensorZone(createSensorZone());
+       DataManager:: AddSensorZone(Factory::createSensorZone());
     }
     );
 
@@ -166,6 +166,19 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setCallback([this]()
    {
       optimize(FitnessFunctionType::MaxCoverage2);
+      getSensorInSensorZone(0);
+      getSensorInSensorZone(1);
+      getSensorInSensorZone(2);
+      getSensorInSensorZone(3);
+      getSensorInSensorZone(4);
+      getSensorInSensorZone(5);
+      getSensorInSensorZone(6);
+      getSensorInSensorZone(7);
+      getSensorInSensorZone(8);
+      getSensorInSensorZone(9);
+      getSensorInSensorZone(10);
+
+
    });
 
 
@@ -188,6 +201,14 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_showShortestUDPObjectionPosition->setCallback([this](bool state)
    {
       m_showShortestUDPPositions = state;
+   });
+
+   m_AverageFrames = new ui::Button(m_UDP,"Average_Frames");
+   m_AverageFrames->setText("Calc pos wiht average of the last frames");
+   m_AverageFrames->setState(DetectedCameraOrObject::s_frameAverage);
+   m_AverageFrames->setCallback([this](bool state)
+   {
+      DetectedCameraOrObject::s_frameAverage = state;
    });
 
 
