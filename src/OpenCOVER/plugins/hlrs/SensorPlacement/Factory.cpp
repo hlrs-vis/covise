@@ -11,6 +11,7 @@ std::unique_ptr<SensorPosition> Factory::createSensor(SensorType sensor, osg::Ma
     return std::unique_ptr<SensorPosition>();
 }
 
+
 /*std::unique_ptr<Zone> createZone(ZoneType zone, osg::Matrix matrix,float length, float width , float height)
 {
    
@@ -34,9 +35,13 @@ std::unique_ptr<SafetyZone> Factory::createSafetyZone(SafetyZone::Priority prio,
     return myHelpers::make_unique<SafetyZone>(matrix, prio, length, width, height);
 }
 
-std::unique_ptr<SensorZone> Factory::createSensorZone()
+std::unique_ptr<SensorZone> Factory::createSensorZone(SensorType type, osg::Matrix matrix, float length, float width, float height)
 {
-    osg::Matrix position;
-    //position.setTrans(8,8,8);
-    return myHelpers::make_unique<SensorZone>(SensorType::Camera,position, 5.0, 7.0,1.0);
+    
+    return myHelpers::make_unique<SensorZone>(type,matrix, length, width, height);
+}
+std::unique_ptr<SensorZone> Factory::createSensorZone(SensorType type, osg::Matrix matrix, float radius)
+{
+    
+    return myHelpers::make_unique<SensorZone>(type,matrix, radius);
 }

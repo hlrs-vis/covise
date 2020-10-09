@@ -55,6 +55,11 @@ private:
     ui::Menu *m_Optimization;
     ui::Action *m_MaxCoverage1, *m_MaxCoverage2;
 
+    //Demonstrator
+    ui::Menu *m_Demonstrator;
+    ui::Button *m_cameraPositions;
+
+
     //UDP Menu
     ui::Menu *m_UDP;
     ui::Button *m_showAverageUDPObjectionPosition; //  calculated the average position of an object from all markers or cameras, which can see the object and show it

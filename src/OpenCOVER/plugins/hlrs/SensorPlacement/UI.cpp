@@ -8,6 +8,8 @@
 #include "SensorPlacement.h"
 #include "Sensor.h"
 
+#include <osgDB/ReadFile>
+
 using namespace opencover;
 
 bool UI::m_DeleteStatus{false};
@@ -33,8 +35,8 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddSafetyZonePrio1-> setCallback([]()
     {
        osg::Matrix m;
-       m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO1));
+       m.setTrans(osg::Vec3(0,0,0));
+       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO1,m,0.20,0.30,0.02));
     }
     );
 
@@ -43,8 +45,8 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddSafetyZonePrio2-> setCallback([]()
     {
        osg::Matrix m;
-       m.setTrans(osg::Vec3(20,20,20));
-       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO2));
+       m.setTrans(osg::Vec3(0,0,0));
+       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO2,m,0.30,0.20,0.02));
     }
     );
 
@@ -53,8 +55,8 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddSensorZone-> setCallback([this]()
     {
        osg::Matrix m;
-       m.setTrans(osg::Vec3(20,20,20));
-       DataManager:: AddSensorZone(Factory::createSensorZone());
+       m.setTrans(osg::Vec3(0,0,0));
+       DataManager:: AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.5,0.1,0.02));
     }
     );
 
@@ -166,24 +168,66 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setCallback([this]()
    {
       optimize(FitnessFunctionType::MaxCoverage2);
-      getSensorInSensorZone(0);
-      getSensorInSensorZone(1);
-      getSensorInSensorZone(2);
-      getSensorInSensorZone(3);
-      getSensorInSensorZone(4);
-      getSensorInSensorZone(5);
-      getSensorInSensorZone(6);
-      getSensorInSensorZone(7);
-      getSensorInSensorZone(8);
-      getSensorInSensorZone(9);
-      getSensorInSensorZone(10);
+    
 
+
+   });
+
+   //Demonstrator Menu ---------------------------------------------------------------------
+
+   m_Demonstrator = new ui::Menu(m_MainMenu, "Demonstrator");
+   m_Demonstrator->setText("Demonstrator");
+
+   m_cameraPositions = new ui::Button(m_Demonstrator,"Camera_positions");
+   m_cameraPositions->setText("show possible camera positions");
+   m_cameraPositions->setState(false);
+   m_cameraPositions->setCallback([this](bool state)
+   {
+      if(state)
+      {
+         osg::Matrix m = osg::Matrix::translate(osg::Vec3(1.28,-0.04,0.28));
+         DataManager::AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.7));
+         
+         m = osg::Matrix::translate(osg::Vec3(0.22,-0.04,0.28));
+         DataManager::AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.7));
+
+         m = osg::Matrix::translate(osg::Vec3(1.28,1.54,0.28));
+         DataManager::AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.7));
+         
+         const char *covisedir = getenv("COVISEDIR");
+
+         osg::ref_ptr<osg::Node> cameraSphere= osgDB::readNodeFile(std::string(covisedir)+ "/CameraSphere.obj");
+         if (!cameraSphere.valid())
+         {
+               osg::notify( osg::FATAL ) << "Unable to load camera sphere" << std::endl;
+         }
+         else
+         {
+            // const unsigned int nodeMask = UINT32_MAX & ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
+            // cameraSphere->setNodeMask(nodeMask);
+            // osg::Matrix spherePos1 = osg::Matrix::translate(osg::Vec3(1.28,-0.04,0.28));
+            // osg::Matrix spherePos2 = osg::Matrix::translate(osg::Vec3(0.22,-0.04,0.28));
+            // osg::Matrix spherePos3 = osg::Matrix::translate(osg::Vec3(1.28,1.54,0.28));
+// 
+            // osg::ref_ptr<osg::MatrixTransform> mt1 = new osg::MatrixTransform(spherePos1);
+            // osg::ref_ptr<osg::MatrixTransform> mt2 = new osg::MatrixTransform(spherePos2);
+            // osg::ref_ptr<osg::MatrixTransform> mt3 = new osg::MatrixTransform(spherePos3);
+// 
+            // mt1->addChild(cameraSphere);
+            // mt2->addChild(cameraSphere);
+            // mt3->addChild(cameraSphere);
+// 
+            // DataManager::GetRootNode()->addChild(mt1);
+            // DataManager::GetRootNode()->addChild(mt2);
+            // DataManager::GetRootNode()->addChild(mt3);
+         }
+      }
 
    });
 
 
     //UDP Menu-------------------------------------------------------------------------------
-   m_UDP = new ui::Menu(m_MainMenu, "UDP");
+   m_UDP = new ui::Menu(m_Demonstrator, "UDP");
    m_UDP->setText("UDP");
 
 

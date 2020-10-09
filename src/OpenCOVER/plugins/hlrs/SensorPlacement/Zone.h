@@ -11,13 +11,14 @@
 using namespace opencover;
 
 
+float findLargestVectorComponent(const osg::Vec3& vec);
+class Zone;
+class SensorZone;
+class SafetyZone;
 class GridPoint;
 
-struct ZoneProperties
-{
 
-};
-/*   * Vertices of a Zone 
+/*   * Vertices of a RectangleZone 
      *    4*    *7
      *
      * 5*----*6
@@ -33,40 +34,117 @@ struct ZoneProperties
 */
 class ZoneShape
 {
-    virtual float getLongestSide() const = 0;
+public:
+    virtual bool preFrame(){return true;}
+    virtual void setPosition(osg::Matrix matrix);
+    virtual void hide(){};
+    virtual void show(){};
     float getDistance()const {return m_Distance;}
-private:
+    osg::Matrix getMatrix()const{return m_LocalDCS->getMatrix();}
+    const osg::ref_ptr<osg::MatrixTransform>& getMatrixTransform()const{return m_LocalDCS;}
+    const std::vector<GridPoint>& getGridPoints()const{return m_GridPoints;}
+    std::vector<GridPoint>& getGridPoints(){return m_GridPoints;}
+
+
+    ZoneShape(osg::Matrix matrix, osg::Vec4 color, Zone* zone);
+    virtual ~ZoneShape(){};
+
+
+protected:
+    Zone* m_ZonePointer;
     float m_Distance;
+    osg::Vec4 m_Color;
+    osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
+
+    osg::ref_ptr<osg::Geode> m_Geode;
+    std::vector<GridPoint> m_GridPoints;
+
+    //virtual osg::Geode* draw();
+    virtual void drawGrid() = 0;
+    void deleteGridPoints();
+    void addPointToVec(osg::Vec3 point);
+    virtual float calcGridPointDiameter() = 0;
+
 };
 
-class ZoneCircle : public ZoneShape
+class ZoneSphere : public ZoneShape
 {
+public:
+    ZoneSphere(osg::Matrix matrix,float radius, osg::Vec4 color, Zone* zone);
+    virtual ~ZoneSphere(){};
+
 private:
     float m_Radius;
+
+    //osg::Geode* draw(){return nullptr;} override;
+    void drawGrid() override;
+    void createCircle();
+    float calcGridPointDiameter() override;
+    std::vector<osg::Vec3> circleVerts(osg::Vec3 axis, float radius, int approx, float height);
 };
 
 class ZoneRectangle : public ZoneShape
 {
+public:
+    ZoneRectangle(osg::Matrix matrix,float length, float width, float height,osg::Vec4 color,Zone* zone);
+    virtual ~ZoneRectangle(){};
+    bool preFrame() override;
+    void setPosition(osg::Matrix matrix)override;
 
-}
+    void updateGeometry(osg::Vec3& vec);
+    void show() override;
+    void hide() override;
 
+    //osg::Vec3 getVertex(int vertPos)const;
+private:
+    float m_Length;
+    float m_Width;
+    float m_Height;
+
+    osg::ref_ptr<osg::Vec3Array> m_Verts;
+    osg::ref_ptr<osg::Vec4Array> m_Colors;
+    osg::ref_ptr<osg::Geometry> m_Geom;
+
+    std::unique_ptr<coVR3DTransRotInteractor> m_Interactor; // located at 2
+    std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor; // located at 0
+    std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor; // always located along longest side
+
+    osg::Geode* draw();// override;
+    void drawGrid() override;
+
+
+    osg::Vec3 findLongestSide()const;
+    float calcGridPointDiameter() override;
+
+    void calcPositionOfDistanceInteractor(osg::Vec3& startPosInteractor);
+    void restrictDistanceInteractor(osg::Vec3& startPosInteractor);
+
+    osg::Vec3 calcSign()const;
+    osg::Vec3 defineStartPointForInnerGrid()const;
+    osg::Vec3 defineLimitsOfInnerGridPoints()const;
+    void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
+    void createOuter3DGrid(const osg::Vec3& sign );
+    float calculateGridPointDistance() const;
+
+};
 
 
 class Zone
 {
 public:
-    Zone(osg::Matrix matrix,osg::Vec4 color, float length = 10.0f, float width = 5.0f, float height = 3.0f);
+
+    Zone( osg::Matrix matrix,osg::Vec4 color, float length , float width , float height );
+    Zone(osg::Matrix matrix, osg::Vec4 color, float radius);
     virtual ~Zone(){std::cout<<"Zone Destructor\n";};
 
-    virtual bool preFrame();
+    bool preFrame(){return m_Shape->preFrame();};
     
-    void setPosition(osg::Matrix matrix);
-    void setDistance(float distance);
-    void hide();
-    void show();
+    void setPosition(osg::Matrix matrix){m_Shape->setPosition(matrix);}
+    void hide(){m_Shape->hide();}
+    void show(){m_Shape->show();}
 
     osg::ref_ptr<osg::Group> getZone(){return m_Group;}
-    int getNumberOfPoints()const{return m_GridPoints.size();}
+    int getNumberOfPoints()const{return m_Shape->getGridPoints().size();}
 
     std::vector<osg::Vec3> getWorldPositionOfPoints();
     void highlitePoints(VisibilityMatrix<float>& visiblePoints);
@@ -77,49 +155,33 @@ public:
 protected:
     osg::Vec4 m_Color;
 
-    virtual void createGrid() = 0;
+    //virtual void createGrid() = 0;
 
-    osg::Vec3 calcSign()const;
-    osg::Vec3 defineStartPointForInnerGrid()const;
-    osg::Vec3 defineLimitsOfInnerGridPoints()const;
-    void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
-    void createOuter3DGrid(const osg::Vec3& sign );
-    void createCircle();
-    std::vector<osg::Vec3> circleVerts(osg::Vec3 axis, float radius, int approx, float height);
+    // osg::Vec3 calcSign()const;
+    // osg::Vec3 defineStartPointForInnerGrid()const;
+    // osg::Vec3 defineLimitsOfInnerGridPoints()const;
+    // void createInner3DGrid(const osg::Vec3& startPoint, const osg::Vec3& sign, const osg::Vec3& limit);
+    // void createOuter3DGrid(const osg::Vec3& sign );
+    
+    std::unique_ptr<ZoneShape> m_Shape;   
 
     osg::ref_ptr<osg::Group> m_Group;
-    osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
-    std::vector<GridPoint> m_GridPoints;
+    //osg::ref_ptr<osg::MatrixTransform> m_LocalDCS;
 
-    std::unique_ptr<coVR3DTransRotInteractor> m_Interactor; // located at 2
-    std::unique_ptr<coVR3DTransInteractor> m_SizeInteractor; // located at 0
-    std::unique_ptr<coVR3DTransInteractor> m_DistanceInteractor; // always located along longest side
+private: 
+   
+    //void drawGrid(); // calls virtual createGrid() function
 
-
-private:
-    float m_Distance;
-    float m_Length;
-    float m_Width;
-    float m_Height;
+    // void calcPositionOfDistanceInteractor(osg::Vec3& startPosInteractor);
+    // void restrictDistanceInteractor(osg::Vec3& startPosInteractor);
+    //osg::Vec3 findLongestSide()const;
+   
+    //void addPointToVec(osg::Vec3 point);
+    //void deleteGridPoints();
     
-    osg::ref_ptr<osg::Vec3Array> m_Verts;
-    osg::ref_ptr<osg::Vec4Array> m_Colors;
-    osg::ref_ptr<osg::Geometry> m_Geom;
-    osg::ref_ptr<osg::Geode> m_Geode;
+    //void updateGeometry(osg::Vec3& vec);
 
-    osg::Geode* draw();
-
-    void drawGrid(); // calls virtual createGrid() function
-
-    void calcPositionOfDistanceInteractor(osg::Vec3& startPosInteractor);
-    void restrictDistanceInteractor(osg::Vec3& startPosInteractor);
-    osg::Vec3 findLongestSide()const;
-    float findLargestVectorComponent(osg::Vec3 vec) const;
-    float calculateGridPointDistance() const;
-    void addPointToVec(osg::Vec3 point);
-    void deleteGridPoints();
-    
-    void updateGeometry(osg::Vec3& vec);
+    //float calculateGridPointDistance() const;
 
 };
 
@@ -130,7 +192,8 @@ class SafetyZone : public Zone
 public:
     enum struct Priority{PRIO1 = 2, PRIO2 = 1};
 
-    SafetyZone(osg::Matrix matrix, Priority priority, float length = 10.0f, float width = 5.0f, float height = 3.0f);
+    SafetyZone(osg::Matrix matrix, Priority priority, float length, float width, float height);
+    SafetyZone(osg::Matrix matrix, Priority priority, float radius);
     ~SafetyZone(){std::cout<<"SafetyZone Destructor\n";};
     void setCurrentNbrOfSensors(int sensors) override;                            
 
@@ -138,17 +201,12 @@ public:
 private:
     Priority m_Priority;
     osg::Vec4 m_ColorVisible;
-    int m_CurrentNbrOfSensors; // Nbr of Sensors which currently see this zone
+    int m_CurrentNbrOfSensors{0}; // Nbr of Sensors which currently see this zone
 
     osg::ref_ptr<osgText::Text> m_Text;
 
     osg::Vec4 calcColor( Priority prio) const;
-    void createGrid() override;    
-
-};
-
-struct SensorZoneProperties
-{
+    //void createGrid() override;    
 
 };
 
@@ -157,14 +215,17 @@ class SensorZone : public Zone
 {
 
 public:
-    SensorZone(SensorType type,osg::Matrix matrix,float length = 10.0f, float width = 5.0f, float height = 3.0f);
+    SensorZone(SensorType type, osg::Matrix matrix,float length, float width, float height);
+    SensorZone(SensorType type, osg::Matrix matrix, float radius);
+
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
-    bool preFrame() override;
-    void createGrid() override;
+    //void createGrid() override;
     void createAllSensors();
     SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
     int getNumberOfSensors(){return m_NbrOfSensors;}
     //void createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
+    void createSpecificNbrOfSensors(); //This function creates as many sensors as in m_NbrOfSensors defined
+
     void createSensor(const osg::Matrix& matrix);
     void removeAllSensors();
  
@@ -174,7 +235,6 @@ private:
     std::vector<std::unique_ptr<SensorPosition>> m_Sensors; 
     osg::ref_ptr<osg::Group> m_SensorGroup;
  
-    void createSpecificNbrOfSensors(); //This function creates as many sensors as in m_NbrOfSensors defined
 
     void addSensor(osg::Matrix matrix, bool visible);
     osg::Vec3 getFreeSensorPosition()const;

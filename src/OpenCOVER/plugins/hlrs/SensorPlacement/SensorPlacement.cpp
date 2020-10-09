@@ -92,7 +92,10 @@ void calcVisibility()
   
   // useful to use async here and also in SensorZone::createAllSensors ? 
   for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
-    futures.push_back(std::async(std::launch::async, &SensorZone::createAllSensors, sensorZone.get()));
+  {
+    //futures.push_back(std::async(std::launch::async, &SensorZone::createAllSensors, sensorZone.get()));
+    sensorZone->createAllSensors();
+  }
 }
 
 void optimize(FitnessFunctionType fitnessFunction)

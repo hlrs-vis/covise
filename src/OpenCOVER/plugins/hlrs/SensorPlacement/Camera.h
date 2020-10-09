@@ -14,7 +14,7 @@ private:
 
 public:
     float m_FoV{90.f};
-    float m_DepthView{20.f};
+    float m_DepthView{3.0f};
  
     float m_ImgWidth{2*m_DepthView*std::tan(m_FoV/2*(float)osg::PI/180)};
     float m_ImgHeight{m_ImgWidth / (m_ImageWidthPixel/m_ImageHeightPixel)};
