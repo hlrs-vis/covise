@@ -56,7 +56,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(0,0,0));
-       DataManager:: AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.5,0.1,0.02));
+       DataManager:: AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.5,0.2,0.02));
     }
     );
 

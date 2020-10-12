@@ -55,7 +55,7 @@ void ZoneShape::addPointToVec(osg::Vec3 point) // use rvalue here ?
 ZoneRectangle::ZoneRectangle(osg::Matrix matrix, float length, float width, float height,osg::Vec4 color, Zone* zone)
     :ZoneShape(matrix, color, zone), m_Length(length), m_Width(width), m_Height(height)
 {
-    m_Distance = findLargestVectorComponent(findLongestSide()) / 5;
+    
     m_Geode = draw();
     m_LocalDCS->addChild(m_Geode);
     
@@ -71,11 +71,25 @@ ZoneRectangle::ZoneRectangle(osg::Matrix matrix, float length, float width, floa
     m_SizeInteractor->show();
     m_SizeInteractor->enableIntersection();
 
-    startPosSizeInteractor= (m_Verts->at(2)-osg::Vec3(m_Distance,0,0))*matrix;
+    osg::Vec3 longestSide = findLongestSide();
+    float dist = findLargestVectorComponent(findLongestSide()) / 5;
+    osg::Vec3 pos;
+    if(longestSide.x() != 0)
+       pos = osg::Vec3(-dist,0,0);
+    else if(longestSide.y() != 0)
+       pos = osg::Vec3(0,dist,0);
+    else if(longestSide.z() != 0)
+       pos = osg::Vec3(0,0,dist);
+
+    // m_Distance = findLargestVectorComponent(findLongestSide()) / 5;
+    // std::cout << "Constructor:" <<m_Distance <<std::endl;
+    startPosSizeInteractor= (m_Verts->at(2)+pos)*matrix;
     m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
     m_DistanceInteractor->show();
     m_DistanceInteractor->enableIntersection();
 
+    //m_Distance = findLargestVectorComponent(findLongestSide()) / 5; // dont need this
+    //std::cout <<"distance calculated : " <<findLargestVectorComponent(findLongestSide()) / 5<<std::endl;
     drawGrid();
 };
 
@@ -216,102 +230,89 @@ osg::Geode* ZoneRectangle::draw()
 
 bool ZoneRectangle::preFrame()
 {
-    if(m_Interactor && m_SizeInteractor && m_DistanceInteractor)
+    
+    m_Interactor->preFrame();
+    m_SizeInteractor->preFrame();
+    m_DistanceInteractor->preFrame();
+    static osg::Vec3 startPos_SizeInteractor_w,startPos_SizeInteractor_o;
+    static osg::Vec3 startPos_DistanceInteractor_w,startPos_DistanceInteractor_o;
+    static osg::Matrix startMatrix_Interactor_to_w,startMatrix_Interactor_to_w_inverse;
+    if(m_Interactor->wasStarted())
     {
-        m_Interactor->preFrame();
-        m_SizeInteractor->preFrame();
-        m_DistanceInteractor->preFrame();
-
-        static osg::Vec3 startPos_SizeInteractor_w,startPos_SizeInteractor_o;
-        static osg::Vec3 startPos_DistanceInteractor_w,startPos_DistanceInteractor_o;
-
-        static osg::Matrix startMatrix_Interactor_to_w,startMatrix_Interactor_to_w_inverse;
-        if(m_Interactor->wasStarted())
-        {
-            if(UI::m_DeleteStatus)
-                return false;
-
-            osg::Matrix interactor_to_w = m_Interactor->getMatrix();
-            startPos_SizeInteractor_w = m_SizeInteractor->getPos();
-            startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
-
-            osg::Vec3 interactor_pos_w = interactor_to_w.getTrans();
-            startPos_SizeInteractor_o = osg::Matrix::transform3x3(startPos_SizeInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
-            startPos_DistanceInteractor_o = osg::Matrix::transform3x3(startPos_DistanceInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
-
-            if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
-                z->removeAllSensors();
-        }
-        else if(m_Interactor->isRunning())
-        {
-            osg::Matrix interactor_to_w = m_Interactor->getMatrix();
-            m_LocalDCS->setMatrix(interactor_to_w);
-            osg::Vec3 interactor_pos_w = interactor_to_w.getTrans();
-            
-            //update Interactors
-            osg::Vec3 sizeInteractor_pos_w = osg::Matrix::transform3x3(startPos_SizeInteractor_o, interactor_to_w);
-            sizeInteractor_pos_w +=interactor_pos_w;
-            m_SizeInteractor->updateTransform(sizeInteractor_pos_w);
-
-            osg::Vec3 distanceInteractor_pos_w = osg::Matrix::transform3x3(startPos_DistanceInteractor_o, interactor_to_w);
-            distanceInteractor_pos_w +=interactor_pos_w;
-            m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
-        }
-        else if(m_Interactor->wasStopped())
-        {
-            if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
-                z->createSpecificNbrOfSensors();
-        }
-        else if(m_SizeInteractor->wasStarted())
-        {
-            startMatrix_Interactor_to_w = m_Interactor->getMatrix();
-            startMatrix_Interactor_to_w_inverse = startMatrix_Interactor_to_w.inverse(startMatrix_Interactor_to_w); 
-
-            osg::Vec3 interactor_pos_w = startMatrix_Interactor_to_w.getTrans();
-            startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
-            startPos_DistanceInteractor_o = osg::Matrix::transform3x3(startPos_DistanceInteractor_w-interactor_pos_w, startMatrix_Interactor_to_w_inverse);
-            startPos_DistanceInteractor_o = osg::Vec3(std::abs(startPos_DistanceInteractor_o.x()),std::abs(startPos_DistanceInteractor_o.y()),std::abs(startPos_DistanceInteractor_o.z()));
-
-            deleteGridPoints();
-            m_DistanceInteractor->hide();
-
-            if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
-                z->removeAllSensors();
-        }
-        else if(m_SizeInteractor->isRunning())
-        {        
-            // update vertices
-            osg::Vec3 verts_o= osg::Matrix::transform3x3(m_SizeInteractor->getPos()-startMatrix_Interactor_to_w.getTrans(), startMatrix_Interactor_to_w_inverse);
-            updateGeometry(verts_o);   
-        }
-        else if(m_SizeInteractor->wasStopped())
-        {
-            calcPositionOfDistanceInteractor(startPos_DistanceInteractor_o);
-            m_DistanceInteractor->show();
-            drawGrid();
-
-            if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
-                z->createSpecificNbrOfSensors();
-;
-        }
-        else if(m_DistanceInteractor->wasStarted())
-        {
-            osg::Matrix interactor_to_w = m_Interactor->getMatrix();
-            startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
-            startPos_DistanceInteractor_o= osg::Matrix::transform3x3(startPos_DistanceInteractor_w, interactor_to_w.inverse(interactor_to_w));
-        }
-        else if(m_DistanceInteractor->isRunning())      
-            restrictDistanceInteractor(startPos_DistanceInteractor_o);
-
-        else if(m_DistanceInteractor->wasStopped())
-        {
-            deleteGridPoints();
-            drawGrid();
-
-            if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
-                z->createSpecificNbrOfSensors();
-        }
+        if(UI::m_DeleteStatus)
+            return false;
+        osg::Matrix interactor_to_w = m_Interactor->getMatrix();
+        startPos_SizeInteractor_w = m_SizeInteractor->getPos();
+        startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
+        osg::Vec3 interactor_pos_w = interactor_to_w.getTrans();
+        startPos_SizeInteractor_o = osg::Matrix::transform3x3(startPos_SizeInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
+        startPos_DistanceInteractor_o = osg::Matrix::transform3x3(startPos_DistanceInteractor_w-interactor_pos_w, interactor_to_w.inverse(interactor_to_w));
+        if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
+            z->removeAllSensors();
     }
+    else if(m_Interactor->isRunning())
+    {
+        osg::Matrix interactor_to_w = m_Interactor->getMatrix();
+        m_LocalDCS->setMatrix(interactor_to_w);
+        osg::Vec3 interactor_pos_w = interactor_to_w.getTrans();
+        
+        //update Interactors
+        osg::Vec3 sizeInteractor_pos_w = osg::Matrix::transform3x3(startPos_SizeInteractor_o, interactor_to_w);
+        sizeInteractor_pos_w +=interactor_pos_w;
+        m_SizeInteractor->updateTransform(sizeInteractor_pos_w);
+        osg::Vec3 distanceInteractor_pos_w = osg::Matrix::transform3x3(startPos_DistanceInteractor_o, interactor_to_w);
+        distanceInteractor_pos_w +=interactor_pos_w;
+        m_DistanceInteractor->updateTransform(distanceInteractor_pos_w);
+    }
+    else if(m_Interactor->wasStopped())
+    {
+        if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
+            z->createSpecificNbrOfSensors();
+    }
+    else if(m_SizeInteractor->wasStarted())
+    {
+        startMatrix_Interactor_to_w = m_Interactor->getMatrix();
+        startMatrix_Interactor_to_w_inverse = startMatrix_Interactor_to_w.inverse(startMatrix_Interactor_to_w); 
+        osg::Vec3 interactor_pos_w = startMatrix_Interactor_to_w.getTrans();
+        startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
+        startPos_DistanceInteractor_o = osg::Matrix::transform3x3(startPos_DistanceInteractor_w-interactor_pos_w, startMatrix_Interactor_to_w_inverse);
+        startPos_DistanceInteractor_o = osg::Vec3(std::abs(startPos_DistanceInteractor_o.x()),std::abs(startPos_DistanceInteractor_o.y()),std::abs(startPos_DistanceInteractor_o.z()));
+        deleteGridPoints();
+        m_DistanceInteractor->hide();
+        if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
+            z->removeAllSensors();
+    }
+    else if(m_SizeInteractor->isRunning())
+    {        
+        // update vertices
+        osg::Vec3 verts_o= osg::Matrix::transform3x3(m_SizeInteractor->getPos()-startMatrix_Interactor_to_w.getTrans(), startMatrix_Interactor_to_w_inverse);
+        updateGeometry(verts_o);   
+    }
+    else if(m_SizeInteractor->wasStopped())
+    {
+        calcPositionOfDistanceInteractor(startPos_DistanceInteractor_o);
+        m_DistanceInteractor->show();
+        drawGrid();
+        if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
+            z->createSpecificNbrOfSensors();
+    }
+    else if(m_DistanceInteractor->wasStarted())
+    {
+        osg::Matrix interactor_to_w = m_Interactor->getMatrix();
+        startPos_DistanceInteractor_w = m_DistanceInteractor->getPos();
+        startPos_DistanceInteractor_o= osg::Matrix::transform3x3(startPos_DistanceInteractor_w, interactor_to_w.inverse(interactor_to_w));
+    }
+    else if(m_DistanceInteractor->isRunning())      
+        restrictDistanceInteractor(startPos_DistanceInteractor_o);
+    else if(m_DistanceInteractor->wasStopped())
+    {
+        deleteGridPoints();
+        drawGrid();
+        if(SensorZone* z = dynamic_cast<SensorZone*>(m_ZonePointer))
+            z->createSpecificNbrOfSensors();
+    }
+    
+    
     return true;
 };
 
@@ -468,6 +469,7 @@ osg::Vec3 ZoneRectangle::findLongestSide() const
     if (m_Height >= m_Width && m_Height >= m_Length)
         result = {0,0,m_Height};                                        // z (height) is longest side
 
+    //std::cout<<"Longest Side" << result.x()<< " "<< result.y() << " "<< result.z() <<std::endl;
     return result;
 }
 
@@ -552,6 +554,8 @@ float ZoneRectangle::calculateGridPointDistance() const
     osg::Vec3 interactor_pos_o = osg::Matrix::transform3x3(interactor_to_w.getTrans(),interactor_to_w.inverse(interactor_to_w));
 
     osg::Vec3 longestSide = findLongestSide();
+    std::cout<<"calculateGridPointDistance() Longest side: " << longestSide.x()<< " "<< longestSide.y() << " "<< longestSide.z() <<std::endl;
+
 
     if(longestSide.x() != 0)
         result = std::abs(interactor_pos_o.x()-distanceInteractor_pos_o.x());
@@ -560,6 +564,7 @@ float ZoneRectangle::calculateGridPointDistance() const
     else if(longestSide.z() != 0)
         result = std::abs(interactor_pos_o.z()-distanceInteractor_pos_o.z());
     
+    std::cout <<"calculateGridPointDistance()"<<result<<".."<<std::endl;
     return result;
 }
 
@@ -581,15 +586,32 @@ void ZoneRectangle::drawGrid()
 {
     m_Distance = calculateGridPointDistance();
     float minDistance = findLargestVectorComponent(findLongestSide())  / 20 ; // minimum distance between gridpoints
-
+    std::cout <<"draw Grid: m_Distance: "<<m_Distance <<std::endl;
+    if(m_ZonePointer == nullptr)
+        std::cout <<"nullptr"<<std::endl;
     if(m_Distance < minDistance)
+    {
         std::cout << "Zone: No gridpoints created, distance is too small" << std::endl;
+
+        std::cout << "distance "<<m_Distance << " minDistance "<<minDistance<<"..." << std::endl;
+    }
     else
     {
         if( dynamic_cast<SensorZone*>(m_ZonePointer))
+        {
             createInner3DGrid(defineStartPointForInnerGrid(),calcSign(),defineLimitsOfInnerGridPoints());
-        else if(dynamic_cast<SafetyZone*>(m_ZonePointer))
+            std::cout <<"inner Grid: "<< std::endl;
+        }else if(dynamic_cast<SafetyZone*>(m_ZonePointer))
+        {
+            std::cout <<"outer Grid: "<< std::endl;
             createOuter3DGrid(calcSign());
+        }
+        else if(dynamic_cast<Zone*>(m_ZonePointer))
+        {
+            std::cout <<"Cast to Zone successful "<< std::endl;
+        }
+        else
+            std::cout << "no successful cast"<<std::endl;
     }
 }
 
@@ -846,17 +868,18 @@ osg::Vec3  ZoneRectangle::defineLimitsOfInnerGridPoints()const
 Zone::Zone(osg::Matrix matrix,osg::Vec4 color,float length, float width , float height)
     : m_Color(color)
 { 
-    m_Shape = myHelpers::make_unique<ZoneRectangle>(matrix, length, width, height,color,this); 
     m_Group = new osg::Group;
-    m_Group->addChild(m_Shape->getMatrixTransform());
 };  
 
 Zone::Zone(osg::Matrix matrix, osg::Vec4 color, float radius)
     : m_Color(color)
 {
-    m_Shape = myHelpers::make_unique<ZoneSphere>(matrix, radius,color, this); 
     m_Group = new osg::Group;
-    m_Group->addChild(m_Shape->getMatrixTransform());
+}
+
+Zone::~Zone()
+{
+    std::cout<<" Pure virtual Zone Destructor called" << std::endl;
 }
 
 void Zone::highlitePoints(std::vector<float>& visiblePoints)
@@ -893,6 +916,10 @@ std::vector<osg::Vec3> Zone::getWorldPositionOfPoints()
 SafetyZone::SafetyZone(osg::Matrix matrix, Priority prio, float length, float width , float height):
 m_Priority(prio),Zone(matrix,calcColor(prio),length, width, height)
 {   
+    m_Shape = myHelpers::make_unique<ZoneRectangle>(matrix, length, width, height,calcColor(prio),this); 
+    m_Group->addChild(m_Shape->getMatrixTransform());
+
+
     m_Text = new osgText::Text;
     m_Text->setColor(m_Color);
     m_Text->setCharacterSize(0.1);
@@ -909,7 +936,11 @@ m_Priority(prio),Zone(matrix,calcColor(prio),length, width, height)
 
 SafetyZone::SafetyZone(osg::Matrix matrix, Priority prio, float radius):
     m_Priority(prio),Zone(matrix,calcColor(prio), radius)
-{   
+{ 
+    m_Shape = myHelpers::make_unique<ZoneSphere>(matrix, radius, calcColor(prio), this); 
+    m_Group->addChild(m_Shape->getMatrixTransform());
+
+  
     m_Text = new osgText::Text;
     m_Text->setColor(m_Color);
     m_Text->setCharacterSize(0.1);
@@ -944,6 +975,10 @@ osg::Vec4 SafetyZone::calcColor( Priority prio)const
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height)
     :Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)
 {
+    m_Shape = myHelpers::make_unique<ZoneRectangle>(matrix, length, width, height,osg::Vec4{1,0,1,1},this); 
+    m_Group->addChild(m_Shape->getMatrixTransform());
+
+
     m_SensorGroup = new osg::Group();
     m_Group->addChild(m_SensorGroup.get());
     createSpecificNbrOfSensors();
@@ -952,6 +987,10 @@ SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float w
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix, float radius)
     :Zone(matrix,osg::Vec4{1.0,0.0f,1.0f,0.4f},radius), m_SensorType(type)
 {
+    m_Shape = myHelpers::make_unique<ZoneSphere>(matrix, radius,osg::Vec4{1.0,0.0f,1.0f,0.4f}, this); 
+    m_Group->addChild(m_Shape->getMatrixTransform());
+
+
     m_SensorGroup = new osg::Group();
     m_Group->addChild(m_SensorGroup.get());
     createSpecificNbrOfSensors();
@@ -1006,7 +1045,6 @@ void SensorZone::removeAllSensors()
 {
     std::cout <<"remove all Sensors was called: Nbr of sensors before: " <<m_Sensors.size()<< std::endl;
     m_Sensors.clear();
-
     m_SensorGroup->removeChildren(0,m_SensorGroup->getNumChildren());
 }
 
@@ -1022,11 +1060,11 @@ void SensorZone::createAllSensors()
     for(const auto& worldpos : worldpositions)
         addSensor(osg::Matrix::translate(worldpos),true);
     
-    //std::vector<std::future<void>> futures;
+    std::vector<std::future<void>> futures;
     for(const auto& sensor : m_Sensors)
     {
-        sensor->calcVisibility();
-        //futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
+        //sensor->calcVisibility();
+        futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
     }
     SP_PROFILE_END_SESSION();
 }

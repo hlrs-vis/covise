@@ -18,7 +18,7 @@ int calcNumberOfSensors()
 {
     int numberOfSensorsInZones{0};
     for(const auto& zone : DataManager::GetSensorZones())
-        numberOfSensorsInZones += zone->getNumberOfSensors();
+        numberOfSensorsInZones += zone->getTargetNumberOfSensors();
 
     return DataManager::GetSensors().size() + numberOfSensorsInZones;
 }
@@ -41,7 +41,7 @@ int getSensorInSensorZone(int sensorPos)
   sensorPos = sensorPos - DataManager::GetSensors().size();
   std::vector<int> sensorsPerZone;
   for(const auto& zone : DataManager::GetSensorZones())
-    sensorsPerZone.push_back(zone->getNumberOfSensors());
+    sensorsPerZone.push_back(zone->getTargetNumberOfSensors());
 
   int nbrOfCameras{0};
   int first{0};
@@ -85,11 +85,11 @@ int getSensorInSensorZone(int sensorPos)
 
 void calcVisibility()
 {
+  {
   std::vector<std::future<void>> futures;
-
   for(const auto& sensor :  DataManager::GetInstance().GetSensors())  
     futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
-  
+  }
   // useful to use async here and also in SensorZone::createAllSensors ? 
   for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
   {

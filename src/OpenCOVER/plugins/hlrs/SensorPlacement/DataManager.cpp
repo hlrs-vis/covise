@@ -228,18 +228,26 @@ void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
 
     for(const auto& zone : GetInstance().m_SensorZones)
         zone->removeAllSensors();
-
+    
     // create sensors in sensor zones
+    int count{0};
     for(auto it = orientations.begin() + size; it != orientations.end(); ++it)
     {
         for(const auto& zone : GetInstance().m_SensorZones)
         {
             auto worldPositions = zone->getWorldPositionOfPoints();
-            auto itFound = std::find_if(worldPositions.begin(), worldPositions.end(),[&it](const osg::Vec3& worldPos){return (it->getMatrix().getTrans() == worldPos ? true : false); });
-            if(itFound != worldPositions.end());
-                zone->createSensor(it->getMatrix());
+            auto itFound = std::find_if(worldPositions.begin(), worldPositions.end(),[&it, &zone](const osg::Vec3& worldPos){
+                                        if(it->getMatrix().getTrans() == worldPos)
+                                        {
+                                            zone->createSensor(it->getMatrix());
+                                            return true;
+                                        }
+                                        else
+                                            return false;
+                                        });
         }
     }
+   
 }
 
 void DataManager::UpdateUDPSensorPosition(int pos, const osg::Matrix& mat)

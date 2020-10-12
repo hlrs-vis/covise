@@ -385,7 +385,7 @@ std::vector<int> SensorPool::getNbrOfSensorsPerZone()const
 {
     std::vector<int> sensors;
     for(const auto& zone : m_SensorZones)
-        sensors.push_back(zone->getNumberOfSensors());
+        sensors.push_back(zone->getTargetNumberOfSensors());
 
     return sensors;
 }

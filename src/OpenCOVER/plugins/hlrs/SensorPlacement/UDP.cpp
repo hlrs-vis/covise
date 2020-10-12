@@ -223,15 +223,20 @@ bool DetectedCameraOrObject::update(const Message& newMessage, const double& tim
             {   
                 if( (this->_type == MessageType::Camera && marker._markerID == newMessage._id) || (this->_type != MessageType::Camera && marker._markerID == newMessage._cameraID) )
                 {
+                    std::cout <<"Old pos: " << marker._Matrix.getTrans().x() <<", "<<marker._Matrix.getTrans().y() <<", "<<marker._Matrix.getTrans().z() <<std::endl;
+                    std::cout <<"New pos: " <<newMessage._matrix.getTrans().x() <<", "<<newMessage._matrix.getTrans().y() <<", "<<newMessage._matrix.getTrans().z() <<std::endl;
+                    
                     marker._distance = newMessage._distanceCamera;
                     marker._timestamp = timestamp;
                     if(s_frameAverage)
-                        marker.calcAverageMatrix(newMessage);
+                       marker.checkDifferenceOfMatrixes(newMessage);// marker.calcAverageMatrix(newMessage);
                     else
                         marker._Matrix = newMessage._matrix;
 
                     //cameraAlreadyAvailable = true;
                     //break; // camera was found jump out of loop
+                    
+
                     return true;
                 }
                 else
@@ -282,6 +287,25 @@ void DetectedCameraOrObject::Marker::calcAverageMatrix(const Message& input)
 
     std::cout <<"send: " <<_send <<std::endl;
     
+}
+
+void DetectedCameraOrObject::Marker::checkDifferenceOfMatrixes(const Message& input)
+{
+    //coCoord eulerIn = input._matrix;
+    //coCoord eulerOld = _Matrix;
+
+    osg::Quat inQuat = input._matrix.getRotate();
+    osg::Quat oldQuat = _Matrix.getRotate();
+    double const eps = 1e-12; // some error threshold
+    std::cout <<"Old pos: " <<_Matrix.getTrans().x() <<", "<<_Matrix.getTrans().y() <<", "<<_Matrix.getTrans().z() <<std::endl;
+    std::cout <<"New pos: " <<input._matrix.getTrans().x() <<", "<<input._matrix.getTrans().y() <<", "<<input._matrix.getTrans().z() <<std::endl;
+    
+    double angle;
+    osg::Vec3 axis;
+    inQuat.getRotate(angle, axis);
+    double angleRad = osg::RadiansToDegrees(angle);
+    std::cout <<"New quat to angle Angle(rad): " <<angle <<" Angle(deg): "<<angleRad << " x:"<<axis.x() <<" y:"<<axis.y() <<" z:"<<axis.z() <<std::endl;
+    _send = true;
 }
 
 // return -1 if object id was not found and can't update message

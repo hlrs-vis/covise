@@ -69,6 +69,7 @@ struct DetectedCameraOrObject
         };
 
         void calcAverageMatrix(const Message& newMessage);
+        void checkDifferenceOfMatrixes(const Message& input);
 
 
     };

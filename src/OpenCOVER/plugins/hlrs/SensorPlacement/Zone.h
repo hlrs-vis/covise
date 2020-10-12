@@ -135,7 +135,7 @@ public:
 
     Zone( osg::Matrix matrix,osg::Vec4 color, float length , float width , float height );
     Zone(osg::Matrix matrix, osg::Vec4 color, float radius);
-    virtual ~Zone(){std::cout<<"Zone Destructor\n";};
+    virtual ~Zone() = 0;
 
     bool preFrame(){return m_Shape->preFrame();};
     
@@ -222,15 +222,16 @@ public:
     //void createGrid() override;
     void createAllSensors();
     SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
-    int getNumberOfSensors(){return m_NbrOfSensors;}
-    //void createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
+    int getTargetNumberOfSensors(){return m_NbrOfSensors;}
+    int getActualNumberOfSensors(){return m_Sensors.size();}
+    //void crgeateSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
     void createSpecificNbrOfSensors(); //This function creates as many sensors as in m_NbrOfSensors defined
 
     void createSensor(const osg::Matrix& matrix);
     void removeAllSensors();
  
 private:
-    int m_NbrOfSensors{2};
+    int m_NbrOfSensors{1};
     SensorType m_SensorType;
     std::vector<std::unique_ptr<SensorPosition>> m_Sensors; 
     osg::ref_ptr<osg::Group> m_SensorGroup;
