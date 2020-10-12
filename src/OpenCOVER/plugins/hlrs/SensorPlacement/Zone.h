@@ -137,7 +137,7 @@ public:
     Zone(osg::Matrix matrix, osg::Vec4 color, float radius);
     virtual ~Zone() = 0;
 
-    bool preFrame(){return m_Shape->preFrame();};
+    virtual bool preFrame(){return m_Shape->preFrame();};
     
     void setPosition(osg::Matrix matrix){m_Shape->setPosition(matrix);}
     void hide(){m_Shape->hide();}
@@ -219,6 +219,8 @@ public:
     SensorZone(SensorType type, osg::Matrix matrix, float radius);
 
     ~SensorZone(){std::cout<<"SensorZone Destructor\n";};
+    virtual bool preFrame()override;
+
     //void createGrid() override;
     void createAllSensors();
     SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
@@ -229,6 +231,8 @@ public:
 
     void createSensor(const osg::Matrix& matrix);
     void removeAllSensors();
+    void updateFoV(float fov);
+    void updateDoF(float dof);
  
 private:
     int m_NbrOfSensors{1};

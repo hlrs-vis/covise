@@ -49,11 +49,19 @@ private:
 
     //Camera Menu
     ui::Menu *m_CameraProps;
-    ui::Slider *m_Visibility;
+    ui::Slider *m_Visibility, *m_FOV;
 
     //Optimization Menu
     ui::Menu *m_Optimization;
     ui::Action *m_MaxCoverage1, *m_MaxCoverage2;
+    ui::Menu *m_Results;
+    ui::Label *m_TotalCoverage, *m_Prio1Coverage, *m_Prio2Coverage, *m_Fitness, *m_NbrCameras, *m_NbrControlPoints, *m_OptimizationTime;
+    //Max Coverage 1
+    ui::Menu *m_MaxCoverage1Menu;
+    ui::Slider *m_Penalty;
+    ui::Slider *m_WeightingPrio1;
+    //Max Coverage 2
+    ui::Menu *m_MaxCoverage2Menu;
 
     //Demonstrator
     ui::Menu *m_Demonstrator;

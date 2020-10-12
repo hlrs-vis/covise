@@ -13,7 +13,21 @@ struct Solution{
 
 struct MiddleCost{
 
+    struct Coverage //Coverage in % 
+    {
+        float total;
+        float prio1;
+        float prio2;
+        std::string to_string() const
+        {
+            std::string output;
+            output = "total: "+std::to_string(total)+" Prio1: "+std::to_string(prio1)+" Prio2 " +std::to_string(prio2)+" ";
+            return std::string("{") + output + "}";
+        }
+    };
+
     double objective;
+    Coverage coverage;
 };
 
 struct SensorPool
@@ -36,9 +50,9 @@ enum class FitnessFunctionType
 
 struct PropertiesMaxCoverage1
 {
-    float weightingFactorPRIO1{3.0};
-    //float PenaltyFactorPRIO1{1.0};      //not necessary ?
-    //float PenaltyFactorPRIO2{1.0};      //not necessary ?
+    float weightingFactorPRIO1{2.0f};
+    float Penalty{1000.0f};             //Penalty for too few cameras
+    //float PenaltyFactorPRIO2{1.0};    //not necessary ?
     float thresholdVisibility{0.5};     //the sum(all Vismats)/ RequiredSensorsForThisPoint > thresholdVisibility
 };
 
@@ -54,6 +68,9 @@ class GA
 public:
     using FitnessFunction = std::function<bool(const Solution& p, MiddleCost &c)>;
     GA(FitnessFunctionType fitness);
+
+    static PropertiesMaxCoverage1 s_PropsMaxCoverage1;
+    static PropertiesMaxCoverage2 s_PropsMaxCoverage2;
 
     float m_CrossoverRate{0.7};
     float m_MutationRate{0.3};
@@ -74,9 +91,6 @@ private:
     int m_NumberOfPrio1Points;
     std::vector<int> m_RequiredSensorsPerPoint; 
     
-    PropertiesMaxCoverage1 m_PropsMaxCoverage1;
-    PropertiesMaxCoverage2 m_PropsMaxCoverage2;
-
     typedef EA::Genetic<Solution,MiddleCost> GA_Type;
     typedef EA::GenerationType<Solution,MiddleCost> Generation_Type;
     GA_Type ga_obj;
@@ -93,6 +107,7 @@ private:
     bool maxCoverage1(const Solution& p, MiddleCost &c);
     bool maxCoverage2(const Solution& p, MiddleCost &c);
 
+    void calcCoverageProcentage(MiddleCost &c, int sumCoveredPrio1Points, int sumCoveredPrio2Points)const;
     int coverEachPointWithMin1Sensor(std::vector<int>& nbrOfCameras, std::vector<float> &sumVisMat); 
     int sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const std::vector<int>& requiredSensorsPerPoint, const std::vector<float>& sumVisMat) const;
     

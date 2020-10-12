@@ -996,6 +996,16 @@ SensorZone::SensorZone(SensorType type, osg::Matrix matrix, float radius)
     createSpecificNbrOfSensors();
 }
 
+bool SensorZone::preFrame()
+{
+    bool status = Zone::preFrame();
+
+    for(const auto& sensor : m_Sensors)
+        sensor->preFrame();
+    // To Do: delete Sensor if returns false
+    return status;
+}
+
 
 /*bool SensorZone::preFrame()
 {
@@ -1091,6 +1101,16 @@ void SensorZone::createSpecificNbrOfSensors()
 void SensorZone::createSensor(const osg::Matrix& matrix)
 {
     addSensor(matrix, true);
+}
+void SensorZone::updateDoF(float dof)
+{
+    for(const auto& sensor : m_Sensors)
+        sensor->updateDoF(dof);
+}
+void SensorZone::updateFoV(float fov)
+{
+    for(const auto& sensor : m_Sensors)
+        sensor->updateFoV(fov);
 }
 
 /*void SensorZone::createSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes)

@@ -5,6 +5,17 @@
 #include "SensorPlacement.h"
 #include <numeric>
 
+
+PropertiesMaxCoverage1 GA::s_PropsMaxCoverage1;
+PropertiesMaxCoverage2 GA::s_PropsMaxCoverage2;
+
+
+/*
+1) we have 2 cameras and 2 Prio2 Zones and 1 Prio1 Zone:
+    - One camera can only see 1 Prio2 Zone
+    - The other must decide whether completly cover Prio2 Zone or just partially cover Prio1 zone
+    - Max Coverage1: prefer a fully covered Prio2 zone
+*/
 bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
 {
     SP_PROFILE_FUNCTION();
@@ -42,31 +53,29 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
     int penaltyCounterPRIO2{0};
     int sumCoveredPrio1Points{0};
     int sumCoveredPrio2Points{0};
+    // float sumCoefficientsOfCoveredPrio1Points{0.0f};
+    // float sumCoefficientsOfCoveredPrio2Points{0.0f};
+
 
     auto ItsensorsPerPoint = sensorsPerPoint.begin();
     auto ItRequiredSensors = m_RequiredSensorsPerPoint.begin();
-
     while( ItsensorsPerPoint != sensorsPerPoint.end())
     {
         int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
         int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
-        if( diff >=0 && (sumVisMat.at(distance) / m_RequiredSensorsPerPoint.at(distance) >= m_PropsMaxCoverage1.thresholdVisibility) )
+        if( diff >=0 && (sumVisMat.at(distance) / m_RequiredSensorsPerPoint.at(distance) >= s_PropsMaxCoverage1.thresholdVisibility) )
         {
             if( m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
-               sumCoveredPrio1Points += diff;
+               sumCoveredPrio1Points += diff+1; //hier werden jetzt punkte mehr wie einmal abgedeckt !
             else if(m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO2)
-                sumCoveredPrio2Points +=diff;
-
-            //coveredPoints.push_back(diff);  // braucht man das ?
+                sumCoveredPrio2Points +=diff+1;
         }
         else
         {
-            if( m_RequiredSensorsPerPoint.at(distance) == 2)
+            if( m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
                 penaltyCounterPRIO1 += std::abs(diff);
-            else if(m_RequiredSensorsPerPoint.at(distance) == 1)
+            else if(m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO2)
                 penaltyCounterPRIO2 += std::abs(diff);
-
-            //coveredPoints.push_back(0); // braucht man das ?
         }
         
         // increment iterators
@@ -76,9 +85,11 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
             ++ItRequiredSensors;
         }
     }
+    
         
-    c.objective = -(m_PropsMaxCoverage1.weightingFactorPRIO1 * (sumCoveredPrio1Points - penaltyCounterPRIO1) + sumCoveredPrio2Points -penaltyCounterPRIO2);
-
+    c.objective = -(s_PropsMaxCoverage1.weightingFactorPRIO1 * (sumCoveredPrio1Points - penaltyCounterPRIO1 * s_PropsMaxCoverage1.Penalty) + sumCoveredPrio2Points - (penaltyCounterPRIO2 * s_PropsMaxCoverage1.Penalty));
+    calcCoverageProcentage(c, sumCoveredPrio1Points, sumCoveredPrio2Points);
+    
     return true;
 }
 
@@ -97,19 +108,30 @@ bool GA::maxCoverage2(const Solution &sensorNetwork, MiddleCost &c)
 
     int sumCoveredPrio1 = sumOfCoveredPrio1Points(sensorsPerPoint, m_RequiredSensorsPerPoint, sumVisMat);
     int penalty{0};
-    if(sumCoveredPrio1 > 0 && sumCoveredPrio1 < m_PropsMaxCoverage2.m_RequiredCoverage * m_NumberOfPrio1Points)
-        penalty = m_PropsMaxCoverage2.m_PenaltyConstant * m_NumberOfPrio1Points / sumCoveredPrio1;
+    if(sumCoveredPrio1 > 0 && sumCoveredPrio1 < s_PropsMaxCoverage2.m_RequiredCoverage * m_NumberOfPrio1Points)
+        penalty = s_PropsMaxCoverage2.m_PenaltyConstant * m_NumberOfPrio1Points / sumCoveredPrio1;
     else if(sumCoveredPrio1 == 0)
-        penalty = m_PropsMaxCoverage2.m_PenaltyConstant * m_NumberOfPrio1Points;
-    else if(sumCoveredPrio1 > m_PropsMaxCoverage2.m_RequiredCoverage * m_NumberOfPrio1Points)
+        penalty = s_PropsMaxCoverage2.m_PenaltyConstant * m_NumberOfPrio1Points;
+    else if(sumCoveredPrio1 > s_PropsMaxCoverage2.m_RequiredCoverage * m_NumberOfPrio1Points)
         penalty = 0;
     
     int covered = coverEachPointWithMin1Sensor(sensorsPerPoint, sumVisMat);
    // std::cout<<"c_i: "<<covered <<"..."<<std::endl;
    // std::cout <<"penalty" <<penalty<<"..."<<std::endl;
     c.objective = - ( covered - penalty);
+
+    //calcCoverageProcentage(c, sumCoveredPrio1, sumCoveredPrio2Points);
+
     return true; 
 }
+
+void GA::calcCoverageProcentage(MiddleCost &c, int sumCoveredPrio1Points, int sumCoveredPrio2Points)const
+{
+    c.coverage.prio1 = (float)sumCoveredPrio1Points / (float)m_NumberOfPrio1Points  * 100.0;
+    c.coverage.prio2 = (float)sumCoveredPrio2Points / (float)(m_NumberOfObservationPoints - m_NumberOfPrio1Points) * 100.0;
+    c.coverage.total = (float)(sumCoveredPrio1Points + sumCoveredPrio2Points) / (float)m_NumberOfObservationPoints * 100.0;
+}
+
 
 int GA::coverEachPointWithMin1Sensor(std::vector<int>& nbrOfSensors, std::vector<float> &sumVisMat)
 {
@@ -117,7 +139,7 @@ int GA::coverEachPointWithMin1Sensor(std::vector<int>& nbrOfSensors, std::vector
     int c{0};
     for(const auto& nbr : nbrOfSensors)
     {
-        if(nbr - 1 >= 0 && (sumVisMat.at(counter) / 1 >= m_PropsMaxCoverage2.m_ThresholdVisibility) ) //geteilt durch n_min <--- checken! 
+        if(nbr - 1 >= 0 && (sumVisMat.at(counter) / 1 >= s_PropsMaxCoverage2.m_ThresholdVisibility) ) //geteilt durch n_min <--- checken! 
             c += nbr - 1;
         else
             c+=0;
@@ -137,10 +159,10 @@ int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const s
     {
         int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
         int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
-        if( diff >=0 && (sumVisMat.at(distance) /  requiredSensorsPerPoint.at(distance) >= m_PropsMaxCoverage1.thresholdVisibility) )
+        if( diff >=0 && (sumVisMat.at(distance) /  requiredSensorsPerPoint.at(distance) >= s_PropsMaxCoverage1.thresholdVisibility) )
         {
             if( requiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
-                sumCoveredPrio1 += diff;
+                sumCoveredPrio1 += diff+1;
         }
         // increment iterators
         if( ItsensorsPerPoint != sensorsPerPoint.end())
@@ -150,6 +172,30 @@ int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const s
         }
     }
 }
+
+// float GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const std::vector<int>& requiredSensorsPerPoint, const std::vector<float>& sumVisMat) const
+// {
+//     auto ItsensorsPerPoint = sensorsPerPoint.begin();
+//     auto ItRequiredSensors = requiredSensorsPerPoint.begin();
+//     float sumCoveredPrio1{0.0};
+
+//     while( ItsensorsPerPoint != sensorsPerPoint.end())
+//     {
+//         int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
+//         int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
+//         if( diff >=0 && (sumVisMat.at(distance) /  requiredSensorsPerPoint.at(distance) >= m_PropsMaxCoverage1.thresholdVisibility) )
+//         {
+//             if( requiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
+//                 sumCoveredPrio1 += diff;
+//         }
+//         // increment iterators
+//         if( ItsensorsPerPoint != sensorsPerPoint.end())
+//         {
+//             ++ItsensorsPerPoint;
+//             ++ItRequiredSensors;
+//         }
+//     }
+// }
 
 
 
@@ -262,30 +308,29 @@ Solution GA::crossover(const Solution& X1, const Solution& X2,const std::functio
     // std::vector<int> possibleCutPoints;
     // for(int i{0}; i < m_SensorPool.getNbrOfSingleSensors(); i++)
     // {
-    //     if(possibleCutPoints.empty())
-    //         possibleCutPoints.push_back(1);
-    //     else
-    //         possibleCutPoints.push_back(possibleCutPoints.back() + 1);
+        // if(possibleCutPoints.empty())
+            // possibleCutPoints.push_back(1);
+        // else
+            // possibleCutPoints.push_back(possibleCutPoints.back() + 1);
     // }
     // auto sensorsPerZone = m_SensorPool.getNbrOfSensorsPerZone();
-    
     // for(const auto& spz : sensorsPerZone)
     // {
-    //     if(possibleCutPoints.empty())
-    //         possibleCutPoints.push_back(spz);
-    //     else
-    //         possibleCutPoints.push_back(possibleCutPoints.back() + spz);
+        // if(possibleCutPoints.empty())
+            // possibleCutPoints.push_back(spz);
+        // else
+            // possibleCutPoints.push_back(possibleCutPoints.back() + spz);
     // }    
-    // //int cutPoint = roundl(rnd01() * m_NumberOfSensors);
     // int random = roundl(rnd01() * (possibleCutPoints.size()-1));
     // int cutPoint = possibleCutPoints.at(random);
-    // std::cout << "random "<< random<< "CutPoint: "<<cutPoint <<std::endl;
+    // std::cout << "random "<< random<< "CutPoint: "<<cutPoint <<std::endl
+    
+    int cutPoint = roundl(rnd01() * (m_NumberOfSensors-1));
 
-
-    // Solution X_new;
-    // X_new.sensors.clear(); // brauch man das ? 
-    // X_new.sensors.insert(X_new.sensors.begin(), X1.sensors.begin(), X1.sensors.begin() + cutPoint);
-    // X_new.sensors.insert(X_new.sensors.end(), X2.sensors.begin() + cutPoint,X2.sensors.end());
+    Solution X_new;
+    X_new.sensors.clear(); // brauch man das ? 
+    X_new.sensors.insert(X_new.sensors.begin(), X1.sensors.begin(), X1.sensors.begin() + cutPoint);
+    X_new.sensors.insert(X_new.sensors.end(), X2.sensors.begin() + cutPoint,X2.sensors.end());
 
     return X1;
 }
@@ -308,8 +353,8 @@ void GA::SO_report_generation(int generation_number,const EA::GenerationType<Sol
         <<"Generation ["<<generation_number<<"], "
         <<"Best="<<last_generation.best_total_cost<<", "
         <<"Average="<<last_generation.average_cost<<", "
-       // <<"Best genes(cameras)=("<<best_genes.to_string()<<")"<<", "
-        // <<"Best Coverage[%]="<<last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.coverage.to_string()<<", "
+        //<<"Best genes(cameras)=("<<best_genes.to_string()<<")"<<", "
+        <<"Best Coverage[%]="<<last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.coverage.to_string()<<", "
         <<"Exe_time="<<last_generation.exe_time
     <<std::endl;
 }

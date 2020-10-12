@@ -41,7 +41,9 @@ public:
     static const std::vector<upSensor>& GetSensors(){return GetInstance().m_Sensors;}
     static const std::vector<osg::Vec3> GetWorldPosOfObervationPoints();
     static const osg::ref_ptr<osg::Group>& GetRootNode() {return GetInstance().m_Root;}
-    
+
+    static void updateFoV(float fov);
+    static void updateDoF(float dof);  
     static void highlitePoints(const VisibilityMatrix<float>& visMat);
     static void setOriginalZoneColor();
     static void AddSafetyZone(upSafetyZone zone);

@@ -55,7 +55,9 @@ public:
     
     virtual bool preFrame();
     virtual osg::Geode* draw() = 0;
-
+    
+    virtual void updateFoV(float fov) = 0;
+    virtual void updateDoF(float dof) = 0;
     //virtual const Orientation* getRandomOrientation()const;
     virtual void calcVisibility();
 

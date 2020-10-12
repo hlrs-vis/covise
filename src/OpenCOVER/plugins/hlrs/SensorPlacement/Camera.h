@@ -19,8 +19,8 @@ public:
     float m_ImgWidth{2*m_DepthView*std::tan(m_FoV/2*(float)osg::PI/180)};
     float m_ImgHeight{m_ImgWidth / (m_ImageWidthPixel/m_ImageHeightPixel)};
 
-    //void updateFoV(float fov);
-    //void updateDepthView(float dof);
+    void updateFoV(float fov);
+    void updateDoF(float dof);
 
     int getImageHeightPixel()const{return m_ImageHeightPixel;}
     int getImageWidthPixel()const{return m_ImageWidthPixel;}
@@ -33,13 +33,19 @@ public:
    
     Camera(osg::Matrix matrix, bool visible, osg::Vec4 color = osg::Vec4(0,1,0,1));
     ~Camera()override{};
+
+    static CameraProps s_CameraProps;
+
+    void updateFoV(float angle) override;
+    void updateDoF(float dof) override;
+
     
     bool preFrame() override;
     osg::Geode* draw() override;
     VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) override;
     void VisualizationVisible(bool status)const override;
 
-    const CameraProps& getCameraProps()const {return m_CameraProps;}
+    const CameraProps& getCameraProps()const {return s_CameraProps;}
 
 protected:
     double calcRangeDistortionFactor(const osg::Vec3& point)const override;
@@ -51,7 +57,7 @@ protected:
     void showIconSensorSize() override;
 
 private:
-    CameraProps m_CameraProps;
+
 
     osg::Vec4 m_Color;
     osg::ref_ptr<osg::Vec3Array> m_Verts;

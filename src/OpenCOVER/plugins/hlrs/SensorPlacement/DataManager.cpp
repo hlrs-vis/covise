@@ -219,6 +219,23 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 
 }
 
+void DataManager::updateFoV(float fov)
+{
+    for(const auto& sensor : GetInstance().m_Sensors)
+        sensor->updateFoV(fov);
+    
+    for(const auto& zone : GetInstance().m_SensorZones)
+        zone->updateFoV(fov);
+}
+void DataManager::updateDoF(float dof) 
+{
+    for(const auto& sensor : GetInstance().m_Sensors)
+        sensor->updateDoF(dof);
+
+    for(const auto& zone : GetInstance().m_SensorZones)
+        zone->updateDoF(dof);   
+}
+
 void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
 {
     auto size =  GetInstance().m_Sensors.size();

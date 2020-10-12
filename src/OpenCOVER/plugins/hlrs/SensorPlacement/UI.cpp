@@ -137,19 +137,29 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
       SensorWithMultipleOrientations::s_SensorProps.setVisualizeOrientations(state);
    });
 
-  
 
    // Camera Menu------------------------------------------------------------------------------------
     m_CameraProps = new ui::Menu(m_SensorProps,"CameraProps");
     m_CameraProps->setText("Camera Properties");
 
-    m_Visibility = new ui::Slider(m_CameraProps,"Visibility");
-    m_Visibility->setText("Visibility [ % ]");
-    m_Visibility->setBounds(10., 100.);
-    m_Visibility->setCallback([](double value, bool released)
-    {
+   m_Visibility = new ui::Slider(m_CameraProps,"Visibility");
+   m_Visibility->setText("Visibility [m]");
+   m_Visibility->setBounds(1.0, 60.0);
+   m_Visibility->setValue(Camera::s_CameraProps.m_DepthView);
+   m_Visibility->setCallback([](double value, bool released)
+   {
+      DataManager::updateDoF(value);
+   });
 
-    });
+   m_FOV = new ui::Slider(m_CameraProps,"FOV");
+   m_FOV->setIntegral(true);
+   m_FOV->setText("FoV [°]: ");
+   m_FOV->setBounds(30, 140);
+   m_FOV->setValue(Camera::s_CameraProps.m_FoV);
+   m_FOV->setCallback([](double value, bool released)
+   {
+      DataManager::updateFoV(value);
+   });
 
    //Optimization Menu-------------------------------------------------------------------------------
    m_Optimization = new ui::Menu(m_MainMenu, "Optimization");
@@ -168,10 +178,58 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setCallback([this]()
    {
       optimize(FitnessFunctionType::MaxCoverage2);
-    
-
-
    });
+
+
+   m_MaxCoverage1Menu = new ui::Menu(m_Optimization, "MaxCoverage1");
+   m_MaxCoverage1Menu->setText("Max Coverage 1");
+
+   m_WeightingPrio1 = new ui::Slider(m_MaxCoverage1Menu,"Weighting Prio1");
+   m_WeightingPrio1->setIntegral(true);
+   m_WeightingPrio1->setText("Weighting Prio1: ");
+   m_WeightingPrio1->setBounds(1, 10);
+   m_WeightingPrio1->setValue(GA::s_PropsMaxCoverage1.weightingFactorPRIO1);
+   m_WeightingPrio1->setCallback([](double value, bool released)
+   {
+      if(released)
+         GA::s_PropsMaxCoverage1.weightingFactorPRIO1 = value;
+   });
+
+   m_Penalty = new ui::Slider(m_MaxCoverage1Menu,"Penalty");
+   m_Penalty->setIntegral(true);
+   m_Penalty->setText("Penalty too few cameras: ");
+   m_Penalty->setBounds(1, 8000);
+   m_Penalty->setValue(GA::s_PropsMaxCoverage1.Penalty);
+   m_Penalty->setCallback([](double value, bool released)
+   {
+      if(released)
+         GA::s_PropsMaxCoverage1.Penalty = value;
+   });
+
+
+   m_MaxCoverage2Menu = new ui::Menu(m_Optimization, "MaxCoverage2");
+   m_MaxCoverage2Menu->setText("Max Coverage 2");
+
+
+   m_Results = new ui::Menu(m_Optimization, "Results");
+   m_Results->setText("Results");
+
+   m_TotalCoverage = new ui::Label(m_Results, "TotalCoverage");
+   m_TotalCoverage->setText("Total Coverage:");
+   m_Prio1Coverage = new ui::Label(m_Results, "Prio1Coverage");
+   m_Prio1Coverage->setText("Prio1 Coverage:");
+   m_Prio2Coverage = new ui::Label(m_Results, "Prio2Coverage");
+   m_Prio2Coverage->setText("Prio2 Coverage:");
+   m_Fitness = new ui::Label(m_Results, "Fitness");
+   m_Fitness->setText("Fitness:");
+   m_OptimizationTime = new ui::Label(m_Results, "OptimizationTime");
+   m_OptimizationTime->setText("Optimization time:");
+   m_NbrCameras = new ui::Label(m_Results, "NbrCameras");
+   m_NbrCameras->setText("Cameras: ");
+   m_NbrControlPoints = new ui::Label(m_Results, "NbrControlPoints");
+   m_NbrControlPoints->setText("Control points:");
+
+
 
    //Demonstrator Menu ---------------------------------------------------------------------
 
