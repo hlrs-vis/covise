@@ -67,6 +67,7 @@ private:
     
     //Max Coverage 2
     ui::Menu *m_MaxCoverage2Menu;
+    ui::Slider *m_RequiredCoverage, *m_PenaltyConstant;
 
     //Demonstrator
     ui::Menu *m_Demonstrator;

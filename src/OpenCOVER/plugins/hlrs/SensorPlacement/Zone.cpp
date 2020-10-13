@@ -109,6 +109,8 @@ osg::Geode* ZoneRectangle::draw()
     geode->addDrawable(m_Geom);
     geode->getStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     geode->getStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    geode->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
     // Declare an array of vertices to create a simple pyramid.
     m_Verts = new osg::Vec3Array;
     m_Verts->push_back( osg::Vec3( -m_Length, m_Width, 0 ) ); // lower back left
@@ -952,9 +954,9 @@ osg::Vec4 SafetyZone::calcColor( Priority prio)const
 {
     osg::Vec4 color;
     if(prio == Priority::PRIO1)
-        color = osg::Vec4(1,0.5,0,1);
+        color = osg::Vec4(1,0.3,0,1);
     else if(prio == Priority::PRIO2)
-        color = osg::Vec4(1,0.75,0,1);
+        color = osg::Vec4(1,0.95,0,1);
 
     return color;
 }

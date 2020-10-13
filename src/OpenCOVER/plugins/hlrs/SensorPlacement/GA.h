@@ -57,7 +57,7 @@ struct PropertiesMaxCoverage1
 
 struct PropertiesMaxCoverage2
 {
-    float m_PenaltyConstant;
+    float m_PenaltyConstant{2000.0};
     float m_RequiredCoverage{0.8};  
 };
 
@@ -69,7 +69,7 @@ public:
 
     static PropertiesMaxCoverage1 s_PropsMaxCoverage1;
     static PropertiesMaxCoverage2 s_PropsMaxCoverage2;
-    
+
     //The visivility Value calculated for an obervation point with calcRangeDistortionFactor * calcWidthDistortionFactor *calcHeightDistortionFactor
     // must be greater than this threadhold that the point is considered as covered
     static float s_VisibiltyThreshold;

@@ -238,6 +238,29 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2Menu = new ui::Menu(m_Optimization, "MaxCoverage2");
    m_MaxCoverage2Menu->setText("Max Coverage 2");
 
+   m_RequiredCoverage = new ui::Slider(m_MaxCoverage2Menu,"Required Coverage");
+   m_RequiredCoverage->setIntegral(true);
+   m_RequiredCoverage->setText("Required Coverage: ");
+   m_RequiredCoverage->setBounds(0.1, 1.0);
+   m_RequiredCoverage->setValue(GA::s_PropsMaxCoverage2.m_RequiredCoverage);
+   m_RequiredCoverage->setCallback([](double value, bool released)
+   {
+      if(released)
+         GA::s_PropsMaxCoverage2.m_RequiredCoverage = value;
+   });
+
+   m_PenaltyConstant = new ui::Slider(m_MaxCoverage2Menu,"PenaltyConstant");
+   m_PenaltyConstant->setIntegral(true);
+   m_PenaltyConstant->setText("Penalty: ");
+   m_PenaltyConstant->setBounds(500, 8000);
+   m_PenaltyConstant->setValue(GA::s_PropsMaxCoverage2.m_PenaltyConstant);
+   m_PenaltyConstant->setCallback([](double value, bool released)
+   {
+      if(released)
+         GA::s_PropsMaxCoverage2.m_PenaltyConstant = value;
+   });
+
+
 
    m_Results = new ui::Menu(m_Optimization, "Results");
    m_Results->setText("Results");

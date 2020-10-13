@@ -83,8 +83,8 @@ void optimize(FitnessFunctionType fitnessFunction)
   std::vector<Orientation> finalSensorOrientations;
   
   // Optimization is only done on master. Problem with random generator and multithreading on Slaves -> results are different on each slave!
-  if(coVRMSController::instance()->isMaster())
-  {
+  // if(coVRMSController::instance()->isMaster())
+  // {
     auto ga(myHelpers::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
     // ga->getTotalCoverage();
@@ -93,14 +93,13 @@ void optimize(FitnessFunctionType fitnessFunction)
     // ga->getFinalFitness();
     // ga->getOptimizationTime();
     //UI::updateOptimizationResults()
-  }
-  else if(!coVRMSController::instance()->isMaster())
-    finalSensorOrientations.resize(calcNumberOfSensors());
+  // }
+  // else if(!coVRMSController::instance()->isMaster())
+    // finalSensorOrientations.resize(calcNumberOfSensors());
   
-  coVRMSController::instance()->syncData(finalSensorOrientations.data(), sizeof(Orientation) * calcNumberOfSensors()); // not sure if this is working with type Orientation
+  //coVRMSController::instance()->syncData(finalSensorOrientations.data(), sizeof(Orientation) * calcNumberOfSensors()); // not sure if this is working with type Orientation
 
   DataManager::UpdateAllSensors(finalSensorOrientations);
-
   DataManager::visualizeCoverage();
 
 }

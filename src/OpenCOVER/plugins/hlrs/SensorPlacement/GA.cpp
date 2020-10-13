@@ -20,16 +20,6 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
 {
     SP_PROFILE_FUNCTION();
     
-    // std::vector<int> necessarySensors{1,1,1,1,1,2,2,2,2,2};
-
-    // std::vector<float> visMat1 {0.0f, 0.4f, 0.8f, 1.0f, 0.2f, 0.1f, 0.4f, 0.1f, 0.3f, 1.0f};
-    // std::vector<float> visMat2 {0.0f, 0.0f, 0.8f, 1.0f, 0.2f, 0.1f, 0.4f, 0.1f, 0.3f, 1.0f};
-    // std::vector<float> visMat3 {0.0f, 0.4f, 0.8f, 1.0f, 0.2f, 0.1f, 0.4f, 0.1f, 0.3f, 0.0f};
-    // std::vector<std::vector<float>> visMat;
-    // visMat.push_back(visMat1);
-    // visMat.push_back(visMat2);
-    // visMat.push_back(visMat3);
-
     std::vector<int> sensorsPerPoint(m_NumberOfObservationPoints,0);
     std::vector<float> sumVisMat(m_NumberOfObservationPoints,0.0f);
 
@@ -39,13 +29,7 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
                                                                                               
         std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients 
     }
-    /*for(const auto& x : sensorsPerPoint)
-        std::cout <<"sensors per Point: " << x << std::endl;
     
-    for(const auto& x : sumVisMat)
-        std::cout <<"sum Vismat: " << x << std::endl;
-    */
-    //##################################### check if visible:
     std::vector<float> coveredPoints;
     coveredPoints.reserve(m_NumberOfObservationPoints);
 
