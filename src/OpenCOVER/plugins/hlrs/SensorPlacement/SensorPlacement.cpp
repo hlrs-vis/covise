@@ -58,28 +58,6 @@ int getSensorInSensorZone(int sensorPos)
     first+= c;
     pos++;
   }
-  //std::cout <<"sth not correct" <<std::endl; 
-  
-
-
- 
-
-  // int posOfSafetyZone{0};
-  // int pos = sensorPos - DataManager::GetSensors().size();
-  // int nbrOfSensors{0};
-  // for(const auto& zone : DataManager::GetSensorZones())
-  // {
-  //     nbrOfSensors += zone->getNumberOfSensors();
-  //     std::cout <<"nbr of sensors" << nbrOfSensors << "input: "<< sensorPos << std::endl;
-  //     if(pos <=nbrOfSensors)
-  //       break;
-      
-  //     posOfSafetyZone++;
-  // }
-
-  // std::cout<<"return Pos: " <<posOfSafetyZone<<".."<<std::endl;
-  // return posOfSafetyZone;
-
 }
 
 
@@ -109,16 +87,38 @@ void optimize(FitnessFunctionType fitnessFunction)
   {
     auto ga(myHelpers::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
+    // ga->getTotalCoverage();
+    // ga->getPrio1Coverage();
+    // ga->getPrio2Coverage();
+    // ga->getFinalFitness();
+    // ga->getOptimizationTime();
+    //UI::updateOptimizationResults()
   }
+  else if(!coVRMSController::instance()->isMaster())
+    finalSensorOrientations.resize(calcNumberOfSensors());
+  
+  coVRMSController::instance()->syncData(finalSensorOrientations.data(), sizeof(Orientation) * calcNumberOfSensors()); // not sure if this is working with type Orientation
 
   DataManager::UpdateAllSensors(finalSensorOrientations);
-  // TODO: resize Vector of SensorPosition. Problem: size of Orientation Object not knwon
-  
-  //else if(!coVRMSController::instance()->isMaster())
-  //  finalSensorOrientations.resize(calcNumberOfSensors());
-  
-  //coVRMSController::instance()->syncData(finalSensorOrientations.data(),sizeof(Orientation) * calcNumberOfSensors());
-  //updateAllSensors(finalSensorOrientations);   
+
+  DataManager::visualizeCoverage();
+
+}
+
+//creates a vector that contains for each observation point the required number of sensors, so that the sensor is observed
+std::vector<int> calcRequiredSensorsPerPoint()
+{
+  std::vector<int> requiredSensorsPerPoint;
+  for(const auto& zone : DataManager::GetSafetyZones())
+    requiredSensorsPerPoint.insert(requiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
+
+  if(!DataManager::GetUDPSafetyZones().empty())
+  {
+      for(const auto& zone : DataManager::GetUDPSafetyZones())
+          requiredSensorsPerPoint.insert(requiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
+  }
+
+  return requiredSensorsPerPoint;
 }
 
 SensorPlacementPlugin::SensorPlacementPlugin()

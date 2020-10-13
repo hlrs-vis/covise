@@ -10,6 +10,9 @@
 #include "Sensor.h"
 
 void setStateSet(osg::StateSet *stateSet);
+
+// converts a visibility matrix of a sensor to to a vector of Visibility matrixes-> this vector can be used
+// to update safety zones
 std::vector<VisibilityMatrix<float>> convertVisMatTo2D(const VisibilityMatrix<float>& visMat);
 
 
@@ -43,9 +46,14 @@ public:
     static const osg::ref_ptr<osg::Group>& GetRootNode() {return GetInstance().m_Root;}
 
     static void updateFoV(float fov);
-    static void updateDoF(float dof);  
-    static void highlitePoints(const VisibilityMatrix<float>& visMat);
-    static void setOriginalZoneColor();
+    static void updateDoF(float dof); 
+
+    //Function to visualize coverage of zones 
+    static void highlitePoints(const VisibilityMatrix<float>& visMat);      //highlite the points, which are seen by the active camera
+    static void visualizeCoverage();                                        // visualize with colors which points are seen by enough cameras
+    static void setOriginalZoneColor();             
+    static void setPreviousZoneColor();          // zone color no shows if points are observed or not
+
     static void AddSafetyZone(upSafetyZone zone);
     static void AddSensorZone(upSensorZone zone);
     static void AddSensor(upSensor sensor);

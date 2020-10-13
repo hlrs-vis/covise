@@ -38,7 +38,6 @@ public:
 
     void updateFoV(float angle) override;
     void updateDoF(float dof) override;
-
     
     bool preFrame() override;
     osg::Geode* draw() override;

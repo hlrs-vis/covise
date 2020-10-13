@@ -33,6 +33,8 @@ public:
     static bool m_DeleteStatus;
     static bool m_showAverageUDPPositions;
     static bool m_showShortestUDPPositions;
+
+    //void updateOptimizationResults(float total, float prio1, float prio2);
    
 private:
     //Main Menu
@@ -53,13 +55,16 @@ private:
 
     //Optimization Menu
     ui::Menu *m_Optimization;
-    ui::Action *m_MaxCoverage1, *m_MaxCoverage2;
+    ui::Action *m_MaxCoverage1, *m_MaxCoverage2, *m_ResetColors;
     ui::Menu *m_Results;
     ui::Label *m_TotalCoverage, *m_Prio1Coverage, *m_Prio2Coverage, *m_Fitness, *m_NbrCameras, *m_NbrControlPoints, *m_OptimizationTime;
+    ui::Slider *m_VisibilityThreshold;
+    
     //Max Coverage 1
     ui::Menu *m_MaxCoverage1Menu;
     ui::Slider *m_Penalty;
     ui::Slider *m_WeightingPrio1;
+    
     //Max Coverage 2
     ui::Menu *m_MaxCoverage2Menu;
 

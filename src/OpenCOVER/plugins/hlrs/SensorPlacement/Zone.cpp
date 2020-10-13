@@ -882,19 +882,6 @@ Zone::~Zone()
     std::cout<<" Pure virtual Zone Destructor called" << std::endl;
 }
 
-void Zone::highlitePoints(std::vector<float>& visiblePoints)
-{
-    if(visiblePoints.size() ==  m_Shape->getGridPoints().size())
-    {
-        for(auto it = visiblePoints.begin(); it != visiblePoints.end(); ++it)
-        {
-            if(*it != 0)
-                m_Shape->getGridPoints().at(std::distance(visiblePoints.begin(), it)).setColor(osg::Vec4(0,1,0,1));
-        }
-    }
-    else
-        std::cout<<"error this shouldn't happen !"<<std::endl; //TODO Abort !!!!
-}
 
 void Zone::setOriginalColor()
 {
@@ -971,6 +958,44 @@ osg::Vec4 SafetyZone::calcColor( Priority prio)const
 
     return color;
 }
+
+void SafetyZone::highlitePoints(std::vector<float>& visiblePoints)
+{
+    if(visiblePoints.size() ==  m_Shape->getGridPoints().size())
+    {
+        for(auto it = visiblePoints.begin(); it != visiblePoints.end(); ++it)
+        {
+            if(*it != 0)
+                m_Shape->getGridPoints().at(std::distance(visiblePoints.begin(), it)).highlite(osg::Vec4(0,1,0,1));
+        }
+    }
+    else
+        std::cout<<"error this shouldn't happen !"<<std::endl; //TODO Abort !!!!
+}
+
+void SafetyZone:: highlitePoints(VisibilityMatrix<float>& visiblePoints, osg::Vec4& colorVisible, osg::Vec4& colorNotVisible)
+{
+    if(visiblePoints.size() ==  m_Shape->getGridPoints().size())
+    {
+        for(auto it = visiblePoints.begin(); it != visiblePoints.end(); ++it)
+        {
+            if(*it != 0.0)
+                m_Shape->getGridPoints().at(std::distance(visiblePoints.begin(), it)).setColor(colorVisible);
+            else
+                m_Shape->getGridPoints().at(std::distance(visiblePoints.begin(), it)).setColor(colorNotVisible);
+
+        }
+    }
+    else
+        std::cout<<"error this shouldn't happen !"<<std::endl; //TODO Abort !!!!
+}
+
+void SafetyZone::setPreviousZoneColor()
+{
+    for(auto& point : m_Shape->getGridPoints())
+        point.setPreviousColor();
+}
+
 
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height)
     :Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)
@@ -1126,7 +1151,7 @@ void SensorZone::updateFoV(float fov)
 }
 */
 
-GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius):m_Color(color)
+GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius):m_Color(color),m_PreviousColor(color)
 {
     osg::Matrix local;
     local.setTrans(pos);
@@ -1143,15 +1168,28 @@ GridPoint::GridPoint(osg::Vec3 pos,osg::Vec4& color, float radius):m_Color(color
     m_Geode->addDrawable(m_SphereDrawable);
     m_LocalDCS->addChild(m_Geode.get());
 }
+void GridPoint::highlite(const osg::Vec4& color)
+{
+    m_SphereDrawable->setColor(color);
+}
 
 void GridPoint::setColor(const osg::Vec4& color)
 {
+    m_PreviousColor = color;
     m_SphereDrawable->setColor(color);
 }
 
 void GridPoint::setOriginalColor()
 {
     m_SphereDrawable->setColor(m_Color);
+
+    m_PreviousColor = m_Color;
+}
+
+
+void GridPoint::setPreviousColor()
+{
+    m_SphereDrawable->setColor(m_PreviousColor);
 }
 
 

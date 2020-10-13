@@ -147,7 +147,7 @@ public:
     int getNumberOfPoints()const{return m_Shape->getGridPoints().size();}
 
     std::vector<osg::Vec3> getWorldPositionOfPoints();
-    void highlitePoints(VisibilityMatrix<float>& visiblePoints);
+    
     void setOriginalColor();
 
     virtual void setCurrentNbrOfSensors(int sensors){}; // shuld only be available in Safety Zone -> but couldn't call
@@ -198,9 +198,12 @@ public:
     void setCurrentNbrOfSensors(int sensors) override;                            
 
     Priority getPriority()const {return m_Priority;}
+    void highlitePoints(VisibilityMatrix<float>& visiblePoints);
+    void highlitePoints(VisibilityMatrix<float>& visiblePoints, osg::Vec4& colorVisible, osg::Vec4& colorNotVisible);
+    void setPreviousZoneColor();
+
 private:
     Priority m_Priority;
-    osg::Vec4 m_ColorVisible;
     int m_CurrentNbrOfSensors{0}; // Nbr of Sensors which currently see this zone
 
     osg::ref_ptr<osgText::Text> m_Text;
@@ -224,6 +227,9 @@ public:
     //void createGrid() override;
     void createAllSensors();
     SensorPosition* getSpecificSensor(int position) const {return m_Sensors.at(position).get();}
+    std::vector<std::unique_ptr<SensorPosition>>& getSensors(){return m_Sensors;}
+    const std::vector<std::unique_ptr<SensorPosition>>& getSensors()const{return m_Sensors;}
+
     int getTargetNumberOfSensors(){return m_NbrOfSensors;}
     int getActualNumberOfSensors(){return m_Sensors.size();}
     //void crgeateSpecificNbrOfSensors(const std::vector<osg::Matrix>& sensorMatrixes); //This function creates the sensors defined in function input
@@ -257,10 +263,15 @@ public:
     osg::ref_ptr<osg::MatrixTransform> getPoint()const{return m_LocalDCS.get();} //muss man hier ref_ptr übergeben?
     osg::Vec3 getPosition()const{return m_LocalDCS->getMatrix().getTrans();}
 
+    void highlite(const osg::Vec4& color);
     void setColor(const osg::Vec4& color);
-    void setOriginalColor();
+    void setOriginalColor();        //sets the color to m_Color
+    void setPreviousColor();
+
 private:
     osg::Vec4 m_Color;
+    osg::Vec4 m_PreviousColor; //color: is this zone observed by enough cameras or not
+
     osg::ref_ptr<osg::Geode> m_Geode;
     osg::ref_ptr<osg::Sphere> m_Sphere;
     osg::ref_ptr<osg::ShapeDrawable> m_SphereDrawable;

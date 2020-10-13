@@ -16,6 +16,17 @@ bool UI::m_DeleteStatus{false};
 bool UI::m_showAverageUDPPositions{false};
 bool UI::m_showShortestUDPPositions{true};
 
+// void UI::updateOptimizationResults(float total, float prio1, float prio2, fitness)
+// {
+   // m_TotalCoverage->setText("Total Coverage: "+total+"%");
+   // m_Prio2Coverage->setText("Prio2 Coverage: "+prio2+"%");
+   // m_Prio1Coverage->setText("Prio1 Coverage: "+prio1+"%");
+   // m_Fitness->setText("Fitness: " +);
+   // m_NbrCameras->setText("Cameras: " +);
+   // m_NbrControlPoints->setText("Control points: " +);
+   // m_OptimizationTime->setText("Optimization time: " +);
+// }
+
 
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 {
@@ -161,6 +172,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
       DataManager::updateFoV(value);
    });
 
+
    //Optimization Menu-------------------------------------------------------------------------------
    m_Optimization = new ui::Menu(m_MainMenu, "Optimization");
    m_Optimization->setText("Optimization");
@@ -178,6 +190,22 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
    m_MaxCoverage2-> setCallback([this]()
    {
       optimize(FitnessFunctionType::MaxCoverage2);
+   });
+
+   m_ResetColors = new ui::Action(m_Optimization,"Reset colors");
+   m_ResetColors-> setText("Reset colors");
+   m_ResetColors-> setCallback([this]()
+   {
+      DataManager::setOriginalZoneColor();
+   });
+
+   m_VisibilityThreshold = new ui::Slider(m_Optimization,"VisibilityThreshold");
+   m_VisibilityThreshold->setText("Visibility threshold");
+   m_VisibilityThreshold->setBounds(0.0, 1.0);
+   m_VisibilityThreshold->setValue(GA::s_VisibiltyThreshold);
+   m_VisibilityThreshold->setCallback([](double value, bool released)
+   {
+      GA::s_VisibiltyThreshold = value;
    });
 
 

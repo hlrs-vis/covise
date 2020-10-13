@@ -8,7 +8,7 @@
 
 PropertiesMaxCoverage1 GA::s_PropsMaxCoverage1;
 PropertiesMaxCoverage2 GA::s_PropsMaxCoverage2;
-
+float GA::s_VisibiltyThreshold{0.2};
 
 /*
 1) we have 2 cameras and 2 Prio2 Zones and 1 Prio1 Zone:
@@ -63,7 +63,7 @@ bool GA:: maxCoverage1(const Solution& sensorNetwork, MiddleCost &c)
     {
         int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
         int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
-        if( diff >=0 && (sumVisMat.at(distance) / m_RequiredSensorsPerPoint.at(distance) >= s_PropsMaxCoverage1.thresholdVisibility) )
+        if( diff >=0 && (sumVisMat.at(distance) / m_RequiredSensorsPerPoint.at(distance) >= s_VisibiltyThreshold) )
         {
             if( m_RequiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
                sumCoveredPrio1Points += diff+1; //hier werden jetzt punkte mehr wie einmal abgedeckt !
@@ -139,7 +139,7 @@ int GA::coverEachPointWithMin1Sensor(std::vector<int>& nbrOfSensors, std::vector
     int c{0};
     for(const auto& nbr : nbrOfSensors)
     {
-        if(nbr - 1 >= 0 && (sumVisMat.at(counter) / 1 >= s_PropsMaxCoverage2.m_ThresholdVisibility) ) //geteilt durch n_min <--- checken! 
+        if(nbr - 1 >= 0 && (sumVisMat.at(counter) / 1 >= s_VisibiltyThreshold) ) //geteilt durch n_min <--- checken! 
             c += nbr - 1;
         else
             c+=0;
@@ -159,7 +159,7 @@ int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const s
     {
         int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
         int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
-        if( diff >=0 && (sumVisMat.at(distance) /  requiredSensorsPerPoint.at(distance) >= s_PropsMaxCoverage1.thresholdVisibility) )
+        if( diff >=0 && (sumVisMat.at(distance) /  requiredSensorsPerPoint.at(distance) >= s_VisibiltyThreshold) )
         {
             if( requiredSensorsPerPoint.at(distance) == (int)SafetyZone::Priority::PRIO1)
                 sumCoveredPrio1 += diff+1;
@@ -202,7 +202,7 @@ int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const s
 GA::GA(FitnessFunctionType fitness)
 {
     m_NumberOfSensors = calcNumberOfSensors();
-    calcZonePriorities(); //--> maybe do this as free function
+    m_RequiredSensorsPerPoint = calcRequiredSensorsPerPoint();
     m_NumberOfObservationPoints = m_RequiredSensorsPerPoint.size();
     m_NumberOfPrio1Points = std::accumulate(m_RequiredSensorsPerPoint.begin(), m_RequiredSensorsPerPoint.end(), 0, [](int accValue, int currValue)
                                                                                                                     { return (currValue == (int)SafetyZone::Priority::PRIO1 ? accValue +=1 : accValue );});
@@ -243,6 +243,7 @@ GA::GA(FitnessFunctionType fitness)
     ga_obj.solve();
 	
 	std::cout<<"The problem is optimized in "<<timer.toc()<<" seconds."<<std::endl;
+    m_OptimizationTime = timer.toc();
     SP_PROFILE_END_SESSION();
 }
 
@@ -357,21 +358,11 @@ void GA::SO_report_generation(int generation_number,const EA::GenerationType<Sol
         <<"Best Coverage[%]="<<last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.coverage.to_string()<<", "
         <<"Exe_time="<<last_generation.exe_time
     <<std::endl;
-}
 
-
-
-void GA:: calcZonePriorities()
-{
-    for(const auto& zone : DataManager::GetSafetyZones())
-        m_RequiredSensorsPerPoint.insert(m_RequiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
-
-    if(!DataManager::GetUDPSafetyZones().empty())
-    {
-        for(const auto& zone : DataManager::GetUDPSafetyZones())
-            m_RequiredSensorsPerPoint.insert(m_RequiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
-    }
-
+    m_TotalCoverage = last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.coverage.total;
+    m_Prio1Coverage = last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.coverage.prio1;
+    m_Prio2Coverage = last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.coverage.prio2;
+    m_FinalFitness =  last_generation.chromosomes.at(last_generation.best_chromosome_index).middle_costs.objective;
 }
 
 std::vector<Orientation> GA::getFinalOrientations() const

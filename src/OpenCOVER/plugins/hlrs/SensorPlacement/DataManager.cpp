@@ -8,6 +8,8 @@
 #include "DataManager.h"
 #include "Zone.h"
 #include "Sensor.h"
+#include "SensorPlacement.h"
+#include "GA.h"
 
 void setStateSet(osg::StateSet *stateSet)
 {
@@ -219,6 +221,66 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 
 }
 
+void DataManager::visualizeCoverage()
+{
+    std::vector<int> sensorsPerPoint(GetWorldPosOfObervationPoints().size(),0);
+    std::vector<float> sumVisMat(GetWorldPosOfObervationPoints().size(),0.0f);
+
+    for(const auto& sensor : DataManager::GetSensors())
+    {
+        std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sensorsPerPoint.begin(), sensorsPerPoint.begin(),[](float i, int j ) {return (i == 0.0f ? j : j+1);});  // count nbrOf sensors 
+                                                                                              
+        std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients 
+    }
+
+    for(const auto& zone : DataManager::GetSensorZones())
+    {
+        for(const auto& sensor : zone->getSensors())
+        {
+             std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sensorsPerPoint.begin(), sensorsPerPoint.begin(),[](float i, int j ) {return (i == 0.0f ? j : j+1);});  // count nbrOf sensors 
+                                                                                              
+            std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients
+        }
+    }
+
+    std::vector<int> requiredSensorsPerPoint = calcRequiredSensorsPerPoint();
+    std::vector<float> update;
+
+    auto ItsensorsPerPoint = sensorsPerPoint.begin();
+    auto ItRequiredSensors = requiredSensorsPerPoint.begin();
+    while( ItsensorsPerPoint != sensorsPerPoint.end())
+    {
+        int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
+        int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
+
+        if( diff >=0 && (sumVisMat.at(distance) / requiredSensorsPerPoint.at(distance) >= GA::s_VisibiltyThreshold )) 
+            update.push_back(sumVisMat.at(distance));
+        else
+            update.push_back(0.0f);
+
+        // increment iterators
+        if( ItsensorsPerPoint != sensorsPerPoint.end())
+        {
+            ++ItsensorsPerPoint;
+            ++ItRequiredSensors;
+        }
+    }
+
+
+    auto visMat2D = convertVisMatTo2D(update);
+
+    size_t count{0};
+    osg::Vec4 notVisible{0.8,0.0,0,1};
+    osg::Vec4 visible{0.0,0.4,0,1};
+
+    for(const auto& zone : GetSafetyZones())
+    {
+        zone->highlitePoints(visMat2D.at(count),visible, notVisible);
+        count ++;
+    }
+}                                   
+
+
 void DataManager::updateFoV(float fov)
 {
     for(const auto& sensor : GetInstance().m_Sensors)
@@ -290,6 +352,12 @@ void DataManager::setOriginalZoneColor()
 {
     for(const auto& zone : GetSafetyZones())
         zone->setOriginalColor();
+}
+
+void DataManager::setPreviousZoneColor()
+{
+    for(const auto& zone : GetSafetyZones())
+        zone->setPreviousZoneColor();
 }
 
 

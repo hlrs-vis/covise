@@ -201,7 +201,7 @@ bool SensorPosition::preFrame()
         checkForObstacles();
         m_CurrentOrientation.setVisibilityMatrix(calcVisibilityMatrix(euler));
         
-        DataManager::setOriginalZoneColor();
+        DataManager::setPreviousZoneColor();
     }
     return true; 
 }

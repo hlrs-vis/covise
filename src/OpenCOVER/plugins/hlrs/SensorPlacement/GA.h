@@ -53,14 +53,12 @@ struct PropertiesMaxCoverage1
     float weightingFactorPRIO1{2.0f};
     float Penalty{1000.0f};             //Penalty for too few cameras
     //float PenaltyFactorPRIO2{1.0};    //not necessary ?
-    float thresholdVisibility{0.5};     //the sum(all Vismats)/ RequiredSensorsForThisPoint > thresholdVisibility
 };
 
 struct PropertiesMaxCoverage2
 {
     float m_PenaltyConstant;
     float m_RequiredCoverage{0.8};  
-    float m_ThresholdVisibility{0.5};
 };
 
 class GA
@@ -71,6 +69,10 @@ public:
 
     static PropertiesMaxCoverage1 s_PropsMaxCoverage1;
     static PropertiesMaxCoverage2 s_PropsMaxCoverage2;
+    
+    //The visivility Value calculated for an obervation point with calcRangeDistortionFactor * calcWidthDistortionFactor *calcHeightDistortionFactor
+    // must be greater than this threadhold that the point is considered as covered
+    static float s_VisibiltyThreshold;
 
     float m_CrossoverRate{0.7};
     float m_MutationRate{0.3};
@@ -79,6 +81,14 @@ public:
     bool m_DynamicThreading{false};
 
     std::vector<Orientation> getFinalOrientations() const;
+    float getTotalCoverage()const{return m_TotalCoverage;}
+    float getPrio1Coverage()const{return m_Prio1Coverage;}
+    float getPrio2Coverage()const{return m_Prio2Coverage;}
+    double getOptimizationTime()const{return m_OptimizationTime;}
+    double getFinalFitness(){return m_FinalFitness;}
+
+
+
 
 
 private:
@@ -90,6 +100,12 @@ private:
     int m_NumberOfObservationPoints;
     int m_NumberOfPrio1Points;
     std::vector<int> m_RequiredSensorsPerPoint; 
+
+    float m_TotalCoverage;
+    float m_Prio1Coverage;
+    float m_Prio2Coverage;
+    double m_OptimizationTime;
+    double m_FinalFitness;
     
     typedef EA::Genetic<Solution,MiddleCost> GA_Type;
     typedef EA::GenerationType<Solution,MiddleCost> Generation_Type;
@@ -113,6 +129,5 @@ private:
     
     
     const Orientation* getRandomSensor(int sensorPosition ,const std::function<double(void)> &rnd01)const;
-    void calcZonePriorities();
 };
 

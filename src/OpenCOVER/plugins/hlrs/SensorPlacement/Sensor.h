@@ -29,6 +29,7 @@ public:
     Orientation(osg::Matrix matrix,VisibilityMatrix<float>&& visMat);
     Orientation(coCoord euler,VisibilityMatrix<float>&& visMat);
     Orientation(osg::Matrix);
+    Orientation() = default;
     //bool operator >> (const Orientation& other) const;
 
     const osg::Matrix& getMatrix()const{return m_Matrix;}
@@ -46,7 +47,6 @@ private:
 
 };
 
-class SensorVisualization;
 class SensorPosition
 {
 public:
@@ -58,6 +58,8 @@ public:
     
     virtual void updateFoV(float fov) = 0;
     virtual void updateDoF(float dof) = 0;
+    
+
     //virtual const Orientation* getRandomOrientation()const;
     virtual void calcVisibility();
 
@@ -86,6 +88,7 @@ protected:
 
     virtual VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) = 0;
     void checkForObstacles();
+    
     
     const unsigned int m_NodeMask = UINT32_MAX & ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_Interactor; 

@@ -35,6 +35,7 @@ enum class FitnessFunctionType;
 //Free functions
 int calcNumberOfSensors();
 int getSensorInSensorZone(int sensorPos);
+std::vector<int> calcRequiredSensorsPerPoint();
 
 void calcVisibility();
 void optimize(FitnessFunctionType);
