@@ -9,6 +9,9 @@
 PropertiesMaxCoverage1 GA::s_PropsMaxCoverage1;
 PropertiesMaxCoverage2 GA::s_PropsMaxCoverage2;
 float GA::s_VisibiltyThreshold{0.2};
+bool GA::s_UseVisibilityThrsholdInOrientationComparison{false};
+bool GA::s_OnlyKeepOrientationWithMostPoints{true};
+
 
 /*
 1) we have 2 cameras and 2 Prio2 Zones and 1 Prio1 Zone:

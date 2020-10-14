@@ -59,6 +59,7 @@ private:
     ui::Menu *m_Results;
     ui::Label *m_TotalCoverage, *m_Prio1Coverage, *m_Prio2Coverage, *m_Fitness, *m_NbrCameras, *m_NbrControlPoints, *m_OptimizationTime;
     ui::Slider *m_VisibilityThreshold;
+    ui::Button *m_UseVisibiltyThreshold, *m_OnlyKeepOrienatationsWithMostPoints;
     
     //Max Coverage 1
     ui::Menu *m_MaxCoverage1Menu;

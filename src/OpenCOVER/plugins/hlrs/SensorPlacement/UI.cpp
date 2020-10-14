@@ -208,6 +208,22 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
       GA::s_VisibiltyThreshold = value;
    });
 
+   m_UseVisibiltyThreshold = new ui::Button(m_Optimization,"UseVisibilityThreshold");
+   m_UseVisibiltyThreshold->setText("Use Visibility threshold for orientation comparison");
+   m_UseVisibiltyThreshold->setState(GA::s_UseVisibilityThrsholdInOrientationComparison);
+   m_UseVisibiltyThreshold->setCallback([this](bool state)
+   {
+      GA::s_VisibiltyThreshold = state;
+   });
+
+   m_OnlyKeepOrienatationsWithMostPoints = new ui::Button(m_Optimization,"OnlyKeepOrienatationsWithMostPoints");
+   m_OnlyKeepOrienatationsWithMostPoints->setText("Only keep orienatations with most points");
+   m_OnlyKeepOrienatationsWithMostPoints->setState(GA::s_OnlyKeepOrientationWithMostPoints);
+   m_OnlyKeepOrienatationsWithMostPoints->setCallback([this](bool state)
+   {
+      GA::s_OnlyKeepOrientationWithMostPoints = state;
+   });
+
 
    m_MaxCoverage1Menu = new ui::Menu(m_Optimization, "MaxCoverage1");
    m_MaxCoverage1Menu->setText("Max Coverage 1");

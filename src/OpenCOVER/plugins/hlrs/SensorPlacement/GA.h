@@ -73,6 +73,8 @@ public:
     //The visivility Value calculated for an obervation point with calcRangeDistortionFactor * calcWidthDistortionFactor *calcHeightDistortionFactor
     // must be greater than this threadhold that the point is considered as covered
     static float s_VisibiltyThreshold;
+    static bool s_UseVisibilityThrsholdInOrientationComparison;
+    static bool s_OnlyKeepOrientationWithMostPoints;
 
     float m_CrossoverRate{0.7};
     float m_MutationRate{0.3};
