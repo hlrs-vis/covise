@@ -2,6 +2,7 @@
 
 std::unique_ptr<SensorPosition> Factory::createSensor(SensorType sensor, osg::Matrix matrix, bool visible, osg::Vec4 color)
 {
+	
     if(sensor == SensorType::Camera){
         return myHelpers::make_unique<Camera>(matrix, visible, color);
     }

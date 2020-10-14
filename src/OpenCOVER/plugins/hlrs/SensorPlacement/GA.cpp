@@ -212,9 +212,9 @@ GA::GA(FitnessFunctionType fitness)
         m_FitnessFunction = std::bind(&GA::maxCoverage2,this,_1,_2);
 
 	ga_obj.problem_mode = EA::GA_MODE::SOGA;
-    ga_obj.multi_threading = true;
-    ga_obj.idle_delay_us = 1; // switch between threads quickly
-    ga_obj.dynamic_threading = m_DynamicThreading;
+    ga_obj.multi_threading = false;
+    //ga_obj.idle_delay_us = 1; // switch between threads quickly
+    //ga_obj.dynamic_threading = m_DynamicThreading;
     ga_obj.verbose = false;
     ga_obj.population = m_PopulationSize;
     ga_obj.generation_max = m_MaxGeneration;

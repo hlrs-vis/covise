@@ -9,7 +9,7 @@
 #include <cover/ui/Action.h>
 
 #include <cover/coVRPluginSupport.h>
-
+osg::Matrix getPositionInCenterOfCAVE();
 namespace opencover
 {
     namespace ui

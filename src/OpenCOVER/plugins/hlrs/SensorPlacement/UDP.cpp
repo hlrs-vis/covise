@@ -10,12 +10,12 @@
 
 #include <osgDB/ReadFile>
 #include <iostream>
-#ifndef WIN32
+/*#ifndef WIN32
 #include <experimental/filesystem>
 #else
 #include <filesystem>
 #endif
-using namespace opencover;
+*/using namespace opencover;
 
 // void calcAverageMatrix(osg::Matrixf& average, const osg::Matrixf& input)
 // {

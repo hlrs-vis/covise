@@ -40,7 +40,15 @@ void UI::updateOptimizationResults(float total, float prio1, float prio2, double
    m_OptimizationTime->setText("Optimization time: " +soptTime);
 }
 
-
+osg::Matrix getPositionInCenterOfCAVE()
+{
+	osg::Matrix m = osg::Matrix() * cover->getInvBaseMat();
+	m.orthoNormalize(m);
+	//osg::Matrix base = cover->getInvBaseMat();
+	//osg::Matrix result = m * base;
+	//result.orthoNormalize(result);
+	return m;
+}
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 {
    // Main menu-------------------------------------------------------------------------------
@@ -50,7 +58,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddCamera-> setText("Add Camera");
     m_AddCamera-> setCallback([]()
     {
-       DataManager::AddSensor(Factory::createSensor(SensorType::Camera));
+       DataManager::AddSensor(Factory::createSensor(SensorType::Camera,getPositionInCenterOfCAVE()));
     }
     );
 
@@ -58,13 +66,9 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddSafetyZonePrio1-> setText("Add PRIO1 Zone");
     m_AddSafetyZonePrio1-> setCallback([]()
     {
-       osg::Matrix m;
-       m.setTrans(osg::Vec3(0,0,0));
-         m.makeRotate(osg::DegreesToRadians(70.0f), osg::Z_AXIS);
-         m.makeRotate(osg::DegreesToRadians(130.0f), osg::X_AXIS);
 
+       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO1,getPositionInCenterOfCAVE(),10.00,7.0,2.00));
 
-       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO1,m,0.20,0.30,0.02));
     }
     );
 
@@ -72,9 +76,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     m_AddSafetyZonePrio2-> setText("Add PRIO2 Zone");
     m_AddSafetyZonePrio2-> setCallback([]()
     {
-       osg::Matrix m;
-       m.setTrans(osg::Vec3(0,0,0));
-       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO2,m,0.30,0.20,0.02));
+       DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO2,getPositionInCenterOfCAVE(),10.0,7.0,0.5));
     }
     );
 
@@ -84,7 +86,9 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(0,0,0));
-       DataManager::AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.5,0.2,0.02));
+
+       DataManager:: AddSensorZone(Factory::createSensorZone(SensorType::Camera, getPositionInCenterOfCAVE(), 0.5,0.2,0.02));
+
     }
     );
 
@@ -172,7 +176,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
 
    m_Visibility = new ui::Slider(m_CameraProps,"Visibility");
    m_Visibility->setText("Visibility [m]");
-   m_Visibility->setBounds(1.0, 60.0);
+   m_Visibility->setBounds(1.0, 100.0);
    m_Visibility->setValue(Camera::s_CameraProps.m_DepthView);
    m_Visibility->setCallback([](double value, bool released)
    {
