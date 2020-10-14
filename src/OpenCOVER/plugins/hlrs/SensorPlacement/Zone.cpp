@@ -61,7 +61,7 @@ ZoneRectangle::ZoneRectangle(osg::Matrix matrix, float length, float width, floa
     
     float _interSize = cover->getSceneSize() / 50;
 
-    osg::Matrix startPosInterator= osg::Matrix::translate(m_Verts->at(2) *matrix);
+    osg::Matrix startPosInterator= osg::Matrix::translate(m_Verts->at(2)) *matrix;
     m_Interactor= myHelpers::make_unique<coVR3DTransRotInteractor>(startPosInterator, _interSize, vrui::coInteraction::ButtonA, "hand", "Interactor", vrui::coInteraction::Medium);
     m_Interactor->show();
     m_Interactor->enableIntersection();
@@ -83,8 +83,8 @@ ZoneRectangle::ZoneRectangle(osg::Matrix matrix, float length, float width, floa
 
     // m_Distance = findLargestVectorComponent(findLongestSide()) / 5;
     // std::cout << "Constructor:" <<m_Distance <<std::endl;
-    startPosSizeInteractor= (m_Verts->at(2)+pos)*matrix;
-    m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
+    osg::Vec3 startPosDistanceInteractor= (m_Verts->at(2)+pos)*matrix;
+    m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosDistanceInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
     m_DistanceInteractor->show();
     m_DistanceInteractor->enableIntersection();
 

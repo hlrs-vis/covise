@@ -16,16 +16,29 @@ bool UI::m_DeleteStatus{false};
 bool UI::m_showAverageUDPPositions{false};
 bool UI::m_showShortestUDPPositions{true};
 
-// void UI::updateOptimizationResults(float total, float prio1, float prio2, fitness)
-// {
-   // m_TotalCoverage->setText("Total Coverage: "+total+"%");
-   // m_Prio2Coverage->setText("Prio2 Coverage: "+prio2+"%");
-   // m_Prio1Coverage->setText("Prio1 Coverage: "+prio1+"%");
-   // m_Fitness->setText("Fitness: " +);
-   // m_NbrCameras->setText("Cameras: " +);
-   // m_NbrControlPoints->setText("Control points: " +);
-   // m_OptimizationTime->setText("Optimization time: " +);
-// }
+void UI::updateOptimizationResults(float total, float prio1, float prio2, double fitness, double optTime)
+{
+   std::stringstream s1,s2,s3,s4,s5;
+   s1 << std::fixed << std::setprecision(1) << total;
+   s2 << std::fixed << std::setprecision(1) << prio1;
+   s3 << std::fixed << std::setprecision(1) << prio2;
+   s4 << std::fixed << std::setprecision(1) << fitness;
+   s5 << std::fixed << std::setprecision(1) << optTime;
+
+
+   std::string stotal = s1.str();
+   std::string sprio1 = s2.str();
+   std::string sprio2 = s3.str();
+   std::string sfitness = s4.str();
+   std::string soptTime = s5.str();
+
+
+   m_TotalCoverage->setText("Total Coverage: "+stotal+"%");
+   m_Prio2Coverage->setText("Prio2 Coverage: "+sprio2+"%");
+   m_Prio1Coverage->setText("Prio1 Coverage: "+sprio1+"%");
+   m_Fitness->setText("Fitness: " +sfitness);
+   m_OptimizationTime->setText("Optimization time: " +soptTime);
+}
 
 
 UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
@@ -47,6 +60,10 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(0,0,0));
+         m.makeRotate(osg::DegreesToRadians(70.0f), osg::Z_AXIS);
+         m.makeRotate(osg::DegreesToRadians(130.0f), osg::X_AXIS);
+
+
        DataManager::AddSafetyZone(Factory::createSafetyZone(SafetyZone::Priority::PRIO1,m,0.20,0.30,0.02));
     }
     );
@@ -67,7 +84,7 @@ UI::UI() : ui::Owner("SensorPlacementUI", cover->ui)
     {
        osg::Matrix m;
        m.setTrans(osg::Vec3(0,0,0));
-       DataManager:: AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.5,0.2,0.02));
+       DataManager::AddSensorZone(Factory::createSensorZone(SensorType::Camera, m, 0.5,0.2,0.02));
     }
     );
 

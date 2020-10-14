@@ -51,8 +51,8 @@ public:
   void preFrame() override;
   bool destroy() override;
 
+  static std::unique_ptr<UI> s_UI;
 
 private:
-  std::unique_ptr<UI> m_UI;
   std::unique_ptr<UDP> m_udp;
 };

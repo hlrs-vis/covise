@@ -13,6 +13,7 @@
 #include "GA.h"
 
 using namespace opencover;
+std::unique_ptr<UI>SensorPlacementPlugin::s_UI = myHelpers::make_unique<UI>();
 
 int calcNumberOfSensors()
 {
@@ -87,12 +88,7 @@ void optimize(FitnessFunctionType fitnessFunction)
   // {
     auto ga(myHelpers::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
-    // ga->getTotalCoverage();
-    // ga->getPrio1Coverage();
-    // ga->getPrio2Coverage();
-    // ga->getFinalFitness();
-    // ga->getOptimizationTime();
-    //UI::updateOptimizationResults()
+    SensorPlacementPlugin::s_UI->updateOptimizationResults(ga->getTotalCoverage(), ga->getPrio1Coverage(),  ga->getPrio2Coverage(), ga->getFinalFitness(), ga->getOptimizationTime()  );
   // }
   // else if(!coVRMSController::instance()->isMaster())
     // finalSensorOrientations.resize(calcNumberOfSensors());
@@ -123,7 +119,7 @@ std::vector<int> calcRequiredSensorsPerPoint()
 SensorPlacementPlugin::SensorPlacementPlugin()
 {
   DataManager::GetInstance(); //Create Instance of Singleton
-  m_UI = myHelpers::make_unique<UI>();
+  //m_UI = myHelpers::make_unique<UI>();
   
   #if SHOW_UDP_LIVE_OBJECTS
     m_udp = myHelpers::make_unique<UDP>();

@@ -34,7 +34,7 @@ public:
     static bool m_showAverageUDPPositions;
     static bool m_showShortestUDPPositions;
 
-    //void updateOptimizationResults(float total, float prio1, float prio2);
+    void updateOptimizationResults(float total, float prio1, float prio2, double fitness, double optTime);
    
 private:
     //Main Menu
