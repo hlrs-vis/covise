@@ -313,6 +313,8 @@ public:
 				updateWidthItemValue();
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
+				updateColor();
+
             }
 
             if (changes & LaneWidth::CLW_GradientChanged)
@@ -345,6 +347,7 @@ public:
 				updateWidthItemValue();
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
+				updateColor();
             }
         }
 

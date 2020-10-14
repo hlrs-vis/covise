@@ -99,6 +99,7 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     , shapeItem_(NULL)
     , additionalSelection_(false)
 	, paramToolAdditionalSelection_(false)
+	, lastMouseEvent_(NULL)
 {
     // ScenerySystem //
     //
@@ -1143,6 +1144,11 @@ GraphView::mousePressEvent(QMouseEvent *event)
 
 			if (item)
 			{
+				if (event != lastMouseEvent_)  // Remember Event in case tab is pressed
+				{
+					lastMouseEvent_ = new QMouseEvent(event->type(), event->localPos(), event->windowPos(), event->screenPos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
+				}
+
 				QGraphicsView::mousePressEvent(event); // pass to baseclass
 			}
 			else
@@ -1426,6 +1432,7 @@ GraphView::wheelEvent(QWheelEvent *event)
 void
 GraphView::keyPressEvent(QKeyEvent *event)
 {
+
     // TODO: This will not notice a key pressed, when the view is not active
     switch (event->key())
     {
@@ -1476,15 +1483,17 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
-    /*switch (event->key())
-    {
+	switch (event->key())
+	{
+	case Qt::Key_Tab:
+	{
+		QGraphicsView::mousePressEvent(lastMouseEvent_); // pass it again to baseclass
+		break;
+	}
 
-    default:
-        QGraphicsView::keyReleaseEvent(event);
-    }
-    default:*/
-        QGraphicsView::keyReleaseEvent(event);
-    //}
+	default:
+		QGraphicsView::keyReleaseEvent(event);
+	}
 }
 
 void

@@ -22,6 +22,7 @@
 #include "src/graph/items/handles/texthandle.hpp"
 #include "src/graph/items/handles/editablehandle.hpp"
 
+
 //################//
 // CONSTRUCTOR    //
 //################//
@@ -31,7 +32,6 @@ BaseLaneMoveHandle::BaseLaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *pa
 		// Editor //
 		//
 		laneEditor_ = laneEditor;
-
 
 		// ContextMenu //
 		//
@@ -67,6 +67,18 @@ BaseLaneMoveHandle::updateWidthItemValue()
 void
 BaseLaneMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	if (event->source() == Qt::MouseEventSynthesizedByApplication)
+	{
+		if (lastMousePos_ == event->pos())
+		{
+			event->ignore();
+			return;
+		}
+	}
+
+	lastMousePos_ = event->pos();
+
+
 	if (event->button() == Qt::LeftButton)
 	{
 /*		ODD::ToolId tool = laneEditor_->getCurrentTool();
@@ -143,6 +155,7 @@ BaseLaneMoveHandle::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	getContextMenu()->exec(event->screenPos());
 	laneEditor_->getProjectGraph()->finishGarbageDisposal();
 }
+
 
 QVariant
 BaseLaneMoveHandle::itemChange(GraphicsItemChange change, const QVariant &value)

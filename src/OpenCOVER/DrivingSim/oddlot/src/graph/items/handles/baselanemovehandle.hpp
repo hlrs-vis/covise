@@ -72,6 +72,7 @@ protected:
 	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+
 	virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 
@@ -94,6 +95,8 @@ private:
 	QAction *cornerAction_;
 
 	EditableHandle *widthItem_;
+
+	QPointF lastMousePos_;
 
 };
 
