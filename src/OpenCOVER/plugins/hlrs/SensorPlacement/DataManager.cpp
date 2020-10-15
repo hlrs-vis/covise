@@ -301,8 +301,7 @@ void DataManager::updateDoF(float dof)
 void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
 {
     auto size =  GetInstance().m_Sensors.size();
-    size_t incrementor{0}; 
-    for(incrementor; incrementor< size; incrementor++)
+    for(size_t incrementor = 0; incrementor < size; incrementor++)
         GetInstance().m_Sensors.at(incrementor)->setCurrentOrientation(orientations.at(incrementor));
 
     for(const auto& zone : GetInstance().m_SensorZones)

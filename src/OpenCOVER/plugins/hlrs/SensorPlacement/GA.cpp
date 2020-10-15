@@ -400,7 +400,9 @@ Orientation* SensorPool::getRandomOrientation(int pos, const std::function<doubl
         //std::cout <<"Sensor Pos:"<<pos <<"Orientations Pos: "<<randomOrientation <<std::endl;
     }
     else
+    {
         //std::cout << "No sensor at this position available" << std::endl;
+    }
 
     return result;
 }
