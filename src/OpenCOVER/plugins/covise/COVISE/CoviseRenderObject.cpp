@@ -1248,7 +1248,7 @@ RenderObject **CoviseRenderObject::getAllElements(int &numElements, std::vector<
             for (i = 0; i < numElements; i++)
             {
                 //std::cerr << "CoviseRenderObject::getAllElements info: sending " << numElements << " elements";
-                if (unassigned)
+                if (unassigned || i>=assignments.size())
                 {
                     CoviseRenderObject *cobj = new CoviseRenderObject(dobjs[i]);
                     assignments.push_back(cobj->getAssignment());
@@ -1265,7 +1265,7 @@ RenderObject **CoviseRenderObject::getAllElements(int &numElements, std::vector<
             for (i = 0; i < numElements; i++)
             {
                 //std::cerr << "CoviseRenderObject::getAllElements info: receiving " << numElements << " elements";
-                if (unassigned)
+                if (unassigned || i >= assignments.size())
                 {
                     CoviseRenderObject *cobj = new CoviseRenderObject((const coDistributedObject *)0);
                     assignments.push_back(cobj->getAssignment());
