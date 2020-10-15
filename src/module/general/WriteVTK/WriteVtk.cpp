@@ -18,6 +18,7 @@
 #include <vtkDataSet.h>
 #include <vtkInformation.h>
 #include <vtkMultiPieceDataSet.h>
+#include <vtkVersion.h>
 #include <do/coDoGeometry.h>
 #include <do/coDoPixelImage.h>
 #include <do/coDoTexture.h>

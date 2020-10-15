@@ -32,6 +32,7 @@
 #include <vtkMultiBlockDataSet.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h> 
+#include <vtkVersion.h>
 #if VTK_MAJOR_VERSION < 5
 #include <vtkIdType.h>
 #endif
