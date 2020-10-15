@@ -230,7 +230,7 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 				int			col = 0;
 				int			row = 0;
 				Point point;
-				while (size = dataReader.read())
+				while ((size = dataReader.read()))
 				{
 					for (unsigned int i = 0; i < size; i++)
 					{

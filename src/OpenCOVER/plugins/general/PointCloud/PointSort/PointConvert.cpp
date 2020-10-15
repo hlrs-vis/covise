@@ -509,7 +509,7 @@ void ReadE57(char *filename, std::vector<Point> &vec)
 		int			row = 0;
 
 		Point point;
-		while (size = dataReader.read())
+		while ((size = dataReader.read()))
 		{
 			for (unsigned int i = 0; i < size; i++)
 			{
