@@ -158,6 +158,7 @@ int GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const s
             ++ItRequiredSensors;
         }
     }
+    return sumCoveredPrio1;
 }
 
 // float GA::sumOfCoveredPrio1Points(const std::vector<int>& sensorsPerPoint, const std::vector<int>& requiredSensorsPerPoint, const std::vector<float>& sumVisMat) const
