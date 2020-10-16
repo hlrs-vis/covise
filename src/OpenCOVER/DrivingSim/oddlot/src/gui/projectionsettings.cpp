@@ -216,13 +216,18 @@ void ProjectionSettings::update()
     if(projectData_->getGeoReference() == nullptr) {
         ui->presetBox->setCurrentIndex(1);
     }
-    else
-    {
-        //ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
-        ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(),0));
-        ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(),0));
-        updateUi();
-    }
+	else if (projectData_->getProj4ReferenceTo() && projectData_->getProj4ReferenceFrom())
+	{
+		//ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+		ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(), 0));
+		ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(), 0));
+		updateUi();
+	}
+	else
+	{
+		ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+		updateUi();
+	}
 }
 
 void ProjectionSettings::setProjectData(ProjectData *pd)
@@ -256,11 +261,16 @@ void ProjectionSettings::updateSettings()
     XOffset = ui->XOffsetSpin->value();
     YOffset = ui->YOffsetSpin->value();
     ZOffset = ui->ZOffsetSpin->value();
+    if (projFrom.size() == 0) // can't be empty, use a reasonable default:
+    {
+        projFrom = "+proj=longlat +datum=WGS84";
+        ui->SourceEdit->setText(projFrom);
+    }
 
     new_pj_from = pj_init_plus((projFrom).toUtf8().constData());
     if(!(new_pj_from))
     {
-        msg.setText("RoadSystem::parseIntermapRoad(): couldn't initialize projection source: " + projFrom);
+        msg.setText("ProjectionSettings::updateSettings(): couldn't initialize projection source: " + projFrom);
         msg.exec();
     }
     else
@@ -269,7 +279,7 @@ void ProjectionSettings::updateSettings()
         projectData_->setProj4ReferenceFrom(new_pj_from);
         if(!(new_pj_to))
         {
-            msg.setText("RoadSystem::parseIntermapRoad(): couldn't initialize projection target: " + projTo);
+            msg.setText("ProjectionSettings::updateSettings(): couldn't initialize projection target: " + projTo);
             msg.exec();
         }
         else

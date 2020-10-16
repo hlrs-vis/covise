@@ -474,6 +474,15 @@ static bool isPrivateAddress(const unsigned char address[4])
     return false;
 }
 
+static bool isLinkLocalAddress(const unsigned char address[4])
+{
+    // RFC 3927
+    if (address[0] == 169 && address[1] == 254)
+        return true;
+
+    return false;
+}
+
 static bool isMulticastAddress(const unsigned char address[4])
 {
     if ((address[0] & 0xf0) == 224)
@@ -494,6 +503,9 @@ static bool isRoutableAddress(const unsigned char address[4])
         return false;
 
     if (isPrivateAddress(address))
+        return false;
+
+    if (isLinkLocalAddress(address))
         return false;
 
     if (isLoopbackAddress(address))

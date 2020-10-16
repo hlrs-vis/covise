@@ -1996,7 +1996,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
         it++;
     }
 
-    coDistributedObject **objects = new coDistributedObject *[numActiveSetEle + 1];
+    coDistributedObject **objects = new coDistributedObject *[thePl.size() + 1];
     it = thePl.begin();
 
     bool scalarData = ((dcIn.y == NULL) && (dcIn.z == NULL));

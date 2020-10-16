@@ -44,7 +44,7 @@ class InsertLaneCommand : public DataCommand
 {
 
 public:
-    explicit InsertLaneCommand(LaneSection *laneSection, Lane *lane, DataCommand *parent = NULL);
+    explicit InsertLaneCommand(LaneSection *laneSection, Lane *newLane, Lane *lane = NULL, DataCommand *parent = NULL);
     virtual ~InsertLaneCommand();
 
     virtual int id() const
@@ -62,7 +62,7 @@ private:
 
 private:
     LaneSection *laneSection_;
-    Lane *newLane_;
+    Lane *newLane_, *lane_;
 
     int id_;
 };
@@ -95,6 +95,9 @@ private:
     Lane *oldLane_;
 
     int id_;
+
+	Lane *rightmostLane_;
+	Lane *leftmostLane_;
 };
 
 //################//
@@ -654,7 +657,7 @@ public:
 		LaneMoveProperties *props = new LaneMoveProperties();
 		props->lowSlot = low;
 		props->highSlot = high;
-		QMap<double, LaneMoveProperties *> propsMap;
+		QMultiMap<double, LaneMoveProperties *> propsMap;
 		propsMap.insert(low->getSSectionStartAbs(), props);
 
 		LaneSection *parentLaneSection = parentLane_->getParentLaneSection();
@@ -766,7 +769,7 @@ public:
 		}
 		else
 		{
-			QMap<double, WidthPoints *> *newPoints = new QMap<double, WidthPoints* >();;
+			QMultiMap<double, WidthPoints *> *newPoints = new QMultiMap<double, WidthPoints* >();;
 			newPoints->insert(oldHigh_->getSSectionStartAbs(), oldPoints_);
 			pointList_.append(newPoints);
 		}
@@ -785,7 +788,7 @@ private:
 	U *oldHigh_;
 	RSystemElementRoad *road_;
 	QList<Lane *> lanes_;
-	QList<QMap<double, WidthPoints*> *> pointList_;
+	QList<QMultiMap<double, WidthPoints*> *> pointList_;
 	
 	int indexLow_, indexHigh_;
 	WidthPoints* oldPoints_;
@@ -853,7 +856,7 @@ class TranslateLaneBorderCommand : public DataCommand
 {
 
 public:
-	explicit TranslateLaneBorderCommand(const QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> &selectedLaneBorders, double width, const QPointF &dPos, DataCommand *parent = NULL);
+	explicit TranslateLaneBorderCommand(const QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> &selectedLaneBorders, double width, const QPointF &dPos, DataCommand *parent = NULL);
 	virtual ~TranslateLaneBorderCommand();
 
 	virtual int id() const
@@ -871,12 +874,12 @@ private:
 
 
 private:
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneBorders_;
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneBorders_;
 	QPointF dPos_;
 	double width_;
 
-	QMap<RSystemElementRoad *, QList<QMap<double, WidthPoints*> *>> oldPointList_;
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> newPropsMap_;
+	QMap<RSystemElementRoad *, QList<QMultiMap<double, WidthPoints*> *>> oldPointList_;
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> newPropsMap_;
 	QMap<RSystemElementRoad *, QList<Lane *>> lanes_;
 };
 

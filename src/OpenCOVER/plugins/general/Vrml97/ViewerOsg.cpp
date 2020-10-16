@@ -72,6 +72,7 @@ static const int NUM_TEXUNITS = 4;
 #include <osg/Shader>
 #include <osg/Point>
 #include <osg/ImageStream>
+#include <osg/PolygonOffset>
 
 #include <osgDB/ReadFile>
 #include <osgDB/Registry>
@@ -3385,9 +3386,22 @@ void ViewerOsg::setModesByName(const char *objectName)
                     stateset->setNestRenderBins(false);
                     if (strncmp(name, "coDontMirror", 12) == 0)
                     {
-                        pGeode->setNodeMask(pGeode->getNodeMask() & (~Isect::NoMirror));
-                    }
-                    if (strncmp(name, "coMirror", 8) == 0)
+						pGeode->setNodeMask(pGeode->getNodeMask() & (~Isect::NoMirror));
+					}
+					else if (strncmp(name, "coPolygonOffset", 15) == 0)
+					{
+						osg::StateSet* stateset;
+						stateset = drawable->getOrCreateStateSet();
+						float units=1.0;
+                        float factor = 1.0;
+                        sscanf(name, "coPolygonOffset_%f_%f", &factor,&units);
+						osg::PolygonOffset* po = new osg::PolygonOffset();
+						po->setFactor(0);
+                        po->setUnits(units);
+						stateset->setAttributeAndModes(po, osg::StateAttribute::ON);
+                        fprintf(stderr, "po %f %f\n", factor, units);
+					}
+                    else if (strncmp(name, "coMirror", 8) == 0)
                     {
 
                         pGeode->setNodeMask(pGeode->getNodeMask() & (~Isect::NoMirror));

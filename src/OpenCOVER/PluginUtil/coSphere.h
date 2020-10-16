@@ -55,13 +55,16 @@ public:
     void setRenderMethod(RenderMethod rm);
     void setNumberOfSpheres(int n);
     void updateCoords(const float *x_c, const float *y_c, const float *z_c);
+    void updateCoords(const double *x_c, const double *y_c, const double *z_c);
     void updateCoordsFromMatrices(float *const *matrices);
     void updateCoords(int i, const osg::Vec3 &pos);
     void setCoords(int no_of_points, const float *x, const float *y, const float *z, const float *r);
+    void setCoords(int no_of_points, const double *x, const double *y, const double *z, const double *r);
     void setCoords(int no_of_points, const float *x, const float *y, const float *z, float r=1.f);
     void setCoords(int no_of_points, const osg::Vec3Array* coords, const float *r);
     void updateRadii(const float *r);
     void updateRadii(const double *r);
+    void updateRadii(double r);
     void updateNormals(const float *nx, const float *ny, const float *nz);
     void setColorBinding(int colorbinding);
     void setColor(int index, float r, float g, float b, float a);

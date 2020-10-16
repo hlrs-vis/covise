@@ -177,6 +177,7 @@ private:
     bool doPan_;
     bool doKeyPan_;
 	bool select_;
+	QMouseEvent *lastMouseEvent_;
 
     BoundingBoxStatusId doBoxSelect_;
     CircleStatusId doCircleSelect_;

@@ -363,6 +363,7 @@ SET(VRML_HEADERS
   VrmlSFVec2f.h
   VrmlSFVec3d.h
   VrmlSFVec3f.h
+  VrmlSFMatrix.h
 )
 
 

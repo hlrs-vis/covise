@@ -3,6 +3,7 @@
 #include "UI.h"
 #include "DataManager.h"
 #include "Profiling.h"
+#include "GA.h"
 
 #include <osg/Geometry>
 #include <numeric>
@@ -55,7 +56,7 @@ std::vector<osg::Vec3> Vec2DimToVec(std::vector<std::vector<osg::Vec3>> input)
 
 };
 */
-Orientation::Orientation(osg::Matrix matrix):m_Matrix(matrix)
+Orientation::Orientation(osg::Matrix matrix):m_Matrix(matrix),m_Euler(matrix)
 {
 }
 Orientation::Orientation(osg::Matrix matrix,VisibilityMatrix<float>&& visMat):m_Matrix(matrix),m_Euler(matrix),m_VisibilityMatrix(visMat)
@@ -173,8 +174,7 @@ void SensorPosition::setMatrix(osg::Matrix matrix)
 void SensorPosition::setCurrentOrientation(Orientation orientation)
 {
     m_CurrentOrientation = orientation;
-    //Missing update Interactor !!! not possible here? 
-    m_SensorMatrix->setMatrix(orientation.getMatrix());
+    setMatrix(orientation.getMatrix());
 }
 
 bool SensorPosition::preFrame()
@@ -183,6 +183,9 @@ bool SensorPosition::preFrame()
     {   
         if(UI::m_DeleteStatus)
             return false;
+        
+        calcVisibility();
+        DataManager::highlitePoints(m_CurrentOrientation.getVisibilityMatrix());
     }
     else if(m_Interactor->isRunning())
     {
@@ -199,7 +202,7 @@ bool SensorPosition::preFrame()
         checkForObstacles();
         m_CurrentOrientation.setVisibilityMatrix(calcVisibilityMatrix(euler));
         
-        //DataManager::highlitePoints(m_Sensor->getVisibilityMatrix());
+        DataManager::setPreviousZoneColor();
     }
     return true; 
 }
@@ -258,6 +261,8 @@ void SensorPosition::VisualizationVisible(bool status)const
     
 }
 
+SensorWithMultipleOrientations::SensorProps SensorWithMultipleOrientations::s_SensorProps{};
+
 SensorWithMultipleOrientations::SensorWithMultipleOrientations(osg::Matrix matrix):SensorPosition(matrix)
 {
     m_OrientationsGroup = new osg::Group();
@@ -273,8 +278,8 @@ bool SensorWithMultipleOrientations::preFrame()
 
     if(m_Interactor->wasStopped())
     {   
-        if(UI::m_showOrientations)
-            createSensorOrientations();
+        if(s_SensorProps.getVisualizeOrientations())
+            createSensorOrientations(s_SensorProps.getRotX(), s_SensorProps.getRotY(), s_SensorProps.getRotZ());
         
         SP_PROFILE_END_SESSION();
     }
@@ -285,7 +290,7 @@ bool SensorWithMultipleOrientations::preFrame()
 void SensorWithMultipleOrientations::calcVisibility()
 {
     SensorPosition::calcVisibility();
-    createSensorOrientations();
+    createSensorOrientations(s_SensorProps.getRotX(), s_SensorProps.getRotY(), s_SensorProps.getRotZ());
 }
 
 // const Orientation* SensorWithMultipleOrientations::getRandomOrientation()const
@@ -294,35 +299,123 @@ void SensorWithMultipleOrientations::calcVisibility()
 //     return &m_Orientations.at(0);
 // }
 
-void SensorWithMultipleOrientations::createSensorOrientations()
+void SensorWithMultipleOrientations::createSensorOrientations(bool x, bool y, bool z)
 {
     SP_PROFILE_FUNCTION();
-
     deleteSensorOrientations();
     //m_Orientations.reserve(); // sinnvoll weil kann auch nur eine übrig bleiben? 
     osg::Vec3 pos = m_CurrentOrientation.getMatrix().getTrans();
     osg::Matrix matrix = osg::Matrix::translate(pos);
     coCoord euler = matrix;
 
-    size_t rotz{0},rotx{0},roty{0};
-    while(rotz < 360/m_SensorProps.m_StepSizeZ ) // z rotation
-    {
-        while(rotx < 180/m_SensorProps.m_StepSizeX) // x rotation
+    if(x && !y && !z)
+    { 
+        size_t rotx{0};
+        while(rotx < 180/s_SensorProps.getStepSizeX()) // x rotation
         {
-            while(roty < 360/m_SensorProps.m_StepSizeY) // y rotation
+            decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
+            euler.hpr[1] += s_SensorProps.getStepSizeX();
+            rotx++;
+
+        }
+    }
+    else if(!x && y && !z)
+    {
+        size_t roty{0};
+        while(roty < 360/s_SensorProps.getStepSizeY()) // y rotation
+        {
+            decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
+            euler.hpr[2] += s_SensorProps.getStepSizeY();
+            roty++;
+        }
+    }
+    else if(!x && !y && z)
+    {
+        size_t rotz{0};
+        while(rotz < 360/s_SensorProps.getStepSizeZ()) // z rotation
+        {
+            decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
+            euler.hpr[0] += s_SensorProps.getStepSizeZ();
+            rotz++;
+        }
+    }
+    else if( x && y && !z)
+    {
+        size_t rotx{0}, roty{0};
+        while(rotx < 360/s_SensorProps.getStepSizeX()) // x rotation           // check if 360 is correct
+        {
+            while(roty < 360/s_SensorProps.getStepSizeY()) // y rotation       // check if 360 is correct
             {
                 decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
-                euler.hpr[2] += m_SensorProps.m_StepSizeY;
+                euler.hpr[2] += s_SensorProps.getStepSizeY();
                 roty++;
             }
-            euler.hpr[1] += m_SensorProps.m_StepSizeX;
+            euler.hpr[2] = 0;
+            euler.hpr[1] += s_SensorProps.getStepSizeX();
             roty = 0;
             rotx++;
         }
-        euler.hpr[0] += m_SensorProps.m_StepSizeZ;
-        rotx = 0;
-        rotz++;
     }
+    else if( x && !y && z)
+    {
+        size_t rotx{0}, rotz{0};
+
+        while(rotz < 360/s_SensorProps.getStepSizeZ() ) // z rotation
+        {
+            while(rotx < 90/s_SensorProps.getStepSizeX()) // x rotation
+            {
+                decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
+                euler.hpr[1] += s_SensorProps.getStepSizeX(); 
+                rotx++;
+            }
+            euler.hpr[1] = 0;
+            euler.hpr[0] += s_SensorProps.getStepSizeZ();
+            rotx = 0;
+            rotz++;
+        }
+    }
+    else if(!x && y && z)
+    {
+        size_t roty{0}, rotz{0};
+        while(rotz < 360/s_SensorProps.getStepSizeZ() ) // z rotation
+        {
+            while(roty < 360/s_SensorProps.getStepSizeY()) // y rotation
+            {
+                decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
+                euler.hpr[2] += s_SensorProps.getStepSizeY(); 
+                roty++;
+            }
+            euler.hpr[2] = 0;
+            euler.hpr[0] += s_SensorProps.getStepSizeZ();
+            roty = 0;
+            rotz++;
+        }
+    }
+    else if(x && y && z)  
+    {
+        size_t rotx{0}, roty{0}, rotz{0};
+
+        while(rotz < 360/s_SensorProps.getStepSizeZ() ) // z rotation
+        {
+            while(rotx < 180/s_SensorProps.getStepSizeX()) // x rotation
+            {
+                while(roty < 360/s_SensorProps.getStepSizeY()) // y rotation
+                {
+                    decideWhichOrientationsAreRequired(Orientation{euler,calcVisibilityMatrix(euler)});
+                    euler.hpr[2] += s_SensorProps.getStepSizeY();
+                    roty++;
+                }
+                euler.hpr[2] = 0;
+                euler.hpr[1] += s_SensorProps.getStepSizeX();
+                roty = 0;
+                rotx++;
+            }
+            euler.hpr[1] = 0;
+            euler.hpr[0] += s_SensorProps.getStepSizeZ();
+            rotx = 0;
+            rotz++;
+        }
+    }      
 }
 
 void SensorWithMultipleOrientations::deleteSensorOrientations()
@@ -332,10 +425,10 @@ void SensorWithMultipleOrientations::deleteSensorOrientations()
 }
 
 
-void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
-{
-    SensorPosition::setMatrix(matrix);
-};
+//void SensorWithMultipleOrientations::setMatrix(osg::Matrix matrix)
+//{
+//    SensorPosition::setMatrix(matrix);
+//};
 
 void SensorWithMultipleOrientations::decideWhichOrientationsAreRequired(const Orientation&& orientation)
 {
@@ -393,6 +486,12 @@ void SensorWithMultipleOrientations::replaceOrientationWithLastElement(int index
 bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs, const Orientation& rhs)
 {
     SP_PROFILE_FUNCTION();
+    
+    float visibiltyThreshold;
+    if(GA::s_UseVisibilityThrsholdInOrientationComparison)
+        visibiltyThreshold = GA::s_VisibiltyThreshold;
+    else
+        visibiltyThreshold = 0.0;
 
     size_t onlyVisibleForLhsSensor{0}, onlyVisibleForRhsSensor{0};
 
@@ -403,9 +502,9 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
     {
         while(ItLhsSensor != lhs.getVisibilityMatrix().end() || ItRhsSensor != rhs.getVisibilityMatrix().end() )
         {
-            if(*ItLhsSensor > 0 && *ItRhsSensor == 0)
+            if(*ItLhsSensor > visibiltyThreshold && *ItRhsSensor == 0)
                 ++onlyVisibleForLhsSensor;
-            if(*ItLhsSensor == 0 && *ItRhsSensor > 0)
+            if(*ItLhsSensor == 0 && *ItRhsSensor > visibiltyThreshold)
                 ++onlyVisibleForRhsSensor;
 
             if((onlyVisibleForLhsSensor && onlyVisibleForRhsSensor) !=0) 
@@ -419,13 +518,31 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
             }
         }
     }
-
-    if(onlyVisibleForLhsSensor != 0 && onlyVisibleForRhsSensor == 0) // Lhs sensor can see points, which Rhs can't see
-        return true;
-    else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor != 0) // Rhs sensor can see points, which Lhs can't see
-        return false; 
-    else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor == 0) // both sensors see exactly the same points --> check other Sensor characteristics
+    if(GA::s_OnlyKeepOrientationWithMostPoints)
     {
+        if(onlyVisibleForLhsSensor != 0 && onlyVisibleForRhsSensor == 0) // Lhs sensor can see points, which Rhs can't see
+            return true;
+        else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor != 0) // Rhs sensor can see points, which Lhs can't see
+            return false; 
+        else if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor == 0) // both sensors see exactly the same points --> check other Sensor characteristics
+        {
+            //TODO: prefere no Rotation around own axis !
+            //TODO: Lhs is specific to sensor Type ????? 
+
+            //both sensors see exactly the same points -> check Rhs Sensor characteristics
+            double coefficientsLhs = std::accumulate(lhs.getVisibilityMatrix().begin(),lhs.getVisibilityMatrix().end(),0.0);
+            double coefficientRhs = std::accumulate(rhs.getVisibilityMatrix().begin(),rhs.getVisibilityMatrix().end(),0.0);
+            if(coefficientRhs > coefficientsLhs)
+                return false;
+            else
+                return true;  
+        }
+        return false;
+    }
+    else
+    {
+        if(onlyVisibleForLhsSensor == 0 && onlyVisibleForRhsSensor == 0) // both sensors see exactly the same points --> check other Sensor characteristics
+        {
         //TODO: prefere no Rotation around own axis !
         //TODO: Lhs is specific to sensor Type ????? 
 
@@ -436,10 +553,13 @@ bool SensorWithMultipleOrientations::compareOrientations(const Orientation& lhs,
             return false;
         else
             return true;  
+        }
+        else 
+            return false; //--> keep both
     }
-    return false;
 
 }
+
 
 
 

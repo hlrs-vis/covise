@@ -96,7 +96,11 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="SourceEdit"/>
+         <widget class="QLineEdit" name="SourceEdit">
+          <property name="text">
+            <string>+proj=longlat +datum=WGS84</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

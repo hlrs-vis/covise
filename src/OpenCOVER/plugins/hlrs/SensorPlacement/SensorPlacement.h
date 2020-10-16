@@ -27,16 +27,18 @@
 #include <cover/coVRPluginSupport.h>
 #include "UDP.h"
 
-#define SHOW_UDP_LIVE_OBJECTS 1 // if 1 use udp to visualize livedata
+#define SHOW_UDP_LIVE_OBJECTS 0 // if 1 use udp to visualize livedata
 
 class Orientation;
 enum class FitnessFunctionType;
 
 //Free functions
 int calcNumberOfSensors();
+int getSensorInSensorZone(int sensorPos);
+std::vector<int> calcRequiredSensorsPerPoint();
+
 void calcVisibility();
 void optimize(FitnessFunctionType);
-void updateAllSensors(std::vector<Orientation>);
 
 class UI;
 class SensorPlacementPlugin :public opencover::coVRPlugin 
@@ -49,8 +51,8 @@ public:
   void preFrame() override;
   bool destroy() override;
 
+  static std::unique_ptr<UI> s_UI;
 
 private:
-  std::unique_ptr<UI> m_UI;
   std::unique_ptr<UDP> m_udp;
 };

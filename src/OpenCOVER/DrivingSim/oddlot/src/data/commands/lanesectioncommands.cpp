@@ -32,10 +32,11 @@
 // InsertLaneCommand //
 //###########################//
 
-InsertLaneCommand::InsertLaneCommand(LaneSection *laneSection, Lane *lane, DataCommand *parent)
+InsertLaneCommand::InsertLaneCommand(LaneSection *laneSection, Lane *newLane, Lane *lane, DataCommand *parent)
     : DataCommand(parent)
     , laneSection_(laneSection)
-    , newLane_(lane)
+	, lane_(lane)
+    , newLane_(newLane)
 {
     // Check for validity //
     //
@@ -69,6 +70,195 @@ InsertLaneCommand::~InsertLaneCommand()
 void
 InsertLaneCommand::redo()
 {
+	if (lane_)  // inherit lane linkage from lane_
+	{
+		newLane_->setPredecessor(lane_->getPredecessor());
+		newLane_->setSuccessor(lane_->getSuccessor());
+
+		int laneId = newLane_->getId();
+
+		int rightmostId = laneSection_->getRightmostLaneId();
+		Lane *rightmostLane = laneSection_->getLane(rightmostId);
+		int leftmostId = laneSection_->getLeftmostLaneId();
+		Lane *leftmostLane = laneSection_->getLane(leftmostId);
+
+		if (laneId < 0) // Lane Linkage
+		{
+			for (int i = laneId; i > laneSection_->getRightmostLaneId(); i--)
+			{
+				Lane *lane = laneSection_->getLane(i);
+				Lane *nextLane = laneSection_->getLane(i - 1);
+				if (lane && nextLane)
+				{
+					lane->setPredecessor(nextLane->getPredecessor());
+					lane->setSuccessor(nextLane->getSuccessor());
+				}
+			}
+			rightmostLane->setPredecessor(-99);
+			rightmostLane->setSuccessor(-99);
+			rightmostId--;
+		}
+		else
+		{
+			for (int i = laneId; i < laneSection_->getLeftmostLaneId(); i++)
+			{
+				Lane *lane = laneSection_->getLane(i);
+				Lane *nextLane = laneSection_->getLane(i + 1);
+				if (lane && nextLane)
+				{
+					lane->setPredecessor(nextLane->getPredecessor());
+					lane->setSuccessor(nextLane->getSuccessor());
+				}
+			}
+			leftmostLane->setPredecessor(-99);
+			leftmostLane->setSuccessor(-99);
+			leftmostId++;
+		}
+
+		RSystemElementRoad * road = laneSection_->getParentRoad();
+		LaneSection *neighborSection = road->getLaneSectionNext(laneSection_->getSStart());
+		bool endToEnd = false;
+		if (!neighborSection)
+		{
+			RoadLink *link = road->getSuccessor();
+			if (link && (link->getElementType() != "junction"))
+			{
+				RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getSuccessor()->getElementId());
+				if (nextRoad)
+				{
+					double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(road->getLength())).manhattanLength();
+					double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(road->getLength())).manhattanLength();
+					if (diffStart < diffEnd)
+					{
+						neighborSection = nextRoad->getLaneSection(0.0);
+					}
+					else
+					{
+						neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+						endToEnd = true;
+					}
+				}
+			}
+		}
+
+		if (neighborSection)
+		{
+			if (laneId < 0)
+			{
+				if (endToEnd)
+				{
+					Lane *neighborLane = neighborSection->getLane(-rightmostId);
+					if (neighborLane)
+					{
+						rightmostLane->setSuccessor(-rightmostId);
+						neighborLane->setSuccessor(rightmostId);
+					}
+				}
+				else
+				{
+					Lane *neighborLane = neighborSection->getLane(rightmostId);
+					if (neighborLane)
+					{
+						rightmostLane->setSuccessor(rightmostId);
+						neighborLane->setPredecessor(rightmostId);
+					}
+				}
+			}
+			else
+			{
+				if (endToEnd)
+				{
+					Lane *neighborLane = neighborSection->getLane(-leftmostId);
+					if (neighborLane)
+					{
+						leftmostLane->setSuccessor(-leftmostId);
+						neighborLane->setSuccessor(leftmostId);
+					}
+				}
+				else
+				{
+					Lane *neighborLane = neighborSection->getLane(leftmostId);
+					if (neighborLane)
+					{
+						leftmostLane->setSuccessor(leftmostId);
+						neighborLane->setPredecessor(leftmostId);
+					}
+				}
+			}
+		}
+
+		neighborSection = road->getLaneSectionBefore(laneSection_->getSStart());
+		bool startToStart = false;
+		if (!neighborSection)
+		{
+			RoadLink *link = road->getPredecessor();
+			if (link && (link->getElementType() != "junction"))
+			{
+				RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getPredecessor()->getElementId());
+				if (nextRoad)
+				{
+					double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(0.0)).manhattanLength();
+					double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(0.0)).manhattanLength();
+					if (diffStart < diffEnd)
+					{
+						neighborSection = nextRoad->getLaneSection(0.0);
+						startToStart = true;
+					}
+					else
+					{
+						neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+					}
+				}
+			}
+		}
+
+		if (neighborSection)
+		{
+			if (laneId < 0)
+			{
+				if (startToStart)
+				{
+					Lane *neighborLane = neighborSection->getLane(-rightmostId);
+					if (neighborLane)
+					{
+						rightmostLane->setPredecessor(-rightmostId);
+						neighborLane->setPredecessor(rightmostId);
+					}
+				}
+				else
+				{
+					Lane *neighborLane = neighborSection->getLane(rightmostId);
+					if (neighborLane)
+					{
+						rightmostLane->setPredecessor(rightmostId);
+						neighborLane->setSuccessor(rightmostId);
+					}
+				}
+			}
+			else
+			{
+				if (startToStart)
+				{
+					Lane *neighborLane = neighborSection->getLane(-leftmostId);
+					if (neighborLane)
+					{
+						leftmostLane->setPredecessor(-leftmostId);
+						neighborLane->setPredecessor(leftmostId);
+					}
+				}
+				else
+				{
+					Lane *neighborLane = neighborSection->getLane(leftmostId);
+					if (neighborLane)
+					{
+						leftmostLane->setPredecessor(leftmostId);
+						neighborLane->setSuccessor(leftmostId);
+					}
+				}
+			}
+		}
+	}
+
 
     if (laneSection_->getLanes()[id_] != NULL)
     {
@@ -105,32 +295,199 @@ InsertLaneCommand::redo()
 void
 InsertLaneCommand::undo()
 {
+	if (lane_)  // inherit lane linkage from newLane_
+	{
 
-    laneSection_->removeLane(newLane_);
+		int laneId = newLane_->getId();
 
-    if (id_ < 0)
-    {
-        for (int i = id_ - 1; i >= laneSection_->getRightmostLaneId(); i--)
-        {
-            Lane *lane = laneSection_->getLane(i);
-            if (lane)
-            {
-                lane->setId(i+1);
-            }
-        }
-    }
-    else
-    {
-        for (int i = id_ + 1; i <= laneSection_->getLeftmostLaneId(); i++)
-        {
-            Lane *lane = laneSection_->getLane(i);
-            if (lane)
-            {
-                lane->setId(i-1);
-            }
-        }
+		int rightmostId = laneSection_->getRightmostLaneId();
+		Lane *rightmostLane = laneSection_->getLane(rightmostId);
+		int leftmostId = laneSection_->getLeftmostLaneId();
+		Lane *leftmostLane = laneSection_->getLane(leftmostId);
 
-    }
+		if (laneId < 0) // Lane Linkage
+		{
+			for (int i = laneSection_->getRightmostLaneId(); i < laneId; i++)
+			{
+				Lane *lane = laneSection_->getLane(i);
+				Lane *nextLane = laneSection_->getLane(i + 1);
+				if (lane && nextLane)
+				{
+					lane->setPredecessor(nextLane->getPredecessor());
+					lane->setSuccessor(nextLane->getSuccessor());
+				}
+			}
+		}
+		else
+		{
+			for (int i = laneSection_->getLeftmostLaneId(); i > laneId; i--)
+			{
+				Lane *lane = laneSection_->getLane(i);
+				Lane *nextLane = laneSection_->getLane(i - 1);
+				if (lane && nextLane)
+				{
+					lane->setPredecessor(nextLane->getPredecessor());
+					lane->setSuccessor(nextLane->getSuccessor());
+				}
+			}
+		}
+
+		RSystemElementRoad * road = laneSection_->getParentRoad();
+		LaneSection *neighborSection = road->getLaneSectionNext(laneSection_->getSStart());
+		bool endToEnd = false;
+		if (!neighborSection)
+		{
+			RoadLink *link = road->getSuccessor();
+			if (link && (link->getElementType() != "junction"))
+			{
+				RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getSuccessor()->getElementId());
+				if (nextRoad)
+				{
+					double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(road->getLength())).manhattanLength();
+					double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(road->getLength())).manhattanLength();
+					if (diffStart < diffEnd)
+					{
+						neighborSection = nextRoad->getLaneSection(0.0);
+					}
+					else
+					{
+						neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+						endToEnd = true;
+					}
+				}
+			}
+		}
+
+		if (neighborSection)
+		{
+			Lane *neighborLane;
+			if (laneId < 0)
+			{
+				if (endToEnd)
+				{
+					neighborLane = neighborSection->getLane(-rightmostId);
+				}
+				else
+				{
+					neighborLane = neighborSection->getLane(rightmostId);
+				}
+			}
+			else
+			{
+				if (endToEnd)
+				{
+					neighborLane = neighborSection->getLane(-leftmostId);
+				}
+				else
+				{
+					neighborLane = neighborSection->getLane(leftmostId);
+				}
+
+			}
+			if (neighborLane)
+			{
+				if (endToEnd)
+				{
+					neighborLane->setSuccessor(Lane::NOLANE);
+				}
+				else
+				{
+					neighborLane->setPredecessor(Lane::NOLANE);
+				}
+			}
+		}
+
+		neighborSection = road->getLaneSectionBefore(laneSection_->getSStart());
+		bool startToStart = false;
+		if (!neighborSection)
+		{
+			RoadLink *link = road->getPredecessor();
+			if (link && (link->getElementType() != "junction"))
+			{
+				RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getPredecessor()->getElementId());
+				if (nextRoad)
+				{
+					double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(0.0)).manhattanLength();
+					double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(0.0)).manhattanLength();
+					if (diffStart < diffEnd)
+					{
+						neighborSection = nextRoad->getLaneSection(0.0);
+						startToStart = true;
+					}
+					else
+					{
+						neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+					}
+				}
+			}
+		}
+
+		if (neighborSection)
+		{
+			Lane *neighborLane;
+			if (laneId < 0)
+			{
+				if (startToStart)
+				{
+					neighborLane = neighborSection->getLane(-rightmostId);
+				}
+				else
+				{
+					neighborLane = neighborSection->getLane(rightmostId);
+				}
+			}
+			else
+			{
+				if (startToStart)
+				{
+					neighborLane = neighborSection->getLane(-leftmostId);
+				}
+				else
+				{
+					neighborLane = neighborSection->getLane(leftmostId);
+				}
+
+			}
+			if (neighborLane)
+			{
+				if (startToStart)
+				{
+					neighborLane->setPredecessor(Lane::NOLANE);
+				}
+				else
+				{
+					neighborLane->setSuccessor(Lane::NOLANE);
+				}
+			}
+		}
+	}
+
+	laneSection_->removeLane(newLane_);
+
+	if (id_ < 0)
+	{
+		for (int i = id_ - 1; i >= laneSection_->getRightmostLaneId(); i--)
+		{
+			Lane *lane = laneSection_->getLane(i);
+			if (lane)
+			{
+				lane->setId(i + 1);
+			}
+		}
+	}
+	else
+	{
+		for (int i = id_ + 1; i <= laneSection_->getLeftmostLaneId(); i++)
+		{
+			Lane *lane = laneSection_->getLane(i);
+			if (lane)
+			{
+				lane->setId(i - 1);
+			}
+		}
+
+	}
+
 
     setUndone();
 }
@@ -161,6 +518,9 @@ RemoveLaneCommand::RemoveLaneCommand(LaneSection *laneSection, Lane *lane, DataC
         return;
     }
 
+	rightmostLane_ = laneSection->getFirst()->getClone();
+	leftmostLane_ = laneSection->getLast()->getClone();
+
     setValid();
     setText(QObject::tr("Remove lane"));
 }
@@ -179,27 +539,155 @@ RemoveLaneCommand::redo()
 
     laneSection_->removeLane(oldLane_);
 
-    Lane *lane;
-    if (id_ < 0)
-    {
-        int i = id_;
-        while ((lane = laneSection_->getNextLower(i)) != NULL)
-        {
-            int index = lane->getId();
-            lane->setId(i);
-            i = index;
-        }
-    }
-    else
-    {
-        int i = id_;
-        while ((lane = laneSection_->getNextUpper(i)) != NULL)
-        {
-            int index = lane->getId();
-            lane->setId(i);
-            i = index;
-        }
-    }
+	Lane *lane;
+	Lane *neighborLane;
+	if ((id_ < 0) && (id_ != rightmostLane_->getId()))
+	{
+		lane = laneSection_->getFirst();
+		int i = lane->getId();
+		while ((neighborLane = laneSection_->getNextUpper(i))->getId() < id_)
+		{
+			lane->setPredecessor(neighborLane->getPredecessor());
+			lane->setSuccessor(neighborLane->getSuccessor());
+
+			i = neighborLane->getId();
+			lane = neighborLane;
+		}
+		lane->setPredecessor(oldLane_->getPredecessor());
+		lane->setSuccessor(oldLane_->getSuccessor());
+
+		i = id_;
+		while ((lane = laneSection_->getNextLower(i)) != NULL)
+		{
+			int index = lane->getId();
+			lane->setId(i);
+			i = index;
+		}
+	}
+	else if ((id_ > 0) && (id_ != leftmostLane_->getId()))
+	{
+		lane = laneSection_->getLast();
+		int i = lane->getId();
+		while ((neighborLane = laneSection_->getNextLower(i))->getId() > id_)
+		{
+			lane->setPredecessor(neighborLane->getPredecessor());
+			lane->setSuccessor(neighborLane->getSuccessor());
+
+			i = neighborLane->getId();
+			lane = neighborLane;
+		}
+		lane->setPredecessor(oldLane_->getPredecessor());
+		lane->setSuccessor(oldLane_->getSuccessor());
+		
+		i = id_;
+		while ((lane = laneSection_->getNextUpper(i)) != NULL)
+		{
+			int index = lane->getId();
+			lane->setId(i);
+			i = index;
+		}
+	}
+
+	RSystemElementRoad * road = laneSection_->getParentRoad();
+	LaneSection *neighborSection = road->getLaneSectionNext(laneSection_->getSStart());
+	bool endToEnd = false;
+	if (!neighborSection)
+	{
+		RoadLink *link = road->getSuccessor();
+		if (link && (link->getElementType() != "junction"))
+		{
+			RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getSuccessor()->getElementId());
+			if (nextRoad)
+			{
+				double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(road->getLength())).manhattanLength();
+				double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(road->getLength())).manhattanLength();
+				if (diffStart < diffEnd)
+				{
+					neighborSection = nextRoad->getLaneSection(0.0);
+				}
+				else
+				{
+					neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+					endToEnd = true;
+				}
+			}
+		}
+	}
+
+	if (neighborSection)
+	{
+		Lane *neighborLane;
+		if (id_ < 0)
+		{
+			neighborLane = neighborSection->getLane(rightmostLane_->getSuccessor());
+		}
+		else
+		{
+			neighborLane = neighborSection->getLane(leftmostLane_->getSuccessor());
+		}
+
+		if (neighborLane)
+		{
+			if (endToEnd)
+			{
+				neighborLane->setSuccessor(Lane::NOLANE);
+			}
+			else
+			{
+				neighborLane->setPredecessor(Lane::NOLANE);
+			}
+		}
+	}
+
+	neighborSection = road->getLaneSectionBefore(laneSection_->getSStart());
+	bool startToStart = false;
+	if (!neighborSection)
+	{
+		RoadLink *link = road->getPredecessor();
+		if (link && (link->getElementType() != "junction"))
+		{
+			RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getPredecessor()->getElementId());
+			if (nextRoad)
+			{
+				double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(0.0)).manhattanLength();
+				double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(0.0)).manhattanLength();
+				if (diffStart < diffEnd)
+				{
+					neighborSection = nextRoad->getLaneSection(0.0);
+					startToStart = true;
+				}
+				else
+				{
+					neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+				}
+			}
+		}
+	}
+
+	if (neighborSection)
+	{
+		Lane *neighborLane;
+		if (id_ < 0)
+		{
+			neighborLane = neighborSection->getLane(rightmostLane_->getPredecessor());
+		}
+		else
+		{
+			neighborLane = neighborSection->getLane(leftmostLane_->getPredecessor());
+		}
+
+		if (neighborLane)
+		{
+			if (startToStart)
+			{
+				neighborLane->setPredecessor(Lane::NOLANE);
+			}
+			else
+			{
+				neighborLane->setSuccessor(Lane::NOLANE);
+			}
+		}
+	}
 
     setRedone();
 }
@@ -207,28 +695,160 @@ RemoveLaneCommand::redo()
 void
 RemoveLaneCommand::undo()
 {
-    Lane *lane;
-    if (id_ < 0)
+
+	Lane *lane = laneSection_->getLane(id_);
+	Lane *neighborLane;
+	int i = id_;
+
+    if ((id_ < 0) && (id_ != rightmostLane_->getId()))
     {
-        lane = laneSection_->getFirst();
-        int i;
-        while (lane && ((i = lane->getId()) <= id_))
-        {
-            lane->setId(i - 1);
-            lane = laneSection_->getNextUpper(i);
-        }
+		while ((neighborLane = laneSection_->getNextLower(i)) != NULL)
+		{
+			lane->setPredecessor(neighborLane->getPredecessor());
+			lane->setSuccessor(neighborLane->getSuccessor());
+
+			i = neighborLane->getId();
+			lane = neighborLane;
+		}
+		lane->setPredecessor(rightmostLane_->getPredecessor());
+		lane->setSuccessor(rightmostLane_->getSuccessor());
+
+		lane = laneSection_->getFirst();
+		while (lane && ((i = lane->getId()) <= id_))
+		{
+			lane->setId(i - 1);
+			lane = laneSection_->getNextUpper(i);
+		}
     }
-    else
+    else if ((id_ > 0) && (id_ != leftmostLane_->getId()))
     {
-        lane = laneSection_->getLast();
-        int i;
-        while (lane && ((i = lane->getId()) >= id_))
-        {
-            lane->setId(i + 1);
-            lane = laneSection_->getNextLower(i);
-        }
+		while ((neighborLane = laneSection_->getNextUpper(i)) != NULL)
+		{
+			lane->setPredecessor(neighborLane->getPredecessor());
+			lane->setSuccessor(neighborLane->getSuccessor());
+
+			i = neighborLane->getId();
+			lane = neighborLane;
+		}
+		lane->setPredecessor(leftmostLane_->getPredecessor());
+		lane->setSuccessor(leftmostLane_->getSuccessor());
+
+		lane = laneSection_->getLast();
+		while (lane && ((i = lane->getId()) >= id_))
+		{
+			lane->setId(i + 1);
+			lane = laneSection_->getNextLower(i);
+		}
     }
-    laneSection_->addLane(oldLane_);
+
+
+
+	laneSection_->addLane(oldLane_);
+
+	RSystemElementRoad * road = laneSection_->getParentRoad();
+	LaneSection *neighborSection = road->getLaneSectionNext(laneSection_->getSStart());
+	bool endToEnd = false;
+	if (!neighborSection)
+	{
+		RoadLink *link = road->getSuccessor();
+		if (link && (link->getElementType() != "junction"))
+		{
+			RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getSuccessor()->getElementId());
+			if (nextRoad)
+			{
+				double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(road->getLength())).manhattanLength();
+				double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(road->getLength())).manhattanLength();
+				if (diffStart < diffEnd)
+				{
+					neighborSection = nextRoad->getLaneSection(0.0);
+				}
+				else
+				{
+					neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+					endToEnd = true;
+				}
+			}
+		}
+	}
+
+	if (neighborSection)
+	{
+		int laneId;
+		if (id_ < 0)
+		{
+			neighborLane = neighborSection->getLane(rightmostLane_->getSuccessor());
+			laneId = rightmostLane_->getId();
+		}
+		else
+		{
+			neighborLane = neighborSection->getLane(leftmostLane_->getSuccessor());
+			laneId = leftmostLane_->getId();
+		}
+
+		if (neighborLane)
+		{
+			if (endToEnd)
+			{
+				neighborLane->setSuccessor(laneId);
+			}
+			else
+			{
+				neighborLane->setPredecessor(laneId);
+			}
+		}
+	}
+
+	neighborSection = road->getLaneSectionBefore(laneSection_->getSStart());
+	bool startToStart = false;
+	if (!neighborSection)
+	{
+		RoadLink *link = road->getPredecessor();
+		if (link && (link->getElementType() != "junction"))
+		{
+			RSystemElementRoad *nextRoad = road->getRoadSystem()->getRoad(road->getPredecessor()->getElementId());
+			if (nextRoad)
+			{
+				double diffStart = (nextRoad->getGlobalPoint(0.0) - road->getGlobalPoint(0.0)).manhattanLength();
+				double diffEnd = (nextRoad->getGlobalPoint(nextRoad->getLength()) - road->getGlobalPoint(0.0)).manhattanLength();
+				if (diffStart < diffEnd)
+				{
+					neighborSection = nextRoad->getLaneSection(0.0);
+					startToStart = true;
+				}
+				else
+				{
+					neighborSection = nextRoad->getLaneSection(nextRoad->getLength());
+				}
+			}
+		}
+	}
+
+	if (neighborSection)
+	{
+		int laneId;
+		if (id_ < 0)
+		{
+			neighborLane = neighborSection->getLane(rightmostLane_->getPredecessor());
+			laneId = rightmostLane_->getId();
+		}
+		else
+		{
+			neighborLane = neighborSection->getLane(leftmostLane_->getPredecessor());
+			laneId = leftmostLane_->getId();
+		}
+
+		if (neighborLane)
+		{
+			if (startToStart)
+			{
+				neighborLane->setPredecessor(laneId);
+			}
+			else
+			{
+				neighborLane->setSuccessor(laneId);
+			}
+		}
+	} 
 
     setUndone();
 }
@@ -1330,7 +1950,7 @@ RemoveLaneSectionCommand::redo()
 	{
 		if (!lane->getWidthEntries().isEmpty())
 		{
-			QMap<double, LaneMoveProperties *> props;
+			QMultiMap<double, LaneMoveProperties *> props;
 			LaneMoveProperties *laneProps = new LaneMoveProperties();
 
 			laneProps->lowSlot = lane->getWidthEntryBefore(sOffset);
@@ -1338,7 +1958,7 @@ RemoveLaneSectionCommand::redo()
 
 			props.insert(oldSectionHigh_->getSStart(), laneProps);
 			QList<Lane *> lanes;
-			QList<QMap<double, WidthPoints*> *> pointList;
+			QList<QMultiMap<double, WidthPoints*> *> pointList;
 			parentRoad_->getLaneWidthsLists(props, false, lanes, pointList);
 			parentRoad_->translateLaneWidths(lanes, pointList);
 		}
@@ -1640,7 +2260,7 @@ SelectLaneWidthCommand::
 // TranslateLaneBorderCommand //
 //##########################//
 
-TranslateLaneBorderCommand::TranslateLaneBorderCommand(const QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> &selectedLaneBorders, double width, const QPointF &dPos, DataCommand *parent)
+TranslateLaneBorderCommand::TranslateLaneBorderCommand(const QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> &selectedLaneBorders, double width, const QPointF &dPos, DataCommand *parent)
 	: DataCommand(parent)
 	, selectedLaneBorders_(selectedLaneBorders)
 	, dPos_(dPos)
@@ -1656,15 +2276,15 @@ TranslateLaneBorderCommand::TranslateLaneBorderCommand(const QMap<RSystemElement
 		return;
 	}
 
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
 	while (it != selectedLaneBorders_.constEnd())
 	{
 		RSystemElementRoad *road = it.key();
-		QMap<double, LaneMoveProperties *> propsMap = it.value();
+		QMultiMap<double, LaneMoveProperties *> propsMap = it.value();
 
 		QList<Lane *> lanes;
-		QList<QMap<double, WidthPoints*> *> pointList;
-		QMap<double, LaneMoveProperties *> newProps;
+		QList<QMultiMap<double, WidthPoints*> *> pointList;
+		QMultiMap<double, LaneMoveProperties *> newProps;
 
 		newProps = road->getLaneWidthsLists(propsMap, false, lanes, pointList);
 
@@ -1689,14 +2309,14 @@ TranslateLaneBorderCommand::~TranslateLaneBorderCommand()
 void
 TranslateLaneBorderCommand::undo()
 {
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneBordersChanged;
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneBordersChanged;
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
 	while (it != selectedLaneBorders_.constEnd())
 	{
 		RSystemElementRoad *road = it.key();
 
 		QList<Lane *> lanes = lanes_.value(road);
-		QList<QMap<double, WidthPoints*> *> pointList = oldPointList_.value(road);
+		QList<QMultiMap<double, WidthPoints*> *> pointList = oldPointList_.value(road);
 		road->translateLaneWidths(lanes, pointList);
 
 		selectedLaneBordersChanged.insert(road, newPropsMap_.value(road));
@@ -1710,16 +2330,16 @@ TranslateLaneBorderCommand::undo()
 void
 TranslateLaneBorderCommand::redo()
 {
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneBordersChanged;
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneBordersChanged;
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
 	while (it != selectedLaneBorders_.constEnd())
 	{
 		RSystemElementRoad *road = it.key();
-		QMap<double, LaneMoveProperties *> propsMap = it.value();
-		QMap<double, LaneMoveProperties *> newPropsMap;
+		QMultiMap<double, LaneMoveProperties *> propsMap = it.value();
+		QMultiMap<double, LaneMoveProperties *> newPropsMap;
 
 		QList<Lane *> lanes;
-		QList<QMap<double, WidthPoints*> *> pointList;
+		QList<QMultiMap<double, WidthPoints*> *> pointList;
 
 		if (dPos_.isNull())
 		{
@@ -1760,12 +2380,12 @@ TranslateLaneBorderCommand::mergeWith(const QUndoCommand *other)
 		return false;
 	}
 
-	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::const_iterator it = selectedLaneBorders_.begin();
+	QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>>::const_iterator it = selectedLaneBorders_.begin();
 
 	while (it != selectedLaneBorders_.end())
 	{
 		RSystemElementRoad *road = it.key();
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::const_iterator itOther = command->selectedLaneBorders_.constFind(road);
+		QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>>::const_iterator itOther = command->selectedLaneBorders_.constFind(road);
 		if (itOther == command->selectedLaneBorders_.constEnd())
 		{
 			qDebug() << "Selected Borders are not equal";
@@ -1858,11 +2478,11 @@ LaneBorderCornerCommand::undo()
 	LaneMoveProperties *props = new LaneMoveProperties();
 	props->lowSlot = low_;
 	props->highSlot = high_;
-	QMap<double, LaneMoveProperties *> propsMap;
+	QMultiMap<double, LaneMoveProperties *> propsMap;
 	propsMap.insert(s_, props);
 
 	QList<Lane *> lanes;
-	QList<QMap<double, WidthPoints*> *> pointList;
+	QList<QMultiMap<double, WidthPoints*> *> pointList;
 	road_->getLaneWidthsLists(propsMap, true, lanes, pointList);
 	road_->translateLaneWidths(lanes, pointList);
 
@@ -1879,11 +2499,11 @@ LaneBorderCornerCommand::redo()
 	LaneMoveProperties *props = new LaneMoveProperties();
 	props->lowSlot = low_;
 	props->highSlot = high_;
-	QMap<double, LaneMoveProperties *> propsMap;
+	QMultiMap<double, LaneMoveProperties *> propsMap;
 	propsMap.insert(s_, props);
 
 	QList<Lane *> lanes;
-	QList<QMap<double, WidthPoints*> *> pointList;
+	QList<QMultiMap<double, WidthPoints*> *> pointList;
 	road_->getLaneWidthsLists(propsMap, true, lanes, pointList);
 	road_->translateLaneWidths(lanes, pointList);
 

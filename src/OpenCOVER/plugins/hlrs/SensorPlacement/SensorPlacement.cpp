@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <memory> 
+#include <future>
 
 #include <cover/coVRMSController.h>
 
@@ -12,23 +13,68 @@
 #include "GA.h"
 
 using namespace opencover;
+std::unique_ptr<UI>SensorPlacementPlugin::s_UI = myHelpers::make_unique<UI>();
 
 int calcNumberOfSensors()
 {
-    int numberOfZones{0};
+    int numberOfSensorsInZones{0};
     for(const auto& zone : DataManager::GetSensorZones())
-        numberOfZones += zone->getNumberOfSensors();
+        numberOfSensorsInZones += zone->getTargetNumberOfSensors();
 
-    return DataManager::GetSensors().size() + numberOfZones;
+    return DataManager::GetSensors().size() + numberOfSensorsInZones;
 }
+
+
+int getSensorInSensorZone(int sensorPos) 
+{
+
+ if(sensorPos < DataManager::GetSensors().size())
+  {
+     // std::cout<< "is a single sensor"<< std::endl;
+      return -1;
+  }
+  else if(sensorPos >= calcNumberOfSensors())
+  {
+     // std::cout<<"not a sensor anymore!"<< std::endl;
+      return -1;
+  }
+
+  sensorPos = sensorPos - DataManager::GetSensors().size();
+  std::vector<int> sensorsPerZone;
+  for(const auto& zone : DataManager::GetSensorZones())
+    sensorsPerZone.push_back(zone->getTargetNumberOfSensors());
+
+  int nbrOfCameras{0};
+  int first{0};
+  int pos{0};
+  for(const auto& c : sensorsPerZone)
+  {
+    nbrOfCameras += c;
+    //std::cout<<"sensorPos"<<sensorPos << " first " <<first <<" nbrOfCameras "<< nbrOfCameras <<std::endl;
+    if(sensorPos >= first && sensorPos < nbrOfCameras)
+    {
+     // std::cout<<"return Pos: " <<pos<<".."<<std::endl;
+      return pos;
+    }
+    first+= c;
+    pos++;
+  }
+}
+
 
 void calcVisibility()
 {
-   for(const auto& sensor : DataManager::GetInstance().GetSensors())
-      sensor->calcVisibility();
-
-   for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
-      sensorZone->createAllSensors();
+  {
+  std::vector<std::future<void>> futures;
+  for(const auto& sensor :  DataManager::GetInstance().GetSensors())  
+    futures.push_back(std::async(std::launch::async, &SensorPosition::calcVisibility, sensor.get()));
+  }
+  // useful to use async here and also in SensorZone::createAllSensors ? 
+  for(const auto& sensorZone : DataManager::GetInstance().GetSensorZones() )
+  {
+    //futures.push_back(std::async(std::launch::async, &SensorZone::createAllSensors, sensorZone.get()));
+    sensorZone->createAllSensors();
+  }
 }
 
 void optimize(FitnessFunctionType fitnessFunction)
@@ -38,45 +84,46 @@ void optimize(FitnessFunctionType fitnessFunction)
   std::vector<Orientation> finalSensorOrientations;
   
   // Optimization is only done on master. Problem with random generator and multithreading on Slaves -> results are different on each slave!
-  if(coVRMSController::instance()->isMaster())
-  {
+  // if(coVRMSController::instance()->isMaster())
+  // {
     auto ga(myHelpers::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
-  }
-  // TODO: resize Vector of SensorPosition. Problem: size of Orientation Object not knwon
+    SensorPlacementPlugin::s_UI->updateOptimizationResults(ga->getTotalCoverage(), ga->getPrio1Coverage(),  ga->getPrio2Coverage(), ga->getFinalFitness(), ga->getOptimizationTime()  );
+  // }
+  // else if(!coVRMSController::instance()->isMaster())
+    // finalSensorOrientations.resize(calcNumberOfSensors());
   
-  //else if(!coVRMSController::instance()->isMaster())
-  //  finalSensorOrientations.resize(calcNumberOfSensors());
-  
-  //coVRMSController::instance()->syncData(finalSensorOrientations.data(),sizeof(Orientation) * calcNumberOfSensors());
-  //updateAllSensors(finalSensorOrientations);   
+  //coVRMSController::instance()->syncData(finalSensorOrientations.data(), sizeof(Orientation) * calcNumberOfSensors()); // not sure if this is working with type Orientation
+
+  DataManager::UpdateAllSensors(finalSensorOrientations);
+  DataManager::visualizeCoverage();
+
 }
 
-void updateAllSensors(std::vector<Orientation> orientations) // finish here ------------------------------------------------
+//creates a vector that contains for each observation point the required number of sensors, so that the sensor is observed
+std::vector<int> calcRequiredSensorsPerPoint()
 {
-  size_t count{0};
-  if(orientations.size() != calcNumberOfSensors())
+  std::vector<int> requiredSensorsPerPoint;
+  for(const auto& zone : DataManager::GetSafetyZones())
+    requiredSensorsPerPoint.insert(requiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
+
+  if(!DataManager::GetUDPSafetyZones().empty())
   {
-    std::cout<< " "<<std::endl;
-    return;
+      for(const auto& zone : DataManager::GetUDPSafetyZones())
+          requiredSensorsPerPoint.insert(requiredSensorsPerPoint.end(),zone.get()->getNumberOfPoints(), (int)zone->getPriority());
   }
-  else
-  {
-    for(const auto& sensor : DataManager::GetSensors())
-    {
-      sensor->setCurrentOrientation(orientations.at(count));
-      count++;
-    }
-  }
+
+  return requiredSensorsPerPoint;
 }
 
 SensorPlacementPlugin::SensorPlacementPlugin()
 {
   DataManager::GetInstance(); //Create Instance of Singleton
-  m_UI = myHelpers::make_unique<UI>();
+  //m_UI = myHelpers::make_unique<UI>();
   
   #if SHOW_UDP_LIVE_OBJECTS
     m_udp = myHelpers::make_unique<UDP>();
+  #else  
     std::cout << "Sensorplacement: UDP is turned Off" <<std::endl;
   #endif
   

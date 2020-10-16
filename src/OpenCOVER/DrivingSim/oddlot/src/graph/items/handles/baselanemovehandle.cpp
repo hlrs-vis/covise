@@ -20,6 +20,7 @@
 #include "src/graph/projectgraph.hpp"
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/items/handles/texthandle.hpp"
+#include "src/graph/items/handles/editablehandle.hpp"
 
 
 //################//
@@ -31,7 +32,6 @@ BaseLaneMoveHandle::BaseLaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *pa
 		// Editor //
 		//
 		laneEditor_ = laneEditor;
-
 
 		// ContextMenu //
 		//
@@ -46,15 +46,19 @@ BaseLaneMoveHandle::BaseLaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *pa
 		// Text //
 		//
 
-		widthTextItem_ = new TextHandle("", this, true);
-		widthTextItem_->setZValue(1.0); // stack before siblings
-		widthTextItem_->setVisible(false);
+		widthItem_ = new EditableHandle(0.0, this, true);
+		widthItem_->setVisible(false); 
+
 	}
 
 BaseLaneMoveHandle::~BaseLaneMoveHandle()
 	{}
 
-
+void 
+BaseLaneMoveHandle::updateWidthItemValue()
+{
+	widthItem_->setValue(getWidth());
+}
 
 //################//
 // EVENTS         //
@@ -63,6 +67,18 @@ BaseLaneMoveHandle::~BaseLaneMoveHandle()
 void
 BaseLaneMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	if (event->source() == Qt::MouseEventSynthesizedByApplication)
+	{
+		if (lastMousePos_ == event->pos())
+		{
+			event->ignore();
+			return;
+		}
+	}
+
+	lastMousePos_ = event->pos();
+
+
 	if (event->button() == Qt::LeftButton)
 	{
 /*		ODD::ToolId tool = laneEditor_->getCurrentTool();
@@ -74,7 +90,6 @@ BaseLaneMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 	MoveHandle::mousePressEvent(event);
 }
-
 
 void
 BaseLaneMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -93,7 +108,7 @@ BaseLaneMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		pressPos_ = newPos;
 	}
 
-	widthTextItem_->setText(getText());
+	widthItem_->setValue(getWidth());
 
 	MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
@@ -104,10 +119,10 @@ BaseLaneMoveHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 	setFocus();
 
-	widthTextItem_->setText(getText());
-	widthTextItem_->setVisible(true);
+	widthItem_->setValue(getWidth());
+	widthItem_->setVisible(true);
 
-	widthTextItem_->setPos(mapFromScene(event->scenePos()));
+	widthItem_->setPos(mapFromScene(pos()) + QPointF(boundingRect().width()/2, widthItem_->boundingRect().height()/2)); 
 
 
 	// Parent //
@@ -122,7 +137,10 @@ BaseLaneMoveHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 	// Text //
 	//
-	widthTextItem_->setVisible(false);
+	if (!isSelected())
+	{
+		widthItem_->setVisible(false);
+	}
 
 	// Parent //
 	//
@@ -136,6 +154,29 @@ BaseLaneMoveHandle::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	laneEditor_->getProjectGraph()->postponeGarbageDisposal();
 	getContextMenu()->exec(event->screenPos());
 	laneEditor_->getProjectGraph()->finishGarbageDisposal();
+}
+
+
+QVariant
+BaseLaneMoveHandle::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+	// NOTE: position is relative to parent!!! //
+	//
+
+	if (change == QGraphicsItem::ItemSelectedHasChanged)
+	{
+		if (isSelected())
+		{
+			widthItem_->setVisible(true);
+		}
+		else
+		{
+			widthItem_->setVisible(false);
+		} 
+		return value;
+	}
+
+	return QGraphicsItem::itemChange(change, value);
 }
 
 

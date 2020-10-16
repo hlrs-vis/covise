@@ -1712,9 +1712,9 @@ void PointCloudPlugin::saveMoves()
 					delete redData;
 					delete greenData;
 					delete blueData;
-					delete xData2;
-					delete yData2;
-					delete zData2;
+					delete[] xData2;
+					delete[] yData2;
+					delete[] zData2;
 				}
 				eReader.Close();
 				eReader.Close();

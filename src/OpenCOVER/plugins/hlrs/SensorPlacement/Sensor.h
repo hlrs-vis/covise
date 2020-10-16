@@ -12,6 +12,11 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coVRPluginSupport.h>
 
+#include <OpenVRUI/coAction.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
+#include <OpenVRUI/sginterface/vruiHit.h>
+#include <OpenVRUI/osg/OSGVruiHit.h>
+
 double calcValueInRange(double oldMin, double oldMax, double newMin, double newMax, double oldValue);
 
 template<typename T>
@@ -24,6 +29,7 @@ public:
     Orientation(osg::Matrix matrix,VisibilityMatrix<float>&& visMat);
     Orientation(coCoord euler,VisibilityMatrix<float>&& visMat);
     Orientation(osg::Matrix);
+    Orientation() = default;
     //bool operator >> (const Orientation& other) const;
 
     const osg::Matrix& getMatrix()const{return m_Matrix;}
@@ -41,7 +47,6 @@ private:
 
 };
 
-class SensorVisualization;
 class SensorPosition
 {
 public:
@@ -50,6 +55,10 @@ public:
     
     virtual bool preFrame();
     virtual osg::Geode* draw() = 0;
+    
+    virtual void updateFoV(float fov) = 0;
+    virtual void updateDoF(float dof) = 0;
+    
 
     //virtual const Orientation* getRandomOrientation()const;
     virtual void calcVisibility();
@@ -60,6 +69,8 @@ public:
 
     virtual int getNbrOfOrientations()const{return 1;}
     virtual void VisualizationVisible(bool status)const;
+    void showInteractor(bool status)const {if(status)m_Interactor->show(); else m_Interactor->hide();}
+
 
     osg::ref_ptr<osg::Group> getSensor()const;
     osg::Matrix getMatrix()const;
@@ -67,7 +78,7 @@ public:
     virtual Orientation* getSpecificOrientation(int position){return &m_CurrentOrientation;}
 
 
-protected:    
+protected:  
     virtual double calcRangeDistortionFactor(const osg::Vec3& point)const = 0;
     virtual double calcWidthDistortionFactor(const osg::Vec3& point)const = 0;
     virtual double calcHeightDistortionFactor(const osg::Vec3& point)const = 0;
@@ -78,6 +89,7 @@ protected:
     virtual VisibilityMatrix<float> calcVisibilityMatrix(coCoord& euler) = 0;
     void checkForObstacles();
     
+    
     const unsigned int m_NodeMask = UINT32_MAX & ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_Interactor; 
     Orientation m_CurrentOrientation;                                       // Visualized orientation
@@ -87,17 +99,42 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> m_SensorMatrix;
 
 };
-struct SensorProps
-{
-    //Step sizes for the Orientations in Degree
-    int m_StepSizeX{10};
-    int m_StepSizeY{45};
-    int m_StepSizeZ{5};
-};
+
+
 
 class SensorWithMultipleOrientations : public SensorPosition
 {
 public:
+
+    struct SensorProps
+    {
+    private:
+        int m_StepSizeX{10}, m_StepSizeY{45}, m_StepSizeZ{5}; // Step sizes for the Orientations in Degree
+        bool m_RotX{true}, m_RotY{false}, m_RotZ{true};
+        bool m_VisualizeOrientations{false};
+
+    public:
+        void setProps(int stepX, int stepY, int stepZ){m_StepSizeX = stepX; m_StepSizeY = stepY; m_StepSizeZ = stepZ;};
+        int getStepSizeX(){return m_StepSizeX;}
+        int getStepSizeY(){return m_StepSizeY;}
+        int getStepSizeZ(){return m_StepSizeZ;}
+        void setStepSizeX(int stepSizeX){m_StepSizeX = stepSizeX;}
+        void setStepSizeY(int stepSizeY){m_StepSizeY = stepSizeY;}
+        void setStepSizeZ(int stepSizeZ){m_StepSizeZ = stepSizeZ;}
+
+        int getRotX(){return m_RotX;}
+        int getRotY(){return m_RotY;}
+        int getRotZ(){return m_RotZ;}
+        void setRotX(bool rotX){m_RotX = rotX;}
+        void setRotY(bool rotY){m_RotY = rotY;}
+        void setRotZ(bool rotZ){m_RotZ = rotZ;}
+
+        bool getVisualizeOrientations(){return m_VisualizeOrientations;}
+        void setVisualizeOrientations(bool status){m_VisualizeOrientations = status;}
+    };
+    
+    static SensorProps s_SensorProps;
+
     SensorWithMultipleOrientations(osg::Matrix matrix);
     ~SensorWithMultipleOrientations() override{};
     
@@ -105,14 +142,20 @@ public:
     void calcVisibility() override;
     int getNbrOfOrientations()const override{return m_Orientations.size();}
 
-    void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
-    Orientation* getSpecificOrientation(int position)override{return &m_Orientations.at(position);}
+    //void setMatrix(osg::Matrix matrix)override; // --> TODO: anpassen !
+    Orientation* getSpecificOrientation(int position)override
+    {
+        if(!m_Orientations.empty())
+            return &m_Orientations.at(position);
+        else
+            return &m_CurrentOrientation;
+    }
     std::vector<Orientation>& getOrientations(){return m_Orientations;}
-
+    
 protected:
     virtual osg::Geode* drawOrientation() = 0;
 
-    void createSensorOrientations();
+    void createSensorOrientations(bool rotx, bool roty, bool rotz);
     void deleteSensorOrientations();
 
     virtual bool compareOrientations(const Orientation& lhs, const Orientation& rhs);
@@ -125,9 +168,7 @@ private:
     void decideWhichOrientationsAreRequired(const Orientation&& orientation);
     void replaceOrientationWithLastElement(int index);
     bool isVisibilityMatrixEmpty(const Orientation& orientation);
-
     
-    SensorProps m_SensorProps;
 };
 
 

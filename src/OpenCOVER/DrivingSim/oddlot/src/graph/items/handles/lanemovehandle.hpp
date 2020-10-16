@@ -304,13 +304,16 @@ public:
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
                 if (lowSlot_->getParentLane()->getId() > 0)
                 {
-                    setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+					setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
                 }
                 else
                 {
-                    setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+					setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
                 }
+				updateWidthItemValue();
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+
+				updateColor();
 
             }
 
@@ -335,14 +338,16 @@ public:
                 RSystemElementRoad *parentRoad = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
                 if (highSlot_->getParentLane()->getId() > 0)
                 {
-                    setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
+					setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
                 }
                 else
                 {
-                    setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
+					setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
                 }
+				updateWidthItemValue();
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
+				updateColor();
             }
         }
 
@@ -363,6 +368,7 @@ protected:
             {
                 laneEditor_->unregisterMoveHandle(this);
             }
+			BaseLaneMoveHandle::itemChange(change, value);
             return value;
         }
 
@@ -374,22 +380,53 @@ protected:
         return MoveHandle::itemChange(change, value);
     }
 
-	virtual const QString getText()
+	virtual const double getWidth()
 	{
 		// Text //
 		//
-		QString text;
+		double width;
 
 		if (highSlot_)
 		{
-			text = QString("%1").arg(highSlot_->f(0.0), 0, 'f', 2);
+			width = highSlot_->f(0.0);
 		}
 		else if (lowSlot_)
 		{
-			text = QString("%1").arg(lowSlot_->f(lowSlot_->getSSectionEnd() - lowSlot_->getSSectionStartAbs()), 0, 'f', 2);
+			width = lowSlot_->f(lowSlot_->getSSectionEnd() - lowSlot_->getSSectionStartAbs());
 		}
 
-		return text;
+		return width;
+	}
+
+	virtual void setLaneWidth(double width)
+	{
+		QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
+		LaneMoveProperties *props = new LaneMoveProperties();
+		RSystemElementRoad *road;
+		double s;
+		if (lowSlot_)
+		{
+			props->lowSlot = lowSlot_;
+			road = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+			s = lowSlot_->getSSectionEnd();
+		}
+
+		if (highSlot_)
+		{
+			props->highSlot = highSlot_;
+			if (!lowSlot_)
+			{
+				road = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+				s = highSlot_->getSSectionStartAbs();
+			}
+		}
+
+		QMultiMap<double, LaneMoveProperties *> propsMap;
+		propsMap.insert(s, props);
+		selectedLaneMoveProps.insert(road, propsMap);
+
+		TranslateLaneBorderCommand *command = new TranslateLaneBorderCommand(selectedLaneMoveProps, width, QPointF(0, 0), NULL);
+		laneEditor_->getTopviewGraph()->executeCommand(command); 
 	}
 
 private:

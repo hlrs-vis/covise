@@ -466,15 +466,17 @@ Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib\alvarplugins; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\TabletUI.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\TabletUI.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()             
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vrb.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\vrb.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\oddlot.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\oddlot.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\carsound.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\carSound.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\SurfaceCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\covise.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll() 
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vrb.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\oddlot.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\carSound.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
@@ -530,8 +532,9 @@ Name: startupcion; Description: Icons into &Startup; GroupDescription: Startup I
 [Icons]
 Name: {group}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists dontcloseonexit
 Name: {group}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists
-Name: {group}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists
-Name: {group}\ODDlot; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comment: OpenDRIVE Designer; IconFilename: {app}\share\covise\icons\oddlot.ico; Flags: createonlyiffileexists
+Name: {group}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists                   
+Name: {group}\VRB; Filename: {app}\{#ARCHSUFFIX}\bin\vrb.exe; Comment: COVISE Collaboration server; IconFilename: {app}\share\covise\icons\vrb.ico; Flags: createonlyiffileexists
+Name: {group}\OddLOT; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comment: OpenDRIVE Designer; IconFilename: {app}\share\covise\icons\oddlot.ico; Flags: createonlyiffileexists
 Name: {group}\COVISE Shell; Filename: {cmd}; Parameters: /K cd %COVISEDIR% && scripts\windowsEnv.bat; WorkingDir: {app}; Comment: Command Prompt with COVISE Environment; IconFilename: {app}\share\covise\icons\covise_shell.ico
 Name: {group}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts COVISE or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
 Name: {group}\VRPrepare; Filename: {app}\bin\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts VRPrepare; Components: vrprepare4
@@ -545,9 +548,10 @@ Name: {group}\Uninstall COVISE; Filename: {uninstallexe}
 
 Name: {commondesktop}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Tasks: desktopicon
 Name: {commondesktop}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists; Tasks: desktopicon
-Name: {commondesktop}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists; Tasks: desktopicon
-Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\bin; Comment: Clean COVISE Processes; IconFilename: {app}\share\covise\icons\covise_clean.ico; Tasks: desktopicon
-Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico; Tasks: desktopicon
+Name: {commondesktop}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists; Tasks: desktopicon      
+Name: {commondesktop}\OddLOT; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comment: OpenDRIVE Designer; IconFilename: {app}\share\covise\icons\oddlot.ico; Flags: createonlyiffileexists; Tasks: desktopicon 
+;Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\bin; Comment: Clean COVISE Processes; IconFilename: {app}\share\covise\icons\covise_clean.ico; Tasks: desktopicon
+;Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico; Tasks: desktopicon
 
 
 [Run]

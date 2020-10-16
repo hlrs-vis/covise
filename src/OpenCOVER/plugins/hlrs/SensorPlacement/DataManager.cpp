@@ -8,6 +8,8 @@
 #include "DataManager.h"
 #include "Zone.h"
 #include "Sensor.h"
+#include "SensorPlacement.h"
+#include "GA.h"
 
 void setStateSet(osg::StateSet *stateSet)
 {
@@ -104,6 +106,12 @@ const std::vector<osg::Vec3> DataManager::GetWorldPosOfObervationPoints()
     for(const auto& i : GetInstance().m_SafetyZones)
         reserve_size += i->getNumberOfPoints();
 
+    if(!GetInstance().m_UDPSafetyZones.empty())
+    {
+        for(const auto& i : GetInstance().m_UDPSafetyZones)
+            reserve_size += i->getNumberOfPoints();
+    }
+
     allPoints.reserve(reserve_size);
 
     for(const auto& points :  GetInstance().m_SafetyZones)
@@ -112,15 +120,22 @@ const std::vector<osg::Vec3> DataManager::GetWorldPosOfObervationPoints()
         allPoints.insert(allPoints.end(),vecWorldPositions.begin(),vecWorldPositions.end());
     }
 
+    if(!GetInstance().m_UDPSafetyZones.empty())
+    {
+        for(const auto& points :  GetInstance().m_UDPSafetyZones)
+        {
+            auto vecWorldPositions = points->getWorldPositionOfPoints();
+            allPoints.insert(allPoints.end(),vecWorldPositions.begin(),vecWorldPositions.end());
+        }
+    }
+
     return allPoints;
 }
 
-void DataManager::AddZone(upZone zone)
-{
+void DataManager::AddSafetyZone(upSafetyZone zone)
+{   
     GetInstance().m_Root->addChild(zone.get()->getZone().get());
-
-    if(dynamic_cast<SafetyZone*>(zone.get()))
-        GetInstance().m_SafetyZones.push_back(std::move(zone));  
+    GetInstance().m_SafetyZones.push_back(std::move(zone));  
 }
 
 void DataManager::AddSensorZone(upSensorZone zone)
@@ -142,12 +157,10 @@ void DataManager::AddUDPSensor(upSensor sensor)
     GetInstance().m_UDPSensors.push_back(std::move(sensor));     
 }
 
-void DataManager::AddUDPZone(upZone zone)
+void DataManager::AddUDPZone(upSafetyZone zone)
 {
     GetInstance().m_Root->addChild(zone.get()->getZone().get());
-
-    if(dynamic_cast<SafetyZone*>(zone.get()))
-        GetInstance().m_UDPSafetyZones.push_back(std::move(zone));  
+    GetInstance().m_UDPSafetyZones.push_back(std::move(zone));  
 }
 
 void DataManager::AddUDPObstacle(osg::ref_ptr<osg::Node> node, const osg::Matrix& mat)
@@ -179,7 +192,7 @@ void DataManager::RemoveZone(Zone* zone)
     if(dynamic_cast<SensorZone*>(zone))
          GetInstance().m_SensorZones.erase(std::remove_if(GetInstance().m_SensorZones.begin(),GetInstance().m_SensorZones.end(),[zone](std::unique_ptr<SensorZone>const& it){return zone == it.get();}));
     else if(dynamic_cast<SafetyZone*>(zone))
-        GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[zone](std::unique_ptr<Zone>const& it){return zone == it.get();}));
+        GetInstance().m_SafetyZones.erase(std::remove_if(GetInstance().m_SafetyZones.begin(),GetInstance().m_SafetyZones.end(),[zone](std::unique_ptr<SafetyZone>const& it){return zone == it.get();}));
 }
 
 void DataManager::RemoveUDPObstacle(int pos)
@@ -197,7 +210,7 @@ void DataManager::RemoveUDPZone(int pos)
 
 void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 {
-   auto visMat2D = convertVisMatTo2D(visMat);
+    auto visMat2D = convertVisMatTo2D(visMat);
 
     size_t count{0};
     for(const auto& zone : GetSafetyZones())
@@ -208,14 +221,124 @@ void DataManager::highlitePoints(const VisibilityMatrix<float>& visMat)
 
 }
 
+void DataManager::visualizeCoverage()
+{
+    std::vector<int> sensorsPerPoint(GetWorldPosOfObervationPoints().size(),0);
+    std::vector<float> sumVisMat(GetWorldPosOfObervationPoints().size(),0.0f);
+
+    for(const auto& sensor : DataManager::GetSensors())
+    {
+        std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sensorsPerPoint.begin(), sensorsPerPoint.begin(),[](float i, int j ) {return (i == 0.0f ? j : j+1);});  // count nbrOf sensors 
+                                                                                              
+        std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients 
+    }
+
+    for(const auto& zone : DataManager::GetSensorZones())
+    {
+        for(const auto& sensor : zone->getSensors())
+        {
+             std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sensorsPerPoint.begin(), sensorsPerPoint.begin(),[](float i, int j ) {return (i == 0.0f ? j : j+1);});  // count nbrOf sensors 
+                                                                                              
+            std::transform(sensor->getVisibilityMatrix().begin(), sensor->getVisibilityMatrix().end(), sumVisMat.begin(), sumVisMat.begin(), std::plus<float>());                                              // add coefficients
+        }
+    }
+
+    std::vector<int> requiredSensorsPerPoint = calcRequiredSensorsPerPoint();
+    std::vector<float> update;
+
+    auto ItsensorsPerPoint = sensorsPerPoint.begin();
+    auto ItRequiredSensors = requiredSensorsPerPoint.begin();
+    while( ItsensorsPerPoint != sensorsPerPoint.end())
+    {
+        int distance = std::distance(sensorsPerPoint.begin(), ItsensorsPerPoint);
+        int diff = *ItsensorsPerPoint - *ItRequiredSensors;         // difference between actual an required number of sensors
+
+        if( diff >=0 && (sumVisMat.at(distance) / requiredSensorsPerPoint.at(distance) >= GA::s_VisibiltyThreshold )) 
+            update.push_back(sumVisMat.at(distance));
+        else
+            update.push_back(0.0f);
+
+        // increment iterators
+        if( ItsensorsPerPoint != sensorsPerPoint.end())
+        {
+            ++ItsensorsPerPoint;
+            ++ItRequiredSensors;
+        }
+    }
+
+
+    auto visMat2D = convertVisMatTo2D(update);
+
+    size_t count{0};
+    osg::Vec4 notVisible{0.8,0.0,0,1};
+    osg::Vec4 visible{0.0,0.4,0,1};
+
+    for(const auto& zone : GetSafetyZones())
+    {
+        zone->highlitePoints(visMat2D.at(count),visible, notVisible);
+        count ++;
+    }
+}                                   
+
+
+void DataManager::updateFoV(float fov)
+{
+    for(const auto& sensor : GetInstance().m_Sensors)
+        sensor->updateFoV(fov);
+    
+    for(const auto& zone : GetInstance().m_SensorZones)
+        zone->updateFoV(fov);
+}
+void DataManager::updateDoF(float dof) 
+{
+    for(const auto& sensor : GetInstance().m_Sensors)
+        sensor->updateDoF(dof);
+
+    for(const auto& zone : GetInstance().m_SensorZones)
+        zone->updateDoF(dof);   
+}
+
+void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
+{
+    auto size =  GetInstance().m_Sensors.size();
+    size_t incrementor{0}; 
+    for(incrementor; incrementor< size; incrementor++)
+        GetInstance().m_Sensors.at(incrementor)->setCurrentOrientation(orientations.at(incrementor));
+
+    for(const auto& zone : GetInstance().m_SensorZones)
+        zone->removeAllSensors();
+    
+    // create sensors in sensor zones
+    int count{0};
+    for(auto it = orientations.begin() + size; it != orientations.end(); ++it)
+    {
+        for(const auto& zone : GetInstance().m_SensorZones)
+        {
+            auto worldPositions = zone->getWorldPositionOfPoints();
+            auto itFound = std::find_if(worldPositions.begin(), worldPositions.end(),[&it, &zone](const osg::Vec3& worldPos){
+                                        if(it->getMatrix().getTrans() == worldPos)
+                                        {
+                                            zone->createSensor(it->getMatrix());
+                                            return true;
+                                        }
+                                        else
+                                            return false;
+                                        });
+        }
+    }
+   
+}
+
 void DataManager::UpdateUDPSensorPosition(int pos, const osg::Matrix& mat)
 {
     GetInstance().m_UDPSensors.at(pos)->setMatrix(mat);
 };
 
-void DataManager::UpdateUDPZone(int pos, const osg::Matrix& mat)
+void DataManager::UpdateUDPZone(int pos, const osg::Matrix& mat, int nbrOfSensors)
 {
     GetInstance().m_UDPSafetyZones.at(pos)->setPosition(mat);
+    GetInstance().m_UDPSafetyZones.at(pos)->setCurrentNbrOfSensors(nbrOfSensors);
+
 }; 
 
 void DataManager::UpdateUDPObstacle(int pos, const osg::Matrix& mat)
@@ -225,10 +348,16 @@ void DataManager::UpdateUDPObstacle(int pos, const osg::Matrix& mat)
 
 
 
-void DataManager::setOriginalPointColor()
+void DataManager::setOriginalZoneColor()
 {
     for(const auto& zone : GetSafetyZones())
         zone->setOriginalColor();
+}
+
+void DataManager::setPreviousZoneColor()
+{
+    for(const auto& zone : GetSafetyZones())
+        zone->setPreviousZoneColor();
 }
 
 

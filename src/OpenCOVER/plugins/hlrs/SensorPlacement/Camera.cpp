@@ -8,6 +8,8 @@
 #include <osg/LineWidth>
 #include <cover/coVRPluginSupport.h>
 
+CameraProps Camera::s_CameraProps;
+
 Camera::Camera(osg::Matrix matrix, bool visible, osg::Vec4 color):
     SensorWithMultipleOrientations(matrix), m_Color{color}
 {
@@ -45,10 +47,10 @@ VisibilityMatrix<float> Camera::calcVisibilityMatrix(coCoord& euler)
                 osg::Vec3 point_CameraCoo = *ItPoint * T * zRot * yRot * xRot;
                 point_CameraCoo.set(point_CameraCoo.x(),point_CameraCoo.y()*-1,point_CameraCoo.z());
 
-                if((point_CameraCoo.y() <= m_CameraProps.m_DepthView ) &&
+                if((point_CameraCoo.y() <= s_CameraProps.m_DepthView ) &&
                    (point_CameraCoo.y() >= 0 ) && //TODO: too close is also not visible !
-                   (std::abs(point_CameraCoo.x()) <= m_CameraProps.m_ImgWidth/2 * point_CameraCoo.y()/m_CameraProps.m_DepthView) &&
-                   (std::abs(point_CameraCoo.z()) <= m_CameraProps.m_ImgHeight/2 * point_CameraCoo.y()/m_CameraProps.m_DepthView))
+                   (std::abs(point_CameraCoo.x()) <= s_CameraProps.m_ImgWidth/2 * point_CameraCoo.y()/s_CameraProps.m_DepthView) &&
+                   (std::abs(point_CameraCoo.z()) <= s_CameraProps.m_ImgHeight/2 * point_CameraCoo.y()/s_CameraProps.m_DepthView))
                 {
                     // Point is in FoV
                     *ItVisMat = calcRangeDistortionFactor(point_CameraCoo)*calcWidthDistortionFactor(point_CameraCoo)*calcHeightDistortionFactor(point_CameraCoo);
@@ -79,7 +81,7 @@ double Camera::calcRangeDistortionFactor(const osg::Vec3& point)const
     //SRC = Sensor Range Coefficient
     double calibratedValue = 70; // Parameter rangeDisortionDepth was calibrated for DephtView of 70;
     double SRCcoefficient = 23; // Rayleigh distribution with coefficient value of 23 looks reasonable for a camera with depthView of 70m
-    double omega = SRCcoefficient * m_CameraProps.m_DepthView  / calibratedValue; // adapt calibratedValue to new depthView
+    double omega = SRCcoefficient * s_CameraProps.m_DepthView  / calibratedValue; // adapt calibratedValue to new depthView
     //normalized Rayleigh distribution function
     double SRC = omega*exp(0.5) * (y / pow(omega,2)) * exp(-(pow(y,2)) / (2*pow(omega,2)));
     return SRC;
@@ -87,7 +89,7 @@ double Camera::calcRangeDistortionFactor(const osg::Vec3& point)const
 
 double Camera::calcWidthDistortionFactor(const osg::Vec3& point)const
 {
-    double widthFOVatPoint = point.y()*std::tan(m_CameraProps.m_FoV/2*osg::PI/180);
+    double widthFOVatPoint = point.y()*std::tan(s_CameraProps.m_FoV/2*osg::PI/180);
     double x = std::abs(point.x()); //distance between point and sensor in width direction
 
     double x_scaled = calcValueInRange(0,widthFOVatPoint,0,1,x);
@@ -98,8 +100,8 @@ double Camera::calcWidthDistortionFactor(const osg::Vec3& point)const
 
 double Camera::calcHeightDistortionFactor(const osg::Vec3& point)const
 {
-    double widthFOVatPoint = point.y()*std::tan(m_CameraProps.m_FoV/2 * osg::PI/180);
-    double heightFOVatPoint = widthFOVatPoint/(m_CameraProps.getImageWidthPixel()/m_CameraProps.getImageHeightPixel());
+    double widthFOVatPoint = point.y()*std::tan(s_CameraProps.m_FoV/2 * osg::PI/180);
+    double heightFOVatPoint = widthFOVatPoint/(s_CameraProps.getImageWidthPixel()/s_CameraProps.getImageHeightPixel());
     double z = std::abs(point.z()); //distance between point and sensor in width direction
     double z_scaled = calcValueInRange(0,heightFOVatPoint,0,1,z);
     //SWC = Sensor Width Coefficient SWC = -x² +1
@@ -144,10 +146,10 @@ osg::Geode* Camera::draw()
 
     // Declare an array of vertices to create a simple pyramid
     m_Verts = new osg::Vec3Array;
-    m_Verts->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 0 upper  front base
-    m_Verts->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 1 lower front base
-    m_Verts->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 3 lower  back  base
-    m_Verts->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 )/m_Scale ); // 2 upper back  base
+    m_Verts->push_back( osg::Vec3( -s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2 )/m_Scale ); // 0 upper  front base
+    m_Verts->push_back( osg::Vec3( -s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2 )/m_Scale ); // 1 lower front base
+    m_Verts->push_back( osg::Vec3(  s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2 )/m_Scale ); // 3 lower  back  base
+    m_Verts->push_back( osg::Vec3(  s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2 )/m_Scale ); // 2 upper back  base
     m_Verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
 
     // Associate this set of vertices with the Geometry.
@@ -236,7 +238,7 @@ bool Camera::preFrame()
     else if(m_Interactor->wasStopped())
     {   
         showIconSensorSize();
-       if(UI::m_showOrientations)
+       if(s_SensorProps.getVisualizeOrientations())
        {
             for(const auto& orient : m_Orientations)
             {
@@ -261,10 +263,10 @@ osg::Geode* Camera::drawOrientation()
     geode->addDrawable(m_GeometryOrientation);
     
     m_VertsOrientation = new osg::Vec3Array;
-    m_VertsOrientation->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 0 upper  front base
-    m_VertsOrientation->push_back( osg::Vec3( -m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 1 lower front base
-    m_VertsOrientation->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 3 lower  back  base
-    m_VertsOrientation->push_back( osg::Vec3(  m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2 ) / m_Scale); // 2 upper back  base
+    m_VertsOrientation->push_back( osg::Vec3( -s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2 ) / m_Scale); // 0 upper  front base
+    m_VertsOrientation->push_back( osg::Vec3( -s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2 ) / m_Scale); // 1 lower front base
+    m_VertsOrientation->push_back( osg::Vec3(  s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2 ) / m_Scale); // 3 lower  back  base
+    m_VertsOrientation->push_back( osg::Vec3(  s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2 ) / m_Scale); // 2 upper back  base
 
     m_GeometryOrientation->setVertexArray(m_VertsOrientation);
 
@@ -285,10 +287,10 @@ osg::Geode* Camera::drawOrientation()
 
 void Camera::showOriginalSensorSize()
 {
-    m_Verts->at(0) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2); // 0 upper  front base
-    m_Verts->at(1) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2); // 1 lower front base
-    m_Verts->at(2) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2); // 3 lower  back  base
-    m_Verts->at(3) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2) ;// 2 upper back  base
+    m_Verts->at(0) = osg::Vec3(-s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2); // 0 upper  front base
+    m_Verts->at(1) = osg::Vec3(-s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2); // 1 lower front base
+    m_Verts->at(2) = osg::Vec3( s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2); // 3 lower  back  base
+    m_Verts->at(3) = osg::Vec3( s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2) ;// 2 upper back  base
     m_Verts->at(4) = osg::Vec3( 0,  0,  0); // 4 peak
     m_Verts->dirty();
     m_Geometry->dirtyBound();
@@ -296,10 +298,10 @@ void Camera::showOriginalSensorSize()
 
 void Camera::showIconSensorSize()
 {
-    m_Verts->at(0) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2)/m_Scale; // 0 upper  front base
-    m_Verts->at(1) = osg::Vec3(-m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2)/m_Scale; // 1 lower front base
-    m_Verts->at(2) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView,-m_CameraProps.m_ImgHeight/2)/m_Scale; // 3 lower  back  base
-    m_Verts->at(3) = osg::Vec3( m_CameraProps.m_ImgWidth/2,-m_CameraProps.m_DepthView, m_CameraProps.m_ImgHeight/2)/m_Scale;// 2 upper back  base
+    m_Verts->at(0) = osg::Vec3(-s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2)/m_Scale; // 0 upper  front base
+    m_Verts->at(1) = osg::Vec3(-s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2)/m_Scale; // 1 lower front base
+    m_Verts->at(2) = osg::Vec3( s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView,-s_CameraProps.m_ImgHeight/2)/m_Scale; // 3 lower  back  base
+    m_Verts->at(3) = osg::Vec3( s_CameraProps.m_ImgWidth/2,-s_CameraProps.m_DepthView, s_CameraProps.m_ImgHeight/2)/m_Scale;// 2 upper back  base
     m_Verts->at(4) = osg::Vec3( 0,  0,  0); // 4 peak
     m_Verts->dirty();
     m_Geometry->dirtyBound();
@@ -315,3 +317,29 @@ void Camera::VisualizationVisible(bool status)const
         m_Interactor->show();    
 }
 
+void Camera::updateFoV(float angle)
+{
+    s_CameraProps.updateFoV(angle);
+    showIconSensorSize();
+
+}
+
+void Camera::updateDoF(float dof)
+{
+    s_CameraProps.updateDoF(dof);
+    showIconSensorSize();
+}
+
+void CameraProps::updateFoV(float fov)
+{
+    m_FoV = fov;
+    m_ImgWidth = 2*m_DepthView*std::tan(m_FoV/2*(float)osg::PI/180);
+    m_ImgHeight = m_ImgWidth / (m_ImageWidthPixel/m_ImageHeightPixel);
+}
+
+void CameraProps::updateDoF(float dof)
+{
+    m_DepthView = dof;
+    m_ImgWidth = 2*m_DepthView*std::tan(m_FoV/2*(float)osg::PI/180);
+    m_ImgHeight = m_ImgWidth / (m_ImageWidthPixel/m_ImageHeightPixel);
+}

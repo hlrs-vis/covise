@@ -39,6 +39,7 @@ class VRMLEXPORT VrmlSFVec2d;
 class VRMLEXPORT VrmlSFVec3d;
 class VRMLEXPORT VrmlSFVec2f;
 class VRMLEXPORT VrmlSFVec3f;
+class VRMLEXPORT VrmlSFMatrix;
 
 class VRMLEXPORT VrmlMFBool;
 class VRMLEXPORT VrmlMFColor;
@@ -94,7 +95,8 @@ public:
         MFVEC2F,
         MFVEC3F,
         SFNODE,
-        MFNODE
+        MFNODE,
+        SFMATRIX
     } VrmlFieldType;
 
     // Constructors/destructor
@@ -134,7 +136,8 @@ public:
     virtual const VrmlSFVec2d *toSFVec2d() const;
     virtual const VrmlSFVec3d *toSFVec3d() const;
     virtual const VrmlSFVec2f *toSFVec2f() const;
-    virtual const VrmlSFVec3f *toSFVec3f() const;
+    virtual const VrmlSFVec3f* toSFVec3f() const;
+    virtual const VrmlSFMatrix* toSFMatrix() const;
 
     virtual const VrmlMFBool *toMFBool() const;
     virtual const VrmlMFColor *toMFColor() const;
@@ -149,7 +152,7 @@ public:
     virtual const VrmlMFVec2d *toMFVec2d() const;
     virtual const VrmlMFVec3d *toMFVec3d() const;
     virtual const VrmlMFVec2f *toMFVec2f() const;
-    virtual const VrmlMFVec3f *toMFVec3f() const;
+    virtual const VrmlMFVec3f* toMFVec3f() const;
 
     virtual VrmlSFBool *toSFBool();
     virtual VrmlSFColor *toSFColor();
@@ -165,7 +168,8 @@ public:
     virtual VrmlSFVec2d *toSFVec2d();
     virtual VrmlSFVec3d *toSFVec3d();
     virtual VrmlSFVec2f *toSFVec2f();
-    virtual VrmlSFVec3f *toSFVec3f();
+    virtual VrmlSFVec3f* toSFVec3f();
+    virtual VrmlSFMatrix* toSFMatrix();
 
     virtual VrmlMFBool *toMFBool();
     virtual VrmlMFColor *toMFColor();

@@ -75,6 +75,8 @@ VrmlField::fieldType(const char *type)
         return SFVEC2F;
     if (strcmp(type, "SFVec3f") == 0)
         return SFVEC3F;
+    if (strcmp(type, "SFMatrix") == 0)
+        return SFMATRIX;
     if (strcmp(type, "MFBool") == 0)
         return MFBOOL;
     if (strcmp(type, "MFColor") == 0)
@@ -1135,6 +1137,43 @@ void VrmlSFVec3f::subtract(VrmlSFVec3f *v)
     d_x[0] -= v->x();
     d_x[1] -= v->y();
     d_x[2] -= v->z();
+}
+
+// SFVec3f
+
+#include "VrmlSFMatrix.h"
+
+VrmlSFMatrix::VrmlSFMatrix(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2)
+{
+    d_x[0] = x0;
+    d_x[1] = y0;
+    d_x[2] = z0;
+    d_x[3] = x1;
+    d_x[4] = y1;
+    d_x[5] = z1;
+    d_x[6] = x2;
+    d_x[7] = y2;
+    d_x[8] = z2;
+}
+
+ostream& VrmlSFMatrix::print(ostream& os) const
+{
+    return (os << d_x[0] << " " << d_x[1] << " " << d_x[2] << endl << d_x[3] << " " << d_x[4] << " " << d_x[5] << endl << d_x[6] << " " << d_x[7] << " " << d_x[8]);
+}
+
+VrmlField* VrmlSFMatrix::clone() const
+{
+    return new VrmlSFMatrix(d_x[0], d_x[1], d_x[2], d_x[3], d_x[4], d_x[5], d_x[6], d_x[7], d_x[8]);
+}
+
+VrmlField::VrmlFieldType VrmlSFMatrix::fieldType() const { return SFMATRIX; }
+
+
+void VrmlSFMatrix::multiply(VrmlSFMatrix *f)
+{
+   /* d_x[0] *= f;
+    d_x[1] *= f;
+    d_x[2] *= f;*/
 }
 
 // MFBool
@@ -2209,6 +2248,7 @@ DOWNCAST(SFVec2d)
 DOWNCAST(SFVec3d)
 DOWNCAST(SFVec2f)
 DOWNCAST(SFVec3f)
+DOWNCAST(SFMatrix)
 
 DOWNCAST(MFBool)
 DOWNCAST(MFColor)
