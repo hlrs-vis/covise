@@ -67,20 +67,19 @@ BaseLaneMoveHandle::updateWidthItemValue()
 void
 BaseLaneMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (event->source() == Qt::MouseEventSynthesizedByApplication)
-	{
-		if (lastMousePos_ == event->pos())
-		{
-			event->ignore();
-			return;
-		}
-	}
-
-	lastMousePos_ = event->pos();
-
-
 	if (event->button() == Qt::LeftButton)
 	{
+		if (event->source() == Qt::MouseEventSynthesizedByApplication)
+		{
+			if (lastMousePos_ == event->screenPos())
+			{
+				event->ignore();
+				return;
+			}
+		}
+
+		lastMousePos_ = event->screenPos();
+
 /*		ODD::ToolId tool = laneEditor_->getCurrentTool();
 		if (tool == ODD::TLE_MODIFY_POLY) */
 		{
@@ -178,6 +177,5 @@ BaseLaneMoveHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 
 	return QGraphicsItem::itemChange(change, value);
 }
-
 
 

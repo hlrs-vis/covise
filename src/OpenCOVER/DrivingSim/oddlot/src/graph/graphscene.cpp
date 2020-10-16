@@ -204,6 +204,20 @@ GraphScene::keyReleaseEvent(QKeyEvent *event)
     //
     //QGraphicsScene::keyReleaseEvent(event);
 
+	switch (event->key())
+	{
+		case Qt::Key_Tab:
+		{
+			QGraphicsItem *item = mouseGrabberItem(); // if item is still the mousegrabber it might prevent selecting the item beneath
+			if (item)
+			{
+				item->ungrabMouse();
+			}
+			break;
+		}
+	}
+
+
     KeyAction *keyAction = new KeyAction(KeyAction::ATK_RELEASE, event);
     emit(keyActionSignal(keyAction));
     delete keyAction;

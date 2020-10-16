@@ -3110,7 +3110,7 @@ SplitRoadCommand::~SplitRoadCommand()
     }
     else
     {
-        delete road_;
+ //       delete road_;
     }
 }
 

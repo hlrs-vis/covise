@@ -1483,6 +1483,8 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
+	QGraphicsView::keyReleaseEvent(event);
+
 	switch (event->key())
 	{
 	case Qt::Key_Tab:
@@ -1490,10 +1492,8 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
 		QGraphicsView::mousePressEvent(lastMouseEvent_); // pass it again to baseclass
 		break;
 	}
-
-	default:
-		QGraphicsView::keyReleaseEvent(event);
 	}
+
 }
 
 void
