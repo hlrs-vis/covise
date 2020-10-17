@@ -280,7 +280,7 @@ Solution GA::mutate(const Solution& X_base,const std::function<double(void)> &rn
         Orientation* randomOrient = m_SensorPool.getRandomOrientation(randomPos, rnd01);
         
         
-        if(!rejectSensorPosition(X_new, randomOrient));
+        if(!rejectSensorPosition(X_new, randomOrient))
         {
             X_new.sensors.at(randomPos) = randomOrient;
             count--;
