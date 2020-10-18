@@ -459,6 +459,11 @@ OddlotPlugin::handleMessage(Message *m)
 void
 OddlotPlugin::preFrame()
 {
+}
+
+bool OddlotPlugin::update()
+{
+
     if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
     {
         //   std::cout << "Trying serverConn..." << std::endl;
@@ -515,6 +520,7 @@ OddlotPlugin::preFrame()
             }
         } while (gotMsg != '\0');
     }
+    return true;
 }
 
 COVERPLUGIN(OddlotPlugin)
