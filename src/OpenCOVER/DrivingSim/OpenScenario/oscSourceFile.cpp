@@ -215,34 +215,39 @@ bool oscSourceFile::writeFileToDisk()
         writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
     }
 #endif
-
-    xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(filenameToWrite.generic_string().c_str());
+	try {
+		xercesc::XMLFormatTarget* xmlTarget = new xercesc::LocalFileFormatTarget(filenameToWrite.generic_string().c_str());
 
 #if (XERCES_VERSION_MAJOR < 3)
-    if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
-    {
-        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-        delete xmlTarget;
-        delete writer;
-        return false;
-    }
+		if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
+		{
+			std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+			delete xmlTarget;
+			delete writer;
+			return false;
+		}
 #else
-    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    output->setByteStream(xmlTarget);
+		xercesc::DOMLSOutput* output = ((xercesc::DOMImplementationLS*)impl)->createLSOutput();
+		output->setByteStream(xmlTarget);
 
-    if (!writer->write(m_xmlDoc, output))
-    {
-        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-        delete output;
-        delete xmlTarget;
-        delete writer;
-        return false;
-    }
+		if (!writer->write(m_xmlDoc, output))
+		{
+			std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+			delete output;
+			delete xmlTarget;
+			delete writer;
+			return false;
+		}
 
-    delete output;
+		delete output;
 #endif
 
-    delete xmlTarget;
+		delete xmlTarget;
+	}
+	catch (...)
+	{
+		std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << filenameToWrite.generic_string().c_str() << std::endl;
+	}
     delete writer;
 
     return true;
