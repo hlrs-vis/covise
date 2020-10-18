@@ -89,6 +89,19 @@ static bool CheckWritableDir(const std::string& directory, const std::string& pr
 //! \return  true, if everything is allright
 //-----------------------------------------------------------------------------
 static bool CheckDirectories(const Directories* directories);
+
+
+agentInfo::agentInfo(TrafficSimulation::AgentVehicle* a)
+{
+	vehicle = a;
+	used = true;
+};
+agentInfo::~agentInfo()
+{
+	delete vehicle;
+};
+
+
 simOpenPASS::simOpenPASS(OpenPASS* op)
 {
     openPass = op;
@@ -323,20 +336,22 @@ OpenPASS::~OpenPASS()
 void OpenPASS::updateAgent(AgentInterface* agent)
 {
     int ID = agent->GetId();
-    TrafficSimulation::AgentVehicle* av = agentVehicles[ID];
-    if (av == nullptr)
+    agentInfo* ai = agentInfos[ID];
+    if (ai == nullptr)
     {
-        av = createVehicle(ID,agent->GetVehicleModelType(),agent->GetVehicleType());
-            agentVehicles[ID] = av;
+        agentInfos[ID] = ai = new agentInfo(createVehicle(ID, agent->GetVehicleModelType(), agent->GetVehicleType()));
     }
-    if (av != nullptr)
+    if (ai != nullptr)
     {
+        TrafficSimulation::AgentVehicle* av = ai->vehicle;
+        ai->used = true;
         osg::Matrix rotOffset;
         rotOffset.makeIdentity();
         //fprintf(stderr, "%d: %f %f %f\n", ID, agent->GetPositionX(), agent->GetPositionY(), agent->GetRelativeYaw());
         osg::Matrix rmat, tmat;
         osg::Vec3 pos(agent->GetPositionX(), agent->GetPositionY(), 0);
-        osg::Quat orientation(agent->GetRelativeYaw(), osg::Vec3d(0, 0, -1));
+        RoadPosition rp = agent->GetRoadPosition();
+        osg::Quat orientation(-agent->GetRelativeYaw()-agent->GetLaneDirection(0, 0), osg::Vec3d(0, 0, -1));
         rmat.makeRotate(orientation);
         tmat.makeTranslate(pos);
         av->setTransform(rotOffset * rmat * tmat);
@@ -350,8 +365,25 @@ void OpenPASS::updateTime(int time, WorldInterface* world) // tie in ms
 {
     barrier.block(2);
 
+    for (auto const& [key, val] : agentInfos)
+    {
+        val->used = false;
+    }
     for (const auto& it : world->GetAgents()) {
        updateAgent(it.second);
+    }
+
+    for (auto it = agentInfos.begin(); it != agentInfos.end(); /* no increment */)
+    {
+        if (!it->second->used)
+        {
+            delete it->second;
+            it = agentInfos.erase(it); 
+        }
+        else
+        {
+            ++it;
+        }
     }
     barrierContinue.block(2);
 
@@ -475,11 +507,11 @@ bool OpenPASS::update()
     {
         if (restartSim)
         {
-            for (auto const& [key, val] : agentVehicles)
+            for (auto const& [key, val] : agentInfos)
             {
                 delete val;
             }
-            agentVehicles.clear();
+            agentInfos.clear();
             restartSim = false;
         }
 		barrier.block(2);
