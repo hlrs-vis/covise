@@ -365,7 +365,9 @@ GraphView::rebuildRulers()
     double width = viewport()->size().width() / matrix().m11();
     double height = viewport()->size().height() / matrix().m22();
 
+#ifdef COVER_CONNECTION
     COVERConnection::instance()->resizeMap(pos.x(),pos.y(),width,height);
+#endif
 
     if (!rulersActive_)
     {
@@ -1483,6 +1485,8 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
+	QGraphicsView::keyReleaseEvent(event);
+
 	switch (event->key())
 	{
 	case Qt::Key_Tab:
@@ -1490,10 +1494,8 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
 		QGraphicsView::mousePressEvent(lastMouseEvent_); // pass it again to baseclass
 		break;
 	}
-
-	default:
-		QGraphicsView::keyReleaseEvent(event);
 	}
+
 }
 
 void

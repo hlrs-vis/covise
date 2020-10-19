@@ -59,6 +59,8 @@ int getSensorInSensorZone(int sensorPos)
     first+= c;
     pos++;
   }
+
+  return -1;
 }
 
 

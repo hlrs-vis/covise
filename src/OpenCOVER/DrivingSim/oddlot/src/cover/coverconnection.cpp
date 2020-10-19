@@ -24,6 +24,7 @@
 #include "../gui/projectwidget.hpp"
 #include "../graph/topviewgraph.hpp"
 #include "../graph/graphview.hpp"
+#include "../mainwindow.hpp"
 #include "ui_coverconnection.h"
 
 // Data //

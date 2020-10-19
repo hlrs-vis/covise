@@ -186,6 +186,10 @@ private:
 	QMenu *contextMenu_;
 	QMenu *hideMenu_;
 	QMenu *removeMenu_;
+
+	// Select element beneath //
+	//
+	QPointF lastMousePos_;
 };
 
 

@@ -112,7 +112,9 @@ MainWindow::MainWindow(QWidget *parent)
 	oscSettings = new OSCSettings(covisedir_ + "/share/covise/catalogs/");
 
  //---------------------------------------//
+#ifdef COVER_CONNECTION
     coverConnection = COVERConnection::instance();
+#endif
     fileSettings = new FileSettings();
 
     createFileSettings();
@@ -183,7 +185,9 @@ void
 MainWindow::createCOVERConnectionButton()
 {
     coverButton = new QPushButton();
+#ifdef COVER_CONNECTION
     updateCOVERConnectionIcon(*(coverConnection->getIconDisconnected()));
+#endif
     coverButton->setIconSize(QSize(30,30));
     connect(coverButton,SIGNAL(clicked()),this,SLOT(openCOVERSettings()));
     coverConnectionToolBar = new QToolBar();
@@ -402,7 +406,9 @@ MainWindow::createFileSettings()
     fileSettings->addTab(importSettings);
     fileSettings->addTab(oscSettings);
     fileSettings->addTab(lodSettings);
+#ifdef COVER_CONNECTION
     fileSettings->addTab(coverConnection);
+#endif
 }
 
 
@@ -1171,7 +1177,9 @@ MainWindow::changeCOVERConnection()
 {
     if (getActiveProject())
     {
+#ifdef COVER_CONNECTION
         coverConnection->show();
+#endif
     }
     return;
 }
@@ -1181,12 +1189,14 @@ MainWindow::openCOVERSettings()
 {
     if (getActiveProject())
     {
+#ifdef COVER_CONNECTION
         /*if(coverConnection->getConnected())
         {
             fileSettings->show();
             fileSettings->getTabWidget()->setCurrentWidget(coverConnection);
         }*/
         coverConnection->setConnected(!(coverConnection->getConnected()));
+#endif
     }
 }
 

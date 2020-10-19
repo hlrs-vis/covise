@@ -79,6 +79,7 @@ public:
     };
 
     // this will be called in PreFrame
+    bool update();
     void preFrame();
 
     void destroyMenu();

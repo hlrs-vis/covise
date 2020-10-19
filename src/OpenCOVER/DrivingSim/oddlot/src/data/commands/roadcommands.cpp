@@ -3110,7 +3110,7 @@ SplitRoadCommand::~SplitRoadCommand()
     }
     else
     {
-        delete road_;
+ //       delete road_;
     }
 }
 
@@ -3412,9 +3412,12 @@ SplitRoadCommand::splitBefore(double s)
 		if (shapeSectionsB.isEmpty())
 		{
 			ShapeSection *splittedSection = road_->getShapeSection(s);
-			splittedSection = splittedSection->getClone();
-			splittedSection->setSStart(0.0);
-			shapeSectionsB.insert(0.0, splittedSection);
+            if(splittedSection)
+            {
+				splittedSection = splittedSection->getClone();
+				splittedSection->setSStart(0.0);
+				shapeSectionsB.insert(0.0, splittedSection);
+            }
 		}
 		newRoadA_->setShapeSections(shapeSectionsA);
 		newRoadB_->setShapeSections(shapeSectionsB);

@@ -120,15 +120,6 @@ private:
     //
     SignalHandle *insertSignalHandle_;
 
-    // Selection of obscured items
-    //
-    SignalItem *lastSelectedSignalItem_;
-    QMultiMap<double, SignalItem *> obscuredSignalItems_;
-    ObjectItem *lastSelectedObjectItem_;
-    QMultiMap<double, ObjectItem *> obscuredObjectItems_;
-    BridgeItem *lastSelectedBridgeItem_;
-    QMultiMap<double, BridgeItem *> obscuredBridgeItems_;
-
     ODD::ToolId lastTool_;
 
 	// List of selected signals //

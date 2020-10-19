@@ -131,6 +131,15 @@ private:
     SimulationSlave::FrameworkModuleContainer* frameworkModuleContainer;
 };
 
+class agentInfo
+{
+public:
+    agentInfo(TrafficSimulation::AgentVehicle *a);
+    ~agentInfo();
+    TrafficSimulation::AgentVehicle *vehicle;
+    bool used;
+};
+
 class OPENPASS_EXPORT OpenPASS : public opencover::coVRPlugin , public ui::Owner
 {
 public:
@@ -192,7 +201,7 @@ private:
 
     std::vector<std::string> vehicleClasses = {"passenger", "pedestrian", "motorbike", "bicycle", "truck", "bus","escooter"};
     std::map<std::string, std::vector<vehicleModel>*> vehicleModelMap;
-    std::map<int, TrafficSimulation::AgentVehicle*> agentVehicles;
+    std::map<int, agentInfo*> agentInfos;
     std::vector<pedestrianModel> pedestrianModels;
 
     void getVehiclesFromConfig();
