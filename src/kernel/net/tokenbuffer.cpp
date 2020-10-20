@@ -421,14 +421,8 @@ TokenBuffer& TokenBuffer::operator>>(DataHandle& d)
     checktype(TbTB);
     int l;
     *this >> l;
-    //d = data;
-    //d.movePtr(currdata - data.data());
-    //d.setLength(l);
-    //this->getBinary(l);
-
-    char* c = new char[l];
-    memcpy(c, this->getBinary(l), l);
-    d = DataHandle(c, l);
+    d = DataHandle{(size_t)l};
+    memcpy(d.accessData(), this->getBinary(l), l);
     return *this;
 }
 
