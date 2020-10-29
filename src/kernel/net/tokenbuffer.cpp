@@ -445,6 +445,38 @@ TokenBuffer &TokenBuffer::operator>>(TokenBuffer &tb)
     return *this;
 }
 
+
+covise::TokenBuffer::PlaceHolderBase::PlaceHolderBase(TokenBuffer& tb)
+    : m_tb(tb)
+    , m_state(tb) 
+{
+}
+
+covise::TokenBuffer::PlaceHolderBase::State::State(const TokenBuffer& tb)
+    : currdata(tb.currdata - tb.data.data())
+    //, buflen(tb.buflen)
+    , datalen(tb.data.length())
+{
+}
+
+void covise::TokenBuffer::PlaceHolderBase::State::apply(TokenBuffer& tb)
+{
+    tb.currdata = tb.data.accessData() + currdata;
+    //tb.buflen = buflen;
+    tb.data.setLength(datalen);
+}
+
+TokenBuffer::PlaceHolderBase::State TokenBuffer::PlaceHolderBase::rewind() {
+    State s{ m_tb };
+    m_state.apply(m_tb);
+    return s;
+}
+
+void TokenBuffer::PlaceHolderBase::resetRewind(TokenBuffer::PlaceHolderBase::State s) {
+    s.apply(m_tb);
+}
+
+
 void TokenBuffer::puttype(TokenBuffer::Types t)
 {
 #ifdef TB_DEBUG
@@ -899,3 +931,5 @@ void TokenBuffer::reset()
 
     //std::cerr << "reset TokenBuffer " << this << ": debug=" << debug << std::endl;
 }
+
+

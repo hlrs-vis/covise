@@ -152,6 +152,48 @@ public:
     TokenBuffer &operator>>(char *&c);
     TokenBuffer& operator>>(DataHandle& d);
     TokenBuffer &operator>>(TokenBuffer &tb);
+    
+    class NETEXPORT PlaceHolderBase {
+    protected:
+        struct State {
+            State(const TokenBuffer& tb);
+            void apply(TokenBuffer& tb);
+            int currdata;
+            int buflen = 0, datalen = 0;
+        };
+        TokenBuffer& m_tb;
+        PlaceHolderBase(TokenBuffer& tb);
+        State rewind();
+        void resetRewind(State s);
+    private:
+        State m_state;
+    };
+    friend PlaceHolderBase;
+    template <typename T>
+    class PlaceHolder : private PlaceHolderBase {
+    friend TokenBuffer;
+    public:
+        void replace(const T& value) {
+            auto s = rewind();
+            m_tb << value;
+            resetRewind(s);
+        }
+    private:
+        PlaceHolder(TokenBuffer& tb) :PlaceHolderBase(tb){}
+
+    };
+
+    template<typename T>
+    PlaceHolder<T> addPlaceHolder(const T& t = T()) {
+        static_assert(std::is_pod<T>::value, "TokenBuffer::addPlaceHolder only works for playi old data types");
+        if (!data.data())
+        {
+            incbuf();
+        }
+        PlaceHolder<T> p(*this);
+        *this << t;
+        return p;
+    }
     uint32_t get_int_token();
     char get_char_token();
     float get_float_token();
