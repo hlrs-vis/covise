@@ -31,6 +31,7 @@ SET(NET_HEADERS
   message.h
   message_types.h
   tokenbuffer.h
+  tokenbuffer_util.h
   udp_message_types.h
   udpMessage.h
 )
