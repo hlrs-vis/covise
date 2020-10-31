@@ -8,7 +8,7 @@
 
 #include <cover/input/dev/Joystick/Joystick.h>
 
-#include <cover/input/Input.h>
+#include <cover/input/input.h>
 using namespace vrml;
 using namespace opencover;
 
