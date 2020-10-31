@@ -23,6 +23,18 @@
 
   </System>
   <COVER>
+  
+    <EnvMapMode value="NONE" />
+    <UseDisplayLists value="false" />
+    <UseVertexBufferObjects value="false" />
+   <Input>
+    <MouseNav value="ON" />
+	<Device>
+           <joystick driver="Joystick" device="/dev/input/cyberstick"/>
+	</Device>
+
+
+   </Input>
   <Plugin>
   
    <Bicycle>
