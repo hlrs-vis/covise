@@ -121,7 +121,7 @@ demo 39 "Herrenberg" run_herrenberg
 run_campus() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
-    opencover /data/campus/out/praesentation_campus.wrl opencover://plugin/SumoTraCI
+    opencover /data/campus/out/praesentation_campusOnly.wrl opencover://plugin/SumoTraCI
     kill $SUMO
 }
 demo 40 "Campus with Sumo" run_campus
