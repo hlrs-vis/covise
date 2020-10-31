@@ -6,7 +6,7 @@
 #define EXTERNLIBS GetEnv("EXTERNLIBS")
 #define ARCHSUFFIX GetEnv("ARCHSUFFIX")
 
-#define REVIT_VERSION "2020"
+#define REVIT_VERSION "2021"
 
 
 [Setup]
