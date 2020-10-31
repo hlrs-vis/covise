@@ -169,6 +169,12 @@ public:
                        const char *data_name, coDistributedObject **out_data,
                        int x_size, int y_size, int z_size,
                        int algo);
+    void samplePointData(const coDistributedObject** in_data,
+        const char* grid_name, coDistributedObject** grid,
+        const char* data_name, coDistributedObject** out_data,
+        int x_size, int y_size, int z_size,
+        int algo);
+    
 
     void sample_structured(const coDistributedObject **in_data,
                            const char *grid_name, coDistributedObject **grid,
