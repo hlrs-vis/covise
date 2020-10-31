@@ -478,6 +478,153 @@ void unstruct_grid::sample_points(const coDistributedObject **in_data,
     delete[] countHits;
 }
 
+void unstruct_grid::samplePointData(const coDistributedObject** in_data,
+    const char* grid_name, coDistributedObject** uni_grid_o,
+    const char* data_name, coDistributedObject** out_data_o,
+    int x_s, int y_s, int z_s, int algo)
+{
+    x_size = x_s;
+    y_size = y_s;
+    z_size = z_s;
+
+    // build structured grid according to specification and build dataset too
+    coDoUniformGrid* uni_grid = new coDoUniformGrid(grid_name, x_size, y_size, z_size,
+        reg_min[0], reg_max[0], reg_min[1],
+        reg_max[1], reg_min[2], reg_max[2]);
+    *uni_grid_o = uni_grid;
+    coDoVec3* out_data_v = nullptr;
+    coDoFloat* out_data = nullptr;
+    float* scalars = nullptr;
+    float* vx = nullptr;
+    float* vy = nullptr;
+    float* vz = nullptr;
+    if (flagVector == VECTOR)
+    {
+        out_data_v = new coDoVec3(data_name, noDummy * x_size * noDummy * y_size * noDummy * z_size);
+        *out_data_o = out_data_v;
+        // get address to be able to write into data
+        out_data_v->getAddresses(&vx, &vy, &vz);
+    }
+    else
+    {
+        out_data = new coDoFloat(data_name, noDummy * x_size * noDummy * y_size * noDummy * z_size);
+        *out_data_o = out_data;
+        // get address to be able to write into data
+        out_data->getAddress(&scalars);
+    }
+
+    if (!noDummy)
+        return;
+
+
+    for (int i = 0; i < x_size * y_size * z_size; i++)
+    {
+        float value = FLT_MAX;
+        if (!nan_flag)
+            value = fill_value;
+        else
+            value = FLT_MAX;
+        if (scalars)
+        {
+            scalars[i] = value;
+        }
+        else
+        {
+            vx[i] = vy[i] = vz[i] = value;
+        }
+    }
+
+    uint32_t* countHits = new uint32_t[x_size * y_size * z_size];
+    float* vX = new float[x_size * y_size * z_size];
+    float* vY = new float[x_size * y_size * z_size];
+    float* vZ = new float[x_size * y_size * z_size];
+    for (int i = 0; i < x_size * y_size * z_size; i++)
+    {
+        countHits[i] = 0;
+        vX[i] = vY[i] = vZ[i] = 0.0f;
+    }
+
+    for (int block = 0; block < num_blocks; block++)
+    {
+        float* x_cl = x_c[block];
+        float* y_cl = y_c[block];
+        float* z_cl = z_c[block];
+        float* data = NULL;
+        float* dataX = NULL;
+        float* dataY = NULL;
+        float* dataZ = NULL;
+
+        if (in_data && in_data[block])
+        {
+            if (flagVector == VECTOR)
+            {
+                ((coDoVec3*)in_data[block])->getAddresses(&dataX,&dataY,&dataZ);
+            }
+            else
+            {
+                ((coDoFloat*)in_data[block])->getAddress(&data);
+            }
+        }
+
+        for (int i = 0; i < ncoord[block]; ++i)
+        {
+            int x_index, y_index, z_index;
+            findIndexRint(x_cl[i], y_cl[i], z_cl[i],
+                &x_index, &y_index, &z_index);
+            if (x_index < 0 || y_index < 0 || z_index < 0 || x_index >= x_size || y_index >= y_size || z_index >= z_size)
+            {
+                continue;
+            }
+
+            int uniIndex = x_index * y_size * z_size + y_index * z_size + z_index;
+            if (countHits[uniIndex]==0)
+            {
+                countHits[uniIndex] += 1;
+                if (data)
+                    scalars[uniIndex] = data[i];
+                else
+                {
+                    vx[uniIndex] = dataX[i];
+                    vy[uniIndex] = dataY[i];
+                    vz[uniIndex] = dataZ[i];
+                }
+            }
+            else
+            {
+                countHits[uniIndex] += 1;
+                if (data)
+                    scalars[uniIndex] += data[i];
+                else
+                {
+                    vx[uniIndex] += dataX[i];
+                    vy[uniIndex] += dataY[i];
+                    vz[uniIndex] += dataZ[i];
+                }
+            }
+        }
+    }
+
+    if (scalars)
+    {
+        for (int i = 0; i < x_size * y_size * z_size; ++i)
+        {
+            scalars[i] /= countHits[i];
+        }
+    }
+    else
+    {
+
+        for (int i = 0; i < x_size * y_size * z_size; ++i)
+        {
+            vx[i] /= countHits[i];
+            vy[i] /= countHits[i];
+            vz[i] /= countHits[i];
+        }
+    }
+
+        delete[] countHits;
+}
+
 void unstruct_grid::sample_accu(const coDistributedObject **in_data,
                                 const char *grid_name, coDistributedObject **uni_grid_o,
                                 const char *data_name, coDistributedObject **out_data_o,
@@ -843,9 +990,9 @@ void unstruct_grid::findIndexCeil(float x, float y, float z, int *xi, int *yi, i
 void unstruct_grid::findIndexRint(float x, float y, float z, int *xi, int *yi, int *zi)
 {
 #ifdef _WIN32
-    *xi = int((x_size - 1) * (x - reg_min[0]) / (reg_max[0] - reg_min[0]));
-    *yi = int((y_size - 1) * (y - reg_min[1]) / (reg_max[1] - reg_min[1]));
-    *zi = int((z_size - 1) * (z - reg_min[2]) / (reg_max[2] - reg_min[2]));
+    *xi = int(((x_size - 1) * (x - reg_min[0]) / (reg_max[0] - reg_min[0]))+0.5);
+    *yi = int(((y_size - 1) * (y - reg_min[1]) / (reg_max[1] - reg_min[1]))+0.5);
+    *zi = int(((z_size - 1) * (z - reg_min[2]) / (reg_max[2] - reg_min[2]))+0.5);
 #else
     *xi = (int)rint((x_size - 1) * (x - reg_min[0]) / (reg_max[0] - reg_min[0]));
     *yi = (int)rint((y_size - 1) * (y - reg_min[1]) / (reg_max[1] - reg_min[1]));
@@ -1430,10 +1577,22 @@ unstruct_grid::unstruct_grid(std::vector<const coDistributedObject *> &grid,
     {
         for (num_grid = 0; num_grid < num_blocks; num_grid++)
         {
-            coDoUnstructuredGrid *the_grid = (coDoUnstructuredGrid *)(grid[num_grid]);
-            the_grid->getAddresses(&el[num_grid], &cl[num_grid], &x_c[num_grid], &y_c[num_grid], &z_c[num_grid]);
-            the_grid->getTypeList(&tl[num_grid]);
-            the_grid->getGridSize(&nelem[num_grid], &nconn[num_grid], &ncoord[num_grid]);
+			const coDoUnstructuredGrid* the_grid = dynamic_cast<const coDoUnstructuredGrid*>(grid[num_grid]);
+			if (the_grid)
+			{
+				the_grid->getAddresses(&el[num_grid], &cl[num_grid], &x_c[num_grid], &y_c[num_grid], &z_c[num_grid]);
+				the_grid->getTypeList(&tl[num_grid]);
+				the_grid->getGridSize(&nelem[num_grid], &nconn[num_grid], &ncoord[num_grid]);
+			}
+			else
+			{
+                const coDoPoints* the_grid = dynamic_cast<const coDoPoints*>(grid[num_grid]);
+                if (the_grid)
+                {
+                    the_grid->getAddresses(&x_c[num_grid], &y_c[num_grid], &z_c[num_grid]);
+                    ncoord[num_grid] = the_grid->getNumPoints();
+                }
+			}
         }
     }
     for (i = 0; i < 4; i++)

@@ -1,0 +1,22 @@
+
+covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer
+   osgParticle osgText osgSim osgGA osgFX osgTerrain osgShadow REQUIRED)
+   
+USING(OpenSceneGraph)
+
+INCLUDE_DIRECTORIES(
+  ${OPENSCENEGRAPH_INCLUDE_DIRS}
+)
+SET(CONV_PAGED_LOD_SOURCES
+  convPagedLOD.cpp
+  
+)
+
+SET(CONV_PAGED_LOD_HEADERS
+)
+
+ADD_COVISE_EXECUTABLE(convPagedLOD ${CONV_PAGED_LOD_SOURCES} ${CONV_PAGED_LOD_HEADERS})
+TARGET_LINK_LIBRARIES(convPagedLOD ${EXTRA_LIBS} ${OPENSCENEGRAPH_LIBRARIES} ) 
+
+COVISE_INSTALL_TARGET(convPagedLOD)
+

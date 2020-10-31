@@ -21,6 +21,7 @@
 //####################//
 
 GeoReference::GeoReference(const QString &geoReferenceParams)
+    :DataElement()
 {
 	geoReferenceParams_ = geoReferenceParams;
 }

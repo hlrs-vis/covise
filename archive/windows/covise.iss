@@ -154,6 +154,12 @@
 
 #define SUFFIX_VERSION GetDateTimeString('yyyy/mm/dd', '-', ':');
 
+#IFDEF UNICODE
+  #DEFINE AW "W"
+#ELSE
+  #DEFINE AW "A"
+#ENDIF
+
 [Setup]
 ;compiler-related
 
@@ -573,10 +579,10 @@ Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Descript
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
 Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec   
 #elif ARCHSUFFIX == "zebuopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall    
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Install MS-MPI Runtime; Flags: postinstall   
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Check: VCRedist1264NeedsInstall; Description: Install VisualStudio 2012 x64 Runtime; Flags: postinstall    
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Check: VCRedist1286NeedsInstall; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Check: VCRedistBundleNeedsInstall; Description: Install VisualStudio 2015-19 x64 Runtimes; Flags: postinstall
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Check: MSMPINeedsInstall; Description: Install MS-MPI Runtime; Flags: postinstall   
 Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Parameters: /S /v/qn; Description: Install Intel Runtime; Flags: postinstall
 
 #elif ARCHSUFFIX == "amdwin64opt"
@@ -589,6 +595,7 @@ Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2021\FoamExporter.addi
 Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2021\OpenCOVER.addin"
 
 [Code]
+           
 
 program Setup;
 
@@ -599,6 +606,53 @@ var
   UNCPathName: TEdit;
   Page: TWizardPage;
 
+type
+  INSTALLSTATE = Longint;
+
+  const
+  INSTALLSTATE_INVALIDARG = -2;  { An invalid parameter was passed to the function. }
+  INSTALLSTATE_UNKNOWN = -1;     { The product is neither advertised or installed. }
+  INSTALLSTATE_ADVERTISED = 1;   { The product is advertised but not installed. }
+  INSTALLSTATE_ABSENT = 2;       { The product is installed for a different user. }
+  INSTALLSTATE_DEFAULT = 5;      { The product is installed for the current user. }
+ 
+  VC_2012_REDIST_X64_MIN = '{CF2BEA3C-26EA-32F8-AA9B-331F7E34BA97}';
+  VC_2012_REDIST_X86_MIN = '{BD95A8CD-1D9F-35AD-981A-3E7925026EBB}';
+  MSMPI_KEY = '{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}';
+  INTEL_RUNTIME = '';
+
+  VC_2015_2019_REDIST_X64_BUNDLE = '{852adda4-4c78-4a38-b583-c0b360a329d6}';
+            
+
+function MsiQueryProductState(szProduct: string): INSTALLSTATE; 
+  external 'MsiQueryProductState{#AW}@msi.dll stdcall';
+
+function VCVersionInstalled(const ProductID: string): Boolean;
+begin
+  Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
+end;
+          
+function VCRedistBundleNeedsInstall: Boolean;
+begin
+  Result := not VCVersionInstalled(VC_2015_2019_REDIST_X64_BUNDLE);
+end;
+function VCRedist1264NeedsInstall: Boolean;
+begin
+  Result := not VCVersionInstalled(VC_2012_REDIST_X64_MIN);
+end;
+function VCRedist1286NeedsInstall: Boolean;
+begin
+  Result := not VCVersionInstalled(VC_2012_REDIST_X86_MIN);
+end;
+
+function MSMPINeedsInstall: Boolean;
+begin
+  Result := not VCVersionInstalled(MSMPI_KEY);
+end;
+function IntelNeedsInstall: Boolean;
+begin
+  Result := not VCVersionInstalled(INTEL_RUNTIME);
+end;
 
 
 procedure FormButtonOnClick(Sender: TObject);

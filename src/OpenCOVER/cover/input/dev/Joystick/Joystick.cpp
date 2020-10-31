@@ -74,6 +74,12 @@ Joystick::Joystick(const std::string &config)
 			for (int n = 0; n < number_buttons[i]; n++)
 				buttons[i][n] = 0;
 		}
+		if (sliders[i] == NULL)
+		{
+			sliders[i] = new float[number_sliders[i]];
+			for (int n = 0; n < number_sliders[i]; n++)
+				sliders[i][n] = 0;
+		}
 
 		if (axes[i] == NULL)
 		{

@@ -16,7 +16,7 @@ DataToGrid::DataToGrid(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Transform structured data to a structured grid or unstructured data to points")
 {
     // Create ports:
-    piData = addInputPort("DataIn0", "Float|Vec3", "data describing grid or points");
+    piData = addInputPort("DataIn0", "Float|Vec3|Points", "data describing grid or points");
     piTopGrid = addInputPort("GridIn0", "UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons",
                              "grid for copying topology");
     piTopGrid->setRequired(0);
@@ -57,8 +57,15 @@ int DataToGrid::compute(const char *)
     }
     else
     {
-        sendError("did not receive compatible input data");
-        return STOP_PIPELINE;
+        if (const coDoPoints* points = dynamic_cast<const coDoPoints*>(obj))
+        {
+            no_data = points->getNumPoints();
+        }
+        else
+        {
+            sendError("did not receive compatible input data");
+            return STOP_PIPELINE;
+        }
     }
     const coDistributedObject *topObj = piTopGrid->getCurrentObject();
     float *px = NULL, *py = NULL, *pz = NULL;
@@ -158,7 +165,44 @@ int DataToGrid::compute(const char *)
     }
     coDoStructuredGrid *grid = NULL;
     coDoPoints *points = NULL;
-    if (const coDoVec3 *data = dynamic_cast<const coDoVec3 *>(obj))
+    if (const coDoPoints* data = dynamic_cast<const coDoPoints*>(obj))
+    {
+        float* dx, * dy, * dz;
+        data->getAddresses(&dx, &dy, &dz);
+        if (top || topPoly || !pbStrGrid->getValue())
+        {
+            if (!unstr && !polygons)
+            {
+                points = new coDoPoints(poGrid->getObjName(), no_data);
+                points->getAddresses(&px, &py, &pz);
+            }
+
+            for (int i = 0; i < no_data; i++)
+            {
+                px[i] = dx[i];
+                py[i] = dy[i];
+                pz[i] = dz[i];
+            }
+        }
+        else
+        {
+            if (resX * resY * resZ != no_data)
+            {
+                sendError("incompatible data size");
+                return STOP_PIPELINE;
+            }
+            grid = new coDoStructuredGrid(poGrid->getObjName(), resX, resY, resZ);
+            float* gx, * gy, * gz;
+            grid->getAddresses(&gx, &gy, &gz);
+            for (int i = 0; i < resX * resY * resZ; i++)
+            {
+                gx[i] = dx[i];
+                gy[i] = dy[i];
+                gz[i] = dz[i];
+            }
+        }
+    }
+    else if (const coDoVec3 *data = dynamic_cast<const coDoVec3 *>(obj))
     {
         float *dx, *dy, *dz;
         data->getAddresses(&dx, &dy, &dz);

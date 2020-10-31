@@ -1837,6 +1837,8 @@ ProjectWidget::setProjectActive(bool active)
     projectSettings_->projectActivated(active);
 
 	active_ = active;
+
+    changeManager_->notifyObservers();
 }
 
 /*! \brief Called when this project has been modified.

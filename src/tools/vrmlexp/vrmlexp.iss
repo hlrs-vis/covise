@@ -36,7 +36,7 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
 OutputBaseFilename=HLRS_Max2021.1_x64_VRML_Exporter    
 ArchitecturesInstallIn64BitMode="x64"  
-ProcessorsAllowed="x64"
+;ProcessorsAllowed="x64"
 #endif
 
 ;installer-related
