@@ -89,6 +89,7 @@ public:
         hasSubTextures = false;
         repeatS = true;
         repeatT = true;
+        isBumpMap = false;
     };
     TextureDesc(StdCubic *c)
     {
@@ -100,6 +101,7 @@ public:
         hasSubTextures = false;
         repeatS = true;
         repeatT = true;
+        isBumpMap = false;
     };
     BitmapTex *tex;
     StdCubic *cm;
@@ -113,6 +115,7 @@ public:
     bool repeatS;
     bool repeatT;
     bool hasSubTextures;
+    bool isBumpMap;
 };
 
 class NormalTable;

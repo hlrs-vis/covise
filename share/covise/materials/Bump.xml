@@ -59,7 +59,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       	
       if(lambertTerm &gt; 0.0)
       {
-if(N[2]&gt; 0.5)
+if(N[2]&gt; 2.5)
 {
 final_color = vec4(1,1,1,1);
 }

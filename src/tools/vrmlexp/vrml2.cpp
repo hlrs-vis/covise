@@ -2261,7 +2261,10 @@ VRML2Export::GetTextures(Mtl *mtl, BOOL &isWire, int &numTexDesks, TextureDesc *
 		{
 			tds[numTexDesks] = GetTexmapTex(physicalMaterial.bump_map, isWire, ID_BU);
 			if (tds[numTexDesks])
-			numTexDesks++;
+			{
+				tds[numTexDesks]->isBumpMap = true;
+				numTexDesks++;
+			}
 		}
 		if (physicalMaterial.refl_color_map)
 		{
@@ -3067,6 +3070,21 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 		sm->Update(0, i);
 		Indent(level);
 	}
+	BOOL dummy = false;
+	int numTextureDescs = 0;
+	TextureDesc* textureDescs[MAX_TEXTURES];
+
+	haveDiffuseMap = false;
+	bool hasBumpMap = false;
+	GetTextures(mtl, dummy, numTextureDescs, textureDescs);
+	for (int i = 0; i < numTextureDescs; i++)
+	{
+		if (textureDescs[i]->isBumpMap)
+		{
+			hasBumpMap = true;
+		}
+	}
+
 	MSTREAMPRINTFNOSTRINGS("material DEF "));
 	const TCHAR *mtlName = NULL;
 	if (sm)
@@ -3074,7 +3092,16 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 	else
 		mtlName = mtl->GetName().data();
 	TCHAR *matName = new TCHAR[_tcsclen(mtlName) + 100];
-	_stprintf(matName, _T("M_%s"), VRMLName(mtlName));
+	if (hasBumpMap && _tcsncmp(mtlName, _T("coShader"), 8) != 0)
+	{
+		_stprintf(matName, _T("M_coShaderBump_%s"), VRMLName(mtlName));
+		MSTREAMPRINTF("M_coShaderBump_%s"), VRMLName(mtlName));
+	}
+	else
+	{
+		_stprintf(matName, _T("M_%s"), VRMLName(mtlName));
+		MSTREAMPRINTF("M_%s"), VRMLName(mtlName));
+	}
 	/*for(unsigned int i=0;i<strlen(matName);i++)
 	{
 	   if(matName[i]==' ')
@@ -3083,14 +3110,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 		  matName[i]='_';
 	}*/
 
-	BOOL dummy = false;
-	int numTextureDescs = 0;
-	TextureDesc *textureDescs[MAX_TEXTURES];
 
-	haveDiffuseMap = false;
-	GetTextures(mtl, dummy, numTextureDescs, textureDescs);
-
-	MSTREAMPRINTF("M_%s"), VRMLName(mtlName));
 	delete[] matName;
 	MSTREAMPRINTFNOSTRINGS(" Material {\n"));
 	Color c;
