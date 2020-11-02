@@ -535,6 +535,22 @@ GraphView::loadGoogleMap()
     QString maptype;
     QString sizePair;
     QDir directoryOperator;
+    QPointF sceneCenter = mapToScene(viewport()->rect().center());
+    
+    projPJ from = topviewGraph_->getProjectData()->getProj4ReferenceFrom();
+    projPJ to = topviewGraph_->getProjectData()->getProj4ReferenceTo();
+    double x=0, y=0, z=0;
+	if (from != nullptr && to != nullptr)
+	{
+        x = sceneCenter.x();
+        y = sceneCenter.y();
+        z = 0;
+		int e = pj_transform(to , from, 1, 1, &x, &y, &z);
+        if (e != 0)
+        {
+            printf("Transform failed: %s\n", pj_strerrno(e));
+        }
+	}
     bool mapRejected = false;
 
     //Sets up the UI
@@ -561,7 +577,9 @@ GraphView::loadGoogleMap()
     lineEdit3->setText("3,3");
     form.addRow(label3, lineEdit3);
     fields << lineEdit3;
-
+	char buf[500];
+	sprintf(buf, "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
+	lineEdit1->setText(buf);
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                Qt::Horizontal, &dialog);
     form.addRow(&buttonBox);
@@ -593,67 +611,70 @@ GraphView::loadGoogleMap()
         //QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
 
         //system(qPrintable(XMLlocationCommand));
-		downloadFile("location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
-        QString lat;
-        QString lon;
+        QString tmpDir = topviewGraph_->getProjectData()->tempDir.path() + "/";
+		downloadFile(tmpDir+"location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
-        QFile xmlFile("location.xml");
-        if(!xmlFile.open(QFile::ReadOnly | QFile::Text))
-            exit(0);
+        QString lat="48.73964";
+        QString lon="9.09725";
 
-        QXmlStreamReader xmlReader(&xmlFile);
-
-
-        //Finds latitude and longitude of the selected location by parsing downloaded XML document
-
-        if (xmlReader.readNextStartElement())
+        QFile xmlFile(tmpDir + "location.xml");
+        if(xmlFile.open(QFile::ReadOnly | QFile::Text))
         {
-            if(xmlReader.name() == "GeocodeResponse")
-            {
-                while(xmlReader.readNextStartElement())
-                {
-                    if(xmlReader.name() == "status")
-                    {
-                        xmlReader.skipCurrentElement();
-                    }
-                    else if(xmlReader.name() == "result")
-                    {
-                        while(xmlReader.readNextStartElement())
-                        {
-                            if(xmlReader.name() != "geometry")
-                            {
-                                xmlReader.skipCurrentElement();
-                            }
-                            else if (xmlReader.name() == "geometry")
-                                while(xmlReader.readNextStartElement())
-                                {
-                                    if(xmlReader.name() == "location"){
-                                        while(xmlReader.readNextStartElement())
-                                        {
-                                            if(xmlReader.name() == "lat"){
-                                                lat = xmlReader.readElementText();
-                                            }
-                                            if(xmlReader.name() == "lng"){
-                                                lon = xmlReader.readElementText();
-                                            }
-                                        }
-                                    }
-                                }
-                        }
-                    }
-                }
-            }
+
+			QXmlStreamReader xmlReader(&xmlFile);
+
+
+			//Finds latitude and longitude of the selected location by parsing downloaded XML document
+
+			if (xmlReader.readNextStartElement())
+			{
+				if (xmlReader.name() == "GeocodeResponse")
+				{
+					while (xmlReader.readNextStartElement())
+					{
+						if (xmlReader.name() == "status")
+						{
+							xmlReader.skipCurrentElement();
+						}
+						else if (xmlReader.name() == "result")
+						{
+							while (xmlReader.readNextStartElement())
+							{
+								if (xmlReader.name() != "geometry")
+								{
+									xmlReader.skipCurrentElement();
+								}
+								else if (xmlReader.name() == "geometry")
+									while (xmlReader.readNextStartElement())
+									{
+										if (xmlReader.name() == "location") {
+											while (xmlReader.readNextStartElement())
+											{
+												if (xmlReader.name() == "lat") {
+													lat = xmlReader.readElementText();
+												}
+												if (xmlReader.name() == "lng") {
+													lon = xmlReader.readElementText();
+												}
+											}
+										}
+									}
+							}
+						}
+					}
+				}
+			}
         }
 
         //system(qPrintable("echo Y converted to " + QString::number(yPosition) + " X converted to " + QString::number(xPosition) + " z converted to " + QString::number(zPosition)));
         double dlat = lat.toDouble();
         double dlon = lon.toDouble();
 
-
         QString folderName = QString(QString::number(dlat) + QString::number(dlon) + maptype + sizeX + sizeY);
-        directoryOperator.mkdir("OddlotMapImages");
-        directoryOperator.setCurrent("OddlotMapImages");
+        QString currentDirectory = directoryOperator.currentPath();
+        directoryOperator.mkdir(tmpDir + "OddlotMapImages");
+        directoryOperator.setCurrent(tmpDir + "OddlotMapImages");
         directoryOperator.mkdir(folderName);
         directoryOperator.setCurrent(folderName);
         //example format:
@@ -721,8 +742,9 @@ GraphView::loadGoogleMap()
         //system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 7)));
         //system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 7)));
         //system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 7)));
-        directoryOperator.setCurrent("..");
-        directoryOperator.setCurrent("..");
+        //directoryOperator.setCurrent("..");
+        //directoryOperator.setCurrent("..");
+        directoryOperator.setCurrent(currentDirectory);
     }
 }
 void
@@ -732,6 +754,23 @@ GraphView::loadBingMap()
     //http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/47.619048,-122.35384/15?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm
 
 
+    QPointF sceneCenter = mapToScene(viewport()->rect().center());
+
+    projPJ from = topviewGraph_->getProjectData()->getProj4ReferenceFrom();
+    projPJ to = topviewGraph_->getProjectData()->getProj4ReferenceTo();
+    double x = 0, y = 0, z = 0;
+    if (from != nullptr && to != nullptr)
+    {
+        x = sceneCenter.x();
+        y = sceneCenter.y();
+        z = 0;
+        int e = pj_transform(to, from, 1, 1, &x, &y, &z);
+        if (e != 0)
+        {
+            printf("Transform failed: %s\n", pj_strerrno(e));
+        }
+    }
+    QString tmpDir = topviewGraph_->getProjectData()->tempDir.path()+"/";
     QString location;
     QString mapType;
     QString sizePair;
@@ -762,6 +801,9 @@ GraphView::loadBingMap()
     lineEdit3->setText("3,3");
     form.addRow(label3, lineEdit3);
     fields << lineEdit3;
+    char buf[500];
+    sprintf(buf, "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
+    lineEdit1->setText(buf);
 
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                Qt::Horizontal, &dialog);
@@ -789,53 +831,54 @@ GraphView::loadBingMap()
 
        // system(qPrintable(XMLlocationCommand));
 
-		downloadFile("location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
+		downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
-        QString lat;
-        QString lon;
+        QString lat = "48.73964";
+        QString lon = "9.09725";
 
-        QFile xmlFile("location.xml");
-        if(!xmlFile.open(QFile::ReadOnly | QFile::Text))
-            exit(0);
-
-        QXmlStreamReader xmlReader(&xmlFile);
-
-
-        //Finds latitude and longitude of the selected location by parsing downloaded XML document
-
-        if (xmlReader.readNextStartElement())
+        QFile xmlFile(tmpDir + "location.xml");
+        if (xmlFile.open(QFile::ReadOnly | QFile::Text))
         {
-            if(xmlReader.name() == "GeocodeResponse")
+
+            QXmlStreamReader xmlReader(&xmlFile);
+
+
+            //Finds latitude and longitude of the selected location by parsing downloaded XML document
+
+            if (xmlReader.readNextStartElement())
             {
-                while(xmlReader.readNextStartElement())
+                if (xmlReader.name() == "GeocodeResponse")
                 {
-                    if(xmlReader.name() == "status")
+                    while (xmlReader.readNextStartElement())
                     {
-                        xmlReader.skipCurrentElement();
-                    }
-                    else if(xmlReader.name() == "result")
-                    {
-                        while(xmlReader.readNextStartElement())
+                        if (xmlReader.name() == "status")
                         {
-                            if(xmlReader.name() != "geometry")
+                            xmlReader.skipCurrentElement();
+                        }
+                        else if (xmlReader.name() == "result")
+                        {
+                            while (xmlReader.readNextStartElement())
                             {
-                                xmlReader.skipCurrentElement();
-                            }
-                            else if (xmlReader.name() == "geometry")
-                                while(xmlReader.readNextStartElement())
+                                if (xmlReader.name() != "geometry")
                                 {
-                                    if(xmlReader.name() == "location"){
-                                        while(xmlReader.readNextStartElement())
-                                        {
-                                            if(xmlReader.name() == "lat"){
-                                                lat = xmlReader.readElementText();
-                                            }
-                                            if(xmlReader.name() == "lng"){
-                                                lon = xmlReader.readElementText();
+                                    xmlReader.skipCurrentElement();
+                                }
+                                else if (xmlReader.name() == "geometry")
+                                    while (xmlReader.readNextStartElement())
+                                    {
+                                        if (xmlReader.name() == "location") {
+                                            while (xmlReader.readNextStartElement())
+                                            {
+                                                if (xmlReader.name() == "lat") {
+                                                    lat = xmlReader.readElementText();
+                                                }
+                                                if (xmlReader.name() == "lng") {
+                                                    lon = xmlReader.readElementText();
+                                                }
                                             }
                                         }
                                     }
-                                }
+                            }
                         }
                     }
                 }
@@ -845,8 +888,9 @@ GraphView::loadBingMap()
         //system(qPrintable("echo Y converted to " + QString::number(yPosition) + " X converted to " + QString::number(xPosition) + " z converted to " + QString::number(zPosition)));
 
         QString folderName = lat + lon + mapType + sizeX + sizeY;
-        directoryOperator.mkdir("OddlotMapImages");
-        directoryOperator.setCurrent("OddlotMapImages");
+        QString currentDirectory = directoryOperator.currentPath();
+        directoryOperator.mkdir(tmpDir + "OddlotMapImages");
+        directoryOperator.setCurrent(tmpDir + "OddlotMapImages");
         directoryOperator.mkdir(folderName);
         directoryOperator.setCurrent(folderName);
         //example format:
@@ -1018,8 +1062,9 @@ GraphView::loadBingMap()
 
         system(qPrintable("echo Latitude used: " + lat));
         system(qPrintable("echo Longitude used: " + lon));
-        directoryOperator.setCurrent("..");
-        directoryOperator.setCurrent("..");
+        //directoryOperator.setCurrent("..");
+        //directoryOperator.setCurrent("..");
+        directoryOperator.setCurrent(currentDirectory);
     }
 }
 }

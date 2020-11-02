@@ -107,6 +107,12 @@ void oscCatalog::getXoscFilesFromDirectory()
 						}
 					}
 				}
+				else if (bf::is_regular_file(pathToCatalogDirToUse))
+				{
+					oscCatalogFile* file = new oscCatalogFile(pathToCatalogDirToUse.filename().stem().string(), pathToCatalogDirToUse.filename().string(), pathToCatalogDirToUse.parent_path().string());
+					file->setPath(pathToCatalogDirToUse.string());
+					xoscFiles.push_back(file);
+				}
 				else
 				{
 					std::cerr << "Warning! " << pathToCatalogDirToUse << " is not a path to a directory." << std::endl;
