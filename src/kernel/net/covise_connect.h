@@ -120,7 +120,7 @@ class NETEXPORT Connection
 protected:
     friend class ServerConnection;
     friend class ConnectionList;
-    class Socket *sock; // Socket for connection
+    class Socket *sock = nullptr; // Socket for connection
     int port; // port for connection
     int sender_id; // id of the sending process
     int send_type; // type of module for messages
@@ -129,8 +129,8 @@ protected:
     int message_to_do; // if more than one message has been read
     int bytes_to_process;
     unsigned long tru;
-    char *read_buf;
-    Host *other_host;
+    char *read_buf = nullptr;
+    Host *other_host = nullptr;
     int hostid; //hostid of remote host
     void (*remove_socket)(int);
     int get_id();
