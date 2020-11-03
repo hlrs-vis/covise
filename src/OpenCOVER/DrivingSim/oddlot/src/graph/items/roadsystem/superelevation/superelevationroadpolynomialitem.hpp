@@ -36,6 +36,8 @@ public:
 
     virtual QRectF boundingRect() const;
 
+    QRectF translate(qreal x, qreal y);
+
     // SuperelevationEditor //
     //
     SuperelevationEditor *getSuperelevationEditor() const

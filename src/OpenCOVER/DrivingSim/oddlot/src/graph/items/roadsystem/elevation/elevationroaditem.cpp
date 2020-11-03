@@ -73,11 +73,6 @@ ElevationRoadItem::init()
     {
         elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
     }
-
-	if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
-	{
-		elevationEditor_->insertSelectedRoad(getRoad());
-	}
 }
 
 void
@@ -134,28 +129,5 @@ ElevationRoadItem::updateObserver()
 	}
 }
 
-//################//
-// EVENTS         //
-//################//
 
-/*!
-* Handles Item Changes.
-*/
-QVariant
-ElevationRoadItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
-    if (change == QGraphicsItem::ItemSelectedHasChanged)
-    {
-        if (value.toBool())
-        {
-            elevationEditor_->insertSelectedRoad(getRoad());
-        }
-        else
-        {
-            elevationEditor_->delSelectedRoad(getRoad());
-        }
-    }
-
-    return RoadItem::itemChange(change, value);
-}
 

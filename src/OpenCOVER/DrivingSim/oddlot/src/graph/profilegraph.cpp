@@ -26,7 +26,9 @@
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
 #include "src/graph/editors/elevationeditor.hpp"
+#include "src/graph/editors/superelevationeditor.hpp"
 #include "src/graph/items/roadsystem/elevation/elevationroadpolynomialitem.hpp"
+#include "src/graph/items/roadsystem/superelevation/superelevationroadpolynomialitem.hpp"
 
 // Qt //
 //
@@ -133,6 +135,20 @@ ProfileGraph::updateBoundingBox()
 			elevationEditor->addSelectedRoad(selectedElevationItem);
 		}
 		elevationEditor->fitView();
+    }
+    else
+    {
+        SuperelevationEditor* superelevationEditor = dynamic_cast<SuperelevationEditor*>(editor);
+        if (superelevationEditor)
+        {
+            superelevationEditor->initBox();
+            SuperelevationRoadPolynomialItem* selectedSuperelevationItem = superelevationEditor->getSelectedSuperelevationItem();
+            if (selectedSuperelevationItem && !selectedSuperelevationItem->isInGarbage())
+            {
+                superelevationEditor->addSelectedRoad(selectedSuperelevationItem);
+            }
+            superelevationEditor->fitView();
+        }
     }
 }
 

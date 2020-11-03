@@ -64,6 +64,7 @@ SuperelevationEditor::SuperelevationEditor(ProjectWidget *projectWidget, Project
     , roadSystemItemPolyGraph_(NULL)
     , insertSectionHandle_(NULL)
     , smoothRadius_(1000.0)
+    , selectedSuperelevationItem_(NULL)
 {
 }
 
@@ -87,54 +88,124 @@ SuperelevationEditor::getInsertSectionHandle()
 }
 
 /*! \brief Adds a road to the list of selected roads.
-*
-* Calls fitInView for the selected road and displays it in the ProfileGraph.
 */
+
 void
-SuperelevationEditor::addSelectedRoad(RSystemElementRoad *road)
+SuperelevationEditor::insertSelectedRoad(RSystemElementRoad* road)
 {
-    if (!selectedSuperelevationRoadItems_.contains(road))
+    if (getCurrentTool() == ODD::TSE_SELECT)
     {
-        // Activate Road in ProfileGraph //
-        //
-        SuperelevationRoadPolynomialItem *roadItem = new SuperelevationRoadPolynomialItem(roadSystemItemPolyGraph_, road);
-        selectedSuperelevationRoadItems_.insert(road, roadItem);
-
-        // Fit View //
-        //
-        QRectF boundingBox = roadItem->boundingRect();
-        if (boundingBox.width() < 15.0)
+        if (!selectedRoads_.contains(road))
         {
-            boundingBox.setWidth(15.0);
-        }
-        if (boundingBox.height() < 15.0)
-        {
-            boundingBox.setHeight(15.0);
-        }
+            selectedRoads_.append(road);
+            QList<DataElement*> sectionList;
+            foreach(SuperelevationSection * section, road->getSuperelevationSections())
+            {
+                if (!section->isElementSelected())
+                {
+                    sectionList.append(section);
+                }
+            }
 
-        profileGraph_->getView()->fitInView(boundingBox);
-        profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
-    }
-    else
-    {
-        //qDebug("already there");
+            int listSize = selectedRoads_.size();
+            if (listSize == 1)
+            {
+                if (!selectedSuperelevationItem_)
+                {
+                    selectedSuperelevationItem_ = new SuperelevationRoadPolynomialItem(roadSystemItemPolyGraph_, road);
+                }
+            }
+            else if (listSize == 2)
+            {
+                selectedSuperelevationItem_->registerForDeletion();
+                selectedSuperelevationItem_ = NULL;
+            }
+
+            SelectDataElementCommand* command = new SelectDataElementCommand(sectionList);
+            getProjectGraph()->executeCommand(command);
+        }
     }
 }
 
-int
+/*! \brief Initialize BoundingBox and offset.
+*/
+
+void
+SuperelevationEditor::initBox()
+{
+    xtrans_ = 0.0;
+    boundingBox_.setRect(0.0, 0.0, 0.0, 0.0);
+}
+
+/*
+* Calls fitInView for the selected road and displays it in the ProfileGraph.
+*/
+void
+SuperelevationEditor::addSelectedRoad(SuperelevationRoadPolynomialItem* roadItem)
+{
+
+    // Compute the BoundingBox of all selected roads //
+    //
+    QRectF roadItemBoundingBox = roadItem->translate(xtrans_, 0.0);
+
+    boundingBox_ = boundingBox_.united(roadItemBoundingBox);
+    xtrans_ = boundingBox_.width();
+}
+
+void
+SuperelevationEditor::fitView()
+{
+    if (boundingBox_.width() < 15.0)
+    {
+        boundingBox_.setWidth(15.0);
+    }
+    if (boundingBox_.height() < 15.0)
+    {
+        boundingBox_.setHeight(15.0);
+    }
+
+    profileGraph_->getView()->fitInView(boundingBox_);
+    profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
+}
+
+void
 SuperelevationEditor::delSelectedRoad(RSystemElementRoad *road)
 {
-    SuperelevationRoadPolynomialItem *roadItem = selectedSuperelevationRoadItems_.take(road);
-    if (!roadItem)
+    if (selectedRoads_.contains(road))
     {
-        return 0;
-    }
-    else
-    {
-        // Deactivate Road in ProfileGraph //
-        //
-        roadItem->registerForDeletion();
-        return 1;
+        selectedRoads_.removeAll(road);
+
+        QList<DataElement*> sectionList;
+        foreach(SuperelevationSection * section, road->getSuperelevationSections())
+        {
+            if (section->isElementSelected())
+            {
+                sectionList.append(section);
+            }
+        }
+
+        int listSize = selectedRoads_.size();
+        if (listSize == 1)
+        {
+            if (!selectedSuperelevationItem_)
+            {
+                selectedSuperelevationItem_ = new SuperelevationRoadPolynomialItem(roadSystemItemPolyGraph_, selectedRoads_.first());
+
+                DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+                getProjectGraph()->executeCommand(command);
+            }
+        }
+        else
+        {
+            DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+            getProjectGraph()->executeCommand(command);
+
+            if (listSize == 0)
+            {
+                selectedSuperelevationItem_->registerForDeletion();
+                selectedSuperelevationItem_ = NULL;
+            }
+        }
     }
 }
 
@@ -324,7 +395,12 @@ SuperelevationEditor::init()
 void
 SuperelevationEditor::kill()
 {
-	selectedSuperelevationRoadItems_.clear();
+    selectedRoads_.clear();
+    if (selectedSuperelevationItem_ && !selectedSuperelevationItem_->isInGarbage())
+    {
+        selectedSuperelevationItem_->registerForDeletion();
+        selectedSuperelevationItem_ = NULL;
+    }
 
     delete roadSystemItem_;
     roadSystemItem_ = NULL;

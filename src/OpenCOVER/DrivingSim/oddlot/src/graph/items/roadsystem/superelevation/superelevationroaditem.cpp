@@ -74,13 +74,6 @@ SuperelevationRoadItem::init()
         superelevationSectionItems_.insert(section->getSStart(), new SuperelevationSectionItem(superelevationEditor_, this, section));
     }
 
-    // Selection //
-    //
-    if ((getRoad()->isElementSelected()) || (getRoad()->isChildElementSelected()))
-    {
-        superelevationEditor_->addSelectedRoad(getRoad());
-    }
-
 }
 
 void
@@ -135,40 +128,7 @@ SuperelevationRoadItem::updateObserver()
 		}
     }
 
-    // DataElement //
-    //
-    int dataElementChanges = getRoad()->getDataElementChanges();
-    if ((dataElementChanges & DataElement::CDE_SelectionChange)
-        || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
-    {
-        // Selection //
-        //
-        if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
-        {
-            superelevationEditor_->addSelectedRoad(getRoad());
-        }
-        else
-        {
-            superelevationEditor_->delSelectedRoad(getRoad());
-        }
-    }
 }
 
-//################//
-// EVENTS         //
-//################//
 
-void
-SuperelevationRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
 
-	// SectionItems //
-	//
-	if (getRoad()->isChildElementSelected())
-	{
-		foreach(SuperelevationSectionItem *sectionItem, superelevationSectionItems_)
-		{
-			sectionItem->setSelected(true);
-		}
-	}
-}

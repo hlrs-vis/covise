@@ -92,6 +92,24 @@ SuperelevationRoadPolynomialItem::boundingRect() const
     }
     return boundingBox;
 }
+
+QRectF
+SuperelevationRoadPolynomialItem::translate(qreal x, qreal y)
+{
+    QTransform qTransformMatrix;
+    qTransformMatrix.translate(x, y);
+
+    foreach(QGraphicsItem * childItem, childItems())
+    {
+        QGraphicsPathItem* pathItem = static_cast<QGraphicsPathItem*>(childItem);
+        pathItem->setTransform(qTransformMatrix);
+    }
+
+    QRectF boundingBox = qTransformMatrix.mapRect(boundingRect());
+
+    return boundingBox;
+}
+
 void
 SuperelevationRoadPolynomialItem::rebuildMoveHandles()
 {

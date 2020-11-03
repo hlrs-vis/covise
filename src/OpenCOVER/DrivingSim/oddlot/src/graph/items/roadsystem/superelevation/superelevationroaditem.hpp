@@ -50,14 +50,6 @@ private:
 
     void init();
 
-    //################//
-    // EVENTS         //
-    //################//
-
-public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
-
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
     //################//
     // PROPERTIES     //

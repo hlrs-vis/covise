@@ -213,6 +213,19 @@ SuperelevationSectionItem::updateObserver()
         createPath();
         updateColor();
     }
+
+    changes = superelevationSection_->getDataElementChanges();
+    if (changes & SuperelevationSection::CDE_SelectionChange)
+    {
+        if (!isSelected())
+        {
+            superelevationEditor_->delSelectedRoad(superelevationSection_->getParentRoad());
+        }
+        else
+        {
+            superelevationEditor_->insertSelectedRoad(superelevationSection_->getParentRoad());
+        }
+    }
 }
 
 //################//
@@ -238,7 +251,6 @@ SuperelevationSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
-		parentRoadItem_->mousePressEvent(event);
     }
     else
     {
