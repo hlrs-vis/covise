@@ -73,6 +73,7 @@ ElevationEditor::ElevationEditor(ProjectWidget *projectWidget, ProjectData *proj
     , xtrans_(0.0)
 	, elevationSectionItem_(NULL)
 	, elevationSectionAdjacentItem_(NULL)
+	, selectedElevationItem_(NULL)
 {
 }
 
@@ -103,10 +104,34 @@ ElevationEditor::insertSelectedRoad(RSystemElementRoad *road)
 {
 	if (getCurrentTool() == ODD::TEL_SELECT)
 	{
-		if (!selectedElevationRoadItems_.contains(road))
+		if (!selectedRoads_.contains(road))
 		{
-			ElevationRoadPolynomialItem *roadItem = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, road);
-			selectedElevationRoadItems_.insert(road, roadItem);
+			selectedRoads_.append(road);
+			QList<DataElement*> sectionList;
+			foreach(ElevationSection * section, road->getElevationSections())
+			{
+				if (!section->isElementSelected())
+				{
+					sectionList.append(section);
+				}
+			}
+
+			int listSize = selectedRoads_.size();
+			if (listSize == 1)
+			{
+				if (!selectedElevationItem_)
+				{
+					selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, road);
+				}
+			}
+			else if (listSize == 2)
+			{
+				selectedElevationItem_->registerForDeletion();
+				selectedElevationItem_ = NULL; 
+			}
+
+			SelectDataElementCommand* command = new SelectDataElementCommand(sectionList);
+			getProjectGraph()->executeCommand(command);
 		}
 	}
 }
@@ -152,22 +177,45 @@ ElevationEditor::fitView()
     profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
 }
 
-int
+void
 ElevationEditor::delSelectedRoad(RSystemElementRoad *road)
 {
-    ElevationRoadPolynomialItem *roadItem = selectedElevationRoadItems_.take(road);
+	if (selectedRoads_.contains(road))
+	{
+		selectedRoads_.removeAll(road);
 
-    if (!roadItem)
-    {
-        return 0;
-    }
-    else
-    {
-        // Deactivate Road in ProfileGraph //
-        //
-        roadItem->registerForDeletion();
-        return 1;
-    }
+		QList<DataElement*> sectionList;
+		foreach(ElevationSection * section, road->getElevationSections())
+		{
+			if (section->isElementSelected())
+			{
+				sectionList.append(section);
+			}
+		}
+	
+		int listSize = selectedRoads_.size();
+		if (listSize == 1)
+		{
+			if (!selectedElevationItem_)
+			{
+				selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, selectedRoads_.first());
+
+				DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+				getProjectGraph()->executeCommand(command);
+			}
+		}
+		else
+		{
+			DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+			getProjectGraph()->executeCommand(command);
+
+			if (listSize == 0)
+			{
+				selectedElevationItem_->registerForDeletion();
+				selectedElevationItem_ = NULL;
+			}
+		}
+	}
 }
 
 //################//
@@ -756,7 +804,12 @@ ElevationEditor::init()
 void
 ElevationEditor::kill()
 {
-	selectedElevationRoadItems_.clear();
+	selectedRoads_.clear();
+	if (selectedElevationItem_ && !selectedElevationItem_->isInGarbage())
+	{
+		selectedElevationItem_->registerForDeletion();
+		selectedElevationItem_ = NULL;
+	} 
 
     delete roadSystemItem_;
     roadSystemItem_ = NULL;

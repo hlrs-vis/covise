@@ -73,15 +73,15 @@ public:
 
     //Get selected roads //
     //
-    QMap<RSystemElementRoad *, ElevationRoadPolynomialItem *> getSelectedElevationItems()
+    ElevationRoadPolynomialItem *getSelectedElevationItem()
     {
-        return selectedElevationRoadItems_;
+        return selectedElevationItem_;
     };
 
     // Selected Roads //
     //
     void addSelectedRoad(ElevationRoadPolynomialItem *roadItem);
-    int delSelectedRoad(RSystemElementRoad *road);
+    void delSelectedRoad(RSystemElementRoad *road);
     void insertSelectedRoad(RSystemElementRoad *road);
     void initBox();
     void fitView();
@@ -144,9 +144,11 @@ private:
     double smoothRadius_;
 	double slope_;
 
-    // ProfileGraph: Selected Items //
+    // ProfileGraph: Selected Item //
     //
-    QMap<RSystemElementRoad *, ElevationRoadPolynomialItem *> selectedElevationRoadItems_;
+	QList<RSystemElementRoad *> selectedRoads_;
+	ElevationRoadPolynomialItem * selectedElevationItem_;
+
     QMultiMap<int, ElevationMoveHandle *> selectedMoveHandles_;
 
     // Bounding Box for all selected roads //

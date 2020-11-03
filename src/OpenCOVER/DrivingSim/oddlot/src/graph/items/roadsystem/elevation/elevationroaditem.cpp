@@ -132,24 +132,6 @@ ElevationRoadItem::updateObserver()
 			}
 		}
 	}
-
-    // DataElement //
-    //
-    int dataElementChanges = getRoad()->getDataElementChanges();
-    if ((dataElementChanges & DataElement::CDE_SelectionChange)
-       || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
-    {
-        // Selection //
-        //
-        if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
-        {
-            elevationEditor_->insertSelectedRoad(getRoad());
-        }
-        else
-        {
-            elevationEditor_->delSelectedRoad(getRoad());
-        }
-    }
 }
 
 //################//
@@ -177,17 +159,3 @@ ElevationRoadItem::itemChange(GraphicsItemChange change, const QVariant &value)
     return RoadItem::itemChange(change, value);
 }
 
-void
-ElevationRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-
-	// SectionItems //
-	//
-	if (getRoad()->isChildElementSelected())
-	{
-		foreach(ElevationSectionItem *sectionItem, elevationSectionItems_)
-		{
-			sectionItem->setSelected(true);
-		}
-	}
-}

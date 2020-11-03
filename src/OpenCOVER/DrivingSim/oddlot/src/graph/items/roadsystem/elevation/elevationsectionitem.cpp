@@ -214,6 +214,19 @@ ElevationSectionItem::updateObserver()
         updateColor();
 
     }
+
+    changes = elevationSection_->getDataElementChanges();
+    if (changes & ElevationSection::CDE_SelectionChange)
+    {
+        if (!isSelected())
+        {
+            elevationEditor_->delSelectedRoad(elevationSection_->getParentRoad());
+        }
+        else
+        {
+            elevationEditor_->insertSelectedRoad(elevationSection_->getParentRoad());
+        }
+    }
 }
 
 //################//
@@ -239,7 +252,6 @@ ElevationSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
-		parentRoadItem_->mousePressEvent(event);
     }
     else
     {

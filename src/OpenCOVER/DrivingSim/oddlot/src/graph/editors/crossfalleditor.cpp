@@ -318,16 +318,6 @@ CrossfallEditor::init()
         getTopviewGraph()->getScene()->addItem(roadSystemItem_);
     }
 
-    // ProfileGraph //
-    //
-    if (!roadSystemItemPolyGraph_)
-    {
-        // Root item //
-        //
-        roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
-        profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
-        profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
-    }
 
     // Section Handle //
     //

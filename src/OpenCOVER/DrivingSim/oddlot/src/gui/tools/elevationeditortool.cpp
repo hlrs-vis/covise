@@ -257,7 +257,6 @@ ElevationEditorTool::handleToolClick(int id)
 void
 ElevationEditorTool::handleRibbonToolClick(int id)
 {
-	qDebug("RibbonToolClick");
     toolId_ = (ODD::ToolId)id;
 	 
     ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());

@@ -26,6 +26,7 @@
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
 #include "src/graph/editors/elevationeditor.hpp"
+#include "src/graph/items/roadsystem/elevation/elevationroadpolynomialitem.hpp"
 
 // Qt //
 //
@@ -125,18 +126,13 @@ ProfileGraph::updateBoundingBox()
     ElevationEditor *elevationEditor = dynamic_cast<ElevationEditor *>(editor);
     if (elevationEditor)
     {
-        elevationEditor->initBox();
-        QMap<RSystemElementRoad *, ElevationRoadPolynomialItem *> selectedElevationItems = elevationEditor->getSelectedElevationItems();
-        QMap<RSystemElementRoad *, ElevationRoadPolynomialItem *>::const_iterator iterator = selectedElevationItems.begin();
-        while (iterator != selectedElevationItems.end())
-        {
-            if (iterator.value())
-            {
-                elevationEditor->addSelectedRoad(iterator.value());
-                iterator++;
-            }
-        }
-        elevationEditor->fitView();
+		elevationEditor->initBox();
+		ElevationRoadPolynomialItem *selectedElevationItem = elevationEditor->getSelectedElevationItem();
+		if (selectedElevationItem && !selectedElevationItem->isInGarbage())
+		{
+			elevationEditor->addSelectedRoad(selectedElevationItem);
+		}
+		elevationEditor->fitView();
     }
 }
 
