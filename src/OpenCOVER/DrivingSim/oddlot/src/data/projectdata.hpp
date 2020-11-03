@@ -20,6 +20,7 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
+#include <QTemporaryDir>
 #include <proj_api.h>
 #include "dataelement.hpp"
 
@@ -249,6 +250,7 @@ public:
     // Visitor Pattern //
     //
     virtual void accept(Visitor *visitor);
+    QTemporaryDir tempDir;
 
 private:
     ProjectData(); /* not allowed */

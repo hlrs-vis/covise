@@ -29,7 +29,7 @@
  * Main interaction loop runs in its own thread
  */
 
-
+#ifdef WIN32
 #include <InitGuid.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <winsock2.h>
@@ -55,6 +55,7 @@
     }
 
 #include "TempWindow.h"
+#endif
 #include "cover/coVRPluginSupport.h"
 
 #define NUM_BUTTONS 3
@@ -70,6 +71,7 @@ class Joystick : public opencover::InputDevice
     virtual bool poll();
 
 public:
+#ifdef WIN32
 	static BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE *pdidoi, VOID *pContext);
 	static BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE *pdidInstance, VOID *pContext);
 	BOOL EnumObjects(const DIDEVICEOBJECTINSTANCE *pdidoi);
@@ -77,6 +79,7 @@ public:
 	LPDIRECTINPUT8 g_pDI;
 	LPDIRECTINPUTDEVICE8 g_pJoystick[MAX_NUMBER_JOYSTICKS];
 	TemporaryWindow window;
+#endif
 
 	int numLocalJoysticks;
 	unsigned char number_buttons[MAX_NUMBER_JOYSTICKS];

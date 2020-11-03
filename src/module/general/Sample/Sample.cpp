@@ -440,7 +440,7 @@ Sample::compute(const char *)
     {
         typeFlag = unstruct_grid::POINT;
     }
-
+    typeFlag = unstruct_grid::DONTKNOW;
     // here we try to retrieve the data object from the port
     const coDistributedObject *DataObj = Data_In_Port->getCurrentObject();
     if (!DataObj)
@@ -848,6 +848,13 @@ Sample::compute(const char *)
                                          time_grid_name, &usg[time],
                                          time_data_name, &str[time], x_value, y_value, z_value);
         }
+        else if ((typeFlag == unstruct_grid::SCALAR || typeFlag == unstruct_grid::VECTOR) && dynamic_cast<const coDoPoints*>(grids[time][0]))
+        {
+            calc_grid->samplePointData(ndata,
+                time_grid_name, &usg[time],
+                time_data_name, &str[time], x_value, y_value, z_value,
+                p_pointSampling->getValue());
+        }
         else if (typeFlag == unstruct_grid::POINT)
         {
             calc_grid->sample_points(ndata,
@@ -1049,8 +1056,20 @@ Sample::Diagnose(ias &grids, ias &data, unstruct_grid::vecFlag typeFlag, bool is
         for (int block = 0; block < grids[time].size();)
         {
             int num_el = 0, num_conn = 0, num_coor_grid = 0, num_coor_data = 0;
-            coDoUnstructuredGrid *p_grid = (coDoUnstructuredGrid *)(grids[time][block]);
-            p_grid->getGridSize(&num_el, &num_conn, &num_coor_grid);
+            const coDoUnstructuredGrid *p_grid = dynamic_cast<const coDoUnstructuredGrid *>(grids[time][block]);
+			if (p_grid)
+			{
+				p_grid->getGridSize(&num_el, &num_conn, &num_coor_grid);
+			}
+            else
+            {
+
+                const coDoPoints* p_grid = dynamic_cast<const coDoPoints*>(grids[time][block]);
+                if (p_grid)
+                {
+                    num_coor_grid = p_grid->getNumPoints();
+                }
+            }
 
             if (typeFlag == unstruct_grid::SCALAR)
             {

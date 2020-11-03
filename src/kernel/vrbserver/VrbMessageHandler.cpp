@@ -1438,6 +1438,10 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 		cerr << "received udp message from unknown client wit ip = " << msg->m_ip << endl;
 		return;
 	}
+        if(msg->type != 0 )
+        {
+		cerr << "received udp message from " << msg->sender <<" type: " << msg->type << endl;
+        }
 	msg->conn = sender->conn;
 	/*covise::TokenBuffer tb(msg);
 	switch (msg->type)

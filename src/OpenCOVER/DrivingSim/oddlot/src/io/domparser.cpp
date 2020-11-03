@@ -787,23 +787,10 @@ DomParser::parseHeaderElement(QDomElement &element)
     projectData_->setVersion(opendriveVersion_);
     projectData_->setDate(date);
 
-    if (north > projectData_->getNorth())
-    {
-        projectData_->setNorth(north);
-    }
-    if (south < projectData_->getSouth())
-    {
-        projectData_->setSouth(south);
-    }
-    if (east > projectData_->getEast())
-    {
-        projectData_->setEast(east);
-    }
-    if (west < projectData_->getWest())
-    {
-        projectData_->setWest(west);
-    }
-
+	projectData_->setNorth(north);
+	projectData_->setSouth(south);
+	projectData_->setEast(east);
+	projectData_->setWest(west);
 
 	// <OpenDRIVE><georeference> //
 	//

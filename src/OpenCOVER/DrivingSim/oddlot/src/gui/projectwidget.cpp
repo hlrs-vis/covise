@@ -1721,22 +1721,24 @@ ProjectWidget::saveFile(const QString &fileName, FileType type)
 		// OpenSCENARIO //
 		//
 		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-	
-		QMessageBox msgBox;
-		msgBox.setText("Do you want to save the catalogs?");
-		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
-		msgBox.setDefaultButton(QMessageBox::Discard);
-		int ret = msgBox.exec();
+        if (catalogWidgets_.size() > 0)
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Do you want to save the catalogs?");
+            msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
+            msgBox.setDefaultButton(QMessageBox::Discard);
+            int ret = msgBox.exec();
 
-		if (ret == QMessageBox::Save)
-		{
-			foreach(CatalogWidget *catalogWidget, catalogWidgets_)
-			{
-				OpenScenario::oscCatalog *catalog = catalogWidget->getCatalog();
-				catalog->addCatalogObjects();
-				catalog->writeCatalogsToDisk();
-			}
-		}
+            if (ret == QMessageBox::Save)
+            {
+                foreach(CatalogWidget * catalogWidget, catalogWidgets_)
+                {
+                    OpenScenario::oscCatalog* catalog = catalogWidget->getCatalog();
+                    catalog->addCatalogObjects();
+                    catalog->writeCatalogsToDisk();
+                }
+            }
+        }
 
 		openScenarioBase->saveFile(xoscFileName.toStdString(), false);
 

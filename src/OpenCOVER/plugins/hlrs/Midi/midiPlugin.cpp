@@ -1819,6 +1819,16 @@ void Track::update()
 						me.setP0(buf[0]);
 						me.setP1(buf[1]);
 						me.setP2(buf[2]);
+					TokenBuffer tb;
+					tb << me.getChannel();
+					tb << me.getP0();
+					tb << me.getP1();
+					tb << me.getP2();
+					tb << me.getP3();
+					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+					cover->sendVrbUdpMessage(&um);
+					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
+					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
 
 
 					}
