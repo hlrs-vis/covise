@@ -156,20 +156,21 @@ LaneSectionItem::updateObserver()
 
     if (changes & LaneSection::CLS_LanesChanged)
     {
-        // A lane has been added.
-        //
-        foreach (Lane *lane, laneSection_->getLanes())
-        {
-            if ((lane->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-                || (lane->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-            {
-                if (lane->getId() != 0)
-                {
-                    laneItems_.insert(lane, new LaneItem(this, lane));
-					dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
-                }
-            }
-        }
+		// A lane has been added
+		//
+		foreach(Lane * lane, laneSection_->getLanes())
+		{
+			if ((lane->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+				|| (lane->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+			{
+				if (lane->getId() != 0)
+				{
+					laneItems_.insert(lane, new LaneItem(this, lane));
+				}
+			}
+		}
+
+        dynamic_cast<LaneRoadItem*>(parentRoadItem_)->rebuildMoveRotateHandles(true);
     }
 	else if ((changes & LaneSection::CLS_LanesWidthsChanged) || (changes & LaneSection::CRS_LengthChange))
 	{

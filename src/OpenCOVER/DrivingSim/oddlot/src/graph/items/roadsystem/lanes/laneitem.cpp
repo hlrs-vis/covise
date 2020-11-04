@@ -150,6 +150,7 @@ LaneItem::hideParentRoad()
 bool
 LaneItem::removeLane()
 {
+    parentLaneSectionItem_->removeLaneItem(this);
 
     RemoveLaneCommand *command = new RemoveLaneCommand(lane_->getParentLaneSection(), lane_, NULL);
     if (getProjectGraph())
