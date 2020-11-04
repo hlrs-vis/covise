@@ -1,4 +1,4 @@
-﻿#ifndef UI_BUTTON_H
+#ifndef UI_BUTTON_H
 #define UI_BUTTON_H
 
 #include "Element.h"
