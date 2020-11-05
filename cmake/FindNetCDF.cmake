@@ -14,14 +14,6 @@ IF(MSVC)
     PATHS
     $ENV{NETCDF_HOME}/lib
     $ENV{EXTERNLIBS}/NETCDF/lib
-    ~/Library/Frameworks
-    /Library/Frameworks
-    /usr/local
-    /usr
-    /sw
-    /opt/local
-    /opt/csw
-    /opt
     PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
     DOC "NETCDF_C++ - Library (Debug)"
   )
@@ -29,14 +21,6 @@ IF(MSVC)
     PATHS
     $ENV{NETCDF_HOME}/lib
     $ENV{EXTERNLIBS}/NETCDF/lib
-    ~/Library/Frameworks
-    /Library/Frameworks
-    /usr/local
-    /usr
-    /sw
-    /opt/local
-    /opt/csw
-    /opt
     PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
     DOC "NETCDF - Library (Debug)"
   )
