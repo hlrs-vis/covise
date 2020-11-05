@@ -15,7 +15,6 @@ FIND_PATH(XERCESC_INCLUDE_DIR xercesc/dom/DOM.hpp
   $ENV{EXTERNLIBS}/xerces/include
   $ENV{EXTERNLIBS}/xercesc/include
   DOC "xercesc - Headers"
-  NO_DEFAULT_PATH
 )
 FIND_PATH(XERCESC_INCLUDE_DIR xercesc/dom/DOM.hpp DOC "xercesc - Headers")
 
@@ -28,7 +27,6 @@ FIND_LIBRARY(XERCESC_LIBRARY NAMES ${XERCESC_NAMES}
   $ENV{EXTERNLIBS}/xerces/lib
   $ENV{EXTERNLIBS}/xercesc/lib
   DOC "xercesc - Library"
-  NO_DEFAULT_PATH
 )
 FIND_LIBRARY(XERCESC_LIBRARY NAMES ${XERCESC_NAMES} DOC "xercesc - Library")
 
