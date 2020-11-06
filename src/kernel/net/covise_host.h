@@ -40,6 +40,9 @@ private:
 public:
     static std::string lookupHostname(const char *numericIp);
     static std::string lookupIpAddress(const char *hostname);
+    static const std::string &getHostname();
+    static const std::string &getHostaddress();
+    static const std::string &getUsername();
 
     Host();
     Host(const char *n, bool numeric = false);

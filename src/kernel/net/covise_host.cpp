@@ -45,7 +45,7 @@ std::string Host::lookupIpAddress(const char *hostname)
     coWristWatch watch;
 #endif
     Host ch(hostname);
-    const char* c = ch.getAddress();
+    const char *c = ch.getAddress();
     if (!c)
     {
         std::cerr << "Host: lookupIpAddress failed: hostname = " << hostname << std::endl;
@@ -69,23 +69,23 @@ std::string Host::lookupHostname(const char *numericIP)
     if (!onlyNumeric)
     {
 
-		struct sockaddr_in sa;
-		char hostname[NI_MAXHOST];
-		memset(&sa, 0, sizeof sa);
-		sa.sin_family = AF_INET;
+        struct sockaddr_in sa;
+        char hostname[NI_MAXHOST];
+        memset(&sa, 0, sizeof sa);
+        sa.sin_family = AF_INET;
         int err = inet_pton(AF_INET, numericIP, &sa.sin_addr);
         if (err == 1)
         {
 
-			int res = getnameinfo((struct sockaddr*)&sa, sizeof(sa),
-				hostname, sizeof(hostname),
-				NULL, 0, NI_NAMEREQD);
+            int res = getnameinfo((struct sockaddr *)&sa, sizeof(sa),
+                                  hostname, sizeof(hostname),
+                                  NULL, 0, NI_NAMEREQD);
 
-			if (!res) 
-			{
-				retVal = hostname;
-				return retVal;
-			}
+            if (!res)
+            {
+                retVal = hostname;
+                return retVal;
+            }
         }
 #if 0
         if (err == 0)
@@ -96,65 +96,111 @@ std::string Host::lookupHostname(const char *numericIP)
                 he = gethostbyaddr(&v6, sizeof(v6), AF_INET6);
         }
 #endif
-        
-		retVal = numericIP;
-		//TODO coConfig - das muss wieder richtig geparst werden
-		coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
-		const char **ipEntries = ipe.getValue();
-		const char *last;
-		if (NULL != ipEntries)
-		{
-			bool gotAll = false;
-			bool found = false;
-			do
-			{
-				//An IpTable Entry has the form
-				//<symbolic> <numeric>
-				//The CoviseConfig::getScopeEntries
-				//method gets them word by word
-				//so we have to parse two of them
-				last = *ipEntries;
-				fprintf(stderr, "IPTABLE:%s ", last);
-				ipEntries++;
-				if (NULL != *ipEntries)
-				{
-					fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
-					if (0 == strcmp(numericIP, *ipEntries))
-					{
-						//We found the entry
-						retVal = last;
-						found = true;
-					}
-					else
-					{
-						//There is an entry, but it does not match
-						ipEntries++;
-						if (NULL == *ipEntries)
-						{
-							onlyNumeric = true;
-							gotAll = true;
-							retVal = numericIP;
-						}
-					}
-				}
-				else
-				{
-					//We got all entries, the last of which is incomplete
-					onlyNumeric = true;
-					gotAll = true;
-					retVal = numericIP;
-				}
-			} while ((!gotAll) && (!found));
-		}
-		else
-		{
-			onlyNumeric = true;
-		}
-	}
+
+        retVal = numericIP;
+        //TODO coConfig - das muss wieder richtig geparst werden
+        coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
+        const char **ipEntries = ipe.getValue();
+        const char *last;
+        if (NULL != ipEntries)
+        {
+            bool gotAll = false;
+            bool found = false;
+            do
+            {
+                //An IpTable Entry has the form
+                //<symbolic> <numeric>
+                //The CoviseConfig::getScopeEntries
+                //method gets them word by word
+                //so we have to parse two of them
+                last = *ipEntries;
+                fprintf(stderr, "IPTABLE:%s ", last);
+                ipEntries++;
+                if (NULL != *ipEntries)
+                {
+                    fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
+                    if (0 == strcmp(numericIP, *ipEntries))
+                    {
+                        //We found the entry
+                        retVal = last;
+                        found = true;
+                    }
+                    else
+                    {
+                        //There is an entry, but it does not match
+                        ipEntries++;
+                        if (NULL == *ipEntries)
+                        {
+                            onlyNumeric = true;
+                            gotAll = true;
+                            retVal = numericIP;
+                        }
+                    }
+                }
+                else
+                {
+                    //We got all entries, the last of which is incomplete
+                    onlyNumeric = true;
+                    gotAll = true;
+                    retVal = numericIP;
+                }
+            } while ((!gotAll) && (!found));
+        }
+        else
+        {
+            onlyNumeric = true;
+        }
+    }
 #ifdef DEBUG
     fprintf(stderr, "lookup result for %s: %s (%f s)\n", numericIP, retVal.c_str(), watch.elapsed());
 #endif
     return retVal;
+}
+
+const std::string &Host::getHostname()
+{
+    static std::string hostname;
+    if (hostname.empty())
+    {
+        Host host;
+        if (host.getAddress())
+            hostname = host.getName();
+        else
+            hostname = "unknown";
+    }
+    return hostname;
+}
+
+const std::string &Host::getHostaddress()
+{
+    static std::string hostaddr;
+    if (hostaddr.empty())
+    {
+        Host host;
+        if (host.getAddress())
+            hostaddr = host.getAddress();
+        else
+            hostaddr = "unknown address";
+    }
+    return hostaddr;
+}
+
+const std::string &Host::getUsername()
+{
+    static std::string username;
+    if (username.empty())
+    {
+        username = "noname";
+        if (auto val = getenv("USER"))
+        {
+            username = val;
+        }
+        else if (auto val = getenv("LOGNAME"))
+        {
+            username = val;
+        }
+    }
+    return username;
 }
 
 void Host::setAddress(const char *n)
@@ -301,10 +347,10 @@ void Host::HostSymbolic(const char *n)
 
     struct addrinfo hints, *result = NULL;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
-    hints.ai_socktype = 0; /* any type of socket */
+    hints.ai_family = AF_UNSPEC; /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = 0;       /* any type of socket */
     //hints.ai_flags = AI_ADDRCONFIG; // this prevents localhost from being resolved if no network is connected on windows
-    hints.ai_protocol = 0;          /* Any protocol */
+    hints.ai_protocol = 0; /* Any protocol */
 
     //std::cerr << "HostSymbolic: calling getaddrinfo for n=" << n << std::endl;
     int s = getaddrinfo(n, NULL /* service */, &hints, &result);
@@ -330,7 +376,7 @@ void Host::HostSymbolic(const char *n)
             char address[1000];
             struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
             memcpy(char_address, &saddr->sin_addr, sizeof(char_address));
-            if(!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
+            if (!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
             {
                 std::cerr << "could not convert address of " << n << " to printable format: " << strerror(errno) << std::endl;
                 continue;
@@ -343,7 +389,7 @@ void Host::HostSymbolic(const char *n)
             }
         }
 
-        freeaddrinfo(result);           /* No longer needed */
+        freeaddrinfo(result); /* No longer needed */
     }
 #endif
     setName(n);
@@ -585,8 +631,7 @@ static bool isAddressConfigured(unsigned char address[4])
             static_cast<unsigned char>(addr & 0xff),
             static_cast<unsigned char>((addr >> 8) & 0xff),
             static_cast<unsigned char>((addr >> 16) & 0xff),
-            static_cast<unsigned char>((addr >> 24) & 0xff)
-        };
+            static_cast<unsigned char>((addr >> 24) & 0xff)};
 
         bool equal = true;
         for (int j = 0; j < 4; ++j)

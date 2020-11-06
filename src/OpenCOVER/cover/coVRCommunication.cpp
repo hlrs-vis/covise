@@ -222,53 +222,17 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
 
 const char *coVRCommunication::getHostaddress()
 {
-    static char *hostaddr = NULL;
-    if (!hostaddr)
-    {
-        Host host;
-#define MAX_LENGTH_HOSTADDR 500
-        hostaddr = new char[MAX_LENGTH_HOSTADDR];
-        if (host.getAddress())
-            strncpy(hostaddr, host.getAddress(), MAX_LENGTH_HOSTADDR);
-        else
-            strcpy(hostaddr, "unknown address");
-        hostaddr[MAX_LENGTH_HOSTADDR - 1] = '\0';
-    }
-
-    return hostaddr;
+    return Host::getHostaddress().c_str();
 }
 
 std::string coVRCommunication::getUsername()
 {
-    std::string name("noname");
-    if (auto val = getenv("USER"))
-    {
-        name = val;
-    }
-    else if (auto val = getenv("LOGNAME"))
-    {
-        name = val;
-    }
-
-    return name;
+    return Host::getHostname();
 }
 
 const char *coVRCommunication::getHostname()
 {
-    static char *hostname = NULL;
-    if (!hostname)
-    {
-        Host host;
-#define MAX_LENGTH_HOSTNAME 500
-        hostname = new char[MAX_LENGTH_HOSTNAME];
-        if (host.getAddress())
-            strncpy(hostname, host.getName(), MAX_LENGTH_HOSTNAME);
-        else
-            strcpy(hostname, "unknown");
-        hostname[MAX_LENGTH_HOSTNAME - 1] = '\0';
-    }
-
-    return hostname;
+    return Host::getHostname().c_str();
 }
 
 bool coVRCommunication::collaborative() // returns true, if in collaborative mode
