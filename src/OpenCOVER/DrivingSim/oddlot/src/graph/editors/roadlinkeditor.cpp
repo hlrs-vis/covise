@@ -364,15 +364,15 @@ RoadLinkEditor::apply()
 		for (int i = 0; i < selectedRoads_.size();)
 		{
 			RSystemElementRoad *road = selectedRoads_.at(i);
-			if (road->getPredecessor() || road->getSuccessor())
+		/*	if (road->getPredecessor() || road->getSuccessor())
 			{
 				selectedRoads_.takeAt(i);
 			}
 			else
-			{ 
+			{ */
 				removeZeroWidthLanes(road);             // error correction must not be undone TODO: move to laneeditor
 				i++;
-			}
+		//	}
 		}
 
 		LinkRoadsAndLanesCommand *command = new LinkRoadsAndLanesCommand(selectedRoads_, threshold_);

@@ -180,11 +180,53 @@ ElevationEditor::fitView()
 void
 ElevationEditor::delSelectedRoad(RSystemElementRoad *road)
 {
-	if (selectedRoads_.contains(road))
+	if (getCurrentTool() == ODD::TEL_SELECT)
 	{
-		selectedRoads_.removeAll(road);
+		if (selectedRoads_.contains(road))
+		{
+			selectedRoads_.removeAll(road);
 
-		QList<DataElement*> sectionList;
+			QList<DataElement*> sectionList;
+			foreach(ElevationSection * section, road->getElevationSections())
+			{
+				if (section->isElementSelected())
+				{
+					sectionList.append(section);
+				}
+			}
+
+			int listSize = selectedRoads_.size();
+			if (listSize == 1)
+			{
+				if (!selectedElevationItem_)
+				{
+					selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, selectedRoads_.first());
+
+					DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+					getProjectGraph()->executeCommand(command);
+				}
+			}
+			else
+			{
+				DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+				getProjectGraph()->executeCommand(command);
+
+				if (listSize == 0)
+				{
+					selectedElevationItem_->registerForDeletion();
+					selectedElevationItem_ = NULL;
+				}
+			}
+		}
+	}
+}
+
+void
+ElevationEditor::delSelectedRoads()
+{
+	QList<DataElement*> sectionList;
+	foreach(RSystemElementRoad * road, selectedRoads_)
+	{
 		foreach(ElevationSection * section, road->getElevationSections())
 		{
 			if (section->isElementSelected())
@@ -192,30 +234,17 @@ ElevationEditor::delSelectedRoad(RSystemElementRoad *road)
 				sectionList.append(section);
 			}
 		}
-	
-		int listSize = selectedRoads_.size();
-		if (listSize == 1)
-		{
-			if (!selectedElevationItem_)
-			{
-				selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, selectedRoads_.first());
-
-				DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
-				getProjectGraph()->executeCommand(command);
-			}
-		}
-		else
-		{
-			DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
-			getProjectGraph()->executeCommand(command);
-
-			if (listSize == 0)
-			{
-				selectedElevationItem_->registerForDeletion();
-				selectedElevationItem_ = NULL;
-			}
-		}
 	}
+
+	selectedRoads_.clear();
+	if (selectedElevationItem_ && !selectedElevationItem_->isInGarbage())
+	{
+		selectedElevationItem_->registerForDeletion();
+		selectedElevationItem_ = NULL;
+	}
+
+	DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+	getProjectGraph()->executeCommand(command);
 }
 
 //################//
@@ -357,18 +386,16 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 		}
 		else if ((elevationEditorToolAction->getToolId() == ODD::TEL_ADD) || (elevationEditorToolAction->getToolId() == ODD::TEL_DEL))
 		{
-			getTopviewGraph()->getScene()->deselectAll();
+			delSelectedRoads();
 		}
 		else if (elevationEditorToolAction->getToolId() == ODD::TEL_SMOOTH)
 		{
 			ODD::ToolId paramTool = getCurrentParameterTool();
 
-			getTopviewGraph()->getScene()->deselectAll();
+			delSelectedRoads();
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
-
 				ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection");
 				tool_ = new Tool(ODD::TEL_SMOOTH, 1);
 				tool_->readParams(elevationSectionParam);
@@ -383,12 +410,10 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 		{
 			ODD::ToolId paramTool = getCurrentParameterTool();
 
-			getTopviewGraph()->getScene()->deselectAll();
+			delSelectedRoads();
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
-
 				ToolValue<double> *slopeParam = new ToolValue<double>(ODD::TEL_PERCENTAGE, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Slope Percentage");
 				slopeParam->setValue(slope_);
 				tool_ = new Tool(ODD::TEL_SLOPE, 1);
@@ -483,6 +508,11 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 							ElevationSection *elevationSection = sectionItem->getElevationSection();
 							QString textDisplayed = QString("%1 Section at %2").arg(elevationSection->getParentRoad()->getIdName()).arg(elevationSection->getSStart());
 							setToolValue<ElevationSection>(elevationSection, textDisplayed);
+
+							selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, elevationSection->getParentRoad());
+							initBox();
+							addSelectedRoad(selectedElevationItem_);
+							fitView();
 
 							elevationSectionItem_ = item;
 						}
@@ -804,12 +834,7 @@ ElevationEditor::init()
 void
 ElevationEditor::kill()
 {
-	selectedRoads_.clear();
-	if (selectedElevationItem_ && !selectedElevationItem_->isInGarbage())
-	{
-		selectedElevationItem_->registerForDeletion();
-		selectedElevationItem_ = NULL;
-	} 
+	delSelectedRoads();
 
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
@@ -868,6 +893,8 @@ ElevationEditor::apply()
 void
 ElevationEditor::clearToolObjectSelection()
 {
+	delSelectedRoads();
+
 	if (elevationSectionItem_)
 	{
 		elevationSectionItem_->setSelected(false);
@@ -884,7 +911,6 @@ ElevationEditor::clearToolObjectSelection()
 void
 ElevationEditor::reset()
 {
-	ODD::ToolId toolId = tool_->getToolId();
 	clearToolObjectSelection();
 	delToolParameters();
 }

@@ -229,6 +229,8 @@ CrossfallEditorTool::setRibbonRadius()
 	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, ODD::TCF_RADIUS, ui_->radiusEdit->value());
 	emit toolAction(action);
 //	delete action;
+
+    ribbonToolGroup_->button(toolId_)->click();
 }
 
 //################//

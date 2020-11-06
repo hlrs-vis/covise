@@ -82,6 +82,7 @@ public:
     //
     void addSelectedRoad(ElevationRoadPolynomialItem *roadItem);
     void delSelectedRoad(RSystemElementRoad *road);
+    void delSelectedRoads();
     void insertSelectedRoad(RSystemElementRoad *road);
     void initBox();
     void fitView();

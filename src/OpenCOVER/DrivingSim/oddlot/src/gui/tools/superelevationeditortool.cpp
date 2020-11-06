@@ -228,6 +228,8 @@ SuperelevationEditorTool::setRibbonRadius()
 	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, ODD::TSE_RADIUS , ui_->radiusEdit->value());
 	emit toolAction(action);
 //	delete action;
+
+    ribbonToolGroup_->button(toolId_)->click();
 }
 
 //################//

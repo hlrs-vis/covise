@@ -311,6 +311,11 @@ ElevationEditorTool::setRRadius()
     ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_RADIUS, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
     emit toolAction(action);
  //   delete action;
+
+    if (toolId_ != ODD::TEL_SELECT)
+    {
+        ribbonToolGroup_->button(toolId_)->click();
+    }
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -327,7 +332,13 @@ ElevationEditorTool::setRHeight()
 
 	ui->heightEdit->blockSignals(true);
 	ui->heightEdit->setValue(0.0);
+    ui->heightEdit->clearFocus();
 	ui->heightEdit->blockSignals(false);
+
+    if (toolId_ != ODD::TEL_SELECT)
+    {
+        ribbonToolGroup_->button(toolId_)->click();
+    } 
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -344,7 +355,13 @@ ElevationEditorTool::setRIHeight()
 		//   delete action;
 		ui->iHeightEdit->blockSignals(true);
 		ui->iHeightEdit->setValue(0.0);
+        ui->heightEdit->clearFocus();
 		ui->iHeightEdit->blockSignals(false);
+
+        if (toolId_ != ODD::TEL_SELECT)
+        {
+            ribbonToolGroup_->button(toolId_)->click();
+        }
 	}
 }
 
@@ -364,7 +381,13 @@ ElevationEditorTool::setSectionStart()
 
 		ui->startEdit->blockSignals(true);
 		ui->startEdit->setValue(0.0);
+        ui->heightEdit->clearFocus();
 		ui->startEdit->blockSignals(false);
+
+        if (toolId_ != ODD::TEL_SELECT)
+        {
+            ribbonToolGroup_->button(toolId_)->click();
+        }
 	}
 }
 

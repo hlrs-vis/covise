@@ -190,7 +190,7 @@ LaneEditorTool::activateRibbonEditor()
 			emit toolAction(laneEditorToolAction);
 		}
 		else
-		{
+		{ 
 			ribbonToolGroup_->button(action->getToolId())->click();
 		}
 	}
@@ -257,6 +257,8 @@ LaneEditorTool::setRibbonWidth()
         focusWidget->clearFocus();
     }
     ui->widthEdit->setValue(0.0);
+
+    ribbonToolGroup_->button(toolId_)->click();
 }
 
 void
