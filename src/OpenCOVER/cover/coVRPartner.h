@@ -25,8 +25,7 @@
 #include <util/DLinkList.h>
 #include "ui/Owner.h"
 #include <set>
-#include <vrbclient/SessionID.h>
-
+#include <vrbclient/RemoteClient.h>
 namespace covise
 {
 class TokenBuffer;
@@ -43,33 +42,21 @@ class ButtonGroup;
 class CollaborativePartner;
 }
 
-class COVEREXPORT coVRPartner: public ui::Owner
+class COVEREXPORT coVRPartner: public ui::Owner, public vrb::RemoteClient
 {
 
 private:
-    std::string hostname;
-    std::string address;
-    int m_id = -1;
-    vrb::SessionID m_sessionID;
-    std::string name;
-    std::string email;
-    std::string url;
-    bool m_isMaster = false;
     ui::CollaborativePartner *m_ui = nullptr;
     VRAvatar *m_avatar = nullptr;
 
 public:
-    coVRPartner *setID(int id);
-    const vrb::SessionID &getSessionID() const;
-    void setSession(const vrb::SessionID &g);
-    void setMaster(bool m);
-    void setInfo(covise::TokenBuffer &tb);
+    coVRPartner *changeID(int id);
+    void setMaster(bool m) override;
     void updateUi();
-    bool isMaster() const;
+
     void becomeMaster();
-    int getID() const;
+
     void setFile(const char *fileName);
-    void print() const;
     VRAvatar *getAvatar();
     void setAvatar(VRAvatar *avatar);
     coVRPartner();

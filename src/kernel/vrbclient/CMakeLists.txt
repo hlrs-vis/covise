@@ -11,6 +11,7 @@ ADD_DEFINITIONS(-DCOVISE_VRB)
 SET(VRBCLIENT_SOURCES
   RegistryClass.cpp
   RegistryVariable.cpp
+  RemoteClient.cpp
   SessionID.cpp	
   SharedState.cpp
   SharedStateManager.cpp
@@ -24,6 +25,7 @@ SET(VRBCLIENT_SOURCES
 SET(VRBCLIENT_HEADERS
   RegistryClass.h
   RegistryVariable.h
+  RemoteClient.h
   SessionID.h
   SharedMap.h
   SharedState.h
