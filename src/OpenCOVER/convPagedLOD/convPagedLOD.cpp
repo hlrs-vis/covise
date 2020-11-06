@@ -134,22 +134,22 @@ void convertDrawable(osg::Drawable* drawable)
 
 void convertGeode(osg::Geode * geode)
 {
-    for (unsigned int i = 0; i < geode->getNumChildren(); i++)
+    for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
     {
-        if (dynamic_cast<osg::Geometry*>(geode->getChild(i)))
-            convertGeometry(dynamic_cast<osg::Geometry*>(geode->getChild(i)));
-        else if (dynamic_cast<osg::Drawable*>(geode->getChild(i)))
-            convertDrawable(dynamic_cast<osg::Drawable*>(geode->getChild(i)));
+        if (auto d = dynamic_cast<osg::Geometry*>(geode->getDrawable(i)))
+            convertGeometry(d);
+        else if (auto d = dynamic_cast<osg::Drawable*>(geode->getDrawable(i)))
+            convertDrawable(d);
     }
 }
 void convertGroup(osg::Group* g)
 {
     for (unsigned int i = 0; i < g->getNumChildren(); i++)
     {
-        if (dynamic_cast<osg::Geometry*>(g->getChild(i)))
-            convertGeometry(dynamic_cast<osg::Geometry*>(g->getChild(i)));
-        else if (dynamic_cast<osg::Drawable*>(g->getChild(i)))
-            convertDrawable(dynamic_cast<osg::Drawable*>(g->getChild(i)));
+        if (auto c = dynamic_cast<osg::Geometry*>(g->getChild(i)))
+            convertGeometry(c);
+        else if (auto c = dynamic_cast<osg::Drawable*>(g->getChild(i)))
+            convertDrawable(c);
     }
 }
 void convertLOD(osg::PagedLOD* pLOD)
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
         osg::ref_ptr<osg::Object> object = osgDB::readObjectFile(*itr);
         if (object.valid())
         {
-            if (object->asNode()) nodes.push_back(object->asNode());
+            if (auto n = dynamic_cast<osg::Node *>(object.get())) nodes.push_back(n);
             else objects.push_back(object);
         }
     }
