@@ -1,0 +1,12 @@
+#ifndef VRB_REMOTE_LAUNCHER_EXPORT_H
+#define VRB_REMOTE_LAUNCHER_EXPORT_H
+
+#include <QObject>
+
+#if defined(coVRBRemoteLauncher_EXPORTS)
+# define REMOTELAUNCHER_EXPORT Q_DECL_EXPORT
+#else
+# define REMOTELAUNCHER_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif

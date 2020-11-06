@@ -6,6 +6,7 @@ build-*
 extern_libs
 .envrc
 *.vrbreg
+VrbRemoteLauncher.settings
 **/.*.swp
 **/.*.swo
 **/*.orig
