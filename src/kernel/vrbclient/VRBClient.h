@@ -45,6 +45,8 @@ public:
     VRBClient(const char *name, const char *host, int tcp_p, int udp_p, bool isSlave = false);
     ~VRBClient();
     int connectToServer(std::string sessionName = ""); // returns -1, if Connection to Server fails
+    bool completeConnection();
+
     void connectToCOVISE(int argc, const char **argv);
     int isCOVERRunning();
     int isConnected();
@@ -80,16 +82,14 @@ private:
     std::mutex connMutex;
 #ifndef _M_CEE //no future in Managed OpenCOVER
     std::future<ClientConnection *> connFuture;
-#endif
-    bool firstVrbConnection = true;
-
-	std::mutex udpConnMutex;
-#ifndef _M_CEE //no future in Managed OpenCOVER
 	std::future<UDPConnection*> udpConnFuture;
 #endif
-	bool firstUdpVrbConnection = true;
+    bool firstVrbConnection = true;
+	std::mutex udpConnMutex;
+    std::string startupSession;
+    bool firstUdpVrbConnection = true;
 
-	int sendMessage(const Message* m, Connection* conn);
+    int sendMessage(const Message* m, Connection* conn);
 };
 }
 #endif

@@ -333,14 +333,17 @@ int VRBClient::isConnected()
     if (isSlave)
         return 1;
     if (sConn == NULL)
-        return 0;
+    {
+        return completeConnection();
+    }
     return sConn->is_connected();
 }
 
 int VRBClient::connectToServer(std::string sessionName)
 {
-	if (!udpConn && !isSlave)
-	{
+    startupSession = sessionName;
+    if (!udpConn && !isSlave)
+    {
 		setupUdpConn();
 	}
 	if (isSlave || serverHost == NULL|| sConn != nullptr)
@@ -374,38 +377,7 @@ int VRBClient::connectToServer(std::string sessionName)
         });
     }
     connMutex.unlock();
-    if (connFuture.valid())
-    {
-        connMutex.lock();
-        auto status = connFuture.wait_for(std::chrono::seconds(0));
-        if (status == std::future_status::ready)
-        {
-            sConn = connFuture.get();
-            if(sConn != nullptr)
-            {
-                Host host;
-
-                TokenBuffer tb;
-				if (sessionName == "")
-				{
-					tb << name;
-					tb << host.getAddress();
-				}
-				else
-				{
-					tb << "-g";
-					tb << host.getAddress();
-					tb << sessionName.c_str();
-				}
-
-
-                Message msg(tb);
-                msg.type = COVISE_MESSAGE_VRB_CONTACT;
-                sConn->send_msg(&msg);
-            }
-        }
-        connMutex.unlock();
-    }
+    completeConnection();
 
 
     if (!sConn)
@@ -415,6 +387,41 @@ int VRBClient::connectToServer(std::string sessionName)
     return true;
 }
 
+bool VRBClient::completeConnection(){
+    if (connFuture.valid())
+    {
+        std::lock_guard<std::mutex> g(connMutex);
+        auto status = connFuture.wait_for(std::chrono::seconds(0));
+        if (status == std::future_status::ready)
+        {
+            sConn = connFuture.get();
+            if(sConn != nullptr)
+            {
+                Host host;
+
+                TokenBuffer tb;
+				if (startupSession == "")
+				{
+					tb << name;
+					tb << host.getAddress();
+				}
+				else
+				{
+					tb << "-g";
+					tb << host.getAddress();
+					tb << startupSession.c_str();
+				}
+
+
+                Message msg(tb);
+                msg.type = COVISE_MESSAGE_VRB_CONTACT;
+                sConn->send_msg(&msg);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 void VRBClient::setupUdpConn() 
 {
