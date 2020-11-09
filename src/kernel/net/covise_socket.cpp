@@ -592,7 +592,7 @@ Socket::Socket(const Socket &s)
 
     s_addr_in = s.s_addr_in;
     port = s.port;
-    sock_id = s.sock_id;
+    sock_id = s.sock_id.load();
     host = new Host(*(s.host));
 }
 
@@ -1126,12 +1126,12 @@ Host *Socket::get_ip_alias(const Host *test_host)
     return (new Host(*test_host));
 }
 
-const char *Socket::get_hostname()
+const char *Socket::get_hostname() const
 {
     return host->getAddress();
 }
 
-bool Socket::isConnected()
+bool Socket::isConnected() const
 {
     return this->connected;
 }

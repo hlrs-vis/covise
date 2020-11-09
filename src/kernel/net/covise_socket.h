@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 #include <util/coExport.h>
-
+#include <atomic>
 #ifdef HAVEMULTICAST
 #ifndef _WIN32
 #include <netinet/in.h>
@@ -131,7 +131,7 @@ protected:
     static bool bInitialised;
     struct sockaddr_in s_addr_in;
     Host *host; // host on the other end of the socket
-    int sock_id;
+    std::atomic<int> sock_id;
     int port;
     int setTCPOptions();
     bool connected;
@@ -163,7 +163,7 @@ public:
     ServerConnection *copy_and_accept(); // after select/accept
     // after select/accept
     SimpleServerConnection *copySimpleAndAccept();
-    int available(void);
+    int available();
     int listen(); // listen for actual connection (server)
     virtual int accept(); // listen and wait for and accept a connection (server)
     int acceptOnly(); //  accept a connection (server) 
@@ -180,11 +180,11 @@ public:
 #ifdef CRAY
     int writea(const void *buf, unsigned nbyte);
 #endif
-    int get_id()
+    int get_id() const
     {
         return sock_id;
     };
-    int get_port()
+    int get_port() const
     {
         return port;
     };
@@ -193,9 +193,9 @@ public:
     {
         return host;
     };
-    const char *get_hostname();
+    const char *get_hostname() const;
     void print();
-    bool isConnected();
+    bool isConnected() const;
 #ifdef WIN32
     static int getErrno()
     {
