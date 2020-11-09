@@ -397,18 +397,16 @@ bool VRBClient::completeConnection(){
             sConn = connFuture.get();
             if(sConn != nullptr)
             {
-                Host host;
-
                 TokenBuffer tb;
 				if (startupSession == "")
 				{
 					tb << name;
-					tb << host.getAddress();
-				}
+                    tb << Host::getHostaddress();
+                }
 				else
 				{
 					tb << "-g";
-					tb << host.getAddress();
+					tb << Host::getHostaddress();
 					tb << startupSession.c_str();
 				}
 
