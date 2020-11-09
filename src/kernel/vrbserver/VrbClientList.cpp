@@ -22,7 +22,6 @@ VRBClientList clients;
 
 VRBSClient::VRBSClient(Connection * c, UDPConnection* udpc, const char * ip, const char * n, bool send, bool dc)
 	:deleteClient(dc)
-	,address(ip)
 	,m_name(n)
 	,myID(clients.getNextFreeClientID())
 	,m_publicSession(vrb::SessionID())
@@ -41,7 +40,7 @@ VRBSClient::VRBSClient(Connection * c, UDPConnection* udpc, const char * ip, con
         m.type = COVISE_MESSAGE_VRB_GET_ID;
         conn->send_msg(&m);
     }
-
+    userInfo.ipAdress = ip;
 }
 
 VRBSClient::~VRBSClient()
@@ -53,7 +52,7 @@ VRBSClient::~VRBSClient()
 
 void VRBSClient::setContactInfo(const char *ip, const char *n, vrb::SessionID &session)
 {
-    address = ip;
+    userInfo.ipAdress = ip;
     m_name = n;
     m_privateSession = session;
     TokenBuffer rtb;
@@ -70,16 +69,14 @@ void VRBSClient::setMaster(bool m)
 
 }
 
-std::string VRBSClient::getUserInfo()
+UserInfo VRBSClient::getUserInfo()
 {
     return userInfo;
 }
 
 std::string VRBSClient::getUserName()
 {
-    std::vector<std::string> info;
-    boost::split(info, userInfo, [](char c) {return c == ',' || c == '"' || c == '\\'; });
-    return info[1];
+    return userInfo.ipAdress;
 }
 
 void VRBSClient::setSession(const vrb::SessionID &g)
@@ -110,8 +107,6 @@ void VRBSClient::setInterval(float i)
 void VRBSClient::getInfo(TokenBuffer &rtb)
 {
     rtb << myID;
-    rtb << address;
-	cerr << "my ip is " << address << endl;
     rtb << m_name;
     rtb << userInfo;
     rtb << m_publicSession;
@@ -135,9 +130,10 @@ void VRBSClient::addUnknownFile(const std::string& fileName)
 	m_unknownFiles.insert(fileName);
 }
 
-void VRBSClient::setUserInfo(const char *ui)
+void VRBSClient::setUserInfo(const UserInfo& ui)
 {
     userInfo = ui;
+	cerr << "my ip is " << userInfo.ipAdress << endl;
 }
 
 void VRBSClient::sendMsg(covise::MessageBase* msg)
@@ -152,7 +148,7 @@ void VRBSClient::sendMsg(covise::MessageBase* msg)
 		if (udpConn)
 		{
             udpConn->send_udp_msg(udp, "188.40.97.72");
-			udpConn->send_udp_msg(udp, address.c_str());
+			udpConn->send_udp_msg(udp, userInfo.ipAdress.c_str());
 		}
 		else if (firstTryUdp)
 		{
@@ -162,14 +158,14 @@ void VRBSClient::sendMsg(covise::MessageBase* msg)
 	}
 }
 
-std::string VRBSClient::getName() const
+const std::string &VRBSClient::getName() const
 {
     return m_name;
 }
 
-std::string VRBSClient::getIP() const
+const std::string &VRBSClient::getIP() const
 {
-    return address;
+    return userInfo.ipAdress;
 }
 
 int VRBSClient::getID() const

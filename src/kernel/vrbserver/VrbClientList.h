@@ -13,6 +13,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <vrbclient/UserInfo.h>
 namespace covise
 {
 class TokenBuffer;
@@ -37,6 +38,7 @@ enum VRBSERVEREXPORT Columns {
     URL,
     IP,
 };
+
 class VRBSERVEREXPORT VRBSClient
 {
 	///Vrb Server client that holds a connection and information about the client
@@ -48,12 +50,12 @@ public:
     ///set clientinformation and inform the client about its server id and session
     virtual void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
     ///store userinfo like email, pc-name, ...
-    virtual void setUserInfo(const char *userInfo);
+    virtual void setUserInfo(const UserInfo& userInfo);
     covise::Connection *conn = nullptr;
 	covise::UDPConnection* udpConn = nullptr;
 	void sendMsg(covise::MessageBase* msg);
-    std::string getName() const;
-    std::string getIP() const;
+    const std::string &getName() const;
+    const std::string &getIP() const;
     int getID() const;
     const vrb::SessionID &getSession() const;
     virtual void setSession(const vrb::SessionID &g);
@@ -61,7 +63,7 @@ public:
     void setPrivateSession(vrb::SessionID &g);
     bool isMaster();
     virtual void setMaster(bool m);
-    std::string getUserInfo();
+    UserInfo getUserInfo();
     std::string getUserName();
     int getSentBPS();
     int getReceivedBPS();
@@ -71,11 +73,12 @@ public:
     void getInfo(covise::TokenBuffer &rtb);
 	bool doesNotKnowFile(const std::string& fileName);
 	void addUnknownFile(const std::string& fileName);
+
+
 protected:
-	std::set<std::string> m_unknownFiles;
-    std::string address;
+    std::set<std::string> m_unknownFiles;
     std::string m_name;
-    std::string userInfo;
+    UserInfo userInfo;
     int myID = -1;
     vrb::SessionID m_publicSession, m_privateSession;
     bool m_master = false;

@@ -6,6 +6,7 @@
 #include <net/message.h>
 #include <memory>
 #include <util/coExport.h>
+#include "UserInfo.h"
 namespace vrb
 {
 
@@ -30,13 +31,10 @@ public:
     std::unique_ptr<covise::Message> createHelloMessage();
 
 protected:
-    std::string m_hostname;
-    std::string m_address;
+    UserInfo m_userInfo;
     int m_id = -1;
     vrb::SessionID m_sessionID;
     std::string m_name;
-    std::string m_email;
-    std::string m_url;
     bool m_isMaster = false;
 };
 

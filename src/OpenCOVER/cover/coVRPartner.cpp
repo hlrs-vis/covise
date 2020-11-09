@@ -118,7 +118,7 @@ void coVRPartner::becomeMaster()
 
 void coVRPartner::updateUi()
 {
-    std::string menuText = std::to_string(m_id) + " " + RemoteClient::m_name + "@" + m_hostname;
+    std::string menuText = std::to_string(m_id) + " " + RemoteClient::m_name + "@" + m_userInfo.hostName;
 #if 0
     fileMenuEntry = new coButtonMenuItem("NoFile");
     fileMenuEntry->setMenuListener(this);

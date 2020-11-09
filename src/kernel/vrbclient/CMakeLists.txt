@@ -16,6 +16,7 @@ SET(VRBCLIENT_SOURCES
   SharedState.cpp
   SharedStateManager.cpp
   SharedStateSerializer.cpp
+  UserInfo.cpp
   VRBClient.cpp
   VRBMessage.cpp
   VrbClientRegistry.cpp
@@ -31,6 +32,7 @@ SET(VRBCLIENT_HEADERS
   SharedState.h
   SharedStateManager.h
   SharedStateSerializer.h
+  UserInfo.h
   VRBClient.h
   VRBMessage.h
   VrbClientRegistry.h

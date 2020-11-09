@@ -35,7 +35,7 @@ public:
 
     void setSession(const vrb::SessionID & id) override;
 
-    void setUserInfo(const char * ui) override;
+    void setUserInfo(const vrb::UserInfo& userInfo) override;
 
     QSocketNotifier *getSN();
 

@@ -84,66 +84,14 @@ void VrbUiClient::setSession(const SessionID &id)
     myItem->setText(Group, id.toText().c_str());
 }
 
-void VrbUiClient::setUserInfo(const char *ui)
+void VrbUiClient::setUserInfo(const UserInfo &ui)
 {
     VRBSClient::setUserInfo(ui);
-    char *tmp, *tmp2;
-    tmp = new char[strlen(ui) + 1];
-    strcpy(tmp, ui);
-    char *c = tmp;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    // hostname
-    myItem->setText(Host, tmp2);
-    c++;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    // userName
-    myItem->setText(User, tmp2);
-    c++;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    // email
-    myItem->setText(Email, tmp2);
-    c++;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    // url
-    myItem->setText(URL, tmp2);
-    c++;
-    delete[] tmp;
+    myItem->setText(Host, ui.hostName.c_str());
+    myItem->setText(User, ui.ipAdress.c_str());
+    myItem->setText(Email, ui.email.c_str());
+    myItem->setText(URL, ui.url.c_str());
+
 
     appwin->createCurves(this);
 }
