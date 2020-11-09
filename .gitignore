@@ -267,3 +267,5 @@ libc++
 libc++opt
 macos
 macosopt
+spack
+spackopt

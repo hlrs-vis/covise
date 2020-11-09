@@ -29,6 +29,14 @@ guess_archsuffix() {
        fi
    fi
 
+    if [ "$basedir" != "" ]; then
+       if [ -d "$basedir"/spackopt ]; then
+          export ARCHSUFFIX=spackopt
+       elif [ -d "$basedir"/spack ]; then
+          export ARCHSUFFIX=spack
+       fi
+    fi
+
    case "$ARCH" in
         Darwin)
             export ARCHSUFFIX=darwin

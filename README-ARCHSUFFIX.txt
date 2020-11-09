@@ -44,6 +44,7 @@ libc++          Mac OS X 10.9-10.12, x86_64 with libc++
 macos           macOS, x86_64 or arm64 with libc++
 
 freebsd         Generic FreeBSD
+spack           Installation via spack (https://spack.io)
 
 
 #
