@@ -61,11 +61,11 @@ public:
 	void setupUdpConn();
 	int sendUdpMessage(const vrb::UdpMessage* m);
 	void sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender);
-
     int getID();
     void setID(int ID);
     std::list<Message *> messageQueue;
     float getSendDelay();
+    void shutdown(); //threadsafe, shuts down the tcp socked, don't use the client after a call to this function
 
 private:
     ClientConnection *sConn = nullptr; // tcp connection to Server
@@ -80,6 +80,7 @@ private:
     bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server
     float sendDelay; // low-pass filtered time for sending one packet of 1000 bytes
     std::mutex connMutex;
+    std::atomic_bool m_isConnected{false};
 #ifndef _M_CEE //no future in Managed OpenCOVER
     std::future<ClientConnection *> connFuture;
 	std::future<UDPConnection*> udpConnFuture;

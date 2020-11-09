@@ -16,15 +16,16 @@
 #include <sys/time.h>
 #endif
 
-#include <util/common.h>
 #include <config/CoviseConfig.h>
 #include <net/covise_connect.h>
-#include <net/tokenbuffer.h>
 #include <net/covise_host.h>
+#include <net/covise_socket.h>
 #include <net/message.h>
+#include <net/message_types.h>
+#include <net/tokenbuffer.h>
 #include <net/udpMessage.h>
 #include <net/udp_message_types.h>
-#include <net/message_types.h>
+#include <util/common.h>
 
 using namespace covise;
 
@@ -394,6 +395,7 @@ bool VRBClient::completeConnection(){
         auto status = connFuture.wait_for(std::chrono::seconds(0));
         if (status == std::future_status::ready)
         {
+            m_isConnected = true;
             sConn = connFuture.get();
             if(sConn != nullptr)
             {
@@ -490,4 +492,12 @@ void VRBClient::connectToCOVISE(int argc, const char **argv)
 float VRBClient::getSendDelay()
 {
     return sendDelay;
+}
+
+void VRBClient::shutdown(){
+    if(m_isConnected)
+    {
+        int id = sConn->getSocket()->get_id();
+        ::shutdown(id, 2); //2 stands for SHUT_RDWR/SD_BOTH 
+    }
 }
