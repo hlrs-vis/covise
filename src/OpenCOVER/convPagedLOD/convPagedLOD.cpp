@@ -58,7 +58,8 @@ typedef std::vector< osg::ref_ptr<osg::Object> > Objects;
 
 void processNode(osg::Transform* t, osg::Node* node);
 
-osg::BoundingSphere bs;
+//osg::BoundingSphere bs;
+        osg::Vec3 trans(0,0,0);
 
 
 static void usage(const char* prog, const char* msg)
@@ -85,7 +86,7 @@ void convertGeometry(osg::Geometry* geometry)
     {
         for (unsigned int j = 0; j < verts3->size(); j++)
         {
-            (*verts3)[j] = (*verts3)[j] - bs.center();
+            (*verts3)[j] = (*verts3)[j] + trans;
         }
     }
     else
@@ -95,9 +96,9 @@ void convertGeometry(osg::Geometry* geometry)
         {
             for (unsigned int j = 0; j < verts->size(); j++)
             {
-                (*verts)[j][0] = (*verts)[j][0] - bs.center()[0];
-                (*verts)[j][1] = (*verts)[j][1] - bs.center()[1];
-                (*verts)[j][2] = (*verts)[j][2] - bs.center()[2];
+                (*verts)[j][0] = (*verts)[j][0] + trans[0];
+                (*verts)[j][1] = (*verts)[j][1] + trans[1];
+                (*verts)[j][2] = (*verts)[j][2] + trans[2];
             }
         }
     }
@@ -112,7 +113,7 @@ void convertDrawable(osg::Drawable* drawable)
     {
         for (unsigned int j = 0; j < verts3->size(); j++)
         {
-            (*verts3)[j] = (*verts3)[j] - bs.center();
+            (*verts3)[j] = (*verts3)[j] + trans;
         }
     }
     else
@@ -122,9 +123,9 @@ void convertDrawable(osg::Drawable* drawable)
         {
             for (unsigned int j = 0; j < verts->size(); j++)
             {
-                (*verts)[j][0] = (*verts)[j][0] - bs.center()[0];
-                (*verts)[j][1] = (*verts)[j][1] - bs.center()[1];
-                (*verts)[j][2] = (*verts)[j][2] - bs.center()[2];
+                (*verts)[j][0] = (*verts)[j][0] + trans[0];
+                (*verts)[j][1] = (*verts)[j][1] + trans[1];
+                (*verts)[j][2] = (*verts)[j][2] + trans[2];
             }
         }
     }
@@ -153,7 +154,7 @@ void convertGroup(osg::Group* g)
 }
 void convertLOD(osg::PagedLOD* pLOD)
 {
-    pLOD->setCenter(pLOD->getCenter() - bs.center());
+    pLOD->setCenter(pLOD->getCenter() + trans);
     for (unsigned int i = 0; i < pLOD->getNumChildren(); i++)
     {
         processNode(nullptr,pLOD->getChild(i));
@@ -169,15 +170,15 @@ void processNode(osg::Transform* t,osg::Node* node)
     {
         convertLOD(dynamic_cast<osg::PagedLOD*>(node));
     }
-    if (dynamic_cast<osg::Geode*>(node))
+    else if (dynamic_cast<osg::Geode*>(node))
     {
         convertGeode(dynamic_cast<osg::Geode*>(node));
     }
-    if (dynamic_cast<osg::Geometry*>(node))
+    else if (dynamic_cast<osg::Geometry*>(node))
     {
         convertGeometry(dynamic_cast<osg::Geometry*>(node));
     }
-    if (dynamic_cast<osg::Group*>(node))
+    else if (dynamic_cast<osg::Group*>(node))
     {
         convertGroup(dynamic_cast<osg::Group*>(node));
     }
@@ -186,8 +187,8 @@ void processNode(osg::Transform* t,osg::Node* node)
 osg::MatrixTransform*convert(osg::Node* node)
 {
     osg::MatrixTransform* t = new osg::MatrixTransform();
-    t->setName("rootTransform");
-    t->setMatrix(osg::Matrixd::translate(bs.center()));
+    t->setName("mainTransform");
+    //t->setMatrix(osg::Matrixd::translate(bs.center()));
     osg::Group* g = dynamic_cast<osg::Group*>(node);
     if (g)
     {
@@ -222,6 +223,17 @@ int main(int argc, char *argv[])
         usage(arguments.getApplicationName().c_str(), 0);
         //arguments.getApplicationUsage()->write(std::cout);
         return 1;
+    }
+
+    std::string str;
+    while (arguments.read("-t",str))
+    {
+        if( sscanf( str.c_str(), "%f,%f,%f",
+                &trans[0], &trans[1], &trans[2] ) != 3 )
+        {
+            usage( argv[0], "Translation argument format incorrect." );
+            return 1;
+        }
     }
 
     if (arguments.argc() <= 1)
@@ -277,7 +289,7 @@ int main(int argc, char *argv[])
 
     if (nodes.size() == 1)
     {
-        bs = nodes.front()->getBound();
+        //bs = nodes.front()->getBound();
         root = convert(nodes.front());
     }
     else if (nodes.size() > 1)
@@ -290,7 +302,7 @@ int main(int argc, char *argv[])
             group->addChild(itr->get());
         }
 
-        bs = group->getBound();
+        //bs = group->getBound();
         root = convert(group);
     }
 
