@@ -32,8 +32,12 @@ guess_archsuffix() {
     if [ "$basedir" != "" ]; then
        if [ -d "$basedir"/spackopt ]; then
           export ARCHSUFFIX=spackopt
+          check_readme_archsuffix
+          return
        elif [ -d "$basedir"/spack ]; then
           export ARCHSUFFIX=spack
+          check_readme_archsuffix
+          return
        fi
     fi
 
