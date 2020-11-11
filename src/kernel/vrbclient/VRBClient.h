@@ -15,7 +15,7 @@
 #include <string>
 #include <list>
 #include <util/coTypes.h>
-
+#include "VrbCredentials.h"
 
 namespace vrb
 {
@@ -42,7 +42,7 @@ class VRBEXPORT VRBClient
 
 public:
     VRBClient(const char *name, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
-    VRBClient(const char *name, const char *host, int tcp_p, int udp_p, bool isSlave = false);
+    VRBClient(const char *name, const vrb::VrbCredentials &credentials, bool isSlave = false);
     ~VRBClient();
     int connectToServer(std::string sessionName = ""); // returns -1, if Connection to Server fails
     bool completeConnection();
@@ -72,9 +72,8 @@ private:
 
 	UDPConnection* udpConn = nullptr; //udp connection to server
 
-    char *name;
-    int m_tcpPort = 31800;
-	int m_udpPort = 31801; //port + 1 for up (fix me: define up port in config)
+    std::string name;
+    vrb::VrbCredentials m_credentials;
     int ID = -1;
     Host *serverHost = nullptr;
     bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server
@@ -92,5 +91,6 @@ private:
 
     int sendMessage(const Message* m, Connection* conn);
 };
+vrb::VrbCredentials readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile);
 }
 #endif

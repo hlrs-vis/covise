@@ -59,8 +59,8 @@
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
 
-#include <vrbclient/VRBClient.h>
 #include <vrbclient/SharedStateManager.h>
+#include <vrbclient/VRBClient.h>
 
 #include "coVRAnimationManager.h"
 #include "coVRCollaboration.h"
@@ -349,8 +349,7 @@ bool OpenCOVER::init()
         coCommandLine::shift(4);
     }
 
-    vrbHost = NULL;
-    vrbPort = 0;
+
     int c = 0;
     std::string collaborativeOptionsFile, viewpointsFile, startSession;
     while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::g:")) != -1)
@@ -371,19 +370,25 @@ bool OpenCOVER::init()
         {
             std::cerr << "Optional Argument: " << optarg << std::endl;
 
-            vrbHost = new char[strlen(optarg) + 1];
+            std::vector<char> vrbHostdata(strlen(optarg) + 1);
+            char *vrbHost = vrbHostdata.data();
             strcpy(vrbHost, optarg);
             char *sep = strchr(vrbHost, ':');
+            int tcpPort = 0, udpPort = 0;
             if (sep)
             {
                 *sep = '\0';
                 ++sep;
-                vrbPort = atoi(sep);
+                tcpPort = atoi(sep);
+                sep = strchr(sep + 1, ':');
             }
-            else
+            if(sep)
             {
-                vrbPort = 0;
+                *sep = '\0';
+                ++sep;
+                udpPort = atoi(sep);
             }
+            m_vrbCredentials.reset(new vrb::VrbCredentials(std::string{vrbHost}, tcpPort, udpPort));
             break;
         }
 		case 'g':
@@ -625,7 +630,7 @@ bool OpenCOVER::init()
 
     // initialize communication
     bool loadCovisePlugin = false;
-    if (loadFiles == false && coVRConfig::instance()->collaborativeOptionsFile.empty() && coCommandLine::argc() > 3 && vrbHost == NULL)
+    if (loadFiles == false && coVRConfig::instance()->collaborativeOptionsFile.empty() && coCommandLine::argc() > 3 && m_vrbCredentials == NULL)
     {
         loadCovisePlugin = true;
         //fprintf(stderr, "need covise connection\n");
@@ -701,22 +706,21 @@ bool OpenCOVER::init()
     // Connect to VRBroker, if available
     if (!loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
-        if (vrbHost == NULL)
-        {
-            hud->setText2("connecting");
-            hud->setText3("to VRB");
-            hud->redraw();
-            vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-            vrbc->connectToServer(startSession);
-        }
-        else
+        if (m_vrbCredentials)
         {
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-            vrbc = new VRBClient("COVER", vrbHost, vrbPort, coVRMSController::instance()->isSlave());
-            vrbc->connectToServer(startSession);
+            vrbc = new VRBClient("COVER", *m_vrbCredentials, coVRMSController::instance()->isSlave());
         }
+        else
+        {
+            hud->setText2("connecting");
+            hud->setText3("to VRB");
+            vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        }
+        hud->redraw();
+        vrbc->connectToServer(startSession);
     }
 
     coVRLighting::instance()->initMenu();

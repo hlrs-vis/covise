@@ -20,6 +20,7 @@ SET(VRBCLIENT_SOURCES
   VRBClient.cpp
   VRBMessage.cpp
   VrbClientRegistry.cpp
+  VrbCredentials.cpp
   VrbRegistry.cpp
 )
 
@@ -36,6 +37,7 @@ SET(VRBCLIENT_HEADERS
   VRBClient.h
   VRBMessage.h
   VrbClientRegistry.h
+  VrbCredentials.h
   VrbMessageSenderInterface.h
   VrbRegistry.h
 )

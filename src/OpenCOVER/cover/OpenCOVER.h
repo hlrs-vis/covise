@@ -23,6 +23,9 @@
 #include <util/common.h>
 #include <OpenVRUI/coInteractionManager.h>
 
+#include <vrbclient/VrbCredentials.h>
+
+#include <memory>
 #ifdef HAS_MPI
 #include <mpi.h>
 #endif
@@ -58,8 +61,7 @@ private:
     void readConfigFile();
     void parseLine(char *line);
     int frameNum;
-    char *vrbHost;
-    int vrbPort;
+    std::unique_ptr<vrb::VrbCredentials> m_vrbCredentials;
     static OpenCOVER *s_instance;
     double fl_time, old_fl_time;
     float sum_time;

@@ -13,8 +13,8 @@ namespace vrb
 class VRBEXPORT RemoteClient
 {
 public:
-    RemoteClient();
-    RemoteClient(int id);
+    RemoteClient(); //constructs a client with local information
+    RemoteClient(int id); //constructs real remote client 
     virtual ~RemoteClient() = default;
     int getID() const;
     void setID(int id);

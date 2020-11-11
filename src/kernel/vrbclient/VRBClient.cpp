@@ -30,125 +30,25 @@
 using namespace covise;
 
 VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, bool slave)
-    : sendDelay(0.1f)
-	,isSlave(slave)
-{
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
-    if (collaborativeConfigurationFile != NULL)
-    {
-        FILE *fp = fopen(collaborativeConfigurationFile, "r");
-        if (fp)
-        {
-            char buf[5000];
-            while (!feof(fp))
-            {
-                char *retval_fgets;
-                retval_fgets = fgets(buf, 5000, fp);
-                if (retval_fgets == NULL)
-                {
-                    std::cerr << "VRBClient::VRBClient: fgets failed" << std::endl;
-                    return;
-                }
-                if (strncmp(buf, "server:", 7) == 0)
-                {
-                    char *hostName = new char[strlen(buf) + 1];
-                    size_t retval;
-                    retval = sscanf(buf, "server:%s", hostName);
-                    if (retval != 1)
-                    {
-                        std::cerr << "VRBClient::VRBClient: sscanf failed" << std::endl;
-                        delete[] hostName;
-                        return;
-                    }
-                    serverHost = new Host(hostName);
-                    delete[] hostName;
-                }
-                else if (strncmp(buf, "port:", 5) == 0)
-                {
-                    size_t retval;
-                    retval = sscanf(buf, "port:%d", &m_tcpPort);
-                    if (retval != 1)
-                    {
-                        std::cerr << ": sscanf failed" << std::endl;
-                        return;
-                    }
-					m_udpPort = m_tcpPort + 1;
-                }
-            }
-            fclose(fp);
-        }
-    }
-    if (serverHost == NULL)
-    {
-		m_tcpPort = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
-		m_udpPort = coCoviseConfig::getInt("udpPort", "System.VRB.Server", m_tcpPort + 1);
-        std::string line = coCoviseConfig::getEntry("System.VRB.Server");
-        if (!line.empty())
-        {
-            if (strcasecmp(line.c_str(), "NONE") == 0)
-                serverHost = NULL;
-            else
-                serverHost = new Host(line.c_str());
-        }
-        else
-        {
-            serverHost = NULL;
-        }
-    }
-}
+    : VRBClient(n, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave)
+    {}
 
-VRBClient::VRBClient(const char *n, const char *host, int tcp_p, int udp_p, bool slave)
+VRBClient::VRBClient(const char *n, const vrb::VrbCredentials &credentials, bool slave)
     : sendDelay(0.1f)
 	, isSlave(slave)
+    , m_credentials(credentials)
+    , name(n)
 {
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
-    serverHost = NULL;
-    //port = 31800;
-    m_tcpPort = tcp_p;
-	m_udpPort = udp_p;
-    if (host && strcmp(host, ""))
+    if (!credentials.ipAddress.empty())
     {
-        serverHost = new Host(host);
+        serverHost = new Host(credentials.ipAddress.c_str());
     }
-    if (serverHost == NULL)
-    {
-        std::string line = coCoviseConfig::getEntry("VRB.TCPPort");
-        if (!line.empty())
-        {
-            size_t retval;
-            retval = sscanf(line.c_str(), "%d", &m_tcpPort);
-            if (retval != 1)
-            {
-                std::cerr << "VRBClient::VRBClient: sscanf failed" << std::endl;
-                return;
-            }
-        }
-        line = coCoviseConfig::getEntry("VRB.Server");
-        if (!line.empty())
-        {
-            if (strcasecmp(line.c_str(), "NONE") == 0)
-                serverHost = NULL;
-            else
-                serverHost = new Host(line.c_str());
-        }
-        else
-        {
-            serverHost = NULL;
-        }
-    }
-    sConn = NULL;
-    ID = -1;
 }
 
 VRBClient::~VRBClient()
 {
-    delete[] name;
     delete sConn;
-
 	delete udpConn;
-
 }
 
 int VRBClient::getID()
@@ -355,12 +255,12 @@ int VRBClient::connectToServer(std::string sessionName)
     {
         connFuture = std::async(std::launch::async, [this]() -> ClientConnection *
         {
-            ClientConnection *myConn = new ClientConnection(serverHost, m_tcpPort, 0, (sender_type)0,0, 1.0);
+            ClientConnection *myConn = new ClientConnection(serverHost, m_credentials.tcpPort, 0, (sender_type)0,0, 1.0);
             if (!myConn->is_connected()) // could not open server port
             {
                 if (firstVrbConnection)
                 {
-                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_tcpPort);
+                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_credentials.tcpPort);
                     firstVrbConnection = false;
                 }
 
@@ -427,7 +327,7 @@ void VRBClient::setupUdpConn()
 {
     if(serverHost)
     {
-	udpConn = new UDPConnection(0, 0, m_udpPort, serverHost->getAddress());
+	udpConn = new UDPConnection(0, 0, m_credentials.udpPort, serverHost->getAddress());
     }
 }
 
@@ -499,5 +399,61 @@ void VRBClient::shutdown(){
     {
         int id = sConn->getSocket()->get_id();
         ::shutdown(id, 2); //2 stands for SHUT_RDWR/SD_BOTH 
+    }
+}
+
+
+vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile){
+    if (collaborativeConfigurationFile != NULL)
+    {
+        std::string ipAddress;
+        int tcpPort = 0;
+        FILE *fp = fopen(collaborativeConfigurationFile, "r");
+        if (fp)
+        {
+            char buf[5000];
+            int tcpPort = 0;
+            while (!feof(fp))
+            {
+                char *retval_fgets;
+                retval_fgets = fgets(buf, 5000, fp);
+                if (retval_fgets == NULL)
+                {
+                    std::cerr << "VRBClient::VRBClient: fgets failed" << std::endl;
+                    return vrb::VrbCredentials{};
+                }
+                if (strncmp(buf, "server:", 7) == 0)
+                {
+                    char *hostName = new char[strlen(buf) + 1];
+                    size_t retval;
+                    retval = sscanf(buf, "server:%s", hostName);
+                    if (retval != 1)
+                    {
+                        std::cerr << "VRBClient::VRBClient: sscanf failed" << std::endl;
+                        delete[] hostName;
+                        return vrb::VrbCredentials{};
+                    }
+                    if (strcasecmp(hostName, "NONE"))
+                    {
+                        ipAddress = hostName;
+                    }
+                    
+                    delete[] hostName;
+                }
+                else if (strncmp(buf, "port:", 5) == 0)
+                {
+                    size_t retval;
+                    retval = sscanf(buf, "port:%d", &tcpPort);
+                    if (retval != 1)
+                    {
+                        std::cerr << ": sscanf failed" << std::endl;
+                        return vrb::VrbCredentials{};
+                    }
+                }
+            }
+            fclose(fp);
+            return vrb::VrbCredentials{ipAddress, tcpPort, tcpPort + 1};
+        }
+        return vrb::VrbCredentials{};
     }
 }
