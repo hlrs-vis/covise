@@ -317,6 +317,9 @@ SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.
 IF(UNIX)
   SET(install_files_exclude "${install_files_exclude}|\\.bat$|\\.vbs$")
 ENDIF(UNIX)
+if(COVISE_BUILD_ONLY_COVER)
+    SET(install_files_exclude "${install_files_exclude}|share/covise/example-data|share/covise/signals|share/covise/web")
+endif()
 SET(install_files_exclude "${install_files_exclude})")
 
 #CONFIGURE_FILE("${COVISEDIR}/cmake/FindCovise.cmake" "${CMAKE_BINARY_DIR}/cmake/FindCovise.cmake" COPYONLY)
@@ -341,7 +344,12 @@ INSTALL(FILES
     config/config-midi.xml
     DESTINATION config)
 
-INSTALL(DIRECTORY share bin scripts
+INSTALL(DIRECTORY bin scripts
+        USE_SOURCE_PERMISSIONS
+        DESTINATION .
+        REGEX "${install_files_exclude}" EXCLUDE)
+
+INSTALL(DIRECTORY share
         USE_SOURCE_PERMISSIONS
         DESTINATION .
         REGEX "${install_files_exclude}" EXCLUDE)
