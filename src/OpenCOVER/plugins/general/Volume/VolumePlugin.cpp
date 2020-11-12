@@ -71,11 +71,11 @@ using namespace vrui;
 covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id);
 covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id);
 
-namespace vrb
+namespace covise
 {
 	template <>
-	SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type) {
-		return TRANSFERFUCTION;
+	TokenBufferDataType getTokenBufferDataType < vvTransFunc >(const vvTransFunc& type) {
+		return TokenBufferDataType::TRANSFERFUNCTION;
 	}
 }
 #undef VERBOSE

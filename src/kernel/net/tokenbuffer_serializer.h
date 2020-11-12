@@ -36,7 +36,7 @@ enum class TokenBufferDataType
     SET,    //7
     MAP,	//8
     PAIR,	//9
-    TRANSFERFUCTION	//10
+    TRANSFERFUNCTION	//10
 };
 
 NETEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, TokenBufferDataType t);
@@ -56,17 +56,17 @@ TokenBufferDataType getTokenBufferDataType(const T& type)
     return TokenBufferDataType::UNDEFINED;
 }
 template<class T>
-TokenBufferDataType getSharedStateType(const std::vector<T>& type)
+TokenBufferDataType getTokenBufferDataType(const std::vector<T>& type)
 {
     return TokenBufferDataType::VECTOR;
 }
 template<class T>
-TokenBufferDataType getSharedStateType(const std::set<T>& type)
+TokenBufferDataType getTokenBufferDataType(const std::set<T>& type)
 {
     return TokenBufferDataType::SET;
 }
 template<class K, class V>
-TokenBufferDataType getSharedStateType(const std::map<K, V>& type)
+TokenBufferDataType getTokenBufferDataType(const std::map<K, V>& type)
 {
     return TokenBufferDataType::MAP;
 }

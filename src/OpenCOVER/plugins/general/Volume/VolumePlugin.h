@@ -42,17 +42,17 @@
 #include <vrb/client/SharedState.h>
 #include <net/tokenbuffer_serializer.h>
 
-namespace vrb {
+namespace covise {
 
 	template <>
-    SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type);
+    TokenBufferDataType getTokenBufferDataType < ::vvTransFunc >(const ::vvTransFunc& type);
 
 	/*
 	template <>
 	void serialize(covise::TokenBuffer& tb, const vvTransFunc& value)
 	{
-		//tb << getSharedStateType(value.first);
-		//tb << getSharedStateType(value.second);
+		//tb << getTokenBufferDataType(value.first);
+		//tb << getTokenBufferDataType(value.second);
 		//serialize(tb, value.first);
 		//serialize(tb, value.second);
 	}

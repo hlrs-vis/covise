@@ -6,6 +6,8 @@
  * License: LGPL 2+ */
 #include "tokenbuffer_serializer.h"
 
+#include <cassert>
+
 using namespace covise;
 
 TokenBuffer &covise::operator<<(TokenBuffer &tb, TokenBufferDataType t){
@@ -54,6 +56,10 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
     std::string valueString;
     switch (typeID)
     {
+    case TokenBufferDataType::TODETERMINE:
+        std::cerr << "tokenBufferToString: TokenBufferDataType::TODETERMINE twice" << std::endl;
+        assert("TokenBufferDataType::TODETERMINE twice" == nullptr);
+        break;
     case TokenBufferDataType::UNDEFINED:
         valueString = "data of length: " + std::to_string(tb.getData().length());
         break;
@@ -121,6 +127,11 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
 		valueString += tokenBufferToString(std::move(tb), secondType);
 	}
 	break;
+    case TokenBufferDataType::TRANSFERFUNCTION:
+    {
+        valueString = "Transfer function";
+    }
+    break;
     }
     return valueString;
 }
