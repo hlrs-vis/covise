@@ -7,9 +7,11 @@
 # for the lazy ones who do not want to type the same thing in else(), endif() and so on
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
-# disable rpath - only rely on LD_LIBRARY_PATH and the likes
-set(CMAKE_SKIP_RPATH TRUE)
-set(CMAKE_MACOSX_RPATH FALSE)
+if (NOT "${BASEARCHSUFFIX}" STREQUAL "spack")
+    # disable rpath - only rely on LD_LIBRARY_PATH and the likes
+    set(CMAKE_SKIP_RPATH TRUE)
+    set(CMAKE_MACOSX_RPATH FALSE)
+endif()
 
 macro(covise_cmake_policy)
 # policy settings
