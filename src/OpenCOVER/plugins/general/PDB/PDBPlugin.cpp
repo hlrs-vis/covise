@@ -206,28 +206,17 @@ bool PDBPlugin::init()
     currentPath = current_path;
 
     //set default mol directory
-    const char *molDir = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBPluginPymolDir").c_str();
-    if (molDir)
-        relativePymolPath = molDir;
-    else
+    relativePymolPath = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBPluginPymolDir");
+    if (relativePymolPath.empty())
     {
         cerr << "WARNING: PDBPlugin.PDBPluginPymolDir is not specified in the config file" << endl;
-        relativePymolPath = "";
     }
 
     //set radius for galaxy
-    const char *radius = coCoviseConfig::getEntry("COVER.Plugin.PDB.Radius").c_str();
-    if (radius)
-        _radius = atof(radius);
-    else
-        _radius = 3;
+    _radius = coCoviseConfig::getFloat("COVER.Plugin.PDB.Radius", 3.0);
 
     //set radius for galaxy
-    const char *maxstructures = coCoviseConfig::getEntry("COVER.Plugin.PDB.MaxStructures").c_str();
-    if (maxstructures)
-        _maxstructures = atoi(maxstructures);
-    else
-        _maxstructures = 150;
+    _maxstructures = coCoviseConfig::getInt("COVER.Plugin.PDB.MaxStructures", 150);
 
     //set file size (galaxy)
     _filesize = coCoviseConfig::getFloat("COVER.Plugin.PDB.FileSize", 150000.0);
@@ -248,10 +237,8 @@ bool PDBPlugin::init()
     _markerSize = coCoviseConfig::getFloat("COVER.Plugin.PDB.MarkerSize", 70.0);
 
     //set default temp directory
-    const char *tempDir = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBPluginTempDir").c_str();
-    if (tempDir)
-        relativeTempPath = tempDir;
-    else
+    relativeTempPath = coCoviseConfig::getEntry("COVER.Plugin.PDB.PDBPluginTempDir");
+    if (relativeTempPath.empty())
     {
         cerr << "WARNING: COVER.Plugin.PDB.PDBPluginTempDir is not specified in the config file" << endl;
         relativeTempPath = current_path;
@@ -269,12 +256,8 @@ bool PDBPlugin::init()
     }
 
     //set animation url
-    const char *animationURL = coCoviseConfig::getEntry("COVER.Plugin.PDB.AnimationURL").c_str();
-    if (animationURL)
-    {
-        animationurl = animationURL;
-    }
-    else
+    animationurl = coCoviseConfig::getEntry("COVER.Plugin.PDB.AnimationURL");
+    if (animationurl.empty())
     {
         animationurl = "www.molmovdb.org/uploads/";
     }
