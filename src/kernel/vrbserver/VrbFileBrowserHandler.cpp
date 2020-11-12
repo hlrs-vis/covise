@@ -493,7 +493,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		break;
 	}
 	default:
-		std::cerr << "Unknown FileBrowser request!" << endl;
+		std::cerr << "Unknown FileBrowser request!" << std::endl;
 		break;
 	}
 }
@@ -669,7 +669,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 #ifdef MB_DEBUG
 		std::cerr << "::HANDLECLIENT VRB FileBrowser Unknown RemoteRequest!" << std::endl;
 #endif
-		std::cerr << "unknown VRB FileBrowser RemoteRequest message in vrb" << endl;
+		std::cerr << "unknown VRB FileBrowser RemoteRequest message in vrb" << std::endl;
 	}
 	}
 }
