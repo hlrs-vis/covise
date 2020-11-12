@@ -145,7 +145,7 @@ covise::TokenBuffer vrb::VrbSessionList::serializeSession(const SessionID& id) c
 		return outData;
 	}
 	outData << getCurrentTime();
-	outData << participants.size();
+	outData << (uint32_t)participants.size();
 	for (const auto& cl : participants)
 	{
 		outData << cl->getUserName();
@@ -163,10 +163,10 @@ const VrbServerRegistry &vrb::VrbSessionList::deserializeSession(covise::TokenBu
 {
 	std::string time;
 	tb >> time;
-	size_t numberOfParticipants;
+	uint32_t numberOfParticipants;
 	tb >> numberOfParticipants;
 	std::vector<std::string> participantNames(numberOfParticipants);
-	for (size_t i = 0; i < numberOfParticipants; i++)
+	for (uint32_t i = 0; i < numberOfParticipants; i++)
 	{
 		tb >> participantNames[i];
 	}

@@ -27,7 +27,7 @@ regClass* VrbRegistry::getClass(const std::string& name)
 
 void VrbRegistry::deserialize(covise::TokenBuffer& tb) {
 
-	size_t size;
+	uint32_t size;
 	tb >> size;
 	m_classes = ContainerType{size, createClass("", -1)};// -1 = nobodies client ID
 	for(auto &cl : m_classes)
@@ -36,7 +36,7 @@ void VrbRegistry::deserialize(covise::TokenBuffer& tb) {
 	}
 }
 void VrbRegistry::serialize(covise::TokenBuffer& tb) const{
-	tb << m_classes.size();
+	tb << (uint32_t)m_classes.size();
 	for (const auto &cl : m_classes)
 	{
 		vrb::serialize(tb, *cl);
