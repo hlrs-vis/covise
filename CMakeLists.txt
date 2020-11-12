@@ -201,7 +201,7 @@ else()
 endif()
 
 if (IS_DIRECTORY "${PROJECT_SOURCE_DIR}/src/3rdparty/deskvox")
-    OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" OFF)
+    OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
 else()
     OPTION(COVISE_USE_VIRVO "Use Virvo volume rendering library" OFF)
     message("Did not find src/3rdparty/deskvox submodule: disabling direct volume rendering")
