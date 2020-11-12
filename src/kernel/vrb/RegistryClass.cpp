@@ -90,7 +90,7 @@ void regClass::serialize(covise::TokenBuffer &tb) const
     tb << m_classID;
     tb << m_isDel;
 
-    tb << m_variables.size();
+    tb << (uint32_t)m_variables.size();
     for (const auto var : m_variables)
     {
         covise::serialize(tb, *var.second);
@@ -103,9 +103,9 @@ void regClass::deserialize(covise::TokenBuffer &tb)
     tb >> m_classID;
     tb >> m_isDel;
 
-    size_t size;
+    uint32_t size;
     tb >> size;
-    for (size_t i = 0; i < size; i++)
+    for (uint32_t i = 0; i < size; i++)
     {
         auto var = createVar("", covise::DataHandle{});
         covise::deserialize(tb, *var);
