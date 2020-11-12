@@ -16,7 +16,7 @@ SET(SOURCES
   TracerPlugin.cpp
 )
 
-if (COVISE_BUILD_ONLY_COVER_PREREQ)
+if (COVISE_BUILD_ONLY_COVER)
 cover_add_plugin(TracerPlugin coOpenPluginUtil)
 else()
 include_directories(../../covise)

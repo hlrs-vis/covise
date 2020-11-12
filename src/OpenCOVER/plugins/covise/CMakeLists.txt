@@ -1,4 +1,4 @@
-if (COVISE_BUILD_ONLY_COVER_PREREQ)
+if (COVISE_BUILD_ONLY_COVER)
     return()
 endif()
 

@@ -145,7 +145,7 @@ endif()
 # COVISE global options
 option(COVISE_CMAKE_VERBOSE "more verbose CMake output" OFF)
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
-OPTION(COVISE_BUILD_ONLY_COVER_PREREQ "only build prerequisites for OpenCOVER" OFF)
+OPTION(COVISE_BUILD_ONLY_COVER "only build OpenCOVER" OFF)
 option(COVISE_OPENCOVER_INTERNAL_PROJECT "build OpenCOVER from this project" ON)
 if (BASEARCHSUFFIX STREQUAL "cray64")
     OPTION(COVISE_USE_OSMESA "Use OSMesa OpenGL library for off-screen CPU rendering" ON)
