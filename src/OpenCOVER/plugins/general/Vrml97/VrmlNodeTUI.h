@@ -29,7 +29,7 @@
 #include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <cover/coTabletUI.h>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 #include <memory>
 

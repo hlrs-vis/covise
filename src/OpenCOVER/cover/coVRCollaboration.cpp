@@ -33,7 +33,7 @@
 #include <net/message_types.h>
 
 #include <config/CoviseConfig.h>
-#include <vrbclient/VrbClientRegistry.h>
+#include <vrb/client/VrbClientRegistry.h>
 #include "coVRNavigationManager.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
@@ -43,9 +43,9 @@
 #include "coVRPartner.h"
 #include "VRAvatar.h"
 #include <osg/MatrixTransform>
-#include <vrbclient/SharedStateManager.h>
-#include <vrbclient/VRBClient.h>
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/SharedStateManager.h>
+#include <vrb/client/VRBClient.h>
+#include <vrb/client/VRBMessage.h>
 #include "OpenCOVER.h"
 
 #include "ui/Menu.h"

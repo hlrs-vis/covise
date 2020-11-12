@@ -38,8 +38,8 @@
 #include "coVRMSController.h"
 #include "coVRPluginSupport.h"
 #include "coVRFileManager.h"
-#include <vrbclient/VRBClient.h>
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VRBClient.h>
+#include <vrb/client/VRBMessage.h>
 #include "coVRCommunication.h"
 #include "coVRPartner.h"
 #include <util/coTabletUIMessages.h>
@@ -61,7 +61,7 @@
 #include "coVRPluginList.h"
 
 #include <PluginUtil/PluginMessageTypes.h>
-#include <vrbclient/VrbClientRegistry.h>
+#include <vrb/client/VrbClientRegistry.h>
 #include <config/CoviseConfig.h>
 #include <OpenVRUI/coNavInteraction.h>
 #include "ui/Owner.h"
@@ -77,12 +77,12 @@
 #include <fcntl.h>
 #endif
 #include <sys/stat.h>
-#include <vrbclient/VrbClientRegistry.h>
-#include <vrbclient/SharedStateManager.h>
-#include <vrbclient/SessionID.h>
+#include <vrb/client/VrbClientRegistry.h>
+#include <vrb/client/SharedStateManager.h>
+#include <vrb/SessionID.h>
 #include <ui/SelectionList.h>
 #include "coVrbMenue.h"
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VRBMessage.h>
 
 using namespace covise;
 using namespace opencover;
@@ -368,7 +368,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     case vrb::MOVE_HEAD:
     {
         osg::Matrixd mat;
-        vrb::deserialize(tb, mat);
+        covise::deserialize(tb, mat);
         VRViewer::instance()->updateViewerMat(mat);
     }
         break;

@@ -135,17 +135,17 @@ void VRAvatar::hide()
 
 covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const opencover::VRAvatar &avatar)
 {
-    vrb::serialize(tb, avatar.headTransform->getMatrix());
-    vrb::serialize(tb, avatar.handTransform->getMatrix());
-    vrb::serialize(tb, avatar.feetTransform->getMatrix());
+    covise::serialize(tb, avatar.headTransform->getMatrix());
+    covise::serialize(tb, avatar.handTransform->getMatrix());
+    covise::serialize(tb, avatar.feetTransform->getMatrix());
     return tb;
 }
 covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, opencover::VRAvatar &avatar)
 {
     osg::Matrix head, hand, feet;
-    vrb::deserialize(tb, head);
-    vrb::deserialize(tb, hand);
-    vrb::deserialize(tb, feet);
+    covise::deserialize(tb, head);
+    covise::deserialize(tb, hand);
+    covise::deserialize(tb, feet);
     avatar.headTransform->setMatrix(head);
     avatar.handTransform->setMatrix(hand);
     avatar.feetTransform->setMatrix(feet);

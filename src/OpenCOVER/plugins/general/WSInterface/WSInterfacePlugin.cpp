@@ -27,7 +27,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRSelectionManager.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 
 #include <PluginUtil/PluginMessageTypes.h>
 

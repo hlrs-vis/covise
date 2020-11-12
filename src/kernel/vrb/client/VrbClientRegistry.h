@@ -8,12 +8,16 @@
 #ifndef VrbClientRegistry_H
 #define VrbClientRegistry_H
 
+#include "ClientRegistryClass.h"
+#include "ClientRegistryVariable.h"
+
 #include <net/tokenbuffer.h>
-#include <map>
-#include "RegistryClass.h"
 #include <util/coExport.h>
-#include "VrbRegistry.h"
-#include "SessionID.h"
+#include <vrb/Registry.h>
+#include <vrb/SessionID.h>
+
+#include <map>
+
 namespace covise
 {
 class VRBClient;
@@ -22,7 +26,7 @@ class DataHandle;
 namespace vrb
 {
 class VrbMessageSenderInterface;
-class VRBEXPORT VrbClientRegistry : public VrbRegistry
+class VRBCLIENTEXPORT VrbClientRegistry : public VrbRegistry
 {
 public:
     static VrbClientRegistry *instance;

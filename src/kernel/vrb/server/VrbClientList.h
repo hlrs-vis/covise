@@ -7,13 +7,15 @@
 
 #ifndef VRBCLIENTLIST_H
 #define VRBCLIENTLIST_H
+
 #include <util/coExport.h>
-#include <vrbclient/SessionID.h>
+#include <vrb/SessionID.h>
 #include <net/message_types.h>
 #include <string>
 #include <set>
 #include <vector>
-#include <vrbclient/UserInfo.h>
+#include <vrb/UserInfo.h>
+
 namespace covise
 {
 class TokenBuffer;

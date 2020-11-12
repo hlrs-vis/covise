@@ -25,7 +25,7 @@
 #include <util/DLinkList.h>
 #include "ui/Owner.h"
 #include <set>
-#include <vrbclient/RemoteClient.h>
+#include <vrb/client/RemoteClient.h>
 namespace covise
 {
 class TokenBuffer;

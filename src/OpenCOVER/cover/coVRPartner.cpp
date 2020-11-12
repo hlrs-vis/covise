@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "coVRPartner.h"
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include <OpenVRUI/coLabel.h>
 #ifndef _WIN32
 #include <strings.h>
@@ -26,8 +26,8 @@
 #include "ui/CollaborativePartner.h"
 #include "ui/ButtonGroup.h"
 #include "ui/Group.h"
-#include <vrbclient/VrbClientRegistry.h>
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VrbClientRegistry.h>
+#include <vrb/client/VRBMessage.h>
 #include <osg/MatrixTransform>
 #include "VRSceneGraph.h"
 

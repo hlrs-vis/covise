@@ -14,8 +14,8 @@
 #include <map>
 #include <set>
 #include <memory>
-#include <vrbclient/SessionID.h>
-#include <vrbserver/VrbMessageHandler.h>
+#include <vrb/SessionID.h>
+#include <vrb/server/VrbMessageHandler.h>
 
 
 namespace covise

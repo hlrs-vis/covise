@@ -39,8 +39,8 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <vrbclient/SharedState.h>
-#include <vrbclient/SharedStateSerializer.h>
+#include <vrb/client/SharedState.h>
+#include <net/tokenbuffer_serializer.h>
 
 namespace vrb {
 

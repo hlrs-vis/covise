@@ -2,7 +2,7 @@
 #ifndef _CO_VR_3D_SCALE_GIZMO
 #define _CO_VR_3D_SCALE_GIZMO
 #include <cover/coVRIntersectionInteractor.h>
-#include <vrbclient/SharedStateSerializer.h>
+#include <net/tokenbuffer_serializer.h>
 #include <cover/MatrixSerializer.h>
 #include <net/tokenbuffer.h>
 #include <PluginUtil/coLine.h>

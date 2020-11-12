@@ -16,8 +16,8 @@
 #include <net/tokenbuffer.h>
 #include <net/dataHandle.h>
 
-#include <vrbclient/SharedStateSerializer.h>
-#include <vrbclient/SessionID.h>
+#include <net/tokenbuffer_serializer.h>
+#include <vrb/SessionID.h>
 
 
 
@@ -33,7 +33,7 @@ void VrbUiMessageHandler::updateApplicationWindow(const std::string& cl, int sen
 	TokenBuffer tb(value);
     if (cl == "SharedState")
     {
-		appwin->registry->updateEntry(cl.c_str(), sender, var.c_str(), vrb::tokenBufferToString(std::move(tb)).c_str());
+		appwin->registry->updateEntry(cl.c_str(), sender, var.c_str(), covise::tokenBufferToString(std::move(tb)).c_str());
     }
 	else if (cl == "SharedMap")
 	{

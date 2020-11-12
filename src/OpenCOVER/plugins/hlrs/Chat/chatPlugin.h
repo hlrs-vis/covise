@@ -8,7 +8,7 @@
 #ifndef _CHAT_PLUGIN_H
 #define _CHAT_PLUGIN_H
 
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coMenuItem.h>

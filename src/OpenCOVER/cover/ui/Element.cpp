@@ -7,7 +7,7 @@
 #include <cassert>
 
 #include <net/tokenbuffer.h>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 namespace opencover {
 namespace ui {

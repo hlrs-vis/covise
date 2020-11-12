@@ -10,12 +10,12 @@
 
 #include "VRBClient.h"
 #include "VrbMessageSenderInterface.h"
-#include "SharedStateSerializer.h"
 #include "VrbClientRegistry.h"
 
-#include <net/message.h>
 #include <net/dataHandle.h>
+#include <net/message.h>
 #include <net/message_types.h>
+#include <net/tokenbuffer_serializer.h>
 
 
 

@@ -19,12 +19,12 @@
 #include "coVRPluginSupport.h"
 #include "coVRCommunication.h"
 #include "coVRCollaboration.h"
-#include "vrbclient/VRBClient.h"
+#include <vrb/client/VRBClient.h>
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
 #include <cassert>
-#include <vrbclient/SharedState.h>
-#include <vrbclient/SessionID.h>
+#include <vrb/client/SharedState.h>
+#include <vrb/SessionID.h>
 
 //test remote fetch
 #include <coTabletUI.h>

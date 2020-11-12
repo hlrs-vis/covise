@@ -14,17 +14,19 @@
 #ifndef VRB_SHAREDSTATE_H
 #define VRB_SHAREDSTATE_H
 
-#include <vector>
-#include <string>
-#include <map>
-#include <functional>
-#include <cassert>
+#include "ClientRegistryClass.h"
 
 #include <net/tokenbuffer.h>
+#include <net/tokenbuffer_serializer.h>
 #include <util/coExport.h>
-#include "RegistryClass.h"
-#include "SharedStateSerializer.h"
-#include "SessionID.h"
+#include <vrb/RegistryVariable.h>
+#include <vrb/SessionID.h>
+
+#include <cassert>
+#include <functional>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace covise {
 class DataHandle;
@@ -39,7 +41,7 @@ enum SharedStateType {
     SHARE_WITH_ALL //3      write to session 0 to share the state within all sessions
 };
 
-class  VRBEXPORT SharedStateBase : public regVarObserver {
+class  VRBCLIENTEXPORT SharedStateBase : public regVarObserver {
 public:
     SharedStateBase(const std::string name, SharedStateType mode, const std::string& className = "SharedState");
 

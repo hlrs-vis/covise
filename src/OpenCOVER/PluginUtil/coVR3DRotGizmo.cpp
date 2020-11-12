@@ -10,7 +10,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <osg/io_utils>
 #include <osgSim/SphereSegment>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 using namespace opencover;
 

@@ -75,10 +75,16 @@
 #define SGVRUIEXPORT COIMPORT
 #endif
 
-#if defined(COVISE_VRB)
+#if defined(coVRB_EXPORTS)
 #define VRBEXPORT COEXPORT
 #else
 #define VRBEXPORT COIMPORT
+#endif
+
+#if defined(coVRBClient_EXPORTS)
+#define VRBCLIENTEXPORT COEXPORT
+#else
+#define VRBCLIENTEXPORT COIMPORT
 #endif
 
 #if defined(coVRBServer_EXPORTS)

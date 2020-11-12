@@ -18,7 +18,7 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 namespace vrui
 {

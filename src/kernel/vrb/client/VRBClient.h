@@ -37,7 +37,7 @@ class TokenBuffer;
 //
 //
 
-class VRBEXPORT VRBClient
+class VRBCLIENTEXPORT VRBClient
 {
 
 public:

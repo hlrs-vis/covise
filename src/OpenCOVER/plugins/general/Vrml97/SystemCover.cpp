@@ -47,8 +47,8 @@
 #include <cover/VRAvatar.h>
 #include <net/message.h>
 #include <net/message_types.h>
-#include <vrbclient/VRBClient.h>
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VRBClient.h>
+#include <vrb/client/VRBMessage.h>
 
 #include <cover/coVRLighting.h>
 #include <cover/coVRTui.h>

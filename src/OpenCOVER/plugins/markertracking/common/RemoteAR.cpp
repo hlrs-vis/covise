@@ -44,7 +44,7 @@ using std::string;
 #include <net/covise_socket.h>
 #include <net/message.h>
 #include <net/message_types.h>
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VRBMessage.h>
 //#include <util/coTimer.h>
 #include <osg/Material>
 #include <osg/MatrixTransform>

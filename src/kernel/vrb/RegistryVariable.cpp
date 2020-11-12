@@ -1,12 +1,7 @@
-#include "RegistryVariable.h"
 #include "RegistryClass.h"
+#include "RegistryVariable.h"
 
-//#include <net/message.h>
-//#include <net/message_types.h>
-#include <vrbclient/VrbClientRegistry.h>
-#include <vrbclient/VRBClient.h>
-#include "SharedStateSerializer.h"
-
+#include <net/tokenbuffer.h>
 using namespace covise;
 using namespace vrb;
 
@@ -27,28 +22,15 @@ void regVar::sendValue(covise::TokenBuffer &tb)
     if (m_class->isMap())
     {
         covise::TokenBuffer v;
-        v << static_cast<int>(vrb::WHOLE);
+        v << static_cast<int>(covise::WHOLE);
         v << m_wholeMap;
-        vrb::serialize(v, m_changedEtries);
+        covise::serialize(v, m_changedEtries);
         tb << v;
     }
     else
     {
         sendValueChange(tb);
     }
-}
-
-
-template<>
-void vrb::serialize(covise::TokenBuffer& tb, const regVar& value)
-{
-    value.serialize(tb);
-}
-
-template<>
-void vrb::deserialize(covise::TokenBuffer& tb, regVar& value)
-{
-    value.deserialize(tb);
 }
 
 /// returns the m_value
@@ -70,16 +52,16 @@ void regVar::setValue(const DataHandle &v)
         covise::TokenBuffer tb(v);
         int type, pos;
         tb >> type;
-        switch ((ChangeType)type)
+        switch ((covise::MapChangeType)type)
         {
-        case vrb::WHOLE:
+        case covise::WHOLE:
         {
             tb >> m_wholeMap;
             m_changedEtries.clear();
-            vrb::deserialize(tb, m_changedEtries); //should be empty after complete map was send from client, may be filled after session was loaded from file
+            covise::deserialize(tb, m_changedEtries); //should be empty after complete map was send from client, may be filled after session was loaded from file
             break;
         }
-        case vrb::ENTRY_CHANGE:
+        case covise::ENTRY_CHANGE:
         {
             tb >> pos;
             m_changedEtries[pos] = v;
@@ -111,50 +93,41 @@ void regVar::setDeleted(bool isDeleted)
     m_isDeleted = isDeleted;
 }
 
-
-void regVar::serialize(covise::TokenBuffer &tb) const{
+void regVar::serialize(covise::TokenBuffer &tb) const
+{
     tb << m_name;
     if (m_class->isMap())
     {
         tb << m_wholeMap;
-        vrb::serialize(tb, m_changedEtries);
+        covise::serialize(tb, m_changedEtries);
     }
     else
     {
         tb << m_value;
     }
 }
-    void regVar::deserialize(covise::TokenBuffer &tb){
-        tb >> m_name;
-        if (m_class->isMap())
-        {
-            tb >> m_wholeMap;
-            vrb::deserialize(tb, m_changedEtries);
-        } else
-        {
-            tb >> m_value;
-        }
-                }
-
-    /////////////CLIENTREGVAR//////////////////////////////////////////////////
-void clientRegVar::notifyLocalObserver()
+void regVar::deserialize(covise::TokenBuffer &tb)
 {
-    if (_observer)
+    tb >> m_name;
+    if (m_class->isMap())
     {
-        _observer->update(this);
+        tb >> m_wholeMap;
+        covise::deserialize(tb, m_changedEtries);
+    }
+    else
+    {
+        tb >> m_value;
     }
 }
 
-void clientRegVar::subscribe(regVarObserver * ob, const SessionID &sessionID)
+template <>
+void covise::serialize(covise::TokenBuffer &tb, const regVar &value)
 {
-    _observer = ob;
-    TokenBuffer tb;
-    // compose message
-    tb << sessionID;
-    tb << m_class->getID();
-    tb << m_class->name();
-    tb << m_name;
-    sendValue(tb);
-    // inform vrb about creation
-    dynamic_cast<clientRegClass *>(m_class)->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
+    value.serialize(tb);
+}
+
+template <>
+void covise::deserialize(covise::TokenBuffer &tb, regVar &value)
+{
+    value.deserialize(tb);
 }

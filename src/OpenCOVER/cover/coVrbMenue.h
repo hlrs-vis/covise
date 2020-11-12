@@ -12,11 +12,11 @@
 #include <set>
 #include <vector>
 #include <memory>
-#include <vrbclient/SessionID.h>
+#include <vrb/SessionID.h>
 #include "ui/Owner.h"
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 //test
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 namespace vrb
 {
 class SessionID;

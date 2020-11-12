@@ -59,8 +59,8 @@
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
 
-#include <vrbclient/SharedStateManager.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/SharedStateManager.h>
+#include <vrb/client/VRBClient.h>
 
 #include "coVRAnimationManager.h"
 #include "coVRCollaboration.h"

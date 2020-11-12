@@ -11,7 +11,7 @@
 #include "IData.h"
 #include <net/message.h>
 #include <cover/coTabletUI.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 
 namespace opencover
 {

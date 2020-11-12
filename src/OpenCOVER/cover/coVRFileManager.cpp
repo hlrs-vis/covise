@@ -42,7 +42,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <net/message.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include <fcntl.h>
 
 

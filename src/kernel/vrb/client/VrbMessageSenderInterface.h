@@ -16,7 +16,7 @@ class Message;
 }
 namespace vrb
 {
-class VRBEXPORT VrbMessageSenderInterface
+class VRBCLIENTEXPORT VrbMessageSenderInterface
 {
 public:
     virtual bool sendMessage(const covise::Message *msg) = 0;

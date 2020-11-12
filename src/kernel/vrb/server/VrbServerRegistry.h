@@ -6,21 +6,21 @@
  * License: LGPL 2+ */
 
 
+
+
+#ifndef VRB_SERVER_REGISTRY_H
+#define VRB_SERVER_REGISTRY_H
+
 #include "VrbClientList.h"
 
 #include <map>
 #include <memory>
 
 #include <net/tokenbuffer.h>
-#include <vrbclient/RegistryClass.h>
-#include <vrbclient/SessionID.h>
-#include <vrbclient/VrbRegistry.h>
-
-
-
-#ifndef VrbClientRegistry_H
-#define VrbClientRegistry_H
-
+#include <vrb/RegistryClass.h>
+#include <vrb/RegistryVariable.h>
+#include <vrb/SessionID.h>
+#include <vrb/Registry.h>
 
 namespace covise
 {
@@ -65,10 +65,7 @@ public:
     void updateUI(serverRegVar *rv);
     /// get a boolean Variable
     int isTrue(int ID, const std::string &className, const std::string &name, int def = 0);
-    /**
-       * add Registry to Script
-       */
-    void saveNetwork(coCharBuffer &cb);
+
     void setOwner(int id);
     int getOwner() const;
 

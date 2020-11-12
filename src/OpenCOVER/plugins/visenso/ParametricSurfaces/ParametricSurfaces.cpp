@@ -21,7 +21,7 @@
 #include <osg/Shape>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
 #include <OpenVRUI/osg/mathUtils.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include <grmsg/coGRSendCurrentDocMsg.h>
 #include <grmsg/coGRSetDocPageSizeMsg.h>
 #include <grmsg/coGRSetDocPositionMsg.h>

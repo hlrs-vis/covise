@@ -9,10 +9,10 @@
 #define SHAREDSTATEMANAGER_H
 
 #include "SharedState.h"
-#include "SessionID.h"
+
+#include <vrb/SessionID.h>
+
 #include <set>
-
-
 
 namespace covise
 {
@@ -22,7 +22,7 @@ namespace vrb
 {
 class VrbClientRegistry;
  ///Manages the behaviour of all sharedStates depending on their sharedStateType
-class VRBEXPORT SharedStateManager
+class VRBCLIENTEXPORT SharedStateManager
 {
 public:
     SharedStateManager(VrbClientRegistry *reg);

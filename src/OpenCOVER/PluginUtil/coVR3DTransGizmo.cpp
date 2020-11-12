@@ -8,7 +8,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <osg/io_utils>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 
 using namespace opencover;

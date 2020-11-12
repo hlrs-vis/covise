@@ -1,16 +1,19 @@
 #ifndef VRB_CLIENT_REMOTE_CLIENT_H
 #define VRB_CLIENT_REMOTE_CLIENT_H
-#include <string>
-#include "SessionID.h"
-#include <net/tokenbuffer.h>
+
 #include <net/message.h>
-#include <memory>
+#include <net/tokenbuffer.h>
 #include <util/coExport.h>
-#include "UserInfo.h"
+#include <vrb/SessionID.h>
+#include <vrb/UserInfo.h>
+
+#include <string>
+#include <memory>
+
 namespace vrb
 {
 
-class VRBEXPORT RemoteClient
+class VRBCLIENTEXPORT RemoteClient
 {
 public:
     RemoteClient(); //constructs a client with local information

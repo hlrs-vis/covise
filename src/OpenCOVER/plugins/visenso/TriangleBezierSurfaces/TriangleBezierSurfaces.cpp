@@ -19,7 +19,7 @@
 #include <cover/coVRConfig.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
 #include <OpenVRUI/osg/mathUtils.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include <grmsg/coGRSendCurrentDocMsg.h>
 #include <cmath>
 #include <iostream>

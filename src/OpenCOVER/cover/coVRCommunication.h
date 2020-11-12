@@ -29,10 +29,10 @@ class Message;
 
 #include <map>
 #include <set>
-#include <vrbclient/RegistryClass.h>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/ClientRegistryClass.h>
+#include <vrb/client/SharedState.h>
 #include "ui/Owner.h"
-#include <vrbclient/SessionID.h>
+#include <vrb/SessionID.h>
 #include <net/message_types.h>
 
 namespace vrui

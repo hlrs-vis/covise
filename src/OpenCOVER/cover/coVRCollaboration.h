@@ -25,7 +25,7 @@
 #include <util/common.h>
 #include <set>
 #include <osg/Matrix>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 #include "ui/Owner.h"
 #include "MatrixSerializer.h"
 

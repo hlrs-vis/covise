@@ -26,7 +26,7 @@
 #include <grmsg/coGRSetAnimationSpeedMsg.h>
 #include <grmsg/coGRSetTimestepMsg.h>
 
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VRBMessage.h>
 //#include <net/message.h>
 //#include <net/message_types.h>
 using namespace opencover;

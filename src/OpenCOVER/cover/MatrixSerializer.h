@@ -6,11 +6,11 @@
    * License: LGPL 2+ */
 #ifndef MATRIX_SERIALIZER_H
 #define MATRIX_SERIALIZER_H
-#include <vrbclient/SharedStateSerializer.h>
+#include <net/tokenbuffer_serializer.h>
 #include <osg/Matrix>
 #include <util/coExport.h>
 
-namespace vrb {
+namespace covise {
 template <>
 void COVEREXPORT serialize<osg::Matrix>(covise::TokenBuffer &tb, const osg::Matrix &value);
 

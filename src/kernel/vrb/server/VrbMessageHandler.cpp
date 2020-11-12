@@ -6,22 +6,21 @@
  * License: LGPL 2+ */
 
 
-#include "VrbMessageHandler.h"
 #include "VrbClientList.h"
+#include "VrbFileBrowserHandler.h"
+#include "VrbMessageHandler.h"
 #include "VrbServerRegistry.h"
 #include "VrbSessionList.h"
-#include "VrbFileBrowserHandler.h"
-
-#include <vrbclient/SessionID.h>
-#include <vrbclient/SharedStateSerializer.h>
 
 #include <net/covise_connect.h>
 #include <net/dataHandle.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
+#include <net/tokenbuffer_serializer.h>
 #include <net/tokenbuffer_util.h>
-#include <net/udp_message_types.h>
 #include <net/udpMessage.h>
+#include <net/udp_message_types.h>
+#include <vrb/SessionID.h>
 
 #include <cstdlib>
 #include <cstring>

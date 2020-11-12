@@ -14,7 +14,7 @@
 
 #include <OpenVRUI/coInteraction.h>
 
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 namespace vrui
 {

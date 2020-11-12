@@ -29,7 +29,7 @@
 #include <osg/Texture2D>
 #include <string>
 #include <vector>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 #include <OpenVRUI/coUpdateManager.h>
 
 namespace osg

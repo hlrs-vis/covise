@@ -4,8 +4,10 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-#include <net/tokenbuffer.h>
+#include "tokenbuffer.h"
+
 #include <util/coExport.h>
+
 #include <string>
 #include <vector>
 #include <set>
@@ -13,19 +15,17 @@
 #include <utility>
 
 
-#ifndef SHARED_STATE_SERIALIZER_H
-#define SHARED_STATE_SERIALIZER_H
+#ifndef TOKEN_BUFFER_SERIALIZER_H
+#define TOKEN_BUFFER_SERIALIZER_H
 namespace covise
 {
 class DataHandle;
-}
-namespace vrb
-{
 
 ///////////////////////DATA TYPE FUNCTIONS //////////////////////////
 
-enum SharedStateDataType
+enum class TokenBufferDataType
 {
+    TODETERMINE=-1,
     UNDEFINED = 0,
     BOOL,   //1
     INT,    //2
@@ -38,53 +38,58 @@ enum SharedStateDataType
     PAIR,	//9
     TRANSFERFUCTION	//10
 };
+
+NETEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, TokenBufferDataType t);
+NETEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, TokenBufferDataType &t);
+
+
 //how a sharedMap has changed
-enum ChangeType
+enum MapChangeType
 {
     WHOLE, //every entry -> sent whole map (with types)
     ENTRY_CHANGE, // send position and new value
 
 };
 template<class T>
-SharedStateDataType getSharedStateType(const T& type)
+TokenBufferDataType getTokenBufferDataType(const T& type)
 {
-    return UNDEFINED;
+    return TokenBufferDataType::UNDEFINED;
 }
 template<class T>
-SharedStateDataType getSharedStateType(const std::vector<T>& type)
+TokenBufferDataType getSharedStateType(const std::vector<T>& type)
 {
-    return VECTOR;
+    return TokenBufferDataType::VECTOR;
 }
 template<class T>
-SharedStateDataType getSharedStateType(const std::set<T>& type)
+TokenBufferDataType getSharedStateType(const std::set<T>& type)
 {
-    return SET;
+    return TokenBufferDataType::SET;
 }
 template<class K, class V>
-SharedStateDataType getSharedStateType(const std::map<K, V>& type)
+TokenBufferDataType getSharedStateType(const std::map<K, V>& type)
 {
-    return MAP;
+    return TokenBufferDataType::MAP;
 }
 template<class K, class V>
-SharedStateDataType getSharedStateType(const std::pair<K, V>& type)
+TokenBufferDataType getTokenBufferDataType(const std::pair<K, V>& type)
 {
-    return PAIR;
+    return TokenBufferDataType::PAIR;
 }
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool& type);
+NETEXPORT TokenBufferDataType getTokenBufferDataType<bool>(const bool& type);
 
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<int>(const int& type);
+NETEXPORT TokenBufferDataType getTokenBufferDataType<int>(const int& type);
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<float>(const float& type);
+NETEXPORT TokenBufferDataType getTokenBufferDataType<float>(const float& type);
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<std::string>(const std::string& type);
+NETEXPORT TokenBufferDataType getTokenBufferDataType<std::string>(const std::string& type);
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<char >(const char& type);
+NETEXPORT TokenBufferDataType getTokenBufferDataType<char >(const char& type);
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<double>(const double& type);
+NETEXPORT TokenBufferDataType getTokenBufferDataType<double>(const double& type);
 //tries to convert the serializedWithType tokenbuffer to a string
-VRBEXPORT std::string tokenBufferToString(covise::TokenBuffer&& tb, int typeID = -1);
+NETEXPORT std::string tokenBufferToString(covise::TokenBuffer&& tb, TokenBufferDataType typeID = TokenBufferDataType::TODETERMINE);
 
 ///////////////////////SERIALIZE //////////////////////////
 //pay attention to order or it may not compile!
@@ -100,8 +105,8 @@ void serialize(covise::TokenBuffer& tb, const T& value)
 template <class K, class V>
 void serialize(covise::TokenBuffer& tb, const std::pair<K, V>& value)
 {
-    tb << getSharedStateType(value.first);
-    tb << getSharedStateType(value.second);
+    tb << getTokenBufferDataType(value.first);
+    tb << getTokenBufferDataType(value.second);
     serialize(tb, value.first);
     serialize(tb, value.second);
 }
@@ -112,10 +117,10 @@ void serialize(covise::TokenBuffer& tb, const std::vector<T>& value)
     int size = value.size();
     if (size == 0)
     {
-        tb << UNDEFINED;
+        tb << TokenBufferDataType::UNDEFINED;
     } else
     {
-        tb << getSharedStateType(value.front());
+        tb << getTokenBufferDataType(value.front());
     }
     tb << size;
     for (const T &entry: value)
@@ -130,10 +135,10 @@ void serialize(covise::TokenBuffer& tb, const std::set<T>& value)
     int size = value.size();
     if (size == 0)
     {
-        tb << UNDEFINED;
+        tb << TokenBufferDataType::UNDEFINED;
     } else
     {
-        tb << getSharedStateType(*value.begin());
+        tb << getTokenBufferDataType(*value.begin());
     }
     tb << size;
     for (const T &entry : value)
@@ -147,12 +152,12 @@ void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value)
     int size = value.size();
     if (size == 0)
     {
-        tb << UNDEFINED;
-        tb << UNDEFINED;
+        tb << TokenBufferDataType::UNDEFINED;
+        tb << TokenBufferDataType::UNDEFINED;
     } else
     {
-        tb << getSharedStateType(value.begin()->first);
-        tb << getSharedStateType(value.begin()->second);
+        tb << getTokenBufferDataType(value.begin()->first);
+        tb << getTokenBufferDataType(value.begin()->second);
     }
     tb << size;
     auto entry = value.begin();
@@ -236,16 +241,17 @@ void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 template<class T>
 void serializeWithType(covise::TokenBuffer& tb, const T& value)
 {
-    int typeID = getSharedStateType(value);
+    auto typeID = getTokenBufferDataType(value);
     tb << typeID;
     serialize(tb, value);
 }
 template<class T>
 void deserializeWithType(covise::TokenBuffer& tb, T& value)
 {
-    int typeID;
+    TokenBufferDataType typeID;
     tb >> typeID;
     deserialize(tb, value);
 }
-}
+
+}//covise
 #endif

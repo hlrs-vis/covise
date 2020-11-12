@@ -8,7 +8,7 @@
 #define VRBUIMESAGEHANDLER_H
 #endif // !VRBUIMESAGEHANDLER_H
 
-#include <vrbserver/VrbMessageHandler.h>
+#include <vrb/server/VrbMessageHandler.h>
 
 namespace covise
 {

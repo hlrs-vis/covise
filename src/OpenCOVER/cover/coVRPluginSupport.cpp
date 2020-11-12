@@ -64,7 +64,7 @@
 #define END(msg)
 #endif
 
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include "coVRConfig.h"
 
 #include <grmsg/coGRKeyWordMsg.h>

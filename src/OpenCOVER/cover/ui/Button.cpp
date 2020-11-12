@@ -3,7 +3,7 @@
 #include "ButtonGroup.h"
 #include "Manager.h"
 
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 
 #include <net/tokenbuffer.h>
 

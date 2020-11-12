@@ -55,7 +55,7 @@
 
 #include "coVRPlugin.h"
 
-#include <vrbclient/VrbMessageSenderInterface.h>
+#include <vrb/client/VrbMessageSenderInterface.h>
 #include <net/message_types.h>
 
 namespace opencover {

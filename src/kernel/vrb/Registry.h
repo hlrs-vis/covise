@@ -8,10 +8,7 @@
 #define VrbRegistry_h
 
 #include "RegistryClass.h"
-#include <boost/filesystem.hpp>
-#include <fstream>
-#include <ctime> 
-#include "SharedStateSerializer.h"
+#include <util/coExport.h>
 namespace vrb
 {
 class VRBEXPORT VrbRegistry

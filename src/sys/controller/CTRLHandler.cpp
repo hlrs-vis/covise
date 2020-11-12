@@ -25,7 +25,7 @@
 #include <net/covise_host.h>
 #include <appl/CoviseBase.h>
 
-#include <vrbserver/VrbClientList.h>
+#include <vrb/server/VrbClientList.h>
 
 #include "Token.h"
 #include "CTRLHandler.h"

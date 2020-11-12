@@ -24,7 +24,7 @@
 #include "coHud.h"
 #include "coClusterStat.h"
 #include "coVRConfig.h"
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 
 #ifdef HAS_MPI
 #include <mpi.h>

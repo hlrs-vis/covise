@@ -25,7 +25,7 @@
 #endif
 
 #include "VRBServer.h"
-#include <vrbserver/VrbClientList.h>
+#include <vrb/server/VrbClientList.h>
 using std::cerr;
 using std::endl;
 #include <sys/types.h>
@@ -42,7 +42,7 @@ using std::endl;
 #include "gui/VRBapplication.h"
 #include "gui/coRegister.h"
 #include "VrbUiClientList.h"
-#include <vrbserver/VrbClientList.h>
+#include <vrb/server/VrbClientList.h>
 #include <VrbUiMessageHandler.h>
 extern ApplicationWindow *mw;
 
@@ -62,7 +62,7 @@ extern ApplicationWindow *mw;
 #include <QSocketNotifier>
 //#include <QTreeWidget>
 
-#include <vrbserver/VrbClientList.h>
+#include <vrb/server/VrbClientList.h>
 
 #include "gui/VRBapplication.h"
 

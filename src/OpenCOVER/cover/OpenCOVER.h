@@ -23,7 +23,7 @@
 #include <util/common.h>
 #include <OpenVRUI/coInteractionManager.h>
 
-#include <vrbclient/VrbCredentials.h>
+#include <vrb/client/VrbCredentials.h>
 
 #include <memory>
 #ifdef HAS_MPI

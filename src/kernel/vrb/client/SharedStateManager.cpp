@@ -6,10 +6,11 @@
  * License: LGPL 2+ */
 
 #include "SharedStateManager.h"
-#include <vrbclient/VrbClientRegistry.h>
-#include <vrbclient/VRBClient.h>
-#include <cassert>
+#include "VRBClient.h"
+#include "VrbClientRegistry.h"
+
 #include <assert.h>
+#include <cassert>
 
 namespace vrb
 {

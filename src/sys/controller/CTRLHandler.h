@@ -10,7 +10,7 @@
 
 #include <QMap>
 #include <QStringList>
-#include <vrbserver/VrbMessageHandler.h>
+#include <vrb/server/VrbMessageHandler.h>
 #include "CTRLGlobal.h"
 
 class QString;

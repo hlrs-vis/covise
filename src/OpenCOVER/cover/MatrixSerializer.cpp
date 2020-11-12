@@ -7,7 +7,7 @@
 
 #include "MatrixSerializer.h"
 
-namespace vrb {
+namespace covise {
 template <>
 void serialize<osg::Matrix>(covise::TokenBuffer &tb, const osg::Matrix &value) {
 

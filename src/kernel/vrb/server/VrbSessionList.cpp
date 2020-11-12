@@ -1,6 +1,10 @@
 #include "VrbSessionList.h"
 #include "VrbClientList.h"
+
 #include <boost/chrono/time_point.hpp>
+
+#include <algorithm>
+#include <chrono>
 using namespace vrb;
 
 vrb::VrbSessionList::VrbSessionList()

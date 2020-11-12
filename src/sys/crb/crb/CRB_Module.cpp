@@ -29,7 +29,7 @@
 #include <covise/Covise_Util.h>
 
 #ifndef NO_VRB
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #endif
 
 #ifdef __APPLE__

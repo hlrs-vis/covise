@@ -5,7 +5,9 @@
 
  * License: LGPL 2+ */
 
-#include "VrbRegistry.h"
+#include "Registry.h"
+#include <algorithm>
+
 namespace vrb
 {
 
@@ -32,14 +34,14 @@ void VrbRegistry::deserialize(covise::TokenBuffer& tb) {
 	m_classes = ContainerType{size, createClass("", -1)};// -1 = nobodies client ID
 	for(auto &cl : m_classes)
 	{
-		vrb::deserialize(tb, *cl);
+		covise::deserialize(tb, *cl);
 	}
 }
 void VrbRegistry::serialize(covise::TokenBuffer& tb) const{
 	tb << (uint32_t)m_classes.size();
 	for (const auto &cl : m_classes)
 	{
-		vrb::serialize(tb, *cl);
+		covise::serialize(tb, *cl);
 	}
 }
 

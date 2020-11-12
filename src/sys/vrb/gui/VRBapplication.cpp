@@ -13,7 +13,7 @@
 #include "VRBCurve.h"
 
 #include "VrbUiClientList.h"
-#include <vrbclient/VRBMessage.h>
+#include <vrb/client/VRBMessage.h>
 #include <net/tokenbuffer.h>
 #include "VRBServer.h"
 

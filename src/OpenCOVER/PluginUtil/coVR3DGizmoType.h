@@ -2,7 +2,7 @@
 #define _CO_VR_3D_GIZMO_TYPE
 
 #include <cover/coVRIntersectionInteractor.h>
-#include <vrbclient/SharedStateSerializer.h>
+#include <net/tokenbuffer_serializer.h>
 #include <cover/MatrixSerializer.h>
 #include <net/tokenbuffer.h>
 

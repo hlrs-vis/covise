@@ -3,7 +3,7 @@
 #include <util/coExport.h>
 #include <string>
 namespace vrb{
-struct VRBEXPORT VrbCredentials{
+struct VRBCLIENTEXPORT VrbCredentials{
     VrbCredentials(const std::string &ipAddress, int tcpPort, int udpPort);
     VrbCredentials();
     const std::string ipAddress;

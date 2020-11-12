@@ -9,7 +9,7 @@
 #define VRBUICLIENTLIST_H
 
 
-#include <vrbserver/VrbClientList.h>
+#include <vrb/server/VrbClientList.h>
 
 class QSocketNotifier;
 class QTreeWidgetItem;

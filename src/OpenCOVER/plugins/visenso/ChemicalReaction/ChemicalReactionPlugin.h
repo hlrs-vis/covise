@@ -30,7 +30,7 @@
 #include <cover/OpenCOVER.h>
 
 #include <config/CoviseConfig.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include <PluginUtil/GenericGuiObject.h>
 #include <cover/coHud.h>
 

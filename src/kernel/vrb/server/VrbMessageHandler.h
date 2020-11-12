@@ -12,14 +12,14 @@
 #include "VrbSessionList.h"
 #include <net/message.h>
 #include <util/coExport.h>
-#include <vrbserver/VrbClientList.h>
+#include "VrbClientList.h"
 #include <set>
 #include <map>
 #include <unordered_map>
 #include <memory>
 #include <string.h>
 #include <vector>
-#include <QString>
+
 #ifdef Q_MOC_RUN
 #define GUI
 #endif

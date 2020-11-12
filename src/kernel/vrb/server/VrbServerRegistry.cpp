@@ -7,12 +7,11 @@
 #include "VrbServerRegistry.h"
 
 #include <util/unixcompat.h>
-
-#include <net/tokenbuffer.h>
 #include <net/dataHandle.h>
+#include <net/tokenbuffer.h>
+#include <net/tokenbuffer_serializer.h>
 
 #include <VrbClientList.h>
-#include <vrbclient/SharedStateSerializer.h>
 
 #include <iostream>
 

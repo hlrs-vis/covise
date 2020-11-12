@@ -13,7 +13,7 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
-#include <vrbclient/SharedStateManager.h>
+#include <vrb/client/SharedStateManager.h>
 
 using namespace opencover;
 using namespace vehicleUtil;

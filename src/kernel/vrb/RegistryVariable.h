@@ -1,13 +1,17 @@
-#ifndef REGISTRY_VARIABLE_H
-#define REGISTRY_VARIABLE_H
+#ifndef VRB_REGISTRY_VARIABLE_H
+#define VRB_REGISTRY_VARIABLE_H
 
-#include "net/tokenbuffer.h"
-#include "SharedStateSerializer.h"
+#include <net/tokenbuffer_serializer.h>
+#include <net/dataHandle.h>
 
 #include <util/coExport.h>
 
 #include <string>
 #include <map>
+
+namespace covise{
+    class TokenBuffer;
+} // namespace covise
 
 namespace vrb
 {
@@ -89,43 +93,15 @@ protected:
     void sendValue(covise::TokenBuffer &tb);
 };
 
-template <>
-void serialize(covise::TokenBuffer &tb, const regVar &value);
-
-template <>
-void deserialize(covise::TokenBuffer &tb, regVar &value);
-
-
-class VRBEXPORT clientRegVar : public regVar
-{
-private:
-    regVarObserver *_observer = nullptr;
-    int lastEditor = -1;
-public:
-    using regVar::regVar;
-    ///returns the clent side observer
-    regVarObserver * getLocalObserver()
-    {
-        return _observer;
-    }
-    void notifyLocalObserver();
-    void subscribe(regVarObserver *ob, const SessionID &sessionID);
-
-    //void attach(regVarObserver *ob)
-    //{
-    //    _observer = ob;
-    //}
-    int getLastEditor()
-    {
-        return lastEditor;
-    }
-    void setLastEditor(int lastEditor)
-    {
-        this->lastEditor = lastEditor;
-    }
-};
-
-
 } // namespace vrb
+
+namespace covise{
+
+template <>
+void serialize(TokenBuffer &tb, const vrb::regVar &value);
+
+template <>
+void deserialize(TokenBuffer &tb, vrb::regVar &value);
+}
 
 #endif

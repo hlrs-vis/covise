@@ -23,7 +23,7 @@
 
 #include "FileInfo.h"
 #include <string>
-#include <vrbclient/SharedState.h>
+#include <vrb/client/SharedState.h>
 #include <osg/Switch>
 
 namespace opencover {

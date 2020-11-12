@@ -10,7 +10,7 @@
 
 #include "IRemoteData.h"
 #include <net/message.h>
-#include <vrbclient/VRBClient.h>
+#include <vrb/client/VRBClient.h>
 #include <cover/coTabletUI.h>
 
 /**
