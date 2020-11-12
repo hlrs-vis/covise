@@ -23,8 +23,6 @@
 #ifdef HAVE_CUDA
 #include <cuda.h>
 #include <cuda_gl_interop.h>
-#include <thrust/fill.h>
-#include <thrust/execution_policy.h>
 #include "CudaTextureRectangle.h"
 #include "CudaGraphicsResource.h"
 #endif
