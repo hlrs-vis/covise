@@ -403,14 +403,13 @@ void VRBClient::shutdown(){
 }
 
 
-vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile){
+vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile) {
     if (collaborativeConfigurationFile != NULL)
     {
-        std::string ipAddress;
-        int tcpPort = 0;
         FILE *fp = fopen(collaborativeConfigurationFile, "r");
         if (fp)
         {
+            std::string ipAddress;
             char buf[5000];
             int tcpPort = 0;
             while (!feof(fp))
@@ -454,6 +453,6 @@ vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *colla
             fclose(fp);
             return vrb::VrbCredentials{ipAddress, tcpPort, tcpPort + 1};
         }
-        return vrb::VrbCredentials{};
     }
+    return vrb::VrbCredentials{};
 }
