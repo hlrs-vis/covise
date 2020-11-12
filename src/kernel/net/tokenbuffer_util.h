@@ -12,7 +12,7 @@ namespace detail {
 template<size_t Pos, typename T, typename U, typename...Args>
 struct Finder
 {
-	constexpr inline size_t operator()() {
+	constexpr inline size_t operator()() const {
 		return Finder<Pos + 1, T, Args...>{}();
 	}
 };
@@ -20,7 +20,7 @@ struct Finder
 template<size_t Pos, typename T, typename...Args>
 struct Finder<Pos, T, T, Args...>
 {
-	constexpr inline size_t operator()() {
+	constexpr inline size_t operator()() const {
 		return Pos;
 	}
 };
