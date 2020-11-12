@@ -248,7 +248,7 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
         /* Assign an address to this socket and finds an unused port */
 
         errno = 0;
-        while (bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
+        while (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
         {
 #ifndef _WIN32
             if (errno == EADDRINUSE)
@@ -497,7 +497,7 @@ Socket::Socket(int p)
     /* Assign an address to this socket */
 
     errno = 0;
-    if (bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
+    if (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
     {
         fprintf(stderr, "error with binding socket to %s:%d: %s\n", (host && host->getAddress() ? host->getAddress() : "*NULL*-host"), p, coStrerror(getErrno()));
         closesocket(sock_id);
@@ -533,7 +533,7 @@ Socket::Socket(int *p)
     /* Assign an address to this socket and finds an unused port */
 
     errno = 0;
-    while (bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
+    while (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
     {
 #ifdef DEBUG
         fprintf(stderr, "bind to port %d failed: %s\n", stport, coStrerror(getErrno()));
@@ -1190,7 +1190,7 @@ UDPSocket::UDPSocket(int p,const char *address)
 
     // Assign a name to the socket.
     errno = 0;
-	if (bind(sock_id, (sockaddr*)(void*)& c_addr_in, sizeof(c_addr_in)) < 0)
+	if (::bind(sock_id, (sockaddr*)(void*)& c_addr_in, sizeof(c_addr_in)) < 0)
     {
         fprintf(stderr, "binding of udp socket to port %d failed: %s\n",
                 p, coStrerror(getErrno()));
@@ -1323,7 +1323,7 @@ MulticastSocket::MulticastSocket(char *MulticastGroup, int p, int ttl_value)
 
     // Assign a name to the socket.
     errno = 0;
-    if (bind(sock_id, (sockaddr *)(void *)&addr, sizeof(addr)) < 0)
+    if (::bind(sock_id, (sockaddr *)(void *)&addr, sizeof(addr)) < 0)
     {
         fprintf(stderr, "binding of multicast socket to port %d failed: %s\n",
                 p, coStrerror(getErrno()));
@@ -1446,7 +1446,7 @@ SSLSocket::SSLSocket()
     s_addr_in.sin_addr.s_addr = INADDR_ANY;
     s_addr_in.sin_port = htons(FirewallConfig::the()->sourcePort);
 
-    while (bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
+    while (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
     {
 #ifndef _WIN32
         if (errno == EADDRINUSE)
