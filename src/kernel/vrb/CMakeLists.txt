@@ -7,7 +7,7 @@ set(VRB_SOURCES
     
 )
 
-set(VRB_HEADER
+set(VRB_HEADERS
     SessionID.h
     UserInfo.h
     Registry.h
@@ -15,13 +15,13 @@ set(VRB_HEADER
     RegistryVariable.h
 )
 
-ADD_COVISE_LIBRARY(coVRB ${VRB_SOURCES} ${VRB_HEADER})
+ADD_COVISE_LIBRARY(coVRB ${VRB_SOURCES} ${VRB_HEADERS})
 target_link_libraries(coVRB
                         coNet
                         coUtil 
 )
 COVISE_INSTALL_TARGET(coVRB)
-COVISE_INSTALL_HEADERS(coVRB ${VRB_HEADER})
+COVISE_INSTALL_HEADERS(vrb ${VRB_HEADERS})
 
 ADD_SUBDIRECTORY(client)
 ADD_SUBDIRECTORY(server)
