@@ -58,12 +58,20 @@ if (NOT COVISEDIR)
     message(ERROR "COVISE: COVISEDIR not set and cannot determine COVISEDIR")
 endif()
 
-find_path(COVISE_INCLUDE_DIR "file/coFileExport.h"
+find_path(COVISE_INCLUDE_DIR "util/coExport.h"
    PATHS
    ${COVISEDIR}/src/kernel
    PATH_SUFFIXES covise
    DOC "COVISE - Headers"
 )
+if (NOT COVISE_INCLUDE_DIR)
+    find_path(COVISE_INCLUDE_DIR "file/coFileExport.h"
+        PATHS
+        ${COVISEDIR}/src/kernel
+        PATH_SUFFIXES covise
+        DOC "COVISE - Headers"
+        )
+endif()
 
 if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "")
     if (NOT COVISE_DESTDIR OR COVISE_DESTDIR STREQUAL "")
