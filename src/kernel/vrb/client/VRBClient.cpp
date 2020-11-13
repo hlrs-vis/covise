@@ -295,10 +295,10 @@ bool VRBClient::completeConnection(){
         auto status = connFuture.wait_for(std::chrono::seconds(0));
         if (status == std::future_status::ready)
         {
-            m_isConnected = true;
             sConn = connFuture.get();
             if(sConn != nullptr)
             {
+                m_isConnected = true;
                 TokenBuffer tb;
 				if (startupSession == "")
 				{
