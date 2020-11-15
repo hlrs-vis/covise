@@ -91,6 +91,10 @@ ELSE()
   SET(CANONICAL_COVISE_DIR ${COVISEDIR})
 ENDIF()
 
+if (APPLE AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+    set(CMAKE_PREFIX_PATH /opt/homebrew ${CMAKE_PREFIX_PATH})
+endif()
+
 # figure out COVISE version
 FIND_PACKAGE(Git)
 

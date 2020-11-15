@@ -1,6 +1,10 @@
 if (APPLE)
    # find keg-only libarchive from homebrew
-   set(LibArchive_ROOT /usr/local/opt/libarchive)
+   if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm") 
+      set(LibArchive_ROOT /opt/homebrew/opt/libarchive)
+   else()
+      set(LibArchive_ROOT /usr/local/opt/libarchive)
+   endif()
 endif()
 covise_find_package(LibArchive)
 if (LibArchive_FOUND)
