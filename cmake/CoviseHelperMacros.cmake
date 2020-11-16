@@ -570,11 +570,11 @@ MACRO(COVISE_INSTALL_TARGET targetname)
 #  ENDIF(NOT EXISTS covise/${ARCHSUFFIX}/lib)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
-          RUNTIME DESTINATION ${ARCHSUFFIX}/bin${_category_path}
-          BUNDLE DESTINATION ${ARCHSUFFIX}/bin${_category_path}
-          LIBRARY DESTINATION ${ARCHSUFFIX}/lib
-          ARCHIVE DESTINATION ${ARCHSUFFIX}/lib
-          COMPONENT modules.${category}
+      RUNTIME DESTINATION ${ARCHSUFFIX}/bin${_category_path}
+      BUNDLE DESTINATION ${ARCHSUFFIX}/bin${_category_path}
+      LIBRARY DESTINATION ${COVISE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${ARCHSUFFIX}/lib
+      COMPONENT modules.${category}
   )
   IF(COVISE_EXPORT_TO_INSTALL)
     INSTALL(EXPORT covise-targets DESTINATION ${ARCHSUFFIX}/lib COMPONENT modules.${category})
