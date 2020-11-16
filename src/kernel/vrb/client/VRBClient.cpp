@@ -451,7 +451,7 @@ vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *colla
                 }
             }
             fclose(fp);
-            return vrb::VrbCredentials{ipAddress, tcpPort, tcpPort + 1};
+            return vrb::VrbCredentials{ipAddress, static_cast<unsigned int>(tcpPort), static_cast<unsigned int>(tcpPort + 1)};
         }
     }
     return vrb::VrbCredentials{};

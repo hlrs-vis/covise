@@ -4,11 +4,11 @@
 #include <string>
 namespace vrb{
 struct VRBCLIENTEXPORT VrbCredentials{
-    VrbCredentials(const std::string &ipAddress, int tcpPort, int udpPort);
+    VrbCredentials(const std::string &ipAddress, unsigned int tcpPort, unsigned int udpPort);
     VrbCredentials();
     const std::string ipAddress;
-    const int tcpPort;
-    const int udpPort;
+    const unsigned int tcpPort;
+    const unsigned int udpPort;
 };
 } // namespace vrb
 

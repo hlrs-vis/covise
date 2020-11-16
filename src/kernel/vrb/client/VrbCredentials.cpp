@@ -4,7 +4,7 @@
 using namespace vrb;
 using namespace covise;
 
-VrbCredentials::VrbCredentials(const std::string &ip, int tcp, int udp)
+VrbCredentials::VrbCredentials(const std::string &ip, unsigned int tcp, unsigned int udp)
 : ipAddress(ip)
 , tcpPort(tcp)
 , udpPort(udp)
