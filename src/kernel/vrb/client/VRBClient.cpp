@@ -302,16 +302,15 @@ bool VRBClient::completeConnection(){
                 TokenBuffer tb;
 				if (startupSession == "")
 				{
-					tb << name;
-                    tb << Host::getHostaddress();
+                    tb << false;
                 }
 				else
 				{
-					tb << "-g";
-					tb << Host::getHostaddress();
-					tb << startupSession.c_str();
+                    tb << true;
+					tb << startupSession;
 				}
-
+                tb << name;
+                tb << Host::getHostaddress();
 
                 Message msg(tb);
                 msg.type = COVISE_MESSAGE_VRB_CONTACT;

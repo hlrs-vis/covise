@@ -867,9 +867,7 @@ bool OpenCOVER::init()
         char *ipAdress = coCommandLine::argv(5);
 		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;
         TokenBuffer tb;
-        tb << "CRB";
-        tb << ipAdress;
-        tb << coviseModuleID;
+        tb << true << coviseModuleID << "CRB" << ipAdress;
         Message msg(tb);
         msg.type = COVISE_MESSAGE_VRB_CONTACT;
         cover->sendVrbMessage(&msg);

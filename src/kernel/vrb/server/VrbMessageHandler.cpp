@@ -484,31 +484,32 @@ VrbServerRegistry& VrbMessageHandler::createSessionIfnotExists(const vrb::Sessio
 }
 void VrbMessageHandler::handleNewClient(covise::TokenBuffer& tb, covise::Message* msg)
 {
-	char* name;
-	char* ip;
-	tb >> name;
-	tb >> ip;
 
-	VRBSClient* c = clients.get(msg->conn);
+	bool hasStartupSession;
+	tb >> hasStartupSession; //== coviseModuleID
+	char* startupSession, *name, *hostaddress;
+	if (hasStartupSession)
+	{
+		tb >> startupSession;
+	}
+	tb >> name >> hostaddress;
+	VRBSClient *c = clients.get(msg->conn);
 	if (!c)
 	{
-		c = new VRBSClient(msg->conn, nullptr, ip, name, false, false);
+		c = new VRBSClient(msg->conn, nullptr, hostaddress, name, false, false);
 		clients.addClient(c);
 	}
 	//create unique private session for the client
 	vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
 	sid = sessions.forceCreateSession(sid).sessionID();
 
-	c->setContactInfo(ip, name, sid);
+	c->setContactInfo(hostaddress, name, sid);
 	std::cerr << "VRB new client: Numclients=" << clients.numberOfClients() << std::endl;
-	//if the client is started by covise (CRB) it has a muduleID that can be translated to sessionID
+	//if the client is started by covise (CRB) it has a moduleID that can be translated to sessionID
 	//if OpenCOVER got a session from commandline (-s) the client will also send this given session name
-	if (strcmp(name, "CRB") == 0 || (strcmp(name, "-g") == 0))
+	if (hasStartupSession)
 	{
-		char* coviseModuleID;
-		tb >> coviseModuleID;
-		//set session owner to the client that created the session
-		sid = vrb::SessionID(c->getID(), std::string(coviseModuleID), false);
+		sid = vrb::SessionID(c->getID(), std::string(startupSession), false);
 		sid.setOwner(sessions.getSessionOwner(sid));
 
 		createSessionIfnotExists(sid, c->getID());
