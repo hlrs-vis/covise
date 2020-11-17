@@ -6,7 +6,7 @@ This document only covers changes that are importent for using Covise and OpenCO
 For technical changes please have a look at the git commits.
 
 
-17.11.2012 VrbRemoteLauncher 
+17.11.2020 VrbRemoteLauncher 
 ----------------------------
 App that launches and request launches of COVISE and OpenCOVER via a VRB server.
 
