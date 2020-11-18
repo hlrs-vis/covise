@@ -66,6 +66,7 @@ public:
     std::list<Message *> messageQueue;
     float getSendDelay();
     void shutdown(); //threadsafe, shuts down the tcp socked, don't use the client after a call to this function
+    const vrb::VrbCredentials &getCredentials();
 
 private:
     ClientConnection *sConn = nullptr; // tcp connection to Server

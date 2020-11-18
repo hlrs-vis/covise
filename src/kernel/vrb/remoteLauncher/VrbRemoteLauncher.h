@@ -27,6 +27,7 @@ namespace launcher
     {
         Q_OBJECT
     public:
+        VrbRemoteLauncher();
         ~VrbRemoteLauncher();
         void connect(const vrb::VrbCredentials &credentials = vrb::VrbCredentials{});
         void disconnect();

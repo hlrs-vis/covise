@@ -401,6 +401,9 @@ void VRBClient::shutdown(){
     }
 }
 
+const vrb::VrbCredentials &VRBClient::getCredentials(){
+    return m_credentials;
+}
 
 vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile) {
     if (collaborativeConfigurationFile != NULL)

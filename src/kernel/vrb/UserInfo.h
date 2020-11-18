@@ -2,14 +2,41 @@
 #define VRBLINET_USERINFO_H
 
 #include <string>
+#include <array>
 #include <ostream>
 #include <util/coExport.h>
-namespace covise{
+namespace covise
+{
     class TokenBuffer;
 }
 
-namespace vrb{
-struct VRBEXPORT UserInfo{
+namespace vrb
+{
+
+enum class UserType
+{
+    Undefined,
+    Cover,
+    Covise,
+    RemoteLauncher,
+    LastDummy
+};
+constexpr std::array<const char *, static_cast<int>(UserType::LastDummy)> UserTypeNames{
+    "Undefined",
+    "Cover",
+    "Covise",
+    "RemoteLauncher",
+};
+
+VRBEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const vrb::UserType &userType);
+VRBEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, vrb::UserType &userType);
+
+VRBEXPORT std::ostream &operator<<(std::ostream &os, const vrb::UserType &userType);
+struct VRBEXPORT UserInfo
+{
+    UserInfo() = default;
+    UserInfo(UserType type);
+    UserType userType = UserType::Undefined;
     std::string ipAdress, hostName, email, url;
 };
 
@@ -18,8 +45,6 @@ VRBEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, vrb::UserInfo
 
 VRBEXPORT std::ostream &operator<<(std::ostream &os, const vrb::UserInfo &userInfo);
 
-} //vrb
-
-
+} // namespace vrb
 
 #endif

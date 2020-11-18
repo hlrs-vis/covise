@@ -6,15 +6,12 @@
 #include <algorithm>
 using namespace vrb;
 
-RemoteClient::RemoteClient()
+RemoteClient::RemoteClient(UserType type)
     : m_id(-1)
     , m_isMaster(false)
     , m_sessionID()
     , m_name(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getHostname()))
-    , m_userInfo({covise::Host::getHostaddress()
-                 ,covise::Host::getHostname()
-                 ,covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de")
-                 ,covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise")})
+    , m_userInfo(type)
 {
 }
 
@@ -51,6 +48,10 @@ const std::string &RemoteClient::getEmail() const
 const std::string &RemoteClient::getHostname() const
 {
     return m_userInfo.hostName;
+}
+
+UserType RemoteClient::getUserType() const{
+    return m_userInfo.userType;
 }
 
 void RemoteClient::setSession(const vrb::SessionID &g)

@@ -39,8 +39,8 @@ using covise::Message;
 coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
 coVRPartner::coVRPartner()
-    :ui::Owner("VRPartner-Me", cover->ui)
-
+    : ui::Owner("VRPartner-Me", cover->ui)
+    , vrb::RemoteClient(vrb::UserType::Cover)
 {
     m_avatar = new VRAvatar(this);
 }

@@ -21,10 +21,11 @@
 
 using namespace vrb::launcher;
 
-    const std::array<const char *, static_cast<int>(Program::DUMMY)> ProgramNames::names = {
-        "covise",
-        "opencover"};
-        
+VrbRemoteLauncher::VrbRemoteLauncher()
+:m_me(vrb::UserType::RemoteLauncher)
+{}
+
+
 VrbRemoteLauncher::~VrbRemoteLauncher()
 {
     m_terminate = true;
@@ -219,7 +220,7 @@ bool VrbRemoteLauncher::setOtherClientInfo(covise::TokenBuffer &tb)
             cl = m_clientList.emplace(m_clientList.end(), std::unique_ptr<vrb::RemoteClient>(new vrb::RemoteClient(id)));
         }
         cl->get()->setInfo(tb);
-        if (cl->get()->getSessionID().name() == "VrbRemoteLauncher")
+        if (cl->get()->getSessionID().name() == "VrbRemoteLauncher" && cl->get()->getUserType() == vrb::UserType::RemoteLauncher)
         {
             emit updateClient(cl->get()->getID(), getClientInfo(*cl->get()));
         }

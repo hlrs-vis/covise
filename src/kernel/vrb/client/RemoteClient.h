@@ -16,7 +16,7 @@ namespace vrb
 class VRBCLIENTEXPORT RemoteClient
 {
 public:
-    RemoteClient(); //constructs a client with local information
+    RemoteClient(UserType type); //constructs a client with local information
     RemoteClient(int id); //constructs real remote client 
     virtual ~RemoteClient() = default;
     int getID() const;
@@ -24,8 +24,8 @@ public:
     const vrb::SessionID &getSessionID() const;
     const std::string &getName() const;
     const std::string &getEmail() const; 
-    const std::string &getHostname() const; 
-
+    const std::string &getHostname() const;
+    UserType getUserType() const;
     void setSession(const vrb::SessionID &g);
     virtual void setMaster(bool m);
     bool isMaster() const;
