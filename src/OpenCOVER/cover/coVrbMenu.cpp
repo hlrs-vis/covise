@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include "coVrbMenue.h"
+#include "coVrbMenu.h"
 
 #include "ui/Action.h"
 #include "ui/EditField.h"
@@ -42,14 +42,14 @@ namespace opencover
 {
 
 
-VrbMenue::VrbMenue()
-    :ui::Owner("VRBMenue", cover->ui)
+VrbMenu::VrbMenu()
+    :ui::Owner("VRBMenu", cover->ui)
 {
 
 }
 
 
-void VrbMenue::initFileMenue()
+void VrbMenu::initFileMenu()
 {
     //session management
     m_sessionGroup = new ui::Group("sessisonGroup", this);
@@ -101,7 +101,7 @@ void VrbMenue::initFileMenue()
 
 
 }
-void VrbMenue::updateState(bool state)
+void VrbMenu::updateState(bool state)
 {
     m_sessionGroup->setVisible(state);
 
@@ -111,7 +111,7 @@ void VrbMenue::updateState(bool state)
 
 }
 //io functions : private
-void VrbMenue::saveSession(const std::string &file)
+void VrbMenu::saveSession(const std::string &file)
 {
     assert(coVRCommunication::instance()->getPrivateSessionIDx() != vrb::SessionID());
     TokenBuffer tb;
@@ -121,14 +121,14 @@ void VrbMenue::saveSession(const std::string &file)
     cover->getSender()->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
 }
 
-void VrbMenue::loadSession(const std::string &filename)
+void VrbMenu::loadSession(const std::string &filename)
 {
     coVRCommunication::instance()->loadSessionFile(filename);
 }
 
 //session functions : private
 
-void VrbMenue::requestNewSession(const std::string &name)
+void VrbMenu::requestNewSession(const std::string &name)
 {
     covise::TokenBuffer tb;
     tb << vrb::SessionID(coVRCommunication::instance()->getID(), name, false);
@@ -138,7 +138,7 @@ void VrbMenue::requestNewSession(const std::string &name)
 	msg.type = covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
 	cover->sendVrbMessage(&msg);
 }
-void VrbMenue::selectSession(int id)
+void VrbMenu::selectSession(int id)
 {
     std::vector<vrb::SessionID>::iterator it = m_availiableSessions.begin();
     std::advance(it, id);
@@ -153,7 +153,7 @@ void VrbMenue::selectSession(int id)
 
 
 //session functions : public
-void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
+void VrbMenu::updateSessions(const std::vector<vrb::SessionID>& sessions)
 {
     m_availiableSessions.clear();
     std::vector<std::string> sessionNames;
@@ -173,7 +173,7 @@ void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
     m_sessionsSl->setList(sessionNames);
 	m_sessionsSl->select(index);
 }
-void VrbMenue::setCurrentSession(const vrb::SessionID & session)
+void VrbMenu::setCurrentSession(const vrb::SessionID & session)
 {
     bool found = false;
     int index = -1;

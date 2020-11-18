@@ -81,7 +81,7 @@
 #include <vrb/client/SharedStateManager.h>
 #include <vrb/SessionID.h>
 #include <ui/SelectionList.h>
-#include "coVrbMenue.h"
+#include "coVrbMenu.h"
 #include <vrb/client/VRBMessage.h>
 
 using namespace covise;
@@ -117,7 +117,7 @@ void coVRCommunication::init()
 	coVRPartnerList::instance()->addPartner(me);
 	registry->setID(me->getID(), me->getSessionID());
 	registry->registerSender(cover->getSender());
-	m_vrbMenue.reset(new VrbMenue());
+	m_vrbMenu.reset(new VrbMenu());
 	remoteNavInteraction = new vrui::coNavInteraction(vrui::coInteraction::NoButton, "remoteNavInteraction");
 }
 void opencover::coVRCommunication::connected()
@@ -512,7 +512,7 @@ void coVRCommunication::handleVRB(Message *msg)
             rns << vrb::SessionID(me->getID());
             sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
         }
-        m_vrbMenue->updateState(true);
+        m_vrbMenu->updateState(true);
     }
     break;
     case COVISE_MESSAGE_VRB_SET_MASTER:
@@ -614,7 +614,7 @@ void coVRCommunication::handleVRB(Message *msg)
         cerr << "VRB requests to quit " << msg->type<< endl;
 		disconnected();
         coVRPartnerList::instance()->deleteOthers();
-        m_vrbMenue->updateState(false);
+        m_vrbMenu->updateState(false);
         me->setSession(vrb::SessionID());
         m_privateSessionID = vrb::SessionID();
         delete vrbc;
@@ -767,7 +767,7 @@ void coVRCommunication::handleVRB(Message *msg)
 			}
             sessions.push_back(id);
         }
-        m_vrbMenue->updateSessions(sessions);
+        m_vrbMenu->updateSessions(sessions);
     }
     break;
     case COVISE_MESSAGE_VRBC_SET_SESSION:
@@ -776,7 +776,7 @@ void coVRCommunication::handleVRB(Message *msg)
         vrb::SessionID sessionID;
         tb >> sessionID;
         setSessionID(sessionID);
-        m_vrbMenue->setCurrentSession(sessionID);
+        m_vrbMenu->setCurrentSession(sessionID);
 
     }
     break;
@@ -993,9 +993,9 @@ void opencover::coVRCommunication::handleCoviseMessage(Message* m)
 	}
 }
 
-void opencover::coVRCommunication::initVrbFileMenue()
+void opencover::coVRCommunication::initVrbFileMenu()
 {
-	m_vrbMenue->initFileMenue();
+	m_vrbMenu->initFileMenu();
 }
 
 void coVRCommunication::setFBData(IData *data)

@@ -1054,7 +1054,7 @@ coVRFileManager::coVRFileManager()
           });
 
           cover->getUpdateManager()->add(this);
-		  coVRCommunication::instance()->initVrbFileMenue();
+		  coVRCommunication::instance()->initVrbFileMenu();
         }
     }
 

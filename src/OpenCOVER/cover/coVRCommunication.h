@@ -49,7 +49,7 @@ namespace opencover
 class VRBData;
 class IData;
 class coVRPartner;
-class VrbMenue;
+class VrbMenu;
 namespace ui
 {
 class Owner;
@@ -111,7 +111,7 @@ public:
 	std::vector<covise::Message*> waitCoviseMessages();
 	void handleCoviseMessage(covise::Message* m);
 	//called from coVRFileManager to make sure cover->filemenue is initialized
-	void initVrbFileMenue();
+	void initVrbFileMenu();
 private:
     coVRCommunication();
     static coVRCommunication *s_instance;
@@ -121,7 +121,7 @@ private:
     int randomID = 0;
     bool ignoreRemoteTransform = false;
     std::map<int, VRBData *> mfbData;
-    std::unique_ptr<VrbMenue> m_vrbMenue;
+    std::unique_ptr<VrbMenu> m_vrbMenu;
     vrb::SessionID m_privateSessionID;
 	std::vector<std::function<void(void)>> onConnectCallbacks;
 	std::vector<std::function<void(void)>> onDisconnectCallbacks;

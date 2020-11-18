@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef COVRBMENUE_H
-#define COVRBMENUE_H
+#ifndef COVRBMENU_H
+#define COVRBMENU_H
 
 #include <string>
 #include <set>
@@ -33,7 +33,7 @@ class Slider;
 class FileBrowser;
 }
 
-class VrbMenue: public ui::Owner
+class VrbMenu: public ui::Owner
 {
 private:
     ui::Group *m_sessionGroup;
@@ -51,8 +51,8 @@ private:
     void selectSession(int id);
     const std::string noSavedSession = "nothing";
 public:
-    VrbMenue();
-	void initFileMenue();
+    VrbMenu();
+	void initFileMenu();
 	void updateState(bool state);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
     void setCurrentSession(const vrb::SessionID &session);
