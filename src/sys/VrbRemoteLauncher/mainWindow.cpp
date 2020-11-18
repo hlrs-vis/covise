@@ -17,8 +17,9 @@
 
 using namespace vrb::launcher;
 
-MainWindow::MainWindow(const vrb::VrbCredentials& credentials, QWidget* parent) : QMainWindow(parent),
-ui(new Ui::MainWindow)
+MainWindow::MainWindow(const vrb::VrbCredentials& credentials, QWidget* parent)
+ : QMainWindow(parent)
+ , ui(new Ui::MainWindow)
 {
 	qRegisterMetaType<vrb::launcher::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
