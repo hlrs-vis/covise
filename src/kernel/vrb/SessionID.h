@@ -12,16 +12,14 @@
 
 #include <string>
 #include <util/coExport.h>
-namespace covise {
-class TokenBuffer;
-}
+
 namespace vrb {
 class VRBEXPORT SessionID {
 
 public:
-    SessionID();
-    SessionID(int id, bool isPrivate = true);
-    SessionID(int id, const std::string &name, bool isPrivate = true);
+    SessionID() = default;
+    SessionID(int owner, bool isPrivate = true);
+    SessionID(int owner, const std::string &name, bool isPrivate = true);
 
     std::string name() const;
     bool isPrivate()const ;
@@ -37,7 +35,7 @@ public:
     std::string toText() const;
 private:
 	mutable int m_owner = 0;
-    std::string m_name = "";
+    std::string m_name;
     bool m_isPrivate = true;
 };
 template<typename Stream>

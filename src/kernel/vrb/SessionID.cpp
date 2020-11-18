@@ -7,14 +7,9 @@
 #include "SessionID.h"
 #include <net/tokenbuffer.h>
 namespace vrb {
-SessionID::SessionID()
-    :m_owner(0)
-    , m_isPrivate(true)
-    , m_name(std::string())
-{
-}
-SessionID::SessionID(const int id, const bool isPrivate)
-    :m_owner(id)
+
+SessionID::SessionID(const int owner, const bool isPrivate)
+    :m_owner(owner)
     ,m_isPrivate(isPrivate)
     ,m_name(std::string())
 {
