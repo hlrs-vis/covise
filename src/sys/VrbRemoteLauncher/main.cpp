@@ -50,13 +50,13 @@ int main(int argc, char **argv)
         {
                 std::cerr << e.what() << std::endl;
                 std::cerr << desc << std::endl;
-                return false;
+                return 1;
         }
 
         if (vm.count("help"))
         {
                 std::cerr << desc << std::endl;
-                return false;
+                return 0;
         }
         bool autostart = false;
         if (vm.count("autostart"))
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
                     [&tui]() {
                             tui.run();
                     }};
-                auto retval =  a.exec();
+                auto retval = a.exec();
                 s.join();
                 return retval;
         }
