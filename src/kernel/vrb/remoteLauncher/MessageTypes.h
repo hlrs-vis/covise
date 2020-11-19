@@ -1,7 +1,6 @@
 #ifndef VRB_REMOTE_LAUNCHER_MESSAGE_TYPES_H
 #define VRB_REMOTE_LAUNCHER_MESSAGE_TYPES_H
 
-#include "export.h"
 #include <array>
 #include <QMetaType>
 namespace vrb
@@ -20,31 +19,37 @@ enum class Program
 {
     COVISE,
     COVER,
-    DUMMY
+    LAST_DUMMY
 };
-struct REMOTELAUNCHER_EXPORT ProgramNames
+namespace detail{
+    typedef std::array<const char *, static_cast<int>(Program::LAST_DUMMY)> ProgramContainer;
+    constexpr ProgramContainer programNames{
+        "covise",
+        "opencover"};
+}
+struct ProgramNames
 {
-    static const std::array<const char *, static_cast<int>(Program::DUMMY)> names;
+
     const char *operator[](Program p) const
     {
-        return names[static_cast<int>(p)];
+        return detail::programNames[static_cast<int>(p)];
     }
     const char *operator[](size_t p) const
     {
-        return names[static_cast<int>(p)];
+        return detail::programNames[static_cast<int>(p)];
     }
-    std::array<const char *, static_cast<int>(Program::DUMMY)>::const_iterator begin() const
+    detail::ProgramContainer::const_iterator begin() const
     {
-        return names.begin();
+        return detail::programNames.begin();
     }
-    std::array<const char *, static_cast<int>(Program::DUMMY)>::const_iterator end() const
+    detail::ProgramContainer::const_iterator end() const
     {
-        return names.end();
+        return detail::programNames.end();
     }
 
     constexpr size_t size() const
     {
-        return names.size();
+        return detail::programNames.size();
     }
 };
 constexpr ProgramNames programNames;

@@ -86,7 +86,7 @@ void Tui::createCommands()
                                                                            m_launcher.printClientInfo();
                                                                        }}));
 
-    for (int i = 0; i < static_cast<int>(Program::DUMMY); i++)
+    for (int i = 0; i < static_cast<int>(Program::LAST_DUMMY); i++)
     {
         m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<Program>(i), m_launcher}));
     }

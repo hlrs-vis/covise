@@ -22,7 +22,7 @@ ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *par
     auto *content = new QLabel(s, this);
     layout->addWidget(content, 0, Qt::AlignTop);
 
-    for (int i = 0; i < static_cast<int>(Program::DUMMY); i++)
+    for (int i = 0; i < static_cast<int>(Program::LAST_DUMMY); i++)
     {
         Program p = Program::COVER;
         auto b = new QPushButton(programNames[i], this);
