@@ -50,7 +50,9 @@
 #include <QX11Info>
 #endif
 
+#ifdef USE_X11_ICE
 #include <X11/ICE/ICElib.h>
+#endif
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #endif
@@ -114,7 +116,7 @@ bool WindowTypeQtPlugin::destroy()
     return true;
 }
 
-#ifdef USE_X11
+#ifdef USE_X11_ICE
 static void iceIOErrorHandler(IceConn conn)
 {
     (void)conn;
@@ -153,7 +155,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     if (!qApp)
     {
         m_deleteQApp = true;
-#ifdef USE_X11
+#ifdef USE_X11_ICE
         IceSetIOErrorHandler(&iceIOErrorHandler);
 #endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
