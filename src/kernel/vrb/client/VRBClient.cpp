@@ -56,16 +56,16 @@ int VRBClient::getID()
     return ID;
 }
 
-int VRBClient::poll(Message *m)
+bool VRBClient::poll(Message *m)
 {
     if (isSlave)
-        return 0;
+        return false;
     if (sConn->check_for_input())
     {
         sConn->recv_msg(m);
-        return 1;
+        return true;
     }
-	return 0;
+	return false;
 
 
 }
@@ -138,23 +138,14 @@ int VRBClient::wait(Message *m, int messageType)
     return ret;
 }
 
-int VRBClient::setUserInfo(const char *userInfo)
+bool VRBClient::sendUserInfo(const char *userInfo)
 {
-    if (serverHost == NULL)
-        return 0;
-    if (!sConn || (!sConn->is_connected())) // not connected to a server
-    {
-        return 0;
-    }
     TokenBuffer tb;
     tb << userInfo;
-    Message msg(tb);
-    msg.type = COVISE_MESSAGE_VRB_SET_USERINFO;
-    sConn->send_msg(&msg);
-    return 1;
+    return sendMessage(tb, COVISE_MESSAGE_VRB_SET_USERINFO);
 }
 
-int VRBClient::sendMessage(const Message *m)
+bool VRBClient::sendMessage(const Message *m)
 {
 	if (!sConn || (!sConn->is_connected())) // not connected to a server
 	{
@@ -163,14 +154,14 @@ int VRBClient::sendMessage(const Message *m)
 	return sendMessage(m, sConn);
 }
 
-void covise::VRBClient::sendMessage(TokenBuffer & tb, int type)
+bool VRBClient::sendMessage(TokenBuffer & tb, int type)
 {
     Message m(tb);
     m.type = type;
     sendMessage(&m);
 }
 
-int VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
+bool VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
 {
 	if (!udpConn) // not connected to a server
 	{
@@ -181,7 +172,7 @@ int VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
 
 }
 
-void covise::VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender)
+bool VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender)
 {
 	vrb::UdpMessage m(tb);
 	m.type = type;
@@ -190,7 +181,7 @@ void covise::VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, 
 }
 
 
-int covise::VRBClient::sendMessage(const Message* m, Connection* conn)
+bool VRBClient::sendMessage(const Message* m, Connection* conn)
 {
 #ifdef MB_DEBUG
 	std::cerr << "VRBCLIENT::SENDMESSAGE: Sending Message: " << m->type << std::endl;
@@ -229,7 +220,7 @@ int covise::VRBClient::sendMessage(const Message* m, Connection* conn)
 	return 1;
 }
 
-int VRBClient::isConnected()
+bool VRBClient::isConnected()
 {
     if (isSlave)
         return 1;
@@ -240,7 +231,7 @@ int VRBClient::isConnected()
     return sConn->is_connected();
 }
 
-int VRBClient::connectToServer(std::string sessionName)
+bool VRBClient::connectToServer(std::string sessionName)
 {
     startupSession = sessionName;
     if (!udpConn && !isSlave)
@@ -335,7 +326,7 @@ void VRBClient::setID(int i)
     ID = i;
 }
 
-int VRBClient::isCOVERRunning()
+bool VRBClient::isCOVERRunning()
 {
     if (serverHost == NULL)
         return 0;

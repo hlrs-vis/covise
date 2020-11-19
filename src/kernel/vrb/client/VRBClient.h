@@ -44,23 +44,23 @@ public:
     VRBClient(const char *name, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
     VRBClient(const char *name, const vrb::VrbCredentials &credentials, bool isSlave = false);
     ~VRBClient();
-    int connectToServer(std::string sessionName = ""); // returns -1, if Connection to Server fails
+    bool connectToServer(std::string sessionName = ""); 
     bool completeConnection();
 
     void connectToCOVISE(int argc, const char **argv);
-    int isCOVERRunning();
-    int isConnected();
-    int poll(Message *m);
+    bool isCOVERRunning();
+    bool isConnected();
+    bool poll(Message *m);
 	bool pollUdp(vrb::UdpMessage* m);
     int wait(Message *m);
     int wait(Message *m, int messageType);
-    int setUserInfo(const char *userInfo);
-    int sendMessage(const Message *m);
-    void sendMessage(TokenBuffer &tb, int type);
+    bool sendUserInfo(const char *userInfo);
+    bool sendMessage(const Message *m);
+    bool sendMessage(TokenBuffer &tb, int type);
+	bool sendUdpMessage(const vrb::UdpMessage* m);
+	bool sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender);
 
 	void setupUdpConn();
-	int sendUdpMessage(const vrb::UdpMessage* m);
-	void sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender);
     int getID();
     void setID(int ID);
     std::list<Message *> messageQueue;
@@ -90,7 +90,7 @@ private:
     std::string startupSession;
     bool firstUdpVrbConnection = true;
 
-    int sendMessage(const Message* m, Connection* conn);
+    bool sendMessage(const Message* m, Connection* conn);
 };
 vrb::VrbCredentials readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile);
 }
