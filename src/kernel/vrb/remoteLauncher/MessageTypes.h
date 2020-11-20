@@ -1,6 +1,7 @@
 #ifndef VRB_REMOTE_LAUNCHER_MESSAGE_TYPES_H
 #define VRB_REMOTE_LAUNCHER_MESSAGE_TYPES_H
 
+#include "export.h"
 #include <array>
 #include <QMetaType>
 namespace vrb
@@ -21,12 +22,9 @@ enum class Program
     COVER,
     DUMMY
 };
-struct ProgramNames
+struct REMOTELAUNCHER_EXPORT ProgramNames
 {
-    const std::array<const char *, static_cast<int>(Program::DUMMY)> names{
-        "covise",
-        "opencover"};
-
+    static const std::array<const char *, static_cast<int>(Program::DUMMY)> names;
     const char *operator[](Program p) const
     {
         return names[static_cast<int>(p)];

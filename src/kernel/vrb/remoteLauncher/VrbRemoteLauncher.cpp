@@ -20,6 +20,11 @@
 #include <cmath>
 
 using namespace vrb::launcher;
+
+    const std::array<const char *, static_cast<int>(Program::DUMMY)> ProgramNames::names = {
+        "covise",
+        "opencover"};
+        
 VrbRemoteLauncher::~VrbRemoteLauncher()
 {
     m_terminate = true;
