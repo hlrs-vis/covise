@@ -101,6 +101,15 @@ demo 35 "Hildesheim" cover /data/hildesheim/33-VR/out/praesentation.wrl
 		
 # URBAN PLANNING
 category="Urban Planning"
+
+run_campus_bicycle() {
+    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
+    SUMO=$!
+    opencover $COVISEDIR/src/OpenCOVER/plugins/hlrs/Bicycle/BicycleCampus.wrl opencover://plugin/SumoTraCI
+    kill $SUMO
+}
+demo 36 "Campus with Sumo and bicycle simulator" run_campus_bicycle
+
 run_stuttgart() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!

@@ -55,7 +55,7 @@ DEF BikeCam Viewpoint {
     }
   ]
 }
-Inline { url "/data/enbw/out/praesentation.wrl" }
+Inline { url "/data/enbw/2015/out/praesentation.wrl" }
 #Inline { url "/data/architekten/Stuttgart/Arbeitsstand_20050816/praesentation.wrl" }
 DEF K01 Transform {
 children
