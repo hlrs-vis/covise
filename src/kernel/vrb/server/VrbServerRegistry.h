@@ -35,10 +35,10 @@ class serverRegVar;
 class VrbServerRegistry : public VrbRegistry
 {
 public:
-    /// constructor initializes Variables with values from yac.config:regVariables
     explicit VrbServerRegistry(const SessionID &session);
 
-    const SessionID& sessionID() const;
+    const SessionID &sessionID() const;
+
     /// set a Value or create new Entry, s for isStatic
     void setVar(int ID, const std::string &className, const std::string &name, const covise::DataHandle &value, bool s = false);
     /// create new Entry
@@ -66,17 +66,13 @@ public:
     /// get a boolean Variable
     int isTrue(int ID, const std::string &className, const std::string &name, int def = 0);
 
-    void setOwner(int id);
-    int getOwner() const;
-
     int getID() override
     {
         return -1;
     }
     std::shared_ptr<regClass> createClass(const std::string &name, int id) override;
 private:
-    SessionID m_sessionID;
-    int owner;
+    SessionID m_session;
 };
 
 class serverRegVar : public regVar

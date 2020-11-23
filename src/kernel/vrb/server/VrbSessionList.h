@@ -1,8 +1,9 @@
 #ifndef VRB_SESSION_LIST_H
 #define VRB_SESSION_LIST_H
 
-#include <map>
 #include "VrbServerRegistry.h"
+#include <vector>
+
 namespace covise {
 class TokenBuffer;
 }
@@ -14,19 +15,24 @@ public:
 	typedef ValueType::iterator Iter;
 	typedef ValueType::const_iterator Const_Iter;
 	VrbSessionList();
+	VrbSessionList(const VrbSessionList&) = delete;
+	VrbSessionList(VrbSessionList&&) = delete;
+	VrbSessionList operator=(const VrbSessionList&) = delete;
+	VrbSessionList operator=(VrbSessionList&&) = delete;
+
+
 	VrbServerRegistry& operator[](const SessionID& id);
 	const VrbServerRegistry& operator[](const SessionID& id) const;
 
 	VrbServerRegistry& forceCreateSession(const SessionID& id);
-	VrbServerRegistry& createSessionIfnotExists(const vrb::SessionID& sessionID, VRBSClient* cl);
 	void unobserveFromAll(int senderID, const std::string& className, const std::string& varName);
 	void unobserveSession(int observer, const SessionID& id);
-	int getSessionOwner(const SessionID& id) const;
 
 	bool serializeSessions(covise::TokenBuffer& tb);
 	void disconectClientFromSessions(int clientID);
 	covise::TokenBuffer serializeSession(const SessionID& id) const;
 	const VrbServerRegistry &deserializeSession(covise::TokenBuffer& tb, const SessionID& id);
+	void setMaster(const SessionID& sid);
 private:
 	const SessionID vrbSession = SessionID(0, std::string(), false);
 	ValueType m_sessions;

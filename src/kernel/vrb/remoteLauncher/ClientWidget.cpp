@@ -13,6 +13,7 @@ using namespace vrb::launcher;
 ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *parent)
     : QWidget(parent), m_clientID(clientID)
 {
+    this->setMaximumHeight(60);
     QString s;
     QTextStream ss(&s);
     ss << "Client " << clientID << "\n"
@@ -24,12 +25,14 @@ ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *par
 
     for (int i = 0; i < static_cast<int>(Program::LAST_DUMMY); i++)
     {
-        Program p = Program::COVER;
-        auto b = new QPushButton(programNames[i], this);
-        layout->addWidget(b);
-        connect(b, &QPushButton::clicked, this, [this, i]() {
-            emit requestProgramLaunch(static_cast<Program>(i), m_clientID);
-        });
+        if (static_cast<Program>(i) != Program::VrbRemoteLauncher)
+        {
+            auto b = new QPushButton(programNames[i], this);
+            layout->addWidget(b);
+            connect(b, &QPushButton::clicked, this, [this, i]() {
+                emit requestProgramLaunch(static_cast<Program>(i), m_clientID);
+            });
+        }
     }
 }
 

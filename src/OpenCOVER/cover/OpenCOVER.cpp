@@ -711,13 +711,13 @@ bool OpenCOVER::init()
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-            vrbc = new VRBClient("COVER", *m_vrbCredentials, coVRMSController::instance()->isSlave());
+            vrbc = new VRBClient(vrb::Program::Cover, *m_vrbCredentials, coVRMSController::instance()->isSlave());
         }
         else
         {
             hud->setText2("connecting");
             hud->setText3("to VRB");
-            vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+            vrbc = new VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         }
         hud->redraw();
         vrbc->connectToServer(startSession);
@@ -863,19 +863,14 @@ bool OpenCOVER::init()
     //connect to covise vrb
 	if (loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
-		char * coviseModuleID = coCommandLine::argv(4);
-        char *ipAdress = coCommandLine::argv(5);
-		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;
+		std::string coviseModuleID = coCommandLine::argv(4);
+        vrb::RemoteClient rc{vrb::Program::Covise, coviseModuleID};
+        cerr << "I am local master " << coviseModuleID << ", my ip is " << rc.userInfo().ipAdress << endl;
         TokenBuffer tb;
-        tb << true << coviseModuleID << "CRB" << ipAdress;
+        tb << rc;
         Message msg(tb);
         msg.type = COVISE_MESSAGE_VRB_CONTACT;
         cover->sendVrbMessage(&msg);
-		//cerr << "_____________________________" << endl;
-		//for (size_t i = 0; i < coCommandLine::argc(); i++)
-		//{
-		//	cerr << "[" << i << "] " << coCommandLine::argv(i) << endl;
-		//}
     }
     frame();
     double frameEnd = cover->currentTime();

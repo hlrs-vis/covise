@@ -1,18 +1,25 @@
 set(VRB_SOURCES
-    SessionID.cpp	
-    UserInfo.cpp
+    PrintClientList.cpp
+    ProgramType.cpp
     Registry.cpp
     RegistryClass.cpp
     RegistryVariable.cpp
-    
+    RemoteClient.cpp
+    SessionID.cpp	
+    UserInfo.cpp
+    VrbSetUserInfoMessage.cpp
 )
 
 set(VRB_HEADERS
-    SessionID.h
-    UserInfo.h
+    PrintClientList.h
+    ProgramType.h
     Registry.h
     RegistryClass.h
     RegistryVariable.h
+    RemoteClient.h
+    SessionID.h
+    UserInfo.h
+    VrbSetUserInfoMessage.h
 )
 
 ADD_COVISE_LIBRARY(coVRB ${VRB_SOURCES} ${VRB_HEADERS})

@@ -37,7 +37,7 @@ void VRBData::reqDirectoryList(std::string path, int pId)
 {
     TokenBuffer tb;
     tb << pId;
-    tb << getVRB()->getID();
+    tb << getVRB()->ID();
     tb << TABLET_REQ_DIRLIST;
     tb << this->mFilter.c_str();
     if (path != "")
@@ -68,7 +68,7 @@ void VRBData::reqFileList(std::string path, int pId)
 {
     TokenBuffer tb;
     tb << pId;
-    tb << getVRB()->getID();
+    tb << getVRB()->ID();
     tb << TABLET_REQ_FILELIST;
     tb << mFilter.c_str();
 
@@ -107,7 +107,7 @@ void VRBData::reqHomeDir(int pId)
 {
     TokenBuffer tb;
     tb << pId;
-    tb << getVRB()->getID();
+    tb << getVRB()->ID();
     tb << TABLET_REQ_HOMEDIR;
     tb << this->mIP.c_str();
 
@@ -122,7 +122,7 @@ void VRBData::reqHomeFiles(int pId)
 {
     TokenBuffer tb;
     tb << pId;
-    tb << getVRB()->getID();
+    tb << getVRB()->ID();
     tb << TABLET_REQ_HOMEFILES;
     tb << mFilter.c_str();
     tb << this->mIP.c_str();
@@ -172,7 +172,7 @@ void VRBData::reqClientList(int pId)
 {
     TokenBuffer tb;
     tb << pId;
-    tb << getVRB()->getID();
+    tb << getVRB()->ID();
     tb << TABLET_REQ_CLIENTS;
     Message m(tb);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
@@ -192,7 +192,7 @@ void VRBData::reqDrives(int pId)
 {
     TokenBuffer tb;
     tb << pId;
-    tb << getVRB()->getID();
+    tb << getVRB()->ID();
     tb << TABLET_REQ_DRIVES;
     tb << "";
     tb << "";
@@ -405,7 +405,7 @@ std::string VRBData::getTmpFilename(const std::string url, int id)
 
     TokenBuffer rt;
     rt << pId;
-    rt << getVRB()->getID();
+    rt << getVRB()->ID();
     rt << TABLET_FB_FILE_SEL;
     rt << remotePoint.c_str();
     rt << path.c_str();
@@ -529,7 +529,7 @@ void VRBData::reqRemoteFile(std::string filename, int pId)
     std::string path = this->mCurrentPath + dir.separator().toLatin1() + filename;
     TokenBuffer rt;
     rt << pId;
-    rt << getVRB()->getID();
+    rt << getVRB()->ID();
     rt << TABLET_FB_FILE_SEL;
     rt << this->mIP.c_str();
     rt << path.c_str();
@@ -685,7 +685,7 @@ void VRBData::reqGlobalLoad(std::string url, int pId)
 {
     TokenBuffer rt;
     rt << pId;
-    rt << getVRB()->getID();
+    rt << getVRB()->ID();
     rt << TABLET_REQ_GLOBALLOAD;
     rt << url.c_str();
 

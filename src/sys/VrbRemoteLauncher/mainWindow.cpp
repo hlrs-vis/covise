@@ -17,11 +17,10 @@
 
 using namespace vrb::launcher;
 
-MainWindow::MainWindow(const vrb::VrbCredentials& credentials, QWidget* parent)
- : QMainWindow(parent)
- , ui(new Ui::MainWindow)
+MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
+	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
-	qRegisterMetaType<vrb::launcher::Program>();
+	qRegisterMetaType<vrb::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
 
 	ui->setupUi(this);
@@ -33,11 +32,11 @@ MainWindow::MainWindow(const vrb::VrbCredentials& credentials, QWidget* parent)
 	connect(this, &MainWindow::updateStatusBarSignal, this, &MainWindow::updateStatusBar);
 	readOptions();
 	m_clientList = new ClientWidgetList(ui->clientsScrollArea, ui->clientsScrollArea);
-	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](Program programID, int clientID) {
-		std::cerr << "launching " << programNames[programID] << " on client " << clientID << std::endl;
-		
+	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](vrb::Program programID, int clientID) {
+		std::cerr << "launching " << vrb::programNames[programID] << " on client " << clientID << std::endl;
+
 		m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
-		});
+	});
 	if (ui->autoconnectCheckBox->isChecked())
 	{
 		onConnectBtnClicked();
@@ -75,15 +74,12 @@ void MainWindow::on_timeoutSlider_sliderMoved(int val)
 
 void MainWindow::setRemoteLauncherCallbacks()
 {
-	connect(&m_remoteLauncher, &VrbRemoteLauncher::connectedSignal, this, []() {
-		std::cerr << "Connected!!!!! " << std::endl; });
-
 	connect(&m_remoteLauncher, &VrbRemoteLauncher::connectedSignal, this, &MainWindow::setStateConnected);
 	connect(&m_remoteLauncher, &VrbRemoteLauncher::disconnectedSignal, this, [this]() {
 		setStateDisconnected();
 		if (ui->autoconnectCheckBox->isChecked())
 			onConnectBtnClicked();
-		});
+	});
 	connect(&m_remoteLauncher, &VrbRemoteLauncher::updateClient, this, &MainWindow::updateClient);
 	connect(&m_remoteLauncher, &VrbRemoteLauncher::removeClient, this, &MainWindow::removeClient);
 	connect(&m_remoteLauncher, &VrbRemoteLauncher::launchSignal, this, &MainWindow::launchProgram);
@@ -106,7 +102,7 @@ void MainWindow::showConnectionProgressBar(int seconds)
 			QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
 		}
-		});
+	});
 }
 
 void MainWindow::setStateDisconnected()
@@ -131,7 +127,7 @@ void MainWindow::setStateConnecting()
 
 void MainWindow::setStateConnected()
 {
-
+	std::cerr << "Connected!" << std::endl;
 	ui->progressBar->setVisible(false);
 	m_isConnecting = false;
 	ui->connectBtn->setText("disconnect");
@@ -147,9 +143,9 @@ void MainWindow::onConnectBtnClicked()
 	assert(!m_isConnecting);
 	m_isConnecting = true;
 	setStateConnecting();
-	m_remoteLauncher.connect(vrb::VrbCredentials{ ui->hostIpf->text().toStdString(),
-												static_cast<unsigned int>(ui->tcpInput->value()),
-												static_cast<unsigned int>(ui->udpInput->value()) });
+	m_remoteLauncher.connect(vrb::VrbCredentials{ui->hostIpf->text().toStdString(),
+												 static_cast<unsigned int>(ui->tcpInput->value()),
+												 static_cast<unsigned int>(ui->udpInput->value())});
 }
 
 void MainWindow::onCancelBtnClicked()
@@ -162,20 +158,22 @@ void MainWindow::onCancelBtnClicked()
 void MainWindow::onDisconnectBtnClicked()
 {
 	assert(!m_isConnecting);
-	m_remoteLauncher.disconnect();
 	setStateDisconnected();
 }
 
 void MainWindow::updateStatusBar()
 {
-	auto newVal = ui->progressBar->value() + 1;
-	if (ui->progressBar->maximum() > 0 && newVal >= ui->progressBar->maximum()) //timeout
+	if (m_isConnecting)
 	{
-		setStateDisconnected();
-	}
-	else
-	{
-		ui->progressBar->setValue(newVal);
+		auto newVal = ui->progressBar->value() + 1;
+		if (ui->progressBar->maximum() > 0 && newVal >= ui->progressBar->maximum()) //timeout
+		{
+			setStateDisconnected();
+		}
+		else
+		{
+			ui->progressBar->setValue(newVal);
+		}
 	}
 }
 
@@ -189,15 +187,15 @@ void MainWindow::removeClient(int clientID)
 	m_clientList->removeClient(clientID);
 }
 
-void MainWindow::launchProgram(Program programID, const std::vector<std::string>& args)
+void MainWindow::launchProgram(vrb::Program programID, const std::vector<std::string> &args)
 {
 	bool execute = ui->autostartCheckBox->isChecked();
 	if (!execute)
 	{
-		QMessageBox msgBox{ this };
+		QMessageBox msgBox{this};
 		QString text;
 		QTextStream ss(&text);
-		ss << "Start of " << programNames[programID] << " requested!";
+		ss << "Start of " << vrb::programNames[programID] << " requested!";
 		msgBox.setText(text);
 		msgBox.setInformativeText("Do you want to execute that program?");
 		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -207,8 +205,8 @@ void MainWindow::launchProgram(Program programID, const std::vector<std::string>
 	}
 	if (execute)
 	{
-		std::cerr << "launching " << programNames[programID] << std::endl;
-		spawnProgram(programNames[programID], args);
+		std::cerr << "launching " << vrb::programNames[programID] << std::endl;
+		spawnProgram(vrb::programNames[programID], args);
 	}
 }
 
@@ -225,7 +223,7 @@ void MainWindow::dumpOptions()
 		tb << ui->autostartCheckBox->isChecked();
 		tb << ui->autoconnectCheckBox->isChecked();
 		int size = tb.getData().length();
-		file.write((char*)&size, sizeof(size));
+		file.write((char *)&size, sizeof(size));
 		file.write(tb.getData().data(), size);
 	}
 	else
@@ -242,13 +240,13 @@ void MainWindow::readOptions()
 	if (file.is_open())
 	{
 		int l;
-		file.read((char*)&l, sizeof(l));
-		covise::DataHandle dh{ (size_t)l };
+		file.read((char *)&l, sizeof(l));
+		covise::DataHandle dh{(size_t)l};
 		file.read(dh.accessData(), l);
 		covise::TokenBuffer tb(dh);
 		int timeout;
 		bool autostart, autoconnect;
-		char* date, * time;
+		char *date, *time;
 		tb >> date >> time;
 		if (strcmp(date, __DATE__) != 0 | strcmp(time, __TIME__) != 0)
 		{
@@ -275,7 +273,10 @@ std::vector<std::string> MainWindow::parseCmdArgsInput()
 	{
 		auto begin = end;
 		end = std::find(begin, argsString.end(), ' ');
-		args.emplace_back(argsString.substr(begin - argsString.begin(), end - begin));
+		if (begin != end)
+		{
+			args.emplace_back(argsString.substr(begin - argsString.begin(), end - begin));
+		}
 		if (end == argsString.end())
 		{
 			return args;
@@ -292,7 +293,7 @@ std::vector<std::string> MainWindow::parseCmdArgsInput()
 	}
 }
 
-void setStackedWidget(QStackedWidget* stack, int index)
+void setStackedWidget(QStackedWidget *stack, int index)
 {
 	stack->currentWidget()->setEnabled(false);
 	stack->currentWidget()->hide();

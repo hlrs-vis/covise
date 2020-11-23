@@ -52,7 +52,7 @@ std::ostream& operator<<(std::ostream& s, const DataHandle& dh) {
 	return s;
 }
 }
- 
+
 #ifdef MB_DEBUG 
 	#define PRINT_DEBUG	std::cerr << res << std::endl;
 #else 
@@ -62,10 +62,14 @@ std::ostream& operator<<(std::ostream& s, const DataHandle& dh) {
 namespace vrb
 {
 
+
+
 VrbMessageHandler::VrbMessageHandler(ServerInterface* server)
 	:m_server(server)
 {
 }
+
+
 void VrbMessageHandler::handleMessage(Message* msg)
 {
 	TokenBuffer tb(msg);
@@ -99,14 +103,14 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	{
 		auto res = readTokenBuffer<sessionID, senderID, Class>(tb);
 		PRINT_DEBUG
-		sessions[res.get<sessionID>()].observeClass(res.get<senderID>(), res.get<Class>());
+		m_sessions[res.get<sessionID>()].observeClass(res.get<senderID>(), res.get<Class>());
 	}
 	break;
 	case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
 	{
 		auto res = readTokenBuffer<sessionID, senderID, Class, variable, valueData>(tb);
 		PRINT_DEBUG
-		createSessionIfnotExists(res.get<sessionID>(), res.get<senderID>())
+		putClientInSession(res.get<sessionID>(), res.get<senderID>())
 			.observeVar(res.get<senderID>(), res.get<Class>(), res.get < variable>(), res.get < valueData>());
 
 		updateApplicationWindow(res.get<Class>(), res.get<senderID>(), res.get<variable>(), res.get<valueData>());
@@ -116,14 +120,14 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	{
 		auto res = readTokenBuffer<sessionID, senderID, Class>(tb);
 		PRINT_DEBUG
-		sessions[res.get<sessionID>()].unObserveClass(res.get<senderID>(), res.get<Class>());
+		m_sessions[res.get<sessionID>()].unObserveClass(res.get<senderID>(), res.get<Class>());
 	}
 	break;
 	case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE:
 	{
 		auto res = readTokenBuffer<senderID, Class, variable>(tb);
 		PRINT_DEBUG
-		sessions.unobserveFromAll(res.get<senderID>(), res.get<Class>(), res.get<variable>());
+		m_sessions.unobserveFromAll(res.get<senderID>(), res.get<Class>(), res.get<variable>());
 	}
 	break;
 	case COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY:
@@ -132,7 +136,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		auto res = readTokenBuffer<sessionID, senderID, Class, variable, valueData>(tb);
 		PRINT_DEBUG
 		tb >> isStatic;
-		createSessionIfnotExists(res.get<sessionID>(), res.get<senderID>())
+		putClientInSession(res.get<sessionID>(), res.get<senderID>())
 			.create(res.get<senderID>(), res.get<Class>(), res.get<variable>(), res.get<valueData>(), isStatic);
 		updateApplicationWindow(res.get<Class>(), res.get<senderID>(), res.get<variable>(), res.get<valueData>());
 	}
@@ -141,7 +145,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	{
 		auto res = readTokenBuffer<sessionID, senderID, Class, variable>(tb);
 		PRINT_DEBUG
-		sessions[res.get<sessionID>()].deleteEntry(res.get<Class>(), res.get<variable>());
+		m_sessions[res.get<sessionID>()].deleteEntry(res.get<Class>(), res.get<variable>());
 		removeEntryFromApplicationWindow(res.get<Class>(), res.get<senderID>(), res.get<variable>());
 	}
 	break;
@@ -162,7 +166,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	break;
 	case COVISE_MESSAGE_VRB_SET_USERINFO:
 	{
-		setUserInfo(tb, msg);
+		//deprecated
 	}
 	break;
 	case COVISE_MESSAGE_RENDER:
@@ -172,26 +176,32 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		passMessageToParticipants(msg);
 	}
 	break;
+	case COVISE_MESSAGE_BROADCAST_TO_PROGRAM:
+	{
+		vrb::Program p;
+		int messageType;
+		covise::DataHandle broadcastDh;
+		tb >> p >> messageType >> broadcastDh;
+		covise::Message broadcastMsg{messageType, broadcastDh};
+		clients.broadcastMessageToProgramm(p, &broadcastMsg);
+	}
+	break;
 	case COVISE_MESSAGE_VRB_CHECK_COVER:
 	{
+		auto cl = clients.get(msg->conn);
+		std::cerr << "received error prone message from ";
+		if (cl)
+		{
+			std::cerr << cl->ID();
+		}
+		std::cerr << std::endl;
+
 		returnWhetherClientExists(tb, msg);
 	}
 	break;
 	case COVISE_MESSAGE_VRB_GET_ID:
 	{
 		returnStartSession(msg);
-	}
-	break;
-	case COVISE_MESSAGE_VRB_SET_GROUP:
-	{
-		VRBSClient* c = clients.get(msg->conn);
-		vrb::SessionID newSession;
-		tb >> newSession;
-		if (c && !newSession.isPrivate())
-		{
-			determineNewMaster(newSession, c);
-			informParticipantsAboutNewParticipant(c);
-		}
 	}
 	break;
 	case COVISE_MESSAGE_VRB_SET_MASTER:
@@ -202,7 +212,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		if (c && masterState)
 		{
 			clients.setMaster(c);
-			informParticipantsAboutNewMaster(c);
+			informOtherParticipantsAboutNewMaster(c);
 		}
 	}
 	break;
@@ -228,7 +238,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	{
 		SessionID sid;
 		tb >> sid;
-		sid = sessions.forceCreateSession(sid).sessionID();
+		sid = m_sessions.forceCreateSession(sid).sessionID();
 		sendSessions();
 		setSession(sid, sid.owner());
 	}
@@ -237,19 +247,29 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	{
 		auto res = readTokenBuffer<sessionID, senderID>(tb);
 		PRINT_DEBUG
-		sessions.unobserveSession(res.get<senderID>(), res.get<sessionID>());
+		m_sessions.unobserveSession(res.get<senderID>(), res.get<sessionID>());
 	}
 	break;
 	case COVISE_MESSAGE_VRBC_SET_SESSION:
 	{
 		auto res = readTokenBuffer<sessionID, senderID>(tb);
+		PRINT_DEBUG
 		VRBSClient* c = clients.get(res.get<senderID>());
 		if (c)
 		{
+			bool wasMaster = c->isMaster();
 			c->setSession(res.get<sessionID>());
-			informParticipantsAboutNewParticipant(c);
+			if (wasMaster)
+			{
+				determineNewMaster(c->sessionID());
+			}
+
+			informOtherParticipantsAboutNewParticipant(c);
 		}
-		cerr << "client " << res.get<senderID>() << " not found" << endl;
+		else
+		{
+			cerr << "client " << res.get<senderID>() << " not found" << endl;
+		}
 	}
 	break;
 	case COVISE_MESSAGE_VRB_SAVE_SESSION:
@@ -272,7 +292,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		cerr << "unknown message in vrb: type=" << msg->type;
 		if (VRBSClient* c = clients.get(msg->conn))
 		{
-			cerr << " from client" << c->getID();
+			cerr << " from client" << c->ID();
 		}
 		cerr << endl;
 		break;
@@ -289,15 +309,15 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 		return;
 	}
 	msg->conn = sender->conn;
-	clients.passOnMessage(msg, sender->getSession());
+	clients.passOnMessage(msg, sender->sessionID());
 }
 int VrbMessageHandler::numberOfClients()
 {
 	return clients.numberOfClients();
 }
-void VrbMessageHandler::addClient(VRBSClient* client)
+void VrbMessageHandler::addClient(ConnectionDetails::ptr &&clientCon)
 {
-	clients.addClient(client);
+	m_unregisteredClients.push_back(std::move(clientCon));
 }
 void VrbMessageHandler::remove(Connection* conn)
 {
@@ -305,45 +325,46 @@ void VrbMessageHandler::remove(Connection* conn)
 	VRBSClient* c = clients.get(conn);
 	if (c)
 	{
-		int clID = c->getID();
-		cerr << c->getName() << " (host " << c->getIP() << " ID: " << c->getID() << ") left" << endl;
-		vrb::SessionID MasterSession;
-		bool wasMaster = false;
-		TokenBuffer rtb;
+		int clID = c->ID();
+		cerr << c->userInfo() << "----> left" << endl;;
+		vrb::SessionID sid = c->sessionID();
+		bool master = c->isMaster();
 
-		rtb << c->getID();
-		if (c->isMaster())
-		{
-			MasterSession = c->getSession();
-			cerr << "Master Left" << endl;
-			wasMaster = true;
-		}
 		clients.removeClient(c);
-		delete c;
-		sessions.disconectClientFromSessions(clID);
-
-
 		removeEntriesFromApplicationWindow(clID);
+		m_sessions.disconectClientFromSessions(clID);
 		sendSessions();
+
+		TokenBuffer rtb;
+		rtb << clID;
 		clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
-		if (wasMaster)
+
+		if (master)
 		{
-			VRBSClient* newMaster = clients.getNextInGroup(MasterSession);
-			if (newMaster)
-			{
-				clients.setMaster(newMaster);
-				TokenBuffer rtb;
-				rtb << newMaster->getID();
-				rtb << true;
-				clients.sendMessage(rtb, MasterSession, COVISE_MESSAGE_VRB_SET_MASTER);
-			}
-			else
-			{
-				//save & delete Masersession
-			}
+			cerr << ": was master of session " << sid << endl;
+			determineNewMaster(sid);
+		}
+		else
+		{
+			cerr << endl;
 		}
 	}
+	else
+	{
+		removeUnregisteredClient(conn);
+	}
 }
+
+void VrbMessageHandler::removeUnregisteredClient(Connection* conn) {
+	auto unregisteredClient = std::find_if(m_unregisteredClients.begin(), m_unregisteredClients.end(), [conn](const ConnectionDetails::ptr& cd) {
+		return cd->tcpConn.get() == conn;
+		});
+	if (unregisteredClient != m_unregisteredClients.end())
+	{
+		m_unregisteredClients.erase(unregisteredClient);
+	}
+}
+
 void VrbMessageHandler::closeConnection()
 {
 	TokenBuffer tb;
@@ -362,6 +383,21 @@ void VrbMessageHandler::removeEntriesFromApplicationWindow(int sender)
 {
 	//std::cerr <<"userinterface not implemented" << std:endl;
 }
+
+VRBSClient *VrbMessageHandler::createNewClient(ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb){
+	return new VRBSClient(cd->tcpConn.release(), cd->udpConn, tb);
+}
+
+VRBSClient *VrbMessageHandler::createNewClient(covise::TokenBuffer &tb, covise::Message *msg){
+	auto cd = std::find_if(m_unregisteredClients.begin(), m_unregisteredClients.end(), [msg](const ConnectionDetails::ptr &cd) {
+		return cd->tcpConn.get() == msg->conn;
+	});
+	assert(cd != m_unregisteredClients.end());
+	auto cl = createNewClient(std::move(*cd), tb);
+	m_unregisteredClients.erase(cd);
+	return cl;
+}
+
 //private
 void VrbMessageHandler::handleFileRequest(covise::Message* msg, covise::TokenBuffer& tb)
 {
@@ -413,7 +449,7 @@ void VrbMessageHandler::handleFileRequest(covise::Message* msg, covise::TokenBuf
 	{
 		// forward this request to the COVER that loaded the requested file
 		VRBSClient* currentFileClient = clients.get(fileOwner);
-		if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->getID() != requestorsID))
+		if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->ID() != requestorsID))
 		{
 			currentFileClient->conn->send_msg(msg);
 			currentFileClient->addBytesReceived(msg->data.length());
@@ -450,7 +486,7 @@ void VrbMessageHandler::sendFile(covise::Message* msg, covise::TokenBuffer& tb)
 	if (buffersize == 0) //send request to next client in session
 	{
 		c->addUnknownFile(fileName);
-		VRBSClient* nextCl = clients.getNextPossibleFileOwner(fileName, c->getSession());
+		VRBSClient* nextCl = clients.getNextPossibleFileOwner(fileName, c->sessionID());
 		if (nextCl)
 		{
 			TokenBuffer rtb;
@@ -474,75 +510,65 @@ void VrbMessageHandler::changeRegVar(covise::TokenBuffer& tb)
 {
 	auto res = readTokenBuffer<sessionID, senderID, Class, variable, valueData>(tb);
 	PRINT_DEBUG
-	sessions[res.get<sessionID>()].setVar(res.get<senderID>(), res.get<Class>(), res.get<variable>(), res.get<valueData>()); //maybe handle no existing registry for the given session ID
+	m_sessions[res.get<sessionID>()].setVar(res.get<senderID>(), res.get<Class>(), res.get<variable>(), res.get<valueData>()); //maybe handle no existing registry for the given session ID
 	updateApplicationWindow(res.get<Class>(), res.get<senderID>(), res.get<variable>(), res.get<valueData>());
 }
-VrbServerRegistry& VrbMessageHandler::createSessionIfnotExists(const vrb::SessionID& sessionID, int senderID)
+VrbServerRegistry& VrbMessageHandler::putClientInSession(const vrb::SessionID& sessionID, int senderID)
 {
 	VRBSClient* cl = clients.get(senderID);
-	return sessions.createSessionIfnotExists(sessionID, cl);
+	return putClientInSession(sessionID, cl);
 }
+
+VrbServerRegistry& VrbMessageHandler::putClientInSession(const vrb::SessionID& sessionID, VRBSClient* cl)
+{
+	SessionID sid(cl->ID(), sessionID.name(), sessionID.isPrivate());
+	VrbServerRegistry &reg = m_sessions[sid];
+	cl->setSession(reg.sessionID());
+	return reg;
+}
+
 void VrbMessageHandler::handleNewClient(covise::TokenBuffer& tb, covise::Message* msg)
 {
 
-	bool hasStartupSession;
-	tb >> hasStartupSession; //== coviseModuleID
-	char* startupSession, *name, *hostaddress;
-	if (hasStartupSession)
-	{
-		tb >> startupSession;
-	}
-	tb >> name >> hostaddress;
-	VRBSClient *c = clients.get(msg->conn);
-	if (!c)
-	{
-		c = new VRBSClient(msg->conn, nullptr, hostaddress, name, false, false);
-		clients.addClient(c);
-	}
+	assert(!clients.get(msg->conn));
+	VRBSClient *c = createNewClient(tb, msg);
+	clients.addClient(c);
 	//create unique private session for the client
-	vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
-	sid = sessions.forceCreateSession(sid).sessionID();
-
-	c->setContactInfo(hostaddress, name, sid);
+	vrb::SessionID privateSid{c->ID()};
+	privateSid = m_sessions.forceCreateSession(privateSid).sessionID();
+	c->setPrivateSession(privateSid);
 	std::cerr << "VRB new client: Numclients=" << clients.numberOfClients() << std::endl;
 	//if the client is started by covise (CRB) it has a moduleID that can be translated to sessionID
 	//if OpenCOVER got a session from commandline (-s) the client will also send this given session name
-	if (hasStartupSession)
+	if (!c->sessionID().name().empty())
 	{
-		sid = vrb::SessionID(c->getID(), std::string(startupSession), false);
-		sid.setOwner(sessions.getSessionOwner(sid));
-
-		createSessionIfnotExists(sid, c->getID());
-		sendSessions();
+		SessionID sid = vrb::SessionID(c->ID(), c->sessionID().name(), false);
+		sid = putClientInSession(sid, c).sessionID();
 		c->setSession(sid);
-		m_sessionsToSet.insert(c->getID());
 	}
 	else
 	{
-		sendSessions();
+		c->setSession(privateSid);
 	}
-}
-void VrbMessageHandler::setUserInfo(covise::TokenBuffer& tb, covise::Message* msg)
-{
-	UserInfo ui;
-	tb >> ui;
-	VRBSClient* c = clients.get(msg->conn);
-	if (!c)
-	{
-		std::cerr << "failed to set user info: client not found!" << std::endl;
-		return;
-	}
-	c->setUserInfo(ui);
+	sendSessions();
 	informClientsAboutNewClient(c);
 	informNewClientAboutClients(c);
-	setNewClientsStartingSession(c);
+	//re-sent the sessions after the the new client is informed about himself
+	TokenBuffer mtb;
+	if (m_sessions.serializeSessions(mtb))
+	{
+		clients.sendMessageToClient(c, mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
+	}
 
+	
 }
+
 void VrbMessageHandler::informClientsAboutNewClient(vrb::VRBSClient* c)
 {
 	TokenBuffer rtb;
 	rtb << 1;
-	c->getInfo(rtb);
+	rtb << -1; //recipient info is not included
+	rtb << *c;
 	Message m(rtb);
 	m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
 	m.conn = c->conn;
@@ -551,17 +577,17 @@ void VrbMessageHandler::informClientsAboutNewClient(vrb::VRBSClient* c)
 void VrbMessageHandler::informNewClientAboutClients(vrb::VRBSClient* c)
 {
 	TokenBuffer rtb2;
-	clients.collectClientInfo(rtb2);
+	clients.collectClientInfo(rtb2, c);
 	Message m(rtb2);
 	m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
 	c->conn->send_msg(&m);
 }
 void VrbMessageHandler::setNewClientsStartingSession(vrb::VRBSClient* c)
 {
-	auto it = m_sessionsToSet.find(c->getID());
+	auto it = m_sessionsToSet.find(c->ID());
 	if (it != m_sessionsToSet.end())
 	{
-		setSession(c->getSession(), c->getID());
+		setSession(c->sessionID(), c->ID());
 		m_sessionsToSet.erase(it);
 	}
 }
@@ -574,7 +600,7 @@ void VrbMessageHandler::passMessageToParticipants(covise::Message* msg)
 
 	if (c)
 	{
-		toGroup = c->getSession();
+		toGroup = c->sessionID();
 		c->addBytesSent(msg->data.length());
 	}
 	clients.passOnMessage(msg, toGroup);
@@ -585,14 +611,7 @@ void VrbMessageHandler::returnWhetherClientExists(covise::TokenBuffer& tb, covis
 	tb >> ip;
 	VRBSClient* c = clients.get(ip);
 	TokenBuffer rtb;
-	if (c)
-	{
-		rtb << 1;
-	}
-	else
-	{
-		rtb << 0;
-	}
+	rtb << bool{c != nullptr};
 	Message m(rtb);
 	m.type = COVISE_MESSAGE_VRB_CHECK_COVER;
 	msg->conn->send_msg(&m);
@@ -604,8 +623,8 @@ void VrbMessageHandler::returnStartSession(covise::Message* msg)
 	VRBSClient* c = clients.get(msg->conn);
 	if (c)
 	{
-		sid = sessions.forceCreateSession(vrb::SessionID(c->getID(), "private")).sessionID();
-		clId = c->getID();
+		sid = m_sessions.forceCreateSession(vrb::SessionID(c->ID(), "private")).sessionID();
+		clId = c->ID();
 		c->setPrivateSession(sid);
 	}
 	TokenBuffer rtb;
@@ -615,42 +634,37 @@ void VrbMessageHandler::returnStartSession(covise::Message* msg)
 	m.type = COVISE_MESSAGE_VRB_GET_ID;
 	msg->conn->send_msg(&m);
 }
-void VrbMessageHandler::determineNewMaster(vrb::SessionID& newSession, vrb::VRBSClient* c)
+void VrbMessageHandler::determineNewMaster(const vrb::SessionID& sid)
 {
-	bool becomeMaster;
-	if (clients.getMaster(newSession) && c->isMaster()) //there is already a master
+	VRBSClient* newMasterofOldSession = clients.getNextInGroup(sid);
+	if (newMasterofOldSession)
 	{
-		becomeMaster = false;
+		clients.setMaster(newMasterofOldSession);
+		TokenBuffer rtb;
+		rtb << newMasterofOldSession->ID();
+		rtb << true;
+		Message  rmsg(rtb);
+		rmsg.type = COVISE_MESSAGE_VRB_SET_MASTER;
+		clients.passOnMessage(&rmsg, newMasterofOldSession->sessionID()); //informOtherParticipantsAboutNewMaster + msg to the master
 	}
-	else
-	{
-		becomeMaster = true;
-	}
-	c->setMaster(becomeMaster);
-	TokenBuffer mtb;
-	mtb << c->getID();
-	mtb << becomeMaster;
-	Message m(mtb);
-	m.type = COVISE_MESSAGE_VRB_SET_MASTER;
-	c->conn->send_msg(&m);
 }
-void VrbMessageHandler::informParticipantsAboutNewMaster(vrb::VRBSClient* c)
+void VrbMessageHandler::informOtherParticipantsAboutNewMaster(vrb::VRBSClient* c)
 {
 	TokenBuffer rtb;
-	rtb << c->getID();
+	rtb << c->ID();
 	rtb << c->isMaster();
 	Message  rmsg(rtb);
 	rmsg.type = COVISE_MESSAGE_VRB_SET_MASTER;
 	rmsg.conn = c->conn;
-	clients.passOnMessage(&rmsg, c->getSession());
+	clients.passOnMessage(&rmsg, c->sessionID());
 }
-void VrbMessageHandler::informParticipantsAboutNewParticipant(vrb::VRBSClient* c)
+void VrbMessageHandler::informOtherParticipantsAboutNewParticipant(vrb::VRBSClient* c)
 {
 	TokenBuffer rtb;
-	rtb << c->getID();
-	rtb << c->getSession();
+	rtb << c->ID();
+	rtb << c->sessionID();
 	Message mg(rtb);
-	mg.type = COVISE_MESSAGE_VRB_SET_GROUP;
+	mg.type = COVISE_MESSAGE_VRBC_SET_SESSION;
 	mg.conn = c->conn;
 	clients.passOnMessage(&mg);
 }
@@ -658,7 +672,7 @@ void VrbMessageHandler::sendSessions()
 {
 	TokenBuffer mtb;
 
-	if (sessions.serializeSessions(mtb))
+	if (m_sessions.serializeSessions(mtb))
 	{
 		clients.sendMessageToAll(mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
 	}
@@ -666,8 +680,9 @@ void VrbMessageHandler::sendSessions()
 void VrbMessageHandler::setSession(const vrb::SessionID& sessionId, int clID)
 {
 	TokenBuffer stb;
+	stb << clID;
 	stb << sessionId;
-	clients.sendMessageToID(stb, clID, COVISE_MESSAGE_VRBC_SET_SESSION);
+	clients.sendMessageToClient(clID, stb, COVISE_MESSAGE_VRBC_SET_SESSION);
 }
 void VrbMessageHandler::returnSerializedSessionInfo(covise::TokenBuffer& tb)
 {
@@ -675,16 +690,16 @@ void VrbMessageHandler::returnSerializedSessionInfo(covise::TokenBuffer& tb)
 	PRINT_DEBUG
 	std::string fileName;
 	tb >> fileName;
-	auto s = sessions.serializeSession(res.get<sessionID>());
+	auto s = m_sessions.serializeSession(res.get<sessionID>());
 	TokenBuffer out;
 	out << fileName;
 	out << s;
-	clients.sendMessageToID(out, res.get<senderID>(), COVISE_MESSAGE_VRB_SAVE_SESSION);
+	clients.sendMessageToClient(res.get<senderID>(), out, COVISE_MESSAGE_VRB_SAVE_SESSION);
 }
 void VrbMessageHandler::loadSession(const covise::DataHandle& file, const vrb::SessionID& currentSession)
 {
 	TokenBuffer tb{ file };
-	auto registry = sessions.deserializeSession(tb, currentSession);
+	auto &registry = m_sessions.deserializeSession(tb, currentSession);
 	//update application window 
 	for (const auto& cl : registry)
 	{
@@ -700,7 +715,7 @@ void VrbMessageHandler::informParticipantsAboutLoadedSession(int senderID, Sessi
 	stb << sid;
 	if (sid.isPrivate())//inform the owner of the private session 
 	{
-		clients.sendMessageToID(stb, senderID, COVISE_MESSAGE_VRB_LOAD_SESSION);
+		clients.sendMessageToClient(senderID, stb, COVISE_MESSAGE_VRB_LOAD_SESSION);
 	}
 	else //inform all session members
 	{

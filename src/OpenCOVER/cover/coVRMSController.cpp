@@ -2561,7 +2561,7 @@ bool coVRMSController::syncVRBMessages()
 					}
 
 					if (vrbc == NULL)
-						vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
+						vrbc = new VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
 					vrbc->connectToServer(startSession);
 					oldSec = curSec;
 				}

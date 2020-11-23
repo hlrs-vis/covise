@@ -210,8 +210,8 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		for (int i = clients.numberOfClients(); i > 0;)
 		{
 			VRBSClient* locConn = clients.getNthClient(--i);
-			locClientName = QString::fromStdString(locConn->getName());
-			locClient = QString::fromStdString(locConn->getIP());
+			locClientName = QString::fromStdString(locConn->userInfo().name);
+			locClient = QString::fromStdString(locConn->userInfo().ipAdress);
 			tuiClientList.append(locClient);
 		}
 
@@ -682,8 +682,7 @@ void vrb::RerouteRequest(const char* location, int type, int senderId, int recvV
 
 	for (int i = 0; i < clients.numberOfClients(); i++)
 	{
-		std::string host = clients.getNthClient(i)->getIP();
-		if (host == location)
+		if (location == clients.getNthClient(i)->userInfo().ipAdress)
 		{
 			locClient = clients.getNthClient(i);
 		}

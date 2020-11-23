@@ -7,6 +7,7 @@
 
 #include "coVRPartner.h"
 #include <vrb/client/VRBClient.h>
+#include <vrb/PrintClientList.h>
 #include <OpenVRUI/coLabel.h>
 #ifndef _WIN32
 #include <strings.h>
@@ -40,16 +41,17 @@ coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
 coVRPartner::coVRPartner()
     : ui::Owner("VRPartner-Me", cover->ui)
-    , vrb::RemoteClient(vrb::UserType::Cover)
+    , vrb::RemoteClient(vrb::Program::Cover)
 {
     m_avatar = new VRAvatar(this);
 }
 
-coVRPartner::coVRPartner(int id)
-: ui::Owner("VRPartner_"+std::to_string(id), cover->ui)
-, vrb::RemoteClient(id)
+coVRPartner::coVRPartner(RemoteClient &&me)
+    : ui::Owner("VRPartner_"+std::to_string(me.ID()), cover->ui)
+    , vrb::RemoteClient(std::move(me))
 {
     m_avatar = new VRAvatar(this);
+    updateUi();
 }
 
 coVRPartner::~coVRPartner()
@@ -57,15 +59,19 @@ coVRPartner::~coVRPartner()
     delete m_avatar;
 }
 
-coVRPartner * coVRPartner::changeID(int id)
+void coVRPartner::changeID(int id)
 {
     std::cerr << "*** coVRPartner: own ID is " << id << " ***" << std::endl;
     int oldID = m_id;
     m_id = id;
-    return coVRPartnerList::instance()->changePartnerID(oldID, id);
 }
 
-
+void coVRPartner::setMaster(int clientID)
+{
+    vrb::RemoteClient::setMaster(clientID);
+    if (m_ui)
+        m_ui->setState(isMaster());
+}
 
 void coVRPartner::setFile(const char *fileName)
 {
@@ -98,17 +104,9 @@ void coVRPartner::menuEvent(coMenuItem *m)
 }
 #endif
 
-
-void coVRPartner::setMaster(bool m)
-{
-    if (m_ui)
-        m_ui->setState(m);
-    m_isMaster = m;
-}
-
 void coVRPartner::becomeMaster()
 {
-    m_isMaster = true;
+    m_session.setMaster(ID());
     TokenBuffer rtb;
     rtb << true;
     Message m(rtb);
@@ -118,7 +116,7 @@ void coVRPartner::becomeMaster()
 
 void coVRPartner::updateUi()
 {
-    std::string menuText = std::to_string(m_id) + " " + RemoteClient::m_name + "@" + m_userInfo.hostName;
+    std::string menuText = std::to_string(m_id) + " " + m_userInfo.name + "@" + m_userInfo.hostName;
 #if 0
     fileMenuEntry = new coButtonMenuItem("NoFile");
     fileMenuEntry->setMenuListener(this);
@@ -137,19 +135,8 @@ void coVRPartner::updateUi()
         });
     }
     m_ui->setText(menuText);
-    m_ui->setState(m_isMaster);
+    m_ui->setState(isMaster());
 }
-
-
-
-
-void coVRPartner::sendHello()
-{
-
-    cover->sendVrbMessage(createHelloMessage().get());
-}
-
-
 
 VRAvatar * opencover::coVRPartner::getAvatar()
 {
@@ -165,66 +152,40 @@ void opencover::coVRPartner::setAvatar(VRAvatar * avatar)
 
 coVRPartner *coVRPartnerList::get(int id)
 {
-    auto it = partners.find(id);
-    if (it != partners.end())
+    auto p = find(id);
+    if (p == partners.end())
     {
-        return it->second;
-    }
-    return nullptr;
-}
-
-coVRPartner * opencover::coVRPartnerList::getFirstPartner()
-{
-    if (partners.empty())
         return nullptr;
-
-    return partners.begin()->second;
+    }
+    return p->get();
 }
 
-void opencover::coVRPartnerList::addPartner(coVRPartner * p)
+
+coVRPartner *opencover::coVRPartnerList::me(){
+    assert(partners[0]);
+    return partners[0].get();
+}
+void opencover::coVRPartnerList::addPartner(vrb::RemoteClient &&p)
 {
-    if (p)
+    partners.push_back(ValueType::value_type{new coVRPartner{std::move(p)}});
+    if (partners[partners.size() - 1]->sessionID() == me()->sessionID()) //client joined my sessison
     {
-        partners[p->getID()] = p;
+        coVRCollaboration::instance()->showCollaborative(true);
     }
 }
 
-void opencover::coVRPartnerList::deletePartner(int id)
+void opencover::coVRPartnerList::removePartner(int id)
 {
-    setSessionID(id, vrb::SessionID(0, ""));
-    delete partners[id];
-    partners.erase(id);
+    partners.erase(find(id));
 }
 
-coVRPartner *opencover::coVRPartnerList::changePartnerID(int oldID, int newID)
-{
-    auto p = partners.find(newID);
-    if (oldID == newID)
-    {
-        return p->second;
-    }
-    auto it = partners.find(oldID);
-    if (p != partners.end())
-    {
-        std::cerr << "there is already a partner with " << newID << "registered in coVRParnerList" << std::endl;
-        return it->second;
-    }
-    if (it != partners.end())
-    {
-        std::swap(partners[newID], it->second);
-        partners.erase(it);
-    }
-    return partners[newID];
-}
-
-void opencover::coVRPartnerList::deleteOthers()
+void opencover::coVRPartnerList::removeOthers()
 {
     auto p = partners.begin();
     while (p != partners.end())
     {
-        if (p->second->getID() != coVRCommunication::instance()->getID())
+        if ((*p)->ID() != coVRCommunication::instance()->getID())
         {
-            delete p->second;
             p = partners.erase(p);
         }
         else
@@ -240,40 +201,29 @@ int opencover::coVRPartnerList::numberOfPartners() const
     return partners.size();
 }
 
-void opencover::coVRPartnerList::setMaster(int id)
+void opencover::coVRPartnerList::setMaster(int clientID)
 {
-    for (auto p : partners)
+    const auto master = find(clientID);
+    if (master != partners.end())
     {
-        p.second->setMaster(false);
+        std::cerr << "failed to set master: master " << clientID << " is not a client" << std::endl;
     }
-    if (id > 0)
+    assert(master != partners.end());
+    for (auto &p : partners)
     {
-        partners[id]->setMaster(true);
-    }
-}
-
-coVRPartner * opencover::coVRPartnerList::getMaster()
-{
-    for (auto p : partners)
-    {
-        if (p.second->isMaster())
+        if (p->sessionID() == (*master)->sessionID())
         {
-            return p.second;
+            p->setMaster(clientID);
         }
     }
-    return nullptr;
 }
 
 void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionID & newSession)
 {
-    coVRPartner *partner = get(partnerID);
+    auto partner = get(partnerID);
 
     int myID = coVRCommunication::instance()->getID();
-    if(!partner)
-    {
-        return;
-    }
-    vrb::SessionID oldSession = partner->getSessionID();
+    vrb::SessionID oldSession = partner->sessionID();
     partner->setSession(newSession);
     vrb::SessionID mySession = coVRCommunication::instance()->getSessionID();
     if (partnerID == myID) //this client changed session
@@ -282,21 +232,21 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
         coVRCollaboration::instance()->updateSharedStates();
         bool alone = true;
         //check if other partners are in my new session
-        for (auto p : partners)
+        for (auto &p : partners)
         {
-            if (p.first != myID && p.second->getSessionID() == newSession)
+            if (p->ID() != myID && p->sessionID() == newSession)
             {
                 alone = false;
-                if (p.second->getAvatar())
+                if (p->getAvatar())
                 {
-                    p.second->getAvatar()->show();
+                    p->getAvatar()->show();
                 }
             }
             else
             {
-                if (p.second->getAvatar())
+                if (p->getAvatar())
                 {
-                    p.second->getAvatar()->hide();
+                    p->getAvatar()->hide();
                 }
             }
         }
@@ -316,9 +266,9 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
         if (oldSession == mySession && !mySession.isPrivate()) //client left my session
         {
             bool lastInSession = true;
-            for (auto p : partners)
+            for (auto &p : partners)
             {
-                if (p.first != myID && p.second->getSessionID() == mySession)
+                if (p->ID() != myID && p->sessionID() == mySession)
                 {
                     lastInSession = false;
                     break;
@@ -360,23 +310,20 @@ void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
     std::string adress;
     tb >> sender; 
     tb >> adress;
-    coVRPartner *p = get(sender);
-    if (p)
+    auto p = get(sender);
+    VRAvatar *av = p->getAvatar();
+    if (av->init(adress))
     {
-        VRAvatar *av = p->getAvatar();
-        if (av->init(adress))
+        if (m_avatarsVisible && p->ID() != coVRCommunication::instance()->getID() && p->sessionID() == coVRCommunication::instance()->getSessionID())
         {
-            if (m_avatarsVisible && p->getID() != coVRCommunication::instance()->getID() && p->getSessionID() == coVRCommunication::instance()->getSessionID())
-            {
-                av->show();
-            }
-            else
-            {
-                av->hide();
-            }
+            av->show();
         }
-        tb >> *av;
+        else
+        {
+            av->hide();
+        }
     }
+    tb >> *av;
 
 
 }
@@ -384,17 +331,17 @@ void opencover::coVRPartnerList::showAvatars()
 {
     int myID = coVRCommunication::instance()->getID();
     vrb::SessionID mySession = coVRCommunication::instance()->getSessionID();
-    for (auto partner : partners)
+    for (auto &partner : partners)
     {
-        if (partner.second->getAvatar())
+        if (partner->getAvatar())
         {
-            if (partner.first != myID && partner.second->getSessionID() == mySession)
+            if (partner->ID() != myID && partner->sessionID() == mySession)
             {
-                partner.second->getAvatar()->show();
+                partner->getAvatar()->show();
             }
             else
             {
-                partner.second->getAvatar()->hide();
+                partner->getAvatar()->hide();
             }
         }
     }
@@ -402,11 +349,11 @@ void opencover::coVRPartnerList::showAvatars()
 }
 void opencover::coVRPartnerList::hideAvatars()
 {
-    for (auto partner : partners)
+    for (auto &partner : partners)
     {
-        if (partner.second->getAvatar())
+        if (partner->getAvatar())
         {
-            partner.second->getAvatar()->hide();
+            partner->getAvatar()->hide();
         }
     }
     m_avatarsVisible = false;
@@ -417,12 +364,9 @@ bool opencover::coVRPartnerList::avatarsVisible()
 }
 void coVRPartnerList::print()
 {
-    cerr << "Num Partners: " << partners.size() << endl;
-    for (auto p : partners)
-    {
-        p.second->print();
-        cerr << endl;
-}
+    std::vector<const vrb::RemoteClient *> clients(partners.size());
+    std::transform(partners.begin(), partners.end(), clients.begin(), [](const std::unique_ptr<coVRPartner>& p) { return p.get(); });
+    vrb::printClientInfo(clients);
 }
 
 ui::ButtonGroup *coVRPartnerList::group()
@@ -434,19 +378,12 @@ coVRPartnerList::coVRPartnerList()
 : ui::Owner("PartnerList", cover->ui)
 {
     m_group = new ui::ButtonGroup("PartnerGroup", this);
+    partners.push_back(ValueType::value_type{new coVRPartner{}}); //me at pos 0
     assert(!s_instance);
 }
 
 coVRPartnerList::~coVRPartnerList()
 {
-    auto partner = partners.begin();
-    while (partner != partners.end())
-    {
-        delete partner->second;
-        partner = partners.erase(partner);
-    }
-
-    // da sollte noch mehr geloescht werden
     s_instance = NULL;
 }
 
@@ -457,3 +394,14 @@ coVRPartnerList *coVRPartnerList::instance()
     return s_instance;
 }
 
+coVRPartnerList::ValueType::const_iterator coVRPartnerList::begin() const{
+    return partners.begin();
+}
+
+coVRPartnerList::ValueType::const_iterator coVRPartnerList::end() const{
+    return partners.end();
+}
+
+coVRPartnerList::ValueType::iterator coVRPartnerList::find(int id){
+    return std::find_if(partners.begin(), partners.end(), [id](const std::unique_ptr<coVRPartner> &p) { return p->ID() == id; });
+}

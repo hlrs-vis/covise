@@ -19,13 +19,13 @@
 #include <net/tokenbuffer_serializer.h>
 #include <vrb/SessionID.h>
 
+#include <cassert>
 
-
-#include <qsocketnotifier.h>
 #define IOMANIPH
  // don't include iomanip.h becaus it interferes with qt
 
 using namespace covise;
+
 
 void VrbUiMessageHandler::updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle& value)
 {
@@ -65,4 +65,10 @@ bool VrbUiMessageHandler::setClientNotifier(covise::Connection * conn, bool stat
         return true;
     }
     return false;
+}
+
+vrb::VRBSClient *VrbUiMessageHandler::createNewClient(vrb::ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb){
+    auto uicd = dynamic_cast<UiConnectionDetails*>(cd.get());
+    assert(uicd);
+    return new VrbUiClient(cd->tcpConn.release(), cd->udpConn, uicd->notifier.release(), tb);
 }

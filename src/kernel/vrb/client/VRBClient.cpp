@@ -29,15 +29,14 @@
 
 using namespace covise;
 
-VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, bool slave)
-    : VRBClient(n, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave)
+VRBClient::VRBClient(vrb::Program p, const char *collaborativeConfigurationFile, bool slave)
+    : VRBClient(p, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave)
     {}
 
-VRBClient::VRBClient(const char *n, const vrb::VrbCredentials &credentials, bool slave)
-    : sendDelay(0.1f)
-	, isSlave(slave)
+VRBClient::VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, bool slave)
+    : vrb::RemoteClient(p)
     , m_credentials(credentials)
-    , name(n)
+	, isSlave(slave)
 {
     if (!credentials.ipAddress.empty())
     {
@@ -49,11 +48,6 @@ VRBClient::~VRBClient()
 {
     delete sConn;
 	delete udpConn;
-}
-
-int VRBClient::getID()
-{
-    return ID;
 }
 
 bool VRBClient::poll(Message *m)
@@ -138,27 +132,20 @@ int VRBClient::wait(Message *m, int messageType)
     return ret;
 }
 
-bool VRBClient::sendUserInfo(const char *userInfo)
-{
-    TokenBuffer tb;
-    tb << userInfo;
-    return sendMessage(tb, COVISE_MESSAGE_VRB_SET_USERINFO);
-}
-
 bool VRBClient::sendMessage(const Message *m)
 {
 	if (!sConn || (!sConn->is_connected())) // not connected to a server
 	{
 		return 0;
 	}
-	return sendMessage(m, sConn);
+    return sendMessage(m, sConn);
 }
 
 bool VRBClient::sendMessage(TokenBuffer & tb, int type)
 {
     Message m(tb);
     m.type = type;
-    sendMessage(&m);
+    return sendMessage(&m);
 }
 
 bool VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
@@ -167,7 +154,7 @@ bool VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
 	{
 		return 0;
 	}
-    m->sender = ID;
+    m->sender = ID();
 	return udpConn->send_udp_msg(m);
 
 }
@@ -177,7 +164,7 @@ bool VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int send
 	vrb::UdpMessage m(tb);
 	m.type = type;
 	m.sender = sender;
-	sendUdpMessage(&m);
+	return sendUdpMessage(&m);
 }
 
 
@@ -233,7 +220,7 @@ bool VRBClient::isConnected()
 
 bool VRBClient::connectToServer(std::string sessionName)
 {
-    startupSession = sessionName;
+    setSession(vrb::SessionID{ID(), sessionName});
     if (!udpConn && !isSlave)
     {
 		setupUdpConn();
@@ -291,18 +278,7 @@ bool VRBClient::completeConnection(){
             {
                 m_isConnected = true;
                 TokenBuffer tb;
-				if (startupSession == "")
-				{
-                    tb << false;
-                }
-				else
-				{
-                    tb << true;
-					tb << startupSession;
-				}
-                tb << name;
-                tb << Host::getHostaddress();
-
+                tb << *this;
                 Message msg(tb);
                 msg.type = COVISE_MESSAGE_VRB_CONTACT;
                 sConn->send_msg(&msg);
@@ -321,23 +297,17 @@ void VRBClient::setupUdpConn()
     }
 }
 
-void VRBClient::setID(int i)
-{
-    ID = i;
-}
-
 bool VRBClient::isCOVERRunning()
 {
     if (serverHost == NULL)
-        return 0;
+        return false;
     if (!sConn || (!sConn->is_connected())) // could not open server port
     {
-        return 0;
+        return false;
     }
-    int i;
     Host host;
     TokenBuffer tb;
-    tb << host.getAddress();
+    tb << userInfo().ipAdress;
     Message msg(tb);
     msg.type = COVISE_MESSAGE_VRB_CHECK_COVER;
     sConn->send_msg(&msg);
@@ -347,11 +317,12 @@ bool VRBClient::isCOVERRunning()
         if (msg.type == COVISE_MESSAGE_VRB_CHECK_COVER)
         {
             TokenBuffer rtb(&msg);
-            rtb >> i;
-            return i;
+            bool running = false;
+            rtb >> running;
+            return running;
         }
     }
-    return 0;
+    return false;
 }
 
 void VRBClient::connectToCOVISE(int argc, const char **argv)
@@ -368,9 +339,8 @@ void VRBClient::connectToCOVISE(int argc, const char **argv)
     }
     int i;
 
-    Host host;
     TokenBuffer tb;
-    tb << host.getAddress();
+    tb << userInfo().ipAdress;
     tb << argc;
     for (i = 0; i < argc; i++)
         tb << argv[i];

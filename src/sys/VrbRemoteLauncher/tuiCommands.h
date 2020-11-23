@@ -34,12 +34,12 @@ private:
 
 struct LaunchCommand : CommandInterface{
 
-    LaunchCommand(vrb::launcher::Program program, vrb::launcher::VrbRemoteLauncher &launcher);
+    LaunchCommand(vrb::Program program, vrb::launcher::VrbRemoteLauncher &launcher);
     void print() const override;
 
     void execute(const std::string &command) override;
     private:
-        vrb::launcher::Program m_program;
+        vrb::Program m_program;
         vrb::launcher::VrbRemoteLauncher &m_launcher;
 };
 

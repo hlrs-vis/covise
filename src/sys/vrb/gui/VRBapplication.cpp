@@ -596,7 +596,7 @@ void ApplicationWindow::deleteItem()
         TokenBuffer tb;
         tb << DO_QUIT;
         tb << s.toStdString().c_str();
-        clients.sendMessageToID(tb, ID);
+        clients.sendMessageToClient(ID, tb);
     }
 }
 

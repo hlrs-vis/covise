@@ -5,12 +5,13 @@
 
  * License: LGPL 2+ */
 
-///base class to process vrb messages used in the vrb application and COVISE for the communication between OpenCOVERs
+ ///base class to process vrb messages used in the vrb application and COVISE for the communication between OpenCOVERs
 
 #ifndef VRB_MESAGE_HANDLER_H
 #define VRB_MESAGE_HANDLER_H
 #include "VrbSessionList.h"
 #include <net/message.h>
+#include <net/covise_connect.h>
 #include <util/coExport.h>
 #include "VrbClientList.h"
 #include <set>
@@ -26,7 +27,6 @@
 
 namespace covise
 {
-class Connection;
 class DataHandle;
 }
 
@@ -37,56 +37,80 @@ class SessionID;
 class VrbServerRegistry;
 class UdpMessage;
 
+struct VRBSERVEREXPORT ConnectionDetails {
+	typedef std::unique_ptr<ConnectionDetails> ptr;
+
+	std::unique_ptr<covise::Connection> tcpConn;
+	covise::UDPConnection* udpConn;
+	ConnectionDetails() = default;
+	ConnectionDetails(ConnectionDetails& other) = delete;
+	virtual ConnectionDetails& operator=(ConnectionDetails& other) = delete;
+	ConnectionDetails(ConnectionDetails&& other) = default;
+	virtual ConnectionDetails& operator=(ConnectionDetails&& other) = default;
+	virtual ~ConnectionDetails() = default;
+};
 class VRBSERVEREXPORT ServerInterface
 {
 public:
-    virtual void removeConnection(covise::Connection *conn) = 0;
+	virtual void removeConnection(covise::Connection* conn) = 0;
 
 };
 
 class VRBSERVEREXPORT VrbMessageHandler
 {
 public:
-    VrbMessageHandler(ServerInterface *server);
-    void handleMessage(covise::Message *msg);
+	VrbMessageHandler(ServerInterface* server);
+
+	VrbMessageHandler(VrbMessageHandler& other) = delete;
+	virtual VrbMessageHandler& operator=(VrbMessageHandler& other) = delete;
+	VrbMessageHandler(VrbMessageHandler&& other) = default;
+	virtual VrbMessageHandler& operator=(VrbMessageHandler&& other) = delete;
+	virtual ~VrbMessageHandler() = default;
+
+	void handleMessage(covise::Message* msg);
 	void handleUdpMessage(UdpMessage* msg);
-    int numberOfClients();
-    void addClient(VRBSClient* client);
-    void remove(covise::Connection* c);
-    void closeConnection();
+	int numberOfClients();
+	void addClient(ConnectionDetails::ptr&& clientCon);
+	void closeConnection();
+	void remove(covise::Connection* c);
 protected:
 	///update the vrb userinterface
-    virtual void updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle &value);
-    virtual void removeEntryFromApplicationWindow(const std::string& cl, int sender, const std::string& var);
-    virtual void removeEntriesFromApplicationWindow(int sender);
+	virtual void updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle& value);
+	virtual void removeEntryFromApplicationWindow(const std::string& cl, int sender, const std::string& var);
+	virtual void removeEntriesFromApplicationWindow(int sender);
+	virtual VRBSClient* createNewClient(ConnectionDetails::ptr&& cd, covise::TokenBuffer& tb);
 
 private:
-    ServerInterface *m_server = nullptr;
-    VrbSessionList sessions;
+	ServerInterface* m_server = nullptr;
+	VrbSessionList m_sessions;
 	///stack of sessions that have to be set at the client after he received the userdata of all clients
 	std::set<int> m_sessionsToSet;
-    //participants: clients in a session
-    //return: send back to sender
-    void handleFileRequest(covise::Message* msg, covise::TokenBuffer& tb);
-    void sendFile(covise::Message* msg, covise::TokenBuffer& tb);
-    void changeRegVar(covise::TokenBuffer& tb);
-    VrbServerRegistry& createSessionIfnotExists(const SessionID &sessionID, int senderID);
-    void handleNewClient(covise::TokenBuffer& tb, covise::Message* msg);
-    void setUserInfo(covise::TokenBuffer& tb, covise::Message* msg);
-    void informClientsAboutNewClient(vrb::VRBSClient* c);
-    void informNewClientAboutClients(vrb::VRBSClient* c);
-    void setNewClientsStartingSession(vrb::VRBSClient* c);
-    void passMessageToParticipants(covise::Message* msg);
-    void returnWhetherClientExists(covise::TokenBuffer& tb, covise::Message* msg);
-    void returnStartSession(covise::Message* msg);
-    void determineNewMaster(vrb::SessionID& newSession, vrb::VRBSClient* c);
-    void informParticipantsAboutNewMaster(vrb::VRBSClient* c);
-    void informParticipantsAboutNewParticipant(vrb::VRBSClient* c);
-    void sendSessions();
-    void setSession(const SessionID & sessionId, int clID);
-    void returnSerializedSessionInfo(covise::TokenBuffer& tb);
-    void loadSession(const covise::DataHandle& file, const SessionID &currentSession);
-    void informParticipantsAboutLoadedSession(int senderID, SessionID sid);
+	std::vector<ConnectionDetails::ptr> m_unregisteredClients;
+	void removeUnregisteredClient(covise::Connection* conn);
+	VRBSClient* createNewClient(covise::TokenBuffer& tb, covise::Message* msg);
+	//participants: clients in a session
+	//return: send back to sender
+	void handleFileRequest(covise::Message* msg, covise::TokenBuffer& tb);
+	void sendFile(covise::Message* msg, covise::TokenBuffer& tb);
+	void changeRegVar(covise::TokenBuffer& tb);
+	VrbServerRegistry& putClientInSession(const SessionID& sessionID, int senderID);
+	VrbServerRegistry& putClientInSession(const SessionID& sessionID, VRBSClient* cl);
+
+	void handleNewClient(covise::TokenBuffer& tb, covise::Message* msg);
+	void informClientsAboutNewClient(VRBSClient* c);
+	void informNewClientAboutClients(VRBSClient* c);
+	void setNewClientsStartingSession(VRBSClient* c);
+	void passMessageToParticipants(covise::Message* msg);
+	void returnWhetherClientExists(covise::TokenBuffer& tb, covise::Message* msg);
+	void returnStartSession(covise::Message* msg);
+	void determineNewMaster(const SessionID& sid);
+	void informOtherParticipantsAboutNewMaster(VRBSClient* c);
+	void informOtherParticipantsAboutNewParticipant(VRBSClient* c);
+	void sendSessions();
+	void setSession(const SessionID& sessionId, int clID);
+	void returnSerializedSessionInfo(covise::TokenBuffer& tb);
+	void loadSession(const covise::DataHandle& file, const SessionID& currentSession);
+	void informParticipantsAboutLoadedSession(int senderID, SessionID sid);
 };
 }
 #endif // !VRB_MESAGE_HANDLER_H

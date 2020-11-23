@@ -9,16 +9,18 @@
 namespace vrb {
 
 SessionID::SessionID(const int owner, const bool isPrivate)
-    :m_owner(owner)
-    ,m_isPrivate(isPrivate)
-    ,m_name(std::string())
+    : m_owner(owner)
+    , m_isPrivate(isPrivate)
+    , m_name(std::string())
+    , m_master(owner)
 {
 
 }
-SessionID::SessionID(int id, const std::string & name, bool isPrivate)
-    :m_owner(id)
+SessionID::SessionID(int owner, const std::string & name, bool isPrivate)
+    : m_owner(owner)
     , m_isPrivate(isPrivate)
     , m_name(name)
+    , m_master(owner)
 {
 }
 
@@ -34,20 +36,26 @@ int SessionID::owner() const
 {
     return m_owner;
 }
+int SessionID::master() const
+{
+    return m_master;
+}
 
 void SessionID::setOwner(int id) const
 {
     m_owner = id;
 }
-
 void SessionID::setName(const std::string & name)
 {
     m_name = name;
 }
-
 void SessionID::setPrivate(bool isPrivate)
 {
     m_isPrivate = isPrivate;
+}
+void SessionID::setMaster(int master) const
+{
+    m_master = master;
 }
 
 bool SessionID::operator==(const SessionID & other) const
@@ -85,17 +93,32 @@ SessionID &SessionID::operator=(const SessionID & other) {
     m_owner = other.owner();
     m_name = other.name();
     m_isPrivate = other.isPrivate();
+    m_master = other.master();
     return *this;
 }
-std::string SessionID::toText() const
-{
-    std::string state = "private";
-    if (!m_isPrivate)
-    {
-        state = "public";
-    }
-    return m_name + "   owner: " + std::to_string(m_owner) + "  " + state;
+
+std::ostream& operator<<(std::ostream& s, const vrb::SessionID& id) {
+    s << id.name() << ", owner:" << id.owner() << (id.isPrivate() ? ", private" : ", public") << ", master:" << id.master();
+    return s;
 }
+
+covise::TokenBuffer& operator<<(covise::TokenBuffer& s, const vrb::SessionID& id) {
+    s << id.name() << id.owner() << id.isPrivate() << id.master();
+    return s;
+}
+covise::TokenBuffer& operator>>(covise::TokenBuffer& s, vrb::SessionID& id) {
+    int owner, master;
+    std::string name;
+    bool isPrivate;
+    s >> name >> owner >> isPrivate >> master;
+
+    id.setOwner(owner);
+    id.setName(name);
+    id.setPrivate(isPrivate);
+    id.setMaster(master);
+    return s;
+}
+
 
 
 }

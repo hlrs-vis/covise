@@ -22,15 +22,13 @@ using namespace covise;
 namespace vrb
 {
 VrbServerRegistry::VrbServerRegistry(const SessionID &session)
-    :m_sessionID(session)
+    :m_session(session)
 {
 }
 
-const SessionID& VrbServerRegistry::sessionID() const
-{
-    return m_sessionID;
+const SessionID& VrbServerRegistry::sessionID() const {
+    return m_session;
 }
-
 
 /// set a Value or create new Entry
 void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, const DataHandle &value, bool s)
@@ -93,19 +91,6 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
         return def;
     }
     return def;
-}
-
-void VrbServerRegistry::setOwner(int id)
-{
-    if (id > 0)
-    {
-        owner = id;
-    }
-}
-
-int VrbServerRegistry::getOwner() const
-{
-    return m_sessionID.owner();
 }
 
 void VrbServerRegistry::deleteEntry(const std::string &className, const std::string &name)
@@ -222,7 +207,7 @@ void serverRegVar::update(int recvID)
     sb << m_class->name();
     sb << name();
 	sendValueChange(sb);
-    clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
+    clients.sendMessageToClient(recvID, sb, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
 }
 void serverRegVar::updateMap(int recvID)
 {
@@ -232,7 +217,7 @@ void serverRegVar::updateMap(int recvID)
 	sb << m_class->name();
 	sb << name();
 	sendValue(sb);
-	clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
+	clients.sendMessageToClient(recvID, sb, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
 }
 void serverRegVar::informDeleteObservers()
 {
@@ -249,7 +234,7 @@ void serverRegVar::informDeleteObservers()
 	}
     for (const int obs : combinedObservers)
     {
-        clients.sendMessageToID(sb, obs, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED);
+        clients.sendMessageToClient(obs, sb, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED);
     }
 }
 

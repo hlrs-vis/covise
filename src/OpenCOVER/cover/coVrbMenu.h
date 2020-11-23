@@ -8,15 +8,14 @@
 #ifndef COVRBMENU_H
 #define COVRBMENU_H
 
-#include <string>
-#include <set>
-#include <vector>
-#include <memory>
-#include <vrb/SessionID.h>
+
 #include "ui/Owner.h"
 
+#include <vrb/SessionID.h>
 #include <vrb/remoteLauncher/VrbRemoteLauncher.h>
-#include <QObject>
+
+#include <string>
+#include <vector>
 namespace vrb
 {
 class SessionID;
@@ -34,35 +33,19 @@ class FileBrowser;
 }
 class VrbMenu;
 
-struct RemoteLauncher : public QObject{
-    Q_OBJECT
-public:
-    RemoteLauncher(VrbMenu *menu);
-    void connectSignals();
-    void connectVrb();
-    typedef std::pair<int, std::string> Partner;
-
-private:
-    VrbMenu *m_menu;
-    std::vector<Partner> m_launchPartner;
-    vrb::launcher::VrbRemoteLauncher m_launcher;
-};
-
 class VrbMenu : public ui::Owner
 {
-    friend RemoteLauncher;
-
 private:
     const std::string noSavedSession = "nothing";
     ui::Group *m_sessionGroup;
     ui::Group *m_ioGroup;
     ui::EditField *m_newSessionEf;
     ui::Action *m_newSessionBtn;
-    ui::SelectionList *m_sessionsSl, *m_remotePartner;
+    ui::SelectionList *m_sessionsSl, *m_remoteLauncher;
     ui::FileBrowser *m_saveSession, *m_loadSession;
     std::vector<std::string> m_savedRegistries;
     std::vector<vrb::SessionID> m_availiableSessions;
-    RemoteLauncher m_remoteLauncher;
+
     void saveSession(const std::string &file);
     void loadSession(const std::string &filename);
     void requestNewSession(const std::string & name);
@@ -73,9 +56,12 @@ public:
 	void initFileMenu();
 	void updateState(bool state);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
+    void updateRemoteLauncher();
     void setCurrentSession(const vrb::SessionID &session);
-    void connectRemotaLauncher();
     ~VrbMenu() = default;
 };
+    int getRemoteLauncherClientID(int index);
+
+
 }
 #endif

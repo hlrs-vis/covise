@@ -9,12 +9,23 @@
 #endif // !VRBUIMESAGEHANDLER_H
 
 #include <vrb/server/VrbMessageHandler.h>
-
+#include <QSocketNotifier>
 namespace covise
 {
 class Message;
 class DataHandle;
 }
+
+struct UiConnectionDetails : vrb::ConnectionDetails{
+  typedef std::unique_ptr<UiConnectionDetails> ptr;
+  std::unique_ptr<QSocketNotifier> notifier;
+  UiConnectionDetails() = default;
+  UiConnectionDetails(UiConnectionDetails &) = delete;
+  UiConnectionDetails &operator=(UiConnectionDetails &) = delete;
+  UiConnectionDetails(UiConnectionDetails &&) = default;
+  UiConnectionDetails &operator=(UiConnectionDetails &&) = default;
+};
+
 class VrbUiMessageHandler : public vrb::VrbMessageHandler
 {
 public:
@@ -24,4 +35,6 @@ public:
     void removeEntriesFromApplicationWindow(int sender) override;
     ///get the client corresponding to con and change its QSocketNotifier state; Return true if client exists
     bool setClientNotifier(covise::Connection *conn, bool state);
+    vrb::VRBSClient *createNewClient(vrb::ConnectionDetails::ptr &&, covise::TokenBuffer &tb) override;
+
 };

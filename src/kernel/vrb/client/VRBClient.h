@@ -7,16 +7,18 @@
 
 #ifndef _VRB_CLIENT_H
 #define _VRB_CLIENT_H
-#include <stdio.h>
-#ifndef _M_CEE //no future in Managed OpenCOVER
-#include <future>
-#endif
+#include "VrbCredentials.h"
+
+#include <vrb/RemoteClient.h>
+
 #include <mutex>
 #include <string>
 #include <list>
 #include <util/coTypes.h>
-#include "VrbCredentials.h"
-
+#include <stdio.h>
+#ifndef _M_CEE //no future in Managed OpenCOVER
+#include <future>
+#endif
 namespace vrb
 {
 	class UdpMessage;
@@ -33,16 +35,13 @@ class UDPConnection;
 class Message;
 class TokenBuffer;
 
-//
-//
-//
 
-class VRBCLIENTEXPORT VRBClient
+class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient
 {
 
 public:
-    VRBClient(const char *name, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
-    VRBClient(const char *name, const vrb::VrbCredentials &credentials, bool isSlave = false);
+    VRBClient(vrb::Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
+    VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, bool isSlave = false);
     ~VRBClient();
     bool connectToServer(std::string sessionName = ""); 
     bool completeConnection();
@@ -54,15 +53,13 @@ public:
 	bool pollUdp(vrb::UdpMessage* m);
     int wait(Message *m);
     int wait(Message *m, int messageType);
-    bool sendUserInfo(const char *userInfo);
+    //bool sendUserInfo(const char *userInfo);
     bool sendMessage(const Message *m);
     bool sendMessage(TokenBuffer &tb, int type);
 	bool sendUdpMessage(const vrb::UdpMessage* m);
 	bool sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender);
 
 	void setupUdpConn();
-    int getID();
-    void setID(int ID);
     std::list<Message *> messageQueue;
     float getSendDelay();
     void shutdown(); //threadsafe, shuts down the tcp socked, don't use the client after a call to this function
@@ -73,12 +70,10 @@ private:
 
 	UDPConnection* udpConn = nullptr; //udp connection to server
 
-    std::string name;
     vrb::VrbCredentials m_credentials;
-    int ID = -1;
     Host *serverHost = nullptr;
-    bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server
-    float sendDelay; // low-pass filtered time for sending one packet of 1000 bytes
+    bool isSlave = false; // it true, we are a slave in a multiPC config, so do not actually connect to server
+    float sendDelay = 0.1f; // low-pass filtered time for sending one packet of 1000 bytes
     std::mutex connMutex;
     std::atomic_bool m_isConnected{false};
 #ifndef _M_CEE //no future in Managed OpenCOVER
@@ -87,7 +82,6 @@ private:
 #endif
     bool firstVrbConnection = true;
 	std::mutex udpConnMutex;
-    std::string startupSession;
     bool firstUdpVrbConnection = true;
 
     bool sendMessage(const Message* m, Connection* conn);

@@ -20,68 +20,25 @@ namespace vrb
 {
 VRBClientList clients;
 
-VRBSClient::VRBSClient(Connection * c, UDPConnection* udpc, const char * ip, const char * n, bool send, bool dc)
-	:deleteClient(dc)
-	,m_name(n)
-	,myID(clients.getNextFreeClientID())
-	,m_publicSession(vrb::SessionID())
-	,conn(c)
-	,udpConn(udpc)
-	,m_master(0)
-	,lastRecTime(0.0)
-,lastSendTime(0.0)
+VRBSClient::VRBSClient(Connection * c, UDPConnection* udpc, covise::TokenBuffer &tb, bool dc)
+	: RemoteClient(tb)
+    , conn(c)
+	, udpConn(udpc)
+	, m_deleteClient(dc)
 {
-    if (send)
-    {
-        TokenBuffer rtb;
-        rtb << myID;
-        rtb << m_publicSession;
-        Message m(rtb);
-        m.type = COVISE_MESSAGE_VRB_GET_ID;
-        conn->send_msg(&m);
-    }
-    userInfo.ipAdress = ip;
+    setID(clients.getNextFreeClientID());
+	cerr << "my ip is " << userInfo().ipAdress << endl;
 }
 
 VRBSClient::~VRBSClient()
 {
-	if(deleteClient)
-       delete conn;
-    cerr << "closed connection to client " << myID << endl;
-}
-
-void VRBSClient::setContactInfo(const char *ip, const char *n, vrb::SessionID &session)
-{
-    userInfo.ipAdress = ip;
-    m_name = n;
-    m_privateSession = session;
-    TokenBuffer rtb;
-    rtb << myID;
-    rtb << session;
-    Message m(rtb);
-    m.type = COVISE_MESSAGE_VRB_GET_ID;
-    conn->send_msg(&m);
-}
-
-void VRBSClient::setMaster(bool m)
-{
-    m_master = m;
-
-}
-
-UserInfo VRBSClient::getUserInfo()
-{
-    return userInfo;
-}
-
-std::string VRBSClient::getUserName()
-{
-    return userInfo.ipAdress;
-}
-
-void VRBSClient::setSession(const vrb::SessionID &g)
-{
-    m_publicSession = g;
+    if (m_deleteClient)
+    {
+        delete conn;
+        conn = nullptr;
+        //udpConn is owned by server
+    }
+    cerr << "closed connection to client " << ID() << endl;
 }
 
 const vrb::SessionID & VRBSClient::getPrivateSession() const
@@ -94,24 +51,12 @@ void VRBSClient::setPrivateSession(vrb::SessionID & g)
     m_privateSession = g;
 }
 
-bool VRBSClient::isMaster()
-{
-    return m_master;
-}
 
 void VRBSClient::setInterval(float i)
 {
-    interval = i;
+    m_interval = i;
 }
 
-void VRBSClient::getInfo(TokenBuffer &rtb)
-{
-    rtb << myID;
-    rtb << m_name;
-    rtb << userInfo;
-    rtb << m_publicSession;
-    rtb << m_master;
-}
 
 bool VRBSClient::doesNotKnowFile(const std::string& fileName)
 {
@@ -130,11 +75,6 @@ void VRBSClient::addUnknownFile(const std::string& fileName)
 	m_unknownFiles.insert(fileName);
 }
 
-void VRBSClient::setUserInfo(const UserInfo& ui)
-{
-    userInfo = ui;
-	cerr << "my ip is " << userInfo.ipAdress << endl;
-}
 
 void VRBSClient::sendMsg(covise::MessageBase* msg)
 {
@@ -148,83 +88,63 @@ void VRBSClient::sendMsg(covise::MessageBase* msg)
 		if (udpConn)
 		{
             udpConn->send_udp_msg(udp, "188.40.97.72");
-			udpConn->send_udp_msg(udp, userInfo.ipAdress.c_str());
+			udpConn->send_udp_msg(udp, userInfo().ipAdress.c_str());
 		}
-		else if (firstTryUdp)
+		else if (m_firstTryUdp)
 		{
-			firstTryUdp = false;
+			m_firstTryUdp = false;
 			cerr << "trying to send udp message to a client without udp connection: type = " << dynamic_cast<UdpMessage*>(msg)->type << endl;
 		}
 	}
 }
 
-const std::string &VRBSClient::getName() const
-{
-    return m_name;
-}
-
-const std::string &VRBSClient::getIP() const
-{
-    return userInfo.ipAdress;
-}
-
-int VRBSClient::getID() const
-{
-    return myID;
-}
-
-const vrb::SessionID &VRBSClient::getSession() const
-{
-    return m_publicSession;
-}
-
 int VRBSClient::getSentBPS()
 {
     double currentTime = time();
-    if ((currentTime - lastSendTime) > interval)
+    if ((currentTime - m_lastSendTime) > m_interval)
     {
-        bytesSentPerSecond = (int)(bytesSentPerInterval / (currentTime - lastSendTime));
-        lastSendTime = currentTime;
-        bytesSentPerInterval = 0;
+        m_bytesSentPerSecond = (int)(m_bytesSentPerInterval / (currentTime - m_lastSendTime));
+        m_lastSendTime = currentTime;
+        m_bytesSentPerInterval = 0;
     }
-    return bytesSentPerSecond;
+    return m_bytesSentPerSecond;
 }
 
 int VRBSClient::getReceivedBPS()
 {
     double currentTime = time();
-    if ((currentTime - lastSendTime) > interval)
+    if ((currentTime - m_lastSendTime) > m_interval)
     {
-        bytesReceivedPerSecond = (int)(bytesReceivedPerInterval / (currentTime - lastSendTime));
-        lastRecTime = currentTime;
-        bytesReceivedPerInterval = 0;
+        m_bytesReceivedPerSecond = (int)(m_bytesReceivedPerInterval / (currentTime - m_lastSendTime));
+        m_lastRecTime = currentTime;
+        m_bytesReceivedPerInterval = 0;
     }
-    return bytesReceivedPerSecond;
+    return m_bytesReceivedPerSecond;
 }
 
 void VRBSClient::addBytesSent(int b)
 {
     double currentTime = time();
-    bytesSent += b;
-    bytesSentPerInterval += b;
-    if ((currentTime - lastSendTime) > interval)
+    m_bytesSent += b;
+    m_bytesSentPerInterval += b;
+    if ((currentTime - m_lastSendTime) > m_interval)
     {
-        bytesSentPerSecond = (int)(bytesSentPerInterval / (currentTime - lastSendTime));
-        lastSendTime = currentTime;
-        bytesSentPerInterval = 0;
+        m_bytesSentPerSecond = (int)(m_bytesSentPerInterval / (currentTime - m_lastSendTime));
+        m_lastSendTime = currentTime;
+        m_bytesSentPerInterval = 0;
     }
 }
 
 void VRBSClient::addBytesReceived(int b)
 {
     double currentTime = time();
-    bytesReceived += b;
-    bytesReceivedPerInterval += b;
-    if ((currentTime - lastSendTime) > interval)
+    m_bytesReceived += b;
+    m_bytesReceivedPerInterval += b;
+    if ((currentTime - m_lastSendTime) > m_interval)
     {
-        bytesReceivedPerSecond = (int)(bytesReceivedPerInterval / (currentTime - lastSendTime));
-        lastRecTime = currentTime;
-        bytesReceivedPerInterval = 0;
+        m_bytesReceivedPerSecond = (int)(m_bytesReceivedPerInterval / (currentTime - m_lastSendTime));
+        m_lastRecTime = currentTime;
+        m_bytesReceivedPerInterval = 0;
     }
 }
 #ifdef _WIN32
@@ -258,28 +178,27 @@ double VRBSClient::time()
 }
 #endif // _WIN32
 
-
 ///////////////////////////////////////////////////////////
-//___________________________________________________________
+//VRBClientList_______________________________________________
 //////////////////////////////////////////////////////////////
 VRBSClient *VRBClientList::get(Connection *c)
 {
-    for (VRBSClient *cl : m_clients)
+    for (auto &cl : m_clients)
     {
         if (cl->conn == c)
         {
-            return cl;
+            return cl.get();
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 int VRBClientList::numInSession(vrb::SessionID &session)
 {
     int num = 0;
-    for (auto cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        if (cl->getSession() == session)
+        if (cl->sessionID() == session)
         {
             ++num;
         }
@@ -294,24 +213,30 @@ size_t VRBClientList::numberOfClients()
 
 void VRBClientList::addClient(VRBSClient * cl)
 {
-    m_clients.insert(cl);
+    m_clients.emplace_back(cl);
 }
 
 void VRBClientList::removeClient(VRBSClient * cl)
 {
-    m_clients.erase(cl);
+    auto it = std::find_if(m_clients.begin(), m_clients.end(), [cl](const std::unique_ptr<VRBSClient>& c) {
+        return cl == c.get();
+    });
+    m_clients.erase(it);
 }
 
 void VRBClientList::remove(Connection * c)
 {
-	for (auto cl : m_clients)
-	{
-		if (cl->conn == c)
-		{
-			m_clients.erase(cl);
-			return;
-		}
-	}
+    for (auto cl = m_clients.begin(); cl != m_clients.end();)
+    {
+        if (cl->get()->conn == c)
+        {
+            cl = m_clients.erase(cl);
+        }
+        else
+        {
+            ++cl;
+        }
+    }
 }
 
 void VRBClientList::passOnMessage(covise::MessageBase* msg, const vrb::SessionID &session)
@@ -320,31 +245,55 @@ void VRBClientList::passOnMessage(covise::MessageBase* msg, const vrb::SessionID
     {
         return;
     }
-    for (auto cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        if (cl->conn != msg->conn && (cl->getSession() == session || session == vrb::SessionID(0, "", false)))
+        if (cl->conn != msg->conn && (cl->sessionID() == session || session == vrb::SessionID(0, "", false)))
         {
             cl->sendMsg(msg);
         }
     }
 }
 
-void VRBClientList::collectClientInfo(covise::TokenBuffer & tb)
+void VRBClientList::broadcastMessageToProgramm(vrb::Program program, covise::MessageBase *msg)
+{
+    for (auto &cl : m_clients)
+    {
+        if (cl->userInfo().userType == program)
+        {
+            cl->sendMsg(msg);
+        }
+    }
+}
+
+void VRBClientList::collectClientInfo(covise::TokenBuffer & tb, const VRBSClient *recipient) const
 {
     tb << (int)m_clients.size();
-    for (auto cl : m_clients)
+    auto recipientPos = tb.addPlaceHolder<int>();
+    int i = 0;
+    for (auto &cl : m_clients)
     {
-        cl->getInfo(tb);
+        if (cl.get() == recipient)
+        {
+            recipientPos.replace(i);
+            tb << recipient->ID() << recipient->sessionID() << recipient->getPrivateSession();
+        }
+        else
+        {
+            ++i;
+            tb << *cl;
+        }
+        
     }
+    assert(i == m_clients.size() - 1);
 }
 
 VRBSClient* VRBClientList::getNextPossibleFileOwner(const std::string& fileName, const vrb::SessionID& id)
 {
-	for (auto cl : m_clients)
+	for (auto &cl : m_clients)
 	{
-		if (cl->getSession() == id && !cl->doesNotKnowFile(fileName))
+		if (cl->sessionID() == id && !cl->doesNotKnowFile(fileName))
 		{
-			return cl;
+			return cl.get();
 		}
 	}
 	return nullptr;
@@ -352,72 +301,59 @@ VRBSClient* VRBClientList::getNextPossibleFileOwner(const std::string& fileName,
 
 VRBSClient *VRBClientList::get(const char *ip)
 {
-    for (VRBSClient *cl : m_clients)
-    {
-        if (cl->getIP() == ip)
-        {
-            return cl;
-        }
-    }
-    return NULL;
+    auto it = std::find_if(m_clients.begin(), m_clients.end(), [ip](const std::unique_ptr<VRBSClient>& cl) {
+        return cl->userInfo().ipAdress == ip;
+        });
+    return (it == m_clients.end() ? nullptr : (*it).get());
 }
 
 VRBSClient *VRBClientList::get(int id)
 {
-    for (VRBSClient *cl : m_clients)
-    {
-        if (cl->getID() == id)
-        {
-            return cl;
-        }
-    }
-    return NULL;
+    auto it = std::find_if(m_clients.begin(), m_clients.end(), [id](const std::unique_ptr<VRBSClient>& cl) {
+        return cl->ID() == id;
+        });
+    return (it == m_clients.end() ? nullptr : (*it).get());
 }
 
 VRBSClient * VRBClientList::getMaster(const vrb::SessionID &session)
 {
-    for (auto cl : m_clients)
+    auto cl = get(session.master());
+    if (cl && cl->sessionID() == session)
     {
-        if (cl->getSession() == session && cl->isMaster())
-        {
-            return cl;
-        }
+        return cl;
     }
     return nullptr;
 }
 
 VRBSClient * VRBClientList::getNextInGroup(const vrb::SessionID & id)
 {
-    for (auto cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        if (cl->getSession() == id)
+        if (cl->sessionID() == id)
         {
-            return cl;
+            return cl.get();
         }
     }
     return nullptr;
 }
 
-VRBSClient * VRBClientList::getNthClient(int N)
+VRBSClient * VRBClientList::getNthClient(size_t N)
 {
-    if (N > m_clients.size())
+    if (N >= m_clients.size())
     {
         return nullptr;
     }
-    auto it = m_clients.begin();
-    std::advance(it, N);
-    return *it;
-
+    return m_clients[N].get();
 }
 
 std::vector<VRBSClient*> VRBClientList::getClientsWithUserName(const std::string & name)
 {
     std::vector<VRBSClient *> clients;
-    for (const auto cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        if (cl->getUserName() == name)
+        if (cl->userInfo().name == name)
         {
-            clients.push_back(cl);
+            clients.push_back(cl.get());
         }
     }
     return clients;
@@ -435,26 +371,21 @@ int VRBClientList::getNextFreeClientID()
 
 void VRBClientList::setMaster(VRBSClient * client)
 {
-    for (auto cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        if (cl == client)
+        if (cl->sessionID() == client->sessionID())
         {
-            cl->setMaster(true);
-        }
-        else if (cl->getSession() == client->getSession())
-        {
-            cl->setMaster(false);
+            cl->setMaster(client->ID());
         }
     }
 }
 
 void VRBClientList::setInterval(float i)
 {
-    for (VRBSClient *cl : m_clients)
+    for (auto &cl : m_clients)
     {
         cl->setInterval(i);
     }
-
 }
 
 void VRBClientList::deleteAll()
@@ -467,24 +398,28 @@ void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, c
     Message m(stb);
     m.type = type;
 
-    for (VRBSClient *cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        if (group == vrb::SessionID(0, std::string(), false) || group == cl->getSession())
+        if (group == vrb::SessionID(0, std::string(), false) || group == cl->sessionID())
         {
             cl->sendMsg(&m);
         }
     }
 }
 
-void VRBClientList::sendMessageToID(TokenBuffer &stb, int ID, covise_msg_type type)
-{
-    Message m(stb);
+void VRBClientList::sendMessageToClient(VRBSClient* cl, TokenBuffer &tb, covise_msg_type type){
+    Message m(tb);
     m.type = type;
-    VRBSClient *cl = get(ID);
     if (cl)
     {
 		cl->sendMsg(&m);
     }
+}
+
+void VRBClientList::sendMessageToClient(int clientID, TokenBuffer &tb, covise_msg_type type)
+{
+    VRBSClient *cl = get(clientID);
+    sendMessageToClient(cl, tb, type);
 }
 
 void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_msg_type type)
@@ -492,7 +427,7 @@ void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_ms
     Message m(stb);
     m.type = type;
 
-    for (VRBSClient *cl : m_clients)
+    for (auto &cl : m_clients)
     {
 		cl->sendMsg(&m);
     }

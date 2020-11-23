@@ -28,7 +28,6 @@ class Message;
 
 
 #include <map>
-#include <set>
 #include <vrb/client/ClientRegistryClass.h>
 #include <vrb/client/SharedState.h>
 #include "ui/Owner.h"
@@ -77,7 +76,7 @@ public:
     static const char *getHostaddress();
     static std::string getUsername();
     int getID();
-    const vrb::SessionID &getPrivateSessionIDx() const;
+    const vrb::SessionID &getPrivateSessionID() const;
     const vrb::SessionID &getSessionID() const;
     const vrb::SessionID &getUsedSessionID() const;
 
@@ -113,9 +112,7 @@ public:
 	//called from coVRFileManager to make sure cover->filemenue is initialized
 	void initVrbFileMenu();
 private:
-    coVRCommunication();
     static coVRCommunication *s_instance;
-    coVRPartner *me = nullptr;
 
 	vrui::coNavInteraction* remoteNavInteraction = nullptr;;
     int randomID = 0;
@@ -128,10 +125,14 @@ private:
 	//covise plugin callbacks
 	std::function <std::vector<covise::Message*>(void)> waitMessagesCallback;
 	std::function<void(covise::Message*)> handleMessageCallback;
+    coVRCommunication();
 	//inform interested parties about connention to vrb or covise
 	void connected();
 	//inform interested parties about disconnection from vrb or covise
 	void disconnected();
+    void toggleClientState(bool state);
+    coVRPartner *me();
+    const coVRPartner *me() const;
 };
 }
 #endif

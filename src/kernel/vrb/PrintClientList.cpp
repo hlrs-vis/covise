@@ -23,7 +23,7 @@ template <typename Retval>
 size_t longestStringT(const std::vector<const RemoteClient *> &clients, const std::function<Retval(const RemoteClient *)> &func)
 {
     auto f = std::max_element(clients.begin(), clients.end(), [func](const RemoteClient *cl1, const RemoteClient *cl2) {
-        return getStringifiedSize(func(cl1)) > getStringifiedSize(func(cl2));
+        return getStringifiedSize(func(cl1)) < getStringifiedSize(func(cl2));
     });
     return getStringifiedSize(func(*f));
 }
@@ -32,7 +32,7 @@ template <>
 size_t longestStringT(const std::vector<const RemoteClient *> &clients, const std::function<std::string(const RemoteClient *)> &func)
 {
     auto f = std::max_element(clients.begin(), clients.end(), [func](const RemoteClient *cl1, const RemoteClient *cl2) {
-        return func(cl1).size() > func(cl2).size();
+        return func(cl1).size() < func(cl2).size();
     });
     return func(*f).size();
 }
@@ -48,21 +48,22 @@ std::string allignedString(const std::string &s, size_t space)
 void vrb::printClientInfo(const std::vector<const RemoteClient *> &clients)
 {
     size_t distance = 3;
-    std::array<const char *, 4> headings{"Name", "Email", "Hostname"};
-    std::array<std::function<std::string(const RemoteClient *)>, 3> functions;
-    functions[0] = &RemoteClient::getName;
-    functions[1] = &RemoteClient::getEmail;
-    functions[2] = &RemoteClient::getHostname;
+    std::array<const char *, 5> headings{"ID", "Name", "Email", "Hostname", "Master"};
+    
+    std::array<std::function<std::string(const RemoteClient *)>, headings.max_size()> functions;
+    functions[0] = [](const RemoteClient *cl) { return std::to_string(cl->ID());    };
+    functions[1] = [](const RemoteClient *cl) { return cl->userInfo().name ;        };
+    functions[2] = [](const RemoteClient *cl) { return cl->userInfo().email ;       };
+    functions[3] = [](const RemoteClient *cl) { return cl->userInfo().hostName ;    };
+    functions[4] = [](const RemoteClient *cl) { return cl->isMaster() ? "true" : "false" ;    };
 
-    std::array<size_t, 3> max;
+
+    std::array<size_t, headings.max_size()> max;
     for (size_t i = 0; i < functions.size(); i++)
     {
         max[i] = longestStringT(clients, functions[i]);
         max[i] = std::max(max[i], strlen(headings[i])) + distance;
     }
-    std::function<int(const RemoteClient *)> IDFunc = &RemoteClient::getID;
-    size_t maxID = longestStringT(clients, IDFunc) + distance;
-    std::cerr << allignedString("ID", maxID);
     for (size_t i = 0; i < functions.size(); i++)
     {
         std::cerr << allignedString(headings[i], max[i]);
@@ -70,7 +71,6 @@ void vrb::printClientInfo(const std::vector<const RemoteClient *> &clients)
     std::cerr << std::endl;
     for (const auto cl : clients)
     {
-        std::cerr << allignedString(std::to_string(cl->getID()), maxID);
         for (size_t i = 0; i < functions.size(); i++)
         {
             std::cerr << allignedString(functions[i](cl), max[i]);

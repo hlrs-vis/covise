@@ -412,7 +412,7 @@ bool coVRCollaboration::isMaster()
 
 void coVRCollaboration::updateSharedStates(bool force) {
     
-    vrb::SessionID privateSessionID = coVRCommunication::instance()->getPrivateSessionIDx();
+    vrb::SessionID privateSessionID = coVRCommunication::instance()->getPrivateSessionID();
     vrb::SessionID publicSessionID = coVRCommunication::instance()->getSessionID();
     bool muted = false;
     if (publicSessionID.isPrivate())

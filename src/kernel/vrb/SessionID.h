@@ -12,7 +12,10 @@
 
 #include <string>
 #include <util/coExport.h>
-
+#include <ostream>
+namespace covise{
+    class TokenBuffer;
+}
 namespace vrb {
 class VRBEXPORT SessionID {
 
@@ -24,41 +27,27 @@ public:
     std::string name() const;
     bool isPrivate()const ;
     int owner() const;
+    int master() const;
     void setOwner(int id) const;
     void setName(const std::string &name);
     void setPrivate(bool isPrivate);
-    bool operator ==(const SessionID &other) const;
+    void setMaster(int master) const;
+    bool operator==(const SessionID &other) const;
     bool operator !=(const SessionID &other) const;
     bool operator <(const SessionID &other) const;
     SessionID &operator=(const SessionID &other);
     SessionID &operator=(const int other) = delete;
-    std::string toText() const;
 private:
 	mutable int m_owner = 0;
-    std::string m_name;
+    mutable int m_master = 0;
     bool m_isPrivate = true;
+    std::string m_name;
 };
-template<typename Stream>
-Stream& operator<<(Stream& s, const vrb::SessionID& id) {
-    s << id.owner();
-    s << id.name();
-    s << id.isPrivate();
-    return s;
-}
-template<typename Stream>
-Stream& operator>>(Stream& s, vrb::SessionID& id) {
-    int owner;
-    std::string name;
-    bool isPrivate;
-    s >> owner;
-    s >> name;
-    s >> isPrivate;
-    id.setOwner(owner);
-    id.setName(name);
-    id.setPrivate(isPrivate);
-    return s;
-}
 
+VRBEXPORT std::ostream &operator<<(std::ostream &s, const vrb::SessionID &id);
+
+VRBEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &s, const vrb::SessionID &id);
+VRBEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &s, vrb::SessionID &id);
 }
 
 #endif // !SESSION_H

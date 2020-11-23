@@ -141,8 +141,8 @@ void module::start(char *parameter, Start::Flags flags)
     {
         if (strncmp(name + sl - 5, "COVER", 5) == 0 || strcmp(name, "VRRenderer") == 0)
         {
-            VRBClient vrbc("CRB");
-            if (vrbc.connectToServer() >= 0)
+            VRBClient vrbc(vrb::Program::Covise);
+            if (vrbc.connectToServer())
             {
                 if (vrbc.isCOVERRunning())
                 {

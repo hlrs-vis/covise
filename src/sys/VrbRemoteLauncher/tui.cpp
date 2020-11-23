@@ -11,7 +11,7 @@ using namespace vrb::launcher;
 Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
     : m_autostart(autostart)
 {
-    qRegisterMetaType<Program>();
+    qRegisterMetaType<vrb::Program>();
     qRegisterMetaType<std::vector<std::string>>();
 
     std::cerr << "connecting to VRB on " << credentials.ipAddress << ", TCP-Port: " << credentials.tcpPort << ", UDP-Port: " << credentials.udpPort << std::endl;
@@ -22,7 +22,7 @@ Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
         std::cerr << "disconnected!" << std::endl;
         m_launcher.connect();
     });
-    connect(&m_launcher, &VrbRemoteLauncher::launchSignal, this, [this](Program id, std::vector<std::string> args) {
+    connect(&m_launcher, &VrbRemoteLauncher::launchSignal, this, [this](vrb::Program id, std::vector<std::string> args) {
         std::lock_guard<std::mutex> g(m_mutex);
         m_program = id;
         m_args = args;
@@ -33,7 +33,7 @@ Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
         else
         {
             m_launchDialog = true;
-            std::cerr << "do you want to start " << programNames[id] << "?" << std::endl;
+            std::cerr << "do you want to start " << vrb::programNames[id] << "?" << std::endl;
         }
     });
     m_launcher.connect(credentials);
@@ -86,8 +86,8 @@ void Tui::createCommands()
                                                                            m_launcher.printClientInfo();
                                                                        }}));
 
-    for (int i = 0; i < static_cast<int>(Program::LAST_DUMMY); i++)
+    for (int i = 0; i < static_cast<int>(vrb::Program::LAST_DUMMY); i++)
     {
-        m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<Program>(i), m_launcher}));
+        m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<vrb::Program>(i), m_launcher}));
     }
 }

@@ -4,8 +4,7 @@
 #include "MessageTypes.h"
 #include "export.h"
 
-#include <vrb/client/RemoteClient.h>
-#include <vrb/SessionID.h>
+#include <vrb/ProgramType.h>
 #include <vrb/client/VrbCredentials.h>
 #include <vrb/client/VRBClient.h>
 
@@ -14,8 +13,10 @@
 #include <atomic>
 #include <functional>
 #include <mutex>
+#include <set>
 #include <thread>
 #include <vector>
+
 namespace covise
 {
     class VRBClient;
@@ -27,7 +28,6 @@ namespace launcher
     {
         Q_OBJECT
     public:
-        VrbRemoteLauncher();
         ~VrbRemoteLauncher();
         void connect(const vrb::VrbCredentials &credentials = vrb::VrbCredentials{});
         void disconnect();
@@ -35,7 +35,7 @@ namespace launcher
     public slots:
         void sendLaunchRequest(Program p, int lientID, const std::vector<std::string> &args = std::vector<std::string>{});
     signals:
-        void launchSignal(vrb::launcher::Program programID, std::vector<std::string> startOptions); //namespace must be explicitly stated for qRegisterMetaType
+        void launchSignal(vrb::Program programID, std::vector<std::string> startOptions); //namespace must be explicitly stated for qRegisterMetaType
         void connectedSignal();
         void disconnectedSignal();
         void updateClient(int clientID, QString clientInfo);
@@ -52,18 +52,15 @@ namespace launcher
         std::mutex m_mutex;
 
         vrb::SessionID m_sessionID;
-        vrb::RemoteClient m_me;
-        std::vector<std::unique_ptr<vrb::RemoteClient>> m_clientList; //default constructor is only for me
+        std::set<vrb::RemoteClient> m_clientList; 
         void loop();
         bool handleVRB();
         bool removeOtherClient(covise::TokenBuffer &tb);
-        bool setOtherClientInfo(covise::TokenBuffer &tb);
         void handleVrbLauncherMessage(covise::TokenBuffer &tb);
-        void setMyIDs(covise::TokenBuffer &tb);
-        std::vector<std::unique_ptr<vrb::RemoteClient>>::iterator findClient(int id);
+        std::set<vrb::RemoteClient>::iterator findClient(int id);
 
     };
-
+    REMOTELAUNCHER_EXPORT covise::Message createLaunchRequest(Program p, int clientID, const std::vector<std::string> &args = std::vector<std::string>{});
     QString getClientInfo(const vrb::RemoteClient &cl);
 
 } // namespace launcher

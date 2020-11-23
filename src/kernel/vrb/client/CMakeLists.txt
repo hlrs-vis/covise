@@ -5,8 +5,6 @@ ADD_DEFINITIONS(-DCOVISE_VRB)
 SET(VRBCLIENT_SOURCES
   ClientRegistryClass.cpp
   ClientRegistryVariable.cpp
-  PrintClientList.cpp
-  RemoteClient.cpp
   SharedState.cpp
   SharedStateManager.cpp
   VRBClient.cpp
@@ -18,8 +16,6 @@ SET(VRBCLIENT_SOURCES
 SET(VRBCLIENT_HEADERS
   ClientRegistryClass.h
   ClientRegistryVariable.h
-  PrintClientList.h
-  RemoteClient.h
   SharedMap.h
   SharedState.h
   SharedStateManager.h

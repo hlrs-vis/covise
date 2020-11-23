@@ -3,57 +3,68 @@
 #include <net/covise_host.h>
 #include <net/tokenbuffer.h>
 
+
 using namespace covise;
 using namespace vrb;
 
 
-VRBEXPORT covise::TokenBuffer &vrb::operator<<(covise::TokenBuffer &tb, const vrb::UserType &userType){
-    tb << static_cast<int>(userType);
-    return tb;
+
+namespace vrb{
+namespace detail{
+
+Program getUserType(covise::TokenBuffer& tb){
+    Program t;
+    tb >> t;
+    return t;
+}
+std::string getString(covise::TokenBuffer& tb){
+    std::string s;
+    tb >> s;
+    return s;
 }
 
-VRBEXPORT covise::TokenBuffer &vrb::operator>>(covise::TokenBuffer &tb, vrb::UserType &userType){
-    int type;
-    tb >> type;
-    userType = static_cast<UserType>(type);
-    return tb;
+} //detail
+
+} //vrb
+
+
+UserInfo::UserInfo(covise::TokenBuffer &tb)
+    : userType(detail::getUserType(tb))
+    , name(detail::getString(tb))
+    , ipAdress(detail::getString(tb))
+    , hostName(detail::getString(tb))
+    , email(detail::getString(tb))
+    , url(detail::getString(tb))
+{
 }
 
-VRBEXPORT std::ostream &vrb::operator<<(std::ostream &os, const vrb::UserType &userType){
-    os << UserTypeNames[static_cast<int>(userType)];
-    return os;
-}
-
-
-UserInfo::UserInfo(UserType type)
-: userType(type)
-    ,ipAdress(covise::Host::getHostaddress())
-    ,hostName(covise::Host::getHostname())
-    ,email(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
-    ,url(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise"))
+UserInfo::UserInfo(Program type)
+    : userType(type)
+    , name(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getHostname()))
+    , ipAdress(covise::Host::getHostaddress())
+    , hostName(covise::Host::getHostname())
+    , email(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
+    , url(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise"))
 {
 
 }
 
 TokenBuffer &vrb::operator<<(TokenBuffer &tb, const UserInfo &userInfo)
 {
-    tb << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url << userInfo.userType;
+    tb << userInfo.userType << userInfo.name << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url;
     return tb;
 }
 
-TokenBuffer &vrb::operator>>(TokenBuffer &tb, UserInfo &userInfo)
-{
-    tb >> userInfo.ipAdress >> userInfo.hostName >> userInfo.email >> userInfo.url >> userInfo.userType;
-    return tb;
-}
 
 std::ostream &vrb::operator<<(std::ostream &os, const UserInfo &userInfo)
 {
-    os << "userName: " << userInfo.ipAdress << std::endl;
+    os << "name:     " << userInfo.name << std::endl;
+    os << "ip:       " << userInfo.ipAdress << std::endl;
     os << "hostName: " << userInfo.hostName << std::endl;
     os << "email:    " << userInfo.email << std::endl;
     os << "url:      " << userInfo.url << std::endl;
     os << "type:     " << userInfo.userType << std::endl;
     return os;
 }
+
 

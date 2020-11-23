@@ -27,7 +27,7 @@ public:
         std::atomic_bool m_launchDialog{false};
         std::mutex m_mutex;
         std::vector<std::string> m_args;
-        vrb::launcher::Program m_program;
+        vrb::Program m_program;
         bool m_autostart = false;
         std::vector<std::unique_ptr<CommandInterface>> m_commands;
         void handleCommand(const std::string &command);

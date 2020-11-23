@@ -7,14 +7,16 @@
 #include <chrono>
 using namespace vrb;
 
-vrb::VrbSessionList::VrbSessionList()
+VrbSessionList::VrbSessionList()
 {
 	operator[](vrbSession);
 }
 
-VrbServerRegistry& vrb::VrbSessionList::operator[](const SessionID& id)
+
+VrbServerRegistry& VrbSessionList::operator[](const SessionID& id)
 {
 	auto it = find(id);
+	VrbServerRegistry t{ id };
 	if (it == end())
 	{
 		it = m_sessions.emplace(end(), VrbServerRegistry{ id });
@@ -22,12 +24,12 @@ VrbServerRegistry& vrb::VrbSessionList::operator[](const SessionID& id)
 	return *it;
 }
 
-const VrbServerRegistry& vrb::VrbSessionList::operator[](const SessionID& id) const
+const VrbServerRegistry& VrbSessionList::operator[](const SessionID& id) const
 {
 	return const_cast<VrbSessionList*>(this)->operator[](id);
 }
 
-VrbServerRegistry& vrb::VrbSessionList::forceCreateSession(const SessionID& id)
+VrbServerRegistry& VrbSessionList::forceCreateSession(const SessionID& id)
 {
 	int genericName = 0;
 	std::string name = id.name();
@@ -43,32 +45,16 @@ VrbServerRegistry& vrb::VrbSessionList::forceCreateSession(const SessionID& id)
 		newID.setName(name + std::to_string(genericName));
 
 	}
-	auto it = m_sessions.emplace(end(), VrbServerRegistry{ newID });
-	it->setOwner(id.owner());
-	return *it;
+	return *m_sessions.emplace(end(), VrbServerRegistry{ newID });
 }
 
-VrbServerRegistry& vrb::VrbSessionList::createSessionIfnotExists(const vrb::SessionID& sessionID, VRBSClient* cl)
-{
-	auto ses = find(sessionID);
-	if (ses == end())
-	{
-		if (cl && !sessionID.isPrivate())
-		{
-			cl->setSession(sessionID);
-		}
-		ses = m_sessions.emplace(end(), VrbServerRegistry{ sessionID });
-	}
-	return *ses;
-}
-
-void vrb::VrbSessionList::unobserveFromAll(int senderID, const std::string& className, const std::string& varName)
+void VrbSessionList::unobserveFromAll(int senderID, const std::string& className, const std::string& varName)
 {
 	for (auto& reg : m_sessions)
 		reg.unObserveVar(senderID, className, varName);
 }
 
-void vrb::VrbSessionList::unobserveSession(int observer, const SessionID& id)
+void VrbSessionList::unobserveSession(int observer, const SessionID& id)
 {
 	auto s = find(id);
 	if (s != end())
@@ -77,17 +63,7 @@ void vrb::VrbSessionList::unobserveSession(int observer, const SessionID& id)
 	}
 }
 
-int vrb::VrbSessionList::getSessionOwner(const SessionID& id) const
-{
-	auto s = find(id);
-	if (s != end())
-	{
-		return s->getOwner();
-	}
-	return id.owner();
-}
-
-bool vrb::VrbSessionList::serializeSessions(covise::TokenBuffer& tb)
+bool VrbSessionList::serializeSessions(covise::TokenBuffer& tb)
 {
 	auto ph = tb.addPlaceHolder<int>();
 	int size = 0;
@@ -103,42 +79,34 @@ bool vrb::VrbSessionList::serializeSessions(covise::TokenBuffer& tb)
 	return size > 0;
 }
 
-void vrb::VrbSessionList::disconectClientFromSessions(int clientID)
+void VrbSessionList::disconectClientFromSessions(int clientID)
 {
-	auto session = begin();
-	while (session != end())
+	auto registry = begin();
+	while (registry != end())
 	{
-		const auto& sid = session->sessionID();
+		auto& sid = registry->sessionID();
 		if (sid.owner() == clientID)
 		{
-			if (sid.isPrivate())
+			auto newOwner = clients.getNextInGroup(sid);
+			if (!newOwner)
 			{
-				session = m_sessions.erase(session);
+				registry = m_sessions.erase(registry); //detele session if there are no more clients in it
 			}
 			else
 			{
-				auto newOwner = clients.getNextInGroup(sid);
-
-				if (newOwner)
-				{
-					sid.setOwner(newOwner->getID());
-				}
-				else
-				{
-					session = m_sessions.erase(session); //detele session if there are no more clients in it
-				}
+				sid.setOwner(newOwner->ID());
+				sid.setMaster(newOwner->ID());
+				++registry;
 			}
 		}
 		else
 		{
-			++session;
+			++registry;
 		}
-
-
 	}
 }
 
-covise::TokenBuffer vrb::VrbSessionList::serializeSession(const SessionID& id) const
+covise::TokenBuffer VrbSessionList::serializeSession(const SessionID& id) const
 {
 	auto participants = getParticipants(id);
 	covise::TokenBuffer outData;
@@ -152,7 +120,8 @@ covise::TokenBuffer vrb::VrbSessionList::serializeSession(const SessionID& id) c
 	outData << (uint32_t)participants.size();
 	for (const auto& cl : participants)
 	{
-		outData << cl->getUserName();
+		outData << cl->userInfo().name;
+
 	}
 
 	for (const auto& cl : participants) {
@@ -163,7 +132,7 @@ covise::TokenBuffer vrb::VrbSessionList::serializeSession(const SessionID& id) c
 	return outData;
 }
 
-const VrbServerRegistry &vrb::VrbSessionList::deserializeSession(covise::TokenBuffer& tb, const SessionID& id)
+const VrbServerRegistry &VrbSessionList::deserializeSession(covise::TokenBuffer& tb, const SessionID& id)
 {
 	std::string time;
 	tb >> time;
@@ -194,44 +163,49 @@ const VrbServerRegistry &vrb::VrbSessionList::deserializeSession(covise::TokenBu
 	return registry;
 }
 
+void VrbSessionList::setMaster(const SessionID& sid) {
+	auto reg = find(sid);
+	reg->sessionID().setMaster(sid.master());
+	reg->sessionID().setOwner(sid.owner());
+}
 
 
-VrbSessionList::Const_Iter vrb::VrbSessionList::find(const SessionID& id) const
+VrbSessionList::Const_Iter VrbSessionList::find(const SessionID& id) const
 {
 	return std::find_if(begin(), end(), [id](const ValueType::value_type& registry) {return registry.sessionID() == id; });
 }
 
-VrbSessionList::Iter vrb::VrbSessionList::find(const SessionID& id) 
+VrbSessionList::Iter VrbSessionList::find(const SessionID& id) 
 {
 	return std::find_if(begin(), end(), [id](const ValueType::value_type& registry) {return registry.sessionID() == id; });
 }
 
-VrbSessionList::Const_Iter vrb::VrbSessionList::begin() const
+VrbSessionList::Const_Iter VrbSessionList::begin() const
 {
 	return m_sessions.begin();
 }
 
-VrbSessionList::Iter vrb::VrbSessionList::begin() 
+VrbSessionList::Iter VrbSessionList::begin() 
 {
 	return m_sessions.begin();
 }
 
-VrbSessionList::Const_Iter vrb::VrbSessionList::end() const
+VrbSessionList::Const_Iter VrbSessionList::end() const
 {
 	return m_sessions.end();
 }
 
-VrbSessionList::Iter vrb::VrbSessionList::end() 
+VrbSessionList::Iter VrbSessionList::end() 
 {
 	return m_sessions.end();
 }
 
-std::vector<VRBSClient*> vrb::VrbSessionList::getParticipants(const SessionID& id) const
+std::vector<VRBSClient*> VrbSessionList::getParticipants(const SessionID& id) const
 {
 	std::vector<VRBSClient*> participants;
 	for (size_t i = 0; i < clients.numberOfClients(); i++)
 	{
-		if (clients.getNthClient(i)->getSession() == id)
+		if (clients.getNthClient(i)->sessionID() == id)
 		{
 			participants.push_back(clients.getNthClient(i));
 		}
@@ -239,7 +213,7 @@ std::vector<VRBSClient*> vrb::VrbSessionList::getParticipants(const SessionID& i
 	return participants;
 }
 
-std::string vrb::VrbSessionList::getCurrentTime() const
+std::string VrbSessionList::getCurrentTime() const
 {
 	time_t rawtime;
 	time(&rawtime);

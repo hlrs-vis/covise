@@ -200,16 +200,20 @@ void VRBServer::processMessages()
                 QObject::connect(sn, SIGNAL(activated(int)),
                     this, SLOT(processMessages()));
 
-                VrbUiClient *cl = new VrbUiClient(clientConn, udpConn, sn);
-                handler->addClient(cl);
-                std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
+                UiConnectionDetails::ptr cd = UiConnectionDetails::ptr{new UiConnectionDetails{}};
+                cd->tcpConn.reset(clientConn);
+                cd->udpConn = udpConn;
+                cd->notifier.reset(sn);
+                handler->addClient(std::move(cd));
             }
 			else
 			{
-				VRBSClient* cl = new VRBSClient(clientConn, udpConn, "localhost", "NONE", false);
-				handler->addClient(cl);
-				std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
+                vrb::ConnectionDetails::ptr cd = vrb::ConnectionDetails::ptr{new vrb::ConnectionDetails{}};
+                cd->tcpConn.reset(clientConn);
+                cd->udpConn = udpConn;
+                handler->addClient(std::move(cd));
 			}
+            std::cerr << "VRB new client request" << std::endl;
             connections->add(clientConn); //add new connection;
         }
         else

@@ -13,7 +13,7 @@
 #include <QtNetwork/qhostinfo.h>
 #include <QSocketNotifier>
 #include <QTreeWidget>
-
+#include <sstream>
 #include "gui/VRBapplication.h"
 #include "gui/icons/lock.xpm"
 #include "gui/icons/unlock.xpm"
@@ -25,27 +25,34 @@ VrbUiClientList uiClients;
 QPixmap *VrbUiClient::pix_master;
 QPixmap *VrbUiClient::pix_slave;
 
-VrbUiClient::VrbUiClient(Connection *c, UDPConnection* udpc, const char *ip, const char *n, bool send)
-    :VRBSClient(c, udpc, ip, n, false)
+VrbUiClient::VrbUiClient(Connection *c, UDPConnection* udpc, QSocketNotifier *sn, covise::TokenBuffer& tb)
+    : VRBSClient(c, udpc, tb)
+    , socketNotifier(sn)
 {
-    if (pix_master == NULL)
+    if (pix_master == nullptr)
     {
         pix_master = new QPixmap(unlockIcon);
         pix_slave = new QPixmap(lockIcon);
     }
-    socketNotifier = NULL;
-    myItem = NULL;
+    myItem = nullptr;
     for (int j = 0; j < 4; j++)
     {
-        myCurves[j] = NULL;
-        myLabels[j * 2] = NULL;
-        myLabels[j * 2 + 1] = NULL;
+        myCurves[j] = nullptr;
+        myLabels[j * 2] = nullptr;
+        myLabels[j * 2 + 1] = nullptr;
     }
-}
-VrbUiClient::VrbUiClient(Connection *c, UDPConnection* udpc, QSocketNotifier *sn)
-    :VrbUiClient(c, udpc, "localhost", "NONE", false)
-{
-    socketNotifier = sn;
+
+    myItem = new QTreeWidgetItem(appwin->table);
+    myItem->setText(vrb::Columns::ID, QString::number(ID()));
+    myItem->setText(IP, userInfo().ipAdress.c_str());
+    setMaster(isMaster());
+
+    myItem->setText(vrb::Columns::Host, userInfo().hostName.c_str());
+    myItem->setText(User, userInfo().ipAdress.c_str());
+    myItem->setText(Email, userInfo().email.c_str());
+    myItem->setText(URL, userInfo().url.c_str());
+
+    appwin->createCurves(this);
 }
 
 VrbUiClient::~VrbUiClient()
@@ -55,46 +62,28 @@ VrbUiClient::~VrbUiClient()
     appwin->removeCurves(this);
 }
 
-
-void VrbUiClient::setContactInfo(const char * ip, const char * n, SessionID & session)
+void VrbUiClient::setMaster(int clientID)
 {
-    VRBSClient::setContactInfo(ip, n, session);
-
-    char num[100];
-    myItem = new QTreeWidgetItem(appwin->table);
-    sprintf(num, "%d", myID);
-    myItem->setText(ID, num);
-    myItem->setText(IP, ip);
-    setMaster(m_master);
-}
-void VrbUiClient::setMaster(bool m)
-{
-    VRBSClient::setMaster(m);
+    VRBSClient::setMaster(clientID);
     if (myItem)
     {
-        if (m)
+        if (isMaster())
             myItem->setIcon(Master, QIcon(*pix_master));
         else
             myItem->setIcon(Master, QIcon(*pix_slave));
     }
+    std::stringstream ss;
+    ss << sessionID();
+    myItem->setText(Group, ss.str().c_str());
 }
 void VrbUiClient::setSession(const SessionID &id)
 {
     VRBSClient::setSession(id);
-    myItem->setText(Group, id.toText().c_str());
+    std::stringstream ss;
+    ss << id;
+    myItem->setText(Group, ss.str().c_str());
 }
 
-void VrbUiClient::setUserInfo(const UserInfo &ui)
-{
-    VRBSClient::setUserInfo(ui);
-    myItem->setText(Host, ui.hostName.c_str());
-    myItem->setText(User, ui.ipAdress.c_str());
-    myItem->setText(Email, ui.email.c_str());
-    myItem->setText(URL, ui.url.c_str());
-
-
-    appwin->createCurves(this);
-}
 
 QSocketNotifier * VrbUiClient::getSN()
 {
@@ -103,13 +92,13 @@ QSocketNotifier * VrbUiClient::getSN()
 ///////////////////////////////////////////////////////////////
 VrbUiClient * VrbUiClientList::get(QSocketNotifier * sn)
 {
-    for (VRBSClient *cl : m_clients)
+    for (auto &cl : m_clients)
     {
-        VrbUiClient *uicl = static_cast<VrbUiClient *>(cl);
+        VrbUiClient *uicl = dynamic_cast<VrbUiClient *>(cl.get());
         if (uicl->getSN() == sn)
         {
             return uicl;
         }
     }
-    return NULL;
+    return nullptr;
 }

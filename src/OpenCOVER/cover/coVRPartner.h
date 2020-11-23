@@ -8,24 +8,13 @@
 #ifndef CO_VR_PARTNER_H
 #define CO_VR_PARTNER_H
 
-/*! \file
- \brief  a partner in a collaborative session
-
- \author Uwe Woessner <woessner@hlrs.de>
- \author (C) 2001
-         Computer Centre University of Stuttgart,
-         Allmandring 30,
-         D-70550 Stuttgart,
-         Germany
-
- \date   July 2001
- */
-
-#include <util/coTypes.h>
-#include <util/DLinkList.h>
 #include "ui/Owner.h"
-#include <set>
-#include <vrb/client/RemoteClient.h>
+
+#include <util/DLinkList.h>
+#include <util/coTypes.h>
+#include <vrb/RemoteClient.h>
+
+#include <vector>
 namespace covise
 {
 class TokenBuffer;
@@ -50,8 +39,11 @@ private:
     VRAvatar *m_avatar = nullptr;
 
 public:
-    coVRPartner *changeID(int id);
-    void setMaster(bool m) override;
+    coVRPartner();
+    coVRPartner(RemoteClient &&me);
+
+    void changeID(int id);
+    void setMaster(int clientID) override;
     void updateUi();
 
     void becomeMaster();
@@ -59,30 +51,27 @@ public:
     void setFile(const char *fileName);
     VRAvatar *getAvatar();
     void setAvatar(VRAvatar *avatar);
-    coVRPartner();
-    coVRPartner(int id);
 
     virtual ~coVRPartner();
-    void sendHello();
 };
 
-class COVEREXPORT coVRPartnerList: public ui::Owner //, public covise::DLinkList<coVRPartner *>
+class COVEREXPORT coVRPartnerList: public ui::Owner 
 {
-    static coVRPartnerList *s_instance;
-    coVRPartnerList();
-    ui::ButtonGroup *m_group = nullptr;
-    std::map<int, coVRPartner *> partners;
+
 public:
+    typedef std::vector<std::unique_ptr<coVRPartner>> ValueType;
+    coVRPartnerList(coVRPartnerList& other) = delete;
+    coVRPartnerList& operator=(coVRPartnerList& other) = delete;
+    coVRPartnerList(coVRPartnerList&& other) = default;
+    coVRPartnerList& operator=(coVRPartnerList && other) = delete;
     ~coVRPartnerList();
     coVRPartner *get(int ID);
-    coVRPartner *getFirstPartner();
-    void addPartner(coVRPartner *p);
-    void deletePartner(int id);
-    coVRPartner *changePartnerID(int oldID, int newID);
-    void deleteOthers();
+    coVRPartner *me();
+    void addPartner(vrb::RemoteClient &&p);
+    void removePartner(int id);
+    void removeOthers();
     int numberOfPartners() const;
     void setMaster(int id);
-    coVRPartner *getMaster();
     void setSessionID(int partner, const vrb::SessionID & id);
     void sendAvatarMessage();
     void receiveAvatarMessage(covise::TokenBuffer &tb);
@@ -92,9 +81,16 @@ public:
     void print();
     ui::ButtonGroup *group();
     static coVRPartnerList *instance();
+    ValueType::const_iterator begin() const;
+    ValueType::const_iterator end() const;
 
 private:
+    static coVRPartnerList *s_instance;
+    ui::ButtonGroup *m_group = nullptr;
+    ValueType partners;
     bool m_avatarsVisible;
+    coVRPartnerList();
+    ValueType::iterator find(int id);
 };
 }
 #endif

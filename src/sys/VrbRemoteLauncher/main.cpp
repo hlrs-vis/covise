@@ -33,7 +33,6 @@ vrb::VrbCredentials readCredentials(const po::variables_map &vm)
 
 int main(int argc, char **argv)
 {
-
         po::options_description desc("usage");
         desc.add_options()("help", "show this message")("host,h", po::value<std::string>(), "VRB address")("port,p", po::value<unsigned int>(), "VRB tcp port")("udp,u", po::value<unsigned int>(), "VRB udp port")("tui, t", "start command line interface")("autostart, a", "launch programs without asking for permission");
         ;
@@ -68,7 +67,7 @@ int main(int argc, char **argv)
         if (!vm.count("tui"))
         {
                 MainWindow mw{readCredentials(vm)};
-                mw.setWindowTitle("VRB");
+                mw.setWindowTitle("VrbRemoteLauncher");
                 mw.show();
                 return a.exec();
         }

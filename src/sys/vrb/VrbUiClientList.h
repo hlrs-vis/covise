@@ -25,17 +25,12 @@ class UDPConnection;
 class VrbUiClient : public vrb::VRBSClient
 {
 public: 
-    VrbUiClient(covise::Connection *c, covise::UDPConnection* udpc, const char *ip, const char *n, bool send = true);
-    VrbUiClient(covise::Connection *c, covise::UDPConnection*udpc, QSocketNotifier *sn);
+    VrbUiClient(covise::Connection *c, covise::UDPConnection* udpc, QSocketNotifier *sn, covise::TokenBuffer &tb);
     ~VrbUiClient();
 
-    void setContactInfo(const char *ip, const char *n, vrb::SessionID &session) override;
-
-    void setMaster(bool m) override;
+    void setMaster(int clientID) override;
 
     void setSession(const vrb::SessionID & id) override;
-
-    void setUserInfo(const vrb::UserInfo& userInfo) override;
 
     QSocketNotifier *getSN();
 
