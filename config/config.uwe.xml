@@ -18,6 +18,7 @@
   <System>
    <VRB>
     <Server value="viscluster80.hlrs.de" tcpPort="31252" udpPort="51000"/>
+	<RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
    </VRB>
    
 
