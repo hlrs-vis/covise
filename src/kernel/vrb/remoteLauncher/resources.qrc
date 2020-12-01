@@ -1,7 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>images/menu.png</file>
-    <file>images/redCircle.png</file>
-    <file>images/greenCircle.png</file>
-</qresource>
-</RCC>

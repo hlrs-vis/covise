@@ -12,7 +12,6 @@
 #include "ui/Owner.h"
 
 #include <vrb/SessionID.h>
-#include <vrb/remoteLauncher/VrbRemoteLauncher.h>
 
 #include <string>
 #include <vector>

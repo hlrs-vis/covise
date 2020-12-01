@@ -1,12 +1,9 @@
 #include "tui.h"
-
-#include <vrb/remoteLauncher/VrbRemoteLauncher.h>
-#include <vrb/remoteLauncher/MessageTypes.h>
+#include "vrbRemoteLauncher.h"
 
 #include <QApplication>
 
 #include <iostream>
-using namespace vrb::launcher;
 
 Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
     : m_autostart(autostart)

@@ -15,6 +15,8 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
     
 SET(REMOTE_LAUNCHER_SOURCES
+  clientWidget.cpp
+  vrbRemoteLauncher.cpp
   main.cpp
   mainWindow.cpp
   tui.cpp
@@ -22,9 +24,12 @@ SET(REMOTE_LAUNCHER_SOURCES
 )
 
 SET(REMOTE_LAUNCHER_HEADER
+  clientWidget.h
   mainWindow.h
+  metaTypes.h
   tui.h
   tuiCommands.h
+  vrbRemoteLauncher.h
 )
 
 SET(VRB_MOC_SRCS
@@ -38,7 +43,8 @@ target_link_libraries(VrbRemoteLauncher
                        Qt5::Core
                        Qt5::Gui
                        Qt5::Widgets
-                       coVRBRemoteLauncher
+                       coUtil
+                       coVRBClient
                        ) 
 
 COVISE_INSTALL_TARGET(VrbRemoteLauncher)

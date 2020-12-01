@@ -1,28 +1,28 @@
-#include "VrbRemoteLauncher.h"
-#include "MessageTypes.h"
+#include "vrbRemoteLauncher.h"
 
+#include <config/CoviseConfig.h>
+#include <net/covise_host.h>
 #include <net/message.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
-#include <net/tokenbuffer_util.h>
-#include <vrb/SessionID.h>
-#include <vrb/ProgramType.h>
-#include <vrb/PrintClientList.h>
-#include <vrb/VrbSetUserInfoMessage.h>
-
-#include <chrono>
-#include <thread>
-
-#include <cassert>
-#include <cmath>
-#include <config/CoviseConfig.h>
-#include <net/covise_host.h>
 #include <net/tokenbuffer_serializer.h>
+#include <net/tokenbuffer_util.h>
+#include <util/coSpawnProgram.h>
+#include <vrb/PrintClientList.h>
+#include <vrb/ProgramType.h>
+#include <vrb/SessionID.h>
+#include <vrb/VrbSetUserInfoMessage.h>
+#include <vrb/client/LaunchRequest.h>
+
 #include <QTextStream>
+#include <cassert>
+#include <chrono>
+#include <cmath>
 #include <sstream>
 #include <string>
+#include <thread>
 
-using namespace vrb::launcher;
+using namespace vrb;
 
 VrbRemoteLauncher::~VrbRemoteLauncher()
 {
@@ -46,7 +46,7 @@ void VrbRemoteLauncher::connect(const vrb::VrbCredentials &credentials)
     if (!m_thread)
     {
         m_thread.reset(new std::thread([this]() { 
-            qRegisterMetaType<Program>();
+            qRegisterMetaType<vrb::Program>();
             qRegisterMetaType<std::vector<std::string>>();
 
             loop(); }));
@@ -85,7 +85,10 @@ void VrbRemoteLauncher::printClientInfo()
 
 void VrbRemoteLauncher::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
-    auto msg = createLaunchRequest(p, clientID, args);
+    covise::TokenBuffer tb;
+    tb << vrb::LaunchRequest{p, clientID, args};
+    covise::Message msg{tb};
+    msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
     m_client->sendMessage(&msg);
 }
 
@@ -136,15 +139,15 @@ bool VrbRemoteLauncher::handleVRB()
     break;
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
-        
+
         UserInfoMessage uim(&msg);
-        if (uim.hasMyInfo)      
+        if (uim.hasMyInfo)
         {
-                m_client->setID(uim.myClientID);
-                m_client->setSession(uim.mySession);
-                emit connectedSignal();
+            m_client->setID(uim.myClientID);
+            m_client->setSession(uim.mySession);
+            emit connectedSignal();
         }
-        for(auto& cl : uim.otherClients)
+        for (auto &cl : uim.otherClients)
         {
             assert(findClient(cl.ID()) == m_clientList.end());
             if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
@@ -185,7 +188,6 @@ bool VrbRemoteLauncher::handleVRB()
     return true;
 }
 
-
 bool VrbRemoteLauncher::removeOtherClient(covise::TokenBuffer &tb)
 {
     int id;
@@ -206,8 +208,6 @@ bool VrbRemoteLauncher::removeOtherClient(covise::TokenBuffer &tb)
     return false;
 }
 
-
-
 std::set<vrb::RemoteClient>::iterator VrbRemoteLauncher::findClient(int id)
 {
     return std::find_if(m_clientList.begin(), m_clientList.end(), [id](const vrb::RemoteClient &client) {
@@ -217,49 +217,23 @@ std::set<vrb::RemoteClient>::iterator VrbRemoteLauncher::findClient(int id)
 
 void VrbRemoteLauncher::handleVrbLauncherMessage(covise::TokenBuffer &tb)
 {
-    LaunchType t;
-    tb >> t;
-    switch (t)
+    vrb::LaunchRequest lrq{tb};
+    if (lrq.clientID == m_client->ID())
     {
-    case LaunchType::LAUNCH:
-    {
-        int clientID;
-        tb >> clientID;
-        if (clientID == m_client->ID())
-        {
-            Program p;
-            tb >> p;
-            std::vector<std::string> launchOptions;
-            covise::deserialize(tb, launchOptions);
-            emit launchSignal(p, launchOptions);
-        }
-    }
-    break;
-    case LaunchType::TERMINATE:
-    {
-    }
-    break;
-    default:
-        break;
+        emit launchSignal(lrq.program, lrq.args);
     }
 }
 
-covise::Message vrb::launcher::createLaunchRequest(Program p, int clientID, const std::vector<std::string> &args){
-    covise::TokenBuffer tb;
-    tb << LaunchType::LAUNCH;
-    tb << clientID;
-    tb << p;
-    covise::serialize(tb, args);
-    covise::Message msg(tb);
-    msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
-    return msg;
-}
-
-QString vrb::launcher::getClientInfo(const vrb::RemoteClient &cl)
+QString getClientInfo(const vrb::RemoteClient &cl)
 {
     QString s;
     QTextStream ss(&s);
     //ss << "email: " << cl.getEmail().c_str() << ", host: " << cl.getHostname().c_str();
     ss << cl.userInfo().hostName.c_str();
     return s;
+}
+
+void spawnProgram(Program p, const std::vector<std::string> &args)
+{
+    covise::spawnProgram(programNames[p], args);
 }

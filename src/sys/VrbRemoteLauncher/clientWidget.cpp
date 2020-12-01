@@ -1,5 +1,4 @@
-#include "ClientWidget.h"
-#include "MessageTypes.h"
+#include "clientWidget.h"
 
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -8,7 +7,7 @@
 
 #include <iostream>
 
-using namespace vrb::launcher;
+using namespace vrb;
 
 ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *parent)
     : QWidget(parent), m_clientID(clientID)

@@ -1,7 +1,7 @@
 #ifndef MainWindow_H
 #define MainWindow_H
 
-#include <vrb/remoteLauncher/VrbRemoteLauncher.h>
+#include "vrbRemoteLauncher.h"
 
 #include <QMainWindow>
 
@@ -11,12 +11,7 @@ namespace Ui
 {
     class MainWindow;
 }
-namespace vrb{
-namespace launcher
-{
 class ClientWidgetList;
-}
-}
 class QStackedWidget;
 
 class MainWindow : public QMainWindow
@@ -49,8 +44,8 @@ private:
     std::mutex m_mutex;
     std::atomic_bool m_isConnecting{false};
     std::future<void> m_waitFuture;
-    vrb::launcher::ClientWidgetList *m_clientList;
-    vrb::launcher::VrbRemoteLauncher m_remoteLauncher;
+    ClientWidgetList *m_clientList;
+    VrbRemoteLauncher m_remoteLauncher;
     void setRemoteLauncherCallbacks();
     void showConnectionProgressBar(int seconds);
     void dumpOptions();

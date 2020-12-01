@@ -1,9 +1,6 @@
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
-
-#include <vrb/remoteLauncher/ClientWidget.h>
-#include <vrb/remoteLauncher/MessageTypes.h>
-#include <vrb/remoteLauncher/SpawnProgram.h>
+#include "clientWidget.h"
 
 #include <QMessageBox>
 #include <QTextStream>
@@ -15,7 +12,7 @@
 #include <csignal>
 #include <cassert>
 
-using namespace vrb::launcher;
+using namespace vrb;
 
 MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
@@ -206,7 +203,7 @@ void MainWindow::launchProgram(vrb::Program programID, const std::vector<std::st
 	if (execute)
 	{
 		std::cerr << "launching " << vrb::programNames[programID] << std::endl;
-		spawnProgram(vrb::programNames[programID], args);
+		spawnProgram(programID, args);
 	}
 }
 

@@ -22,9 +22,9 @@
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
 #include <vrb/SessionID.h>
+#include <vrb/client/LaunchRequest.h>
 #include <vrb/client/SharedState.h>
 #include <vrb/client/VRBClient.h>
-#include <vrb/remoteLauncher/MessageTypes.h>
 
 #include <cassert>
 #include <sstream>
@@ -83,10 +83,11 @@ namespace opencover
                 args.push_back("-g");
                 args.push_back(coVRCommunication::instance()->getSessionID().name());
             }
-            auto msg = vrb::launcher::createLaunchRequest(vrb::Program::Cover, getRemoteLauncherClientID(index), args);
-            TokenBuffer tb;
-            tb << vrb::Program::VrbRemoteLauncher << msg.type << msg.data;
-            cover->getSender()->sendMessage(tb, COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
+            covise::Message msg;
+            TokenBuffer outerTb, innerTb;
+            innerTb << vrb::LaunchRequest{vrb::Program::Cover, getRemoteLauncherClientID(index), args};
+            outerTb << vrb::Program::VrbRemoteLauncher << COVISE_MESSAGE_VRB_MESSAGE << innerTb;
+            cover->getSender()->sendMessage(outerTb, COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
             });
 
         //save and load sessions

@@ -1,8 +1,7 @@
 #ifndef VRB_REMOTE_LAUNCHER_TUI_COMMMANDS_H
 #define VRB_REMOTE_LAUNCHER_TUI_COMMMANDS_H
 
-#include <vrb/remoteLauncher/MessageTypes.h>
-#include <vrb/remoteLauncher/VrbRemoteLauncher.h>
+#include "vrbRemoteLauncher.h"
 
 #include <vector>
 #include <string>
@@ -34,13 +33,13 @@ private:
 
 struct LaunchCommand : CommandInterface{
 
-    LaunchCommand(vrb::Program program, vrb::launcher::VrbRemoteLauncher &launcher);
+    LaunchCommand(vrb::Program program, VrbRemoteLauncher &launcher);
     void print() const override;
 
     void execute(const std::string &command) override;
     private:
         vrb::Program m_program;
-        vrb::launcher::VrbRemoteLauncher &m_launcher;
+        VrbRemoteLauncher &m_launcher;
 };
 
 #endif // !VRB_REMOTE_LAUNCHER_TUI_COMMMANDS_H

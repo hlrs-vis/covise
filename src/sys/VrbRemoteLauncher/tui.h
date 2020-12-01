@@ -1,9 +1,11 @@
 #ifndef VRB_REMOTE_LAUNCHER_TUI_H
 #define VRB_REMOTE_LAUNCHER_TUI_H
 
+#include "metaTypes.h"
+#include "tuiCommands.h"
+#include "vrbRemoteLauncher.h"
+
 #include <vrb/client/VrbCredentials.h>
-#include <vrb/remoteLauncher/VrbRemoteLauncher.h>
-#include <vrb/remoteLauncher/SpawnProgram.h>
 
 #include <QObject>
 #include <QMainWindow>
@@ -11,7 +13,6 @@
 #include <string>
 #include <atomic>
 #include <mutex>
-#include "tuiCommands.h"
 #include <memory>
 
 class Tui : public QMainWindow
@@ -22,7 +23,7 @@ public:
     void run();
     
     private:
-        vrb::launcher::VrbRemoteLauncher m_launcher;
+        VrbRemoteLauncher m_launcher;
         std::atomic_bool m_terminate{false};
         std::atomic_bool m_launchDialog{false};
         std::mutex m_mutex;

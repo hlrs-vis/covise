@@ -1,7 +1,7 @@
 #include "tuiCommands.h"
 #include <iostream>
 
-using namespace vrb::launcher;
+using namespace vrb;
 Command::Command(const std::vector<std::string> &conditions, const std::string &toolTip, std::function<void(void)> function)
     : m_conditions(conditions), m_toolTip(toolTip), m_function(function) {}
 
@@ -56,7 +56,7 @@ void LaunchCommand::execute(const std::string &command)
         }
         catch (const std::exception &e)
         {
-            std::cerr << "Command requiers int after " << vrb::programNames[m_program] << ", " << command.substr(strlen(vrb::programNames[m_program]) + 1) << "found:" << e.what() << '\n';
+            std::cerr << "Command requiers int after " << programNames[m_program] << ", " << command.substr(strlen(vrb::programNames[m_program]) + 1) << "found:" << e.what() << '\n';
             return;
         }
         m_launcher.sendLaunchRequest(m_program, clID, args);

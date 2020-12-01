@@ -25,39 +25,36 @@ IF(APPLE)
 ENDIF(APPLE)
 
 SET(UTIL_SOURCES
-  covise_regexp.cpp
-  covise_version.cpp
-  coMatrix.cpp
-  coSignal.cpp
-  coStringTable.cpp
-  coTimer.cpp
-  Triangulator.cpp
-  coLog.cpp
-  string_util.cpp
   ChoiceList.cpp
-  coVector.cpp
-  UDP_Sender.cpp
   SerialCom.cpp
-  coRestraint.cpp
+  Triangulator.cpp
+  UDP_Sender.cpp
   coErr.cpp
   coFileUtil.cpp
-  coObjID.cpp
-  coWristWatch.cpp
-  environment.cpp
+  coLog.cpp
   coMaterial.cpp
+  coMatrix.cpp
+  coObjID.cpp
+  coRestraint.cpp
+  coSignal.cpp
+  coSpawnProgram.cpp
+  coStringTable.cpp
+  coTimer.cpp
+  coVector.cpp
+  coWristWatch.cpp
+  covise_regexp.cpp
+  covise_version.cpp
+  environment.cpp
+  string_util.cpp
 )
 
 SET(UTIL_HEADERS
-  covise_regexp.h
-  covise_version.h
-  coSignal.h
-  coStringTable.h
-  coTimer.h
-  coIdent.h
-  coMatrix.h
-  Triangulator.h
-  coLog.h
   ChoiceList.h
+  DLinkList.h
+  SerialCom.h
+  Triangulator.h
+  UDP_Sender.h
+  XGetopt.h
   byteswap.h
   coErr.h
   coExport.h
@@ -65,26 +62,31 @@ SET(UTIL_HEADERS
   coHash.h
   coHashBase.h
   coHashIter.h
+  coIdent.h
   coIntHash.h
   coIntMultiHash.h
-  common.h
+  coLog.h
+  coMaterial.h
+  coMatrix.h
   coMultiHash.h
   coMultiHashBase.h
   coObjID.h
   coRestraint.h
+  coSignal.h
+  coSpawnProgram.h
+  coStringTable.h
   coTabletUIMessages.h
+  coTimer.h
   coTypes.h
   coVector.h
-  coviseCompat.h
-  DLinkList.h
-  unixcompat.h
-  XGetopt.h
-  UDP_Sender.h
-  SerialCom.h
   coWristWatch.h
+  common.h
+  coviseCompat.h
   covise_list.h
+  covise_regexp.h
+  covise_version.h
   environment.h
-  coMaterial.h
+  unixcompat.h
 )
 
 SET(SYSDEP_HEADERS
