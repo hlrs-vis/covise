@@ -1,6 +1,9 @@
 #include "LaunchRequest.h"
+#include <net/message.h>
+#include <net/message_types.h>
 #include <net/tokenbuffer.h>
 #include <net/tokenbuffer_serializer.h>
+#include <vrb/VrbMessageSenderInterface.h>
 
 using namespace vrb;
 
@@ -35,4 +38,11 @@ covise::TokenBuffer &vrb::operator<<(covise::TokenBuffer &tb, const LaunchReques
     tb << launchRequest.program << launchRequest.clientID;
     serialize(tb, launchRequest.args);
     return tb;
+}
+bool vrb::sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, VrbMessageSenderInterface *sender){
+    covise::Message msg;
+    covise::TokenBuffer outerTb, innerTb;
+    innerTb << lrq;
+    outerTb << vrb::Program::VrbRemoteLauncher << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
+    return sender->send(outerTb, covise::COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
 }

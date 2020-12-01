@@ -13,18 +13,19 @@ namespace covise{
 }
 
 namespace vrb{
-struct VRBCLIENTEXPORT LaunchRequest{
+class VrbMessageSenderInterface;
+struct VRBCLIENTEXPORT LaunchRequest
+{
     const Program program;
     const int clientID;
     const std::vector<std::string> args;
 
     LaunchRequest(covise::TokenBuffer &tb);
     LaunchRequest(Program p, int clID, const std::vector<std::string> &args);
-
 };
 
 VRBCLIENTEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const LaunchRequest &launchRequest);
-
+VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, VrbMessageSenderInterface *sender);
 } // namespace vrb
 
 #endif // !VRB_CLIENT_LAUNCH_REQUEST_H

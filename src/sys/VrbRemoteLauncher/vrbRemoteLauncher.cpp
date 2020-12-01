@@ -85,12 +85,7 @@ void VrbRemoteLauncher::printClientInfo()
 
 void VrbRemoteLauncher::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
-    covise::TokenBuffer outerTb, innerTb;
-    outerTb << vrb::LaunchRequest{p, clientID, args};
-    outerTb << vrb::Program::VrbRemoteLauncher << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
-    covise::Message msg{outerTb};
-    msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
-    m_client->send(outerTb, 0);
+    vrb::sendLaunchRequestToRemoteLaunchers(vrb::LaunchRequest{p, clientID, args}, m_client.get());
 }
 
 void VrbRemoteLauncher::loop()

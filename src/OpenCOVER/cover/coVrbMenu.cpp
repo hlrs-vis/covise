@@ -83,11 +83,7 @@ namespace opencover
                 args.push_back("-g");
                 args.push_back(coVRCommunication::instance()->getSessionID().name());
             }
-            covise::Message msg;
-            TokenBuffer outerTb, innerTb;
-            innerTb << vrb::LaunchRequest{vrb::Program::Cover, getRemoteLauncherClientID(index), args};
-            outerTb << vrb::Program::VrbRemoteLauncher << COVISE_MESSAGE_VRB_MESSAGE << innerTb;
-            cover->send(outerTb, COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
+            vrb::sendLaunchRequestToRemoteLaunchers(vrb::LaunchRequest{vrb::Program::Cover, getRemoteLauncherClientID(index), args}, cover);
             });
 
         //save and load sessions
@@ -119,7 +115,6 @@ namespace opencover
         m_sessionsSl->setEnabled(state);
         m_saveSession->setEnabled(state);
         m_loadSession->setEnabled(state);
-        std::cerr << "VrbMenu: updateState (" << (state ? "true" : "false") << ")" << std::endl;
     }
     //io functions : private
     void VrbMenu::saveSession(const std::string &file)

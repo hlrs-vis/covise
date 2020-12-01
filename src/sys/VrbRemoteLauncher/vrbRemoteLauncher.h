@@ -55,7 +55,6 @@ private:
     void handleVrbLauncherMessage(covise::TokenBuffer &tb);
     std::set<vrb::RemoteClient>::iterator findClient(int id);
 };
-covise::Message createLaunchRequest(vrb::Program p, int clientID, const std::vector<std::string> &args = std::vector<std::string>{});
 QString getClientInfo(const vrb::RemoteClient &cl);
 void spawnProgram(vrb::Program p, const std::vector<std::string> &args);
 
