@@ -48,7 +48,8 @@ namespace opencover
     void VrbMenu::initFileMenu()
     {
         //session management
-        m_sessionGroup = new ui::Group("sessisonGroup", this);
+        m_sessionGroup = new ui::Group("VrbGroup", this);
+        m_sessionGroup->setText("VRB");
         cover->fileMenu->add(m_sessionGroup);
 
         m_newSessionBtn = new ui::Action(m_sessionGroup, "newSession");
@@ -89,7 +90,8 @@ namespace opencover
             });
 
         //save and load sessions
-        m_ioGroup = new ui::Group("Sessions", this);
+        m_ioGroup = new ui::Group("IoGroup", this);
+        m_ioGroup->setText("");
         cover->fileMenu->add(m_ioGroup);
 
         m_saveSession = new ui::FileBrowser(m_ioGroup, "SaveSession", true);
