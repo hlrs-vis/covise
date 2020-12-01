@@ -19,8 +19,27 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(COVER_HEADERS
+  # tui file browser headers
+  #coVRDePee.h
+  #coVRDePeePass.h
   ARToolKit.h
   Deletable.h
+  EventReceiver.h
+  InitGLOperation.h
+  MSEventHandler.h
+  MatrixSerializer.h
+  OpenCOVER.h
+  PluginMenu.h
+  QuitDialog.h
+  RenderObject.h
+  VRAvatar.h
+  VRRegisterSceneGraph.h
+  VRSceneGraph.h
+  VRViewer.h
+  VRVruiButtons.h
+  VRVruiRenderInterface.h
+  VRWindow.h
+  VruiPartnerMenuItem.h
   coActionUserData.h
   coBillboard.h
   coClusterStat.h
@@ -28,137 +47,120 @@ SET(COVER_HEADERS
   coCommandLine.h
   coCoverConfig.h
   coCullVisitor.h
-  coOnscreenDebug.h
   coHud.h
   coInteractor.h
   coIntersection.h
-  VruiPartnerMenuItem.h
+  coMeasurement.h
+  coOnscreenDebug.h
+  coShutDownHandler.h
+  coTUIFileBrowser/AGData.h
+  coTUIFileBrowser/IData.h
+  coTUIFileBrowser/IRemoteData.h
+  coTUIFileBrowser/LocalData.h
+  coTUIFileBrowser/VRBData.h
+  coTranslator.h
+  coVRAnimationManager.h
+  coVRCollaboration.h
   coVRCommunication.h
   coVRConfig.h
   coVRDynLib.h
-  coVRLabel.h
-  coVRPlugin.h
-  coVRPluginList.h
-  coVRPluginSupport.h
   coVRFileManager.h
   coVRIOBase.h
   coVRIOReader.h
-  coVRMSController.h
-  coVRPartner.h
-  coVRSlave.h
-  coVRShader.h
-  coVRStatsDisplay.h
-  coVRTui.h
-  coVRSceneView.h
-  coVRTouchTable.h
-  InitGLOperation.h
-  OpenCOVER.h
-  RenderObject.h
-  VRAvatar.h
-  QuitDialog.h
-  VRSceneGraph.h
-  coVRLighting.h
-  coVRAnimationManager.h
-  coVRNavigationManager.h
-  coVRCollaboration.h
-  coVRSelectionManager.h
-  coVRIntersectionInteractorManager.h
   coVRIntersectionInteractor.h
-  coVRShadowManager.h
-  VRViewer.h
+  coVRIntersectionInteractorManager.h
+  coVRLabel.h
+  coVRLighting.h
+  coVRMSController.h
+  coVRMessageSender.h
+  coVRNavigationManager.h
+  coVRPartner.h
+  coVRPlugin.h
+  coVRPluginList.h
+  coVRPluginSupport.h
   coVRRenderer.h
-  VRVruiButtons.h
-  VRVruiRenderInterface.h
-  VRWindow.h
-  coShutDownHandler.h
-  PluginMenu.h
-  EventReceiver.h
-  coMeasurement.h
-  coTranslator.h
-  VRRegisterSceneGraph.h
-  MSEventHandler.h
-  tridelity.h
-  # tui file browser headers
-  coTUIFileBrowser/AGData.h
-  coTUIFileBrowser/IData.h
-  coTUIFileBrowser/LocalData.h
-  coTUIFileBrowser/VRBData.h
-  coTUIFileBrowser/IRemoteData.h
+  coVRSceneView.h
+  coVRSelectionManager.h
+  coVRShader.h
+  coVRShadowManager.h
+  coVRSlave.h
+  coVRStatsDisplay.h
+  coVRTouchTable.h
+  coVRTui.h
   coVrbMenu.h
-  MatrixSerializer.h
-  #coVRDePee.h
-  #coVRDePeePass.h
+  tridelity.h
 )
 
 SET(COVER_SOURCES
+  ARToolKit.cpp
   Deletable.cpp
+  EventReceiver.cpp
+  InitGLOperation.cpp
+  MSEventHandler.cpp
+  MatrixSerializer.cpp
+  OpenCOVER.cpp
+  PluginMenu.cpp
+  QuitDialog.cpp
+  RenderObject.cpp
+  VRAvatar.cpp
+  VRRegisterSceneGraph.cpp
+  VRSceneGraph.cpp
+  VRViewer.cpp
+  VRVruiButtons.cpp
+  VRVruiRenderInterface.cpp
   VRWindow.cpp
+  VruiPartnerMenuItem.cpp
+  coActionUserData.cpp
+  coBillboard.cpp
+  coClusterStat.cpp
+  coCollabInterface.cpp
   coCommandLine.cpp
   coCoverConfig.cpp
-  coVRConfig.cpp
-  coVRPlugin.cpp
-  coVRPluginList.cpp
-  coVRPluginSupport.cpp
-  coVRFileManager.cpp
-  coVRIOBase.cpp
-  coVRIOReader.cpp
-  coVRShader.cpp
-  coVRDynLib.cpp
-  coInteractor.cpp
-  coClusterStat.cpp
-  coVRCommunication.cpp
-  coVRPartner.cpp
-  coVRSlave.cpp
-  coVRMSController.cpp
-  coVRSceneView.cpp
-  coVRStatsDisplay.cpp
-  coVRTouchTable.cpp
-  InitGLOperation.cpp
-  OpenCOVER.cpp
-  QuitDialog.cpp
-  VRAvatar.cpp
   coCullVisitor.cpp
-  VRSceneGraph.cpp
-  coVRLighting.cpp
-  coVRAnimationManager.cpp
-  coVRShadowManager.cpp
-  ARToolKit.cpp
-  coBillboard.cpp
-  VRViewer.cpp
-  coVRRenderer.cpp
-  VRVruiRenderInterface.cpp
-  VRVruiButtons.cpp
-  coVRTui.cpp
-  coActionUserData.cpp
-  coIntersection.cpp
-  VruiPartnerMenuItem.cpp
-  coCollabInterface.cpp
-  coVRLabel.cpp
   coHud.cpp
-  coOnscreenDebug.cpp
-  coTabletUI.cpp
-  coTUISGBrowserTab.cpp
-  coTUIListener.cpp
-  RenderObject.cpp
-  coVRNavigationManager.cpp
-  coVRCollaboration.cpp
-  coVRSelectionManager.cpp
-  coVRIntersectionInteractorManager.cpp
-  coVRIntersectionInteractor.cpp
-  EventReceiver.cpp
+  coInteractor.cpp
+  coIntersection.cpp
   coMeasurement.cpp
+  coOnscreenDebug.cpp
+  coShutDownHandler.cpp
   coTUIFileBrowser/AGData.cpp
   coTUIFileBrowser/IData.cpp
   coTUIFileBrowser/LocalData.cpp
   coTUIFileBrowser/VRBData.cpp
-  coShutDownHandler.cpp
+  coTUIListener.cpp
+  coTUISGBrowserTab.cpp
+  coTabletUI.cpp
   coTranslator.cpp
+  coVRAnimationManager.cpp
+  coVRCollaboration.cpp
+  coVRCommunication.cpp
+  coVRConfig.cpp
+  coVRDynLib.cpp
+  coVRFileManager.cpp
+  coVRIOBase.cpp
+  coVRIOReader.cpp
+  coVRIntersectionInteractor.cpp
+  coVRIntersectionInteractorManager.cpp
+  coVRLabel.cpp
+  coVRLighting.cpp
+  coVRMSController.cpp
+  coVRMessageSender.cpp
+  coVRNavigationManager.cpp
+  coVRPartner.cpp
+  coVRPlugin.cpp
+  coVRPluginList.cpp
+  coVRPluginSupport.cpp
+  coVRRenderer.cpp
+  coVRSceneView.cpp
+  coVRSelectionManager.cpp
+  coVRShader.cpp
+  coVRShadowManager.cpp
+  coVRSlave.cpp
+  coVRStatsDisplay.cpp
+  coVRTouchTable.cpp
+  coVRTui.cpp
   coVrbMenu.cpp
-  PluginMenu.cpp
-  VRRegisterSceneGraph.cpp
-  MSEventHandler.cpp
   tridelity.cpp
-  MatrixSerializer.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )

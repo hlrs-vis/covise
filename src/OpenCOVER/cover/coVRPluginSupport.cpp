@@ -411,9 +411,9 @@ void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
     //draw->setUseVertexArrayObject(vao);
 }
 
-VRBMessageSender * coVRPluginSupport::getSender()
+opencover::coVRMessageSender *coVRPluginSupport::getSender()
 {
-    return &m_sender;
+    return this;
 }
 
 void coVRPluginSupport::connectToCovise(bool connected)
@@ -1457,28 +1457,19 @@ void coVRPluginSupport::protectScenegraph()
     VRSceneGraph::instance()->protectScenegraph();
 }
 
-bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
+bool coVRPluginSupport::sendVrbMessage(const covise::MessageBase *msg) const
 {
-    if (coVRPluginList::instance()->sendVisMessage(msg))
+    auto tcp = dynamic_cast<const covise::Message *>(msg);
+    if (tcp && coVRPluginList::instance()->sendVisMessage(tcp))
     {
         return true;
     }
     else if (vrbc)
     {
-            vrbc->sendMessage(msg);
+        vrbc->send(msg);
         return true;
     }
-
     return false;
-}
-bool coVRPluginSupport::sendVrbUdpMessage(const vrb::UdpMessage* msg) const
-{
-
-	if (vrbc)
-	{
-		return vrbc->sendUdpMessage(msg);
-	}
-	return false;
 }
 
 void coVRPluginSupport::personSwitched(size_t personNum)
@@ -1503,18 +1494,6 @@ void coVRPluginSupport::watchFileDescriptor(int fd)
 void coVRPluginSupport::unwatchFileDescriptor(int fd)
 {
     OpenCOVER::instance()->unwatchFileDescriptor(fd);
-}
-
-bool VRBMessageSender::sendMessage(const covise::Message * msg)  
-{
-    return cover->sendVrbMessage(msg);
-}
-
-bool VRBMessageSender::sendMessage(covise::TokenBuffer & tb, covise_msg_type type)
-{
-    covise::Message msg(tb);
-    msg.type = type;
-    return sendMessage(&msg);
 }
 
 } // namespace opencover

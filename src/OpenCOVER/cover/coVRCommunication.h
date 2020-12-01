@@ -26,14 +26,15 @@ namespace covise
 class Message;
 }
 
+#include "ui/Owner.h"
+#include "coVRMessageSender.h"
 
-#include <map>
+#include <net/message_types.h>
+#include <vrb/SessionID.h>
 #include <vrb/client/ClientRegistryClass.h>
 #include <vrb/client/SharedState.h>
-#include "ui/Owner.h"
-#include <vrb/SessionID.h>
-#include <net/message_types.h>
 
+#include <map>
 namespace vrui
 {
 class coNavInteraction;
@@ -57,7 +58,7 @@ class FileBrowser;
 class Action;
 class SelectionList;
 };
-class COVEREXPORT coVRCommunication: public vrb::regClassObserver
+class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public opencover::coVRMessageSender
 {
 public:
 	void init();
@@ -69,8 +70,6 @@ public:
 
     bool collaborative(); // returns true, if in collaborative mode
     bool isMaster(); // returns true, if we are master
-
-
 
     static const char *getHostname();
     static const char *getHostaddress();
@@ -96,8 +95,7 @@ public:
     covise::Message *waitForMessage(int messageType);
     std::unique_ptr<vrb::VrbClientRegistry> registry;
 	std::unique_ptr<vrb::SharedStateManager> sharedStateManager;
-    bool sendMessage(covise::Message *msg);
-    bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
+
 	//add callback that is called after first contact with vrb
 	void addOnConnectCallback(std::function<void(void)> function);
 	//add callback that is called when vrb disconnects
@@ -133,6 +131,7 @@ private:
     void toggleClientState(bool state);
     coVRPartner *me();
     const coVRPartner *me() const;
+
 };
 }
 #endif

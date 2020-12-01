@@ -87,7 +87,7 @@ namespace opencover
             TokenBuffer outerTb, innerTb;
             innerTb << vrb::LaunchRequest{vrb::Program::Cover, getRemoteLauncherClientID(index), args};
             outerTb << vrb::Program::VrbRemoteLauncher << COVISE_MESSAGE_VRB_MESSAGE << innerTb;
-            cover->getSender()->sendMessage(outerTb, COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
+            cover->send(outerTb, COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
             });
 
         //save and load sessions
@@ -129,7 +129,7 @@ namespace opencover
         tb << coVRCommunication::instance()->getID();
         tb << coVRCommunication::instance()->getUsedSessionID();
         tb << file;
-        cover->getSender()->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
+        cover->send(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
     }
 
     void VrbMenu::loadSession(const std::string &filename)
@@ -143,11 +143,9 @@ namespace opencover
     {
         covise::TokenBuffer tb;
         tb << vrb::SessionID(coVRCommunication::instance()->getID(), name, false);
-        //cover->getSender()->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
-        //test udp
         covise::Message msg(tb);
         msg.type = covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
-        cover->getSender()->sendMessage(&msg);
+        cover->send(&msg);
     }
     void VrbMenu::selectSession(int id)
     {

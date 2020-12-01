@@ -132,23 +132,8 @@ int VRBClient::wait(Message *m, int messageType)
     return ret;
 }
 
-bool VRBClient::sendMessage(const Message *m)
-{
-	if (!sConn || (!sConn->is_connected())) // not connected to a server
-	{
-		return 0;
-	}
-    return sendMessage(m, sConn);
-}
 
-bool VRBClient::sendMessage(TokenBuffer & tb, int type)
-{
-    Message m(tb);
-    m.type = type;
-    return sendMessage(&m);
-}
-
-bool VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
+bool VRBClient::sendMessage(const vrb::UdpMessage* m)
 {
 	if (!udpConn) // not connected to a server
 	{
@@ -159,17 +144,13 @@ bool VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
 
 }
 
-bool VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender)
+bool VRBClient::sendMessage(const Message* m)
 {
-	vrb::UdpMessage m(tb);
-	m.type = type;
-	m.sender = sender;
-	return sendUdpMessage(&m);
-}
-
-
-bool VRBClient::sendMessage(const Message* m, Connection* conn)
-{
+    if (!sConn)
+    {
+        return false;
+    }
+    
 #ifdef MB_DEBUG
 	std::cerr << "VRBCLIENT::SENDMESSAGE: Sending Message: " << m->type << std::endl;
 	std::cerr << "VRBCLIENT::SENDMESSAGE: Data: " << m->data << std::endl;
@@ -187,7 +168,7 @@ bool VRBClient::sendMessage(const Message* m, Connection* conn)
 	gettimeofday(&start, NULL);
 #endif
 
-	conn->send_msg(m);
+	sConn->send_msg(m);
 #ifdef _MSC_VER
 	struct __timeb64 end;
 	_ftime64(&end);

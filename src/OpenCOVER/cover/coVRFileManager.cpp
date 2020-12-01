@@ -1918,7 +1918,7 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
 	rtb << filename;
 
 	serializeFile(validPath, rtb);
-	coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
+	coVRCommunication::instance()->send(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
 
 }
 std::string coVRFileManager::getFileName(const std::string &fileName)

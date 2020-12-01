@@ -8,15 +8,17 @@
 #ifndef VRBCLIENTLIST_H
 #define VRBCLIENTLIST_H
 
-#include <util/coExport.h>
-#include <vrb/SessionID.h>
-#include <net/message_types.h>
 #include <net/covise_connect.h>
+#include <net/message_types.h>
+#include <util/coExport.h>
+#include <vrb/RemoteClient.h>
+#include <vrb/SessionID.h>
+#include <vrb/UserInfo.h>
+#include <vrb/VrbMessageSenderInterface.h>
+
 #include <string>
 #include <set>
 #include <vector>
-#include <vrb/UserInfo.h>
-#include <vrb/RemoteClient.h>
 namespace covise
 {
 class TokenBuffer;
@@ -40,7 +42,7 @@ enum VRBSERVEREXPORT Columns {
     IP,
 };
 
-class VRBSERVEREXPORT VRBSClient : public vrb::RemoteClient
+class VRBSERVEREXPORT VRBSClient : public vrb::RemoteClient, public vrb::VrbMessageSenderInterface
 {
 	///Vrb Server client that holds a connection and information about the client
 public:
@@ -51,7 +53,6 @@ public:
 
     covise::Connection *conn = nullptr;
 	covise::UDPConnection* udpConn = nullptr;
-	void sendMsg(covise::MessageBase* msg);
 
     const vrb::SessionID &getPrivateSession() const;
     void setPrivateSession(vrb::SessionID &g);
@@ -62,7 +63,9 @@ public:
     void addBytesReceived(int b);
 	bool doesNotKnowFile(const std::string& fileName);
 	void addUnknownFile(const std::string& fileName);
-
+private:
+    bool sendMessage(const covise::Message *msg) override;
+    bool sendMessage(const vrb::UdpMessage *msg) override;
 
 protected:
     std::set<std::string> m_unknownFiles;
@@ -79,6 +82,7 @@ protected:
 	bool m_deleteClient = true;
 	bool m_firstTryUdp = true;
     double time();
+
 };
 
 class VRBSERVEREXPORT VRBClientList
@@ -121,7 +125,7 @@ public:
 	/// remove client with connection c
 	void remove(covise::Connection *c);
     /// pass Message to all other session participants 
-    void passOnMessage(covise::MessageBase* msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
+    void passOnMessage(const covise::MessageBase* msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
     /// bradcast the message to all clients of the progam type
     void broadcastMessageToProgramm(vrb::Program program, covise::MessageBase *msg);
     ///write the info of all clients in the tokenbuffer

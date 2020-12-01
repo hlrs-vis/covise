@@ -90,7 +90,7 @@ void VrbRemoteLauncher::sendLaunchRequest(Program p, int clientID, const std::ve
     outerTb << vrb::Program::VrbRemoteLauncher << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
     covise::Message msg{outerTb};
     msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
-    m_client->sendMessage(outerTb, covise::COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
+    m_client->send(outerTb, 0);
 }
 
 void VrbRemoteLauncher::loop()

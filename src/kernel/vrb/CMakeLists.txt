@@ -7,6 +7,7 @@ set(VRB_SOURCES
     RemoteClient.cpp
     SessionID.cpp	
     UserInfo.cpp
+    VrbMessageSenderInterface.cpp
     VrbSetUserInfoMessage.cpp
 )
 
@@ -20,6 +21,7 @@ set(VRB_HEADERS
     SessionID.h
     UserInfo.h
     VrbSetUserInfoMessage.h
+    VrbMessageSenderInterface.h
 )
 
 ADD_COVISE_LIBRARY(coVRB ${VRB_SOURCES} ${VRB_HEADERS})

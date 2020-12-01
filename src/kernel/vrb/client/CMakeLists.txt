@@ -25,7 +25,6 @@ SET(VRBCLIENT_HEADERS
   VRBMessage.h
   VrbClientRegistry.h
   VrbCredentials.h
-  VrbMessageSenderInterface.h
 )
 
 ADD_COVISE_LIBRARY(coVRBClient ${COVISE_LIB_TYPE} ${VRBCLIENT_SOURCES} ${VRBCLIENT_HEADERS})

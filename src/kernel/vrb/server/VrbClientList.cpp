@@ -75,27 +75,29 @@ void VRBSClient::addUnknownFile(const std::string& fileName)
 	m_unknownFiles.insert(fileName);
 }
 
-
-void VRBSClient::sendMsg(covise::MessageBase* msg)
+bool VRBSClient::sendMessage(const covise::Message* msg)
 {
-	if (covise::Message * tcp = dynamic_cast<covise::Message*>(msg))
-	{
-		conn->send_msg(tcp);
-		return;
-	}
-	if (UdpMessage * udp = dynamic_cast<UdpMessage*>(msg))
-	{
-		if (udpConn)
-		{
-            udpConn->send_udp_msg(udp, "188.40.97.72");
-			udpConn->send_udp_msg(udp, userInfo().ipAdress.c_str());
-		}
-		else if (m_firstTryUdp)
-		{
-			m_firstTryUdp = false;
-			cerr << "trying to send udp message to a client without udp connection: type = " << dynamic_cast<UdpMessage*>(msg)->type << endl;
-		}
-	}
+	if (conn)
+    {
+        return conn->send_msg(msg);
+    }
+    return false;
+    
+}
+
+bool VRBSClient::sendMessage(const vrb::UdpMessage *msg){
+
+    if (udpConn)
+    {
+        udpConn->send_udp_msg(msg, "188.40.97.72");
+        return udpConn->send_udp_msg(msg, userInfo().ipAdress.c_str());
+    }
+    else if (m_firstTryUdp)
+    {
+        m_firstTryUdp = false;
+        cerr << "trying to send udp message to a client without udp connection: type = " << msg->type << endl;
+    }
+    return false;
 }
 
 int VRBSClient::getSentBPS()
@@ -178,6 +180,7 @@ double VRBSClient::time()
 }
 #endif // _WIN32
 
+
 ///////////////////////////////////////////////////////////
 //VRBClientList_______________________________________________
 //////////////////////////////////////////////////////////////
@@ -239,7 +242,7 @@ void VRBClientList::remove(Connection * c)
     }
 }
 
-void VRBClientList::passOnMessage(covise::MessageBase* msg, const vrb::SessionID &session)
+void VRBClientList::passOnMessage(const covise::MessageBase* msg, const vrb::SessionID &session)
 {
     if (session.isPrivate())
     {
@@ -249,7 +252,7 @@ void VRBClientList::passOnMessage(covise::MessageBase* msg, const vrb::SessionID
     {
         if (cl->conn != msg->conn && (cl->sessionID() == session || session == vrb::SessionID(0, "", false)))
         {
-            cl->sendMsg(msg);
+            cl->send(msg);
         }
     }
 }
@@ -260,7 +263,7 @@ void VRBClientList::broadcastMessageToProgramm(vrb::Program program, covise::Mes
     {
         if (cl->userInfo().userType == program)
         {
-            cl->sendMsg(msg);
+            cl->send(msg);
         }
     }
 }
@@ -402,7 +405,7 @@ void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, c
     {
         if (group == vrb::SessionID(0, std::string(), false) || group == cl->sessionID())
         {
-            cl->sendMsg(&m);
+            cl->send(&m);
         }
     }
 }
@@ -412,7 +415,7 @@ void VRBClientList::sendMessageToClient(VRBSClient* cl, TokenBuffer &tb, covise_
     m.type = type;
     if (cl)
     {
-		cl->sendMsg(&m);
+		cl->send(&m);
     }
 }
 
@@ -429,7 +432,7 @@ void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_ms
 
     for (auto &cl : m_clients)
     {
-		cl->sendMsg(&m);
+		cl->send(&m);
     }
 }
 std::string VRBClientList::cutFileName(const std::string& fileName)

@@ -10,6 +10,7 @@
 #include "VrbCredentials.h"
 
 #include <vrb/RemoteClient.h>
+#include <vrb/VrbMessageSenderInterface.h>
 
 #include <mutex>
 #include <string>
@@ -36,7 +37,7 @@ class Message;
 class TokenBuffer;
 
 
-class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient
+class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient, public vrb::VrbMessageSenderInterface
 {
 
 public:
@@ -53,11 +54,7 @@ public:
 	bool pollUdp(vrb::UdpMessage* m);
     int wait(Message *m);
     int wait(Message *m, int messageType);
-    //bool sendUserInfo(const char *userInfo);
-    bool sendMessage(const Message *m);
-    bool sendMessage(TokenBuffer &tb, int type);
-	bool sendUdpMessage(const vrb::UdpMessage* m);
-	bool sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender);
+
 
 	void setupUdpConn();
     std::list<Message *> messageQueue;
@@ -84,7 +81,8 @@ private:
 	std::mutex udpConnMutex;
     bool firstUdpVrbConnection = true;
 
-    bool sendMessage(const Message* m, Connection* conn);
+    bool sendMessage(const Message* m) override;
+    bool sendMessage(const vrb::UdpMessage *m) override;
 };
 vrb::VrbCredentials readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile);
 }

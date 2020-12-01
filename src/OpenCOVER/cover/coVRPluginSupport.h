@@ -54,8 +54,8 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
 #include "coVRPlugin.h"
+#include "coVRMessageSender.h"
 
-#include <vrb/client/VrbMessageSenderInterface.h>
 #include <net/message_types.h>
 
 namespace opencover {
@@ -113,12 +113,6 @@ class coVRPlugin;
 class RenderObject;
 class coInteractor;
 class NotifyBuf;
-class VRBMessageSender : public vrb::VrbMessageSenderInterface
-{
-public:
-    bool sendMessage(const covise::Message *msg);
-    bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
-};
 struct Isect
 {
     enum IntersectionBits
@@ -197,7 +191,7 @@ private:
  * Provide a stable interface and a single entry point to the most import
  * OpenCOVER functions
  */
-class COVEREXPORT coVRPluginSupport
+class COVEREXPORT coVRPluginSupport : public opencover::coVRMessageSender
 {
     friend class OpenCOVER;
     friend class fasi;
@@ -321,7 +315,7 @@ public:
     bool isVRBconnected();
 
     //! send a message either via COVISE connection or via tcp to VRB
-    bool sendVrbMessage(const covise::Message *msg) const;
+    bool sendVrbMessage(const covise::MessageBase *msg) const;
 
 	//! send a message either via COVISE connection or via udp to VRB
 	bool sendVrbUdpMessage(const vrb::UdpMessage* msg) const;
@@ -535,14 +529,13 @@ public:
     void setFrameTime(double ft);
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
-    VRBMessageSender *getSender();
+    opencover::coVRMessageSender *getSender();
 	void connectToCovise(bool connected);
 	bool connectedToCovise();
 
     bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
 private:
 	bool m_connectedToCovise = false;
-    VRBMessageSender m_sender;
     void setFrameRealTime(double ft);
 
     //! calls the callback

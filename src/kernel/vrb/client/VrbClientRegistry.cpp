@@ -9,13 +9,13 @@
 #include <assert.h>
 
 #include "VRBClient.h"
-#include "VrbMessageSenderInterface.h"
 #include "VrbClientRegistry.h"
 
 #include <net/dataHandle.h>
 #include <net/message.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer_serializer.h>
+#include <vrb/VrbMessageSenderInterface.h>
 
 
 
@@ -76,7 +76,7 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
         tb << oldSession;
         tb << clientID;
 
-        m_sender->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
+        m_sender->send(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
     }
     // resubscribe all registry entries on reconnect
     for (const auto cl : m_classes)
@@ -96,7 +96,7 @@ void VrbClientRegistry::sendMsg(TokenBuffer &tb, covise::covise_msg_type type)
 	}
 	if (clientID != -1)
     {
-        m_sender->sendMessage(tb, type);
+        m_sender->send(tb, type);
     }
 }
 

@@ -109,7 +109,7 @@ coVRCommunication::coVRCommunication()
 
     onConnectCallbacks.push_back([this]() {
     	registry->setID(me()->ID(), me()->sessionID());
-        registry->registerSender(cover->getSender());
+        registry->registerSender(this);
     });
 
     onDisconnectCallbacks.push_back([this]() {
@@ -176,6 +176,8 @@ coVRPartner *coVRCommunication::me(){
 const coVRPartner *coVRCommunication::me() const{
     return coVRPartnerList::instance()->me();
 }
+
+
 
 coVRCommunication::~coVRCommunication()
 {
@@ -250,7 +252,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     TokenBuffer tb;
     tb << id;
     tb << me()->ID();
-    sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
+    send(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
 }
 
 const char *coVRCommunication::getHostaddress()
@@ -837,13 +839,13 @@ void coVRCommunication::setCurrentFile(const char *filename)
     //TokenBuffer rtb3;
     //rtb3 << me()->getID();
     //rtb3 << (char *)filename;
-    //sendMessage(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
+    //send(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
 
     //if (coVRPluginList::instance()->getPlugin("ACInterface"))
     //{
     //    TokenBuffer tb;
     //    tb << filename;
-    //    cover->sendMessage(NULL, "ACInterface", PluginMessageTypes::HLRS_ACInterfaceModelLoadedPath, tb.get_length(), tb.get_data());
+    //    send(NULL, "ACInterface", PluginMessageTypes::HLRS_ACInterfaceModelLoadedPath, tb.get_length(), tb.get_data());
     //    tb.delete_data();
     //}
 }
@@ -884,7 +886,7 @@ void coVRCommunication::loadSessionFile(const std::string &fileName)
     DataHandle dh{(size_t)l};
     in.read(dh.accessData(), l);
     tb << dh;
-    cover->getSender()->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
+    send(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
 }
 
 int coVRCommunication::getNumberOfPartners()
@@ -919,17 +921,7 @@ Message *coVRCommunication::waitForMessage(int messageType)
     return m;
 }
 
-bool opencover::coVRCommunication::sendMessage(Message * msg)
-{
-    return cover->sendVrbMessage(msg);
-}
 
-bool opencover::coVRCommunication::sendMessage(TokenBuffer & tb, covise_msg_type type)
-{
-    Message msg(tb);
-    msg.type = type;
-    return sendMessage(&msg);
-}
 
 void opencover::coVRCommunication::addOnConnectCallback(std::function<void(void)> function)
 {
