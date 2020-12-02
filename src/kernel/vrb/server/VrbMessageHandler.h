@@ -41,7 +41,7 @@ struct VRBSERVEREXPORT ConnectionDetails {
 	typedef std::unique_ptr<ConnectionDetails> ptr;
 
 	std::unique_ptr<covise::Connection> tcpConn;
-	covise::UDPConnection* udpConn;
+	covise::UDPConnection* udpConn = nullptr;
 	ConnectionDetails() = default;
 	ConnectionDetails(ConnectionDetails& other) = delete;
 	virtual ConnectionDetails& operator=(ConnectionDetails& other) = delete;
@@ -78,7 +78,7 @@ protected:
 	virtual void updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle& value);
 	virtual void removeEntryFromApplicationWindow(const std::string& cl, int sender, const std::string& var);
 	virtual void removeEntriesFromApplicationWindow(int sender);
-	virtual VRBSClient* createNewClient(ConnectionDetails::ptr&& cd, covise::TokenBuffer& tb);
+	virtual VRBSClient* createNewClient(ConnectionDetails::ptr&& cd, covise::TokenBuffer& tb, bool deleteTcpCon = true);
 
 private:
 	ServerInterface* m_server = nullptr;

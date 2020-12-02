@@ -35,6 +35,6 @@ public:
     void removeEntriesFromApplicationWindow(int sender) override;
     ///get the client corresponding to con and change its QSocketNotifier state; Return true if client exists
     bool setClientNotifier(covise::Connection *conn, bool state);
-    vrb::VRBSClient *createNewClient(vrb::ConnectionDetails::ptr &&, covise::TokenBuffer &tb) override;
+    vrb::VRBSClient *createNewClient(vrb::ConnectionDetails::ptr &&, covise::TokenBuffer &tb, bool deleteTcpCon = true) override;
 
 };

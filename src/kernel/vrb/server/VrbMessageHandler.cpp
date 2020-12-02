@@ -384,18 +384,26 @@ void VrbMessageHandler::removeEntriesFromApplicationWindow(int sender)
 	//std::cerr <<"userinterface not implemented" << std:endl;
 }
 
-VRBSClient *VrbMessageHandler::createNewClient(ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb){
-	return new VRBSClient(cd->tcpConn.release(), cd->udpConn, tb);
+VRBSClient *VrbMessageHandler::createNewClient(ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb, bool deleteTcpCon){
+	return new VRBSClient(cd->tcpConn.release(), cd->udpConn, tb, deleteTcpCon);
 }
 
 VRBSClient *VrbMessageHandler::createNewClient(covise::TokenBuffer &tb, covise::Message *msg){
-	auto cd = std::find_if(m_unregisteredClients.begin(), m_unregisteredClients.end(), [msg](const ConnectionDetails::ptr &cd) {
+	auto it = std::find_if(m_unregisteredClients.begin(), m_unregisteredClients.end(), [msg](const ConnectionDetails::ptr &cd) {
 		return cd->tcpConn.get() == msg->conn;
 	});
-	assert(cd != m_unregisteredClients.end());
-	auto cl = createNewClient(std::move(*cd), tb);
-	m_unregisteredClients.erase(cd);
-	return cl;
+	if (it == m_unregisteredClients.end()) //this happens if the server is covise
+	{
+		ConnectionDetails::ptr cd{new ConnectionDetails{}};
+		cd->tcpConn.reset(msg->conn);
+		return createNewClient(std::move(cd), tb, false);
+	}
+	else
+	{
+		auto cd = std::move(*it);
+		m_unregisteredClients.erase(it);
+		return createNewClient(std::move(*it), tb);
+	}
 }
 
 //private

@@ -67,7 +67,7 @@ bool VrbUiMessageHandler::setClientNotifier(covise::Connection * conn, bool stat
     return false;
 }
 
-vrb::VRBSClient *VrbUiMessageHandler::createNewClient(vrb::ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb){
+vrb::VRBSClient *VrbUiMessageHandler::createNewClient(vrb::ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb, bool deleteTcpCon){
     auto uicd = dynamic_cast<UiConnectionDetails*>(cd.get());
     assert(uicd);
     return new VrbUiClient(cd->tcpConn.release(), cd->udpConn, uicd->notifier.release(), tb);
