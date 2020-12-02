@@ -175,7 +175,7 @@ unsigned int FortranData::ReadFortranDataFormat(const char *format, ...)
                         readString[j] = inputString[j + iStringPtr];
                     }
 
-                    readString[j - 1] = 0;
+                    readString[j-1] = 0; // this might cut off the last character but the arrays are often not longer
 
                     ptr = va_arg(argList, char *);
                     strcpy_s((char *)ptr, fieldLength, readString); //skip spaces at the beginning of readString
