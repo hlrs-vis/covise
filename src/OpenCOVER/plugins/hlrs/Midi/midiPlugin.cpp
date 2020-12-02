@@ -296,7 +296,7 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
 		if(me.isNoteOn() || me.isNoteOff() || (me.isController() && me.getP1()>2))
 		{
-		cover->sendVrbUdpMessage(&um);
+		cover->sendVrbMessage(&um);
 		}
 		MidiPlugin::instance()->addEvent(me, dwInstance);
 		if (MidiPlugin::instance()->hMidiDeviceOut != NULL)
@@ -460,7 +460,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		tb << me.getP2();
 		tb << me.getP3();
 		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
-		cover->sendVrbUdpMessage(&um);
+		cover->sendVrbMessage(&um);
 		addEvent(me, 0);
 		fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
 			keySym,mod);
@@ -479,7 +479,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		tb << me.getP2();
 		tb << me.getP3();
 		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
-		cover->sendVrbUdpMessage(&um);
+		cover->sendVrbMessage(&um);
 		addEvent(me, 0);
 		fprintf(stdout, "--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
 			keySym, mod);
@@ -1041,7 +1041,7 @@ bool MidiPlugin::update()
 			tb << me.getP2();
 			tb << me.getP3();
 			vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
-			cover->sendVrbUdpMessage(&um);
+			cover->sendVrbMessage(&um);
 			cerr << "sending MIDI comming from UDP" << endl;
 
 			addEvent(me, packet.channel);
@@ -1826,7 +1826,7 @@ void Track::update()
 					tb << me.getP2();
 					tb << me.getP3();
 					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
-					cover->sendVrbUdpMessage(&um);
+					cover->sendVrbMessage(&um);
 					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
 					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
 
@@ -1863,7 +1863,7 @@ void Track::update()
 					tb << me.getP2();
 					tb << me.getP3();
 					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
-					cover->sendVrbUdpMessage(&um);
+					cover->sendVrbMessage(&um);
 					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
 					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/
 				}

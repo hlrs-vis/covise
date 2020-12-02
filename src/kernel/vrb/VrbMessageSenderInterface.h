@@ -19,9 +19,11 @@ namespace vrb
   class UdpMessage;
 enum class Protocol { TCP, UDP};
 
-  class VRBCLIENTEXPORT VrbMessageSenderInterface
+  class VRBEXPORT VrbMessageSenderInterface
   {
   public:
+    VrbMessageSenderInterface() = default;
+    virtual ~VrbMessageSenderInterface() = default;
     bool send(const covise::MessageBase *msg);
     bool send(covise::TokenBuffer &tb, int type, Protocol p = Protocol::TCP);
 protected:
