@@ -72,11 +72,6 @@ MessageBase::MessageBase(DataHandle& dh)
     //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
 }
 
-MessageBase::~MessageBase()
-{
-}
-
-
 Message::Message(TokenBuffer &t)
     :MessageBase(t)
 	,type(Message::EMPTY)

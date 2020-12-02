@@ -117,7 +117,7 @@ public:
 	MessageBase();
 	MessageBase(TokenBuffer& tb);
     MessageBase(DataHandle& dh);
-	virtual ~MessageBase();
+	virtual ~MessageBase() = default;
 	virtual void print() = 0;
 };
 class NETEXPORT Message : public MessageBase// class for messages
