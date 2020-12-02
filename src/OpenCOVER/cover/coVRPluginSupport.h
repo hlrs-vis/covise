@@ -317,9 +317,6 @@ public:
     //! send a message either via COVISE connection or via tcp to VRB
     bool sendVrbMessage(const covise::MessageBase *msg) const;
 
-	//! send a message either via COVISE connection or via udp to VRB
-	bool sendVrbUdpMessage(const vrb::UdpMessage* msg) const;
-
     // tracker data
 
     //! get the position and orientation of the user in world coordinates
