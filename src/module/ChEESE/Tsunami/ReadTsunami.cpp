@@ -5,26 +5,25 @@
 
  * License: LGPL 2+ */
 
-#include "ReadNetCDF.h"
+#include "ReadTsunami.h"
 
 #include <iostream>
-#include <netcdfcpp.h>
 #include <api/coFeedback.h>
 #include "do/coDoStructuredGrid.h"
 #include "do/coDoData.h"
+#include "do/coDoSet.h"
 
 using namespace covise;
 
 const char *NoneChoices[] = { "none" };
-// Lets assume no more than 100 variables per file
-int varIds[100];
+std::vector<std::string> varNames;
 char *VarDisplayList[100];
 char *AxisChoices[100];
 
 // -----------------------------------------------------------------------------
 // constructor
 // -----------------------------------------------------------------------------
-ReadNetCDF::ReadNetCDF(int argc, char *argv[])
+ReadTsunami::ReadTsunami(int argc, char *argv[])
     : coModule(argc, argv, "NetCDF Reader")
 {
     ncDataFile = NULL;
@@ -63,20 +62,18 @@ ReadNetCDF::ReadNetCDF(int argc, char *argv[])
     p_grid_out = addOutputPort("outPort", "StructuredGrid", "Grid output");
     // 2D Surface
     p_surface_out = addOutputPort("surfaceOut", "Polygons", "2D Grid output");
+    p_seeSurface_out
+        = addOutputPort("seeSurfaceOut", "Polygons", "2D See floor");
+    p_waterSurface_out
+        = addOutputPort("waterSurfaceOut", "Polygons", "2D water surface");
 
-    // Data ports
-    for (int i = 0; i < numParams; i++)
-    {
-        char namebuf[50];
-        sprintf(namebuf, "dataOutPort%d", i);
-        p_data_outs[i] = addOutputPort(namebuf, "Float", namebuf);
-    }
+    p_maxHeight = addOutputPort("maxHeight", "Float", "Maxx water height");
 }
 
 // -----------------------------------------------------------------------------
 // destructor
 // -----------------------------------------------------------------------------
-ReadNetCDF::~ReadNetCDF()
+ReadTsunami::~ReadTsunami()
 {
     if (ncDataFile)
     {
@@ -87,10 +84,9 @@ ReadNetCDF::~ReadNetCDF()
 // -----------------------------------------------------------------------------
 // change of parameters callback
 // -----------------------------------------------------------------------------
-void ReadNetCDF::param(const char *paramName, bool inMapLoading)
+void ReadTsunami::param(const char *paramName, bool inMapLoading)
 {
     sendInfo("param callback");
-
     if (openNcFile())
     {
         // enable parameter menus for selection
@@ -102,34 +98,34 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
             p_variables[i]->enable();
 
         // Create "Variable" menu entries for all 2D and 3D variables
-        NcVar *var;
         int num2d3dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); i++)
+        std::multimap<std::string, NcVar> allVars = ncDataFile->getVars();
+        //for (int i = 0; i < ncDataFile->getVarCount(); i++)
+        for(const auto &var:allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() >= 0)
+            if (var.second.getDimCount() >= 0)
             { // FIXME: what will we do here?
 
                 // A list of variable names (unaltered)
                 /*char* newEntry = new char[50]; 
 				strcpy(newEntry,var->name());
 				VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
-                varIds[num2d3dVars] = i;
+                varNames.push_back(var.first);
 
                 // A list of info to display for each variable
                 char *dispListEntry = new char[50];
-                if (var->num_dims() > 0)
+                if (var.second.getDimCount() > 0)
                 {
-                    sprintf(dispListEntry, "%s (%dD) : [", var->name(),
-                            var->num_dims());
-                    for (int j = 0; j < var->num_dims() - 1; j++)
+                    sprintf(dispListEntry, "%s (%dD) : [", var.first.c_str(),
+                        var.second.getDimCount());
+                    for (int j = 0; j < var.second.getDimCount() - 1; j++)
                         sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var->get_dim(j)->name());
+                                var.second.getDim(j).getName().c_str());
                     sprintf(dispListEntry, "%s %s ]", dispListEntry,
-                            var->get_dim(var->num_dims() - 1)->name());
+                            var.second.getDim(var.second.getDimCount() - 1).getName().c_str());
                 }
                 else
-                    sprintf(dispListEntry, "%s (%dD)", var->name(), var->num_dims());
+                    sprintf(dispListEntry, "%s (%dD)", var.first.c_str(), var.second.getDimCount());
                 VarDisplayList[num2d3dVars] = dispListEntry;
 
                 num2d3dVars++;
@@ -142,13 +138,13 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
 
         // Create "Axis" menu entries for 2D variables only
         int num2dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); ++i)
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() == 2 || var->num_dims() == 1)
+        //for (int i = 0; i < ncDataFile->num_vars(); ++i)
+            if (var.second.getDimCount() == 2 || var.second.getDimCount() == 1)
             {
-                char *newEntry = new char[50];
-                strcpy(newEntry, var->name());
+                char *newEntry = new char[var.first.length()];
+                strcpy(newEntry, var.first.c_str());
                 AxisChoices[num2dVars] = newEntry;
                 num2dVars++;
             }
@@ -177,173 +173,158 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
 // -----------------------------------------------------------------------------
 // compute callback
 // -----------------------------------------------------------------------------
-int ReadNetCDF::compute(const char *)
+int ReadTsunami::compute(const char *)
 {
     sendInfo("compute call");
 
-    if (ncDataFile->is_valid())
+    if (ncDataFile->getVarCount()>0)
     {
         // get variable name from choice parameters
-        NcVar *var;
-        long *edges;
+        NcVar var;
         int numdims = 0;
-        // Find the variable with most dimensions and record its size
-        for (int i = 0; i < numParams; i++)
-        {
-            var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-            if (var->num_dims() > numdims)
-            {
-                numdims = var->num_dims();
-                edges = var->edges();
-                printf("%s is %ld", var->name(), edges[0]);
-                for (int j = 1; j < numdims; j++)
-                    printf(" x %ld", edges[j]);
-                printf("\n");
-            }
-        }
-        // FIXME: For now I choose the last three dimensions. Ok in general??
-        // We choose the order of (x,y,z) to match the data
-        int nx = 1, ny = edges[numdims - 2], nz = edges[numdims - 1];
-        if (numdims >= 3)
-            nx = edges[numdims - 3];
 
-        // create a structured grid
-        // This allocates memory for the coordinates. (3 "3D" arrays)
-        coDoStructuredGrid *outGrid = new coDoStructuredGrid(
-            p_grid_out->getObjName(), nx, ny, nz);
+        NcVar latvar = ncDataFile->getVar("lat");
+        NcVar lonvar = ncDataFile->getVar("lon");
+        NcVar grid_latvar = ncDataFile->getVar("grid_lat");
+        NcVar grid_lonvar = ncDataFile->getVar("grid_lon");
+        NcVar bathymetryvar = ncDataFile->getVar("bathymetry");
+        NcVar max_height = ncDataFile->getVar("max_height");
+        NcVar eta = ncDataFile->getVar("eta");
 
-        // Get the addresses of the 3 coord arrays (each nz*ny*nx long)
-        float *x_coord, *y_coord, *z_coord;
-        outGrid->getAddresses(&x_coord, &y_coord, &z_coord);
-        // Find the variable corresponding to the users choice for each axis
-        NcVar *varX = ncDataFile->get_var(
-            AxisChoices[p_grid_choice_x->getValue()]);
-        NcVar *varY = ncDataFile->get_var(
-            AxisChoices[p_grid_choice_y->getValue()]);
-        NcVar *varZ = ncDataFile->get_var(
-            AxisChoices[p_grid_choice_z->getValue()]);
-
-        // Read the grid point values from the file
-        float *xVals = new float[varX->num_vals()];
-        float *yVals = new float[varY->num_vals()];
-        float *zVals = new float[varZ->num_vals()];
-        varX->get(xVals, varX->edges());
-        varY->get(yVals, varY->edges());
-        varZ->get(zVals, varZ->edges());
-
-        // Fill the _coord arrays for all grid points (memcpy faster?)
-        // FIXME: Should depend on var?->num_dims().
-        float scale = p_verticalScale->getValue();
-        if(varX->num_vals()==nx)
-        {
-         int m, n = 0;
-         for (int i = 0; i < nx; i++)
-         {
-             m = 0;
-             for (int j = 0; j < ny; j++)
-                 for (int k = 0; k < nz; k++, m++, n++)
-                 {
-                     x_coord[n] = xVals[i];
-                     y_coord[n] = yVals[j];
-                     z_coord[n] = zVals[k] * scale;
-                 }
-         }
-        }
-        else
-        {
-         int m, n = 0;
-         for (int i = 0; i < nx; i++)
-         {
-             m = 0;
-             for (int j = 0; j < ny; j++)
-                 for (int k = 0; k < nz; k++, m++, n++)
-                 {
-                     x_coord[n] = xVals[m];
-                     y_coord[n] = yVals[m];
-                     z_coord[n] = zVals[i] * scale;
-                 }
-         }
-        }
+        int snx = latvar.getDim(0).getSize();
+        int sny = lonvar.getDim(0).getSize();
+		int nz = 0;
+        float* latVals = new float[snx];
+        float* lonVals = new float[sny];
+        latvar.getVar(latVals);
+        lonvar.getVar(lonVals);
 
         // Now for the 2D variables, we create a surface
-        int numPolygons = (ny - 1) * (nz - 1);
-        coDoPolygons *outSurface = new coDoPolygons(p_surface_out->getObjName(),
-                                                    ny * nz, numPolygons * 4, numPolygons);
-        int *vl, *pl;
-        outSurface->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
+        int snumPolygons = (snx - 1) * (sny - 1);
+        coDoPolygons* outSurface = new coDoPolygons(p_surface_out->getObjName(),
+            snx * sny, snumPolygons * 4, snumPolygons);
+        int* svl, * spl;
+        float *sx_coord, *sy_coord, *sz_coord;
+        outSurface->getAddresses(&sx_coord, &sy_coord, &sz_coord, &svl, &spl);
         // Fill the _coord arrays (memcpy faster?)
         // FIXME: Should depend on var?->num_dims(). (fix with pointers?)
         int n = 0;
         n = 0;
-        if(varY->num_vals()==ny)
-        {
-        for (int j = 0; j < ny; j++)
-            for (int k = 0; k < nz; k++, n++)
-            {
-                x_coord[n] = xVals[j];
-                y_coord[n] = yVals[k];
-                z_coord[n] = 0; //zVals[0];
-            }
-        }
-        else
-        {
-        for (int j = 0; j < ny; j++)
-            for (int k = 0; k < nz; k++, n++)
-            {
-                x_coord[n] = xVals[n];
-                y_coord[n] = yVals[n];
-                z_coord[n] = 0; //zVals[0];
-            }
-        }
+		for (int j = 0; j < snx; j++)
+			for (int k = 0; k < sny; k++, n++)
+			{
+				sx_coord[n] = latVals[j];
+				sy_coord[n] = lonVals[k];
+				sz_coord[n] = 0; //zVals[0];
+			}
         // Fill the vertex list
         n = 0;
-        for (int j = 1; j < ny; j++)
-            for (int k = 1; k < nz; k++)
+        for (int j = 1; j < snx; j++)
+            for (int k = 1; k < sny; k++)
             {
-                vl[n++] = (j - 1) * nz + (k - 1);
-                vl[n++] = j * nz + (k - 1);
-                vl[n++] = j * nz + k;
-                vl[n++] = (j - 1) * nz + k;
+                svl[n++] = (j - 1) * sny + (k - 1);
+                svl[n++] = j * sny + (k - 1);
+                svl[n++] = j * sny + k;
+                svl[n++] = (j - 1) * sny + k;
+            }
+        // Fill the polygon list
+        for (int p = 0; p < snumPolygons; p++)
+            spl[p] = p * 4;
+
+        // Delete buffers from grid replication
+        delete[] latVals;
+        delete[] lonVals;
+
+        int nx = grid_latvar.getDim(0).getSize();
+        int ny = grid_lonvar.getDim(0).getSize();
+        latVals = new float[nx];
+        lonVals = new float[ny];
+        float *depthVals = new float[nx * ny];
+        grid_latvar.getVar(latVals);
+        grid_lonvar.getVar(lonVals);
+        bathymetryvar.getVar(depthVals);
+        int* vl, * pl;
+        float* x_coord, * y_coord, * z_coord;
+
+        // Now for the 2D variables, we create a surface
+        int numPolygons = (nx - 1) * (ny - 1);
+        coDoPolygons* outSeeSurface = new coDoPolygons(p_seeSurface_out->getObjName(),
+            nx * ny, numPolygons * 4, numPolygons);
+        outSeeSurface->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
+        // Fill the _coord arrays (memcpy faster?)
+        // FIXME: Should depend on var?->num_dims(). (fix with pointers?)
+        n = 0;
+        for (int j = 0; j < nx; j++)
+            for (int k = 0; k < ny; k++, n++)
+            {
+                x_coord[n] = latVals[j];
+                y_coord[n] = lonVals[k];
+                z_coord[n] = depthVals[j*ny+k];
+            }
+        // Fill the vertex list
+        n = 0;
+        for (int j = 1; j < nx; j++)
+            for (int k = 1; k < ny; k++)
+            {
+                vl[n++] = (j - 1) * ny + (k - 1);
+                vl[n++] = j * ny + (k - 1);
+                vl[n++] = j * ny + k;
+                vl[n++] = (j - 1) * ny + k;
             }
         // Fill the polygon list
         for (int p = 0; p < numPolygons; p++)
             pl[p] = p * 4;
 
         // Delete buffers from grid replication
-        delete[] xVals;
-        delete[] yVals;
-        delete[] zVals;
+        delete[] latVals;
+        delete[] lonVals;
+        delete[] depthVals;
 
-        // Create output object pointers
-        coDoFloat *dataOut[numParams];
-        float *floatData;
-        // FIXME: Assuming all data to be floats
-        // For each output variable, create an output object and fill it with data
-        for (int i = 0; i < numParams; i++)
+        
+        float* floatData;
+        coDoFloat *mh = new coDoFloat(p_maxHeight->getObjName(), max_height.getDim(0).getSize()* max_height.getDim(1).getSize());
+        mh->getAddress(&floatData);
+        max_height.getVar(floatData);
+
+        floatData = new float[eta.getDim(0).getSize()* eta.getDim(1).getSize() *eta.getDim(2).getSize()];
+        int numTimesteps = eta.getDim(0).getSize();
+        eta.getVar(floatData);
+
+        coDistributedObject** objs = new coDistributedObject * [numTimesteps+1];
+        std::string baseName = p_waterSurface_out->getObjName();
+        objs[numTimesteps] = nullptr;
+        if (numTimesteps > 3)
+            numTimesteps = 3;
+        for (int i = 0; i < numTimesteps; i++)
         {
-            var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-            dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), var->num_vals());
-            dataOut[i]->getAddress(&floatData);
-            // FIXME: should make sure only to read a 3D subset
-            var->get(floatData, var->edges());
+			// Now for the 2D variables, we create a surface
+			int snumPolygons = (snx - 1) * (sny - 1);
+			coDoPolygons* outSurface = new coDoPolygons(baseName + std::to_string(i),
+				snx * sny, snumPolygons * 4, snumPolygons);
+			int* vl, * pl;
+			float* x_coord, * y_coord, * z_coord;
+			outSurface->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
+			for (int n = 0; n < snx * sny; n++)
+			{
+				x_coord[n] = sx_coord[n];
+				y_coord[n] = sy_coord[n];
+				z_coord[n] = floatData[i*snx*sny+n];
+			}
+            for (int j = 1; j < snumPolygons * 4; j++)
+            {
+                vl[j]=svl[j];
+            }
+			// Fill the polygon list
+			for (int p = 0; p < snumPolygons; p++)
+				pl[p] = spl[p];
+
+            objs[i] = outSurface;
+            objs[i + 1] = nullptr;
         }
 
-        // interaction info for COVER
-        coFeedback feedback("ReadNetCDFPlugin");
-        feedback.addPara(p_fileBrowser);
+        coDoSet* set = new coDoSet(baseName, objs);
+        set->addAttribute("TIMESTEP", "-1 -1");
 
-        feedback.addPara(p_grid_choice_x);
-        feedback.addPara(p_grid_choice_y);
-        feedback.addPara(p_grid_choice_z);
-
-        for (int i = 0; i < numParams; ++i)
-        {
-            feedback.addPara(p_variables[i]);
-        }
-
-        // FIXME: check for data first
-        //feedback.apply(outGrid);
-        feedback.apply(outSurface);
     }
 
     return CONTINUE_PIPELINE;
@@ -352,7 +333,7 @@ int ReadNetCDF::compute(const char *)
 // -----------------------------------------------------------------------------
 // open the nc file
 // -----------------------------------------------------------------------------
-bool ReadNetCDF::openNcFile()
+bool ReadTsunami::openNcFile()
 {
     string sFileName = p_fileBrowser->getValue();
 
@@ -363,11 +344,18 @@ bool ReadNetCDF::openNcFile()
     }
     else
     {
-        ncDataFile = new NcFile(sFileName.c_str(), NcFile::ReadOnly);
-
-        if (!ncDataFile->is_valid())
+        try {
+            ncDataFile = new NcFile(sFileName.c_str(), NcFile::read);
+        }
+        catch(...)
         {
             sendInfo("Couldn't open NetCDF file!");
+            return false;
+        }
+
+        if (ncDataFile->getVarCount()==0)
+        {
+            sendInfo("empty NetCDF file!");
             return false;
         }
         else
@@ -382,7 +370,7 @@ bool ReadNetCDF::openNcFile()
 // -----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    covise::coModule *application = new ReadNetCDF(argc, argv);
+    covise::coModule *application = new ReadTsunami(argc, argv);
     application->start(argc, argv);
 
     return 0;

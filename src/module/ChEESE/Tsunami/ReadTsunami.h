@@ -5,25 +5,32 @@
 
  * License: LGPL 2+ */
 
-#ifndef READNETCDF_H
-#define READNETCDF_H
+#ifndef ReadTsunami_H
+#define ReadTsunami_H
 
 #include <api/coModule.h>
+#ifdef OLD_NETCDFCXX
 #include <netcdfcpp.h>
+#else
+#include <ncFile.h>
+#include <ncVar.h>
+#include <ncDim.h>
+using namespace netCDF;
+#endif
 
 #define numParams 6
 
 // -------------------------------------------------------------------
-// class ReadNetCDF
+// class ReadTsunami
 // -------------------------------------------------------------------
-class ReadNetCDF : public covise::coModule
+class ReadTsunami : public covise::coModule
 {
 public:
     /// default constructor
-    ReadNetCDF(int argc, char *argv[]);
+    ReadTsunami(int argc, char *argv[]);
 
     /// destructor
-    virtual ~ReadNetCDF();
+    virtual ~ReadTsunami();
 
     /// change of parameters (callback)
     virtual void param(const char *paramName, bool inMapLoading);
@@ -46,8 +53,11 @@ private:
 
     // ports
     covise::coOutputPort *p_grid_out;
-    covise::coOutputPort *p_data_outs[numParams];
-    covise::coOutputPort *p_surface_out;
+    //covise::coOutputPort *p_data_outs[numParams];
+    covise::coOutputPort* p_surface_out;
+    covise::coOutputPort* p_seeSurface_out;
+    covise::coOutputPort* p_maxHeight;
+    covise::coOutputPort* p_waterSurface_out;
 
     // the netCDF File to be read from
     NcFile *ncDataFile;
