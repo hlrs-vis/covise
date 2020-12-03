@@ -33,33 +33,33 @@ uniform float arrowsize;
 
 	float arrowlength = 0.08023;
 	vec3 viewer =gl_ModelViewMatrixInverse[3].xyz;
-    vec3 dir = (gl_PositionIn[1]-gl_PositionIn[0]).xyz;
+    vec3 dir = (gl_in[1]-gl_in[0].gl_Position.gl_Position).xyz;
 	float dirlength = length(dir);
 	float size = min(arrowsize,dirlength*0.8);
 	float tex_x = 1-min(arrowlength*dirlength/size,1.0);
 
-	vec3 toViewer = viewer-gl_PositionIn[0].xyz;
+	vec3 toViewer = viewer-gl_in[0].gl_Position.xyz;
 	vec3 w = r*normalize(cross(toViewer,dir));
 
 	
 	ocolor = color[0];
-	vec4 p = gl_PositionIn[0]-vec4(w,0);
+	vec4 p = gl_in[0].gl_Position-vec4(w,0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
 
 	texCoord = vec2(tex_x,0);
 	EmitVertex();
 	
-	p = gl_PositionIn[0]+vec4(w,0);
+	p = gl_in[0].gl_Position+vec4(w,0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
 	texCoord = vec2(tex_x,1);
 	EmitVertex(); 
 	
-	p = gl_PositionIn[1]-vec4(w,0);
+	p = gl_in[1].gl_Position-vec4(w,0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
 	texCoord = vec2(1,0);
 	EmitVertex();	
 	
-	p = gl_PositionIn[1]+vec4(w,0);
+	p = gl_in[1].gl_Position+vec4(w,0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
 	texCoord = vec2(1,1);
 	EmitVertex();	

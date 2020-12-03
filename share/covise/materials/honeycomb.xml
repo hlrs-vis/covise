@@ -129,40 +129,40 @@ return FrontColor;
   {
      vec3 transformedNormal;
 	transformedNormal = normalize(gl_NormalMatrix * vec3(0,0,1));
-	vec4 p = gl_PositionIn[0]+vec4(-2.89,0,0,1);
+	vec4 p = gl_in[0].gl_Position+vec4(-2.89,0,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 
 	EmitVertex();
 	
-	p = gl_PositionIn[0]+vec4(-1.44,2.5,0,1);
+	p = gl_in[0].gl_Position+vec4(-1.44,2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	
 	EmitVertex(); 
 	
-	p = gl_PositionIn[0]+vec4(-1.44,-2.5,0,1);
+	p = gl_in[0].gl_Position+vec4(-1.44,-2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	
 	EmitVertex();	
 	
-	p = gl_PositionIn[0]+vec4(1.44,2.5,0,1);
+	p = gl_in[0].gl_Position+vec4(1.44,2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 
 	EmitVertex();	
-	p = gl_PositionIn[0]+vec4(1.44,-2.5,0,1);
+	p = gl_in[0].gl_Position+vec4(1.44,-2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(2.89,0,0,1);
+    p = gl_in[0].gl_Position+vec4(2.89,0,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -171,40 +171,40 @@ return FrontColor;
  	EndPrimitive();
 if(color[0].a &gt; r)
 {
-	vec4 p = gl_PositionIn[0]+vec4(-2.89,0,height*color[0].r,1);
+	vec4 p = gl_in[0]+vec4(-2.89,0,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 
 	EmitVertex();
 	
-	p = gl_PositionIn[0]+vec4(-1.44,2.5,height*color[0].r,1);
+	p = gl_in[0]+vec4(-1.44,2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	
 	EmitVertex(); 
 	
-	p = gl_PositionIn[0]+vec4(-1.44,-2.5,height*color[0].r,1);
+	p = gl_in[0]+vec4(-1.44,-2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	
 	EmitVertex();	
 	
-	p = gl_PositionIn[0]+vec4(1.44,2.5,height*color[0].r,1);
+	p = gl_in[0]+vec4(1.44,2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 
 	EmitVertex();	
-	p = gl_PositionIn[0]+vec4(1.44,-2.5,height*color[0].r,1);
+	p = gl_in[0]+vec4(1.44,-2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(2.89,0,height*color[0].r,1);
+    p = gl_in[0]+vec4(2.89,0,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -213,22 +213,22 @@ if(color[0].a &gt; r)
  	EndPrimitive();	
 }	
 	transformedNormal = normalize(gl_NormalMatrix * vec3(0,1,0));
-    p = gl_PositionIn[0]+vec4(-1.44,2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(-1.44,2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();
-    p = gl_PositionIn[0]+vec4(1.44,2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(1.44,2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex(); 
-    p = gl_PositionIn[0]+vec4(-1.44,2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(-1.44,2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(1.44,2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(1.44,2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -236,22 +236,22 @@ if(color[0].a &gt; r)
  	EndPrimitive();
 	
 	transformedNormal = normalize(gl_NormalMatrix * vec3(0.866,0.5,0));
-    p = gl_PositionIn[0]+vec4(1.44,2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(1.44,2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();
-    p = gl_PositionIn[0]+vec4(2.89,0,0,1);
+    p = gl_in[0].gl_Position+vec4(2.89,0,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex(); 
-    p = gl_PositionIn[0]+vec4(1.44,2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(1.44,2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(2.89,0,height*color[0].r,1);
+    p = gl_in[0]+vec4(2.89,0,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -259,22 +259,22 @@ if(color[0].a &gt; r)
  	EndPrimitive();
 	
 	transformedNormal = normalize(gl_NormalMatrix * vec3(0.866,-0.5,0));
-    p = gl_PositionIn[0]+vec4(2.89,0,0,1);
+    p = gl_in[0].gl_Position+vec4(2.89,0,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();
-    p = gl_PositionIn[0]+vec4(1.44,-2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(1.44,-2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex(); 
-    p = gl_PositionIn[0]+vec4(2.89,0,height*color[0].r,1);
+    p = gl_in[0]+vec4(2.89,0,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(1.44,-2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(1.44,-2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -282,22 +282,22 @@ if(color[0].a &gt; r)
  	EndPrimitive();
 	
 	transformedNormal = normalize(gl_NormalMatrix * vec3(0,-1,0));
-    p = gl_PositionIn[0]+vec4(-1.44,-2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(-1.44,-2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();
-    p = gl_PositionIn[0]+vec4(1.44,-2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(1.44,-2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex(); 
-    p = gl_PositionIn[0]+vec4(-1.44,-2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(-1.44,-2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(1.44,-2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(1.44,-2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -305,22 +305,22 @@ if(color[0].a &gt; r)
  	EndPrimitive();
 	
 	transformedNormal = normalize(gl_NormalMatrix * vec3(-0.866,-0.5,0));
-    p = gl_PositionIn[0]+vec4(-2.89,0,0,1);
+    p = gl_in[0].gl_Position+vec4(-2.89,0,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();
-    p = gl_PositionIn[0]+vec4(-1.44,-2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(-1.44,-2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex(); 
-    p = gl_PositionIn[0]+vec4(-2.89,0,height*color[0].r,1);
+    p = gl_in[0]+vec4(-2.89,0,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(-1.44,-2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(-1.44,-2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
@@ -328,22 +328,22 @@ if(color[0].a &gt; r)
  	EndPrimitive();
 	
 	transformedNormal = normalize(gl_NormalMatrix * vec3(-0.866,0.5,0));
-    p = gl_PositionIn[0]+vec4(-2.89,0,0,1);
+    p = gl_in[0].gl_Position+vec4(-2.89,0,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
     gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();
-    p = gl_PositionIn[0]+vec4(-1.44,2.5,0,1);
+    p = gl_in[0].gl_Position+vec4(-1.44,2.5,0,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex(); 
-    p = gl_PositionIn[0]+vec4(-2.89,0,height*color[0].r,1);
+    p = gl_in[0]+vec4(-2.89,0,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;
 	EmitVertex();	
-    p = gl_PositionIn[0]+vec4(-1.44,2.5,height*color[0].r,1);
+    p = gl_in[0]+vec4(-1.44,2.5,height*color[0].gl_Position.r,1);
 	ocolor = flight(transformedNormal,p,1.0);
 	gl_Position = gl_ModelViewProjectionMatrix * p;
                           gl_ClipVertex = gl_ModelViewMatrix*p;

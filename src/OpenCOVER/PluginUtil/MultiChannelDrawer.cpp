@@ -391,7 +391,7 @@ const char reprojMeshGeo[] =
       "}\n"
 
       "void main() {\n"
-      "   vec2 xy = gl_PositionIn[0].xy;\n"
+      "   vec2 xy = gl_in[0].gl_Position.xy;\n"
       ""
       "   bool render = true;\n"
       "   if (withHoles) {\n"
