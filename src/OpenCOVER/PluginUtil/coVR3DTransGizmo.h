@@ -43,6 +43,7 @@ public:
 
     virtual void startInteraction() override;
     virtual void doInteraction() override;
+    virtual void stopInteraction() override;
 
 };
 

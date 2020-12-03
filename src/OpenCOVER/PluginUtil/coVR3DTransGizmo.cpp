@@ -134,6 +134,8 @@ void coVR3DTransGizmo::startInteraction()
     _translateXZonly = _hitNode == translateXZplaneGeode;
     _translateYZonly = _hitNode == translateYZplaneGeode;
 
+    
+
    
     /* wie setze ich das hier um, brauch man das ? ###################################
     if (!_rotateOnly && !_translateOnly)
@@ -143,7 +145,14 @@ void coVR3DTransGizmo::startInteraction()
     */
 
     coVR3DGizmoType::startInteraction();
-    
+    osg::Matrix interactor_to_w = getMatrix();
+
+    //_startTest_o = osg::Matrix::transform3x3(interactor_to_w.getTrans(), interactor_to_w.inverse(interactor_to_w));
+    // std::cout<<"getMatrix: "<<interactor_to_w.getTrans()<<std::endl;
+    // std::cout<<"getMatrix_o: "<<_startTest_o<<std::endl;
+// 
+    // std::cout<<"_diff"<< _diff<< std::endl;
+    // std::cout<<"_distance"<<_distance<<std::endl;   
 }
 void coVR3DTransGizmo::doInteraction()
 {
@@ -215,33 +224,50 @@ void coVR3DTransGizmo::doInteraction()
 
 osg::Vec3 coVR3DTransGizmo::calculatePointOfShortestDistance(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis_o) const
 {
-    osg::Vec3 newPos, pointLine1, pointLine2;
-
-    _helperLine->update(osg::Vec3(0,0,0)*getMatrix(),  axis_o*getMatrix());
+    osg::Vec3 newPos_o, pointLine1, pointLine2;
+    osg::Matrix interactor_to_w = getMatrix();
+    osg::Vec3 startInterMat_o = osg::Matrix::transform3x3(_startInterMat_w.getTrans(), interactor_to_w.inverse(interactor_to_w));
+    _helperLine->update(axis_o.operator*(-50.0f*getScale())*getMatrix(),  axis_o.operator*(50.0f*getScale()) *getMatrix()); //the length of the helper line doesn't matter, these values are just taken for visualization
     // if(_helperLine->getPointsOfShortestDistance(lp0, lp1, pointLine1, pointLine2))  what happens if lines are parallel ? 
     // {
         _helperLine->getPointsOfShortestDistance(lp0, lp1, pointLine1, pointLine2);
-        newPos = pointLine1 + _diff;
+        newPos_o =osg::Matrix::transform3x3(pointLine1 + _diff,interactor_to_w.inverse(interactor_to_w));
+
+        //newPos = pointLine1 + _diff;
         if(axis_o == osg::X_AXIS)
         {
-            newPos.z() = _startInterMat_o.getTrans().z();
-            newPos.y() = _startInterMat_o.getTrans().y();   
+            //_helperLine->setColor(_red);
+            newPos_o.z() = startInterMat_o.z();
+            newPos_o.y() = startInterMat_o.y();   
         }
         else if(axis_o == osg::Y_AXIS)
         {
-            newPos.z() = _startInterMat_o.getTrans().z();
-            newPos.x() = _startInterMat_o.getTrans().x();
+            //_helperLine->setColor(_green);
+            newPos_o.z() = startInterMat_o.z();
+            newPos_o.x() = startInterMat_o.x();
         }
         else if(axis_o == osg::Z_AXIS)
         {
-            newPos.x() = _startInterMat_o.getTrans().x();
-            newPos.y() = _startInterMat_o.getTrans().y();
+            //_helperLine->setColor(_blue);
+            newPos_o.x() = startInterMat_o.x();
+            newPos_o.y() = startInterMat_o.y();
         }
+
+        //_helperLine->show();
+
     // }
     // else
         // newPos = _oldInteractorXformMat_o.getTrans();
-        
-    return newPos;
+    osg::Vec3 newPos_w = osg::Matrix::transform3x3(newPos_o,interactor_to_w);
+
+    return newPos_w;
+}
+
+
+void coVR3DTransGizmo::stopInteraction() 
+{
+    //_helperLine->hide();
+    coVR3DGizmoType::stopInteraction();
 }
 
 

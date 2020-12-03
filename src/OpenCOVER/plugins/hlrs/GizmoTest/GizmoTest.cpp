@@ -39,9 +39,11 @@ GizmoTest::GizmoTest()
     _scene->addChild(_cube1.get());
 
    
-    osg::Matrix matrix = osg::Matrix::translate(osg::Vec3(40,0,0));
+    osg::Matrix matrix; 
+    matrix.makeRotate(osg::DegreesToRadians(-130.0), osg::Z_AXIS);
+    //osg::Matrix::translate(osg::Vec3(40,0,0));
     float _interSize = cover->getSceneSize() / 50 ;
-    _transgizmo = new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    _transgizmo = new coVR3DTransGizmo(matrix*osg::Matrix::translate(osg::Vec3(40,0,0)), _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     _transgizmo->setName("Gizmo");
     _transgizmo->enableIntersection();
     _transgizmo->show();

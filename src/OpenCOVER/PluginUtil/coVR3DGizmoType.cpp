@@ -101,7 +101,7 @@ void coVR3DGizmoType::startInteraction()
 
 
     _oldInterMat_o = _interMat_o;
-    _startInterMat_o = _interMat_o;
+    _startInterMat_w = _interMat_o;
 
     _diff = _interMat_o.getTrans() - _hitPos;
     _distance = (_hitPos - currHandMat_o.getTrans()).length();
@@ -146,20 +146,31 @@ void coVR3DGizmoType::setShared(bool shared)
 // Der funktionsname passt nicht zu dem was es tut ? Bekommen nicht den Schnittpunkt sondern startPos! 
 osg::Vec3 coVR3DGizmoType::calcPlaneLineIntersection(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 fixAxis_o) const
 {
-    osg::Vec3 isectPoint, newPos;
-    _helperPlane->update(fixAxis_o , getMatrix().getTrans()); // FIXME: fixAxis * getMatrix !?
+    osg::Vec3 isectPoint, newPos_o;
+    osg::Matrix rotationOnly = _startInterMat_w;
+    rotationOnly.setTrans(osg::Vec3(0,0,0));
+    osg::Vec3 normal = fixAxis_o * rotationOnly;
+    osg::Vec3 pointOnPlane =_startInterMat_w.getTrans();
+
+    _helperPlane->update(normal, pointOnPlane); 
     bool intersect = _helperPlane->getLineIntersectionPoint( lp0, lp1, isectPoint);
-    newPos  = isectPoint + _diff;
+    
+    osg::Matrix interactor_to_w = getMatrix();
+    osg::Vec3 startInterMat_o = osg::Matrix::transform3x3(_startInterMat_w.getTrans(), interactor_to_w.inverse(interactor_to_w));
+
+    newPos_o =osg::Matrix::transform3x3(isectPoint + _diff,interactor_to_w.inverse(interactor_to_w));
+
 
     // hier aufpassen, dass man nicht axe schon multipliziert reingibt !
     if(fixAxis_o == osg::X_AXIS)
-        newPos.x() = _oldInterMat_o.getTrans().x();
+        newPos_o.x() = startInterMat_o.x();
     else if(fixAxis_o == osg::Y_AXIS)
-        newPos.y() = _oldInterMat_o.getTrans().y();
+        newPos_o.y() = startInterMat_o.y();
     else if(fixAxis_o == osg::Z_AXIS)
-        newPos.z() = _oldInterMat_o.getTrans().z();
+        newPos_o.z() = startInterMat_o.z();
 
-    return newPos; //FIXME what happens if lines are parallel ? 
+    osg::Vec3 newPos_w = osg::Matrix::transform3x3(newPos_o,interactor_to_w);
+    return newPos_w; //FIXME what happens if lines are parallel ?
 }
 
 void coVR3DGizmoType::calculatePointerDirection_w(osg::Vec3& lp0, osg::Vec3& lp1, osg::Vec3& pointerDir ) const

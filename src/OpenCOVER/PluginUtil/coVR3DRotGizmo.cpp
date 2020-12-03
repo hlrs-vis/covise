@@ -168,8 +168,8 @@ void coVR3DRotGizmo::startInteraction()
     
     coVRIntersectionInteractor::startInteraction();
 
-    _startInterMat_o = getMatrix();
-    _oldInterMat_o = _startInterMat_o;
+    _startInterMat_w = getMatrix();
+    _oldInterMat_o = _startInterMat_w;
     _startHandMat = getPointerMat();
 
     _rotateZonly = rotateAroundSpecificAxis(_zRotCylGroup.get());
@@ -465,7 +465,7 @@ osg::Matrix coVR3DRotGizmo::calcRotation2D(const osg::Vec3& lp0_o, const osg::Ve
 
     osg::Matrix rotate;
     rotate.makeRotate(osg::DegreesToRadians(vecAngle360(dir1, dir2, -refVec)), rotationAxis *getMatrix());
-    interMatrix = _startInterMat_o*rotate;
+    interMatrix = _startInterMat_w*rotate;
 
     return interMatrix;
 }
@@ -482,7 +482,7 @@ osg::Matrix coVR3DRotGizmo::calcRotation3D(osg::Vec3 rotationAxis)
 
     osg::Matrix rotate;
     rotate.makeRotate(osg::DegreesToRadians(angle), rotationAxis *getMatrix());
-    interMatrix = _startInterMat_o*rotate;  
+    interMatrix = _startInterMat_w*rotate;  
 
     return interMatrix; 
 }
