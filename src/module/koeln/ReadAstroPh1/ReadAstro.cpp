@@ -23,7 +23,10 @@
 #include <cassert>
 #include <map>
 #include <string>
-#include <netcdfcpp.h>
+#include <ncFile.h>
+#include <ncVar.h>
+#include <ncDim.h>
+using namespace netCDF;
 
 using namespace covise;
 float minname = FLT_MAX, maxname = -FLT_MAX;
@@ -61,7 +64,7 @@ private:
 
     // data
     NcFile *m_ncfile;
-    NcVar *m_ncdata;
+    NcVar m_ncdata;
     int m_currentIndex;
 
     struct Star
@@ -96,7 +99,6 @@ private:
 ReadAstro::ReadAstro(int argc, char *argv[])
     : coModule(argc, argv, "Read Astro files containing lists of atom positions and their element types for several time steps.")
     , m_ncfile(NULL)
-    , m_ncdata(NULL)
     , m_currentIndex(0)
 {
 
@@ -118,13 +120,11 @@ ReadAstro::ReadAstro(int argc, char *argv[])
     m_paramFilename->setValue("data/", "*.nc;*.NC/*");
 
     m_paramStep = addFloatParam("Timestep", "animation time step");
-    m_paramStep->setValue(0.1);
+    m_paramStep->setValue(0.1f);
 }
 
 bool ReadAstro::close()
 {
-    //delete m_ncdata;
-    m_ncdata = NULL;
 
     delete m_ncfile;
     m_ncfile = NULL;
@@ -134,80 +134,77 @@ bool ReadAstro::close()
 bool ReadAstro::open(const char *path)
 {
     assert(!m_ncfile);
-    m_ncfile = new NcFile(path, NcFile::ReadOnly);
-    if (!m_ncfile->is_valid())
+    try {
+        m_ncfile = new NcFile(path, NcFile::read);
+    }
+    catch(...)
     {
         close();
         sendError("failed to open NetCDF file %s", path);
         return false;
     }
 
-    if (m_ncfile->get_format() == NcFile::BadFormat)
-    {
-        close();
-        sendError("bad NetCDF file");
-        return false;
-    }
 
     fprintf(stderr, "dims=%d, vars=%d, attrs=%d\n",
-            m_ncfile->num_dims(), m_ncfile->num_vars(), m_ncfile->num_atts());
+        m_ncfile->getDimCount(), m_ncfile->getVarCount(), m_ncfile->getAttCount());
 
-    for (int i = 0; i < m_ncfile->num_dims(); ++i)
+    std::multimap<std::string, NcDim> allDims = m_ncfile->getDims();
+    for (const auto& dim : allDims)
     {
-        fprintf(stderr, "%s: %ld\n",
-                m_ncfile->get_dim(i)->name(),
-                m_ncfile->get_dim(i)->size());
+        fprintf(stderr, "%s: %zd\n",
+            dim.second.getName().c_str(),
+            dim.second.getSize());
     }
-    for (int i = 0; i < m_ncfile->num_vars(); ++i)
+
+    std::multimap<std::string, NcVar> allVars = m_ncfile->getVars();
+    for (const auto& var : allVars)
     {
-        fprintf(stderr, "%s: dims=%d atts=%d vals=%ld type=%d\n",
-                m_ncfile->get_var(i)->name(),
-                m_ncfile->get_var(i)->num_dims(),
-                m_ncfile->get_var(i)->num_atts(),
-                m_ncfile->get_var(i)->num_vals(),
-                m_ncfile->get_var(i)->type());
+        fprintf(stderr, "%s: dims=%d atts=%d\n",
+            var.second.getName().c_str(),
+            var.second.getDimCount(),
+            var.second.getAttCount());
         //int dims = m_ncfile->get_var(i)->num_dims();
-        NcVar *var = m_ncfile->get_var(i);
-        for (int j = 0; j < var->num_dims(); ++j)
+        for (int j = 0; j < var.second.getDimCount(); ++j)
         {
-            fprintf(stderr, "   %s: %ld edge=%ld\n",
-                    var->get_dim(j)->name(),
-                    var->get_dim(j)->size(),
-                    var->edges()[j]);
+            fprintf(stderr, "   %s: %zd\n",
+                var.second.getDim(j).getName().c_str(),
+                var.second.getDim(j).getSize());
         }
     }
-    for (int i = 0; i < m_ncfile->num_atts(); ++i)
+
+    std::multimap<std::string, NcGroupAtt> allAtts = m_ncfile->getAtts();
+    for (const auto& att : allAtts)
     {
-        fprintf(stderr, "%s\n", m_ncfile->get_att(i)->name());
+        fprintf(stderr, "%s\n", att.second.getName().c_str());
     }
 
-    m_ncdata = m_ncfile->get_var("data");
-    if (!m_ncdata)
+    m_ncdata = m_ncfile->getVar("data");
+    if (m_ncdata.isNull())
     {
         close();
         sendError("\"data\" variable not found");
         return false;
     }
-    if (m_ncdata->num_dims() != 3)
+    if (m_ncdata.getDimCount() != 3)
     {
         close();
-        sendError("\"data\" variable does not have 3 dimensions but %d", m_ncdata->num_dims());
+        sendError("\"data\" variable does not have 3 dimensions but %d", m_ncdata.getDimCount());
         return false;
     }
-    NcDim *coldim = m_ncdata->get_dim(2);
-    if (!coldim || strcmp(coldim->name(), "cols"))
+    NcDim coldim = m_ncdata.getDim(2);
+    if (coldim.getName()!="cols")
     {
         close();
         sendError("\"data\" variable does not have \"cols\" dimension");
         return false;
     }
-    if (coldim->size() != 22)
+    if (coldim.getSize() != 22)
     {
         close();
-        sendError("\"cols\" dimension has value %ld instead of 22", coldim->size());
+        sendError("\"cols\" dimension has value %ld instead of 22", coldim.getSize());
         return false;
     }
-    if (m_ncdata->type() != ncFloat)
+    if (m_ncdata.getType() != ncFloat)
     {
         close();
         sendError("\"data\" does not have ncFloat type");
@@ -221,16 +218,20 @@ bool ReadAstro::read(int name, float time)
 {
     fprintf(stderr, "reading for no %d, time=%f\n", name, time);
     bool done = false;
-    for (int i = m_currentIndex; i < m_ncdata->get_dim(0)->size(); ++i)
+
+    std::vector<size_t> start{ 0,0,0 };
+    std::vector<size_t> size{ 1,1,22 };
+
+    for (int i = m_currentIndex; i < m_ncdata.getDim(0).getSize(); ++i)
     {
-        for (int j = 0; j < m_ncdata->get_dim(1)->size(); ++j)
+        for (int j = 0; j < m_ncdata.getDim(1).getSize(); ++j)
         {
             union
             {
                 float val[22];
                 struct Star s;
             } d;
-            m_ncdata->get(d.val, 1, 1, 22);
+            m_ncdata.getVar(start,size,d.val);
             //fprintf(stderr, "name=%f", d.s.name);
             int curname = int(d.s.name + 0.5f);
             if (d.s.name < minname)
@@ -247,7 +248,7 @@ bool ReadAstro::read(int name, float time)
                         d.s.t, d.s.step, d.s.x[0], d.s.x[1], d.s.x[2], d.s.v[0], d.s.v[1], d.s.v[2], d.s.name, d.s.i, d.s.mass);
             }
 #endif
-            int num = m_stars.size();
+            size_t num = m_stars.size();
 
             if (curname >= num)
             {
@@ -263,8 +264,7 @@ bool ReadAstro::read(int name, float time)
             }
 
             //fprintf(stderr, " %f", d.s.t);
-
-            m_ncdata->set_cur(i, j, 0);
+            start[0] = i; start[1] = j;
             //fprintf(stderr,"\n");
 
             if (curname == name && d.s.t >= time)

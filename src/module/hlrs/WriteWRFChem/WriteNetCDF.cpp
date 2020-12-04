@@ -18,7 +18,6 @@
 #include <iostream>
 #include <do/coDoStructuredGrid.h>
 #include <do/coDoData.h>
-#include <netcdfcpp.h>
 
 
 WriteNetCDF::WriteNetCDF(int argc, char *argv[])
@@ -68,10 +67,14 @@ int WriteNetCDF::compute(const char *)
         return STOP_PIPELINE;
     }else
     {
-       ncOutFile = new NcFile(filePath.c_str(), NcFile::New, NULL, 0, NcFile::Offset64Bits);
-        if (!ncOutFile->is_valid())
+        try
         {
-            sendError("failed to create new file");
+       ncOutFile = new NcFile(filePath.c_str(), NcFile::write, NcFile::classic64);
+        }
+        catch (...)
+        {
+            sendError("failed to open %s", filePath.c_str());
+            return STOP_PIPELINE;
         }
     }
 
@@ -102,37 +105,27 @@ int WriteNetCDF::compute(const char *)
     }
 
 
-    NcDim *dimTime = ncOutFile->add_dim("Time",1); //TODO: if more than 1 -> handle coDoSet
-    NcDim *dimSN = ncOutFile->add_dim("south_north", nz);
-    NcDim *dimEW = ncOutFile->add_dim("east_west", ny);
-    NcDim *dimBT = ncOutFile->add_dim("bottom_top", nx);
+    NcDim dimTime = ncOutFile->addDim("Time",1); //TODO: if more than 1 -> handle coDoSet
+    NcDim dimSN = ncOutFile->addDim("south_north", nz);
+    NcDim dimEW = ncOutFile->addDim("east_west", ny);
+    NcDim dimBT = ncOutFile->addDim("bottom_top", nx);
 
-    NcVar *var[numVars];
+    NcVar var[numVars];
     for (int i = 0; i < numVars; ++i) {
         if (varUsed[i] > 0)
         {
             sprintf(buf, "%s", p_varName[i]->getValue());
-            var[i] = ncOutFile->add_var(buf, ncFloat, dimTime, dimSN, dimEW);
+            std::vector<NcDim> dims{ dimTime, dimSN, dimEW };
+            var[i] = ncOutFile->addVar(buf, ncFloat, dims);
         }
     }
 
     //Note: no global attributes added so far
 
-    NcBool putOK[numVars];
     for (int i = 0; i < numVars; ++i) {
         if (varUsed[i] > 0)
         {
-            putOK[i] = var[i]->put(val[i], 1, nz, ny);
-
-            if (!putOK[i])
-            {
-                sendInfo("WriteNetCDF: Failed to write values for variable %d", i);
-            }else
-            {
-                sendInfo("Writing variable %d done", i);
-                var[i]->sync();
-
-            }
+            var[i].putVar(val[i]);
         }
 
     }

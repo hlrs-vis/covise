@@ -9,7 +9,10 @@
 #define READECMWF_H
 
 #include <api/coModule.h>
-#include <netcdfcpp.h>
+#include <ncFile.h>
+#include <ncVar.h>
+#include <ncDim.h>
+using namespace netCDF;
 
 #define numParams 6
 

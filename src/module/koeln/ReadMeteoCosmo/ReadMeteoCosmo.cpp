@@ -22,7 +22,10 @@
 #include <cassert>
 #include <map>
 #include <string>
-#include <netcdfcpp.h>
+#include <ncFile.h>
+#include <ncVar.h>
+#include <ncDim.h>
+using namespace netCDF;
 #include <do/coDoUniformGrid.h>
 
 using namespace covise;
@@ -48,7 +51,7 @@ private:
 
     // data
     NcFile *m_ncfile;
-    NcVar *m_ncdata;
+    NcVar m_ncdata;
     int m_currentIndex;
 };
 
@@ -56,7 +59,6 @@ private:
 ReadAstro::ReadAstro(int argc, char *argv[])
     : coModule(argc, argv, "Read Meteo Cosmo Data.")
     , m_ncfile(NULL)
-    , m_ncdata(NULL)
     , m_currentIndex(0)
 {
 
@@ -73,8 +75,6 @@ ReadAstro::ReadAstro(int argc, char *argv[])
 
 bool ReadAstro::close()
 {
-    //delete m_ncdata;
-    m_ncdata = NULL;
 
     delete m_ncfile;
     m_ncfile = NULL;
@@ -84,53 +84,48 @@ bool ReadAstro::close()
 bool ReadAstro::open(const char *path)
 {
     assert(!m_ncfile);
-    m_ncfile = new NcFile(path, NcFile::ReadOnly);
-    if (!m_ncfile->is_valid())
+    try {
+        m_ncfile = new NcFile(path, NcFile::read);
+    }
+    catch (...)
     {
         close();
         sendError("failed to open NetCDF file %s", path);
         return false;
     }
 
-    if (m_ncfile->get_format() == NcFile::BadFormat)
-    {
-        close();
-        sendError("bad NetCDF file");
-        return false;
-    }
 
     fprintf(stderr, "dims=%d, vars=%d, attrs=%d\n",
-            m_ncfile->num_dims(), m_ncfile->num_vars(), m_ncfile->num_atts());
+            m_ncfile->getDimCount(), m_ncfile->getVarCount(), m_ncfile->getAttCount());
 
-    for (int i = 0; i < m_ncfile->num_dims(); ++i)
+    std::multimap<std::string, NcDim> allDims = m_ncfile->getDims();
+    for(const auto &dim:allDims)
     {
-        fprintf(stderr, "%s: %ld\n",
-                m_ncfile->get_dim(i)->name(),
-                m_ncfile->get_dim(i)->size());
+        fprintf(stderr, "%s: %zd\n",
+                dim.second.getName().c_str(),
+                dim.second.getSize());
     }
 
-    for (int i = 0; i < m_ncfile->num_vars(); ++i)
+    std::multimap<std::string, NcVar> allVars = m_ncfile->getVars();
+    for (const auto& var : allVars)
     {
-        fprintf(stderr, "%s: dims=%d atts=%d vals=%ld type=%d\n",
-                m_ncfile->get_var(i)->name(),
-                m_ncfile->get_var(i)->num_dims(),
-                m_ncfile->get_var(i)->num_atts(),
-                m_ncfile->get_var(i)->num_vals(),
-                m_ncfile->get_var(i)->type());
+        fprintf(stderr, "%s: dims=%d atts=%d\n",
+            var.second.getName().c_str(),
+            var.second.getDimCount(),
+            var.second.getAttCount());
         //int dims = m_ncfile->get_var(i)->num_dims();
-        NcVar *var = m_ncfile->get_var(i);
-        for (int j = 0; j < var->num_dims(); ++j)
+        for (int j = 0; j < var.second.getDimCount(); ++j)
         {
-            fprintf(stderr, "   %s: %ld edge=%ld\n",
-                    var->get_dim(j)->name(),
-                    var->get_dim(j)->size(),
-                    var->edges()[j]);
+            fprintf(stderr, "   %s: %zd\n",
+                var.second.getDim(j).getName().c_str(),
+                var.second.getDim(j).getSize());
         }
     }
 
-    for (int i = 0; i < m_ncfile->num_atts(); ++i)
+    std::multimap<std::string, NcGroupAtt> allAtts = m_ncfile->getAtts();
+    for (const auto& att : allAtts)
     {
-        fprintf(stderr, "%s\n", m_ncfile->get_att(i)->name());
+        fprintf(stderr, "%s\n", att.second.getName().c_str());
     }
 
     return true;

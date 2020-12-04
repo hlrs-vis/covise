@@ -17,7 +17,6 @@
 #include "ReadECMWF.h"
 
 #include <iostream>
-#include <netcdfcpp.h>
 #include <api/coFeedback.h>
 #include "do/coDoStructuredGrid.h"
 #include "do/coDoData.h"
@@ -29,9 +28,9 @@ using namespace covise;
 
 const char *NoneChoices[] = { "none" };
 // Lets assume no more than 100 variables per file
-int varIds[100];
-char *VarDisplayList[100];
-char *AxisChoices[100];
+std::vector<std::string> varNames;
+char* VarDisplayList[100];
+std::vector<std::string> AxisChoices;
 
 // -----------------------------------------------------------------------------
 // constructor
@@ -126,27 +125,31 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
         // Create "Variable" menu entries for all 2D and 3D variables
         NcVar *var;
         int num2d3dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); i++)
+        std::multimap<std::string, NcVar> allVars = ncDataFile->getVars();
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() >= 0)
-            {
-                varIds[num2d3dVars] = i;
+            if (var.second.getDimCount() >= 0)
+            { // FIXME: what will we do here?
+
+                // A list of variable names (unaltered)
+                /*char* newEntry = new char[50];
+                strcpy(newEntry,var->name());
+                VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
+                varNames.push_back(var.first);
 
                 // A list of info to display for each variable
-                char *dispListEntry = new char[50];
-                if (var->num_dims() > 0)
+                char* dispListEntry = new char[50];
+                if (var.second.getDimCount() > 0)
                 {
-                    sprintf(dispListEntry, "%s (%dD) : [", var->name(),
-                            var->num_dims());
-                    for (int j = 0; j < var->num_dims() - 1; j++)
-                        sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var->get_dim(j)->name());
+                    sprintf(dispListEntry, "%s (%dD) : [", var.first.c_str(),
+                        var.second.getDimCount());
+                    for (int j = 0; j < var.second.getDimCount() - 1; j++)
+                        sprintf(dispListEntry, "%s %s,", dispListEntry, var.second.getDim(j).getName().c_str());
                     sprintf(dispListEntry, "%s %s ]", dispListEntry,
-                            var->get_dim(var->num_dims() - 1)->name());
+                        var.second.getDim(var.second.getDimCount() - 1).getName().c_str());
                 }
                 else
-                    sprintf(dispListEntry, "%s (%dD)", var->name(), var->num_dims());
+                    sprintf(dispListEntry, "%s (%dD)", var.first.c_str(), var.second.getDimCount());
                 VarDisplayList[num2d3dVars] = dispListEntry;
 
                 num2d3dVars++;
@@ -159,13 +162,12 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
 
         // Create "Axis" menu entries for 2D variables only
         int num2dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); ++i)
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() > 0)
+            if (var.second.getDimCount() == 2 || var.second.getDimCount() == 1)
             {
-                char *newEntry = new char[50];
-                strcpy(newEntry, var->name());
+                char* newEntry = new char[var.first.length()];
+                strcpy(newEntry, var.first.c_str());
                 AxisChoices[num2dVars] = newEntry;
                 num2dVars++;
             }
@@ -222,44 +224,40 @@ int ReadECMWF::compute(const char *)
     sendInfo("compute call");
     has_timesteps = 0;
 
-    if (ncDataFile->is_valid())
+    if (ncDataFile->getVarCount() > 0)
     {
         // get variable name from choice parameters
-        NcVar *var;
-        long *edges;
+        NcVar var;
+        std::vector<NcDim> dims;
         int numdims = 0;
         // Find the variable with most dimensions and record its size
         for (int i = 0; i < numParams; i++)
         {
-            var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-            if (var->num_dims() > numdims)
+            var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+            if (var.getDimCount() > numdims)
             {
-                numdims = var->num_dims();
-                edges = var->edges();
-                printf("%s is %ld", var->name(), edges[0]);
-                for (int j = 1; j < numdims; j++)
-                    printf(" x %ld", edges[j]);
-                printf("\n");
+                numdims = var.getDimCount();
+                dims = var.getDims();
             }
         }
 
 
-        if (edges[0] > 1)
+        if (dims[0].getSize() > 1)
         {
             has_timesteps = 1;
         }
 
-        sendInfo("Found %ld time steps\n", edges[0]);
+        sendInfo("Found %ld time steps\n", dims[0].getSize());
 
-        int nx = edges[numdims - 2], ny = edges[numdims - 1], nz = 1, nTime = edges[0];
+        int nx = dims[numdims - 2].getSize(), ny = dims[numdims - 1].getSize(), nz = 1, nTime = dims[0].getSize();
         if (has_timesteps > 0)
         {
             if (numdims > 3)
             {
-                nz = edges[numdims - 3];
+                nz = dims[numdims - 3].getSize();
             }
         }else if (numdims >=3){
-            nz = edges[numdims - 3]; //for 4D data only
+            nz = dims[numdims - 3].getSize(); //for 4D data only
         }
 
 
@@ -277,17 +275,17 @@ int ReadECMWF::compute(const char *)
             nTime = numTimesteps;
 
         // Find the variable corresponding to the users choice for each axis
-        NcVar *varLat = ncDataFile->get_var(
+        NcVar varLat = ncDataFile->getVar(
             AxisChoices[p_grid_lat->getValue()]);
-        NcVar *varLon = ncDataFile->get_var(
+        NcVar varLon = ncDataFile->getVar(
             AxisChoices[p_grid_lon->getValue()]);
-        NcVar *varPLevel;
+        NcVar varPLevel;
         if (p_coord_type->getValue() == PRESSURE)
         {
-            varPLevel = ncDataFile->get_var(AxisChoices[p_grid_pressure_level->getValue()]);
+            varPLevel = ncDataFile->getVar(AxisChoices[p_grid_pressure_level->getValue()]);
         }else
         {
-            varPLevel = ncDataFile->get_var(AxisChoices[p_grid_depth->getValue()]);
+            varPLevel = ncDataFile->getVar(AxisChoices[p_grid_depth->getValue()]);
         }
 
 
@@ -295,18 +293,18 @@ int ReadECMWF::compute(const char *)
         {
 
             //
-            float *xVals = new float[varLat->num_vals()];
-            float *yVals = new float[varLon->num_vals()];
-            varLat->get(xVals,varLat->edges());
-            varLon->get(yVals,varLon->edges());
+            float *xVals = new float[varLat.getDim(0).getSize()];
+            float *yVals = new float[varLon.getDim(0).getSize()];
+            varLat.getVar(xVals);
+            varLon.getVar(yVals);
             float *zVals;
             if (nz<=1)
             {
                 zVals = new float[1];
                 zVals[0] = 0;
             }else{
-                zVals = new float[varPLevel->num_vals()];
-                varPLevel->get(zVals, varPLevel->edges());
+                zVals = new float[varPLevel.getDim(0).getSize()];
+                varPLevel.getVar(zVals);
             }
 
 
@@ -381,12 +379,12 @@ int ReadECMWF::compute(const char *)
 
             // Get the addresses of the 3 coord arrays (each nz*ny*nx long)
             outGrid->getAddresses(&z_coord, &x_coord, &y_coord);
-            float *xVals= new float[varLat->num_vals()];
-            float *yVals= new float[varLon->num_vals()];
-            float *zVals = new float[varPLevel->num_vals()];
-            varLat->get(xVals, varLat->edges());
-            varLon->get(yVals, varLon->edges());
-            varPLevel->get(zVals, varPLevel->edges());
+            float *xVals= new float[varLat.getDim(0).getSize()];
+            float *yVals= new float[varLon.getDim(0).getSize()];
+            float *zVals = new float[varPLevel.getDim(0).getSize()];
+            varLat.getVar(xVals);
+            varLon.getVar(yVals);
+            varPLevel.getVar(zVals);
             float A = 6380; //actually N(lat)
             int n = 0;
           /*  for (int i = 0; i < nx; i++)
@@ -502,43 +500,43 @@ int ReadECMWF::compute(const char *)
             {
                 time_dependent = false;
                 num_vals = 1;
-                var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-                long* cur = var->edges();
+                var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+                std::vector<size_t> start = { 0,0,0,0 };
+                std::vector<size_t> size = { 0,0,0,0 };
                 //check that there is indeed timesteps
-                for (int d = 0; d < var->num_dims(); ++d)
+                for (int d = 0; d < var.getDimCount(); ++d)
                 {
-                    NcDim *dim = var->get_dim(d);
-                    if((strcmp(dim->name(), "time") == 0)||(strcmp(dim->name(),"time_counter") == 0))
+                    NcDim dim = var.getDim(d);
+                    size[d] = dim.getSize();
+                    start[d] = 0;
+                    if(dim.getName()=="time"|| dim.getName() == "time_counter")
                     {
                         time_dependent = true;
-                        if (nTime > dim->size())
+                        if (nTime > dim.getSize())
                          {
 
-                            nTime = dim->size();
+                            nTime = dim.getSize();
                             sendInfo("Max. available time steps is %d", nTime);
                         }
 
                     }else {
-                         num_vals = num_vals * dim->size();
+                         num_vals = num_vals * dim.getSize();
                     }
-                    cur[d] = 0;
                 }
 
                 if(time_dependent)
                 {
-                    long* edges_red = var->edges();
-                    edges_red[0] = 1;
 
                     for(int t = 0; t < nTime; ++t)
                     {
                         float *floatData;
-                        cur[0]=t;
                         sprintf(buf, "%s_%d", p_data_outs[i]->getObjName(), t);
                         coDoFloat *outdata = new coDoFloat(buf, num_vals);
                         time_data[t] = outdata;
                         outdata->getAddress(&floatData);
-                        var->set_cur(cur);
-                        var->get(floatData, edges_red);
+                        start[0] = t;
+                        size[0] = 1;
+                        var.getVar(start,size,floatData);
                     }
 
                     coDoSet *time_outData = new coDoSet(p_data_outs[i]->getObjName(), time_data);
@@ -550,10 +548,10 @@ int ReadECMWF::compute(const char *)
                     //static
                     sendInfo("Could not find timesteps for selected variable");
                     float *floatData;
-                    var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
+                    var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
                     dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), num_vals);
                     dataOut[i]->getAddress(&floatData);
-                    var->get(floatData, var->edges());
+                    var.getVar(floatData);
                 }
 
 
@@ -567,10 +565,10 @@ int ReadECMWF::compute(const char *)
             float *floatData;
             for (int i = 0; i < numParams; i++)
             {
-                var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-                dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), var->num_vals());
+                var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+                dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), nx*ny*nz);
                 dataOut[i]->getAddress(&floatData);
-                var->get(floatData, var->edges());
+                var.getVar(floatData);
             }
         }
 
@@ -602,17 +600,16 @@ bool ReadECMWF::openNcFile()
     }
     else
     {
-        ncDataFile = new NcFile(sFileName.c_str(), NcFile::ReadOnly);
 
-        if (!ncDataFile->is_valid())
+        try {
+            ncDataFile = new NcFile(sFileName.c_str(), NcFile::read);
+        }
+        catch (...)
         {
-            sendInfo("Couldn't open ECMWF file!");
+            sendInfo("Couldn't open WRFChem file!");
             return false;
         }
-        else
-        {
-            return true;
-        }
+        return true;
     }
 }
 

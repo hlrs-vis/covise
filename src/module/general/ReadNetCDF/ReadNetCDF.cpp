@@ -8,7 +8,6 @@
 #include "ReadNetCDF.h"
 
 #include <iostream>
-#include <netcdfcpp.h>
 #include <api/coFeedback.h>
 #include "do/coDoStructuredGrid.h"
 #include "do/coDoData.h"
@@ -17,9 +16,9 @@ using namespace covise;
 
 const char *NoneChoices[] = { "none" };
 // Lets assume no more than 100 variables per file
-int varIds[100];
+std::vector<std::string> varNames;
 char *VarDisplayList[100];
-char *AxisChoices[100];
+std::vector<std::string> AxisChoices;
 
 // -----------------------------------------------------------------------------
 // constructor
@@ -102,34 +101,32 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
             p_variables[i]->enable();
 
         // Create "Variable" menu entries for all 2D and 3D variables
-        NcVar *var;
         int num2d3dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); i++)
+        std::multimap<std::string, NcVar> allVars = ncDataFile->getVars();
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() >= 0)
+            if (var.second.getDimCount() >= 0)
             { // FIXME: what will we do here?
 
                 // A list of variable names (unaltered)
                 /*char* newEntry = new char[50]; 
 				strcpy(newEntry,var->name());
 				VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
-                varIds[num2d3dVars] = i;
+                varNames.push_back(var.first);
 
                 // A list of info to display for each variable
                 char *dispListEntry = new char[50];
-                if (var->num_dims() > 0)
+                if (var.second.getDimCount() > 0)
                 {
-                    sprintf(dispListEntry, "%s (%dD) : [", var->name(),
-                            var->num_dims());
-                    for (int j = 0; j < var->num_dims() - 1; j++)
-                        sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var->get_dim(j)->name());
+                    sprintf(dispListEntry, "%s (%dD) : [", var.first.c_str(),
+                        var.second.getDimCount());
+                    for (int j = 0; j < var.second.getDimCount() - 1; j++)
+                        sprintf(dispListEntry, "%s %s,", dispListEntry, var.second.getDim(j).getName().c_str());
                     sprintf(dispListEntry, "%s %s ]", dispListEntry,
-                            var->get_dim(var->num_dims() - 1)->name());
+                        var.second.getDim(var.second.getDimCount() - 1).getName().c_str());
                 }
                 else
-                    sprintf(dispListEntry, "%s (%dD)", var->name(), var->num_dims());
+                    sprintf(dispListEntry, "%s (%dD)", var.first.c_str(), var.second.getDimCount());
                 VarDisplayList[num2d3dVars] = dispListEntry;
 
                 num2d3dVars++;
@@ -142,13 +139,12 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
 
         // Create "Axis" menu entries for 2D variables only
         int num2dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); ++i)
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() == 2 || var->num_dims() == 1)
+            if (var.second.getDimCount() == 2 || var.second.getDimCount() == 1)
             {
-                char *newEntry = new char[50];
-                strcpy(newEntry, var->name());
+                char* newEntry = new char[var.first.length()];
+                strcpy(newEntry, var.first.c_str());
                 AxisChoices[num2dVars] = newEntry;
                 num2dVars++;
             }
@@ -181,31 +177,27 @@ int ReadNetCDF::compute(const char *)
 {
     sendInfo("compute call");
 
-    if (ncDataFile->is_valid())
+    if (ncDataFile->getVarCount() > 0)
     {
         // get variable name from choice parameters
-        NcVar *var;
-        long *edges;
+        NcVar var;
+        std::vector<NcDim> dims;
         int numdims = 0;
         // Find the variable with most dimensions and record its size
         for (int i = 0; i < numParams; i++)
         {
-            var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-            if (var->num_dims() > numdims)
+            var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+            if (var.getDimCount() > numdims)
             {
-                numdims = var->num_dims();
-                edges = var->edges();
-                printf("%s is %ld", var->name(), edges[0]);
-                for (int j = 1; j < numdims; j++)
-                    printf(" x %ld", edges[j]);
-                printf("\n");
+                numdims = var.getDimCount();
+                dims = var.getDims();
             }
         }
         // FIXME: For now I choose the last three dimensions. Ok in general??
         // We choose the order of (x,y,z) to match the data
-        int nx = 1, ny = edges[numdims - 2], nz = edges[numdims - 1];
+        int nx = 1, ny = dims[numdims - 2].getSize(), nz = dims[numdims - 1].getSize();
         if (numdims >= 3)
-            nx = edges[numdims - 3];
+            nx = dims[numdims - 3].getSize();
 
         // create a structured grid
         // This allocates memory for the coordinates. (3 "3D" arrays)
@@ -216,25 +208,25 @@ int ReadNetCDF::compute(const char *)
         float *x_coord, *y_coord, *z_coord;
         outGrid->getAddresses(&x_coord, &y_coord, &z_coord);
         // Find the variable corresponding to the users choice for each axis
-        NcVar *varX = ncDataFile->get_var(
+        NcVar varX = ncDataFile->getVar(
             AxisChoices[p_grid_choice_x->getValue()]);
-        NcVar *varY = ncDataFile->get_var(
+        NcVar varY = ncDataFile->getVar(
             AxisChoices[p_grid_choice_y->getValue()]);
-        NcVar *varZ = ncDataFile->get_var(
+        NcVar varZ = ncDataFile->getVar(
             AxisChoices[p_grid_choice_z->getValue()]);
 
         // Read the grid point values from the file
-        float *xVals = new float[varX->num_vals()];
-        float *yVals = new float[varY->num_vals()];
-        float *zVals = new float[varZ->num_vals()];
-        varX->get(xVals, varX->edges());
-        varY->get(yVals, varY->edges());
-        varZ->get(zVals, varZ->edges());
+        float *xVals = new float[varX.getDim(0).getSize()];
+        float *yVals = new float[varY.getDim(0).getSize()];
+        float *zVals = new float[varZ.getDim(0).getSize()];
+        varX.getVar(xVals);
+        varY.getVar(yVals);
+        varZ.getVar(zVals);
 
         // Fill the _coord arrays for all grid points (memcpy faster?)
         // FIXME: Should depend on var?->num_dims().
         float scale = p_verticalScale->getValue();
-        if(varX->num_vals()==nx)
+		if (varX.getDim(0).getSize() == nx)
         {
          int m, n = 0;
          for (int i = 0; i < nx; i++)
@@ -275,7 +267,7 @@ int ReadNetCDF::compute(const char *)
         // FIXME: Should depend on var?->num_dims(). (fix with pointers?)
         int n = 0;
         n = 0;
-        if(varY->num_vals()==ny)
+        if(varY.getDim(0).getSize()==ny)
         {
         for (int j = 0; j < ny; j++)
             for (int k = 0; k < nz; k++, n++)
@@ -321,11 +313,16 @@ int ReadNetCDF::compute(const char *)
         // For each output variable, create an output object and fill it with data
         for (int i = 0; i < numParams; i++)
         {
-            var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-            dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), var->num_vals());
+            var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+            int size = 0;
+            for (int n = 0; n < var.getDimCount(); n++)
+            {
+                size *= var.getDim(n).getSize();
+            }
+            dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), size);
             dataOut[i]->getAddress(&floatData);
             // FIXME: should make sure only to read a 3D subset
-            var->get(floatData, var->edges());
+            var.getVar(floatData);
         }
 
         // interaction info for COVER
@@ -363,17 +360,15 @@ bool ReadNetCDF::openNcFile()
     }
     else
     {
-        ncDataFile = new NcFile(sFileName.c_str(), NcFile::ReadOnly);
-
-        if (!ncDataFile->is_valid())
+        try {
+            ncDataFile = new NcFile(sFileName.c_str(), NcFile::read);
+        }
+        catch (...)
         {
-            sendInfo("Couldn't open NetCDF file!");
+            sendInfo("Couldn't open WRFChem file!");
             return false;
         }
-        else
-        {
-            return true;
-        }
+        return true;
     }
 }
 

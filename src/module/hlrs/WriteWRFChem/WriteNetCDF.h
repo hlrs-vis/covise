@@ -4,7 +4,10 @@
 
 
 #include <api/coSimpleModule.h>
-#include <netcdfcpp.h>
+#include <ncFile.h>
+#include <ncVar.h>
+#include <ncDim.h>
+using namespace netCDF;
 
 #define numVars 3
 

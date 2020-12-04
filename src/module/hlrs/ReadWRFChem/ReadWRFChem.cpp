@@ -14,7 +14,6 @@
 #include "ReadWRFChem.h"
 
 #include <iostream>
-#include <netcdfcpp.h>
 #include <api/coFeedback.h>
 #include "do/coDoStructuredGrid.h"
 #include "do/coDoData.h"
@@ -23,9 +22,9 @@
 using namespace covise;
 
 const char *NoneChoices[] = { "none" };
-// Lets assume no more than 100 variables per file
-int varIds[100];
-char *AxisChoices[100];
+
+std::vector<std::string> varNames;
+std::vector<std::string> AxisChoices;
 
 // -----------------------------------------------------------------------------
 // constructor
@@ -102,7 +101,7 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
 
     if (openNcFile())
     {
-        if (ncDataFile->num_vars() < 4) //check that there are at least 3 grid and one data variable
+        if (ncDataFile->getVarCount() < 4) //check that there are at least 3 grid and one data variable
         {
             sendError("file does not contain enough variables (required > 3)");
             for (int i = 0; i < numParams; i++)
@@ -131,32 +130,32 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
         int num2d3dVars = 0;
         char *VarDisplayList[100];
 
-        for (int i = 0; i < ncDataFile->num_vars(); i++)
+        std::multimap<std::string, NcVar> allVars = ncDataFile->getVars();
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() >= 0)
+            if (var.second.getDimCount() >= 0)
             {
-                varIds[num2d3dVars] = i;
+                varNames.push_back(var.first);
 
                 // A list of info to display for each variable
                 char *dispListEntry = new char[50];
-                if (var->num_dims() > 0)
+                if (var.second.getDimCount() > 0)
                 {
-                    sprintf(dispListEntry, "%s (%dD) : [", var->name(), var->num_dims());
-                    if (var->num_dims() > 1)
+                    sprintf(dispListEntry, "%s (%dD) : [", var.first.c_str(), var.second.getDimCount());
+                    if (var.second.getDimCount() > 1)
                     {
-                        for (int j = 0; j < var->num_dims() - 1; j++)
+                        for (int j = 0; j < var.second.getDimCount() - 1; j++)
                         {
-                            sprintf(dispListEntry, "%s %s,", dispListEntry, var->get_dim(j)->name());
+                            sprintf(dispListEntry, "%s %s,", dispListEntry, var.second.getDim(j).getName().c_str());
                         }
-                        sprintf(dispListEntry, "%s %s ]", dispListEntry, var->get_dim(var->num_dims() - 1)->name());
+                        sprintf(dispListEntry, "%s %s ]", dispListEntry, var.second.getDim(var.second.getDimCount() - 1).getName().c_str());
                     }else
                     {
-                        sprintf(dispListEntry, "%s %s ]", dispListEntry, var->get_dim(0)->name());
+                        sprintf(dispListEntry, "%s %s ]", dispListEntry, var.second.getDim(0).getName().c_str());
                     }
                 }else
                 {
-                    sprintf(dispListEntry, "%s (%dD)", var->name(), var->num_dims());
+                    sprintf(dispListEntry, "%s (%dD)", var.first.c_str(), var.second.getDimCount());
                 }
                 VarDisplayList[num2d3dVars] = dispListEntry;
                 num2d3dVars++;
@@ -170,13 +169,12 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
         }
        // Create "Axis" menu entries for 2D variables only
         int num2dVars = 0;
-        for (int i = 0; i < ncDataFile->num_vars(); ++i)
+        for (const auto& var : allVars)
         {
-            var = ncDataFile->get_var(i);
-            if (var->num_dims() > 0)//(var->num_dims() == 2 || var->num_dims() == 1)
+            if (var.second.getDimCount() > 0)//(var->num_dims() == 2 || var->num_dims() == 1)
             {
-                char *newEntry = new char[50];
-                strcpy(newEntry, var->name());
+                char* newEntry = new char[var.first.length()];
+                strcpy(newEntry, var.first.c_str());
                 AxisChoices[num2dVars] = newEntry;
                 num2dVars++;
             }
@@ -217,50 +215,46 @@ int ReadWRFChem::compute(const char *)
     sendInfo("compute call");
     has_timesteps = 0;
 
-    if (ncDataFile->is_valid())
+    if (ncDataFile->getVarCount() > 0)
     {
         // get variable name from choice parameters
-        NcVar *var;
-        long *edges;
+        NcVar var;
+        std::vector<NcDim> dims;
         int numdims = 0;
         // Find the variable with most dimensions and record its size
         for (int i = 0; i < numParams; i++)
         {
-            var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-            if (var->num_dims() > numdims)
+            var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+            if (var.getDimCount() > numdims)
             {
-                numdims = var->num_dims();
-                edges = var->edges();
-                printf("%s is %ld", var->name(), edges[0]);
-                for (int j = 1; j < numdims; j++)
-                    printf(" x %ld", edges[j]);
-                printf("\n");
+                numdims = var.getDimCount();
+                dims = var.getDims();
             }
         }
 
-        NcVar *varDate;
+        NcVar varDate;
        /* char *dateVal[edges[0]];
         for (int i = 0; i < varDate->num_dims(); ++i)
         {
             dateVal[i]  = varDate->as_string(i);
         }*/
-        if (edges[0] > 1)
+        if (dims[0].getSize() > 1)
         {
             has_timesteps = 1;
-            varDate = ncDataFile->get_var(AxisChoices[p_date_choice->getValue()]);
-            sendInfo("Found %ld time steps\n", (long)edges[0]);
+            varDate = ncDataFile->getVar(AxisChoices[p_date_choice->getValue()]);
+            sendInfo("Found %ld time steps\n", (long)dims[0].getSize());
         }
 
 
-        int nx = 1, ny = edges[numdims - 2], nz = edges[numdims - 1], nTime = edges[0];
+        int nx = 1, ny = dims[numdims - 2].getSize(), nz = dims[numdims - 1].getSize(), nTime = dims[0].getSize();
         if (has_timesteps > 0)
         {
             if (numdims > 3)
             {
-                nx = edges[numdims - 3];
+                nx = dims[numdims - 3].getSize();
             }
         }else if (numdims >=3){
-            nx = edges[numdims - 3];
+            nx = dims[numdims - 3].getSize();
         }
 
         // 1.) GRID
@@ -269,20 +263,20 @@ int ReadWRFChem::compute(const char *)
         float *x_coord, *y_coord, *z_coord;
 
         // Find the variable corresponding to the users choice for each axis
-        NcVar *varX = ncDataFile->get_var(
+        NcVar varX = ncDataFile->getVar(
             AxisChoices[p_grid_choice_x->getValue()]);
-        NcVar *varY = ncDataFile->get_var(
+        NcVar varY = ncDataFile->getVar(
             AxisChoices[p_grid_choice_y->getValue()]);
-        NcVar *varZ = ncDataFile->get_var(
+        NcVar varZ = ncDataFile->getVar(
             AxisChoices[p_grid_choice_z->getValue()]);
 
         // Read the grid point values from the file
-        float *xVals = new float[varX->num_vals()];
-        float *yVals = new float[varY->num_vals()];
-        float *zVals = new float[varZ->num_vals()];
-        varX->get(xVals, varX->edges());
-        varY->get(yVals, varY->edges());
-        varZ->get(zVals, varZ->edges());
+        float* xVals = new float[varX.getDim(0).getSize()];
+        float* yVals = new float[varY.getDim(0).getSize()];
+        float* zVals = new float[varZ.getDim(0).getSize()];
+        varX.getVar(xVals);
+        varY.getVar(yVals);
+        varZ.getVar(zVals);
 
         float scale = p_verticalScale->getValue();
         int m, n = 0;
@@ -498,18 +492,18 @@ int ReadWRFChem::compute(const char *)
             time_data[nTime] = NULL;
             for (int i = 0; i < numParams; ++i)
             {
-                var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
+                var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
                 for(int t = 0; t < nTime; ++t)
                 {
                     float *floatData;
                     sprintf(buf, "%s_%d",p_data_outs[i]->getObjName(), t);
-                    coDoFloat *outdata = new coDoFloat(buf, var->num_vals());
+                    coDoFloat *outdata = new coDoFloat(buf, nx*ny*nz);
                     outdata->getAddress(&floatData);
                     time_data[t] = outdata;
+                    std::vector<size_t> start{ (size_t)t,0,0,0 };
+                    std::vector<size_t> size{ 1,(size_t)nx,(size_t)ny,(size_t)nz };
                     int delta = t*(nx*ny*nz);
-                    var->set_cur(delta);
-                    var->get(floatData,var->edges());
-
+                    var.getVar(start, size, floatData);
                 }
 
                 coDoSet *time_outData = new coDoSet(p_data_outs[i]->getObjName(),time_data);
@@ -529,11 +523,11 @@ int ReadWRFChem::compute(const char *)
             // For each output variable, create an output object and fill it with data
             for (int i = 0; i < numParams; i++)
             {
-                var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
-                dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), var->num_vals());
+                var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
+                dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), nx * ny * nz);
                 dataOut[i]->getAddress(&floatData);
                 // FIXME: should make sure only to read a 3D subset
-                var->get(floatData, var->edges());
+                var.getVar( floatData);
             }
         }
 
@@ -572,17 +566,15 @@ bool ReadWRFChem::openNcFile()
     }
     else
     {
-        ncDataFile = new NcFile(sFileName.c_str(), NcFile::ReadOnly, NULL, 0,NcFile::Offset64Bits);
-
-        if (!ncDataFile->is_valid())
-        {
-            sendInfo("Couldn't open WRFChem file!");
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+		try {
+			ncDataFile = new NcFile(sFileName.c_str(), NcFile::read, NcFile::classic64);
+		}
+		catch (...)
+		{
+			sendInfo("Couldn't open WRFChem file!");
+			return false;
+		}
+		return true;
     }
 }
 
