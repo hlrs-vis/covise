@@ -67,7 +67,7 @@ GizmoTest::GizmoTest()
     _transRotInteractor->enableIntersection();
     _transRotInteractor->show();
 
-    osg::Matrix matrix5 = osg::Matrix::translate(osg::Vec3(0,0,-40)); 
+    osg::Matrix matrix5 = osg::Matrix::translate(osg::Vec3(0,-40,0)); 
     _gizmo = new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE, matrix5, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     
 
