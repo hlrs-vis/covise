@@ -204,7 +204,7 @@ int opencover::coVRPartnerList::numberOfPartners() const
 void opencover::coVRPartnerList::setMaster(int clientID)
 {
     const auto master = find(clientID);
-    if (master != partners.end())
+    if (master == partners.end())
     {
         std::cerr << "failed to set master: master " << clientID << " is not a client" << std::endl;
     }
