@@ -36,34 +36,17 @@ ReadTsunami::ReadTsunami(int argc, char *argv[])
                             "*.nc");
 
     // Variables to visualise
-    for (int i = 0; i < numParams; i++)
-    {
-        char namebuf[50];
-        sprintf(namebuf, "Variable%d", i);
-        p_variables[i] = addChoiceParam(namebuf, namebuf);
-        p_variables[i]->setValue(1, NoneChoices, 0);
-    }
-
-    // Choice of "coordinate variables" for axes
-    p_grid_choice_x = addChoiceParam("GridOutX", "Grid x");
-    p_grid_choice_x->setValue(1, NoneChoices, 0);
-    p_grid_choice_y = addChoiceParam("GridOutY", "Grid y");
-    p_grid_choice_y->setValue(1, NoneChoices, 0);
-    p_grid_choice_z = addChoiceParam("GridOutZ", "Grid z");
-    p_grid_choice_z->setValue(1, NoneChoices, 0);
-
-    // Vertical scale box
     p_verticalScale = addFloatParam("VerticalScale", "VerticalScale");
     p_verticalScale->setValue(1.0);
+    p_step = addInt32Param("StepWidth","time step step with");
+    p_step->setValue(1);
 
     // define ports
 
-    // 3D grid
-    p_grid_out = addOutputPort("outPort", "StructuredGrid", "Grid output");
     // 2D Surface
     p_surface_out = addOutputPort("surfaceOut", "Polygons", "2D Grid output");
-    p_seeSurface_out
-        = addOutputPort("seeSurfaceOut", "Polygons", "2D See floor");
+    p_seaSurface_out
+        = addOutputPort("seaSurfaceOut", "Polygons", "2D See floor");
     p_waterSurface_out
         = addOutputPort("waterSurfaceOut", "Polygons", "2D water surface");
 
@@ -86,88 +69,6 @@ ReadTsunami::~ReadTsunami()
 // -----------------------------------------------------------------------------
 void ReadTsunami::param(const char *paramName, bool inMapLoading)
 {
-    sendInfo("param callback");
-    if (openNcFile())
-    {
-        // enable parameter menus for selection
-        p_grid_choice_x->enable();
-        p_grid_choice_y->enable();
-        p_grid_choice_z->enable();
-        p_verticalScale->enable();
-        for (int i = 0; i < numParams; i++)
-            p_variables[i]->enable();
-
-        // Create "Variable" menu entries for all 2D and 3D variables
-        int num2d3dVars = 0;
-        std::multimap<std::string, NcVar> allVars = ncDataFile->getVars();
-        //for (int i = 0; i < ncDataFile->getVarCount(); i++)
-        for(const auto &var:allVars)
-        {
-            if (var.second.getDimCount() >= 0)
-            { // FIXME: what will we do here?
-
-                // A list of variable names (unaltered)
-                /*char* newEntry = new char[50]; 
-				strcpy(newEntry,var->name());
-				VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
-                varNames.push_back(var.first);
-
-                // A list of info to display for each variable
-                char *dispListEntry = new char[50];
-                if (var.second.getDimCount() > 0)
-                {
-                    sprintf(dispListEntry, "%s (%dD) : [", var.first.c_str(),
-                        var.second.getDimCount());
-                    for (int j = 0; j < var.second.getDimCount() - 1; j++)
-                        sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var.second.getDim(j).getName().c_str());
-                    sprintf(dispListEntry, "%s %s ]", dispListEntry,
-                            var.second.getDim(var.second.getDimCount() - 1).getName().c_str());
-                }
-                else
-                    sprintf(dispListEntry, "%s (%dD)", var.first.c_str(), var.second.getDimCount());
-                VarDisplayList[num2d3dVars] = dispListEntry;
-
-                num2d3dVars++;
-            }
-        }
-        // Fill the menu. Default selection = last selected. (#1 initially).
-        for (int i = 0; i < numParams; i++)
-            p_variables[i]->setValue(num2d3dVars, VarDisplayList,
-                                     p_variables[i]->getValue());
-
-        // Create "Axis" menu entries for 2D variables only
-        int num2dVars = 0;
-        for (const auto& var : allVars)
-        {
-        //for (int i = 0; i < ncDataFile->num_vars(); ++i)
-            if (var.second.getDimCount() == 2 || var.second.getDimCount() == 1)
-            {
-                char *newEntry = new char[var.first.length()];
-                strcpy(newEntry, var.first.c_str());
-                AxisChoices[num2dVars] = newEntry;
-                num2dVars++;
-            }
-        }
-
-        // Fill axis menus
-        p_grid_choice_x->setValue(num2dVars,
-                                  AxisChoices, p_grid_choice_x->getValue());
-        p_grid_choice_y->setValue(num2dVars,
-                                  AxisChoices, p_grid_choice_y->getValue());
-        p_grid_choice_z->setValue(num2dVars,
-                                  AxisChoices, p_grid_choice_z->getValue());
-    }
-    else
-    {
-        // No nc file, disable parameters
-        for (int i = 0; i < numParams; i++)
-            p_variables[i]->disable();
-        p_grid_choice_x->disable();
-        p_grid_choice_y->disable();
-        p_grid_choice_z->disable();
-        p_verticalScale->disable();
-    }
 }
 
 // -----------------------------------------------------------------------------
@@ -176,8 +77,7 @@ void ReadTsunami::param(const char *paramName, bool inMapLoading)
 int ReadTsunami::compute(const char *)
 {
     sendInfo("compute call");
-
-    if (ncDataFile->getVarCount()>0)
+    if (openNcFile())
     {
         // get variable name from choice parameters
         NcVar var;
@@ -248,7 +148,7 @@ int ReadTsunami::compute(const char *)
 
         // Now for the 2D variables, we create a surface
         int numPolygons = (nx - 1) * (ny - 1);
-        coDoPolygons* outSeeSurface = new coDoPolygons(p_seeSurface_out->getObjName(),
+        coDoPolygons* outSeeSurface = new coDoPolygons(p_seaSurface_out->getObjName(),
             nx * ny, numPolygons * 4, numPolygons);
         outSeeSurface->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
         // Fill the _coord arrays (memcpy faster?)
@@ -259,7 +159,7 @@ int ReadTsunami::compute(const char *)
             {
                 x_coord[n] = latVals[j];
                 y_coord[n] = lonVals[k];
-                z_coord[n] = depthVals[j*ny+k];
+                z_coord[n] = -depthVals[j*ny+k];
             }
         // Fill the vertex list
         n = 0;
@@ -293,9 +193,10 @@ int ReadTsunami::compute(const char *)
         coDistributedObject** objs = new coDistributedObject * [numTimesteps+1];
         std::string baseName = p_waterSurface_out->getObjName();
         objs[numTimesteps] = nullptr;
-        if (numTimesteps > 3)
-            numTimesteps = 3;
-        for (int i = 0; i < numTimesteps; i++)
+        sendInfo("numTimesteps %d!",numTimesteps);
+        int i=0;
+        float zScale = p_verticalScale->getValue();
+        for (int t = 0; t < numTimesteps; t+=p_step->getValue())
         {
 			// Now for the 2D variables, we create a surface
 			int snumPolygons = (snx - 1) * (sny - 1);
@@ -308,7 +209,7 @@ int ReadTsunami::compute(const char *)
 			{
 				x_coord[n] = sx_coord[n];
 				y_coord[n] = sy_coord[n];
-				z_coord[n] = floatData[i*snx*sny+n];
+				z_coord[n] = floatData[t*snx*sny+n]*zScale;
 			}
             for (int j = 0; j < snumPolygons * 4; j++)
             {
@@ -320,6 +221,7 @@ int ReadTsunami::compute(const char *)
 
             objs[i] = outSurface;
             objs[i + 1] = nullptr;
+            i++;
         }
 
         coDoSet* set = new coDoSet(baseName, objs);

@@ -50,12 +50,13 @@ private:
     covise::coChoiceParam *p_grid_choice_y;
     covise::coChoiceParam *p_grid_choice_z;
     covise::coFloatParam *p_verticalScale;
+    covise::coIntScalarParam *p_step;
 
     // ports
     covise::coOutputPort *p_grid_out;
     //covise::coOutputPort *p_data_outs[numParams];
     covise::coOutputPort* p_surface_out;
-    covise::coOutputPort* p_seeSurface_out;
+    covise::coOutputPort* p_seaSurface_out;
     covise::coOutputPort* p_maxHeight;
     covise::coOutputPort* p_waterSurface_out;
 
