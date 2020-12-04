@@ -310,7 +310,7 @@ int ReadTsunami::compute(const char *)
 				y_coord[n] = sy_coord[n];
 				z_coord[n] = floatData[i*snx*sny+n];
 			}
-            for (int j = 1; j < snumPolygons * 4; j++)
+            for (int j = 0; j < snumPolygons * 4; j++)
             {
                 vl[j]=svl[j];
             }
