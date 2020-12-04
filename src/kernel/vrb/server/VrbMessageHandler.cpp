@@ -402,7 +402,7 @@ VRBSClient *VrbMessageHandler::createNewClient(covise::TokenBuffer &tb, covise::
 	{
 		auto cd = std::move(*it);
 		m_unregisteredClients.erase(it);
-		return createNewClient(std::move(*it), tb);
+		return createNewClient(std::move(cd), tb);
 	}
 }
 
