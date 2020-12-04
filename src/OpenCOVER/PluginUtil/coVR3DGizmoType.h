@@ -34,8 +34,10 @@ protected:
     osg::Vec4 _red{0.5, 0.2, 0.2, 1.0}, _blue{0.2, 0.2, 0.5, 1.0}, _green{0.2, 0.5, 0.2, 1.0}, _grey{0.5, 0.5, 0.5, 1};
     
     osg::Matrix _interMat_o;            // current Matrix
-    osg::Matrix _oldInterMat_o;         // last Matrix --> do I need this ?
     osg::Matrix _startInterMat_w;       // Matrix when interaction was started
+    osg::Matrix _startHandMat_o;
+    osg::Matrix _startHandMat_w;
+
     std::unique_ptr<opencover::coPlane> _helperPlane; 
     std::unique_ptr<opencover::coLine> _helperLine;   
 

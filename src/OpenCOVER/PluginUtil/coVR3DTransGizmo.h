@@ -4,6 +4,9 @@
 
 #include "coVR3DGizmoType.h"
 
+/* ToDo;
+    - if ray of pointer and axis are almost parallel and the closest point between two lines is far away then the gizmo disappears
+*/
 namespace opencover
 {
 

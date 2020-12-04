@@ -166,11 +166,7 @@ void coVR3DRotGizmo::startInteraction()
     osg::Vec3 lp0_o, lp1_o, pointerDir_o;
     calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
     
-    coVRIntersectionInteractor::startInteraction();
-
-    _startInterMat_w = getMatrix();
-    _oldInterMat_o = _startInterMat_w;
-    _startHandMat = getPointerMat();
+    coVR3DGizmoType::startInteraction();
 
     _rotateZonly = rotateAroundSpecificAxis(_zRotCylGroup.get());
     _rotateYonly = rotateAroundSpecificAxis(_yRotCylGroup.get());
@@ -205,15 +201,8 @@ void coVR3DRotGizmo::startInteraction()
         _helperLine->update(osg::Vec3(-_radius*3*getScale(),0,0)*getMatrix(),osg::Vec3(_radius*3*getScale(),0,0)*getMatrix());
         _helperLine->show();
     }
-   
-
-    // if (!_rotateOnly && !_translateOnly)
-    // {
-    //     _translateOnly = is2D();
-    // }
-
-
 }
+
 //check if hitNode is child of specific rotation group
 bool coVR3DRotGizmo::rotateAroundSpecificAxis(osg::Group *group) const
 {
@@ -229,38 +218,15 @@ bool coVR3DRotGizmo::rotateAroundSpecificAxis(osg::Group *group) const
     return foundNode;
 }
 
-
 void coVR3DRotGizmo::doInteraction()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DRotGizmo::rot\n");
 
-    osg::Vec3 origin(0, 0, 0);
-    osg::Vec3 yaxis(0, 1, 0);
-    osg::Matrix o_to_w = cover->getBaseMat();
-    osg::Matrix w_to_o = cover->getInvBaseMat();
-    osg::Matrix currHandMat = getPointerMat();
-    osg::Matrix currHandMat_o = currHandMat * w_to_o;
-
-    // forbid translation in y-direction if traverseInteractors is on --> why do we need this ???? ###############################
-    // if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
-    // {
-    //     osg::Vec3 trans = currHandMat.getTrans();
-    //     trans[1] = _oldHandMat.getTrans()[1];
-    //     currHandMat.setTrans(trans);
-    // }
     osg::Vec3 lp0_o, lp1_o, pointerDir_o;
     calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
 
-    // translate from interactor to hand and back
-    osg::Matrix transToHand_o, revTransToHand_o;
-
-    transToHand_o.makeTranslate(currHandMat_o.getTrans() - _oldInterMat_o.getTrans());
-    revTransToHand_o.makeTranslate(_oldInterMat_o.getTrans() - currHandMat_o.getTrans());
-
-    osg::Matrix relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
-    //std::cout << "rel Hand Movement:" <<relHandMoveMat_o.getTrans() <<"..."<< std::endl;
-    osg::Matrix newInteractorMatrix = _oldInterMat_o;
+    osg::Matrix newInteractorMatrix;
     if (_rotateZonly)
     {
         if(is2D())
@@ -285,27 +251,12 @@ void coVR3DRotGizmo::doInteraction()
     else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {
         // move old mat to hand position, apply rel hand movement and move it back to
-        newInteractorMatrix = _oldInterMat_o * transToHand_o * relHandMoveMat_o * revTransToHand_o;
+       // newInteractorMatrix = _oldInterMat_o * transToHand_o * relHandMoveMat_o * revTransToHand_o;
     }
     else
     {
         //if(!is2D())
-            newInteractorMatrix = _oldInterMat_o * relHandMoveMat_o; // apply rel hand movement
-    }
-
-    // save old transformation
-    _oldInterMat_o = newInteractorMatrix;
-
-    _oldHandMat = currHandMat; // save current hand for rotation start
-    _invOldHandMat_o.invert(currHandMat_o);
-
-    if (cover->restrictOn())
-    {
-        // restrict to visible scene
-        osg::Vec3 pos_o, restrictedPos_o;
-        pos_o = newInteractorMatrix.getTrans();
-        restrictedPos_o = restrictToVisibleScene(pos_o);
-        newInteractorMatrix.setTrans(restrictedPos_o);
+        //    newInteractorMatrix = _oldInterMat_o * relHandMoveMat_o; // apply rel hand movement
     }
 
     if (coVRNavigationManager::instance()->isSnapping())
@@ -324,7 +275,7 @@ void coVR3DRotGizmo::doInteraction()
 
 
     // and now we apply it
-     updateTransform(newInteractorMatrix);
+    updateTransform(newInteractorMatrix);
 
 }
 
@@ -360,7 +311,7 @@ osg::Matrix coVR3DRotGizmo::calcRotation3D(osg::Vec3 rotationAxis)
 {
     
     osg::Matrix interMatrix;
-    coCoord startEuler = _startHandMat;
+    coCoord startEuler = _startHandMat_w;
     coCoord currentEuler = getPointerMat();
 
     float angle = currentEuler.hpr[2] - startEuler.hpr[2];

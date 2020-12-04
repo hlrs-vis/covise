@@ -134,25 +134,9 @@ void coVR3DTransGizmo::startInteraction()
     _translateXZonly = _hitNode == translateXZplaneGeode;
     _translateYZonly = _hitNode == translateYZplaneGeode;
 
-    
-
-   
-    /* wie setze ich das hier um, brauch man das ? ###################################
-    if (!_rotateOnly && !_translateOnly)
-    {
-        _translateOnly = is2D();
-    }
-    */
-
     coVR3DGizmoType::startInteraction();
     osg::Matrix interactor_to_w = getMatrix();
 
-    //_startTest_o = osg::Matrix::transform3x3(interactor_to_w.getTrans(), interactor_to_w.inverse(interactor_to_w));
-    // std::cout<<"getMatrix: "<<interactor_to_w.getTrans()<<std::endl;
-    // std::cout<<"getMatrix_o: "<<_startTest_o<<std::endl;
-// 
-    // std::cout<<"_diff"<< _diff<< std::endl;
-    // std::cout<<"_distance"<<_distance<<std::endl;   
 }
 void coVR3DTransGizmo::doInteraction()
 {
@@ -162,18 +146,6 @@ void coVR3DTransGizmo::doInteraction()
     
     osg::Vec3 lp0_o, lp1_o, pointerDir_o;
     calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
-
-    /*  check if necessary !!! Achtung an richtiger Stelle platzieren, da currHandMat modifiziert wird! 
-
-    // forbid translation in y-direction if traverseInteractors is on ############## wozu brauche ich das ? 
-    if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
-    {
-        osg::Vec3 trans = currHandMat.getTrans();
-        trans[1] = _oldHandMat.getTrans()[1];
-        currHandMat.setTrans(trans);
-    }
-
-    */
 
     if(_translateXonly)
         _interMat_o.setTrans(calculatePointOfShortestDistance(lp0_o, lp1_o, osg::X_AXIS)); 
@@ -213,9 +185,6 @@ void coVR3DTransGizmo::doInteraction()
         restrictedPos_o = restrictToVisibleScene(pos_o);
         _interMat_o.setTrans(restrictedPos_o);
     }
-
-    // save old transformation
-     _oldInterMat_o = _interMat_o;
 
     // and now we apply it
     updateTransform(_interMat_o);

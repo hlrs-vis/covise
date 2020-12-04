@@ -6,7 +6,9 @@
 
 /* ToDo;
     - if snapping is on, rotation not always correct
-    
+    - other interactors have: forbid translation in y-direction if traverseInteractors is on --> why do we need this ????
+    - doInteraction: if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors) --> for what ?
+    - for what is shared state necessary ?
 */
 
 namespace opencover
@@ -17,11 +19,7 @@ class PLUGIN_UTILEXPORT coVR3DRotGizmo : public coVR3DGizmoType
 private:
     bool _rotateXonly{false}, _rotateYonly{false}, _rotateZonly{false};
     const float _radius{3};
-    osg::Matrix _interMat_o, _oldHandMat; // löschen
-    osg::Matrix _invOldHandMat_o;         //löschen
     osg::Vec3 _startPointOnCircle;     // point on circle which was selected when interaction started
-    osg::Matrix _startHandMat;
-    osg::Matrix _currentHandMat;
     
     enum class RotationAxis { Z = 0, X, Y };
 

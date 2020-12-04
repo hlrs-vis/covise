@@ -96,15 +96,13 @@ void coVR3DGizmoType::startInteraction()
         fprintf(stderr, "\ncoVR3DGizmoType::startInteraction\n");
     
     osg::Matrix w_to_o = cover->getInvBaseMat();
-    osg::Matrix currHandMat = getPointerMat();
-    osg::Matrix currHandMat_o = currHandMat * w_to_o;
+    _startHandMat_w = getPointerMat();
+    _startHandMat_o = _startHandMat_w * w_to_o;
 
-
-    _oldInterMat_o = _interMat_o;
     _startInterMat_w = _interMat_o;
 
     _diff = _interMat_o.getTrans() - _hitPos;
-    _distance = (_hitPos - currHandMat_o.getTrans()).length();
+    _distance = (_hitPos - _startHandMat_o.getTrans()).length();
 
     coVRIntersectionInteractor::startInteraction();
 
@@ -134,7 +132,7 @@ void coVR3DGizmoType::updateSharedState()
 {
     if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
     {
-        *st = _oldInterMat_o;
+        //*st = _oldInterMat_o;
     }
 }
 
