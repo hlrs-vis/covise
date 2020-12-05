@@ -44,7 +44,11 @@ opencover::VRAvatar::VRAvatar()
 VRAvatar::VRAvatar(coVRPartner *partner)
     :m_partner(partner)
 {
-    
+   handTransform = nullptr; 
+   headTransform = nullptr;
+   feetTransform = nullptr;
+   avatarNodes = nullptr;
+   
 }
 
 bool VRAvatar::init(const std::string &hostAdress)
@@ -109,9 +113,8 @@ bool VRAvatar::init(const std::string &hostAdress)
 
 VRAvatar::~VRAvatar()
 {
+
     cover->getObjectsRoot()->removeChild(avatarNodes.get());
-
-
 }
 void VRAvatar::show()
 {

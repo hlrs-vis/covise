@@ -42,8 +42,8 @@ private:
     //static float rc[10];
     //static float gc[10];
     //static float bc[10];
-    bool initialized = false;
 public:
+    bool initialized = false;
     coVRPartner *m_partner;
     osg::MatrixTransform *handTransform;
     osg::Node *handNode;

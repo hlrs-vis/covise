@@ -913,7 +913,7 @@ int SystemCover::getNumAvatars()
 bool SystemCover::getAvatarPositionAndOrientation(int num, float pos[3], float ori[4])
 {
     coVRPartner *p = coVRPartnerList::instance()->get(num);
-    if (!p || !p->getAvatar())
+    if (!p || !p->getAvatar() || !p->getAvatar()->initialized)
     {
         return false;
     }
