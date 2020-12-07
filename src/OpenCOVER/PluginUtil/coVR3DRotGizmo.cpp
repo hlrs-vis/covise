@@ -385,12 +385,26 @@ osg::Matrix coVR3DRotGizmo::calcRotation3D(osg::Vec3 rotationAxis)
     coCoord currentEuler = getPointerMat();
 
     float angle = currentEuler.hpr[2] - startEuler.hpr[2];
-    std::cout <<"angle: " <<angle <<" ..."<<std::endl;
+    //std::cout <<"angle: " <<angle <<" ..."<<std::endl;
 
-    osg::Matrix startRotationOnly = osg::Matrix::rotate(_startInterMat_w.getRotate());
+    
+osg::Matrix startRotationOnly = osg::Matrix::rotate(_startInterMat_w.getRotate());
     osg::Matrix rotate;
-    rotate.makeRotate(osg::DegreesToRadians(angle), rotationAxis *startRotationOnly);
+	osg::Vec3 lp0,lp1,pointerDir;
+	osg::Vec3 normal = rotationAxis * startRotationOnly;
+	calculatePointerDirection_o(lp0,lp1,pointerDir);
+	float spat = normal.operator*(pointerDir);
+    //std::cout <<"spat: " <<spat <<" ..."<<std::endl;
+int sign;
+	if(spat>=0.0)
+		sign=1;
+	else
+		sign=-1;
+
+	
+    rotate.makeRotate(sign*osg::DegreesToRadians(angle), rotationAxis *startRotationOnly);
     interMatrix = startRotationOnly*rotate * osg::Matrix::translate(_startInterMat_w.getTrans());  
+		
 
     return interMatrix; 
 }
