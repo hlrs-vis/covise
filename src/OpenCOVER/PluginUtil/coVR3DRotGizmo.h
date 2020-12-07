@@ -5,7 +5,7 @@
 #include <OpenVRUI/osg/mathUtils.h>
 
 /* ToDo;
-    - if snapping is on, rotation not always correct
+    - implement snapping for 1 axis only
     - other interactors have: forbid translation in y-direction if traverseInteractors is on --> why do we need this ????
     - doInteraction: if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors) --> for what ?
     - for what is shared state necessary ?
@@ -41,6 +41,8 @@ private:
     osg::Matrix calcRotation2D(const osg::Vec3& lp0_o, const osg::Vec3& lp1_o, osg::Vec3 rotationAxis); 
     // calculate the rotation for a 3D input device
     osg::Matrix calcRotation3D(osg::Vec3 rotationAxis);
+    osg::Matrix calcRotation3D1(osg::Vec3 rotationAxis);
+
     // get the rotation axis
     bool rotateAroundSpecificAxis(osg::Group *group)const;
 
@@ -51,6 +53,9 @@ private:
     
     // calculate the angle between two 3d vectors in the range 0-360 degree
     double vecAngle360(const osg::Vec3 vec1, const osg::Vec3 &vec2, const osg::Vec3& refVec);
+
+    void snapTo45DegreesFixAxis(osg::Matrix *mat,osg::Vec3 axis);
+
 protected:
     void createGeometry() override;
     
@@ -58,10 +63,8 @@ protected:
 public:
     coVR3DRotGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority,coVR3DGizmo* gizmoPointer = nullptr);
     
-    // delete scene graph
     virtual ~coVR3DRotGizmo();
 
-    // start the interaction (grab pointer, set selected hl, store dcsmat)
     virtual void startInteraction() override;
     virtual void stopInteraction() override;
     virtual void doInteraction() override;
