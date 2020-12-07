@@ -795,17 +795,21 @@ int ReadUFF::ReadFileHeaders(const char *name)
             //strncpy(choices[datasetNr], "dataset58 (Function at Nodal DOF)", 64 * sizeof(char));
 
             char line[200];
+            char* lineBuf;
             if (!feof(uffFile))
-                fgets(line, 200, uffFile);
+                lineBuf=fgets(line, 200, uffFile);
             if (!feof(uffFile))
             {
-                fgets(line, 200, uffFile);
-                size_t len = strlen(line); // remove trailing \n
-                if (len > 0)
+                lineBuf = fgets(line, 200, uffFile);
+                if (lineBuf)
                 {
-                    if (line[len - 1] == '\n')
+                    size_t len = strlen(line); // remove trailing \n
+                    if (len > 0)
                     {
-                        line[len - 1] = '\0';
+                        if (line[len - 1] == '\n')
+                        {
+                            line[len - 1] = '\0';
+                        }
                     }
                 }
             }
