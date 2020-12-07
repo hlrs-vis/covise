@@ -232,21 +232,30 @@ void coVR3DRotGizmo::doInteraction()
         if(is2D())
             newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
         else
-            newInteractorMatrix = calcRotation2D(osg::Z_AXIS);
+			{
+	       //     newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
+            newInteractorMatrix = calcRotation3D(osg::Z_AXIS);
+			}
     }
     else if(_rotateYonly)
     {
         if(is2D())
             newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
         else
-            newInteractorMatrix = calcRotation2D(osg::Y_AXIS);
+			{
+            //newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
+            newInteractorMatrix = calcRotation3D(osg::Y_AXIS);
+			}
     }
     else if(_rotateXonly)
     {
         if(is2D())
             newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);
         else
-            newInteractorMatrix = calcRotation2D(osg::X_AXIS);
+			{
+            //newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);
+            newInteractorMatrix = calcRotation3D(osg::X_AXIS);
+			}
     }
     else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {
