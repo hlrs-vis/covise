@@ -63,7 +63,7 @@ public:
 
 	VrbMessageHandler(VrbMessageHandler& other) = delete;
 	virtual VrbMessageHandler& operator=(VrbMessageHandler& other) = delete;
-	VrbMessageHandler(VrbMessageHandler&& other) = default;
+	VrbMessageHandler(VrbMessageHandler&& other) = delete;
 	virtual VrbMessageHandler& operator=(VrbMessageHandler&& other) = delete;
 	virtual ~VrbMessageHandler() = default;
 
