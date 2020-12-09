@@ -219,6 +219,7 @@ void MainWindow::dumpOptions()
 		tb << ui->timeoutSlider->value();
 		tb << ui->autostartCheckBox->isChecked();
 		tb << ui->autoconnectCheckBox->isChecked();
+		tb << ui->cmdArgsInput->text().toStdString();
 		int size = tb.getData().length();
 		file.write((char *)&size, sizeof(size));
 		file.write(tb.getData().data(), size);
@@ -244,6 +245,7 @@ void MainWindow::readOptions()
 		int timeout;
 		bool autostart, autoconnect;
 		char *date, *time;
+		std::string args;
 		tb >> date >> time;
 		if (strcmp(date, __DATE__) != 0 | strcmp(time, __TIME__) != 0)
 		{
@@ -251,13 +253,12 @@ void MainWindow::readOptions()
 			return;
 		}
 
-		tb >> timeout;
-		tb >> autostart;
-		tb >> autoconnect;
+		tb >> timeout >> autostart >> autoconnect >> args;
 		ui->timeoutSlider->setValue(timeout);
 		on_timeoutSlider_sliderMoved(timeout);
 		ui->autostartCheckBox->setChecked(autostart);
 		ui->autoconnectCheckBox->setChecked(autoconnect);
+		ui->cmdArgsInput->setText(args.c_str());
 	}
 }
 

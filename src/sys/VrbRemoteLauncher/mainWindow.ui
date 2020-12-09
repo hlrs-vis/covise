@@ -109,18 +109,7 @@
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_5">
-                <item>
-                 <widget class="QLabel" name="label_6">
-                  <property name="text">
-                   <string>Args:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="cmdArgsInput"/>
-                </item>
-               </layout>
+               <layout class="QHBoxLayout" name="horizontalLayout_5"/>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -135,7 +124,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>419</width>
-                     <height>224</height>
+                     <height>249</height>
                     </rect>
                    </property>
                   </widget>
@@ -222,7 +211,7 @@
                 <number>30</number>
                </property>
                <property name="value">
-                <number>5</number>
+                <number>0</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -235,7 +224,7 @@
                 <string>Don't ask for permissions to start COVISE or OpenCOVER</string>
                </property>
                <property name="text">
-                <string>Autostart</string>
+                <string>Autostart:</string>
                </property>
               </widget>
              </item>
@@ -249,7 +238,7 @@
              <item row="2" column="0">
               <widget class="QLabel" name="label_2">
                <property name="text">
-                <string>Autoconnect</string>
+                <string>Autoconnect:</string>
                </property>
               </widget>
              </item>
@@ -259,6 +248,16 @@
                 <string/>
                </property>
               </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Args:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="cmdArgsInput"/>
              </item>
             </layout>
            </item>
