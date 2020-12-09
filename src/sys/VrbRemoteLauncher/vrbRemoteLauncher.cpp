@@ -125,7 +125,7 @@ bool VrbRemoteLauncher::handleVRB()
     m_client->wait(&msg);
     Guard g{m_mutex};
     covise::TokenBuffer tb(&msg);
-    std::cerr << "received message: " << covise_msg_types_array[msg.type] << " type " << msg.type << std::endl;
+    //std::cerr << "received message: " << covise_msg_types_array[msg.type] << " type " << msg.type << std::endl;
     switch (msg.type)
     {
     case COVISE_MESSAGE_VRB_GET_ID:
