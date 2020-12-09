@@ -3,6 +3,7 @@
 #include "clientWidget.h"
 
 #include <QMessageBox>
+#include <QShortcut>
 #include <QTextStream>
 
 #include <iostream>
@@ -34,6 +35,10 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 
 		m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
 	});
+
+	setHotkeys();
+
+
 	if (ui->autoconnectCheckBox->isChecked())
 	{
 		onConnectBtnClicked();
@@ -53,6 +58,32 @@ MainWindow::~MainWindow()
 		m_waitFuture.get();
 	}
 	delete ui;
+}
+
+void MainWindow::setHotkeys(){
+		auto escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+	auto enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
+	auto sideMenu = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab), this);
+	connect(enter, &QShortcut::activated, this, [this]() {
+		if (!m_isConnecting)
+		{
+			onConnectBtnClicked();
+		}
+	});
+	connect(escape, &QShortcut::activated, this, [this]() {
+		if (m_isConnecting)
+		{
+			onCancelBtnClicked();
+		}
+		else
+		{
+			onDisconnectBtnClicked();
+		}
+		
+	});
+	connect(sideMenu, &QShortcut::activated, this, [this]() {
+		on_actionSideMenuAction_triggered();
+	});
 }
 
 void MainWindow::on_actionSideMenuAction_triggered()

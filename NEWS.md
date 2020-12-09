@@ -7,7 +7,7 @@ For technical changes please have a look at the git commits.
 
 09.12.2020 VrbRemoteLauncher
 ----------------------------
-Moved command line argument options from main window to side menu
+Moved command line argument options from main window to side menu and added hotkeys: Enter to connect, ESC to cancel or disconnect, CTRL + Tab to toggle menu.
 
 30.11.2020 Launch partner OpenCOVER directly from file menu
 -----------------------------------------------------------

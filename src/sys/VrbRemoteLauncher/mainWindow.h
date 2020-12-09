@@ -46,6 +46,7 @@ private:
     std::future<void> m_waitFuture;
     ClientWidgetList *m_clientList;
     VrbRemoteLauncher m_remoteLauncher;
+    void setHotkeys();
     void setRemoteLauncherCallbacks();
     void showConnectionProgressBar(int seconds);
     void dumpOptions();
