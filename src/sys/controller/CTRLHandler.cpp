@@ -3894,11 +3894,15 @@ bool CTRLHandler::recreate(string content, readMode mode)
     return true;
 }
 
+void covise::CTRLHandler::removeVrbConnection(covise::Connection * conn)
+{
+    m_handler.remove(conn);
+}
+
 void covise::CTRLHandler::removeConnection(covise::Connection * conn)
 {
     //implement here
 }
-
 bool CTRLHandler::checkModule(const string &modname, const string &modhost)
 {
 

@@ -3699,7 +3699,7 @@ void net_module_list::re_move(net_module *mod, int already_dead)
                     if (p_disp->get_mod())
                     {
                         Connection *p_conn = (p_disp->get_mod())->get_conn();
-						CTRLHandler::instance()->m_handler.remove(p_conn);
+						CTRLHandler::instance()->removeVrbConnection(p_conn);
                         con_list->remove(p_conn);
                     }
                 }

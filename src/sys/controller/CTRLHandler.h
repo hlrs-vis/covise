@@ -41,13 +41,11 @@ public:
 
     bool m_miniGUI, m_rgbTextOpen;
     int m_numRunning, m_numRendererRunning;
-	vrb::VrbMessageHandler m_handler;
 
     ControlConfig *Config;
     AccessGridDaemon *m_accessGridDaemon;
 
     static CTRLHandler *instance();
-
     void handleClosedMsg(Message *msg);
     void handleAndDeleteMsg(Message *msg);
     string handleBrowserPath(const string &name, const string &nr, const string &host, const string &oldhost,
@@ -56,6 +54,7 @@ public:
     vector<string> splitString(string text, const string &sep);
     bool recreate(string buffer, readMode mode);
     void sendMessage();
+    void removeVrbConnection(covise::Connection *c);
     void removeConnection(covise::Connection *conn) override;
 private:
     static CTRLHandler *singleton;
@@ -71,6 +70,7 @@ private:
     int m_daemonPort, m_xuif, m_startScript, m_accessGridDaemonPort;
     int m_SSLDaemonPort;
     SSLClient *m_SSLClient;
+    vrb::VrbMessageHandler m_handler;
 
     int parseCommandLine(int argc, char **argv);
     void startCrbUiDm();
