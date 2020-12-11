@@ -131,35 +131,35 @@ private:
     int getParams();
 
     AVPixelFormat capture_fmt;
-    AVOutputFormat *fmt;
-    AVFormatContext *oc;
-    AVStream *video_st;
-    AVCodecContext *codecCtx;
+    AVOutputFormat *fmt = nullptr;
+    AVFormatContext *oc = nullptr;
+    AVStream *video_st = nullptr;
+    AVCodecContext *codecCtx = nullptr;
 #ifdef USE_CODECPAR
-    AVCodecParameters *codecPar;
+    AVCodecParameters *codecPar = nullptr;
 #endif
     AVPacket pkt;
 
-    AVFrame *picture, *inPicture, *outPicture;
+    AVFrame *picture = nullptr, *inPicture = nullptr, *outPicture = nullptr;
 #ifdef HAVE_SWSCALE_H
-    SwsContext *swsconvertctx;
+    SwsContext *swsconvertctx = nullptr;
 #else
-    ImgReSampleContext *imgresamplectx;
+    ImgReSampleContext *imgresamplectx = nullptr;
 #endif
-    uint8_t *video_outbuf;
+    uint8_t *video_outbuf = nullptr;
     int video_outbuf_size;
-    uint8_t *mirroredpixels;
+    uint8_t *mirroredpixels = nullptr;
     int linesize;
 
-    coTUIEditField *paramNameField;
-    coTUILabel *paramErrorLabel;
-    coTUILabel *paramLabel;
-    coTUILabel *bitrateLabel;
-    coTUILabel *maxBitrateLabel;
-    coTUIEditIntField *maxBitrateField;
-    coTUIToggleButton *saveButton;
+    coTUIEditField *paramNameField = nullptr;
+    coTUILabel *paramErrorLabel = nullptr;
+    coTUILabel *paramLabel = nullptr;
+    coTUILabel *bitrateLabel = nullptr;
+    coTUILabel *maxBitrateLabel = nullptr;
+    coTUIEditIntField *maxBitrateField = nullptr;
+    coTUIToggleButton *saveButton = nullptr;
 
-    xercesc::DOMImplementation *impl;
+    xercesc::DOMImplementation *impl = nullptr;
 #ifndef _M_CEE //no future in Managed OpenCOVER
     std::unique_ptr<std::future<bool>> encodeFuture;
 #endif
