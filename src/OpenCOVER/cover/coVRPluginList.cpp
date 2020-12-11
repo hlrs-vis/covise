@@ -548,22 +548,25 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
     if (m == NULL)
     {
         m = loadPlugin(name, domain == Default);
-        if (m && m->init())
+        if (m)
         {
-            manage(m, domain);
-            m->m_initDone = true;
-            m->init2();
-            m->setTimestep(m_currentTimestep);
+            if (m->init())
+            {
+                manage(m, domain);
+                m->m_initDone = true;
+                m->init2();
+                m->setTimestep(m_currentTimestep);
+                if (domain == Default)
+                    updateState();
+            }
+            else
+            {
+                if (domain == Default)
+                    cerr << "plugin " << name << " failed to initialise" << endl;
+                delete m;
+                m = NULL;
+            }
         }
-        else
-        {
-            if (domain == Default)
-                cerr << "plugin " << name << " failed to initialise" << endl;
-            delete m;
-            m = NULL;
-        }
-        if (domain == Default)
-            updateState();
     }
     return m;
 }
