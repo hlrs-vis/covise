@@ -2,6 +2,10 @@ using(FFMPEG optional)
 using(XERCESC)
 covise_find_package(WMFSDK)
 
+if (NOT WMFSDK_FOUND AND NOT FFMPEG_FOUND)
+    return()
+endif()
+
 SET(HEADERS Video.h)
 SET(SOURCES Video.cpp)
 

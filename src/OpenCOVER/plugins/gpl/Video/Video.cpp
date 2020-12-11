@@ -358,7 +358,10 @@ void VideoPlugin::fillFilenameField(const string &name, bool browser, bool chang
 bool VideoPlugin::init()
 {
     if (!sysPlug)
+    {
+        std::cerr << "VideoPlugin::init: no system plugin (install ffmpeg?)" << std::endl;
         return false;
+    }
 
     resize = false;
     sizeError = false;
