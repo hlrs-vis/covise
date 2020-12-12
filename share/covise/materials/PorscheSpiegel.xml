@@ -42,9 +42,7 @@
      }
      origPos = gl_Vertex;
      origPos[1]=0.0;  
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
      gl_Position = gl_ModelViewProjectionMatrix * myVertex;	
   }
   

@@ -131,9 +131,7 @@ if(gl_Normal.z &gt; 0.5|| gl_Normal.z&lt; -0.5)
 Texcoord = gl_Vertex.xy;
 Texcoord.x=(Texcoord.x+revitOX)/revitSX;
 Texcoord.y=(Texcoord.y+revitOY+0.5)/revitSY;
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
     // Do fixed functionality vertex transform
     gl_Position = ftransform();
     transformedNormal = fnormal();

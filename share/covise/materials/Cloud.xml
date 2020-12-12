@@ -26,9 +26,7 @@
       MCposition      = vec3 (gl_Vertex) * Scale;
       vec3 tnorm      = normalize(vec3 (gl_NormalMatrix * gl_Normal));
       LightIntensity  = dot(normalize(LightPos - vec3 (ECposition)), tnorm) * 0.5;
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
   
   }
 

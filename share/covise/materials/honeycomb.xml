@@ -6,9 +6,7 @@ varying vec4 color;
   {
 	gl_Position = gl_Vertex;
 	color = gl_Color;
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
   }
   </vertexProgram><geometryProgram inputType="POINTS" numVertices="1024" outputType="TRIANGLE_STRIP">
 #version 120 

@@ -39,9 +39,7 @@
                           vec4 pos = gl_Vertex;
                           pos.y += sin(time) + sin(time*WaveSpeed2.z*100+pos.x/10)*WaveScale.y+ sin(time*WaveSpeed2.x*100+pos.z/50)*WaveScale.y;
 	gl_Position = gl_ModelViewProjectionMatrix * pos;	
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
     }
   </vertexProgram><fragmentProgram>
    

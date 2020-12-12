@@ -159,9 +159,7 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
     transformedNormal = fnormal();
     gl_Position =gl_ProjectionMatrix * gl_ModelViewMatrix *  myVertex;;	
     flight(transformedNormal, ecPosition, 1.0);
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
 
     }
 

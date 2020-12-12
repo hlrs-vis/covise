@@ -15,9 +15,7 @@
 color = gl_Color;
 Texcoord = gl_MultiTexCoord0;
 vec4 transformedVertex = gl_ModelViewMatrix*gl_Vertex;
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = transformedVertex;
-#endif	
 	    gl_Position = ftransform();
 float dist = length(transformedVertex);
 float s = (dist)*-0.001*Scale+Size;

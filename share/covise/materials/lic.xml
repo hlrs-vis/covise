@@ -16,9 +16,7 @@
      v = vertexData;
      colorTexCoords = float(gl_MultiTexCoord0);
      noiseTexCoords = vec2(gl_MultiTexCoord1);
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
    }
 </vertexProgram>
 

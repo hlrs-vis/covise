@@ -14,6 +14,9 @@
         Texcoord = gl_MultiTexCoord0;
         TexcoordL = gl_MultiTexCoord1;
 	    gl_Position = ftransform();	
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif      
     }
   </vertexProgram><fragmentProgram>
    
@@ -30,9 +33,6 @@
       vec4 DiffuseColor = texture2D( diffuseMap, Texcoord ) * texture2D( lightMap, TexcoordL );
       DiffuseColor.rgb  =((DiffuseColor.rgb - 0.5f) * Contrast) + 0.5f;
       DiffuseColor.rgb += vec3(Brightness,Brightness,Brightness);
-#ifdef __GLSL_CG_DATA_TYPES
-gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif      
       gl_FragColor = DiffuseColor ;	
     }</fragmentProgram>
     

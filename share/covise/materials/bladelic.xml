@@ -28,9 +28,7 @@
      lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
      eyeVec = -vVertex;
      colorValue=gl_Color;
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
    }
   </vertexProgram>
   <fragmentProgram>

@@ -14,9 +14,7 @@
   {
       gl_TexCoord[0] = gl_MultiTexCoord0;
       gl_Position     = ftransform();
-#ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-#endif
 		lane = sign(roadMark[0]);
 		if(lane==0.0) {
 			lane = sign(roadMark[1]);
