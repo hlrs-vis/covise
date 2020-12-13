@@ -46,7 +46,7 @@ void coVR3DRotGizmo::createGeometry()
     scaleTransform->addChild(geometryNode.get());
 
 
-    osg::Sphere *mySphere = new osg::Sphere(origin, 0.5);
+    osg::Sphere *mySphere = new osg::Sphere(origin, 0.75);
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
     sphereDrawable = new osg::ShapeDrawable(mySphere, hint);
@@ -55,9 +55,9 @@ void coVR3DRotGizmo::createGeometry()
     _sphereGeode->addDrawable(sphereDrawable);
     _axisTransform->addChild(_sphereGeode.get());
 
-    _xRotCylGroup = circlesFromCylinders(RotationAxis::X, 24, _red, _radius/4);
-    _yRotCylGroup = circlesFromCylinders(RotationAxis::Y, 24, _green, _radius/4);
-    _zRotCylGroup = circlesFromCylinders(RotationAxis::Z, 24, _blue, _radius/4);
+    _xRotCylGroup = circlesFromCylinders(RotationAxis::X, 27, _red, _radius/4);
+    _yRotCylGroup = circlesFromCylinders(RotationAxis::Y, 27, _green, _radius/4);
+    _zRotCylGroup = circlesFromCylinders(RotationAxis::Z, 27, _blue, _radius/4);
 
     _axisTransform->addChild(_xRotCylGroup);
     _axisTransform->addChild(_yRotCylGroup);
@@ -95,6 +95,7 @@ osg::Vec3Array* coVR3DRotGizmo::circleVerts(RotationAxis axis, int approx)
     return v;
 }
 
+/*
 osg::Geode* coVR3DRotGizmo:: circles( RotationAxis axis, int approx, osg::Vec4 color )
 {
     osg::Geode* geode = new osg::Geode;
@@ -116,6 +117,7 @@ osg::Geode* coVR3DRotGizmo:: circles( RotationAxis axis, int approx, osg::Vec4 c
     geode->addDrawable( geom );
     return geode;
 }
+*/
 
 osg::Group* coVR3DRotGizmo:: circlesFromCylinders( RotationAxis axis, int approx, osg::Vec4 color, float cylLength )
 {
@@ -126,7 +128,7 @@ osg::Group* coVR3DRotGizmo:: circlesFromCylinders( RotationAxis axis, int approx
     cylDrawable->setColor(color);
     osg::Geode* geode = new osg::Geode;
     geode->addDrawable(cylDrawable);
-    
+
     osg::Vec3Array* v = circleVerts(axis, approx );
 
     const double angle( 360.0 / (double) approx );
@@ -152,10 +154,52 @@ osg::Group* coVR3DRotGizmo:: circlesFromCylinders( RotationAxis axis, int approx
             incrementAngle -= angle;
     }
 
+    if(!is2D()) //if 3d input device is available create cylinder which is used for rotation via wrist rotation
+    {
+        auto flatSlice = new osg::Cylinder(osg::Vec3(0,0,0), _radius - 0.4, 0.1);
+        osg::ShapeDrawable* flatSliceDrawable = new osg::ShapeDrawable(flatSlice);
+        osg::Vec4 newColor = color;
+        newColor = osg::Vec4(color.x(),color.y(), color.z(), 0.4);
+        flatSliceDrawable->setColor(newColor);
+        osg::Geode* geode1 = new osg::Geode;
+        geode1->addDrawable(flatSliceDrawable); 
+        geode1->setName("UseWristRotation");
+        osg::MatrixTransform *matrixTransform = new osg::MatrixTransform();
+        osg::Matrix rot;
+        if(axis == RotationAxis::Z)
+            rot = osg::Matrix::rotate(osg::DegreesToRadians(0.0),osg::Z_AXIS);
+        else if(axis == RotationAxis::Y)
+            rot = osg::Matrix::rotate(osg::DegreesToRadians(90.0),osg::X_AXIS);
+        else if(axis == RotationAxis::X)
+            rot = osg::Matrix::rotate(osg::DegreesToRadians(90.0),osg::Y_AXIS);
+        matrixTransform->setMatrix(rot);
+        matrixTransform->addChild(geode1);
+        parent->addChild(matrixTransform);
+    }
+
     return parent;
 }
 
+//check if hitNode is child of specific rotation group and derive corresponding rotation axis
+bool coVR3DRotGizmo::rotateAroundSpecificAxis(osg::Group *group) const
+{
+    bool foundNode{false};
+    int numChildren = group->getNumChildren();
+    for(int i{0}; i < numChildren; i++)
+    {
+         auto node = group->getChild(i);
+         
+         if(_hitNode->getParent(0) == node)
+            foundNode = true;
+        
+    }
+    return foundNode;
+}
 
+bool coVR3DRotGizmo::useWristRotation() const
+{
+    return _hitNode->getName() == "UseWristRotation" ? true : false;
+}
 
 void coVR3DRotGizmo::startInteraction()
 {
@@ -171,6 +215,7 @@ void coVR3DRotGizmo::startInteraction()
     _rotateZonly = rotateAroundSpecificAxis(_zRotCylGroup.get());
     _rotateYonly = rotateAroundSpecificAxis(_yRotCylGroup.get());
     _rotateXonly = rotateAroundSpecificAxis(_xRotCylGroup.get());
+    _wristRotation = useWristRotation();
 
     osg::Matrix rotateOnly = _startInterMat_w;
     rotateOnly.setTrans(osg::Vec3(0,0,0));
@@ -203,20 +248,6 @@ void coVR3DRotGizmo::startInteraction()
     }
 }
 
-//check if hitNode is child of specific rotation group
-bool coVR3DRotGizmo::rotateAroundSpecificAxis(osg::Group *group) const
-{
-    bool foundNode{false};
-    int numChildren = group->getNumChildren();
-
-    for(int i{0}; i < numChildren; i++)
-    {
-         auto node = group->getChild(i);
-         if(_hitNode->getParent(0) == node)
-            foundNode = true;
-    }
-    return foundNode;
-}
 
 void coVR3DRotGizmo::doInteraction()
 {
@@ -232,30 +263,37 @@ void coVR3DRotGizmo::doInteraction()
         if(is2D())
             newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
         else
-			{
-	       //     newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
-            newInteractorMatrix = calcRotation3D(osg::Z_AXIS);
-			}
+		{
+            if(_wristRotation)
+                newInteractorMatrix = calcRotation3D(osg::Z_AXIS);
+            else
+	            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
+
+		}
     }
     else if(_rotateYonly)
     {
         if(is2D())
             newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
         else
-			{
-            //newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
-            newInteractorMatrix = calcRotation3D(osg::Y_AXIS);
-			}
+		{
+            if(_wristRotation)
+                newInteractorMatrix = calcRotation3D(osg::Y_AXIS);
+            else
+                newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
+        }
     }
     else if(_rotateXonly)
     {
         if(is2D())
             newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);
         else
-			{
-            //newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);
-            newInteractorMatrix = calcRotation3D(osg::X_AXIS);
-			}
+		{
+            if(_wristRotation)
+                newInteractorMatrix = calcRotation3D(osg::X_AXIS);
+            else
+                newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS); 
+        }           
     }
     else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {

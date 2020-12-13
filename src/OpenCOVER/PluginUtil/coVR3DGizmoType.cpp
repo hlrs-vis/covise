@@ -109,7 +109,10 @@ void coVR3DGizmoType::startInteraction()
 }
 
 void coVR3DGizmoType::stopInteraction()
-{}
+{
+    coVRIntersectionInteractor::stopInteraction();
+}
+
 void coVR3DGizmoType::updateTransform(osg::Matrix m)
 {
     if (cover->debugLevel(5))
