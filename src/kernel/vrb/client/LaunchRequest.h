@@ -7,26 +7,24 @@
 
 #include <string>
 #include <vector>
+#include <net/message_macros.h>
 
-namespace covise{
-    class TokenBuffer;
-    class MessageSenderInterface;
-
-}
 
 namespace vrb{
-struct VRBCLIENTEXPORT LaunchRequest
-{
-    const Program program;
-    const int clientID;
-    const std::vector<std::string> args;
 
-    LaunchRequest(covise::TokenBuffer &tb);
-    LaunchRequest(Program p, int clID, const std::vector<std::string> &args);
-};
+DECL_MESSAGE_CLASS(VRB_MESSAGE, VRBCLIENTEXPORT, Program, program, int, clientID, std::vector<std::string>, args)
+VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, covise::MessageSenderInterface *sender);
 
-VRBCLIENTEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const LaunchRequest &launchRequest);
-VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, covise::MessageSenderInterface *sender);
+    enum class VrbMessageType
+    {
+        Launcher,
+        Avatar
+    };
+    DECL_MESSAGE_WITH_SUB_CLASSES(VRB_LOAD_SESSION, VrbMessageType, VRBCLIENTEXPORT)
+    DECL_SUB_MESSAGE_CLASS(VRB_LOAD_SESSION, VrbMessageType, Launcher, VRBCLIENTEXPORT, Program, program, int, clientID, std::vector<std::string>, args)
+
+    //VRB_MESSAGE_Launcher l{vrb::Program::Cover, 5, std::vector<std::string>{}};
+
 } // namespace vrb
 
 #endif // !VRB_CLIENT_LAUNCH_REQUEST_H

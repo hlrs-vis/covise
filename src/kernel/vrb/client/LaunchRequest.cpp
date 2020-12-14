@@ -1,48 +1,28 @@
 #include "LaunchRequest.h"
 #include <net/message.h>
+#include <net/message_sender_interface.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
 #include <net/tokenbuffer_serializer.h>
-#include <net/message_sender_interface.h>
+#include <net/tokenbuffer_util.h>
 
-using namespace vrb;
+#include <cassert>
+#include <iostream>
 
-Program getProgram(covise::TokenBuffer &tb){
-    Program p;
-    tb >> p;
-    return p;
-}
-int getID(covise::TokenBuffer& tb){
-    int id;
-    tb >> id;
-    return id;
-}
+namespace vrb{
 
-std::vector<std::string> getArgs(covise::TokenBuffer& tb){
-    std::vector<std::string> args;
-    deserialize(tb, args);
-    return args;
-}
+IMPL_MESSAGE_CLASS(VRB_MESSAGE, Program, program, int, clientID, std::vector<std::string>, args)
 
-LaunchRequest::LaunchRequest(covise::TokenBuffer &tb)
-    :program(getProgram(tb))
-    ,clientID(getID(tb))
-    ,args(getArgs(tb)){}
+IMPL_MESSAGE_WITH_SUB_CLASSES(VRB_LOAD_SESSION, VrbMessageType)
+IMPL_SUB_MESSAGE_CLASS(VRB_LOAD_SESSION, VrbMessageType, Launcher, Program, program, int, clientID, std::vector<std::string>, args)
 
-LaunchRequest::LaunchRequest(Program p, int clID, const std::vector<std::string> &args)
-    :program(p)
-    ,clientID(clID)
-    ,args(args){}
-
-covise::TokenBuffer &vrb::operator<<(covise::TokenBuffer &tb, const LaunchRequest &launchRequest){
-    tb << launchRequest.program << launchRequest.clientID;
-    serialize(tb, launchRequest.args);
-    return tb;
-}
-bool vrb::sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, covise::MessageSenderInterface *sender){
-    covise::Message msg;
+bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, covise::MessageSenderInterface *sender){
     covise::TokenBuffer outerTb, innerTb;
     innerTb << lrq;
-    outerTb << vrb::Program::VrbRemoteLauncher << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
+    outerTb << Program::VrbRemoteLauncher << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
     return sender->send(outerTb, covise::COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
 }
+
+}//vrb
+
+

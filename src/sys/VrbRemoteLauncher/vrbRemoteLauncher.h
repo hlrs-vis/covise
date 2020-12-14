@@ -48,7 +48,7 @@ private:
     void loop();
     bool handleVRB();
     bool removeOtherClient(covise::TokenBuffer &tb);
-    void handleVrbLauncherMessage(covise::TokenBuffer &tb);
+    void handleVrbLauncherMessage(covise::Message &msg);
     std::set<vrb::RemoteClient>::iterator findClient(int id);
 };
 QString getClientInfo(const vrb::RemoteClient &cl);

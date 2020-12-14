@@ -85,7 +85,7 @@ void VrbRemoteLauncher::printClientInfo()
 
 void VrbRemoteLauncher::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
-    vrb::sendLaunchRequestToRemoteLaunchers(vrb::LaunchRequest{p, clientID, args}, m_client.get());
+    vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{p, clientID, args}, m_client.get());
 }
 
 void VrbRemoteLauncher::loop()
@@ -167,7 +167,7 @@ bool VrbRemoteLauncher::handleVRB()
     break;
     case COVISE_MESSAGE_VRB_MESSAGE:
     {
-        handleVrbLauncherMessage(tb);
+        handleVrbLauncherMessage(msg);
     }
     break;
     case COVISE_MESSAGE_SOCKET_CLOSED:
@@ -211,9 +211,9 @@ std::set<vrb::RemoteClient>::iterator VrbRemoteLauncher::findClient(int id)
     });
 }
 
-void VrbRemoteLauncher::handleVrbLauncherMessage(covise::TokenBuffer &tb)
+void VrbRemoteLauncher::handleVrbLauncherMessage(covise::Message &msg)
 {
-    vrb::LaunchRequest lrq{tb};
+    vrb::VRB_MESSAGE lrq{msg};
     if (lrq.clientID == m_client->ID())
     {
         emit launchSignal(lrq.program, lrq.args);
