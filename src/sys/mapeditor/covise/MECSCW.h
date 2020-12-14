@@ -9,12 +9,14 @@
 #define ME_CSCW_H
 
 #include <QDialog>
+#include <QStringList>
 
 class QLineEdit;
 class QComboBox;
 class QString;
 class QGridLayout;
 class QListWidgetItem;
+class QListWidget;
 
 //================================================
 class MECSCW : public QDialog
@@ -25,14 +27,15 @@ class MECSCW : public QDialog
 public:
     MECSCW(QWidget *parent = 0);
     ~MECSCW();
-
+    void setVrbPartner(const QStringList &vrbPartner);
 public slots:
 
     void accepted();
 
 private:
-    QLineEdit *selectionHost;
-
+    QLineEdit *m_selectionHost = nullptr;
+    QListWidget *m_listbox = nullptr;
+    QStringList m_configHosts;
 private slots:
 
     void setHostCB(QListWidgetItem *);

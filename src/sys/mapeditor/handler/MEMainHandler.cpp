@@ -1037,7 +1037,11 @@ void MEMainHandler::addHost()
         caption.append(" Add Host");
     else
         caption.append(" Add Partner");
-
+    static int counter = 0;
+    QStringList vrbPartner;
+    vrbPartner << ("test_" + std::to_string(counter)).c_str();
+    ++counter;
+    m_addHostBox->setVrbPartner(vrbPartner);
     m_addHostBox->setWindowTitle(caption);
     m_addHostBox->show();
 }

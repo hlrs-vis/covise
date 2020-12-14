@@ -38,7 +38,6 @@ MECSCW::MECSCW(QWidget *parent)
 
     // read config file for available hosts
 
-    QStringList list;
     int i = 0;
     covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("System.HostConfig");
     const char **line = entries.getValue();
@@ -47,7 +46,7 @@ MECSCW::MECSCW(QWidget *parent)
         while (line[i] != NULL)
         {
             QString tmp = (char *)line[i];
-            list << tmp.section(":", -1);
+            m_configHosts << tmp.section(":", -1);
             i = i + 2;
         }
     }
@@ -64,13 +63,13 @@ MECSCW::MECSCW(QWidget *parent)
     label->setFont(MEMainHandler::s_boldFont);
     fbox->addWidget(label);
 
-    QListWidget *listbox = new QListWidget();
-    listbox->setSelectionMode(QAbstractItemView::SingleSelection);
-    listbox->setModelColumn(10);
-    listbox->addItems(list);
-    connect(listbox, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(setHostCB(QListWidgetItem *)));
-    connect(listbox, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(accepted2(QListWidgetItem *)));
-    fbox->addWidget(listbox);
+    m_listbox = new QListWidget();
+    m_listbox->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_listbox->setModelColumn(10);
+    m_listbox->addItems(m_configHosts);
+    connect(m_listbox, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(setHostCB(QListWidgetItem *)));
+    connect(m_listbox, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(accepted2(QListWidgetItem *)));
+    fbox->addWidget(m_listbox);
 
     label = new QLabel(this);
     label->setText("Selected host");
@@ -78,10 +77,10 @@ MECSCW::MECSCW(QWidget *parent)
     label->setFont(MEMainHandler::s_boldFont);
     fbox->addWidget(label);
 
-    selectionHost = new QLineEdit(this);
-    selectionHost->setModified(true);
-    connect(selectionHost, SIGNAL(returnPressed()), this, SLOT(accepted()));
-    fbox->addWidget(selectionHost);
+    m_selectionHost = new QLineEdit(this);
+    m_selectionHost->setModified(true);
+    connect(m_selectionHost, SIGNAL(returnPressed()), this, SLOT(accepted()));
+    fbox->addWidget(m_selectionHost);
 
     QDialogButtonBox *bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(bb, SIGNAL(rejected()), this, SLOT(rejected()));
@@ -96,17 +95,24 @@ MECSCW::~MECSCW()
 {
 }
 
+
+void MECSCW::setVrbPartner(const QStringList &vrbPartner){
+    m_listbox->clear();
+    m_listbox->addItems(m_configHosts);
+    m_listbox->addItems(vrbPartner);
+}
+
 //!
 //! accept the host selection
 //!
 void MECSCW::accepted()
 {
     // request host information
-    QString tmp = "HOSTINFO\n" + selectionHost->text() + "\n";
+    QString tmp = "HOSTINFO\n" + m_selectionHost->text() + "\n";
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
 
     // clear text field and hide widget
-    selectionHost->clear();
+    m_selectionHost->clear();
     hide();
 }
 
@@ -127,7 +133,7 @@ void MECSCW::accepted2(QListWidgetItem *item)
 //!
 void MECSCW::rejected()
 {
-    selectionHost->clear();
+    m_selectionHost->clear();
     hide();
 }
 
@@ -137,7 +143,7 @@ void MECSCW::rejected()
 void MECSCW::setHostCB(QListWidgetItem *item)
 {
     if (item)
-        selectionHost->setText(item->text());
+        m_selectionHost->setText(item->text());
 }
 
 #if QT_VERSION >= 0x040400
@@ -184,7 +190,8 @@ MECSCWParam::MECSCWParam(QWidget *parent)
          << "nqs"
          << "manual"
          << "remoteDaemon"
-         << "SSL";
+         << "SSL"
+         << "VRB";
 
 #if QT_VERSION >= 0x040400
     QFormLayout *grid = new QFormLayout();
