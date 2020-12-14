@@ -2712,7 +2712,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         iel++;
 
         // send request to crb
-        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send_msg(msg);
+        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send(msg);
     }
 
     //       UI::RENDERER_IMBEDDED_NOT_ACTIVE
@@ -2726,7 +2726,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         iel++;
 
         // send request to crb
-        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send_msg(msg);
+        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send(msg);
     }
 
     //       UI::FILE_SEARCH
@@ -2741,7 +2741,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         iel++;
 
         // send request to crb
-        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send_msg(msg);
+        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send(msg);
     }
 
     //       UI::FILE_LOOKUP
@@ -2756,7 +2756,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         iel++;
 
         // send request to crb
-        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send_msg(msg);
+        CTRLGlobal::getInstance()->dataManagerList->get(hostname, username)->get_DM()->send(msg);
     }
 
     //       UI::FILE_SEARCH_RESULT
@@ -3548,7 +3548,7 @@ string CTRLHandler::handleBrowserPath(const string &name, const string &nr, cons
         AppModule *module = tmp_data->get_DM();
         if (module != NULL)
         {
-            module->send_msg(msg2);
+            module->send(msg2);
             delete msg2;
 
             Message *rmsg = new Message;

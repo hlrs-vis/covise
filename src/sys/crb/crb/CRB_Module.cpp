@@ -28,10 +28,6 @@
 #include "CRB_Module.h"
 #include <covise/Covise_Util.h>
 
-#ifndef NO_VRB
-#include <vrb/client/VRBClient.h>
-#endif
-
 #ifdef __APPLE__
 extern char **environ;
 #endif
@@ -132,28 +128,6 @@ void module::start(char *parameter, Start::Flags flags)
         tmp++;
     }
     argv[argc] = NULL;
-// Special Hack for COVER, OPENCOVER
-// prior to starting COVER look for VRB and connect to an already running one
-//
-#ifndef NO_VRB
-    int sl = (int)strlen(name);
-    if (sl > 5)
-    {
-        if (strncmp(name + sl - 5, "COVER", 5) == 0 || strcmp(name, "VRRenderer") == 0)
-        {
-            VRBClient vrbc(vrb::Program::Covise);
-            if (vrbc.connectToServer())
-            {
-                if (vrbc.isCOVERRunning())
-                {
-                    cerr << "connecting to COVER" << endl;
-                    vrbc.connectToCOVISE(argc, (const char **)argv);
-                    return;
-                }
-            }
-        }
-    }
-#endif
 
 #ifdef _WIN32
     string win_cmd_line;

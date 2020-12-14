@@ -325,7 +325,7 @@ int DM_data::start_crb(int type, const string& host, const string& user, const s
     }
 
     Message *msg = new Message(COVISE_MESSAGE_QUERY_DATA_PATH, "");
-    dm->send_msg(msg);
+    dm->send(msg);
     msg->data = DataHandle{};
 
     dm->recv_msg(msg);
@@ -356,7 +356,7 @@ void DM_data::quit()
     if (CTRLHandler::instance()->Config->getshminfo(hostname.c_str()) != COVISE_NOSHM)
     {
         Message *msg = new Message(COVISE_MESSAGE_QUIT, "");
-        dm->send_msg(msg);
+        dm->send(msg);
 
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
@@ -378,7 +378,7 @@ int DM_data::new_desk()
     if (CTRLHandler::instance()->Config->getshminfo(hostname.c_str()) != COVISE_NOSHM)
     {
         Message *msg = new Message(COVISE_MESSAGE_NEW_DESK, "");
-        dm->send_msg(msg);
+        dm->send(msg);
         delete msg;
         return 1;
     }
@@ -389,7 +389,7 @@ void DM_data::send_msg(Message *msg)
 {
     if (CTRLHandler::instance()->CTRLHandler::instance()->Config->getshminfo(hostname.c_str()) != COVISE_NOSHM)
     {
-        dm->send_msg(msg);
+        dm->send(msg);
 
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
@@ -688,7 +688,7 @@ void rhost::send_hostadr(const string &hostname)
     string tmp(hostname);
     tmp.append("\n");
     Message *msg = new Message(COVISE_MESSAGE_INIT, tmp);
-    ctrl->send_msg(msg);
+    ctrl->send(msg);
     delete msg;
 }
 
@@ -699,7 +699,7 @@ void rhost::recv_msg(Message *msg)
 
 void rhost::send(Message *msg)
 {
-    ctrl->send_msg(msg);
+    ctrl->send(msg);
 }
 
 void rhost::send_ctrl_quit()
@@ -709,7 +709,7 @@ void rhost::send_ctrl_quit()
 
     if (ctrl != NULL)
     {
-        ctrl->send_msg(msg);
+        ctrl->send(msg);
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
 //	fprintf(msg_prot, "send rhost\n%i %i \n %s \n", msg->sender, msg->type, msg->data);
@@ -1215,7 +1215,7 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
         tmp.append("\nMINI_GUI");
 
     Message *msg = new Message(COVISE_MESSAGE_UI, tmp);
-    ui->send_msg(msg);
+    ui->send(msg);
     delete msg;
 
     CTRLGlobal::getInstance()->userinterfaceList->update_ui(this);
@@ -1230,7 +1230,7 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
         if (msg->data.data())
         {
             msg->type = COVISE_MESSAGE_UI;
-            dmod->send_msg(msg); //message for CRB that an embedded renderer is possible
+            dmod->send(msg); //message for CRB that an embedded renderer is possible
         }
 
         delete msg;
@@ -1276,7 +1276,7 @@ int UISoap::start(bool)
     tmp.append("\n");
 
     Message *msg = new Message(COVISE_MESSAGE_UI, tmp);
-    ui->send_msg(msg);
+    ui->send(msg);
     delete msg;
 
     CTRLGlobal::getInstance()->userinterfaceList->update_ui(this);
@@ -1308,7 +1308,7 @@ int userinterface::restart()
     // send current net to UIF
     // send current controller information to ui
     Message *tmp_msg = new Message(COVISE_MESSAGE_UI, "START_READING\n");
-    ui->send_msg(tmp_msg);
+    ui->send(tmp_msg);
     delete tmp_msg;
 
     // loop over all modules
@@ -1322,7 +1322,7 @@ int userinterface::restart()
         mybuf << "INIT\n" << mod->get_name() << "\n" << mod->get_nr() << "\n";
         mybuf << mod->get_host() << "\n" << mod->get_x_pos() << "\n" << mod->get_y_pos() << "\n";
         tmp_msg = new Message(COVISE_MESSAGE_UI, mybuf.str());
-        ui->send_msg(tmp_msg);
+        ui->send(tmp_msg);
         delete tmp_msg;
 
         ostringstream os;
@@ -1332,14 +1332,14 @@ int userinterface::restart()
             os << mymod->create_descr();
 
         tmp_msg = new Message(COVISE_MESSAGE_UI, os.str());
-        ui->send_msg(tmp_msg);
+        ui->send(tmp_msg);
         delete tmp_msg;
 
         ostringstream oss;
         oss << "MODULE_TITLE\n" << mod->get_name() << "\n" << mod->get_nr() << "\n";
         oss << mod->get_host() << "\n" << mod->get_title() << "\n";
         tmp_msg = new Message(COVISE_MESSAGE_UI, oss.str());
-        ui->send_msg(tmp_msg);
+        ui->send(tmp_msg);
         delete tmp_msg;
 
         // send current parameter
@@ -1366,7 +1366,7 @@ int userinterface::restart()
             stream << "PARAM_RESTART\n" << mod->get_name() << "\n" << mod->get_nr() << "\n" << mod->get_host() << "\n"
                    << name_list[i] << "\n" << type_list[i] << "\n" << value;
             Message *msg2 = new Message(COVISE_MESSAGE_UI, stream.str());
-            ui->send_msg(msg2);
+            ui->send(msg2);
             delete msg2;
 
             // send ADD_PANEL
@@ -1392,7 +1392,7 @@ int userinterface::restart()
             ostringstream mybuf2;
             mybuf2 << "OBJCONN2\n" << i << "\n" << buffer;
             Message *tmp_msg = new Message(COVISE_MESSAGE_UI, mybuf2.str());
-            ui->send_msg(tmp_msg);
+            ui->send(tmp_msg);
             delete tmp_msg;
         }
     }
@@ -1401,7 +1401,7 @@ int userinterface::restart()
     // send end message to UIF
     //
     tmp_msg = new Message(COVISE_MESSAGE_UI, "END_READING\ntrue");
-    ui->send_msg(tmp_msg);
+    ui->send(tmp_msg);
     delete tmp_msg;
 
     return (1);
@@ -1440,7 +1440,7 @@ int userinterface::xstart(const string &pyFile)
     // send status-Message
     string tmp = status;
     Message *msg = new Message(COVISE_MESSAGE_UI, tmp);
-    ui->send_msg(msg);
+    ui->send(msg);
     delete msg;
 
     CTRLGlobal::getInstance()->userinterfaceList->update_ui(this);
@@ -1468,7 +1468,7 @@ int userinterface::xstart(const string &pyFile)
 void userinterface::quit()
 {
     Message *ui_msg = new Message(COVISE_MESSAGE_QUIT, "");
-    ui->send_msg(ui_msg);
+    ui->send(ui_msg);
 
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
@@ -1493,7 +1493,7 @@ void userinterface::change_status(const string &str)
 {
     status = str;
     Message *msg = new Message(COVISE_MESSAGE_UI, str);
-    ui->send_msg(msg);
+    ui->send(msg);
 
 #ifdef DEBUG
     fprintf(msg_prot, "---------------------------------------------------\n");
@@ -1507,7 +1507,7 @@ void userinterface::change_status(const string &str)
 void userinterface::send(Message *msg)
 {
     if (ui)
-        ui->send_msg(msg);
+        ui->send(msg);
 
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
@@ -1520,7 +1520,7 @@ void userinterface::change_master(const string &user, const string &host)
 {
     string text = "MASTERREQ\n" + user + "\n" + host + "\n\n";
     Message *msg = new Message(COVISE_MESSAGE_UI, text);
-    ui->send_msg(msg);
+    ui->send(msg);
 
 #ifdef DEBUG
     fprintf(msg_prot, "---------------------------------------------------\n");
@@ -2326,7 +2326,7 @@ void uif::start(AppModule *dmod, const string &execname, const string &category,
     strcpy(tmp, data.c_str());
     msg->data = DataHandle{ tmp, strlen(tmp) + 1 };
     msg->type = COVISE_MESSAGE_GENERIC;
-    applmod->send_msg(msg);
+    applmod->send(msg);
 
     delete msg;
 }
@@ -2334,7 +2334,7 @@ void uif::start(AppModule *dmod, const string &execname, const string &category,
 void uif::delete_uif()
 {
     Message *msg = new Message(COVISE_MESSAGE_QUIT, "");
-    applmod->send_msg(msg);
+    applmod->send(msg);
     delete msg;
 }
 
@@ -2380,7 +2380,7 @@ int uif::get_procid()
 
 void uif::send_msg(Message *msg)
 {
-    applmod->send_msg(msg);
+    applmod->send(msg);
 }
 
 //************************************************************************

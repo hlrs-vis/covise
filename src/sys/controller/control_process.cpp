@@ -540,7 +540,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         break;
     }
     msg->data = DataHandle{remote_command, strlen(remote_command) + 1, false};
-    dmod->send_msg(msg);
+    dmod->send(msg);
     delete msg;
 
     if (conn->acceptOne(timeout) < 0)
@@ -586,7 +586,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             text.append("\n");
             text.append(cat);
             Message *msg2 = new Message(COVISE_MESSAGE_UI, text);
-            dmod->send_msg(msg2);
+            dmod->send(msg2);
             delete msg2;
 
             Message *rmsg = new Message;
@@ -643,7 +643,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         mapeditor->send(msg);
 
     else
-        dmod->send_msg(msg);
+        dmod->send(msg);
 
     delete msg;
 
@@ -689,7 +689,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             text.append("\n");
             text.append(cat);
             Message *msg2 = new Message(COVISE_MESSAGE_UI, text);
-            dmod->send_msg(msg2);
+            dmod->send(msg2);
             delete msg2;
 
             Message *rmsg = new Message;
@@ -761,7 +761,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 
     // start renderer normal
     else
-        dmod->send_msg(msg);
+        dmod->send(msg);
 
     delete msg;
 
@@ -782,7 +782,7 @@ void Controller::get_shared_memory(AppModule *dmod)
     Message msg{ COVISE_MESSAGE_GET_SHM_KEY , DataHandle{} };
 
     print_comment(__LINE__, __FILE__, "in get_shared_memory");
-    dmod->send_msg(&msg);
+    dmod->send(&msg);
     dmod->recv_msg(&msg);
     if (msg.type == COVISE_MESSAGE_GET_SHM_KEY)
     {

@@ -8,14 +8,14 @@
 #ifndef EC_MODULE_H
 #define EC_MODULE_H
 
-#include <net/covise_connect.h>
 #include <covise/covise.h>
 #include <covise/covise_msg.h>
-
+#include <net/covise_connect.h>
+#include <net/message_sender_interface.h>
 namespace covise
 {
 
-class AppModule // class that represents other modules or processes
+class AppModule : public MessageSenderInterface// class that represents other modules or processes
 {
 private:
     Connection *conn; // connection to this other module
@@ -61,10 +61,12 @@ public:
     {
         return conn;
     }
-
+private:
     // forward message to the connection:
-    int send_msg(Message *msg);
+    bool sendMessage(const Message *msg) override;
+    bool sendMessage(const UdpMessage *msg) override;
 
+public:
     // get message from the connection
     int recv_msg(Message *msg);
 

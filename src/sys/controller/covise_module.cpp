@@ -18,13 +18,17 @@ const int SIZEOF_IEEE_INT = 4;
 
 using namespace covise;
 
-int AppModule::send_msg(Message *msg)
+bool AppModule::sendMessage(const Message *msg)
 {
-    if (NULL != conn)
+    if (conn)
         return conn->send_msg(msg);
-
     else
-        return 0;
+        return false;
+}
+
+bool AppModule::sendMessage(const UdpMessage *msg)
+{
+    return false;
 }
 
 int AppModule::recv_msg(Message *msg)
@@ -48,7 +52,7 @@ int AppModule::connect(AppModule *dmgr)
     // Tell CRB to open a socket for the module
     Message* msg = new Message(COVISE_MESSAGE_PREPARE_CONTACT, DataHandle{});
     print_comment(__LINE__, __FILE__, "vor PREPARE_CONTACT send");
-    if (dmgr->send_msg(msg) == COVISE_SOCKET_INVALID)
+    if (dmgr->send(msg) == COVISE_SOCKET_INVALID)
         return 0;
     delete msg;
 
@@ -70,7 +74,7 @@ int AppModule::connect(AppModule *dmgr)
         msg_data.setLength(sizeof(int) + (int)strlen(&msg_data.data()[SIZEOF_IEEE_INT]));
         msg = new Message(COVISE_MESSAGE_APP_CONTACT_DM, msg_data);
         print_comment(__LINE__, __FILE__, "vor APP_CONTACT_DM send");
-        send_msg(msg);
+        send(msg);
         delete msg;
     }
     // else  ????????
@@ -83,7 +87,7 @@ int AppModule::prepare_connect(AppModule *m)
     int len = 0;
 
     Message* msg = new Message(COVISE_MESSAGE_PREPARE_CONTACT, DataHandle{});
-    if (m->send_msg(msg) == COVISE_SOCKET_INVALID)
+    if (m->send(msg) == COVISE_SOCKET_INVALID)
         return 0;
     delete msg;
     return (1);
@@ -100,7 +104,7 @@ int AppModule::do_connect(AppModule *m, Message *portmsg)
         strncpy(&msg_data[SIZEOF_IEEE_INT], m->host->getAddress(), 76);
         len = sizeof(int) + (int)strlen(&msg_data[SIZEOF_IEEE_INT]);
         Message msg{ COVISE_MESSAGE_APP_CONTACT_DM , DataHandle{msg_data, len, false} };
-        send_msg(&msg);
+        send(&msg);
 
     }
     return 1;
@@ -110,7 +114,7 @@ int AppModule::connect_datamanager(AppModule* m)
 {
     Message* msg = new Message{ COVISE_MESSAGE_PREPARE_CONTACT_DM, DataHandle{} };
     print_comment(__LINE__, __FILE__, "vor PREPARE_CONTACT_DM send");
-    if (m->send_msg(msg) == COVISE_SOCKET_INVALID)
+    if (m->send(msg) == COVISE_SOCKET_INVALID)
         return 0;
     delete msg;
 
@@ -128,7 +132,7 @@ int AppModule::connect_datamanager(AppModule* m)
             msg_data.setLength(sizeof(int) + (int)strlen(&msg_data.data()[SIZEOF_IEEE_INT]) + 1);
             msg = new Message{COVISE_MESSAGE_DM_CONTACT_DM, msg_data};
             print_comment(__LINE__, __FILE__, "vor DM_CONTACT_DM send");
-            send_msg(msg);
+            send(msg);
             delete msg;
             break;
         }

@@ -1099,7 +1099,7 @@ string net_module::get_startmessage(ui_list *ul)
 
 void net_module::send_msg(Message *msg)
 {
-    applmod->send_msg(msg);
+    applmod->send(msg);
 }
 
 int net_module::get_mod_id()
@@ -1150,7 +1150,7 @@ void net_module::start_module(ui_list *ul)
     }
 
     Message *msg = new Message(COVISE_MESSAGE_START, content);
-    applmod->send_msg(msg);
+    applmod->send(msg);
     delete msg;
 
     content = this->get_inparaobj();
@@ -1592,7 +1592,7 @@ void net_module::del(int already_dead)
 
 #ifdef QUITMOD
     if (already_dead <= 0 && applmod)
-        applmod->send_msg(msg);
+        applmod->send(msg);
 #endif
 
 #ifdef DEBUG
@@ -2234,7 +2234,7 @@ void display::send_status(const string &info_str)
 {
     string text = excovise_status + "\n" + info_str + "\n";
     Message *msg = new Message(COVISE_MESSAGE_RENDER, text);
-    applmod->send_msg(msg);
+    applmod->send(msg);
 
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
@@ -2252,7 +2252,7 @@ void display::quit()
     Message *msg = new Message(COVISE_MESSAGE_QUIT, "");
 
 #ifdef QUITMOD
-    applmod->send_msg(msg);
+    applmod->send(msg);
 #endif
 
 #ifdef DEBUG
@@ -2288,7 +2288,7 @@ void display::send_add(const string &DO_name)
 #endif
 
     if (!is_helper())
-        applmod->send_msg(msg);
+        applmod->send(msg);
 
 #ifdef DEBUG
     fprintf(msg_prot, "---------------------------------------------------\n");
@@ -2317,7 +2317,7 @@ void display::send_add()
 #endif
 
         if (!is_helper())
-            applmod->send_msg(msg);
+            applmod->send(msg);
 
 #ifdef DEBUG
         fprintf(msg_prot, "---------------------------------------------------\n");
@@ -2354,7 +2354,7 @@ void display::send_del(const string &DO_old_name, const string &DO_new_name)
             Message *msg = new Message(COVISE_MESSAGE_DELETE_OBJECT, DO_old_name);
 #endif
             if (!is_helper())
-                applmod->send_msg(msg);
+                applmod->send(msg);
 
             delete msg;
         }
@@ -2376,7 +2376,7 @@ void display::send_del(const string &DO_old_name, const string &DO_new_name)
         Message *msg = new Message(COVISE_MESSAGE_REPLACE_OBJECT, text);
 
         if (!is_helper())
-            applmod->send_msg(msg);
+            applmod->send(msg);
 
 #ifdef DEBUG
         fprintf(msg_prot, "---------------------------------------------------\n");
@@ -2422,7 +2422,7 @@ void display::send_del(const string &DO_old_name, const string &DO_new_name)
 void display::send_message(Message *msg)
 {
     if (!is_helper())
-        applmod->send_msg(msg);
+        applmod->send(msg);
 #ifdef DEBUG
 //	fprintf(msg_prot, "---------------------------------------------------\n");
 //	fprintf(msg_prot, "send display\n%i %i \n %s \n", msg->sender, msg->type, msg->data);

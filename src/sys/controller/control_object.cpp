@@ -82,7 +82,7 @@ void data::del_data(AppModule *dmod)
     this->set_status("DEL");
 
     Message *msg = new Message(COVISE_MESSAGE_CTRL_DESTROY_OBJECT, name);
-    dmod->send_msg(msg);
+    dmod->send(msg);
     delete msg;
 
 #ifdef DEBUG
