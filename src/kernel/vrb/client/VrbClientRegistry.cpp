@@ -15,7 +15,7 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer_serializer.h>
-#include <vrb/VrbMessageSenderInterface.h>
+#include <net/message_sender_interface.h>
 
 
 
@@ -36,7 +36,7 @@ VrbClientRegistry::VrbClientRegistry(int ID)
     assert(!instance);
     instance = this;
 }
-void VrbClientRegistry::registerSender(VrbMessageSenderInterface* sender)
+void VrbClientRegistry::registerSender(MessageSenderInterface* sender)
 {
 	m_sender = sender;
 }

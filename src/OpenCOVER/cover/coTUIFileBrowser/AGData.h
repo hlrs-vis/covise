@@ -17,10 +17,11 @@
 
 namespace covise
 {
-class VRBClient;
 class coTUIElement;
 }
-
+namespace vrb{
+class VRBClient;
+}
 namespace opencover
 {
 /**

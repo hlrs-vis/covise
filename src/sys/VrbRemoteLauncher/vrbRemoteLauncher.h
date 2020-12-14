@@ -16,10 +16,6 @@
 #include <thread>
 #include <vector>
 
-namespace covise
-{
-    class VRBClient;
-}
 class VrbRemoteLauncher : public QObject
 {
     Q_OBJECT
@@ -43,7 +39,7 @@ private:
     std::atomic<bool> m_shouldBeConnected{false};
     std::unique_ptr<vrb::VrbCredentials> m_credentials;
     bool m_newCredentials = false;
-    std::unique_ptr<covise::VRBClient> m_client = nullptr;
+    std::unique_ptr<vrb::VRBClient> m_client = nullptr;
     std::unique_ptr<std::thread> m_thread;
     std::mutex m_mutex;
 

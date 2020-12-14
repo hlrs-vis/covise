@@ -85,7 +85,7 @@ bool VRBSClient::sendMessage(const covise::Message* msg)
     
 }
 
-bool VRBSClient::sendMessage(const vrb::UdpMessage *msg){
+bool VRBSClient::sendMessage(const covise::UdpMessage *msg){
 
     if (udpConn)
     {

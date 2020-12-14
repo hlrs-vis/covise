@@ -367,7 +367,7 @@ public:
     void preFrame();
     void postFrame();
 
-	void UDPmessage(vrb::UdpMessage* msg);
+	void UDPmessage(UdpMessage* msg);
 
     void key(int type, int keySym, int mod);
 

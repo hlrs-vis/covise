@@ -20,19 +20,19 @@
 
 namespace covise
 {
-class VRBClient;
 class DataHandle;
+class MessageSenderInterface;
 }
 namespace vrb
 {
-class VrbMessageSenderInterface;
+class VRBClient;
 class VRBCLIENTEXPORT VrbClientRegistry : public VrbRegistry
 {
 public:
     static VrbClientRegistry *instance;
     /// construct a registry access path to the controller
     VrbClientRegistry(int id);
-	void registerSender(VrbMessageSenderInterface* sender);
+	void registerSender(covise::MessageSenderInterface* sender);
     ///gets id from server
     void setID(int clID, const SessionID &session);
     ///unsubscribe all clases and variables from old session and subscribe to the new one (ignore sharedStates, they resubscribe them selves)
@@ -129,7 +129,7 @@ public:
 private:
     int clientID = -1;
     SessionID sessionID;
-    VrbMessageSenderInterface *m_sender = nullptr;
+    covise::MessageSenderInterface *m_sender = nullptr;
 
 };
 }

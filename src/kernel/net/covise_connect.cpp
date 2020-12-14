@@ -183,7 +183,7 @@ UDPConnection::UDPConnection(int id, int s_type, int p, const char* address)
 	port = p;
 }
 #define UDP_HEADER_SIZE 2 * SIZEOF_IEEE_INT
-bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
+bool covise::UDPConnection::recv_udp_msg(UdpMessage* msg)
 {
 	int l;
 	char* read_buf_ptr;
@@ -199,7 +199,7 @@ bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
 
 	msg->sender = -1;
 	msg->data = DataHandle();
-	msg->type = vrb::udp_msg_type::EMPTY;
+	msg->type = udp_msg_type::EMPTY;
 
 	message_to_do = 0;
 
@@ -223,7 +223,7 @@ bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
 #ifdef BYTESWAP
 	swap_bytes((unsigned int*)int_read_buf, 2);
 #endif
-	msg->type = (vrb::udp_msg_type)int_read_buf[0];
+	msg->type = (udp_msg_type)int_read_buf[0];
 	msg->sender = int_read_buf[1];
 	l -= UDP_HEADER_SIZE;
 	char* data = new char[l];
@@ -233,7 +233,7 @@ bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
 
 }
 
-bool covise::UDPConnection::send_udp_msg(const vrb::UdpMessage* msg, const char* ip)
+bool covise::UDPConnection::send_udp_msg(const UdpMessage* msg, const char* ip)
 {
 	/*cerr << "sending udp msg to ";
 	if (ip)

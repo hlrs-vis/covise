@@ -48,7 +48,7 @@ class coAbstractTUIElement;
 class ClientConnection;
 class TokenBuffer;
 class Message;
-class  coTUITabFolder;
+class coTUITabFolder;
 
 /// Action listener for events triggered by any coAbstractTUIElement.
 class coAbstractTUIListener
@@ -166,7 +166,6 @@ public:
 	class TokenBuffer;
 	class Host;
 	class Message;
-	class VRBClient;
 	class Connection;
 	class ClientConnection;
 	class ServerConnection;
@@ -174,7 +173,6 @@ namespace osg
 {
 	class Node;
 };
-
 	class coTabletUI;
 	class coTUIElement;
 	class SGTextureThread;
@@ -402,9 +400,6 @@ namespace osg
 
 		// Parses all messages arriving from TUI
 		virtual void parseMessage(TokenBuffer& tb) override;
-
-		//Sets the VRB client, Is this still required?
-		void setVRBC(VRBClient* client);
 
 		// sends the list of VRB clients in a session to TUI
 		void setClientList(Message& msg);

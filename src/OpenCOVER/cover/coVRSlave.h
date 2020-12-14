@@ -55,8 +55,8 @@ public:
     virtual int readMessage(covise::Message *msg);
     virtual int sendMessage(const covise::Message *msg);
 
-	virtual void sendMessage(const vrb::UdpMessage* msg);
-	virtual int readMessage(vrb::UdpMessage* msg);
+	virtual void sendMessage(const covise::UdpMessage* msg);
+	virtual int readMessage(covise::UdpMessage* msg);
 
 protected:
     int myID;

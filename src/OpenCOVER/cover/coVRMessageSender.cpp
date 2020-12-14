@@ -10,7 +10,7 @@ bool coVRMessageSender::sendMessage(const covise::Message *msg){
     return cover->sendVrbMessage(msg);
 }
 
-bool coVRMessageSender::sendMessage(const vrb::UdpMessage *msg){
+bool coVRMessageSender::sendMessage(const covise::UdpMessage *msg){
     return cover->sendVrbMessage(msg);
 }
 

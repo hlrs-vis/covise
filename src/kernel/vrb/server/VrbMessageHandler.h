@@ -28,6 +28,7 @@
 namespace covise
 {
 class DataHandle;
+class UdpMessage;
 }
 
 namespace vrb
@@ -35,7 +36,6 @@ namespace vrb
 class VRBSClient;
 class SessionID;
 class VrbServerRegistry;
-class UdpMessage;
 
 struct VRBSERVEREXPORT ConnectionDetails {
 	typedef std::unique_ptr<ConnectionDetails> ptr;
@@ -68,7 +68,7 @@ public:
 	virtual ~VrbMessageHandler() = default;
 
 	void handleMessage(covise::Message* msg);
-	void handleUdpMessage(UdpMessage* msg);
+	void handleUdpMessage(covise::UdpMessage* msg);
 	int numberOfClients();
 	void addClient(ConnectionDetails::ptr&& clientCon);
 	void closeConnection();

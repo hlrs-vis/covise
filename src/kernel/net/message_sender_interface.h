@@ -5,32 +5,31 @@
 
  * License: LGPL 2+ */
 
-#ifndef VRB_MESSAGE_SENDER_INTERFACE_H
-#define VRB_MESSAGE_SENDER_INTERFACE_H
+#ifndef MESSAGE_SENDER_INTERFACE_H
+#define MESSAGE_SENDER_INTERFACE_H
 #include <util/coExport.h>
 namespace covise
 {
   class TokenBuffer;
   class MessageBase;
   class Message;
-} // namespace covise
-namespace vrb
-{
   class UdpMessage;
 enum class Protocol { TCP, UDP};
 
-  class VRBEXPORT VrbMessageSenderInterface
+  class NETEXPORT MessageSenderInterface
   {
   public:
-    VrbMessageSenderInterface() = default;
-    virtual ~VrbMessageSenderInterface() = default;
+    MessageSenderInterface() = default;
+    virtual ~MessageSenderInterface() = default;
     bool send(const covise::MessageBase *msg);
+    bool send(const covise::Message *msg);
+    bool send(const UdpMessage *msg);
     bool send(covise::TokenBuffer &tb, int type, Protocol p = Protocol::TCP);
 protected:
     virtual bool sendMessage(const covise::Message *msg) = 0;
-    virtual bool sendMessage(const vrb::UdpMessage *msg) = 0;
+    virtual bool sendMessage(const UdpMessage *msg) = 0;
   };
 
-} // namespace vrb
+} // namespace covise
 
-#endif // ! VRB_MESSAGE_SENDER_INTERFACE_H
+#endif // ! MESSAGE_SENDER_INTERFACE_H

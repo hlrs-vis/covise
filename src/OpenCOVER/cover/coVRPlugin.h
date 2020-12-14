@@ -27,11 +27,6 @@
 #include <cover/coVRDynLib.h>
 #include <cstdlib>
 
-namespace vrb
-{
-    class UdpMessage;
-}
-
 namespace osg
 {
 class Node;
@@ -46,6 +41,7 @@ class coMenuItem;
 namespace covise
 {
 class Message;
+class UdpMessage;
 class DataHandle;
 }
 
@@ -253,7 +249,7 @@ public:
         (void)data;
     }
 	// this function is called if a UDPmessage arrives
-	virtual void UDPmessage(vrb::UdpMessage* msg)
+	virtual void UDPmessage(covise::UdpMessage* msg)
 	{
 		(void)msg;
 	}

@@ -389,18 +389,6 @@ void coTUIFileBrowserButton::sendList(TokenBuffer& /*tb*/)
 {
 }
 
-//deprecated: Use global vrbc variable directly in VRBData
-void coTUIFileBrowserButton::setVRBC(VRBClient* /* *client */)
-{
-	// Commenting out to see if, removal of code has side-effects
-	/*VRBData *locData = static_cast<VRBData*>(this->mDataObj);
-   if(client)
-   {
-	  mVRBCId = client->getID();
-	  locData->setVRBC(client);
-   }*/
-}
-
 std::string coTUIFileBrowserButton::getFilename(const std::string url)
 {
 	IData* locData = NULL;

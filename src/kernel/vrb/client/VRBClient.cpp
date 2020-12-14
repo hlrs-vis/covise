@@ -27,6 +27,7 @@
 #include <net/udp_message_types.h>
 #include <util/common.h>
 
+using namespace vrb;
 using namespace covise;
 
 VRBClient::VRBClient(vrb::Program p, const char *collaborativeConfigurationFile, bool slave)
@@ -63,7 +64,7 @@ bool VRBClient::poll(Message *m)
 
 
 }
-bool VRBClient::pollUdp(vrb::UdpMessage* m)
+bool VRBClient::pollUdp(covise::UdpMessage* m)
 {
 	if (!udpConn)
 	{
@@ -133,7 +134,7 @@ int VRBClient::wait(Message *m, int messageType)
 }
 
 
-bool VRBClient::sendMessage(const vrb::UdpMessage* m)
+bool VRBClient::sendMessage(const covise::UdpMessage* m)
 {
 	if (!udpConn) // not connected to a server
 	{
@@ -278,58 +279,6 @@ void VRBClient::setupUdpConn()
     }
 }
 
-bool VRBClient::isCOVERRunning()
-{
-    if (serverHost == NULL)
-        return false;
-    if (!sConn || (!sConn->is_connected())) // could not open server port
-    {
-        return false;
-    }
-    Host host;
-    TokenBuffer tb;
-    tb << userInfo().ipAdress;
-    Message msg(tb);
-    msg.type = COVISE_MESSAGE_VRB_CHECK_COVER;
-    sConn->send_msg(&msg);
-    if (sConn->check_for_input(5))
-    {
-        sConn->recv_msg(&msg);
-        if (msg.type == COVISE_MESSAGE_VRB_CHECK_COVER)
-        {
-            TokenBuffer rtb(&msg);
-            bool running = false;
-            rtb >> running;
-            return running;
-        }
-    }
-    return false;
-}
-
-void VRBClient::connectToCOVISE(int argc, const char **argv)
-{
-    if (serverHost == NULL)
-    {
-        std::cerr << "can't send Message, because not connected to Server" << std::endl;
-        return;
-    }
-    if (!sConn || (!sConn->is_connected())) // could not open server port
-    {
-        std::cerr << "can't send Message, because not connected to Server" << std::endl;
-        return;
-    }
-    int i;
-
-    TokenBuffer tb;
-    tb << userInfo().ipAdress;
-    tb << argc;
-    for (i = 0; i < argc; i++)
-        tb << argv[i];
-    Message msg(tb);
-    msg.type = COVISE_MESSAGE_VRB_CONNECT_TO_COVISE;
-    sConn->send_msg(&msg);
-}
-
 float VRBClient::getSendDelay()
 {
     return sendDelay;
@@ -347,7 +296,7 @@ const vrb::VrbCredentials &VRBClient::getCredentials(){
     return m_credentials;
 }
 
-vrb::VrbCredentials covise::readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile) {
+vrb::VrbCredentials vrb::readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile) {
     if (collaborativeConfigurationFile != NULL)
     {
         FILE *fp = fopen(collaborativeConfigurationFile, "r");

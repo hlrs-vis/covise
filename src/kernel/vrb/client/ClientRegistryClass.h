@@ -12,12 +12,12 @@
 #include <net/message_types.h>
 namespace covise
 {
-class VRBClient;
 class DataHandle;
 }
 
 namespace vrb
 {
+class VRBClient;
 class regClassObserver;
 class VrbClientRegistry;
 class SessionID;

@@ -32,10 +32,11 @@
 
 namespace covise
 {
-class VRBClient;
 class Message;
 }
-
+namespace vrb{
+class VRBClient;
+}
 namespace opencover
 {
 namespace ui
@@ -51,7 +52,7 @@ class coVRPlugin;
 class coTabletUI;
 class coTUITabFolder;
 
-extern COVEREXPORT covise::VRBClient *vrbc;
+extern COVEREXPORT vrb::VRBClient *vrbc;
 
 class COVEREXPORT OpenCOVER
 {

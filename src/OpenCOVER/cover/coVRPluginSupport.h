@@ -69,6 +69,7 @@ class VruiView;
 
 namespace covise {
 class Message;
+class UdpMessage;
 }
 
 namespace grmsg {
@@ -80,10 +81,6 @@ class coGRMsg;
 namespace osg
 {
 class MatrixTransform;
-}
-namespace vrb
-{
-	class UdpMessage;
 }
 namespace osgText
 {

@@ -79,25 +79,25 @@ public:
     int connect_datamanager(AppModule *m);
 
     // get host
-    const Host *get_host()
+    const Host *get_host() const
     {
         return host;
     };
 
     // get module id
-    int get_id()
+    int get_id() const
     {
         return id;
     };
 
     // get module name
-    string get_name() const
+    const string &get_name() const
     {
         return name;
     };
 
     // get host id
-    int get_hostid()
+    int get_hostid() const
     {
         return hostid;
     };

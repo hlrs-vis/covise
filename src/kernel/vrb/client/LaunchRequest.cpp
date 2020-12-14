@@ -3,7 +3,7 @@
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
 #include <net/tokenbuffer_serializer.h>
-#include <vrb/VrbMessageSenderInterface.h>
+#include <net/message_sender_interface.h>
 
 using namespace vrb;
 
@@ -39,7 +39,7 @@ covise::TokenBuffer &vrb::operator<<(covise::TokenBuffer &tb, const LaunchReques
     serialize(tb, launchRequest.args);
     return tb;
 }
-bool vrb::sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, VrbMessageSenderInterface *sender){
+bool vrb::sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, covise::MessageSenderInterface *sender){
     covise::Message msg;
     covise::TokenBuffer outerTb, innerTb;
     innerTb << lrq;

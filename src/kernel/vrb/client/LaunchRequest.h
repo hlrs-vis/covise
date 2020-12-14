@@ -10,10 +10,11 @@
 
 namespace covise{
     class TokenBuffer;
+    class MessageSenderInterface;
+
 }
 
 namespace vrb{
-class VrbMessageSenderInterface;
 struct VRBCLIENTEXPORT LaunchRequest
 {
     const Program program;
@@ -25,7 +26,7 @@ struct VRBCLIENTEXPORT LaunchRequest
 };
 
 VRBCLIENTEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const LaunchRequest &launchRequest);
-VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, VrbMessageSenderInterface *sender);
+VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const LaunchRequest &lrq, covise::MessageSenderInterface *sender);
 } // namespace vrb
 
 #endif // !VRB_CLIENT_LAUNCH_REQUEST_H

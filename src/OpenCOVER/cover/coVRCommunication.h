@@ -24,6 +24,8 @@
 namespace covise
 {
 class Message;
+class UdpMessage;
+
 }
 
 #include "ui/Owner.h"
@@ -42,7 +44,6 @@ class coNavInteraction;
 namespace vrb {
 class SharedStateManager;
 class VrbClientRegistry;
-class UdpMessage;
 }
 namespace opencover
 {
@@ -87,7 +88,7 @@ public:
     int getNumberOfPartners();
     void setFBData(IData *data);
     void handleVRB(covise::Message *msg);
-	void handleUdp(vrb::UdpMessage* msg);
+	void handleUdp(covise::UdpMessage* msg);
     void setCurrentFile(const char *filename);
     virtual void update(vrb::clientRegClass *theChangedClass);
 

@@ -16,12 +16,8 @@
 #include <io.h>
 #else
 #include <netinet/in.h>
-
 #endif
-namespace vrb
-{
-	class UdpMessage;
-}
+
 #include <util/coExport.h>
 #include "message.h"
 
@@ -71,6 +67,8 @@ class Host;
 class SimpleServerConnection;
 class SSLSocket;
 class UDPSocket;
+class UdpMessage;
+
 #ifdef CRAY
 #define WRITE_BUFFER_SIZE 393216
 #else
@@ -204,9 +202,9 @@ class NETEXPORT UDPConnection : public Connection
 public:
 	UDPConnection(int id, int s_type, int p, const char* address);
 	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
-	bool recv_udp_msg(vrb::UdpMessage* msg);
+	bool recv_udp_msg(UdpMessage* msg);
 	//send udp message to ip, if no ip given use member address. Retun true on succsess
-	bool send_udp_msg(const vrb::UdpMessage* msg, const char* ip = nullptr);
+	bool send_udp_msg(const UdpMessage* msg, const char* ip = nullptr);
 };
 // Connection that acts as server
 class NETEXPORT ServerConnection : public Connection

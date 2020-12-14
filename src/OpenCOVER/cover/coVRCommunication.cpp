@@ -163,7 +163,7 @@ void coVRCommunication::toggleClientState(bool state){
         vrbc->shutdown();
         delete vrbc;
         //std::this_thread::sleep_for(std::chrono::seconds(2));
-        vrbc = new VRBClient(Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        vrbc = new vrb::VRBClient(Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         coVRCollaboration::instance()->updateSharedStates();
     }
     connected = state;
@@ -793,21 +793,21 @@ void coVRCommunication::handleVRB(Message *msg)
     }
 }
 
-void coVRCommunication::handleUdp(vrb::UdpMessage* msg)
+void coVRCommunication::handleUdp(covise::UdpMessage* msg)
 {
 	TokenBuffer tb(msg);
 	switch (msg->type)
 	{
-	case vrb::EMPTY:
+	case covise::EMPTY:
 		break;
-	case vrb::AVATAR_HMD_POSITION:
+	case covise::AVATAR_HMD_POSITION:
 	{
 		std::string s;
 		tb >> s;
 		cerr << "received udp msg from client " << msg->sender << ": " << s << ""<< endl;
 	}
 		break;
-	case vrb::AVATAR_CONTROLLER_POSITION:
+	case covise::AVATAR_CONTROLLER_POSITION:
 		break;
 	default:
 		coVRPluginList::instance()->UDPmessage(msg);

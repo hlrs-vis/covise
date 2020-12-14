@@ -98,7 +98,7 @@
 
 using namespace opencover;
 using namespace covise;
-VRBClient *opencover::vrbc = NULL;
+vrb::VRBClient *opencover::vrbc = nullptr;
 static char envOsgNotifyLevel[200];
 static char envDisplay[1000];
 
@@ -704,22 +704,29 @@ bool OpenCOVER::init()
     }
 	coVRMSController::instance()->setStartSession(startSession);
     // Connect to VRBroker, if available
-    if (!loadCovisePlugin && coVRMSController::instance()->isMaster())
+    if (coVRMSController::instance()->isMaster())
     {
         if (m_vrbCredentials)
         {
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-            vrbc = new VRBClient(vrb::Program::Cover, *m_vrbCredentials, coVRMSController::instance()->isSlave());
+            vrbc = new vrb::VRBClient(vrb::Program::Cover, *m_vrbCredentials, coVRMSController::instance()->isSlave());
         }
         else
         {
             hud->setText2("connecting");
             hud->setText3("to VRB");
-            vrbc = new VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+            vrbc = new vrb::VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         }
         hud->redraw();
+        
+        if (loadCovisePlugin)//use covise session
+        {
+            std::string coviseModuleID = coCommandLine::argv(4);
+		    std::string coviseVrbClientID = coCommandLine::argv(5);
+            startSession = "covise_" + coviseVrbClientID + "_" + coviseModuleID;
+        }
         vrbc->connectToServer(startSession);
     }
 
@@ -860,18 +867,7 @@ bool OpenCOVER::init()
     }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
-    //connect to covise vrb
-	if (loadCovisePlugin && coVRMSController::instance()->isMaster())
-    {
-		std::string coviseModuleID = coCommandLine::argv(4);
-        vrb::RemoteClient rc{vrb::Program::Covise, coviseModuleID};
-        cerr << "I am local master " << coviseModuleID << ", my ip is " << rc.userInfo().ipAdress << endl;
-        TokenBuffer tb;
-        tb << rc;
-        Message msg(tb);
-        msg.type = COVISE_MESSAGE_VRB_CONTACT;
-        cover->sendVrbMessage(&msg);
-    }
+
     frame();
     double frameEnd = cover->currentTime();
     hud->hideLater();

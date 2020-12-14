@@ -32,10 +32,12 @@ namespace covise
 class TokenBuffer;
 class Host;
 class Message;
-class VRBClient;
 class Connection;
 class ClientConnection;
 class ServerConnection;
+}
+namespace vrb{
+class VRBClient;
 }
 namespace osg
 {

@@ -13,8 +13,6 @@
 
 
 using namespace covise;
-namespace vrb {
-
 
 UdpMessage::UdpMessage(TokenBuffer &t)
     :MessageBase(t)
@@ -32,7 +30,7 @@ UdpMessage::UdpMessage(covise::TokenBuffer& tb, udp_msg_type t)
 void UdpMessage::print()
 {
 #ifdef DEBUG
-	cerr <<" udpMessage m_type = " vrb::udp_msg_types_vector[(int)m_type] << " m_sender = " << sender << " length = " << length << endl;
+	cerr <<" udpMessage m_type = " udp_msg_types_vector[(int)m_type] << " m_sender = " << sender << " length = " << length << endl;
 #endif
 }
 
@@ -66,4 +64,3 @@ UdpMessage &UdpMessage::operator=(const UdpMessage &src)
     return *this;
 }
 
-} // namespace vrb

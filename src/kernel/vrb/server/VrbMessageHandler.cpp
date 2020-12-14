@@ -186,19 +186,6 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		clients.broadcastMessageToProgramm(p, &broadcastMsg);
 	}
 	break;
-	case COVISE_MESSAGE_VRB_CHECK_COVER:
-	{
-		auto cl = clients.get(msg->conn);
-		std::cerr << "received error prone message from ";
-		if (cl)
-		{
-			std::cerr << cl->ID();
-		}
-		std::cerr << std::endl;
-
-		returnWhetherClientExists(tb, msg);
-	}
-	break;
 	case COVISE_MESSAGE_VRB_GET_ID:
 	{
 		returnStartSession(msg);
@@ -300,7 +287,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 
 	}
 }
-void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
+void VrbMessageHandler::handleUdpMessage(covise::UdpMessage* msg)
 {
 	VRBSClient* sender = clients.get(msg->sender);
 	if (!sender)
@@ -613,17 +600,7 @@ void VrbMessageHandler::passMessageToParticipants(covise::Message* msg)
 	}
 	clients.passOnMessage(msg, toGroup);
 }
-void VrbMessageHandler::returnWhetherClientExists(covise::TokenBuffer& tb, covise::Message* msg)
-{
-	char* ip;
-	tb >> ip;
-	VRBSClient* c = clients.get(ip);
-	TokenBuffer rtb;
-	rtb << bool{c != nullptr};
-	Message m(rtb);
-	m.type = COVISE_MESSAGE_VRB_CHECK_COVER;
-	msg->conn->send_msg(&m);
-}
+
 void VrbMessageHandler::returnStartSession(covise::Message* msg)
 {
 	int clId = -1;

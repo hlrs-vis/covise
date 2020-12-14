@@ -1,16 +1,16 @@
 #ifndef COVR_MESSAGE_SENDER_H
 #define COVR_MESSAGE_SENDER_H
-#include <vrb/VrbMessageSenderInterface.h>
+#include <net/message_sender_interface.h>
 
 namespace opencover
 {
 
-    class coVRMessageSender : public vrb::VrbMessageSenderInterface
+    class coVRMessageSender : public covise::MessageSenderInterface
     {
 
     private:
         bool sendMessage(const covise::Message *msg) override;
-        bool sendMessage(const vrb::UdpMessage *msg) override;
+        bool sendMessage(const covise::UdpMessage *msg) override;
     };
 } // namespace opencover
 

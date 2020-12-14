@@ -98,7 +98,7 @@ void VrbRemoteLauncher::loop()
                 Guard g(m_mutex);
                 if (m_newCredentials)
                 {
-                    m_client.reset(new covise::VRBClient{vrb::Program::VrbRemoteLauncher, *m_credentials});
+                    m_client.reset(new VRBClient{vrb::Program::VrbRemoteLauncher, *m_credentials});
                     m_newCredentials = false;
                 }
             }

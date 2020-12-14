@@ -293,7 +293,7 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		tb << me.getP1();
 		tb << me.getP2();
 		tb << me.getP3();
-		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		covise::UdpMessage um(tb, covise::MIDI_STREAM);
 		if(me.isNoteOn() || me.isNoteOff() || (me.isController() && me.getP1()>2))
 		{
 		cover->sendVrbMessage(&um);
@@ -358,9 +358,9 @@ static FileHandler handlers[] = {
 	  "mid" }
 };
 
-void MidiPlugin::UDPmessage(vrb::UdpMessage* msg)
+void MidiPlugin::UDPmessage(UdpMessage* msg)
 {
-	if(msg->type==vrb::MIDI_STREAM)
+	if(msg->type== covise::MIDI_STREAM)
 	{
 	MidiEvent me;
 	int dummy;
@@ -459,7 +459,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		tb << me.getP1();
 		tb << me.getP2();
 		tb << me.getP3();
-		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		UdpMessage um(tb, covise::MIDI_STREAM);
 		cover->sendVrbMessage(&um);
 		addEvent(me, 0);
 		fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
@@ -478,7 +478,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 		tb << me.getP1();
 		tb << me.getP2();
 		tb << me.getP3();
-		vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+		UdpMessage um(tb, covise::MIDI_STREAM);
 		cover->sendVrbMessage(&um);
 		addEvent(me, 0);
 		fprintf(stdout, "--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
@@ -1040,7 +1040,7 @@ bool MidiPlugin::update()
 			tb << me.getP1();
 			tb << me.getP2();
 			tb << me.getP3();
-			vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+			UdpMessage um(tb, covise::MIDI_STREAM);
 			cover->sendVrbMessage(&um);
 			cerr << "sending MIDI comming from UDP" << endl;
 
@@ -1825,7 +1825,7 @@ void Track::update()
 					tb << me.getP1();
 					tb << me.getP2();
 					tb << me.getP3();
-					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+					UdpMessage um(tb, covise::MIDI_STREAM);
 					cover->sendVrbMessage(&um);
 					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
 					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
@@ -1862,7 +1862,7 @@ void Track::update()
 					tb << me.getP1();
 					tb << me.getP2();
 					tb << me.getP3();
-					vrb::UdpMessage um(tb, vrb::MIDI_STREAM);
+					UdpMessage um(tb, vrb::MIDI_STREAM);
 					cover->sendVrbMessage(&um);
 					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
 					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/

@@ -165,7 +165,6 @@ bool isVrbMessageType(int type)
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     case COVISE_MESSAGE_RENDER:
     case COVISE_MESSAGE_RENDER_MODULE: // send Message to all others in same group
-    case COVISE_MESSAGE_VRB_CHECK_COVER:
     case COVISE_MESSAGE_VRB_GET_ID:
     case COVISE_MESSAGE_VRB_SET_MASTER:
     case COVISE_MESSAGE_SOCKET_CLOSED:

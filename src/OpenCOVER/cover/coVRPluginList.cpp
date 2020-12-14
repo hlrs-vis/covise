@@ -521,7 +521,7 @@ void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
     DOALL(plugin->message(toWhom, t, l, b));
 }
 
-void coVRPluginList::UDPmessage(vrb::UdpMessage* msg) const
+void coVRPluginList::UDPmessage(covise::UdpMessage* msg) const
 {
 	DOALL(plugin->UDPmessage(msg));
 }

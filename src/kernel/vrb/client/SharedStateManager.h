@@ -14,12 +14,9 @@
 
 #include <set>
 
-namespace covise
-{
-class VRBClient;
-}
 namespace vrb
 {
+class VRBClient;
 class VrbClientRegistry;
  ///Manages the behaviour of all sharedStates depending on their sharedStateType
 class VRBCLIENTEXPORT SharedStateManager

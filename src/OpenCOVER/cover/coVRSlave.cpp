@@ -114,7 +114,7 @@ int coVRSlave::sendMessage(const Message *msg)
     return len;
 }
 
-void coVRSlave::sendMessage(const vrb::UdpMessage* msg)
+void coVRSlave::sendMessage(const covise::UdpMessage* msg)
 {
 	char *write_buf = new char[UDP_MESSAGE_HEADER_SIZE + msg->data.length()];
 	int* write_buf_int;
@@ -133,14 +133,14 @@ void coVRSlave::sendMessage(const vrb::UdpMessage* msg)
 	delete[]write_buf;
 }
 
-int coVRSlave::readMessage(vrb::UdpMessage* msg)
+int coVRSlave::readMessage(covise::UdpMessage* msg)
 {
 	char read_buf[UDP_MESSAGE_HEADER_SIZE];
 	int* read_buf_int = (int*)read_buf;
 	int ret = read(read_buf, UDP_MESSAGE_HEADER_SIZE);
 	if (ret < UDP_MESSAGE_HEADER_SIZE)
 		return -1;
-	msg->type = (vrb::udp_msg_type)read_buf_int[0];
+	msg->type = (udp_msg_type)read_buf_int[0];
 	msg->sender = read_buf_int[1];
 	if (read_buf_int[2] > WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
 	{

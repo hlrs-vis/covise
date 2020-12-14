@@ -128,7 +128,7 @@ bool ChatPlugin::update()
 {
 	if(inStream)
 	{
-		vrb::UdpMessage audioMessage;
+		covise::UdpMessage audioMessage;
 		audioMessage.type = vrb::AUDIO_STREAM;
 		//while (inStream->bytesAvailable() > bufferSize)
 		do{
@@ -154,7 +154,7 @@ void ChatPlugin::postFrame()
 	// we do not need to care about animation (auto or step) here,
 	// because it's in the main program
 }
-void ChatPlugin::UDPmessage(vrb::UdpMessage* msg)
+void ChatPlugin::UDPmessage(covise::UdpMessage* msg)
 {
 	if (msg->type == vrb::AUDIO_STREAM)
 	{

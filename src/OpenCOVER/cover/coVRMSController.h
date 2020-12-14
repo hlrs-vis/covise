@@ -38,14 +38,12 @@
 #define CLUSTER_MARK() ;
 #endif
 #define UDP_MESSAGE_HEADER_SIZE  3 *sizeof(int)
-namespace vrb
-{
-	class UdpMessage;
-}
+
 namespace covise
 {
 class Socket;
 class Message;
+class UdpMessage;
 }
 #define MAX_NUMBER_OF_SLAVES 256
 
@@ -141,10 +139,10 @@ public:
     void sendSlaves(const SlaveData &c);
     void sendSlavesDraw(const void *c, int n);
     void sendSlaves(const covise::Message *msg);
-	void sendSlaves(const vrb::UdpMessage* msg);
+	void sendSlaves(const covise::UdpMessage* msg);
     int readMaster(covise::Message *msg);
     void sendMaster(const covise::Message *msg);
-	int readMaster(vrb::UdpMessage* msg);
+	int readMaster(covise::UdpMessage* msg);
 	void sendMaster(const std::string &s);
     void readSlave(int i, std::string &s);
     int getID()

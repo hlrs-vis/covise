@@ -31,7 +31,7 @@
  **                                                                     **
 \***********************************************************************/
 
-namespace vrb
+namespace covise
 {
 
 enum udp_msg_type : int

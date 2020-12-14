@@ -52,10 +52,12 @@ namespace covise
 class TokenBuffer;
 class Host;
 class Message;
-class VRBClient;
 class Connection;
 class ClientConnection;
 class ServerConnection;
+}
+namespace vrb{
+class VRBClient;
 }
 namespace osg
 {
@@ -301,9 +303,6 @@ public:
 
     // Parses all messages arriving from TUI
     virtual void parseMessage(covise::TokenBuffer &tb) override;
-
-    //Sets the VRB client, Is this still required?
-    void setVRBC(covise::VRBClient *client);
 
     // sends the list of VRB clients in a session to TUI
     void setClientList(covise::Message &msg);

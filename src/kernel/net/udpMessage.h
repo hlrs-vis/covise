@@ -21,55 +21,12 @@
 //#define __WORDSIZE 64
 //#endif
 
-//protocol for udp messages between vrb and clients (OpenCOVER or external renderer)
-//basically this is a covise message with smaler header
+
+//basically this is a covise message with smaler header using udp protocoll
 //
 namespace covise
 {
-	class TokenBuffer;
-}
-namespace vrb
-{
-
-const int MSG_NOCOPY = 0;
-const int MSG_COPY = 1;
-
-
-
-typedef long data_type;
-
-#ifdef BYTESWAP
-
-inline void swap_byte(unsigned int &byte) // only if necessary
-{
-    byteSwap(byte);
-}
-
-// only if necessary
-inline void swap_bytes(unsigned int *bytes, int no)
-{
-    byteSwap(bytes, no);
-}
-
-inline void swap_short_byte(unsigned short &byte) // only if necessary
-{
-    byteSwap(byte);
-}
-
-// only if necessary
-inline void swap_short_bytes(unsigned short *bytes, int no)
-{
-    byteSwap(bytes, no);
-}
-
-#else
-inline void swap_byte(unsigned int){};
-inline void swap_bytes(unsigned int *, int){};
-inline void swap_short_byte(unsigned short){};
-inline void swap_short_bytes(unsigned short *, int){};
-#endif
-
-
+class TokenBuffer;
 
 class NETEXPORT UdpMessage : public covise::MessageBase// class for messages
 {

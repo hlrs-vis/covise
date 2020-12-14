@@ -5,11 +5,13 @@
 
  * License: LGPL 2+ */
 
-#include "VrbMessageSenderInterface.h"
+#include "message_sender_interface.h"
 #include <net/message.h>
 #include <net/udpMessage.h>
 
-bool vrb::VrbMessageSenderInterface::send(const covise::MessageBase *msg)
+using namespace covise;
+
+bool MessageSenderInterface::send(const covise::MessageBase *msg)
 {
   if (const covise::Message *tcp = dynamic_cast<const covise::Message *>(msg))
   {
@@ -22,7 +24,17 @@ bool vrb::VrbMessageSenderInterface::send(const covise::MessageBase *msg)
   return false;
 }
 
-bool vrb::VrbMessageSenderInterface::send(covise::TokenBuffer &tb, int type, Protocol p)
+bool MessageSenderInterface::send(const covise::Message *msg)
+{
+  return sendMessage(msg);
+}
+
+bool MessageSenderInterface::send(const UdpMessage *msg)
+{
+  return sendMessage(msg);
+}
+
+bool MessageSenderInterface::send(covise::TokenBuffer &tb, int type, Protocol p)
 {
   switch (p)
   {
@@ -34,8 +46,8 @@ bool vrb::VrbMessageSenderInterface::send(covise::TokenBuffer &tb, int type, Pro
   }
   case Protocol::UDP:
   {
-    vrb::UdpMessage msg{tb};
-    msg.type = static_cast<vrb::udp_msg_type>(type);
+    UdpMessage msg{tb};
+    msg.type = static_cast<udp_msg_type>(type);
     return sendMessage(&msg);
   }
   default:

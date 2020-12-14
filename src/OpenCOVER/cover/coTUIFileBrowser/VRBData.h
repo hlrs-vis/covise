@@ -42,7 +42,7 @@ public:
 
     void reqDirUp(std::string basePath = "");
 
-    covise::VRBClient *getVRB();
+    vrb::VRBClient *getVRB();
     void setId(int id);
     int getId();
     void setCurDir(covise::Message &msg);
@@ -71,7 +71,7 @@ public:
 
 private:
     coTUIElement *mTUIElement;
-    covise::VRBClient *mVrbc;
+    vrb::VRBClient *mVrbc;
     std::string mTmpFileName;
     int mId;
 };

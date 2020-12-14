@@ -14,7 +14,7 @@
 #include <vrb/RemoteClient.h>
 #include <vrb/SessionID.h>
 #include <vrb/UserInfo.h>
-#include <vrb/VrbMessageSenderInterface.h>
+#include <net/message_sender_interface.h>
 
 #include <string>
 #include <set>
@@ -23,13 +23,13 @@ namespace covise
 {
 class TokenBuffer;
 class Message;
+class UdpMessage;
 class MessageBase;
 }
 
 namespace vrb
 {
 class ServerInterface;
-class UdpMessage;
 
 enum VRBSERVEREXPORT Columns {
     Master,
@@ -42,7 +42,7 @@ enum VRBSERVEREXPORT Columns {
     IP,
 };
 
-class VRBSERVEREXPORT VRBSClient : public vrb::RemoteClient, public vrb::VrbMessageSenderInterface
+class VRBSERVEREXPORT VRBSClient : public vrb::RemoteClient, public covise::MessageSenderInterface
 {
 	///Vrb Server client that holds a connection and information about the client
 public:
@@ -65,7 +65,7 @@ public:
 	void addUnknownFile(const std::string& fileName);
 private:
     bool sendMessage(const covise::Message *msg) override;
-    bool sendMessage(const vrb::UdpMessage *msg) override;
+    bool sendMessage(const covise::UdpMessage *msg) override;
 
 protected:
     std::set<std::string> m_unknownFiles;

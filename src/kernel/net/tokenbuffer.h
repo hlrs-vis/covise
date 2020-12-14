@@ -68,13 +68,10 @@
  **                                                                     **
  **                                                                     **
 \***********************************************************************/
-namespace vrb
-{
-	class UdpMessage;
-}
+
 namespace covise
 {
-
+class UdpMessage;
 class MessageBase;
 class DataHandle;
 

@@ -133,7 +133,7 @@ public:
     //! send a message to all plugins
     void message(int toWhom, int t, int l, const void *b) const;
 	//! send a UDPmessage to all plugins
-	void UDPmessage(vrb::UdpMessage* msg) const;
+	void UDPmessage(covise::UdpMessage* msg) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
     void forwardMessage(const covise::DataHandle &dh) const;

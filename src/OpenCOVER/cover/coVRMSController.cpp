@@ -744,7 +744,7 @@ void coVRMSController::sendSlaves(const Message *msg)
 #endif
     }
 }
-void coVRMSController::sendSlaves(const vrb::UdpMessage* msg)
+void coVRMSController::sendSlaves(const UdpMessage* msg)
 {
 	for (int i = 0; i < numSlaves; i++)
 	{
@@ -915,14 +915,14 @@ void coVRMSController::sendMaster(const Message *msg)
     }
 }
 
-int coVRMSController::readMaster(vrb::UdpMessage* msg)
+int coVRMSController::readMaster(UdpMessage* msg)
 {
 	char read_buf[UDP_MESSAGE_HEADER_SIZE];
 	int ret = readMaster(read_buf, UDP_MESSAGE_HEADER_SIZE);
 	if (ret < UDP_MESSAGE_HEADER_SIZE)
 		return -1;
 	int* read_buf_int = (int*)read_buf;
-	msg->type = (vrb::udp_msg_type)read_buf_int[0];
+	msg->type = (udp_msg_type)read_buf_int[0];
 	msg->sender = read_buf_int[1];
 	//cerr << "reading master, type = " << read_buf_int[0] << " sender = " << read_buf_int[1] << " length = " << read_buf_int[2] << endl;
 	if (read_buf_int[2] >  WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
@@ -2501,7 +2501,7 @@ bool coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
     Message *vrbMsgs[MAX_VRB_MESSAGES];
-	vrb::UdpMessage* udpMsgs[MAX_VRB_MESSAGES];
+	UdpMessage* udpMsgs[MAX_VRB_MESSAGES];
     int numVrbMessages = 0;
 	int numUdpMessages = 0;
 
@@ -2509,7 +2509,7 @@ bool coVRMSController::syncVRBMessages()
         fprintf(stderr, "\ncoVRMSController::syncVRBMessages\n");
 
     Message *vrbMsg = new Message;
-	vrb::UdpMessage* udpMsg = new vrb::UdpMessage;
+	UdpMessage* udpMsg = new UdpMessage;
 	if (!cover->connectedToCovise())
 	{
 		if (master)
@@ -2535,7 +2535,7 @@ bool coVRMSController::syncVRBMessages()
 				{
 					udpMsgs[numUdpMessages] = udpMsg;
 					numUdpMessages++;
-					udpMsg = new vrb::UdpMessage;
+					udpMsg = new UdpMessage;
 					if (numUdpMessages >= MAX_VRB_MESSAGES)
 					{
 						cerr << "too many UDP Messages!!" << endl;
@@ -2561,7 +2561,7 @@ bool coVRMSController::syncVRBMessages()
 					}
 
 					if (vrbc == NULL)
-						vrbc = new VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
+						vrbc = new vrb::VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
 					vrbc->connectToServer(startSession);
 					oldSec = curSec;
 				}
