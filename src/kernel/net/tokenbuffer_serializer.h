@@ -103,12 +103,32 @@ void serialize(covise::TokenBuffer& tb, const T& value)
 }
 
 template <class K, class V>
+covise::TokenBuffer &operator<<(covise::TokenBuffer& tb, const std::pair<K, V>& value)
+{
+    tb << value.first;
+    tb << value.second;
+    return tb;
+}
+
+template <class K, class V>
 void serialize(covise::TokenBuffer& tb, const std::pair<K, V>& value)
 {
     tb << getTokenBufferDataType(value.first);
     tb << getTokenBufferDataType(value.second);
     serialize(tb, value.first);
     serialize(tb, value.second);
+}
+
+
+template <class T>
+covise::TokenBuffer &operator<<(covise::TokenBuffer& tb, const std::vector<T>& value)
+{
+    tb << static_cast<int>(value.size());
+    for (const T &entry: value)
+    {
+        tb << entry;
+    }
+    return tb;
 }
 
 template <class T>
@@ -130,6 +150,17 @@ void serialize(covise::TokenBuffer& tb, const std::vector<T>& value)
 }
 
 template <class T>
+covise::TokenBuffer &operator<<(covise::TokenBuffer& tb, const std::set<T>& value)
+{
+    tb << static_cast<int>(value.size());
+    for (const T &entry: value)
+    {
+        tb << entry;
+    }
+    return tb;
+}
+
+template <class T>
 void serialize(covise::TokenBuffer& tb, const std::set<T>& value)
 {
     int size = value.size();
@@ -146,6 +177,18 @@ void serialize(covise::TokenBuffer& tb, const std::set<T>& value)
         serialize(tb, entry);
     }
 }
+
+template <class K, class V>
+covise::TokenBuffer &operator<<(covise::TokenBuffer& tb, const std::map<K, V>& value)
+{
+    tb << static_cast<int>(value.size());
+    for (const auto &entry: value)
+    {
+        tb << entry.first << entry.second;
+    }
+    return tb;
+}
+
 template <class K, class V>
 void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value)
 {
@@ -178,6 +221,13 @@ void deserialize(covise::TokenBuffer& tb, T& value)
 }
 
 template <class K, class V>
+covise::TokenBuffer &operator>>(covise::TokenBuffer& tb, std::pair<K, V>& value)
+{
+    tb >> value.first >> value.second;
+    return tb;
+}
+
+template <class K, class V>
 void deserialize(covise::TokenBuffer& tb, std::pair<K, V>& value)
 {
     int type;
@@ -185,6 +235,19 @@ void deserialize(covise::TokenBuffer& tb, std::pair<K, V>& value)
     tb >> type;
     deserialize(tb, value.first);
     deserialize(tb, value.second);
+}
+
+template <class T>
+covise::TokenBuffer operator>>(covise::TokenBuffer& tb, std::vector<T>& value)
+{
+    int size;
+    tb >> size;
+    value.resize(size);
+    for (int i = 0; i < size; i++)
+    {
+        tb >> value[i];
+    }
+    return tb;
 }
 
 template <class T>
@@ -197,10 +260,22 @@ void deserialize(covise::TokenBuffer& tb, std::vector<T>& value)
     value.resize(size);
     for (int i = 0; i < size; i++)
     {
-        T entry;
-        deserialize(tb, entry);
-        value[i] = entry;
+        deserialize(tb, value[i]);
     }
+}
+
+template <class T>
+covise::TokenBuffer operator>>(covise::TokenBuffer& tb, std::set<T>& value)
+{
+    int size;
+    tb >> size;
+    value.clear();
+    for (int i = 0; i < size; i++)
+    {
+        auto it = value.insert(T{});
+        tb >> *it.first;
+    }
+    return tb;
 }
 
 template <class T>
@@ -212,10 +287,24 @@ void deserialize(covise::TokenBuffer& tb, std::set<T>& value)
     value.clear();
     for (int i = 0; i < size; i++)
     {
-        T entry;
-        deserialize(tb, entry);
-        value.insert(entry);
+        auto it = value.insert(T{});
+        tb >> *it.first;
     }
+}
+
+
+template <class K, class V>
+covise::TokenBuffer operator>>(covise::TokenBuffer& tb, std::map<K, V>& value)
+{
+    int size;
+    tb >> size;
+    value.clear();
+    for (int i = 0; i < size; i++)
+    {
+        auto it = value.emplace(std::pair<K, V>{K{}, V{}});
+        tb >> it.first->first >> it.first->second;
+    }
+    return tb;
 }
 
 template <class K, class V>
