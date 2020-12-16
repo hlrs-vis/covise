@@ -86,6 +86,7 @@ SET(UTIL_HEADERS
   covise_regexp.h
   covise_version.h
   environment.h
+  tryPrint.h
   unixcompat.h
 )
 
