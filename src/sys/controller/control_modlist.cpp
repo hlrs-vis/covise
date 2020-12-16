@@ -1166,6 +1166,23 @@ void rhost_list::print()
 //
 //**********************************************************************
 
+
+bool userinterface::sendMessage(const Message *msg) {
+    if (ui)
+        return ui->send(msg);
+
+#ifdef DEBUG
+//	fprintf(msg_prot, "---------------------------------------------------\n");
+//	fprintf(msg_prot, "send UI\n%i %i \n %s \n", msg->sender, msg->type, msg->data);
+//	fflush(msg_prot);
+#endif
+    return false;
+}
+
+bool userinterface::sendMessage(const UdpMessage *msg) {
+    return false;
+}
+
 userinterface::userinterface()
 {
     ui = NULL;
@@ -1502,18 +1519,6 @@ void userinterface::change_status(const string &str)
 #endif
 
     delete msg;
-}
-
-void userinterface::send(Message *msg)
-{
-    if (ui)
-        ui->send(msg);
-
-#ifdef DEBUG
-//	fprintf(msg_prot, "---------------------------------------------------\n");
-//	fprintf(msg_prot, "send UI\n%i %i \n %s \n", msg->sender, msg->type, msg->data);
-//	fflush(msg_prot);
-#endif
 }
 
 void userinterface::change_master(const string &user, const string &host)

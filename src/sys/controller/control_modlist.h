@@ -9,6 +9,8 @@
 #define CTRL_MODULELIST_H
 
 #include <covise/covise.h>
+#include <net/message_sender_interface.h>
+
 #include "coHostType.h"
 
 #include "control_list.h"
@@ -394,7 +396,7 @@ public:
 // 			USERINTERFACE
 //
 //************************************************************************/
-class userinterface
+class userinterface : public MessageSenderInterface
 {
 
 protected:
@@ -406,6 +408,9 @@ protected:
 
     bool rendererIsPossible;
     bool rendererIsActive;
+
+    virtual bool sendMessage(const Message *msg) override;
+    virtual bool sendMessage(const UdpMessage *msg) override;
 
 public:
     userinterface();
@@ -447,7 +452,6 @@ public:
     void quit();
 
     void change_status(const string &str);
-    void send(Message *msg);
     void recv_msg(Message *msg)
     {
         ui->recv_msg(msg);
