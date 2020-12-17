@@ -11,6 +11,8 @@
 #include <net/covise_host.h>
 #include <net/covise_connect.h>
 #include <net/covise_socket.h>
+#include <string.h>
+
 #ifndef _WIN32
 #include <unistd.h>
 #include <stdlib.h>

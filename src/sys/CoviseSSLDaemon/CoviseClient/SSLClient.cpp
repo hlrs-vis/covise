@@ -9,6 +9,7 @@
 #include <net/covise_host.h>
 #include <net/covise_connect.h>
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 using namespace covise;

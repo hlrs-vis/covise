@@ -10,62 +10,14 @@
 
 #include "dataHandle.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
-
 #include <util/coExport.h>
 #include <util/byteswap.h>
+
+#include <string>
 
 #ifdef _WIN64
 #define __WORDSIZE 64
 #endif
-
-/*
- $Log:  $
- * Revision 1.4  1994/03/23  18:07:03  zrf30125
- * Modifications for multiple Shared Memory segments have been finished
- * (not yet for Cray)
- *
- * Revision 1.3  93/10/11  09:22:19  zrhk0125
- * new types DM_CONTACT_DM and APP_CONTACT_DM included
- *
- * Revision 1.2  93/10/08  19:18:06  zrhk0125
- * data type sizes introduced
-* some fixed type sizes with sizeof calls replaced
- *
- * Revision 1.1  93/09/25  20:47:03  zrhk0125
- * Initial revision
- *
- */
-
-/***********************************************************************\
- **                                                                     **
- **   Message classes                              Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic message structure as well as ways to     **
- **                  initialize messages easily are provided.           **
- **                  Subclasses for special types of messages           **
- **                  can be introduced.                                 **
- **                                                                     **
- **   Classes      : Message, ShmMessage                                **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                        HOSTID                                             **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  15.04.93  Ver 1.1 new Messages and type added      **
- **                                    sender and send_type added       **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 
 namespace covise
 {
@@ -141,87 +93,20 @@ public:
         STDINOUT = 9
     };
 
-    //    static int new_count;
-    //    static int delete_count;
-    int sender; // sender of message (max. 3bytes)
-    int send_type; // type of sender
-    int type; // type of the message
+    int sender = -1; // sender of message (max. 3bytes)
+    int send_type = UNDEFINED; // type of sender
+    int type = EMPTY; // type of the message
 
     // empty initialization:
-    Message()
-        : sender(-1)
-        , send_type(Message::UNDEFINED)
-        , type(Message::EMPTY)
-    {
-        //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-        print();
-    };
+    Message();
 	Message(TokenBuffer& t);
-    Message(Connection *c)
-        : sender(-1)
-        , send_type(Message::UNDEFINED)
-        , type(Message::EMPTY)
-    {
-		conn = c;
-		//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-        print();
-    };
+    Message(Connection *c);
+
     // initialization with data only (for sending):
-    Message(int message_type, const std::string &str = std::string())
-        : sender(-1)
-        , send_type(Message::UNDEFINED)
-        , type(message_type)
-    {
-		if (!str.empty())
-        {
-            data = DataHandle(str.length() + 1);
-            memcpy(data.accessData(), str.c_str(), data.length());
-        }
-        print();
-    };
+    Message(int message_type, const std::string &str = std::string());
+
     Message(int message_type, const DataHandle& dh);
 
-    //Message(int message_type, const char *d, int cp)
-    //    : sender(-1)
-    //    , send_type(Message::UNDEFINED)
-    //    , type(message_type)
-    //{
-    //    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    //    int l = 0;
-    //    if (d)
-    //        l = (int)strlen(d) + 1;
-    //    if (cp == MSG_NOCOPY || d == NULL)
-    //    {
-    //        data = DataHandle((char *)d, l);
-    //    }
-    //    else
-    //    {
-    //        data = DataHandle(l);
-    //        memcpy(data.accessData, d, l);
-    //        mustDelete = true;
-    //    }
-    //    print();
-    //};
-
-  //  Message(int message_type, int l, char *d, int cp = MSG_COPY)
-  //      : sender(-1)
-  //      , send_type(Message::UNDEFINED)
-  //      , type(message_type)
-  //  {
-		//length = l;
-		////printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-  //      if (cp == MSG_NOCOPY || d == NULL)
-  //      {
-  //          data = d;
-  //      }
-  //      else
-  //      {
-  //          data = new char[length];
-  //          memcpy(data, d, length);
-  //          mustDelete = true;
-  //      }
-  //      print();
-  //  };
     Message(const Message &); // copy constructor
     //copies data
     Message &operator=(const Message &src); // assignment

@@ -13,6 +13,7 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
+#include <string.h>
 
 using namespace std;
 

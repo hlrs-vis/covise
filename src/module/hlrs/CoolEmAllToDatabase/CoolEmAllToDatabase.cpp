@@ -22,6 +22,7 @@
 // this includes our own class's headers
 #include "CoolEmAllToDatabase.h"
 #include "../../../tools/CoolEmAllCasePreparation/CoolEmAllClient.h"
+#include <string.h>
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

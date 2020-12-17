@@ -72,21 +72,36 @@ MessageBase::MessageBase(DataHandle& dh)
     //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
 }
 
+Message::Message()
+{
+    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+    print();
+};
+
 Message::Message(TokenBuffer &t)
     :MessageBase(t)
 	,type(Message::EMPTY)
 {
 }
 
-void Message::print()
+Message::Message(Connection *c){
+    conn = c;
+    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+    print();
+};
+
+Message::Message(int message_type, const std::string &str)
+    : type(message_type)
 {
-#ifdef DEBUG
-    fprintf(stderr, "Message: this=%p, sender=%d, sender_type=%d\n", this, sender, send_type);
-    fprintf(stderr, "  type=%s (%d), length=%d, conn=%p\n",
-            (type >= 0 && type < sizeof(covise_msg_types_array) / sizeof(covise_msg_types_array[0])) ? covise_msg_types_array[type] : (type == -1 ? "EMPTY" : "(invalid)"),
-            type, length, conn);
-#endif
-}
+    if (!str.empty())
+    {
+        data = DataHandle(str.length() + 1);
+        memcpy(data.accessData(), str.c_str(), data.length());
+    }
+    print();
+};
+
+
 
 Message::Message(const Message &src)
 {
@@ -109,6 +124,7 @@ Message::Message(int message_type, const DataHandle &dh)
 {
     data = dh;
 }
+
 Message &Message::operator=(const Message &src)
 {
     //    printf("+ in message no. %d for %x, line %d\n", new_count++, this, __LINE__);
@@ -139,12 +155,16 @@ void Message::copyAndReuseData(const Message& src)
     conn = src.conn;
     data = src.data;
 }
-//char *Message::extract_data()
-//{
-//    char *tmpdata = data;
-//    data = NULL;
-//    return tmpdata;
-//}
+
+void Message::print()
+{
+#ifdef DEBUG
+    fprintf(stderr, "Message: this=%p, sender=%d, sender_type=%d\n", this, sender, send_type);
+    fprintf(stderr, "  type=%s (%d), length=%d, conn=%p\n",
+            (type >= 0 && type < sizeof(covise_msg_types_array) / sizeof(covise_msg_types_array[0])) ? covise_msg_types_array[type] : (type == -1 ? "EMPTY" : "(invalid)"),
+            type, length, conn);
+#endif
+}
 
 bool isVrbMessageType(int type)
 {
