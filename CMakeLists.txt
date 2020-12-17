@@ -314,6 +314,11 @@ endif()
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
+OPTION(COVISE_BUILD_TESTS "compile the tests" OFF)
+if(COVISE_BUILD_TESTS)
+ADD_SUBDIRECTORY(tests)
+endif()
+
 # Install
 
 SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.gitignore|/\\.hgignore|\\.html\\.in$|\\.tex\\.in$|\\.tex$")
