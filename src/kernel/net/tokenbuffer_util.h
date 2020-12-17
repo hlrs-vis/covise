@@ -8,6 +8,13 @@ namespace covise {
 
 namespace detail {
 
+//helper to construct messages out of tokenbuffer
+template<typename T>
+T get(TokenBuffer &tb){
+	T t{};
+	tb >> t;
+	return t;
+}
 //to get the c++14 syntax of std::get<T>(tuple)
 template<size_t Pos, typename T, typename U, typename...Args>
 struct Finder
