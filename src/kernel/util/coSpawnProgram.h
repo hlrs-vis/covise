@@ -13,6 +13,9 @@ namespace covise
     //name: executable name, args: command line args
     UTILEXPORT void spawnProgram(const std::string &name, const std::vector<std::string> &args);
 
+    //returns the " " separated tokens from the commandLine string as a vector
+    UTILEXPORT std::vector<const char*> parseCmdArgString(const std::string &commandLine);
+
 } //namespace covise
 
 #endif

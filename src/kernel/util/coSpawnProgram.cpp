@@ -9,12 +9,12 @@
 
 using namespace covise;
 
-
-void covise::spawnProgram(const std::vector<const char*> &args){
-if (!args[0] || args[args.size() - 1])
+void covise::spawnProgram(const std::vector<const char *> &args)
 {
-    return;
-}
+    if (!args[0] || args[args.size() - 1])
+    {
+        return;
+    }
 
 #ifdef _WIN32
     _spawnvp(P_NOWAIT, args[0], const_cast<char *const *>(args.data()));
@@ -33,7 +33,6 @@ if (!args[0] || args[args.size() - 1])
 #endif
 }
 
-
 void covise::spawnProgram(const std::string &name, const std::vector<std::string> &args)
 {
 
@@ -45,5 +44,21 @@ void covise::spawnProgram(const std::string &name, const std::vector<std::string
     }
     argV[args.size() + 1] = nullptr;
     spawnProgram(argV);
+}
 
+std::vector<const char*> covise::parseCmdArgString(const std::string &commandLine)
+{
+    std::vector<const char*> args;
+
+    std::string delim = " ";
+
+    size_t start = 0;
+    auto end = commandLine.find(delim);
+    while (end != std::string::npos)
+    {
+        args.emplace_back(commandLine.substr(start, end - start).c_str());
+        start = end + delim.length();
+        end = commandLine.find(delim, start);
+    }
+    return args;
 }
