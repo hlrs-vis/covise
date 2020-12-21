@@ -2,6 +2,8 @@
 #include "ui_mainWindow.h"
 #include "clientWidget.h"
 
+#include <util/coSpawnProgram.h>
+
 #include <QMessageBox>
 #include <QShortcut>
 #include <QTextStream>
@@ -295,31 +297,10 @@ void MainWindow::readOptions()
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()
 {
-	std::string argsString = ui->cmdArgsInput->text().toStdString();
-	std::vector<std::string> args;
-	auto end = argsString.begin();
-	while (true)
-	{
-		auto begin = end;
-		end = std::find(begin, argsString.end(), ' ');
-		if (begin != end)
-		{
-			args.emplace_back(argsString.substr(begin - argsString.begin(), end - begin));
-		}
-		if (end == argsString.end())
-		{
-			return args;
-		}
-
-		while (*end == ' ')
-		{
-			++end;
-			if (end == argsString.end())
-			{
-				return args;
-			}
-		}
-	}
+	auto args = covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
+	std::vector<std::string> a(args.size());
+	std::transform(args.begin(), args.end(), a.begin(), [](const char *c) { return c; });
+	return a;
 }
 
 void setStackedWidget(QStackedWidget *stack, int index)
