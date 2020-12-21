@@ -81,7 +81,7 @@ private:
     void handleUI(Message *msg, string data);
     void handleFinall(Message *msg, string data);
     void delModuleNode(vector<net_module *> liste);
-    int initModuleNode(const string &name, const string &nr, const string &host, int, int, const string &, int, Start::Flags flags);
+    int initModuleNode(const string &name, const string &nr, const string &host, int, int, const string &, int, ExecFlag flags);
     void makeConnection(const string &from_mod, const string &from_nr, const string &from_host, const string &from_port,
                         const string &to_mod, const string &to_nr, const string &to_host, const string &to_port);
     void sendNewParam(const string &name, const string &nr, const string &host,

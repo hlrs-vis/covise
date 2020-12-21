@@ -26,6 +26,7 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <util/unixcompat.h>
+#include <net/concrete_messages.h>
 
 #include "AccessGridDaemon.h"
 #include "CTRLHandler.h"
@@ -494,54 +495,33 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
     return mod;
 }
 
-// user interface ???
-AppModule *Controller::start_applicationmodule(sender_type peer_type,
-                                               const char *name, AppModule *dmod, const char *instance, enum Start::Flags flags)
-{
-    //std::cerr << "Controller::start_applicationmodule: dmod host name=" << dmod->get_host()->getName() << std::endl;
-    char remote_command[300];
-    int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout(*dmod->get_host());
-
+AppModule* Controller::start_applicationmodule(sender_type peer_type, const char *name, AppModule *dmod, const char *instance, ExecFlag flags, const char *category, const std::vector<std::string> &params){
     module_count++;
+    int port;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
     if (!conn->is_connected())
-        return NULL;
+        return nullptr;
     conn->listen();
     Host localhost("127.0.0.1");
     Host *h = host->getAddress() == dmod->get_host()->getAddress()
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP((*dmod->get_host())))
-        sprintf(remote_command, "\001 %s %d %s %d %s %s %s %s",
-                name, port, h->getAddress(), module_count, instance,
-                dmod->get_host()->getAddress(),
-                dmod->get_host()->getName(),
-                CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
-    else
-        sprintf(remote_command, "\001 %s %d %s %d %s %s %s",
-                name, port, h->getAddress(), module_count, instance,
-                dmod->get_host()->getAddress(),
-                dmod->get_host()->getName());
-
-    Message *msg = new Message;
-    switch (flags)
+    const char *displayIp = CTRLHandler::instance()->Config->getDisplayIP((*dmod->get_host()));
+    CRB_EXEC crbExec{flags, name, port, h->getAddress(), module_count, instance, dmod->get_host()->getAddress(), dmod->get_host()->getName(), displayIp, category, params};
+    
+    int timeout = 0; // do not timeout
+    if (flags != ExecFlag::Debug)
     {
-    case Start::Debug:
-        msg->type = COVISE_MESSAGE_CRB_EXEC_DEBUG;
-        timeout = 0; // do not timeout
-        break;
-    case Start::Memcheck:
-        msg->type = COVISE_MESSAGE_CRB_EXEC_MEMCHECK;
-        break;
-    default:
-        msg->type = COVISE_MESSAGE_CRB_EXEC;
-        break;
+        timeout = CTRLHandler::instance()->Config->gettimeout(*dmod->get_host());
     }
-    msg->data = DataHandle{remote_command, strlen(remote_command) + 1, false};
-    dmod->send(msg);
-    delete msg;
+        // start renderer (OPENSG) inside the mapeditor
+    auto hostname = dmod->get_host()->getAddress();
+    auto mapeditor = CTRLGlobal::getInstance()->userinterfaceList->get(hostname);
+    if (mapeditor && confirmIsRenderer(category, dmod))
+        sendCoviseMessage(crbExec, *mapeditor);
+    else
+        sendCoviseMessage(crbExec, *dmod);
 
     if (conn->acceptOne(timeout) < 0)
     {
@@ -549,32 +529,16 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         delete conn;
         return NULL;
     }
-
     AppModule *mod = new AppModule(conn, module_count, name, host);
     list_of_connections->add(conn);
     mod->set_peer(module_count, peer_type);
     return mod;
 }
 
-// normal module
-AppModule *Controller::start_applicationmodule(sender_type peer_type,
-                                               const char *name, const char *cat, AppModule *dmod, const char *instance, enum Start::Flags flags)
-{
-    char remote_command[300];
-    int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout(*(dmod->get_host()));
 
-    module_count++;
-    ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
-    if (!conn->is_connected())
-        return NULL;
-    conn->listen();
-    // when starting a renderer ask crb if a plugin is possible and get the right name
-    // do this only if an userinterface exists
-    bool flag = false;
+bool Controller::confirmIsRenderer(const char* cat, AppModule* dmod){
     userinterface *mapeditor = NULL;
-
-    if (strcmp("Renderer", cat) == 0)
+    if (cat && strcmp("Renderer", cat) == 0)
     {
         string hostname = dmod->get_host()->getAddress();
         mapeditor = CTRLGlobal::getInstance()->userinterfaceList->get(hostname);
@@ -589,192 +553,16 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             dmod->send(msg2);
             delete msg2;
 
-            Message *rmsg = new Message;
-            dmod->recv_msg(rmsg);
-            if (rmsg->type == COVISE_MESSAGE_UI)
+            Message rmsg;
+            dmod->recv_msg(&rmsg);
+            if (rmsg.type == COVISE_MESSAGE_UI)
             {
-                if (rmsg->data.data() && strcmp(rmsg->data.data(), "YES") == 0)
-                    flag = true;
+                if (rmsg.data.data() && strcmp(rmsg.data.data(), "YES") == 0)
+                    return true;
             }
-            delete rmsg;
         }
     }
-
-    Host localhost("127.0.0.1");
-    Host *h = host->getAddress() == dmod->get_host()->getAddress()
-                  ? &localhost
-                  : host;
-
-    if (CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()))
-    {
-        sprintf(remote_command, "%s %s %d %s %d %s %s %s %s",
-                name, cat, port, h->getAddress(), module_count, instance,
-                dmod->get_host()->getAddress(),
-                dmod->get_host()->getName(),
-                CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
-    }
-    else
-    {
-        sprintf(remote_command, "%s %s %d %s %d %s %s %s",
-                name, cat, port, h->getAddress(), module_count, instance,
-                dmod->get_host()->getAddress(),
-                dmod->get_host()->getName());
-    }
-
-    Message *msg = new Message;
-    switch (flags)
-    {
-    case Start::Debug:
-        msg->type = COVISE_MESSAGE_CRB_EXEC_DEBUG;
-        timeout = 0; // do not timeout
-        break;
-    case Start::Memcheck:
-        msg->type = COVISE_MESSAGE_CRB_EXEC_MEMCHECK;
-        break;
-    default:
-        msg->type = COVISE_MESSAGE_CRB_EXEC;
-        break;
-    }
-    msg->data = DataHandle{ remote_command, strlen(remote_command) + 1, false };
-
-    // start renderer (OPENSG) inside the mapeditor
-    // inform CRB
-    if (flag && mapeditor)
-        mapeditor->send(msg);
-
-    else
-        dmod->send(msg);
-
-    delete msg;
-
-    if (conn->acceptOne(timeout) < 0)
-    {
-        cerr << "** timelimit in accept for module " << name << " exceeded!!" << endl;
-        delete conn;
-        return NULL;
-    }
-
-    AppModule *mod = new AppModule(conn, module_count, name, host);
-
-    list_of_connections->add(conn);
-    mod->set_peer(module_count, peer_type);
-    return mod;
-}
-
-AppModule *Controller::start_applicationmodule(sender_type peer_type,
-                                               const char *param, const char *name, const char *cat, AppModule *dmod, const char *instance, enum Start::Flags flags)
-{
-    char remote_command[3000];
-    int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout(*(dmod->get_host()));
-
-    module_count++;
-    ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
-    if (!conn->is_connected())
-        return NULL;
-    conn->listen();
-    // when starting a renderer ask crb if a plugin is possible and get the right name
-    // do this only if an userinterface exists
-    bool flag = false;
-    userinterface *mapeditor = NULL;
-    if (strcmp("Renderer", cat) == 0)
-    {
-        string hostname = dmod->get_host()->getAddress();
-        mapeditor = CTRLGlobal::getInstance()->userinterfaceList->get(hostname);
-
-        if (mapeditor)
-        {
-            string text = "QUERY_IMBEDDED_RENDERER\n";
-            text.append(name);
-            text.append("\n");
-            text.append(cat);
-            Message *msg2 = new Message(COVISE_MESSAGE_UI, text);
-            dmod->send(msg2);
-            delete msg2;
-
-            Message *rmsg = new Message;
-            dmod->recv_msg(rmsg);
-            if (rmsg->type == COVISE_MESSAGE_UI)
-            {
-                if (rmsg->data.data() && strcmp(rmsg->data.data(), "YES") == 0)
-                    flag = true;
-            }
-            delete rmsg;
-        }
-    }
-
-    Host localhost("127.0.0.1");
-    Host *h = host->getAddress() == dmod->get_host()->getAddress()
-                  ? &localhost
-                  : host;
-
-    if (CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()))
-    {
-        if (param)
-            sprintf(remote_command, "%s %s %s %d %s %d %s %s %s %s",
-                    name, cat, param, port, h->getAddress(), module_count, instance,
-                    dmod->get_host()->getAddress(),
-                    dmod->get_host()->getName(),
-                    CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
-        else
-            sprintf(remote_command, "%s %s %d %s %d %s %s %s %s",
-                    name, cat, port, h->getAddress(), module_count, instance,
-                    dmod->get_host()->getAddress(),
-                    dmod->get_host()->getName(),
-                    CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
-    }
-    else
-    {
-        if (param)
-            sprintf(remote_command, "%s %s %s %d %s %d %s %s %s",
-                    name, cat, param, port, h->getAddress(), module_count, instance,
-                    dmod->get_host()->getAddress(),
-                    dmod->get_host()->getName());
-        else
-            sprintf(remote_command, "%s %s %d %s %d %s %s %s",
-                    name, cat, port, h->getAddress(), module_count, instance,
-                    dmod->get_host()->getAddress(),
-                    dmod->get_host()->getName());
-    }
-
-    Message *msg = new Message;
-    switch (flags)
-    {
-    case Start::Debug:
-        msg->type = COVISE_MESSAGE_CRB_EXEC_DEBUG;
-        timeout = 0; // do not timeout
-        break;
-    case Start::Memcheck:
-        msg->type = COVISE_MESSAGE_CRB_EXEC_MEMCHECK;
-        break;
-    default:
-        msg->type = COVISE_MESSAGE_CRB_EXEC;
-        break;
-    }
-    msg->data = DataHandle{ remote_command, strlen(remote_command) + 1, false };;
-
-
-    // start renderer (OPENSG) inside the mapeditor
-    // inform CRB
-    if (flag && mapeditor)
-        mapeditor->send(msg);
-
-    // start renderer normal
-    else
-        dmod->send(msg);
-
-    delete msg;
-
-    if (conn->acceptOne(timeout) < 0)
-    {
-        cerr << "*** timelimit in accept for module " << name << " exceeded!!" << endl;
-        delete conn;
-        return NULL;
-    }
-    AppModule *mod = new AppModule(conn, module_count, name, host);
-    list_of_connections->add(conn);
-    mod->set_peer(module_count, peer_type);
-    return mod;
+    return false;
 }
 
 void Controller::get_shared_memory(AppModule *dmod)

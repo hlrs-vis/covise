@@ -38,6 +38,7 @@ class render_module;
 class interface_list;
 class net_param_list;
 class Controller;
+enum class ExecFlag : int;
 
 enum
 {
@@ -877,7 +878,7 @@ public:
 
     // different in net_module and render_module
     virtual int init(int id, const string &name, const string &instanz, const string &host,
-                     int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror_node = NULL);
+                     int posx, int posy, int copy, ExecFlag flags, net_module *mirror_node = NULL);
     virtual void del(int already_dead);
 
     virtual void set_interface(const string &strn, const string &strt, const string &strtx, const string &strd, const string &strde);
@@ -970,7 +971,7 @@ public:
     AppModule *get_mod();
     int get_mod_id();
 
-    int start(AppModule *dmod, const string &info_str, module *mod, const string &param, Start::Flags flags);
+    int start(AppModule *dmod, const string &info_str, module *mod, ExecFlag flags, const std::vector<std::string> &params = std::vector<std::string>{});
     void quit();
 
     void send_add(const string &DO_name);
@@ -998,7 +999,7 @@ public:
     display *get(int sender);
     display *get(const string &hostname, const string &user);
 
-    int init(const string &excovise_name, const string &info_str, module *mod, int copy, enum Start::Flags flags, rhost *host);
+    int init(const string &excovise_name, const string &info_str, module *mod, int copy, ExecFlag flags, rhost *host);
     void quit();
     void set_DISPLAY_FALSE();
 
@@ -1057,10 +1058,10 @@ public:
         return displays;
     };
 
-    int add_helper(const string &h_host, const string &info_str, const string &param = NULL);
+    int add_helper(const string &h_host, const string &info_str, const std::vector<std::string> &params = std::vector<std::string>{});
 
     int init(int id, const string &name, const string &instanz, const string &host,
-             int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror_node = NULL);
+             int posx, int posy, int copy, ExecFlag flags, net_module *mirror_node = NULL);
     void set_interface(const string &strn, const string &strt, const string &strtx, const string &strd, const string &strde);
     void del(int already_dead);
 
@@ -1206,7 +1207,7 @@ public:
 
     //void reset_for_exec(DM_list* DMlist);
     int init(int id, const string &name, const string &instanz, const string &host,
-             int posx, int posy, int copy, enum Start::Flags flags, net_module *from = NULL);
+             int posx, int posy, int copy, ExecFlag flags, net_module *from = NULL);
 
     /****************************/
     /* special renderer-methods */

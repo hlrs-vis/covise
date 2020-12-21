@@ -181,7 +181,7 @@ void Renderer::quit(void *callbackData)
         strcpy(d, " ");
         Message p_msg{ COVISE_MESSAGE_SOCKET_CLOSED , DataHandle(d, l)};
 
-        m_wconn->send_msg(&p_msg);
+        m_wconn->sendMessage(&p_msg);
 
         m_connList->remove(m_wconn);
         delete m_wconn;
@@ -512,7 +512,7 @@ int Renderer::check_aws(void)
     cerr << "\n Check aws on the host " << m_host->getName() << endl;
 
     Message p_msg{ COVISE_MESSAGE_INIT , DataHandle((char*)m_host->getName(),strlen(m_host->getName()) + 1 , false)};
-    m_wconn->send_msg(&p_msg);
+    m_wconn->sendMessage(&p_msg);
 
     return 1;
 }
@@ -544,7 +544,7 @@ int Renderer::register_vrml(void)
     txt.setLength((int)strlen(txt.data()) + 1);
     Message p_msg{ COVISE_MESSAGE_START, txt };
 
-    m_wconn->send_msg(&p_msg);
+    m_wconn->sendMessage(&p_msg);
 
     strcat(txt.accessData(), " has been registered !!!");
 
@@ -559,7 +559,7 @@ int Renderer::sendObjectOK(void)
 
     Message p_msg{ COVISE_MESSAGE_OBJECT_OK, DataHandle{(char*)" ", strlen(" ") + 1, false} };
     //cerr << endl << "&&&& Sending OBJECT_OK " << endl;
-    m_wconn->send_msg(&p_msg);
+    m_wconn->sendMessage(&p_msg);
 
     return 1;
 }
@@ -576,7 +576,7 @@ int Renderer::sendViewPoint(void)
             Message p_msg{ COVISE_MESSAGE_PARINFO, DataHandle{camera, strlen(camera) + 1, false} };
             p_msg.type = COVISE_MESSAGE_PARINFO;
             //cerr << endl << "&&&& Sending CAMERA: " << camera << endl;
-            m_wconn->send_msg(&p_msg); // send ViewPoint
+            m_wconn->sendMessage(&p_msg); // send ViewPoint
 
             //m_cam_needed = 0;
         }

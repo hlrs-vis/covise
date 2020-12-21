@@ -14,18 +14,8 @@
 
 namespace covise
 {
-
-class Start
-{
-public:
-    enum Flags
-    {
-        Normal = 0,
-        Debug = 1,
-        Memcheck = 2,
-    };
-};
-
+   enum class ExecFlag : int;
+   
 /**
  *  Controller class:  contains the informations
  *  concerning the controller process
@@ -36,7 +26,12 @@ class Controller : public Process // process for the controller
 
     /// pointer to the sharedmemory object
     ShmAccess *shm;
-
+      /**
+       *  when starting a renderer ask crb if a plugin is possible and get the right name
+       *  @param   category    the category of the applicationmodule
+       *  @param   dmod        the object with de infos about the conn to dtm.
+       */                                     
+    bool confirmIsRenderer(const char* cat, AppModule* dmod);
 protected:
     /// used numeration of application modules
     int module_count;
@@ -79,42 +74,22 @@ public:
        */
     AppModule *start_datamanager(Host *rhost, const char *user, const char *name, int exec_type, const char *script_name = NULL);
 
+    
     /**
        *  starting an application module
        *  @param   peer_type   type of the started module
        *  @param   name        the name of the applicationmodule
        *  @param   dmod        the object with de infos about the conn to dtm.
        *  @param   instance    the id number of the application module
-       *  @return  object holding info about the connection
-       *           to the application module
-       */
-    AppModule *start_applicationmodule(sender_type peer_type, const char *name, AppModule *dmod, const char *instance, enum Start::Flags flags);
-
-    /**
-       *  starting an application module
-       *  @param   peer_type   type of the started module
-       *  @param   name        the name of the applicationmodule
        *  @param   category    the category of the applicationmodule
-       *  @param   dmod        the object with de infos about the conn to dtm.
-       *  @param   instance    the id number of the application module
-       *  @return  object holding info about the connection
-       *           to the application module
-       */
-    AppModule *start_applicationmodule(sender_type peer_type, const char *name, const char *category,
-                                       AppModule *dmod, const char *instance, enum Start::Flags flags);
-    /**
-       *  starting an application module
-       *  @param   peer_type   type of the started module
        *  @param   param       additional parameters for applicationmodule
-       *  @param   name        the name of the applicationmodule
-       *  @param   category    the category of the applicationmodule
-       *  @param   dmod        the object with de infos about the conn to dtm.
-       *  @param   instance    the id number of the application module
        *  @return  object holding info about the connection
        *           to the application module
        */
-    AppModule *start_applicationmodule(sender_type peer_type, const char *param, const char *name, const char *cat,
-                                       AppModule *dmod, const char *instance, enum Start::Flags flags);
+    AppModule *start_applicationmodule(sender_type peer_type, const char *name, AppModule *dmod, const char *instance, 
+                                       ExecFlag flags, const char *category = nullptr, const std::vector<std::string> &params = std::vector<std::string>{});
+
+
 
     /**
        *  create the object handling the informations

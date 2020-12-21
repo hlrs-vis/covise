@@ -18,6 +18,7 @@
 #include <util/coLog.h>
 #include <covise/covise_msg.h>
 #include <covise/covise_appproc.h>
+#include <net/concrete_messages.h>
 
 #include "MEMessageHandler.h"
 #include "MEFileBrowser.h"
@@ -157,9 +158,9 @@ void MEMessageHandler::dataReceived(int)
                 {
                 case covise::COVISE_MESSAGE_CRB_EXEC:
                 {
-                    QStringList message = list[0].split(" ", QString::SkipEmptyParts);
-                    if (message[0] == "ViNCE" || message[0] == "Renderer")
-                        MEUserInterface::instance()->startRenderer(message);
+                    covise::CRB_EXEC exec{*msg};
+                    if (!strcmp(exec.name ,"ViNCE") || !strcmp(exec.name,"Renderer"))
+                        MEUserInterface::instance()->startRenderer(exec);
                 }
                 break;
 

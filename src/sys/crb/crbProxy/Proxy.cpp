@@ -22,86 +22,36 @@
 #endif
 
 #include "CRBConnection.h"
-
+#include <net/concrete_messages.h>
 using namespace covise;
 
-Proxy::Proxy(char *messageData, CRBConnection *crbC)
+Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
 {
     crbConn = crbC;
     moduleConn = NULL;
     ctrlConn = NULL;
-    char *args[1000];
-    char *newMessage = new char[strlen(messageData) + 100];
-    newMessage[0] = '\0';
-    char tmpBuf[1000];
-    int i = 1, n = 0;
-    int controllerPort;
-    char *controllerHost;
-    int id;
-    int offset = 0;
-    //cerr << " old Message:" << messageData << endl;
-    args[n] = messageData;
-    n++;
-    while (messageData[i])
-    {
-        if (messageData[i] == ' ')
-        {
-            messageData[i] = '\0';
-            args[n] = messageData + i + 1;
-            //fprintf(stderr,"args %d:%s\n",n,args[n]);
-            n++;
-        }
-        i++;
-    }
-    args[n] = NULL;
-    if (messageData[0] != '\001')
-    {
-        offset = 2;
-    }
-    else
-    {
-        offset = 3;
-    }
-    int retval;
-    retval = sscanf(args[offset], "%d", &controllerPort);
-    if (retval != 1)
-    {
-        std::cerr << "Proxy::Proxy: sscanf failed" << std::endl;
-        return;
-    }
-    controllerHost = args[1 + offset];
-    retval = sscanf(args[2 + offset], "%d", &id);
-    if (retval != 1)
-    {
-        std::cerr << "Proxy::Proxy: sscanf failed" << std::endl;
-        return;
-    }
+    std::string portDummy, moduleCountDummy;
+    auto args = getCmdArgs(messageData, portDummy, moduleCountDummy);
+
     int serverPort;
-    moduleConn = new ServerConnection(&serverPort, id, APPLICATIONMODULE);
+    moduleConn = new ServerConnection(&serverPort, messageData.moduleCount, APPLICATIONMODULE);
     if (!moduleConn->is_connected())
         return;
     moduleConn->listen();
-    for (i = 0; i < n; i++)
-    {
-        if (i == offset)
-        {
-            sprintf(tmpBuf, "%d", serverPort);
-            strcat(newMessage, tmpBuf);
-        }
-        else if (i == 1 + offset)
-        {
-            strcat(newMessage, crbConn->myHost->getAddress());
-        }
-        else
-        {
-            strcat(newMessage, args[i]);
-        }
-        strcat(newMessage, " ");
-    }
-    //cerr << " new Message:" << newMessage << endl;
-    Message msg{ COVISE_MESSAGE_CRB_EXEC, DataHandle(newMessage, strlen(newMessage) + 1) };
+    CRB_EXEC newMessage{messageData.flag,
+                        messageData.name,
+                        serverPort,
+                        crbConn->myHost->getAddress(),
+                        messageData.moduleCount,
+                        messageData.moduleId,
+                        messageData.moduleIp,
+                        messageData.moduleHostName,
+                        messageData.displayIp,
+                        messageData.category,
+                        messageData.params};
 
-    crbConn->toCrb->send_msg(&msg);
+    //cerr << " new Message:" << newMessage << endl;
+    sendCoviseMessage(newMessage, *crbConn->toCrb);
 
     if (moduleConn->acceptOne(60) < 0)
     {
@@ -110,9 +60,8 @@ Proxy::Proxy(char *messageData, CRBConnection *crbC)
         cerr << "* timelimit in accept for module exceeded!!" << endl;
         return;
     }
-    Host *h = new Host(controllerHost);
-    ctrlConn = new ClientConnection(h, controllerPort, id, APPLICATIONMODULE);
-    delete h;
+    Host h {messageData.localIp};
+    ctrlConn = new ClientConnection(&h, messageData.port, messageData.moduleCount, APPLICATIONMODULE);
     crbConn->listOfConnections->add(moduleConn);
     crbConn->listOfConnections->add(ctrlConn);
 }

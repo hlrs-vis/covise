@@ -13,6 +13,7 @@
 #include <util/coTimer.h>
 #include <util/covise_version.h>
 #include <net/covise_connect.h>
+#include <net/concrete_messages.h>
 #include <covise/covise_msg.h>
 #include <util/coFileUtil.h>
 
@@ -1163,7 +1164,7 @@ void net_module::start_module(ui_list *ul)
 }
 
 int net_module::init(int nodeid, const string &name, const string &instanz, const string &host,
-                     int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror_node)
+                     int posx, int posy, int copy, ExecFlag flags, net_module *mirror_node)
 {
 
 
@@ -1193,7 +1194,7 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
 
         // Start a module: send CRB a message to start module.
         //                 !!! Module connects to CTRL only, not to CRB !!!
-        applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, name.c_str(), get_type()->get_category().c_str(), dmod, instanz.c_str(), flags);
+        applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, name.c_str(), dmod, instanz.c_str(), flags, get_type()->get_category().c_str());
         /// aw: applmod may be ==  0
         if (applmod == NULL)
         {
@@ -1229,8 +1230,8 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
         tmp_passwd = tmp_host->get_passwd();
         tmp_user = tmp_host->get_user();
 
-        applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, get_name().c_str(),
-                                                             get_type()->get_category().c_str(), dmod, instanz.c_str(), flags);
+        applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, get_name().c_str(), dmod, instanz.c_str(), flags,
+                                                             get_type()->get_category().c_str());
 
         /// aw: applmod may be ==  0
         if (applmod == NULL)
@@ -2180,19 +2181,15 @@ int display::get_mod_id()
     return applmod->get_id();
 }
 
-int display::start(AppModule *dmod, const string &info_str, module *mod, const string &add_param, enum Start::Flags flags)
+int display::start(AppModule *dmod, const string &info_str, module *mod, ExecFlag flags, const std::vector<std::string> &params)
 {
 
     // parse instanz out of info_str (second token)
     vector<string> list = CTRLHandler::instance()->splitString(info_str, "\n");
     string instanz = list[1];
 
-    const char *addParam = NULL;
-    if (!add_param.empty())
-        addParam = add_param.c_str();
-
-    applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(RENDERER, addParam, mod->get_name().c_str(),
-                                                         mod->get_category().c_str(), dmod, instanz.c_str(), flags);
+    applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(RENDERER, mod->get_name().c_str(),
+                                                        dmod, instanz.c_str(), flags,  mod->get_category().c_str(), params);
     /// aw: applmod may be ==  0
     if (applmod == NULL)
     {
@@ -2480,7 +2477,7 @@ void displaylist::reset_ready()
     ready -= count;
 }
 
-int displaylist::init(const string &excovise_name, const string &info_str, module *mod, int copy, enum Start::Flags flags, rhost *host)
+int displaylist::init(const string &excovise_name, const string &info_str, module *mod, int copy, ExecFlag flags, rhost *host)
 {
     (void)excovise_name;
 
@@ -2535,8 +2532,7 @@ int displaylist::init(const string &excovise_name, const string &info_str, modul
             string tmp_info = info_str;
             tmp_info.append(tmp_hostname);
 
-            string dummy;
-            int ret = tmp_dis->start(dmod, tmp_info, mod, dummy, flags); // start und send status-message
+            int ret = tmp_dis->start(dmod, tmp_info, mod, flags); // start and send status-message
             if (!ret)
             {
                 delete tmp_dis;
@@ -2573,7 +2569,7 @@ int displaylist::init(const string &excovise_name, const string &info_str, modul
         // add host to the info_str
         string tmp_info = info_str + tmp_hostname;
 
-        int ret = tmp_dis->start(dmod, tmp_info, mod, "", flags); // start und send status-message
+        int ret = tmp_dis->start(dmod, tmp_info, mod, flags); // start and send status-message
         if (!ret)
         {
             delete tmp_dis;
@@ -2769,7 +2765,7 @@ int displaylist::addHelperCRB(const string &helperHost, const string &host)
 /// start a 'Helper' on another host
 int render_module::add_helper(const string &helperHost, // host to start the helper on
                               const string &info_str, // ??
-                              const string &param) // parameter for execution
+                              const std::vector<std::string> &params) // parameter for execution
 {
 
     addHelperCRB(helperHost, host);
@@ -2792,7 +2788,7 @@ int render_module::add_helper(const string &helperHost, // host to start the hel
     // add host to the info_str
     string tmp_info = info_str + helperHost;
 
-    int ret = tmp_dis->start(dmod, tmp_info, mod, param, Start::Normal); // start und send status-message
+    int ret = tmp_dis->start(dmod, tmp_info, mod, ExecFlag::Normal, params); // start and send status-message
     if (!ret)
     {
         delete tmp_dis;
@@ -2804,7 +2800,7 @@ int render_module::add_helper(const string &helperHost, // host to start the hel
 }
 
 int render_module::init(int nodeid, const string &name, const string &instanz, const string &host,
-                        int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror_node)
+                        int posx, int posy, int copy, ExecFlag flags, net_module *mirror_node)
 {
 
     set_name(name);
@@ -3397,7 +3393,7 @@ bool render_module::add_display(userinterface *ui)
     ostringstream tmp_info;
     tmp_info << name << "\n" << nr << "\n" << tmp_hostname << "\n";
 
-    int ret = tmp_dis->start(dmod, tmp_info.str(), typ, "", Start::Normal); // start und send status-message
+    int ret = tmp_dis->start(dmod, tmp_info.str(), typ, ExecFlag::Normal); // start and send status-message
     if (!ret)
     {
         delete tmp_dis;
@@ -3587,7 +3583,7 @@ int render_module::addHelperCRB(const string &helperHost, const string &host)
 }
 
 int net_module_list::init(int nodeid, const string &name, const string &instanz, const string &host,
-                          int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror)
+                          int posx, int posy, int copy, ExecFlag flags, net_module *mirror)
 {
 
     // check the Category of the Module
@@ -3780,7 +3776,7 @@ bool net_module_list::mirror(net_module *from_mod, const string &new_host)
 
     CTRLGlobal::getInstance()->s_nodeID++;
     string nrr(nr);
-    int iret = init(CTRLGlobal::getInstance()->s_nodeID, from_mod->get_name(), nrr, new_host, posX + (from_mod->get_num_mirrors() + 1) * 400, posY, 4, Start::Normal, from_mod);
+    int iret = init(CTRLGlobal::getInstance()->s_nodeID, from_mod->get_name(), nrr, new_host, posX + (from_mod->get_num_mirrors() + 1) * 400, posY, 4, ExecFlag::Normal, from_mod);
     if (iret)
     {
         //--------------------------//

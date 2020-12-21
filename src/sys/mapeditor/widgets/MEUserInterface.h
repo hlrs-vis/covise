@@ -36,7 +36,8 @@ namespace covise
 {
 class coConfigGroup;
 class coSendBuffer;
-}
+class CRB_EXEC;
+} // namespace covise
 
 class MEUserInterface;
 class MEMainHandler;
@@ -63,7 +64,7 @@ class MEPreference;
 
 class TUIMainWindow;
 
-typedef VinceRendererWidget *(*VinceRendererWidgetCreate)(QWidget *w, int argc, char **argv);
+typedef VinceRendererWidget *(*VinceRendererWidgetCreate)(QWidget *w, int argc, const char **argv);
 
 class MEUserInterface : public QMainWindow
 {
@@ -108,7 +109,7 @@ public:
     void writeInfoMessage(const QString &text, const QColor &color = Qt::black);
     void writeChatContent(const QStringList &);
     void removeTabletUI();
-    void startRenderer(const QStringList &message);
+    void startRenderer(const covise::CRB_EXEC &message);
     void stopRenderer(const QString &name, const QString &number, const QString &host);
     void setMiniGUI(bool);
     void activateTabletUI();

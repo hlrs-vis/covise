@@ -7,45 +7,30 @@
 
 #include <covise/covise.h>
 #include <util/DLinkList.h>
+#include <string>
 
-class Start
-{
-public:
-    enum Flags
-    {
-        Normal,
-        Debug,
-        Memcheck
-    };
-};
-
+namespace covise{
+enum class ExecFlag;
+struct CRB_EXEC;
+} // namespace covise
 class module
 {
-    char *name;
-    char *execpath;
-    char *category;
+    std::string name;
+    std::string execpath;
+    std::string category;
 
 public:
-    module();
-    module(const char *na, const char *ex, const char *ca);
-    ~module();
+    module() = default;
+    module(const char *name, const char *execpath, const char *category);
 
     void set_name(const char *str);
     void set_execpath(const char *str);
     void set_category(const char *str);
-    char *get_name()
-    {
-        return (name);
-    };
-    char *get_execpath()
-    {
-        return (execpath);
-    };
-    char *get_category()
-    {
-        return (category);
-    };
-    void start(char *parameter, Start::Flags flags);
+    const char *get_name() const;
+    const char *get_execpath() const;
+    const char *get_category() const;
+
+    void start(const covise::CRB_EXEC& exec);
 
 private:
 };
@@ -62,10 +47,10 @@ public:
     moduleList();
 
     // Start a specific module
-    int start(char *name, char *category, char *parameter, Start::Flags flags);
+    bool start(const covise::CRB_EXEC& exec);
 
     // Find a specific module return true if found and set current position
-    int find(char *name, char *category);
+    int find(const char *name,const char *category);
 
     // Find an alias for a given module
     void startRenderer(char *name, char *category);

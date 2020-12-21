@@ -10,15 +10,13 @@
 #include <util/coFileUtil.h>
 #include <dmgr/dmgr.h>
 #include <util/unixcompat.h>
-
+#include <util/coSpawnProgram.h>
 #ifdef _WIN32
 #include <io.h>
 #include <process.h>
 #include <direct.h>
 #include <stdlib.h>
 
-//#define PURIFY
-#define PURIFY_COMMAND "C:\\Progra~1\\Rational\\Common\\purify.exe"
 
 #else
 #include <sys/wait.h>
@@ -27,6 +25,7 @@
 
 #include "CRB_Module.h"
 #include <covise/Covise_Util.h>
+#include <net/concrete_messages.h>
 
 #ifdef __APPLE__
 extern char **environ;
@@ -44,379 +43,61 @@ inline char *STRDUP(const char *old)
     return strcpy(new char[strlen(old) + 1], old);
 }
 
-module::module()
-{
-    name = NULL;
-    execpath = NULL;
-    category = NULL;
-}
 
 module::module(const char *na, const char *ex, const char *ca)
+: name(na)
+, execpath(ex)
+, category(ca)
 {
-    name = new char[strlen(na) + 1];
-    strcpy(name, na);
-    execpath = new char[strlen(ex) + 1];
-    strcpy(execpath, ex);
-    category = new char[strlen(ca) + 1];
-    strcpy(category, ca);
-}
-
-module::~module()
-{
-    if (NULL != name)
-    {
-        delete[] name;
-    }
-    if (NULL != execpath)
-    {
-        delete[] execpath;
-    }
-    if (NULL != category)
-    {
-        delete[] category;
-    }
 }
 
 void module::set_name(const char *str)
 {
-    if (NULL != name)
-    {
-        delete[] name;
-    }
-    name = new char[strlen(str) + 1];
-    strcpy(name, str);
+    name = str;
 }
 
 void module::set_execpath(const char *str)
 {
-    if (NULL != execpath)
-    {
-        delete[] execpath;
-    }
-    execpath = new char[strlen(str) + 1];
-    strcpy(execpath, str);
+    execpath = str;
 }
 
 void module::set_category(const char *str)
 {
-    if (NULL != category)
-    {
-        delete[] category;
-    }
-    category = new char[strlen(str) + 1];
-    strcpy(category, str);
+    category = str;
 }
 
-void module::start(char *parameter, Start::Flags flags)
+const char *module::get_name() const
 {
-    char *argv[100];
-    char *tmp = parameter;
-    int argc = 2;
-    argv[0] = name;
-    argv[1] = tmp;
-    while (*tmp)
+    return name.c_str();
+};
+const char *module::get_execpath() const
+{
+    return execpath.c_str();
+};
+const char *module::get_category() const
+{
+    return category.c_str();
+};
+
+void module::start(const CRB_EXEC & exec)
+{
+    std::string portDummy, moduleCountDummy;
+    auto args = getCmdArgs(exec, portDummy, moduleCountDummy);
+    args[0] = execpath.c_str();
+    switch (exec.flag)
     {
-        if (*tmp == ' ')
-        {
-            *tmp = '\0';
-            if (*(tmp + 1))
-            {
-                argv[argc] = tmp + 1;
-                argc++;
-            }
-        }
-        tmp++;
+    case ExecFlag::Normal:
+        spawnProgram(execpath.c_str(), args);
+        break;
+    case ExecFlag::Debug:
+        spawnProgramWithDebugger(execpath.c_str(), args);
+        break;
+    case ExecFlag::Memcheck:
+        spawnProgramWithMemCheck(execpath.c_str(), args);
+        break;
     }
-    argv[argc] = NULL;
-
-#ifdef _WIN32
-    string win_cmd_line;
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
-#ifdef PURIFY
-    for (int ctr = argc; ctr > 0; --ctr)
-    {
-        argv[ctr + 1] = argv[ctr];
-    }
-    argv[1] = execpath;
-    argv[0] = "/run";
-    argc += 2;
-    /*printf("Running '%s", PURIFY_COMMAND);
-   for (int ctr = 0; ctr < argc; ++ctr) {
-     printf(" %s", argv[ctr]);
-   }
-   printf("'\n");*/
-
-    spawnv(P_NOWAIT, PURIFY_COMMAND, (const char *const *)argv);
-#else
-    /* printf("Running '%s", execpath);
-    for (int ctr = 0; ctr < argc; ++ctr) {
-      printf(" %s", argv[ctr]);
-    }
-    printf("'\n");*/
-
-    //spawnv(P_NOWAIT,execpath, (const char *const *)argv);
-    win_cmd_line = argv[0];
-    for (int i = 1; i < argc; i++)
-    {
-        win_cmd_line.append(" ");
-        win_cmd_line.append(argv[i]);
-    }
-
-    if (flags == Start::Normal)
-    {
-        // Start the child process.
-        if (!CreateProcess(execpath, // No module name (use command line)
-                           (LPSTR)win_cmd_line.c_str(), // Command line
-                           NULL, // Process handle not inheritable
-                           NULL, // Thread handle not inheritable
-                           FALSE, // Set handle inheritance to FALSE
-                           0, // No creation flags
-                           NULL, // Use parent's environment block
-                           NULL, // Use parent's starting directory
-                           &si, // Pointer to STARTUPINFO structure
-                           &pi) // Pointer to PROCESS_INFORMATION structure
-            )
-        {
-            fprintf(stderr, "Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), (int)GetLastError());
-        }
-        else
-        {
-            // Wait until child process exits.
-            //WaitForSingleObject( pi.hProcess, INFINITE );
-            // Close process and thread handles.
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-    }
-    else
-    {
-        // launch & debug
-        // launch the child process "suspended" then attach debugger and resume child's main thread
-        if (!CreateProcess(execpath, // No module name (use command line)
-                           (LPSTR)win_cmd_line.c_str(), // Command line
-                           NULL, // Process handle not inheritable
-                           NULL, // Thread handle not inheritable
-                           FALSE, // Set handle inheritance to FALSE
-                           CREATE_SUSPENDED, // create in suspended state
-                           NULL, // Use parent's environment block
-                           NULL, // Use parent's starting directory
-                           &si, // Pointer to STARTUPINFO structure
-                           &pi) // Pointer to PROCESS_INFORMATION structure
-            )
-        {
-            fprintf(stderr, "Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), (int)GetLastError());
-        }
-        else
-        {
-            // success now launch/attach debugger
-            STARTUPINFO dbg_si;
-            PROCESS_INFORMATION dbg_pi;
-            ZeroMemory(&dbg_si, sizeof(dbg_si));
-            dbg_si.cb = sizeof(dbg_si);
-            ZeroMemory(&dbg_pi, sizeof(dbg_pi));
-
-#ifdef __MINGW32__
-            string debug_cmd_line("qtcreator -debug ");
-#else
-            string debug_cmd_line("vsjitdebugger -p ");
-#endif
-            char pid_str[16];
-            itoa(pi.dwProcessId, pid_str, 10);
-            debug_cmd_line.append(pid_str);
-
-            if (!CreateProcess(NULL, (LPSTR)debug_cmd_line.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &dbg_si, &dbg_pi))
-            {
-                fprintf(stderr, "Could not launch debugger %s !\nCreateProcess failed (%d).\n", debug_cmd_line.c_str(), (int)GetLastError());
-            }
-            else
-            {
-                fprintf(stderr, "Launched debugger with %s\n", debug_cmd_line.c_str());
-                DWORD wait_ret = WaitForInputIdle(dbg_pi.hProcess, INFINITE);
-                if (wait_ret == 0)
-                {
-                    fprintf(stderr, "Wait for debugger successful!\n");
-                }
-                else if (wait_ret == WAIT_TIMEOUT)
-                {
-                    fprintf(stderr, "Wait for debugger timed out!\n");
-                }
-                else
-                {
-                    fprintf(stderr, "Wait for debugger failed! GetLastError() -> %d\n", (int)GetLastError());
-                }
-                //Sleep(10000);
-                CloseHandle(dbg_pi.hProcess);
-                CloseHandle(dbg_pi.hThread);
-            }
-            // resume process' main thread
-            if (ResumeThread(pi.hThread) == -1)
-            {
-                fprintf(stderr, "ResumeThread() failed on %s !\nGetLastError() -> %d\n", win_cmd_line.c_str(), (int)GetLastError());
-            }
-            // Wait until child process exits.
-            //WaitForSingleObject( pi.hProcess, INFINITE );
-            // Close process and thread handles.
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-    }
-#endif
-
-#else
-    int pid = fork();
-    if (0 == pid)
-    {
-        if (flags == Start::Normal)
-        {
-            execv(execpath, argv);
-        }
-        else
-        {
-            char *nargv[120];
-#ifdef __APPLE__
-            std::string tool;
-
-            std::string covisedir;
-            if (getenv("COVISEDIR"))
-                covisedir = getenv("COVISEDIR");
-
-            std::vector<std::string> args;
-            args.push_back("osascript");
-            args.push_back("-e");
-            args.push_back("tell application \"Terminal\"");
-            args.push_back("-e");
-            args.push_back("activate");
-            args.push_back("-e");
-
-            std::vector<std::string> env;
-            env.push_back("COVISEDIR");
-            env.push_back("ARCHSUFFIX");
-            env.push_back("COCONFIG");
-
-            std::string arg = "do script with command \"";
-            for (std::vector<std::string>::iterator it = env.begin();
-                    it != env.end();
-                    ++it)
-            {
-                if (getenv(it->c_str()))
-                    arg += "export " + *it + "='" + getenv(it->c_str()) + "'; ";
-            }
-            arg += "export CO_MODULE_BACKEND=covise; ";
-            arg += "source '" + covisedir + "/.covise.sh'; ";
-            arg += "source '" + covisedir + "/scripts/covise-env.sh'; ";
-            if (flags == Start::Memcheck)
-            {
-                arg += "valgrind --trace-children=no --dsymutil=yes ";
-                arg += execpath;
-            }
-            else if (flags == Start::Debug)
-            {
-                //arg += "gdb --args ";
-                arg += "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb ";
-                arg += execpath;
-                arg += " -- ";
-            }
-            for (int i = 1; argv[i]; ++i)
-            {
-                arg += " ";
-                arg += argv[i];
-            }
-            if (flags == Start::Debug)
-                arg += "; exit";
-            arg += "\"";
-            args.push_back(arg);
-            args.push_back("-e");
-            args.push_back("end tell");
-
-            for (int i = 0; i < args.size(); ++i)
-            {
-                nargv[i] = const_cast<char *>(args[i].c_str());
-            }
-            nargv[args.size()] = NULL;
-            execvp("osascript", nargv);
-#endif
-            bool defaultCommand = false;
-            std::string command;
-            if (flags == Start::Debug)
-            {
-                command = coCoviseConfig::getEntry("System.CRB.DebugCommand");
-                if (command.empty())
-                {
-                    command = "konsole -e gdb --args";
-                    defaultCommand = true;
-                }
-            }
-            else if (flags == Start::Memcheck)
-            {
-                command = coCoviseConfig::getEntry("System.CRB.MemcheckCommand");
-                if (command.empty())
-                {
-#ifdef __APPLE__
-                    command = "konsole --noclose -e valgrind --trace-children=no --dsymutil=yes";
-#else
-                    command = "xterm -hold -e valgrind --trace-children=no";
-#endif
-                    defaultCommand = true;
-                }
-            }
-            char *buf = new char[command.length() + 1];
-            strcpy(buf, command.c_str());
-
-            char *help;
-            nargv[0] = strtok_r(buf, " ", &help);
-            int i = 1;
-            while (char *p = strtok_r(NULL, " ", &help))
-            {
-                nargv[i] = p;
-                ++i;
-            }
-            nargv[i] = execpath;
-            for (int j = 1; j < sizeof(argv); ++j)
-            {
-                nargv[i + j] = argv[j];
-                if (!argv[j])
-                    break;
-            }
-
-            execvp(nargv[0], nargv);
-
-            if (defaultCommand)
-            {
-                // try again with xterm
-                if (flags == Start::Debug)
-                {
-                    nargv[0] = const_cast<char *>("xterm");
-                    execvp(nargv[0], nargv);
-                }
-                else
-                {
-                    nargv[1] = const_cast<char *>("xterm");
-                    execvp(nargv[1], &nargv[1]);
-                }
-            }
-        }
-
-        fprintf(stderr, "executing %s failed: %s\n", execpath, strerror(errno));
-        _exit(1);
-    }
-    if (-1 == pid)
-    {
-        fprintf(stderr, "forking for executing %s failed: %s\n", execpath, strerror(errno));
-        exit(1);
-    }
-    else
-    {
-        //Needed to prevent zombies
-        //if childs terminate
-        signal(SIGCHLD, SIG_IGN);
-    }
-#endif
 }
+
 
 moduleList::moduleList()
     : DLinkList<module *>()
@@ -622,7 +303,7 @@ void moduleList::search_dir(char *path, char *subdir)
     }
 }
 
-int moduleList::find(char *name, char *category)
+int moduleList::find(const char *name, const char *category)
 {
     // Find a specific module return true if found and set current position
 
@@ -673,16 +354,12 @@ char *moduleList::get_list_message()
     return (buf.return_data());
 }
 
-int moduleList::start(char *name, char *category, char *parameter, Start::Flags flags)
+bool moduleList::start(const CRB_EXEC& exec)
 {
-    if (find(name, category))
+    if (find(exec.name, exec.category))
     {
-        current()->start(parameter, flags);
-        return (1);
+        current()->start(exec);
+        return true;;
     }
-
-    else
-    {
-        return (0);
-    }
+    return false;
 }

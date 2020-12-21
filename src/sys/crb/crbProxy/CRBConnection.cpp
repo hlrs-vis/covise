@@ -20,6 +20,7 @@
 
 #include "CRBConnection.h"
 #include <covise/Covise_Util.h>
+#include <net/concrete_messages.h>
 #ifdef HASVRB
 #include <vrb/lib/VRBClient.h>
 #endif
@@ -28,7 +29,7 @@
 
 using namespace covise;
 
-CRBConnection::CRBConnection(int p, char *h, int ID)
+CRBConnection::CRBConnection(int p, char* h, int ID)
 {
     host = new char[strlen(h) + 1];
     strcpy(host, h);
@@ -47,13 +48,13 @@ CRBConnection::~CRBConnection()
 
 void CRBConnection::contactController()
 {
-    Host *h = new Host(host);
+    Host* h = new Host(host);
     toController = new ClientConnection(h, port, id, DATAMANAGER);
     listOfConnections->add(toController);
     delete h;
 }
 
-void CRBConnection::forwardMessage(Message *msg, Connection *conn)
+void CRBConnection::forwardMessage(Message* msg, Connection* conn)
 {
     if (conn == toCrb)
     {
@@ -65,8 +66,8 @@ void CRBConnection::forwardMessage(Message *msg, Connection *conn)
         toCrb->sendMessage(msg);
         return;
     }
-	for(const auto &it:modules)
-	{
+    for (const auto& it : modules)
+    {
         if (it->moduleConn == conn) // message coming from module
         {
             it->ctrlConn->sendMessage(msg);
@@ -82,11 +83,11 @@ void CRBConnection::forwardMessage(Message *msg, Connection *conn)
 
 void CRBConnection::processMessages()
 {
-    Connection *conn;
+    Connection* conn;
     conn = listOfConnections->check_for_input(0);
     if (conn)
     {
-        Message *msg = new Message;
+        Message* msg = new Message;
         conn->recv_msg(msg);
         switch (msg->type)
         {
@@ -95,13 +96,13 @@ void CRBConnection::processMessages()
         case COVISE_MESSAGE_SOCKET_CLOSED:
         {
             forwardMessage(msg, conn);
-			for (const auto& it : modules)
-			{
+            for (const auto& it : modules)
+            {
                 // message coming from module
                 if ((it->moduleConn == conn) || (it->ctrlConn == conn))
                 {
-					modules.remove(it);
-					delete it;
+                    modules.remove(it);
+                    delete it;
                     break;
                 }
             }
@@ -116,8 +117,11 @@ void CRBConnection::processMessages()
         //break;
         break;
         case COVISE_MESSAGE_CRB_EXEC:
-            modules.push_back(new Proxy(msg->data.accessData(), this));
-            break;
+        {
+            covise::CRB_EXEC exec{ *msg };
+            modules.push_back(new Proxy(exec, this));
+        }
+        break;
         default:
             forwardMessage(msg, conn);
             break;
@@ -126,7 +130,7 @@ void CRBConnection::processMessages()
     }
 }
 
-int CRBConnection::execCRB(char *instance)
+int CRBConnection::execCRB(char* instance)
 {
     (void)instance;
 

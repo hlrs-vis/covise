@@ -13,7 +13,6 @@ using namespace covise;
 int main(int argc, char **argv)
 {
     covise::setupEnvironment(argc, argv);
-
     new CTRLHandler(argc, argv);
     return 0;
 }

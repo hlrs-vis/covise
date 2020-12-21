@@ -23,7 +23,6 @@
 #include "handler/MEMainHandler.h"
 
 #include "MEApplication.h"
-
 #ifndef Q_OS_MAC
 // using MEApplication crashes on Ubuntu 10.4 with Qt 4.7.0
 #define MEApplication QApplication
@@ -135,7 +134,7 @@ void debugMsgHandler(QtMsgType type, const char *message)
 int main(int argc, char **argv)
 {
     QT_REQUIRE_VERSION_PATCHED(argc, argv, "4.3.0")
-
+    std::cerr << "starting mapeditor" << std::endl;
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/telekom.pem"));
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/dfn.pem"));
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/uni-stuttgart.pem"));

@@ -22,14 +22,16 @@
 #include <sys/param.h>
 #endif
 class CRBConnection;
-
+namespace covise{
+  class CRB_EXEC;
+}
 class Proxy
 {
 public:
     CRBConnection *crbConn;
     covise::ServerConnection *moduleConn; // connection to module
     covise::ClientConnection *ctrlConn; // connection to controller
-    Proxy(char *messageData, CRBConnection *);
+    Proxy(const covise::CRB_EXEC& messageData, CRBConnection *);
     ~Proxy();
 
 private:

@@ -27,6 +27,7 @@
 #include "control_coviseconfig.h"
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
+#include <net/concrete_messages.h>
 #include <config/coConfig.h>
 
 #define MAXMODULES 1000
@@ -1217,7 +1218,7 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
     if (dmod == NULL)
         return 0;
 
-    ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "mapeditor", dmod, instanz.c_str(), Start::Normal);
+    ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "mapeditor", dmod, instanz.c_str(), ExecFlag::Normal);
     if (ui == NULL)
         return 0;
     if (ui->connect(dmod) == 0)
@@ -1275,7 +1276,7 @@ int UISoap::start(bool)
     bool ws_enabled = covise::coConfig::getInstance()->getBool("System.WSInterface", true);
     if (ws_enabled)
     {
-        ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "wsinterface", dmod, instance.c_str(), Start::Normal);
+        ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "wsinterface", dmod, instance.c_str(), ExecFlag::Normal);
     }
     else
     {
@@ -1448,7 +1449,7 @@ int userinterface::xstart(const string &pyFile)
     if (!pyFile.empty())
         cmdStr.append(pyFile);
 
-    ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, cmdStr.c_str(), dmod, instanz.c_str(), Start::Normal);
+    ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, cmdStr.c_str(), dmod, instanz.c_str(), ExecFlag::Normal);
     if (ui == NULL)
         return 0;
     if (ui->connect(dmod) == 0)
@@ -2301,7 +2302,7 @@ void uif::start(AppModule *dmod, const string &execname, const string &category,
 
     // instanz ist beliebig, da die UIF-Teile separat verwaltet werden
     // name ist der Name des executeables
-    applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, execname.c_str(), category.c_str(), dmod, instanz.c_str(), Start::Normal);
+    applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, execname.c_str(), dmod, instanz.c_str(), ExecFlag::Normal, category.c_str());
     applmod->connect(dmod);
 
     // im normalen Module: receive Module description

@@ -31,6 +31,7 @@
 
 #include <covise/covise_msg.h>
 #include <config/coConfig.h>
+#include <net/concrete_messages.h>
 
 #include "MEUserInterface.h"
 #include "MEGraphicsView.h"
@@ -1610,7 +1611,7 @@ void MEUserInterface::activateTabletUI()
 //! this is the stuff for integrate an ViNCE Renderer inside the user interface
 //!
 
-void MEUserInterface::startRenderer(const QStringList &arguments)
+void MEUserInterface::startRenderer(const covise::CRB_EXEC &arguments)
 {
 
     m_willStartRenderer = true;
@@ -1618,22 +1619,17 @@ void MEUserInterface::startRenderer(const QStringList &arguments)
         return;
 
     // store render parameter
-    m_renderName = arguments[0];
-    m_renderHost = arguments[3];
-    m_renderInstance = arguments[5];
+    m_renderName = arguments.name;
+    m_renderHost = arguments.localIp;
+    m_renderInstance = arguments.moduleId;
 
     // create argumets for starting
     // ignore first parameter
-    int argc = arguments.count() - 1;
-    char **argv = new char *[argc];
-    QStringList::ConstIterator iterator = arguments.begin();
-    iterator++;
-    for (int ctr = 0; iterator != arguments.end(); ctr++)
-    {
-        argv[ctr] = strdup((*iterator).toLatin1().data());
-        iterator++;
-    }
-
+    std::string portDummy, moduleCountDummy;
+    auto argV = covise::getCmdArgs(arguments, portDummy, moduleCountDummy);
+    size_t argc = argV.size() - 1;
+    auto argv = argV.data() + 1;
+    
     // get sgrender lib
     QLibrary *lib = new QLibrary(m_mainHandler->getLibraryName());
     lib->unload();
@@ -1657,11 +1653,6 @@ void MEUserInterface::startRenderer(const QStringList &arguments)
 
     // show current page
     m_tabWidgets->setCurrentWidget(m_renderer);
-
-    for (int ctr = 0; iterator != arguments.end(); ctr++)
-        free(argv[ctr]);
-
-    delete[] argv;
 
 // send message to m_mainHandler, that a render tab inside the mapeditor is available
     QString tmp = "RENDERER_IMBEDDED_ACTIVE\n" + m_mainHandler->localIP + "\n" + m_mainHandler->localUser + "\nTRUE";

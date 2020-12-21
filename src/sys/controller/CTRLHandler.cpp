@@ -8,44 +8,45 @@
 #ifndef _WIN32
 #include <sys/wait.h>
 #endif
-#include <signal.h>
 #include <iostream>
+#include <signal.h>
 #include <string>
 
-#include <covise/covise.h>
-#include <util/unixcompat.h>
-#include <util/covise_version.h>
-#include <util/coTimer.h>
+#include <appl/CoviseBase.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfig.h>
-#include <util/coFileUtil.h>
-#include <net/covise_connect.h>
-#include <net/tokenbuffer.h>
+#include <covise/covise.h>
 #include <covise/covise_msg.h>
+#include <net/concrete_messages.h>
+#include <net/covise_connect.h>
 #include <net/covise_host.h>
-#include <appl/CoviseBase.h>
+#include <net/tokenbuffer.h>
+#include <util/coFileUtil.h>
+#include <util/coTimer.h>
+#include <util/covise_version.h>
+#include <util/unixcompat.h>
 
 #include <vrb/server/VrbClientList.h>
 
-#include "Token.h"
-#include "CTRLHandler.h"
-#include "CTRLGlobal.h"
 #include "AccessGridDaemon.h"
-#include "control_process.h"
-#include "control_define.h"
-#include "control_def.h"
-#include "control_list.h"
-#include "control_port.h"
-#include "control_modlist.h"
-#include "control_object.h"
-#include "control_module.h"
+#include "CTRLGlobal.h"
+#include "CTRLHandler.h"
+#include "Token.h"
 #include "control_coviseconfig.h"
+#include "control_def.h"
+#include "control_define.h"
+#include "control_list.h"
+#include "control_modlist.h"
+#include "control_module.h"
+#include "control_object.h"
+#include "control_port.h"
+#include "control_process.h"
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QCoreApplication>
-#include <QDebug>
 
 using namespace covise;
 
@@ -1495,11 +1496,11 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         s2 >> posy;
 
         //  entry in net-module-list
-        Start::Flags flags = Start::Normal;
+        ExecFlag flags = ExecFlag::Normal;
         if (key == "INIT_DEBUG")
-            flags = Start::Debug;
+            flags = ExecFlag::Debug;
         else if (key == "INIT_MEMCHECK")
-            flags = Start::Memcheck;
+            flags = ExecFlag::Memcheck;
         initModuleNode(name, nr, host, posx, posy, "", 0, flags);
     }
     else if (key == "GETDESC")
@@ -1566,7 +1567,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
 
         //  Entry in net-module-list
         string title;
-        initModuleNode(name, nr, host, posx, posy, title, 1, Start::Normal);
+        initModuleNode(name, nr, host, posx, posy, title, 1, ExecFlag::Normal);
     }
 
     //       UI::MIRROR_ALL
@@ -1640,7 +1641,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         //  2. init new module
         // return new unique instance number from controller
         string title;
-        int id = initModuleNode(newmod, newinst, newhost, posx, posy, title, 0, Start::Normal);
+        int id = initModuleNode(newmod, newinst, newhost, posx, posy, title, 0, ExecFlag::Normal);
         newinst = (CTRLGlobal::getInstance()->netList->get(id))->get_nr();
 
         // 3. look if parameters can be reused
@@ -1810,14 +1811,14 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
 
     else if (key == "MOVE2" || key == "COPY2" || key == "MOVE2_DEBUG" || key == "MOVE2_MEMCHECK")
     {
-        Start::Flags flags = Start::Normal;
+        ExecFlag flags = ExecFlag::Normal;
         if (key == "MOVE2_DEBUG")
         {
-            flags = Start::Debug;
+            flags = ExecFlag::Debug;
         }
         else if (key == "MOVE2_MEMCHECK")
         {
-            flags = Start::Memcheck;
+            flags = ExecFlag::Memcheck;
         }
 
         //  no of moved/copied modules
@@ -3316,7 +3317,7 @@ void CTRLHandler::delModuleNode(vector<net_module *> moduleList)
 //! init a module
 //!
 int CTRLHandler::initModuleNode(const string &name, const string &nr, const string &host,
-                                int posx, int posy, const string &title, int action, Start::Flags flags)
+                                int posx, int posy, const string &title, int action, ExecFlag flags)
 {
     CTRLGlobal::getInstance()->s_nodeID++;
     int s_nodeID = CTRLGlobal::getInstance()->s_nodeID;
@@ -3734,7 +3735,7 @@ bool CTRLHandler::recreate(string content, readMode mode)
                 posy = posy + 10;
                 m_writeUndoBuffer = true;
             }
-            int id = initModuleNode(name, current, host, posx, posy, title, 2, Start::Normal);
+            int id = initModuleNode(name, current, host, posx, posy, title, 2, ExecFlag::Normal);
             if (id != -1)
                 nrnew = (CTRLGlobal::getInstance()->netList->get(id))->get_nr();
         }
