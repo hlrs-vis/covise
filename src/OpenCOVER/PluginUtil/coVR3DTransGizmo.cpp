@@ -39,7 +39,7 @@ coVR3DTransGizmo::createGeometry()
         fprintf(stderr, "\ncoVR3DTransGizmo::createGeometry\n");
 
 
-    osg::ShapeDrawable *sphereDrawable, *xCylDrawable, *yCylDrawable, *zCylDrawable, *xyPlaneDrawable,*xzPlaneDrawable,*yzPlaneDrawable;
+    osg::ShapeDrawable *sphereDrawable, *xCylDrawable, *yCylDrawable, *zCylDrawable, *xConeDrawable, *yConeDrawable, *zConeDrawable, *xyPlaneDrawable,*xzPlaneDrawable,*yzPlaneDrawable;
 
     osg::Vec3 origin(0, 0, 0), px(1, 0, 0), py(0, 1, 0), pz(0, 0, 1);
     osg::Vec3 yaxis(0, 1, 0);
@@ -88,7 +88,38 @@ coVR3DTransGizmo::createGeometry()
     axisTransform->addChild(xAxisTransform);
     axisTransform->addChild(yAxisTransform);
     axisTransform->addChild(zAxisTransform);
-    
+
+    // create cones
+    osg::Cone *myCone = new osg::Cone(origin, 0.5, 2.0);
+    xConeDrawable = new osg::ShapeDrawable(myCone);
+    yConeDrawable = new osg::ShapeDrawable(myCone);
+    zConeDrawable = new osg::ShapeDrawable(myCone);
+
+    xConeDrawable->setColor(_red);
+    yConeDrawable->setColor(_green);
+    zConeDrawable->setColor(_blue);
+
+    xConeTransform = new osg::MatrixTransform();
+    xConeTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(90.), 0, 1, 0)*osg::Matrix::translate(osg::Vec3(_arrowLength, 0, 0)));
+    yConeTransform = new osg::MatrixTransform();
+    yConeTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.), 1, 0, 0)*osg::Matrix::translate(osg::Vec3(0, _arrowLength, 0)));
+    zConeTransform = new osg::MatrixTransform();
+    zConeTransform->setMatrix(osg::Matrix::translate(osg::Vec3(0, 0, _arrowLength)));
+
+    translateXconeGeode = new osg::Geode;
+    translateXconeGeode->addDrawable(xConeDrawable);
+    xConeTransform->addChild(translateXconeGeode);
+    translateYconeGeode = new osg::Geode;
+    translateYconeGeode->addDrawable(yConeDrawable);
+    yConeTransform->addChild(translateYconeGeode);
+    translateZconeGeode = new osg::Geode;
+    translateZconeGeode->addDrawable(zConeDrawable);
+    zConeTransform->addChild(translateZconeGeode);
+
+    axisTransform->addChild(xConeTransform);
+    axisTransform->addChild(yConeTransform);
+    axisTransform->addChild(zConeTransform);
+
     //create planes
     auto plane = new osg::Box(origin,_arrowLength/3, 0.1, _arrowLength/3);
     xzPlaneDrawable = new osg::ShapeDrawable(plane, hint);
@@ -127,9 +158,9 @@ void coVR3DTransGizmo::startInteraction()
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DTransGizmo::startInteraction\n");
 
-    _translateXonly = _hitNode == translateXaxisGeode;
-    _translateYonly = _hitNode == translateYaxisGeode;
-    _translateZonly = _hitNode == translateZaxisGeode;
+    _translateXonly = (_hitNode == translateXaxisGeode) | (_hitNode == translateXconeGeode);
+    _translateYonly = (_hitNode == translateYaxisGeode) | (_hitNode == translateYconeGeode);
+    _translateZonly = (_hitNode == translateZaxisGeode) | (_hitNode == translateZconeGeode);
     _translateXYonly = _hitNode == translateXYplaneGeode;
     _translateXZonly = _hitNode == translateXZplaneGeode;
     _translateYZonly = _hitNode == translateYZplaneGeode;

@@ -22,6 +22,9 @@ private:
     osg::ref_ptr<osg::MatrixTransform> xAxisTransform;
     osg::ref_ptr<osg::MatrixTransform> yAxisTransform;
     osg::ref_ptr<osg::MatrixTransform> zAxisTransform;
+    osg::ref_ptr<osg::MatrixTransform> xConeTransform;
+    osg::ref_ptr<osg::MatrixTransform> yConeTransform;
+    osg::ref_ptr<osg::MatrixTransform> zConeTransform;
     osg::ref_ptr<osg::MatrixTransform> xyPlaneTransform;
     osg::ref_ptr<osg::MatrixTransform> xzPlaneTransform;
     osg::ref_ptr<osg::MatrixTransform> yzPlaneTransform;
@@ -30,6 +33,9 @@ private:
     osg::ref_ptr<osg::Geode> translateXaxisGeode;
     osg::ref_ptr<osg::Geode> translateYaxisGeode;
     osg::ref_ptr<osg::Geode> translateZaxisGeode;
+    osg::ref_ptr<osg::Geode> translateXconeGeode;
+    osg::ref_ptr<osg::Geode> translateYconeGeode;
+    osg::ref_ptr<osg::Geode> translateZconeGeode;
     osg::ref_ptr<osg::Geode> translateXYplaneGeode;
     osg::ref_ptr<osg::Geode> translateXZplaneGeode;
     osg::ref_ptr<osg::Geode> translateYZplaneGeode;
