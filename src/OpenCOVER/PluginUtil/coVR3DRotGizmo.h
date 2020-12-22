@@ -42,7 +42,8 @@ private:
     osg::Matrix calcRotation2D(const osg::Vec3& lp0_o, const osg::Vec3& lp1_o, osg::Vec3 rotationAxis); 
     // calculate the rotation for a 3D input device (use wrist rotation)
     osg::Matrix calcRotation3D(osg::Vec3 rotationAxis);
-    osg::Matrix calcRotation3D1(osg::Vec3 rotationAxis);
+    void snapTo45(float& angle) const;
+
 
     // get the rotation axis
     bool rotateAroundSpecificAxis(osg::Group *group)const;
@@ -56,8 +57,6 @@ private:
     
     // calculate the angle between two 3d vectors in the range 0-360 degree
     double vecAngle360(const osg::Vec3 vec1, const osg::Vec3 &vec2, const osg::Vec3& refVec);
-
-    void snapTo45DegreesFixAxis(osg::Matrix *mat,osg::Vec3 axis);
 
 protected:
     void createGeometry() override;

@@ -306,63 +306,8 @@ void coVR3DRotGizmo::doInteraction()
         //    newInteractorMatrix = _oldInterMat_o * relHandMoveMat_o; // apply rel hand movement
     }
 
-    /*if (coVRNavigationManager::instance()->isSnapping())
-    {
-        if (coVRNavigationManager::instance()->isDegreeSnapping())
-        {
-            // snap orientation
-            snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &newInteractorMatrix);
-        }
-        else
-        {
-            // snap orientation to 45 degree
-            osg::Matrix temp = newInteractorMatrix;
-            if(_rotateXonly)
-                snapTo45DegreesFixAxis(&newInteractorMatrix,osg::X_AXIS);
-            else if(_rotateYonly)
-                snapTo45DegreesFixAxis(&newInteractorMatrix,osg::Y_AXIS);
-            else if(_rotateZonly)
-                snapTo45DegreesFixAxis(&newInteractorMatrix,osg::Z_AXIS);
-            //else
-                        //snapTo45DegreesFixAxis(&newInteractorMatrix,osg::X_AXIS);
-
-
-        }
-    }
-    */
-
-
     // and now we apply it
     updateTransform(newInteractorMatrix);
-
-}
-void coVR3DRotGizmo::snapTo45DegreesFixAxis(osg::Matrix *mat, osg::Vec3 axis)
-{
-    coCoord coord = *mat;
-    //fprintf(stderr,"H: %f P: %f R: %f\n",coord.hpr[0],coord.hpr[1],coord.hpr[2]);
-    if(axis == osg::Z_AXIS)
-    {
-        if (coord.hpr[0] > 0.0)
-            coord.hpr[0] = 45.0 * ((int)(coord.hpr[0] + 22.5) / 45);
-        else
-            coord.hpr[0] = 45.0 * ((int)(coord.hpr[0] - 22.5) / 45);
-    }
-    else if(axis ==osg::Y_AXIS)
-    {
-        if (coord.hpr[1] > 0.0)
-            coord.hpr[1] = 45.0 * ((int)(coord.hpr[1] + 22.5) / 45);
-        else
-            coord.hpr[1] = 45.0 * ((int)(coord.hpr[1] - 22.5) / 45);
-    }
-    else if(axis ==osg::X_AXIS)
-    {
-        if (coord.hpr[2] > 0.0)
-            coord.hpr[2] = 45.0 * ((int)(coord.hpr[2] + 22.5) / 45);
-        else
-            coord.hpr[2] = 45.0 * ((int)(coord.hpr[2] - 22.5) / 45);
-    }
-    //fprintf(stderr,"H2: %f P2: %f R2: %f\n",coord.hpr[0],coord.hpr[1],coord.hpr[2]);
-    coord.makeMat(*mat);
 }
 
 //Math: https://nelari.us/post/gizmos/
@@ -384,35 +329,19 @@ osg::Matrix coVR3DRotGizmo::calcRotation2D(const osg::Vec3& lp0_o, const osg::Ve
     
     osg::Matrix totalRotation; // the rotation from start of interaction to current curser position
     //calculate the angle between two direction vectors using the normal as a reference
-    // if (!coVRNavigationManager::instance()->isDegreeSnapping())
-    totalRotation.makeRotate(osg::DegreesToRadians(vecAngle360(dir1, dir2, -normal)), normal);
-    /*std::cout <<"angle "<< vecAngle360(dir1, dir2, -normal) <<std::endl;
+    float angle = vecAngle360(dir1, dir2, -normal);
     if (coVRNavigationManager::instance()->isSnapping())
     {
-        if(vecAngle360(dir1, dir2, -normal) > 22.5)
-        {
-            std::cout <<"rotate"<<std::endl;
-            totalRotation.makeRotate(osg::DegreesToRadians(45.0), normal);
-        }
+        snapTo45(angle);
+        totalRotation.makeRotate(osg::DegreesToRadians(angle), normal);
     }
-    */
+    else
+        totalRotation.makeRotate(osg::DegreesToRadians(angle), normal);
 
     osg::Matrix startRotation = _startInterMat_w;
     startRotation.setTrans(osg::Vec3(0,0,0));
     
     return startRotation * totalRotation * osg::Matrix::translate(_startInterMat_w.getTrans());
-}
-
-//https://osg-users.openscenegraph.narkive.com/z7uiC2ak/osg-matrixd-how-to-remove-rotation-for-a-certain-axis
-osg::Matrix coVR3DRotGizmo::calcRotation3D1(osg::Vec3 rotationAxis)
-{
-    
-    osg::Matrix startRotation = _startInterMat_w;
-    startRotation.setTrans(osg::Vec3(0,0,0));
-    osg::Matrix currentRotation = getPointerMat();
-    currentRotation.setTrans(osg::Vec3(0,0,0));
-
-    return startRotation * currentRotation * osg::Matrix::translate(_startInterMat_w.getTrans());
 }
 
 osg::Matrix coVR3DRotGizmo::calcRotation3D(osg::Vec3 rotationAxis)
@@ -423,29 +352,34 @@ osg::Matrix coVR3DRotGizmo::calcRotation3D(osg::Vec3 rotationAxis)
     coCoord currentEuler = getPointerMat();
 
     float angle = currentEuler.hpr[2] - startEuler.hpr[2];
-    //std::cout <<"angle: " <<angle <<" ..."<<std::endl;
-
     
-osg::Matrix startRotationOnly = osg::Matrix::rotate(_startInterMat_w.getRotate());
-    osg::Matrix rotate;
+    osg::Matrix startRotationOnly = osg::Matrix::rotate(_startInterMat_w.getRotate());
+
+    // Use sign of the Spatprodukt (between pointer direction and normal) to calculate the direction of the rotation
 	osg::Vec3 lp0,lp1,pointerDir;
 	osg::Vec3 normal = rotationAxis * startRotationOnly;
 	calculatePointerDirection_o(lp0,lp1,pointerDir);
 	float spat = normal.operator*(pointerDir);
-    //std::cout <<"spat: " <<spat <<" ..."<<std::endl;
-int sign;
+    int sign;
 	if(spat>=0.0)
 		sign=1;
 	else
 		sign=-1;
+    
+    osg::Matrix rotate;
+    if (coVRNavigationManager::instance()->isSnapping())
+    {
+        snapTo45(angle);
+        rotate.makeRotate(sign * osg::DegreesToRadians(angle), normal);
+    }
+    else
+        rotate.makeRotate(sign * osg::DegreesToRadians(angle), normal);
 
-	
-    rotate.makeRotate(sign*osg::DegreesToRadians(angle), rotationAxis *startRotationOnly);
     interMatrix = startRotationOnly*rotate * osg::Matrix::translate(_startInterMat_w.getTrans());  
 		
-
     return interMatrix; 
 }
+
 
 //Math: https://nelari.us/post/gizmos/
 float coVR3DRotGizmo::closestDistanceLineCircle(const osg::Vec3& lp0, const osg::Vec3& lp1,const osg::Vec3 rotationAxis, osg::Vec3 &pointOnCircle) const
@@ -481,6 +415,12 @@ double coVR3DRotGizmo::vecAngle360(const osg::Vec3 vec1, const osg::Vec3 &vec2, 
     
     double angle = osg::RadiansToDegrees(std::atan2(sign * cross.length(), vec1*vec2));
     return angle;
+}
+
+void coVR3DRotGizmo::snapTo45(float& angle)const
+{
+    int factor = floor(std::ceil(angle)/ 45);
+    angle = (float)factor * 45;
 }
 
 void coVR3DRotGizmo::stopInteraction() 
