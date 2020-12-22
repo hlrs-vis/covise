@@ -260,40 +260,24 @@ void coVR3DRotGizmo::doInteraction()
     osg::Matrix newInteractorMatrix;
     if (_rotateZonly)
     {
-        if(is2D())
-            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
+        if(_wristRotation)
+            newInteractorMatrix = calcRotation3D(osg::Z_AXIS);
         else
-		{
-            if(_wristRotation)
-                newInteractorMatrix = calcRotation3D(osg::Z_AXIS);
-            else
-	            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
-
-		}
+	        newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Z_AXIS);
     }
     else if(_rotateYonly)
     {
-        if(is2D())
-            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
+        if(_wristRotation)
+            newInteractorMatrix = calcRotation3D(osg::Y_AXIS);
         else
-		{
-            if(_wristRotation)
-                newInteractorMatrix = calcRotation3D(osg::Y_AXIS);
-            else
-                newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
-        }
+            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::Y_AXIS);
     }
     else if(_rotateXonly)
     {
-        if(is2D())
-            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);
+        if(_wristRotation)
+            newInteractorMatrix = calcRotation3D(osg::X_AXIS);
         else
-		{
-            if(_wristRotation)
-                newInteractorMatrix = calcRotation3D(osg::X_AXIS);
-            else
-                newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS); 
-        }           
+            newInteractorMatrix = calcRotation2D(lp0_o, lp1_o, osg::X_AXIS);            
     }
     else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {
@@ -302,8 +286,21 @@ void coVR3DRotGizmo::doInteraction()
     }
     else
     {
-        //if(!is2D())
-        //    newInteractorMatrix = _oldInterMat_o * relHandMoveMat_o; // apply rel hand movement
+        // if sphere in the center is selected apply hand rotation to the gizmo
+        osg::Matrix invStartHandMat;
+        invStartHandMat.invert(_startHandMat_w);
+        osg::Matrix currentHandMat = getPointerMat();
+        osg::Matrix diffMat = invStartHandMat * currentHandMat;
+        newInteractorMatrix = _startInterMat_w * diffMat;
+        newInteractorMatrix.setTrans(_startInterMat_w.getTrans());
+
+        if (coVRNavigationManager::instance()->isSnapping())
+        {
+            if (coVRNavigationManager::instance()->isDegreeSnapping())
+                snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &newInteractorMatrix);
+            else
+                snapTo45Degrees(&newInteractorMatrix);
+        }
     }
 
     // and now we apply it

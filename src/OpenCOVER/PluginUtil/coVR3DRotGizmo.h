@@ -5,7 +5,6 @@
 #include <OpenVRUI/osg/mathUtils.h>
 
 /* ToDo;
-    - implement snapping for 1 axis only
     - other interactors have: forbid translation in y-direction if traverseInteractors is on --> why do we need this ????
     - doInteraction: if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors) --> for what ?
     - for what is shared state necessary ?
