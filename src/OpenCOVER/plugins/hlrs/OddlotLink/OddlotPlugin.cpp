@@ -147,7 +147,6 @@ osg::Matrixd OddlotPlugin::computeRightEyeView(const osg::Matrixd &view) const
 OddlotPlugin::OddlotPlugin()
 {
     fprintf(stderr, "OddlotPlugin::OddlotPlugin\n");
-    oddlotTab = nullptr;
     plugin = this;
 	width = 0;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.Oddlot.Server", 31822);
