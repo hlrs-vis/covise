@@ -320,7 +320,7 @@ void OddlotPlugin::sendMessage(Message &m)
 {
     if(toOddlot) // false on slaves
     {
-        toOddlot->send_msg(&m);
+        toOddlot->sendMessage(&m);
     }
 }
 

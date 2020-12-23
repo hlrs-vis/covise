@@ -502,7 +502,7 @@ int RemoteDaemon::handleClient(const char *line, Connection *conn)
         Message msg;
         msg.type = COVISE_MESSAGE_ACCESSGRID_DAEMON;
         msg.data = DataHandle(client, (int)strlen(client) + 1);
-        toController->send_msg(&msg);
+        toController->sendMessage(&msg);
     }
 
     else if (strnicmp(line, "startCRB", 8) == 0)

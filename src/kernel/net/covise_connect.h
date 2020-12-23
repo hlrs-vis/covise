@@ -20,6 +20,8 @@
 
 #include <util/coExport.h>
 #include "message.h"
+#include "message_sender_interface.h"
+
 
 typedef struct ssl_st SSL;
 typedef struct ssl_ctx_st SSL_CTX;
@@ -113,7 +115,7 @@ class UdpMessage;
  **                                                                     **
 \***********************************************************************/
 
-class NETEXPORT Connection
+class NETEXPORT Connection : public MessageSenderInterface
 {
 protected:
     friend class ServerConnection;
@@ -158,7 +160,8 @@ public:
     virtual int send(const void *buf, unsigned nbyte); // send into socket
 	virtual int recv_msg(Message *msg, char *ip = nullptr); // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
     virtual int recv_msg_fast(Message *msg); // high-performace receive Message
-    virtual int send_msg(const Message *msg); // send Message
+    virtual bool sendMessage(const Message *msg) override; // send Message
+    virtual bool sendMessage(const UdpMessage *msg) override; // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
     int check_for_input(float time = 0.0); // issue select call and return TRUE if there is an event or 0L otherwise
     int get_port() // give port number
@@ -204,7 +207,8 @@ public:
 	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
 	bool recv_udp_msg(UdpMessage* msg);
 	//send udp message to ip, if no ip given use member address. Retun true on succsess
-	bool send_udp_msg(const UdpMessage* msg, const char* ip = nullptr);
+	bool sendMessage(const UdpMessage* msg) override;
+    bool send_udp_msg(const UdpMessage* msg, const char* ip = nullptr);
 };
 // Connection that acts as server
 class NETEXPORT ServerConnection : public Connection
@@ -370,10 +374,11 @@ public:
     int send(const void *buf, unsigned nbyte); // send into socket
     int recv_msg(Message *msg); // receive Message
     int send_msg(const Message *msg); // send Message
+    bool sendMessage(const Message *msg) override;
     const char *readLine(); // Read line
     int get_id(void (*remove_func)(int));
-    int get_id();
-    bool IsClosed();
+    int get_id() const;
+    bool IsClosed() const;
     std::string getPeerAddress();
     SSL *mSSL;
 

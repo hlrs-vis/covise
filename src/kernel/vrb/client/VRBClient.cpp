@@ -169,7 +169,7 @@ bool VRBClient::sendMessage(const Message* m)
 	gettimeofday(&start, NULL);
 #endif
 
-	sConn->send_msg(m);
+	sConn->sendMessage(m);
 #ifdef _MSC_VER
 	struct __timeb64 end;
 	_ftime64(&end);
@@ -263,7 +263,7 @@ bool VRBClient::completeConnection(){
                 tb << *this;
                 Message msg(tb);
                 msg.type = COVISE_MESSAGE_VRB_CONTACT;
-                sConn->send_msg(&msg);
+                sConn->sendMessage(&msg);
                 return true;
             }
         }

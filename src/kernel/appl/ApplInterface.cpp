@@ -1635,7 +1635,7 @@ void Covise::partobjects_initialized(void)
     if (appmod != NULL)
     {
         msg->create_finpart_message();
-        msg->conn->send_msg(msg);
+        msg->conn->sendMessage(msg);
     }
 }
 

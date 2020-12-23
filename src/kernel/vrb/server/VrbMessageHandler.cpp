@@ -160,7 +160,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		tb >> ip;
 		if (VRBSClient* c = clients.get(ip))
 		{
-			c->conn->send_msg(msg);
+			c->conn->sendMessage(msg);
 		}
 	}
 	break;
@@ -438,7 +438,7 @@ void VrbMessageHandler::handleFileRequest(covise::Message* msg, covise::TokenBuf
 		{
 			c->addBytesReceived(m.data.length());
 		}
-		msg->conn->send_msg(&m);
+		msg->conn->sendMessage(&m);
 	}
 	else
 	{
@@ -446,7 +446,7 @@ void VrbMessageHandler::handleFileRequest(covise::Message* msg, covise::TokenBuf
 		VRBSClient* currentFileClient = clients.get(fileOwner);
 		if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->ID() != requestorsID))
 		{
-			currentFileClient->conn->send_msg(msg);
+			currentFileClient->conn->sendMessage(msg);
 			currentFileClient->addBytesReceived(msg->data.length());
 		}
 		else
@@ -460,7 +460,7 @@ void VrbMessageHandler::handleFileRequest(covise::Message* msg, covise::TokenBuf
 			{
 				c->addBytesReceived(m.data.length());
 			}
-			msg->conn->send_msg(&m);
+			msg->conn->sendMessage(&m);
 		}
 	}
 }
@@ -489,7 +489,7 @@ void VrbMessageHandler::sendFile(covise::Message* msg, covise::TokenBuffer& tb)
 			rtb << destinationID;
 			Message rmsg(rtb);
 			rmsg.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
-			nextCl->conn->send_msg(&rmsg);
+			nextCl->conn->sendMessage(&rmsg);
 			return;
 		}
 	}
@@ -497,7 +497,7 @@ void VrbMessageHandler::sendFile(covise::Message* msg, covise::TokenBuffer& tb)
 	c = clients.get(destinationID);
 	if (c)
 	{
-		c->conn->send_msg(msg);
+		c->conn->sendMessage(msg);
 		c->addBytesReceived(msg->data.length());
 	}
 }
@@ -575,7 +575,7 @@ void VrbMessageHandler::informNewClientAboutClients(vrb::VRBSClient* c)
 	clients.collectClientInfo(rtb2, c);
 	Message m(rtb2);
 	m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
-	c->conn->send_msg(&m);
+	c->conn->sendMessage(&m);
 }
 void VrbMessageHandler::setNewClientsStartingSession(vrb::VRBSClient* c)
 {
@@ -617,7 +617,7 @@ void VrbMessageHandler::returnStartSession(covise::Message* msg)
 	rtb << sid;
 	Message m(rtb);
 	m.type = COVISE_MESSAGE_VRB_GET_ID;
-	msg->conn->send_msg(&m);
+	msg->conn->sendMessage(&m);
 }
 void VrbMessageHandler::determineNewMaster(const vrb::SessionID& sid)
 {

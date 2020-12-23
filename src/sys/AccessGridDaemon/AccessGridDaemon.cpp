@@ -264,7 +264,7 @@ int AccessGridDaemon::handleClient(const char *line, Connection *conn)
         Message *msg = new Message;
         msg->type = COVISE_MESSAGE_ACCESSGRID_DAEMON;
         msg->data = DataHandle((char *)line, strlen(line) + 1);
-        toController->send_msg(msg);
+        toController->sendMessage(msg);
     }
 #ifdef _WIN32
     else if (strnicmp(line, "startCRB", 8) == 0)

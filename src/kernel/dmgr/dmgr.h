@@ -143,14 +143,14 @@ private:
     };
     int send_data_msg(const Message *msg) // send Data Message
     {
-        return data_conn->send_msg(msg);
+        return data_conn->sendMessage(msg);
     };
 
 public:
     void print(){};
     int send_msg(Message *msg)
     {
-        return conn->send_msg(msg);
+        return conn->sendMessage(msg);
     };
 };
 
@@ -174,7 +174,7 @@ private:
     };
     int send_data_msg(const Message *msg) // send Data Message
     {
-        return data_conn->send_msg(msg);
+        return data_conn->sendMessage(msg);
     };
 
 public:

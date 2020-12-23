@@ -1306,7 +1306,7 @@ void TUISGBrowserTab::send(covise::TokenBuffer &tb)
 
     covise::Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
-    getClient()->send_msg(&m);
+    getClient()->sendMessage(&m);
 }
 
 void TUISGBrowserTab::handleClient(const covise::Message *msg)

@@ -72,7 +72,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			m.type = COVISE_MESSAGE_VRB_FB_SET;
 
 			//Send message
-			receiver->conn->send_msg(&m);
+			receiver->conn->sendMessage(&m);
 		}
 		else
 		{
@@ -118,7 +118,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 				m.type = COVISE_MESSAGE_VRB_FB_SET;
 
 				//Send message
-				receiver->conn->send_msg(&m);
+				receiver->conn->sendMessage(&m);
 			}
 
 			TokenBuffer tb2;
@@ -138,7 +138,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 			//Send message
-			receiver->conn->send_msg(&m2);
+			receiver->conn->sendMessage(&m2);
 		}
 		else
 		{
@@ -187,7 +187,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 			//Send message
-			receiver->conn->send_msg(&m2);
+			receiver->conn->sendMessage(&m2);
 		}
 		else
 		{
@@ -255,7 +255,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		receiver->conn->send_msg(&m2);
+		receiver->conn->sendMessage(&m2);
 
 		break;
 	}
@@ -298,7 +298,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 				Message m(tb2);
 				m.type = COVISE_MESSAGE_VRB_FB_SET;
 				//Send message
-				receiver->conn->send_msg(&m);
+				receiver->conn->sendMessage(&m);
 				return;
 			}
 			vrbFile.seekg(0, std::ios::end);
@@ -317,7 +317,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 				Message m(tb2);
 				m.type = COVISE_MESSAGE_VRB_FB_SET;
 				//Send message
-				receiver->conn->send_msg(&m);
+				receiver->conn->sendMessage(&m);
 				return;
 			}
 			vrbFile.close();
@@ -340,7 +340,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			m.type = COVISE_MESSAGE_VRB_FB_SET;
 
 			//Send message
-			receiver->conn->send_msg(&m);
+			receiver->conn->sendMessage(&m);
 #ifdef MB_DEBUG
 			std::cerr << "End file send!" << std::endl;
 #endif
@@ -386,7 +386,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			VRBSClient* locConn = clients.getNthClient(--i);
 			if (locConn->conn != msg->conn)
 			{
-				locConn->conn->send_msg(&m2);
+				locConn->conn->sendMessage(&m2);
 			}
 		}
 		break;
@@ -423,7 +423,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 			//Send message
-			receiver->conn->send_msg(&m2);
+			receiver->conn->sendMessage(&m2);
 
 			ltb.reset();
 			ltb << TABLET_SET_CURDIR;
@@ -433,7 +433,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 
 			Message m3(ltb);
 			m3.type = COVISE_MESSAGE_VRB_FB_SET;
-			receiver->conn->send_msg(&m3);
+			receiver->conn->sendMessage(&m3);
 		}
 		else
 		{
@@ -478,10 +478,10 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 			//Send message
-			receiver->conn->send_msg(&m2);
+			receiver->conn->sendMessage(&m2);
 
 			//Send message
-			receiver->conn->send_msg(&m2);
+			receiver->conn->sendMessage(&m2);
 		}
 		else
 		{
@@ -540,7 +540,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		receiver->conn->send_msg(&m2);
+		receiver->conn->sendMessage(&m2);
 	}
 	break;
 	case TABLET_REMSET_FILE_NOSUCCESS:
@@ -562,7 +562,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		receiver->conn->send_msg(&m2);
+		receiver->conn->sendMessage(&m2);
 	}
 	break;
 	case TABLET_REMSET_DIRLIST:
@@ -591,7 +591,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		receiver->conn->send_msg(&m2);
+		receiver->conn->sendMessage(&m2);
 	}
 	break;
 	case TABLET_REMSET_FILE:
@@ -613,7 +613,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 
 		Message m(rt);
 		m.type = COVISE_MESSAGE_VRB_FB_SET;
-		receiver->conn->send_msg(&m);
+		receiver->conn->sendMessage(&m);
 	}
 	break;
 	case TABLET_REMSET_DIRCHANGE:
@@ -632,7 +632,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		m.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		receiver->conn->send_msg(&m);
+		receiver->conn->sendMessage(&m);
 	}
 	break;
 	case TABLET_REMSET_DRIVES:
@@ -661,7 +661,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		receiver->conn->send_msg(&m2);
+		receiver->conn->sendMessage(&m2);
 	}
 	break;
 	default:
@@ -702,6 +702,6 @@ void vrb::RerouteRequest(const char* location, int type, int senderId, int recvV
 
 	if (locClient != NULL)
 	{
-		locClient->conn->send_msg(&msg);
+		locClient->conn->sendMessage(&msg);
 	}
 }

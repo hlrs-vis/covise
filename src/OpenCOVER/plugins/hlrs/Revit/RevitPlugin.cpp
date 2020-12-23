@@ -1253,7 +1253,7 @@ bool RevitPlugin::sendMessage(Message &m)
 {
 	if (toRevit) // false on slaves
 	{
-        if (toRevit->send_msg(&m) > 0)
+        if (toRevit->sendMessage(&m) > 0)
             return true;
 	}
     return false;

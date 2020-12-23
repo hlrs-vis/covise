@@ -250,7 +250,7 @@ int DataManagerProcess::handle_msg(Message *msg)
         swap_byte(port);
         //		cerr << host->get_name() << " port nach swap:          " << port << endl;
         Message portmsg{ COVISE_MESSAGE_PORT, DataHandle{(char*)& port, sizeof(int), false} };
-        msg->conn->send_msg(&portmsg);
+        msg->conn->sendMessage(&portmsg);
         wait_for_contact();
         retval = 1;
 #ifdef DEBUG
@@ -300,7 +300,7 @@ int DataManagerProcess::handle_msg(Message *msg)
         sprintf(tmp_str, "%d bytes sent", bytes_sent);
         print_comment(__LINE__, __FILE__, tmp_str);
 #else
-        msg->conn->send_msg(&portmsg);
+        msg->conn->sendMessage(&portmsg);
 #endif
         wait_for_dm_contact();
         retval = 1;
@@ -369,7 +369,7 @@ int DataManagerProcess::handle_msg(Message *msg)
             start_transfermanager();
         Message portmsg(COVISE_MESSAGE_CONNECT_TRANSFERMANAGER, DataHandle());
         send_trf_msg(&portmsg);
-        msg->conn->send_msg(&portmsg);
+        msg->conn->sendMessage(&portmsg);
         break;
     }
     //-------------------------------------------------------------------------
@@ -387,7 +387,7 @@ int DataManagerProcess::handle_msg(Message *msg)
         if (portmsg.type == COVISE_MESSAGE_TRANSFER_PORT)
         {
 #ifndef CRAY
-            msg->conn->send_msg(&portmsg);
+            msg->conn->sendMessage(&portmsg);
 #endif
         }
         //	    } else {

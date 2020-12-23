@@ -227,11 +227,11 @@ void VRBPClient::sendMessage(Message *msg)
 {
     if (msg->conn == toVRB)
     {
-        toClient->send_msg(msg);
+        toClient->sendMessage(msg);
     }
     else
     {
-        toVRB->send_msg(msg);
+        toVRB->sendMessage(msg);
     }
 }
 

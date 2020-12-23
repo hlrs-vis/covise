@@ -290,7 +290,7 @@ void coTUISGBrowserTab::send(TokenBuffer &tb)
     }
     Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
-    getConnection()->send_msg(&m);
+    getConnection()->sendMessage(&m);
 }
 
 void coTUISGBrowserTab::tryConnect()

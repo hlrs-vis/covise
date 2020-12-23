@@ -503,7 +503,7 @@ void TUIMainWindow::send(covise::TokenBuffer &tb)
         return;
     covise::Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
-    clientConn->send_msg(&m);
+    clientConn->sendMessage(&m);
 }
 
 //------------------------------------------------------------------------

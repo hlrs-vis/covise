@@ -100,7 +100,7 @@ inline
         msg->data = buffer;
         msg->data.setLength(intbuffer_ptr * sizeof(int));
         print_comment(__LINE__, __FILE__, "msg->data.length(): %d", msg->data.length());
-        conn->send_msg(msg);
+        conn->sendMessage(msg);
     }
 }
 

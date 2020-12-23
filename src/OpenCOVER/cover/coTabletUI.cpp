@@ -4260,7 +4260,7 @@ void coTabletUI::send(TokenBuffer &tb)
     assert(conn);
     Message m(tb);
     m.type = COVISE_MESSAGE_TABLET_UI;
-    conn->send_msg(&m);
+    conn->sendMessage(&m);
 }
 
 bool coTabletUI::update()

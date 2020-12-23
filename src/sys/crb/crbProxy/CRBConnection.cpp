@@ -57,24 +57,24 @@ void CRBConnection::forwardMessage(Message *msg, Connection *conn)
 {
     if (conn == toCrb)
     {
-        toController->send_msg(msg);
+        toController->sendMessage(msg);
         return;
     }
     else if (conn == toController)
     {
-        toCrb->send_msg(msg);
+        toCrb->sendMessage(msg);
         return;
     }
 	for(const auto &it:modules)
 	{
         if (it->moduleConn == conn) // message coming from module
         {
-            it->ctrlConn->send_msg(msg);
+            it->ctrlConn->sendMessage(msg);
             break;
         }
         else if (it->ctrlConn == conn) // message to module
         {
-            it->moduleConn->send_msg(msg);
+            it->moduleConn->sendMessage(msg);
             break;
         }
     }

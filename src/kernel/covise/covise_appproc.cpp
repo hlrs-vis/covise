@@ -65,7 +65,7 @@ void ApplicationProcess::send_data_msg(Message *msg)
 #ifdef CRAY
     datamgr->handle_msg(msg);
 #else
-    if (datamanager->send_msg(msg) == COVISE_SOCKET_INVALID)
+    if (datamanager->sendMessage(msg) == COVISE_SOCKET_INVALID)
         list_of_connections->remove(datamanager);
 #endif
 }
@@ -98,7 +98,7 @@ void ApplicationProcess::exch_data_msg(Message *msg, int count...)
 #ifdef CRAY
     datamgr->handle_msg(msg);
 #else
-    if (datamanager->send_msg(msg) == COVISE_SOCKET_INVALID)
+    if (datamanager->sendMessage(msg) == COVISE_SOCKET_INVALID)
     {
         list_of_connections->remove(datamanager);
         delete[] type_list;
@@ -393,7 +393,7 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
         sprintf(tmp_str, "pid: %d", pid);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        if (datamanager->send_msg(msg) == COVISE_SOCKET_INVALID)
+        if (datamanager->sendMessage(msg) == COVISE_SOCKET_INVALID)
         {
             list_of_connections->remove(datamanager);
             print_error(__LINE__, __FILE__,

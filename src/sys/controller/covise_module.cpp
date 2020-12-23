@@ -21,7 +21,7 @@ using namespace covise;
 bool AppModule::sendMessage(const Message *msg)
 {
     if (conn)
-        return conn->send_msg(msg);
+        return conn->sendMessage(msg);
     else
         return false;
 }

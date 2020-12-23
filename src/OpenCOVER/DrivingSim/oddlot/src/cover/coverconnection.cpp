@@ -132,7 +132,7 @@ void COVERConnection::send(covise::TokenBuffer &tb)
     {
         covise::Message m(tb);
         m.type = opencover::PluginMessageTypes::HLRS_Oddlot_Message;
-        toCOVER->send_msg(&m);
+        toCOVER->sendMessage(&m);
     }
 }
 

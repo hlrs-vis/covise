@@ -79,7 +79,7 @@ bool VRBSClient::sendMessage(const covise::Message* msg)
 {
 	if (conn)
     {
-        return conn->send_msg(msg);
+        return conn->sendMessage(msg);
     }
     return false;
     

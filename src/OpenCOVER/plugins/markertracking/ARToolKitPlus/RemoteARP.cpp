@@ -682,7 +682,7 @@ int RemoteAR::sendBinARMessage(const char *keyword, const char *data, int len)
             //vrbc->sendMessage(message);
             if (irmos_client->is_connected())
             {
-                irmos_client->send_msg(message);
+                irmos_client->sendMessage(message);
             }
             //irmos_client->send("OK\0",3);
             //#ifdef   _DEBUG

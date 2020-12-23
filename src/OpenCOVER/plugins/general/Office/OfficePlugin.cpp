@@ -95,7 +95,7 @@ void OfficeConnection::sendMessage(Message &m)
 {
     if(toOffice) // false on slaves
     {
-        toOffice->send_msg(&m);
+        toOffice->sendMessage(&m);
     }
 }
 

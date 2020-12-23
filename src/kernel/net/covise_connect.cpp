@@ -41,7 +41,6 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #include <sys/socket.h>
 #endif
 
-#include "covise_connect.h"
 #include "covise_host.h"
 #include "covise_socket.h"
 #include "udpMessage.h"
@@ -232,6 +231,11 @@ bool covise::UDPConnection::recv_udp_msg(UdpMessage* msg)
 	return true;
 
 }
+
+bool covise::UDPConnection::sendMessage(const UdpMessage* msg){
+    return send_udp_msg(msg);
+}
+
 
 bool covise::UDPConnection::send_udp_msg(const UdpMessage* msg, const char* ip)
 {
@@ -613,7 +617,7 @@ void Connection::set_hostid(int id)
     tb << id;
     Message msg(tb);
     msg.type = Message::HOSTID;
-    send_msg(&msg);
+    sendMessage(&msg);
     hostid = id;
 }
 
@@ -927,7 +931,7 @@ int Connection::send_msg_fast(const Message *msg)
     return bytes_written;
 }
 
-int Connection::send_msg(const Message *msg)
+bool Connection::sendMessage(const Message *msg)
 {
     int retval = 0, tmp_bytes_written;
     char write_buf[WRITE_BUFFER_SIZE];
@@ -1007,6 +1011,11 @@ int Connection::send_msg(const Message *msg)
     }
     return retval;
 }
+
+bool Connection::sendMessage(const UdpMessage *msg){
+    return false;
+}
+
 
 int Connection::recv_msg_fast(Message *msg)
 {
@@ -1599,7 +1608,7 @@ int SSLConnection::AttachSSLToSocket(Socket *pSock)
     return SSL_set_fd(mSSL, pSock->get_id());
 }
 
-bool SSLConnection::IsClosed()
+bool SSLConnection::IsClosed() const
 {
     if (mState == SSL_CLOSED)
     {
@@ -1817,6 +1826,10 @@ int SSLConnection::send_msg(const Message *msg)
     return retval;
 }
 
+bool SSLConnection::sendMessage(const Message *msg){
+    return send_msg(msg) > 0;
+}
+
 int SSLConnection::get_id(void (*remove_func)(int))
 {
     remove_socket = remove_func;
@@ -1824,7 +1837,7 @@ int SSLConnection::get_id(void (*remove_func)(int))
     return sock->get_id();
 }
 
-int SSLConnection::get_id()
+int SSLConnection::get_id() const
 {
     //cerr << "sock == " << sock << " id: " << sock->get_id() << endl;
     if (sock)

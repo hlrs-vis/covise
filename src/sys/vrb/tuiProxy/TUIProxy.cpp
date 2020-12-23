@@ -172,7 +172,7 @@ void TUIProxy::handleMessages()
                         }
                         break;
                         default:
-                            toTUI->send_msg(msg);
+                            toTUI->sendMessage(msg);
                             break;
                         }
                         //delete msg;
@@ -202,7 +202,7 @@ void TUIProxy::handleMessages()
                         }
                         break;
                         default:
-                            toCOVER->send_msg(msg);
+                            toCOVER->sendMessage(msg);
                             break;
                         }
                         //delete msg;

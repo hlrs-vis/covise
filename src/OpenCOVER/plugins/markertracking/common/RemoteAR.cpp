@@ -745,7 +745,7 @@ int RemoteAR::sendBinARMessage(covise::TokenBuffer &tb)
             if (irmos_client->is_connected())
             {
                 //irmos_client->send_msg_fast(m_send_message);
-                irmos_client->send_msg(&msg);
+                irmos_client->sendMessage(&msg);
             }
 
 #ifdef _DEBUG

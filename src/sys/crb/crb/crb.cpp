@@ -726,7 +726,7 @@ int main(int argc, char* argv[])
             strcpy(msg.data.accessData() + 1, "");
         }
         msg.data.setLength(strlen(msg.data.data()) + 1);
-        msg.conn->send_msg(&msg);
+        msg.conn->sendMessage(&msg);
     }
     break;
 
@@ -741,7 +741,7 @@ int main(int argc, char* argv[])
             //print_exit(__LINE__, __FILE__, 0);
         }
         if ((send_back == 2) && (msg.type != COVISE_MESSAGE_EMPTY))
-            msg.conn->send_msg(&msg);
+            msg.conn->sendMessage(&msg);
 
         break;
     }

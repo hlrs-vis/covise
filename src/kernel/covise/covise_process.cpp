@@ -1014,7 +1014,7 @@ int OrdinaryProcess::is_connected()
 
 void OrdinaryProcess::send_ctl_msg(const Message *msg)
 {
-    if ((controller) && (controller->send_msg(msg) == COVISE_SOCKET_INVALID))
+    if ((controller) && (controller->sendMessage(msg) == COVISE_SOCKET_INVALID))
     {
         list_of_connections->remove(controller);
         delete this;
