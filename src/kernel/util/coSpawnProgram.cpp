@@ -1,4 +1,5 @@
 #include "coSpawnProgram.h"
+#include "coLog.h"
 #ifdef _WIN32
 #include <stdio.h>
 #include <process.h>
@@ -9,20 +10,25 @@
 
 using namespace covise;
 
-void covise::spawnProgram(const std::vector<const char *> &args)
+void covise::spawnProgram(const char* execPath, const std::vector<const char *> &args)
 {
-    if (!args[0] || args[args.size() - 1])
+    if (!execPath || args[args.size() - 1])
     {
+        print_error(__LINE__, __FILE__, "spawnProgram called with invalid args");
         return;
     }
 
 #ifdef _WIN32
-    _spawnvp(P_NOWAIT, args[0], const_cast<char *const *>(args.data()));
+    _spawnvp(P_NOWAIT, execPath, const_cast<char *const *>(args.data()));
 #else
     int pid = fork();
     if (pid == 0)
     {
-        execvp(args[0], const_cast<char *const *>(args.data()));
+        if(execvp(execPath, const_cast<char *const *>(args.data())) == -1){
+
+            print_error(__LINE__, __FILE__, "%s%s%s", "exec of", execPath, " failed");
+            exit(1);
+        }
     }
     else
     {
@@ -43,7 +49,7 @@ void covise::spawnProgram(const std::string &name, const std::vector<std::string
         argV[i + 1] = args[i].c_str();
     }
     argV[args.size() + 1] = nullptr;
-    spawnProgram(argV);
+    spawnProgram(name.c_str(), argV);
 }
 
 std::vector<const char*> covise::parseCmdArgString(const std::string &commandLine)

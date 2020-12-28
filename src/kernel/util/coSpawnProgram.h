@@ -8,7 +8,7 @@
 namespace covise
 {
     //args: first arg must be executable name, last arg must be nullptr;
-    UTILEXPORT void spawnProgram(const std::vector<const char *> &args);
+    UTILEXPORT void spawnProgram(const char* execPath, const std::vector<const char *> &args);
 
     //name: executable name, args: command line args
     UTILEXPORT void spawnProgram(const std::string &name, const std::vector<std::string> &args);
