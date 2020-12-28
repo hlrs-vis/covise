@@ -1272,7 +1272,7 @@ int UISoap::start(bool)
         return 0;
 
     //Determine from config whether to use WSInterface
-    bool ws_enabled = covise::coConfig::getInstance()->getBool("enable", "System.WSInterface", true);
+    bool ws_enabled = covise::coConfig::getInstance()->getBool("System.WSInterface", true);
     if (ws_enabled)
     {
         ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "wsinterface", dmod, instance.c_str(), Start::Normal);
