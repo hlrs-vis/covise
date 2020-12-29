@@ -48,6 +48,7 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
                         messageData.moduleHostName,
                         messageData.displayIp,
                         messageData.category,
+                        messageData.vrbSession,
                         messageData.params};
 
     //cerr << " new Message:" << newMessage << endl;

@@ -31,6 +31,7 @@ namespace covise{
      char *, moduleHostName,
      char *, displayIp,
      char *, category,
+     char *, vrbSession,
      std::vector<std::string>, params)
     //port and moduleCount are dummies to hold the correspondig char ptrs
     NETEXPORT std::vector<const char *> getCmdArgs(const CRB_EXEC &exec, std::string& port, std::string&moduleCount);

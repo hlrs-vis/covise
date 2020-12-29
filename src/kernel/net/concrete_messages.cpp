@@ -38,6 +38,7 @@ IMPL_MESSAGE_CLASS(CRB_EXEC,
      char *, moduleIp,
      char *, moduleHostName,
      char *, displayIp,
+     char*, vrbSession,
      char *, category,
      std::vector<std::string>, params)
 
@@ -62,8 +63,8 @@ std::vector<const char *> getCmdArgs(const CRB_EXEC &exec, std::string& port, st
     args[pos++] = exec.moduleHostName;
     args[pos++] = exec.displayIp;
     args[pos++] = "dummy";
-    std::remove(args.begin(), args.end(), nullptr);
-    std::remove(args.begin(), args.end(), "");
+    args.erase(std::remove(args.begin(), args.end(), nullptr), args.end());
+    args.erase(std::remove_if(args.begin(), args.end(), [](const char* c) {return strcmp(c, "") == 0; }), args.end());
     args[args.size() - 1] = nullptr;
     return args;
 }
