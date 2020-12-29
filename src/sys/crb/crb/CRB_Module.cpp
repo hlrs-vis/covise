@@ -90,10 +90,10 @@ void module::start(const CRB_EXEC & exec)
         spawnProgram(execpath.c_str(), args);
         break;
     case ExecFlag::Debug:
-        spawnProgramWithDebugger(execpath.c_str(), args);
+        spawnProgramWithDebugger(execpath.c_str(), coCoviseConfig::getEntry("System.CRB.DebugCommand"), args);
         break;
     case ExecFlag::Memcheck:
-        spawnProgramWithMemCheck(execpath.c_str(), args);
+        spawnProgramWithMemCheck(execpath.c_str(), coCoviseConfig::getEntry("System.CRB.MemcheckCommand"), args);
         break;
     }
 }

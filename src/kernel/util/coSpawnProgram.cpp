@@ -1,23 +1,17 @@
 #include "coSpawnProgram.h"
 #include "coLog.h"
-#include <config/CoviseConfig.h>
 
 #ifdef _WIN32
 #include <stdio.h>
 #include <process.h>
-#include <processthreadsapi.h>
 #include <stdlib.h>
-#include <errhandlingapi.h>
-#include <WinBase.h>
-#include <WinUser.h>
+#include <Windows.h>
 #else
 #include <unistd.h>
 #endif
 #include <signal.h>
 
 #include <array>
-#include <vector>
-
 
 using namespace covise;
 
@@ -99,7 +93,7 @@ std::string createDebugEnvironmentCommandLineForApple() {
 }
 
 
-void covise::spawnProgramWithDebugger(const char* execPath, const std::vector<const char*>& args) {
+void covise::spawnProgramWithDebugger(const char* execPath, const std::string &debugCommands, const std::vector<const char*>& args) {
 #ifdef WIN32
     std::string win_cmd_line;
     STARTUPINFO si;
@@ -208,7 +202,7 @@ void covise::spawnProgramWithDebugger(const char* execPath, const std::vector<co
 #endif
     bool defaultCommand = false;
     std::string command;
-    command = coCoviseConfig::getEntry("System.CRB.DebugCommand");
+    command = debugCommands;
     if (command.empty())
     {
         command = "konsole -e gdb --args";
@@ -230,10 +224,10 @@ void covise::spawnProgramWithDebugger(const char* execPath, const std::vector<co
 }
 
 
-void covise::spawnProgramWithMemCheck(const char* execPath, const std::vector<const char*>& args) {
+void covise::spawnProgramWithMemCheck(const char* execPath, const std::string& debugCommands, const std::vector<const char*>& args) {
    
 #ifdef WIN32
-    spawnProgramWithDebugger(execPath, args);
+    spawnProgramWithDebugger(execPath, "", args);
 #else //!WIN32
     std::vector<const char*> debugArgs;
 #ifdef __APPLE__
@@ -258,7 +252,7 @@ void covise::spawnProgramWithMemCheck(const char* execPath, const std::vector<co
 #endif
 
     bool defaultCommand = false;
-    std::string command = coCoviseConfig::getEntry("System.CRB.MemcheckCommand");
+    std::string command = debugCommands;
     if (command.empty())
     {
 #ifdef __APPLE__
