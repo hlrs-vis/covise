@@ -136,6 +136,19 @@ static const char *COVISE_debug_filename = "covise.log";
     execProcessWMI("C:\\src\\uwewin\\covise\\win32\\bin\\Renderer\\COVER.EXE",NULL,NULL,NULL,NULL);
 }
 */
+void exitOnInappropriateCmdArgs(int argC, char* argV[]) {
+    if ((argC < 8) || (argC > 9))
+    {
+        cerr << "Application Module with inappropriate arguments called: " << argC << endl;
+        for (int i = 0; i < argC; ++i)
+        {
+            cerr << i << ": " << argV[i] << endl;
+        }
+        exit(1);
+    }
+}
+
+
 #ifdef _MSC_VER
 static void cleanSpaces(char *str)
 {
@@ -583,16 +596,8 @@ Process::Process(const char *n, int i, sender_type st, int port)
 
 Process::Process(const char *n, int arc, char *arv[], sender_type st)
 {
-    if ((arc < 7) || (arc > 8))
-    {
-        cerr << "Application Module with inappropriate arguments called: " << arc << endl;
-        for (int i = 0; i < arc; ++i)
-        {
-            cerr << i << ": " << arv[i] << endl;
-        }
-        exit(1);
-    }
-    if (arc == 8)
+    exitOnInappropriateCmdArgs(arc, arv);
+    if (arc == 9)
     {
         static char buf[500];
         snprintf(buf, sizeof(buf), "DISPLAY=%s", arv[7]);

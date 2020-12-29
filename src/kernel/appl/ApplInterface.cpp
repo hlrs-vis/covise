@@ -511,25 +511,12 @@ char *Covise::get_description_message()
 //=====================================================================
 void Covise::init(int argc, char *argv[])
 {
-
-    if ((argc < 7) || (argc > 8))
+    if (argc == 2 && 0 == strcmp(argv[1], "-d"))
     {
-        if (argc == 2 && 0 == strcmp(argv[1], "-d"))
-        {
-            printDesc(argv[0]);
-            exit(0);
-        }
-        else
-        {
-            cerr << "Application Module with inappropriate arguments called: " << argc << endl;
-            for (int i = 0; i < argc; ++i)
-            {
-                cerr << i << ": " << argv[i] << endl;
-            }
-        }
-        exit(1);
+        printDesc(argv[0]);
+        exit(0);
     }
-
+    exitOnInappropriateCmdArgs(argc, argv);
 // Initialization of the communciation environment
 #ifdef _WIN32
     WORD wVersionRequested;

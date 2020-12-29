@@ -354,15 +354,7 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
     char tmp_str[255];
 #endif
     shm = NULL;
-    if ((argc < 7) || (argc > 8))
-    {
-        print_comment(__LINE__, __FILE__, "ApplicationModule with inappropriate arguments called: argc=%d", argc);
-        for (int i = 0; i < argc; ++i)
-        {
-            print_comment(__LINE__, __FILE__, "%d: %s", i, argv[i]);
-        }
-        print_exit(__LINE__, __FILE__, 1);
-    }
+    exitOnInappropriateCmdArgs(argc, argv);
     id = atoi(argv[3]);
     tmphost = new Host(argv[2]);
 

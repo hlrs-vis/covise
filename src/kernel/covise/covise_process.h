@@ -93,6 +93,8 @@ COVISEEXPORT int execProcessWMI(const char *commandLine, const char *wd, const c
 
 extern int COVISE_debug_level;
 
+void COVISEEXPORT exitOnInappropriateCmdArgs(int argC, char* argV[]);
+
 class COVISEEXPORT Process // base class for all processes
 {
 protected:

@@ -46,7 +46,7 @@ std::vector<const char *> getCmdArgs(const CRB_EXEC &exec, std::string& port, st
     port = std::to_string(exec.port);
     moduleCount = std::to_string(exec.moduleCount);
     
-    size_t l = 9;
+    size_t l = 10;
     l += exec.params.size();
     std::vector<const char *> args(l);
     size_t pos = 0;
@@ -62,6 +62,7 @@ std::vector<const char *> getCmdArgs(const CRB_EXEC &exec, std::string& port, st
     args[pos++] = exec.moduleIp;
     args[pos++] = exec.moduleHostName;
     args[pos++] = exec.displayIp;
+    args[pos++] = exec.vrbSession;
     args[pos++] = "dummy";
     args.erase(std::remove(args.begin(), args.end(), nullptr), args.end());
     args.erase(std::remove_if(args.begin(), args.end(), [](const char* c) {return strcmp(c, "") == 0; }), args.end());

@@ -84,15 +84,6 @@ void module::start(const CRB_EXEC & exec)
     std::string portDummy, moduleCountDummy;
     auto args = getCmdArgs(exec, portDummy, moduleCountDummy);
     args[0] = execpath.c_str();
-    std::string sessionName = exec.vrbSession;
-    if (strcmp(exec.name, "OpenCOVER") == 0 || strcmp(exec.name, "COVER"))
-    {
-        args[args.size() - 1] = "-g";
-        sessionName += "_";
-        sessionName += exec.moduleId;
-        args.push_back(sessionName.c_str());
-        args.push_back(nullptr);
-    }
     switch (exec.flag)
     {
     case ExecFlag::Normal:
