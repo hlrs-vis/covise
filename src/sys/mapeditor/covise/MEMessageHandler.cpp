@@ -54,7 +54,7 @@ MEMessageHandler::MEMessageHandler(int argc, char **argv)
     singleton = this;
 
     // check modus
-    if ((argc < 7) || (argc > 8))
+    if ((argc < 9) || (argc > 10))
     {
         qCritical() << "Map Editor with inappropriate arguments called";
         qCritical() << "No. of arguments is " << argc << endl;
