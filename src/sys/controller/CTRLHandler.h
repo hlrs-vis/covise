@@ -10,9 +10,9 @@
 
 #include <QMap>
 #include <QStringList>
-#include <vrb/server/VrbMessageHandler.h>
 #include "CTRLGlobal.h"
-
+#include <vrb/client/VRBClient.h>
+#include <string>
 class QString;
 
 namespace covise
@@ -26,7 +26,7 @@ class AppModule;
 class SSLClient;
 
 // == == == == == == == == == == == == == == == == == == == == == == == ==
-class CTRLHandler : public vrb::ServerInterface
+class CTRLHandler
 // == == == == == == == == == == == == == == == == == == == == == == == ==
 {
 public:
@@ -53,9 +53,7 @@ public:
 
     vector<string> splitString(string text, const string &sep);
     bool recreate(string buffer, readMode mode);
-    void sendMessage();
-    void removeVrbConnection(covise::Connection *c);
-    void removeConnection(covise::Connection *conn) override;
+    const std::string &vrbSessionName() const;
 private:
     static CTRLHandler *singleton;
     FILE *fp;
@@ -70,8 +68,8 @@ private:
     int m_daemonPort, m_xuif, m_startScript, m_accessGridDaemonPort;
     int m_SSLDaemonPort;
     SSLClient *m_SSLClient;
-    vrb::VrbMessageHandler m_handler;
-
+    vrb::VRBClient m_client;
+    mutable std::string m_sessionName;
     int parseCommandLine(int argc, char **argv);
     void startCrbUiDm();
     void loadNetworkFile();

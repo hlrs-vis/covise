@@ -54,7 +54,7 @@ if(OPENSSL_FOUND)
 endif()
 
 ADD_COVISE_EXECUTABLE(covise ${CONTROLLER_SOURCES} ${CONTROLLER_HEADERS})
-TARGET_LINK_LIBRARIES(covise coAppl coApi coCore coConfig coUtil coVRBServer) 
+TARGET_LINK_LIBRARIES(covise coAppl coApi coCore coConfig coUtil coVRBClient) 
 qt_use_modules(covise Core)
 
 COVISE_INSTALL_TARGET(covise)

@@ -25,8 +25,7 @@
 #include <util/coTimer.h>
 #include <util/covise_version.h>
 #include <util/unixcompat.h>
-
-#include <vrb/server/VrbClientList.h>
+#include <vrb/client/VRBClient.h>
 
 #include "AccessGridDaemon.h"
 #include "CTRLGlobal.h"
@@ -142,7 +141,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     , m_startScript(0)
     , m_accessGridDaemonPort(0)
     , m_writeUndoBuffer(true)
-    , m_handler(this)
+    , m_client(vrb::Program::Covise)
 // == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 {
 
@@ -231,7 +230,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     // start Controller main-Loop
     // check for daemons and handler messages
     bool startMainLoop = true;
-
+    m_client.connectToServer();
     while (1)
     {
         Message *msg = new Message;
@@ -306,7 +305,6 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_SOCKET_CLOSED:
     {
-        	m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
 			handleClosedMsg(msg);
         break;
     }
@@ -320,7 +318,6 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
         break;
 
     case COVISE_MESSAGE_QUIT:
-		m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
 		handleQuit(msg);
         break;
 
@@ -625,8 +622,6 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     }
 
     default:
-        //check if it is a vrb message
-        m_handler.handleMessage(msg);
         break;
     } //  end message switch
 
@@ -3895,14 +3890,10 @@ bool CTRLHandler::recreate(string content, readMode mode)
     return true;
 }
 
-void covise::CTRLHandler::removeVrbConnection(covise::Connection * conn)
+const std::string &covise::CTRLHandler::vrbSessionName() const
 {
-    m_handler.remove(conn);
-}
-
-void covise::CTRLHandler::removeConnection(covise::Connection * conn)
-{
-    //implement here
+    m_sessionName = "covise_" + std::to_string(m_client.ID());
+    return m_sessionName;
 }
 bool CTRLHandler::checkModule(const string &modname, const string &modhost)
 {
