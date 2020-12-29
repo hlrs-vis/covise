@@ -124,7 +124,7 @@ bool CovisePlugin::init()
         }
     }
 #endif
-    CoviseRender::set_custom_callback(CovisePlugin::OpenCOVERCallback, this); //get covisemessages from 
+    //CoviseRender::set_custom_callback(CovisePlugin::OpenCOVERCallback, this); //get covisemessages from 
     CoviseRender::set_render_module_callback(messageCallback);
     return VRCoviseConnection::covconn;
 }

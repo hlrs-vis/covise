@@ -724,9 +724,11 @@ bool OpenCOVER::init()
         if (loadCovisePlugin)//use covise session
         {
             std::string coviseModuleID = coCommandLine::argv(4);
-		    std::string coviseVrbClientID = coCommandLine::argv(5);
-            startSession = "covise_" + coviseVrbClientID + "_" + coviseModuleID;
+		    std::string coviseVrbClientID = coCommandLine::argv(coCommandLine::argc() - 1);
+            startSession = coviseVrbClientID + "_" + coviseModuleID;
         }
+        std::cerr << "startSession: " << startSession << std::endl;
+        coVRMSController::instance()->setStartSession(startSession);
         vrbc->connectToServer(startSession);
     }
 

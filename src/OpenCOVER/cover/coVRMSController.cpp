@@ -2510,113 +2510,110 @@ bool coVRMSController::syncVRBMessages()
 
     Message *vrbMsg = new Message;
 	UdpMessage* udpMsg = new UdpMessage;
-	if (!cover->connectedToCovise())
+	if (master)
 	{
-		if (master)
+		if (vrbc && vrbc->isConnected())
 		{
-			if (vrbc && vrbc->isConnected())
+			//poll tcp messages
+			while (vrbc->poll(vrbMsg))
 			{
-				//poll tcp messages
-				while (vrbc->poll(vrbMsg))
+				vrbMsgs[numVrbMessages] = vrbMsg;
+				numVrbMessages++;
+				vrbMsg = new Message;
+				if (numVrbMessages >= MAX_VRB_MESSAGES)
 				{
-					vrbMsgs[numVrbMessages] = vrbMsg;
-					numVrbMessages++;
-					vrbMsg = new Message;
-					if (numVrbMessages >= MAX_VRB_MESSAGES)
-					{
-						cerr << "too many VRB Messages!!" << endl;
-						break;
-					}
-					if (!vrbc->isConnected())
-						break;
+					cerr << "too many VRB Messages!!" << endl;
+					break;
 				}
-				//poll udp messages
-				while (vrbc->pollUdp(udpMsg))
+				if (!vrbc->isConnected())
+					break;
+			}
+			//poll udp messages
+			while (vrbc->pollUdp(udpMsg))
+			{
+				udpMsgs[numUdpMessages] = udpMsg;
+				numUdpMessages++;
+				udpMsg = new UdpMessage;
+				if (numUdpMessages >= MAX_VRB_MESSAGES)
 				{
-					udpMsgs[numUdpMessages] = udpMsg;
-					numUdpMessages++;
-					udpMsg = new UdpMessage;
-					if (numUdpMessages >= MAX_VRB_MESSAGES)
-					{
-						cerr << "too many UDP Messages!!" << endl;
-						break;
-					}
-                    cerr << "received udp msg from client " << udpMsg->sender << ": " << udpMsg->type << "" << endl;
-					if (!vrbc->isConnected())
-						break;
+					cerr << "too many UDP Messages!!" << endl;
+					break;
 				}
-			}
-			else
-			{
-				static double oldSec = 0;
-				double curSec;
-				curSec = cover->frameTime();
-
-				// try to reconnect
-				if ((curSec - oldSec) > 2.0)
-				{
-					if (cover->debugLevel(3))
-					{
-						fprintf(stderr, "trying to establish VRB connection\n");
-					}
-
-					if (vrbc == NULL)
-						vrbc = new vrb::VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
-					vrbc->connectToServer(startSession);
-					oldSec = curSec;
-				}
-			}
-			sendSlaves(&numVrbMessages, sizeof(int));
-			//cerr << "numMasterMSGS " <<  numVrbMessages << endl;
-			int i;
-			for (i = 0; i < numVrbMessages; i++)
-			{
-				sendSlaves(vrbMsgs[i]);
-				coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
-				delete vrbMsgs[i];
-			}
-			sendSlaves(&numUdpMessages, sizeof(int));
-			for (i = 0; i < numUdpMessages; i++)
-			{
-				sendSlaves(udpMsgs[i]);
-				coVRCommunication::instance()->handleUdp(udpMsgs[i]);
-				delete udpMsgs[i];
+                cerr << "received udp msg from client " << udpMsg->sender << ": " << udpMsg->type << "" << endl;
+				if (!vrbc->isConnected())
+					break;
 			}
 		}
 		else
 		{
-			//get number of Messages
-			if (readMaster(&numVrbMessages, sizeof(int)) < 0)
+			static double oldSec = 0;
+			double curSec;
+			curSec = cover->frameTime();
+
+			// try to reconnect
+			if ((curSec - oldSec) > 2.0)
 			{
-				cerr << "sync_exit16 myID=" << myID << endl;
+				if (cover->debugLevel(3))
+				{
+					fprintf(stderr, "trying to establish VRB connection\n");
+				}
+
+				if (vrbc == NULL)
+					vrbc = new vrb::VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
+				vrbc->connectToServer(startSession);
+				oldSec = curSec;
+			}
+		}
+		sendSlaves(&numVrbMessages, sizeof(int));
+		//cerr << "numMasterMSGS " <<  numVrbMessages << endl;
+		int i;
+		for (i = 0; i < numVrbMessages; i++)
+		{
+			sendSlaves(vrbMsgs[i]);
+			coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
+			delete vrbMsgs[i];
+		}
+		sendSlaves(&numUdpMessages, sizeof(int));
+		for (i = 0; i < numUdpMessages; i++)
+		{
+			sendSlaves(udpMsgs[i]);
+			coVRCommunication::instance()->handleUdp(udpMsgs[i]);
+			delete udpMsgs[i];
+		}
+	}
+	else
+	{
+		//get number of Messages
+		if (readMaster(&numVrbMessages, sizeof(int)) < 0)
+		{
+			cerr << "sync_exit16 myID=" << myID << endl;
+			exit(0);
+		}
+		//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
+		int i;
+		for (i = 0; i < numVrbMessages; i++)
+		{
+			if (readMaster(vrbMsg) < 0)
+			{
+				cerr << "sync_exit17 myID=" << myID << endl;
 				exit(0);
 			}
-			//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
-			int i;
-			for (i = 0; i < numVrbMessages; i++)
+			coVRCommunication::instance()->handleVRB(vrbMsg);
+		}
+		if (readMaster(&numUdpMessages, sizeof(int)) < 0)
+		{
+			cerr << "sync_exit160 myID=" << myID << endl;
+			exit(0);
+		}
+		//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
+		for (i = 0; i < numUdpMessages; i++)
+		{
+			if (readMaster(udpMsg) < 0)
 			{
-				if (readMaster(vrbMsg) < 0)
-				{
-					cerr << "sync_exit17 myID=" << myID << endl;
-					exit(0);
-				}
-				coVRCommunication::instance()->handleVRB(vrbMsg);
-			}
-			if (readMaster(&numUdpMessages, sizeof(int)) < 0)
-			{
-				cerr << "sync_exit160 myID=" << myID << endl;
+				cerr << "sync_exit170 myID=" << myID << endl;
 				exit(0);
 			}
-			//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
-			for (i = 0; i < numUdpMessages; i++)
-			{
-				if (readMaster(udpMsg) < 0)
-				{
-					cerr << "sync_exit170 myID=" << myID << endl;
-					exit(0);
-				}
-				coVRCommunication::instance()->handleUdp(udpMsg);
-			}
+			coVRCommunication::instance()->handleUdp(udpMsg);
 		}
 	}
     delete vrbMsg;

@@ -466,7 +466,7 @@ void coVRCommunication::handleVRB(Message *msg)
 {
 	//fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
 
-    if (vrbc == NULL && !cover->connectedToCovise()) 
+    if (!vrbc) 
 	{
         vrbc = new VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
     }

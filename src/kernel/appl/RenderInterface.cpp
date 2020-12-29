@@ -519,15 +519,10 @@ void CoviseRender::init(int argc, char *argv[])
 {
     //cerr << "(module: RenderInterface) CoviseRender::init(..2..) called"
     //	   << endl;
-
-    if ((argc < 7) || (argc > 8))
-    {
-        if (argc == 2 && 0 == strcmp(argv[1], "-d"))
-            printDesc(argv[0]);
-        else
-            cerr << "Application Module with inappropriate arguments called\n";
-        exit(0);
-    }
+    if (argc == 2 && 0 == strcmp(argv[1], "-d"))
+        printDesc(argv[0]);
+    else
+        exitOnInappropriateCmdArgs(argc, argv); 
 
     // Initialization of the communciation environment
 
