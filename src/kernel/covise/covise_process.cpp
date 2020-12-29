@@ -137,7 +137,7 @@ static const char *COVISE_debug_filename = "covise.log";
 }
 */
 void exitOnInappropriateCmdArgs(int argC, char* argV[]) {
-    if ((argC < 8) || (argC > 9))
+    if ((argC < 9) || (argC > 10))
     {
         cerr << "Application Module with inappropriate arguments called: " << argC << endl;
         for (int i = 0; i < argC; ++i)
@@ -597,7 +597,7 @@ Process::Process(const char *n, int i, sender_type st, int port)
 Process::Process(const char *n, int arc, char *arv[], sender_type st)
 {
     exitOnInappropriateCmdArgs(arc, arv);
-    if (arc == 9)
+    if (arc == 10)
     {
         static char buf[500];
         snprintf(buf, sizeof(buf), "DISPLAY=%s", arv[7]);
