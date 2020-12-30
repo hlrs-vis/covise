@@ -11,7 +11,6 @@
 #include <covise/covise_appproc.h>
 #include <util/coLog.h>
 #include <util/unixcompat.h>
-
 #ifdef _WIN32
 #include <direct.h>
 #endif
@@ -25,9 +24,9 @@ using namespace covise;
 ApplicationProcess *CoviseBase::appmod = NULL;
 
 Message *CoviseBase::applMsg = NULL;
-const char *CoviseBase::m_name = NULL;
-const char *CoviseBase::h_name = NULL;
-const char *CoviseBase::instance = NULL;
+std::string CoviseBase::m_name;
+std::string CoviseBase::h_name;
+std::string CoviseBase::instance;
 int CoviseBase::error = 0;
 
 Message CoviseBase::emergency_message;
@@ -93,23 +92,22 @@ void CoviseBase::log_message(int line, const char *file, const char *comment)
 //=====================================================================
 void CoviseBase::init_emergency_message(void)
 {
-    size_t size;
-    emergency_data = new char[500];
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if (get_module() && get_host() && get_instance() && appmod)
     {
-        strcpy(emergency_data, "DIED");
-        strcat(emergency_data, "\n");
-        strcat(emergency_data, m_name);
-        strcat(emergency_data, "\n");
-        strcat(emergency_data, instance);
-        strcat(emergency_data, "\n");
-        strcat(emergency_data, h_name);
-        strcat(emergency_data, "\n");
-        strcat(emergency_data, "A severe error has occured! The module has exited.");
-        strcat(emergency_data, "\n");
-        strcat(emergency_data, "You may try to restart the module in the Mapeditor.");
-        size = strlen(emergency_data) + 1;
-        emergency_message.data = DataHandle(emergency_data, size);
+        covise::DataHandle emergency_data{ 500 };
+        strcpy(emergency_data.accessData(), "DIED");
+        strcat(emergency_data.accessData(), "\n");
+        strcat(emergency_data.accessData(), get_module());
+        strcat(emergency_data.accessData(), "\n");
+        strcat(emergency_data.accessData(), get_instance());
+        strcat(emergency_data.accessData(), "\n");
+        strcat(emergency_data.accessData(), get_host());
+        strcat(emergency_data.accessData(), "\n");
+        strcat(emergency_data.accessData(), "A severe error has occured! The module has exited.");
+        strcat(emergency_data.accessData(), "\n");
+        strcat(emergency_data.accessData(), "You may try to restart the module in the Mapeditor.");
+        emergency_data.setLength(strlen(emergency_data.data()) + 1);
+        emergency_message.data = emergency_data;
         emergency_message.type = COVISE_MESSAGE_UI;
     }
 }
@@ -810,20 +808,20 @@ void CoviseBase::sendError(const char *fmt, ...)
 		va_end(args);
 	}
 
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(text) + 1;
 
         char *msgdata = new char[size];
-        strcpy(msgdata, m_name);
+        strcpy(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, text);
 
@@ -833,7 +831,7 @@ void CoviseBase::sendError(const char *fmt, ...)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send message without get_instance()/init before");
 
     delete[] text;
 
@@ -862,20 +860,20 @@ void CoviseBase::sendWarning(const char *fmt, ...)
 		va_end(args);
 	}
 
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
+        size += strlen(get_module()) + 1;
         size += 10;
-        size += strlen(h_name) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(text) + 1;
 
         char *msgdata = new char[size];
-        strcpy(msgdata, m_name);
+        strcpy(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, text);
 
@@ -886,7 +884,7 @@ void CoviseBase::sendWarning(const char *fmt, ...)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send message without get_instance()/init before");
 
     delete[] text;
 
@@ -915,20 +913,20 @@ void CoviseBase::sendInfo(const char *fmt, ...)
 		va_end(args);
 	}
 
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
+        size += strlen(get_module()) + 1;
         size += 10;
-        size += strlen(h_name) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(text) + 1;
 
         char *msgdata = new char[size];
-        strcpy(msgdata, m_name);
+        strcpy(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, text);
 
@@ -941,7 +939,7 @@ void CoviseBase::sendInfo(const char *fmt, ...)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send message without get_instance()/init before");
 
     delete[] text;
 
@@ -953,23 +951,23 @@ void CoviseBase::sendInfo(const char *fmt, ...)
 //=====================================================================
 int CoviseBase::send_ui_message(const char *keyword, const char *string)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
         size += strlen(keyword) + 1;
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(string) + 1;
 
         char *msgdata = new char[size];
         strcpy(msgdata, keyword);
         strcat(msgdata, "\n");
-        strcat(msgdata, m_name);
+        strcat(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, string);
 
@@ -983,7 +981,7 @@ int CoviseBase::send_ui_message(const char *keyword, const char *string)
     }
     else
     {
-        print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send message without get_instance()/init before");
         return 0;
     }
 }
@@ -993,20 +991,20 @@ int CoviseBase::send_ui_message(const char *keyword, const char *string)
 //=====================================================================
 int CoviseBase::send_message(covise_msg_type type, const char *string)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(string) + 1;
 
         char *msgdata = new char[size];
-        strcpy(msgdata, m_name);
+        strcpy(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, string);
 
@@ -1020,7 +1018,7 @@ int CoviseBase::send_message(covise_msg_type type, const char *string)
     }
     else
     {
-        print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send message without get_instance()/init before");
         return 0;
     }
 }
@@ -1105,23 +1103,23 @@ int CoviseBase::send_feedback_message(const char *keyword, const char *string)
 //=====================================================================
 int CoviseBase::request_param(const char *param_name)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
         size += strlen("PARREQ") + 1;
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(param_name) + 1;
 
         char *msgdata = new char[size];
         strcpy(msgdata, "PARREQ");
         strcat(msgdata, "\n");
-        strcat(msgdata, m_name);
+        strcat(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, param_name);
 
@@ -1134,7 +1132,7 @@ int CoviseBase::request_param(const char *param_name)
     }
     else
     {
-        print_comment(__LINE__, __FILE__, "Cannot send request_param message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send request_param message without get_instance()/init before");
         return 0;
     }
 }
@@ -1144,24 +1142,24 @@ int CoviseBase::request_param(const char *param_name)
 //=====================================================================
 void CoviseBase::enable_param(const char *name)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
         size += strlen("PARSTATE") + 1;
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen(name) + 1;
         size += strlen("TRUE") + 1;
 
         char *msgdata = new char[size];
         strcpy(msgdata, "PARSTATE");
         strcat(msgdata, "\n");
-        strcat(msgdata, m_name);
+        strcat(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
 
         strcat(msgdata, name);
@@ -1175,7 +1173,7 @@ void CoviseBase::enable_param(const char *name)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send enable_param message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send enable_param message without get_instance()/init before");
 }
 
 //=====================================================================
@@ -1183,12 +1181,12 @@ void CoviseBase::enable_param(const char *name)
 //=====================================================================
 void CoviseBase::disable_param(const char *name)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen("PARSTATE") + 1;
         size += strlen(name) + 1;
         size += strlen("FALSE") + 1;
@@ -1196,11 +1194,11 @@ void CoviseBase::disable_param(const char *name)
         char *msgdata = new char[size];
         strcpy(msgdata, "PARSTATE");
         strcat(msgdata, "\n");
-        strcat(msgdata, m_name);
+        strcat(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
 
         strcat(msgdata, name);
@@ -1214,7 +1212,7 @@ void CoviseBase::disable_param(const char *name)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send disable_param message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send disable_param message without get_instance()/init before");
 }
 
 //=====================================================================
@@ -1222,24 +1220,24 @@ void CoviseBase::disable_param(const char *name)
 //=====================================================================
 void CoviseBase::hide_param(const char *name)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL)
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL)
         && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen("HIDE") + 1;
         size += strlen(name) + 1;
 
         char *msgdata = new char[size];
         strcpy(msgdata, "HIDE");
         strcat(msgdata, "\n");
-        strcat(msgdata, m_name);
+        strcat(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
         strcat(msgdata, name);
 
@@ -1250,7 +1248,7 @@ void CoviseBase::hide_param(const char *name)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send hide_param message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send hide_param message without get_instance()/init before");
 }
 
 //=====================================================================
@@ -1258,23 +1256,23 @@ void CoviseBase::hide_param(const char *name)
 //=====================================================================
 void CoviseBase::show_param(const char *name)
 {
-    if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
+    if ((get_module() != NULL) && (get_host() != NULL) && (get_instance() != NULL) && (appmod != NULL))
     {
         size_t size = 1; // final '\0'
-        size += strlen(m_name) + 1;
-        size += strlen(instance) + 1;
-        size += strlen(h_name) + 1;
+        size += strlen(get_module()) + 1;
+        size += strlen(get_instance()) + 1;
+        size += strlen(get_host()) + 1;
         size += strlen("SHOW") + 1;
         size += strlen(name) + 1;
 
         char *msgdata = new char[size];
         strcpy(msgdata, "SHOW");
         strcat(msgdata, "\n");
-        strcat(msgdata, m_name);
+        strcat(msgdata, get_module());
         strcat(msgdata, "\n");
-        strcat(msgdata, instance);
+        strcat(msgdata, get_instance());
         strcat(msgdata, "\n");
-        strcat(msgdata, h_name);
+        strcat(msgdata, get_host());
         strcat(msgdata, "\n");
 
         strcat(msgdata, name);
@@ -1286,7 +1284,7 @@ void CoviseBase::show_param(const char *name)
         appmod->send_ctl_msg(&message);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send show_param message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send show_param message without get_instance()/init before");
 }
 
 //=====================================================================
@@ -1320,7 +1318,7 @@ void CoviseBase::signal_handler(int signo, void *)
         sleep(1);
     }
     else
-        print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
+        print_comment(__LINE__, __FILE__, "Cannot send message without get_instance()/init before");
 
     exit(-1);
 }

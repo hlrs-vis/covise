@@ -14,6 +14,7 @@
 
 #include <covise/covise.h>
 #include <util/coTypes.h>
+#include <string>
 
 #ifndef _WIN32
 #include <dirent.h>
@@ -88,9 +89,9 @@ protected:
     static vector<string> tokenlist;
     static Message *applMsg;
     static int socket_id;
-    static const char *h_name;
-    static const char *m_name;
-    static const char *instance;
+    static std::string h_name;
+    static std::string m_name;
+    static std::string instance;
     static Message emergency_message;
     static char *emergency_data;
     static const char *module_description;
@@ -229,15 +230,27 @@ public:
     static int get_socket_id();
     static const char *get_instance()
     {
-        return instance;
+        if (instance.empty())
+        {
+            return nullptr;
+        }
+        return instance.c_str();
     }
     static const char *get_host()
     {
-        return h_name;
+        if (h_name.empty())
+        {
+            return nullptr;
+        }
+        return h_name.c_str();
     }
     static const char *get_module()
     {
-        return m_name;
+        if (m_name.empty())
+        {
+            return nullptr;
+        }
+        return m_name.c_str();
     }
     static const char *get_reply_param_name()
     {

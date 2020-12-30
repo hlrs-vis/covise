@@ -286,14 +286,14 @@ char *CoviseRender::get_description_message()
 {
     CharBuffer msg(400);
     msg += "DESC\n";
-    msg += m_name;
+    msg += get_module();
     msg += '\n';
-    msg += h_name;
+    msg += get_host();
     msg += '\n';
     if (module_description)
         msg += module_description;
     else
-        msg += m_name;
+        msg += get_module();
     msg += '\n';
 
     int i = 0, ninput = 0, noutput = 0, nparin = 0, nparout = 0;
