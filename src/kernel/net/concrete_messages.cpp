@@ -9,66 +9,119 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
-namespace covise{
+namespace covise {
 
-TokenBuffer &operator<<(TokenBuffer &tb, ExecFlag flag){
-    tb << static_cast<int>(flag);
-    return tb;
+TokenBuffer& operator<<(TokenBuffer& tb, ExecFlag flag) {
+	tb << static_cast<int>(flag);
+	return tb;
 }
 
-std::ostream &operator<<(std::ostream &os, ExecFlag flag){
-    os << static_cast<int>(flag);
-    return os;
+std::ostream& operator<<(std::ostream& os, ExecFlag flag) {
+	os << static_cast<int>(flag);
+	return os;
 }
 
-TokenBuffer &operator>>(TokenBuffer &tb, ExecFlag& flag){
-    int i;
-    tb >> i;
-    flag = static_cast<ExecFlag>(i);
-    return tb;
+TokenBuffer& operator>>(TokenBuffer& tb, ExecFlag& flag) {
+	int i;
+	tb >> i;
+	flag = static_cast<ExecFlag>(i);
+	return tb;
 }
 
-IMPL_MESSAGE_CLASS(CRB_EXEC, 
-     ExecFlag, flag,
-     char *, name,
-     int, port,
-     char *, localIp,
-     int, moduleCount,
-     char *, moduleId,
-     char *, moduleIp,
-     char *, moduleHostName,
-     char *, displayIp,
-     char*, vrbSession,
-     char *, category,
-     std::vector<std::string>, params)
+IMPL_MESSAGE_CLASS(CRB_EXEC,
+	ExecFlag, flag,
+	char*, name,
+	int, port,
+	char*, localIp,
+	int, moduleCount,
+	char*, moduleId,
+	char*, moduleIp,
+	char*, moduleHostName,
+	char*, displayIp,
+	char*, category,
+	int, vrbClientIdOfController,
+	std::vector<std::string>, params)
 
-std::vector<const char *> getCmdArgs(const CRB_EXEC &exec, std::string& port, std::string&moduleCount){
-    port = std::to_string(exec.port);
-    moduleCount = std::to_string(exec.moduleCount);
-    
-    size_t l = 11;
-    l += exec.params.size();
-    std::vector<const char *> args(l);
-    size_t pos = 0;
-    args[pos++] = exec.name;
-    for(auto & arg : exec.params)
-    {
-        args[pos++] = arg.c_str();
-    }
-    args[pos++] = port.c_str();
-    args[pos++] = exec.localIp;
-    args[pos++] = moduleCount.c_str();
-    args[pos++] = exec.moduleId;
-    args[pos++] = exec.moduleIp;
-    args[pos++] = exec.moduleHostName;
-    args[pos++] = exec.displayIp;
-    args[pos++] = "-g";
-    args[pos++] = exec.vrbSession;
-    args[pos++] = "dummy";
-    args.erase(std::remove(args.begin(), args.end(), nullptr), args.end());
-    args.erase(std::remove_if(args.begin(), args.end(), [](const char* c) {return strcmp(c, "") == 0; }), args.end());
-    args[args.size() - 1] = nullptr;
-    return args;
+
+std::string charToString(const char* c) {
+	if (c && !c[0] == '\0')
+	{
+		return std::string{ c };
+	}
+	return std::string{ "INVALID" };
+}
+
+const char* adoptedChar(const char* c) {
+	return (c && strcmp(c, "INVALID")) ? c : nullptr;
+}
+
+std::vector<std::string> getCmdArgs(const CRB_EXEC& exec) {
+
+	size_t l = 10;
+	l += exec.params.size();
+	std::vector<std::string> args(l);
+	size_t pos = 0;
+	args[pos++] = charToString(exec.name);
+	args[pos++] = std::to_string(exec.port);
+	args[pos++] = charToString(exec.localIp);
+	args[pos++] = std::to_string(exec.moduleCount);
+	args[pos++] = charToString(exec.moduleId);
+	args[pos++] = charToString(exec.moduleIp);
+	args[pos++] = charToString(exec.moduleHostName);
+	args[pos++] = charToString(exec.displayIp);
+	args[pos++] = std::to_string(exec.vrbClientIdOfController);
+	args[pos++] = std::to_string(exec.params.size());
+	for (auto& arg : exec.params)
+	{
+		args[pos++] = arg;
+	}
+	return args;
+}
+
+void invalidArgsError(int argC, char* argV[], bool cond) {
+	if (!cond)
+	{
+		std::cerr << "Application Module with inappropriate arguments called: " << argC << std::endl;
+		for (int i = 0; i < argC; ++i)
+		{
+			std::cerr << i << ": " << argV[i] << std::endl;
+		}
+		assert(false);
+		exit(1);
+	}
+}
+
+CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]) {
+
+
+	invalidArgsError(argC, argV, argC < 11);
+	int numExtraArgs = std::stoi(argV[9]);
+	invalidArgsError(argC, argV, argC == numExtraArgs + 10);
+	std::vector<std::string> extraArgs(numExtraArgs);
+	for (size_t i = 0; i < numExtraArgs; i++)
+	{
+		extraArgs[i] = argV[i + 10];
+	}
+	CRB_EXEC exec(ExecFlag::Normal,
+		adoptedChar(argV[0]), //name
+		atoi(argV[1]), //port
+		adoptedChar(argV[2]), //localIp
+		atoi(argV[3]), //moduleCount
+		adoptedChar(argV[4]), //moduleId
+		adoptedChar(argV[5]), //moduleIp
+		adoptedChar(argV[6]), //moduleHostName
+		adoptedChar(argV[7]), //displayIp
+		nullptr, //category
+		atoi(argV[8]), //vrbClientIdOfController
+		extraArgs); //params
+	return exec;
+}
+
+std::vector<const char*> cmdArgsToCharVec(const std::vector<std::string>& args) {
+	std::vector<const char*> v(args.size() + 1);
+	std::transform(args.begin(), args.end(), v.begin(), [](const std::string& s) {return s.c_str(); });
+	v[args.size()] = nullptr;
+	return v;
 }
 
 } //covise

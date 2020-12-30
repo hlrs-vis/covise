@@ -31,12 +31,13 @@ namespace covise{
      char *, moduleHostName,
      char *, displayIp,
      char *, category,
-     char *, vrbSession,
+     int, vrbClientIdOfController,
      std::vector<std::string>, params)
     //port and moduleCount are dummies to hold the correspondig char ptrs
-    NETEXPORT std::vector<const char *> getCmdArgs(const CRB_EXEC &exec, std::string& port, std::string&moduleCount);
+    NETEXPORT std::vector<std::string> getCmdArgs(const CRB_EXEC &exec);
+    NETEXPORT CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]);
 
-
+    NETEXPORT std::vector<const char*> cmdArgsToCharVec(const std::vector<std::string>& args);
 
 } //covise
 
