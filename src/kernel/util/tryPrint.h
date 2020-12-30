@@ -42,6 +42,34 @@ namespace covise
         }
     }
 
+
+    template<>
+    inline void tryPrintWithError<char const*>(std::ostream& os, const char* const& t, const char* className, const char* errorMsg)
+    {
+        if (t)
+        {
+            os << t;
+        }
+        else
+        {
+            os << "nullptr";
+        }
+    }
+
+    template<>
+    inline void tryPrintWithError<char *>(std::ostream& os, char* const& t, const char* className, const char* errorMsg)
+    {
+        if (t)
+        {
+            os << t;
+        }
+        else
+        {
+            os << "nullptr";
+        }
+    }
+
+
     template <class T>
     void tryPrint(const T &t)
     {
