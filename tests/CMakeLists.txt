@@ -6,6 +6,7 @@ set(VRB_TEST_SOURCES
     testObject.cpp
     tryPrint.cpp
     coSpawnProgram.cpp
+	CRB_EXEC.cpp
 )
 
 set(VRB_TEST_HEADER 
@@ -13,6 +14,7 @@ set(VRB_TEST_HEADER
     testObject.h
     tryPrint.h
     coSpawnProgram.h
+	CRB_EXEC.h
 )
 
 ADD_COVISE_EXECUTABLE(VrbTests ${VRB_TEST_SOURCES} ${VRB_TEST_HEADER})

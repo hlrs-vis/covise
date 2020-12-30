@@ -31,7 +31,7 @@ namespace test
         assert(vrbMessage.args.size() == 2);
         assert(vrbMessage.args[0] == "test1");
         assert(vrbMessage.args[1] == "test2");
-        std::cerr << vrbMessage << std::endl;
+        //std::cerr << vrbMessage << std::endl;
         covise::TokenBuffer tb;
         tb << vrbMessage;
         covise::Message msg{tb};
@@ -42,7 +42,7 @@ namespace test
         assert(vrbMessage2.args.size() == 2);
         assert(vrbMessage2.args[0] == "test1");
         assert(vrbMessage2.args[1] == "test2");
-        std::cerr << vrbMessage2 << std::endl;
+        //std::cerr << vrbMessage2 << std::endl;
     }
 
     void testMessageSubCLass()
@@ -51,7 +51,7 @@ namespace test
         args.push_back("test1");
         args.push_back("test2");
         VRB_LOAD_SESSION_Launcher launcher{154, args};
-        std::cerr << launcher << std::endl;
+        //std::cerr << launcher << std::endl;
 
         assert(launcher.clientID == 154);
         assert(launcher.args.size() == 2);
@@ -71,7 +71,7 @@ namespace test
             assert(launcher2.clientID == 154);
             assert(launcher2.args.size() == 2);
             assert(launcher2.args[1] == "test2");
-            std::cerr << launcher2 << std::endl;
+            //std::cerr << launcher2 << std::endl;
             break;
         }
     }
