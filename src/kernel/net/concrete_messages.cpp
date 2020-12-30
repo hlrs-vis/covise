@@ -9,6 +9,7 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <functional>
 namespace covise {
 
 TokenBuffer& operator<<(TokenBuffer& tb, ExecFlag flag) {
@@ -78,10 +79,11 @@ std::vector<std::string> getCmdArgs(const CRB_EXEC& exec) {
 	return args;
 }
 
-void invalidArgsError(int argC, char* argV[], bool cond) {
-	if (!cond)
+void invalidArgsError(int argC, int expected, std::function<bool(int, int)> compare, char* argV[]) {
+	if (!compare(argC, expected))
 	{
-		std::cerr << "Application Module with inappropriate arguments called: " << argC << std::endl;
+		std::cerr << "Application Module with inappropriate arguments called: "
+		 << argC << ", " << expected << " expected" << std::endl;
 		for (int i = 0; i < argC; ++i)
 		{
 			std::cerr << i << ": " << argV[i] << std::endl;
@@ -94,9 +96,13 @@ void invalidArgsError(int argC, char* argV[], bool cond) {
 CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]) {
 
 
-	invalidArgsError(argC, argV, argC < 11);
+	invalidArgsError(argC, 10, 
+					[](int a, int b){ return a >= b; },
+	 				argV);
 	int numExtraArgs = std::stoi(argV[9]);
-	invalidArgsError(argC, argV, argC == numExtraArgs + 10);
+	invalidArgsError(argC, numExtraArgs + 10, 
+					[](int a, int b){ return a == b; },
+	 				argV);
 	std::vector<std::string> extraArgs(numExtraArgs);
 	for (size_t i = 0; i < numExtraArgs; i++)
 	{

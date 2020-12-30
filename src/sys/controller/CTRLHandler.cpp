@@ -26,6 +26,7 @@
 #include <util/covise_version.h>
 #include <util/unixcompat.h>
 #include <vrb/client/VRBClient.h>
+#include <vrb/VrbSetUserInfoMessage.h>
 
 #include "AccessGridDaemon.h"
 #include "CTRLGlobal.h"
@@ -3317,7 +3318,6 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
     CTRLGlobal::getInstance()->s_nodeID++;
     int s_nodeID = CTRLGlobal::getInstance()->s_nodeID;
     int count = CTRLGlobal::getInstance()->netList->init(s_nodeID, name, nr, host, posx, posy, 0, flags);
-    //create vrb client for OpenCOVER
     if (count != 0)
     {
         // send INIT message
@@ -3890,11 +3890,83 @@ bool CTRLHandler::recreate(string content, readMode mode)
     return true;
 }
 
-const std::string &covise::CTRLHandler::vrbSessionName() const
+int CTRLHandler::vrbClientID() 
 {
-    m_sessionName = "covise_" + std::to_string(m_client.ID());
-    return m_sessionName;
+    if (waitForVrbRegistration())
+    {
+        return m_client.ID();
+    }
+    return 0;
 }
+
+bool CTRLHandler::waitForVrbRegistration() {
+    if (!m_client.isConnected())
+    {
+        m_clientRegistered = false;
+        m_remoteLauncher.clear();
+        if(!m_client.connectToServer())
+            return false;
+    }
+    if (m_clientRegistered)
+    {
+        return true;
+    }
+    Message msg;
+    if(m_client.wait(&msg, COVISE_MESSAGE_VRB_SET_USERINFO))
+        vrbClientsUpdate(msg);
+    return m_clientRegistered;
+}
+
+bool CTRLHandler::vrbUpdate() {
+    Message msg;
+    bool retval = false;
+    while (m_client.poll(&msg)) {
+        switch (msg.type)
+        {
+        case COVISE_MESSAGE_VRB_SET_USERINFO:
+        {
+            vrbClientsUpdate(msg);
+            retval = true;
+        }
+        case COVISE_MESSAGE_VRB_QUIT:
+        {
+            TokenBuffer tb{ &msg };
+            int id;
+            tb >> id;
+            if (id != m_client.ID())
+            {
+                std::remove_if(m_remoteLauncher.begin(), m_remoteLauncher.end(), [id](const std::pair<int, std::string>& cl) {return cl.first == id; });
+                retval = true;
+            }
+        }
+        break;
+        default:
+            break;
+        } 
+
+    }
+    return retval;
+}
+
+void CTRLHandler::vrbClientsUpdate(const Message &userInfoMessage) {
+    vrb::UserInfoMessage uim(&userInfoMessage);
+    if (uim.hasMyInfo)
+    {
+        m_clientRegistered = true;
+        m_client.setSession(uim.mySession);
+        m_client.setID(uim.myClientID);
+    }
+    for (const auto& cl : uim.otherClients)
+    {
+        if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
+        {
+            m_remoteLauncher.emplace_back(std::make_pair(cl.ID(), cl.userInfo().hostName));
+        }
+    }
+}
+
+
+
 bool CTRLHandler::checkModule(const string &modname, const string &modhost)
 {
 

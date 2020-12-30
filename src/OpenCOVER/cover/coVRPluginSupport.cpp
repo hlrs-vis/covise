@@ -1459,12 +1459,7 @@ void coVRPluginSupport::protectScenegraph()
 
 bool coVRPluginSupport::sendVrbMessage(const covise::MessageBase *msg) const
 {
-    auto tcp = dynamic_cast<const covise::Message *>(msg);
-    if (tcp && coVRPluginList::instance()->sendVisMessage(tcp))
-    {
-        return true;
-    }
-    else if (vrbc)
+    if(vrbc)
     {
         vrbc->send(msg);
         return true;

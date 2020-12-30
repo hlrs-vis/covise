@@ -93,8 +93,6 @@ COVISEEXPORT int execProcessWMI(const char *commandLine, const char *wd, const c
 
 extern int COVISE_debug_level;
 
-void COVISEEXPORT exitOnInappropriateCmdArgs(int argC, char* argV[]);
-
 class COVISEEXPORT Process // base class for all processes
 {
 protected:
@@ -102,7 +100,7 @@ protected:
     int id; // number which identifies each process
     int hostid; // id of host, this process is running on
     Host *host; // host on which it is running, initialized by IP address
-    char *covise_hostname; // official hostname sent from controller
+    const char *covise_hostname; // official hostname sent from controller
     sender_type send_type; // type of this process
     ConnectionList *list_of_connections; // list of all connections
     List<Message> *msg_queue;

@@ -52,38 +52,23 @@ MEMessageHandler::MEMessageHandler(int argc, char **argv)
 {
 
     singleton = this;
-
     // check modus
-    if ((argc < 9) || (argc > 10))
-    {
-        qCritical() << "Map Editor with inappropriate arguments called";
-        qCritical() << "No. of arguments is " << argc << endl;
-        for (int i = 0; i < argc; i++)
-            qCritical() << argv[i];
+    m_standalone = false;
+    m_userInterface = new covise::UserInterface((char*)"AppModule", argc, argv);
 
-        m_standalone = true;
-        m_userInterface = NULL;
-    }
+    // make socket
+    int TCP_Socket = m_userInterface->get_socket_id(remove_socket);
+    QSocketNotifier* sn = new QSocketNotifier(TCP_Socket, QSocketNotifier::Read);
 
-    else
-    {
-        m_standalone = false;
-        m_userInterface = new covise::UserInterface((char *)"AppModule", argc, argv);
-
-        // make socket
-        int TCP_Socket = m_userInterface->get_socket_id(remove_socket);
-        QSocketNotifier *sn = new QSocketNotifier(TCP_Socket, QSocketNotifier::Read);
-
-// weil unter windows manchmal Messages verloren gehen
-// der SocketNotifier wird nicht oft genug aufgerufen)
+    // weil unter windows manchmal Messages verloren gehen
+    // der SocketNotifier wird nicht oft genug aufgerufen)
 #if defined(_WIN32) || defined(__APPLE__)
-        m_periodictimer = new QTimer;
-        QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(handleWork()));
-        m_periodictimer->start(1000);
+    m_periodictimer = new QTimer;
+    QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(handleWork()));
+    m_periodictimer->start(1000);
 #endif
 
-        QObject::connect(sn, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
-    }
+    QObject::connect(sn, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
 }
 
 MEMessageHandler *MEMessageHandler::instance()

@@ -1625,8 +1625,8 @@ void MEUserInterface::startRenderer(const covise::CRB_EXEC &arguments)
 
     // create argumets for starting
     // ignore first parameter
-    std::string portDummy, moduleCountDummy;
-    auto argV = covise::getCmdArgs(arguments, portDummy, moduleCountDummy);
+    auto args = covise::getCmdArgs(arguments);
+    auto argV = covise::cmdArgsToCharVec(args);
     size_t argc = argV.size() - 1;
     auto argv = argV.data() + 1;
     

@@ -53,7 +53,7 @@ public:
 
     vector<string> splitString(string text, const string &sep);
     bool recreate(string buffer, readMode mode);
-    const std::string &vrbSessionName() const;
+    int vrbClientID();
 private:
     static CTRLHandler *singleton;
     FILE *fp;
@@ -68,8 +68,9 @@ private:
     int m_daemonPort, m_xuif, m_startScript, m_accessGridDaemonPort;
     int m_SSLDaemonPort;
     SSLClient *m_SSLClient;
+    bool m_clientRegistered = false;
     vrb::VRBClient m_client;
-    mutable std::string m_sessionName;
+    std::vector<std::pair<int, std::string>> m_remoteLauncher;
     int parseCommandLine(int argc, char **argv);
     void startCrbUiDm();
     void loadNetworkFile();
@@ -86,6 +87,9 @@ private:
                       const string &parname, const string &partype, const string &parvalue, const string &apptype,
                       const string &oldhost, bool init = false);
     bool checkModule(const string &modname, const string &modhost);
+    bool waitForVrbRegistration();
+    bool vrbUpdate();
+    void vrbClientsUpdate(const Message& userInfoMessage);
     void getAllConnections();
     void resetLists();
     string writeClipboard(const string &keyword, vector<net_module *> liste, bool all = false);

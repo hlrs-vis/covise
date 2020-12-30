@@ -81,8 +81,8 @@ const char *module::get_category() const
 
 void module::start(const CRB_EXEC & exec)
 {
-    std::string portDummy, moduleCountDummy;
-    auto args = getCmdArgs(exec, portDummy, moduleCountDummy);
+    auto a = getCmdArgs(exec);
+    auto args = cmdArgsToCharVec(a);
     args[0] = execpath.c_str();
     switch (exec.flag)
     {

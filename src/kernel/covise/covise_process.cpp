@@ -35,6 +35,7 @@ using namespace std;
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>
+#include <net/concrete_messages.h>
 #include <util/coLog.h>
 #include <config/CoviseConfig.h>
 #ifdef _WIN32
@@ -136,17 +137,6 @@ static const char *COVISE_debug_filename = "covise.log";
     execProcessWMI("C:\\src\\uwewin\\covise\\win32\\bin\\Renderer\\COVER.EXE",NULL,NULL,NULL,NULL);
 }
 */
-void exitOnInappropriateCmdArgs(int argC, char* argV[]) {
-    if ((argC < 9) || (argC > 10))
-    {
-        cerr << "Application Module with inappropriate arguments called: " << argC << endl;
-        for (int i = 0; i < argC; ++i)
-        {
-            cerr << i << ": " << argV[i] << endl;
-        }
-        exit(1);
-    }
-}
 
 
 #ifdef _MSC_VER
@@ -596,20 +586,18 @@ Process::Process(const char *n, int i, sender_type st, int port)
 
 Process::Process(const char *n, int arc, char *arv[], sender_type st)
 {
-    exitOnInappropriateCmdArgs(arc, arv);
-    if (arc == 10)
+    auto crbExec = covise::getExecFromCmdArgs(arc, arv);
+    if (crbExec.displayIp)
     {
-        static char buf[500];
-        snprintf(buf, sizeof(buf), "DISPLAY=%s", arv[7]);
-        putenv(buf);
+        setenv("DISPLAY", crbExec.displayIp, true);
     }
 
-    id = atoi(arv[3]);
+    id = crbExec.moduleCount;
     name = n;
     send_type = st;
     init_env();
-    covise_hostname = arv[5];
-    host = new Host(arv[6]);
+    covise_hostname = crbExec.moduleIp;
+    host = new Host(crbExec.moduleHostName);
 //char *instance = arv[4];
 
 #ifdef __linux__

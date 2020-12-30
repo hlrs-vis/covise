@@ -31,6 +31,7 @@
 #include <covise/Covise_Util.h>
 #include <util/coLog.h>
 #include <do/coDistributedObject.h>
+#include <net/concrete_messages.h>
 #if defined(__linux__) || defined(__APPLE__)
 #define NODELETE_APPROC
 #endif
@@ -516,7 +517,6 @@ void Covise::init(int argc, char *argv[])
         printDesc(argv[0]);
         exit(0);
     }
-    exitOnInappropriateCmdArgs(argc, argv);
 // Initialization of the communciation environment
 #ifdef _WIN32
     WORD wVersionRequested;
@@ -534,18 +534,18 @@ void Covise::init(int argc, char *argv[])
     //fprintf(stderr,"--socket_id = appmod->get_socket_id\n");
     socket_id = appmod->get_socket_id(Covise::remove_socket);
     //fprintf(stderr,"-- socket_id = %d\n", socket_id);
-
+    auto crbExec = covise::getExecFromCmdArgs(argc, argv);
     h_name = appmod->get_hostname();
-    char* p = strrchr(argv[0], '/');
+    const char *p = strrchr(crbExec.name, '/');
     if (p)
         m_name = p + 1;
     else
-        m_name = argv[0];
-    instance = argv[4];
+        m_name = crbExec.name;
+    instance = std::to_string(crbExec.moduleCount);
     print_comment(__LINE__, __FILE__, "Application Module succeeded");
 
 #ifdef DEBUG
-    cerr << argv[0] << " Application Module succeeded" << endl;
+    cerr << crbExec << " Application Module succeeded" << endl;
 #endif
 
     init_flag = 1;

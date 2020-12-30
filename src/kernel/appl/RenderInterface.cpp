@@ -32,6 +32,7 @@
 #include <util/coLog.h>
 #include <do/coDistributedObject.h>
 #include <net/dataHandle.h>
+#include <net/concrete_messages.h>
 
 #ifdef _WIN32
 #include <fcntl.h>
@@ -521,16 +522,16 @@ void CoviseRender::init(int argc, char *argv[])
     //	   << endl;
     if (argc == 2 && 0 == strcmp(argv[1], "-d"))
         printDesc(argv[0]);
-    else
-        exitOnInappropriateCmdArgs(argc, argv); 
+
 
     // Initialization of the communciation environment
 
     appmod = new ApplicationProcess(argv[0], argc, argv, RENDERER);
     socket_id = appmod->get_socket_id(CoviseRender::remove_socket);
     h_name = (char *)appmod->get_hostname();
-    m_name = argv[0];
-    instance = argv[4];
+    auto crbExec = covise::getExecFromCmdArgs(argc, argv);
+    m_name =crbExec.name;
+    instance = crbExec.moduleId;
 
     print_comment(__LINE__, __FILE__, "Renderer Module succeeded");
 

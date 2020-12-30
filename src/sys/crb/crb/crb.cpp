@@ -64,29 +64,21 @@ int main(int argc, char* argv[])
         print_exit(__LINE__, __FILE__, 1);
     }
 
-    cerr << "CRB:.................  ";
-    for (size_t i = 0; i < argc; i++)
-    {
-        cerr << "  " << argv[i];
-    }
-    cerr << endl;
-    //sleep(10);
+    //cerr << ".................  " << argc << "  " << argv[argc-1] << endl;
+
 #if !defined(_WIN32) && !defined(__APPLE__)
   // set the right DISPLAY environment
     if (argc == 6)
     {
-        char* dsp = new char[strlen(argv[argc - 1]) + 9];
-        sprintf(dsp, "DISPLAY=%s", argv[argc - 1]);
-        putenv(dsp);
+        setenv("DISPLAY", argv[argc - 1], true);
     }
     else
     {
-        if (getenv("DISPLAY") == NULL)
-            putenv((char*)"DISPLAY=:0");
+        setenv("DISPLAY", ":0", false);
     }
 #endif
 
-    putenv((char*)"CO_MODULE_BACKEND=covise");
+    setenv("CO_MODULE_BACKEND", "covise", true);
 
 #ifdef _WIN32
     WORD wVersionRequested;
@@ -568,8 +560,8 @@ int main(int argc, char* argv[])
             }
             else
             {
-                std::string portDummy, moduleCountDummy;
-                auto args = getCmdArgs(crbExec, portDummy, moduleCountDummy);
+                auto a = getCmdArgs(crbExec);
+                auto args = cmdArgsToCharVec(a);
                 const char* appName = crbExec.name;
                 std::string execpath;
                 const char* covisedir = getenv("COVISEDIR");
@@ -592,7 +584,7 @@ int main(int argc, char* argv[])
 #endif
                 execpath += appName;
                 args[0] = execpath.c_str();
-                spawnProgram(args[0], args); //spawnProgram uses execvp instead of execv which should have the same effect since execpath is absolute
+                spawnProgram(args[0], args); 
             }
         }
         break;

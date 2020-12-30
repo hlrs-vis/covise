@@ -30,8 +30,7 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
     crbConn = crbC;
     moduleConn = NULL;
     ctrlConn = NULL;
-    std::string portDummy, moduleCountDummy;
-    auto args = getCmdArgs(messageData, portDummy, moduleCountDummy);
+    auto args = getCmdArgs(messageData);
 
     int serverPort;
     moduleConn = new ServerConnection(&serverPort, messageData.moduleCount, APPLICATIONMODULE);
@@ -48,7 +47,7 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
                         messageData.moduleHostName,
                         messageData.displayIp,
                         messageData.category,
-                        messageData.vrbSession,
+                        messageData.vrbClientIdOfController,
                         messageData.params};
 
     //cerr << " new Message:" << newMessage << endl;

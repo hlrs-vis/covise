@@ -52,6 +52,8 @@ using namespace std;
 #include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
+#include <net/concrete_messages.h>
+
 #include <covise/Covise_Util.h>
 #include <config/CoviseConfig.h>
 
@@ -76,33 +78,27 @@ InvMain::InvMain(int argc, char *argv[])
     setWindowTitle("application main window");
     setAttribute(Qt::WA_DeleteOnClose);
 
-    if ((argc < 7) || (argc > 8))
+    if (argc == 2 && 0 == strcmp(argv[1], "-d"))
     {
-        if (argc == 2 && 0 == strcmp(argv[1], "-d"))
-        {
-            set_module_description("Qt/Coin3D (Inventor) Renderer");
-            add_port(INPUT_PORT,
-                     "RenderData",
-                     "Geometry|Points|"
-                     "Text_Iv|UnstructuredGrid|RectilinearGrid|"
-                     "StructuredGrid|UniformGrid|Polygons|TriangleStrips|"
-                     "Lines|Spheres|Texture",
-                     "render geometry or Inventor file");
+        set_module_description("Qt/Coin3D (Inventor) Renderer");
+        add_port(INPUT_PORT,
+            "RenderData",
+            "Geometry|Points|"
+            "Text_Iv|UnstructuredGrid|RectilinearGrid|"
+            "StructuredGrid|UniformGrid|Polygons|TriangleStrips|"
+            "Lines|Spheres|Texture",
+            "render geometry or Inventor file");
 
-            add_port(PARIN,
-                     "AnnotationString",
-                     "String",
-                     "Annotation descr. string");
+        add_port(PARIN,
+            "AnnotationString",
+            "String",
+            "Annotation descr. string");
 
-            set_port_default("AnnotationString", "empty");
+        set_port_default("AnnotationString", "empty");
 
-            printDesc(argv[0]);
-        }
-        else
-            cerr << "Application Module with inappropriate arguments called\n";
+        printDesc(argv[0]);
         exit(0);
     }
-
     renderer = this;
     synced = SYNC_LOOSE;
     rendererPropBlending = 0;
@@ -115,11 +111,13 @@ InvMain::InvMain(int argc, char *argv[])
     //
     // parse arguments and store them in info class
     //
-    m_name = proc_name = argv[0];
-    port = atoi(argv[1]);
-    h_name = host = argv[2];
-    proc_id = atoi(argv[3]);
-    instance = argv[4];
+    auto crbExec = covise::getExecFromCmdArgs(argc, argv);
+
+    m_name = proc_name = crbExec.name;
+    port = crbExec.port;
+    h_name = host = crbExec.localIp;
+    proc_id = crbExec.moduleCount;
+    instance = crbExec.moduleId;
     //
     // contact controller
     //
@@ -174,9 +172,9 @@ InvMain::InvMain(int argc, char *argv[])
     //
     // create a render manager
     //
-    render_name = argv[0];
+    render_name = crbExec.name;
     render_name.append("_");
-    render_name.append(argv[4]);
+    render_name.append(crbExec.moduleId);
     render_name.append("@");
     QString tmphostname = QString::fromStdString(Host::lookupHostname(hostname.toLatin1()));
     render_name.append(tmphostname.section('.', 0, 0));

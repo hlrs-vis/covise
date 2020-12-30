@@ -10,6 +10,8 @@
 #include <shm/covise_shm.h>
 #include <net/covise_socket.h>
 #include <net/covise_host.h>
+#include <net/concrete_messages.h>
+
 #ifdef _WIN32
 typedef int pid_t;
 #endif
@@ -354,14 +356,15 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
     char tmp_str[255];
 #endif
     shm = NULL;
-    exitOnInappropriateCmdArgs(argc, argv);
-    id = atoi(argv[3]);
-    tmphost = new Host(argv[2]);
+    auto crbExec = covise::getExecFromCmdArgs(argc, argv);
+
+    id = crbExec.moduleCount;
+    tmphost = new Host(crbExec.localIp);
 
     //fprintf(stderr,"---- contact_controller\n");
 
     datamanager = NULL;
-    contact_controller(atoi(argv[1]), tmphost);
+    contact_controller(crbExec.port, tmphost);
     // darf ich das? Uwe WOessner delete tmphost;
     if (!is_connected())
         return;
