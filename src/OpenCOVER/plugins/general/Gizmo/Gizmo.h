@@ -35,6 +35,8 @@
 #include <cover/coVRPlugin.h>
 #include <PluginUtil/coVR3DGizmo.h>
 #include <PluginUtil/coVR3DTransGizmo.h>
+#include <PluginUtil/coVR3DRotGizmo.h>
+
 
 
 namespace vrui
@@ -197,12 +199,22 @@ private:
     
     //_gizmo = new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE, matrix5, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
 
+    void activateGizmo(const osg::Matrix& m);
+    void deactivateGizmo();
+    bool isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const;
+    bool isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const; // instead of this function use:_gizmo->isIntersected()
 
+    void selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& doUndo, bool& isObject, bool& isNewObject);
+    void newObject(osg::Node* node,const osg::NodePath& intersectedNodePath);
+
+    osg::Matrix gizmoStartMat();
+    void doMove();
+    bool _gizmoActive{false};
+
+    void showOrhideName(osg::Node *node);
     // coVR3DGizmo* createGizmo();
     // void deleteGizmo();
     // void makeSelectedNodeTransparent();
-
-
 
 };
 #endif
