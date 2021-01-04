@@ -21,7 +21,6 @@ SET(SCHISM_LIBRARY_SEARCH_DIRS
 ##############################################################################
 # check for schism
 ##############################################################################
-message(STATUS "-- checking for schism")
 
 IF ( NOT SCHISM_INCLUDE_DIRS )
 

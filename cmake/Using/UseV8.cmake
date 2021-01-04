@@ -1,5 +1,5 @@
 MACRO(USE_V8)
-    covise_find_package(V8)
+    covise_find_package(V8 QUIET)
     if ((NOT V8_FOUND) AND (${ARGC} LESS 1))
         using_message("Skipping because of missing V8")
         return()

@@ -10,7 +10,7 @@ using(XERCESC)
 COVISE_FIND_PACKAGE(GDAL)
 COVISE_FIND_PACKAGE(FFTW)
 
-covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
+covise_find_package(OpenSceneGraph 3.2.0 QUIET COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
 IF(NOT OSGTERRAIN_FOUND)
   RETURN()

@@ -20,7 +20,6 @@ SET(OPENPASS_LIBRARY_SEARCH_DIRS
 ##############################################################################
 # check for OpenPASS
 ##############################################################################
-message(STATUS "-- checking for OpenPASS")
 
 IF ( NOT OPENPASS_INCLUDE_DIRS )
 

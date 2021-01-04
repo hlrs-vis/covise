@@ -1,5 +1,4 @@
 USING(Virvo:transfunc optional) # for transfer function editor
-MESSAGE("halloTUI")
 USING(WiringPi optional)
 
 

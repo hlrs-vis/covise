@@ -1,5 +1,5 @@
 IF(NOT CUDA_FOUND OR NOT COVISE_USE_CUDA)
-  MESSAGE("Skipping OpenCOVER - cuIsoSurface plugin since CUDA was not found!")
+  #MESSAGE("Skipping OpenCOVER - cuIsoSurface plugin since CUDA was not found!")
   RETURN()
 ENDIF()
 

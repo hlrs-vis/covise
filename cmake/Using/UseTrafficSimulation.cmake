@@ -15,7 +15,7 @@ else()
         covise_find_package(OSGCAL)
         covise_find_package(CAL3D)
         covise_find_package(GDAL)
-        covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
+        covise_find_package(OpenSceneGraph 3.2.0 QUIET COMPONENTS osgTerrain)
 
         use_xercesc(${OPT})
         use_vehicleutil(${OPT})

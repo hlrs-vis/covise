@@ -1,5 +1,5 @@
 MACRO(USE_EMBREE3)
-  covise_find_package(embree 3.0.0)
+  covise_find_package(embree 3.0.0 QUIET)
 
   if (NOT embree_FOUND AND (${ARGC} LESS 1))
     using_message("Skipping because of missing EMBREE")

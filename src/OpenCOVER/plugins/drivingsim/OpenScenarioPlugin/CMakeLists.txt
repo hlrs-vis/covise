@@ -7,7 +7,7 @@ using(TrafficSimulation)
 using(OpenScenario)
 
 
-covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
+covise_find_package(OpenSceneGraph 3.2.0 QUIET COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
 
 set(HEADERS
