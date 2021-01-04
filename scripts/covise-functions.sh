@@ -192,6 +192,10 @@ guess_archsuffix() {
                    export ARCHSUFFIX=neolamprologus
                elif grep -i -q -s 'suse.*13.1' /etc/issue; then
                    export ARCHSUFFIX=saara
+               elif grep -i -q -s 'suse.*15.1' /etc/issue; then
+                   export ARCHSUFFIX=tangachromis
+               elif grep -i -q -s 'suse.*15.2' /etc/os-release; then
+                   export ARCHSUFFIX=altolamprologus
                elif grep -i -q -s 'suse.*13.2' /etc/issue; then
                    export ARCHSUFFIX=julidochromis
                elif grep -i -q -s 'suse.*10.3' /etc/issue; then
@@ -230,6 +234,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=focal
                elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
                    export ARCHSUFFIX=tahr
+               elif grep -i -q -s 'suse.*42.2' /etc/issue; then
+                   export ARCHSUFFIX=cyprichromis
                elif grep -i -q -s 'ubuntu.*6\.06' /etc/issue; then
                    export ARCHSUFFIX=drake
                elif grep -i -q -s 'ubuntu.*6\.10' /etc/issue; then

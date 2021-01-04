@@ -128,6 +128,9 @@ slowworm        OpenSUSE 12.2 on x86_64
 neolamprologus  OpenSUSE 12.3 on x86_64
 saara           OpenSUSE 13.1 on x86_64
 julidochromis   OpenSUSE 13.2 on x86_64
+cyprichromis    OpenSUSE Leap 42.2 on x86_64
+tangachromis    openSUSE Leap 15.1
+altolamprologus openSUSE Leap 15.2
 
 sarge           Debian Linux 3.1 (Sarge) with updates on ia32
 etch32          Debian Linux 4.0 (Etch) with updates on ia32
