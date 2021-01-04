@@ -11,7 +11,7 @@
 namespace vrb{
 
 struct VRBEXPORT UserInfoMessage{
-    UserInfoMessage(covise::Message *msg);
+    UserInfoMessage(const covise::Message *msg);
     
     //needed to compile with MSVC
     UserInfoMessage(const UserInfoMessage& other) = delete;

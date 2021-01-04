@@ -3,7 +3,7 @@
 #include <net/message_types.h>
 using namespace vrb;
 
-UserInfoMessage::UserInfoMessage(covise::Message *msg)
+UserInfoMessage::UserInfoMessage(const covise::Message *msg)
 {
     std::vector<std::unique_ptr<int>> otherClients3;
     assert(msg->type == covise::COVISE_MESSAGE_VRB_SET_USERINFO);
