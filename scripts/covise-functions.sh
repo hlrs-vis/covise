@@ -44,34 +44,35 @@ guess_archsuffix() {
    case "$ARCH" in
         Darwin)
             export ARCHSUFFIX=darwin
-            case "`uname -r`" in
-                7.*)
+            macosver="$(sw_vers -productVersion | awk -F '\.' '{ print $1"."$2 }')"
+            case "${macosver}" in
+                10.3)
 	            export ARCHSUFFIX=macx
                     ;;
 
-                8.*)
+                10.4)
 	            export ARCHSUFFIX=tiger
                     ;;
 
-                9.*|10.*)
+                10.5|10.6)
 	            export ARCHSUFFIX=leopard
                     ;;
 
-                11.*|12.*)
+                10.7|10.8)
 	            export ARCHSUFFIX=lion
                     ;;
 
-                13.*|14.*)
+                10.9|10.10)
 	            export ARCHSUFFIX=libc++
                     ;;
 
-                15.*|16.*|17.*|18.*|19.*|20.*)
+                10.11|,10.12|10.13|10.14|10.15|10.16|11.*)
 	            export ARCHSUFFIX=macos
                     ;;
 
                 *)
 	            export ARCHSUFFIX=macos
-                echo "Unknown macOS version `uname -r`: defaulting to ARCHSUFFIX ${ARCHSUFFIX}"
+                echo "Unknown macOS version ${macosver}: defaulting to ARCHSUFFIX ${ARCHSUFFIX}"
                     ;;
             esac
             ;;
