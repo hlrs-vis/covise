@@ -501,9 +501,9 @@ MainWindow::createPrototypes()
     {
         prototypeManager_->loadPrototypes(covisedir_ + "/share/covise/prototypes/TJunctionTown.odd");
     }
-    else if (prototypeManager_->loadPrototypes(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/prototypes.odd"))
+    else if (prototypeManager_->loadPrototypes(covisedir_ + "/src/oddlot/prototypes/prototypes.odd"))
     {
-        prototypeManager_->loadPrototypes(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/TJunctionTown.odd");
+        prototypeManager_->loadPrototypes(covisedir_ + "/src/oddlot/prototypes/TJunctionTown.odd");
     }
     else if (prototypeManager_->loadPrototypes("prototypes/prototypes.odd"))
     {
@@ -536,7 +536,7 @@ MainWindow::createSignals()
     if (covisedir == "")
         covisedir = getenv("COVISEDIR");
 #endif
-    if (!signalManager_->loadSignals(covisedir + "/src/OpenCOVER/DrivingSim/oddlot/signs/signs.xml"))
+    if (!signalManager_->loadSignals(covisedir + "/src/oddlot/signs/signs.xml"))
     {
         if (!signalManager_->loadSignals(covisedir + "/share/covise/signs/signs.xml"))
         {

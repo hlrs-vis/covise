@@ -21,7 +21,7 @@
 #include <qsocketnotifier.h>
 #include <qtimer.h>
 #include <qdialog.h>
-#include "../../plugins/hlrs/OddlotLink/oddlotMessageTypes.h"
+#include <OddlotLink/oddlotMessageTypes.h>
 #include <net/tokenbuffer.h>
 
 class MainWindow;
