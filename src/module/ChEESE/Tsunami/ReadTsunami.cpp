@@ -205,24 +205,12 @@ int ReadTsunami::compute(const char *)
 			int* vl, * pl;
 			float* x_coord, * y_coord, * z_coord;
 			outSurface->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
-            int n = 0;
-            for (int j = 0; j < snx; j++)
-            {
-                for (int k = 0; k < sny; k++, n++)
-                {
-                    n++;
-                    x_coord[n] = sx_coord[n];
-                    y_coord[n] = sy_coord[n];
-                    if (floatData[t * snx * sny + n] <= -depthVals[j * ny + k])
-                    {
-						z_coord[n] = -depthVals[j * ny + k] - 5;
-                    }
-                    else
-                    {
-                        z_coord[n] = floatData[t * snx * sny + n] * zScale;
-                    }
-                }
-            }
+			for (int n = 0; n < snx * sny; n++)
+			{
+				x_coord[n] = sx_coord[n];
+				y_coord[n] = sy_coord[n];
+				z_coord[n] = floatData[t*snx*sny+n]*zScale;
+			}
             for (int j = 0; j < snumPolygons * 4; j++)
             {
                 vl[j]=svl[j];
