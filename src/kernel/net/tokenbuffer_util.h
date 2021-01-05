@@ -1,6 +1,8 @@
 #ifndef COVISE_TOKEN_BUFFER_UTIL_H
 #define COVISE_TOKEN_BUFFER_UTIL_H
 
+#include "tokenbuffer.h"
+
 #include <type_traits>
 #include <tuple>
 namespace covise {
