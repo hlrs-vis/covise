@@ -321,6 +321,7 @@ SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.
 IF(UNIX)
   SET(install_files_exclude "${install_files_exclude}|\\.bat$|\\.vbs$")
 ENDIF(UNIX)
+SET(install_files_exclude "${install_files_exclude}|bin/sasuctrl")
 if(COVISE_BUILD_ONLY_COVER)
     SET(install_files_exclude "${install_files_exclude}|share/covise/example-data|share/covise/signals|share/covise/web")
 endif()
