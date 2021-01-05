@@ -13,7 +13,7 @@
 #include <util/coTimer.h>
 #include <util/covise_version.h>
 #include <net/covise_connect.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 #include <covise/covise_msg.h>
 #include <util/coFileUtil.h>
 

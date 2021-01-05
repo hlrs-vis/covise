@@ -75,6 +75,12 @@
 #define SGVRUIEXPORT COIMPORT
 #endif
 
+#if defined(coMessages_EXPORTS)
+#define COMSGEXPORT COEXPORT
+#else
+#define COMSGEXPORT COIMPORT
+#endif
+
 #if defined(coVRB_EXPORTS)
 #define VRBEXPORT COEXPORT
 #else

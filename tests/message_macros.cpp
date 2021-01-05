@@ -11,7 +11,6 @@
 #include <cassert>
 #include <iostream>
 #include <cassert>
-
 namespace test
 {
     IMPL_MESSAGE_CLASS(VRB_MESSAGE, int, messageType, int, clientID, std::vector<std::string>, args)
@@ -42,6 +41,7 @@ namespace test
         assert(vrbMessage2.args.size() == 2);
         assert(vrbMessage2.args[0] == "test1");
         assert(vrbMessage2.args[1] == "test2");
+        assert(vrbMessage == vrbMessage2);
         //std::cerr << vrbMessage2 << std::endl;
     }
 

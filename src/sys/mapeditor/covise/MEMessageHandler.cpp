@@ -18,7 +18,7 @@
 #include <util/coLog.h>
 #include <covise/covise_msg.h>
 #include <covise/covise_appproc.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 
 #include "MEMessageHandler.h"
 #include "MEFileBrowser.h"

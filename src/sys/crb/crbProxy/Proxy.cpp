@@ -22,7 +22,7 @@
 #endif
 
 #include "CRBConnection.h"
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 using namespace covise;
 
 Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
@@ -48,6 +48,7 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
                         messageData.displayIp,
                         messageData.category,
                         messageData.vrbClientIdOfController,
+                        messageData.vrbCredentials,
                         messageData.params};
 
     //cerr << " new Message:" << newMessage << endl;

@@ -27,7 +27,7 @@
 #include "control_coviseconfig.h"
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 #include <config/coConfig.h>
 
 #define MAXMODULES 1000

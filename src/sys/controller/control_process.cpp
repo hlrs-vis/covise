@@ -26,7 +26,7 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <util/unixcompat.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 
 #include "AccessGridDaemon.h"
 #include "CTRLHandler.h"
@@ -508,7 +508,7 @@ AppModule* Controller::start_applicationmodule(sender_type peer_type, const char
                   : host;
     
     const char *displayIp = CTRLHandler::instance()->Config->getDisplayIP((*dmod->get_host()));
-    CRB_EXEC crbExec{flags, name, port, h->getAddress(), module_count, instance, dmod->get_host()->getAddress(), dmod->get_host()->getName(), displayIp, category, CTRLHandler::instance()->vrbClientID(), params};
+    CRB_EXEC crbExec{flags, name, port, h->getAddress(), module_count, instance, dmod->get_host()->getAddress(), dmod->get_host()->getName(), displayIp, category, CTRLHandler::instance()->vrbClientID(), vrb::VrbCredentials{}, params};
     
     int timeout = 0; // do not timeout
     if (flags != ExecFlag::Debug)

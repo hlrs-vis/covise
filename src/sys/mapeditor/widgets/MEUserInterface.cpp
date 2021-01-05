@@ -31,7 +31,7 @@
 
 #include <covise/covise_msg.h>
 #include <config/coConfig.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 
 #include "MEUserInterface.h"
 #include "MEGraphicsView.h"

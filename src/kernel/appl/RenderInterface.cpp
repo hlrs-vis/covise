@@ -32,7 +32,7 @@
 #include <util/coLog.h>
 #include <do/coDistributedObject.h>
 #include <net/dataHandle.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 
 #ifdef _WIN32
 #include <fcntl.h>

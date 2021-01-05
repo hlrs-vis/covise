@@ -14,7 +14,6 @@ add_definitions(-DHAVE_OPENSSL)
 endif()
 
 SET(NET_SOURCES
-  concrete_messages.cpp
   covise_connect.cpp
   covise_host.cpp
   covise_socket.cpp
@@ -27,7 +26,6 @@ SET(NET_SOURCES
 )
 
 SET(NET_HEADERS
-  concrete_messages.h
   covise_connect.h
   covise_host.h
   covise_socket.h

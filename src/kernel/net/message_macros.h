@@ -4,6 +4,7 @@
 #include <util/tryPrint.h>
 #include <memory>
 #include <cassert>
+#include <cstring>
 
 namespace covise
 {
@@ -33,7 +34,26 @@ struct Wrapper<T, typename std::enable_if<std::is_pointer<T>::value || std::is_a
 private:
     const T m_t;
 };
+
+template<typename T>
+bool equals(const T& t1, const T& t2){
+    return t1 == t2;
 }
+//for char* nullptr is equal to empty string
+template<>
+inline bool equals<char const*>(const char* const& t1, const char* const& t2){
+    if (!t1)
+    {
+        return !t2 || !strcmp(t2,"");
+    }
+    if (!t2)
+    {
+        return !t1 || !strcmp(t1,"");
+    }
+    return !strcmp(t1,t2);
+}
+
+} //detail
 
 } // namespace covise
 //helper macros
@@ -112,107 +132,128 @@ private:
     covise::tryPrintWithError(os, msg.name, #type, " is not printable"); \
     os << ", ";
 
+#define CHECK_EQUALITY(type, name)\
+    covise::detail::equals(c1.name, c2.name) &&
+
 //----------------------------------------------------------------------------------------------------------------------------------------------
 
 //use in header files to declare a type that can be sent and received via messages
 //ClassName: message type without COVISE_MESSAGE_
 //export: the export macro to use
 //...: pairs of typename , value name. Used types must provide stream operators for TokenBuffer
-
-#define DECL_MESSAGE_CLASS(ClassName, export, ...)                                            \
-    struct export ClassName                                                                   \
-    {                                                                                         \
-        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                 \
+//implements a class with the given members.
+//use sendCoviseMessage function to send the message
+//receive the message by constructing this class from the message
+//also implements operator<< for ostream and tokenbuffer and operator== (for const char* nullptr =="")
+#define DECL_MESSAGE_CLASS(ClassName, export, ...)                                                    \
+    struct export ClassName                                                                           \
+    {                                                                                                 \
+        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                  \
         ClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))); \
-        ClassName(const covise::Message &msg);                                                \
-                                                                                              \
-    private:                                                                                  \
-        ClassName(covise::TokenBuffer &&tb);                                                  \
-    };                                                                                        \
-    export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg);    \
-    export std::ostream &operator<<(std::ostream &tb, const ClassName &exe);                  \
-    export bool sendCoviseMessage(const ClassName &msg, covise::MessageSenderInterface &sender);
+        explicit ClassName(const covise::Message &msg);                                               \
+        covise::Message createMessage() const;                                                        \
+                                                                                                      \
+    private:                                                                                          \
+        ClassName(covise::TokenBuffer &&tb);                                                          \
+    };                                                                                                \
+    export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg);            \
+    export std::ostream &operator<<(std::ostream &tb, const ClassName &exe);                          \
+    export bool sendCoviseMessage(const ClassName &msg, const covise::MessageSenderInterface &sender);      \
+    export bool operator==(const ClassName &c1, const ClassName &c2);
 
 //use in .cpp with same arguments as DECL_MESSAGE_CLASS exept the export argument
-#define IMPL_MESSAGE_CLASS(ClassName, ...)                                                               \
+#define IMPL_MESSAGE_CLASS(ClassName, ...)                                                                       \
     ClassName::ClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__)))      \
         : EXPAND(MY_OVERLOADED(CONSTRUCTOR_INITIALIZER_ELEM, CONSTRUCTOR_INITIALIZER_ELEM_LAST, __VA_ARGS__)) {} \
-    ClassName::ClassName(const covise::Message &msg) : ClassName(covise::TokenBuffer{&msg})              \
-    {                                                                                                    \
-        assert(msg.type == covise::CAT(COVISE_MESSAGE_, ClassName));                                     \
-    }                                                                                                    \
-    ClassName::ClassName(covise::TokenBuffer &&tb)                                                       \
+    ClassName::ClassName(const covise::Message &msg) : ClassName(covise::TokenBuffer{&msg})                      \
+    {                                                                                                            \
+        assert(msg.type == covise::CAT(COVISE_MESSAGE_, ClassName));                                             \
+    }                                                                                                            \
+    ClassName::ClassName(covise::TokenBuffer &&tb)                                                               \
         : EXPAND(MY_OVERLOADED(CONSTRUCTOR_INITIALIZER_TB, CONSTRUCTOR_INITIALIZER_TB_LAST, __VA_ARGS__)) {}     \
-    covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg)                       \
-    {                                                                                                    \
+    covise::Message ClassName::createMessage() const                                                             \
+    {                                                                                                            \
+        covise::TokenBuffer tb;                                                                                  \
+        tb << *this;                                                                                             \
+        covise::Message m{tb};                                                                                   \
+        m.type = covise::CAT(COVISE_MESSAGE_, ClassName);                                                        \
+        return m;                                                                                                \
+    }                                                                                                            \
+    covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg)                               \
+    {                                                                                                            \
         tb EXPAND(MY_OVERLOADED(FILL_TOKENBUFFER, FILL_TOKENBUFFER, __VA_ARGS__));                               \
-        return tb;                                                                                       \
-    }                                                                                                    \
-    bool sendCoviseMessage(const ClassName &msg, covise::MessageSenderInterface &sender)              \
-    {                                                                                                    \
-        covise::TokenBuffer tb;                                                                          \
-        tb << msg;                                                                                       \
-        covise::Message m{tb};                                                                           \
-        m.type = covise::CAT(COVISE_MESSAGE_, ClassName);                                                \
-        return sender.send(&m);                                                                          \
-    }                                                                                                    \
-    std::ostream &operator<<(std::ostream &os, const ClassName &msg)                                     \
-    {                                                                                                    \
-        os << #ClassName << ":" << std::endl;                                                            \
+        return tb;                                                                                               \
+    }                                                                                                            \
+    bool sendCoviseMessage(const ClassName &msg, covise::MessageSenderInterface &sender) const                   \
+    {                                                                                                            \
+        auto m = msg.createMessage();                                                                            \
+        return sender.send(&m);                                                                                  \
+    }                                                                                                            \
+    std::ostream &operator<<(std::ostream &os, const ClassName &msg)                                             \
+    {                                                                                                            \
+        os << #ClassName << ":" << std::endl;                                                                    \
         EXPAND(MY_OVERLOADED(PRINT_CLASS, PRINT_CLASS, __VA_ARGS__));                                            \
-        os << std::endl;                                                                                 \
-        return os;                                                                                       \
+        os << std::endl;                                                                                         \
+        return os;                                                                                               \
+    }                                                                                                            \
+    bool operator==(const ClassName &c1, const ClassName &c2)                                                    \
+    {                                                                                                            \
+        return EXPAND(MY_OVERLOADED(CHECK_EQUALITY, CHECK_EQUALITY, __VA_ARGS__)) true;                          \
     }
 
-#define DECL_SUB_MESSAGE_CLASS_DETAIL(ClassName, FullClassName, EnumClass, EnumType, export, ...) \
-    struct export FullClassName : ClassName                                                       \
-    {                                                                                             \
-        friend class ClassName;                                                                   \
-        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                      \
-        FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))); \
-                                                                                                  \
-    private:                                                                                      \
-        static const EnumClass subType = EnumClass::EnumType;                                       \
-        FullClassName(const covise::Message &msg);                                                \
-        FullClassName(covise::TokenBuffer &&tb);                                                  \
-    };                                                                                            \
-    export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const FullClassName &msg);    \
-    export std::ostream &operator<<(std::ostream &tb, const FullClassName &exe);                  \
-    export bool sendCoviseMessage(const FullClassName &msg, covise::MessageSenderInterface &sender);
+#define DECL_SUB_MESSAGE_CLASS_DETAIL(ClassName, FullClassName, EnumClass, EnumType, export, ...)                  \
+    struct export FullClassName : ClassName                                                                        \
+    {                                                                                                              \
+        friend struct ClassName;                                                                                    \
+        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                               \
+        explicit FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))); \
+        covise::Message createMessage() const;                                                                     \
+                                                                                                                   \
+    private:                                                                                                       \
+        static const EnumClass subType = EnumClass::EnumType;                                                      \
+        explicit FullClassName(const covise::Message &msg);                                                        \
+        explicit FullClassName(covise::TokenBuffer &&tb);                                                          \
+    };                                                                                                             \
+    export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const FullClassName &msg);                     \
+    export std::ostream &operator<<(std::ostream &tb, const FullClassName &exe);                                   \
+    export bool sendCoviseMessage(const FullClassName &msg, covise::MessageSenderInterface &sender) const;
 
 #define DECL_SUB_MESSAGE_CLASS(ClassName, EnumClass, EnumType, export, ...) \
     DECL_SUB_MESSAGE_CLASS_DETAIL(ClassName, ClassName##_##EnumType, EnumClass, EnumType, export, __VA_ARGS__)
 
-#define IMPL_SUB_MESSAGE_CLASS_DETAIL(ClassName, FullClassName, EnumClass, EnumType, ...)                   \
-    FullClassName::FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))) \
-        : ClassName(EnumClass::EnumType)\
-        , EXPAND(MY_OVERLOADED(CONSTRUCTOR_INITIALIZER_ELEM, CONSTRUCTOR_INITIALIZER_ELEM_LAST, __VA_ARGS__)) {}    \
-    FullClassName::FullClassName(const covise::Message &msg) : FullClassName(covise::TokenBuffer{&msg})     \
-    {                                                                                                       \
-        assert(msg.type == covise::CAT(COVISE_MESSAGE_, ClassName));                                        \
-    }                                                                                                       \
-    FullClassName::FullClassName(covise::TokenBuffer &&tb)                                                  \
-        : ClassName(static_cast<EnumClass>(covise::detail::get<int>(tb)))                                   \
-        , EXPAND(MY_OVERLOADED(CONSTRUCTOR_INITIALIZER_TB, CONSTRUCTOR_INITIALIZER_TB_LAST, __VA_ARGS__)) {}        \
-    covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const FullClassName &msg)                      \
-    {                                                                                                       \
-        tb << static_cast<int>(msg.type) EXPAND(MY_OVERLOADED(FILL_TOKENBUFFER, FILL_TOKENBUFFER, __VA_ARGS__));    \
-        return tb;                                                                                          \
-    }                                                                                                       \
-    bool sendCoviseMessage(const FullClassName &msg, covise::MessageSenderInterface &sender)         \
-    {                                                                                                       \
-        covise::TokenBuffer tb;                                                                             \
-        tb << msg;                                                                                          \
-        covise::Message m{tb};                                                                              \
-        m.type = covise::CAT(COVISE_MESSAGE_, ClassName);                                                   \
-        return sender.send(&m);                                                                             \
-    }                                                                                                       \
-    std::ostream &operator<<(std::ostream &os, const FullClassName &msg)                                        \
-    {                                                                                                       \
-        os << #FullClassName << ":" << std::endl;                                                           \
-        EXPAND(MY_OVERLOADED(PRINT_CLASS, PRINT_CLASS, __VA_ARGS__));                                               \
-        os << std::endl;                                                                                    \
-        return os;                                                                                          \
+#define IMPL_SUB_MESSAGE_CLASS_DETAIL(ClassName, FullClassName, EnumClass, EnumType, ...)                                                                                     \
+    FullClassName::FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__)))                                                           \
+        : ClassName(EnumClass::EnumType), EXPAND(MY_OVERLOADED(CONSTRUCTOR_INITIALIZER_ELEM, CONSTRUCTOR_INITIALIZER_ELEM_LAST, __VA_ARGS__)) {}                              \
+    FullClassName::FullClassName(const covise::Message &msg) : FullClassName(covise::TokenBuffer{&msg})                                                                       \
+    {                                                                                                                                                                         \
+        assert(msg.type == covise::CAT(COVISE_MESSAGE_, ClassName));                                                                                                          \
+    }                                                                                                                                                                         \
+    FullClassName::FullClassName(covise::TokenBuffer &&tb)                                                                                                                    \
+        : ClassName(static_cast<EnumClass>(covise::detail::get<int>(tb))), EXPAND(MY_OVERLOADED(CONSTRUCTOR_INITIALIZER_TB, CONSTRUCTOR_INITIALIZER_TB_LAST, __VA_ARGS__)) {} \
+    covise::Message FullClassName::createMessage() const                                                                                                                      \
+    {                                                                                                                                                                         \
+        covise::TokenBuffer tb;                                                                                                                                               \
+        tb << *this;                                                                                                                                                          \
+        covise::Message m{tb};                                                                                                                                                \
+        m.type = covise::CAT(COVISE_MESSAGE_, ClassName);                                                                                                                     \
+        return m;                                                                                                                                                             \
+    }                                                                                                                                                                         \
+    covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const FullClassName &msg)                                                                                        \
+    {                                                                                                                                                                         \
+        tb << static_cast<int>(msg.type) EXPAND(MY_OVERLOADED(FILL_TOKENBUFFER, FILL_TOKENBUFFER, __VA_ARGS__));                                                              \
+        return tb;                                                                                                                                                            \
+    }                                                                                                                                                                         \
+    bool sendCoviseMessage(const FullClassName &msg, covise::MessageSenderInterface &sender) const                                                                            \
+    {                                                                                                                                                                         \
+        auto m = msg.createMessage();                                                                                                                                         \
+        return sender.send(&m);                                                                                                                                               \
+    }                                                                                                                                                                         \
+    std::ostream &operator<<(std::ostream &os, const FullClassName &msg)                                                                                                      \
+    {                                                                                                                                                                         \
+        os << #FullClassName << ":" << std::endl;                                                                                                                             \
+        EXPAND(MY_OVERLOADED(PRINT_CLASS, PRINT_CLASS, __VA_ARGS__));                                                                                                         \
+        os << std::endl;                                                                                                                                                      \
+        return os;                                                                                                                                                            \
     }
 
 #define IMPL_SUB_MESSAGE_CLASS(ClassName, EnumClass, EnumType, ...) \

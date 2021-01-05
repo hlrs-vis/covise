@@ -52,7 +52,7 @@ using namespace std;
 #include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 
 #include <covise/Covise_Util.h>
 #include <config/CoviseConfig.h>
@@ -114,8 +114,8 @@ InvMain::InvMain(int argc, char *argv[])
     auto crbExec = covise::getExecFromCmdArgs(argc, argv);
 
     m_name = proc_name = crbExec.name;
-    port = crbExec.port;
-    h_name = host = crbExec.localIp;
+    port = crbExec.controllerPort;
+    h_name = host = crbExec.controllerIp;
     proc_id = crbExec.moduleCount;
     instance = crbExec.moduleId;
     //

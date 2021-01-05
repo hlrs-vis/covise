@@ -19,7 +19,7 @@ SET(CRB_HEADERS
 )
 
 ADD_COVISE_EXECUTABLE(crb ${CRB_SOURCES} ${CRB_HEADERS})
-TARGET_LINK_LIBRARIES(crb coApi coAppl coVRBClient coDmgr coCore coUtil coNet) 
+TARGET_LINK_LIBRARIES(crb coApi coAppl coVRBClient coDmgr coCore coUtil coNet coMessages) 
 qt_use_modules(crb Core Xml)
 
 COVISE_INSTALL_TARGET(crb)

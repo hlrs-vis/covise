@@ -17,7 +17,7 @@
 #include <config/coConfig.h>
 #include <covise/covise.h>
 #include <covise/covise_msg.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
 #include <net/tokenbuffer.h>

@@ -1,10 +1,10 @@
-#include "concrete_messages.h"
-#include "message.h"
-#include "message_sender_interface.h"
-#include "message_types.h"
-#include "tokenbuffer.h"
-#include "tokenbuffer_util.h"
-#include "tokenbuffer_serializer.h"
+#include "CRB_EXEC.h"
+#include <net/message.h>
+#include <net/message_sender_interface.h>
+#include <net/message_types.h>
+#include <net/tokenbuffer.h>
+#include <net/tokenbuffer_util.h>
+#include <net/tokenbuffer_serializer.h>
 
 #include <cassert>
 #include <iostream>
@@ -32,19 +32,21 @@ TokenBuffer& operator>>(TokenBuffer& tb, ExecFlag& flag) {
 IMPL_MESSAGE_CLASS(CRB_EXEC,
 	ExecFlag, flag,
 	char*, name,
-	int, port,
-	char*, localIp,
+	int, controllerPort,
+	char *, controllerIp,
 	int, moduleCount,
 	char*, moduleId,
 	char*, moduleIp,
 	char*, moduleHostName,
-	char*, displayIp,
 	char*, category,
 	int, vrbClientIdOfController,
+    vrb::VrbCredentials, vrbCredentials,
 	std::vector<std::string>, params)
 
+constexpr size_t numMembers = 12;
 
-std::string charToString(const char* c) {
+std::string charToString(const char *c)
+{
 	if (c && !c[0] == '\0')
 	{
 		return std::string{ c };
@@ -58,19 +60,21 @@ const char* adoptedChar(const char* c) {
 
 std::vector<std::string> getCmdArgs(const CRB_EXEC& exec) {
 
-	size_t l = 10;
+	size_t l = numMembers;
 	l += exec.params.size();
 	std::vector<std::string> args(l);
 	size_t pos = 0;
 	args[pos++] = charToString(exec.name);
-	args[pos++] = std::to_string(exec.port);
-	args[pos++] = charToString(exec.localIp);
+	args[pos++] = std::to_string(exec.controllerPort);
+	args[pos++] = charToString(exec.controllerIp);
 	args[pos++] = std::to_string(exec.moduleCount);
 	args[pos++] = charToString(exec.moduleId);
 	args[pos++] = charToString(exec.moduleIp);
 	args[pos++] = charToString(exec.moduleHostName);
-	args[pos++] = charToString(exec.displayIp);
 	args[pos++] = std::to_string(exec.vrbClientIdOfController);
+	args[pos++] = exec.vrbCredentials.ipAddress;
+	args[pos++] = std::to_string(exec.vrbCredentials.tcpPort);
+	args[pos++] = std::to_string(exec.vrbCredentials.udpPort);
 	args[pos++] = std::to_string(exec.params.size());
 	for (auto& arg : exec.params)
 	{
@@ -96,17 +100,17 @@ void invalidArgsError(int argC, int expected, std::function<bool(int, int)> comp
 CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]) {
 
 
-	invalidArgsError(argC, 10, 
+	invalidArgsError(argC, numMembers, 
 					[](int a, int b){ return a >= b; },
 	 				argV);
-	int numExtraArgs = std::stoi(argV[9]);
-	invalidArgsError(argC, numExtraArgs + 10, 
+	int numExtraArgs = std::stoi(argV[numMembers-1]);
+	invalidArgsError(argC, numExtraArgs + numMembers, 
 					[](int a, int b){ return a == b; },
 	 				argV);
 	std::vector<std::string> extraArgs(numExtraArgs);
 	for (size_t i = 0; i < numExtraArgs; i++)
 	{
-		extraArgs[i] = argV[i + 10];
+		extraArgs[i] = argV[i + numMembers];
 	}
 	CRB_EXEC exec(ExecFlag::Normal,
 		adoptedChar(argV[0]), //name
@@ -116,9 +120,9 @@ CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]) {
 		adoptedChar(argV[4]), //moduleId
 		adoptedChar(argV[5]), //moduleIp
 		adoptedChar(argV[6]), //moduleHostName
-		adoptedChar(argV[7]), //displayIp
 		nullptr, //category
-		atoi(argV[8]), //vrbClientIdOfController
+		atoi(argV[7]), //vrbClientIdOfController
+		vrb::VrbCredentials{argV[8], static_cast<unsigned int>(atoi(argV[9])), static_cast<unsigned int>(atoi(argV[10]))},
 		extraArgs); //params
 	return exec;
 }

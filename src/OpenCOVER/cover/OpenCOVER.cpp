@@ -40,7 +40,7 @@
 
 #include <net/message.h>
 #include <net/covise_socket.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 
 #include "coVRPluginSupport.h"
 #include "coVRConfig.h"
@@ -727,6 +727,7 @@ bool OpenCOVER::init()
             std::stringstream ss;
             ss << "covise" << cmdExec.vrbClientIdOfController << "_" << cmdExec.moduleId;
             startSession = ss.str();
+            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials});
         }
         std::cerr << "startSession: " << startSession << std::endl;
         coVRMSController::instance()->setStartSession(startSession);

@@ -11,7 +11,7 @@
 #include <util/unixcompat.h>
 #include <util/coFileUtil.h>
 #include <net/covise_host.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 #include <util/coSpawnProgram.h>
 
 #ifndef _WIN32

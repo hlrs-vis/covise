@@ -31,7 +31,7 @@
 #include <covise/Covise_Util.h>
 #include <util/coLog.h>
 #include <do/coDistributedObject.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 #if defined(__linux__) || defined(__APPLE__)
 #define NODELETE_APPROC
 #endif

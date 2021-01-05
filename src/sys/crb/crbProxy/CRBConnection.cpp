@@ -20,7 +20,7 @@
 
 #include "CRBConnection.h"
 #include <covise/Covise_Util.h>
-#include <net/concrete_messages.h>
+#include <comsg/CRB_EXEC.h>
 #ifdef HASVRB
 #include <vrb/lib/VRBClient.h>
 #endif
