@@ -172,7 +172,7 @@ osg::Matrixf BulletToOSG(const btTransform &bulletTrans)
 {
     // btTransform(btQuaternion(btVector3(1,0,0),  M_PI/2.0)) *
     btTransform bulletGraphicsWorldTrans = bulletTrans;
-    static float oglMatrix[16];
+    static btScalar oglMatrix[16];
     bulletGraphicsWorldTrans.getOpenGLMatrix(oglMatrix);
     osg::Matrixf osgTransform;
     osgTransform.set(oglMatrix);

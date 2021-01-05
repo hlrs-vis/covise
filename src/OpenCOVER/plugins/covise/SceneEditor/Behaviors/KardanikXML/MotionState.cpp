@@ -72,7 +72,7 @@ void MotionState::setWorldTransform(const btTransform &centerOfMassWorldTrans)
     btTransform bulletGraphicsWorldTrans = centerOfMassWorldTrans
                                            * m_CenterOfMassOffset;
 
-    static float oglMatrix[16];
+    static btScalar oglMatrix[16];
     bulletGraphicsWorldTrans.getOpenGLMatrix(oglMatrix);
     osg::Matrixf anchorWorldTransform;
     anchorWorldTransform.set(oglMatrix);
