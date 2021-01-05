@@ -8,7 +8,7 @@
 #include "Event.h"
 #include "Condition.h"
 #include "Position.h"
-#include "../../../DrivingSim/OpenScenario/schema/oscEntity.h"
+#include <OpenScenario/schema/oscEntity.h>
 #include "OpenScenarioPlugin.h"
 #include <OpenScenario/schema/oscPrivate.h>
 #include <OpenScenario/OpenScenarioBase.h>

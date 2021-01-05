@@ -12,7 +12,7 @@
 #include "EndConditions.h"
 #include "Event.h"
 #include "Sequence.h"
-#include <DrivingSim/OpenScenario/oscFactories.h>
+#include <OpenScenario/oscFactories.h>
 
 myFactory::myFactory(){}
 myFactory::~myFactory(){}

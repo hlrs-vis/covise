@@ -2,7 +2,7 @@
 #define SCENARIOMANAGER_H
 
 #include "Act.h"
-#include "../../../DrivingSim/OpenScenario/schema/oscEntity.h"
+#include <OpenScenario/schema/oscEntity.h>
 
 using namespace std;
 #include<iostream>

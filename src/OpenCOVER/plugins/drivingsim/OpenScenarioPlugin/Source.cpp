@@ -1,8 +1,8 @@
 #include "Source.h"
 #include "OpenScenarioPlugin.h"
-#include <DrivingSim/OpenScenario/schema/oscTrafficDefinition.h>
-#include <DrivingSim/OpenScenario/schema/oscVehicleDistribution.h>
-#include <DrivingSim/OpenScenario/schema/oscDriverDistribution.h>
+#include <OpenScenario/schema/oscTrafficDefinition.h>
+#include <OpenScenario/schema/oscVehicleDistribution.h>
+#include <OpenScenario/schema/oscDriverDistribution.h>
 
 using namespace OpenScenario;
 using namespace opencover;
