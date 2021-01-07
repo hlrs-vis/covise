@@ -26,7 +26,6 @@ coVR3DGizmo::~coVR3DGizmo()
 {
 }
 
-
 void coVR3DGizmo::changeGizmoType()
 {
     float _interSize = cover->getSceneSize() / 50 ;
@@ -54,9 +53,4 @@ void coVR3DGizmo::changeGizmoType()
 
     _gizmo->enableIntersection();
     _gizmo->show();
-}
-
-void coVR3DGizmo::preFrame()
-{
-    _gizmo->preFrame();
 }

@@ -63,14 +63,7 @@ public:
     int hit(vrui::vruiHit *hit) override;
     void miss() override;
     void update() override;
-
-    const osg::Matrix &getMatrix() const
-    {
-        return _interMat_o;
-    }
-
     void setShared(bool state) override;
-
 
 };
 

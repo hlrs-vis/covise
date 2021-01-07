@@ -69,20 +69,6 @@ public:
     virtual void startInteraction() override;
     virtual void stopInteraction() override;
     virtual void doInteraction() override;
-
-
-    // const osg::Matrix &getMatrix() const
-    // {
-       // return _interMat_o;
-        // return coVRIntersectionInteractor::getMatrix();
-    // }
-    // const osg::Matrix getMatrix() const
-    // {
-        // return coVRIntersectionInteractor::getMatrix();
-// 
-    // }
-// 
-
 };
 
 }
