@@ -29,14 +29,34 @@ GizmoTest::GizmoTest()
 
     _cube1 = new osg::Geode();
     _cube1->setName("cube1");
-
     _cube1->addDrawable(unitCubeDrawable1);
 
+    _cube2 = new osg::Geode();
+    _cube2->setName("cube2");
+    _cube2->addDrawable(unitCubeDrawable1);
 
+    _cube3 = new osg::Geode();
+    _cube3->setName("cube3");
+    _cube3->addDrawable(unitCubeDrawable1);
+
+    
     _scene = new osg::MatrixTransform;
     _scene->setName("Scene");
     _scene->setMatrix(osg::Matrix::translate(osg::Vec3(0,20,0)));
     _scene->addChild(_cube1.get());
+
+     _t1 = new osg::MatrixTransform;
+     _t1->setName("t1");
+     _t1->setMatrix(osg::Matrix::translate(osg::Vec3(0,0,-15)));
+     _t1->addChild(_cube2.get());
+     _scene->addChild(_t1.get());
+    // // _scene->addChild(_t1.get();
+    // _t2 = new osg::MatrixTransform;
+    // _t2->setName("t2");
+    // _t2->setMatrix(osg::Matrix::translate(osg::Vec3(0,50,0)));
+    // _t2->addChild(_cube3.get());
+    // _scene->addChild(_t2.get());
+
 
    
     osg::Matrix matrix; 
@@ -48,7 +68,7 @@ GizmoTest::GizmoTest()
     _transgizmo->enableIntersection();
     _transgizmo->show();
 
-    osg::Matrix matrix2 = osg::Matrix::translate(osg::Vec3(0,0,0)); 
+    osg::Matrix matrix2 = osg::Matrix::translate(osg::Vec3(0,0,20)); 
     //matrix2.makeRotate(osg::DegreesToRadians(30.0), osg::X_AXIS);
     _rotgizmo = new coVR3DRotGizmo(matrix2, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     _rotgizmo->setName("RotGizmo");

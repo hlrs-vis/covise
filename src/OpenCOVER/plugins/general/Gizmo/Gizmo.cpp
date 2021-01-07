@@ -502,26 +502,18 @@ void Move::doMove()
 
 void Move::preFrame()
 {
-    bool doUndo{false}; // place somewhere else ?
+    bool doUndo{false}; 
     osg::Node *node;
     node = cover->getIntersectedNode();
-    //std::cout << "node " <<node <<std::endl;
     const osg::NodePath &intersectedNodePath = cover->getIntersectedNodePath();
     _isGizmoNode = _gizmo->isIntersected();
 
-    //if(node)
-        //std::cout <<"node: " <<node->getName()<<std::endl;
-    //if(_gizmo->getState() != coInteraction::Active) //only check for nodes if Gizmo is currently not active
+
     if(_gizmo->getState() == coInteraction::Active)
-    {
-        //do the movement
         doMove();
 
-    }
-    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active)
+    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes
     {
-       // std::cout<<"Check for new nodes, gizmo is currently not active! "<<std::endl;
-
         bool is_SceneNode{false};
         if(node)
             is_SceneNode = isSceneNode(node, intersectedNodePath);
@@ -529,13 +521,13 @@ void Move::preFrame()
         if(is_SceneNode && !coVRSelectionManager::isHelperNode(node)) // Scene node but no helperNode -> do what ???
         {
             //std::cout<<"Scene node but no helperNode"<<std::endl;
-
             showOrhideName(node);
             bool isObject{false};
             bool notNeededAtThisPlace{false};
+            bool notNeeded{false};
             if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode)) // Select a node
             {
-                selectNode(node, intersectedNodePath, doUndo, isObject, notNeededAtThisPlace);
+                selectNode(node, intersectedNodePath, doUndo, isObject, notNeededAtThisPlace,notNeeded);
                 if(isObject)
                     candidateNode = node;
                 else
@@ -546,47 +538,56 @@ void Move::preFrame()
             
             oldNode = node;
         }
-        else 
-        {
-            if (!(interactionA->wasStopped() || interactionB->wasStopped())) //not sure what happens with this code
-            {                                                                 //
-                oldNode = NULL;                                                                                                     //
-                node = NULL;                                                    //
-                candidateNode = NULL;                                                   //
-                selectedNode = NULL;                                                    //
-                if (moveSelection)                                                  //
-                {                                                   //
-                    coVRSelectionManager::instance()->clearSelection();                                                 //
-                    moveSelection = false;                                                  //
-                }
-            }
-        }
-        //if we point towards a selected or candidate Node
-        if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode))) // is this really necessary ? 
+
+        //**********************************************************    Register interactionA *******************************************************
+        if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode))) //if we point towards a selected or candidate Node: necessarry to select the object 
 		{ 
-            //std::cout <<"pointing towards a node"<<std::endl;
-            // register the interactions
 		     if (!interactionA->isRegistered())
              {
                  std::cout <<"register interaction A" <<std::endl;
 			     coInteractionManager::the()->registerInteraction(interactionA);
              }	
         }
-        
-
-        //if(interactionA->wasStarted() && )
-        // -------------------------------------------------------------Select an object
-        if(interactionA->wasStarted() /*&& _gizmoActive == false */)
+        else if(_gizmoActive && !_isGizmoNode && !interactionA->isRegistered()) // necessary to unselect objects if gizmo is active, but interactionA was unregistered
         {
-            std::cout<<"Selection started"<<std::endl;
+                 std::cout <<"register interaction A" <<std::endl;
+			     coInteractionManager::the()->registerInteraction(interactionA);
+        }    
+        
+        //********************************************************** Select or Unselect ***********************************************************************************
+        if(interactionA->wasStarted() )
+        {
+        //Deselect
+        if( _gizmoActive && 
+        (
+                !_isGizmoNode ||
+                ( !node || ((node != candidateNode) && (node != selectedNode)) )
+            )
+          )
+        {
+            std::cout<<"Deselection started"<<std::endl;
+            deactivateGizmo();
+            oldNode = NULL;                                                                                                     
+            node = NULL;                                                    
+            candidateNode = NULL;                                                   
+            selectedNode = NULL;                                                    
+            if (moveSelection)                                                  
+            {                                                   
+                coVRSelectionManager::instance()->clearSelection();                                                 
+                moveSelection = false;                                                  
+            }
+
+        }
+        
             if(node)
             {   
+                std::cout<<"Selection started"<<std::endl;
+
                 std::cout<< "is node" <<std::endl;
                 bool isObject = false;
                 bool isNewObject = false;
-                selectNode(node, intersectedNodePath, doUndo, isObject, isNewObject);
-                std::cout << "isObject: " <<isObject << std::endl; 
-                std::cout << "isNewObject: " <<isNewObject << std::endl; //-> kein neues Objekt wenn ich objekt davor verlassen habe! 
+                bool isAlreadySelected = false;
+                selectNode(node, intersectedNodePath, doUndo, isObject, isNewObject, isAlreadySelected);
                 if(isNewObject)
                 {                    
                     newObject(node, intersectedNodePath);//check exactly what happens !
@@ -628,70 +629,29 @@ void Move::preFrame()
                         activateGizmo(startMoveDCSMat);
                     }
                 }
-                if ((!isObject) && (selectedNode))
-                {
-                    // coVRSelectionManager::instance()->clearSelection();
-                    // selectedNode = NULL;
-                    // numLevels = 0;
-                    // allowMove = false;
-                    // didMove = false;
-                }
             }
             
         }
-        //What am I doing with the following code ? 
-        // if ((selectedNode) && (!(interactionA->isRegistered() || interactionB->isRegistered())) && (interactionA->wasStarted() || interactionB->wasStarted()))
-        // {
-            // if (moveSelection)
-            // {
-                // coVRSelectionManager::instance()->clearSelection();
-                // moveSelection = false;
-            // }
-            // selectedNode = NULL;
-            // numLevels = 0;
-            // allowMove = false;
-            // didMove = false;
-        // }
-        //--------------------------------------------------------------unregister Selection and create Gizmo
-        if(interactionA->wasStopped() && _gizmoActive == true)
-        {
-            //deactivateGizmo();
-
-        }
-        if(interactionA -> wasStarted() && _gizmoActive == true) // /*&& !node || node != selectedNode*/))//--------------------------------------    // if we make a selection but neither to
-        {
-            //deactivateGizmo();
-            // unregister Selection
-            // if (interactionA->isRegistered() && (interactionA->getState() != coInteraction::Active))
-            // {
-                // coInteractionManager::the()->unregisterInteraction(interactionA);
-                // std::cout<<"unregister InteractionA"<<std::endl;
-            // }
-        }
+        
     }
     
-    
-
-    // if we don't point to a node or point to a non candidate or point to gizmo Node then unregister !
-    if (!node || ((((node != candidateNode) && (node != selectedNode))) || _isGizmoNode && ((interactionA->isRegistered()))))
+    // if we don't point to a node or point to a non candidate or point to gizmo Node and gizmo is not active then unregister!
+    if( _isGizmoNode && interactionA->isRegistered() ||
+        (
+            !_gizmoActive &&
+            (!node || (((node != candidateNode) && (node != selectedNode)) && interactionA->isRegistered()))
+        )
+      )
     {   
-        //unregister if possible;
         if (interactionA->isRegistered() && (interactionA->getState() != coInteraction::Active))
         {
             std::cout<<"unregister InteractionA"<<std::endl;
             coInteractionManager::the()->unregisterInteraction(interactionA);
         }
     }
-    //if we dont point to a node deactivate gizmo
-    if (!node && !_isGizmoNode && _gizmoActive && _gizmo->getState() != coInteraction::Active)
-    {   
-        deactivateGizmo();
-    }
-    //std::cout<<"GizmoActive"<<_gizmoActive <<std::endl;
-
 }
 
-void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& doUndo, bool& isObject, bool& isNewObject) // check exactly what happens here !
+void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& doUndo, bool& isObject, bool& isNewObject, bool& isAlreadySelected) // check exactly what happens here !
 {
     osg::Matrix mat;
     mat.makeIdentity();
@@ -750,6 +710,7 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
             isNewObject = false;
             cerr << "already selected: " << level << endl; // maybe this is not the correct warning ?
             doUndo = true;
+            isAlreadySelected = true;
             break;
         }
         if (currentNode->getNumParents() > 0)
@@ -757,7 +718,7 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
             std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.end();
             for (iter--; iter != intersectedNodePath.begin(); iter--)
             {
-                if ((*iter) == currentNode)
+                if ((*iter) == currentNode) // this is not happening with two nodes! 
                 {
                     iter--;
                     currentNode = *iter;
@@ -887,23 +848,23 @@ bool Move::isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)
     return false;
 }
 
-bool Move::isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const
-{
-    
-     for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin(); iter != intersectedNodePath.end(); ++iter)
-     {
+// bool Move::isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const
+// {
+    // 
+    //  for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin(); iter != intersectedNodePath.end(); ++iter)
+    //  {
         //  auto hitNode= _gizmo->getHitNode();
         //  if(hitNode)
         //  {
         //  
 // 
         //  }
-         if ((*iter) == _gizmo->getHitNode())
-             return true;
-    
-     }
-     return false;
-}
+        //  if ((*iter) == _gizmo->getHitNode())
+            //  return true;
+    // 
+    //  }
+    //  return false;
+// }
 
 void Move::activateGizmo(const osg::Matrix& m)
 {

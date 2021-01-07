@@ -202,10 +202,11 @@ private:
     void activateGizmo(const osg::Matrix& m);
     void deactivateGizmo();
     bool isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const;
-    bool isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const; // instead of this function use:_gizmo->isIntersected()
+    //bool isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const; // instead of this function use:_gizmo->isIntersected()
 
-    void selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& doUndo, bool& isObject, bool& isNewObject);
+    void selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& doUndo, bool& isObject, bool& isNewObject, bool& isAlreadySelected);
     void newObject(osg::Node* node,const osg::NodePath& intersectedNodePath);
+    void unselectNode();
 
     osg::Matrix gizmoStartMat();
     void doMove();
