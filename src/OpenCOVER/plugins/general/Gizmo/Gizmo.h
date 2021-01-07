@@ -194,7 +194,7 @@ private:
     RoInteractorMap roInteractorMap;
 
 
-    std::unique_ptr<coVR3DTransGizmo> _gizmo;
+    std::unique_ptr<coVR3DGizmo> _gizmo;
     bool _isGizmoNode{false};
     
     //_gizmo = new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE, matrix5, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);

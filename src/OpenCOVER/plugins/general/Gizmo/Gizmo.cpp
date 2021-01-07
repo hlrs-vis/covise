@@ -318,7 +318,7 @@ bool Move::init()
 
     float interSize = cover->getSceneSize() / 50 ;
     osg::Matrix test;
-    _gizmo.reset(new coVR3DTransGizmo(test, interSize, vrui::coInteraction::ButtonA, "hand", "Gizmo", vrui::coInteraction::Medium));
+    _gizmo.reset(new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE,test, interSize, vrui::coInteraction::ButtonA, "hand", "Gizmo", vrui::coInteraction::Medium));
     _gizmo->hide();
 
     return true;
@@ -502,6 +502,7 @@ void Move::doMove()
 
 void Move::preFrame()
 {
+    _gizmo->preFrame();
     bool doUndo{false}; 
     osg::Node *node;
     node = cover->getIntersectedNode();

@@ -36,6 +36,7 @@ public:     //functions which are forewarded to gizmotype
     void stopInteraction(){_gizmo->stopInteraction();}
     void doInteraction(){_gizmo->doInteraction();}
     void resetState(){_gizmo->resetState();}
+    vrui::coInteraction::InteractionState getState(){return _gizmo->getState();}
     bool wasHit(){return _gizmo->wasHit();}
     int isIntersected(){return _gizmo->isIntersected();}
     void show(){_gizmo->show();}
@@ -43,10 +44,11 @@ public:     //functions which are forewarded to gizmotype
     void enableIntersection(){_gizmo->enableIntersection();}
     void disableIntersection(){_gizmo->disableIntersection();}
     bool isInitializedThroughSharedState(){return _gizmo->isInitializedThroughSharedState();}
+    void updateTransform(osg::Matrix m){_gizmo->updateTransform(m);}
     osg::Node *getHitNode(){return _gizmo->getHitNode();}
     osg::Vec3 getHitPos(){return _gizmo->getHitPos();}
-    const osg::Matrix &getMatrix(){return _gizmo->getMatrix();} const
-     osg::Matrix getMatrix(){return _gizmo->getMatrix();}
+    //const osg::Matrix &getMatrix(){return _gizmo->getMatrix();} const
+    osg::Matrix getMatrix(){return _gizmo->getMatrix();}
 };
 }
 #endif
