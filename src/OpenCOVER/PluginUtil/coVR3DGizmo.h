@@ -35,6 +35,9 @@ public:     //functions which are forewarded to gizmotype
     void startInteraction(){_gizmo->startInteraction();}
     void stopInteraction(){_gizmo->stopInteraction();}
     void doInteraction(){_gizmo->doInteraction();}
+    bool wasStarted(){return _gizmo->wasStarted();}
+    bool wasStopped(){return _gizmo->wasStopped();}
+    bool isRunning(){return _gizmo->isRunning();}
     void resetState(){_gizmo->resetState();}
     vrui::coInteraction::InteractionState getState(){return _gizmo->getState();}
     bool wasHit(){return _gizmo->wasHit();}

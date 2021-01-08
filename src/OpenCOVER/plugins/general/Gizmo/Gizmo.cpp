@@ -474,7 +474,6 @@ bool Move::pickedObjChanged()
 
 void Move::doMove()
 {
-    
     osg::Matrix newDCSMat = _gizmo->getMatrix();
     TokenBuffer tb;
     std::string path = coVRSelectionManager::generatePath(selectedNodesParent);
@@ -503,17 +502,25 @@ void Move::doMove()
 void Move::preFrame()
 {
     _gizmo->preFrame();
-    bool doUndo{false}; 
     osg::Node *node;
     node = cover->getIntersectedNode();
     const osg::NodePath &intersectedNodePath = cover->getIntersectedNodePath();
     _isGizmoNode = _gizmo->isIntersected();
 
-
-    if(_gizmo->getState() == coInteraction::Active)
+    if(_gizmo->wasStarted())
+    {
+        osg::Matrix startMatrix = _gizmo->getMatrix();
+        addUndo(startMatrix, moveDCS.get());
+    }
+    else if (_gizmo->wasStopped()) 
+    {
+        osg::Matrix stopMatrix = _gizmo->getMatrix();
+        addUndo(stopMatrix,moveDCS.get());
+    }
+    else if(_gizmo->getState() == coInteraction::Active) // do the movement
         doMove();
 
-    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes
+    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes if gitmo is not active
     {
         bool is_SceneNode{false};
         if(node)
@@ -528,7 +535,7 @@ void Move::preFrame()
             bool notNeeded{false};
             if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode)) // Select a node
             {
-                selectNode(node, intersectedNodePath, doUndo, isObject, notNeededAtThisPlace,notNeeded);
+                selectNode(node, intersectedNodePath, isObject, notNeededAtThisPlace,notNeeded);
                 if(isObject)
                     candidateNode = node;
                 else
@@ -579,7 +586,6 @@ void Move::preFrame()
             }
 
         }
-        
             if(node)
             {   
                 std::cout<<"Selection started"<<std::endl;
@@ -588,7 +594,7 @@ void Move::preFrame()
                 bool isObject = false;
                 bool isNewObject = false;
                 bool isAlreadySelected = false;
-                selectNode(node, intersectedNodePath, doUndo, isObject, isNewObject, isAlreadySelected);
+                selectNode(node, intersectedNodePath, isObject, isNewObject, isAlreadySelected);
                 if(isNewObject)
                 {                    
                     newObject(node, intersectedNodePath);//check exactly what happens !
@@ -650,9 +656,10 @@ void Move::preFrame()
             coInteractionManager::the()->unregisterInteraction(interactionA);
         }
     }
+    //std::cout <<"doUndo: "<<doUndo <<" didMove: "<<didMove <<" allowMove: "<<allowMove<<std::endl; 
 }
 
-void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& doUndo, bool& isObject, bool& isNewObject, bool& isAlreadySelected) // check exactly what happens here !
+void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& isObject, bool& isNewObject, bool& isAlreadySelected) // check exactly what happens here !
 {
     osg::Matrix mat;
     mat.makeIdentity();
@@ -666,10 +673,8 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
         {
             NodeRoMap::iterator it = nodeRoMap.find(currentNode);
             if (it != nodeRoMap.end())
-            {
                 isObject = true;
-                doUndo = true;
-            }
+
             if (currentNode == cover->getObjectsRoot())
                 break;  
         }
@@ -677,10 +682,8 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
         {
             // do not touch nodes underneeth NoMove nodes
             if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
-            {
                 isObject = true;
-                doUndo = true;
-            }
+            
             if (currentNode == cover->getObjectsRoot())
             {
                 isNewObject = true;
@@ -693,7 +696,6 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
             {
                 isObject = true;
                 isNewObject = true;
-                doUndo = true;
                 break;
             }
         }
@@ -702,7 +704,6 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
         {
             isObject = false;
             isNewObject = false;
-            doUndo = false;
             break;
         }
         if (currentNode == selectedNode)
@@ -710,7 +711,6 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
             isObject = true; // already selected
             isNewObject = false;
             cerr << "already selected: " << level << endl; // maybe this is not the correct warning ?
-            doUndo = true;
             isAlreadySelected = true;
             break;
         }
@@ -1388,26 +1388,26 @@ void Move::decwrite()
         writePos = MAX_UNDOS - 1;
 }
 
-void Move::undo()
+void Move::undo() // warum wird hier keine message an alle rausgeschickt ? funktioniert das im Kooperationsmodus ? 
 {
     if (readPos == writePos)
         return;
+
     if (maxWritePos == writePos)
         decwrite();
     if (readPos == writePos)
+    
         return;
-    //cerr << "undo" << endl;
+
     decwrite();
-    //cerr << "r" << writePos << endl;
     osg::Matrix mat;
     mat = undoDCS[writePos]->getMatrix();
     if (mat == undoMat[writePos])
-    {
         undo();
-    }
     else
     {
         undoDCS[writePos]->setMatrix(undoMat[writePos]);
+        _gizmo->updateTransform(undoDCS[writePos]->getMatrix());
     }
 }
 
@@ -1431,6 +1431,7 @@ void Move::redo()
     else
     {
         undoDCS[writePos]->setMatrix(undoMat[writePos]);
+        _gizmo->updateTransform(undoDCS[writePos]->getMatrix());
     }
 }
 
