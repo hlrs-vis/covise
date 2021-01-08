@@ -1072,6 +1072,8 @@ void Move::menuEvent(coMenuItem *menuItem)
             if (info)
             {
                 moveDCS->setMatrix(info->initialMat);
+                _gizmo->updateTransform(info->initialMat);
+
                 info->lastScaleX = 1;
                 info->lastScaleY = 1;
                 info->lastScaleZ = 1;
@@ -1081,6 +1083,7 @@ void Move::menuEvent(coMenuItem *menuItem)
             else
             {
                 moveDCS->setMatrix(ident);
+                _gizmo->updateTransform(ident);
             }
             allowMove = false;
             updateScale();
@@ -1293,6 +1296,8 @@ void Move::tabletPressEvent(coTUIElement *tUIItem)
             if (info)
             {
                 moveDCS->setMatrix(info->initialMat);
+                _gizmo->updateTransform(info->initialMat);
+
                 info->lastScaleX = 1;
                 info->lastScaleY = 1;
                 info->lastScaleZ = 1;
@@ -1302,6 +1307,7 @@ void Move::tabletPressEvent(coTUIElement *tUIItem)
             else
             {
                 moveDCS->setMatrix(ident);
+                _gizmo->updateTransform(ident);
             }
             allowMove = false;
             updateScale();
