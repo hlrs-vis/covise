@@ -116,10 +116,10 @@ int VRBClient::wait(Message *m, int messageType)
         }
         if(udpConn)
         {
-		ret = udpConn->recv_msg(m);
+		int udpret = udpConn->recv_msg(m);
 		if (m->type == messageType)
 		{
-			return ret;
+			return udpret;
 		}
 		else
 		{
