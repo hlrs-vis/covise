@@ -77,10 +77,12 @@ int main(int argc, char* argv[])
         setenv("DISPLAY", ":0", false);
     }
 #endif
-
+#ifndef _WIN32
     setenv("CO_MODULE_BACKEND", "covise", true);
 
-#ifdef _WIN32
+#else 
+    _putenv_s("CO_MODULE_BACKEND", "covise");
+
     WORD wVersionRequested;
     WSADATA wsaData;
     int err;

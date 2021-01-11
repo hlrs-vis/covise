@@ -9,49 +9,45 @@ IF(COVISE_BUILD_WEBSERVICE)
 ENDIF()
 
 SET(CONTROLLER_SOURCES
-    Token.cpp
-	CTRLMain.cpp
-	CTRLHandler.cpp
-	CTRLGlobal.cpp
-	covise_module.cpp
-	control_process.cpp
-	control_coviseconfig.cpp
-	control_modlist.cpp
-	control_module.cpp
-	control_netmod.cpp
-	control_object.cpp
-	control_port.cpp
-	AccessGridDaemon.cpp
-)
+  config.cpp
+  exception.cpp
+  util.cpp
+  netLink.cpp
+  object.cpp
+  port.cpp
+  subProcess.cpp
+  userinterface.cpp
+  controlProcess.cpp
+  module.cpp
+  crb.cpp
+  host.cpp
+  renderModule.cpp
+  modui.cpp
+  global.cpp
+  handler.cpp
+  main.cpp
+  moduleInfo.cpp)
 
 SET(CONTROLLER_HEADERS
-    Token.h
-	CTRLHandler.h
-	CTRLGlobal.h
-	covise_module.h
-	control_process.h
-	control_coviseconfig.h
-	control_modlist.h
-	control_module.h
-	control_netmod.h
-	control_object.h
-	control_port.h
-	AccessGridDaemon.h
+  config.h
+  controlProcess.h
+  crb.h
+  exception.h
+  global.h
+  handler.h
+  host.h
+  list.h
+  modui.h
+  module.h
+  moduleInfo.h
+  netLink.h
+  object.h
+  port.h
+  subProcess.h
+  renderModule.h
+  userinterface.h
+  util.h
 )
-
-if(OPENSSL_FOUND)
-   INCLUDE_DIRECTORIES(
-      ../CoviseSSLDaemon/CoviseClient
-   )
-   ADD_DEFINITIONS(-DHAVE_OPENSSL)
-
-   set(CONTROLLER_HEADERS ${CONTROLLER_SOURCES} 
-      ../CoviseSSLDaemon/CoviseClient/SSLClient.cpp
-   )
-   set(CONTROLLER_HEADERS ${CONTROLLER_HEADERS} 
-      ../CoviseSSLDaemon/CoviseClient/SSLClient.h
-   )
-endif()
 
 ADD_COVISE_EXECUTABLE(covise ${CONTROLLER_SOURCES} ${CONTROLLER_HEADERS})
 TARGET_LINK_LIBRARIES(covise coAppl coApi coCore coConfig coUtil coVRBClient coMessages) 
