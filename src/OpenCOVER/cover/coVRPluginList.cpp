@@ -171,9 +171,11 @@ void coVRPluginList::loadDefault()
     }
 
     std::vector<std::string> plugins;
+    std::vector<bool> addToMenu;
     if (const char *env = getenv("COVER_PLUGINS"))
     {
         plugins = split(env, ':');
+        addToMenu.push_back(true);
     }
 
     coCoviseConfig::ScopeEntries pluginNameEntries = coCoviseConfig::getScopeEntries("COVER.Plugin");
@@ -185,16 +187,21 @@ void coVRPluginList::loadDefault()
         {
             char *entryName = new char[strlen(pluginNames[i]) + 100];
             sprintf(entryName, "COVER.Plugin.%s", pluginNames[i]);
-            if (coCoviseConfig::isOn(entryName, false))
-            {
-                plugins.push_back(pluginNames[i]);
-            }
 
             bool exists = false;
             if (coCoviseConfig::isOn("menu", entryName, false, &exists))
             {
                 coVRPlugin *m = getPlugin(pluginNames[i]);
                 PluginMenu::instance()->addEntry(pluginNames[i], m);
+                auto it = std::find(plugins.begin(), plugins.end(), std::string(entryName));
+                if (it != plugins.end()) {
+                    addToMenu[it-plugins.begin()] = false;
+                }
+            }
+
+            if (coCoviseConfig::isOn(entryName, false))
+            {
+                plugins.push_back(pluginNames[i]);
             }
 
             delete[] entryName;
@@ -205,6 +212,15 @@ void coVRPluginList::loadDefault()
     if(!coVRConfig::instance()->viewpointsFile.empty())
     {
         plugins.push_back("ViewPoint");
+    }
+
+    for (size_t i=0; i<addToMenu.size(); ++i)
+    {
+        if (addToMenu[i])
+        {
+            coVRPlugin *m = getPlugin(plugins[i].c_str());
+            PluginMenu::instance()->addEntry(plugins[i], m);
+        }
     }
 
     std::vector<std::string> failed;
