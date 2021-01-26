@@ -11,6 +11,7 @@ SET(HEADERS
   Tacx.h
   Bicycle.h
   FlightGear.h
+  Skateboard.h
   ../../drivingsim/SteeringWheel/UDPComm.h
 )
 SET(SOURCES
@@ -18,6 +19,7 @@ SET(SOURCES
   Tacx.cpp
   Bicycle.cpp
   FlightGear.cpp
+  Skateboard.cpp
   ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
 include_directories("../../drivingsim/SteeringWheel")

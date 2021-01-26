@@ -353,7 +353,53 @@ void VrmlNodeBicycle::render(Viewer *)
     float wheelBase = 0.98;
     float v = BicyclePlugin::plugin->speed; //*0.06222222;
     //fprintf(stderr,"speed: %f", v);
-    if (BicyclePlugin::plugin->isPlane)
+    if (BicyclePlugin::plugin->skateboard)
+    {
+       osg::Vec3d normal = BicyclePlugin::plugin->skateboard->getNormal();
+       fprintf(stderr, "normal(%f %f) %d\n", normal.x(), normal.y(), BicyclePlugin::plugin->skateboard->getButton());
+       if (BicyclePlugin::plugin->skateboard->getButton() == 2)
+       {
+           BicyclePlugin::plugin->speed += 0.01;
+       }
+       if (BicyclePlugin::plugin->skateboard->getWeight() < 10)
+       {
+           BicyclePlugin::plugin->speed = 0;
+       }
+       float s = v * dT;
+       osg::Vec3 V(0, 0, -s);
+       wheelBase = 0.5;
+       float rotAngle = 0.0;
+       if ((s < 0.0001 && s > -0.0001)) // straight
+       {
+       }
+       else
+       {
+           float wheelAngle = normal.x()/-2.0;
+           //float r = tan(M_PI_2-vehicleParameters->getWheelAngle()) * wheelBase;
+           float r = tan(M_PI_2 - wheelAngle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
+           float u = 2.0 * r * M_PI;
+           rotAngle = (s / u) * 2.0 * M_PI;
+           V[2] = -r * sin(rotAngle);
+           V[0] = r - r * cos(rotAngle);
+       }
+
+       osg::Matrix relTrans;
+       osg::Matrix relRot;
+       relRot.makeRotate(rotAngle, 0, 1, 0);
+       relTrans.makeTranslate(V);
+       bikeTrans = relRot * relTrans * bikeTrans;
+
+       moveToStreet();
+
+
+       osg::Quat q;
+       q.set(bikeTrans);
+       osg::Quat::value_type orient[4];
+       q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+       d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
+       d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
+    }
+    else if (BicyclePlugin::plugin->isPlane)
     { 
         osg::Quat::value_type orient[4];
         osg::Vec3d newPos;
@@ -439,40 +485,40 @@ void VrmlNodeBicycle::render(Viewer *)
     
     else
     {
-	float s = v * dT;
-	osg::Vec3 V(0, 0, -s);
+		float s = v * dT;
+		osg::Vec3 V(0, 0, -s);
 
-	float rotAngle = 0.0;
-	//if((vehicleParameters->getWheelAngle()>-0.0001 && vehicleParameters->getWheelAngle()><0.0001 )|| (s < 0.0001 && s > -0.0001)) // straight
-	if ((s < 0.0001 && s > -0.0001)) // straight
-	{
+		float rotAngle = 0.0;
+		//if((vehicleParameters->getWheelAngle()>-0.0001 && vehicleParameters->getWheelAngle()><0.0001 )|| (s < 0.0001 && s > -0.0001)) // straight
+		if ((s < 0.0001 && s > -0.0001)) // straight
+		{
+		}
+		else
+		{
+			//float r = tan(M_PI_2-vehicleParameters->getWheelAngle()) * wheelBase;
+			float r = tan(M_PI_2 - BicyclePlugin::plugin->angle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
+			float u = 2.0 * r * M_PI;
+			rotAngle = (s / u) * 2.0 * M_PI;
+			V[2] = -r * sin(rotAngle);
+			V[0] = r - r * cos(rotAngle);
+		}
+
+		osg::Matrix relTrans;
+		osg::Matrix relRot;
+		relRot.makeRotate(rotAngle, 0, 1, 0);
+		relTrans.makeTranslate(V);
+		bikeTrans = relRot * relTrans * bikeTrans;
+
+		moveToStreet();
+
+
+		osg::Quat q;
+		q.set(bikeTrans);
+		osg::Quat::value_type orient[4];
+		q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+		d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
+		d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
 	}
-	else
-	{
-	    //float r = tan(M_PI_2-vehicleParameters->getWheelAngle()) * wheelBase;
-	    float r = tan(M_PI_2 - BicyclePlugin::plugin->angle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
-	    float u = 2.0 * r * M_PI;
-	    rotAngle = (s / u) * 2.0 * M_PI;
-	    V[2] = -r * sin(rotAngle);
-	    V[0] = r - r * cos(rotAngle);
-	}
-
-	osg::Matrix relTrans;
-	osg::Matrix relRot;
-	relRot.makeRotate(rotAngle, 0, 1, 0);
-	relTrans.makeTranslate(V);
-	bikeTrans = relRot * relTrans * bikeTrans;
-	
-        moveToStreet();
-	
-
-	osg::Quat q;
-	q.set(bikeTrans);
-	osg::Quat::value_type orient[4];
-	q.getRotate(orient[3], orient[0], orient[1], orient[2]);
-	d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
-	d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
-    }
     double timeStamp = System::the->time();
     
     int buttonState = 0;
@@ -481,6 +527,10 @@ void VrmlNodeBicycle::render(Viewer *)
         if (BicyclePlugin::plugin->tacx != NULL)
         {
             buttonState = BicyclePlugin::plugin->tacx->getButtons();
+        }
+        else if (BicyclePlugin::plugin->skateboard != nullptr)
+        {
+            buttonState = BicyclePlugin::plugin->skateboard->getButton();
         }
         coVRMSController::instance()->sendSlaves((char *)&buttonState, sizeof(buttonState));
     }
@@ -709,14 +759,14 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
                 auto isect = intersector[0]->getFirstIntersection();
                 normal = isect.getWorldIntersectNormal();
                 dist = pos[2] - isect.getWorldIntersectPoint()[2];
-                geode = *isect.nodePath.end();
+                geode = *(--isect.nodePath.end());
             }
             else if (!hit1 && hit2)
             {
                 auto isect = intersector[1]->getFirstIntersection();
                 normal = isect.getWorldIntersectNormal();
                 dist = pos[2] - isect.getWorldIntersectPoint()[2];
-                geode = *isect.nodePath.end();
+                geode = *(--isect.nodePath.end());
             }
             else if (hit1 && hit2)
             {
@@ -725,7 +775,7 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
                 auto isect2 = intersector[1]->getFirstIntersection();
                 normal = isect1.getWorldIntersectNormal();
                 dist = pos[2] - isect1.getWorldIntersectPoint()[2];
-                geode = *isect1.nodePath.end();
+                geode = *(--isect1.nodePath.end());
 
                 normal2 = isect2.getWorldIntersectNormal();
 
@@ -735,7 +785,7 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
                 if (fabs(pos[2] - isect2.getWorldIntersectPoint()[2]) < fabs(dist))
                 {
                     dist = pos[2] - isect2.getWorldIntersectPoint()[2];
-                    geode = *isect2.nodePath.end();
+                    geode = *(--isect2.nodePath.end());
                 }
             }
             osg::Vec3 carNormal(carTransWorld(1, 0), carTransWorld(1, 1), carTransWorld(1, 2));
@@ -795,14 +845,16 @@ bool BicyclePlugin::init()
     if (plugin)
         return false;
     plugin = this;
-    flightgear = NULL;
-    tacx = NULL;
+    flightgear = nullptr;
+    skateboard = nullptr;
+    tacx = nullptr;
     mouse1 = 0;
     mouse2 = 0;
 
     isPlane=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.FlightGear",false));
     isBike=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isBike",false));
-    isParaglider=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isParaglider",false));
+    isParaglider = (coCoviseConfig::isOn("COVER.Plugin.Bicycle.isParaglider", false));
+    isSkateboard = (coCoviseConfig::isOn("COVER.Plugin.Bicycle.isSkateboard", false));
     if (coVRMSController::instance()->isMaster())
     {
         if (isBike)
@@ -814,11 +866,12 @@ bool BicyclePlugin::init()
             flightgear = new FlightGear(this);
             flightgear->start(); 
         }
+        if (isSkateboard)
+        {
+            skateboard = new Skateboard(this);
+            skateboard->start();
+        }
         start();
-    }
-    else
-    {
-        tacx = NULL;
     }
 
 
@@ -1026,6 +1079,11 @@ BicyclePlugin::~BicyclePlugin()
         flightgear->stop();
         delete flightgear;
     }
+    if (skateboard)
+    {
+        skateboard->stop();
+        delete skateboard;
+    }
     if (mouse1 > 0)
     {
         close(mouse1);
@@ -1066,7 +1124,7 @@ BicyclePlugin::run()
 void
 BicyclePlugin::preFrame()
 {
-    if (coVRMSController::instance()->isMaster() && (tacx != NULL || flightgear != NULL))
+    if (coVRMSController::instance()->isMaster() && (tacx != NULL || flightgear != NULL || skateboard != NULL))
     {
     }
     UpdateInputState();
@@ -1074,107 +1132,47 @@ BicyclePlugin::preFrame()
 
 void BicyclePlugin::key(int type, int keySym, int mod)
 {
-    /*fprintf(stderr, "type: %d \n ", type);
-    fprintf(stderr, "keySym: %d \n ", keySym);
-    fprintf(stderr, "mod: %d \n " , mod);*/
-    if(type == 32) 
-    {
-	switch(keySym)
+	if (type == 32)
 	{
-	    case 114:
-		flightgearReset=true;
-		break;
-        case 'p':
-        case 'P':
-            if (flightgear)
-            {
-                if (flightgear->getPause()==1.0)
-                {
-                flightgear->doPause(0.01);
-                fprintf(stderr, "Pause\n");
-                }
-                else
-                {
-                    flightgear->doPause(1.0);
-                    fprintf(stderr, "Resume\n");
-                }
-            }
-            break;
-        case 'u':
-        case 'U':
-            if (flightgear)
-            {
-                flightgear->doUp();
-                fprintf(stderr, "Up\n");
-            }
-            break;
+		switch (keySym)
+		{
+		case 114:
+			flightgearReset = true;
+			break;
+		case 'p':
+		case 'P':
+			if (flightgear)
+			{
+				if (flightgear->getPause() == 1.0)
+				{
+					flightgear->doPause(0.01);
+					fprintf(stderr, "Pause\n");
+				}
+				else
+				{
+					flightgear->doPause(1.0);
+					fprintf(stderr, "Resume\n");
+				}
+			}
+			break;
+		case 'u':
+		case 'U':
+			if (flightgear)
+			{
+				flightgear->doUp();
+				fprintf(stderr, "Up\n");
+			}
+			break;
+		case 'z':
+		case 'Z':
+			if (skateboard)
+			{
+				skateboard->Initialize();
+			}
+			break;
+		}
 	}
-}
 
-    /*
-   Keyboard* keyb = dynamic_cast<Keyboard*>(BicyclePlugin::plugin->sitzkiste);
-   if(keyb != NULL) {
-      //if(mod) {} //Otherwise warning: "mod not used" -> with compiler flag: "Treat warnings as errors" -> Compiler-TERROR!!!
-
-      if(type == osgGA::GUIEventAdapter::KEYDOWN) {
-       switch(keySym) {
-         case 65361:
-            keyb->leftKeyDown();
-            break;
-         case 65363:
-            keyb->rightKeyDown();
-            break;
-         case 65362:
-            keyb->foreKeyDown();
-            break;
-         case 65364:
-            keyb->backKeyDown();
-            break;
-         case 103:
-            keyb->gearShiftUpKeyDown();
-            break;
-         case 102:
-            keyb->gearShiftDownKeyDown();
-            break;
-         case 104:
-            keyb->hornKeyDown();
-            break;
-         case 114:
-            keyb->resetKeyDown();
-            break;
-         }
-      }
-      else if(type == osgGA::GUIEventAdapter::KEYUP) {
-			std::cout << "KEYUP EVENT!!!" << std::endl;
-         switch(keySym) {
-         case 65361:
-            keyb->leftKeyUp();
-            break;
-         case 65363:
-            keyb->rightKeyUp();
-            break;
-         case 65362:
-            keyb->foreKeyUp();
-            break;
-         case 65364:
-            keyb->backKeyUp();
-            break;
-         case 103:
-            keyb->gearShiftUpKeyUp();
-            break;
-         case 102:
-            keyb->gearShiftDownKeyUp();
-            break;
-          case 104:
-            keyb->hornKeyUp();
-            break;
-         case 114:
-            keyb->resetKeyUp();
-            break;
-         }
-      }
-   }
-   */
 }
 
 COVERPLUGIN(BicyclePlugin)

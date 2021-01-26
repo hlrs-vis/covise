@@ -88,6 +88,7 @@
 #endif
 #include "Tacx.h"
 #include "FlightGear.h"
+#include "Skateboard.h"
 
 using namespace vrml;
 using namespace opencover;
@@ -159,10 +160,12 @@ public:
 
     static BicyclePlugin *plugin;
     Tacx *tacx;
-    FlightGear *flightgear;
+    FlightGear* flightgear;
+    Skateboard* skateboard;
     bool isPlane;
     bool isBike;
     bool isParaglider;
+    bool isSkateboard;
     coTUITab *BicycleTab;
     coTUIEditFloatField *velocityFactor;
     coTUILabel *velocityFactorLabel;
