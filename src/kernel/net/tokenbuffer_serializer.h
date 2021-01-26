@@ -212,6 +212,12 @@ void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value)
     }
 }
 
+template<typename T>
+typename std::enable_if<std::is_enum<T>::value, covise::TokenBuffer&>::type operator<<(covise::TokenBuffer &tb, const T&t){
+    tb << static_cast<int>(t);
+    return tb;
+}
+
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
 template<class T>
@@ -325,6 +331,13 @@ void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
     }
 }
 
+template<typename T>
+typename std::enable_if<std::is_enum<T>::value, covise::TokenBuffer&>::type operator>>(covise::TokenBuffer &tb, T&t){
+    int i;
+    tb >> i;
+    t = static_cast<T>(i);
+    return tb;
+}
 
 ///////////////////TYPE SERIALIZATION/////////////////////////
 template<class T>
