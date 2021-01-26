@@ -1,4 +1,4 @@
-<Bump><uniform name="Bumpiness" type="float" value="0.3"/><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="normalMap" type="sampler2D" value="1"/><attribute name="aBinormal" type="binormal" value="6"/><attribute name="aTangent" type="tangent" value="7"/><vertexProgram>
+<_Bump><uniform name="Bumpiness" type="float" value="0.3"/><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="normalMap" type="sampler2D" value="1"/><attribute name="aBinormal" type="binormal" value="6"/><attribute name="aTangent" type="tangent" value="7"/><vertexProgram>
   
     varying vec3 normal, lightDir, eyeVec;
     varying vec3 Binormal;
@@ -36,6 +36,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
    
     void main( void )
     {
+vec4 diffuseColor = texture2D( diffuseMap, Texcoord ) ;
       vec4 final_color = 
       	(gl_FrontLightModelProduct.sceneColor* 0.1*gl_FrontMaterial.ambient ) ;//+ 
       	//(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
@@ -64,7 +65,7 @@ final_color = vec4(1,1,1,1);
 else
 {
       	final_color += gl_LightSource[0].diffuse * 
-      	               texture2D( diffuseMap, Texcoord ) * 
+      	               diffuseColor * 
 				   lambertTerm;	
   }          		
       	vec3 E = normalize(nEyeVec);
@@ -75,8 +76,12 @@ else
       	               gl_FrontMaterial.specular * 
       				   specular;	
       	}
-      
+      if(diffuseColor.a &lt; 0.5)
+	  {
+	      discard;
+	  }
+final_color.a = diffuseColor.a;
 	gl_FragColor = final_color;	
           
     }
-  </fragmentProgram></Bump>
+  </fragmentProgram></_Bump>
