@@ -26,7 +26,7 @@ enum class Protocol { TCP, UDP};
     bool send(const UdpMessage *msg);
     bool send(covise::TokenBuffer &tb, int type, Protocol p = Protocol::TCP);
 protected:
-    virtual bool sendMessage(const covise::Message *msg) = 0;
+    virtual bool sendMessage(const Message *msg) = 0;
     virtual bool sendMessage(const UdpMessage *msg) = 0;
   };
 
