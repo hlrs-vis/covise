@@ -26,12 +26,14 @@ class OPENSCENARIOEXPORT oscRoadNetwork : public oscObjectBase
 public:
 oscRoadNetwork()
 {
-        OSC_OBJECT_ADD_MEMBER(Logics, "oscFile", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Logics, "oscFile", 0);
         OSC_OBJECT_ADD_MEMBER(SceneGraph, "oscFile", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Signals, "oscSignals", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(LogicFile, "oscFile", 0);
     };
         const char *getScope(){return "/OpenSCENARIO";};
-    oscFileMember Logics;
+        oscFileMember Logics;
+    oscFileMember LogicFile;
     oscFileMember SceneGraph;
     oscSignalsMember Signals;
 

@@ -20,8 +20,8 @@
 #include <tuple>
 #include <QFile>
 #include <QTextStream>
-#include "Interfaces/observationInterface.h"
-#include "Interfaces/eventNetworkInterface.h"
+#include "include/observationInterface.h"
+#include "include/eventNetworkInterface.h"
 
 //-----------------------------------------------------------------------------
 /** \brief This class adds the RunStatistic information to the simulation output.
@@ -41,16 +41,17 @@ public:
                                  StochasticsInterface* stochastics,
                                  WorldInterface* world,
                                  const ParameterInterface* parameters,
-                                 const CallbackInterface* callbacks);
+                                 const CallbackInterface* callbacks,
+                                 DataStoreReadInterface* dataStore);
     ObservationCOVERImplementation(const ObservationCOVERImplementation&) = delete;
     ObservationCOVERImplementation(ObservationCOVERImplementation&&) = delete;
     ObservationCOVERImplementation& operator=(const ObservationCOVERImplementation&) = delete;
     ObservationCOVERImplementation& operator=(ObservationCOVERImplementation&&) = delete;
     virtual ~ObservationCOVERImplementation() override = default;
 
-    virtual void Insert(int time, int agentId, LoggingGroup group, const std::string& key, const std::string& value) override;
-    virtual void InsertEvent(std::shared_ptr<EventInterface> event) override;
-    virtual void SlavePreHook(const std::string& path) override;
+    //virtual void Insert(int time, int agentId, LoggingGroup group, const std::string& key, const std::string& value) override;
+    //virtual void InsertEvent(std::shared_ptr<EventInterface> event) override;
+    virtual void SlavePreHook() override;
     virtual void SlavePreRunHook() override;
     virtual void SlavePostRunHook(const RunResultInterface& runResult) override;
     virtual void SlaveUpdateHook(int, RunResultInterface&) override;
@@ -58,19 +59,13 @@ public:
     virtual void MasterPostHook(const std::string&) override {}
     virtual void SlavePostHook() override;
 
-    //-----------------------------------------------------------------------------
-    /*!
-    * \brief Calculates the ego followers at simulation start
-    */
-    //-----------------------------------------------------------------------------
-    virtual void GatherFollowers() override;
 
     //-----------------------------------------------------------------------------
     /*!
     * \brief Insert the id of the agent into the list of followers of it is behind the ego
     */
     //-----------------------------------------------------------------------------
-    virtual void InformObserverOnSpawn(AgentInterface* agent) override;
+    //virtual void InformObserverOnSpawn(AgentInterface* agent) override;
 
     virtual const std::string SlaveResultFile() override
     {

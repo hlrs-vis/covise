@@ -412,10 +412,12 @@ int main(int argc, char **argv)
 		std::cerr << "Error during xerces initialization! :\n" << message << std::endl;
 		xercesc::XMLString::release(&message);
 	}
-
+#ifdef OSC09
 	oscClass * currentClass = new oscClass("None");
 	currentClass = new oscClass("Polyline");
 	currentClass = new oscClass("Delete");
+#endif
+	
 	FILE *duplicates = fopen("duplicateClasses.txt", "w");
 	for (int i = 1; i < argc; i++)
 	{

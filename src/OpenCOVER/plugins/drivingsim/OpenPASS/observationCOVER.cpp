@@ -39,7 +39,8 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT ObservationInterface* OpenPASS_Create
     WorldInterface* world,
     SimulationSlave::EventNetworkInterface* eventNetwork,
     const ParameterInterface* parameters,
-    const CallbackInterface* callbacks)
+    const CallbackInterface* callbacks,
+    DataStoreReadInterface * dataStore)
 {
     Callbacks = callbacks;
 
@@ -49,7 +50,8 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT ObservationInterface* OpenPASS_Create
                                        stochastics,
                                        world,
                                        parameters,
-                                       callbacks));
+                                       callbacks,
+                                        dataStore));
     }
     catch (const std::runtime_error& ex)
     {
@@ -138,12 +140,11 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_MasterPostHook(Observat
     return true;
 }
 
-extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlavePreHook(ObservationInterface* implementation,
-        const std::string& path)
+extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlavePreHook(ObservationInterface* implementation)
 {
     try
     {
-        implementation->SlavePreHook(path);
+        implementation->SlavePreHook();
     }
     catch (const std::runtime_error& ex)
     {

@@ -36,12 +36,12 @@
 
 #include "frameworkModules.h"
 #include "configurationFiles.h"
-#include "CoreFramework/CoreShare/callbacks.h"
+#include "callbacks.h"
 #include "commandLineParser.h"
 #include "configurationContainer.h"
 #include "directories.h"
 #include "frameworkModuleContainer.h"
-#include "CoreFramework/CoreShare/log.h"
+#include "log.h"
 #include "runInstantiator.h"
 
 #include <OpenThreads/Thread>
@@ -84,7 +84,6 @@ namespace SimulationSlave
 }
 struct FrameworkModules;
 struct ConfigurationFiles;
-class Directories;
 namespace Configuration
 {
     class ConfigurationContainer;
@@ -123,7 +122,7 @@ public:
 private:
     OpenPASS* openPass;
     SimulationSlave::RunInstantiator* runInstantiator;
-    Directories* directories;
+    openpass::core::Directories* directories;
     FrameworkModules* frameworkModules;
     ConfigurationFiles* configurationFiles;
     Configuration::ConfigurationContainer* configurationContainer;

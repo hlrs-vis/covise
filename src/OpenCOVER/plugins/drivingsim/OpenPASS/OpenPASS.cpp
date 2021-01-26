@@ -44,19 +44,21 @@
 
 #include "frameworkModules.h"
 #include "configurationFiles.h"
-#include "CoreFramework/CoreShare/callbacks.h"
+#include "callbacks.h"
 #include "commandLineParser.h"
 #include "configurationContainer.h"
 #include "directories.h"
 #include "frameworkModuleContainer.h"
-#include "CoreFramework/CoreShare/log.h"
+#include "log.h"
 #include "runInstantiator.h"
 #include <cover/coVRFileManager.h>
+#include "egoAgentInterface.h"
 
 int gPrecision;
 
 using namespace opencover;
 using namespace SimulationSlave;
+using namespace openpass::core;
 
 //-----------------------------------------------------------------------------
 //! \brief SetupLogging Sets up the logging and print pending (buffered)
@@ -101,6 +103,8 @@ agentInfo::~agentInfo()
 	delete vehicle;
 };
 
+openpass::common::RuntimeInformation runtimeInformation
+{ {openpass::common::framework}, { "", "", "" } };;
 
 simOpenPASS::simOpenPASS(OpenPASS* op)
 {
@@ -133,8 +137,15 @@ simOpenPASS::simOpenPASS(OpenPASS* op)
     }
 
     configurationFiles = new ConfigurationFiles( directories->configurationDir, "systemConfigBlueprint.xml", "slaveConfig.xml" );
-    configurationContainer = new Configuration::ConfigurationContainer(*configurationFiles);
 
+    runtimeInformation.versions.framework = openpass::common::framework;
+    runtimeInformation.directories.configuration = directories->configurationDir;
+    runtimeInformation.directories.library = directories->outputDir;
+    runtimeInformation.directories.output = directories->libraryDir;
+
+
+    configurationContainer = new Configuration::ConfigurationContainer(*configurationFiles, runtimeInformation);
+   
     if (!configurationContainer->ImportAllConfigurations())
     {
         std::cerr << "Failed to import all configurations";
@@ -143,19 +154,26 @@ simOpenPASS::simOpenPASS(OpenPASS* op)
 
     auto& libraries = configurationContainer->GetSlaveConfig()->GetExperimentConfig().libraries;
     libraries["ObservationLibrary"] = "observationCOVER";
+    ObservationInstanceCollection& oic = configurationContainer->GetSlaveConfig()->GetObservationConfig();
+    ObservationInstance oi;
+    oi.id = oic.size();
+    oi.libraryName = std::string(covisedir) + "/" + archsuffix + "/lib/OpenCOVER/plugins/observationCOVER";
+    oic.push_back(oi);
+
     frameworkModules = new FrameworkModules(
         logLevel,
         directories->libraryDir,
+        libraries.at("DataStoreLibrary"),
         libraries.at("EventDetectorLibrary"),
         libraries.at("ManipulatorLibrary"),
-        libraries.at("ObservationLibrary"),
-        libraries.at("SpawnPointLibrary"),
+        oic,
         libraries.at("StochasticsLibrary"),
-        libraries.at("WorldLibrary")
+        libraries.at("WorldLibrary"),
+        configurationContainer->GetSlaveConfig()->GetSpawnPointsConfig()
     );
-    * ((std::string*)(&frameworkModules->observationLibrary)) = std::string(covisedir) + "/" + archsuffix + "/lib/OpenCOVER/plugins/observationCOVER";
     callbacks = new SimulationCommon::Callbacks;
-    frameworkModuleContainer = new FrameworkModuleContainer(*frameworkModules, configurationContainer, callbacks);
+    frameworkModuleContainer = new FrameworkModuleContainer(*frameworkModules, configurationContainer, runtimeInformation, callbacks);
+
     configurationContainer->GetSlaveConfig()->GetExperimentConfig().numberOfInvocations = 100000000;
     openPass->loadXosc(configurationContainer->GetSlaveConfig()->GetScenarioConfig().scenarioPath.c_str());
     runInstantiator = nullptr;
@@ -182,8 +200,7 @@ void simOpenPASS::run()
 #endif
 #endif
     delete runInstantiator;
-    runInstantiator = new RunInstantiator(directories->outputDir,
-        *configurationContainer,
+    runInstantiator = new RunInstantiator(*configurationContainer,
         *frameworkModuleContainer,
         *frameworkModules);
 
@@ -311,6 +328,12 @@ void OpenPASS::loadXosc(std::string file)
             //loadRoadSystem(xodrName_st.c_str());
             coVRFileManager::instance()->loadFile((xoscDirectory+"/"+xodrName_st).c_str());
         }
+        else if (osdb->RoadNetwork->LogicFile.exists())
+        {
+            std::string xodrName_st = osdb->RoadNetwork->LogicFile->filepath.getValue();
+            //loadRoadSystem(xodrName_st.c_str());
+            coVRFileManager::instance()->loadFile((xoscDirectory + "/" + xodrName_st).c_str());
+        }
         if (osdb->RoadNetwork->SceneGraph.exists())
         {
             std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
@@ -339,7 +362,7 @@ void OpenPASS::updateAgent(AgentInterface* agent)
     agentInfo* ai = agentInfos[ID];
     if (ai == nullptr)
     {
-        agentInfos[ID] = ai = new agentInfo(createVehicle(ID, agent->GetVehicleModelType(), agent->GetVehicleType()));
+        agentInfos[ID] = ai = new agentInfo(createVehicle(ID, agent->GetVehicleModelType(), agent->GetVehicleModelParameters().vehicleType));
     }
     if (ai != nullptr)
     {
@@ -350,8 +373,9 @@ void OpenPASS::updateAgent(AgentInterface* agent)
         //fprintf(stderr, "%d: %f %f %f\n", ID, agent->GetPositionX(), agent->GetPositionY(), agent->GetRelativeYaw());
         osg::Matrix rmat, tmat;
         osg::Vec3 pos(agent->GetPositionX(), agent->GetPositionY(), 0);
-        RoadPosition rp = agent->GetRoadPosition();
-        osg::Quat orientation(-agent->GetRelativeYaw()-agent->GetLaneDirection(0, 0), osg::Vec3d(0, 0, -1));
+        RoadPosition rp = agent->GetEgoAgent().GetMainLocatePosition().roadPosition;
+        double ld = agent->GetEgoAgent().GetLaneDirection(0);
+        osg::Quat orientation(-agent->GetEgoAgent().GetRelativeYaw()- ld, osg::Vec3d(0, 0, -1));
         rmat.makeRotate(orientation);
         tmat.makeTranslate(pos);
         av->setTransform(rotOffset * rmat * tmat);

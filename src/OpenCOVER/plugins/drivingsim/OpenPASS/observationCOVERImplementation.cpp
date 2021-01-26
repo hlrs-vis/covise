@@ -13,8 +13,8 @@
 #include <sstream>
 #include <QDir>
 
-#include "Interfaces/stochasticsInterface.h"
-#include "Interfaces/worldInterface.h"
+#include "include/stochasticsInterface.h"
+#include "include/worldInterface.h"
 
 #include "observationCOVERImplementation.h"
 #include "OpenPASS.h"
@@ -23,45 +23,30 @@ ObservationCOVERImplementation::ObservationCOVERImplementation(SimulationSlave::
         StochasticsInterface* stochastics,
         WorldInterface* world,
         const ParameterInterface* parameters,
-        const CallbackInterface* callbacks) :
+        const CallbackInterface* callbacks,
+         DataStoreReadInterface* dataStore) :
     ObservationInterface(stochastics,
                          world,
                          parameters,
-                         callbacks),
+                         callbacks,
+                         dataStore),
     eventNetwork(eventNetwork)
 {
     
 }
 
-//-----------------------------------------------------------------------------
-//! \brief Logs a key/value pair
-//!
-//! @param[in]     time      current time
-//! @param[in]     agentId   agent identifier
-//! @param[in]     group     LoggingGroup the key/value pair should be assigned to
-//! @param[in]     key       Key of the value to log
-//! @param[in]     value     Value to log
-//-----------------------------------------------------------------------------
-void ObservationCOVERImplementation::Insert(int time,
-        int agentId,
-        LoggingGroup group,
-        const std::string& key,
-        const std::string& value)
-{
-    
-}
 
 //-----------------------------------------------------------------------------
 //! \brief Logs an event
 //!
 //! @param[in]     event     Shared pointer to the event to log
 //-----------------------------------------------------------------------------
-void ObservationCOVERImplementation::InsertEvent(std::shared_ptr<EventInterface> event)
-{
-    eventNetwork->InsertEvent(event);
-}
+//void ObservationCOVERImplementation::InsertEvent(std::shared_ptr<EventInterface> event)
+//{
+//    eventNetwork->InsertEvent(event);
+//}
 
-void ObservationCOVERImplementation::SlavePreHook(const std::string& path)
+void ObservationCOVERImplementation::SlavePreHook()
 {
   
 }
@@ -85,12 +70,8 @@ void ObservationCOVERImplementation::SlavePostHook()
 {
 }
 
-void ObservationCOVERImplementation::GatherFollowers()
-{
-    
-}
-
+/*
 void ObservationCOVERImplementation::InformObserverOnSpawn(AgentInterface* agent)
 {
     OpenPASS::instance()->addAgent(agent);
-}
+}*/

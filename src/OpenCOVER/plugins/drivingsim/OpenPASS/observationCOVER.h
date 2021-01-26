@@ -21,6 +21,6 @@
 #  define OBSERVATION_COVER_SHARED_EXPORT Q_DECL_IMPORT   //! Import of the dll-functions
 #endif
 
-#include "Interfaces/observationInterface.h"
+#include "include/observationInterface.h"
 
 
