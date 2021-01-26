@@ -137,6 +137,14 @@ float coCullVisitor::getDistanceToEyePoint(const Vec3 &pos, bool withLODScale) c
         return (pos - getEyeLocal()).length();
 }
 
+float coCullVisitor::getDistanceToViewPoint(const Vec3& pos, bool withLODScale) const
+{
+    if (withLODScale)
+        return (pos - getEyeLocal()).length() * getLODScale();
+    else
+        return (pos - getEyeLocal()).length();
+}
+
 inline coCullVisitor::value_type distance(const osg::Vec3 &coord, const osg::Matrix &matrix)
 {
 

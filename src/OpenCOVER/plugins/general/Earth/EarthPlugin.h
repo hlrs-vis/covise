@@ -28,23 +28,23 @@
 #include <osgEarth/Version>
 #include <osgEarth/Viewpoint>
 
-#include <osgEarthSymbology/Color>
+#include <osgEarth/Color>
 
-#include <osgEarthAnnotation/AnnotationData>
+#include <osgEarth/AnnotationData>
+#include <osgEarth/Controls>
 //#include <osgEarthAnnotation/Decluttering>
 
-#include <osgEarthDrivers/kml/KML>
+#include <osgEarth/ExampleResources>
 
-#include <osgEarthUtil/EarthManipulator>
-#include <osgEarthUtil/AutoClipPlaneHandler>
-#include <osgEarthUtil/Controls>
+#include <osgEarth/EarthManipulator>
+#include <osgEarth/AutoClipPlaneHandler>
 #if OSGEARTH_VERSION_LESS_THAN(2,6,0)
 #include <osgEarthUtil/SkyNode>
 #else
-#include <osgEarthUtil/Sky>
+#include <osgEarth/Sky>
 #endif
-#include <osgEarthUtil/Formatter>
-#include <osgEarthUtil/MouseCoordsTool>
+#include <osgEarth/Formatter>
+#include <osgEarth/MouseCoordsTool>
 #include "EarthLayerManager.h"
 #include "EarthViewpointManager.h"
 #include <cover/coTabletUI.h>
@@ -53,9 +53,6 @@ using namespace opencover;
 
 using namespace osgEarth::Util;
 using namespace osgEarth::Util::Controls;
-using namespace osgEarth::Symbology;
-using namespace osgEarth::Drivers;
-using namespace osgEarth::Annotation;
 
 class EarthPlugin : public coVRPlugin, public coTUIListener
 {

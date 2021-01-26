@@ -37,14 +37,15 @@
 
    </Input>
   <Plugin>
-                <OddlotLink value="on"  />
+                <OddlotLink value="off"  /><!-- kills cull performance and sets LODScale to 0 bad for osgEarth-->
   
    <Bicycle>
         <udp value="on"/>
-        <serverHost value="140.221.131.37" /> <!-- medialab14 -->
-        <FlightGear value="on"/>
+        <serverHost value="192.168.178.36" /> <!-- skateboard -->
+        <FlightGear value="off"/>
         <isBike value="off"/>
-        <isParaglider value="on"/>
+        <isParaglider value="off"/>
+        <isSkateboard value="on"/>
    </Bicycle>
   </Plugin>
   

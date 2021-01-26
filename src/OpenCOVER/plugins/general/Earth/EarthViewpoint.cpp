@@ -12,7 +12,7 @@
 #include <osgEarth/Map>
 #include <osgEarth/Version>
 #include <osgEarth/Viewpoint>
-#include <osgEarthAnnotation/AnnotationNode>
+#include <osgEarth/AnnotationNode>
 
 #include <cover/coVRPluginSupport.h>
 
@@ -72,12 +72,21 @@ void EarthViewpoint::computeToUpright()
     osg::Vec3d localUpVector = osg::Z_AXIS;
     osg::Vec3d upVector = osg::Z_AXIS;
     toUpright.makeIdentity();
+
+    GeoPoint p;
+    osg::Matrixd local2world;
+    p = viewpoint->focalPoint().get();
+    p.createLocalToWorld(local2world);
+    new_center = local2world.getTrans();
+    const SpatialReference* srs = EarthPlugin::plugin->getSRS();
+    toUpright.makeRotate(new_center.x() / 180.0 * M_PI, osg::X_AXIS, -(90.0 - new_center.y()) / 180.0 * M_PI, osg::Y_AXIS, 0 / 180.0 * M_PI, osg::Z_AXIS);
+    localUpVector = srs->getEllipsoid()->computeLocalUpVector(osg::DegreesToRadians(new_center.y()), osg::DegreesToRadians(new_center.x()), new_center.z());
     // start by transforming the requested focal point into world coordinates:
-    /*if (const SpatialReference *srs = EarthPlugin::plugin->getSRS())
+   /* if (srs)
     {
         // resolve the VP's srs. If the VP's SRS is not specified, assume that it
         // is either lat/long (if the map is geocentric) or X/Y (otherwise).
-        osg::ref_ptr<const SpatialReference> vp_srs = viewpoint->SRS() ? viewpointgetSRS() : EarthPlugin::plugin->getMapNode()->getMap()->isGeocentric() ? srs->getGeographicSRS() : srs;
+        osg::ref_ptr<const SpatialReference> vp_srs = viewpoint->focalPoint()->getSRS();
 
         if (!srs->isEquivalentTo(vp_srs.get()))
         {
@@ -88,7 +97,7 @@ void EarthViewpoint::computeToUpright()
         }
 
         // convert to geocentric coords if necessary:
-        if (EarthPlugin::plugin->getMapNode()->getMap()->isGeocentric())
+        if (EarthPlugin::plugin->getMapNode()->getMap()->getSRS()->isGeocentric())
         {
             osg::Vec3d geocentric;
 
@@ -109,7 +118,7 @@ void EarthViewpoint::setViewpoint()
 {
     setScale();
     computeToUpright();
-    cover->setXformMat(osg::Matrix::translate(-new_center * cover->getScale()) * toUpright * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->getHeading()), osg::Z_AXIS) * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->getPitch()), osg::X_AXIS) * osg::Matrix::translate(0, viewpoint->getRange() * cover->getScale(), 0));
+    cover->setXformMat(osg::Matrix::translate(-new_center * cover->getScale()) * toUpright * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->heading().get()), osg::Z_AXIS) * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->pitch().get()), osg::X_AXIS) * osg::Matrix::translate(0, ((double)viewpoint->range().get()) * cover->getScale(), 0));
 }
 void EarthViewpoint::tabletPressEvent(coTUIElement *e)
 {
@@ -130,7 +139,7 @@ bool EarthViewpoint::update()
             startTime = cover->frameTime();
             firstTime = false;
         }
-        cover->setXformMat(osg::Matrix::translate(-new_center * cover->getScale()) * toUpright * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->getHeading() + ((cover->frameTime() - startTime) / 60.0) * 360.0 * EarthPlugin::plugin->getRPM()), osg::Z_AXIS) * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->getPitch()), osg::X_AXIS) * osg::Matrix::translate(0, viewpoint->getRange() * cover->getScale(), 0));
+        cover->setXformMat(osg::Matrix::translate(-new_center * cover->getScale()) * toUpright * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->heading().get() + ((cover->frameTime() - startTime) / 60.0) * 360.0 * EarthPlugin::plugin->getRPM()), osg::Z_AXIS) * osg::Matrix::rotate(osg::DegreesToRadians(-viewpoint->pitch().get()), osg::X_AXIS) * osg::Matrix::translate(0, ((double)viewpoint->range().get()) * cover->getScale(), 0));
     }
     else
         firstTime = true;

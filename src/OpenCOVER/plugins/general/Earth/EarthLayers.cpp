@@ -11,7 +11,7 @@
 
 #include <osgEarth/Map>
 #include <osgEarth/Viewpoint>
-#include <osgEarthAnnotation/AnnotationNode>
+#include <osgEarth/AnnotationNode>
 #include <osgEarth/ImageLayer>
 #include <osgEarth/ModelLayer>
 

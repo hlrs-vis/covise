@@ -62,6 +62,7 @@ public:
     }
     virtual float getDistanceToEyePoint(const osg::Vec3 &pos, bool withLODScale) const;
     virtual float getDistanceFromEyePoint(const osg::Vec3 &pos, bool withLODScale) const;
+    virtual float getDistanceToViewPoint(const osg::Vec3& pos, bool withLODScale) const;
 
     // we do need our own version of apply and distance() for depth sorting to work correctly
     virtual void apply(osg::Drawable &drawable);

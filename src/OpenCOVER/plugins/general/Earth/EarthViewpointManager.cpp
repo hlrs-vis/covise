@@ -12,7 +12,7 @@
 
 #include <osgEarth/Map>
 #include <osgEarth/Viewpoint>
-#include <osgEarthAnnotation/AnnotationNode>
+#include <osgEarth/AnnotationNode>
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/osg/mathUtils.h>
 
@@ -70,7 +70,7 @@ void EarthViewpointManager::tabletPressEvent(coTUIElement *e)
             srs->transformFromWorld(currentPos, currentLatLong);
 
             // convert to geocentric coords if necessary:
-            if (EarthPlugin::plugin->getMapNode()->getMap()->isGeocentric())
+            if (EarthPlugin::plugin->getMapNode()->getMapSRS()->isGeocentric())
             {
                 osg::Matrix toUpright;
 
