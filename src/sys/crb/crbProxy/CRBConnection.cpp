@@ -49,7 +49,7 @@ CRBConnection::~CRBConnection()
 void CRBConnection::contactController()
 {
     Host* h = new Host(host);
-    toController = new ClientConnection(h, port, id, DATAMANAGER);
+    toController = new ClientConnection(h, port, id, CRB);
     listOfConnections->add(toController);
     delete h;
 }

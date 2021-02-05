@@ -363,7 +363,7 @@ enum sender_type
 {
     UNDEFINED = 0,
     CONTROLLER = 1,
-    DATAMANAGER = 2,
+    CRB = 2,
     USERINTERFACE = 3,
     RENDERER = 4,
     APPLICATIONMODULE = 5,

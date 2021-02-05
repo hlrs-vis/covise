@@ -360,7 +360,7 @@ void dmgr_signal_handler(int sg, void *)
 #endif
 
 DataManagerProcess::DataManagerProcess(char *name, int id, int *key)
-    : OrdinaryProcess(name, id, DATAMANAGER)
+    : OrdinaryProcess(name, id, CRB)
 {
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "in DataManagerProcess", 4);
@@ -437,7 +437,7 @@ void DataManagerProcess::contact_controller(int p, Host *h)
                   "contact_controller not necessary on machines w/o shared memory\n", 4);
     is_bad_ = false;
 #else
-    controller = new ControllerConnection(h, p, id, DATAMANAGER);
+    controller = new ControllerConnection(h, p, id, CRB);
     if (controller->is_connected())
     {
         list_of_connections->add(controller);
@@ -454,7 +454,7 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
     DMEntry *dme = NULL;
     unsigned int sid;
 
-    dm = new ClientConnection(host, p, id, DATAMANAGER);
+    dm = new ClientConnection(host, p, id, CRB);
     list_of_connections->add(dm);
 #if defined(CRAY) && !defined(_WIN32)
 #ifdef _CRAYT3E
@@ -497,7 +497,7 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
 
 void DataManagerProcess::prepare_for_contact(int *p)
 {
-    tmpconn = new ServerConnection(p, id, DATAMANAGER);
+    tmpconn = new ServerConnection(p, id, CRB);
     tmpconn->listen();
 }
 
@@ -575,7 +575,7 @@ void DataManagerProcess::start_transfermanager()
     Message *msg;
 
     print_comment(__LINE__, __FILE__, "in start_transfermanager");
-    transfermanager = new ServerConnection(&port, id, DATAMANAGER);
+    transfermanager = new ServerConnection(&port, id, CRB);
     transfermanager->listen();
 #ifdef _WIN32
 
@@ -2094,7 +2094,7 @@ int DMEntry::complete_data_conn(Message *msg)
 
     data_host = new Host(&msg->data.data()[SIZEOF_IEEE_INT]);
     data_port = *(int *)msg->data.data();
-    data_conn = new ClientConnection(data_host, data_port, id, DATAMANAGER);
+    data_conn = new ClientConnection(data_host, data_port, id, CRB);
     return 1;
 }
 
@@ -2107,7 +2107,7 @@ int DMEntry::make_data_conn(char *new_interface)
 
     length = strlen(new_interface) + 1 + SIZEOF_IEEE_INT;
     data = new char[length];
-    tmp_conn = new ServerConnection(&data_port, id, DATAMANAGER);
+    tmp_conn = new ServerConnection(&data_port, id, CRB);
     tmp_conn->listen();
     *(int *)data = data_port;
     strcpy(&data[SIZEOF_IEEE_INT], new_interface);
