@@ -160,8 +160,8 @@ public:
     virtual int send(const void *buf, unsigned nbyte); // send into socket
 	virtual int recv_msg(Message *msg, char *ip = nullptr); // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
     virtual int recv_msg_fast(Message *msg); // high-performace receive Message
-    virtual bool sendMessage(const Message *msg) override; // send Message
-    virtual bool sendMessage(const UdpMessage *msg) override; // send Message
+    virtual bool sendMessage(const Message *msg) const override; // send Message
+    virtual bool sendMessage(const UdpMessage *msg) const override; // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
     int check_for_input(float time = 0.0); // issue select call and return TRUE if there is an event or 0L otherwise
     int get_port() // give port number
@@ -207,8 +207,8 @@ public:
 	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
 	bool recv_udp_msg(UdpMessage* msg);
 	//send udp message to ip, if no ip given use member address. Retun true on succsess
-	bool sendMessage(const UdpMessage* msg) override;
-    bool send_udp_msg(const UdpMessage* msg, const char* ip = nullptr);
+	bool sendMessage(const UdpMessage* msg) const override;
+    bool send_udp_msg(const UdpMessage* msg, const char* ip = nullptr) const;
 };
 // Connection that acts as server
 class NETEXPORT ServerConnection : public Connection
@@ -373,8 +373,8 @@ public:
     int receive(void *buf, unsigned nbyte); // receive from socket
     int send(const void *buf, unsigned nbyte); // send into socket
     int recv_msg(Message *msg); // receive Message
-    int send_msg(const Message *msg); // send Message
-    bool sendMessage(const Message *msg) override;
+    int send_msg(const Message *msg) const; // send Message
+    bool sendMessage(const Message *msg) const override;
     const char *readLine(); // Read line
     int get_id(void (*remove_func)(int));
     int get_id() const;
@@ -389,12 +389,12 @@ protected:
     static SSL_CTX *mCTX;
     int mSFD;
     int mClieDsc;
-    SSL_STATE mState;
+    mutable SSL_STATE mState;
 	size_t mBuflen;
     char mBuffer[10001];
 
     void setPasswdCallback(PasswordCallback *, void *userData);
-    void validateConnState();
+    void validateConnState() const;
 
     PasswordCallback *mSSLCB;
     void *mSSLUserData;

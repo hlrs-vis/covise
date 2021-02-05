@@ -134,7 +134,7 @@ int VRBClient::wait(Message *m, int messageType)
 }
 
 
-bool VRBClient::sendMessage(const covise::UdpMessage* m)
+bool VRBClient::sendMessage(const covise::UdpMessage* m) const
 {
 	if (!udpConn) // not connected to a server
 	{
@@ -145,7 +145,7 @@ bool VRBClient::sendMessage(const covise::UdpMessage* m)
 
 }
 
-bool VRBClient::sendMessage(const Message* m)
+bool VRBClient::sendMessage(const Message* m) const
 {
     if (!sConn)
     {

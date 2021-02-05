@@ -21,13 +21,13 @@ enum class Protocol { TCP, UDP};
   public:
     MessageSenderInterface() = default;
     virtual ~MessageSenderInterface() = default;
-    bool send(const covise::MessageBase *msg);
-    bool send(const covise::Message *msg);
-    bool send(const UdpMessage *msg);
-    bool send(covise::TokenBuffer &tb, int type, Protocol p = Protocol::TCP);
+    bool send(const covise::MessageBase *msg) const;
+    bool send(const covise::Message *msg) const;
+    bool send(const UdpMessage *msg) const;
+    bool send(covise::TokenBuffer &tb, int type, Protocol p = Protocol::TCP) const;
 protected:
-    virtual bool sendMessage(const Message *msg) = 0;
-    virtual bool sendMessage(const UdpMessage *msg) = 0;
+    virtual bool sendMessage(const covise::Message *msg) const = 0;
+    virtual bool sendMessage(const UdpMessage *msg) const = 0;
   };
 
 } // namespace covise

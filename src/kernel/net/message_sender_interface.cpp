@@ -11,7 +11,7 @@
 
 using namespace covise;
 
-bool MessageSenderInterface::send(const covise::MessageBase *msg)
+bool MessageSenderInterface::send(const covise::MessageBase *msg) const
 {
   if (const covise::Message *tcp = dynamic_cast<const covise::Message *>(msg))
   {
@@ -24,17 +24,17 @@ bool MessageSenderInterface::send(const covise::MessageBase *msg)
   return false;
 }
 
-bool MessageSenderInterface::send(const covise::Message *msg)
+bool MessageSenderInterface::send(const covise::Message *msg) const
 {
   return sendMessage(msg);
 }
 
-bool MessageSenderInterface::send(const UdpMessage *msg)
+bool MessageSenderInterface::send(const UdpMessage *msg) const
 {
   return sendMessage(msg);
 }
 
-bool MessageSenderInterface::send(covise::TokenBuffer &tb, int type, Protocol p)
+bool MessageSenderInterface::send(covise::TokenBuffer &tb, int type, Protocol p) const
 {
   switch (p)
   {

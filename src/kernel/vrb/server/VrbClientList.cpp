@@ -75,7 +75,7 @@ void VRBSClient::addUnknownFile(const std::string& fileName)
 	m_unknownFiles.insert(fileName);
 }
 
-bool VRBSClient::sendMessage(const covise::Message* msg)
+bool VRBSClient::sendMessage(const covise::Message* msg) const
 {
 	if (conn)
     {
@@ -85,7 +85,8 @@ bool VRBSClient::sendMessage(const covise::Message* msg)
     
 }
 
-bool VRBSClient::sendMessage(const covise::UdpMessage *msg){
+bool VRBSClient::sendMessage(const covise::UdpMessage *msg) const
+{
 
     if (udpConn)
     {

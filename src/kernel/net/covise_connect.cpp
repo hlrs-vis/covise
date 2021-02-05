@@ -232,12 +232,12 @@ bool covise::UDPConnection::recv_udp_msg(UdpMessage* msg)
 
 }
 
-bool covise::UDPConnection::sendMessage(const UdpMessage* msg){
+bool covise::UDPConnection::sendMessage(const UdpMessage* msg) const{
     return send_udp_msg(msg);
 }
 
 
-bool covise::UDPConnection::send_udp_msg(const UdpMessage* msg, const char* ip)
+bool covise::UDPConnection::send_udp_msg(const UdpMessage* msg, const char* ip) const
 {
 	/*cerr << "sending udp msg to ";
 	if (ip)
@@ -931,7 +931,7 @@ int Connection::send_msg_fast(const Message *msg)
     return bytes_written;
 }
 
-bool Connection::sendMessage(const Message *msg)
+bool Connection::sendMessage(const Message *msg) const
 {
     int retval = 0, tmp_bytes_written;
     char write_buf[WRITE_BUFFER_SIZE];
@@ -1012,7 +1012,7 @@ bool Connection::sendMessage(const Message *msg)
     return retval;
 }
 
-bool Connection::sendMessage(const UdpMessage *msg){
+bool Connection::sendMessage(const UdpMessage *msg) const{
     return false;
 }
 
@@ -1659,7 +1659,7 @@ int SSLConnection::send(const void *buf, unsigned nbyte)
     return rbytes;
 }
 
-void SSLConnection::validateConnState()
+void SSLConnection::validateConnState() const
 {
     if (SSL_get_shutdown(mSSL) == SSL_RECEIVED_SHUTDOWN)
     {
@@ -1761,7 +1761,7 @@ int SSLConnection::recv_msg(Message *msg)
 /**
  * @Desc: SSL compatible send_msg function. Doesn't support Cray.
  */
-int SSLConnection::send_msg(const Message *msg)
+int SSLConnection::send_msg(const Message *msg) const
 {
     if (IsClosed())
     {
@@ -1826,7 +1826,7 @@ int SSLConnection::send_msg(const Message *msg)
     return retval;
 }
 
-bool SSLConnection::sendMessage(const Message *msg){
+bool SSLConnection::sendMessage(const Message *msg) const{
     return send_msg(msg) > 0;
 }
 

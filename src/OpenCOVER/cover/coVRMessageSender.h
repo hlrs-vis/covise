@@ -9,8 +9,8 @@ namespace opencover
     {
 
     private:
-        bool sendMessage(const covise::Message *msg) override;
-        bool sendMessage(const covise::UdpMessage *msg) override;
+        bool sendMessage(const covise::Message *msg) const override;
+        bool sendMessage(const covise::UdpMessage *msg) const override;
     };
 } // namespace opencover
 

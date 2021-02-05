@@ -64,8 +64,8 @@ public:
 	bool doesNotKnowFile(const std::string& fileName);
 	void addUnknownFile(const std::string& fileName);
 private:
-    bool sendMessage(const covise::Message *msg) override;
-    bool sendMessage(const covise::UdpMessage *msg) override;
+    bool sendMessage(const covise::Message *msg) const override;
+    bool sendMessage(const covise::UdpMessage *msg) const override;
 
 protected:
     std::set<std::string> m_unknownFiles;
@@ -80,7 +80,7 @@ protected:
     int m_bytesSentPerSecond = 0;
     int m_bytesReceivedPerSecond = 0;
 	bool m_deleteClient = true;
-	bool m_firstTryUdp = true;
+	mutable bool m_firstTryUdp = true;
     double time();
 
 };

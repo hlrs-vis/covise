@@ -65,7 +65,7 @@ private:
     VrbCredentials m_credentials;
     covise::Host *serverHost = nullptr;
     bool isSlave = false; // it true, we are a slave in a multiPC config, so do not actually connect to server
-    float sendDelay = 0.1f; // low-pass filtered time for sending one packet of 1000 bytes
+    mutable float sendDelay = 0.1f; // low-pass filtered time for sending one packet of 1000 bytes
     std::mutex connMutex;
     std::atomic_bool m_isConnected{false};
 #ifndef _M_CEE //no future in Managed OpenCOVER
@@ -76,8 +76,8 @@ private:
 	std::mutex udpConnMutex;
     bool firstUdpVrbConnection = true;
 
-    bool sendMessage(const covise::Message* m) override;
-    bool sendMessage(const covise::UdpMessage *m) override;
+    bool sendMessage(const covise::Message* m) const override;
+    bool sendMessage(const covise::UdpMessage *m) const override;
 };
 VrbCredentials readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile);
 }
