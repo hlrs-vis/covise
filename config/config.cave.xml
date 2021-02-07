@@ -546,7 +546,8 @@
    <Bicycle>
    <LenkMaus value="/dev/input/mouse3"/>
    <PedalMaus value="/dev/input/mouse4"/>
-   <isBike value="true"/>
+   <isBike value="false"/>
+   <isSkateboard value="true"/>
    </Bicycle>
    <SteeringWheel>
 
