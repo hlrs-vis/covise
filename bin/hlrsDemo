@@ -118,6 +118,15 @@ run_stuttgart() {
 }
 demo 37 "Stuttgart with Sumo" run_stuttgart
 
+run_stuttgart_hidalgo() {
+    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
+    SUMO=$!
+    vistle /data/StuttgartForecast/stuttgart_air_quality_Jan2021.vsl
+    kill $SUMO
+}
+demo 49 "Stuttgart Hidalgo with Sumo" run_stuttgart_hidalgo
+
+
 demo 38 "Spielplatz Stuttgart West" covise /data/covise_net/2017/Spielplatz.net
 run_herrenberg() {
     bash /data/reallabor/herrenberg/sumo/startSumo.sh &
