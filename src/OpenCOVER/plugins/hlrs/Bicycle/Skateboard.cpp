@@ -42,7 +42,10 @@ void Skateboard::init()
 	unsigned short serverPort = covise::coCoviseConfig::getInt("Skateboard.serverPort", 31319);
 	unsigned short localPort = covise::coCoviseConfig::getInt("Skateboard.localPort", 31319);
 	std::cerr << "Skateboard config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+	if(coVRMSController::instance()->isMaster())
+	{
 	udp = new UDPComm(host.c_str(), serverPort, localPort);
+	}
 
 	return;
 }
@@ -52,11 +55,14 @@ Skateboard::run()
 {
 	running = true;
 	doStop = false;
-	while (running && !doStop)
+	if(coVRMSController::instance()->isMaster())
 	{
-		usleep(5000);
-		this->update();
+		while (running && !doStop)
+		{
+			usleep(5000);
+			this->update();
 
+		}
 	}
 }
 
@@ -66,6 +72,18 @@ Skateboard::stop()
 	doStop = true;
 }
 
+
+void Skateboard::syncData()
+{
+        if (coVRMSController::instance()->isMaster())
+        {
+            coVRMSController::instance()->sendSlaves(&sbData, sizeof(sbData));
+        }
+        else
+        {
+            coVRMSController::instance()->readMaster(&sbData, sizeof(sbData));
+        }
+}
 
 void Skateboard::update()
 {

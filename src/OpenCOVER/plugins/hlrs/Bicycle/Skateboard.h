@@ -64,6 +64,7 @@ public:
     void stop();
     void Initialize();
     unsigned char getButton();
+void syncData();
     bool doStop;
 private:
     void init();

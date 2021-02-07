@@ -269,6 +269,8 @@ void VrmlNodeBicycle::recalcMatrix()
     tr.set(ct[0], ct[1], ct[2]);
     rot.makeRotate(ct[3], tr);
     bikeTrans.preMult(rot);
+    
+       fprintf(stderr,"recalcbikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
 }
 
 const VrmlField *VrmlNodeBicycle::getField(const char *fieldName)
@@ -348,10 +350,15 @@ char BicyclePlugin::readps2(int fd)
 
 void VrmlNodeBicycle::render(Viewer *)
 {
-    
+    static bool firstTime = true;
     double dT = cover->frameDuration();
     float wheelBase = 0.98;
     float v = BicyclePlugin::plugin->speed; //*0.06222222;
+    if(firstTime)
+    {
+            recalcMatrix();
+	    firstTime=false;
+    }
     //fprintf(stderr,"speed: %f", v);
     if (BicyclePlugin::plugin->skateboard)
     {
@@ -365,12 +372,29 @@ void VrmlNodeBicycle::render(Viewer *)
        {
            BicyclePlugin::plugin->speed = 0;
        }
+       BicyclePlugin::plugin->speed += -1*0.05*normal.y();
+       if(BicyclePlugin::plugin->speed < 0)
+       {
+           BicyclePlugin::plugin->speed =0;
+       }
+       if(BicyclePlugin::plugin->speed > 5)
+       {
+           BicyclePlugin::plugin->speed =5;
+       }
+       if (BicyclePlugin::plugin->skateboard->getWeight() < 10)
+       {
+           BicyclePlugin::plugin->speed = 0;
+       }
+       v = BicyclePlugin::plugin->speed;
        float s = v * dT;
        osg::Vec3 V(0, 0, -s);
        wheelBase = 0.5;
        float rotAngle = 0.0;
+        fprintf(stderr,"v: %f \n",v );
        if ((s < 0.0001 && s > -0.0001)) // straight
        {
+           //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
+           //fprintf(stderr,"V: %f %f %f\n",V[0], V[1], V[2] );
        }
        else
        {
@@ -387,6 +411,8 @@ void VrmlNodeBicycle::render(Viewer *)
        osg::Matrix relRot;
        relRot.makeRotate(rotAngle, 0, 1, 0);
        relTrans.makeTranslate(V);
+       
+       //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
        bikeTrans = relRot * relTrans * bikeTrans;
 
        moveToStreet();
@@ -396,6 +422,20 @@ void VrmlNodeBicycle::render(Viewer *)
        q.set(bikeTrans);
        osg::Quat::value_type orient[4];
        q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+       
+       
+       
+        if (coVRMSController::instance()->isMaster())
+        {
+            coVRMSController::instance()->sendSlaves((char *)bikeTrans.ptr(), sizeof(bikeTrans));
+            coVRMSController::instance()->sendSlaves((char *)orient, 4*sizeof(orient[0]));
+        }
+        else
+        {
+            coVRMSController::instance()->readMaster((char *)bikeTrans.ptr(), sizeof(bikeTrans));
+            coVRMSController::instance()->readMaster((char *)orient, 4*sizeof(orient[0]));
+        }
+       
        d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
        d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
     }
@@ -855,6 +895,11 @@ bool BicyclePlugin::init()
     isBike=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isBike",false));
     isParaglider = (coCoviseConfig::isOn("COVER.Plugin.Bicycle.isParaglider", false));
     isSkateboard = (coCoviseConfig::isOn("COVER.Plugin.Bicycle.isSkateboard", false));
+        if (isSkateboard)
+        {
+            skateboard = new Skateboard(this);
+            skateboard->start();
+        }
     if (coVRMSController::instance()->isMaster())
     {
         if (isBike)
@@ -865,11 +910,6 @@ bool BicyclePlugin::init()
         {
             flightgear = new FlightGear(this);
             flightgear->start(); 
-        }
-        if (isSkateboard)
-        {
-            skateboard = new Skateboard(this);
-            skateboard->start();
         }
         start();
     }
