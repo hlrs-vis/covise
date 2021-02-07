@@ -11,6 +11,7 @@ SET(FREEIMAGE_LIBRARY_SEARCH_DIRS
     $ENV{EXTERNLIBS}/freeimage/lib
     ${GLOBAL_EXT_DIR}/freeimage/lib
     /usr/lib
+    /usr/lib64
 )
 
 ##############################################################################

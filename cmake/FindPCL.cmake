@@ -13,6 +13,7 @@ FIND_PATH(PCL_INCLUDE_DIR "pcl/pcl_base.h"
   PATHS
   $ENV{PCL_HOME}/include
   $ENV{EXTERNLIBS}/pcl/include
+  $ENV{EXTERNLIBS}/pcl/include/pcl-1.11
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local/include
@@ -25,11 +26,11 @@ FIND_PATH(PCL_INCLUDE_DIR "pcl/pcl_base.h"
   DOC "PCL - Headers"
 )
 
-SET(PCL_NAMES pcl_common_release pcl_common)
+SET(PCL_NAMES pcl_common_release pcl_common libpcl_common)
 SET(PCL_DBG_NAMES pcl_common_debug)
-SET(PCL_IO_NAMES pcl_io_release pcl_io)
+SET(PCL_IO_NAMES pcl_io_release pcl_io libpcl_io)
 SET(PCL_IO_DBG_NAMES pcl_io_debug)
-SET(PCL_OOC_NAMES pcl_outofcore_release pcl_outofcore)
+SET(PCL_OOC_NAMES pcl_outofcore_release pcl_outofcore libpcl_outofcore)
 SET(PCL_OOC_DBG_NAMES pcl_outofcore_debug)
 
 FIND_LIBRARY(PCL_LIBRARY NAMES ${PCL_NAMES}

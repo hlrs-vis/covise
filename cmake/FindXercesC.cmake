@@ -18,7 +18,7 @@ FIND_PATH(XERCESC_INCLUDE_DIR xercesc/dom/DOM.hpp
 )
 FIND_PATH(XERCESC_INCLUDE_DIR xercesc/dom/DOM.hpp DOC "xercesc - Headers")
 
-SET(XERCESC_NAMES xerces-c_3_1 xerces-c-3.1 xerces-c_3 xerces-c-3 xerces-c_2 xerces-c)
+SET(XERCESC_NAMES xerces-c_3_1 xerces-c-3.1 xerces-c_3 xerces-c_3.2 xerces-c-3 xerces-c_2 xerces-c)
 SET(XERCESC_DBG_NAMES xerces-c_3d_1 xerces-c_3d xerces-c_2d xerces-cd)
 
 FIND_LIBRARY(XERCESC_LIBRARY NAMES ${XERCESC_NAMES}
@@ -26,6 +26,7 @@ FIND_LIBRARY(XERCESC_LIBRARY NAMES ${XERCESC_NAMES}
   $ENV{XERCESC_HOME}/lib
   $ENV{EXTERNLIBS}/xerces/lib
   $ENV{EXTERNLIBS}/xercesc/lib
+  /usr
   DOC "xercesc - Library"
 )
 FIND_LIBRARY(XERCESC_LIBRARY NAMES ${XERCESC_NAMES} DOC "xercesc - Library")
