@@ -13,7 +13,7 @@
 namespace vrb{
 
 DECL_MESSAGE_CLASS(VRB_MESSAGE, VRBCLIENTEXPORT, Program, program, int, clientID, std::vector<std::string>, args)
-VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, covise::MessageSenderInterface *sender);
+VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, const covise::MessageSenderInterface *sender);
 
     enum class VrbMessageType
     {
