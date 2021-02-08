@@ -292,7 +292,7 @@ void VRBClient::shutdown(){
     }
 }
 
-const vrb::VrbCredentials &VRBClient::getCredentials(){
+const vrb::VrbCredentials &VRBClient::getCredentials() const{
     return m_credentials;
 }
 

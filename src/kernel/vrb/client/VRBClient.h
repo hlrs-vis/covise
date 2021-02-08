@@ -55,7 +55,7 @@ public:
     std::list<covise::Message *> messageQueue;
     float getSendDelay();
     void shutdown(); //threadsafe, shuts down the tcp socked, don't use the client after a call to this function
-    const VrbCredentials &getCredentials();
+    const VrbCredentials &getCredentials() const;
 
 private:
     covise::ClientConnection *sConn = nullptr; // tcp connection to Server
