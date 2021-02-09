@@ -65,7 +65,7 @@ class NETEXPORT MessageBase
 {
 public:
     DataHandle data;
-    Connection* conn; // connection at which message has been received (if so)
+    const Connection* conn = nullptr; // connection at which message has been received (if so)
 	MessageBase();
 	MessageBase(TokenBuffer& tb);
     MessageBase(DataHandle& dh);
@@ -100,7 +100,7 @@ public:
     // empty initialization:
     Message();
 	explicit Message(TokenBuffer& t);
-    explicit Message(Connection *c);
+    explicit Message(const Connection *c);
 
     // initialization with data only (for sending):
     explicit Message(int message_type, const std::string &str = std::string());

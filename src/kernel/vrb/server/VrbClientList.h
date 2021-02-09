@@ -99,7 +99,7 @@ public:
     VRBClientList& operator=(const VRBClientList&) = delete;
     VRBClientList& operator=(VRBClientList&&) = delete;
 
-	VRBSClient *get(covise::Connection *c);
+	VRBSClient *get(const covise::Connection *c);
     VRBSClient *get(const char *ip);
     VRBSClient *get(int id);
     VRBSClient *getMaster(const vrb::SessionID &session);

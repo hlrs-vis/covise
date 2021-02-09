@@ -84,7 +84,7 @@ Message::Message(TokenBuffer &t)
 {
 }
 
-Message::Message(Connection *c){
+Message::Message(const Connection *c){
     conn = c;
     //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
     print();

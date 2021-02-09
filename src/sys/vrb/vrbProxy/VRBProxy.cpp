@@ -137,7 +137,7 @@ void VRBProxy::closeServer()
     sConn = NULL;
 }
 
-void VRBPClientList::sendMessage(Message *msg)
+void VRBPClientList::sendMessage(const Message *msg)
 {
     VRBPClient *cl;
     cl = get(msg->conn);
@@ -158,7 +158,7 @@ void VRBPClientList::deleteAll()
 	clear();
 }
 
-VRBPClient *VRBPClientList::get(Connection *c)
+VRBPClient *VRBPClientList::get(const Connection *c)
 {
 	for (const auto &it : *this)
 	{
@@ -190,8 +190,8 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
     {
         serverHost = NULL;
     }
-    toVRB = new ClientConnection(serverHost, tcp_p, 0, 0, 0);
-    if (toVRB)
+    auto newToVrb = std::unique_ptr<ClientConnection>{new ClientConnection{serverHost, tcp_p, 0, 0, 0}};
+    if (newToVrb)
     {
         if (!toVRB->is_connected()) // could not open server port
         {
@@ -199,7 +199,8 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
             delete toVRB;
             toVRB = NULL;
         }
-        prox->connections->add(toVRB);
+        toVRB = newToVrb.get();
+        prox->connections->add(newToVrb.release());
 
         struct linger linger;
         linger.l_onoff = 0;
@@ -223,7 +224,7 @@ VRBPClient::~VRBPClient()
     toClient = NULL;
 }
 
-void VRBPClient::sendMessage(Message *msg)
+void VRBPClient::sendMessage(const Message *msg)
 {
     if (msg->conn == toVRB)
     {

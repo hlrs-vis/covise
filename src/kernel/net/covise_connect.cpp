@@ -105,13 +105,12 @@ static const int SIZEOF_IEEE_INT = 4;
 SSL_CTX *SSLConnection::mCTX = NULL;
 #endif
 
-int Connection::get_id()
+int Connection::get_id() const
 {
-    //cerr << "sock == " << sock << " id: " << sock->get_id() << endl;
     if (sock)
         return sock->get_id();
     return -1;
-}; // give socket id
+}; 
 
 Connection::Connection()
 {
@@ -155,11 +154,9 @@ Connection::~Connection() // close connection (for subclasses)
     delete sock;
 }
 
-// give socket id
-int Connection::get_id(void (*remove_func)(int))
+int Connection::get_id(void (*remove_func)(int)) const
 {
     remove_socket = remove_func;
-    //	fprintf(stderr, "Socket: %x\n", sock);
     return sock->get_id();
 }
 
@@ -182,7 +179,7 @@ UDPConnection::UDPConnection(int id, int s_type, int p, const char* address)
 	port = p;
 }
 #define UDP_HEADER_SIZE 2 * SIZEOF_IEEE_INT
-bool covise::UDPConnection::recv_udp_msg(UdpMessage* msg)
+bool covise::UDPConnection::recv_udp_msg(UdpMessage* msg) const
 {
 	int l;
 	char* read_buf_ptr;
@@ -865,12 +862,12 @@ void Connection::set_peer(int id, int type)
     peer_type_ = type;
 }
 
-int Connection::get_peer_id()
+int Connection::get_peer_id() const
 {
     return peer_id_;
 }
 
-int Connection::get_peer_type()
+int Connection::get_peer_type() const
 {
     return peer_type_;
 }
@@ -1017,7 +1014,7 @@ bool Connection::sendMessage(const UdpMessage *msg) const{
 }
 
 
-int Connection::recv_msg_fast(Message *msg)
+int Connection::recv_msg_fast(Message *msg) const
 {
     //Init values
     //int send_type = 0;
@@ -1074,7 +1071,7 @@ int Connection::recv_msg_fast(Message *msg)
     return read_bytes + read_msg_bytes;
 }
 
-int Connection::recv_msg(Message *msg, char* ip)
+int Connection::recv_msg(Message *msg, char* ip) const
 {
     int bytes_read, bytes_to_read, tmp_read;
     char *read_buf_ptr;
@@ -1442,7 +1439,7 @@ void ConnectionList::add(Connection *c) // add a connection and update the
     return;
 }
 
-void ConnectionList::remove(Connection *c) // remove a connection and update
+void ConnectionList::remove(const Connection *c) // remove a connection and update
 {
     if (!c)
         return;
@@ -1691,7 +1688,7 @@ std::string SSLConnection::getPeerAddress()
     return locSocket->getPeerAddress();
 }
 
-int SSLConnection::recv_msg(Message *msg)
+int SSLConnection::recv_msg(Message *msg, char *ip) const 
 {
     if (IsClosed())
     {
@@ -1828,21 +1825,6 @@ int SSLConnection::send_msg(const Message *msg) const
 
 bool SSLConnection::sendMessage(const Message *msg) const{
     return send_msg(msg) > 0;
-}
-
-int SSLConnection::get_id(void (*remove_func)(int))
-{
-    remove_socket = remove_func;
-    //	fprintf(stderr, "Socket: %x\n", sock);
-    return sock->get_id();
-}
-
-int SSLConnection::get_id() const
-{
-    //cerr << "sock == " << sock << " id: " << sock->get_id() << endl;
-    if (sock)
-        return sock->get_id();
-    return -1;
 }
 
 const char *SSLConnection::readLine()

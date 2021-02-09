@@ -126,14 +126,14 @@ protected:
     int send_type; // type of module for messages
     int peer_id_; // id of the peer process
     int peer_type_; // type of peer
-    int message_to_do; // if more than one message has been read
-    int bytes_to_process;
+    mutable int message_to_do; // if more than one message has been read
+    mutable int bytes_to_process;
     unsigned long tru;
     char *read_buf = nullptr;
     Host *other_host = nullptr;
     int hostid; //hostid of remote host
-    void (*remove_socket)(int);
-    int get_id();
+    mutable void (*remove_socket)(int);
+    int get_id() const;
     int *header_int;
 
 public:
@@ -147,10 +147,10 @@ public:
         return sock;
     };
     void set_peer(int id, int type);
-    int get_peer_id();
-    int get_peer_type();
+    int get_peer_id() const;
+    int get_peer_type() const;
 
-    int is_connected() // return true if connection is established
+    int is_connected() const// return true if connection is established
     {
         if (sock == NULL)
             return 0;
@@ -158,8 +158,8 @@ public:
     };
     virtual int receive(void *buf, unsigned nbyte); // receive from socket
     virtual int send(const void *buf, unsigned nbyte); // send into socket
-	virtual int recv_msg(Message *msg, char *ip = nullptr); // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
-    virtual int recv_msg_fast(Message *msg); // high-performace receive Message
+	virtual int recv_msg(Message *msg, char *ip = nullptr) const; // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
+    virtual int recv_msg_fast(Message *msg) const; // high-performace receive Message
     virtual bool sendMessage(const Message *msg) const override; // send Message
     virtual bool sendMessage(const UdpMessage *msg) const override; // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
@@ -177,14 +177,14 @@ public:
     {
         return (send_type);
     };
-    int get_id(void (*remove_func)(int)); // give socket id
-    int get_sender_id()
+    int get_id(void (*remove_func)(int)) const; // give socket id
+    int get_sender_id() const
     {
         return sender_id;
     };
     void close(); // send close msg for partner and delete socket
     void close_inform(); // close without msg for partner
-    int has_message()
+    int has_message() const
     {
         //	if(message_to_do)
         //	    LOGINFO( "message_to_do == 1");
@@ -192,7 +192,7 @@ public:
         //	    LOGINFO( "message_to_do == 0");
         return message_to_do; // message is already read
     };
-    void print()
+    void print() const
     {
         std::cerr << "port: " << port << std::endl;
     };
@@ -205,7 +205,7 @@ class NETEXPORT UDPConnection : public Connection
 public:
 	UDPConnection(int id, int s_type, int p, const char* address);
 	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
-	bool recv_udp_msg(UdpMessage* msg);
+	bool recv_udp_msg(UdpMessage* msg) const;
 	//send udp message to ip, if no ip given use member address. Retun true on succsess
 	bool sendMessage(const UdpMessage* msg) const override;
     bool send_udp_msg(const UdpMessage* msg, const char* ip = nullptr) const;
@@ -338,7 +338,7 @@ public:
     ~ConnectionList(); // destructor
     void add_open_conn(ServerConnection *c);
     void add(Connection *c); // add connection
-    void remove(Connection *c); // remove connection
+    void remove(const Connection *c); // remove connection
     void deleteConnection(Connection *c);
     Connection *get_last();
     Connection *wait_for_input(); // issue select call and return the
@@ -372,12 +372,10 @@ public:
 
     int receive(void *buf, unsigned nbyte); // receive from socket
     int send(const void *buf, unsigned nbyte); // send into socket
-    int recv_msg(Message *msg); // receive Message
+    int recv_msg(Message *msg, char *ip = nullptr) const override; // receive Message
     int send_msg(const Message *msg) const; // send Message
     bool sendMessage(const Message *msg) const override;
     const char *readLine(); // Read line
-    int get_id(void (*remove_func)(int));
-    int get_id() const;
     bool IsClosed() const;
     std::string getPeerAddress();
     SSL *mSSL;

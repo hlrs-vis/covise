@@ -185,7 +185,7 @@ double VRBSClient::time()
 ///////////////////////////////////////////////////////////
 //VRBClientList_______________________________________________
 //////////////////////////////////////////////////////////////
-VRBSClient *VRBClientList::get(Connection *c)
+VRBSClient *VRBClientList::get(const Connection *c)
 {
     for (auto &cl : m_clients)
     {

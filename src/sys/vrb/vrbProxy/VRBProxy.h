@@ -25,10 +25,10 @@ class VRBPClient
 public:
     VRBPClient(covise::Connection *c, VRBProxy *prox);
     ~VRBPClient();
-    void sendMessage(covise::Message *msg);
+    void sendMessage(const covise::Message *msg);
 
-    covise::Connection *toClient;
-    covise::Connection *toVRB;
+    const covise::Connection *toClient;
+    const covise::Connection *toVRB;
     VRBProxy *prox;
 
 private:
@@ -38,9 +38,9 @@ class VRBPClientList : public std::list<VRBPClient *>
 {
 
 public:
-    VRBPClient *get(covise::Connection *c);
+    VRBPClient *get(const covise::Connection *c);
     void deleteAll();
-    void sendMessage(covise::Message *msg);
+    void sendMessage(const covise::Message *msg);
 };
 
 extern VRBPClientList clients;
