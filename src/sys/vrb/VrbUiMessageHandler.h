@@ -34,7 +34,7 @@ public:
     void removeEntryFromApplicationWindow(const std::string& cl, int sender, const std::string& var) override;
     void removeEntriesFromApplicationWindow(int sender) override;
     ///get the client corresponding to con and change its QSocketNotifier state; Return true if client exists
-    bool setClientNotifier(covise::Connection *conn, bool state);
-    vrb::VRBSClient *createNewClient(vrb::ConnectionDetails::ptr &&, covise::TokenBuffer &tb, bool deleteTcpCon = true) override;
+    bool setClientNotifier(const covise::Connection *conn, bool state);
+    vrb::VRBSClient *createNewClient(vrb::ConnectionDetails::ptr &&, covise::TokenBuffer &tb) override;
 
 };

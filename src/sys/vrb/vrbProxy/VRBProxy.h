@@ -8,7 +8,7 @@
 #ifndef YAC
 #include "covise/covise.h"
 #endif
-
+#include <memory>
 namespace covise
 {
 class ServerConnection;
@@ -23,7 +23,7 @@ class VRBProxy;
 class VRBPClient
 {
 public:
-    VRBPClient(covise::Connection *c, VRBProxy *prox);
+    VRBPClient(std::unique_ptr<covise::Connection> &&cc, VRBProxy *prox);
     ~VRBPClient();
     void sendMessage(const covise::Message *msg);
 
@@ -56,7 +56,7 @@ public:
     covise::ConnectionList *connections;
 
 private:
-    covise::ServerConnection *sConn;
+    const covise::ServerConnection *sConn;
     covise::Message *msg;
     int port;
 };

@@ -1230,7 +1230,6 @@ RevitPlugin::~RevitPlugin()
 
     if (toRevit && toRevit->getSocket())
         cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
-	delete toRevit;
 	delete msg;
 	toRevit = NULL;
 }
@@ -2740,8 +2739,7 @@ RevitPlugin::handleMessage(Message *m)
 		case Message::CLOSE_SOCKET:
 
             cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
-			delete toRevit;
-			toRevit = NULL;
+			toRevit.reset(nullptr);
 
 			cerr << "connection to Revit closed" << endl;
 			break;

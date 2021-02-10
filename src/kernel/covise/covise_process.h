@@ -137,9 +137,9 @@ public:
     Message *wait_for_msg(); // wait for a message
     Message *check_queue();
     Message *check_for_msg(float time = 0.0); // wait for a message
-    Message *wait_for_msg(int, Connection *); // wait for a specific message
+    Message *wait_for_msg(int, const Connection *); // wait for a specific message
     // wait for specific messages
-    Message *wait_for_msg(int *, int, Connection *);
+    Message *wait_for_msg(int *, int, const Connection *);
     int get_id()
     {
         return id;
@@ -170,7 +170,7 @@ public:
 class COVISEEXPORT OrdinaryProcess : public Process
 {
 protected:
-    ControllerConnection *controller;
+    const ControllerConnection *controller;
 
 public:
     //
@@ -196,7 +196,7 @@ public:
         abort();
     }
     int is_connected();
-    ControllerConnection *getControllerConnection()
+    const ControllerConnection *getControllerConnection()
     {
         return controller;
     }
@@ -210,9 +210,9 @@ class COVISEEXPORT AccessEntry
     friend class DataManagerProcess;
     access_type acc; // general access type allowed
     access_type curr_acc; // connection to accessing process
-    Connection *conn; // access currently actually used
+    const Connection *conn = nullptr; // access currently actually used
 public:
-    AccessEntry(access_type a, access_type c_a, Connection *c)
+    AccessEntry(access_type a, access_type c_a, const Connection *c)
     {
         acc = a;
         conn = c;

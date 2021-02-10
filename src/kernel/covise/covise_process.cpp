@@ -587,11 +587,6 @@ Process::Process(const char *n, int i, sender_type st, int port)
 Process::Process(const char *n, int arc, char *arv[], sender_type st)
 {
     auto crbExec = covise::getExecFromCmdArgs(arc, arv);
-    if (crbExec.displayIp)
-    {
-        setenv("DISPLAY", crbExec.displayIp, true);
-    }
-
     id = crbExec.moduleCount;
     name = n;
     send_type = st;
@@ -772,7 +767,7 @@ Process::~Process()
 Message *Process::wait_for_msg()
 {
     Message *msg;
-    Connection *conn;
+    
 #ifdef DEBUG
     char tmp_str[255];
 #endif
@@ -796,7 +791,7 @@ Message *Process::wait_for_msg()
             msg->type = COVISE_MESSAGE_SOCKET_CLOSED;
             return msg; // avoid error message, if connection list is empty
         }
-        conn = list_of_connections->wait_for_input();
+        const Connection *conn = list_of_connections->wait_for_input();
         msg = new Message;
         //	printf("new Message in wait_for_msg: %x\n",msg);
         conn->recv_msg(msg);
@@ -808,7 +803,6 @@ Message *Process::wait_for_msg()
         case COVISE_MESSAGE_STDINOUT_EMPTY:
             list_of_connections->remove(conn);
             print_comment(__LINE__, __FILE__, "Socket Closed");
-            //delete conn;
             return msg;
         //break;
         case COVISE_MESSAGE_NEW_SDS:
@@ -843,7 +837,6 @@ Message *Process::check_queue()
 Message *Process::check_for_msg(float time)
 {
     Message *msg;
-    Connection *conn;
 #ifdef DEBUG
     char tmp_str[255];
 #endif
@@ -867,7 +860,7 @@ Message *Process::check_for_msg(float time)
             msg->type = COVISE_MESSAGE_SOCKET_CLOSED;
             return msg; // avoid error message, if connection list is empty
         }
-        conn = list_of_connections->check_for_input(time);
+        const Connection *conn = list_of_connections->check_for_input(time);
         if (conn)
         {
             msg = new Message;
@@ -879,14 +872,11 @@ Message *Process::check_for_msg(float time)
             case COVISE_MESSAGE_SOCKET_CLOSED:
                 list_of_connections->remove(conn);
                 print_comment(__LINE__, __FILE__, "Socket Closed");
-                //delete conn;
                 return msg;
-            //break;
             case COVISE_MESSAGE_NEW_SDS:
                 handle_shm_msg(msg);
                 delete msg;
                 return check_for_msg(time);
-            //break;
             default:
                 break;
             }
@@ -897,18 +887,16 @@ Message *Process::check_for_msg(float time)
     }
 }
 
-Message *Process::wait_for_msg(int covise_msg_type, Connection *conn = 0)
+Message *Process::wait_for_msg(int covise_msg_type, const Connection *conn = 0)
 {
-    Message *msg;
-    Connection *tmpconn;
 #ifdef DEBUG
     char tmp_str[255];
 #endif
 
     while (1)
     {
-        tmpconn = list_of_connections->wait_for_input();
-        msg = new Message;
+        const Connection *tmpconn = list_of_connections->wait_for_input();
+        Message *msg = new Message;
         tmpconn->recv_msg(msg);
         switch (msg->type)
         {
@@ -940,10 +928,9 @@ Message *Process::wait_for_msg(int covise_msg_type, Connection *conn = 0)
 }
 
 Message *Process::wait_for_msg(int *covise_msg_type, int no,
-                               Connection *conn = 0)
+                               const Connection *conn = 0)
 {
-    Message *msg;
-    Connection *tmpconn;
+    
     int i;
 #ifdef DEBUG
     char tmp_str[255];
@@ -959,8 +946,8 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
 #endif
     while (1)
     {
-        tmpconn = list_of_connections->wait_for_input();
-        msg = new Message;
+        const Connection *tmpconn = list_of_connections->wait_for_input();
+        Message *msg = new Message;
         tmpconn->recv_msg(msg);
 #ifdef DEBUG
         sprintf(tmp_str, "msg %s received", covise_msg_types_array[msg->type]);
@@ -1049,8 +1036,7 @@ SimpleProcess::~SimpleProcess() // destructor
 
 void SimpleProcess::contact_controller(int p, Host *h)
 {
-    controller = new ControllerConnection(h, p, id, send_type);
-    list_of_connections->add(controller);
+    controller = list_of_connections->addNewConn<ControllerConnection>(h, p, id, send_type);
 }
 
 namespace

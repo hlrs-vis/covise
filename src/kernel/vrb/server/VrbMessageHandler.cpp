@@ -306,7 +306,7 @@ void VrbMessageHandler::addClient(ConnectionDetails::ptr &&clientCon)
 {
 	m_unregisteredClients.push_back(std::move(clientCon));
 }
-void VrbMessageHandler::remove(Connection* conn)
+void VrbMessageHandler::remove(const Connection* conn)
 {
 	m_server->removeConnection(conn);
 	VRBSClient* c = clients.get(conn);
@@ -342,9 +342,9 @@ void VrbMessageHandler::remove(Connection* conn)
 	}
 }
 
-void VrbMessageHandler::removeUnregisteredClient(Connection* conn) {
+void VrbMessageHandler::removeUnregisteredClient(const Connection* conn) {
 	auto unregisteredClient = std::find_if(m_unregisteredClients.begin(), m_unregisteredClients.end(), [conn](const ConnectionDetails::ptr& cd) {
-		return cd->tcpConn.get() == conn;
+		return cd->tcpConn == conn;
 		});
 	if (unregisteredClient != m_unregisteredClients.end())
 	{
@@ -371,26 +371,22 @@ void VrbMessageHandler::removeEntriesFromApplicationWindow(int sender)
 	//std::cerr <<"userinterface not implemented" << std:endl;
 }
 
-VRBSClient *VrbMessageHandler::createNewClient(ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb, bool deleteTcpCon){
-	return new VRBSClient(cd->tcpConn.release(), cd->udpConn, tb, deleteTcpCon);
+VRBSClient *VrbMessageHandler::createNewClient(ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb){
+	return new VRBSClient(cd->tcpConn, cd->udpConn, tb);
 }
 
 VRBSClient *VrbMessageHandler::createNewClient(covise::TokenBuffer &tb, covise::Message *msg){
 	auto it = std::find_if(m_unregisteredClients.begin(), m_unregisteredClients.end(), [msg](const ConnectionDetails::ptr &cd) {
-		return cd->tcpConn.get() == msg->conn;
+		return cd->tcpConn == msg->conn;
 	});
-	if (it == m_unregisteredClients.end()) //this happens if the server is covise
-	{
-		ConnectionDetails::ptr cd{new ConnectionDetails{}};
-		cd->tcpConn.reset(msg->conn);
-		return createNewClient(std::move(cd), tb, false);
-	}
-	else
+	if (it != m_unregisteredClients.end()) //this happens if the server is covise
 	{
 		auto cd = std::move(*it);
 		m_unregisteredClients.erase(it);
 		return createNewClient(std::move(cd), tb);
 	}
+	std::cerr << "createNewClient: client connection not found" << std::endl;
+	return nullptr;
 }
 
 //private

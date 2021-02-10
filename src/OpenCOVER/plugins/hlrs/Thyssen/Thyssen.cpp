@@ -255,7 +255,6 @@ ThyssenPlugin::~ThyssenPlugin()
 
     delete[] floatValues;
     delete[] intValues;
-    delete conn;
 }
 
 bool ThyssenPlugin::init()

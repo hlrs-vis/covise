@@ -226,7 +226,6 @@ OddlotPlugin::~OddlotPlugin()
     serverConn = NULL;
     if (toOddlot && toOddlot->getSocket())
         cover->unwatchFileDescriptor(toOddlot->getSocket()->get_id());
-    delete toOddlot;
     delete msg;
     
     if (camera.get())
@@ -444,8 +443,7 @@ OddlotPlugin::handleMessage(Message *m)
         case Message::SOCKET_CLOSED:
         case Message::CLOSE_SOCKET:
             cover->unwatchFileDescriptor(toOddlot->getSocket()->get_id());
-            delete toOddlot;
-            toOddlot = NULL;
+            toOddlot.reset(nullptr);
 
             cerr << "connection to Oddlot closed" << endl;
             break;

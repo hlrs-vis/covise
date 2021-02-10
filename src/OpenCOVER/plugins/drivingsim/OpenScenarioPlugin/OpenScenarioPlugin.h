@@ -103,7 +103,7 @@ private:
 
 
 	covise::ServerConnection *serverConn;
-	covise::SimpleServerConnection *toClientConn;
+	std::unique_ptr<covise::SimpleServerConnection> toClientConn;
 	int port;
 
 

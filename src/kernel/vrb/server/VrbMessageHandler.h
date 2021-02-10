@@ -40,8 +40,8 @@ class VrbServerRegistry;
 struct VRBSERVEREXPORT ConnectionDetails {
 	typedef std::unique_ptr<ConnectionDetails> ptr;
 
-	std::unique_ptr<covise::Connection> tcpConn;
-	covise::UDPConnection* udpConn = nullptr;
+	const covise::Connection *tcpConn = nullptr;
+	const covise::UDPConnection* udpConn = nullptr;
 	ConnectionDetails() = default;
 	ConnectionDetails(ConnectionDetails& other) = delete;
 	virtual ConnectionDetails& operator=(ConnectionDetails& other) = delete;
@@ -52,7 +52,7 @@ struct VRBSERVEREXPORT ConnectionDetails {
 class VRBSERVEREXPORT ServerInterface
 {
 public:
-	virtual void removeConnection(covise::Connection* conn) = 0;
+	virtual void removeConnection(const covise::Connection* conn) = 0;
 
 };
 
@@ -72,13 +72,13 @@ public:
 	int numberOfClients();
 	void addClient(ConnectionDetails::ptr&& clientCon);
 	void closeConnection();
-	void remove(covise::Connection* c);
+	void remove(const covise::Connection* c);
 protected:
 	///update the vrb userinterface
 	virtual void updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle& value);
 	virtual void removeEntryFromApplicationWindow(const std::string& cl, int sender, const std::string& var);
 	virtual void removeEntriesFromApplicationWindow(int sender);
-	virtual VRBSClient* createNewClient(ConnectionDetails::ptr&& cd, covise::TokenBuffer& tb, bool deleteTcpCon = true);
+	virtual VRBSClient* createNewClient(ConnectionDetails::ptr&& cd, covise::TokenBuffer& tb);
 
 private:
 	ServerInterface* m_server = nullptr;
@@ -86,7 +86,7 @@ private:
 	///stack of sessions that have to be set at the client after he received the userdata of all clients
 	std::set<int> m_sessionsToSet;
 	std::vector<ConnectionDetails::ptr> m_unregisteredClients;
-	void removeUnregisteredClient(covise::Connection* conn);
+	void removeUnregisteredClient(const covise::Connection* conn);
 	VRBSClient* createNewClient(covise::TokenBuffer& tb, covise::Message* msg);
 	//participants: clients in a session
 	//return: send back to sender

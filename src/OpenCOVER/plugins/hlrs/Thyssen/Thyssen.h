@@ -190,7 +190,7 @@ public:
     bool init();
     int readData(char *buf,unsigned int size);
     ServerConnection *sConn;
-    SimpleServerConnection *conn;
+    std::unique_ptr<SimpleServerConnection> conn;
     int port;
     double oldTime;
     int numFloats;

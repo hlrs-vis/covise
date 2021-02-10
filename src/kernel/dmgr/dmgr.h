@@ -66,7 +66,7 @@ class DMGREXPORT ObjectEntry
     int shm_seq_no; // shm_seq_no of the object
     int offset; // offset of the object
     int type; // type of the object
-    Connection *owner; // connection to the process that created this object
+    const Connection *owner; // connection to the process that created this object
     List<AccessEntry> *access; // list of access rights to this object
     DMEntry *dmgr; // pointer to the DM which sent the object (can be like owner)
 public:
@@ -79,8 +79,8 @@ public:
         access = new List<AccessEntry>;
     };
     ObjectEntry(const DataHandle& n);
-    ObjectEntry(const DataHandle &n, int type, int no, int o, Connection *c, DMEntry *dm = 0L);
-    ObjectEntry(const DataHandle &n, int no, int o, Connection *c, DMEntry *dm = 0L);
+    ObjectEntry(const DataHandle &n, int type, int no, int o, const Connection *c, DMEntry *dm = 0L);
+    ObjectEntry(const DataHandle &n, int no, int o, const Connection *c, DMEntry *dm = 0L);
 
     int operator==(ObjectEntry &oe)
     {
@@ -102,11 +102,11 @@ public:
     {
         return (strcmp(name.data(), oe.name.data()) < 0 ? 1 : 0);
     };
-    void add_access(Connection *c, access_type a, access_type c_a);
-    void set_current_access(Connection *c, access_type c_a);
-    access_type get_access_right(Connection *c);
-    access_type get_access(Connection *c);
-    void remove_access(Connection *c);
+    void add_access(const Connection *c, access_type a, access_type c_a);
+    void set_current_access(const Connection *c, access_type c_a);
+    access_type get_access_right(const Connection *c);
+    access_type get_access(const Connection *c);
+    void remove_access(const Connection *c);
     void set_dmgr(DMEntry *dm)
     {
         dmgr = dm;
@@ -125,13 +125,13 @@ class DMGREXPORT DMEntry
 private:
     int id;
     Host *host;
-    Connection *conn;
-    Connection *data_conn;
+    const Connection *conn = nullptr;
+    const Connection *data_conn = nullptr;
     AVLTree<ObjectEntry> *objects;
     int transfermgr;
-    DMEntry(int i, char *h, Connection *c);
+    DMEntry(int i, char *h, const Connection *c);
     const char *get_hostname(void);
-    Connection *get_conn(void)
+    const Connection *get_conn(void)
     {
         return conn;
     };
@@ -162,8 +162,8 @@ class DMGREXPORT TMEntry
 private:
     int id;
     Host *host;
-    Connection *conn;
-    Connection *data_conn;
+    const Connection *conn = nullptr;
+    const Connection *data_conn = nullptr;
     AVLTree<ObjectEntry> *objects;
     TMEntry(int i, char *h, Connection *c);
     int make_data_conn(char *new_interface);
@@ -218,14 +218,13 @@ class DMGREXPORT DataManagerProcess : public OrdinaryProcess
     friend class ApplicationProcess;
 #endif
     friend void ObjectEntry::pack_and_send_object(Message *, DataManagerProcess *);
-    ServerConnection *transfermanager; // Connection to the transfermanager
-    ServerConnection *tmpconn; // tmpconn for intermediate use
+    const ServerConnection *transfermanager = nullptr; // Connection to the transfermanager
+    ServerConnection *tmpconn = nullptr; // tmpconn for intermediate use
     coShmAlloc *shm; // pointer to the sharedmemory
     AVLTree<ObjectEntry> *objects;
     List<DMEntry> *data_mgrs;
     pid_t *pid_list;
     int no_of_pids;
-    bool is_bad_; // connection failed?
     static int max_t;
 
 public:
@@ -272,11 +271,11 @@ public:
 
     int DTM_new_desk(void);
     int rmv_rdmgr(char *hostname);
-    void rmv_acc2objs(CO_AVL_Node<ObjectEntry> *root, Connection *conn);
+    void rmv_acc2objs(CO_AVL_Node<ObjectEntry> *root, const Connection *conn);
 
     bool is_connected()
     {
-        return is_bad_;
+        return controller != nullptr;
     };
 
     // build connection to the controller:
@@ -295,26 +294,26 @@ public:
     int make_data_connection(char *name, char *new_interface);
     int complete_data_connection(Message *msg);
     Message *wait_for_msg(); // wait for a message
-    Message *wait_for_msg(int, Connection *); // wait for a specific message
+    Message *wait_for_msg(int, const Connection *); // wait for a specific message
     // wait for specific messages
-    Message *wait_for_msg(int *, int, Connection *);
+    Message *wait_for_msg(int *, int, const Connection *);
     // take action according to msg
     int handle_msg(Message *msg);
     void ask_for_object(Message *msg); // answer requests immediately
     void has_object_changed(Message *msg); // answer requests immediately
     DataHandle get_all_hosts_for_object(const DataHandle &n); // looks for all hosts that have object
     // add new object in database
-    int add_object(const DataHandle &n, int no, int o, Connection *c);
+    int add_object(const DataHandle &n, int no, int o, const Connection *c);
     // add new object in database
-    int add_object(const DataHandle &n, int otype, int no, int o, Connection *c);
+    int add_object(const DataHandle &n, int otype, int no, int o, const Connection *c);
     int add_object(ObjectEntry *oe); // add new object in database
     ObjectEntry *get_object(const DataHandle &n); // get object from database
     // get object from database and take care that the
     // accesses are updated correctly:
-    ObjectEntry *get_object(const DataHandle& n, Connection *c);
+    ObjectEntry *get_object(const DataHandle& n, const Connection *c);
     ObjectEntry *get_local_object(const DataHandle &n); // get object only from local database
     int delete_object(const DataHandle& n); // delete object from database
-    int destroy_object(const DataHandle &n, Connection *c); // remove obj from sharedmem.
+    int destroy_object(const DataHandle &n, const Connection *c); // remove obj from sharedmem.
     // create transferred object
     ObjectEntry *create_object_from_msg(Message *msg, DMEntry *dme);
     // update from transferred object

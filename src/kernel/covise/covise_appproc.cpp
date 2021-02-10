@@ -142,20 +142,18 @@ void ApplicationProcess::exch_data_msg(Message *msg, int count...)
 
 void ApplicationProcess::contact_datamanager(int p)
 {
-    Message *msg;
-    int len = 0;
-    datamanager = new DataManagerConnection(p, id, send_type);
     //    print_comment(__LINE__, __FILE__, "nach new Connection");
-    list_of_connections->add(datamanager);
-    msg = new Message{ COVISE_MESSAGE_GET_SHM_KEY, DataHandle{} };
-    exch_data_msg(msg, 1, COVISE_MESSAGE_GET_SHM_KEY);
-    if (msg->type != COVISE_MESSAGE_GET_SHM_KEY || msg->data.data() == nullptr)
+    datamanager = list_of_connections->addNewConn<DataManagerConnection>(p, id, (int)send_type);
+   
+    Message msg{ COVISE_MESSAGE_GET_SHM_KEY, DataHandle{} };
+    exch_data_msg(&msg, 1, COVISE_MESSAGE_GET_SHM_KEY);
+    if (msg.type != COVISE_MESSAGE_GET_SHM_KEY || msg.data.data() == nullptr)
     {
         cerr << "didn't get GET_SHM_KEY\n";
         print_exit(__LINE__, __FILE__, 1);
     }
-    shm = new ShmAccess(msg->data.accessData());
-    delete msg;
+    delete shm;
+    shm = new ShmAccess(msg.data.accessData());
 }
 
 int ApplicationProcess::check_msg_queue()
@@ -422,12 +420,7 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
 
 void ApplicationProcess::contact_controller(int p, Host *h)
 {
-
-    //fprintf(stderr,"---- controller = new ControllerConnection\n");
-    controller = new ControllerConnection(h, p, id, send_type);
-    //fprintf(stderr,"---- controller = %x\n", controller);
-
-    list_of_connections->add(controller);
+    controller = list_of_connections->addNewConn<ControllerConnection>(h, p, id, (int)send_type);
 }
 
 void ApplicationProcess::handle_shm_msg(Message *msg)
@@ -459,6 +452,5 @@ coDistributedObject *ApplicationProcess::get_part_obj(char *pname)
 
 void UserInterface::contact_controller(int p, Host *h)
 {
-    controller = new ControllerConnection(h, p, id, send_type);
-    list_of_connections->add(controller);
+    controller = list_of_connections->addNewConn<ControllerConnection>(h, p, id, send_type);
 }

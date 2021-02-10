@@ -511,7 +511,7 @@ protected:
 	bool ignoreDepthOnly = false;
 
     ServerConnection *serverConn = nullptr;
-    ServerConnection *toRevit = nullptr;
+    std::unique_ptr<ServerConnection> toRevit = nullptr;
     void handleMessage(Message *m);
 
 	MaterialInfo * getMaterial(int revitID);

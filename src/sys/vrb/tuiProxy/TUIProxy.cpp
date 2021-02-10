@@ -103,19 +103,19 @@ void TUIProxy::handleMessages()
     Message *msg = new Message;
     while (1)
     {
-        Connection *conn;
-        if ((conn = connections->check_for_input(1)))
+        const Connection *conn;
+        if ((conn = connections.check_for_input(1)))
         {
             if (conn == sConn) // connection to server port
             {
-                toCOVER = sConn->spawn_connection();
+                auto newConn = sConn->spawn_connection();
                 struct linger linger;
                 linger.l_onoff = 0;
                 linger.l_linger = 0;
                 if (debugOn)
                     cerr << "new Connection" << endl;
-                setsockopt(toCOVER->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-                connections->add(toCOVER);
+                setsockopt(newConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+                toCOVER = dynamic_cast<const ServerConnection*>(connections.add(std::move(newConn)));
                 std::string line = coCoviseConfig::getEntry("host","COVER.TabletUI");
                 Host *serverHost = NULL;
                 if (!line.empty())
@@ -132,21 +132,12 @@ void TUIProxy::handleMessages()
 
                 if (serverHost)
                 {
+                    toTUI = connections.tryAddNewConnectedConn<ClientConnection>(serverHost, port, 0, 0, 0);
                     toTUI = new ClientConnection(serverHost, port, 0, 0, 0);
-                    if (toTUI)
+                    if (!toTUI)
                     {
-                        if (!toTUI->is_connected()) // could not open server port
-                        {
-                            fprintf(stderr, "Could not connect to server on %s; port %d\n", line.c_str(), port);
-                            delete toTUI;
-                            toTUI = NULL;
-                            connections->remove(toCOVER);
-                            delete toCOVER;
-                        }
-                        else
-                        {
-                            connections->add(toTUI);
-                        }
+                        connections.remove(toCOVER);
+                        fprintf(stderr, "Could not connect to server on %s; port %d\n", line.c_str(), port);
                     }
                 }
             }
@@ -164,8 +155,8 @@ void TUIProxy::handleMessages()
                         case Message::CLOSE_SOCKET:
                         {
 
-                            connections->remove(toCOVER);
-                            connections->remove(toTUI);
+                            connections.remove(toCOVER);
+                            connections.remove(toTUI);
                             delete toCOVER;
                             delete toTUI;
                             cerr << "connections closed" << endl;
@@ -194,8 +185,8 @@ void TUIProxy::handleMessages()
                         case Message::CLOSE_SOCKET:
                         {
 
-                            connections->remove(toCOVER);
-                            connections->remove(toTUI);
+                            connections.remove(toCOVER);
+                            connections.remove(toTUI);
                             delete toCOVER;
                             delete toTUI;
                             cerr << "connections closed" << endl;
@@ -216,31 +207,19 @@ void TUIProxy::handleMessages()
 
 int TUIProxy::openServer()
 {
-    sConn = new ServerConnection(port, 0, 0);
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    sConn->listen();
-    if (!sConn->is_connected()) // could not open server port
+    auto conn = new ServerConnection(port, 0, 0);
+    sConn = dynamic_cast<const ServerConnection *>(connections.tryAddNewListeningConn<ServerConnection>(port, 0, 0));
+    if (sConn)
     {
         fprintf(stderr, "Could not open server port %d\n", port);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
+        return -1;
     }
-    connections = new ConnectionList();
-    connections->add(sConn);
-
     return 0;
 }
 
 void TUIProxy::closeServer()
 {
-    connections->remove(sConn);
+    connections.remove(sConn);
     // tut sonst nicht (close_socket kommt nicht an)
-    delete sConn;
-    sConn = NULL;
+    sConn = nullptr;
 }

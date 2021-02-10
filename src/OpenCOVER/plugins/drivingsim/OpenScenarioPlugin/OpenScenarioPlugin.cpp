@@ -148,8 +148,7 @@ void OpenScenarioPlugin::checkAndHandleMessages(bool blocking)
 			}
 			else
 			{
-				delete toClientConn;
-				toClientConn = NULL;
+				toClientConn.reset(nullptr);
 			}
 		}
 	}
@@ -162,8 +161,7 @@ void OpenScenarioPlugin::checkAndHandleMessages(bool blocking)
 			blocking = false;
 			if (readTCPData(&size, sizeof(int)) == false)
 			{
-				delete toClientConn;
-				toClientConn = NULL;
+				toClientConn.reset(nullptr);
 			}
 			byteSwap(size);
 			if (size > 0)

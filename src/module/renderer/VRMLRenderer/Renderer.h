@@ -85,7 +85,7 @@ public:
     Mode rendererMode;
     ApplicationProcess *m_app;
     ConnectionList *m_connList;
-    ClientConnection *m_wconn;
+    const ClientConnection *m_wconn;
     ServerConnection *m_open_conn;
     Host *m_host;
     int m_open_port;

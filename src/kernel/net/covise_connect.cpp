@@ -46,6 +46,8 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #include "udpMessage.h"
 #include "udp_message_types.h"
 #include "tokenbuffer.h"
+#include "message_types.h"
+
 #include <util/coErr.h>
 #include <config/CoviseConfig.h>
 
@@ -160,12 +162,17 @@ int Connection::get_id(void (*remove_func)(int)) const
     return sock->get_id();
 }
 
+const Host *Connection::get_host() const
+{
+    return sock ? sock->get_host() : NULL;
+}
+
 Host *Connection::get_host()
 {
     return sock ? sock->get_host() : NULL;
 }
 
-const char *Connection::get_hostname()
+const char *Connection::get_hostname() const
 {
     return sock ? sock->get_hostname() : NULL;
 }
@@ -699,7 +706,7 @@ SimpleServerConnection *Socket::copySimpleAndAccept()
     return tmp_conn;
 }
 
-ServerConnection *ServerConnection::spawn_connection()
+std::unique_ptr<ServerConnection> ServerConnection::spawn_connection() const
 {
     ServerConnection *new_conn;
     new_conn = sock->copy_and_accept();
@@ -707,10 +714,10 @@ ServerConnection *ServerConnection::spawn_connection()
     new_conn->sender_id = sender_id;
     new_conn->send_type = send_type;
     new_conn->get_dataformat();
-    return new_conn;
+    return std::unique_ptr<ServerConnection>(new_conn);
 }
 
-SimpleServerConnection *ServerConnection::spawnSimpleConnection()
+std::unique_ptr<SimpleServerConnection> ServerConnection::spawnSimpleConnection() const
 {
     SimpleServerConnection *new_conn;
     new_conn = sock->copySimpleAndAccept();
@@ -723,7 +730,7 @@ SimpleServerConnection *ServerConnection::spawnSimpleConnection()
     setsockopt(new_conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
     new_conn->getSocket()->setNonBlocking(true);
-    return new_conn;
+    return std::unique_ptr<SimpleServerConnection>(new_conn);
 }
 
 ServerUdpConnection::ServerUdpConnection(UDPSocket* s)
@@ -872,7 +879,7 @@ int Connection::get_peer_type() const
     return peer_type_;
 }
 
-int Connection::receive(void *buf, unsigned nbyte)
+int Connection::receive(void *buf, unsigned nbyte) const
 {
     int retval;
     if (!sock)
@@ -882,7 +889,7 @@ int Connection::receive(void *buf, unsigned nbyte)
     return retval;
 }
 
-int Connection::send(const void *buf, unsigned nbyte)
+int Connection::send(const void *buf, unsigned nbyte) const
 {
     if (!sock)
         return 0;
@@ -1380,38 +1387,30 @@ int ConnectionList::count()
 {
     return connlist.size();
 }
-/*
-Connection ConnectionList::at(int index)
-{
-	if (connlist != NULL)
-	{
-		Connection connItem = *(connlist->at(index));
-		return connItem;
-	}
-	return NULL;
-}*/
 
 ConnectionList::~ConnectionList()
 {
-    for (auto ptr: connlist)
+    for (auto &ptr: connlist)
     {
         ptr->close_inform();
-        delete ptr;
     }
-    connlist.clear();
-    return;
 }
 
-void ConnectionList::deleteConnection(Connection *c)
-{
-    delete c;
+const Connection *ConnectionList::add(std::unique_ptr<Connection> &&conn){
+    auto connPtr = conn.get();
+    if (conn->get_id() > maxfd)
+        maxfd = conn->get_id();
+    FD_SET(conn->get_id(), &fdvar);
+    connlist.push_back(std::move(conn)); // field for the select call
+    return connPtr;
 }
 
-Connection *ConnectionList::get_last() // get connection made recently
+
+const Connection *ConnectionList::get_last() const // get connection made recently
 {
     if (connlist.empty())
         return nullptr;
-    return connlist.back();
+    return &*connlist.back();
 }
 
 void ConnectionList::add_open_conn(ServerConnection *c)
@@ -1430,27 +1429,20 @@ void ConnectionList::add_open_conn(ServerConnection *c)
     return;
 }
 
-void ConnectionList::add(Connection *c) // add a connection and update the
-{ //c->print();
-    connlist.push_back(c); // field for the select call
-    if (c->get_id() > maxfd)
-        maxfd = c->get_id();
-    FD_SET(c->get_id(), &fdvar);
-    return;
-}
-
 void ConnectionList::remove(const Connection *c) // remove a connection and update
 {
     if (!c)
         return;
-    auto it = std::find(connlist.begin(), connlist.end(), c);
+    auto it = std::find_if(connlist.begin(), connlist.end(), [c](const std::unique_ptr<Connection> &conn) {
+        return &*conn == c;
+    });
+    // the field for the select call
+    FD_CLR(c->get_id(), &fdvar);
     if (it != connlist.end())
         connlist.erase(it);
     //FIXME curidx
     if (curidx >= connlist.size())
         curidx = connlist.size();
-    // the field for the select call
-    FD_CLR(c->get_id(), &fdvar);
 }
 
 // aw 04/2000: Check whether PPID==1 or no sockets left: prevent hanging
@@ -1480,24 +1472,24 @@ static void checkPPIDandFD(fd_set &actSet, int maxfd)
 
 /// Wait for input infinitely - replaced by loop with timeouts
 /// - check every 10 sec against hang aw 04/2000
-Connection *ConnectionList::wait_for_input()
+const Connection *ConnectionList::wait_for_input()
 {
-    Connection *found;
+    const Connection *found;
     do
         found = check_for_input(10.0);
     while (!found);
     return found;
 }
 
-Connection *ConnectionList::check_for_input(float time)
+const Connection *ConnectionList::check_for_input(float time)
 {
     int numconn = 0;
     // if we already have a pending message, we return it
-    for (auto ptr: connlist)
+    for (auto &ptr: connlist)
     {
         ++numconn;
         if (ptr->has_message())
-            return ptr;
+            return &*ptr;
     }
 
     fd_set fdread;
@@ -1536,8 +1528,7 @@ Connection *ConnectionList::check_for_input(float time)
     {
         if (open_sock && FD_ISSET(open_sock->get_id(), &fdread))
         {
-            Connection *ptr = open_sock->spawn_connection();
-            this->add(ptr);
+            this->add(open_sock->spawn_connection());
             FD_ZERO(&fdread);
             for (int j = 0; j <= maxfd; j++)
                 if (FD_ISSET(j, &fdvar))
@@ -1546,11 +1537,11 @@ Connection *ConnectionList::check_for_input(float time)
         }
         else
         {
-            for (auto ptr: connlist)
+            for (auto &ptr: connlist)
             {
                 if (FD_ISSET(ptr->get_id(), &fdread))
                 {
-                    return ptr;
+                    return &*ptr;
                 }
             }
         }
@@ -1568,11 +1559,11 @@ void ConnectionList::reset() //
     curidx = 0;
 }
 
-Connection *ConnectionList::next() //
+const Connection *ConnectionList::next() //
 {
     ++curidx;
     if (curidx < connlist.size())
-        return connlist[curidx];
+        return &*connlist[curidx];
     return nullptr;
 }
 

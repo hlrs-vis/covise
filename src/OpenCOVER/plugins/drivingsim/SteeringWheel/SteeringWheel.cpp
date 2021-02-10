@@ -1759,8 +1759,7 @@ SteeringWheelPlugin::preFrame()
                 int newNumInts = 1; // should read these numbers from the server!!
                 if (!readClientVal(&newNumFloats, sizeof(int)))
                 {
-                    delete toClientConn;
-                    toClientConn = NULL;
+                    toClientConn.reset(nullptr);
                     newNumFloats = 0;
                     newNumInts = 0;
                     numFloats = 0;
@@ -1769,8 +1768,7 @@ SteeringWheelPlugin::preFrame()
                 }
                 if (!readClientVal(&newNumInts, sizeof(int)))
                 {
-                    delete toClientConn;
-                    toClientConn = NULL;
+                    toClientConn.reset(nullptr);
                     newNumFloats = 0;
                     newNumInts = 0;
                     numFloats = 0;
@@ -1791,8 +1789,7 @@ SteeringWheelPlugin::preFrame()
                 }
                 if (!readClientVal(floatValues, numFloats * sizeof(float)))
                 {
-                    delete toClientConn;
-                    toClientConn = NULL;
+                    toClientConn.reset(nullptr);
                     newNumFloats = 0;
                     newNumInts = 0;
                     numFloats = 0;
@@ -1801,8 +1798,7 @@ SteeringWheelPlugin::preFrame()
                 }
                 if (!readClientVal(intValues, numInts * sizeof(int)))
                 {
-                    delete toClientConn;
-                    toClientConn = NULL;
+                    toClientConn.reset(nullptr);
                     newNumFloats = 0;
                     newNumInts = 0;
                     numFloats = 0;

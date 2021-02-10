@@ -25,7 +25,7 @@ class UDPConnection;
 class VrbUiClient : public vrb::VRBSClient
 {
 public: 
-    VrbUiClient(covise::Connection *c, covise::UDPConnection* udpc, QSocketNotifier *sn, covise::TokenBuffer &tb);
+    VrbUiClient(const covise::Connection *c, const covise::UDPConnection* udpc, QSocketNotifier *sn, covise::TokenBuffer &tb);
     ~VrbUiClient();
 
     void setMaster(int clientID) override;

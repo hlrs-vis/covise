@@ -652,7 +652,6 @@ void Covise::main_loop()
                 print_comment(__LINE__, __FILE__,
                               "Application module: correctly finishing");
                 appmod->getConnectionList()->remove(applMsg->conn);
-                appmod->getConnectionList()->deleteConnection(applMsg->conn);
                 appmod->delete_msg(applMsg);
 #ifndef NODELETE_APPROC
                 delete appmod;
@@ -730,7 +729,7 @@ void Covise::progress_main_loop()
                 if (quit_now)
                 {
                     print_comment(__LINE__, __FILE__, "Application module: correctly finishing");
-                    appmod->getConnectionList()->deleteConnection(applMsg->conn);
+                    appmod->getConnectionList()->remove(applMsg->conn);
                     appmod->delete_msg(applMsg);
 #ifndef NODELETE_APPROC
                     delete appmod;
@@ -798,7 +797,7 @@ void Covise::do_one_event()
         if (quit_now)
         {
             print_comment(__LINE__, __FILE__, "Application module: correctly finishing");
-            appmod->getConnectionList()->deleteConnection(applMsg->conn);
+            appmod->getConnectionList()->remove(applMsg->conn);
             appmod->delete_msg(applMsg);
 #ifndef NODELETE_APPROC
             delete appmod;
@@ -882,7 +881,7 @@ int Covise::check_and_handle_event(float time)
             if (quit_now)
             {
                 print_comment(__LINE__, __FILE__, "Application module: correctly finishing");
-                appmod->getConnectionList()->deleteConnection(applMsg->conn);
+                appmod->getConnectionList()->remove(applMsg->conn);
                 appmod->delete_msg(applMsg);
 #ifndef NODELETE_APPROC
                 delete appmod;
@@ -1008,7 +1007,7 @@ void Covise::ReceiveOneMsg()
         if (quit_now)
         {
             print_comment(__LINE__, __FILE__, "Application module: correctly finishing");
-            appmod->getConnectionList()->deleteConnection(applMsg->conn);
+            appmod->getConnectionList()->remove(applMsg->conn);
             appmod->delete_msg(applMsg);
 #ifndef NODELETE_APPROC
             delete appmod;

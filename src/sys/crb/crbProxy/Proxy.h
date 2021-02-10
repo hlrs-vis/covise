@@ -29,8 +29,8 @@ class Proxy
 {
 public:
     CRBConnection *crbConn;
-    covise::ServerConnection *moduleConn; // connection to module
-    covise::ClientConnection *ctrlConn; // connection to controller
+    const covise::ServerConnection *moduleConn; // connection to module
+    const covise::ClientConnection *ctrlConn; // connection to controller
     Proxy(const covise::CRB_EXEC& messageData, CRBConnection *);
     ~Proxy();
 

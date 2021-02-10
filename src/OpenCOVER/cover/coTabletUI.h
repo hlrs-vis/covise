@@ -133,7 +133,7 @@ protected:
     double oldTime = 0.0;
     bool firstConnection = true;
 
-    covise::Connection *conn = nullptr;
+    std::unique_ptr<covise::Connection> conn;
 #ifndef _M_CEE //no future in Managed OpenCOVER
     std::future<covise::Host *> connFuture;
 #endif

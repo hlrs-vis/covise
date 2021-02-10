@@ -54,7 +54,7 @@ private:
     int intbuffer_size(); // integer size of write buffer
     int convert; // conversion necessary?
     Message *msg; // message that will be sent
-    Connection *conn; // connection through which the message will be sent
+    const Connection *conn; // connection through which the message will be sent
     DataManagerProcess *datamgr; // to allow shm_alloc
 public:
     //initialize for receive

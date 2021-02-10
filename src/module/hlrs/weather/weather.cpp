@@ -186,29 +186,22 @@ void Application::run()
     ConnectionList *list_of_connections;
     list_of_connections = Covise::appmod->getConnectionList();
     int serverPort = coCoviseConfig::getInt("Module.Weather.Port", 31553);
-    while ((!serverSocket) || (!serverSocket->is_connected()))
+    while (!serverSocket)
     {
         if (serverPort < 100)
         {
             serverPort = 31554;
         }
-        serverSocket = new ServerConnection(serverPort, 1, (sender_type)1);
+        serverSocket = list_of_connections->tryAddNewListeningConn<ServerConnection>(serverPort, 1, (sender_type)1);
         fprintf(stderr, "Opening server Socket on port %d\n", serverPort);
-        serverSocket->listen();
-        if ((!serverSocket) || (!serverSocket->is_connected()))
+        if (!serverSocket)
         {
             sleep(1);
             fprintf(stderr, "Could not open server Socket on port %d\n", serverPort);
-            delete serverSocket;
-            serverSocket = 0;
         }
     }
-    if (serverSocket)
-    {
-        list_of_connections->add(serverSocket);
-    }
     fprintf(stderr, "Done Opening server Socket\n");
-    Connection *conn;
+    const Connection *conn;
     while (1)
     {
         conn = list_of_connections->wait_for_input();
@@ -219,15 +212,13 @@ void Application::run()
         else if (conn == (Connection *)serverSocket) // connection on server port
         {
             fprintf(stderr, "try to connect to client\n");
-            toSimulation = serverSocket->spawn_connection();
+            std::unique_ptr<ServerConnection> toSimulationPtr{serverSocket->spawn_connection()};
             fprintf(stderr, "connection to client established\n");
             // check for endiness (if i receive 1, then we do not have to swap)
             int i;
-            if ((toSimulation->receive(&i, sizeof(int))) < sizeof(int))
+            if ((toSimulationPtr->receive(&i, sizeof(int))) < sizeof(int))
             {
                 fprintf(stderr, "error receiving endianess information\n");
-                delete toSimulation;
-                toSimulation = NULL;
             }
             else
             {
@@ -246,7 +237,8 @@ void Application::run()
                         cerr << "Bytes: " << (int)c[0] << " " << (int)c[1] << " " << (int)c[2] << " " << (int)c[3] << endl;
                     }
                 }
-                list_of_connections->add(toSimulation);
+                toSimulation = dynamic_cast<const ServerConnection*>(list_of_connections->add(std::move(toSimulationPtr)));
+                
             }
         }
         else
@@ -323,7 +315,7 @@ void Application::recvData()
         ConnectionList *list_of_connections;
         list_of_connections = Covise::appmod->getConnectionList();
         list_of_connections->remove(toSimulation);
-        toSimulation = NULL;
+        toSimulation = nullptr;
     }
     break;
     default:

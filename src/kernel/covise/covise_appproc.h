@@ -22,7 +22,7 @@ class COVISEEXPORT ApplicationProcess : public OrdinaryProcess
 #ifdef CRAY
     DataManagerProcess *datamgr;
 #endif
-    DataManagerConnection *datamanager;
+    const DataManagerConnection *datamanager;
     ShmAccess *shm; // pointer to the sharedmemory
     //List<coDistributedObject> *part_obj_list;
 protected:

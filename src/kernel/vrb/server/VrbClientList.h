@@ -48,11 +48,11 @@ class VRBSERVEREXPORT VRBSClient : public vrb::RemoteClient, public covise::Mess
 public:
 
     ///send = false if you dont want to inform the client immediatly about the contact
-    VRBSClient(covise::Connection *c, covise::UDPConnection* udpc, covise::TokenBuffer &tb, bool deleteClient = true);
-    virtual ~VRBSClient();
+    VRBSClient(const covise::Connection *c, const covise::UDPConnection* udpc, covise::TokenBuffer &tb);
+    virtual ~VRBSClient() = default;
 
-    covise::Connection *conn = nullptr;
-	covise::UDPConnection* udpConn = nullptr;
+    const covise::Connection *conn = nullptr;
+	const covise::UDPConnection* udpConn = nullptr;
 
     const vrb::SessionID &getPrivateSession() const;
     void setPrivateSession(vrb::SessionID &g);
@@ -79,7 +79,6 @@ protected:
     int m_bytesReceivedPerInterval = 0;
     int m_bytesSentPerSecond = 0;
     int m_bytesReceivedPerSecond = 0;
-	bool m_deleteClient = true;
 	mutable bool m_firstTryUdp = true;
     double time();
 

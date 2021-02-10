@@ -47,8 +47,8 @@ private:
     //  member data
     char *hostname; // obj file name
     FILE *fp;
-    ServerConnection *serverSocket;
-    ServerConnection *toSimulation;
+    const ServerConnection *serverSocket;
+    const ServerConnection *toSimulation;
     int numU, numV, numW;
     int gridSizeX;
     int gridSizeY;

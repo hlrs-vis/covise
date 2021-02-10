@@ -33,10 +33,10 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
     auto args = getCmdArgs(messageData);
 
     int serverPort;
-    moduleConn = new ServerConnection(&serverPort, messageData.moduleCount, APPLICATIONMODULE);
+    auto newModuleConn = std::unique_ptr<ServerConnection>(new ServerConnection(&serverPort, messageData.moduleCount, APPLICATIONMODULE));
     if (!moduleConn->is_connected())
         return;
-    moduleConn->listen();
+    newModuleConn->listen();
     CRB_EXEC newMessage{messageData.flag,
                         messageData.name,
                         serverPort,
@@ -53,23 +53,19 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
     //cerr << " new Message:" << newMessage << endl;
     sendCoviseMessage(newMessage, *crbConn->toCrb);
 
-    if (moduleConn->acceptOne(60) < 0)
+    if (newModuleConn->acceptOne(60) < 0)
     {
-        delete moduleConn;
-        moduleConn = NULL;
         cerr << "* timelimit in accept for module exceeded!!" << endl;
         return;
     }
     Host h {messageData.controllerIp};
     ctrlConn = new ClientConnection(&h, messageData.controllerPort, messageData.moduleCount, APPLICATIONMODULE);
-    crbConn->listOfConnections->add(moduleConn);
-    crbConn->listOfConnections->add(ctrlConn);
+    moduleConn = dynamic_cast<const ServerConnection*>(crbConn->listOfConnections->add(std::move(newModuleConn)));
+    ctrlConn = dynamic_cast<const ClientConnection*>(crbConn->listOfConnections->add(std::unique_ptr<ClientConnection>(new ClientConnection(&h, messageData.controllerPort, messageData.moduleCount, APPLICATIONMODULE))));
 }
 
 Proxy::~Proxy()
 {
     crbConn->listOfConnections->remove(moduleConn);
     crbConn->listOfConnections->remove(ctrlConn);
-    delete moduleConn;
-    delete ctrlConn;
 }

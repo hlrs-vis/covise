@@ -57,7 +57,7 @@ void VrbUiMessageHandler::removeEntriesFromApplicationWindow(int sender)
     appwin->registry->removeEntries(sender);
 }
 
-bool VrbUiMessageHandler::setClientNotifier(covise::Connection * conn, bool state)
+bool VrbUiMessageHandler::setClientNotifier(const covise::Connection * conn, bool state)
 {
     if (VrbUiClient *cl = static_cast<VrbUiClient *>(vrbClients->get(conn)))
     {
@@ -67,8 +67,8 @@ bool VrbUiMessageHandler::setClientNotifier(covise::Connection * conn, bool stat
     return false;
 }
 
-vrb::VRBSClient *VrbUiMessageHandler::createNewClient(vrb::ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb, bool deleteTcpCon){
+vrb::VRBSClient *VrbUiMessageHandler::createNewClient(vrb::ConnectionDetails::ptr &&cd, covise::TokenBuffer &tb){
     auto uicd = dynamic_cast<UiConnectionDetails*>(cd.get());
     assert(uicd);
-    return new VrbUiClient(cd->tcpConn.release(), cd->udpConn, uicd->notifier.release(), tb);
+    return new VrbUiClient(cd->tcpConn, cd->udpConn, uicd->notifier.release(), tb);
 }

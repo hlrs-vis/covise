@@ -156,7 +156,7 @@ public:
     PorscheController *dataController;
 
     ServerConnection *serverConn;
-    SimpleServerConnection *toClientConn;
+    std::unique_ptr<SimpleServerConnection> toClientConn;
 
     coTUITab *SteeringWheelTab;
     //coTUIToggleButton *showSky;

@@ -614,7 +614,7 @@ void ObjectList::setTelepointer(char *telep)
     strcpy(m_telepMsg, tmp);
 }
 
-int ObjectList::sendTelepointer(Connection *conn)
+int ObjectList::sendTelepointer(const Connection *conn)
 {
     if (m_telepMsg != NULL)
     {
@@ -733,7 +733,7 @@ void ObjectList::parseObjects(void)
     }
 }
 
-void ObjectList::send_obj(Connection *conn, char *obj, int add_length)
+void ObjectList::send_obj(const Connection *conn, char *obj, int add_length)
 {
     int intbuff[4];
     int length;
@@ -756,7 +756,7 @@ void ObjectList::send_obj(Connection *conn, char *obj, int add_length)
     conn->send(obj, length);
 }
 
-int ObjectList::sendObjects(Connection *conn)
+int ObjectList::sendObjects(const Connection *conn)
 {
     int hastime = 0, numt = 0, numbeg = 10000, i;
     CharBuffer *cb;
@@ -848,7 +848,7 @@ int ObjectList::sendObjects(Connection *conn)
     return 1;
 }
 
-int ObjectList::sendNewObjects(Connection *conn)
+int ObjectList::sendNewObjects(const Connection *conn)
 {
 
     int hastime = 0, numt = 0, numbeg = 10000, i;
@@ -942,7 +942,7 @@ int ObjectList::sendNewObjects(Connection *conn)
     return 1;
 }
 
-int ObjectList::sendTimestep(Connection *conn)
+int ObjectList::sendTimestep(const Connection *conn)
 {
     char tmp_buff[10];
 

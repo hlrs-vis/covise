@@ -20,25 +20,13 @@ namespace vrb
 {
 VRBClientList clients;
 
-VRBSClient::VRBSClient(Connection * c, UDPConnection* udpc, covise::TokenBuffer &tb, bool dc)
+VRBSClient::VRBSClient(const Connection * c, const UDPConnection* udpc, covise::TokenBuffer &tb)
 	: RemoteClient(tb)
     , conn(c)
 	, udpConn(udpc)
-	, m_deleteClient(dc)
 {
     setID(clients.getNextFreeClientID());
 	cerr << "my ip is " << userInfo().ipAdress << endl;
-}
-
-VRBSClient::~VRBSClient()
-{
-    if (m_deleteClient)
-    {
-        delete conn;
-        conn = nullptr;
-        //udpConn is owned by server
-    }
-    cerr << "closed connection to client " << ID() << endl;
 }
 
 const vrb::SessionID & VRBSClient::getPrivateSession() const

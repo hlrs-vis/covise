@@ -112,9 +112,9 @@ private:
     QTimer *timer = nullptr;
     QAction *_exit = nullptr, *_help = nullptr;
 
-    covise::ServerConnection *sConn = nullptr;
-    covise::Connection *clientConn = nullptr;
-    covise::ConnectionList *connections = nullptr;
+    const covise::ServerConnection *sConn = nullptr;
+    const covise::Connection *clientConn = nullptr;
+    covise::ConnectionList connections;
     covise::Message *msg = nullptr;
     QTimer *m_periodictimer = nullptr;
 

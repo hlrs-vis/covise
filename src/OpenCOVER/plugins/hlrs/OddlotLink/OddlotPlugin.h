@@ -104,7 +104,7 @@ protected:
     static OddlotPlugin *plugin;
 
     ServerConnection *serverConn;
-    ServerConnection *toOddlot;
+    std::unique_ptr<ServerConnection> toOddlot;
     coTUITab *oddlotTab;
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osg::Image> image;

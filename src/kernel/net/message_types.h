@@ -371,7 +371,8 @@ enum sender_type
     SIMPLEPROCESS = 7,
     SIMPLECONTROLLER = 8,
     STDINOUT = 9,
-    COVISED = 10
+    COVISED = 10,
+    ANY
 };
 
 NETEXPORT bool isVrbMessageType(int type);

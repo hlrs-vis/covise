@@ -82,8 +82,8 @@ private:
     //  member data
     char *hostname; // obj file name
     FILE *fp;
-    ClientConnection *master;
-
+    const ClientConnection *master = nullptr;
+    std::unique_ptr<Host> host;
     int recvInt();
     void recvFloat(float *floatArray, int num);
     void recvInt(int *intArray, int num);

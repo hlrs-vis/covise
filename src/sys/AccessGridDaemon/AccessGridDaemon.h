@@ -35,15 +35,15 @@ public:
     void startCovise();
 
 private:
-    covise::ServerConnection *sConn;
-    covise::ServerConnection *toController;
-    covise::Connection *toAG;
+    const covise::ServerConnection *sConn;
+    const covise::ServerConnection *toController;
+    const covise::Connection *toAG;
     covise::ConnectionList *connections;
     int port; // port Number (default: 31098) covise.config: ACCESSGRID_DAEMON.TCPPort
     covise::Message *msg;
 
     void handleClient(covise::Message *);
-    int handleClient(const char *, covise::Connection *conn);
+    int handleClient(const char *, const covise::Connection *conn);
     int processMessages();
 };
 

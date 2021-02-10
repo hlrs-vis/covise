@@ -34,8 +34,8 @@ class CRBConnection
 public:
     covise::ConnectionList *listOfConnections; // list of all connections
     covise::Host *myHost;
-    covise::ServerConnection *toCrb;
-    covise::ClientConnection *toController;
+    const covise::ServerConnection *toCrb;
+    const covise::ClientConnection *toController;
 
     CRBConnection(int p, char *h, int id);
     ~CRBConnection();
@@ -44,6 +44,6 @@ public:
 
 private:
     void contactController();
-    void forwardMessage(covise::Message *msg, covise::Connection *conn);
+    void forwardMessage(covise::Message *msg, const covise::Connection *conn);
 };
 #endif

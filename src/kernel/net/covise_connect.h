@@ -22,6 +22,7 @@
 #include "message.h"
 #include "message_sender_interface.h"
 
+#include <functional>
 
 typedef struct ssl_st SSL;
 typedef struct ssl_ctx_st SSL_CTX;
@@ -142,7 +143,7 @@ public:
     Connection(int sfd);
     virtual ~Connection(); // close connection (for subclasses)
 
-    Socket *getSocket()
+    Socket *getSocket() const
     {
         return sock;
     };
@@ -156,24 +157,24 @@ public:
             return 0;
         return (get_id() != -1);
     };
-    virtual int receive(void *buf, unsigned nbyte); // receive from socket
-    virtual int send(const void *buf, unsigned nbyte); // send into socket
+    virtual int receive(void *buf, unsigned nbyte) const; // receive from socket
+    virtual int send(const void *buf, unsigned nbyte) const; // send into socket
 	virtual int recv_msg(Message *msg, char *ip = nullptr) const; // receive Message, can set ip to the ip adresss of the sender(for udp msgs)
     virtual int recv_msg_fast(Message *msg) const; // high-performace receive Message
     virtual bool sendMessage(const Message *msg) const override; // send Message
     virtual bool sendMessage(const UdpMessage *msg) const override; // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
     int check_for_input(float time = 0.0); // issue select call and return TRUE if there is an event or 0L otherwise
-    int get_port() // give port number
+    int get_port() const // give port number
     {
         return port;
     };
     void set_hostid(int id);
-    int get_hostid()
+    int get_hostid() const
     {
         return hostid;
     };
-    int get_sendertype()
+    int get_sendertype() const
     {
         return (send_type);
     };
@@ -197,7 +198,8 @@ public:
         std::cerr << "port: " << port << std::endl;
     };
     Host *get_host();
-    const char *get_hostname();
+    const Host *get_host() const;
+    const char *get_hostname() const;
 };
 
 class NETEXPORT UDPConnection : public Connection
@@ -230,9 +232,9 @@ public:
     int acceptOne(); // accept connection (after bind)
     int acceptOne(int); // accept connection (after bind) and wait int seconds
     int listen(); // listen for connection (after bind)
-    ServerConnection *spawn_connection(); // accept after select for open socket
+    std::unique_ptr<ServerConnection> spawn_connection() const; // accept after select for open socket
     // accept after select for open socket
-    SimpleServerConnection *spawnSimpleConnection();
+    std::unique_ptr<SimpleServerConnection> spawnSimpleConnection() const;
 };
 class NETEXPORT ServerUdpConnection : public ServerConnection
 {
@@ -325,32 +327,89 @@ public:
 };
 #endif
 
+
+template<typename Conn, typename... Args>
+static std::unique_ptr<Conn> createConnectedConn(Args&&...args){
+    std::unique_ptr<Conn> conn{new Conn(std::forward<Args>(args)...)};
+    if (!conn->is_connected())
+        return nullptr;
+    return std::move(conn);
+}
+
+template<typename Conn, typename... Args>
+static std::unique_ptr<Conn> createListeningConn(Args&&...args){
+    std::unique_ptr<Conn> conn = createConnectedConn<Conn>(std::forward<Args>(args)...);
+    struct linger linger;
+    linger.l_onoff = 0;
+    linger.l_linger = 0;
+    setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+    if (!conn)
+        return nullptr;
+    conn->listen();
+    return std::move(conn);
+}
 class NETEXPORT ConnectionList // list connections in a way that select can be used
 {
-    long curidx = -1; // current index into vector
-    std::vector<Connection *> connlist; // list of connections
-    fd_set fdvar; // field for select call
-    int maxfd; // maximum socket id
-    ServerConnection *open_sock; // socket for listening
+    friend struct ConnectionAdder;
+
 public:
     ConnectionList(); // constructor
     ConnectionList(ServerConnection *); // constructor (listens always at port)
+
+    ConnectionList(const ConnectionList&) = delete;
+    ConnectionList(ConnectionList&&) = delete;
+    ConnectionList& operator=(const ConnectionList&) = delete;
+    ConnectionList& operator=(ConnectionList&&) = delete;
+
     ~ConnectionList(); // destructor
+
+template<typename Conn, typename ...Args>
+const Conn* addNewConn(Args&&...args){
+    std::unique_ptr<Conn> conn{new Conn(std::forward<Args>(args)...)};
+    return dynamic_cast<const Conn*>(add(std::move(conn)));
+}
+
+template<typename Conn, typename ...Args>
+const Conn* tryAddNewListeningConn(Args&&...args){
+    std::unique_ptr<Conn> conn = createListeningConn<Conn>(std::forward<Args>(args)...);
+    if (conn)
+    {
+        return dynamic_cast<const Conn*>(add(std::move(conn)));
+    }
+    return nullptr;
+}
+
+template<typename Conn, typename ...Args>
+const Conn* tryAddNewConnectedConn(Args&&...args){
+    std::unique_ptr<Conn> conn = createConnectedConn<Conn>(std::forward<Args>(args)...);
+    if (conn)
+    {
+        return dynamic_cast<const Conn*>(add(std::move(conn)));
+    }
+    return nullptr;
+}
+
     void add_open_conn(ServerConnection *c);
-    void add(Connection *c); // add connection
+    const Connection *add(std::unique_ptr<Connection> &&conn);
     void remove(const Connection *c); // remove connection
-    void deleteConnection(Connection *c);
-    Connection *get_last();
-    Connection *wait_for_input(); // issue select call and return the
+    const Connection *get_last() const;
+    const Connection *wait_for_input(); // issue select call and return the
     // connection that shows the first event
     // issue select call and return a
-    Connection *check_for_input(float time = 0.0);
+    const Connection *check_for_input(float time = 0.0);
     // connection if there is an event or 0L otherwise
     void reset();
-    Connection *next();
+    const Connection *next();
     //Connection at(int index);					  // get specific entry from listpos i
     int count(); // returns the number of current elements
+private:
+    long curidx = -1;                   // current index into vector
+    std::vector<std::unique_ptr<Connection>> connlist; // list of connections
+    fd_set fdvar; // field for select call
+    int maxfd; // maximum socket id
+    ServerConnection *open_sock; // socket for listening
 };
+
 
 #ifdef HAVE_OPENSSL
 class NETEXPORT SSLConnection : public Connection

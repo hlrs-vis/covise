@@ -101,13 +101,12 @@ void VRBProxy::handleMessages()
 {
     while (1)
     {
-        Connection *conn;
-        Connection *clientConn;
+        const Connection *conn;
         if ((conn = connections->check_for_input(1)))
         {
             if (conn == sConn) // connection to server port
             {
-                clientConn = sConn->spawn_connection();
+                auto clientConn = sConn->spawn_connection();
                 struct linger linger;
                 linger.l_onoff = 0;
                 linger.l_linger = 0;
@@ -115,7 +114,7 @@ void VRBProxy::handleMessages()
                     cerr << "new Connection" << endl;
                 setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-                clients.push_back(new VRBPClient(clientConn, this));
+                clients.push_back(new VRBPClient(std::move(clientConn), this));
             }
             else
             {
@@ -133,7 +132,6 @@ void VRBProxy::closeServer()
 {
     connections->remove(sConn);
     // tut sonst nicht (close_socket kommt nicht an)
-    delete sConn;
     sConn = NULL;
 }
 
@@ -168,11 +166,10 @@ VRBPClient *VRBPClientList::get(const Connection *c)
     return NULL;
 }
 
-VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
+VRBPClient::VRBPClient(std::unique_ptr<Connection> &&c, VRBProxy *p)
 {
     prox = p;
-    toClient = c;
-    prox->connections->add(c);
+    toClient = prox->connections->add(std::move(c));
 
     if (debugOn)
         std::cerr << "new Client" << std::endl;
@@ -190,18 +187,9 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
     {
         serverHost = NULL;
     }
-    auto newToVrb = std::unique_ptr<ClientConnection>{new ClientConnection{serverHost, tcp_p, 0, 0, 0}};
-    if (newToVrb)
+    toVRB = prox->connections->tryAddNewConnectedConn<ClientConnection>(serverHost, tcp_p, 0, 0, 0);
+    if (toVRB)
     {
-        if (!toVRB->is_connected()) // could not open server port
-        {
-            fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), tcp_p);
-            delete toVRB;
-            toVRB = NULL;
-        }
-        toVRB = newToVrb.get();
-        prox->connections->add(newToVrb.release());
-
         struct linger linger;
         linger.l_onoff = 0;
         linger.l_linger = 1;
@@ -210,6 +198,7 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
         if (debugOn)
             cerr << "new Client" << serverHost << endl;
     }
+
 }
 
 VRBPClient::~VRBPClient()
@@ -238,23 +227,12 @@ void VRBPClient::sendMessage(const Message *msg)
 
 int VRBProxy::openServer()
 {
-    sConn = new ServerConnection(port, 0, 0);
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    sConn->listen();
-    if (!sConn->is_connected()) // could not open server port
+    sConn = connections->tryAddNewListeningConn<ServerConnection>(port, 0, 0);
+    if (!sConn)
     {
         fprintf(stderr, "Could not open server port %d\n", port);
-        delete sConn;
-        sConn = NULL;
         return (-1);
     }
-    connections = new ConnectionList();
-    connections->add(sConn);
     msg = new Message;
 
     return 0;

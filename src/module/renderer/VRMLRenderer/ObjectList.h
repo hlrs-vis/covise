@@ -166,18 +166,18 @@ public:
     void removeall(const char *);
     void parseObjects(void);
     //int         send_chunk(char* buff,int l);
-    void send_obj(Connection *conn, char *obj, int add_length = 0);
-    int sendObjects(Connection *conn);
-    int sendNewObjects(Connection *conn);
+    void send_obj(const Connection *conn, char *obj, int add_length = 0);
+    int sendObjects(const Connection *conn);
+    int sendNewObjects(const Connection *conn);
     void set_crt_timestep(int timestep);
     void incr_no_sw(void);
     void decr_no_sw(void);
-    int sendTimestep(Connection *conn);
+    int sendTimestep(const Connection *conn);
     int setViewPoint(char *camera);
     int setSequencer(char *seq);
     char *getViewPoint(void);
     void setTelepointer(char *telep);
-    int sendTelepointer(Connection *conn);
+    int sendTelepointer(const Connection *conn);
     void TransformViewPoint(char *);
 
     void setTranslation(float x, float y, float z);

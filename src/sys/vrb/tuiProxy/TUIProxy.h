@@ -26,11 +26,11 @@ public:
     void handleMessages();
     int openServer();
     void closeServer();
-    covise::ConnectionList *connections;
+    covise::ConnectionList connections;
 
 private:
-    covise::ServerConnection *sConn;
-    covise::ServerConnection *toCOVER;
-    covise::ClientConnection *toTUI;
+    const covise::ServerConnection *sConn;
+    const covise::ServerConnection *toCOVER;
+    const covise::ClientConnection *toTUI;
     int port;
 };

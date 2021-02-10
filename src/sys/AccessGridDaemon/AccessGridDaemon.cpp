@@ -50,6 +50,7 @@ int main()
 }
 
 AccessGridDaemon::AccessGridDaemon()
+    :connections(new ConnectionList())
 {
     toController = NULL;
     toAG = NULL;
@@ -63,6 +64,7 @@ AccessGridDaemon::AccessGridDaemon()
 AccessGridDaemon::~AccessGridDaemon()
 {
     delete sConn;
+    delete connections;
     //cerr << "closed Server connection" << endl;
 }
 
@@ -78,26 +80,13 @@ void AccessGridDaemon::closeServer()
 
 int AccessGridDaemon::openServer()
 {
-    sConn = new ServerConnection(port, 0, (sender_type)0);
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    sConn->listen();
-    if (!sConn->is_connected()) // could not open server port
+    sConn = connections->tryAddNewListeningConn<ServerConnection>(port, 0, 0);
+    if (!sConn)
     {
         fprintf(stderr, "Could not open server port %d\n", port);
-        delete sConn;
-        sConn = NULL;
         return (-1);
     }
-    connections = new ConnectionList();
-    connections->add(sConn);
-    cerr << "adding" << sConn;
     msg = new Message;
-
     return 0;
 }
 
@@ -110,8 +99,7 @@ void AccessGridDaemon::loop()
 
 int AccessGridDaemon::processMessages()
 {
-    Connection *conn;
-    Connection *clientConn;
+    const Connection *conn;
     const char *line;
     while ((conn = connections->check_for_input(1)))
     {
@@ -119,10 +107,7 @@ int AccessGridDaemon::processMessages()
         cerr << "data on conn " << conn;
         if (conn == sConn) // connection to server port
         {
-            clientConn = sConn->spawnSimpleConnection();
-            connections->add(clientConn); //add new connection;
-            cerr << "add" << clientConn;
-            //cerr << "new connection " << endl;
+            connections->add(sConn->spawnSimpleConnection()); //add new connection;
         }
         else
         {
@@ -167,7 +152,6 @@ void AccessGridDaemon::handleClient(Message *msg)
             toController = NULL;
         connections->remove(msg->conn);
         cerr << "remove" << msg->conn;
-        delete msg->conn;
         if (toAG)
             toAG->getSocket()->write("masterLeft", (unsigned int)strlen("masterLeft") + 1);
         cerr << "controller left" << endl;
@@ -183,8 +167,8 @@ void AccessGridDaemon::startCovise()
 {
     char cport[200];
     int sPort;
-    toController = new ServerConnection(&sPort, 0, (sender_type)0);
-    toController->listen();
+    auto conn = std::unique_ptr<ServerConnection>(new ServerConnection(&sPort, 0, (sender_type)0));
+    conn->listen();
     sprintf(cport, "%d", sPort);
 
 #ifdef _WIN32
@@ -202,12 +186,12 @@ void AccessGridDaemon::startCovise()
         signal(SIGCHLD, SIG_IGN);
     }
 #endif
-    toController->acceptOne();
-    connections->add(toController); //add new connection;
+    conn->acceptOne();
+    toController = dynamic_cast<const ServerConnection*>(connections->add(std::move(conn))); //add new connection;
     cerr << "add" << toController;
 }
 
-int AccessGridDaemon::handleClient(const char *line, Connection *conn)
+int AccessGridDaemon::handleClient(const char *line, const Connection *conn)
 {
     cerr << line << endl;
 #ifdef _WIN32

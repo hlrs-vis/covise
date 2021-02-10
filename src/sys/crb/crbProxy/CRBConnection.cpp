@@ -48,13 +48,11 @@ CRBConnection::~CRBConnection()
 
 void CRBConnection::contactController()
 {
-    Host* h = new Host(host);
-    toController = new ClientConnection(h, port, id, CRB);
-    listOfConnections->add(toController);
-    delete h;
+    Host h{host};
+    toController = dynamic_cast<const ClientConnection*>(listOfConnections->add(std::unique_ptr<ClientConnection>(new ClientConnection(&h, port, id, CRB))));
 }
 
-void CRBConnection::forwardMessage(Message* msg, Connection* conn)
+void CRBConnection::forwardMessage(Message* msg, const Connection* conn)
 {
     if (conn == toCrb)
     {
@@ -83,8 +81,7 @@ void CRBConnection::forwardMessage(Message* msg, Connection* conn)
 
 void CRBConnection::processMessages()
 {
-    Connection* conn;
-    conn = listOfConnections->check_for_input(0);
+    const Connection* conn = listOfConnections->check_for_input(0);
     if (conn)
     {
         Message* msg = new Message;
@@ -136,10 +133,10 @@ int CRBConnection::execCRB(char* instance)
 
     int serverPort;
 
-    toCrb = new ServerConnection(&serverPort, id, CONTROLLER);
-    if (!toCrb->is_connected())
+    auto newToCrb = std::unique_ptr<ServerConnection>(new ServerConnection(&serverPort, id, CONTROLLER));
+    if (!newToCrb->is_connected())
         return 0;
-    toCrb->listen();
+    newToCrb->listen();
     std::string command = coCoviseConfig::getEntry("command", "System.CRB.Proxy");
     if (!command.empty())
     {
@@ -169,15 +166,12 @@ int CRBConnection::execCRB(char* instance)
    else
    #endif
    */
+    if (newToCrb->acceptOne(60) < 0)
     {
-        if (toCrb->acceptOne(60) < 0)
-        {
-            delete toCrb;
-            cerr << "* timelimit in accept for crb exceeded!!" << endl;
-            return -1;
-        }
-        listOfConnections->add(toCrb);
+        cerr << "* timelimit in accept for crb exceeded!!" << endl;
+        return -1;
     }
+    toCrb = dynamic_cast<const ServerConnection*>(listOfConnections->add(std::move(newToCrb)));
     contactController();
     return 1;
 }

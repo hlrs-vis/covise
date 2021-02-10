@@ -184,7 +184,7 @@ inline bool equals<char const*>(const char* const& t1, const char* const& t2){
         tb EXPAND(MY_OVERLOADED(FILL_TOKENBUFFER, FILL_TOKENBUFFER, __VA_ARGS__));                               \
         return tb;                                                                                               \
     }                                                                                                            \
-    bool sendCoviseMessage(const ClassName &msg, covise::MessageSenderInterface &sender) const                   \
+    bool sendCoviseMessage(const ClassName &msg, const covise::MessageSenderInterface &sender)                   \
     {                                                                                                            \
         auto m = msg.createMessage();                                                                            \
         return sender.send(&m);                                                                                  \
@@ -216,7 +216,7 @@ inline bool equals<char const*>(const char* const& t1, const char* const& t2){
     };                                                                                                             \
     export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const FullClassName &msg);                     \
     export std::ostream &operator<<(std::ostream &tb, const FullClassName &exe);                                   \
-    export bool sendCoviseMessage(const FullClassName &msg, covise::MessageSenderInterface &sender) const;
+    export bool sendCoviseMessage(const FullClassName &msg, const covise::MessageSenderInterface &sender);
 
 #define DECL_SUB_MESSAGE_CLASS(ClassName, EnumClass, EnumType, export, ...) \
     DECL_SUB_MESSAGE_CLASS_DETAIL(ClassName, ClassName##_##EnumType, EnumClass, EnumType, export, __VA_ARGS__)
@@ -243,7 +243,7 @@ inline bool equals<char const*>(const char* const& t1, const char* const& t2){
         tb << static_cast<int>(msg.type) EXPAND(MY_OVERLOADED(FILL_TOKENBUFFER, FILL_TOKENBUFFER, __VA_ARGS__));                                                              \
         return tb;                                                                                                                                                            \
     }                                                                                                                                                                         \
-    bool sendCoviseMessage(const FullClassName &msg, covise::MessageSenderInterface &sender) const                                                                            \
+    bool sendCoviseMessage(const FullClassName &msg, const covise::MessageSenderInterface &sender)                                                                            \
     {                                                                                                                                                                         \
         auto m = msg.createMessage();                                                                                                                                         \
         return sender.send(&m);                                                                                                                                               \

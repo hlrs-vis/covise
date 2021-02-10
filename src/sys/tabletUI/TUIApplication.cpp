@@ -253,8 +253,6 @@ TUIMainWindow::~TUIMainWindow()
 {
 #ifdef TABLET_PLUGIN
     closeServer();
-#else
-    delete sConn;
 #endif
 }
 
@@ -281,15 +279,13 @@ void TUIMainWindow::closeServer()
 
     if (sConn)
     {
-        connections->remove(sConn);
-        delete sConn;
+        connections.remove(sConn);
         sConn = NULL;
     }
 
     if (clientConn)
     {
-        connections->remove(clientConn);
-        delete clientConn;
+        connections.remove(clientConn);
         clientConn = NULL;
     }
 
@@ -315,31 +311,28 @@ void TUIMainWindow::closeServer()
 int TUIMainWindow::openServer()
 //------------------------------------------------------------------------
 {
-    delete sConn;
-    sConn = new covise::ServerConnection(port, 0, (covise::sender_type)0);
-    if (sConn->getSocket() == NULL)
+    connections.remove(sConn);
+    auto conn = std::unique_ptr<covise::ServerConnection>(new covise::ServerConnection(port, 0, 0));
+    if (conn->getSocket() == NULL)
     {
         fprintf(stderr, "Could not open server port %d\n", port);
-        delete sConn;
-        sConn = NULL;
         return (-1);
     }
+
     struct linger linger;
     linger.l_onoff = 0;
     linger.l_linger = 0;
 
     setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-    sConn->listen();
-    if (!sConn->is_connected()) // could not open server port
+    conn->listen();
+    if (!conn->is_connected()) // could not open server port
     {
         fprintf(stderr, "Could not open server port %d\n", port);
-        delete sConn;
-        sConn = NULL;
         return (-1);
     }
-    connections = new covise::ConnectionList();
-    connections->add(sConn);
+    sConn = dynamic_cast<const covise::ServerConnection *>(connections.add(std::move(conn)));
+
     msg = new covise::Message;
 
     serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
@@ -369,20 +362,20 @@ void TUIMainWindow::processMessages()
 //------------------------------------------------------------------------
 {
     //qDebug() << "process message called";
-    covise::Connection *conn;
-    while ((conn = connections->check_for_input(0.0001f)))
+    const covise::Connection *conn;
+    while ((conn = connections.check_for_input(0.0001f)))
     {
         if (conn == sConn) // connection to server port
         {
             if (clientConn == NULL) // only accept connections if not already connected to a COVER
             {
-                clientConn = sConn->spawn_connection();
+                auto conn = sConn->spawn_connection();
                 struct linger linger;
                 linger.l_onoff = 0;
                 linger.l_linger = 0;
-                setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+                setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-                clientSN = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
+                clientSN = new QSocketNotifier(conn->get_id(NULL), QSocketNotifier::Read);
                 QObject::connect(clientSN, SIGNAL(activated(int)),
                                  this, SLOT(processMessages()));
 
@@ -401,8 +394,6 @@ void TUIMainWindow::processMessages()
                     fprintf(stderr, "Could not accept connection to sg port in time %d\n", port);
                     delete sgConn;
                     sgConn = nullptr;
-					delete clientConn;
-					clientConn = nullptr;
                     return;
                 }
                 if (!sgConn->getSocket())
@@ -410,8 +401,6 @@ void TUIMainWindow::processMessages()
 					fprintf(stderr, "sg connection closed during connection %d\n", port);
                     delete sgConn;
                     sgConn = nullptr;
-					delete clientConn;
-					clientConn = nullptr;
                     return;
                 }
 
@@ -424,19 +413,16 @@ void TUIMainWindow::processMessages()
                     fprintf(stderr, "Could not open server port %d\n", port);
                     delete sgConn;
                     sgConn = NULL;
-					delete clientConn;
-					clientConn = nullptr;
                     return;
                 }
 
                 toCOVERSG = sgConn;
 
-                connections->add(clientConn); //add new connection;
+                clientConn = connections.add(std::move(conn)); //add new connection;
             }
             else
             {
-                covise::Connection *tmpconn = sConn->spawn_connection();
-                delete tmpconn;
+                sConn->spawn_connection();
             }
         }
         else
@@ -657,8 +643,7 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
 
         delete clientSN;
         clientSN = NULL;
-        connections->remove(msg->conn); //remove connection;
-        delete msg->conn;
+        connections.remove(msg->conn); //remove connection;
         msg->conn = NULL;
         clientConn = NULL;
 

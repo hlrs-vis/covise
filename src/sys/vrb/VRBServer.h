@@ -16,17 +16,8 @@
 #include <memory>
 #include <vrb/SessionID.h>
 #include <vrb/server/VrbMessageHandler.h>
+#include <net/covise_connect.h>
 
-
-namespace covise
-{
-class ServerConnection;
-class ServerUdpConnection;
-class Connection;
-class ConnectionList;
-class Message;
-class UdpMessage;
-}
 
 class QTreeWidgetItem;
 class QSocketNotifier;
@@ -55,20 +46,20 @@ public:
 	bool startUdpServer();
     int openServer();
     void closeServer();
-    void removeConnection(covise::Connection *conn) override;
+    void removeConnection(const covise::Connection *conn) override;
 
 
 private:
     bool m_gui;
     QPixmap *pix_master = NULL;
     QPixmap *pix_slave = NULL;
-    covise::ServerConnection *sConn = nullptr;
-	covise::UDPConnection* udpConn = nullptr;
+    const covise::ServerConnection *sConn = nullptr;
+	const covise::UDPConnection* udpConn = nullptr;
     QSocketNotifier *serverSN = nullptr;
 
     vrb::VrbMessageHandler *handler;
 
-    covise::ConnectionList *connections = nullptr;
+    covise::ConnectionList connections;
     int m_tcpPort, m_udpPort; // port Number (default: 31800) covise.config: VRB.TCPPort
   
     covise::Message *msg = nullptr;

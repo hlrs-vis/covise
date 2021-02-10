@@ -185,7 +185,7 @@ void DataManagerProcess::exch_trf_msg(Message *msg)
 #endif
 }
 
-Message *DataManagerProcess::wait_for_msg(int covise_msg_type, Connection *conn = 0)
+Message *DataManagerProcess::wait_for_msg(int covise_msg_type, const Connection *conn = 0)
 {
     Message *msg;
     int covise_msg_type_arr[3];
@@ -218,7 +218,7 @@ Message *DataManagerProcess::wait_for_msg(int covise_msg_type, Connection *conn 
 }
 
 Message *DataManagerProcess::wait_for_msg(int *covise_msg_type, int no,
-                                          Connection *conn = 0)
+                                          const Connection *conn = 0)
 {
 
     Message *msg;
@@ -435,27 +435,18 @@ void DataManagerProcess::contact_controller(int p, Host *h)
 #if defined(CRAY) && !defined(_CRAYT3E)
     print_comment(__LINE__, __FILE__,
                   "contact_controller not necessary on machines w/o shared memory\n", 4);
-    is_bad_ = false;
 #else
-    controller = new ControllerConnection(h, p, id, CRB);
-    if (controller->is_connected())
-    {
-        list_of_connections->add(controller);
-        is_bad_ = false;
-    }
-    is_bad_ = true;
+    controller = list_of_connections->tryAddNewConnectedConn<ControllerConnection>(h, p, id, CRB);
 #endif
 }
 
 void DataManagerProcess::contact_datamanager(int p, Host *host)
 {
-    Connection *dm;
     char msg_data[80];
     DMEntry *dme = NULL;
     unsigned int sid;
 
-    dm = new ClientConnection(host, p, id, CRB);
-    list_of_connections->add(dm);
+    const Connection *dm = list_of_connections->add(std::unique_ptr<ClientConnection>(new ClientConnection(host, p, id, CRB)));
 #if defined(CRAY) && !defined(_WIN32)
 #ifdef _CRAYT3E
     converter.int_to_exch(id, msg_data);
@@ -515,7 +506,7 @@ void DataManagerProcess::wait_for_contact()
                       "wait_for_contact in datamanager failed");
         print_exit(__LINE__, __FILE__, 1);
     }
-    list_of_connections->add(tmpconn);
+    list_of_connections->add(std::unique_ptr<Connection>(tmpconn));
 }
 
 void DataManagerProcess::wait_for_dm_contact()
@@ -537,7 +528,7 @@ void DataManagerProcess::wait_for_dm_contact()
                       "wait_for_dm_contact in datamanager failed");
         print_exit(__LINE__, __FILE__, 1);
     }
-    list_of_connections->add(tmpconn);
+    list_of_connections->add(std::unique_ptr<Connection>(tmpconn));
     msg = wait_for_msg(COVISE_MESSAGE_SEND_ID, tmpconn);
 
     if (msg->type == COVISE_MESSAGE_SEND_ID)
@@ -576,7 +567,9 @@ void DataManagerProcess::start_transfermanager()
 
     print_comment(__LINE__, __FILE__, "in start_transfermanager");
     transfermanager = new ServerConnection(&port, id, CRB);
-    transfermanager->listen();
+    auto conn = std::unique_ptr<ServerConnection>{new ServerConnection{&port, id, CRB}};
+    conn->listen();
+
 #ifdef _WIN32
 
     itoa(chport, port);
@@ -602,12 +595,14 @@ void DataManagerProcess::start_transfermanager()
 #endif
     else
     {
-        if (transfermanager->acceptOne() < 0)
+        if (conn->acceptOne() < 0)
         {
             fprintf(stderr, "DataManagerProcess: accept failed in start_transfermanager\n");
             return;
         }
-        list_of_connections->add(transfermanager);
+        transfermanager = &*conn;
+        transfermanager = dynamic_cast<const ServerConnection*>(list_of_connections->add(std::move(conn)));
+
         msg = wait_for_msg(COVISE_MESSAGE_GET_SHM_KEY, transfermanager);
         handle_msg(msg);
         transfermanager->sendMessage(msg);
@@ -641,7 +636,7 @@ void DataManagerProcess::start_transfermanager()
 
 void DataManagerProcess::send_to_all_connections(Message *msg)
 {
-    Connection *conn;
+    const Connection *conn;
 
     print_comment(__LINE__, __FILE__, "in send_to_all_connections");
     list_of_connections->reset();
@@ -903,7 +898,7 @@ coShmPtr *DataManagerProcess::shm_alloc(ShmMessage *shmmsg)
     return shm_alloc(dt, size);
 }
 
-int DataManagerProcess::add_object(const DataHandle& n, int otype, int no, int o, Connection *conn)
+int DataManagerProcess::add_object(const DataHandle& n, int otype, int no, int o, const Connection *conn)
 {
     coDoHeader *header;
     coShmArray *shmarr;
@@ -1037,7 +1032,7 @@ void DataManagerProcess::save_object_id()
     }
 }
 
-int DataManagerProcess::add_object(const DataHandle &n, int no, int o, Connection *conn)
+int DataManagerProcess::add_object(const DataHandle &n, int no, int o, const Connection *conn)
 {
     coDoHeader *header;
     coShmArray *shmarr;
@@ -1142,7 +1137,6 @@ int DataManagerProcess::DTM_new_desk(void)
 int DataManagerProcess::rmv_rdmgr(char *hostname)
 {
     DMEntry *dme;
-    Connection *p_conn;
     CO_AVL_Node<ObjectEntry> *p_root;
     data_mgrs->reset();
     while ((dme = data_mgrs->next()))
@@ -1151,7 +1145,7 @@ int DataManagerProcess::rmv_rdmgr(char *hostname)
         {
             //cerr << endl << "---CRB: rmv_rdmgr(" << hostname << ")\n";
             data_mgrs->remove(dme);
-            p_conn = dme->get_conn();
+            const Connection *p_conn = dme->get_conn();
             if (p_conn)
             {
                 p_root = objects->get_root();
@@ -1170,7 +1164,7 @@ int DataManagerProcess::rmv_rdmgr(char *hostname)
     return 0;
 }
 
-void DataManagerProcess::rmv_acc2objs(CO_AVL_Node<ObjectEntry> *root, Connection *conn)
+void DataManagerProcess::rmv_acc2objs(CO_AVL_Node<ObjectEntry> *root, const Connection *conn)
 {
     ObjectEntry *p_data;
     p_data = root->data;
@@ -1184,7 +1178,7 @@ void DataManagerProcess::rmv_acc2objs(CO_AVL_Node<ObjectEntry> *root, Connection
         rmv_acc2objs(root->right, conn);
 }
 
-int DataManagerProcess::destroy_object(const DataHandle& n, Connection* c)
+int DataManagerProcess::destroy_object(const DataHandle& n, const Connection* c)
 {
     AccessEntry *ae;
     ObjectEntry *oe = NULL, *tmpoe = new ObjectEntry(n);
@@ -1593,7 +1587,7 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
     }
 }
 
-ObjectEntry *DataManagerProcess::get_object(const DataHandle& n, Connection *conn)
+ObjectEntry *DataManagerProcess::get_object(const DataHandle& n, const Connection *conn)
 {
     ObjectEntry *oe = get_object(n);
 
@@ -1831,7 +1825,7 @@ ObjectEntry::ObjectEntry(const DataHandle& n)
     access = new List<AccessEntry>;
 }
 
-ObjectEntry::ObjectEntry(const DataHandle &n, int otype, int no, int o, Connection *conn, DMEntry *dm)
+ObjectEntry::ObjectEntry(const DataHandle &n, int otype, int no, int o, const Connection *conn, DMEntry *dm)
 {
     coShmPtr *tmpptr;
 
@@ -1849,7 +1843,7 @@ ObjectEntry::ObjectEntry(const DataHandle &n, int otype, int no, int o, Connecti
     add_access(owner, ACC_READ_WRITE_DESTROY, ACC_READ_AND_WRITE);
 }
 
-ObjectEntry::ObjectEntry(const DataHandle& n, int no, int o, Connection *conn, DMEntry *dm)
+ObjectEntry::ObjectEntry(const DataHandle& n, int no, int o, const Connection *conn, DMEntry *dm)
 {
     coShmPtr *tmpptr;
 
@@ -1905,7 +1899,7 @@ void ObjectEntry::print()
     //    cerr << "     Refcount: " << tmpiptr[10] << endl;
 }
 
-void ObjectEntry::remove_access(Connection *c)
+void ObjectEntry::remove_access(const Connection *c)
 {
     AccessEntry *ae;
     Message *msg;
@@ -1933,7 +1927,7 @@ void ObjectEntry::remove_access(Connection *c)
     }
 }
 
-void ObjectEntry::set_current_access(Connection *c, access_type c_a)
+void ObjectEntry::set_current_access(const Connection *c, access_type c_a)
 {
     AccessEntry *ae;
     Message *msg;
@@ -1990,7 +1984,7 @@ void ObjectEntry::set_current_access(Connection *c, access_type c_a)
         }
 }
 
-access_type ObjectEntry::get_access_right(Connection *c)
+access_type ObjectEntry::get_access_right(const Connection *c)
 {
     AccessEntry *ptr;
 
@@ -2003,7 +1997,7 @@ access_type ObjectEntry::get_access_right(Connection *c)
     return ACC_NONE;
 }
 
-void ObjectEntry::add_access(Connection *c, access_type a, access_type c_a)
+void ObjectEntry::add_access(const Connection *c, access_type a, access_type c_a)
 {
     AccessEntry *ae = new AccessEntry(a, c_a, c);
     access->add(ae);
@@ -2069,7 +2063,7 @@ void ObjectEntry::pack_address(Message *msg)
     msg->type = COVISE_MESSAGE_OBJECT_FOUND;
 }
 
-DMEntry::DMEntry(int i, char *h, Connection *c)
+DMEntry::DMEntry(int i, char *h, const Connection *c)
 {
     id = i;
     host = new Host(h);

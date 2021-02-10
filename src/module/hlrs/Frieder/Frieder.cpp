@@ -199,24 +199,14 @@ void Application::run()
     ConnectionList *list_of_connections;
     list_of_connections = Covise::appmod->getConnectionList();
     std::string entry = coCoviseConfig::getEntry("value", "Module.Sunface.Hostname", "visuw");
-    while ((!master) || (!master->is_connected()))
+    host.reset(new Host(entry.c_str()));
+    while (!(master = list_of_connections->tryAddNewConnectedConn<ClientConnection>(&*host, 31552, 1, (sender_type)1, 10)))
     {
-        master = new ClientConnection(new Host(entry.c_str()), 31552, 1, (sender_type)1, 10);
-        if ((!master) || (!master->is_connected()))
-        {
-            sleep(1);
-            delete master;
-            master = 0;
-        }
+        sleep(1);
     }
-    if (master)
-    {
-        list_of_connections->add(master);
-    }
-    Connection *conn;
     while (1)
     {
-        conn = list_of_connections->wait_for_input();
+        const Connection *conn = list_of_connections->wait_for_input();
         if (conn == (Connection *)master) // handle Messages from Frieder
         {
             fprintf(stderr, "Message from Frieder\n");
@@ -267,22 +257,16 @@ void Application::recvData()
         ConnectionList *list_of_connections;
         list_of_connections = Covise::appmod->getConnectionList();
         list_of_connections->remove(master);
+        master = nullptr;
         std::string entry = coCoviseConfig::getEntry("value", "Module.Sunface.Hostname", "visuw");
-        delete master;
-        master = 0;
+        host.reset(new Host(entry.c_str()));
         while (!master)
         {
-            master = new ClientConnection(new Host(entry.c_str()), 31552, 1, (sender_type)1, 10);
-            if ((!master) || (!master->is_connected()))
+            master = list_of_connections->tryAddNewConnectedConn<ClientConnection>(&*host, 31552, 1, (sender_type)1, 10);
+            if (!master)
             {
                 sleep(1);
-                delete master;
-                master = 0;
             }
-        }
-        if (master)
-        {
-            list_of_connections->add(master);
         }
     }
     break;

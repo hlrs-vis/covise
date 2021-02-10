@@ -461,13 +461,11 @@ void Renderer::start(void)
             {
                 m_webport = atoi(sport.c_str());
                 id = (int)getpid();
-                m_wconn = new ClientConnection(m_webHost, m_webport, id, RENDERER);
+                auto wconn = std::unique_ptr<ClientConnection>(new ClientConnection(m_webHost, m_webport, id, RENDERER));
 
-                if (!m_wconn->is_connected())
+                if (!wconn->is_connected())
                 {
                     CoviseRender::sendError(" Error connecting to web_srv - terminating");
-                    delete m_wconn;
-                    m_wconn = NULL;
                     exit(0);
                 }
                 else
@@ -490,7 +488,7 @@ void Renderer::start(void)
                         m_connList->add_open_conn(m_open_conn);
 
                         //adding web connection to conn list;
-                        m_connList->add(m_wconn);
+                        m_wconn = dynamic_cast<const ClientConnection*>(m_connList->add(std::move(wconn)));
 
                         //disable the writing of the wrml file
                         om->set_write_file(0);

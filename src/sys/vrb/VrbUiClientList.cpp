@@ -25,7 +25,7 @@ VrbUiClientList uiClients;
 QPixmap *VrbUiClient::pix_master;
 QPixmap *VrbUiClient::pix_slave;
 
-VrbUiClient::VrbUiClient(Connection *c, UDPConnection* udpc, QSocketNotifier *sn, covise::TokenBuffer& tb)
+VrbUiClient::VrbUiClient(const Connection *c, const UDPConnection* udpc, QSocketNotifier *sn, covise::TokenBuffer& tb)
     : VRBSClient(c, udpc, tb)
     , socketNotifier(sn)
 {

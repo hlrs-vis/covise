@@ -320,22 +320,17 @@ void OfficePlugin::sendMessage(Message &m)
 
 void OfficePlugin::preFrame()
 {
-    ServerConnection *toOffice = nullptr;
+    std::unique_ptr<ServerConnection> toOffice;
     if (coVRMSController::instance()->isMaster())
     {
         if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
         {
             //   std::cout << "Trying serverConn..." << std::endl;
-            toOffice = serverConn->spawn_connection();
+            auto toOffice = serverConn->spawn_connection();
             if (toOffice && toOffice->is_connected())
             {
                 fprintf(stderr, "Connected to Office system\n");
                 cover->watchFileDescriptor(toOffice->getSocket()->get_id());
-            }
-            else
-            {
-                delete toOffice;
-                toOffice = nullptr;
             }
         }
         coVRMSController::instance()->sendSlaves(&toOffice, sizeof(toOffice));
@@ -347,7 +342,7 @@ void OfficePlugin::preFrame()
 
     if (toOffice)
     {
-        officeConnections.push_back(new OfficeConnection(toOffice));
+        officeConnections.push_back(new OfficeConnection(&*toOffice));
     }
 
     officeConnections.checkAndHandleMessages();
