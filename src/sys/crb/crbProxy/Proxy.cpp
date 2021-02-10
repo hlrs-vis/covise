@@ -45,7 +45,6 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
                         messageData.moduleId,
                         messageData.moduleIp,
                         messageData.moduleHostName,
-                        messageData.displayIp,
                         messageData.category,
                         messageData.vrbClientIdOfController,
                         messageData.vrbCredentials,
@@ -61,8 +60,8 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
         cerr << "* timelimit in accept for module exceeded!!" << endl;
         return;
     }
-    Host h {messageData.localIp};
-    ctrlConn = new ClientConnection(&h, messageData.port, messageData.moduleCount, APPLICATIONMODULE);
+    Host h {messageData.controllerIp};
+    ctrlConn = new ClientConnection(&h, messageData.controllerPort, messageData.moduleCount, APPLICATIONMODULE);
     crbConn->listOfConnections->add(moduleConn);
     crbConn->listOfConnections->add(ctrlConn);
 }
