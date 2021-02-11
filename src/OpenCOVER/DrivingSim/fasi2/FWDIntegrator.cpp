@@ -158,22 +158,22 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	
 	//combined weighted forces
 	double FweightedFL = FAxleLoadFL * (FssFL + FsdFL + FssFR + FsdFR) * (FssFL + FsdFL + FssRL + FsdRL) / ((FssRR + FsdRR + FssRL + FsdRL) * (FssFR + FsdFR + FssRR + FsdRR));
-	if(isnan(FweightedFL))
+	if(std::isnan(FweightedFL))
 	{
 		FweightedFL = 0;
 	}
 	double FweightedFR = FAxleLoadFR * (FssFL + FsdFL + FssFR + FsdFR) * (FssFR + FsdFR + FssRR + FsdRR) / ((FssRR + FsdRR + FssRL + FsdRL) * (FssFL + FsdFL + FssRL + FsdRL));
-	if(isnan(FweightedFR))
+	if(std::isnan(FweightedFR))
 	{
 		FweightedFR = 0;
 	}
 	double FweightedRR = FAxleLoadRR * (FssRR + FsdRR + FssRL + FsdRL) * (FssFR + FsdFR + FssRR + FsdRR) / ((FssFL + FsdFL + FssFR + FsdFR) * (FssFL + FsdFL + FssRL + FsdRL));
-	if(isnan(FweightedRR))
+	if(std::isnan(FweightedRR))
 	{
 		FweightedRR = 0;
 	}
 	double FweightedRL = FAxleLoadRL * (FssRR + FsdRR + FssRL + FsdRL) * (FssFL + FsdFL + FssRL + FsdRL) / ((FssFL + FsdFL + FssFR + FsdFR) * (FssFR + FsdFR + FssRR + FsdRR));
-	if(isnan(FweightedRL))
+	if(std::isnan(FweightedRL))
 	{
 		FweightedRL = 0;
 	}
@@ -692,7 +692,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double TBDRL3 = TBstRL3 + dPhiRL3 * phiADotRL3;
 	
 	double phiDotFL1 = 0;
-	if(!isnan(TBDFL1))
+	if(!std::isnan(TBDFL1))
 	{
 		phiDotFL1 = phiADotFL1 * (tanh(((TBmaxFL1 / std::abs(TBDFL1)) - 1) * 50) + 1) / 2;
 	}
@@ -701,7 +701,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotFL1 = phiADotFL1;
 	}*/
 	double phiDotFL2 = 0;
-	if(!isnan(TBDFL2))
+	if(!std::isnan(TBDFL2))
 	{
 		phiDotFL2 = phiADotFL2 * (tanh(((TBmaxFL2 / std::abs(TBDFL2)) - 1) * 50) + 1) / 2;
 	}
@@ -710,7 +710,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotFL2 = phiADotFL2;
 	}*/
 	double phiDotFL3 = 0;
-	if(!isnan(TBDFL3))
+	if(!std::isnan(TBDFL3))
 	{
 		phiDotFL3 = phiADotFL3 * (tanh(((TBmaxFL3 / std::abs(TBDFL3)) - 1) * 50) + 1) / 2;
 	}
@@ -720,7 +720,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	}*/
 	
 	double phiDotFR1 = 0;
-	if(!isnan(TBDFR1))
+	if(!std::isnan(TBDFR1))
 	{
 		phiDotFR1 = phiADotFR1 * (tanh(((TBmaxFR1 / std::abs(TBDFR1)) - 1) * 50) + 1) / 2;
 	}
@@ -729,7 +729,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotFR1 = phiADotFR1;
 	}*/
 	double phiDotFR2 = 0;
-	if(!isnan(TBDFR2))
+	if(!std::isnan(TBDFR2))
 	{
 		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
 	}
@@ -738,7 +738,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotFR2 = phiADotFR2;
 	}*/
 	double phiDotFR3 = 0;
-	if(!isnan(TBDFR3))
+	if(!std::isnan(TBDFR3))
 	{
 		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
 	}
@@ -748,7 +748,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	}*/
 	
 	double phiDotRR1 = 0;
-	if(!isnan(TBDRR1))
+	if(!std::isnan(TBDRR1))
 	{
 		phiDotRR1 = phiADotRR1 * (tanh(((TBmaxRR1 / std::abs(TBDRR1)) - 1) * 50) + 1) / 2;
 	}
@@ -757,7 +757,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotRR1 = phiADotRR1;
 	}*/
 	double phiDotRR2 = 0;
-	if(!isnan(TBDRR2))
+	if(!std::isnan(TBDRR2))
 	{
 		phiDotRR2 = phiADotRR2 * (tanh(((TBmaxRR2 / std::abs(TBDRR2)) - 1) * 50) + 1) / 2;
 	}
@@ -766,7 +766,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotRR2 = phiADotRR2;
 	}*/
 	double phiDotRR3 = 0;
-	if(!isnan(TBDRR3))
+	if(!std::isnan(TBDRR3))
 	{
 		phiDotRR3 = phiADotRR3 * (tanh(((TBmaxRR3 / std::abs(TBDRR3)) - 1) * 50) + 1) / 2;
 	}
@@ -776,7 +776,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	}*/
 	
 	double phiDotRL1 = 0;
-	if(!isnan(TBDRL1))
+	if(!std::isnan(TBDRL1))
 	{
 		phiDotRL1 = phiADotRL1 * (tanh(((TBmaxRL1 / std::abs(TBDRL1)) - 1) * 50) + 1) / 2;
 	}
@@ -785,7 +785,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotRL1 = phiADotRL1;
 	}*/
 	double phiDotRL2 = 0;
-	if(!isnan(TBDRL2))
+	if(!std::isnan(TBDRL2))
 	{
 		phiDotRL2 = phiADotRL2 * (tanh(((TBmaxRL2 / std::abs(TBDRL2)) - 1) * 50) + 1) / 2;
 	}
@@ -794,7 +794,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiDotRL2 = phiADotRL2;
 	}*/
 	double phiDotRL3 = 0;
-	if(!isnan(TBDRL3))
+	if(!std::isnan(TBDRL3))
 	{
 		phiDotRL3 = phiADotRL3 * (tanh(((TBmaxRL3 / std::abs(TBDRL3)) - 1) * 50) + 1) / 2;
 	}
