@@ -255,7 +255,6 @@ FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
 CREATE_USING()
 
 COVISE_FIND_BOOST()
-USING(Boost)
 
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
