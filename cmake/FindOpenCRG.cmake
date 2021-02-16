@@ -14,6 +14,7 @@ FIND_PATH(OPENCRG_INCLUDE_DIR "crgBaseLib.h"
   $ENV{OPENCRG_HOME}/include
   $ENV{EXTERNLIBS}/OpenCRG/include
   $ENV{EXTERNLIBS}/opencrg/include
+  $ENV{EXTERNLIBS}/opencrg/1.1.2/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include
   /usr/local/include
@@ -33,6 +34,7 @@ FIND_LIBRARY(OPENCRG_LIBRARY NAMES ${OPENCRG_NAMES}
   $ENV{OPENCRG_HOME}
   $ENV{EXTERNLIBS}/OpenCRG
   $ENV{EXTERNLIBS}/opencrg
+  $ENV{EXTERNLIBS}/opencrg/1.1.2
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
