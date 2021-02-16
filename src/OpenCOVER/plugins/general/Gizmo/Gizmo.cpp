@@ -168,7 +168,7 @@ bool Move::init()
     label = new coVRLabel("test", fontSize, lineLen, fgcolor, bgcolor);
     label->hide();
 
-    pinboardEntry = new coSubMenuItem("Move Objects...");
+    pinboardEntry = new coSubMenuItem("Gizmo...");
     cover->getMenu()->add(pinboardEntry);
     moveMenu = new coRowMenu("Move", cover->getMenu());
 
@@ -498,7 +498,6 @@ void Move::doMove()
             PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
     }
 
-
 }
 
 void Move::preFrame()
@@ -511,20 +510,17 @@ void Move::preFrame()
 
     if(_gizmo->wasStarted())
     {
-        osg::Matrix startMatrix = _gizmo->getMatrix();
-        addUndo(startMatrix, moveDCS.get());
         _startMoveDCSMat = moveDCS->getMatrix();
-
+        addUndo(_startMoveDCSMat, moveDCS.get());
     }
     else if (_gizmo->wasStopped()) 
     {
-        osg::Matrix stopMatrix = _gizmo->getMatrix();
-        addUndo(stopMatrix,moveDCS.get());
+        addUndo(moveDCS->getMatrix(),moveDCS.get());
     }
     else if(_gizmo->getState() == coInteraction::Active) // do the movement
         doMove();
 
-    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes if gitmo is not active
+    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes if gizmo is not active
     {
         bool is_SceneNode{false};
         if(node)
@@ -723,7 +719,7 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
             std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.end();
             for (iter--; iter != intersectedNodePath.begin(); iter--)
             {
-                if ((*iter) == currentNode) // this is not happening with two nodes! 
+                if ((*iter) == currentNode) 
                 {
                     iter--;
                     currentNode = *iter;
@@ -1417,7 +1413,7 @@ void Move::undo() // warum wird hier keine message an alle rausgeschickt ? funkt
     else
     {
         undoDCS[writePos]->setMatrix(undoMat[writePos]);
-        _gizmo->updateTransform(undoDCS[writePos]->getMatrix());
+        _gizmo->updateTransform(calcStartMatrix());
     }
 }
 
