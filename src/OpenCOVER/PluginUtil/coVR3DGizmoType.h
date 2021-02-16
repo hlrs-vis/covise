@@ -65,6 +65,10 @@ public:
     void update() override;
     void setShared(bool state) override;
 
+    osg::Matrix getMoveMatrix_o() const; // returns diff Mat between start and end of movement in object coordinates
+    osg::Matrix getMoveMatrix_w() const; // returns diff Mat between start and end of movement in world coordinates
+
+
 };
 
 }

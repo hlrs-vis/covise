@@ -210,7 +210,12 @@ private:
 
     osg::Matrix gizmoStartMat();
     void doMove();
+    osg::Matrix calcStartMatrix(); // calc global start Matrix for gizmo by iterating over scene graph
+    osg::Matrix _completeMatrix;
+    osg::Matrix _gizmoStartMat;
+    osg::Matrix _startMoveDCSMat;  //Matrix of helper/transformation node where the gizmo is added to
     bool _gizmoActive{false};
+
 
     void showOrhideName(osg::Node *node);
     // coVR3DGizmo* createGizmo();

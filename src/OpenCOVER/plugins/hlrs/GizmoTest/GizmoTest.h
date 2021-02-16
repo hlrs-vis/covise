@@ -40,6 +40,8 @@ private:
   osg::ref_ptr<osg::MatrixTransform> _scene;
   osg::ref_ptr<osg::MatrixTransform> _t1;
   osg::ref_ptr<osg::MatrixTransform> _t2;
+  osg::ref_ptr<osg::MatrixTransform> _t21;
+  osg::ref_ptr<osg::MatrixTransform> _t22;
 
   osg::ref_ptr<osg::Geode> _gizmoGeode;
   osg::ref_ptr<osg::MatrixTransform> _root;
@@ -49,7 +51,8 @@ private:
 
   osg::ref_ptr<osg::Geode> _cube1;
   osg::ref_ptr<osg::Geode> _cube2;  
-  osg::ref_ptr<osg::Geode> _cube3;
+  osg::ref_ptr<osg::Geode> _cube21;
+  osg::ref_ptr<osg::Geode> _cube22;
 
 
   opencover::coVR3DTransGizmo* _transgizmo;

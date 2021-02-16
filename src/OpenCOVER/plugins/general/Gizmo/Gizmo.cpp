@@ -30,6 +30,7 @@
 #include <osg/Shape>
 #include <osg/PolygonMode>
 #include <osg/ShapeDrawable>
+#include <osg/io_utils>
 
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -474,7 +475,8 @@ bool Move::pickedObjChanged()
 
 void Move::doMove()
 {
-    osg::Matrix newDCSMat = _gizmo->getMatrix();
+    osg::Matrix newDCSMat =  _gizmo->getMoveMatrix_o()*_startMoveDCSMat;
+
     TokenBuffer tb;
     std::string path = coVRSelectionManager::generatePath(selectedNodesParent);
     tb << path;
@@ -511,6 +513,8 @@ void Move::preFrame()
     {
         osg::Matrix startMatrix = _gizmo->getMatrix();
         addUndo(startMatrix, moveDCS.get());
+        _startMoveDCSMat = moveDCS->getMatrix();
+
     }
     else if (_gizmo->wasStopped()) 
     {
@@ -565,32 +569,27 @@ void Move::preFrame()
         //********************************************************** Select or Unselect ***********************************************************************************
         if(interactionA->wasStarted() )
         {
-        //Deselect
-        if( _gizmoActive && 
-        (
-                !_isGizmoNode ||
-                ( !node || ((node != candidateNode) && (node != selectedNode)) )
+            //Deselect
+            if( _gizmoActive && 
+            (!_isGizmoNode || ( !node || ((node != candidateNode) && (node != selectedNode))))
             )
-          )
-        {
-            std::cout<<"Deselection started"<<std::endl;
-            deactivateGizmo();
-            oldNode = NULL;                                                                                                     
-            node = NULL;                                                    
-            candidateNode = NULL;                                                   
-            selectedNode = NULL;                                                    
-            if (moveSelection)                                                  
-            {                                                   
-                coVRSelectionManager::instance()->clearSelection();                                                 
-                moveSelection = false;                                                  
-            }
+            {
+                std::cout<<"Deselection started"<<std::endl;
+                deactivateGizmo();
+                oldNode = NULL;                                                                                                     
+                node = NULL;                                                    
+                candidateNode = NULL;                                                   
+                selectedNode = NULL;                                                    
+                if (moveSelection)                                                  
+                {                                                   
+                    coVRSelectionManager::instance()->clearSelection();                                                 
+                    moveSelection = false;                                                  
+                }
 
-        }
-            if(node)
+            }
+            if(node) //Select
             {   
                 std::cout<<"Selection started"<<std::endl;
-
-                std::cout<< "is node" <<std::endl;
                 bool isObject = false;
                 bool isNewObject = false;
                 bool isAlreadySelected = false;
@@ -602,44 +601,13 @@ void Move::preFrame()
                     // start of interaction (button press)
                     if(selectedNode)
                     {
-                        osg::Matrix dcsMat;
-                        getMoveDCS();
-                        osg::Node *currentNode = NULL;
-                        if (moveDCS && moveDCS->getNumParents() > 0)
-                            currentNode = moveDCS->getParent(0);
-                        startBaseMat = osg::Matrix();
-                        startBaseMat.makeIdentity();
-                        while (currentNode != NULL)
-                        {
-
-                            if(currentNode)//for testing
-                            {
-                                osg::Matrix test = ((osg::MatrixTransform *)currentNode)->getMatrix();
-
-                                std::cout <<"currentNode"<< currentNode << " name: "<< currentNode->getName()<<" "<< test.getTrans().x() <<" " << test.getTrans().y()<< " "<<test.getTrans().z() <<std::endl;
-                            }
-                            if (dynamic_cast<osg::MatrixTransform *>(currentNode))
-                            {
-                                dcsMat = ((osg::MatrixTransform *)currentNode)->getMatrix();
-                                startBaseMat.postMult(dcsMat);
-                            }
-                            if (currentNode->getNumParents() > 0)
-                                currentNode = currentNode->getParent(0);
-                            else
-                                currentNode = NULL;
-                        }
-                        startMoveDCSMat = moveDCS->getMatrix();
-                        startCompleteMat = startBaseMat;
-                        startCompleteMat.preMult(startMoveDCSMat);
-                        //osg::Matrix temp = moveDCS;
-                        std::cout << "complete mat:" <<startCompleteMat.getTrans().x() <<" " << startCompleteMat.getTrans().y()<< " "<<startCompleteMat.getTrans().z() <<std::endl;
-                        activateGizmo(startMoveDCSMat);
+                        _gizmoStartMat = calcStartMatrix();
+                        activateGizmo(_gizmoStartMat);
                     }
                 }
             }
             
-        }
-        
+        } 
     }
     
     // if we don't point to a node or point to a non candidate or point to gizmo Node and gizmo is not active then unregister!
@@ -657,6 +625,42 @@ void Move::preFrame()
         }
     }
     //std::cout <<"doUndo: "<<doUndo <<" didMove: "<<didMove <<" allowMove: "<<allowMove<<std::endl; 
+}
+
+//remove global variable startCompleteMat
+osg::Matrix Move::calcStartMatrix()
+{
+    
+    osg::Matrix dcsMat;
+    getMoveDCS();
+    // start of interaction (button press)
+    osg::Node *currentNode = NULL;
+    if (moveDCS && moveDCS->getNumParents() > 0)
+        currentNode = moveDCS->getParent(0);
+    startBaseMat.makeIdentity();
+
+    while (currentNode != NULL)
+    {
+        if (dynamic_cast<osg::MatrixTransform *>(currentNode))
+        {
+            dcsMat = ((osg::MatrixTransform *)currentNode)->getMatrix();
+            startBaseMat.postMult(dcsMat);
+        }
+        if (currentNode->getNumParents() > 0)
+            currentNode = currentNode->getParent(0);
+        else
+            currentNode = NULL;
+    }
+    _startMoveDCSMat = moveDCS->getMatrix();
+    startCompleteMat = startBaseMat;
+    startCompleteMat.preMult(_startMoveDCSMat);
+
+    if (!invStartCompleteMat.invert(startCompleteMat))
+        fprintf(stderr, "Move::inv startCompleteMat is singular\n");
+    if (!invStartHandMat.invert(cover->getPointerMat()))
+        fprintf(stderr, "Move::inv getPointerMat is singular\n");
+
+    return startCompleteMat* cover->getInvBaseMat();
 }
 
 void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& isObject, bool& isNewObject, bool& isAlreadySelected) // check exactly what happens here !

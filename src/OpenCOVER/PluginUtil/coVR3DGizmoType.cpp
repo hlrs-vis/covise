@@ -210,3 +210,17 @@ void coVR3DGizmoType::calculatePointerDirection_o(osg::Vec3& lp0_o, osg::Vec3& l
     pointerDir_o = lp1_o - lp0_o;
     pointerDir_o.normalize();   
 }
+
+osg::Matrix coVR3DGizmoType::getMoveMatrix_o() const
+{
+    osg::Matrix invStartInterMat;
+    invStartInterMat.invert(_startInterMat_w);
+    return getMatrix() * invStartInterMat;
+}
+
+osg::Matrix coVR3DGizmoType::getMoveMatrix_w() const
+{
+    osg::Matrix invStartInterMat;
+    invStartInterMat.invert(_startInterMat_w);
+    return invStartInterMat* getMatrix();
+}

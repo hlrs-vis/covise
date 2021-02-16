@@ -48,10 +48,12 @@ public:     //functions which are forewarded to gizmotype
     void disableIntersection(){_gizmo->disableIntersection();}
     bool isInitializedThroughSharedState(){return _gizmo->isInitializedThroughSharedState();}
     void updateTransform(osg::Matrix m){_gizmo->updateTransform(m);}
-    osg::Node *getHitNode(){return _gizmo->getHitNode();}
     osg::Vec3 getHitPos(){return _gizmo->getHitPos();}
     //const osg::Matrix &getMatrix(){return _gizmo->getMatrix();} const
-    osg::Matrix getMatrix(){return _gizmo->getMatrix();}
+    osg::Matrix getMatrix(){return _gizmo -> getMatrix();}
+    osg::Matrix getMoveMatrix_o()const{return _gizmo -> getMoveMatrix_o();}
+    osg::Matrix getMoveMatrix_w()const{return _gizmo -> getMoveMatrix_w();}
+
 };
 }
 #endif
