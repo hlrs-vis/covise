@@ -629,11 +629,7 @@ void BlinkerTask::run()
     {
         static bool on = false;
         static int oldState;
-#ifdef MERCURY
         unsigned int rmask;
-#else
-        unsigned long rmask;
-#endif
         event->wait(1, &rmask, EV_ANY, 400000000);
         event->clear(1);
         if (blinkCounter > 4 || (state != NONE))

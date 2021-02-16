@@ -19,11 +19,7 @@ using namespace vehicleUtil;
 
 
 FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2()
-#ifdef MERCURY
     : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtime2Task", 0, 99, 0)
-#else
-    : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtime2Task", 0, 99, T_FPU | T_CPU(5))
-#endif
     , dy(cardyn::getExpressionVector())
     , r_i(4)
     , n_i(4)
@@ -160,11 +156,7 @@ FourWheelDynamicsRealtime2::~FourWheelDynamicsRealtime2()
     RT_TASK_INFO info;
     inquire(info);
 
-#ifdef MERCURY
     if (info.stat.status & __THREAD_S_STARTED)
-#else
-    if (info.status & T_STARTED)
-#endif
 
     {
         runTask = false;

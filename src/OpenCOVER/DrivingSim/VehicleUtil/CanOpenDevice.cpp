@@ -9,11 +9,7 @@
 
 #include <cstring>
 
-#ifdef MERCURY
 #include <alchemy/timer.h>
-#else
-#include <native/timer.h>
-#endif
 
 using namespace vehicleUtil;
 

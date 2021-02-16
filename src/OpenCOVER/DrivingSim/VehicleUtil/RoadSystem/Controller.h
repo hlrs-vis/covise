@@ -25,6 +25,9 @@
 #endif
 #ifdef HAVE_V8
 #include <v8.h>
+#ifdef V8_MAJOR_VERSION
+ #define AccessorInfo PropertyCallbackInfo<void>
+#endif
 #endif
 
 namespace vehicleUtil
@@ -97,7 +100,12 @@ namespace vehicleUtil
 
         void operator()(const std::string& info)
         {
+#ifdef V8_MAJOR_VERSION
+            
+            v8::Handle<v8::Value> args[] = { v8::String::NewFromUtf8(triggerJSFunction->GetIsolate(),info.c_str(), v8::String::kNormalString) };
+#else
             v8::Handle<v8::Value> args[] = { v8::String::New(info.c_str()) };
+#endif
             triggerJSFunction->Call(triggerJSFunction, 1, args);
         }
 

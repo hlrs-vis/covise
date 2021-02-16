@@ -15,11 +15,7 @@ using namespace vehicleUtil;
 
 
 FourWheelDynamicsRealtime::FourWheelDynamicsRealtime()
-#ifdef MERCURY
     : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtimeTask", 0, 99, 0)
-#else
-    : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtimeTask", 0, 99, T_FPU | T_CPU(5))
-#endif
     , dy(cardyn::getExpressionVector())
     , integrator(dy, y)
     , r_i(4)

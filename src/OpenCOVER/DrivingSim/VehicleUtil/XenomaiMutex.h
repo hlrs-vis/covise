@@ -8,11 +8,7 @@
 #ifndef __XenomaiMutex_h
 #define __XenomaiMutex_h
 
-#ifdef MERCURY
 #include <alchemy/mutex.h>
-#else
-#include <native/mutex.h>
-#endif
 namespace vehicleUtil
 {
 

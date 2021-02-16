@@ -39,11 +39,7 @@ int main(int argc, char* const* argv)
 mopla *mopla::myFasi = NULL;
 
 mopla::mopla(const char *filename)
-#ifdef MERCURY
     : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtime2Task", 0, 99, 0)
-#else
-    : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtime2Task", 0, 99, T_FPU | T_CPU(5))
-#endif
 {
     myFasi = this;
     new vrb::SharedStateManager(NULL);

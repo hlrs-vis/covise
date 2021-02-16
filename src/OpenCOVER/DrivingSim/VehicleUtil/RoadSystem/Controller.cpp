@@ -18,9 +18,15 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
     , cycleTime(setCycleTime)
     , scriptInitialized(false)
 #ifdef HAVE_V8
+#ifdef V8_MAJOR_VERSION
+    //, context(v8::Context::New(nullptr))
+    //, context_scope(context)
+   // , controlTemplate(v8::ObjectTemplate::New(nullptr)))
+#else
     , context(v8::Persistent<v8::Context>::New(v8::Context::New()))
     , context_scope(context)
     , controlTemplate(v8::Persistent<v8::ObjectTemplate>::New(v8::ObjectTemplate::New()))
+#endif
 #endif
 {
     if (scriptName != "")
@@ -42,6 +48,16 @@ bool Controller::initScript(const std::string &scriptName)
     script = v8::Script::Compile(source);
     script->Run();
 
+#ifdef V8_MAJOR_VERSION
+    initFunction = v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::NewFromUtf8(handle_scope.GetIsolate(),"init",v8::String::kNormalString)));
+    updateFunction = v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::NewFromUtf8(handle_scope.GetIsolate(),"update",v8::String::kNormalString)));
+
+    controlTemplate->SetInternalFieldCount(1);
+    controlTemplate->SetAccessor(v8::String::NewFromUtf8(handle_scope.GetIsolate(),"green",v8::String::kNormalString), Controller::getGreenLight, Controller::switchGreenLight);
+    controlTemplate->SetAccessor(v8::String::NewFromUtf8(handle_scope.GetIsolate(),"yellow",v8::String::kNormalString), Controller::getYellowLight, Controller::switchYellowLight);
+    controlTemplate->SetAccessor(v8::String::NewFromUtf8(handle_scope.GetIsolate(),"red",v8::String::kNormalString), Controller::getRedLight, Controller::switchRedLight);
+
+#else
     initFunction = v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::New("init")));
     updateFunction = v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::New("update")));
 
@@ -49,6 +65,7 @@ bool Controller::initScript(const std::string &scriptName)
     controlTemplate->SetAccessor(v8::String::New("green"), Controller::getGreenLight, Controller::switchGreenLight);
     controlTemplate->SetAccessor(v8::String::New("yellow"), Controller::getYellowLight, Controller::switchYellowLight);
     controlTemplate->SetAccessor(v8::String::New("red"), Controller::getRedLight, Controller::switchRedLight);
+#endif
 
     scriptInitialized = true;
 
@@ -63,7 +80,11 @@ void Controller::addTrigger(RoadSensor *sensor, const std::string &functionName)
 {
 #ifdef HAVE_V8
     std::cout << "Adding Trigger function " << functionName << " to sensor " << sensor->getId() << " at s=" << sensor->getS() << std::endl;
+#ifdef V8_MAJOR_VERSION
+    sensor->setTriggerAction(new ControllerRoadSensorTriggerAction(v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::NewFromUtf8(handle_scope.GetIsolate(),functionName.c_str(),v8::String::kNormalString)))));
+#else
     sensor->setTriggerAction(new ControllerRoadSensorTriggerAction(v8::Local<v8::Function>::Cast(context->Global()->Get(v8::String::New(functionName.c_str())))));
+#endif
 #endif
 }
 
@@ -73,10 +94,18 @@ void Controller::addControl(Control *control)
     controlVector.push_back(control);
 
     v8::Local<v8::Object> controlObject = controlTemplate->NewInstance();
+#ifdef V8_MAJOR_VERSION
+    controlObject->SetInternalField(0, v8::External::New(handle_scope.GetIsolate(),control));
+#else
     controlObject->SetInternalField(0, v8::External::New(control));
+#endif
 
     std::string controlName = std::string("signal_") + control->getSignal()->getId();
+#ifdef V8_MAJOR_VERSION
+    context->Global()->Set(v8::String::NewFromUtf8(handle_scope.GetIsolate(),controlName.c_str()),v8::String::kNormalString, controlObject);
+#else
     context->Global()->Set(v8::String::New(controlName.c_str()), controlObject);
+#endif
 
     std::cout << "addControl: added control id=" << controlName << std::endl;
 #endif
@@ -108,7 +137,11 @@ Control *Controller::getControl(unsigned int i)
 void Controller::init()
 {
 #ifdef HAVE_V8
+#ifdef V8_MAJOR_VERSION
+    v8::Handle<v8::Value> args[] = { v8::Integer::New(handle_scope.GetIsolate(),0) };
+#else
     v8::Handle<v8::Value> args[] = { v8::Integer::New(0) };
+#endif
     initFunction->Call(initFunction, 0, args);
 #endif
 }
@@ -131,7 +164,11 @@ void Controller::update(const double &dt)
         }
 
         int time = (int)timer;
+#ifdef V8_MAJOR_VERSION
+        v8::Handle<v8::Value> args[] = { v8::Integer::New(handle_scope.GetIsolate(),time) };
+#else
         v8::Handle<v8::Value> args[] = { v8::Integer::New(time) };
+#endif
         updateFunction->Call(updateFunction, 1, args);
     }
 #endif
@@ -156,7 +193,11 @@ v8::Handle<v8::String> Controller::readScriptFile(const std::string &name)
         i += read;
     }
     fclose(file);
+#ifdef V8_MAJOR_VERSION
+    v8::Handle<v8::String> result = v8::String::NewFromUtf8(handle_scope.GetIsolate(),chars,v8::String::kNormalString, size);
+#else
     v8::Handle<v8::String> result = v8::String::New(chars, size);
+#endif
     delete[] chars;
     return result;
 }
@@ -166,7 +207,11 @@ v8::Handle<v8::Value> Controller::getGreenLight(v8::Local<v8::String> property, 
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     int value = (int)(static_cast<Control *>(wrap->Value())->getGreenLight());
+#ifdef V8_MAJOR_VERSION
+    return v8::Integer::New(self->GetIsolate(),value);
+#else
     return v8::Integer::New(value);
+#endif
 }
 void Controller::switchGreenLight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info)
 {
@@ -181,7 +226,11 @@ v8::Handle<v8::Value> Controller::getYellowLight(v8::Local<v8::String> property,
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     int value = (int)(static_cast<Control *>(wrap->Value())->getYellowLight());
+#ifdef V8_MAJOR_VERSION
+    return v8::Integer::New(self->GetIsolate(),value);
+#else
     return v8::Integer::New(value);
+#endif
 }
 void Controller::switchYellowLight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info)
 {
@@ -196,7 +245,11 @@ v8::Handle<v8::Value> Controller::getRedLight(v8::Local<v8::String> property, co
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     int value = (int)(static_cast<Control *>(wrap->Value())->getRedLight());
+#ifdef V8_MAJOR_VERSION
+    return v8::Integer::New(self->GetIsolate(),value);
+#else
     return v8::Integer::New(value);
+#endif
 }
 void Controller::switchRedLight(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo &info)
 {

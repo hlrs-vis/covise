@@ -11,11 +11,7 @@
 #include <iostream>
 #include <util/coExport.h>
 
-#ifdef MERCURY
 #include <alchemy/task.h>
-#else
-#include <native/task.h>
-#endif
 
 namespace vehicleUtil
 {

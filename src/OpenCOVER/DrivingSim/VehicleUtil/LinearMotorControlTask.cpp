@@ -7,11 +7,7 @@
 
 #include "LinearMotorControlTask.h"
 
-#ifdef MERCURY
 #include <alchemy/timer.h>
-#else
-#include <native/timer.h>
-#endif
 
 #include <cmath>
 #include <cstdlib>

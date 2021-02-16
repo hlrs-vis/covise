@@ -5,11 +5,7 @@
 using namespace vehicleUtil;
 
 RoadPointFinder::RoadPointFinder()
-#ifdef MERCURY
     : XenomaiTask::XenomaiTask("RoadPointFinderTask", 0, 99, 0)
-#else
-    : XenomaiTask::XenomaiTask("RoadPointFinderTask", 0, 99, T_FPU | T_CPU(5))
-#endif
 	, roadMutex("rpf_road_mutex")
 	, positionMutex("rpf_position_mutex")
 	, longPosMutex("rpf_longpos_mutex")
@@ -50,11 +46,7 @@ RoadPointFinder::~RoadPointFinder()
     RT_TASK_INFO info;
     inquire(info);
 
-#ifdef MERCURY
     if (info.stat.status & __THREAD_S_STARTED)
-#else
-    if (info.status & T_STARTED)
-#endif
 
     {
         runTask = false;

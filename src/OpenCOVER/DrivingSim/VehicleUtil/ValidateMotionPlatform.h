@@ -153,11 +153,7 @@ public:
     const double h = 1e-3;
 
 protected:
-#ifdef MERCURY
     ValidateMotionPlatform(const std::string & = "can0", int = 0, int = 99, int = 0, const can_id_t & = 0x0,
-#else
-    ValidateMotionPlatform(const std::string & = "rtcan0", int = 0, int = 99, int = T_FPU | T_CPU(4), const can_id_t & = 0x0,
-#endif
                            const can_id_t & = 0x11, const can_id_t & = 0x181, const can_id_t & = 0x19,
                            const can_id_t & = 0x12, const can_id_t & = 0x281, const can_id_t & = 0x1a,
                            const can_id_t & = 0x13, const can_id_t & = 0x381, const can_id_t & = 0x1b,

@@ -527,7 +527,10 @@ struct UnaryExpression<M, OP, true>
     template <uint8_t EB, class T>
     double element(const T &vars) const
     {
-        return mve_.element<EB>(vars);
+        fprintf(stderr,"Oops, we actually need this code, go on and fix it in GeometricAlgebra.h\n");
+        exit(-1);
+        return 0.0;
+        //return this->mve_.element<EB>(vars);
     }
 
     ///Evaluate arguments

@@ -33,11 +33,7 @@
 #include "HMIDeviceIface.h"
 
 
-#ifdef MERCURY
 #include <alchemy/timer.h>
-#else
-#include <native/timer.h>
-#endif
 
 #include <deque>
 #include <cstdlib>

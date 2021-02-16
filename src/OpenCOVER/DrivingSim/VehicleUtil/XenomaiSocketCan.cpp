@@ -10,7 +10,6 @@
 #include <cstring>
 #include <sstream>
 
-#ifdef MERCURY
 #include <alchemy/task.h>
 #include <linux/can/error.h>
 #include <linux/can/raw.h>
@@ -21,19 +20,13 @@
 #include <fcntl.h>
 #include <linux/socket.h>
 #include <linux/can.h>
-#else
-#include <native/task.h>
-#endif
 
 
-#ifdef MERCURY
 #define rt_dev_socket socket
 #define rt_dev_bind bind
 #define rt_dev_ioctl ioctl
 #define rt_dev_setsockopt setsockopt
 #define rt_dev_close close
-#else
-#endif
 using namespace vehicleUtil;
 
 void XenomaiSocketCan::printFrame(const char *text, const can_frame &frame)
@@ -123,9 +116,7 @@ XenomaiSocketCan::XenomaiSocketCan(const std::string &setDevice)
     , device(setDevice)
 {
     Socket = rt_dev_socket(PF_CAN, SOCK_RAW, CAN_RAW);
-#ifdef MERCURY
     // should be blocking with receive timeout fcntl(Socket, F_SETFL , O_NONBLOCK);
-#endif
     
     if (Socket < 0)
     {
@@ -195,7 +186,6 @@ int XenomaiSocketCan::applyRecvFilters()
     return ret_filter;
 }
 
-#ifdef MERCURY
 int XenomaiSocketCan::setRecvTimeout(int timeout)
 {
 	timeval tv;
@@ -225,29 +215,6 @@ int XenomaiSocketCan::setSendTimeout(int timeout)
     }
     return ret_timeout;
 }
-#else
-int XenomaiSocketCan::setRecvTimeout(nanosecs_rel_t timeout)
-{
-    int ret_timeout = rt_dev_ioctl(Socket, RTCAN_RTIOC_RCV_TIMEOUT, &timeout);
-    if (ret_timeout)
-    {
-        std::cerr << "XenomaiSocketCan::setRecvTimeout(): rt_dev_ioctl: RCV_TIMEOUT: " << strerror(-ret_timeout) << std::endl;
-    }
-
-    return ret_timeout;
-}
-
-int XenomaiSocketCan::setSendTimeout(nanosecs_rel_t timeout)
-{
-    int ret_timeout = rt_dev_ioctl(Socket, RTCAN_RTIOC_SND_TIMEOUT, &timeout);
-    if (ret_timeout)
-    {
-        std::cerr << "XenomaiSocketCan::setSendTimeout(): rt_dev_ioctl: RCV_TIMEOUT: " << strerror(-ret_timeout) << std::endl;
-    }
-
-    return ret_timeout;
-}
-#endif
 
 void XenomaiSocketCan::printFrame(const can_frame &frame)
 {

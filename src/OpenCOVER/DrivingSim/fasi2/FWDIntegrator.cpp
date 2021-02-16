@@ -3,6 +3,7 @@
 #include "FWDCarState.h"
 
 #include <iostream>
+#include <math.h>
 
 FWDIntegrator::FWDIntegrator()
 {
