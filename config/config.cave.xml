@@ -228,9 +228,10 @@
     <Vrml97 value="on">
 
      <Lights value="ON" />
-     <Audio value="AServer" >
+     <!--Audio value="AServer" >
       <Host value="192.168.0.88" />
-     </Audio>
+     </Audioi-->
+
 
     <ViewpointType value = "free"/>
 
