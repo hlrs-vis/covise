@@ -30,6 +30,7 @@
 #include <pcl/common/io.h>
 
 #include <pcl/PCLPointCloud2.h>
+#include <pcl/pcl_base.h>
 
 namespace osgpcl
 {
