@@ -57,8 +57,15 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
         std::cerr << "setSyncToVBlank: did not find Display for application" << std::endl;
         return;
     }
-
-    if (!glXSwapIntervalEXT)
+    
+     const char *s = glXQueryExtensionsString(dpy, wid);
+     if(s==nullptr)
+     {
+         std::cerr << "no extensions, probably running MESA" << std::endl;
+         return;
+     }
+   
+     if (!glXSwapIntervalEXT)
     {
         std::cerr << "setSyncToVBlank: no glXSwapIntervalEXT" << std::endl;
         return;
