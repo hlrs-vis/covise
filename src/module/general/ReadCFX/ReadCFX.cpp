@@ -167,6 +167,15 @@ CFX::CFX(int argc, char **argv)
     p_scalarDelta = addFloatParam("scalar_delta", "value to add to change scalar variable level (3D and boundary)");
     p_scalarDelta->setValue(0.0f);
 
+    p_hydrostaticPressure = addBooleanParam("hydrostatic_pressure", "correct the hydrostatic pressure (gravity)?");
+    p_hydrostaticPressure->setValue(false);;
+   
+    p_hydrostaticPressure_zero = addFloatParam("hydrostatic_pressure_zero", "zero level of hydrostatic pressure (axis is hardcoded until now)");
+    p_hydrostaticPressure_zero->setValue(0.0f);
+
+    p_hydrostaticGravity_direction = addFloatVectorParam("hydrostatic_gravity_direction", "direction of gravity vector - use unit vector (will be normalized)");
+    p_hydrostaticGravity_direction->setValue(0,0,-1);
+
     p_boundScalar = addChoiceParam("boundary_scalar_data", "Boundary Scalar data");
     p_boundScalar->setValue(1, initScalar, 0);
 
@@ -198,15 +207,17 @@ CFX::CFX(int argc, char **argv)
     p_firststep->setValue(0);
 
     p_readGridForAllTimeSteps = addBooleanParam("grid_is_time_dependent", "use this if you have a time-dependent grid");
-    p_timeDependentZone = addInt32Param("zone_with_time_dependent_grid", "zone in which we need to read all timesteps. Zone (0..[n-1]) is used for rotation as well, -1 reads all timesteps in all zones");
+    p_timeDependentZone = addInt32Param("zone_with_time_dependent_grid", "zone in which we need to read all timesteps. Zone (1..[n]) is used for rotation as well");
     /*   p_initialRotation = addFloatParam("initial_rotation","workaround for time dependent grids. Give angle of first timestep to read relative to timestep 0");
       p_initialRotation->setValue(0.);*/
     p_rotAxis = addFloatVectorParam("rotAxis", "rotation axis for grid rotation");
     p_rotAxis->setValue(0.0, 0.0, 1.0);
     p_rotVertex = addFloatVectorParam("point_on_rotAxis", "one point on the rotation axis");
     p_rotVertex->setValue(0.0, 0.0, 0.0);
-    p_rotAngle = addFloatParam("rot_Angle_per_timestep", "rotation angle between read timesteps");
+    p_rotAngle = addFloatParam("rot_Angle_per_timestep", "rotation angle between read timesteps (with sign!)");
     p_rotAngle->setValue(12.);
+    p_deltaAngle = addFloatParam("delta_Angle_for_rotation", "offset angle for first timestep");
+    p_deltaAngle->setValue(0.);
 
     p_relabs = addBooleanParam("transform_velocity", "transform velocity (relative->absolute or reverse)");
     p_relabsDirection = addChoiceParam("transform_direction", "Rel2Abs or Abs2Rel");
@@ -430,6 +441,16 @@ int CFX::compute(const char *)
 
     scalarFactor = p_scalarFactor->getValue();
     scalarDelta = p_scalarDelta->getValue();
+    hydrostatic = p_hydrostaticPressure->getValue();
+    hydrostatic_zero = p_hydrostaticPressure_zero->getValue();
+    hydrostatic_gravity_dir[0] = p_hydrostaticGravity_direction->getValue(0);
+    hydrostatic_gravity_dir[1] = p_hydrostaticGravity_direction->getValue(1);
+    hydrostatic_gravity_dir[2] = p_hydrostaticGravity_direction->getValue(2);
+    // normalize
+    float len_hydrostaticGravity_direction = 1.0f / sqrt ( hydrostatic_gravity_dir[0]*hydrostatic_gravity_dir[0] + hydrostatic_gravity_dir[1]*hydrostatic_gravity_dir[1] + hydrostatic_gravity_dir[2]*hydrostatic_gravity_dir[2] );
+    hydrostatic_gravity_dir[0] *= len_hydrostaticGravity_direction;
+    hydrostatic_gravity_dir[1] *= len_hydrostaticGravity_direction;
+    hydrostatic_gravity_dir[2] *= len_hydrostaticGravity_direction;
 
     if (nzones == 0)
     {
@@ -661,7 +682,7 @@ int CFX::compute(const char *)
 
         float stepduration = 0.;
 
-        if (((fabs(omega[i - startzone + 1])) > 0.) && (nt > 1) && ((p_timesteps->getValue()) > 1) && ((p_firststep->getValue()) < nt) && ((p_timeDependentZone->getValue() == (i - startzone + 1)) || (p_timeDependentZone->getValue() == -1)))
+        if (((fabs(omega[i - startzone + 1])) > 0.) && (nt > 1) && ((p_timesteps->getValue()) > 1) && ((p_firststep->getValue()) < nt) && (p_timeDependentZone->getValue() == (i - startzone + 1)))
         {
             int t1 = cfxExportTimestepNumGet(2);
             int t0 = cfxExportTimestepNumGet(1);
@@ -1105,7 +1126,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
         timegrd = new coDistributedObject *[timesteps + 1];
 
         // rotating grid! -> read all timesteps
-        if ((p_readGridForAllTimeSteps->getValue()) && ((p_timeDependentZone->getValue() == (zone)) || (p_timeDependentZone->getValue() == -1)))
+        if ((p_readGridForAllTimeSteps->getValue()) && (p_timeDependentZone->getValue() == (zone)))
         {
             for (i = 0; i < timesteps; i++)
             {
@@ -1418,7 +1439,8 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
                                          p_boundVector->getValue(),
                                          &bound_gridObj,
                                          &bound_scalarObj,
-                                         &bound_vectorObj) == STOP_PIPELINE)
+                                         &bound_vectorObj,
+					 i) == STOP_PIPELINE)
                             return STOP_PIPELINE;
 
                         boundset[numread] = bound_gridObj;
@@ -1616,15 +1638,31 @@ int CFX::readTimeStep(char *Name, char *Name2, char *Name3, int timestep, int va
     return STOP_PIPELINE;
 }
 
-int CFX::readGrid(const char *gridName, int nelems, int nconn, int nnodes, int tstep, int /* zone */, float omega, float stepduration, coDoUnstructuredGrid **gridObj)
+int CFX::readGrid(const char *gridName, int nelems, int nconn, int nnodes, int tstep, int zone, float omega, float stepduration, coDoUnstructuredGrid **gridObj)
 {
+
     float *x_coord, *y_coord, *z_coord; // coordinate lists
     int *el, *cl, *tl;
     int i;
     cfxElement *elems;
     //bool rotate=false;
-    //Matrix *rotMatrix = new Matrix();
-    //float angleDEG = 0.0f;
+    Matrix *rotMatrix = new Matrix();
+    float angleDEG = 0.0f;
+
+    if ((p_readGridForAllTimeSteps->getValue()) && (p_timeDependentZone->getValue() == (zone)))
+    {
+	float axis[3];
+	float pos[3];
+	axis[0] = p_rotAxis->getValue(0);
+	axis[1] = p_rotAxis->getValue(1);
+	axis[2] = p_rotAxis->getValue(2);
+        pos[0] = p_rotVertex->getValue(0);
+	pos[1] = p_rotVertex->getValue(1);
+	pos[2] = p_rotVertex->getValue(2);
+
+	angleDEG = (p_deltaAngle->getValue() + (tstep - 1) * p_rotAngle->getValue());
+	rotMatrix->RotateMatrix(angleDEG, pos, axis);
+    }
 
     int iteration = cfxExportTimestepNumGet(tstep);
 
@@ -1675,14 +1713,14 @@ int CFX::readGrid(const char *gridName, int nelems, int nconn, int nnodes, int t
 
             //float time = cfxExportTimestepTimeGet(tstep);
             //cerr << "time=" << time << endl;
-            /*
-                  if ( (rotate) && (fabs(angleDEG)>0.0001) )
-                  {
-                     //rotate!
-                  cerr << "rotating grid with angle (deg) " << angleDEG << endl;
-                     rotMatrix->transformCoordinates(nnodes,x_coord,y_coord,z_coord);
-                }
-         */
+
+	    if ( fabs(angleDEG)>0.0001f )
+            {
+		//rotate!
+		cerr << "rotating grid with angle (deg) " << angleDEG << endl;
+		rotMatrix->transformCoordinates(nnodes,x_coord,y_coord,z_coord);
+	    }
+
             //cerr<<"line 337"<<endl;
             cfxExportNodeFree(); // @@@
             //cerr<<"line 339"<<endl;
@@ -1753,6 +1791,7 @@ int CFX::readGrid(const char *gridName, int nelems, int nconn, int nnodes, int t
     return CONTINUE_PIPELINE;
 }
 
+
 int CFX::readScalar(const char *scalarName, int n_values, int scal, coDoFloat **scalarObj)
 {
     float *sdata;
@@ -1770,7 +1809,20 @@ int CFX::readScalar(const char *scalarName, int n_values, int scal, coDoFloat **
                     (*scalarObj)->getAddress(&sdata);
                     for (int i = 0; i < n_values; i++)
                     {
-                        sdata[i] = var[i] * scalarFactor + scalarDelta;
+                        sdata[i] = (var[i]-100000.0)*scalarFactor+100000.0 + scalarDelta;
+		        if (hydrostatic)
+		        {
+			    //sdata[i] += 997.0f*9.806f*(hydrostatic_zero-xcoords[currenttimestep][i]);  // x-axis
+			    //sdata[i] += 997.0f*9.806f*(hydrostatic_zero-ycoords[currenttimestep][i]);  // y-axis
+			    //sdata[i] += 997.0f*9.806f*(hydrostatic_zero-zcoords[currenttimestep][i]);  // z-axis
+			    //sdata[i] += 997.0f*9.806f*(hydrostatic_zero+xcoords[currenttimestep][i]);  // neg. x-axis
+			    //sdata[i] = xcoords[currenttimestep][i];
+
+			    // head above tailwater
+
+			    float dh = hydrostatic_gravity_dir[0] * xcoords[currenttimestep][i] + hydrostatic_gravity_dir[1] * ycoords[currenttimestep][i] + hydrostatic_gravity_dir[2] * zcoords[currenttimestep][i] + hydrostatic_zero;
+			    sdata[i] += 999.7f*9.806f*dh;
+		        }
                         //if (i==0) fprintf(stderr, "********* var[i] = %f, sdata[i] = %f, scalarDelta = %f\n", var[i], sdata[i], scalarDelta);
                     }
                 }
@@ -1827,12 +1879,13 @@ int CFX::readVector(const char *vectorName, int n_values, int vect, int zone, fl
 
                 // rotating velocity vectors according to timestep and angle / timestep
                 float alpha = ((t - 1) * p_rotAngle->getValue() * M_PI / 180.);
-                float ca = cos(alpha);
-                float sa = sin(alpha);
+		float deltaAngle = p_deltaAngle->getValue();
+                float ca = cos(deltaAngle + alpha);
+                float sa = sin(deltaAngle + alpha);
                 float x, y, z;
                 if ((p_rotVectors->getValue()) && (zone == p_relabs_zone->getValue()))
                 {
-                    fprintf(stderr, "\trotating velocity vectors with alpha = %7.3lf\n", (t - 1) * p_rotAngle->getValue());
+                    fprintf(stderr, "\trotating velocity vectors with alpha = %7.3lf\n", (t - 1) * (deltaAngle + p_rotAngle->getValue()));
                     if (p_relabsAxis->getValue() == 0) // x-axis
                     {
                         for (int i = 0; i < n_values; i++)
@@ -2061,7 +2114,7 @@ int CFX::readRegion(const char *gridName, const char *scalarName, const char *, 
     return CONTINUE_PIPELINE;
 }
 
-int CFX::readBoundary(const char *gridName, const char *scalarName, const char *vectorName, int boundnr, int zone, int scal, int vect, coDoPolygons **gridObj, coDoFloat **scalarObj, coDoVec3 **vectorObj)
+int CFX::readBoundary(const char *gridName, const char *scalarName, const char *vectorName, int boundnr, int zone, int scal, int vect, coDoPolygons **gridObj, coDoFloat **scalarObj, coDoVec3 **vectorObj, int tstep)
 {
 
     float *sdata;
@@ -2069,6 +2122,25 @@ int CFX::readBoundary(const char *gridName, const char *scalarName, const char *
     int i, id;
     int nelems = 0, nconn = 0, nnodes = 0;
     int nodelist[4], psize;
+
+    Matrix *rotMatrix = new Matrix();
+    float angleDEG = 0.0f;
+
+    if ((p_readGridForAllTimeSteps->getValue()) && (p_timeDependentZone->getValue() == (zone)))
+    {
+	float axis[3];
+	float pos[3];
+	axis[0] = p_rotAxis->getValue(0);
+	axis[1] = p_rotAxis->getValue(1);
+	axis[2] = p_rotAxis->getValue(2);
+        pos[0] = p_rotVertex->getValue(0);
+	pos[1] = p_rotVertex->getValue(1);
+	pos[2] = p_rotVertex->getValue(2);
+
+	angleDEG = (p_deltaAngle->getValue() + (tstep - 1) * p_rotAngle->getValue());
+	rotMatrix->RotateMatrix(angleDEG, pos, axis);
+    }
+
 
     cfxExportZoneSet(zone, NULL);
 
@@ -2159,7 +2231,20 @@ int CFX::readBoundary(const char *gridName, const char *scalarName, const char *
                             z_coord.push_back(zf);
                             if (readScal)
                             {
-                                scalars.push_back(svar[nodelist[j] - 1] * scalarFactor + scalarDelta);
+				float scalVal = (svar[nodelist[j]-1]-100000.0)*scalarFactor+100000.0 + scalarDelta;
+				if (hydrostatic)
+				{
+					//scalVal += 997.0f*9.806f*(hydrostatic_zero-xf);  // x-axis
+					//scalVal += 997.0f*9.806f*(hydrostatic_zero-yf);  // y-axis
+					//scalVal += 997.0f*9.806f*(hydrostatic_zero-zf);  // z-axis
+					//scalVal += 997.0f*9.806f*(hydrostatic_zero+xf);  // neg. x-axis
+					//scalVal = xf;
+
+					// head above tailwater
+					float dh = hydrostatic_gravity_dir[0] * xf + hydrostatic_gravity_dir[1] * yf + hydrostatic_gravity_dir[2] * zf + hydrostatic_zero;
+					scalVal += 999.7f*9.806f*dh;
+				}
+		                scalars.push_back( scalVal );
                             }
                             if (readVect)
                             {
@@ -2201,6 +2286,13 @@ int CFX::readBoundary(const char *gridName, const char *scalarName, const char *
                 }
             }
             delete[] foundnode;
+
+	    // time dependent boundary grid: rotate!
+	    if ( fabs(angleDEG)>0.0001f )
+            {
+		cerr << "\trotating boundary grid with angle (deg) " << angleDEG << endl;
+		rotMatrix->transformCoordinates(x_coord.size(),&x_coord[0],&y_coord[0],&z_coord[0]);
+	    }
 
             *gridObj = new coDoPolygons(gridName, nl_index, &x_coord[0], &y_coord[0], &z_coord[0], nconn, &cl[0], nelems, &pl[0]);
 

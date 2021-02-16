@@ -41,6 +41,12 @@ using namespace covise;
 #define SYMMETRY 5
 #define OPENING 6
 
+// hack for VS2010 & CFX-17: __report_rangecheckfailure is only available with VS2012 and later ...
+//__declspec(noreturn) void __cdecl __report_rangecheckfailure(void)
+//{
+//    ::ExitProcess(1);
+//}
+
 class CFX : public coSimpleModule
 {
     COMODULE
@@ -74,6 +80,9 @@ private:
 
     coFloatParam *p_scalarFactor;
     coFloatParam *p_scalarDelta;
+    coBooleanParam *p_hydrostaticPressure;
+    coFloatParam *p_hydrostaticPressure_zero;
+    coFloatVectorParam *p_hydrostaticGravity_direction;
 
     coChoiceParam *p_boundScalar;
     coChoiceParam *p_boundVector;
@@ -105,6 +114,7 @@ private:
     coBooleanParam *p_relabs;
     coIntScalarParam *p_relabs_zone;
     coFloatParam *p_rotAngle;
+    coFloatParam *p_deltaAngle;
     coFloatParam *p_rotSpeed;
 
     coBooleanParam *p_rotVectors;
@@ -127,6 +137,8 @@ private:
     int counts[cfxCNT_SIZE];
     int currenttimestep;
 
+    float hydrostatic_gravity_dir[3];
+
     void setParticleVarChoice(int type);
 
     int readTimeStep(char *Name, char *Name2, char *Name3, int timestep, int var, int zone, float *omega, float stepduration, coDistributedObject **timeStepToRead, coDistributedObject **timeStepScalToRead);
@@ -136,7 +148,7 @@ private:
     int readScalar(const char *scalarName, int n_values, int scal, coDoFloat **scalarObj);
     int readVector(const char *vectorName, int n_values, int vect, int zone, float *omega, coDoVec3 **vectorObj);
     int readRegion(const char *reg_gridName, const char *reg_vectorName, const char *reg_scalarName, int regnum, int scal, coDoPolygons **gridObj, coDoFloat **scalarObj);
-    int readBoundary(const char *bound_gridName, const char *bound_scalarName, const char *bound_vectorName, int boundnrglob, int zone, int scal, int vect, coDoPolygons **gridObj, coDoFloat **scalObj, coDoVec3 **vectObj);
+    int readBoundary(const char *bound_gridName, const char *bound_scalarName, const char *bound_vectorName, int boundnrglob, int zone, int scal, int vect, coDoPolygons **gridObj, coDoFloat **scalObj, coDoVec3 **vectObji, int tstep);
     int readParticles(const char *particle_gridName, const char *particle_scalarName, const char *particle_vectorName, int scal, int vect, coDoPoints **gridObj, coDoFloat **scalObj, coDoVec3 **vectObj);
 
     void get_choice_fields(int zone);
@@ -176,6 +188,9 @@ private:
 
     float scalarDelta;
     float scalarFactor;
+    bool hydrostatic;
+    float hydrostatic_zero;
+
 
 public:
     CFX(int argc, char **argv);

@@ -13,6 +13,7 @@ INCLUDE_DIRECTORIES(${CFX_INCLUDE_DIRS})
 
 SET(SOURCES
   ReadCFX.cpp
+  ../Transform/Matrix.cpp
 )
 
 SET(HEADERS
