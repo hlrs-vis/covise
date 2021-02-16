@@ -429,7 +429,7 @@ void Move::selectLevel()
 
 bool Move::selectionChanged()
 {
-
+    std::cout <<"selection changed"<<std::endl;
     //coVRMSController::instance()->syncInt(3000);
     std::list<osg::ref_ptr<osg::Node> > selectedNodeList = coVRSelectionManager::instance()->getSelectionList();
     std::list<osg::ref_ptr<osg::Group> > selectedParentList = coVRSelectionManager::instance()->getSelectedParentList();
@@ -515,7 +515,8 @@ void Move::preFrame()
     }
     else if (_gizmo->wasStopped()) 
     {
-        addUndo(moveDCS->getMatrix(),moveDCS.get());
+        osg::Matrix stopMatrix = moveDCS->getMatrix();
+        addUndo(stopMatrix,moveDCS.get());
     }
     else if(_gizmo->getState() == coInteraction::Active) // do the movement
         doMove();
