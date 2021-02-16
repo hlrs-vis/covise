@@ -1,4 +1,5 @@
 using(HDF5:hl)
+using(MPI)
 
 set(HEADERS
    ReadPandora.h
