@@ -180,8 +180,6 @@ public:
         return _hitPos;
     }
 
-    osg::Node* getHitNode() { return NULL; };
-
     // called in preframe, does the interaction
     virtual void preFrame();
 
