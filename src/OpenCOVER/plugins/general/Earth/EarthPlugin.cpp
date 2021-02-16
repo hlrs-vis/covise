@@ -41,7 +41,7 @@ using namespace osgEarth;
 #include <osgDB/ReadFile>
 #include <osgEarthDrivers/kml/KML>
 #include <osgEarthDrivers/kml/KMLOptions>
-#include <osgEarthDrivers/viewpoints/ViewpointsExtension>
+//viewpoints are in a plugin now have to access theem through the plugin interface #include <osgEarthDrivers/viewpoints/ViewpointsExtension>
 #include <osgEarth/GLUtils>
 
 EarthPlugin *EarthPlugin::plugin = NULL;
@@ -306,13 +306,13 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
         for (const auto& extension : extensions)
         {
             Extension* e = extension;
-            osgEarth::Viewpoints::ViewpointsExtension* ve = dynamic_cast<osgEarth::Viewpoints::ViewpointsExtension*>(e);
+          /*  osgEarth::Viewpoints::ViewpointsExtension* ve = dynamic_cast<osgEarth::Viewpoints::ViewpointsExtension*>(e);
             const ConfigSet children = ve->getConfig().children("viewpoint");
             if (children.size() > 0)
             {
                 for (ConfigSet::const_iterator i = children.begin(); i != children.end(); ++i)
                     viewpointManager->addViewpoint(new Viewpoint(*i));
-            }
+            }*/
         }
         mapNode->open(); // necessary to resolve the SRS on the next line
         std::string ext = mapNode->getMapSRS()->isGeographic() ? "sky_simple" : "sky_gl";
