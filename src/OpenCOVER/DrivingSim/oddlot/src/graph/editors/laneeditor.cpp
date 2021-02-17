@@ -119,6 +119,12 @@ LaneEditor::init()
 void
 LaneEditor::kill()
 {
+	if (tool_)
+	{
+		reset();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 }
@@ -154,6 +160,13 @@ void
 LaneEditor::toolAction(ToolAction *toolAction)
 {
 	lastTool_ = getCurrentTool();
+
+	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
 
     // Parent //
     //
@@ -193,6 +206,7 @@ LaneEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ELN);
 				ODD::mainWindow()->showParameterDialog(true, "Insert new Lane", "Specify lane id and width, select a lane and press APPLY");
+				activateToolParameterUI(laneParam);
 
 				applyCount_ = 1;
 			}
@@ -255,6 +269,7 @@ LaneEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(widthParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(laneParam);
 				}
 			}
 		}
@@ -517,7 +532,10 @@ LaneEditor::reject()
 {
 	ProjectEditor::reject();
 
-	clearToolObjectSelection();
-	deleteToolParameterSettings();
-	ODD::mainWindow()->showParameterDialog(false);
+	if (tool_)
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
 }

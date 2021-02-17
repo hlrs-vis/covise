@@ -483,6 +483,7 @@ ShapeEditor::init()
 void
 ShapeEditor::kill()
 {
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 

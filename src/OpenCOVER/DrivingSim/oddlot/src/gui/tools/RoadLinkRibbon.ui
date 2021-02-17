@@ -95,6 +95,9 @@
         <property name="text">
          <string>Unlink Roads</string>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>

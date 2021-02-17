@@ -64,7 +64,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSizePolicy>
-#include <QScrollArea>
 #include <QGridLayout> 
 #include <QMessageBox>
 #include <QDateTimeEdit>

@@ -285,6 +285,7 @@ OpenScenarioEditor::init()
 void
 OpenScenarioEditor::kill()
 {
+
 	catalogTree_ = NULL;
 
 	if (oscRoadSystemItem_)

@@ -26,7 +26,7 @@
 //
 #include "src/gui/tools/toolmanager.hpp"
 #include "src/gui/osmimport.hpp"
-#include "src/gui/parameters/toolparametersettings.hpp"
+#include "src/gui/parameters/parameterdockwidget.hpp"
 
 // Graph //
 //
@@ -45,13 +45,10 @@
 #include <QToolBox>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QGroupBox>
-#include <QVBoxLayout>
 
 // Utils //
 //
 #include "src/util/odd.hpp"
-#include "src/util/popupdialog.hpp"
 
 // tree //
 //
@@ -93,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     createMdiArea();
     createTree();
     createSettings();
+    createParameterSettings();
 
     //createFileSettings();
 
@@ -103,7 +101,6 @@ MainWindow::MainWindow(QWidget *parent)
     createTools();
 	createSignals();
     createWizards();
-	createParameterSettings();
 
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
@@ -614,76 +611,7 @@ MainWindow::createTools()
 
 }
 
-void
-MainWindow::createParameterSettings()
-{
 
-	parameterDialog_ = new PopUpDialog(this);
-	parameterDialog_->setWindowTitle("ParameterSettings");
-	parameterDialog_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	QVBoxLayout *layout = new QVBoxLayout();
-
-	paramBox_ = new QFrame();
-	dialogBox_ = new QFrame();
-
-	QGroupBox *groupBox = new QGroupBox(parameterDialog_);
-	QVBoxLayout *paramLayout = new QVBoxLayout();
-//	paramLayout->setContentsMargins(0.0, 0.0, 0.0, 0.0);
-	paramLayout->addWidget(paramBox_);
-	paramLayout->addWidget(dialogBox_);
-	paramLayout->setSizeConstraint(QLayout::SetFixedSize);
-	
-	groupBox->setLayout(paramLayout);
-	layout->addWidget(groupBox);
-	layout->setSizeConstraint(QLayout::SetFixedSize);
-	layout->addStrut(300);
-	parameterDialog_->setLayout(layout);
-
-	connect(parameterDialog_, SIGNAL(rejected()), this, SLOT(reject()));
-}
-
-
-void
-MainWindow::showParameterDialog(bool show, const QString &windowTitle, const QString &helpText)
-{
-	if (show)
-	{
-		parameterDialog_->setWindowTitle(windowTitle);
-		parameterDialog_->setWhatsThis(helpText);
-
-		ribbonToolDock_->setDisabled(true);
-		fileMenu_->setDisabled(true);
-		fileToolBar_->setDisabled(true);
-		QMdiSubWindow *activeProjectWindow = mdiArea_->activeSubWindow();
-		QList<QMdiSubWindow *>windowList = mdiArea_->subWindowList();
-		for (int i = 0; i < windowList.size(); i++)
-		{
-			if (windowList.at(i) != activeProjectWindow)
-			{
-				windowList.at(i)->setDisabled(true);
-			}
-		}
-
-		parameterDialog_->show();
-	}
-	else
-	{
-		parameterDialog_->hide();
-
-		ribbonToolDock_->setEnabled(true);
-		fileMenu_->setEnabled(true);
-		fileToolBar_->setEnabled(true);
-		QMdiSubWindow *activeProjectWindow = mdiArea_->activeSubWindow();
-		QList<QMdiSubWindow *>windowList = mdiArea_->subWindowList();
-		for (int i = 0; i < windowList.size(); i++)
-		{
-			if (!windowList.at(i)->isEnabled())
-			{
-				windowList.at(i)->setEnabled(true);
-			}
-		}
-	}
-}
 
 /*! \brief Creates the WizardManager.
 *
@@ -749,6 +677,38 @@ MainWindow::createSettings()
 
 	connect(settingsDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
  
+}
+
+void
+MainWindow::createParameterSettings()
+{
+
+    parameterDialog_ = new ParameterDockWidget(tr("ParameterSettings"), this);
+    parameterDialog_->setMinimumWidth(200);
+    parameterDialog_->setMinimumHeight(152);
+
+    addDockWidget(Qt::RightDockWidgetArea, parameterDialog_);
+
+    // Show/Hide Action //
+    //
+    QAction* parameterDialogToggleAction = parameterDialog_->toggleViewAction();
+    parameterDialogToggleAction->setStatusTip(tr("Show/hide the parameter view."));
+    viewMenu_->addAction(parameterDialogToggleAction);
+
+}
+
+
+void
+MainWindow::showParameterDialog(bool show, const QString& windowTitle, const QString& helpText)
+{
+    if (show)
+    {
+        parameterDialog_->setVisibility(true, helpText, windowTitle);
+    }
+    else
+    {
+        parameterDialog_->setVisibility(false, "", "");
+    }
 }
 
 /*! \brief Creates the undo group and view.
@@ -1391,19 +1351,6 @@ MainWindow::openRecentFile()
 }
 
 
-void
-MainWindow::reject()
-{
-	ProjectWidget *project = getActiveProject();
-	if (project)
-	{
-		ProjectEditor *editor = project->getProjectEditor();
-		editor->reject();
-		toolManager_->resendStandardTool(project);
-	}
-
-}
-
 /*! \brief Routes a ToolAction to the active project.
 *
 */
@@ -1740,4 +1687,5 @@ MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
     }
 }
+
 

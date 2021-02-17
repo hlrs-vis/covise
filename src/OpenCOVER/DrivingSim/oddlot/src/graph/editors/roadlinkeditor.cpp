@@ -107,6 +107,12 @@ RoadLinkEditor::init()
 void
 RoadLinkEditor::kill()
 {
+	if (tool_)
+	{
+		reset();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 }
@@ -121,6 +127,13 @@ RoadLinkEditor::kill()
 void
 RoadLinkEditor::toolAction(ToolAction *toolAction)
 {
+	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
@@ -146,6 +159,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ERL);
 				ODD::mainWindow()->showParameterDialog(true, "Link Handle and Sink", "SELECT arrow handle and circular sink and press APPLY");
+				activateToolParameterUI(param);
 
 				applyCount_ = 2;
 			}
@@ -167,6 +181,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ERL);
 				ODD::mainWindow()->showParameterDialog(true, "Link roads", "Specify threshold, SELECT/DESELECT roads and press APPLY");
+				activateToolParameterUI(roadParam);
 
 				applyCount_ = 2;
 			}
@@ -210,6 +225,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ERL);
 				ODD::mainWindow()->showParameterDialog(true, "Unlink roads", "SELECT/DESELECT roads and press APPLY");
+				activateToolParameterUI(param);
 
 				applyCount_ = 2;
 			}
@@ -265,6 +281,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(param);
 				}
 			}
 			else if (action->getToolId() == ODD::TRL_ROADLINK)
@@ -279,6 +296,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(roadParam);
 				}
 			}
 			else if (action->getToolId() == ODD::TRL_UNLINK)
@@ -289,6 +307,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 					tool_ = new Tool(ODD::TRL_UNLINK, 4);
 					tool_->readParams(param);
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(param);
 				}
 			}
 		}
@@ -539,9 +558,12 @@ void RoadLinkEditor::reject()
 {
 	ProjectEditor::reject();
 
-	clearToolObjectSelection();
-	deleteToolParameterSettings();
-	ODD::mainWindow()->showParameterDialog(false);
+	if (tool_)
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
 }
 
 // ################//

@@ -183,6 +183,13 @@ TrackEditor::toolAction(ToolAction *toolAction)
     // Parent //
     //
     ODD::ToolId lastTool = getCurrentTool();
+
+	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
     ProjectEditor::toolAction(toolAction);
 
 	TrackEditorToolAction *trackEditorToolAction = dynamic_cast<TrackEditorToolAction *>(toolAction);
@@ -266,7 +273,8 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(trackEditorToolAction->getToolId(), ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Fetch Prototypes from Road");
 				tool_->readParams(roadParam);
 
-				createToolParameterSettings(tool_, ODD::ETE);
+				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
+	//			createToolParameterSettings(tool_, ODD::ETE);
 
 				if (isCurrentTool(ODD::TTE_ROAD_NEW))
 				{
@@ -316,8 +324,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
 				ODD::mainWindow()->showParameterDialog(true, "Append Second Road at End of First", "SELECT the two roads and press APPLY");
-
-				applyCount_ = 2;
+				activateToolParameterUI(param);
 			}
 		}
 		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_SNAP)
@@ -336,8 +343,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
 				ODD::mainWindow()->showParameterDialog(true, "Extend one road to fill the gap between two roads", "SELECT the two roads and press APPLY");
-
-				applyCount_ = 2;
+				activateToolParameterUI(param);
 			}
 		}
 	}
@@ -441,6 +447,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(param);
 				}
 			}
 			else if (action->getToolId() == ODD::TTE_ROAD_SNAP)
@@ -454,6 +461,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(param);
 				}
 			}
 		}
@@ -1968,6 +1976,12 @@ TrackEditor::kill()
     //	getTopviewGraph()->getScene()->removeItem(trackRoadSystemItem_);
     //	topviewGraph_->graphScene()->removeItem(trackRoadSystemItem_);
 
+	if (tool_)
+	{
+		reset();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     delete trackRoadSystemItem_;
     trackRoadSystemItem_ = NULL;
 
@@ -2200,7 +2214,11 @@ TrackEditor::reject()
 {
 	ProjectEditor::reject();
 
-	clearToolObjectSelection();
-	deleteToolParameterSettings();
-	ODD::mainWindow()->showParameterDialog(false);
+	if (tool_)
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+
+		ODD::mainWindow()->showParameterDialog(false);
+	}
 }

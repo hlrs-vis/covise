@@ -141,6 +141,17 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 	// Parent //
 	//
 	ODD::ToolId lastTool = getCurrentTool();
+    if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+    {
+        clearToolObjectSelection();
+        delToolParameters();
+        ODD::mainWindow()->showParameterDialog(false);
+
+        if (lastTool == ODD::TJE_CIRCLE)
+        {
+            getTopviewGraph()->getView()->deleteCircle();
+        }
+    }
 	ProjectEditor::toolAction(toolAction);
 
 	JunctionEditorToolAction *junctionEditorToolAction = dynamic_cast<JunctionEditorToolAction *>(toolAction);
@@ -181,6 +192,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Add roads to junction", "SELECT a junction, SELECT/DESELECT roads and press APPLY");
+                activateToolParameterUI(param);
 
 				applyCount_ = 1;
 
@@ -208,6 +220,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Link roads", "SELECT/DESELECT roads and press APPLY");
+                activateToolParameterUI(param);
 
 				applyCount_ = 2;
 
@@ -229,6 +242,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Unlink roads", "SELECT/DESELECT roads and press APPLY");
+                activateToolParameterUI(param);
 
 				applyCount_ = 2;
 			}
@@ -251,6 +265,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Create junction around roads", "SELECT/DESELECT roads and press APPLY to create Junction around them");
+                activateToolParameterUI(param);
 
 				applyCount_ = 1;
 
@@ -273,6 +288,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Remove roads to junction", "SELECT a junction, SELECT/DESELECT roads and press APPLY");
+                activateToolParameterUI(param);
 
 				applyCount_ = 1;
 
@@ -291,11 +307,12 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
 				tool_ = new Tool(ODD::TJE_CREATE_ROAD, 3);
 				tool_->readParams(param);
-				param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
-				tool_->readParams(param);
+                ToolValue<RSystemElementRoad>* roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
+				tool_->readParams(roadParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Connect 2 roads with a new road", "SELECT/DESELECT roads and press APPLY");
+                activateToolParameterUI(param);
 
 				applyCount_ = 2;
 
@@ -314,11 +331,12 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 				ToolValue<Lane> *param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
 				tool_ = new Tool(ODD::TJE_CREATE_LANE, 3);
 				tool_->readParams(param);
-				param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
-				tool_->readParams(param);
+                ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
+				tool_->readParams(laneParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
 				ODD::mainWindow()->showParameterDialog(true, "Connect 2 lanes with a new lane", "SELECT/DESELECT lanes and press APPLY");
+                activateToolParameterUI(param);
 
 				applyCount_ = 2;
 
@@ -390,6 +408,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(param);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 
@@ -424,6 +443,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(param);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 
@@ -459,6 +479,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(param);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 
@@ -478,6 +499,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 
@@ -515,6 +537,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 			// Create Road //
@@ -530,10 +553,11 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select road");
 					tool_ = new Tool(ODD::TJE_CREATE_ROAD, 3);
 					tool_->readParams(param);
-					param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
-					tool_->readParams(param);
+                    ToolValue<RSystemElementRoad>* roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
+					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 			// Create Lane //
@@ -551,10 +575,11 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					ToolValue<Lane> *param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
 					tool_ = new Tool(ODD::TJE_CREATE_LANE, 3);
 					tool_->readParams(param);
-					param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
-					tool_->readParams(param);
+                    ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
+					tool_->readParams(laneParam);
 
 					generateToolParameterUI(tool_);
+                    activateToolParameterUI(param);
 				}
 			}
 		}
@@ -856,13 +881,16 @@ void JunctionEditor::reject()
 {
 	ProjectEditor::reject();
 
-	clearToolObjectSelection();
-	deleteToolParameterSettings();
-	ODD::mainWindow()->showParameterDialog(false);
-	if (getCurrentTool() == ODD::TJE_CIRCLE)
-	{
-		getTopviewGraph()->getView()->deleteCircle();
-	}
+    if (tool_)
+    {
+        clearToolObjectSelection();
+        delToolParameters();
+        ODD::mainWindow()->showParameterDialog(false);
+        if (getCurrentTool() == ODD::TJE_CIRCLE)
+        {
+            getTopviewGraph()->getView()->deleteCircle();
+        }
+    }
 }
 
 
@@ -3072,6 +3100,16 @@ JunctionEditor::kill()
 	// RoadSystemItem //
 	//
 	//topviewGraph_->graphScene()->removeItem(junctionRoadSystemItem_);
+    if (tool_)
+    {
+        reset();
+        ODD::mainWindow()->showParameterDialog(false);
+        if (getCurrentTool() == ODD::TJE_CIRCLE)
+        {
+            getTopviewGraph()->getView()->deleteCircle();
+        }
+    }
+
 	delete junctionRoadSystemItem_;
 	junctionRoadSystemItem_ = NULL;
 

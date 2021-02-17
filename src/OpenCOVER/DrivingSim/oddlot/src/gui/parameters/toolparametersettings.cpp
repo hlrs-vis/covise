@@ -49,12 +49,12 @@
 #include <QComboBox>
 
 
-//################//
-// CONSTRUCTOR    //
-//################//
+//#######################//
+// ToolParameterSettings //
+//#######################//
 
 ToolParameterSettings::ToolParameterSettings(ToolManager *toolmanager, const ODD::EditorId &editorID)
-	: tool_(NULL)
+	:tool_(NULL)
 	, editorID_(editorID)
 	, paramList_(NULL)
 	, buttonGroup_(NULL)
@@ -179,6 +179,7 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p, boo
 		memberWidgets_.insert(name, spinBox);
 		memberWidgets_.insertMulti(name, label);
 
+		spinBox->installEventFilter(this);
 		layout_->addWidget(spinBox);
 		currentParamId_ = paramIndex;
 	}
@@ -463,7 +464,6 @@ void
 ToolParameterSettings::generateUI(QFrame *box)
 {
 	layout_ = new QGridLayout;
-//	layout_->setContentsMargins(0.0, 0.0, 0.0, 0.0);
 	layout_->setColumnStretch(1, 10);
 
 	buttonGroup_ = new QButtonGroup();
@@ -496,6 +496,15 @@ ToolParameterSettings::updateUI(ToolParameter *param)
 	if ((param->getType() == ToolParameter::DOUBLE) || (param->getType() == ToolParameter::INT))
 	{
 		updateSpinBoxAndLabels(param);
+	}
+}
+
+void
+ToolParameterSettings::activateUI(ToolParameter* param)
+{
+	if ((param->getType() == ToolParameter::OBJECT) || (param->getType() == ToolParameter::OBJECT_LIST))
+	{
+		buttonGroup_->button(params_->key(param))->click();
 	}
 }
 
@@ -542,6 +551,35 @@ ToolParameterSettings::deleteUI()
 		delete layout_;
 	}
 
+}
+
+bool 
+ToolParameterSettings::eventFilter(QObject* object, QEvent* event)
+{
+	for (int i = 0; i < memberWidgets_.values().size();)
+	{
+		QWidget* widget = memberWidgets_.values().takeAt(i);
+		if (object == widget) {
+			if (event->type() == QEvent::FocusIn) {
+				QAbstractButton *checkedButton = buttonGroup_->checkedButton();
+				if (checkedButton)
+				{
+					checkedButton->setChecked(false);
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else
+		{
+			i++;
+		}
+	}
+
+	// pass the event on to the parent class
+	return QObject::eventFilter(object, event);
 }
 
 void
@@ -698,6 +736,7 @@ ToolParameterSettings::hide()
 }
 
 
+
 //####################################//
 // ToolParameterSettingsDialogBox    //
 //##################################//
@@ -721,17 +760,18 @@ QDialogButtonBox *
 ToolParameterSettingsApplyBox::createDialogBox(QFrame *dBox)
 {
 	dialogLayout_ = new QGridLayout;
-	//	dialogLayout_->setContentsMargins(0.0, 0.0, 0.0, 0.0);
-	dialogBox_ = new QDialogButtonBox(QDialogButtonBox::Apply| QDialogButtonBox::Reset);
-	dialogBox_->button(dialogBox_->Reset)->setAutoDefault(false);
+	dialogBox_ = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Apply| QDialogButtonBox::Cancel);
 	setApplyButtonVisible(false);
-
+	ok_ = dialogBox_->button(dialogBox_->Ok);
+	ok_->setObjectName("okButton");
+	ok_->setDefault(true);
 	dialogLayout_->addWidget(dialogBox_, 0, 0, Qt::AlignBottom);
 	dBox->setLayout(dialogLayout_);
 	dBox->show();
 
-	connect(dialogBox_->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
-	connect(dialogBox_->button(QDialogButtonBox::Reset), SIGNAL(clicked()), this, SLOT(reset()));
+	connect(dialogBox_->button(dialogBox_->Apply), SIGNAL(pressed()), this, SLOT(apply()));
+	connect(dialogBox_, SIGNAL(accepted()), this, SLOT(ok()));
+	connect(dialogBox_, SIGNAL(rejected()), this, SLOT(cancel()));
 
 	return dialogBox_;
 }
@@ -749,6 +789,7 @@ ToolParameterSettingsApplyBox::generateUI(QFrame *box)
 {
 	ToolParameterSettings::generateUI(box);
 	dialogBox_->button(dialogBox_->Apply)->setVisible(tool_->verify());
+	dialogBox_->button(dialogBox_->Ok)->setVisible(tool_->verify());
 }
 
 void
@@ -762,13 +803,14 @@ void
 ToolParameterSettingsApplyBox::setApplyButtonVisible(bool visible)
 {
 	dialogBox_->button(dialogBox_->Apply)->setVisible(visible);
+	dialogBox_->button(dialogBox_->Ok)->setVisible(visible);
 	if (visible)
 	{
-		dialogBox_->button(dialogBox_->Apply)->setDefault(true);
+		dialogBox_->button(dialogBox_->Ok)->setDefault(true);
 	}
 	else
 	{
-		dialogBox_->button(dialogBox_->Reset)->setDefault(true);
+		dialogBox_->button(dialogBox_->Cancel)->setDefault(true);
 	}
 }
 
@@ -786,23 +828,52 @@ void ToolParameterSettingsApplyBox::onEditingFinished(const QString &objectName)
 }
 
 void
-ToolParameterSettingsApplyBox::apply()
+ToolParameterSettingsApplyBox::cancel()
 {
-	editor_->apply();
-
-	reset();
+	editor_->reject();
 }
 
 void
-ToolParameterSettingsApplyBox::reset()
+ToolParameterSettingsApplyBox::apply()
 {
+
+	editor_->apply();
+
 	ODD::ToolId toolId = tool_->getToolId();
 	editor_->reset();
 
-	ParameterToolAction *action = new ParameterToolAction(editorID_, toolId, ODD::TNO_TOOL);
+	ParameterToolAction* action = new ParameterToolAction(editorID_, toolId, ODD::TNO_TOOL);
 	emit toolAction(action);
 	delete action;
 }
+
+void
+ToolParameterSettingsApplyBox::ok()
+{
+	editor_->apply();
+	cancel();
+}
+
+void 
+ToolParameterSettingsApplyBox::enterEvent(QEvent* event)
+{
+	ok_->setFocus(Qt::TabFocusReason);
+}
+
+void 
+ToolParameterSettingsApplyBox::focus(short state)
+{
+	if (state)
+	{
+		ok_->setFocus();
+	}
+	else
+	{
+		ok_->clearFocus();
+	}
+}
+
+
 
 
 //######################//

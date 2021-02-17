@@ -27,9 +27,11 @@ class QFrame;
 class QButtonGroup;
 class QGridLayout;
 class QAbstractButton;
+class QPushButton;
 class QAbstractSpinBox;
 class QDialogButtonBox;
 class QHideEvent;
+
 
 class ToolParameterSettings : public QObject
 {
@@ -43,6 +45,7 @@ public:
 	void setTool(Tool *tool);
 	virtual void generateUI(QFrame *box);
 	virtual void updateUI(ToolParameter *param);
+	void activateUI(ToolParameter* param);
 	void addMultiSelectUI(unsigned int paramIndex, const QString &text, int count);
 	void addUI(unsigned int paramIndex, ToolParameter *p, bool active = false);
 	void addParamUI(unsigned int paramIndex, ToolParameter *p, bool active = false);
@@ -71,6 +74,9 @@ public:
 	void setLabels(int id, const QString &objectName, const QString &buttonText);
 	void setObjectSelected(int id, const QString &objectName, const QString &buttonText);
 
+protected:
+	bool eventFilter(QObject* object, QEvent* event) override;
+
 	//################//
 	// SIGNALS        //
 	//################//
@@ -95,7 +101,6 @@ protected:
 	ODD::EditorId editorID_;
 
 private:
-
 	QMap<unsigned int, QList<ToolParameter *>> *paramList_;
 	QMap<unsigned int, ToolParameter *> *params_;
 	QMap<QString, QWidget *> memberWidgets_;
@@ -121,14 +126,23 @@ public:
 	QDialogButtonBox *createDialogBox(QFrame *box);
 	void deleteDialogBox();
 	void setApplyButtonVisible(bool);
+	void focus(short state);
+
+//################//
+// EVENTS         //
+//################//
+
+protected:
+	virtual void enterEvent(QEvent* event);
 
 //################//
 // SIGNALS        //
 //################//
 private slots:
 	void onEditingFinished(const QString &objectName);
+	void cancel();
 	void apply();
-	void reset();
+	void ok();
 
 private:
 	ToolParameterSettingsApplyBox(); /* not allowed */
@@ -140,7 +154,7 @@ private:
 
 	QDialogButtonBox *dialogBox_;
 	QGridLayout *dialogLayout_;
-
+	QPushButton* ok_;
 };
 
 

@@ -62,6 +62,7 @@ public:
 	{
 		return currentParameterTool_;
 	}
+    void focusParameterDialog(bool state);
     bool isCurrentTool(ODD::ToolId toolId)
     {
         if (toolId == currentTool_)
@@ -103,9 +104,9 @@ protected:
 	//
 	void createToolParameterSettingsApplyBox(Tool *tool, const ODD::EditorId &editorID);
 	void createToolParameterSettings(Tool *tool, const ODD::EditorId &editorID);
-	void deleteToolParameterSettings();
 	void generateToolParameterUI(Tool *tool);
 	void updateToolParameterUI(ToolParameter *param);
+    void activateToolParameterUI(ToolParameter* param);
 	void delToolParameters();
 	template<class T>
 	void setToolValue(T *object, const QString &valueDisplayed);

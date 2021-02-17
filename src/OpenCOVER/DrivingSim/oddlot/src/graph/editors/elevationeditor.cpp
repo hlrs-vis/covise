@@ -257,6 +257,13 @@ ElevationEditor::delSelectedRoads()
 void
 ElevationEditor::toolAction(ToolAction *toolAction)
 {
+	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
@@ -404,6 +411,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EEL);
 				ODD::mainWindow()->showParameterDialog(true, "Smooth Heights across Roads", "Specify smoothing radius, select adjacent elevation sections on two roads and press APPLY");
+				activateToolParameterUI(elevationSectionParam);
 			}
 		}
 		else if (elevationEditorToolAction->getToolId() == ODD::TEL_SLOPE)
@@ -423,6 +431,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EEL);
 				ODD::mainWindow()->showParameterDialog(true, "Change Slope of Elevation Section", "Specify slope percentage, select elevation section and press APPLY");
+				activateToolParameterUI(elevationSectionParam);
 			}
 		} 
 	}
@@ -442,6 +451,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(adjacentSectionParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(elevationSectionParam);
 				}
 			}
 			else if (action->getToolId() == ODD::TEL_SLOPE)
@@ -456,6 +466,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(elevationSectionParam);
 
 					generateToolParameterUI(tool_);
+					activateToolParameterUI(elevationSectionParam);
 				}
 			}
 			else if (action->getToolId() == ODD::TEL_PERCENTAGE)
@@ -834,6 +845,12 @@ ElevationEditor::init()
 void
 ElevationEditor::kill()
 {
+	if (tool_)
+	{
+		reset();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
 	delSelectedRoads();
 
     delete roadSystemItem_;
@@ -920,7 +937,10 @@ ElevationEditor::reject()
 {
 	ProjectEditor::reject();
 
-	clearToolObjectSelection();
-	deleteToolParameterSettings();
-	ODD::mainWindow()->showParameterDialog(false);
+	if (tool_)
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
 }

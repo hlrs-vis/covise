@@ -220,6 +220,8 @@ public:
 	ToolParameter * getLastParam(unsigned char listId);
 	ToolParameter *getParam(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId);
 
+	bool containsToolId(ODD::ToolId id);
+
 	int getListSize()
 	{
 		return listSize_;
@@ -237,6 +239,7 @@ private:
 
 private:
 	ODD::ToolId id_;
+	QList<ODD::ToolId> toolIds_;
 	int listSize_;
 
 	QMap<unsigned int, QList<ToolParameter *>> paramList_;

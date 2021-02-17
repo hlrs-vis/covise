@@ -101,6 +101,12 @@ RoadTypeEditor::init()
 void
 RoadTypeEditor::kill()
 {
+	if (tool_)
+	{
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 }
@@ -131,6 +137,12 @@ RoadTypeEditor::setCurrentRoadType(TypeSection::RoadType roadType)
 void
 RoadTypeEditor::toolAction(ToolAction *toolAction)
 {
+	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+	{
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
@@ -280,7 +292,7 @@ RoadTypeEditor::reject()
 {
 	ProjectEditor::reject();
 
-	deleteToolParameterSettings();
+	delToolParameters();
 	ODD::mainWindow()->showParameterDialog(false);
 }
 

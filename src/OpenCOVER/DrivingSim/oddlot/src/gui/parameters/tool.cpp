@@ -62,9 +62,14 @@ Tool::readParams(ToolParameter *s)
 {
 	static int lastParamID = -1;
 
+	ODD::ToolId toolId = s->getToolId();
+	if (!toolIds_.contains(toolId))
+	{
+		toolIds_.append(toolId);
+	}
+
 	if (s->getType() == ToolParameter::OBJECT_LIST)
 	{
-		ODD::ToolId toolId = s->getToolId();
 		ODD::ToolId paramToolId = s->getParamToolId();
 		
 		int objectCount = getObjectCount(toolId, paramToolId);
@@ -211,6 +216,10 @@ Tool::verify()
 	return true;
 }
 
+bool Tool::containsToolId(ODD::ToolId id)
+{
+	return toolIds_.contains(id);
+}
 
 QList<ToolParameter *> 
 Tool::getParamList(unsigned char listId)

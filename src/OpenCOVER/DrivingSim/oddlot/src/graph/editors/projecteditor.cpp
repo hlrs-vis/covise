@@ -38,6 +38,8 @@
 #include "src/gui/parameters/tool.hpp"
 #include "src/gui/parameters/toolvalue.hpp"
 #include "src/gui/parameters/toolparametersettings.hpp"
+#include "src/gui/parameters/parameterdockwidget.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 
 // Tools //
 //
@@ -84,6 +86,8 @@ ProjectEditor::ProjectEditor(ProjectWidget *projectWidget, ProjectData *projectD
     , currentTool_(ODD::TNO_TOOL)
 	, currentParameterTool_(ODD::TNO_TOOL)
 	, tool_(NULL)
+	, settings_(NULL)
+	, settingsApplyBox_(NULL)
 {
 	mainWindow_ = ODD::mainWindow();
 }
@@ -148,7 +152,7 @@ ProjectEditor::createToolParameterSettingsApplyBox(Tool *tool, const ODD::Editor
 {
 	ToolManager *toolManager = mainWindow_->getToolManager();
 
-	settingsApplyBox_ = new ToolParameterSettingsApplyBox(this, toolManager, editorID, mainWindow_->getParameterDialogBox());
+	settingsApplyBox_ = new ToolParameterSettingsApplyBox(this, toolManager, editorID, mainWindow_->getParameterDialog()->getParameterDialogBox());
 	settings_ = static_cast<ToolParameterSettings *>(settingsApplyBox_);
 
 	generateToolParameterUI(tool);
@@ -165,18 +169,10 @@ ProjectEditor::createToolParameterSettings(Tool *tool, const ODD::EditorId &edit
 }
 
 void
-ProjectEditor::deleteToolParameterSettings()
-{
-	delete settings_;
-	delete tool_;
-	tool_ = NULL;
-}
-
-void
 ProjectEditor::generateToolParameterUI(Tool *tool)
 {
 	settings_->setTool(tool);
-	settings_->generateUI(mainWindow_->getParameterBox());
+	settings_->generateUI(mainWindow_->getParameterDialog()->getParameterBox());
 }
 
 void
@@ -186,9 +182,23 @@ ProjectEditor::updateToolParameterUI(ToolParameter *param)
 }
 
 void
+ProjectEditor::activateToolParameterUI(ToolParameter* param)
+{
+	settings_->activateUI(param);
+}
+
+void
 ProjectEditor::delToolParameters()
 {
-	settings_->deleteUI();
+	if (!settingsApplyBox_)
+	{
+		delete settings_;
+	}
+	else
+	{
+		delete settingsApplyBox_;
+		settingsApplyBox_ = NULL;
+	}
 	delete tool_;
 	tool_ = NULL;
 }
@@ -243,6 +253,16 @@ ProjectEditor::removeToolParameters(T *object)
 		settings_->removeUI(id);
 	}
 }
+
+void 
+ProjectEditor::focusParameterDialog(bool state)
+{
+	if (settingsApplyBox_)
+	{
+		settingsApplyBox_->focus(state);
+	}
+}
+
 
 //################//
 // MOUSE & KEY    //
@@ -316,5 +336,6 @@ ProjectEditor::hide()
 void
 ProjectEditor::reject()
 {
-	settings_->hide();
+	mainWindow_->getToolManager()->resendStandardTool(projectWidget_);
+//	settings_->hide();
 }

@@ -134,6 +134,12 @@ SignalEditor::init()
 void
 SignalEditor::kill()
 {
+	if (tool_)
+	{
+		reset();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     delete signalRoadSystemItem_;
     signalRoadSystemItem_ = NULL;
 	signalTree_->setSignalEditor(NULL);
@@ -707,6 +713,13 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 void
 SignalEditor::toolAction(ToolAction *toolAction)
 {
+	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
+
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
@@ -732,6 +745,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ESG);
 				ODD::mainWindow()->showParameterDialog(true, "Create controller from signals", "SELECT/DESELECT signals and press APPLY to create Controller");
+				activateToolParameterUI(param);
 
 				applyCount_ = 1;
 
@@ -754,6 +768,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ESG);
 				ODD::mainWindow()->showParameterDialog(true, "Remove signals from controller", "SELECT a controller, SELECT/DESELECT signals and press APPLY");
+				activateToolParameterUI(param);
 
 				applyCount_ = 1;
 
@@ -775,6 +790,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ESG);
 				ODD::mainWindow()->showParameterDialog(true, "Add signals to controller", "SELECT a controller, SELECT/DESELECT signals and press APPLY");
+				activateToolParameterUI(param);
 
 				applyCount_ = 1;
 
@@ -817,6 +833,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 						tool_->readParams(param);
 
 						generateToolParameterUI(tool_);
+						activateToolParameterUI(param);
 					}
 
 					else if (action->getToolId() == ODD::TSG_ADD_CONTROL_ENTRY)
@@ -830,6 +847,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 						tool_->readParams(signalParam);
 
 						generateToolParameterUI(tool_);
+						activateToolParameterUI(param);
 					}
 
 					else if (action->getToolId() == ODD::TSG_REMOVE_CONTROL_ENTRY)
@@ -843,6 +861,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 						tool_->readParams(signalParam);
 
 						generateToolParameterUI(tool_);
+						activateToolParameterUI(param);
 					}
 				}
 			}
@@ -960,7 +979,10 @@ void SignalEditor::reject()
 {
 	ProjectEditor::reject();
 
-	clearToolObjectSelection();
-	deleteToolParameterSettings();
-	ODD::mainWindow()->showParameterDialog(false);
+	if (tool_)
+	{
+		clearToolObjectSelection();
+		delToolParameters();
+		ODD::mainWindow()->showParameterDialog(false);
+	}
 }

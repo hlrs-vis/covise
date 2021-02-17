@@ -188,7 +188,7 @@ SignalEditorTool::activateRibbonEditor()
 		ribbonToolGroup_->button(action->getToolId())->click();
 	} */
 
-	ribbonToolGroup_->button(ODD::TSG_SELECT)->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 
 }
 

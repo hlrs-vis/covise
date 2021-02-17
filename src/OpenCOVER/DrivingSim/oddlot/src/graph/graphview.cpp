@@ -1536,7 +1536,10 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
 	{
 	case Qt::Key_Tab:
 	{
-		QGraphicsView::mousePressEvent(lastMouseEvent_); // pass it again to baseclass
+        if (lastMouseEvent_)
+        {
+            QGraphicsView::mousePressEvent(lastMouseEvent_); // pass it again to baseclass
+        }
 		break;
 	}
 	}

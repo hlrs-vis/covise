@@ -397,6 +397,7 @@ SET(ODDLOT_SOURCES
 	src/gui/parameters/tool.cpp
 	src/gui/parameters/toolparameter.cpp
 	src/gui/parameters/toolparametersettings.cpp
+	src/gui/parameters/parameterdockwidget.cpp
 	src/util/popupdialog.cpp
 )
 SET(ODDLOT_MOC_HEADERS
