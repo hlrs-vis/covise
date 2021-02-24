@@ -15,14 +15,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "toolparameter.hpp"
 
-ToolParameter::ToolParameter(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, const QString &labelText)
+ToolParameter::ToolParameter(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, bool active, const QString &labelText, const QString& valueDisplayed)
 	: toolId_(toolId),
 	paramToolId_(paramToolId),
 	list_(list),
 	valid_(false),
 	type_(type),
 	text_(text),
-	labelText_(labelText)
+	active_(active),
+	labelText_(labelText),
+	valueDisplayed_(valueDisplayed)
 {
 }
 

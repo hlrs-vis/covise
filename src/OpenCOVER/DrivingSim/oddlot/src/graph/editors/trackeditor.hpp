@@ -140,6 +140,10 @@ public:
     void registerTrackAddHandle(TrackAddHandle *handle);
     int unregisterTrackAddHandle(TrackAddHandle *handle);
 
+    // Find selected roads //
+    //
+    QMap<QGraphicsItem*, RSystemElementRoad*> getSelectedRoads(int count);
+
     // Register Roads //
     void registerRoad(RSystemElementRoad *road);
 

@@ -45,10 +45,9 @@ public:
 	void setTool(Tool *tool);
 	virtual void generateUI(QFrame *box);
 	virtual void updateUI(ToolParameter *param);
-	void activateUI(ToolParameter* param);
 	void addMultiSelectUI(unsigned int paramIndex, const QString &text, int count);
-	void addUI(unsigned int paramIndex, ToolParameter *p, bool active = false);
-	void addParamUI(unsigned int paramIndex, ToolParameter *p, bool active = false);
+	void addUI(unsigned int paramIndex, ToolParameter *p);
+	void addParamUI(unsigned int paramIndex, ToolParameter *p);
 	void addComboBoxEntry(ToolParameter *p, int index, const QString &text);
 	void setComboBoxIndex(ToolParameter *p, const QString &text);
 	void updateSpinBoxAndLabels(ToolParameter *p);

@@ -111,7 +111,7 @@ ToolParameterSettings::addMultiSelectUI(unsigned int paramIndex, const QString &
 }
 
 void
-ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p, bool activate)
+ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p)
 {
 	QString name = QString::number(paramIndex);
 
@@ -133,7 +133,7 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p, boo
 
 		memberWidgets_.insert(name, label);
 
-		if (activate)
+		if (p->isActive())
 		{
 			button->setChecked(true);
 			currentParamId_ = paramIndex;
@@ -375,12 +375,11 @@ ToolParameterSettings::removeUI(unsigned int paramIndex)
 			memberWidgets_.clear();
 
 			QMap<unsigned int, ToolParameter *>::const_iterator paramIt = params_->constBegin();
-			while (paramIt != params_->constEnd() - 1)
+			while (paramIt != params_->constEnd())
 			{
-				addParamUI(paramIt.key(), paramIt.value(), false);
+				addParamUI(paramIt.key(), paramIt.value());
 				paramIt++;
 			}
-			addParamUI(paramIt.key(), paramIt.value(), true);
 		}
 		else
 		{
@@ -390,7 +389,7 @@ ToolParameterSettings::removeUI(unsigned int paramIndex)
 }
 
 void
-ToolParameterSettings::addUI(unsigned int paramIndex, ToolParameter *p, bool activate)
+ToolParameterSettings::addUI(unsigned int paramIndex, ToolParameter *p)
 {
 	if (p->getType() == ToolParameter::ParameterTypes::OBJECT_LIST)
 	{
@@ -426,7 +425,7 @@ ToolParameterSettings::addUI(unsigned int paramIndex, ToolParameter *p, bool act
 				paramIt--;
 				if (paramIt.value()->getToolId() == p->getToolId())
 				{
-					addParamUI(paramIndex, p, activate);
+					addParamUI(paramIndex, p);
 					break;
 				}
 			} while (paramIt != params_->constBegin());
@@ -449,12 +448,12 @@ ToolParameterSettings::addUI(unsigned int paramIndex, ToolParameter *p, bool act
 		}
 		else
 		{
-			addParamUI(paramIndex, p, activate);
+			addParamUI(paramIndex, p);
 		}
 	}
 	else
 	{
-		addParamUI(paramIndex, p, activate);
+		addParamUI(paramIndex, p);
 	}
 }
 
@@ -487,6 +486,12 @@ ToolParameterSettings::generateUI(QFrame *box)
 	}
 	connect(buttonGroup_, SIGNAL(buttonPressed(int)), this, SLOT(onButtonPressed(int)));
 
+	int checkedButton = buttonGroup_->checkedId(); // now the checked button can send an action
+	if (checkedButton != -1)
+	{
+		onButtonPressed(checkedButton);
+	}
+
 	box->setLayout(layout_);
 }
 
@@ -496,15 +501,6 @@ ToolParameterSettings::updateUI(ToolParameter *param)
 	if ((param->getType() == ToolParameter::DOUBLE) || (param->getType() == ToolParameter::INT))
 	{
 		updateSpinBoxAndLabels(param);
-	}
-}
-
-void
-ToolParameterSettings::activateUI(ToolParameter* param)
-{
-	if ((param->getType() == ToolParameter::OBJECT) || (param->getType() == ToolParameter::OBJECT_LIST))
-	{
-		buttonGroup_->button(params_->key(param))->click();
 	}
 }
 

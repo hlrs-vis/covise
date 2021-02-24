@@ -34,7 +34,7 @@ public:
 	{
 		return id_;
 	}
-	void readParams(ToolParameter *s);
+	unsigned int readParams(ToolParameter *s);
 
 	template<class...Arg>
 	void readParams(ToolParameter *start, Arg... arg);
@@ -236,6 +236,8 @@ private:
 	Tool(); /* not allowed */
 	Tool(const Tool &); /* not allowed */
 	Tool &operator=(const Tool &); /* not allowed */
+
+	void deactivateParams();
 
 private:
 	ODD::ToolId id_;

@@ -188,17 +188,37 @@ LaneEditor::toolAction(ToolAction *toolAction)
 		{
 			ODD::ToolId paramTool = getCurrentParameterTool();
 
-			getTopviewGraph()->getScene()->deselectAll();
-
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
+				applyCount_ = 1;
+				QMap<QGraphicsItem *, Lane *> lanes = getSelectedLanes(applyCount_);
 
-				ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane");
+				ToolValue<Lane>* laneParam;
+				Lane* lane = NULL;
+				if (!lanes.isEmpty())
+				{
+					lane = lanes.first();
+					QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
+					laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", false, "", textDisplayed, lane);
+					laneItem_ = lanes.firstKey();
+				}
+				else
+				{
+					laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", true);
+				}
 				tool_ = new Tool(ODD::TLE_INSERT, 1);
 				tool_->readParams(laneParam);
-				ToolValue<int> *param = new ToolValue<int>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID, 0, ToolParameter::ParameterTypes::INT, "New Lane ID");
-				param->setValue(0);
+				ToolValue<int>* param;
+				if (lane)
+				{
+					param = new ToolValue<int>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID, 0, ToolParameter::ParameterTypes::INT, "New Lane ID");
+					param->setValue(lane->getId());
+				}
+				else
+				{
+					param = new ToolValue<int>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID, 0, ToolParameter::ParameterTypes::INT, "New Lane ID");
+					param->setValue(0);
+				}
 				tool_->readParams(param);
 				ToolValue<double> *widthParam = new ToolValue<double>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_WIDTH, 0, ToolParameter::ParameterTypes::DOUBLE, "Lane Width");
 				widthParam->setValue(3.0);
@@ -206,9 +226,7 @@ LaneEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ELN);
 				ODD::mainWindow()->showParameterDialog(true, "Insert new Lane", "Specify lane id and width, select a lane and press APPLY");
-				activateToolParameterUI(laneParam);
 
-				applyCount_ = 1;
 			}
 		}
 		else if (selectControls_ && (laneEditorToolAction->getToolId() == ODD::TLE_SELECT_ALL))
@@ -258,7 +276,7 @@ LaneEditor::toolAction(ToolAction *toolAction)
 				}
 				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
 				{
-					ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane");
+					ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", true);
 					tool_ = new Tool(ODD::TLE_INSERT, 1);
 					tool_->readParams(laneParam);
 					ToolValue<int> *param = new ToolValue<int>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID, 0, ToolParameter::ParameterTypes::INT, "New Lane ID");
@@ -269,11 +287,38 @@ LaneEditor::toolAction(ToolAction *toolAction)
 					tool_->readParams(widthParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(laneParam);
 				}
 			}
 		}
 	}
+}
+
+QMap<QGraphicsItem*, Lane*>
+LaneEditor::getSelectedLanes(int count)
+{
+	QMap<QGraphicsItem*, Lane*> selected;
+	QList<QGraphicsItem*> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+	for (int i = 0; i < selectedItems.size(); i++)
+	{
+		QGraphicsItem* item = selectedItems.at(i);
+
+		if (selected.size() < count)
+		{
+			LaneItem* laneItem = dynamic_cast<LaneItem*>(item);
+			if (laneItem)
+			{
+				Lane* lane = laneItem->getLane();
+				if (!selected.key(lane, NULL))
+				{
+					selected.insert(item, lane);
+					continue;
+				}
+			}
+		}
+		item->setSelected(false);
+	}
+
+	return selected;
 }
 
 void

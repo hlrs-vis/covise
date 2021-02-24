@@ -45,6 +45,7 @@ public:
     virtual void toolAction(ToolAction *);
 	virtual void mouseAction(MouseAction *mouseAction);
 
+    void assignParameterSelection(ODD::ToolId id);
 	void clearToolObjectSelection();
 
 protected:

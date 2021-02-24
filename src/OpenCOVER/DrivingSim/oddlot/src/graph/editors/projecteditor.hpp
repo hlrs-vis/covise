@@ -52,6 +52,7 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *toolAction);
+
     void setTool(ODD::ToolId id);
     ODD::ToolId getCurrentTool()
     {
@@ -70,6 +71,7 @@ public:
         else
             return false;
     }
+
 
     // Mouse & Key //
     //
@@ -106,12 +108,11 @@ protected:
 	void createToolParameterSettings(Tool *tool, const ODD::EditorId &editorID);
 	void generateToolParameterUI(Tool *tool);
 	void updateToolParameterUI(ToolParameter *param);
-    void activateToolParameterUI(ToolParameter* param);
 	void delToolParameters();
 	template<class T>
 	void setToolValue(T *object, const QString &valueDisplayed);
 	template<class T>
-	void createToolParameters(T *object);
+	void createToolParameters(T *object, int currentParameterID = -1);
 	template<class T>
 	void removeToolParameters(T *object);
 

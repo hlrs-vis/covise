@@ -21,11 +21,14 @@ template<class T>
 class ToolValue : public ToolParameter
 {
 public:
-	explicit ToolValue<T>(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, const QString &labelText = "", T* value = NULL) :
-		ToolParameter(toolId, paramToolId, list, type, text, labelText)
+	explicit ToolValue<T>(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, bool active = false, const QString &labelText = "", const QString& valueDisplayed = "", T* value = NULL) :
+		ToolParameter(toolId, paramToolId, list, type, text, active, labelText, valueDisplayed)
 		, value_(value)
 	{
-
+		if (value)
+		{
+			setValid(true);
+		}
 	}
 
 	virtual ~ToolValue()
@@ -41,14 +44,14 @@ public:
 
 	ToolValue<T> *clone()
 	{
-		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), value_);
+		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), isActive(), getLabelText(), getValueDisplayed(), value_);
 
 		return value;
 	}
 
 	ToolValue<T> *parameterClone()
 	{
-		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText());
+		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), isActive(), getLabelText());
 
 		return value;
 	}

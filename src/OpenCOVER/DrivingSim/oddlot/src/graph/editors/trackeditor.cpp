@@ -138,7 +138,7 @@ TrackEditor::addToolParameter(const PrototypeManager::PrototypeType &type, const
 		text.append(prototypes.at(i)->getPrototypeName());
 	}
 
-	ToolValue<int> *param = new ToolValue<int>(getCurrentTool(), toolId, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), labelText);
+	ToolValue<int> *param = new ToolValue<int>(getCurrentTool(), toolId, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), false, labelText);
 	if (!currentPrototypes_.value(type))
 	{
 		currentPrototypes_.insert(type, prototypeManager_->getRoadPrototypes(type).at(0));
@@ -208,7 +208,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 				tool_ = new Tool(getCurrentTool(), 1);
 				if ((trackEditorToolAction->getToolId() == ODD::TTE_ROAD_NEW) || (trackEditorToolAction->getToolId() == ODD::TTE_ADD))
 				{
-					ToolValue<int> *paramValue = new ToolValue<int>(getCurrentTool(), getCurrentTool(), 0, ToolParameter::ParameterTypes::ENUM, "LINE, ARC/SPIRAL CURVE, POLYNOMIAL", "Geometry Primitive Type");
+					ToolValue<int> *paramValue = new ToolValue<int>(getCurrentTool(), getCurrentTool(), 0, ToolParameter::ParameterTypes::ENUM, "LINE, ARC/SPIRAL CURVE, POLYNOMIAL", false, "Geometry Primitive Type");
 					switch (geometryPrimitiveType_)
 					{
 					case GeometryPrimitive::LINE:
@@ -234,7 +234,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 						text.append(roadSystemContainer.at(i)->getPrototypeName());
 					}
 
-					ToolValue<int> *paramValue = new ToolValue<int>(ODD::TTE_ROADSYSTEM_ADD, ODD::TTE_PROTO_ROADSYSTEM, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), "RoadSystem Prototype");
+					ToolValue<int> *paramValue = new ToolValue<int>(ODD::TTE_ROADSYSTEM_ADD, ODD::TTE_PROTO_ROADSYSTEM, 0, ToolParameter::ParameterTypes::ENUM, text.join(","), false, "RoadSystem Prototype");
 					if (!currentRoadSystemPrototype_)
 					{
 						currentRoadSystemPrototype_ = prototypeManager_->getRoadSystemPrototypes().at(0);
@@ -314,17 +314,41 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
-
-				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road");
+				QMap<QGraphicsItem*, RSystemElementRoad*> selected = getSelectedRoads(2);
+				ToolValue<RSystemElementRoad>* param;
+				if (!selected.isEmpty())
+				{
+					mergeItem_ = selected.firstKey();
+					RSystemElementRoad* road = selected.take(mergeItem_);
+					param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road", false, "", road->getIdName(), road);
+				}
+				else
+				{
+					param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road", true);
+				}
 				tool_ = new Tool(ODD::TTE_ROAD_MERGE, 4);
 				tool_->readParams(param);
-				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append");
+
+				ToolValue<RSystemElementRoad>* roadParam;
+				if (!selected.isEmpty())
+				{
+					appendItem_ = selected.firstKey();
+					RSystemElementRoad* road = selected.take(appendItem_);
+					roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append", false, "", road->getIdName(), road);
+				}
+				else
+				{
+					roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append");
+				}
 				tool_->readParams(roadParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
 				ODD::mainWindow()->showParameterDialog(true, "Append Second Road at End of First", "SELECT the two roads and press APPLY");
-				activateToolParameterUI(param);
+
+				if (tool_->verify())
+				{
+					settingsApplyBox_->setApplyButtonVisible(true);
+				}
 			}
 		}
 		else if (trackEditorToolAction->getToolId() == ODD::TTE_ROAD_SNAP)
@@ -333,17 +357,36 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
-
-				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road");
+				QMap<QGraphicsItem*, RSystemElementRoad*> selected = getSelectedRoads(2);
+				ToolValue<RSystemElementRoad>* param;
+				if (!selected.isEmpty())
+				{
+					mergeItem_ = selected.firstKey();
+					RSystemElementRoad* road = selected.take(mergeItem_);
+					param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road", false, "", road->getIdName(), road);
+				}
+				else
+				{
+					param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road", true);
+				}
 				tool_ = new Tool(ODD::TTE_ROAD_SNAP, 4);
 				tool_->readParams(param);
-				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road");
+
+				ToolValue<RSystemElementRoad>* roadParam;
+				if (!selected.isEmpty())
+				{
+					appendItem_ = selected.firstKey();
+					RSystemElementRoad* road = selected.take(appendItem_);
+					roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road", false, "", road->getIdName(), road);
+				}
+				else
+				{
+					roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road");
+				}
 				tool_->readParams(roadParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ETE);
 				ODD::mainWindow()->showParameterDialog(true, "Extend one road to fill the gap between two roads", "SELECT the two roads and press APPLY");
-				activateToolParameterUI(param);
 			}
 		}
 	}
@@ -440,28 +483,26 @@ TrackEditor::toolAction(ToolAction *toolAction)
 			{
 				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
 				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road");
+					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road", true);
 					tool_ = new Tool(ODD::TTE_ROAD_MERGE, 4);
 					tool_->readParams(param);
 					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append");
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(param);
 				}
 			}
 			else if (action->getToolId() == ODD::TTE_ROAD_SNAP)
 			{
 				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
 				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road");
+					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road", true);
 					tool_ = new Tool(ODD::TTE_ROAD_SNAP, 4);
 					tool_->readParams(param);
 					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road");
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(param);
 				}
 			}
 		}
@@ -548,6 +589,35 @@ TrackEditor::toolAction(ToolAction *toolAction)
 		}
 	}
 
+}
+
+QMap<QGraphicsItem *, RSystemElementRoad *> 
+TrackEditor::getSelectedRoads(int count)
+{
+	QMap<QGraphicsItem*, RSystemElementRoad*> selected;
+	QList<QGraphicsItem*> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+	for (int i = 0; i < selectedItems.size(); i++)
+	{
+		QGraphicsItem* item = selectedItems.at(i);
+
+		if (selected.size() < count)
+		{
+			TrackElementItem* trackItem = dynamic_cast<TrackElementItem*>(item);
+			if (trackItem)
+			{
+				RSystemElementRoad* road = trackItem->getParentTrackRoadItem()->getRoad();
+				if (!selected.key(road, NULL))
+				{
+					selected.insert(item, road);
+					continue;
+				}
+			}
+		}
+
+		item->setSelected(false);
+	}
+
+	return selected;
 }
 
 //################//

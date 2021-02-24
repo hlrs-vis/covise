@@ -151,7 +151,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 			{
 				getTopviewGraph()->getScene()->deselectAll();
 
-				ToolValue<RoadLinkHandle> *param = new ToolValue<RoadLinkHandle>(ODD::TRL_LINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Arrow Handle");
+				ToolValue<RoadLinkHandle> *param = new ToolValue<RoadLinkHandle>(ODD::TRL_LINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Arrow Handle", true);
 				tool_ = new Tool(ODD::TRL_LINK, 4);
 				tool_->readParams(param);
 				ToolValue<RoadLinkSinkItem> *roadParam = new ToolValue<RoadLinkSinkItem>(ODD::TRL_SINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Circular Sink");
@@ -159,7 +159,6 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ERL);
 				ODD::mainWindow()->showParameterDialog(true, "Link Handle and Sink", "SELECT arrow handle and circular sink and press APPLY");
-				activateToolParameterUI(param);
 
 				applyCount_ = 2;
 			}
@@ -170,46 +169,22 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
 
 				ToolValue<double> *param = new ToolValue<double>(ODD::TRL_THRESHOLD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Threshold");
 				param->setValue(threshold_);
 				tool_ = new Tool(ODD::TRL_ROADLINK, 4);
 				tool_->readParams(param);
-				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TRL_ROADLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
+				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TRL_ROADLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
 				tool_->readParams(roadParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ERL);
 				ODD::mainWindow()->showParameterDialog(true, "Link roads", "Specify threshold, SELECT/DESELECT roads and press APPLY");
-				activateToolParameterUI(roadParam);
 
 				applyCount_ = 2;
-			}
-			else if (paramTool == ODD::TPARAM_SELECT)
-			{
-				ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
-				if (action)
-				{
-					currentParamId_ = action->getParamId();
-					if (!action->getState())
-					{
 
-						QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-						foreach(RSystemElementRoad *road, roads)
-						{
-							DeselectDataElementCommand *command = new DeselectDataElementCommand(road, NULL);
-							getProjectGraph()->executeCommand(command);
-							selectedRoads_.removeOne(road);
-						}
-
-						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
-						{
-							settingsApplyBox_->setApplyButtonVisible(false);
-						}
-					}
-				}
+				assignParameterSelection(ODD::TRL_ROADLINK);
 			}
+
 		}
 		else if (action->getToolId() == ODD::TRL_UNLINK)
 		{
@@ -217,42 +192,16 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				getTopviewGraph()->getScene()->deselectAll();
 
-				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TRL_UNLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
+				ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TRL_UNLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
 				tool_ = new Tool(ODD::TRL_UNLINK, 4);
 				tool_->readParams(param);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::ERL);
 				ODD::mainWindow()->showParameterDialog(true, "Unlink roads", "SELECT/DESELECT roads and press APPLY");
-				activateToolParameterUI(param);
 
 				applyCount_ = 2;
-			}
-			else if (paramTool == ODD::TPARAM_SELECT)
-			{
-				ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
-				if (action)
-				{
-					currentParamId_ = action->getParamId();
-					if (!action->getState())
-					{
-
-						QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-						foreach(RSystemElementRoad *road, roads)
-						{
-							DeselectDataElementCommand *command = new DeselectDataElementCommand(road, NULL);
-							getProjectGraph()->executeCommand(command);
-							selectedRoads_.removeOne(road);
-						}
-
-						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
-						{
-							settingsApplyBox_->setApplyButtonVisible(false);
-						}
-					}
-				}
+				assignParameterSelection(ODD::TRL_UNLINK);
 			}
 		}
 
@@ -274,42 +223,126 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 			{
 				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
 				{
-					ToolValue<RoadLinkHandle> *param = new ToolValue<RoadLinkHandle>(ODD::TRL_LINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Arrow Handle");
+					ToolValue<RoadLinkHandle> *param = new ToolValue<RoadLinkHandle>(ODD::TRL_LINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Arrow Handle", true);
 					tool_ = new Tool(ODD::TRL_LINK, 4);
 					tool_->readParams(param);
 					ToolValue<RoadLinkSinkItem> *roadParam = new ToolValue<RoadLinkSinkItem>(ODD::TRL_SINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Circular Sink");
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(param);
 				}
 			}
 			else if (action->getToolId() == ODD::TRL_ROADLINK)
 			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
+				ODD::ToolId paramTool = action->getParamToolId();
+				if ((paramTool == ODD::TNO_TOOL) && !tool_)
 				{
 					ToolValue<double> *param = new ToolValue<double>(ODD::TRL_THRESHOLD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Threshold");
 					param->setValue(threshold_);
 					tool_ = new Tool(ODD::TRL_ROADLINK, 4);
 					tool_->readParams(param);
-					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TRL_ROADLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
+					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TRL_ROADLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
 					tool_->readParams(roadParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(roadParam);
+				}
+				else if (paramTool == ODD::TPARAM_SELECT)
+				{
+					currentParamId_ = action->getParamId();
+					if (!action->getState())
+					{
+
+						QList<RSystemElementRoad*>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
+						foreach(RSystemElementRoad * road, roads)
+						{
+							DeselectDataElementCommand* command = new DeselectDataElementCommand(road, NULL);
+							getProjectGraph()->executeCommand(command);
+							selectedRoads_.removeOne(road);
+						}
+
+						// verify if apply has to be hidden //
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						{
+							settingsApplyBox_->setApplyButtonVisible(false);
+						}
+					}
 				}
 			}
 			else if (action->getToolId() == ODD::TRL_UNLINK)
 			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
+				ODD::ToolId paramTool = action->getParamToolId();
+				if ((paramTool == ODD::TNO_TOOL) && !tool_)
 				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TRL_UNLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
+					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TRL_UNLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
 					tool_ = new Tool(ODD::TRL_UNLINK, 4);
 					tool_->readParams(param);
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(param);
+				}
+				else if (paramTool == ODD::TPARAM_SELECT)
+				{
+					currentParamId_ = action->getParamId();
+					if (!action->getState())
+					{
+
+						QList<RSystemElementRoad*>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
+						foreach(RSystemElementRoad * road, roads)
+						{
+							DeselectDataElementCommand* command = new DeselectDataElementCommand(road, NULL);
+							getProjectGraph()->executeCommand(command);
+							selectedRoads_.removeOne(road);
+						}
+
+						// verify if apply has to be hidden //
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						{
+							settingsApplyBox_->setApplyButtonVisible(false);
+						}
+					}
 				}
 			}
+		}
+	}
+}
+
+void 
+RoadLinkEditor::assignParameterSelection(ODD::ToolId toolId)
+{
+	if ((toolId == ODD::TRL_ROADLINK) || (toolId == ODD::TRL_UNLINK))
+	{
+		QList<QGraphicsItem*> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+
+		for (int i = 0; i < selectedItems.size();)
+		{
+			QGraphicsItem* item = selectedItems.at(i);
+			RoadLinkRoadItem* roadItem = dynamic_cast<RoadLinkRoadItem*>(item);
+			if (roadItem)
+			{
+				RSystemElementRoad* road = roadItem->getRoad();
+
+				createToolParameters<RSystemElementRoad>(road);
+				selectedRoads_.append(road);
+
+				item->setSelected(true);
+
+				i++;
+			}
+			else
+			{
+				RoadLinkSinkItem* linkSinkItem = dynamic_cast<RoadLinkSinkItem*>(item);
+				if (!linkSinkItem)
+				{
+					item->setSelected(false);
+				}
+				selectedItems.removeAt(i);
+			}
+		}
+
+		// verify if apply can be displayed //
+
+		int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+		if (objectCount >= applyCount_)
+		{
+			settingsApplyBox_->setApplyButtonVisible(true);
 		}
 	}
 }
@@ -581,7 +614,8 @@ RoadLinkEditor::mouseAction(MouseAction *mouseAction)
 	QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
 	ProjectEditor::mouseAction(mouseAction);
 
-	if ((getCurrentTool() == ODD::TRL_ROADLINK) || (getCurrentTool() == ODD::TRL_UNLINK))
+	ODD::ToolId currentToolId = getCurrentTool();
+	if ((currentToolId == ODD::TRL_ROADLINK) || (currentToolId == ODD::TRL_UNLINK))
 	{
 		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
 		{
@@ -709,7 +743,7 @@ RoadLinkEditor::mouseAction(MouseAction *mouseAction)
 			mouseAction->intercept();
 		}
 	}
-	else if (getCurrentTool() == ODD::TRL_LINK)
+	else if (currentToolId == ODD::TRL_LINK)
 	{
 		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
 		{
@@ -761,7 +795,7 @@ RoadLinkEditor::mouseAction(MouseAction *mouseAction)
 			mouseAction->intercept();
 		}
 	}
-	else if (getCurrentTool() == ODD::TRL_SINK)
+	else if (currentToolId == ODD::TRL_SINK)
 	{
 		if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
 		{

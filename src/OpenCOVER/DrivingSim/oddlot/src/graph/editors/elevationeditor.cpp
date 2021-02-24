@@ -399,39 +399,83 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 		{
 			ODD::ToolId paramTool = getCurrentParameterTool();
 
-			delSelectedRoads();
-
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection");
+				QMap<QGraphicsItem *, ElevationSection *>items = getSelectedElevationSections(2);
+				ToolValue<ElevationSection>* elevationSectionParam;
+
+				if (!items.isEmpty())
+				{
+					elevationSectionItem_ = items.firstKey();
+					ElevationSection* elevationSection = items.take(elevationSectionItem_);
+					QString textDisplayed = QString("%1 Section at %2").arg(elevationSection->getParentRoad()->getIdName()).arg(elevationSection->getSStart());
+					elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true, "", textDisplayed, elevationSection);
+				}
+				else
+				{ 
+					elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true);
+				}
 				tool_ = new Tool(ODD::TEL_SMOOTH, 1);
 				tool_->readParams(elevationSectionParam);
-				ToolValue<ElevationSection> *adjacentSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Adjacent Section");
+				ToolValue<ElevationSection>* adjacentSectionParam;
+				if (!items.isEmpty())
+				{
+					ElevationSection* elevationSection = items.first();
+					QString textDisplayed = QString("%1 Section at %2").arg(elevationSection->getParentRoad()->getIdName()).arg(elevationSection->getSStart());
+					adjacentSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Adjacent Section", true, "", textDisplayed, elevationSection);
+					elevationSectionAdjacentItem_ = items.firstKey();
+				}
+				else
+				{ 
+					adjacentSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Adjacent Section");
+				}
 				tool_->readParams(adjacentSectionParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EEL);
 				ODD::mainWindow()->showParameterDialog(true, "Smooth Heights across Roads", "Specify smoothing radius, select adjacent elevation sections on two roads and press APPLY");
-				activateToolParameterUI(elevationSectionParam);
+
+				// verify if apply can be displayed //
+				if (tool_->verify())
+				{
+					settingsApplyBox_->setApplyButtonVisible(true);
+				} 
 			}
 		}
 		else if (elevationEditorToolAction->getToolId() == ODD::TEL_SLOPE)
 		{
 			ODD::ToolId paramTool = getCurrentParameterTool();
 
-			delSelectedRoads();
-
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				ToolValue<double> *slopeParam = new ToolValue<double>(ODD::TEL_PERCENTAGE, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Slope Percentage");
+				ToolValue<double>* slopeParam = new ToolValue<double>(ODD::TEL_PERCENTAGE, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Slope Percentage");
 				slopeParam->setValue(slope_);
 				tool_ = new Tool(ODD::TEL_SLOPE, 1);
 				tool_->readParams(slopeParam);
-				ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SLOPE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection");
+
+				QMap<QGraphicsItem*, ElevationSection*>items = getSelectedElevationSections(1);
+				ToolValue<ElevationSection>* elevationSectionParam;
+
+				if (!items.isEmpty())
+				{
+					elevationSectionItem_ = items.firstKey();
+					ElevationSection* elevationSection = items.take(elevationSectionItem_);
+					QString textDisplayed = QString("%1 Section at %2").arg(elevationSection->getParentRoad()->getIdName()).arg(elevationSection->getSStart());
+					elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SLOPE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true, "", textDisplayed, elevationSection);
+				}
+				else
+				{
+					elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SLOPE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true);
+				}
 				tool_->readParams(elevationSectionParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EEL);
 				ODD::mainWindow()->showParameterDialog(true, "Change Slope of Elevation Section", "Specify slope percentage, select elevation section and press APPLY");
-				activateToolParameterUI(elevationSectionParam);
+
+				// verify if apply can be displayed //
+				if (tool_->verify())
+				{
+					settingsApplyBox_->setApplyButtonVisible(true);
+				}
 			}
 		} 
 	}
@@ -444,14 +488,13 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 			{
 				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
 				{
-					ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection");
+					ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true);
 					tool_ = new Tool(ODD::TEL_SMOOTH, 1);
 					tool_->readParams(elevationSectionParam);
 					ToolValue<ElevationSection> *adjacentSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Adjacent Section");
 					tool_->readParams(adjacentSectionParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(elevationSectionParam);
 				}
 			}
 			else if (action->getToolId() == ODD::TEL_SLOPE)
@@ -462,11 +505,10 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 					slopeParam->setValue(slope_);
 					tool_ = new Tool(ODD::TEL_SLOPE, 1);
 					tool_->readParams(slopeParam);
-					ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SLOPE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection");
+					ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SLOPE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true);
 					tool_->readParams(elevationSectionParam);
 
 					generateToolParameterUI(tool_);
-					activateToolParameterUI(elevationSectionParam);
 				}
 			}
 			else if (action->getToolId() == ODD::TEL_PERCENTAGE)
@@ -475,6 +517,34 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 			}
 		}
 	}
+}
+
+QMap<QGraphicsItem*, ElevationSection*> 
+ElevationEditor::getSelectedElevationSections(int count)
+{
+	QMap<QGraphicsItem*, ElevationSection*> selected;
+	QList<QGraphicsItem*> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+	for (int i = 0; i < selectedItems.size(); i++)
+	{
+		QGraphicsItem* item = selectedItems.at(i);
+
+		if (selected.size() < count)
+		{
+			ElevationSectionItem* elevationSectionItem = dynamic_cast<ElevationSectionItem*>(item);
+			if (elevationSectionItem)
+			{
+				ElevationSection* elevationSection = elevationSectionItem->getElevationSection();
+				if (!selected.key(elevationSection, NULL))
+				{
+					selected.insert(item, elevationSection);
+					continue;
+				}
+			}
+		}
+		item->setSelected(false);
+	}
+
+	return selected;
 }
 
 //################//
@@ -850,8 +920,10 @@ ElevationEditor::kill()
 		reset();
 		ODD::mainWindow()->showParameterDialog(false);
 	}
-
-	delSelectedRoads();
+	else
+	{
+		delSelectedRoads();
+	}
 
     delete roadSystemItem_;
     roadSystemItem_ = NULL;

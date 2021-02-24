@@ -95,6 +95,7 @@ private:
     SignalEditor &operator=(const SignalEditor &); /* not allowed */
 
 	void clearToolObjectSelection();
+    void assignParameterSelection(ODD::ToolId toolId, unsigned int paramCount = -1);
 
     //################//
     // SLOTS          //

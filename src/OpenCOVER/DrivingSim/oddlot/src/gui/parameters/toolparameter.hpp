@@ -40,7 +40,7 @@ public:
 	};
 
 
-	explicit ToolParameter(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, const QString &labelText = "");
+	explicit ToolParameter(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, bool active = false, const QString &labelText = "", const QString &valueDisplayed = "");
 	virtual ~ToolParameter();
 
 	ODD::ToolId getToolId()
@@ -96,6 +96,16 @@ public:
 		return list_;
 	}
 
+	bool isActive()
+	{
+		return active_;
+	}
+
+	void setActive(bool active)
+	{
+		active_ = active;
+	}
+
 	bool isValid()
 	{
 		return valid_;
@@ -118,6 +128,7 @@ private:
 	bool valid_;
 	ParameterTypes type_;
 	QString text_;
+	bool active_;
 	QString valueDisplayed_;
 	QString labelText_;
 };

@@ -56,8 +56,32 @@ Tool::~Tool()
 	}
 }
 
-
 void
+Tool::deactivateParams()
+{
+	foreach(ToolParameter * param, params_)
+	{
+		if (param->isActive())
+		{
+			param->setActive(false);
+			return;
+		}
+	}
+
+	foreach(QList<ToolParameter*> list, paramList_)
+	{
+		foreach(ToolParameter * param, list)
+		{
+			if (param->isActive())
+			{
+				param->setActive(false);
+				return;
+			}
+		}
+	}
+}
+
+unsigned int
 Tool::readParams(ToolParameter *s)
 {
 	static int lastParamID = -1;
@@ -66,6 +90,11 @@ Tool::readParams(ToolParameter *s)
 	if (!toolIds_.contains(toolId))
 	{
 		toolIds_.append(toolId);
+	}
+
+	if (s->isActive())
+	{
+		deactivateParams();
 	}
 
 	if (s->getType() == ToolParameter::OBJECT_LIST)
@@ -112,15 +141,20 @@ Tool::readParams(ToolParameter *s)
 		}
 		else
 		{
-			params_.insert(generateParamId(), s);
+			unsigned int paramID = generateParamId();
+			params_.insert(paramID, s);
+			return paramID;
 		}
 
 	}
 	else
 	{
-		params_.insert(generateParamId(), s);
+		unsigned int paramID = generateParamId();
+		params_.insert(paramID, s);
+		return paramID;
 	}
 	
+	return lastParamID;
 }
 
 

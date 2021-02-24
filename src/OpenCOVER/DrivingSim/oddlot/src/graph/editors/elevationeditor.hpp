@@ -24,6 +24,7 @@ class TopviewGraph;
 class ProfileGraph;
 
 class RSystemElementRoad;
+class ElevationSection;
 
 class SectionHandle;
 class ElevationMoveHandle;
@@ -86,6 +87,7 @@ public:
     void insertSelectedRoad(RSystemElementRoad *road);
     void initBox();
     void fitView();
+    QMap<QGraphicsItem*, ElevationSection*> getSelectedElevationSections(int count);
 
     // MoveHandles //
     //

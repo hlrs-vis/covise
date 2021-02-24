@@ -70,11 +70,11 @@ void ProjectEditor::setToolValue<RoadLinkHandle>(RoadLinkHandle *, const QString
 template
 void ProjectEditor::setToolValue<ElevationSection>(ElevationSection *, const QString &);
 template
-void ProjectEditor::createToolParameters<RSystemElementRoad>(RSystemElementRoad *object);
+void ProjectEditor::createToolParameters<RSystemElementRoad>(RSystemElementRoad *object, int currentParameterID);
 template
 void ProjectEditor::removeToolParameters<RSystemElementRoad>(RSystemElementRoad *object);
 template
-void ProjectEditor::createToolParameters<Signal>(Signal *);
+void ProjectEditor::createToolParameters<Signal>(Signal *, int currentParameterID);
 template
 void ProjectEditor::removeToolParameters<Signal>(Signal *);
 
@@ -182,12 +182,6 @@ ProjectEditor::updateToolParameterUI(ToolParameter *param)
 }
 
 void
-ProjectEditor::activateToolParameterUI(ToolParameter* param)
-{
-	settings_->activateUI(param);
-}
-
-void
 ProjectEditor::delToolParameters()
 {
 	if (!settingsApplyBox_)
@@ -219,10 +213,13 @@ ProjectEditor::setToolValue(T *object, const QString &valueDisplayed)
 
 template<class T>
 void
-ProjectEditor::createToolParameters(T *object)
+ProjectEditor::createToolParameters(T *object, int currentParameterID)
 {
-
-	ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
+	if (currentParameterID == -1)
+	{
+		currentParameterID = settings_->getCurrentParameterID();
+	}
+	ToolParameter* p = tool_->getLastParam(currentParameterID);
 
 	ToolValue<T> *v = dynamic_cast<ToolValue<T> *>(p);
 	v->setValue(object);
@@ -237,9 +234,10 @@ ProjectEditor::createToolParameters(T *object)
 	// clone this parameter, because we need a list //
 	ToolValue<T> *param = v->parameterClone();
 	param->setText("Select/Remove");
+	param->setActive(true);
 
 	tool_->readParams(param);
-	settings_->addUI(tool_->getParamId(param), param, true);
+	settings_->addUI(tool_->getParamId(param), param);
 }
 
 template<class T>

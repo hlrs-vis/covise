@@ -29,6 +29,8 @@ class BaseLaneMoveHandle;
 class SectionHandle;
 class PointHandle;
 
+class Lane;
+
 class LaneEditor : public ProjectEditor
 {
     Q_OBJECT
@@ -58,6 +60,8 @@ public:
 
 
 	bool translateLaneBorder(const QPointF &pressPos, const QPointF &mousePos, double width = 0.0, bool setWidth = false);
+
+    QMap<QGraphicsItem*, Lane*> getSelectedLanes(int count);
 
 protected:
     virtual void init();
