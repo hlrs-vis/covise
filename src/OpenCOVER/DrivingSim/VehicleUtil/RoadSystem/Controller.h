@@ -23,6 +23,7 @@
 #ifdef False
 #undef False
 #endif
+#undef HAVE_V8 // TODO 
 #ifdef HAVE_V8
 #include <v8.h>
 #ifdef V8_MAJOR_VERSION
