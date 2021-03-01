@@ -28,7 +28,7 @@
 #include <QPushButton>
 #include <QKeyEvent>
 #include <QVBoxLayout>
-#include <QScrollarea>
+#include <QScrollArea>
 #include <QGroupBox>
 #include <QLabel>
 #include <QSizePolicy>
