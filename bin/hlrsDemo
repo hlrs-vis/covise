@@ -113,7 +113,7 @@ demo 36 "Campus with Sumo and bicycle simulator" run_campus_bicycle
 run_stuttgart() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
-    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracer.vsl
+    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
     kill $SUMO
 }
 demo 37 "Stuttgart with Sumo" run_stuttgart
