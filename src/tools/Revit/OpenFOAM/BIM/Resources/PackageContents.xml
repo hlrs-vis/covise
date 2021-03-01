@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage 
+  SchemaVersion="1.0" 
+  AutodeskProduct="Revit" 
+  ProductType="Application" 
+  Name="OpenFOAM Exporter" 
+  AppVersion="2019" 
+  Description="This app is designed to produce a stereolithography file (STL) of your building model and provides the functionality to simulate the airflow in this room with OpenFOAM." 
+  Author="Autodesk" 
+  Icon="./Contents/2019/openfoam_64.ico" 
+  AppNameSpace="appstore.exchange.autodesk.com" 
+  HelpFile="./Contents/2019/Resources/ADSKSTLExporterHelp.htm" 
+  ProductCode="{D702AF38-3F62-486C-90DF-D4F91A69795B}" 
+  UpgradeCode="{1109619D-1230-48E8-B642-C9D8562C6BAD}" 
+  OnlineDocumentation="https://www.autodesk.com" 
+  FriendlyVersion="2019" 
+  SupportedLocales="Enu">
+  <CompanyDetails Name="Autodesk" Phone=" " Url="https://www.autodesk.com" Email="Revit.apps@autodesk.com"/>
+  <RuntimeRequirements OS="Win64" Platform="Revit|Revit Architecture|Revit Structure|Revit MEP" SeriesMin="R2019" SeriesMax="R2019" />
+  <Components Description="2019 parts">
+    <RuntimeRequirements OS="Win64" Platform="Revit|Revit Architecture|Revit Structure|Revit MEP" SeriesMin="R2019" SeriesMax="R2019" />
+    <ComponentEntry AppName="OpenFoam-Exporter" Version="2019" ModuleName="./Contents/2019/STLExport.addin" AppDescription="STLExporterforRevit" />
+  </Components>
+</ApplicationPackage>

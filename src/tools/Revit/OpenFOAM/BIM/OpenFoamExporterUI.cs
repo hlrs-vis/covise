@@ -1,0 +1,173 @@
+﻿/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+using System;
+using Autodesk.Revit.UI;
+using System.IO;
+using System.Reflection;
+using System.Windows.Forms;
+using System.Windows.Media.Imaging;
+using System.Collections.Generic;
+using System.Windows.Media.Media3D;
+using System.Linq;
+using Autodesk.Revit.DB;
+using RevitView = Autodesk.Revit.DB.View;
+
+namespace BIM.OpenFOAMExport
+{
+    public sealed class Exporter
+    {
+        public OpenFOAMExportForm exportForm = null;
+        public Settings settings=null;
+        public static Exporter Instance {
+            get {
+                return Nested.instance;
+            }
+        }
+        public Exporter()
+        {
+        }
+
+
+        /// <summary>
+        /// Get view by view name.
+        /// </summary>
+        /// <param name="doc">The document to find the view.</param>
+        /// <param name="activeViewName">The view name.</param>
+        /// <returns>The element id of the view found.</returns>
+        public RevitView FindView(Document doc, string activeViewName)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.OfClass(typeof(RevitView));
+
+            IEnumerable<Element> selectedView = from view in collector.ToList<Element>()
+                                                where view.Name == activeViewName
+                                                select view;
+
+            if (selectedView.Count() > 0)
+            {
+                return (selectedView.First() as RevitView);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get view by view name.
+        /// </summary>
+        /// <param name="doc">The document to find the view.</param>
+        /// <param name="activeViewName">The view name.</param>
+        /// <returns>The element id of the view found.</returns>
+        public ElementId FindViewId(Document doc, string activeViewName)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            collector.OfClass(typeof(RevitView));
+
+            IEnumerable<Element> selectedView = from view in collector.ToList<Element>()
+                                                where view.Name == activeViewName
+                                                select view;
+
+            if (selectedView.Count() > 0)
+            {
+                return (selectedView.First() as RevitView).Id;
+            }
+
+            return ElementId.InvalidElementId;
+        }
+        class Nested
+        {
+            // Explicit static constructor to tell C# compiler
+            // not to mark type as beforefieldinit
+            static Nested()
+            {
+            }
+            internal static readonly Exporter instance = new Exporter();
+        }
+    }
+    public class OpenFOAMExporterUI : IExternalApplication
+    {
+        // Fields
+        private static string AddInPath;
+
+        // Methods
+        static OpenFOAMExporterUI()
+        {
+            AddInPath = typeof(OpenFOAMExporterUI).Assembly.Location;
+        }
+
+        Result IExternalApplication.OnShutdown(UIControlledApplication application)
+        {
+            return Result.Succeeded;
+        }
+
+        Result IExternalApplication.OnStartup(UIControlledApplication application)
+        {
+            try
+            {
+
+                Exporter.Instance.settings = new Settings(SaveFormat.ascii, ElementsExportRange.OnlyVisibleOnes, true, true,
+                    false, false,
+                    false, 0, 101, 1, 100, 2/*purgeWrite*/, 8, 7, 4);
+
+                string str = "OpenFOAM Exporter";
+                RibbonPanel panel = application.CreateRibbonPanel(str);
+                string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+                string assemblyname = typeof(OpenFOAMExporterUI).Assembly.GetName().Name;
+                string dllName = directoryName + @"\" + assemblyname + ".dll";
+
+                PushButtonData setupData = new PushButtonData("OpenFOAM Simulate", "Simulate", dllName, "BIM.OpenFOAMExport.OpenFOAMSimulateCommand");
+                PushButton setupButton = panel.AddItem(setupData) as PushButton;
+                using (Stream xstr = new MemoryStream())
+                {
+                    BIM.Properties.Resources.logo_64.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
+                    xstr.Seek(0, SeekOrigin.Begin);
+                    BitmapDecoder bdc = new BmpBitmapDecoder(xstr, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                    setupButton.LargeImage = bdc.Frames[0];
+                }
+                setupButton.ToolTip = "The OpenFOAM Exporter for Revit is designed to produce a stereolithography file (STL) of your building model and a OpenFOAM-Config.";
+                setupButton.LongDescription = "The OpenFOAM Exporter for the Autodesk Revit Platform is a project designed to create an STL file from a 3D building information model for OpenFOAM with a Config-File that includes the boundary conditions for airflow simulation.";
+                ContextualHelp help = new ContextualHelp(ContextualHelpType.ChmFile, directoryName + @"\Resources\ADSKSTLExporterHelp.htm");
+                setupButton.SetContextualHelp(help);
+
+                PushButtonData data = new PushButtonData("OpenFOAM Exporter settings", "Settings", dllName, "BIM.OpenFOAMExport.OpenFOAMExportCommand");
+                PushButton button = panel.AddItem(data) as PushButton;
+                using (Stream xstr = new MemoryStream())
+                {
+                    BIM.Properties.Resources.setupIcon.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
+                    xstr.Seek(0, SeekOrigin.Begin);
+                    BitmapDecoder bdc = new BmpBitmapDecoder(xstr, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                    button.LargeImage = bdc.Frames[0];
+                }
+                button.ToolTip = "The OpenFOAM Exporter for Revit is designed to produce a stereolithography file (STL) of your building model and a OpenFOAM-Config.";
+                button.LongDescription = "The OpenFOAM Exporter for the Autodesk Revit Platform is a project designed to create an STL file from a 3D building information model for OpenFOAM with a Config-File that includes the boundary conditions for airflow simulation.";
+                button.SetContextualHelp(help);
+
+                return Result.Succeeded;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.ToString(), "OpenFOAM Exporter for Revit");
+                return Result.Failed;
+            }
+        }
+
+        private static System.Windows.Media.ImageSource LoadPNGImageFromResource(string imageResourceName)
+        {
+            string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            int i = 0;
+            foreach (var name in names)
+            {
+
+                MessageBox.Show(names[i], name);
+                i++;
+            }
+            PngBitmapDecoder decoder = new PngBitmapDecoder(Assembly.GetExecutingAssembly().GetManifestResourceStream(imageResourceName), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+            return decoder.Frames[0];
+        }
+    }
+}
