@@ -210,7 +210,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		for (int i = clients.numberOfClients(); i > 0;)
 		{
 			VRBSClient* locConn = clients.getNthClient(--i);
-			locClientName = QString::fromStdString(locConn->userInfo().name);
+			locClientName = QString::fromStdString(locConn->userInfo().userName);
 			locClient = QString::fromStdString(locConn->userInfo().ipAdress);
 			tuiClientList.append(locClient);
 		}

@@ -52,7 +52,7 @@ void vrb::printClientInfo(const std::vector<const RemoteClient *> &clients)
     
     std::array<std::function<std::string(const RemoteClient *)>, headings.max_size()> functions;
     functions[0] = [](const RemoteClient *cl) { return std::to_string(cl->ID());    };
-    functions[1] = [](const RemoteClient *cl) { return cl->userInfo().name ;        };
+    functions[1] = [](const RemoteClient *cl) { return cl->userInfo().userName ;        };
     functions[2] = [](const RemoteClient *cl) { return cl->userInfo().email ;       };
     functions[3] = [](const RemoteClient *cl) { return cl->userInfo().hostName ;    };
     functions[4] = [](const RemoteClient *cl) { return cl->isMaster() ? "true" : "false" ;    };

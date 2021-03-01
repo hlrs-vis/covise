@@ -116,7 +116,7 @@ void coVRPartner::becomeMaster()
 
 void coVRPartner::updateUi()
 {
-    std::string menuText = std::to_string(m_id) + " " + m_userInfo.name + "@" + m_userInfo.hostName;
+    std::string menuText = std::to_string(m_id) + " " + m_userInfo.userName + "@" + m_userInfo.hostName;
 #if 0
     fileMenuEntry = new coButtonMenuItem("NoFile");
     fileMenuEntry->setMenuListener(this);

@@ -120,7 +120,7 @@ covise::TokenBuffer VrbSessionList::serializeSession(const SessionID& id) const
 	outData << (uint32_t)participants.size();
 	for (const auto& cl : participants)
 	{
-		outData << cl->userInfo().name;
+		outData << cl->userInfo().userName;
 
 	}
 

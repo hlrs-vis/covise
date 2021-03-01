@@ -21,7 +21,7 @@ struct VRBEXPORT UserInfo
     UserInfo(covise::TokenBuffer &tb);
     UserInfo(Program type);
     const Program userType;
-    const std::string name, ipAdress, hostName, email, url;
+    const std::string userName, ipAdress, hostName, email, url;
 };
 
 VRBEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const vrb::UserInfo &userInfo);

@@ -343,7 +343,7 @@ std::vector<VRBSClient*> VRBClientList::getClientsWithUserName(const std::string
     std::vector<VRBSClient *> clients;
     for (auto &cl : m_clients)
     {
-        if (cl->userInfo().name == name)
+        if (cl->userInfo().userName == name)
         {
             clients.push_back(cl.get());
         }

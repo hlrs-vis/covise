@@ -30,7 +30,7 @@ std::string getString(covise::TokenBuffer& tb){
 
 UserInfo::UserInfo(covise::TokenBuffer &tb)
     : userType(detail::getUserType(tb))
-    , name(detail::getString(tb))
+    , userName(detail::getString(tb))
     , ipAdress(detail::getString(tb))
     , hostName(detail::getString(tb))
     , email(detail::getString(tb))
@@ -40,7 +40,7 @@ UserInfo::UserInfo(covise::TokenBuffer &tb)
 
 UserInfo::UserInfo(Program type)
     : userType(type)
-    , name(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getHostname()))
+    , userName(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getHostname()))
     , ipAdress(covise::Host::getHostaddress())
     , hostName(covise::Host::getHostname())
     , email(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
@@ -51,14 +51,14 @@ UserInfo::UserInfo(Program type)
 
 TokenBuffer &vrb::operator<<(TokenBuffer &tb, const UserInfo &userInfo)
 {
-    tb << userInfo.userType << userInfo.name << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url;
+    tb << userInfo.userType << userInfo.userName << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url;
     return tb;
 }
 
 
 std::ostream &vrb::operator<<(std::ostream &os, const UserInfo &userInfo)
 {
-    os << "name:     " << userInfo.name << std::endl;
+    os << "name:     " << userInfo.userName << std::endl;
     os << "ip:       " << userInfo.ipAdress << std::endl;
     os << "hostName: " << userInfo.hostName << std::endl;
     os << "email:    " << userInfo.email << std::endl;
