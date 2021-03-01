@@ -205,10 +205,18 @@ ProjectEditor::setToolValue(T *object, const QString &valueDisplayed)
 	ToolParameter *p = tool_->getLastParam(currentParamId);
 
 	ToolValue<T> *v = dynamic_cast<ToolValue<T> *>(p);
-	v->setValue(object);
-	p->setValueDisplayed(valueDisplayed);
+	if(v)
+	{
+		v->setValue(object);
+		p->setValueDisplayed(valueDisplayed);
 
-	settings_->setObjectSelected(currentParamId, p->getValueDisplayed(), p->getText());
+		settings_->setObjectSelected(currentParamId, p->getValueDisplayed(), p->getText());
+		settings_->activateNextParameter();
+	}
+	else
+	{
+		fprintf(stderr, "Error: wront type in ProjectEditor::setToolValue \n");
+	}
 }
 
 template<class T>
