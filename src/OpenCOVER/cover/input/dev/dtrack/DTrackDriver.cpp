@@ -77,10 +77,23 @@ DTrackDriver::DTrackDriver(const std::string &config)
 
     cout << "Initializing DTrack:" << configPath() << endl;
     m_dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
-    dt = new DTrackSDK(m_dtrack_port);
+    m_dtrack_serverHost = coCoviseConfig::getEntry("serverHost", configPath(), "");
+    m_dtrack_serverPort = coCoviseConfig::getInt("serverPort", configPath(), 50105);
+    if (m_dtrack_serverHost.length() > 0)
+    {
+
+        dt = new DTrackSDK(m_dtrack_serverHost, m_dtrack_serverPort,m_dtrack_port);
+    }
+    else
+    {
+		dt = new DTrackSDK(m_dtrack_port);
+    }
 
     if (!dt->isLocalDataPortValid())
         cout << "Cannot initialize DTrack!" << endl;
+
+    if ((m_dtrack_serverHost.length() > 0 )&& !dt->startMeasurement())
+        cout << "Info: Cannot start the tracking system, it might be sending already!" << endl;
 
     if (!dt->receive())
         cout << "Error receiving data!" << endl;
