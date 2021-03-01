@@ -23,7 +23,6 @@ namespace opencover
 InputSource::InputSource(const std::string &name, const std::string &kind)
 : m_name(name)
 , m_conf("COVER.Input." + kind + "." + name)
-, m_dev(NULL)
 {
     const std::string driver = covise::coCoviseConfig::getEntry("device", config(), "default");
 
@@ -33,9 +32,22 @@ InputSource::InputSource(const std::string &name, const std::string &kind)
     }
     else
     {
-        m_dev = Input::instance()->getDevice(driver);
-        if (!m_dev)
-            m_dev = Input::instance()->getDevice("const");
+        m_dev.push_back(Input::instance()->getDevice(driver));
+        if (!m_dev[0])
+            m_dev[0] = Input::instance()->getDevice("const");
+    }
+    for(int i=1;i<10;i++)
+    {
+        const std::string driver = covise::coCoviseConfig::getEntry("device"+std::to_string(i), config(), "");
+	fprintf(stderr,"dev %d %s\n",i,driver.c_str());
+	if(driver.length()>0)
+	{
+	    InputDevice *dev = Input::instance()->getDevice(driver);
+	    if(dev)
+                m_dev.push_back(dev);
+	}
+	else
+	   break;
     }
 }
 
@@ -55,7 +67,17 @@ const std::string &InputSource::config() const
 
 InputDevice *InputSource::device() const
 {
-    return m_dev;
+    if(m_validDevice>=0 && m_validDevice<m_dev.size())
+        return m_dev[m_validDevice];
+    
+    return nullptr;
+}
+InputDevice *InputSource::device(int i) const
+{
+    if(i<m_dev.size())
+        return m_dev[i];
+    
+    return nullptr;
 }
 
 void InputSource::setValid(bool valid)
@@ -71,7 +93,18 @@ bool InputSource::isValid() const
 void InputSource::update()
 {
     if (device())
-        m_valid = device()->isValid();
+    {
+        m_valid = false;
+        for(int i=i;i<m_dev.size();i++)
+	{
+	    if(m_dev[i]->isValid());
+	    {
+	        m_valid = true;
+		m_validDevice = i;
+		break;
+	    }
+	}
+    }
     if (Input::debug(Input::Raw) && m_valid != m_oldValid)
     {
         std::cerr << "Input: raw " << name() << " valid=" << m_valid << std::endl;

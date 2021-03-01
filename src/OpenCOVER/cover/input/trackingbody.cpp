@@ -122,6 +122,7 @@ TrackingBody::TrackingBody(const std::string &name)
  */
 void TrackingBody::update()
 {
+
     if (m_assemble)
     {
         m_varying = false;
@@ -168,13 +169,17 @@ void TrackingBody::update()
     {
         m_varying = device()->isVarying();
 
-        m_valid = device()->isBodyMatrixValid(m_idx);
-        m_6dof = device()->is6Dof();
+	    for(int i=0;i<numDevices();i++)
+	    {
+        m_valid = device(i)->isBodyMatrixValid(m_idx);
+        m_6dof = device(i)->is6Dof();
 
         if (m_valid)
         {
-            m_mat = device()->getBodyMatrix(m_idx);
+            m_mat = device(i)->getBodyMatrix(m_idx);
+	    break;
         }
+	    }
     }
 
     if (Input::debug(Input::Raw) && m_valid != m_oldValid)
