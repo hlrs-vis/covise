@@ -591,7 +591,7 @@ Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; D
 ; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
           
 [UninstallDelete]   
-Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2021\FoamExporter.addin"
+Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2021\FoamInterface.addin"
 Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2021\OpenCOVER.addin"
 
 [Code]
@@ -875,14 +875,14 @@ if CurStep = ssPostInstall then begin
 '<RevitAddIns>'+ #13#10 +
 '  <AddIn Type="Application">'+ #13#10 +
 '    <Name>OpenFOAMExporterUI</Name>'+ #13#10 +
-'    <Assembly>'+ExpandConstant('{#DLIB}')+'\OpenFOAMExporter.dll</Assembly>'+ #13#10 +
+'    <Assembly>'+ExpandConstant('{#DLIB}')+'\OpenFOAMInterface.dll</Assembly>'+ #13#10 +
 '    <AddInId>10a97048-ef29-446a-a2ef-ad092b7cd2af</AddInId>'+ #13#10 +
 '    <FullClassName>BIM.OpenFOAMExport.OpenFOAMExporterUI</FullClassName>'+ #13#10 +
 '    <VendorId>HLRS</VendorId>'+ #13#10 +
 '    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
 '  </AddIn>'+ #13#10 +
 '</RevitAddIns>'+ #13#10
-  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2021\FoamExporter.addin');
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2021\FoamInterface.addin');
   SaveStringToFile(filename, filecontent, False);
   end;
 end;
