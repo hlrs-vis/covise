@@ -10,7 +10,6 @@
 #include <string>
 
 namespace covise{
-enum class ExecFlag;
 struct CRB_EXEC;
 } // namespace covise
 class module
