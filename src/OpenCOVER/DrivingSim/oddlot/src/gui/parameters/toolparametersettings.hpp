@@ -69,7 +69,7 @@ public:
 		return currentParamId_;
 	}
 
-
+	void setLables(QList<ToolParameter *> &paramList);
 	void setLabels(int id, const QString &objectName, const QString &buttonText);
 	void setObjectSelected(int id, const QString &objectName, const QString &buttonText);
 

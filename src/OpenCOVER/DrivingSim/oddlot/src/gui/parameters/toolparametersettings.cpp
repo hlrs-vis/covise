@@ -697,6 +697,26 @@ ToolParameterSettings::onButtonPressed(int paramId)
 }
 
 void 
+ToolParameterSettings::setLables(QList<ToolParameter*>& paramList)
+{
+	foreach(ToolParameter *param, paramList)
+	{
+		unsigned int id = tool_->getParamId(param);
+		QAbstractButton* button = buttonGroup_->button(id);
+		button->setText(param->getText());
+		if (param->isActive())
+		{
+			button->setChecked(true);
+			currentParamId_ = id;
+		}
+
+		QString name = QString::number(id);
+		QLabel* label = dynamic_cast<QLabel*>(memberWidgets_.value(name));
+		label->setText(param->getValueDisplayed());
+	}
+}
+
+void 
 ToolParameterSettings::setLabels(int id, const QString &objectName, const QString &buttonText)
 {
 	QAbstractButton *button = buttonGroup_->button(id);
@@ -834,19 +854,12 @@ ToolParameterSettingsApplyBox::apply()
 {
 
 	editor_->apply();
-
-	ODD::ToolId toolId = tool_->getToolId();
-	editor_->reset();
-
-	ParameterToolAction* action = new ParameterToolAction(editorID_, toolId, ODD::TNO_TOOL);
-	emit toolAction(action);
-	delete action;
 }
 
 void
 ToolParameterSettingsApplyBox::ok()
 {
-	editor_->apply();
+	apply();
 	cancel();
 }
 

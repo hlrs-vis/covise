@@ -57,6 +57,22 @@ Tool::~Tool()
 }
 
 void
+Tool::resetValues(QList<ToolParameter*>& paramList)
+{
+	QMap<unsigned int, ToolParameter*>::const_iterator it = params_.constBegin();
+	while (it != params_.constEnd())
+	{
+		ToolParameter* param = it.value();
+		if (paramList.contains(param))
+		{
+			param->delParamValue();
+		}
+		it++;
+	}
+
+}
+
+void
 Tool::deactivateParams()
 {
 	foreach(ToolParameter * param, params_)

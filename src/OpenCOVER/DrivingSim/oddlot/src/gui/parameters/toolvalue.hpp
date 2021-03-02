@@ -40,6 +40,7 @@ public:
 	virtual void delParamValue()
 	{
 		value_ = NULL;
+		setValueDisplayed("");
 	}
 
 	ToolValue<T> *clone()

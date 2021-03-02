@@ -19,6 +19,7 @@
 #include <QObject>
 
 #include "src/util/odd.hpp"
+#include "src/gui/parameters/toolvalue.hpp"
 
 class ProjectWidget;
 class ProjectData;
@@ -115,6 +116,10 @@ protected:
 	void createToolParameters(T *object, int currentParameterID = -1);
 	template<class T>
 	void removeToolParameters(T *object);
+
+    void setToolValues(QList<ToolParameter*>& paramList);
+    void resetToolValues(QList<ToolParameter *> &paramList);
+
 
 private:
     ProjectEditor(); /* not allowed */

@@ -36,7 +36,6 @@
 // GUI //
 //
 #include "src/gui/parameters/tool.hpp"
-#include "src/gui/parameters/toolvalue.hpp"
 #include "src/gui/parameters/toolparametersettings.hpp"
 #include "src/gui/parameters/parameterdockwidget.hpp"
 #include "src/gui/tools/toolmanager.hpp"
@@ -182,6 +181,19 @@ ProjectEditor::updateToolParameterUI(ToolParameter *param)
 }
 
 void
+ProjectEditor::setToolValues(QList<ToolParameter*>& paramList)
+{
+	settings_->setLables(paramList);
+}
+
+void
+ProjectEditor::resetToolValues(QList<ToolParameter*>& paramList)
+{
+	tool_->resetValues(paramList);
+	setToolValues(paramList);
+}
+
+void
 ProjectEditor::delToolParameters()
 {
 	if (!settingsApplyBox_)
@@ -210,6 +222,7 @@ ProjectEditor::setToolValue(T *object, const QString &valueDisplayed)
 
 	settings_->setObjectSelected(currentParamId, p->getValueDisplayed(), p->getText());
 }
+
 
 template<class T>
 void

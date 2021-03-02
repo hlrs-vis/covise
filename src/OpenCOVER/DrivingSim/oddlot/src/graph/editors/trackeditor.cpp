@@ -34,6 +34,7 @@
 
 #include "src/data/tilesystem/tilesystem.hpp"
 
+#include "src/data/commands/dataelementcommands.hpp"
 #include "src/data/commands/trackcommands.hpp"
 #include "src/data/commands/roadcommands.hpp"
 #include "src/data/commands/roadsystemcommands.hpp"
@@ -477,32 +478,6 @@ TrackEditor::toolAction(ToolAction *toolAction)
 						ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
 						v->setValue(index);
 					}
-				}
-			}
-			else if (action->getToolId() == ODD::TTE_ROAD_MERGE)
-			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road", true);
-					tool_ = new Tool(ODD::TTE_ROAD_MERGE, 4);
-					tool_->readParams(param);
-					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Road to append");
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
-				}
-			}
-			else if (action->getToolId() == ODD::TTE_ROAD_SNAP)
-			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select first Road", true);
-					tool_ = new Tool(ODD::TTE_ROAD_SNAP, 4);
-					tool_->readParams(param);
-					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select second Road");
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
 				}
 			}
 		}
@@ -1126,24 +1101,27 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 						TrackElementItem *trackItem = dynamic_cast<TrackElementItem *>(item);
 						if (trackItem && (item != mergeItem_) && (item != appendItem_))
 						{
-							if (mergeItem_)
+							RSystemElementRoad* road = trackItem->getParentTrackRoadItem()->getRoad();
+							if (!tool_->getValue<RSystemElementRoad>(road))
 							{
-								mergeItem_->setSelected(false);
-								int index = selectedItems.indexOf(mergeItem_);
-								if (index > i)
+								if (mergeItem_)
 								{
-									selectedItems.removeAt(index);
+									mergeItem_->setSelected(false);
+									int index = selectedItems.indexOf(mergeItem_);
+									if (index > i)
+									{
+										selectedItems.removeAt(index);
+									}
 								}
+
+								setToolValue<RSystemElementRoad>(road, road->getIdName());
+
+								mergeItem_ = item;
 							}
-
-							RSystemElementRoad *road = trackItem->getParentTrackRoadItem()->getRoad();
-							setToolValue<RSystemElementRoad>(road, road->getIdName());
-
-							mergeItem_ = item;
-						}
-						else if ((item != mergeItem_) && (item != appendItem_))
-						{
-							item->setSelected(false);
+							else if ((item != mergeItem_) && (item != appendItem_))
+							{
+								item->setSelected(false);
+							}
 						}
 					}
 					mouseAction->intercept();
@@ -1172,24 +1150,27 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 						TrackElementItem *trackItem = dynamic_cast<TrackElementItem *>(item);
 						if (trackItem && (item != appendItem_) && (item != mergeItem_))
 						{
-							if (appendItem_)
+							RSystemElementRoad* road = trackItem->getParentTrackRoadItem()->getRoad();
+							if (!tool_->getValue(road))
 							{
-								appendItem_->setSelected(false);
-								int index = selectedItems.indexOf(appendItem_);
-								if (index > i)
+								if (appendItem_)
 								{
-									selectedItems.removeAt(index);
+									appendItem_->setSelected(false);
+									int index = selectedItems.indexOf(appendItem_);
+									if (index > i)
+									{
+										selectedItems.removeAt(index);
+									}
 								}
+
+								setToolValue<RSystemElementRoad>(road, road->getIdName());
+
+								appendItem_ = item;
 							}
-
-							RSystemElementRoad *road = trackItem->getParentTrackRoadItem()->getRoad();
-							setToolValue<RSystemElementRoad>(road, road->getIdName());
-
-							appendItem_ = item;
-						}
-						else if ((item != mergeItem_) && (item != appendItem_))
-						{
-							item->setSelected(false);
+							else if ((item != mergeItem_) && (item != appendItem_))
+							{
+								item->setSelected(false);
+							}
 						}
 					}
 					mouseAction->intercept();
@@ -2064,13 +2045,15 @@ TrackEditor::kill()
 void
 TrackEditor::apply()
 {
-	clearToolObjectSelection();
-
 	ODD::ToolId toolId = tool_->getToolId();
 	if (toolId == ODD::TTE_ROAD_MERGE)
 	{
-		RSystemElementRoad *firstRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT))->getValue();
-		RSystemElementRoad *secondRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT))->getValue();
+		clearToolObjectSelection();
+
+		ToolValue<RSystemElementRoad>* firstValue = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_MERGE, ODD::TPARAM_SELECT));
+		RSystemElementRoad *firstRoad = firstValue->getValue();
+		ToolValue<RSystemElementRoad>* secondValue = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT));
+		RSystemElementRoad *secondRoad = secondValue->getValue();
 
 		// Find closest positions of the two roads
 	/*	double distances[4];
@@ -2090,167 +2073,190 @@ TrackEditor::apply()
 			command = new MergeRoadsCommand(firstRoad, secondRoad, true, false); */
 
 		MergeRoadsCommand *command = new MergeRoadsCommand(firstRoad, secondRoad, false, true);
-		if (command)
+		if (command->isValid())
 		{
 			getProjectGraph()->executeCommand(command);
+
+			// reset the values and parameter settings because the selected elements do not exist anymore
+			//
+			firstValue->setActive(true);
+			QList<ToolParameter*> list({ firstValue, secondValue });
+			resetToolValues(list);
 		}
 	
 	}
 	else if (toolId == ODD::TTE_ROAD_SNAP)
 	{
-		RSystemElementRoad *firstRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT))->getValue();
-		RSystemElementRoad *secondRoad = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT))->getValue();
+		clearToolObjectSelection();
 
-		// Find closest positions of the two roads
-		double lineLength[4];
+		ToolValue<RSystemElementRoad>* firstValue = dynamic_cast<ToolValue<RSystemElementRoad>*>(tool_->getParam(ODD::TTE_ROAD_SNAP, ODD::TPARAM_SELECT));
+		RSystemElementRoad* firstRoad = firstValue->getValue();
 
-		lineLength[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
-		lineLength[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
-		lineLength[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
-		lineLength[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
+		ToolValue<RSystemElementRoad>* secondValue = dynamic_cast<ToolValue<RSystemElementRoad> *>(tool_->getParam(ODD::TTE_ROAD_APPEND, ODD::TPARAM_SELECT));
+		RSystemElementRoad* secondRoad = secondValue->getValue();
 
-		short int min = 0;
-
-		for (short int k = 1; k < 4; k++)
+		if (firstRoad && secondRoad)
 		{
-			if (lineLength[k] < lineLength[min])
+			// Find closest positions of the two roads
+			double lineLength[4];
+
+			lineLength[0] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0)).length(); // Start Start
+			lineLength[1] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0)).length(); // End End
+			lineLength[2] = QVector2D(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // End Start
+			lineLength[3] = QVector2D(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength())).length(); // Start End
+
+			short int min = 0;
+
+			for (short int k = 1; k < 4; k++)
 			{
-				min = k;
+				if (lineLength[k] < lineLength[min])
+				{
+					min = k;
+				}
+			}
+			short int roadPosition[4] = { SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd, SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd };
+
+			// Validate //
+			//
+			bool valid = false;
+			for (int i = 0; i < 2; i++)
+			{
+				TrackComponent* track;
+
+				TrackMoveValidator* validationVisitor = new TrackMoveValidator();
+
+				switch (roadPosition[min])
+				{
+				case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
+				{
+					track = secondRoad->getTrackComponent(0.0);
+					validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
+					validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0));
+				}
+				break;
+				case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
+				{
+					track = secondRoad->getTrackComponent(0.0);
+					validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
+					validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0));
+				}
+				break;
+				case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
+				{
+					track = secondRoad->getTrackComponent(secondRoad->getLength());
+					validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
+					validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength()));
+				}
+				break;
+				case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
+				{
+					track = secondRoad->getTrackComponent(secondRoad->getLength());
+					validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
+					validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength()));
+				}
+				}
+
+				track->accept(validationVisitor);
+
+				TrackSpiralArcSpiral* maybeSparc = dynamic_cast<TrackSpiralArcSpiral*>(track);
+
+				if (!maybeSparc || !validationVisitor->isValid())
+				{
+					delete validationVisitor;
+					if (i > 0)
+					{
+						printStatusBarMsg(tr("Validate Move: not valid or tracks are not SpiralArcSpiral"), 0);
+						return; // not valid => no translation
+					}
+					else
+					{
+						RSystemElementRoad* tmpRoad = firstRoad;
+						firstRoad = secondRoad;
+						secondRoad = tmpRoad;
+						if (min == 1)
+						{
+							roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
+						}
+						else if (min == 3)
+						{
+							roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
+						}
+						continue;
+					}
+				}
+
+				switch (roadPosition[min])
+				{
+				case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
+				{
+					validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
+					validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0) + 180);
+				}
+				break;
+				case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
+				{
+					validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
+					validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()));
+				}
+				break;
+				case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
+				{
+					validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
+					validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()) + 180);
+				}
+				break;
+				case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
+				{
+					validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
+					validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0));
+				}
+				break;
+				}
+
+				track->accept(validationVisitor);
+
+				if (!validationVisitor->isValid())
+				{
+					delete validationVisitor;
+
+					if (i > 0)
+					{
+						printStatusBarMsg(tr("Validate Rotate: not valid"), 0);
+						return; // not valid => no rotation
+					}
+					else
+					{
+						RSystemElementRoad* tmpRoad = firstRoad;
+						firstRoad = secondRoad;
+						secondRoad = tmpRoad;
+						if (min == 1)
+						{
+							roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
+						}
+						else if (min == 3)
+						{
+							roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
+						}
+						continue;
+					}
+				}
+
+				break;
+			}
+
+
+			SnapRoadsCommand* command = new SnapRoadsCommand(firstRoad, secondRoad, roadPosition[min]);
+			if (command->isValid())
+			{
+				getProjectGraph()->executeCommand(command);
+
+				// reset the values and parameter settings
+				//
+				firstValue->setActive(true);
+				QList<ToolParameter*> list({ firstValue, secondValue });
+				resetToolValues(list);
 			}
 		}
-		short int roadPosition[4] = { SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart, SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd, SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd };
-
-		// Validate //
-		//
-		bool valid = false;
-		for (int i = 0; i < 2; i++)
-		{
-			TrackComponent *track;
-
-			TrackMoveValidator *validationVisitor = new TrackMoveValidator();
-
-			switch (roadPosition[min])
-			{
-			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
-			{
-				track = secondRoad->getTrackComponent(0.0);
-				validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
-				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(0.0));
-			}
-			break;
-			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
-			{
-				track = secondRoad->getTrackComponent(0.0);
-				validationVisitor->setState(TrackMoveValidator::STATE_STARTPOINT);
-				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(0.0));
-			}
-			break;
-			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
-			{
-				track = secondRoad->getTrackComponent(secondRoad->getLength());
-				validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
-				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(firstRoad->getLength()) - secondRoad->getGlobalPoint(secondRoad->getLength()));
-			}
-			break;
-			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
-			{
-				track = secondRoad->getTrackComponent(secondRoad->getLength());
-				validationVisitor->setState(TrackMoveValidator::STATE_ENDPOINT);
-				validationVisitor->setGlobalDeltaPos(firstRoad->getGlobalPoint(0.0) - secondRoad->getGlobalPoint(secondRoad->getLength()));
-			}
-			}
-
-			track->accept(validationVisitor);
-
-			TrackSpiralArcSpiral *maybeSparc = dynamic_cast<TrackSpiralArcSpiral *>(track);
-
-			if (!maybeSparc || !validationVisitor->isValid())
-			{
-				delete validationVisitor;
-				if (i > 0)
-				{
-					printStatusBarMsg(tr("Validate Move: not valid or tracks are not SpiralArcSpiral"), 0);
-					return; // not valid => no translation
-				}
-				else
-				{
-					RSystemElementRoad *tmpRoad = firstRoad;
-					firstRoad = secondRoad;
-					secondRoad = tmpRoad;
-					if (min == 1)
-					{
-						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
-					}
-					else if (min == 3)
-					{
-						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
-					}
-					continue;
-				}
-			}
-
-			switch (roadPosition[min])
-			{
-			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadStart:
-			{
-				validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
-				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0) + 180);
-			}
-			break;
-			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
-			{
-				validationVisitor->setState(TrackMoveValidator::STATE_STARTHEADING);
-				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()));
-			}
-			break;
-			case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadEnd:
-			{
-				validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
-				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(firstRoad->getLength()) + 180);
-			}
-			break;
-			case SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd:
-			{
-				validationVisitor->setState(TrackMoveValidator::STATE_ENDHEADING);
-				validationVisitor->setGlobalHeading(firstRoad->getGlobalHeading(0.0));
-			}
-			break;
-			}
-
-			track->accept(validationVisitor);
-
-			if (!validationVisitor->isValid())
-			{
-				delete validationVisitor;
-
-				if (i > 0)
-				{
-					printStatusBarMsg(tr("Validate Rotate: not valid"), 0);
-					return; // not valid => no rotation
-				}
-				else
-				{
-					RSystemElementRoad *tmpRoad = firstRoad;
-					firstRoad = secondRoad;
-					secondRoad = tmpRoad;
-					if (min == 1)
-					{
-						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadStart | SetRoadLinkRoadsCommand::SecondRoadEnd;
-					}
-					else if (min == 3)
-					{
-						roadPosition[min] = SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart;
-					}
-					continue;
-				}
-			}
-
-			break;
-		}
-
-		SnapRoadsCommand *command = new SnapRoadsCommand(firstRoad, secondRoad, roadPosition[min]);
-		getProjectGraph()->executeCommand(command);
-
 	}
 }
 

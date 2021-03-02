@@ -114,6 +114,9 @@
         <property name="text">
          <string>Remove Signals</string>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="2" column="1">

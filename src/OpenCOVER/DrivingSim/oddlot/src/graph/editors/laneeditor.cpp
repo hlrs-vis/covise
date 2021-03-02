@@ -252,10 +252,10 @@ LaneEditor::toolAction(ToolAction *toolAction)
 			{
 				if (action->getParamToolId() == ODD::TLE_INSERT_LANE_ID)
 				{
-					ToolParameter *p = tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID);
-					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
+					ToolParameter* p = tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID);
+					ToolValue<int>* v = dynamic_cast<ToolValue<int> *>(p);
 					int laneId = *v->getValue();
-					Lane *lane = dynamic_cast<ToolValue<Lane> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT))->getValue();
+					Lane* lane = dynamic_cast<ToolValue<Lane> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT))->getValue();
 
 					if (lane)
 					{
@@ -273,20 +273,6 @@ LaneEditor::toolAction(ToolAction *toolAction)
 							updateToolParameterUI(p);
 						}
 					}
-				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", true);
-					tool_ = new Tool(ODD::TLE_INSERT, 1);
-					tool_->readParams(laneParam);
-					ToolValue<int> *param = new ToolValue<int>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID, 0, ToolParameter::ParameterTypes::INT, "New Lane ID");
-					param->setValue(0);
-					tool_->readParams(param);
-					ToolValue<double> *widthParam = new ToolValue<double>(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_WIDTH, 0, ToolParameter::ParameterTypes::DOUBLE, "Lane Width");
-					widthParam->setValue(3.0);
-					tool_->readParams(widthParam);
-
-					generateToolParameterUI(tool_);
 				}
 			}
 		}
@@ -519,14 +505,13 @@ LaneEditor::translateLaneBorder(const QPointF &pressPos, const QPointF &mousePos
 void
 LaneEditor::apply()
 {
-	clearToolObjectSelection();
-
 	ODD::ToolId toolId = tool_->getToolId();
 	if (toolId == ODD::TLE_INSERT)
 	{
 		int laneId = *dynamic_cast<ToolValue<int> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID))->getValue();
 		double width = *dynamic_cast<ToolValue<double> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_WIDTH))->getValue();
-		Lane *lane = dynamic_cast<ToolValue<Lane> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT))->getValue();
+		ToolValue<Lane>* toolValue = dynamic_cast<ToolValue<Lane>*>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT));
+		Lane *lane = toolValue->getValue();
 
 		Lane *newLane = new Lane(laneId, Lane::LT_DRIVING);
 		LaneSection *parentLaneSection = lane->getParentLaneSection();
@@ -545,12 +530,20 @@ LaneEditor::apply()
 		InsertLaneCommand *command = new InsertLaneCommand(parentLaneSection, newLane, lane);
 		if (command)
 		{
+			clearToolObjectSelection();
 			getProjectGraph()->executeCommand(command);
+
+			// set the values and parameter settings
+			//
+			toolValue->setActive(true);
+			QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
+			toolValue->setValueDisplayed(textDisplayed);
+			QList<ToolParameter*>list({ toolValue });
+			setToolValues(list);
+
+			SelectDataElementCommand* selectCommand = new SelectDataElementCommand(lane, NULL);
+			getProjectGraph()->executeCommand(selectCommand);
 		}
-
-
-		DeselectDataElementCommand *deselectCommand = new DeselectDataElementCommand(lane, NULL);
-		getProjectGraph()->executeCommand(deselectCommand);
 	}
 }
 

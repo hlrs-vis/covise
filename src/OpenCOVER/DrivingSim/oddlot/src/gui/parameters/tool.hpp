@@ -202,6 +202,8 @@ public:
 		return v->getValue();
 	}
 
+	void resetValues(QList<ToolParameter*>& paramList);
+
 	QMap<unsigned int, QList<ToolParameter *>> *getParamList()
 	{
 		return &paramList_;

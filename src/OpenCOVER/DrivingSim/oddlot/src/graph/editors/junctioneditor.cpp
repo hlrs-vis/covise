@@ -444,14 +444,6 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 					}
 				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TJE_LINK_ROADS, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Deselect", true);
-					tool_ = new Tool(ODD::TJE_LINK_ROADS, 4);
-					tool_->readParams(param);
-
-					generateToolParameterUI(tool_);
-				}
 			}
 
 
@@ -477,14 +469,6 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
 					}
-				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TJE_UNLINK_ROADS, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Deselect", true);
-					tool_ = new Tool(ODD::TJE_UNLINK_ROADS, 4);
-					tool_->readParams(param);
-
-					generateToolParameterUI(tool_);
 				}
 			}
 
@@ -513,33 +497,6 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 					}
 				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
-					tool_ = new Tool(ODD::TJE_CREATE_JUNCTION, 4);
-					tool_->readParams(param);
-
-					generateToolParameterUI(tool_);
-				}
-			}
-
-			else if (action->getToolId() == ODD::TJE_ADD_TO_JUNCTION)
-			{
-
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					DeselectDataElementCommand *command = new DeselectDataElementCommand(junction_, NULL);
-					getProjectGraph()->executeCommand(command);
-					junction_ = NULL;
-
-					ToolValue<RSystemElementJunction> *param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true);
-					tool_ = new Tool(ODD::TJE_ADD_TO_JUNCTION, 4);
-					tool_->readParams(param);
-					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_ADD_TO_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
-				}
 			}
 
 			else if (action->getToolId() == ODD::TJE_REMOVE_FROM_JUNCTION)
@@ -563,20 +520,6 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 					}
 				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					DeselectDataElementCommand *command = new DeselectDataElementCommand(junction_, NULL);
-					getProjectGraph()->executeCommand(command);
-					junction_ = NULL;
-
-					ToolValue<RSystemElementJunction> *param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true);
-					tool_ = new Tool(ODD::TJE_REMOVE_FROM_JUNCTION, 4);
-					tool_->readParams(param);
-					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_REMOVE_FROM_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
-				}
 			}
 			// Create Road //
 			//
@@ -586,16 +529,6 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 				{
 					currentParamId_ = action->getParamId();
 				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select road", true);
-					tool_ = new Tool(ODD::TJE_CREATE_ROAD, 3);
-					tool_->readParams(param);
-                    ToolValue<RSystemElementRoad>* roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
-				}
 			}
 			// Create Lane //
 			//
@@ -604,18 +537,6 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 				if (action->getParamToolId() == ODD::TPARAM_SELECT)
 				{
 					currentParamId_ = action->getParamId();
-				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					selectedLanes_.clear();
-
-					ToolValue<Lane> *param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane", true);
-					tool_ = new Tool(ODD::TJE_CREATE_LANE, 3);
-					tool_->readParams(param);
-                    ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
-					tool_->readParams(laneParam);
-
-					generateToolParameterUI(tool_);
 				}
 			}
 		}
@@ -965,6 +886,20 @@ JunctionEditor::clearToolObjectSelection()
 	}
 
 	selectedRoads_.clear();
+
+    if (!selectedLanes_.isEmpty())
+    {
+        QList<DataElement*>list;
+        foreach(Lane * lane, selectedLanes_)
+        {
+            list.append(lane);
+        }
+        DeselectDataElementCommand* command = new DeselectDataElementCommand(list);
+        getProjectGraph()->executeCommand(command);
+
+        selectedLanes_.clear();
+    }
+
 }
 
 void

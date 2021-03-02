@@ -803,10 +803,10 @@ SignalEditor::toolAction(ToolAction *toolAction)
 					if (!action->getState())
 					{
 
-						QList<Signal *> signalList = tool_->removeToolParameters<Signal>(action->getParamId());
-						foreach(Signal *signal, signalList)
+						QList<Signal*> signalList = tool_->removeToolParameters<Signal>(action->getParamId());
+						foreach(Signal * signal, signalList)
 						{
-							DeselectDataElementCommand *command = new DeselectDataElementCommand(signal, NULL);
+							DeselectDataElementCommand* command = new DeselectDataElementCommand(signal, NULL);
 							getProjectGraph()->executeCommand(command);
 							selectedSignals_.removeOne(signal);
 						}
@@ -816,43 +816,6 @@ SignalEditor::toolAction(ToolAction *toolAction)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
-					}
-				}
-				else if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					if (action->getToolId() == ODD::TSG_CONTROLLER)
-					{
-						ToolValue<Signal> *param = new ToolValue<Signal>(ODD::TSG_CONTROLLER, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
-						tool_ = new Tool(ODD::TSG_CONTROLLER, 4);
-						tool_->readParams(param);
-
-						generateToolParameterUI(tool_);
-					}
-
-					else if (action->getToolId() == ODD::TSG_ADD_CONTROL_ENTRY)
-					{
-						controller_ = NULL;
-
-						ToolValue<RSystemElementController> *param = new ToolValue<RSystemElementController>(ODD::TSG_SELECT_CONTROLLER, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Controller", true);
-						tool_ = new Tool(ODD::TSG_ADD_CONTROL_ENTRY, 4);
-						tool_->readParams(param);
-						ToolValue<Signal> *signalParam = new ToolValue<Signal>(ODD::TSG_ADD_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
-						tool_->readParams(signalParam);
-
-						generateToolParameterUI(tool_);
-					}
-
-					else if (action->getToolId() == ODD::TSG_REMOVE_CONTROL_ENTRY)
-					{
-						controller_ = NULL;
-
-						ToolValue<RSystemElementController> *param = new ToolValue<RSystemElementController>(ODD::TSG_SELECT_CONTROLLER, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Controller", true);
-						tool_ = new Tool(ODD::TSG_ADD_CONTROL_ENTRY, 4);
-						tool_->readParams(param);
-						ToolValue<Signal> *signalParam = new ToolValue<Signal>(ODD::TSG_ADD_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
-						tool_->readParams(signalParam);
-
-						generateToolParameterUI(tool_);
 					}
 				}
 			}

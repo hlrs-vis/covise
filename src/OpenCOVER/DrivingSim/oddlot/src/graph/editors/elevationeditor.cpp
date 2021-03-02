@@ -484,34 +484,7 @@ ElevationEditor::toolAction(ToolAction *toolAction)
 		ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
 		if (action)
 		{
-			if (action->getToolId() == ODD::TEL_SMOOTH)
-			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true);
-					tool_ = new Tool(ODD::TEL_SMOOTH, 1);
-					tool_->readParams(elevationSectionParam);
-					ToolValue<ElevationSection> *adjacentSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Adjacent Section");
-					tool_->readParams(adjacentSectionParam);
-
-					generateToolParameterUI(tool_);
-				}
-			}
-			else if (action->getToolId() == ODD::TEL_SLOPE)
-			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<double> *slopeParam = new ToolValue<double>(ODD::TEL_PERCENTAGE, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Slope Percentage");
-					slopeParam->setValue(slope_);
-					tool_ = new Tool(ODD::TEL_SLOPE, 1);
-					tool_->readParams(slopeParam);
-					ToolValue<ElevationSection> *elevationSectionParam = new ToolValue<ElevationSection>(ODD::TEL_SLOPE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select ElevationSection", true);
-					tool_->readParams(elevationSectionParam);
-
-					generateToolParameterUI(tool_);
-				}
-			}
-			else if (action->getToolId() == ODD::TEL_PERCENTAGE)
+			if (action->getToolId() == ODD::TEL_PERCENTAGE)
 			{
 				slope_ = action->getValue();
 			}
@@ -523,6 +496,7 @@ QMap<QGraphicsItem*, ElevationSection*>
 ElevationEditor::getSelectedElevationSections(int count)
 {
 	QMap<QGraphicsItem*, ElevationSection*> selected;
+	QList<RSystemElementRoad*> selectedRoads;
 	QList<QGraphicsItem*> selectedItems = getTopviewGraph()->getScene()->selectedItems();
 	for (int i = 0; i < selectedItems.size(); i++)
 	{
@@ -536,8 +510,13 @@ ElevationEditor::getSelectedElevationSections(int count)
 				ElevationSection* elevationSection = elevationSectionItem->getElevationSection();
 				if (!selected.key(elevationSection, NULL))
 				{
-					selected.insert(item, elevationSection);
-					continue;
+					RSystemElementRoad* road = elevationSection->getParentRoad();
+					if (!selectedRoads.contains(road))
+					{
+						selected.insert(item, elevationSection);
+						selectedRoads.append(road);
+						continue;
+					}
 				}
 			}
 		}
@@ -559,9 +538,10 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 {
 	QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
 
+	ODD::ToolId currentTool_ = getCurrentTool();
 	// SMOOTH //
 	//
-	if ((getCurrentTool() == ODD::TEL_SMOOTH) || (getCurrentTool() == ODD::TEL_SLOPE))
+	if ((currentTool_ == ODD::TEL_SMOOTH) || (currentTool_ == ODD::TEL_SLOPE))
 	{
 		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
 		{
@@ -569,6 +549,16 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 			{
 				if (mouseAction->getEvent()->button() == Qt::LeftButton)
 				{
+					RSystemElementRoad* adjacentRoad = NULL;
+					if (currentTool_ == ODD::TEL_SMOOTH)
+					{
+						ElevationSection* adjacentSection = dynamic_cast<ToolValue<ElevationSection> *>(tool_->getParam(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT))->getValue();
+						if (adjacentSection)
+						{
+							adjacentRoad = adjacentSection->getParentRoad();
+						}
+					}
+
 					QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
 					for (int i = 0; i < selectedItems.size(); i++)
 					{
@@ -576,30 +566,35 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 						ElevationSectionItem *sectionItem = dynamic_cast<ElevationSectionItem *>(item);
 						if (sectionItem && (item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
 						{
-							if (elevationSectionItem_)
+							RSystemElementRoad* road = sectionItem->getElevationSection()->getParentRoad();
+
+							if (road != adjacentRoad)
 							{
-								elevationSectionItem_->setSelected(false);
-								int index = selectedItems.indexOf(elevationSectionItem_);
-								if (index > i)
+								if (elevationSectionItem_)
 								{
-									selectedItems.removeAt(index);
+									elevationSectionItem_->setSelected(false);
+									int index = selectedItems.indexOf(elevationSectionItem_);
+									if (index > i)
+									{
+										selectedItems.removeAt(index);
+									}
 								}
+
+								ElevationSection* elevationSection = sectionItem->getElevationSection();
+								QString textDisplayed = QString("%1 Section at %2").arg(road->getIdName()).arg(elevationSection->getSStart());
+								setToolValue<ElevationSection>(elevationSection, textDisplayed);
+
+								selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, elevationSection->getParentRoad());
+								initBox();
+								addSelectedRoad(selectedElevationItem_);
+								fitView();
+
+								elevationSectionItem_ = item;
 							}
-
-							ElevationSection *elevationSection = sectionItem->getElevationSection();
-							QString textDisplayed = QString("%1 Section at %2").arg(elevationSection->getParentRoad()->getIdName()).arg(elevationSection->getSStart());
-							setToolValue<ElevationSection>(elevationSection, textDisplayed);
-
-							selectedElevationItem_ = new ElevationRoadPolynomialItem(roadSystemItemPolyGraph_, elevationSection->getParentRoad());
-							initBox();
-							addSelectedRoad(selectedElevationItem_);
-							fitView();
-
-							elevationSectionItem_ = item;
-						}
-						else if ((item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
-						{
-							item->setSelected(false);
+							else if ((item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
+							{
+								item->setSelected(false);
+							}
 						}
 					}
 					mouseAction->intercept();
@@ -613,7 +608,7 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 			}
 		}
 	}
-	else if (getCurrentTool() == ODD::TEL_SMOOTH_SECTION)
+	else if (currentTool_ == ODD::TEL_SMOOTH_SECTION)
 	{
 		if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
 		{
@@ -621,6 +616,13 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 			{
 				if (mouseAction->getEvent()->button() == Qt::LeftButton)
 				{
+					RSystemElementRoad* adjacentRoad = NULL;
+					ElevationSection* adjacentSection = dynamic_cast<ToolValue<ElevationSection> *>(tool_->getParam(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT))->getValue();
+					if (adjacentSection)
+					{
+						adjacentRoad = adjacentSection->getParentRoad();
+					}
+
 					QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
 					for (int i = 0; i < selectedItems.size(); i++)
 					{
@@ -628,25 +630,29 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 						ElevationSectionItem *sectionItem = dynamic_cast<ElevationSectionItem *>(item);
 						if (sectionItem && (item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
 						{
-							if (elevationSectionAdjacentItem_)
+							RSystemElementRoad* road = sectionItem->getElevationSection()->getParentRoad();
+							if (road != adjacentRoad)
 							{
-								elevationSectionAdjacentItem_->setSelected(false);
-								int index = selectedItems.indexOf(elevationSectionAdjacentItem_);
-								if (index > i)
+								if (elevationSectionAdjacentItem_)
 								{
-									selectedItems.removeAt(index);
+									elevationSectionAdjacentItem_->setSelected(false);
+									int index = selectedItems.indexOf(elevationSectionAdjacentItem_);
+									if (index > i)
+									{
+										selectedItems.removeAt(index);
+									}
 								}
+
+								ElevationSection* elevationSection = sectionItem->getElevationSection();
+								QString textDisplayed = QString("%1 Section at %2").arg(road->getIdName()).arg(elevationSection->getSStart());
+								setToolValue<ElevationSection>(elevationSection, textDisplayed);
+
+								elevationSectionAdjacentItem_ = item;
 							}
-
-							ElevationSection *elevationSection = sectionItem->getElevationSection();
-							QString textDisplayed = QString("%1 Section at %2").arg(elevationSection->getParentRoad()->getIdName()).arg(elevationSection->getSStart());
-							setToolValue<ElevationSection>(elevationSection, textDisplayed);
-
-							elevationSectionAdjacentItem_ = item;
-						}
-						else if ((item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
-						{
-							item->setSelected(false);
+							else if ((item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
+							{
+								item->setSelected(false);
+							}
 						}
 					}
 					mouseAction->intercept();
@@ -935,23 +941,35 @@ ElevationEditor::kill()
 void
 ElevationEditor::apply()
 {
-	clearToolObjectSelection();
 
 	ODD::ToolId toolId = tool_->getToolId();
 	if (toolId == ODD::TEL_SMOOTH)
 	{
-		ElevationSection *firstSection = dynamic_cast<ToolValue<ElevationSection> *>(tool_->getParam(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT))->getValue();
-		ElevationSection *secondSection = dynamic_cast<ToolValue<ElevationSection> *>(tool_->getParam(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT))->getValue();
+		ToolValue<ElevationSection> *firstValue = dynamic_cast<ToolValue<ElevationSection>*>(tool_->getParam(ODD::TEL_SMOOTH, ODD::TPARAM_SELECT));
+		ElevationSection *firstSection = firstValue->getValue();
+		ToolValue<ElevationSection> *secondValue = dynamic_cast<ToolValue<ElevationSection>*>(tool_->getParam(ODD::TEL_SMOOTH_SECTION, ODD::TPARAM_SELECT));
+		ElevationSection *secondSection = secondValue->getValue();
 	
 		SmoothElevationRoadsCommand *command = new SmoothElevationRoadsCommand(firstSection, secondSection, smoothRadius_);
-		getProjectGraph()->executeCommand(command);
+		if (command->isValid())
+		{
+			clearToolObjectSelection();
+			getProjectGraph()->executeCommand(command);
+
+			// reset the values and parameter settings because the selected elements do not exist anymore
+			//
+			firstValue->setActive(true);
+			QList<ToolParameter*> list({ firstValue, secondValue });
+			resetToolValues(list);
+		}
 	}
 	else if (toolId == ODD::TEL_SLOPE)
 	{
 		QList<ElevationSection *> endPointSections;
 		QList<ElevationSection *> startPointSections;
 
-		ElevationSection *section = dynamic_cast<ToolValue<ElevationSection> *>(tool_->getParam(ODD::TEL_SLOPE, ODD::TPARAM_SELECT))->getValue();
+		ToolValue<ElevationSection> *toolValue = dynamic_cast<ToolValue<ElevationSection>*>(tool_->getParam(ODD::TEL_SLOPE, ODD::TPARAM_SELECT));
+		ElevationSection *section = toolValue->getValue();
 		ElevationSection *sectionNext = section->getParentRoad()->getElevationSectionNext(section->getSStart());
 
 
@@ -968,7 +986,17 @@ ElevationEditor::apply()
 
 				if (command->isValid())
 				{
+					clearToolObjectSelection();
 					getProjectData()->getUndoStack()->push(command);
+
+					// set the values and parameter settings
+					//
+					toolValue->setActive(true);
+					QList<ToolParameter*>list({ toolValue });
+					setToolValues(list);
+
+					SelectDataElementCommand* selectCommand = new SelectDataElementCommand(section, NULL);
+					getProjectGraph()->executeCommand(selectCommand);
 				}
 				else
 				{
