@@ -696,6 +696,11 @@ ToolParameterSettings::onButtonPressed(int paramId)
 
 }
 
+void ToolParameterSettings::activateNextParameter()
+{
+	
+}
+
 void 
 ToolParameterSettings::setLables(QList<ToolParameter*>& paramList)
 {
@@ -757,6 +762,34 @@ ToolParameterSettings::hide()
 // ToolParameterSettingsDialogBox    //
 //##################################//
 
+void ToolParameterSettingsApplyBox::activateNextParameter()
+{
+	ToolParameterSettings::activateNextParameter();
+	foreach(ToolParameter * p, params_->values())
+	{
+		if (!p->isValid())
+		{
+			// this is the first invalid tool parameter
+			int paramId = 0;
+			QMap<unsigned int, ToolParameter*>::const_iterator paramIt = params_->constBegin();
+			while (paramIt != params_->constEnd())
+			{
+				if (paramIt.value() == p)
+				{
+					paramId = paramIt.key();
+					QAbstractButton* button = buttonGroup_->button(paramId);
+					button->click();
+					return;
+				}
+				paramIt++;
+			}
+			return;
+		}
+	}
+	// all tool parameters are valid; se OK active
+	focus(true);
+}
+
 ToolParameterSettingsApplyBox::ToolParameterSettingsApplyBox(ProjectEditor *editor, ToolManager *toolManager, const ODD::EditorId &editorID, QFrame *dBox)
 	:ToolParameterSettings(toolManager, editorID),
 	editor_(editor)
@@ -778,7 +811,9 @@ ToolParameterSettingsApplyBox::createDialogBox(QFrame *dBox)
 	dialogLayout_ = new QGridLayout;
 	dialogBox_ = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Apply| QDialogButtonBox::Cancel);
 	setApplyButtonVisible(false);
+	dialogBox_->button(dialogBox_->Cancel)->setShortcut(QKeySequence(Qt::Key_Escape));
 	ok_ = dialogBox_->button(dialogBox_->Ok);
+	ok_->setShortcut(QKeySequence(Qt::Key_Enter));
 	ok_->setObjectName("okButton");
 	ok_->setDefault(true);
 	dialogLayout_->addWidget(dialogBox_, 0, 0, Qt::AlignBottom);

@@ -25,15 +25,16 @@
      <Input>
         <MouseNav value="true" />
         <Device>
+
+           <DTrackCaveOutside driver="dtrack" port="5001">
+              <Offset x="0" y="-3000" z="-1327" />
+              <Orientation h="0" p="0" r="0" />
+           </DTrackCaveOutside>
+
            <DTrackCave driver="dtrack" port="5000">
               <Offset x="0" y="-0" z="-1327" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
-
-           <DTrackCaveOutside driver="dtrack" port="5001">
-              <Offset x="0" y="-2673" z="-1327" />
-              <Orientation h="0" p="0" r="0" />
-           </DTrackCaveOutside>
 
            <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
            <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
@@ -56,12 +57,12 @@
               <Orientation h="-2" p="-2" r="14" />
            </CaveHand>
 
-           <CaveCamera device="DTrackCave" bodyIndex="2">
+           <CaveCamera device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="2">
               <Offset x="0" y="120" z="-200" />
               <Orientation h="0" p="0" r="0" />
            </CaveCamera>
 
-           <CaveCameraOutside device="DTrackCaveOutside" bodyIndex="0">
+           <CaveCameraOutside device="DTrackCaveOutside" bodyIndex="2">
               <Offset x="0" y="120" z="-200" />
               <Orientation h="0" p="0" r="0" />
            </CaveCameraOutside>
@@ -548,7 +549,9 @@
    <LenkMaus value="/dev/input/mouse3"/>
    <PedalMaus value="/dev/input/mouse4"/>
    <isBike value="false"/>
-   <isSkateboard value="true"/>
+   <FlightGear value="true"/>
+   <isParaglider value="true"/>
+   <isSkateboard value="false"/>
    </Bicycle>
    <SteeringWheel>
 

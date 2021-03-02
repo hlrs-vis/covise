@@ -895,6 +895,9 @@ bool BicyclePlugin::init()
     isBike=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isBike",false));
     isParaglider = (coCoviseConfig::isOn("COVER.Plugin.Bicycle.isParaglider", false));
     isSkateboard = (coCoviseConfig::isOn("COVER.Plugin.Bicycle.isSkateboard", false));
+   fprintf(stderr,"isParaglider %d\n",(int)isParaglider);
+   fprintf(stderr,"Flightgear %d\n",(int)isPlane);
+   fprintf(stderr,"COVER.Plugin.Bicycle.isSkateboard %d\n",(int)isSkateboard);
         if (isSkateboard)
         {
             skateboard = new Skateboard(this);

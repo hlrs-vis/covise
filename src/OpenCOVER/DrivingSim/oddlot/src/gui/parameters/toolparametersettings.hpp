@@ -69,7 +69,10 @@ public:
 		return currentParamId_;
 	}
 
+	virtual void activateNextParameter();
 	void setLables(QList<ToolParameter *> &paramList);
+
+
 	void setLabels(int id, const QString &objectName, const QString &buttonText);
 	void setObjectSelected(int id, const QString &objectName, const QString &buttonText);
 
@@ -98,14 +101,14 @@ private:
 protected:
 	Tool *tool_;
 	ODD::EditorId editorID_;
+	QMap<unsigned int, ToolParameter*>* params_;
+	QButtonGroup* buttonGroup_;
 
 private:
 	QMap<unsigned int, QList<ToolParameter *>> *paramList_;
-	QMap<unsigned int, ToolParameter *> *params_;
 	QMap<QString, QWidget *> memberWidgets_;
 	int currentParamId_;
 
-	QButtonGroup *buttonGroup_;
 	QGridLayout *layout_;
 };
 
@@ -126,6 +129,7 @@ public:
 	void deleteDialogBox();
 	void setApplyButtonVisible(bool);
 	void focus(short state);
+	virtual void activateNextParameter();
 
 //################//
 // EVENTS         //
