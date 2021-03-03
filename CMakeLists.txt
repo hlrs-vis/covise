@@ -310,7 +310,9 @@ endif()
 if(MSVC)
     add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
 endif()
-
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_definitions(-Werror=return-type)
+endif()
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
