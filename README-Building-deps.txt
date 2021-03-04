@@ -3,6 +3,20 @@ here I try to write down how to compile all necessary dependencies for windows
 everything is done from a normal covise zebu shell if not otherwise mentioned
 Visual Studio 2015, Cmake and Tortoise Git are installed
 
+#Botan
+create C:\src\externlibs\zebu\botan\debug and C:\src\externlibs\zebu\botan\release
+git clone https://github.com/randombit/botan
+cd botan 
+python configure.py --cc=msvc --os=windows --debug-mode --msvc-runtime=MDd --library-suffix=d --prefix=C:\src\externlibs\zebu\botan\debug
+nmake
+namke check
+namake install
+python configure.py --cc=msvc --os=windows --msvc-runtime=MD --prefix=C:\src\externlibs\zebu\botan\release
+nmake
+namke check
+namake install
+
+
 #ZLIB
 Downlload zlib 1.2.8
 cmake .. -G "Visual Studio 16 2019" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/zlib
