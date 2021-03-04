@@ -31,7 +31,7 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
     {
         if(execvp(execPath, const_cast<char *const *>(args.data())) == -1){
 
-            print_error(__LINE__, __FILE__, "%s%s%s", "exec of", execPath, " failed");
+            print_error(__LINE__, __FILE__, "%s%s%s", "exec of ", execPath, " failed");
             exit(1);
         }
     }
