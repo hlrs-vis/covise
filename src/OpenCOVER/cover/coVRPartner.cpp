@@ -41,7 +41,7 @@ coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
 coVRPartner::coVRPartner()
     : ui::Owner("VRPartner-Me", cover->ui)
-    , vrb::RemoteClient(vrb::Program::Cover)
+    , vrb::RemoteClient(vrb::Program::opencover)
 {
     m_avatar = new VRAvatar(this);
 }

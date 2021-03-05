@@ -163,7 +163,7 @@ void coVRCommunication::toggleClientState(bool state){
         vrbc->shutdown();
         delete vrbc;
         //std::this_thread::sleep_for(std::chrono::seconds(2));
-        vrbc = new vrb::VRBClient(Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        vrbc = new vrb::VRBClient(Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         coVRCollaboration::instance()->updateSharedStates();
     }
     connected = state;
@@ -468,7 +468,7 @@ void coVRCommunication::handleVRB(Message *msg)
 
     if (!vrbc) 
 	{
-        vrbc = new VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        vrbc = new VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
     }
     TokenBuffer tb(msg);
     switch (msg->type)

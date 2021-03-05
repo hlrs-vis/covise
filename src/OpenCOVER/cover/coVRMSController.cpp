@@ -2559,7 +2559,7 @@ bool coVRMSController::syncVRBMessages()
 				}
 
 				if (vrbc == NULL)
-					vrbc = new vrb::VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
+					vrbc = new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str());
 				vrbc->connectToServer(startSession);
 				oldSec = curSec;
 			}

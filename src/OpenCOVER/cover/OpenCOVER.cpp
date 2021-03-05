@@ -711,13 +711,13 @@ bool OpenCOVER::init()
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-            vrbc = new vrb::VRBClient(vrb::Program::Cover, *m_vrbCredentials, coVRMSController::instance()->isSlave());
+            vrbc = new vrb::VRBClient(vrb::Program::opencover, *m_vrbCredentials, coVRMSController::instance()->isSlave());
         }
         else
         {
             hud->setText2("connecting");
             hud->setText3("to VRB");
-            vrbc = new vrb::VRBClient(vrb::Program::Cover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+            vrbc = new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         }
         hud->redraw();
         
