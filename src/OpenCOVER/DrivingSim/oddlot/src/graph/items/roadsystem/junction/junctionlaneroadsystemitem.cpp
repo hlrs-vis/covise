@@ -56,7 +56,7 @@ JunctionLaneRoadSystemItem::updateObserver()
 {
     // Parent //
     //
-    RoadSystemItem::updateObserver();
+  //  RoadSystemItem::updateObserver();
     if (isInGarbage())
     {
         return; // will be deleted anyway

@@ -1107,16 +1107,19 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 								if (mergeItem_)
 								{
 									mergeItem_->setSelected(false);
-									int index = selectedItems.indexOf(mergeItem_);
-									if (index > i)
-									{
-										selectedItems.removeAt(index);
-									}
 								}
 
 								setToolValue<RSystemElementRoad>(road, road->getIdName());
 
 								mergeItem_ = item;
+								for (++i; i < selectedItems.size(); i++)
+								{
+									item = selectedItems.at(i);
+									if (item != appendItem_)
+									{
+										selectedItems.at(i)->setSelected(false);
+									}
+								}
 							}
 							else if ((item != mergeItem_) && (item != appendItem_))
 							{
@@ -1156,16 +1159,20 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 								if (appendItem_)
 								{
 									appendItem_->setSelected(false);
-									int index = selectedItems.indexOf(appendItem_);
-									if (index > i)
-									{
-										selectedItems.removeAt(index);
-									}
 								}
 
 								setToolValue<RSystemElementRoad>(road, road->getIdName());
 
 								appendItem_ = item;
+
+								for (++i; i < selectedItems.size(); i++)
+								{
+									item = selectedItems.at(i);
+									if (item != mergeItem_)
+									{
+										selectedItems.at(i)->setSelected(false);
+									}
+								}
 							}
 							else if ((item != mergeItem_) && (item != appendItem_))
 							{

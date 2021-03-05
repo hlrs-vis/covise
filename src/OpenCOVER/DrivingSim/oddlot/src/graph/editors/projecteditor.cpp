@@ -227,7 +227,7 @@ ProjectEditor::setToolValue(T *object, const QString &valueDisplayed)
 	}
 	else
 	{
-		fprintf(stderr, "Error: wront type in ProjectEditor::setToolValue \n");
+		fprintf(stderr, "Error: wrong type in ProjectEditor::setToolValue \n");
 	}
 }
 

@@ -261,7 +261,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 						}
 
 						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
@@ -293,7 +293,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 						}
 
 						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}

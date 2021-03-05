@@ -182,7 +182,15 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				ToolValue<RSystemElementJunction> *param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true);
+                ToolValue<RSystemElementJunction>* param;
+                if (junction_)
+                {
+                    param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true, "", junction_->getIdName(), junction_);
+                }
+                else
+                {
+                    param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true);
+                }
 				tool_ = new Tool(ODD::TJE_ADD_TO_JUNCTION, 4);
 				tool_->readParams(param);
 				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_ADD_TO_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
@@ -271,14 +279,22 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
 			if ((paramTool == ODD::TNO_TOOL) && !tool_)
 			{
-				ToolValue<RSystemElementJunction> *param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true);
+                ToolValue<RSystemElementJunction>* param;
+                if (junction_)
+                {
+                    param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true, "", junction_->getIdName(), junction_);
+                }
+                else
+                {
+                    param = new ToolValue<RSystemElementJunction>(ODD::TJE_SELECT_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Junction", true);
+                }
 				tool_ = new Tool(ODD::TJE_REMOVE_FROM_JUNCTION, 4);
 				tool_->readParams(param);
 				ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_REMOVE_FROM_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove");
 				unsigned int paramCount = tool_->readParams(roadParam);
 
 				createToolParameterSettingsApplyBox(tool_, ODD::EJE);
-				ODD::mainWindow()->showParameterDialog(true, "Remove roads to junction", "SELECT a junction, SELECT/DESELECT roads and press APPLY");
+				ODD::mainWindow()->showParameterDialog(true, "Remove roads from junction", "SELECT a junction, SELECT/DESELECT roads and press APPLY");
 
 				applyCount_ = 1;
 
@@ -415,7 +431,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 					}
 
 					// verify if apply has to be hidden //
-					if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+					if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 					{
 						settingsApplyBox_->setApplyButtonVisible(false);
 					}
@@ -438,7 +454,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 
 						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
@@ -464,7 +480,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 
 						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
@@ -491,7 +507,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 
 						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
@@ -514,7 +530,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 						}
 
 						// verify if apply has to be hidden //
-						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) <= applyCount_)
+						if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
 						{
 							settingsApplyBox_->setApplyButtonVisible(false);
 						}
@@ -615,6 +631,14 @@ JunctionEditor::assignParameterSelection(ODD::ToolId toolId, unsigned int paramC
                     selectedRoads_.append(road);
 
                     item->setSelected(true);
+                }
+            }
+            else
+            {
+                JunctionItem* junctionItem = dynamic_cast<JunctionItem*>(item);
+                if (!junctionItem || (junctionItem->getJunction() != junction_))
+                {
+                    item->setSelected(false);
                 }
             }
         }
@@ -1737,10 +1761,18 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 								graphicRoadItems.insert(road, item);
 							}
 						}
-						else
+						else if ((currentToolId != ODD::TJE_ADD_TO_JUNCTION) && (currentToolId != ODD::TJE_REMOVE_FROM_JUNCTION))
 						{
 							item->setSelected(false);
 						}
+                        else
+                        {
+                            JunctionItem* junctionItem = dynamic_cast<JunctionItem*>(item);
+                            if (!junctionItem || (junction_ != junctionItem->getJunction()))
+                            {
+                                item->setSelected(false);
+                            }
+                        }
 					}
 
 					for (int i = 0; i < selectionChangedRoads.size(); i++)
@@ -1801,8 +1833,8 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
 					// verify if apply can be displayed //
 
-					int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
-					if ((objectCount >= applyCount_) && (((getCurrentTool() != ODD::TJE_ADD_TO_JUNCTION) && (getCurrentTool() != ODD::TJE_REMOVE_FROM_JUNCTION)) || junction_))
+					int objectCount = tool_->getObjectCount(currentToolId, getCurrentParameterTool());
+					if ((objectCount >= applyCount_) && (((currentToolId != ODD::TJE_ADD_TO_JUNCTION) && (currentToolId != ODD::TJE_REMOVE_FROM_JUNCTION)) || junction_))
 					{
 						settingsApplyBox_->setApplyButtonVisible(true);
 					}
@@ -1820,17 +1852,30 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 				{
 
 					QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-					foreach(QGraphicsItem *item, selectedItems)
+					for(int i =  0; i < selectedItems.size(); i++)
 					{
+                        QGraphicsItem* item = selectedItems.at(i);
 						JunctionItem *junctionItem = dynamic_cast<JunctionItem *>(item);
 						if (junctionItem)
 						{
 							junction_ = junctionItem->getJunction();
 							setToolValue<RSystemElementJunction>(junction_, junction_->getIdName());
+                            for (++i; i < selectedItems.size(); i++)
+                            {
+                                JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
+                                if (!laneItem || !selectedRoads_.contains(laneItem->getLane()->getParentLaneSection()->getParentRoad()))
+                                {
+                                    selectedItems.at(i)->setSelected(false);
+                                }
+							}
 						}
-						else //if (!oldSelectedItems.contains(item))
+						else 
 						{
-							item->setSelected(false);
+                            JunctionLaneItem* laneItem = dynamic_cast<JunctionLaneItem*>(item);
+                            if (!laneItem || !selectedRoads_.contains(laneItem->getLane()->getParentLaneSection()->getParentRoad()))
+                            {
+                                item->setSelected(false);
+                            }
 						}
 					}
 
@@ -1843,6 +1888,26 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 					}
 				}
 			}
+        }
+    }
+    else if (currentToolId == ODD::TJE_SELECT)
+    {
+        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
+        {
+            if (mouseAction->getEvent()->button() == Qt::LeftButton)
+            {
+
+                QList<QGraphicsItem*> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+                for (int i = 0; i < selectedItems.size(); i++)
+                {
+                    QGraphicsItem* item = selectedItems.at(i);
+                    JunctionItem* junctionItem = dynamic_cast<JunctionItem*>(item);
+                    if (junctionItem)
+                    {
+                        junction_ = junctionItem->getJunction();
+                    }
+                }
+            }
         }
     }
 	else if (currentToolId == ODD::TJE_CREATE_ROAD)

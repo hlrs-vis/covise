@@ -324,6 +324,7 @@ GraphView::toolAction(ToolAction *toolAction)
 		if (selectionToolIds.contains(toolAction->getToolId()))
 		{
 			select_ = true;
+            paramToolAdditionalSelection_ = false;
 		}
 		else if (selectionToolIds.contains(toolAction->getParamToolId()))
 		{
@@ -1406,7 +1407,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 			foreach(QGraphicsItem *item, oldSelection)
 			{
-				if (selectList.contains(item))
+				if (!paramToolAdditionalSelection_ && selectList.contains(item))
 				{
 					item->setSelected(false);
 					selectList.removeOne(item);

@@ -573,11 +573,6 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 								if (elevationSectionItem_)
 								{
 									elevationSectionItem_->setSelected(false);
-									int index = selectedItems.indexOf(elevationSectionItem_);
-									if (index > i)
-									{
-										selectedItems.removeAt(index);
-									}
 								}
 
 								ElevationSection* elevationSection = sectionItem->getElevationSection();
@@ -590,6 +585,15 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 								fitView();
 
 								elevationSectionItem_ = item;
+
+								for (++i; i < selectedItems.size(); i++)
+								{
+									item = selectedItems.at(i);
+									if (item != elevationSectionAdjacentItem_)
+									{
+										selectedItems.at(i)->setSelected(false);
+									}
+								}
 							}
 							else if ((item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
 							{
@@ -636,11 +640,6 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 								if (elevationSectionAdjacentItem_)
 								{
 									elevationSectionAdjacentItem_->setSelected(false);
-									int index = selectedItems.indexOf(elevationSectionAdjacentItem_);
-									if (index > i)
-									{
-										selectedItems.removeAt(index);
-									}
 								}
 
 								ElevationSection* elevationSection = sectionItem->getElevationSection();
@@ -648,6 +647,15 @@ ElevationEditor::mouseAction(MouseAction *mouseAction)
 								setToolValue<ElevationSection>(elevationSection, textDisplayed);
 
 								elevationSectionAdjacentItem_ = item;
+
+								for (++i; i < selectedItems.size(); i++)
+								{
+									item = selectedItems.at(i);
+									if (item != elevationSectionItem_)
+									{
+										selectedItems.at(i)->setSelected(false);
+									}
+								}
 							}
 							else if ((item != elevationSectionItem_) && (item != elevationSectionAdjacentItem_))
 							{
