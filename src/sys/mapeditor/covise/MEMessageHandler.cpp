@@ -19,6 +19,7 @@
 #include <covise/covise_msg.h>
 #include <covise/covise_appproc.h>
 #include <comsg/CRB_EXEC.h>
+#include <comsg/NEW_UI.h>
 
 #include "MEMessageHandler.h"
 #include "MEFileBrowser.h"
@@ -88,6 +89,18 @@ MEMessageHandler::~MEMessageHandler()
 void MEMessageHandler::handleWork()
 {
     dataReceived(1);
+}
+bool MEMessageHandler::sendMessage(const covise::Message *msg)const{
+    if (m_userInterface)
+    {
+    m_userInterface->send_ctl_msg(msg);
+    return true;
+    }
+    return false;
+}
+
+bool MEMessageHandler::sendMessage(const covise::UdpMessage *msg) const{
+    return false;
 }
 
 //!
@@ -293,7 +306,12 @@ void MEMessageHandler::dataReceived(int)
                     }
 
                     break;
-
+                case covise::COVISE_MESSAGE_NEW_UI:
+                {
+                    covise::NEW_UI uiMsg{*msg};
+                    receiveUIMessage(uiMsg);
+                }
+                break;
                 case covise::COVISE_MESSAGE_UI:
                     receiveUIMessage(msg);
                     break;
@@ -915,7 +933,6 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
     //
     else if (list[0] == "HOSTINFO")
     {
-        MEMainHandler::instance()->showCSCWDefaults(list);
     }
 
     //
@@ -924,7 +941,6 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
     //
     else if (list[0] == "ADDHOST" || list[0] == "ADDHOST_FAILED")
     {
-        MEMainHandler::instance()->showCSCWParameter(list, MEMainHandler::ADDHOST);
     }
 
     //
@@ -933,7 +949,6 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
     //
     else if (list[0] == "ADDPARTNER" || list[0] == "ADDPARTNER_FAILED")
     {
-        MEMainHandler::instance()->showCSCWParameter(list, MEMainHandler::ADDPARTNER);
     }
 
     //
@@ -1083,10 +1098,6 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
     else if (list[0] == "GRMSG")
     {
     }
-
-    //
-    // message not yet supported
-    //
     else
     {
         if (MEMainHandler::instance()->isMaster())
@@ -1098,3 +1109,29 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
 
     // insert end
 }
+
+void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
+    switch (msg.type)
+    {
+    case covise::NEW_UI_TYPE::AvailablePartners:
+    {
+        auto &subMsg = msg.unpackOrCast<covise::NEW_UI_AvailablePartners>();
+        MEMainHandler::instance()->updateRemotePartners(subMsg.clients);
+    }
+    break;
+    case covise::NEW_UI_TYPE::RequestNewHost:
+    {
+        auto &subMsg = msg.unpackOrCast<covise::NEW_UI_RequestNewHost>();
+        QString text = "Please start VrbRemoteLauncher on host " + QString{subMsg.hostName} +
+                       " as user " + QString(subMsg.userName) +
+                       "\nand connect to the VRB server running on " + QString(subMsg.vrbCredentials.ipAddress.c_str()) +
+                       " listening on port " + QString::number(subMsg.vrbCredentials.tcpPort) +
+                       " (udp-port: " + QString::number(subMsg.vrbCredentials.udpPort);
+        MEUserInterface::instance()->printMessage(text);
+        
+    }
+    default:
+        break;
+    }
+}
+

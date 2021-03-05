@@ -93,9 +93,11 @@ SET(MAPEDITOR_SOURCES
 )
 
 SET(MAPEDITOR_SOURCES ${MAPEDITOR_SOURCES}
-  covise/MECSCW.cpp
   covise/MEFileBrowser.cpp
-  covise/MEMessageHandler.cpp)
+  covise/MEMessageHandler.cpp
+  covise/MERemotePartner.cpp
+  )
+
 
 SET(MAPEDITOR_HEADERS
   ports/METimer.h
@@ -168,9 +170,9 @@ SET(MAPEDITOR_MOC_HEADERS
 )
 
 SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
-  covise/MECSCW.h
   covise/MEFileBrowser.h
-  covise/MEMessageHandler.h)
+  covise/MEMessageHandler.h
+  covise/MERemotePartner.h)
 
 if(COVISE_USE_QT4)
    SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
@@ -218,12 +220,13 @@ QT_ADD_RESOURCES(MAPEDITOR_RCC_FILES
   certs.qrc
   icons.qrc
   about.qrc
+  
 )
 
 QT_WRAP_CPP(MAPEDITOR_MOC_SRCS ${MAPEDITOR_MOC_HEADERS})
 
-QT_WRAP_UI(MAPEDITOR_UI_SRCS "forms/MEAboutDialog.ui")
-
+QT_WRAP_UI(MAPEDITOR_UI_SRCS "forms/MEAboutDialog.ui" "forms/MERemotePartner.ui")
+QT_WRAP_UI(widgets/MERemotePartner.ui)
 ADD_COVISE_EXECUTABLE(${TARGETNAME} MACOSX_BUNDLE
   ${MAPEDITOR_SOURCES} ${MAPEDITOR_HEADERS}
   ${MAPEDITOR_MOC_HEADERS} ${MAPEDITOR_MOC_SRCS}
@@ -263,6 +266,6 @@ IF(MSVC AND QT_VERSION_MAJOR EQUAL 4)
    ADD_COVISE_COMPILE_FLAGS(${TARGETNAME} "/Zc:wchar_t-")
 ENDIF()
 
-TARGET_LINK_LIBRARIES(${TARGETNAME} coDo coCore coConfig coUtil ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(${TARGETNAME} coDo coCore coConfig coUtil coMessages ${EXTRA_LIBS})
 
 COVISE_INSTALL_TARGET(${TARGETNAME})

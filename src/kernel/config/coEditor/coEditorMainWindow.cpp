@@ -430,7 +430,7 @@ void coEditorMainWindow::createActions()
 
     addHostAct = new QAction(QIcon(":/images/add.png"), tr("Add a new Host"), this);
     addHostAct->setStatusTip(tr("Add a new Host"));
-    connect(addHostAct, SIGNAL(triggered()), this, SLOT(addHost()));
+    //connect(addHostAct, SIGNAL(triggered()), this, SLOT(addHost()));
 
     connect(treeView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(changeGroup(QModelIndex)));

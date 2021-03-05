@@ -142,6 +142,9 @@ int main(int argc, char **argv)
     covise::Socket::initialize();
 
     // start user interface process
+#if QT_VERSION >= 0x050600
+    MEApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+#endif
     MEApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icons/covise.png"));
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
@@ -156,9 +159,6 @@ int main(int argc, char **argv)
 #endif
 #if QT_VERSION >= 0x050000
     a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-#endif
-#if QT_VERSION >= 0x050600
-    a.setAttribute(Qt::AA_EnableHighDpiScaling, true);
 #endif
 
     //DebugBreak();

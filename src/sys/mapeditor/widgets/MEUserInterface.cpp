@@ -545,7 +545,7 @@ void MEUserInterface::createActions()
 #endif
     addMyAction(m_mainHandler, m_exec_a, "&Execute All", execNet, ":/icons/execall.png", 0, "Execute the whole pipeline");
     m_exec_a->setShortcuts(QList<QKeySequence>() << QKeySequence::Refresh << Qt::CTRL + Qt::Key_E);
-    addMyAction(m_mainHandler, m_addhost_a, "Add &Host...", addHost, ":/icons/add_computer.png", 0, "Add a host (no userinterface)");
+    //addMyAction(m_mainHandler, m_addhost_a, "Add &Host...", addHost, ":/icons/add_computer.png", 0, "Add a host (no userinterface)");
     addMyAction(m_mainHandler, m_addpartner_a, "Add &Partner...", addPartner, ":/icons/add_user.png", 0, "Add a partner (with userinterface)");
     addMyAction(m_mainHandler, m_undo_a, "Undo", undoAction, ":/icons/undo32.png", QKeySequence::Undo, "Undo last user action");
     addMyAction(m_mainHandler, m_deleteAll_a, "&Delete All", clearNet, "", 0, "Clear the visual programming area");
@@ -704,7 +704,7 @@ void MEUserInterface::createMenubar()
 
     m_sessionActionList.append(m_master_a);
     m_sessionActionList.append(session->addSeparator());
-    m_sessionActionList.append(m_addhost_a);
+    //m_sessionActionList.append(m_addhost_a);
     m_sessionActionList.append(m_addpartner_a);
     m_sessionActionList.append(m_delhost_a);
     m_sessionActionList.append(session->addSeparator());
@@ -1620,7 +1620,7 @@ void MEUserInterface::startRenderer(const covise::CRB_EXEC &arguments)
 
     // store render parameter
     m_renderName = arguments.name;
-    m_renderHost = arguments.localIp;
+    m_renderHost = arguments.controllerIp;
     m_renderInstance = arguments.moduleId;
 
     // create argumets for starting

@@ -9,14 +9,16 @@
 #define ME_MESSAGEHANDLER_H
 
 #include <QObject>
-
+#include <net/message_sender_interface.h>
 class QTimer;
 
 namespace covise
 {
 class Message;
+class NEW_UI;
+class UdpMessage;
 class UserInterface;
-}
+} // namespace covise
 
 class QStringList;
 
@@ -25,11 +27,10 @@ class MEUserInterface;
 class MEMainHandler;
 
 //================================================
-class MEMessageHandler : public QObject
+class MEMessageHandler : public QObject, public covise::MessageSenderInterface
 //================================================
 {
     Q_OBJECT
-
 public:
     MEMessageHandler(int argc, char **argv);
     ~MEMessageHandler();
@@ -50,7 +51,9 @@ public slots:
 
     void dataReceived(int);
     void handleWork();
-
+protected:
+    virtual bool sendMessage(const covise::Message *msg) const override;
+    virtual bool sendMessage(const covise::UdpMessage *msg) const override;
 private:
     static MEMessageHandler *singleton;
 
@@ -60,5 +63,6 @@ private:
     QTimer *m_periodictimer;
 
     void receiveUIMessage(covise::Message *);
+    void receiveUIMessage(const covise::NEW_UI&);
 };
 #endif
