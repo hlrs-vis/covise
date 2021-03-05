@@ -23,6 +23,7 @@
 // Graph //
 //
 #include "src/graph/items/roadsystem/junction/junctionroaditem.hpp"
+#include "src/graph/items/roadsystem/junction/junctionlaneroaditem.hpp"
 
 //################//
 // CONSTRUCTOR    //
@@ -44,6 +45,7 @@ JunctionRoadSystemItem::init()
     foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
     {
         junctionRoadItems_.insert(road, new JunctionRoadItem(this, road));
+        new JunctionLaneRoadItem(this, road);
     }
 }
 
@@ -139,6 +141,9 @@ JunctionRoadSystemItem::updateObserver()
                 || (road->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
                 junctionRoadItems_.insert(road, new JunctionRoadItem(this, road));
+                // SectionItem //
+                //
+                new JunctionLaneRoadItem(this, road);
             }
         }
     }

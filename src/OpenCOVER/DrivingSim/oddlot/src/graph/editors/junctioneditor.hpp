@@ -194,10 +194,6 @@ private:
     // TODO
     SectionHandle *sectionHandle_;
 
-    // Lanes //
-    //
-    JunctionLaneRoadSystemItem *laneRoadSystemItem_;
-
     // List of selected lanes //
     //
     QList<Lane *> selectedLanes_;

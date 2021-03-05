@@ -102,7 +102,6 @@
 JunctionEditor::JunctionEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
     : ProjectEditor(projectWidget, projectData, topviewGraph)
     , junctionRoadSystemItem_(NULL)
-    , laneRoadSystemItem_(NULL)
     , pressPoint_(0.0, 0.0)
     , newRoadLineItem_(NULL)
     , addRoadSystemHandle_(NULL)
@@ -3178,16 +3177,6 @@ JunctionEditor::init()
     // TODO: Is this really the best object for holding this?
     sectionHandle_ = new SectionHandle(junctionRoadSystemItem_);
     sectionHandle_->hide();
-
-    // Lanes //
-    //
-    if (!laneRoadSystemItem_)
-    {
-        // Root item //
-        //
-        laneRoadSystemItem_ = new JunctionLaneRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
-        getTopviewGraph()->getScene()->addItem(laneRoadSystemItem_);
-    }
 }
 
 /*!
@@ -3216,9 +3205,6 @@ JunctionEditor::kill()
 	//
 	selectedJunctionMoveHandles_.clear();
 	selectedJunctionAddHandles_.clear();
-
-	delete laneRoadSystemItem_;
-	laneRoadSystemItem_ = NULL;
 }
 
 //################//

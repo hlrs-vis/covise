@@ -318,7 +318,6 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/junction/junctionelementitem.cpp
 	src/graph/items/roadsystem/junction/junctionsparcshandle.cpp
 	src/graph/items/roadsystem/junction/junctionsparcsitem.cpp
-	src/graph/items/roadsystem/junction/junctionlaneroadsystemitem.cpp
 	src/graph/items/roadsystem/junction/junctionlaneroaditem.cpp
 	src/graph/items/roadsystem/junction/junctionlanesectionitem.cpp
 	src/graph/items/roadsystem/junction/junctionlaneitem.cpp
