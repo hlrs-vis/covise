@@ -30,7 +30,7 @@ private:
 protected:
 
     float _distance{0};
-    osg::Vec3 _diff; 
+    osg::Vec3 _diff; //diff between intersection point and sphere center
     osg::Vec4 _red{0.5, 0.2, 0.2, 1.0}, _blue{0.2, 0.2, 0.5, 1.0}, _green{0.2, 0.5, 0.2, 1.0}, _grey{0.5, 0.5, 0.5, 1};
     
     osg::Matrix _interMat_o;            // current Matrix
@@ -65,7 +65,7 @@ public:
     void update() override;
     void setShared(bool state) override;
 
-    osg::Matrix getMoveMatrix_o() const; // returns diff Mat between start and end of movement in object coordinates
+    virtual osg::Matrix getMoveMatrix_o() const; // returns diff Mat between start and end of movement in object coordinates
     osg::Matrix getMoveMatrix_w() const; // returns diff Mat between start and end of movement in world coordinates
 
 

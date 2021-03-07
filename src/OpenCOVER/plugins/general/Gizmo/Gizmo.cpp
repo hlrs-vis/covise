@@ -476,7 +476,7 @@ bool Move::pickedObjChanged()
 void Move::doMove()
 {
     osg::Matrix newDCSMat =  _gizmo->getMoveMatrix_o()*_startMoveDCSMat;
-
+    std::cout <<"gizmo move mat"<<_gizmo->getMoveMatrix_o()<<std::endl;
     TokenBuffer tb;
     std::string path = coVRSelectionManager::generatePath(selectedNodesParent);
     tb << path;
