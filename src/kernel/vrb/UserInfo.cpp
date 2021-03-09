@@ -40,7 +40,7 @@ UserInfo::UserInfo(covise::TokenBuffer &tb)
 
 UserInfo::UserInfo(Program type)
     : userType(type)
-    , userName(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getHostname()))
+    , userName(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getUsername()))
     , ipAdress(covise::Host::getHostaddress())
     , hostName(covise::Host::getHostname())
     , email(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
