@@ -129,7 +129,7 @@ bool ChatPlugin::update()
 	if(inStream)
 	{
 		covise::UdpMessage audioMessage;
-		audioMessage.type = vrb::AUDIO_STREAM;
+		audioMessage.type = covise::udp_msg_type::AUDIO_STREAM;
 		//while (inStream->bytesAvailable() > bufferSize)
 		do{
 			audioBuffer = inStream->read(frameSize);
@@ -156,7 +156,7 @@ void ChatPlugin::postFrame()
 }
 void ChatPlugin::UDPmessage(covise::UdpMessage* msg)
 {
-	if (msg->type == vrb::AUDIO_STREAM)
+	if (msg->type == covise::udp_msg_type::AUDIO_STREAM)
 	{
 		if(outStream)
 		{
