@@ -6,7 +6,6 @@ set(VRB_TEST_SOURCES
     main.cpp
     message_macros.cpp
     testObject.cpp
-    tokenbuffer_util.cpp
     tryPrint.cpp
 )
 
@@ -15,7 +14,6 @@ set(VRB_TEST_HEADER
     coSpawnProgram.h
     message_macros.h
     testObject.h
-    tokenbuffer_util.h
     tryPrint.h
 )
 
