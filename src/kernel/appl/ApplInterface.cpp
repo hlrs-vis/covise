@@ -390,7 +390,7 @@ void Covise::init(int argc, char *argv[])
         m_name = p + 1;
     else
         m_name = crbExec.name;
-    instance = std::to_string(crbExec.moduleCount);
+    instance = crbExec.moduleId;
     print_comment(__LINE__, __FILE__, "Application Module succeeded");
 
 #ifdef DEBUG
