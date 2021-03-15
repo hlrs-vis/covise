@@ -1388,6 +1388,11 @@ int ConnectionList::count()
     return connlist.size();
 }
 
+void ConnectionList::addRemoveNotice(const Connection *conn, const std::function<void(void)> callback)
+{
+    m_onRemoveCallbacks[conn].push_back(callback);
+}
+
 ConnectionList::~ConnectionList()
 {
     for (auto &ptr: connlist)
@@ -1443,6 +1448,11 @@ void ConnectionList::remove(const Connection *c) // remove a connection and upda
     //FIXME curidx
     if (curidx >= connlist.size())
         curidx = connlist.size();
+
+    for(const auto& cb : m_onRemoveCallbacks[c])
+    {
+        cb();
+    }
 }
 
 // aw 04/2000: Check whether PPID==1 or no sockets left: prevent hanging

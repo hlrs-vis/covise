@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
+#include <functional>
 
 #include <fcntl.h>
 #ifdef _WIN32
@@ -402,9 +404,12 @@ const Conn* tryAddNewConnectedConn(Args&&...args){
     const Connection *next();
     //Connection at(int index);					  // get specific entry from listpos i
     int count(); // returns the number of current elements
+    void addRemoveNotice(const Connection *conn, const std::function<void(void)> callback);
+
 private:
     long curidx = -1;                   // current index into vector
-    std::vector<std::unique_ptr<Connection>> connlist; // list of connections
+    std::vector<std::unique_ptr<Connection>> connlist; // list of
+    std::map<const Connection *, std::vector < std::function<void(void)>>> m_onRemoveCallbacks;
     fd_set fdvar; // field for select call
     int maxfd; // maximum socket id
     ServerConnection *open_sock; // socket for listening
