@@ -1153,23 +1153,13 @@ int CoviseBase::send_feedback_message(const char *keyword, const char *string)
 {
     if (feedback_info && appmod)
     {
-        size_t size = 1; // final '\0'
-        size += strlen(keyword) + 1;
-        size += strlen(feedback_info + 1);
-        size += strlen(string);
+        stringstream ss;
+        ss << keyword << "\n"
+           << feedback_info + 1 << string;
 
-        char *msgdata = new char[size];
-        strcpy(msgdata, keyword);
-        strcat(msgdata, "\n");
-        strcat(msgdata, feedback_info + 1);
-        strcat(msgdata, string);
+        //cerr << "MODULE SENDING MESSAGE TO UI : " << feedback_info << endl;
 
-        //cerr << "MODULE SENDING MESSAGE TO UI : " << message->data << endl;
-
-        Message message;
-        message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
-
+        Message message{COVISE_MESSAGE_UI, ss.str()};
         appmod->send_ctl_msg(&message);
         return 1;
     }
