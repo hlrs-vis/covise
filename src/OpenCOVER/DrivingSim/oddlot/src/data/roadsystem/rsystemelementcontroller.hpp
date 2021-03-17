@@ -101,7 +101,7 @@ public:
     {
         return sequence_;
     }
-    void setSequence(const int sequence)
+    void setSequence(int sequence)
     {
         sequence_ = sequence;
     }
@@ -129,7 +129,7 @@ public:
     {
         return controllerUserData_.cycleTime;
     }
-    void setCycleTime(const double cycleTime)
+    void setCycleTime(double cycleTime)
     {
         controllerUserData_.cycleTime = cycleTime;
     }

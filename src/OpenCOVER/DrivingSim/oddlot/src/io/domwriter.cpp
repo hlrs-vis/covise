@@ -1658,9 +1658,10 @@ DomWriter::visit(RSystemElementController *controller)
     if (!controller->getControlEntries().isEmpty())
     {
         QList<QString> signalsType;
-        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        QList<ControlEntry*>controlEntries = controller->getControlEntries();
+        for (int i = 0; i < controlEntries.size(); i++)
         {
-            ControlEntry *control = controller->getControlEntries().at(i);
+            ControlEntry *control = controlEntries.at(i);
             Signal * signal = controller->getSignal(control->getSignalId());
 
             if (signal)
@@ -1676,9 +1677,9 @@ DomWriter::visit(RSystemElementController *controller)
         out << "function update(time) {\n";
         out << "   if(time==0) {\n";
         
-        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        for (int i = 0; i < controlEntries.size(); i++)
         {
-            ControlEntry *control = controller->getControlEntries().at(i);
+            ControlEntry *control = controlEntries.at(i);
             if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId().writeString() << ".yellow=1;\n";
@@ -1692,9 +1693,9 @@ DomWriter::visit(RSystemElementController *controller)
         out << "   }\n";
 
         out << "   else if(time==1) {\n";
-        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        for (int i = 0; i < controlEntries.size(); i++)
         {
-            ControlEntry *control = controller->getControlEntries().at(i);
+            ControlEntry *control = controlEntries.at(i);
             if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId().writeString() << ".yellow=0;\n";
@@ -1704,9 +1705,9 @@ DomWriter::visit(RSystemElementController *controller)
         out << "   }\n";
 
         out << "   else if(time==18) {\n";
-        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        for (int i = 0; i < controlEntries.size(); i++)
         {
-            ControlEntry *control = controller->getControlEntries().at(i);
+            ControlEntry *control = controlEntries.at(i);
             if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId().writeString() << ".yellow=1;\n";
@@ -1716,9 +1717,9 @@ DomWriter::visit(RSystemElementController *controller)
         out << "   }\n";
 
         out << "   else if(time==20) {\n";
-        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        for (int i = 0; i < controlEntries.size(); i++)
         {
-            ControlEntry *control = controller->getControlEntries().at(i);
+            ControlEntry *control = controlEntries.at(i);
             if (signalsType.at(i) == "3")
             {
                 out << "      signal_" << control->getSignalId().writeString() << ".yellow=0;\n";

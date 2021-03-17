@@ -140,7 +140,7 @@ ControllerSettings::onEditingFinished(int i)
 void
 ControllerSettings::onEditingFinished(double d)
 {
-    if (ui->sequenceSpinBox->value() != controller_->getSequence())
+    if (fabs(ui->sequenceSpinBox->value() - controller_->getCycleTime()) > NUMERICAL_ZERO3)
     {
         valueChanged_ = true;
         onEditingFinished();
