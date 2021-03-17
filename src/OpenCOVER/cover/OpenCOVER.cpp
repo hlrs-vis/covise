@@ -706,6 +706,16 @@ bool OpenCOVER::init()
     // Connect to VRBroker, if available
     if (coVRMSController::instance()->isMaster())
     {
+
+        
+        if (loadCovisePlugin)//use covise session
+        {
+            auto cmdExec = getExecFromCmdArgs(coCommandLine::instance()->argc(), coCommandLine::instance()->argv());
+            std::stringstream ss;
+            ss << "covise" << cmdExec.vrbClientIdOfController << "_" << cmdExec.moduleId;
+            startSession = ss.str();
+            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials});
+        }
         if (m_vrbCredentials)
         {
             hud->setText2("connecting(VRB)");
@@ -720,15 +730,6 @@ bool OpenCOVER::init()
             vrbc = new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         }
         hud->redraw();
-        
-        if (loadCovisePlugin)//use covise session
-        {
-            auto cmdExec = getExecFromCmdArgs(coCommandLine::instance()->argc(), coCommandLine::instance()->argv());
-            std::stringstream ss;
-            ss << "covise" << cmdExec.vrbClientIdOfController << "_" << cmdExec.moduleId;
-            startSession = ss.str();
-            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials});
-        }
         std::cerr << "startSession: " << startSession << std::endl;
         coVRMSController::instance()->setStartSession(startSession);
         vrbc->connectToServer(startSession);
