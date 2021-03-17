@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #include "NEW_UI.h"
 #include <net/message.h>
 #include <net/message_sender_interface.h>
@@ -13,6 +20,17 @@ IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, HandlePartners,
     LaunchStyle, launchStyle,
     int, timeout,
     std::vector<int>, clients)
+
+TokenBuffer &operator<<(TokenBuffer &tb, const ClientInfo &cl)
+{
+    tb << cl.id << cl.hostName << cl.style;
+    return tb;
+}
+TokenBuffer &operator>>(TokenBuffer &tb, ClientInfo &cl)
+{
+    tb >> cl.id >> cl.hostName >> cl.style;
+    return tb;
+}
 
 IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestAvailablePartners, std::string, dummy)
 IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, ClientList, clients)

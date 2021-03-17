@@ -1,4 +1,12 @@
+/* This file is part of COVISE.
 
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+#ifndef COMSG_NEW_UI_H
+#define COMSG_NEW_UI_H
 
 #include "coviseLaunchOptions.h"
 
@@ -28,9 +36,20 @@ DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, HandlePartners, COMSGEXPORT,
 
 
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestAvailablePartners, COMSGEXPORT, std::string, dummy)
-typedef std::vector<std::pair<int, std::string>> ClientList;
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, ClientList, clients)
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, char*, hostName, char*, userName, vrb::VrbCredentials, vrbCredentials)
 
+struct ClientInfo{
+    int id;
+    std::string hostName;
+    LaunchStyle style;
+};
+
+TokenBuffer &operator<<(TokenBuffer &tb, const ClientInfo &cl);
+TokenBuffer &operator>>(TokenBuffer &tb, ClientInfo &cl);
+
+typedef std::vector<ClientInfo> ClientList; 
+DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, ClientList, clients)
+    DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, char *, hostName, char *, userName, vrb::VrbCredentials, vrbCredentials)
 
 }//covise
+
+#endif // !COMSG_NEW_UI_H
