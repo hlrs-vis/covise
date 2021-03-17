@@ -1,6 +1,7 @@
 #include "VrbCredentials.h"
 #include <config/CoviseConfig.h>
-
+#include <net/covise_host.h>
+#include <algorithm>
 using namespace vrb;
 using namespace covise;
 
@@ -12,8 +13,19 @@ VrbCredentials::VrbCredentials(const std::string &ip, unsigned int tcp, unsigned
 
 }
 
+std::string getIp()
+{
+    std::string ip = coCoviseConfig::getEntry("System.VRB.Server");
+    std::transform(ip.begin(), ip.end(), ip.begin(), [](unsigned char c) { return std::tolower(c); });
+    if (ip == "localhost" || ip == "127.0.0.1")
+    {
+        ip = Host::getHostaddress();
+    }
+    return ip;
+}
+
 VrbCredentials::VrbCredentials()
-    : ipAddress(coCoviseConfig::getEntry("System.VRB.Server"))
+    : ipAddress(getIp())
     , tcpPort(coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800))
     , udpPort(coCoviseConfig::getInt("udpPort", "System.VRB.Server", 31801))
 {
