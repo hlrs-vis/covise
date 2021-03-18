@@ -117,7 +117,8 @@ protected:
 
     // protected member funcs
     static void remove_socket(int sock_id);
-
+    static std::string get_description_message();
+    static std::string get_param_description(appl_port_type type); 
     static void doProgress();
     static void doCustom(Message *m);
     static void doMasterSwitch();

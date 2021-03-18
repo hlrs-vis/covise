@@ -124,6 +124,88 @@ void CoviseBase::remove_socket(int)
 #endif
 }
 
+
+std::string CoviseBase::get_description_message()
+{
+     std::stringstream msg;
+    msg << "DESC\n"
+        << get_module() << "\n"
+        << get_host() << "\n" << (module_description ? module_description : get_module()) << "\n";
+
+    int i = 0, ninput = 0; // number of parameters
+    int noutput = 0, nparin = 0, nparout = 0;
+    while (port_name[i])
+    {
+        switch (port_type[i])
+        {
+        case INPUT_PORT:
+            ninput++;
+            break;
+        case OUTPUT_PORT:
+            noutput++;
+            break;
+        case PARIN:
+            nparin++;
+            break;
+        case PAROUT:
+            nparout++;
+            break;
+        default:
+            break;
+        }
+        i++;
+    }
+    msg << ninput << "\n"
+        << noutput << "\n"
+        << nparin << "\n"
+        << nparout << "\n"
+        << get_param_description(INPUT_PORT)
+        << get_param_description(OUTPUT_PORT)
+        << get_param_description(PARIN)
+        << get_param_description(PAROUT);
+
+    return msg.str();
+}
+
+std::string CoviseBase::get_param_description(appl_port_type type)
+{
+    std::stringstream msg;
+    int i = 0; // OUTPUT ports
+    while(port_name[i])
+    {
+        if (port_type[i] == type)
+        {
+            msg << port_name[i] << '\n';
+            if (port_datatype[i] == NULL)
+            {
+                cerr << "no datatype for port " << port_name[i] << "\n";
+            }
+            msg << port_datatype[i] << '\n'
+                << (port_description[i] ? port_description[i] : port_name[i]) << "\n";
+                switch (type)
+                {
+                case INPUT_PORT:
+                    msg << (port_required[i] ? "req" : "opt") << "\n";
+                    break;
+                case OUTPUT_PORT: 
+                    msg << (port_dependency[i] ? port_dependency[i] : "default") << "\n";
+                    break;
+                case PARIN:
+                    msg << (port_default[i] ? port_default[i] : "") << "\n"
+                        << "IMM\n";
+                    break;
+                case PAROUT:
+                    msg << (port_default[i] ? port_default[i] : "") << "\n";
+                    break;
+                default:
+                    break;
+                }
+        }
+        i++;
+    }
+    return msg.str();
+}
+
 //=====================================================================
 //
 //=====================================================================

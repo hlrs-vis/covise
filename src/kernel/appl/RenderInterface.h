@@ -87,7 +87,6 @@ public:
     static void set_port_datatype(char *, char *);
     static void set_port_dependency(char *, char *);
     static void set_port_required(char *, int);
-    static char *get_description_message();
 //
 // Callback and control
 //

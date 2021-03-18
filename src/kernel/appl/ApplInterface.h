@@ -126,8 +126,6 @@ public:
     /// tell that this port is (not) required
     static void set_port_required(const char *name, int isReqired);
 
-    static char *get_description_message();
-
 
     /// check whether port is connected - use in compute() CB only
     static int is_port_connected(const char *name)

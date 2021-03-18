@@ -356,157 +356,6 @@ void Covise::set_port_required(const char *name, int isReqired)
     port_required[i] = isReqired;
 }
 
-char *Covise::get_description_message()
-{
-    CharBuffer msg(500);
-    msg += "DESC\n";
-    msg += get_module();
-    msg += '\n';
-    msg += get_host();
-    msg += '\n';
-    if (module_description)
-        msg += module_description;
-    else
-        msg += get_module();
-    msg += '\n';
-
-    int i = 0, ninput = 0, noutput = 0, nparin = 0, nparout = 0;
-
-    while (port_name[i])
-    {
-        switch (port_type[i])
-        {
-        case INPUT_PORT:
-            ninput++;
-            break;
-        case OUTPUT_PORT:
-            noutput++;
-            break;
-        case PARIN:
-            nparin++;
-            break;
-        case PAROUT:
-            nparout++;
-            break;
-        default:
-            break;
-        }
-        i++;
-    }
-
-    msg += ninput; // number of parameters
-    msg += '\n';
-    msg += noutput;
-    msg += '\n';
-    msg += nparin;
-    msg += '\n';
-    msg += nparout;
-    msg += '\n';
-
-    i = 0; // INPUT ports
-    while (port_name[i])
-    {
-        if (port_type[i] == INPUT_PORT)
-        {
-            msg += port_name[i];
-            msg += '\n';
-            if (port_datatype[i] == NULL)
-                cerr << "no datatype for port " << port_name[i] << "\n";
-            msg += port_datatype[i];
-            msg += '\n';
-            if (port_description[i] == NULL)
-                msg += port_name[i];
-            else
-                msg += port_description[i];
-            msg += '\n';
-            if (port_required[i])
-                msg += "req\n";
-            else
-                msg += "opt\n";
-        }
-        i++;
-    }
-
-    i = 0; // OUTPUT ports
-    while (port_name[i])
-    {
-        if (port_type[i] == OUTPUT_PORT)
-        {
-            msg += port_name[i];
-            msg += '\n';
-            if (port_datatype[i] == NULL)
-                cerr << "no datatype for port " << port_name[i] << "\n";
-            msg += port_datatype[i];
-            msg += '\n';
-            if (port_description[i] == NULL)
-                msg += port_name[i];
-            else
-                msg += port_description[i];
-            msg += '\n';
-            if (port_dependency[i])
-            {
-                msg += port_dependency[i];
-                msg += '\n';
-            }
-            else
-                msg += "default\n";
-        }
-        i++;
-    }
-
-    i = 0; // PARIN ports
-    while (port_name[i])
-    {
-        if (port_type[i] == PARIN)
-        {
-            msg += port_name[i];
-            msg += '\n';
-            if (port_datatype[i] == NULL)
-                cerr << "no datatype for port " << port_name[i] << "\n";
-            msg += port_datatype[i];
-            msg += '\n';
-            if (port_description[i] == NULL)
-                msg += port_name[i];
-            else
-                msg += port_description[i];
-            msg += '\n';
-            if (port_default[i] == NULL)
-                cerr << "no default value for parameter " << port_name[i] << "\n";
-
-            msg += port_default[i];
-
-            msg += '\n';
-            msg += "IMM\n";
-        }
-        i++;
-    }
-
-    i = 0; // PAROUT ports
-    while (port_name[i])
-    {
-        if (port_type[i] == PAROUT)
-        {
-            msg += port_name[i];
-            msg += '\n';
-            if (port_datatype[i] == NULL)
-                cerr << "no datatype for port " << port_name[i] << "\n";
-            msg += port_datatype[i];
-            msg += '\n';
-            if (port_description[i] == NULL)
-                msg += port_name[i];
-            else
-                msg += port_description[i];
-            msg += '\n';
-            if (port_default[i] == NULL)
-                cerr << "no default value for parameter " << port_name[i] << "\n";
-            msg += port_default[i];
-            msg += '\n';
-        }
-        i++;
-    }
-    return (msg.return_data());
-}
-
 //=====================================================================
 //
 //=====================================================================
@@ -563,9 +412,7 @@ void Covise::init(int argc, char *argv[])
 //    open_timing();
 #endif
 
-    char* d = get_description_message();
-    Message message{ COVISE_MESSAGE_PARINFO, DataHandle(d, strlen(d) + 1) }; // should be a real type
-
+    Message message{ COVISE_MESSAGE_PARINFO, get_description_message() }; 
     appmod->send_ctl_msg(&message);
 }
 
@@ -1776,9 +1623,7 @@ void Covise::doParam(Message *m)
     reply_keyword = strsep(&p, "\n");
     if (strcmp(reply_keyword, "GETDESC") == 0)
     {
-        char * d = get_description_message();
-        Message message{ COVISE_MESSAGE_PARINFO , DataHandle(d, strlen(d) + 1)}; // should be a real type
-
+        Message message{ COVISE_MESSAGE_PARINFO, get_description_message() }; 
         appmod->send_ctl_msg(&message);
     }
     else if ((strcmp(reply_keyword, "INEXEC") != 0) && (strcmp(reply_keyword, "FINISHED") != 0))
