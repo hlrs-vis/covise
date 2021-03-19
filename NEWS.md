@@ -5,6 +5,12 @@ Recent changes
 This document only covers changes that are importent for using Covise and OpenCOVER. This includes changes on the UI, the config and requirements.
 For technical changes please have a look at the git commits.
 
+19.03.2021 Start of collaborative sessions
+------------------------------------------
+In OpenCOVER potential partners (that have a VrbRemoteLauncher running) are shown under File/Launch remote COVER and can be selected to add a OpenCOVER partner to the current session.
+In COVISE the CSCW menu has been reworked and now also shows a list of running VrbRemoteLauncher via which parthers or hosts can be added. (Note: the only ols start options remaining are manual and script)
+
+
 09.12.2020 VrbRemoteLauncher
 ----------------------------
 Moved command line argument options from main window to side menu and added hotkeys: Enter to connect, ESC to cancel or disconnect, CTRL + Tab to toggle menu.
