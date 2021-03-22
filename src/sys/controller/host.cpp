@@ -40,7 +40,8 @@ const SubProcess &RemoteHost::getProcess(sender_type type) const
 SubProcess &RemoteHost::getProcess(sender_type type)
 {
     auto it = std::find_if(m_modules.begin(), m_modules.end(), [type](const ProcessList::value_type &m) {
-        return m->type == type;
+        //when called in destructor of netModule (after m_module.clear()) modules can be null)
+        return (m ? m->type == type : false);
     });
     if (it != m_modules.end())
     {
@@ -386,7 +387,6 @@ void RemoteHost::addPartner()
 {
     startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName));
     startUI(CTRLHandler::instance()->uiOptions());
-    
 }
 
 void RemoteHost::removePartner()
