@@ -49,6 +49,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         private Dictionary<string, object> m_Geometry;
         private Dictionary<string, object> m_CastellatedMeshControls;
         private Dictionary<string, object> m_RefinementSurfaces;
+        private Dictionary<string, object> m_RefinementBoxes;
 
         //Geometry-Dictionary
         Dictionary<string, object> m_Regions;
