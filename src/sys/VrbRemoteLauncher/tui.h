@@ -15,7 +15,7 @@
 #include <mutex>
 #include <memory>
 
-class Tui : public QMainWindow
+class Tui : public QObject
 {
     Q_OBJECT
 public:
@@ -34,7 +34,6 @@ public:
         std::vector<std::unique_ptr<CommandInterface>> m_commands;
         void handleCommand(const std::string &command);
         void createCommands();
-
 };
 
 #endif // !VRB_REMOTE_LAUNCHER_TUI_H

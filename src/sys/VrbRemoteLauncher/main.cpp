@@ -61,10 +61,10 @@ int main(int argc, char **argv)
         {
                 autostart = true;
         }
-        QApplication a(argc, argv);
 
         if (!vm.count("tui"))
         {
+                QApplication a(argc, argv);
                 MainWindow mw{readCredentials(vm)};
                 mw.setWindowTitle("VrbRemoteLauncher");
                 mw.show();
@@ -72,6 +72,7 @@ int main(int argc, char **argv)
         }
         else
         {
+                QCoreApplication a(argc, argv);
                 Tui tui(readCredentials(vm), autostart);
                 std::thread s{
                     [&tui]() {
