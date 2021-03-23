@@ -699,15 +699,21 @@ void object::del_all_DO(int already_dead)
 {
 
     auto tmp_mod = from.get_mod();
-    const controller::CRBModule &crb = dynamic_cast<const controller::CRBModule &>(tmp_mod->host.getProcess(sender_type::CRB));
-    dataobj->reset();
-    data *tmp_data;
-    while ((tmp_data = dataobj->next()) != NULL)
+	try {
+		const controller::CRBModule& crb = dynamic_cast<const controller::CRBModule&>(tmp_mod->host.getProcess(sender_type::CRB));
+		dataobj->reset();
+		data* tmp_data;
+		while ((tmp_data = dataobj->next()) != NULL)
+		{
+			if (already_dead >= 0)
+				tmp_data->del_data(crb);
+			std::for_each(to.begin(), to.end(), [&tmp_data](obj_conn& conn) { conn.del_old_DO(tmp_data->get_name()); });
+			dataobj->remove(tmp_data);
+		}
+    }
+    catch (covise::controller::Exception e)
     {
-        if (already_dead >= 0)
-            tmp_data->del_data(crb);
-        std::for_each(to.begin(), to.end(), [&tmp_data](obj_conn &conn) { conn.del_old_DO(tmp_data->get_name()); });
-        dataobj->remove(tmp_data);
+        return; // no CRB, no need to do anything any more
     }
 }
 
@@ -716,25 +722,31 @@ void object::del_old_data()
     const auto tmp_mod = from.get_mod();
     if (tmp_mod)
     {
-        const controller::CRBModule &crb = dynamic_cast<const controller::CRBModule &>(tmp_mod->host.getProcess(sender_type::CRB));
+        try {
+			const controller::CRBModule& crb = dynamic_cast<const controller::CRBModule&>(tmp_mod->host.getProcess(sender_type::CRB));
 
-        int nr_of_objects = dataobj->get_count();
+			int nr_of_objects = dataobj->get_count();
 
-        dataobj->reset();
-        data *tmp_data;
-        while ((tmp_data = dataobj->next()) != NULL)
+			dataobj->reset();
+			data* tmp_data;
+			while ((tmp_data = dataobj->next()) != NULL)
+			{
+				if (nr_of_objects != tmp_data->get_count())
+				{
+					if (tmp_data->get_save_status() == 0)
+					{
+						string del_status = tmp_data->get_status();
+						if (del_status != "DEL")
+						{
+							tmp_data->del_data(crb);
+						}
+					}
+				}
+			}
+		}
+        catch (covise::controller::Exception e)
         {
-            if (nr_of_objects != tmp_data->get_count())
-            {
-                if (tmp_data->get_save_status() == 0)
-                {
-                    string del_status = tmp_data->get_status();
-                    if (del_status != "DEL")
-                    {
-                        tmp_data->del_data(crb);
-                    }
-                }
-            }
+            return; // no CRB, no need to do anything any more
         }
     }
 }

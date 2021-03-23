@@ -171,7 +171,9 @@ public:
     void resetModuleInstances();
 
 private:
+    mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
     std::unique_ptr<vrb::VRBClient> m_vrb;
+    covise::ConnectionList m_connList;
     HostMap m_hosts;
     HostMap::iterator m_localHost;
     std::thread m_thread;
@@ -179,9 +181,7 @@ private:
     std::function<void(void)> m_onConnectCallBack;
     std::atomic_int m_moduleCount{0};
     std::atomic_bool m_terminateVrb{false};
-    covise::ConnectionList m_connList;
     covise::ServerConnection *m_crbConn = nullptr;
-    mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
     void handleVrb();
     bool handleVrbMessage();
 
