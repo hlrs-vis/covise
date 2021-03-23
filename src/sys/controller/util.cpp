@@ -47,7 +47,7 @@ std::vector<std::string> covise::controller::splitStringAndRemoveComments(const 
                    return s[0] == '#';
                }),
                list.end());
-    while (list.back() == "")
+    while (list.size() > 0 && list.back() == "")
     {
         list.pop_back();
     }

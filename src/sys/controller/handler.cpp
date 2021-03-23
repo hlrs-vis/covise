@@ -2100,7 +2100,7 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
 
 void CTRLHandler::sendGenericInfoToRenderer(const std::string &prefix, const Message &msg)
 {
-    DataHandle newData{msg.data.length() + prefix.size()};
+    DataHandle newData{msg.data.length() + prefix.size()+1}; // +1 because of \n
     sprintf(newData.accessData(), "%s\n%s", prefix.c_str(), msg.data.data());
     newData.setLength((int)strlen(newData.data()) + 1);
     Message newMessage;
