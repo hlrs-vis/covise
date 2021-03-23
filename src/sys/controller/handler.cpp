@@ -2063,20 +2063,24 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
     case NEW_UI_TYPE::HandlePartners:
     {
         auto &handlePartnerMsg = msg.unpackOrCast<NEW_UI_HandlePartners>();
-        m_hostManager.handleAction(handlePartnerMsg);
+        auto errors = m_hostManager.handleAction(handlePartnerMsg);
+        assert(errors.size() == handlePartnerMsg.clients.size());
         if (handlePartnerMsg.launchStyle == LaunchStyle::Partner)
         {
-            for (int id : handlePartnerMsg.clients)
+            for (size_t i = 0; i < errors.size(); i++)
             {
-                const auto &ui = dynamic_cast<const Userinterface &>(m_hostManager.getHost(id)->getProcess(sender_type::USERINTERFACE));
-
-                ui.sendCurrentNetToUI(m_globalFilename);
-                // add displays for the existing renderers on the new partner
-                for (const auto &renderer : m_hostManager.getAllModules<Renderer>())
+                if (errors[i])
                 {
-                    if (renderer->isOriginal())
+                    const auto &ui = dynamic_cast<const Userinterface &>(m_hostManager.getHost(handlePartnerMsg.clients[i])->getProcess(sender_type::USERINTERFACE));
+
+                    ui.sendCurrentNetToUI(m_globalFilename);
+                    // add displays for the existing renderers on the new partner
+                    for (const auto &renderer : m_hostManager.getAllModules<Renderer>())
                     {
-                        renderer->addDisplayAndHandleConnections(ui);
+                        if (renderer->isOriginal())
+                        {
+                            renderer->addDisplayAndHandleConnections(ui);
+                        }
                     }
                 }
             }

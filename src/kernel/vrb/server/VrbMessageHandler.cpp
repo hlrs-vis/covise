@@ -12,6 +12,7 @@
 #include "VrbServerRegistry.h"
 #include "VrbSessionList.h"
 
+#include <comsg/VRB_ABORT_LAUNCH.h>
 #include <net/covise_connect.h>
 #include <net/dataHandle.h>
 #include <net/message_types.h>
@@ -174,6 +175,16 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	case COVISE_MESSAGE_VRB_MESSAGE:
 	{
 		passMessageToParticipants(msg);
+	}
+	break;
+	case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
+	{
+		covise::VRB_PERMIT_LAUNCH abort{*msg};
+		auto cl = clients.get(abort.requestorID);
+		if (cl)
+		{
+			sendCoviseMessage(abort, *cl);
+		}
 	}
 	break;
 	case COVISE_MESSAGE_BROADCAST_TO_PROGRAM:

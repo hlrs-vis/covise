@@ -278,10 +278,8 @@ private:
 private slots:
 
     void printCB();
-    void delHost();
     void onlineCB(const QString &html);
     void getHostCB(QListWidgetItem *);
-    void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 
 protected:
     covise::coConfigGroup *mapConfig;

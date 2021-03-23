@@ -217,7 +217,7 @@ void MainWindow::removeClient(int clientID)
 	m_clientList->removeClient(clientID);
 }
 
-void MainWindow::launchProgram(vrb::Program programID, const std::vector<std::string> &args)
+void MainWindow::launchProgram(int senderID, const QString& senderDescription, vrb::Program programID, const std::vector<std::string> &args)
 {
 	bool execute = ui->autostartCheckBox->isChecked();
 	if (!execute)
@@ -225,7 +225,7 @@ void MainWindow::launchProgram(vrb::Program programID, const std::vector<std::st
 		QMessageBox msgBox{this};
 		QString text;
 		QTextStream ss(&text);
-		ss << "Start of " << vrb::programNames[programID] << " requested!";
+		ss << senderDescription << "requests start of " << vrb::programNames[programID];
 		msgBox.setText(text);
 		msgBox.setInformativeText("Do you want to execute that program?");
 		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -236,7 +236,12 @@ void MainWindow::launchProgram(vrb::Program programID, const std::vector<std::st
 	if (execute)
 	{
 		std::cerr << "launching " << vrb::programNames[programID] << std::endl;
+		m_remoteLauncher.sendPermission(senderID, true);
 		spawnProgram(programID, args);
+	}
+	else
+	{
+		m_remoteLauncher.sendPermission(senderID, false);
 	}
 }
 

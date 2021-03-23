@@ -65,11 +65,6 @@ void MEHelpViewer::init()
     m_browser->page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
     connect(m_browser, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
 
-    connect(m_browser->page()->networkAccessManager(),
-            SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)),
-            MEMainHandler::instance(),
-            SLOT(handleSslErrors(QNetworkReply *, const QList<QSslError> &)));
-
 #elif defined(USE_TEXTBROWSER)
     m_browser = new METextBrowser(this);
 #endif

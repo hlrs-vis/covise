@@ -44,7 +44,7 @@ struct RemoteHost : vrb::RemoteClient
     
     const HostManager &hostManager;
     
-    void handleAction(covise::LaunchStyle action);
+    bool handlePartnerAction(covise::LaunchStyle action);
     covise::LaunchStyle state() const;
     void setTimeout(int seconds);
     bool startCrb(ShmMode shmMode);
@@ -70,18 +70,19 @@ struct RemoteHost : vrb::RemoteClient
     bool get_mark() const;
     void reset_mark();
     void mark_save();
+    bool removePartner();
 
 private:
-    void addPartner();
-    void removePartner();
+    bool addPartner();
     void launchScipt(vrb::Program exec, const std::vector<std::string> &cmdArgs);  //need to create a new remote host for these
     void launchManual(vrb::Program exec, const std::vector<std::string> &cmdArgs); //
 
     bool startUI(std::unique_ptr<Userinterface> &&ui, const UIOptions &options);
     void determineAvailableModules(const CRBModule &crb);
+    void clearProcesses(); //order: modules->ui->crb
 
     ExecType m_exectype = ExecType::VRB;
-    ProcessList m_modules;
+    ProcessList m_processes;
     std::vector<const ModuleInfo*> m_availableModules; //contains references to hostmanagers available modules
     int m_shmID;
     int m_timeout = 30;
@@ -110,7 +111,7 @@ public:
     } uiState;
 
     void sendPartnerList();
-    void handleAction(const covise::NEW_UI_HandlePartners &msg);
+    std::vector<bool> handleAction(const covise::NEW_UI_HandlePartners &msg);
     void setOnConnectCallBack(std::function<void(void)> cb);
     int vrbClientID() const;
     const vrb::VRBClient &getVrbClient() const;

@@ -172,7 +172,7 @@ private:
 
     QAction *m_filenew_a, *m_fileopen_a, *m_filesave_a, *m_filesaveas, *m_settings_a;
     QAction *m_colormap_a, *m_snapshot_a, *m_exit_a, *m_exec_a, *m_master_a;
-    QAction *m_addhost_a, *m_addpartner_a, *m_delhost_a;
+    QAction *m_addpartner_a;
     QAction *m_setmirror_a, *m_startmirror_a, *_delmirror;
     QAction *m_about_a, *m_about_qt_a, *m_tutorial_a, *m_usersguide_a, *m_moduleguide_a, *m_progguide_a, *m_reportbug_a;
     QAction *m_gridproxy_a, *m_whatsthis_a, *m_undo_a;

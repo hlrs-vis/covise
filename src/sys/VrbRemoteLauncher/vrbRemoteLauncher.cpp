@@ -13,6 +13,7 @@
 #include <vrb/SessionID.h>
 #include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
+#include <comsg/VRB_ABORT_LAUNCH.h>
 
 #include <QTextStream>
 #include <cassert>
@@ -83,9 +84,15 @@ void VrbRemoteLauncher::printClientInfo()
     }
 }
 
+void VrbRemoteLauncher::sendPermission(int clientID, bool permit)
+{
+    covise::VRB_PERMIT_LAUNCH msg(clientID, m_client->ID(), permit);
+    covise::sendCoviseMessage(msg, *m_client);
+}
+
 void VrbRemoteLauncher::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
-    vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{p, clientID, args}, m_client.get());
+    vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{m_client->ID(), p, clientID, args}, m_client.get());
 }
 
 void VrbRemoteLauncher::loop()
@@ -216,7 +223,13 @@ void VrbRemoteLauncher::handleVrbLauncherMessage(covise::Message &msg)
     vrb::VRB_MESSAGE lrq{msg};
     if (lrq.clientID == m_client->ID())
     {
-        emit launchSignal(lrq.program, lrq.args);
+        QString senderDesc;
+        auto cl = findClient(lrq.senderID);
+        if (cl != m_clientList.end())
+        {
+            senderDesc = cl->userInfo().hostName.c_str();
+        }
+        emit launchSignal(lrq.senderID, senderDesc, lrq.program, lrq.args);
     }
 }
 

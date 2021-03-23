@@ -1061,34 +1061,6 @@ void MEMainHandler::deleteSelectedNodes()
 }
 
 //!
-//! delete a host/partner 
-//!
-void MEMainHandler::delHost()
-{
-    if (m_mirrorMode >= 2)
-    {
-        mapEditor->printMessage("You can't delete hosts when you mirror pipelines.\n Stop mirroring before");
-        return;
-    }
-
-    if (m_deleteHostBox)
-        delete m_deleteHostBox;
-
-    m_deleteHostBox = new MEDeleteHostDialog();
-    if (m_deleteHostBox->exec() == QDialog::Accepted)
-    {
-
-        QStringList list = m_deleteHostBox->getLine().split("@");
-        QString hostname = MEHostListHandler::instance()->getIPAddress(list[1]);
-        QStringList text;
-        text << "RMV_HOST" << hostname << list[0] << "NONE";
-        QString tmp = text.join("\n");
-
-        messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
-    }
-}
-
-//!
 //! execute on change callback
 //!
 void MEMainHandler::changeCB(bool state)
@@ -1919,16 +1891,6 @@ void MEMainHandler::setMapModified(bool modified)
 {
     m_loadedMapWasModified = modified;
     MEUserInterface::instance()->setWindowModified(m_loadedMapWasModified);
-}
-
-void MEMainHandler::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
-{
-    foreach (QSslError e, errors)
-    {
-        qDebug() << "SSL error:" << e;
-    }
-
-    //reply->ignoreSslErrors();
 }
 
 void MEMainHandler::execTriggered()

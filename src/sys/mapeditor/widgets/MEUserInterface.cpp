@@ -93,9 +93,7 @@ MEUserInterface::MEUserInterface()
     , m_exit_a(NULL)
     , m_exec_a(NULL)
     , m_master_a(NULL)
-    , m_addhost_a(NULL)
     , m_addpartner_a(NULL)
-    , m_delhost_a(NULL)
     , m_setmirror_a(NULL)
     , m_startmirror_a(NULL)
     , m_about_a(NULL)
@@ -545,12 +543,10 @@ void MEUserInterface::createActions()
 #endif
     addMyAction(m_mainHandler, m_exec_a, "&Execute All", execNet, ":/icons/execall.png", 0, "Execute the whole pipeline");
     m_exec_a->setShortcuts(QList<QKeySequence>() << QKeySequence::Refresh << Qt::CTRL + Qt::Key_E);
-    //addMyAction(m_mainHandler, m_addhost_a, "Add &Host...", addHost, ":/icons/add_computer.png", 0, "Add a host (no userinterface)");
-    addMyAction(m_mainHandler, m_addpartner_a, "Add &Partner...", addPartner, ":/icons/add_user.png", 0, "Add a partner (with userinterface)");
+    addMyAction(m_mainHandler, m_addpartner_a, "Manage &Partner...", addPartner, ":/icons/add_user.png", 0, "Add a partner (with userinterface)");
     addMyAction(m_mainHandler, m_undo_a, "Undo", undoAction, ":/icons/undo32.png", QKeySequence::Undo, "Undo last user action");
     addMyAction(m_mainHandler, m_deleteAll_a, "&Delete All", clearNet, "", 0, "Clear the visual programming area");
     addMyAction(this, m_gridproxy_a, "Grid Proxy...", gridProxy, "", 0, "");
-    addMyAction(m_mainHandler, m_delhost_a, "Delete Host/Partner...", delHost, "", 0, "Remove a partner/host from the session");
     addMyAction(m_mainHandler, m_snapshot_a, "Snapshot", printCB, ":/icons/snapshot.png", 0, "Make a snapshot of the canvas");
     m_snapshot_a->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_P);
 
@@ -704,9 +700,7 @@ void MEUserInterface::createMenubar()
 
     m_sessionActionList.append(m_master_a);
     m_sessionActionList.append(session->addSeparator());
-    //m_sessionActionList.append(m_addhost_a);
     m_sessionActionList.append(m_addpartner_a);
-    m_sessionActionList.append(m_delhost_a);
     m_sessionActionList.append(session->addSeparator());
 //sessionActionList.append(_setmirror);
 //sessionActionList.append(_startmirror);
@@ -1171,14 +1165,10 @@ void MEUserInterface::showMessageArea(bool state)
 void MEUserInterface::setCollabItems(int activeHosts, bool master)
 {
     m_master_a->setEnabled(!master);
-    m_delhost_a->setEnabled(false);
 
     // collaborative mode
     if (activeHosts > 1)
     {
-        if (master)
-            m_delhost_a->setEnabled(true);
-
         m_toolBar->insertAction(m_whatsthis_a, m_master_a);
     }
 

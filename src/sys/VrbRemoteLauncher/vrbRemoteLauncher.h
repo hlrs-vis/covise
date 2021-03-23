@@ -24,10 +24,11 @@ public:
     void connect(const vrb::VrbCredentials &credentials = vrb::VrbCredentials{});
     void disconnect();
     void printClientInfo();
+    void sendPermission(int clientID, bool permit);
 public slots:
     void sendLaunchRequest(vrb::Program p, int lientID, const std::vector<std::string> &args = std::vector<std::string>{});
 signals:
-    void launchSignal(vrb::Program programID, std::vector<std::string> startOptions); //namespace must be explicitly stated for qRegisterMetaType
+    void launchSignal(int senderID, QString senderDescription, vrb::Program programID, std::vector<std::string> startOptions); //namespace must be explicitly stated for qRegisterMetaType
     void connectedSignal();
     void disconnectedSignal();
     void updateClient(int clientID, QString clientInfo);

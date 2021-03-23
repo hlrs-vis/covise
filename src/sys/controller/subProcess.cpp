@@ -131,6 +131,7 @@ bool SubProcess::setupConn(std::function<bool(int)> sendConnMessage)
 {
     int port = 0;
     auto conn = createListeningConn<ServerConnection>(&port, processId, (int)CONTROLLER);
+    m_conn = conn.get(); //already set this here to shutdown accecpt if launch is rejected
     if (sendConnMessage(port))
     {
         int timeout = 0; // do not timeout

@@ -33,7 +33,7 @@ private slots:
     void setStateConnected();
     void updateClient(int clientID, QString clientInfo);
     void removeClient(int clientID);
-    void launchProgram(vrb::Program programID, const std::vector<std::string> &args);
+    void launchProgram(int senderID, const QString& senderDescription, vrb::Program programID, const std::vector<std::string> &args);
 
 signals:
     void updateStatusBarSignal();

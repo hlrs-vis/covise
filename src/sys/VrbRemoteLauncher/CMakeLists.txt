@@ -45,6 +45,7 @@ target_link_libraries(VrbRemoteLauncher
                        Qt5::Widgets
                        coUtil
                        coVRBClient
+                       coMessages
                        ) 
 
 COVISE_INSTALL_TARGET(VrbRemoteLauncher)

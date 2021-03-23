@@ -190,10 +190,6 @@ void MEModuleTree::readModuleTooltips()
     QNetworkRequest request;
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     ;
-    connect(manager,
-            SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)),
-            MEMainHandler::instance(),
-            SLOT(handleSslErrors(QNetworkReply *, const QList<QSslError> &)));
     QIODevice *iodev = NULL;
     if (tipsfile.open(QFile::ReadOnly))
     {

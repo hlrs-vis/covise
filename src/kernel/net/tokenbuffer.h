@@ -106,7 +106,7 @@ public:
     TokenBuffer();
     explicit TokenBuffer(bool nbo);
     //creates a TokenBuffer with allocated memory
-    TokenBuffer(int al, bool nbo = false);
+    explicit TokenBuffer(int al, bool nbo = false);
 
     TokenBuffer(const MessageBase *msg, bool nbo = false);
     TokenBuffer(const DataHandle& dh, bool nbo = false);

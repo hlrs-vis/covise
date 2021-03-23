@@ -19,9 +19,10 @@ Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
         std::cerr << "disconnected!" << std::endl;
         m_launcher.connect();
     });
-    connect(&m_launcher, &VrbRemoteLauncher::launchSignal, this, [this](vrb::Program id, std::vector<std::string> args) {
+    connect(&m_launcher, &VrbRemoteLauncher::launchSignal, this, [this](int senderId, QString senderDescription, vrb::Program id, std::vector<std::string> args) {
         std::lock_guard<std::mutex> g(m_mutex);
         m_program = id;
+        m_senderId = senderId;
         m_args = args;
         if (m_autostart)
         {
@@ -30,7 +31,8 @@ Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
         else
         {
             m_launchDialog = true;
-            std::cerr << "do you want to start " << vrb::programNames[id] << "?" << std::endl;
+            std::cerr << senderDescription.toStdString() << "requests start of " << vrb::programNames[id] << std::endl;
+            std::cerr << "Do you want to execute that program?" << std::endl;
         }
     });
     m_launcher.connect(credentials);
@@ -56,12 +58,15 @@ void Tui::handleCommand(const std::string &command)
     if (m_launchDialog && (command == "y" || command == "yes"))
     {
         std::lock_guard<std::mutex> g(m_mutex);
-        spawnProgram(m_program, m_args);
         m_launchDialog = false;
+        m_launcher.sendPermission(m_senderId, true);
+        spawnProgram(m_program, m_args);
+
     }
     else if (m_launchDialog && (command == "n" || command == "no"))
     {
         m_launchDialog = false;
+        m_launcher.sendPermission(m_senderId, false);
     }
     else if (m_launchDialog)
     {

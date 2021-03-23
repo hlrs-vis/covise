@@ -11,13 +11,15 @@
 
 #include <comsg/CRB_EXEC.h>
 #include <comsg/NEW_UI.h>
+#include <comsg/VRB_ABORT_LAUNCH.h>
 #include <net/covise_host.h>
+#include <net/covise_socket.h>
 #include <net/message_types.h>
 #include <util/coSpawnProgram.h>
 #include <util/covise_version.h>
+#include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
 #include <vrb/client/VRBClient.h>
-#include <vrb/VrbSetUserInfoMessage.h>
 
 #include "crb.h"
 #include "exception.h"
@@ -39,15 +41,15 @@ const SubProcess &RemoteHost::getProcess(sender_type type) const
 
 SubProcess &RemoteHost::getProcess(sender_type type)
 {
-    auto it = std::find_if(m_modules.begin(), m_modules.end(), [type](const ProcessList::value_type &m) {
+    auto it = std::find_if(m_processes.begin(), m_processes.end(), [type](const ProcessList::value_type &m) {
         //when called in destructor of netModule (after m_module.clear()) modules can be null)
         return (m ? m->type == type : false);
     });
-    if (it != m_modules.end())
+    if (it != m_processes.end())
     {
         return *it->get();
     }
-    throw Exception{"RemoteHost did not find module of type " + std::to_string(type)};
+    throw Exception{"RemoteHost did not find process of type " + std::to_string(type)};
 }
 
 const NetModule &RemoteHost::getModule(const std::string &name, int instance) const
@@ -74,30 +76,30 @@ NetModule &RemoteHost::getModule(const std::string &name, int instance)
 void RemoteHost::removeModule(NetModule &app, int alreadyDead)
 {
     app.setDeadFlag(alreadyDead);
-    m_modules.erase(std::remove_if(m_modules.begin(), m_modules.end(), [&app](const std::unique_ptr<SubProcess> &mod) {
-                        return &*mod == &app;
-                    }),
-                    m_modules.end());
+    m_processes.erase(std::remove_if(m_processes.begin(), m_processes.end(), [&app](const std::unique_ptr<SubProcess> &mod) {
+                          return &*mod == &app;
+                      }),
+                      m_processes.end());
 }
 
 RemoteHost::ProcessList::const_iterator RemoteHost::begin() const
 {
-    return m_modules.begin();
+    return m_processes.begin();
 }
 
 RemoteHost::ProcessList::iterator RemoteHost::begin()
 {
-    return m_modules.begin();
+    return m_processes.begin();
 }
 
 RemoteHost::ProcessList::const_iterator RemoteHost::end() const
 {
-    return m_modules.end();
+    return m_processes.end();
 }
 
 RemoteHost::ProcessList::iterator RemoteHost::end()
 {
-    return m_modules.end();
+    return m_processes.end();
 }
 
 bool RemoteHost::startCrb(ShmMode shmMode)
@@ -105,7 +107,7 @@ bool RemoteHost::startCrb(ShmMode shmMode)
     try
     {
         auto execName = shmMode == ShmMode::Proxie ? vrb::Program::crbProxy : vrb::Program::crb;
-        auto m = m_modules.emplace(m_modules.end(), new CRBModule{*this, shmMode == ShmMode::Proxie});
+        auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this, shmMode == ShmMode::Proxie});
         auto crbModule = m->get()->as<CRBModule>();
         if (!crbModule->setupConn([this, &crbModule, execName](int port) {
                 std::vector<std::string> args;
@@ -206,7 +208,7 @@ bool RemoteHost::startUI(std::unique_ptr<Userinterface> &&ui, const UIOptions &o
     {
         if (ui->start(options, false))
         {
-            m_modules.push_back(std::move(ui));
+            m_processes.push_back(std::move(ui));
             return true;
         }
     }
@@ -253,11 +255,11 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
     SubProcess *module = nullptr;
     if ((*moduleInfo)->category == "Renderer")
     {
-        module = &**m_modules.emplace(m_modules.end(), new Renderer{*this, **moduleInfo, nr});
+        module = &**m_processes.emplace(m_processes.end(), new Renderer{*this, **moduleInfo, nr});
     }
     else
     {
-        module = &**m_modules.emplace(m_modules.end(), new NetModule{*this, **moduleInfo, nr});
+        module = &**m_processes.emplace(m_processes.end(), new NetModule{*this, **moduleInfo, nr});
     }
     // set initial values
     auto &app = dynamic_cast<NetModule &>(*module);
@@ -286,7 +288,7 @@ void RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cm
     switch (m_exectype)
     {
     case controller::ExecType::VRB:
-        vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{exec, ID(), cmdArgs}, &hostManager.getVrbClient());
+        vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), cmdArgs}, &hostManager.getVrbClient());
         break;
     case controller::ExecType::Manual:
         launchManual(exec, cmdArgs);
@@ -364,45 +366,44 @@ RemoteHost::RemoteHost(const HostManager &manager, vrb::RemoteClient &&base)
 {
 }
 
-void RemoteHost::handleAction(covise::LaunchStyle action)
+bool RemoteHost::handlePartnerAction(covise::LaunchStyle action)
 {
     m_state = action;
     switch (action)
     {
     case covise::LaunchStyle::Partner:
-        addPartner();
-        break;
+        return addPartner();
     case covise::LaunchStyle::Host:
-        startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName));
-        break;
+        return startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName));
     case covise::LaunchStyle::Disconnect:
-        removePartner();
-        break;
+        return removePartner();
     default:
-        break;
+        return false;
     }
 }
 
-void RemoteHost::addPartner()
+bool RemoteHost::addPartner()
 {
-    startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName));
-    startUI(CTRLHandler::instance()->uiOptions());
+    if (startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName)))
+        return startUI(CTRLHandler::instance()->uiOptions());
+    return false;
 }
 
-void RemoteHost::removePartner()
+bool RemoteHost::removePartner()
 {
+    m_state = covise::LaunchStyle::Disconnect;
     auto &masterUi = hostManager.getMasterUi();
     if (this == &masterUi.host)
     {
         Message msg{COVISE_MESSAGE_WARNING, "Controller\n \n \n REMOVING CONTROLLER OR MASTER HOST IS NOT ALLOWED !!!"};
         masterUi.send(&msg);
-        return;
+        return false;
     }
     try
     {
         auto &crb = dynamic_cast<CRBModule &>(getProcess(sender_type::CRB));
         Message msg{COVISE_MESSAGE_REMOVED_HOST, userInfo().userName + "\n" + userInfo().ipAdress + "\n"};
-        for (auto &proc : m_modules)
+        for (auto &proc : m_processes)
         {
             if (auto renderer = dynamic_cast<const Renderer *>(proc.get()))
             {
@@ -436,7 +437,7 @@ void RemoteHost::removePartner()
             std::cerr << std::endl
                       << "ERROR: rmv_host() initMessage  ==  NULL !!!" << std::endl;
         }
-        m_modules.clear();
+        clearProcesses();
         // notify the other CRBs
         msg = Message{COVISE_MESSAGE_CRB_QUIT, userInfo().ipAdress};
         for (const auto &host : hostManager)
@@ -451,6 +452,16 @@ void RemoteHost::removePartner()
     {
         Message msg{COVISE_MESSAGE_WARNING, "Controller\n \n \n" + std::string(e.what())};
         masterUi.send(&msg);
+        return false;
+    }
+    return true;
+}
+
+void RemoteHost::clearProcesses()
+{
+    while (m_processes.size() > 0)
+    {
+        m_processes.pop_back();
     }
 }
 
@@ -483,18 +494,19 @@ void HostManager::sendPartnerList()
     sendAll<Userinterface>(msg);
 }
 
-void HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg)
+std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg)
 {
-    std::lock_guard<std::mutex> g{m_mutex};
+    std::vector<bool> retval;
     for (auto clID : msg.clients)
     {
         auto hostIt = m_hosts.find(clID);
         if (hostIt != m_hosts.end())
         {
             hostIt->second->setTimeout(msg.timeout);
-            hostIt->second->handleAction(msg.launchStyle);
+            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle));
         }
     }
+    return retval;
 }
 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)
@@ -752,6 +764,22 @@ bool HostManager::handleVrbMessage()
             if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
             {
                 m_hosts.insert(HostMap::value_type{cl.ID(), std::unique_ptr<RemoteHost>{new RemoteHost{*this, std::move(cl)}}});
+            }
+        }
+    }
+    break;
+    case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
+    {
+        covise::VRB_PERMIT_LAUNCH permission{msg};
+        std::lock_guard<std::mutex> g{m_mutex};
+        if (!permission.permit)
+        {
+            if (auto refuser = getHost(permission.launcherID))
+            {
+                Message m{COVISE_MESSAGE_WARNING, "Partner " + refuser->userInfo().userName + "@" + refuser->userInfo().hostName + " refused to launch COVISE!"};
+                getMasterUi().send(&m);
+                ::shutdown(refuser->getProcess(sender_type::CRB).conn()->getSocket()->get_id(), 2); //2 for read and write
+                refuser->removePartner();
             }
         }
     }
