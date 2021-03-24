@@ -133,7 +133,6 @@ void VRBServer::removeConnection(const covise::Connection * conn)
 
 int VRBServer::openServer()
 {
-    sConn = new ServerConnection(m_tcpPort, 0, (sender_type)0);
     sConn = connections.tryAddNewListeningConn<ServerConnection>(m_tcpPort, 0, 0);
     if (!sConn)
     {
