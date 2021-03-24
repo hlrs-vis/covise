@@ -341,12 +341,12 @@ static std::unique_ptr<Conn> createConnectedConn(Args&&...args){
 template<typename Conn, typename... Args>
 static std::unique_ptr<Conn> createListeningConn(Args&&...args){
     std::unique_ptr<Conn> conn = createConnectedConn<Conn>(std::forward<Args>(args)...);
+    if (!conn)
+        return nullptr;
     struct linger linger;
     linger.l_onoff = 0;
     linger.l_linger = 0;
     setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-    if (!conn)
-        return nullptr;
     conn->listen();
     return std::move(conn);
 }
