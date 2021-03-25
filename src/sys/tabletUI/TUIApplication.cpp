@@ -312,26 +312,31 @@ int TUIMainWindow::openServer()
 //------------------------------------------------------------------------
 {
     connections.remove(sConn);
-    auto conn = std::unique_ptr<covise::ServerConnection>(new covise::ServerConnection(port, 0, 0));
-    if (conn->getSocket() == NULL)
+    //auto conn = std::unique_ptr<covise::ServerConnection>(new covise::ServerConnection(port, 0, 0));
+    //if (conn->getSocket() == NULL)
+    //{
+    //    fprintf(stderr, "Could not open server port %d\n", port);
+    //    return (-1);
+    //}
+
+    //struct linger linger;
+    //linger.l_onoff = 0;
+    //linger.l_linger = 0;
+
+    //setsockopt(conn->get_id(nullptr), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+    //conn->listen();
+    //if (!conn->is_connected()) // could not open server port
+    //{
+    //    fprintf(stderr, "Could not open server port %d\n", port);
+    //    return (-1);
+    //}
+    //sConn = dynamic_cast<const covise::ServerConnection *>(connections.add(std::move(conn)));
+    sConn = connections.tryAddNewListeningConn<covise::ServerConnection>(port, 0, 0);
+    if (!sConn)
     {
-        fprintf(stderr, "Could not open server port %d\n", port);
         return (-1);
     }
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    conn->listen();
-    if (!conn->is_connected()) // could not open server port
-    {
-        fprintf(stderr, "Could not open server port %d\n", port);
-        return (-1);
-    }
-    sConn = dynamic_cast<const covise::ServerConnection *>(connections.add(std::move(conn)));
 
     msg = new covise::Message;
 
@@ -385,7 +390,9 @@ void TUIMainWindow::processMessages()
 
                 covise::TokenBuffer stb;
                 stb << port;
-                send(stb);
+                covise::Message m(stb);
+                m.type = covise::COVISE_MESSAGE_TABLET_UI;
+                conn->sendMessage(&m);
 
                 std::cerr << "SGBrowser port: " << port << std::endl;
 
