@@ -778,7 +778,7 @@ bool HostManager::handleVrbMessage()
             {
                 Message m{COVISE_MESSAGE_WARNING, "Partner " + refuser->userInfo().userName + "@" + refuser->userInfo().hostName + " refused to launch COVISE!"};
                 getMasterUi().send(&m);
-                shutdownAndCloseSocket(refuser->getProcess(sender_type::CRB).conn()->getSocket()->get_id());
+                ::shutdown(refuser->getProcess(sender_type::CRB).conn()->getSocket()->get_id(), 2); //2 for read and write
                 refuser->removePartner();
             }
         }

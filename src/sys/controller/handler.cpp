@@ -268,9 +268,10 @@ void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
         bool update = false;
         for (auto renderer : m_hostManager.getAllModules<Renderer>())
         {
-            if (renderer->getDisplay(msg->sender) != renderer->end())
+            auto display = renderer->getDisplay(msg->sender);
+            if (display != renderer->end())
             {
-                update = renderer->update(msg->sender, m_numRunning);
+                update = renderer->update(display, m_numRunning);
                 break;
             }
         }

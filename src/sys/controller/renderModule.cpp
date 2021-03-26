@@ -101,7 +101,7 @@ void Display::send_add(const string &DO_name)
 #endif
 
     if (!is_helper())
-        m_renderer.send(&msg);
+        send(&msg);
 }
 
 void Display::send_del(const string &DO_old_name, const string &DO_new_name)
@@ -127,7 +127,7 @@ void Display::send_del(const string &DO_old_name, const string &DO_new_name)
             Message msg{COVISE_MESSAGE_DELETE_OBJECT, DO_old_name};
 #endif
             if (!is_helper())
-                m_renderer.send(&msg);
+                send(&msg);
         }
 
 #ifdef DEBUG
@@ -147,7 +147,7 @@ void Display::send_del(const string &DO_old_name, const string &DO_new_name)
         Message msg{COVISE_MESSAGE_REPLACE_OBJECT, text};
 
         if (!is_helper())
-            m_renderer.send(&msg);
+            send(&msg);
 
 #ifdef DEBUG
         fprintf(msg_prot, "---------------------------------------------------\n");
@@ -157,12 +157,6 @@ void Display::send_del(const string &DO_old_name, const string &DO_new_name)
     }
 
     // else REPLACE
-}
-
-void Display::send_message(Message *msg)
-{
-    if (!is_helper())
-        m_renderer.send(msg);
 }
 
 Renderer::Renderer(const RemoteHost &host, const ModuleInfo &moduleInfo, int instance)
@@ -355,7 +349,7 @@ Renderer::DisplayList::iterator Renderer::addDisplayAndHandleConnections(const U
                     if (!obj->isEmpty())
                     {
                         auto dataObjectName = obj->get_current_name();
-                        --m_ready;
+                        m_ready -= m_displays.size();
                         setExecuting(true);
                         ++m_numRunning;
                         displ->get()->send_add(dataObjectName);
@@ -379,9 +373,8 @@ Renderer::DisplayList::iterator Renderer::addDisplayAndHandleConnections(const U
     return displ;
 }
 
-bool Renderer::update(int moduleID, NumRunning &numRunning)
+bool Renderer::update(DisplayList::iterator display, NumRunning &numRunning)
 {
-    auto display = getDisplay(moduleID);
     if (display != end())
     {
         display->get()->set_DISPLAY(true);

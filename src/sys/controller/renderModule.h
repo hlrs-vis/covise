@@ -55,7 +55,6 @@ public:
     void send_del(const string &DO_name, const string &DO_new_name);
 
     void send_status(const string &info_str);
-    void send_message(Message *msg);
 };
 
 struct Renderer : NetModule
@@ -81,7 +80,7 @@ struct Renderer : NetModule
     void send_add(const object &obj, obj_conn &connection);
     void send_add_obj(const string &name);
 
-    bool update(int moduleID, NumRunning &numRunning);
+    bool update(DisplayList::iterator display, NumRunning &numRunning);
     bool isMirrorOf(int ModuleID) const;
     void setSenderStatus();
     void send_del(const std::string &name);
