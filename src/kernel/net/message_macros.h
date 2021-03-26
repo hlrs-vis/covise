@@ -269,12 +269,15 @@ inline bool equals<char const*>(const char* const& t1, const char* const& t2){
         const Derived &unpackOrCast() const                              \
         {                                                                \
             assert(type == Derived::subType);                            \
-            assert(m_msg);                                               \
-            if (!m_subMsg)                                               \
+            if(!m_msg)                                                   \
+            {                                                            \
+                return *dynamic_cast<const Derived*>(this);              \
+            }                                                            \
+            if(!m_subMsg)                                                \
             {                                                            \
                 m_subMsg.reset(new Derived(*m_msg));                     \
             }                                                            \
-            return *dynamic_cast<Derived *>(m_subMsg.get());             \
+            return *dynamic_cast<const Derived *>(m_subMsg.get());       \
         }                                                                \
                                                                          \
     protected:                                                           \
