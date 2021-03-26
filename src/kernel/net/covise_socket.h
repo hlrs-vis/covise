@@ -105,6 +105,8 @@ const char df_local_machine = DF_CRAY;
 const char df_local_machine = DF_IEEE;
 #endif
 
+void NETEXPORT shutdownAndCloseSocket(int socketDescriptor);
+
 class NETEXPORT FirewallConfig
 {
     static FirewallConfig *theFirewallConfig;

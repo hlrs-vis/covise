@@ -136,6 +136,13 @@ extern "C" int close(int fildes);
 #define closesocket close
 #endif
 
+void covise::shutdownAndCloseSocket(int socketDescriptor)
+{
+    ::shutdown(socketDescriptor, 2); //2 for read and write
+    ::closesocket(socketDescriptor);
+}
+
+
 FirewallConfig *FirewallConfig::theFirewallConfig = NULL;
 
 FirewallConfig::FirewallConfig()

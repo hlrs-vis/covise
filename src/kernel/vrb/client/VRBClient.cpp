@@ -287,8 +287,7 @@ float VRBClient::getSendDelay()
 void VRBClient::shutdown(){
     if(m_isConnected)
     {
-        int id = sConn->getSocket()->get_id();
-        ::shutdown(id, 2); //2 stands for SHUT_RDWR/SD_BOTH 
+        shutdownAndCloseSocket(sConn->getSocket()->get_id());
     }
 }
 
