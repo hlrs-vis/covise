@@ -47,7 +47,7 @@ constexpr size_t numMembers = 12;
 
 std::string charToString(const char *c)
 {
-	if (c && !c[0] == '\0')
+   if (c && !(c[0] == '\0'))
 	{
 		return std::string{ c };
 	}

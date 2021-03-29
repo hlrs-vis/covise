@@ -97,7 +97,7 @@ void InputSource::update()
         m_valid = false;
         for(int i=i;i<m_dev.size();i++)
 	{
-	    if(m_dev[i]->isValid());
+	    if(m_dev[i]->isValid())
 	    {
 	        m_valid = true;
 		m_validDevice = i;

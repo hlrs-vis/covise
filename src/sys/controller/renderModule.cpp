@@ -476,7 +476,7 @@ void Renderer::execute(NumRunning &numRunning)
     render_interface *renderInterface = nullptr;
     for (auto &interface : connectivity().interfaces)
     {
-        if (renderInterface = dynamic_cast<render_interface *>(interface.get()))
+        if ((renderInterface = dynamic_cast<render_interface *>(interface.get())))
         {
             if (renderInterface->get_direction() == controller::Direction::Input && renderInterface->get_state(this) == S_NEW)
             {

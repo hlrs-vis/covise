@@ -215,14 +215,19 @@ void CTRLHandler::lookupSiblings()
 
 void CTRLHandler::loop()
 {
-    while (!m_exit)
+   while (!m_exit)
     {
         std::unique_ptr<Message> msg;
         if (!m_quitNow)
         {
             msg.reset(CTRLGlobal::getInstance()->controller->wait_for_msg());
+            handleMsg(msg);
         }
-        handleMsg(msg);
+        else
+        {
+            return;
+        }
+
     } //  while
 }
 
@@ -816,6 +821,8 @@ void CTRLHandler::loadNetworkFile()
     {
         for (NetModule *app : m_hostManager.getAllModules<NetModule>())
         {
+           if (auto renderer = dynamic_cast<const Renderer *>(app))
+              continue;
             if (app->isOnTop())
             {
                 app->exec(m_numRunning);
