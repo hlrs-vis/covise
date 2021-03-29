@@ -873,6 +873,8 @@ bool OpenCOVER::init()
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
 
+    VRViewer::instance()->clearWindow=true; // clear the whole window to get rid of white remains that sticked there during startup (Who knows where they are comming from)
+
     frame();
     double frameEnd = cover->currentTime();
     hud->hideLater();
