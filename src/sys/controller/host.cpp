@@ -102,10 +102,11 @@ RemoteHost::ProcessList::iterator RemoteHost::end()
     return m_processes.end();
 }
 
-bool RemoteHost::startCrb(ShmMode shmMode)
+bool RemoteHost::startCrb()
 {
     try
     {
+        auto shmMode = CTRLHandler::instance()->Config.getshmMode(userInfo().hostName);
         auto execName = shmMode == ShmMode::Proxie ? vrb::Program::crbProxy : vrb::Program::crb;
         auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this, shmMode == ShmMode::Proxie});
         auto crbModule = m->get()->as<CRBModule>();
@@ -374,7 +375,7 @@ bool RemoteHost::handlePartnerAction(covise::LaunchStyle action)
     case covise::LaunchStyle::Partner:
         return addPartner();
     case covise::LaunchStyle::Host:
-        return startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName));
+        return startCrb();
     case covise::LaunchStyle::Disconnect:
         return removePartner();
     default:
@@ -384,7 +385,7 @@ bool RemoteHost::handlePartnerAction(covise::LaunchStyle action)
 
 bool RemoteHost::addPartner()
 {
-    if (startCrb(CTRLHandler::instance()->Config.getshmMode(userInfo().hostName)))
+    if (startCrb())
         return startUI(CTRLHandler::instance()->uiOptions());
     return false;
 }
@@ -468,6 +469,7 @@ void RemoteHost::clearProcesses()
 HostManager::HostManager()
     : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise}), m_thread([this]() { handleVrb(); })
 {
+  
 }
 
 HostManager::~HostManager()
@@ -512,7 +514,7 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)
 {
     std::lock_guard<std::mutex> g{m_mutex};
-    m_onConnectCallBack = cb;
+    m_onConnectVrbCallBack = cb;
 }
 
 int HostManager::vrbClientID() const
@@ -754,9 +756,9 @@ bool HostManager::handleVrbMessage()
             m_localHost->second->setSession(uim.mySession);
 
             m_hosts.erase(old);
-            if (m_onConnectCallBack)
+            if (m_onConnectVrbCallBack)
             {
-                m_onConnectCallBack();
+                m_onConnectVrbCallBack();
             }
         }
         for (auto &cl : uim.otherClients)

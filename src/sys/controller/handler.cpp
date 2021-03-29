@@ -170,7 +170,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     lookupSiblings();
     printWelcomeMessage();
     // read covise.config
-    m_hostManager.getLocalHost().startCrb(Config.getshmMode(m_hostManager.getLocalHost().userInfo().ipAdress));
+    m_hostManager.getLocalHost().startCrb();
     m_hostManager.getLocalHost().startUI(m_options.uiOptions);
 
     loadNetworkFile();

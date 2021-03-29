@@ -47,7 +47,7 @@ struct RemoteHost : vrb::RemoteClient
     bool handlePartnerAction(covise::LaunchStyle action);
     covise::LaunchStyle state() const;
     void setTimeout(int seconds);
-    bool startCrb(ShmMode shmMode);
+    bool startCrb();
     bool startUI(const UIOptions &options);
     const SubProcess &getProcess(sender_type type) const;
     SubProcess &getProcess(sender_type type);
@@ -173,15 +173,12 @@ public:
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
     std::unique_ptr<vrb::VRBClient> m_vrb;
-    covise::ConnectionList m_connList;
     HostMap m_hosts;
     HostMap::iterator m_localHost;
     std::thread m_thread;
     mutable std::mutex m_mutex;
-    std::function<void(void)> m_onConnectCallBack;
-    std::atomic_int m_moduleCount{0};
+    std::function<void(void)> m_onConnectVrbCallBack;
     std::atomic_bool m_terminateVrb{false};
-    covise::ServerConnection *m_crbConn = nullptr;
     void handleVrb();
     bool handleVrbMessage();
 
