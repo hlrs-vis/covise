@@ -372,11 +372,12 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
     Message *msg = wait_for_ctl_msg();
     if (msg->type == COVISE_MESSAGE_APP_CONTACT_DM)
     {
-        //	cerr << "contact DM at port " << *(int *)msg->data.data() << "\n";
-        uport = *(int *)msg->data.data();
-        swap_byte(uport);
-        //	cerr << "swapped port: " << uport << endl;
-        contact_datamanager((int)uport);
+        TokenBuffer tb{msg};
+        int p;
+        tb >> p;
+        uport = p;
+        contact_datamanager(p);
+
         msg->type = COVISE_MESSAGE_SEND_APPL_PROCID;
         pid = getpid();
         msg->data = DataHandle{ (char*)& pid, sizeof(pid_t), false };

@@ -28,7 +28,7 @@ class Display : public SubProcess
 public:
     Display(controller::Renderer &renderer, const controller::RemoteHost &ui);
     ~Display();
-    using SubProcess::connect;
+    using SubProcess::connectToCrb;
     virtual bool start(const char *instance, const char *category) override;
     void set_helper(int hlp)
     {

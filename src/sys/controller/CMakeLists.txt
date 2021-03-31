@@ -10,23 +10,25 @@ ENDIF()
 
 SET(CONTROLLER_SOURCES
   config.cpp
+  controlProcess.cpp
+  crb.cpp
   exception.cpp
-  util.cpp
+  global.cpp
+  handler.cpp
+  host.cpp
+  main.cpp
+  modui.cpp
+  module.cpp
+  moduleInfo.cpp
   netLink.cpp
   object.cpp
   port.cpp
+  proxyConnection.cpp
+  renderModule.cpp
   subProcess.cpp
   userinterface.cpp
-  controlProcess.cpp
-  module.cpp
-  crb.cpp
-  host.cpp
-  renderModule.cpp
-  modui.cpp
-  global.cpp
-  handler.cpp
-  main.cpp
-  moduleInfo.cpp)
+  util.cpp
+  )
 
 SET(CONTROLLER_HEADERS
   config.h
@@ -43,8 +45,9 @@ SET(CONTROLLER_HEADERS
   netLink.h
   object.h
   port.h
-  subProcess.h
+  proxyConnection.h
   renderModule.h
+  subProcess.h
   userinterface.h
   util.h
 )

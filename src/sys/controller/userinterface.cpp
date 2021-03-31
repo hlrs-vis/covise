@@ -168,7 +168,7 @@ bool MapEditor::start(const UIOptions &options, bool restart) // if restart is t
 {
     if (!SubProcess::start("001"))
         return false;
-    if (!connectModuleWithCrb())
+    if (!connectToCrb())
         return false;
 
     // send status-Message/
@@ -232,7 +232,7 @@ bool WsInterface::start(const UIOptions &options, bool restart)
         return false;
     }
 
-    if (!connectModuleWithCrb())
+    if (!connectToCrb())
         return 0;
 
     // send status-Message
@@ -265,7 +265,7 @@ bool PythonInterface::start(const UIOptions &options, bool restart)
 
     if (!SubProcess::start("001"))
         return false;
-    if (!connectModuleWithCrb())
+    if (!connectToCrb())
         return false;
 
     // send status-Message

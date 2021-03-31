@@ -10,6 +10,7 @@ SET(VRBSERVER_SOURCES
   VrbClientList.cpp
   VrbFileBrowserHandler.cpp
   VrbMessageHandler.cpp
+  VrbProxie.cpp
   VrbServerRegistry.cpp
   VrbSessionList.cpp
 )
@@ -18,6 +19,7 @@ SET(VRBSERVER_HEADERS
   VrbClientList.h
   VrbFileBrowserHandler.h
   VrbMessageHandler.h
+  VrbProxie.h
   VrbServerRegistry.h
   VrbSessionList.h
 )

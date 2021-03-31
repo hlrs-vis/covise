@@ -46,7 +46,7 @@ bool CRBModule::init()
     {
         if (crb != this)
         {
-            connectOtherCRB(*crb);
+            connectToCrb(*crb);
         }
     }
     return true;
@@ -132,7 +132,16 @@ void CRBModule::queryDataPath()
         covisePath = msg.data.data();
 }
 
-bool CRBModule::connectOtherCRB(const SubProcess &crb)
+bool CRBModule::connectToCrb(const SubProcess &crb)
 {
-    return connect(crb, ConnectionType::CrbToCrb);
+    if (&crb == this)
+    {
+        std::cerr << "can not connect crb to itself" << std::endl;
+        return false;
+    }
+    if (host.hostManager.proxyConn()) //crb proxy required
+    {
+        return connectCrbsViaProxy(crb);
+    }
+    return connectModuleToCrb(crb, ConnectionType::CrbToCrb);
 }

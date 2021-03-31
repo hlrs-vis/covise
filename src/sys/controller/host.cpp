@@ -11,7 +11,8 @@
 
 #include <comsg/CRB_EXEC.h>
 #include <comsg/NEW_UI.h>
-#include <comsg/VRB_ABORT_LAUNCH.h>
+#include <comsg/PROXY.h>
+#include <comsg/VRB_PERMIT_LAUNCH.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/message_types.h>
@@ -30,6 +31,7 @@
 #include "renderModule.h"
 #include "userinterface.h"
 #include "util.h"
+#include "proxyConnection.h"
 
 using namespace covise;
 using namespace covise::controller;
@@ -110,10 +112,11 @@ bool RemoteHost::startCrb()
         auto execName = shmMode == ShmMode::Proxie ? vrb::Program::crbProxy : vrb::Program::crb;
         auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this, shmMode == ShmMode::Proxie});
         auto crbModule = m->get()->as<CRBModule>();
-        if (!crbModule->setupConn([this, &crbModule, execName](int port) {
+
+        if (!crbModule->setupConn([this, &crbModule, execName](int port, const std::string &ip) {
                 std::vector<std::string> args;
                 args.push_back(std::to_string(port));
-                args.push_back(hostManager.getLocalHost().userInfo().ipAdress);
+                args.push_back(ip);
                 args.push_back(std::to_string(crbModule->processId));
                 //std::cerr << "Requesting start of crb on host " << hostManager.getLocalHost().userInfo().ipAdress << " port: " << port << " id " << crbModule->processId << std::endl;
                 launchCrb(execName, args);
@@ -469,12 +472,12 @@ void RemoteHost::clearProcesses()
 HostManager::HostManager()
     : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise}), m_thread([this]() { handleVrb(); })
 {
-  
 }
 
 HostManager::~HostManager()
 {
     m_terminateVrb = true;
+    m_hosts.clear(); //host that use vrb proxy must be deleted before vrb conn is shutdown
     m_vrb->shutdown();
     m_thread.join();
 }
@@ -498,6 +501,7 @@ void HostManager::sendPartnerList()
 
 std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg)
 {
+    createProxyConnIfNecessary();
     std::vector<bool> retval;
     for (auto clID : msg.clients)
     {
@@ -717,6 +721,34 @@ void HostManager::resetModuleInstances()
         info.count = 1;
 }
 
+const ControllerProxyConn *HostManager::proxyConn() const
+{
+    return m_proxyConnection;
+}
+
+void HostManager::createProxyConnIfNecessary()
+{
+    if (!Host{}.hasRoutableAddress() && !m_proxyConnection)
+    {
+        //request listening conn on server
+        PROXY_CreateControllerProxy p{m_vrb->ID()};
+        sendCoviseMessage(p, *m_vrb);
+        std::unique_lock<std::mutex> lk(m_proxyMutex);
+        m_waitForProxyPort.wait(lk, [this]() { return m_proxyConnPort; });
+        //connect
+        Host h{m_vrb->getCredentials().ipAddress.c_str()};
+        auto conn = createConnectedConn<ControllerProxyConn>(&h, m_proxyConnPort, 1000, (int)CONTROLLER);
+        if (!conn)
+        {
+            std::cerr << "failed to create proxy connection via VRB" << std::endl;
+        }
+
+        m_proxyConnection = dynamic_cast<const ControllerProxyConn *>(CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn)));
+
+        lk.unlock();
+    }
+}
+
 void HostManager::handleVrb()
 {
     using namespace covise;
@@ -786,6 +818,17 @@ bool HostManager::handleVrbMessage()
         }
     }
     break;
+    case COVISE_MESSAGE_PROXY:
+    {
+        PROXY proxyMsg{msg};
+        assert(proxyMsg.type == PROXY_TYPE::ProxyCreated);
+        {
+            std::lock_guard<std::mutex> lk{m_proxyMutex};
+            m_proxyConnPort = proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port;
+        }
+        m_waitForProxyPort.notify_one();
+    }
+    break;
     case COVISE_MESSAGE_VRB_QUIT:
     {
         TokenBuffer tb{&msg};
@@ -814,7 +857,9 @@ bool HostManager::handleVrbMessage()
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
-        auto old = m_localHost;
+        if (m_hosts.empty()) //we are shutting down
+            return false;
+
         std::unique_ptr<RemoteHost> local{std::move(m_localHost->second)};
         m_hosts.clear();
         m_localHost = m_hosts.insert(HostMap::value_type{0, std::move(local)}).first;

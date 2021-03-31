@@ -32,7 +32,7 @@ private:
     bool tryReceiveMessage(Message &msg);
     void prepareInitMessageForUIs();
     void queryDataPath();
-    bool connectOtherCRB(const SubProcess &crb);
+    bool connectToCrb(const SubProcess &crb) override;
 };
 
 } // namespace controller

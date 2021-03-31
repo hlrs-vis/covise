@@ -14,6 +14,8 @@
 #include <net/covise_connect.h>
 #include <util/coExport.h>
 #include "VrbClientList.h"
+#include "VrbProxie.h"
+
 #include <set>
 #include <map>
 #include <unordered_map>
@@ -29,6 +31,7 @@ namespace covise
 {
 class DataHandle;
 class UdpMessage;
+struct PROXY;
 }
 
 namespace vrb
@@ -86,7 +89,8 @@ private:
 	///stack of sessions that have to be set at the client after he received the userdata of all clients
 	std::set<int> m_sessionsToSet;
 	std::vector<ConnectionDetails::ptr> m_unregisteredClients;
-	void removeUnregisteredClient(const covise::Connection* conn);
+	std::map<int, std::unique_ptr<CoviseProxy>> m_proxies;
+	void removeUnregisteredClient(const covise::Connection *conn);
 	VRBSClient* createNewClient(covise::TokenBuffer& tb, covise::Message* msg);
 	//participants: clients in a session
 	//return: send back to sender
@@ -111,6 +115,9 @@ private:
 	void returnSerializedSessionInfo(covise::TokenBuffer& tb);
 	void loadSession(const covise::DataHandle& file, const SessionID& currentSession);
 	void informParticipantsAboutLoadedSession(int senderID, SessionID sid);
+	void handleProxy(const covise::PROXY &msg);
+	void cleanupProxy(int clientID);
+
 };
 }
 #endif // !VRB_MESAGE_HANDLER_H

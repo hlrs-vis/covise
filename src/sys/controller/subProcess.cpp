@@ -5,14 +5,16 @@
 
  * License: LGPL 2+ */
 
-#include "handler.h"
-#include "host.h"
-#include "util.h"
-#include "module.h"
 #include "exception.h"
 #include "global.h"
+#include "handler.h"
+#include "host.h"
+#include "module.h"
+#include "proxyConnection.h"
+#include "util.h"
 
 #include <comsg/CRB_EXEC.h>
+#include <comsg/PROXY.h>
 #include <covise/covise.h>
 #include <covise/covise_msg.h>
 #include <covise/covise_process.h>
@@ -72,48 +74,76 @@ bool SubProcess::sendMessage(const UdpMessage *msg) const
     return false;
 }
 
-bool SubProcess::connectModuleWithCrb()
+bool SubProcess::connectToCrb()
 {
-    return connect(host.getProcess(sender_type::CRB), ConnectionType::ModuleToCrb);
+    return connectToCrb(host.getProcess(sender_type::CRB));
 }
 
-bool SubProcess::connect(const SubProcess &crb, ConnectionType type)
+bool SubProcess::connectToCrb(const SubProcess &crb)
+{
+    return connectModuleToCrb(crb, ConnectionType::ModuleToCrb);
+}
+
+bool SubProcess::connectCrbsViaProxy(const SubProcess &toCrb)
+{
+    PROXY_CreateCrbProxy crbProxyRequest{toCrb.processId, processId, 0};
+    sendCoviseMessage(crbProxyRequest, *host.hostManager.proxyConn());
+    const std::array<const SubProcess *, 2> crbs{&toCrb, this};
+    constexpr std::array<int, 2> msgTypes{COVISE_MESSAGE_PREPARE_CONTACT_DM, COVISE_MESSAGE_DM_CONTACT_DM};
+    for (size_t i = 0; i < 2; i++)
+    {
+        Message proxyMsg;
+        if (&crbs[i]->host == &host.hostManager.getLocalHost()) //pass the port to the local crb, proxy crbs get informed direcly by the VRB
+        {
+            //receive opened port
+            host.hostManager.proxyConn()->recv_msg(&proxyMsg);
+            PROXY p{proxyMsg};
+            auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
+            //send host and port to crb
+            TokenBuffer tb1;
+            tb1 << crbProxyCreated.port << host.hostManager.getVrbClient().getCredentials().ipAddress;
+            Message msg{msgTypes[i], tb1.getData()};
+            crbs[i]->send(&msg);
+        }
+
+        //wait for VRB to confirm the connection
+        host.hostManager.proxyConn()->recv_msg(&proxyMsg);
+        PROXY p2{proxyMsg};
+        if (!p2.unpackOrCast<PROXY_ProxyConnected>().success)
+        {
+            std::cerr << "failed to connect crb on " << host.userInfo().ipAdress << " to crb on " << toCrb.host.userInfo().ipAdress << " via vrb proxy" << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+bool SubProcess::connectModuleToCrb(const SubProcess &toCrb, ConnectionType type)
 {
     constexpr std::array<covise::covise_msg_type, 2> prepareMessages{COVISE_MESSAGE_PREPARE_CONTACT, COVISE_MESSAGE_PREPARE_CONTACT_DM};
     constexpr std::array<covise::covise_msg_type, 2> contactMessages{COVISE_MESSAGE_APP_CONTACT_DM, COVISE_MESSAGE_DM_CONTACT_DM};
 
-    if (&crb == this)
-    {
-        std::cerr << "can not connect module to itself" << std::endl;
-        return false;
-    }
     // Tell CRB to open a socket for the module
     Message msg{prepareMessages[type], DataHandle{}};
-    print_comment(__LINE__, __FILE__, "before PREPARE_CONTACT send");
-    if (!crb.send(&msg))
+    if (!toCrb.send(&msg))
         return false;
     //std::cerr << "sent " << covise_msg_types_array[prepareMessages[type]] << " to crb on " << crb.host.userInfo().ipAdress << " on port " << crb.conn()->get_port() << std::endl;
     // Wait for CRB to deliver the opened port number
     do
     {
         std::unique_ptr<Message> portmsg{new Message{}};
-        crb.recv_msg(&*portmsg);
-        print_comment(__LINE__, __FILE__, "PORT received");
+        toCrb.recv_msg(&*portmsg);
         if (portmsg->type == COVISE_MESSAGE_PORT)
         {
-            // copy port number to message buffer:
-            // byteswap is done by sender
-            DataHandle msg_data{80};
-            memcpy(msg_data.accessData(), &portmsg->data.data()[0], sizeof(int));
-
-            // copy adress of CRB host in dot notation into message
-            strncpy(&msg_data.accessData()[sizeof(int)], crb.host.userInfo().ipAdress.c_str(), 76);
+            TokenBuffer tb(portmsg.get()), rtb;
+            int port = 0;
+            tb >> port;
+            rtb << port;
+            if (type == ConnectionType::CrbToCrb)
+                rtb << toCrb.host.userInfo().ipAdress;
 
             // send to module
-
-            msg_data.setLength(sizeof(int) + (int)strlen(&msg_data.data()[sizeof(int)]) + 1);
-            msg = Message{contactMessages[type], msg_data};
-            print_comment(__LINE__, __FILE__, "vor APP_CONTACT_DM send");
+            msg = Message{contactMessages[type], rtb.getData()};
             send(&msg);
             //std::cerr << "sent " << covise_msg_types_array[contactMessages[type]] << " to module on " << host.userInfo().ipAdress << " on port " << conn()->get_port() << std::endl;
 
@@ -127,32 +157,56 @@ bool SubProcess::connect(const SubProcess &crb, ConnectionType type)
     } while (true);
 }
 
-bool SubProcess::setupConn(std::function<bool(int)> sendConnMessage)
+bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> sendConnMessage)
 {
-    int port = 0;
-    auto conn = createListeningConn<ServerConnection>(&port, processId, (int)CONTROLLER);
-    m_conn = conn.get(); //already set this here to shutdown accecpt if launch is rejected
-    if (sendConnMessage(port))
+    constexpr int timeout = 0; // do not timeout
+    if (&host == &host.hostManager.getLocalHost() || !host.hostManager.proxyConn())
     {
-        int timeout = 0; // do not timeout
-        if (conn->acceptOne(timeout) < 0)
+        auto conn = setupServerConnection(processId, CONTROLLER, timeout, [&sendConnMessage, this](const ServerConnection &c) {
+            m_conn = &c;
+            return sendConnMessage(c.get_port(), host.hostManager.getLocalHost().userInfo().ipAdress);
+        });
+        if (conn)
         {
-            cerr << "* timelimit in accept for module " << m_executableName << " exceeded!!" << endl;
+            m_conn = CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn));
+            CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(m_conn, [this]() { m_conn = nullptr; });
+            return true;
+        }
+        return false;
+    }
+    else //create proxy conn via vrb
+    {
+        auto controllerConn = host.hostManager.proxyConn();
+        PROXY_CreateSubProcessProxie p{processId, timeout};
+        sendCoviseMessage(p, *controllerConn);
+        Message msg;
+        controllerConn->recv_msg(&msg);
+        PROXY proxy{msg};
+        m_conn = controllerConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
+        if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress))
+        {
+            controllerConn->recv_msg(&msg);
+            PROXY pr{msg};
+            if (!pr.unpackOrCast<PROXY_ProxyConnected>().success)
+            {
+                cerr << "* timelimit in accept for module " << m_executableName << " exceeded!!" << endl;
+                return false;
+            }
+            return true;
+        }
+        else
+        {
+            //inform VRB to shutdown proxy
             return false;
         }
-        conn->set_peer(processId, type);
-        m_conn = CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn));
-        CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(m_conn, [this]() { m_conn = nullptr; });
-        return true;
     }
-    return false;
 }
 
 bool SubProcess::start(const char *instance, const char *category)
 {
-    return setupConn([this, instance, category](int port) {
+    return setupConn([this, instance, category](int port, const std::string &ip) {
         auto &controllerHost = host.hostManager.getLocalHost();
-        CRB_EXEC crbExec{covise::ExecFlag::Normal, m_executableName.c_str(), port, controllerHost.userInfo().ipAdress.c_str(), static_cast<int>(processId), instance,
+        CRB_EXEC crbExec{covise::ExecFlag::Normal, m_executableName.c_str(), port, ip.c_str(), static_cast<int>(processId), instance,
                          host.userInfo().ipAdress.c_str(), host.userInfo().hostName.c_str(),
                          category, host.hostManager.getLocalHost().ID(), vrb::VrbCredentials{}, std::vector<std::string>{}};
 

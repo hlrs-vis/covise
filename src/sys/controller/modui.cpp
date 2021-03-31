@@ -49,7 +49,7 @@ void uif::start(const controller::CRBModule &crb, const string &execname, const 
         appInfo.reset(new ModuleInfo{execname, category});
         applmod.reset(new NetModule{h, *appInfo, std::stoi(instanz)});
         applmod->start(instanz.c_str(), applmod->info().category.c_str());
-        applmod->connectModuleWithCrb();
+        applmod->connectToCrb();
 
         // im normalen Module: receive Module description
         std::unique_ptr<Message> msg{new Message{}};

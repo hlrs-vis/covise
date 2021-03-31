@@ -34,7 +34,7 @@ class HostManager;
 struct UIOptions;
 struct ModuleInfo;
 class Userinterface;
-
+struct ControllerProxyConn;
 struct RemoteHost : vrb::RemoteClient
 {
     RemoteHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = ""); //constructs a client with local information
@@ -169,6 +169,7 @@ public:
     std::string getHostsInfo() const; //get info string with all hosts
     const ModuleInfo &registerModuleInfo(const std::string &name, const std::string &category) const;
     void resetModuleInstances();
+    const ControllerProxyConn *proxyConn() const;
 
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
@@ -179,6 +180,11 @@ private:
     mutable std::mutex m_mutex;
     std::function<void(void)> m_onConnectVrbCallBack;
     std::atomic_bool m_terminateVrb{false};
+    const ControllerProxyConn *m_proxyConnection = nullptr;
+    int m_proxyConnPort = 0;
+    std::condition_variable m_waitForProxyPort;
+    std::mutex m_proxyMutex;
+    void createProxyConnIfNecessary();
     void handleVrb();
     bool handleVrbMessage();
 

@@ -7,7 +7,7 @@
 
 #ifndef CONTROLL_EXCECPTION_H
 #define CONTROLL_EXCECPTION_H
-#include <exception>
+#include <stdexcept>
 #include <string>
 namespace covise{
 namespace controller

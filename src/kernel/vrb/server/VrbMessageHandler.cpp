@@ -12,7 +12,8 @@
 #include "VrbServerRegistry.h"
 #include "VrbSessionList.h"
 
-#include <comsg/VRB_ABORT_LAUNCH.h>
+#include <comsg/PROXY.h>
+#include <comsg/VRB_PERMIT_LAUNCH.h>
 #include <net/covise_connect.h>
 #include <net/dataHandle.h>
 #include <net/message_types.h>
@@ -283,6 +284,12 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		informParticipantsAboutLoadedSession(res.get<senderID>(), res.get<sessionID>());
 	}
 	break;
+	case COVISE_MESSAGE_PROXY:
+		{
+			PROXY p{*msg};
+			handleProxy(p);
+		}
+		break;
 	case COVISE_MESSAGE_UI:
 		//ignore
 		break;
@@ -319,12 +326,12 @@ void VrbMessageHandler::addClient(ConnectionDetails::ptr &&clientCon)
 }
 void VrbMessageHandler::remove(const Connection* conn)
 {
-	m_server->removeConnection(conn);
 	VRBSClient* c = clients.get(conn);
 	if (c)
 	{
 		int clID = c->ID();
-		cerr << c->userInfo() << "----> left" << endl;;
+		cleanupProxy(clID);
+		cerr << c->userInfo() << "----> left" << endl;
 		vrb::SessionID sid = c->sessionID();
 		bool master = c->isMaster();
 
@@ -351,6 +358,8 @@ void VrbMessageHandler::remove(const Connection* conn)
 	{
 		removeUnregisteredClient(conn);
 	}
+	m_server->removeConnection(conn);
+
 }
 
 void VrbMessageHandler::removeUnregisteredClient(const Connection* conn) {
@@ -715,6 +724,33 @@ void VrbMessageHandler::informParticipantsAboutLoadedSession(int senderID, Sessi
 	}
 }
 
-
+void VrbMessageHandler::handleProxy(const covise::PROXY &msg)
+{
+	switch (msg.type)
+	{
+	case PROXY_TYPE::CreateControllerProxy:
+	{
+		auto &p = msg.unpackOrCast<PROXY_CreateControllerProxy>();
+		int port = 0;
+		auto controllerProxy = m_proxies.find(p.vrbClientID);
+		if (controllerProxy == m_proxies.end())
+		{
+			controllerProxy = m_proxies.emplace(std::make_pair(p.vrbClientID, std::unique_ptr<CoviseProxy>{new CoviseProxy{*clients.get(p.vrbClientID)}})).first;
+		}
+		else
+		{
+			std::cerr << "VRB failed to create proxy: client already created one!" << std::endl;
+		}
+	}
+	break;
+	default:
+		break;
+	}
 }
+
+void VrbMessageHandler::cleanupProxy(int clientID)
+{
+	m_proxies.erase(clientID);
+}
+} // vrb
 

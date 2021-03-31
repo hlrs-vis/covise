@@ -9,6 +9,7 @@
 #include "dmgr_packer.h"
 #include <do/coDistributedObject.h>
 #include <net/covise_host.h>
+#include <net/tokenbuffer.h>
 #include <covise/covise.h>
 #ifdef SGI
 #include <sys/ipc.h>
@@ -240,22 +241,18 @@ int DataManagerProcess::handle_msg(Message *msg)
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_PREPARE_CONTACT:
     {
-        //-------------------------------------------------------------------------
-        // message from controller, conversion necessary
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "PREPARE_CONTACT");
-#endif
-        prepare_for_contact((int*)& port);
-        //		cerr << host->get_name() << " port in PREPARE_CONTACT: " << port << endl;
-        swap_byte(port);
-        //		cerr << host->get_name() << " port nach swap:          " << port << endl;
-        Message portmsg{ COVISE_MESSAGE_PORT, DataHandle{(char*)& port, sizeof(int), false} };
-        msg->conn->sendMessage(&portmsg);
-        wait_for_contact();
+        auto conn = setupServerConnection(id, CRB, 0, [this, &msg](const ServerConnection &c) {
+            TokenBuffer tb;
+            tb << c.get_port();
+            Message portmsg{COVISE_MESSAGE_PORT, tb.getData()};
+            msg->conn->sendMessage(&portmsg);
+            return true;
+        });
+        if (conn)
+        {
+            tmpconn = list_of_connections->add(std::move(conn));
+        }
         retval = 1;
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "PREPARE_CONTACT finished");
-#endif
         break;
     }
     //-------------------------------------------------------------------------
@@ -263,83 +260,45 @@ int DataManagerProcess::handle_msg(Message *msg)
     {
         //-------------------------------------------------------------------------
         // message from controller, conversion necessary
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "PREPARE_CONTACT_DM");
-#endif
-        prepare_for_contact((int*)& port);
-#ifdef DEBUG
-        sprintf(tmp_str, "Port number is: %d", port);
-        print_comment(__LINE__, __FILE__, tmp_str);
-#endif
-#if defined(CRAY)
-#ifdef _CRAYT3E
-        converter.int_to_exch(port, dmsg_data);
-#else
-        conv_single_int_c8i4(port, (int*)dmsg_data);
-#endif
-#else
-        //		cerr << host->get_name() << " port in PREPARE_CONTACT_DM: " << port << endl;
-        swap_byte(port);
-        //		cerr << host->get_name() << " port nach swap:             " << port << endl;
-        *((unsigned int*)dmsg_data) = port;
-#endif
-        Host* tmphost = get_host();
-        strncpy(&dmsg_data[SIZEOF_IEEE_INT], tmphost->getAddress(), 76);
-        //	    covise_gethostname(&dmsg_data[SIZEOF_IEEE_INT], 76);
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, &dmsg_data[SIZEOF_IEEE_INT]);
-#endif
-        len = sizeof(int) + (int)strlen(&dmsg_data[SIZEOF_IEEE_INT]) + 1;
-#ifdef DEBUG
-        sprintf(tmp_str, "Message length is: %d", len);
-        print_comment(__LINE__, __FILE__, tmp_str);
-#endif
-        Message portmsg{ COVISE_MESSAGE_PORT, DataHandle{dmsg_data, len, false} };
-#ifdef DEBUG
-        bytes_sent = msg->conn->send_msg(&portmsg);
-        sprintf(tmp_str, "%d bytes sent", bytes_sent);
-        print_comment(__LINE__, __FILE__, tmp_str);
-#else
-        msg->conn->sendMessage(&portmsg);
-#endif
+        if (msg->data.length() > 0) //the controller created a proxy connection on the VRB
+        {
+                TokenBuffer tb(msg);
+                int proxyPort = 0;
+                std::string proxyHost;
+                tb >> proxyPort >> proxyHost;
+                Host h{proxyHost.c_str()};
+                tmpconn = list_of_connections->add(std::unique_ptr<ClientConnection>(new ClientConnection{&h, proxyPort, id, send_type}));
+        }
+        else //open connection, send port to controller and wait for other crb to contact
+        {
+            auto conn = setupServerConnection(id, CRB, 0, [this, &msg](const ServerConnection &c) {
+                TokenBuffer tb;
+                tb << c.get_port() << get_host()->getAddress();
+                Message portmsg{COVISE_MESSAGE_PORT, tb.getData()};
+                msg->conn->sendMessage(&portmsg);
+                return true;
+            });
+            if (conn)
+            {
+                tmpconn = list_of_connections->add(std::move(conn));
+            }
+        }
         wait_for_dm_contact();
+
         retval = 1;
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "PREPARE_CONTACT_DM finished");
-#endif
         break;
     }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_DM_CONTACT_DM:
     {
-        //-------------------------------------------------------------------------
-        // message from controller, conversion necessary
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "DM_CONTACT_DM");
-        //	    cerr << "contact DM on host " << &msg->data.data()[SIZEOF_IEEE_INT] <<
-        //	    	    " at port " << *(int *)msg->data.data() << "\n";
-#endif
-        Host* tmphost = new Host(&msg->data.data()[SIZEOF_IEEE_INT]);
-#if defined(CRAY)
-#ifdef _CRAYT3E
-        converter.exch_to_uint(msg->data.accessData(), &port);
-#else
-        conv_single_int_i4c8(*(int*)msg->data.data(), &port);
-#endif
-#else
-        port = *(int*)msg->data.data();
-        //		cerr << host->get_name() << " port in DM_CONTACT_DM: " << port << endl;
-        swap_byte(port);
-        //		cerr << host->get_name() << " port nach swap:        " << port << endl;
-#endif
+        TokenBuffer tb{msg};
+        std::string host;
+        tb >> port >> host;
+
+        Host tmphost{host.c_str()};
+        std::cerr << "connecting to crb on " << host << ":" << port << std::endl;
         contact_datamanager(port, tmphost);
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "contact succeeded");
-#endif
         retval = 1;
-#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "DM_CONTACT_DM finished");
-#endif
         break;
     }
     //-------------------------------------------------------------------------

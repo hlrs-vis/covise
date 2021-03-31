@@ -62,12 +62,12 @@ struct SubProcess : MessageSenderInterface
         return nullptr;
     }
 
-    bool setupConn(std::function<bool(int)> sendConnMessage);
+    bool setupConn(std::function<bool(int port, const std::string& ip)> sendConnMessage);
 
     const Connection *conn() const;
     void recv_msg(Message *msg) const;
     virtual bool start(const char* instance, const char* category = nullptr);
-    bool connectModuleWithCrb();
+    bool connectToCrb();
     
 protected:
     virtual bool sendMessage(const Message *msg) const override;
@@ -78,12 +78,16 @@ protected:
         CrbToCrb
     };
 
-    bool connect(const SubProcess &crb, ConnectionType type);
+    virtual bool connectToCrb(const SubProcess &crb);
+    bool connectCrbsViaProxy(const SubProcess &toCrb);
+    bool connectModuleToCrb(const SubProcess &toCrb, ConnectionType type);
     const Connection *m_conn = nullptr; // connection to this other module managed by process::list_of_connections
 private:
     const Type m_type; //type use to safely upcast
     const std::string m_executableName;
     static size_t processCount; //global number of SubProcesses
+
+
 };
 } // namespace controller
 } // namespace covise

@@ -440,13 +440,13 @@ void DataManagerProcess::contact_controller(int p, Host *h)
 #endif
 }
 
-void DataManagerProcess::contact_datamanager(int p, Host *host)
+void DataManagerProcess::contact_datamanager(int p, Host &host)
 {
     char msg_data[80];
     DMEntry *dme = NULL;
     unsigned int sid;
 
-    const Connection *dm = list_of_connections->add(std::unique_ptr<ClientConnection>(new ClientConnection(host, p, id, CRB)));
+    const Connection *dm = list_of_connections->add(std::unique_ptr<ClientConnection>(new ClientConnection(&host, p, id, CRB)));
 #if defined(CRAY) && !defined(_WIN32)
 #ifdef _CRAYT3E
     converter.int_to_exch(id, msg_data);
@@ -486,49 +486,12 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
     data_mgrs->add(dme);
 }
 
-void DataManagerProcess::prepare_for_contact(int *p)
-{
-    tmpconn = new ServerConnection(p, id, CRB);
-    tmpconn->listen();
-}
-
-void DataManagerProcess::wait_for_contact()
-{
-    if (tmpconn == NULL)
-    {
-        print_comment(__LINE__, __FILE__,
-                      "call prepare_for_contact before wait_for_contact in datamanager");
-        print_exit(__LINE__, __FILE__, 1);
-    }
-    if (tmpconn->acceptOne() < 0)
-    {
-        print_comment(__LINE__, __FILE__,
-                      "wait_for_contact in datamanager failed");
-        print_exit(__LINE__, __FILE__, 1);
-    }
-    list_of_connections->add(std::unique_ptr<Connection>(tmpconn));
-}
-
 void DataManagerProcess::wait_for_dm_contact()
 {
     Message *msg;
     char *msg_data = new char[80];
     DMEntry *dme;
 
-    if (tmpconn == NULL)
-    {
-        print_comment(__LINE__, __FILE__,
-                      "call prepare_for_contact before wait_for_contact in datamanager");
-        print_exit(__LINE__, __FILE__, 1);
-    }
-
-    if (tmpconn->acceptOne() < 0)
-    {
-        print_comment(__LINE__, __FILE__,
-                      "wait_for_dm_contact in datamanager failed");
-        print_exit(__LINE__, __FILE__, 1);
-    }
-    list_of_connections->add(std::unique_ptr<Connection>(tmpconn));
     msg = wait_for_msg(COVISE_MESSAGE_SEND_ID, tmpconn);
 
     if (msg->type == COVISE_MESSAGE_SEND_ID)

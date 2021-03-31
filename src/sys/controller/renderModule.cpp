@@ -32,7 +32,7 @@ Display::~Display()
 
 bool Display::start(const char *instance, const char *category)
 {
-    if(SubProcess::start(instance, category) && connectModuleWithCrb())
+    if(SubProcess::start(instance, category) && connectToCrb())
     {
         // status dem Rendermodule mitteilen
         Message msg;

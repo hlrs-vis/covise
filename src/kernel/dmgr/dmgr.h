@@ -219,7 +219,7 @@ class DMGREXPORT DataManagerProcess : public OrdinaryProcess
 #endif
     friend void ObjectEntry::pack_and_send_object(Message *, DataManagerProcess *);
     const ServerConnection *transfermanager = nullptr; // Connection to the transfermanager
-    ServerConnection *tmpconn = nullptr; // tmpconn for intermediate use
+    const Connection *tmpconn = nullptr; // tmpconn for intermediate use
     coShmAlloc *shm; // pointer to the sharedmemory
     AVLTree<ObjectEntry> *objects;
     List<DMEntry> *data_mgrs;
@@ -279,7 +279,7 @@ public:
     };
 
     // build connection to the controller:
-    void contact_datamanager(int port, Host *host);
+    void contact_datamanager(int port, Host &host);
     void contact_controller(int port, Host *host);
     void init_object_id();
     void save_object_id();
@@ -288,8 +288,6 @@ public:
     void connect_trfmgr(Host *h, int port);
     void send_trf_msg(Message *); // send message to the transfermgr.
     void exch_trf_msg(Message *); // send message to the transfermgr.
-    void prepare_for_contact(int *port); // perform bind and return port to use
-    void wait_for_contact(); // establish prepared connection
     void wait_for_dm_contact(); // establish prepared connection
     int make_data_connection(char *name, char *new_interface);
     int complete_data_connection(Message *msg);
