@@ -33,6 +33,7 @@ public:
     void setLength(const int l);
     void incLength(const int inc);
     void movePtr(int amount);
+    int getLength() const {return m_length;};
 protected:
     //char* m_dataSection = nullptr;
 	std::shared_ptr<char> m_ManagedData;

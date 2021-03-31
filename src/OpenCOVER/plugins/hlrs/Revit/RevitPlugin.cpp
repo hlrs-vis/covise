@@ -2527,6 +2527,8 @@ RevitPlugin::handleMessage(Message *m)
     case MSG_File:
     {
         TokenBuffer tb(msg);
+        if(tb.getData().getLength()>0)
+        {
         const char *buf=nullptr;
         int numBytes;
         std::string fileName;
@@ -2568,7 +2570,7 @@ RevitPlugin::handleMessage(Message *m)
             }
 
         }
-
+        }
         break;
     }
 	/*   case MSG_NewPolyMesh:
