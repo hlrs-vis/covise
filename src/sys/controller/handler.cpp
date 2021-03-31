@@ -821,9 +821,7 @@ void CTRLHandler::loadNetworkFile()
     {
         for (NetModule *app : m_hostManager.getAllModules<NetModule>())
         {
-           if (auto renderer = dynamic_cast<const Renderer *>(app))
-              continue;
-            if (app->isOnTop())
+            if (!dynamic_cast<const Renderer*>(app) && app->isOnTop())
             {
                 app->exec(m_numRunning);
             }
