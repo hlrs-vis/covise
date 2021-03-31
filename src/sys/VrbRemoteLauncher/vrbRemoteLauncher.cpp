@@ -13,7 +13,7 @@
 #include <vrb/SessionID.h>
 #include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
-#include <comsg/VRB_ABORT_LAUNCH.h>
+#include <comsg/VRB_PERMIT_LAUNCH.h>
 
 #include <QTextStream>
 #include <cassert>

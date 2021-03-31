@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include "VRB_ABORT_LAUNCH.h"
+#include "VRB_PERMIT_LAUNCH.h"
 #include <net/message.h>
 #include <net/message_sender_interface.h>
 #include <net/message_types.h>

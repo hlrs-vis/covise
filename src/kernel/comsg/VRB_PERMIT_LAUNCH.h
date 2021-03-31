@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef COMSG_VRB_ABORT_LAUNCH_H
-#define COMSG_VRB_ABORT_LAUNCH_H
+#ifndef COMSG_VRB_PERMIT_LAUNCH_H
+#define COMSG_VRB_PERMIT_LAUNCH_H
 
 #include <net/message_macros.h>
 #include <util/coExport.h>
@@ -17,4 +17,4 @@ DECL_MESSAGE_CLASS(VRB_PERMIT_LAUNCH, VRBCLIENTEXPORT, int, requestorID, int, la
 
 }
 
-#endif // !COMSG_VRB_ABORT_LAUNCH_H
+#endif // !COMSG_VRB_PERMIT_LAUNCH_H
