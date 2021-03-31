@@ -51,8 +51,9 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #include <util/coErr.h>
 #include <config/CoviseConfig.h>
 
-#include <iostream>
 #include <algorithm>
+#include <cassert>
+#include <iostream>
 
 using namespace std;
 using namespace covise;
@@ -937,83 +938,51 @@ int Connection::send_msg_fast(const Message *msg)
 
 bool Connection::sendMessage(const Message *msg) const
 {
-    int retval = 0, tmp_bytes_written;
-    char write_buf[WRITE_BUFFER_SIZE];
-    int *write_buf_int;
+    std::array<int, 4> header{sender_id, send_type, msg->type, msg->data.length()};
 
-    if (!sock)
-        return 0;
 #ifdef SHOWMSG
     LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], data.length());
 #endif
+
 #ifdef CRAY
-    int tmp_buf[4];
-    tmp_buf[0] = sender_id;
-    tmp_buf[1] = send_type;
-    tmp_buf[2] = msg->type;
-    tmp_buf[3] = msg->data.length();
 #ifdef _CRAYT3E
-    converter.int_array_to_exch(tmp_buf, write_buf, 4);
+    converter.int_array_to_exch(header.data(), (char*)header.data(), 4);
 #else
-    conv_array_int_c8i4(tmp_buf, (int *)write_buf, 4, START_EVEN);
+    conv_array_int_c8i4(header.data(), header.data(), 4, START_EVEN);
 #endif
 #else
-    //Compose COVISE header
-    write_buf_int = (int *)write_buf;
-    write_buf_int[0] = sender_id;
-    write_buf_int[1] = send_type;
-    write_buf_int[2] = msg->type;
-    write_buf_int[3] = msg->data.length();
-    swap_bytes((unsigned int *)write_buf_int, 4);
+    swap_bytes((unsigned int *)header.data(), 4);
 #endif
 
-    if (msg->data.length() == 0)
-        retval = sock->write(write_buf, 4 * SIZEOF_IEEE_INT);
-    else
-    {
+
 #ifdef SHOWMSG
         LOGINFO("data.length(): %d", msg->data.length());
 #endif
-        // Decide wether the message including the COVISE header
-        // fits into one packet
-        if (msg->data.length() < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
-        {
-            // Write data to socket for data blocks smaller than the
-            // socket write-buffer reduced by the size of the COVISE
-            // header
-            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data.data(), msg->data.length());
-            retval = sock->write(write_buf, 4 * SIZEOF_IEEE_INT + msg->data.length());
-        }
-        else
-        {
-            // Message and COVISE header summed-up size is bigger than one network
-            // packet. Therefore it is transmitted in multiple pakets.
+        return sendMessageWithHeader(header, msg);
 
-            // Copy data block of size WRITE_BUFFER_SIZE to send buffer
-            memcpy(&write_buf[16], msg->data.data(), WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT);
-#ifdef SHOWMSG
-            LOGINFO("write_buf: %d %d %d %d", write_buf_int[0], write_buf_int[1], write_buf_int[2], write_buf_int[3]);
-#endif
-            //Send first packet of size WRITE_BUFFER_SIZE
-            retval = sock->write(write_buf, WRITE_BUFFER_SIZE);
-#ifdef CRAY
-            tmp_bytes_written = sock->writea(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-                                             msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
-#else
-            // Send next packet with remaining data. Thnis code assumes that an overall
-            // message size does never exceed 2x WRITE_BUFFER_SIZE.
-            tmp_bytes_written = sock->write(&msg->data.data()[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-                                            msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
-#endif
-            // Check if the socket was invalidated while transmitting multiple packets.
-            // Otherwise returned the summed-up amount of bytes as return value
-            if (tmp_bytes_written == COVISE_SOCKET_INVALID)
-                return COVISE_SOCKET_INVALID;
-            else
-                retval += tmp_bytes_written;
-        }
+}
+
+bool Connection::sendMessageWithHeader(const std::array<int, 4>& header, const Message* msg) const
+{
+    if (!sock)
+        return false;
+    auto packetSize = std::min(sizeof(header) + msg->data.length(), (size_t)WRITE_BUFFER_SIZE);
+    std::vector<char> buf(packetSize);
+    std::copy(header.begin(), header.end(), (int*)buf.data());
+    std::copy(msg->data.data(), msg->data.data() + packetSize - sizeof(header), buf.begin() + sizeof(header));
+    int retval = sock->write(buf.data(), packetSize);
+    if (!retval || retval == COVISE_SOCKET_INVALID)
+        return false;
+    if (sizeof(header) + msg->data.length() >= WRITE_BUFFER_SIZE)
+    {
+        packetSize = msg->data.length() + sizeof(header) - WRITE_BUFFER_SIZE;
+        assert(packetSize < WRITE_BUFFER_SIZE);
+        buf.resize(packetSize);
+        std::copy(msg->data.data() + WRITE_BUFFER_SIZE - sizeof(header), msg->data.data() + msg->data.length(), buf.begin());
+        if (int addRetval = sock->write(buf.data(), buf.size()) == COVISE_SOCKET_INVALID)
+            return false;
     }
-    return retval;
+    return true;
 }
 
 bool Connection::sendMessage(const UdpMessage *msg) const{
@@ -1566,7 +1535,7 @@ const Connection *ConnectionList::check_for_input(float time)
 
 void ConnectionList::reset() //
 {
-    curidx = 0;
+    curidx = -1;
 }
 
 const Connection *ConnectionList::next() //
