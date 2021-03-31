@@ -351,7 +351,7 @@ getCoConfigSubEntries(const char *entry)
     subKeys[numSubKeys] = NULL;
     for (int i = 0; i < numSubKeys; i++)
     {
-        int str_len = strlen(keys[2 * i]);
+        size_t str_len = strlen(keys[2 * i]);
         subKeys[i] = new char[str_len + 1];
         strcpy(subKeys[i], keys[2 * i]);
     }

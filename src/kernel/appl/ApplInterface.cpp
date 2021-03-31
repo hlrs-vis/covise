@@ -375,22 +375,26 @@ void Covise::init(int argc, char *argv[])
 
     err = WSAStartup(wVersionRequested, &wsaData);
 #endif
-
-    //fprintf(stderr,"-- appmod = new ApplicationProcess\n");
-    appmod = new ApplicationProcess(argv[0], argc, argv);
-    //fprintf(stderr,"-- appmod = %x\n", appmod);
-
-    //fprintf(stderr,"--socket_id = appmod->get_socket_id\n");
-    socket_id = appmod->get_socket_id(Covise::remove_socket);
-    //fprintf(stderr,"-- socket_id = %d\n", socket_id);
     auto crbExec = covise::getExecFromCmdArgs(argc, argv);
-    h_name = appmod->get_hostname();
-    const char *p = strrchr(crbExec.name, '/');
+    const char* p = strrchr(crbExec.name, '/');
     if (p)
         m_name = p + 1;
     else
         m_name = crbExec.name;
+    int len = m_name.size();
+    if (len >= 4 && m_name.compare(len - 4, 4, ".exe") == 0)
+    {
+        m_name.erase(len - 4, 4);
+    }
     instance = crbExec.moduleId;
+    //fprintf(stderr,"-- appmod = new ApplicationProcess\n");
+    appmod = new ApplicationProcess(m_name.c_str(), argc, argv);
+    //fprintf(stderr,"-- appmod = %x\n", appmod);
+    h_name = appmod->get_hostname();
+
+    //fprintf(stderr,"--socket_id = appmod->get_socket_id\n");
+    socket_id = appmod->get_socket_id(Covise::remove_socket);
+    //fprintf(stderr,"-- socket_id = %d\n", socket_id);
     print_comment(__LINE__, __FILE__, "Application Module succeeded");
 
 #ifdef DEBUG
