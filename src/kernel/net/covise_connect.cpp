@@ -944,17 +944,6 @@ bool Connection::sendMessage(const Message *msg) const
     LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], data.length());
 #endif
 
-#ifdef CRAY
-#ifdef _CRAYT3E
-    converter.int_array_to_exch(header.data(), (char*)header.data(), 4);
-#else
-    conv_array_int_c8i4(header.data(), header.data(), 4, START_EVEN);
-#endif
-#else
-    swap_bytes((unsigned int *)header.data(), 4);
-#endif
-
-
 #ifdef SHOWMSG
         LOGINFO("data.length(): %d", msg->data.length());
 #endif
@@ -966,6 +955,15 @@ bool Connection::sendMessageWithHeader(const std::array<int, 4>& header, const M
 {
     if (!sock)
         return false;
+        #ifdef CRAY
+#ifdef _CRAYT3E
+    converter.int_array_to_exch(header.data(), (char*)header.data(), 4);
+#else
+    conv_array_int_c8i4(header.data(), header.data(), 4, START_EVEN);
+#endif
+#else
+    swap_bytes((unsigned int *)header.data(), 4);
+#endif
     auto packetSize = std::min(sizeof(header) + msg->data.length(), (size_t)WRITE_BUFFER_SIZE);
     std::vector<char> buf(packetSize);
     std::copy(header.begin(), header.end(), (int*)buf.data());
