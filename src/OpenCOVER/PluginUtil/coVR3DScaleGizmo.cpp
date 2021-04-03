@@ -148,6 +148,8 @@ void coVR3DScaleGizmo::startInteraction()
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DScaleGizmo::startInteraction\n");
     
+    coVR3DGizmoType::startInteraction();
+
 //########################################
     osg::Vec3 lp0_o, lp1_o, pointerDir_o;
     calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
@@ -156,13 +158,13 @@ void coVR3DScaleGizmo::startInteraction()
     osg::Matrix currHandMat = getPointerMat();
     osg::Matrix currHandMat_o = currHandMat * w_to_o;
     osg::Vec3 currHandPos_o = currHandMat_o.getTrans();  
-    osg::Vec3 interPos = currHandPos_o + pointerDir_o* _distance;
+    osg::Vec3 interPos = currHandPos_o + pointerDir_o* _distance + _diff;
     _startFactor = (interPos - getMatrix().getTrans()).length();// - _testStartFactor;
     std::cout<<"StartFactor"<<_startFactor<<std::endl;
-
+    _startHitPos = _hitPos;
 //########################################
-
-
+    _startInterPos=interPos;
+    _shortestDistStartPoint=calculatePointOfShortestDistance(lp0_o,lp1_o,osg::X_AXIS);
 
 
     _scaleXonly =_hitNode == scaleXSphereGeode;// (_hitNode == scaleXaxisGeode) | (_hitNode == scaleXSphereGeode); // OR operation
@@ -221,13 +223,25 @@ void coVR3DScaleGizmo::startInteraction()
     }
     */
 
-    coVR3DGizmoType::startInteraction();
 }
 
 osg::Matrix coVR3DScaleGizmo::getMoveMatrix_o() const
 {
-    
-    return osg::Matrix::scale(_scale,_scale,_scale);
+    if(_scaleXonly)
+        return osg::Matrix::scale(_scale,1,1);
+    else if(_scaleYonly)
+        return osg::Matrix::scale(1,_scale,1);
+    else if(_scaleZonly)
+        return osg::Matrix::scale(1,1,_scale);
+    else
+       return osg::Matrix::scale(_scale,_scale,_scale);
+}
+double coVR3DScaleGizmo::calcValueInRange(double oldMin, double oldMax, double newMin, double newMax, double oldValue)
+{
+    double oldRange = oldMax - oldMin;
+    double newRange = newMax - newMin;
+    double newValue = (((oldValue - oldMin) * newRange) / oldRange )+ newMin;
+    return newValue;
 }
 void coVR3DScaleGizmo::doInteraction()
 {
@@ -246,73 +260,53 @@ void coVR3DScaleGizmo::doInteraction()
     // get hand pos in object coords
     osg::Vec3 lp0_o, lp1_o, pointerDir_o;
     calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
-    
     osg::Matrix w_to_o = cover->getInvBaseMat();
     osg::Matrix currHandMat = getPointerMat();
     osg::Matrix currHandMat_o = currHandMat * w_to_o;
     osg::Vec3 currHandPos_o = currHandMat_o.getTrans();  
-    osg::Vec3 interPos = currHandPos_o + pointerDir_o* _distance;// + _diff; without the diff we measure distance to center of gizmo , but this is now not the interPos
+    osg::Vec3 interPos = currHandPos_o + pointerDir_o* _distance + _diff; //without the diff we measure distance to center of gizmo , but this is now not the interPos
     
-    _scale = ((interPos - getMatrix().getTrans()).length() - _startFactor);
     
-    std::cout<<"scale"<<_scale<<std::endl;
-    float sizingFactor = 1;
+    float d_hitPos_center = (_startHitPos - getMatrix().getTrans()).length();
+    float d_inter_hitPos = (interPos - _hitPos).length();
+    float d_inter_center = (interPos - getMatrix().getTrans()).length();
+    /*
+    * the hit pos change if you conitinue moving on the gizmo object
+    */
+  
+    //calcValueInRange(0.0,d_hitPos_center,0.0,1.0, scale3);
     if(_scaleXonly)
     {
-        //trans of pointerMat is always same !
-        //osg::Matrix currPointerMat = getPointerMat();
-        // std::cout<<"HitPointWorld"<<cover->getIntersectionHitPointWorld()<<std::endl;
-        // std::cout<<"currPointerMat"<<currPointerMat<<std::endl;
-        // std::cout<<"hitPos"<<_hitPos<<std::endl;
-        // std::cout<<"Distance"<<(_hitPos - _interMat_o.getTrans()).length()<<std::endl;
-// 
-        //osg::Vec3 newPos = calculatePointOfShortestDistance(lp1_o, lp2_o, osg::X_AXIS); 
-        //std::cout << "difference: "<<(newPos.x() - _startInterPos.x()) / getScale()<<std::endl; 
-        //std::cout << "scale: " << getScale() <<std::endl;
-        //std::cout << "sceneSize: "<< cover->getSceneSize() <<std::endl;
+        osg::Vec3 pointShortestDistance=calculatePointOfShortestDistance(lp0_o,lp1_o,osg::X_AXIS);
 
-        //float scaleFactor = std::abs(interPos.x() / _startInterPos.x());
-        //float scaleFactor = 1 + (newPos.x() - _startInterPos.x())*sizingFactor/getScale();// / getScale();
-        //std::cout <<"scale factor: "<<scaleFactor<<std::endl;
-        //tempxAxisTransform->setMatrix(_startxAxisMatrix * osg::Matrix::scale(myFactor,1,1));  
-        // std::cout<< "startInterPos"<<_startInterPos<<std::endl;
-        // std::cout << "x scale Factor: "<< scaleFactor << std::endl;
-       // std::cout <<"HandMat diff" << _startHandMat_o.getTrans().x() - currHandMat_o.getTrans().x()<<std::endl; // Unterschied Hand und Pointer Mat
+        /*if(pointShortestDistance.x()>=_shortestDistStartPoint.x())
+            _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+            std::cout <<"pos"<<std::endl;
+        else if(pointShortestDistance.x()<_shortestDistStartPoint.x())
+            calcValueInRange(0.0,d_hitPos_center,0.0,1.0, scale3)
+            std::cout <<"1-0"<<std::endl;
+        */
+
+        _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+       std::cout<<"point shortest distance:"<<pointShortestDistance<<std::endl;
     }
-    /*else if(_scaleYonly)
+    else if(_scaleYonly)
     {
-        //float scaleFactor = std::abs(interPos.y() / _startInterPos.y());
-        float scaleFactor = 1 + (interPos.y() - _startInterPos.y())*sizingFactor / getScale();
-
-        tempyAxisTransform->setMatrix(_startyAxisMatrix * osg::Matrix::scale(1, scaleFactor, 1));
-        //std::cout << "y scale Factor: "<< scaleFactor << std::endl;
-
+         osg::Vec3 pointShortestDistance=calculatePointOfShortestDistance(lp0_o,lp1_o,osg::Y_AXIS);
+        _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
     }
     else if(_scaleZonly)
     {
-        //float scaleFactor = std::abs(interPos.z() / _startInterPos.z());
-        float scaleFactor = 1 + (interPos.z() - _startInterPos.z())*sizingFactor / getScale();
-
-        tempzAxisTransform->setMatrix(_startzAxisMatrix * osg::Matrix::scale(1, 1, scaleFactor));
-       // std::cout<< "interPos z" << interPos.z() <<std::endl;
-       // std::cout<< "Start interPos z" << _startInterPos.z() <<std::endl;
-       // std::cout << "z scale Factor: "<< scaleFactor << std::endl;
-
+        osg::Vec3 pointShortestDistance=calculatePointOfShortestDistance(lp0_o,lp1_o,osg::Z_AXIS);
+        _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
     }
     else if(_scaleAll)// allow scale in all directions
     {
-        // float scaleFactorX = (interPos.x() - _startInterPos.x())*sizingFactor+1;
-        // float scaleFactorY = (interPos.y() - _startInterPos.y())*sizingFactor+1;
-        // float scaleFactorZ = (interPos.z() - _startInterPos.z())*sizingFactor+1;
-        float distance = (interPos - _startInterPos).length();
-        float scale = distance / getScale();// + 1;
-       // std::cout <<"distance" <<distance<<std::endl;
-        tempxAxisTransform->setMatrix(_startxAxisMatrix * osg::Matrix::scale(scale, 1, 1));
-        tempyAxisTransform->setMatrix(_startyAxisMatrix * osg::Matrix::scale(1, scale, 1));
-        tempzAxisTransform->setMatrix(_startzAxisMatrix * osg::Matrix::scale(1, 1, scale));
-
+        float d_inter_center = (interPos - getMatrix().getTrans()).length();
+        _scale = 1 + d_inter_center;
     }
-    */
+    std::cout<<"scale: "<<_scale<<std::endl;
+
     // save old transformation
     //_oldInteractorXformMat_o = interactorXformMat_o;
 /*
@@ -377,6 +371,46 @@ void coVR3DScaleGizmo::doInteraction()
     return newPos;
 }
 */
+osg::Vec3 coVR3DScaleGizmo::calculatePointOfShortestDistance(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis_o) const
+{
+    osg::Vec3 newPos_o, pointLine1, pointLine2;
+    osg::Matrix interactor_to_w = getMatrix();
+    osg::Vec3 startInterMat_o = osg::Matrix::transform3x3(_startInterMat_w.getTrans(), interactor_to_w.inverse(interactor_to_w));
+    _helperLine->update(axis_o.operator*(-50.0f*getScale())*getMatrix(),  axis_o.operator*(50.0f*getScale()) *getMatrix()); //the length of the helper line doesn't matter, these values are just taken for visualization
+    // if(_helperLine->getPointsOfShortestDistance(lp0, lp1, pointLine1, pointLine2))  what happens if lines are parallel ? 
+    // {
+        _helperLine->getPointsOfShortestDistance(lp0, lp1, pointLine1, pointLine2);
+        newPos_o =osg::Matrix::transform3x3(pointLine1 + _diff,interactor_to_w.inverse(interactor_to_w));
+
+        //newPos = pointLine1 + _diff;
+        if(axis_o == osg::X_AXIS)
+        {
+            //_helperLine->setColor(_red);
+            newPos_o.z() = startInterMat_o.z();
+            newPos_o.y() = startInterMat_o.y();   
+        }
+        else if(axis_o == osg::Y_AXIS)
+        {
+            //_helperLine->setColor(_green);
+            newPos_o.z() = startInterMat_o.z();
+            newPos_o.x() = startInterMat_o.x();
+        }
+        else if(axis_o == osg::Z_AXIS)
+        {
+            //_helperLine->setColor(_blue);
+            newPos_o.x() = startInterMat_o.x();
+            newPos_o.y() = startInterMat_o.y();
+        }
+
+        //_helperLine->show();
+
+    // }
+    // else
+        // newPos = _oldInteractorXformMat_o.getTrans();
+    osg::Vec3 newPos_w = osg::Matrix::transform3x3(newPos_o,interactor_to_w);
+
+    return newPos_w;
+}
 void coVR3DScaleGizmo::stopInteraction()
 {
     tempxAxisTransform->removeChildren(0,tempxAxisTransform->getNumChildren());

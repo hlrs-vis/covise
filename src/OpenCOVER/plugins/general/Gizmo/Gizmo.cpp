@@ -473,10 +473,41 @@ bool Move::pickedObjChanged()
     return true;
 }
 
+/*osg::Matrix Move::scaleNode()
+{
+            osg::Matrix oldMat, netMat;
+            float newScale = scaleItem->getValue();
+            //ScaleSlider->setValue(newScale);
+            //ScaleField->setValue(newScale);
+
+            oldMat = moveDCS->getMatrix();
+            osg::Vec3 v1 = osg::Vec3(oldMat(0, 0), oldMat(0, 1), oldMat(0, 2));
+            osg::Vec3 v2 = osg::Vec3(oldMat(1, 0), oldMat(1, 1), oldMat(1, 2));
+            osg::Vec3 v3 = osg::Vec3(oldMat(2, 0), oldMat(2, 1), oldMat(2, 2));
+            float s1, s2, s3;
+            float os1, os2, os3;
+            s1 = v1.length();
+            s2 = v2.length();
+            s3 = v3.length();
+            v1 = osg::Vec3(info->initialMat(0, 0), info->initialMat(0, 1), info->initialMat(0, 2));
+            v2 = osg::Vec3(info->initialMat(1, 0), info->initialMat(1, 1), info->initialMat(1, 2));
+            v3 = osg::Vec3(info->initialMat(2, 0), info->initialMat(2, 1), info->initialMat(2, 2));
+            os1 = v1.length();
+            os2 = v2.length();
+            os3 = v3.length();
+            oldMat.scale((os1 / s1) * newScale, (os2 / s2) * newScale, (os3 / s3) * newScale);
+            netMat.preMult(oldMat);
+
+            moveDCS->setMatrix(netMat);
+            updateScale();
+}
+*/
 void Move::doMove()
 {
-    osg::Matrix newDCSMat =  _gizmo->getMoveMatrix_o()*_startMoveDCSMat;
-    std::cout <<"gizmo move mat"<<_gizmo->getMoveMatrix_o()<<std::endl;
+    osg::Matrix newDCSMat;
+    // TODO: if scale Gizmo -> then...
+    newDCSMat =  _gizmo->getMoveMatrix_o()*_startMoveDCSMat;
+    
     TokenBuffer tb;
     std::string path = coVRSelectionManager::generatePath(selectedNodesParent);
     tb << path;
@@ -599,6 +630,7 @@ void Move::preFrame()
                     if(selectedNode)
                     {
                         _gizmoStartMat = calcStartMatrix();
+                        //_gizmoStartMat.makeScale(osg::Vec3(1,1,1));
                         activateGizmo(_gizmoStartMat);
                     }
                 }
@@ -657,6 +689,28 @@ osg::Matrix Move::calcStartMatrix()
     if (!invStartHandMat.invert(cover->getPointerMat()))
         fprintf(stderr, "Move::inv getPointerMat is singular\n");
 
+    /*//remove Scale for gizmo Matrix:
+    float newScale = 1.0;
+    osg::Matrix oldMat,netMat;
+    oldMat = startCompleteMat;
+    osg::Vec3 v1 = osg::Vec3(oldMat(0, 0), oldMat(0, 1), oldMat(0, 2));
+    osg::Vec3 v2 = osg::Vec3(oldMat(1, 0), oldMat(1, 1), oldMat(1, 2));
+    osg::Vec3 v3 = osg::Vec3(oldMat(2, 0), oldMat(2, 1), oldMat(2, 2));
+    float s1, s2, s3;
+    float os1, os2, os3;
+    s1 = v1.length();
+    s2 = v2.length();
+    s3 = v3.length();
+    v1 = osg::Vec3(info->initialMat(0, 0), info->initialMat(0, 1), info->initialMat(0, 2));
+    v2 = osg::Vec3(info->initialMat(1, 0), info->initialMat(1, 1), info->initialMat(1, 2));
+    v3 = osg::Vec3(info->initialMat(2, 0), info->initialMat(2, 1), info->initialMat(2, 2));
+    os1 = v1.length();
+    os2 = v2.length();
+    os3 = v3.length();
+    oldMat.scale((os1 / s1) * newScale, (os2 / s2) * newScale, (os3 / s3) * newScale);
+    netMat.preMult(oldMat);
+    return netMat * cover->getInvBaseMat();
+    */
     return startCompleteMat* cover->getInvBaseMat();
 }
 
