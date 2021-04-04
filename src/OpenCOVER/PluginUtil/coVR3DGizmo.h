@@ -20,15 +20,19 @@ class PLUGIN_UTILEXPORT coVR3DGizmo
 {
 public:
     enum class GIZMO_TYPE{ROTATE, TRANSLATE, SCALE};
-    coVR3DGizmo(GIZMO_TYPE gizmptype ,osg::Matrix m, float s, vrui::coInteraction::InteractionType type, const char *iconName, const char *interactorName, vrui::coInteraction::InteractionPriority priority);
+    coVR3DGizmo(GIZMO_TYPE gizmptype, bool translate, bool rotate, bool scale, osg::Matrix m, float s, vrui::coInteraction::InteractionType type, const char *iconName, const char *interactorName, vrui::coInteraction::InteractionPriority priority);
     ~coVR3DGizmo();
 
     GIZMO_TYPE getType(){return _type;}
     void changeGizmoType();
+    void setGizmoTypes(bool translate, bool rotate, bool scale);
 
 private:
-    GIZMO_TYPE _type;
+    GIZMO_TYPE _type; // current type
     std::unique_ptr<coVR3DGizmoType> _gizmo;
+    bool _translate;
+    bool _rotate;
+    bool _scale;
 
 public:     //functions which are forewarded to gizmotype
     void preFrame(){_gizmo->preFrame();} 

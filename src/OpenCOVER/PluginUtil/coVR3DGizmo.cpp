@@ -8,7 +8,8 @@
 using namespace opencover;
 
 
-coVR3DGizmo::coVR3DGizmo(GIZMO_TYPE gizmotype ,osg::Matrix m, float s, vrui::coInteraction::InteractionType type, const char *iconName, const char *interactorName, vrui::coInteraction::InteractionPriority priority)
+coVR3DGizmo::coVR3DGizmo(GIZMO_TYPE gizmotype,bool translate, bool rotate, bool scale, osg::Matrix m, float s, vrui::coInteraction::InteractionType type, const char *iconName, const char *interactorName, vrui::coInteraction::InteractionPriority priority)
+:_translate(translate),_rotate(rotate),_scale(scale)
 {
     _type = gizmotype;
 
@@ -35,21 +36,54 @@ void coVR3DGizmo::changeGizmoType()
     try{
     if(dynamic_cast<coVR3DRotGizmo*>(_gizmo.get()) != nullptr)
     {
-        _gizmo.reset(new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DRotGizmo", vrui::coInteraction::Medium, this));
-        _type = GIZMO_TYPE::TRANSLATE;
+        if(_translate)
+        {
+            _gizmo.reset(new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DTransGizmo", vrui::coInteraction::Medium, this));
+            _type = GIZMO_TYPE::TRANSLATE;
+        }
+        else if(_scale)
+        {
+            _gizmo.reset(new coVR3DScaleGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DScaleGizmo", vrui::coInteraction::Medium, this));
+            _type = GIZMO_TYPE::SCALE;
+        }
     }
     else if(dynamic_cast<coVR3DTransGizmo*>(_gizmo.get()) != nullptr)
     {
-        _gizmo.reset(new coVR3DScaleGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DTransGizmo", vrui::coInteraction::Medium, this));
-        _type = GIZMO_TYPE::ROTATE;
-    }
+        if(_scale)
+        {
+            _gizmo.reset(new coVR3DScaleGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DScaleGizmo", vrui::coInteraction::Medium, this));
+            _type = GIZMO_TYPE::SCALE;
+        }
+        else if(_rotate)
+        {
+            _gizmo.reset(new coVR3DRotGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DRotateGizmo", vrui::coInteraction::Medium, this));
+            _type = GIZMO_TYPE::ROTATE;
+        }
+    }   
     else if(dynamic_cast<coVR3DScaleGizmo*>(_gizmo.get()) != nullptr)
     {
-       _gizmo.reset(new coVR3DRotGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DScaleGizmo", vrui::coInteraction::Medium, this));
-       _type = GIZMO_TYPE::SCALE;
-    }
+        if(_rotate)
+        {
+            _gizmo.reset(new coVR3DRotGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DRotGizmo", vrui::coInteraction::Medium, this));
+            _type = GIZMO_TYPE::ROTATE;
+        }
+        else if(_translate)
+        {
+            _gizmo.reset(new coVR3DTransGizmo(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "coVR3DTransGizmo", vrui::coInteraction::Medium, this));
+            _type = GIZMO_TYPE::TRANSLATE;
+        }
+    }       
     }catch (std::exception& e) {std::cout << "Exception: " << e.what();}
     
     _gizmo->enableIntersection();
     _gizmo->show();
+    std::cout<<_translate<<_rotate<<_scale<<std::endl;
 }
+
+void coVR3DGizmo::setGizmoTypes(bool translate, bool rotate, bool scale)
+{
+    _translate = translate;
+    _rotate = rotate;
+    _scale = scale;
+}
+

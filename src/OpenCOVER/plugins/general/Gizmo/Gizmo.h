@@ -37,7 +37,12 @@
 #include <PluginUtil/coVR3DTransGizmo.h>
 #include <PluginUtil/coVR3DRotGizmo.h>
 
-
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/Group.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/Action.h>
 
 namespace vrui
 {
@@ -69,7 +74,7 @@ public:
     bool originalDCS;
 };
 
-class Move : public coVRPlugin, public coMenuListener, public coTUIListener, public coSelectionListener
+class Move : public coVRPlugin, public coMenuListener, public coTUIListener, public coSelectionListener, public ui::Owner
 {
 public:
     Move();
@@ -134,6 +139,10 @@ private:
     coTUIToggleButton *allowR;
     coTUIToggleButton *aspectRatio;
 
+    std::unique_ptr<ui::Menu> _UIgizmoMenu;
+    std::unique_ptr<ui::Action> _UIparent, _UIchild, _UIundo, _UIredo, _UIreset;
+    std::unique_ptr<ui::Button> _UImove, _UImoveAll, _UItranslate,_UIrotate,_UIscale, _UIdisplayNames, _UIlocalCoords;
+    std::unique_ptr<ui::Slider> _UIscaleFactor;
     void getMoveDCS();
     osg::Node *selectedNode;
     osg::Group *selectedNodesParent;

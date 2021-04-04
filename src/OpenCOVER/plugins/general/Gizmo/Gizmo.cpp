@@ -143,7 +143,7 @@ MoveInfo::~MoveInfo()
 {
 }
 
-Move::Move()
+Move::Move() : ui::Owner("Gizmo_UI", cover->ui)
 {
 }
 
@@ -307,6 +307,26 @@ bool Move::init()
     moveTransformItem->setMenuListener(this);
     scaleItem->setMenuListener(this);
 
+    _UIgizmoMenu.reset(new ui::Menu("NewGizmoMenu", this));
+
+    _UItranslate.reset(new ui::Button(_UIgizmoMenu.get(), "Translate"));
+    _UIrotate.reset(new ui::Button(_UIgizmoMenu.get(), "Rotate"));
+    _UIscale.reset(new ui::Button(_UIgizmoMenu.get(), "Scale"));
+    _UItranslate->setState(true);
+    _UItranslate->setCallback([this](bool state){
+
+        _gizmo->setGizmoTypes(state,_UIrotate->state(),_UIscale->state());
+    });
+    _UIrotate->setState(true);
+    _UIrotate->setCallback([this](bool state){
+
+        _gizmo->setGizmoTypes(_UItranslate->state(),state,_UIscale->state());
+    });
+    _UIscale->setState(false);
+    _UIscale->setCallback([this](bool state){
+        
+        _gizmo->setGizmoTypes(_UItranslate->state(),_UIrotate->state(),state);
+    });
     boundingBoxNode = new osg::MatrixTransform();
     boundingBoxNode->addChild(createBBox());
     interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "Move", coInteraction::Menu);
@@ -319,7 +339,7 @@ bool Move::init()
 
     float interSize = cover->getSceneSize() / 50 ;
     osg::Matrix test;
-    _gizmo.reset(new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE,test, interSize, vrui::coInteraction::ButtonA, "hand", "Gizmo", vrui::coInteraction::Medium));
+    _gizmo.reset(new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE,_UItranslate->state(),_UIrotate->state(),_UIscale->state(), test, interSize, vrui::coInteraction::ButtonA, "hand", "Gizmo", vrui::coInteraction::Medium));
     _gizmo->hide();
 
     return true;

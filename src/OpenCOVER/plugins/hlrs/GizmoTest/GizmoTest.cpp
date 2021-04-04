@@ -117,7 +117,7 @@ GizmoTest::GizmoTest()
     _transRotInteractor->show();
 
     osg::Matrix matrix5 = osg::Matrix::translate(osg::Vec3(0,-40,0)); 
-    _gizmo = new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE, matrix5, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    _gizmo = new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE,true,true,true, matrix5, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
 
 
 
