@@ -10,13 +10,13 @@
 /*
  **                                                            (C)1999 RUS   **
  **                                                                          **
- ** Description: Move arbitrary Objects                                  **
+ ** Description: Move arbitrary Objects (2021)                               **
  **                                                                          **
  **                                                                          **
- ** Author: Uwe Woessner		                                    **
+ ** Author: Matthias Epple		                                             **
  **                                                                          **
- ** History:  			   	                                    **
- ** derived from VRUITest, 2001-01-16	                                    **
+ ** History:  			   	                                                 **
+ ** this replaces the old Move plugin	                                     **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
@@ -25,9 +25,6 @@
 #define MAX_UNDOS 100
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coMenu.h>
-#include <cover/coTabletUI.h>
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Matrix>
@@ -67,11 +64,11 @@ class MoveInfo : public vruiUserData
 public:
     MoveInfo();
     ~MoveInfo();
-    osg::Matrix initialMat;
-    float lastScaleX;
-    float lastScaleY;
-    float lastScaleZ;
-    bool originalDCS;
+    osg::Matrix _initialMat;
+    float _lastScaleX;
+    float _lastScaleY;
+    float _lastScaleZ;
+    bool _originalDCS;
 };
 
 class Move : public coVRPlugin, public coSelectionListener, public ui::Owner
@@ -91,55 +88,66 @@ public:
 
 private:
 
-    coVRLabel *label;
 
     // UI Menu
     std::unique_ptr<ui::Menu> _UIgizmoMenu;
     std::unique_ptr<ui::Action> _UIparent, _UIchild, _UIundo, _UIredo, _UIreset;
     std::unique_ptr<ui::Button> _UImove, _UImoveAll, _UItranslate,_UIrotate,_UIscale, _UIdisplayNames, _UIlocalCoords;
     std::unique_ptr<ui::Slider> _UIscaleFactor;
+    coVRLabel *_label;
+    
+    // Helper nodes
+    osg::Node *_selectedNode;
+    osg::Group *_selectedNodesParent;
+    osg::Node *_candidateNode;
+    osg::Node *_oldNode;
 
-    void getMoveDCS();
-    osg::Node *selectedNode;
-    osg::Group *selectedNodesParent;
+
     osg::ref_ptr<osg::MatrixTransform> boundingBoxNode;
     osg::ref_ptr<osg::MatrixTransform> moveDCS;
-    MoveInfo *info;
-    osg::Matrix invStartHandMat;
-    osg::Matrix startCompleteMat;
-    osg::Matrix startPointerOffsetMat;
-    osg::Matrix invStartPointerOffsetMat;
-    osg::Matrix invStartCompleteMat;
-    osg::Matrix startMoveDCSMat;
-    osg::Matrix startBaseMat;
-    osg::Vec3 startPickPos;
-    osg::Node *nodes[MAX_LEVELS];
-    bool explicitMode;          //moveAll
-    //bool _move;                 //other UI:move checkbox
-    bool moveTransformMode;
-    bool printMode;
-    bool moveSelection;
+    MoveInfo *_info;
+    osg::Node *_nodes[MAX_LEVELS];
+    bool _explicitMode;          // moveAll
+
+
+    // variables for selection hirarchy & undo / redo operations
+    bool _moveSelection;    // do we need this? 
     int level;
-    int oldLevel;
-    // menu event for buttons and stuff
-    void tabletPressEvent(coTUIElement *);
-    void menuEvent(coMenuItem *);
-    void tabletEvent(coTUIElement *);
-    void selectLevel();
     int numLevels;
-    bool allowMove;
-    bool didMove;
-    bool unregister;
     int readPos;
     int writePos;
     int maxWritePos;
     osg::Matrix undoMat[MAX_UNDOS];
     osg::MatrixTransform *undoDCS[MAX_UNDOS];
-    osg::Matrix lastMat;
     osg::MatrixTransform *lastDCS;
-    osg::Node *oldNode;
-    osg::Node *candidateNode;
-    double startTime;
+    
+    coTrackerButtonInteraction *interactionA; // interaction to select objects
+
+    typedef std::map<osg::Node *, const RenderObject *> NodeRoMap;
+    typedef std::map<const RenderObject *, coInteractor *> RoInteractorMap;
+    NodeRoMap nodeRoMap;
+    RoInteractorMap roInteractorMap;
+
+    //Gizmo variables
+    std::unique_ptr<coVR3DGizmo> _gizmo;
+    osg::Matrix _startMoveDCSMat;  //Matrix of helper/transformation node where the gizmo is added to
+    bool _gizmoActive{false};
+
+    void getMoveDCS();
+    void selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& isObject, bool& isNewObject, bool& isAlreadySelected);
+    void newObject(osg::Node* node,const osg::NodePath& intersectedNodePath);
+    bool isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const;
+    void showOrhideName(osg::Node *node);
+    void updateScale();
+    osg::Node *createBBox();
+
+    // Gizmo functions
+    osg::Matrix calcStartMatrix();  // calc global start Matrix for gizmo by iterating over scene graph
+    void doMove();                  // apply the movement
+    void activateGizmo(const osg::Matrix& m);
+    void deactivateGizmo();
+
+    // functions to undo/redo operations
     void addUndo(osg::Matrix &mat, osg::MatrixTransform *dcs);
     void undo();
     void redo();
@@ -147,45 +155,6 @@ private:
     void decread();
     void incwrite();
     void decwrite();
-    void updateScale();
-
-    void restrict(osg::Matrix &mat, bool noRot, bool noTrans);
-    osg::Node *createBBox();
-    coTrackerButtonInteraction *interactionA; ///< interaction for first button
-
-    typedef std::map<osg::Node *, const RenderObject *> NodeRoMap;
-    typedef std::map<const RenderObject *, coInteractor *> RoInteractorMap;
-    NodeRoMap nodeRoMap;
-    RoInteractorMap roInteractorMap;
-
-
-    std::unique_ptr<coVR3DGizmo> _gizmo;
-    bool _isGizmoNode{false};
-    
-    //_gizmo = new coVR3DGizmo(coVR3DGizmo::GIZMO_TYPE::ROTATE, matrix5, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
-
-    void activateGizmo(const osg::Matrix& m);
-    void deactivateGizmo();
-    bool isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const;
-    //bool isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const; // instead of this function use:_gizmo->isIntersected()
-
-    void selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& isObject, bool& isNewObject, bool& isAlreadySelected);
-    void newObject(osg::Node* node,const osg::NodePath& intersectedNodePath);
-    void unselectNode();
-
-    osg::Matrix gizmoStartMat();
-    void doMove();
-    osg::Matrix calcStartMatrix(); // calc global start Matrix for gizmo by iterating over scene graph
-    osg::Matrix _completeMatrix;
-    osg::Matrix _gizmoStartMat;
-    osg::Matrix _startMoveDCSMat;  //Matrix of helper/transformation node where the gizmo is added to
-    bool _gizmoActive{false};
-
-
-    void showOrhideName(osg::Node *node);
-    // coVR3DGizmo* createGizmo();
-    // void deleteGizmo();
-    // void makeSelectedNodeTransparent();
 
 };
 #endif

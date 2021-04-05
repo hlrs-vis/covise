@@ -44,16 +44,6 @@ using covise::TokenBuffer;
 
 typedef osg::fast_back_stack<osg::ref_ptr<osg::RefMatrix> > MatrixStack;
 
-// has to match names from Transform module
-const char *p_type_ = "Transform";
-const char *p_scale_type_ = "scale_type";
-const char *p_scale_scalar_ = "scaling_factor";
-const char *p_scale_vertex_ = "new_origin";
-const char *p_trans_vertex_ = "vector_of_translation";
-const char *p_rotate_normal_ = "axis_of_rotation";
-const char *p_rotate_vertex_ = "one_point_on_the_axis";
-const char *p_rotate_scalar_ = "angle_of_rotation";
-
 class BBoxVisitor : public osg::NodeVisitor
 {
 public:
@@ -127,11 +117,11 @@ private:
 
 MoveInfo::MoveInfo()
 {
-    initialMat.makeIdentity();
-    originalDCS = false;
-    lastScaleX = 1;
-    lastScaleY = 1;
-    lastScaleZ = 1;
+    _initialMat.makeIdentity();
+    _originalDCS = false;
+    _lastScaleX = 1;
+    _lastScaleY = 1;
+    _lastScaleZ = 1;
 }
 
 MoveInfo::~MoveInfo()
@@ -145,26 +135,23 @@ Move::Move() : ui::Owner("Gizmo_UI", cover->ui)
 bool Move::init()
 {
     //fprintf(stderr,"Move::Move\n");
-    oldLevel = level = 0;
+    level = 0;
     numLevels = 0;
-    info = NULL;
-    didMove = false;
-    moveSelection = false;
-    selectedNode = NULL;
-    explicitMode = coCoviseConfig::isOn("COVER.Plugin.Move.Explicit", true);
-    moveTransformMode = false;
-    printMode = coCoviseConfig::isOn("COVER.Plugin.Move.Print", false);
+    _info = NULL;
+    _moveSelection = false;
+    _selectedNode = NULL;
+    _explicitMode = coCoviseConfig::isOn("COVER.Plugin.Move.Explicit", true);
     readPos = writePos = maxWritePos = 0;
     // create the text
     osg::Vec4 fgcolor(0, 1, 0, 1);
     osg::Vec4 bgcolor(0.5, 0.5, 0.5, 0.5);
     float lineLen = 0.04 * cover->getSceneSize();
     float fontSize = 0.02 * cover->getSceneSize();
-    label = new coVRLabel("test", fontSize, lineLen, fgcolor, bgcolor);
-    label->hide();
+    _label = new coVRLabel("test", fontSize, lineLen, fgcolor, bgcolor);
+    _label->hide();
 
     // setup menu
-    _UIgizmoMenu.reset(new ui::Menu("NewGizmoMenu", this));
+    _UIgizmoMenu.reset(new ui::Menu("Gizmo", this));
 
     _UImove.reset(new ui::Button(_UIgizmoMenu.get(), "Move"));
     _UImoveAll.reset(new ui::Button(_UIgizmoMenu.get(), "MoveAll"));
@@ -198,7 +185,7 @@ bool Move::init()
 
     _UImoveAll->setState(false);
     _UImoveAll->setCallback([this](bool state) {
-        explicitMode = !state;
+        _explicitMode = !state;
     });
 
     _UItranslate->setState(true);
@@ -222,13 +209,11 @@ bool Move::init()
     _UIparent->setCallback([this]() {
         if (level < numLevels - 1)
             level++;
-        //selectLevel();
     });
 
     _UIchild->setCallback([this]() {
         if (level > 0)
             level--;
-        //selectLevel();
     });
 
     _UIundo->setCallback([this]() {
@@ -244,23 +229,22 @@ bool Move::init()
         ident.makeIdentity();
         if (moveDCS.get())
         {
-            if (info)
+            if (_info)
             {
-                moveDCS->setMatrix(info->initialMat);
-                _gizmo->updateTransform(info->initialMat);
+                moveDCS->setMatrix(_info->_initialMat);
+                _gizmo->updateTransform(_info->_initialMat);
 
-                info->lastScaleX = 1;
-                info->lastScaleY = 1;
-                info->lastScaleZ = 1;
-                //scaleItem->setValue(info->lastScaleY);
-                //ScaleSlider->setValue(info->lastScaleY);
+                _info->_lastScaleX = 1;
+                _info->_lastScaleY = 1;
+                _info->_lastScaleZ = 1;
+                //scaleItem->setValue(_info->_lastScaleY);
+                //ScaleSlider->setValue(_info->_lastScaleY);
             }
             else
             {
                 moveDCS->setMatrix(ident);
                 _gizmo->updateTransform(ident);
             }
-            allowMove = false;
             updateScale();
             //cerr << "Reset " << endl;
         }
@@ -269,11 +253,10 @@ bool Move::init()
     boundingBoxNode = new osg::MatrixTransform();
     boundingBoxNode->addChild(createBBox());
     interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "Move", coInteraction::Menu);
-    candidateNode = NULL;
-    oldNode = NULL;
-    selectedNodesParent = NULL;
+    _candidateNode = NULL;
+    _oldNode = NULL;
+    _selectedNodesParent = NULL;
     coVRSelectionManager::instance()->addListener(this);
-    startTime=0;
 
     float interSize = cover->getSceneSize() / 50 ;
     osg::Matrix test;
@@ -295,7 +278,7 @@ Move::~Move()
     roInteractorMap.clear();
     nodeRoMap.clear();
 
-    delete label;
+    delete _label;
     // we probably have to delete all move infos...
 
     delete interactionA;
@@ -318,9 +301,9 @@ void Move::message(int toWhom, int type, int len, const void *buf)
         std::string path;
         TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
         tb >> path;
-        selectedNodesParent = dynamic_cast<osg::Group *>(coVRSelectionManager::validPath(path));
+        _selectedNodesParent = dynamic_cast<osg::Group *>(coVRSelectionManager::validPath(path));
         tb >> path;
-        selectedNode = coVRSelectionManager::validPath(path);
+        _selectedNode = coVRSelectionManager::validPath(path);
         getMoveDCS();
 
         for (int i = 0; i < 4; i++)
@@ -330,15 +313,6 @@ void Move::message(int toWhom, int type, int len, const void *buf)
     }
 }
 
-void Move::selectLevel()
-{
-    //cerr << "numLevels: " << numLevels << endl;
-    //cerr << "level: " << level << endl;
-    if (level >= numLevels)
-    {
-        level = 0;
-    }
-}
 
 bool Move::selectionChanged()
 {
@@ -361,20 +335,20 @@ bool Move::selectionChanged()
         nodeIter--;
         parentIter--;
         const char *name = (*nodeIter)->getName().c_str();
-        selectedNode = (*nodeIter).get();
-        if (selectedNode == nullptr)
+        _selectedNode = (*nodeIter).get();
+        if (_selectedNode == nullptr)
         {
             fprintf(stderr, "deselect\n");
         }
-        selectedNodesParent = (*parentIter).get();
+        _selectedNodesParent = (*parentIter).get();
        /* if (name)
             moveObjectName->setLabel(name);
         else
             moveObjectName->setLabel("NoName");
-        */if (info)
+        */if (_info)
         {
-            //scaleItem->setValue(info->lastScaleY);
-            //ScaleSlider->setValue(info->lastScaleY);
+            //scaleItem->setValue(_info->_lastScaleY);
+            //ScaleSlider->setValue(_info->_lastScaleY);
         }
         updateScale();
     }
@@ -402,9 +376,9 @@ bool Move::pickedObjChanged()
             s1 = v1.length();
             s2 = v2.length();
             s3 = v3.length();
-            v1 = osg::Vec3(info->initialMat(0, 0), info->initialMat(0, 1), info->initialMat(0, 2));
-            v2 = osg::Vec3(info->initialMat(1, 0), info->initialMat(1, 1), info->initialMat(1, 2));
-            v3 = osg::Vec3(info->initialMat(2, 0), info->initialMat(2, 1), info->initialMat(2, 2));
+            v1 = osg::Vec3(_info->_initialMat(0, 0), _info->_initialMat(0, 1), _info->_initialMat(0, 2));
+            v2 = osg::Vec3(_info->_initialMat(1, 0), _info->_initialMat(1, 1), _info->_initialMat(1, 2));
+            v3 = osg::Vec3(_info->_initialMat(2, 0), _info->_initialMat(2, 1), _info->_initialMat(2, 2));
             os1 = v1.length();
             os2 = v2.length();
             os3 = v3.length();
@@ -422,9 +396,9 @@ void Move::doMove()
     newDCSMat =  _gizmo->getMoveMatrix_o()*_startMoveDCSMat;
     
     TokenBuffer tb;
-    std::string path = coVRSelectionManager::generatePath(selectedNodesParent);
+    std::string path = coVRSelectionManager::generatePath(_selectedNodesParent);
     tb << path;
-    path = coVRSelectionManager::generatePath(selectedNode);
+    path = coVRSelectionManager::generatePath(_selectedNode);
     tb << path;
 
     for (int i = 0; i < 4; i++)
@@ -435,8 +409,8 @@ void Move::doMove()
     cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                        PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
     
-    vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
-    if(info!=NULL)
+    vrui::vruiUserData  *_info = OSGVruiUserDataCollection::getUserData(_selectedNode, "RevitInfo");
+    if(_info!=NULL)
     {
         cover->sendMessage(this, "Revit",
             PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
@@ -450,7 +424,7 @@ void Move::preFrame()
     osg::Node *node;
     node = cover->getIntersectedNode();
     const osg::NodePath &intersectedNodePath = cover->getIntersectedNodePath();
-    _isGizmoNode = _gizmo->isIntersected();
+    bool isGizmoNode = _gizmo->isIntersected();
 
     if(_gizmo->wasStarted())
     {
@@ -465,7 +439,7 @@ void Move::preFrame()
     else if(_gizmo->getState() == coInteraction::Active) // do the movement
         doMove();
 
-    else if(!_isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes if gizmo is not active
+    else if(!isGizmoNode && _gizmo->getState() != coInteraction::Active) // check for nodes if gizmo is not active
     {
         bool is_SceneNode{false};
         if(node)
@@ -478,22 +452,22 @@ void Move::preFrame()
             bool isObject{false};
             bool notNeededAtThisPlace{false};
             bool notNeeded{false};
-            if (node && _UImove->state() && (node != oldNode) && (node != selectedNode)) // Select a node
+            if (node && _UImove->state() && (node != _oldNode) && (node != _selectedNode)) // Select a node
             {
                 selectNode(node, intersectedNodePath, isObject, notNeededAtThisPlace,notNeeded);
                 if(isObject)
-                    candidateNode = node;
+                    _candidateNode = node;
                 else
-                    candidateNode = NULL;
+                    _candidateNode = NULL;
             }
             if(node == NULL)
-                candidateNode = NULL;
+                _candidateNode = NULL;
             
-            oldNode = node;
+            _oldNode = node;
         }
 
         //**********************************************************    Register interactionA *******************************************************
-        if (node && _UImove->state() && ((node == candidateNode) || (node == selectedNode))) //if we point towards a selected or candidate Node: necessarry to select the object
+        if (node && _UImove->state() && ((node == _candidateNode) || (node == _selectedNode))) //if we point towards a selected or candidate Node: necessarry to select the object
 		{ 
 		     if (!interactionA->isRegistered())
              {
@@ -501,7 +475,7 @@ void Move::preFrame()
 			     coInteractionManager::the()->registerInteraction(interactionA);
              }	
         }
-        else if(_gizmoActive && !_isGizmoNode && !interactionA->isRegistered()) // necessary to unselect objects if gizmo is active, but interactionA was unregistered
+        else if(_gizmoActive && !isGizmoNode && !interactionA->isRegistered()) // necessary to unselect objects if gizmo is active, but interactionA was unregistered
         {
                  std::cout <<"register interaction A" <<std::endl;
 			     coInteractionManager::the()->registerInteraction(interactionA);
@@ -512,19 +486,19 @@ void Move::preFrame()
         {
             //Deselect
             if( _gizmoActive && 
-            (!_isGizmoNode || ( !node || ((node != candidateNode) && (node != selectedNode))))
+            (!isGizmoNode || ( !node || ((node != _candidateNode) && (node != _selectedNode))))
             )
             {
                 std::cout<<"Deselection started"<<std::endl;
                 deactivateGizmo();
-                oldNode = NULL;                                                                                                     
+                _oldNode = NULL;                                                                                                     
                 node = NULL;                                                    
-                candidateNode = NULL;                                                   
-                selectedNode = NULL;                                                    
-                if (moveSelection)                                                  
+                _candidateNode = NULL;                                                   
+                _selectedNode = NULL;                                                    
+                if (_moveSelection)                                                  
                 {                                                   
                     coVRSelectionManager::instance()->clearSelection();                                                 
-                    moveSelection = false;                                                  
+                    _moveSelection = false;                                                  
                 }
             }
             if(node) //Select
@@ -539,11 +513,11 @@ void Move::preFrame()
                     newObject(node, intersectedNodePath);//check exactly what happens !
                     // create Gizmo
                     // start of interaction (button press)
-                    if(selectedNode)
+                    if(_selectedNode)
                     {
-                        _gizmoStartMat = calcStartMatrix();
-                        //_gizmoStartMat.makeScale(osg::Vec3(1,1,1));
-                        activateGizmo(_gizmoStartMat);
+                        osg::Matrix gizmoStartMat = calcStartMatrix();
+                        //gizmoStartMat.makeScale(osg::Vec3(1,1,1));
+                        activateGizmo(gizmoStartMat);
                     }
                 }
             }
@@ -551,10 +525,10 @@ void Move::preFrame()
     }
     
     // if we don't point to a node or point to a non candidate or point to gizmo Node and gizmo is not active then unregister!
-    if( _isGizmoNode && interactionA->isRegistered() ||
+    if( isGizmoNode && interactionA->isRegistered() ||
         (
             !_gizmoActive &&
-            (!node || (((node != candidateNode) && (node != selectedNode)) && interactionA->isRegistered()))
+            (!node || (((node != _candidateNode) && (node != _selectedNode)) && interactionA->isRegistered()))
         )
       )
     {   
@@ -564,20 +538,19 @@ void Move::preFrame()
             coInteractionManager::the()->unregisterInteraction(interactionA);
         }
     }
-    //std::cout <<"doUndo: "<<doUndo <<" didMove: "<<didMove <<" allowMove: "<<allowMove<<std::endl; 
 }
 
-//remove global variable startCompleteMat
 osg::Matrix Move::calcStartMatrix()
 {
     
-    osg::Matrix dcsMat;
+    osg::Matrix dcsMat,startBaseMat,startCompleteMat;
+    startBaseMat.makeIdentity();
+
     getMoveDCS();
     // start of interaction (button press)
     osg::Node *currentNode = NULL;
     if (moveDCS && moveDCS->getNumParents() > 0)
         currentNode = moveDCS->getParent(0);
-    startBaseMat.makeIdentity();
 
     while (currentNode != NULL)
     {
@@ -595,15 +568,10 @@ osg::Matrix Move::calcStartMatrix()
     startCompleteMat = startBaseMat;
     startCompleteMat.preMult(_startMoveDCSMat);
 
-    if (!invStartCompleteMat.invert(startCompleteMat))
-        fprintf(stderr, "Move::inv startCompleteMat is singular\n");
-    if (!invStartHandMat.invert(cover->getPointerMat()))
-        fprintf(stderr, "Move::inv getPointerMat is singular\n");
-
     /*//remove Scale for gizmo Matrix:
     float newScale = 1.0;
     osg::Matrix oldMat,netMat;
-    oldMat = startCompleteMat;
+    oldMat = startMatrix;
     osg::Vec3 v1 = osg::Vec3(oldMat(0, 0), oldMat(0, 1), oldMat(0, 2));
     osg::Vec3 v2 = osg::Vec3(oldMat(1, 0), oldMat(1, 1), oldMat(1, 2));
     osg::Vec3 v3 = osg::Vec3(oldMat(2, 0), oldMat(2, 1), oldMat(2, 2));
@@ -612,9 +580,9 @@ osg::Matrix Move::calcStartMatrix()
     s1 = v1.length();
     s2 = v2.length();
     s3 = v3.length();
-    v1 = osg::Vec3(info->initialMat(0, 0), info->initialMat(0, 1), info->initialMat(0, 2));
-    v2 = osg::Vec3(info->initialMat(1, 0), info->initialMat(1, 1), info->initialMat(1, 2));
-    v3 = osg::Vec3(info->initialMat(2, 0), info->initialMat(2, 1), info->initialMat(2, 2));
+    v1 = osg::Vec3(_info->_initialMat(0, 0), _info->_initialMat(0, 1), _info->_initialMat(0, 2));
+    v2 = osg::Vec3(_info->_initialMat(1, 0), _info->_initialMat(1, 1), _info->_initialMat(1, 2));
+    v3 = osg::Vec3(_info->_initialMat(2, 0), _info->_initialMat(2, 1), _info->_initialMat(2, 2));
     os1 = v1.length();
     os2 = v2.length();
     os3 = v3.length();
@@ -635,16 +603,7 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
     while(currentNode != NULL)
     {
         const char* nodeName = currentNode->getName().c_str();
-        if (moveTransformMode)//-----------------------------------------------------this if block is missing in original Move plugin when it appears for the first time
-        {
-            NodeRoMap::iterator it = nodeRoMap.find(currentNode);
-            if (it != nodeRoMap.end())
-                isObject = true;
-
-            if (currentNode == cover->getObjectsRoot())
-                break;  
-        }
-        else if (explicitMode)//-------------------------------------------------------
+        if (_explicitMode)//-------------------------------------------------------
         {
             // do not touch nodes underneeth NoMove nodes
             if (nodeName && (strncmp(nodeName, "DoMove", 6) == 0 || strncmp(nodeName, "Griff.", 6) == 0 || strncmp(nodeName, "Handle.", 7) == 0))
@@ -672,7 +631,7 @@ void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath,
             isNewObject = false;
             break;
         }
-        if (currentNode == selectedNode)
+        if (currentNode == _selectedNode)
         {
             isObject = true; // already selected
             isNewObject = false;
@@ -718,18 +677,18 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
         {
             level = numLevels;
         }
-        info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
-        if (info)
+        _info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
+        if (_info)
         {
-            //scaleItem->setValue(info->lastScaleY);
-            //ScaleSlider->setValue(info->lastScaleY);
+            //scaleItem->setValue(_info->_lastScaleY);
+            //ScaleSlider->setValue(_info->_lastScaleY);
         }
-        if (info && !info->originalDCS)
+        if (_info && !_info->_originalDCS)
         {
         }
         else
         {
-            nodes[numLevels] = currentNode;
+            _nodes[numLevels] = currentNode;
             numLevels++;
         }
         if (currentNode->getNumParents() > 0)
@@ -755,7 +714,7 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
     std::vector<osg::Node *>::const_iterator iter = intersectedNodePath.end();
     for (iter--; iter != intersectedNodePath.begin(); iter--)
     {
-        if ((*iter) == nodes[level])
+        if ((*iter) == _nodes[level])
         {
             if (iter != intersectedNodePath.begin())
                 iter--;
@@ -765,12 +724,12 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
                 iter--;
                 parent = (*iter)->asGroup();
             }
-            selectedNode = nodes[level];
+            _selectedNode = _nodes[level];
             if (parent)
             {
-                coVRSelectionManager::instance()->addSelection(parent, selectedNode);
+                coVRSelectionManager::instance()->addSelection(parent, _selectedNode);
                 coVRSelectionManager::instance()->pickedObjChanged();
-                moveSelection = true;
+                _moveSelection = true;
             }
             else
             {
@@ -778,9 +737,6 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
             }
         }
     }
-    
-    allowMove = false;
-    didMove = false;
 }
 
 void Move::showOrhideName(osg::Node *node)
@@ -789,15 +745,15 @@ void Move::showOrhideName(osg::Node *node)
     {
         if (node && !node->getName().empty())
         {
-            label->setString(node->getName().c_str());
-            label->setPosition(cover->getIntersectionHitPointWorld());
-            label->show();
+            _label->setString(node->getName().c_str());
+            _label->setPosition(cover->getIntersectionHitPointWorld());
+            _label->show();
         }
         else
-            label->hide();
+            _label->hide();
     }
     else
-            label->hide();
+            _label->hide();
 }
 
 bool Move::isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const
@@ -809,24 +765,6 @@ bool Move::isSceneNode(osg::Node* node,const osg::NodePath& intersectedNodePath)
     }
     return false;
 }
-
-// bool Move::isGizmoNode(osg::Node* node,const osg::NodePath& intersectedNodePath)const
-// {
-    // 
-    //  for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin(); iter != intersectedNodePath.end(); ++iter)
-    //  {
-        //  auto hitNode= _gizmo->getHitNode();
-        //  if(hitNode)
-        //  {
-        //  
-// 
-        //  }
-        //  if ((*iter) == _gizmo->getHitNode())
-            //  return true;
-    // 
-    //  }
-    //  return false;
-// }
 
 void Move::activateGizmo(const osg::Matrix& m)
 {
@@ -851,35 +789,35 @@ void Move::getMoveDCS()
     // if this is a DCS, then use this one
     moveDCS = NULL;
 
-    osg::Group *selectionHelperNode = coVRSelectionManager::getHelperNode(selectedNodesParent, selectedNode, coVRSelectionManager::MOVE);
+    osg::Group *selectionHelperNode = coVRSelectionManager::getHelperNode(_selectedNodesParent, _selectedNode, coVRSelectionManager::MOVE);
     moveDCS = dynamic_cast<osg::MatrixTransform *>(selectionHelperNode);
     //cerr << "moveDCS=" << moveDCS.get() << endl;
     if (moveDCS.get() == NULL)
     {
         moveDCS = new osg::MatrixTransform();
         //cerr << "new moveDCS" << moveDCS.get() << endl;
-        info = new MoveInfo();
-        OSGVruiUserDataCollection::setUserData(moveDCS.get(), "MoveInfo", info);
-        coVRSelectionManager::insertHelperNode(selectedNodesParent, selectedNode, moveDCS.get(), coVRSelectionManager::MOVE);
+        _info = new MoveInfo();
+        OSGVruiUserDataCollection::setUserData(moveDCS.get(), "MoveInfo", _info);
+        coVRSelectionManager::insertHelperNode(_selectedNodesParent, _selectedNode, moveDCS.get(), coVRSelectionManager::MOVE);
     }
 
-    info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(moveDCS.get(), "MoveInfo");
-    if (info)
+    _info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(moveDCS.get(), "MoveInfo");
+    if (_info)
     {
-        //scaleItem->setValue(info->lastScaleY);
-        //ScaleSlider->setValue(info->lastScaleY);
+        //scaleItem->setValue(_info->_lastScaleY);
+        //ScaleSlider->setValue(_info->_lastScaleY);
     }
 }
 
 void Move::updateScale()
 {
-    if (info && selectedNode)
+    if (_info && _selectedNode)
     {
         BBoxVisitor bbv;
-        bbv.apply(*selectedNode);
-        //hoeheEdit->setValue((bbv.bbox.yMax() - bbv.bbox.yMin()) * info->lastScaleY);
-        //breiteEdit->setValue((bbv.bbox.xMax() - bbv.bbox.xMin()) * info->lastScaleX);
-        //tiefeEdit->setValue((bbv.bbox.zMax() - bbv.bbox.zMin()) * info->lastScaleZ);
+        bbv.apply(*_selectedNode);
+        //hoeheEdit->setValue((bbv.bbox.yMax() - bbv.bbox.yMin()) * _info->_lastScaleY);
+        //breiteEdit->setValue((bbv.bbox.xMax() - bbv.bbox.xMin()) * _info->_lastScaleX);
+        //tiefeEdit->setValue((bbv.bbox.zMax() - bbv.bbox.zMin()) * _info->_lastScaleZ);
     }
 }
 
