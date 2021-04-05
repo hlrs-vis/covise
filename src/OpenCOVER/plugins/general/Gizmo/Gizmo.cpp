@@ -17,9 +17,6 @@
 
 #include "Gizmo.h"
 
-//#include <OpenVRUI/coToolboxMenu.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coPotiMenuItem.h>
 #include <osg/BoundingBox>
 #include <osg/Quat>
 #include <osg/Geode>
@@ -32,9 +29,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/io_utils>
 
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
+
 #include <cover/coVRLabel.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <cover/coVRTui.h>
@@ -168,146 +163,7 @@ bool Move::init()
     label = new coVRLabel("test", fontSize, lineLen, fgcolor, bgcolor);
     label->hide();
 
-    pinboardEntry = new coSubMenuItem("Gizmo...");
-    cover->getMenu()->add(pinboardEntry);
-    moveMenu = new coRowMenu("Move", cover->getMenu());
-
-    moveTab = new coTUITab("Move", coVRTui::instance()->mainFolder->getID());
-    moveTab->setPos(0, 0);
-
-    allowX = new coTUIToggleButton("X", moveTab->getID());
-    allowY = new coTUIToggleButton("Y", moveTab->getID());
-    allowZ = new coTUIToggleButton("Z", moveTab->getID());
-    allowH = new coTUIToggleButton("H", moveTab->getID());
-    allowP = new coTUIToggleButton("P", moveTab->getID());
-    allowR = new coTUIToggleButton("R", moveTab->getID());
-    Child = new coTUIButton("Child", moveTab->getID());
-    Parent = new coTUIButton("Parent", moveTab->getID());
-    Undo = new coTUIButton("Undo", moveTab->getID());
-    Redo = new coTUIButton("Redo", moveTab->getID());
-    Reset = new coTUIButton("Reset", moveTab->getID());
-    explicitTUIItem = new coTUIToggleButton("MoveAll", moveTab->getID());
-    moveTransformTUIItem = new coTUIToggleButton("MoveTransform", moveTab->getID());
-    moveEnabled = new coTUIToggleButton("Move", moveTab->getID());
-    //ScaleField = new coTUIEditFloatField("Scale",moveTab->getID());
-    ScaleSlider = new coTUIFloatSlider("ScaleSlider", moveTab->getID());
-    moveObjectLabel = new coTUILabel("ObjectName:", moveTab->getID());
-    moveObjectName = new coTUILabel("NoName", moveTab->getID());
-    hoeheLabel = new coTUILabel("Hoehe:", moveTab->getID());
-    breiteLabel = new coTUILabel("Breite:", moveTab->getID());
-    tiefeLabel = new coTUILabel("Tiefe", moveTab->getID());
-    hoeheEdit = new coTUIEditFloatField("hoehe", moveTab->getID());
-    breiteEdit = new coTUIEditFloatField("breite", moveTab->getID());
-    tiefeEdit = new coTUIEditFloatField("tiefe", moveTab->getID());
-    aspectRatio = new coTUIToggleButton("KeepAspectRatio", moveTab->getID());
-    allowX->setEventListener(this);
-    allowY->setEventListener(this);
-    allowZ->setEventListener(this);
-    allowH->setEventListener(this);
-    allowP->setEventListener(this);
-    allowR->setEventListener(this);
-    aspectRatio->setEventListener(this);
-    Child->setEventListener(this);
-    Parent->setEventListener(this);
-    Undo->setEventListener(this);
-    Redo->setEventListener(this);
-    Reset->setEventListener(this);
-    explicitTUIItem->setEventListener(this);
-    moveTransformTUIItem->setEventListener(this);
-    moveEnabled->setEventListener(this);
-    //ScaleField->setEventListener(this);
-    ScaleSlider->setEventListener(this);
-    moveObjectLabel->setEventListener(this);
-    hoeheEdit->setEventListener(this);
-    breiteEdit->setEventListener(this);
-    tiefeEdit->setEventListener(this);
-    ScaleSlider->setMin(0.1);
-    ScaleSlider->setMax(10);
-    ScaleSlider->setValue(1.0);
-    hoeheEdit->setValue(0.0);
-    breiteEdit->setValue(0.0);
-    tiefeEdit->setValue(0.0);
-    //ScaleField->setValue(1);
-    allowX->setState(true);
-    allowY->setState(true);
-    allowZ->setState(false);
-    allowH->setState(false);
-    allowP->setState(false);
-    allowR->setState(true);
-    aspectRatio->setState(true);
-    allowX->setPos(0, 0);
-    allowY->setPos(0, 1);
-    allowZ->setPos(0, 2);
-    allowH->setPos(1, 0);
-    allowP->setPos(1, 1);
-    allowR->setPos(1, 2);
-    Child->setPos(0, 3);
-    Parent->setPos(1, 3);
-    Undo->setPos(0, 4);
-    Redo->setPos(1, 4);
-    Reset->setPos(0, 5);
-    explicitTUIItem->setPos(0, 6);
-    moveEnabled->setPos(1, 6);
-    //ScaleField->setPos(0,7);
-    ScaleSlider->setPos(0, 7);
-    moveObjectLabel->setPos(0, 8);
-    moveObjectName->setPos(1, 8);
-
-    hoeheLabel->setPos(0, 9);
-    breiteLabel->setPos(0, 10);
-    tiefeLabel->setPos(0, 11);
-    hoeheEdit->setPos(1, 9);
-    breiteEdit->setPos(1, 10);
-    tiefeEdit->setPos(1, 11);
-    aspectRatio->setPos(2, 10);
-
-    pinboardEntry->setMenu(moveMenu);
-    moveToggle = new coCheckboxMenuItem("Move", false);
-    showNames = new coCheckboxMenuItem("Display Names", false);
-    movex = new coCheckboxMenuItem("X", true);
-    movey = new coCheckboxMenuItem("Y", true);
-    movez = new coCheckboxMenuItem("Z", false);
-    moveh = new coCheckboxMenuItem("H", false);
-    movep = new coCheckboxMenuItem("P", false);
-    mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local coords", false);
-    parentItem = new coButtonMenuItem("Parent");
-    childItem = new coButtonMenuItem("Child");
-    undoItem = new coButtonMenuItem("Undo");
-    redoItem = new coButtonMenuItem("Redo");
-    resetItem = new coButtonMenuItem("Reset");
-    explicitItem = new coCheckboxMenuItem("MoveAll", !explicitMode);
-    moveTransformItem = new coCheckboxMenuItem("MoveTransform", moveTransformMode);
-    scaleItem = new coPotiMenuItem("Scale", 0.1, 10, 1.0);
-
-    moveMenu->add(moveToggle);
-    moveMenu->add(explicitItem);
-    moveMenu->add(moveTransformItem);
-    moveMenu->add(showNames);
-    moveMenu->add(parentItem);
-    moveMenu->add(childItem);
-    moveMenu->add(movex);
-    moveMenu->add(movey);
-    moveMenu->add(movez);
-    moveMenu->add(moveh);
-    moveMenu->add(movep);
-    moveMenu->add(mover);
-    moveMenu->add(local);
-    moveMenu->add(undoItem);
-    moveMenu->add(redoItem);
-    moveMenu->add(resetItem);
-    moveMenu->add(scaleItem);
-    moveToggle->setMenuListener(this);
-    parentItem->setMenuListener(this);
-    childItem->setMenuListener(this);
-    resetItem->setMenuListener(this);
-    undoItem->setMenuListener(this);
-    redoItem->setMenuListener(this);
-    explicitItem->setMenuListener(this);
-    moveTransformItem->setMenuListener(this);
-    scaleItem->setMenuListener(this);
-
-    //_gizmo.reset(new coVR3DScaleGizmo(m, s, type, iconName, interactorName, priority, this));
+    // setup menu
     _UIgizmoMenu.reset(new ui::Menu("NewGizmoMenu", this));
 
     _UImove.reset(new ui::Button(_UIgizmoMenu.get(), "Move"));
@@ -338,18 +194,11 @@ bool Move::init()
             coIntersection::instance()->isectAllNodes(true);
         else
             coIntersection::instance()->isectAllNodes(false);
-
-        //_move = state;
-        // moveToggle->setState(state);
-        // moveEnabled->setState(moveToggle->getState());
     });
 
     _UImoveAll->setState(false);
     _UImoveAll->setCallback([this](bool state) {
         explicitMode = !state;
-        // explicitTUIItem->setState(explicitMode);
-        // explicitItem->setState(explicitMode);
-
     });
 
     _UItranslate->setState(true);
@@ -403,8 +252,8 @@ bool Move::init()
                 info->lastScaleX = 1;
                 info->lastScaleY = 1;
                 info->lastScaleZ = 1;
-                scaleItem->setValue(info->lastScaleY);
-                ScaleSlider->setValue(info->lastScaleY);
+                //scaleItem->setValue(info->lastScaleY);
+                //ScaleSlider->setValue(info->lastScaleY);
             }
             else
             {
@@ -420,7 +269,6 @@ bool Move::init()
     boundingBoxNode = new osg::MatrixTransform();
     boundingBoxNode->addChild(createBBox());
     interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "Move", coInteraction::Menu);
-    interactionB = new coTrackerButtonInteraction(coInteraction::ButtonB, "Move", coInteraction::Menu);
     candidateNode = NULL;
     oldNode = NULL;
     selectedNodesParent = NULL;
@@ -450,53 +298,8 @@ Move::~Move()
     delete label;
     // we probably have to delete all move infos...
 
-    delete moveTab;
-    delete allowX;
-    delete allowY;
-    delete allowZ;
-    delete allowH;
-    delete allowP;
-    delete allowR;
-    delete Child;
-    delete Parent;
-    delete Undo;
-    delete Redo;
-    delete Reset;
-    delete explicitTUIItem;
-    delete moveTransformTUIItem;
-    delete moveEnabled;
-    delete ScaleSlider;
-    delete moveObjectLabel;
-    delete moveObjectName;
-    delete hoeheEdit;
-    delete breiteLabel;
-    delete tiefeLabel;
-    delete hoeheLabel;
-    delete breiteEdit;
-    delete tiefeEdit;
-    delete aspectRatio;
-
-    delete redoItem;
-    delete undoItem;
-    delete resetItem;
     delete interactionA;
-    delete interactionB;
-    delete pinboardEntry;
-    delete moveMenu;
-    delete moveToggle;
-    delete showNames;
-    delete parentItem;
-    delete childItem;
-    delete movex;
-    delete movey;
-    delete movez;
-    delete moveh;
-    delete movep;
-    delete mover;
-    delete local;
-    delete scaleItem;
-    delete explicitItem;
-    delete moveTransformItem;
+
     while (boundingBoxNode->getNumParents())
         boundingBoxNode->getParent(0)->removeChild(boundingBoxNode.get());
 
@@ -549,7 +352,7 @@ bool Move::selectionChanged()
     if (selectedNodeList.size() == 0)
     {
         moveDCS = NULL;
-        moveObjectLabel->setLabel("None");
+        //moveObjectLabel->setLabel("None");
     //coVRMSController::instance()->syncInt(3001);
     }
     else
@@ -564,14 +367,14 @@ bool Move::selectionChanged()
             fprintf(stderr, "deselect\n");
         }
         selectedNodesParent = (*parentIter).get();
-        if (name)
+       /* if (name)
             moveObjectName->setLabel(name);
         else
             moveObjectName->setLabel("NoName");
-        if (info)
+        */if (info)
         {
-            scaleItem->setValue(info->lastScaleY);
-            ScaleSlider->setValue(info->lastScaleY);
+            //scaleItem->setValue(info->lastScaleY);
+            //ScaleSlider->setValue(info->lastScaleY);
         }
         updateScale();
     }
@@ -918,8 +721,8 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
         info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
         if (info)
         {
-            scaleItem->setValue(info->lastScaleY);
-            ScaleSlider->setValue(info->lastScaleY);
+            //scaleItem->setValue(info->lastScaleY);
+            //ScaleSlider->setValue(info->lastScaleY);
         }
         if (info && !info->originalDCS)
         {
@@ -976,17 +779,13 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
         }
     }
     
-    // if (!interactionB->isRegistered())
-    // {
-        // coInteractionManager::the()->registerInteraction(interactionB);
-    // }
     allowMove = false;
     didMove = false;
 }
 
 void Move::showOrhideName(osg::Node *node)
 {
-    if (showNames->getState())
+    if (_UIdisplayNames->state())
     {
         if (node && !node->getName().empty())
         {
@@ -1067,8 +866,8 @@ void Move::getMoveDCS()
     info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(moveDCS.get(), "MoveInfo");
     if (info)
     {
-        scaleItem->setValue(info->lastScaleY);
-        ScaleSlider->setValue(info->lastScaleY);
+        //scaleItem->setValue(info->lastScaleY);
+        //ScaleSlider->setValue(info->lastScaleY);
     }
 }
 
@@ -1078,9 +877,9 @@ void Move::updateScale()
     {
         BBoxVisitor bbv;
         bbv.apply(*selectedNode);
-        hoeheEdit->setValue((bbv.bbox.yMax() - bbv.bbox.yMin()) * info->lastScaleY);
-        breiteEdit->setValue((bbv.bbox.xMax() - bbv.bbox.xMin()) * info->lastScaleX);
-        tiefeEdit->setValue((bbv.bbox.zMax() - bbv.bbox.zMin()) * info->lastScaleZ);
+        //hoeheEdit->setValue((bbv.bbox.yMax() - bbv.bbox.yMin()) * info->lastScaleY);
+        //breiteEdit->setValue((bbv.bbox.xMax() - bbv.bbox.xMin()) * info->lastScaleX);
+        //tiefeEdit->setValue((bbv.bbox.zMax() - bbv.bbox.zMin()) * info->lastScaleZ);
     }
 }
 

@@ -74,7 +74,7 @@ public:
     bool originalDCS;
 };
 
-class Move : public coVRPlugin, public coMenuListener, public coTUIListener, public coSelectionListener, public ui::Owner
+class Move : public coVRPlugin, public coSelectionListener, public ui::Owner
 {
 public:
     Move();
@@ -90,57 +90,10 @@ public:
     virtual bool pickedObjChanged();
 
 private:
-    // toolbar and kids
-    coSubMenuItem *pinboardEntry;
-    coRowMenu *moveMenu;
-    coCheckboxMenuItem *moveToggle;
-    coCheckboxMenuItem *showNames;
-    coCheckboxMenuItem *local;
-    coCheckboxMenuItem *movex;
-    coCheckboxMenuItem *movey;
-    coCheckboxMenuItem *movez;
-    coCheckboxMenuItem *moveh;
-    coCheckboxMenuItem *movep;
-    coCheckboxMenuItem *mover;
+
     coVRLabel *label;
-    coButtonMenuItem *parentItem;
-    coButtonMenuItem *childItem;
-    coButtonMenuItem *undoItem;
-    coButtonMenuItem *redoItem;
-    coButtonMenuItem *resetItem;
-    coCheckboxMenuItem *explicitItem;
-    coCheckboxMenuItem *moveTransformItem;
-    coPotiMenuItem *scaleItem;
-    coTUITab *moveTab;
-    coTUILabel *moveObjectLabel;
-    coTUILabel *moveObjectName;
-    coTUILabel *hoeheLabel;
-    coTUILabel *breiteLabel;
-    coTUILabel *tiefeLabel;
-    coTUIEditFloatField *hoeheEdit;
-    coTUIEditFloatField *breiteEdit;
-    coTUIEditFloatField *tiefeEdit;
-    coTUIFloatSlider *ScaleSlider;
-    //coTUIEditFloatField *ScaleField;
-    coTUIButton *Parent;
-    coTUIButton *Child;
-    coTUIButton *Undo;
-    coTUIButton *Redo;
-    coTUIButton *Reset;
-    coTUIToggleButton *explicitTUIItem;
-    coTUIToggleButton *moveTransformTUIItem;
-    coTUIToggleButton *moveEnabled;
 
-    coTUIToggleButton *allowX;
-    coTUIToggleButton *allowY;
-    coTUIToggleButton *allowZ;
-    coTUIToggleButton *allowH;
-    coTUIToggleButton *allowP;
-    coTUIToggleButton *allowR;
-    coTUIToggleButton *aspectRatio;
-
-
-    //New Menu
+    // UI Menu
     std::unique_ptr<ui::Menu> _UIgizmoMenu;
     std::unique_ptr<ui::Action> _UIparent, _UIchild, _UIundo, _UIredo, _UIreset;
     std::unique_ptr<ui::Button> _UImove, _UImoveAll, _UItranslate,_UIrotate,_UIscale, _UIdisplayNames, _UIlocalCoords;
@@ -199,7 +152,6 @@ private:
     void restrict(osg::Matrix &mat, bool noRot, bool noTrans);
     osg::Node *createBBox();
     coTrackerButtonInteraction *interactionA; ///< interaction for first button
-    coTrackerButtonInteraction *interactionB; ///< interaction for second button
 
     typedef std::map<osg::Node *, const RenderObject *> NodeRoMap;
     typedef std::map<const RenderObject *, coInteractor *> RoInteractorMap;
