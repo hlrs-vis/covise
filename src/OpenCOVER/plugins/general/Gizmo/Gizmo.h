@@ -139,10 +139,13 @@ private:
     coTUIToggleButton *allowR;
     coTUIToggleButton *aspectRatio;
 
+
+    //New Menu
     std::unique_ptr<ui::Menu> _UIgizmoMenu;
     std::unique_ptr<ui::Action> _UIparent, _UIchild, _UIundo, _UIredo, _UIreset;
     std::unique_ptr<ui::Button> _UImove, _UImoveAll, _UItranslate,_UIrotate,_UIscale, _UIdisplayNames, _UIlocalCoords;
     std::unique_ptr<ui::Slider> _UIscaleFactor;
+
     void getMoveDCS();
     osg::Node *selectedNode;
     osg::Group *selectedNodesParent;
@@ -158,7 +161,8 @@ private:
     osg::Matrix startBaseMat;
     osg::Vec3 startPickPos;
     osg::Node *nodes[MAX_LEVELS];
-    bool explicitMode;
+    bool explicitMode;          //moveAll
+    //bool _move;                 //other UI:move checkbox
     bool moveTransformMode;
     bool printMode;
     bool moveSelection;

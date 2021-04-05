@@ -307,11 +307,51 @@ bool Move::init()
     moveTransformItem->setMenuListener(this);
     scaleItem->setMenuListener(this);
 
+    //_gizmo.reset(new coVR3DScaleGizmo(m, s, type, iconName, interactorName, priority, this));
     _UIgizmoMenu.reset(new ui::Menu("NewGizmoMenu", this));
 
+    _UImove.reset(new ui::Button(_UIgizmoMenu.get(), "Move"));
+    _UImoveAll.reset(new ui::Button(_UIgizmoMenu.get(), "MoveAll"));
     _UItranslate.reset(new ui::Button(_UIgizmoMenu.get(), "Translate"));
     _UIrotate.reset(new ui::Button(_UIgizmoMenu.get(), "Rotate"));
     _UIscale.reset(new ui::Button(_UIgizmoMenu.get(), "Scale"));
+    _UIdisplayNames.reset(new ui::Button(_UIgizmoMenu.get(), "DisplayNames"));
+    _UIlocalCoords.reset(new ui::Button(_UIgizmoMenu.get(), "localCoords"));
+
+    _UIparent.reset(new ui::Action(_UIgizmoMenu.get(), "Parent"));
+    _UIchild.reset(new ui::Action(_UIgizmoMenu.get(), "Child"));
+    _UIundo.reset(new ui::Action(_UIgizmoMenu.get(), "Undo"));
+    _UIredo.reset(new ui::Action(_UIgizmoMenu.get(), "Redo"));
+    _UIreset.reset(new ui::Action(_UIgizmoMenu.get(), "Reset"));
+
+    _UIscaleFactor.reset(new ui::Slider(_UIgizmoMenu.get(), "Scalefactor"));
+
+    _UImoveAll->setText("Move All");
+    _UIdisplayNames->setText("Display Names");
+    _UIlocalCoords->setText("Local Coords");
+    _UIscaleFactor->setText("Scale Factor");
+
+    
+    _UImove->setState(false);
+    _UImove->setCallback([this](bool state) {
+        if (state)
+            coIntersection::instance()->isectAllNodes(true);
+        else
+            coIntersection::instance()->isectAllNodes(false);
+
+        //_move = state;
+        // moveToggle->setState(state);
+        // moveEnabled->setState(moveToggle->getState());
+    });
+
+    _UImoveAll->setState(false);
+    _UImoveAll->setCallback([this](bool state) {
+        explicitMode = !state;
+        // explicitTUIItem->setState(explicitMode);
+        // explicitItem->setState(explicitMode);
+
+    });
+
     _UItranslate->setState(true);
     _UItranslate->setCallback([this](bool state){
 
@@ -327,6 +367,56 @@ bool Move::init()
         
         _gizmo->setGizmoTypes(_UItranslate->state(),_UIrotate->state(),state);
     });
+    // _displayNames->setCallback([]{});
+    // _localCoords->setCallback([]{});
+
+    _UIparent->setCallback([this]() {
+        if (level < numLevels - 1)
+            level++;
+        //selectLevel();
+    });
+
+    _UIchild->setCallback([this]() {
+        if (level > 0)
+            level--;
+        //selectLevel();
+    });
+
+    _UIundo->setCallback([this]() {
+        undo();
+    });
+
+    _UIredo->setCallback([this]() {
+        redo();
+    });
+
+    _UIreset->setCallback([this]() {
+        osg::Matrix ident;
+        ident.makeIdentity();
+        if (moveDCS.get())
+        {
+            if (info)
+            {
+                moveDCS->setMatrix(info->initialMat);
+                _gizmo->updateTransform(info->initialMat);
+
+                info->lastScaleX = 1;
+                info->lastScaleY = 1;
+                info->lastScaleZ = 1;
+                scaleItem->setValue(info->lastScaleY);
+                ScaleSlider->setValue(info->lastScaleY);
+            }
+            else
+            {
+                moveDCS->setMatrix(ident);
+                _gizmo->updateTransform(ident);
+            }
+            allowMove = false;
+            updateScale();
+            //cerr << "Reset " << endl;
+        }
+    });
+
     boundingBoxNode = new osg::MatrixTransform();
     boundingBoxNode->addChild(createBBox());
     interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "Move", coInteraction::Menu);
@@ -585,7 +675,7 @@ void Move::preFrame()
             bool isObject{false};
             bool notNeededAtThisPlace{false};
             bool notNeeded{false};
-            if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode)) // Select a node
+            if (node && _UImove->state() && (node != oldNode) && (node != selectedNode)) // Select a node
             {
                 selectNode(node, intersectedNodePath, isObject, notNeededAtThisPlace,notNeeded);
                 if(isObject)
@@ -600,7 +690,7 @@ void Move::preFrame()
         }
 
         //**********************************************************    Register interactionA *******************************************************
-        if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode))) //if we point towards a selected or candidate Node: necessarry to select the object 
+        if (node && _UImove->state() && ((node == candidateNode) || (node == selectedNode))) //if we point towards a selected or candidate Node: necessarry to select the object
 		{ 
 		     if (!interactionA->isRegistered())
              {
@@ -633,7 +723,6 @@ void Move::preFrame()
                     coVRSelectionManager::instance()->clearSelection();                                                 
                     moveSelection = false;                                                  
                 }
-
             }
             if(node) //Select
             {   
@@ -655,7 +744,6 @@ void Move::preFrame()
                     }
                 }
             }
-            
         } 
     }
     
@@ -894,7 +982,6 @@ void Move::newObject(osg::Node* node,const osg::NodePath& intersectedNodePath)
     // }
     allowMove = false;
     didMove = false;
-
 }
 
 void Move::showOrhideName(osg::Node *node)
@@ -960,51 +1047,6 @@ void Move::deactivateGizmo()
     _gizmoActive = false;
 }
 
-void Move::restrict(osg::Matrix &mat, bool noRot, bool noTrans)
-{
-    coCoord coord;
-    coord = mat;
-    if (noTrans)
-    {
-        coord.xyz[0] = coord.xyz[1] = coord.xyz[2] = 0;
-    }
-    else
-    {
-        if (!movex->getState())
-        {
-            coord.xyz[0] = 0;
-        }
-        if (!movey->getState())
-        {
-            coord.xyz[1] = 0;
-        }
-        if (!movez->getState())
-        {
-            coord.xyz[2] = 0;
-        }
-    }
-    if (noRot)
-    {
-        coord.hpr[0] = coord.hpr[1] = coord.hpr[2] = 0;
-    }
-    else
-    {
-        if (!moveh->getState())
-        {
-            coord.hpr[0] = 0;
-        }
-        if (!movep->getState())
-        {
-            coord.hpr[1] = 0;
-        }
-        if (!mover->getState())
-        {
-            coord.hpr[2] = 0;
-        }
-    }
-    coord.makeMat(mat);
-}
-
 void Move::getMoveDCS()
 {
     // if this is a DCS, then use this one
@@ -1042,355 +1084,6 @@ void Move::updateScale()
     }
 }
 
-void Move::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == movex)
-    {
-        allowX->setState(movex->getState());
-    }
-    if (menuItem == movey)
-    {
-        allowY->setState(movey->getState());
-    }
-    if (menuItem == movez)
-    {
-        allowZ->setState(movez->getState());
-    }
-    if (menuItem == moveh)
-    {
-        allowH->setState(moveh->getState());
-    }
-    if (menuItem == movep)
-    {
-        allowP->setState(movep->getState());
-    }
-    if (menuItem == mover)
-    {
-        allowR->setState(mover->getState());
-    }
-    if (menuItem == parentItem)
-    {
-        if (level < numLevels - 1)
-            level++;
-        //selectLevel();
-    }
-    else if (menuItem == childItem)
-    {
-        if (level > 0)
-            level--;
-        //selectLevel();
-    }
-    else if (menuItem == undoItem)
-    {
-        undo();
-    }
-    else if (menuItem == redoItem)
-    {
-        redo();
-    }
-    else if (menuItem == explicitItem)
-    {
-        explicitMode = !explicitItem->getState();
-        explicitTUIItem->setState(explicitItem->getState());
-    }
-    else if (menuItem == moveTransformItem)
-    {
-        moveTransformMode = moveTransformItem->getState();
-        moveTransformTUIItem->setState(moveTransformItem->getState());
-    }
-    else if (menuItem == moveToggle)
-    {
-        if (moveToggle->getState())
-            coIntersection::instance()->isectAllNodes(true);
-        else
-            coIntersection::instance()->isectAllNodes(false);
-
-        moveEnabled->setState(moveToggle->getState());
-    }
-    else if (menuItem == scaleItem)
-    {
-        if (moveDCS.valid() && info)
-        {
-            osg::Matrix oldMat, netMat;
-            float newScale = scaleItem->getValue();
-            //ScaleSlider->setValue(newScale);
-            //ScaleField->setValue(newScale);
-
-            oldMat = moveDCS->getMatrix();
-            osg::Vec3 v1 = osg::Vec3(oldMat(0, 0), oldMat(0, 1), oldMat(0, 2));
-            osg::Vec3 v2 = osg::Vec3(oldMat(1, 0), oldMat(1, 1), oldMat(1, 2));
-            osg::Vec3 v3 = osg::Vec3(oldMat(2, 0), oldMat(2, 1), oldMat(2, 2));
-            float s1, s2, s3;
-            float os1, os2, os3;
-            s1 = v1.length();
-            s2 = v2.length();
-            s3 = v3.length();
-            v1 = osg::Vec3(info->initialMat(0, 0), info->initialMat(0, 1), info->initialMat(0, 2));
-            v2 = osg::Vec3(info->initialMat(1, 0), info->initialMat(1, 1), info->initialMat(1, 2));
-            v3 = osg::Vec3(info->initialMat(2, 0), info->initialMat(2, 1), info->initialMat(2, 2));
-            os1 = v1.length();
-            os2 = v2.length();
-            os3 = v3.length();
-            oldMat.scale((os1 / s1) * newScale, (os2 / s2) * newScale, (os3 / s3) * newScale);
-            netMat.preMult(oldMat);
-
-            moveDCS->setMatrix(netMat);
-            updateScale();
-        }
-    }
-    else if (menuItem == resetItem)
-    {
-        osg::Matrix ident;
-        ident.makeIdentity();
-        if (moveDCS.get())
-        {
-            if (info)
-            {
-                moveDCS->setMatrix(info->initialMat);
-                _gizmo->updateTransform(info->initialMat);
-
-                info->lastScaleX = 1;
-                info->lastScaleY = 1;
-                info->lastScaleZ = 1;
-                scaleItem->setValue(info->lastScaleY);
-                ScaleSlider->setValue(info->lastScaleY);
-            }
-            else
-            {
-                moveDCS->setMatrix(ident);
-                _gizmo->updateTransform(ident);
-            }
-            allowMove = false;
-            updateScale();
-            //cerr << "Reset " << endl;
-        }
-    }
-    //cerr << "Level: " << level << endl;
-}
-
-void Move::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == allowX)
-    {
-        movex->setState(allowX->getState());
-    }
-    else if (tUIItem == allowY)
-    {
-        movey->setState(allowY->getState());
-    }
-    else if (tUIItem == allowZ)
-    {
-        movez->setState(allowZ->getState());
-    }
-    else if (tUIItem == allowH)
-    {
-        moveh->setState(allowH->getState());
-    }
-    else if (tUIItem == allowP)
-    {
-        movep->setState(allowP->getState());
-    }
-    else if (tUIItem == allowR)
-    {
-        mover->setState(allowR->getState());
-    }
-    else if (tUIItem == explicitTUIItem)
-    {
-        explicitMode = !explicitTUIItem->getState();
-        explicitItem->setState(explicitTUIItem->getState());
-    }
-    else if (tUIItem == moveTransformTUIItem)
-    {
-        moveTransformMode = moveTransformTUIItem->getState();
-        moveTransformItem->setState(moveTransformTUIItem->getState());
-    }
-    else if (tUIItem == moveEnabled)
-    {
-        moveToggle->setState(moveEnabled->getState());
-    }
-    else if (tUIItem == hoeheEdit)
-    {
-        if (info && selectedNode)
-        {
-            BBoxVisitor bbv;
-            bbv.apply(*selectedNode);
-            float hoehe = (bbv.bbox.yMax() - bbv.bbox.yMin()) * info->lastScaleY;
-
-            osg::Matrix netMat;
-
-            netMat = moveDCS->getMatrix();
-
-            float s = hoeheEdit->getValue() / hoehe;
-
-            if (aspectRatio->getState())
-            {
-                netMat.preMult(osg::Matrix::scale(s, s, s));
-
-                moveDCS->setMatrix(netMat);
-
-                info->lastScaleX *= s;
-                info->lastScaleY *= s;
-                ;
-                info->lastScaleZ *= s;
-            }
-            else
-            {
-                netMat.preMult(osg::Matrix::scale(1, s, 1));
-
-                moveDCS->setMatrix(netMat);
-
-                info->lastScaleY *= s;
-            }
-            updateScale();
-        }
-    }
-    else if (tUIItem == breiteEdit)
-    {
-        if (info && selectedNode)
-        {
-            BBoxVisitor bbv;
-            bbv.apply(*selectedNode);
-            float breite = (bbv.bbox.xMax() - bbv.bbox.xMin()) * info->lastScaleX;
-
-            osg::Matrix netMat;
-
-            netMat = moveDCS->getMatrix();
-
-            float s = breiteEdit->getValue() / breite;
-
-            if (aspectRatio->getState())
-            {
-                netMat.preMult(osg::Matrix::scale(s, s, s));
-
-                moveDCS->setMatrix(netMat);
-
-                info->lastScaleX *= s;
-                info->lastScaleY *= s;
-                ;
-                info->lastScaleZ *= s;
-            }
-            else
-            {
-                netMat.preMult(osg::Matrix::scale(s, 1, 1));
-
-                moveDCS->setMatrix(netMat);
-
-                info->lastScaleX *= s;
-            }
-            updateScale();
-        }
-    }
-    else if (tUIItem == tiefeEdit)
-    {
-        if (info && selectedNode)
-        {
-            BBoxVisitor bbv;
-            bbv.apply(*selectedNode);
-            float tiefe = (bbv.bbox.zMax() - bbv.bbox.zMin()) * info->lastScaleZ;
-
-            osg::Matrix netMat;
-
-            netMat = moveDCS->getMatrix();
-
-            float s = tiefeEdit->getValue() / tiefe;
-
-            if (aspectRatio->getState())
-            {
-                netMat.preMult(osg::Matrix::scale(s, s, s));
-
-                moveDCS->setMatrix(netMat);
-
-                info->lastScaleX *= s;
-                info->lastScaleY *= s;
-                ;
-                info->lastScaleZ *= s;
-            }
-            else
-            {
-                netMat.preMult(osg::Matrix::scale(1, 1, s));
-
-                moveDCS->setMatrix(netMat);
-
-                info->lastScaleZ *= s;
-            }
-            updateScale();
-        }
-    }
-    else if (tUIItem == ScaleSlider)
-    {
-        if (moveDCS.get() && info)
-        {
-            osg::Matrix netMat;
-            float newScale = ScaleSlider->getValue();
-            scaleItem->setValue(newScale);
-
-            netMat = moveDCS->getMatrix();
-
-            float s = newScale / info->lastScaleY;
-            netMat.preMult(osg::Matrix::scale(s, s, s));
-
-            moveDCS->setMatrix(netMat);
-
-            info->lastScaleX *= s;
-            info->lastScaleY = newScale;
-            info->lastScaleZ *= s;
-            updateScale();
-        }
-    }
-    //cerr << "Level: " << level << endl;
-}
-
-void Move::tabletPressEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == Parent)
-    {
-        if (level < numLevels - 1)
-            level++;
-        //selectLevel();
-    }
-    else if (tUIItem == Child)
-    {
-        if (level > 0)
-            level--;
-        //selectLevel();
-    }
-    else if (tUIItem == Undo)
-    {
-        undo();
-    }
-    else if (tUIItem == Redo)
-    {
-        redo();
-    }
-    else if (tUIItem == Reset)
-    {
-        osg::Matrix ident;
-        ident.makeIdentity();
-        if (moveDCS.get())
-        {
-            if (info)
-            {
-                moveDCS->setMatrix(info->initialMat);
-                _gizmo->updateTransform(info->initialMat);
-
-                info->lastScaleX = 1;
-                info->lastScaleY = 1;
-                info->lastScaleZ = 1;
-                scaleItem->setValue(info->lastScaleY);
-                ScaleSlider->setValue(info->lastScaleY);
-            }
-            else
-            {
-                moveDCS->setMatrix(ident);
-                _gizmo->updateTransform(ident);
-            }
-            allowMove = false;
-            updateScale();
-            //cerr << "Reset " << endl;
-        }
-    }
-    //cerr << "Level: " << level << endl;
-}
 
 osg::Node *Move::createBBox()
 {
