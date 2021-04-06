@@ -360,39 +360,9 @@ bool Move::pickedObjChanged()
     return true;
 }
 
-/*osg::Matrix Move::scaleNode()
-{
-            osg::Matrix oldMat, netMat;
-            float newScale = scaleItem->getValue();
-            //ScaleSlider->setValue(newScale);
-            //ScaleField->setValue(newScale);
-
-            oldMat = moveDCS->getMatrix();
-            osg::Vec3 v1 = osg::Vec3(oldMat(0, 0), oldMat(0, 1), oldMat(0, 2));
-            osg::Vec3 v2 = osg::Vec3(oldMat(1, 0), oldMat(1, 1), oldMat(1, 2));
-            osg::Vec3 v3 = osg::Vec3(oldMat(2, 0), oldMat(2, 1), oldMat(2, 2));
-            float s1, s2, s3;
-            float os1, os2, os3;
-            s1 = v1.length();
-            s2 = v2.length();
-            s3 = v3.length();
-            v1 = osg::Vec3(_info->_initialMat(0, 0), _info->_initialMat(0, 1), _info->_initialMat(0, 2));
-            v2 = osg::Vec3(_info->_initialMat(1, 0), _info->_initialMat(1, 1), _info->_initialMat(1, 2));
-            v3 = osg::Vec3(_info->_initialMat(2, 0), _info->_initialMat(2, 1), _info->_initialMat(2, 2));
-            os1 = v1.length();
-            os2 = v2.length();
-            os3 = v3.length();
-            oldMat.scale((os1 / s1) * newScale, (os2 / s2) * newScale, (os3 / s3) * newScale);
-            netMat.preMult(oldMat);
-
-            moveDCS->setMatrix(netMat);
-            updateScale();
-}
-*/
 void Move::doMove()
 {
     osg::Matrix newDCSMat;
-    // TODO: if scale Gizmo -> then...
     newDCSMat =  _gizmo->getMoveMatrix_o()*_startMoveDCSMat;
     
     TokenBuffer tb;
@@ -568,29 +538,13 @@ osg::Matrix Move::calcStartMatrix()
     startCompleteMat = startBaseMat;
     startCompleteMat.preMult(_startMoveDCSMat);
 
-    /*//remove Scale for gizmo Matrix:
-    float newScale = 1.0;
-    osg::Matrix oldMat,netMat;
-    oldMat = startMatrix;
-    osg::Vec3 v1 = osg::Vec3(oldMat(0, 0), oldMat(0, 1), oldMat(0, 2));
-    osg::Vec3 v2 = osg::Vec3(oldMat(1, 0), oldMat(1, 1), oldMat(1, 2));
-    osg::Vec3 v3 = osg::Vec3(oldMat(2, 0), oldMat(2, 1), oldMat(2, 2));
-    float s1, s2, s3;
-    float os1, os2, os3;
-    s1 = v1.length();
-    s2 = v2.length();
-    s3 = v3.length();
-    v1 = osg::Vec3(_info->_initialMat(0, 0), _info->_initialMat(0, 1), _info->_initialMat(0, 2));
-    v2 = osg::Vec3(_info->_initialMat(1, 0), _info->_initialMat(1, 1), _info->_initialMat(1, 2));
-    v3 = osg::Vec3(_info->_initialMat(2, 0), _info->_initialMat(2, 1), _info->_initialMat(2, 2));
-    os1 = v1.length();
-    os2 = v2.length();
-    os3 = v3.length();
-    oldMat.scale((os1 / s1) * newScale, (os2 / s2) * newScale, (os3 / s3) * newScale);
-    netMat.preMult(oldMat);
-    return netMat * cover->getInvBaseMat();
-    */
-    return startCompleteMat* cover->getInvBaseMat();
+    // remove Scale for gizmo Matrix
+    osg::Vec3 decTrans, decScale;
+    osg::Quat decRot,decSo;
+    _startMoveDCSMat.decompose(decTrans,decRot,decScale,decSo);   
+    return  osg::Matrix::rotate(decRot) * osg::Matrix::translate(decTrans) * startBaseMat * cover->getInvBaseMat();
+
+    //return startCompleteMat* cover->getInvBaseMat();
 }
 
 void Move::selectNode(osg::Node* node, const osg::NodePath& intersectedNodePath, bool& isObject, bool& isNewObject, bool& isAlreadySelected) // check exactly what happens here !

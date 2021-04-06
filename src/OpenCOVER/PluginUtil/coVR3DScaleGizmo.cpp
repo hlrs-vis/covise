@@ -227,14 +227,17 @@ void coVR3DScaleGizmo::startInteraction()
 
 osg::Matrix coVR3DScaleGizmo::getMoveMatrix_o() const
 {
+    osg::Matrix scale;
     if(_scaleXonly)
-        return osg::Matrix::scale(_scale,1,1);
+        scale = osg::Matrix::scale(_scale,1,1);
     else if(_scaleYonly)
-        return osg::Matrix::scale(1,_scale,1);
+        scale = osg::Matrix::scale(1,_scale,1);
     else if(_scaleZonly)
-        return osg::Matrix::scale(1,1,_scale);
+        scale = osg::Matrix::scale(1,1,_scale);
     else
-       return osg::Matrix::scale(_scale,_scale,_scale);
+       scale = osg::Matrix::scale(_scale,_scale,_scale);
+
+    return scale;
 }
 double coVR3DScaleGizmo::calcValueInRange(double oldMin, double oldMax, double newMin, double newMax, double oldValue)
 {
@@ -287,25 +290,33 @@ void coVR3DScaleGizmo::doInteraction()
             std::cout <<"1-0"<<std::endl;
         */
 
-        _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
-       std::cout<<"point shortest distance:"<<pointShortestDistance<<std::endl;
+       //_scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+        _scale = (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+
+       //std::cout<<"point shortest distance:"<<pointShortestDistance<<std::endl;
     }
     else if(_scaleYonly)
     {
          osg::Vec3 pointShortestDistance=calculatePointOfShortestDistance(lp0_o,lp1_o,osg::Y_AXIS);
-        _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+        //_scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+        _scale = (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+
     }
     else if(_scaleZonly)
     {
         osg::Vec3 pointShortestDistance=calculatePointOfShortestDistance(lp0_o,lp1_o,osg::Z_AXIS);
-        _scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+        //_scale = 1 + (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+        _scale =  (pointShortestDistance).length()/(_startHitPos.length()-_shortestDistStartPoint.length());
+
     }
     else if(_scaleAll)// allow scale in all directions
     {
         float d_inter_center = (interPos - getMatrix().getTrans()).length();
-        _scale = 1 + d_inter_center;
+        //_scale = 1 + d_inter_center;
+        _scale = d_inter_center;
+
     }
-    std::cout<<"scale: "<<_scale<<std::endl;
+    //std::cout<<"scale: "<<_scale<<std::endl;
 
     // save old transformation
     //_oldInteractorXformMat_o = interactorXformMat_o;
