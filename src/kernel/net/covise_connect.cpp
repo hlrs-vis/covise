@@ -663,7 +663,7 @@ int ServerConnection::acceptOne()
     return 0;
 }
 
-int ServerConnection::acceptOne(int wait)
+int ServerConnection::acceptOne(float wait)
 {
     if (sock->acceptOnly(wait) != 0)
         return -1;
@@ -1291,7 +1291,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
     }
 }
 
-int Connection::check_for_input(float time)
+int Connection::check_for_input(float time) const
 {
     if (has_message())
         return 1;

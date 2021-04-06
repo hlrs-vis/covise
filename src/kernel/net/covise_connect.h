@@ -167,7 +167,7 @@ public:
     virtual bool sendMessage(const Message *msg) const override; // send Message
     virtual bool sendMessage(const UdpMessage *msg) const override; // send Message
     virtual int send_msg_fast(const Message *msg); // high-performance send Message
-    int check_for_input(float time = 0.0); // issue select call and return TRUE if there is an event or 0L otherwise
+    int check_for_input(float time = 0.0) const; // issue select call and return TRUE if there is an event or 0L otherwise
     int get_port() const // give port number
     {
         return port;
@@ -233,7 +233,7 @@ public:
     virtual ~ServerConnection() // close connection
         {};
     int acceptOne(); // accept connection (after bind)
-    int acceptOne(int); // accept connection (after bind) and wait int seconds
+    int acceptOne(float timeout); // accept connection (after bind) and wait int seconds
     int listen(); // listen for connection (after bind)
     std::unique_ptr<ServerConnection> spawn_connection() const; // accept after select for open socket
     // accept after select for open socket

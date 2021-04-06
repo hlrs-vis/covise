@@ -743,7 +743,7 @@ int Socket::listen()
     return 0;
 }
 
-int Socket::accept(int wait)
+int Socket::accept(float wait)
 {
     errno = 0;
     int err = ::listen(sock_id, 20);
@@ -755,7 +755,7 @@ int Socket::accept(int wait)
     }
    return acceptOnly(wait);
    }
-int Socket::acceptOnly(int wait)
+int Socket::acceptOnly(float wait)
 {
     int tmp_sock_id;
     struct timeval timeout;
@@ -768,8 +768,8 @@ int Socket::acceptOnly(int wait)
 
     do
     {
-        timeout.tv_sec = wait;
-        timeout.tv_usec = 0;
+        timeout.tv_sec = (int)wait;
+        timeout.tv_usec = (int)((wait - timeout.tv_sec) * 1000000);
         FD_ZERO(&fdread);
         FD_SET(sock_id, &fdread);
         errno = 0;

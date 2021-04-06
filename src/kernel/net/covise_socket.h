@@ -169,8 +169,8 @@ public:
     int listen(); // listen for actual connection (server)
     virtual int accept(); // listen and wait for and accept a connection (server)
     int acceptOnly(); //  accept a connection (server) 
-    int accept(int); // listen and wait for and accept a connection (server) wait max secondes
-    int acceptOnly(int); // wait for and accept a connection (server) wait max secondes
+    int accept(float timeout); // listen and wait for and accept a connection (server) wait max secondes
+    int acceptOnly(float timeout); // wait for and accept a connection (server) wait max secondes
     // returns -1 when no accept, 0 otherwise
     virtual int read(void *buf, unsigned nbyte);
 	//can also sets ip to the ip adress of the msg sender
