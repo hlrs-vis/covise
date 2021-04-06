@@ -974,10 +974,7 @@ bool Connection::sendMessageWithHeader(const std::array<int, 4>& header, const M
     if (sizeof(header) + msg->data.length() >= WRITE_BUFFER_SIZE)
     {
         packetSize = msg->data.length() + sizeof(header) - WRITE_BUFFER_SIZE;
-        assert(packetSize < WRITE_BUFFER_SIZE);
-        buf.resize(packetSize);
-        std::copy(msg->data.data() + WRITE_BUFFER_SIZE - sizeof(header), msg->data.data() + msg->data.length(), buf.begin());
-        if (int addRetval = sock->write(buf.data(), buf.size()) == COVISE_SOCKET_INVALID)
+        if (int addRetval = sock->write(msg->data.data() + WRITE_BUFFER_SIZE - sizeof(header), packetSize) == COVISE_SOCKET_INVALID)
             return false;
     }
     return true;
