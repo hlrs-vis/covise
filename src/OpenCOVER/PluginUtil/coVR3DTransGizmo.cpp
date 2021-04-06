@@ -270,6 +270,60 @@ void coVR3DTransGizmo::stopInteraction()
     coVR3DGizmoType::stopInteraction();
 }
 
+int coVR3DTransGizmo::hit(vrui::vruiHit *hit)
+{    
+    osg::Node* oldHitNode;
+                                                                                                                                                                  
+    if(hit)
+        oldHitNode = _hitNode.get();    
+
+    int returnValue = coVR3DGizmoType::hit(hit);
+    
+    // set color of cone if axis is selected and vice versa
+    if(_hitNode == translateXaxisGeode)
+        translateXconeGeode->setStateSet(_hitNode->getStateSet());
+    else if(_hitNode == translateXconeGeode)
+        translateXaxisGeode->setStateSet(_hitNode->getStateSet());
+    else if(_hitNode == translateYaxisGeode)
+        translateYconeGeode->setStateSet(_hitNode->getStateSet());
+    else if (_hitNode == translateYconeGeode)
+        translateYaxisGeode->setStateSet(_hitNode->getStateSet());
+    else if(_hitNode == translateZaxisGeode)
+        translateZconeGeode->setStateSet(_hitNode->getStateSet());
+    else if (_hitNode == translateZconeGeode)
+        translateZaxisGeode->setStateSet(_hitNode->getStateSet());
+
+    // reset color of axis / cone if you move from one hit node directly to another hit node    
+    osg::Node* newHitNode = _hitNode;
+    if(oldHitNode == translateXaxisGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr ) 
+        translateXconeGeode->setStateSet(NULL); 
+    else if(oldHitNode == translateXconeGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr)  
+        translateXaxisGeode->setStateSet(NULL);
+    else if(oldHitNode == translateYaxisGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr ) 
+        translateYconeGeode->setStateSet(NULL); 
+    else if(oldHitNode == translateYconeGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr)  
+        translateYaxisGeode->setStateSet(NULL); 
+    else if(oldHitNode == translateZaxisGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr ) 
+        translateZconeGeode->setStateSet(NULL); 
+    else if(oldHitNode == translateZconeGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr)  
+        translateZaxisGeode->setStateSet(NULL); 
+
+    return returnValue;
+
+}
+
+void coVR3DTransGizmo::resetState()
+{
+    coVR3DGizmoType::resetState();
+    
+    translateXaxisGeode->setStateSet(NULL);
+    translateYaxisGeode->setStateSet(NULL);
+    translateZaxisGeode->setStateSet(NULL);
+    translateXconeGeode->setStateSet(NULL);
+    translateYconeGeode->setStateSet(NULL);
+    translateZconeGeode->setStateSet(NULL);
+
+}
 
 
 

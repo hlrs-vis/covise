@@ -62,6 +62,8 @@ public:
     void stopInteraction() override; 
     int hit(vrui::vruiHit *hit) override;
     void miss() override;
+    void resetState() override; // un-highlight
+
     void update() override;
     void setShared(bool state) override;
 

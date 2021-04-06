@@ -479,3 +479,58 @@ void coVR3DScaleGizmo::setShared(bool shared)
 }
 
 */
+
+int coVR3DScaleGizmo::hit(vrui::vruiHit *hit)
+{    
+    osg::Node* oldHitNode;
+                                                                                                                                                                  
+    if(hit)
+        oldHitNode = _hitNode.get();    
+
+    int returnValue = coVR3DGizmoType::hit(hit);
+    
+    // set color of Sphere if axis is selected and vice versa
+    if(_hitNode == scaleXaxisGeode)
+        scaleXSphereGeode->setStateSet(_hitNode->getStateSet());
+    else if(_hitNode == scaleXSphereGeode)
+        scaleXaxisGeode->setStateSet(_hitNode->getStateSet());
+    else if(_hitNode == scaleYaxisGeode)
+        scaleYSphereGeode->setStateSet(_hitNode->getStateSet());
+    else if (_hitNode == scaleYSphereGeode)
+        scaleYaxisGeode->setStateSet(_hitNode->getStateSet());
+    else if(_hitNode == scaleZaxisGeode)
+        scaleZSphereGeode->setStateSet(_hitNode->getStateSet());
+    else if (_hitNode == scaleZSphereGeode)
+        scaleZaxisGeode->setStateSet(_hitNode->getStateSet());
+
+    // reset color of axis / sphere if you move from one hit node directly to another hit node    
+    osg::Node* newHitNode = _hitNode;
+    if(oldHitNode == scaleXaxisGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr ) 
+        scaleXSphereGeode->setStateSet(NULL); 
+    else if(oldHitNode == scaleXSphereGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr)  
+        scaleXaxisGeode->setStateSet(NULL);
+    else if(oldHitNode == scaleYaxisGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr ) 
+        scaleYSphereGeode->setStateSet(NULL); 
+    else if(oldHitNode == scaleYSphereGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr)  
+        scaleYaxisGeode->setStateSet(NULL); 
+    else if(oldHitNode == scaleZaxisGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr ) 
+        scaleZSphereGeode->setStateSet(NULL); 
+    else if(oldHitNode == scaleZSphereGeode && oldHitNode != newHitNode && _interactionHitNode == nullptr)  
+        scaleZaxisGeode->setStateSet(NULL); 
+
+    return returnValue;
+
+}
+
+void coVR3DScaleGizmo::resetState()
+{
+    coVR3DGizmoType::resetState();
+    
+    scaleXaxisGeode->setStateSet(NULL);
+    scaleYaxisGeode->setStateSet(NULL);
+    scaleZaxisGeode->setStateSet(NULL);
+    scaleXSphereGeode->setStateSet(NULL);
+    scaleYSphereGeode->setStateSet(NULL);
+    scaleZSphereGeode->setStateSet(NULL);
+
+}

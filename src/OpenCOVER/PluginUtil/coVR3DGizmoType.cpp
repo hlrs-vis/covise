@@ -62,6 +62,11 @@ void coVR3DGizmoType::miss()
     coVRIntersectionInteractor::miss();
 }
 
+void coVR3DGizmoType::resetState() 
+{
+    coVRIntersectionInteractor::resetState();
+}
+
 void coVR3DGizmoType::update()
 {
     if (_interactionB->wasStopped())

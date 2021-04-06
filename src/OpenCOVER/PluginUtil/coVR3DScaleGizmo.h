@@ -57,6 +57,7 @@ protected:
     virtual void createGeometry() override;
     //void updateSharedState() override;
     typedef vrb::SharedState<osg::Matrix> SharedMatrix;
+    int hit(vrui::vruiHit *hit) override;
 
 
 public:
@@ -69,6 +70,8 @@ public:
     virtual void startInteraction() override;
     virtual void doInteraction() override;
     virtual void stopInteraction() override;
+    virtual void resetState() override; 
+
 
     virtual void updateTransform(osg::Matrix m);
 

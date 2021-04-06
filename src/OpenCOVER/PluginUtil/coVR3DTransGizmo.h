@@ -46,6 +46,9 @@ private:
 protected:
     virtual void createGeometry() override;
 
+    // called every time when the geometry is intersected
+    int hit(vrui::vruiHit *hit) override;
+
 public:
     coVR3DTransGizmo(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority, coVR3DGizmo* gizmoPointer = nullptr);
     virtual ~coVR3DTransGizmo();
@@ -53,6 +56,8 @@ public:
     virtual void startInteraction() override;
     virtual void doInteraction() override;
     virtual void stopInteraction() override;
+    virtual void resetState() override; 
+
 
 };
 
