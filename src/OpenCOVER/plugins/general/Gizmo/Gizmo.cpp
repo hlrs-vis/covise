@@ -942,7 +942,8 @@ void Move::redo()
     else
     {
         undoDCS[writePos]->setMatrix(undoMat[writePos]);
-        _gizmo->updateTransform(undoDCS[writePos]->getMatrix());
+        _gizmo->updateTransform(calcStartMatrix());
+
     }
 }
 
