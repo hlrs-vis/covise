@@ -370,7 +370,7 @@ ClientConnection::ClientConnection(Host *h, int p, int id, int s_type,
     lhost = NULL;
     if (!h) // host is local (usually DataManagerConnection uses this)
 	{
-		lhost = new Host("localhost");
+		h = lhost = new Host("localhost");
 		if (!lhost->hasValidAddress())
 		{
 			lhost = new Host("127.0.0.1");
