@@ -4,6 +4,7 @@
 namespace test{
 
     void testConnectionShutdown();
+    void testSetupServerConnection();
 }
 
 #endif
