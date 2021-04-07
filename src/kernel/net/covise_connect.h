@@ -350,6 +350,9 @@ static std::unique_ptr<Conn> createListeningConn(Args&&...args){
     conn->listen();
     return std::move(conn);
 }
+
+std::unique_ptr<ServerConnection> NETEXPORT setupServerConnection(int id, int senderType, int timeoutstd, std::function<bool(const ServerConnection&)> informClient);
+
 class NETEXPORT ConnectionList // list connections in a way that select can be used
 {
     friend struct ConnectionAdder;

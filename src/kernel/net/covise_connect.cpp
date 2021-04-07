@@ -1324,6 +1324,25 @@ int Connection::check_for_input(float time) const
     return 0;
 }
 
+std::unique_ptr<ServerConnection> covise::setupServerConnection(int id, int senderType, int timeout, std::function<bool(const ServerConnection&)> informClient)
+{
+        int port = 0;
+        std::unique_ptr<ServerConnection> conn = createListeningConn<ServerConnection>(&port, id, senderType);
+        if (!conn)
+            return nullptr;
+        if (informClient(*conn))
+        {
+            if (conn->acceptOne(timeout) < 0)
+            {
+                cerr << "* timelimit in accept exceeded!!" << endl;
+                return nullptr;
+            }
+            conn->set_peer(id, senderType);
+            return conn;
+        }
+        return nullptr;
+}
+
 ConnectionList::ConnectionList()
 {
     open_sock = 0;
