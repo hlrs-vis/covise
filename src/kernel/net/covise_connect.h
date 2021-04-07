@@ -265,7 +265,6 @@ public:
 // Connection that acts as client
 class NETEXPORT ClientConnection : public Connection
 {
-    Host *host;
     Host *lhost;
 
 public:

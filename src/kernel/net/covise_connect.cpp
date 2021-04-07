@@ -368,20 +368,18 @@ ClientConnection::ClientConnection(Host *h, int p, int id, int s_type,
 {
     char dataformat;
     lhost = NULL;
-    if (h) // host is not local
-        host = h;
-	else // host is local (usually DataManagerConnection uses this)
+    if (!h) // host is local (usually DataManagerConnection uses this)
 	{
-		host = lhost = new Host("localhost");
-		if (!host->hasValidAddress())
+		lhost = new Host("localhost");
+		if (!lhost->hasValidAddress())
 		{
-			host = lhost = new Host("127.0.0.1");
+			lhost = new Host("127.0.0.1");
 		}
 	}
     port = p;
     sender_id = id;
     send_type = s_type;
-    sock = new Socket(host, port, retries, timeout);
+    sock = new Socket(h, port, retries, timeout);
 
     if (get_id() == -1)
         return; // connection not established
