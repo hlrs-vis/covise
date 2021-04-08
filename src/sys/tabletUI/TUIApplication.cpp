@@ -312,26 +312,6 @@ int TUIMainWindow::openServer()
 //------------------------------------------------------------------------
 {
     connections.remove(sConn);
-    //auto conn = std::unique_ptr<covise::ServerConnection>(new covise::ServerConnection(port, 0, 0));
-    //if (conn->getSocket() == NULL)
-    //{
-    //    fprintf(stderr, "Could not open server port %d\n", port);
-    //    return (-1);
-    //}
-
-    //struct linger linger;
-    //linger.l_onoff = 0;
-    //linger.l_linger = 0;
-
-    //setsockopt(conn->get_id(nullptr), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    //conn->listen();
-    //if (!conn->is_connected()) // could not open server port
-    //{
-    //    fprintf(stderr, "Could not open server port %d\n", port);
-    //    return (-1);
-    //}
-    //sConn = dynamic_cast<const covise::ServerConnection *>(connections.add(std::move(conn)));
     sConn = connections.tryAddNewListeningConn<covise::ServerConnection>(port, 0, 0);
     if (!sConn)
     {
