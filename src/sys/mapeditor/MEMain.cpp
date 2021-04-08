@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 #endif
 
     //DebugBreak();
-    new MEMainHandler(argc, argv);
+    MEMainHandler handler(argc, argv);
 
 // this has to be done after creating MEMainHandler - generateTitle depends on it
 #if QT_VERSION >= 0x050000
