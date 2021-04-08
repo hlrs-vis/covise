@@ -215,7 +215,7 @@ void CTRLHandler::lookupSiblings()
 
 void CTRLHandler::loop()
 {
-   while (!m_exit)
+    while (!m_exit)
     {
         std::unique_ptr<Message> msg;
         if (!m_quitNow)
@@ -821,7 +821,7 @@ void CTRLHandler::loadNetworkFile()
     {
         for (NetModule *app : m_hostManager.getAllModules<NetModule>())
         {
-            if (!dynamic_cast<const Renderer*>(app) && app->isOnTop())
+            if (!dynamic_cast<const Renderer *>(app) && app->isOnTop())
             {
                 app->exec(m_numRunning);
             }
@@ -2106,7 +2106,7 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
 
 void CTRLHandler::sendGenericInfoToRenderer(const std::string &prefix, const Message &msg)
 {
-    DataHandle newData{msg.data.length() + prefix.size()+1}; // +1 because of \n
+    DataHandle newData{msg.data.length() + prefix.size() + 1}; // +1 because of \n
     sprintf(newData.accessData(), "%s\n%s", prefix.c_str(), msg.data.data());
     newData.setLength((int)strlen(newData.data()) + 1);
     Message newMessage;
@@ -2285,11 +2285,6 @@ void CTRLHandler::makeConnection(const string &from_mod, const string &from_nr, 
         {
             auto &toApp = m_hostManager.findHost(to_host).getModule(to_mod, std::stoi(to_nr));
             auto &fromObjName = m_hostManager.findHost(from_host).getModule(from_mod, std::stoi(from_nr)).connectivity().getInterface<net_interface>(from_port).get_object()->get_name();
-            if (auto renderer = dynamic_cast<Renderer *>(&toApp))
-            {
-                renderer->send_add_obj(fromObjName);
-                connection->set_old_name(fromObjName);
-            }
             if (!fromObjName.empty())
             {
                 ostringstream oss;
@@ -2341,6 +2336,14 @@ obj_conn *CTRLHandler::connectPorts(const string &from_name, const string &from_
         {
             fprintf(stderr, "attempted duplicate connection to %s_%s:%s\n",
                     to_name.c_str(), to_nr.c_str(), to_name.c_str());
+        }
+        auto currObjName = fromObj->get_current_name();
+        if(currObjName.empty())
+            currObjName = fromObjName;
+        if (auto renderer = dynamic_cast<Renderer *>(&toApp))
+        {
+            renderer->send_add_obj(currObjName);
+            connection->set_old_name(currObjName);
         }
         return connection;
     }
