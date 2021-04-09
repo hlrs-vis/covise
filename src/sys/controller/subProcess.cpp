@@ -179,14 +179,22 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         auto controllerConn = host.hostManager.proxyConn();
         PROXY_CreateSubProcessProxie p{processId, timeout};
         sendCoviseMessage(p, *controllerConn);
-        Message msg;
-        controllerConn->recv_msg(&msg);
-        PROXY proxy{msg};
+        std::unique_ptr<Message> msg{new Message{}};
+        while (true)
+        {
+            controllerConn->recv_msg(msg.get());
+            if (msg->type != COVISE_MESSAGE_PROXY)
+                CTRLHandler::instance()->handleMsg(msg); // handle all other messages
+            else
+                break;
+        }
+
+        PROXY proxy{*msg};
         m_conn = controllerConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
         if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress))
         {
-            controllerConn->recv_msg(&msg);
-            PROXY pr{msg};
+            controllerConn->recv_msg(msg.get());
+            PROXY pr{*msg};
             if (!pr.unpackOrCast<PROXY_ProxyConnected>().success)
             {
                 cerr << "* timelimit in accept for module " << m_executableName << " exceeded!!" << endl;
