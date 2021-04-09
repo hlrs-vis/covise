@@ -875,8 +875,8 @@ void CTRLHandler::handleQuit(const std::unique_ptr<Message> &msg)
             app->setAlive(false);
             CTRLGlobal::getInstance()->modUIList->delete_mod(app->info().name, std::to_string(app->instance()), app->host.userInfo().ipAdress);
         }
-        //  must be done for deleting shared memory files all aother processes must be closed before
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        //  must be done for deleting shared memory files all other processes must be closed before
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         coTimer::quit();
 
         if (ui != uis.end() && !m_quitNow && !m_autosavefile.empty())
@@ -2338,7 +2338,7 @@ obj_conn *CTRLHandler::connectPorts(const string &from_name, const string &from_
                     to_name.c_str(), to_nr.c_str(), to_name.c_str());
         }
         auto currObjName = fromObj->get_current_name();
-        if(currObjName.empty())
+        if (currObjName.empty())
             currObjName = fromObjName;
         if (auto renderer = dynamic_cast<Renderer *>(&toApp))
         {
@@ -2679,21 +2679,16 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     vector<string> list = splitStringAndRemoveComments(content, "\n");
 
     // read host information
-    istringstream s3(list[iel]);
-    iel++;
-    int nhosts;
-    s3 >> nhosts;
+    int numHosts = std::stoi(list[iel++]);
 
     bool allhosts = true;
     LaunchStyle addPartner = LaunchStyle::Host;
 
     // add hosts if not already added
-    for (int i = 0; i < nhosts; i++)
+    for (int i = 0; i < numHosts; i++)
     {
-        string hostAddress = list[iel];
-        iel++;
-        string username = list[iel];
-        iel++;
+        string &hostAddress = list[iel++];
+        string & username = list[iel++];
         if (hostAddress == "LOCAL")
             hostAddress = localIp;
 
@@ -2724,69 +2719,42 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
         catch (const Exception &)
         {
             NEW_UI_RequestNewHost hostRequest{hostAddress.c_str(), username.c_str(), m_hostManager.getVrbClient().getCredentials()};
-            for (const Userinterface *ui : m_hostManager.getAllModules<Userinterface>())
-            {
-                if (ui->status() == Userinterface::Master)
-                {
-                    sendCoviseMessage(hostRequest, *ui);
-                }
-            }
-            allhosts = false;
+            sendCoviseMessage(hostRequest, m_hostManager.getMasterUi());
+            //allhosts = false;
         }
     }
 
-    if (!allhosts)
-    {
-        Message tmpmsg{COVISE_MESSAGE_UI, "END_READING\nfalse"};
-        m_hostManager.sendAll<Userinterface>(tmpmsg);
-        return false;
-    }
-
     //  read all modules
-    //  no of modules
-    istringstream s1(list[iel]);
-    iel++;
-    int no;
-    s1 >> no;
+    int numModules = std::stoi(list[iel++]);
 
     // craete list that contains module name, old number and new number
     vector<string> mnames;
-    vector<string> oldnr;
-    vector<string> newnr;
+    vector<string> oldInstances;
+    vector<string> newInstances;
 
     string selectionBuffer;
     int ready = 0;
 
     //  start module if exist and tell it to the uifs
-    for (int ll = 0; ll < no; ll++)
+    for (int ll = 0; ll < numModules; ll++)
     {
-        string name = list[iel];
-        iel++;
-        string nr = list[iel];
-        iel++;
-        string host = list[iel];
-        iel++;
+        const string & name = list[iel++];
+        const string & oldInstance = list[iel++];
+        string host = list[iel++];
         if (host == "LOCAL")
             host = localIp;
         iel++; // category, not used
 
-        string title = list[iel];
-        iel++;
+        string title = list[iel++];
         if (title.find("TITLE=", 0, 6) != -1)
             title.erase(0, 6);
 
-        istringstream p1(list[iel]);
-        iel++;
-        istringstream p2(list[iel]);
-        iel++;
-
-        int posx, posy;
-        p1 >> posx;
-        p2 >> posy;
+        int posx = std::stoi(list[iel++]);
+        int posy = std::stoi(list[iel++]);
 
         bool modExist = checkIfModuleAvailable(name, host);
-        string nrnew;
-        string current = nr;
+        string newInstance;
+        string current = oldInstance;
         if (modExist)
         {
             if (mode == CLIPBOARD)
@@ -2798,73 +2766,47 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
             }
             auto app = initModuleNode(name, current, host, posx, posy, title, 2, ExecFlag::Normal);
             if (app)
-                nrnew = std::to_string(app->instance());
+                newInstance = std::to_string(app->instance());
         }
 
         else
             mmodList.push_back(name);
 
         // wrap input ports
-        istringstream inp(list[iel]);
-        iel++;
-        int ninp;
-        inp >> ninp;
-        iel = iel + ninp * 5;
+        int numInputPorts = std::stoi(list[iel++]);
+        iel += numInputPorts * 5;
 
         // wrap output ports
-        istringstream out(list[iel]);
-        iel++;
-        int nout;
-        out >> nout;
-        iel = iel + nout * 5;
+        int numOutputPorts = std::stoi(list[iel++]);
+        iel += numOutputPorts * 5;
 
         // update  parameter
-        istringstream para(list[iel]);
-        iel++;
-        int npara;
-        para >> npara;
-
-        for (int l1 = 0; l1 < npara; l1++)
+        int numParameters = std::stoi(list[iel++]);
+        for (int l1 = 0; l1 < numParameters; l1++)
         {
-            string paramname = list[iel];
-            iel++; //  name
-            string type = list[iel];
-            iel++; //  type
+            const string & paramname = list[iel++];
+            const string & type = list[iel++];
             iel++; //  unused description
-            string value = list[iel];
-            iel++; //  value
-            // not only set which choice during network load but also choice values
-            // this is not ok if choices changed and an old net is loaded but in cases where
-            // choices are updated during file load
-            // one option could be to only set these Values if  Choice values start with NONE or ---
-            // but this should be decided in the module and Mapeditor if(type == "Choice")
-            //{
-            //   vector<string> choices = splitString(value, " ");
-            //   value = choices[0];
-            //}
+            const string & value = list[iel++];
             iel++; //  unused IMM
-            string apptype = list[iel];
-            iel++; //  appearance type
+            const string & apptype = list[iel++];
             if (modExist)
-                sendNewParam(name, nrnew, host, paramname, type, value, apptype, host, mode == NETWORKMAP);
+                sendNewParam(name, newInstance, host, paramname, type, value, apptype, host, mode == NETWORKMAP);
         }
 
         // wrap output parameter
-        istringstream pout(list[iel]);
-        iel++;
-        int npout;
-        pout >> npout;
-        iel = iel + npout * 5;
+        int numOutParams = std::stoi(list[iel++]);
+        iel += numOutParams * 5;
 
         mnames.push_back(name);
-        oldnr.push_back(nr);
-        newnr.push_back(nrnew);
+        oldInstances.push_back(oldInstance);
+        newInstances.push_back(newInstance);
 
         // when reading from a clipboard send a select for all pasted modules
         if (mode == CLIPBOARD && modExist)
         {
             ready++;
-            selectionBuffer = selectionBuffer + name + "\n" + nrnew + "\n" + host + "\n";
+            selectionBuffer += name + "\n" + newInstance + "\n" + host + "\n";
         }
     }
 
@@ -2878,68 +2820,42 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
         m_hostManager.sendAll<Userinterface>(tmpmsg);
     }
 
-    //  no of connections
-    istringstream s2(list[iel]);
-    iel++;
-    int nc;
-    s2 >> nc;
-
-    // loop over all connections
-    // check if current module number has changed
-    for (int ll = 0; ll < nc; ll++)
+    //connections
+    int numConnections = std::stoi(list[iel++]);
+    for (int ll = 0; ll < numConnections; ll++)
     {
-        string fname = list[iel];
-        iel++;
-        string fnr = list[iel];
-        iel++;
-        for (int k = 0; k < no; k++)
+        const string & fname = list[iel++];
+        string &fnr = list[iel++];
+        for (int k = 0; k < numModules; k++)
         {
-            if (mnames[k] == fname && oldnr[k] == fnr)
+            if (mnames[k] == fname && oldInstances[k] == fnr)
             {
-                fnr = newnr[k];
+                fnr = newInstances[k];
                 break;
             }
         }
-        string fhost = list[iel];
-        iel++;
+        string &fhost = list[iel++];
         if (fhost == "LOCAL")
             fhost = localIp;
-        string fport = list[iel];
-        iel++;
+        string fport = list[iel++];
         iel++; // unused data name
 
-        string tname = list[iel];
-        iel++;
-        string tnr = list[iel];
-        iel++;
-        for (int k = 0; k < no; k++)
+        const string &tname = list[iel++];
+        string & tnr = list[iel++];
+        for (int k = 0; k < numModules; k++)
         {
-            if (mnames[k] == tname && oldnr[k] == tnr)
+            if (mnames[k] == tname && oldInstances[k] == tnr)
             {
-                tnr = newnr[k];
+                tnr = newInstances[k];
                 break;
             }
         }
-        string thost = list[iel];
-        iel++;
+        string &thost = list[iel++];
         if (thost == "LOCAL")
             thost = localIp;
-        string tport = list[iel];
-        iel++;
+        const string &tport = list[iel++];
 
-        // check if connection is made to a non existing module
-        bool doConnect = true;
-        for (int i = 0; i < mmodList.size(); i++)
-        {
-            if (mmodList[i] == fname || mmodList[i] == tname)
-            {
-                doConnect = false;
-                break;
-            }
-        }
-
-        if (doConnect)
-            makeConnection(fname, fnr, fhost, fport, tname, tnr, thost, tport);
+        makeConnection(fname, fnr, fhost, fport, tname, tnr, thost, tport);
     }
 
     if (mode == NETWORKMAP)
@@ -2956,10 +2872,14 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
 
 bool CTRLHandler::checkIfModuleAvailable(const string &modname, const string &modhost)
 {
-    if (!m_hostManager.findHost(modhost).isModuleAvailable(modname))
+    try
     {
-        string data = "Error in load. Module " + modname + " on host " + modhost + " is not available. \n";
-
+        if (!m_hostManager.findHost(modhost).isModuleAvailable(modname))
+            throw Exception{""};
+    }
+    catch (const Exception &e)
+    {
+        string data = "Error in load. Module " + modname + " on host " + modhost + " is not available. " + e.what() + "\n";
         Message msg{COVISE_MESSAGE_COVISE_ERROR, data};
         m_hostManager.getMasterUi().send(&msg);
         return false;
