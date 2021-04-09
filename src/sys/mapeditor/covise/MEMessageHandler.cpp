@@ -1126,7 +1126,7 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
                        " as user " + QString(subMsg.userName) +
                        "\nand connect to the VRB server running on " + QString(subMsg.vrbCredentials.ipAddress.c_str()) +
                        " listening on port " + QString::number(subMsg.vrbCredentials.tcpPort) +
-                       " (udp-port: " + QString::number(subMsg.vrbCredentials.udpPort);
+                       " (udp-port: " + QString::number(subMsg.vrbCredentials.udpPort) + ") and try again";
         MEUserInterface::instance()->printMessage(text);
         
     }
