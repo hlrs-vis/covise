@@ -119,8 +119,7 @@ bool RemoteHost::startCrb()
                 args.push_back(ip);
                 args.push_back(std::to_string(crbModule->processId));
                 //std::cerr << "Requesting start of crb on host " << hostManager.getLocalHost().userInfo().ipAdress << " port: " << port << " id " << crbModule->processId << std::endl;
-                launchCrb(execName, args);
-                return true;
+                return launchCrb(execName, args);
             }))
         {
             std::cerr << "startCrb failed to spawn CRB connection" << std::endl;
@@ -286,13 +285,22 @@ void RemoteHost::mark_save()
     m_saveInfo = true;
 }
 
-void RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
+bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
 {
 
     switch (m_exectype)
     {
     case controller::ExecType::VRB:
+    {
         vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), cmdArgs}, &hostManager.getVrbClient());
+        if (!hostManager.launchOfCrbPermitted())
+        {
+                Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};
+                hostManager.getMasterUi().send(&m);
+                removePartner();
+                return false;
+        }
+    }
         break;
     case controller::ExecType::Manual:
         launchManual(exec, cmdArgs);
@@ -303,12 +311,14 @@ void RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cm
     default:
         break;
     }
+    return true;
 }
 
-void LocalHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
+bool LocalHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
 {
     auto execPath = coviseBinDir() + vrb::programNames[exec];
     spawnProgram(execPath, cmdArgs);
+    return true;
 }
 
 LocalHost::LocalHost(const HostManager &manager, vrb::Program type, const std::string &sessionName)
@@ -726,6 +736,13 @@ const ControllerProxyConn *HostManager::proxyConn() const
     return m_proxyConnection;
 }
 
+bool HostManager::launchOfCrbPermitted() const
+{
+        std::unique_lock<std::mutex> lk(m_launchPermissionMutex);
+        m_waitLaunchPermission.wait(lk);
+        return m_launchPermission;
+}
+
 void HostManager::createProxyConnIfNecessary()
 {
     if (!Host{}.hasRoutableAddress() && !m_proxyConnection)
@@ -805,17 +822,11 @@ bool HostManager::handleVrbMessage()
     case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
     {
         covise::VRB_PERMIT_LAUNCH permission{msg};
-        std::lock_guard<std::mutex> g{m_mutex};
-        if (!permission.permit)
         {
-            if (auto refuser = getHost(permission.launcherID))
-            {
-                Message m{COVISE_MESSAGE_WARNING, "Partner " + refuser->userInfo().userName + "@" + refuser->userInfo().hostName + " refused to launch COVISE!"};
-                getMasterUi().send(&m);
-                ::shutdown(refuser->getProcess(sender_type::CRB).conn()->getSocket()->get_id(), 2); //2 for read and write
-                refuser->removePartner();
-            }
+            std::lock_guard<std::mutex> g{m_launchPermissionMutex};
+            m_launchPermission = permission.permit;
         }
+        m_waitLaunchPermission.notify_one();
     }
     break;
     case COVISE_MESSAGE_PROXY:

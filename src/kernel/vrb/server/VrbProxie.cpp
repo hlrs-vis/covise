@@ -107,10 +107,22 @@ CoviseProxy::CoviseProxy(const covise::MessageSenderInterface &vrbClient)
   }};
 }
 
+bool isQuitMessage(const Message &msg)
+{
+  return msg.type == COVISE_MESSAGE_SOCKET_CLOSED ||
+         msg.type == COVISE_MESSAGE_CLOSE_SOCKET ||
+         msg.type == COVISE_MESSAGE_QUIT;
+}
+
 void CoviseProxy::handleMessage(Message &msg)
 {
   if (msg.conn == m_controllerCon)
   {
+    if (msg.send_type == CONTROLLER && isQuitMessage(msg))
+    {
+      m_quit = true;
+    }
+
     if (msg.type == COVISE_MESSAGE_PROXY)
     {
       PROXY p{msg};
@@ -152,11 +164,15 @@ void CoviseProxy::handleMessage(Message &msg)
     }
     else
     {
-
       const auto proxy = m_proxies.find(msg.sender);
       if (proxy != m_proxies.end())
       {
         proxy->second->sendMessage(&msg);
+        if (msg.type == COVISE_MESSAGE_QUIT)
+        {
+          m_proxies.erase(proxy);
+        }
+
         //std::cerr << "passing msg " << covise_msg_types_array[msg.type] << " from controller to process " << proxy->first << std::endl;
       }
       return;
@@ -168,13 +184,23 @@ void CoviseProxy::handleMessage(Message &msg)
   }
   else
   {
-    for (const auto &crbProxy : m_crbProxies)
-      if (crbProxy->tryPassMessage(msg))
+    for (auto crbProxy = m_crbProxies.begin(); crbProxy < m_crbProxies.end(); crbProxy++)
+      if (crbProxy->get()->tryPassMessage(msg))
+      {
+        if (isQuitMessage(msg))
+        {
+          m_crbProxies.erase(crbProxy);
+        }
         return;
+      }
 
     //std::cerr << "passing msg " << covise_msg_types_array[msg.type] << " from process " << msg.conn->get_sender_id() << " to controller" << std::endl;
     msg.sender = msg.conn->get_sender_id();
     m_controllerCon->sendMessage(&msg);
+    if (isQuitMessage(msg))
+    {
+      m_proxies.erase(msg.sender);
+    }
   }
 }
 
@@ -219,13 +245,17 @@ const Connection *CoviseProxy::openConn(int processID, int timeout, const covise
   float checkinterval = 0.2f;
   if (m_controllerCon) // create a proxy
   {
-    while (!connected && (timeout == 0 || time < (float)timeout)) //eventually handle a launch msg from controller to crb or msgs between crbs
+    while (!m_quit && !connected && (timeout == 0 || time < (float)timeout)) //eventually handle a launch msg from controller to crb or msgs between crbs
     {
       if (auto c = m_conns.check_for_input(checkinterval / 2))
       {
         Message launchMsg;
         c->recv_msg(&launchMsg);
         handleMessage(launchMsg);
+        if (c == m_controllerCon && launchMsg.type == COVISE_MESSAGE_QUIT)
+        {
+          break; //the launch of the crb was cancelled
+        }
       }
       connected = conn->acceptOne(checkinterval / 2) >= 0;
       time += checkinterval;

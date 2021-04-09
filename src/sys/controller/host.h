@@ -92,13 +92,13 @@ protected:
     covise::LaunchStyle m_state = covise::LaunchStyle::Disconnect;
     virtual void connectShm(const CRBModule &crbModule);
 
-    virtual void launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs);
+    virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs);
 };
 
 struct LocalHost : RemoteHost{
     LocalHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = "");
     virtual void connectShm(const CRBModule &crbModule) override;
-    virtual void launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs) override;
+    virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs) override;
 };
 class HostManager
 {
@@ -170,6 +170,7 @@ public:
     const ModuleInfo &registerModuleInfo(const std::string &name, const std::string &category) const;
     void resetModuleInstances();
     const ControllerProxyConn *proxyConn() const;
+    bool launchOfCrbPermitted() const;
 
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
@@ -183,7 +184,10 @@ private:
     const ControllerProxyConn *m_proxyConnection = nullptr;
     int m_proxyConnPort = 0;
     std::condition_variable m_waitForProxyPort;
+    mutable std::condition_variable m_waitLaunchPermission;
     std::mutex m_proxyMutex;
+    mutable std::mutex m_launchPermissionMutex;
+    bool m_launchPermission;
     void createProxyConnIfNecessary();
     void handleVrb();
     bool handleVrbMessage();

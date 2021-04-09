@@ -204,7 +204,7 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         }
         else
         {
-            //inform VRB to shutdown proxy
+            controllerConn->recv_msg(msg.get()); //receive PROXY_ProxyConnected so that it is out of msq
             return false;
         }
     }
