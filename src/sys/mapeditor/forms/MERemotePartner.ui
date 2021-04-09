@@ -53,27 +53,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="addPartnersBtn">
-        <property name="text">
-         <string>Add partners</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="addHostsBtn">
-        <property name="text">
-         <string>Add hosts</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="disconnectBtn">
-        <property name="text">
-         <string>Disconnect</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>

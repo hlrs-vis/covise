@@ -10,11 +10,12 @@ namespace Ui{
     class MERemotePartner;
 }
 class QScrollArea;
-class QCheckBox;
+class QPushButton;
 class QVBoxLayout;
 
 
 Q_DECLARE_METATYPE(covise::LaunchStyle);
+Q_DECLARE_METATYPE(covise::ClientInfo);
 Q_DECLARE_METATYPE(std::vector<int>);
 
 class ClientWidget : public QWidget
@@ -23,9 +24,9 @@ class ClientWidget : public QWidget
 public:
     ClientWidget(const covise::ClientInfo &partner, QWidget *parent);
 
-    std::map<covise::LaunchStyle, QCheckBox *> m_clientActions;
+    std::map<covise::LaunchStyle, QPushButton *> m_clientActions;
 signals:
-    void partnerSelected(bool selected);
+    void clientAction(covise::ClientInfo client);
 
 private:
     const covise::ClientInfo m_partner;
@@ -40,9 +41,7 @@ public:
     void removeClient(int clientID);
     std::vector<int> getSelectedClients(covise::LaunchStyle launchStyle);
 signals:
-    void atLeastOneClientSelected(covise::LaunchStyle launchStyle, bool state);
-private slots:
-    void checkClientsSelected(covise::LaunchStyle launchStyle);
+    void clientAction(const covise::ClientInfo &client);
 
 private:
     QVBoxLayout *m_layout = nullptr;
@@ -58,14 +57,13 @@ public:
     explicit MERemotePartner(QWidget *parent = nullptr);
     void setPartners(const covise::ClientList &partners);
 signals:
-    void takeAction(covise::LaunchStyle launchStyle, std::vector<int> clientIds);
+    void clientAction(const covise::ClientInfo &client);
+
 
 private:
     Ui::MERemotePartner *m_ui;
     ClientWidgetList *m_clients;
-    std::map<covise::LaunchStyle, QPushButton *> m_actions;
 
-    void createParnerWidget(const covise::ClientInfo& partner);
 };
 
 #endif

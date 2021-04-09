@@ -2,9 +2,10 @@
 #include "ui_MERemotePartner.h"
 
 #include <QLabel>
-#include <QCheckBox>
+#include <QPushButton>
 #include <QVBoxLayout>
 
+using namespace covise;
 bool enablePartnerObtions(covise::LaunchStyle partnerStyle, covise::LaunchStyle action) //enable disconnect of host or partner, enable partner + host if disconnect
 {
     if (action == covise::LaunchStyle::Disconnect)
@@ -27,12 +28,45 @@ ClientWidget::ClientWidget(const covise::ClientInfo &partner, QWidget *parent)
     auto *content = new QLabel(s, this);
     layout->addWidget(content, 0, Qt::AlignTop);
 
-    std::array<covise::LaunchStyle, 3> actions{covise::LaunchStyle::Partner, covise::LaunchStyle::Host, covise::LaunchStyle::Disconnect};
-    for (auto style : actions)
+    if (partner.style == LaunchStyle::Disconnect)
     {
-        auto box = m_clientActions.insert(std::make_pair(style, new QCheckBox(this))).first->second;
-        box->setEnabled(enablePartnerObtions(partner.style, style));
-        layout->addWidget(box);
+        auto partnerBtn = new QPushButton(this);
+        partnerBtn->setText("Add partner");
+        layout->addWidget(partnerBtn);
+        connect(partnerBtn, &QPushButton::clicked, this, [this, &partner]() {
+            ClientInfo i = partner;
+            i.style = LaunchStyle::Partner;
+            emit clientAction(i);
+        });
+
+        auto hostBtn = new QPushButton(this);
+        hostBtn->setText("Add host");
+        layout->addWidget(hostBtn);
+        connect(hostBtn, &QPushButton::clicked, this, [this, &partner]() {
+            ClientInfo i = partner;
+            i.style = LaunchStyle::Host;
+            emit clientAction(i);
+        });
+    }
+    else
+    {
+        QString btnText;
+        if (partner.style == LaunchStyle::Host)
+        {
+            btnText = "Disconnect host";
+        }
+        else if (partner.style == LaunchStyle::Partner)
+        {
+            btnText = "Disconnect partner";
+        }
+        auto btn = new QPushButton(this);
+        btn->setText(btnText);
+        layout->addWidget(btn);
+        connect(btn, &QPushButton::clicked, this, [this, &partner]() {
+            ClientInfo i = partner;
+            i.style = LaunchStyle::Disconnect;
+            emit clientAction(i);
+        });
     }
 }
 
@@ -41,17 +75,6 @@ ClientWidgetList::ClientWidgetList(QScrollArea *scrollArea, QWidget *parent)
 {
     m_layout->setDirection(QVBoxLayout::TopToBottom);
     scrollArea->setWidget(this);
-
-    //auto headlineWidget = new QWidget(this);
-    //headlineWidget->setMaximumHeight(60);
-    //auto headlineLayout = new QVBoxLayout(headlineWidget);
-    //headlineLayout->setDirection(QVBoxLayout::LeftToRight);
-    //auto clients = new QLabel("Clients", headlineWidget);
-    //headlineLayout->addWidget(clients);
-    //auto partners = new QLabel("Partners", headlineWidget);
-    //headlineLayout->addWidget(partners);
-    //auto hosts = new QLabel("Hosts", headlineWidget);
-    //headlineLayout->addWidget(hosts);
 }
 
 void ClientWidgetList::addClient(const covise::ClientInfo &partner)
@@ -60,12 +83,7 @@ void ClientWidgetList::addClient(const covise::ClientInfo &partner)
     m_layout->addWidget(cw);
     removeClient(partner.id);
     m_clients[partner.id] = cw;
-    for (const auto &clientAction : cw->m_clientActions)
-    {
-        connect(clientAction.second, &QCheckBox::stateChanged, this, [this, &clientAction]() {
-            checkClientsSelected(clientAction.first);
-        });
-    }
+    connect(cw, &ClientWidget::clientAction, this, &ClientWidgetList::clientAction);
 }
 
 void ClientWidgetList::removeClient(int clientID)
@@ -93,57 +111,26 @@ std::vector<int> ClientWidgetList::getSelectedClients(covise::LaunchStyle launch
     return retval;
 }
 
-void ClientWidgetList::checkClientsSelected(covise::LaunchStyle launchStyle)
-{
-    auto it = std::find_if(m_clients.begin(), m_clients.end(), [launchStyle](const std::pair<int, ClientWidget *> &cl) {
-        return cl.second->m_clientActions[launchStyle]->isChecked();
-    });
-    emit atLeastOneClientSelected(launchStyle, it != m_clients.end());
-}
-
 MERemotePartner::MERemotePartner(QWidget *parent)
     : QDialog(parent), m_ui(new Ui::MERemotePartner)
 {
     qRegisterMetaType<covise::LaunchStyle>();
     qRegisterMetaType<std::vector<int>>();
+    qRegisterMetaType<covise::ClientInfo>();
 
     m_ui->setupUi(this);
-    m_actions[covise::LaunchStyle::Partner] = m_ui->addPartnersBtn;
-    m_actions[covise::LaunchStyle::Host] = m_ui->addHostsBtn;
-    m_actions[covise::LaunchStyle::Disconnect] = m_ui->disconnectBtn;
     m_clients = new ClientWidgetList(m_ui->partnersArea, this);
-    for (const auto &action : m_actions)
-    {
-        action.second->setEnabled(false);
-        connect(action.second, &QPushButton::clicked, this, [this, &action]() {
-            emit takeAction(action.first, m_clients->getSelectedClients(action.first));
-        });
-    }
+    connect(m_clients, &ClientWidgetList::clientAction, this, &MERemotePartner::clientAction);
+
     connect(m_ui->cancelBtn, &QPushButton::clicked, this, [this]() {
-        for (auto btn : m_actions)
-        {
-            btn.second->setEnabled(false);
-        }
-        this->hide();
-    });
-    connect(m_clients, &ClientWidgetList::atLeastOneClientSelected, this, [this](covise::LaunchStyle launchStyle, bool state) {
-        m_actions[launchStyle]->setEnabled(state);
+        hide();
     });
 }
 
 void MERemotePartner::setPartners(const covise::ClientList &partners)
 {
-    for (const auto &action : m_actions)
-    {
-        action.second->setEnabled(false);
-    }
     for (const auto &p : partners)
     {
-        createParnerWidget(p);
+        m_clients->addClient(p);
     }
-}
-
-void MERemotePartner::createParnerWidget(const covise::ClientInfo &partner)
-{
-    m_clients->addClient(partner);
 }
