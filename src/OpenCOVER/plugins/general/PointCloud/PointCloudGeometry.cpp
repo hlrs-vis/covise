@@ -5,17 +5,22 @@
 
  * License: LGPL 2+ */
 
-// Local:
-#include "PointCloud.h"
-#include "PointCloudGeometry.h"
 
 #include <iostream>
+
+// Cover
+#include <cover/coVRFileManager.h>
+
+// OSG
 #include <osg/Point>
 #include <osg/Image>
 #include <osg/AlphaFunc>
 #include <osg/TexEnv>
 #include <osg/TexGen>
-#include <cover/coVRFileManager.h>
+
+// Local
+#include "PointCloud.h"
+#include "PointCloudGeometry.h"
 
 using namespace osg;
 using namespace std;

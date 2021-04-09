@@ -8,9 +8,7 @@
 #ifndef POINTCLOUD_INTERACTOR_H
 #define POINTCLOUD_INTERACTOR_H
 
-#include "Points.h"
-#include "PointCloud.h"
-#include "FileInfo.h"
+// OSG:
 #include <osg/MatrixTransform>
 #include <osg/Geode>
 #include <osg/StateSet>
@@ -20,6 +18,12 @@
 #include <util/coRestraint.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+
+// Local:
+#include "Points.h"
+#include "PointCloud.h"
+#include "FileInfo.h"
+
 class FileInfo;
 class NodeInfo;
 class PointCloudPlugin;

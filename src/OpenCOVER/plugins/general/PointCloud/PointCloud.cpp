@@ -23,14 +23,17 @@
 #include <ctype.h>
 #include <math.h>
 #include <functional>
+
+// Cover:
 #include <cover/ui/Button.h>
+#include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
+#include <cover/coVRTui.h>
+#include <cover/coVRShader.h>
 
 #include <OpenVRUI/coButtonInteraction.h>
-#include <cover/coVRShader.h>
 #include <PluginUtil/PluginMessageTypes.h>
-#include <cover/ui/ButtonGroup.h>
 
 // OSG:
 #include <osg/Node>
@@ -38,7 +41,6 @@
 #include <osg/Switch>
 #include <osgDB/ReadFile>
 
-#include <cover/coVRTui.h>
 #include <util/unixcompat.h>
 
 // Local:
@@ -68,7 +70,8 @@ PointCloudPlugin::PointCloudPlugin()
 {
 }
 
-static FileHandler handlers[] = {
+static FileHandler handlers[] = 
+{
     { NULL,
       PointCloudPlugin::loadPTS,
       PointCloudPlugin::loadPTS,
@@ -94,11 +97,11 @@ static FileHandler handlers[] = {
       PointCloudPlugin::loadPTS,
       PointCloudPlugin::unloadPTS,
       "c2m" },
-	  { NULL,
-	  PointCloudPlugin::loadPTS,
-	  PointCloudPlugin::loadPTS,
-	  PointCloudPlugin::unloadPTS,
-	  "e57" }
+    { NULL,
+      PointCloudPlugin::loadPTS,
+      PointCloudPlugin::loadPTS,
+      PointCloudPlugin::unloadPTS,
+      "e57" }
 };
 
 bool PointCloudPlugin::init()
@@ -114,12 +117,12 @@ bool PointCloudPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     coVRFileManager::instance()->registerFileHandler(&handlers[2]);
     coVRFileManager::instance()->registerFileHandler(&handlers[3]);
-	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
-	coVRFileManager::instance()->registerFileHandler(&handlers[5]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[4]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[5]);
 
-    //Create main menu button
+    // Create main menu button
     pointCloudMenu = new ui::Menu("PointCloudMenu",this);
-    pointCloudMenu->setText("Point cloud");
+    pointCloudMenu->setText("Pointcloud");
 
     // Create menu
 #if 0
@@ -131,45 +134,52 @@ bool PointCloudPlugin::init()
 #endif
 
     loadMenu = new ui::Menu(pointCloudMenu,"Load");
+
     //loadGroup = new ui::Group("Load", loadMenu);
     //deleteButton = new ui::Button(fileGroup,"Delete");
+
+    // Select Points --------------------------------------------------------------------------------
     selectionGroup = new ui::Group(pointCloudMenu,"Selection");
     selectionButtonGroup = new ui::ButtonGroup(selectionGroup, "SelectionGroup");
     selectionButtonGroup->enableDeselect(true);
     singleSelectButton = new ui::Button(selectionGroup, "SelectPoints", selectionButtonGroup);
     singleSelectButton->setText("Select Points");
     singleSelectButton->setCallback([this](bool state){
-        if (state)
-        {
-            //enable interaction
-            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
-            //cover->addPlugin("NurbsSurface");
-        }
-        else
-        {
-            vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
-        } 
+        
+    	if (state)
+    	{
+    		// enable interaction
+        	vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
+        	//cover->addPlugin("NurbsSurface");
+    	}
+    	else
+    	{
+    		vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+    	}	 
     });
 
-	translationButton = new ui::Button(selectionGroup, "MakeTranslate", selectionButtonGroup);
-	translationButton->setText("Make Translate");
-	translationButton->setCallback([this](bool state) {
-		if (state)
-		{
-			//enable interaction
-			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
-			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
-			s_pointCloudInteractor->setTranslation(true);
-			secondary_Interactor->setTranslation(true);
-		}
-		else
-		{
-			s_pointCloudInteractor->setTranslation(false);
-			secondary_Interactor->setTranslation(false);
-		}
+    // Make Translate --------------------------------------------------------------------------------
+    translationButton = new ui::Button(selectionGroup, "MakeTranslate", selectionButtonGroup);
+    translationButton->setText("Make Translate");
+    translationButton->setCallback([this](bool state) {
+	if (state)
+	{
+		//enable interaction
+		vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+		vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
+		s_pointCloudInteractor->setTranslation(true);
+		secondary_Interactor->setTranslation(true);
+	}
+	else
+	{
+		s_pointCloudInteractor->setTranslation(false);
+		secondary_Interactor->setTranslation(false);
+	}
 	});
-	rotPointsButton = new ui::Button(selectionGroup, "RotationbyPointsSelection", selectionButtonGroup);
-	rotPointsButton->setText("Rotation by Points Selection");
+
+    //Rotation by Point Selection --------------------------------------------------------------------------------
+    rotPointsButton = new ui::Button(selectionGroup, "RotationbyPointsSelection", selectionButtonGroup);
+	rotPointsButton->setText("Rotation by Point Selection");
 	rotPointsButton->setCallback([this](bool state) {
 		if (state)
 		{
@@ -185,6 +195,8 @@ bool PointCloudPlugin::init()
 			secondary_Interactor->setRotPts(false);
 		}
 	});
+
+    // Rotation Axis by Pointer --------------------------------------------------------------------------------
 	rotAxisButton = new ui::Button(selectionGroup, "RotationAxisbyPointer", selectionButtonGroup);
 	rotAxisButton->setText("Rotation Axis by Pointer");
 	rotAxisButton->setCallback([this](bool state) {
@@ -202,6 +214,8 @@ bool PointCloudPlugin::init()
 			secondary_Interactor->setRotAxis(false);
 		}
 	});
+
+    // Free Movement --------------------------------------------------------------------------------
 	moveButton = new ui::Button(selectionGroup, "FreeMovement", selectionButtonGroup);
 	moveButton->setText("Free Movement");
 	moveButton->setCallback([this](bool state) {
@@ -219,7 +233,8 @@ bool PointCloudPlugin::init()
 			s_pointCloudInteractor->setFreeMove(false);
 			secondary_Interactor->setFreeMove(false);
 		}
-    });
+	});
+
 #ifdef HAVE_E57
 	saveButton = new ui::Button(selectionGroup, "Save Moves", selectionButtonGroup);
 	saveButton->setText("Save Movest");
@@ -234,38 +249,42 @@ bool PointCloudPlugin::init()
 		else
 		{
 		}
-    });
+    	});
 #endif
-    deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
-    deselectButton->setText("Deselect Points");
-    deselectButton->setCallback([this](bool state){
-        if (state)
-        {
-        //enable interaction
-        vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
-		vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
-        s_pointCloudInteractor->setDeselection(true);
-		secondary_Interactor->setDeselection(true);
-        }
-        else
-        {
-        vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
-        s_pointCloudInteractor->setDeselection(false);
-		secondary_Interactor->setDeselection(false);
-        }
-    });
-    createNurbsSurface = new ui::Button(pointCloudMenu,"createNurbsSurface");
-    createNurbsSurface->setText("Create nurbs surface from selected points");
-    createNurbsSurface->setCallback([this](bool state){
-        if (state)
-        {
-            cover->addPlugin("NurbsSurface");
-        }
-        else
-        {
-            cover->removePlugin("NurbsSurface");
-        }
-    });
+
+        // Deselect Points --------------------------------------------------------------------------------
+    	deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
+    	deselectButton->setText("Deselect Points");
+    	deselectButton->setCallback([this](bool state){
+        	if (state)
+        	{
+        		//enable interaction
+        		vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->registerInteraction(secondary_Interactor);
+        		s_pointCloudInteractor->setDeselection(true);
+			secondary_Interactor->setDeselection(true);
+        	}
+        	else
+        	{
+        		vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+        		s_pointCloudInteractor->setDeselection(false);
+			secondary_Interactor->setDeselection(false);
+        	}
+    	});
+
+        // Create Nurbs-Surface from selected Points ------------------------------------------------------
+    	createNurbsSurface = new ui::Button(pointCloudMenu,"createNurbsSurface");
+    	createNurbsSurface->setText("Create nurbs-surface from selected points");
+    	createNurbsSurface->setCallback([this](bool state){
+        	if (state)
+        	{
+            		cover->addPlugin("NurbsSurface");
+        	}
+        	else
+        	{
+            		cover->removePlugin("NurbsSurface");
+        	}
+    	});
 	
 	fileButtonGroup = new ui::ButtonGroup(selectionGroup, "FileButtonGroup");
 	fileButtonGroup->enableDeselect(true);
@@ -335,6 +354,7 @@ bool PointCloudPlugin::init()
         }
     });
 
+    // Point Size Slider
     pointSizeSlider = new ui::Slider(pointCloudMenu, "pointSize");
     pointSizeSlider->setText("Point size");
     pointSizeSlider->setBounds(1.0,10.0);
@@ -345,6 +365,7 @@ bool PointCloudPlugin::init()
         changeAllPointSize(pointSizeValue);
     });
 
+    // LOD scale
     auto lodScaleSlider = new ui::Slider(pointCloudMenu, "lodScale");
     lodScaleSlider->setText("LOD scale");
     lodScaleSlider->setBounds(0.01, 100.);
@@ -406,11 +427,12 @@ PointCloudPlugin::~PointCloudPlugin()
     }
     planetTrans = NULL;
 
-/*    delete imanPluginInstanceMenuItem;
+    /*    
+    delete imanPluginInstanceMenuItem;
     delete imanPluginInstanceMenu;
     delete loadMenuItem;
     delete loadMenu;
-*/
+    */
     //clean up TUI
     //delete PCTab;
     //delete adaptLODTui;
@@ -464,7 +486,13 @@ void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntr
                         createGeodes(planetTrans, filename);
                     }
                 });
+                //TODO jibald
                 menulist.push_back(ImageFileEntry(menuName, fileName, (ui::Element *)temp));
+                
+                const char* jiname = "jiname";
+                const char* jifile = "jifile";
+                ui::Button *jibutton = new ui::Button(subMenu, jiname);
+                menulist.push_back( ImageFileEntry( jiname, jifile, (ui::Element *)jibutton) );
             }
         }
     }
@@ -512,26 +540,31 @@ void PointCloudPlugin::UpdatePointSizeValue(void)
 void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 {
     opencover::coVRShader *pointShader = opencover::coVRShaderList::instance()->get("Points");
-    const char *cfile = filename.c_str();
-	FileInfo fi;
 	osg::ref_ptr<osg::MatrixTransform> matTra = new osg::MatrixTransform();
 	matTra->setName(filename);
+    
+    const char *cfile = filename.c_str();
+	
+    FileInfo fi; // pointcloud file
 	fi.tranformMat = matTra;
 	parent->addChild(fi.tranformMat);
 	fi.filename = filename;
-	addButton(fi);
+
+	addButton(fi); // TODO jibald
+
     if ((strcasecmp(cfile + strlen(cfile) - 3, "pts") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "ptx") == 0) || (strcasecmp(cfile + strlen(cfile) - 3, "xyz") == 0))
     {
-        bool imwfLattice = false;
         intensityOnly = false;
         intColor = false;
         polar = false;
-        bool commaSeparated = false;
-        FILE *fp = fopen(cfile, "r");
         pointSetSize = 0;
         intensityScale = 10;
         char buf[1000];
-        if (fp == nullptr)
+        bool imwfLattice = false;
+        bool commaSeparated = false;
+        FILE *fp = fopen(cfile, "r");
+        
+         if (fp == nullptr)
         {
             cout << "Error opening file" << endl;
             return;
@@ -545,6 +578,8 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             {
                 fprintf(stderr, "failed to get line\n");
             }
+
+            // parses for attributes
             if (buf[0] == '#')
             {
                 if (strstr(buf, "intensityOnly") != NULL)
@@ -601,6 +636,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         pointSet[0].colors = new Color[psize];
         pointSet[0].points = new ::Point[psize];
         pointSet[0].size = psize;
+
         /*int partSize = psize/64;
          int i=0;
          int n=0;
@@ -617,6 +653,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                n=s;
             }
          }*/
+
         int i = 0;
         while (feof(fp) == 0)
         {
@@ -624,17 +661,18 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             {
                 fprintf(stderr, "failed 2 to get line\n");
             }
+            int numValues;
             if (imwfLattice)
             {
                 int id=0;
                 char type[1000];
                 float dummy=0.f;
-                int numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &dummy);
+                numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &dummy);
                 pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
             }
             else if (commaSeparated)
             {
-                int numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r);
+                numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r);
                 if (numValues == 4)
                 {
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
@@ -647,7 +685,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             else if (intensityOnly)
             {
                 float intensity;
-                int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
+                numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
                 if (numValues == 7)
                 {
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
@@ -659,7 +697,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             }
             else
             {
-                int numValues = sscanf(buf, "%f %f %f %f %f %f,", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b);
+                numValues = sscanf(buf, "%f %f %f %f %f %f,", &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b);
                 if (numValues < 6)
                 {
                     pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
@@ -685,9 +723,9 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
         if (polar)
         {
+            // convert to cartesian
             for (int i = 0; i < psize; i++)
             {
-                // convert to cartesian
 				float vx = sin(pointSet[0].points[i].coordinates.x()) * cos(pointSet[0].points[i].coordinates.y());
 				float vy = sin(pointSet[0].points[i].coordinates.x()) * sin(pointSet[0].points[i].coordinates.y());
 				float vz = cos(pointSet[0].points[i].coordinates.x());
@@ -759,7 +797,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 }
 
                 //create drawable and geode and add to the scene (make sure the cube is not empty)
-
                 if (pointSet[i].size != 0)
                 {
                     PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[i]);
@@ -977,15 +1014,16 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                             p = p * m;
 							point.coordinates = p;
                             
-                            if (bIntensity) {		//Normalize intensity to 0 - 1.
+                            //Normalize intensity to 0 - 1
+                            if (bIntensity) {		
                                 float intensity = ((intData[i] - intOffset) / intRange);
                                 color.r = intensity;
                                 color.g = intensity;
                                 color.b = intensity;
                             }
                             
-                            
-                            if (bColor) {			//Normalize color to 0 - 1
+                            //Normalize color to 0 - 1
+                            if (bColor) {			
                                 color.r = (redData[i] - colorRedOffset) / (float)colorRedRange;
                                 color.g = (greenData[i] - colorGreenOffset) / (float)colorBlueRange;
                                 color.b = (blueData[i] - colorBlueOffset) / (float)colorBlueRange;
@@ -1237,7 +1275,8 @@ int PointCloudPlugin::unloadPTS(const char *filename, const char *covise_key)
     std::string fn = filename;
     return plugin->unloadFile(fn);
 }
-//remove currently loaded data and free up any memory that has been allocated
+
+// remove currently loaded data and free up any memory that has been allocated
 void PointCloudPlugin::clearData()
 {
     for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
@@ -1250,6 +1289,7 @@ void PointCloudPlugin::clearData()
             }
         }
         fit->nodes.clear();
+
         // remove the poinset data
         if (fit->pointSet != nullptr)
         {
@@ -1265,7 +1305,7 @@ void PointCloudPlugin::clearData()
     files.clear();
 }
 
-//used to handle new menu items in pointset lists
+// used to handle new menu items in pointset lists
 void PointCloudPlugin::selectedMenuButton(ui::Element *menuItem)
 {
     string filename;
@@ -1285,7 +1325,7 @@ void PointCloudPlugin::selectedMenuButton(ui::Element *menuItem)
     }
 }
 
-/// Called before each frame
+// Called before each frame
 void PointCloudPlugin::preFrame()
 {
 	if (s_pointCloudInteractor->actionsuccess)
@@ -1298,7 +1338,7 @@ void PointCloudPlugin::preFrame()
 		s_pointCloudInteractor->getData(secondary_Interactor);
 		secondary_Interactor->actionsuccess = false;
 	}
-    //resize the speheres of selected and preview points
+    //resize the spheres of selected and preview points
 	s_pointCloudInteractor->resize();
 	secondary_Interactor->resize();
 
@@ -1391,7 +1431,7 @@ void PointCloudPlugin::preFrame()
     }
 }
 
-/// Called after each frame
+// Called after each frame
 void PointCloudPlugin::postFrame()
 {
 }
@@ -1400,7 +1440,7 @@ void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     if (type == PluginMessageTypes::PointCloudSurfaceMsg)
     {
-
+        // ...
     }
     if (type == PluginMessageTypes::PointCloudSelectionSetMsg)
     {

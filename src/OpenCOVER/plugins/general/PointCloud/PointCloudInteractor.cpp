@@ -5,17 +5,22 @@
 
  * License: LGPL 2+ */
 
+// Cover:
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coInteractor.h>
 #include <cover/coVRCommunication.h>
-#include <PluginUtil/PluginMessageTypes.h>
+
+// OSG:
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 #include <osg/Vec4>
 #include <osg/Plane>
 
+#include <PluginUtil/PluginMessageTypes.h>
+
+// Local:
 #include "PointCloud.h"
 #include "PointCloudInteractor.h"
 

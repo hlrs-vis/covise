@@ -8,6 +8,15 @@
 #ifndef _POINTGEOMETRY_DRAWABLE_H_
 #define _POINTGEOMETRY_DRAWABLE_H_
 
+#include <float.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdio.h>
+
+// OSG:
 #include <osg/Version>
 #include <osg/Geometry>
 #include <osg/Vec3>
@@ -17,14 +26,7 @@
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
 
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <stdio.h>
-
+// Local:
 #include "Points.h"
 
 class PointCloudGeometry : public osg::Geometry
