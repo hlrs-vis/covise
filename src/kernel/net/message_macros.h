@@ -289,14 +289,19 @@ inline bool equals<char const*>(const char* const& t1, const char* const& t2){
         mutable std::unique_ptr<ClassName> m_subMsg;                     \
     };
 
-#define IMPL_MESSAGE_WITH_SUB_CLASSES(ClassName, EnumClass)                                       \
-    ClassName::ClassName(const covise::Message &msg) : ClassName(covise::TokenBuffer(&msg), msg) {} \
-    ClassName::ClassName(covise::TokenBuffer &&tb, const covise::Message &msg)\
-     : type(static_cast<EnumClass>(covise::detail::get<int>(tb)))\
-     , m_msg(&msg)\
-     {}\
-     ClassName::ClassName(EnumClass t)\
-     :type(t)\
-     {}
+#define IMPL_MESSAGE_WITH_SUB_CLASSES(ClassName, EnumClass)                                      \
+    ClassName::ClassName(const covise::Message &msg) : ClassName(covise::TokenBuffer(&msg), msg) \
+    {                                                                                            \
+        assert(msg.type == covise::CAT(COVISE_MESSAGE_, ClassName));                             \
+    }                                                                                            \
+    ClassName::ClassName(covise::TokenBuffer &&tb, const covise::Message &msg)                   \
+        : type(static_cast<EnumClass>(covise::detail::get<int>(tb))), m_msg(&msg)                \
+    {                                                                                            \
+        assert(msg.type == covise::CAT(COVISE_MESSAGE_, ClassName));                             \
+    }                                                                                            \
+    ClassName::ClassName(EnumClass t)                                                            \
+        : type(t)                                                                                \
+    {                                                                                            \
+    }
 
 #endif // !  MESSAGE_MACROS_H
