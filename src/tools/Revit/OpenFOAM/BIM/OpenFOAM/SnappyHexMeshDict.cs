@@ -162,6 +162,21 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 //m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
                 m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
             }
+            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.MeshResolution)
+            {
+                name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
+                m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
+            }
+            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_InletElements)
+            {
+                name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
+                m_Regions.Add("Inlet_" + name, new Dictionary<string, object> { { nameGeometry, "Inlet_" + name } });
+            }
+            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_OutletElements)
+            {
+                name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
+                m_Regions.Add("Outlet_" + name, new Dictionary<string, object> { { nameGeometry, "Outlet_" + name } });
+            }
         }
 
         /// <summary>
@@ -246,15 +261,20 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 //    continue;
                 //}
                 vec = new Vector(entry.Value, entry.Value);
-                if (name.Contains("Zuluft") || name.Contains("Abluft") || name.Contains("Outlet") || name.Contains("Inlet"))
-                {
-                    //name = "Terminal_" + name;
-                    m_RegionsRefinementCastellated[name] = new Dictionary<string, object>() { { level, vec } };
-                }
-                else
-                {
-                    m_RegionsRefinementCastellated.Add(name, new Dictionary<string, object>() { { level, vec } });
-                }
+                //m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", "wall" } });
+                m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec } });
+            }
+            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_InletElements)
+            {
+                name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
+                vec = (Vector)m_SettingsCMC["inletLevel"];
+                m_RefinementSurfaces.Add("Inlet_" + name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
+            }
+            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_OutletElements)
+            {
+                name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
+                vec = (Vector)m_SettingsCMC["outletLevel"];
+                m_RefinementSurfaces.Add("Outlet_" + name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
             }
         }
 

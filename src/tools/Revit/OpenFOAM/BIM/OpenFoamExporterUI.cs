@@ -109,7 +109,7 @@ namespace BIM.OpenFOAMExport
             try
             {
 
-                Exporter.Instance.settings = new Settings(SaveFormat.ascii, ElementsExportRange.OnlyVisibleOnes, true, true,
+                Exporter.Instance.settings = new Settings(SaveFormat.ascii, ElementsExportRange.OnlyVisibleOnes, true,
                     false, false,
                     false, 0, 101, 1, 100, 2/*purgeWrite*/, 8, 7, 4);
 

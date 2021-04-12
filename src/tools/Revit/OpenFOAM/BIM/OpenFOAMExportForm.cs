@@ -940,7 +940,6 @@ namespace BIM.OpenFOAMExport
                 comboBox_DUT.SelectedIndex = comboBox_DUT.Items.IndexOf("Meter");
                 btnHelp.Enabled = false;
                 tbOpenFOAM.Enabled = true;
-                BIM.OpenFOAMExport.Exporter.Instance.settings.OpenFOAM = true;
                 cbExportColor.Enabled = false;
                 cbExportSharedCoordinates.Enabled = false;
                 cbIncludeLinked.Enabled = false;
@@ -953,7 +952,6 @@ namespace BIM.OpenFOAMExport
                 cbExportColor.Enabled = true;
                 cbExportSharedCoordinates.Enabled = true;
                 cbIncludeLinked.Enabled = true;
-                BIM.OpenFOAMExport.Exporter.Instance.settings.OpenFOAM = false;
                 rbBinary.Enabled = true;
             }
         }

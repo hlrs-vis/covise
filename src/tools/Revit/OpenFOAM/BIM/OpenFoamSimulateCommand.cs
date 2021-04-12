@@ -62,6 +62,12 @@ namespace BIM.OpenFOAMExport
 
             DataGenerator Generator = new DataGenerator(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
             DataGenerator.GeneratorStatus succeed = Generator.SaveSTLFile(fileName);
+            if(succeed == DataGenerator.GeneratorStatus.SUCCESS)
+            { 
+                BIM.OpenFOAMExport.Exporter.Instance.settings.initConfigs();
+                succeed = Generator.CreateOpenFOAMCase(BIM.OpenFOAMExport.Exporter.Instance.settings.localCaseFolder);
+            }
+
 
             return Result.Succeeded;
         }
