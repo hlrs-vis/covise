@@ -13,6 +13,7 @@
 #include <net/covise_host.h>
 #include <cstring>
 #include <algorithm>
+#include <array>
 using namespace vrb;
 using namespace covise;
 
@@ -20,7 +21,7 @@ constexpr int SIZEOF_IEEE_INT = 4;
 constexpr int controllerProcessID = 1000;
 bool ProxyConn::sendMessage(const covise::Message *msg) const
 {
-  return sendMessageWithHeader({msg->sender, msg->send_type, msg->type, msg->data.length()}, msg);
+    return sendMessageWithHeader({ msg->sender, msg->send_type, msg->type, msg->data.length() }, msg);
 }
 
 void sendConnectionToCrbProxy(CrbProxyConn::Direction dir, int processId, int port, const MessageSenderInterface &crbProxy)

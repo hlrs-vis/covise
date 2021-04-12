@@ -13,6 +13,7 @@
 
 #include <thread>
 #include <atomic>
+#include <array>
 namespace vrb
 {
 

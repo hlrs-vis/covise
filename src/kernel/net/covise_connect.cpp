@@ -54,6 +54,7 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <array>
 
 using namespace std;
 using namespace covise;
