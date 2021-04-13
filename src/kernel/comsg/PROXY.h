@@ -9,6 +9,7 @@
 #define COMSG_PROXY_H
 
 #include <net/message_macros.h>
+#include <net/message_types.h>
 #include <util/coExport.h>
 #include <vrb/client/VrbCredentials.h>
 
@@ -21,7 +22,7 @@ enum class PROXY_TYPE
 };
 DECL_MESSAGE_WITH_SUB_CLASSES(PROXY, PROXY_TYPE, COMSGEXPORT)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateControllerProxy, COMSGEXPORT, int, vrbClientID)
-DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateSubProcessProxie, COMSGEXPORT, size_t, procID, int , timeout)
+DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateSubProcessProxie, COMSGEXPORT, size_t, procID, sender_type, senderType, int , timeout)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyCreated, COMSGEXPORT, int, port)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyConnected, COMSGEXPORT, bool, success)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateCrbProxy, COMSGEXPORT, size_t, toProcID, size_t, fromProcID, int, timeout)

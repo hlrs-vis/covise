@@ -21,7 +21,7 @@ constexpr int SIZEOF_IEEE_INT = 4;
 constexpr int controllerProcessID = 1000;
 bool ProxyConn::sendMessage(const covise::Message *msg) const
 {
-    return Connection::sendMessage(msg->sender, (int)msg->send_type, msg);
+  return Connection::sendMessage(msg->sender, (int)msg->send_type, msg);
 }
 
 void sendConnectionToCrbProxy(CrbProxyConn::Direction dir, int processId, int port, const MessageSenderInterface &crbProxy)
@@ -65,6 +65,8 @@ bool CrbProxyConn::init(Direction dir, int processId, int timeout, const covise:
   if (!conn)
     return false;
   m_conns[dir] = connList.add(std::move(conn));
+  m_connList = &connList;
+
   return true;
 }
 
@@ -85,12 +87,28 @@ bool CrbProxyConn::tryPassMessage(const Message &msg) const
   return false;
 }
 
+CrbProxyConn:: ~CrbProxyConn()
+{
+  if (m_connList)
+  {
+    m_connList->remove(m_conns[0]);
+    m_connList->remove(m_conns[1]);
+  }
+}
+
+bool isQuitMessage(const Message &msg)
+{
+  return msg.type == COVISE_MESSAGE_SOCKET_CLOSED ||
+         msg.type == COVISE_MESSAGE_CLOSE_SOCKET ||
+         msg.type == COVISE_MESSAGE_QUIT;
+}
+
 CoviseProxy::CoviseProxy(const covise::MessageSenderInterface &vrbClient)
 {
 
   m_thread = std::thread{[this, &vrbClient]() {
     int port = 0;
-    m_controllerCon = openConn(controllerProcessID, 0, vrbClient);
+    m_controllerCon = openConn(controllerProcessID, sender_type::CONTROLLER, 0, vrbClient);
     if (!m_controllerCon)
     {
       std::cerr << "CoviseProxy failed to create new ServerConnection" << std::endl;
@@ -106,13 +124,6 @@ CoviseProxy::CoviseProxy(const covise::MessageSenderInterface &vrbClient)
       }
     }
   }};
-}
-
-bool isQuitMessage(const Message &msg)
-{
-  return msg.type == COVISE_MESSAGE_SOCKET_CLOSED ||
-         msg.type == COVISE_MESSAGE_CLOSE_SOCKET ||
-         msg.type == COVISE_MESSAGE_QUIT;
 }
 
 void CoviseProxy::handleMessage(Message &msg)
@@ -132,7 +143,7 @@ void CoviseProxy::handleMessage(Message &msg)
       case PROXY_TYPE::CreateSubProcessProxie:
       {
         auto &createSubProcessProxie = p.unpackOrCast<PROXY_CreateSubProcessProxie>();
-        addProxy(createSubProcessProxie.procID, createSubProcessProxie.timeout);
+        addProxy(createSubProcessProxie.procID, createSubProcessProxie.senderType, createSubProcessProxie.timeout);
         return;
       }
       case PROXY_TYPE::CreateCrbProxy:
@@ -171,6 +182,7 @@ void CoviseProxy::handleMessage(Message &msg)
         proxy->second->sendMessage(&msg);
         if (msg.type == COVISE_MESSAGE_QUIT)
         {
+          m_conns.remove(proxy->second);
           m_proxies.erase(proxy);
         }
 
@@ -197,10 +209,13 @@ void CoviseProxy::handleMessage(Message &msg)
 
     //std::cerr << "passing msg " << covise_msg_types_array[msg.type] << " from process " << msg.conn->get_sender_id() << " to controller" << std::endl;
     msg.sender = msg.conn->get_sender_id();
+    msg.send_type = msg.conn->get_sendertype();
     m_controllerCon->sendMessage(&msg);
     if (isQuitMessage(msg))
     {
-      m_proxies.erase(msg.sender);
+      auto proxy = m_proxies.find(msg.sender);
+      m_conns.remove(proxy->second);
+      m_proxies.erase(proxy);
     }
   }
 }
@@ -228,19 +243,20 @@ int CoviseProxy::controllerPort() const
 }
 
 template <typename T>
-void sendVrbMessage(const T &msg, int processID, const covise::MessageSenderInterface &sender)
+void sendProxyMessage(const T &msg, int processID, const covise::MessageSenderInterface &sender)
 {
-  auto m = msg.createMessage();
+  Message m = msg.createMessage();
   m.sender = processID;
+  m.send_type = sender_type::CONTROLLER;
   sender.send(&m);
 }
 
-const Connection *CoviseProxy::openConn(int processID, int timeout, const covise::MessageSenderInterface &requestor)
+const Connection *CoviseProxy::openConn(int processID, sender_type type, int timeout, const covise::MessageSenderInterface &requestor)
 {
   int port = 0;
-  auto conn = createListeningConn<ProxyConn>(&port, processID, (int)CONTROLLER);
+  auto conn = createListeningConn<ProxyConn>(&port, processID, type);
   PROXY_ProxyCreated retMsg{port};
-  sendVrbMessage(retMsg, processID, requestor);
+  sendProxyMessage(retMsg, processID, requestor);
   bool connected = false;
   double time = 0;
   float checkinterval = 0.2f;
@@ -271,13 +287,13 @@ const Connection *CoviseProxy::openConn(int processID, int timeout, const covise
 
   if (processID != controllerProcessID) //the controller only needs to be informed if other processes connect
   {
-    sendVrbMessage(conMsg, processID, requestor);
+    sendProxyMessage(conMsg, processID, requestor);
   }
   return m_conns.add(std::move(conn));
 }
 
-void CoviseProxy::addProxy(int processID, int timeout)
+void CoviseProxy::addProxy(int processID, sender_type type, int timeout)
 {
-  auto p = openConn(processID, timeout, *m_controllerCon);
+  auto p = openConn(processID, type, timeout, *m_controllerCon);
   m_proxies.insert({processID, p});
 }

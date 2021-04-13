@@ -10,6 +10,7 @@
 
 #include <net/covise_connect.h>
 #include <util/coExport.h>
+#include <net/message_types.h>
 
 #include <thread>
 #include <atomic>
@@ -17,14 +18,16 @@
 namespace vrb
 {
 
-
-struct ProxyConn : covise::ServerConnection
+//CoviseProxy uses one connection to the controller and one connection to each subProcess that is not running on the controller's host.
+//msgs are forwarded via their sender id and type
+//the crbs are connected to each other via CrbProxyConn
+struct ProxyConn : covise::ServerConnection //basically a Serverconnection that uses the message's original sender info when sending
 {
   using ServerConnection::ServerConnection;
   bool sendMessage(const covise::Message *msg) const override;
 };
 
-struct CrbProxyConn
+struct CrbProxyConn //connects two crbs by opening a ServerCOnnection to each of them
 {
   enum Direction
   {
@@ -32,10 +35,12 @@ struct CrbProxyConn
     From
   };
   bool init(Direction dir, int procID, int timeout, const covise::MessageSenderInterface &controller,const covise::MessageSenderInterface &controllerOrProxy, covise::ConnectionList &connList);
-  bool tryPassMessage(const covise::Message &msg) const;
+  bool tryPassMessage(const covise::Message &msg) const; //if msg fits one of the connections msg is forwarded to the other. Returns true if it did so.
+  ~CrbProxyConn();
 
 private:
-  std::array<const covise::Connection *, 2> m_conns;   //toConn, fromConn
+  covise::ConnectionList *m_connList = nullptr;
+  std::array<const covise::Connection *, 2> m_conns; //toConn, fromConn
 };
 class VRBSERVEREXPORT CoviseProxy
 {
@@ -56,10 +61,10 @@ private:
   std::vector<std::unique_ptr<CrbProxyConn>> m_crbProxies;
   std::thread m_thread;
   std::atomic_bool m_quit{false};
-  const covise::Connection *openConn(int processID, int timeout, const covise::MessageSenderInterface &requestor);
+  const covise::Connection *openConn(int processID, covise::sender_type type, int timeout, const covise::MessageSenderInterface &requestor);
   void handleMessage(covise::Message &msg);
 
-  void addProxy(int proccessID, int timeout); //returns supProcessPort
+  void addProxy(int proccessID, covise::sender_type type, int timeout); //returns supProcessPort
   void passMessages() const;
 };
 }

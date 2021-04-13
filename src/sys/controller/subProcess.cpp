@@ -96,7 +96,7 @@ bool SubProcess::connectCrbsViaProxy(const SubProcess &toCrb)
         if (&crbs[i]->host == &host.hostManager.getLocalHost()) //pass the port to the local crb, proxy crbs get informed direcly by the VRB
         {
             //receive opened port
-            host.hostManager.proxyConn()->recv_msg(&proxyMsg);
+            host.hostManager.proxyConn()->recv_msg(&proxyMsg); //produces proxy not found warning
             PROXY p{proxyMsg};
             auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
             //send host and port to crb
@@ -157,6 +157,20 @@ bool SubProcess::connectModuleToCrb(const SubProcess &toCrb, ConnectionType type
     } while (true);
 }
 
+void waitForProxyMsg(std::unique_ptr<Message> &msg, const Connection &conn)
+{
+    while (true)
+    {
+        conn.recv_msg(msg.get());
+        if (msg->type != COVISE_MESSAGE_PROXY)
+            CTRLHandler::instance()->handleMsg(msg); // handle all other messages
+        else
+        {
+            return;
+        }
+    }
+}
+
 bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> sendConnMessage)
 {
     constexpr int timeout = 0; // do not timeout
@@ -177,23 +191,15 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
     else //create proxy conn via vrb
     {
         auto controllerConn = host.hostManager.proxyConn();
-        PROXY_CreateSubProcessProxie p{processId, timeout};
+        PROXY_CreateSubProcessProxie p{processId, type, timeout};
         sendCoviseMessage(p, *controllerConn);
         std::unique_ptr<Message> msg{new Message{}};
-        while (true)
-        {
-            controllerConn->recv_msg(msg.get());
-            if (msg->type != COVISE_MESSAGE_PROXY)
-                CTRLHandler::instance()->handleMsg(msg); // handle all other messages
-            else
-                break;
-        }
-
+        waitForProxyMsg(msg, *controllerConn);
         PROXY proxy{*msg};
         m_conn = controllerConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
         if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress))
         {
-            controllerConn->recv_msg(msg.get());
+            waitForProxyMsg(msg, *controllerConn);
             PROXY pr{*msg};
             if (!pr.unpackOrCast<PROXY_ProxyConnected>().success)
             {
@@ -204,7 +210,7 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         }
         else
         {
-            controllerConn->recv_msg(msg.get()); //receive PROXY_ProxyConnected so that it is out of msq
+            waitForProxyMsg(msg, *controllerConn); //receive PROXY_ProxyConnected so that it is out of msq
             return false;
         }
     }

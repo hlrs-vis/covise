@@ -295,13 +295,13 @@ bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cm
         vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), cmdArgs}, &hostManager.getVrbClient());
         if (!hostManager.launchOfCrbPermitted())
         {
-                Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};
-                hostManager.getMasterUi().send(&m);
-                removePartner();
-                return false;
+            Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};
+            hostManager.getMasterUi().send(&m);
+            removePartner();
+            return false;
         }
     }
-        break;
+    break;
     case controller::ExecType::Manual:
         launchManual(exec, cmdArgs);
         break;
@@ -738,9 +738,14 @@ const ControllerProxyConn *HostManager::proxyConn() const
 
 bool HostManager::launchOfCrbPermitted() const
 {
-        std::unique_lock<std::mutex> lk(m_launchPermissionMutex);
-        m_waitLaunchPermission.wait(lk);
-        return m_launchPermission;
+    std::unique_lock<std::mutex> lk(m_launchPermissionMutex);
+    m_waitLaunchPermission.wait(lk);
+    return m_launchPermission;
+}
+
+std::unique_ptr<Message> HostManager::hasProxyMessage()
+{
+    return m_proxyConnection ? m_proxyConnection->getCachedMsg() : nullptr;
 }
 
 void HostManager::createProxyConnIfNecessary()

@@ -220,7 +220,12 @@ void CTRLHandler::loop()
         std::unique_ptr<Message> msg;
         if (!m_quitNow)
         {
-            msg.reset(CTRLGlobal::getInstance()->controller->wait_for_msg());
+            if(auto pmsg = m_hostManager.hasProxyMessage())
+                msg = std::move(pmsg);
+            else
+            {
+                msg.reset(CTRLGlobal::getInstance()->controller->wait_for_msg());
+            }
             handleMsg(msg);
         }
         else
@@ -2442,7 +2447,7 @@ const NetModule *CTRLHandler::initModuleNode(const string &name, const string &n
         m_hostManager.sendAll<Userinterface>(tmp_msg);
         return &app;
     }
-    catch (const std::exception &e)
+    catch (const Exception &e)
     {
         std::cerr << e.what() << '\n';
         ostringstream os;
@@ -2650,7 +2655,7 @@ string CTRLHandler::handleBrowserPath(const string &name, const string &nr, cons
             value = revList[7];
         }
     }
-    catch (const std::exception &e)
+    catch (const Exception &e)
     {
         std::cerr << e.what() << '\n';
     }

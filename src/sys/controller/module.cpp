@@ -24,7 +24,7 @@ size_t NetModule::moduleCount = 1000;
 
 
 NetModule::NetModule(const RemoteHost &host, const ModuleInfo &moduleInfo, int instance)
-    : SubProcess(moduleType, host, sender_type::APPLICATIONMODULE, moduleInfo.name), m_info(moduleInfo), moduleId(moduleCount++)
+    : SubProcess(moduleType, host, moduleInfo.category == "Renderer"?  sender_type::RENDERER : sender_type::APPLICATIONMODULE, moduleInfo.name), m_info(moduleInfo), moduleId(moduleCount++)
 {
     if (instance == -1)
     {
