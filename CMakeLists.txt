@@ -212,7 +212,7 @@ else()
     message("Maybe run \"git submodule update --init --recursive\"?")
 endif()
 
-OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
+OPTION(COVISE_BUILD_RENDERER "Build desktop (Qt and Inventor based) renderer" OFF)
 OPTION(COVISE_BUILD_COVER "Build OpenCOVER VR/desktop renderer" ON)
 OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 
