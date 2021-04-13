@@ -350,7 +350,7 @@ Renderer::DisplayList::iterator Renderer::addDisplayAndHandleConnections(const U
                     if (!obj->isEmpty())
                     {
                         auto dataObjectName = obj->get_current_name();
-                        m_ready -= m_displays.size();
+                        m_ready--;
                         setExecuting(true);
                         ++m_numRunning;
                         displ->get()->send_add(dataObjectName);
