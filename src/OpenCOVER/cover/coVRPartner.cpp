@@ -125,9 +125,9 @@ void coVRPartner::updateUi()
     if (!m_ui)
     {
         m_ui = new ui::CollaborativePartner("VRPartner"+std::to_string(m_id), this, coVRPartnerList::instance()->group());
-        if (auto g = coVRCollaboration::instance()->partnerGroup())
+        if (coVRCollaboration::instance()->partnerGroup() && m_userInfo.userType == vrb::Program::opencover)
         {
-            g->add(m_ui);
+            coVRCollaboration::instance()->partnerGroup()->add(m_ui);
         }
         m_ui->setCallback([this](bool state){
             // change it back
