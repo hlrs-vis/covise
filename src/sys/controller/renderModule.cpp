@@ -37,6 +37,7 @@ bool Display::start(const char *instance, const char *category)
         // status dem Rendermodule mitteilen
         Message msg;
         recv_msg(&msg);
+        assert(msg.type == COVISE_MESSAGE_PARINFO);
         m_renderer.info().readConnectivity(msg.data.data());
         std::string info_str = m_renderer.info().name + "\n" + std::to_string(m_renderer.instance()) + "\n" + getHost();
         send_status(info_str);
