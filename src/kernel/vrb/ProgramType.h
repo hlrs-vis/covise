@@ -18,7 +18,6 @@ enum class Program
     opencover,
     VrbRemoteLauncher,
     crb,
-    crbProxy,
     LAST_DUMMY
 };
 namespace detail{
@@ -28,7 +27,6 @@ namespace detail{
         "opencover",
         "VrbRemoteLauncher",
         "crb",
-        "crbProxy"
         };
 }
 

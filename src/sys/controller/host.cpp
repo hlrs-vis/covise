@@ -109,17 +109,16 @@ bool RemoteHost::startCrb()
     try
     {
         auto shmMode = CTRLHandler::instance()->Config.getshmMode(userInfo().hostName);
-        auto execName = shmMode == ShmMode::Proxie ? vrb::Program::crbProxy : vrb::Program::crb;
         auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this, shmMode == ShmMode::Proxie});
         auto crbModule = m->get()->as<CRBModule>();
 
-        if (!crbModule->setupConn([this, &crbModule, execName](int port, const std::string &ip) {
+        if (!crbModule->setupConn([this, &crbModule](int port, const std::string &ip) {
                 std::vector<std::string> args;
                 args.push_back(std::to_string(port));
                 args.push_back(ip);
                 args.push_back(std::to_string(crbModule->processId));
                 //std::cerr << "Requesting start of crb on host " << hostManager.getLocalHost().userInfo().ipAdress << " port: " << port << " id " << crbModule->processId << std::endl;
-                return launchCrb(execName, args);
+                return launchCrb(vrb::Program::crb, args);
             }))
         {
             std::cerr << "startCrb failed to spawn CRB connection" << std::endl;
