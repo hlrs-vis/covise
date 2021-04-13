@@ -200,7 +200,7 @@ bool VrbRemoteLauncher::removeOtherClient(covise::TokenBuffer &tb)
         auto cl = findClient(id);
         if (cl != m_clientList.end())
         {
-            if (cl->sessionID() == m_client->sessionID())
+            if (cl->userInfo().userType == vrb::Program::VrbRemoteLauncher)
             {
                 emit removeClient(id);
             }
