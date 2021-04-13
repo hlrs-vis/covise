@@ -138,7 +138,7 @@ protected:
     mutable void (*remove_socket)(int);
     int get_id() const;
     int *header_int;
-    bool sendMessageWithHeader(const std::array<int, 4> &header, const Message *msg) const;
+    bool sendMessage(int senderId, int senderType, const Message *msg) const;
 
 public:
     char convert_to; // to what format do we need to convert data?
