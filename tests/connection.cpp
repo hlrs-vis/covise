@@ -35,7 +35,6 @@ void testConnectionShutdown()
 
 void testSetupServerConnection()
 {
-    std::this_thread::sleep_for(std::chrono::seconds(10));
     std::mutex m;
     m.lock();
     int port = 0;

@@ -1,0 +1,4 @@
+
+namespace test{
+    void testSyncVar();
+}

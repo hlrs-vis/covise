@@ -4,6 +4,7 @@
 #include "CRB_EXEC.h"
 #include "connection.h"
 #include "messageExchange.h"
+#include "syncVar.h"
 using namespace test;
 
 #define TEST(t)                   \
@@ -19,6 +20,7 @@ int main(int argc, char const *argv[])
     TEST(testSetupServerConnection)
     TEST(test_socket_write_receive)
     TEST(test_message_send_receive)
+    TEST(testSyncVar)
     std::cerr << "all tests succseeded!" << std::endl;
     return 0;
 

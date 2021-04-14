@@ -9,6 +9,7 @@ set(VRB_TEST_SOURCES
     message_macros.cpp
     testObject.cpp
     tryPrint.cpp
+    syncVar.cpp
 )
 
 set(VRB_TEST_HEADER 
@@ -19,6 +20,7 @@ set(VRB_TEST_HEADER
     message_macros.h
     testObject.h
     tryPrint.h
+    syncVar.h
 )
 
 ADD_COVISE_EXECUTABLE(VrbTests ${VRB_TEST_SOURCES} ${VRB_TEST_HEADER})
