@@ -743,6 +743,38 @@ void VrbMessageHandler::handleProxy(const covise::PROXY &msg)
 		}
 	}
 	break;
+	case PROXY_TYPE::ConnectionTest:
+	{
+		auto &p = msg.unpackOrCast<PROXY_ConnectionTest>();
+		auto fromCl = clients.get(p.fromClientID);
+		auto toCl = clients.get(p.toClientID);
+		if (fromCl && toCl)
+		{
+			assert(fromCl->userInfo().userType == Program::VrbRemoteLauncher);
+			auto state = m_connectionStates.check(fromCl->userInfo(), toCl->userInfo());
+			if (state == ConnectionState::NotChecked)
+			{
+				sendCoviseMessage(p, *fromCl);
+				break;
+			}
+			PROXY_ConnectionState stateMsg{p.fromClientID, p.toClientID, state == ConnectionState::ProxyRequired};
+			sendCoviseMessage(stateMsg, *toCl);
+		}
+	}
+	break;
+	case PROXY_TYPE::ConnectionState:
+	{
+		auto &p = msg.unpackOrCast<PROXY_ConnectionState>();
+		auto fromCl = clients.get(p.fromClientID);
+		auto toCl = clients.get(p.toClientID);
+		if (fromCl && toCl)
+		{
+			auto s = p.proxyRequired ? ConnectionState::ProxyRequired : ConnectionState::DirectConnectionPossible;
+			m_connectionStates.addConn(ConnectionState {fromCl->userInfo(), toCl->userInfo(), s});
+			sendCoviseMessage(p, *toCl);
+		}
+	}
+	break;
 	default:
 		break;
 	}

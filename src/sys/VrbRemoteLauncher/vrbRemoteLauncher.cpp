@@ -1,6 +1,7 @@
 #include "vrbRemoteLauncher.h"
 
 #include <config/CoviseConfig.h>
+#include <net/covise_connect.h>
 #include <net/covise_host.h>
 #include <net/message.h>
 #include <net/message_types.h>
@@ -14,6 +15,7 @@
 #include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
 #include <comsg/VRB_PERMIT_LAUNCH.h>
+#include <comsg/PROXY.h>
 
 #include <QTextStream>
 #include <cassert>
@@ -158,6 +160,24 @@ bool VrbRemoteLauncher::handleVRB()
                 emit updateClient(cl.ID(), getClientInfo(cl));
             }
             m_clientList.insert(std::move(cl));
+        }
+    }
+    break;
+    case COVISE_MESSAGE_PROXY:
+    {
+        PROXY p{msg};
+        if (p.type == PROXY_TYPE::ConnectionTest)
+        {
+            auto &proxyTest = p.unpackOrCast<PROXY_ConnectionTest>();
+            auto toPartner = findClient(proxyTest.toClientID);
+            if (toPartner != m_clientList.end())
+            {
+                Host testHost{toPartner->userInfo().ipAdress.c_str()};
+                ClientConnection testConn{&testHost, proxyTest.port, 0, 0, 5, static_cast<double>(proxyTest.timeout)};
+
+                PROXY_ConnectionState stateMsg{proxyTest.fromClientID, proxyTest.toClientID, !testConn.is_connected()};
+                sendCoviseMessage(stateMsg, *m_client);
+            }
         }
     }
     break;

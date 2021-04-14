@@ -18,8 +18,9 @@
 #include <vrb/client/VRBClient.h>
 #include <comsg/coviseLaunchOptions.h>
 
-#include "subProcess.h"
 #include "config.h"
+#include "subProcess.h"
+#include "syncVar.h"
 
 namespace covise
 {
@@ -44,7 +45,7 @@ struct RemoteHost : vrb::RemoteClient
     
     const HostManager &hostManager;
     
-    bool handlePartnerAction(covise::LaunchStyle action);
+    bool handlePartnerAction(covise::LaunchStyle action, bool proxyRequired);
     covise::LaunchStyle state() const;
     void setTimeout(int seconds);
     bool startCrb();
@@ -71,6 +72,7 @@ struct RemoteHost : vrb::RemoteClient
     void reset_mark();
     void mark_save();
     bool removePartner();
+    bool proxyHost() const;
 
 private:
     bool addPartner();
@@ -87,6 +89,7 @@ private:
     int m_shmID;
     int m_timeout = 30;
     bool m_saveInfo = false;
+    bool m_isProxy = false;
 
 protected:
     covise::LaunchStyle m_state = covise::LaunchStyle::Disconnect;
@@ -100,6 +103,9 @@ struct LocalHost : RemoteHost{
     virtual void connectShm(const CRBModule &crbModule) override;
     virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs) override;
 };
+
+
+
 class HostManager
 {
 public:
@@ -183,13 +189,10 @@ private:
     std::function<void(void)> m_onConnectVrbCallBack;
     std::atomic_bool m_terminateVrb{false};
     const ControllerProxyConn *m_proxyConnection = nullptr;
-    int m_proxyConnPort = 0;
-    std::condition_variable m_waitForProxyPort;
-    mutable std::condition_variable m_waitLaunchPermission;
-    std::mutex m_proxyMutex;
-    mutable std::mutex m_launchPermissionMutex;
-    bool m_launchPermission;
-    void createProxyConnIfNecessary();
+    SyncVar<int> m_proxyConnPort;
+    SyncVar<bool> m_proxyRequired;
+    mutable SyncVar<bool> m_launchPermission;
+    void createProxyConn();
     void handleVrb();
     bool handleVrbMessage();
 

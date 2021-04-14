@@ -8,6 +8,7 @@ USING(BOOST)
 
 SET(VRBSERVER_SOURCES
   VrbClientList.cpp
+  VrbConnectionMap.cpp
   VrbFileBrowserHandler.cpp
   VrbMessageHandler.cpp
   VrbProxie.cpp
@@ -17,6 +18,7 @@ SET(VRBSERVER_SOURCES
 
 SET(VRBSERVER_HEADERS
   VrbClientList.h
+  VrbConnectionMap.h
   VrbFileBrowserHandler.h
   VrbMessageHandler.h
   VrbProxie.h

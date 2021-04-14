@@ -41,7 +41,7 @@ SubProcess::SubProcess(SubProcess &&other)
 
 SubProcess::~SubProcess()
 {
-    if (m_isProxy)//in this case closing the socket is not enough to teminate the process
+    if (host.proxyHost())//in this case closing the socket is not enough to teminate the process
     {
         Message msg{COVISE_MESSAGE_QUIT};
         msg.send_type = processId;
@@ -182,7 +182,7 @@ void waitForProxyMsg(std::unique_ptr<Message> &msg, const Connection &conn)
 bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> sendConnMessage)
 {
     constexpr int timeout = 0; // do not timeout
-    if (&host == &host.hostManager.getLocalHost() || !host.hostManager.proxyConn())
+    if (&host == &host.hostManager.getLocalHost() || !host.proxyHost())
     {
         auto conn = setupServerConnection(processId, CONTROLLER, timeout, [&sendConnMessage, this](const ServerConnection &c) {
             m_conn = &c;
@@ -198,7 +198,6 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
     }
     else //create proxy conn via vrb
     {
-        m_isProxy = true;
         auto controllerConn = host.hostManager.proxyConn();
         PROXY_CreateSubProcessProxie p{processId, type, timeout};
         sendCoviseMessage(p, *controllerConn);

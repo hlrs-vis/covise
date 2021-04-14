@@ -9,12 +9,13 @@
 
 #ifndef VRB_MESAGE_HANDLER_H
 #define VRB_MESAGE_HANDLER_H
-#include "VrbSessionList.h"
-#include <net/message.h>
-#include <net/covise_connect.h>
-#include <util/coExport.h>
 #include "VrbClientList.h"
+#include "VrbConnectionMap.h"
 #include "VrbProxie.h"
+#include "VrbSessionList.h"
+#include <net/covise_connect.h>
+#include <net/message.h>
+#include <util/coExport.h>
 
 #include <set>
 #include <map>
@@ -90,6 +91,7 @@ private:
 	std::set<int> m_sessionsToSet;
 	std::vector<ConnectionDetails::ptr> m_unregisteredClients;
 	std::map<int, std::unique_ptr<CoviseProxy>> m_proxies;
+	ConnectionMap m_connectionStates;
 	void removeUnregisteredClient(const covise::Connection *conn);
 	VRBSClient* createNewClient(covise::TokenBuffer& tb, covise::Message* msg);
 	//participants: clients in a session

@@ -5,6 +5,11 @@ Recent changes
 This document only covers changes that are important for using Covise and OpenCOVER. This includes changes on the UI, the config and requirements.
 For technical changes please have a look at the git commits.
 
+14.04.2021 Added new config entry: System.VRB.CheckConnectionTimeout
+-------------------------------------------------------------------
+This specifies the time in seconds that COVISE waits for a direct connection to a new partner.
+If the direct connection times out a proxy connections is established via VRB.
+
 13.04.2021 COVISE-proxy integrated in VRB
 -----------------------------------------
 If the IP-address of the COVISE-host is not routable partners will be added by routing all traffic through the VRB

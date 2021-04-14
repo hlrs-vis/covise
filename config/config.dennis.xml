@@ -52,7 +52,8 @@
 	
    <VRB>
     <Server value="localhost" tcpPort="31251" udpPort="49999" />
-	<RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
+	  <RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
+    <CheckConnectionTimeout value ="5"/>
    </VRB>
 
    <CRB>

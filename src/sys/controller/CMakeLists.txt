@@ -48,6 +48,7 @@ SET(CONTROLLER_HEADERS
   proxyConnection.h
   renderModule.h
   subProcess.h
+  syncVar.h
   userinterface.h
   util.h
 )

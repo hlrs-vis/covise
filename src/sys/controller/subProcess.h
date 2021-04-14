@@ -86,7 +86,6 @@ private:
     const Type m_type; //type use to safely upcast
     const std::string m_executableName;
     static size_t processCount; //global number of SubProcesses
-    bool m_isProxy = false;
 
 };
 } // namespace controller

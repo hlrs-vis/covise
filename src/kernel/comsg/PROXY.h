@@ -17,7 +17,7 @@ namespace covise{
 
 enum class PROXY_TYPE
 {
-    CreateControllerProxy, CreateSubProcessProxie, ProxyCreated, ProxyConnected, CreateCrbProxy, CrbProxyCreated
+    CreateControllerProxy, CreateSubProcessProxie, ProxyCreated, ProxyConnected, CreateCrbProxy, CrbProxyCreated, ConnectionTest, ConnectionState
 
 };
 DECL_MESSAGE_WITH_SUB_CLASSES(PROXY, PROXY_TYPE, COMSGEXPORT)
@@ -26,6 +26,9 @@ DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateSubProcessProxie, COMSGEXPORT, s
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyCreated, COMSGEXPORT, int, port)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyConnected, COMSGEXPORT, bool, success)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateCrbProxy, COMSGEXPORT, size_t, toProcID, size_t, fromProcID, int, timeout)
+DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionTest, COMSGEXPORT, int, fromClientID, int, toClientID, int, port, int, timeout)
+DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionState, COMSGEXPORT, int, fromClientID, int, toClientID, bool, proxyRequired)
+
 
 
 

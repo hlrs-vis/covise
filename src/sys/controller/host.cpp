@@ -379,9 +379,10 @@ RemoteHost::RemoteHost(const HostManager &manager, vrb::RemoteClient &&base)
 {
 }
 
-bool RemoteHost::handlePartnerAction(covise::LaunchStyle action)
+bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequired)
 {
     m_state = action;
+    m_isProxy = proxyRequired;
     switch (action)
     {
     case covise::LaunchStyle::Partner:
@@ -470,6 +471,11 @@ bool RemoteHost::removePartner()
     return true;
 }
 
+bool RemoteHost::proxyHost() const
+{
+    return m_isProxy;
+}
+
 void RemoteHost::clearProcesses()
 {
     while (m_processes.size() > 0)
@@ -510,7 +516,7 @@ void HostManager::sendPartnerList()
 
 std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg)
 {
-    createProxyConnIfNecessary();
+
     std::vector<bool> retval;
     for (auto clID : msg.clients)
     {
@@ -518,7 +524,27 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
         if (hostIt != m_hosts.end())
         {
             hostIt->second->setTimeout(msg.timeout);
-            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle));
+
+            int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
+            Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostIt->second->userInfo().hostName + ", this can take up to " + std::to_string(timeout) + " seconds."};
+            sendAll<Userinterface>(infoMsg);
+            auto testConn = setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
+                PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
+                return sendCoviseMessage(test, *m_vrb);
+            });
+            auto proxyRequired = m_proxyRequired.waitForValue();
+            if (proxyRequired)
+            {
+                infoMsg = Message{COVISE_MESSAGE_WARNING, "Connection to " + hostIt->second->userInfo().hostName + " timed out, creating proxy via VRB."};
+                createProxyConn();
+            }
+            else
+            {
+                infoMsg = Message{COVISE_MESSAGE_WARNING, "Connection to " + hostIt->second->userInfo().hostName + " successful."};
+            }
+            sendAll<Userinterface>(infoMsg);
+
+            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired));
         }
     }
     return retval;
@@ -737,9 +763,7 @@ const ControllerProxyConn *HostManager::proxyConn() const
 
 bool HostManager::launchOfCrbPermitted() const
 {
-    std::unique_lock<std::mutex> lk(m_launchPermissionMutex);
-    m_waitLaunchPermission.wait(lk);
-    return m_launchPermission;
+    return m_launchPermission.waitForValue();
 }
 
 std::unique_ptr<Message> HostManager::hasProxyMessage()
@@ -747,26 +771,23 @@ std::unique_ptr<Message> HostManager::hasProxyMessage()
     return m_proxyConnection ? m_proxyConnection->getCachedMsg() : nullptr;
 }
 
-void HostManager::createProxyConnIfNecessary()
+void HostManager::createProxyConn()
 {
-    if (!Host{}.hasRoutableAddress() && !m_proxyConnection)
+    if (!m_proxyConnection)
     {
         //request listening conn on server
         PROXY_CreateControllerProxy p{m_vrb->ID()};
         sendCoviseMessage(p, *m_vrb);
-        std::unique_lock<std::mutex> lk(m_proxyMutex);
-        m_waitForProxyPort.wait(lk, [this]() { return m_proxyConnPort; });
         //connect
+        auto proxyConnPort = m_proxyConnPort.waitForValue();
         Host h{m_vrb->getCredentials().ipAddress.c_str()};
-        auto conn = createConnectedConn<ControllerProxyConn>(&h, m_proxyConnPort, 1000, (int)CONTROLLER);
+        auto conn = createConnectedConn<ControllerProxyConn>(&h, proxyConnPort, 1000, (int)CONTROLLER);
         if (!conn)
         {
             std::cerr << "failed to create proxy connection via VRB" << std::endl;
         }
 
         m_proxyConnection = dynamic_cast<const ControllerProxyConn *>(CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn)));
-
-        lk.unlock();
     }
 }
 
@@ -826,22 +847,23 @@ bool HostManager::handleVrbMessage()
     case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
     {
         covise::VRB_PERMIT_LAUNCH permission{msg};
-        {
-            std::lock_guard<std::mutex> g{m_launchPermissionMutex};
-            m_launchPermission = permission.permit;
-        }
-        m_waitLaunchPermission.notify_one();
+        m_launchPermission.setValue(permission.permit);
     }
     break;
     case COVISE_MESSAGE_PROXY:
     {
         PROXY proxyMsg{msg};
-        assert(proxyMsg.type == PROXY_TYPE::ProxyCreated);
+        switch (proxyMsg.type)
         {
-            std::lock_guard<std::mutex> lk{m_proxyMutex};
-            m_proxyConnPort = proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port;
+        case PROXY_TYPE::ProxyCreated:
+            m_proxyConnPort.setValue(proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port);
+            break;
+        case PROXY_TYPE::ConnectionState:
+            m_proxyRequired.setValue(proxyMsg.unpackOrCast<PROXY_ConnectionState>().proxyRequired);
+            break;
+        default:
+            break;
         }
-        m_waitForProxyPort.notify_one();
     }
     break;
     case COVISE_MESSAGE_VRB_QUIT:
