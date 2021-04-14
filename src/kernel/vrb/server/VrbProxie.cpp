@@ -87,7 +87,7 @@ bool CrbProxyConn::tryPassMessage(const Message &msg) const
   return false;
 }
 
-CrbProxyConn:: ~CrbProxyConn()
+CrbProxyConn::~CrbProxyConn()
 {
   if (m_connList)
   {
@@ -190,10 +190,12 @@ void CoviseProxy::handleMessage(Message &msg)
       }
       return;
     }
-    //std::cerr << "bradcasting msg " << covise_msg_types_array[msg.type] << " from controller to all processes" << std::endl;
-    msg.sender = m_controllerCon->get_sender_id();
-    for (const auto &proxy : m_proxies)
-      proxy.second->sendMessage(&msg);
+    if (msg.sender = m_controllerCon->get_sender_id())
+    {
+      //std::cerr << "bradcasting msg " << covise_msg_types_array[msg.type] << " from controller to all processes" << std::endl;
+      for (const auto &proxy : m_proxies)
+        proxy.second->sendMessage(&msg);
+    }
   }
   else
   {
