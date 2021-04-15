@@ -317,8 +317,6 @@ public:
     ControllerConnection(Host *h, int p, int id, int st)
         : ClientConnection(h, p, id, st){};
     // contact controller on port p at host h
-    ~ControllerConnection() // close connection
-        {};
 };
 
 #ifdef MULTICAST
