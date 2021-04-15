@@ -20,6 +20,7 @@ class QAction;
 
 #if defined(USE_WEBENGINE)
 class QWebEngineView;
+class QWebEnginePage;
 #elif defined(USE_WEBKIT)
 class QWebView;
 #elif defined(DUSE_TEXTBROWSER)
@@ -36,22 +37,20 @@ public:
     MEHelpViewer();
     ~MEHelpViewer();
 
-    static MEHelpViewer *instance();
-
     void init();
 
 private:
     void makeMenu();
 #if defined(USE_WEBENGINE)
-    QWebEngineView *m_browser;
+    QWebEngineView *m_browser = nullptr;
 #elif defined(USE_WEBKIT)
-    QWebView *m_browser;
+    QWebView *m_browser = nullptr;
 #elif defined(DUSE_TEXTBROWSER)
-    METextBrowser *m_browser;
+    METextBrowser *m_browser = nullptr;
 #else
-    QWidget *m_browser;
+    QWidget *m_browser = nullptr;
 #endif
-    QAction *m_backwardId, *m_forwardId, *m_homeId, *m_printId;
+    QAction *m_backwardId = nullptr, *m_forwardId = nullptr, *m_homeId = nullptr, *m_printId = nullptr;
 
 public slots:
 

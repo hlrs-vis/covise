@@ -149,7 +149,6 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     , cfg_NetworkHistoryLength(10)
     , m_deleteAutosaved_a(NULL)
     , m_copyMode(NORMAL)
-    , m_helpExist(false)
     , m_masterUI(true)
     , force(false)
     , m_loadedMapWasModified(false)
@@ -357,8 +356,8 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     mapEditor->setWindowTitle(generateTitle(""));
     mapEditor->setWindowFilePath("");
     MEModulePanel::instance()->setWindowTitle(generateTitle("Module Parameters"));
-    if (m_helpExist)
-        MEHelpViewer::instance()->setWindowTitle(generateTitle("Help Viewer"));
+    if (m_helpViewer)
+        m_helpViewer->setWindowTitle(generateTitle("Help Viewer"));
     MEGraphicsView::instance()->viewAll();
 }
 
@@ -372,6 +371,7 @@ MEMainHandler::~MEMainHandler()
 //!
 {
     delete messageHandler;
+    delete m_helpViewer;
 }
 
 //!
@@ -725,9 +725,9 @@ void MEMainHandler::checkHelp()
         QFile file(tmp);
         if (file.exists())
         {
-            m_helpExist = true;
             m_helpFromWeb = false;
-            MEHelpViewer::instance()->init();
+            m_helpViewer = new MEHelpViewer;
+            m_helpViewer->init();
             return;
         }
     }
@@ -738,8 +738,8 @@ void MEMainHandler::checkHelp()
     if (QUrl(onlineDir).isValid())
     {
         m_helpFromWeb = true;
-        m_helpExist = true;
-        MEHelpViewer::instance()->init();
+        m_helpViewer = new MEHelpViewer;
+        m_helpViewer->init();
     }
     else
         mapEditor->printMessage("Online help also not found on webserver");
@@ -763,15 +763,15 @@ void MEMainHandler::mapeditor() { onlineCB("/usersguide/mapeditor/index.html"); 
 void MEMainHandler::onlineCB(const QString &html)
 {
     // try again
-    if (!m_helpExist)
+    if (!m_helpViewer)
         checkHelp();
 
-    if (MEHelpViewer::instance() && !m_helpFromWeb)
+    if (m_helpViewer && !m_helpFromWeb)
     {
         QDir d(onlineDir);
         if (d.exists())
         {
-            MEHelpViewer::instance()->newSource(onlineDir + html);
+            m_helpViewer->newSource(onlineDir + html);
         }
     }
 
@@ -779,7 +779,7 @@ void MEMainHandler::onlineCB(const QString &html)
     {
         if (QUrl(onlineDir + html).isValid())
         {
-            MEHelpViewer::instance()->newSource(onlineDir + html);
+            m_helpViewer->newSource(onlineDir + html);
         }
     }
 }
@@ -1491,7 +1491,7 @@ void MEMainHandler::showModuleHelp(const QString &category, const QString &modul
     if (MEMainHandler::instance()->isThereAWebHelp())
     {
         if (QUrl(moduleHelpFile).isValid())
-            MEHelpViewer::instance()->newSource(moduleHelpFile);
+            m_helpViewer->newSource(moduleHelpFile);
 
         else
             QMessageBox::warning(0, "Help Error", "No help available for module");
@@ -1501,7 +1501,7 @@ void MEMainHandler::showModuleHelp(const QString &category, const QString &modul
     {
         QDir d(moduleHelpFile);
         if (d.exists(moduleHelpFile))
-            MEHelpViewer::instance()->newSource(moduleHelpFile);
+            m_helpViewer->newSource(moduleHelpFile);
 
         else
             QMessageBox::warning(0, "Help Error", "No help available for module");

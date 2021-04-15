@@ -114,7 +114,7 @@ public:
     };
     bool isThereAnyHelp()
     {
-        return m_helpExist;
+        return m_helpViewer != nullptr;
     };
     bool isThereAWebHelp()
     {
@@ -234,13 +234,16 @@ public slots:
     void execTriggered();
 
 private:
+    MEHelpViewer *m_helpViewer = nullptr;
     static MEMainHandler *singleton;
     static MEUserInterface *mapEditor;
     static MEMessageHandler *messageHandler;
 
+
+
     copyModes m_copyMode;
 
-    bool m_helpFromWeb, m_helpExist;
+    bool m_helpFromWeb;
     bool m_masterUI, force, m_loadedMapWasModified, m_autoSave;
     bool m_waitForClose;
     bool m_executeOnChange, m_inMapLoading;
