@@ -17,6 +17,7 @@
 #include <vrb/RemoteClient.h>
 #include <vrb/client/VRBClient.h>
 #include <comsg/coviseLaunchOptions.h>
+#include <comsg/PROXY.h>
 
 #include "config.h"
 #include "subProcess.h"
@@ -190,7 +191,7 @@ private:
     std::atomic_bool m_terminateVrb{false};
     const ControllerProxyConn *m_proxyConnection = nullptr;
     SyncVar<int> m_proxyConnPort;
-    SyncVar<bool> m_proxyRequired;
+    SyncVar<covise::ConnectionCapability> m_proxyRequired;
     mutable SyncVar<bool> m_launchPermission;
     void createProxyConn();
     void handleVrb();

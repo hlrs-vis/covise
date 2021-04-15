@@ -743,23 +743,27 @@ void VrbMessageHandler::handleProxy(const covise::PROXY &msg)
 		}
 	}
 	break;
+	case PROXY_TYPE::ConnectionCheck:
+	{
+		auto &p = msg.unpackOrCast<PROXY_ConnectionCheck>();
+		auto fromCl = clients.get(p.fromClientID);
+		auto toCl = clients.get(p.toClientID);
+		covise::ConnectionCapability cap;
+		if (fromCl && toCl)
+		{
+			assert(fromCl->userInfo().userType == Program::VrbRemoteLauncher);
+			cap = m_connectionStates.check(fromCl->userInfo(), toCl->userInfo());
+		}
+		PROXY_ConnectionState capMsg{p.fromClientID, p.toClientID, cap};
+		sendCoviseMessage(capMsg, *toCl);
+	}
+	break;
 	case PROXY_TYPE::ConnectionTest:
 	{
 		auto &p = msg.unpackOrCast<PROXY_ConnectionTest>();
 		auto fromCl = clients.get(p.fromClientID);
-		auto toCl = clients.get(p.toClientID);
-		if (fromCl && toCl)
-		{
-			assert(fromCl->userInfo().userType == Program::VrbRemoteLauncher);
-			auto state = m_connectionStates.check(fromCl->userInfo(), toCl->userInfo());
-			if (state == ConnectionState::NotChecked)
-			{
-				sendCoviseMessage(p, *fromCl);
-				break;
-			}
-			PROXY_ConnectionState stateMsg{p.fromClientID, p.toClientID, state == ConnectionState::ProxyRequired};
-			sendCoviseMessage(stateMsg, *toCl);
-		}
+		if(fromCl)
+			sendCoviseMessage(p, *fromCl);
 	}
 	break;
 	case PROXY_TYPE::ConnectionState:
@@ -769,8 +773,7 @@ void VrbMessageHandler::handleProxy(const covise::PROXY &msg)
 		auto toCl = clients.get(p.toClientID);
 		if (fromCl && toCl)
 		{
-			auto s = p.proxyRequired ? ConnectionState::ProxyRequired : ConnectionState::DirectConnectionPossible;
-			m_connectionStates.addConn(ConnectionState {fromCl->userInfo(), toCl->userInfo(), s});
+			m_connectionStates.addConn(ConnectionState{fromCl->userInfo(), toCl->userInfo(), p.capability});
 			sendCoviseMessage(p, *toCl);
 		}
 	}

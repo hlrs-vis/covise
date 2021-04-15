@@ -22,6 +22,7 @@ namespace covise
   IMPL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyConnected, bool, success)
   IMPL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateCrbProxy, size_t, toProcID, size_t, fromProcID, int, timeout)
   IMPL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionTest, int, fromClientID, int, toClientID, int, port, int, timeout)
-  IMPL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionState, int, fromClientID, int, toClientID, bool, proxyRequired)
+  IMPL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionState, int, fromClientID, int, toClientID, ConnectionCapability, capability)
+  IMPL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionCheck, int, fromClientID, int, toClientID)
 
 } // covise

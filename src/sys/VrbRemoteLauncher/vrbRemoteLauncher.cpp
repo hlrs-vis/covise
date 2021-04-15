@@ -173,9 +173,9 @@ bool VrbRemoteLauncher::handleVRB()
             if (toPartner != m_clientList.end())
             {
                 Host testHost{toPartner->userInfo().ipAdress.c_str()};
-                ClientConnection testConn{&testHost, proxyTest.port, 0, 0, 5, static_cast<double>(proxyTest.timeout)};
+                ClientConnection testConn{&testHost, proxyTest.port, 0, 0, 2, static_cast<double>(proxyTest.timeout)};
 
-                PROXY_ConnectionState stateMsg{proxyTest.fromClientID, proxyTest.toClientID, !testConn.is_connected()};
+                PROXY_ConnectionState stateMsg{proxyTest.fromClientID, proxyTest.toClientID, testConn.is_connected() ? ConnectionCapability::DirectConnectionPossible : ConnectionCapability::ProxyRequired };
                 sendCoviseMessage(stateMsg, *m_client);
             }
         }

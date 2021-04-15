@@ -9,19 +9,13 @@
 
 #include <vector>
 #include <vrb/UserInfo.h>
-
+#include <comsg/PROXY.h>
 namespace vrb{
 
 struct ConnectionState{
   const UserInfo from, to;
-  enum State
-  {
-    NotChecked,
-    DirectConnectionPossible,
-    ProxyRequired
-  } const state;
-  ConnectionState(const UserInfo &from, const UserInfo &to, State s);
-
+  const covise::ConnectionCapability state;
+  ConnectionState(const UserInfo &from, const UserInfo &to, covise::ConnectionCapability s);
 };
 
 bool operator==(const ConnectionState &a, const ConnectionState &b);
@@ -30,7 +24,7 @@ struct ConnectionMap
 {
 
   void addConn(const ConnectionState &conn);
-  ConnectionState::State check(const UserInfo &from, const UserInfo &to) const;
+  covise::ConnectionCapability check(const UserInfo &from, const UserInfo &to) const;
 private:
   std::vector<ConnectionState> m_conns;
 };

@@ -525,26 +525,37 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
         {
             hostIt->second->setTimeout(msg.timeout);
 
-            int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
-            Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostIt->second->userInfo().hostName + ", this can take up to " + std::to_string(timeout) + " seconds."};
-            sendAll<Userinterface>(infoMsg);
-            auto testConn = setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
-                PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
-                return sendCoviseMessage(test, *m_vrb);
-            });
-            auto proxyRequired = m_proxyRequired.waitForValue();
-            if (proxyRequired)
+            PROXY_ConnectionCheck check{clID, m_vrb->ID()};
+            sendCoviseMessage(check, *m_vrb);
+            auto conCap = m_proxyRequired.waitForValue();
+            if (conCap == ConnectionCapability::NotChecked)
             {
-                infoMsg = Message{COVISE_MESSAGE_WARNING, "Connection to " + hostIt->second->userInfo().hostName + " timed out, creating proxy via VRB."};
+                int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
+                Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostIt->second->userInfo().hostName + ", timeout is " + std::to_string(timeout) + " seconds."};
+                sendAll<Userinterface>(infoMsg);
+                setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
+                    PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
+                    return sendCoviseMessage(test, *m_vrb);
+                });
+                conCap = m_proxyRequired.waitForValue();
+            }
+            assert(conCap != ConnectionCapability::NotChecked);
+            std::string msgStr;
+            if (conCap == ConnectionCapability::ProxyRequired)
+            {
                 createProxyConn();
+                msgStr = "Connection to " + hostIt->second->userInfo().hostName + " timed out, creating proxy via VRB.";
             }
             else
             {
-                infoMsg = Message{COVISE_MESSAGE_WARNING, "Connection to " + hostIt->second->userInfo().hostName + " successful."};
+                msgStr = "Connection to " + hostIt->second->userInfo().hostName + " successful.";
             }
-            sendAll<Userinterface>(infoMsg);
+            
+            
+            Message m{COVISE_MESSAGE_WARNING, msgStr};
+            sendAll<Userinterface>(m);
 
-            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired));
+            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, conCap == ConnectionCapability::ProxyRequired));
         }
     }
     return retval;
@@ -859,8 +870,10 @@ bool HostManager::handleVrbMessage()
             m_proxyConnPort.setValue(proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port);
             break;
         case PROXY_TYPE::ConnectionState:
-            m_proxyRequired.setValue(proxyMsg.unpackOrCast<PROXY_ConnectionState>().proxyRequired);
-            break;
+        {
+            m_proxyRequired.setValue(proxyMsg.unpackOrCast<PROXY_ConnectionState>().capability);
+        }
+        break;
         default:
             break;
         }

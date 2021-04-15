@@ -9,21 +9,23 @@
 #include <cassert>
 #include <algorithm>
 using namespace vrb;
+using namespace covise;
 
-ConnectionState::ConnectionState(const UserInfo &from, const UserInfo &to, State s)
+
+ConnectionState::ConnectionState(const UserInfo &from, const UserInfo &to, ConnectionCapability s)
     : from(from), to(to), state(s)
 {
 }
 
 void ConnectionMap::addConn(const ConnectionState& c)
 {
-  assert(c.state != ConnectionState::State::NotChecked);
-  assert(check(c.from, c.to) == ConnectionState::State::NotChecked);
+  assert(c.state != covise::ConnectionCapability::NotChecked);
+  assert(check(c.from, c.to) == covise::ConnectionCapability::NotChecked);
 
   m_conns.emplace_back(c);
 }
 
-ConnectionState::State ConnectionMap::check(const UserInfo &from, const UserInfo &to) const
+covise::ConnectionCapability ConnectionMap::check(const UserInfo &from, const UserInfo &to) const
 {
   auto c = std::find_if(m_conns.begin(), m_conns.end(), [&from, &to](const ConnectionState &s) {
     return s.from.ipAdress == from.ipAdress && s.to.ipAdress == to.ipAdress &&
@@ -34,5 +36,5 @@ ConnectionState::State ConnectionMap::check(const UserInfo &from, const UserInfo
   {
     return c->state;
   }
-  return ConnectionState::State::NotChecked;
+  return covise::ConnectionCapability::NotChecked;
 }
