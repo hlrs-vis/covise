@@ -19,28 +19,29 @@
 
 #define COMMA ,
 namespace covise{
-enum class NEW_UI_TYPE
-{
-    HandlePartners,
-    RequestAvailablePartners,
-    AvailablePartners,
-    RequestNewHost
+    enum class NEW_UI_TYPE
+    {
+        HandlePartners,
+        RequestAvailablePartners,
+        AvailablePartners,
+        RequestNewHost,
+        AvailableModules,
+        PartnerInfo
+    };
+    DECL_MESSAGE_WITH_SUB_CLASSES(NEW_UI, NEW_UI_TYPE, COMSGEXPORT)
 
-};
-DECL_MESSAGE_WITH_SUB_CLASSES(NEW_UI, NEW_UI_TYPE, COMSGEXPORT)
+    DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, HandlePartners, COMSGEXPORT,
+                           LaunchStyle, launchStyle,
+                           int, timeout,
+                           std::vector<int>, clients)
 
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, HandlePartners, COMSGEXPORT,
-    LaunchStyle, launchStyle,
-    int, timeout,
-    std::vector<int>, clients)
+    DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestAvailablePartners, COMSGEXPORT, std::string, dummy)
 
-
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestAvailablePartners, COMSGEXPORT, std::string, dummy)
-
-struct ClientInfo{
-    int id;
-    std::string hostName;
-    LaunchStyle style;
+    struct ClientInfo
+    {
+        int id;
+        std::string hostName;
+        LaunchStyle style;
 };
 
 TokenBuffer &operator<<(TokenBuffer &tb, const ClientInfo &cl);
@@ -49,6 +50,8 @@ TokenBuffer &operator>>(TokenBuffer &tb, ClientInfo &cl);
 typedef std::vector<ClientInfo> ClientList; 
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, ClientList, clients)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, char *, hostName, char *, userName, vrb::VrbCredentials, vrbCredentials)
+DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailableModules, COMSGEXPORT, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
+DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, COMSGEXPORT, int, clientId, std::string, ipAddress, std::string, userName, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 
 }//covise
 

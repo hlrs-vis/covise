@@ -475,7 +475,7 @@ void covise::WSMessageHandler::receiveUIMessage(Message *msg)
     else if (list[0] == "MAXIMIZE")
     { // Not needed
     }
-    else if (list[0] == "LIST")
+    else if (list[0] == "LIST") //moved to NEW_UI_PartnerInfo
     {
         QStringList::iterator listIterator = list.begin();
         QString host = *(++listIterator);
@@ -1018,7 +1018,7 @@ void covise::WSMessageHandler::receiveUIMessage(Message *msg)
     //
     // remove a host
     //
-    else if (list[0] == "RMV_LIST")
+    else if (list[0] == "RMV_LIST") //moved to NEW_UI_HANDLE_PARTNERS
     {
         WSMainHandler::instance()->removeHost(list[1]);
     }

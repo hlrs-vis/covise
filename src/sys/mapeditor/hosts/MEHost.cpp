@@ -46,19 +46,14 @@ MEHostTreeItem::~MEHostTreeItem()
    \brief This class handles the hosts for a Covise session
 */
 
-MEHost::MEHost(QString name, QString user)
-    : gui(false)
-    , hostid(-1)
-    , numNo(-1)
-    , daemon(NULL)
-    , username(user)
-    , ipname(name)
+MEHost::MEHost(int clientId,const std::string &name, const std::string & user)
+    : clientId(clientId)
+    , username(user.c_str())
+    , ipname(name.c_str())
 {
 
 // get the real hostname for ip address  (visrl.rrz.uni-koeln.de)
-#ifndef YAC
-    hostname = QString::fromStdString(covise::Host::lookupHostname(name.toLatin1().data()));
-#endif
+    hostname = QString::fromStdString(covise::Host::lookupHostname(name.c_str()));
     shortname = hostname.section('.', 0, 0);
 
     // make name for lists
@@ -69,30 +64,6 @@ MEHost::MEHost(QString name, QString user)
     init();
 }
 
-MEHost::MEHost(int hnum, QString name, int nnodes, QString user)
-    : gui(false)
-    , hostid(hnum)
-    , numNo(nnodes)
-    , daemon(NULL)
-    , hostname(name)
-    , username(user)
-{
-
-    // get only first part of hostname
-    shortname = hostname.section('.', 0, 0);
-
-    // make name for lists
-    text = username + "@";
-    if (numNo > 1)
-    {
-        text.append("[");
-        text.append(QString::number(numNo));
-        text.append("]");
-    }
-    text.append(shortname);
-
-    init();
-}
 
 MEHost::~MEHost()
 {
@@ -161,23 +132,15 @@ void MEHost::init()
 //!
 //!  add categories and modulenames coming from controller
 //!
-void MEHost::addHostItems(const QStringList &token)
+void MEHost::addHostItems(const std::vector<std::string> &modules, const std::vector<std::string> &categories)
 {
-    int it = 3;
-    int no_of_mod = token[it].toInt();
-    it++;
-
-    for (int i = 0; i < 2 * no_of_mod; i = i + 2)
+    assert(modules.size() == categories.size());
+    for (size_t i = 0; i < modules.size(); i++)
     {
-        QString mname = token[it];
-        it++;
-        QString cname = token[it];
-        it++;
-
-        if (cname != "SRenderer")
+        if (categories[i] != "SRenderer")
         {
-            MECategory *cptr = getCategory(cname);
-            cptr->addModuleName(mname);
+            MECategory *cptr = getCategory(categories[i].c_str());
+            cptr->addModuleName(modules[i].c_str());
         }
     }
 }
@@ -196,24 +159,6 @@ void MEHost::setGUI(bool state)
     modroot->setIcon(0, m_icon);
 }
 
-#ifdef YAC
-//!
-//!  add categories and modulename coming from controller
-//!
-void MEHost::addHostItems(covise::coRecvBuffer &tb)
-{
-    int k;
-    const char *modname, *catname;
-
-    tb >> k;
-    for (int i = 0; i < 2 * k; i = i + 2)
-    {
-        tb >> modname >> catname;
-        MECategory *cptr = getCategory(catname);
-        cptr->addModuleName(modname);
-    }
-}
-#endif
 
 //!
 //!  get the category pointer for a certain name on a host

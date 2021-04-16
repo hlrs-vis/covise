@@ -153,13 +153,11 @@ void Userinterface::updateUI()
     std::sort(crbs.begin(), crbs.end(), [](const CRBModule *crb1, const CRBModule *crb2) {
         return crb1->processId < crb2->processId;
     });
-    for (const CRBModule *remoteCrb : crbs)
+    for (const CRBModule *crb : crbs)
     {
-        if (remoteCrb->host.state() != LaunchStyle::Disconnect)
+        if (crb->host.state() != LaunchStyle::Disconnect)
         {
-            Message ui_msg{remoteCrb->initMessage};
-            ui_msg.type = COVISE_MESSAGE_UI;
-            send(&ui_msg);
+            send(&crb->initMessage);
         }
     }
 }

@@ -979,22 +979,9 @@ void MEModuleTree::execMemcheckCB()
 //!
 void MEModuleTree::removeHostCB()
 {
-    /*if(m_mainHandler->m_mirrorMode >=2)
-   {
-      m_mainHandler->printMessage("You can't delete hosts when you are mirroring pipelines.\n Stop mirroring before");
-      return;
-   }*/
-
-    // get pressed host item (hostname, username)
     QStringList list = m_clickedItem->text(0).split("@");
-
-    // build message
-    QStringList text;
-    QString hostname = MEHostListHandler::instance()->getIPAddress(list[1]);
-    text << "RMV_HOST" << hostname << list[0] << "NONE";
-    QString tmp = text.join("\n");
-
-    MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
+    covise::NEW_UI_HandlePartners pMsg{covise::LaunchStyle::Disconnect, 0, std::vector<int>{MEHostListHandler::instance()->getClientId(list[1])}};
+    covise::sendCoviseMessage(pMsg, *MEMessageHandler::instance());
 }
 
 OperationWaiter::OperationWaiter()

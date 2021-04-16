@@ -487,14 +487,6 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
     }
 
     //
-    else if (list[0] == "LIST")
-    //
-    {
-        // create a new host and set categories and modules
-        MEMainHandler::instance()->initHost(list);
-    }
-
-    //
     else if (list[0] == "COLLABORATIVE_STATE")
     //
     {
@@ -1104,6 +1096,7 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
         {
             QString text = "THIS MESSAGE IS NOT SUPPORTED >>> " + list[0] + "   !!!!!!";
             MEUserInterface::instance()->printMessage(text);
+            std::cerr << "msg.type = " << covise::covise_msg_types_array[msg->type] << std::endl;
         }
     }
 
@@ -1111,17 +1104,18 @@ void MEMessageHandler::receiveUIMessage(Message *msg)
 }
 
 void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
+    using namespace covise;
     switch (msg.type)
     {
-    case covise::NEW_UI_TYPE::AvailablePartners:
+    case NEW_UI_TYPE::AvailablePartners:
     {
-        auto &subMsg = msg.unpackOrCast<covise::NEW_UI_AvailablePartners>();
+        auto &subMsg = msg.unpackOrCast<NEW_UI_AvailablePartners>();
         MEMainHandler::instance()->updateRemotePartners(subMsg.clients);
     }
     break;
-    case covise::NEW_UI_TYPE::RequestNewHost:
+    case NEW_UI_TYPE::RequestNewHost:
     {
-        auto &subMsg = msg.unpackOrCast<covise::NEW_UI_RequestNewHost>();
+        auto &subMsg = msg.unpackOrCast<NEW_UI_RequestNewHost>();
         QString text = "Please start VrbRemoteLauncher on host " + QString{subMsg.hostName} +
                        " as user " + QString(subMsg.userName) +
                        "\nand connect to the VRB server running on " + QString(subMsg.vrbCredentials.ipAddress.c_str()) +
@@ -1130,6 +1124,26 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
         MEUserInterface::instance()->printMessage(text);
         
     }
+    break;
+    case NEW_UI_TYPE::PartnerInfo:
+    {
+        auto &p = msg.unpackOrCast<NEW_UI_PartnerInfo>();
+        MEMainHandler::instance()->initHost(p.clientId, p.ipAddress, p.userName, p.modules, p.categories);
+    }
+    break;
+    case NEW_UI_TYPE::HandlePartners:
+    {
+        auto &subMsg = msg.unpackOrCast<NEW_UI_HandlePartners>();
+        if (subMsg.launchStyle == LaunchStyle::Disconnect)
+        {
+            for(int clientId : subMsg.clients)
+            {
+                MEHost *host = MEHostListHandler::instance()->getHost(clientId);
+                MEMainHandler::instance()->removeHost(host);
+            }
+        }
+    }
+    break;
     default:
         break;
     }

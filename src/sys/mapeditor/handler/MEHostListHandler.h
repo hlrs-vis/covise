@@ -42,6 +42,7 @@ public:
     void clearList();
 
     QString getIPAddress(const QString &shortname);
+    int getClientId(const QString &shortname);
     QString getDNSHostname(const QString &shortname);
     QStringList getList();
     QStringList getList2();

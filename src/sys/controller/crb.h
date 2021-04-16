@@ -10,7 +10,7 @@
 
 #include <net/message_types.h>
 #include "subProcess.h"
-
+#include <comsg/NEW_UI.h>
 namespace covise
 {
 namespace controller
@@ -27,10 +27,9 @@ public:
     bool init();
 
 private:
-    bool checkCoviseVersion(const Message &versionMessage, const std::string &hostname);
+    bool checkCoviseVersion(const std::string &version, const std::string &hostname);
     void sendMaster(const Message &msg);
     bool tryReceiveMessage(Message &msg);
-    void prepareInitMessageForUIs();
     void queryDataPath();
     bool connectToCrb(const SubProcess &crb) override;
 };

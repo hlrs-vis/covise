@@ -336,22 +336,19 @@ void moduleList::startRenderer(char *name, char *category)
     datamgr->send_ctl_msg(&retmsg);
 }
 
-char *moduleList::get_list_message()
+std::pair<std::vector<std::string>, std::vector<std::string>> moduleList::getModuleList()
 {
-    CharBuffer buf(num() * 20);
-    buf += "LIST\n";
-    buf += num();
-    buf += '\n';
+    std::pair<std::vector<std::string>, std::vector<std::string>> modsAndCats;
+    modsAndCats.first.reserve(num());
+    modsAndCats.second.reserve(num());
     reset();
     while (current())
     {
-        buf += current()->get_name();
-        buf += '\n';
-        buf += current()->get_category();
-        buf += '\n';
+        modsAndCats.first.emplace_back(current()->get_name());
+        modsAndCats.second.emplace_back(current()->get_category());
         next();
     }
-    return (buf.return_data());
+    return modsAndCats;
 }
 
 bool moduleList::start(const CRB_EXEC& exec)

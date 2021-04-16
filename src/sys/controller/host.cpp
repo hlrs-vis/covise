@@ -129,9 +129,8 @@ bool RemoteHost::startCrb()
             return false;
         }
         determineAvailableModules(*crbModule);
-        Message msg = crbModule->initMessage;
-        msg.type = COVISE_MESSAGE_UI;
-        hostManager.sendAll<Userinterface>(msg);
+        std::cerr << "sending init message with type " << covise_msg_types_array[crbModule->initMessage.type] << std::endl;
+        hostManager.sendAll<Userinterface>(crbModule->initMessage);
         connectShm(*crbModule);
 
         return true;
@@ -151,18 +150,11 @@ void RemoteHost::connectShm(const CRBModule &crbModule)
 
 void RemoteHost::determineAvailableModules(const CRBModule &crb)
 {
-    // get number of new modules from message
-    //LIST      0
-    //HOST      1
-    //USER      2
-    //NUMBER    3
-    auto list = splitStringAndRemoveComments(crb.initMessage.data.data(), "\n");
-    int mod_count = std::stoi(list[3]);
-    int iel = 4;
-    for (int i = 0; i < mod_count; i++)
+    NEW_UI msg{crb.initMessage};
+    auto &pMsg = msg.unpackOrCast<NEW_UI_PartnerInfo>();
+    for (size_t i = 0; i < pMsg.modules.size(); i++)
     {
-        m_availableModules.emplace_back(&hostManager.registerModuleInfo(list[iel], list[iel + 1]));
-        iel = iel + 2;
+        m_availableModules.emplace_back(&hostManager.registerModuleInfo(pMsg.modules[i], pMsg.categories[i]));
     }
 }
 
@@ -437,20 +429,8 @@ bool RemoteHost::removePartner()
         }
         // remove mapeditor
         std::stringstream modInfo;
-        if (crb.initMessage.data.data())
-        {
-            modInfo << "RMV_LIST\n"
-                    << userInfo().ipAdress << "\n"
-                    << userInfo().userName << "\n"
-                    << crb.initMessage.data.data() + 5 << "\n";
-            Message msg2{COVISE_MESSAGE_UI, modInfo.str()};
-            hostManager.sendAll<Userinterface>(msg2);
-        }
-        else
-        {
-            std::cerr << std::endl
-                      << "ERROR: rmv_host() initMessage  ==  NULL !!!" << std::endl;
-        }
+        NEW_UI_HandlePartners pMsg{LaunchStyle::Disconnect, 0, std::vector<int>{ID()}};
+        hostManager.sendAll<Userinterface>(pMsg.createMessage());
         clearProcesses();
         // notify the other CRBs
         msg = Message{COVISE_MESSAGE_CRB_QUIT, userInfo().ipAdress};

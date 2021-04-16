@@ -8,11 +8,12 @@
 #include <covise/covise.h>
 #include <appl/CoviseBase.h>
 
-#include <util/unixcompat.h>
-#include <util/coFileUtil.h>
-#include <net/covise_host.h>
 #include <comsg/CRB_EXEC.h>
+#include <comsg/NEW_UI.h>
+#include <net/covise_host.h>
+#include <util/coFileUtil.h>
 #include <util/coSpawnProgram.h>
+#include <util/unixcompat.h>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -116,16 +117,11 @@ int main(int argc, char* argv[])
        datamgr->send_ctl_msg(msg);
        delete msg;
    */
+    auto modules = mod.getModuleList();
+    std::string shortVersion = CoviseVersion::shortVersion();
+    NEW_UI_AvailableModules modulesMsg{shortVersion, modules.first, modules.second};
 
-    char* list_content = mod.get_list_message();
-    const char* version = CoviseVersion::shortVersion();
-
-    char* list_body = new char[strlen(list_content) + strlen(version) + 5];
-    sprintf(list_body, "%s@%s", list_content, version);
-    delete[] list_content;
-
-    Message msg{ COVISE_MESSAGE_INIT, DataHandle{list_body, strlen(list_body) + 1 } };
-
+    auto msg = modulesMsg.createMessage();
     datamgr->send_ctl_msg(&msg);
     char* d = datamgr->get_list_of_interfaces();//  datamgr allocated data without delete
     msg.data = DataHandle{ d, strlen(d) + 1 };

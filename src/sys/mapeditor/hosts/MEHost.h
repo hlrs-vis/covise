@@ -48,11 +48,9 @@ class MEHost
 {
 
 public:
-    MEHost();
-    MEHost(int hostno, QString hostname, int noOfNodes, QString user);
-    MEHost(QString name, QString user);
+    MEHost(int clientId, const std::string &name, const std::string & user);
     ~MEHost();
-
+    const int clientId;
     QVector<MECategory *> catList; // list of categories
     QVector<MEHost *> mirrorList; // list of hosts for mirroring
 
@@ -60,21 +58,16 @@ public:
     {
         return gui;
     };
-    int getID()
-    {
-        return hostid;
-    };
     int getNumNo()
     {
         return numNo;
     };
-    void addHostItems(const QStringList &);
+    void addHostItems(const std::vector<std::string> &modules, const std::vector<std::string> &categories);
     void setGUI(bool state);
     void setDaemon(MEDaemon *d)
     {
         daemon = d;
     };
-    void addHostItems(covise::coRecvBuffer &);
     void setIcon(int mode);
     QPixmap getIcon()
     {
@@ -140,14 +133,13 @@ public:
 
 private:
     static int numHosts; // no. of hosts
-    bool gui; // host has an user interface
-    int hostid;
-    int numNo; // no. of parallel nodes, normally 1
+    bool gui = false; // host has an user interface
+    int numNo = -1; // no. of parallel nodes, normally 1
 
     void init();
 
     MEDataTreeItem *dataroot;
-    MEDaemon *daemon; // daemon of host
+    MEDaemon *daemon = nullptr; // daemon of host
 
     QAction *m_hostAction, *m_copyMoveAction;
     QMenu *m_categoryMenu;

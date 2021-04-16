@@ -178,7 +178,7 @@ public:
     };
     void updateHistoryFiles(const QString &);
     void storeMapName(const QString &mapname);
-    void initHost(const QStringList &);
+    void initHost(int clientId, const std::string&ip, const std::string&userName, const std::vector<std::string> &modules, std::vector<std::string> categories);
     void finishNode(const QStringList &);
     void setDescriptionOfNode(const QStringList &);
     void showClipboardNodes(const QStringList &);

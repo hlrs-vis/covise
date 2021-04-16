@@ -8,7 +8,8 @@
 #include <covise/covise.h>
 #include <util/DLinkList.h>
 #include <string>
-
+#include <vector>
+#include <utility>
 namespace covise{
 struct CRB_EXEC;
 } // namespace covise
@@ -54,7 +55,7 @@ public:
     // Find an alias for a given module
     void startRenderer(char *name, char *category);
 
-    char *get_list_message(); // You have to delete the returned pointer
+    std::pair<std::vector<std::string>, std::vector<std::string>>  getModuleList(); //list of modulenames and categories
 private:
     // search for Modules in Covise_dir/bin/subdir
     void search_dir(char *path, char *subdir);

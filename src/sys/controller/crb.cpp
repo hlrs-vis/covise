@@ -34,11 +34,17 @@ CRBModule::~CRBModule()
 
 bool CRBModule::init()
 {
-    tryReceiveMessage(initMessage);
-    if (!initMessage.data.data())
+    Message msg;
+    tryReceiveMessage(msg);
+    if (!msg.data.data())
         return false;
-    checkCoviseVersion(initMessage, getHost());
-    prepareInitMessageForUIs();
+
+    NEW_UI uiMsg{msg};
+    auto &moduleMsg = uiMsg.unpackOrCast<NEW_UI_AvailableModules>();
+    
+    checkCoviseVersion(moduleMsg.coviseVersion, getHost());
+    initMessage = NEW_UI_PartnerInfo{host.ID(), getHost(), host.userInfo().userName, moduleMsg.coviseVersion, moduleMsg.modules, moduleMsg.categories}.createMessage();
+
     tryReceiveMessage(interfaceMessage);
     queryDataPath();
 
@@ -52,22 +58,16 @@ bool CRBModule::init()
     return true;
 }
 
-bool CRBModule::checkCoviseVersion(const Message &versionMessage, const std::string &hostname)
+bool CRBModule::checkCoviseVersion(const std::string &partnerVersion, const std::string &hostname)
 {
-    if (!versionMessage.data.data())
-        return false;
-
     // check if we have information about partner version
     string main_version = CoviseVersion::shortVersion();
-    string version_info = strchr(versionMessage.data.data(), '@');
-    version_info.erase(0, 1);
-    if (!version_info.empty())
+    if (!partnerVersion.empty())
     {
-        string partner_version = version_info;
-        if (main_version != partner_version)
+        if (main_version != partnerVersion)
         {
             string text = "Controller WARNING : main covise version = " + main_version + " and the partner version = ";
-            text = text + partner_version + " from host " + hostname + " are different !!!";
+            text = text + partnerVersion + " from host " + hostname + " are different !!!";
             sendMaster(Message{COVISE_MESSAGE_WARNING, text});
             return false;
         }
@@ -95,32 +95,22 @@ void CRBModule::sendMaster(const Message &msg)
 
 bool CRBModule::tryReceiveMessage(Message &msg)
 {
-    std::unique_ptr<Message> m(&msg);
     recv_msg(&msg);
     switch (msg.type)
     {
     case COVISE_MESSAGE_EMPTY:
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_SOCKET_CLOSED:
+    {
+        std::unique_ptr<Message> m(&msg);
         CTRLHandler::instance()->handleClosedMsg(m);
         m.release();
-        return false;
+    }
+    return false;
     default:
         break;
     }
-    m.release();
     return true;
-}
-
-void CRBModule::prepareInitMessageForUIs()
-{
-    // patch Message to include hostname & user !!
-    string module_info;
-    module_info.append(initMessage.data.data());
-    module_info.insert(5, getHost() + "\n" + host.userInfo().userName + "\n");
-    DataHandle txt{module_info.length() + 1};
-    strcpy(txt.accessData(), module_info.c_str());
-    initMessage.data = txt;
 }
 
 void CRBModule::queryDataPath()

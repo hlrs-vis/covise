@@ -33,6 +33,7 @@
 #include <net/covise_host.h>
 #include <covise/covise_appproc.h>
 #include <util/covise_version.h>
+#include <comsg/NEW_UI.h>
 
 #include "MEFavoriteListHandler.h"
 #include "MEFileBrowser.h"
@@ -370,6 +371,7 @@ MEMainHandler *MEMainHandler::instance()
 MEMainHandler::~MEMainHandler()
 //!
 {
+    std::cerr << "~MEMainHandler()" << std::endl;
     delete messageHandler;
     delete m_helpViewer;
 }
@@ -1085,17 +1087,17 @@ void MEMainHandler::changeExecButton(bool state)
 //!
 void MEMainHandler::closeApplication(QCloseEvent *ce)
 {
-
     // slave UI wants to quit session
-    // send a RMV_HOST message to controller
     if (!m_masterUI)
     {
         if (canQuitSession())
         {
-            QStringList text;
-            text << "RMV_HOST" << localHost << localUser << "NONE";
-            QString tmp = text.join("\n");
-            messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
+            auto lHost = MEHostListHandler::instance()->getHost(localHost, localUser);
+            if (lHost)
+            {
+                covise::NEW_UI_HandlePartners pMsg{covise::LaunchStyle::Disconnect, 0, std::vector<int>{lHost->clientId}};
+                covise::sendCoviseMessage(pMsg, *messageHandler);
+            }
         }
 
         ce->ignore();
@@ -1404,10 +1406,10 @@ void MEMainHandler::settingXML()
 //!
 //! add a new host (called from covise)
 //!
-void MEMainHandler::initHost(const QStringList &list)
+void MEMainHandler::initHost(int clientId, const std::string& ip, const std::string&userName, const std::vector<std::string> &modules, std::vector<std::string> categories)
 {
-    MEHost *host = new MEHost(list[1], list[2]);
-    host->addHostItems(list);
+    MEHost *host = new MEHost(clientId, ip, userName);
+    host->addHostItems(modules, categories);
 
     addNewHost(host);
 }
