@@ -20,7 +20,7 @@ struct RemoteHost;
 class CRBModule : public SubProcess{
 public:
     static const SubProcess::Type moduleType = SubProcess::Type::Crb;
-    CRBModule(const RemoteHost &host, bool proxy);
+    CRBModule(const RemoteHost &host);
     virtual ~CRBModule();
     Message initMessage, interfaceMessage;
     std::string covisePath;

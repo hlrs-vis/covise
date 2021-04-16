@@ -108,8 +108,7 @@ bool RemoteHost::startCrb()
 {
     try
     {
-        auto shmMode = CTRLHandler::instance()->Config.getshmMode(userInfo().hostName);
-        auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this, shmMode == ShmMode::Proxie});
+        auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this});
         auto crbModule = m->get()->as<CRBModule>();
 
         if (!crbModule->setupConn([this, &crbModule](int port, const std::string &ip) {
