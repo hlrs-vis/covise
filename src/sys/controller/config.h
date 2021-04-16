@@ -59,22 +59,22 @@ private:
         controller::ExecType exectype = controller::ExecType::VRB;
         int timeout = DEFAULT_TIMEOUT;
     };
-    typedef std::map<std::string, HostInfo> HostMap;
+    typedef std::map<int, HostInfo> HostMap;
     HostMap hostMap;
 
-    HostMap::iterator getOrCreateHostInfo(const std::string &);
+    HostMap::iterator getOrCreateHostInfo(int clientId);
     void addhostinfo(const HostMap::iterator &host, ShmMode s_mode, ExecType e_mode, int t);
     void addhostinfo_from_config(const HostMap::iterator &host);
 
 public:
 
-    ShmMode getshmMode(const std::string &hostName);
-    controller::ExecType getexectype(const std::string &hostName);
-	int gettimeout(const std::string &hostName);
-    ShmMode set_shminfo(const std::string &n, const char *shm_mode);
-    int set_timeout(const std::string &n, const char *t);
-    ExecType set_exectype(const std::string &n, const char *e);
-    char *set_display(const std::string &n, const char *e);
+    ShmMode getshmMode(int clientId);
+    controller::ExecType getexectype(int clientId);
+	int gettimeout(int clientId);
+    ShmMode set_shminfo(int clientId, const char *shm_mode);
+    int set_timeout(int clientId, const char *t);
+    ExecType set_exectype(int clientId, const char *e);
+    char *set_display(int clientId, const char *e);
 
 };
 } //namespace controller 

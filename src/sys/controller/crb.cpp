@@ -25,7 +25,7 @@ CRBModule::CRBModule(const RemoteHost &host)
 
 CRBModule::~CRBModule()
 {
-    if (CTRLHandler::instance()->Config.getshmMode(getHost()) != ShmMode::NoShm)
+    if (CTRLHandler::instance()->Config.getshmMode(host.ID()) != ShmMode::NoShm)
     {
         Message msg{COVISE_MESSAGE_QUIT, ""};
         send(&msg);

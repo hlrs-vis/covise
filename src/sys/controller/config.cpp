@@ -26,7 +26,6 @@
 using namespace covise;
 using namespace covise::controller;
 
-
 //----------------------------------------------------------------------------
 void ControlConfig::addhostinfo(const HostMap::iterator &host, ShmMode s_mode, ExecType e_mode, int t)
 //----------------------------------------------------------------------------
@@ -36,27 +35,22 @@ void ControlConfig::addhostinfo(const HostMap::iterator &host, ShmMode s_mode, E
     host->second.timeout = t;
 }
 
-
-
-ControlConfig::HostMap::iterator ControlConfig::getOrCreateHostInfo(const std::string &name)
+ControlConfig::HostMap::iterator ControlConfig::getOrCreateHostInfo(int clientId)
 {
-    HostMap::iterator it = hostMap.find(name);
-    if (it != hostMap.end())
+    HostMap::iterator it = hostMap.find(clientId);
+    if (it == hostMap.end())
     {
-        return it;
+        it = hostMap.insert(HostMap::value_type{clientId, HostMap::value_type::second_type{}}).first;
+        addhostinfo_from_config(it);
     }
-    it = hostMap.insert(HostMap::value_type{name, HostMap::value_type::second_type{}}).first;
-    addhostinfo_from_config(it);
-
     return it;
 }
 
-
 //----------------------------------------------------------------------------
-ShmMode ControlConfig::set_shminfo(const std::string &n, const char *shm_info)
+ShmMode ControlConfig::set_shminfo(int clientId, const char *shm_info)
 //----------------------------------------------------------------------------
 {
-    HostMap::iterator it = getOrCreateHostInfo(n);
+    HostMap::iterator it = getOrCreateHostInfo(clientId);
 
     int s_info;
     int retval = sscanf(shm_info, "%d", &s_info);
@@ -71,10 +65,10 @@ ShmMode ControlConfig::set_shminfo(const std::string &n, const char *shm_info)
 }
 
 //----------------------------------------------------------------------------
-int ControlConfig::set_timeout(const std::string &n, const char *t)
+int ControlConfig::set_timeout(int clientId, const char *t)
 //----------------------------------------------------------------------------
 {
-    HostMap::iterator it = getOrCreateHostInfo(n);
+    HostMap::iterator it = getOrCreateHostInfo(clientId);
 
     int ti = DEFAULT_TIMEOUT;
     int retval = sscanf(t, "%d", &ti);
@@ -89,10 +83,10 @@ int ControlConfig::set_timeout(const std::string &n, const char *t)
 }
 
 //----------------------------------------------------------------------------
-controller::ExecType ControlConfig::set_exectype(const std::string &n, const char *exec_mode)
+controller::ExecType ControlConfig::set_exectype(int clientId, const char *exec_mode)
 //----------------------------------------------------------------------------
 {
-    HostMap::iterator it = getOrCreateHostInfo(n);
+    HostMap::iterator it = getOrCreateHostInfo(clientId);
 
     int e_mode = static_cast<int>(ExecType::VRB);
     int retval = sscanf(exec_mode, "%d", &e_mode);
@@ -106,24 +100,24 @@ controller::ExecType ControlConfig::set_exectype(const std::string &n, const cha
 }
 
 //----------------------------------------------------------------------------
-controller::ExecType ControlConfig::getexectype(const std::string &n)
+controller::ExecType ControlConfig::getexectype(int clientId)
 //----------------------------------------------------------------------------
 {
-	return getOrCreateHostInfo(n)->second.exectype;
+    return getOrCreateHostInfo(clientId)->second.exectype;
 }
 
 //----------------------------------------------------------------------------
-int ControlConfig::gettimeout(const std::string &n)
+int ControlConfig::gettimeout(int clientId)
 //----------------------------------------------------------------------------
 {
-	return getOrCreateHostInfo(n)->second.timeout;
+    return getOrCreateHostInfo(clientId)->second.timeout;
 }
 
 //----------------------------------------------------------------------------
-ShmMode ControlConfig::getshmMode(const std::string &hostName)
+ShmMode ControlConfig::getshmMode(int clientId)
 //----------------------------------------------------------------------------
 {
-    return getOrCreateHostInfo(hostName)->second.shmMode;
+    return getOrCreateHostInfo(clientId)->second.shmMode;
 }
 
 void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
@@ -135,7 +129,6 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
     host->second.timeout = host->second.timeout == 0 ? DEFAULT_TIMEOUT : host->second.timeout;
     std ::string shm_mode = coCoviseConfig::getEntry("memory", key, "shm");
     std ::string exec_mode = coCoviseConfig::getEntry("method", key, "vrb");
-
 
     if (strcasecmp(shm_mode.c_str(), "shm") == 0 || strcasecmp(shm_mode.c_str(), "sysv") == 0)
     {
@@ -159,7 +152,7 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
     }
     else
     {
-        print_error(__LINE__, __FILE__, "Wrong memory mode %s for %s, should be shm, mmap, or none (covise.config)! Using default shm", shm_mode.c_str(), host->first.c_str());
+        print_error(__LINE__, __FILE__, "Wrong memory mode %s for %d, should be shm, mmap, or none (covise.config)! Using default shm", shm_mode.c_str(), host->first);
         fflush(stderr);
     }
     if (strcasecmp(exec_mode.c_str(), "rexec") == 0 ||
@@ -189,7 +182,7 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
     }
     else
     {
-        print_error(__LINE__, __FILE__, "Wrong exec mode %s for %s, should be vrb, manual or script (covise.config)! Using default vrb", shm_mode.c_str(), host->first.c_str());
+        print_error(__LINE__, __FILE__, "Wrong exec mode %s for %d, should be vrb, manual or script (covise.config)! Using default vrb", shm_mode.c_str(), host->first);
         fflush(stderr);
     }
 }

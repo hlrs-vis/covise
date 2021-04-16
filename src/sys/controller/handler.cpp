@@ -220,7 +220,7 @@ void CTRLHandler::loop()
         std::unique_ptr<Message> msg;
         if (!m_quitNow)
         {
-            if(auto pmsg = m_hostManager.hasProxyMessage())
+            if (auto pmsg = m_hostManager.hasProxyMessage())
                 msg = std::move(pmsg);
             else
             {
@@ -1973,16 +1973,24 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         string hostAddress = list[iel++];
         if (!hostAddress.empty())
         {
-            ExecType exectype = Config.getexectype(hostAddress);
-            int timeout = Config.gettimeout(hostAddress);
-            ostringstream buffer;
-            buffer << "HOSTINFO\n"
-                   << static_cast<int>(exectype) << "\n"
-                   << timeout << "\n"
-                   << hostAddress;
+            try
+            {
+                int id = m_hostManager.findHost(hostAddress).ID();
+                ExecType exectype = Config.getexectype(id);
+                int timeout = Config.gettimeout(id);
+                ostringstream buffer;
+                buffer << "HOSTINFO\n"
+                       << static_cast<int>(exectype) << "\n"
+                       << timeout << "\n"
+                       << hostAddress;
 
-            Message tmpmsg{COVISE_MESSAGE_UI, buffer.str()};
-            m_hostManager.getMasterUi().send(&tmpmsg);
+                Message tmpmsg{COVISE_MESSAGE_UI, buffer.str()};
+                m_hostManager.getMasterUi().send(&tmpmsg);
+            }
+            catch (const Exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
         }
 
         else
@@ -2693,7 +2701,7 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     for (int i = 0; i < numHosts; i++)
     {
         string &hostAddress = list[iel++];
-        string & username = list[iel++];
+        string &username = list[iel++];
         if (hostAddress == "LOCAL")
             hostAddress = localIp;
 
@@ -2743,8 +2751,8 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     //  start module if exist and tell it to the uifs
     for (int ll = 0; ll < numModules; ll++)
     {
-        const string & name = list[iel++];
-        const string & oldInstance = list[iel++];
+        const string &name = list[iel++];
+        const string &oldInstance = list[iel++];
         string host = list[iel++];
         if (host == "LOCAL")
             host = localIp;
@@ -2789,12 +2797,12 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
         int numParameters = std::stoi(list[iel++]);
         for (int l1 = 0; l1 < numParameters; l1++)
         {
-            const string & paramname = list[iel++];
-            const string & type = list[iel++];
+            const string &paramname = list[iel++];
+            const string &type = list[iel++];
             iel++; //  unused description
-            const string & value = list[iel++];
+            const string &value = list[iel++];
             iel++; //  unused IMM
-            const string & apptype = list[iel++];
+            const string &apptype = list[iel++];
             if (modExist)
                 sendNewParam(name, newInstance, host, paramname, type, value, apptype, host, mode == NETWORKMAP);
         }
@@ -2829,7 +2837,7 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     int numConnections = std::stoi(list[iel++]);
     for (int ll = 0; ll < numConnections; ll++)
     {
-        const string & fname = list[iel++];
+        const string &fname = list[iel++];
         string &fnr = list[iel++];
         for (int k = 0; k < numModules; k++)
         {
@@ -2846,7 +2854,7 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
         iel++; // unused data name
 
         const string &tname = list[iel++];
-        string & tnr = list[iel++];
+        string &tnr = list[iel++];
         for (int k = 0; k < numModules; k++)
         {
             if (mnames[k] == tname && oldInstances[k] == tnr)
