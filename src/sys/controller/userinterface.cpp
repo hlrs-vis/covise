@@ -148,7 +148,12 @@ void Userinterface::changeMaster(const RemoteHost &master)
 
 void Userinterface::updateUI()
 {
-    for (const CRBModule *remoteCrb : host.hostManager.getAllModules<CRBModule>())
+    auto crbs = host.hostManager.getAllModules<CRBModule>();
+    //host are sorted by vrb client id, to get a consistant order we have to sort them for their process id (order of creating them)
+    std::sort(crbs.begin(), crbs.end(), [](const CRBModule *crb1, const CRBModule *crb2) {
+        return crb1->processId < crb2->processId;
+    });
+    for (const CRBModule *remoteCrb : crbs)
     {
         if (remoteCrb->host.state() != LaunchStyle::Disconnect)
         {
