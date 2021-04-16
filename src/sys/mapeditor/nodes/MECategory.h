@@ -20,10 +20,10 @@ class MECategory
 {
 
 public:
-    MECategory();
+    MECategory() = default;
     MECategory(const QString &category);
     MECategory(const QString &category, const QString &modulename);
-    ~MECategory();
+    ~MECategory() = default;
 
     QStringList moduleList;
 

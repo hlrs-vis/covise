@@ -25,7 +25,7 @@ MECategory::MECategory(const QString &category)
     m_categoryAction->setMenu(m_modulePopup);
     QVariant var;
     var.setValue(this);
-    m_categoryAction->setData(var);
+    //m_categoryAction->setData(var);
     QObject::connect(m_categoryAction, SIGNAL(hovered()), MEGraphicsView::instance(), SLOT(hoveredCategoryCB()));
     qRegisterMetaType<MECategory *>("MECategory");
 }
@@ -44,9 +44,6 @@ MECategory::MECategory(const QString &category, const QString &modulename)
     m_categoryAction->setData(var);
     QObject::connect(m_categoryAction, SIGNAL(hovered()), MEGraphicsView::instance(), SLOT(hoveredCategoryCB()));
 }
-
-MECategory::MECategory() {}
-MECategory::~MECategory() {}
 
 void MECategory::addModuleName(const QString &name)
 {
