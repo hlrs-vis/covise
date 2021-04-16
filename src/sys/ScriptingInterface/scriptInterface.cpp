@@ -61,7 +61,7 @@ run_xuif(int argc, char **argv)
     int nn;
     struct passwd *pwd;
     // check connection parameter
-    if ((argc < 7) || (argc > 8))
+    if ((argc < 11) || (argc > 12))
     {
         fprintf(stderr, "COVISE python interface with inappropriate arguments called  %d\n", argc);
         print_exit(__LINE__, __FILE__, 0);

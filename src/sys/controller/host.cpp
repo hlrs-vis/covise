@@ -157,23 +157,23 @@ void RemoteHost::determineAvailableModules(const CRBModule &crb)
     }
 }
 
-bool RemoteHost::startUI(const UIOptions &options)
+bool RemoteHost::startUI(const UIOptions& options)
 {
     cerr << "* Starting user interface....                                                 *" << endl;
     std::unique_ptr<Userinterface> ui;
-    switch (options.type)
-    {
-    case UIOptions::python:
+    if (options.usePython)
     {
 
 #ifdef _WIN32
-        const char *PythonInterfaceExecutable = "..\\..\\Python\\scriptInterface.bat ";
+        const char* PythonInterfaceExecutable = "..\\..\\Python\\scriptInterface.bat ";
 #else
-        const char *PythonInterfaceExecutable = "scriptInterface ";
+        const char* PythonInterfaceExecutable = "scriptInterface ";
 #endif
-        ui.reset(new PythonInterface{*this, PythonInterfaceExecutable + options.pyFile});
+            ui.reset(new PythonInterface{ *this, PythonInterfaceExecutable + options.pyFile }); 
+            startUI(std::move(ui), options);
     }
-    break;
+    switch (options.type)
+    {
     case UIOptions::gui:
     {
         ui.reset(new MapEditor{*this});

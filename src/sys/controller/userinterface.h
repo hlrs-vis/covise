@@ -21,10 +21,10 @@ struct UIOptions{
     enum Type
     {
         gui,
-        python,
         miniGui,
         nogui
     }type = gui;
+    bool usePython = false;
     std::string pyFile;
     bool iconify = false;
     bool maximize = false;

@@ -685,7 +685,7 @@ void CTRLHandler::handleClosedMsg(const std::unique_ptr<Message> &msg)
 void CTRLHandler::parseCommandLine(int argc, char **argv)
 {
     po::options_description desc("usage");
-    desc.add_options()("help,h", "show this message")("iconify,i", "iconify map editor")("maximize,m", "maximize map editor")("quit,q", "quit after execution")("execute,e", "execute on loading")("user,u", po::value<std::string>(&m_options.localUserName), "scan local user")("timer,t", "activate timer")("X11,x", "start X11 user interface")("script", po::value<std::string>(&m_options.uiOptions.pyFile), "start script mode, executing Python script script.py")("CrbScript,s", po::value<std::string>(&m_options.crbLaunchScript), "Starts script with the manual message \"crb ...\" as parameter for every connection")("short,v", "print short version")("version", "print long version")("nogui", "don't start the userinterface when loading and executing a network")("gui", "start userinterface, even in scripting mode (specify as last argument)")("minigui", "start a minimal userinterface when loading and executing a network");
+    desc.add_options()("help,h", "show this message")("iconify,i", "iconify map editor")("maximize,m", "maximize map editor")("quit,q", "quit after execution")("execute,e", "execute on loading")("user,u", po::value<std::string>(&m_options.localUserName), "scan local user")("timer,t", "activate timer")("script", po::value<std::string>(&m_options.uiOptions.pyFile)->implicit_value(""), "start script mode, executing Python script script.py")("CrbScript,s", po::value<std::string>(&m_options.crbLaunchScript), "Starts script with the manual message \"crb ...\" as parameter for every connection")("short,v", "print short version")("version", "print long version")("nogui", "don't start the userinterface when loading and executing a network")("gui", "start userinterface, even in scripting mode (specify as last argument)")("minigui", "start a minimal userinterface when loading and executing a network");
 
     po::options_description hidden("");
     hidden.add_options()("mapFile", "covise map(.net) or python(.py) file to load");
@@ -741,9 +741,9 @@ void CTRLHandler::parseCommandLine(int argc, char **argv)
     {
         m_options.uiOptions.maximize = true;
     }
-    if (vm.count("script") || vm.count("X11"))
+    if (vm.count("script"))
     {
-        m_options.uiOptions.type = UIOptions::python;
+        m_options.uiOptions.usePython = true;
     }
     if (vm.count("nogui"))
     {
@@ -769,7 +769,7 @@ void CTRLHandler::parseCommandLine(int argc, char **argv)
         }
         else if (file.substr(file.find_last_of('.')) == ".py")
         {
-            m_options.uiOptions.type = UIOptions::python;
+            m_options.uiOptions.usePython = true;
             m_options.uiOptions.pyFile = file;
         }
         else

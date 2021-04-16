@@ -33,6 +33,11 @@ argc = len(sys.argv)
 #print(argv[4])
 #print(argv[5])
 #print(argv[6])
+#print(argv[7])
+#print(argv[8])
+print(argv[9])
+print(argv[10])
+print(argv[11])
 #
 # remove first arg of the userinterface script
 # it is the filename to be executed (if 8 args are given)
@@ -40,11 +45,14 @@ argc = len(sys.argv)
 execFileFlag=-1
 execFile=""
 
-if (argc == 8):
-    argc = argc-1
-    execFile =argv[1]
-    argv.remove(execFile) 
-    if ( len(execFile)>0 ): execFileFlag=1
+#if (argc == 12):
+#    argc = argc-1
+#    execFile =argv[1]
+#    argv.remove(execFile) 
+#    if ( len(execFile)>0 ): execFileFlag=1
+argv.pop(11) 
+argv.append("0")
+#    argc = argc+1
 
 #
 # run the init function
