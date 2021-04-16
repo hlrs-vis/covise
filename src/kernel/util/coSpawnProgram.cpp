@@ -271,7 +271,7 @@ void covise::spawnProgramWithMemCheck(const char* execPath, const std::string& d
     {
 
         debugArgs[1] = const_cast<char*>("xterm");
-        debugArgs.erase(args.begin());
+        debugArgs.erase(debugArgs.begin());
         spawnProgram(execPath, debugArgs);
     }
 #endif //!WIN32
