@@ -79,22 +79,27 @@ void Userinterface::sendCurrentNetToUI(const std::string &filename) const
             if (param.get_type() == "Browser")
             {
                 CTRLHandler::instance()->handleBrowserPath(mod->info().name, std::to_string(mod->instance()), mod->getHost(),
-                                                           mod->getHost(), param.get_name(), value);
+                        mod->getHost(), param.get_name(), value);
             }
-            std::stringstream ss;
-            ss << "PARAM_RESTART\n"
-               << mod->createBasicModuleDescription() << param.get_name() << "\n"
-               << param.get_type() << "\n"
-               << value;
-            msg = Message{COVISE_MESSAGE_UI, ss.str()};
-            send(&msg);
-            ss = std::stringstream{};
-            ss << "ADD_PANEL\n"
-               << mod->createBasicModuleDescription() << param.get_name() << "\n"
-               << param.get_type() << "\n"
-               << param.get_addvalue();
-            msg = Message{COVISE_MESSAGE_UI, ss.str()};
-            host.hostManager.sendAll<Userinterface>(msg);
+            {
+                std::stringstream ss;
+                ss << "PARAM_RESTART\n"
+                    << mod->createBasicModuleDescription() << param.get_name() << "\n"
+                    << param.get_type() << "\n"
+                    << value;
+                msg = Message{COVISE_MESSAGE_UI, ss.str()};
+                send(&msg);
+            }
+
+            {
+                std::stringstream ss;
+                ss << "ADD_PANEL\n"
+                    << mod->createBasicModuleDescription() << param.get_name() << "\n"
+                    << param.get_type() << "\n"
+                    << param.get_addvalue();
+                msg = Message{COVISE_MESSAGE_UI, ss.str()};
+                host.hostManager.sendAll<Userinterface>(msg);
+            }
         }
     }
 
