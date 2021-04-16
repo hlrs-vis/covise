@@ -55,7 +55,7 @@ MEMessageHandler::MEMessageHandler(int argc, char **argv)
     singleton = this;
     // check modus
     m_standalone = false;
-    m_userInterface = new covise::UserInterface((char*)"AppModule", argc, argv);
+    m_userInterface = new covise::UserInterface("AppModule", argc, argv);
 
     // make socket
     int TCP_Socket = m_userInterface->get_socket_id(remove_socket);
