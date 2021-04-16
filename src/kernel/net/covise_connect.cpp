@@ -881,12 +881,9 @@ int Connection::get_peer_type() const
 
 int Connection::receive(void *buf, unsigned nbyte) const
 {
-    int retval;
     if (!sock)
         return 0;
-    retval = sock->Read(buf, nbyte);
-
-    return retval;
+    return sock->Read(buf, nbyte);
 }
 
 int Connection::send(const void *buf, unsigned nbyte) const
