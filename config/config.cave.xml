@@ -211,6 +211,7 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
+    <Variant value="on"/>
     <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
     <TrackObjects menu="on" value="off" >
@@ -549,9 +550,9 @@
    <LenkMaus value="/dev/input/mouse3"/>
    <PedalMaus value="/dev/input/mouse4"/>
    <isBike value="false"/>
-   <FlightGear value="true"/>
-   <isParaglider value="true"/>
-   <isSkateboard value="false"/>
+   <FlightGear value="false"/>
+   <isParaglider value="false"/>
+   <isSkateboard value="true"/>
    </Bicycle>
    <SteeringWheel>
 
