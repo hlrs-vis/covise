@@ -71,19 +71,19 @@ class ViewDesc: public opencover::ui::Owner
 {
 private:
     std::string name; //< name of the point
-    int id_;
-    float scale_;
+    int id_ = -1;
+    float scale_ = 1.f;
     std::string vp_line; //< viewpoint line for covise.config
-    bool flightState_; //<  point included in flight?
-    opencover::ui::Action *button_; //< button in Viepoints menu
-    opencover::ui::Action *changeButton_; //< button for change in Viepoints menu
-    opencover::ui::Button *flightButton_; // button in flight menu
-    bool hasScale_;
-    bool isViewAll_;
-    bool hasPosition_;
-    bool hasOrientation_;
-    bool hasMatrix_;
-    bool activated_; // flag if flight is finished and viewpoint is reached
+    bool flightState_ = false; //<  point included in flight?
+    opencover::ui::Action *button_ = nullptr; //< button in Viepoints menu
+    opencover::ui::Action *changeButton_ = nullptr; //< button for change in Viepoints menu
+    opencover::ui::Button *flightButton_ = nullptr; // button in flight menu
+    bool hasScale_ = false;
+    bool isViewAll_ = false;
+    bool hasPosition_ = false;
+    bool hasOrientation_ = false;
+    bool hasMatrix_ = false;
+    bool activated_ = false; // flag if flight is finished and viewpoint is reached
     bool isChangeable_ = true;
     bool isChangeableFromCover_ = false;
     osg::Matrix xformMat_;
@@ -96,24 +96,24 @@ private:
     //========================================================================================
     //========================================================================================
     //========================================================================================
-    opencover::ui::Menu *editVPMenu_; //< Edit Viewpoint- menu
+    opencover::ui::Menu *editVPMenu_ = nullptr; //< Edit Viewpoint- menu
 
-    opencover::ui::EditField *editNameInput_;
-    opencover::ui::Button *showViewpointCheck_;
-    opencover::ui::Button *showTangentCheck_;
-    opencover::ui::Button *showMoveInteractorsCheck_;
-    opencover::ui::Button *showTangentInteractorsCheck_;
-    opencover::ui::Action *updateViewButton;
+    opencover::ui::EditField *editNameInput_ = nullptr;
+    opencover::ui::Button *showViewpointCheck_ = nullptr;
+    opencover::ui::Button *showTangentCheck_ = nullptr;
+    opencover::ui::Button *showMoveInteractorsCheck_ = nullptr;
+    opencover::ui::Button *showTangentInteractorsCheck_ = nullptr;
+    opencover::ui::Action *updateViewButton = nullptr;
 
-    bool flightPathActivated;
-    bool viewpointVisible;
-    bool tangentVisible;
-    bool editViewpoint;
-    bool editTangent;
-    bool shiftFlightpathToEyePoint;
-    bool hasTangentOut_;
-    bool hasTangentIn_;
-    bool hasGeometry_;
+    bool flightPathActivated = false;
+    bool viewpointVisible = false;
+    bool tangentVisible = false;
+    bool editViewpoint = false;
+    bool editTangent = false;
+    bool shiftFlightpathToEyePoint = false;
+    bool hasTangentOut_ = false;
+    bool hasTangentIn_ = false;
+    bool hasGeometry_ = false;
 
     Vec3 eyepoint;
     Vec3 tangentIn;
@@ -154,7 +154,7 @@ private:
     ref_ptr<StateSet> viewpointPlaneBorderGeoset_state;
 
     //     coCoord coord;           //< pos + orientation
-    float stoptime; //< stoptime of flight in this viewpoint
+    float stoptime = -1.f; //< stoptime of flight in this viewpoint
 
     opencover::coVR3DTransInteractor *tanOutInteractor;
     opencover::coVR3DTransInteractor *tanInInteractor;
@@ -219,23 +219,24 @@ public:
         return name.c_str();
     }
     void setName(const char *n);
-    osg::Matrix getMatrix()
+    osg::Matrix getMatrix() const
     {
         return xformMat_;
     }
+    osg::Matrix computeMatrix() const;
     const char *getLine()
     {
         return vp_line.c_str();
     }
-    bool getFlightState()
+    bool getFlightState() const
     {
         return flightState_;
     }
-    int getId()
+    int getId() const
     {
         return id_;
     }
-    float getScale()
+    float getScale() const
     {
         return scale_;
     }
@@ -253,15 +254,15 @@ public:
     {
         return hasOrientation_;
     };
-    bool hasMatrix()
+    bool hasMatrix() const
     {
         return hasMatrix_;
     };
-    bool isViewAll()
+    bool isViewAll() const
     {
         return isViewAll_;
     };
-    bool isActivated()
+    bool isActivated() const
     {
         return activated_;
     };
@@ -269,7 +270,7 @@ public:
     {
         activated_ = b;
     };
-    bool isChangeable()
+    bool isChangeable() const
     {
         return isChangeable_;
     };

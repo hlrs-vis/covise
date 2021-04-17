@@ -6,10 +6,6 @@
  * License: LGPL 2+ */
 
 #include <cover/coVRPluginSupport.h>
-#define XK_MISCELLANY
-#if !defined(_WIN32) && !defined(__APPLE__)
-#include <X11/keysymdef.h>
-#endif
 #include "ViewPoint.h"
 #include <util/covise_regexp.h>
 #include <util/unixcompat.h>
@@ -282,9 +278,9 @@ void ViewDesc::createButtons(const char *name,
     menu->add(button_);
     button_->setCallback([this, master](){
         //fprintf(stderr,"menuItem == button_");
+        master->activateViewpoint(this);
         bool clip = master->useClipPlanesCheck_->state();
         activate(clip);
-        master->activateViewpoint(this);
     });
 
     flightButton_ = new ui::Button("Flight", this);
@@ -313,7 +309,7 @@ void ViewDesc::createButtons(const char *name,
     });
 
     showViewpointCheck_ = new ui::Button(editVPMenu_, "ShowHideViewpoint");
-    showViewpointCheck_->setText("Show/hide viewpoint");
+    showViewpointCheck_->setText("Show viewpoint");
     showViewpointCheck_->setState(viewpointVisible);
     showViewpointCheck_->setCallback([this](bool state){
         viewpointVisible = state;
@@ -330,7 +326,7 @@ void ViewDesc::createButtons(const char *name,
     });
 
     showTangentCheck_ = new ui::Button(editVPMenu_, "ShowHideTangent");
-    showTangentCheck_->setText("Show/hide tangent");
+    showTangentCheck_->setText("Show tangent");
     showTangentCheck_->setState(tangentVisible);
     showTangentCheck_->setCallback([this](bool state){
         tangentVisible = state;
@@ -868,11 +864,25 @@ bool ViewDesc::isClipPlaneEnabled(int plane)
 
 bool ViewDesc::equalVP(Matrix m)
 {
+    osg::Matrix mat = computeMatrix();
+
+    /*
+    std::cerr << "equalVP:";
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            if (((m(i, j) - xformMat_(i, j)) * (m(i, j) - xformMat_(i, j))) > 0.0005)
+            std::cerr << " " << m(i,j) << "/" << mat(i,j);
+        }
+        std::cerr << std::endl;
+    }
+    */
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (fabs(m(i, j) - mat(i, j)) > 0.01)
                 return false;
         }
     }
@@ -881,15 +891,12 @@ bool ViewDesc::equalVP(Matrix m)
 
 bool ViewDesc::nearVP(Matrix m)
 {
-    Vec3 viewpoint;
-    Vec3 destination;
-
-    viewpoint = this->xformMat_.getTrans();
-    destination = m.getTrans();
+    Vec3 viewpoint = computeMatrix().getTrans();
+    Vec3 destination = m.getTrans();
 
     float length;
     length = (viewpoint - destination).length();
-    fprintf(stderr, "LENGTH: %f \n", length);
+    //fprintf(stderr, "ViewDesc::nearVP: LENGTH: %f \n", length);
     if (length < 50.0)
         return true;
     else
@@ -1288,44 +1295,23 @@ void ViewDesc::updateGeometry()
         viewpointPlaneBorderGeoset->addPrimitiveSet(new DrawArrays(PrimitiveSet::LINES, 0, 4));
     }
 
-    Matrix rotMat;
+    Matrix mat = computeMatrix();
+
     Matrix transMat;
+    transMat.makeTranslate(-mat(3, 0) / scale_, -mat(3, 1) / scale_, -mat(3, 2) / scale_);
+    Quat quat;
+    quat = mat.getRotate();
+    double angle, x, y, z;
+    quat.getRotate(angle, x, y, z);
+    quat.makeRotate(-angle, x, y, z);
+    Matrix rotMat;
+    rotMat.makeRotate(quat);
+
     Matrix final;
-
-    if (hasMatrix_)
-    {
-        transMat.makeTranslate(-xformMat_(3, 0) / scale_, -xformMat_(3, 1) / scale_, -xformMat_(3, 2) / scale_);
-        Quat quat;
-        quat = xformMat_.getRotate();
-        double angle, x, y, z;
-        quat.getRotate(angle, x, y, z);
-        quat.makeRotate(-angle, x, y, z);
-        rotMat.makeRotate(quat);
-
-        final.makeIdentity();
-        final.postMult(transMat);
-        final.postMult(rotMat);
-        localDCS->setMatrix(final);
-    }
-    else
-    {
-        //fprintf(stderr, "ohne Matrix");
-        // rotMat.makeEuler(coord.hpr[0], coord.hpr[1], coord.hpr[2]);
-        MAKE_EULER_MAT(rotMat, coord.hpr[0], coord.hpr[1], coord.hpr[2])
-        transMat.makeTranslate(-coord.xyz[0] / scale_, -coord.xyz[1] / scale_, -coord.xyz[2] / scale_);
-        Quat quat;
-        // rotMat.getOrthoQuat(quat);
-        quat = rotMat.getRotate();
-        double angle, x, y, z;
-        quat.getRotate(angle, x, y, z);
-        quat.makeRotate(-angle, x, y, z);
-        rotMat.makeRotate(quat);
-
-        final.makeIdentity();
-        final.postMult(transMat);
-        final.postMult(rotMat);
-        localDCS->setMatrix(final);
-    }
+    final.makeIdentity();
+    final.postMult(transMat);
+    final.postMult(rotMat);
+    localDCS->setMatrix(final);
 
     Vec3 tangent = tangentIn;
     tangent = Matrix::transform3x3(final, tangent);
@@ -1654,4 +1640,14 @@ void ViewDesc::setName(const char *n)
         flightButton_->setText(name);
     if (editVPMenu_)
         editVPMenu_->setText(name);
+}
+
+Matrix ViewDesc::computeMatrix() const
+{
+    if (hasMatrix())
+        return getMatrix();
+
+    osg::Matrix mat;
+    coord.makeMat(mat);
+    return mat;
 }

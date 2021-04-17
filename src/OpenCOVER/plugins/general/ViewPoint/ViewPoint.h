@@ -17,7 +17,6 @@
 
 #include <cover/ui/Owner.h>
 
-#define MAXFILECOL 200
 
 namespace opencover {
 namespace ui {
@@ -49,33 +48,37 @@ class ViewPoints : public coVRPlugin, public ui::Owner
 public:
     // create pinboard button viewpoints and submenu
     ViewPoints();
-    virtual ~ViewPoints();
+    ~ViewPoints() override;
 
     static SharedActiveVPData *actSharedVPData;
     
-    virtual bool init() override;
-    virtual bool init2() override;
-    virtual bool update() override;
-    virtual void preFrame() override;
-    virtual void addNode(osg::Node *, const RenderObject *) override;
-    virtual void key(int type, int keySym, int mod) override;
-    virtual void guiToRenderMsg(const char *msg) override;
-    virtual void message(int toWhom, int type, int length, const void *data) override;
+    bool init() override;
+    bool init2() override;
+    bool update() override;
+    void preFrame() override;
+    void addNode(osg::Node *, const RenderObject *) override;
+    void key(int type, int keySym, int mod) override;
+    void guiToRenderMsg(const char *msg) override;
+    void message(int toWhom, int type, int length, const void *data) override;
     virtual ui::Action *getMenuButton(const std::string &buttonName);
 
     void readFromDom();
     void saveAllViewPoints();
 
-    ViewDesc *activeVP;
+    ViewDesc *activeVP = nullptr;
     coCoord curr_coord;
     osg::Matrix currentMat_;
     float curr_scale;
     double initTime;
-    bool flyingStatus;
+    double pauseTime = -1.;
+    bool moveToFlightTime = false;
+    bool flyingStatus = false;
+    bool runFlight = false;
     bool flyingMode;
     int flight_index;
     float flightTime;
     int vp_index;
+    bool vp_index_changed = false;
     bool isQuickNavEnabled;
 
     void saveViewPoint(const char *suggestedName = NULL);
@@ -87,7 +90,7 @@ public:
 
     // fly around all items marked in flight list
     void completeFlight(bool state);
-    void pauseFlight(bool state);
+    void playOrPauseFlight(bool state);
     void loadViewpoint(int id);
     void loadViewpoint(const char *name);
     void loadViewpoint(ViewDesc *viewDesc);
@@ -97,6 +100,8 @@ public:
 
     void nextViewpoint();
     void previousViewpoint();
+
+    int numEnabledViewpoints() const;
 
     void enableHUD();
     void disableHUD();
@@ -120,29 +125,15 @@ public:
     ui::Menu *editVPMenu_ = nullptr;
     ui::Button *showFlightpathCheck_ = nullptr;
     ui::Button *showCameraCheck_ = nullptr;
-    ui::Button *showViewpointsCheck_ = nullptr;
-    ui::Button *showInteractorsCheck_ = nullptr;
 
     ui::Button *shiftFlightpathCheck_ = nullptr;
-    ui::Action *vpSaveButton_ = nullptr;
-    ui::Action *vpReloadButton_ = nullptr;
-
-    ui::Action *setCatmullRomButton_ = nullptr;
-    ui::Action *setStraightButton_ = nullptr;
-    ui::Action *setEqualTangentsButton_ = nullptr;
-    ui::Action *alignXButton_ = nullptr;
-    ui::Action *alignYButton_ = nullptr;
-    ui::Action *alignZButton_ = nullptr;
-
-    ui::Menu *alignMenu_ = nullptr;
 
     FlightPathVisualizer *flightPathVisualizer;
     Interpolator *vpInterpolator;
-    //   	FlightManager *flightmanager;
-    
-    static ViewPoints *instance(){return inst;};
+
+    static ViewPoints *instance(){return inst;}
     bool dataChanged = false;
-    bool isClipPlaneChecked();;
+    bool isClipPlaneChecked();
 
 private:
     Vec3 eyepoint;
@@ -166,24 +157,20 @@ private:
     ui::Menu *flightMenu_; //< menu for Flight
     ui::Action *saveButton_;
     ui::Button *flyingModeCheck_;
-    ui::Menu *runMenu_; //< menu for Flight
     ui::Button *runButton;
-    ui::Button *pauseButton;
-    ui::Slider *speedSlider;
     ui::Slider *animPositionSlider;
-    ui::Action *startStopRecButton_;
     ui::Button *useClipPlanesCheck_;
     ui::Button *turnTableAnimationCheck_;
-    ui::Action *turnTableStepButton_;
 
     osg::ref_ptr<osg::Geode> qnNode;
     std::vector<ViewDesc *> viewpoints; //< list of viewpoints
 
     void updateViewPointIndex();
 
+    bool nextFlightIndex();
+
     void stopRecord();
     void startRecord();
-    void startStopRec();
 
     void updateSHMData();
 
@@ -193,10 +180,10 @@ private:
     void sendViewpointChangedMsgToGui(const char *name, int index, const char *str, const char *plane);
     void sendLoadViewpointMsgToGui(int index);
     void sendFlyingModeToGui();
-    void sendClipplaneModeToGui();
     void sendChangeIdMsgToGui(int guiId, int newId);
 
-    // starts search at the node, seraches for string...
+
+    // starts search at the node, searches for string...
     // returns the found nodes in the following array
     void addNodes(osg::Node *n, std::string s, std::vector<osg::Node *> &nodes);
     bool isOn(const char *vp);

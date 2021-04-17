@@ -46,8 +46,6 @@ void postHUD()
 
 void drawHUD()
 {
-    if (!ViewPoints::actSharedVPData->isEnabled)
-        return;
     //
     // Get data about current viewpoint
     //
