@@ -8,6 +8,7 @@
 #include <Windows.h>
 #else
 #include <unistd.h>
+#include <string.h>
 #endif
 #include <signal.h>
 
@@ -31,7 +32,7 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
     {
         if(execvp(execPath, const_cast<char *const *>(args.data())) == -1){
 
-            print_error(__LINE__, __FILE__, "%s%s%s", "exec of ", execPath, " failed");
+            print_error(__LINE__, __FILE__, " exec of \"%s\" failed %s", execPath, strerror(errno));
             exit(1);
         }
     }
