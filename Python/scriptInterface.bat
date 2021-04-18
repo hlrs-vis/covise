@@ -49,18 +49,21 @@ IF /i "%ARCHSUFFIX%" == "win32opt" (
 IF NOT EXIST "%EXTERNLIBS%"\python\bin\python.exe GOTO nopybin
 IF "%USE_OPT_LIBS%" == "1" (
 set _PYTHON="%EXTERNLIBS%"\python\bin\python
+set _STARTUP="%COVISEDIR%"\Python\scriptInterface.py
 ) ELSE (
 set _PYTHON="%EXTERNLIBS%"\python\bin\python_d
+set _STARTUP="%COVISEDIR%"\Python\scriptInterface_d.py
 )
 GOTO doneBin
 :nopybin
 IF "%USE_OPT_LIBS%" == "1" (
 set _PYTHON="%EXTERNLIBS%"\python\python
+set _STARTUP="%COVISEDIR%"\Python\scriptInterface.py
 ) ELSE (
 set _PYTHON="%EXTERNLIBS%"\python\python_d
+set _STARTUP="%COVISEDIR%"\Python\scriptInterface_d.py
 )
 :doneBin
-set _STARTUP="%COVISEDIR%"\Python\scriptInterface.py
 set _PYOPT=-i
 
 IF NOT "x%COVISE_LOCAL_PYTHON%x" == "xx" (

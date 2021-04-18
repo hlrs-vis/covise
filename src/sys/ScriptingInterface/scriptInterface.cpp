@@ -33,6 +33,8 @@
 #include <util/coLog.h>
 #include "scriptInterface.h"
 #include "coMsgStruct.h"
+#include <comsg/CRB_EXEC.h>
+#include <comsg/NEW_UI.h>
 
 using covise::Message;
 using covise::DataHandle;
@@ -113,6 +115,10 @@ run_xuif(int argc, char **argv)
             print_exit(__LINE__, __FILE__, 0);
         }
 
+        else if (msg->type == covise::COVISE_MESSAGE_NEW_UI) // parse message
+        {
+            covise::NEW_UI uiMsg{ *msg };
+        }
         else if (msg->type == COVISE_MESSAGE_UI) // parse message
         {
             Msg_Parse(msg->data.accessData(), token, TOKMAX, "\n");

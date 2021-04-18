@@ -175,6 +175,43 @@ class _CoviseMsgLoop:
             infoer.write("No action found to run for covise-message-type <"
                          + str(type) + ">.")
         return handled
+    def parse(self, msg):
+
+        """Run all registered actions of type type with param as argument."""
+
+        infoer = self.__infoer
+        infoer.function = self.run.__name__
+        handled = False
+        if msg.type in self.__actionDict:
+            actions = self.__actionDict[msg.type]
+            for action in actions:
+                try:
+                    action.runType_=msg.type
+                    action.parse(msg)
+                    handled = True
+                    infoer.write("Msg handled by action '%s'" % str(action) )
+                except IndexError:
+                    infoer.startString = '(receiver index exception caught)'
+                    infoer.write("(action '%s', params '%s')" % (
+                        str(action), str(param)))
+                except KeyError:
+                    infoer.startString = '(receiver key exception caught)'
+                    infoer.write("(action '%s', params '%s')" % (
+                        str(action), str(param)))
+                except MemoryError:
+                    infoer.startString = '(receiver memory exception caught)'
+                    infoer.write("(action '%s', params '%s')" % (
+                        str(action), str(param)))
+                except NameError:
+                    infoer.startString = '(receiver name exception caught)'
+                    infoer.write("(action '%s', params '%s')" % (
+                        str(action), str(param)))
+        else:
+            infoer.startString = '(info)'
+            infoer.write("No action found to run for covise-message-type <"
+                         + str(type) + ">.")
+        return handled
+
 
 def CoviseMsgLoop():
 

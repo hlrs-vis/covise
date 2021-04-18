@@ -92,51 +92,55 @@ class Rec(Thread):
             type = msg.type;
             data = msg.data
             if ( type > 0 ):
-                #print(" received message ", type)
+                print(" received message ", type)
                 #print(data)
                 
-                dl = data.split('\n')
+                if ( type == 142 ):
+                    CoviseMsgLoop().parse(msg)
+                else:
+
+                    dl = data.split('\n')
            
-                if '.exe' in dl[0]:
-                        dl[0]  = dl[0][0:dl[0].find('.exe') ]
+                    if '.exe' in dl[0]:
+                            dl[0]  = dl[0][0:dl[0].find('.exe') ]
                 
-                # QUIT message
-                if ( type == 34 ):
-                    self.quit=0
+                    # QUIT message
+                    if ( type == 34 ):
+                        self.quit=0
 
-                # we must be sure that nothing kills us especially indexError exceptions
-                try:
-                    if ( type == 56 ):
-                        # print("INFO: ", dl[0]+dl[1] + "@" + dl[2], "  ", dl[3])
-                        x = dl[3]
-                        self.infoQueue_.put(x);
-                        self.infoEvent_.set()
+                    # we must be sure that nothing kills us especially indexError exceptions
+                    try:
+                        if ( type == 56 ):
+                            # print("INFO: ", dl[0]+dl[1] + "@" + dl[2], "  ", dl[3])
+                            x = dl[3]
+                            self.infoQueue_.put(x);
+                            self.infoEvent_.set()
                         
-                    if ( type == 47 ):
-                        #print("<<<< type 47", dl[0])
-                        GlobalChoiceDict().set( dl )
-                        self.choiceParamEvent_.set()
+                        if ( type == 47 ):
+                            #print("<<<< type 47", dl[0])
+                            GlobalChoiceDict().set( dl )
+                            self.choiceParamEvent_.set()
                            
-                except IndexError:
-                            print("Receiver index error ", dl )
-                except KeyError:
-                    print("Rec.run(): Receiver key error ", dl)
-                except MemoryError as val:
-                    print("Rec.run(): Receiver memory error xxx", dl)
-                    print("VALUE: ", str(val))
-                except NameError as val:
-                    print("Rec.run(): Receiver name error ", dl)
-                    print("VALUE: ", str(val)                            )
+                    except IndexError:
+                                print("Receiver index error ", dl )
+                    except KeyError:
+                        print("Rec.run(): Receiver key error ", dl)
+                    except MemoryError as val:
+                        print("Rec.run(): Receiver memory error xxx", dl)
+                        print("VALUE: ", str(val))
+                    except NameError as val:
+                        print("Rec.run(): Receiver name error ", dl)
+                        print("VALUE: ", str(val)                            )
 
-                CoviseMsgLoop().run(type, dl)
-                    # message was handled by one of the registered actions
-                    # do not put it into the queue
-                    #if (len(dl) > 1):                    
-                    #    outStr = "Rec:  got Msg with type: %s " % (type)
-                    #    for xx in dl:
-                    #        outStr = outStr + "  " + str(xx)
-                    #    print(outStr )
-                    #self.queue.put(data)
+                    CoviseMsgLoop().run(type, dl)
+                        # message was handled by one of the registered actions
+                        # do not put it into the queue
+                        #if (len(dl) > 1):                    
+                        #    outStr = "Rec:  got Msg with type: %s " % (type)
+                        #    for xx in dl:
+                        #        outStr = outStr + "  " + str(xx)
+                        #    print(outStr )
+                        #self.queue.put(data)
                 dl=None 
             time.sleep(0.0001)
 
@@ -162,7 +166,7 @@ def getLastInfo():
 #
 def getListOfAllModules():
     import time
-    while not ListAction().stop:
+    while not NewListAction().stop:
         time.sleep(0.1)
 
 #
@@ -212,6 +216,35 @@ def ListAction():
     if _ListAction.instance_ == None:
         _ListAction.instance_ = _ListAction()
     return _ListAction.instance_
+
+class _NewListAction(CoviseMsgLoopAction):
+
+    NEW_UI=142
+    instance_ = None
+    
+    def __init__(self):
+        print("NEW_LISTACTION::NEW_LISTACTION")
+        CoviseMsgLoopAction.__init__( self, "NEW_LISTACTION", self.NEW_UI, "action to react on the list of modules" )
+        self.stop = False
+         
+    def parse(self, msg):
+        print("NEW_LISTACTION::run")
+        data = msg.data
+        self.stop=True
+ #       if 'LIST'==param[0]:
+ #           ii=4
+ #           while ( ii < len(param)-2 ):
+ #               modName = param[ii]
+ #               if (len(modName) > 0):
+ #                   if (modName[0] != '.'):
+ #                       globalModules.add(modName)
+ #               ii=ii+2
+ #       else : raise nameError
+        
+def NewListAction():
+    if _NewListAction.instance_ == None:
+        _NewListAction.instance_ = _NewListAction()
+    return _NewListAction.instance_
     
 
 def coviseExitFunc():
@@ -229,7 +262,9 @@ def coviseStartupFunc():
     CoviseMsgLoop().register( WarnAct() )
     CoviseMsgLoop().register( ErrorAct() )
     CoviseMsgLoop().register( ListAction() )
+    CoviseMsgLoop().register( NewListAction() )
     globalReceiverThread .start();
     time.sleep(0.1)
+    print("  COVISE PYTHON INTERFACE waiting\n")
     getListOfAllModules()
     print("  COVISE PYTHON INTERFACE ready\n")
