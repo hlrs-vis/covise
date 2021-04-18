@@ -6,6 +6,8 @@ COVISE_FIND_PACKAGE(Qt5 REQUIRED
                     Widgets
 )
 
+USING(BOOST)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
