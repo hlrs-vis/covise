@@ -92,7 +92,7 @@ class Rec(Thread):
             type = msg.type;
             data = msg.data
             if ( type > 0 ):
-                print(" received message ", type)
+                #print(" received message ", type)
                 #print(data)
                 
                 if ( type == 142 ):
@@ -201,6 +201,9 @@ class _ListAction(CoviseMsgLoopAction):
         self.stop = False
          
     def run(self, param):
+        #print("LISTACTION::run")
+        #print(param[0])
+        #print(param[0][0:8])
         if 'LIST'==param[0]:
             ii=4
             while ( ii < len(param)-2 ):
@@ -210,6 +213,11 @@ class _ListAction(CoviseMsgLoopAction):
                         globalModules.add(modName)
                 ii=ii+2
             self.stop=True
+        elif param[0][0:8] == 'loadFile':
+            pyFile = param[0][9:]
+            covise.FileToLoad = pyFile
+            #if(pyFile != ''):
+                #exec(compile(source=open(pyFile).read(), filename=pyFile, mode='exec'))
         else : raise nameError
         
 def ListAction():
@@ -223,13 +231,21 @@ class _NewListAction(CoviseMsgLoopAction):
     instance_ = None
     
     def __init__(self):
-        print("NEW_LISTACTION::NEW_LISTACTION")
+        #print("NEW_LISTACTION::NEW_LISTACTION")
         CoviseMsgLoopAction.__init__( self, "NEW_LISTACTION", self.NEW_UI, "action to react on the list of modules" )
         self.stop = False
          
     def parse(self, msg):
-        print("NEW_LISTACTION::run")
-        data = msg.data
+        #print("NEW_LISTACTION::run")
+        
+        modules = covise.getModuleInfo(msg)
+        ii = 0;
+        while ( ii < len(modules)):
+             modName = modules[ii]
+             if (len(modName) > 0):
+                 if (modName[0] != '.'):
+                     globalModules.add(modName)
+             ii=ii+2
         self.stop=True
  #       if 'LIST'==param[0]:
  #           ii=4
@@ -265,6 +281,6 @@ def coviseStartupFunc():
     CoviseMsgLoop().register( NewListAction() )
     globalReceiverThread .start();
     time.sleep(0.1)
-    print("  COVISE PYTHON INTERFACE waiting\n")
+    #print("  COVISE PYTHON INTERFACE waiting\n")
     getListOfAllModules()
     print("  COVISE PYTHON INTERFACE ready\n")

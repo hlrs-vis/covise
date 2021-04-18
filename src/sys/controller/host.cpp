@@ -128,7 +128,7 @@ bool RemoteHost::startCrb()
             return false;
         }
         determineAvailableModules(*crbModule);
-        std::cerr << "sending init message with type " << covise_msg_types_array[crbModule->initMessage.type] << std::endl;
+        //std::cerr << "sending init message with type " << covise_msg_types_array[crbModule->initMessage.type] << std::endl;
         hostManager.sendAll<Userinterface>(crbModule->initMessage);
         connectShm(*crbModule);
 
@@ -169,7 +169,7 @@ bool RemoteHost::startUI(const UIOptions& options)
 #else
         const char* PythonInterfaceExecutable = "scriptInterface ";
 #endif
-            ui.reset(new PythonInterface{ *this, PythonInterfaceExecutable + options.pyFile }); 
+            ui.reset(new PythonInterface{ *this, PythonInterfaceExecutable}); 
             startUI(std::move(ui), options);
     }
     switch (options.type)

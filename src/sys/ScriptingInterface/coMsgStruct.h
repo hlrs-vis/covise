@@ -9,6 +9,8 @@
 #define CO_MSG_STRUCT_H
 
 #include <net/dataHandle.h>
+#include <comsg/CRB_EXEC.h>
+#include <comsg/NEW_UI.h>
 
 typedef struct
 {

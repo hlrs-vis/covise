@@ -59,6 +59,8 @@ int sendCtrlMsg(char *msg);
 int sendRendMsg(char *msg);
 int sendErrorMsg(char *msg);
 int sendInfoMsg(char *msg);
+std::vector<std::string> getModuleInfo(CoMsg* msg);
+extern std::string FileToLoad;
 
 // access to coviseConfig
 char *getCoConfigEntry(const char *entry);

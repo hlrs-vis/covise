@@ -274,6 +274,23 @@ sendInfoMsg(char *msg)
     return sendMsgToUIF(msg, Ctrl_Msg);
 }
 
+
+std::vector<std::string> getModuleInfo(CoMsg* msg)
+{
+    Message m(msg->type,msg->dh);
+	covise::NEW_UI uimsg{ m };
+	auto& pMsg = uimsg.unpackOrCast<covise::NEW_UI_PartnerInfo>();
+    std::vector<std::string> modules;
+	for (size_t i = 0; i < pMsg.modules.size(); i++)
+	{
+        modules.push_back(pMsg.modules[i]);
+        modules.push_back(pMsg.categories[i]);
+	}
+    return modules;
+}
+
+std::string FileToLoad;
+
 // helper -not wrapped -
 int
 Msg_Parse(char *line, char *token[], int tmax, const char *sep)

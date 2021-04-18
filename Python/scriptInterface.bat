@@ -73,6 +73,6 @@ IF NOT "x%COVISE_LOCAL_PYTHON%x" == "xx" (
 )
 
 rem cd %COVISEDIR%\Python
-
-ECHO %_PYTHON% %_PYOPT% %_STARTUP% %1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12
-%_PYTHON% %_PYOPT% %_STARTUP% "%1" "%2" "%3" "%4" "%5" "%6" "%7" "%8" "%9" "%10" "%11"
+ECHO test
+ECHO %_PYTHON% %_PYOPT% %_STARTUP% %* 
+%_PYTHON% %_PYOPT% %_STARTUP% %*

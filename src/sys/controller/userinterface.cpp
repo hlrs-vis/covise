@@ -281,6 +281,8 @@ bool PythonInterface::start(const UIOptions &options, bool restart)
     Message msg{COVISE_MESSAGE_UI, tmp};
     send(&msg);
     updateUI();
+	Message msg2(COVISE_MESSAGE_UI, "loadFile " + options.pyFile);
+	send(&msg2);
 
     // wait for OK from Mapeditor
 

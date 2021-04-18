@@ -103,8 +103,19 @@
     int getType() {
 	return self->type;
     }
+	
+    int get() {
+	return self->type;
+    }
 
 };
+
+%include "std_vector.i"
+%include "std_string.i"
+
+namespace std {
+   %template(StringVector) vector<std::string>;
+}
 
 extern int run_xuif(int argc, char **argv);
 extern int openMap(const char * fileName);
@@ -116,6 +127,8 @@ extern int sendRendMsg(char* msg);
 extern int sendErrorMsg(char* msg);
 extern int sendInfoMsg(char* msg);
 extern CoMsg getSingleMsg();
+extern std::vector<std::string> getModuleInfo(CoMsg* msg);
+extern std::string FileToLoad;
 
 extern char *getCoConfigEntry(const char *entry);
 extern char *getCoConfigEntry(const char *entry, const char *variable);

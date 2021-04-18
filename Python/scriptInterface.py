@@ -35,23 +35,24 @@ argc = len(sys.argv)
 #print(argv[6])
 #print(argv[7])
 #print(argv[8])
-print(argv[9])
-print(argv[10])
-print(argv[11])
+#print(argv[9])
+#print(argv[10])
+#print(argv[11])
 #
 # remove first arg of the userinterface script
 # it is the filename to be executed (if 8 args are given)
 #
+global execFileFlag
 execFileFlag=-1
-execFile=""
+global execFile
+execFile=''
 
-#if (argc == 12):
-#    argc = argc-1
-#    execFile =argv[1]
-#    argv.remove(execFile) 
-#    if ( len(execFile)>0 ): execFileFlag=1
-argv.pop(11) 
-argv.append("0")
+if (argc == 13):
+    argc = argc-1
+    execFile =argv[1]
+    argv.remove(execFile) 
+    if ( len(execFile)>0 ): execFileFlag=1
+
 #    argc = argc+1
 
 #
@@ -70,9 +71,14 @@ from coviseStartup import *
 
 globalHostInfo.setName( argv[5] )
 
+
 coviseStartupFunc()
 
-
+print(covise.FileToLoad)
+if(covise.FileToLoad != ''):
+    with open(covise.FileToLoad) as f:
+        code = compile(f.read(), covise.FileToLoad, 'exec')
+        exec(code)
 
 #
 # we want to have a system specific prompt
@@ -83,6 +89,7 @@ sys.ps1="covise> "
 # last but not least run a script if given on the covise
 # command-line i.e. covise --script do_funny_things.py
 #
+
 if ( execFileFlag > 0 ):
     #execfile( execFile )
         with open(execFile) as f:
