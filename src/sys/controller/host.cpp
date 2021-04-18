@@ -165,9 +165,9 @@ bool RemoteHost::startUI(const UIOptions& options)
     {
 
 #ifdef _WIN32
-        const char* PythonInterfaceExecutable = "..\\..\\Python\\scriptInterface.bat ";
+        const char* PythonInterfaceExecutable = "..\\..\\Python\\scriptInterface.bat";
 #else
-        const char* PythonInterfaceExecutable = "scriptInterface ";
+        const char* PythonInterfaceExecutable = "scriptInterface";
 #endif
             ui.reset(new PythonInterface{ *this, PythonInterfaceExecutable}); 
             startUI(std::move(ui), options);
