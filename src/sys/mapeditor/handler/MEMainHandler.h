@@ -58,7 +58,7 @@ class MEMainHandler : public QObject
     Q_OBJECT
 
 public:
-    MEMainHandler(int, char *[]);
+    MEMainHandler(int, char *[], std::function<void(void)> quitFunc);
     ~MEMainHandler();
 
     static MEMainHandler *instance();
@@ -242,7 +242,7 @@ private:
 
 
     copyModes m_copyMode;
-
+    std::function<void(void)> m_quitFunc;
     bool m_helpFromWeb;
     bool m_masterUI, force, m_loadedMapWasModified, m_autoSave;
     bool m_waitForClose;

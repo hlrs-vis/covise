@@ -429,7 +429,14 @@ bool RemoteHost::removePartner()
         // remove mapeditor
         std::stringstream modInfo;
         NEW_UI_HandlePartners pMsg{LaunchStyle::Disconnect, 0, std::vector<int>{ID()}};
-        hostManager.sendAll<Userinterface>(pMsg.createMessage());
+        auto discMsg = pMsg.createMessage();
+        for (const auto &ui : hostManager.getAllModules<Userinterface>())
+        {
+            if (&ui->host != this)
+            {
+                ui->send(&discMsg);
+            }
+        }
         clearProcesses();
         // notify the other CRBs
         msg = Message{COVISE_MESSAGE_CRB_QUIT, userInfo().ipAdress};
@@ -503,38 +510,41 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
         if (hostIt != m_hosts.end())
         {
             hostIt->second->setTimeout(msg.timeout);
+            bool proxyRequired = false;
+            if (msg.launchStyle != LaunchStyle::Disconnect)
+            {
+                PROXY_ConnectionCheck check{clID, m_vrb->ID()};
+                sendCoviseMessage(check, *m_vrb);
+                auto conCap = m_proxyRequired.waitForValue();
+                if (conCap == ConnectionCapability::NotChecked)
+                {
+                    int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
+                    Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostIt->second->userInfo().hostName + ", timeout is " + std::to_string(timeout) + " seconds."};
+                    sendAll<Userinterface>(infoMsg);
+                    setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
+                        PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
+                        return sendCoviseMessage(test, *m_vrb);
+                    });
+                    conCap = m_proxyRequired.waitForValue();
+                }
+                assert(conCap != ConnectionCapability::NotChecked);
+                std::string msgStr;
+                if (conCap == ConnectionCapability::ProxyRequired)
+                {
+                    createProxyConn();
+                    msgStr = "Connection to " + hostIt->second->userInfo().hostName + " timed out, creating proxy via VRB.";
+                }
+                else
+                {
+                    msgStr = "Connection to " + hostIt->second->userInfo().hostName + " successful.";
+                }
 
-            PROXY_ConnectionCheck check{clID, m_vrb->ID()};
-            sendCoviseMessage(check, *m_vrb);
-            auto conCap = m_proxyRequired.waitForValue();
-            if (conCap == ConnectionCapability::NotChecked)
-            {
-                int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
-                Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostIt->second->userInfo().hostName + ", timeout is " + std::to_string(timeout) + " seconds."};
-                sendAll<Userinterface>(infoMsg);
-                setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
-                    PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
-                    return sendCoviseMessage(test, *m_vrb);
-                });
-                conCap = m_proxyRequired.waitForValue();
+                Message m{COVISE_MESSAGE_WARNING, msgStr};
+                sendAll<Userinterface>(m);
+                proxyRequired = conCap == ConnectionCapability::ProxyRequired;
             }
-            assert(conCap != ConnectionCapability::NotChecked);
-            std::string msgStr;
-            if (conCap == ConnectionCapability::ProxyRequired)
-            {
-                createProxyConn();
-                msgStr = "Connection to " + hostIt->second->userInfo().hostName + " timed out, creating proxy via VRB.";
-            }
-            else
-            {
-                msgStr = "Connection to " + hostIt->second->userInfo().hostName + " successful.";
-            }
-            
-            
-            Message m{COVISE_MESSAGE_WARNING, msgStr};
-            sendAll<Userinterface>(m);
 
-            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, conCap == ConnectionCapability::ProxyRequired));
+            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired));
         }
     }
     return retval;

@@ -49,7 +49,6 @@ void MEHelpViewer::init()
 // create the central widget, the m_browser window
 #if defined(USE_WEBENGINE)
     m_browser = new QWebEngineView(this);
-    m_browser->setPage(new MEWebEnginePage(m_browser));
 
 #elif defined(USE_WEBKIT)
     m_browser = new QWebView(this);

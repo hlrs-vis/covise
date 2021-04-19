@@ -41,13 +41,8 @@ SubProcess::SubProcess(SubProcess &&other)
 
 SubProcess::~SubProcess()
 {
-    if (host.proxyHost())//in this case closing the socket is not enough to teminate the process
-    {
-        Message msg{COVISE_MESSAGE_QUIT};
-        msg.send_type = processId;
-        msg.send_type = type;
-        send(&msg);
-    }
+    Message msg{COVISE_MESSAGE_QUIT};
+    send(&msg);
 
     CTRLGlobal::getInstance()->controller->getConnectionList()->remove(m_conn);
 }

@@ -131,7 +131,7 @@ MEMessageHandler *MEMainHandler::messageHandler = NULL;
     \brief Handler for MEUserInterface, distribute message received by MEMessageHandler
 */
 
-MEMainHandler::MEMainHandler(int argc, char *argv[])
+MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> quitFunc)
     : QObject()
     , cfg_storeWindowConfig("System.MapEditor.General.StoreLayout")
     , cfg_ErrorHandling("System.MapEditor.General.ErrorOutput")
@@ -167,6 +167,7 @@ MEMainHandler::MEMainHandler(int argc, char *argv[])
     , m_deleteHostBox(NULL)
     , m_mirrorBox(NULL)
     , m_requestingMaster(false)
+    , m_quitFunc(quitFunc)
 {
     // init some variables
     singleton = this;
@@ -371,7 +372,6 @@ MEMainHandler *MEMainHandler::instance()
 MEMainHandler::~MEMainHandler()
 //!
 {
-    std::cerr << "~MEMainHandler()" << std::endl;
     delete messageHandler;
     delete m_helpViewer;
 }
@@ -1165,7 +1165,7 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
 //!
 void MEMainHandler::quit()
 {
-    exit(0);
+    m_quitFunc();
 }
 
 //!
