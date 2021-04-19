@@ -73,7 +73,7 @@ public:
     virtual void resetState() override; 
 
 
-    virtual void updateTransform(osg::Matrix m);
+    virtual void updateTransform(osg::Matrix m) override;
 
     osg::Matrix getMoveMatrix_o() const override;
     const osg::Matrix &getMatrix() const
