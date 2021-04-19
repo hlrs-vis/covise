@@ -39,15 +39,18 @@ InputSource::InputSource(const std::string &name, const std::string &kind)
     for(int i=1;i<10;i++)
     {
         const std::string driver = covise::coCoviseConfig::getEntry("device"+std::to_string(i), config(), "");
-	fprintf(stderr,"dev %d %s\n",i,driver.c_str());
-	if(driver.length()>0)
-	{
-	    InputDevice *dev = Input::instance()->getDevice(driver);
-	    if(dev)
+        if(driver.length()>0)
+        {
+            if (Input::debug(Input::Config))
+            {
+                std::cerr << "Input: device" << i << " configured as " << driver << std::endl;
+            }
+            InputDevice *dev = Input::instance()->getDevice(driver);
+            if(dev)
                 m_dev.push_back(dev);
-	}
-	else
-	   break;
+        }
+        else
+            break;
     }
 }
 
