@@ -26,7 +26,7 @@ const int SIZEOF_IEEE_INT = 4;
 using namespace covise;
 using namespace covise::controller;
 
-size_t SubProcess::processCount = 1001;
+uint32_t SubProcess::processCount = 1001;
 
 SubProcess::SubProcess(Type t, const RemoteHost &h, sender_type type, const std::string &executableName)
     : host(h), type(type), processId(processCount++), m_type(t), m_executableName(executableName)

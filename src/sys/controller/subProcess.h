@@ -43,7 +43,7 @@ struct SubProcess : MessageSenderInterface
 
     const std::string &getHost() const;
 
-    const size_t processId; //global id, incremented for every process created -> moduleCount
+    const uint32_t processId; //global id, incremented for every process created -> moduleCount
     const sender_type type;
     const RemoteHost &host;
     template <typename T>
@@ -85,7 +85,7 @@ protected:
 private:
     const Type m_type; //type use to safely upcast
     const std::string m_executableName;
-    static size_t processCount; //global number of SubProcesses
+    static uint32_t processCount; //global number of SubProcesses
 
 };
 } // namespace controller

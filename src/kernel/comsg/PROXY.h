@@ -30,10 +30,10 @@ enum class ConnectionCapability
 
 DECL_MESSAGE_WITH_SUB_CLASSES(PROXY, PROXY_TYPE, COMSGEXPORT)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateControllerProxy, COMSGEXPORT, int, vrbClientID)
-DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateSubProcessProxie, COMSGEXPORT, size_t, procID, sender_type, senderType, int , timeout)
+DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateSubProcessProxie, COMSGEXPORT, uint32_t, procID, sender_type, senderType, int , timeout)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyCreated, COMSGEXPORT, int, port)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ProxyConnected, COMSGEXPORT, bool, success)
-DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateCrbProxy, COMSGEXPORT, size_t, toProcID, size_t, fromProcID, int, timeout)
+DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateCrbProxy, COMSGEXPORT, uint32_t, toProcID, uint32_t, fromProcID, int, timeout)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionTest, COMSGEXPORT, int, fromClientID, int, toClientID, int, port, int, timeout)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionState, COMSGEXPORT, int, fromClientID, int, toClientID, ConnectionCapability, capability)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionCheck, COMSGEXPORT, int, fromClientID, int, toClientID)
