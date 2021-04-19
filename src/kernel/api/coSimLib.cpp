@@ -269,9 +269,14 @@ coSimLib::coSimLib(int argc, char *argv[], const char *name, const char *desc)
     command_objects = new list<command_object *>;
     tmp_objects = new list<command_object *>;
 
-    // save then name
-    d_name = strcpy(new char[strlen(name) + 1], name);
-    std::string configName = std::string("Module.") + name;
+    // save the name
+    d_name = strcpy(new char[strlen(name) + 1], name);   
+#ifndef _WIN32
+    d_name = strrchr(d_name,'/')+1;
+#else
+    d_name = strrchr(d_name,'\\')+1;
+#endif
+    std::string configName = std::string("Module.") + d_name;
 
     int i;
 
