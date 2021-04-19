@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
          cin.get(ch);
          cout << "Weiter" << endl;*/
 
-    if ((argc < 7) || (argc > 8))
+    if ((argc < 11) || (argc > 12))
     {
         if (argc == 2 && 0 == strcmp(argv[1], "-d"))
         {
