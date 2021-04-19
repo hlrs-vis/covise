@@ -168,6 +168,11 @@ set (ABAQUS_SEARCH_LIBS
    libmkl_intel_thread.so
    libCATSysCommunication.so
    libABQSMABasAlloc.so
+   libABQSMAEliLicenseModule.so
+   libCATSysTSObjectModeler.so
+   libABQSMASimBCompress.so
+   libDSYSysDlg.so
+   libmkl_rt.so
    )
 
 
