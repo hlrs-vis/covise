@@ -61,6 +61,7 @@ signals:
 
 
 private:
+    const QWidget *m_parent = nullptr;
     Ui::MERemotePartner *m_ui;
     ClientWidgetList *m_clients;
 

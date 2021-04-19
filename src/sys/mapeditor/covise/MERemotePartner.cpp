@@ -112,8 +112,13 @@ std::vector<int> ClientWidgetList::getSelectedClients(covise::LaunchStyle launch
 }
 
 MERemotePartner::MERemotePartner(QWidget *parent)
-    : QDialog(parent), m_ui(new Ui::MERemotePartner)
+    : QDialog(parent), m_ui(new Ui::MERemotePartner), m_parent(parent)
 {
+
+    if (parent)
+    {
+        move(parent->rect().center() - rect().center());
+    }
     qRegisterMetaType<covise::LaunchStyle>();
     qRegisterMetaType<std::vector<int>>();
     qRegisterMetaType<covise::ClientInfo>();
@@ -129,6 +134,11 @@ MERemotePartner::MERemotePartner(QWidget *parent)
 
 void MERemotePartner::setPartners(const covise::ClientList &partners)
 {
+    if (m_parent)
+    {
+        QPoint p{4, 4};
+        move(m_parent->pos() + QPoint{m_parent->rect().width() / 2, m_parent->rect().height() / 2} - rect().center());
+    }
     for (const auto &p : partners)
     {
         m_clients->addClient(p);

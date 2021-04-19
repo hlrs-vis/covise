@@ -1033,7 +1033,7 @@ void MEMainHandler::addPartner()
 
     if (!m_addPartnerDialog)
     {
-        m_addPartnerDialog = new MERemotePartner();
+        m_addPartnerDialog = new MERemotePartner(mapEditor);
         connect(m_addPartnerDialog, &MERemotePartner::clientAction, this, [this](const covise::ClientInfo &client) {
             requestPartnerAction(client.style, std::vector<int>{client.id});
             m_addPartnerDialog->hide();
