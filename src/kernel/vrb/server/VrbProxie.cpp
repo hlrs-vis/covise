@@ -190,7 +190,7 @@ void CoviseProxy::handleMessage(Message &msg)
       }
       return;
     }
-    if (msg.sender = m_controllerCon->get_sender_id())
+    if (msg.sender == m_controllerCon->get_sender_id())
     {
       //std::cerr << "bradcasting msg " << covise_msg_types_array[msg.type] << " from controller to all processes" << std::endl;
       for (const auto &proxy : m_proxies)

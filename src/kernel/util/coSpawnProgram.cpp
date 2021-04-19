@@ -13,6 +13,7 @@
 #include <signal.h>
 
 #include <array>
+#include <sys/errno.h>
 
 using namespace covise;
 

@@ -124,7 +124,7 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
 {
     /// default values
 
-    std::string key = "System.HostConfig.Host:%s" + host->first;
+    std::string key = "System.HostConfig.Host:" + std::to_string(host->first);
     host->second.timeout = coCoviseConfig::getInt("timeout", key, DEFAULT_TIMEOUT);
     host->second.timeout = host->second.timeout == 0 ? DEFAULT_TIMEOUT : host->second.timeout;
     std ::string shm_mode = coCoviseConfig::getEntry("memory", key, "shm");
