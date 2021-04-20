@@ -523,8 +523,8 @@ string object::get_current_name() const
 obj_conn *object::connect_to(controller::NetModule *module, const string &intfname)
 {
 
-    auto it = std::find_if(to.begin(), to.end(), [&module](const obj_conn &conn) {
-        return conn.get_mod() == module;
+    auto it = std::find_if(to.begin(), to.end(), [&module, &intfname](const obj_conn &conn) {
+        return conn.get_mod() == module && conn.get_mod_intf() == intfname;
     });
     if (it != to.end())
     {
