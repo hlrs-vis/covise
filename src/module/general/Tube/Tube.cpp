@@ -136,8 +136,12 @@ int Tube::compute(const char *)
         npoint = line->getNumPoints();
         nvert = line->getNumVertices();
         nlines = line->getNumLines();
-        if (npoint == 0 || nvert == 0)
+        if (npoint == 0 || nvert == 0 || nlines == nvert) // if all lines have just one vertex, we can't creaty any tube
+        {
             nlines = 0;
+            nvert = 0;
+            npoint = 0;
+        }
         line->getAddresses(&xl, &yl, &zl, &vl, &ll);
         nlinesWithVertices = 0;
         int unusedVertices = 0;
