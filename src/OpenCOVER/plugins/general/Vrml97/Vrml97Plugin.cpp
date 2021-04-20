@@ -654,11 +654,14 @@ Vrml97Plugin::key(int type, int keySym, int mod)
             plugin->player->restart();
         }
     }
-    if (vrmlType == VrmlNodeCOVER::Release)
-        fprintf(stderr, "Release ");
-    if (vrmlType == VrmlNodeCOVER::Press)
-        fprintf(stderr, "Press ");
-    fprintf(stderr, "%s\n", keyString);
+    if (cover->debugLevel(1))
+    {
+        if (vrmlType == VrmlNodeCOVER::Release)
+            fprintf(stderr, "Vrml97Plugin::key: Release ");
+        if (vrmlType == VrmlNodeCOVER::Press)
+            fprintf(stderr, "Vrml97Plugin::key: Press ");
+        fprintf(stderr, "%s\n", keyString);
+    }
     if (vrmlType == VrmlNodeCOVER::Release && (!strcmp(keyString, "Alt-W")))
     {
         std::string filename = "./vrmlOpt.osg";
