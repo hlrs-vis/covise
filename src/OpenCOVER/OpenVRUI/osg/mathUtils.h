@@ -183,7 +183,7 @@ public:
     osg::Vec3 xyz;
     osg::Vec3 hpr;
     coCoord &operator=(const osg::Matrix &right);
-    void makeMat(osg::Matrix &right);
+    void makeMat(osg::Matrix &right) const;
 
 private:
     void initFromMatrix(const osg::Matrix &right);

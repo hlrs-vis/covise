@@ -74,7 +74,7 @@ coCoord &coCoord::operator=(const osg::Matrix &right)
     return *this;
 }
 
-void coCoord::makeMat(osg::Matrix &right)
+void coCoord::makeMat(osg::Matrix &right) const
 {
     MAKE_EULER_MAT_VEC(right, hpr);
     right.setTrans(xyz);
@@ -108,7 +108,6 @@ coCoord::initFromMatrix(const osg::Matrix &right)
     m(2, 2) = v3[2];
     hpr[1] = asin(m(1, 2));
     cp = cos(hpr[1]);
-    float d;
     if (cp > -0.0000001 && cp < 0.0000001)
     {
         if (m(0, 0) > -0.00001 && m(0, 0) < 0.00001 && m(0, 2) > -0.00001 && m(0, 2) < 0.00001)
@@ -123,7 +122,7 @@ coCoord::initFromMatrix(const osg::Matrix &right)
     }
     else
     {
-        d = m(1, 0) / cp;
+        float d = m(1, 0) / cp;
         if (d > 1.0)
         {
             hpr[0] = (osg::Vec3f::value_type) - M_PI_2;
