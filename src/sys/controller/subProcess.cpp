@@ -179,7 +179,7 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
     constexpr int timeout = 0; // do not timeout
     if (&host == &host.hostManager.getLocalHost() || !host.proxyHost())
     {
-        auto conn = setupServerConnection(processId, CONTROLLER, timeout, [&sendConnMessage, this](const ServerConnection &c) {
+        auto conn = setupServerConnection(processId, type, timeout, [&sendConnMessage, this](const ServerConnection &c) {
             m_conn = &c;
             return sendConnMessage(c.get_port(), host.hostManager.getLocalHost().userInfo().ipAdress);
         });
