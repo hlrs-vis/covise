@@ -567,6 +567,12 @@ Vrml97Plugin::key(int type, int keySym, int mod)
         case osgGA::GUIEventAdapter::KEY_Delete:
             strcat(keyString, "Delete");
             break;
+        case osgGA::GUIEventAdapter::KEY_BackSpace:
+            strcat(keyString, "Backspace");
+            break;
+        case osgGA::GUIEventAdapter::KEY_Return:
+            strcat(keyString, "Enter");
+            break;
         case osgGA::GUIEventAdapter::KEY_Shift_L:
             strcat(keyString, "Shift_L");
             break;
