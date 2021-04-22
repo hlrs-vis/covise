@@ -9,11 +9,11 @@
 #else
 #include <unistd.h>
 #include <string.h>
+#include <sys/errno.h>
 #endif
 #include <signal.h>
 
 #include <array>
-#include <sys/errno.h>
 
 using namespace covise;
 
