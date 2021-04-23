@@ -221,8 +221,8 @@ bool PointCloudPlugin::init()
 		}
     });
 #ifdef HAVE_E57
-	saveButton = new ui::Button(selectionGroup, "Save Moves", selectionButtonGroup);
-	saveButton->setText("Save Movest");
+	saveButton = new ui::Button(selectionGroup, "SaveMoves", selectionButtonGroup);
+	saveButton->setText("Save Moves");
 	saveButton->setState(false);
 	saveButton->setCallback([this](bool state) {
 		if (state)
