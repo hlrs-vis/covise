@@ -140,7 +140,7 @@ void MainWindow::setStateDisconnected()
 	m_remoteLauncher.disconnect();
 	ui->progressBar->setVisible(false);
 	m_isConnecting = false;
-	ui->connectBtn->setText("connect");
+	ui->connectBtn->setText("Connect");
 	ui->connectBtn->disconnect();
 	ui->conncetedLabel->setStyleSheet(QString("image: url(:/images/redCircle.png);"));
 	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onConnectBtnClicked);
@@ -150,7 +150,7 @@ void MainWindow::setStateDisconnected()
 void MainWindow::setStateConnecting()
 {
 	showConnectionProgressBar(ui->timeoutSlider->value());
-	ui->connectBtn->setText("cancel");
+	ui->connectBtn->setText("Cancel");
 	ui->connectBtn->disconnect();
 	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onCancelBtnClicked);
 }

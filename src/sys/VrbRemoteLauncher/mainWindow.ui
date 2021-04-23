@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>479</width>
-    <height>506</height>
+    <height>497</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -44,6 +44,9 @@
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
            <widget class="QLabel" name="label_3">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;IP-address of the VRB server.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Hostname:</string>
             </property>
@@ -51,6 +54,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_4">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;TCP-port of the VRB server.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>TCP-Port:</string>
             </property>
@@ -61,6 +67,9 @@
           </item>
           <item row="3" column="0">
            <widget class="QPushButton" name="connectBtn">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send a connection request to the configured VRB server.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Connect</string>
             </property>
@@ -78,6 +87,9 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_5">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;UDP-Port of the VRB server (optional).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>UDP-Port:</string>
             </property>
@@ -123,8 +135,8 @@
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>419</width>
-                     <height>249</height>
+                     <width>98</width>
+                     <height>28</height>
                     </rect>
                    </property>
                   </widget>
@@ -198,7 +210,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Timeout for connection attempts to the VRB</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Timeout for connection attempts to the VRB (zero means no timeout)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>Timeout: 0</string>
@@ -221,7 +233,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="label">
                <property name="toolTip">
-                <string>Don't ask for permissions to start COVISE or OpenCOVER</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Don't ask for permissions to launch an application (Warning: make sure you can trust everyone in your VRB network when enabling this).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>Autostart:</string>
@@ -237,6 +249,9 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_2">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatically connect to the configured VRB on start.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Autoconnect:</string>
                </property>
@@ -251,6 +266,9 @@
              </item>
              <item row="3" column="0">
               <widget class="QLabel" name="label_6">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Additional command line arguments for the selected application.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Args:</string>
                </property>
@@ -295,7 +313,7 @@
      <normaloff>:/images/menu.png</normaloff>:/images/menu.png</iconset>
    </property>
    <property name="text">
-    <string>SideMenuAction</string>
+    <string>Options</string>
    </property>
   </action>
  </widget>
