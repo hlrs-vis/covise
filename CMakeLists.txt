@@ -240,6 +240,7 @@ if (POLICY CMP0074)
 endif()
 
 INCLUDE(CoviseHelperMacros)
+INCLUDE(ConfigureLinker)
 
 # global feature tests
 INCLUDE(CoviseGlobalFeatureTests)
