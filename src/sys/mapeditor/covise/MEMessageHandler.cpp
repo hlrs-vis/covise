@@ -1142,7 +1142,10 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
             for(int clientId : subMsg.clients)
             {
                 MEHost *host = MEHostListHandler::instance()->getHost(clientId);
-                MEMainHandler::instance()->removeHost(host);
+                if (host)
+                {
+                    MEMainHandler::instance()->removeHost(host);
+                }
             }
         }
     }
