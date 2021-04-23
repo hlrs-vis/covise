@@ -117,7 +117,7 @@ public:
         int masterRequestSenderId = 0;
     } uiState;
 
-    void sendPartnerList();
+    void sendPartnerList() const; 
     std::vector<bool> handleAction(const covise::NEW_UI_HandlePartners &msg);
     void setOnConnectCallBack(std::function<void(void)> cb);
     int vrbClientID() const;

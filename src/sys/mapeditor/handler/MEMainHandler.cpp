@@ -1011,26 +1011,6 @@ void MEMainHandler::execNet()
 //!
 void MEMainHandler::addPartner()
 {
-    m_remotePartnersUpdated = false;
-    covise::NEW_UI_RequestAvailablePartners msg{std::string{}};
-    covise::sendCoviseMessage(msg, *messageHandler);
-    std::chrono::milliseconds timeout{0};
-    while (timeout <= std::chrono::milliseconds{10000})
-    {
-        messageHandler->dataReceived(1);
-        if (m_remotePartnersUpdated)
-        {
-            break;
-        }
-        std::chrono::milliseconds step(500);
-        std::this_thread::sleep_for(step);
-        timeout += step;
-    }
-    if (!m_remotePartnersUpdated)
-    {
-        MEUserInterface::instance()->writeInfoMessage("No remote partners available. \nConnection to controller timed out.", Qt::blue);
-    }
-
     if (!m_addPartnerDialog)
     {
         m_addPartnerDialog = new MERemotePartner(mapEditor);

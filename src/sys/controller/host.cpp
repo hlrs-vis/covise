@@ -157,7 +157,7 @@ void RemoteHost::determineAvailableModules(const CRBModule &crb)
     }
 }
 
-bool RemoteHost::startUI(const UIOptions& options)
+bool RemoteHost::startUI(const UIOptions &options)
 {
     cerr << "* Starting user interface....                                                 *" << endl;
     std::unique_ptr<Userinterface> ui;
@@ -165,12 +165,12 @@ bool RemoteHost::startUI(const UIOptions& options)
     {
 
 #ifdef _WIN32
-        const char* PythonInterfaceExecutable = "..\\..\\Python\\scriptInterface.bat";
+        const char *PythonInterfaceExecutable = "..\\..\\Python\\scriptInterface.bat";
 #else
-        const char* PythonInterfaceExecutable = "scriptInterface";
+        const char *PythonInterfaceExecutable = "scriptInterface";
 #endif
-            ui.reset(new PythonInterface{ *this, PythonInterfaceExecutable}); 
-            startUI(std::move(ui), options);
+        ui.reset(new PythonInterface{*this, PythonInterfaceExecutable});
+        startUI(std::move(ui), options);
     }
     switch (options.type)
     {
@@ -483,7 +483,7 @@ HostManager::~HostManager()
     m_thread.join();
 }
 
-void HostManager::sendPartnerList()
+void HostManager::sendPartnerList() const
 {
     std::lock_guard<std::mutex> g{m_mutex};
     ClientList clients;
@@ -547,6 +547,7 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
             retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired));
         }
     }
+    sendPartnerList();
     return retval;
 }
 
@@ -818,30 +819,33 @@ bool HostManager::handleVrbMessage()
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
 
-        std::lock_guard<std::mutex> g{m_mutex};
-        vrb::UserInfoMessage uim(&msg);
-        if (uim.hasMyInfo)
         {
-            m_vrb->setID(uim.myClientID);
-            m_vrb->setSession(uim.mySession);
-            auto old = m_localHost;
-            m_localHost = m_hosts.insert(HostMap::value_type{uim.myClientID, std::move(old->second)}).first;
-            m_localHost->second->setID(uim.myClientID);
-            m_localHost->second->setSession(uim.mySession);
+            std::lock_guard<std::mutex> g{m_mutex};
+            vrb::UserInfoMessage uim(&msg);
+            if (uim.hasMyInfo)
+            {
+                m_vrb->setID(uim.myClientID);
+                m_vrb->setSession(uim.mySession);
+                auto old = m_localHost;
+                m_localHost = m_hosts.insert(HostMap::value_type{uim.myClientID, std::move(old->second)}).first;
+                m_localHost->second->setID(uim.myClientID);
+                m_localHost->second->setSession(uim.mySession);
 
-            m_hosts.erase(old);
-            if (m_onConnectVrbCallBack)
+                m_hosts.erase(old);
+                if (m_onConnectVrbCallBack)
+                {
+                    m_onConnectVrbCallBack();
+                }
+            }
+            for (auto &cl : uim.otherClients)
             {
-                m_onConnectVrbCallBack();
+                if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
+                {
+                    m_hosts.insert(HostMap::value_type{cl.ID(), std::unique_ptr<RemoteHost>{new RemoteHost{*this, std::move(cl)}}});
+                }
             }
         }
-        for (auto &cl : uim.otherClients)
-        {
-            if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
-            {
-                m_hosts.insert(HostMap::value_type{cl.ID(), std::unique_ptr<RemoteHost>{new RemoteHost{*this, std::move(cl)}}});
-            }
-        }
+        sendPartnerList();
     }
     break;
     case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
@@ -882,6 +886,7 @@ bool HostManager::handleVrbMessage()
                 if (clIt->second->state() == LaunchStyle::Disconnect)
                 {
                     m_hosts.erase(clIt);
+                    sendPartnerList();
                 }
                 else
                 {

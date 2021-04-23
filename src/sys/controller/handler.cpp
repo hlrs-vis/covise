@@ -663,10 +663,11 @@ void CTRLHandler::handleClosedMsg(const std::unique_ptr<Message> &msg)
         auto mod = m_hostManager.findModule(peer_id);
         if (auto ui = mod->as<Userinterface>())
         {
-            cerr << "Map editor crashed" << ui->host.userInfo().userName << "@" << ui->host.userInfo().ipAdress << endl;
+            cerr << "Map editor crashed " << ui->host.userInfo().userName << "@" << ui->host.userInfo().ipAdress << endl;
             cerr << "Trying to restart session " << endl;
             std::this_thread::sleep_for(std::chrono::seconds(5));
             ui->restart(m_options.uiOptions);
+            m_hostManager.sendPartnerList();
         }
         break;
     }
