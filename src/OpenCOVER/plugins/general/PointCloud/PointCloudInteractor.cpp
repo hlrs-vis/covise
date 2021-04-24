@@ -55,8 +55,7 @@ bool PointCloudInteractor::destroy()
     return true;
 }
 
-void
-PointCloudInteractor::startInteraction()
+void PointCloudInteractor::startInteraction()
 {
     if (cover->debugLevel(3))
     {
@@ -92,8 +91,7 @@ PointCloudInteractor::startInteraction()
     m_initHandDirection = initHandMat.preMult(Vec3(0.0, 1.0, 0.0));
 }
 
-void
-PointCloudInteractor::doInteraction()
+void PointCloudInteractor::doInteraction()
 {
 	if (cover->debugLevel(3))
 	{
@@ -119,8 +117,7 @@ PointCloudInteractor::doInteraction()
 	}
 }
 
-void
-PointCloudInteractor::stopInteraction()
+void PointCloudInteractor::stopInteraction()
 {
     if (cover->debugLevel(3))
     {
@@ -194,18 +191,22 @@ PointCloudInteractor::stopInteraction()
 }
 
 bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
-{
+{ 
     bool hitPointSuccess = false;
     if (plugin->files.size() != 0)
     {
+		// transform current Hand matrix into object coordinates
         Matrix currHandMat = cover->getPointerMat();
         const Matrix &invBase = cover->getInvBaseMat();
-
         currHandMat = currHandMat * invBase;
+
+		//set Hand direction within the object
         Vec3 currHandBegin = currHandMat.preMult(Vec3(0.0, 0.0, 0.0));
         Vec3 currHandEnd = currHandMat.preMult(Vec3(0.0, 1.0, 0.0));
-		osg::MatrixTransform *MoTra = new osg::MatrixTransform();
         Vec3 currHandDirection = currHandEnd - currHandBegin;
+
+		//osg::MatrixTransform *MoTra = new osg::MatrixTransform(); //unused Variable ?
+
 		if (fileToMove != "")
 		{
 			if (currFI.filename == "")
@@ -226,13 +227,16 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 				startHandMat.invert(currHandMat);
 				SaveMat = false;
 			}
+
 			moveMat = startHandMat * currHandMat;
+
 			if (m_rotaxis && !m_rotation)
 			{
 				rotAxis = currHandDirection;
 				axisStart = currHandBegin;
 			}
 		}
+
 		if (m_freemove && currFI.filename != "")
 		{
 			currFI.tranformMat->setMatrix(currFI.prevMat * moveMat);
@@ -376,8 +380,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
     return hitPointSuccess;
 }
 
-void  
-PointCloudInteractor::MovePoints(osg::Matrixd MoveMat)
+void PointCloudInteractor::MovePoints(osg::Matrixd MoveMat)
 {
 	for (int i = 0; i < currFI.pointSet->size; i++)
 	{
@@ -385,8 +388,7 @@ PointCloudInteractor::MovePoints(osg::Matrixd MoveMat)
 	}
 }
 
-void
-PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview)
+void PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview)
 {
 	Vec3 newSelectedPoint = selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].coordinates;
 	//fprintf(stderr,"Selected point has ID %d", selectedPoint.file->pointSet[selectedPoint.pointSetIndex].IDs[selectedPoint.pointIndex]);
@@ -451,11 +453,10 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
     selectedSphereDrawable->setStateSet(stateSet);
 }
 
-void
-PointCloudInteractor::addSelectedPoint(Vec3 selectedPoint)
+void  PointCloudInteractor::addSelectedPoint(Vec3 selectedPoint)
 {
-//send message to NurbsSurfacePlugin
-cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(selectedPoint), &selectedPoint);
+	//send message to NurbsSurfacePlugin
+	cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(selectedPoint), &selectedPoint);
 }
 
 void PointCloudInteractor::updateMessage(vector<pointSelection> points)
@@ -471,12 +472,11 @@ void PointCloudInteractor::updateMessage(vector<pointSelection> points)
     }
 }
 
-double
-PointCloudInteractor::LinePointMeasure(Vec3 center, Vec3 handPos, Vec3 handDirection)
+double PointCloudInteractor::LinePointMeasure(Vec3 center, Vec3 handPos, Vec3 handDirection)
 {
     handDirection.normalize();
     Vec3 pMinusC = handPos - center;
-    double b = handDirection * pMinusC;
+    double b = handDirection * pMinusC; //scalar product (dot product) ?
     double c = sqrt(pMinusC * pMinusC - b * b);
     //double d = pMinusC.length();
     if (pMinusC.length()==0.)
@@ -827,6 +827,7 @@ void PointCloudInteractor::showAxis(Vec3 startPoint, Vec3 endPoint)
 	axisBeam->getOrCreateStateSet()->setAttribute(linewidth, osg::StateAttribute::ON);
 	axisBeam->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	axisBeam->setName("Rotation Axis");
-        osg::Geode *axisGeode = new osg::Geode();
-        axisGeode->addDrawable(axisBeam);
+
+    osg::Geode *axisGeode = new osg::Geode();
+    axisGeode->addDrawable(axisBeam);
 }

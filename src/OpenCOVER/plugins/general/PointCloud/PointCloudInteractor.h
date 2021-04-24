@@ -96,14 +96,17 @@ private:
     string fileToMove;
 	osg::Matrix moveMat;
 
+    //functions
 	void showAxis(osg::Vec3 startPoint, osg::Vec3 endPoint);
     void MovePoints(osg::Matrixd MoveMat);
 	osg::StateSet *highlightActiveCloud();
 
     bool m_selectedWithBox;
 
+    //function
     void swap(float &m, float &n);
 
+    //functions
     bool hitPoint(pointSelection &bestPoint);
     void highlightPoint(pointSelection&, bool preview= false);
     bool hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, PointSet *pointset);
@@ -117,6 +120,7 @@ private:
     bool m_translation = false;
     bool m_freemove = false;
 
+    //function
     bool hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, osg::Vec3 center, float radius);
 
     osg::MatrixTransform *sc; 

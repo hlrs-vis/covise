@@ -72,7 +72,7 @@ PointCloudPlugin::PointCloudPlugin()
 
 static FileHandler handlers[] = 
 {
-    { NULL,
+    { NULL, 
       PointCloudPlugin::loadPTS,
       PointCloudPlugin::loadPTS,
       PointCloudPlugin::unloadPTS,
@@ -461,7 +461,6 @@ int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, cons
     return 1;
 }
 
-
 // read in and store the menu data from the configuration file
 void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, ui::Group *subMenu)
 {
@@ -487,12 +486,14 @@ void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntr
                     }
                 });
                 //TODO jibald
+                /*
                 menulist.push_back(ImageFileEntry(menuName, fileName, (ui::Element *)temp));
                 
                 const char* jiname = "jiname";
                 const char* jifile = "jifile";
                 ui::Button *jibutton = new ui::Button(subMenu, jiname);
                 menulist.push_back( ImageFileEntry( jiname, jifile, (ui::Element *)jibutton) );
+                */
             }
         }
     }
@@ -572,7 +573,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
         int psize = 0;
         int numHeaderLines = 0;
-        while (feof(fp) == 0)
+        while (feof(fp) == 0) //while not at eof
         {
             if (fgets(buf, 1000, fp) == nullptr)
             {
@@ -621,7 +622,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 psize++;
             }
         }
-        fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_SET); //resets to fp start
         for (int i = 0; i < numHeaderLines; i++)
         {
             if (fgets(buf, 1000, fp) == nullptr)
@@ -664,9 +665,9 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             int numValues;
             if (imwfLattice)
             {
-                int id=0;
-                char type[1000];
-                float dummy=0.f;
+                int id = 0;
+                char type [1000];
+                float dummy = 0.f;
                 numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].coordinates.x(), &pointSet[0].points[i].coordinates.y(), &pointSet[0].points[i].coordinates.z(), &dummy);
                 pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
             }

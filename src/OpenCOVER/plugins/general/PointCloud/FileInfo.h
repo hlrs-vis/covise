@@ -10,9 +10,10 @@
 struct PointSet;
 
 namespace opencover {
-namespace ui {
-class Button;
-}
+    namespace ui 
+    {
+        class Button;
+    }   
 }
 
 class NodeInfo
