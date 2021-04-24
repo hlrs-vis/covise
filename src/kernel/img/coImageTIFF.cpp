@@ -147,39 +147,32 @@ namespace covise
 {
 unsigned char *tifread(const char *filename, int *w, int *h, int *nc)
 {
-    TIFF *tif;
-    tif = TIFFOpen(filename, "r");
+    TIFF *tif = TIFFOpen(filename, "r");
     if (tif)
     {
-        size_t npixels;
-        size_t widthbytes;
-        int i;
-        uint32 *raster;
-        unsigned char *raster2;
-        unsigned char *image;
-        int samples;
-        samples = 4;
+        int samples = 4;
         TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, w);
         TIFFGetField(tif, TIFFTAG_IMAGELENGTH, h);
         TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &samples);
-        npixels = *w * *h;
-        raster = (uint32 *)malloc(npixels * sizeof(uint32));
+        size_t npixels = *w * *h;
+        uint32_t *raster = (uint32_t *)malloc(npixels * sizeof(uint32_t));
         if (raster != NULL)
         {
             if (TIFFReadRGBAImage(tif, *w, *h, raster, 0))
             {
                 *nc = 4;
 
-                raster2 = (unsigned char *)malloc(npixels * sizeof(uint32));
-                image = (unsigned char *)raster;
-                widthbytes = *w * sizeof(uint32);
-                for (i = 0; i < *h; i++)
+                unsigned char *raster2 = (unsigned char *)malloc(npixels * sizeof(uint32_t));
+                unsigned char *image = (unsigned char *)raster;
+                size_t widthbytes = *w * sizeof(uint32_t);
+                for (int i = 0; i < *h; i++)
                 {
-                    memcpy(raster2 + (npixels * sizeof(uint32)) - ((i + 1) * widthbytes), image + (i * widthbytes), widthbytes);
+                    memcpy(raster2 + (npixels * sizeof(uint32_t)) - ((i + 1) * widthbytes), image + (i * widthbytes), widthbytes);
                 }
                 free(raster);
                 return (unsigned char *)raster2;
             }
+            free(raster);
         }
         TIFFClose(tif);
     }

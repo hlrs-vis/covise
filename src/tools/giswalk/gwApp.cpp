@@ -1046,19 +1046,12 @@ unsigned char *tifread(const char *url, int *w, int *h, int *nc)
 #endif
     if (tif)
     {
-        size_t npixels;
-        size_t widthbytes;
-        int i;
-        uint32 *raster;
-        unsigned char *raster2;
-        unsigned char *image;
-        int samples;
-        samples = 4;
+        int samples = 4;
         TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, w);
         TIFFGetField(tif, TIFFTAG_IMAGELENGTH, h);
         TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &samples);
-        npixels = *w * *h;
-        raster = (uint32 *)malloc(npixels * sizeof(uint32));
+        size_t npixels = *w * *h;
+        uint32_t *raster = (uint32_t *)malloc(npixels * sizeof(uint32_t));
         if (raster != NULL)
         {
             if (TIFFReadRGBAImage(tif, *w, *h, raster, 0))
@@ -1070,21 +1063,20 @@ unsigned char *tifread(const char *url, int *w, int *h, int *nc)
                     *nc = 40;
                 }
 
-                raster2 = (unsigned char *)malloc(npixels * sizeof(uint32));
-                image = (unsigned char *)raster;
-                widthbytes = *w * sizeof(uint32);
-                for (i = 0; i < *h; i++)
+                unsigned char *raster2 = (unsigned char *)malloc(npixels * sizeof(uint32_t));
+                unsigned char *image = (unsigned char *)raster;
+                size_t widthbytes = *w * sizeof(uint32_t);
+                for (int i = 0; i < *h; i++)
                 {
-                    memcpy(raster2 + (npixels * sizeof(uint32)) - ((i + 1) * widthbytes), image + (i * widthbytes), widthbytes);
+                    memcpy(raster2 + (npixels * sizeof(uint32_t)) - ((i + 1) * widthbytes), image + (i * widthbytes), widthbytes);
                 }
                 free(raster);
 
 /* We have to byteswap on SGI ! */
 #ifdef BIG_ENDIAN
                 {
-                    int i;
                     uint32_t *iPtr = (uint32_t *)raster2;
-                    for (i = 0; i < npixels; i++, iPtr++)
+                    for (int i = 0; i < npixels; i++, iPtr++)
                         *iPtr = ((*iPtr & 0x000000ff) << 24) | ((*iPtr & 0x0000ff00) << 8) | ((*iPtr & 0x00ff0000) >> 8) | ((*iPtr & 0xff000000) >> 24);
                 }
 #endif
@@ -1092,6 +1084,7 @@ unsigned char *tifread(const char *url, int *w, int *h, int *nc)
                 /*TIFFClose(tif);*/
                 return (unsigned char *)raster2;
             }
+            free(raster);
         }
     }
     return NULL;

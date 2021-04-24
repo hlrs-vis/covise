@@ -107,9 +107,9 @@ private:
     // the output
     coOutputPort *p_texture_;
 
-    uint32 w_, h_; // image size in pixels
+    uint32_t w_, h_; // image size in pixels
 
-    uint16 resUnit_;
+    uint16_t resUnit_;
     float Width_; // width of file image
     float Height_; // height of file image
     // output limX, limY (texture coordinates) and modify orientation_
@@ -123,7 +123,7 @@ private:
     float YResolution_;
     TextureMapping::SizeControl mode_; // mapping (projection) mode
 
-    uint32 *raster_; // tif image content as got through TIFFReadRGBAImage:
+    uint32_t *raster_; // tif image content as got through TIFFReadRGBAImage:
     // raw RGBA
 
     unsigned int XSize_; // pixel sizes of tif file
