@@ -20,10 +20,8 @@ private:
      osg::Matrix  _startxAxisMatrix,_startyAxisMatrix, _startzAxisMatrix;
     // float _distance{0.0f};
     // osg::Vec3 _diff;
-    osg::Vec3 _startHitPos;
-     float _startFactor;
-     float _scale;
-     osg::Vec3 _shortestDistStartPoint,_startInterPos;
+    osg::Vec3 _startHitPos_o;
+    float _scale;
 
     osg::ref_ptr<osg::MatrixTransform> axisTransform;       // all the Geometry
     osg::ref_ptr<osg::MatrixTransform> xAxisTransform;
@@ -47,7 +45,6 @@ private:
 
     std::unique_ptr<opencover::coLine> _line;   
 
-    double calcValueInRange(double oldMin, double oldMax, double newMin, double newMax, double oldValue);
     osg::Vec3 calculatePointOfShortestDistance(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis_o) const;
 
     //osg::Vec3 calculatePointOfShortestDistance(const osg::Vec3& lp0, const osg::Vec3& lp1, osg::Vec3 axis = osg::Vec3(0,0,0)) const;
@@ -58,6 +55,7 @@ protected:
     //void updateSharedState() override;
     typedef vrb::SharedState<osg::Matrix> SharedMatrix;
     int hit(vrui::vruiHit *hit) override;
+    float calcScale(osg::Vec3 axis);
 
 
 public:
