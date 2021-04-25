@@ -124,6 +124,7 @@ coVR3DScaleGizmo::createGeometry()
     axisTransform->addChild(ySphereTransform);
     axisTransform->addChild(zSphereTransform);
 
+    /*
     //create temporary axis which show scale when interactor is active
     tempxAxisTransform = new osg::MatrixTransform();
     tempyAxisTransform = new osg::MatrixTransform();
@@ -132,6 +133,7 @@ coVR3DScaleGizmo::createGeometry()
     axisTransform->addChild(tempxAxisTransform);
     axisTransform->addChild(tempyAxisTransform);
     axisTransform->addChild(tempzAxisTransform);
+    */
 }
 
 //wozu brauche ich das ?
@@ -150,29 +152,17 @@ void coVR3DScaleGizmo::startInteraction()
     
     coVR3DGizmoType::startInteraction();
 
-//########################################
-    osg::Vec3 lp0_o, lp1_o, pointerDir_o;
-    calculatePointerDirection_o(lp0_o, lp1_o, pointerDir_o);
-    
-    osg::Matrix w_to_o = cover->getInvBaseMat();
-    osg::Matrix currHandMat = getPointerMat();
-    osg::Matrix currHandMat_o = currHandMat * w_to_o;
-    osg::Vec3 currHandPos_o = currHandMat_o.getTrans();  
-    osg::Vec3 interPos = currHandPos_o + pointerDir_o* _distance + _diff;
-    
     osg::Matrix interactor_to_w = getMatrix();
     osg::Matrix w_to_interactor;
     w_to_interactor.invert(interactor_to_w);
-    //_startHitPos = _hitPos;
-    _startHitPos_o = _hitPos * w_to_interactor; //--> need Start hitPos ????!!!!
-//########################################
+    _startHitPos_o = _hitPos * w_to_interactor; 
 
-
-    _scaleXonly =_hitNode == scaleXSphereGeode;// (_hitNode == scaleXaxisGeode) | (_hitNode == scaleXSphereGeode); // OR operation
-    _scaleYonly =_hitNode == scaleYSphereGeode;// (_hitNode == scaleYaxisGeode) | (_hitNode == scaleYSphereGeode);
-    _scaleZonly =_hitNode == scaleZSphereGeode;// (_hitNode == scaleZaxisGeode) | (_hitNode == scaleZSphereGeode);
+    _scaleXonly = (_hitNode == scaleXSphereGeode) | (_hitNode == scaleXaxisGeode); // OR operation
+    _scaleYonly = (_hitNode == scaleYSphereGeode) | (_hitNode == scaleYaxisGeode);
+    _scaleZonly = (_hitNode == scaleZSphereGeode) | (_hitNode == scaleZaxisGeode);
     _scaleAll =_hitNode == sphereGeode;
 
+    /*
     //create Cylinders which show the scale
     osg::ShapeDrawable *tempCylDrawable;
     auto cyl = new osg::Cylinder(osg::Vec3(0,0,0), 0.3, ArrowLength); 
@@ -183,7 +173,6 @@ void coVR3DScaleGizmo::startInteraction()
 
     osg::Geode* tmpGeode = new osg::Geode();
     tmpGeode->addDrawable(tempCylDrawable);
-
     
     if(_scaleXonly)
     {
@@ -216,8 +205,9 @@ void coVR3DScaleGizmo::startInteraction()
         _startyAxisMatrix = tempyAxisTransform->getMatrix(); 
         _startzAxisMatrix = tempzAxisTransform->getMatrix();
     }
+    */
    
-    /* wie setze ich das hier um, brauch man das ? ###################################
+    /* wie setze ich das hier um, brauch man das ?
     if (!_rotateOnly && !_translateOnly)
     {
         _translateOnly = is2D();
@@ -365,10 +355,12 @@ osg::Vec3 coVR3DScaleGizmo::calculatePointOfShortestDistance(const osg::Vec3& lp
 }
 void coVR3DScaleGizmo::stopInteraction()
 {
+    /*
+    stop visualizing scale
     tempxAxisTransform->removeChildren(0,tempxAxisTransform->getNumChildren());
     tempyAxisTransform->removeChildren(0,tempyAxisTransform->getNumChildren());
     tempzAxisTransform->removeChildren(0,tempzAxisTransform->getNumChildren());
-
+    */
     coVR3DGizmoType::stopInteraction();
 
 }

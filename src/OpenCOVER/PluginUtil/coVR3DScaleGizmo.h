@@ -13,13 +13,6 @@ class PLUGIN_UTILEXPORT coVR3DScaleGizmo : public coVR3DGizmoType
 {
 private:
     bool _scaleXonly{false}, _scaleYonly{false}, _scaleZonly{false}, _scaleAll{false};
-    // osg::Matrix _interMat_o, _oldHandMat;
-    // osg::Matrix _invOldHandMat_o;
-    // osg::Matrix _oldInteractorXformMat_o;
-    // osg::Vec3 _startInterPos, _startPointerDirection_o;
-     osg::Matrix  _startxAxisMatrix,_startyAxisMatrix, _startzAxisMatrix;
-    // float _distance{0.0f};
-    // osg::Vec3 _diff;
     osg::Vec3 _startHitPos_o;
     float _scale;
 
@@ -31,9 +24,13 @@ private:
     osg::ref_ptr<osg::MatrixTransform> ySphereTransform;
     osg::ref_ptr<osg::MatrixTransform> zSphereTransform;
 
+    /* 
+    // this was used to visualize scale
+    osg::Matrix  _startxAxisMatrix,_startyAxisMatrix, _startzAxisMatrix;
     osg::ref_ptr<osg::MatrixTransform> tempxAxisTransform;  
     osg::ref_ptr<osg::MatrixTransform> tempyAxisTransform;  
     osg::ref_ptr<osg::MatrixTransform> tempzAxisTransform;  
+    */
 
     osg::ref_ptr<osg::Geode> sphereGeode;
     osg::ref_ptr<osg::Geode> scaleXaxisGeode;
