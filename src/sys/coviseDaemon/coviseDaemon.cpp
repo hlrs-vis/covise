@@ -172,10 +172,14 @@ bool CoviseDaemon::handleVRB()
             auto toPartner = findClient(proxyTest.toClientID);
             if (toPartner != m_clientList.end())
             {
+                auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::cerr << " starting conn test with timeout " << proxyTest.timeout << " : " << std::ctime(&now) << std::endl;
                 Host testHost{toPartner->userInfo().ipAdress.c_str()};
-                ClientConnection testConn{&testHost, proxyTest.port, 0, 0, 2, static_cast<double>(proxyTest.timeout)};
+                ClientConnection testConn{&testHost, proxyTest.port, 0, 0, 0, static_cast<double>(proxyTest.timeout)};
 
-                PROXY_ConnectionState stateMsg{proxyTest.fromClientID, proxyTest.toClientID, testConn.is_connected() ? ConnectionCapability::DirectConnectionPossible : ConnectionCapability::ProxyRequired };
+                now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::cerr << " ClientConnection is connected : " << testConn.is_connected() << " : " << std::ctime(&now) << std::endl;
+                PROXY_ConnectionState stateMsg{proxyTest.fromClientID, proxyTest.toClientID, testConn.is_connected() ? ConnectionCapability::DirectConnectionPossible : ConnectionCapability::ProxyRequired};
                 sendCoviseMessage(stateMsg, *m_client);
             }
         }
