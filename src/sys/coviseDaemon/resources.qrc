@@ -3,5 +3,6 @@
     <file>images/menu.png</file>
     <file>images/redCircle.png</file>
     <file>images/greenCircle.png</file>
+    <file>images/coviseDaemon.png</file>
 </qresource>
 </RCC>
