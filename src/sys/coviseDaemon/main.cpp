@@ -66,7 +66,6 @@ int main(int argc, char **argv)
         {
                 QApplication a(argc, argv);
                 MainWindow mw{readCredentials(vm)};
-                mw.setWindowTitle("VrbRemoteLauncher");
                 mw.show();
                 return a.exec();
         }

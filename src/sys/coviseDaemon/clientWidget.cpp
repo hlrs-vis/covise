@@ -24,7 +24,7 @@ ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *par
 
     for (int i = 0; i < static_cast<int>(Program::LAST_DUMMY); i++)
     {
-        if (static_cast<Program>(i) != Program::VrbRemoteLauncher)
+        if (static_cast<Program>(i) != Program::coviseDaemon)
         {
             auto b = new QPushButton(programNames[i], this);
             layout->addWidget(b);

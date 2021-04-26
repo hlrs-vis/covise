@@ -751,7 +751,7 @@ void VrbMessageHandler::handleProxy(const covise::PROXY &msg)
 		covise::ConnectionCapability cap;
 		if (fromCl && toCl)
 		{
-			assert(fromCl->userInfo().userType == Program::VrbRemoteLauncher);
+			assert(fromCl->userInfo().userType == Program::coviseDaemon);
 			cap = m_connectionStates.check(fromCl->userInfo(), toCl->userInfo());
 		}
 		PROXY_ConnectionState capMsg{p.fromClientID, p.toClientID, cap};

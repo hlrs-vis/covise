@@ -16,7 +16,7 @@ enum class Program
 {
     covise,
     opencover,
-    VrbRemoteLauncher,
+    coviseDaemon,
     crb,
     LAST_DUMMY
 };
@@ -25,7 +25,7 @@ namespace detail{
     constexpr ProgramContainer programNames{
         "covise",
         "opencover",
-        "VrbRemoteLauncher",
+        "coviseDaemon",
         "crb",
         };
 }

@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>COVISE Daemon</string>
   </property>
   <property name="toolTip">
    <string>Don't ask for permission to start COVISE or OpenCOVER</string>
@@ -32,6 +32,9 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="accessibleName">
+    <string>COVISE Daemon</string>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QStackedWidget" name="MenuStackedWidget">

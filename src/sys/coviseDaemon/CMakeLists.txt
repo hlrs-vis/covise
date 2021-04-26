@@ -18,7 +18,7 @@ endif()
     
 SET(REMOTE_LAUNCHER_SOURCES
   clientWidget.cpp
-  vrbRemoteLauncher.cpp
+  coviseDaemon.cpp
   main.cpp
   mainWindow.cpp
   tui.cpp
@@ -31,7 +31,7 @@ SET(REMOTE_LAUNCHER_HEADER
   metaTypes.h
   tui.h
   tuiCommands.h
-  vrbRemoteLauncher.h
+  coviseDaemon.h
 )
 
 SET(VRB_MOC_SRCS
@@ -39,9 +39,9 @@ SET(VRB_MOC_SRCS
   resources.qrc
 )
 
-ADD_COVISE_EXECUTABLE(VrbRemoteLauncher ${REMOTE_LAUNCHER_SOURCES} ${REMOTE_LAUNCHER_HEADER} ${VRB_MOC_SRCS})
+ADD_COVISE_EXECUTABLE(coviseDaemon ${REMOTE_LAUNCHER_SOURCES} ${REMOTE_LAUNCHER_HEADER} ${VRB_MOC_SRCS})
 
-target_link_libraries(VrbRemoteLauncher 
+target_link_libraries(coviseDaemon 
                        Qt5::Core
                        Qt5::Gui
                        Qt5::Widgets
@@ -50,4 +50,4 @@ target_link_libraries(VrbRemoteLauncher
                        coMessages
                        ) 
 
-COVISE_INSTALL_TARGET(VrbRemoteLauncher)
+COVISE_INSTALL_TARGET(coviseDaemon)

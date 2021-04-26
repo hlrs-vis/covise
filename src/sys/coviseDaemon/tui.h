@@ -3,7 +3,7 @@
 
 #include "metaTypes.h"
 #include "tuiCommands.h"
-#include "vrbRemoteLauncher.h"
+#include "coviseDaemon.h"
 
 #include <vrb/client/VrbCredentials.h>
 
@@ -23,7 +23,7 @@ public:
     void run();
     
     private:
-        VrbRemoteLauncher m_launcher;
+        CoviseDaemon m_launcher;
         std::atomic_bool m_terminate{false};
         std::atomic_bool m_launchDialog{false};
         std::mutex m_mutex;

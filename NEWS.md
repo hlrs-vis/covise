@@ -5,8 +5,11 @@ Recent changes
 This document only covers changes that are important for using Covise and OpenCOVER. This includes changes on the UI, the config and requirements.
 For technical changes please have a look at the git commits.
 
+26.04.2021 Renamed VrbRemoteLauncher to coviseDaemon
+----------------------------------------------------
+
 14.04.2021 Added new config entry: System.VRB.CheckConnectionTimeout
--------------------------------------------------------------------
+--------------------------------------------------------------------
 This specifies the time in seconds that COVISE waits for a direct connection to a new partner.
 If the direct connection times out a proxy connections is established via VRB.
 

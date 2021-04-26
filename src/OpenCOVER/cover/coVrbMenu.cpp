@@ -186,7 +186,7 @@ namespace opencover
         std::vector<std::string> remoteLauncher;
         for (const auto &partner : *coVRPartnerList::instance())
         {
-            if (partner->userInfo().userType == vrb::Program::VrbRemoteLauncher)
+            if (partner->userInfo().userType == vrb::Program::coviseDaemon)
             {
                 remoteLauncher.push_back(partner->userInfo().userName);
             }
@@ -220,7 +220,7 @@ int getRemoteLauncherClientID(int index){
     int i = 0, clientID = 0;
     while (partner != coVRPartnerList::instance()->end())
     {
-        if ((*partner)->userInfo().userType == vrb::Program::VrbRemoteLauncher)
+        if ((*partner)->userInfo().userType == vrb::Program::coviseDaemon)
         {
             if (i == index)
             {

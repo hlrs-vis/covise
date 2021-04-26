@@ -1,4 +1,4 @@
-#include "vrbRemoteLauncher.h"
+#include "coviseDaemon.h"
 
 #include <config/CoviseConfig.h>
 #include <net/covise_connect.h>
@@ -27,7 +27,7 @@
 
 using namespace vrb;
 
-VrbRemoteLauncher::~VrbRemoteLauncher()
+CoviseDaemon::~CoviseDaemon()
 {
     m_terminate = true;
     disconnect();
@@ -37,7 +37,7 @@ VrbRemoteLauncher::~VrbRemoteLauncher()
     }
 }
 
-void VrbRemoteLauncher::connect(const vrb::VrbCredentials &credentials)
+void CoviseDaemon::connect(const vrb::VrbCredentials &credentials)
 {
     m_shouldBeConnected = true;
     {
@@ -56,7 +56,7 @@ void VrbRemoteLauncher::connect(const vrb::VrbCredentials &credentials)
     }
 }
 
-void VrbRemoteLauncher::disconnect()
+void CoviseDaemon::disconnect()
 {
     if (m_shouldBeConnected)
     {
@@ -65,7 +65,7 @@ void VrbRemoteLauncher::disconnect()
     }
 }
 
-void VrbRemoteLauncher::printClientInfo()
+void CoviseDaemon::printClientInfo()
 {
     Guard g{m_mutex};
     std::vector<const vrb::RemoteClient *> partner;
@@ -86,18 +86,18 @@ void VrbRemoteLauncher::printClientInfo()
     }
 }
 
-void VrbRemoteLauncher::sendPermission(int clientID, bool permit)
+void CoviseDaemon::sendPermission(int clientID, bool permit)
 {
     covise::VRB_PERMIT_LAUNCH msg(clientID, m_client->ID(), permit);
     covise::sendCoviseMessage(msg, *m_client);
 }
 
-void VrbRemoteLauncher::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
+void CoviseDaemon::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
     vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{m_client->ID(), p, clientID, args}, m_client.get());
 }
 
-void VrbRemoteLauncher::loop()
+void CoviseDaemon::loop()
 {
     while (!m_terminate)
     {
@@ -107,7 +107,7 @@ void VrbRemoteLauncher::loop()
                 Guard g(m_mutex);
                 if (m_newCredentials)
                 {
-                    m_client.reset(new VRBClient{vrb::Program::VrbRemoteLauncher, *m_credentials});
+                    m_client.reset(new VRBClient{vrb::Program::coviseDaemon, *m_credentials});
                     m_newCredentials = false;
                 }
             }
@@ -127,7 +127,7 @@ void VrbRemoteLauncher::loop()
     }
 }
 
-bool VrbRemoteLauncher::handleVRB()
+bool CoviseDaemon::handleVRB()
 {
     using namespace covise;
     covise::Message msg;
@@ -155,7 +155,7 @@ bool VrbRemoteLauncher::handleVRB()
         for (auto &cl : uim.otherClients)
         {
             assert(findClient(cl.ID()) == m_clientList.end());
-            if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
+            if (cl.userInfo().userType == vrb::Program::coviseDaemon)
             {
                 emit updateClient(cl.ID(), getClientInfo(cl));
             }
@@ -211,7 +211,7 @@ bool VrbRemoteLauncher::handleVRB()
     return true;
 }
 
-bool VrbRemoteLauncher::removeOtherClient(covise::TokenBuffer &tb)
+bool CoviseDaemon::removeOtherClient(covise::TokenBuffer &tb)
 {
     int id;
     tb >> id;
@@ -220,7 +220,7 @@ bool VrbRemoteLauncher::removeOtherClient(covise::TokenBuffer &tb)
         auto cl = findClient(id);
         if (cl != m_clientList.end())
         {
-            if (cl->userInfo().userType == vrb::Program::VrbRemoteLauncher)
+            if (cl->userInfo().userType == vrb::Program::coviseDaemon)
             {
                 emit removeClient(id);
             }
@@ -231,14 +231,14 @@ bool VrbRemoteLauncher::removeOtherClient(covise::TokenBuffer &tb)
     return false;
 }
 
-std::set<vrb::RemoteClient>::iterator VrbRemoteLauncher::findClient(int id)
+std::set<vrb::RemoteClient>::iterator CoviseDaemon::findClient(int id)
 {
     return std::find_if(m_clientList.begin(), m_clientList.end(), [id](const vrb::RemoteClient &client) {
         return id == client.ID();
     });
 }
 
-void VrbRemoteLauncher::handleVrbLauncherMessage(covise::Message &msg)
+void CoviseDaemon::handleVrbLauncherMessage(covise::Message &msg)
 {
     vrb::VRB_MESSAGE lrq{msg};
     if (lrq.clientID == m_client->ID())

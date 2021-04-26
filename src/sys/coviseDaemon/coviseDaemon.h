@@ -16,11 +16,11 @@
 #include <thread>
 #include <vector>
 
-class VrbRemoteLauncher : public QObject
+class CoviseDaemon : public QObject
 {
     Q_OBJECT
 public:
-    ~VrbRemoteLauncher();
+    ~CoviseDaemon();
     void connect(const vrb::VrbCredentials &credentials = vrb::VrbCredentials{});
     void disconnect();
     void printClientInfo();

@@ -6,7 +6,7 @@
 /extern_libs/
 /.envrc
 /*.vrbreg
-/VrbRemoteLauncher.settings
+/coviseDaemon.settings
 /.cproject
 /.project
 /.settings

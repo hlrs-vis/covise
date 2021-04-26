@@ -1,5 +1,5 @@
 #include "tui.h"
-#include "vrbRemoteLauncher.h"
+#include "coviseDaemon.h"
 
 #include <QApplication>
 
@@ -12,14 +12,14 @@ Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
     qRegisterMetaType<std::vector<std::string>>();
 
     std::cerr << "connecting to VRB on " << credentials.ipAddress << ", TCP-Port: " << credentials.tcpPort << ", UDP-Port: " << credentials.udpPort << std::endl;
-    connect(&m_launcher, &VrbRemoteLauncher::connectedSignal, this, []() {
+    connect(&m_launcher, &CoviseDaemon::connectedSignal, this, []() {
         std::cerr << "connected!" << std::endl;
     });
-    connect(&m_launcher, &VrbRemoteLauncher::disconnectedSignal, this, [this]() {
+    connect(&m_launcher, &CoviseDaemon::disconnectedSignal, this, [this]() {
         std::cerr << "disconnected!" << std::endl;
         m_launcher.connect();
     });
-    connect(&m_launcher, &VrbRemoteLauncher::launchSignal, this, [this](int senderId, QString senderDescription, vrb::Program id, std::vector<std::string> args) {
+    connect(&m_launcher, &CoviseDaemon::launchSignal, this, [this](int senderId, QString senderDescription, vrb::Program id, std::vector<std::string> args) {
         std::lock_guard<std::mutex> g(m_mutex);
         m_program = id;
         m_senderId = senderId;

@@ -19,7 +19,7 @@ IMPL_SUB_MESSAGE_CLASS(VRB_LOAD_SESSION, VrbMessageType, Launcher, Program, prog
 bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, const covise::MessageSenderInterface *sender){
     covise::TokenBuffer outerTb, innerTb;
     innerTb << lrq;
-    outerTb << Program::VrbRemoteLauncher << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
+    outerTb << Program::coviseDaemon << covise::COVISE_MESSAGE_VRB_MESSAGE << innerTb;
     return sender->send(outerTb, covise::COVISE_MESSAGE_BROADCAST_TO_PROGRAM);
 }
 

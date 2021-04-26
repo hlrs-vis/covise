@@ -27,7 +27,7 @@ void Command::execute(const std::string &command)
     }
 }
 
-LaunchCommand::LaunchCommand(vrb::Program program, VrbRemoteLauncher &launcher)
+LaunchCommand::LaunchCommand(vrb::Program program, CoviseDaemon &launcher)
     : m_program(program), m_launcher(launcher) {}
 
 void LaunchCommand::print() const

@@ -104,15 +104,15 @@ void MainWindow::on_timeoutSlider_sliderMoved(int val)
 
 void MainWindow::setRemoteLauncherCallbacks()
 {
-	connect(&m_remoteLauncher, &VrbRemoteLauncher::connectedSignal, this, &MainWindow::setStateConnected);
-	connect(&m_remoteLauncher, &VrbRemoteLauncher::disconnectedSignal, this, [this]() {
+	connect(&m_remoteLauncher, &CoviseDaemon::connectedSignal, this, &MainWindow::setStateConnected);
+	connect(&m_remoteLauncher, &CoviseDaemon::disconnectedSignal, this, [this]() {
 		setStateDisconnected();
 		if (ui->autoconnectCheckBox->isChecked())
 			onConnectBtnClicked();
 	});
-	connect(&m_remoteLauncher, &VrbRemoteLauncher::updateClient, this, &MainWindow::updateClient);
-	connect(&m_remoteLauncher, &VrbRemoteLauncher::removeClient, this, &MainWindow::removeClient);
-	connect(&m_remoteLauncher, &VrbRemoteLauncher::launchSignal, this, &MainWindow::launchProgram);
+	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
+	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
+	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);
 }
 
 void MainWindow::showConnectionProgressBar(int seconds)
@@ -248,7 +248,7 @@ void MainWindow::launchProgram(int senderID, const QString& senderDescription, v
 void MainWindow::dumpOptions()
 {
 	std::string path = getenv("COVISE_PATH");
-	path += "/VrbRemoteLauncher.settings";
+	path += "/coviseDaemon.settings";
 	std::fstream file(path, std::ios_base::binary | std::ios_base::out);
 	if (file.is_open())
 	{
@@ -271,7 +271,7 @@ void MainWindow::dumpOptions()
 void MainWindow::readOptions()
 {
 	std::string path = getenv("COVISE_PATH");
-	path += "/VrbRemoteLauncher.settings";
+	path += "/coviseDaemon.settings";
 	std::fstream file(path, std::ios_base::binary | std::ios_base::in);
 	if (file.is_open())
 	{

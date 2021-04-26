@@ -1,7 +1,7 @@
 #ifndef VRB_REMOTE_LAUNCHER_TUI_COMMMANDS_H
 #define VRB_REMOTE_LAUNCHER_TUI_COMMMANDS_H
 
-#include "vrbRemoteLauncher.h"
+#include "coviseDaemon.h"
 
 #include <vector>
 #include <string>
@@ -33,13 +33,13 @@ private:
 
 struct LaunchCommand : CommandInterface{
 
-    LaunchCommand(vrb::Program program, VrbRemoteLauncher &launcher);
+    LaunchCommand(vrb::Program program, CoviseDaemon &launcher);
     void print() const override;
 
     void execute(const std::string &command) override;
     private:
         vrb::Program m_program;
-        VrbRemoteLauncher &m_launcher;
+        CoviseDaemon &m_launcher;
 };
 
 #endif // !VRB_REMOTE_LAUNCHER_TUI_COMMMANDS_H

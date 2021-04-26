@@ -1,7 +1,7 @@
 #ifndef MainWindow_H
 #define MainWindow_H
 
-#include "vrbRemoteLauncher.h"
+#include "coviseDaemon.h"
 
 #include <QMainWindow>
 
@@ -45,7 +45,7 @@ private:
     std::atomic_bool m_isConnecting{false};
     std::future<void> m_waitFuture;
     ClientWidgetList *m_clientList;
-    VrbRemoteLauncher m_remoteLauncher;
+    CoviseDaemon m_remoteLauncher;
     void setHotkeys();
     void setRemoteLauncherCallbacks();
     void showConnectionProgressBar(int seconds);

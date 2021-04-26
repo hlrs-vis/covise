@@ -1119,7 +1119,7 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
     case NEW_UI_TYPE::RequestNewHost:
     {
         auto &subMsg = msg.unpackOrCast<NEW_UI_RequestNewHost>();
-        QString text = "Please start VrbRemoteLauncher on host " + QString{subMsg.hostName} +
+        QString text = "Please start coviseDaemon on host " + QString{subMsg.hostName} +
                        " as user " + QString(subMsg.userName) +
                        "\nand connect to the VRB server running on " + QString(subMsg.vrbCredentials.ipAddress.c_str()) +
                        " listening on port " + QString::number(subMsg.vrbCredentials.tcpPort) +

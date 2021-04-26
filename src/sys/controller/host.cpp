@@ -839,7 +839,7 @@ bool HostManager::handleVrbMessage()
             }
             for (auto &cl : uim.otherClients)
             {
-                if (cl.userInfo().userType == vrb::Program::VrbRemoteLauncher)
+                if (cl.userInfo().userType == vrb::Program::coviseDaemon)
                 {
                     m_hosts.insert(HostMap::value_type{cl.ID(), std::unique_ptr<RemoteHost>{new RemoteHost{*this, std::move(cl)}}});
                 }
