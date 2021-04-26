@@ -32,6 +32,8 @@ private:
     bool tryReceiveMessage(Message &msg);
     void queryDataPath();
     bool connectToCrb(const SubProcess &crb) override;
+    bool connectCrbsViaProxy(const SubProcess &toCrb);
+
 };
 
 } // namespace controller

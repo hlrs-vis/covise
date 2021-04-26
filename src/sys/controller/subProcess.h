@@ -79,7 +79,6 @@ protected:
     };
 
     virtual bool connectToCrb(const SubProcess &crb);
-    bool connectCrbsViaProxy(const SubProcess &toCrb);
     bool connectModuleToCrb(const SubProcess &toCrb, ConnectionType type);
     const Connection *m_conn = nullptr; // connection to this other module managed by process::list_of_connections
 private:

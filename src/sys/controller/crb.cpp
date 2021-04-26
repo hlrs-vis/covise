@@ -9,7 +9,9 @@
 #include "host.h"
 #include "userinterface.h"
 #include "handler.h"
+#include "proxyConnection.h"
 
+#include <comsg/PROXY.h>
 #include <net/message_types.h>
 #include <util/covise_version.h>
 
@@ -134,4 +136,38 @@ bool CRBModule::connectToCrb(const SubProcess &crb)
         return connectCrbsViaProxy(crb);
     }
     return connectModuleToCrb(crb, ConnectionType::CrbToCrb);
+}
+
+bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
+{
+    PROXY_CreateCrbProxy crbProxyRequest{toCrb.processId, processId, 0};
+    sendCoviseMessage(crbProxyRequest, *host.hostManager.proxyConn());
+    const std::array<const SubProcess *, 2> crbs{&toCrb, this};
+    constexpr std::array<int, 2> msgTypes{COVISE_MESSAGE_PREPARE_CONTACT_DM, COVISE_MESSAGE_DM_CONTACT_DM};
+    for (size_t i = 0; i < 2; i++)
+    {
+        Message proxyMsg;
+        if (&crbs[i]->host == &host.hostManager.getLocalHost()) //pass the port to the local crb, proxy crbs get informed direcly by the VRB
+        {
+            //receive opened port
+            host.hostManager.proxyConn()->recv_msg(&proxyMsg); //produces proxy not found warning
+            PROXY p{proxyMsg};
+            auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
+            //send host and port to crb
+            TokenBuffer tb1;
+            tb1 << crbProxyCreated.port << host.hostManager.getVrbClient().getCredentials().ipAddress;
+            Message msg{msgTypes[i], tb1.getData()};
+            crbs[i]->send(&msg);
+        }
+
+        //wait for VRB to confirm the connection
+        host.hostManager.proxyConn()->recv_msg(&proxyMsg);
+        PROXY p2{proxyMsg};
+        if (!p2.unpackOrCast<PROXY_ProxyConnected>().success)
+        {
+            std::cerr << "failed to connect crb on " << host.userInfo().ipAdress << " to crb on " << toCrb.host.userInfo().ipAdress << " via vrb proxy" << std::endl;
+            return false;
+        }
+    }
+    return true;
 }
