@@ -513,37 +513,8 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
             bool proxyRequired = false;
             if (msg.launchStyle != LaunchStyle::Disconnect)
             {
-                PROXY_ConnectionCheck check{clID, m_vrb->ID()};
-                sendCoviseMessage(check, *m_vrb);
-                auto conCap = m_proxyRequired.waitForValue();
-                if (conCap == ConnectionCapability::NotChecked)
-                {
-                    int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
-                    Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostIt->second->userInfo().hostName + ", timeout is " + std::to_string(timeout) + " seconds."};
-                    sendAll<Userinterface>(infoMsg);
-                    setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
-                        PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
-                        return sendCoviseMessage(test, *m_vrb);
-                    });
-                    conCap = m_proxyRequired.waitForValue();
-                }
-                assert(conCap != ConnectionCapability::NotChecked);
-                std::string msgStr;
-                if (conCap == ConnectionCapability::ProxyRequired)
-                {
-                    createProxyConn();
-                    msgStr = "Connection to " + hostIt->second->userInfo().hostName + " timed out, creating proxy via VRB.";
-                }
-                else
-                {
-                    msgStr = "Connection to " + hostIt->second->userInfo().hostName + " successful.";
-                }
-
-                Message m{COVISE_MESSAGE_WARNING, msgStr};
-                sendAll<Userinterface>(m);
-                proxyRequired = conCap == ConnectionCapability::ProxyRequired;
+                proxyRequired = checkIfProxyRequiered(clID, hostIt->second->userInfo().hostName);
             }
-
             retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired));
         }
     }
@@ -770,6 +741,45 @@ bool HostManager::launchOfCrbPermitted() const
 std::unique_ptr<Message> HostManager::hasProxyMessage()
 {
     return m_proxyConnection ? m_proxyConnection->getCachedMsg() : nullptr;
+}
+
+bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
+{
+    PROXY_ConnectionCheck check{clID, m_vrb->ID()};
+    sendCoviseMessage(check, *m_vrb);
+    auto conCap = m_proxyRequired.waitForValue();
+    if (conCap == ConnectionCapability::NotChecked)
+    {
+        int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
+        Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostName + ", timeout is " + std::to_string(timeout) + " seconds."};
+        sendAll<Userinterface>(infoMsg);
+        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::cerr << " creating server conn: " << std::ctime(&now) << std::endl;
+        setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
+            PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
+            return sendCoviseMessage(test, *m_vrb);
+        });
+        now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::cerr << " waiting for response from vrb: " << std::ctime(&now) << std::endl;
+        conCap = m_proxyRequired.waitForValue();
+        now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::cerr << " received response from vrb: " << std::ctime(&now) << std::endl;
+    }
+    assert(conCap != ConnectionCapability::NotChecked);
+    std::string msgStr;
+    if (conCap == ConnectionCapability::ProxyRequired)
+    {
+        createProxyConn();
+        msgStr = "Connection to " + hostName + " timed out, creating proxy via VRB.";
+    }
+    else
+    {
+        msgStr = "Connection to " + hostName + " successful.";
+    }
+
+    Message m{COVISE_MESSAGE_WARNING, msgStr};
+    sendAll<Userinterface>(m);
+    return conCap == ConnectionCapability::ProxyRequired;
 }
 
 void HostManager::createProxyConn()

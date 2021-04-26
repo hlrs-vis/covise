@@ -193,10 +193,10 @@ private:
     SyncVar<int> m_proxyConnPort;
     SyncVar<covise::ConnectionCapability> m_proxyRequired;
     mutable SyncVar<bool> m_launchPermission;
+    bool checkIfProxyRequiered(int clID, const std::string &hostName);
     void createProxyConn();
     void handleVrb();
     bool handleVrbMessage();
-
 };
 } //namespace controller
 } //namespace covise
