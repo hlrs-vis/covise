@@ -225,9 +225,10 @@ void MainWindow::launchProgram(int senderID, const QString& senderDescription, v
 		QMessageBox msgBox{this};
 		QString text;
 		QTextStream ss(&text);
-		ss << senderDescription << "requests start of " << vrb::programNames[programID];
+		ss <<"Host " << senderDescription << " requests execution of " << vrb::programNames[programID] << ".";
+		msgBox.setWindowTitle("Application execution request");
 		msgBox.setText(text);
-		msgBox.setInformativeText("Do you want to execute that program?");
+		msgBox.setInformativeText("Do you want to execute this application?");
 		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Ok);
 		int ret = msgBox.exec();
