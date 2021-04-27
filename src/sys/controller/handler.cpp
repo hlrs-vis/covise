@@ -2917,7 +2917,7 @@ string CTRLHandler::writeClipboard(const string &keyword, const vector<NetModule
     for (const NetModule *app : moduleList)
     {
         string erg = app->get_parameter(controller::Direction::Input, false);
-        if (!app->isOriginal()) //old code checked of app is also in m_hostManager.getLocalHost<Application>()
+        if (app->isOriginal()) //old code checked if app is also in m_hostManager.getLocalHost<Application>()
         {
             buffer += app->get_module(true);
         }
