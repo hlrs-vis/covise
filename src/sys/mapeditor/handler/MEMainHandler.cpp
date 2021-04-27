@@ -1298,7 +1298,6 @@ QColor MEMainHandler::getHostColor(int entry)
 void MEMainHandler::updateRemotePartners(const covise::ClientList &partners){
     std::lock_guard<std::mutex> g{m_remotePartnerMutex};
     m_remotePartners = partners;
-    m_remotePartnersUpdated = true;
 }
 
 //!

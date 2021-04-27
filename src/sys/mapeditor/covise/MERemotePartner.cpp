@@ -70,45 +70,18 @@ ClientWidget::ClientWidget(const covise::ClientInfo &partner, QWidget *parent)
     }
 }
 
-ClientWidgetList::ClientWidgetList(QScrollArea *scrollArea, QWidget *parent)
+ClientWidgetList::ClientWidgetList(QScrollArea *scrollArea, QWidget *parent, const covise::ClientList &partners)
     : QWidget(parent), m_layout(new QVBoxLayout(this))
 {
     m_layout->setDirection(QVBoxLayout::TopToBottom);
     scrollArea->setWidget(this);
-}
-
-void ClientWidgetList::addClient(const covise::ClientInfo &partner)
-{
-    auto cw = new ClientWidget(partner, this);
-    m_layout->addWidget(cw);
-    removeClient(partner.id);
-    m_clients[partner.id] = cw;
-    connect(cw, &ClientWidget::clientAction, this, &ClientWidgetList::clientAction);
-}
-
-void ClientWidgetList::removeClient(int clientID)
-{
-    auto cl = m_clients.find(clientID);
-    if (cl != m_clients.end())
+    for (const auto &partner : partners)
     {
-        m_layout->removeWidget(cl->second);
-        delete cl->second;
-        cl->second = nullptr;
-        m_clients.erase(cl);
+        auto cw = new ClientWidget(partner, this);
+        m_layout->addWidget(cw);
+        m_clients[partner.id] = cw;
+        connect(cw, &ClientWidget::clientAction, this, &ClientWidgetList::clientAction);
     }
-}
-
-std::vector<int> ClientWidgetList::getSelectedClients(covise::LaunchStyle launchStyle)
-{
-    std::vector<int> retval;
-    for (const auto &cl : m_clients)
-    {
-        if (cl.second->m_clientActions[launchStyle]->isChecked())
-        {
-            retval.push_back(cl.first);
-        }
-    }
-    return retval;
 }
 
 MERemotePartner::MERemotePartner(QWidget *parent)
@@ -124,12 +97,7 @@ MERemotePartner::MERemotePartner(QWidget *parent)
     qRegisterMetaType<covise::ClientInfo>();
 
     m_ui->setupUi(this);
-    m_clients = new ClientWidgetList(m_ui->partnersArea, this);
-    connect(m_clients, &ClientWidgetList::clientAction, this, &MERemotePartner::clientAction);
 
-    connect(m_ui->cancelBtn, &QPushButton::clicked, this, [this]() {
-        hide();
-    });
 }
 
 void MERemotePartner::setPartners(const covise::ClientList &partners)
@@ -139,8 +107,9 @@ void MERemotePartner::setPartners(const covise::ClientList &partners)
         QPoint p{4, 4};
         move(m_parent->pos() + QPoint{m_parent->rect().width() / 2, m_parent->rect().height() / 2} - rect().center());
     }
-    for (const auto &p : partners)
-    {
-        m_clients->addClient(p);
-    }
+    m_clients = new ClientWidgetList(m_ui->partnersArea, this, partners);
+    connect(m_clients, &ClientWidgetList::clientAction, this, &MERemotePartner::clientAction);
+    connect(m_ui->cancelBtn, &QPushButton::clicked, this, [this]() {
+        hide();
+    });
 }

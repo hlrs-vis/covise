@@ -36,10 +36,7 @@ class ClientWidgetList : public QWidget
 {
     Q_OBJECT
 public:
-    ClientWidgetList(QScrollArea *scrollArea, QWidget *parent);
-    void addClient(const covise::ClientInfo& partner);
-    void removeClient(int clientID);
-    std::vector<int> getSelectedClients(covise::LaunchStyle launchStyle);
+    ClientWidgetList(QScrollArea *scrollArea, QWidget *parent, const covise::ClientList &partners);
 signals:
     void clientAction(const covise::ClientInfo &client);
 

@@ -249,7 +249,6 @@ private:
     bool m_executeOnChange, m_inMapLoading;
     int m_mirrorMode, m_localHostID, m_connectedPartner;
     int m_portSize, m_sliderWidth;
-    std::atomic_bool m_remotePartnersUpdated{false};
     std::mutex m_remotePartnerMutex;
     covise::ClientList m_remotePartners;
 

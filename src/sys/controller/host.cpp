@@ -889,20 +889,22 @@ bool HostManager::handleVrbMessage()
         tb >> id;
         if (id != m_vrb->ID())
         {
-            std::lock_guard<std::mutex> g{m_mutex};
-            auto clIt = m_hosts.find(id);
-            if (clIt != m_hosts.end())
             {
-                if (clIt->second->state() == LaunchStyle::Disconnect)
+                std::lock_guard<std::mutex> g{m_mutex};
+                auto clIt = m_hosts.find(id);
+                if (clIt != m_hosts.end())
                 {
-                    m_hosts.erase(clIt);
-                    sendPartnerList();
-                }
-                else
-                {
-                    //disconnect partner
+                    if (clIt->second->state() == LaunchStyle::Disconnect)
+                    {
+                        m_hosts.erase(clIt);
+                    }
+                    else
+                    {
+                        //disconnect partner
+                    }
                 }
             }
+            sendPartnerList();
             break;
         }
         //fall through to disconnect
