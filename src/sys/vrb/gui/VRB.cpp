@@ -22,7 +22,6 @@
 
 #include "VRBapplication.h"
 
-
 ApplicationWindow *mw;
 
 int main(int argc, char **argv)
@@ -42,7 +41,9 @@ int main(int argc, char **argv)
 #ifdef __APPLE__
         a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-        mw = new ApplicationWindow();
+		a.setWindowIcon(QIcon(":/icons/vrbIcon.png"));
+
+		mw = new ApplicationWindow();
         mw->setWindowTitle("VRB");
         mw->show();
         a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));

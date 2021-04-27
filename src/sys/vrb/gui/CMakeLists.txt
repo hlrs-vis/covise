@@ -3,8 +3,21 @@
 # CMakeLists.txt for sys vrb vrb (gui)
 #
 # @author Blasius Czink
+
+COVISE_FIND_PACKAGE(Qt5 REQUIRED 
+COMPONENTS 
+Core
+Gui
+Widgets
+)
+
 USING(BOOST)
+
 ADD_DEFINITIONS(-DGUI)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
 INCLUDE_DIRECTORIES(
   ..
@@ -33,15 +46,24 @@ SET(VRB_MOC_HEADERS
   ../VrbUiMessageHandler.h
 )
 
-QT_WRAP_CPP(VRB_MOC_SRCS ${VRB_MOC_HEADERS})
+SET(VRB_MOC_SRCS
+  resources.qrc
+)
 
 ADD_COVISE_EXECUTABLE(vrb ${VRB_SOURCES} ${VRB_MOC_HEADERS} ${VRB_MOC_SRCS})
-qt_use_modules(vrb Widgets Network)
 IF(BASEARCHSUFFIX STREQUAL "gecko" OR BASEARCHSUFFIX STREQUAL "heiner")
   ADD_COVISE_COMPILE_FLAGS(vrb "-Wno-non-virtual-dtor")
 ENDIF()
 # COVISE_WNOERROR(coVRML BASEARCH gecko heiner)
 
-TARGET_LINK_LIBRARIES(vrb coVRBServer coVRB coNet coUtil coQtUtil)
+TARGET_LINK_LIBRARIES(vrb
+                        Qt5::Core
+                        Qt5::Gui
+                        Qt5::Widgets
+                        coNet
+                        coQtUtil
+                        coUtil
+                        coVRB
+                        coVRBServer)
 
 COVISE_INSTALL_TARGET(vrb)
