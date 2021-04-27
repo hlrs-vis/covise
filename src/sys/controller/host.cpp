@@ -689,32 +689,36 @@ std::string HostManager::getHostsInfo() const
 {
 
     std::stringstream buffer;
-    buffer << m_hosts.size() << "\n";
+    int numPartners = 0;
     for (const auto &h : *this)
     {
-        auto &host = *h.second;
-        if (&host == &getLocalHost())
+        if (h.second->state() != LaunchStyle::Disconnect)
         {
-            buffer << "LOCAL\nLUSER";
-        }
-        else
-        {
-            buffer << host.userInfo().ipAdress << "\n"
-                   << host.userInfo().userName;
-            try
+            ++numPartners;
+            auto &host = *h.second;
+            if (&host == &getLocalHost())
             {
-                host.getProcess(sender_type::USERINTERFACE);
-                buffer << " Partner";
+                buffer << "LOCAL\nLUSER";
             }
-            catch (const Exception &e)
+            else
             {
-                (void)e;
+                buffer << host.userInfo().ipAdress << "\n"
+                       << host.userInfo().userName;
+                try
+                {
+                    host.getProcess(sender_type::USERINTERFACE);
+                    buffer << " Partner";
+                }
+                catch (const Exception &e)
+                {
+                    (void)e;
+                }
             }
+            buffer << "\n";
         }
-        buffer << "\n";
     }
 
-    return buffer.str();
+    return std::to_string(numPartners) + "\n" + buffer.str();
 }
 
 const ModuleInfo &HostManager::registerModuleInfo(const std::string &name, const std::string &category) const
