@@ -67,7 +67,6 @@ int main(int argc, char **argv)
                 QApplication a(argc, argv);
                 a.setWindowIcon(QIcon(":/images/coviseDaemon.png"));
                 MainWindow mw{readCredentials(vm)};
-                mw.show();
                 return a.exec();
         }
         else

@@ -4,8 +4,11 @@
 
 #include <util/coSpawnProgram.h>
 
+#include <QCloseEvent>
+#include <QMenu>
 #include <QMessageBox>
 #include <QShortcut>
+#include <QSystemTrayIcon>
 #include <QTextStream>
 
 #include <iostream>
@@ -22,7 +25,6 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 {
 	qRegisterMetaType<vrb::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
-
 	ui->setupUi(this);
 	setRemoteLauncherCallbacks();
 	ui->tcpInput->setValue(credentials.tcpPort);
@@ -37,9 +39,8 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 
 		m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
 	});
-
+	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 	setHotkeys();
-
 
 	if (ui->autoconnectCheckBox->isChecked())
 	{
@@ -48,6 +49,24 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 	else
 	{
 		setStateDisconnected();
+	}
+	if (!QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		ui->backgroundCheckBox->setChecked(false);
+		ui->backgroundCheckBox->hide();
+	}
+
+	if (ui->minimizedCheckBox->isChecked())
+	{
+		if (!ui->backgroundCheckBox->isChecked())
+		{
+			showMinimized();
+		}
+		else
+		{
+			std::cerr << "hiding" << std::endl;
+			hideThis();
+		}
 	}
 }
 
@@ -62,8 +81,44 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-void MainWindow::setHotkeys(){
-		auto escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+	if (ui->backgroundCheckBox->isChecked())
+	{
+		hideThis();
+		event->ignore();
+	}
+	else
+		event->accept();
+}
+
+void MainWindow::createTrayIcon()
+{
+	m_tray = new QSystemTrayIcon(QIcon(":/images/coviseDaemon.png"), this);
+	//tray->showMessage("coviseDaemon", "blablabla");
+	m_tray->setToolTip("COVISE Daemon");
+	auto trayMenu = new QMenu(this);
+	trayMenu->setContextMenuPolicy(Qt::CustomContextMenu);
+	auto exit = trayMenu->addAction("Exit");
+	connect(exit, &QAction::triggered, &QApplication::quit);
+	trayMenu->addAction("Open", this, &MainWindow::showThis);
+	m_tray->setContextMenu(trayMenu);
+	connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
+		switch (reason)
+		{
+		case QSystemTrayIcon::DoubleClick:
+		case QSystemTrayIcon::Trigger:
+			showThis();
+			break;
+		default:
+			break;
+		}
+	});
+}
+
+void MainWindow::setHotkeys()
+{
+	auto escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
 	auto enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
 	auto sideMenu = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab), this);
 	connect(enter, &QShortcut::activated, this, [this]() {
@@ -81,7 +136,6 @@ void MainWindow::setHotkeys(){
 		{
 			onDisconnectBtnClicked();
 		}
-		
 	});
 	connect(sideMenu, &QShortcut::activated, this, [this]() {
 		on_actionSideMenuAction_triggered();
@@ -217,15 +271,20 @@ void MainWindow::removeClient(int clientID)
 	m_clientList->removeClient(clientID);
 }
 
-void MainWindow::launchProgram(int senderID, const QString& senderDescription, vrb::Program programID, const std::vector<std::string> &args)
+void MainWindow::launchProgram(int senderID, const QString &senderDescription, vrb::Program programID, const std::vector<std::string> &args)
 {
 	bool execute = ui->autostartCheckBox->isChecked();
 	if (!execute)
 	{
-		QMessageBox msgBox{this};
+		bool wasVisible = isVisible();
+		show();
+
 		QString text;
 		QTextStream ss(&text);
-		ss <<"Host " << senderDescription << " requests execution of " << vrb::programNames[programID] << ".";
+		ss << "Host " << senderDescription << " requests execution of " << vrb::programNames[programID] << ".";
+
+		QMessageBox msgBox{this};
+		msgBox.setMinimumSize(200, 200);
 		msgBox.setWindowTitle("Application execution request");
 		msgBox.setText(text);
 		msgBox.setInformativeText("Do you want to execute this application?");
@@ -233,6 +292,8 @@ void MainWindow::launchProgram(int senderID, const QString& senderDescription, v
 		msgBox.setDefaultButton(QMessageBox::Ok);
 		int ret = msgBox.exec();
 		execute = ret == QMessageBox::Ok ? true : false;
+		if (!wasVisible)
+			hide();
 	}
 	if (execute)
 	{
@@ -258,6 +319,8 @@ void MainWindow::dumpOptions()
 		tb << ui->timeoutSlider->value();
 		tb << ui->autostartCheckBox->isChecked();
 		tb << ui->autoconnectCheckBox->isChecked();
+		tb << ui->backgroundCheckBox->isChecked();
+		tb << ui->minimizedCheckBox->isChecked();
 		tb << ui->cmdArgsInput->text().toStdString();
 		int size = tb.getData().length();
 		file.write((char *)&size, sizeof(size));
@@ -282,7 +345,7 @@ void MainWindow::readOptions()
 		file.read(dh.accessData(), l);
 		covise::TokenBuffer tb(dh);
 		int timeout;
-		bool autostart, autoconnect;
+		bool autostart, autoconnect, background, minimized;
 		char *date, *time;
 		std::string args;
 		tb >> date >> time;
@@ -292,13 +355,30 @@ void MainWindow::readOptions()
 			return;
 		}
 
-		tb >> timeout >> autostart >> autoconnect >> args;
+		tb >> timeout >> autostart >> autoconnect >> background >> minimized >> args;
 		ui->timeoutSlider->setValue(timeout);
 		on_timeoutSlider_sliderMoved(timeout);
 		ui->autostartCheckBox->setChecked(autostart);
 		ui->autoconnectCheckBox->setChecked(autoconnect);
+		ui->backgroundCheckBox->setChecked(background);
+		ui->minimizedCheckBox->setChecked(minimized);
 		ui->cmdArgsInput->setText(args.c_str());
 	}
+}
+
+void MainWindow::showThis()
+{
+	m_tray->hide();
+	show();
+}
+
+void MainWindow::hideThis()
+{
+	if (!m_tray)
+		createTrayIcon();
+	m_tray->show();
+	m_tray->showMessage("COVISE Daemon", " running in background");
+	hide();
 }
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()
