@@ -2696,46 +2696,23 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     int numHosts = std::stoi(list[iel++]);
 
     bool allhosts = true;
-    LaunchStyle addPartner = LaunchStyle::Host;
 
     // add hosts if not already added
+    std::map<std::string, std::pair<std::string, LaunchStyle>> hostTypes;
     for (int i = 0; i < numHosts; i++)
     {
         string &hostAddress = list[iel++];
         string &username = list[iel++];
-        if (hostAddress == "LOCAL")
-            hostAddress = localIp;
+        LaunchStyle addPartner = LaunchStyle::Host;
 
         vector<string> token = splitStringAndRemoveComments(username, " ");
-        if (token[0] == "LUSER")
-            username = localuser;
-
         if (token.size() == 2)
         {
             if (token[1] == "Partner")
                 addPartner = LaunchStyle::Partner;
             username = token[0];
         }
-        try
-        {
-            RemoteHost &tmp_host = m_hostManager.findHost(hostAddress);
-            try
-            {
-                tmp_host.getProcess(sender_type::CRB);
-            }
-            catch (const Exception &)
-            {
-
-                NEW_UI_HandlePartners msg{addPartner, 30, std::vector<int>{tmp_host.ID()}};
-                handleNewUi(msg);
-            }
-        }
-        catch (const Exception &)
-        {
-            NEW_UI_RequestNewHost hostRequest{hostAddress.c_str(), username.c_str(), m_hostManager.getVrbClient().getCredentials()};
-            sendCoviseMessage(hostRequest, m_hostManager.getMasterUi());
-            //allhosts = false;
-        }
+        hostTypes[hostAddress] = std::make_pair(username, addPartner);
     }
 
     //  read all modules
@@ -2766,6 +2743,7 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
         int posx = std::stoi(list[iel++]);
         int posy = std::stoi(list[iel++]);
 
+        addHostIfnotAlreadyAdded(host, hostTypes[host].first, hostTypes[host].second);
         bool modExist = checkIfModuleAvailable(name, host);
         string newInstance;
         string current = oldInstance;
@@ -2882,6 +2860,24 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     m_writeUndoBuffer = true;
 
     return true;
+}
+
+void CTRLHandler::addHostIfnotAlreadyAdded(const std::string &hostAddress, const std::string &userName, LaunchStyle style)
+{
+    try
+    {
+        RemoteHost &tmp_host = m_hostManager.findHost(hostAddress);
+        if (tmp_host.state() == LaunchStyle::Disconnect) //send launch request
+        {
+            NEW_UI_HandlePartners msg{style, 30, std::vector<int>{tmp_host.ID()}};
+            handleNewUi(msg);
+        }
+    }
+    catch (const Exception &) //host not known, ask user to start coviseDaemon on host
+    {
+        NEW_UI_RequestNewHost hostRequest{hostAddress.c_str(), userName.c_str(), m_hostManager.getVrbClient().getCredentials()};
+        sendCoviseMessage(hostRequest, m_hostManager.getMasterUi());
+    }
 }
 
 bool CTRLHandler::checkIfModuleAvailable(const string &modname, const string &modhost)

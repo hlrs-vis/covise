@@ -81,6 +81,8 @@ struct CommandLineOptions{
 } m_options;
 bool m_globalLoadReady = true, m_clipboardReady = true;
 HostManager m_hostManager;
+
+void addHostIfnotAlreadyAdded(const std::string &ipAddress, const std::string &userName, LaunchStyle style);
 void lookupSiblings();
 void loop();
 void parseCommandLine(int argc, char **argv);
