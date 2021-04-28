@@ -236,8 +236,16 @@ QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 {
     auto parent = qtContainerWidget(menu);
     auto m = new QMenu(parent);
-    m->setTearOffEnabled(true);
     //m->setSeparatorsCollapsible(false);
+    m->setTearOffEnabled(true);
+    if (m->isTearOffEnabled())
+    {
+        std::string configPath = "COVER.UI." + menu->path();
+        bool exists = false;
+        bool open = covise::coCoviseConfig::isOn("open", configPath, false, &exists);
+        if (open)
+            m->showTearOffMenu();
+    }
     auto ve = new QtViewElement(menu, m);
     ve->action = m->menuAction();
     add(ve);
