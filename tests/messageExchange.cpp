@@ -12,7 +12,11 @@ using namespace covise;
 
 void test::test_socket_write_receive()
 {
+#ifdef _WIN32
+#define testSize 16000
+#else
     constexpr size_t testSize = 16000;
+#endif
     int port{-1};
     std::mutex m;
     m.lock();
@@ -47,7 +51,11 @@ void test::test_socket_write_receive()
 
 void test::test_message_send_receive()
 {
+#ifdef _WIN32
+#define testSize 1000000
+#else
     constexpr size_t testSize = 1000000;
+#endif
     int port{-1};
     std::mutex m;
     m.lock();
