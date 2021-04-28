@@ -258,7 +258,7 @@
 -->
 
    <VRB>
-    <Server value="viscluster80.hlrs.de" tcpPort="31252" udpPort="51000"/>
+    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="51000"/>
    </VRB>
    
    <RemoteDaemon>
