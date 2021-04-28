@@ -282,7 +282,7 @@ bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cm
     {
     case controller::ExecType::VRB:
     {
-        vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), cmdArgs}, &hostManager.getVrbClient());
+        vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), std::vector<std::string>{}, cmdArgs}, &hostManager.getVrbClient());
         if (!hostManager.launchOfCrbPermitted())
         {
             Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};

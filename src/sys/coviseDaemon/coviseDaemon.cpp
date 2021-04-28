@@ -94,7 +94,7 @@ void CoviseDaemon::sendPermission(int clientID, bool permit)
 
 void CoviseDaemon::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
-    vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{m_client->ID(), p, clientID, args}, m_client.get());
+    vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{m_client->ID(), p, clientID, std::vector<std::string>{}, args}, m_client.get());
 }
 
 void CoviseDaemon::loop()

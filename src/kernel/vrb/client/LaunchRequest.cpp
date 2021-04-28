@@ -11,7 +11,7 @@
 
 namespace vrb{
 
-IMPL_MESSAGE_CLASS(VRB_MESSAGE, int, senderID, Program, program, int, clientID, std::vector<std::string>, args)
+IMPL_MESSAGE_CLASS(VRB_MESSAGE, int, senderID, Program, program, int, clientID, std::vector<std::string>, environment, std::vector<std::string>, args)
 
 IMPL_MESSAGE_WITH_SUB_CLASSES(VRB_LOAD_SESSION, VrbMessageType)
 IMPL_SUB_MESSAGE_CLASS(VRB_LOAD_SESSION, VrbMessageType, Launcher, Program, program, int, clientID, std::vector<std::string>, args)

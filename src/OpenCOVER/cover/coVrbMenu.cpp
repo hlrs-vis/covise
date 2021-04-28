@@ -83,7 +83,7 @@ namespace opencover
                 args.push_back("-g");
                 args.push_back(coVRCommunication::instance()->getSessionID().name());
             }
-            vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), vrb::Program::opencover, getRemoteLauncherClientID(index), args}, cover);
+            vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), vrb::Program::opencover, getRemoteLauncherClientID(index), std::vector<std::string>(), args}, cover);
             });
 
         //save and load sessions
