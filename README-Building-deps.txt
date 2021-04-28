@@ -219,10 +219,14 @@ GDAL_HOME = "C:\src\externlibs\zebu\gdal"
 
 nmake /f makefile.vc MSVC_VER=1900 WIN64=YES
 nmake /f makefile.vc MSVC_VER=1900 WIN64=YES install
-manually copy .lib files to externlibs/gdal/lib
+nmake /f makefile.vc MSVC_VER=1900 WIN64=YES devinstall
+# (done by devinstallmanually copy .lib files to externlibs/gdal/lib
 nmake /f makefile.vc clean
+change PROJ_LIBRARY to debug in nmake.opt
+PROJ_LIBRARY = C:/src/externlibs/zebu/proj4/lib/\proj_d.lib shell32.lib ole32.lib
 nmake /f makefile.vc MSVC_VER=1900 WIN64=YES DEBUG=1 WITH_PDB=1
 nmake /f makefile.vc MSVC_VER=1900 WIN64=YES DEBUG=1 WITH_PDB=1 install
+nmake /f makefile.vc MSVC_VER=1900 WIN64=YES DEBUG=1 WITH_PDB=1 devinstall
 rename lib file to gdalD.lib and gdalD_i.lib and copy to externlibs/gdal/lib
 #PThreads
 download pthreads4w
@@ -564,11 +568,28 @@ cmake .. -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zeb
 
 
 
+###################################
+#####VSG
+###############################
+
+#glslang glslang that comes with vulkan sdk does not provide a debug version
+cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/glslang -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/osi;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/gtest
 
 
+#VulkanSceneGraph VSG
+cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/VulkanSceneGraph -DVSG_MAX_DEVICES=4 -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glslang;C:\VulkanSDK\1.2.170.0;c:/src/externlibs/zebu/glslang;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/osi;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/gtest
 
+#vsgGIS
+cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/vsgGIS  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/VulkanSceneGraph;c:/src/externlibs/zebu/assimp;c:/src/externlibs/zebu/glslang;C:\VulkanSDK\1.2.170.0;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/osi;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/gtest
 
+#vsgXchange
+cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/vsgXchange  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/vsgGIS;c:/src/externlibs/zebu/VulkanSceneGraph;c:/src/externlibs/zebu/assimp;c:/src/externlibs/zebu/glslang;C:\VulkanSDK\1.2.170.0;c:/src/externlibs/zebu/glslang;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/osi;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/gtest
 
+#vsgImGui
+cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/vsgImGui  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/vsgGIS;c:/src/externlibs/zebu/vsgXchange;c:/src/externlibs/zebu/VulkanSceneGraph;c:/src/externlibs/zebu/assimp;c:/src/externlibs/zebu/glslang;C:\VulkanSDK\1.2.170.0;c:/src/externlibs/zebu/glslang;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/osi;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/gtest
+
+#vsgExamples
+cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/vsgExamples  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/vsgImGui;c:/src/externlibs/zebu/vsgGIS;c:/src/externlibs/zebu/vsgXchange;c:/src/externlibs/zebu/VulkanSceneGraph;c:/src/externlibs/zebu/assimp;c:/src/externlibs/zebu/glslang;C:\VulkanSDK\1.2.170.0;c:/src/externlibs/zebu/glslang;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/osi;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/gtest
 
 
 #########################################

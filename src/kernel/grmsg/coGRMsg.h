@@ -70,7 +70,7 @@ public:
         SHADER_OBJECT, // 27
         MATERIAL_OBJECT,
         SET_TRANSPARENCY,
-        KEYWORD,
+        KEYWORD,//30
         TRANSFORM_OBJECT,
         TRANSFORM_CASE,
         RESTRICT_AXIS,
@@ -80,12 +80,12 @@ public:
         SENSOR,
         SENSOR_EVENT,
         ATTACHED_CLIPPLANE,
-        ANIMATION_ON,
+        ANIMATION_ON,//40
         ANIMATION_SPEED,
         ANIMATION_TIMESTEP,
         ACTIVATED_VIEWPOINT,
         VPCLIPPLANEMODE_TOGGLE,
-        SNAPSHOT,
+        SNAPSHOT,//45
         SEND_CURRENT_DOCUMENT,
         SET_TRACKING_PARAMS,
         CHANGE_VIEWPOINT,

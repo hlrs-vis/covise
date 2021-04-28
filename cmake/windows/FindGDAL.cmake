@@ -104,7 +104,7 @@ FIND_LIBRARY(GDAL_LIBRARY
 
 IF(MSVC)
   # VisualStudio needs a debug version
-  FIND_LIBRARY(GDAL_LIBRARY_DEBUG NAMES gdalD gdal_iD gdalD_i gdal1.5.0D gdal1.4.0D gdal1.3.2D
+  FIND_LIBRARY(GDAL_LIBRARY_DEBUG NAMES gdalD gdal_i_d gdal_iD gdalD_i gdal1.5.0D gdal1.4.0D gdal1.3.2D
   HINTS
      $ENV{GDAL_DIR}
      $ENV{GDAL_ROOT}
