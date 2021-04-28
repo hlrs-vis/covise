@@ -55,7 +55,6 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 		ui->backgroundCheckBox->setChecked(false);
 		ui->backgroundCheckBox->hide();
 	}
-
 	if (ui->minimizedCheckBox->isChecked())
 	{
 		if (!ui->backgroundCheckBox->isChecked())
@@ -64,9 +63,12 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 		}
 		else
 		{
-			std::cerr << "hiding" << std::endl;
 			hideThis();
 		}
+	}
+	else
+	{
+		show();
 	}
 }
 
