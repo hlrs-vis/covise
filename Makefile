@@ -29,7 +29,9 @@ addons:
 		export BUILDDIR=$${COVISEDIR}/$${ARCHSUFFIX}/build.addon-$$(basename $${dir}); \
 		mkdir -p $${BUILDDIR} && \
 		cd $${BUILDDIR} && \
+                export ICECC=no && \
 		$(COVISE_CMAKE) $${COVISE_CMAKE_OPTIONS} $${dir} && \
+                export ICECC= && \
 		make; \
 	done
 
