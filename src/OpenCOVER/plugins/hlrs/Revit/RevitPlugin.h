@@ -146,6 +146,8 @@ public:
     int ID;
     int DocumentID;
     std::string name;
+    int createdPhase;
+    int demolishedPhase;
 
 private:
     ui::Group *group = nullptr;
@@ -304,6 +306,13 @@ public:
     osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
 };
 
+class PhaseInfo
+{
+public:
+    std::string PhaseName;
+    int ID=0;
+    ui::Button* button;
+};
 
 class DoorInfo
 {
@@ -435,7 +444,8 @@ public:
 		MSG_NewARMarker = 531,
         MSG_DesignOptionSets = 532,
         MSG_SelectDesignOption = 533,
-        MSG_IKInfo = 534
+        MSG_IKInfo = 534,
+        MSG_Phases = 535
     };
     enum ObjectTypes
     {
@@ -457,6 +467,12 @@ public:
 	bool update();
     // this will be called in PreFrame
 	void preFrame();
+    void key(int type, int keySym, int mod);
+
+    /// <summary>
+    /// set visibility depending on current selected phase
+    /// </summary>
+    void setPhaseVisible(ElementInfo* ei);
 
 	bool checkDoors();
 
@@ -469,12 +485,14 @@ public:
     ui::ButtonGroup* viewpointGroup = nullptr;
     ui::Menu* viewpointMenu = nullptr;
     ui::Menu* parameterMenu = nullptr;
+    ui::Menu* phaseMenu = nullptr;
     ui::EditField* xPos;
     ui::EditField* yPos;
     ui::EditField* zPos;
     ui::EditField* xOri;
     ui::EditField* yOri;
     ui::EditField* zOri;
+    ui::ButtonGroup* PhaseGroup;
 
 
     IKInfo *currentIKI=nullptr;
@@ -499,6 +517,9 @@ public:
 	std::list<DoorInfo*> activeDoors;
 	std::map<int, ARMarkerInfo*> ARMarkers;
     std::list<RevitDesignOptionSet*> designOptionSets;
+    std::list<PhaseInfo*> phaseInfos;
+    void setPhase(std::string phaseName);
+    int currentPhase=0;
 protected:
     static RevitPlugin *plugin;
     ui::Label *label1 = nullptr;

@@ -92,7 +92,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -112,6 +112,7 @@ namespace OpenCOVERPlugin
         public List<cDesignOptionSet> designOptionSets;
         private DesignOptionModifier.Switcher designoptionMod;
 
+        private Dictionary<ElementId,int> phaseDict;
         public void updateVisibility(Document doc)
         {
 
@@ -251,6 +252,9 @@ namespace OpenCOVERPlugin
         {
 
             designOptionSets = new List<cDesignOptionSet>();
+
+            phaseDict = new Dictionary<ElementId,int>();
+
             designoptionMod = new DesignOptionModifier.Switcher();
             mOptions = new Autodesk.Revit.DB.Options();
             mOptions.DetailLevel = Autodesk.Revit.DB.ViewDetailLevel.Fine;
@@ -451,7 +455,20 @@ namespace OpenCOVERPlugin
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
             sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
-            
+            MessageBuffer mbPhases = new MessageBuffer();
+            // Get the phase array which contains all the phases.
+            PhaseArray phases = document.Phases;
+            mbPhases.add(phases.Size);
+            int phaseNum = 0;
+            phaseDict.Clear();
+            foreach (Phase ii in phases)
+            {
+                mbPhases.add(ii.Name);
+                phaseDict.Add(ii.Id,phaseNum);
+                phaseNum++;
+            }
+            sendMessage(mbPhases.buf, MessageTypes.Phases);
+
             if (uidoc !=null && uidoc.ActiveView is View3D)
             {
                 View3D = uidoc.ActiveView as View3D;
@@ -599,6 +616,7 @@ namespace OpenCOVERPlugin
                 mb.add(elem.Name + "_FamilySymbol");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(false);//doWalk
+                addPhases(mb,elem);
                 mb.add(false);
                 mb.add(0);
 
@@ -871,35 +889,35 @@ namespace OpenCOVERPlugin
                 {
 
 
-                MessageBuffer mb = new MessageBuffer();
-                mb.add(elem.Id.IntegerValue);
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
                     mb.add(DocumentID);
                     mb.add(elem.Name + "__" + elem.UniqueId.ToString());
-                try
-                {
-                    mb.add(link.GetTransform().BasisX.Multiply(link.GetTransform().Scale));
-                    mb.add(link.GetTransform().BasisY.Multiply(link.GetTransform().Scale));
-                    mb.add(link.GetTransform().BasisZ.Multiply(link.GetTransform().Scale));
-                    mb.add(link.GetTransform().Origin);
-                }
-                catch (Autodesk.Revit.Exceptions.InvalidOperationException)
-                {
-                    mb.add(new XYZ(1, 0, 0));
-                    mb.add(new XYZ(0, 1, 0));
-                    mb.add(new XYZ(0, 0, 1));
-                    mb.add(new XYZ(0, 0, 0));
-                }
-                sendMessage(mb.buf, MessageTypes.NewTransform);
-                Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
+                    try
+                    {
+                        mb.add(link.GetTransform().BasisX.Multiply(link.GetTransform().Scale));
+                        mb.add(link.GetTransform().BasisY.Multiply(link.GetTransform().Scale));
+                        mb.add(link.GetTransform().BasisZ.Multiply(link.GetTransform().Scale));
+                        mb.add(link.GetTransform().Origin);
+                    }
+                    catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+                    {
+                        mb.add(new XYZ(1, 0, 0));
+                        mb.add(new XYZ(0, 1, 0));
+                        mb.add(new XYZ(0, 0, 1));
+                        mb.add(new XYZ(0, 0, 0));
+                    }
+                    sendMessage(mb.buf, MessageTypes.NewTransform);
+                    Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(linkDoc);
                     LinkedFileName = linkDoc.Title;
                     CurrentLink = link;
                     DocumentID = LinkedDocumentID++;
-                COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
+                    COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
                     DocumentID = 0;
                     LinkedFileName = "";
                     CurrentLink = null;
                     mb = new MessageBuffer();
-                sendMessage(mb.buf, MessageTypes.EndGroup);
+                    sendMessage(mb.buf, MessageTypes.EndGroup);
 
                 }
 
@@ -1243,6 +1261,7 @@ namespace OpenCOVERPlugin
                     mb.add(elem.Name + "_m_" + num.ToString());
                     mb.add((int)ObjectTypes.Mesh);
                     mb.add(doWalk);
+                    addPhases(mb, elem);
                     Autodesk.Revit.DB.Mesh meshObj = geomObject as Autodesk.Revit.DB.Mesh;
                     SendMesh(meshObj, ref mb, true);// TODO get information on whether a mesh is twosided or not
 
@@ -1349,6 +1368,7 @@ namespace OpenCOVERPlugin
                     mb.add(elem.Name);
                     mb.add((int)ObjectTypes.Inline);
                     mb.add(false);//doWalk
+                    addPhases(mb, elem);
                     mb.add(p.AsString());
                     mb.add(false); // DepthOnly
                     sendMessage(mb.buf, MessageTypes.NewObject);
@@ -2002,6 +2022,7 @@ namespace OpenCOVERPlugin
                     mbpc.add(elem.Name);
                     mbpc.add((int)ObjectTypes.Inline);
                     mbpc.add(false);//doWalk
+                    addPhases(mb, elem);
                     mbpc.add(n + ".e57");
 
                     mbpc.add(getDepthOny(elem));
@@ -2147,6 +2168,7 @@ namespace OpenCOVERPlugin
                 mb.add(prefix+elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(doWalk);
+                addPhases(mb, elem);
                 mb.add(twoSided);
                 mb.add(maintriangles);
 
@@ -2218,6 +2240,7 @@ namespace OpenCOVERPlugin
                                     mb.add(prefix+elem.Name + "_f_" + num.ToString());
                                     mb.add((int)ObjectTypes.Mesh);
                                     mb.add(doWalk);
+                                    addPhases(mb, elem);
 
                                     SendMesh(geomMesh, ref mb, rface.IsTwoSided);
 
@@ -2257,6 +2280,7 @@ namespace OpenCOVERPlugin
                             mb.add(prefix+elem.Name + "_f_" + num.ToString());
                             mb.add((int)ObjectTypes.Mesh);
                             mb.add(doWalk);
+                            addPhases(mb, elem);
 
                             SendMesh(geomMesh, ref mb, face.IsTwoSided);
                             mb.add(getDepthOny(elem));
@@ -2320,6 +2344,22 @@ namespace OpenCOVERPlugin
             }
 
 
+        }
+        public void addPhases(MessageBuffer mb, Element elem)
+        {
+            int cPhase = 0;
+            int dPhase = -1;
+            int result;
+            if (phaseDict.TryGetValue(elem.CreatedPhaseId, out result))
+            {
+                cPhase = result;
+            }
+            if (phaseDict.TryGetValue(elem.DemolishedPhaseId, out result))
+            {
+                dPhase = result;
+            }
+            mb.add(cPhase);
+            mb.add(dPhase);
         }
 
         public static Element FindElementByName(

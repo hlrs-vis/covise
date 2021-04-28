@@ -543,6 +543,43 @@ void RevitPlugin::updateIK()
 	}
 }
 
+void RevitPlugin::key(int type, int keySym, int mod)
+{
+	if (type == osgGA::GUIEventAdapter::KEYDOWN && mod & osgGA::GUIEventAdapter::MODKEY_ALT)
+	{
+		if (keySym == 'p')
+		{
+			currentPhase++;
+			if (currentPhase >= phaseInfos.size())
+				currentPhase = phaseInfos.size() -1;
+			for (const auto& pi : phaseInfos)
+			{
+				if (pi->ID == currentPhase)
+				{
+					pi->button->setState(true);
+					setPhase(pi->PhaseName);
+					break;
+				}
+			}
+		}
+		if (keySym == 'P')
+		{
+			currentPhase--;
+			if (currentPhase < 0)
+				currentPhase = 0;
+			for (const auto& pi : phaseInfos)
+			{
+				if (pi->ID == currentPhase)
+				{
+					pi->button->setState(true);
+					setPhase(pi->PhaseName);
+					break;
+				}
+			}
+	    }
+	}
+}
+
 void IKInfo::updateGeometry()
 {
 	/*UpdateKinematicsCustom(*model, &Q, NULL, NULL);
@@ -1053,6 +1090,11 @@ void RevitPlugin::createMenu()
 	viewpointMenu->setText("Viewpoints");
 	parameterMenu = new ui::Menu(revitMenu, "RevitParameters");
 	parameterMenu->setText("Parameters");
+	phaseMenu = new ui::Menu(revitMenu, "RevitPhases");
+	phaseMenu->setText("Phases");
+
+	PhaseGroup = new ui::ButtonGroup(phaseMenu, "RevitPhasesGroup");
+
 	roomInfoMenu = new ui::Menu(revitMenu,"RoomInfo");
 	roomInfoMenu->setText("Room Info");
 	viewpointGroup = new ui::ButtonGroup(viewpointMenu, "revitViewpoints");
@@ -1912,7 +1954,27 @@ RevitPlugin::handleMessage(Message *m)
 		ikInfos.clear();
 		doors.clear();
 		activeDoors.clear();
+		phaseInfos.clear();
 
+	}
+	break;
+	case MSG_Phases:
+	{
+		int numPhases=0;
+		TokenBuffer tb(m);
+	    tb >> numPhases;
+		for (int i = 0; i < numPhases; i++)
+		{
+			PhaseInfo* pi = new PhaseInfo();
+			pi->ID = i;
+			tb >> pi->PhaseName;
+			pi->button = new ui::Button(phaseMenu, pi->PhaseName,PhaseGroup);
+			pi->button->setCallback([this,pi](bool state) {if (state) RevitPlugin::instance()->setPhase(pi->PhaseName); });
+			phaseMenu->add(pi->button);
+			phaseInfos.push_back(pi);
+		}
+		if (currentPhase > numPhases - 1)
+			currentPhase = 0;
 	}
 	break;
 	case MSG_IKInfo:
@@ -2211,6 +2273,7 @@ RevitPlugin::handleMessage(Message *m)
 		int ID;
 		int docID;
 		int GeometryType;
+
 		bool isHandle = false;
 		bool doWalk;
 		tb >> ID;
@@ -2237,6 +2300,8 @@ RevitPlugin::handleMessage(Message *m)
 		ei->DocumentID = docID;
 		tb >> GeometryType;
 		tb >> doWalk;
+		tb >> ei->createdPhase;
+		tb >> ei->demolishedPhase;
 		IKInfo* currentIK = nullptr;
 		int level = -1;
 		for (auto const& ik : ikInfos)
@@ -2467,6 +2532,7 @@ RevitPlugin::handleMessage(Message *m)
 			{
 				currentGroup.top()->addChild(geode);
 			}
+			setPhaseVisible(ei);
 		}
 		else if (GeometryType == OBJ_TYPE_Inline)
 		{
@@ -2520,6 +2586,8 @@ RevitPlugin::handleMessage(Message *m)
 			info->ObjectID = ID;
 			info->DocumentID = docID;
 			OSGVruiUserDataCollection::setUserData(mt, "RevitInfo", info);
+
+			setPhaseVisible(ei);
 		}
 
 	}
@@ -2752,6 +2820,25 @@ RevitPlugin::handleMessage(Message *m)
 	}
 }
 
+void RevitPlugin::setPhase(std::string phaseName)
+{
+	for (const auto& pi : phaseInfos)
+	{
+		if (pi->PhaseName == phaseName)
+		{
+			currentPhase = pi->ID;
+		}
+	}
+
+	for (auto& iter : ElementIDMap)
+	{
+		for (std::map<int, ElementInfo*>::iterator it = iter.begin(); it != iter.end(); it++)
+		{
+			setPhaseVisible(it->second);
+		}
+	}
+}
+
 osg::Image *RevitPlugin::readImage(std::string fileName)
 {
 
@@ -2884,6 +2971,24 @@ RevitPlugin::update()
 		m.second->update();
 	}
     return checkDoors();
+}
+void RevitPlugin::setPhaseVisible(ElementInfo *ei)
+{
+	bool visible=false;
+	if (ei->createdPhase <= currentPhase && (ei->demolishedPhase == -1 || ei->demolishedPhase > currentPhase))
+	{
+		visible = true;
+	}
+
+	for (std::list<osg::Node*>::iterator nodesIt = ei->nodes.begin(); nodesIt != ei->nodes.end(); nodesIt++)
+	{
+		osg::Node* n = *nodesIt;
+		if(visible)
+			n->setNodeMask((n->getNodeMask()&127)   | Isect::Visible);
+		else
+		    n->setNodeMask((n->getNodeMask() & 127) & ~Isect::Visible);
+
+	}
 }
 
 void
