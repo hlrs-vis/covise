@@ -1968,7 +1968,8 @@ RevitPlugin::handleMessage(Message *m)
 			PhaseInfo* pi = new PhaseInfo();
 			pi->ID = i;
 			tb >> pi->PhaseName;
-			pi->button = new ui::Button(phaseMenu, pi->PhaseName,PhaseGroup);
+			pi->button = new ui::Button(phaseMenu, "phase" + std::to_string(i),PhaseGroup);
+			pi->button->setText(pi->PhaseName);
 			pi->button->setCallback([this,pi](bool state) {if (state) RevitPlugin::instance()->setPhase(pi->PhaseName); });
 			phaseMenu->add(pi->button);
 			phaseInfos.push_back(pi);
