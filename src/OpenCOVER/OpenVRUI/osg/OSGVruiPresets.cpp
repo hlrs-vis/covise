@@ -85,6 +85,8 @@ OSGVruiPresets::OSGVruiPresets()
     setColorFromConfig("COVER.VRUI.HandleBackgroundHighlighted", coUIElement::HANDLE_BACKGROUND_HIGHLIGHTED, Vec4(0.6f, 0.6f, 0.0f, 1.0f));
     setColorFromConfig("COVER.VRUI.HandleBackgroundDisabled", coUIElement::HANDLE_BACKGROUND_DISABLED, Vec4(0.6f, 0.6f, 0.6f, 1.0f));
 
+    setColorFromConfig("COVER.Background", coUIElement::BACKGROUND, Vec4(9.f, 0.f, 0.f, 1.f));
+
     for (int i = 0; i < coUIElement::NUM_MATERIALS; ++i)
     {
 

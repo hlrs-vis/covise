@@ -79,6 +79,7 @@ public:
         HANDLE_BACKGROUND_NORMAL,
         HANDLE_BACKGROUND_HIGHLIGHTED,
         HANDLE_BACKGROUND_DISABLED,
+        BACKGROUND,
         NUM_MATERIALS ///< this entry must always be the last one in the list
     };
 
