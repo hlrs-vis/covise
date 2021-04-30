@@ -95,6 +95,15 @@ void coLabel::setFontSize(float s)
     resize();
 }
 
+/** Set label justification.
+  @param j label text justification
+*/
+void coLabel::setJustify(Justify j)
+{
+    justify = j;
+    createGeometry();
+}
+
 /** Set label position.
   @param x,y,z  label position in 3D space
 */

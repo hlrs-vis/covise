@@ -43,6 +43,7 @@ public:
     void resize();
     virtual void setPos(float x, float y, float z = 0.0f);
     virtual void setFontSize(float size);
+    virtual void setJustify(Justify justify);
     virtual void setString(const std::string &text);
     virtual void setSize(float size);
     virtual void setSize(float xs, float ys, float zs);
