@@ -18,6 +18,7 @@ endif()
     
 SET(REMOTE_LAUNCHER_SOURCES
   clientWidget.cpp
+  coverDaemon.cpp
   coviseDaemon.cpp
   main.cpp
   mainWindow.cpp
@@ -27,11 +28,12 @@ SET(REMOTE_LAUNCHER_SOURCES
 
 SET(REMOTE_LAUNCHER_HEADER
   clientWidget.h
+  coverDaemon.h
+  coviseDaemon.h
   mainWindow.h
   metaTypes.h
   tui.h
   tuiCommands.h
-  coviseDaemon.h
 )
 
 SET(VRB_MOC_SRCS

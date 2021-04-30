@@ -14,7 +14,6 @@
 #include <config/CoviseConfig.h>
 #include "coVRSlave.h"
 #include <cover/coVRMSController.h>
-
 #ifdef HAS_MPI
 #include <mpi.h>
 #ifndef CO_MPI_SEND
@@ -231,12 +230,31 @@ void coVRTcpSlave::start()
     }
     sprintf(cEntry, "COVER.MultiPC.Startup:%d", myID - 1);
     string command = coCoviseConfig::getEntry(cEntry);
-    if (command.empty())
+    auto coviseDaemonHost = coCoviseConfig::getEntry("COVER.MultiPC.CoverDaemon");
+    if (command.empty() && coviseDaemonHost.empty())
     {
         cerr << cEntry << " not found in config file" << endl;
         return;
     }
-    if (strstr(command.c_str(), "startOpenCover"))
+    if (!coviseDaemonHost.empty())
+    {
+        auto coviseDaemonPort = coCoviseConfig::getInt("port", "COVER.MultiPC.CoverDaemon", 0);
+        std::cerr << "connecting to COVISE Daemon on " << coviseDaemonHost << ":" << coviseDaemonPort << std::endl;
+        Host h{coviseDaemonHost.c_str()};
+        ClientConnection c{&h, coviseDaemonPort, 0, 0};
+        if (c.is_connected())
+        {
+            covise::TokenBuffer tb;
+            tb << myID << port;
+            Message m{tb};
+            while(!c.sendMessage(&m))
+            {
+            }
+            std::cerr << "sent COVER launch request" << std::endl;
+        }
+    }
+
+    else if (strstr(command.c_str(), "startOpenCover"))
     {
         //connect to remote deamon and trigger startup of cover
         int remPort = 0;

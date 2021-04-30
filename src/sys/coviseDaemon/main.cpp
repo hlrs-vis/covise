@@ -1,10 +1,10 @@
 
+#include "coverDaemon.h"
 #include "mainWindow.h"
 #include "tui.h"
+
 #include <QApplication>
-
 #include <boost/program_options.hpp>
-
 #include <future>
 #include <iostream>
 
@@ -66,12 +66,23 @@ int main(int argc, char **argv)
         {
                 QApplication a(argc, argv);
                 a.setWindowIcon(QIcon(":/images/coviseDaemon.png"));
+                CoverDaemon d;
+                if (!d.isMaster())
+                {
+                        return a.exec();
+                }
                 MainWindow mw{readCredentials(vm)};
                 return a.exec();
         }
         else
         {
                 QCoreApplication a(argc, argv);
+                CoverDaemon d;
+                if (!d.isMaster())
+                {
+                        return a.exec();
+                }
+
                 Tui tui(readCredentials(vm), autostart);
                 std::thread s{
                     [&tui]() {
