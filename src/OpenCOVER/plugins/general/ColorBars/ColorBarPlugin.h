@@ -79,5 +79,6 @@ private:
     typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
     ColorsModuleMap colorsModuleMap;
     std::vector<const ColorsModule *> visibleHuds;
+    float hudScale = 1.f;
 };
 #endif

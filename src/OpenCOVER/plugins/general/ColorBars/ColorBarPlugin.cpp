@@ -27,6 +27,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
 #include <OpenVRUI/osg/mathUtils.h>
+#include <config/CoviseConfig.h>
 
 #include <osg/io_utils>
 
@@ -48,6 +49,8 @@ bool ColorBarPlugin::init()
         colorSubmenu = new ui::Menu("Colors", this);
         cover->visMenu->add(colorSubmenu, ui::Container::KeepFirst); // after Execute
     }
+
+    hudScale = covise::coCoviseConfig::getFloat("COVER.Plugin.ColorBar.HudScale", 0.5); // half screen height
 
     return true;
 }
@@ -91,29 +94,30 @@ void ColorBarPlugin::preFrame()
             visibleHuds.emplace_back(&mod);
     }
 
-    osg::Vec3 bl, hpr, offset;
+    osg::Vec3 bottomLeft, hpr, offset;
     if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0) {
         const auto &s0 = coVRConfig::instance()->screens[0];
         hpr = s0.hpr;
         auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
         osg::Matrix mat;
         MAKE_EULER_MAT_VEC(mat, hpr);
-        bl = s0.xyz - sz * mat * 0.5;
+        bottomLeft = s0.xyz - sz * mat * 0.5;
         auto minsize = std::min(s0.hsize, s0.vsize);
-        bl += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
-        offset = osg::Vec3(minsize/8, 0 , 0) * mat;
+        bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
+        offset = osg::Vec3(s0.vsize/2.5, 0 , 0) * mat * hudScale;
     }
     for (int i=0; i<3; ++i)
     {
-        coVRMSController::instance()->syncData(&bl[i], sizeof(bl[i]));
+        coVRMSController::instance()->syncData(&bottomLeft[i], sizeof(bottomLeft[i]));
         coVRMSController::instance()->syncData(&hpr[i], sizeof(hpr[i]));
+        coVRMSController::instance()->syncData(&offset[i], sizeof(offset[i]));
     }
 
     for (size_t i=0; i<visibleHuds.size(); ++i)
     {
         auto mod = visibleHuds[i];
-        mod->colorbar->setHudPosition(bl, hpr, offset[0]/450);
-        bl += offset;
+        mod->colorbar->setHudPosition(bottomLeft, hpr, offset[0]/480);
+        bottomLeft += offset;
     }
 }
 
