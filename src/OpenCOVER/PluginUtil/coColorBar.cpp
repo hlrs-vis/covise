@@ -158,7 +158,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
 
     speciesLabel_ = new vrui::coLabel();
 
-    std::string precision = covise::coCoviseConfig::getEntry("ColorsPlugin.Precision");
+    std::string precision = covise::coCoviseConfig::getEntry("COVER.Plugin.ColorBars.Precision");
     if (!precision.empty())
     {
         sprintf(format_str_, "%%.%sf", precision.c_str());
@@ -171,6 +171,10 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
         if (mi < 0 || ma < 0)
             sign = "+";
         sprintf(format_str_, "%%%s%d.%df", sign.c_str(), ndig-prec, prec);
+    }
+    else if (mi < 0)
+    {
+        sprintf(format_str_, "%%+g");
     }
     else
     {
@@ -255,15 +259,23 @@ coColorBar::~coColorBar()
 void
 coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a)
 {
-    int i;
     char str[100];
+    // use - and + symbyls with same width
+    //const char minus[] = u8"\u2212"; // minus
+    //const char minus[] = u8"\uff0d"; // full-width hypen minus
+    const char minus[] = u8"\u2013";  // en-dash
+    //const char plus[] = u8"\uff0b"; // full-width plus
+    const char plus[] = "+";
+    //const char space[] = u8"\u2002"; // en-space
+    const char space[] = " ";
+    const size_t off = std::max(sizeof space, std::max(sizeof minus,sizeof plus)-2); // reuse one char, don't count terminating 0
 
     numColors_ = nc;
     min_ = mi;
     max_ = ma;
 
     // remove old labels
-    for (i = 0; i < MAX_LABELS; i++)
+    for (size_t i = 0; i < MAX_LABELS; i++)
     {
         allLabels_->removeElement(labelAndHspaces_[i]);
         allLabels_->removeElement(vspaces_[i]);
@@ -273,10 +285,31 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     makeLabelValues();
     float vgap = (Height - (numLabels_-1)*LabelHeight)/(numLabels_-1);
 
-    for (i = 0; i < numLabels_; i++)
+    for (size_t i = 0; i < numLabels_; i++)
     {
-        snprintf(str, sizeof(str), format_str_, labelValues_[i]);
-        labels_[i]->setString(str);
+        snprintf(str+off, sizeof(str)-off, format_str_, labelValues_[i]);
+        if (str[off] == '-')
+        {
+            for (size_t j=0; j<sizeof minus-1; ++j)
+                str[off+2-sizeof(minus)+j] = minus[j];
+            labels_[i]->setString(str+off+2-sizeof minus);
+        }
+        else if (str[off] == '+')
+        {
+            for (size_t j=0; j<sizeof plus-1; ++j)
+                str[off+2-sizeof(plus)+j] = plus[j];
+            labels_[i]->setString(str+off+2-sizeof plus);
+        }
+        else if (str[off] == ' ')
+        {
+            for (size_t j=0; j<sizeof space-1; ++j)
+                str[off+2-sizeof(space)] = space[j];
+            labels_[i]->setString(str+off+2-sizeof space);
+        }
+        else
+        {
+            labels_[i]->setString(str+off);
+        }
         allLabels_->addElement(labelAndHspaces_[i]);
         if (i < numLabels_-1)
         {
