@@ -561,9 +561,25 @@ set SWIG_DIR=c:\externlibs\zebu\swig
 cmake .. -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/gprc;c:/src/externlibs/zebu/fox
 
 
+##########################
+#### libWebrtc
+###cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/libwebrtc  -DCMAKE_DEBUG_POSTFIX=d
 
+#google webrtc
+#checkout source
+set PATH=c:\src\gitbase\depot_tools;%PATH%
+set DEPOT_TOOLS_WIN_TOOLCHAIN=0
+set GYP_MSVS_VERSION=2019
 
-
+mkdir webrtc-checkout
+cd webrtc-checkout
+gclient
+fetch --nohooks webrtc
+gclient sync
+cd src
+gn gen --ide=vs2019 out\x64 --filters=//:webrtc "--args=is_debug=false use_lld=false is_clang=false rtc_include_tests=false rtc_build_tools=true rtc_win_video_capture_winrt=true rtc_build_examples=false rtc_win_use_mf_h264=true enable_libaom=false rtc_enable_protobuf=false"
+cd out\x64
+all.sln
 
 
 

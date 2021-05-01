@@ -38,8 +38,8 @@ class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient, public covise::Messa
 {
 
 public:
-    VRBClient(Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
-    VRBClient(Program p, const VrbCredentials &credentials, bool isSlave = false);
+    VRBClient(Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
+    VRBClient(Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
     ~VRBClient();
     bool connectToServer(std::string sessionName = ""); 
     bool completeConnection();
@@ -65,6 +65,7 @@ private:
     VrbCredentials m_credentials;
     covise::Host *serverHost = nullptr;
     bool isSlave = false; // it true, we are a slave in a multiPC config, so do not actually connect to server
+    bool useUDP = false; // only setup a udp connection if this is true, this should be true only in OpenCOVER (and only one instance per computer :-(
     mutable float sendDelay = 0.1f; // low-pass filtered time for sending one packet of 1000 bytes
     std::mutex connMutex;
     std::atomic_bool m_isConnected{false};

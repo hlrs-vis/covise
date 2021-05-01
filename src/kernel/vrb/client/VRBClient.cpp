@@ -30,14 +30,15 @@
 using namespace vrb;
 using namespace covise;
 
-VRBClient::VRBClient(vrb::Program p, const char *collaborativeConfigurationFile, bool slave)
-    : VRBClient(p, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave)
+VRBClient::VRBClient(vrb::Program p, const char *collaborativeConfigurationFile, bool slave, bool p_useUDP)
+    : VRBClient(p, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave, p_useUDP)
     {}
 
-VRBClient::VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, bool slave)
+VRBClient::VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, bool slave, bool p_useUDP)
     : vrb::RemoteClient(p)
     , m_credentials(credentials)
 	, isSlave(slave)
+    , useUDP(p_useUDP)
 {
     if (!credentials.ipAddress.empty())
     {
@@ -203,7 +204,7 @@ bool VRBClient::isConnected()
 bool VRBClient::connectToServer(std::string sessionName)
 {
     setSession(vrb::SessionID{ID(), sessionName});
-    if (!udpConn && !isSlave)
+    if (!udpConn && !isSlave && useUDP)
     {
 		setupUdpConn();
 	}
