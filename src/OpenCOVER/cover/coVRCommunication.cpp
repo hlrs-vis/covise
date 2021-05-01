@@ -479,6 +479,7 @@ void coVRCommunication::handleVRB(Message *msg)
         if (uim.hasMyInfo)      
         {
             me()->setID(uim.myClientID);
+            vrbc->setID(uim.myClientID);
             connected();
             m_privateSessionID = uim.myPrivateSession;
             coVRPartnerList::instance()->setSessionID(me()->ID(), uim.mySession);
