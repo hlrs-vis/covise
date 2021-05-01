@@ -249,7 +249,6 @@ void VRBServer::processUdpMessages()
 }
 bool VRBServer::startUdpServer() 
 {
-	udpConn = new UDPConnection(0,0, m_udpPort, nullptr);
     auto conn = std::unique_ptr<UDPConnection>(new UDPConnection{0, 0, m_udpPort, nullptr});
     if (conn->getSocket()->get_id() < 0)
     {
@@ -258,6 +257,7 @@ bool VRBServer::startUdpServer()
 	struct linger linger;
 	linger.l_onoff = 0;
 	linger.l_linger = 0;
+        udpConn = dynamic_cast<const UDPConnection*>(connections.add(std::move(conn)));
 	setsockopt(udpConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)& linger, sizeof(linger));
 	if (m_gui)
 	{
@@ -265,7 +265,6 @@ bool VRBServer::startUdpServer()
 		QObject::connect(sn, SIGNAL(activated(int)),
 			this, SLOT(processUdpMessages()));
 	}
-	udpConn = dynamic_cast<const UDPConnection*>(connections.add(std::move(conn)));
 	return true;
 }
 
