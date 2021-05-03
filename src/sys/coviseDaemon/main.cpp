@@ -34,7 +34,7 @@ vrb::VrbCredentials readCredentials(const po::variables_map &vm)
 int main(int argc, char **argv)
 {
         po::options_description desc("usage");
-        desc.add_options()("help", "show this message")("host,h", po::value<std::string>(), "VRB address")("port,p", po::value<unsigned int>(), "VRB tcp port")("udp,u", po::value<unsigned int>(), "VRB udp port")("tui, t", "start command line interface")("autostart, a", "launch programs without asking for permission");
+        desc.add_options()("help", "show this message")("host,h", po::value<std::string>(), "VRB address")("port,p", po::value<unsigned int>(), "VRB tcp port")("udp,u", po::value<unsigned int>(), "VRB udp port")("tui, t", "start command line interface")("autostart, a", "launch programs without asking for permission")("cover, c", "start a COVER Deamon")("noVrb, n", "start without VRB connection");
 
         po::variables_map vm;
         try
@@ -67,10 +67,6 @@ int main(int argc, char **argv)
                 QApplication a(argc, argv);
                 a.setWindowIcon(QIcon(":/images/coviseDaemon.png"));
                 CoverDaemon d;
-                if (!d.isMaster())
-                {
-                        return a.exec();
-                }
                 MainWindow mw{readCredentials(vm)};
                 return a.exec();
         }
@@ -78,11 +74,6 @@ int main(int argc, char **argv)
         {
                 QCoreApplication a(argc, argv);
                 CoverDaemon d;
-                if (!d.isMaster())
-                {
-                        return a.exec();
-                }
-
                 Tui tui(readCredentials(vm), autostart);
                 std::thread s{
                     [&tui]() {

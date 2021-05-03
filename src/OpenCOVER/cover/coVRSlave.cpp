@@ -14,6 +14,7 @@
 #include <config/CoviseConfig.h>
 #include "coVRSlave.h"
 #include <cover/coVRMSController.h>
+#include <vrb/client/LaunchRequest.h>
 #ifdef HAS_MPI
 #include <mpi.h>
 #ifndef CO_MPI_SEND
@@ -230,39 +231,18 @@ void coVRTcpSlave::start()
     }
     sprintf(cEntry, "COVER.MultiPC.Startup:%d", myID - 1);
     string command = coCoviseConfig::getEntry(cEntry);
-    auto coviseDaemonHost = coCoviseConfig::getEntry("COVER.MultiPC.CoverDaemon");
-    if (command.empty() && coviseDaemonHost.empty())
+    if (command.empty())
     {
         cerr << cEntry << " not found in config file" << endl;
         return;
     }
-    if (!coviseDaemonHost.empty())
-    {
-        auto coviseDaemonPort = coCoviseConfig::getInt("port", "COVER.MultiPC.CoverDaemon", 0);
-        std::cerr << "connecting to COVISE Daemon on " << coviseDaemonHost << ":" << coviseDaemonPort << std::endl;
-        Host h{coviseDaemonHost.c_str()};
-        ClientConnection c{&h, coviseDaemonPort, 0, 0};
-        if (c.is_connected())
-        {
-            covise::TokenBuffer tb;
-            tb << myID << port;
-            Message m{tb};
-            while(!c.sendMessage(&m))
-            {
-            }
-            std::cerr << "sent COVER launch request" << std::endl;
-        }
-    }
-
-    else if (strstr(command.c_str(), "startOpenCover"))
+    if (strstr(command.c_str(), "startOpenCover"))
     {
         //connect to remote deamon and trigger startup of cover
-        int remPort = 0;
-        cerr << "Using remote daemon startup!" << endl;
-        remPort = coCoviseConfig::getInt("port", "System.RemoteDaemon.Server", 31090);
+        int defaultPort = coCoviseConfig::getInt("port", "COVER.Daemon", 31090);
+        auto strHost = coCoviseConfig::getEntry("host", cEntry, "");
+        auto remPort = coCoviseConfig::getInt("port", cEntry, defaultPort);
 
-        sprintf(cEntry, "COVER.MultiPC.Host:%d", myID - 1);
-        std::string strHost = coCoviseConfig::getEntry(cEntry);
         if (strHost.empty())
         {
             cerr << cEntry << " not found in config file" << endl;
@@ -272,19 +252,10 @@ void coVRTcpSlave::start()
         {
             cerr << "Hostname is: " << strHost << endl;
         }
-        Host *objHost = new Host(strHost.c_str());
+        Host objHost{strHost.c_str()};
         // verify myID value
-        SimpleClientConnection *clientConn = new SimpleClientConnection(objHost, remPort);
-        if (!clientConn)
-        {
-            cerr << "Creation of ClientConnection failed!" << endl;
-            return;
-        }
-        else
-        {
-            cerr << "ClientConnection created!" << endl;
-        }
-        if (!(clientConn->is_connected()))
+        SimpleClientConnection clientConn(&objHost, remPort);
+        if (!clientConn.is_connected())
         {
             cerr << "Connection to RemoteDaemon on " << strHost << " failed!" << endl;
             return;
@@ -293,20 +264,15 @@ void coVRTcpSlave::start()
         {
             cerr << "Connection to RemoteDaemon on " << strHost << " established!" << endl;
         }
+        std::vector<std::string> env, args;
+        args.push_back("-c");
+        args.push_back(std::to_string(myID));
+        args.push_back(mi);
+        args.push_back(std::to_string(port));
+        args.push_back(hn);
 
-        // create command to send to remote daemon
-        sprintf(co, "%s -c %d %s %d %s\n", command.c_str(), myID, mi.c_str(), port, hn.c_str());
-        cerr << "Sending RemoteDaemon the message: " << co << endl;
-
-        clientConn->getSocket()->write(co, (int)strlen(co));
-
-        cerr << "Message sent!" << endl;
-        cerr << "Closing connection objects!" << endl;
-
-        delete objHost;
-        delete clientConn;
-
-        cerr << "Leaving Start-Method of coVRSlave " << endl;
+        vrb::VRB_MESSAGE msg{0, vrb::Program::opencover, 0, env, args};
+        vrb::sendCoviseMessage(msg, clientConn);
     }
     else if (strncmp(command.c_str(), "covRemote", 9) == 0)
     {

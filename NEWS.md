@@ -5,6 +5,14 @@ Recent changes
 This document only covers changes that are important for using Covise and OpenCOVER. This includes changes on the UI, the config and requirements.
 For technical changes please have a look at the git commits.
 
+
+03.05.201 Integrated OpenCOVER's remote daemon in the coviseDaemon
+------------------------------------------------------------------
+This daemon is used to start COVER slaves in a multi display environment. This feature can be enabled for the coviseDaemon by adding the config entry <Daemon port="your port" /> to the COVER section.
+For OpenCOVER to use this, also in the COVER section, set NumSlaves to >= 1 and add a line like
+    <Startup value="startOpenCover" host="your host" name="your slave id" /> 
+for every slave.
+
 26.04.2021 Renamed VrbRemoteLauncher to coviseDaemon
 ----------------------------------------------------
 
