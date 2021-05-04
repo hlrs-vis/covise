@@ -26,7 +26,7 @@
    <string>COVISE Daemon</string>
   </property>
   <property name="toolTip">
-   <string>Don't ask for permission to start COVISE or OpenCOVER</string>
+   <string/>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -255,6 +255,9 @@
              </item>
              <item row="1" column="1">
               <widget class="QCheckBox" name="autostartCheckBox">
+               <property name="toolTip">
+                <string>Don't ask for permission to start COVISE or OpenCOVER</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
