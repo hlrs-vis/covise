@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef MainWindow_H
 #define MainWindow_H
 
@@ -49,14 +56,23 @@ private:
     std::future<void> m_waitFuture;
     ClientWidgetList *m_clientList;
     CoviseDaemon m_remoteLauncher;
-    void createTrayIcon();
-    void setHotkeys();
+
+    void initUi(const vrb::VrbCredentials &credentials);
     void setRemoteLauncherCallbacks();
-    void showConnectionProgressBar(int seconds);
-    void dumpOptions();
     void readOptions();
+    void initClientList();
+    void setHotkeys();
+    void handleAutoconnect();
+    void setStartupWindowStyle();
+
     void showThis();
     void hideThis();
+    void createTrayIcon();
+
+    void showConnectionProgressBar(int seconds);
+    bool askForPermission(const QString &senderDescription, vrb::Program programID);
+    
+    void saveOptions();
 
     std::vector<std::string> parseCmdArgsInput();
 };

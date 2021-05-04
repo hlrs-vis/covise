@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef VRB_REMOTE_LAUNCHER_MESSAGE_HANDLER_H
 #define VRB_REMOTE_LAUNCHER_MESSAGE_HANDLER_H
 
@@ -16,6 +23,7 @@
 #include <thread>
 #include <vector>
 
+//The CoviseDaemon that listens to launch request submitted via VRB
 class CoviseDaemon : public QObject
 {
     Q_OBJECT

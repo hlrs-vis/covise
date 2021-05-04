@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "clientWidget.h"
@@ -25,56 +32,19 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 {
 	qRegisterMetaType<vrb::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
-	ui->setupUi(this);
+	initUi(credentials);
 	setRemoteLauncherCallbacks();
-	ui->tcpInput->setValue(credentials.tcpPort);
-	ui->udpInput->setValue(credentials.udpPort);
-	ui->hostIpf->setText(QString(credentials.ipAddress.c_str()));
-	ui->progressBar->setVisible(false);
 	connect(this, &MainWindow::updateStatusBarSignal, this, &MainWindow::updateStatusBar);
 	readOptions();
-	m_clientList = new ClientWidgetList(ui->clientsScrollArea, ui->clientsScrollArea);
-	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](vrb::Program programID, int clientID) {
-		std::cerr << "launching " << vrb::programNames[programID] << " on client " << clientID << std::endl;
-
-		m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
-	});
-	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
+	initClientList();
 	setHotkeys();
-
-	if (ui->autoconnectCheckBox->isChecked())
-	{
-		onConnectBtnClicked();
-	}
-	else
-	{
-		setStateDisconnected();
-	}
-	if (!QSystemTrayIcon::isSystemTrayAvailable())
-	{
-		ui->backgroundCheckBox->setChecked(false);
-		ui->backgroundCheckBox->hide();
-	}
-	if (ui->minimizedCheckBox->isChecked())
-	{
-		if (!ui->backgroundCheckBox->isChecked())
-		{
-			showMinimized();
-		}
-		else
-		{
-			hideThis();
-		}
-	}
-	else
-	{
-		show();
-	}
+	handleAutoconnect();
+	setStartupWindowStyle();
 }
 
 MainWindow::~MainWindow()
 {
-	dumpOptions();
+	saveOptions();
 	m_isConnecting = false;
 	if (m_waitFuture.valid())
 	{
@@ -83,67 +53,8 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-	if (ui->backgroundCheckBox->isChecked())
-	{
-		hideThis();
-		event->ignore();
-	}
-	else
-		event->accept();
-}
-
-void MainWindow::createTrayIcon()
-{
-	m_tray = new QSystemTrayIcon(QIcon(":/images/coviseDaemon.png"), this);
-	//tray->showMessage("coviseDaemon", "blablabla");
-	m_tray->setToolTip("COVISE Daemon");
-	auto trayMenu = new QMenu(this);
-	trayMenu->setContextMenuPolicy(Qt::CustomContextMenu);
-	auto exit = trayMenu->addAction("Exit");
-	connect(exit, &QAction::triggered, &QApplication::quit);
-	trayMenu->addAction("Open", this, &MainWindow::showThis);
-	m_tray->setContextMenu(trayMenu);
-	connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
-		switch (reason)
-		{
-		case QSystemTrayIcon::DoubleClick:
-		case QSystemTrayIcon::Trigger:
-			showThis();
-			break;
-		default:
-			break;
-		}
-	});
-}
-
-void MainWindow::setHotkeys()
-{
-	auto escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-	auto enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
-	auto sideMenu = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab), this);
-	connect(enter, &QShortcut::activated, this, [this]() {
-		if (!m_isConnecting)
-		{
-			onConnectBtnClicked();
-		}
-	});
-	connect(escape, &QShortcut::activated, this, [this]() {
-		if (m_isConnecting)
-		{
-			onCancelBtnClicked();
-		}
-		else
-		{
-			onDisconnectBtnClicked();
-		}
-	});
-	connect(sideMenu, &QShortcut::activated, this, [this]() {
-		on_actionSideMenuAction_triggered();
-	});
-}
-
+//private slots
+//-----------------------------------------------------------------------
 void MainWindow::on_actionSideMenuAction_triggered()
 {
 	Guard g(m_mutex);
@@ -156,72 +67,6 @@ void MainWindow::on_timeoutSlider_sliderMoved(int val)
 {
 	Guard g(m_mutex);
 	ui->timeoutLabel->setText(QString("timeout: ") + QString::number(val) + QString("s"));
-}
-
-void MainWindow::setRemoteLauncherCallbacks()
-{
-	connect(&m_remoteLauncher, &CoviseDaemon::connectedSignal, this, &MainWindow::setStateConnected);
-	connect(&m_remoteLauncher, &CoviseDaemon::disconnectedSignal, this, [this]() {
-		setStateDisconnected();
-		if (ui->autoconnectCheckBox->isChecked())
-			onConnectBtnClicked();
-	});
-	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
-	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
-	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);
-}
-
-void MainWindow::showConnectionProgressBar(int seconds)
-{
-	int resolution = 2;
-	ui->progressBar->reset();
-	ui->progressBar->setRange(0, resolution * seconds);
-	ui->progressBar->setVisible(true);
-	if (m_waitFuture.valid())
-	{
-		m_waitFuture.get();
-	}
-
-	m_waitFuture = std::async(std::launch::async, [this, seconds, resolution]() {
-		while (m_isConnecting)
-		{
-			QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
-		}
-	});
-}
-
-void MainWindow::setStateDisconnected()
-{
-	m_remoteLauncher.disconnect();
-	ui->progressBar->setVisible(false);
-	m_isConnecting = false;
-	ui->connectBtn->setText("Connect");
-	ui->connectBtn->disconnect();
-	ui->conncetedLabel->setStyleSheet(QString("image: url(:/images/redCircle.png);"));
-	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onConnectBtnClicked);
-	setStackedWidget(ui->InfoStackedWidget, 1);
-}
-
-void MainWindow::setStateConnecting()
-{
-	showConnectionProgressBar(ui->timeoutSlider->value());
-	ui->connectBtn->setText("Cancel");
-	ui->connectBtn->disconnect();
-	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onCancelBtnClicked);
-}
-
-void MainWindow::setStateConnected()
-{
-	std::cerr << "Connected!" << std::endl;
-	ui->progressBar->setVisible(false);
-	m_isConnecting = false;
-	ui->connectBtn->setText("disconnect");
-	ui->connectBtn->disconnect();
-	ui->conncetedLabel->setStyleSheet(QString("image: url(:/images/greenCircle.png);"));
-	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onDisconnectBtnClicked);
-
-	setStackedWidget(ui->InfoStackedWidget, 0);
 }
 
 void MainWindow::onConnectBtnClicked()
@@ -263,6 +108,39 @@ void MainWindow::updateStatusBar()
 	}
 }
 
+void MainWindow::setStateDisconnected()
+{
+	m_remoteLauncher.disconnect();
+	ui->progressBar->setVisible(false);
+	m_isConnecting = false;
+	ui->connectBtn->setText("Connect");
+	ui->connectBtn->disconnect();
+	ui->conncetedLabel->setStyleSheet(QString("image: url(:/images/redCircle.png);"));
+	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onConnectBtnClicked);
+	setStackedWidget(ui->InfoStackedWidget, 1);
+}
+
+void MainWindow::setStateConnecting()
+{
+	showConnectionProgressBar(ui->timeoutSlider->value());
+	ui->connectBtn->setText("Cancel");
+	ui->connectBtn->disconnect();
+	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onCancelBtnClicked);
+}
+
+void MainWindow::setStateConnected()
+{
+	std::cerr << "Connected!" << std::endl;
+	ui->progressBar->setVisible(false);
+	m_isConnecting = false;
+	ui->connectBtn->setText("disconnect");
+	ui->connectBtn->disconnect();
+	ui->conncetedLabel->setStyleSheet(QString("image: url(:/images/greenCircle.png);"));
+	connect(ui->connectBtn, &QPushButton::clicked, this, &MainWindow::onDisconnectBtnClicked);
+
+	setStackedWidget(ui->InfoStackedWidget, 0);
+}
+
 void MainWindow::updateClient(int clientID, QString clientInfo)
 {
 	m_clientList->addClient(clientID, clientInfo);
@@ -277,26 +155,7 @@ void MainWindow::launchProgram(int senderID, const QString &senderDescription, v
 {
 	bool execute = ui->autostartCheckBox->isChecked();
 	if (!execute)
-	{
-		bool wasVisible = isVisible();
-		show();
-
-		QString text;
-		QTextStream ss(&text);
-		ss << "Host " << senderDescription << " requests execution of " << vrb::programNames[programID] << ".";
-
-		QMessageBox msgBox{this};
-		msgBox.setMinimumSize(200, 200);
-		msgBox.setWindowTitle("Application execution request");
-		msgBox.setText(text);
-		msgBox.setInformativeText("Do you want to execute this application?");
-		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		int ret = msgBox.exec();
-		execute = ret == QMessageBox::Ok ? true : false;
-		if (!wasVisible)
-			hide();
-	}
+		execute = askForPermission(senderDescription, programID);
 	if (execute)
 	{
 		std::cerr << "launching " << vrb::programNames[programID] << std::endl;
@@ -304,34 +163,44 @@ void MainWindow::launchProgram(int senderID, const QString &senderDescription, v
 		spawnProgram(programID, args);
 	}
 	else
-	{
 		m_remoteLauncher.sendPermission(senderID, false);
-	}
 }
 
-void MainWindow::dumpOptions()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-	std::string path = getenv("COVISE_PATH");
-	path += "/coviseDaemon.settings";
-	std::fstream file(path, std::ios_base::binary | std::ios_base::out);
-	if (file.is_open())
+	if (ui->backgroundCheckBox->isChecked())
 	{
-		covise::TokenBuffer tb;
-		tb << __DATE__ << __TIME__;
-		tb << ui->timeoutSlider->value();
-		tb << ui->autostartCheckBox->isChecked();
-		tb << ui->autoconnectCheckBox->isChecked();
-		tb << ui->backgroundCheckBox->isChecked();
-		tb << ui->minimizedCheckBox->isChecked();
-		tb << ui->cmdArgsInput->text().toStdString();
-		int size = tb.getData().length();
-		file.write((char *)&size, sizeof(size));
-		file.write(tb.getData().data(), size);
+		hideThis();
+		event->ignore();
 	}
 	else
-	{
-		std::cerr << "failed to dump settings to " << path << std::endl;
-	}
+		event->accept();
+}
+
+//private functions
+//----------------------------------------------------------------------------------
+
+void MainWindow::initUi(const vrb::VrbCredentials &credentials)
+{
+	ui->setupUi(this);
+	ui->tcpInput->setValue(credentials.tcpPort);
+	ui->udpInput->setValue(credentials.udpPort);
+	ui->hostIpf->setText(QString(credentials.ipAddress.c_str()));
+	ui->progressBar->setVisible(false);
+	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
+}
+
+void MainWindow::setRemoteLauncherCallbacks()
+{
+	connect(&m_remoteLauncher, &CoviseDaemon::connectedSignal, this, &MainWindow::setStateConnected);
+	connect(&m_remoteLauncher, &CoviseDaemon::disconnectedSignal, this, [this]() {
+		setStateDisconnected();
+		if (ui->autoconnectCheckBox->isChecked())
+			onConnectBtnClicked();
+	});
+	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
+	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
+	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);
 }
 
 void MainWindow::readOptions()
@@ -368,6 +237,78 @@ void MainWindow::readOptions()
 	}
 }
 
+void MainWindow::initClientList()
+{
+	m_clientList = new ClientWidgetList(ui->clientsScrollArea, ui->clientsScrollArea);
+	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](vrb::Program programID, int clientID) {
+		std::cerr << "launching " << vrb::programNames[programID] << " on client " << clientID << std::endl;
+
+		m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
+	});
+}
+
+void MainWindow::setHotkeys()
+{
+	auto escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+	auto enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
+	auto sideMenu = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab), this);
+	connect(enter, &QShortcut::activated, this, [this]() {
+		if (!m_isConnecting)
+		{
+			onConnectBtnClicked();
+		}
+	});
+	connect(escape, &QShortcut::activated, this, [this]() {
+		if (m_isConnecting)
+		{
+			onCancelBtnClicked();
+		}
+		else
+		{
+			onDisconnectBtnClicked();
+		}
+	});
+	connect(sideMenu, &QShortcut::activated, this, [this]() {
+		on_actionSideMenuAction_triggered();
+	});
+}
+
+void MainWindow::handleAutoconnect()
+{
+	if (ui->autoconnectCheckBox->isChecked())
+	{
+		onConnectBtnClicked();
+	}
+	else
+	{
+		setStateDisconnected();
+	}
+}
+
+void MainWindow::setStartupWindowStyle()
+{
+	if (!QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		ui->backgroundCheckBox->setChecked(false);
+		ui->backgroundCheckBox->hide();
+	}
+	if (ui->minimizedCheckBox->isChecked())
+	{
+		if (!ui->backgroundCheckBox->isChecked())
+		{
+			showMinimized();
+		}
+		else
+		{
+			hideThis();
+		}
+	}
+	else
+	{
+		show();
+	}
+}
+
 void MainWindow::showThis()
 {
 	m_tray->hide();
@@ -383,6 +324,97 @@ void MainWindow::hideThis()
 	hide();
 }
 
+void MainWindow::createTrayIcon()
+{
+	m_tray = new QSystemTrayIcon(QIcon(":/images/coviseDaemon.png"), this);
+	//tray->showMessage("coviseDaemon", "blablabla");
+	m_tray->setToolTip("COVISE Daemon");
+	auto trayMenu = new QMenu(this);
+	trayMenu->setContextMenuPolicy(Qt::CustomContextMenu);
+	auto exit = trayMenu->addAction("Exit");
+	connect(exit, &QAction::triggered, &QApplication::quit);
+	trayMenu->addAction("Open", this, &MainWindow::showThis);
+	m_tray->setContextMenu(trayMenu);
+	connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
+		switch (reason)
+		{
+		case QSystemTrayIcon::DoubleClick:
+		case QSystemTrayIcon::Trigger:
+			showThis();
+			break;
+		default:
+			break;
+		}
+	});
+}
+
+void MainWindow::showConnectionProgressBar(int seconds)
+{
+	int resolution = 2;
+	ui->progressBar->reset();
+	ui->progressBar->setRange(0, resolution * seconds);
+	ui->progressBar->setVisible(true);
+	if (m_waitFuture.valid())
+	{
+		m_waitFuture.get();
+	}
+
+	m_waitFuture = std::async(std::launch::async, [this, seconds, resolution]() {
+		while (m_isConnecting)
+		{
+			QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
+		}
+	});
+}
+
+bool MainWindow::askForPermission(const QString &senderDescription, vrb::Program programID)
+{
+	bool wasVisible = isVisible();
+	show(); //if main window is not visible showing the message box may crash
+
+	QString text;
+	QTextStream ss(&text);
+	ss << "Host " << senderDescription << " requests execution of " << vrb::programNames[programID] << ".";
+
+	QMessageBox msgBox{this};
+	msgBox.setMinimumSize(200, 200);
+	msgBox.setWindowTitle("Application execution request");
+	msgBox.setText(text);
+	msgBox.setInformativeText("Do you want to execute this application?");
+	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+	msgBox.setDefaultButton(QMessageBox::Ok);
+	int ret = msgBox.exec();
+	if (!wasVisible)
+		hide();
+	return ret == QMessageBox::Ok ? true : false;
+}
+
+void MainWindow::saveOptions()
+{
+	std::string path = getenv("COVISE_PATH");
+	path += "/coviseDaemon.settings";
+	std::fstream file(path, std::ios_base::binary | std::ios_base::out);
+	if (file.is_open())
+	{
+		covise::TokenBuffer tb;
+		tb << __DATE__ << __TIME__;
+		tb << ui->timeoutSlider->value();
+		tb << ui->autostartCheckBox->isChecked();
+		tb << ui->autoconnectCheckBox->isChecked();
+		tb << ui->backgroundCheckBox->isChecked();
+		tb << ui->minimizedCheckBox->isChecked();
+		tb << ui->cmdArgsInput->text().toStdString();
+		int size = tb.getData().length();
+		file.write((char *)&size, sizeof(size));
+		file.write(tb.getData().data(), size);
+	}
+	else
+	{
+		std::cerr << "failed to dump settings to " << path << std::endl;
+	}
+}
+
 std::vector<std::string> MainWindow::parseCmdArgsInput()
 {
 	auto args = covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
@@ -390,6 +422,8 @@ std::vector<std::string> MainWindow::parseCmdArgsInput()
 	std::transform(args.begin(), args.end(), a.begin(), [](const char *c) { return c; });
 	return a;
 }
+
+//free functions
 
 void setStackedWidget(QStackedWidget *stack, int index)
 {

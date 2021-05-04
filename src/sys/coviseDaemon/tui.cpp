@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
+CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autostart)
     : m_autostart(autostart)
 {
     qRegisterMetaType<vrb::Program>();
@@ -39,7 +39,7 @@ Tui::Tui(const vrb::VrbCredentials &credentials, bool autostart)
     createCommands();
 }
 
-void Tui::run()
+void CommandLineUi::run()
 {
     while (!m_terminate)
     {
@@ -50,8 +50,7 @@ void Tui::run()
     QApplication::quit();
 }
 
-
-void Tui::handleCommand(const std::string &command)
+void CommandLineUi::handleCommand(const std::string &command)
 {
     for (auto &c : m_commands)
         c->execute(command);
@@ -61,7 +60,6 @@ void Tui::handleCommand(const std::string &command)
         m_launchDialog = false;
         m_launcher.sendPermission(m_senderId, true);
         spawnProgram(m_program, m_args);
-
     }
     else if (m_launchDialog && (command == "n" || command == "no"))
     {
@@ -74,7 +72,7 @@ void Tui::handleCommand(const std::string &command)
     }
 }
 
-void Tui::createCommands()
+void CommandLineUi::createCommands()
 {
 
     m_commands.push_back(std::unique_ptr<CommandInterface>(new Command{{"help"}, "show this message", [this]() {
@@ -90,6 +88,9 @@ void Tui::createCommands()
 
     for (int i = 0; i < static_cast<int>(vrb::Program::LAST_DUMMY); i++)
     {
-        m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<vrb::Program>(i), m_launcher}));
+        if (i != static_cast<int>(vrb::Program::coviseDaemon))
+        {
+            m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<vrb::Program>(i), m_launcher}));
+        }
     }
 }

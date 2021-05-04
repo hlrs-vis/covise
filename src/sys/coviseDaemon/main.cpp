@@ -1,3 +1,9 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
 
 #include "coverDaemon.h"
 #include "mainWindow.h"
@@ -9,6 +15,9 @@
 #include <iostream>
 
 namespace po = boost::program_options;
+
+
+
 
 vrb::VrbCredentials readCredentials(const po::variables_map &vm)
 {
@@ -31,10 +40,33 @@ vrb::VrbCredentials readCredentials(const po::variables_map &vm)
         return vrb::VrbCredentials{ip, tcp, udp};
 }
 
+int runGuiDaemon(int argc, char **argv, const po::variables_map &vars)
+{
+        QApplication a(argc, argv);
+        a.setWindowIcon(QIcon(":/images/coviseDaemon.png"));
+        CoverDaemon d;
+        MainWindow mw{readCredentials(vars)};
+        return a.exec();
+}
+
+int runCommandlineDaemon(int argc, char **argv, const po::variables_map &vars)
+{
+        QCoreApplication a(argc, argv);
+        CoverDaemon d;
+        CommandLineUi tui(readCredentials(vars), vars.count("autostart"));
+        std::thread s{
+            [&tui]() {
+                    tui.run();
+            }};
+        auto retval = a.exec();
+        s.join();
+        return retval;
+}
+
 int main(int argc, char **argv)
 {
         po::options_description desc("usage");
-        desc.add_options()("help", "show this message")("host,h", po::value<std::string>(), "VRB address")("port,p", po::value<unsigned int>(), "VRB tcp port")("udp,u", po::value<unsigned int>(), "VRB udp port")("tui, t", "start command line interface")("autostart, a", "launch programs without asking for permission")("cover, c", "start a COVER Deamon")("noVrb, n", "start without VRB connection");
+        desc.add_options()("help", "show this message")("host,h", po::value<std::string>(), "VRB address")("port,p", po::value<unsigned int>(), "VRB tcp port")("udp,u", po::value<unsigned int>(), "VRB udp port")("tui, t", "start command line interface")("autostart, a", "launch programs without asking for permission");
 
         po::variables_map vm;
         try
@@ -56,31 +88,13 @@ int main(int argc, char **argv)
                 std::cerr << desc << std::endl;
                 return 0;
         }
-        bool autostart = false;
-        if (vm.count("autostart"))
-        {
-                autostart = true;
-        }
 
-        if (!vm.count("tui"))
+        if (vm.count("tui"))
         {
-                QApplication a(argc, argv);
-                a.setWindowIcon(QIcon(":/images/coviseDaemon.png"));
-                CoverDaemon d;
-                MainWindow mw{readCredentials(vm)};
-                return a.exec();
+                runCommandlineDaemon(argc, argv, vm);
         }
         else
         {
-                QCoreApplication a(argc, argv);
-                CoverDaemon d;
-                Tui tui(readCredentials(vm), autostart);
-                std::thread s{
-                    [&tui]() {
-                            tui.run();
-                    }};
-                auto retval = a.exec();
-                s.join();
-                return retval;
+                runGuiDaemon(argc, argv, vm);
         }
 }

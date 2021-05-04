@@ -15,11 +15,11 @@
 #include <mutex>
 #include <memory>
 
-class Tui : public QObject
+class CommandLineUi : public QObject
 {
     Q_OBJECT
 public:
-    Tui(const vrb::VrbCredentials &credentials, bool autostart);
+    CommandLineUi(const vrb::VrbCredentials &credentials, bool autostart);
     void run();
     
     private:
