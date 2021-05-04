@@ -48,7 +48,7 @@ VrbUiClient::VrbUiClient(const Connection *c, const UDPConnection* udpc, QSocket
     setMaster(isMaster());
 
     myItem->setText(vrb::Columns::Host, userInfo().hostName.c_str());
-    myItem->setText(User, userInfo().ipAdress.c_str());
+    myItem->setText(User, userInfo().userName.c_str());
     myItem->setText(Email, userInfo().email.c_str());
     myItem->setText(URL, userInfo().url.c_str());
 
