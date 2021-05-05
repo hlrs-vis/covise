@@ -172,6 +172,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     // read covise.config
     m_hostManager.getLocalHost().startCrb();
     m_hostManager.getLocalHost().startUI(m_options.uiOptions);
+    m_hostManager.sendPartnerList();
 
     loadNetworkFile();
     cerr << "* ...done initialization                                                      *" << endl;
