@@ -568,7 +568,7 @@ const RemoteHost *HostManager::getHost(int clientID) const
 RemoteHost &HostManager::findHost(const std::string &ipAddress)
 {
     auto h = std::find_if(m_hosts.begin(), m_hosts.end(), [&ipAddress](HostMap::value_type &host) {
-        return host.second->userInfo().ipAdress == ipAddress;
+        return (host.second->state() != LaunchStyle::Disconnect && host.second->userInfo().ipAdress == ipAddress);
     });
     if (h != m_hosts.end())
     {

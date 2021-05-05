@@ -1133,33 +1133,36 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         auto apps = m_hostManager.getAllModules<NetModule>();
         for (auto &host : m_hostManager)
         {
-            for (NetModule *app : apps)
+            if(host.second->state() != LaunchStyle::Disconnect)
             {
-                int instance = app->instance() + 1000 * (app->numMirrors() + 1);
-                NetModule::MapPosition pos{(app->pos().x + (app->numMirrors() + 1) * 400), app->pos().y};
-                try
-                {
-                    auto &copy = host.second->startApplicationModule(app->info().name, std::to_string(instance), pos.x + (app->numMirrors() + 1) * 400, pos.y, 4, ExecFlag::Normal, app);
+				for (NetModule* app : apps)
+				{
+					int instance = app->instance() + 1000 * (app->numMirrors() + 1);
+					NetModule::MapPosition pos{ (app->pos().x + (app->numMirrors() + 1) * 400), app->pos().y };
+					try
+					{
+						auto& copy = host.second->startApplicationModule(app->info().name, std::to_string(instance), pos.x + (app->numMirrors() + 1) * 400, pos.y, 4, ExecFlag::Normal, app);
 
-                    ostringstream os;
-                    os << "COPY2\n"
-                       << copy.createBasicModuleDescription()
-                       << pos.x << "\n"
-                       << pos.y << "\n"
-                       << app->createBasicModuleDescription();
-                    Message msg{COVISE_MESSAGE_UI, os.str()};
-                    m_hostManager.sendAll<Userinterface>(msg);
-                    msg = Message{COVISE_MESSAGE_UI, "DESC\n" + copy.createDescription()};
-                    m_hostManager.sendAll<Userinterface>(msg);
-                }
-                catch (const Exception &e)
-                {
-                    std::cerr << e.what() << std::endl;
-                    ostringstream os;
-                    os << "Failing to start " << app->fullName() << "@" << host.first << "!!!";
-                    Message err{COVISE_MESSAGE_COVISE_ERROR, os.str()};
-                    m_hostManager.sendAll<Userinterface>(err);
-                }
+						ostringstream os;
+						os << "COPY2\n"
+							<< copy.createBasicModuleDescription()
+							<< pos.x << "\n"
+							<< pos.y << "\n"
+							<< app->createBasicModuleDescription();
+						Message msg{ COVISE_MESSAGE_UI, os.str() };
+						m_hostManager.sendAll<Userinterface>(msg);
+						msg = Message{ COVISE_MESSAGE_UI, "DESC\n" + copy.createDescription() };
+						m_hostManager.sendAll<Userinterface>(msg);
+					}
+					catch (const Exception& e)
+					{
+						std::cerr << e.what() << std::endl;
+						ostringstream os;
+						os << "Failing to start " << app->fullName() << "@" << host.first << "!!!";
+						Message err{ COVISE_MESSAGE_COVISE_ERROR, os.str() };
+						m_hostManager.sendAll<Userinterface>(err);
+					}
+				}
             }
         }
     }
@@ -1961,13 +1964,13 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
 
         // send request to crb
         auto crbs = m_hostManager.getAllModules<CRBModule>();
-        auto host = std::find_if(m_hostManager.begin(), m_hostManager.end(), [&hostAddress, &username](const HostManager::HostMap::value_type &h) {
-            return h.second->userInfo().ipAdress == hostAddress && h.second->userInfo().userName == username;
-        });
-        if (host != m_hostManager.end())
-        {
-            host->second->getProcess(sender_type::CRB).send(&*msg);
-        }
+		try {
+            m_hostManager.findHost(hostAddress).getProcess(sender_type::CRB).send(&*msg);
+		}
+		catch (const Exception& e)
+		{
+			std::cerr << "handleUI:" << e.what();
+		}
     }
 
     else if (key == "HOSTINFO")
@@ -2332,12 +2335,18 @@ obj_conn *CTRLHandler::connectPorts(const string &from_name, const string &from_
     string fromObjName;
     try
     {
-        auto &fromApp = m_hostManager.findHost(from_host).getModule(from_name, std::stoi(from_nr));
+        int fromInst = 0;
+        int toInst = 0;
+        if (from_nr.length() > 0)
+            fromInst = std::stoi(from_nr);
+        if (to_nr.length() > 0)
+            toInst = std::stoi(to_nr);
+        auto &fromApp = m_hostManager.findHost(from_host).getModule(from_name, fromInst);
         auto &fromInterface = fromApp.connectivity().getInterface<net_interface>(from_port);
         auto fromObj = fromInterface.get_object();
         fromObjName = fromObj->get_name();
         fromObj = CTRLGlobal::getInstance()->objectList->select(fromObjName);
-        auto &toApp = m_hostManager.findHost(to_host).getModule(to_name, std::stoi(to_nr));
+        auto &toApp = m_hostManager.findHost(to_host).getModule(to_name, toInst);
         auto &toInterface = toApp.connectivity().getInterface<C_interface>(to_port);
         net_interface *toAppInterface = dynamic_cast<net_interface *>(&toInterface);
 
@@ -3106,11 +3115,11 @@ void CTRLHandler::sendCollaborativeState()
     int numHosts = 0;
     for (const auto &host : m_hostManager)
     {
-        if (host.second->state() == LaunchStyle::Host || host.second->state() == LaunchStyle::Host)
+        if (host.second->state() != LaunchStyle::Disconnect)
         {
             buffer << (host.second->state() == LaunchStyle::Host ? "COHOST" : "COPARTNER") << "\n"
                    << host.second->userInfo().ipAdress << "\n"
-                   << host.second->userInfo().userName;
+                   << host.second->userInfo().userName << "\n";
 
             try
             {
