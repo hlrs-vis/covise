@@ -161,8 +161,9 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         private void InitDefaultCellSize()
         {
             double scalarRes = Exporter.Instance.settings.BlockMeshResolution;
-            if (scalarRes < 1)
-                scalarRes = 1; Settings s = Exporter.Instance.settings;
+            //if (scalarRes < 1)
+            //    scalarRes = 1;
+            Settings s = Exporter.Instance.settings;
             if (s.DomainX.IsZeroLength())
             {
                 m_CellSize.X = Math.Round(m_VecUpperEdgeRight.X - m_VecLowerEdgeLeft.X) * scalarRes;

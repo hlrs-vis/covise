@@ -279,7 +279,6 @@ namespace BIM.OpenFOAMExport
                 "\n" +
                 "\n# Source tutorial run functions" +
                 "\n. $WM_PROJECT_DIR/bin/tools/RunFunctions" +
-                "\nrouch case.foam" +
                 "\nrunApplication surfaceFeatureExtract" +
                 "\n" +
                 "\nrunApplication blockMesh" +
@@ -294,8 +293,9 @@ namespace BIM.OpenFOAMExport
                 "\nrunApplication decomposePar" +
                 //"\nrunParallel renumberMesh -overwrite" +
                 "\nrunParallel $(getApplication)" +
+                "\nrunApplication reconstructPar " + Exporter.Instance.settings.ReconstructParOption +
+                "\nrunApplication foamToEnsight " +
                 "\n" +
-                "\nrunApplication reconstructPar "+ Exporter.Instance.settings.ReconstructParOption +
                 "\n#------------------------------------------------------------------------------";
             }
             else
