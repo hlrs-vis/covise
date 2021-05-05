@@ -229,7 +229,8 @@ CoviseProxy::~CoviseProxy()
   {
     for (const auto &proxy : m_proxies)
     {
-      shutdownAndCloseSocket(proxy.second->getSocket()->get_id());
+      if(proxy.second->getSocket())
+         shutdownAndCloseSocket(proxy.second->getSocket()->get_id());
     }
     m_thread.join();
   }
