@@ -210,15 +210,16 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 //start batch
                 using (Process process = Process.Start(startInfo))
                 {
-                    process.WaitForExit();
-                    if(process.ExitCode != 0)
-                    {
-                        MessageBox.Show("Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use" +
-                            " check the VPN connection." +
-                            "\nC#-Process ExitCode: " + process.ExitCode,
-                            OpenFOAMExportResource.MESSAGE_BOX_TITLE);
-                        return false;
-                    }
+                    // don't wait
+                    //process.WaitForExit();
+                    //if(process.ExitCode != 0)
+                    //{
+                    //    MessageBox.Show("Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use" +
+                    //        " check the VPN connection." +
+                    //        "\nC#-Process ExitCode: " + process.ExitCode,
+                    //        OpenFOAMExportResource.MESSAGE_BOX_TITLE);
+                    //    return false;
+                    //} 
                 }
             }
             else
@@ -556,7 +557,8 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             //***********************SSH FOR LINUX IMPLEMENTED*******************/
             List<string> shellCommands = new List<string>
             {
-                "scp -P "+ BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -r " + m_CasePath + " " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() + ":" + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder,
+                "ssh -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -t " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() + " mkdir -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder +"\n",
+                "scp -P " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -r " + m_CasePath + " " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() + ":" + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder,
                 "ssh -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -t " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() +
                 " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.OfAlias + 
                 "; cd " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder+"/"+CaseDir
@@ -588,6 +590,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 {
                     Directory.CreateDirectory(CasePathResults);
                 }
+                
                 commands.Add("scp -P " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -r " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString()+ ":" + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder + "/" + CaseDir + "/* " + CasePathResults);
             }
             if(BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Delete)

@@ -206,13 +206,14 @@ namespace BIM.OpenFOAMExport
                 return status;
             }
 
-            String foamFile = path + "\\" + m_STLName + ".foam";
+            /*String foamFile = path + "\\" + m_STLName + ".foam";
             //.foam-File
             if (File.Exists(foamFile))
             {
                 File.Delete(foamFile);
             }
             File.Create(foamFile);
+            */
 
 
             //generate files
