@@ -14,6 +14,10 @@
 
 #include <memory>
 #include <future>
+#include <config/coConfigBool.h>
+#include <config/coConfigInt.h>
+#include <config/coConfigString.h>
+
 namespace Ui
 {
     class MainWindow;
@@ -32,6 +36,12 @@ public:
 private slots:
     void on_actionSideMenuAction_triggered();
     void on_timeoutSlider_sliderMoved(int val);
+    void on_autostartCheckBox_clicked();
+    void on_autoconnectCheckBox_clicked();
+    void on_backgroundCheckBox_clicked();
+    void on_minimizedCheckBox_clicked();
+    void on_cmdArgsInput_textChanged();
+    
     void onConnectBtnClicked();
     void onCancelBtnClicked();
     void onDisconnectBtnClicked();
@@ -56,6 +66,14 @@ private:
     std::future<void> m_waitFuture;
     ClientWidgetList *m_clientList;
     CoviseDaemon m_remoteLauncher;
+    covise::coConfigGroup *cdConfig;
+    covise::coConfigInt cfgTimeout;
+    covise::coConfigBool cfgAutostart;
+    covise::coConfigBool cfgAutoConnect;
+    covise::coConfigBool cfgBackground;
+    covise::coConfigBool cfgMinimized;
+    covise::coConfigString cfgArguments;
+    void initConfigSettings();
 
     void initUi(const vrb::VrbCredentials &credentials);
     void setRemoteLauncherCallbacks();

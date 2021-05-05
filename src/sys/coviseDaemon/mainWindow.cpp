@@ -25,26 +25,40 @@
 #include <csignal>
 #include <cassert>
 
+#include <config/coConfigGroup.h>
+#include <config/coConfig.h>
+
 using namespace vrb;
 
 MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
+	, cfgTimeout("System.CoviseDaemon.Timeout")
+	, cfgAutostart("System.CoviseDaemon.Autostart")
+	, cfgAutoConnect("System.CoviseDaemon.AutoConnect")
+	, cfgBackground("System.CoviseDaemon.Background")
+	, cfgMinimized("System.CoviseDaemon.Minimized")
+	, cfgArguments("System.CoviseDaemon.Arguments")
 {
 	qRegisterMetaType<vrb::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
-	initUi(credentials);
+
+	
+
+	initUi(credentials); 
+	initConfigSettings();
 	setRemoteLauncherCallbacks();
 	connect(this, &MainWindow::updateStatusBarSignal, this, &MainWindow::updateStatusBar);
-	readOptions();
 	initClientList();
 	setHotkeys();
 	handleAutoconnect();
 	setStartupWindowStyle();
+
 }
 
 MainWindow::~MainWindow()
 {
-	saveOptions();
+	cdConfig->save();
+
 	m_isConnecting = false;
 	if (m_waitFuture.valid())
 	{
@@ -65,8 +79,30 @@ void MainWindow::on_actionSideMenuAction_triggered()
 
 void MainWindow::on_timeoutSlider_sliderMoved(int val)
 {
+	cfgTimeout = val;
 	Guard g(m_mutex);
 	ui->timeoutLabel->setText(QString("timeout: ") + QString::number(val) + QString("s"));
+}
+
+void MainWindow::on_autostartCheckBox_clicked()
+{
+	cfgAutostart = ui->autostartCheckBox->isChecked();
+}
+void MainWindow::on_autoconnectCheckBox_clicked()
+{
+	cfgAutoConnect = ui->autoconnectCheckBox->isChecked();
+}
+void MainWindow::on_backgroundCheckBox_clicked()
+{
+	cfgBackground = ui->backgroundCheckBox->isChecked();
+}
+void MainWindow::on_minimizedCheckBox_clicked()
+{
+	cfgMinimized = ui->minimizedCheckBox->isChecked();
+}
+void MainWindow::on_cmdArgsInput_textChanged()
+{
+	cfgArguments = ui->cmdArgsInput->text();
 }
 
 void MainWindow::onConnectBtnClicked()
@@ -190,6 +226,35 @@ void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 }
 
+void MainWindow::initConfigSettings()
+{
+	cdConfig = new covise::coConfigGroup("CoviseDaemon");
+	cdConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "coviseDaemon.xml", "local", true);
+	covise::coConfig::getInstance()->addConfig(cdConfig);
+
+	cfgTimeout.setAutoUpdate(true);
+	cfgAutostart.setAutoUpdate(true);
+	cfgAutoConnect.setAutoUpdate(true);
+	cfgBackground.setAutoUpdate(true);
+	cfgMinimized.setAutoUpdate(true);
+	cfgArguments.setAutoUpdate(true);
+
+	cfgTimeout.setSaveToGroup(cdConfig);
+	cfgAutostart.setSaveToGroup(cdConfig);
+	cfgAutoConnect.setSaveToGroup(cdConfig);
+	cfgBackground.setSaveToGroup(cdConfig);
+	cfgMinimized.setSaveToGroup(cdConfig);
+	cfgArguments.setSaveToGroup(cdConfig);
+
+	ui->timeoutSlider->setValue(cfgTimeout);
+	on_timeoutSlider_sliderMoved(cfgTimeout);
+	ui->autostartCheckBox->setChecked(cfgAutostart);
+	ui->autoconnectCheckBox->setChecked(cfgAutoConnect);
+	ui->backgroundCheckBox->setChecked(cfgBackground);
+	ui->minimizedCheckBox->setChecked(cfgMinimized);
+	ui->cmdArgsInput->setText(cfgArguments);
+}
+
 void MainWindow::setRemoteLauncherCallbacks()
 {
 	connect(&m_remoteLauncher, &CoviseDaemon::connectedSignal, this, &MainWindow::setStateConnected);
@@ -202,7 +267,7 @@ void MainWindow::setRemoteLauncherCallbacks()
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);
 }
-
+/*
 void MainWindow::readOptions()
 {
 	std::string path = getenv("COVISE_PATH");
@@ -220,11 +285,11 @@ void MainWindow::readOptions()
 		char *date, *time;
 		std::string args;
 		tb >> date >> time;
-		if (strcmp(date, __DATE__) != 0 | strcmp(time, __TIME__) != 0)
-		{
-			std::cerr << "failed to load settings: different compilation!" << std::endl;
-			return;
-		}
+		// only ignore an old config if it is actually incompatible if ((strcmp(date, __DATE__) != 0) | (strcmp(time, __TIME__) != 0))
+		//{
+		//	std::cerr << "failed to load settings: different compilation!" << std::endl;
+		//	return;
+		//}
 
 		tb >> timeout >> autostart >> autoconnect >> background >> minimized >> args;
 		ui->timeoutSlider->setValue(timeout);
@@ -235,7 +300,7 @@ void MainWindow::readOptions()
 		ui->minimizedCheckBox->setChecked(minimized);
 		ui->cmdArgsInput->setText(args.c_str());
 	}
-}
+}*/
 
 void MainWindow::initClientList()
 {
@@ -389,7 +454,7 @@ bool MainWindow::askForPermission(const QString &senderDescription, vrb::Program
 		hide();
 	return ret == QMessageBox::Ok ? true : false;
 }
-
+/*
 void MainWindow::saveOptions()
 {
 	std::string path = getenv("COVISE_PATH");
@@ -413,7 +478,7 @@ void MainWindow::saveOptions()
 	{
 		std::cerr << "failed to dump settings to " << path << std::endl;
 	}
-}
+}*/
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()
 {

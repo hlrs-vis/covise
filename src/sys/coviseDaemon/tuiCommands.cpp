@@ -39,7 +39,6 @@ void LaunchCommand::execute(const std::string &command)
 {
     if (command.substr(0, strlen(vrb::programNames[m_program])) == vrb::programNames[m_program])
     {
-        size_t l;
         int clID = 0;
         std::vector<std::string> args;
         try
