@@ -49,11 +49,13 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         private Dictionary<string, object> m_Geometry;
         private Dictionary<string, object> m_CastellatedMeshControls;
         private Dictionary<string, object> m_RefinementSurfaces;
+        private Dictionary<string, object> m_RefinementRegions;
         private Dictionary<string, object> m_RefinementBoxes;
 
         //Geometry-Dictionary
         Dictionary<string, object> m_Regions;
         Dictionary<string, object> m_Stl;
+        Dictionary<string, object> m_BoxGeometry;
 
         //Castellated-Dictionary
         Dictionary<string, object> m_StlRefinement;
@@ -79,9 +81,12 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             m_Geometry = new Dictionary<string, object>();
             m_CastellatedMeshControls = new Dictionary<string, object>();
             m_RefinementSurfaces = new Dictionary<string, object>();
+            m_RefinementRegions = new Dictionary<string, object>();
+
 
             m_Regions = new Dictionary<string, object>();
             m_Stl = new Dictionary<string, object>();
+            m_BoxGeometry = new Dictionary<string, object>();
 
             m_StlRefinement = new Dictionary<string, object>();
             m_RegionsRefinementCastellated = new Dictionary<string, object>();
@@ -144,6 +149,31 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                     string nameWithExtension = m_STLName + ".stl";
                 m_Geometry.Add(nameWithExtension, m_Stl);
             }
+            Settings s = Exporter.Instance.settings;
+            if (s.RefinementBoxOrigin[0] != 0)
+            {
+
+                Vector3D origin = new Vector3D(s.RefinementBoxOrigin.X, s.RefinementBoxOrigin.Y, s.RefinementBoxOrigin.Z);
+                Vector3D e1 = new Vector3D(s.RefinementBoxX.X, s.RefinementBoxX.Y, s.RefinementBoxX.Z);
+                Vector3D e2 = new Vector3D(s.RefinementBoxY.X, s.RefinementBoxY.Y, s.RefinementBoxY.Z);
+                Vector3D e3 = new Vector3D(s.RefinementBoxZ.X, s.RefinementBoxZ.Y, s.RefinementBoxZ.Z);
+
+                Vector3D vecs = new Vector3D(e1.Length, e2.Length, e3.Length);
+                e1.Normalize();
+                e2.Normalize();
+                e3.Normalize();
+
+
+
+                m_BoxGeometry.Add("type", "searchableRotatedBox");
+                m_BoxGeometry.Add("span", vecs);
+                m_BoxGeometry.Add("origin", origin);
+                m_BoxGeometry.Add("e1", e1);
+                m_BoxGeometry.Add("e2", e2);
+                m_BoxGeometry.Add("e3", e3);
+
+                m_Geometry.Add("boxRotated", m_BoxGeometry);
+            }
         }
 
         /// <summary>
@@ -193,7 +223,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             }
             m_CastellatedMeshControls.Add("refinementSurfaces", m_RefinementSurfaces);
             m_CastellatedMeshControls.Add("resolveFeatureAngle", m_SettingsCMC["resolveFeatureAngle"]);
-            m_CastellatedMeshControls.Add("refinementRegions", m_SettingsCMC["refinementRegions"]);
+            m_CastellatedMeshControls.Add("refinementRegions", m_RefinementRegions);
             Vector3D tmp = new Vector3D(0,0,0);
             tmp.X = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
             tmp.Y = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
@@ -235,6 +265,12 @@ namespace BIM.OpenFOAMExport.OpenFOAM
 
             //patchtype dict
             Dictionary<string, object> patchType = new Dictionary<string, object> { { "type", "patch" } };
+            Settings s = Exporter.Instance.settings;
+            if (s.RefinementBoxOrigin[0]!=0)
+            {
+                int lev = s.RefinementBoxLevel;
+                m_RefinementRegions.Add("boxRotated", new Dictionary<string, object>() { { "mode", "inside" }, { "levels", "((0.0001 "+lev+"))" } });
+            }
 
             foreach (var face in m_Faces)
             {

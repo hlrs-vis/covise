@@ -1173,6 +1173,11 @@ namespace BIM.OpenFOAMExport
         private XYZ m_DomainX;
         private XYZ m_DomainY;
         private XYZ m_DomainZ;
+        private XYZ m_RefinementBoxOrigin;
+        private XYZ m_RefinementBoxX;
+        private XYZ m_RefinementBoxY;
+        private XYZ m_RefinementBoxZ;
+        private int m_RefinementBoxLevel;
         private double m_WindSpeed=10.0;
         private double m_ReferenceHeight=6.0;
         private string m_Profile="constant";
@@ -1278,6 +1283,11 @@ namespace BIM.OpenFOAMExport
         public XYZ DomainX { get => m_DomainX; set => m_DomainX = value; }
         public XYZ DomainY { get => m_DomainY; set => m_DomainY = value; }
         public XYZ DomainZ { get => m_DomainZ; set => m_DomainZ = value; }
+        public XYZ RefinementBoxOrigin { get => m_RefinementBoxOrigin; set => m_RefinementBoxOrigin = value; }
+        public XYZ RefinementBoxX { get => m_RefinementBoxX; set => m_RefinementBoxX = value; }
+        public XYZ RefinementBoxY { get => m_RefinementBoxY; set => m_RefinementBoxY = value; }
+        public XYZ RefinementBoxZ { get => m_RefinementBoxZ; set => m_RefinementBoxZ = value; }
+        public int RefinementBoxLevel { get => m_RefinementBoxLevel; set => m_RefinementBoxLevel = value; }
         public double WindSpeed { get => m_WindSpeed; set => m_WindSpeed = value; }
         public double ReferenceHeight { get => m_ReferenceHeight; set => m_ReferenceHeight = value; }
         public string Profile { get => m_Profile; set => m_Profile = value; }
@@ -1777,6 +1787,10 @@ namespace BIM.OpenFOAMExport
             m_DomainX = new XYZ(0, 0, 0);
             m_DomainY = new XYZ(0, 0, 0);
             m_DomainZ = new XYZ(0, 0, 0);
+            m_RefinementBoxOrigin = new XYZ(0, 0, 0);
+            m_RefinementBoxX = new XYZ(0, 0, 0);
+            m_RefinementBoxY = new XYZ(0, 0, 0);
+            m_RefinementBoxZ = new XYZ(0, 0, 0);
 
 
 
@@ -1950,6 +1964,12 @@ namespace BIM.OpenFOAMExport
                     temp = 298.15;
                 m_TempInternalField = temp;
 
+                int maxGlobalCells = getInt(instance,"maxGlobalCells");
+                if(maxGlobalCells > 1)
+                {
+                    m_MaxGlobalCells = maxGlobalCells;
+                }
+
                 //Refinement
                 int level = getInt(instance, "wallRefinement");
                 m_WallLevel = new Vector(level, level);
@@ -1967,11 +1987,43 @@ namespace BIM.OpenFOAMExport
                     m_ReconstructParOption = "-latestTime";
 
                 //controlDict
+                m_WriteInterval = getInt(instance, "WriteInterval");
+                if (m_WriteInterval == 0)
+                    m_WriteInterval = 100;
                 m_EndTime = getInt(instance, "endTime");
                 if (m_EndTime == 0)
                     m_EndTime = 100;
+                if(m_WriteInterval > m_EndTime)
+                    m_WriteInterval = m_EndTime;
             }
 
+            // Use Linq query to find family instances whose name is OpenFOAM
+            var queryBoxRef = from element in collector
+                           where element.Name == "OpenFOAMRefinementRegion"
+                           select element;
+            // Cast found elements to family instances, 
+            // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
+            List<FamilyInstance> familyInstancesRefRegion = queryBoxRef.Cast<FamilyInstance>().ToList<FamilyInstance>();
+            if (familyInstancesRefRegion.Count > 0)
+            {
+                FamilyInstance instance = familyInstancesRefRegion[0];
+
+                Transform pos = instance.GetTransform();
+
+                //Refinement
+                int level = getInt(instance, "RefinementLevel");
+                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
+                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
+                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
+                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units),
+                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units),
+                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+                m_RefinementBoxOrigin = origin - (pos.BasisX * width / 2.0) - (pos.BasisY * depth / 2.0);
+                m_RefinementBoxX = pos.BasisX * width;
+                m_RefinementBoxY = pos.BasisY * depth;
+                m_RefinementBoxZ = pos.BasisZ * height;
+                m_RefinementBoxLevel = level;
+            }
             Outlet.Clear();
             Inlet.Clear();
             m_SimulationDefaultList.Clear();
