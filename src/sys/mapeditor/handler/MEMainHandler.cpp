@@ -1072,7 +1072,7 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
     {
         if (canQuitSession())
         {
-            auto lHost = MEHostListHandler::instance()->getHost(localHost, localUser);
+            auto lHost = MEHostListHandler::instance()->getHost(localIP, localUser);
             if (lHost)
             {
                 covise::NEW_UI_HandlePartners pMsg{covise::LaunchStyle::Disconnect, 0, std::vector<int>{lHost->clientId}};
