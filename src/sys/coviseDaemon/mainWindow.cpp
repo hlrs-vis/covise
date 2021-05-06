@@ -267,40 +267,6 @@ void MainWindow::setRemoteLauncherCallbacks()
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);
 }
-/*
-void MainWindow::readOptions()
-{
-	std::string path = getenv("COVISE_PATH");
-	path += "/coviseDaemon.settings";
-	std::fstream file(path, std::ios_base::binary | std::ios_base::in);
-	if (file.is_open())
-	{
-		int l;
-		file.read((char *)&l, sizeof(l));
-		covise::DataHandle dh{(size_t)l};
-		file.read(dh.accessData(), l);
-		covise::TokenBuffer tb(dh);
-		int timeout;
-		bool autostart, autoconnect, background, minimized;
-		char *date, *time;
-		std::string args;
-		tb >> date >> time;
-		// only ignore an old config if it is actually incompatible if ((strcmp(date, __DATE__) != 0) | (strcmp(time, __TIME__) != 0))
-		//{
-		//	std::cerr << "failed to load settings: different compilation!" << std::endl;
-		//	return;
-		//}
-
-		tb >> timeout >> autostart >> autoconnect >> background >> minimized >> args;
-		ui->timeoutSlider->setValue(timeout);
-		on_timeoutSlider_sliderMoved(timeout);
-		ui->autostartCheckBox->setChecked(autostart);
-		ui->autoconnectCheckBox->setChecked(autoconnect);
-		ui->backgroundCheckBox->setChecked(background);
-		ui->minimizedCheckBox->setChecked(minimized);
-		ui->cmdArgsInput->setText(args.c_str());
-	}
-}*/
 
 void MainWindow::initClientList()
 {
@@ -454,31 +420,6 @@ bool MainWindow::askForPermission(const QString &senderDescription, vrb::Program
 		hide();
 	return ret == QMessageBox::Ok ? true : false;
 }
-/*
-void MainWindow::saveOptions()
-{
-	std::string path = getenv("COVISE_PATH");
-	path += "/coviseDaemon.settings";
-	std::fstream file(path, std::ios_base::binary | std::ios_base::out);
-	if (file.is_open())
-	{
-		covise::TokenBuffer tb;
-		tb << __DATE__ << __TIME__;
-		tb << ui->timeoutSlider->value();
-		tb << ui->autostartCheckBox->isChecked();
-		tb << ui->autoconnectCheckBox->isChecked();
-		tb << ui->backgroundCheckBox->isChecked();
-		tb << ui->minimizedCheckBox->isChecked();
-		tb << ui->cmdArgsInput->text().toStdString();
-		int size = tb.getData().length();
-		file.write((char *)&size, sizeof(size));
-		file.write(tb.getData().data(), size);
-	}
-	else
-	{
-		std::cerr << "failed to dump settings to " << path << std::endl;
-	}
-}*/
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()
 {
