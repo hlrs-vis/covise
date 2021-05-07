@@ -1670,6 +1670,12 @@ DomWriter::visit(RSystemElementController *controller)
             }
         }
 
+        if (signalsType.size() != controlEntries.size())
+        {
+            qDebug() << "Domwriter: Error! Controller Entries and Signals mismatch ";
+            return;
+        }
+
         QString name = QString("%1/%2").arg(QFileInfo(projectData_->getProjectWidget()->getFileName()).path()).arg(script);
         QFile file(name);
         file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -1677,6 +1683,7 @@ DomWriter::visit(RSystemElementController *controller)
         out << "function update(time) {\n";
         out << "   if(time==0) {\n";
         
+
         for (int i = 0; i < controlEntries.size(); i++)
         {
             ControlEntry *control = controlEntries.at(i);

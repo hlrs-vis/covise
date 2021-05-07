@@ -24,153 +24,149 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "toolparametersettings.hpp"
 
 Tool::Tool(ODD::ToolId id, int listSize)
-	: id_(id),
-	listSize_(listSize)
+    : id_(id),
+    listSize_(listSize)
 {
 }
 
 Tool::~Tool()
 {
-	QMutableMapIterator<unsigned int, QList<ToolParameter *>> it(paramList_);
-	while (it.hasNext())
-	{
-		it.next();
-		QList<ToolParameter *> params = it.value();
-		for (int i = 0; i < params.size();)
-		{
-			ToolParameter *param = params.takeAt(i);
-			param->delParamValue();
-			delete param;
-		}
+    QMutableMapIterator<unsigned int, QList<ToolParameter *>> it(paramList_);
+    while (it.hasNext())
+    {
+        it.next();
+        QList<ToolParameter *> params = it.value();
+        for (int i = 0; i < params.size();)
+        {
+            ToolParameter *param = params.takeAt(i);
+            param->delParamValue();
+            delete param;
+        }
 
-		paramList_.remove(it.key());
-	}
+        paramList_.remove(it.key());
+    }
 
-	QMutableMapIterator<unsigned int, ToolParameter *> paramIt(params_);
-	while (paramIt.hasNext())
-	{
-		paramIt.next();
-		ToolParameter *param = params_.take(paramIt.key());
-		param->delParamValue();
-		delete param;
-	}
+    QMutableMapIterator<unsigned int, ToolParameter *> paramIt(params_);
+    while (paramIt.hasNext())
+    {
+        paramIt.next();
+        ToolParameter *param = params_.take(paramIt.key());
+        param->delParamValue();
+        delete param;
+    }
 }
 
 void
-Tool::resetValues(QList<ToolParameter*>& paramList)
+Tool::resetValues(QList<ToolParameter *> &paramList)
 {
-	QMap<unsigned int, ToolParameter*>::const_iterator it = params_.constBegin();
-	while (it != params_.constEnd())
-	{
-		ToolParameter* param = it.value();
-		if (paramList.contains(param))
-		{
-			param->delParamValue();
-		}
-		it++;
-	}
+    QMap<unsigned int, ToolParameter *>::const_iterator it = params_.constBegin();
+    while (it != params_.constEnd())
+    {
+        ToolParameter *param = it.value();
+        if (paramList.contains(param))
+        {
+            param->delParamValue();
+        }
+        it++;
+    }
 
 }
 
 void
 Tool::deactivateParams()
 {
-	foreach(ToolParameter * param, params_)
-	{
-		if (param->isActive())
-		{
-			param->setActive(false);
-			return;
-		}
-	}
+    foreach(ToolParameter * param, params_)
+    {
+        if (param->isActive())
+        {
+            param->setActive(false);
+            return;
+        }
+    }
 
-	foreach(QList<ToolParameter*> list, paramList_)
-	{
-		foreach(ToolParameter * param, list)
-		{
-			if (param->isActive())
-			{
-				param->setActive(false);
-				return;
-			}
-		}
-	}
+    foreach(QList<ToolParameter *> list, paramList_)
+    {
+        foreach(ToolParameter *param, list)
+        {
+            if (param->isActive())
+            {
+                param->setActive(false);
+                return;
+            }
+        }
+    }
 }
 
-unsigned int
+void
 Tool::readParams(ToolParameter *s)
 {
-	static int lastParamID = -1;
+    static int lastParamID = -1;
+    ODD::ToolId toolId = s->getToolId();
+    if (!toolIds_.contains(toolId))
+    {
+        toolIds_.append(toolId);
+    }
 
-	ODD::ToolId toolId = s->getToolId();
-	if (!toolIds_.contains(toolId))
-	{
-		toolIds_.append(toolId);
-	}
+    if (s->isActive())
+    {
+        deactivateParams();
+    }
 
-	if (s->isActive())
-	{
-		deactivateParams();
-	}
+    if (s->getType() == ToolParameter::OBJECT_LIST)
+    {
+        ODD::ToolId paramToolId = s->getParamToolId();
 
-	if (s->getType() == ToolParameter::OBJECT_LIST)
-	{
-		ODD::ToolId paramToolId = s->getParamToolId();
-		
-		int objectCount = getObjectCount(toolId, paramToolId);
-		if (objectCount == listSize_)
-		{
-			QList<ToolParameter *>objectParameterList;
-			QMutableMapIterator<unsigned int, ToolParameter*> it(params_);
-			while (it.hasNext())
-			{
-				it.next();
-				ToolParameter *param = it.value();
-				if ((param->getType() == ToolParameter::OBJECT_LIST) && (param->getToolId() == toolId) && (param->getParamToolId() == paramToolId))
-				{
-					objectParameterList.append(param);
-					if (lastParamID < 0)
-					{
-						lastParamID = it.key();
-					}
-					params_.remove(it.key());
-				}
-			}
-			paramList_.insert(generateParamId(), objectParameterList);
-			objectParameterList.clear();
-			params_.insert(lastParamID, s);
-		}
-		else if (objectCount > listSize_)
-		{
-			QMutableMapIterator<unsigned int, QList<ToolParameter *>> it(paramList_);
-			while (it.hasNext())
-			{
-				it.next();
-				ToolParameter * p = it.value().first();
-				if ((p->getToolId() == toolId) && (p->getParamToolId() == paramToolId))
-				{
-					it.value().append(params_.value(lastParamID));
-					break;
-				}
-			}
-			params_.insert(lastParamID, s);
-		}
-		else
-		{
-			unsigned int paramID = generateParamId();
-			params_.insert(paramID, s);
-			return paramID;
-		}
+        int objectCount = getObjectCount(toolId, paramToolId);
+        if (objectCount == listSize_)
+        {
+            QList<ToolParameter *>objectParameterList;
+            QMutableMapIterator<unsigned int, ToolParameter *> it(params_);
+            while (it.hasNext())
+            {
+                it.next();
+                ToolParameter *param = it.value();
+                if ((param->getType() == ToolParameter::OBJECT_LIST) && (param->getToolId() == toolId) && (param->getParamToolId() == paramToolId))
+                {
+                    objectParameterList.append(param);
+                    if (lastParamID < 0)
+                    {
+                        lastParamID = it.key();
+                    }
+                    params_.remove(it.key());
+                }
+            }
+            paramList_.insert(generateParamId(), objectParameterList);
+            objectParameterList.clear();
+            params_.insert(lastParamID, s);
+        }
+        else if (objectCount > listSize_)
+        {
+            QMutableMapIterator<unsigned int, QList<ToolParameter *>> it(paramList_);
+            while (it.hasNext())
+            {
+                it.next();
+                ToolParameter *p = it.value().first();
+                if ((p->getToolId() == toolId) && (p->getParamToolId() == paramToolId))
+                {
 
-	}
-	else
-	{
-		unsigned int paramID = generateParamId();
-		params_.insert(paramID, s);
-		return paramID;
-	}
-	
-	return lastParamID;
+                    it.value().append(params_.value(lastParamID));
+                    break;
+                }
+            }
+            params_.insert(lastParamID, s);
+        }
+        else
+        {
+            unsigned int paramID = generateParamId();
+            params_.insert(paramID, s);
+        }
+
+    }
+    else
+    {
+        unsigned int paramID = generateParamId();
+        params_.insert(paramID, s);
+    }
 }
 
 
@@ -178,199 +174,199 @@ Tool::readParams(ToolParameter *s)
 void
 Tool::readParams(ToolParameter *s, Arg... arg)
 {
-	int i = sizeof ...(arg);
-	readParams(arg...);
-	paramList_.insert(generateParamId(), s);
+    int i = sizeof ...(arg);
+    readParams(arg...);
+    paramList_.insert(generateParamId(), s);
 } */
 
 unsigned int
 Tool::generateParamId()
 {
-	static unsigned int id = 0;
+    static unsigned int id = 0;
 
-	return ++id;
+    return ++id;
 }
 
 int
 Tool::getParamId(ToolParameter *s)
 {
-	QMap<unsigned int, QList<ToolParameter *>>::const_iterator it = paramList_.constBegin();
-	while (it != paramList_.constEnd())
-	{
-		QList<ToolParameter *>params = it.value();
-		if (params.contains(s))
-		{
-			return it.key();
-		}
+    QMap<unsigned int, QList<ToolParameter *>>::const_iterator it = paramList_.constBegin();
+    while (it != paramList_.constEnd())
+    {
+        QList<ToolParameter *>params = it.value();
+        if (params.contains(s))
+        {
+            return it.key();
+        }
 
-		it++;
-	}
+        it++;
+    }
 
-	if (it == paramList_.constEnd())
-	{
-		return params_.key(s);
-	}
+    if (it == paramList_.constEnd())
+    {
+        return params_.key(s);
+    }
 
-	return -1;
+    return -1;
 }
 
 /*ToolParameter *
 Tool::getParam(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId)
 {
-	foreach(ToolParameter *param, paramList_.values())
-	{
-		if (param->getToolId() == toolId)
-		{
-			if (param->getParamToolId() == paramToolId)
-			{
-				return param;
-			}
-		}
-	}
+    foreach(ToolParameter *param, paramList_.values())
+    {
+        if (param->getToolId() == toolId)
+        {
+            if (param->getParamToolId() == paramToolId)
+            {
+                return param;
+            }
+        }
+    }
 
-	return NULL; 
+    return NULL;
 } */
 
 bool
 Tool::verify()
 {
-	QMap<unsigned int, QList<ToolParameter *>>::const_iterator it = paramList_.constBegin();
-	while (it != paramList_.constEnd())
-	{
-		foreach(ToolParameter *p, it.value())
-		{
-			if (!p->isValid())
-			{
-				if (!p->isList())
-				{
-					return false;
-				}
-				else if (getParamList(p->getListIndex()).size() == 0)
-				{
+    QMap<unsigned int, QList<ToolParameter *>>::const_iterator it = paramList_.constBegin();
+    while (it != paramList_.constEnd())
+    {
+        foreach(ToolParameter *p, it.value())
+        {
+            if (!p->isValid())
+            {
+                if (!p->isList())
+                {
+                    return false;
+                }
+                else if (getParamList(p->getListIndex()).size() == 0)
+                {
 
-					return false;
-				}
-			}
-		}
-		it++;
-	}
+                    return false;
+                }
+            }
+        }
+        it++;
+    }
 
-	foreach(ToolParameter *p, params_.values())
-	{
-		if (!p->isValid())
-		{
-			return false;
-		}
-	}
+    foreach(ToolParameter *p, params_.values())
+    {
+        if (!p->isValid())
+        {
+            return false;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 bool Tool::containsToolId(ODD::ToolId id)
 {
-	return toolIds_.contains(id);
+    return toolIds_.contains(id);
 }
 
-QList<ToolParameter *> 
+QList<ToolParameter *>
 Tool::getParamList(unsigned char listId)
 {
-	QList<ToolParameter *> list;
-	QMap<unsigned int, QList<ToolParameter *>>::const_iterator it = paramList_.constBegin();
-	while (it != paramList_.constEnd())
-	{
-		QList<ToolParameter *>params = it.value();
-		foreach(ToolParameter *param, params)
-		{
-			if (param->getListIndex() == listId)
-			{
-				if (param->isValid())
-				{
-					list.push_back(param);
-				}
-			}
-		}
-		it++;
-	}
+    QList<ToolParameter *> list;
+    QMap<unsigned int, QList<ToolParameter *>>::const_iterator it = paramList_.constBegin();
+    while (it != paramList_.constEnd())
+    {
+        QList<ToolParameter *>params = it.value();
+        foreach(ToolParameter *param, params)
+        {
+            if (param->getListIndex() == listId)
+            {
+                if (param->isValid())
+                {
+                    list.push_back(param);
+                }
+            }
+        }
+        it++;
+    }
 
-	return list; 
+    return list;
 }
 
-ToolParameter * 
+ToolParameter *
 Tool::getLastParam(unsigned char listId)
 {
-	if (params_.contains(listId))
-	{
-		return params_.value(listId);
-	}
-	QList<ToolParameter *> list = paramList_.value(listId);
-	if (!list.empty())
-	{
-		return list.last();
-	}
+    if (params_.contains(listId))
+    {
+        return params_.value(listId);
+    }
+    QList<ToolParameter *> list = paramList_.value(listId);
+    if (!list.empty())
+    {
+        return list.last();
+    }
 
-	return NULL;
+    return NULL;
 }
 
 ToolParameter *
 Tool::getParam(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId)
 {
-	foreach(ToolParameter *param, params_)
-	{
-		if ((param->getToolId() == toolId) && (param->getParamToolId() == paramToolId))
-		{
-			return param;
-		}
-	}
+    foreach(ToolParameter *param, params_)
+    {
+        if ((param->getToolId() == toolId) && (param->getParamToolId() == paramToolId))
+        {
+            return param;
+        }
+    }
 
-	foreach(QList<ToolParameter *> list, paramList_)
-	{
-		ToolParameter *param = list.last();
-		if ((param->getToolId() == toolId) && (param->getParamToolId() == paramToolId))
-		{
-			return param;
-		}
-	}
+    foreach(QList<ToolParameter *> list, paramList_)
+    {
+        ToolParameter *param = list.last();
+        if ((param->getToolId() == toolId) && (param->getParamToolId() == paramToolId))
+        {
+            return param;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
-int 
+int
 Tool::getObjectCount(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId)
 {
-	int count = 0;
-	foreach(ToolParameter *p, params_)
-	{
-		if ((p->getToolId() == toolId) && (p->getParamToolId() == paramToolId))
-		{
-			if (p->isValid())
-			{
-				count++;
-			}
-		}
-	}
+    int count = 0;
+    foreach(ToolParameter *p, params_)
+    {
+        if ((p->getToolId() == toolId) && (p->getParamToolId() == paramToolId))
+        {
+            if (p->isValid())
+            {
+                count++;
+            }
+        }
+    }
 
-	foreach(QList<ToolParameter *>list, paramList_.values())
-	{
-		ToolParameter *p = list.first();
-		if ((p->getToolId() == toolId) && (p->getParamToolId() == paramToolId))
-		{
-			count += list.size();
-		}
-	}
+    foreach(QList<ToolParameter *>list, paramList_.values())
+    {
+        ToolParameter *p = list.first();
+        if ((p->getToolId() == toolId) && (p->getParamToolId() == paramToolId))
+        {
+            count += list.size();
+        }
+    }
 
-	return count;
+    return count;
 }
 
 int
 Tool::getObjectCount(const ODD::ToolId &id)
 {
-	if (paramList_.contains(id))
-	{
-		return paramList_.value(id).size();
-	}
+    if (paramList_.contains(id))
+    {
+        return paramList_.value(id).size();
+    }
 
-	return 0; 
-} 
+    return 0;
+}
 
 
 

@@ -998,6 +998,15 @@ RoadSystem::verify()
     foreach (RSystemElementRoad * road, roads_)
     {
         road->verifyLaneLinkage();
+
+        odrID junctionID = road->getJunction();
+        if (junctionID != odrID::invalidID())  // check if junction exists
+        {
+            if (!junctions_.contains(junctionID.getID()))
+            {
+                road->setJunction(odrID::invalidID());
+            }
+        }
     }
 }
 

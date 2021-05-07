@@ -330,6 +330,12 @@ AddToJunctionCommand::AddToJunctionCommand(RoadSystem *roadSystem, RSystemElemen
         connections_.append(connection);
     }
 
+    if (!predecessor && !successor && (road_->getJunction() == odrID::invalidID()))
+    {
+        JunctionConnection* connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), odrID::invalidID(), road_->getID(), JunctionConnection::JCP_NONE, 1);
+        connections_.append(connection);
+    }
+
     // Done //
     //
     setValid();

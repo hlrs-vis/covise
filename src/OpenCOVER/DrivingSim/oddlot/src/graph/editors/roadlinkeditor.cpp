@@ -219,34 +219,10 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 		ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
 		if (action)
 		{
-			if (action->getToolId() == ODD::TRL_LINK)
-			{
-				if ((action->getParamToolId() == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RoadLinkHandle> *param = new ToolValue<RoadLinkHandle>(ODD::TRL_LINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Arrow Handle", true);
-					tool_ = new Tool(ODD::TRL_LINK, 4);
-					tool_->readParams(param);
-					ToolValue<RoadLinkSinkItem> *roadParam = new ToolValue<RoadLinkSinkItem>(ODD::TRL_SINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Circular Sink");
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
-				}
-			}
-			else if (action->getToolId() == ODD::TRL_ROADLINK)
+			if (action->getToolId() == ODD::TRL_ROADLINK)
 			{
 				ODD::ToolId paramTool = action->getParamToolId();
-				if ((paramTool == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<double> *param = new ToolValue<double>(ODD::TRL_THRESHOLD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Threshold");
-					param->setValue(threshold_);
-					tool_ = new Tool(ODD::TRL_ROADLINK, 4);
-					tool_->readParams(param);
-					ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TRL_ROADLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
-					tool_->readParams(roadParam);
-
-					generateToolParameterUI(tool_);
-				}
-				else if (paramTool == ODD::TPARAM_SELECT)
+				if (paramTool == ODD::TPARAM_SELECT)
 				{
 					currentParamId_ = action->getParamId();
 					if (!action->getState())
@@ -271,14 +247,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 			else if (action->getToolId() == ODD::TRL_UNLINK)
 			{
 				ODD::ToolId paramTool = action->getParamToolId();
-				if ((paramTool == ODD::TNO_TOOL) && !tool_)
-				{
-					ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TRL_UNLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
-					tool_ = new Tool(ODD::TRL_UNLINK, 4);
-					tool_->readParams(param);
-					generateToolParameterUI(tool_);
-				}
-				else if (paramTool == ODD::TPARAM_SELECT)
+				if (paramTool == ODD::TPARAM_SELECT)
 				{
 					currentParamId_ = action->getParamId();
 					if (!action->getState())

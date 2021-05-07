@@ -34,7 +34,7 @@ public:
 	{
 		return id_;
 	}
-	unsigned int readParams(ToolParameter *s);
+	void readParams(ToolParameter *s);
 
 	template<class...Arg>
 	void readParams(ToolParameter *start, Arg... arg);

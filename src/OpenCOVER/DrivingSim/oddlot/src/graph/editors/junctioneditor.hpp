@@ -126,7 +126,7 @@ public:
     double widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth); // calculates the offset of a lane from the center of the road
 
 	void deselectLanes(RSystemElementRoad *road);
-    void assignParameterSelection(ODD::ToolId id, unsigned int paramCount=-1);
+    void assignParameterSelection(ODD::ToolId id);
     void getSelectedRoadsAndLanes();
 	void clearToolObjectSelection();
 

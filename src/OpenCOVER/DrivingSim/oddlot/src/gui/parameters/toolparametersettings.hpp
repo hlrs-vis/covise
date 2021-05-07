@@ -47,6 +47,7 @@ public:
 	virtual void updateUI(ToolParameter *param);
 	void addMultiSelectUI(unsigned int paramIndex, const QString &text, int count);
 	void addUI(unsigned int paramIndex, ToolParameter *p);
+	void addListUI(unsigned int paramIndex, ToolParameter *p);
 	void addParamUI(unsigned int paramIndex, ToolParameter *p);
 	void addComboBoxEntry(ToolParameter *p, int index, const QString &text);
 	void setComboBoxIndex(ToolParameter *p, const QString &text);
