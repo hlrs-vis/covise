@@ -16,6 +16,28 @@ You can use `scripts/indent.sh` (needs `clang-format` and `dos2unix`) for re-ind
 If changing source code formatting, then do that as a separate commit:
 this makes it easy to follow the actual code changes.
 
+Please set up your IDE or editor for proper formatting.
+
+Configuring Vim for proper indenting
+------------------------------------
+You could consider adding the following to your ~/.vimrc:
+
+    set tabstop=8 "display tabs as 8 spaces
+    set shiftwidth=4 "indent by 4 spaces
+    set softtabstop=4 "make pressing Tab indent by 4 spaces
+    set expandtab "expand tabs into spaces
+    set cindent "enable C/C++ language indentation mode
+    set cinwords=if,else,while,do,for,switch,case "keywords that cause indentation
+    set cinoptions= "clear C indent options
+    set cinoptions+=:0 "case label at switch indentation level
+    set cinoptions+=l1 "align with case label instead of statement on label line
+    set cinoptions+=g0 "C++ scope declarations (public:, ...) without indentation
+    set cinoptions+=N-s "don't indent inside C++ namespace
+    set cinoptions+=E-s "don't indent inside C++ linkage specs (extern "C" { ... })
+    set cinoptions+=t0 "don't indent function return type declaration
+    set cinoptions+=i0 "don't indent C++ base classes and member initializers
+    set cinoptions+=)999 "search for matching parentheses up to 999 up/down
+
 
 Source Code Management
 ======================
