@@ -1987,7 +1987,7 @@ namespace BIM.OpenFOAMExport
                     m_ReconstructParOption = "-latestTime";
 
                 //controlDict
-                m_WriteInterval = getInt(instance, "WriteInterval");
+                m_WriteInterval = getInt(instance, "writeInterval");
                 if (m_WriteInterval == 0)
                     m_WriteInterval = 100;
                 m_EndTime = getInt(instance, "endTime");
