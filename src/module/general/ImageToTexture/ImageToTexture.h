@@ -123,7 +123,7 @@ private:
     float YResolution_;
     TextureMapping::SizeControl mode_; // mapping (projection) mode
 
-    uint32_t *raster_; // tif image content as got through TIFFReadRGBAImage:
+    uint32 *raster_; // tif image content as got through TIFFReadRGBAImage:
     // raw RGBA
 
     unsigned int XSize_; // pixel sizes of tif file

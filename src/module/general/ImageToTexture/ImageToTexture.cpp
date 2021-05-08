@@ -47,7 +47,7 @@ ImageToTexture::changeFileName()
 
     // @@@ problems with segmented memory (Windows...)
     delete[] raster_;
-    raster_ = new uint32_t[w_ * h_];
+    raster_ = new uint32[w_ * h_];
 
     if (raster_ == NULL)
     {

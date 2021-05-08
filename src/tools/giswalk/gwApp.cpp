@@ -1051,7 +1051,7 @@ unsigned char *tifread(const char *url, int *w, int *h, int *nc)
         TIFFGetField(tif, TIFFTAG_IMAGELENGTH, h);
         TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &samples);
         size_t npixels = *w * *h;
-        uint32_t *raster = (uint32_t *)malloc(npixels * sizeof(uint32_t));
+        uint32 *raster = (uint32 *)malloc(npixels * sizeof(uint32));
         if (raster != NULL)
         {
             if (TIFFReadRGBAImage(tif, *w, *h, raster, 0))
@@ -1063,12 +1063,12 @@ unsigned char *tifread(const char *url, int *w, int *h, int *nc)
                     *nc = 40;
                 }
 
-                unsigned char *raster2 = (unsigned char *)malloc(npixels * sizeof(uint32_t));
+                unsigned char *raster2 = (unsigned char *)malloc(npixels * sizeof(uint32));
                 unsigned char *image = (unsigned char *)raster;
-                size_t widthbytes = *w * sizeof(uint32_t);
+                size_t widthbytes = *w * sizeof(uint32);
                 for (int i = 0; i < *h; i++)
                 {
-                    memcpy(raster2 + (npixels * sizeof(uint32_t)) - ((i + 1) * widthbytes), image + (i * widthbytes), widthbytes);
+                    memcpy(raster2 + (npixels * sizeof(uint32)) - ((i + 1) * widthbytes), image + (i * widthbytes), widthbytes);
                 }
                 free(raster);
 
