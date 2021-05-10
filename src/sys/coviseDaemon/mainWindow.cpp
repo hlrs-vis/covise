@@ -25,26 +25,24 @@
 #include <csignal>
 #include <cassert>
 
+#ifdef _WIN32
+
+#else
+#include <unistd.h>
+#endif
+
 #include <config/coConfigGroup.h>
 #include <config/coConfig.h>
 
 using namespace vrb;
 
 MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::MainWindow)
-	, cfgTimeout("System.CoviseDaemon.Timeout")
-	, cfgAutostart("System.CoviseDaemon.Autostart")
-	, cfgAutoConnect("System.CoviseDaemon.AutoConnect")
-	, cfgBackground("System.CoviseDaemon.Background")
-	, cfgMinimized("System.CoviseDaemon.Minimized")
-	, cfgArguments("System.CoviseDaemon.Arguments")
+	: QMainWindow(parent), ui(new Ui::MainWindow), cfgTimeout("System.CoviseDaemon.Timeout"), cfgAutostart("System.CoviseDaemon.Autostart"), cfgAutoConnect("System.CoviseDaemon.AutoConnect"), cfgBackground("System.CoviseDaemon.Background"), cfgMinimized("System.CoviseDaemon.Minimized"), cfgArguments("System.CoviseDaemon.Arguments")
 {
 	qRegisterMetaType<vrb::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
 
-	
-
-	initUi(credentials); 
+	initUi(credentials);
 	initConfigSettings();
 	setRemoteLauncherCallbacks();
 	connect(this, &MainWindow::updateStatusBarSignal, this, &MainWindow::updateStatusBar);
@@ -53,6 +51,7 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 	handleAutoconnect();
 	setStartupWindowStyle();
 
+	
 }
 
 MainWindow::~MainWindow()
@@ -196,7 +195,17 @@ void MainWindow::launchProgram(int senderID, const QString &senderDescription, v
 	{
 		std::cerr << "launching " << vrb::programNames[programID] << std::endl;
 		m_remoteLauncher.sendPermission(senderID, true);
-		spawnProgram(programID, args);
+
+		auto textArea = new QScrollArea(this);
+		textArea->setWidgetResizable(true);
+
+		auto textLabel = new QLabel(textArea);
+		textArea->setWidget(textLabel);
+		static int numSpawns = 0;
+		++numSpawns;
+		auto index = ui->childTabs->addTab(textArea, programNames[programID] + QString{" "} + QString::number(numSpawns));
+		m_remoteLauncher.spawnProgram(
+			programID, args, [textLabel](const QString &msg) { textLabel->setText(textLabel->text() + msg); }, [this, index]() { ui->childTabs->removeTab(index); });
 	}
 	else
 		m_remoteLauncher.sendPermission(senderID, false);

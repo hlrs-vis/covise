@@ -8,6 +8,7 @@
 #ifndef VRB_REMOTE_LAUNCHER_MESSAGE_HANDLER_H
 #define VRB_REMOTE_LAUNCHER_MESSAGE_HANDLER_H
 
+#include "childProcess.h"
 #include "metaTypes.h"
 
 #include <vrb/ProgramType.h>
@@ -15,7 +16,9 @@
 #include <vrb/client/VRBClient.h>
 
 #include <QObject>
+#include <QSocketNotifier>
 #include <QString>
+
 #include <atomic>
 #include <functional>
 #include <mutex>
@@ -33,6 +36,7 @@ public:
     void disconnect();
     void printClientInfo();
     void sendPermission(int clientID, bool permit);
+    void spawnProgram(vrb::Program p, const std::vector<std::string> &args, const std::function<void(const QString& output)> outputCallback, const std::function<void(void)> &diedCallback);
 public slots:
     void sendLaunchRequest(vrb::Program p, int lientID, const std::vector<std::string> &args = std::vector<std::string>{});
 signals:
@@ -54,14 +58,16 @@ private:
 
     vrb::SessionID m_sessionID;
     std::set<vrb::RemoteClient> m_clientList;
+    std::set<ChildProcess> m_children;
+
     void loop();
     bool handleVRB();
     bool removeOtherClient(covise::TokenBuffer &tb);
     void handleVrbLauncherMessage(covise::Message &msg);
     std::set<vrb::RemoteClient>::iterator findClient(int id);
+    
 };
 QString getClientInfo(const vrb::RemoteClient &cl);
-void spawnProgram(vrb::Program p, const std::vector<std::string> &args);
 
 
 #endif

@@ -6,7 +6,7 @@
 #include <iostream>
 
 CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autostart)
-    : m_autostart(autostart)
+    : m_autostart(autostart), m_cinNotifier(0, QSocketNotifier::Type::Read) //on std in
 {
     qRegisterMetaType<vrb::Program>();
     qRegisterMetaType<std::vector<std::string>>();
@@ -26,7 +26,7 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
         m_args = args;
         if (m_autostart)
         {
-            spawnProgram(m_program, m_args);
+            m_launcher.spawnProgram(m_program, m_args, std::function<void(const QString &)>{}, std::function<void(void)>{});
         }
         else
         {
@@ -37,17 +37,12 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
     });
     m_launcher.connect(credentials);
     createCommands();
-}
 
-void CommandLineUi::run()
-{
-    while (!m_terminate)
-    {
+    connect(&m_cinNotifier, &QSocketNotifier::activated, this, [this]() {
         std::string command;
         std::cin >> command;
         handleCommand(command);
-    }
-    QApplication::quit();
+    });
 }
 
 void CommandLineUi::handleCommand(const std::string &command)
@@ -59,7 +54,7 @@ void CommandLineUi::handleCommand(const std::string &command)
         std::lock_guard<std::mutex> g(m_mutex);
         m_launchDialog = false;
         m_launcher.sendPermission(m_senderId, true);
-        spawnProgram(m_program, m_args);
+        m_launcher.spawnProgram(m_program, m_args, [](const QString &s) { std::cerr << s.toStdString() << std::endl; }, []() { std::cerr << "child process termintated!" << std::endl; });
     }
     else if (m_launchDialog && (command == "n" || command == "no"))
     {
@@ -80,7 +75,7 @@ void CommandLineUi::createCommands()
                                                                                command->print();
                                                                        }}));
     m_commands.push_back(std::unique_ptr<CommandInterface>(new Command{{"close", "quit", "terminate", "exit"}, "terminate this application", [this]() {
-                                                                           m_terminate = true;
+                                                                           QApplication::quit();
                                                                        }}));
     m_commands.push_back(std::unique_ptr<CommandInterface>(new Command{{"print", "client", "clients", "info", "partner"}, "print list of available clients", [this]() {
                                                                            m_launcher.printClientInfo();

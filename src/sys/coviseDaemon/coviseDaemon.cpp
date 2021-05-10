@@ -7,6 +7,8 @@
 
 #include "coviseDaemon.h"
 
+#include <comsg/PROXY.h>
+#include <comsg/VRB_PERMIT_LAUNCH.h>
 #include <config/CoviseConfig.h>
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
@@ -15,14 +17,13 @@
 #include <net/tokenbuffer.h>
 #include <net/tokenbuffer_serializer.h>
 #include <net/tokenbuffer_util.h>
+#include <util/coSignal.h>
 #include <util/coSpawnProgram.h>
 #include <vrb/PrintClientList.h>
 #include <vrb/ProgramType.h>
 #include <vrb/SessionID.h>
 #include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
-#include <comsg/VRB_PERMIT_LAUNCH.h>
-#include <comsg/PROXY.h>
 
 #include <QTextStream>
 #include <cassert>
@@ -32,7 +33,9 @@
 #include <string>
 #include <thread>
 
+
 using namespace vrb;
+
 
 CoviseDaemon::~CoviseDaemon()
 {
@@ -78,7 +81,7 @@ void CoviseDaemon::printClientInfo()
     std::vector<const vrb::RemoteClient *> partner;
     for (const auto &cl : m_clientList)
     {
-        if (cl.sessionID() == m_client->sessionID())
+        if (cl.userInfo().userType == vrb::Program::coviseDaemon)
         {
             partner.push_back(&cl);
         }
@@ -97,6 +100,19 @@ void CoviseDaemon::sendPermission(int clientID, bool permit)
 {
     covise::VRB_PERMIT_LAUNCH msg(clientID, m_client->ID(), permit);
     covise::sendCoviseMessage(msg, *m_client);
+}
+
+void CoviseDaemon::spawnProgram(Program p, const std::vector<std::string> &args, const std::function<void(const QString& output)> outputCallback, const std::function<void(void)> &diedCallback)
+{
+    auto child = m_children.emplace(programNames[p], args);
+    auto &c = *child.first;
+    QObject::connect(&*child.first, &ChildProcess::output, this, [outputCallback](const QString &output) {
+        outputCallback(output);
+    });
+    QObject::connect(&*child.first, &ChildProcess::died, this, [this, &c, diedCallback]() {
+        m_children.erase(c);
+        diedCallback();
+    });
 }
 
 void CoviseDaemon::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
@@ -271,9 +287,4 @@ QString getClientInfo(const vrb::RemoteClient &cl)
     //ss << "email: " << cl.getEmail().c_str() << ", host: " << cl.getHostname().c_str();
     ss << cl.userInfo().hostName.c_str();
     return s;
-}
-
-void spawnProgram(Program p, const std::vector<std::string> &args)
-{
-    covise::spawnProgram(programNames[p], args);
 }

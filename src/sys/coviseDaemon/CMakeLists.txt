@@ -17,6 +17,7 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
     
 SET(REMOTE_LAUNCHER_SOURCES
+  childProcess.cpp
   clientWidget.cpp
   coverDaemon.cpp
   coviseDaemon.cpp
@@ -27,6 +28,7 @@ SET(REMOTE_LAUNCHER_SOURCES
 )
 
 SET(REMOTE_LAUNCHER_HEADER
+  childProcess.h
   clientWidget.h
   coverDaemon.h
   coviseDaemon.h

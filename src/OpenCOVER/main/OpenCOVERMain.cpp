@@ -232,7 +232,6 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
     // note: console has to be allocated after possible handling of argument '-d',
     //    otherwise output of module definition is written onto a volatile console
-
     if (covise::coCoviseConfig::isOn("COVER.Console", true))
     {
         std::string filebase = covise::coCoviseConfig::getEntry("file", "COVER.Console");
@@ -245,9 +244,8 @@ int main(int argc, char *argv[])
             freopen("conout$", "w", stdout);
             delete[] filename;
         }
-        else
+        else if(!getenv("COVISEDEAMONSTART")) //if the coviseDaemon starts OpenCOVER it pipes STDOUT and STDERR in its ui
         {
-
             AllocConsole();
 
             freopen("conin$", "r", stdin);

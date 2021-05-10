@@ -10,6 +10,7 @@
 #include "tui.h"
 
 #include <QApplication>
+#include <QThread>
 #include <boost/program_options.hpp>
 #include <future>
 #include <iostream>
@@ -53,13 +54,8 @@ int runCommandlineDaemon(int argc, char **argv, const po::variables_map &vars)
 {
         QCoreApplication a(argc, argv);
         CoverDaemon d;
-        CommandLineUi tui(readCredentials(vars), vars.count("autostart"));
-        std::thread s{
-            [&tui]() {
-                    tui.run();
-            }};
+        CommandLineUi tui{ readCredentials(vars), vars.count("autostart") != 0 };
         auto retval = a.exec();
-        s.join();
         return retval;
 }
 
@@ -67,7 +63,11 @@ int main(int argc, char **argv)
 {
         po::options_description desc("usage");
         desc.add_options()("help", "show this message")("host,h", po::value<std::string>(), "VRB address")("port,p", po::value<unsigned int>(), "VRB tcp port")("udp,u", po::value<unsigned int>(), "VRB udp port")("tui, t", "start command line interface")("autostart, a", "launch programs without asking for permission");
-
+#ifdef _WIN32
+        _putenv_s("COVISEDEAMONSTART", "true"); //tells the started programms that they are started by this daemon
+#else
+        setenv("COVISEDEAMONSTART", "true", true); //tells the started programms that they are started by this daemon
+#endif
         po::variables_map vm;
         try
         {
