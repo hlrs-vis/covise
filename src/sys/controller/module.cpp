@@ -22,9 +22,8 @@ using namespace covise::controller;
 
 size_t NetModule::moduleCount = 1000;
 
-
 NetModule::NetModule(const RemoteHost &host, const ModuleInfo &moduleInfo, int instance)
-    : SubProcess(moduleType, host, moduleInfo.category == "Renderer"?  sender_type::RENDERER : sender_type::APPLICATIONMODULE, moduleInfo.name), m_info(moduleInfo), moduleId(moduleCount++)
+    : SubProcess(moduleType, host, moduleInfo.category == "Renderer" ? sender_type::RENDERER : sender_type::APPLICATIONMODULE, moduleInfo.name), m_info(moduleInfo), moduleId(moduleCount++)
 {
     if (instance == -1)
     {
@@ -90,7 +89,7 @@ NetModule::~NetModule()
                 if (auto obj = netInter->get_object())
                     obj->del_to_connection(info().name, std::to_string(instance()), getHost(), interface->get_name());
             }
-            else if(auto renderInter = dynamic_cast<render_interface *>(interface.get()))
+            else if (auto renderInter = dynamic_cast<render_interface *>(interface.get()))
             {
                 renderInter->del_all_connections(this);
             }
@@ -115,7 +114,7 @@ void NetModule::exec(NumRunning &numRunning)
         if (!isExecuting())
         {
             ++numRunning.apps;
-            execute(numRunning); //decreases numRunning on failure
+            execute(numRunning);      //decreases numRunning on failure
             if (numRunning.apps == 1) // switch to execution mode
             {
                 Message ex_msg{COVISE_MESSAGE_UI, "INEXEC"};
@@ -164,8 +163,8 @@ void NetModule::setTitle(const std::string &t)
     ss << "MODULE_TITLE\n"
        << info().name << "\n"
        << instance() << "\n"
-       << getHost() << "\nSetModuleTitle\nString\n1\n";
-    ss << title();
+       << getHost() << "\nSetModuleTitle\nString\n1\n"
+       << title();
     Message msg{COVISE_MESSAGE_UI, ss.str()};
     send(&msg);
 }
