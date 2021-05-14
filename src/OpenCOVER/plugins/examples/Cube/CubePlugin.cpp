@@ -79,6 +79,7 @@ void CubePlugin::removeObject(const char *contName, bool r)
 CubePlugin::CubePlugin()
 {
     // get the parameter names (this is hardcoded)
+    plugin = this;
     centerParamName = "center";
     sizeParamName = "size";
 
