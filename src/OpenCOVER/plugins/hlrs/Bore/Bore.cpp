@@ -55,10 +55,13 @@ static const FileHandler handlers[] = {
       "bcsv" },
 };
 
-BoreHolePos::BoreHolePos(const std::string &info)
+BoreHolePos::BoreHolePos(const std::string &info, BoreHole::DatabaseVersion dbv)
 {
 	escaped_list_separator<char> sep('\\',';','\"');
 	tokenizer<escaped_list_separator<char>> tokens(info, sep);
+	height = 0.0;
+	depth = 40.0;
+	type = dbv;
 	auto it = tokens.begin();
 	ID = *it++;
 	if (it == tokens.end())
@@ -82,7 +85,10 @@ BoreHolePos::BoreHolePos(const std::string &info)
 	try {
 		std::string s = *it++;
 		std::replace(s.begin(), s.end(), ',', '.');
-		height = std::stod(s);
+		if(type == BoreHole::enbw)
+		    height = std::stod(s);
+		else
+			depth = std::stod(s);
 	}
 	catch (...) { height = 0.0; }
 	if (it == tokens.end())
@@ -90,9 +96,12 @@ BoreHolePos::BoreHolePos(const std::string &info)
 	try {
 		std::string s = *it++;
 		std::replace(s.begin(), s.end(), ',', '.');
-		depth = std::stod(s);
+		if (type == BoreHole::enbw)
+			depth = std::stod(s);
+		else
+			height = std::stod(s);
 	}
-	catch (...) { depth = 1.0; }
+	catch (...) {  }
 	if (it == tokens.end())
 		return;
 	try {
@@ -270,9 +279,10 @@ CoreInfo::~CoreInfo()
 
 }
 
-BoreHole::BoreHole(BoreHolePos *bp, const std::string &p)
+BoreHole::BoreHole(BoreHolePos *bp, const std::string &p,DatabaseVersion dbv)
 {
     fprintf(stderr, "BoreHole::BoreHole\n");
+	type = dbv;
 	boreHolePos = bp;
 	if (p.length() == 0)
 	{
@@ -630,7 +640,7 @@ BorePlugin::BorePlugin() : ui::Owner("BorePlugin", cover->ui)
 
 	d_kdtreeBuilder = new osg::KdTreeBuilder;
 
-    BoreGroup = new osg::Group();
+    BoreGroup = new osg::MatrixTransform();
     BoreGroup->setName("Bore_Holes");
 	BoreTab = new ui::Menu("BoreHoles", this);
 	BoreTab->setText("Bore Holes");
@@ -697,7 +707,7 @@ BorePlugin::~BorePlugin()
 
 osg::Vec3 BorePlugin::getProjectOffset()
 {
-	return osg::Vec3(3449864.546988, 5392358.883212, 0);
+	return projectOffset;
 }
 bool BorePlugin::init()
 {
@@ -750,19 +760,33 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 
 	boost::filesystem::path fpath(fileName);
 
+	BoreHole::DatabaseVersion type = BoreHole::enbw;
 	FILE *fp = fopen(fileName.c_str(), "r");
 	if (fp != NULL)
 	{
 		char buf[1000];
 		fgets(buf, 1000, fp);
+
+		if (strncmp(buf, "Aufschluss", 10) == 0)
+		{
+			type = BoreHole::suedlink;
+			projectOffset = osg::Vec3( 3524820, 5968280, 0);
+			projectOrientation = 108.903055555;
+			BoreGroup->setMatrix(osg::Matrix::rotate(projectOrientation*M_PI/180.0,osg::Vec3(0,0,1))*osg::Matrix::translate(64.7,-10.26,-1.2));
+		}
+		else
+		{
+			projectOffset = osg::Vec3(3449864.546988, 5392358.883212, 0);
+			projectOrientation = 0.0;
+		}
 		while (fgets(buf, 1000, fp) != NULL)
 		{
-			BoreHolePos *bp = new BoreHolePos(buf);
+			BoreHolePos *bp = new BoreHolePos(buf, type);
 			if(bp->depth > 0)
 			{
 				BoreHolePos_map[bp->ID] = bp;
 				std::string path = fpath.parent_path().string();
-				BoreHole *b = new BoreHole(bp,path);
+				BoreHole *b = new BoreHole(bp,path,type);
 				Bore_map[bp->ID] = b;
 			}
 		}
@@ -773,47 +797,43 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
     return 0;
 	}
 	fclose(fp);
-	fp = fopen((fileName.substr(0,fileName.length()-5)+".csv").c_str(), "r");
-	if (fp != NULL)
+	if (type == BoreHole::enbw)
 	{
-		char buf[1000];
-		fgets(buf, 1000, fp);
-		while (fgets(buf, 1000, fp) != NULL)
+		fp = fopen((fileName.substr(0, fileName.length() - 5) + ".csv").c_str(), "r");
+		if (fp != NULL)
 		{
-			CoreInfo *c = new CoreInfo(buf);
-			auto b = Bore_map.find(c->ID);
-			if (b != Bore_map.end())
+			char buf[1000];
+			fgets(buf, 1000, fp);
+			while (fgets(buf, 1000, fp) != NULL)
 			{
-				b->second->cores.push_back(c);
+				CoreInfo* c = new CoreInfo(buf);
+				auto b = Bore_map.find(c->ID);
+				if (b != Bore_map.end())
+				{
+					b->second->cores.push_back(c);
+				}
 			}
+
 		}
 
-	}
-	else
-	{
-		return 0;
-	}
-
-	fclose(fp);
-	fp = fopen((fileName.substr(0, fileName.length() - 5) + "Kluefte.csv").c_str(), "r");
-	if (fp != NULL)
-	{
-		char buf[1000];
-		fgets(buf, 1000, fp);
-		while (fgets(buf, 1000, fp) != NULL)
+		fclose(fp);
+		std::string basename = fileName.substr(0, fileName.length() - 5);
+		fp = fopen((basename + "Kluefte.csv").c_str(), "r");
+		if (fp != NULL)
 		{
-			Cleft *c = new Cleft(buf);
-			auto b = Bore_map.find(c->ID);
-			if (b != Bore_map.end())
+			char buf[1000];
+			fgets(buf, 1000, fp);
+			while (fgets(buf, 1000, fp) != NULL)
 			{
-				b->second->clefts.push_back(c);
+				Cleft* c = new Cleft(buf);
+				auto b = Bore_map.find(c->ID);
+				if (b != Bore_map.end())
+				{
+					b->second->clefts.push_back(c);
+				}
 			}
-		}
 
-	}
-	else
-	{
-		return 0;
+		}
 	}
 	for (auto& b : Bore_map) {
 		b.second->init();

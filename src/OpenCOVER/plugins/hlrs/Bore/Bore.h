@@ -68,25 +68,8 @@ public:
 	double angle3;
 	int type;
 };
+class BoreHolePos;
 
-class BoreHolePos
-{
-public:
-	BoreHolePos(const std::string &info);
-	~BoreHolePos();
-	std::string ID;
-	double x;
-	double y;
-	double height;
-	double depth= -1.0;
-	double azimut;
-	double angle;
-	double angle2; //Fallwinkel
-	double buildingDist;
-	double Bauwerksbereich;
-	std::string description;
-	std::vector<textureInfo> textures;
-};
 class CoreInfo
 {
 public:
@@ -145,7 +128,8 @@ public:
 class BoreHole
 {
 public:
-	BoreHole(BoreHolePos *, const std::string &path);
+	enum DatabaseVersion { enbw, suedlink};
+	BoreHole(BoreHolePos *, const std::string &path, DatabaseVersion dbv);
     ~BoreHole();
 	void init();
 	void regenerate(); // regenerate Geometry
@@ -171,6 +155,7 @@ public:
 	osg::Geode *createGeometry();
 	osg::Geode *createCleftGeometry(float cleftRadius);
 	osg::ref_ptr<osg::Geode> cleftGeode;
+	DatabaseVersion type=enbw;
 };
 
 
@@ -194,7 +179,7 @@ public:
 
     bool update(); // return frue if we need a redraw
 
-    osg::ref_ptr<osg::Group> BoreGroup;
+    osg::ref_ptr<osg::MatrixTransform> BoreGroup;
 	osg::Group *parent = nullptr;
 	osg::Vec3 getProjectOffset();
 
@@ -202,9 +187,30 @@ public:
 	std::map<std::string, BoreHolePos *> BoreHolePos_map;
 
 	osg::ref_ptr<osg::KdTreeBuilder> d_kdtreeBuilder;
+	osg::Vec3 projectOffset;
+	float projectOrientation=0.0;
 
 private:
 	static BorePlugin *plugin;
+};
+class BoreHolePos
+{
+public:
+	BoreHolePos(const std::string& info, BoreHole::DatabaseVersion);
+	~BoreHolePos();
+	std::string ID;
+	double x;
+	double y;
+	double height;
+	double depth = -1.0;
+	double azimut;
+	double angle;
+	double angle2; //Fallwinkel
+	double buildingDist;
+	double Bauwerksbereich;
+	std::string description;
+	std::vector<textureInfo> textures;
+	BoreHole::DatabaseVersion type = BoreHole::enbw;
 };
 
 #endif
