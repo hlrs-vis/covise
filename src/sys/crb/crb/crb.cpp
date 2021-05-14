@@ -30,7 +30,7 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
-
+#include <thread>
 #include <util/covise_version.h>
 #include "CRB_Module.h"
 #include <dmgr/dmgr.h>
@@ -582,7 +582,33 @@ int main(int argc, char* argv[])
 #endif
                 execpath += appName;
                 args[0] = execpath.c_str();
-                spawnProgram(args[0], args); 
+#if defined (USE_WEBENGINE) && !defined (_WIN32) //this is a workaround for QWebengine crash
+                if (!strcmp(crbExec.name, "mapeditor"))
+                {
+                    static std::unique_ptr<std::thread> mapeditorThread;
+                    if (mapeditorThread && mapeditorThread->joinable())
+                    {
+                        mapeditorThread->join();
+                    }
+                    std::string ss;
+                    for (const auto arg : args)
+                    {
+                        if (arg)
+                        {
+                            ss += arg;
+                            ss += " ";
+                        }
+                    }
+                    mapeditorThread.reset(new std::thread{[ss]() {
+
+                        std::cerr << "starting mapeditor in seperate shell" << std::endl;
+                        system(ss.c_str());
+                    }});
+
+                }
+                else
+#endif // USE_WEBENGINE && !_WIN32
+                    spawnProgram(args[0], args); 
             }
         }
         break;
