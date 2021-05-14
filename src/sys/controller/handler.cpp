@@ -2455,15 +2455,7 @@ const NetModule *CTRLHandler::initModuleNode(const string &name, const string &n
         //  -1 dont"t send title
         if (action == 2)
             app.setTitle(title);
-        // send TITLE message
-        ostringstream osss;
-        osss << "MODULE_TITLE\n"
-             << name << "\n"
-             << app.instance() << "\n"
-             << ipAddress << "\n"
-             << app.fullName();
-        tmp_msg = Message{COVISE_MESSAGE_UI, osss.str()};
-        m_hostManager.sendAll<Userinterface>(tmp_msg);
+
         return &app;
     }
     catch (const Exception &e)
