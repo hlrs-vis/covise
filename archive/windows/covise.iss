@@ -471,7 +471,7 @@ Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib\alvarplugins; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\coviseDaemon.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\TabletUI.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()             
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vrb.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\vrb.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\oddlot.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\oddlot.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
@@ -480,7 +480,7 @@ Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVE
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\SurfaceCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\covise.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll() 
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\coviseDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll() 
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\vrb.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\oddlot.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
@@ -498,9 +498,9 @@ Root: HKCR; Subkey: CoviseFile\shell\Open\command; ValueType: string; ValueName:
 
 ; end for global installation
 Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\opencover.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\scripts\windowsEnv.bat && start /min {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallRemoteDaemonForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\scripts\windowsEnv.bat && start /min {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\coviseDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallcoviseDaemonForAll()
 
-Root: HKCU; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\scripts\windowsEnv.bat && start /min {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallRemoteDaemonForUser()
+Root: HKCU; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\scripts\windowsEnv.bat && start /min {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\coviseDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallcoviseDaemonForUser()
 
 
 [INI]
@@ -542,7 +542,7 @@ Name: {group}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment
 Name: {group}\VRB; Filename: {app}\{#ARCHSUFFIX}\bin\vrb.exe; Comment: COVISE Collaboration server; IconFilename: {app}\share\covise\icons\vrb.ico; Flags: createonlyiffileexists
 Name: {group}\OddLOT; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comment: OpenDRIVE Designer; IconFilename: {app}\share\covise\icons\oddlot.ico; Flags: createonlyiffileexists
 Name: {group}\COVISE Shell; Filename: {cmd}; Parameters: /K cd %COVISEDIR% && scripts\windowsEnv.bat; WorkingDir: {app}; Comment: Command Prompt with COVISE Environment; IconFilename: {app}\share\covise\icons\covise_shell.ico
-Name: {group}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts COVISE or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
+Name: {group}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts COVISE or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
 Name: {group}\VRPrepare; Filename: {app}\bin\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts VRPrepare; Components: vrprepare4
 
 Name: {group}\Documentation\Tutorial; Filename: {app}\doc\pdf\tutorial.pdf; Flags: createonlyiffileexists
@@ -557,7 +557,7 @@ Name: {commondesktop}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\Open
 Name: {commondesktop}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists; Tasks: desktopicon      
 Name: {commondesktop}\OddLOT; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comment: OpenDRIVE Designer; IconFilename: {app}\share\covise\icons\oddlot.ico; Flags: createonlyiffileexists; Tasks: desktopicon 
 ;Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\bin; Comment: Clean COVISE Processes; IconFilename: {app}\share\covise\icons\covise_clean.ico; Tasks: desktopicon
-;Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico; Tasks: desktopicon
+;Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico; Tasks: desktopicon
 
 
 [Run]
@@ -588,7 +588,7 @@ Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Par
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif
-; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
+; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
           
 [UninstallDelete]   
 Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2021\FoamInterface.addin"
@@ -602,7 +602,7 @@ program Setup;
 
 var
 
-  CheckInstallRevitPlugin,CheckInstallForAll,CheckInstallRemoteDaemon,CheckInstallRemoteDaemonForAll: TCheckBox;
+  CheckInstallRevitPlugin,CheckInstallForAll,CheckInstallcoviseDaemon,CheckInstallcoviseDaemonForAll: TCheckBox;
   UNCPathName: TEdit;
   Page: TWizardPage;
 
@@ -740,35 +740,35 @@ begin
     end;
 
   {note: in CyberClassroom installations there is no remote daemon}
-  CheckInstallRemoteDaemon := TCheckBox.Create(Page);
+  CheckInstallcoviseDaemon := TCheckBox.Create(Page);
     if IsAdminInstallMode then
     begin
-  CheckInstallRemoteDaemon.Top := CheckInstallForAll.Top + CheckInstallForAll.Height + ScaleY(8);
+  CheckInstallcoviseDaemon.Top := CheckInstallForAll.Top + CheckInstallForAll.Height + ScaleY(8);
   end
   else begin
-  CheckInstallRemoteDaemon.Top := Lbl11.Top + Lbl11.Height + ScaleY(8);
+  CheckInstallcoviseDaemon.Top := Lbl11.Top + Lbl11.Height + ScaleY(8);
   end;
-  CheckInstallRemoteDaemon.Width := Page.SurfaceWidth;
-  CheckInstallRemoteDaemon.Height := ScaleY(17);
-  CheckInstallRemoteDaemon.Checked := False;
-  CheckInstallRemoteDaemon.Caption := 'Start COVISE Daemon automatically for current user?';
-  CheckInstallRemoteDaemon.Parent := Page.Surface;
+  CheckInstallcoviseDaemon.Width := Page.SurfaceWidth;
+  CheckInstallcoviseDaemon.Height := ScaleY(17);
+  CheckInstallcoviseDaemon.Checked := False;
+  CheckInstallcoviseDaemon.Caption := 'Start COVISE Daemon automatically for current user?';
+  CheckInstallcoviseDaemon.Parent := Page.Surface;
 
     if IsAdminInstallMode then
     begin
-  CheckInstallRemoteDaemonForAll := TCheckBox.Create(Page);
-  CheckInstallRemoteDaemonForAll.Top := CheckInstallRemoteDaemon.Top + CheckInstallRemoteDaemon.Height + ScaleY(8);
-  CheckInstallRemoteDaemonForAll.Width := Page.SurfaceWidth;
-  CheckInstallRemoteDaemonForAll.Height := ScaleY(17);
-  CheckInstallRemoteDaemonForAll.Checked := False;
-  CheckInstallRemoteDaemonForAll.Caption := 'Start COVISE Daemon automatically for all users?';
-  CheckInstallRemoteDaemonForAll.Parent := Page.Surface;
+  CheckInstallcoviseDaemonForAll := TCheckBox.Create(Page);
+  CheckInstallcoviseDaemonForAll.Top := CheckInstallcoviseDaemon.Top + CheckInstallcoviseDaemon.Height + ScaleY(8);
+  CheckInstallcoviseDaemonForAll.Width := Page.SurfaceWidth;
+  CheckInstallcoviseDaemonForAll.Height := ScaleY(17);
+  CheckInstallcoviseDaemonForAll.Checked := False;
+  CheckInstallcoviseDaemonForAll.Caption := 'Start COVISE Daemon automatically for all users?';
+  CheckInstallcoviseDaemonForAll.Parent := Page.Surface;
 
     end;
 
   UNCPathName := TEdit.Create(Page);
   UNCPathName.Parent := Page.Surface;
-  UNCPathName.Top := CheckInstallRemoteDaemon.Top + CheckInstallRemoteDaemon.Height + ScaleY(8) + ScaleY(17) + ScaleY(17);
+  UNCPathName.Top := CheckInstallcoviseDaemon.Top + CheckInstallcoviseDaemon.Height + ScaleY(8) + ScaleY(17) + ScaleY(17);
 
 end;
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -924,12 +924,12 @@ end;
 
 
 
-function InstallRemoteDaemonForAll(): Boolean;
+function InstallcoviseDaemonForAll(): Boolean;
 begin
   Result := False;
   if IsAdminInstallMode then
   begin
-     Result := CheckInstallRemoteDaemonForAll.Checked;
+     Result := CheckInstallcoviseDaemonForAll.Checked;
   end;
 end;
 
@@ -949,9 +949,9 @@ begin
         Result := GetShortName(UNCPathName.Text);
      end;
 end;
-function InstallRemoteDaemonForUser(): Boolean;
+function InstallcoviseDaemonForUser(): Boolean;
 begin
-     Result := CheckInstallRemoteDaemon.Checked;
+     Result := CheckInstallcoviseDaemon.Checked;
 end;
 
 
