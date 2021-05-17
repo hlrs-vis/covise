@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/24/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/24/2010
+ **
+ **************************************************************************/
 
 #include "texthandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 TextHandle::TextHandle(const QString &text, QGraphicsItem *parent, bool flip)
     : Handle(parent, flip)
@@ -119,7 +119,7 @@ TextHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     // Let someone else handle the movement //
     //
-    //	if(isSelected()) // only if this handle is actually selected
+    // if(isSelected()) // only if this handle is actually selected
     {
         emit requestPositionChange(event->scenePos() - event->lastScenePos());
         return; // do not apply translation yourself!

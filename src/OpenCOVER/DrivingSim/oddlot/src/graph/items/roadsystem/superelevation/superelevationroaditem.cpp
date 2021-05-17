@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #include "superelevationroaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 
@@ -53,7 +53,7 @@ SuperelevationRoadItem::SuperelevationRoadItem(RoadSystemItem *roadSystemItem, R
 
 SuperelevationRoadItem::~SuperelevationRoadItem()
 {
-	superelevationSectionItems_.clear();
+    superelevationSectionItems_.clear();
 }
 
 void
@@ -69,7 +69,7 @@ SuperelevationRoadItem::init()
 
     // SectionItems //
     //
-    foreach (SuperelevationSection *section, getRoad()->getSuperelevationSections())
+    foreach(SuperelevationSection * section, getRoad()->getSuperelevationSections())
     {
         superelevationSectionItems_.insert(section->getSStart(), new SuperelevationSectionItem(superelevationEditor_, this, section));
     }
@@ -109,8 +109,8 @@ SuperelevationRoadItem::updateObserver()
     {
         // A section has been added.
         //
-		QMap<double, SuperelevationSection *> roadSections = getRoad()->getSuperelevationSections();
-        foreach (SuperelevationSection *section, roadSections)
+        QMap<double, SuperelevationSection *> roadSections = getRoad()->getSuperelevationSections();
+        foreach(SuperelevationSection * section, roadSections)
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -119,13 +119,13 @@ SuperelevationRoadItem::updateObserver()
             }
         }
 
-		foreach(double s, superelevationSectionItems_.keys())
-		{
-			if (!roadSections.contains(s))
-			{
-				superelevationSectionItems_.remove(s);
-			}
-		}
+        foreach(double s, superelevationSectionItems_.keys())
+        {
+            if (!roadSections.contains(s))
+            {
+                superelevationSectionItems_.remove(s);
+            }
+        }
     }
 
 }

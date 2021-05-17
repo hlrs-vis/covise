@@ -5,25 +5,25 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "rsystemelementcontroller.hpp"
 
 #include "src/data/roadsystem/sections/signalobject.hpp"
 
-/** CONSTRUCTOR.
-*/
+ /** CONSTRUCTOR.
+ */
 RSystemElementController::RSystemElementController(const QString &name, const odrID &id, int sequence, const QString &script, double cycleTime, const QList<ControlEntry *> &controlEntries)
     : RSystemElement(name, id, RSystemElement::DRE_Controller)
     , sequence_(sequence)
     , controlEntries_(controlEntries) /*,
-		controllerChanges_(0x0)*/
+        controllerChanges_(0x0)*/
 {
     controllerUserData_.script = script;
     controllerUserData_.cycleTime = cycleTime;
@@ -34,7 +34,7 @@ RSystemElementController::RSystemElementController(const QString &name, const od
     , sequence_(sequence)
     , controllerUserData_(controllerUserData)
     , controlEntries_(controlEntries) /*,
-		controllerChanges_(0x0)*/
+        controllerChanges_(0x0)*/
 {
 }
 
@@ -47,7 +47,7 @@ RSystemElementController::~RSystemElementController()
 }
 
 void
-RSystemElementController::addControlEntry(ControlEntry *controlEntry, Signal * signal)
+RSystemElementController::addControlEntry(ControlEntry *controlEntry, Signal *signal)
 {
 
     // Append and Notify //
@@ -58,21 +58,21 @@ RSystemElementController::addControlEntry(ControlEntry *controlEntry, Signal * s
         controlEntries_.append(controlEntry);
     }
 
-	if (signal)
-	{
-		if (!signals_.contains(signal->getId()))
-		{
-			signals_.insert(signal->getId(), signal);
-		}
-		signal->attachObserver(this);
-	}
+    if (signal)
+    {
+        if (!signals_.contains(signal->getId()))
+        {
+            signals_.insert(signal->getId(), signal);
+        }
+        signal->attachObserver(this);
+    }
     addControllerChanges(RSystemElementController::CRC_EntryChange);
 }
 
 bool
-RSystemElementController::delControlEntry(ControlEntry *controlEntry, Signal * signal)
+RSystemElementController::delControlEntry(ControlEntry *controlEntry, Signal *signal)
 {
-    
+
     controlEntries_.removeOne(controlEntry);
     signals_.remove(controlEntry->getSignalId());
     addControllerChanges(RSystemElementController::CRC_EntryChange);
@@ -116,12 +116,12 @@ RSystemElementController::updateObserver()
     auto iter = signals_.constBegin();
     while (iter != signals_.constEnd())
     {
-        Signal * signal = iter.value();
+        Signal *signal = iter.value();
         int changes = signal->getSignalChanges();
 
         if (changes & Signal::CEL_ParameterChange)
         {
-            foreach (ControlEntry *controlEntry, controlEntries_)
+            foreach(ControlEntry * controlEntry, controlEntries_)
             {
                 if (controlEntry->getSignalId() == iter.key())
                 {

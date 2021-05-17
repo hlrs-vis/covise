@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   20.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   20.04.2010
+ **
+ **************************************************************************/
 
 #include "junctionmovehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 #include "src/data/commands/trackcommands.hpp"
 
@@ -352,5 +352,5 @@ JunctionMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         junctionEditor_->translateJunctionMoveHandles(scenePos(), event->scenePos());
     }
 
-    //	MoveHandle::mouseMoveEvent(event); // pass to baseclass
+    // MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }

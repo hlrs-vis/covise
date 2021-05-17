@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/17/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/17/2010
+ **
+ **************************************************************************/
 
 #include "pedestriantreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/pedestriansystem/pedestrian.hpp"
 
 // Tree //
@@ -85,11 +85,11 @@ PedestrianTreeItem::updateObserver()
 
     // Get change flags //
     //
-    //	int changes = pedestrian_->get();
-    //	if((changes & Pedestrian::CSM_Id)
-    //		|| (changes & Pedestrian::CSM_Filename)
-    //	)
-    //	{
-    //		updateText();
-    //	}
+    // int changes = pedestrian_->get();
+    // if((changes & Pedestrian::CSM_Id)
+    //  || (changes & Pedestrian::CSM_Filename)
+    // )
+    // {
+    //  updateText();
+    // }
 }

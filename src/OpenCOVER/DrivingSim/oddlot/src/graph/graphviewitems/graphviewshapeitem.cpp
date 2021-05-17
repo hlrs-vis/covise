@@ -50,16 +50,16 @@
 GraphViewShapeItem::GraphViewShapeItem(GraphView *view, int x, int y, int width, int height) :
     QObject()
     , QGraphicsPathItem()
-	, selected(true)
+    , selected(true)
     , view_(view)
     , canvasWidth(width)
     , canvasHeight(height)
     , graphicItemGroup_(NULL)
 {
 
- //   setFixedSize(960, 640);
-	m_minPointDistance = 2;
-	m_numberOfSegments = 0;
+    //   setFixedSize(960, 640);
+    m_minPointDistance = 2;
+    m_numberOfSegments = 0;
     m_activeControlPoint = -1;
 
     m_mouseDrag = false;
@@ -77,7 +77,7 @@ GraphViewShapeItem::GraphViewShapeItem(GraphView *view, int x, int y, int width,
 
     QApplication::setOverrideCursor(Qt::CrossCursor);
 
-	m_controlPoints = view_->getSplineControlPoints(m_smoothList);
+    m_controlPoints = view_->getSplineControlPoints(m_smoothList);
     if (m_controlPoints.size() > 0)
     {
         m_numberOfSegments = m_controlPoints.size() / 3;
@@ -93,26 +93,26 @@ GraphViewShapeItem::GraphViewShapeItem(GraphView *view, int x, int y, int width,
 
 GraphViewShapeItem::~GraphViewShapeItem()
 {
-//    m_controlPoints.clear();
+    //    m_controlPoints.clear();
     finishEditing();
 }
 
 QPointF GraphViewShapeItem::mapToCanvas(const QPointF &point)
 {
     return QPointF(startPoint.x() + point.x() * canvasWidth,
-					startPoint.y() - point.y() * canvasHeight);
+        startPoint.y() - point.y() * canvasHeight);
 }
 
 QPointF GraphViewShapeItem::mapFromCanvas(const QPointF &point)
 {
-	QPointF d = point - startPoint;
-		return QPointF(d.x()/canvasWidth,
-			-d.y()/canvasHeight);
+    QPointF d = point - startPoint;
+    return QPointF(d.x() / canvasWidth,
+        -d.y() / canvasHeight);
 }
 
-void 
+void
 GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
-                                     bool realPoint, bool active, bool smooth)
+    bool realPoint, bool active, bool smooth)
 {
     QGraphicsPathItem *pathItem = new QGraphicsPathItem(this);
     graphicItemGroup_->addToGroup(pathItem);
@@ -125,24 +125,25 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
         pathItem->setPen(QColor(120, 120, 220, 255));
 
     if (realPoint) {
- //       pointSize = 6;
+        //       pointSize = 6;
         pathItem->setPen(QColor(80, 160, 80, 200));
     }
 
-  //  pathItem->setBrush(QColor(50, 50, 50, 140));
+    //  pathItem->setBrush(QColor(50, 50, 50, 140));
 
     if (!edit)
-        pathItem->setPen(QColor(160, 80, 80, 200)); 
+        pathItem->setPen(QColor(160, 80, 80, 200));
 
     QPainterPath *path = new QPainterPath();
     if (smooth) {
         path->addEllipse(QRectF(point.x() - pointSize,
-                                    point.y() - pointSize,
-                                    pointSize * 2, pointSize * 2));
-    } else {
+            point.y() - pointSize,
+            pointSize * 2, pointSize * 2));
+    }
+    else {
         path->addRect(QRectF(point.x() - pointSize,
-                                 point.y() - pointSize,
-                                 pointSize * 2, pointSize * 2));
+            point.y() - pointSize,
+            pointSize * 2, pointSize * 2));
     }
 
     pathItem->setPath(*path);
@@ -164,32 +165,32 @@ static inline int pointForControlPoint(int i)
     return i;
 }
 
-void 
+void
 GraphViewShapeItem::createPath()
 {
     if (graphicItemGroup_)
-	{
+    {
         view_->scene()->removeItem(graphicItemGroup_);
         delete graphicItemGroup_;
-//		view_->scene()->destroyItemGroup(graphicItemGroup_);
-	}
+        //  view_->scene()->destroyItemGroup(graphicItemGroup_);
+    }
 
-	graphicItemGroup_ = new QGraphicsItemGroup(this);
+    graphicItemGroup_ = new QGraphicsItemGroup(this);
 
-	if (!startPoint.isNull())
-	{
-		paintControlPoint(startPoint, false, true, false, false);
+    if (!startPoint.isNull())
+    {
+        paintControlPoint(startPoint, false, true, false, false);
 
-		if (!endPoint.isNull())
-		{
-			paintControlPoint(endPoint, false, true, false, false);
-		}
-	}
+        if (!endPoint.isNull())
+        {
+            paintControlPoint(endPoint, false, true, false, false);
+        }
+    }
 
-	
+
     QGraphicsPathItem *pathCubicItem = new QGraphicsPathItem(this);
     QPen penCubic(QBrush(Qt::black), 1.5);
-	penCubic.setCosmetic(true);
+    penCubic.setCosmetic(true);
     pathCubicItem->setPen(penCubic);
     graphicItemGroup_->addToGroup(pathCubicItem);
 
@@ -197,27 +198,27 @@ GraphViewShapeItem::createPath()
     QPen penHandle(Qt::black);
     penHandle.setStyle(Qt::DashLine);
     penHandle.setWidthF(1.5);
-	penHandle.setCosmetic(true);
+    penHandle.setCosmetic(true);
     pathHandleItem->setPen(penHandle);
     graphicItemGroup_->addToGroup(pathHandleItem);
 
-	if (selected)
-	{
+    if (selected)
+    {
         QPainterPath pathSpline;
         QPainterPath pathHandle;
-		for (int i = 0; i < m_numberOfSegments; i++) {
-			QPainterPath pathCubic;
-			QPointF p0;
+        for (int i = 0; i < m_numberOfSegments; i++) {
+            QPainterPath pathCubic;
+            QPointF p0;
 
-			p0 = m_controlPoints.at(i * 3);
+            p0 = m_controlPoints.at(i * 3);
 
-			pathCubic.moveTo(p0);
+            pathCubic.moveTo(p0);
 
-			QPointF p1 = m_controlPoints.at(i * 3 + 1);
-			QPointF p2 = m_controlPoints.at(i * 3 + 2);
-			QPointF p3 = m_controlPoints.at(i * 3 + 3);
-			pathCubic.cubicTo(p1, p2, p3);
-			pathSpline.addPath(pathCubic);
+            QPointF p1 = m_controlPoints.at(i * 3 + 1);
+            QPointF p2 = m_controlPoints.at(i * 3 + 2);
+            QPointF p3 = m_controlPoints.at(i * 3 + 3);
+            pathCubic.cubicTo(p1, p2, p3);
+            pathSpline.addPath(pathCubic);
 
             QPainterPath path;
             path.moveTo(p0);
@@ -225,52 +226,52 @@ GraphViewShapeItem::createPath()
             path.moveTo(p3);
             path.lineTo(p2);
             pathHandle.addPath(path);
-		}
+        }
         pathCubicItem->setPath(pathSpline);
         pathHandleItem->setPath(pathHandle);
 
-		for (int i = 1; i < m_controlPoints.count() - 1; ++i)
-			paintControlPoint(m_controlPoints.at(i),
-			true,
-			indexIsRealPoint(i),
-			i == m_activeControlPoint,
-			isControlPointSmooth(i)); 
-	}
-	else
-	{
+        for (int i = 1; i < m_controlPoints.count() - 1; ++i)
+            paintControlPoint(m_controlPoints.at(i),
+                true,
+                indexIsRealPoint(i),
+                i == m_activeControlPoint,
+                isControlPointSmooth(i));
+    }
+    else
+    {
         QPainterPath pathSpline;
-		for (int i = 0; i < m_numberOfSegments; i++) {
-			QPainterPath path;
-			QPointF p0;
+        for (int i = 0; i < m_numberOfSegments; i++) {
+            QPainterPath path;
+            QPointF p0;
 
-			p0 = m_controlPoints.at(i * 3);
+            p0 = m_controlPoints.at(i * 3);
 
-			path.moveTo(p0);
+            path.moveTo(p0);
 
-			QPointF p3 = m_controlPoints.at(i * 3 + 3);
-			path.lineTo(p3);
-			pathSpline.addPath(path);
-		}
+            QPointF p3 = m_controlPoints.at(i * 3 + 3);
+            path.lineTo(p3);
+            pathSpline.addPath(path);
+        }
         pathCubicItem->setPath(pathSpline);
 
-		for (int i = 3; i < m_controlPoints.count() - 1; i+=3)
-			paintControlPoint(m_controlPoints.at(i),
-			true,
-			indexIsRealPoint(i),
-			i == m_activeControlPoint,
-			isControlPointSmooth(i)); 
-	}
+        for (int i = 3; i < m_controlPoints.count() - 1; i += 3)
+            paintControlPoint(m_controlPoints.at(i),
+                true,
+                indexIsRealPoint(i),
+                i == m_activeControlPoint,
+                isControlPointSmooth(i));
+    }
 
     view_->setSplineControlPoints(m_controlPoints, m_smoothList);
 
 }
 
-void 
+void
 GraphViewShapeItem::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton) {
         QPointF p = view_->mapToScene(e->pos());
-		qreal distance;
+        qreal distance;
         m_activeControlPoint = findControlPoint(p, distance);
 
         if ((m_activeControlPoint < 0) || (distance > m_minPointDistance))
@@ -323,52 +324,53 @@ void GraphViewShapeItem::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void 
+void
 GraphViewShapeItem::contextMenu(QContextMenuEvent *e)
 {
     QPointF p = view_->mapToScene(e->pos());
-	qreal distance;
+    qreal distance;
     int index = findControlPoint(p, distance);
 
     if (index > 1 && (index < m_controlPoints.size() - 1) && indexIsRealPoint(index)) {
         m_smoothAction->setChecked(isControlPointSmooth(index));
-        QAction* action = m_pointContextMenu->exec(e->globalPos());
+        QAction *action = m_pointContextMenu->exec(e->globalPos());
         if (action == m_deleteAction)
             deletePoint(index);
         else if (action == m_smoothAction)
             smoothPoint(index);
         else if (action == m_cornerAction)
             cornerPoint(index);
-    } else {
-		bool showMenu = false;
-		if (!startPoint.isNull())
-		{
-			qreal d = QLineF(e->pos(),startPoint).length();
-			if (d >= m_minPointDistance)
-			{
-				showMenu = true;
-			}
-		}
+    }
+    else {
+        bool showMenu = false;
+        if (!startPoint.isNull())
+        {
+            qreal d = QLineF(e->pos(), startPoint).length();
+            if (d >= m_minPointDistance)
+            {
+                showMenu = true;
+            }
+        }
     }
 }
 
-void 
+void
 GraphViewShapeItem::invalidate()
 {
-	if (canvasHeight > 1.0e-03)
-	{
-    QEasingCurve easingCurve(QEasingCurve::BezierSpline);
+    if (canvasHeight > 1.0e-03)
+    {
+        QEasingCurve easingCurve(QEasingCurve::BezierSpline);
 
-    for (int i = 0; i < m_numberOfSegments; ++i) {
-        easingCurve.addCubicBezierSegment(mapFromCanvas(m_controlPoints.at(i * 3 + 1)),
-                                          mapFromCanvas(m_controlPoints.at(i * 3 + 2)),
-                                          mapFromCanvas(m_controlPoints.at(i * 3 + 3)));
+        for (int i = 0; i < m_numberOfSegments; ++i) {
+            easingCurve.addCubicBezierSegment(mapFromCanvas(m_controlPoints.at(i * 3 + 1)),
+                mapFromCanvas(m_controlPoints.at(i * 3 + 2)),
+                mapFromCanvas(m_controlPoints.at(i * 3 + 3)));
+        }
+        setEasingCurve(easingCurve);
     }
-    setEasingCurve(easingCurve);
-	}
 }
 
-void 
+void
 GraphViewShapeItem::invalidateSmoothList()
 {
     m_smoothList.clear();
@@ -379,12 +381,12 @@ GraphViewShapeItem::invalidateSmoothList()
 }
 
 
-int 
+int
 GraphViewShapeItem::findControlPoint(const QPointF &point, qreal &distance)
 {
     int pointIndex = -1;
     distance = -1;
-    for (int i = 0; i<m_controlPoints.size(); ++i) {
+    for (int i = 0; i < m_controlPoints.size(); ++i) {
         qreal d = QLineF(point, m_controlPoints.at(i)).length();
         if (distance < 0 || d < distance) {
             distance = d;
@@ -396,12 +398,12 @@ GraphViewShapeItem::findControlPoint(const QPointF &point, qreal &distance)
     return pointIndex;
 }
 
-int 
+int
 GraphViewShapeItem::findRealPoint(const QPointF &point)
 {
     int pointIndex = -1;
     qreal distance = -1;
-    for (int i = 0; i<m_controlPoints.size(); i += 3) {
+    for (int i = 0; i < m_controlPoints.size(); i += 3) {
         qreal d = QLineF(point, m_controlPoints.at(i)).length();
         if (distance < 0 || d < distance) {
             distance = d;
@@ -426,7 +428,7 @@ static inline bool veryFuzzyCompare(qreal r1, qreal r2)
     return false;
 }
 
-bool 
+bool
 GraphViewShapeItem::isSmooth(int i) const
 {
     if (i == 0)
@@ -445,7 +447,7 @@ GraphViewShapeItem::isSmooth(int i) const
     return veryFuzzyCompare(v1.x(), v2.x()) && veryFuzzyCompare(v1.y(), v2.y());
 }
 
-void 
+void
 GraphViewShapeItem::smoothPoint(int index)
 {
     if (m_smoothAction->isChecked()) {
@@ -460,27 +462,28 @@ GraphViewShapeItem::smoothPoint(int index)
 
         QPointF tangent = (after - before) / 6;
 
-        QPointF thisPoint =  m_controlPoints.at(index);
+        QPointF thisPoint = m_controlPoints.at(index);
 
         if (index > 0)
             m_controlPoints[index - 1] = thisPoint - tangent;
 
-        if (index + 1  < m_controlPoints.count())
+        if (index + 1 < m_controlPoints.count())
             m_controlPoints[index + 1] = thisPoint + tangent;
 
         m_smoothList[(index - 1) / 3] = true;
-    } else {
+    }
+    else {
         m_smoothList[(index - 1) / 3] = false;
     }
     invalidate();
- //   update();
+    //   update();
     createPath();
 }
 
-void 
+void
 GraphViewShapeItem::cornerPoint(int index)
 {
-	QPointF before = m_controlPoints.at(0);
+    QPointF before = m_controlPoints.at(0);
     if (index > 3)
         before = m_controlPoints.at(index - 3);
 
@@ -488,12 +491,12 @@ GraphViewShapeItem::cornerPoint(int index)
     if ((index + 3) < m_controlPoints.count())
         after = m_controlPoints.at(index + 3);
 
-    QPointF thisPoint =  m_controlPoints.at(index);
+    QPointF thisPoint = m_controlPoints.at(index);
 
     if (index > 0)
         m_controlPoints[index - 1] = (before - thisPoint) / 3 + thisPoint;
 
-    if (index + 1  < m_controlPoints.count())
+    if (index + 1 < m_controlPoints.count())
         m_controlPoints[index + 1] = (after - thisPoint) / 3 + thisPoint;
 
     m_smoothList[(index - 1) / 3] = false;
@@ -501,7 +504,7 @@ GraphViewShapeItem::cornerPoint(int index)
     createPath();
 }
 
-void 
+void
 GraphViewShapeItem::deletePoint(int index)
 {
     m_controlPoints.remove(index - 1, 3);
@@ -512,99 +515,25 @@ GraphViewShapeItem::deletePoint(int index)
     createPath();
 }
 
-void 
+void
 GraphViewShapeItem::appendPoint(const QPointF point)
 {
-	if (startPoint.isNull() || endPoint.isNull())
-	{
-		addPoint(point);
-		return;
-	}
+    if (startPoint.isNull() || endPoint.isNull())
+    {
+        addPoint(point);
+        return;
+    }
 
 
-	QPointF d = (point - endPoint)/6;
-	m_controlPoints.append(endPoint + d);
-	m_controlPoints.append(point - d);
-	m_controlPoints.append(point);
+    QPointF d = (point - endPoint) / 6;
+    m_controlPoints.append(endPoint + d);
+    m_controlPoints.append(point - d);
+    m_controlPoints.append(point);
 
-	endPoint = point;
-	canvasWidth = std::abs(endPoint.x() - startPoint.x());
-	canvasHeight = std::abs(endPoint.y() - startPoint.y());
+    endPoint = point;
+    canvasWidth = std::abs(endPoint.x() - startPoint.x());
+    canvasHeight = std::abs(endPoint.y() - startPoint.y());
 
-	m_numberOfSegments++;
-
-    invalidateSmoothList();
-    invalidate();
-    createPath();
-}
-
-
-
-
-void 
-GraphViewShapeItem::addPoint(const QPointF point)
-{
-	
-	if (startPoint.isNull())
-	{
-		startPoint = point;
-        m_controlPoints.insert(0, point);
-//		update();
-        createPath();
-		return;
-	}
-	else if (endPoint.isNull())
-	{
-		endPoint = point;
-		canvasWidth = std::abs(endPoint.x() - startPoint.x());
-		canvasHeight = std::abs(endPoint.y() - startPoint.y());
-
-		QPointF d = (endPoint - startPoint)/6;
-		m_controlPoints.insert(1, endPoint);
-		m_controlPoints.insert(1, endPoint - d);
-		m_controlPoints.insert(1, startPoint + d);
-	}
-	else
-	{
-        int splitIndex = findRealPoint(point);
-/*		for (int i=1; i < m_controlPoints.size() - 1; ++i) {
-			if (indexIsRealPoint(i) && m_controlPoints.at(i).x() > point.x()) {
-				break;
-			} else if (indexIsRealPoint(i))
-				splitIndex = i;
-		} */
-        if (splitIndex == m_controlPoints.size() - 1)
-        {
-            splitIndex -= 3;
-        }
-        else if ((splitIndex > 0) && (m_controlPoints.size() > 4))
-        {
-            if (((point.x() < m_controlPoints.at(splitIndex).x()) && (m_controlPoints.at(splitIndex).x() > m_controlPoints.at(splitIndex - 3).x())) || ((point.x() > m_controlPoints.at(splitIndex).x()) && (m_controlPoints.at(splitIndex).x() < m_controlPoints.at(splitIndex - 3).x())))
-            {
-                    splitIndex -= 3;
-            }
-        }
-
-		QPointF before = startPoint;
-		if (splitIndex > 1)
-			before = m_controlPoints.at(splitIndex);
-
-		QPointF after = endPoint;
-		if ((splitIndex + 3) < m_controlPoints.count())
-			after = m_controlPoints.at(splitIndex + 3);
-
-//		if (splitIndex > 1) {
-			m_controlPoints.insert(splitIndex + 2, (point + after) / 2);
-			m_controlPoints.insert(splitIndex + 2, point);
-			m_controlPoints.insert(splitIndex + 2, (point + before) / 2);
-/*		} else {
-			m_controlPoints.insert(splitIndex + 1, (point + after) / 2);
-			m_controlPoints.insert(splitIndex + 1, point);
-			m_controlPoints.insert(splitIndex + 1, (point + before) / 2);
-		} */
-
-		selected = true;
-	}
     m_numberOfSegments++;
 
     invalidateSmoothList();
@@ -613,7 +542,81 @@ GraphViewShapeItem::addPoint(const QPointF point)
 }
 
 
-bool 
+
+
+void
+GraphViewShapeItem::addPoint(const QPointF point)
+{
+
+    if (startPoint.isNull())
+    {
+        startPoint = point;
+        m_controlPoints.insert(0, point);
+        //  update();
+        createPath();
+        return;
+    }
+    else if (endPoint.isNull())
+    {
+        endPoint = point;
+        canvasWidth = std::abs(endPoint.x() - startPoint.x());
+        canvasHeight = std::abs(endPoint.y() - startPoint.y());
+
+        QPointF d = (endPoint - startPoint) / 6;
+        m_controlPoints.insert(1, endPoint);
+        m_controlPoints.insert(1, endPoint - d);
+        m_controlPoints.insert(1, startPoint + d);
+    }
+    else
+    {
+        int splitIndex = findRealPoint(point);
+        /*  for (int i=1; i < m_controlPoints.size() - 1; ++i) {
+                    if (indexIsRealPoint(i) && m_controlPoints.at(i).x() > point.x()) {
+                        break;
+                    } else if (indexIsRealPoint(i))
+                        splitIndex = i;
+                } */
+        if (splitIndex == m_controlPoints.size() - 1)
+        {
+            splitIndex -= 3;
+        }
+        else if ((splitIndex > 0) && (m_controlPoints.size() > 4))
+        {
+            if (((point.x() < m_controlPoints.at(splitIndex).x()) && (m_controlPoints.at(splitIndex).x() > m_controlPoints.at(splitIndex - 3).x())) || ((point.x() > m_controlPoints.at(splitIndex).x()) && (m_controlPoints.at(splitIndex).x() < m_controlPoints.at(splitIndex - 3).x())))
+            {
+                splitIndex -= 3;
+            }
+        }
+
+        QPointF before = startPoint;
+        if (splitIndex > 1)
+            before = m_controlPoints.at(splitIndex);
+
+        QPointF after = endPoint;
+        if ((splitIndex + 3) < m_controlPoints.count())
+            after = m_controlPoints.at(splitIndex + 3);
+
+        //  if (splitIndex > 1) {
+        m_controlPoints.insert(splitIndex + 2, (point + after) / 2);
+        m_controlPoints.insert(splitIndex + 2, point);
+        m_controlPoints.insert(splitIndex + 2, (point + before) / 2);
+        /*  } else {
+                    m_controlPoints.insert(splitIndex + 1, (point + after) / 2);
+                    m_controlPoints.insert(splitIndex + 1, point);
+                    m_controlPoints.insert(splitIndex + 1, (point + before) / 2);
+                } */
+
+        selected = true;
+    }
+    m_numberOfSegments++;
+
+    invalidateSmoothList();
+    invalidate();
+    createPath();
+}
+
+
+bool
 GraphViewShapeItem::isControlPointSmooth(int i) const
 {
     if (i == 0)
@@ -643,88 +646,91 @@ void GraphViewShapeItem::mouseMoveEvent(QMouseEvent *e)
     QPointF p = view_->mapToScene(e->pos());
     // If we've moved more then 25 pixels, assume user is dragging
 /*    if (!m_mouseDrag && QPointF(m_mousePress - p).manhattanLength() > qApp->startDragDistance())
-	{
+    {
         m_mouseDrag = true;
-		selected = true;
-	} */
+        selected = true;
+    } */
 
 
-	if (m_mouseDrag && !startPoint.isNull() && m_activeControlPoint <= 0)
-	{
-		qreal d = QLineF(p, startPoint).length();
+    if (m_mouseDrag && !startPoint.isNull() && m_activeControlPoint <= 0)
+    {
+        qreal d = QLineF(p, startPoint).length();
         if (d < m_minPointDistance)
-		{
+        {
             QPointF distance = p - startPoint;
-			startPoint = p;
+            startPoint = p;
 
-			m_controlPoints[1] += distance;
+            m_controlPoints[1] += distance;
 
-			invalidate();
+            invalidate();
             createPath();
 
-			canvasWidth = std::abs(endPoint.x() - startPoint.x());
-			canvasHeight = std::abs(endPoint.y() - startPoint.y());
-		}
-	}
+            canvasWidth = std::abs(endPoint.x() - startPoint.x());
+            canvasHeight = std::abs(endPoint.y() - startPoint.y());
+        }
+    }
 
 
-	else  if (m_mouseDrag && m_activeControlPoint > 0 && m_activeControlPoint < m_controlPoints.size()) {
+    else  if (m_mouseDrag && m_activeControlPoint > 0 && m_activeControlPoint < m_controlPoints.size()) {
         if (indexIsRealPoint(m_activeControlPoint)) {
             //move also the tangents
             QPointF targetPoint = p;
             QPointF distance = targetPoint - m_controlPoints[m_activeControlPoint];
             m_controlPoints[m_activeControlPoint] = targetPoint;
-			if (m_activeControlPoint > 0)
-			{
-				m_controlPoints[m_activeControlPoint - 1] += distance;
-			}
-			if (m_controlPoints.size() > (m_activeControlPoint + 1))
-			{
-				m_controlPoints[m_activeControlPoint + 1] += distance;
-			}
-        } else {
+            if (m_activeControlPoint > 0)
+            {
+                m_controlPoints[m_activeControlPoint - 1] += distance;
+            }
+            if (m_controlPoints.size() > (m_activeControlPoint + 1))
+            {
+                m_controlPoints[m_activeControlPoint + 1] += distance;
+            }
+        }
+        else {
             if (!isControlPointSmooth(m_activeControlPoint)) {
                 m_controlPoints[m_activeControlPoint] = p;
-            } else {
+            }
+            else {
                 QPointF targetPoint = p;
                 QPointF distance = targetPoint - m_controlPoints[m_activeControlPoint];
                 m_controlPoints[m_activeControlPoint] = p;
 
                 if ((m_activeControlPoint > 1) && (m_activeControlPoint % 3) == 1) { //right control point
                     m_controlPoints[m_activeControlPoint - 2] -= distance;
-                } else if ((m_activeControlPoint < (m_controlPoints.count() - 2)) //left control point
-                           && (m_activeControlPoint % 3) == 1) {
+                }
+                else if ((m_activeControlPoint < (m_controlPoints.count() - 2)) //left control point
+                    && (m_activeControlPoint % 3) == 1) {
                     m_controlPoints[m_activeControlPoint + 2] -= distance;
                 }
             }
         }
         invalidate();
         createPath();
-	}
-	
-	if (!endPoint.isNull() && (m_activeControlPoint == m_controlPoints.size() - 1))
-	{
-		endPoint = m_controlPoints[m_activeControlPoint];
-		canvasWidth = std::abs(endPoint.x() - startPoint.x());
-		canvasHeight = std::abs(endPoint.y() - startPoint.y());
-	}
+    }
+
+    if (!endPoint.isNull() && (m_activeControlPoint == m_controlPoints.size() - 1))
+    {
+        endPoint = m_controlPoints[m_activeControlPoint];
+        canvasWidth = std::abs(endPoint.x() - startPoint.x());
+        canvasHeight = std::abs(endPoint.y() - startPoint.y());
+    }
 
 }
 
-void 
+void
 GraphViewShapeItem::setEasingCurve(const QEasingCurve &easingCurve)
 {
     if (m_easingCurve == easingCurve)
         return;
 
     m_easingCurve = easingCurve;
-	
-	m_controlPoints.clear();
+
+    m_controlPoints.clear();
     m_controlPoints.append(startPoint);
-	foreach (QPointF point, m_easingCurve.toCubicSpline())
-	{
-		m_controlPoints.append(mapToCanvas(point));
-	}
+    foreach(QPointF point, m_easingCurve.toCubicSpline())
+    {
+        m_controlPoints.append(mapToCanvas(point));
+    }
 
     m_numberOfSegments = m_controlPoints.count() / 3;
     update();

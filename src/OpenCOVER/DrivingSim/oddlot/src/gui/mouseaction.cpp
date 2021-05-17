@@ -5,34 +5,34 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10.05.2010
+ **
+ **************************************************************************/
 
 #include "mouseaction.hpp"
 
 #include <cstdlib> // NULL
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 MouseAction::MouseAction(MouseAction::MouseActionType mouseActionType, QGraphicsSceneMouseEvent *mouseEvent)
     : mouseActionType_(mouseActionType)
     , mouseEvent_(mouseEvent)
-	, dragEvent_(NULL)
+    , dragEvent_(NULL)
     , intercepted_(false)
 {
 }
 
 MouseAction::MouseAction(MouseAction::MouseActionType mouseActionType, QGraphicsSceneDragDropEvent *dragEvent)
-	: mouseActionType_(mouseActionType)
-	, dragEvent_(dragEvent)
-	, mouseEvent_(NULL)
-	, intercepted_(false)
+    : mouseActionType_(mouseActionType)
+    , dragEvent_(dragEvent)
+    , mouseEvent_(NULL)
+    , intercepted_(false)
 {
 }

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.03.2010
+ **
+ **************************************************************************/
 
 #include "basegraphelement.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/dataelement.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
 
@@ -408,15 +408,15 @@ BaseGraphElement<T>::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return; // prevent deselection by doing nothing
     }
 
-	if (event->source() == Qt::MouseEventSynthesizedByApplication)
-	{
-		if (lastMousePos_ == event->screenPos())
-		{
-			event->ignore();
-			return;
-		}
-	}
-	lastMousePos_ = event->screenPos();
+    if (event->source() == Qt::MouseEventSynthesizedByApplication)
+    {
+        if (lastMousePos_ == event->screenPos())
+        {
+            event->ignore();
+            return;
+        }
+    }
+    lastMousePos_ = event->screenPos();
 
     getProjectGraph()->postponeGarbageDisposal();
     T::mousePressEvent(event); // pass to baseclass

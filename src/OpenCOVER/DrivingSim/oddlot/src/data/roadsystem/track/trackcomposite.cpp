@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   1/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   1/18/2010
+ **
+ **************************************************************************/
 
 #include "trackcomposite.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QVector2D>
 
 // Utils //
@@ -38,9 +38,9 @@ TrackComposite::TrackComposite()
 
 TrackComposite::~TrackComposite()
 {
-    foreach (TrackComponent *child, trackComponents_)
+    foreach(TrackComponent * child, trackComponents_)
     {
-        //		delete child;
+        //  delete child;
     }
 }
 
@@ -105,7 +105,7 @@ double
 TrackComposite::updateLength()
 {
     cachedLength_ = 0.0;
-    foreach (TrackComponent *child, trackComponents_)
+    foreach(TrackComponent * child, trackComponents_)
     {
         cachedLength_ += child->getLength();
     }
@@ -261,6 +261,6 @@ TrackComposite::accept(Visitor *visitor)
 void
 TrackComposite::acceptForChildNodes(Visitor *visitor)
 {
-    foreach (TrackComponent *child, trackComponents_)
+    foreach(TrackComponent * child, trackComponents_)
         child->accept(visitor);
 }

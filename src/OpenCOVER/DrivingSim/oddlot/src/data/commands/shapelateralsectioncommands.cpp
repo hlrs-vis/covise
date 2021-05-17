@@ -28,31 +28,31 @@
 //#######################//
 
 MovePointLateralShapeSectionCommand::MovePointLateralShapeSectionCommand(ShapeSection *shapeSection, SplineControlPoint *corner, const QList<QPointF> &points, DataCommand *parent)
-	: DataCommand(parent)
-	, shapeSection_(shapeSection)
-	, corner_(corner)
-	, newPoints_(points)
+    : DataCommand(parent)
+    , shapeSection_(shapeSection)
+    , corner_(corner)
+    , newPoints_(points)
 {
-	// Check for validity //
-	//
-	if (points.size() == 0)
-	{
-		setInvalid(); // Invalid
-		setText(QObject::tr("MovePoint LateralShapeSection (invalid!)"));
-		return;
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("MovePoint LateralShapeSection"));
-	}
+    // Check for validity //
+    //
+    if (points.size() == 0)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("MovePoint LateralShapeSection (invalid!)"));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("MovePoint LateralShapeSection"));
+    }
 
 
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
-	}
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
+        oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
+    }
 
 }
 
@@ -61,15 +61,15 @@ MovePointLateralShapeSectionCommand::MovePointLateralShapeSectionCommand(ShapeSe
 */
 MovePointLateralShapeSectionCommand::~MovePointLateralShapeSectionCommand()
 {
-	if (isUndone())
-	{
+    if (isUndone())
+    {
 
-	}
-	else
-	{
-		// nothing to be done
-		// the section is now owned by the road
-	}
+    }
+    else
+    {
+        // nothing to be done
+        // the section is now owned by the road
+    }
 }
 
 /*! \brief .
@@ -78,20 +78,20 @@ MovePointLateralShapeSectionCommand::~MovePointLateralShapeSectionCommand()
 void
 MovePointLateralShapeSectionCommand::redo()
 {
-	// set new points //
-	//
-	int i = 0;
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		QPointF p0 = newPoints_.at(i++);
-		QPointF p1 = newPoints_.at(i++);
-		if (std::abs(p0.x() - lateralSection->getTStart()) > NUMERICAL_ZERO6)
-		{
-			shapeSection_->moveLateralSection(lateralSection, p0.x());
-		}
-		lateralSection->setControlPoints(p0, p1); 
-	}
-	shapeSection_->calculateShapeParameters();
+    // set new points //
+    //
+    int i = 0;
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        QPointF p0 = newPoints_.at(i++);
+        QPointF p1 = newPoints_.at(i++);
+        if (std::abs(p0.x() - lateralSection->getTStart()) > NUMERICAL_ZERO6)
+        {
+            shapeSection_->moveLateralSection(lateralSection, p0.x());
+        }
+        lateralSection->setControlPoints(p0, p1);
+    }
+    shapeSection_->calculateShapeParameters();
 
     setRedone();
 }
@@ -104,18 +104,18 @@ MovePointLateralShapeSectionCommand::undo()
 {
     // revert to old points //
     //
-	int i = 0;
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		QPointF p0 = oldPoints_.at(i++);
-		QPointF p1 = oldPoints_.at(i++);
-		if (std::abs(p0.x() - lateralSection->getRealPointLow()->getPoint().x()) > NUMERICAL_ZERO6)
-		{
-			lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
-		}
-		lateralSection->setControlPoints(p0, p1); 
-	}
-	shapeSection_->calculateShapeParameters();
+    int i = 0;
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        QPointF p0 = oldPoints_.at(i++);
+        QPointF p1 = oldPoints_.at(i++);
+        if (std::abs(p0.x() - lateralSection->getRealPointLow()->getPoint().x()) > NUMERICAL_ZERO6)
+        {
+            lateralSection->getParentSection()->moveLateralSection(lateralSection, p0.x());
+        }
+        lateralSection->setControlPoints(p0, p1);
+    }
+    shapeSection_->calculateShapeParameters();
 
 
     setUndone();
@@ -127,27 +127,27 @@ MovePointLateralShapeSectionCommand::undo()
 bool
 MovePointLateralShapeSectionCommand::mergeWith(const QUndoCommand *other)
 {
-	// Check Ids //
-	//
-	if (other->id() != id())
-	{
-		return false;
-	}
+    // Check Ids //
+    //
+    if (other->id() != id())
+    {
+        return false;
+    }
 
-	const MovePointLateralShapeSectionCommand *command = static_cast<const MovePointLateralShapeSectionCommand *>(other);
+    const MovePointLateralShapeSectionCommand *command = static_cast<const MovePointLateralShapeSectionCommand *>(other);
 
-	// Check parameters //
-	//
-	if ((corner_ != command->corner_) || (shapeSection_ != command->shapeSection_))
-	{
-		return false;
-	}
+    // Check parameters //
+    //
+    if ((corner_ != command->corner_) || (shapeSection_ != command->shapeSection_))
+    {
+        return false;
+    }
 
-	// Success //
-	//
-	newPoints_ = command->newPoints_; // adjust to new point, then let the undostack kill the new command
+    // Success //
+    //
+    newPoints_ = command->newPoints_; // adjust to new point, then let the undostack kill the new command
 
-	return true;
+    return true;
 }
 
 //#######################//
@@ -155,31 +155,31 @@ MovePointLateralShapeSectionCommand::mergeWith(const QUndoCommand *other)
 //#######################//
 
 AddLateralShapeSectionCommand::AddLateralShapeSectionCommand(ShapeSection *shapeSection, PolynomialLateralSection *newSection, const QList<QPointF> &points, DataCommand *parent)
-	: DataCommand(parent)
-	, shapeSection_(shapeSection)
-	, newSection_(newSection)
-	, newPoints_(points)
+    : DataCommand(parent)
+    , shapeSection_(shapeSection)
+    , newSection_(newSection)
+    , newPoints_(points)
 {
-	// Check for validity //
-	//
-	if (points.size() == 0)
-	{
-		setInvalid(); // Invalid
-		setText(QObject::tr("Add LateralShapeSection (invalid!)"));
-		return;
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("Add LateralShapeSection"));
-	}
+    // Check for validity //
+    //
+    if (points.size() == 0)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("Add LateralShapeSection (invalid!)"));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Add LateralShapeSection"));
+    }
 
 
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
-	}
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
+        oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
+    }
 
 }
 
@@ -188,15 +188,15 @@ AddLateralShapeSectionCommand::AddLateralShapeSectionCommand(ShapeSection *shape
 */
 AddLateralShapeSectionCommand::~AddLateralShapeSectionCommand()
 {
-	if (isUndone())
-	{
+    if (isUndone())
+    {
 
-	}
-	else
-	{
-		// nothing to be done
-		// the section is now owned by the road
-	}
+    }
+    else
+    {
+        // nothing to be done
+        // the section is now owned by the road
+    }
 }
 
 /*! \brief .
@@ -205,32 +205,32 @@ AddLateralShapeSectionCommand::~AddLateralShapeSectionCommand()
 void
 AddLateralShapeSectionCommand::redo()
 {
-	// set new points //
-	//
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection_->getPolynomialLateralSections().constBegin();
-	int i = 0;
-	while ((it != shapeSection_->getPolynomialLateralSections().constEnd()) && (it.value() != shapeSection_->getPolynomialLateralSectionNext(newSection_->getTStart())))
-	{
-		it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
-		it++;
-		i += 2;
-	}
+    // set new points //
+    //
+    QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection_->getPolynomialLateralSections().constBegin();
+    int i = 0;
+    while ((it != shapeSection_->getPolynomialLateralSections().constEnd()) && (it.value() != shapeSection_->getPolynomialLateralSectionNext(newSection_->getTStart())))
+    {
+        it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1));
+        it++;
+        i += 2;
+    }
 
-	newSection_->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
-	i += 2;
+    newSection_->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1));
+    i += 2;
 
-	while (it != shapeSection_->getPolynomialLateralSections().constEnd())
-	{
-		it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
-		it++;
-		i += 2;
-	} 
+    while (it != shapeSection_->getPolynomialLateralSections().constEnd())
+    {
+        it.value()->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1));
+        it++;
+        i += 2;
+    }
 
-	shapeSection_->addShape(newSection_->getTStart(), newSection_);
+    shapeSection_->addShape(newSection_->getTStart(), newSection_);
 
-	shapeSection_->calculateShapeParameters();
+    shapeSection_->calculateShapeParameters();
 
-	setRedone();
+    setRedone();
 }
 
 /*! \brief .
@@ -239,20 +239,20 @@ AddLateralShapeSectionCommand::redo()
 void
 AddLateralShapeSectionCommand::undo()
 {
-	shapeSection_->delShape(newSection_->getTStart());
+    shapeSection_->delShape(newSection_->getTStart());
 
-	// revert to old points //
-	//
-	int i = 0;
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		lateralSection->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
-		i += 2;//		
-	}
+    // revert to old points //
+    //
+    int i = 0;
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        lateralSection->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1));
+        i += 2;//  
+    }
 
-	shapeSection_->calculateShapeParameters();
+    shapeSection_->calculateShapeParameters();
 
-	setUndone();
+    setUndone();
 }
 
 //##################################//
@@ -260,31 +260,31 @@ AddLateralShapeSectionCommand::undo()
 //#################################//
 
 DeleteLateralShapeSectionCommand::DeleteLateralShapeSectionCommand(ShapeSection *shapeSection, PolynomialLateralSection *polySection, const QList<QPointF> &points, DataCommand *parent)
-	: DataCommand(parent)
-	, shapeSection_(shapeSection)
-	, polySection_(polySection)
-	, newPoints_(points)
+    : DataCommand(parent)
+    , shapeSection_(shapeSection)
+    , polySection_(polySection)
+    , newPoints_(points)
 {
-	// Check for validity //
-	//
-	if (points.size() == 0)
-	{
-		setInvalid(); // Invalid
-		setText(QObject::tr("Delete LateralShapeSection (invalid!)"));
-		return;
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("Delete LateralShapeSection"));
-	}
+    // Check for validity //
+    //
+    if (points.size() == 0)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("Delete LateralShapeSection (invalid!)"));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Delete LateralShapeSection"));
+    }
 
 
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
-		oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
-	}
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        oldPoints_.append(lateralSection->getRealPointLow()->getPoint());
+        oldPoints_.append(lateralSection->getRealPointHigh()->getPoint());
+    }
 
 }
 
@@ -293,15 +293,15 @@ DeleteLateralShapeSectionCommand::DeleteLateralShapeSectionCommand(ShapeSection 
 */
 DeleteLateralShapeSectionCommand::~DeleteLateralShapeSectionCommand()
 {
-	if (isUndone())
-	{
+    if (isUndone())
+    {
 
-	}
-	else
-	{
-		// nothing to be done
-		// the section is now owned by the road
-	}
+    }
+    else
+    {
+        // nothing to be done
+        // the section is now owned by the road
+    }
 }
 
 /*! \brief .
@@ -310,32 +310,32 @@ DeleteLateralShapeSectionCommand::~DeleteLateralShapeSectionCommand()
 void
 DeleteLateralShapeSectionCommand::undo()
 {
-	// set new points //
-	//
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection_->getPolynomialLateralSections().constBegin();
-	int i = 0;
-	while ((it != shapeSection_->getPolynomialLateralSections().constEnd()) && (it.value() != shapeSection_->getPolynomialLateralSectionNext(polySection_->getTStart())))
-	{
-		it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
-		it++;
-		i += 2;//		i += 4;
-	}
+    // set new points //
+    //
+    QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection_->getPolynomialLateralSections().constBegin();
+    int i = 0;
+    while ((it != shapeSection_->getPolynomialLateralSections().constEnd()) && (it.value() != shapeSection_->getPolynomialLateralSectionNext(polySection_->getTStart())))
+    {
+        it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1));
+        it++;
+        i += 2;//  i += 4;
+    }
 
-	polySection_->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
-	i += 2;//		i += 4;
+    polySection_->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1));
+    i += 2;//  i += 4;
 
-	while (it != shapeSection_->getPolynomialLateralSections().constEnd())
-	{
-		it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1)); 
-		it++;
-		i += 2;//		i += 4;
-	}
+    while (it != shapeSection_->getPolynomialLateralSections().constEnd())
+    {
+        it.value()->setControlPoints(oldPoints_.at(i), oldPoints_.at(i + 1));
+        it++;
+        i += 2;//  i += 4;
+    }
 
-	shapeSection_->addShape(polySection_->getTStart(), polySection_);
+    shapeSection_->addShape(polySection_->getTStart(), polySection_);
 
-	shapeSection_->calculateShapeParameters();
+    shapeSection_->calculateShapeParameters();
 
-	setUndone();
+    setUndone();
 }
 
 /*! \brief .
@@ -344,20 +344,20 @@ DeleteLateralShapeSectionCommand::undo()
 void
 DeleteLateralShapeSectionCommand::redo()
 {
-	shapeSection_->delShape(polySection_->getTStart());
+    shapeSection_->delShape(polySection_->getTStart());
 
-	// revert to old points //
-	//
-	int i = 0;
-	foreach(PolynomialLateralSection *lateralSection, shapeSection_->getPolynomialLateralSections())
-	{
-		lateralSection->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1)); 
-		i += 2;//		i += 4;
-	}
+    // revert to old points //
+    //
+    int i = 0;
+    foreach(PolynomialLateralSection * lateralSection, shapeSection_->getPolynomialLateralSections())
+    {
+        lateralSection->setControlPoints(newPoints_.at(i), newPoints_.at(i + 1));
+        i += 2;//  i += 4;
+    }
 
-	shapeSection_->calculateShapeParameters();
+    shapeSection_->calculateShapeParameters();
 
-	setRedone();
+    setRedone();
 }
 
 

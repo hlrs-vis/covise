@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #include "visitor.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 #include "src/data/roadsystem/track/trackcomposite.hpp"
 #include "src/data/roadsystem/track/trackelementline.hpp"
@@ -86,7 +86,7 @@ Visitor::visit(TrackSpiralArcSpiral *acceptor)
 void
 Visitor::visit(TrackElementCubicCurve *acceptor)
 {
-	visit(static_cast<TrackElement *>(acceptor));
+    visit(static_cast<TrackElement *>(acceptor));
 }
 
 void
@@ -104,5 +104,5 @@ Visitor::visit(Heightmap *acceptor)
 void
 Visitor::visit(LaneBorder *acceptor)
 {
-	visit(static_cast<LaneWidth *>(acceptor));
+    visit(static_cast<LaneWidth *>(acceptor));
 }

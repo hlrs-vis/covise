@@ -5,23 +5,23 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/18/2010
+ **
+ **************************************************************************/
 
 #include "roadlinkhandle.hpp"
 
-// Data //
-//
-//#include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
-//#include "src/data/commands/trackcommands.hpp"
+ // Data //
+ //
+ //#include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
+ //#include "src/data/commands/trackcommands.hpp"
 
-// Graph //
-//
+ // Graph //
+ //
 #include "src/graph/projectgraph.hpp"
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/editors/projecteditor.hpp"
@@ -64,14 +64,14 @@ void
 RoadLinkHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     setCursor(Qt::ClosedHandCursor);
-	Handle::mousePressEvent(event); // pass to baseclass
+    Handle::mousePressEvent(event); // pass to baseclass
 }
 
 void
 RoadLinkHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     setCursor(Qt::OpenHandCursor);
-	Handle::mouseReleaseEvent(event); // pass to baseclass
+    Handle::mouseReleaseEvent(event); // pass to baseclass
 }
 
 void

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   1/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   1/18/2010
+ **
+ **************************************************************************/
 
 #include "trackcomponent.hpp"
 
@@ -21,9 +21,9 @@
 #include <QTransform>
 #include <math.h>
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 TrackComponent::TrackComponent(double x, double y, double angleDegrees)
     : DataElement()
@@ -123,8 +123,8 @@ TrackComponent::getGlobalTransform()
 }
 
 /** Calculates and returns the global point on the track
-	at road coordinate s. Relative to the root node.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    at road coordinate s. Relative to the root node.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackComponent::getGlobalPoint(double s, double d)
@@ -136,8 +136,8 @@ TrackComponent::getGlobalPoint(double s, double d)
 }
 
 /** Calculates and returns the global heading of the track at road coordinate s.
-	Relative to the root node.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the root node.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackComponent::getGlobalHeading(double s)
@@ -153,8 +153,8 @@ TrackComponent::getGlobalHeading(double s)
 }
 
 /** Calculates and returns the global heading of the track at road coordinate s.
-	Relative to the root node.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the root node.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackComponent::getGlobalHeadingRad(double s)
@@ -227,7 +227,7 @@ TrackComponent::setGlobalRotation(double angleDegrees)
 }
 
 /** Set the matrix of the component.
-	*/
+    */
 void
 TrackComponent::setLocalTransform(double x, double y, double angleDegrees)
 {
@@ -238,7 +238,7 @@ TrackComponent::setLocalTransform(double x, double y, double angleDegrees)
 }
 
 /** Set the matrix of the component.
-	*/
+    */
 void
 TrackComponent::setLocalTransform(const QPointF &pos, double angleDegrees)
 {
@@ -248,23 +248,23 @@ TrackComponent::setLocalTransform(const QPointF &pos, double angleDegrees)
 }
 
 /** Set the length of the track.
-	*/
+    */
 void
 TrackComponent::setLength(double len)
 {
 }
-    void setLength(float length);
+void setLength(float length);
 /** Set the matrix of the component.
-	*/
-//void
-//	TrackComponent
-//	::setLocalTransform(const QTransform & matrix)
-//{
+    */
+    //void
+    // TrackComponent
+    // ::setLocalTransform(const QTransform & matrix)
+    //{
 
-//}
+    //}
 
-/** Sets the x and y coordinate of the matrix.
-	*/
+    /** Sets the x and y coordinate of the matrix.
+        */
 void
 TrackComponent::setLocalTranslation(double x, double y)
 {
@@ -274,7 +274,7 @@ TrackComponent::setLocalTranslation(double x, double y)
 }
 
 /** Sets the x and y coordinate of the matrix with a QPointF.
-	*/
+    */
 void
 TrackComponent::setLocalTranslation(const QPointF &pos)
 {
@@ -283,7 +283,7 @@ TrackComponent::setLocalTranslation(const QPointF &pos)
 }
 
 /** Translates the matrix by x and y.
-	*/
+    */
 void
 TrackComponent::translateLocal(double x, double y)
 {
@@ -292,7 +292,7 @@ TrackComponent::translateLocal(double x, double y)
 }
 
 /** Translates the matrix by QPointF.
-	*/
+    */
 void
 TrackComponent::translateLocal(const QPointF &pos)
 {

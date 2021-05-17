@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "tunnelsettings.hpp"
 #include "ui_tunnelsettings.h"
 
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/commands/signalcommands.hpp"
@@ -56,16 +56,16 @@ TunnelSettings::TunnelSettings(ProjectSettings *projectSettings, SettingsElement
     //
     updateProperties();
 
-	connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
     connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->nameBox, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
     connect(ui->typeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->lengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->lengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->lightingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->lightingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->lightingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->daylightSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->daylightSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->daylightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
     init_ = true;
@@ -91,8 +91,8 @@ TunnelSettings::updateProperties()
         ui->typeComboBox->setCurrentIndex(tunnel_->getType());
 
         ui->lengthSpinBox->setValue(tunnel_->getLength());
-		ui->lightingSpinBox->setValue(tunnel_->getLighting());
-		ui->daylightSpinBox->setValue(tunnel_->getDaylight());
+        ui->lightingSpinBox->setValue(tunnel_->getLighting());
+        ui->daylightSpinBox->setValue(tunnel_->getDaylight());
     }
 }
 
@@ -115,13 +115,13 @@ TunnelSettings::onEditingFinished()
     if (valueChanged_)
     {
         QString filename = ui->nameBox->text();
-    
+
 
         SetTunnelPropertiesCommand *command = new SetTunnelPropertiesCommand(tunnel_, tunnel_->getId(), filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->lightingSpinBox->value(), ui->daylightSpinBox->value());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
-        QWidget * focusWidget = QApplication::focusWidget();
+        QWidget *focusWidget = QApplication::focusWidget();
         if (focusWidget)
         {
             focusWidget->clearFocus();
@@ -151,7 +151,7 @@ TunnelSettings::on_sSpinBox_editingFinished()
 
         valueChanged_ = false;
 
-        QWidget * focusWidget = QApplication::focusWidget();
+        QWidget *focusWidget = QApplication::focusWidget();
         if (focusWidget)
         {
             focusWidget->clearFocus();
@@ -160,7 +160,7 @@ TunnelSettings::on_sSpinBox_editingFinished()
 }
 
 void
-    TunnelSettings::onValueChanged()
+TunnelSettings::onValueChanged()
 {
     valueChanged_ = true;
 }

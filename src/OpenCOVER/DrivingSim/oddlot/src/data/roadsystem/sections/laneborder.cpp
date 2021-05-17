@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.02.2010
+ **
+ **************************************************************************/
 
 #include "laneborder.hpp"
 
@@ -32,9 +32,9 @@ LaneBorder::~LaneBorder()
 LaneBorder *
 LaneBorder::getClone()
 {
-	LaneBorder *clone = new LaneBorder(getSOffset(), a_, b_, c_, d_);
+    LaneBorder *clone = new LaneBorder(getSOffset(), a_, b_, c_, d_);
 
-	return clone;
+    return clone;
 }
 
 /** Returns the end coordinate of this lane road mark.
@@ -43,7 +43,7 @@ LaneBorder::getClone()
 double
 LaneBorder::getSSectionEnd() const
 {
-	return getParentLane()->getBorderEnd(getSOffset());
+    return getParentLane()->getBorderEnd(getSOffset());
 }
 
 /** Returns the length coordinate of this lane section.
@@ -52,14 +52,14 @@ LaneBorder::getSSectionEnd() const
 double
 LaneBorder::getLength() const
 {
-	return getParentLane()->getBorderEnd(getSOffset()) - getSSectionStartAbs();
+    return getParentLane()->getBorderEnd(getSOffset()) - getSSectionStartAbs();
 }
 
 
 double
 LaneBorder::getT(double s)
 {
-	return f(s - getSOffset());
+    return f(s - getSOffset());
 }
 
 
@@ -74,7 +74,7 @@ LaneBorder::getT(double s)
 void
 LaneBorder::notificationDone()
 {
-	laneBorderChanges_ = 0x0;
+    laneBorderChanges_ = 0x0;
     DataElement::notificationDone();
 }
 

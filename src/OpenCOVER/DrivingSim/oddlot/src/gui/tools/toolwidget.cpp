@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #include "toolwidget.hpp"
 
@@ -30,10 +30,10 @@ ToolWidget::setToolBoxIndex(int index)
 void
 ToolWidget::activateWidget(int index)
 {
-	if (index == index_)
-	{
-		emit activated();
-	}
+    if (index == index_)
+    {
+        emit activated();
+    }
 }
 
 

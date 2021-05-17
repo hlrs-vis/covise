@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "rsystemelementjunction.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "junctionconnection.hpp"
 
 RSystemElementJunction::RSystemElementJunction(const QString &name, const odrID &id)
@@ -27,10 +27,10 @@ RSystemElementJunction::RSystemElementJunction(const QString &name, const odrID 
 
 RSystemElementJunction::~RSystemElementJunction()
 {
-    /*	foreach(JunctionConnection * child, connections_)
-	{
-		delete child;
-	}*/
+    /* foreach(JunctionConnection * child, connections_)
+    {
+        delete child;
+    }*/
 }
 
 QList<JunctionConnection *>
@@ -45,7 +45,7 @@ RSystemElementJunction::getConnectingRoadConnections(const odrID &connectingRoad
 {
     QList<JunctionConnection *> junctionConnections;
 
-    foreach (JunctionConnection *conn, connections_)
+    foreach(JunctionConnection * conn, connections_)
     {
         if ((conn->getConnectingRoad() == connectingRoad))
         {
@@ -57,7 +57,7 @@ RSystemElementJunction::getConnectingRoadConnections(const odrID &connectingRoad
 
 JunctionConnection *RSystemElementJunction::getConnection(const odrID &incomingRoad, const odrID &connectingRoad) const
 {
-    foreach (JunctionConnection *conn, connections_)
+    foreach(JunctionConnection * conn, connections_)
     {
         if ((conn->getIncomingRoad() == incomingRoad) && (conn->getConnectingRoad() == connectingRoad))
             return conn;
@@ -69,7 +69,7 @@ void
 RSystemElementJunction::addConnection(JunctionConnection *connection)
 {
     // Check for duplicate connection
-    foreach (JunctionConnection *conn, connections_)
+    foreach(JunctionConnection * conn, connections_)
     {
         if ((conn->getConnectingRoad() == connection->getConnectingRoad())
             && (conn->getIncomingRoad() == connection->getIncomingRoad())
@@ -121,7 +121,7 @@ RSystemElementJunction::delConnections()
 void
 RSystemElementJunction::checkConnectionIds(const QMultiMap<odrID, odrID> &ids)
 {
-	RoadSystem *roadSystem = getRoadSystem();
+    RoadSystem *roadSystem = getRoadSystem();
 
     QList<JunctionConnection *> newConnections;
     auto connectionIt = connections_.constBegin();
@@ -131,18 +131,18 @@ RSystemElementJunction::checkConnectionIds(const QMultiMap<odrID, odrID> &ids)
         JunctionConnection *connection = connectionIt.value();
         JunctionConnection *newConnection = connection->getClone();
 
-		odrID id = connection->getIncomingRoad();
-		auto it = ids.find(connection->getIncomingRoad());
-		if (it!=ids.end())
-		{
-			newConnection->setIncomingRoad(it.value());
-		}
+        odrID id = connection->getIncomingRoad();
+        auto it = ids.find(connection->getIncomingRoad());
+        if (it != ids.end())
+        {
+            newConnection->setIncomingRoad(it.value());
+        }
 
-		it = ids.find(connection->getConnectingRoad());
-		if (it != ids.end())
-		{
-			newConnection->setConnectingRoad(it.value());
-		}
+        it = ids.find(connection->getConnectingRoad());
+        if (it != ids.end())
+        {
+            newConnection->setConnectingRoad(it.value());
+        }
 
         newConnections.append(newConnection);
 
@@ -200,7 +200,7 @@ RSystemElementJunction::getClone()
 
     // JunctionConnections //
     //
-    foreach (JunctionConnection *connection, connections_)
+    foreach(JunctionConnection * connection, connections_)
     {
         clonedJunction->addConnection(connection->getClone());
     }
@@ -237,6 +237,6 @@ RSystemElementJunction::acceptForChildNodes(Visitor *visitor)
 void
 RSystemElementJunction::acceptForConnections(Visitor *visitor)
 {
-    foreach (JunctionConnection *child, connections_)
+    foreach(JunctionConnection * child, connections_)
         child->accept(visitor);
 }

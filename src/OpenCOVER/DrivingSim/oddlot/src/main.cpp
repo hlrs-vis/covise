@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   1/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   1/18/2010
+ **
+ **************************************************************************/
 
 #include <QApplication>
 #include <QFile>
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     MainWindow w;
-    QIcon icon(":/icons/oddlot.png"); 
+    QIcon icon(":/icons/oddlot.png");
     w.setWindowIcon(icon);
     w.show();
     QStringList args = a.arguments();
@@ -46,14 +46,14 @@ int main(int argc, char *argv[])
     COVERConnection::instance()->setMainWindow(&w); // create a cover connection
 #endif
 
-	QFile File(":/oddstylesheet.qss");
-	if (File.open(QFile::ReadOnly))
-	{
-		QString StyleSheet = QLatin1String(File.readAll());
+    QFile File(":/oddstylesheet.qss");
+    if (File.open(QFile::ReadOnly))
+    {
+        QString StyleSheet = QLatin1String(File.readAll());
 
-		a.setStyleSheet(StyleSheet);
-		File.close();
-	}
+        a.setStyleSheet(StyleSheet);
+        File.close();
+    }
 
     return a.exec();
 }

@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/21/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/21/2010
+ **
+ **************************************************************************/
 
 #include "trackelementpoly3.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
-// Utils //
-//
+ // Utils //
+ //
 #include "src/util/odd.hpp"
 #include "math.h"
 
@@ -52,24 +52,24 @@ TrackElementPoly3::~TrackElementPoly3()
 //#########################//
 
 /** Returns point on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementPoly3::getPoint(double s, double d)
 {
     double t = getT(s);
 
-    //	qDebug() << "p3: " << getHeadingRad(s) << " " << -sin(getHeadingRad(s)) << " " << cos(getHeadingRad(s)) << " " << f(t);
+    // qDebug() << "p3: " << getHeadingRad(s) << " " << -sin(getHeadingRad(s)) << " " << cos(getHeadingRad(s)) << " " << f(t);
 
     return QPointF(t, f(t)) + QVector2D(-sin(getHeadingRad(s)), cos(getHeadingRad(s))).toPointF() * d;
 }
 
 /** Returns heading on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementPoly3::getHeading(double s)
@@ -78,9 +78,9 @@ TrackElementPoly3::getHeading(double s)
 }
 
 /** Returns heading on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementPoly3::getHeadingRad(double s)
@@ -89,8 +89,8 @@ TrackElementPoly3::getHeadingRad(double s)
 }
 
 /** Returns local point on the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementPoly3::getLocalPoint(double s, double d)
@@ -99,8 +99,8 @@ TrackElementPoly3::getLocalPoint(double s, double d)
 }
 
 /** Returns local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementPoly3::getLocalHeading(double s)
@@ -109,8 +109,8 @@ TrackElementPoly3::getLocalHeading(double s)
 }
 
 /** Returns local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementPoly3::getLocalHeadingRad(double s)
@@ -143,8 +143,8 @@ TrackElementPoly3::getLocalNormal(double s)
 }
 
 /** Returns curvature of the track at road coordinate s.
-	Independent of coordinate system.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Independent of coordinate system.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementPoly3::getCurvature(double s)
@@ -166,11 +166,11 @@ TrackElementPoly3::getT(double s)
         // Flo's code //
         //
         // Cut taylor series approximation (1-degree) of arc length integral, solved with Newton-Raphson for t with respect to s
-        //		double b = getB();
-        //		double c = getC();
-        //		double d = getD();
-        //		double f = t*sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)-s;
-        //		double df = sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)+(t*((3*d*t)/2+c)*((3*d*pow(t,2))/4+c*t+b))/sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1);
+        //  double b = getB();
+        //  double c = getC();
+        //  double d = getD();
+        //  double f = t*sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)-s;
+        //  double df = sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)+(t*((3*d*t)/2+c)*((3*d*pow(t,2))/4+c*t+b))/sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1);
 
         // New code with integration //
         //

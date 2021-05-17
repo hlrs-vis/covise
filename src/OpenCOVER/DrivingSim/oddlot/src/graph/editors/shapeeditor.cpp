@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "shapeeditor.hpp"
 
-// Project //
-//
+ // Project //
+ //
 #include "src/gui/projectwidget.hpp"
 
 // Data //
@@ -61,17 +61,17 @@
 //################//
 
 ShapeEditor::ShapeEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph)
-	: ProjectEditor(projectWidget, projectData, topviewGraph)
-	, roadSystemItem_(NULL)
-	, profileGraph_(profileGraph)
-	, insertSectionHandle_(NULL)
+    : ProjectEditor(projectWidget, projectData, topviewGraph)
+    , roadSystemItem_(NULL)
+    , profileGraph_(profileGraph)
+    , insertSectionHandle_(NULL)
 {
 
 }
 
 ShapeEditor::~ShapeEditor()
 {
-	kill();
+    kill();
 }
 
 //################//
@@ -81,11 +81,11 @@ ShapeEditor::~ShapeEditor()
 SectionHandle *
 ShapeEditor::getInsertSectionHandle()
 {
-	if (!insertSectionHandle_)
-	{
-		qDebug("ERROR 1006211555! ShapeEditor not yet initialized.");
-	}
-	return insertSectionHandle_;
+    if (!insertSectionHandle_)
+    {
+        qDebug("ERROR 1006211555! ShapeEditor not yet initialized.");
+    }
+    return insertSectionHandle_;
 }
 
 /*! \brief Adds a road to the list of selected roads.
@@ -95,221 +95,221 @@ ShapeEditor::getInsertSectionHandle()
 void
 ShapeEditor::addSelectedShapeSection(ShapeSection *shapeSection)
 {
-	if (!selectedShapeSectionItems_.contains(shapeSection))
-	{
-		// Activate Section in ProfileGraph //
-		//
-		ShapeSectionPolynomialItems *shapeSectionPolynomialItems = new ShapeSectionPolynomialItems(profileGraph_, shapeSection);
-		selectedShapeSectionItems_.insert(shapeSection, shapeSectionPolynomialItems);
+    if (!selectedShapeSectionItems_.contains(shapeSection))
+    {
+        // Activate Section in ProfileGraph //
+        //
+        ShapeSectionPolynomialItems *shapeSectionPolynomialItems = new ShapeSectionPolynomialItems(profileGraph_, shapeSection);
+        selectedShapeSectionItems_.insert(shapeSection, shapeSectionPolynomialItems);
 
-		profileGraph_->getScene()->addItem(shapeSectionPolynomialItems);
+        profileGraph_->getScene()->addItem(shapeSectionPolynomialItems);
 
-		// Fit View //
-		//
-/*		double width = shapeSectionPolynomialItems->getSectionWidth();
-		QRectF BB = shapeSectionPolynomialItems->boundingRect();
-		boundingBox_ = QRectF(-width, BB.y(), 2 * width, (BB.height() > 8.0) ? BB.height() : 8.0); */
+        // Fit View //
+        //
+/*  double width = shapeSectionPolynomialItems->getSectionWidth();
+        QRectF BB = shapeSectionPolynomialItems->boundingRect();
+        boundingBox_ = QRectF(-width, BB.y(), 2 * width, (BB.height() > 8.0) ? BB.height() : 8.0); */
 
-		if (boundingBox_.isEmpty())
-		{
-			boundingBox_ = QRectF(-20.0, -5.0, 40.0, 10.0);
-			profileGraph_->getView()->fitInView(boundingBox_);
-			profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
-		}
+        if (boundingBox_.isEmpty())
+        {
+            boundingBox_ = QRectF(-20.0, -5.0, 40.0, 10.0);
+            profileGraph_->getView()->fitInView(boundingBox_);
+            profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
+        }
 
-	}
-	else
-	{
-		//qDebug("already there");
-	}
+    }
+    else
+    {
+        //qDebug("already there");
+    }
 }
 
 int
 ShapeEditor::delSelectedShapeSection(ShapeSection *shapeSection)
 {
-	ShapeSectionPolynomialItems *shapeSectionPolynomialItems = selectedShapeSectionItems_.take(shapeSection);
-	if (!shapeSectionPolynomialItems)
-	{
-		return 0;
-	}
-	else
-	{
-		// Deactivate ShapeSectionPolynomials in ProfileGraph //
-		//
-		profileGraph_->getScene()->removeItem(shapeSectionPolynomialItems);
-		return 1;
-	}
+    ShapeSectionPolynomialItems *shapeSectionPolynomialItems = selectedShapeSectionItems_.take(shapeSection);
+    if (!shapeSectionPolynomialItems)
+    {
+        return 0;
+    }
+    else
+    {
+        // Deactivate ShapeSectionPolynomials in ProfileGraph //
+        //
+        profileGraph_->getScene()->removeItem(shapeSectionPolynomialItems);
+        return 1;
+    }
 }
 
 void
 ShapeEditor::fitBoundingBoxInView()
 {
-	// Fit View //
-	//
-/*	QRectF newBB(0, 0, 15.0, 15.0);
-	foreach (ShapeSectionPolynomialItems* polynomialItems, selectedShapeSectionItems_)
-	{
-		QRectF BB = polynomialItems->boundingRect();
-		if (BB.y() < newBB.y())
-		{
-			newBB.setY(BB.y());
-		}
-		if (BB.width() > newBB.width())
-		{
-			newBB.setWidth(BB.width());
-		}
-		if (BB.height() > newBB.height())
-		{
-			newBB.setHeight(BB.height());
-		}
-	}
+    // Fit View //
+    //
+/* QRectF newBB(0, 0, 15.0, 15.0);
+    foreach (ShapeSectionPolynomialItems* polynomialItems, selectedShapeSectionItems_)
+    {
+        QRectF BB = polynomialItems->boundingRect();
+        if (BB.y() < newBB.y())
+        {
+            newBB.setY(BB.y());
+        }
+        if (BB.width() > newBB.width())
+        {
+            newBB.setWidth(BB.width());
+        }
+        if (BB.height() > newBB.height())
+        {
+            newBB.setHeight(BB.height());
+        }
+    }
 
-	boundingBox_ = newBB;
-	profileGraph_->getView()->fitInView(boundingBox_); */
+    boundingBox_ = newBB;
+    profileGraph_->getView()->fitInView(boundingBox_); */
 }
 
-QMap<double, PolynomialLateralSection *>::ConstIterator 
+QMap<double, PolynomialLateralSection *>::ConstIterator
 ShapeEditor::addLateralSectionsBefore(QList<QPointF> &scenePoints, QMap<double, PolynomialLateralSection *>::ConstIterator it, PolynomialLateralSection *lateralSectionBefore, ShapeSectionPolynomialItems *polyItems)
 {
-	if (lateralSectionBefore)
-	{
-		PolynomialLateralSection *polySection = it.value();
-		while (polySection != lateralSectionBefore)
-		{
-			scenePoints.append(polySection->getRealPointLow()->getPoint());
-			scenePoints.append(polySection->getRealPointHigh()->getPoint());
-			it++;
-			polySection = it.value();
-		}
-	}
+    if (lateralSectionBefore)
+    {
+        PolynomialLateralSection *polySection = it.value();
+        while (polySection != lateralSectionBefore)
+        {
+            scenePoints.append(polySection->getRealPointLow()->getPoint());
+            scenePoints.append(polySection->getRealPointHigh()->getPoint());
+            it++;
+            polySection = it.value();
+        }
+    }
 
-	return it;
+    return it;
 }
 
-void 
+void
 ShapeEditor::addLateralSectionsNext(QList<QPointF> &scenePoints, QMap<double, PolynomialLateralSection *>::ConstIterator it, ShapeSection *shapeSection, ShapeSectionPolynomialItems *polyItems)
 {
-	while (it != shapeSection->getPolynomialLateralSections().constEnd())
-	{
-		PolynomialLateralSection *polySection = it.value();
-		scenePoints.append(polySection->getRealPointLow()->getPoint());
-		scenePoints.append(polySection->getRealPointHigh()->getPoint());
-		it++;
-	}
+    while (it != shapeSection->getPolynomialLateralSections().constEnd())
+    {
+        PolynomialLateralSection *polySection = it.value();
+        scenePoints.append(polySection->getRealPointLow()->getPoint());
+        scenePoints.append(polySection->getRealPointHigh()->getPoint());
+        it++;
+    }
 }
 
 void
 ShapeEditor::translateMoveHandles(const QPointF &mousePos, SplineControlPoint *corner)
 {
-	PolynomialLateralSection *lateralSection = corner->getParent();
-	ShapeSection *shapeSection = lateralSection->getParentSection();
-	double t = lateralSection->getTStart();
-	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
-	PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
+    PolynomialLateralSection *lateralSection = corner->getParent();
+    ShapeSection *shapeSection = lateralSection->getParentSection();
+    double t = lateralSection->getTStart();
+    PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(t);
+    PolynomialLateralSection *nextLateralSection = shapeSection->getPolynomialLateralSectionNext(t);
 
-	if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (nextLateralSection && (mousePos.x() >= nextLateralSection->getTStart())))
-	{
-		return;
-	}
-	if ((!nextLateralSection && corner->isLow() && (mousePos.x() >= lateralSection->getRealPointHigh()->getPoint().x())) || (!corner->isLow() && (mousePos.x()) <= lateralSection->getTStart()))
-	{
-		return;
-	}
+    if ((lateralSectionBefore && (mousePos.x() <= lateralSectionBefore->getTStart())) || (nextLateralSection && (mousePos.x() >= nextLateralSection->getTStart())))
+    {
+        return;
+    }
+    if ((!nextLateralSection && corner->isLow() && (mousePos.x() >= lateralSection->getRealPointHigh()->getPoint().x())) || (!corner->isLow() && (mousePos.x()) <= lateralSection->getTStart()))
+    {
+        return;
+    }
 
-	ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
-	QList<QPointF> scenePoints;
+    ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
+    QList<QPointF> scenePoints;
 
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
+    QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
 
-	if (shapeSection->getLastPolynomialLateralSection()->getRealPointHigh() == corner)   // last point
-	{
-		it = addLateralSectionsBefore(scenePoints, it, lateralSection, polyItems);
-		scenePoints.append(lateralSection->getRealPointLow()->getPoint());
-		scenePoints.append(mousePos);
-	}
-	else
-	{
-		it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
-		if (lateralSectionBefore)
-		{
-			scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
-			scenePoints.append(mousePos);
-			it++;
-		}
+    if (shapeSection->getLastPolynomialLateralSection()->getRealPointHigh() == corner)   // last point
+    {
+        it = addLateralSectionsBefore(scenePoints, it, lateralSection, polyItems);
+        scenePoints.append(lateralSection->getRealPointLow()->getPoint());
+        scenePoints.append(mousePos);
+    }
+    else
+    {
+        it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
+        if (lateralSectionBefore)
+        {
+            scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
+            scenePoints.append(mousePos);
+            it++;
+        }
 
-		scenePoints.append(mousePos);
-		scenePoints.append(lateralSection->getRealPointHigh()->getPoint());
-	}
-	it++;
+        scenePoints.append(mousePos);
+        scenePoints.append(lateralSection->getRealPointHigh()->getPoint());
+    }
+    it++;
 
-	addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
+    addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
 
-	MovePointLateralShapeSectionCommand *command = new MovePointLateralShapeSectionCommand(shapeSection, corner, scenePoints);
-	getProjectGraph()->executeCommand(command);
+    MovePointLateralShapeSectionCommand *command = new MovePointLateralShapeSectionCommand(shapeSection, corner, scenePoints);
+    getProjectGraph()->executeCommand(command);
 
 }
 
 void
 ShapeEditor::addLateralSection(ShapeSection *shapeSection, const QPointF &mousePos)
 {
-	double t = mousePos.x();
-	PolynomialLateralSection *polySection = shapeSection->getShape(t);
-	ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
+    double t = mousePos.x();
+    PolynomialLateralSection *polySection = shapeSection->getShape(t);
+    ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
 
-	QList<QPointF> scenePoints;
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-	it = addLateralSectionsBefore(scenePoints, it, polySection, polyItems);
+    QList<QPointF> scenePoints;
+    QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
+    it = addLateralSectionsBefore(scenePoints, it, polySection, polyItems);
 
-	PolynomialLateralSection *newPolySection = new PolynomialLateralSection(t);
-	scenePoints.append(polySection->getRealPointLow()->getPoint());
-	scenePoints.append(mousePos);
+    PolynomialLateralSection *newPolySection = new PolynomialLateralSection(t);
+    scenePoints.append(polySection->getRealPointLow()->getPoint());
+    scenePoints.append(mousePos);
 
-	scenePoints.append(mousePos);
-	scenePoints.append(polySection->getRealPointHigh()->getPoint());
-	it++;
+    scenePoints.append(mousePos);
+    scenePoints.append(polySection->getRealPointHigh()->getPoint());
+    it++;
 
-	addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
+    addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
 
 
-	AddLateralShapeSectionCommand *command = new AddLateralShapeSectionCommand(shapeSection, newPolySection, scenePoints);
-	getProjectGraph()->executeCommand(command);
+    AddLateralShapeSectionCommand *command = new AddLateralShapeSectionCommand(shapeSection, newPolySection, scenePoints);
+    getProjectGraph()->executeCommand(command);
 }
 
 void
 ShapeEditor::deleteLateralSection(SplineControlPoint *corner)
 {
-	PolynomialLateralSection *polySection = corner->getParent();
-	ShapeSection *shapeSection = polySection->getParentSection();
+    PolynomialLateralSection *polySection = corner->getParent();
+    ShapeSection *shapeSection = polySection->getParentSection();
 
-	PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(polySection->getTStart());  // Section to be deleted
-	if (lateralSectionBefore)
-	{
-		ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
+    PolynomialLateralSection *lateralSectionBefore = shapeSection->getPolynomialLateralSectionBefore(polySection->getTStart());  // Section to be deleted
+    if (lateralSectionBefore)
+    {
+        ShapeSectionPolynomialItems *polyItems = selectedShapeSectionItems_.value(shapeSection);
 
-		QList<QPointF> scenePoints;
-		QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
-		it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
+        QList<QPointF> scenePoints;
+        QMap<double, PolynomialLateralSection *>::ConstIterator it = shapeSection->getPolynomialLateralSections().constBegin();
+        it = addLateralSectionsBefore(scenePoints, it, lateralSectionBefore, polyItems);
 
-		scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
-		scenePoints.append(polySection->getRealPointHigh()->getPoint());
-		it++;
-		it++;
+        scenePoints.append(lateralSectionBefore->getRealPointLow()->getPoint());
+        scenePoints.append(polySection->getRealPointHigh()->getPoint());
+        it++;
+        it++;
 
-		addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
+        addLateralSectionsNext(scenePoints, it, shapeSection, polyItems);
 
-		DeleteLateralShapeSectionCommand *command = new DeleteLateralShapeSectionCommand(shapeSection, polySection, scenePoints);
-		getProjectGraph()->executeCommand(command);
-	}
+        DeleteLateralShapeSectionCommand *command = new DeleteLateralShapeSectionCommand(shapeSection, polySection, scenePoints);
+        getProjectGraph()->executeCommand(command);
+    }
 }
 
-void 
+void
 ShapeEditor::pastePolynomialLateralSections(ShapeSection *section)
 {
-	QMap<double, PolynomialLateralSection *> oldSections = section->getPolynomialLateralSections();
-	QMap<double, PolynomialLateralSection *> newSections = clipboardShapeSection_->getPolynomialLateralSections();
+    QMap<double, PolynomialLateralSection *> oldSections = section->getPolynomialLateralSections();
+    QMap<double, PolynomialLateralSection *> newSections = clipboardShapeSection_->getPolynomialLateralSections();
 
-	PasteLateralShapeSectionsCommand *command = new PasteLateralShapeSectionsCommand(section, oldSections, newSections);
-	getProjectGraph()->executeCommand(command);
+    PasteLateralShapeSectionsCommand *command = new PasteLateralShapeSectionsCommand(section, oldSections, newSections);
+    getProjectGraph()->executeCommand(command);
 }
 
 
@@ -341,106 +341,106 @@ ShapeEditor::toolAction(ToolAction *toolAction)
 void
 ShapeEditor::mouseAction(MouseAction *mouseAction)
 {
-	static bool mousePressed = false;
+    static bool mousePressed = false;
 
-	QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
-	ProjectEditor::mouseAction(mouseAction);
+    QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
+    ProjectEditor::mouseAction(mouseAction);
 
-	// Add point to curve //
-	//
-	QPointF mousePoint = mouseEvent->scenePos();
+    // Add point to curve //
+    //
+    QPointF mousePoint = mouseEvent->scenePos();
 
-	if (mouseAction->getMouseActionType() == MouseAction::PATM_MOVE)
-	{
-		if (!mousePressed && !selectedShapeSectionItems_.empty())
-		{
-			ShapeSection *shapeSection = selectedShapeSectionItems_.firstKey();
-			PolynomialLateralSection *lateralSection = shapeSection->getPolynomialLateralSection(mousePoint.x());
-			if (!lateralSection)
-			{
-				lateralSection = shapeSection->getFirstPolynomialLateralSection();
-			}
-			double d;
-			if (lateralSection)
-			{
-				d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();
-				if (d > 0.5)
-				{
-					d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
-				}
+    if (mouseAction->getMouseActionType() == MouseAction::PATM_MOVE)
+    {
+        if (!mousePressed && !selectedShapeSectionItems_.empty())
+        {
+            ShapeSection *shapeSection = selectedShapeSectionItems_.firstKey();
+            PolynomialLateralSection *lateralSection = shapeSection->getPolynomialLateralSection(mousePoint.x());
+            if (!lateralSection)
+            {
+                lateralSection = shapeSection->getFirstPolynomialLateralSection();
+            }
+            double d;
+            if (lateralSection)
+            {
+                d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();
+                if (d > 0.5)
+                {
+                    d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
+                }
 
-				if (d < 0.5)
-				{
-					profileGraph_->getView()->setCursor(Qt::OpenHandCursor);
-				}
-				else
-				{
-					QPointF curvePoint = QPointF(mousePoint.x(), lateralSection->f(mousePoint.x() - lateralSection->getTStart()));
+                if (d < 0.5)
+                {
+                    profileGraph_->getView()->setCursor(Qt::OpenHandCursor);
+                }
+                else
+                {
+                    QPointF curvePoint = QPointF(mousePoint.x(), lateralSection->f(mousePoint.x() - lateralSection->getTStart()));
 
-					d = QLineF(mousePoint, curvePoint).length();
-					if (d < 0.5)
-					{
+                    d = QLineF(mousePoint, curvePoint).length();
+                    if (d < 0.5)
+                    {
 
-						profileGraph_->getView()->setCursor(Qt::CrossCursor);
-					}
-				}
-			}
+                        profileGraph_->getView()->setCursor(Qt::CrossCursor);
+                    }
+                }
+            }
 
-			if (!lateralSection || (d >= 0.5))
-			{
-				profileGraph_->getView()->setCursor(Qt::ArrowCursor);
-			}
-		}
-	}
-	else if (mouseAction->getMouseActionType() == MouseAction::PATM_PRESS)
-	{
-		if (mouseEvent->button() == Qt::LeftButton)
-		{
-			if (!selectedShapeSectionItems_.empty())
-			{
-				ShapeSection *shapeSection = selectedShapeSectionItems_.firstKey();
-				PolynomialLateralSection *lateralSection = shapeSection->getPolynomialLateralSection(mousePoint.x());
-				if (!lateralSection)
-				{
-					lateralSection = shapeSection->getFirstPolynomialLateralSection();
-				}
-				if (lateralSection)
-				{
-					double d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();
-					if (d > 0.5)
-					{
-						d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
-					}
+            if (!lateralSection || (d >= 0.5))
+            {
+                profileGraph_->getView()->setCursor(Qt::ArrowCursor);
+            }
+        }
+    }
+    else if (mouseAction->getMouseActionType() == MouseAction::PATM_PRESS)
+    {
+        if (mouseEvent->button() == Qt::LeftButton)
+        {
+            if (!selectedShapeSectionItems_.empty())
+            {
+                ShapeSection *shapeSection = selectedShapeSectionItems_.firstKey();
+                PolynomialLateralSection *lateralSection = shapeSection->getPolynomialLateralSection(mousePoint.x());
+                if (!lateralSection)
+                {
+                    lateralSection = shapeSection->getFirstPolynomialLateralSection();
+                }
+                if (lateralSection)
+                {
+                    double d = QLineF(lateralSection->getRealPointLow()->getPoint(), mousePoint).length();
+                    if (d > 0.5)
+                    {
+                        d = QLineF(lateralSection->getRealPointHigh()->getPoint(), mousePoint).length();
+                    }
 
-					if (d < 0.5)
-					{
-						profileGraph_->getView()->setCursor(Qt::ClosedHandCursor);
-						mousePressed = true;
-					}
-					else
-					{
+                    if (d < 0.5)
+                    {
+                        profileGraph_->getView()->setCursor(Qt::ClosedHandCursor);
+                        mousePressed = true;
+                    }
+                    else
+                    {
 
-						QPointF curvePoint = QPointF(mousePoint.x(), lateralSection->f(mousePoint.x() - lateralSection->getTStart()));
-	//					qDebug() << "CurvePoint: " << curvePoint.x() << "," << curvePoint.y() << " MousePoint: " << mousePoint.x() << "," << mousePoint.y();
+                        QPointF curvePoint = QPointF(mousePoint.x(), lateralSection->f(mousePoint.x() - lateralSection->getTStart()));
+                        //     qDebug() << "CurvePoint: " << curvePoint.x() << "," << curvePoint.y() << " MousePoint: " << mousePoint.x() << "," << mousePoint.y();
 
-						d = QLineF(mousePoint, curvePoint).length();
-						if (d < 0.5)
-						{
-							addLateralSection(selectedShapeSectionItems_.firstKey(), mousePoint);
-						}
+                        d = QLineF(mousePoint, curvePoint).length();
+                        if (d < 0.5)
+                        {
+                            addLateralSection(selectedShapeSectionItems_.firstKey(), mousePoint);
+                        }
 
-					}
-				}
-			}
-		}
-	} 
-	else if (mouseAction->getMouseActionType() == MouseAction::PATM_RELEASE)
-	{
-		if (mousePressed)
-		{
-			mousePressed = false;
-		}
-	}
+                    }
+                }
+            }
+        }
+    }
+    else if (mouseAction->getMouseActionType() == MouseAction::PATM_RELEASE)
+    {
+        if (mousePressed)
+        {
+            mousePressed = false;
+        }
+    }
 }
 
 
@@ -468,7 +468,7 @@ ShapeEditor::init()
     //
 
 //    profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
-	profileGraph_->getScene()->setSceneRect(-200.0, -50.0, 400.0, 100.0);
+    profileGraph_->getScene()->setSceneRect(-200.0, -50.0, 400.0, 100.0);
 
 
     // Section Handle //
@@ -487,11 +487,11 @@ ShapeEditor::kill()
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
 
-	foreach (ShapeSectionPolynomialItems *polynomialItems, selectedShapeSectionItems_)
-	{
-		selectedShapeSectionItems_.remove(selectedShapeSectionItems_.key(polynomialItems));
-		delete polynomialItems;
-	}
+    foreach(ShapeSectionPolynomialItems * polynomialItems, selectedShapeSectionItems_)
+    {
+        selectedShapeSectionItems_.remove(selectedShapeSectionItems_.key(polynomialItems));
+        delete polynomialItems;
+    }
 
-	selectedShapeSectionItems_.clear();
+    selectedShapeSectionItems_.clear();
 }

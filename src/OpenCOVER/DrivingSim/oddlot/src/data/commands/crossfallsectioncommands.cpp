@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfallsectioncommands.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 
@@ -270,7 +270,7 @@ RemoveCrossfallSectionCommand::RemoveCrossfallSectionCommand(CrossfallSection *c
             return;
         }
     }
-    //	qDebug() << "s: " << s << ", sLow: " << sLow;
+    // qDebug() << "s: " << s << ", sLow: " << sLow;
 
     // New section //
     //
@@ -412,7 +412,7 @@ SmoothCrossfallSectionCommand::SmoothCrossfallSectionCommand(CrossfallSection *c
     double h = b * l + c * l * l;
     sLow_ = crossfallSectionHigh->getSStart() + (h - bHigh * l) / (bHigh - bLow);
     sHigh_ = l + sLow_;
-    //	qDebug() << "sLow_: " << sLow_ << ", sHigh_: " << sHigh_;
+    // qDebug() << "sLow_: " << sLow_ << ", sHigh_: " << sHigh_;
 
     if ((sLow_ < crossfallSectionLow->getSStart() + MIN_CROSSFALLSECTION_LENGTH) // plus one meter
         || (sHigh_ > crossfallSectionHigh->getSEnd() - MIN_CROSSFALLSECTION_LENGTH) // minus one meter
@@ -429,7 +429,7 @@ SmoothCrossfallSectionCommand::SmoothCrossfallSectionCommand(CrossfallSection *c
     newSectionHigh_ = new CrossfallSection(oldSectionHigh_->getSide(), sHigh_, oldSectionHigh_->getCrossfallDegrees(sHigh_), oldSectionHigh_->getB(), 0.0, 0.0);
     if (oldSectionHigh_->isElementSelected())
     {
-		newSection_->setElementSelected(true);
+        newSection_->setElementSelected(true);
         newSectionHigh_->setElementSelected(true);
     }
 
@@ -503,12 +503,12 @@ CrossfallMovePointsCommand::CrossfallMovePointsCommand(const QList<CrossfallSect
     if (fabs(deltaPos_.manhattanLength()) < NUMERICAL_ZERO8 || (endPointSections_.isEmpty() && startPointSections_.isEmpty()))
     {
         setInvalid(); // Invalid because no change.
-        //		setText(QObject::tr("Cannot move crossfall point. Nothing to be done."));
+        //  setText(QObject::tr("Cannot move crossfall point. Nothing to be done."));
         setText("");
         return;
     }
 
-    foreach (CrossfallSection *section, endPointSections_)
+    foreach(CrossfallSection * section, endPointSections_)
     {
         oldEndPointsBs_.append(section->getB());
 
@@ -519,7 +519,7 @@ CrossfallMovePointsCommand::CrossfallMovePointsCommand(const QList<CrossfallSect
     }
 
     bool tooShort = false;
-    foreach (CrossfallSection *section, startPointSections_)
+    foreach(CrossfallSection * section, startPointSections_)
     {
         oldStartPointsAs_.append(section->getA());
         oldStartPointsBs_.append(section->getB());
@@ -530,7 +530,7 @@ CrossfallMovePointsCommand::CrossfallMovePointsCommand(const QList<CrossfallSect
             crossfallOnly_ = true;
         }
         else if ((section->getLength() - deltaPos_.x() < MIN_CROSSFALLSECTION_LENGTH) // min length at end
-                 || (section->getParentRoad()->getCrossfallSectionBefore(section->getSStart())->getLength() + deltaPos_.x() < MIN_CROSSFALLSECTION_LENGTH))
+            || (section->getParentRoad()->getCrossfallSectionBefore(section->getSStart())->getLength() + deltaPos_.x() < MIN_CROSSFALLSECTION_LENGTH))
         {
             tooShort = true;
         }
@@ -570,7 +570,7 @@ CrossfallMovePointsCommand::redo()
     // Set points //
     //
     int i = 0;
-    foreach (CrossfallSection *section, endPointSections_)
+    foreach(CrossfallSection * section, endPointSections_)
     {
         double startCrossfall = section->getCrossfallDegrees(section->getSStart());
         double endCrossfall = section->getCrossfallDegrees(section->getSEnd()) + deltaPos_.y();
@@ -579,7 +579,7 @@ CrossfallMovePointsCommand::redo()
         ++i;
     }
     i = 0;
-    foreach (CrossfallSection *section, startPointSections_)
+    foreach(CrossfallSection * section, startPointSections_)
     {
         double startCrossfall = section->getCrossfallDegrees(section->getSStart()) + deltaPos_.y();
         double endCrossfall = section->getCrossfallDegrees(section->getSEnd());
@@ -592,7 +592,7 @@ CrossfallMovePointsCommand::redo()
     //
     if (!crossfallOnly_)
     {
-        foreach (CrossfallSection *section, startPointSections_)
+        foreach(CrossfallSection * section, startPointSections_)
         {
             section->getParentRoad()->moveCrossfallSection(section->getSStart(), section->getSStart() + deltaPos_.x());
         }
@@ -610,13 +610,13 @@ CrossfallMovePointsCommand::undo()
     // Set points //
     //
     int i = 0;
-    foreach (CrossfallSection *section, endPointSections_)
+    foreach(CrossfallSection * section, endPointSections_)
     {
         section->setParametersDegrees(section->getA(), oldEndPointsBs_[i], 0.0, 0.0);
         ++i;
     }
     i = 0;
-    foreach (CrossfallSection *section, startPointSections_)
+    foreach(CrossfallSection * section, startPointSections_)
     {
         section->setParametersDegrees(oldStartPointsAs_[i], oldStartPointsBs_[i], 0.0, 0.0);
         ++i;
@@ -627,7 +627,7 @@ CrossfallMovePointsCommand::undo()
     if (!crossfallOnly_)
     {
         i = 0;
-        foreach (CrossfallSection *section, startPointSections_)
+        foreach(CrossfallSection * section, startPointSections_)
         {
             section->getParentRoad()->moveCrossfallSection(section->getSStart(), oldStartPointsSs_[i]);
             ++i;

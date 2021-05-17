@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.04.2010
+ **
+ **************************************************************************/
 
 #include "trackrotatehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 #include "src/data/commands/trackcommands.hpp"
 #include "src/data/visitors/trackmovevalidator.hpp"
@@ -80,7 +80,7 @@ TrackRotateHandle::~TrackRotateHandle()
         highSlot_->detachObserver(this);
     }
 
-    //	trackEditor_->unregisterTrackRotateHandle(this);
+    // trackEditor_->unregisterTrackRotateHandle(this);
 }
 
 //################//
@@ -285,18 +285,18 @@ TrackRotateHandle::itemChange(GraphicsItemChange change, const QVariant &value)
     // NOTE: position is relative to parent!!! //
     //
 
-    //	if(change == QGraphicsItem::ItemSelectedHasChanged)
-    //	{
-    //		if(value.toBool())
-    //		{
-    //			trackEditor_->registerTrackRotateHandle(this);
-    //		}
-    //		else
-    //		{
-    //			trackEditor_->unregisterTrackRotateHandle(this);
-    //		}
-    //		return value;
-    //	}
+    // if(change == QGraphicsItem::ItemSelectedHasChanged)
+    // {
+    //  if(value.toBool())
+    //  {
+    //   trackEditor_->registerTrackRotateHandle(this);
+    //  }
+    //  else
+    //  {
+    //   trackEditor_->unregisterTrackRotateHandle(this);
+    //  }
+    //  return value;
+    // }
 
     /*else */
     if (change == QGraphicsItem::ItemPositionChange)
@@ -357,16 +357,16 @@ TrackRotateHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 void
 TrackRotateHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (highSlot_)
-	{
-		trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
-	}
-	else if (lowSlot_)
-	{
-		trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
-	}
-	QGraphicsPathItem::mousePressEvent(event);
-} 
+    if (highSlot_)
+    {
+        trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
+    }
+    else if (lowSlot_)
+    {
+        trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
+    }
+    QGraphicsPathItem::mousePressEvent(event);
+}
 
 void
 TrackRotateHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -378,13 +378,13 @@ TrackRotateHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void
 TrackRotateHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (highSlot_)
-	{
-		trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
-	}
-	else if (lowSlot_)
-	{
-		trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
-	}
-	QGraphicsPathItem::mouseReleaseEvent(event);
-} 
+    if (highSlot_)
+    {
+        trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
+    }
+    else if (lowSlot_)
+    {
+        trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
+    }
+    QGraphicsPathItem::mouseReleaseEvent(event);
+}

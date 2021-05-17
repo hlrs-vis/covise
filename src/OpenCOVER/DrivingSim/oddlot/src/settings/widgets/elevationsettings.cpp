@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/19/2010
+ **
+ **************************************************************************/
 
 #include "elevationsettings.hpp"
 #include "ui_elevationsettings.h"
 
-// Data //
-//
+ // Data //
+ //
 
 #include "src/data/commands/elevationsectioncommands.hpp"
 #include "src/data/roadsystem/sections/elevationsection.hpp"
@@ -54,7 +54,7 @@ ElevationSettings::ElevationSettings(ProjectSettings *projectSettings, SettingsE
     updateProperties();
     updateHeight();
 
-    //	projectSettings->getProjectWidget()->getTopviewGraph()->getScene()->is
+    // projectSettings->getProjectWidget()->getTopviewGraph()->getScene()->is
 }
 
 ElevationSettings::~ElevationSettings()
@@ -178,45 +178,45 @@ ElevationSettings::on_slopeSpinBox_editingFinished()
     QList<ElevationSection *> startPointSections;
     endPointSections.append(elevationSection_);
     ElevationSection *sectionNext = elevationSection_->getParentRoad()->getElevationSectionNext(elevationSection_->getSStart());
-	if (sectionNext)
-	{
-		if (sectionNext->getDegree() > 1)
-		{
-			return;
-		}
-		else
-		{
-			startPointSections.append(sectionNext);
-		}
+    if (sectionNext)
+    {
+        if (sectionNext->getDegree() > 1)
+        {
+            return;
+        }
+        else
+        {
+            startPointSections.append(sectionNext);
+        }
 
 
-		// Command //
-		//
-		double s = 100 * fabs(elevationSection_->getElevation(elevationSection_->getSStart()) - elevationSection_->getElevation(elevationSection_->getSEnd())) / ui->slopeSpinBox->value() + elevationSection_->getSStart();
-		if (s < elevationSection_->getParentRoad()->getLength())
-		{
-			QPointF dPos = QPointF(s - sectionNext->getSStart(), 0.0);
-			ElevationMovePointsCommand *command = new ElevationMovePointsCommand(endPointSections, startPointSections, dPos, NULL);
+        // Command //
+        //
+        double s = 100 * fabs(elevationSection_->getElevation(elevationSection_->getSStart()) - elevationSection_->getElevation(elevationSection_->getSEnd())) / ui->slopeSpinBox->value() + elevationSection_->getSStart();
+        if (s < elevationSection_->getParentRoad()->getLength())
+        {
+            QPointF dPos = QPointF(s - sectionNext->getSStart(), 0.0);
+            ElevationMovePointsCommand *command = new ElevationMovePointsCommand(endPointSections, startPointSections, dPos, NULL);
 
-			if (command->isValid())
-			{
-				getProjectData()->getUndoStack()->push(command);
-			}
-			else
-			{
-				delete command;
-			}
-		}
-	}
+            if (command->isValid())
+            {
+                getProjectData()->getUndoStack()->push(command);
+            }
+            else
+            {
+                delete command;
+            }
+        }
+    }
 }
 
 ElevationMoveHandle *
 ElevationSettings::
-    getFirstSelectedMoveHandle()
+getFirstSelectedMoveHandle()
 {
     QList<QGraphicsItem *> selectList = getProjectSettings()->getProjectWidget()->getProfileGraph()->getScene()->selectedItems();
 
-    foreach (QGraphicsItem *item, selectList)
+    foreach(QGraphicsItem * item, selectList)
     {
         ElevationMoveHandle *elevationMoveHandle = dynamic_cast<ElevationMoveHandle *>(item);
         if (elevationMoveHandle)

@@ -5,68 +5,68 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   25.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   25.02.2010
+ **
+ **************************************************************************/
 
 #include "laneaccess.hpp"
 
 #include "lane.hpp"
 
-LaneAccess::LaneRestriction 
+LaneAccess::LaneRestriction
 LaneAccess::parseLaneRestriction(const QString &restriction)
 {
-	if (restriction == "simulator")
-	{
-		return LaneAccess::LAR_SIMULATOR;
-	}
-	else if (restriction == "autonomous traffic")
-	{
-		return LaneAccess::LAR_AUTONOMOUS;
-	}
-	else if (restriction == "pedestrian")
-	{
-		return LaneAccess::LAR_PEDESTRIAN;
-	}
-	else if (restriction == "none" )
-	{
-		return LaneAccess::LAR_NONE;
-	}
-	else
-	{
-		qDebug("WARNING: unknown lane restriction type: %s", restriction.toUtf8().constData());
-		return LaneAccess::LAR_UNKNOWN;
-	}
+    if (restriction == "simulator")
+    {
+        return LaneAccess::LAR_SIMULATOR;
+    }
+    else if (restriction == "autonomous traffic")
+    {
+        return LaneAccess::LAR_AUTONOMOUS;
+    }
+    else if (restriction == "pedestrian")
+    {
+        return LaneAccess::LAR_PEDESTRIAN;
+    }
+    else if (restriction == "none")
+    {
+        return LaneAccess::LAR_NONE;
+    }
+    else
+    {
+        qDebug("WARNING: unknown lane restriction type: %s", restriction.toUtf8().constData());
+        return LaneAccess::LAR_UNKNOWN;
+    }
 }
 
-QString 
+QString
 LaneAccess::parseLaneRestrictionBack(LaneAccess::LaneRestriction restriction)
 {
-	if (restriction == LaneAccess::LAR_SIMULATOR)
-	{
-		return QString("simulator");
-	}
-	else if (restriction == LaneAccess::LAR_AUTONOMOUS)
-	{
-		return QString("autonomous traffic");
-	}
-	else if (restriction == LaneAccess::LAR_PEDESTRIAN)
-	{
-		return QString("pedestrian");
-	}
-	else if (restriction == LaneAccess::LAR_NONE)
-	{
-		return QString("none");
-	}
-	else
-	{
-		qDebug("WARNING: unknown lane restriction type");
-		return QString("unknown");
-	}
+    if (restriction == LaneAccess::LAR_SIMULATOR)
+    {
+        return QString("simulator");
+    }
+    else if (restriction == LaneAccess::LAR_AUTONOMOUS)
+    {
+        return QString("autonomous traffic");
+    }
+    else if (restriction == LaneAccess::LAR_PEDESTRIAN)
+    {
+        return QString("pedestrian");
+    }
+    else if (restriction == LaneAccess::LAR_NONE)
+    {
+        return QString("none");
+    }
+    else
+    {
+        qDebug("WARNING: unknown lane restriction type");
+        return QString("unknown");
+    }
 }
 
 
@@ -127,7 +127,7 @@ LaneAccess::setSOffset(double sOffset)
 void
 LaneAccess::setRestriction(LaneRestriction restriction)
 {
-	restriction_ = restriction;
+    restriction_ = restriction;
     addAccessChanges(LaneAccess::CLA_RestrictionChanged);
 }
 

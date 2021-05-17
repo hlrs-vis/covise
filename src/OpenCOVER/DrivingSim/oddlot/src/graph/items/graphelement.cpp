@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.03.2010
+ **
+ **************************************************************************/
 
 #include "graphelement.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/commands/dataelementcommands.hpp"
 
 
@@ -27,8 +27,8 @@
 
 
 GraphElement::GraphElement(GraphElement *parentGraphElement, DataElement *dataElement)
-	: QObject()
-	, BaseGraphElement<QGraphicsPathItem>(parentGraphElement, dataElement)
+    : QObject()
+    , BaseGraphElement<QGraphicsPathItem>(parentGraphElement, dataElement)
 
 {
 
@@ -47,20 +47,20 @@ GraphElement::~GraphElement()
 void
 GraphElement::hideGraphElement()
 {
-	if (getDataElement())
-	{
-		QList<DataElement *> elements;
-		elements.append(getDataElement());
+    if (getDataElement())
+    {
+        QList<DataElement *> elements;
+        elements.append(getDataElement());
 
-		HideDataElementCommand *command = new HideDataElementCommand(elements, NULL);
-		getProjectGraph()->executeCommand(command);
-	}
+        HideDataElementCommand *command = new HideDataElementCommand(elements, NULL);
+        getProjectGraph()->executeCommand(command);
+    }
 }
 
 void
 GraphElement::hideRoads()
 {
-	hideGraphElement();
+    hideGraphElement();
 }
 
 

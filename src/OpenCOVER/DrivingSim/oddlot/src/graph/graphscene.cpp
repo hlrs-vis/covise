@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #include "graphscene.hpp"
 
-//  //
-//
+ //  //
+ //
 #include "src/gui/mouseaction.hpp"
 #include "src/gui/keyaction.hpp"
 
@@ -37,9 +37,9 @@ GraphScene::GraphScene(const QRectF &sceneRect, QObject *parent)
 
 GraphScene::~GraphScene()
 {
-    //	// Observer //
-    //	//
-    //	dataElement_->detachObserver(this);
+    // // Observer //
+    // //
+    // dataElement_->detachObserver(this);
 }
 
 /*! \brief Deselects all selected items
@@ -47,10 +47,10 @@ GraphScene::~GraphScene()
 void
 GraphScene::deselectAll()
 {
-	foreach(QGraphicsItem *item, selectedItems())
-	{
-			item->setSelected(false);
-	}
+    foreach(QGraphicsItem * item, selectedItems())
+    {
+        item->setSelected(false);
+    }
 }
 
 //################//
@@ -61,11 +61,11 @@ void
 GraphScene::init()
 {
     setBackgroundBrush(QBrush(QColor(238, 243, 238)));
-	
 
-    //	// Observer //
-    //	//
-    //	dataElement_->attachObserver(this);
+
+    // // Observer //
+    // //
+    // dataElement_->attachObserver(this);
 }
 
 void
@@ -173,12 +173,12 @@ GraphScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 // DRAG EVENTS    //
 //################//
 
-void 
+void
 GraphScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-	MouseAction *mouseAction = new MouseAction(MouseAction::ATM_DROP, event);
-	emit(mouseActionSignal(mouseAction));
-	delete mouseAction; 
+    MouseAction *mouseAction = new MouseAction(MouseAction::ATM_DROP, event);
+    emit(mouseActionSignal(mouseAction));
+    delete mouseAction;
 }
 
 //################//
@@ -204,18 +204,18 @@ GraphScene::keyReleaseEvent(QKeyEvent *event)
     //
     //QGraphicsScene::keyReleaseEvent(event);
 
-	switch (event->key())
-	{
-		case Qt::Key_Tab:
-		{
-			QGraphicsItem *item = mouseGrabberItem(); // if item is still the mousegrabber it might prevent selecting the item beneath
-			if (item)
-			{
-				item->ungrabMouse();
-			}
-			break;
-		}
-	}
+    switch (event->key())
+    {
+    case Qt::Key_Tab:
+    {
+        QGraphicsItem *item = mouseGrabberItem(); // if item is still the mousegrabber it might prevent selecting the item beneath
+        if (item)
+        {
+            item->ungrabMouse();
+        }
+        break;
+    }
+    }
 
 
     KeyAction *keyAction = new KeyAction(KeyAction::ATK_RELEASE, event);

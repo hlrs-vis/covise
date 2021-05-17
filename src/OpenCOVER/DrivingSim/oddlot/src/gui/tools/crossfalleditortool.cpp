@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfalleditortool.hpp"
 
@@ -21,8 +21,8 @@
 #include "src/mainwindow.hpp"
 
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -78,10 +78,10 @@ CrossfallEditorTool::initToolWidget()
     toolGroup->addButton(toolButton, ODD::TCF_SELECT); // button, id
     toolButton->setChecked(true);
 
-    //	toolButton = new QPushButton(tr("Move Section"));
-    //	toolButton->setCheckable(true);
-    //	toolLayout->addWidget(toolButton, ++row, 0);
-    //	toolGroup->addButton(toolButton, ODD::TCF_MOVE); // button, id
+    // toolButton = new QPushButton(tr("Move Section"));
+    // toolButton->setCheckable(true);
+    // toolLayout->addWidget(toolButton, ++row, 0);
+    // toolGroup->addButton(toolButton, ODD::TCF_MOVE); // button, id
 
     toolButton = new QPushButton(tr("Add Section"));
     toolButton->setCheckable(true);
@@ -125,20 +125,20 @@ CrossfallEditorTool::initToolWidget()
     //ribbonWidget->
     ui_ = new Ui::CrossfallRibbon();
     ui_->setupUi(ribbonWidget);
-    
-	ribbonToolGroup_ = new QButtonGroup(toolManager_);
+
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
-    
-    
+
+
     ribbonToolGroup_->addButton(ui_->select, ODD::TCF_SELECT);
     ribbonToolGroup_->addButton(ui_->crossfallAdd, ODD::TCF_ADD);
     ribbonToolGroup_->addButton(ui_->crossfallDelete, ODD::TCF_DEL);
     //ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TSE_SMOOTH);
-    
+
     connect(ui_->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRibbonRadius()));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Crossfall"), ODD::ECF);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -168,17 +168,17 @@ CrossfallEditorTool::activateEditor()
 void
 CrossfallEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::ECF);
-	CrossfallEditorToolAction *crossfallEditorToolAction = dynamic_cast<CrossfallEditorToolAction *>(action);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::ECF);
+    CrossfallEditorToolAction *crossfallEditorToolAction = dynamic_cast<CrossfallEditorToolAction *>(action);
 
-	if (crossfallEditorToolAction->getRadius() != ui_->radiusEdit->value())
-	{
-		ui_->radiusEdit->blockSignals(true);
-		ui_->radiusEdit->setValue(crossfallEditorToolAction->getRadius());
-		ui_->radiusEdit->blockSignals(false);
-	}
+    if (crossfallEditorToolAction->getRadius() != ui_->radiusEdit->value())
+    {
+        ui_->radiusEdit->blockSignals(true);
+        ui_->radiusEdit->setValue(crossfallEditorToolAction->getRadius());
+        ui_->radiusEdit->blockSignals(false);
+    }
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -200,13 +200,13 @@ CrossfallEditorTool::handleToolClick(int id)
 void
 CrossfallEditorTool::handleRibbonToolClick(int id)
 {
-	toolId_ = (ODD::ToolId)id;
+    toolId_ = (ODD::ToolId)id;
 
-	// Set a tool //
-	//
-	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, ODD::TNO_TOOL, ui_->radiusEdit->value());
-	emit toolAction(action);
-//	delete action;
+    // Set a tool //
+    //
+    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(toolId_, ODD::TNO_TOOL, ui_->radiusEdit->value());
+    emit toolAction(action);
+    // delete action;
 }
 
 /*! \brief Gets called when the radius has been changed.
@@ -224,11 +224,11 @@ CrossfallEditorTool::setRadius()
 void
 CrossfallEditorTool::setRibbonRadius()
 {
-	ODD::ToolId toolId = (ODD::ToolId)ribbonToolGroup_->checkedId();
+    ODD::ToolId toolId = (ODD::ToolId)ribbonToolGroup_->checkedId();
 
-	CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, ODD::TCF_RADIUS, ui_->radiusEdit->value());
-	emit toolAction(action);
-//	delete action;
+    CrossfallEditorToolAction *action = new CrossfallEditorToolAction(ODD::TCF_SELECT, ODD::TCF_RADIUS, ui_->radiusEdit->value());
+    emit toolAction(action);
+    // delete action;
 
     ribbonToolGroup_->button(toolId_)->click();
 }

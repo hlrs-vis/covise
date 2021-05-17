@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/29/2010
+ **
+ **************************************************************************/
 
 #include "lanewidthtreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
@@ -27,11 +27,11 @@
 
 
 LaneWidthTreeItem::LaneWidthTreeItem(LaneTreeItem *parent, LaneWidth *laneWidth, QTreeWidgetItem *fosterParent)
-	: ProjectTreeItem(parent, laneWidth, fosterParent)
-	, laneTreeItem_(parent)
-	, laneWidth_(laneWidth)
+    : ProjectTreeItem(parent, laneWidth, fosterParent)
+    , laneTreeItem_(parent)
+    , laneWidth_(laneWidth)
 {
-	init();
+    init();
 }
 
 

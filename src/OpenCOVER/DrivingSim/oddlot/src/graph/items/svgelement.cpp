@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.03.2010
+ **
+ **************************************************************************/
 
 #include "svgelement.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/commands/dataelementcommands.hpp"
 
 
@@ -26,7 +26,7 @@
 
 
 SVGElement::SVGElement(SVGElement *parentElement, DataElement *dataElement)
-	: BaseGraphElement<QGraphicsSvgItem>(parentElement, dataElement)
+    : BaseGraphElement<QGraphicsSvgItem>(parentElement, dataElement)
 
 {
 
@@ -44,19 +44,19 @@ SVGElement::~SVGElement()
 void
 SVGElement::hideGraphElement()
 {
-	if (getDataElement())
-	{
-		QList<DataElement *> elements;
-		elements.append(getDataElement());
+    if (getDataElement())
+    {
+        QList<DataElement *> elements;
+        elements.append(getDataElement());
 
-		HideDataElementCommand *command = new HideDataElementCommand(elements, NULL);
-		getProjectGraph()->executeCommand(command);
-	} 
+        HideDataElementCommand *command = new HideDataElementCommand(elements, NULL);
+        getProjectGraph()->executeCommand(command);
+    }
 }
 
 void
 SVGElement::hideRoads()
 {
-	hideGraphElement();
+    hideGraphElement();
 }
 

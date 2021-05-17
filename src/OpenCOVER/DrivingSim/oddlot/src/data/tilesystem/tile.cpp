@@ -5,16 +5,16 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Nico Eichhorn (c) 2014
-**   <eichhorn@hlrs.de>
-**   15.09.2014
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Nico Eichhorn (c) 2014
+ **   <eichhorn@hlrs.de>
+ **   15.09.2014
+ **
+ **************************************************************************/
 
-// not in use at the moment
-// can be used later in development
+ // not in use at the moment
+ // can be used later in development
 
 #include "tile.hpp"
 
@@ -31,19 +31,19 @@ Tile::Tile(const odrID &id)
 }
 
 Tile::Tile(int tid)
-  : DataElement()
-, tileChanges_(0x0)
-, tileSystem_(NULL)
+    : DataElement()
+    , tileChanges_(0x0)
+    , tileSystem_(NULL)
 {
-	name_ = "Tile";
-	odrID ID;
-	ID.setID(tid);
-	ID.setName(name_);
-	id_ = ID;
+    name_ = "Tile";
+    odrID ID;
+    ID.setID(tid);
+    ID.setName(name_);
+    id_ = ID;
 }
 
 Tile::
-    ~Tile()
+~Tile()
 {
 }
 
@@ -60,7 +60,7 @@ Tile::setTileSystem(TileSystem *tileSystem)
 QString
 Tile::getIdName() const
 {
-	return id_.getName();
+    return id_.getName();
 }
 
 void
@@ -98,48 +98,48 @@ Tile::addTileChanges(int changes)
 
 void Tile::removeOSCID(const QString &ID)
 {
-	oscIDs.remove(ID);
+    oscIDs.remove(ID);
 }
 
 const QString
 Tile::getUniqueOSCID(const QString &suggestion, const QString &name)
 {
-	
-	// Try suggestion //
-	//
-	if (!suggestion.isNull() && !suggestion.isEmpty() && !name.isEmpty())
-	{
-		bool number = false;
-		QStringList parts = suggestion.split("_");
 
-		if (parts.size() > 2)
-		{
-			int tn = parts.at(0).toInt(&number);
-			if (getID().getID() == tn)
-			{
-				if(oscIDs.contains(suggestion))
-				{
-					oscIDs.insert(suggestion);
-					return suggestion;
-				}
-			}
-		}
-	}
+    // Try suggestion //
+    //
+    if (!suggestion.isNull() && !suggestion.isEmpty() && !name.isEmpty())
+    {
+        bool number = false;
+        QStringList parts = suggestion.split("_");
 
-	// Create new one //
-	//
-	QString myName = name;
-	if (name.isEmpty())
-	{
-		myName = "unnamed";
-	}
-	
+        if (parts.size() > 2)
+        {
+            int tn = parts.at(0).toInt(&number);
+            if (getID().getID() == tn)
+            {
+                if (oscIDs.contains(suggestion))
+                {
+                    oscIDs.insert(suggestion);
+                    return suggestion;
+                }
+            }
+        }
+    }
 
-	QString id;
-		id = QString("%1_%2_%3").arg(tileSystem_->uniqueID(odrID::ID_OSC)).arg(getID().getID()).arg(myName);
+    // Create new one //
+    //
+    QString myName = name;
+    if (name.isEmpty())
+    {
+        myName = "unnamed";
+    }
 
-	oscIDs.insert(id);
-	return id;
+
+    QString id;
+    id = QString("%1_%2_%3").arg(tileSystem_->uniqueID(odrID::ID_OSC)).arg(getID().getID()).arg(myName);
+
+    oscIDs.insert(id);
+    return id;
 }
 
 // visitor

@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.03.2010
+ **
+ **************************************************************************/
 
 #include "roadtypeeditor.hpp"
 
 #include "src/mainwindow.hpp"
 
-// Project //
-//
+ // Project //
+ //
 #include "src/gui/projectwidget.hpp"
 
 // Data //
@@ -101,11 +101,11 @@ RoadTypeEditor::init()
 void
 RoadTypeEditor::kill()
 {
-	if (tool_)
-	{
-		delToolParameters();
-		ODD::mainWindow()->showParameterDialog(false);
-	}
+    if (tool_)
+    {
+        delToolParameters();
+        ODD::mainWindow()->showParameterDialog(false);
+    }
 
     delete roadSystemItem_;
     roadSystemItem_ = NULL;
@@ -137,92 +137,92 @@ RoadTypeEditor::setCurrentRoadType(TypeSection::RoadType roadType)
 void
 RoadTypeEditor::toolAction(ToolAction *toolAction)
 {
-	if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
-	{
-		delToolParameters();
-		ODD::mainWindow()->showParameterDialog(false);
-	}
+    if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
+    {
+        delToolParameters();
+        ODD::mainWindow()->showParameterDialog(false);
+    }
 
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
 
-	// RoadType //
+    // RoadType //
 //
-	TypeEditorToolAction *typeEditorToolAction = dynamic_cast<TypeEditorToolAction *>(toolAction);
-	if (typeEditorToolAction)
-	{
-		if (getCurrentTool() == ODD::TRT_SELECT)
-		{
-			// does nothing //
-		}
-		else if (getCurrentTool() == ODD::TRT_ADD)
-		{
-			ODD::ToolId paramTool = getCurrentParameterTool();
+    TypeEditorToolAction *typeEditorToolAction = dynamic_cast<TypeEditorToolAction *>(toolAction);
+    if (typeEditorToolAction)
+    {
+        if (getCurrentTool() == ODD::TRT_SELECT)
+        {
+            // does nothing //
+        }
+        else if (getCurrentTool() == ODD::TRT_ADD)
+        {
+            ODD::ToolId paramTool = getCurrentParameterTool();
 
-			if ((paramTool == ODD::TNO_TOOL) && !tool_)
-			{
-				ToolValue<int> *param = new ToolValue<int>(ODD::TRT_ADD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::ENUM, "color, unknown, rural, motorway, town, lowspeed, pedestrian");
-				param->setValue(setRoadTypeSelection(currentRoadType_));
-				tool_ = new Tool(ODD::TRT_ADD, 1);
-				tool_->readParams(param);
+            if ((paramTool == ODD::TNO_TOOL) && !tool_)
+            {
+                ToolValue<int> *param = new ToolValue<int>(ODD::TRT_ADD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::ENUM, "color, unknown, rural, motorway, town, lowspeed, pedestrian");
+                param->setValue(setRoadTypeSelection(currentRoadType_));
+                tool_ = new Tool(ODD::TRT_ADD, 1);
+                tool_->readParams(param);
 
-				createToolParameterSettings(tool_, ODD::ERT);
-				ODD::mainWindow()->showParameterDialog(true, "Road Type", "Choose the type of the roadsection to be created.");
-			}
-		}
-		else if (getCurrentTool() == ODD::TRT_DEL)
-		{
-			// Problem: The ToolAction is resent, after a warning message has been clicked away. (Due to resend on getting the focus back?)
+                createToolParameterSettings(tool_, ODD::ERT);
+                ODD::mainWindow()->showParameterDialog(true, "Road Type", "Choose the type of the roadsection to be created.");
+            }
+        }
+        else if (getCurrentTool() == ODD::TRT_DEL)
+        {
+            // Problem: The ToolAction is resent, after a warning message has been clicked away. (Due to resend on getting the focus back?)
 
-			//		QList<QGraphicsItem *> selectedItems = getTopviewGraph()->graphScene()->selectedItems();
-			//
-			//		// Macro Command //
-			//		//
-			//		int numberOfSelectedItems = selectedItems.size();
-			//		if(numberOfSelectedItems > 1)
-			//		{
-			//			getProjectData()->getUndoStack()->beginMacro(QObject::tr("Delete Road Type Sections"));
-			//		}
-			//
-			//		// Delete selected items //
-			//		//
-			//		foreach(QGraphicsItem * item, getTopviewGraph()->graphScene()->selectedItems())
-			//		{
-			//			TypeSectionItem * typeSectionItem = dynamic_cast<TypeSectionItem *>(item);
-			//			if(typeSectionItem)
-			//			{
-			//				typeSectionItem->setSelected(false);
-			//				typeSectionItem->deleteTypeSection();
-			//			}
-			//		}
-			//
-			//		// Macro Command //
-			//		//
-			//		if(numberOfSelectedItems > 1)
-			//		{
-			//			getProjectData()->getUndoStack()->endMacro();
-			//		}
-		}
-	}
-	else
-	{
-		if (toolAction->getToolId() == ODD::TRT_ADD)
-		{
-			if (toolAction->getParamToolId() == ODD::TPARAM_VALUE)
-			{
-				ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
-				if (action)
-				{
-					int index = action->getParamId();
-					setRoadType(index);
-					ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
-					ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
-					v->setValue(index);
-				}
-			}
-		}
-	}
+            //  QList<QGraphicsItem *> selectedItems = getTopviewGraph()->graphScene()->selectedItems();
+            //
+            //  // Macro Command //
+            //  //
+            //  int numberOfSelectedItems = selectedItems.size();
+            //  if(numberOfSelectedItems > 1)
+            //  {
+            //   getProjectData()->getUndoStack()->beginMacro(QObject::tr("Delete Road Type Sections"));
+            //  }
+            //
+            //  // Delete selected items //
+            //  //
+            //  foreach(QGraphicsItem * item, getTopviewGraph()->graphScene()->selectedItems())
+            //  {
+            //   TypeSectionItem * typeSectionItem = dynamic_cast<TypeSectionItem *>(item);
+            //   if(typeSectionItem)
+            //   {
+            //    typeSectionItem->setSelected(false);
+            //    typeSectionItem->deleteTypeSection();
+            //   }
+            //  }
+            //
+            //  // Macro Command //
+            //  //
+            //  if(numberOfSelectedItems > 1)
+            //  {
+            //   getProjectData()->getUndoStack()->endMacro();
+            //  }
+        }
+    }
+    else
+    {
+        if (toolAction->getToolId() == ODD::TRT_ADD)
+        {
+            if (toolAction->getParamToolId() == ODD::TPARAM_VALUE)
+            {
+                ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
+                if (action)
+                {
+                    int index = action->getParamId();
+                    setRoadType(index);
+                    ToolParameter *p = tool_->getLastParam(settings_->getCurrentParameterID());
+                    ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
+                    v->setValue(index);
+                }
+            }
+        }
+    }
 }
 
 /*! \brief
@@ -231,68 +231,68 @@ RoadTypeEditor::toolAction(ToolAction *toolAction)
 void
 RoadTypeEditor::setRoadType(int id)
 {
-	if (id == 0)
-	{
-		currentRoadType_ = TypeSection::RTP_UNKNOWN;
-	}
-	else if (id == 1)
-	{
-		currentRoadType_ = TypeSection::RTP_RURAL;
-	}
-	else if (id == 2)
-	{
-		currentRoadType_ = TypeSection::RTP_MOTORWAY;
-	}
-	else if (id == 3)
-	{
-		currentRoadType_ = TypeSection::RTP_TOWN;
-	}
-	else if (id == 4)
-	{
-		currentRoadType_ = TypeSection::RTP_LOWSPEED;
-	}
-	else
-	{
-		currentRoadType_ = TypeSection::RTP_PEDESTRIAN;
-	}
+    if (id == 0)
+    {
+        currentRoadType_ = TypeSection::RTP_UNKNOWN;
+    }
+    else if (id == 1)
+    {
+        currentRoadType_ = TypeSection::RTP_RURAL;
+    }
+    else if (id == 2)
+    {
+        currentRoadType_ = TypeSection::RTP_MOTORWAY;
+    }
+    else if (id == 3)
+    {
+        currentRoadType_ = TypeSection::RTP_TOWN;
+    }
+    else if (id == 4)
+    {
+        currentRoadType_ = TypeSection::RTP_LOWSPEED;
+    }
+    else
+    {
+        currentRoadType_ = TypeSection::RTP_PEDESTRIAN;
+    }
 }
 
 int
 RoadTypeEditor::setRoadTypeSelection(TypeSection::RoadType type)
 {
-	if (type == TypeSection::RTP_UNKNOWN)
-	{
-		return 0;
-	}
-	else if (type == TypeSection::RTP_RURAL)
-	{
-		return 1;
-	}
-	else if (type == TypeSection::RTP_MOTORWAY)
-	{
-		return 2;
-	}
-	else if (type == TypeSection::RTP_TOWN)
-	{
-		return 3;
-	}
-	else if (type == TypeSection::RTP_LOWSPEED)
-	{
-		return 4;
-	}
-	else
-	{
-		return 5;
-	}
+    if (type == TypeSection::RTP_UNKNOWN)
+    {
+        return 0;
+    }
+    else if (type == TypeSection::RTP_RURAL)
+    {
+        return 1;
+    }
+    else if (type == TypeSection::RTP_MOTORWAY)
+    {
+        return 2;
+    }
+    else if (type == TypeSection::RTP_TOWN)
+    {
+        return 3;
+    }
+    else if (type == TypeSection::RTP_LOWSPEED)
+    {
+        return 4;
+    }
+    else
+    {
+        return 5;
+    }
 
 }
 
-void 
+void
 RoadTypeEditor::reject()
 {
-	ProjectEditor::reject();
+    ProjectEditor::reject();
 
-	delToolParameters();
-	ODD::mainWindow()->showParameterDialog(false);
+    delToolParameters();
+    ODD::mainWindow()->showParameterDialog(false);
 }
 

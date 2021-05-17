@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/19/2010
+ **
+ **************************************************************************/
 
 #include "settingselement.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/dataelement.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
 
@@ -91,10 +91,10 @@ SettingsElement::getProjectSettings() const
 //##################//
 
 //void
-//	SettingsElement
-//	::setParentSettingsElement(SettingsElement * parentSettingsElement)
+// SettingsElement
+// ::setParentSettingsElement(SettingsElement * parentSettingsElement)
 //{
-//	parentSettingsElement_ = parentSettingsElement;
+// parentSettingsElement_ = parentSettingsElement;
 //}
 
 //################//
@@ -122,29 +122,29 @@ SettingsElement::updateObserver()
     //
     if ((changes & DataElement::CDE_HidingChange))
     {
-        //		setVisible(!dataElement_->isElementHidden());
+        //  setVisible(!dataElement_->isElementHidden());
     }
 
     // Selection //
     //
     if (changes & DataElement::CDE_SelectionChange)
     {
-		if (!dataElement_->isElementSelected())
-		{
-			registerForDeletion();
-			return;
-		}
-        //		// Selection //
-        //		//
-        //		if(isSelected() != dataElement_->isElementSelected())
-        //		{
-        //			// DO NOT LET THE OBSERVER CALL itemChange() WHEN YOU ARE ALREADY IN IT!
-        //			setSelected(dataElement_->isElementSelected());
-        //		}
+        if (!dataElement_->isElementSelected())
+        {
+            registerForDeletion();
+            return;
+        }
+        //  // Selection //
+        //  //
+        //  if(isSelected() != dataElement_->isElementSelected())
+        //  {
+        //   // DO NOT LET THE OBSERVER CALL itemChange() WHEN YOU ARE ALREADY IN IT!
+        //   setSelected(dataElement_->isElementSelected());
+        //  }
 
-        //		// Highlighting //
-        //		//
-        //		updateHighlightingState();
+        //  // Highlighting //
+        //  //
+        //  updateHighlightingState();
     }
 }
 
@@ -153,21 +153,21 @@ SettingsElement::updateObserver()
 //################//
 
 //void
-//	SettingsElement
-//	::hideSettingsElement()
+// SettingsElement
+// ::hideSettingsElement()
 //{
-//	QList<DataElement *> elements;
-//	elements.append(dataElement_);
+// QList<DataElement *> elements;
+// elements.append(dataElement_);
 
-//	HideDataElementCommand * command = new HideDataElementCommand(elements, NULL);
-//	if(command->isValid())
-//	{
-//		dataElement_->getUndoStack()->push(command);
-//	}
-//	else
-//	{
-//		delete command;
-//	}
+// HideDataElementCommand * command = new HideDataElementCommand(elements, NULL);
+// if(command->isValid())
+// {
+//  dataElement_->getUndoStack()->push(command);
+// }
+// else
+// {
+//  delete command;
+// }
 
 //}
 

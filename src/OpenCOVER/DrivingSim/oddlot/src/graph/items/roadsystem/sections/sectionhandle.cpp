@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   18.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   18.03.2010
+ **
+ **************************************************************************/
 
 #include "sectionhandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/roadsection.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -156,7 +156,7 @@ SectionHandle::itemChange(GraphicsItemChange change, const QVariant &value)
             {
                 RoadSection *roadSection = parentSectionItem_->getRoadSection();
                 double s = roadSection->getParentRoad()->getSFromGlobalPoint(value.toPointF(), roadSection->getSStart() - 100.0, roadSection->getSEnd());
-                //				return parentSectionItem_->getRoadSection()->getParentRoad()->getGlobalPoint(s, 0.0);
+                //    return parentSectionItem_->getRoadSection()->getParentRoad()->getGlobalPoint(s, 0.0);
 
                 MoveRoadSectionCommand *command = new MoveRoadSectionCommand(roadSection, s, parentSectionItem_->getRoadSectionType());
                 if (command->isValid())
@@ -178,10 +178,10 @@ SectionHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 
     // Mode 2 //
     //
-    //	else
-    //	{
+    // else
+    // {
     //
-    //	}
+    // }
 
     return QGraphicsItem::itemChange(change, value);
 }
@@ -245,14 +245,14 @@ SectionHandle::createPath()
 void
 PointHandle::updatePos(RoadItem *roadItem, const QPointF &position, double sStartHint, double sEndHint)
 {
-	RSystemElementRoad *road = roadItem->getRoad();
+    RSystemElementRoad *road = roadItem->getRoad();
 
-	// Calculate road coordinate //
-	//
-	double s = road->getSFromGlobalPoint(position, sStartHint, sEndHint);
+    // Calculate road coordinate //
+    //
+    double s = road->getSFromGlobalPoint(position, sStartHint, sEndHint);
 
-	// Set Item Pose //
-	//
-	setPos(position);
-	setRotation(road->getGlobalHeading(s));
+    // Set Item Pose //
+    //
+    setPos(position);
+    setRotation(road->getGlobalHeading(s));
 }

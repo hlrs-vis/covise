@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.02.2010
+ **
+ **************************************************************************/
 
 #include "trackelementspiral.hpp"
 
-// Utils //
-//
+ // Utils //
+ //
 #include "src/util/odd.hpp"
 #include "math.h"
 
@@ -68,18 +68,18 @@ TrackElementSpiral::init()
         ax_ = ay_ = 0.0;
     }
 
-    //	qDebug() << "a: " << ax_ << " " << ay_;
+    // qDebug() << "a: " << ax_ << " " << ay_;
 
     // Cache Values //
     //
     lStart_ = curvStart_ * ax_ * ay_;
 
-    //	qDebug() << "lStart: " << lStart_;
+    // qDebug() << "lStart: " << lStart_;
 
     headingStart_ = 0.0;
     headingStart_ = getHeading(getSStart());
 
-    //	qDebug() << "heading: " << headingStart_;
+    // qDebug() << "heading: " << headingStart_;
 
     // this transformation moves the clothoid so the start point is in the origin
     clothoidTrafo_.reset();
@@ -118,9 +118,9 @@ TrackElementSpiral::setCurvEndAndLength(double curvEnd, double length)
 //#########################//
 
 /** Returns the point on the track at road coordinate s.
-	Natural coordinates relative to Geometry.
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry.
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementSpiral::getPoint(double s, double d)
@@ -131,10 +131,10 @@ TrackElementSpiral::getPoint(double s, double d)
         return clothoidTrafo_.map(clothoidApproximation(l));
     else
     {
-        //		double n = getHeadingRad(s)/* * 2.0*M_PI/360.0*/;
-        //		return trafo.map(clothoidApproximation(l)+ QPointF(-sin(n)*d, cos(n)*d));
+        //  double n = getHeadingRad(s)/* * 2.0*M_PI/360.0*/;
+        //  return trafo.map(clothoidApproximation(l)+ QPointF(-sin(n)*d, cos(n)*d));
         return clothoidTrafo_.map(clothoidApproximation(l)) + QVector2D(-sin(getHeadingRad(s)), cos(getHeadingRad(s))).toPointF() * d;
-        //		return trafo.map(clothoidApproximation(l))+ getNormal(s).toPointF()*d;
+        //  return trafo.map(clothoidApproximation(l))+ getNormal(s).toPointF()*d;
     }
 }
 
@@ -157,10 +157,10 @@ TrackElementSpiral::clothoidApproximation(double l)
         ay_ * (-f7 * xpow[7] + f5 * xpow[5] - f3 * xpow[3] + f1 * xpow[1]));
 
     // DELETE SOMETIME IN FUTURE:
-    //	return QPointF(
-    //		ax_ * (l - pow(l,5.0)/40.0 + pow(l,9.0)/3456.0 - pow(l,13.0)/599040.0 + pow(l,17.0)/175472640.0),
-    //		ay_ * (pow(l,3.0)/6.0 - pow(l,7.0)/336.0 + pow(l,11.0)/42240.0 - pow(l,15.0)/9676800.0)
-    //	);
+    // return QPointF(
+    //  ax_ * (l - pow(l,5.0)/40.0 + pow(l,9.0)/3456.0 - pow(l,13.0)/599040.0 + pow(l,17.0)/175472640.0),
+    //  ay_ * (pow(l,3.0)/6.0 - pow(l,7.0)/336.0 + pow(l,11.0)/42240.0 - pow(l,15.0)/9676800.0)
+    // );
 }
 
 double
@@ -194,34 +194,34 @@ TrackElementSpiral::y(double x)
 }
 
 /** Returns the heading of the track at road coordinate s.
-	Natural coordinates relative to Geometry.
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry.
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementSpiral::getHeading(double s)
 {
     double l = lStart_ + (s - getSStart());
-    //	return l*l / (2.0*ax_*ay_) * 360.0/(2.0*M_PI);
+    // return l*l / (2.0*ax_*ay_) * 360.0/(2.0*M_PI);
     return l * l / (2.0 * ax_ * ay_) * 360.0 / (2.0 * M_PI) - headingStart_;
 }
 
 /** Returns the heading of the track at road coordinate s.
-	Natural coordinates relative to Geometry.
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry.
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementSpiral::getHeadingRad(double s)
 {
     double l = lStart_ + (s - getSStart());
     return l * l / (2.0 * ax_ * ay_) - headingStart_ * 2.0 * M_PI / 360.0;
-    //	return l*getCurvature(s)/2.0;
+    // return l*getCurvature(s)/2.0;
 }
 
 /** Returns the local point on the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementSpiral::getLocalPoint(double s, double d)
@@ -230,8 +230,8 @@ TrackElementSpiral::getLocalPoint(double s, double d)
 }
 
 /** Returns the local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementSpiral::getLocalHeading(double s)
@@ -240,8 +240,8 @@ TrackElementSpiral::getLocalHeading(double s)
 }
 
 /** Returns the local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementSpiral::getLocalHeadingRad(double s)
@@ -250,8 +250,8 @@ TrackElementSpiral::getLocalHeadingRad(double s)
 }
 
 /** Returns the curvature of the track at road coordinate s.
-	Independent of coordinate system.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Independent of coordinate system.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementSpiral::getCurvature(double s)
@@ -261,7 +261,7 @@ TrackElementSpiral::getCurvature(double s)
 }
 
 /** Returns the radius of the track at road coordinate s.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementSpiral::getRadius(double s)
@@ -271,10 +271,10 @@ TrackElementSpiral::getRadius(double s)
 }
 
 /** Returns the center of the circle that is tangent to track
-	at the given s coordinate.
-	Natural coordinates relative to Geometry.
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    at the given s coordinate.
+    Natural coordinates relative to Geometry.
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementSpiral::getRadiusCenter(double s)

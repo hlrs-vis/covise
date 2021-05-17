@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   05.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   05.07.2010
+ **
+ **************************************************************************/
 
 #include "trackroaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
@@ -106,7 +106,7 @@ void
 TrackRoadItem::rebuildSections(bool fullRebuild)
 {
 
-    foreach (TrackComponent *track, getRoad()->getTrackSections())
+    foreach(TrackComponent * track, getRoad()->getTrackSections())
     {
 
         // TrackItems //
@@ -121,10 +121,10 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
                 new TrackSpArcSItem(this, sparcs);
             }
             else if ((track->getTrackType() == TrackComponent::DTT_LINE)
-                     || (track->getTrackType() == TrackComponent::DTT_ARC)
-                     || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
-				     || (track->getTrackType() == TrackComponent::DTT_POLY3)
-				     || (track->getTrackType() == TrackComponent::DTT_CUBICCURVE))
+                || (track->getTrackType() == TrackComponent::DTT_ARC)
+                || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
+                || (track->getTrackType() == TrackComponent::DTT_POLY3)
+                || (track->getTrackType() == TrackComponent::DTT_CUBICCURVE))
             {
                 TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
                 new TrackElementItem(this, trackElement);
@@ -138,7 +138,7 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
         // Handles //
         //
         if ((trackEditor_->isCurrentTool(ODD::TTE_ADD))
-			|| (trackEditor_->isCurrentTool(ODD::TTE_ADD_PROTO)))
+            || (trackEditor_->isCurrentTool(ODD::TTE_ADD_PROTO)))
         {
             if (fullRebuild) // the handles need not be rebuilt every time since they adjust their position automatically
             {
@@ -192,7 +192,7 @@ TrackRoadItem::rebuildMoveRotateHandles(bool delHandles)
     handlesItem_->setZValue(1.0); // Stack handles before items
 
     TrackMoveHandle *currentTrackMoveHandle = new TrackMoveHandle(trackEditor_, handlesItem_); // first handle
-    foreach (TrackComponent *track, getRoad()->getTrackSections())
+    foreach(TrackComponent * track, getRoad()->getTrackSections())
     {
         currentTrackMoveHandle->registerHighSlot(track); // last handle
         currentTrackMoveHandle = new TrackMoveHandle(trackEditor_, handlesItem_); // new handle
@@ -200,7 +200,7 @@ TrackRoadItem::rebuildMoveRotateHandles(bool delHandles)
     }
 
     TrackRotateHandle *currentTrackRotateHandle = new TrackRotateHandle(trackEditor_, handlesItem_); // first handle
-    foreach (TrackComponent *track, getRoad()->getTrackSections())
+    foreach(TrackComponent * track, getRoad()->getTrackSections())
     {
         currentTrackRotateHandle->registerHighSlot(track); // last handle
         currentTrackRotateHandle = new TrackRotateHandle(trackEditor_, handlesItem_); // new handle
@@ -250,7 +250,7 @@ TrackRoadItem::rebuildRoadMoveRotateHandles(bool delHandles)
 void
 TrackRoadItem::deleteHandles()
 {
-    //	delete handlesItem_;
+    // delete handlesItem_;
     if (handlesItem_ != NULL)
     {
         if (trackEditor_)
@@ -300,8 +300,8 @@ TrackRoadItem::updateObserver()
 //* Handles Item Changes.
 //*/
 //QVariant
-//	TrackRoadItem
-//	::itemChange(GraphicsItemChange change, const QVariant & value)
+// TrackRoadItem
+// ::itemChange(GraphicsItemChange change, const QVariant & value)
 //{
-//	return RoadItem::itemChange(change, value);
+// return RoadItem::itemChange(change, value);
 //}

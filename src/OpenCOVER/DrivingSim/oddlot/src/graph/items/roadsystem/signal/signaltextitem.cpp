@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "signaltextitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -41,19 +41,19 @@ SignalTextItem::SignalTextItem(GraphElement *item, Signal *signal)
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
-    //	textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //	connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
-    //	connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
+    // textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
+    // connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
 
     // Flags //
     //
-    //	setSelectable();
-    //	setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+    // setSelectable();
+    // setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
 
     // Path //
     //
-	updateName();
+    updateName();
     updatePosition();
 
     // Hide the text item on creation and show it only on mouse hover of the parent //
@@ -79,7 +79,7 @@ SignalTextItem::createPath()
     thePath.moveTo(0.0, 0.0);
     thePath.lineTo(mapFromScene(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT())));
 
-    //	thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
+    // thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
 
     setPath(thePath);
 }
@@ -94,38 +94,38 @@ SignalTextItem::updatePosition()
 void
 SignalTextItem::updateName()
 {
-	if ((signal_->getName() == "") || (signal_->getName() == "unnamed"))
-	{
-		QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
+    if ((signal_->getName() == "") || (signal_->getName() == "unnamed"))
+    {
+        QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 
-		if (signal_->getType() >= 0)
-		{
-			if (!signal_->getTypeSubclass().isEmpty())
-			{
-				if (signal_->getSubtype() >= 0)
-				{
-					signalName = signal_->getType() + "." + signal_->getTypeSubclass() + "-" + signal_->getSubtype();
-				}
-				else
-				{
-					signalName = signal_->getType() + "." + signal_->getTypeSubclass();
-				}
-			}
-			else if (signal_->getSubtype() >= 0)
-			{
-				signalName = signal_->getType() + "-" + signal_->getSubtype();
-			}
-			else
-			{
-				signalName = signal_->getType();
-			}
-		}
-		textHandle_->setText(signalName);
-	}
-	else
-	{
-		textHandle_->setText(signal_->getName());
-	}
+        if (signal_->getType() >= 0)
+        {
+            if (!signal_->getTypeSubclass().isEmpty())
+            {
+                if (signal_->getSubtype() >= 0)
+                {
+                    signalName = signal_->getType() + "." + signal_->getTypeSubclass() + "-" + signal_->getSubtype();
+                }
+                else
+                {
+                    signalName = signal_->getType() + "." + signal_->getTypeSubclass();
+                }
+            }
+            else if (signal_->getSubtype() >= 0)
+            {
+                signalName = signal_->getType() + "-" + signal_->getSubtype();
+            }
+            else
+            {
+                signalName = signal_->getType();
+            }
+        }
+        textHandle_->setText(signalName);
+    }
+    else
+    {
+        textHandle_->setText(signal_->getName());
+    }
 }
 
 //################//
@@ -140,10 +140,10 @@ SignalTextItem::handlePositionChange(const QPointF &dpos)
 }
 
 //void
-//	SignalTextItem
-//	::handleSelectionChange(bool selected)
+// SignalTextItem
+// ::handleSelectionChange(bool selected)
 //{
-////	setSelected(selected);
+//// setSelected(selected);
 //}
 
 QPainterPath

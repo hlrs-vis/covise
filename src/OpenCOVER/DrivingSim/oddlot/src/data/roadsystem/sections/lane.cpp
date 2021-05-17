@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.02.2010
+ **
+ **************************************************************************/
 
 #include "lane.hpp"
 
@@ -29,9 +29,9 @@
 
 #include "math.h"
 
-//###################//
-// Static Functions  //
-//###################//
+ //###################//
+ // Static Functions  //
+ //###################//
 
 const int Lane::NOLANE = -99;
 
@@ -56,10 +56,10 @@ Lane::parseLaneType(const QString &type)
         return Lane::LT_RESTRICTED;
     else if (type == "parking")
         return Lane::LT_PARKING;
-	else if (type == "bidirectional")
-		return Lane::LT_BIDIRECTIONAL;
-	else if (type == "median")
-		return Lane::LT_MEDIAN;
+    else if (type == "bidirectional")
+        return Lane::LT_BIDIRECTIONAL;
+    else if (type == "median")
+        return Lane::LT_MEDIAN;
     else if (type == "mwyEntry")
         return Lane::LT_MWYENTRY;
     else if (type == "mwyExit")
@@ -70,20 +70,20 @@ Lane::parseLaneType(const QString &type)
         return Lane::LT_SPECIAL2;
     else if (type == "special3")
         return Lane::LT_SPECIAL3;
-	else if (type == "roadWorks")
-		return Lane::LT_ROADWORKS;
-	else if (type == "tram")
-		return Lane::LT_TRAM;
-	else if (type == "rail")
-		return Lane::LT_RAIL;
-	else if (type == "entry")
-		return Lane::LT_ENTRY;
-	else if (type == "exit")
-		return Lane::LT_EXIT;
-	else if (type == "offRamp")
-		return Lane::LT_OFFRAMP;
-	else if (type == "onRamp")
-		return Lane::LT_ONRAMP;
+    else if (type == "roadWorks")
+        return Lane::LT_ROADWORKS;
+    else if (type == "tram")
+        return Lane::LT_TRAM;
+    else if (type == "rail")
+        return Lane::LT_RAIL;
+    else if (type == "entry")
+        return Lane::LT_ENTRY;
+    else if (type == "exit")
+        return Lane::LT_EXIT;
+    else if (type == "offRamp")
+        return Lane::LT_OFFRAMP;
+    else if (type == "onRamp")
+        return Lane::LT_ONRAMP;
     else
     {
         qDebug("WARNING: unknown lane type: %s", type.toUtf8().constData());
@@ -112,10 +112,10 @@ Lane::parseLaneTypeBack(Lane::LaneType type)
         return QString("restricted");
     else if (type == Lane::LT_PARKING)
         return QString("parking");
-	else if (type == Lane::LT_BIDIRECTIONAL)
-		return QString("bidirectional");
-	else if (type == Lane::LT_MEDIAN)
-		return QString("median");
+    else if (type == Lane::LT_BIDIRECTIONAL)
+        return QString("bidirectional");
+    else if (type == Lane::LT_MEDIAN)
+        return QString("median");
     else if (type == Lane::LT_MWYENTRY)
         return QString("mwyEntry");
     else if (type == Lane::LT_MWYEXIT)
@@ -126,20 +126,20 @@ Lane::parseLaneTypeBack(Lane::LaneType type)
         return QString("special2");
     else if (type == Lane::LT_SPECIAL3)
         return QString("special3");
-	else if (type == Lane::LT_ROADWORKS)
-		return QString("roadWorks");
-	else if (type == Lane::LT_TRAM)
-		return QString("tram");
-	else if (type == Lane::LT_RAIL)
-		return QString("rail");
-	else if (type == Lane::LT_ENTRY)
-		return QString("entry");
-	else if (type == Lane::LT_EXIT)
-		return QString("exit");
-	else if (type == Lane::LT_OFFRAMP)
-		return QString("offRamp");
-	else if (type == Lane::LT_ONRAMP)
-		return QString("onRamp");
+    else if (type == Lane::LT_ROADWORKS)
+        return QString("roadWorks");
+    else if (type == Lane::LT_TRAM)
+        return QString("tram");
+    else if (type == Lane::LT_RAIL)
+        return QString("rail");
+    else if (type == Lane::LT_ENTRY)
+        return QString("entry");
+    else if (type == Lane::LT_EXIT)
+        return QString("exit");
+    else if (type == Lane::LT_OFFRAMP)
+        return QString("offRamp");
+    else if (type == Lane::LT_ONRAMP)
+        return QString("onRamp");
     else
     {
         qDebug("WARNING: unknown lane type.");
@@ -167,20 +167,20 @@ Lane::~Lane()
 {
     // Delete child nodes //
     //
-    foreach (LaneWidth *child, widths_)
+    foreach(LaneWidth * child, widths_)
         delete child;
 
-    foreach (LaneBorder *child, borders_)
+    foreach(LaneBorder * child, borders_)
         delete child;
 
-    foreach (LaneRoadMark *child, marks_)
+    foreach(LaneRoadMark * child, marks_)
         delete child;
 
-    foreach (LaneSpeed *child, speeds_)
+    foreach(LaneSpeed * child, speeds_)
         delete child;
 
-	foreach(LaneRule *child, rules_)
-		delete child;
+    foreach(LaneRule * child, rules_)
+        delete child;
 }
 
 void
@@ -260,7 +260,7 @@ bool Lane::delWidthEntry(LaneWidth *widthEntry)
 {
     if (widths_.remove(widthEntry->getSSectionStart()) == 0)
         return false;
-	widthEntry->setParentLane(NULL);
+    widthEntry->setParentLane(NULL);
     addLaneChanges(Lane::CLN_WidthsChanged);
     return true;
 }
@@ -273,83 +273,83 @@ LaneWidth *Lane::getWidthEntry(double sSection) const
 LaneWidth *
 Lane::getWidthEntryBefore(double sSection) const
 {
-	if (widthActive_)
-	{
-		QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection); // the second one after the one we want
-		if (i == widths_.constBegin())
-		{
-			return NULL;
-		}
-		--i;
+    if (widthActive_)
+    {
+        QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection); // the second one after the one we want
+        if (i == widths_.constBegin())
+        {
+            return NULL;
+        }
+        --i;
 
-		if (i == widths_.constBegin())
-		{
-			return NULL;
-		}
-		--i;
+        if (i == widths_.constBegin())
+        {
+            return NULL;
+        }
+        --i;
 
-		return i.value();
-	}
-	else
-	{
-		QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection); // the second one after the one we want
-		if (i == borders_.constBegin())
-		{
-			return NULL;
-		}
-		--i;
+        return i.value();
+    }
+    else
+    {
+        QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection); // the second one after the one we want
+        if (i == borders_.constBegin())
+        {
+            return NULL;
+        }
+        --i;
 
-		if (i == borders_.constBegin())
-		{
-			return NULL;
-		}
-		--i;
+        if (i == borders_.constBegin())
+        {
+            return NULL;
+        }
+        --i;
 
-		return i.value();
-	}
+        return i.value();
+    }
 }
 
 LaneWidth *
 Lane::getWidthEntryNext(double sSection) const
 {
-	if (widthActive_)
-	{
-		QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
-		if (i == widths_.constEnd())
-		{
-			return NULL;
-		}
+    if (widthActive_)
+    {
+        QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
+        if (i == widths_.constEnd())
+        {
+            return NULL;
+        }
 
-		return i.value();
-	}
-	else
-	{
-		QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection);
-		if (i == borders_.constEnd())
-		{
-			return NULL;
-		}
+        return i.value();
+    }
+    else
+    {
+        QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection);
+        if (i == borders_.constEnd())
+        {
+            return NULL;
+        }
 
-		return i.value();
+        return i.value();
 
-	}
+    }
 }
 
 LaneWidth *
 Lane::getLastWidthEntry() const
 {
-	if (widthActive_)
-	{
-		QMap<double, LaneWidth *>::const_iterator i = widths_.constEnd();
-		--i;
-		return i.value();
-	}
-	else
-	{
-		QMap<double, LaneBorder *>::const_iterator i = borders_.constEnd();
-		--i;
-		return i.value();
-	}
+    if (widthActive_)
+    {
+        QMap<double, LaneWidth *>::const_iterator i = widths_.constEnd();
+        --i;
+        return i.value();
+    }
+    else
+    {
+        QMap<double, LaneBorder *>::const_iterator i = borders_.constEnd();
+        --i;
+        return i.value();
+    }
 }
 
 bool
@@ -358,90 +358,90 @@ Lane::moveWidthEntry(double oldS, double newS)
     // Section //
     //
     LaneWidth *section = widths_.value(oldS, NULL);
-	if (section)
-	{
-		// Previous section //
-		//
-		double previousS = 0.0;
-		if (newS > section->getSSectionStart())
-		{
-			// Expand previous section //
-			//
-			previousS = section->getSSectionStart() - 0.001;
-		}
-		else
-		{
-			// Shrink previous section //
-			//
-			previousS = newS;
-		}
-		LaneWidth *previousSection = getWidthEntry(previousS);
-		if (previousSection)
-		{
-			previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
-		}
+    if (section)
+    {
+        // Previous section //
+        //
+        double previousS = 0.0;
+        if (newS > section->getSSectionStart())
+        {
+            // Expand previous section //
+            //
+            previousS = section->getSSectionStart() - 0.001;
+        }
+        else
+        {
+            // Shrink previous section //
+            //
+            previousS = newS;
+        }
+        LaneWidth *previousSection = getWidthEntry(previousS);
+        if (previousSection)
+        {
+            previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
+        }
 
-		// Set and insert //
-		//
-		section->setSOffset(newS);
-		widths_.remove(oldS);
-		widths_.insert(newS, section);
+        // Set and insert //
+        //
+        section->setSOffset(newS);
+        widths_.remove(oldS);
+        widths_.insert(newS, section);
 
-		addLaneChanges(Lane::CLN_WidthsChanged);
-		return true;
-	}
-	else
-	{
-		LaneBorder *section = borders_.value(oldS, NULL);
-		if (section)
-		{
-			// Previous section //
-			//
-			double previousS = 0.0;
-			if (newS > section->getSSectionStart())
-			{
-				// Expand previous section //
-				//
-				previousS = section->getSSectionStart() - 0.001;
-			}
-			else
-			{
-				// Shrink previous section //
-				//
-				previousS = newS;
-			}
-			LaneBorder *previousSection = getBorderEntry(previousS);
-			if (previousSection)
-			{
-				previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
-			}
+        addLaneChanges(Lane::CLN_WidthsChanged);
+        return true;
+    }
+    else
+    {
+        LaneBorder *section = borders_.value(oldS, NULL);
+        if (section)
+        {
+            // Previous section //
+            //
+            double previousS = 0.0;
+            if (newS > section->getSSectionStart())
+            {
+                // Expand previous section //
+                //
+                previousS = section->getSSectionStart() - 0.001;
+            }
+            else
+            {
+                // Shrink previous section //
+                //
+                previousS = newS;
+            }
+            LaneBorder *previousSection = getBorderEntry(previousS);
+            if (previousSection)
+            {
+                previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
+            }
 
-			// Set and insert //
-			//
-			section->setSOffset(newS);
-			borders_.remove(oldS);
-			borders_.insert(newS, section);
+            // Set and insert //
+            //
+            section->setSOffset(newS);
+            borders_.remove(oldS);
+            borders_.insert(newS, section);
 
-			addLaneChanges(Lane::CLN_WidthsChanged);
-			return true;
-		}
-	}
+            addLaneChanges(Lane::CLN_WidthsChanged);
+            return true;
+        }
+    }
 
-        
-	return false;
+
+    return false;
 }
 
 LaneWidth *
 Lane::getWidthEntryContains(double sSection) const
 {
-	QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
-	if (i == widths_.constBegin())
-	{
-		qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
-		return NULL;
-	}
-	
-	return (--i).value();
+    QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
+    if (i == widths_.constBegin())
+    {
+        qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
+        return NULL;
+    }
+
+    return (--i).value();
 }
 
 /** Returns the width of this lane at the given coordinate sSection.
@@ -449,28 +449,28 @@ Lane::getWidthEntryContains(double sSection) const
 double
 Lane::getWidth(double sSection) const
 {
-	if (widthActive_)
-	{
-		QMap<double, LaneWidth *>::const_iterator iWidth = widths_.upperBound(sSection);
-		if (iWidth != widths_.constBegin())
-		{
-			--iWidth;
-			return iWidth.value()->getWidth(sSection);
-		}
-	}
-	else
-	{
-		QMap<double, LaneBorder *>::const_iterator iBorder = borders_.upperBound(sSection);
-		if (iBorder != borders_.constBegin())
-		{
-			--iBorder;
-			return iBorder.value()->getWidth(sSection);
-		}
-	}
+    if (widthActive_)
+    {
+        QMap<double, LaneWidth *>::const_iterator iWidth = widths_.upperBound(sSection);
+        if (iWidth != widths_.constBegin())
+        {
+            --iWidth;
+            return iWidth.value()->getWidth(sSection);
+        }
+    }
+    else
+    {
+        QMap<double, LaneBorder *>::const_iterator iBorder = borders_.upperBound(sSection);
+        if (iBorder != borders_.constBegin())
+        {
+            --iBorder;
+            return iBorder.value()->getWidth(sSection);
+        }
+    }
 
 
-	qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << " number of border entries in lane " << borders_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
-	return 0.0;
+    qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << " number of border entries in lane " << borders_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
+    return 0.0;
 }
 
 /** Returns the slope of this lane at the given coordinate sSection.
@@ -518,81 +518,81 @@ Lane::getWidthEnd(double sSection) const
 void
 Lane::addWidthEntry(LaneBorder *borderEntry)
 {
-	borders_.insert(borderEntry->getSOffset(), borderEntry);
-	borderEntry->setParentLane(this);
-	addLaneChanges(Lane::CLN_BorderChanged);
+    borders_.insert(borderEntry->getSOffset(), borderEntry);
+    borderEntry->setParentLane(this);
+    addLaneChanges(Lane::CLN_BorderChanged);
 }
 
 bool Lane::delWidthEntry(LaneBorder *borderEntry)
 {
-	if (borders_.remove(borderEntry->getSSectionStart()) == 0)
-		return false;
-	addLaneChanges(Lane::CLN_BorderChanged);
-	return true;
+    if (borders_.remove(borderEntry->getSSectionStart()) == 0)
+        return false;
+    addLaneChanges(Lane::CLN_BorderChanged);
+    return true;
 }
 
 LaneBorder *Lane::getBorderEntry(double sSection) const
 {
-	return (borders_.value(sSection, NULL));
+    return (borders_.value(sSection, NULL));
 }
 
 void
 Lane::delBorderEntries()
 {
-	borders_.clear();
+    borders_.clear();
 }
 
 LaneBorder *
 Lane::getLaneBorderBefore(double s) const
 {
-	QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(s); // the second one after the one we want
+    QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(s); // the second one after the one we want
 
-	if (i != borders_.constBegin())
-	{
-		--i;
-	}
+    if (i != borders_.constBegin())
+    {
+        --i;
+    }
 
-	if (i == borders_.constBegin())
-	{
-		LaneSection *parentLaneSectionBefore = parentLaneSection_->getParentRoad()->getLaneSectionBefore(parentLaneSection_->getSStart());
-		if (parentLaneSectionBefore)
-		{
-			Lane *laneBefore = parentLaneSectionBefore->getLane(getId());
+    if (i == borders_.constBegin())
+    {
+        LaneSection *parentLaneSectionBefore = parentLaneSection_->getParentRoad()->getLaneSectionBefore(parentLaneSection_->getSStart());
+        if (parentLaneSectionBefore)
+        {
+            Lane *laneBefore = parentLaneSectionBefore->getLane(getId());
 
-			if (laneBefore)
-			{
-				return laneBefore->getBorderEntry(parentLaneSection_->getSStart() - parentLaneSectionBefore->getSStart());
-			}
-		}
+            if (laneBefore)
+            {
+                return laneBefore->getBorderEntry(parentLaneSection_->getSStart() - parentLaneSectionBefore->getSStart());
+            }
+        }
 
-		return NULL;
-	}
-	--i;
+        return NULL;
+    }
+    --i;
 
-	return i.value();
+    return i.value();
 }
 
 LaneBorder *
 Lane::getLaneBorderNext(double s) const
 {
-	QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(s);
-	if (i == borders_.constEnd())
-	{
-		LaneSection *parentLaneSectionNext = parentLaneSection_->getParentRoad()->getLaneSectionNext(parentLaneSection_->getSStart());
-		if (parentLaneSectionNext)
-		{
-			Lane *laneNext = parentLaneSectionNext->getLane(getId());
+    QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(s);
+    if (i == borders_.constEnd())
+    {
+        LaneSection *parentLaneSectionNext = parentLaneSection_->getParentRoad()->getLaneSectionNext(parentLaneSection_->getSStart());
+        if (parentLaneSectionNext)
+        {
+            Lane *laneNext = parentLaneSectionNext->getLane(getId());
 
-			if (laneNext)
-			{
-				return laneNext->getBorderEntry(0.0);
-			}
-		}
+            if (laneNext)
+            {
+                return laneNext->getBorderEntry(0.0);
+            }
+        }
 
-		return NULL;
-	}
+        return NULL;
+    }
 
-	return i.value();
+    return i.value();
 }
 
 /** Returns the absolute end coordinate of the border entry
@@ -602,28 +602,28 @@ Lane::getLaneBorderNext(double s) const
 double
 Lane::getBorderEnd(double sSection) const
 {
-	QMap<double, LaneBorder *>::const_iterator nextIt = borders_.upperBound(sSection);
-	if (nextIt == borders_.constEnd())
-	{
-		return parentLaneSection_->getSEnd(); // lane section: [0.0, length]
-	}
-	else
-	{
-		return (*nextIt)->getSSectionStart() + parentLaneSection_->getSStart();
-	}
+    QMap<double, LaneBorder *>::const_iterator nextIt = borders_.upperBound(sSection);
+    if (nextIt == borders_.constEnd())
+    {
+        return parentLaneSection_->getSEnd(); // lane section: [0.0, length]
+    }
+    else
+    {
+        return (*nextIt)->getSSectionStart() + parentLaneSection_->getSStart();
+    }
 }
 
 LaneBorder *
 Lane::getBorderEntryContains(double sSection) const
 {
-	QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection);
-	if (i == borders_.constBegin())
-	{
-		qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << borders_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
-		return NULL;
-	}
+    QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection);
+    if (i == borders_.constBegin())
+    {
+        qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << borders_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
+        return NULL;
+    }
 
-	return (--i).value();
+    return (--i).value();
 }
 
 //########################//
@@ -632,22 +632,22 @@ Lane::getBorderEntryContains(double sSection) const
 void
 Lane::calculateTypeParameters(bool calculateWidth, const QList<LaneWidth *> &widthList) const
 {
-	int laneside = (id_ > 0) ? 1 : -1;
-	for (int j = 0; j < widthList.size(); j++)
-	{
+    int laneside = (id_ > 0) ? 1 : -1;
+    for (int j = 0; j < widthList.size(); j++)
+    {
 
-		LaneWidth *width = widthList.at(j);
-		if (calculateWidth)
-		{
-			/* iterate over all lanes */
-			*width -= parentLaneSection_->getPolynomialSum(id_ - laneside, laneside, width->getSSectionStart()); // alle Parameter summieren
-		}
-		else
-		{
-			*width += parentLaneSection_->getPolynomialSum(id_ - laneside, laneside, width->getSSectionStart());
-		}
+        LaneWidth *width = widthList.at(j);
+        if (calculateWidth)
+        {
+            /* iterate over all lanes */
+            *width -= parentLaneSection_->getPolynomialSum(id_ - laneside, laneside, width->getSSectionStart()); // alle Parameter summieren
+        }
+        else
+        {
+            *width += parentLaneSection_->getPolynomialSum(id_ - laneside, laneside, width->getSSectionStart());
+        }
 
-	}
+    }
 
 }
 
@@ -715,9 +715,9 @@ Lane::getRoadMarkEnd(double sSection) const
 void
 Lane::addLaneRuleEntry(LaneRule *ruleEntry)
 {
-	rules_.insert(ruleEntry->getSSectionStart(), ruleEntry);
-	ruleEntry->setParentLane(this);
-	addLaneChanges(Lane::CLN_LaneRulesChanged);
+    rules_.insert(ruleEntry->getSSectionStart(), ruleEntry);
+    ruleEntry->setParentLane(this);
+    addLaneChanges(Lane::CLN_LaneRulesChanged);
 }
 
 /** Returns the road mark entry at the given section coordinate (sSection).
@@ -725,17 +725,17 @@ Lane::addLaneRuleEntry(LaneRule *ruleEntry)
 LaneRule *
 Lane::getLaneRuleEntry(double sSection) const
 {
-	QMap<double, LaneRule *>::const_iterator i = rules_.upperBound(sSection);
-	if (i == rules_.constBegin())
-	{
-		qDebug("WARNING: Trying to get lane road mark but coordinate is out of bounds!");
-		return NULL;
-	}
-	else
-	{
-		--i;
-		return i.value();
-	}
+    QMap<double, LaneRule *>::const_iterator i = rules_.upperBound(sSection);
+    if (i == rules_.constBegin())
+    {
+        qDebug("WARNING: Trying to get lane road mark but coordinate is out of bounds!");
+        return NULL;
+    }
+    else
+    {
+        --i;
+        return i.value();
+    }
 }
 
 /** Returns the end coordinate of the road mark
@@ -748,16 +748,16 @@ Lane::getLaneRuleEntry(double sSection) const
 double
 Lane::getLaneRuleEnd(double sSection) const
 {
-	//sSection = 0.0; // ???
-	QMap<double, LaneRule *>::const_iterator nextIt = rules_.upperBound(sSection);
-	if (nextIt == rules_.constEnd())
-	{
-		return parentLaneSection_->getLength(); // lane section: [0.0, length]
-	}
-	else
-	{
-		return (*nextIt)->getSSectionStart();
-	}
+    //sSection = 0.0; // ???
+    QMap<double, LaneRule *>::const_iterator nextIt = rules_.upperBound(sSection);
+    if (nextIt == rules_.constEnd())
+    {
+        return parentLaneSection_->getLength(); // lane section: [0.0, length]
+    }
+    else
+    {
+        return (*nextIt)->getSSectionStart();
+    }
 }
 
 //####################//
@@ -769,9 +769,9 @@ Lane::getLaneRuleEnd(double sSection) const
 void
 Lane::addLaneAccessEntry(LaneAccess *accessEntry)
 {
-	accesses_.insert(accessEntry->getSSectionStart(), accessEntry);
-	accessEntry->setParentLane(this);
-	addLaneChanges(Lane::CLN_LaneAccessChanged);
+    accesses_.insert(accessEntry->getSSectionStart(), accessEntry);
+    accessEntry->setParentLane(this);
+    addLaneChanges(Lane::CLN_LaneAccessChanged);
 }
 
 /** Returns the road mark entry at the given section coordinate (sSection).
@@ -779,17 +779,17 @@ Lane::addLaneAccessEntry(LaneAccess *accessEntry)
 LaneAccess *
 Lane::getLaneAccessEntry(double sSection) const
 {
-	QMap<double, LaneAccess *>::const_iterator i = accesses_.upperBound(sSection);
-	if (i == accesses_.constBegin())
-	{
-		qDebug("WARNING: Trying to get lane road mark but coordinate is out of bounds!");
-		return NULL;
-	}
-	else
-	{
-		--i;
-		return i.value();
-	}
+    QMap<double, LaneAccess *>::const_iterator i = accesses_.upperBound(sSection);
+    if (i == accesses_.constBegin())
+    {
+        qDebug("WARNING: Trying to get lane road mark but coordinate is out of bounds!");
+        return NULL;
+    }
+    else
+    {
+        --i;
+        return i.value();
+    }
 }
 
 /** Returns the end coordinate of the road mark
@@ -802,16 +802,16 @@ Lane::getLaneAccessEntry(double sSection) const
 double
 Lane::getLaneAccessEnd(double sSection) const
 {
-	//sSection = 0.0; // ???
-	QMap<double, LaneAccess *>::const_iterator nextIt = accesses_.upperBound(sSection);
-	if (nextIt == accesses_.constEnd())
-	{
-		return parentLaneSection_->getLength(); // lane section: [0.0, length]
-	}
-	else
-	{
-		return (*nextIt)->getSSectionStart();
-	}
+    //sSection = 0.0; // ???
+    QMap<double, LaneAccess *>::const_iterator nextIt = accesses_.upperBound(sSection);
+    if (nextIt == accesses_.constEnd())
+    {
+        return parentLaneSection_->getLength(); // lane section: [0.0, length]
+    }
+    else
+    {
+        return (*nextIt)->getSSectionStart();
+    }
 }
 
 //####################//
@@ -948,28 +948,28 @@ Lane::getClone() const
 
     // LanesWidth //
     //
-    foreach (LaneWidth *child, widths_)
+    foreach(LaneWidth * child, widths_)
     {
         clone->addWidthEntry(child->getClone());
     }
 
-	// LanesBorder //
-	//
-	foreach(LaneBorder *child, borders_)
-	{
-		clone->addWidthEntry(child->getClone());
-	}
+    // LanesBorder //
+    //
+    foreach(LaneBorder * child, borders_)
+    {
+        clone->addWidthEntry(child->getClone());
+    }
 
     // LanesRoadMark //
     //
-    foreach (LaneRoadMark *child, marks_)
+    foreach(LaneRoadMark * child, marks_)
     {
         clone->addRoadMarkEntry(child->getClone());
     }
 
     // LanesSpeed //
     //
-    foreach (LaneSpeed *child, speeds_)
+    foreach(LaneSpeed * child, speeds_)
     {
         clone->addSpeedEntry(child->getClone());
     }
@@ -990,9 +990,9 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
 
     // LanesWidth //
     //
-    foreach (LaneWidth *child, widths_)
+    foreach(LaneWidth * child, widths_)
     {
-		double childStart = child->getSSectionStartAbs();
+        double childStart = child->getSSectionStartAbs();
         if (childStart < sOffsetStart)
         {
             // a) Starts and ends before cloned region //
@@ -1006,7 +1006,7 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
             //
             else
             {
-				double s = sOffsetStart - parentLaneSection_->getSStart();
+                double s = sOffsetStart - parentLaneSection_->getSStart();
                 LaneWidth *newEntry = new LaneWidth(0.0, child->getWidth(s), child->getSlope(s), child->getCurvature(s) / 2.0, child->getD());
                 clone->addWidthEntry(newEntry);
             }
@@ -1032,54 +1032,54 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
         }
     }
 
-	// LanesBorder //
-	//
-	foreach(LaneBorder *child, borders_)
-	{
-		double childStart = child->getSSectionStartAbs();
-		if (childStart < sOffsetStart)
-		{
-			// a) Starts and ends before cloned region //
-			//
-			if (child->getSSectionEnd() < sOffsetStart)
-			{
-				continue; // do not add
-			}
+    // LanesBorder //
+    //
+    foreach(LaneBorder * child, borders_)
+    {
+        double childStart = child->getSSectionStartAbs();
+        if (childStart < sOffsetStart)
+        {
+            // a) Starts and ends before cloned region //
+            //
+            if (child->getSSectionEnd() < sOffsetStart)
+            {
+                continue; // do not add
+            }
 
-			// b) Starts before cloned region, ends in it //
-			//
-			else
-			{
-				double s = sOffsetStart - parentLaneSection_->getSStart();
-				LaneBorder *newEntry = new LaneBorder(0.0, child->getWidth(s), child->getSlope(s), child->getCurvature(s) / 2.0, child->getD());
-				newEntry->setSOffset(0.0);
-				clone->addWidthEntry(newEntry);
-			}
-		}
-		else if (childStart < sOffsetEnd)
-		{
-			// c) Starts in cloned region //
-			//
-			double newSStart = childStart - sOffsetStart;
-			if (fabs(newSStart) < NUMERICAL_ZERO6)
-			{
-				newSStart = 0.0; // round to zero, so it isn't negative (e.g. -1e-7)
-			}
-			LaneBorder *newEntry = child->getClone();
-			newEntry->setSOffset(newSStart);
-			clone->addWidthEntry(newEntry);
-		}
-		else
-		{
-			// d) Starts behind cloned region //
-			//
-			continue; // do not add
-		}
-	}
+            // b) Starts before cloned region, ends in it //
+            //
+            else
+            {
+                double s = sOffsetStart - parentLaneSection_->getSStart();
+                LaneBorder *newEntry = new LaneBorder(0.0, child->getWidth(s), child->getSlope(s), child->getCurvature(s) / 2.0, child->getD());
+                newEntry->setSOffset(0.0);
+                clone->addWidthEntry(newEntry);
+            }
+        }
+        else if (childStart < sOffsetEnd)
+        {
+            // c) Starts in cloned region //
+            //
+            double newSStart = childStart - sOffsetStart;
+            if (fabs(newSStart) < NUMERICAL_ZERO6)
+            {
+                newSStart = 0.0; // round to zero, so it isn't negative (e.g. -1e-7)
+            }
+            LaneBorder *newEntry = child->getClone();
+            newEntry->setSOffset(newSStart);
+            clone->addWidthEntry(newEntry);
+        }
+        else
+        {
+            // d) Starts behind cloned region //
+            //
+            continue; // do not add
+        }
+    }
 
     // LanesRoadMark //
     //
-    foreach (LaneRoadMark *child, marks_)
+    foreach(LaneRoadMark * child, marks_)
     {
         double childStart = child->getParentLane()->getParentLaneSection()->getSStart() + child->getSOffset();
         if (childStart < sOffsetStart)
@@ -1126,7 +1126,7 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
 
     // LanesSpeed //
     //
-    foreach (LaneSpeed *child, speeds_)
+    foreach(LaneSpeed * child, speeds_)
     {
         if (child->getSSectionStart() < sOffsetStart)
         {
@@ -1194,8 +1194,8 @@ Lane::acceptForChildNodes(Visitor *visitor)
     acceptForRoadMarks(visitor);
     acceptForSpeeds(visitor);
     acceptForHeights(visitor);
-	acceptForRules(visitor);
-	acceptForAccess(visitor);
+    acceptForRules(visitor);
+    acceptForAccess(visitor);
 }
 
 /*! Accepts a visitor and passes it to the width entries.
@@ -1203,11 +1203,11 @@ Lane::acceptForChildNodes(Visitor *visitor)
 void
 Lane::acceptForWidths(Visitor *visitor)
 {
-    foreach (LaneWidth *child, widths_)
+    foreach(LaneWidth * child, widths_)
         child->accept(visitor);
 
-	foreach(LaneBorder *child, borders_)
-		child->accept(visitor);
+    foreach(LaneBorder * child, borders_)
+        child->accept(visitor);
 }
 
 /*! Accepts a visitor and passes it to the road mark entries.
@@ -1215,7 +1215,7 @@ Lane::acceptForWidths(Visitor *visitor)
 void
 Lane::acceptForRoadMarks(Visitor *visitor)
 {
-    foreach (LaneRoadMark *child, marks_)
+    foreach(LaneRoadMark * child, marks_)
         child->accept(visitor);
 }
 
@@ -1224,7 +1224,7 @@ Lane::acceptForRoadMarks(Visitor *visitor)
 void
 Lane::acceptForSpeeds(Visitor *visitor)
 {
-    foreach (LaneSpeed *child, speeds_)
+    foreach(LaneSpeed * child, speeds_)
         child->accept(visitor);
 }
 
@@ -1233,7 +1233,7 @@ Lane::acceptForSpeeds(Visitor *visitor)
 void
 Lane::acceptForHeights(Visitor *visitor)
 {
-    foreach (LaneHeight *child, heights_)
+    foreach(LaneHeight * child, heights_)
         child->accept(visitor);
 }
 
@@ -1242,8 +1242,8 @@ Lane::acceptForHeights(Visitor *visitor)
 void
 Lane::acceptForRules(Visitor *visitor)
 {
-	foreach(LaneRule *child, rules_)
-		child->accept(visitor);
+    foreach(LaneRule * child, rules_)
+        child->accept(visitor);
 }
 
 /*! Accepts a visitor and passes it to the road mark entries.
@@ -1251,6 +1251,6 @@ Lane::acceptForRules(Visitor *visitor)
 void
 Lane::acceptForAccess(Visitor *visitor)
 {
-	foreach(LaneAccess *child, accesses_)
-		child->accept(visitor);
+    foreach(LaneAccess * child, accesses_)
+        child->accept(visitor);
 }

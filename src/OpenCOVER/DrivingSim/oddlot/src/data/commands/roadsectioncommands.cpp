@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "roadsectioncommands.hpp"
 
@@ -21,9 +21,9 @@
 
 #define MINROADSECTIONLENGTH 1.0
 
-//###############//
-// MoveRoadSectionCommand //
-//###############//
+ //###############//
+ // MoveRoadSectionCommand //
+ //###############//
 
 MoveRoadSectionCommand::MoveRoadSectionCommand(RoadSection *roadSection, double s, RSystemElementRoad::DRoadSectionType sectionType, DataCommand *parent)
     : DataCommand(parent)
@@ -62,7 +62,7 @@ MoveRoadSectionCommand::MoveRoadSectionCommand(RoadSection *roadSection, double 
     {
         if ((roadSection->getSStart() < NUMERICAL_ZERO7) // first section of the road
             || ((roadSection->getSEnd() - newS_ < MINROADSECTIONLENGTH) // min length at end
-            || (newS_ - roadSection->getParentRoad()->getRoadSectionBefore(roadSection->getSStart(), sectionType_)->getSStart() < MINROADSECTIONLENGTH)))
+                || (newS_ - roadSection->getParentRoad()->getRoadSectionBefore(roadSection->getSStart(), sectionType_)->getSStart() < MINROADSECTIONLENGTH)))
         {
             setInvalid(); // Invalid
             setText(QObject::tr("Move Road Section (invalid!)"));
@@ -75,34 +75,34 @@ MoveRoadSectionCommand::MoveRoadSectionCommand(RoadSection *roadSection, double 
         newS_ = roadSection->getParentRoad()->getLength();
     }
 
-/*	if (sectionType == RSystemElementRoad::DRS_LaneSection)   // to do: move LaneSection
-	{
-		RSystemElementRoad *road = roadSection->getParentRoad();
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
-		LaneSection *laneSection = dynamic_cast<LaneSection *>(roadSection);
-		QMap<double, LaneMoveProperties *> propsMap;
-		QMap<int, Lane *>::const_iterator it = laneSection->getLanes().constBegin();
-		QPointF dPos = road->getGlobalPoint(newS_) - road->getGlobalPoint(oldS_);
-		while (it != laneSection->getLanes().constEnd())
-		{
-			LaneMoveProperties *props = new LaneMoveProperties();
-			props->lowSlot = NULL;
-			props->highSlot = it.value()->getWidthEntry(oldS_);
-			props->dPos = dPos;
-			propsMap.insert(oldS_, props);
-			it++;
-		}
-		selectedLaneMoveProps.insert(road, propsMap);
+    /* if (sectionType == RSystemElementRoad::DRS_LaneSection)   // to do: move LaneSection
+        {
+            RSystemElementRoad *road = roadSection->getParentRoad();
+            QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
+            LaneSection *laneSection = dynamic_cast<LaneSection *>(roadSection);
+            QMap<double, LaneMoveProperties *> propsMap;
+            QMap<int, Lane *>::const_iterator it = laneSection->getLanes().constBegin();
+            QPointF dPos = road->getGlobalPoint(newS_) - road->getGlobalPoint(oldS_);
+            while (it != laneSection->getLanes().constEnd())
+            {
+                LaneMoveProperties *props = new LaneMoveProperties();
+                props->lowSlot = NULL;
+                props->highSlot = it.value()->getWidthEntry(oldS_);
+                props->dPos = dPos;
+                propsMap.insert(oldS_, props);
+                it++;
+            }
+            selectedLaneMoveProps.insert(road, propsMap);
 
-		translateLaneBorderCommand_ = new TranslateLaneBorderCommand<LaneWidth>(selectedLaneMoveProps, 0.0, dPos, this);
-		if (!translateLaneBorderCommand_->isValid())
-		{
-			return;
-		}
-	} */
+            translateLaneBorderCommand_ = new TranslateLaneBorderCommand<LaneWidth>(selectedLaneMoveProps, 0.0, dPos, this);
+            if (!translateLaneBorderCommand_->isValid())
+            {
+                return;
+            }
+        } */
 
-    // Done //
-    //
+        // Done //
+        //
     setValid();
     setText(QObject::tr("Move Road Section"));
 }

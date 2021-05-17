@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 
 #include "osmimport.hpp"
 #include "importsettings.hpp"
@@ -24,7 +24,7 @@
 #include "src/gui/importsettings.hpp"
 #include "src/graph/topviewgraph.hpp"
 
-// Data //
+ // Data //
 #include "src/data/visitors/boundingboxvisitor.hpp"
 #include "src/data/projectdata.hpp"
 #include "src/data/commands/projectdatacommands.hpp"
@@ -46,7 +46,7 @@ OsmImport::OsmImport()
 
     nam = new QNetworkAccessManager(this);
     QObject::connect(nam, SIGNAL(finished(QNetworkReply *)),
-                     this, SLOT(finishedSlot(QNetworkReply *)));
+        this, SLOT(finishedSlot(QNetworkReply *)));
     ui->minLatSpin->setDecimals(8);
     ui->minLatSpin->setMaximum(360);
     ui->minLatSpin->setMinimum(-360);
@@ -65,7 +65,7 @@ OsmImport::OsmImport()
     ui->maxLongSpin->setMaximum(360);
     ui->maxLongSpin->setMinimum(-360);
     ui->maxLongSpin->setDecimals(8);
-     ui->maxLongSpin->setValue(9.291937);
+    ui->maxLongSpin->setValue(9.291937);
     //ui->maxLongSpin->setValue(121.476);
 
     connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
@@ -88,7 +88,7 @@ OsmImport::importOSMFile(const QString &fileName)
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
- 
+
     QDomDocument doc;
     if (!doc.setContent(&file)) {
         file.close();
@@ -111,7 +111,7 @@ bool OsmImport::parseDoc(QDomDocument &doc)
     {
         ways.append(new osmWay(list.at(i).toElement(), nodes, this));
     }
-    
+
     bool doPrimary = ImportSettings::instance()->importPrimary();
     bool doSecondary = ImportSettings::instance()->importSecondary();
     bool doTertiary = ImportSettings::instance()->importTertiary();
@@ -153,7 +153,7 @@ bool OsmImport::parseDoc(QDomDocument &doc)
             project->ZVector = w->ZVector;
             if (project->XVector.size() > 0)
             {
-                project->addLineStrip(w->name,w->maxSpeed,w->bridge,w->numLanes,w->type);
+                project->addLineStrip(w->name, w->maxSpeed, w->bridge, w->numLanes, w->type);
             }
         }
     }
@@ -251,7 +251,7 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *import
     type = unknown;
     numLanes = 2;
     maxSpeed = -1;
-    bridge=false;
+    bridge = false;
     name = "id" + element.attribute("id");
     QDomNodeList list = element.elementsByTagName("nd");
     for (int i = 0; i < list.count(); i++)
@@ -260,7 +260,7 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *import
         uint64_t ref = ele.attribute("ref").toLongLong();
         for (int n = 0; n < nodes.count(); n++)
         {
-            osmNode *node =nodes.at(n);
+            osmNode *node = nodes.at(n);
             if (node->id == ref)
             {
                 double x, y, z;
@@ -269,7 +269,7 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *import
                 //if (y > M_PI_2)
                     //y = y - 2* M_PI;
                 z = 0.0;
-                importer->project->getProjectionSettings()->transform(x,y,z);
+                importer->project->getProjectionSettings()->transform(x, y, z);
                 XVector.push_back(x);
                 YVector.push_back(y);
                 ZVector.push_back(0.0);
@@ -326,19 +326,19 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *import
             {
                 type = secondary;
             }
-            else if (v == "secondary"|| v == "secondary_link")
+            else if (v == "secondary" || v == "secondary_link")
             {
                 type = secondary;
             }
-            else if (v == "tertiary"|| v == "tertiary_link")
+            else if (v == "tertiary" || v == "tertiary_link")
             {
                 type = tertiary;
             }
-            else if (v == "motorway"|| v == "motorway_link")
+            else if (v == "motorway" || v == "motorway_link")
             {
                 type = motorway;
             }
-            else if (v == "service"|| v == "service_link")
+            else if (v == "service" || v == "service_link")
             {
                 type = service;
             }
@@ -376,35 +376,35 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *import
 
 QString osmWay::getTypeName(wayType t)
 {
-    if(t == unclassified)
+    if (t == unclassified)
         return QString("unclassified");
-    if(t == pedestrian)
+    if (t == pedestrian)
         return QString("pedestrian");
-    if(t == turning_circle)
+    if (t == turning_circle)
         return QString("turning_circle");
-    if(t == cycleway)
+    if (t == cycleway)
         return QString("cycleway");
-    if(t == living_street)
+    if (t == living_street)
         return QString("living_street");
-    if(t == path)
+    if (t == path)
         return QString("path");
-    if(t == service)
+    if (t == service)
         return QString("service");
-    if(t == motorway)
+    if (t == motorway)
         return QString("motorway");
-    if(t == tertiary)
+    if (t == tertiary)
         return QString("tertiary");
-    if(t == secondary)
+    if (t == secondary)
         return QString("secondary");
-    if(t == primary)
+    if (t == primary)
         return QString("primary");
-    if(t == steps)
+    if (t == steps)
         return QString("steps");
-    if(t == track)
+    if (t == track)
         return QString("track");
-    if(t == footway)
+    if (t == footway)
         return QString("footway");
-    if(t == residential)
+    if (t == residential)
         return QString("residential");
     return("unclassified");
 }
@@ -421,13 +421,13 @@ void
 OsmImport::on_preview_released()
 {
     /*
-	QString boxString;
+    QString boxString;
 
-	boxString = QString::number(ui->minLongSpin->value(),'f',10)+QString(",")+ QString::number(ui->minLatSpin->value(),'f',10)+QString(",")+ QString::number(ui->maxLongSpin->value(),'f',10)+QString(",")+ QString::number(ui->maxLatSpin->value(),'f',10);
-   
-	QUrl url("http://api.openstreetmap.org/api/0.6/map?bbox="+boxString);
+    boxString = QString::number(ui->minLongSpin->value(),'f',10)+QString(",")+ QString::number(ui->minLatSpin->value(),'f',10)+QString(",")+ QString::number(ui->maxLongSpin->value(),'f',10)+QString(",")+ QString::number(ui->maxLatSpin->value(),'f',10);
+
+    QUrl url("http://api.openstreetmap.org/api/0.6/map?bbox="+boxString);
     QNetworkReply* reply = nam->get(QNetworkRequest(url));
-	*/
+    */
     // maybe we need to check the reply and compare it to the reply we get in the slot to check whether it is for the correct request.
 }
 

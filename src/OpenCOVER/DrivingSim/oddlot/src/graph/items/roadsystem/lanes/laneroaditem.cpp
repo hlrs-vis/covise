@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/15/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/15/2010
+ **
+ **************************************************************************/
 
 #include "laneroaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
@@ -43,11 +43,11 @@
 #include "src/graph/editors/laneeditor.hpp"
 
 LaneRoadItem::LaneRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road)
-	: RoadItem(roadSystemItem, road)
-	, road_(road)
+    : RoadItem(roadSystemItem, road)
+    , road_(road)
 {
 
-	init();
+    init();
 }
 
 LaneRoadItem::~LaneRoadItem()
@@ -57,21 +57,21 @@ LaneRoadItem::~LaneRoadItem()
 void
 LaneRoadItem::init()
 {
-	// ElevationEditor //
-	//
-	laneEditor_ = dynamic_cast<LaneEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
-	if (!laneEditor_)
-	{
-		qDebug("Warning 1006241105! ElevationRoadItem not created by an ElevationEditor");
-	}
-	// SectionItems //
-	//
-	foreach(LaneSection *section, getRoad()->getLaneSections())
-	{
-		laneSectionItems_.insert(section, new LaneSectionItem(laneEditor_, this, section));
-	}
+    // ElevationEditor //
+    //
+    laneEditor_ = dynamic_cast<LaneEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+    if (!laneEditor_)
+    {
+        qDebug("Warning 1006241105! ElevationRoadItem not created by an ElevationEditor");
+    }
+    // SectionItems //
+    //
+    foreach(LaneSection * section, getRoad()->getLaneSections())
+    {
+        laneSectionItems_.insert(section, new LaneSectionItem(laneEditor_, this, section));
+    }
 
-	rebuildMoveRotateHandles(false);
+    rebuildMoveRotateHandles(false);
 }
 
 // SectionItems //
@@ -79,19 +79,19 @@ LaneRoadItem::init()
 void
 LaneRoadItem::addSectionItem(LaneSectionItem *item)
 {
-	laneSectionItems_.insert(item->getLaneSection(), item);
+    laneSectionItems_.insert(item->getLaneSection(), item);
 }
 
 int
 LaneRoadItem::removeSectionItem(LaneSectionItem *item)
 {
-	return laneSectionItems_.remove(item->getLaneSection());
+    return laneSectionItems_.remove(item->getLaneSection());
 }
 
 LaneSectionItem *
 LaneRoadItem::getSectionItem(LaneSection *section)
 {
-	return laneSectionItems_.value(section);
+    return laneSectionItems_.value(section);
 }
 
 //##################//
@@ -105,224 +105,224 @@ void
 LaneRoadItem::rebuildMoveRotateHandles(bool delHandles)
 {
 
-	// Move Handles are build per road. Adjacent lanes share a handle, adjacent roads not. //
-	//
-	
-	if (delHandles)
-	{
-		deleteHandles();
-	}
+    // Move Handles are build per road. Adjacent lanes share a handle, adjacent roads not. //
+    //
+
+    if (delHandles)
+    {
+        deleteHandles();
+    }
 
 
-	handlesItem_ = new QGraphicsPathItem(this);
-	handlesItem_->setZValue(1.0); // Stack handles before items
+    handlesItem_ = new QGraphicsPathItem(this);
+    handlesItem_->setZValue(1.0); // Stack handles before items
 
-	int leftmostLaneId = 0;
-	int rightmostLaneId = 0;
-	foreach(LaneSection *laneSection, road_->getLaneSections())
-	{
-		if (laneSection->getLeftmostLaneId() > leftmostLaneId)
-		{
-			leftmostLaneId = laneSection->getLeftmostLaneId();
-		}
+    int leftmostLaneId = 0;
+    int rightmostLaneId = 0;
+    foreach(LaneSection * laneSection, road_->getLaneSections())
+    {
+        if (laneSection->getLeftmostLaneId() > leftmostLaneId)
+        {
+            leftmostLaneId = laneSection->getLeftmostLaneId();
+        }
 
-		if (laneSection->getRightmostLaneId() < rightmostLaneId)
-		{
-			rightmostLaneId = laneSection->getRightmostLaneId();
-		}
-	}
+        if (laneSection->getRightmostLaneId() < rightmostLaneId)
+        {
+            rightmostLaneId = laneSection->getRightmostLaneId();
+        }
+    }
 
 
-	bool newHandle = true;
-	for (int id = leftmostLaneId; id >= rightmostLaneId; id--)
-	{
+    bool newHandle = true;
+    for (int id = leftmostLaneId; id >= rightmostLaneId; id--)
+    {
 
-		LaneSection *laneSection;
-		QList<Lane *> lanes;
-		foreach(laneSection, road_->getLaneSections())
-		{
-			Lane *lane = laneSection->getLane(id);
-			if (lane)
-			{
-				lanes.append(lane);
-			}
-		}
+        LaneSection *laneSection;
+        QList<Lane *> lanes;
+        foreach(laneSection, road_->getLaneSections())
+        {
+            Lane *lane = laneSection->getLane(id);
+            if (lane)
+            {
+                lanes.append(lane);
+            }
+        }
 
-		LaneMoveHandle<LaneWidth, LaneWidth> *currentWWMoveHandle = NULL;
-		LaneMoveHandle<LaneWidth, LaneBorder> *currentWBMoveHandle = NULL;
-		LaneMoveHandle<LaneBorder, LaneWidth> *currentBWMoveHandle = NULL;
-		LaneMoveHandle<LaneBorder, LaneBorder> *currentBBMoveHandle = NULL;
-		bool lastWidth;
+        LaneMoveHandle<LaneWidth, LaneWidth> *currentWWMoveHandle = NULL;
+        LaneMoveHandle<LaneWidth, LaneBorder> *currentWBMoveHandle = NULL;
+        LaneMoveHandle<LaneBorder, LaneWidth> *currentBWMoveHandle = NULL;
+        LaneMoveHandle<LaneBorder, LaneBorder> *currentBBMoveHandle = NULL;
+        bool lastWidth;
 
-		while (!lanes.isEmpty())
-		{
-			Lane *lane = lanes.takeFirst();
-			LaneSection *laneSection = lane->getParentLaneSection(); 
-			while (laneSection)
-			{
-				if (lane)
-				{
-					if (lane->isWidthActive())
-					{
-						QMap<double, LaneWidth *> widthEntries = lane->getWidthEntries();
-						if (widthEntries.isEmpty())
-						{
-							laneSection = road_->getLaneSectionNext(laneSection->getSStart());
-							if (laneSection)
-							{
-								lane = laneSection->getLane(id);
-								if (lane)
-								{
-									lanes.takeAt(lanes.indexOf(lane));
-								}
-							}
-							newHandle = true;
-							continue;
-						}
+        while (!lanes.isEmpty())
+        {
+            Lane *lane = lanes.takeFirst();
+            LaneSection *laneSection = lane->getParentLaneSection();
+            while (laneSection)
+            {
+                if (lane)
+                {
+                    if (lane->isWidthActive())
+                    {
+                        QMap<double, LaneWidth *> widthEntries = lane->getWidthEntries();
+                        if (widthEntries.isEmpty())
+                        {
+                            laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+                            if (laneSection)
+                            {
+                                lane = laneSection->getLane(id);
+                                if (lane)
+                                {
+                                    lanes.takeAt(lanes.indexOf(lane));
+                                }
+                            }
+                            newHandle = true;
+                            continue;
+                        }
 
-						QMap<double, LaneWidth *>::const_iterator it = widthEntries.constBegin();
+                        QMap<double, LaneWidth *>::const_iterator it = widthEntries.constBegin();
 
-						while (it != widthEntries.constEnd())
-						{
-							LaneWidth *laneWidth = it.value();
+                        while (it != widthEntries.constEnd())
+                        {
+                            LaneWidth *laneWidth = it.value();
 
-							if (newHandle)
-							{
-								currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_);
-								currentWWMoveHandle->registerHighSlot(laneWidth);
+                            if (newHandle)
+                            {
+                                currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_);
+                                currentWWMoveHandle->registerHighSlot(laneWidth);
 
-								newHandle = false;
-							}
-							else if (!lastWidth)
-							{
-								currentBWMoveHandle->registerHighSlot(laneWidth);
-							}
-							else
-							{
-								currentWWMoveHandle->registerHighSlot(laneWidth); // last handle
-							}
+                                newHandle = false;
+                            }
+                            else if (!lastWidth)
+                            {
+                                currentBWMoveHandle->registerHighSlot(laneWidth);
+                            }
+                            else
+                            {
+                                currentWWMoveHandle->registerHighSlot(laneWidth); // last handle
+                            }
 
-							if (++it == widthEntries.constEnd())
-							{
-								laneSection = road_->getLaneSectionNext(laneSection->getSStart());
-								if (laneSection)
-								{
-									lane = laneSection->getLane(id);
-									if (lane)
-									{
+                            if (++it == widthEntries.constEnd())
+                            {
+                                laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+                                if (laneSection)
+                                {
+                                    lane = laneSection->getLane(id);
+                                    if (lane)
+                                    {
 
-										lanes.takeAt(lanes.indexOf(lane));
+                                        lanes.takeAt(lanes.indexOf(lane));
 
-										if (lane->getPredecessor() != -99)
-										{
-											if (lane->isWidthActive())
-											{
-												currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
-												currentWWMoveHandle->registerLowSlot(laneWidth);
-											}
-											else
-											{
-												currentWBMoveHandle = new LaneMoveHandle<LaneWidth, LaneBorder>(laneEditor_, handlesItem_); // new handle
-												currentWBMoveHandle->registerLowSlot(laneWidth);
-											}
-											lastWidth = true;
-											continue;
-										}
-									}
-								}
+                                        if (lane->getPredecessor() != -99)
+                                        {
+                                            if (lane->isWidthActive())
+                                            {
+                                                currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
+                                                currentWWMoveHandle->registerLowSlot(laneWidth);
+                                            }
+                                            else
+                                            {
+                                                currentWBMoveHandle = new LaneMoveHandle<LaneWidth, LaneBorder>(laneEditor_, handlesItem_); // new handle
+                                                currentWBMoveHandle->registerLowSlot(laneWidth);
+                                            }
+                                            lastWidth = true;
+                                            continue;
+                                        }
+                                    }
+                                }
 
-								newHandle = true;
-							}
+                                newHandle = true;
+                            }
 
-							currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
-							currentWWMoveHandle->registerLowSlot(laneWidth); // new handle
-							lastWidth = true;
-						}
-					}
-					else
-					{
-						QMap<double, LaneBorder *> borderEntries = lane->getBorderEntries();
-						if (borderEntries.isEmpty())
-						{
-							laneSection = road_->getLaneSectionNext(laneSection->getSStart());
-							if (laneSection)
-							{
-								lane = laneSection->getLane(id);
-								if (lane)
-								{
-									lanes.takeAt(lanes.indexOf(lane));
-								}
-							}
-							newHandle = true;
-							continue;
-						}
+                            currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
+                            currentWWMoveHandle->registerLowSlot(laneWidth); // new handle
+                            lastWidth = true;
+                        }
+                    }
+                    else
+                    {
+                        QMap<double, LaneBorder *> borderEntries = lane->getBorderEntries();
+                        if (borderEntries.isEmpty())
+                        {
+                            laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+                            if (laneSection)
+                            {
+                                lane = laneSection->getLane(id);
+                                if (lane)
+                                {
+                                    lanes.takeAt(lanes.indexOf(lane));
+                                }
+                            }
+                            newHandle = true;
+                            continue;
+                        }
 
-						QMap<double, LaneBorder *>::const_iterator it = borderEntries.constBegin();
-						while (it != borderEntries.constEnd())
-						{
-							LaneBorder *laneBorder = it.value();
+                        QMap<double, LaneBorder *>::const_iterator it = borderEntries.constBegin();
+                        while (it != borderEntries.constEnd())
+                        {
+                            LaneBorder *laneBorder = it.value();
 
-							if (newHandle)
-							{
-								currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_);
-								currentBBMoveHandle->registerHighSlot(laneBorder);
-								newHandle = false;
-							}
-							else if (lastWidth)
-							{
-								currentWBMoveHandle->registerHighSlot(laneBorder);
-							}
-							else
-							{
-								currentBBMoveHandle->registerHighSlot(laneBorder); // last handle
-							}
+                            if (newHandle)
+                            {
+                                currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_);
+                                currentBBMoveHandle->registerHighSlot(laneBorder);
+                                newHandle = false;
+                            }
+                            else if (lastWidth)
+                            {
+                                currentWBMoveHandle->registerHighSlot(laneBorder);
+                            }
+                            else
+                            {
+                                currentBBMoveHandle->registerHighSlot(laneBorder); // last handle
+                            }
 
-							if (++it == borderEntries.constEnd())
-							{
-								laneSection = road_->getLaneSectionNext(laneSection->getSStart());
-								if (laneSection)
-								{
-									lane = laneSection->getLane(id);
-									if (lane)
-									{
-										lanes.takeAt(lanes.indexOf(lane));
+                            if (++it == borderEntries.constEnd())
+                            {
+                                laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+                                if (laneSection)
+                                {
+                                    lane = laneSection->getLane(id);
+                                    if (lane)
+                                    {
+                                        lanes.takeAt(lanes.indexOf(lane));
 
-										if (lane->getPredecessor() != -99)
-										{
-											if (lane->isWidthActive())
-											{
-												currentBWMoveHandle = new LaneMoveHandle<LaneBorder, LaneWidth>(laneEditor_, handlesItem_); // new handle
-												currentBWMoveHandle->registerLowSlot(laneBorder);
-											}
-											else
-											{
-												currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_); // new handle
-												currentBBMoveHandle->registerLowSlot(laneBorder);
-											}
-											lastWidth = false;
+                                        if (lane->getPredecessor() != -99)
+                                        {
+                                            if (lane->isWidthActive())
+                                            {
+                                                currentBWMoveHandle = new LaneMoveHandle<LaneBorder, LaneWidth>(laneEditor_, handlesItem_); // new handle
+                                                currentBWMoveHandle->registerLowSlot(laneBorder);
+                                            }
+                                            else
+                                            {
+                                                currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_); // new handle
+                                                currentBBMoveHandle->registerLowSlot(laneBorder);
+                                            }
+                                            lastWidth = false;
 
-											continue;
-										}
-									}
-								}
+                                            continue;
+                                        }
+                                    }
+                                }
 
-								newHandle = true;
-							}
+                                newHandle = true;
+                            }
 
-							currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_); // new handle
-							currentBBMoveHandle->registerLowSlot(laneBorder); // new handle
-							lastWidth = false;
-						}
-					}
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-	} 
-	
+                            currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_); // new handle
+                            currentBBMoveHandle->registerLowSlot(laneBorder); // new handle
+                            lastWidth = false;
+                        }
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+
 }
 
 
@@ -334,18 +334,18 @@ LaneRoadItem::rebuildMoveRotateHandles(bool delHandles)
 void
 LaneRoadItem::deleteHandles()
 {
-	//	delete handlesItem_;
-	if (handlesItem_ != NULL)
-	{
-		if (laneEditor_)
-		{
-			laneEditor_->getTopviewGraph()->getScene()->removeItem(handlesItem_);
-		}
+    // delete handlesItem_;
+    if (handlesItem_ != NULL)
+    {
+        if (laneEditor_)
+        {
+            laneEditor_->getTopviewGraph()->getScene()->removeItem(handlesItem_);
+        }
 
-		handlesItem_->setParentItem(NULL);
-		getProjectGraph()->addToGarbage(handlesItem_);
-		handlesItem_ = NULL;
-	}
+        handlesItem_->setParentItem(NULL);
+        getProjectGraph()->addToGarbage(handlesItem_);
+        handlesItem_ = NULL;
+    }
 }
 
 //##################//
@@ -374,17 +374,17 @@ LaneRoadItem::updateObserver()
     {
         // A section has been added.
         //
-        foreach (LaneSection *section, getRoad()->getLaneSections())
+        foreach(LaneSection * section, getRoad()->getLaneSections())
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
-				laneSectionItems_.insert(section, new LaneSectionItem(laneEditor_, this, section));
+                laneSectionItems_.insert(section, new LaneSectionItem(laneEditor_, this, section));
             }
         }
-		rebuildMoveRotateHandles(true);
+        rebuildMoveRotateHandles(true);
     }
 
 
-	
+
 }

@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/24/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/24/2010
+ **
+ **************************************************************************/
 
 #include "editablehandle.hpp"
 
 
-// Graph //
-//
+ // Graph //
+ //
 #include "src/graph/editors/projecteditor.hpp"
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
@@ -31,38 +31,38 @@
 //################//
 
 EditableHandle::EditableHandle(double value, BaseLaneMoveHandle *parent, bool flip)
-	: QGraphicsProxyWidget(parent)
-	, Observer()
+    : QGraphicsProxyWidget(parent)
+    , Observer()
 {
 
-	// Flags //
-	//
-	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
-	setFlag(QGraphicsItem::ItemIgnoresParentOpacity, true);
-	setAcceptHoverEvents(true);
+    // Flags //
+    //
+    setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+    setFlag(QGraphicsItem::ItemIgnoresParentOpacity, true);
+    setAcceptHoverEvents(true);
 
-	// Transformation //
-	//
-	// Note: The y-Axis flip is done here, because the item ignores
-	// the view's transformation
-	if (flip)
-	{
-		QTransform trafo;
-		trafo.rotate(180, Qt::XAxis);
-		setTransform(trafo);
-	} 
+    // Transformation //
+    //
+    // Note: The y-Axis flip is done here, because the item ignores
+    // the view's transformation
+    if (flip)
+    {
+        QTransform trafo;
+        trafo.rotate(180, Qt::XAxis);
+        setTransform(trafo);
+    }
 
-	// ZValue //
-	//
-	setZValue(1.0); // stack before siblings
+    // ZValue //
+    //
+    setZValue(1.0); // stack before siblings
 
-	editableItem_ = new QDoubleSpinBox();
-	editableItem_->setButtonSymbols(QAbstractSpinBox::NoButtons);
-	editableItem_->setMinimum(0.0);
-	editableItem_->setMaximum(99.99);
-	editableItem_->setStyleSheet("QDoubleSpinBox { background-color : white; color : black; }");
-	connect(editableItem_, SIGNAL(valueChanged(double)), parent, SLOT(setLaneWidth(double)));
-	setWidget(editableItem_);
+    editableItem_ = new QDoubleSpinBox();
+    editableItem_->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    editableItem_->setMinimum(0.0);
+    editableItem_->setMaximum(99.99);
+    editableItem_->setStyleSheet("QDoubleSpinBox { background-color : white; color : black; }");
+    connect(editableItem_, SIGNAL(valueChanged(double)), parent, SLOT(setLaneWidth(double)));
+    setWidget(editableItem_);
 
 }
 
@@ -84,9 +84,9 @@ EditableHandle::getValue() const
 void
 EditableHandle::setValue(double value)
 {
-	editableItem_->blockSignals(true);
-	editableItem_->setValue(value);
-	editableItem_->blockSignals(false);
+    editableItem_->blockSignals(true);
+    editableItem_->setValue(value);
+    editableItem_->blockSignals(false);
 }
 
 

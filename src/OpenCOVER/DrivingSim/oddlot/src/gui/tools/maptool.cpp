@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   6/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   6/11/2010
+ **
+ **************************************************************************/
 
 #include "maptool.hpp"
 
 #include "toolmanager.hpp"
 #include "src/mainwindow.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QWidget>
 #include <QToolBar>
 #include <QAction>
@@ -36,11 +36,11 @@
 MapTool::MapTool(ToolManager *toolManager)
     : EditorTool(toolManager)
     ,
-    //		keepRatio_(true),
-    //		lastX_(0.0),
-    //		lastY_(0.0),
-    //		lastWidth_(100.0),
-    //		lastHeight_(100.0),
+    //  keepRatio_(true),
+    //  lastX_(0.0),
+    //  lastY_(0.0),
+    //  lastWidth_(100.0),
+    //  lastHeight_(100.0),
     active_(false)
 {
     // Connect //
@@ -80,41 +80,41 @@ MapTool::MapTool(ToolManager *toolManager)
     lockMapAction_->setChecked(true);
     connect(lockMapAction_, SIGNAL(triggered(bool)), this, SLOT(lockMap(bool)));
 
-    //	QLabel * xLabel = new QLabel(" x: ");
-    //	xLineEdit_ = new QDoubleSpinBox();
-    //	xLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    //	xLineEdit_->setRange(-1000000.0, 1000000.0);
-    //	xLineEdit_->setValue(lastX_);
-    //	xLineEdit_->setMinimumWidth(100);
-    //	xLineEdit_->setMaximumWidth(100);
-    //	connect(xLineEdit_, SIGNAL(editingFinished()), this, SLOT(setX()));
+    // QLabel * xLabel = new QLabel(" x: ");
+    // xLineEdit_ = new QDoubleSpinBox();
+    // xLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    // xLineEdit_->setRange(-1000000.0, 1000000.0);
+    // xLineEdit_->setValue(lastX_);
+    // xLineEdit_->setMinimumWidth(100);
+    // xLineEdit_->setMaximumWidth(100);
+    // connect(xLineEdit_, SIGNAL(editingFinished()), this, SLOT(setX()));
 
-    //	QLabel * yLabel = new QLabel(" y: ");
-    //	yLineEdit_ = new QDoubleSpinBox();
-    //	yLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    //	yLineEdit_->setRange(-1000000.0, 1000000.0);
-    //	yLineEdit_->setValue(lastY_);
-    //	yLineEdit_->setMinimumWidth(100);
-    //	yLineEdit_->setMaximumWidth(100);
-    //	connect(yLineEdit_, SIGNAL(editingFinished()), this, SLOT(setY()));
+    // QLabel * yLabel = new QLabel(" y: ");
+    // yLineEdit_ = new QDoubleSpinBox();
+    // yLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    // yLineEdit_->setRange(-1000000.0, 1000000.0);
+    // yLineEdit_->setValue(lastY_);
+    // yLineEdit_->setMinimumWidth(100);
+    // yLineEdit_->setMaximumWidth(100);
+    // connect(yLineEdit_, SIGNAL(editingFinished()), this, SLOT(setY()));
 
-    //	QLabel * wLabel = new QLabel(" w: ");
-    //	widthLineEdit_ = new QDoubleSpinBox();
-    //	widthLineEdit_->setRange(1.0, 1000000.0);
-    //	widthLineEdit_->setValue(lastWidth_);
-    //	widthLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    //	widthLineEdit_->setMinimumWidth(100);
-    //	widthLineEdit_->setMaximumWidth(100);
-    //	connect(widthLineEdit_, SIGNAL(editingFinished()), this, SLOT(setWidth()));
+    // QLabel * wLabel = new QLabel(" w: ");
+    // widthLineEdit_ = new QDoubleSpinBox();
+    // widthLineEdit_->setRange(1.0, 1000000.0);
+    // widthLineEdit_->setValue(lastWidth_);
+    // widthLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    // widthLineEdit_->setMinimumWidth(100);
+    // widthLineEdit_->setMaximumWidth(100);
+    // connect(widthLineEdit_, SIGNAL(editingFinished()), this, SLOT(setWidth()));
 
-    //	QLabel * hLabel = new QLabel(" h: ");
-    //	heightLineEdit_ = new QDoubleSpinBox();
-    //	heightLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    //	heightLineEdit_->setRange(1.0, 1000000.0);
-    //	heightLineEdit_->setValue(lastHeight_);
-    //	heightLineEdit_->setMinimumWidth(100);
-    //	heightLineEdit_->setMaximumWidth(100);
-    //	connect(heightLineEdit_, SIGNAL(editingFinished()), this, SLOT(setHeight()));
+    // QLabel * hLabel = new QLabel(" h: ");
+    // heightLineEdit_ = new QDoubleSpinBox();
+    // heightLineEdit_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    // heightLineEdit_->setRange(1.0, 1000000.0);
+    // heightLineEdit_->setValue(lastHeight_);
+    // heightLineEdit_->setMinimumWidth(100);
+    // heightLineEdit_->setMaximumWidth(100);
+    // connect(heightLineEdit_, SIGNAL(editingFinished()), this, SLOT(setHeight()));
 
     // Deactivate if no project //
     //
@@ -130,14 +130,14 @@ MapTool::MapTool(ToolManager *toolManager)
     mapToolBar->addAction(loadBingAction_);
     mapToolBar->addAction(deleteMapAction_);
     mapToolBar->addAction(lockMapAction_);
-    //	mapToolBar->addWidget(xLabel);
-    //	mapToolBar->addWidget(xLineEdit_);
-    //	mapToolBar->addWidget(yLabel);
-    //	mapToolBar->addWidget(yLineEdit_);
-    //	mapToolBar->addWidget(wLabel);
-    //	mapToolBar->addWidget(widthLineEdit_);
-    //	mapToolBar->addWidget(hLabel);
-    //	mapToolBar->addWidget(heightLineEdit_);
+    // mapToolBar->addWidget(xLabel);
+    // mapToolBar->addWidget(xLineEdit_);
+    // mapToolBar->addWidget(yLabel);
+    // mapToolBar->addWidget(yLineEdit_);
+    // mapToolBar->addWidget(wLabel);
+    // mapToolBar->addWidget(widthLineEdit_);
+    // mapToolBar->addWidget(hLabel);
+    // mapToolBar->addWidget(heightLineEdit_);
 
     // ToolManager //
     //
@@ -177,10 +177,10 @@ MapTool::activateProject(bool active)
     lockMapAction_->setEnabled(active_);
     loadGoogleAction_->setEnabled(active_);
     loadBingAction_->setEnabled(active_);
-    //	xLineEdit_->setEnabled(active_);
-    //	yLineEdit_->setEnabled(active_);
-    //	widthLineEdit_->setEnabled(active_);
-    //	heightLineEdit_->setEnabled(active_);
+    // xLineEdit_->setEnabled(active_);
+    // yLineEdit_->setEnabled(active_);
+    // widthLineEdit_->setEnabled(active_);
+    // heightLineEdit_->setEnabled(active_);
 
     // Rulers //
     //
@@ -244,11 +244,11 @@ MapTool::deleteMap()
 void
 MapTool::lockMap(bool lock)
 {
-    /*	opacityComboBox_->setEnabled(!lock && active_);
-	loadMapAction_->setEnabled(!lock && active_);
-	deleteMapAction_->setEnabled(!lock && active_);*/
-    //	widthLineEdit_->setEnabled(!lock && active_);
-    //	heightLineEdit_->setEnabled(!lock && active_);
+    /* opacityComboBox_->setEnabled(!lock && active_);
+    loadMapAction_->setEnabled(!lock && active_);
+    deleteMapAction_->setEnabled(!lock && active_);*/
+    // widthLineEdit_->setEnabled(!lock && active_);
+    // heightLineEdit_->setEnabled(!lock && active_);
     // x and y?
 
     MapToolAction *action = new MapToolAction(MapTool::TMA_LOCK);
@@ -260,63 +260,63 @@ MapTool::lockMap(bool lock)
 ///*!
 //*/
 //void
-//	MapTool
-//	::setX()
+// MapTool
+// ::setX()
 //{
-//	MapToolAction * action = new MapToolAction(MapTool::TMA_X);
-//	action->setX(xLineEdit_->value());
-//	emit toolAction(action);
-//	delete action;
+// MapToolAction * action = new MapToolAction(MapTool::TMA_X);
+// action->setX(xLineEdit_->value());
+// emit toolAction(action);
+// delete action;
 
-//	lastX_ = xLineEdit_->value();
+// lastX_ = xLineEdit_->value();
 //}
 
 ///*!
 //*/
 //void
-//	MapTool
-//	::setY()
+// MapTool
+// ::setY()
 //{
-//	MapToolAction * action = new MapToolAction(MapTool::TMA_Y);
-//	action->setY(yLineEdit_->value());
-//	emit toolAction(action);
-//	delete action;
+// MapToolAction * action = new MapToolAction(MapTool::TMA_Y);
+// action->setY(yLineEdit_->value());
+// emit toolAction(action);
+// delete action;
 
-//	lastY_ = yLineEdit_->value();
+// lastY_ = yLineEdit_->value();
 //}
 
 ///*!
 //*/
 //void
-//	MapTool
-//	::setWidth()
+// MapTool
+// ::setWidth()
 //{
-////	if(lastWidth_ != widthLineEdit_->value())
-//	{
-//		MapToolAction * action = new MapToolAction(MapTool::TMA_WIDTH);
-//		action->setWidth(widthLineEdit_->value(), keepRatio_);
-//		emit toolAction(action);
-//		delete action;
+//// if(lastWidth_ != widthLineEdit_->value())
+// {
+//  MapToolAction * action = new MapToolAction(MapTool::TMA_WIDTH);
+//  action->setWidth(widthLineEdit_->value(), keepRatio_);
+//  emit toolAction(action);
+//  delete action;
 
-//		lastWidth_ = widthLineEdit_->value();
-//	}
+//  lastWidth_ = widthLineEdit_->value();
+// }
 //}
 
 ///*!
 //*/
 //void
-//	MapTool
-//	::setHeight()
+// MapTool
+// ::setHeight()
 //{
-////	if(lastHeight_ != heightLineEdit_->value())
-//	{
-//		MapToolAction * action = new MapToolAction(MapTool::TMA_HEIGHT);
-//		action->setHeight(heightLineEdit_->value(), keepRatio_);
-//		emit toolAction(action);
-//		delete action;
+//// if(lastHeight_ != heightLineEdit_->value())
+// {
+//  MapToolAction * action = new MapToolAction(MapTool::TMA_HEIGHT);
+//  action->setHeight(heightLineEdit_->value(), keepRatio_);
+//  emit toolAction(action);
+//  delete action;
 
-//		lastHeight_ = heightLineEdit_->value();
-//	}
+//  lastHeight_ = heightLineEdit_->value();
+// }
 //}
 
 //################//
@@ -334,10 +334,10 @@ MapToolAction::MapToolAction(MapTool::MapToolId mapToolId)
     , mapToolId_(mapToolId)
     , opacity_("")
     , toggled_(true) /*,
-		x_(0.0),
-		y_(0.0),
-		width_(0.0),
-		height_(0.0)*/
+        x_(0.0),
+        y_(0.0),
+        width_(0.0),
+        height_(0.0)*/
 {
 }
 
@@ -346,10 +346,10 @@ MapToolAction::MapToolAction(const QString &opacity)
     , mapToolId_(MapTool::TMA_OPACITY)
     , opacity_(opacity)
     , toggled_(true) /*,
-		x_(0.0),
-		y_(0.0),
-		width_(0.0),
-		height_(0.0)*/
+        x_(0.0),
+        y_(0.0),
+        width_(0.0),
+        height_(0.0)*/
 {
 }
 
@@ -360,31 +360,31 @@ MapToolAction::setToggled(bool toggled)
 }
 
 //void
-//	MapToolAction
-//	::setX(double x)
+// MapToolAction
+// ::setX(double x)
 //{
-//	x_ = x;
+// x_ = x;
 //}
 
 //void
-//	MapToolAction
-//	::setY(double y)
+// MapToolAction
+// ::setY(double y)
 //{
-//	y_ = y;
+// y_ = y;
 //}
 
 //void
-//	MapToolAction
-//	::setWidth(double width, bool keepRatio)
+// MapToolAction
+// ::setWidth(double width, bool keepRatio)
 //{
-//	width_ = width;
-//	keepRatio_ = keepRatio;
+// width_ = width;
+// keepRatio_ = keepRatio;
 //}
 
 //void
-//	MapToolAction
-//	::setHeight(double height, bool keepRatio)
+// MapToolAction
+// ::setHeight(double height, bool keepRatio)
 //{
-//	height_ = height;
-//	keepRatio_ = keepRatio;
+// height_ = height;
+// keepRatio_ = keepRatio;
 //}

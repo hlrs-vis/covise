@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "bridgetextitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -34,8 +34,8 @@
 
 BridgeTextItem::BridgeTextItem(GraphElement *item, Bridge *bridge)
     : GraphElement(item, bridge)
-	, bridge_(bridge)
-	, item_(item)
+    , bridge_(bridge)
+    , item_(item)
 {
     // Text //
     //
@@ -43,21 +43,21 @@ BridgeTextItem::BridgeTextItem(GraphElement *item, Bridge *bridge)
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
-    //	textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //	connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
-    //	connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
+    // textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
+    // connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
 
     // Flags //
     //
-    //	setSelectable();
-    //	setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+    // setSelectable();
+    // setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
 
     // Path //
     //
     updatePosition();
 
-	updateName();
+    updateName();
 
     // Hide the text item on creation and show it only on mouse hover of the parent //
     //
@@ -82,7 +82,7 @@ BridgeTextItem::createPath()
     thePath.moveTo(0.0, 0.0);
     thePath.lineTo(mapFromScene(bridge_->getParentRoad()->getGlobalPoint(bridge_->getSStart(), 0.0)));
 
-    //	thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
+    // thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
 
     setPath(thePath);
 }
@@ -97,21 +97,21 @@ BridgeTextItem::updatePosition()
 void
 BridgeTextItem::updateName()
 {
-	if ((bridge_->getName() == "") || (bridge_->getName() == "unnamed"))
-	{
-		if (Tunnel *tunnel = dynamic_cast<Tunnel *>(bridge_))
-		{
-			textHandle_->setText("Tunnel");
-		}
-		else
-		{
-			textHandle_->setText("Bridge");
-		}
-	}
-	else
-	{
-		textHandle_->setText(bridge_->getName());
-	}
+    if ((bridge_->getName() == "") || (bridge_->getName() == "unnamed"))
+    {
+        if (Tunnel *tunnel = dynamic_cast<Tunnel *>(bridge_))
+        {
+            textHandle_->setText("Tunnel");
+        }
+        else
+        {
+            textHandle_->setText("Bridge");
+        }
+    }
+    else
+    {
+        textHandle_->setText(bridge_->getName());
+    }
 }
 
 //################//
@@ -126,10 +126,10 @@ BridgeTextItem::handlePositionChange(const QPointF &dpos)
 }
 
 //void
-//	BridgeTextItem
-//	::handleSelectionChange(bool selected)
+// BridgeTextItem
+// ::handleSelectionChange(bool selected)
 //{
-////	setSelected(selected);
+//// setSelected(selected);
 //}
 
 QPainterPath

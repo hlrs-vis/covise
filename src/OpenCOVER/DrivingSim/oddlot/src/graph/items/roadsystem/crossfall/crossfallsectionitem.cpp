@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfallsectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
@@ -67,7 +67,7 @@ CrossfallSectionItem::CrossfallSectionItem(CrossfallEditor *crossfallEditor, Roa
     //
     init();
 
-	parentRoadItem_ = dynamic_cast<CrossfallRoadItem *>(parentRoadItem);
+    parentRoadItem_ = dynamic_cast<CrossfallRoadItem *>(parentRoadItem);
 }
 
 CrossfallSectionItem::~CrossfallSectionItem()
@@ -146,7 +146,7 @@ CrossfallSectionItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->HeightEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)
@@ -237,7 +237,7 @@ CrossfallSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
-		parentRoadItem_->mousePressEvent(event);
+        parentRoadItem_->mousePressEvent(event);
     }
     else
     {

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.06.2010
+ **
+ **************************************************************************/
 
 #include "scenerycommands.hpp"
 
@@ -19,9 +19,9 @@
 #include "src/data/scenerysystem/scenerymap.hpp"
 #include "src/data/scenerysystem/heightmap.hpp"
 
-//###############//
-// AddMapCommand //
-//###############//
+ //###############//
+ // AddMapCommand //
+ //###############//
 
 AddMapCommand::AddMapCommand(ScenerySystem *scenerySystem, SceneryMap *map, DataCommand *parent)
     : DataCommand(parent)

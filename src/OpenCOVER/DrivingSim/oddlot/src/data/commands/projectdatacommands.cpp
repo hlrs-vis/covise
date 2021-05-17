@@ -9,9 +9,9 @@
 
 #include "src/data/projectdata.hpp"
 
-//#######################//
-// SetProjectDimensionsCommand //
-//#######################//
+ //#######################//
+ // SetProjectDimensionsCommand //
+ //#######################//
 
 SetProjectDimensionsCommand::SetProjectDimensionsCommand(ProjectData *projectData, double north, double south, double east, double west, DataCommand *parent)
     : DataCommand(parent)
@@ -45,29 +45,29 @@ SetProjectDimensionsCommand::SetProjectDimensionsCommand(ProjectData *projectDat
         return;
     }
 
-	if (((newNorth_ - newSouth_) < 10.0)
-		|| ((newEast_ - newWest_) < 10.0))
-	{
-	/*	setInvalid(); // Invalid
-		setText(QObject::tr("Set Canvas size: invalid parameters! Width and height must be at least 10.0m each."));
-		return; */
+    if (((newNorth_ - newSouth_) < 10.0)
+        || ((newEast_ - newWest_) < 10.0))
+    {
+        /* setInvalid(); // Invalid
+            setText(QObject::tr("Set Canvas size: invalid parameters! Width and height must be at least 10.0m each."));
+            return; */
 
-		double b = newNorth_ - newSouth_;
-		if (b < 10.0)
-		{
-			b = (10.0 - b) * 0.5;
-			newNorth_ += b;
-			newSouth_ -= b;
-		}
+        double b = newNorth_ - newSouth_;
+        if (b < 10.0)
+        {
+            b = (10.0 - b) * 0.5;
+            newNorth_ += b;
+            newSouth_ -= b;
+        }
 
-		b = newEast_ - newWest_;
-		if (b < 10.0)
-		{
-			b = (10.0 - b) * 0.5;
-			newEast_ += b;
-			newWest_ -= b;
-		}
-	}
+        b = newEast_ - newWest_;
+        if (b < 10.0)
+        {
+            b = (10.0 - b) * 0.5;
+            newEast_ += b;
+            newWest_ -= b;
+        }
+    }
 
     setValid();
     setText(QObject::tr("Set Canvas size"));

@@ -5,25 +5,25 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "georeference.hpp"
 
 
-//####################//
-// Constructors       //
-//####################//
+ //####################//
+ // Constructors       //
+ //####################//
 
 GeoReference::GeoReference(const QString &geoReferenceParams)
     :DataElement()
 {
-	geoReferenceParams_ = geoReferenceParams;
+    geoReferenceParams_ = geoReferenceParams;
 }
 
 GeoReference::~GeoReference()
@@ -42,7 +42,7 @@ GeoReference::~GeoReference()
 void
 GeoReference::notificationDone()
 {
-	geoReferenceChanges_ = 0x0;
+    geoReferenceChanges_ = 0x0;
 }
 
 /*! \brief Add one or more change flags.

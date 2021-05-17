@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "oscbaseitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/commands/osccommands.hpp"
@@ -66,17 +66,17 @@
 using namespace OpenScenario;
 
 OSCBaseItem::OSCBaseItem(TopviewGraph *topviewGraph, OSCBase *oscBase)
-	: SVGElement(NULL, oscBase)
-	, topviewGraph_(topviewGraph)
-	, oscBase_(oscBase)
+    : SVGElement(NULL, oscBase)
+    , topviewGraph_(topviewGraph)
+    , oscBase_(oscBase)
 {
-	roadSystem_ = topviewGraph->getProjectData()->getRoadSystem();
+    roadSystem_ = topviewGraph->getProjectData()->getRoadSystem();
 
-	// OpenScenario Editor
+    // OpenScenario Editor
     //
-	OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
+    OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(topviewGraph_->getProjectWidget()->getProjectEditor());
 
-	oscRoadSystemItem_ = oscEditor->getRoadSystemItem();
+    oscRoadSystemItem_ = oscEditor->getRoadSystemItem();
 
     init();
 }
@@ -87,129 +87,129 @@ OSCBaseItem::~OSCBaseItem()
 
 void
 OSCBaseItem::init()
-{	
-	OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-	catalogs_ = openScenarioBase->Catalogs.getOrCreateObject();
-	OpenScenario::oscStoryboard *story = openScenarioBase->Storyboard.getOrCreateObject();
-	OpenScenario::oscInit *init = story->Init.getOrCreateObject();
-	actions_ = init->Actions.getOrCreateObject();
-	OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
+{
+    OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+    catalogs_ = openScenarioBase->Catalogs.getOrCreateObject();
+    OpenScenario::oscStoryboard *story = openScenarioBase->Storyboard.getOrCreateObject();
+    OpenScenario::oscInit *init = story->Init.getOrCreateObject();
+    actions_ = init->Actions.getOrCreateObject();
+    OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
 
-	// Root Base item //
+    // Root Base item //
     //
-	foreach (OSCElement *element, oscBase_->getOSCElements())
-	{
-		OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
-		if (object)
-		{
-			std::string objectName = object->name.getValue();
-			OpenScenario::oscCatalog *catalog = getCatalog(object);
-			if (!catalog)
-			{
-				continue;
-			}
+    foreach(OSCElement * element, oscBase_->getOSCElements())
+    {
+        OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
+        if (object)
+        {
+            std::string objectName = object->name.getValue();
+            OpenScenario::oscCatalog *catalog = getCatalog(object);
+            if (!catalog)
+            {
+                continue;
+            }
 
-			for(oscArrayMember::iterator it =privateArray->begin();it != privateArray->end();it++)
-			{
-				OpenScenario::oscPrivate *privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
-				if (privateObject->object.getValue() == objectName)
-				{
-					OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
+            for (oscArrayMember::iterator it = privateArray->begin(); it != privateArray->end(); it++)
+            {
+                OpenScenario::oscPrivate *privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
+                if (privateObject->object.getValue() == objectName)
+                {
+                    OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
 
-					if (!privateAction)
-					{
-						break;
-					}
+                    if (!privateAction)
+                    {
+                        break;
+                    }
 
-					OpenScenario::oscPosition *oscPosition = privateAction->Position.getObject();
+                    OpenScenario::oscPosition *oscPosition = privateAction->Position.getObject();
 
-					if (oscPosition)
-					{
+                    if (oscPosition)
+                    {
 
-						OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
-						if (oscPosRoad)
-						{
+                        OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
+                        if (oscPosRoad)
+                        {
 
-	//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
-							QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
-							RSystemElementRoad *road;
-							int i;
-							for (i = 0; i < idList.size(); i++)
-							{
-								road = roadSystem_->getRoad(idList.at(i));
-								if (road->getLength() > oscPosRoad->s.getValue())
-								{
-									break;
-								}
-							}
+                            //      odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+                            QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
+                            RSystemElementRoad *road;
+                            int i;
+                            for (i = 0; i < idList.size(); i++)
+                            {
+                                road = roadSystem_->getRoad(idList.at(i));
+                                if (road->getLength() > oscPosRoad->s.getValue())
+                                {
+                                    break;
+                                }
+                            }
 
-							if (i < idList.size())
-							{
-								double s = oscPosRoad->s.getValue();
-								double t = oscPosRoad->t.getValue();
-								new OSCItem(element, this, object, catalog, oscPosRoad, road);
-							}
-						}
-						break;
-					}
-				}
-			}
-		}
-	}
+                            if (i < idList.size())
+                            {
+                                double s = oscPosRoad->s.getValue();
+                                double t = oscPosRoad->t.getValue();
+                                new OSCItem(element, this, object, catalog, oscPosRoad, road);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 }
 
 OpenScenario::oscCatalog *
 OSCBaseItem::getCatalog(OpenScenario::oscObject *object)
 {
-	OpenScenario::oscCatalog *catalog = NULL;
+    OpenScenario::oscCatalog *catalog = NULL;
 
-	OpenScenario::oscCatalogReference *catalogReference = object->CatalogReference.getObject();
-	if (!catalogReference)
-	{
-		return NULL;
-	}
-	std::string catalogName = catalogReference->catalogName.getValue();
-	OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
-	if (catalogMember)
-	{
-		catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObjectBase());
-	}
+    OpenScenario::oscCatalogReference *catalogReference = object->CatalogReference.getObject();
+    if (!catalogReference)
+    {
+        return NULL;
+    }
+    std::string catalogName = catalogReference->catalogName.getValue();
+    OpenScenario::oscMember *catalogMember = catalogs_->getMember(catalogName);
+    if (catalogMember)
+    {
+        catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogMember->getObjectBase());
+    }
 
-	return catalog;
+    return catalog;
 }
 
 
 OpenScenario::oscPrivateAction *
 OSCBaseItem::getPrivateAction(OpenScenario::oscObject *object, OpenScenario::oscPrivate *privateObject)
 {
-	OpenScenario::oscPrivateAction *privateAction = NULL;
+    OpenScenario::oscPrivateAction *privateAction = NULL;
 
-	OpenScenario::oscArrayMember *privateActionsArray = dynamic_cast<OpenScenario::oscArrayMember *>(privateObject->getMember("Action"));
+    OpenScenario::oscArrayMember *privateActionsArray = dynamic_cast<OpenScenario::oscArrayMember *>(privateObject->getMember("Action"));
 
-	for(oscArrayMember::iterator it =privateActionsArray->begin();it != privateActionsArray->end();it++)
-	{
-		OpenScenario::oscPrivateAction *action = dynamic_cast<OpenScenario::oscPrivateAction *>(*it);
+    for (oscArrayMember::iterator it = privateActionsArray->begin(); it != privateActionsArray->end(); it++)
+    {
+        OpenScenario::oscPrivateAction *action = dynamic_cast<OpenScenario::oscPrivateAction *>(*it);
 
-		if (action)
-		{
-			OpenScenario::oscMember *member = action->getMember("Position");
-			if (member->isSelected())
-			{
-				privateAction = action;
-				break;
-			}
-		}
-	}
+        if (action)
+        {
+            OpenScenario::oscMember *member = action->getMember("Position");
+            if (member->isSelected())
+            {
+                privateAction = action;
+                break;
+            }
+        }
+    }
 
-	return privateAction;
+    return privateAction;
 }
 
 void
 OSCBaseItem::appendOSCItem(OSCItem *oscItem)
 {
-	OSCElement *element = dynamic_cast<OSCElement *>(oscItem->getDataElement());
-	QString id = element->getID();
+    OSCElement *element = dynamic_cast<OSCElement *>(oscItem->getDataElement());
+    QString id = element->getID();
     if (!oscItems_.contains(id))
     {
         oscItems_.insert(id, oscItem);
@@ -219,7 +219,7 @@ OSCBaseItem::appendOSCItem(OSCItem *oscItem)
 bool
 OSCBaseItem::removeOSCItem(OSCItem *oscItem)
 {
-	OSCElement *element = dynamic_cast<OSCElement *>(oscItem->getDataElement());
+    OSCElement *element = dynamic_cast<OSCElement *>(oscItem->getDataElement());
     return oscItems_.remove(element->getID());
 }
 
@@ -232,7 +232,7 @@ OSCBaseItem::removeOSCItem(OSCItem *oscItem)
 *
 */
 void
-OSCBaseItem:: updateObserver()
+OSCBaseItem::updateObserver()
 {
     // Parent //
     //
@@ -244,83 +244,83 @@ OSCBaseItem:: updateObserver()
 
     // Base //
     //
-	int changes = oscBase_->getOSCBaseChanges();
+    int changes = oscBase_->getOSCBaseChanges();
 
-	if (changes & OSCBase::OSCBaseChange::COSC_ElementChange)
+    if (changes & OSCBase::OSCBaseChange::COSC_ElementChange)
     {
-		QMap<QString, OSCElement *>::const_iterator iter = oscBase_->getOSCElements().constBegin();
-         while (iter != oscBase_->getOSCElements().constEnd())
+        QMap<QString, OSCElement *>::const_iterator iter = oscBase_->getOSCElements().constBegin();
+        while (iter != oscBase_->getOSCElements().constEnd())
         {
-			OSCElement *element = iter.value();
-			OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
-			if (object)
-			{
-				OpenScenario::oscCatalog *catalog = getCatalog(object);
-				if (!catalog)
-				{
-					iter++;
-					continue;
-				}
+            OSCElement *element = iter.value();
+            OpenScenario::oscObject *object = dynamic_cast<OpenScenario::oscObject *>(element->getObject());
+            if (object)
+            {
+                OpenScenario::oscCatalog *catalog = getCatalog(object);
+                if (!catalog)
+                {
+                    iter++;
+                    continue;
+                }
 
-				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-				{
-					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
+                if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+                    || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+                {
+                    OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
 
-					// Root Base item //
-					//
+                    // Root Base item //
+                    //
 
-					OpenScenario::oscPrivate *privateObject = NULL;
-					for (oscArrayMember::iterator it = privateArray->begin(); it != privateArray->end(); it++)
-					{
-						privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
-						if (privateObject->object.getValue() == object->name.getValue())
-						{
-							break;
-						}
-					}
+                    OpenScenario::oscPrivate *privateObject = NULL;
+                    for (oscArrayMember::iterator it = privateArray->begin(); it != privateArray->end(); it++)
+                    {
+                        privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
+                        if (privateObject->object.getValue() == object->name.getValue())
+                        {
+                            break;
+                        }
+                    }
 
-					if (!privateObject)
-					{
-						iter++;
-						continue;
-					}
-					OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
+                    if (!privateObject)
+                    {
+                        iter++;
+                        continue;
+                    }
+                    OpenScenario::oscPrivateAction *privateAction = getPrivateAction(object, privateObject);
 
-					if (!privateAction)
-					{
-						iter++;
-						continue;
-					}
+                    if (!privateAction)
+                    {
+                        iter++;
+                        continue;
+                    }
 
-					OpenScenario::oscPosition *oscPosition = privateAction->Position.getObject();
+                    OpenScenario::oscPosition *oscPosition = privateAction->Position.getObject();
 
-					if (oscPosition)
-					{
-						OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
-						if (oscPosRoad)
-						{
-							//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
-							QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
-							RSystemElementRoad *road;
-							int i;
-							for (i = 0; i < idList.size(); i++)
-							{
-								road = roadSystem_->getRoad(idList.at(i));
-								if (road->getLength() > oscPosRoad->s.getValue())
-								{
-									break;
-								}
-							}
-							
-							if (i < idList.size())
-							{
-								new OSCItem(element, this, object, catalog, oscPosRoad, road);
-							}
-						}
-					}
-				}
-			}
+                    if (oscPosition)
+                    {
+                        OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
+                        if (oscPosRoad)
+                        {
+                            //      odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+                            QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
+                            RSystemElementRoad *road;
+                            int i;
+                            for (i = 0; i < idList.size(); i++)
+                            {
+                                road = roadSystem_->getRoad(idList.at(i));
+                                if (road->getLength() > oscPosRoad->s.getValue())
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (i < idList.size())
+                            {
+                                new OSCItem(element, this, object, catalog, oscPosRoad, road);
+                            }
+                        }
+                    }
+                }
+            }
 
             iter++;
         }

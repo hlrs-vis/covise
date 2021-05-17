@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   21.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   21.06.2010
+ **
+ **************************************************************************/
 
 #include "elevationeditortool.hpp"
 
@@ -20,8 +20,8 @@
 
 #include "src/mainwindow.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -77,10 +77,10 @@ ElevationEditorTool::initToolWidget()
     toolGroup->addButton(toolButton, ODD::TEL_SELECT); // button, id
     toolButton->setChecked(true);
 
-    //	toolButton = new QPushButton(tr("Move Section"));
-    //	toolButton->setCheckable(true);
-    //	toolLayout->addWidget(toolButton, ++row, 0);
-    //	toolGroup->addButton(toolButton, ODD::TEL_MOVE); // button, id
+    // toolButton = new QPushButton(tr("Move Section"));
+    // toolButton->setCheckable(true);
+    // toolLayout->addWidget(toolButton, ++row, 0);
+    // toolGroup->addButton(toolButton, ODD::TEL_MOVE); // button, id
 
     toolButton = new QPushButton(tr("Add Section"));
     toolButton->setCheckable(true);
@@ -155,23 +155,23 @@ ElevationEditorTool::initToolWidget()
     //ribbonWidget->
     ui = new Ui::ElevationRibbon();
     ui->setupUi(ribbonWidget);
-    
+
     ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
-    
+
     ribbonToolGroup_->addButton(ui->select, ODD::TEL_SELECT);
     ribbonToolGroup_->addButton(ui->elevationAdd, ODD::TEL_ADD);
     ribbonToolGroup_->addButton(ui->elevationDelete, ODD::TEL_DEL);
-	ribbonToolGroup_->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
-	ribbonToolGroup_->addButton(ui->slopeEdit, ODD::TEL_SLOPE);
-    
+    ribbonToolGroup_->addButton(ui->elevationSmooth, ODD::TEL_SMOOTH);
+    ribbonToolGroup_->addButton(ui->slopeEdit, ODD::TEL_SLOPE);
+
     connect(ui->heightEdit, SIGNAL(editingFinished()), this, SLOT(setRHeight()));
     connect(ui->iHeightEdit, SIGNAL(editingFinished()), this, SLOT(setRIHeight()));
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
-	connect(ui->startEdit, SIGNAL(editingFinished()), this, SLOT(setSectionStart()));
+    connect(ui->startEdit, SIGNAL(editingFinished()), this, SLOT(setSectionStart()));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Elevation"), ODD::EEL);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -201,20 +201,20 @@ ElevationEditorTool::activateEditor()
 void
 ElevationEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::EEL);
-	ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(action);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::EEL);
+    ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(action);
 
-	if (elevationEditorToolAction)
-	{
-		if (elevationEditorToolAction->getRadius() != ui->radiusEdit->value())
-		{
-			ui->radiusEdit->blockSignals(true);
-			ui->radiusEdit->setValue(elevationEditorToolAction->getRadius());
-			ui->radiusEdit->blockSignals(false);
-		}
-	}
+    if (elevationEditorToolAction)
+    {
+        if (elevationEditorToolAction->getRadius() != ui->radiusEdit->value())
+        {
+            ui->radiusEdit->blockSignals(true);
+            ui->radiusEdit->setValue(elevationEditorToolAction->getRadius());
+            ui->radiusEdit->blockSignals(false);
+        }
+    }
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 
 }
 
@@ -231,19 +231,19 @@ ElevationEditorTool::handleToolClick(int id)
 
     // Set a tool //
     //
-	switch (toolId_)
-	{
-	case ODD::TEL_SMOOTH:
-		action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
-		emit toolAction(action);
-		delete action;
+    switch (toolId_)
+    {
+    case ODD::TEL_SMOOTH:
+        action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
+        emit toolAction(action);
+        delete action;
 
-		toolId_ = ODD::TEL_SELECT;
-		action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
-		break;
-	default:
-		action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
-	}
+        toolId_ = ODD::TEL_SELECT;
+        action = new ElevationEditorToolAction(ODD::TEL_SELECT, toolId_, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
+        break;
+    default:
+        action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, radiusEdit_->value(), heightEdit_->value(), iHeightEdit_->value());
+    }
 
 
     emit toolAction(action);
@@ -258,9 +258,9 @@ void
 ElevationEditorTool::handleRibbonToolClick(int id)
 {
     toolId_ = (ODD::ToolId)id;
-	 
+
     ElevationEditorToolAction *action = new ElevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
-	emit toolAction(action);
+    emit toolAction(action);
 
 }
 
@@ -310,7 +310,7 @@ ElevationEditorTool::setRRadius()
 {
     ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_RADIUS, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
     emit toolAction(action);
- //   delete action;
+    //   delete action;
 
     if (toolId_ != ODD::TEL_SELECT)
     {
@@ -326,19 +326,19 @@ void
 ElevationEditorTool::setRHeight()
 {
 
-	ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
-	emit toolAction(action);
-	//   delete action;
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+    emit toolAction(action);
+    //   delete action;
 
-	ui->heightEdit->blockSignals(true);
-	ui->heightEdit->setValue(0.0);
+    ui->heightEdit->blockSignals(true);
+    ui->heightEdit->setValue(0.0);
     ui->heightEdit->clearFocus();
-	ui->heightEdit->blockSignals(false);
+    ui->heightEdit->blockSignals(false);
 
     if (toolId_ != ODD::TEL_SELECT)
     {
         ribbonToolGroup_->button(toolId_)->click();
-    } 
+    }
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -348,21 +348,21 @@ ElevationEditorTool::setRHeight()
 void
 ElevationEditorTool::setRIHeight()
 {
-	if (fabs(ui->iHeightEdit->value()) > NUMERICAL_ZERO3)
-	{
-		ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
-		emit toolAction(action);
-		//   delete action;
-		ui->iHeightEdit->blockSignals(true);
-		ui->iHeightEdit->setValue(0.0);
+    if (fabs(ui->iHeightEdit->value()) > NUMERICAL_ZERO3)
+    {
+        ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+        emit toolAction(action);
+        //   delete action;
+        ui->iHeightEdit->blockSignals(true);
+        ui->iHeightEdit->setValue(0.0);
         ui->heightEdit->clearFocus();
-		ui->iHeightEdit->blockSignals(false);
+        ui->iHeightEdit->blockSignals(false);
 
         if (toolId_ != ODD::TEL_SELECT)
         {
             ribbonToolGroup_->button(toolId_)->click();
         }
-	}
+    }
 }
 
 /*! \brief Gets called when the start of the section has been changed.
@@ -373,22 +373,22 @@ void
 ElevationEditorTool::setSectionStart()
 {
 
-	if (fabs(ui->startEdit->value()) > NUMERICAL_ZERO3)
-	{
-		ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_MOVE, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
-		emit toolAction(action);
-		//   delete action;
+    if (fabs(ui->startEdit->value()) > NUMERICAL_ZERO3)
+    {
+        ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_MOVE, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+        emit toolAction(action);
+        //   delete action;
 
-		ui->startEdit->blockSignals(true);
-		ui->startEdit->setValue(0.0);
+        ui->startEdit->blockSignals(true);
+        ui->startEdit->setValue(0.0);
         ui->heightEdit->clearFocus();
-		ui->startEdit->blockSignals(false);
+        ui->startEdit->blockSignals(false);
 
         if (toolId_ != ODD::TEL_SELECT)
         {
             ribbonToolGroup_->button(toolId_)->click();
         }
-	}
+    }
 }
 
 
@@ -400,10 +400,10 @@ ElevationEditorTool::setSectionStart()
 
 ElevationEditorToolAction::ElevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius, double height, double iHeight, double sectionStart)
     : ToolAction(ODD::EEL, toolId, paramToolId),
-	radius_(radius),
-	height_(height),
-	iHeight_(iHeight),
-	start_(sectionStart)
+    radius_(radius),
+    height_(height),
+    iHeight_(iHeight),
+    start_(sectionStart)
 {
 }
 
@@ -422,11 +422,11 @@ ElevationEditorToolAction::setHeight(double h)
 void
 ElevationEditorToolAction::setIHeight(double h)
 {
-	iHeight_ = h;
+    iHeight_ = h;
 }
 
 void
 ElevationEditorToolAction::setSectionStart(double sectionStart)
 {
-	start_ = sectionStart;
+    start_ = sectionStart;
 }

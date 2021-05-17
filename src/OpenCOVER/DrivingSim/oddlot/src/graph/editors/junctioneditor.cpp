@@ -635,7 +635,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
     // Prototypes //
     //
-    /*	JunctionEditorToolAction * junctionEditorToolAction = dynamic_cast<JunctionEditorToolAction *>(toolAction);
+    /* JunctionEditorToolAction * junctionEditorToolAction = dynamic_cast<JunctionEditorToolAction *>(toolAction);
     if(junctionEditorToolAction)
     {
         if(isCurrentTool(ODD::TJE_CREATE_JUNCTION))
@@ -646,7 +646,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
             // Superpose user prototypes //
             //
 
-            //	currentRoadPrototype_->superposePrototype(road);
+            // currentRoadPrototype_->superposePrototype(road);
         }
 
     }*/
@@ -1704,11 +1704,11 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                 }
                 else
                 {
-                    //				if(currentRoadPrototype_)
+                    //    if(currentRoadPrototype_)
                     {
                         // Road //
                         //
-                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed");
+                        /*  RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed");
 
                         // Track //
                         //
@@ -1730,7 +1730,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                             return; // usually not the case, only if road or prototype are NULL
                         }*/
                     }
-                    //					else
+                    //     else
                     {
                         printStatusBarMsg("New road: Please reselect a Prototype.", 0);
                     }
@@ -2431,8 +2431,8 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                                 // Remove road between interceptPoint1 and interceptPoint2
                                 //
-                                //							RemoveRoadCommand * removeRoadCommand = new RemoveRoadCommand(roadSystem->getRoad(road->getID()+"_2_1"));
-                                //							getProjectGraph()->executeCommand(removeRoadCommand);
+                                //       RemoveRoadCommand * removeRoadCommand = new RemoveRoadCommand(roadSystem->getRoad(road->getID()+"_2_1"));
+                                //       getProjectGraph()->executeCommand(removeRoadCommand);
 
                                 // The connecting road already exists. Store the road pairs.
                                 //
@@ -2895,7 +2895,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
         }
     }
 
-    //	ProjectEditor::mouseAction(mouseAction);
+    // ProjectEditor::mouseAction(mouseAction);
 }
 
 /*! \brief .
@@ -2954,7 +2954,7 @@ JunctionEditor::translateJunctionMoveHandles(const QPointF &pressPos, const QPoi
         if (handle)
         {
             mousePos = handle->pos();
-            //			newHeadingDeg = handle->rotation();
+            //   newHeadingDeg = handle->rotation();
             break;
         }
     }
@@ -3004,7 +3004,7 @@ JunctionEditor::translateJunctionMoveHandles(const QPointF &pressPos, const QPoi
         QVector2D direction = QVector2D(cos(posDofHeading * 2.0 * M_PI / 360.0), sin(posDofHeading * 2.0 * M_PI / 360.0));
         dPos = (QVector2D::dotProduct(QVector2D(dPos), direction) * direction).toPointF();
     }
-    //	QPointF targetPos = pressPos + dPos;
+    // QPointF targetPos = pressPos + dPos;
     //qDebug() << "dPos2: " << dPos;
 
     // 2: Two degrees of freedom //
@@ -3068,7 +3068,7 @@ JunctionEditor::translateJunctionMoveHandles(const QPointF &pressPos, const QPoi
         TrackComponent *highSlot = moveHandle->getHighSlot();
         if (lowSlot || highSlot)
         {
-            //			TrackComponentSinglePointCommand * command = new TrackComponentSinglePointCommand(lowSlot, highSlot, targetPos, NULL);
+            //   TrackComponentSinglePointCommand * command = new TrackComponentSinglePointCommand(lowSlot, highSlot, targetPos, NULL);
             TrackComponentSinglePointCommand *command = new TrackComponentSinglePointCommand(lowSlot, highSlot, dPos, NULL);
             getProjectGraph()->executeCommand(command);
         }
@@ -3146,14 +3146,14 @@ JunctionEditor
     //
     if (validationVisitor->isValid())
     {
-        //		qDebug("valid");
+        //  qDebug("valid");
         return dHeading;
     }
     else
     {
-        //		qDebug("not valid");
+        //  qDebug("not valid");
         return 0.0; // not valid => no rotation
-//		return dHeading;
+//  return dHeading;
     }
 }
 #endif

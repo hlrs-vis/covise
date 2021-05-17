@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #ifndef GRAPHSCENE_HPP
 #define GRAPHSCENE_HPP
@@ -28,19 +28,19 @@ class GraphScene : public QGraphicsScene, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit GraphScene(const QRectF &sceneRect, QObject *parent = 0);
     virtual ~GraphScene();
 
-	void deselectAll();
+    void deselectAll();
 
     // Tools, Mouse & Key //
     //
-    //	void						toolAction(ToolAction *);
+    // void toolAction(ToolAction *);
     void mouseAction(MouseAction *);
     void keyAction(KeyAction *);
 
@@ -63,9 +63,9 @@ protected:
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent);
 
-	// Drag Events //
-	//
-	virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
+    // Drag Events //
+    //
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 
     // Key Events //
     //
@@ -73,15 +73,15 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent *event);
 
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
 
     // Tools, Mouse & Key //
     //
-    //	void						toolActionSignal(ToolAction *);
+    // void      toolActionSignal(ToolAction *);
     void mouseActionSignal(MouseAction *);
     void keyActionSignal(KeyAction *);
 

@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #include "catalogwidget.hpp"
 #include "src/util/droparea.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/projectdata.hpp"
@@ -70,18 +70,18 @@ using namespace OpenScenario;
 //################//
 
 CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &name)
-	: QWidget()
-	, mainWindow_(mainWindow)
-	, catalog_(catalog)
-	, name_(name)
-	, catalogTreeWidget_(NULL)
+    : QWidget()
+    , mainWindow_(mainWindow)
+    , catalog_(catalog)
+    , name_(name)
+    , catalogTreeWidget_(NULL)
 {
     init();
 }
 
 CatalogWidget::~CatalogWidget()
 {
-	delete catalogTreeWidget_;
+    delete catalogTreeWidget_;
 }
 
 //################//
@@ -91,73 +91,73 @@ CatalogWidget::~CatalogWidget()
 void
 CatalogWidget::init()
 {
-	projectData_ = mainWindow_->getActiveProject()->getProjectData();
-	base_ = projectData_->getOSCBase();
+    projectData_ = mainWindow_->getActiveProject()->getProjectData();
+    base_ = projectData_->getOSCBase();
 
-	// Widget/Layout //
+    // Widget/Layout //
     //
-	QGridLayout *toolLayout = new QGridLayout;
-	QPixmap recycleIcon(":/icons/recycle.png");
+    QGridLayout *toolLayout = new QGridLayout;
+    QPixmap recycleIcon(":/icons/recycle.png");
 
-	CatalogDropArea *recycleArea = new CatalogDropArea(this, &recycleIcon);
-	toolLayout->addWidget(recycleArea, 0, 2);
+    CatalogDropArea *recycleArea = new CatalogDropArea(this, &recycleIcon);
+    toolLayout->addWidget(recycleArea, 0, 2);
 
-	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_);
-	toolLayout->addWidget(catalogTreeWidget_, 0, 0); 
+    catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, catalog_);
+    toolLayout->addWidget(catalogTreeWidget_, 0, 0);
 
     int row = -1; // button row
 
     // Link Roads by Handles//
     //
-    QPushButton * toolButton = new QPushButton(tr("Save"));
+    QPushButton *toolButton = new QPushButton(tr("Save"));
     toolButton->setCheckable(false);
     toolLayout->addWidget(toolButton, 1, 0);
-	connect(toolButton, SIGNAL(clicked()), this, SLOT(handleToolClick()));
+    connect(toolButton, SIGNAL(clicked()), this, SLOT(handleToolClick()));
 
-	this->setLayout(toolLayout);
+    this->setLayout(toolLayout);
 
-	// Connect with the ToolManager to send the selected signal or object //
+    // Connect with the ToolManager to send the selected signal or object //
     //
-	ToolManager *toolManager = mainWindow_->getToolManager();
-	if (toolManager)
-	{
-		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
-	} 
+    ToolManager *toolManager = mainWindow_->getToolManager();
+    if (toolManager)
+    {
+        connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+    }
 }
 
-void 
+void
 CatalogWidget::onDeleteCatalogItem()
 {
-	bool deletedSomething = false;
-	do
-	{
-		deletedSomething = false;
+    bool deletedSomething = false;
+    do
+    {
+        deletedSomething = false;
 
-		QList<QTreeWidgetItem *> selectedItems = catalogTreeWidget_->selectedItems();
-		for ( int i = 0; i < selectedItems.size(); i++)
-		{
-			QString text = selectedItems.at(i)->text(0);
-			std::string refId = text.split("(")[1].remove(")").toStdString();
-			OSCElement *element = base_->getOSCElement(catalog_->getCatalogObject(refId));
+        QList<QTreeWidgetItem *> selectedItems = catalogTreeWidget_->selectedItems();
+        for (int i = 0; i < selectedItems.size(); i++)
+        {
+            QString text = selectedItems.at(i)->text(0);
+            std::string refId = text.split("(")[1].remove(")").toStdString();
+            OSCElement *element = base_->getOSCElement(catalog_->getCatalogObject(refId));
 
-			RemoveOSCCatalogObjectCommand *command = new RemoveOSCCatalogObjectCommand(catalog_, refId, element);
+            RemoveOSCCatalogObjectCommand *command = new RemoveOSCCatalogObjectCommand(catalog_, refId, element);
 
-			if (command->isValid())
-			{
-				if (!element)
-				{
-					projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
-					catalogTreeWidget_->createTree();
-				}
-				else
-				{
-					projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
-				}
-				deletedSomething = true;
-				break;
-			}
-		}
-	}while(deletedSomething);
+            if (command->isValid())
+            {
+                if (!element)
+                {
+                    projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
+                    catalogTreeWidget_->createTree();
+                }
+                else
+                {
+                    projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
+                }
+                deletedSomething = true;
+                break;
+            }
+        }
+    } while (deletedSomething);
 }
 
 //################//
@@ -167,7 +167,7 @@ CatalogWidget::onDeleteCatalogItem()
 /*! \brief Gets called when a tool has been selected.
 */
 void
-	CatalogWidget::handleToolClick()
+CatalogWidget::handleToolClick()
 {
 
     // Set a tool //
@@ -183,7 +183,7 @@ void
 //#############################//
 CatalogDropArea::CatalogDropArea(CatalogWidget *catalogWidget, QPixmap *pixmap)
     : DropArea(pixmap)
-	, catalogWidget_(catalogWidget)
+    , catalogWidget_(catalogWidget)
 {
 }
 
@@ -191,13 +191,13 @@ CatalogDropArea::CatalogDropArea(CatalogWidget *catalogWidget, QPixmap *pixmap)
 // EVENTS         //
 //################//
 
-void 
+void
 CatalogDropArea::dropEvent(QDropEvent *event)
 {
-	catalogWidget_->onDeleteCatalogItem();
+    catalogWidget_->onDeleteCatalogItem();
 
-	DropArea::dropEvent(event);
+    DropArea::dropEvent(event);
 }
 
 
- 
+

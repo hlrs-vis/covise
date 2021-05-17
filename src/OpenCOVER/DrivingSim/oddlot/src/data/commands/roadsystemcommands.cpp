@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.07.2010
+ **
+ **************************************************************************/
 
 #include "roadsystemcommands.hpp"
 
@@ -28,9 +28,9 @@
 
 #include "src/data/visitors/idchangevisitor.hpp"
 
-//#########################//
-// AddRoadSystemPrototypeCommand //
-//#########################//
+ //#########################//
+ // AddRoadSystemPrototypeCommand //
+ //#########################//
 
 AddRoadSystemPrototypeCommand::AddRoadSystemPrototypeCommand(RoadSystem *roadSystem, const RoadSystem *prototypeRoadSystem, const QPointF &deltaPos, double deltaHeadingDegrees, DataCommand *parent)
     : DataCommand(parent)
@@ -53,24 +53,24 @@ AddRoadSystemPrototypeCommand::AddRoadSystemPrototypeCommand(RoadSystem *roadSys
     // RoadSystemElements //
     //
     // Copy the elements so you own them.
-    foreach (RSystemElementRoad *road, prototypeRoadSystem->getRoads())
+    foreach(RSystemElementRoad * road, prototypeRoadSystem->getRoads())
     {
         RSystemElementRoad *clone = road->getClone();
-        foreach (TrackComponent *track, clone->getTrackSections())
+        foreach(TrackComponent * track, clone->getTrackSections())
         {
             track->setLocalTransform(transform.map(track->getLocalPoint(track->getSStart())) + deltaPos, track->getLocalHeading(track->getSStart()) + deltaHeadingDegrees);
         }
         newRoads_.append(clone);
     }
-    foreach (RSystemElementController *controller, prototypeRoadSystem->getControllers())
+    foreach(RSystemElementController * controller, prototypeRoadSystem->getControllers())
     {
         newControllers_.append(controller->getClone());
     }
-    foreach (RSystemElementJunction *junction, prototypeRoadSystem->getJunctions())
+    foreach(RSystemElementJunction * junction, prototypeRoadSystem->getJunctions())
     {
         newJunctions_.append(junction->getClone());
     }
-    foreach (RSystemElementFiddleyard *fiddleyard, prototypeRoadSystem->getFiddleyards())
+    foreach(RSystemElementFiddleyard * fiddleyard, prototypeRoadSystem->getFiddleyards())
     {
         newFiddleyards_.append(fiddleyard->getClone());
     }
@@ -92,19 +92,19 @@ AddRoadSystemPrototypeCommand::~AddRoadSystemPrototypeCommand()
     {
         // RoadSystemElements //
         //
-        foreach (RSystemElementRoad *road, newRoads_)
+        foreach(RSystemElementRoad * road, newRoads_)
         {
             delete road;
         }
-        foreach (RSystemElementController *controller, newControllers_)
+        foreach(RSystemElementController * controller, newControllers_)
         {
             delete controller;
         }
-        foreach (RSystemElementJunction *junction, newJunctions_)
+        foreach(RSystemElementJunction * junction, newJunctions_)
         {
             delete junction;
         }
-        foreach (RSystemElementFiddleyard *fiddleyard, newFiddleyards_)
+        foreach(RSystemElementFiddleyard * fiddleyard, newFiddleyards_)
         {
             delete fiddleyard;
         }
@@ -130,7 +130,7 @@ AddRoadSystemPrototypeCommand::redo()
 
     // RoadSystemElements //
     //
-    foreach (RSystemElementRoad *road, newRoads_)
+    foreach(RSystemElementRoad * road, newRoads_)
     {
         odrID oldId = road->getID();
         roadSystem_->addRoad(road);
@@ -139,7 +139,7 @@ AddRoadSystemPrototypeCommand::redo()
             roadIds.insert(oldId, road->getID()); // Add to the list of changed Ids.
         }
     }
-    foreach (RSystemElementController *controller, newControllers_)
+    foreach(RSystemElementController * controller, newControllers_)
     {
         odrID oldId = controller->getID();
         roadSystem_->addController(controller);
@@ -148,18 +148,18 @@ AddRoadSystemPrototypeCommand::redo()
             controllerIds.insert(oldId, controller->getID()); // Add to the list of changed Ids.
         }
     }
-    foreach (RSystemElementJunction *junction, newJunctions_)
+    foreach(RSystemElementJunction * junction, newJunctions_)
     {
-		odrID oldId = junction->getID();
+        odrID oldId = junction->getID();
         roadSystem_->addJunction(junction);
         if (oldId != junction->getID()) // The Id has been changed.
         {
             junctionIds.insert(oldId, junction->getID()); // Add to the list of changed Ids.
         }
     }
-    foreach (RSystemElementFiddleyard *fiddleyard, newFiddleyards_)
+    foreach(RSystemElementFiddleyard * fiddleyard, newFiddleyards_)
     {
-		odrID oldId = fiddleyard->getID();
+        odrID oldId = fiddleyard->getID();
         roadSystem_->addFiddleyard(fiddleyard);
         if (oldId != fiddleyard->getID()) // The Id has been changed.
         {
@@ -176,20 +176,20 @@ AddRoadSystemPrototypeCommand::redo()
     {
         IdChangeVisitor *visitor = new IdChangeVisitor(roadIds, controllerIds, junctionIds, fiddleyardIds);
 
-        foreach (RSystemElementRoad *road, newRoads_)
+        foreach(RSystemElementRoad * road, newRoads_)
         {
             road->accept(visitor);
         }
-        foreach (RSystemElementController *controller, newControllers_)
+        foreach(RSystemElementController * controller, newControllers_)
         {
             controller->accept(visitor);
         }
-        foreach (RSystemElementJunction *junction, newJunctions_)
+        foreach(RSystemElementJunction * junction, newJunctions_)
         {
             junction->accept(visitor);
         }
 
-        foreach (RSystemElementFiddleyard *fiddleyard, newFiddleyards_)
+        foreach(RSystemElementFiddleyard * fiddleyard, newFiddleyards_)
         {
             fiddleyard->accept(visitor);
         }
@@ -208,19 +208,19 @@ AddRoadSystemPrototypeCommand::undo()
 {
     // RoadSystemElements //
     //
-    foreach (RSystemElementRoad *road, newRoads_)
+    foreach(RSystemElementRoad * road, newRoads_)
     {
         roadSystem_->delRoad(road);
     }
-    foreach (RSystemElementController *controller, newControllers_)
+    foreach(RSystemElementController * controller, newControllers_)
     {
         roadSystem_->delController(controller);
     }
-    foreach (RSystemElementJunction *junction, newJunctions_)
+    foreach(RSystemElementJunction * junction, newJunctions_)
     {
         roadSystem_->delJunction(junction);
     }
-    foreach (RSystemElementFiddleyard *fiddleyard, newFiddleyards_)
+    foreach(RSystemElementFiddleyard * fiddleyard, newFiddleyards_)
     {
         roadSystem_->delFiddleyard(fiddleyard);
     }
@@ -316,23 +316,23 @@ AddToJunctionCommand::AddToJunctionCommand(RoadSystem *roadSystem, RSystemElemen
     oldJunctionID_ = road->getJunction();
 
     // Incoming roads for the connections //
-    RoadLink * predecessor = road_->getPredecessor();
+    RoadLink *predecessor = road_->getPredecessor();
     if (predecessor)
     {
-        JunctionConnection * connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), predecessor->getElementId(), road_->getID(), predecessor->getContactPoint(), 1);
+        JunctionConnection *connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), predecessor->getElementId(), road_->getID(), predecessor->getContactPoint(), 1);
         connections_.append(connection);
     }
 
-    RoadLink * successor = road_->getSuccessor();
+    RoadLink *successor = road_->getSuccessor();
     if (successor)
     {
-        JunctionConnection * connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), successor->getElementId(), road_->getID(), successor->getContactPoint(), 1);
+        JunctionConnection *connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), successor->getElementId(), road_->getID(), successor->getContactPoint(), 1);
         connections_.append(connection);
     }
 
     if (!predecessor && !successor && (road_->getJunction() == odrID::invalidID()))
     {
-        JunctionConnection* connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), odrID::invalidID(), road_->getID(), JunctionConnection::JCP_NONE, 1);
+        JunctionConnection *connection = new JunctionConnection(QString("%1").arg(junction->getConnections().size()), odrID::invalidID(), road_->getID(), JunctionConnection::JCP_NONE, 1);
         connections_.append(connection);
     }
 
@@ -357,21 +357,21 @@ AddToJunctionCommand::redo()
 {
     road_->setJunction(junction_->getID());
 
-	if (connections_.size() == 0)
-	{
-		junction_->addJunctionChanges(RSystemElementJunction::CJN_ConnectionChanged);
-	}
-	else
-	{
-		for (int i = 0; i < connections_.size(); i++)
-		{
-			junction_->addConnection(connections_.at(i));
-		}
-	}
+    if (connections_.size() == 0)
+    {
+        junction_->addJunctionChanges(RSystemElementJunction::CJN_ConnectionChanged);
+    }
+    else
+    {
+        for (int i = 0; i < connections_.size(); i++)
+        {
+            junction_->addConnection(connections_.at(i));
+        }
+    }
 
     /*
-		JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
-		junction->addConnection(connection);
+        JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
+        junction->addConnection(connection);
 */
 
     setRedone();
@@ -385,17 +385,17 @@ AddToJunctionCommand::undo()
 {
     road_->setJunction(oldJunctionID_);
 
-	if (connections_.size() == 0)
-	{
-		junction_->addJunctionChanges(RSystemElementJunction::CJN_ConnectionChanged);
-	}
-	else
-	{
-		for (int i = 0; i < connections_.size(); i++)
-		{
-			junction_->delConnection(connections_.at(i));
-		}
-	}
+    if (connections_.size() == 0)
+    {
+        junction_->addJunctionChanges(RSystemElementJunction::CJN_ConnectionChanged);
+    }
+    else
+    {
+        for (int i = 0; i < connections_.size(); i++)
+        {
+            junction_->delConnection(connections_.at(i));
+        }
+    }
 
     setUndone();
 }
@@ -456,8 +456,8 @@ RemoveFromJunctionCommand::redo()
     road_->setJunction(odrID::invalidID());
 
     /*
-		JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
-		junction->addConnection(connection);
+        JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
+        junction->addConnection(connection);
 */
 
     setRedone();

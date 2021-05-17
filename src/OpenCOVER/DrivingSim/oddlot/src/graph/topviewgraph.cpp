@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #include "topviewgraph.hpp"
 
 #include "src/gui/projectwidget.hpp"
 
 #include "src/data/projectdata.hpp"
-//#include "src/data/commands/projectdatacommands.hpp"
+ //#include "src/data/commands/projectdatacommands.hpp"
 
 #include "src/data/commands/dataelementcommands.hpp"
 
@@ -51,8 +51,8 @@ TopviewGraph::TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectDat
 {
     // Qt Scene //
     //
-    //	graphScene_ = new GraphScene(QRectF(-1150.0, -480.0, 3850.0, 3780.0), this);
-    //	graphScene_ = new GraphScene(QRectF(-10000.0, -10000.0, 20000.0, 20000.0), this); // x, y, sizeX, sizeY
+    // graphScene_ = new GraphScene(QRectF(-1150.0, -480.0, 3850.0, 3780.0), this);
+    // graphScene_ = new GraphScene(QRectF(-10000.0, -10000.0, 20000.0, 20000.0), this); // x, y, sizeX, sizeY
     graphScene_ = new GraphScene(QRectF(-100.0, -1000.0, 20000.0, 20000.0), this); // x, y, sizeX, sizeY, south, west, north-south, east-west
 
     updateSceneSize();
@@ -79,7 +79,7 @@ TopviewGraph::TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectDat
     //
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(graphView_);
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     updateSceneSize();
@@ -100,15 +100,15 @@ TopviewGraph::updateSceneSize()
 }
 
 void
-    TopviewGraph::notifySignals()
+TopviewGraph::notifySignals()
 {
-    SignalEditor * signalEditor = dynamic_cast<SignalEditor *>(getProjectWidget()->getProjectEditor());
+    SignalEditor *signalEditor = dynamic_cast<SignalEditor *>(getProjectWidget()->getProjectEditor());
     if (signalEditor)
     {
         QList<QGraphicsItem *> items = graphView_->items();
-        foreach (QGraphicsItem * item, items)
+        foreach(QGraphicsItem * item, items)
         {
-            SignalItem * signalItem = dynamic_cast<SignalItem *>(item);
+            SignalItem *signalItem = dynamic_cast<SignalItem *>(item);
             if (signalItem)
             {
                 signalItem->zoomAction();
@@ -155,7 +155,7 @@ TopviewGraph::toolAction(ToolAction *toolAction)
 
             // Hide selected items //
             //
-            foreach (QGraphicsItem *item, selectedItems)
+            foreach(QGraphicsItem * item, selectedItems)
             {
                 GraphElement *graphElement = dynamic_cast<GraphElement *>(item);
                 if (graphElement)
@@ -184,7 +184,7 @@ TopviewGraph::toolAction(ToolAction *toolAction)
 
             // Hide selected items //
             //
-            foreach (QGraphicsItem *item, selectedItems)
+            foreach(QGraphicsItem * item, selectedItems)
             {
                 GraphElement *graphElement = dynamic_cast<GraphElement *>(item);
                 if (graphElement)
@@ -207,7 +207,7 @@ TopviewGraph::toolAction(ToolAction *toolAction)
 
             // Select inverse //
             //
-            foreach (QGraphicsItem *item, items)
+            foreach(QGraphicsItem * item, items)
             {
                 if (!selectedItems.contains(item))
                 {
@@ -219,10 +219,10 @@ TopviewGraph::toolAction(ToolAction *toolAction)
                 }
             }
         }
-        //		else if(id == ZoomTool::TZM_HIDE_DESELECTED)
-        //		{
+        //  else if(id == ZoomTool::TZM_HIDE_DESELECTED)
+        //  {
 
-        //		}
+        //  }
         else if (id == ZoomTool::TZM_UNHIDE_ALL)
         {
             UnhideDataElementCommand *command = new UnhideDataElementCommand(getProjectData()->getHiddenElements(), NULL);
@@ -285,8 +285,8 @@ TopviewGraph::updateObserver()
         updateSceneSize();
     }
 
-    //	if((changes & ProjectData::CPD_ActiveElementChange))
-    //	{
+    // if((changes & ProjectData::CPD_ActiveElementChange))
+    // {
 
-    //	}
+    // }
 }

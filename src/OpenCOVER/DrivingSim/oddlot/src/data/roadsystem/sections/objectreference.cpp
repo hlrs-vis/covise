@@ -5,17 +5,17 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "objectreference.hpp"
 
-// Data
+ // Data
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -26,14 +26,14 @@
 
 ObjectReference::ObjectReference(const odrID &id, Object *object, const odrID &refId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity)
     : RoadSection(s)
-	, id_(id)
-	, refId_(refId)
-	, object_(object)
-	, refT_(t)
-	, refOrientation_(orientation)
-	, refZOffset_(zOffset)
-	, refValidLength_(validLength)
-	, validity_(validity)
+    , id_(id)
+    , refId_(refId)
+    , object_(object)
+    , refT_(t)
+    , refOrientation_(orientation)
+    , refZOffset_(zOffset)
+    , refValidLength_(validLength)
+    , validity_(validity)
 {
 
 }
@@ -41,58 +41,58 @@ ObjectReference::ObjectReference(const odrID &id, Object *object, const odrID &r
 Object *
 ObjectReference::getObject()
 {
-	if (!object_)
-	{
-		RoadSystem *roadSystem = getParentRoad()->getRoadSystem();
-		foreach (RSystemElementRoad *road, roadSystem->getRoads())
-		{
-			Object *object = road->getObject(refId_);
-			if (object)
-			{
-				object_ = object;
-				break;
-			}
-		}
-	}
+    if (!object_)
+    {
+        RoadSystem *roadSystem = getParentRoad()->getRoadSystem();
+        foreach(RSystemElementRoad * road, roadSystem->getRoads())
+        {
+            Object *object = road->getObject(refId_);
+            if (object)
+            {
+                object_ = object;
+                break;
+            }
+        }
+    }
 
-	return object_;
+    return object_;
 }
-void 
+void
 ObjectReference::setObject(Object *object)
 {
-	object_ = object;
-	addObjectReferenceChanges(ObjectReference::ORC_ObjectChange);
+    object_ = object;
+    addObjectReferenceChanges(ObjectReference::ORC_ObjectChange);
 }
 
-void 
+void
 ObjectReference::setReferenceT(const double refT)
 {
-	refT_ = refT;
-	addObjectReferenceChanges(ObjectReference::ORC_ParameterChange);
+    refT_ = refT;
+    addObjectReferenceChanges(ObjectReference::ORC_ParameterChange);
 }
 
 void
 ObjectReference::setReferenceOrientation(Signal::OrientationType orientation)
 {
-	refOrientation_ = orientation;
-	addObjectReferenceChanges(ObjectReference::ORC_ParameterChange);
+    refOrientation_ = orientation;
+    addObjectReferenceChanges(ObjectReference::ORC_ParameterChange);
 }
 
-bool 
+bool
 ObjectReference::addValidity(int fromLane, int toLane)
 {
-	Signal::Validity validity{ fromLane, toLane };
+    Signal::Validity validity{ fromLane, toLane };
 
-    foreach (Signal::Validity entry, validity_)
-	{
-		if ((entry.fromLane == fromLane) && (entry.toLane == toLane))
-		{
-			return false;
-		}
-	}
-	validity_.append(validity);
+    foreach(Signal::Validity entry, validity_)
+    {
+        if ((entry.fromLane == fromLane) && (entry.toLane == toLane))
+        {
+            return false;
+        }
+    }
+    validity_.append(validity);
 
-	return true;
+    return true;
 }
 
 //##################//
@@ -135,7 +135,7 @@ ObjectReference::getClone()
 {
     // ObjectReference //
     //
-	ObjectReference *clone = new ObjectReference(id_, object_, refId_, getSStart(), refT_, refZOffset_, refValidLength_, refOrientation_, validity_);
+    ObjectReference *clone = new ObjectReference(id_, object_, refId_, getSStart(), refT_, refZOffset_, refValidLength_, refOrientation_, validity_);
 
     return clone;
 }

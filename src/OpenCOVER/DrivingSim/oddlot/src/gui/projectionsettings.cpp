@@ -5,24 +5,24 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 
 #include "projectionsettings.hpp"
-/*#include "projectwidget.hpp"
-#include "src/mainwindow.hpp"*/
+ /*#include "projectwidget.hpp"
+ #include "src/mainwindow.hpp"*/
 #include "ui_projectionsettings.h"
 #include "src/data/projectdata.hpp"
 #include "src/data/georeference.hpp"
 
-// Data //
+ // Data //
 
-//ProjectionSettings *ProjectionSettings::inst = NULL;
+ //ProjectionSettings *ProjectionSettings::inst = NULL;
 
 void ProjectionSettings::okPressed()
 {
@@ -56,7 +56,7 @@ ProjectionSettings::ProjectionSettings()
     ui->setupUi(this);
 
     //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
-    connect(ui->presetBox, &QComboBox::currentTextChanged, [=](const QString &change){PresetIndexChanged(change);});
+    connect(ui->presetBox, &QComboBox::currentTextChanged, [=](const QString &change) {PresetIndexChanged(change); });
 
     //Initialize presetBox
     /*QStringList set;
@@ -71,7 +71,7 @@ ProjectionSettings::ProjectionSettings()
     ui->presetBox->addItem("None");
 
 #ifdef WIN32
-    char* pValue;
+    char *pValue;
     size_t len;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
     if (err || pValue == NULL || strlen(pValue) == 0)
@@ -121,18 +121,18 @@ ProjectionSettings::ProjectionSettings()
     //ui->FromDatumEdit->setText(QString("WGS84"));
     /*
 #ifdef WIN32
-	char *pValue;
-	size_t len;
-	errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-	if (err || pValue == NULL || strlen(pValue) == 0)
-		err = _dupenv_s(&pValue, &len, "COVISEDIR");
-	if (err)
-		pValue="";
-	QString covisedir = pValue;
+    char *pValue;
+    size_t len;
+    errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+    if (err || pValue == NULL || strlen(pValue) == 0)
+        err = _dupenv_s(&pValue, &len, "COVISEDIR");
+    if (err)
+        pValue="";
+    QString covisedir = pValue;
 #else
-	QString covisedir = getenv("ODDLOTDIR");
-	if (covisedir == "")
-		covisedir = getenv("COVISEDIR");
+    QString covisedir = getenv("ODDLOTDIR");
+    if (covisedir == "")
+        covisedir = getenv("COVISEDIR");
 #endif
     QString dir = covisedir + "/share/covise/";*/
     //ui->ToProjectionEdit->setText(QString("tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam"));
@@ -148,7 +148,7 @@ ProjectionSettings::ProjectionSettings()
     XOffset = ui->XOffsetSpin->value();
     YOffset = ui->YOffsetSpin->value();
     ZOffset = ui->ZOffsetSpin->value();
-    
+
     //TODO: substitute with projectData implementation!
     //Converts string representation of coordinate system into projPJ Object (pj_init_plus(...))
     if (!(new_pj_from = pj_init_plus(projFromString.toUtf8().constData())))
@@ -192,7 +192,7 @@ void ProjectionSettings::transform(double &x, double &y, double &z)
 {
     projPJ from = projectData_->getProj4ReferenceFrom();
     projPJ to = projectData_->getProj4ReferenceTo();
-    if (from == nullptr|| to == nullptr)
+    if (from == nullptr || to == nullptr)
     {
         updateSettings();
         if (from == nullptr || to == nullptr)
@@ -201,7 +201,7 @@ void ProjectionSettings::transform(double &x, double &y, double &z)
             return;
         }
     }
-    int p = pj_transform(from,to,1,1,&x,&y,&z);
+    int p = pj_transform(from, to, 1, 1, &x, &y, &z);
     if (p != 0)
     {
         fprintf(stderr, "pj_transform projection error %s\n", pj_strerrno(p));
@@ -213,21 +213,21 @@ void ProjectionSettings::transform(double &x, double &y, double &z)
 
 void ProjectionSettings::update()
 {
-    if(projectData_->getGeoReference() == nullptr) {
+    if (projectData_->getGeoReference() == nullptr) {
         ui->presetBox->setCurrentIndex(1);
     }
-	else if (projectData_->getProj4ReferenceTo() && projectData_->getProj4ReferenceFrom())
-	{
-		//ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
-		ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(), 0));
-		ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(), 0));
-		updateUi();
-	}
-	else
-	{
-		ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
-		updateUi();
-	}
+    else if (projectData_->getProj4ReferenceTo() && projectData_->getProj4ReferenceFrom())
+    {
+        //ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+        ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(), 0));
+        ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(), 0));
+        updateUi();
+    }
+    else
+    {
+        ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
+        updateUi();
+    }
 }
 
 void ProjectionSettings::setProjectData(ProjectData *pd)
@@ -241,13 +241,13 @@ void ProjectionSettings::setProjectData(ProjectData *pd)
 QString ProjectionSettings::prepareString(const QString &src)
 {
     QString pre;
-    if(src.indexOf("+init=epsg:") == -1)
+    if (src.indexOf("+init=epsg:") == -1)
     {
-        pre = "+proj" + (src.section("+proj", 1,1));
+        pre = "+proj" + (src.section("+proj", 1, 1));
     }
     else
     {
-        pre = "+init=epsg:" + (src.section("+init=epsg:", 1,1)).section(' ',0,0);
+        pre = "+init=epsg:" + (src.section("+init=epsg:", 1, 1)).section(' ', 0, 0);
     }
     return pre;
 }
@@ -257,7 +257,7 @@ void ProjectionSettings::updateSettings()
     QMessageBox msg;
     QString projTo = ui->ProjectionEdit->text();
     QString projFrom = ui->SourceEdit->text();
-    projPJ new_pj_from,new_pj_to;
+    projPJ new_pj_from, new_pj_to;
     XOffset = ui->XOffsetSpin->value();
     YOffset = ui->YOffsetSpin->value();
     ZOffset = ui->ZOffsetSpin->value();
@@ -268,7 +268,7 @@ void ProjectionSettings::updateSettings()
     }
 
     new_pj_from = pj_init_plus((projFrom).toUtf8().constData());
-    if(!(new_pj_from))
+    if (!(new_pj_from))
     {
         msg.setText("ProjectionSettings::updateSettings(): couldn't initialize projection source: " + projFrom);
         msg.exec();
@@ -277,7 +277,7 @@ void ProjectionSettings::updateSettings()
     {
         new_pj_to = pj_init_plus((projTo).toUtf8().constData());
         projectData_->setProj4ReferenceFrom(new_pj_from);
-        if(!(new_pj_to))
+        if (!(new_pj_to))
         {
             msg.setText("ProjectionSettings::updateSettings(): couldn't initialize projection target: " + projTo);
             msg.exec();
@@ -294,8 +294,8 @@ void ProjectionSettings::updateSettings()
 void ProjectionSettings::checkProjForEPSG(const QString &proj)
 {
     QString update;
-    if(proj.indexOf("+init=epsg:") != -1) {
-        update = proj.section("+init=epsg:",1,1).section(" ",0,0);
+    if (proj.indexOf("+init=epsg:") != -1) {
+        update = proj.section("+init=epsg:", 1, 1).section(" ", 0, 0);
     }
     else
     {

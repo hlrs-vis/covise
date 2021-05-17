@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.01.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.01.2010
+ **
+ **************************************************************************/
 
 #include "projectwidget.hpp"
 
 #include "src/mainwindow.hpp"
 
 #include "src/util/odd.hpp"
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 #include "src/data/changemanager.hpp"
 #include "src/data/prototypemanager.hpp"
@@ -135,13 +135,13 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     , topviewGraph_(NULL)
     , projectEditor_(NULL)
     , changeManager_(NULL)
-	, active_(false)
+    , active_(false)
 {
     // Layout //
     //
     QGridLayout *layout = new QGridLayout();
     setLayout(layout);
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
     QSplitter *splitter = new QSplitter(this);
     splitter->setOrientation(Qt::Vertical);
     layout->addWidget(splitter);
@@ -199,8 +199,8 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     splitter->addWidget(profileGraph_);
     splitter->setStretchFactor(1, 1);
 
-	// Routes the tool, mouse and key events to the project widget.
-	connect(profileGraph_, SIGNAL(mouseActionSignal(MouseAction *)), this, SLOT(mouseAction(MouseAction *)));
+    // Routes the tool, mouse and key events to the project widget.
+    connect(profileGraph_, SIGNAL(mouseActionSignal(MouseAction *)), this, SLOT(mouseAction(MouseAction *)));
 
     // The ChangeManager triggers the view's garbage disposal.
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), profileGraph_, SLOT(garbageDisposal()));
@@ -214,12 +214,12 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::EEL, new ElevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ESE, new SuperelevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ECF, new CrossfallEditor(this, projectData_, topviewGraph_, profileGraph_));
-	editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
-	editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_));
+    editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
+    editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
 
-	OpenScenarioEditor *oscEditor = new OpenScenarioEditor(this, projectData_, topviewGraph_);
+    OpenScenarioEditor *oscEditor = new OpenScenarioEditor(this, projectData_, topviewGraph_);
     editors_.insert(ODD::EOS, oscEditor);
 
     // VIEW: Tree //
@@ -238,9 +238,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectionSettings = mainWindow->getProjectionSettings();
     lodSettings = LODSettings::instance();
 
-	oscSettings = OSCSettings::instance();
-	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
-	connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
+    oscSettings = OSCSettings::instance();
+    connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
+    connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
 
     currentRoadPrototype_ = new RSystemElementRoad("prototype");
 
@@ -248,20 +248,20 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     QList<PrototypeContainer<RSystemElementRoad *> *> laneSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> superelevationPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> crossfallPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype);
-	QList<PrototypeContainer<RSystemElementRoad *> *> shapePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
+    QList<PrototypeContainer<RSystemElementRoad *> *> shapePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
     currentRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(laneSectionPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
-	currentRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
+    currentRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 
-	testRoadPrototype_ = new RSystemElementRoad("prototype");
+    testRoadPrototype_ = new RSystemElementRoad("prototype");
 
     testRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(laneSectionPrototypes.at(3)->getPrototype());
     testRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
-	testRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
+    testRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 }
 
 /*!
@@ -271,12 +271,12 @@ ProjectWidget::~ProjectWidget()
 {
     delete projectSettings_;
 
-    foreach (ProjectEditor *editor, editors_)
+    foreach(ProjectEditor * editor, editors_)
     {
         delete editor;
     }
 
-	removeCatalogTrees();
+    removeCatalogTrees();
 
 
     delete topviewGraph_;
@@ -312,7 +312,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
         //
         if (projectEditor_)
         {
-			mainWindow_->hideDock(editors_.key(projectEditor_));
+            mainWindow_->hideDock(editors_.key(projectEditor_));
             projectEditor_->hide();
             //projectData_->getChangeManager()->unregisterAll(); // clear Subject-Observer list
             // This should be unnecessary if every observer detaches itself. It is even wrong,
@@ -321,7 +321,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // Show new one //
         //
-		projectEditor_ = it.value();
+        projectEditor_ = it.value();
         projectEditor_->show();
 
         // ProfileGraph //
@@ -338,7 +338,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // Signal and catalog trees //
         //
-		mainWindow_->showDock(id);
+        mainWindow_->showDock(id);
 
         topviewGraph_->postEditorChange();
     }
@@ -349,7 +349,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
         if (projectEditor_)
         {
             projectEditor_->hide();
-            //			projectData_->getChangeManager()->unregisterAll(); // clear Subject-Observer list
+            //   projectData_->getChangeManager()->unregisterAll(); // clear Subject-Observer list
         }
 
         // Warning //
@@ -370,8 +370,8 @@ ProjectWidget::newFile(const QString &filename)
 {
 
     fileName_ = filename + ".xodr";
-	strippedFileName_ = fileName_;
-	oscFileName_ = filename + "xosc";
+    strippedFileName_ = fileName_;
+    oscFileName_ = filename + "xosc";
 
     // Set name in window title and project menu.
     setWindowTitle(strippedFileName_ + "[*]"); // [*] is the place for unsaved-marker
@@ -382,12 +382,12 @@ ProjectWidget::newFile(const QString &filename)
     projectData_->getTileSystem()->addTile(tile);
     projectData_->getTileSystem()->setCurrentTile(tile);
 
-	// Create a OpenScenario data base
-	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-	if (openScenarioBase)
-	{
-		openScenarioBase->createSource(oscFileName_.toStdString(), "OpenSCENARIO");
-	}
+    // Create a OpenScenario data base
+    OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+    if (openScenarioBase)
+    {
+        openScenarioBase->createSource(oscFileName_.toStdString(), "OpenSCENARIO");
+    }
 
     // Mark this file as untitled and modified.
     isUntitled_ = true;
@@ -398,118 +398,118 @@ ProjectWidget::newFile(const QString &filename)
 
 /** \brief Opens and reads in the specified file and starts the parser.
 *
-*	\todo read strategy (xodr, native, etc)
+* \todo read strategy (xodr, native, etc)
 */
 bool
 ProjectWidget::loadFile(const QString &fileName, FileType type)
 {
-	QString xodrFileName = "";
-	QString xoscFileName;
-	if (type == FT_All)
-	{
-		QString baseName = fileName;
-		baseName.truncate(fileName.lastIndexOf("."));
-		xodrFileName = baseName + ".xodr";
-		xoscFileName = baseName + ".xosc";
-	}
-	else if (type == FT_OpenDrive)
-	{
-		xodrFileName = fileName;
-		QString baseName = fileName;
-		baseName.truncate(fileName.lastIndexOf("."));
-		xoscFileName = baseName.append(".xosc");
-	}
-	else
-	{
-		xoscFileName = fileName;
-	}
+    QString xodrFileName = "";
+    QString xoscFileName;
+    if (type == FT_All)
+    {
+        QString baseName = fileName;
+        baseName.truncate(fileName.lastIndexOf("."));
+        xodrFileName = baseName + ".xodr";
+        xoscFileName = baseName + ".xosc";
+    }
+    else if (type == FT_OpenDrive)
+    {
+        xodrFileName = fileName;
+        QString baseName = fileName;
+        baseName.truncate(fileName.lastIndexOf("."));
+        xoscFileName = baseName.append(".xosc");
+    }
+    else
+    {
+        xoscFileName = fileName;
+    }
 
 
-	bool success = false;
-	if (type != FT_OpenScenario)
-	{
-		// Print //
-		//
-		qDebug("Loading file: %s", xodrFileName.toUtf8().constData());
+    bool success = false;
+    if (type != FT_OpenScenario)
+    {
+        // Print //
+        //
+        qDebug("Loading file: %s", xodrFileName.toUtf8().constData());
 
-		// Open file //
-		//
-		QFile file(xodrFileName);
-		if (!file.open(QFile::ReadOnly | QFile::Text))
-		{
-			QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
-				.arg(xodrFileName));
-//			qDebug("Loading file failed: %s", xodrFileName.toUtf8().constData());
-		}
-		else
-		{
+        // Open file //
+        //
+        QFile file(xodrFileName);
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
+                .arg(xodrFileName));
+            //   qDebug("Loading file failed: %s", xodrFileName.toUtf8().constData());
+        }
+        else
+        {
 
-			// Parse file //
-			//
+            // Parse file //
+            //
 
-			// TODO: read strategy (xodr, native, etc)
-			QApplication::setOverrideCursor(Qt::WaitCursor);
-			DomParser *parser = new DomParser(projectData_);
-			success = parser->parseXODR(&file);
-			delete parser;
+            // TODO: read strategy (xodr, native, etc)
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+            DomParser *parser = new DomParser(projectData_);
+            success = parser->parseXODR(&file);
+            delete parser;
 
-			// TODO
+            // TODO
 
-			// Close file //
-			//
-			QApplication::restoreOverrideCursor();
-			file.close();
-		}
-	};
+            // Close file //
+            //
+            QApplication::restoreOverrideCursor();
+            file.close();
+        }
+    };
 
-	OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+    OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
 
-	if (type != FT_OpenDrive)
-	{
-		// Create a Tile
-		if (!projectData_->getTileSystem()->getCurrentTile())
-		{
-			Tile *tile = new Tile(projectData_->getRoadSystem()->getID(odrID::ID_Tile));
-			projectData_->getTileSystem()->addTile(tile);
-			projectData_->getTileSystem()->setCurrentTile(tile); 
-		}
+    if (type != FT_OpenDrive)
+    {
+        // Create a Tile
+        if (!projectData_->getTileSystem()->getCurrentTile())
+        {
+            Tile *tile = new Tile(projectData_->getRoadSystem()->getID(odrID::ID_Tile));
+            projectData_->getTileSystem()->addTile(tile);
+            projectData_->getTileSystem()->setCurrentTile(tile);
+        }
 
-		// Open file //
-		//
-		QFile file(xoscFileName);
-		if (file.exists())
-		{
-			OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+        // Open file //
+        //
+        QFile file(xoscFileName);
+        if (file.exists())
+        {
+            OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
 
-			if (!success)
-			{
-				success = oscParser->parseXOSC(xoscFileName);
-			}
-			else
-			{
-				oscParser->parseXOSC(xoscFileName);
-			}
+            if (!success)
+            {
+                success = oscParser->parseXOSC(xoscFileName);
+            }
+            else
+            {
+                oscParser->parseXOSC(xoscFileName);
+            }
 
-			delete oscParser;
-		}
-		else
-		{
-            if(false)
+            delete oscParser;
+        }
+        else
+        {
+            if (false)
             {
                 QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n.")
-                                     .arg(xoscFileName));
+                    .arg(xoscFileName));
             }
-		}
-	}
+        }
+    }
 
-	// Reset change //
-	//
-	projectData_->getChangeManager()->notifyObservers();
+    // Reset change //
+    //
+    projectData_->getChangeManager()->notifyObservers();
 
-	if (!openScenarioBase->getSource())
-	{
-		openScenarioBase->createSource(xoscFileName.toStdString(), "OpenSCENARIO");
-	}
+    if (!openScenarioBase->getSource())
+    {
+        openScenarioBase->createSource(xoscFileName.toStdString(), "OpenSCENARIO");
+    }
 
     topviewGraph_->updateSceneSize();
 
@@ -538,8 +538,8 @@ ProjectWidget::loadTile(const QString &fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
+            .arg(fileName)
+            .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
@@ -567,7 +567,7 @@ ProjectWidget::addCatalogTree(const QString &name, OpenScenario::oscCatalog *cat
     // add a catalog tree
     //
     CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, catalog, name);
-	catalogWidgets_.push_back(catalogWidget);
+    catalogWidgets_.push_back(catalogWidget);
     QDockWidget *catalogDock = mainWindow_->createCatalog(name, catalogWidget);
     CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
 
@@ -579,17 +579,17 @@ ProjectWidget::addCatalogTree(const QString &name, OpenScenario::oscCatalog *cat
 void
 ProjectWidget::removeCatalogTrees()
 {
-	foreach (CatalogWidget * widget, catalogWidgets_)
-	{
-		QDockWidget *parent = dynamic_cast<QDockWidget *>(widget->parentWidget());
-		if (parent)
-		{
-			mainWindow_->removeDockWidget(parent);
-		}
-		delete widget;
-	}
+    foreach(CatalogWidget * widget, catalogWidgets_)
+    {
+        QDockWidget *parent = dynamic_cast<QDockWidget *>(widget->parentWidget());
+        if (parent)
+        {
+            mainWindow_->removeDockWidget(parent);
+        }
+        delete widget;
+    }
 
-	catalogWidgets_.clear();
+    catalogWidgets_.clear();
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)
@@ -754,10 +754,10 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
 }
 RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
 {
-    return addLineStrip(name,-1,false,2,osmWay::unknown);
+    return addLineStrip(name, -1, false, 2, osmWay::unknown);
 }
 
-RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type)
+RSystemElementRoad *ProjectWidget::addLineStrip(QString name, int maxspeed, bool bridge, int numLanes, osmWay::wayType type)
 {
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
@@ -774,20 +774,20 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     dxs = XVector[1] - XVector[0];
     dys = YVector[1] - YVector[0];
     double startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
-    TrackElementLine *lastLineElement=NULL;
+    TrackElementLine *lastLineElement = NULL;
     for (size_t i = 0; i < XVector.size() - 1; i++)
     {
-        if(fabs(dxs) < 0.0001 && fabs(dys) < 0.0001 && (i+2 < XVector.size()))
+        if (fabs(dxs) < 0.0001 && fabs(dys) < 0.0001 && (i + 2 < XVector.size()))
         {
 
-            dxs = XVector[i+2] - XVector[i+1];
-            dys = YVector[i+2] - YVector[i+1];
+            dxs = XVector[i + 2] - XVector[i + 1];
+            dys = YVector[i + 2] - YVector[i + 1];
             continue;
         }
         SVector[i] = road->getLength();
         size_t len = getMaxLinearLength(i);
         size_t arcLen = getMaxArcLength(i, startHeadingDeg);
-        if (arcLen > len || (lastLineElement!=NULL && (arcLen > 0))) // create an arc if the last element was a line of if an arc element would be longer than a linear element
+        if (arcLen > len || (lastLineElement != NULL && (arcLen > 0))) // create an arc if the last element was a line of if an arc element would be longer than a linear element
         {
             double dxe = 0;
             double dye = 0;
@@ -822,7 +822,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
             }
             i += arcLen - 2;
             startHeadingDeg = endHeadingDeg;
-            lastLineElement=NULL;
+            lastLineElement = NULL;
         }
         else
         {
@@ -832,14 +832,14 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
             //experiment (breaks it worse) (DELET THIS)
             //double dxs = XVector[i + len] - XVector[i];
             //double dys = YVector[i + len] - YVector[i];
-            if(lastLineElement!=NULL) // two line elements should never follow each other. what we have to do is go back a little until we can fit an arc
+            if (lastLineElement != NULL) // two line elements should never follow each other. what we have to do is go back a little until we can fit an arc
             { // we can safely go back as much as the shorter length of the two inear segments.
                 double len1 = lastLineElement->getLength();
-                double len2 = sqrt(dxs*dxs + dys*dys);
-                double maxArc = std::min(len1,len2);
-                if(maxArc < 2.5)
+                double len2 = sqrt(dxs * dxs + dys * dys);
+                double maxArc = std::min(len1, len2);
+                if (maxArc < 2.5)
                 {
-                    fprintf(stderr,"maxArc very small, creating two line segments %f\n",maxArc);
+                    fprintf(stderr, "maxArc very small, creating two line segments %f\n", maxArc);
                     startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
                     double length = sqrt(dxs * dxs + dys * dys);
                     TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dys, dxs) * RAD_TO_DEG, road->getLength(), length);
@@ -855,26 +855,26 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
                 {
                     int minIndex = 0;
                     float minError = 100000;
-                    if(maximizeCurveRadius)
+                    if (maximizeCurveRadius)
                     {
-                        for(int j = 1;j<len;j++)
+                        for (int j = 1; j < len; j++)
                         {
                             double dx = XVector[i + j] - XVector[i];
                             double dy = YVector[i + j] - YVector[i];
                             double dxe = dx;
                             double dye = dy;
-                            if(i+j+1 < XVector.size())
+                            if (i + j + 1 < XVector.size())
                             {
                                 dxe = XVector[i + j + 1] - XVector[i];
                                 dye = YVector[i + j + 1] - YVector[i];
                             }
-                            double currentlen = sqrt(dx*dx + dy*dy);
-                            if(currentlen < maxArc)
+                            double currentlen = sqrt(dx * dx + dy * dy);
+                            if (currentlen < maxArc)
                             {
-                                QPointF endPos(XVector[i + j], YVector[i +j]);
+                                QPointF endPos(XVector[i + j], YVector[i + j]);
                                 double endHeadingDeg = atan2(dye, dxe) * RAD_TO_DEG;
                                 double HeadingDiff = endHeadingDeg - lastLineElement->getHeading(0);
-                                QPointF pf = lastLineElement->getLocalPoint((len1-currentlen)+lastLineElement->getSStart());
+                                QPointF pf = lastLineElement->getLocalPoint((len1 - currentlen) + lastLineElement->getSStart());
                                 TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, lastLineElement->getHeading(0), endHeadingDeg, 0.5);
                                 if (curve->validParameters())
                                 {
@@ -882,33 +882,33 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
                                     if (currentError < minError)
                                     {
-                                        minError=currentError;
+                                        minError = currentError;
                                         minIndex = j;
                                     }
                                 }
                             }
                         }
                     }
-                    if(minIndex > 0) // we have found a valid curve, create it.
+                    if (minIndex > 0) // we have found a valid curve, create it.
                     {
                         double dx = XVector[i + minIndex] - XVector[i];
                         double dy = YVector[i + minIndex] - YVector[i];
                         double dxe = dx;
                         double dye = dy;
-                        if(i+minIndex+1 < XVector.size())
+                        if (i + minIndex + 1 < XVector.size())
                         {
                             dxe = XVector[i + minIndex + 1] - XVector[i];
                             dye = YVector[i + minIndex + 1] - YVector[i];
                         }
-                        double currentlen = sqrt(dx*dx + dy*dy);
+                        double currentlen = sqrt(dx * dx + dy * dy);
                         QPointF endPos(XVector[i + minIndex], YVector[i + minIndex]);
                         double endHeadingDeg = atan2(dye, dxe) * RAD_TO_DEG;
                         startHeadingDeg = lastLineElement->getLocalHeading(0);
-                        QPointF pf = lastLineElement->getLocalPoint((len1-currentlen)+lastLineElement->getSStart());
+                        QPointF pf = lastLineElement->getLocalPoint((len1 - currentlen) + lastLineElement->getSStart());
                         TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, startHeadingDeg, endHeadingDeg, 0.5);
                         if (curve->validParameters())
                         {
-                            lastLineElement->setLength(len1-currentlen);
+                            lastLineElement->setLength(len1 - currentlen);
                             road->updateLength();
                             curve->setSStart(road->getLength());
                             road->addTrackComponent(curve);
@@ -923,16 +923,16 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
                         }
                         i += minIndex - 1;
                         startHeadingDeg = endHeadingDeg;
-                        lastLineElement=NULL;
+                        lastLineElement = NULL;
                     }
                     else
                     {
                         // we could not create a valid curve to one of the existing nodes, thus try to create a very small one, 1.5m this should always work if the next segment is larger then 1.5 m
                         double dx = XVector[i + 1] - XVector[i];
                         double dy = YVector[i + 1] - YVector[i];
-                        double currentLen = sqrt(dx*dx + dy*dy);
-                        double minLen = std::min(currentLen*0.9,2.5);
-                        minLen= std::min(minLen,currentLen);
+                        double currentLen = sqrt(dx * dx + dy * dy);
+                        double minLen = std::min(currentLen * 0.9, 2.5);
+                        minLen = std::min(minLen, currentLen);
 
                         dx = (dx / currentLen) * minLen;
                         dy = (dy / currentLen) * minLen;
@@ -941,17 +941,17 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
                         QPointF endPos(XVector[i], YVector[i]);
                         double endHeadingDeg = atan2(dy, dx) * RAD_TO_DEG;
                         startHeadingDeg = lastLineElement->getLocalHeading(0);
-                        QPointF pf = lastLineElement->getLocalPoint((len1-minLen)+lastLineElement->getSStart());
+                        QPointF pf = lastLineElement->getLocalPoint((len1 - minLen) + lastLineElement->getSStart());
                         TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, startHeadingDeg, endHeadingDeg, 0.5);
                         if (curve->validParameters())
                         {
-                            lastLineElement->setLength(len1-minLen);
+                            lastLineElement->setLength(len1 - minLen);
                             road->updateLength();
                             curve->setSStart(road->getLength());
                             road->addTrackComponent(curve);
-                            i --;
+                            i--;
                             startHeadingDeg = endHeadingDeg;
-                            lastLineElement=NULL;
+                            lastLineElement = NULL;
                         }
                         else
                         {
@@ -1024,56 +1024,56 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     }
 
     road->setElevationSections(newSections);
-    QString typeName="osm:"+osmWay::getTypeName(type)+":"+QString::number(numLanes);
+    QString typeName = "osm:" + osmWay::getTypeName(type) + ":" + QString::number(numLanes);
 
     RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype");
-    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype,typeName));
-    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
-    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
-    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
-	osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype, typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype, typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype, typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype, typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, typeName));
 
     road->superposePrototype(osmPrototype);
-    if(maxspeed>=0)
+    if (maxspeed >= 0)
     {
         TypeSection *ts = road->getTypeSection(0);
-        if(ts==NULL)
+        if (ts == NULL)
         {
             // default entry
             ts = new TypeSection(0.0, TypeSection::RTP_UNKNOWN);
             road->addTypeSection(ts);
         }
-        SpeedRecord *sr=new SpeedRecord();
+        SpeedRecord *sr = new SpeedRecord();
         sr->maxSpeed = maxspeed * 0.277777778;
         ts->setSpeedRecord(sr);
     }
     TypeSection *ts = road->getTypeSection(0);
-    TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
-    if(type == osmWay::secondary)
+    TypeSection::RoadType rt = TypeSection::RTP_MOTORWAY;
+    if (type == osmWay::secondary)
         rt = TypeSection::RTP_RURAL;
-    if(type == osmWay::tertiary)
+    if (type == osmWay::tertiary)
         rt = TypeSection::RTP_TOWN;
-    if(type == osmWay::living_street)
+    if (type == osmWay::living_street)
         rt = TypeSection::RTP_LOWSPEED;
-    if(type == osmWay::service)
+    if (type == osmWay::service)
         rt = TypeSection::RTP_LOWSPEED;
-    if(type == osmWay::pedestrian)
+    if (type == osmWay::pedestrian)
         rt = TypeSection::RTP_PEDESTRIAN;
-    if(type == osmWay::unclassified)
+    if (type == osmWay::unclassified)
         rt = TypeSection::RTP_UNKNOWN;
-    if(ts==NULL)
+    if (ts == NULL)
     {
-        TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
-        ts = new TypeSection(0.0,rt);
+        TypeSection::RoadType rt = TypeSection::RTP_MOTORWAY;
+        ts = new TypeSection(0.0, rt);
         road->addTypeSection(ts);
     }
     ts->setRoadType(rt);
 
     roadSystem->addRoad(road); // This may change the ID!
 
-    if(bridge)
+    if (bridge)
     {
-        Bridge *bridge = new Bridge(odrID::invalidID(),"","osmBridge",Bridge::BT_CONCRETE,0.0,road->getLength());
+        Bridge *bridge = new Bridge(odrID::invalidID(), "", "osmBridge", Bridge::BT_CONCRETE, 0.0, road->getLength());
         road->addBridge(bridge);
     }
 
@@ -1128,8 +1128,8 @@ ProjectWidget::importIntermapFile(const QString &fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
+            .arg(fileName)
+            .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
@@ -1203,8 +1203,8 @@ ProjectWidget::importCSVRoadFile(const QString &fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
+            .arg(fileName)
+            .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
@@ -1267,96 +1267,96 @@ ProjectWidget::importCSVRoadFile(const QString &fileName)
 *
 */
 bool
-	ProjectWidget::importCSVSignFile(const QString &fileName)
+ProjectWidget::importCSVSignFile(const QString &fileName)
 {
-	QFile file(fileName);
-	if (!file.open(QFile::ReadOnly | QFile::Text))
-	{
-		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-			.arg(fileName)
-			.arg(file.errorString()));
-		qDebug("Loading file failed: %s", fileName.toUtf8().constData());
-		return false;
-	}
-	QTextStream in(&file);
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+            .arg(fileName)
+            .arg(file.errorString()));
+        qDebug("Loading file failed: %s", fileName.toUtf8().constData());
+        return false;
+    }
+    QTextStream in(&file);
 
-	QString line = in.readLine();
-	if (!line.isNull())
-	{
-		int objectID;
-		char sign[15], position[15];
-		double xGauss, yGauss, orientation, longitude, latitude, altitude;
+    QString line = in.readLine();
+    if (!line.isNull())
+    {
+        int objectID;
+        char sign[15], position[15];
+        double xGauss, yGauss, orientation, longitude, latitude, altitude;
 
-		line = in.readLine(); // start with second row
-		while (!line.isNull())
-		{
-			if (line.length() != 0)
-			{
-				// 3490472.35531212,5383550.59771206,1,437,R,7.00000000000,8.86982484085,48.58954050730,0.00000000000
+        line = in.readLine(); // start with second row
+        while (!line.isNull())
+        {
+            if (line.length() != 0)
+            {
+                // 3490472.35531212,5383550.59771206,1,437,R,7.00000000000,8.86982484085,48.58954050730,0.00000000000
 
-				line.replace(',', ' '); // value separator
-				//line.replace(',', '.'); // floating points
+                line.replace(',', ' '); // value separator
+                //line.replace(',', '.'); // floating points
 
-				int num = sscanf(line.toUtf8(), "%lf %lf %d %s %s %lf %lf %lf %lf", &xGauss, &yGauss, &objectID, sign, position, &orientation, &longitude, &latitude, &altitude);
+                int num = sscanf(line.toUtf8(), "%lf %lf %d %s %s %lf %lf %lf %lf", &xGauss, &yGauss, &objectID, sign, position, &orientation, &longitude, &latitude, &altitude);
 
-				if (num == 9) // we read everything
-				{
-					longitude *= DEG_TO_RAD;
-					latitude *= DEG_TO_RAD;
-					projectionSettings->transform(longitude, latitude, altitude);
+                if (num == 9) // we read everything
+                {
+                    longitude *= DEG_TO_RAD;
+                    latitude *= DEG_TO_RAD;
+                    projectionSettings->transform(longitude, latitude, altitude);
 
-					Signal::OrientationType dir = Signal::BOTH_DIRECTIONS;
-					if(strcmp(position,"R") == 0)
-					{
-						dir = Signal::POSITIVE_TRACK_DIRECTION;
-					}
-					else if(strcmp(position,"L") == 0)
-					{
-						dir = Signal::NEGATIVE_TRACK_DIRECTION;
-					}
+                    Signal::OrientationType dir = Signal::BOTH_DIRECTIONS;
+                    if (strcmp(position, "R") == 0)
+                    {
+                        dir = Signal::POSITIVE_TRACK_DIRECTION;
+                    }
+                    else if (strcmp(position, "L") == 0)
+                    {
+                        dir = Signal::NEGATIVE_TRACK_DIRECTION;
+                    }
 
-					QString type = "-1";
-					QString subtype = "-1";
-					QString typeSubclass = "";
-					QString signNumber = QString::fromStdString(sign);
-					signNumber.replace('.', '-'); // separator type -> typeSubclass + subtype
-					QStringList list = signNumber.split("-");
+                    QString type = "-1";
+                    QString subtype = "-1";
+                    QString typeSubclass = "";
+                    QString signNumber = QString::fromStdString(sign);
+                    signNumber.replace('.', '-'); // separator type -> typeSubclass + subtype
+                    QStringList list = signNumber.split("-");
 
-					if (list.size() > 0)
-					{
-						type = list.at(0).toInt();
-						if (list.size() == 2) // type + subtype
-						{
-							subtype = list.at(1).toInt();
-						}
-						else if (list.size() == 3) // type + typeSubclass + subtype
-						{
-							typeSubclass = list.at(1);
-							subtype = list.at(2).toInt();
-						}
-					}
+                    if (list.size() > 0)
+                    {
+                        type = list.at(0).toInt();
+                        if (list.size() == 2) // type + subtype
+                        {
+                            subtype = list.at(1).toInt();
+                        }
+                        else if (list.size() == 3) // type + typeSubclass + subtype
+                        {
+                            typeSubclass = list.at(1);
+                            subtype = list.at(2).toInt();
+                        }
+                    }
 
-					QPointF coordPoint(longitude, latitude);
-					double s;
-					double t;
-					QVector2D vec;
-					RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
-					if (road) // addSignal
-					{
-						Signal *trafficSign = new Signal(odrID::invalidID(), "signal",  s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
-						road->addSignal(trafficSign);
-					}
-				}
-			}
-			line = in.readLine();
-		}
-}
-	topviewGraph_->updateSceneSize();
-	// Close file //
-	//
-	QApplication::restoreOverrideCursor();
-	file.close();
-	return true;
+                    QPointF coordPoint(longitude, latitude);
+                    double s;
+                    double t;
+                    QVector2D vec;
+                    RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
+                    if (road) // addSignal
+                    {
+                        Signal *trafficSign = new Signal(odrID::invalidID(), "signal", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 1, 0, 0.0, 0.0);
+                        road->addSignal(trafficSign);
+                    }
+                }
+            }
+            line = in.readLine();
+        }
+    }
+    topviewGraph_->updateSceneSize();
+    // Close file //
+    //
+    QApplication::restoreOverrideCursor();
+    file.close();
+    return true;
 }
 
 /** \brief imports a CarMaker Road file.
@@ -1370,8 +1370,8 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
+            .arg(fileName)
+            .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
@@ -1383,19 +1383,19 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
     {
         if (line.length() != 0)
         {
-            QByteArray ba =line.toUtf8();
+            QByteArray ba = line.toUtf8();
             const char *linestr = ba;
-            if(line[0]==':' && line[2]=='x')
+            if (line[0] == ':' && line[2] == 'x')
             {
                 break;
             }
-            if(line[0]=='#')
+            if (line[0] == '#')
             {
                 // TODO read Traffic signs
-                if(strncmp(linestr,"#SEGMENT",8)==0)
+                if (strncmp(linestr, "#SEGMENT", 8) == 0)
                 {
-                    float s=0;
-                    sscanf(linestr+8,"%f",&s);
+                    float s = 0;
+                    sscanf(linestr + 8, "%f", &s);
                     segsize.push_back(s);
                 }
             }
@@ -1450,14 +1450,14 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Split Track and Road"));
 
-    for(int i=0;i<segsize.size();i++)
+    for (int i = 0; i < segsize.size(); i++)
     {
-        if(segsize[i]< road->getLength()-0.5)
+        if (segsize[i] < road->getLength() - 0.5)
         {
             SplitTrackRoadCommand *splitTrackRoadCommand = new SplitTrackRoadCommand(road, segsize[i], NULL);
             topviewGraph_->executeCommand(splitTrackRoadCommand);
             road = splitTrackRoadCommand->getSplitRoadCommand()->getFirstNewRoad();
-            roads[roads.size()-1] = road;
+            roads[roads.size() - 1] = road;
             road = splitTrackRoadCommand->getSplitRoadCommand()->getSecondNewRoad();
             roads.push_back(road);
         }
@@ -1470,123 +1470,123 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-                                                  .arg(fileName)
-                                                  .arg(file.errorString()));
+            .arg(fileName)
+            .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
     QTextStream inf(&file);
-    int currentRoad=0;
+    int currentRoad = 0;
     road = roads[currentRoad];
     line = inf.readLine();
     while (!line.isNull())
     {
         if (line.length() != 0)
         {
-            QByteArray ba =line.toUtf8();
+            QByteArray ba = line.toUtf8();
             const char *linestr = ba;
-            if(line[0]==':' && line[2]=='x')
+            if (line[0] == ':' && line[2] == 'x')
             {
                 break;
             }
-            if(line[0]=='#')
+            if (line[0] == '#')
             {
                 // TODO read Traffic signs
-                if(strncmp(linestr,"#SEGMENT",8)==0)
+                if (strncmp(linestr, "#SEGMENT", 8) == 0)
                 {
                     road = roads[currentRoad];
                     currentRoad++;
 
                 }
-                if(strncmp(linestr,"#MARKER",7)==0)
+                if (strncmp(linestr, "#MARKER", 7) == 0)
                 {
 
-                    if(strncmp(linestr+8,"TrfSign",7)==0)
+                    if (strncmp(linestr + 8, "TrfSign", 7) == 0)
                     {
-                        float s,t,dummy;
-                        char signName[100],signDir[100],unknown[100];
+                        float s, t, dummy;
+                        char signName[100], signDir[100], unknown[100];
                         int di;
                         float speed;
                         // #MARKER TrfSign 491.045 0.0 SpeedLimit 0.5 r p M 2.5 0 0 60  0 - M 0 0 - M 0 0
-                        sscanf(linestr+16,"%f %f %s %f %s %s %s %f %d %d %f",&s,&dummy,signName,&t, signDir, unknown, unknown, &dummy, &di, &di, &speed);
-                        QString type="-1";
-						QString subType="-1";
-                        if(strcmp(signName,"SpeedLimit")==0)
+                        sscanf(linestr + 16, "%f %f %s %f %s %s %s %f %d %d %f", &s, &dummy, signName, &t, signDir, unknown, unknown, &dummy, &di, &di, &speed);
+                        QString type = "-1";
+                        QString subType = "-1";
+                        if (strcmp(signName, "SpeedLimit") == 0)
                         {
                             type = "274";
-                            subType = QString::number(50+(speed/10));
+                            subType = QString::number(50 + (speed / 10));
                         }
-                        if(strcmp(signName,"OvertakeProhibitedCC")==0)
+                        if (strcmp(signName, "OvertakeProhibitedCC") == 0)
                         {
                             type = "276";
                         }
-                        if(strcmp(signName,"OvertakeProhibitedTC")==0)
+                        if (strcmp(signName, "OvertakeProhibitedTC") == 0)
                         {
                             type = "280";
                         }
-                        if(strcmp(signName,"SCurveR")==0)
+                        if (strcmp(signName, "SCurveR") == 0)
                         {
                             type = "105";
                             subType = 10;
                         }
-                        if(strcmp(signName,"SCurveL")==0)
+                        if (strcmp(signName, "SCurveL") == 0)
                         {
                             type = "105";
                             subType = "20";
                         }
-                        if(strcmp(signName,"CurveR")==0)
+                        if (strcmp(signName, "CurveR") == 0)
                         {
                             type = "103";
                             subType = "10";
                         }
-                        if(strcmp(signName,"CurveL")==0)
+                        if (strcmp(signName, "CurveL") == 0)
                         {
                             type = "103";
                             subType = "20";
                         }
-                        if(strcmp(signName,"GiveWay")==0)
+                        if (strcmp(signName, "GiveWay") == 0)
                         {
                             type = "205";
                         }
-                        if(strcmp(signName,"PedXingCaution")==0)
+                        if (strcmp(signName, "PedXingCaution") == 0)
                         {
                             type = "134";
                         }
-                        if(strcmp(signName,"SpeedLimitEnd")==0)
+                        if (strcmp(signName, "SpeedLimitEnd") == 0)
                         {
                             type = "278";
-                            subType = QString::number(50+(speed/10));
+                            subType = QString::number(50 + (speed / 10));
                         }
-                        if(strcmp(signName,"LaneMergeLeft")==0)
+                        if (strcmp(signName, "LaneMergeLeft") == 0)
                         {
                             type = "121";
                             subType = "20";
                         }
-                        if(strcmp(signName,"LaneMergeRight")==0)
+                        if (strcmp(signName, "LaneMergeRight") == 0)
                         {
                             type = "121";
                             subType = "10";
                         }
-                        if(strcmp(signName,"Animals")==0)
+                        if (strcmp(signName, "Animals") == 0)
                         {
                             type = "142";
                             subType = "10";
                         }
-                        if(strcmp(signName,"SlipperyRoad")==0)
+                        if (strcmp(signName, "SlipperyRoad") == 0)
                         {
                             type = "114";
                         }
 
-                        Signal::OrientationType dir= Signal::BOTH_DIRECTIONS;
-                        if(strcmp(signDir,"r")==0)
+                        Signal::OrientationType dir = Signal::BOTH_DIRECTIONS;
+                        if (strcmp(signDir, "r") == 0)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        else if(strcmp(signDir,"l")==0)
+                        else if (strcmp(signDir, "l") == 0)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal(odrID::invalidID(), "signal",  s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }
@@ -1665,62 +1665,62 @@ ProjectWidget::saveAs()
 
 /** \brief Opens the specified file and writes out the text stream.
 *
-*	\todo write strategy (xodr, native, etc)
+* \todo write strategy (xodr, native, etc)
 */
 bool
 ProjectWidget::saveFile(const QString &fileName, FileType type)
 {
-	QString xodrFileName = fileName;
-	QString xoscFileName = fileName;
-	if (type == FT_All)
-	{
-		QString baseName = fileName;
-		baseName.truncate(fileName.lastIndexOf("."));
-		xodrFileName = baseName + ".xodr";
-		xoscFileName = baseName + ".xosc";
-	}
+    QString xodrFileName = fileName;
+    QString xoscFileName = fileName;
+    if (type == FT_All)
+    {
+        QString baseName = fileName;
+        baseName.truncate(fileName.lastIndexOf("."));
+        xodrFileName = baseName + ".xodr";
+        xoscFileName = baseName + ".xosc";
+    }
 
 
 
-	if (type != FT_OpenScenario)
-	{
-		QFile file(xodrFileName);
-		if (!file.open(QFile::WriteOnly | QFile::Text))
-		{
-			QMessageBox::warning(this, tr("ODD"),
-				tr("Cannot write file %1:\n%2.")
-				.arg(xodrFileName)
-				.arg(file.errorString()));
-			return false;
-		}
+    if (type != FT_OpenScenario)
+    {
+        QFile file(xodrFileName);
+        if (!file.open(QFile::WriteOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("ODD"),
+                tr("Cannot write file %1:\n%2.")
+                .arg(xodrFileName)
+                .arg(file.errorString()));
+            return false;
+        }
 
-		// Export //
-		//
-		QTextStream out(&file);
-		QApplication::setOverrideCursor(Qt::WaitCursor);
+        // Export //
+        //
+        QTextStream out(&file);
+        QApplication::setOverrideCursor(Qt::WaitCursor);
 
-		// TODO: write strategy (xodr, native, etc)
-		const int indentSize = 3;
-		DomWriter *domWriter = new DomWriter(projectData_);
-		domWriter->runToTheHills();
-		domWriter->getDomDocument()->save(out, indentSize);
-		// TODO
+        // TODO: write strategy (xodr, native, etc)
+        const int indentSize = 3;
+        DomWriter *domWriter = new DomWriter(projectData_);
+        domWriter->runToTheHills();
+        domWriter->getDomDocument()->save(out, indentSize);
+        // TODO
 
-		// Close file //
-		//
-		QApplication::restoreOverrideCursor();
-		file.close();
-	}
+        // Close file //
+        //
+        QApplication::restoreOverrideCursor();
+        file.close();
+    }
 
-	// Set file //
-	//
-	setFile(fileName);
+    // Set file //
+    //
+    setFile(fileName);
 
-	if (type != FT_OpenDrive)
-	{
-		// OpenSCENARIO //
-		//
-		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+    if (type != FT_OpenDrive)
+    {
+        // OpenSCENARIO //
+        //
+        OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
         if (catalogWidgets_.size() > 0)
         {
             QMessageBox msgBox;
@@ -1733,18 +1733,18 @@ ProjectWidget::saveFile(const QString &fileName, FileType type)
             {
                 foreach(CatalogWidget * catalogWidget, catalogWidgets_)
                 {
-                    OpenScenario::oscCatalog* catalog = catalogWidget->getCatalog();
+                    OpenScenario::oscCatalog *catalog = catalogWidget->getCatalog();
                     catalog->addCatalogObjects();
                     catalog->writeCatalogsToDisk();
                 }
             }
         }
 
-		openScenarioBase->saveFile(xoscFileName.toStdString(), false);
+        openScenarioBase->saveFile(xoscFileName.toStdString(), false);
 
 
-		openScenarioBase->clearDOM();
-	}
+        openScenarioBase->clearDOM();
+    }
 
     return true;
 }
@@ -1790,9 +1790,9 @@ ProjectWidget::maybeSave()
     {
         // Ask user //
         QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("ODD"),
-                                                               tr("'%1' has been modified.\nDo you want to save your changes?")
-                                                                   .arg(strippedFileName_),
-                                                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            tr("'%1' has been modified.\nDo you want to save your changes?")
+            .arg(strippedFileName_),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
         // Try to save //
         //
@@ -1825,11 +1825,11 @@ ProjectWidget::setProjectActive(bool active)
         mainWindow_->setProjectTree(projectTree_);
         mainWindow_->setProjectSettings(projectSettings_);
     }
-	else
-	{
-//		removeCatalogTrees();
-		setEditor(ODD::ENO_EDITOR);
-	}
+    else
+    {
+        //  removeCatalogTrees();
+        setEditor(ODD::ENO_EDITOR);
+    }
 
     projectData_->projectActivated(active); // Undo, etc
 
@@ -1838,7 +1838,7 @@ ProjectWidget::setProjectActive(bool active)
     projectTree_->projectActivated(active);
     projectSettings_->projectActivated(active);
 
-	active_ = active;
+    active_ = active;
 
     changeManager_->notifyObservers();
 }
@@ -1861,8 +1861,8 @@ ProjectWidget::setProjectClean(bool clean)
 void
 ProjectWidget::toolAction(ToolAction *toolAction)
 {
-	static ODD::EditorId lastId = ODD::ENO_EDITOR;
-	static ProjectData* lastProjectData = NULL;
+    static ODD::EditorId lastId = ODD::ENO_EDITOR;
+    static ProjectData *lastProjectData = NULL;
 
     // Change Editor if necessary //
     //
@@ -1871,8 +1871,8 @@ ProjectWidget::toolAction(ToolAction *toolAction)
     if ((id != lastId || projectData_ != lastProjectData) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
-		lastId = id;
-		lastProjectData = projectData_;
+        lastId = id;
+        lastProjectData = projectData_;
     }
 
     // Pass to Editor/Graph //
@@ -1893,26 +1893,26 @@ ProjectWidget::toolAction(ToolAction *toolAction)
 void
 ProjectWidget::mouseAction(MouseAction *mouseAction)
 {
-	if (active_)
-	{
-		// Editor //
-		//
-		if (projectEditor_)
-		{
-			projectEditor_->mouseAction(mouseAction);
-		}
-		else
-		{
-			qDebug("TODO: ProjectWidget, mouseAction, NEED EDITOR AT STARTUP!");
-		}
+    if (active_)
+    {
+        // Editor //
+        //
+        if (projectEditor_)
+        {
+            projectEditor_->mouseAction(mouseAction);
+        }
+        else
+        {
+            qDebug("TODO: ProjectWidget, mouseAction, NEED EDITOR AT STARTUP!");
+        }
 
-		// Graph //
-		//
-		if (!mouseAction->isIntercepted())
-		{
-			topviewGraph_->mouseAction(mouseAction);
-		}
-	}
+        // Graph //
+        //
+        if (!mouseAction->isIntercepted())
+        {
+            topviewGraph_->mouseAction(mouseAction);
+        }
+    }
 }
 
 /*! \brief Passes a KeyAction to the Editor and Graph.
@@ -1921,7 +1921,7 @@ ProjectWidget::mouseAction(MouseAction *mouseAction)
 void
 ProjectWidget::keyAction(KeyAction *keyAction)
 {
-    if(projectEditor_!=NULL)
+    if (projectEditor_ != NULL)
     {
         projectEditor_->keyAction(keyAction);
     }

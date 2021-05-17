@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.02.2010
+ **
+ **************************************************************************/
 
 #include "trackelementarc.hpp"
 
-// Utils //
-//
+ // Utils //
+ //
 #include "src/util/odd.hpp"
 #include "math.h"
 
@@ -57,49 +57,49 @@ TrackElementArc::setCurvature(double curvature)
 //#################//
 
 /** Returns the point on track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementArc::getPoint(double s, double d)
 {
-    //	double radius = getRadius(s);
+    // double radius = getRadius(s);
     double radius = 1.0 / curvature_; // shortcut
 
-    //	double heading = getHeadingRad(s);
+    // double heading = getHeadingRad(s);
     double heading = (s - getSStart()) * curvature_; // shortcut
 
     return QPointF((radius - d) * sin(heading), radius - (radius - d) * cos(heading));
 }
 
 /** Returns the heading on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten) in []
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten) in []
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementArc::getHeading(double s)
 {
-    //	return (s-getSStart())/getRadius(s) * 360.0/(2*M_PI); // const. //
+    // return (s-getSStart())/getRadius(s) * 360.0/(2*M_PI); // const. //
     return (s - getSStart()) * curvature_ * 360.0 / (2 * M_PI); // shortcut
 }
 
 /** Returns the heading on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten) in []
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten) in []
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementArc::getHeadingRad(double s)
 {
-    //	return (s-getSStart())/getRadius(s); // const. //
+    // return (s-getSStart())/getRadius(s); // const. //
     return (s - getSStart()) * curvature_; // shortcut
 }
 
 /** Returns the local point on the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementArc::getLocalPoint(double s, double d)
@@ -108,30 +108,30 @@ TrackElementArc::getLocalPoint(double s, double d)
 }
 
 /** Returns the local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementArc::getLocalHeading(double s)
 {
-    //	return heading() + getHeading(s);
+    // return heading() + getHeading(s);
     return heading() + (s - getSStart()) * curvature_ * 360.0 / (2 * M_PI); // shortcut
 }
 
 /** Returns the local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementArc::getLocalHeadingRad(double s)
 {
-    //	return heading() * 2*M_PI/360.0 + getHeadingRad(s);
+    // return heading() * 2*M_PI/360.0 + getHeadingRad(s);
     return heading() * 2 * M_PI / 360.0 + (s - getSStart()) * curvature_; // shortcut
 }
 
 /** Returns the curvature of the track at road coordinate s.
-	Independent of coordinate system.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Independent of coordinate system.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementArc::getCurvature(double /*s*/)
@@ -140,7 +140,7 @@ TrackElementArc::getCurvature(double /*s*/)
 }
 
 /** Returns the radius of the track at road coordinate s.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementArc::getRadius(double /*s*/)
@@ -149,16 +149,16 @@ TrackElementArc::getRadius(double /*s*/)
 }
 
 /** Returns the center of the circle that is tangent to track
-	at the given s coordinate.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    at the given s coordinate.
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 //QPointF
-//	TrackElementArc
-//	::getRadiusCenter(double s)
+// TrackElementArc
+// ::getRadiusCenter(double s)
 //{
-//	return QPointF(0, getRadius(s)); // const.
+// return QPointF(0, getRadius(s)); // const.
 //}
 
 /*!

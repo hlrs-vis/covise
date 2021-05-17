@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #include "projecttreewidget.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 
 // Tree //
@@ -61,7 +61,7 @@ ProjectTreeWidget::init()
 
     // Labels //
     //
-	setHeaderHidden(true);
+    setHeaderHidden(true);
 
     // Root Items //
     //
@@ -81,17 +81,17 @@ ProjectTreeWidget::init()
 void
 ProjectTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    //	qDebug() << "selected: " << selected.indexes().count();
-    //	qDebug() << "deselected: " << deselected.indexes().count();
+    // qDebug() << "selected: " << selected.indexes().count();
+    // qDebug() << "deselected: " << deselected.indexes().count();
 
     // Set the data of the item, so the item notices it's selection
     //
-    foreach (QModelIndex index, deselected.indexes())
+    foreach(QModelIndex index, deselected.indexes())
     {
         model()->setData(index, false, Qt::UserRole + ProjectTree::PTR_Selection);
     }
 
-    foreach (QModelIndex index, selected.indexes())
+    foreach(QModelIndex index, selected.indexes())
     {
         model()->setData(index, true, Qt::UserRole + ProjectTree::PTR_Selection);
     }

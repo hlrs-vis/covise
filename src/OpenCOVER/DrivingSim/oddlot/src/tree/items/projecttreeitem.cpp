@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #include "projecttreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/dataelement.hpp"
 #include "src/data/projectdata.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
@@ -81,11 +81,11 @@ ProjectTreeItem::init()
         setSelected(true);
     }
 
-    //	if(dataElement_->isElementHidden())
-    //	{
-    ////		setHidden(true);
-    //		setDisabled(true);
-    //	}
+    // if(dataElement_->isElementHidden())
+    // {
+    ////  setHidden(true);
+    //  setDisabled(true);
+    // }
 }
 
 void
@@ -143,7 +143,7 @@ ProjectTreeItem::isDescendantOf(ProjectTreeItem *projectTreeItem)
 void
 ProjectTreeItem::setData(int column, int role, const QVariant &value)
 {
-    //	qDebug() << "role: " << role;
+    // qDebug() << "role: " << role;
 
     // View: selected ->  Data: select //
     //
@@ -214,11 +214,11 @@ ProjectTreeItem::updateObserver()
     if ((changes & DataElement::CDE_HidingChange))
     {
         // NOT CALLED?!? WHY?
-        //		if(isHidden() != dataElement_->isElementHidden())
-        //		{
-        //			setHidden(dataElement_->isElementHidden());
-        //			setDisabled(dataElement_->isElementHidden());
-        //		}
+        //  if(isHidden() != dataElement_->isElementHidden())
+        //  {
+        //   setHidden(dataElement_->isElementHidden());
+        //   setDisabled(dataElement_->isElementHidden());
+        //  }
     }
 
     // Selection //

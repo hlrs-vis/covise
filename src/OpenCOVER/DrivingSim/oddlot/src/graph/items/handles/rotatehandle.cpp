@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.05.2010
+ **
+ **************************************************************************/
 
 #include "rotatehandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 RotateHandle::RotateHandle(QGraphicsItem *parent)
     : Handle(parent)
@@ -33,7 +33,7 @@ RotateHandle::RotateHandle(QGraphicsItem *parent)
 
 RotateHandle::~RotateHandle()
 {
-    //	xy->detachObserver(this);
+    // xy->detachObserver(this);
 }
 
 //################//
@@ -95,9 +95,9 @@ RotateHandle::createPath()
     double size = 1.5 * 4.0;
     double length = 5.0 * 4.0;
     pathTemplate.moveTo(length, 0.0);
-    //	pathTemplate.lineTo(-length, 0.0);
+    // pathTemplate.lineTo(-length, 0.0);
     pathTemplate.lineTo(0.0, 0.0);
-    //	pathTemplate.addEllipse(-length -size/2.0, -size/2.0, size, size);
+    // pathTemplate.addEllipse(-length -size/2.0, -size/2.0, size, size);
     pathTemplate.addEllipse(length - size / 2.0, -size / 2.0, size, size);
 
     pathTemplate_ = &pathTemplate;

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.03.2010
+ **
+ **************************************************************************/
 
 #include "typesection.hpp"
 
@@ -19,25 +19,25 @@
 
 SpeedRecord::SpeedRecord()
 {
-    maxSpeed=0;
-	maxUnit = "m/s";
+    maxSpeed = 0;
+    maxUnit = "m/s";
 }
 SpeedRecord::SpeedRecord(QString &max, QString &unit)
 {
-    if(max == "no limit")
+    if (max == "no limit")
         maxSpeed = 0;
-    if(max == "undefined")
+    if (max == "undefined")
         maxSpeed = -1;
     maxSpeed = max.toFloat();
     float factor = 1.0;
-    if(unit == "m/s")
+    if (unit == "m/s")
         factor = 1.0;
-    if(unit == "km/h")
+    if (unit == "km/h")
         factor = 0.277777778f;
-    if(unit == "mph")
+    if (unit == "mph")
         factor = 0.44704f;
     maxSpeed *= factor;
-	maxUnit = unit;
+    maxUnit = unit;
 }
 
 //####################//
@@ -49,7 +49,7 @@ TypeSection::TypeSection(double s, TypeSection::RoadType type)
     , typeSectionChanges_(0x0)
     , type_(type)
 {
-    speedRecord=NULL;
+    speedRecord = NULL;
 }
 TypeSection::~TypeSection()
 {

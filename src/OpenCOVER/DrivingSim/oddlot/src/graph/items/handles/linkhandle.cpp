@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10.05.2010
+ **
+ **************************************************************************/
 
 #include "linkhandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 LinkHandle::LinkHandle(QGraphicsItem *parent)
     : Handle(parent)
@@ -122,11 +122,11 @@ LinkHandle::createPath()
 {
     static QPainterPath pathTemplate; // Static, so the destructor kills it on application shutdown.
 
-    //	double size = 2.0*4.0;
-    //	pathTemplate.moveTo(-1.0, -size/2.0);
-    //	pathTemplate.lineTo(-1.0, size/2.0);
-    //	pathTemplate.lineTo(-1.0+1.414213*size/2.0, 0.0);
-    //	pathTemplate.lineTo(-1.0, -size/2.0);
+    // double size = 2.0*4.0;
+    // pathTemplate.moveTo(-1.0, -size/2.0);
+    // pathTemplate.lineTo(-1.0, size/2.0);
+    // pathTemplate.lineTo(-1.0+1.414213*size/2.0, 0.0);
+    // pathTemplate.lineTo(-1.0, -size/2.0);
 
     double width = halfheight_ * 1.414213; // hard coded above
     pathTemplate.moveTo(0.0, -halfheight_);

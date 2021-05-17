@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #include "typeeditortool.hpp"
 #include "src/util/roadtypecombobox.h"
@@ -23,8 +23,8 @@
 
 #include "ui_TypeRibbon.h"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -131,25 +131,25 @@ TypeEditorTool::initToolWidget()
     toolManager_->addToolBoxWidget(toolWidget, tr("Road Type Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 
-    
+
     ToolWidget *ribbonWidget = new ToolWidget();
     ribbonWidget->setObjectName("Ribbon");
     //ribbonWidget->
     Ui::TypeRibbon *ui = new Ui::TypeRibbon();
     ui->setupUi(ribbonWidget);
-    
-	ribbonToolGroup_ = new QButtonGroup(toolManager_);
+
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
-	ribbonToolGroup_->addButton(ui->select, ODD::TRT_MOVE);
+    ribbonToolGroup_->addButton(ui->select, ODD::TRT_MOVE);
     ui->select->setChecked(true);
     ribbonToolGroup_->addButton(ui->typeAdd, ODD::TRT_ADD);
     ribbonToolGroup_->addButton(ui->typeDelete, ODD::TRT_DEL);
-    
+
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Road Type"), ODD::ERT);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 //################//
@@ -184,11 +184,11 @@ TypeEditorTool::activateEditor()
 void
 TypeEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::ERT);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::ERT);
 
-	TypeEditorToolAction *typeEditorToolAction = dynamic_cast<TypeEditorToolAction *>(action);
+    TypeEditorToolAction *typeEditorToolAction = dynamic_cast<TypeEditorToolAction *>(action);
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 }
 
 /*! \brief
@@ -216,7 +216,7 @@ TypeEditorTool::handleToolClick(int id)
     //
     TypeEditorToolAction *action = new TypeEditorToolAction(toolId_);
     emit toolAction(action);
- //   delete action;
+    //   delete action;
 }
 
 
@@ -255,7 +255,7 @@ TypeEditorTool::handleRoadTypeSelection(int id)
     //
     TypeEditorToolAction *action = new TypeEditorToolAction(ODD::TRT_ADD);
     emit toolAction(action);
- //   delete action;
+    //   delete action;
 }
 
 

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "oscbase.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "oscelement.hpp"
 #include "src/data/projectdata.hpp"
 #include "src/data/tilesystem/tile.hpp"
@@ -32,24 +32,24 @@ using namespace OpenScenario;
 *
 */
 OSCBase::OSCBase()
-    : DataElement()       
-	, openScenarioBase_(NULL)
-	, oscBaseChanges_(0x0)
+    : DataElement()
+    , openScenarioBase_(NULL)
+    , oscBaseChanges_(0x0)
 {
 }
 
 OSCBase::OSCBase(OpenScenario::OpenScenarioBase *openScenarioBase)
-	: DataElement()
-	, openScenarioBase_(openScenarioBase)
-	, oscBaseChanges_(0x0)
+    : DataElement()
+    , openScenarioBase_(openScenarioBase)
+    , oscBaseChanges_(0x0)
 {
 }
 
 OSCBase::~OSCBase()
 {
-	oscElements_.clear();
+    oscElements_.clear();
 
-	openScenarioBase_ = NULL;
+    openScenarioBase_ = NULL;
 }
 
 //##################//
@@ -61,59 +61,59 @@ OSCBase::setParentProjectData(ProjectData *projectData)
 {
     parentProjectData_ = projectData;
     setParentElement(projectData);
-//    addScenerySystemChanges(ScenerySystem::CSC_ProjectDataChanged);
+    //    addScenerySystemChanges(ScenerySystem::CSC_ProjectDataChanged);
 }
 
 OSCElement *
 OSCBase::getOSCElement(OpenScenario::oscObjectBase *oscObjectBase)
 {
-	OSCElement *oscElement;
+    OSCElement *oscElement;
 
-	QMap<QString, OSCElement *>::const_iterator it = oscElements_.constBegin();
-	while (it != oscElements_.constEnd())
-	{
-		oscElement = it.value();
-		if (oscObjectBase == oscElement->getObject())
-		{
-			return oscElement;
-		}
-		it++;
-	}
+    QMap<QString, OSCElement *>::const_iterator it = oscElements_.constBegin();
+    while (it != oscElements_.constEnd())
+    {
+        oscElement = it.value();
+        if (oscObjectBase == oscElement->getObject())
+        {
+            return oscElement;
+        }
+        it++;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
 OSCElement *
 OSCBase::getOSCElement(const QString &id) const
 {
-	return oscElements_.value(id);
+    return oscElements_.value(id);
 }
 
 OSCElement *
 OSCBase::getOrCreateOSCElement(OpenScenario::oscObjectBase *oscObjectBase)
 {
-	OSCElement *oscElement = getOSCElement(oscObjectBase);
+    OSCElement *oscElement = getOSCElement(oscObjectBase);
 
-	if (!oscElement)
-	{
-		oscElement = new OSCElement("element");
-		oscElement->setObjectBase(oscObjectBase);
-		addOSCElement(oscElement);
-	}
+    if (!oscElement)
+    {
+        oscElement = new OSCElement("element");
+        oscElement->setObjectBase(oscObjectBase);
+        addOSCElement(oscElement);
+    }
 
-	return oscElement;
+    return oscElement;
 }
 
-void 
+void
 OSCBase::addOSCElement(OSCElement *oscElement)
 {
-	if (getProjectData())
+    if (getProjectData())
     {
         // Id //
         //
-//		QString name = oscElement->getObject()->getName();
-		QString name;
+//  QString name = oscElement->getObject()->getName();
+        QString name;
         QString id = getUniqueId(oscElement->getID(), name);
         if (id != oscElement->getID())
         {
@@ -126,26 +126,26 @@ OSCBase::addOSCElement(OSCElement *oscElement)
     oscElement->setOSCBase(this);
 
     oscElements_.insert(oscElement->getID(), oscElement);
-	oscElement->notifyParent();
+    oscElement->notifyParent();
 
-	addOSCBaseChanges(OSCBaseChange::COSC_ElementChange);
+    addOSCBaseChanges(OSCBaseChange::COSC_ElementChange);
 }
 
-bool 
+bool
 OSCBase::delOSCElement(OSCElement *oscElement)
 {
-	QStringList parts = oscElement->getID().split("_");
+    QStringList parts = oscElement->getID().split("_");
 
-	bool number = false;
-	int tn = parts.at(1).toInt(&number);
-	odrID tid;
-	tid.setID(tn);
-	getProjectData()->getTileSystem()->getTile(tid)->removeOSCID(oscElement->getID());
+    bool number = false;
+    int tn = parts.at(1).toInt(&number);
+    odrID tid;
+    tid.setID(tn);
+    getProjectData()->getTileSystem()->getTile(tid)->removeOSCID(oscElement->getID());
     if (oscElements_.remove(oscElement->getID()))
     {
         oscElement->setOSCBase(NULL);
 
-		addOSCBaseChanges(OSCBase::COSC_ElementChange);
+        addOSCBaseChanges(OSCBase::COSC_ElementChange);
         return true;
     }
     else
@@ -163,8 +163,8 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 const QString
 OSCBase::getUniqueId(const QString &suggestion, const QString &name)
 {
-	// oscIDs should be unique within a tile so ask the tile for a new ID
-    return  getProjectData()->getTileSystem()->getCurrentTile()->getUniqueOSCID(suggestion,name);
+    // oscIDs should be unique within a tile so ask the tile for a new ID
+    return  getProjectData()->getTileSystem()->getCurrentTile()->getUniqueOSCID(suggestion, name);
 
 }
 

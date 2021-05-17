@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   05.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   05.07.2010
+ **
+ **************************************************************************/
 
 #include "junctionroaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
@@ -91,7 +91,7 @@ void
 JunctionRoadItem::rebuildSections(bool fullRebuild)
 {
 
-    foreach (TrackComponent *track, getRoad()->getTrackSections())
+    foreach(TrackComponent * track, getRoad()->getTrackSections())
     {
 
         // TrackItems //
@@ -106,9 +106,9 @@ JunctionRoadItem::rebuildSections(bool fullRebuild)
                 new JunctionSpArcSItem(this, sparcs);
             }
             else if ((track->getTrackType() == TrackComponent::DTT_LINE)
-                     || (track->getTrackType() == TrackComponent::DTT_ARC)
-                     || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
-                     || (track->getTrackType() == TrackComponent::DTT_POLY3))
+                || (track->getTrackType() == TrackComponent::DTT_ARC)
+                || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
+                || (track->getTrackType() == TrackComponent::DTT_POLY3))
             {
                 TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
                 new JunctionElementItem(this, trackElement);
@@ -167,7 +167,7 @@ JunctionRoadItem::rebuildMoveHandles()
     handlesItem_->setZValue(1.0); // Stack handles before items
 
     JunctionMoveHandle *currentJunctionMoveHandle = new JunctionMoveHandle(junctionEditor_, handlesItem_); // first handle
-    foreach (TrackComponent *track, getRoad()->getTrackSections())
+    foreach(TrackComponent * track, getRoad()->getTrackSections())
     {
         currentJunctionMoveHandle->registerHighSlot(track); // last handle
         currentJunctionMoveHandle = new JunctionMoveHandle(junctionEditor_, handlesItem_); // new handle
@@ -237,8 +237,8 @@ JunctionRoadItem::updateObserver()
 //* Handles Item Changes.
 //*/
 //QVariant
-//	JunctionRoadItem
-//	::itemChange(GraphicsItemChange change, const QVariant & value)
+// JunctionRoadItem
+// ::itemChange(GraphicsItemChange change, const QVariant & value)
 //{
-//	return RoadItem::itemChange(change, value);
+// return RoadItem::itemChange(change, value);
 //}

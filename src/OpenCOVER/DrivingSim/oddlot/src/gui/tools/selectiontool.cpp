@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **
+ **************************************************************************/
 
 #include "selectiontool.hpp"
 
 #include "toolmanager.hpp"
 #include "src/mainwindow.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QWidget>
 #include <QToolBar>
 #include <QAction>
@@ -135,8 +135,8 @@ SelectionToolAction::SelectionToolAction(SelectionTool::SelectionToolId selectio
     : ToolAction(ODD::ENO_EDITOR, ODD::TNO_TOOL)
     , selectionToolId_(selectionToolId)
 {
-	if (selectionToolId == SelectionTool::TSL_BOUNDINGBOX)
-	{
-		boundingBoxActive_ = !boundingBoxActive_;
-	}
+    if (selectionToolId == SelectionTool::TSL_BOUNDINGBOX)
+    {
+        boundingBoxActive_ = !boundingBoxActive_;
+    }
 }

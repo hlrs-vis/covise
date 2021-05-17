@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   30.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   30.03.2010
+ **
+ **************************************************************************/
 
 #include "roadsystemitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -75,7 +75,7 @@ RoadSystemItem::init()
     //
     if (getTopviewGraph()) // not for profile graph
     {
-        foreach (RSystemElementJunction *junction, roadSystem_->getJunctions())
+        foreach(RSystemElementJunction * junction, roadSystem_->getJunctions())
         {
             (new JunctionItem(this, junction))->setZValue(-1.0);
         }
@@ -123,7 +123,7 @@ RoadSystemItem::updateObserver()
         //
         if (getTopviewGraph()) // not for profile graph
         {
-            foreach (RSystemElementJunction *junction, roadSystem_->getJunctions())
+            foreach(RSystemElementJunction * junction, roadSystem_->getJunctions())
             {
                 (new JunctionItem(this, junction))->setZValue(-1.0);
             }
@@ -131,9 +131,9 @@ RoadSystemItem::updateObserver()
     }
 
 
-    //	if((changes & RoadSystem::CRS_RoadChange)
-    //	|| (changes & RoadSystem::CRS_FiddleyardChange)
-    //	|| (changes & RoadSystem::CRS_JunctionChange)
-    //	|| (changes & RoadSystem::CRS_ControllerChange)
-    //	)
+    // if((changes & RoadSystem::CRS_RoadChange)
+    // || (changes & RoadSystem::CRS_FiddleyardChange)
+    // || (changes & RoadSystem::CRS_JunctionChange)
+    // || (changes & RoadSystem::CRS_ControllerChange)
+    // )
 }

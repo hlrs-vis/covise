@@ -40,11 +40,11 @@
 //################//
 
 LaneSectionItem::LaneSectionItem(LaneEditor *laneEditor, RoadItem *parentRoadItem, LaneSection *laneSection)
-	: SectionItem(parentRoadItem, laneSection)
-	, laneEditor_(laneEditor)
-	, laneSection_(laneSection)
+    : SectionItem(parentRoadItem, laneSection)
+    , laneEditor_(laneEditor)
+    , laneSection_(laneSection)
 {
-	init();
+    init();
 }
 
 LaneSectionItem::~LaneSectionItem()
@@ -55,52 +55,52 @@ void
 LaneSectionItem::init()
 {
 
-	// Selection/Hovering //
-	//
-	setAcceptHoverEvents(true);
-	setSelectable();
+    // Selection/Hovering //
+    //
+    setAcceptHoverEvents(true);
+    setSelectable();
 
-	// SectionItems //
-	//
-	foreach(Lane *lane, laneSection_->getLanes())
-	{
-		if (lane->getId() != 0)
-		{
-			laneItems_.insert(lane, new LaneItem(this, lane));
-		}
-	}
+    // SectionItems //
+    //
+    foreach(Lane * lane, laneSection_->getLanes())
+    {
+        if (lane->getId() != 0)
+        {
+            laneItems_.insert(lane, new LaneItem(this, lane));
+        }
+    }
 }
 
 void
 LaneSectionItem::createPath()
 {
-	QMap<Lane *, LaneItem *>::const_iterator it = laneItems_.constBegin();
-	while (it != laneItems_.constEnd())
-	{
-		it.value()->createPath();
-		it++;
-	}
+    QMap<Lane *, LaneItem *>::const_iterator it = laneItems_.constBegin();
+    while (it != laneItems_.constEnd())
+    {
+        it.value()->createPath();
+        it++;
+    }
 }
 
 // LaneItems //
 //
-void 
+void
 LaneSectionItem::addLaneItem(LaneItem *item)
 {
-	laneItems_.insert(item->getLane(), item);
+    laneItems_.insert(item->getLane(), item);
 }
 
-int 
+int
 LaneSectionItem::removeLaneItem(LaneItem *item)
 {
-	return laneItems_.remove(item->getLane());
+    return laneItems_.remove(item->getLane());
 }
 
 
 LaneItem *
 LaneSectionItem::getLaneItem(Lane *lane)
 {
-	return laneItems_.value(lane);
+    return laneItems_.value(lane);
 }
 
 //##################//
@@ -113,10 +113,10 @@ LaneSectionItem::getLaneItem(Lane *lane)
 /*void
 LaneSectionItem::rebuildMoveRotateHandles(bool delHandles)
 {
-	foreach(LaneItem *laneItem, laneItems_)
-	{
-		laneItem->rebuildMoveRotateHandles(delHandles);
-	}
+    foreach(LaneItem *laneItem, laneItems_)
+    {
+        laneItem->rebuildMoveRotateHandles(delHandles);
+    }
 } */
 
 
@@ -126,10 +126,10 @@ LaneSectionItem::rebuildMoveRotateHandles(bool delHandles)
 /*void
 LaneSectionItem::deleteHandles()
 {
-	foreach(LaneItem *laneItem, laneItems_)
-	{
-		laneItem->deleteHandles();
-	}
+    foreach(LaneItem *laneItem, laneItems_)
+    {
+        laneItem->deleteHandles();
+    }
 }*/
 
 //##################//
@@ -156,26 +156,26 @@ LaneSectionItem::updateObserver()
 
     if (changes & LaneSection::CLS_LanesChanged)
     {
-		// A lane has been added
-		//
-		foreach(Lane * lane, laneSection_->getLanes())
-		{
-			if ((lane->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-				|| (lane->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-			{
-				if (lane->getId() != 0)
-				{
-					laneItems_.insert(lane, new LaneItem(this, lane));
-				}
-			}
-		}
+        // A lane has been added
+        //
+        foreach(Lane * lane, laneSection_->getLanes())
+        {
+            if ((lane->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+                || (lane->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+            {
+                if (lane->getId() != 0)
+                {
+                    laneItems_.insert(lane, new LaneItem(this, lane));
+                }
+            }
+        }
 
-        dynamic_cast<LaneRoadItem*>(parentRoadItem_)->rebuildMoveRotateHandles(true);
+        dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
     }
-	else if ((changes & LaneSection::CLS_LanesWidthsChanged) || (changes & LaneSection::CRS_LengthChange))
-	{
-		dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
-	}
+    else if ((changes & LaneSection::CLS_LanesWidthsChanged) || (changes & LaneSection::CRS_LengthChange))
+    {
+        dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
+    }
 }
 
 //################//
@@ -227,7 +227,7 @@ LaneSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             double s = road->getSFromGlobalPoint(event->pos(), laneSection_->getSStart(), laneSection_->getSEnd());
 
 
-			laneEditor_->getInsertSectionHandle()->hide();
+            laneEditor_->getInsertSectionHandle()->hide();
 
             SplitLaneSectionCommand *command = new SplitLaneSectionCommand(laneSection_, s, NULL);
             getProjectGraph()->executeCommand(command);
@@ -291,10 +291,10 @@ LaneSectionItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     {
         laneEditor_->getInsertSectionHandle()->hide();
     }
-	else if (tool == ODD::TLE_ADD_WIDTH)
-	{
-		laneEditor_->getAddWidthHandle()->hide();
-	}
+    else if (tool == ODD::TLE_ADD_WIDTH)
+    {
+        laneEditor_->getAddWidthHandle()->hide();
+    }
     else if (tool == ODD::TLE_DEL)
     {
         // does nothing //

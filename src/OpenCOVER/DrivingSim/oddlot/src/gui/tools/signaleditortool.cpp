@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #include "signaleditortool.hpp"
 
@@ -20,8 +20,8 @@
 
 #include "src/mainwindow.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -43,7 +43,7 @@ SignalEditorTool::SignalEditorTool(ToolManager *toolManager)
     : EditorTool(toolManager)
     , toolId_(ODD::TSG_SELECT)
     , active_(false)
-	, ui(new Ui::SignalRibbon)
+    , ui(new Ui::SignalRibbon)
 {
     // Connect //
     //
@@ -129,27 +129,27 @@ SignalEditorTool::initToolWidget()
     ToolWidget *ribbonWidget = new ToolWidget();
     //ribbonWidget->
     ui->setupUi(ribbonWidget);
-    
-    
-	ribbonToolGroup_ = new QButtonGroup(toolManager_);
+
+
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
-	ribbonToolGroup_->addButton(ui->newController, ODD::TSG_CONTROLLER);
-	ribbonToolGroup_->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
-	ribbonToolGroup_->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);
-	ribbonToolGroup_->addButton(ui->select, ODD::TSG_SELECT);
-	ribbonToolGroup_->addButton(ui->invisibleButton, ODD::TSG_NONE);
-	ui->invisibleButton->hide();
+    ribbonToolGroup_->addButton(ui->newController, ODD::TSG_CONTROLLER);
+    ribbonToolGroup_->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
+    ribbonToolGroup_->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);
+    ribbonToolGroup_->addButton(ui->select, ODD::TSG_SELECT);
+    ribbonToolGroup_->addButton(ui->invisibleButton, ODD::TSG_NONE);
+    ui->invisibleButton->hide();
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Signals and Objects"), ODD::ESG);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
 SignalEditorTool::signalSelection(bool state)
 {
-	ui->invisibleButton->setChecked(!state);
+    ui->invisibleButton->setChecked(!state);
 }
 
 //################//
@@ -181,12 +181,12 @@ SignalEditorTool::activateEditor()
 void
 SignalEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::ESG);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::ESG);
 
-/*	if (action->getToolId() == ODD::TSG_SELECT)
-	{
-		ribbonToolGroup_->button(action->getToolId())->click();
-	} */
+    /* if (action->getToolId() == ODD::TSG_SELECT)
+        {
+            ribbonToolGroup_->button(action->getToolId())->click();
+        } */
 
     ribbonToolGroup_->button(action->getToolId())->click();
 
@@ -204,7 +204,7 @@ SignalEditorTool::handleToolClick(int id)
     //
     SignalEditorToolAction *action = new SignalEditorToolAction(toolId_);
     emit toolAction(action);
- //   delete action;
+    //   delete action;
 
 }
 

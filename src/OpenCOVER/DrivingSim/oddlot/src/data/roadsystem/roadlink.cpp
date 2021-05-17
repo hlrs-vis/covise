@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "roadlink.hpp"
 
@@ -119,11 +119,11 @@ RoadLink::setElementType(const QString &elementType)
 
 QString RoadLink::getContactPointString() const
 {
-	if(contactPoint_ == JunctionConnection::JCP_END)
-		return "end";
-	if (contactPoint_ == JunctionConnection::JCP_START)
-		return "start";
-	return "none";
+    if (contactPoint_ == JunctionConnection::JCP_END)
+        return "end";
+    if (contactPoint_ == JunctionConnection::JCP_START)
+        return "start";
+    return "none";
 }
 void
 RoadLink::setContactPoint(JunctionConnection::ContactPointValue contactPoint)

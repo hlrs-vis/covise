@@ -5,69 +5,69 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "bridgeobject.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
-Bridge::BridgeType 
+Bridge::BridgeType
 Bridge::parseBridgeType(const QString &type)
 {
-	if (type == "concrete")
-	{
-		return Bridge::BT_CONCRETE;
-	}
-	else if (type == "steel")
-	{
-		return Bridge::BT_STEEL;
-	}
-	else if (type == "brick")
-	{
-		return Bridge::BT_BRICK;
-	}
-	else if (type == "wood")
-	{
-		return Bridge::BT_WOOD;
-	}
-	else
-	{
-		qDebug("WARNING: unknown bridge type: %s", type.toUtf8().constData());
-		return Bridge::BT_UNKNOWN;
-	}
+    if (type == "concrete")
+    {
+        return Bridge::BT_CONCRETE;
+    }
+    else if (type == "steel")
+    {
+        return Bridge::BT_STEEL;
+    }
+    else if (type == "brick")
+    {
+        return Bridge::BT_BRICK;
+    }
+    else if (type == "wood")
+    {
+        return Bridge::BT_WOOD;
+    }
+    else
+    {
+        qDebug("WARNING: unknown bridge type: %s", type.toUtf8().constData());
+        return Bridge::BT_UNKNOWN;
+    }
 
 }
 
-QString 
+QString
 Bridge::parseBridgeTypeBack(int type)
 {
-	if (type == Bridge::BT_CONCRETE)
-	{
-		return  QString("concrete");
-	}
-	else if (type == Bridge::BT_STEEL)
-	{
-		return  QString("steel");
-	}
-	else if (type == Bridge::BT_BRICK)
-	{
-		return  QString("brick");
-	}
-	else if (type == Bridge::BT_WOOD)
-	{
-		return  QString("wood");
-	}
-	else
-	{
-		qDebug("WARNING: unknown bridge type");
-		return  QString("none");
-	}
+    if (type == Bridge::BT_CONCRETE)
+    {
+        return  QString("concrete");
+    }
+    else if (type == Bridge::BT_STEEL)
+    {
+        return  QString("steel");
+    }
+    else if (type == Bridge::BT_BRICK)
+    {
+        return  QString("brick");
+    }
+    else if (type == Bridge::BT_WOOD)
+    {
+        return  QString("wood");
+    }
+    else
+    {
+        qDebug("WARNING: unknown bridge type");
+        return  QString("none");
+    }
 }
 
 //####################//

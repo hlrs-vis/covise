@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.06.2010
+ **
+ **************************************************************************/
 
 #include "ruler.hpp"
 
-// Utils //
-//
+ // Utils //
+ //
 #include "math.h"
 
 // Qt //
@@ -45,11 +45,11 @@ Ruler::updateRect(const QRectF &rect, double scaleX, double scaleY)
 {
     // TODO: set min size for scene view widget
 
-    //	qDebug() << rect;
+    // qDebug() << rect;
 
     // Clean up //
     //
-    foreach (QGraphicsTextItem *item, rulerTextItems_)
+    foreach(QGraphicsTextItem * item, rulerTextItems_)
     {
         scene()->removeItem(item);
         delete item;
@@ -66,7 +66,7 @@ Ruler::updateRect(const QRectF &rect, double scaleX, double scaleY)
 
     double smallStepLength = bigStepLength / 5.0;
     smallStepLength = abs(int(smallStepLength + 0.5));
-    //	qDebug() << "smallStepLength: " << smallStepLength;
+    // qDebug() << "smallStepLength: " << smallStepLength;
 
     if (smallStepLength < 0.0)
     {
@@ -89,8 +89,8 @@ Ruler::updateRect(const QRectF &rect, double scaleX, double scaleY)
     }
 
     bigStepLength = 5.0 * smallStepLength;
-    //	qDebug() << "bigStepLength: " << bigStepLength;
-    //	qDebug() << "smallStepLength: " << smallStepLength;
+    // qDebug() << "bigStepLength: " << bigStepLength;
+    // qDebug() << "smallStepLength: " << smallStepLength;
 
     double marginX = MARGIN / scaleX;
     double marginY = MARGIN / scaleY;

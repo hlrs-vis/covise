@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.04.2010
+ **
+ **************************************************************************/
 
 #include "trackcomponentitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 
@@ -92,7 +92,7 @@ TrackComponentItem::init()
 
     // TrackItems //
     //
-    foreach (TrackComponent *track, trackComponent_->getChildTrackComponents())
+    foreach(TrackComponent * track, trackComponent_->getChildTrackComponents())
     {
         if (track->getTrackType() == TrackComponent::DTT_SPARCS)
         {
@@ -100,8 +100,8 @@ TrackComponentItem::init()
             new TrackSpArcSItem(this, sparcs);
         }
         else if ((track->getTrackType() == TrackComponent::DTT_LINE)
-                 || (track->getTrackType() == TrackComponent::DTT_ARC)
-                 || (track->getTrackType() == TrackComponent::DTT_SPIRAL))
+            || (track->getTrackType() == TrackComponent::DTT_ARC)
+            || (track->getTrackType() == TrackComponent::DTT_SPIRAL))
         {
             TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
             new TrackElementItem(this, trackElement);
@@ -115,7 +115,7 @@ TrackComponentItem::init()
     // Selection/Highlighting //
     //
     //setAcceptHoverEvents(true);
-	setSelectable();
+    setSelectable();
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
     // Transformation //
@@ -125,7 +125,7 @@ TrackComponentItem::init()
     // ContextMenu //
     //
  //   if (!((trackComponent_->getTrackType() == TrackComponent::DTT_POLY3) && !parentTrackRoadItem_)) // if poly3 and no parent: no morphing
-	if (!(trackComponent_->getTrackType() == TrackComponent::DTT_POLY3)) // if poly3: no morphing
+    if (!(trackComponent_->getTrackType() == TrackComponent::DTT_POLY3)) // if poly3: no morphing
     {
         QAction *action = getContextMenu()->addAction("Morph into poly3");
         connect(action, SIGNAL(triggered()), this, SLOT(morphIntoPoly3()));
@@ -210,7 +210,7 @@ TrackComponentItem::removeSection()
 
     RSystemElementRoad *road = trackComponent->getParentRoad();
     if (trackComponent == road->getTrackComponent(0.0) // Track is the first...
-                          //	&& trackComponent == road->getTrackComponent(road->getLength()) // ...and the last one of the road - i.e. the only remaining one.
+                          // && trackComponent == road->getTrackComponent(road->getLength()) // ...and the last one of the road - i.e. the only remaining one.
         )
     {
         //TODO: copy road from trackComponent->getLenght to end and then replace the road
@@ -261,10 +261,10 @@ void
 TrackComponentItem::addToCurrentTile()
 {
     RSystemElementRoad *road = getParentTrackRoadItem()->getRoad();
-	odrID newId = road->getID();
-	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
-	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road->getRoadSystem(), road, newId, NULL);
-	getProjectGraph()->executeCommand(command);
+    odrID newId = road->getID();
+    newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+    SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road->getRoadSystem(), road, newId, NULL);
+    getProjectGraph()->executeCommand(command);
 }
 
 //*************//

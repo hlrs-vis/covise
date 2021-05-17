@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/17/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/17/2010
+ **
+ **************************************************************************/
 
 #include "roadvehicletreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/vehiclesystem/roadvehicle.hpp"
 
 // Tree //
@@ -75,11 +75,11 @@ RoadVehicleTreeItem::updateObserver()
 
     // Get change flags //
     //
-    //	int changes = roadVehicle_->get();
-    //	if((changes & RoadVehicle::CSM_Id)
-    //		|| (changes & RoadVehicle::CSM_Filename)
-    //	)
-    //	{
-    //		updateText();
-    //	}
+    // int changes = roadVehicle_->get();
+    // if((changes & RoadVehicle::CSM_Id)
+    //  || (changes & RoadVehicle::CSM_Filename)
+    // )
+    // {
+    //  updateText();
+    // }
 }

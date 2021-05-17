@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.02.2010
+ **
+ **************************************************************************/
 
 #include "lanewidth.hpp"
 
 #include "lanesection.hpp"
 #include "lane.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 LaneWidth::LaneWidth(double sOffset, double a, double b, double c, double d)
@@ -91,7 +91,7 @@ LaneWidth::getSSectionEnd() const
 double
 LaneWidth::getLength() const
 {
-	return parentLane_->getWidthEnd(sOffset_) - getSSectionStartAbs();
+    return parentLane_->getWidthEnd(sOffset_) - getSSectionStartAbs();
 }
 
 void
@@ -104,7 +104,7 @@ LaneWidth::setSOffset(double sOffset)
 double
 LaneWidth::getT(double s)
 {
-	return parentLane_->getParentLaneSection()->getLaneSpanWidth(parentLane_->getId(), 0, s + getParentLane()->getParentLaneSection()->getSStart());
+    return parentLane_->getParentLaneSection()->getLaneSpanWidth(parentLane_->getId(), 0, s + getParentLane()->getParentLaneSection()->getSStart());
 }
 
 //################//
@@ -133,7 +133,7 @@ LaneWidth::addLaneWidthChanges(int changes)
         laneWidthChanges_ |= changes;
         notifyObservers();
     }
-	if (parentLane_)
+    if (parentLane_)
         parentLane_->addLaneChanges(Lane::CLN_WidthsChanged);
 }
 

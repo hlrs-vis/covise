@@ -508,7 +508,7 @@ ToolParameterSettings::generateUI(QFrame *box)
         it++;
     }
 
-    foreach(ToolParameter *param, invalidParams)
+    foreach(ToolParameter * param, invalidParams)
     {
         addParamUI(params_->key(param), param);
     }
@@ -621,7 +621,7 @@ ToolParameterSettings::onEditingFinished(const QString &objectName)
     {
         p = params_->value(i);
     }
-    /*	else
+    /* else
         {
             p = paramList_->value(i).first();
         } */
@@ -737,7 +737,7 @@ void ToolParameterSettings::activateNextParameter()
 void
 ToolParameterSettings::setLables(QList<ToolParameter *> &paramList)
 {
-    foreach(ToolParameter *param, paramList)
+    foreach(ToolParameter * param, paramList)
     {
         unsigned int id = tool_->getParamId(param);
         QAbstractButton *button = buttonGroup_->button(id);
@@ -758,10 +758,10 @@ void
 ToolParameterSettings::setLabels(int id, const QString &objectName, const QString &buttonText)
 {
     QAbstractButton *button = buttonGroup_->button(id);
-    //	buttonGroup_->setExclusive(false);
+    // buttonGroup_->setExclusive(false);
     //button->setChecked(false);
     button->setText(buttonText);
-    //	buttonGroup_->setExclusive(true);
+    // buttonGroup_->setExclusive(true);
 
     QString name = QString::number(id);
     QLabel *label = dynamic_cast<QLabel *>(memberWidgets_.value(name));
@@ -925,7 +925,7 @@ ToolParameterSettingsApplyBox::focus(short state)
 void ToolParameterSettingsApplyBox::activateNextParameter()
 {
     ToolParameterSettings::activateNextParameter();
-    foreach(ToolParameter *p, params_->values())
+    foreach(ToolParameter * p, params_->values())
     {
         if (!p->isValid())
         {

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "shapesectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/shapesection.hpp"
@@ -64,7 +64,7 @@ ShapeSectionItem::ShapeSectionItem(ShapeEditor *shapeEditor, RoadItem *parentRoa
     : SectionItem(parentRoadItem, shapeSection)
     , shapeEditor_(shapeEditor)
     , shapeSection_(shapeSection)
-	, shapeSectionPolynomialItems_(NULL)
+    , shapeSectionPolynomialItems_(NULL)
 {
     // Init //
     //
@@ -78,19 +78,19 @@ ShapeSectionItem::~ShapeSectionItem()
 void
 ShapeSectionItem::init()
 {
-	// ContextMenu //
-	//
-	copyShapeSectionAction_ = getContextMenu()->addAction(tr("Copy Shapes"));
-	connect(copyShapeSectionAction_, SIGNAL(triggered()), this, SLOT(copyShapeSection()));
+    // ContextMenu //
+    //
+    copyShapeSectionAction_ = getContextMenu()->addAction(tr("Copy Shapes"));
+    connect(copyShapeSectionAction_, SIGNAL(triggered()), this, SLOT(copyShapeSection()));
 
-	pasteShapeSectionAction_ = getContextMenu()->addAction(tr("Paste Shapes"));
-	connect(pasteShapeSectionAction_, SIGNAL(triggered()), this, SLOT(pasteShapeSection()));
+    pasteShapeSectionAction_ = getContextMenu()->addAction(tr("Paste Shapes"));
+    connect(pasteShapeSectionAction_, SIGNAL(triggered()), this, SLOT(pasteShapeSection()));
 
-	if (shapeSection_->isElementSelected())
-	{
-		shapeSectionPolynomialItems_ = new ShapeSectionPolynomialItems(shapeEditor_->getProfileGraph(), shapeSection_);
-		shapeEditor_->addSelectedShapeSection(shapeSection_);
-	}
+    if (shapeSection_->isElementSelected())
+    {
+        shapeSectionPolynomialItems_ = new ShapeSectionPolynomialItems(shapeEditor_->getProfileGraph(), shapeSection_);
+        shapeEditor_->addSelectedShapeSection(shapeSection_);
+    }
 
 
 
@@ -115,7 +115,7 @@ void
 ShapeSectionItem::updateColor()
 {
 
-	int degree = shapeSection_->getShapesMaxDegree();
+    int degree = shapeSection_->getShapesMaxDegree();
     if (degree == 3)
     {
         setBrush(QBrush(ODD::instance()->colors()->brightRed()));
@@ -165,7 +165,7 @@ ShapeSectionItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->HeightEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)
@@ -228,28 +228,28 @@ ShapeSectionItem::updateObserver()
     {
         // Change of the road coordinate s or degree //
         //
-		updateColor();
+        updateColor();
         createPath();
     }
 
 
-	// DataElement //
-	//
-	int dataElementChanges = shapeSection_->getDataElementChanges();
-	if ((dataElementChanges & DataElement::CDE_SelectionChange)
-		|| (dataElementChanges & DataElement::CDE_ChildSelectionChange))
-	{
-		// Selection //
-		//
-		if (shapeSection_->isElementSelected())
-		{
-			shapeEditor_->addSelectedShapeSection(shapeSection_);
-		}
-		else
-		{
-			shapeEditor_->delSelectedShapeSection(shapeSection_);
-		}
-	}
+    // DataElement //
+    //
+    int dataElementChanges = shapeSection_->getDataElementChanges();
+    if ((dataElementChanges & DataElement::CDE_SelectionChange)
+        || (dataElementChanges & DataElement::CDE_ChildSelectionChange))
+    {
+        // Selection //
+        //
+        if (shapeSection_->isElementSelected())
+        {
+            shapeEditor_->addSelectedShapeSection(shapeSection_);
+        }
+        else
+        {
+            shapeEditor_->delSelectedShapeSection(shapeSection_);
+        }
+    }
 }
 
 //################//
@@ -266,12 +266,12 @@ ShapeSectionItem::removeSection()
 void
 ShapeSectionItem::copyShapeSection()
 {
-	shapeEditor_->setClipboard(shapeSection_);
+    shapeEditor_->setClipboard(shapeSection_);
 }
 
 void ShapeSectionItem::pasteShapeSection()
 {
-	shapeEditor_->pastePolynomialLateralSections(shapeSection_);
+    shapeEditor_->pastePolynomialLateralSections(shapeSection_);
 }
 
 //################//
@@ -304,7 +304,7 @@ ShapeSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
     else if (tool == ODD::TRS_ADD && (event->button() == Qt::LeftButton))
     {
-  //      if (shapeSection_->getDegree() <= 1) // only lines can be split
+        //      if (shapeSection_->getDegree() <= 1) // only lines can be split
         {
             // New Line //
             //
@@ -322,7 +322,7 @@ ShapeSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             {
                 delete command;
             }
-        } 
+        }
     }
     else if (tool == ODD::TRS_DEL && (event->button() == Qt::LeftButton))
     {

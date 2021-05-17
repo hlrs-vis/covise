@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.04.2010
+ **
+ **************************************************************************/
 
 #include "sparcsmergevisitor.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -100,26 +100,26 @@ SpArcSMergeVisitor::visit(TrackElementArc *trackElement)
         arc_ = trackElement;
         state_ = SpArcSMergeVisitor::STATE_OUTSPIRAL_POS;
     }
-    /*	if(state_ == SpArcSMergeVisitor::STATE_ARC_POS)
-	{
-		if(trackElement->getCurvature(trackElement->getSStart()) > 0.0)
-		{
-			// jackpot: next one should be a spiral with positive curvature
-			state_ = SpArcSMergeVisitor::STATE_OUTSPIRAL_POS;
-			arc_ = trackElement;
-			return;
-		}
-	}
-	else if(state_ == SpArcSMergeVisitor::STATE_ARC_NEG)
-	{
-		if(trackElement->getCurvature(trackElement->getSStart()) < 0.0)
-		{
-			// jackpot: next one should be a spiral with negative curvature
-			state_ = SpArcSMergeVisitor::STATE_OUTSPIRAL_NEG;
-			arc_ = trackElement;
-			return;
-		}
-	}*/
+    /* if(state_ == SpArcSMergeVisitor::STATE_ARC_POS)
+    {
+        if(trackElement->getCurvature(trackElement->getSStart()) > 0.0)
+        {
+            // jackpot: next one should be a spiral with positive curvature
+            state_ = SpArcSMergeVisitor::STATE_OUTSPIRAL_POS;
+            arc_ = trackElement;
+            return;
+        }
+    }
+    else if(state_ == SpArcSMergeVisitor::STATE_ARC_NEG)
+    {
+        if(trackElement->getCurvature(trackElement->getSStart()) < 0.0)
+        {
+            // jackpot: next one should be a spiral with negative curvature
+            state_ = SpArcSMergeVisitor::STATE_OUTSPIRAL_NEG;
+            arc_ = trackElement;
+            return;
+        }
+    }*/
 
     else
     {
@@ -148,23 +148,23 @@ SpArcSMergeVisitor::visit(TrackElementSpiral *trackElement)
         return;
         // Condition: curvStart == 0 //
         //
-        /*		if(fabs(trackElement->getCurvature(trackElement->getSStart())) <= NUMERICAL_ZERO)
-		{
-			if(trackElement->getCurvature(trackElement->getSEnd()) > 0.0)
-			{
-				// jackpot: next one should be an arc with positive curvature
-				state_ = SpArcSMergeVisitor::STATE_ARC_POS;
-				inSpiral_ = trackElement;
-				return;
-			}
-			else if(trackElement->getCurvature(trackElement->getSEnd()) < 0.0)
-			{
-				// jackpot: next one should be an arc with negative curvature
-				state_ = SpArcSMergeVisitor::STATE_ARC_NEG;
-				inSpiral_ = trackElement;
-				return;
-			}
-		}*/
+        /*  if(fabs(trackElement->getCurvature(trackElement->getSStart())) <= NUMERICAL_ZERO)
+        {
+            if(trackElement->getCurvature(trackElement->getSEnd()) > 0.0)
+            {
+                // jackpot: next one should be an arc with positive curvature
+                state_ = SpArcSMergeVisitor::STATE_ARC_POS;
+                inSpiral_ = trackElement;
+                return;
+            }
+            else if(trackElement->getCurvature(trackElement->getSEnd()) < 0.0)
+            {
+                // jackpot: next one should be an arc with negative curvature
+                state_ = SpArcSMergeVisitor::STATE_ARC_NEG;
+                inSpiral_ = trackElement;
+                return;
+            }
+        }*/
     }
 
     else if (state_ == SpArcSMergeVisitor::STATE_OUTSPIRAL_POS)
@@ -179,42 +179,42 @@ SpArcSMergeVisitor::visit(TrackElementSpiral *trackElement)
 
         // Condition: curvEnd == 0 //
         //
-        /*		if(fabs(trackElement->getCurvature(trackElement->getSEnd())) <= NUMERICAL_ZERO)
-		{
-			if(trackElement->getCurvature(trackElement->getSStart()) > 0.0)
-			{
-				// jackpot //
-				//
-				road_->delTrackComponent(inSpiral_);
-				road_->delTrackComponent(arc_);
-				road_->delTrackComponent(trackElement);
+        /*  if(fabs(trackElement->getCurvature(trackElement->getSEnd())) <= NUMERICAL_ZERO)
+        {
+            if(trackElement->getCurvature(trackElement->getSStart()) > 0.0)
+            {
+                // jackpot //
+                //
+                road_->delTrackComponent(inSpiral_);
+                road_->delTrackComponent(arc_);
+                road_->delTrackComponent(trackElement);
 
-				TrackSpiralArcSpiral * spArcS = new TrackSpiralArcSpiral(inSpiral_, arc_, trackElement);
+                TrackSpiralArcSpiral * spArcS = new TrackSpiralArcSpiral(inSpiral_, arc_, trackElement);
 
-				road_->addTrackComponent(spArcS);
-			}
-		}
-	}
+                road_->addTrackComponent(spArcS);
+            }
+        }
+    }
 
-	else if(state_ == SpArcSMergeVisitor::STATE_OUTSPIRAL_NEG)
-	{
-		// Condition: curvEnd == 0 //
-		//
-		if(fabs(trackElement->getCurvature(trackElement->getSEnd())) <= NUMERICAL_ZERO)
-		{
-			if(trackElement->getCurvature(trackElement->getSStart()) < 0.0)
-			{
-				// jackpot //
-				//
-				road_->delTrackComponent(inSpiral_);
-				road_->delTrackComponent(arc_);
-				road_->delTrackComponent(trackElement);
+    else if(state_ == SpArcSMergeVisitor::STATE_OUTSPIRAL_NEG)
+    {
+        // Condition: curvEnd == 0 //
+        //
+        if(fabs(trackElement->getCurvature(trackElement->getSEnd())) <= NUMERICAL_ZERO)
+        {
+            if(trackElement->getCurvature(trackElement->getSStart()) < 0.0)
+            {
+                // jackpot //
+                //
+                road_->delTrackComponent(inSpiral_);
+                road_->delTrackComponent(arc_);
+                road_->delTrackComponent(trackElement);
 
-				TrackSpiralArcSpiral * spArcS = new TrackSpiralArcSpiral(inSpiral_, arc_, trackElement);
+                TrackSpiralArcSpiral * spArcS = new TrackSpiralArcSpiral(inSpiral_, arc_, trackElement);
 
-				road_->addTrackComponent(spArcS);
-			}
-		}*/
+                road_->addTrackComponent(spArcS);
+            }
+        }*/
     }
 
     // Back to start //

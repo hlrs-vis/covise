@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.06.2010
+ **
+ **************************************************************************/
 
 #include "profilegraphscene.hpp"
 #include "qgraphicssceneevent.h"
@@ -47,30 +47,30 @@ void ProfileGraphScene::mousePressEvent(QGraphicsSceneMouseEvent *mevent)
             return;
     }
 
-	MouseAction *mouseAction = new MouseAction(MouseAction::PATM_PRESS, mevent);
-	emit(mouseActionSignal(mouseAction));
-	delete mouseAction;
+    MouseAction *mouseAction = new MouseAction(MouseAction::PATM_PRESS, mevent);
+    emit(mouseActionSignal(mouseAction));
+    delete mouseAction;
 
-	QGraphicsScene::mousePressEvent(mevent);
+    QGraphicsScene::mousePressEvent(mevent);
 }
 
-void 
+void
 ProfileGraphScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	MouseAction *mouseAction = new MouseAction(MouseAction::PATM_MOVE, event);
-	emit(mouseActionSignal(mouseAction));
-	delete mouseAction;
+    MouseAction *mouseAction = new MouseAction(MouseAction::PATM_MOVE, event);
+    emit(mouseActionSignal(mouseAction));
+    delete mouseAction;
 
-	QGraphicsScene::mouseMoveEvent(event);
+    QGraphicsScene::mouseMoveEvent(event);
 }
 
 void
 ProfileGraphScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	MouseAction *mouseAction = new MouseAction(MouseAction::PATM_RELEASE, event);
-	emit(mouseActionSignal(mouseAction));
-	delete mouseAction;
+    MouseAction *mouseAction = new MouseAction(MouseAction::PATM_RELEASE, event);
+    emit(mouseActionSignal(mouseAction));
+    delete mouseAction;
 
-	QGraphicsScene::mouseMoveEvent(event);
+    QGraphicsScene::mouseMoveEvent(event);
 }
 

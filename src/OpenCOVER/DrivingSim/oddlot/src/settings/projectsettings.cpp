@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/12/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/12/2010
+ **
+ **************************************************************************/
 
 #include "projectsettings.hpp"
 
@@ -19,8 +19,8 @@
 
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 //#include "src/data/commands/projectdatacommands.hpp"
 
@@ -46,7 +46,7 @@ ProjectSettings::ProjectSettings(ProjectWidget *projectWidget, ProjectData *proj
     , projectWidget_(projectWidget)
     , projectData_(projectData)
     , settingsElement_(NULL)
-	, ui(new Ui::ErrorMessageTree)
+    , ui(new Ui::ErrorMessageTree)
 {
     // Observer //
     //
@@ -54,23 +54,23 @@ ProjectSettings::ProjectSettings(ProjectWidget *projectWidget, ProjectData *proj
 
     // Buttons //
     //
-    //	QGridLayout * buttonsLayout = new QGridLayout;
+    // QGridLayout * buttonsLayout = new QGridLayout;
 
     // Layout //
     //
     settingsLayout_ = new QVBoxLayout;
-    settingsLayout_->setContentsMargins(0,0,0,0);
+    settingsLayout_->setContentsMargins(0, 0, 0, 0);
 
-    ////	settingsLayout->addChildLayout(buttonsLayout);
+    //// settingsLayout->addChildLayout(buttonsLayout);
 
     setLayout(settingsLayout_);
 
-	// Error Message Widget for errorDock_ //
-	//
-	QWidget *errorMessageWidget = new QWidget(this);
-	ui->setupUi(errorMessageWidget);
+    // Error Message Widget for errorDock_ //
+    //
+    QWidget *errorMessageWidget = new QWidget(this);
+    ui->setupUi(errorMessageWidget);
 
-	ODD::mainWindow()->setErrorMessageTree(errorMessageWidget);
+    ODD::mainWindow()->setErrorMessageTree(errorMessageWidget);
 }
 
 ProjectSettings::~ProjectSettings()
@@ -96,7 +96,7 @@ ProjectSettings::addToGarbage(SettingsElement *item)
 
     if (!garbageList_.contains(item))
     {
-        foreach (SettingsElement *garbageItem, garbageList_) // the list should not be too long...
+        foreach(SettingsElement * garbageItem, garbageList_) // the list should not be too long...
         {
             if (garbageItem->isAncestorOf(item))
             {
@@ -132,16 +132,16 @@ ProjectSettings::executeCommand(DataCommand *command)
 void
 ProjectSettings::printErrorMessage(const QString &text)
 {
-	if (ui->errorVerticalLayout->count() > 3)
-	{
-		QLayoutItem *item = ui->errorVerticalLayout->itemAt(1);
-		ui->errorVerticalLayout->removeItem(item);
-		delete item;
-	}
+    if (ui->errorVerticalLayout->count() > 3)
+    {
+        QLayoutItem *item = ui->errorVerticalLayout->itemAt(1);
+        ui->errorVerticalLayout->removeItem(item);
+        delete item;
+    }
 
-	QLabel *label = new QLabel(text);
-	label->setWordWrap(true);
-	ui->errorVerticalLayout->insertWidget(ui->errorVerticalLayout->count()-1, label); 
+    QLabel *label = new QLabel(text);
+    label->setWordWrap(true);
+    ui->errorVerticalLayout->insertWidget(ui->errorVerticalLayout->count() - 1, label);
 }
 
 void
@@ -166,7 +166,7 @@ ProjectSettings::updateWidget()
     if (settingsElement_)
     {
         settingsElement_->registerForDeletion();
-        //		addToGarbage(settingsElement_);
+        //  addToGarbage(settingsElement_);
         settingsElement_ = NULL;
     }
 
@@ -180,7 +180,7 @@ ProjectSettings::updateWidget()
     //
     if (!settingsElement_)
     {
-        //		settingsLayout_->addWidget(new QWidget());
+        //  settingsLayout_->addWidget(new QWidget());
     }
     else
     {
@@ -213,7 +213,7 @@ ProjectSettings::projectActivated(bool active)
 void
 ProjectSettings::garbageDisposal()
 {
-    foreach (SettingsElement *item, garbageList_)
+    foreach(SettingsElement * item, garbageList_)
     {
         delete item;
     }

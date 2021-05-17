@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/18/2010
+ **
+ **************************************************************************/
 
 #include "roadlinkitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
@@ -83,7 +83,7 @@ RoadLinkItem::~RoadLinkItem()
     {
         targetJunction_->detachObserver(this);
 
-        foreach (RSystemElementRoad *path, paths_)
+        foreach(RSystemElementRoad * path, paths_)
         {
             path->detachObserver(this);
         }
@@ -118,7 +118,7 @@ RoadLinkItem::init()
         {
             targetJunction_->attachObserver(this);
 
-            foreach (JunctionConnection *connection, targetJunction_->getConnections(parentRoad_->getID()))
+            foreach(JunctionConnection * connection, targetJunction_->getConnections(parentRoad_->getID()))
             {
                 RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
                 if (!path)
@@ -161,9 +161,9 @@ RoadLinkItem::updateType()
     if (roadLink_)
     {
         qDebug("%s", tr("Error 1011261638! RoadLinkItem::updateType() not implemented yet.").toUtf8().constData());
-        //		type_ = roadLink_->getRoadLinkType();
-        //		updateTransform();
-        //		updateColor();
+        //  type_ = roadLink_->getRoadLinkType();
+        //  updateTransform();
+        //  updateColor();
     }
 }
 
@@ -173,9 +173,9 @@ RoadLinkItem::updateParentRoad()
     if (roadLink_)
     {
         qDebug("%s", tr("Error 1011261639! RoadLinkItem::updateParentRoad() not implemented yet.").toUtf8().constData());
-        //		parentRoad_ = roadLink_->getParentRoad();
-        //		updateTransform();
-        //		updateColor();
+        //  parentRoad_ = roadLink_->getParentRoad();
+        //  updateTransform();
+        //  updateColor();
     }
 }
 
@@ -186,7 +186,7 @@ RoadLinkItem::updatePathList()
     {
         QList<RSystemElementRoad *> newPaths;
 
-        foreach (JunctionConnection *connection, targetJunction_->getConnections(parentRoad_->getID()))
+        foreach(JunctionConnection * connection, targetJunction_->getConnections(parentRoad_->getID()))
         {
             RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
             if (!path)
@@ -203,7 +203,7 @@ RoadLinkItem::updatePathList()
             }
         }
 
-        foreach (RSystemElementRoad *path, paths_)
+        foreach(RSystemElementRoad * path, paths_)
         {
             if (!newPaths.contains(path))
             {
@@ -225,14 +225,14 @@ RoadLinkItem::updateTransform() // called by parent road item
     if (type_ == RoadLink::DRL_PREDECESSOR)
     {
         roadLinkHandle_->setPos(parentRoad_->getGlobalPoint(DISTANCE, parentRoad_->getMaxWidth(0.0) + DISTANCE));
-        //		roadLinkHandle_->setPos(parentRoad_->getGlobalPoint(DISTANCE, parentRoad_->getMaxWidth(0.0)*0.5));
+        //  roadLinkHandle_->setPos(parentRoad_->getGlobalPoint(DISTANCE, parentRoad_->getMaxWidth(0.0)*0.5));
         roadLinkHandle_->setRotation(parentRoad_->getGlobalHeading(0.0) + 180.0);
         createPath();
     }
     else if (type_ == RoadLink::DRL_SUCCESSOR)
     {
         roadLinkHandle_->setPos(parentRoad_->getGlobalPoint(parentRoad_->getLength() - DISTANCE, parentRoad_->getMinWidth(parentRoad_->getLength() - DISTANCE) - DISTANCE));
-        //		roadLinkHandle_->setPos(parentRoad_->getGlobalPoint(parentRoad_->getLength()-DISTANCE, parentRoad_->getMinWidth(parentRoad_->getLength()-DISTANCE)*0.5));
+        //  roadLinkHandle_->setPos(parentRoad_->getGlobalPoint(parentRoad_->getLength()-DISTANCE, parentRoad_->getMinWidth(parentRoad_->getLength()-DISTANCE)*0.5));
         roadLinkHandle_->setRotation(parentRoad_->getGlobalHeading(parentRoad_->getLength()));
         createPath();
     }
@@ -321,7 +321,7 @@ RoadLinkItem::createPath()
         //
         else if (targetJunction_)
         {
-            foreach (JunctionConnection *connection, targetJunction_->getConnections(parentRoad_->getID()))
+            foreach(JunctionConnection * connection, targetJunction_->getConnections(parentRoad_->getID()))
             {
                 RSystemElementRoad *targetRoad = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
                 if (!targetRoad)
@@ -389,8 +389,8 @@ RoadLinkItem::updateObserver()
         if ((changes & RoadLink::CRL_ContactPointChanged)
             || (changes & RoadLink::CRL_IdChanged))
         {
-            //			createPath();
-            //			updateColor();
+            //   createPath();
+            //   updateColor();
         }
     }
     else
@@ -438,7 +438,7 @@ RoadLinkItem::updateObserver()
         }
         else
         {
-            foreach (RSystemElementRoad *path, paths_)
+            foreach(RSystemElementRoad * path, paths_)
             {
                 int changes = path->getRoadChanges();
                 if ((changes & RSystemElementRoad::CRD_LengthChange)

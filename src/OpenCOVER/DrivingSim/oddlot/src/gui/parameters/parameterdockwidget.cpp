@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "parameterdockwidget.hpp"
 
 #include "src/mainwindow.hpp"
 
-// GUI //
-//
+ // GUI //
+ //
 #include "src/gui/projectwidget.hpp"
 
 // Graph //
@@ -38,14 +38,14 @@
 // ParameterDockWidget  //
 //######################//
 
-ParameterDockWidget::ParameterDockWidget(const QString& title, MainWindow* parent)
-	:QDockWidget(title, parent)
-	, mainWindow_(parent) 
+ParameterDockWidget::ParameterDockWidget(const QString &title, MainWindow *parent)
+    :QDockWidget(title, parent)
+    , mainWindow_(parent)
 {
-	init();
+    init();
 }
 
-ParameterDockWidget::~ParameterDockWidget() 
+ParameterDockWidget::~ParameterDockWidget()
 {
 };
 
@@ -53,94 +53,94 @@ void
 ParameterDockWidget::init()
 {
 
-	// ParameterDialog Widget //
-	//
+    // ParameterDialog Widget //
+    //
 
-	QWidget* parameterWidget = new QWidget();
-	setWidget(parameterWidget);
+    QWidget *parameterWidget = new QWidget();
+    setWidget(parameterWidget);
 
-	QVBoxLayout* layout = new QVBoxLayout();
+    QVBoxLayout *layout = new QVBoxLayout();
 
-	QScrollArea* scrollArea = new QScrollArea(parameterWidget);
+    QScrollArea *scrollArea = new QScrollArea(parameterWidget);
 
-	paramBox_ = new QFrame(this);
-	dialogBox_ = new QFrame(this);
-	paramBox_->installEventFilter(this);
-	dialogBox_->installEventFilter(this);
+    paramBox_ = new QFrame(this);
+    dialogBox_ = new QFrame(this);
+    paramBox_->installEventFilter(this);
+    dialogBox_->installEventFilter(this);
 
-	paramGroupBox_ = new QGroupBox();
-	QVBoxLayout* paramLayout = new QVBoxLayout();
-	paramLayout->addWidget(paramBox_);
-	paramLayout->addWidget(dialogBox_);
+    paramGroupBox_ = new QGroupBox();
+    QVBoxLayout *paramLayout = new QVBoxLayout();
+    paramLayout->addWidget(paramBox_);
+    paramLayout->addWidget(dialogBox_);
 
-	paramGroupBox_->setLayout(paramLayout);
+    paramGroupBox_->setLayout(paramLayout);
 
-	scrollArea->setWidget(paramGroupBox_);
-	scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(paramGroupBox_);
+    scrollArea->setWidgetResizable(true);
 
-	layout->addWidget(scrollArea);
-	parameterWidget->setLayout(layout);
-	parameterWidget->setVisible(false);
+    layout->addWidget(scrollArea);
+    parameterWidget->setLayout(layout);
+    parameterWidget->setVisible(false);
 }
 
 void
 ParameterDockWidget::setVisibility(bool visible, const QString &helpText, const QString &windowTitle)
 {
-	paramGroupBox_->setTitle(windowTitle);
-	setWhatsThis(helpText);
-	widget()->setVisible(visible);
-	if (visible)
-	{
-		projectEditor_ = mainWindow_->getActiveProject()->getProjectEditor();
-	}
+    paramGroupBox_->setTitle(windowTitle);
+    setWhatsThis(helpText);
+    widget()->setVisible(visible);
+    if (visible)
+    {
+        projectEditor_ = mainWindow_->getActiveProject()->getProjectEditor();
+    }
 }
 
 bool
-ParameterDockWidget::eventFilter(QObject* object, QEvent* event)
+ParameterDockWidget::eventFilter(QObject *object, QEvent *event)
 {
 
-	if ((object == paramBox_) || (object == dialogBox_)) {
-		if (event->type() == QEvent::Enter) {
-			projectEditor_->focusParameterDialog(true);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+    if ((object == paramBox_) || (object == dialogBox_)) {
+        if (event->type() == QEvent::Enter) {
+            projectEditor_->focusParameterDialog(true);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-	// pass the event on to the parent class
-	return QDockWidget::eventFilter(object, event);
+    // pass the event on to the parent class
+    return QDockWidget::eventFilter(object, event);
 }
 
 void
-ParameterDockWidget::enterEvent(QEvent* event)
+ParameterDockWidget::enterEvent(QEvent *event)
 {
-	if (widget()->isVisible())
-	{
-		if (event->type() == QEvent::Enter)
-		{
-			QEnterEvent* enterEvent = dynamic_cast<QEnterEvent*>(event);
-			if (enterEvent)
-			{
-				int d = mapToParent(enterEvent->localPos().toPoint()).y() - pos().y();
-				if ((d >= 0) && (d < 20))
-				{
-					QToolTip::showText(enterEvent->globalPos(), whatsThis());
-				}
-			}
-		}
-		projectEditor_->focusParameterDialog(true);
-	}
+    if (widget()->isVisible())
+    {
+        if (event->type() == QEvent::Enter)
+        {
+            QEnterEvent *enterEvent = dynamic_cast<QEnterEvent *>(event);
+            if (enterEvent)
+            {
+                int d = mapToParent(enterEvent->localPos().toPoint()).y() - pos().y();
+                if ((d >= 0) && (d < 20))
+                {
+                    QToolTip::showText(enterEvent->globalPos(), whatsThis());
+                }
+            }
+        }
+        projectEditor_->focusParameterDialog(true);
+    }
 }
 
 void
-ParameterDockWidget::leaveEvent(QEvent* event)
+ParameterDockWidget::leaveEvent(QEvent *event)
 {
-	if (widget()->isVisible())
-	{
-		projectEditor_->focusParameterDialog(false);
-	}
+    if (widget()->isVisible())
+    {
+        projectEditor_->focusParameterDialog(false);
+    }
 }
 
 

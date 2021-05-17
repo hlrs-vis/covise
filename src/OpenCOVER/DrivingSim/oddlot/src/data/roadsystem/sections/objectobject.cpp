@@ -5,34 +5,34 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "objectobject.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 
-//####################//
-// Constructors       //
-//####################//
+ //####################//
+ // Constructors       //
+ //####################//
 
 Object::Object(const odrID &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile)
-	: RoadSection(s)
-	, id_(id)
-	, name_(name)
-	, objectProps_(objectProps)
-	, objectRepeat_(repeatRecord)
-	, parkingSpace_(NULL)
-	, outline_(NULL)
+    : RoadSection(s)
+    , id_(id)
+    , name_(name)
+    , objectProps_(objectProps)
+    , objectRepeat_(repeatRecord)
+    , parkingSpace_(NULL)
+    , outline_(NULL)
 {
-	userData_.modelFile = name;
-	userData_.textureFile = textureFile;
+    userData_.modelFile = name;
+    userData_.textureFile = textureFile;
 }
 
 /*!
@@ -53,21 +53,21 @@ Object::getSEnd() const
     }
 }
 
-void 
+void
 Object::setParkingSpace(ParkingSpace *parkingSpace)
 {
-	objectProps_.type = "parkingSpace";
-	parkingSpace_ = parkingSpace;
-	parkingSpace->setParentObject(this);
-	addObjectChanges(Object::CEL_TypeChange);
+    objectProps_.type = "parkingSpace";
+    parkingSpace_ = parkingSpace;
+    parkingSpace->setParentObject(this);
+    addObjectChanges(Object::CEL_TypeChange);
 }
 
-void 
+void
 Object::setOutline(Outline *outline)
 {
-	outline_ = outline;
-	outline_->setParentObject(this);
-	addObjectChanges(Object::CEL_OutlineChange);
+    outline_ = outline;
+    outline_->setParentObject(this);
+    addObjectChanges(Object::CEL_OutlineChange);
 }
 
 
@@ -111,7 +111,7 @@ Object::getClone()
 {
     // Object //
     //
-	Object *clone = new Object(id_, name_, getSStart(), objectProps_, objectRepeat_, userData_.textureFile);
+    Object *clone = new Object(id_, name_, getSStart(), objectProps_, objectRepeat_, userData_.textureFile);
 
     return clone;
 }
@@ -138,35 +138,35 @@ Object::accept(Visitor *visitor)
 //####################//
 
 Outline::Outline(QList<ObjectCorner *> corners)
-	: corners_(corners)
+    : corners_(corners)
 {
 
 }
 
 Outline::~Outline()
 {
-	foreach(ObjectCorner *corner, corners_)
-		delete corner;
+    foreach(ObjectCorner * corner, corners_)
+        delete corner;
 }
 
-void 
+void
 Outline::setParentObject(Object *object)
 {
-	parentObject_ = object;
-	object->addObjectChanges(Object::CEL_OutlineChange);
+    parentObject_ = object;
+    object->addObjectChanges(Object::CEL_OutlineChange);
 }
 
-bool 
+bool
 Outline::addCorner(ObjectCorner *corner)
 {
-	if (corners_.contains(corner))
-	{
-		return false;
-	}
+    if (corners_.contains(corner))
+    {
+        return false;
+    }
 
-	corners_.append(corner);
+    corners_.append(corner);
 
-	return true;
+    return true;
 }
 
 

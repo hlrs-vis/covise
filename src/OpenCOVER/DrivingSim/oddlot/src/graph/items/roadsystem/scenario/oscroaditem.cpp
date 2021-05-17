@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "oscroaditem.hpp"
 
@@ -20,8 +20,8 @@
 
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
@@ -68,19 +68,19 @@ OSCRoadItem::init()
     // Hover Events //
     //
     setAcceptHoverEvents(true);
-	setFlag(QGraphicsItem::ItemIsSelectable, false);
+    setFlag(QGraphicsItem::ItemIsSelectable, false);
 
-    foreach (Signal *signal, road_->getSignals())
+    foreach(Signal * signal, road_->getSignals())
     {
         new OSCSignalItem(roadSystemItem_, signal, road_->getGlobalPoint(signal->getSStart(), signal->getT()));
     }
 
-    foreach (Object *object, road_->getObjects())
+    foreach(Object * object, road_->getObjects())
     {
         new OSCObjectItem(roadSystemItem_, object, road_->getGlobalPoint(object->getSStart(), object->getT()));
     }
 
-    foreach (Bridge *bridge, road_->getBridges())
+    foreach(Bridge * bridge, road_->getBridges())
     {
         new OSCBridgeItem(roadSystemItem_, bridge, road_->getGlobalPoint(bridge->getSStart(), 0.0));
     }
@@ -94,7 +94,7 @@ void
 OSCRoadItem::updateColor()
 {
 
-	setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
+    setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     setPen(QPen(ODD::instance()->colors()->brightGrey()));
 }
 
@@ -110,7 +110,7 @@ OSCRoadItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)
@@ -157,31 +157,31 @@ OSCRoadItem::createPath()
 void
 OSCRoadItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-	// Parent //
-	//
-	RoadItem::hoverEnterEvent(event); // pass to baseclass
+    // Parent //
+    //
+    RoadItem::hoverEnterEvent(event); // pass to baseclass
 
-	
+
 }
 
 void
 OSCRoadItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 
-	// Parent //
-	//
-	RoadItem::hoverLeaveEvent(event); // pass to baseclass
+    // Parent //
+    //
+    RoadItem::hoverLeaveEvent(event); // pass to baseclass
 
-	
+
 }
 
 void
 OSCRoadItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
-	// Parent //
-	//
-	RoadItem::hoverMoveEvent(event);
+    // Parent //
+    //
+    RoadItem::hoverMoveEvent(event);
 
-	
+
 }
 

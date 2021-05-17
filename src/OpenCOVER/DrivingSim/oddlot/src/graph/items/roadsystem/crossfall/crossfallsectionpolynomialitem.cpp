@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfallsectionpolynomialitem.hpp"
 
 #include "src/gui/projectwidget.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -126,7 +126,7 @@ CrossfallSectionPolynomialItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 2.0; // BAD: hard coded!
+    // double pointsPerMeter = 2.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->HeightEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)

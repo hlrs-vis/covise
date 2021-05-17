@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.06.2010
+ **
+ **************************************************************************/
 
 #include "heightgraph.hpp"
 
@@ -19,8 +19,8 @@
 
 #include "src/data/projectdata.hpp"
 
-// Graph //
-//
+ // Graph //
+ //
 #include "src/graph/profilegraphscene.hpp"
 #include "src/graph/profilegraphview.hpp"
 
@@ -37,11 +37,11 @@ HeightGraph::HeightGraph(QWidget *parent, ProjectWidget *projectWidget, ProjectD
     scene_ = new ProfileGraphScene(QRectF(-1000.0, 0.0, 20000.0, 20.0), this); // x, y, sizeX, sizeY
     qDebug("TODO HeightGraph Scene size");
     // TODO!!!
-    //	scene_ = new HeightGraphScene(projectData_->getRoadSystem()->getRectF(), this);
+    // scene_ = new HeightGraphScene(projectData_->getRoadSystem()->getRectF(), this);
     // may be not ready yet
 
-    //	connect(scene_, SIGNAL(mouseActionSignal(MouseAction*)), this, SIGNAL(mouseActionSignal(MouseAction*)));
-    //	connect(scene_, SIGNAL(keyActionSignal(KeyAction*)), this, SIGNAL(keyActionSignal(KeyAction*)));
+    // connect(scene_, SIGNAL(mouseActionSignal(MouseAction*)), this, SIGNAL(mouseActionSignal(MouseAction*)));
+    // connect(scene_, SIGNAL(keyActionSignal(KeyAction*)), this, SIGNAL(keyActionSignal(KeyAction*)));
 
     // Qt View //
     //
@@ -51,7 +51,7 @@ HeightGraph::HeightGraph(QWidget *parent, ProjectWidget *projectWidget, ProjectD
     view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     view_->setRenderHints(QPainter::Antialiasing);
 
-    //	view_->resetMatrix();
+    // view_->resetMatrix();
     view_->resetViewTransformation();
     view_->centerOn(0.0, 0.0);
 
@@ -62,7 +62,7 @@ HeightGraph::HeightGraph(QWidget *parent, ProjectWidget *projectWidget, ProjectD
     //
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(view_);
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 }
 
@@ -78,21 +78,21 @@ HeightGraph::~HeightGraph()
 ///*! \brief Remove all registered items.
 //*/
 //void
-//	HeightGraph
-//	::garbageDisposal()
+// HeightGraph
+// ::garbageDisposal()
 //{
-//	foreach(QGraphicsItem * item, garbageList_)
-//	{
-////		if(item->scene())
-////		{
-////			item->scene()->removeItem(item);
-////		}
-////		else
-////		{
-//////			qDebug("WARNING 1006251515! Garbage disposal: Item has no scene.");
-////		}
-//		delete item;
-//	}
+// foreach(QGraphicsItem * item, garbageList_)
+// {
+////  if(item->scene())
+////  {
+////   item->scene()->removeItem(item);
+////  }
+////  else
+////  {
+//////   qDebug("WARNING 1006251515! Garbage disposal: Item has no scene.");
+////  }
+//  delete item;
+// }
 
-//	garbageList_.clear();
+// garbageList_.clear();
 //}

@@ -5,25 +5,25 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   18.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   18.03.2010
+ **
+ **************************************************************************/
 
 #include "lateralsection.hpp"
 
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
-/*!
-* Checks if a road has been passed as parent. Warns if not so.
-*/
+ /*!
+ * Checks if a road has been passed as parent. Warns if not so.
+ */
 LateralSection::LateralSection(double t)
     : DataElement()
     , parentSection_(NULL)
@@ -74,7 +74,7 @@ LateralSection::addLateralSectionChanges(int changes)
 {
     if (changes)
     {
-		lateralSectionChanges_ |= changes;
+        lateralSectionChanges_ |= changes;
         notifyObservers();
     }
 }

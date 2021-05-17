@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "controlleritem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
@@ -81,17 +81,17 @@ ControllerItem::init()
 
     // Text //
     //
-	textItem_ = new QGraphicsTextItem(controller_->getID().speakingName(), this);
-	textItem_->setFlag(QGraphicsItem::ItemIsSelectable, false);
-	QTransform trafo;
-	trafo.rotate(180, Qt::XAxis);
-	textItem_->setTransform(trafo);
-	textItem_->setZValue(1.0); 
+    textItem_ = new QGraphicsTextItem(controller_->getID().speakingName(), this);
+    textItem_->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    QTransform trafo;
+    trafo.rotate(180, Qt::XAxis);
+    textItem_->setTransform(trafo);
+    textItem_->setZValue(1.0);
 
     setBrush(ODD::instance()->colors()->brightOrange());
     setPen(ODD::instance()->colors()->darkOrange());
 
-	updatePath();
+    updatePath();
 
     // ContextMenu //
     //
@@ -114,35 +114,35 @@ ControllerItem::updatePath()
 
     QPainterPath thePath;
     QVector<QPointF> points;
-    foreach (Signal *signal, controller_->getSignals())
+    foreach(Signal * signal, controller_->getSignals())
     {
-        RSystemElementRoad * road = signal->getParentRoad();
+        RSystemElementRoad *road = signal->getParentRoad();
         points.append(road->getGlobalPoint(signal->getSStart()));
     }
 
 
-	QTransform trafo;
-	trafo.rotate(180, Qt::XAxis);
+    QTransform trafo;
+    trafo.rotate(180, Qt::XAxis);
     // Text //
     //
     if (points.count() > 0)
     {
         textItem_->setPos(points[0]);
-		QRectF rect = textItem_->boundingRect();
-		trafo.mapRect(rect);
-		rect.translate(points[0] - rect.bottomLeft());
-		thePath.addRect(rect);
-		thePath.addPolygon(QPolygonF(points));
+        QRectF rect = textItem_->boundingRect();
+        trafo.mapRect(rect);
+        rect.translate(points[0] - rect.bottomLeft());
+        thePath.addRect(rect);
+        thePath.addPolygon(QPolygonF(points));
     }
-	else
-	{
-		
-		textItem_->setPos(getTopviewGraph()->getScene()->sceneRect().center());
-		thePath.addRect(trafo.mapRect(textItem_->boundingRect()));
-		setPath(thePath);
+    else
+    {
 
-	}
-	setPath(thePath);
+        textItem_->setPos(getTopviewGraph()->getScene()->sceneRect().center());
+        thePath.addRect(trafo.mapRect(textItem_->boundingRect()));
+        setPath(thePath);
+
+    }
+    setPath(thePath);
 }
 
 //################//
@@ -159,8 +159,8 @@ ControllerItem::removeController()
 void
 ControllerItem::addToCurrentTile()
 {
-	odrID newId = controller_->getID();
-	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+    odrID newId = controller_->getID();
+    newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
     SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(controller_->getRoadSystem(), controller_, newId, NULL);
     getProjectGraph()->executeCommand(command);
 }

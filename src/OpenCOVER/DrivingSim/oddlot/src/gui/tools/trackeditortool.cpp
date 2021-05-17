@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   06.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   06.04.2010
+ **
+ **************************************************************************/
 
 #include "trackeditortool.hpp"
 
@@ -21,14 +21,14 @@
 #include "ui_TrackRibbon.h"
 
 
-//################//
-//                //
-// TrackEditorTool //
-//                //
-//################//
+ //################//
+ //                //
+ // TrackEditorTool //
+ //                //
+ //################//
 
-/*! \todo Ownership/destructor
-*/
+ /*! \todo Ownership/destructor
+ */
 TrackEditorTool::TrackEditorTool(ToolManager *toolManager)
     : EditorTool(toolManager)
     , toolId_(ODD::TTE_ROAD_MOVE_ROTATE)
@@ -49,7 +49,7 @@ TrackEditorTool::initToolWidget()
     ToolWidget *ribbonWidget = new ToolWidget();
     Ui::TrackRibbon *ui = new Ui::TrackRibbon();
     ui->setupUi(ribbonWidget);
-    
+
     ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     ribbonToolGroup_->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
@@ -65,15 +65,15 @@ TrackEditorTool::initToolWidget()
     ribbonToolGroup_->addButton(ui->roadSplit, ODD::TTE_ROAD_SPLIT);
     ribbonToolGroup_->addButton(ui->roadMerge, ODD::TTE_ROAD_MERGE);
     ribbonToolGroup_->addButton(ui->roadSnap, ODD::TTE_ROAD_SNAP);
-	ribbonToolGroup_->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
-	ribbonToolGroup_->addButton(ui->roadCircle, ODD::TTE_ROAD_CIRCLE);
-    
+    ribbonToolGroup_->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
+    ribbonToolGroup_->addButton(ui->roadCircle, ODD::TTE_ROAD_CIRCLE);
+
     ribbonToolGroup_->addButton(ui->tileMove, ODD::TTE_TILE_MOVE);
     ribbonToolGroup_->addButton(ui->tileNew, ODD::TTE_TILE_NEW);
     ribbonToolGroup_->addButton(ui->tileDelete, ODD::TTE_TILE_DELETE);
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Track"), ODD::ETE);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 
 }
 
@@ -95,7 +95,7 @@ TrackEditorTool::sendToolAction()
 {
     TrackEditorToolAction *action = new TrackEditorToolAction(toolId_);
     emit toolAction(action);
- //   delete action;
+    //   delete action;
 }
 
 /*! \brief Is called by the toolmanager to initialize the UI */
@@ -103,9 +103,9 @@ TrackEditorTool::sendToolAction()
 void
 TrackEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::ETE);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::ETE);
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 
 }
 

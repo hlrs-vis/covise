@@ -5,25 +5,25 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   25.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   25.02.2010
+ **
+ **************************************************************************/
 
 #include "lanespeed.hpp"
 
 #include "lane.hpp"
 
-LaneSpeed::LaneSpeed(double sOffset, double max = -1.0, QString unit = "m/s" )
+LaneSpeed::LaneSpeed(double sOffset, double max = -1.0, QString unit = "m/s")
     : DataElement()
     , laneSpeedChanges_(0x0)
     , parentLane_(NULL)
     , sOffset_(sOffset)
     , max_(max)
-	, maxUnit_(unit)
+    , maxUnit_(unit)
 {
 }
 

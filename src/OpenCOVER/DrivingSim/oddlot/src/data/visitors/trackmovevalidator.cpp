@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.04.2010
+ **
+ **************************************************************************/
 
 #include "trackmovevalidator.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackelementline.hpp"
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
@@ -164,39 +164,39 @@ TrackMoveValidator::visit(TrackElementLine *trackElement)
 {
     // Check heading to keep the new point on the track //
     //
-    /*	RSystemElementRoad * parentRoad = trackElement->getParentRoad();
-	TrackComponent * track = NULL;
-	if ((state_ == TrackMoveValidator::STATE_STARTPOINT) || (state_ == STATE_STARTHEADING))
-	{
-		track = parentRoad->getTrackComponentBefore(trackElement->getSStart());
-	}
-	else
-	{
-		track = parentRoad->getTrackComponent(trackElement->getSEnd());
-	}
-	TrackElementLine * trackLine = dynamic_cast<TrackElementLine *>(track); 
+    /* RSystemElementRoad * parentRoad = trackElement->getParentRoad();
+    TrackComponent * track = NULL;
+    if ((state_ == TrackMoveValidator::STATE_STARTPOINT) || (state_ == STATE_STARTHEADING))
+    {
+        track = parentRoad->getTrackComponentBefore(trackElement->getSStart());
+    }
+    else
+    {
+        track = parentRoad->getTrackComponent(trackElement->getSEnd());
+    }
+    TrackElementLine * trackLine = dynamic_cast<TrackElementLine *>(track);
 
-	if (trackLine || ((((state_ == TrackMoveValidator::STATE_STARTPOINT) || (state_ == STATE_STARTHEADING)) && (abs(trackElement->getSStart()) < NUMERICAL_ZERO3)) || 
-		(((state_ == TrackMoveValidator::STATE_ENDPOINT) || (state_ == STATE_ENDHEADING))&& (abs(trackElement->getSEnd() - parentRoad->getLength()) < NUMERICAL_ZERO3))))
-	{
-		double angle = atan2(dPos_.y(), dPos_.x());
-		if(angle < 0.0)
-		{
-			angle += 2.0*M_PI;
-		}
-		double angle2 = atan2(-dPos_.y(), -dPos_.x());
-		if(angle2 < 0.0)
-		{
-			angle2 += 2.0*M_PI;
-		}
-		if((fabs(trackElement->getGlobalHeadingRad(trackElement->getSStart()) - angle) > NUMERICAL_ZERO4)
-			&&	(fabs(trackElement->getGlobalHeadingRad(trackElement->getSStart()) - angle2) > NUMERICAL_ZERO4)
-			)
-		{
-			isValid_ = false;
-			return;
-		} 
-	}*/
+    if (trackLine || ((((state_ == TrackMoveValidator::STATE_STARTPOINT) || (state_ == STATE_STARTHEADING)) && (abs(trackElement->getSStart()) < NUMERICAL_ZERO3)) ||
+        (((state_ == TrackMoveValidator::STATE_ENDPOINT) || (state_ == STATE_ENDHEADING))&& (abs(trackElement->getSEnd() - parentRoad->getLength()) < NUMERICAL_ZERO3))))
+    {
+        double angle = atan2(dPos_.y(), dPos_.x());
+        if(angle < 0.0)
+        {
+            angle += 2.0*M_PI;
+        }
+        double angle2 = atan2(-dPos_.y(), -dPos_.x());
+        if(angle2 < 0.0)
+        {
+            angle2 += 2.0*M_PI;
+        }
+        if((fabs(trackElement->getGlobalHeadingRad(trackElement->getSStart()) - angle) > NUMERICAL_ZERO4)
+            && (fabs(trackElement->getGlobalHeadingRad(trackElement->getSStart()) - angle2) > NUMERICAL_ZERO4)
+            )
+        {
+            isValid_ = false;
+            return;
+        }
+    }*/
 
     // Change start point //
     //
@@ -358,38 +358,38 @@ TrackMoveValidator::visit(TrackElementPoly3 *poly3)
     if (l < 1.0) // TODO: hard coded = bad style
     {
         isValid_ = false;
-        //		qDebug("d");
+        //  qDebug("d");
 
-		delete newPoly;
-		return;
+        delete newPoly;
+        return;
     }
 
     // No overshooting //
     //
     if (newPoly->ddf(0.0) > 0.0) // left turn
     {
- //       if (dh1 < -1.0) // max 45°
-		if (dh1 < -6.0) // max 80°
+        //       if (dh1 < -1.0) // max 45°
+        if (dh1 < -6.0) // max 80°
         {
             isValid_ = false;
-            //			qDebug("a");
+            //   qDebug("a");
 
-			delete newPoly;
-			return;
+            delete newPoly;
+            return;
         }
     }
 
     if (newPoly->ddf(0.0) < 0.0) // right turn
     {
- //       if (dh1 > 1.0) // max 45°
-		if (dh1 > 6.0) // max 80°
+        //       if (dh1 > 1.0) // max 45°
+        if (dh1 > 6.0) // max 80°
         {
             isValid_ = false;
-            //	
-		//	qDebug("b");
+            // 
+        // qDebug("b");
 
-			delete newPoly;
-			return;
+            delete newPoly;
+            return;
         }
     }
 
@@ -399,7 +399,7 @@ TrackMoveValidator::visit(TrackElementPoly3 *poly3)
         || (fabs(newPoly->k(l)) > 0.5))
     {
         isValid_ = false;
-        //		qDebug("c");
+        //  qDebug("c");
     }
 
     delete newPoly;

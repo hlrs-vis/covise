@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   09.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   09.04.2010
+ **
+ **************************************************************************/
 
 #include "trackcommands.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -53,22 +53,22 @@ TrackComponentGlobalPointsCommand::TrackComponentGlobalPointsCommand(const QList
     //
     endPointTracks_ = endPointTracks;
     startPointTracks_ = startPointTracks;
-    foreach (TrackComponent *track, endPointTracks_)
+    foreach(TrackComponent * track, endPointTracks_)
     {
         oldEndPoints_.append(track->getGlobalPoint(track->getSEnd()));
     }
-    foreach (TrackComponent *track, startPointTracks_)
+    foreach(TrackComponent * track, startPointTracks_)
     {
         oldStartPoints_.append(track->getGlobalPoint(track->getSStart()));
     }
-    foreach (TrackComponent *track, endPointTracks_)
+    foreach(TrackComponent * track, endPointTracks_)
     {
         if (!roads_.contains(track->getParentRoad()))
         {
             roads_.append(track->getParentRoad());
         }
     }
-    foreach (TrackComponent *track, startPointTracks_)
+    foreach(TrackComponent * track, startPointTracks_)
     {
         if (!roads_.contains(track->getParentRoad()))
         {
@@ -107,13 +107,13 @@ TrackComponentGlobalPointsCommand::redo()
     // Set points //
     //
     int i = 0;
-    foreach (TrackComponent *track, endPointTracks_)
+    foreach(TrackComponent * track, endPointTracks_)
     {
         track->setGlobalEndPoint(oldEndPoints_[i] + dPos_);
         ++i;
     }
     i = 0;
-    foreach (TrackComponent *track, startPointTracks_)
+    foreach(TrackComponent * track, startPointTracks_)
     {
         track->setGlobalStartPoint(oldStartPoints_[i] + dPos_);
         ++i;
@@ -121,7 +121,7 @@ TrackComponentGlobalPointsCommand::redo()
 
     // Update road length and s coordinates //
     //
-    foreach (RSystemElementRoad *road, roads_)
+    foreach(RSystemElementRoad * road, roads_)
     {
         road->rebuildTrackComponentList();
     }
@@ -138,13 +138,13 @@ TrackComponentGlobalPointsCommand::undo()
     // Set points //
     //
     int i = 0;
-    foreach (TrackComponent *track, endPointTracks_)
+    foreach(TrackComponent * track, endPointTracks_)
     {
         track->setGlobalEndPoint(oldEndPoints_[i]);
         ++i;
     }
     i = 0;
-    foreach (TrackComponent *track, startPointTracks_)
+    foreach(TrackComponent * track, startPointTracks_)
     {
         track->setGlobalStartPoint(oldStartPoints_[i]);
         ++i;
@@ -152,7 +152,7 @@ TrackComponentGlobalPointsCommand::undo()
 
     // Update road length and s coordinates //
     //
-    foreach (RSystemElementRoad *road, roads_)
+    foreach(RSystemElementRoad * road, roads_)
     {
         road->rebuildTrackComponentList();
     }
@@ -275,17 +275,17 @@ TrackComponentPointAndHeadingCommand::redo()
 {
     // RoadSection length //
     //
-    //	double oldSStart = track_->getSStart();
-    //	double oldLength = track_->getLength();
-    //	qDebug() << "oldS: " << oldSStart << ", oldLength: " << oldLength;
+    // double oldSStart = track_->getSStart();
+    // double oldLength = track_->getLength();
+    // qDebug() << "oldS: " << oldSStart << ", oldLength: " << oldLength;
 
     // Set Point/Heading //
     //
     track_->setGlobalPointAndHeading(newPoint_, newHeading_, isStart_);
 
-    //	double newSStart = track_->getSStart();
-    //	double newLength = track_->getLength();
-    //	qDebug() << "newS: " << newSStart << ", newLength: " << newLength;
+    // double newSStart = track_->getSStart();
+    // double newLength = track_->getLength();
+    // qDebug() << "newS: " << newSStart << ", newLength: " << newLength;
 
     // Update road length and s coordinates //
     //
@@ -519,7 +519,7 @@ SplitTrackComponentCommand::SplitTrackComponentCommand(TrackComponent *component
     {
         oldComposite_ = dynamic_cast<TrackComposite *>(component->getParentComponent());
 
-        foreach (TrackComponent *track, oldComposite_->getChildTrackComponents())
+        foreach(TrackComponent * track, oldComposite_->getChildTrackComponents())
         {
             TrackComponent *clone = track->getClone();
             clone->setGlobalTranslation(oldComposite_->getGlobalPoint(clone->getSStart()));
@@ -656,7 +656,7 @@ SplitTrackComponentCommand::redo()
     if (oldComposite_)
     {
         road_->delTrackComponent(oldComposite_);
-        foreach (TrackComponent *track, newComponents_)
+        foreach(TrackComponent * track, newComponents_)
         {
             road_->addTrackComponent(track);
         }
@@ -679,7 +679,7 @@ SplitTrackComponentCommand::undo()
 {
     if (oldComposite_)
     {
-        foreach (TrackComponent *track, newComponents_)
+        foreach(TrackComponent * track, newComponents_)
         {
             road_->delTrackComponent(track);
         }
@@ -798,60 +798,60 @@ SetSpArcSFactorCommand::mergeWith(const QUndoCommand *other)
 // TrackComponentSinglePointCommand //
 //##########################//
 #if 0
-	TrackComponentSinglePointCommand
-	::TrackComponentSinglePointCommand(TrackComponent * lowSlotTrack, TrackComponent * highSlotTrack, const QPointF & dPos, DataCommand * parent)
-	:	DataCommand(parent),
-		lowSlotTrack_(lowSlotTrack),
-		highSlotTrack_(highSlotTrack),
-		dPos_(dPos)
+TrackComponentSinglePointCommand
+::TrackComponentSinglePointCommand(TrackComponent *lowSlotTrack, TrackComponent *highSlotTrack, const QPointF &dPos, DataCommand *parent)
+    : DataCommand(parent),
+    lowSlotTrack_(lowSlotTrack),
+    highSlotTrack_(highSlotTrack),
+    dPos_(dPos)
 {
-	if(lowSlotTrack_)
-	{
-		oldPoint_ = lowSlotTrack_->getGlobalPoint(lowSlotTrack_->getSEnd());
-	}
-	else if(highSlotTrack_)
-	{
-		oldPoint_ = highSlotTrack_->getGlobalPoint(highSlotTrack_->getSStart());
-	}
-	else
-	{
-		setInvalid();
-		setText(QObject::tr("Set point (invalid!)"));
-		return;
-	}
+    if (lowSlotTrack_)
+    {
+        oldPoint_ = lowSlotTrack_->getGlobalPoint(lowSlotTrack_->getSEnd());
+    }
+    else if (highSlotTrack_)
+    {
+        oldPoint_ = highSlotTrack_->getGlobalPoint(highSlotTrack_->getSStart());
+    }
+    else
+    {
+        setInvalid();
+        setText(QObject::tr("Set point (invalid!)"));
+        return;
+    }
 
 
-	// Check for validity //
-	//
-	if(dPos_.isNull())
-	{
-		setInvalid(); // Invalid because no change.
-		setText(QObject::tr("Set point (invalid!)"));
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("Set point"));
-	}
+    // Check for validity //
+    //
+    if (dPos_.isNull())
+    {
+        setInvalid(); // Invalid because no change.
+        setText(QObject::tr("Set point (invalid!)"));
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Set point"));
+    }
 }
 
 
 /*! \brief .
 *
 */
-	TrackComponentSinglePointCommand
-	::~TrackComponentSinglePointCommand()
+TrackComponentSinglePointCommand
+::~TrackComponentSinglePointCommand()
 {
-	// Clean up //
-	//
-	if(isUndone())
-	{
-		// nothing to be done
-	}
-	else
-	{
-		// nothing to be done
-	}
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done
+    }
+    else
+    {
+        // nothing to be done
+    }
 }
 
 
@@ -859,35 +859,35 @@ SetSpArcSFactorCommand::mergeWith(const QUndoCommand *other)
 *
 */
 void
-	TrackComponentSinglePointCommand
-	::redo()
+TrackComponentSinglePointCommand
+::redo()
 {
-	// Set points //
-	//
-	if(lowSlotTrack_)
-	{
-		lowSlotTrack_->setGlobalEndPoint(oldPoint_ + dPos_);
-	}
+    // Set points //
+    //
+    if (lowSlotTrack_)
+    {
+        lowSlotTrack_->setGlobalEndPoint(oldPoint_ + dPos_);
+    }
 
-	if(highSlotTrack_)
-	{
-		highSlotTrack_->setGlobalStartPoint(oldPoint_ + dPos_);
-	}
-
-
-	// Update road length and s coordinates //
-	//
-	if(lowSlotTrack_)
-	{
-		lowSlotTrack_->getParentRoad()->rebuildTrackComponentList();
-	}
-	else
-	{
-		highSlotTrack_->getParentRoad()->rebuildTrackComponentList();
-	}
+    if (highSlotTrack_)
+    {
+        highSlotTrack_->setGlobalStartPoint(oldPoint_ + dPos_);
+    }
 
 
-	setRedone();
+    // Update road length and s coordinates //
+    //
+    if (lowSlotTrack_)
+    {
+        lowSlotTrack_->getParentRoad()->rebuildTrackComponentList();
+    }
+    else
+    {
+        highSlotTrack_->getParentRoad()->rebuildTrackComponentList();
+    }
+
+
+    setRedone();
 }
 
 
@@ -895,35 +895,35 @@ void
 *
 */
 void
-	TrackComponentSinglePointCommand
-	::undo()
+TrackComponentSinglePointCommand
+::undo()
 {
-	// Set points //
-	//
-	if(lowSlotTrack_)
-	{
-		lowSlotTrack_->setGlobalEndPoint(oldPoint_);
-	}
+    // Set points //
+    //
+    if (lowSlotTrack_)
+    {
+        lowSlotTrack_->setGlobalEndPoint(oldPoint_);
+    }
 
-	if(highSlotTrack_)
-	{
-		highSlotTrack_->setGlobalStartPoint(oldPoint_);
-	}
-
-
-	// Update road length and s coordinates //
-	//
-	if(lowSlotTrack_)
-	{
-		lowSlotTrack_->getParentRoad()->rebuildTrackComponentList();
-	}
-	else
-	{
-		highSlotTrack_->getParentRoad()->rebuildTrackComponentList();
-	}
+    if (highSlotTrack_)
+    {
+        highSlotTrack_->setGlobalStartPoint(oldPoint_);
+    }
 
 
-	setUndone();
+    // Update road length and s coordinates //
+    //
+    if (lowSlotTrack_)
+    {
+        lowSlotTrack_->getParentRoad()->rebuildTrackComponentList();
+    }
+    else
+    {
+        highSlotTrack_->getParentRoad()->rebuildTrackComponentList();
+    }
+
+
+    setUndone();
 }
 
 
@@ -931,29 +931,29 @@ void
 *
 */
 bool
-	TrackComponentSinglePointCommand
-	::mergeWith(const QUndoCommand * other)
+TrackComponentSinglePointCommand
+::mergeWith(const QUndoCommand *other)
 {
-	// Check Ids //
-	//
-	if (other->id() != id())
-	{
-		return false;
-	}
+    // Check Ids //
+    //
+    if (other->id() != id())
+    {
+        return false;
+    }
 
-	const TrackComponentSinglePointCommand * command = static_cast<const TrackComponentSinglePointCommand *>(other);
+    const TrackComponentSinglePointCommand *command = static_cast<const TrackComponentSinglePointCommand *>(other);
 
-	// Check tracks //
-	//
-	if(lowSlotTrack_ == command->lowSlotTrack_ && highSlotTrack_ == command->highSlotTrack_)
-	{
-		dPos_ += command->dPos_; // adjust to new point, then let the undostack kill the new command
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    // Check tracks //
+    //
+    if (lowSlotTrack_ == command->lowSlotTrack_ && highSlotTrack_ == command->highSlotTrack_)
+    {
+        dPos_ += command->dPos_; // adjust to new point, then let the undostack kill the new command
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 #endif
 
@@ -1033,7 +1033,7 @@ SetGlobalTrackPosCommand::mergeWith(const QUndoCommand *other)
 // SetTrackLengthCommand //
 //##########################//
 
-  
+
 SetTrackLengthCommand::SetTrackLengthCommand(TrackComponent *track, double newLength, DataCommand *parent)
     : DataCommand(parent)
     , track_(track)
@@ -1065,7 +1065,7 @@ void
 SetTrackLengthCommand::redo()
 {
     track_->setLength(newLength_);
-    
+
     track_->getParentRoad()->rebuildTrackComponentList();
     setRedone();
 }
@@ -1074,7 +1074,7 @@ void
 SetTrackLengthCommand::undo()
 {
     track_->setLength(oldLength_);
-    
+
     track_->getParentRoad()->rebuildTrackComponentList();
     setUndone();
 }
@@ -1108,28 +1108,28 @@ SetTrackLengthCommand::mergeWith(const QUndoCommand *other)
 //##########################//
 // TrackComponentHeadingCommand //
 //##########################//
-	TrackComponentHeadingCommand
-	::TrackComponentHeadingCommand(TrackComponent * track, double newHeading, DataCommand * parent)
-	:	DataCommand(parent),
-		track_(track)
+TrackComponentHeadingCommand
+::TrackComponentHeadingCommand(TrackComponent *track, double newHeading, DataCommand *parent)
+    : DataCommand(parent),
+    track_(track)
 {
-	// Check for validity //
-	//
-	if(false)
-	{
-		setInvalid(); // Invalid because...
-		setText(QObject::tr("Set Heading (invalid!)"));
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("Set Heading"));
-	}
+    // Check for validity //
+    //
+    if (false)
+    {
+        setInvalid(); // Invalid because...
+        setText(QObject::tr("Set Heading (invalid!)"));
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Set Heading"));
+    }
 
-	// Heading //
-	//
-	oldHeading_ = track_->getLocalHeading(track_->getSStart());
-	newHeading_ = newHeading;
+    // Heading //
+    //
+    oldHeading_ = track_->getLocalHeading(track_->getSStart());
+    newHeading_ = newHeading;
 
 }
 
@@ -1137,19 +1137,19 @@ SetTrackLengthCommand::mergeWith(const QUndoCommand *other)
 /*! \brief .
 *
 */
-	TrackComponentHeadingCommand
-	::~TrackComponentHeadingCommand()
+TrackComponentHeadingCommand
+::~TrackComponentHeadingCommand()
 {
-	// Clean up //
-	//
-	if(isUndone())
-	{
-		// nothing to be done
-	}
-	else
-	{
-		// nothing to be done
-	}
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done
+    }
+    else
+    {
+        // nothing to be done
+    }
 }
 
 
@@ -1157,11 +1157,11 @@ SetTrackLengthCommand::mergeWith(const QUndoCommand *other)
 *
 */
 void
-	TrackComponentHeadingCommand
-	::redo()
+TrackComponentHeadingCommand
+::redo()
 {
-	track_->setLocalRotation(newHeading_);
-	setRedone();
+    track_->setLocalRotation(newHeading_);
+    setRedone();
 }
 
 
@@ -1169,38 +1169,38 @@ void
 *
 */
 void
-	TrackComponentHeadingCommand
-	::undo()
+TrackComponentHeadingCommand
+::undo()
 {
-	track_->setLocalRotation(oldHeading_);
-	setUndone();
+    track_->setLocalRotation(oldHeading_);
+    setUndone();
 }
 
 //##################//
 // ArcCurvatureCommand //
 //##################//
-	ArcCurvatureCommand
-	::ArcCurvatureCommand(TrackElementArc * arc, double newCurvature, DataCommand * parent)
-	:	DataCommand(parent),
-		arc_(arc)
+ArcCurvatureCommand
+::ArcCurvatureCommand(TrackElementArc *arc, double newCurvature, DataCommand *parent)
+    : DataCommand(parent),
+    arc_(arc)
 {
-	// Check for validity //
-	//
-	if(false)
-	{
-		setInvalid(); // Invalid because...
-		setText(QObject::tr("Set Arc Curvature (invalid!)"));
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("Set Arc Curvature"));
-	}
+    // Check for validity //
+    //
+    if (false)
+    {
+        setInvalid(); // Invalid because...
+        setText(QObject::tr("Set Arc Curvature (invalid!)"));
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Set Arc Curvature"));
+    }
 
-	// Curvature //
-	//
-	oldCurvature_ = arc_->getCurvature(arc_->getSStart());
-	newCurvature_ = newCurvature;
+    // Curvature //
+    //
+    oldCurvature_ = arc_->getCurvature(arc_->getSStart());
+    newCurvature_ = newCurvature;
 
 }
 
@@ -1208,19 +1208,19 @@ void
 /*! \brief .
 *
 */
-	ArcCurvatureCommand
-	::~ArcCurvatureCommand()
+ArcCurvatureCommand
+::~ArcCurvatureCommand()
 {
-	// Clean up //
-	//
-	if(isUndone())
-	{
-		// nothing to be done
-	}
-	else
-	{
-		// nothing to be done
-	}
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done
+    }
+    else
+    {
+        // nothing to be done
+    }
 }
 
 
@@ -1228,11 +1228,11 @@ void
 *
 */
 void
-	ArcCurvatureCommand
-	::redo()
+ArcCurvatureCommand
+::redo()
 {
-	arc_->setCurvature(newCurvature_);
-	setRedone();
+    arc_->setCurvature(newCurvature_);
+    setRedone();
 }
 
 
@@ -1240,11 +1240,11 @@ void
 *
 */
 void
-	ArcCurvatureCommand
-	::undo()
+ArcCurvatureCommand
+::undo()
 {
-	arc_->setCurvature(oldCurvature_);
-	setUndone();
+    arc_->setCurvature(oldCurvature_);
+    setUndone();
 }
 
 //##########################//
@@ -1429,12 +1429,12 @@ MorphIntoPoly3Command::MorphIntoPoly3Command(TrackComponent *track, DataCommand 
 
     // New Track //
     //
-    //	if((track->getTrackType() == TrackComponent::DTT_ARC)
-    //		|| (track->getTrackType() == TrackComponent::DTT_LINE)
-    //		|| (track->getTrackType() == TrackComponent::DTT_SPIRAL)
-    //		|| (track->getTrackType() == TrackComponent::DTT_)
-    //	)
-    //	{
+    // if((track->getTrackType() == TrackComponent::DTT_ARC)
+    //  || (track->getTrackType() == TrackComponent::DTT_LINE)
+    //  || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
+    //  || (track->getTrackType() == TrackComponent::DTT_)
+    // )
+    // {
 
     double endHeading = track->getHeading(track->getSEnd());
     if (endHeading >= 90.0 && endHeading <= 270.0)
@@ -1450,13 +1450,13 @@ MorphIntoPoly3Command::MorphIntoPoly3Command(TrackComponent *track, DataCommand 
     double s = track->getSStart();
     newTrack_ = new TrackElementPoly3(track->getLocalPoint(s).x(), track->getLocalPoint(s).y(), track->getLocalHeading(s), s, poly3->getCurveLength(0.0, track->getPoint(track->getSEnd()).x()), poly3->getA(), poly3->getB(), poly3->getC(), poly3->getD());
 
-    //	}
-    //	else
-    //	{
-    //		setInvalid();
-    //		setText(QObject::tr("Morph track: invalid parameters! Track type not yet supported."));
-    //		return;
-    //	}
+    // }
+    // else
+    // {
+    //  setInvalid();
+    //  setText(QObject::tr("Morph track: invalid parameters! Track type not yet supported."));
+    //  return;
+    // }
 
     TrackMoveValidator *validator = new TrackMoveValidator();
     validator->setState(TrackMoveValidator::STATE_ENDPOINT);
@@ -1468,7 +1468,7 @@ MorphIntoPoly3Command::MorphIntoPoly3Command(TrackComponent *track, DataCommand 
         setInvalid();
         setText(QObject::tr("Morph track: sorry, morphing is not possible with these parameters."));
         return;
-    } 
+    }
 
     setValid();
     setText(QObject::tr("Morph track"));
@@ -1531,7 +1531,7 @@ UngroupTrackCompositeCommand::UngroupTrackCompositeCommand(TrackComposite *compo
         return;
     }
 
-    foreach (TrackComponent *track, oldComposite_->getChildTrackComponents())
+    foreach(TrackComponent * track, oldComposite_->getChildTrackComponents())
     {
         TrackComponent *clone = track->getClone();
         clone->setGlobalTranslation(oldComposite_->getGlobalPoint(clone->getSStart()));
@@ -1554,7 +1554,7 @@ UngroupTrackCompositeCommand::~UngroupTrackCompositeCommand()
 {
     if (isUndone())
     {
-        foreach (TrackComponent *track, newComponents_)
+        foreach(TrackComponent * track, newComponents_)
         {
             delete track;
         }
@@ -1571,7 +1571,7 @@ UngroupTrackCompositeCommand::redo()
 
     parentRoad_->delTrackComponent(oldComposite_);
 
-    foreach (TrackComponent *track, newComponents_)
+    foreach(TrackComponent * track, newComponents_)
     {
         parentRoad_->addTrackComponent(track);
     }
@@ -1584,7 +1584,7 @@ UngroupTrackCompositeCommand::redo()
 void
 UngroupTrackCompositeCommand::undo()
 {
-    foreach (TrackComponent *track, newComponents_)
+    foreach(TrackComponent * track, newComponents_)
     {
         parentRoad_->delTrackComponent(track);
     }
@@ -1628,7 +1628,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
     QMultiMap<TrackComponent *, bool>::iterator it = selectedTrackComponents_.begin();
 
     while (it != selectedTrackComponents_.end())
-	{
+    {
         QList<TrackMoveProperties *> itTranslateTracks;
 
         TrackComponent *track = it.key();
@@ -1856,8 +1856,8 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
 
     for (int i = 0; i < translateTracks_.size(); i++)
     {
-//        if (((translateTracks_.at(i)->lowSlot->getTrackType() != TrackComponent::DTT_POLY3) || (translateTracks_.at(i)->highSlot->getTrackType() != TrackComponent::DTT_POLY3)) && !validate(translateTracks_.at(i)))
-		if (!validate(translateTracks_.at(i)))
+        //        if (((translateTracks_.at(i)->lowSlot->getTrackType() != TrackComponent::DTT_POLY3) || (translateTracks_.at(i)->highSlot->getTrackType() != TrackComponent::DTT_POLY3)) && !validate(translateTracks_.at(i)))
+        if (!validate(translateTracks_.at(i)))
         {
             setInvalid();
             setText(QObject::tr("Translation not valid"));
@@ -1891,7 +1891,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
         // typesections //
         if (!roads_.at(i)->getTypeSections().isEmpty())
         {
-            foreach (TypeSection *section, roads_.at(i)->getTypeSections())
+            foreach(TypeSection * section, roads_.at(i)->getTypeSections())
             {
                 if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
                 {
@@ -1903,7 +1903,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
         // elevation //
         if (!roads_.at(i)->getElevationSections().isEmpty())
         {
-            foreach (ElevationSection *section, roads_.at(i)->getElevationSections())
+            foreach(ElevationSection * section, roads_.at(i)->getElevationSections())
             {
                 if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
                 {
@@ -1915,7 +1915,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
         // superelevation //
         if (!roads_.at(i)->getSuperelevationSections().isEmpty())
         {
-            foreach (SuperelevationSection *section, roads_.at(i)->getSuperelevationSections())
+            foreach(SuperelevationSection * section, roads_.at(i)->getSuperelevationSections())
             {
                 if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
                 {
@@ -1927,7 +1927,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
         // crossfall //
         if (!roads_.at(i)->getCrossfallSections().isEmpty())
         {
-            foreach (CrossfallSection *section, roads_.at(i)->getCrossfallSections())
+            foreach(CrossfallSection * section, roads_.at(i)->getCrossfallSections())
             {
                 if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
                 {
@@ -1939,7 +1939,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
         // lanes //
         if (!roads_.at(i)->getLaneSections().isEmpty())
         {
-            foreach (LaneSection *section, roads_.at(i)->getLaneSections())
+            foreach(LaneSection * section, roads_.at(i)->getLaneSections())
             {
                 if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6) // completely outside
                 {
@@ -1956,17 +1956,17 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
             }
         }
 
-		// shape //
-		if (!roads_.at(i)->getShapeSections().isEmpty())
-		{
-			foreach(ShapeSection *section, roads_.at(i)->getShapeSections())
-			{
-				if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
-				{
-					shapeSections_.insert(i, section);
-				}
-			}
-		}
+        // shape //
+        if (!roads_.at(i)->getShapeSections().isEmpty())
+        {
+            foreach(ShapeSection * section, roads_.at(i)->getShapeSections())
+            {
+                if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
+                {
+                    shapeSections_.insert(i, section);
+                }
+            }
+        }
     }
 
     setValid();
@@ -2018,7 +2018,7 @@ TranslateTrackComponentsCommand::validate(TrackMoveProperties *props)
         validationVisitor = new TrackMoveValidator();
 
         if (props->transform & TT_ROTATE)
-		{
+        {
             if (props->highSlot && (props->highSlot->getStartPosDOF() == 2))
             {
                 TrackComponent *highSlotCopy = props->highSlot->getClone();
@@ -2259,14 +2259,14 @@ TranslateTrackComponentsCommand::redo()
         {
             roads_.at(i)->addLaneSection(iterLaneAdd.value());
             iterLaneAdd++;
-        } 
+        }
 
-		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
-		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
-		{
-			roads_.at(i)->delShapeSection(iterShape.value());
-			iterShape++;
-		}
+        QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
+        while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
+        {
+            roads_.at(i)->delShapeSection(iterShape.value());
+            iterShape++;
+        }
     }
 
     setRedone();
@@ -2331,12 +2331,12 @@ TranslateTrackComponentsCommand::undo()
             iterLane++;
         }
 
-		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
-		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
-		{
-			roads_.at(i)->addShapeSection(iterShape.value());
-			iterShape++;
-		}
+        QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
+        while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
+        {
+            roads_.at(i)->addShapeSection(iterShape.value());
+            iterShape++;
+        }
     }
 
     setUndone();
@@ -2432,12 +2432,12 @@ TranslateTrackComponentsCommand::mergeWith(const QUndoCommand *other)
             iterLane++;
         }
 
-		QMap<int, ShapeSection *>::const_iterator iterShape = command->shapeSections_.find(i);
-		while ((iterShape != command->shapeSections_.end()) && (iterShape.key() == i))
-		{
-			shapeSections_.insert(i, iterShape.value());
-			iterShape++;
-		}
+        QMap<int, ShapeSection *>::const_iterator iterShape = command->shapeSections_.find(i);
+        while ((iterShape != command->shapeSections_.end()) && (iterShape.key() == i))
+        {
+            shapeSections_.insert(i, iterShape.value());
+            iterShape++;
+        }
     }
 
     return true;

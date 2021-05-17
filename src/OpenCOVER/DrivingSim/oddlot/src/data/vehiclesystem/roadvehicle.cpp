@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.06.2010
+ **
+ **************************************************************************/
 
 #include "roadvehicle.hpp"
 
@@ -122,8 +122,8 @@ RoadVehicle::parseRoadVehicleType(const QString &type)
 {
     if (type == "car")
         return RoadVehicle::DRV_CAR;
-    //	else if(type == "xx")
-    //		return RoadVehicle::DRV_XX;
+    // else if(type == "xx")
+    //  return RoadVehicle::DRV_XX;
     else
     {
         qDebug("WARNING: unknown road vehicle type: %s", type.toUtf8().constData());
@@ -136,8 +136,8 @@ RoadVehicle::parseRoadVehicleTypeBack(RoadVehicle::RoadVehicleType type)
 {
     if (type == RoadVehicle::DRV_CAR)
         return QString("car");
-    //	else if(type == RoadVehicle::DRV_XX)
-    //		return QString("xx");
+    // else if(type == RoadVehicle::DRV_XX)
+    //  return QString("xx");
     else
     {
         qDebug("WARNING: unknown road vehicle type.");

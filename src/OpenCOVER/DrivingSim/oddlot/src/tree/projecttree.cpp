@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/5/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/5/2010
+ **
+ **************************************************************************/
 
 #include "projecttree.hpp"
 
 #include "src/gui/projectwidget.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 //#include "src/data/commands/projectdatacommands.hpp"
 
@@ -45,19 +45,19 @@ ProjectTree::ProjectTree(ProjectWidget *projectWidget, ProjectData *projectData)
     // Model //
     //
     projectTreeWidget_ = new ProjectTreeWidget(this, projectData_);
-	projectTreeWidget_->setIndentation(6);
+    projectTreeWidget_->setIndentation(6);
 
     // Buttons //
     //
-    //	QGridLayout * buttonsLayout = new QGridLayout;
+    // QGridLayout * buttonsLayout = new QGridLayout;
 
     // Layout //
     //
     QVBoxLayout *treeLayout = new QVBoxLayout;
     treeLayout->addWidget(projectTreeWidget_);
-    //	treeLayout->addChildLayout(buttonsLayout);
-    
-    treeLayout->setContentsMargins(0,0,0,0);
+    // treeLayout->addChildLayout(buttonsLayout);
+
+    treeLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(treeLayout);
 }
 
@@ -77,7 +77,7 @@ ProjectTree::addToGarbage(ProjectTreeItem *item)
 
     if (!garbageList_.contains(item))
     {
-        foreach (ProjectTreeItem *garbageItem, garbageList_) // the list should not be too long...
+        foreach(ProjectTreeItem * garbageItem, garbageList_) // the list should not be too long...
         {
             if (item->isDescendantOf(garbageItem))
             {
@@ -114,7 +114,7 @@ ProjectTree::projectActivated(bool active)
 void
 ProjectTree::garbageDisposal()
 {
-    foreach (ProjectTreeItem *item, garbageList_)
+    foreach(ProjectTreeItem * item, garbageList_)
     {
         delete item;
     }

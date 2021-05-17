@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "objectsettings.hpp"
 #include "ui_objectsettings.h"
 
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/objectobject.hpp"
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
@@ -60,28 +60,28 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     objectManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
     ui->setupUi(this);
 
-	// TreeWidget for repeat parameters //
-	//
-/*	QList<QTreeWidgetItem *> itemList = ui->repeatTreeWidget->findItems("repeat", Qt::MatchExactly);
-	QTreeWidgetItem *repeatItem = itemList.first();
-	QTreeWidgetItem *layoutItem = new QTreeWidgetItem(repeatItem);
-	ui->repeatTreeWidget->setItemWidget(layoutItem, 0, ui->repeatWidget);*/
+    // TreeWidget for repeat parameters //
+    //
+/* QList<QTreeWidgetItem *> itemList = ui->repeatTreeWidget->findItems("repeat", Qt::MatchExactly);
+    QTreeWidgetItem *repeatItem = itemList.first();
+    QTreeWidgetItem *layoutItem = new QTreeWidgetItem(repeatItem);
+    ui->repeatTreeWidget->setItemWidget(layoutItem, 0, ui->repeatWidget);*/
 
     // Initial Values //
     //
     updateProperties();
-	activateRepeatWidget(false);
+    activateRepeatWidget(false);
 
     connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
     connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->nameBox, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
     connect(ui->tSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->tSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->zOffsetSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->zOffsetSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->typeBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->typeBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->typeBox, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
 
     connect(ui->validLengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->validLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
@@ -108,27 +108,27 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->repeatLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->repeatDistanceSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->repeatDistanceSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatTStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatTStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatTEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatTEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatWidthStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatWidthStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatWidthEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatWidthEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatHeightStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatHeightStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatHeightEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatHeightEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatZOffsetStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatZOffsetStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(ui->repeatZOffsetEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(ui->repeatZOffsetEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatTStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatTStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatTEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatTEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatWidthStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatWidthStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatWidthEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatWidthEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatHeightStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatHeightStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatHeightEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatHeightEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatZOffsetStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatZOffsetStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->repeatZOffsetEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatZOffsetEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
     connect(ui->textureLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->textureLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->textureLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
 
-	connect(ui->repeatButton, SIGNAL(clicked(bool)), this, SLOT(activateRepeatWidget(bool)));
+    connect(ui->repeatButton, SIGNAL(clicked(bool)), this, SLOT(activateRepeatWidget(bool)));
 
     init_ = true;
 }
@@ -153,9 +153,9 @@ ObjectSettings::updateProperties()
         ui->tSpinBox->setValue(object_->getT());
         ui->zOffsetSpinBox->setValue(object_->getzOffset());
         ui->typeBox->setText(object_->getType());
-        //	ui->typeComboBox->setCurrentIndex(object_->getType()-100001);
+        // ui->typeComboBox->setCurrentIndex(object_->getType()-100001);
 
-	    ui->heightSpinBox->setValue(object_->getHeight());
+        ui->heightSpinBox->setValue(object_->getHeight());
         ui->validLengthSpinBox->setValue(object_->getValidLength());
         ui->lengthSpinBox->setValue(object_->getLength());
         ui->widthSpinBox->setValue(object_->getWidth());
@@ -169,21 +169,21 @@ ObjectSettings::updateProperties()
         ui->repeatSSpinBox->setValue(object_->getRepeatS());
         ui->repeatLengthSpinBox->setValue(object_->getRepeatLength());
         ui->repeatDistanceSpinBox->setValue(object_->getRepeatDistance());
-		ui->repeatTStartSpinBox->setValue(object_->getRepeatTStart());
-		ui->repeatTEndSpinBox->setValue(object_->getRepeatTEnd());
-		ui->repeatWidthStartSpinBox->setValue(object_->getRepeatWidthStart());
-		ui->repeatWidthEndSpinBox->setValue(object_->getRepeatWidthEnd());
-		ui->repeatHeightStartSpinBox->setValue(object_->getRepeatHeightStart());
-		ui->repeatHeightEndSpinBox->setValue(object_->getRepeatHeightEnd());
-		ui->repeatZOffsetStartSpinBox->setValue(object_->getRepeatZOffsetStart());
-		ui->repeatZOffsetEndSpinBox->setValue(object_->getRepeatZOffsetEnd());
+        ui->repeatTStartSpinBox->setValue(object_->getRepeatTStart());
+        ui->repeatTEndSpinBox->setValue(object_->getRepeatTEnd());
+        ui->repeatWidthStartSpinBox->setValue(object_->getRepeatWidthStart());
+        ui->repeatWidthEndSpinBox->setValue(object_->getRepeatWidthEnd());
+        ui->repeatHeightStartSpinBox->setValue(object_->getRepeatHeightStart());
+        ui->repeatHeightEndSpinBox->setValue(object_->getRepeatHeightEnd());
+        ui->repeatZOffsetStartSpinBox->setValue(object_->getRepeatZOffsetStart());
+        ui->repeatZOffsetEndSpinBox->setValue(object_->getRepeatZOffsetEnd());
 
         ui->textureLineEdit->setText(object_->getTextureFileName());
     }
 }
 
 double ObjectSettings::
-    objectT(double s, double t, double roadDistance)
+objectT(double s, double t, double roadDistance)
 {
     LaneSection *laneSection = object_->getParentRoad()->getLaneSection(s);
     double dist = 0.0;
@@ -240,27 +240,27 @@ ObjectSettings::onEditingFinished()
     {
         QString name = ui->nameBox->text();
         odrID newId = object_->getId();
-        RSystemElementRoad * road = object_->getParentRoad();
-		newId.setName(name);
+        RSystemElementRoad *road = object_->getParentRoad();
+        newId.setName(name);
 
         double repeatLength = ui->repeatLengthSpinBox->value();
         if (repeatLength > road->getLength() - ui->repeatSSpinBox->value())
         {
             repeatLength = road->getLength() - ui->repeatSSpinBox->value();
         }
-		
-		Object::ObjectProperties objectProps{ ui->tSpinBox->value(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->typeBox->text(),
-			ui->validLengthSpinBox->value(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(), 
-			ui->pitchSpinBox->value(), ui->rollSpinBox->value() };
-		Object::ObjectRepeatRecord repeatProps{ ui->repeatSSpinBox->value(), repeatLength, ui->repeatDistanceSpinBox->value(), ui->repeatTStartSpinBox->value(), ui->repeatTEndSpinBox->value(),
-			ui->repeatWidthStartSpinBox->value(), ui->repeatWidthEndSpinBox->value(), ui->repeatHeightStartSpinBox->value(), ui->repeatHeightEndSpinBox->value(),
-			ui->repeatZOffsetStartSpinBox->value(), ui->repeatZOffsetEndSpinBox->value() };
 
-		SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, name, objectProps, repeatProps, ui->textureLineEdit->text());
+        Object::ObjectProperties objectProps{ ui->tSpinBox->value(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->typeBox->text(),
+            ui->validLengthSpinBox->value(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(),
+            ui->pitchSpinBox->value(), ui->rollSpinBox->value() };
+        Object::ObjectRepeatRecord repeatProps{ ui->repeatSSpinBox->value(), repeatLength, ui->repeatDistanceSpinBox->value(), ui->repeatTStartSpinBox->value(), ui->repeatTEndSpinBox->value(),
+            ui->repeatWidthStartSpinBox->value(), ui->repeatWidthEndSpinBox->value(), ui->repeatHeightStartSpinBox->value(), ui->repeatHeightEndSpinBox->value(),
+            ui->repeatZOffsetStartSpinBox->value(), ui->repeatZOffsetEndSpinBox->value() };
+
+        SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, name, objectProps, repeatProps, ui->textureLineEdit->text());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
-        QWidget * focusWidget = QApplication::focusWidget();
+        QWidget *focusWidget = QApplication::focusWidget();
         if (focusWidget)
         {
             focusWidget->clearFocus();
@@ -271,16 +271,16 @@ ObjectSettings::onEditingFinished()
 void
 ObjectSettings::onValueChanged()
 {
-	valueChanged_ = true;
+    valueChanged_ = true;
 }
 
 void
 ObjectSettings::on_repeatSSpinBox_editingFinished()
 {
-	if (valueChanged_)
+    if (valueChanged_)
     {
-		updateS(ui->repeatSSpinBox->value());
-	}
+        updateS(ui->repeatSSpinBox->value());
+    }
 }
 
 void
@@ -288,41 +288,41 @@ ObjectSettings::on_sSpinBox_editingFinished()
 {
     if (valueChanged_)
     {
-		updateS(ui->sSpinBox->value());
-	}
+        updateS(ui->sSpinBox->value());
+    }
 }
 
 void
-	ObjectSettings::updateS(double s)
+ObjectSettings::updateS(double s)
 {
 
-	MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
-	if (moveSectionCommand->isValid())
-	{
-		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Values"));
-		getProjectSettings()->executeCommand(moveSectionCommand);
+    MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
+    if (moveSectionCommand->isValid())
+    {
+        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Values"));
+        getProjectSettings()->executeCommand(moveSectionCommand);
 
-		Object::ObjectRepeatRecord repeatProps = object_->getRepeatProperties();
-		repeatProps.s = object_->getSStart();
-		SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getProperties(), repeatProps, object_->getTextureFileName());
-		getProjectSettings()->executeCommand(setPropertiesCommand);
+        Object::ObjectRepeatRecord repeatProps = object_->getRepeatProperties();
+        repeatProps.s = object_->getSStart();
+        SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getProperties(), repeatProps, object_->getTextureFileName());
+        getProjectSettings()->executeCommand(setPropertiesCommand);
 
-		getProjectData()->getUndoStack()->endMacro();
-	}
+        getProjectData()->getUndoStack()->endMacro();
+    }
 
-	valueChanged_ = false;
+    valueChanged_ = false;
 
-	QWidget * focusWidget = QApplication::focusWidget();
-	if (focusWidget)
-	{
-		focusWidget->clearFocus();
-	}
+    QWidget *focusWidget = QApplication::focusWidget();
+    if (focusWidget)
+    {
+        focusWidget->clearFocus();
+    }
 }
 
 void
-	ObjectSettings::activateRepeatWidget(bool activ)
+ObjectSettings::activateRepeatWidget(bool activ)
 {
-	ui->repeatGroupBox->setVisible(activ);
+    ui->repeatGroupBox->setVisible(activ);
 }
 
 //##################//
@@ -345,7 +345,7 @@ ObjectSettings::updateObserver()
     //
     int changes = object_->getObjectChanges();
 
-	if ((changes & Object::CEL_ParameterChange) || (changes & Object::CEL_TypeChange))
+    if ((changes & Object::CEL_ParameterChange) || (changes & Object::CEL_TypeChange))
     {
         updateProperties();
     }

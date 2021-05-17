@@ -5,24 +5,24 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/8/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/8/2010
+ **
+ **************************************************************************/
 #include "popupdialog.hpp"
 
 #include <QCloseEvent>
 
-//################//
-// SLOTS          //
-//################//
+ //################//
+ // SLOTS          //
+ //################//
 
 void
 PopUpDialog::closeEvent(QCloseEvent *event)
 {
-	emit reject();
-	event->accept();
+    emit reject();
+    event->accept();
 }

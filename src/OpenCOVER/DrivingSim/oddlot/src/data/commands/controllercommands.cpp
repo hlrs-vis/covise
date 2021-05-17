@@ -150,10 +150,10 @@ RemoveControllerCommand::undo()
 //#########################//
 SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementController *controller, const odrID &id, const QString &name, int sequence, const QString &script, double cycleTime, DataCommand *parent)
     : DataCommand(parent)
+    , controller_(controller)
     , newId_(id)
     , newName_(name)
     , newSequence_(sequence)
-    , controller_(controller)
 {
     // Check for validity //
     //
@@ -180,11 +180,11 @@ SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementCon
 
 SetControllerPropertiesCommand::SetControllerPropertiesCommand(RSystemElementController *controller, const odrID &id, const QString &name, int sequence, const RSystemElementController::ControllerUserData &controllerUserData, DataCommand *parent)
     : DataCommand(parent)
+    , controller_(controller)
     , newId_(id)
     , newName_(name)
     , newSequence_(sequence)
     , newControllerUserData_(controllerUserData)
-    , controller_(controller)
 {
     // Check for validity //
     //

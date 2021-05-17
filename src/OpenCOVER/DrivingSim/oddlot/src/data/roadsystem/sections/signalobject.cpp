@@ -5,60 +5,60 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "signalobject.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
-Signal::OrientationType 
+Signal::OrientationType
 Signal::parseOrientationType(const QString &orientation)
 {
-	if (orientation == "+")
-	{
-		return Signal::POSITIVE_TRACK_DIRECTION;
-	}
-	else if (orientation == "-")
-	{
-		return Signal::NEGATIVE_TRACK_DIRECTION;
-	}
-	else if (orientation == "none")
-	{
-		return Signal::BOTH_DIRECTIONS;
-	}
-	else
-	{
-		qDebug("WARNING: unknown signal orientation: %s", orientation.toUtf8().constData());
-		return Signal::BOTH_DIRECTIONS;
-	}
+    if (orientation == "+")
+    {
+        return Signal::POSITIVE_TRACK_DIRECTION;
+    }
+    else if (orientation == "-")
+    {
+        return Signal::NEGATIVE_TRACK_DIRECTION;
+    }
+    else if (orientation == "none")
+    {
+        return Signal::BOTH_DIRECTIONS;
+    }
+    else
+    {
+        qDebug("WARNING: unknown signal orientation: %s", orientation.toUtf8().constData());
+        return Signal::BOTH_DIRECTIONS;
+    }
 }
 
-QString 
+QString
 Signal::parseOrientationTypeBack(Signal::OrientationType orientation)
 {
-	if (orientation == Signal::POSITIVE_TRACK_DIRECTION)
-	{
-		return QString("+");
-	}
-	else if (orientation == Signal::NEGATIVE_TRACK_DIRECTION)
-	{
-		return QString("-");
-	}
-	else if (orientation == Signal::BOTH_DIRECTIONS)
-	{
-		return QString("none");
-	}
-	else
-	{
-		qDebug("WARNING: unknown signal orientation");
-		return QString("none");
-	}
+    if (orientation == Signal::POSITIVE_TRACK_DIRECTION)
+    {
+        return QString("+");
+    }
+    else if (orientation == Signal::NEGATIVE_TRACK_DIRECTION)
+    {
+        return QString("-");
+    }
+    else if (orientation == Signal::BOTH_DIRECTIONS)
+    {
+        return QString("none");
+    }
+    else
+    {
+        qDebug("WARNING: unknown signal orientation");
+        return QString("none");
+    }
 }
 
 //####################//
@@ -80,11 +80,11 @@ Signal::Signal(const odrID &id, const QString &name, double s, double t, bool dy
     signalProps_.value = value;
     signalProps_.hOffset = hOffset;
     signalProps_.pitch = pitch;
-	signalProps_.roll = roll;
-	signalProps_.unit = unit;
-	signalProps_.text = text;
-	signalProps_.width = width;
-	signalProps_.height = height;
+    signalProps_.roll = roll;
+    signalProps_.unit = unit;
+    signalProps_.text = text;
+    signalProps_.width = width;
+    signalProps_.height = height;
     signalProps_.pole = pole;
 
     validity_.fromLane = validFromLane;
@@ -109,14 +109,14 @@ Signal::Signal(const odrID &id, const QString &name, double s, SignalProperties 
 QString
 Signal::getIdName() const
 {
-	QString text = id_.speakingName();
-	if (!name_.isEmpty())
-	{
-		text.append(" (");
-		text.append(name_);
-		text.append(")");
-	}
-	return text;
+    QString text = id_.speakingName();
+    if (!name_.isEmpty())
+    {
+        text.append(" (");
+        text.append(name_);
+        text.append(")");
+    }
+    return text;
 }
 
 

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/19/2010
+ **
+ **************************************************************************/
 
 #include "heightmapitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/scenerysystem/heightmap.hpp"
 #include "src/data/commands/scenerycommands.hpp"
 
@@ -56,8 +56,8 @@ HeightmapItem::removeMap()
 * Handles Item Changes.
 */
 //QVariant
-//	HeightmapItem
-//	::itemChange(GraphicsItemChange change, const QVariant & value)
+// HeightmapItem
+// ::itemChange(GraphicsItemChange change, const QVariant & value)
 //{
 
 //}
@@ -79,11 +79,11 @@ HeightmapItem::updateObserver()
 
     // Get change flags //
     //
-    //	int changes = heightmap_->getHeightmapChanges();
+    // int changes = heightmap_->getHeightmapChanges();
 
     // Heightmap //
     //
-    //	if((changes & Heightmap::C )
-    //	{
-    //	}
+    // if((changes & Heightmap::C )
+    // {
+    // }
 }

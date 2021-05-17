@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "roaditem.hpp"
 
 #include "src/util/odd.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -70,7 +70,7 @@ RoadItem::init()
 
         // RoadMarks //
         //
-        foreach (LaneSection *section, getRoad()->getLaneSections())
+        foreach(LaneSection * section, getRoad()->getLaneSections())
         {
             if (section->getSStart() < getRoad()->getLength())
             {
@@ -104,10 +104,10 @@ RoadItem::removeRoad()
 {
     getProjectGraph()->beginMacro(QObject::tr("Remove Road"));
 
-    RemoveRoadLinkCommand * removeRoadLinkCommand = new RemoveRoadLinkCommand(road_);
+    RemoveRoadLinkCommand *removeRoadLinkCommand = new RemoveRoadLinkCommand(road_);
     getProjectGraph()->executeCommand(removeRoadLinkCommand);
     RemoveRoadCommand *command = new RemoveRoadCommand(road_, NULL);
-    bool commandExecution =  getProjectGraph()->executeCommand(command);
+    bool commandExecution = getProjectGraph()->executeCommand(command);
 
     getProjectGraph()->endMacro();
     return commandExecution;
@@ -130,10 +130,10 @@ RoadItem::removeRoadLink()
 void
 RoadItem::addToCurrentTile()
 {
-	odrID newId = road_->getID();
-	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
-	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, NULL);
-	getProjectGraph()->executeCommand(command);
+    odrID newId = road_->getID();
+    newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+    SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, NULL);
+    getProjectGraph()->executeCommand(command);
 }
 
 //##################//
@@ -155,31 +155,31 @@ RoadItem::updateObserver()
     //
     int changes = road_->getRoadChanges();
 
-    //	if((changes & RSystemElementRoad::CRD_LengthChange)
-    //		|| (changes & RSystemElementRoad::CRD_ShapeChange)
-    //		|| (changes & RSystemElementRoad::CRD_TrackSectionChange)
-    //	)
-    //	{
-    //	}
+    // if((changes & RSystemElementRoad::CRD_LengthChange)
+    //  || (changes & RSystemElementRoad::CRD_ShapeChange)
+    //  || (changes & RSystemElementRoad::CRD_TrackSectionChange)
+    // )
+    // {
+    // }
 
-    //	if((changes & RSystemElementRoad::CRD_TypeSectionChange )
-    //		|| (changes & RSystemElementRoad::CRD_TrackSectionChange)
-    //		|| (changes & RSystemElementRoad::CRD_ElevationSectionChange)
-    //		|| (changes & RSystemElementRoad::CRD_SuperelevationSectionChange)
-    //		|| (changes & RSystemElementRoad::CRD_CrossfallSectionChange)
-    //		|| (changes & RSystemElementRoad::CRD_LaneSectionChange)
-    //		)
-    //	{
-    //		// A RoadSection has been added or deleted. Let the child classes decide if it should be refreshed or not!
-    //		//
-    //		refreshRoadSectionItems();
-    //	}
+    // if((changes & RSystemElementRoad::CRD_TypeSectionChange )
+    //  || (changes & RSystemElementRoad::CRD_TrackSectionChange)
+    //  || (changes & RSystemElementRoad::CRD_ElevationSectionChange)
+    //  || (changes & RSystemElementRoad::CRD_SuperelevationSectionChange)
+    //  || (changes & RSystemElementRoad::CRD_CrossfallSectionChange)
+    //  || (changes & RSystemElementRoad::CRD_LaneSectionChange)
+    //  )
+    // {
+    //  // A RoadSection has been added or deleted. Let the child classes decide if it should be refreshed or not!
+    //  //
+    //  refreshRoadSectionItems();
+    // }
 
     if (changes & RSystemElementRoad::CRD_LaneSectionChange)
     {
         // A section has been added.
         //
-        foreach (LaneSection *section, getRoad()->getLaneSections())
+        foreach(LaneSection * section, getRoad()->getLaneSections())
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))

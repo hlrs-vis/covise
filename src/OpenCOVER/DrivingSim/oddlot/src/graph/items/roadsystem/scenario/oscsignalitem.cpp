@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "oscsignalitem.hpp"
 #include "oscroaditem.hpp"
@@ -20,8 +20,8 @@
 #include "src/util/colorpalette.hpp"
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -49,7 +49,7 @@
 
 OSCSignalItem::OSCSignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF pos)
     : GraphElement(roadSystemItem, signal)
-	, roadSystemItem_(roadSystemItem)
+    , roadSystemItem_(roadSystemItem)
     , signal_(signal)
     , pos_(pos)
 {
@@ -66,8 +66,8 @@ OSCSignalItem::init()
     // Hover Events //
     //
     setAcceptHoverEvents(true);
- //   setSelectable();
-	setFlag(ItemIsFocusable);
+    //   setSelectable();
+    setFlag(ItemIsFocusable);
 
     // Context Menu //
     //
@@ -81,10 +81,10 @@ OSCSignalItem::init()
     }
 
 
-	road_ = signal_->getParentRoad(); 
+    road_ = signal_->getParentRoad();
     pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT());
 
-	updateColor();
+    updateColor();
     updatePosition();
 
 }
@@ -95,7 +95,7 @@ OSCSignalItem::init()
 void
 OSCSignalItem::updateColor()
 {
-	outerColor_.setRgb(80, 80, 80);
+    outerColor_.setRgb(80, 80, 80);
 }
 
 /*!
@@ -110,31 +110,31 @@ OSCSignalItem::createPath()
     //
     if (signal_->getType() == "294")
     {
-		setPen(QPen(outerColor_, 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+        setPen(QPen(outerColor_, 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
         LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
-		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
-		QPointF pos = pos_ + (normal * signal_->getT());
+        QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+        QPointF pos = pos_ + (normal * signal_->getT());
 
         if (signal_->getValidFromLane() >= 0)
         {
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             path.moveTo(pos - width * normal);
-		}
-		else
+        }
+        else
         {
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
-			path.moveTo(pos + width * normal);
-		}
-		if (signal_->getValidToLane() > 0)
-		{
+            path.moveTo(pos + width * normal);
+        }
+        if (signal_->getValidToLane() > 0)
+        {
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             path.lineTo(pos - width * normal);
         }
         else
         {
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
-			path.lineTo(pos + width * normal);
+            path.lineTo(pos + width * normal);
         }
     }
     else if (signal_->getType() == "293")
@@ -142,9 +142,9 @@ OSCSignalItem::createPath()
         setPen(QPen(outerColor_, 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
         LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
-		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
-		QPointF tangent = road_->getGlobalTangent(signal_->getSStart()).toPointF();
-		QPointF pos = pos_ + (normal * signal_->getT());
+        QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+        QPointF tangent = road_->getGlobalTangent(signal_->getSStart()).toPointF();
+        QPointF pos = pos_ + (normal * signal_->getT());
 
         if (signal_->getValidFromLane() > 0)
         {
@@ -153,7 +153,7 @@ OSCSignalItem::createPath()
             {
                 while (width >= (laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart())))
                 {
-					QPointF newPos = pos - width * normal;
+                    QPointF newPos = pos - width * normal;
                     path.moveTo(newPos);
                     path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
@@ -163,7 +163,7 @@ OSCSignalItem::createPath()
             {
                 while (width >= (-laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart())))
                 {
-					QPointF newPos = pos - width * normal;
+                    QPointF newPos = pos - width * normal;
                     path.moveTo(newPos);
                     path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
@@ -175,32 +175,32 @@ OSCSignalItem::createPath()
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             while (width <= (laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart())) + road_->getLaneOffset(signal_->getSStart()))
             {
-				QPointF newPos = pos + width * normal;
+                QPointF newPos = pos + width * normal;
                 path.moveTo(newPos);
                 path.lineTo(newPos + signal_->getValue() * tangent);
                 width += 1;
             }
         }
     }
-	else
-	{
+    else
+    {
 
-		double length = 2.0;
-		setBrush(QBrush(outerColor_));
-		setPen(QPen(outerColor_));
+        double length = 2.0;
+        setBrush(QBrush(outerColor_));
+        setPen(QPen(outerColor_));
 
-		path.addEllipse(pos_, 4.0, 4.0);
+        path.addEllipse(pos_, 4.0, 4.0);
 
-		setPen(QPen(QColor(255, 255, 255)));
-		path.moveTo(pos_.x() - length, pos_.y());
-		path.lineTo(pos_.x() + length, pos_.y());
+        setPen(QPen(QColor(255, 255, 255)));
+        path.moveTo(pos_.x() - length, pos_.y());
+        path.lineTo(pos_.x() + length, pos_.y());
 
-		path.moveTo(pos_.x(), pos_.y() - length);
-		path.lineTo(pos_.x(), pos_.y() + length);
-	}
+        path.moveTo(pos_.x(), pos_.y() - length);
+        path.lineTo(pos_.x(), pos_.y() + length);
+    }
 
-	setPath(path);
-    
+    setPath(path);
+
 }
 
 /*
@@ -224,17 +224,17 @@ void
 OSCSignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 
-	setCursor(Qt::OpenHandCursor);
-	setFocus();
+    setCursor(Qt::OpenHandCursor);
+    setFocus();
 
-	// Text //
-	//
-	getSignalTextItem()->setVisible(true);
-	getSignalTextItem()->setPos(event->scenePos());
+    // Text //
+    //
+    getSignalTextItem()->setVisible(true);
+    getSignalTextItem()->setPos(event->scenePos());
 
-	// Parent //
-	//
-	GraphElement::hoverEnterEvent(event); // pass to baseclass
+    // Parent //
+    //
+    GraphElement::hoverEnterEvent(event); // pass to baseclass
 }
 
 void

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.06.2010
+ **
+ **************************************************************************/
 
 #include "elevationroaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 
@@ -53,7 +53,7 @@ ElevationRoadItem::ElevationRoadItem(RoadSystemItem *roadSystemItem, RSystemElem
 
 ElevationRoadItem::~ElevationRoadItem()
 {
-	elevationSectionItems_.clear();
+    elevationSectionItems_.clear();
 }
 
 void
@@ -69,7 +69,7 @@ ElevationRoadItem::init()
 
     // SectionItems //
     //
-    foreach (ElevationSection *section, getRoad()->getElevationSections())
+    foreach(ElevationSection * section, getRoad()->getElevationSections())
     {
         elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
     }
@@ -108,25 +108,25 @@ ElevationRoadItem::updateObserver()
     {
         // A section has been added.
         //
-		QMap<double, ElevationSection *> roadSections = getRoad()->getElevationSections();
-		foreach(ElevationSection *section, roadSections)
-		{
-			int dataElementChanges = section->getDataElementChanges();
-			if ((dataElementChanges & DataElement::CDE_DataElementCreated)
-				|| (dataElementChanges & DataElement::CDE_DataElementAdded))
-			{
-				elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
-			}
-		}
+        QMap<double, ElevationSection *> roadSections = getRoad()->getElevationSections();
+        foreach(ElevationSection * section, roadSections)
+        {
+            int dataElementChanges = section->getDataElementChanges();
+            if ((dataElementChanges & DataElement::CDE_DataElementCreated)
+                || (dataElementChanges & DataElement::CDE_DataElementAdded))
+            {
+                elevationSectionItems_.insert(section->getSStart(), new ElevationSectionItem(elevationEditor_, this, section));
+            }
+        }
 
-		foreach(double s, elevationSectionItems_.keys())
-		{
-			if (!roadSections.contains(s))
-			{
-				elevationSectionItems_.remove(s);
-			}
-		}
-	}
+        foreach(double s, elevationSectionItems_.keys())
+        {
+            if (!roadSections.contains(s))
+            {
+                elevationSectionItems_.remove(s);
+            }
+        }
+    }
 }
 
 

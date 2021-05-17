@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.04.2010
+ **
+ **************************************************************************/
 
 #include "trackspiralarcspiral.hpp"
 #include <cmath>
@@ -22,8 +22,8 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
-// utils //
-//
+ // utils //
+ //
 #include <QDebug>
 #include <QVector2D>
 #include <QTransform>
@@ -105,7 +105,7 @@ TrackSpiralArcSpiral::TrackSpiralArcSpiral(const QPointF &startPos, const QPoint
     // Parameters //
     //
     pa_ = new SpArcSParameters(outSpiral_->getLocalPoint(outSpiral_->getSEnd()), outSpiral_->getLocalHeadingRad(outSpiral_->getSEnd()), factor);
-    //	pa_->setFactor(calcFactor());
+    // pa_->setFactor(calcFactor());
 
     setGlobalPointAndHeading(endPos, endHeadingDeg, false);
 
@@ -160,7 +160,7 @@ TrackSpiralArcSpiral::setLocalEndPoint(const QPointF &endPoint)
 {
     // Local to internal (Parameters are given in internal coordinates) //
     //
-    //	setEndPoint(getLocalTransform().inverted().map(endPoint));
+    // setEndPoint(getLocalTransform().inverted().map(endPoint));
     pa_->pEnd_ = getLocalTransform().inverted().map(endPoint);
     pa_->init();
     applyParameters();
@@ -377,9 +377,9 @@ TrackSpiralArcSpiral::applyParameters()
     double sqrtTwoTau1 = sqrt(2.0 * pa_->tau1_);
 
     double a0 = pa_->h_ * sin(pa_->angle_)
-                / (TrackElementSpiral::y(sqrtTwoTau0) + cos(pa_->tau0_) / sqrt(2.0 * pa_->tau0_)
-                   + (TrackElementSpiral::x(sqrtTwoTau1) * sin(pa_->angle_) - TrackElementSpiral::y(sqrtTwoTau1) * cos(pa_->angle_)) * sqrt(pa_->tau1_ / pa_->tau0_)
-                   - cos(pa_->angle_ - pa_->tau1_) / sqrt(2.0 * pa_->tau0_));
+        / (TrackElementSpiral::y(sqrtTwoTau0) + cos(pa_->tau0_) / sqrt(2.0 * pa_->tau0_)
+            + (TrackElementSpiral::x(sqrtTwoTau1) * sin(pa_->angle_) - TrackElementSpiral::y(sqrtTwoTau1) * cos(pa_->angle_)) * sqrt(pa_->tau1_ / pa_->tau0_)
+            - cos(pa_->angle_ - pa_->tau1_) / sqrt(2.0 * pa_->tau0_));
     double a1 = a0 * sqrt(pa_->tau1_ / pa_->tau0_);
     //qDebug() << "a0: " << a0 << ", a1: " << a1;
 
@@ -391,7 +391,7 @@ TrackSpiralArcSpiral::applyParameters()
 
     // Curvature //
     //
-    //	double c = l0/(a0*a0) * inSpiral_->getAsign();
+    // double c = l0/(a0*a0) * inSpiral_->getAsign();
     double c = l0 / (a0 * a0);
     if (pa_->headingEnd_ < 0.0)
     {
@@ -553,7 +553,7 @@ SpArcSParameters::init()
     h_ = QVector2D::dotProduct(p, n0) / QVector2D::dotProduct(t1, n0);
     g_ = QVector2D::dotProduct(p, n1) / QVector2D::dotProduct(t0, n1);
 
-    if(h_ < 0.000001)
+    if (h_ < 0.000001)
     {
         k_ = 0;
         h_ = -1; // invalid
@@ -700,7 +700,7 @@ SpArcSParameters::checkValidity()
     //
     if (flipped)
     {
-        //		qDebug("flipped");
+        //  qDebug("flipped");
         double tmp = tau0Approx;
         tau0Approx = tau1;
         tau1 = tmp;
@@ -710,8 +710,8 @@ SpArcSParameters::checkValidity()
     tau1_ = tau1;
     tau0_ = tau0Approx;
 
-    //	qDebug() << "Result: " << tau0Approx << " " << q(tau0Approx, tau1) << " in " << iIterationAI;
-    //	qDebug() << tau1 << " < " << tau0Approx << " < " << angle_-tau1u << " = " << tau0u;
+    // qDebug() << "Result: " << tau0Approx << " " << q(tau0Approx, tau1) << " in " << iIterationAI;
+    // qDebug() << tau1 << " < " << tau0Approx << " < " << angle_-tau1u << " = " << tau0u;
 
     return true;
 }
@@ -731,7 +731,7 @@ SpArcSParameters::calcTau0u(bool &success)
     //
     double tauApprox = angle_ / 4.0; // 2.0?
     double tauOld = tauApprox;
-    //	qDebug() << "Init: " << tauApprox << ", f()=" << f(tauApprox);
+    // qDebug() << "Init: " << tauApprox << ", f()=" << f(tauApprox);
 
     // Newton's Method //
     //
@@ -779,7 +779,7 @@ SpArcSParameters::f(double tau)
 {
     double sqrtTwoTau = sqrt(2.0 * tau);
     return sqrt(tau) * (TrackElementSpiral::x(sqrtTwoTau) * sin(angle_) - TrackElementSpiral::y(sqrtTwoTau) * (k_ + cos(angle_)))
-           + sqrt(angle_ - tau) * (TrackElementSpiral::y(sqrt(2.0 * (angle_ - tau))) * (1 + k_ * cos(angle_)) - k_ * TrackElementSpiral::x(sqrt(2.0 * (angle_ - tau))) * sin(angle_));
+        + sqrt(angle_ - tau) * (TrackElementSpiral::y(sqrt(2.0 * (angle_ - tau))) * (1 + k_ * cos(angle_)) - k_ * TrackElementSpiral::x(sqrt(2.0 * (angle_ - tau))) * sin(angle_));
 }
 
 double
@@ -792,9 +792,9 @@ SpArcSParameters::df(double tau)
     double SATau = TrackElementSpiral::y(sqrt(2.0 * (angle_ - tau)));
 
     return 0.5 * STau * sin(angle_) / sqrt(tau)
-           * (CTau / STau - (k_ + cos(angle_)) / (sin(angle_)))
-           + ((k_ * SATau * sin(angle_)) / (2.0 * sqrt(angle_ - tau)))
-             * (CATau / SATau - (1 + k_ * cos(angle_) / (k_ * sin(angle_))));
+        * (CTau / STau - (k_ + cos(angle_)) / (sin(angle_)))
+        + ((k_ * SATau * sin(angle_)) / (2.0 * sqrt(angle_ - tau)))
+        * (CATau / SATau - (1 + k_ * cos(angle_) / (k_ * sin(angle_))));
 }
 
 double
@@ -808,9 +808,9 @@ SpArcSParameters::q(double tau, double tau1)
     double STau1 = TrackElementSpiral::y(sqrtTwoTau1);
 
     return sqrt(2.0 * tau) * (CTau * sin(angle_) - STau * (cos(angle_) + k_))
-           - sqrt(2.0 * tau1) * (k_ * CTau1 * sin(angle_) - STau1 * (k_ * cos(angle_) + 1.0))
-           - cos(angle_ - tau) - k_ * cos(tau)
-           + cos(tau1) + k_ * cos(angle_ - tau1);
+        - sqrt(2.0 * tau1) * (k_ * CTau1 * sin(angle_) - STau1 * (k_ * cos(angle_) + 1.0))
+        - cos(angle_ - tau) - k_ * cos(tau)
+        + cos(tau1) + k_ * cos(angle_ - tau1);
 }
 
 double
@@ -828,117 +828,117 @@ SpArcSParameters::dq(double tau)
 //#################//
 
 #if 0
-	// SYMMETRIC CLOTHOID BLENDING //
-	//
+    // SYMMETRIC CLOTHOID BLENDING //
+    //
 
-	// Distance between inSpiral start and outSpiral end //
-	//
-	double DistAB = QVector2D(outSpiral_->getLocalPoint(outSpiral_->getSEnd()) - inSpiral_->getLocalPoint(inSpiral_->getSStart())).length();
-	qDebug() << "DistAB: " << DistAB;
+    // Distance between inSpiral start and outSpiral end //
+    //
+double DistAB = QVector2D(outSpiral_->getLocalPoint(outSpiral_->getSEnd()) - inSpiral_->getLocalPoint(inSpiral_->getSStart())).length();
+qDebug() << "DistAB: " << DistAB;
 
-	// Angle between the tangents (Oeffnungswinkel) //
-	//
-	double gamma = outSpiral_->getLocalHeadingRad(outSpiral_->getSEnd()) - inSpiral_->getLocalHeadingRad(inSpiral_->getSStart());
-	qDebug() << "Gamma: " << gamma;
-
-	//  //
-	//
-	double T = DistAB / (2.0*cos(fabs(gamma)/2.0));
-
-	double LAratio = sqrt(fabs(gamma));
-
-	double A = T / (TrackElementSpiral::x(LAratio) + TrackElementSpiral::y(LAratio)*tan(fabs(gamma)/2.0));
-	qDebug() << "A: " << A;
-
-	double L = A*LAratio;
-	qDebug() << "L: " << L;
-	qDebug() << "Lsparcs: " << inSpiral_->getLength()+arc_->getLength()/2.0;
-
-	double Curv = L/(A*A);
-	qDebug() << "Radius: " << 1/Curv;
-
-
-//	inSpiral_->setLength(L);
-//	inSpiral_->setCurvEnd(-Curv, false);
+// Angle between the tangents (Oeffnungswinkel) //
 //
-//	delTrackComponent(arc_);
-//	double sStartArc = inSpiral_->getSEnd();
-//	arc_->setSStart(sStartArc);
-//	arc_->setLength(0.001);
-//	arc_->setLocalTransform(inSpiral_->getLocalPoint(sStartArc), inSpiral_->getLocalHeading(sStartArc));
-//	addTrackComponent(arc_);
+double gamma = outSpiral_->getLocalHeadingRad(outSpiral_->getSEnd()) - inSpiral_->getLocalHeadingRad(inSpiral_->getSStart());
+qDebug() << "Gamma: " << gamma;
+
+//  //
 //
-//	delTrackComponent(outSpiral_);
-//	double sEndArc = arc_->getSEnd();
-//	outSpiral_->setSStart(sEndArc);
-//	outSpiral_->setLength(L);
-//	outSpiral_->setCurvStart(-Curv, false);
-//	outSpiral_->setLocalTransform(arc_->getLocalPoint(sEndArc), arc_->getLocalHeading(sEndArc));
-//	addTrackComponent(outSpiral_);
+double T = DistAB / (2.0 * cos(fabs(gamma) / 2.0));
+
+double LAratio = sqrt(fabs(gamma));
+
+double A = T / (TrackElementSpiral::x(LAratio) + TrackElementSpiral::y(LAratio) * tan(fabs(gamma) / 2.0));
+qDebug() << "A: " << A;
+
+double L = A * LAratio;
+qDebug() << "L: " << L;
+qDebug() << "Lsparcs: " << inSpiral_->getLength() + arc_->getLength() / 2.0;
+
+double Curv = L / (A * A);
+qDebug() << "Radius: " << 1 / Curv;
+
+
+// inSpiral_->setLength(L);
+// inSpiral_->setCurvEnd(-Curv, false);
+//
+// delTrackComponent(arc_);
+// double sStartArc = inSpiral_->getSEnd();
+// arc_->setSStart(sStartArc);
+// arc_->setLength(0.001);
+// arc_->setLocalTransform(inSpiral_->getLocalPoint(sStartArc), inSpiral_->getLocalHeading(sStartArc));
+// addTrackComponent(arc_);
+//
+// delTrackComponent(outSpiral_);
+// double sEndArc = arc_->getSEnd();
+// outSpiral_->setSStart(sEndArc);
+// outSpiral_->setLength(L);
+// outSpiral_->setCurvStart(-Curv, false);
+// outSpiral_->setLocalTransform(arc_->getLocalPoint(sEndArc), arc_->getLocalHeading(sEndArc));
+// addTrackComponent(outSpiral_);
 
 #endif
 
 #if 0
-	// SYMMETRIC CIRCULAR ARC INSERTION //
-	//
+    // SYMMETRIC CIRCULAR ARC INSERTION //
+    //
 
-	// Distance between inSpiral start and outSpiral end //
-	//
-	double DistAB = QVector2D(outSpiral_->getLocalPoint(outSpiral_->getSEnd()) - inSpiral_->getLocalPoint(inSpiral_->getSStart())).length();
-//	qDebug() << "DistAB: " << DistAB;
+    // Distance between inSpiral start and outSpiral end //
+    //
+double DistAB = QVector2D(outSpiral_->getLocalPoint(outSpiral_->getSEnd()) - inSpiral_->getLocalPoint(inSpiral_->getSStart())).length();
+// qDebug() << "DistAB: " << DistAB;
 
-	// Angle between the tangents (Oeffnungswinkel) //
-	//
+    // Angle between the tangents (Oeffnungswinkel) //
+    //
 
-	double gamma = fabs(outSpiral_->getLocalHeadingRad(outSpiral_->getSEnd()) - inSpiral_->getLocalHeadingRad(inSpiral_->getSStart()));
-//	qDebug() << "Gamma: " << gamma;
+double gamma = fabs(outSpiral_->getLocalHeadingRad(outSpiral_->getSEnd()) - inSpiral_->getLocalHeadingRad(inSpiral_->getSStart()));
+// qDebug() << "Gamma: " << gamma;
 
-	//  //
-	//
-	double T = DistAB / (2.0*cos(gamma/2.0));
+    //  //
+    //
+double T = DistAB / (2.0 * cos(gamma / 2.0));
 
 
-	double tauMax = gamma/2.0;
+double tauMax = gamma / 2.0;
 
 // Variabel:
-	double tau = tauMax * factor;
-	if(tau < 0.001) tau = 0.001;
-//	double tau = gamma/4.0;
-//	double tau = fabs(inSpiral_->getLocalHeadingRad(inSpiral_->getSEnd()) - inSpiral_->getLocalHeadingRad(inSpiral_->getSStart()));
-//	double tau = tauMax;
-//	double tau = 0.01;
-//	qDebug() << "tau: " << tau;
+double tau = tauMax * factor;
+if (tau < 0.001) tau = 0.001;
+// double tau = gamma/4.0;
+// double tau = fabs(inSpiral_->getLocalHeadingRad(inSpiral_->getSEnd()) - inSpiral_->getLocalHeadingRad(inSpiral_->getSStart()));
+// double tau = tauMax;
+// double tau = 0.01;
+// qDebug() << "tau: " << tau;
 
-	double Curv = (sqrt(2.0*tau)*(TrackElementSpiral::y(sqrt(2.0*tau))*tan(gamma/2.0) + TrackElementSpiral::x(sqrt(2.0*tau))) + cos(tau)*tan(gamma/2.0) - sin(tau)) / T;
+double Curv = (sqrt(2.0 * tau) * (TrackElementSpiral::y(sqrt(2.0 * tau)) * tan(gamma / 2.0) + TrackElementSpiral::x(sqrt(2.0 * tau))) + cos(tau) * tan(gamma / 2.0) - sin(tau)) / T;
 
-//	double A = sqrt(2.0*tau)/Curv;
-//	qDebug() << "A: " << A;
+// double A = sqrt(2.0*tau)/Curv;
+// qDebug() << "A: " << A;
 
-	double L = 2.0*tau / Curv;
-//	qDebug() << "L: " << L;
+double L = 2.0 * tau / Curv;
+// qDebug() << "L: " << L;
 
-	double LArc = 2.0 * (gamma/2.0 - tau) / Curv;
+double LArc = 2.0 * (gamma / 2.0 - tau) / Curv;
 
-	Curv *= inSpiral_->getAsign();
+Curv *= inSpiral_->getAsign();
 
-	inSpiral_->setLength(L);
-	inSpiral_->setCurvEnd(Curv, false);
+inSpiral_->setLength(L);
+inSpiral_->setCurvEnd(Curv, false);
 
-	delTrackComponent(arc_);
-	double sStartArc = inSpiral_->getSEnd();
-	arc_->setSStart(sStartArc);
-	arc_->setLength(LArc);
-	arc_->setCurvature(Curv);
-	arc_->setLocalTransform(inSpiral_->getLocalPoint(sStartArc), inSpiral_->getLocalHeading(sStartArc));
-	addTrackComponent(arc_);
+delTrackComponent(arc_);
+double sStartArc = inSpiral_->getSEnd();
+arc_->setSStart(sStartArc);
+arc_->setLength(LArc);
+arc_->setCurvature(Curv);
+arc_->setLocalTransform(inSpiral_->getLocalPoint(sStartArc), inSpiral_->getLocalHeading(sStartArc));
+addTrackComponent(arc_);
 
-	delTrackComponent(outSpiral_);
-	double sEndArc = arc_->getSEnd();
-	outSpiral_->setSStart(sEndArc);
-	outSpiral_->setLength(L);
-	outSpiral_->setCurvStart(Curv, false);
-	outSpiral_->setLocalTransform(arc_->getLocalPoint(sEndArc), arc_->getLocalHeading(sEndArc));
-	addTrackComponent(outSpiral_);
+delTrackComponent(outSpiral_);
+double sEndArc = arc_->getSEnd();
+outSpiral_->setSStart(sEndArc);
+outSpiral_->setLength(L);
+outSpiral_->setCurvStart(Curv, false);
+outSpiral_->setLocalTransform(arc_->getLocalPoint(sEndArc), arc_->getLocalHeading(sEndArc));
+addTrackComponent(outSpiral_);
 
 #endif
 
@@ -947,42 +947,41 @@ SpArcSParameters::dq(double tau)
 {
 
 
-		double tauApprox = tauOld;
-		double crit = 0.0001; // stop if improvement is less than ...
-		int iIteration = 0;
+    double tauApprox = tauOld;
+    double crit = 0.0001; // stop if improvement is less than ...
+    int iIteration = 0;
 
-		double tau1 = tauOld*0.9;
-	qDebug() << "resultQ: " << q(tauOld, tau1) << " " << tauOld;
-	qDebug() << "resultQ1: " << q(tau1, tau1) << " " << tau1;
-	qDebug() << "resultQa1: " << q(angle_-tau1, tau1) << " " << tau1 << " " << angle_;
-		do
-		{
-			tauOld = tauApprox;
-			++iIteration;
+    double tau1 = tauOld * 0.9;
+    qDebug() << "resultQ: " << q(tauOld, tau1) << " " << tauOld;
+    qDebug() << "resultQ1: " << q(tau1, tau1) << " " << tau1;
+    qDebug() << "resultQa1: " << q(angle_ - tau1, tau1) << " " << tau1 << " " << angle_;
+    do
+    {
+        tauOld = tauApprox;
+        ++iIteration;
 
-			tauApprox = tauOld - q(tauOld, tau1)/dq(tauOld);
+        tauApprox = tauOld - q(tauOld, tau1) / dq(tauOld);
 
-			qDebug() << "tauApprox: " << q(tauApprox, tau1) << " " << dq(tauApprox) << " " << tauApprox;
+        qDebug() << "tauApprox: " << q(tauApprox, tau1) << " " << dq(tauApprox) << " " << tauApprox;
 
-			// Check if it's ok to continue //
-			//
-			if(tauApprox < 0.0)
-			{
-				qDebug("kleiner null");
-			}
-//			else if(tauApprox > )
-//			{
-//				qDebug(" ");
-//			}
-			else if(iIteration >= 50)
-			{
-				qDebug("zu lang");
-			}
-		}
-		while(fabs(tauOld - tauApprox) > crit);
+        // Check if it's ok to continue //
+        //
+        if (tauApprox < 0.0)
+        {
+            qDebug("kleiner null");
+        }
+        //   else if(tauApprox > )
+        //   {
+        //    qDebug(" ");
+        //   }
+        else if (iIteration >= 50)
+        {
+            qDebug("zu lang");
+        }
+    }   while (fabs(tauOld - tauApprox) > crit);
 
 
-	qDebug() << "result2Q: " << q(tauApprox, tau1) << " " << tauApprox << " in " << iIteration;
+    qDebug() << "result2Q: " << q(tauApprox, tau1) << " " << tauApprox << " in " << iIteration;
 
 }
 

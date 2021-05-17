@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #include "projectgraph.hpp"
 
@@ -22,8 +22,8 @@
 #include "src/data/commands/datacommand.hpp"
 #include "src/mainwindow.hpp"
 
-// Tools //
-//
+ // Tools //
+ //
 #include "src/gui/tools/toolaction.hpp"
 #include "src/gui/tools/zoomtool.hpp"
 #include "src/gui/tools/maptool.hpp"
@@ -72,7 +72,7 @@ ProjectGraph::addToGarbage(QGraphicsItem *item)
 
     if (!garbageList_.contains(item))
     {
-        foreach (QGraphicsItem *garbageItem, garbageList_) // the list should not be too long...
+        foreach(QGraphicsItem * garbageItem, garbageList_) // the list should not be too long...
         {
             if (garbageItem->isAncestorOf(item))
             {
@@ -83,7 +83,7 @@ ProjectGraph::addToGarbage(QGraphicsItem *item)
 
             //if(item->isAncestorOf(garbageItem))
             //{
-            //	// gargabeItem is a child of item but will be deleted first anyway
+            // // gargabeItem is a child of item but will be deleted first anyway
             //}
         }
         garbageList_.append(item);
@@ -133,13 +133,13 @@ ProjectGraph::toolAction(ToolAction * /*toolAction*/)
 void
 ProjectGraph::mouseAction(MouseAction * /*mouseAction*/)
 {
-    //	graphScene_->mouseAction(mouseAction);
+    // graphScene_->mouseAction(mouseAction);
 }
 
 void
 ProjectGraph::keyAction(KeyAction * /*keyAction*/)
 {
-    //	graphScene_->keyAction(keyAction);
+    // graphScene_->keyAction(keyAction);
 }
 
 /*! \brief Called right before the editor will be changed.
@@ -148,7 +148,7 @@ ProjectGraph::keyAction(KeyAction * /*keyAction*/)
 void
 ProjectGraph::preEditorChange()
 {
-    //	graphScene_->clearSelection();
+    // graphScene_->clearSelection();
 }
 
 /*! \brief Called right after the editor has been changed.
@@ -166,7 +166,7 @@ ProjectGraph::garbageDisposal()
 {
     if (numPostpones <= 0)
     {
-        foreach (QGraphicsItem *item, garbageList_)
+        foreach(QGraphicsItem * item, garbageList_)
         {
             //graphScene_->removeItem(item);
             delete item;
@@ -185,7 +185,7 @@ void ProjectGraph::finishGarbageDisposal()
     numPostpones--;
     if (numPostpones <= 0)
     {
-        foreach (QGraphicsItem *item, garbageList_)
+        foreach(QGraphicsItem * item, garbageList_)
         {
             //graphScene_->removeItem(item);
             delete item;
@@ -208,8 +208,8 @@ ProjectGraph::updateObserver()
 
     // xyz //
     //
-    //	if((changes & ProjectData::CPD_))
-    //	{
+    // if((changes & ProjectData::CPD_))
+    // {
 
-    //	}
+    // }
 }

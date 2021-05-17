@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "objecttextitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/objectobject.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -41,20 +41,20 @@ ObjectTextItem::ObjectTextItem(GraphElement *item, Object *object)
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
-    //	textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //	connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
-    //	connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
+    // textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
+    // connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
 
     // Flags //
     //
-    //	setSelectable();
-    //	setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+    // setSelectable();
+    // setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
 
     // Path //
     //
     updatePosition();
-	updateName();
+    updateName();
 
     // Hide the text item on creation and show it only on mouse hover of the parent //
     //
@@ -79,7 +79,7 @@ ObjectTextItem::createPath()
     thePath.moveTo(0.0, 0.0);
     thePath.lineTo(mapFromScene(object_->getParentRoad()->getGlobalPoint(object_->getSStart(), object_->getT())));
 
-    //	thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
+    // thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
 
     setPath(thePath);
 }
@@ -94,14 +94,14 @@ ObjectTextItem::updatePosition()
 void
 ObjectTextItem::updateName()
 {
-	if ((object_->getName() == "") || (object_->getName() == "unnamed"))
-	{
-		textHandle_->setText(object_->getType());
-	}
-	else
-	{
-		textHandle_->setText(object_->getName());
-	}
+    if ((object_->getName() == "") || (object_->getName() == "unnamed"))
+    {
+        textHandle_->setText(object_->getType());
+    }
+    else
+    {
+        textHandle_->setText(object_->getName());
+    }
 }
 
 //################//
@@ -116,10 +116,10 @@ ObjectTextItem::handlePositionChange(const QPointF &dpos)
 }
 
 //void
-//	ObjectTextItem
-//	::handleSelectionChange(bool selected)
+// ObjectTextItem
+// ::handleSelectionChange(bool selected)
 //{
-////	setSelected(selected);
+//// setSelected(selected);
 //}
 
 QPainterPath

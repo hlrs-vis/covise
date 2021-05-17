@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   17.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   17.03.2010
+ **
+ **************************************************************************/
 
 #include "sectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/roadsection.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -105,10 +105,10 @@ SectionItem::hideRoads()
 
 /*
 bool
-	SectionItem
-	::removeSection()
+    SectionItem
+    ::removeSection()
 {
-	// does nothing by default - to be implemented by subclasses
+    // does nothing by default - to be implemented by subclasses
 }*/
 
 void

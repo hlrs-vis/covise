@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.05.2010
+ **
+ **************************************************************************/
 
 #include "prototypemanager.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -45,20 +45,20 @@ PrototypeManager::PrototypeManager(QObject *parent)
 
 PrototypeManager::~PrototypeManager()
 {
-    foreach (PrototypeContainer<RSystemElementRoad *> *prototype, roadPrototypes_)
+    foreach(PrototypeContainer<RSystemElementRoad *> *prototype, roadPrototypes_)
     {
         delete prototype;
     }
-    foreach (PrototypeContainer<RoadSystem *> *prototype, roadSystemPrototypes_)
+    foreach(PrototypeContainer<RoadSystem *> *prototype, roadSystemPrototypes_)
     {
         delete prototype;
     }
 }
 
 void
-PrototypeManager::addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type,QString &system,QString &typeName,QString &lanes)
+PrototypeManager::addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type, QString &system, QString &typeName, QString &lanes)
 {
-    roadPrototypes_.insert(type, new PrototypeContainer<RSystemElementRoad *>(name, icon, road,system,typeName,lanes));
+    roadPrototypes_.insert(type, new PrototypeContainer<RSystemElementRoad *>(name, icon, road, system, typeName, lanes));
 }
 
 void
@@ -79,9 +79,9 @@ PrototypeManager::loadPrototypes(const QString &fileName)
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
-        //		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-        //		.arg(fileName)
-        //		.arg(file.errorString()));
+        //  QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+        //  .arg(fileName)
+        //  .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }
@@ -102,77 +102,77 @@ PrototypeManager::loadPrototypes(const QString &fileName)
 
 /// find prototypes of a certain type with an appropriate typeName, otherwise return the first one of that type as a fallback.
 
-RSystemElementRoad *PrototypeManager::getRoadPrototype(PrototypeManager::PrototypeType type,QString combinedType)
+RSystemElementRoad *PrototypeManager::getRoadPrototype(PrototypeManager::PrototypeType type, QString combinedType)
 {
-    RSystemElementRoad *rp=NULL;
-	QString systemName = "osm";
-	QString typeName = "unknown";
-	QString laneNumbers = "1";
-	QStringList sl = combinedType.split(':');
-	if (sl.size() > 0)
-		systemName = sl[0];
-	if (sl.size() > 1)
-		typeName = sl[1];
-	if (sl.size() > 2)
-		laneNumbers = sl[2];
-	QList<PrototypeContainer<RSystemElementRoad *> *> values = roadPrototypes_.values(type);
-	if (type == PTP_LaneSectionPrototype)
-	{
-		for (int i = 0; i < values.size(); ++i)
-		{
-			PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
-			if (ptc->getSystemName() == systemName && ptc->getTypeName() == typeName)
-			{
-				rp = ptc->getPrototype();
-				if (ptc->getLaneNumbers() == laneNumbers)
-					break;
-			}
-		}
-		if (rp == NULL) // if we did not find the type take one with the same number of lanes
-		{
-			for (int i = 0; i < values.size(); ++i)
-			{
-				PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
-				if (ptc->getSystemName() == systemName && ptc->getLaneNumbers() == laneNumbers)
-				{
-					rp = ptc->getPrototype();
-					break;
-				}
-			}
-		}
-	}
-	else
-	{
-		for (int i = 0; i < values.size(); ++i)
-		{
-			PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
-			if (ptc->getPrototypeName() == combinedType)
-			{
-				rp = ptc->getPrototype();
-				break;
-			}
-		}
-	}
-    if(rp == NULL)
+    RSystemElementRoad *rp = NULL;
+    QString systemName = "osm";
+    QString typeName = "unknown";
+    QString laneNumbers = "1";
+    QStringList sl = combinedType.split(':');
+    if (sl.size() > 0)
+        systemName = sl[0];
+    if (sl.size() > 1)
+        typeName = sl[1];
+    if (sl.size() > 2)
+        laneNumbers = sl[2];
+    QList<PrototypeContainer<RSystemElementRoad *> *> values = roadPrototypes_.values(type);
+    if (type == PTP_LaneSectionPrototype)
+    {
+        for (int i = 0; i < values.size(); ++i)
+        {
+            PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
+            if (ptc->getSystemName() == systemName && ptc->getTypeName() == typeName)
+            {
+                rp = ptc->getPrototype();
+                if (ptc->getLaneNumbers() == laneNumbers)
+                    break;
+            }
+        }
+        if (rp == NULL) // if we did not find the type take one with the same number of lanes
+        {
+            for (int i = 0; i < values.size(); ++i)
+            {
+                PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
+                if (ptc->getSystemName() == systemName && ptc->getLaneNumbers() == laneNumbers)
+                {
+                    rp = ptc->getPrototype();
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < values.size(); ++i)
+        {
+            PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
+            if (ptc->getPrototypeName() == combinedType)
+            {
+                rp = ptc->getPrototype();
+                break;
+            }
+        }
+    }
+    if (rp == NULL)
         rp = values.first()->getPrototype();
     return rp;
 }
 
-int 
+int
 PrototypeManager::getIndexOfLastInsertedPrototype(PrototypeManager::PrototypeType type)
 {
-	PrototypeContainer<RSystemElementRoad *> *lastInserted = roadPrototypes_.value(type, NULL); // recently inserted value
-	if (!lastInserted)
-	{
-		return -1;
-	}
+    PrototypeContainer<RSystemElementRoad *> *lastInserted = roadPrototypes_.value(type, NULL); // recently inserted value
+    if (!lastInserted)
+    {
+        return -1;
+    }
 
-	QList<PrototypeContainer<RSystemElementRoad *> *> prototypeList = roadPrototypes_.values(type);
-	int i = 0;
-	while (prototypeList.at(i) != lastInserted)
-	{
-		i++;
-	}
+    QList<PrototypeContainer<RSystemElementRoad *> *> prototypeList = roadPrototypes_.values(type);
+    int i = 0;
+    while (prototypeList.at(i) != lastInserted)
+    {
+        i++;
+    }
 
-	return i;
+    return i;
 }

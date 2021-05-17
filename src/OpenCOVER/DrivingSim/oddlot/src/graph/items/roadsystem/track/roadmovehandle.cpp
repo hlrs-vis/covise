@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   07.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   07.07.2010
+ **
+ **************************************************************************/
 
 #include "roadmovehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/commands/roadcommands.hpp"
 #include "src/data/roadsystem/track/trackcomponent.hpp"
@@ -165,19 +165,19 @@ RoadMoveHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 }
 
 void
-RoadMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent * event)
+RoadMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-//	setCursor(Qt::ClosedHandCursor);
-	trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::NoCache);
-	MoveHandle::mousePressEvent(event); // pass to baseclass
+    // setCursor(Qt::ClosedHandCursor);
+    trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::NoCache);
+    MoveHandle::mousePressEvent(event); // pass to baseclass
 }
 
 void
-RoadMoveHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
+RoadMoveHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-//	setCursor(Qt::OpenHandCursor);
-	trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::DeviceCache);
-	MoveHandle::mouseReleaseEvent(event); // pass to baseclass
+    // setCursor(Qt::OpenHandCursor);
+    trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::DeviceCache);
+    MoveHandle::mouseReleaseEvent(event); // pass to baseclass
 }
 
 void
@@ -190,28 +190,28 @@ RoadMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         trackEditor_->translateRoadMoveHandles(scenePos(), event->scenePos());
     }
 
-    //	MoveHandle::mouseMoveEvent(event); // pass to baseclass
+    // MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
 
 //void
-//	RoadMoveHandle
-//	::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
+// RoadMoveHandle
+// ::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 //{
-//	setCursor(Qt::OpenHandCursor);
-//	MoveHandle::hoverEnterEvent(event);
+// setCursor(Qt::OpenHandCursor);
+// MoveHandle::hoverEnterEvent(event);
 //}
 //
 //void
-//	RoadMoveHandle
-//	::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
+// RoadMoveHandle
+// ::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 //{
-//	setCursor(Qt::ArrowCursor);
-//	MoveHandle::hoverLeaveEvent(event);
+// setCursor(Qt::ArrowCursor);
+// MoveHandle::hoverLeaveEvent(event);
 //}
 //
 //void
-//	RoadMoveHandle
-//	::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
+// RoadMoveHandle
+// ::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 //{
-//	MoveHandle::hoverMoveEvent(event);
+// MoveHandle::hoverMoveEvent(event);
 //}

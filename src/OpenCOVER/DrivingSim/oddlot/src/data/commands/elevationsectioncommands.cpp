@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.06.2010
+ **
+ **************************************************************************/
 
 #include "elevationsectioncommands.hpp"
 
@@ -25,8 +25,8 @@
 #include "src/data/scenerysystem/heightmap.hpp"
 #include "src/cover/coverconnection.hpp"
 
-// Utils //
-//
+ // Utils //
+ //
 #include "math.h"
 
 #include <QStringList>
@@ -122,8 +122,8 @@ MergeElevationSectionCommand::MergeElevationSectionCommand(ElevationSection *ele
     // Check for validity //
     //
     if (/*(oldSectionLow_->getDegree() > 1)
-		|| (oldSectionHigh_->getDegree() > 1) // only lines allowed
-		||*/ (parentRoad_ != elevationSectionHigh->getParentRoad()) // not the same parents
+        || (oldSectionHigh_->getDegree() > 1) // only lines allowed
+        ||*/ (parentRoad_ != elevationSectionHigh->getParentRoad()) // not the same parents
         || elevationSectionHigh != parentRoad_->getElevationSection(elevationSectionLow->getSEnd()) // not consecutive
         )
     {
@@ -134,13 +134,13 @@ MergeElevationSectionCommand::MergeElevationSectionCommand(ElevationSection *ele
 
     // New section //
     //
-    //	double deltaLength = elevationSectionHigh->getSEnd() - elevationSectionLow->getSStart();
-    //	double deltaHeight = elevationSectionHigh->getElevation(elevationSectionHigh->getSEnd()) - elevationSectionLow->getElevation(elevationSectionLow->getSStart());
-    //	newSection_ = new ElevationSection(oldSectionLow_->getSStart(), oldSectionLow_->getA(), deltaHeight/deltaLength, 0.0, 0.0);
-    //	if(oldSectionHigh_->isElementSelected() || oldSectionLow_->isElementSelected())
-    //	{
-    //		newSection_->setElementSelected(true); // keep selection
-    //	}
+    // double deltaLength = elevationSectionHigh->getSEnd() - elevationSectionLow->getSStart();
+    // double deltaHeight = elevationSectionHigh->getElevation(elevationSectionHigh->getSEnd()) - elevationSectionLow->getElevation(elevationSectionLow->getSStart());
+    // newSection_ = new ElevationSection(oldSectionLow_->getSStart(), oldSectionLow_->getA(), deltaHeight/deltaLength, 0.0, 0.0);
+    // if(oldSectionHigh_->isElementSelected() || oldSectionLow_->isElementSelected())
+    // {
+    //  newSection_->setElementSelected(true); // keep selection
+    // }
 
     double l = elevationSectionHigh->getSEnd() - elevationSectionLow->getSStart();
 
@@ -292,7 +292,7 @@ RemoveElevationSectionCommand::RemoveElevationSectionCommand(ElevationSection *e
             return;
         }
     }
-    //	qDebug() << "s: " << s << ", sLow: " << sLow;
+    // qDebug() << "s: " << s << ", sLow: " << sLow;
 
     // New section //
     //
@@ -417,7 +417,7 @@ SmoothElevationSectionCommand::SmoothElevationSectionCommand(ElevationSection *e
     }
 
     double b = bLow;
-    //	double c = 1.0/radius_; // curvature
+    // double c = 1.0/radius_; // curvature
     double c = 1.0 / (2.0 * radius_) * pow(1 + b * b, 1.5);
     double l = (bHigh - b) / (2.0 * c);
     if (l < 0)
@@ -435,7 +435,7 @@ SmoothElevationSectionCommand::SmoothElevationSectionCommand(ElevationSection *e
     double h = b * l + c * l * l;
     sLow_ = elevationSectionHigh->getSStart() + (h - bHigh * l) / (bHigh - bLow);
     sHigh_ = l + sLow_;
-    //	qDebug() << "sLow_: " << sLow_ << ", sHigh_: " << sHigh_;
+    // qDebug() << "sLow_: " << sLow_ << ", sHigh_: " << sHigh_;
 
     if ((sLow_ < elevationSectionLow->getSStart() + MIN_ELEVATIONSECTION_LENGTH) // plus one meter
         || (sHigh_ > elevationSectionHigh->getSEnd() - MIN_ELEVATIONSECTION_LENGTH) // minus one meter
@@ -452,7 +452,7 @@ SmoothElevationSectionCommand::SmoothElevationSectionCommand(ElevationSection *e
     newSectionHigh_ = new ElevationSection(sHigh_, oldSectionHigh_->getElevation(sHigh_), oldSectionHigh_->getB(), 0.0, 0.0);
     if (oldSectionHigh_->isElementSelected())
     {
-		newSection_->setElementSelected(true);
+        newSection_->setElementSelected(true);
         newSectionHigh_->setElementSelected(true);
     }
 
@@ -557,7 +557,7 @@ SmoothElevationRoadsCommand::SmoothElevationRoadsCommand(ElevationSection *eleva
     }
 
     if ((parentRoad1_->getElevationSectionBefore(elevationSection1->getSStart()) && parentRoad1_->getElevationSectionNext(elevationSection1->getSStart())) || (parentRoad2_->getElevationSectionBefore(elevationSection2->getSStart()) && parentRoad2_->getElevationSectionNext(elevationSection2->getSStart())))
-    // at least one section is in-between
+        // at least one section is in-between
     {
         setInvalid(); // Invalid
         setText(QObject::tr("One section of each road has to be the start or end section."));
@@ -573,7 +573,7 @@ SmoothElevationRoadsCommand::SmoothElevationRoadsCommand(ElevationSection *eleva
             smoothingSuccess = createSmoothSections(elevationSection1, parentRoad1_, elevationSection2, parentRoad2_, EndStart);
         }
         else if (parentRoad2_->getSuccessor() && (parentRoad2_->getSuccessor()->getElementId() == parentRoad1_->getID()) && !parentRoad2_->getElevationSectionNext(elevationSection2->getSStart())
-                 && (fabs(elevationSection1->getElevation(elevationSection1->getSEnd()) - elevationSection2->getElevation(elevationSection2->getSEnd())) < NUMERICAL_ZERO8))
+            && (fabs(elevationSection1->getElevation(elevationSection1->getSEnd()) - elevationSection2->getElevation(elevationSection2->getSEnd())) < NUMERICAL_ZERO8))
         {
             smoothingSuccess = createSmoothSections(elevationSection1, parentRoad1_, elevationSection2, parentRoad2_, EndEnd);
         }
@@ -587,7 +587,7 @@ SmoothElevationRoadsCommand::SmoothElevationRoadsCommand(ElevationSection *eleva
             smoothingSuccess = createSmoothSections(elevationSection2, parentRoad2_, elevationSection1, parentRoad1_, StartStart);
         }
         else if (parentRoad2_->getSuccessor() && (parentRoad2_->getSuccessor()->getElementId() == parentRoad1_->getID()) && !parentRoad2_->getElevationSectionNext(elevationSection2->getSStart())
-                 && (fabs(elevationSection1->getElevation(elevationSection1->getSStart()) - elevationSection2->getElevation(elevationSection2->getSEnd())) < NUMERICAL_ZERO8))
+            && (fabs(elevationSection1->getElevation(elevationSection1->getSStart()) - elevationSection2->getElevation(elevationSection2->getSEnd())) < NUMERICAL_ZERO8))
         {
             smoothingSuccess = createSmoothSections(elevationSection2, parentRoad2_, elevationSection1, parentRoad1_, EndStart);
         }
@@ -648,7 +648,7 @@ SmoothElevationRoadsCommand::createSmoothSections(ElevationSection *elevationSec
     }
 
     double b = bLow;
-    //	double c = 1.0/radius_; // curvature
+    // double c = 1.0/radius_; // curvature
     double c = 1.0 / (2.0 * radius_) * pow(1 + b * b, 1.5);
     double l = (bHigh - b) / (2.0 * c);
     if (l < 0)
@@ -683,7 +683,7 @@ SmoothElevationRoadsCommand::createSmoothSections(ElevationSection *elevationSec
         sHigh = l + sp;
     }
 
-    //	qDebug() << "sLow: " << sLow << ", sHigh: " << sHigh;
+    // qDebug() << "sLow: " << sLow << ", sHigh: " << sHigh;
 
     if ((sLow < elevationSectionLow->getSStart() + MIN_ELEVATIONSECTION_LENGTH) // plus one meter
         || (l + sp > elevationSectionHigh->getSEnd() - MIN_ELEVATIONSECTION_LENGTH) // minus one meter
@@ -849,11 +849,11 @@ SetElevationCommand::SetElevationCommand(const QList<ElevationSection *> &endPoi
     endPointSections_ = endPointSections;
     startPointSections_ = startPointSections;
 
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         oldEndHeights_.append(section->getElevation(section->getSEnd()));
     }
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         oldStartHeights_.append(section->getElevation(section->getSStart()));
     }
@@ -889,7 +889,7 @@ SetElevationCommand::redo()
     // Set points //
     //
     int i = 0;
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         double startElevation = section->getElevation(section->getSStart());
         double endElevation = section->getElevation(section->getSEnd()) + deltaHeight_;
@@ -898,7 +898,7 @@ SetElevationCommand::redo()
         ++i;
     }
     i = 0;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         double startElevation = section->getElevation(section->getSStart()) + deltaHeight_;
         double endElevation = section->getElevation(section->getSEnd());
@@ -919,7 +919,7 @@ SetElevationCommand::undo()
     // Set points //
     //
     int i = 0;
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         double startElevation = section->getElevation(section->getSStart());
         double endElevation = oldEndHeights_[i];
@@ -928,7 +928,7 @@ SetElevationCommand::undo()
         ++i;
     }
     i = 0;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         double startElevation = oldStartHeights_[i];
         double endElevation = section->getElevation(section->getSEnd());
@@ -1001,14 +1001,14 @@ ElevationMovePointsCommand::ElevationMovePointsCommand(const QList<ElevationSect
     if (fabs(deltaPos_.manhattanLength()) < NUMERICAL_ZERO8 || (endPointSections_.isEmpty() && startPointSections_.isEmpty()))
     {
         setInvalid(); // Invalid because no change.
-        //		setText(QObject::tr("Cannot move elevation point. Nothing to be done."));
+        //  setText(QObject::tr("Cannot move elevation point. Nothing to be done."));
         setText("");
         return;
     }
 
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
-        //		oldEndHeights_.append(section->getElevation(section->getSEnd())); // save these, so no drifting when doing continuous undo/redo/undo/redo/...
+        //  oldEndHeights_.append(section->getElevation(section->getSEnd())); // save these, so no drifting when doing continuous undo/redo/undo/redo/...
         oldEndPointsBs_.append(section->getB());
 
         if (fabs(section->getSEnd() - section->getParentRoad()->getLength()) < NUMERICAL_ZERO8) //
@@ -1018,9 +1018,9 @@ ElevationMovePointsCommand::ElevationMovePointsCommand(const QList<ElevationSect
     }
 
     bool tooShort = false;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
-        //		oldStartHeights_.append(section->getElevation(section->getSStart()));
+        //  oldStartHeights_.append(section->getElevation(section->getSStart()));
         oldStartPointsAs_.append(section->getA());
         oldStartPointsBs_.append(section->getB());
         oldStartPointsSs_.append(section->getSStart());
@@ -1030,12 +1030,12 @@ ElevationMovePointsCommand::ElevationMovePointsCommand(const QList<ElevationSect
             elevationOnly_ = true;
         }
         else if ((section->getLength() - deltaPos_.x() < MIN_ELEVATIONSECTION_LENGTH) // min length at end
-                 || (section->getParentRoad()->getElevationSectionBefore(section->getSStart())->getLength() + deltaPos_.x() < MIN_ELEVATIONSECTION_LENGTH))
+            || (section->getParentRoad()->getElevationSectionBefore(section->getSStart())->getLength() + deltaPos_.x() < MIN_ELEVATIONSECTION_LENGTH))
         {
             tooShort = true;
         }
-        //		oldStartSStarts_.append(section->getSStart());
-        //		oldStartLengths_.append(section->getLength());
+        //  oldStartSStarts_.append(section->getSStart());
+        //  oldStartLengths_.append(section->getLength());
     }
 
     if (!elevationOnly_ && tooShort)
@@ -1072,7 +1072,7 @@ ElevationMovePointsCommand::redo()
     // Set points //
     //
     int i = 0;
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         double startElevation = section->getElevation(section->getSStart());
         double endElevation = section->getElevation(section->getSEnd()) + deltaPos_.y();
@@ -1081,7 +1081,7 @@ ElevationMovePointsCommand::redo()
         ++i;
     }
     i = 0;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         double startElevation = section->getElevation(section->getSStart()) + deltaPos_.y();
         double endElevation = section->getElevation(section->getSEnd());
@@ -1094,7 +1094,7 @@ ElevationMovePointsCommand::redo()
     //
     if (!elevationOnly_)
     {
-        foreach (ElevationSection *section, startPointSections_)
+        foreach(ElevationSection * section, startPointSections_)
         {
             section->getParentRoad()->moveElevationSection(section->getSStart(), section->getSStart() + deltaPos_.x());
         }
@@ -1112,22 +1112,22 @@ ElevationMovePointsCommand::undo()
     // Set points //
     //
     int i = 0;
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
-        //		double startElevation = section->getElevation(section->getSStart());
-        //		double endElevation = oldEndHeights_[i];
-        //		double slope = (endElevation-startElevation)/oldStartLengths_[i];
-        //		section->setParameters(startElevation, slope, 0.0, 0.0);
+        //  double startElevation = section->getElevation(section->getSStart());
+        //  double endElevation = oldEndHeights_[i];
+        //  double slope = (endElevation-startElevation)/oldStartLengths_[i];
+        //  section->setParameters(startElevation, slope, 0.0, 0.0);
         section->setParameters(section->getA(), oldEndPointsBs_[i], 0.0, 0.0);
         ++i;
     }
     i = 0;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
-        //		double startElevation = oldStartHeights_[i];
-        //		double endElevation = section->getElevation(section->getSEnd());
-        //		double slope = (endElevation-startElevation)/(section->getSEnd()-oldStartSStarts_[i]);
-        //		section->setParameters(startElevation, slope, 0.0, 0.0);
+        //  double startElevation = oldStartHeights_[i];
+        //  double endElevation = section->getElevation(section->getSEnd());
+        //  double slope = (endElevation-startElevation)/(section->getSEnd()-oldStartSStarts_[i]);
+        //  section->setParameters(startElevation, slope, 0.0, 0.0);
         section->setParameters(oldStartPointsAs_[i], oldStartPointsBs_[i], 0.0, 0.0);
         ++i;
     }
@@ -1137,7 +1137,7 @@ ElevationMovePointsCommand::undo()
     if (!elevationOnly_)
     {
         i = 0;
-        foreach (ElevationSection *section, startPointSections_)
+        foreach(ElevationSection * section, startPointSections_)
         {
             section->getParentRoad()->moveElevationSection(section->getSStart(), oldStartPointsSs_[i]);
             ++i;
@@ -1211,12 +1211,12 @@ ElevationSetHeightCommand::ElevationSetHeightCommand(const QList<ElevationSectio
     if ((absoluteHeight == false && (fabs(newHeight) < NUMERICAL_ZERO8)) || (endPointSections_.isEmpty() && startPointSections_.isEmpty()))
     {
         setInvalid(); // Invalid because no change.
-        //		setText(QObject::tr("Cannot move elevation point. Nothing to be done."));
+        //  setText(QObject::tr("Cannot move elevation point. Nothing to be done."));
         setText("");
         return;
     }
 
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         oldEndPointsAs_.append(section->getA());
         oldEndPointsBs_.append(section->getB());
@@ -1224,7 +1224,7 @@ ElevationSetHeightCommand::ElevationSetHeightCommand(const QList<ElevationSectio
         oldEndPointsDs_.append(section->getD());
     }
 
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         oldStartPointsAs_.append(section->getA());
         oldStartPointsBs_.append(section->getB());
@@ -1254,7 +1254,7 @@ ElevationSetHeightCommand::redo()
     // Set points //
     //
     int i = 0;
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         double startElevation = section->getElevation(section->getSStart());
         double endElevation = newHeight;
@@ -1265,7 +1265,7 @@ ElevationSetHeightCommand::redo()
         ++i;
     }
     i = 0;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         double startElevation = newHeight;
         if (!absoluteHeight)
@@ -1288,13 +1288,13 @@ ElevationSetHeightCommand::undo()
     // Set points //
     //
     int i = 0;
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         section->setParameters(oldEndPointsAs_[i], oldEndPointsBs_[i], oldEndPointsCs_[i], oldEndPointsDs_[i]);
         ++i;
     }
     i = 0;
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         section->setParameters(oldStartPointsAs_[i], oldStartPointsBs_[i], oldStartPointsCs_[i], oldStartPointsDs_[i]);
         ++i;
@@ -1372,12 +1372,12 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     // Check for validity //
     //
     if (!road
-            || (maps.isEmpty()
+        || (maps.isEmpty()
 #ifdef COVER_CONNECTION
-                && !COVERConnection::instance()->isConnected()
+            && !COVERConnection::instance()->isConnected()
 #endif
-               )
-            || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+            )
+        || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
@@ -1410,7 +1410,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     //
     double *sampleHeights = new double[pointCount];
 #ifdef COVER_CONNECTION
-    if(COVERConnection::instance()->isConnected())
+    if (COVERConnection::instance()->isConnected())
     {
         covise::TokenBuffer tb;
         tb << MSG_GetHeight;
@@ -1423,17 +1423,17 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
             tb << (float)pos.y();
         }
         COVERConnection::instance()->send(tb);
-        covise::Message *msg=NULL;
-        if(COVERConnection::instance()->waitForMessage(&msg))
+        covise::Message *msg = NULL;
+        if (COVERConnection::instance()->waitForMessage(&msg))
         {
             covise::TokenBuffer rtb(msg);
             int type;
-            rtb >>  type;
-            if(type == MSG_GetHeight)
+            rtb >> type;
+            if (type == MSG_GetHeight)
             {
                 int pc;
                 rtb >> pc;
-                if(pc == pointCount)
+                if (pc == pointCount)
                 {
                     float h;
                     for (int i = 0; i < pointCount; ++i)
@@ -1454,9 +1454,9 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
         }
         else
         {
-            pointCount =0;
+            pointCount = 0;
         }
-        
+
     }
     else
 #endif
@@ -1469,15 +1469,15 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     }
 
 #if 0
-	// Low pass filter //
-	//
-	double heights[pointCount];
-	heights[0] = sampleHeights[0];
-	double alpha = lowPassFilter_;
-	for(int i = 1; i < pointCount; ++i)
-	{
-		heights[i] = alpha*sampleHeights[i] + (1-alpha)*heights[i-1];
-	}
+    // Low pass filter //
+    //
+    double heights[pointCount];
+    heights[0] = sampleHeights[0];
+    double alpha = lowPassFilter_;
+    for (int i = 1; i < pointCount; ++i)
+    {
+        heights[i] = alpha * sampleHeights[i] + (1 - alpha) * heights[i - 1];
+    }
 #endif
 
 #if 1
@@ -1496,7 +1496,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 
     // Cubic approximation //
     //
-    if (useCubic_ && pointCount>0)
+    if (useCubic_ && pointCount > 0)
     {
         // Calculate Slopes //
         //
@@ -1505,20 +1505,20 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 
         // Create Sections //
         //
-        int lastPoint=0;
-        ElevationSection *oldSection=NULL;
-        
+        int lastPoint = 0;
+        ElevationSection *oldSection = NULL;
+
         for (int i = 1; i < pointCount; ++i)
         {
-            double currentLength = segmentLength*(i-lastPoint);
-            if(i < pointCount - 1)
+            double currentLength = segmentLength * (i - lastPoint);
+            if (i < pointCount - 1)
             {
-                dheights[i] = 0.5 * (heights[i] - heights[lastPoint]) / (segmentLength*(i-lastPoint)) + 0.5 * (heights[i + 1] - heights[i]) / segmentLength;
+                dheights[i] = 0.5 * (heights[i] - heights[lastPoint]) / (segmentLength * (i - lastPoint)) + 0.5 * (heights[i + 1] - heights[i]) / segmentLength;
                 // evtl. gewichten
             }
             else
             {
-                dheights[pointCount - 1] = (heights[pointCount - 1] - heights[lastPoint]) / (segmentLength*((pointCount - 1)-lastPoint));
+                dheights[pointCount - 1] = (heights[pointCount - 1] - heights[lastPoint]) / (segmentLength * ((pointCount - 1) - lastPoint));
             }
             double s = sStart + lastPoint * segmentLength; // [sStart, sEnd]
 /*
@@ -1537,16 +1537,16 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
             double a = (dheights[i] + c - 2.0 * heights[i] / currentLength + 2.0 * d / currentLength) / (currentLength * currentLength);
             double b = (heights[i] - a * currentLength * currentLength * currentLength - c * currentLength - d) / (currentLength * currentLength);
 
-            double maxDistance=0;
-            
+            double maxDistance = 0;
+
             ElevationSection *section = new ElevationSection(s, d, c, b, a);
-            for(int n=(lastPoint+1);n<i;n++)
+            for (int n = (lastPoint + 1); n < i; n++)
             {
-                double dist = fabs(heights[n] - section->getElevation(n*segmentLength));
-                if(dist > maxDistance)
+                double dist = fabs(heights[n] - section->getElevation(n * segmentLength));
+                if (dist > maxDistance)
                     maxDistance = dist;
             }
-            if(maxDistance < maxDeviation_)
+            if (maxDistance < maxDeviation_)
             {
                 delete oldSection;
                 oldSection = section;
@@ -1554,20 +1554,20 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
             else
             {
                 newSections_.insert(s, oldSection);
-                lastPoint = i-1;
-                
-                double d = heights[i-1];
-                double c = dheights[i-1];
+                lastPoint = i - 1;
+
+                double d = heights[i - 1];
+                double c = dheights[i - 1];
                 double a = (dheights[i] + c - 2.0 * heights[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
                 double b = (heights[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-                double s = sStart + (i-1) * segmentLength; // [sStart, sEnd]
+                double s = sStart + (i - 1) * segmentLength; // [sStart, sEnd]
                 oldSection = new ElevationSection(s, d, c, b, a);
-                lastPoint = i-1;
+                lastPoint = i - 1;
             }
 
         }
         delete[] dheights;
-        if(oldSection)
+        if (oldSection)
         {
             double s = sStart + lastPoint * segmentLength;
             newSections_.insert(s, oldSection);
@@ -1576,7 +1576,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 
     // Linear approximation //
     //
-    else if(pointCount > 0)
+    else if (pointCount > 0)
     {
         // Create Sections //
         //
@@ -1627,56 +1627,56 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 #endif
 
 #if 0
-	double pointsPerMeter = 0.1; // BAD: hard coded!
-	int pointCount = int(ceil((sEnd-sStart)*pointsPerMeter)); // TODO curvature...
-	double segmentLength = (sEnd-sStart)/(pointCount-1);
+    double pointsPerMeter = 0.1; // BAD: hard coded!
+    int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
+    double segmentLength = (sEnd - sStart) / (pointCount - 1);
 
-	// Sections //
-	//
-	double heights[pointCount];
-	ElevationSection * lastSection = NULL;
-	for(int i = 0; i < pointCount; ++i)
-	{
-		double s = sStart + i * segmentLength; // [sStart, sEnd]
+    // Sections //
+    //
+    double heights[pointCount];
+    ElevationSection *lastSection = NULL;
+    for (int i = 0; i < pointCount; ++i)
+    {
+        double s = sStart + i * segmentLength; // [sStart, sEnd]
 
-		// Height //
-		//
-		QPointF pos = road->getGlobalPoint(s);
-		double height = 0.0;
-		int count = 0;
-		foreach(Heightmap * map, maps_)
-		{
-			if(map->isIntersectedBy(pos))
-			{
-				height = height + map->getHeightmapValue(pos.x(), pos.y());
-				++count;
-			}
-		}
-		if(count != 0)
-		{
-			height = height/count;
-		}
+        // Height //
+        //
+        QPointF pos = road->getGlobalPoint(s);
+        double height = 0.0;
+        int count = 0;
+        foreach(Heightmap * map, maps_)
+        {
+            if (map->isIntersectedBy(pos))
+            {
+                height = height + map->getHeightmapValue(pos.x(), pos.y());
+                ++count;
+            }
+        }
+        if (count != 0)
+        {
+            height = height / count;
+        }
 
-		heights[i] = height + heightOffset_;
-	}
+        heights[i] = height + heightOffset_;
+    }
 
 
-	for(int i = 0; i < pointCount-1; ++i)
-	{
-		double s = sStart + i * segmentLength; // [sStart, sEnd]
-		double slope = (heights[i+1]-heights[i])/segmentLength;
-		if(lastSection
-			&& (fabs(lastSection->getB() - slope) < NUMERICAL_ZERO6)
-			&& (fabs(lastSection->getElevation(s) - heights[i]) < NUMERICAL_ZERO6)
-		)
-		{
-			continue;
-		}
+    for (int i = 0; i < pointCount - 1; ++i)
+    {
+        double s = sStart + i * segmentLength; // [sStart, sEnd]
+        double slope = (heights[i + 1] - heights[i]) / segmentLength;
+        if (lastSection
+            && (fabs(lastSection->getB() - slope) < NUMERICAL_ZERO6)
+            && (fabs(lastSection->getElevation(s) - heights[i]) < NUMERICAL_ZERO6)
+            )
+        {
+            continue;
+        }
 
-		ElevationSection * section = new ElevationSection(s, heights[i], slope, 0.0, 0.0);
-		newSections_.insert(s, section);
-		lastSection = section;
-	}
+        ElevationSection *section = new ElevationSection(s, heights[i], slope, 0.0, 0.0);
+        newSections_.insert(s, section);
+        lastSection = section;
+    }
 #endif
 
     delete[] heights;
@@ -1702,14 +1702,14 @@ ApplyHeightMapElevationCommand::~ApplyHeightMapElevationCommand()
 
     if (isUndone())
     {
-        foreach (ElevationSection *section, newSections_)
+        foreach(ElevationSection * section, newSections_)
         {
             delete section;
         }
     }
     else
     {
-        foreach (ElevationSection *section, oldSections_)
+        foreach(ElevationSection * section, oldSections_)
         {
             delete section;
         }
@@ -1784,7 +1784,7 @@ ApplyHeightMapElevationCommand::getHeight(double s)
 
     // Take the average over all maps //
     //
-    foreach (Heightmap *map, maps_)
+    foreach(Heightmap * map, maps_)
     {
         if (map->isIntersectedBy(pos))
         {
@@ -1821,10 +1821,10 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
     //
     RoadSystem *roadSystem = junction_->getRoadSystem();
     QList<odrID> pathIds;
-	QList<odrID> endRoadIds;
-	QList<odrID> startRoadIds;
+    QList<odrID> endRoadIds;
+    QList<odrID> startRoadIds;
 
-    foreach (JunctionConnection *connection, junction_->getConnections())
+    foreach(JunctionConnection * connection, junction_->getConnections())
     {
         odrID pathId = connection->getConnectingRoad();
         RSystemElementRoad *road = roadSystem->getRoad(pathId);
@@ -1881,9 +1881,9 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
     // Average Height //
     //
     double averageHeight = 0.0;
-    foreach (RSystemElementRoad *road, paths_)
+    foreach(RSystemElementRoad * road, paths_)
     {
-        foreach (ElevationSection *section, road->getElevationSections())
+        foreach(ElevationSection * section, road->getElevationSections())
         {
             oldSections_.insert(road->getID(), section);
         }
@@ -1895,28 +1895,28 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
 
     // Sections //
     //
-    foreach (RSystemElementRoad *road, paths_)
+    foreach(RSystemElementRoad * road, paths_)
     {
         newSections_.insert(road->getID(), new ElevationSection(0.0, averageHeight, 0.0, 0.0, 0.0));
     }
 
-    foreach (RSystemElementRoad *road, startRoads_)
+    foreach(RSystemElementRoad * road, startRoads_)
     {
         roadCommands_.append(new SetEndElevationCommand(road, true, averageHeight, 0.0, transitionLength));
     }
 
-    foreach (RSystemElementRoad *road, endRoads_)
+    foreach(RSystemElementRoad * road, endRoads_)
     {
         roadCommands_.append(new SetEndElevationCommand(road, false, averageHeight, 0.0, transitionLength));
     }
 
     // No sections created //
     //
-    //	if(newSections_.isEmpty())
-    //	{
-    //		ElevationSection * section = new ElevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
-    //		newSections_.insert(0.0, section);
-    //	}
+    // if(newSections_.isEmpty())
+    // {
+    //  ElevationSection * section = new ElevationSection(0.0, 0.0, 0.0, 0.0, 0.0);
+    //  newSections_.insert(0.0, section);
+    // }
 
     // Done //
     //
@@ -1932,20 +1932,20 @@ FlatJunctionsElevationCommand::~FlatJunctionsElevationCommand()
 
     if (isUndone())
     {
-        foreach (ElevationSection *section, newSections_)
+        foreach(ElevationSection * section, newSections_)
         {
             delete section;
         }
     }
     else
     {
-        foreach (ElevationSection *section, oldSections_)
+        foreach(ElevationSection * section, oldSections_)
         {
             delete section;
         }
     }
 
-    foreach (SetEndElevationCommand *command, roadCommands_)
+    foreach(SetEndElevationCommand * command, roadCommands_)
     {
         delete command;
     }
@@ -1957,14 +1957,14 @@ FlatJunctionsElevationCommand::~FlatJunctionsElevationCommand()
 void
 FlatJunctionsElevationCommand::redo()
 {
-    foreach (RSystemElementRoad *road, paths_)
+    foreach(RSystemElementRoad * road, paths_)
     {
         QMap<double, ElevationSection *> sections;
         sections.insert(0.0, newSections_.value(road->getID()));
         road->setElevationSections(sections);
     }
 
-    foreach (SetEndElevationCommand *command, roadCommands_)
+    foreach(SetEndElevationCommand * command, roadCommands_)
     {
         command->redo();
     }
@@ -1978,17 +1978,17 @@ FlatJunctionsElevationCommand::redo()
 void
 FlatJunctionsElevationCommand::undo()
 {
-    foreach (RSystemElementRoad *road, paths_)
+    foreach(RSystemElementRoad * road, paths_)
     {
         QMap<double, ElevationSection *> sections;
-        foreach (ElevationSection *section, oldSections_.values(road->getID()))
+        foreach(ElevationSection * section, oldSections_.values(road->getID()))
         {
             sections.insert(section->getSStart(), section);
         }
         road->setElevationSections(sections);
     }
 
-    foreach (SetEndElevationCommand *command, roadCommands_)
+    foreach(SetEndElevationCommand * command, roadCommands_)
     {
         command->undo();
     }
@@ -2026,7 +2026,7 @@ SetEndElevationCommand::SetEndElevationCommand(RSystemElementRoad *road, bool is
 
         // Put old sections in list //
         //
-        foreach (ElevationSection *section, road->getElevationSections())
+        foreach(ElevationSection * section, road->getElevationSections())
         {
             if (section->getSStart() <= s)
             {
@@ -2062,7 +2062,7 @@ SetEndElevationCommand::SetEndElevationCommand(RSystemElementRoad *road, bool is
         // Put old sections in list //
         //
         ElevationSection *prevSection = NULL;
-        foreach (ElevationSection *section, road->getElevationSections())
+        foreach(ElevationSection * section, road->getElevationSections())
         {
             if (section->getSStart() >= s)
             {
@@ -2102,7 +2102,7 @@ SetEndElevationCommand::~SetEndElevationCommand()
     }
     else
     {
-        foreach (ElevationSection *section, oldSections_)
+        foreach(ElevationSection * section, oldSections_)
         {
             delete section;
         }
@@ -2115,7 +2115,7 @@ SetEndElevationCommand::~SetEndElevationCommand()
 void
 SetEndElevationCommand::redo()
 {
-    foreach (ElevationSection *section, oldSections_)
+    foreach(ElevationSection * section, oldSections_)
     {
         road_->delElevationSection(section);
     }
@@ -2141,7 +2141,7 @@ SetEndElevationCommand::undo()
         road_->delElevationSection(newSectionB_);
     }
 
-    foreach (ElevationSection *section, oldSections_)
+    foreach(ElevationSection * section, oldSections_)
     {
         road_->addElevationSection(section);
     }
@@ -2184,17 +2184,16 @@ SelectElevationSectionCommand::~SelectElevationSectionCommand()
 }
 
 void
-SelectElevationSectionCommand::
-    redo()
+SelectElevationSectionCommand::redo()
 {
     // Send a notification to the observers
     //
-    foreach (ElevationSection *section, endPointSections_)
+    foreach(ElevationSection * section, endPointSections_)
     {
         section->addElevationSectionChanges(true);
     }
 
-    foreach (ElevationSection *section, startPointSections_)
+    foreach(ElevationSection * section, startPointSections_)
     {
         section->addElevationSectionChanges(true);
     }

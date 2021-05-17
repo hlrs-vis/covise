@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "oscshapeitem.hpp"
 #include "osctextitem.hpp"
@@ -21,8 +21,8 @@
 #include "src/util/colorpalette.hpp"
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/commands/osccommands.hpp"
 #include "src/data/projectdata.hpp"
@@ -67,10 +67,10 @@
 
 OSCShapeItem::OSCShapeItem(OSCElement *element, OSCBaseShapeItem *oscBaseShapeItem, OpenScenario::oscTrajectory *trajectory)
     : GraphElement(oscBaseShapeItem, element)
-	, element_(element)
-	, oscBaseShapeItem_(oscBaseShapeItem)
+    , element_(element)
+    , oscBaseShapeItem_(oscBaseShapeItem)
     , trajectory_(trajectory)
-	, path_(NULL)
+    , path_(NULL)
 {
 
     init();
@@ -81,7 +81,7 @@ OSCShapeItem::~OSCShapeItem()
 }
 
 /*!
-* Initializes the path 
+* Initializes the path
 */
 void
 OSCShapeItem::createPath()
@@ -144,14 +144,14 @@ OSCShapeItem::createPath()
 void
 OSCShapeItem::init()
 {
-	oscBaseShapeItem_->appendOSCShapeItem(this);
-	
+    oscBaseShapeItem_->appendOSCShapeItem(this);
+
     // Hover Events //
     //
     setAcceptHoverEvents(true);
-//    setSelectable();
-	setFlag(QGraphicsItem::ItemIsSelectable);
-	setFlag(ItemIsFocusable);
+    //    setSelectable();
+    setFlag(QGraphicsItem::ItemIsSelectable);
+    setFlag(ItemIsFocusable);
 
     // OpenScenario Editor
     //
@@ -177,11 +177,11 @@ OSCShapeItem::init()
     copyPan_ = false;
 
     createControlPoints();
-	if (element_->isElementSelected())
-	{
-		setSelected(true);
-		getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_,smoothList_);
-	}
+    if (element_->isElementSelected())
+    {
+        setSelected(true);
+        getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_, smoothList_);
+    }
     createPath();
     updatePosition();
 }
@@ -193,170 +193,170 @@ OSCShapeItem::createControlPoints()
 
     OpenScenario::oscArrayMember *vertexArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory_->getMember("Vertex"));
 
-	QPointF before;
-	RSystemElementRoad *oldRoad = NULL;
-	RoadSystem *roadSystem = getTopviewGraph()->getProjectData()->getRoadSystem();
-	std::string oldRoadID = "";
-	for (int i = 0; i < vertexArray->size(); i++)
-	{
-		QPointF p0;
-		OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i));
-		OpenScenario::oscPosition *position = vertex->Position.getObject();
-		if (!position)
-		{
-			continue;
-		}
+    QPointF before;
+    RSystemElementRoad *oldRoad = NULL;
+    RoadSystem *roadSystem = getTopviewGraph()->getProjectData()->getRoadSystem();
+    std::string oldRoadID = "";
+    for (int i = 0; i < vertexArray->size(); i++)
+    {
+        QPointF p0;
+        OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i));
+        OpenScenario::oscPosition *position = vertex->Position.getObject();
+        if (!position)
+        {
+            continue;
+        }
 
-		OpenScenario::oscRoad *posRoad = position->Road.getObject();
-		OpenScenario::oscWorld *posWorld = position->World.getObject();
+        OpenScenario::oscRoad *posRoad = position->Road.getObject();
+        OpenScenario::oscWorld *posWorld = position->World.getObject();
 
-		if (posWorld)
-		{
-			p0.setX(posWorld->x.getValue());
-			p0.setY(posWorld->y.getValue());
-		}
-		else if (posRoad)
-		{
-			std::string roadID = posRoad->roadId.getValue();
-			if (roadID != oldRoadID)
-			{
-				QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadID), odrID::ID_Road);
-				RSystemElementRoad *road = NULL;
-				int i;
-				for (i = 0; i < idList.size(); i++)
-				{
-					road = roadSystem->getRoad(idList.at(i));
-					if (road->getLength() > posRoad->s.getValue())
-					{
-						oldRoad = road;
-						oldRoadID = roadID;
-						break;
-					}
-				}
+        if (posWorld)
+        {
+            p0.setX(posWorld->x.getValue());
+            p0.setY(posWorld->y.getValue());
+        }
+        else if (posRoad)
+        {
+            std::string roadID = posRoad->roadId.getValue();
+            if (roadID != oldRoadID)
+            {
+                QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadID), odrID::ID_Road);
+                RSystemElementRoad *road = NULL;
+                int i;
+                for (i = 0; i < idList.size(); i++)
+                {
+                    road = roadSystem->getRoad(idList.at(i));
+                    if (road->getLength() > posRoad->s.getValue())
+                    {
+                        oldRoad = road;
+                        oldRoadID = roadID;
+                        break;
+                    }
+                }
 
-				if (i >= idList.size())
-				{
-					std::string s = "Warning: No road with name" + roadID + "Trajectoy not loaded";
-					getTopviewGraph()->getProjectWidget()->getMainWindow()->statusBar()->showMessage(tr(s.c_str()), 2000);
-					continue;
-				}
-			}
+                if (i >= idList.size())
+                {
+                    std::string s = "Warning: No road with name" + roadID + "Trajectoy not loaded";
+                    getTopviewGraph()->getProjectWidget()->getMainWindow()->statusBar()->showMessage(tr(s.c_str()), 2000);
+                    continue;
+                }
+            }
 
-			p0 = oldRoad->getGlobalPoint(posRoad->s.getValue(), posRoad->t.getValue());
-		}
+            p0 = oldRoad->getGlobalPoint(posRoad->s.getValue(), posRoad->t.getValue());
+        }
 
-		if (!posWorld && !posRoad)
-		{
-			continue;
-		}
-
-
-
-		OpenScenario::oscShape *shape = vertex->Shape.getObject();
-		if (!shape)
-		{
-			continue;
-		}
-
-		OpenScenario::oscSpline *spline = shape->Spline.getObject();
-		if (!spline)
-		{
-			OpenScenario::oscPolyline *poly = shape->Polyline.getObject();
-			if (!poly)
-			{
-				continue;
-			}
+        if (!posWorld && !posRoad)
+        {
+            continue;
+        }
 
 
-			QPointF after;
-			if (i != vertexArray->size() - 1)
-			{
-				OpenScenario::oscVertex *vertexAfter = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i + 1));
-				OpenScenario::oscPosition *positionAfter = vertexAfter->Position.getObject();
 
-			
-				OpenScenario::oscWorld *posWorldAfter = positionAfter->World.getObject();
-				if (posWorldAfter)
-				{
-					after.setX(posWorldAfter->x.getValue());
-					after.setY(posWorldAfter->y.getValue());
-					after = (after - p0) / 3 + p0;
-				}
-				else
-				{
-					OpenScenario::oscRoad *posRoadAfter = positionAfter->Road.getObject();
-					std::string roadIDAfter = posRoadAfter->roadId.getValue();
+        OpenScenario::oscShape *shape = vertex->Shape.getObject();
+        if (!shape)
+        {
+            continue;
+        }
 
-					if (roadIDAfter != oldRoadID)
-					{
+        OpenScenario::oscSpline *spline = shape->Spline.getObject();
+        if (!spline)
+        {
+            OpenScenario::oscPolyline *poly = shape->Polyline.getObject();
+            if (!poly)
+            {
+                continue;
+            }
 
-						RSystemElementRoad *nextRoad = NULL;
-						QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadIDAfter), odrID::ID_Road);
-						foreach(odrID id, idList)
-						{
-							nextRoad = roadSystem->getRoad(id);
-							if (nextRoad->getLength() > posRoad->s.getValue())
-							{
-								after = nextRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
-								break;
-							}
-						}
 
-						if (!nextRoad)
-						{
-							continue;
-						}
-					}
-					else
-					{
-						after = oldRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
-					}
-					after = (after - p0) / 3 + p0;
-				}
-			}
+            QPointF after;
+            if (i != vertexArray->size() - 1)
+            {
+                OpenScenario::oscVertex *vertexAfter = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i + 1));
+                OpenScenario::oscPosition *positionAfter = vertexAfter->Position.getObject();
 
-			if (i > 0)
-			{
-				controlPoints_.push_back((before - p0) / 3 + p0);
-			}
 
-			controlPoints_.push_back(p0);
+                OpenScenario::oscWorld *posWorldAfter = positionAfter->World.getObject();
+                if (posWorldAfter)
+                {
+                    after.setX(posWorldAfter->x.getValue());
+                    after.setY(posWorldAfter->y.getValue());
+                    after = (after - p0) / 3 + p0;
+                }
+                else
+                {
+                    OpenScenario::oscRoad *posRoadAfter = positionAfter->Road.getObject();
+                    std::string roadIDAfter = posRoadAfter->roadId.getValue();
 
-			if (i != vertexArray->size() - 1)
-			{
-				controlPoints_.push_back(after);
-			}
+                    if (roadIDAfter != oldRoadID)
+                    {
 
-			before = p0;
-			continue;
-		}
+                        RSystemElementRoad *nextRoad = NULL;
+                        QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadIDAfter), odrID::ID_Road);
+                        foreach(odrID id, idList)
+                        {
+                            nextRoad = roadSystem->getRoad(id);
+                            if (nextRoad->getLength() > posRoad->s.getValue())
+                            {
+                                after = nextRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
+                                break;
+                            }
+                        }
 
-		OpenScenario::oscControlPoint1 *controlPoint1 = spline->ControlPoint1.getObject();
-		if (controlPoint1)
-		{
-			std::string s = controlPoint1->status.getValue();
-			double x, y;
-			sscanf(s.c_str(), "%lf %lf", &x, &y);
-			QPointF p1(p0.x() + x, p0.y() + y);
+                        if (!nextRoad)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        after = oldRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
+                    }
+                    after = (after - p0) / 3 + p0;
+                }
+            }
 
-			controlPoints_.push_back(p1);
-		}
+            if (i > 0)
+            {
+                controlPoints_.push_back((before - p0) / 3 + p0);
+            }
 
-		controlPoints_.push_back(p0);
+            controlPoints_.push_back(p0);
 
-		OpenScenario::oscControlPoint2 *controlPoint2 = spline->ControlPoint2.getObject();
-		if (controlPoint2)
-		{
-			std::string s = controlPoint2->status.getValue();
-			double x, y;
-			sscanf(s.c_str(), "%lf %lf", &x, &y);
-			QPointF p1(p0.x() + x, p0.y() + y);
+            if (i != vertexArray->size() - 1)
+            {
+                controlPoints_.push_back(after);
+            }
 
-			controlPoints_.push_back(p1);
-		}
+            before = p0;
+            continue;
+        }
 
-		before = p0;
-	}
+        OpenScenario::oscControlPoint1 *controlPoint1 = spline->ControlPoint1.getObject();
+        if (controlPoint1)
+        {
+            std::string s = controlPoint1->status.getValue();
+            double x, y;
+            sscanf(s.c_str(), "%lf %lf", &x, &y);
+            QPointF p1(p0.x() + x, p0.y() + y);
+
+            controlPoints_.push_back(p1);
+        }
+
+        controlPoints_.push_back(p0);
+
+        OpenScenario::oscControlPoint2 *controlPoint2 = spline->ControlPoint2.getObject();
+        if (controlPoint2)
+        {
+            std::string s = controlPoint2->status.getValue();
+            double x, y;
+            sscanf(s.c_str(), "%lf %lf", &x, &y);
+            QPointF p1(p0.x() + x, p0.y() + y);
+
+            controlPoints_.push_back(p1);
+        }
+
+        before = p0;
+    }
 }
 
 
@@ -370,7 +370,7 @@ OSCShapeItem::updatePosition()
 {
     if (path_)
     {
-        path_->translate(pos_ );
+        path_->translate(pos_);
         setPath(*path_);
     }
 }
@@ -379,12 +379,12 @@ QString
 OSCShapeItem::updateName()
 {
     QString name = "Spline";
- /*   OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getOrCreateValue();
-    oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
-    if (sv)
-    {
-        name = QString::fromStdString(sv->getValue());
-    } */
+    /*   OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getOrCreateValue();
+       oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
+       if (sv)
+       {
+           name = QString::fromStdString(sv->getValue());
+       } */
 
     return name;
 }
@@ -412,10 +412,10 @@ bool
 OSCShapeItem::removeElement()
 {
 
-	RemoveOSCObjectCommand *command = new RemoveOSCObjectCommand(element_);
-	getTopviewGraph()->executeCommand(command); 
+    RemoveOSCObjectCommand *command = new RemoveOSCObjectCommand(element_);
+    getTopviewGraph()->executeCommand(command);
 
-	return false;
+    return false;
 }
 
 //################//
@@ -426,27 +426,27 @@ void
 OSCShapeItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 
-	setCursor(Qt::OpenHandCursor);
-	setFocus();
+    setCursor(Qt::OpenHandCursor);
+    setFocus();
 
-	// Text //
-	//
-	oscTextItem_->setVisible(true);
-	oscTextItem_->setPos(event->scenePos());
+    // Text //
+    //
+    oscTextItem_->setVisible(true);
+    oscTextItem_->setPos(event->scenePos());
 
-	// Parent //
-	//
-	GraphElement::hoverEnterEvent(event); // pass to baseclass
+    // Parent //
+    //
+    GraphElement::hoverEnterEvent(event); // pass to baseclass
 }
 
 void
 OSCShapeItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     setCursor(Qt::ArrowCursor);
-	if (!copyPan_)
-	{
-		clearFocus();
-	}
+    if (!copyPan_)
+    {
+        clearFocus();
+    }
 
     // Text //
     //
@@ -475,37 +475,37 @@ OSCShapeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         removeElement();
     }
-    else 
+    else
     {
 
-		doPan_ = true;
-		if (copyPan_)
-		{
-	/*		Signal * newSignal = signal_->getClone();
-			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
-			getProjectGraph()->executeCommand(command); */
-		}
+        doPan_ = true;
+        if (copyPan_)
+        {
+            /*  Signal * newSignal = signal_->getClone();
+                    AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
+                    getProjectGraph()->executeCommand(command); */
+        }
 
         GraphElement::mousePressEvent(event); // pass to baseclass
 
     }
 
-	oscTextItem_->setVisible(false);
+    oscTextItem_->setVisible(false);
 }
 
 void
 OSCShapeItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{	
-	if (doPan_)
-	{
+{
+    if (doPan_)
+    {
 
-		QPointF newPos = event->scenePos();
-		path_->translate(newPos-lastPos_);
-		lastPos_ = newPos;
-		setPath(*path_);
+        QPointF newPos = event->scenePos();
+        path_->translate(newPos - lastPos_);
+        lastPos_ = newPos;
+        setPath(*path_);
 
-		GraphElement::mouseMoveEvent(event);
-	}
+        GraphElement::mouseMoveEvent(event);
+    }
 }
 
 void
@@ -514,23 +514,23 @@ OSCShapeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     if (doPan_)
     {
-		double diff = (lastPos_ - pressPos_).manhattanLength();
-		if (diff > 0.01) // otherwise item has not been moved by intention
-		{
-			pos_ += lastPos_ - pressPos_;
+        double diff = (lastPos_ - pressPos_).manhattanLength();
+        if (diff > 0.01) // otherwise item has not been moved by intention
+        {
+            pos_ += lastPos_ - pressPos_;
 
-		}
-		else
-		{
-			pos_ = lastPos_;
-		}
+        }
+        else
+        {
+            pos_ = lastPos_;
+        }
 
-		doPan_ = false;
+        doPan_ = false;
     }
 
-	oscTextItem_->setVisible(true);
+    oscTextItem_->setVisible(true);
 
-	GraphElement::mouseReleaseEvent(event);
+    GraphElement::mouseReleaseEvent(event);
 }
 
 /*! \brief Key events for panning, etc.
@@ -542,7 +542,7 @@ OSCShapeItem::keyPressEvent(QKeyEvent *event)
     // TODO: This will not notice a key pressed, when the view is not active
     switch (event->key())
     {
-	case Qt::Key_Shift:
+    case Qt::Key_Shift:
         copyPan_ = true;
         break;
 
@@ -561,10 +561,10 @@ OSCShapeItem::keyReleaseEvent(QKeyEvent *event)
     {
     case Qt::Key_Shift:
         copyPan_ = false;
-		if (!isHovered())
-		{
-			clearFocus();
-		}
+        if (!isHovered())
+        {
+            clearFocus();
+        }
         break;
 
 
@@ -593,7 +593,7 @@ OSCShapeItem::updateObserver()
 
     // Get change flags //
     //
-	int changes = element_->getOSCElementChanges();
+    int changes = element_->getOSCElementChanges();
 
     if (changes & OSCElement::COE_ParameterChange)
     {
@@ -610,7 +610,7 @@ OSCShapeItem::updateObserver()
     }
     else if (changes & OSCElement::COE_SettingChanged)
     {
-         getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_, smoothList_);
+        getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_, smoothList_);
     }
 
     else

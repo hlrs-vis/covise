@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   05.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   05.07.2010
+ **
+ **************************************************************************/
 
 #include "trackroadsystemitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -41,7 +41,7 @@ TrackRoadSystemItem::~TrackRoadSystemItem()
 void
 TrackRoadSystemItem::init()
 {
-    foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
+    foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
     {
         trackRoadItems_.insert(road, new TrackRoadItem(this, road));
     }
@@ -50,7 +50,7 @@ TrackRoadSystemItem::init()
 void
 TrackRoadSystemItem::notifyDeletion()
 {
-    foreach (TrackRoadItem *trackRoadItem, trackRoadItems_)
+    foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
     {
         trackRoadItem->notifyDeletion();
     }
@@ -71,7 +71,7 @@ TrackRoadSystemItem::removeRoadItem(TrackRoadItem *item)
 TrackRoadItem *
 TrackRoadSystemItem::getRoadItem(RSystemElementRoad *road)
 {
-	return trackRoadItems_.value(road, NULL);
+    return trackRoadItems_.value(road, NULL);
 }
 
 //##################//
@@ -84,7 +84,7 @@ TrackRoadSystemItem::getRoadItem(RSystemElementRoad *road)
 void
 TrackRoadSystemItem::rebuildMoveRotateHandles()
 {
-    foreach (TrackRoadItem *trackRoadItem, trackRoadItems_)
+    foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
     {
         trackRoadItem->rebuildMoveRotateHandles(true);
     }
@@ -96,7 +96,7 @@ TrackRoadSystemItem::rebuildMoveRotateHandles()
 void
 TrackRoadSystemItem::rebuildAddHandles()
 {
-    foreach (TrackRoadItem *trackRoadItem, trackRoadItems_)
+    foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
     {
         trackRoadItem->rebuildAddHandles(true);
     }
@@ -108,7 +108,7 @@ TrackRoadSystemItem::rebuildAddHandles()
 void
 TrackRoadSystemItem::rebuildRoadMoveRotateHandles()
 {
-    foreach (TrackRoadItem *trackRoadItem, trackRoadItems_)
+    foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
     {
         trackRoadItem->rebuildRoadMoveRotateHandles(true);
     }
@@ -120,7 +120,7 @@ TrackRoadSystemItem::rebuildRoadMoveRotateHandles()
 void
 TrackRoadSystemItem::deleteHandles()
 {
-    foreach (TrackRoadItem *trackRoadItem, trackRoadItems_)
+    foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
     {
         trackRoadItem->deleteHandles();
     }
@@ -151,7 +151,7 @@ TrackRoadSystemItem::updateObserver()
     {
         // A road has been added (or deleted - but that will be handled by the road item itself).
         //
-        foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
+        foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
         {
             if ((road->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (road->getDataElementChanges() & DataElement::CDE_DataElementAdded))

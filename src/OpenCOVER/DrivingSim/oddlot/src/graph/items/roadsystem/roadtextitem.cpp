@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "roadtextitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 // Graph //
@@ -41,14 +41,14 @@ RoadTextItem::RoadTextItem(RoadItem *roadItem)
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
-    //	textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //	connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
-    //	connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
+    // textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
+    // connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
 
     // Flags //
     //
-    //	setSelectable();
-    //	setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+    // setSelectable();
+    // setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
 
     // Path //
@@ -78,7 +78,7 @@ RoadTextItem::createPath()
     thePath.moveTo(0.0, 0.0);
     thePath.lineTo(mapFromScene(road_->getGlobalPoint(1.0)));
 
-    //	thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
+    // thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
 
     setPath(thePath);
 }
@@ -86,8 +86,8 @@ RoadTextItem::createPath()
 void
 RoadTextItem::updatePosition()
 {
-    /*	setPos(road_->getGlobalPoint(1.0, 10.0));
-	createPath();*/
+    /* setPos(road_->getGlobalPoint(1.0, 10.0));
+    createPath();*/
 }
 
 void
@@ -108,10 +108,10 @@ RoadTextItem::handlePositionChange(const QPointF &dpos)
 }
 
 //void
-//	RoadTextItem
-//	::handleSelectionChange(bool selected)
+// RoadTextItem
+// ::handleSelectionChange(bool selected)
 //{
-////	setSelected(selected);
+//// setSelected(selected);
 //}
 
 QPainterPath

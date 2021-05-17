@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "rsystemelementjunctiongroup.hpp"
 
 
 RSystemElementJunctionGroup::RSystemElementJunctionGroup(const QString &name, const odrID &id, const QString &type)
     : RSystemElement(name, id, RSystemElement::DRE_JunctionGroup)
-	, type_(type)
+    , type_(type)
     , junctionGroupChanges_(0x0)
 {
 }
@@ -28,25 +28,25 @@ RSystemElementJunctionGroup::~RSystemElementJunctionGroup()
 }
 
 
-void 
+void
 RSystemElementJunctionGroup::addJunction(const QString junctionReference)
 {
-	if (!junctionReferences_.contains(junctionReference))
-	{
-		junctionReferences_.append(junctionReference);
-	}
+    if (!junctionReferences_.contains(junctionReference))
+    {
+        junctionReferences_.append(junctionReference);
+    }
 }
 
-bool 
+bool
 RSystemElementJunctionGroup::delJunction(const QString junctionReference)
 {
-	return junctionReferences_.removeOne(junctionReference);
+    return junctionReferences_.removeOne(junctionReference);
 }
 
 void
 RSystemElementJunctionGroup::clearReferences()
 {
-	junctionReferences_.clear();
+    junctionReferences_.clear();
 }
 
 

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   21.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   21.05.2010
+ **
+ **************************************************************************/
 
 #include "signalcommands.hpp"
 
@@ -21,9 +21,9 @@
 
 #include "src/data/commands/roadsectioncommands.hpp"
 
-//#########################//
-// AddSignalCommand //
-//#########################//
+ //#########################//
+ // AddSignalCommand //
+ //#########################//
 
 AddSignalCommand::AddSignalCommand(Signal *signal, RSystemElementRoad *road, DataCommand *parent)
     : DataCommand(parent)
@@ -121,7 +121,7 @@ RemoveSignalCommand::~RemoveSignalCommand()
     }
     else
     {
- //       delete signal_;
+        //       delete signal_;
     }
 }
 
@@ -186,10 +186,10 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const odr
     newSignalProps_.hOffset = hOffset;
     newSignalProps_.pitch = pitch;
     newSignalProps_.roll = roll;
-	newSignalProps_.unit = unit;
-	newSignalProps_.text = text;
-	newSignalProps_.width = width;
-	newSignalProps_.height = height;
+    newSignalProps_.unit = unit;
+    newSignalProps_.text = text;
+    newSignalProps_.width = width;
+    newSignalProps_.height = height;
     newSignalProps_.pole = pole;
 
     newValidity_.fromLane = fromLane;
@@ -211,11 +211,11 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const odr
     oldSignalProps_.value = signal_->getValue();
     oldSignalProps_.hOffset = signal_->getHeading();
     oldSignalProps_.pitch = signal_->getPitch();
-	oldSignalProps_.roll = signal_->getRoll();
-	oldSignalProps_.unit = signal_->getUnit();
-	oldSignalProps_.text = signal_->getText();
-	oldSignalProps_.width = signal_->getWidth();
-	oldSignalProps_.height = signal_->getHeight();
+    oldSignalProps_.roll = signal_->getRoll();
+    oldSignalProps_.unit = signal_->getUnit();
+    oldSignalProps_.text = signal_->getText();
+    oldSignalProps_.width = signal_->getWidth();
+    oldSignalProps_.height = signal_->getHeight();
     oldSignalProps_.pole = signal_->getPole();
 
     oldValidity_.fromLane = signal_->getValidFromLane();
@@ -279,14 +279,14 @@ void
 SetSignalPropertiesCommand::redo()
 {
 
-    //	road_->delSignal(signal_);
+    // road_->delSignal(signal_);
 
     signal_->setId(newId_);
     signal_->setName(newName_);
     signal_->setProperties(newSignalProps_);
     signal_->setValidity(newValidity_);
     signal_->setSignalUserData(newUserData_);
-    //	road_->addSignal(signal_);
+    // road_->addSignal(signal_);
 
     if ((newSignalProps_.type != oldSignalProps_.type) || (newSignalProps_.subtype != oldSignalProps_.subtype) || (newUserData_.typeSubclass != oldUserData_.typeSubclass))
     {
@@ -306,7 +306,7 @@ SetSignalPropertiesCommand::redo()
 void
 SetSignalPropertiesCommand::undo()
 {
-    //	road_->delSignal(signal_);
+    // road_->delSignal(signal_);
 
     signal_->setId(oldId_);
     signal_->setName(oldName_);
@@ -314,7 +314,7 @@ SetSignalPropertiesCommand::undo()
     signal_->setValidity(oldValidity_);
     signal_->setSignalUserData(oldUserData_);
 
-    //	road_->addSignal(signal_);
+    // road_->addSignal(signal_);
     if ((newSignalProps_.type != oldSignalProps_.type) || (newSignalProps_.subtype != oldSignalProps_.subtype) || (newUserData_.typeSubclass != oldUserData_.typeSubclass))
     {
         signal_->addSignalChanges(Signal::CEL_TypeChange);
@@ -427,7 +427,7 @@ RemoveObjectCommand::~RemoveObjectCommand()
     }
     else
     {
-//        delete object_;
+        //        delete object_;
     }
 }
 
@@ -515,14 +515,14 @@ SetObjectPropertiesCommand::redo()
     object_->setProperties(newObjectProps_);
     object_->setRepeatProperties(newObjectRepeat_);
 
-	if (newObjectProps_.type != oldObjectProps_.type)
-	{
-		object_->addObjectChanges(Object::CEL_TypeChange);
-	}
-	else
-	{
-		object_->addObjectChanges(Object::CEL_ParameterChange);
-	}
+    if (newObjectProps_.type != oldObjectProps_.type)
+    {
+        object_->addObjectChanges(Object::CEL_TypeChange);
+    }
+    else
+    {
+        object_->addObjectChanges(Object::CEL_ParameterChange);
+    }
 
     setRedone();
 }
@@ -540,14 +540,14 @@ SetObjectPropertiesCommand::undo()
     object_->setProperties(oldObjectProps_);
     object_->setRepeatProperties(oldObjectRepeat_);
 
-	if (newObjectProps_.type != oldObjectProps_.type)
-	{
-		object_->addObjectChanges(Object::CEL_TypeChange);
-	}
-	else
-	{
-		object_->addObjectChanges(Object::CEL_ParameterChange);
-	}
+    if (newObjectProps_.type != oldObjectProps_.type)
+    {
+        object_->addObjectChanges(Object::CEL_TypeChange);
+    }
+    else
+    {
+        object_->addObjectChanges(Object::CEL_ParameterChange);
+    }
 
     setUndone();
 }
@@ -652,7 +652,7 @@ RemoveBridgeCommand::~RemoveBridgeCommand()
     }
     else
     {
- //       delete bridge_;
+        //       delete bridge_;
     }
 }
 
@@ -765,10 +765,10 @@ SetBridgePropertiesCommand::undo()
 // SetTunnelPropertiesCommand //
 //#########################//
 SetTunnelPropertiesCommand::SetTunnelPropertiesCommand(Tunnel *tunnel, const odrID &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent)
-	: SetBridgePropertiesCommand(tunnel, id, file, name, type, length, parent)
+    : SetBridgePropertiesCommand(tunnel, id, file, name, type, length, parent)
     , tunnel_(tunnel)
-	, newLighting_(lighting)
-	, newDaylight_(daylight)
+    , newLighting_(lighting)
+    , newDaylight_(daylight)
 {
     // Check for validity //
     //
@@ -785,7 +785,7 @@ SetTunnelPropertiesCommand::SetTunnelPropertiesCommand(Tunnel *tunnel, const odr
     }
 
     oldLighting_ = tunnel_->getLighting();
-	oldDaylight_ = tunnel_->getDaylight();
+    oldDaylight_ = tunnel_->getDaylight();
 }
 
 /*! \brief .
@@ -810,10 +810,10 @@ SetTunnelPropertiesCommand::~SetTunnelPropertiesCommand()
 void
 SetTunnelPropertiesCommand::redo()
 {
-	SetBridgePropertiesCommand::redo();	// pass to baseclass /
+    SetBridgePropertiesCommand::redo(); // pass to baseclass /
 
-	tunnel_->setLighting(newLighting_);
-	tunnel_->setDaylight(newDaylight_);
+    tunnel_->setLighting(newLighting_);
+    tunnel_->setDaylight(newDaylight_);
 
     tunnel_->addTunnelChanges(Tunnel::CEL_ParameterChange);
 
@@ -826,10 +826,10 @@ SetTunnelPropertiesCommand::redo()
 void
 SetTunnelPropertiesCommand::undo()
 {
-	SetBridgePropertiesCommand::undo();
+    SetBridgePropertiesCommand::undo();
 
     tunnel_->setLighting(oldLighting_);
-	tunnel_->setDaylight(oldDaylight_);
+    tunnel_->setDaylight(oldDaylight_);
 
     tunnel_->addTunnelChanges(Tunnel::CEL_ParameterChange);
 

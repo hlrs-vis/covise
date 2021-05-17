@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   17.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   17.03.2010
+ **
+ **************************************************************************/
 
 #include "lateralsectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/lateralsections/lateralsection.hpp"
 
 // Graph //
@@ -35,11 +35,11 @@
 
 LateralSectionItem::LateralSectionItem(GraphElement *parentItem, LateralSection *lateralSection)
     : QObject()
-	, QGraphicsPathItem(parentItem)
-	, Observer()
+    , QGraphicsPathItem(parentItem)
+    , Observer()
     , parentItem_(parentItem)
     , lateralSection_(lateralSection)
-	, isInGarbage_(false)
+    , isInGarbage_(false)
 {
     init();
 }
@@ -48,7 +48,7 @@ LateralSectionItem::~LateralSectionItem()
 {
     // Observer Pattern //
     //
-	lateralSection_->detachObserver(this);
+    lateralSection_->detachObserver(this);
 }
 
 void
@@ -57,9 +57,9 @@ LateralSectionItem::init()
 
     // Observer Pattern //
     //
-	lateralSection_->attachObserver(this);
+    lateralSection_->attachObserver(this);
 
-	setZValue(0.0);
+    setZValue(0.0);
 
 
     // ContextMenu //
@@ -72,48 +72,48 @@ LateralSectionItem::init()
 void
 LateralSectionItem::registerForDeletion()
 {
-	if (parentItem_)
-	{
-		ProfileGraph *profileGraph = parentItem_->getProfileGraph();
-		if (profileGraph)
-		{
-			profileGraph->addToGarbage(this);
-		}
-	}
+    if (parentItem_)
+    {
+        ProfileGraph *profileGraph = parentItem_->getProfileGraph();
+        if (profileGraph)
+        {
+            profileGraph->addToGarbage(this);
+        }
+    }
 
-	notifyDeletion();
+    notifyDeletion();
 }
 
 void
 LateralSectionItem::notifyDeletion()
 {
-	isInGarbage_ = true;
+    isInGarbage_ = true;
 }
 
 ProfileGraph *
 LateralSectionItem::getProfileGraph() const
 {
-	if (parentItem_)
-	{
-		return parentItem_->getProfileGraph();
-	}
-	else
-	{
-		return NULL;
-	}
+    if (parentItem_)
+    {
+        return parentItem_->getProfileGraph();
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 ProjectGraph *
 LateralSectionItem::getProjectGraph() const
 {
     if (getProfileGraph())
-	{
-		return getProfileGraph();
-	}
-	else
-	{
-		return NULL;
-	}
+    {
+        return getProfileGraph();
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 
@@ -125,10 +125,10 @@ LateralSectionItem::getProjectGraph() const
 
 /*
 bool
-	LateralSectionItem
-	::removeSection()
+    LateralSectionItem
+    ::removeSection()
 {
-	// does nothing by default - to be implemented by subclasses
+    // does nothing by default - to be implemented by subclasses
 }*/
 
 
@@ -140,18 +140,18 @@ void
 LateralSectionItem::updateObserver()
 {
 
-	// Get change flags //
-	//
-	int changes = lateralSection_->getDataElementChanges();
+    // Get change flags //
+    //
+    int changes = lateralSection_->getDataElementChanges();
 
-	// Deletion //
-	//
-	if ((changes & DataElement::CDE_DataElementDeleted)
-		|| (changes & DataElement::CDE_DataElementRemoved))
-	{
-		registerForDeletion();
-		return;
-	}
+    // Deletion //
+    //
+    if ((changes & DataElement::CDE_DataElementDeleted)
+        || (changes & DataElement::CDE_DataElementRemoved))
+    {
+        registerForDeletion();
+        return;
+    }
 }
 
 //*************//

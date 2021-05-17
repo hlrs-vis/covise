@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "lateralsectioncommands.hpp"
 
@@ -19,11 +19,11 @@
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
 
-//###############//
-// MoveLateralSectionCommand //
-//###############//
+ //###############//
+ // MoveLateralSectionCommand //
+ //###############//
 
-MoveLateralSectionCommand::MoveLateralSectionCommand(LateralSection *lateralSection, double t,  DataCommand *parent)
+MoveLateralSectionCommand::MoveLateralSectionCommand(LateralSection *lateralSection, double t, DataCommand *parent)
     : DataCommand(parent)
     , lateralSection_(lateralSection)
     , newT_(t)
@@ -40,7 +40,7 @@ MoveLateralSectionCommand::MoveLateralSectionCommand(LateralSection *lateralSect
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Move Lateral Section (invalid!)"));
-		qDebug() << "false";
+        qDebug() << "false";
         return;
     }
 
@@ -64,7 +64,7 @@ MoveLateralSectionCommand::~MoveLateralSectionCommand()
 void
 MoveLateralSectionCommand::redo()
 {
-	lateralSection_->getParentSection()->moveLateralSection(lateralSection_, newT_);
+    lateralSection_->getParentSection()->moveLateralSection(lateralSection_, newT_);
 
     setRedone();
 }
@@ -75,7 +75,7 @@ MoveLateralSectionCommand::redo()
 void
 MoveLateralSectionCommand::undo()
 {
-	lateralSection_->getParentSection()->moveLateralSection(lateralSection_, oldT_);
+    lateralSection_->getParentSection()->moveLateralSection(lateralSection_, oldT_);
 
     setUndone();
 }
@@ -90,7 +90,7 @@ MoveLateralSectionCommand::mergeWith(const QUndoCommand *other)
     //
     if (other->id() != id())
     {
-		qDebug() << "false";
+        qDebug() << "false";
         return false;
     }
 
@@ -100,7 +100,7 @@ MoveLateralSectionCommand::mergeWith(const QUndoCommand *other)
     //
     if (lateralSection_ != command->lateralSection_)
     {
-		qDebug() << "false";
+        qDebug() << "false";
         return false;
     }
 

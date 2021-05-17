@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/19/2010
+ **
+ **************************************************************************/
 
 #include "roadlinksinkitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
@@ -73,7 +73,7 @@ RoadLinkSinkItem::init()
 
     sinkHandle_ = new CircularHandle(this);
     sinkHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //	sinkHandle_->setPassSelectionToParent(true);
+    // sinkHandle_->setPassSelectionToParent(true);
 
     updateColor();
     createPath();
@@ -89,28 +89,28 @@ RoadLinkSinkItem::updateColor()
     QBrush theBrush = brush();
     QPen thePen = pen();
 
-    //	if(roadLink_)
-    //	{
-    //		if(roadLink_->isLinkValid())
-    //		{
-    //			roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
-    //			roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkGreen()));
+    // if(roadLink_)
+    // {
+    //  if(roadLink_->isLinkValid())
+    //  {
+    //   roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
+    //   roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkGreen()));
     theBrush.setColor(ODD::instance()->colors()->brightGreen());
     thePen.setColor(ODD::instance()->colors()->darkGreen());
-    //		}
-    //		else
-    //		{
-    //			roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightRed()));
-    //			roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkRed()));
-    //			thePen.setColor(ODD::instance()->colors()->darkRed());
-    //		}
-    //	}
-    //	else
-    //	{
-    //		roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-    //		roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkOrange()));
-    //		thePen.setColor(ODD::instance()->colors()->darkOrange());
-    //	}
+    //  }
+    //  else
+    //  {
+    //   roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightRed()));
+    //   roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkRed()));
+    //   thePen.setColor(ODD::instance()->colors()->darkRed());
+    //  }
+    // }
+    // else
+    // {
+    //  roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
+    //  roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkOrange()));
+    //  thePen.setColor(ODD::instance()->colors()->darkOrange());
+    // }
     setBrush(theBrush);
     setPen(thePen);
 }
@@ -189,10 +189,10 @@ RoadLinkSinkItem::updateObserver()
         createPath();
     }
 
-    //		if((changes & RSystemElementRoad::CRD_PredecessorChange)
-    //			&& (type_ == RoadLink::DRL_PREDECESSOR)
-    //		)
-    //		{
+    //  if((changes & RSystemElementRoad::CRD_PredecessorChange)
+    //   && (type_ == RoadLink::DRL_PREDECESSOR)
+    //  )
+    //  {
 
-    //		}
+    //  }
 }

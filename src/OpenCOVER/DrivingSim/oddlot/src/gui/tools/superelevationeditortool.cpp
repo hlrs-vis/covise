@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "superelevationeditortool.hpp"
 
@@ -20,8 +20,8 @@
 
 #include "src/mainwindow.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -77,10 +77,10 @@ SuperelevationEditorTool::initToolWidget()
     toolGroup->addButton(toolButton, ODD::TSE_SELECT); // button, id
     toolButton->setChecked(true);
 
-    //	toolButton = new QPushButton(tr("Move Section"));
-    //	toolButton->setCheckable(true);
-    //	toolLayout->addWidget(toolButton, ++row, 0);
-    //	toolGroup->addButton(toolButton, ODD::TSE_MOVE); // button, id
+    // toolButton = new QPushButton(tr("Move Section"));
+    // toolButton->setCheckable(true);
+    // toolLayout->addWidget(toolButton, ++row, 0);
+    // toolGroup->addButton(toolButton, ODD::TSE_MOVE); // button, id
 
     toolButton = new QPushButton(tr("Add Section"));
     toolButton->setCheckable(true);
@@ -124,20 +124,20 @@ SuperelevationEditorTool::initToolWidget()
     //ribbonWidget->
     ui_ = new Ui::SuperelevationRibbon();
     ui_->setupUi(ribbonWidget);
-    
-	ribbonToolGroup_ = new QButtonGroup(toolManager_);
+
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
-    
-    
+
+
     ribbonToolGroup_->addButton(ui_->select, ODD::TSE_SELECT);
     ribbonToolGroup_->addButton(ui_->elevationAdd, ODD::TSE_ADD);
     ribbonToolGroup_->addButton(ui_->elevationDelete, ODD::TSE_DEL);
     //ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TSE_SMOOTH);
-    
+
     connect(ui_->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRibbonRadius()));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Superelevation"), ODD::ESE);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -157,9 +157,9 @@ SuperelevationEditorTool::initToolBar()
 void
 SuperelevationEditorTool::activateEditor()
 {
-	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, toolId_, radiusEdit_->value());
-	emit toolAction(action);
-	delete action;
+    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, toolId_, radiusEdit_->value());
+    emit toolAction(action);
+    delete action;
 }
 
 /*! \brief Is called by the toolmanager to initialize the UI */
@@ -167,17 +167,17 @@ SuperelevationEditorTool::activateEditor()
 void
 SuperelevationEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::ESE);
-	SuperelevationEditorToolAction *superelevationEditorToolAction = dynamic_cast<SuperelevationEditorToolAction *>(action);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::ESE);
+    SuperelevationEditorToolAction *superelevationEditorToolAction = dynamic_cast<SuperelevationEditorToolAction *>(action);
 
-	if (superelevationEditorToolAction->getRadius() != ui_->radiusEdit->value())
-	{
-		ui_->radiusEdit->blockSignals(true);
-		ui_->radiusEdit->setValue(superelevationEditorToolAction->getRadius());
-		ui_->radiusEdit->blockSignals(false);
-	}
+    if (superelevationEditorToolAction->getRadius() != ui_->radiusEdit->value())
+    {
+        ui_->radiusEdit->blockSignals(true);
+        ui_->radiusEdit->setValue(superelevationEditorToolAction->getRadius());
+        ui_->radiusEdit->blockSignals(false);
+    }
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -188,7 +188,7 @@ void
 SuperelevationEditorTool::handleToolClick(int id)
 {
     toolId_ = (ODD::ToolId)id;
-	
+
     // Set a tool //
     //
     SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, ODD::TNO_TOOL, radiusEdit_->value());
@@ -199,13 +199,13 @@ SuperelevationEditorTool::handleToolClick(int id)
 void
 SuperelevationEditorTool::handleRibbonToolClick(int id)
 {
-	toolId_ = (ODD::ToolId)id;
+    toolId_ = (ODD::ToolId)id;
 
-	// Set a tool //
-	//
-	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui_->radiusEdit->value());
-	emit toolAction(action);
-//	delete action;
+    // Set a tool //
+    //
+    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(toolId_, ODD::TNO_TOOL, ui_->radiusEdit->value());
+    emit toolAction(action);
+    // delete action;
 }
 
 /*! \brief Gets called when the radius has been changed.
@@ -223,11 +223,11 @@ SuperelevationEditorTool::setRadius()
 void
 SuperelevationEditorTool::setRibbonRadius()
 {
-	ODD::ToolId toolId = (ODD::ToolId)ribbonToolGroup_->checkedId();
+    ODD::ToolId toolId = (ODD::ToolId)ribbonToolGroup_->checkedId();
 
-	SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, ODD::TSE_RADIUS , ui_->radiusEdit->value());
-	emit toolAction(action);
-//	delete action;
+    SuperelevationEditorToolAction *action = new SuperelevationEditorToolAction(ODD::TSE_SELECT, ODD::TSE_RADIUS, ui_->radiusEdit->value());
+    emit toolAction(action);
+    // delete action;
 
     ribbonToolGroup_->button(toolId_)->click();
 }

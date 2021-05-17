@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/13/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/13/2010
+ **
+ **************************************************************************/
 
 #include "sectiontreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/roadsection.hpp"
 
 // Tree //
@@ -38,7 +38,7 @@ SectionTreeItem::~SectionTreeItem()
 void
 SectionTreeItem::init()
 {
-    //	updateName();
+    // updateName();
 }
 
 //##################//
@@ -67,9 +67,9 @@ SectionTreeItem::updateObserver()
         //
         updateName();
     }
-    //	if(changes & RoadSection::CRS_LengthChange)
-    //	{
-    //		// Change of the length of the section //
-    //		//
-    //	}
+    // if(changes & RoadSection::CRS_LengthChange)
+    // {
+    //  // Change of the length of the section //
+    //  //
+    // }
 }

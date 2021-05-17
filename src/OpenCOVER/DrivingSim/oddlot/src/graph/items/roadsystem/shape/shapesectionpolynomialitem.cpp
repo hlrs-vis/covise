@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele->de>
-**   15->07->2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele->de>
+ **   15->07->2010
+ **
+ **************************************************************************/
 
 #include "shapesectionpolynomialitem.hpp"
 
 #include "src/gui/projectwidget.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/shapesection.hpp"
 #include "src/data/roadsystem/lateralsections/polynomiallateralsection.hpp"
 
@@ -59,8 +59,8 @@ ShapeSectionPolynomialItem::ShapeSectionPolynomialItem(ShapeSectionPolynomialIte
     : LateralSectionItem(parentShapeSectionPolynomialItems, polynomialLateralSection)
     , parentShapeSectionPolynomialItems_(parentShapeSectionPolynomialItems)
     , polynomialLateralSection_(polynomialLateralSection)
-	, shapeEditor_(shapeEditor)
-	, realPointHighHandle_(NULL)
+    , shapeEditor_(shapeEditor)
+    , realPointHighHandle_(NULL)
 {
 
     init();
@@ -74,28 +74,28 @@ ShapeSectionPolynomialItem::~ShapeSectionPolynomialItem()
 void
 ShapeSectionPolynomialItem::init()
 {
-	if (abs(polynomialLateralSection_->getRealPointLow()->getPoint().x() - polynomialLateralSection_->getRealPointHigh()->getPoint().x()) < NUMERICAL_ZERO6)
-	{
-		polynomialLateralSection_->getControlPointsFromParameters(false);
-	}
+    if (abs(polynomialLateralSection_->getRealPointLow()->getPoint().x() - polynomialLateralSection_->getRealPointHigh()->getPoint().x()) < NUMERICAL_ZERO6)
+    {
+        polynomialLateralSection_->getControlPointsFromParameters(false);
+    }
 
-	realPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointLow());
+    realPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointLow());
 
-	shapeSection_ = polynomialLateralSection_->getParentSection();
-	if (shapeSection_->getLastPolynomialLateralSection() == polynomialLateralSection_)
-	{
-		realPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointHigh());
-	}
+    shapeSection_ = polynomialLateralSection_->getParentSection();
+    if (shapeSection_->getLastPolynomialLateralSection() == polynomialLateralSection_)
+    {
+        realPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointHigh());
+    }
 
 
-	// Hover Events //
-	//
-	setAcceptHoverEvents(true);
+    // Hover Events //
+    //
+    setAcceptHoverEvents(true);
 
-	// Color & Path //
-	//
-	updateColor();
-	createPath();
+    // Color & Path //
+    //
+    updateColor();
+    createPath();
 
 }
 
@@ -112,7 +112,7 @@ ShapeSectionPolynomialItem::updateColor()
     pen.setWidth(2);
     pen.setCosmetic(true); // constant size independent of scaling
 
-	pen.setColor(ODD::instance()->colors()->darkRed());
+    pen.setColor(ODD::instance()->colors()->darkRed());
 
     setPen(pen);
 }
@@ -120,29 +120,29 @@ ShapeSectionPolynomialItem::updateColor()
 void
 ShapeSectionPolynomialItem::createPath()
 {
-	QPainterPath path;
+    QPainterPath path;
 
-	//	double pointsPerMeter = 1.0; // BAD: hard coded!
-	double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
-	double tStart = polynomialLateralSection_->getRealPointLow()->getPoint().x();
-	double tEnd = polynomialLateralSection_->getRealPointHigh()->getPoint().x();
-	int pointCount = int(ceil((tEnd - tStart) * pointsPerMeter)); // TODO curvature...
-	if (pointCount <= 1)
-	{
-		pointCount = 2; // should be at least 2 to get a quad
-	}
-	pointCount = pointCount * 10;
-	QVector<QPointF> points(pointCount + 1);
-	double segmentLength = (tEnd - tStart) / pointCount;
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
+    double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
+    double tStart = polynomialLateralSection_->getRealPointLow()->getPoint().x();
+    double tEnd = polynomialLateralSection_->getRealPointHigh()->getPoint().x();
+    int pointCount = int(ceil((tEnd - tStart) * pointsPerMeter)); // TODO curvature...
+    if (pointCount <= 1)
+    {
+        pointCount = 2; // should be at least 2 to get a quad
+    }
+    pointCount = pointCount * 10;
+    QVector<QPointF> points(pointCount + 1);
+    double segmentLength = (tEnd - tStart) / pointCount;
 
-	for (int i = 0; i <= pointCount; i++)
-	{
-		double x = i * segmentLength; 
-		points[i] = QPointF(tStart + x, polynomialLateralSection_->f(x));
-	}
+    for (int i = 0; i <= pointCount; i++)
+    {
+        double x = i * segmentLength;
+        points[i] = QPointF(tStart + x, polynomialLateralSection_->f(x));
+    }
 
-	path.addPolygon(QPolygonF(points)); 
-	setPath(path);
+    path.addPolygon(QPolygonF(points));
+    setPath(path);
 }
 
 
@@ -155,7 +155,7 @@ ShapeSectionPolynomialItem::updateObserver()
 {
     // Parent //
     //
-	LateralSectionItem::updateObserver();
+    LateralSectionItem::updateObserver();
 
     if (isInGarbage())
     {
@@ -164,36 +164,36 @@ ShapeSectionPolynomialItem::updateObserver()
 
     // ShapeSection //
     //
-	int shapeChanges = polynomialLateralSection_->getPolynomialLateralSectionChanges();
-	if (shapeChanges & PolynomialLateralSection::CPL_ParameterChange)
+    int shapeChanges = polynomialLateralSection_->getPolynomialLateralSectionChanges();
+    if (shapeChanges & PolynomialLateralSection::CPL_ParameterChange)
     {
         createPath();
         updateColor();
     }
 
-	// Parameter Changed //
-	//
-	shapeChanges = polynomialLateralSection_->getLateralSectionChanges();
-	if ((shapeChanges & LateralSection::CLS_LengthChange) || (shapeChanges & LateralSection::CLS_TChange))
-	{
-		if (realPointHighHandle_)
-		{
-			if (shapeSection_->getLastPolynomialLateralSection() != polynomialLateralSection_)
-			{
-				realPointHighHandle_->setParent(NULL);
-				getProjectGraph()->addToGarbage(realPointHighHandle_);
-				realPointHighHandle_ = NULL;
-			}
-		}
-		else if (shapeSection_->getLastPolynomialLateralSection() == polynomialLateralSection_)
-		{
-			realPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointHigh());
-		}
+    // Parameter Changed //
+    //
+    shapeChanges = polynomialLateralSection_->getLateralSectionChanges();
+    if ((shapeChanges & LateralSection::CLS_LengthChange) || (shapeChanges & LateralSection::CLS_TChange))
+    {
+        if (realPointHighHandle_)
+        {
+            if (shapeSection_->getLastPolynomialLateralSection() != polynomialLateralSection_)
+            {
+                realPointHighHandle_->setParent(NULL);
+                getProjectGraph()->addToGarbage(realPointHighHandle_);
+                realPointHighHandle_ = NULL;
+            }
+        }
+        else if (shapeSection_->getLastPolynomialLateralSection() == polynomialLateralSection_)
+        {
+            realPointHighHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointHigh());
+        }
 
-		createPath();
-		updateColor();
+        createPath();
+        updateColor();
 
-	}
+    }
 }
 
 //################//
@@ -204,5 +204,5 @@ bool
 ShapeSectionPolynomialItem::removeSection()
 {
     RemoveShapeSectionCommand *command = new RemoveShapeSectionCommand(shapeSection_, NULL);
-    return getProjectGraph()->executeCommand(command); 
-} 
+    return getProjectGraph()->executeCommand(command);
+}

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #include "droparea.hpp"
 
@@ -26,28 +26,28 @@
 
 
 
-//###############################//
-// DropArea for the recycle bin //
-//
-//#############################//
+ //###############################//
+ // DropArea for the recycle bin //
+ //
+ //#############################//
 DropArea::DropArea(QPixmap *pixmap)
     : QLabel()
 {
-	setPixmap(*pixmap);
+    setPixmap(*pixmap);
 
     setMaximumSize(20, 20);
     setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
     setAlignment(Qt::AlignCenter);
     setAcceptDrops(true);
     setAutoFillBackground(true);
-	
+
 }
 
 //################//
 // EVENTS         //
 //################//
 
-void 
+void
 DropArea::dragEnterEvent(QDragEnterEvent *event)
 {
     setBackgroundRole(QPalette::Highlight);
@@ -55,20 +55,20 @@ DropArea::dragEnterEvent(QDragEnterEvent *event)
     event->acceptProposedAction();
 }
 
-void 
+void
 DropArea::dragMoveEvent(QDragMoveEvent *event)
 {
     event->acceptProposedAction();
 }
 
-void 
+void
 DropArea::dropEvent(QDropEvent *event)
 {
-	setBackgroundRole(QPalette::Dark);
+    setBackgroundRole(QPalette::Dark);
     event->acceptProposedAction();
 }
 
-void 
+void
 DropArea::dragLeaveEvent(QDragLeaveEvent *event)
 {
     clear();

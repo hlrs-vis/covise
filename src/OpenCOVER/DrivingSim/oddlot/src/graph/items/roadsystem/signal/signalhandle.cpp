@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   18.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   18.03.2010
+ **
+ **************************************************************************/
 
 #include "signalhandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 // Graph //
@@ -153,17 +153,17 @@ SignalHandle::itemChange(GraphicsItemChange change, const QVariant &value)
             {
                 RSystemElementRoad *road = parentSignalRoadItem_->getRoad();
                 double s = road->getSFromGlobalPoint(value.toPointF(), -100.0, road->getLength());
-                //				return parentSectionItem_->getRoadSection()->getParentRoad()->getGlobalPoint(s, 0.0);
+                //    return parentSectionItem_->getRoadSection()->getParentRoad()->getGlobalPoint(s, 0.0);
 
-                /*				MoveRoadSectionCommand * command = new MoveRoadSectionCommand(roadSection, s, parentSectionItem_->getRoadSectionType());
-				if(command->isValid())
-				{
-					roadSection->getUndoStack()->push(command);
-				}
-				else
-				{
-					delete command;
-				}*/
+                /*    MoveRoadSectionCommand * command = new MoveRoadSectionCommand(roadSection, s, parentSectionItem_->getRoadSectionType());
+                if(command->isValid())
+                {
+                    roadSection->getUndoStack()->push(command);
+                }
+                else
+                {
+                    delete command;
+                }*/
 
                 return pos(); // no translation
             }
@@ -175,10 +175,10 @@ SignalHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 
     // Mode 2 //
     //
-    //	else
-    //	{
+    // else
+    // {
     //
-    //	}
+    // }
 
     return QGraphicsItem::itemChange(change, value);
 }

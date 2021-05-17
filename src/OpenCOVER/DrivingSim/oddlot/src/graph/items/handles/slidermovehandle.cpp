@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/27/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/27/2010
+ **
+ **************************************************************************/
 
 #include "slidermovehandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 SliderMoveHandle::SliderMoveHandle(QGraphicsItem *parent)
     : MoveHandle(parent)
@@ -85,7 +85,7 @@ SliderMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         emit requestPositionChange(event->pos());
         return; // do not apply translation yourself!
-        //		trackEditor_->translateSliderMoveHandles(scenePos(), event->scenePos());
+        //  trackEditor_->translateSliderMoveHandles(scenePos(), event->scenePos());
     }
 
     MoveHandle::mouseMoveEvent(event); // pass to baseclass

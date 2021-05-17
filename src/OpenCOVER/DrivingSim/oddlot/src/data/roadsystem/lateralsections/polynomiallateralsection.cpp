@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "polynomiallateralsection.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/shapesection.hpp"
 #include "src/data/projectdata.hpp"
 #include "src/data/changemanager.hpp"
@@ -33,11 +33,11 @@
 
 PolynomialLateralSection::PolynomialLateralSection(double t, double a, double b, double c, double d)
     : LateralSection(t)
-	, Polynomial(a, b, c, d)
-	, polynomialLateralSectionChanges_(0x0)
+    , Polynomial(a, b, c, d)
+    , polynomialLateralSectionChanges_(0x0)
 {
-	realPointLow_ = new SplineControlPoint(this, QPointF(0, 0), true);
-	realPointHigh_ = new SplineControlPoint(this, QPointF(0, 0), false);
+    realPointLow_ = new SplineControlPoint(this, QPointF(0, 0), true);
+    realPointHigh_ = new SplineControlPoint(this, QPointF(0, 0), false);
 }
 
 PolynomialLateralSection::~PolynomialLateralSection()
@@ -47,30 +47,30 @@ PolynomialLateralSection::~PolynomialLateralSection()
 void
 PolynomialLateralSection::getRealPointsFromParameters()
 {
-	QPointF T(getTStart(), 0);
-	double l = getLength();
+    QPointF T(getTStart(), 0);
+    double l = getLength();
 
 
-	realPointLow_->getPoint() = QPointF(0, a_) + T;
-	realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
+    realPointLow_->getPoint() = QPointF(0, a_) + T;
+    realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
 }
 
 void
 PolynomialLateralSection::getControlPointsFromParameters(bool markZeroLengthSection)
 {
 
-	QPointF T(getTStart(), 0);
-	double l = getLength();
+    QPointF T(getTStart(), 0);
+    double l = getLength();
 
-	if (markZeroLengthSection && (std::abs(l) < NUMERICAL_ZERO6))
-	{
-		realPointLow_ = realPointHigh_ = NULL;
-	}
-	else
-	{
-		realPointLow_->getPoint() = QPointF(0, a_) + T;
-		realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
-	}
+    if (markZeroLengthSection && (std::abs(l) < NUMERICAL_ZERO6))
+    {
+        realPointLow_ = realPointHigh_ = NULL;
+    }
+    else
+    {
+        realPointLow_->getPoint() = QPointF(0, a_) + T;
+        realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
+    }
 
 }
 
@@ -78,8 +78,8 @@ PolynomialLateralSection::getControlPointsFromParameters(bool markZeroLengthSect
 void
 PolynomialLateralSection::setControlPoints(QPointF p0, QPointF p3)  //, QPointF p2, QPointF p3)
 {
-	realPointLow_->getPoint() = p0;
-	realPointHigh_->getPoint() = p3;
+    realPointLow_->getPoint() = p0;
+    realPointHigh_->getPoint() = p3;
 
 }
 
@@ -134,9 +134,9 @@ PolynomialLateralSection::addPolynomialLateralSectionChanges(int changes)
 {
     if (changes)
     {
-		polynomialLateralSectionChanges_ |= changes;
+        polynomialLateralSectionChanges_ |= changes;
         notifyObservers();
-		getProjectData()->getChangeManager()->notifyObservers();  // to be deleted, done by commands
+        getProjectData()->getChangeManager()->notifyObservers();  // to be deleted, done by commands
     }
 }
 
@@ -153,8 +153,8 @@ PolynomialLateralSection::getClone()
     // PolynomialLateralSection //
     //
     PolynomialLateralSection *clone = new PolynomialLateralSection(getTStart(), getA(), getB(), getC(), getD());
-	clone->realPointLow_ = new SplineControlPoint(clone, realPointLow_->getPoint(), true);
-	clone->realPointHigh_ = new SplineControlPoint(clone, realPointHigh_->getPoint(), false);
+    clone->realPointLow_ = new SplineControlPoint(clone, realPointLow_->getPoint(), true);
+    clone->realPointHigh_ = new SplineControlPoint(clone, realPointHigh_->getPoint(), false);
 
     return clone;
 }
@@ -180,9 +180,9 @@ PolynomialLateralSection::accept(Visitor *visitor)
 //######################//
 
 SplineControlPoint::SplineControlPoint(PolynomialLateralSection *parentLateralSection, QPointF p, bool low, bool smooth)
-	: parentLateralSection_(parentLateralSection)
-	, point_(p)
-	, low_(low)
+    : parentLateralSection_(parentLateralSection)
+    , point_(p)
+    , low_(low)
 {
 }
 

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "projectdata.hpp"
 
-// Project //
-//
+ // Project //
+ //
 #include "src/gui/projectwidget.hpp"
 
 // Data //
@@ -72,7 +72,7 @@ ProjectData::ProjectData(ProjectWidget *projectWidget, QUndoStack *undoStack, Ch
     , vehicleSystem_(NULL)
     , pedestrianSystem_(NULL)
     , scenerySystem_(NULL)
-	, oscBase_(NULL)
+    , oscBase_(NULL)
     , undoStack_(undoStack)
     , changeManager_(changeManager)
     , geoReferenceParams_(NULL)
@@ -99,7 +99,7 @@ ProjectData::~ProjectData()
     delete vehicleSystem_;
     delete pedestrianSystem_;
     delete scenerySystem_;
-	delete oscBase_;
+    delete oscBase_;
 }
 
 //##################//
@@ -196,32 +196,32 @@ ProjectData::setWest(double west)
     }
 }
 
-void 
+void
 ProjectData::setDimensions(double north, double south, double east, double west)
 {
-	north_ = north;
-	south_ = south;
-	east_ = east;
-	west_ = west;
+    north_ = north;
+    south_ = south;
+    east_ = east;
+    west_ = west;
 
-	addProjectDataChanges(ProjectData::CPD_SizeChange);
+    addProjectDataChanges(ProjectData::CPD_SizeChange);
 }
 
-bool 
+bool
 ProjectData::adaptView(double north, double south, double east, double west)
 {
-	GraphView *view = projectWidget_->getTopviewGraph()->getView();
-	QRectF poly = view->mapToScene(view->rect()).boundingRect();
+    GraphView *view = projectWidget_->getTopviewGraph()->getView();
+    QRectF poly = view->mapToScene(view->rect()).boundingRect();
 
-	if ((south < poly.top()) || (north > poly.bottom()) || (west < poly.left()) || (east > poly.right()))
-	{
-		return false;
-	}
+    if ((south < poly.top()) || (north > poly.bottom()) || (west < poly.left()) || (east > poly.right()))
+    {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
-void 
+void
 ProjectData::setGeoReference(GeoReference *geoParams)
 {
     if (geoReferenceParams_ != geoParams)
@@ -267,7 +267,7 @@ ProjectData::projectActivated(bool active)
 void
 ProjectData::changeOSCValidation(bool value)
 {
-	oscBase_->getOpenScenarioBase()->setValidation(value);
+    oscBase_->getOpenScenarioBase()->setValidation(value);
 }
 
 //##################//
@@ -363,10 +363,10 @@ ProjectData::setOSCBase(OSCBase *base)
         oscBase_ = base;
         oscBase_->setParentProjectData(this);
 
-		OpenScenario::OpenScenarioBase *openScenarioBase = new OpenScenario::OpenScenarioBase();     // make OpenScenarioBase //
-		openScenarioBase->setValidation(OSCSettings::instance()->readValidation());
-		oscBase_->setOpenScenarioBase(openScenarioBase);
-  //      addProjectDataChanges(ProjectData::CPD_RoadSystemChanged);
+        OpenScenario::OpenScenarioBase *openScenarioBase = new OpenScenario::OpenScenarioBase();     // make OpenScenarioBase //
+        openScenarioBase->setValidation(OSCSettings::instance()->readValidation());
+        oscBase_->setOpenScenarioBase(openScenarioBase);
+        //      addProjectDataChanges(ProjectData::CPD_RoadSystemChanged);
     }
     else
     {

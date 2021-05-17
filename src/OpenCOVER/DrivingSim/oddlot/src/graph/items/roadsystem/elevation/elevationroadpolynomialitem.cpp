@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   24.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   24.06.2010
+ **
+ **************************************************************************/
 
 #include "elevationroadpolynomialitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 
@@ -70,7 +70,7 @@ ElevationRoadPolynomialItem::init()
         qDebug("Warning 1006241105! ElevationRoadPolynomialItem not created by an ElevationEditor");
     }
 
-    foreach (ElevationSection *section, getRoad()->getElevationSections())
+    foreach(ElevationSection * section, getRoad()->getElevationSections())
     {
         // SectionItem //
         //
@@ -87,11 +87,11 @@ QRectF
 ElevationRoadPolynomialItem::boundingRect() const
 {
     QRectF boundingBox;
-    foreach (QGraphicsItem *childItem, childItems())
+    foreach(QGraphicsItem * childItem, childItems())
     {
         QGraphicsPathItem *pathItem = static_cast<QGraphicsPathItem *>(childItem);
         boundingBox = boundingBox.united(pathItem->path().boundingRect());
-        //		boundingBox = boundingBox.united(childItem->boundingRect());
+        //  boundingBox = boundingBox.united(childItem->boundingRect());
     }
     return boundingBox;
 }
@@ -102,7 +102,7 @@ ElevationRoadPolynomialItem::translate(qreal x, qreal y)
     QTransform qTransformMatrix;
     qTransformMatrix.translate(x, y);
 
-    foreach (QGraphicsItem *childItem, childItems())
+    foreach(QGraphicsItem * childItem, childItems())
     {
         QGraphicsPathItem *pathItem = static_cast<QGraphicsPathItem *>(childItem);
         pathItem->setTransform(qTransformMatrix);
@@ -122,7 +122,7 @@ ElevationRoadPolynomialItem::rebuildMoveHandles()
     //
     ElevationSection *previousSection = NULL;
     ElevationMoveHandle *previousHandle = NULL;
-    foreach (ElevationSection *section, getRoad()->getElevationSections())
+    foreach(ElevationSection * section, getRoad()->getElevationSections())
     {
         ElevationMoveHandle *handle = new ElevationMoveHandle(elevationEditor_, moveHandles_);
         handle->registerHighSlot(section);
@@ -184,7 +184,7 @@ ElevationRoadPolynomialItem::rebuildMoveHandles()
 void
 ElevationRoadPolynomialItem::deleteMoveHandles()
 {
-    foreach (QGraphicsItem *child, moveHandles_->childItems())
+    foreach(QGraphicsItem * child, moveHandles_->childItems())
     {
         elevationEditor_->getProfileGraph()->addToGarbage(child);
     }
@@ -213,7 +213,7 @@ ElevationRoadPolynomialItem::updateObserver()
     {
         // A section has been added.
         //
-        foreach (ElevationSection *section, getRoad()->getElevationSections())
+        foreach(ElevationSection * section, getRoad()->getElevationSections())
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))

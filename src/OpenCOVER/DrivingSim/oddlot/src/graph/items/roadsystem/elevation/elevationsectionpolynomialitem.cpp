@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.06.2010
+ **
+ **************************************************************************/
 
 #include "elevationsectionpolynomialitem.hpp"
 
 #include "src/gui/projectwidget.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -126,7 +126,7 @@ ElevationSectionPolynomialItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 2.0; // BAD: hard coded!
+    // double pointsPerMeter = 2.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->HeightEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)
@@ -143,7 +143,7 @@ ElevationSectionPolynomialItem::createPath()
     {
         double s = sStart + i * segmentLength; // [sStart, sEnd]
         points[i] = QPointF(s, elevationSection_->getElevation(s));
-        //		if ((points[i].x() < 0.0) || (points[i].y() < 0)) fprintf(stderr, "Points: %f %f ", points[i].x(), points[i].y());
+        //  if ((points[i].x() < 0.0) || (points[i].y() < 0)) fprintf(stderr, "Points: %f %f ", points[i].x(), points[i].y());
     }
 
     // Psycho-Path //

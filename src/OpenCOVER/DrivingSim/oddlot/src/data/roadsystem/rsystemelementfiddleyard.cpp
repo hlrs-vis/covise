@@ -5,22 +5,22 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "rsystemelementfiddleyard.hpp"
 
 
-//##########################//
-//                          //
-// RSystemElementFiddleyard //
-//                          //
-//##########################//
+ //##########################//
+ //                          //
+ // RSystemElementFiddleyard //
+ //                          //
+ //##########################//
 
 RSystemElementFiddleyard::RSystemElementFiddleyard(const QString &name, const odrID &id, const QString &elementType, const odrID &elementId, const QString &contactPoint)
     : RSystemElement(name, id, RSystemElement::DRE_Fiddleyard)
@@ -32,10 +32,10 @@ RSystemElementFiddleyard::RSystemElementFiddleyard(const QString &name, const od
 
 RSystemElementFiddleyard::~RSystemElementFiddleyard()
 {
-    foreach (FiddleyardSink *child, sinks_)
+    foreach(FiddleyardSink * child, sinks_)
         delete child;
 
-    foreach (FiddleyardSource *child, sources_)
+    foreach(FiddleyardSource * child, sources_)
         delete child;
 }
 
@@ -89,11 +89,11 @@ RSystemElementFiddleyard::getClone()
 
     // Sources/Sinks //
     //
-    foreach (FiddleyardSource *source, sources_)
+    foreach(FiddleyardSource * source, sources_)
     {
         clonedRSystemElementFiddleyard->addSource(source->getClone());
     }
-    foreach (FiddleyardSink *sink, sinks_)
+    foreach(FiddleyardSink * sink, sinks_)
     {
         clonedRSystemElementFiddleyard->addSink(sink->getClone());
     }
@@ -104,28 +104,28 @@ RSystemElementFiddleyard::getClone()
 void
 RSystemElementFiddleyard::updateIds(const QMap<odrID, odrID> &roadIds)
 {
-	RoadSystem *roadSystem = getRoadSystem();
+    RoadSystem *roadSystem = getRoadSystem();
 
-/*	elementId_ = roadSystem->getNewId(roadIds, elementId_, "road");
+    /* elementId_ = roadSystem->getNewId(roadIds, elementId_, "road");
 
-    foreach (FiddleyardSource *source, sources_)
-    {
-		QString id = source->getId();
-		QString newId = roadSystem->getNewId(roadIds, id, "fiddleyard");
-        if (id != newId)
+        foreach (FiddleyardSource *source, sources_)
         {
-            source->setId(newId);
+            QString id = source->getId();
+            QString newId = roadSystem->getNewId(roadIds, id, "fiddleyard");
+            if (id != newId)
+            {
+                source->setId(newId);
+            }
         }
-    }
-    foreach (FiddleyardSink *sink, sinks_)
-    {
-		QString id = sink->getId();
-		QString newId = roadSystem->getNewId(roadIds, id, "fiddleyard");
-         if (id != newId)
+        foreach (FiddleyardSink *sink, sinks_)
         {
-            sink->setId(newId);
-        }
-    }*/
+            QString id = sink->getId();
+            QString newId = roadSystem->getNewId(roadIds, id, "fiddleyard");
+             if (id != newId)
+            {
+                sink->setId(newId);
+            }
+        }*/
 }
 
 //###################//
@@ -145,7 +145,7 @@ RSystemElementFiddleyard::accept(Visitor *visitor)
 void
 RSystemElementFiddleyard::acceptForSources(Visitor *visitor)
 {
-    foreach (FiddleyardSource *child, sources_)
+    foreach(FiddleyardSource * child, sources_)
         child->accept(visitor);
 }
 
@@ -154,7 +154,7 @@ RSystemElementFiddleyard::acceptForSources(Visitor *visitor)
 void
 RSystemElementFiddleyard::acceptForSinks(Visitor *visitor)
 {
-    foreach (FiddleyardSink *child, sinks_)
+    foreach(FiddleyardSink * child, sinks_)
         child->accept(visitor);
 }
 
@@ -217,12 +217,12 @@ FiddleyardSource::getClone()
 
     //  //
     //
-    //	QMap<int, int>::const_iterator i = laneLinks_.constBegin();
-    //	while (i != laneLinks_.constEnd())
-    //	{
-    //		clonedJunctionConnection->addLaneLink(i.key(), i.value());
-    //		++i;
-    //	}
+    // QMap<int, int>::const_iterator i = laneLinks_.constBegin();
+    // while (i != laneLinks_.constEnd())
+    // {
+    //  clonedJunctionConnection->addLaneLink(i.key(), i.value());
+    //  ++i;
+    // }
 
     return clonedFiddleyardSource;
 }

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "controllersettings.hpp"
 #include "ui_controllersettings.h"
@@ -20,8 +20,8 @@
 
 #include "src/settings/projectsettings.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
@@ -67,10 +67,10 @@ ControllerSettings::ControllerSettings(ProjectSettings *projectSettings, Setting
     updateControlEntries();
 
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->nameBox, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
     connect(ui->sequenceSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->scriptLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->scriptLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->scriptLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
     connect(ui->cycleTimeSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onEditingFinished(double)));
 
     init_ = true;
@@ -108,15 +108,15 @@ ControllerSettings::updateControlEntries()
     //
     QStringList header;
     header << "signal id"
-           << "type"
-;
+        << "type"
+        ;
     ui->controlEntryTableWidget->setHorizontalHeaderLabels(header);
 
 
     QList<ControlEntry *> controlEntries = controller_->getControlEntries();
     ui->controlEntryTableWidget->setRowCount(controlEntries.size());
     int row = 0;
-    foreach (ControlEntry *element, controlEntries)
+    foreach(ControlEntry * element, controlEntries)
     {
         ui->controlEntryTableWidget->setItem(row, 0, new QTableWidgetItem(element->getSignalId().speakingName()));
         ui->controlEntryTableWidget->setItem(row, 1, new QTableWidgetItem(element->getType()));
@@ -154,14 +154,14 @@ ControllerSettings::onEditingFinished()
     {
         QString filename = ui->nameBox->text();
         odrID newId = controller_->getID();
-		newId.setName(filename);
-    
+        newId.setName(filename);
+
 
         SetControllerPropertiesCommand *command = new SetControllerPropertiesCommand(controller_, newId, filename, ui->sequenceSpinBox->value(), ui->scriptLineEdit->text(), ui->cycleTimeSpinBox->value());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
-        QWidget * focusWidget = QApplication::focusWidget();
+        QWidget *focusWidget = QApplication::focusWidget();
         if (focusWidget)
         {
             focusWidget->clearFocus();

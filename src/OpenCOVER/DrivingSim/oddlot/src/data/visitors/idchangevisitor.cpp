@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.07.2010
+ **
+ **************************************************************************/
 
 #include "idchangevisitor.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -44,12 +44,12 @@ IdChangeVisitor::IdChangeVisitor(const QMap<odrID, odrID> &roadIds, const QMap<o
 *
 */
 //void
-//	IdChangeVisitor
-//	::visit(RoadSystem * roadSystem)
+// IdChangeVisitor
+// ::visit(RoadSystem * roadSystem)
 //{
-//	// Run //
-//	//
-//	roadSystem->acceptFor (this, false);
+// // Run //
+// //
+// roadSystem->acceptFor (this, false);
 //}
 
 /*!
@@ -62,7 +62,7 @@ IdChangeVisitor::visit(RSystemElementRoad *road)
     //
     //if(roadIds_.contains(road->getID()))
     //{
-    //	the id of the road should be set already
+    // the id of the road should be set already
     //}
 
     RoadLink *roadLink = NULL;
@@ -144,7 +144,7 @@ IdChangeVisitor::visit(RSystemElementController *controller)
     //
     //if(controllerIds_.contains(controller->getID()))
     //{
-    //	the id of the controller should be set already
+    // the id of the controller should be set already
     //}
 }
 
@@ -158,7 +158,7 @@ IdChangeVisitor::visit(RSystemElementJunction *junction)
     //
     //if(junctionIds_.contains(junction->getID()))
     //{
-    //	the id of the junction should be set already
+    // the id of the junction should be set already
     //}
 
     // JunctionConnections //
@@ -183,8 +183,8 @@ IdChangeVisitor::visit(JunctionConnection *connection)
     //
     if (roadIds_.contains(connection->getConnectingRoad()))
     {
- //       connection->setContactPoint(roadIds_.value(connection->getConnectingRoad()));
-		connection->setConnectingRoad(roadIds_.value(connection->getConnectingRoad()));
+        //       connection->setContactPoint(roadIds_.value(connection->getConnectingRoad()));
+        connection->setConnectingRoad(roadIds_.value(connection->getConnectingRoad()));
     }
 }
 
@@ -198,7 +198,7 @@ IdChangeVisitor::visit(RSystemElementFiddleyard *fiddleyard)
     //
     //if(fiddleyardIds_.contains(fiddleyard->getID()))
     //{
-    //	the id of the fiddleyard should be set already
+    // the id of the fiddleyard should be set already
     //}
 
     // Link //

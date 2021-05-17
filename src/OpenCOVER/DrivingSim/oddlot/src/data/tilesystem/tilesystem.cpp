@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "tilesystem.hpp"
 
 #include "QDomDocument"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "tile.hpp"
@@ -37,7 +37,7 @@ TileSystem::~TileSystem()
 {
     // Delete child nodes //
     //
-    foreach (Tile *child, tiles_)
+    foreach(Tile * child, tiles_)
         delete child;
 }
 
@@ -54,9 +54,9 @@ TileSystem::getTile(const odrID &id) const
 Tile *
 TileSystem::getTile(int tid) const
 {
-	odrID ID;
-	ID.setID(tid);
-	return tiles_.value(ID, NULL);
+    odrID ID;
+    ID.setID(tid);
+    return tiles_.value(ID, NULL);
 }
 
 void
@@ -69,10 +69,10 @@ TileSystem::addTile(Tile *tile)
     tiles_.insert(tile->getID(), tile);
     addTileSystemChanges(TileSystem::CTS_TileChange);
 
-	if (!odrIDs[odrID::ID_Tile].contains(tile->getID().getID()))
-	{
-		odrIDs[odrID::ID_Tile].insert(tile->getID().getID());
-	}
+    if (!odrIDs[odrID::ID_Tile].contains(tile->getID().getID()))
+    {
+        odrIDs[odrID::ID_Tile].insert(tile->getID().getID());
+    }
 
     setCurrentTile(tile);
 }
@@ -112,41 +112,41 @@ TileSystem::delTile(Tile *tile)
 
 void TileSystem::write(QDomDocument *doc_, QDomElement &root)
 {
-	foreach(Tile *tile, tiles_)
-	{
-		QDomElement userData = doc_->createElement("userData");
+    foreach(Tile * tile, tiles_)
+    {
+        QDomElement userData = doc_->createElement("userData");
 
-		userData.setAttribute("code", "tile");
-		userData.setAttribute("value", QString::number(tile->getID().getID()) + " " + tile->getID().getName());
-		root.appendChild(userData);
-	}
+        userData.setAttribute("code", "tile");
+        userData.setAttribute("value", QString::number(tile->getID().getID()) + " " + tile->getID().getName());
+        root.appendChild(userData);
+    }
 
 }
 
 void TileSystem::addTileIfNecessary(const odrID &elementID)
 {
-	odrID tid;
-	tid.setID(elementID.getTileID());
-	tid.setType(odrID::ID_Tile);
-	Tile *t = getTile(tid);
-	if (t == NULL)
-	{
-		addTile(new Tile(tid));
-	}
+    odrID tid;
+    tid.setID(elementID.getTileID());
+    tid.setType(odrID::ID_Tile);
+    Tile *t = getTile(tid);
+    if (t == NULL)
+    {
+        addTile(new Tile(tid));
+    }
 }
 
 void
 TileSystem::setCurrentTile(Tile *tile)
 {
-	if (currentTile_)
-	{
-		currentTile_->setElementSelected(false);
-	}
-	if (tile !=NULL)
-	{
-		currentTile_ = tile;
-		tile->setElementSelected(true);
-	}
+    if (currentTile_)
+    {
+        currentTile_->setElementSelected(false);
+    }
+    if (tile != NULL)
+    {
+        currentTile_ = tile;
+        tile->setElementSelected(true);
+    }
 }
 
 //##################//
@@ -209,7 +209,7 @@ TileSystem::accept(Visitor *visitor)
 void
 TileSystem::acceptForChildNodes(Visitor *visitor)
 {
-    foreach (Tile *child, tiles_)
+    foreach(Tile * child, tiles_)
     {
         child->accept(visitor);
     }
@@ -220,7 +220,7 @@ TileSystem::acceptForChildNodes(Visitor *visitor)
 void
 TileSystem::acceptForTiles(Visitor *visitor)
 {
-    foreach (Tile *child, tiles_)
+    foreach(Tile * child, tiles_)
     {
         child->accept(visitor);
     }
@@ -228,17 +228,17 @@ TileSystem::acceptForTiles(Visitor *visitor)
 
 int32_t TileSystem::uniqueID(odrID::IDType t)
 {
-	int32_t id = odrIDs[t].size();
-	if (odrIDs[t].contains(id))
-	{
-		// ID numbers are higher than number of IDs thus there must be empty spaces, search from scratch
-		id = 0;
-		while (odrIDs[t].contains(id))
-		{
-			id++;
-		}
-	}
-	odrIDs[t].insert(id);
-	return id;
+    int32_t id = odrIDs[t].size();
+    if (odrIDs[t].contains(id))
+    {
+        // ID numbers are higher than number of IDs thus there must be empty spaces, search from scratch
+        id = 0;
+        while (odrIDs[t].contains(id))
+        {
+            id++;
+        }
+    }
+    odrIDs[t].insert(id);
+    return id;
 }
 

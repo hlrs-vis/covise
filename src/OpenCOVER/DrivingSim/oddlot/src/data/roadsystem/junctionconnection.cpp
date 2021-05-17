@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/5/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/5/2010
+ **
+ **************************************************************************/
 
 #include "junctionconnection.hpp"
 
@@ -20,44 +20,44 @@
 
 #include "qmap.h"
 
-JunctionConnection::ContactPointValue 
+JunctionConnection::ContactPointValue
 JunctionConnection::parseContactPoint(const QString &value)
 {
-	if (value == "start")
-	{
-		return JunctionConnection::JCP_START;
-	}
-	else if (value == "end")
-	{
-		return JunctionConnection::JCP_END;
-	}
-	else if (value == "none")
-	{
-		return JunctionConnection::JCP_NONE;
-	}
-	else
-	{
-		qDebug("WARNING: unknown connection contact point: %s", value.toUtf8().constData());
-		return JunctionConnection::JCP_NONE;
-	}
+    if (value == "start")
+    {
+        return JunctionConnection::JCP_START;
+    }
+    else if (value == "end")
+    {
+        return JunctionConnection::JCP_END;
+    }
+    else if (value == "none")
+    {
+        return JunctionConnection::JCP_NONE;
+    }
+    else
+    {
+        qDebug("WARNING: unknown connection contact point: %s", value.toUtf8().constData());
+        return JunctionConnection::JCP_NONE;
+    }
 }
 
-QString 
+QString
 JunctionConnection::parseContactPointBack(ContactPointValue value)
 {
-	if (value == JunctionConnection::JCP_START)
-	{
-		return QString("start");
-	}
-	else if (value == JunctionConnection::JCP_END)
-	{
-		return QString("end");
-	}
-	else
-	{
-		qDebug("WARNING: unknown connection contact point");
-		return "";
-	}
+    if (value == JunctionConnection::JCP_START)
+    {
+        return QString("start");
+    }
+    else if (value == JunctionConnection::JCP_END)
+    {
+        return QString("end");
+    }
+    else
+    {
+        qDebug("WARNING: unknown connection contact point");
+        return "";
+    }
 }
 
 JunctionConnection::JunctionConnection(const QString &id, const odrID &incomingRoad, const odrID &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator)
@@ -122,7 +122,7 @@ JunctionConnection::addLaneLink(int from, int to)
     addJunctionConnectionChanges(CJC_LaneLinkChanged);
 }
 
-void 
+void
 JunctionConnection::removeLaneLink(int from)
 {
     if (laneLinks_.contains(from))
@@ -132,7 +132,7 @@ JunctionConnection::removeLaneLink(int from)
     addJunctionConnectionChanges(CJC_LaneLinkChanged);
 }
 
-void 
+void
 JunctionConnection::removeLaneLinks()
 {
     laneLinks_.clear();

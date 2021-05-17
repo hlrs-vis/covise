@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "shaperoaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
@@ -60,7 +60,7 @@ ShapeRoadItem::init()
 {
     // ShapeEditor //
     //
-	shapeEditor_ = dynamic_cast<ShapeEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+    shapeEditor_ = dynamic_cast<ShapeEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
     if (!shapeEditor_)
     {
         qDebug("Warning 1007141555! ShapeRoadItem not created by an ShapeEditor");
@@ -68,7 +68,7 @@ ShapeRoadItem::init()
 
     // SectionItems //
     //
-    foreach (ShapeSection *section, getRoad()->getShapeSections())
+    foreach(ShapeSection * section, getRoad()->getShapeSections())
     {
         new ShapeSectionItem(shapeEditor_, this, section);
     }
@@ -77,7 +77,7 @@ ShapeRoadItem::init()
 void
 ShapeRoadItem::notifyDeletion()
 {
-//	shapeEditor_->delSelectedRoad(getRoad());
+    // shapeEditor_->delSelectedRoad(getRoad());
 }
 
 //##################//
@@ -107,7 +107,7 @@ ShapeRoadItem::updateObserver()
     {
         // A section has been added.
         //
-        foreach (ShapeSection *section, getRoad()->getShapeSections())
+        foreach(ShapeSection * section, getRoad()->getShapeSections())
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "roadlinkeditortool.hpp"
 
@@ -21,8 +21,8 @@
 #include "src/mainwindow.hpp"
 
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -124,17 +124,17 @@ RoadLinkEditorTool::initToolWidget()
     //ribbonWidget->
     ui = new Ui::RoadLinkRibbon();
     ui->setupUi(ribbonWidget);
-    
-	ribbonToolGroup_ = new QButtonGroup(toolManager_);
+
+    ribbonToolGroup_ = new QButtonGroup(toolManager_);
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
-    
-	ribbonToolGroup_->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
-	ribbonToolGroup_->addButton(ui->roadLink, ODD::TRL_ROADLINK);
-	ribbonToolGroup_->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
-	ribbonToolGroup_->addButton(ui->select, ODD::TRL_SELECT);
+
+    ribbonToolGroup_->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
+    ribbonToolGroup_->addButton(ui->roadLink, ODD::TRL_ROADLINK);
+    ribbonToolGroup_->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
+    ribbonToolGroup_->addButton(ui->select, ODD::TRL_SELECT);
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Road Link"), ODD::ERL);
-	connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
 }
 
 void
@@ -162,9 +162,9 @@ RoadLinkEditorTool::activateEditor()
 void
 RoadLinkEditorTool::activateRibbonEditor()
 {
-	ToolAction *action = toolManager_->getLastToolAction(ODD::ERL);
+    ToolAction *action = toolManager_->getLastToolAction(ODD::ERL);
 
-	ribbonToolGroup_->button(action->getToolId())->click();
+    ribbonToolGroup_->button(action->getToolId())->click();
 
 }
 
@@ -193,7 +193,7 @@ RoadLinkEditorTool::handleRibbonToolClick(int id)
     //
     RoadLinkEditorToolAction *action = new RoadLinkEditorToolAction(toolId_);
     emit toolAction(action);
- //   delete action;
+    //   delete action;
 }
 
 /*! \brief Gets called when a tool has been selected.
@@ -201,7 +201,7 @@ RoadLinkEditorTool::handleRibbonToolClick(int id)
 void
 RoadLinkEditorTool::setThreshold()
 {
-	ODD::ToolId toolId_ = (ODD::ToolId)ribbonToolGroup_->checkedId();
+    ODD::ToolId toolId_ = (ODD::ToolId)ribbonToolGroup_->checkedId();
 
     // Set a tool //
     //

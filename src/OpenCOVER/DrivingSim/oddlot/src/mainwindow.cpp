@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   1/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   1/18/2010
+ **
+ **************************************************************************/
 
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-// Manager //
-//
+ // Manager //
+ //
 #include "src/data/prototypemanager.hpp"
 #include "src/data/signalmanager.hpp"
 #include "src/wizards/wizardmanager.hpp"
@@ -61,7 +61,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-	, signalTree_(NULL)
+    , signalTree_(NULL)
 {
     ui->setupUi(this);
 
@@ -96,19 +96,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     createUndo();
-	createErrorMessageTab();
+    createErrorMessageTab();
     createPrototypes();
     createTools();
-	createSignals();
+    createSignals();
     createWizards();
 
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
-	exportSettings = new ExportSettings();
+    exportSettings = new ExportSettings();
     lodSettings = new LODSettings();
-	oscSettings = new OSCSettings(covisedir_ + "/share/covise/catalogs/");
+    oscSettings = new OSCSettings(covisedir_ + "/share/covise/catalogs/");
 
- //---------------------------------------//
+    //---------------------------------------//
 #ifdef COVER_CONNECTION
     coverConnection = COVERConnection::instance();
 #endif
@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-	delete signalTree_;
+    delete signalTree_;
 
     ODD::kill();
 }
@@ -185,8 +185,8 @@ MainWindow::createCOVERConnectionButton()
 #ifdef COVER_CONNECTION
     updateCOVERConnectionIcon(*(coverConnection->getIconDisconnected()));
 #endif
-    coverButton->setIconSize(QSize(30,30));
-    connect(coverButton,SIGNAL(clicked()),this,SLOT(openCOVERSettings()));
+    coverButton->setIconSize(QSize(30, 30));
+    connect(coverButton, SIGNAL(clicked()), this, SLOT(openCOVERSettings()));
     coverConnectionToolBar = new QToolBar();
     coverConnectionToolBar->addWidget(coverButton);
     coverConnectionToolBar->setAllowedAreas(Qt::TopToolBarArea);
@@ -216,30 +216,30 @@ MainWindow::createActions()
     QAction *openAction = new QAction(tr("&Open"), this);
     openAction->setShortcuts(QKeySequence::Open);
     openAction->setStatusTip(tr("Open an existing file."));
-	connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
+    connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
-	QMenu *openMenu = new QMenu("&Open", fileMenu_);
-	openMenu->addAction(openAction);
-	QAction *openXODRAction = new QAction(tr("Open Open&Drive File"), openMenu);
-	openMenu->addAction(openXODRAction);
-	connect(openXODRAction, SIGNAL(triggered()), this, SLOT(openXODR()));
+    QMenu *openMenu = new QMenu("&Open", fileMenu_);
+    openMenu->addAction(openAction);
+    QAction *openXODRAction = new QAction(tr("Open Open&Drive File"), openMenu);
+    openMenu->addAction(openXODRAction);
+    connect(openXODRAction, SIGNAL(triggered()), this, SLOT(openXODR()));
 
-	QAction *openXOSCAction = new QAction(tr("Open Open&Scenario File"), openMenu);
-	openMenu->addAction(openXOSCAction);
-	connect(openXOSCAction, SIGNAL(triggered()), this, SLOT(openXOSC()));
-    
-	QMenu *mergeMenu = new QMenu("&Merge", fileMenu_);
+    QAction *openXOSCAction = new QAction(tr("Open Open&Scenario File"), openMenu);
+    openMenu->addAction(openXOSCAction);
+    connect(openXOSCAction, SIGNAL(triggered()), this, SLOT(openXOSC()));
+
+    QMenu *mergeMenu = new QMenu("&Merge", fileMenu_);
     QAction *openTileAction = new QAction(tr("&Merge Open&Drive file"), this);
     openTileAction->setShortcut(QKeySequence::AddTab);
     openTileAction->setStatusTip(tr("Merge an additonal File."));
     connect(openTileAction, SIGNAL(triggered()), this, SLOT(openTile()));
-    connect(this,SIGNAL(hasActiveProject(bool)),openTileAction,SLOT(setEnabled(bool)));
-	mergeMenu->addAction(openTileAction);
+    connect(this, SIGNAL(hasActiveProject(bool)), openTileAction, SLOT(setEnabled(bool)));
+    mergeMenu->addAction(openTileAction);
 
-	QAction *mergeXOSCAction = new QAction(tr("Merge Open&Scenario File"), mergeMenu);
-	mergeMenu->addAction(mergeXOSCAction);
-	connect(mergeXOSCAction, SIGNAL(triggered()), this, SLOT(mergeXOSC()));
-	connect(this,SIGNAL(hasActiveProject(bool)),mergeXOSCAction,SLOT(setEnabled(bool)));
+    QAction *mergeXOSCAction = new QAction(tr("Merge Open&Scenario File"), mergeMenu);
+    mergeMenu->addAction(mergeXOSCAction);
+    connect(mergeXOSCAction, SIGNAL(triggered()), this, SLOT(mergeXOSC()));
+    connect(this, SIGNAL(hasActiveProject(bool)), mergeXOSCAction, SLOT(setEnabled(bool)));
 
     QAction *saveAction = new QAction(tr("&Save"), this);
     saveAction->setShortcuts(QKeySequence::Save);
@@ -247,20 +247,20 @@ MainWindow::createActions()
     connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
     connect(this, SIGNAL(hasActiveProject(bool)), saveAction, SLOT(setEnabled(bool)));
 
-	QMenu *saveMenu = new QMenu("&Save", fileMenu_);
-	saveMenu->addAction(saveAction);
-	QAction *saveXODRAction = new QAction(tr("Save As Open&Drive File"), saveMenu);
-	saveMenu->addAction(saveXODRAction);
-	connect(saveXODRAction, SIGNAL(triggered()), this, SLOT(saveAsXODR()));
-	connect(this, SIGNAL(hasActiveProject(bool)), saveXODRAction, SLOT(setEnabled(bool)));
+    QMenu *saveMenu = new QMenu("&Save", fileMenu_);
+    saveMenu->addAction(saveAction);
+    QAction *saveXODRAction = new QAction(tr("Save As Open&Drive File"), saveMenu);
+    saveMenu->addAction(saveXODRAction);
+    connect(saveXODRAction, SIGNAL(triggered()), this, SLOT(saveAsXODR()));
+    connect(this, SIGNAL(hasActiveProject(bool)), saveXODRAction, SLOT(setEnabled(bool)));
 
-	QAction *saveXOSCAction = new QAction(tr("Save As Open&Scenario File"), saveMenu);
-	saveMenu->addAction(saveXOSCAction);
-	connect(saveXOSCAction, SIGNAL(triggered()), this, SLOT(saveAsXOSC()));
-	connect(this, SIGNAL(hasActiveProject(bool)), saveXOSCAction, SLOT(setEnabled(bool)));
+    QAction *saveXOSCAction = new QAction(tr("Save As Open&Scenario File"), saveMenu);
+    saveMenu->addAction(saveXOSCAction);
+    connect(saveXOSCAction, SIGNAL(triggered()), this, SLOT(saveAsXOSC()));
+    connect(this, SIGNAL(hasActiveProject(bool)), saveXOSCAction, SLOT(setEnabled(bool)));
 
     QAction *saveAsAction = new QAction(tr("Save &As..."), saveMenu);
-	saveMenu->addAction(saveAsAction);
+    saveMenu->addAction(saveAsAction);
     saveAsAction->setShortcuts(QKeySequence::SaveAs);
     saveAsAction->setStatusTip(tr("Save the document under a new name."));
     connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -270,7 +270,7 @@ MainWindow::createActions()
 
     QAction *fileSettingsAction = new QAction(tr("Settings"), fileMenu_);
     connect(fileSettingsAction, SIGNAL(triggered()), this, SLOT(changeFileSettings()));
-    connect(this, SIGNAL(hasActiveProject(bool)), fileSettingsAction,SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(hasActiveProject(bool)), fileSettingsAction, SLOT(setEnabled(bool)));
 
 
     /*
@@ -311,7 +311,7 @@ MainWindow::createActions()
     //QAction *exportSettingsAction = new QAction(tr("Export Settings"), fileMenu_);
     QAction *exportSettingsAction = new QAction(tr("Export Settings"), settingsMenu);
     settingsMenu->addAction(exportSettingsAction);
-	connect(exportSettingsAction, SIGNAL(triggered()), this, SLOT(changeExportSettings()));
+    connect(exportSettingsAction, SIGNAL(triggered()), this, SLOT(changeExportSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), exportSettingsAction, SLOT(setEnabled(bool)));*/
 
     QMenu *exportMenu = new QMenu("E&xport", fileMenu_);
@@ -325,17 +325,17 @@ MainWindow::createActions()
     importMenu->addAction(importIntermapAction);
     connect(importIntermapAction, SIGNAL(triggered()), this, SLOT(importIntermapRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importIntermapAction, SLOT(setEnabled(bool)));
-	/*
+    /*
     QAction *importCSVAction = new QAction(tr("Import CSV file"), exportMenu);
     importMenu->addAction(importCSVAction);
     connect(importCSVAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCSVAction, SLOT(setEnabled(bool)));
-	*/
-	QAction *importCSVRoadAction = new QAction(tr("Import CSV Road"), exportMenu);
+    */
+    QAction *importCSVRoadAction = new QAction(tr("Import CSV Road"), exportMenu);
     importMenu->addAction(importCSVRoadAction);
     connect(importCSVRoadAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCSVRoadAction, SLOT(setEnabled(bool)));
-	QAction *importCSVSignAction = new QAction(tr("Import CSV Sign"), exportMenu);
+    QAction *importCSVSignAction = new QAction(tr("Import CSV Sign"), exportMenu);
     importMenu->addAction(importCSVSignAction);
     connect(importCSVSignAction, SIGNAL(triggered()), this, SLOT(importCSVSign()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCSVSignAction, SLOT(setEnabled(bool)));
@@ -358,9 +358,9 @@ MainWindow::createActions()
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows())); // ?!
 
     fileMenu_->addAction(newAction);
-	fileMenu_->addMenu(openMenu);
-	fileMenu_->addMenu(saveMenu);
-	fileMenu_->addMenu(mergeMenu);
+    fileMenu_->addMenu(openMenu);
+    fileMenu_->addMenu(saveMenu);
+    fileMenu_->addMenu(mergeMenu);
 
 
     //fileMenu_->addMenu(settingsMenu);
@@ -371,7 +371,7 @@ MainWindow::createActions()
     fileMenu_->addAction(lodSettingsAction);
 
     fileMenu_->addAction(coverConnectionAction);
-	fileMenu_->addAction(importSettingsAction);
+    fileMenu_->addAction(importSettingsAction);
     fileMenu_->addAction(exportSettingsAction);
     fileMenu_->addAction(OSCSettingsAction);*/
     fileMenu_->addMenu(importMenu);
@@ -487,7 +487,7 @@ MainWindow::createPrototypes()
     char *pValue;
     size_t len;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-    if (err || pValue==NULL || strlen(pValue)==0)
+    if (err || pValue == NULL || strlen(pValue) == 0)
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
         return;
@@ -523,10 +523,10 @@ MainWindow::createSignals()
     //
     signalManager_ = new SignalManager(this);
 #ifdef WIN32
-    char *pValue=NULL;
-    size_t len=0;
+    char *pValue = NULL;
+    size_t len = 0;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-    if (err || pValue==NULL || strlen(pValue)==0)
+    if (err || pValue == NULL || strlen(pValue) == 0)
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
         return;
@@ -544,25 +544,25 @@ MainWindow::createSignals()
             exit(-1);
         }
     }
-	
+
     // Dock Area //
     //
     signalsDock_ = new QDockWidget(tr("Signals & Objects"), this);
     signalsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, signalsDock_);
-	tabifyDockWidget(treeDock_, signalsDock_);
-	treeDock_->raise();
-	
+    tabifyDockWidget(treeDock_, signalsDock_);
+    treeDock_->raise();
+
     // Show/Hide Action //
     //
     QAction *signalsDockToggleAction = signalsDock_->toggleViewAction();
     signalsDockToggleAction->setStatusTip(tr("Show/hide the Signals view."));
     viewMenu_->addAction(signalsDockToggleAction);
 
-	// SignalTree //
-	//
-	signalTree_ = new SignalTreeWidget(signalManager_, this);
-	setSignalTree(signalTree_);
+    // SignalTree //
+    //
+    signalTree_ = new SignalTreeWidget(signalManager_, this);
+    setSignalTree(signalTree_);
 
     signalsDock_->hide();
 }
@@ -590,17 +590,17 @@ MainWindow::createTools()
     //
     toolManager_ = new ToolManager(prototypeManager_, this);
     connect(toolManager_, SIGNAL(toolAction(ToolAction *)), this, SLOT(toolAction(ToolAction *)));
-	connect(this, SIGNAL(hasActiveProject(bool)), toolManager_, SLOT(loadProjectEditor(bool)));
-    
+    connect(this, SIGNAL(hasActiveProject(bool)), toolManager_, SLOT(loadProjectEditor(bool)));
+
     toolDock_->setWidget(toolManager_->getToolBox());
     toolDock_->hide();
-    
+
     ribbonToolDock_ = new QDockWidget(tr("Ribbon"), this);
-    QWidget* titleWidget = new QWidget(this);
-    ribbonToolDock_->setTitleBarWidget( titleWidget ); // empty title bar
+    QWidget *titleWidget = new QWidget(this);
+    ribbonToolDock_->setTitleBarWidget(titleWidget); // empty title bar
     ribbonToolDock_->setAllowedAreas(Qt::TopDockWidgetArea);
     addDockWidget(Qt::TopDockWidgetArea, ribbonToolDock_);
-    
+
     // Show/Hide Action //
     //
     QAction *ribbonToolDockToggleAction = toolDock_->toggleViewAction();
@@ -632,13 +632,13 @@ MainWindow::createTree()
     treeDock_ = new QDockWidget(tr("Tree View"), this);
     treeDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, treeDock_);
-		
+
     // Show/Hide Action //
     //
     QAction *treeDockToggleAction = treeDock_->toggleViewAction();
     treeDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
     viewMenu_->addAction(treeDockToggleAction);
-	
+
 
     // Tree Widget //
     //
@@ -656,12 +656,12 @@ MainWindow::createSettings()
     //
     settingsDock_ = new QDockWidget(tr("Settings View"), this);
     settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	
-	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-	settingsDock_->setFixedWidth(200);
-	settingsDock_->setMinimumHeight(152);
 
-    //	settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);
+    settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    settingsDock_->setFixedWidth(200);
+    settingsDock_->setMinimumHeight(152);
+
+    // settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);
     addDockWidget(Qt::RightDockWidgetArea, settingsDock_);
 
     // Show/Hide Action //
@@ -675,8 +675,8 @@ MainWindow::createSettings()
     emptySettingsWidget_ = new QWidget();
     settingsDock_->setWidget(emptySettingsWidget_);
 
-	connect(settingsDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
- 
+    connect(settingsDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
+
 }
 
 void
@@ -691,7 +691,7 @@ MainWindow::createParameterSettings()
 
     // Show/Hide Action //
     //
-    QAction* parameterDialogToggleAction = parameterDialog_->toggleViewAction();
+    QAction *parameterDialogToggleAction = parameterDialog_->toggleViewAction();
     parameterDialogToggleAction->setStatusTip(tr("Show/hide the parameter view."));
     viewMenu_->addAction(parameterDialogToggleAction);
 
@@ -699,7 +699,7 @@ MainWindow::createParameterSettings()
 
 
 void
-MainWindow::showParameterDialog(bool show, const QString& windowTitle, const QString& helpText)
+MainWindow::showParameterDialog(bool show, const QString &windowTitle, const QString &helpText)
 {
     if (show)
     {
@@ -721,7 +721,7 @@ MainWindow::createUndo()
     undoDock_ = new QDockWidget(tr("Undo History"), this);
     undoDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, undoDock_);
-	tabifyDockWidget(undoDock_, treeDock_);
+    tabifyDockWidget(undoDock_, treeDock_);
 
     // Show/Hide Action //
     //
@@ -761,7 +761,7 @@ MainWindow::createErrorMessageTab()
     errorDock_ = new QDockWidget(tr("Error messages"), this);
     errorDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, errorDock_);
-	tabifyDockWidget(undoDock_, errorDock_);
+    tabifyDockWidget(undoDock_, errorDock_);
 
     // Show/Hide Action //
     //
@@ -769,11 +769,11 @@ MainWindow::createErrorMessageTab()
     errorDockToggleAction->setStatusTip(tr("Show/hide error messages."));
     viewMenu_->addAction(errorDockToggleAction);
 
-	 // Settings Widget //
-    //
+    // Settings Widget //
+   //
     emptyMessageWidget_ = new QWidget();
 
-//	connect(errorDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
+    // connect(errorDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
 }
 
 /*! \brief Creates the tree view dock.
@@ -785,26 +785,26 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
     //
     QDockWidget *catalogDock = new QDockWidget(name, this);
     catalogDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	catalogDock->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-	catalogDock->setFixedWidth(200);
-	catalogsDock_.prepend(catalogDock);
+    catalogDock->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+    catalogDock->setFixedWidth(200);
+    catalogsDock_.prepend(catalogDock);
 
     addDockWidget(Qt::RightDockWidgetArea, catalogDock);
-	tabifyDockWidget(treeDock_, catalogDock);
-	catalogDock->raise();
-		
+    tabifyDockWidget(treeDock_, catalogDock);
+    catalogDock->raise();
+
     // Show/Hide Action //
     //
     QAction *catalogDockToggleAction = catalogDock->toggleViewAction();
     catalogDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
     viewMenu_->addAction(catalogDockToggleAction);
-	
+
 
     // Catalog Widget //
     //
     catalogDock->setWidget(widget);
 
-	return catalogDock;
+    return catalogDock;
 }
 
 
@@ -819,16 +819,16 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
 void
 MainWindow::newFile()
 {
-	ProjectWidget *project = getActiveProject();
-	if (project)
-	{
-		project->setProjectActive(false);
-	}
+    ProjectWidget *project = getActiveProject();
+    if (project)
+    {
+        project->setProjectActive(false);
+    }
 
     project = createProject();
 
     project->newFile(createProjectFilename());
- //   project->show();
+    //   project->show();
     project->showMaximized();
     return;
 }
@@ -861,7 +861,7 @@ MainWindow::open()
         // [workaround_0] //
         // project->close() did not reliably delete the mdi subwindow when the file could not be loaded.
         // This workaround adds the project widget only after a successful loading.
-        //	original code:
+        // original code:
         // ProjectWidget* project = createProject();
         ProjectWidget *project = new ProjectWidget(this);
         // [workaround_0]
@@ -884,8 +884,8 @@ MainWindow::open()
         }
         else
         {
- //           project->close();
-			delete project;
+            //           project->close();
+            delete project;
         }
     }
     return;
@@ -918,7 +918,7 @@ MainWindow::open(QString fileName, ProjectWidget::FileType type)
         // [workaround_0] //
         // project->close() did not reliably delete the mdi subwindow when the file could not be loaded.
         // This workaround adds the project widget only after a successful loading.
-        //	original code:
+        // original code:
         // ProjectWidget* project = createProject();
         ProjectWidget *project = new ProjectWidget(this);
         // [workaround_0]
@@ -941,8 +941,8 @@ MainWindow::open(QString fileName, ProjectWidget::FileType type)
         }
         else
         {
-         //   project->close();
-			delete project;
+            //   project->close();
+            delete project;
         }
     }
     return;
@@ -951,21 +951,21 @@ MainWindow::open(QString fileName, ProjectWidget::FileType type)
 void
 MainWindow::openXODR()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xodr files (*.xodr)"));
+    QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xodr files (*.xodr)"));
     if (!fileName.isEmpty())
     {
-		open(fileName, ProjectWidget::FileType::FT_OpenDrive);
-	}
+        open(fileName, ProjectWidget::FileType::FT_OpenDrive);
+    }
 }
 
 void
 MainWindow::openXOSC()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
     if (!fileName.isEmpty())
     {
-		open(fileName, ProjectWidget::FileType::FT_OpenScenario);
-	}
+        open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+    }
 }
 
 
@@ -1006,18 +1006,18 @@ MainWindow::openTile(QString fileName)
 void
 MainWindow::mergeXOSC()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
+    QString fileName = QFileDialog::getOpenFileName(this, "", "", tr("xosc files (*.xosc)"));
     if (!fileName.isEmpty())
     {
-		if (getActiveProject())
-		{
-			getActiveProject()->loadFile(fileName, ProjectWidget::FileType::FT_OpenScenario);
-		}
-		else
-		{
-			open(fileName, ProjectWidget::FileType::FT_OpenScenario);
-		}
-	}
+        if (getActiveProject())
+        {
+            getActiveProject()->loadFile(fileName, ProjectWidget::FileType::FT_OpenScenario);
+        }
+        else
+        {
+            open(fileName, ProjectWidget::FileType::FT_OpenScenario);
+        }
+    }
 }
 
 /*! \brief Tells the active project to save itself.
@@ -1048,35 +1048,35 @@ MainWindow::saveAs()
 void
 MainWindow::saveAsXODR()
 {
-	ProjectWidget *project = getActiveProject();
-	if (project)
-	{
-		QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xodr files (*.xodr)"));
-		if (!fileName.isEmpty())
-		{
-			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenDrive))
-			{
-				statusBar()->showMessage(tr("File has been saved."), 0);
-			}
-		}
-	}
+    ProjectWidget *project = getActiveProject();
+    if (project)
+    {
+        QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xodr files (*.xodr)"));
+        if (!fileName.isEmpty())
+        {
+            if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenDrive))
+            {
+                statusBar()->showMessage(tr("File has been saved."), 0);
+            }
+        }
+    }
 }
 
 void
 MainWindow::saveAsXOSC()
 {
-	ProjectWidget *project = getActiveProject();
-	if (project)
-	{
-		QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xosc files (*.xosc)"));
-		if (!fileName.isEmpty())
-		{
-			if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenScenario))
-			{
-				statusBar()->showMessage(tr("File has been saved."), 0);
-			}
-		}
-	}
+    ProjectWidget *project = getActiveProject();
+    if (project)
+    {
+        QString fileName = QFileDialog::getSaveFileName(this, "", "", tr("xosc files (*.xosc)"));
+        if (!fileName.isEmpty())
+        {
+            if (project->saveFile(fileName, ProjectWidget::FileType::FT_OpenScenario))
+            {
+                statusBar()->showMessage(tr("File has been saved."), 0);
+            }
+        }
+    }
 }
 
 /*! \brief Tells the active project to save itself.
@@ -1125,11 +1125,11 @@ MainWindow::changeImportSettings()
 void
 MainWindow::changeExportSettings()
 {
-	if (getActiveProject())
-	{
-		exportSettings->show();
-	}
-	return;
+    if (getActiveProject())
+    {
+        exportSettings->show();
+    }
+    return;
 }
 
 void
@@ -1174,7 +1174,7 @@ MainWindow::changeLODSettings()
 void
 MainWindow::changeFileSettings()
 {
-    if(getActiveProject())
+    if (getActiveProject())
     {
         fileSettings->show();
     }
@@ -1324,10 +1324,10 @@ MainWindow::importOSMRoad()
     osmi->exec();
 
     /*if (project->importOSMFile())
-		{
-			statusBar()->showMessage(tr("File has been imported."), 2000);
-			project->show();
-		}*/
+        {
+            statusBar()->showMessage(tr("File has been imported."), 2000);
+            project->show();
+        }*/
     return;
 }
 
@@ -1366,14 +1366,14 @@ MainWindow::toolAction(ToolAction *toolAction)
 void
 MainWindow::settingsDockParentChanged(bool docked)
 {
-	if (docked)
-	{
-		settingsDock_->setMaximumWidth(400);
-	}
-	else
-	{
-		settingsDock_->setFixedWidth(200);
-	}
+    if (docked)
+    {
+        settingsDock_->setMaximumWidth(400);
+    }
+    else
+    {
+        settingsDock_->setFixedWidth(200);
+    }
 }
 
 //###########//
@@ -1393,7 +1393,7 @@ MainWindow::createProject()
     ProjectWidget *project = new ProjectWidget(this);
     mdiArea_->addSubWindow(project);
     // project->showMaximized();
-	project->setWindowState(windowState() & Qt::WindowMaximized);
+    project->setWindowState(windowState() & Qt::WindowMaximized);
 
     // Project Menu Action //
     //
@@ -1405,10 +1405,10 @@ MainWindow::createProject()
     connect(projectMenuAction, SIGNAL(triggered()), project, SLOT(show()));
     connect(projectMenuAction, SIGNAL(triggered()), project, SLOT(setFocus()));
 
-	// save current editor and tool in toolmanager
-//	toolManager_->addProjectEditingState(project);
+    // save current editor and tool in toolmanager
+// toolManager_->addProjectEditingState(project);
  //   toolManager_->resendCurrentTool(project);
-//	toolManager_->resendStandardTool(project);
+// toolManager_->resendStandardTool(project);
 
     return project;
 }
@@ -1432,14 +1432,14 @@ MainWindow::activateProject()
         //
         project->getProjectMenuAction()->setChecked(true);
 
-		// Deactivate last project //
-		//
-		ProjectWidget *lastProject = getLastActiveProject();
-		if (lastProject)
-		{
-			lastProject->setEditor(ODD::ENO_EDITOR);
-			lastProject->setProjectActive(false);
-		}
+        // Deactivate last project //
+        //
+        ProjectWidget *lastProject = getLastActiveProject();
+        if (lastProject)
+        {
+            lastProject->setEditor(ODD::ENO_EDITOR);
+            lastProject->setProjectActive(false);
+        }
 
         // Tell project that it has been activated //
         //
@@ -1449,12 +1449,12 @@ MainWindow::activateProject()
         //
         toolManager_->resendCurrentTool(project);
 
-		// Pass selected project to signal treewidget //
-		//
-		if(signalTree_)
-		{
-			signalTree_->setActiveProject(project);
-		}
+        // Pass selected project to signal treewidget //
+        //
+        if (signalTree_)
+        {
+            signalTree_->setActiveProject(project);
+        }
     }
 }
 
@@ -1484,30 +1484,30 @@ MainWindow::getActiveProject()
 ProjectWidget *
 MainWindow::getLastActiveProject()
 {
-	QList<QMdiSubWindow *> windowList = mdiArea_->subWindowList(QMdiArea::WindowOrder::ActivationHistoryOrder);
-	
-	if (windowList.size() > 1)
-	{
-		QMdiSubWindow *lastActiveWindow = windowList.at(windowList.size()-2);
-		return qobject_cast<ProjectWidget *>(lastActiveWindow->widget());
-	}
+    QList<QMdiSubWindow *> windowList = mdiArea_->subWindowList(QMdiArea::WindowOrder::ActivationHistoryOrder);
 
-	return NULL;
+    if (windowList.size() > 1)
+    {
+        QMdiSubWindow *lastActiveWindow = windowList.at(windowList.size() - 2);
+        return qobject_cast<ProjectWidget *>(lastActiveWindow->widget());
+    }
+
+    return NULL;
 }
 
-const QString  
+const QString
 MainWindow::createProjectFilename()
 {
-	// Create a unique name by counting up numbers.
-	static int documentNumber = 0;
-	QString fileName;
-	do
-	{
-		++documentNumber;
-		fileName = tr("untitled%1").arg(documentNumber);
-	} while (findProject(fileName + ".xodr"));
+    // Create a unique name by counting up numbers.
+    static int documentNumber = 0;
+    QString fileName;
+    do
+    {
+        ++documentNumber;
+        fileName = tr("untitled%1").arg(documentNumber);
+    } while (findProject(fileName + ".xodr"));
 
-	return fileName;
+    return fileName;
 }
 
 /*! \brief Returns the project subwindow of a already opened file (if possible).
@@ -1524,7 +1524,7 @@ MainWindow::findProject(const QString &fileName)
 
     // Search for project with that file name //
     //
-    foreach (QMdiSubWindow *window, mdiArea_->subWindowList())
+    foreach(QMdiSubWindow * window, mdiArea_->subWindowList())
     {
         ProjectWidget *project = qobject_cast<ProjectWidget *>(window->widget());
         if (project->getFileName() == canonicalFilePath)
@@ -1589,51 +1589,51 @@ MainWindow::setErrorMessageTree(QWidget *widget)
     }
 }
 
-void 
+void
 MainWindow::showDock(ODD::EditorId editor)
 {
-	switch (editor)
-	{
-	case ODD::EOS:
-		if (!catalogsDock_.empty())
-		{
-			for (int i = 0; i < catalogsDock_.size(); i++)
-			{
-				catalogsDock_.at(i)->show();
-			}
-			catalogsDock_.first()->raise();
-		}
-		break;
-	case ODD::ESG:
-		signalsDock_->show();
-		signalsDock_->raise();
-		break;
-	default:
-		treeDock_->raise();
-	}
+    switch (editor)
+    {
+    case ODD::EOS:
+        if (!catalogsDock_.empty())
+        {
+            for (int i = 0; i < catalogsDock_.size(); i++)
+            {
+                catalogsDock_.at(i)->show();
+            }
+            catalogsDock_.first()->raise();
+        }
+        break;
+    case ODD::ESG:
+        signalsDock_->show();
+        signalsDock_->raise();
+        break;
+    default:
+        treeDock_->raise();
+    }
 }
 
 void
 MainWindow::hideDock(ODD::EditorId editor)
 {
-	switch (editor)
-	{
-	case ODD::EOS:
-		if (!catalogsDock_.empty())
-		{
-			for (int i = 0; i < catalogsDock_.size(); i++)
-			{
-				catalogsDock_.at(i)->hide();
-			}
-		}
-		break;
-	case ODD::ESG:
-		signalsDock_->hide();
-		break;
+    switch (editor)
+    {
+    case ODD::EOS:
+        if (!catalogsDock_.empty())
+        {
+            for (int i = 0; i < catalogsDock_.size(); i++)
+            {
+                catalogsDock_.at(i)->hide();
+            }
+        }
+        break;
+    case ODD::ESG:
+        signalsDock_->hide();
+        break;
     default:
         // make compiler happy
         break;
-	}
+    }
 }
 
 /*! \brief Set the widget of the Settings View.

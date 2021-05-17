@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "junctionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
@@ -54,7 +54,7 @@ JunctionItem::JunctionItem(RoadSystemItem *roadSystemItem, RSystemElementJunctio
 
 JunctionItem::~JunctionItem()
 {
-    foreach (RSystemElementRoad *path, paths_)
+    foreach(RSystemElementRoad * path, paths_)
     {
         path->detachObserver(this);
     }
@@ -103,10 +103,10 @@ JunctionItem::updatePathList()
 {
     QList<RSystemElementRoad *> newPaths;
 
- //   foreach (JunctionConnection *connection, junction_->getConnections())
-    foreach (RSystemElementRoad * path, junction_->getRoadSystem()->getRoads(junction_->getID()))
+    //   foreach (JunctionConnection *connection, junction_->getConnections())
+    foreach(RSystemElementRoad * path, junction_->getRoadSystem()->getRoads(junction_->getID()))
     {
- //       RSystemElementRoad *path = junction_->getRoadSystem()->getRoad(connection->getConnectingRoad());
+        //       RSystemElementRoad *path = junction_->getRoadSystem()->getRoad(connection->getConnectingRoad());
 
         if (path)
         {
@@ -116,13 +116,13 @@ JunctionItem::updatePathList()
                 path->attachObserver(this);
             }
         }
-     /*   else
-        {
-            junction_->delConnection(connection);
-        }*/
+        /*   else
+           {
+               junction_->delConnection(connection);
+           }*/
     }
 
-    foreach (RSystemElementRoad *path, paths_)
+    foreach(RSystemElementRoad * path, paths_)
     {
         if (!newPaths.contains(path))
         {
@@ -142,16 +142,16 @@ JunctionItem::updatePath()
 {
     QPainterPath thePath;
 
-	if (paths_.size() < 1)
-	{
-		thePath.addRect(-5.0, -5.0, 10.0, 10.0);
-		setPath(thePath);
+    if (paths_.size() < 1)
+    {
+        thePath.addRect(-5.0, -5.0, 10.0, 10.0);
+        setPath(thePath);
 
-		// Text //
-		//
-		textHandle_->setPos(-5.0, 5.0);
-		return;
-	}
+        // Text //
+        //
+        textHandle_->setPos(-5.0, 5.0);
+        return;
+    }
 
     QPointF firstPoint = paths_.at(0)->getGlobalPoint(0.0);
     double minX = firstPoint.x();
@@ -159,7 +159,7 @@ JunctionItem::updatePath()
     double minY = firstPoint.y();
     double maxY = minY;
 
-    foreach (RSystemElementRoad *path, paths_)
+    foreach(RSystemElementRoad * path, paths_)
     {
         QPointF startPoint = path->getGlobalPoint(0.0);
         if (startPoint.x() < minX)
@@ -204,10 +204,10 @@ JunctionItem::removeJunction()
 void
 JunctionItem::addToCurrentTile()
 {
-	odrID newId = junction_->getID();
-	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
-	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, NULL);
-	getProjectGraph()->executeCommand(command);
+    odrID newId = junction_->getID();
+    newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+    SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, NULL);
+    getProjectGraph()->executeCommand(command);
 }
 
 //##################//
@@ -239,13 +239,13 @@ JunctionItem::updateObserver()
 
     // Paths //
     //
-    foreach (RSystemElementRoad *path, paths_)
+    foreach(RSystemElementRoad * path, paths_)
     {
         int changes = path->getRoadChanges();
         if ((changes & RSystemElementRoad::CRD_LengthChange)
             || (changes & RSystemElementRoad::CRD_ShapeChange)
             || (changes & RSystemElementRoad::CRD_TrackSectionChange)
-			|| (changes & RSystemElementRoad::CRD_JunctionChange))
+            || (changes & RSystemElementRoad::CRD_JunctionChange))
         {
             doUpdate = true;
             break;

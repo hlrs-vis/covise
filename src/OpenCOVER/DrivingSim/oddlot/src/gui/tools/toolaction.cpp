@@ -5,26 +5,26 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #include "toolaction.hpp"
 
 #include "src/util/odd.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 ToolAction::ToolAction(ODD::EditorId editorId, ODD::ToolId toolId, ODD::ToolId paramToolId)
     : editorId_(editorId)
     , toolID_(toolId)
-	, paramToolId_(paramToolId)
+    , paramToolId_(paramToolId)
 {
 }
 

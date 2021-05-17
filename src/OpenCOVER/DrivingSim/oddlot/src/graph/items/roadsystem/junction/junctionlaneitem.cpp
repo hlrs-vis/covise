@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/18/2010
+ **
+ **************************************************************************/
 
 #include "junctionlaneitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -60,7 +60,7 @@
 
 JunctionLaneItem::JunctionLaneItem(JunctionEditor *junctionEditor, JunctionLaneSectionItem *parentJunctionLaneSectionItem, Lane *lane)
     : GraphElement(parentJunctionLaneSectionItem, lane)
-	, junctionEditor_(junctionEditor)
+    , junctionEditor_(junctionEditor)
     , parentJunctionLaneSectionItem_(parentJunctionLaneSectionItem)
     , parentLaneSection_(parentJunctionLaneSectionItem->getLaneSection())
     , lane_(lane)
@@ -86,7 +86,7 @@ JunctionLaneItem::init()
 
     // Selection/Hovering //
     //
-    //	setAcceptHoverEvents(true);
+    // setAcceptHoverEvents(true);
     setSelectable();
 
     // Color & Path //
@@ -96,8 +96,8 @@ JunctionLaneItem::init()
 
     // LaneLinkItem //
     //
-    //	new LaneLinkItem(this, Lane::DLLT_Predecessor);
-    //	new LaneLinkItem(this, Lane::DLLT_Successor);
+    // new LaneLinkItem(this, Lane::DLLT_Predecessor);
+    // new LaneLinkItem(this, Lane::DLLT_Successor);
 
     // ContextMenu //
     //
@@ -107,8 +107,8 @@ JunctionLaneItem::init()
     QAction *hideParentRoadAction = getHideMenu()->addAction(tr("Road"));
     connect(hideParentRoadAction, SIGNAL(triggered()), this, SLOT(hideParentRoad()));
 
-    //	removeSectionAction = getRemoveMenu()->addAction(tr("Section"));
-    //	connect(removeSectionAction, SIGNAL(triggered()), this, SLOT(removeSection()));
+    // removeSectionAction = getRemoveMenu()->addAction(tr("Section"));
+    // connect(removeSectionAction, SIGNAL(triggered()), this, SLOT(removeSection()));
 
     QAction *removeParentRoadAction = getRemoveMenu()->addAction(tr("Road"));
     connect(removeParentRoadAction, SIGNAL(triggered()), this, SLOT(removeParentRoad()));
@@ -134,8 +134,8 @@ JunctionLaneItem::hideParentRoad()
 }
 
 //void
-//	SectionItem
-//	::removeSection()
+// SectionItem
+// ::removeSection()
 //{
 //}
 
@@ -222,7 +222,7 @@ JunctionLaneItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)
@@ -305,10 +305,10 @@ JunctionLaneItem::updateObserver()
     {
         createPath();
     }
-	else if (roadChanges & RSystemElementRoad::CRD_JunctionChange)
-	{
-		updateColor();
-	}
+    else if (roadChanges & RSystemElementRoad::CRD_JunctionChange)
+    {
+        updateColor();
+    }
 
 }
 
@@ -317,13 +317,13 @@ JunctionLaneItem::updateObserver()
 //################//
 
 void
-JunctionLaneItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
+JunctionLaneItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	if ((junctionEditor_->getCurrentTool() == ODD::TJE_SELECT) || (junctionEditor_->getCurrentTool() == ODD::TJE_CIRCLE) 
-		|| (junctionEditor_->getCurrentTool() == ODD::TJE_SPLIT) || (junctionEditor_->getCurrentTool() == ODD::TJE_MOVE))
-	{
-		GraphElement::mousePressEvent(event);
-	}
+    if ((junctionEditor_->getCurrentTool() == ODD::TJE_SELECT) || (junctionEditor_->getCurrentTool() == ODD::TJE_CIRCLE)
+        || (junctionEditor_->getCurrentTool() == ODD::TJE_SPLIT) || (junctionEditor_->getCurrentTool() == ODD::TJE_MOVE))
+    {
+        GraphElement::mousePressEvent(event);
+    }
 }
 
 void
@@ -334,8 +334,8 @@ JunctionLaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 }
 
 //void
-//	LaneItem
-//	::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+// LaneItem
+// ::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 //{
 
 //}

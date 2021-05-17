@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "roadlinkroadsystemitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -30,7 +30,7 @@
 
 RoadLinkRoadSystemItem::RoadLinkRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem, RoadLinkEditor *editor)
     : RoadSystemItem(topviewGraph, roadSystem)
-	, editor_(editor)
+    , editor_(editor)
 {
     init();
 }
@@ -42,7 +42,7 @@ RoadLinkRoadSystemItem::~RoadLinkRoadSystemItem()
 void
 RoadLinkRoadSystemItem::init()
 {
-    foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
+    foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
     {
         new RoadLinkRoadItem(this, road, editor_);
     }
@@ -71,7 +71,7 @@ RoadLinkRoadSystemItem::updateObserver()
     {
         // A road has been added (or deleted - but that will be handled by the road item itself).
         //
-        foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
+        foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
         {
             if ((road->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (road->getDataElementChanges() & DataElement::CDE_DataElementAdded))

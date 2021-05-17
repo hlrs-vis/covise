@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   20.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   20.04.2010
+ **
+ **************************************************************************/
 
 #include "trackmovehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -348,15 +348,15 @@ TrackMoveHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 void
 TrackMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (highSlot_)
-	{
-		trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
-	}
-	else if (lowSlot_)
-	{
-		trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
-	}
-	QGraphicsPathItem::mousePressEvent(event);
+    if (highSlot_)
+    {
+        trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
+    }
+    else if (lowSlot_)
+    {
+        trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
+    }
+    QGraphicsPathItem::mousePressEvent(event);
 }
 
 void
@@ -369,19 +369,19 @@ TrackMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         trackEditor_->translateTrackComponents(scenePos(), event->scenePos());
     }
 
-    //	MoveHandle::mouseMoveEvent(event); // pass to baseclass
+    // MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
 
 void
 TrackMoveHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (highSlot_)
-	{
-		trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
-	}
-	else if (lowSlot_)
-	{
-		trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
-	}
-	QGraphicsPathItem::mouseReleaseEvent(event);
+    if (highSlot_)
+    {
+        trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
+    }
+    else if (lowSlot_)
+    {
+        trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
+    }
+    QGraphicsPathItem::mouseReleaseEvent(event);
 }

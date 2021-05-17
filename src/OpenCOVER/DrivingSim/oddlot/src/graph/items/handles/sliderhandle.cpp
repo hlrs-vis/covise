@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/26/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/26/2010
+ **
+ **************************************************************************/
 
 #include "sliderhandle.hpp"
 
 #include "slidermovehandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 SliderHandle::SliderHandle(QGraphicsItem *parent)
     : Handle(parent)
@@ -52,11 +52,11 @@ SliderHandle::~SliderHandle()
 //################//
 
 //void
-//	SliderHandle
-//	::moveHandlePositionChange(const QPointF & pos)
+// SliderHandle
+// ::moveHandlePositionChange(const QPointF & pos)
 //{
-////	qDebug() << pos.x() << " " << pos.y();
-////	moveHandle_->setPos(pos.x(), 0.0);
+//// qDebug() << pos.x() << " " << pos.y();
+//// moveHandle_->setPos(pos.x(), 0.0);
 
 //}
 

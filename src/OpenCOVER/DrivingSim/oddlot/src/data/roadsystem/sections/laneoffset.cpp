@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.02.2010
+ **
+ **************************************************************************/
 
 #include "laneoffset.hpp"
 
@@ -33,7 +33,7 @@ LaneOffset::~LaneOffset()
 void
 LaneOffset::setParentRoad(RSystemElementRoad *parentRoad)
 {
-	parentRoad_ = parentRoad;
+    parentRoad_ = parentRoad;
     setParentElement(parentRoad);
     addLaneOffsetChanges(LaneOffset::CLO_ParentRoadChanged);
 }
@@ -61,8 +61,8 @@ LaneOffset::getCurvature(double sSection) const
 void
 LaneOffset::setSOffset(double sOffset)
 {
-	sOffset_ = sOffset;
-	addLaneOffsetChanges(LaneOffset::CLO_SOffsetChanged);
+    sOffset_ = sOffset;
+    addLaneOffsetChanges(LaneOffset::CLO_SOffsetChanged);
 }
 
 //################//

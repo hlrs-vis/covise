@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/29/2010
+ **
+ **************************************************************************/
 
 #include "lanelinkitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -96,8 +96,8 @@ LaneLinkItem::init()
 
     // Selection/Hovering //
     //
-    //	setAcceptHoverEvents(true);
-    //	setSelectable();
+    // setAcceptHoverEvents(true);
+    // setSelectable();
 
     // LinkHandle //
     //
@@ -126,44 +126,44 @@ LaneLinkItem::init()
 void
 LaneLinkItem::updateColor()
 {
-    //	Lane::LaneType type = lane_->getLaneType();
-    //	if(type == Lane::LT_DRIVING)
-    //	{
-    //		setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
-    //		setPen(QPen(ODD::instance()->colors()->darkGreen()));
-    //	}
-    //	else if((type == Lane::LT_MWYENTRY) || (type == Lane::LT_MWYEXIT))
-    //	{
-    //		setBrush(QBrush(ODD::instance()->colors()->brightCyan()));
-    //		setPen(QPen(ODD::instance()->colors()->darkCyan()));
-    //	}
-    //	else if((type == Lane::LT_SHOULDER) || (type == Lane::LT_PARKING))
-    //	{
-    //		setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-    //		setPen(QPen(ODD::instance()->colors()->darkOrange()));
-    //	}
-    //	else if((type == Lane::LT_BORDER) || (type == Lane::LT_RESTRICTED) || (type == Lane::LT_SIDEWALK) || (type == Lane::LT_STOP))
-    //	{
-    //		setBrush(QBrush(ODD::instance()->colors()->brightRed()));
-    //		setPen(QPen(ODD::instance()->colors()->darkRed()));
-    //	}
-    //	else if((type == Lane::LT_BIKING) || (type == Lane::LT_SPECIAL1) || (type == Lane::LT_SPECIAL2) || (type == Lane::LT_SPECIAL3))
-    //	{
-    //		setBrush(QBrush(ODD::instance()->colors()->brightBlue()));
-    //		setPen(QPen(ODD::instance()->colors()->darkBlue()));
-    //	}
-    //	else if(type == Lane::LT_NONE)
-    //	{
+    // Lane::LaneType type = lane_->getLaneType();
+    // if(type == Lane::LT_DRIVING)
+    // {
+    //  setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
+    //  setPen(QPen(ODD::instance()->colors()->darkGreen()));
+    // }
+    // else if((type == Lane::LT_MWYENTRY) || (type == Lane::LT_MWYEXIT))
+    // {
+    //  setBrush(QBrush(ODD::instance()->colors()->brightCyan()));
+    //  setPen(QPen(ODD::instance()->colors()->darkCyan()));
+    // }
+    // else if((type == Lane::LT_SHOULDER) || (type == Lane::LT_PARKING))
+    // {
+    //  setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
+    //  setPen(QPen(ODD::instance()->colors()->darkOrange()));
+    // }
+    // else if((type == Lane::LT_BORDER) || (type == Lane::LT_RESTRICTED) || (type == Lane::LT_SIDEWALK) || (type == Lane::LT_STOP))
+    // {
+    //  setBrush(QBrush(ODD::instance()->colors()->brightRed()));
+    //  setPen(QPen(ODD::instance()->colors()->darkRed()));
+    // }
+    // else if((type == Lane::LT_BIKING) || (type == Lane::LT_SPECIAL1) || (type == Lane::LT_SPECIAL2) || (type == Lane::LT_SPECIAL3))
+    // {
+    //  setBrush(QBrush(ODD::instance()->colors()->brightBlue()));
+    //  setPen(QPen(ODD::instance()->colors()->darkBlue()));
+    // }
+    // else if(type == Lane::LT_NONE)
+    // {
     setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     setPen(QPen(ODD::instance()->colors()->darkGrey()));
     linkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     linkHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
-    //	}
-    //	else
-    //	{
-    //		setBrush(QBrush(QColor(255, 0, 0)));
-    //		qDebug("WARNING 1010181018! Unknown Lane Type!");
-    //	}
+    // }
+    // else
+    // {
+    //  setBrush(QBrush(QColor(255, 0, 0)));
+    //  qDebug("WARNING 1010181018! Unknown Lane Type!");
+    // }
 }
 
 void

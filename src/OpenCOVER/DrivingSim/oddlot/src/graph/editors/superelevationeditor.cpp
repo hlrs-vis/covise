@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #include "superelevationeditor.hpp"
 
-// Project //
-//
+ // Project //
+ //
 #include "src/gui/projectwidget.hpp"
 
 // Data //
@@ -91,14 +91,14 @@ SuperelevationEditor::getInsertSectionHandle()
 */
 
 void
-SuperelevationEditor::insertSelectedRoad(RSystemElementRoad* road)
+SuperelevationEditor::insertSelectedRoad(RSystemElementRoad *road)
 {
     if (getCurrentTool() == ODD::TSE_SELECT)
     {
         if (!selectedRoads_.contains(road))
         {
             selectedRoads_.append(road);
-            QList<DataElement*> sectionList;
+            QList<DataElement *> sectionList;
             foreach(SuperelevationSection * section, road->getSuperelevationSections())
             {
                 if (!section->isElementSelected())
@@ -121,7 +121,7 @@ SuperelevationEditor::insertSelectedRoad(RSystemElementRoad* road)
                 selectedSuperelevationItem_ = NULL;
             }
 
-            SelectDataElementCommand* command = new SelectDataElementCommand(sectionList);
+            SelectDataElementCommand *command = new SelectDataElementCommand(sectionList);
             getProjectGraph()->executeCommand(command);
         }
     }
@@ -141,7 +141,7 @@ SuperelevationEditor::initBox()
 * Calls fitInView for the selected road and displays it in the ProfileGraph.
 */
 void
-SuperelevationEditor::addSelectedRoad(SuperelevationRoadPolynomialItem* roadItem)
+SuperelevationEditor::addSelectedRoad(SuperelevationRoadPolynomialItem *roadItem)
 {
 
     // Compute the BoundingBox of all selected roads //
@@ -175,7 +175,7 @@ SuperelevationEditor::delSelectedRoad(RSystemElementRoad *road)
     {
         selectedRoads_.removeAll(road);
 
-        QList<DataElement*> sectionList;
+        QList<DataElement *> sectionList;
         foreach(SuperelevationSection * section, road->getSuperelevationSections())
         {
             if (section->isElementSelected())
@@ -191,13 +191,13 @@ SuperelevationEditor::delSelectedRoad(RSystemElementRoad *road)
             {
                 selectedSuperelevationItem_ = new SuperelevationRoadPolynomialItem(roadSystemItemPolyGraph_, selectedRoads_.first());
 
-                DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+                DeselectDataElementCommand *command = new DeselectDataElementCommand(sectionList);
                 getProjectGraph()->executeCommand(command);
             }
         }
         else
         {
-            DeselectDataElementCommand* command = new DeselectDataElementCommand(sectionList);
+            DeselectDataElementCommand *command = new DeselectDataElementCommand(sectionList);
             getProjectGraph()->executeCommand(command);
 
             if (listSize == 0)
@@ -223,43 +223,43 @@ SuperelevationEditor::toolAction(ToolAction *toolAction)
     //
     ProjectEditor::toolAction(toolAction);
 
-    //	// Tools //
-    //	//
-    //	if(getCurrentTool() == ODD::TSE_SELECT)
-    //	{
-    //		// does nothing //
-    //	}
-    //	else if(getCurrentTool() == ODD::TSE_ADD)
-    //	{
-    //		// does nothing //
-    //	}
-    //	else if(getCurrentTool() == ODD::TSE_DEL)
-    //	{
-    //		// does nothing //
-    //		// Note the problem: The ToolAction is re-sent, after a warning message has been clicked away. (Due to re-send on getting the focus back?)
-    //	}
+    // // Tools //
+    // //
+    // if(getCurrentTool() == ODD::TSE_SELECT)
+    // {
+    //  // does nothing //
+    // }
+    // else if(getCurrentTool() == ODD::TSE_ADD)
+    // {
+    //  // does nothing //
+    // }
+    // else if(getCurrentTool() == ODD::TSE_DEL)
+    // {
+    //  // does nothing //
+    //  // Note the problem: The ToolAction is re-sent, after a warning message has been clicked away. (Due to re-send on getting the focus back?)
+    // }
 
     // Tools //
     //
     SuperelevationEditorToolAction *superelevationEditorToolAction = dynamic_cast<SuperelevationEditorToolAction *>(toolAction);
 
-	if (superelevationEditorToolAction)
-	{
-		if (superelevationEditorToolAction->getToolId() == ODD::TSE_SELECT)
-		{
-			if (superelevationEditorToolAction->getParamToolId() == ODD::TSE_RADIUS)
-			{
-				if (superelevationEditorToolAction->getRadius() > 0.0)
-				{
-					smoothRadius_ = superelevationEditorToolAction->getRadius();
-				}
-			}
-		}
-		else if ((superelevationEditorToolAction->getToolId() == ODD::TSE_ADD) || (superelevationEditorToolAction->getToolId() == ODD::TSE_DEL))
-		{
-			getTopviewGraph()->getScene()->deselectAll();
-		}
-	}
+    if (superelevationEditorToolAction)
+    {
+        if (superelevationEditorToolAction->getToolId() == ODD::TSE_SELECT)
+        {
+            if (superelevationEditorToolAction->getParamToolId() == ODD::TSE_RADIUS)
+            {
+                if (superelevationEditorToolAction->getRadius() > 0.0)
+                {
+                    smoothRadius_ = superelevationEditorToolAction->getRadius();
+                }
+            }
+        }
+        else if ((superelevationEditorToolAction->getToolId() == ODD::TSE_ADD) || (superelevationEditorToolAction->getToolId() == ODD::TSE_DEL))
+        {
+            getTopviewGraph()->getScene()->deselectAll();
+        }
+    }
 }
 
 //################//
@@ -314,7 +314,7 @@ SuperelevationEditor::translateMoveHandles(const QPointF &pressPos, const QPoint
     //
     QList<SuperelevationSection *> endPointSections;
     QList<SuperelevationSection *> startPointSections;
-    foreach (SuperelevationMoveHandle *moveHandle, selectedMoveHandles_)
+    foreach(SuperelevationMoveHandle * moveHandle, selectedMoveHandles_)
     {
         SuperelevationSection *lowSlot = moveHandle->getLowSlot();
         if (lowSlot)
@@ -362,16 +362,16 @@ SuperelevationEditor::translateMoveHandles(const QPointF &pressPos, const QPoint
 void
 SuperelevationEditor::init()
 {
-	// ProfileGraph //
+    // ProfileGraph //
 //
-	if (!roadSystemItemPolyGraph_)
-	{
-		// Root item //
-		//
-		roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
-		profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
-		profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
-	}
+    if (!roadSystemItemPolyGraph_)
+    {
+        // Root item //
+        //
+        roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
+        profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
+        profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
+    }
 
     // Graph //
     //

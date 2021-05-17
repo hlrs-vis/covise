@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   06.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   06.04.2010
+ **
+ **************************************************************************/
 
 #include "junctionelementitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/track/trackelement.hpp"
 #include "src/data/commands/roadcommands.hpp"
@@ -174,7 +174,7 @@ JunctionElementItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount <= 1)
@@ -198,11 +198,11 @@ JunctionElementItem::createPath()
 
             points[i] = trackElement_->getPoint(s, 0.0);
         }
-        //		qDebug() << s << " " << points[i] << " " << road->getMinWidth(s);
+        //  qDebug() << s << " " << points[i] << " " << road->getMinWidth(s);
         if (i > 0 && (points[i] - points[i - 1]).manhattanLength() > 30)
         {
-            //			QPointF tmp = trackElement_->getPoint(s, road->getMinWidth(s));
-            //			qDebug() << "*************";
+            //   QPointF tmp = trackElement_->getPoint(s, road->getMinWidth(s));
+            //   qDebug() << "*************";
         }
     }
 
@@ -350,10 +350,10 @@ JunctionElementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             getProjectData()->getUndoStack()->endMacro();
             return;
         }
-        //		else if(tool == ODD::TTE_MOVE)
-        //		{
-        //			return; // does nothing
-        //		}
+        //  else if(tool == ODD::TTE_MOVE)
+        //  {
+        //   return; // does nothing
+        //  }
     }
 
     // parent: selection //

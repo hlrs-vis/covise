@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "bridgesettings.hpp"
 #include "ui_bridgesettings.h"
@@ -19,8 +19,8 @@
 
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/commands/signalcommands.hpp"
@@ -58,10 +58,10 @@ BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement
     //
     updateProperties();
 
-	connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
     connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->nameBox, SIGNAL(textChanged(const QString &)), this, SLOT(onValueChanged()));
     connect(ui->typeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->lengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->lengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
@@ -112,14 +112,14 @@ BridgeSettings::onEditingFinished()
     {
         QString filename = ui->nameBox->text();
         odrID newId = bridge_->getId();
-		newId.setName(filename);
-    
+        newId.setName(filename);
+
 
         SetBridgePropertiesCommand *command = new SetBridgePropertiesCommand(bridge_, newId, filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
-        QWidget * focusWidget = QApplication::focusWidget();
+        QWidget *focusWidget = QApplication::focusWidget();
         if (focusWidget)
         {
             focusWidget->clearFocus();
@@ -149,7 +149,7 @@ BridgeSettings::on_sSpinBox_editingFinished()
 
         valueChanged_ = false;
 
-        QWidget * focusWidget = QApplication::focusWidget();
+        QWidget *focusWidget = QApplication::focusWidget();
         if (focusWidget)
         {
             focusWidget->clearFocus();
@@ -158,7 +158,7 @@ BridgeSettings::on_sSpinBox_editingFinished()
 }
 
 void
-    BridgeSettings::onValueChanged()
+BridgeSettings::onValueChanged()
 {
     valueChanged_ = true;
 }

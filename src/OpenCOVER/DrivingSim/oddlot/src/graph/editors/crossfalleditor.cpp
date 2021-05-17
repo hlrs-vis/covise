@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfalleditor.hpp"
 
-// Project //
-//
+ // Project //
+ //
 #include "src/gui/projectwidget.hpp"
 
 // Data //
@@ -150,43 +150,43 @@ CrossfallEditor::toolAction(ToolAction *toolAction)
     //
     ProjectEditor::toolAction(toolAction);
 
-    //	// Tools //
-    //	//
-    //	if(getCurrentTool() == ODD::TEL_SELECT)
-    //	{
-    //		// does nothing //
-    //	}
-    //	else if(getCurrentTool() == ODD::TEL_ADD)
-    //	{
-    //		// does nothing //
-    //	}
-    //	else if(getCurrentTool() == ODD::TEL_DEL)
-    //	{
-    //		// does nothing //
-    //		// Note the problem: The ToolAction is re-sent, after a warning message has been clicked away. (Due to re-send on getting the focus back?)
-    //	}
+    // // Tools //
+    // //
+    // if(getCurrentTool() == ODD::TEL_SELECT)
+    // {
+    //  // does nothing //
+    // }
+    // else if(getCurrentTool() == ODD::TEL_ADD)
+    // {
+    //  // does nothing //
+    // }
+    // else if(getCurrentTool() == ODD::TEL_DEL)
+    // {
+    //  // does nothing //
+    //  // Note the problem: The ToolAction is re-sent, after a warning message has been clicked away. (Due to re-send on getting the focus back?)
+    // }
 
     // Tools //
     //
     CrossfallEditorToolAction *crossfallEditorToolAction = dynamic_cast<CrossfallEditorToolAction *>(toolAction);
 
-	if (crossfallEditorToolAction)
-	{
-		if (crossfallEditorToolAction->getToolId() == ODD::TCF_SELECT)
-		{
-			if (crossfallEditorToolAction->getParamToolId() == ODD::TCF_RADIUS)
-			{
-				if (crossfallEditorToolAction->getRadius() > 0.0)
-				{
-					smoothRadius_ = crossfallEditorToolAction->getRadius();
-				}
-			}
-		}
-		else if ((crossfallEditorToolAction->getToolId() == ODD::TCF_ADD) || (crossfallEditorToolAction->getToolId() == ODD::TCF_DEL))
-		{
-			getTopviewGraph()->getScene()->deselectAll();
-		}
-	}
+    if (crossfallEditorToolAction)
+    {
+        if (crossfallEditorToolAction->getToolId() == ODD::TCF_SELECT)
+        {
+            if (crossfallEditorToolAction->getParamToolId() == ODD::TCF_RADIUS)
+            {
+                if (crossfallEditorToolAction->getRadius() > 0.0)
+                {
+                    smoothRadius_ = crossfallEditorToolAction->getRadius();
+                }
+            }
+        }
+        else if ((crossfallEditorToolAction->getToolId() == ODD::TCF_ADD) || (crossfallEditorToolAction->getToolId() == ODD::TCF_DEL))
+        {
+            getTopviewGraph()->getScene()->deselectAll();
+        }
+    }
 }
 
 //################//
@@ -241,7 +241,7 @@ CrossfallEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mo
     //
     QList<CrossfallSection *> endPointSections;
     QList<CrossfallSection *> startPointSections;
-    foreach (CrossfallMoveHandle *moveHandle, selectedMoveHandles_)
+    foreach(CrossfallMoveHandle * moveHandle, selectedMoveHandles_)
     {
         CrossfallSection *lowSlot = moveHandle->getLowSlot();
         if (lowSlot)
@@ -297,16 +297,16 @@ void
 CrossfallEditor::init()
 {
 
-	// ProfileGraph //
-	//
-	if (!roadSystemItemPolyGraph_)
-	{
-		// Root item //
-		//
-		roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
-		profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
-		profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
-	}
+    // ProfileGraph //
+    //
+    if (!roadSystemItemPolyGraph_)
+    {
+        // Root item //
+        //
+        roadSystemItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
+        profileGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
+        profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
+    }
 
     // Graph //
     //
@@ -331,7 +331,7 @@ CrossfallEditor::init()
 void
 CrossfallEditor::kill()
 {
-	selectedCrossfallRoadItems_.clear();
+    selectedCrossfallRoadItems_.clear();
 
     delete roadSystemItem_;
     roadSystemItem_ = NULL;

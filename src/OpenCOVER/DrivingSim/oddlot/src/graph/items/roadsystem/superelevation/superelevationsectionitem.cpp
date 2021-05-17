@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #include "superelevationsectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
@@ -67,7 +67,7 @@ SuperelevationSectionItem::SuperelevationSectionItem(SuperelevationEditor *super
     //
     init();
 
-	parentRoadItem_ = dynamic_cast<SuperelevationRoadItem *>(parentRoadItem);
+    parentRoadItem_ = dynamic_cast<SuperelevationRoadItem *>(parentRoadItem);
 }
 
 SuperelevationSectionItem::~SuperelevationSectionItem()
@@ -146,7 +146,7 @@ SuperelevationSectionItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->HeightEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)

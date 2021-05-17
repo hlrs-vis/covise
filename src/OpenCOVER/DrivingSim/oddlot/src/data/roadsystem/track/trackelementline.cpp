@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   1/22/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   1/22/2010
+ **
+ **************************************************************************/
 
 #include "trackelementline.hpp"
 
-// Utils //
-//
+ // Utils //
+ //
 #include "src/util/odd.hpp"
 #include "math.h"
 
@@ -41,9 +41,9 @@ TrackElementLine::~TrackElementLine()
 //#########################//
 
 /** Returns point on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementLine::getPoint(double s, double d)
@@ -52,9 +52,9 @@ TrackElementLine::getPoint(double s, double d)
 }
 
 /** Returns heading on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementLine::getHeading(double /*s*/)
@@ -63,9 +63,9 @@ TrackElementLine::getHeading(double /*s*/)
 }
 
 /** Returns heading on the track at road coordinate s.
-	Natural coordinates relative to Geometry (see FEM).
-	(Natuerliche Koordinaten)
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Natural coordinates relative to Geometry (see FEM).
+    (Natuerliche Koordinaten)
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementLine::getHeadingRad(double /*s*/)
@@ -74,8 +74,8 @@ TrackElementLine::getHeadingRad(double /*s*/)
 }
 
 /** Returns local point on the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 QPointF
 TrackElementLine::getLocalPoint(double s, double d)
@@ -84,8 +84,8 @@ TrackElementLine::getLocalPoint(double s, double d)
 }
 
 /** Returns local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementLine::getLocalHeading(double /*s*/)
@@ -94,8 +94,8 @@ TrackElementLine::getLocalHeading(double /*s*/)
 }
 
 /** Returns local heading of the track at road coordinate s.
-	Relative to the parent composite.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Relative to the parent composite.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementLine::getLocalHeadingRad(double /*s*/)
@@ -111,7 +111,7 @@ TrackElementLine::getLocalHeadingRad(double /*s*/)
 QVector2D
 TrackElementLine::getLocalTangent(double /*s*/)
 {
-    //	double heading = getLocalHeadingRad(s);
+    // double heading = getLocalHeadingRad(s);
     double hdg = heading() * 2.0 * M_PI / 360.0; // shortcut
     return QVector2D(cos(hdg), sin(hdg)); // hypotenuse = 1.0
 }
@@ -124,14 +124,14 @@ TrackElementLine::getLocalTangent(double /*s*/)
 QVector2D
 TrackElementLine::getLocalNormal(double /*s*/)
 {
-    //	double heading = getLocalHeadingRad(s);
+    // double heading = getLocalHeadingRad(s);
     double hdg = heading() * 2.0 * M_PI / 360.0; // shortcut
     return QVector2D(sin(hdg), -cos(hdg)); // hypotenuse = 1.0
 }
 
 /** Returns curvature of the track at road coordinate s.
-	Independent of coordinate system.
-	The s-Coordinate is NOT clamped to [s_, s_ + length_].
+    Independent of coordinate system.
+    The s-Coordinate is NOT clamped to [s_, s_ + length_].
 */
 double
 TrackElementLine::getCurvature(double /*s*/)

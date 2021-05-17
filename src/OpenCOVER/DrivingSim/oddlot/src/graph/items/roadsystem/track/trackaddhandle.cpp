@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10.05.2010
+ **
+ **************************************************************************/
 
 #include "trackaddhandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -171,7 +171,7 @@ TrackAddHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     // NOTE: position is relative to parent!!! //
     //
-	if (change == QGraphicsItem::ItemSelectedHasChanged)
+    if (change == QGraphicsItem::ItemSelectedHasChanged)
     {
         if (value.toBool())
         {

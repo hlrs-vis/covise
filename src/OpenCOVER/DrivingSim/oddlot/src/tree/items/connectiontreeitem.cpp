@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/11/2010
+ **
+ **************************************************************************/
 
 #include "connectiontreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/junctionconnection.hpp"
 
 // Tree //
@@ -44,13 +44,13 @@ ConnectionTreeItem::init()
 
     // LaneLinks //
     //
-    //	typesItem_ = new QTreeWidgetItem(this);
-    //	typesItem_->setText(0, tr("types"));
+    // typesItem_ = new QTreeWidgetItem(this);
+    // typesItem_->setText(0, tr("types"));
 
-    //	foreach(TypeSection * element, connection_->getTypeSections())
-    //	{
-    //		new TypeSectionTreeItem(this, element, typesItem_);
-    //	}
+    // foreach(TypeSection * element, connection_->getTypeSections())
+    // {
+    //  new TypeSectionTreeItem(this, element, typesItem_);
+    // }
 }
 
 void
@@ -90,7 +90,7 @@ ConnectionTreeItem::updateObserver()
 
     // LaneLinks //
     //
-    //	if(changes & JunctionConnection::CJC_LaneLinkChanged)
-    //	{
-    //	}
+    // if(changes & JunctionConnection::CJC_LaneLinkChanged)
+    // {
+    // }
 }

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   25.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   25.06.2010
+ **
+ **************************************************************************/
 
 #include "junctionlanewidthmovehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -110,7 +110,7 @@ JunctionLaneWidthMoveHandle::registerLowSlot(LaneWidth *laneWidthSection)
 
     // Degrees Of Freedom Fries //
     //
-    //	updateDOF();
+    // updateDOF();
 }
 
 void
@@ -134,7 +134,7 @@ JunctionLaneWidthMoveHandle::registerHighSlot(LaneWidth *laneWidthSection)
 
     // Degrees Of Freedom //
     //
-    //	updateDOF();
+    // updateDOF();
 }
 
 void
@@ -147,17 +147,17 @@ JunctionLaneWidthMoveHandle::setDOF(int dof)
     //
     if (posDOF_ == 2)
     {
-        //		removeAction_->setEnabled(true);
+        //  removeAction_->setEnabled(true);
         smoothAction_->setEnabled(true);
     }
     else if (posDOF_ == 1)
     {
-        //		removeAction_->setEnabled(false);
+        //  removeAction_->setEnabled(false);
         smoothAction_->setEnabled(true);
     }
     else
     {
-        //		removeAction_->setEnabled(false);
+        //  removeAction_->setEnabled(false);
         smoothAction_->setEnabled(false);
     }
 
@@ -270,13 +270,13 @@ JunctionLaneWidthMoveHandle::updateObserver()
             setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
         }
     }
-    /*	if(highSlot_)
-	{
-		highSlot_->getParentLane()->
-	}
-	else if(lowSlot_)
-	{
-	}*/
+    /* if(highSlot_)
+    {
+        highSlot_->getParentLane()->
+    }
+    else if(lowSlot_)
+    {
+    }*/
 }
 
 //################//
@@ -291,16 +291,16 @@ JunctionLaneWidthMoveHandle::removeCorner()
         return;
     }
 
-    /*	MergeLaneWidthSectionCommand * command = new MergeLaneWidthSectionCommand(lowSlot_, highSlot_, NULL);
-	if(command->isValid())
-	{
-		lowSlot_->getUndoStack()->push(command);
-	}
-	else
-	{
-		delete command;
-	}
-	*/
+    /* MergeLaneWidthSectionCommand * command = new MergeLaneWidthSectionCommand(lowSlot_, highSlot_, NULL);
+    if(command->isValid())
+    {
+        lowSlot_->getUndoStack()->push(command);
+    }
+    else
+    {
+        delete command;
+    }
+    */
 }
 
 void
@@ -311,16 +311,16 @@ JunctionLaneWidthMoveHandle::smoothCorner()
         return;
     }
     //TODO
-    /*	SmoothLaneWidthSectionCommand * command = new SmoothLaneWidthSectionCommand(lowSlot_, highSlot_, laneWidthEditor_->getSmoothRadius(), NULL);
-	if(command->isValid())
-	{
-		lowSlot_->getUndoStack()->push(command);
-	}
-	else
-	{
-		laneWidthEditor_->printStatusBarMsg(command->text(), 4000);
-		delete command;
-	}*/
+    /* SmoothLaneWidthSectionCommand * command = new SmoothLaneWidthSectionCommand(lowSlot_, highSlot_, laneWidthEditor_->getSmoothRadius(), NULL);
+    if(command->isValid())
+    {
+        lowSlot_->getUndoStack()->push(command);
+    }
+    else
+    {
+        laneWidthEditor_->printStatusBarMsg(command->text(), 4000);
+        delete command;
+    }*/
 }
 
 //################//

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #include "osctextitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/oscsystem/oscelement.hpp"
 
@@ -40,24 +40,24 @@ using namespace OpenScenario;
 
 OSCTextItem::OSCTextItem(OSCElement *element, GraphElement *item, const QString &text, const QPointF &pos)
     : GraphElement(item, element)
-	, element_(element)
+    , element_(element)
     , text_(text)
-	, pos_(pos)
+    , pos_(pos)
 {
     // Text //
     //
-	textHandle_ = new TextHandle(text_, this);
+    textHandle_ = new TextHandle(text_, this);
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
-    //	textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //	connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
-    //	connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
+    // textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
+    // connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
 
     // Flags //
     //
-    //	setSelectable();
-    //	setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+    // setSelectable();
+    // setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
 
     // Path //
@@ -87,7 +87,7 @@ OSCTextItem::createPath()
    // thePath.moveTo(0.0, 0.0);
    // thePath.lineTo(pos_);
 
-    //	thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
+    // thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
 
     setPath(thePath);
 }
@@ -95,7 +95,7 @@ OSCTextItem::createPath()
 void
 OSCTextItem::updatePosition()
 {
- //   setPos(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT()));
+    //   setPos(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT()));
     createPath();
 }
 
@@ -104,7 +104,7 @@ OSCTextItem::updateText(const QString &text)
 {
     // Text //
     //
-    textHandle_ ->setText(text);
+    textHandle_->setText(text);
 }
 
 //################//
@@ -119,10 +119,10 @@ OSCTextItem::handlePositionChange(const QPointF &dpos)
 }
 
 //void
-//	OSCTextItem
-//	::handleSelectionChange(bool selected)
+// OSCTextItem
+// ::handleSelectionChange(bool selected)
 //{
-////	setSelected(selected);
+//// setSelected(selected);
 //}
 
 QPainterPath
@@ -148,7 +148,7 @@ OSCTextItem::updateObserver()
 
     // Get change flags //
     //
-	int changes = element_->getOSCElementChanges();
+    int changes = element_->getOSCElementChanges();
 
     if (changes & OSCElement::COE_ParameterChange)
     {
@@ -189,36 +189,36 @@ OSCTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 //################//
 
 OSCTextSVGItem::OSCTextSVGItem(OSCElement *element, SVGElement *item, const QString &text, const QPointF &pos)
-	: SVGElement(item, element)
-	, element_(element)
-	, text_(text)
-	, pos_(pos)
+    : SVGElement(item, element)
+    , element_(element)
+    , text_(text)
+    , pos_(pos)
 {
-	// Text //
-	//
-	textHandle_ = new TextHandle(text_, this);
-	textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
-	textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
-	textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); 
-	// use highlighting of the road
-	//	textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
-	//	connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
-	//	connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
+    // Text //
+    //
+    textHandle_ = new TextHandle(text_, this);
+    textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
+    textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
+    textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false);
+    // use highlighting of the road
+    // textHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // connect(textHandle_, SIGNAL(requestPositionChange(QPointF)), this, SLOT(handlePositionChange(QPointF)));
+    // connect(textHandle_, SIGNAL(selectionChanged(bool)), this, SLOT(handleSelectionChange(bool)));
 
-	// Flags //
-	//
-	//	setSelectable();
-	//	setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
-	pathItem_ = new QGraphicsPathItem();
-	setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
+    // Flags //
+    //
+    // setSelectable();
+    // setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+    pathItem_ = new QGraphicsPathItem();
+    setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
 
-															 // Path //
-															 //
-	updatePosition();
+                                                             // Path //
+                                                             //
+    updatePosition();
 
-	// Hide the text item on creation and show it only on mouse hover of the parent //
-	//
-	setVisible(false);
+    // Hide the text item on creation and show it only on mouse hover of the parent //
+    //
+    setVisible(false);
 }
 
 OSCTextSVGItem::~OSCTextSVGItem()
@@ -232,31 +232,31 @@ OSCTextSVGItem::~OSCTextSVGItem()
 void
 OSCTextSVGItem::createPath()
 {
-	QPainterPath thePath;
+    QPainterPath thePath;
 
-	// Line to road //
-	//
-	// thePath.moveTo(0.0, 0.0);
-	// thePath.lineTo(pos_);
+    // Line to road //
+    //
+    // thePath.moveTo(0.0, 0.0);
+    // thePath.lineTo(pos_);
 
-	//	thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
+    // thePath.addPath(getProjectGraph()->getView()->viewportTransform().inverted().map(textHandle_->deviceTransform(getProjectGraph()->getView()->viewportTransform()).map(textHandle_->path())));
 
-	pathItem_->setPath(thePath);
+    pathItem_->setPath(thePath);
 }
 
 void
 OSCTextSVGItem::updatePosition()
 {
-	//   setPos(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT()));
-	createPath();
+    //   setPos(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT()));
+    createPath();
 }
 
 void
 OSCTextSVGItem::updateText(const QString &text)
 {
-	// Text //
-	//
-	textHandle_->setText(text);
+    // Text //
+    //
+    textHandle_->setText(text);
 }
 
 //################//
@@ -266,21 +266,21 @@ OSCTextSVGItem::updateText(const QString &text)
 void
 OSCTextSVGItem::handlePositionChange(const QPointF &dpos)
 {
-	setPos(scenePos() + dpos);
-	createPath();
+    setPos(scenePos() + dpos);
+    createPath();
 }
 
 //void
-//	OSCTextSVGItem
-//	::handleSelectionChange(bool selected)
+// OSCTextSVGItem
+// ::handleSelectionChange(bool selected)
 //{
-////	setSelected(selected);
+//// setSelected(selected);
 //}
 
 QPainterPath
 OSCTextSVGItem::shape() const
 {
-	return mapFromItem(textHandle_, textHandle_->path());
+    return mapFromItem(textHandle_, textHandle_->path());
 }
 
 //##################//
@@ -290,22 +290,22 @@ OSCTextSVGItem::shape() const
 void
 OSCTextSVGItem::updateObserver()
 {
-	// Parent //
-	//
-	SVGElement::updateObserver();
-	if (isInGarbage())
-	{
-		return; // will be deleted anyway
-	}
+    // Parent //
+    //
+    SVGElement::updateObserver();
+    if (isInGarbage())
+    {
+        return; // will be deleted anyway
+    }
 
-	// Get change flags //
-	//
-	int changes = element_->getOSCElementChanges();
+    // Get change flags //
+    //
+    int changes = element_->getOSCElementChanges();
 
-	if (changes & OSCElement::COE_ParameterChange)
-	{
-		updatePosition();
-	}
+    if (changes & OSCElement::COE_ParameterChange)
+    {
+        updatePosition();
+    }
 }
 
 //################//
@@ -317,21 +317,21 @@ OSCTextSVGItem::updateObserver()
 QVariant
 OSCTextSVGItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
-	// NOTE: position is relative to parent!!! //
-	//
+    // NOTE: position is relative to parent!!! //
+    //
 
-	if (change == QGraphicsItem::ItemScenePositionHasChanged)
-	{
-		createPath();
-	}
+    if (change == QGraphicsItem::ItemScenePositionHasChanged)
+    {
+        createPath();
+    }
 
-	return SVGElement::itemChange(change, value);
+    return SVGElement::itemChange(change, value);
 }
 
 void
 OSCTextSVGItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	// Not the Label is selected, but the road beneath
-	//
-	//   getSignalItem()->mousePressEvent(event);
+    // Not the Label is selected, but the road beneath
+    //
+    //   getSignalItem()->mousePressEvent(event);
 }

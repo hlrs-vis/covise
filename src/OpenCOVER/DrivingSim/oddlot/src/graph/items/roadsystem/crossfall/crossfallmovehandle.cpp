@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfallmovehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 #include "src/data/commands/crossfallsectioncommands.hpp"
@@ -65,12 +65,12 @@ CrossfallMoveHandle::CrossfallMoveHandle(CrossfallEditor *crossfallEditor, QGrap
     connect(removeAction_, SIGNAL(triggered()), this, SLOT(removeCorner()));
     connect(smoothAction_, SIGNAL(triggered()), this, SLOT(smoothCorner()));
 
-	// Text //
-	//
+    // Text //
+    //
 
-	heightTextItem_ = new TextHandle("", this, true);
-	heightTextItem_->setZValue(1.0); // stack before siblings
-	heightTextItem_->setVisible(false);
+    heightTextItem_ = new TextHandle("", this, true);
+    heightTextItem_->setZValue(1.0); // stack before siblings
+    heightTextItem_->setVisible(false);
 }
 
 CrossfallMoveHandle::~CrossfallMoveHandle()
@@ -114,7 +114,7 @@ CrossfallMoveHandle::registerLowSlot(CrossfallSection *crossfallSection)
 
     // Degrees Of Freedom Fries //
     //
-    //	updateDOF();
+    // updateDOF();
 }
 
 void
@@ -137,7 +137,7 @@ CrossfallMoveHandle::registerHighSlot(CrossfallSection *crossfallSection)
 
     // Degrees Of Freedom //
     //
-    //	updateDOF();
+    // updateDOF();
 }
 
 void
@@ -188,20 +188,20 @@ CrossfallMoveHandle::updateColor()
 const QString
 CrossfallMoveHandle::getText()
 {
-	// Text //
-		//
-	QString text;
+    // Text //
+        //
+    QString text;
 
-	if (highSlot_)
-	{
-		text = QString("%1,%2").arg(highSlot_->getSStart()).arg(highSlot_->f(0.0), 0, 'f', 2);
-	}
-	else if (lowSlot_)
-	{
-		text = QString("%1,%2").arg(lowSlot_->getSEnd()).arg(lowSlot_->f(lowSlot_->getSEnd() - lowSlot_->getSStart()), 0, 'f', 2);
-	}
+    if (highSlot_)
+    {
+        text = QString("%1,%2").arg(highSlot_->getSStart()).arg(highSlot_->f(0.0), 0, 'f', 2);
+    }
+    else if (lowSlot_)
+    {
+        text = QString("%1,%2").arg(lowSlot_->getSEnd()).arg(lowSlot_->f(lowSlot_->getSEnd() - lowSlot_->getSStart()), 0, 'f', 2);
+    }
 
-	return text;
+    return text;
 }
 
 //################//
@@ -391,7 +391,7 @@ CrossfallMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         crossfallEditor_->translateMoveHandles(scenePos(), event->scenePos());
     }
-	heightTextItem_->setText(getText());
+    heightTextItem_->setText(getText());
 
     MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
@@ -400,17 +400,17 @@ void
 CrossfallMoveHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 
-	setFocus();
+    setFocus();
 
-	heightTextItem_->setText(getText());
-	heightTextItem_->setVisible(true);
+    heightTextItem_->setText(getText());
+    heightTextItem_->setVisible(true);
 
-	heightTextItem_->setPos(mapFromScene(event->scenePos()));
+    heightTextItem_->setPos(mapFromScene(event->scenePos()));
 
 
-	// Parent //
-	//
-//	MoveHandle::hoverEnterEvent(event); // pass to baseclass
+    // Parent //
+    //
+// MoveHandle::hoverEnterEvent(event); // pass to baseclass
 }
 
 void
@@ -418,19 +418,19 @@ CrossfallMoveHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 
 
-	// Text //
-	//
-	heightTextItem_->setVisible(false);
+    // Text //
+    //
+    heightTextItem_->setVisible(false);
 
-	// Parent //
-	//
-	MoveHandle::hoverLeaveEvent(event); // pass to baseclass
+    // Parent //
+    //
+    MoveHandle::hoverLeaveEvent(event); // pass to baseclass
 }
 
 void
 CrossfallMoveHandle::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-	crossfallEditor_->getProfileGraph()->postponeGarbageDisposal();
-	getContextMenu()->exec(event->screenPos());
-	crossfallEditor_->getProfileGraph()->finishGarbageDisposal();
+    crossfallEditor_->getProfileGraph()->postponeGarbageDisposal();
+    getContextMenu()->exec(event->screenPos());
+    crossfallEditor_->getProfileGraph()->finishGarbageDisposal();
 }

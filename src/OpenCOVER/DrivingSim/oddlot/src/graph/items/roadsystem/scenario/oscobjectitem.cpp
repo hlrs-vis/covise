@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "oscobjectitem.hpp"
 
@@ -19,8 +19,8 @@
 #include "src/util/colorpalette.hpp"
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/objectobject.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
@@ -55,10 +55,10 @@
 
 OSCObjectItem::OSCObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
     : GraphElement(roadSystemItem, object)
-	, roadSystemItem_(roadSystemItem)
+    , roadSystemItem_(roadSystemItem)
     , object_(object)
     , pos_(pos)
-	, path_(NULL)
+    , path_(NULL)
 {
     init();
 }
@@ -74,7 +74,7 @@ OSCObjectItem::init()
     //
     setAcceptHoverEvents(true);
     setSelectable();
-	setFlag(ItemIsFocusable);
+    setFlag(ItemIsFocusable);
 
 
     if (getTopviewGraph()) // not for profile graph
@@ -85,13 +85,13 @@ OSCObjectItem::init()
         objectTextItem_->setZValue(1.0); // stack before siblings
     }
 
-	road_ = object_->getParentRoad(); 
-	pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT());
+    road_ = object_->getParentRoad();
+    pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT());
 
     updatePosition();
 
-	doPan_ = false;
-	copyPan_ = false;
+    doPan_ = false;
+    copyPan_ = false;
 }
 
 
@@ -100,7 +100,7 @@ OSCObjectItem::init()
 void
 OSCObjectItem::updateColor()
 {
-   outerColor_.setRgb(80, 80, 80);
+    outerColor_.setRgb(80, 80, 80);
 }
 
 /*!
@@ -109,192 +109,192 @@ OSCObjectItem::updateColor()
 void
 OSCObjectItem::createPath()
 {
-	if (path_)
-	{
-		delete path_;
-	}
+    if (path_)
+    {
+        delete path_;
+    }
 
-	path_ = new QPainterPath();
+    path_ = new QPainterPath();
 
     setBrush(QBrush(outerColor_));
     setPen(QPen(outerColor_));
 
-	double t = object_->getT();
-	double w;
-	if (object_->getT() <= 0)
-	{
-		w = object_->getWidth();
-	}
-	else
-	{
-		w = -object_->getWidth();
-	}
+    double t = object_->getT();
+    double w;
+    if (object_->getT() <= 0)
+    {
+        w = object_->getWidth();
+    }
+    else
+    {
+        w = -object_->getWidth();
+    }
 
 
-	if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
-	{
-		double currentS = object_->getRepeatS();
+    if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
+    {
+        double currentS = object_->getRepeatS();
 
-		double totalLength = 0.0;
+        double totalLength = 0.0;
 
-		double dist;
-		if (object_->getRepeatDistance() > 0.0)
-		{
-			dist = object_->getRepeatDistance();
-		}
-		else
-		{
-			//				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
-			dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
-		}
+        double dist;
+        if (object_->getRepeatDistance() > 0.0)
+        {
+            dist = object_->getRepeatDistance();
+        }
+        else
+        {
+            //    double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
+            dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
+        }
 
-		LaneSection * currentLaneSection = road_->getLaneSection(currentS);
-		double sSection = currentS - currentLaneSection->getSStart();
-		currentLaneSection = NULL;
+        LaneSection *currentLaneSection = road_->getLaneSection(currentS);
+        double sSection = currentS - currentLaneSection->getSStart();
+        currentLaneSection = NULL;
 
-		int currentLaneId = 0;
-		double d = 0.0;
-		while ((totalLength < object_->getRepeatLength()) && (currentS < road_->getLength()))
-		{
+        int currentLaneId = 0;
+        double d = 0.0;
+        while ((totalLength < object_->getRepeatLength()) && (currentS < road_->getLength()))
+        {
 
-			if (road_->getLaneSection(currentS) != currentLaneSection)
-			{
-				LaneSection * newLaneSection = road_->getLaneSection(currentS);
-				while (currentLaneSection && (currentLaneSection != newLaneSection))
-				{
-					if (object_->getT() < -NUMERICAL_ZERO3)
-					{
-						t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d + road_->getLaneOffset(currentLaneSection->getSEnd());
-					}
-					else if (object_->getT() > NUMERICAL_ZERO3)
-					{
-						t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d + road_->getLaneOffset(currentLaneSection->getSEnd());
-					}
+            if (road_->getLaneSection(currentS) != currentLaneSection)
+            {
+                LaneSection *newLaneSection = road_->getLaneSection(currentS);
+                while (currentLaneSection && (currentLaneSection != newLaneSection))
+                {
+                    if (object_->getT() < -NUMERICAL_ZERO3)
+                    {
+                        t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d + road_->getLaneOffset(currentLaneSection->getSEnd());
+                    }
+                    else if (object_->getT() > NUMERICAL_ZERO3)
+                    {
+                        t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d + road_->getLaneOffset(currentLaneSection->getSEnd());
+                    }
 
-					currentLaneSection = road_->getLaneSectionNext(currentLaneSection->getSStart() + NUMERICAL_ZERO3);
-					currentLaneId = currentLaneSection->getLaneId(0, t);
-					sSection = 0;
-				}
+                    currentLaneSection = road_->getLaneSectionNext(currentLaneSection->getSStart() + NUMERICAL_ZERO3);
+                    currentLaneId = currentLaneSection->getLaneId(0, t);
+                    sSection = 0;
+                }
 
-				currentLaneSection = newLaneSection;
-				currentLaneId = currentLaneSection->getLaneId(sSection, t);
-				if (object_->getT() < -NUMERICAL_ZERO3) 
-				{
-					if (fabs(t)  < currentLaneSection->getLaneSpanWidth( 0, currentLaneId + 1, currentS) + road_->getLaneOffset(currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
-					{
-						currentLaneId++;
-					}
-					d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + t + road_->getLaneOffset(currentS);
-				}
-				else if (object_->getT() > NUMERICAL_ZERO3) 
-				{
-					if (t < currentLaneSection->getLaneSpanWidth( 0, currentLaneId - 1, currentS) + road_->getLaneOffset(currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
-					{
-						currentLaneId--;
-					}
-					d = t  -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + road_->getLaneOffset(currentS);
-				}
-			}
+                currentLaneSection = newLaneSection;
+                currentLaneId = currentLaneSection->getLaneId(sSection, t);
+                if (object_->getT() < -NUMERICAL_ZERO3)
+                {
+                    if (fabs(t) < currentLaneSection->getLaneSpanWidth(0, currentLaneId + 1, currentS) + road_->getLaneOffset(currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS) / 2)
+                    {
+                        currentLaneId++;
+                    }
+                    d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + t + road_->getLaneOffset(currentS);
+                }
+                else if (object_->getT() > NUMERICAL_ZERO3)
+                {
+                    if (t < currentLaneSection->getLaneSpanWidth(0, currentLaneId - 1, currentS) + road_->getLaneOffset(currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS) / 2)
+                    {
+                        currentLaneId--;
+                    }
+                    d = t - currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + road_->getLaneOffset(currentS);
+                }
+            }
 
-			if (object_->getT() < -NUMERICAL_ZERO3)
-			{
-				t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d + road_->getLaneOffset(currentS);
-			}
-			else if (object_->getT() > NUMERICAL_ZERO3)
-			{
-				t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d + road_->getLaneOffset(currentS);
-			}
-			QPointF currentPos = road_->getGlobalPoint(currentS, t);
-
-
-
-			if (object_->getRepeatDistance() > 0.0) // multiple objects
-			{
-				double length = object_->getRadius() / 4;
-
-				if (object_->getRadius() > 0.0) // circular object
-				{
-					path_->addEllipse(currentPos, object_->getRadius(), object_->getRadius());
-
-					//               setPen(QPen(QColor(255, 255, 255)));
-					path_->moveTo(currentPos.x() - length, currentPos.y());
-					path_->lineTo(currentPos.x() + length, currentPos.y());
-
-					path_->moveTo(currentPos.x(), currentPos.y() - length);
-					path_->lineTo(currentPos.x(), currentPos.y() + length);
-				}
-				else
-				{
-					QMatrix transformationMatrix;
-					QMatrix rotationMatrix;
-					QPainterPath tmpPath;
-
-					transformationMatrix.translate(currentPos.x(), currentPos.y());
-					tmpPath.addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
-					rotationMatrix.rotate(road_->getGlobalHeading(currentS) - 90 + object_->getHeading());
-					tmpPath = transformationMatrix.map(rotationMatrix.map(tmpPath));
-					*path_ += tmpPath;
-				}
-
-				if ((totalLength + dist) > object_->getRepeatLength())
-					dist = object_->getRepeatLength() - totalLength;
-
-			}
-			else
-			{
-
-				// line object
-				if (totalLength == 0)
-				{
-					path_->moveTo(currentPos.x(), currentPos.y());
-				}
-				else
-				{
-					path_->lineTo(currentPos.x(), currentPos.y());
-					path_->moveTo(currentPos.x(), currentPos.y());
-				}
+            if (object_->getT() < -NUMERICAL_ZERO3)
+            {
+                t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d + road_->getLaneOffset(currentS);
+            }
+            else if (object_->getT() > NUMERICAL_ZERO3)
+            {
+                t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d + road_->getLaneOffset(currentS);
+            }
+            QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
 
-				if ((totalLength + dist) > object_->getRepeatLength())
-				{
-					QPointF currentPos = road_->getGlobalPoint(currentS + totalLength - object_->getRepeatLength(), t);
-					path_->lineTo(currentPos.x(), currentPos.y());
-				}
-			}
 
-			totalLength += dist;
-			currentS += dist;
+            if (object_->getRepeatDistance() > 0.0) // multiple objects
+            {
+                double length = object_->getRadius() / 4;
 
-		}
-	}
-	else
-	{
-		if (object_->getRadius() > 0.0) // circular object
-		{
-			path_->addEllipse(pos_, object_->getRadius(), object_->getRadius());
-			double length = object_->getRadius() / 4;
+                if (object_->getRadius() > 0.0) // circular object
+                {
+                    path_->addEllipse(currentPos, object_->getRadius(), object_->getRadius());
 
-			//            setPen(QPen(QColor(255, 255, 255)));
-			path_->moveTo(pos_.x() - length, pos_.y());
-			path_->lineTo(pos_.x() + length, pos_.y());
+                    //               setPen(QPen(QColor(255, 255, 255)));
+                    path_->moveTo(currentPos.x() - length, currentPos.y());
+                    path_->lineTo(currentPos.x() + length, currentPos.y());
 
-			path_->moveTo(pos_.x(), pos_.y() - length);
-			path_->lineTo(pos_.x(), pos_.y() + length);
-		}
-		else
-		{
-			QMatrix transformationMatrix;
-			QMatrix rotationMatrix;
+                    path_->moveTo(currentPos.x(), currentPos.y() - length);
+                    path_->lineTo(currentPos.x(), currentPos.y() + length);
+                }
+                else
+                {
+                    QMatrix transformationMatrix;
+                    QMatrix rotationMatrix;
+                    QPainterPath tmpPath;
 
-			transformationMatrix.translate(pos_.x(), pos_.y());
+                    transformationMatrix.translate(currentPos.x(), currentPos.y());
+                    tmpPath.addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
+                    rotationMatrix.rotate(road_->getGlobalHeading(currentS) - 90 + object_->getHeading());
+                    tmpPath = transformationMatrix.map(rotationMatrix.map(tmpPath));
+                    *path_ += tmpPath;
+                }
 
-			path_->addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
-			rotationMatrix.rotate(road_->getGlobalHeading(object_->getSStart()) - 90 + object_->getHeading());
-			*path_ = transformationMatrix.map(rotationMatrix.map(*path_));
-		}
-	}
+                if ((totalLength + dist) > object_->getRepeatLength())
+                    dist = object_->getRepeatLength() - totalLength;
 
-	setPath(*path_);
+            }
+            else
+            {
+
+                // line object
+                if (totalLength == 0)
+                {
+                    path_->moveTo(currentPos.x(), currentPos.y());
+                }
+                else
+                {
+                    path_->lineTo(currentPos.x(), currentPos.y());
+                    path_->moveTo(currentPos.x(), currentPos.y());
+                }
+
+
+                if ((totalLength + dist) > object_->getRepeatLength())
+                {
+                    QPointF currentPos = road_->getGlobalPoint(currentS + totalLength - object_->getRepeatLength(), t);
+                    path_->lineTo(currentPos.x(), currentPos.y());
+                }
+            }
+
+            totalLength += dist;
+            currentS += dist;
+
+        }
+    }
+    else
+    {
+        if (object_->getRadius() > 0.0) // circular object
+        {
+            path_->addEllipse(pos_, object_->getRadius(), object_->getRadius());
+            double length = object_->getRadius() / 4;
+
+            //            setPen(QPen(QColor(255, 255, 255)));
+            path_->moveTo(pos_.x() - length, pos_.y());
+            path_->lineTo(pos_.x() + length, pos_.y());
+
+            path_->moveTo(pos_.x(), pos_.y() - length);
+            path_->lineTo(pos_.x(), pos_.y() + length);
+        }
+        else
+        {
+            QMatrix transformationMatrix;
+            QMatrix rotationMatrix;
+
+            transformationMatrix.translate(pos_.x(), pos_.y());
+
+            path_->addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
+            rotationMatrix.rotate(road_->getGlobalHeading(object_->getSStart()) - 90 + object_->getHeading());
+            *path_ = transformationMatrix.map(rotationMatrix.map(*path_));
+        }
+    }
+
+    setPath(*path_);
 }
 
 /*
@@ -342,8 +342,8 @@ OSCObjectItem::removeObject()
 void
 OSCObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-	setCursor(Qt::OpenHandCursor);
-	setFocus();
+    setCursor(Qt::OpenHandCursor);
+    setFocus();
 
     // Text //
     //
@@ -358,11 +358,11 @@ OSCObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 void
 OSCObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
-	setCursor(Qt::ArrowCursor);
-	if (!copyPan_)
-	{
-		clearFocus();
-	}
+    setCursor(Qt::ArrowCursor);
+    if (!copyPan_)
+    {
+        clearFocus();
+    }
 
     // Text //
     //

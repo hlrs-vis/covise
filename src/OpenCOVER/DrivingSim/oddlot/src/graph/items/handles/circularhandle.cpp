@@ -5,23 +5,23 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/19/2010
+ **
+ **************************************************************************/
 
 #include "circularhandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 CircularHandle::CircularHandle(QGraphicsItem *parent)
     : Handle(parent) /*,
-		passSelectionToParent_(false)*/
+        passSelectionToParent_(false)*/
 {
     // Pen //
     //
@@ -47,11 +47,11 @@ CircularHandle::~CircularHandle()
 }
 
 //void
-//	CircularHandle
-//	::setPassSelectionToParent(bool passSelectionToParent)
+// CircularHandle
+// ::setPassSelectionToParent(bool passSelectionToParent)
 //{
-//	setFlag(QGraphicsItem::ItemIsSelectable, true);
-//	passSelectionToParent_ = passSelectionToParent;
+// setFlag(QGraphicsItem::ItemIsSelectable, true);
+// passSelectionToParent_ = passSelectionToParent;
 //}
 
 //################//
@@ -59,16 +59,16 @@ CircularHandle::~CircularHandle()
 //################//
 
 //QVariant
-//	CircularHandle
-//	::itemChange(GraphicsItemChange change, const QVariant & value)
+// CircularHandle
+// ::itemChange(GraphicsItemChange change, const QVariant & value)
 //{
-//	if(change == QGraphicsItem::ItemSelectedChange)
-//	{
-//		if(passSelectionToParent_)
-//		{
-//			parentItem()->setSelected(value.toBool());
-//		}
-//	}
+// if(change == QGraphicsItem::ItemSelectedChange)
+// {
+//  if(passSelectionToParent_)
+//  {
+//   parentItem()->setSelected(value.toBool());
+//  }
+// }
 
-//	return Handle::itemChange(change, value);
+// return Handle::itemChange(change, value);
 //}

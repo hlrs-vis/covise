@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/26/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/26/2010
+ **
+ **************************************************************************/
 
 #include "trackcomponenttreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 
 // Tree //
@@ -75,10 +75,10 @@ TrackComponentTreeItem::init()
     {
         setText(0, tr("spiral-arc-spiral"));
     }
-	else if (type == TrackComponent::DTT_CUBICCURVE)
-	{
-		setText(0, tr("param poly3"));
-	}
+    else if (type == TrackComponent::DTT_CUBICCURVE)
+    {
+        setText(0, tr("param poly3"));
+    }
     else
     {
         setText(0, tr("unknown type"));
@@ -86,7 +86,7 @@ TrackComponentTreeItem::init()
 
     // Children //
     //
-    foreach (TrackComponent *element, trackComponent_->getChildTrackComponents())
+    foreach(TrackComponent * element, trackComponent_->getChildTrackComponents())
     {
         new TrackComponentTreeItem(this, element, NULL);
     }
@@ -112,16 +112,16 @@ TrackComponentTreeItem::updateObserver()
     // RoadSection //
     //
     int changes = trackComponent_->getTrackComponentChanges();
-    //	if(changes & TrackComponent::CT)
-    //	{
-    //		foreach(TrackComponent * element, trackComponent_->getChildTrackComponents())
-    //		{
-    //			if((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-    //				|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded)
-    //				)
-    //			{
-    //				new TrackComponentTreeItem(this, element, NULL);
-    //			}
-    //		}
-    //	}
+    // if(changes & TrackComponent::CT)
+    // {
+    //  foreach(TrackComponent * element, trackComponent_->getChildTrackComponents())
+    //  {
+    //   if((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+    //    || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded)
+    //    )
+    //   {
+    //    new TrackComponentTreeItem(this, element, NULL);
+    //   }
+    //  }
+    // }
 }

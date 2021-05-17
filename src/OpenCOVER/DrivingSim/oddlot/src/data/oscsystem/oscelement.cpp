@@ -5,25 +5,25 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "oscelement.hpp"
 #include "oscbase.hpp"
 
 
-/*! \brief The constructor does nothing special.
-*
-*/
+ /*! \brief The constructor does nothing special.
+ *
+ */
 OSCElement::OSCElement(const QString &id, OpenScenario::oscObjectBase *oscObjectBase)
-    : DataElement() 
-	, oscObjectBase_(oscObjectBase)
-	, oscElementChanges_(0x0)
+    : DataElement()
+    , oscObjectBase_(oscObjectBase)
+    , oscElementChanges_(0x0)
 {
 }
 
@@ -40,16 +40,16 @@ void
 OSCElement::setOSCBase(OSCBase *base)
 {
     setParentElement(base);
-	oscBase_ = base;
+    oscBase_ = base;
 
-	addOSCElementChanges(OSCElementChange::COE_BaseChanged);
+    addOSCElementChanges(OSCElementChange::COE_BaseChanged);
 }
 
 void
 OSCElement::setID(const QString &id)
 {
     id_ = id;
-//    addRSystemElementChanges(RSystemElement::CRE_IdChange);
+    //    addRSystemElementChanges(RSystemElement::CRE_IdChange);
 }
 
 /*! \brief Accepts a visitor.
@@ -66,28 +66,28 @@ OSCElement::accept(Visitor *visitor)
 OSCElement *
 OSCElement::getParent()
 {
-	OSCElement *parentElement = NULL;
+    OSCElement *parentElement = NULL;
 
-	if (oscObjectBase_)
-	{
-		OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
-		if (oscObjectParent)
-		{
-			OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
-		}
-	}
+    if (oscObjectBase_)
+    {
+        OpenScenario::oscObjectBase *oscObjectParent = oscObjectBase_->getParentObj();
+        if (oscObjectParent)
+        {
+            OSCElement *parentElement = oscBase_->getOSCElement(oscObjectParent);
+        }
+    }
 
-	return parentElement;
+    return parentElement;
 }
 
 void
 OSCElement::notifyParent()
 {
-	OSCElement *parentElement = getParent();
-	if (parentElement)
-	{
-		parentElement->addOSCElementChanges(OSCElement::COE_ChildChanged);
-	}
+    OSCElement *parentElement = getParent();
+    if (parentElement)
+    {
+        parentElement->addOSCElementChanges(OSCElement::COE_ChildChanged);
+    }
 }
 
 

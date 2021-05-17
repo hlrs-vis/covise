@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #include "graphview.hpp"
 
@@ -24,8 +24,8 @@
 #include <QtNetwork>
 #include <QUrl>
 
-//MainWindow //
-//
+ //MainWindow //
+ //
 #include "src/mainwindow.hpp"
 
 // Data //
@@ -86,7 +86,7 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     , graphScene_(graphScene)
     , doPan_(false)
     , doKeyPan_(false)
-	, select_(true)
+    , select_(true)
     , doBoxSelect_(BBOff)
     , doCircleSelect_(CircleOff)
     , doShapeEdit_(false)
@@ -98,32 +98,32 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     , circleItem_(NULL)
     , shapeItem_(NULL)
     , additionalSelection_(false)
-	, paramToolAdditionalSelection_(false)
-	, lastMouseEvent_(NULL)
+    , paramToolAdditionalSelection_(false)
+    , lastMouseEvent_(NULL)
 {
     // ScenerySystem //
     //
     scenerySystemItem_ = new ScenerySystemItem(topviewGraph_, topviewGraph_->getProjectData()->getScenerySystem());
     scene()->addItem(scenerySystemItem_);
 
-	// Zoom tool //
-	//
-	zoomTool_ = topviewGraph_->getProjectWidget()->getMainWindow()->getToolManager()->getZoomTool();
+    // Zoom tool //
+    //
+    zoomTool_ = topviewGraph_->getProjectWidget()->getMainWindow()->getToolManager()->getZoomTool();
 
     // Zoom to mouse pos //
     //
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
-	// Rubberband //
-	//
-	rubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
+    // Rubberband //
+    //
+    rubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
 
     // interactive background
-    
+
     QPixmap pixmap;
     backgroundItem = new QGraphicsPixmapItem(pixmap);
     graphScene->addItem(backgroundItem);
-	wgetInit();
+    wgetInit();
 }
 
 GraphView::~GraphView()
@@ -165,31 +165,31 @@ GraphView::resetViewTransformation()
 
 void
 GraphView::shapeEditing(bool edit)
-{            
-	if (edit)
-	{
-		doShapeEdit_ = true;
-		foreach(QGraphicsItem *item, items())
-		{
-			item->setEnabled(false);
-		}
-		shapeItem_ = new GraphViewShapeItem(this, x(), y(), width(), height());
-		scene()->addItem(shapeItem_);
-	}
-	else if (doShapeEdit_)
-	{
-		doShapeEdit_ = false;
-		foreach(QGraphicsItem *item, items())
-		{
-			item->setEnabled(true);
-		}
-		//               splineControlPoints_.clear();
-		if (scene())
-		{
-			scene()->removeItem(shapeItem_);
-			delete shapeItem_;
-		}
-	}
+{
+    if (edit)
+    {
+        doShapeEdit_ = true;
+        foreach(QGraphicsItem * item, items())
+        {
+            item->setEnabled(false);
+        }
+        shapeItem_ = new GraphViewShapeItem(this, x(), y(), width(), height());
+        scene()->addItem(shapeItem_);
+    }
+    else if (doShapeEdit_)
+    {
+        doShapeEdit_ = false;
+        foreach(QGraphicsItem * item, items())
+        {
+            item->setEnabled(true);
+        }
+        //               splineControlPoints_.clear();
+        if (scene())
+        {
+            scene()->removeItem(shapeItem_);
+            delete shapeItem_;
+        }
+    }
 }
 
 //################//
@@ -202,7 +202,7 @@ GraphView::shapeEditing(bool edit)
 void
 GraphView::toolAction(ToolAction *toolAction)
 {
-	static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT_CONTROLS << ODD::TLE_SELECT_ALL << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT << ODD::TEL_SELECT << ODD::TSE_SELECT;
+    static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT_CONTROLS << ODD::TLE_SELECT_ALL << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT << ODD::TEL_SELECT << ODD::TSE_SELECT;
 
     // Zoom //
     //
@@ -238,18 +238,18 @@ GraphView::toolAction(ToolAction *toolAction)
 
     }
 
- 
+
     // Circular Cutting Tool
     //
-	ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
-	if (action)
-	{
-		ODD::ToolId id = action->getToolId();
+    ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
+    if (action)
+    {
+        ODD::ToolId id = action->getToolId();
 
-		if ((id == ODD::TJE_CIRCLE) && (action->getParamToolId() == ODD::TPARAM_VALUE))
-		{
-			radius_ = action->getValue();
-		}
+        if ((id == ODD::TJE_CIRCLE) && (action->getParamToolId() == ODD::TPARAM_VALUE))
+        {
+            radius_ = action->getValue();
+        }
 
     }
 
@@ -262,7 +262,7 @@ GraphView::toolAction(ToolAction *toolAction)
 
         if (id == ODD::TOS_GRAPHELEMENT)
         {
-			shapeEditing(!doShapeEdit_);
+            shapeEditing(!doShapeEdit_);
         }
     }
 
@@ -300,53 +300,53 @@ GraphView::toolAction(ToolAction *toolAction)
         {
             setMapOpacity(mapToolAction->getOpacity());
         }
-        //		else if(id == MapTool::TMA_X)
-        //		{
-        //			setMapX(mapToolAction->getX());
-        //		}
-        //		else if(id == MapTool::TMA_Y)
-        //		{
-        //			setMapY(mapToolAction->getY());
-        //		}
-        //		else if(id == MapTool::TMA_WIDTH)
-        //		{
-        //			setMapWidth(mapToolAction->getWidth(), mapToolAction->isKeepRatio());
-        //		}
-        //		else if(id == MapTool::TMA_HEIGHT)
-        //		{
-        //			setMapHeight(mapToolAction->getHeight(), mapToolAction->isKeepRatio());
-        //		}
+        //  else if(id == MapTool::TMA_X)
+        //  {
+        //   setMapX(mapToolAction->getX());
+        //  }
+        //  else if(id == MapTool::TMA_Y)
+        //  {
+        //   setMapY(mapToolAction->getY());
+        //  }
+        //  else if(id == MapTool::TMA_WIDTH)
+        //  {
+        //   setMapWidth(mapToolAction->getWidth(), mapToolAction->isKeepRatio());
+        //  }
+        //  else if(id == MapTool::TMA_HEIGHT)
+        //  {
+        //   setMapHeight(mapToolAction->getHeight(), mapToolAction->isKeepRatio());
+        //  }
     }
 
-	ODD::EditorId editorId = toolAction->getEditorId();
-	if (editorId != ODD::ENO_EDITOR)
-	{
-		if (selectionToolIds.contains(toolAction->getToolId()))
-		{
-			select_ = true;
+    ODD::EditorId editorId = toolAction->getEditorId();
+    if (editorId != ODD::ENO_EDITOR)
+    {
+        if (selectionToolIds.contains(toolAction->getToolId()))
+        {
+            select_ = true;
             paramToolAdditionalSelection_ = false;
-		}
-		else if (selectionToolIds.contains(toolAction->getParamToolId()))
-		{
-			select_ = true;
-			paramToolAdditionalSelection_ = true;
-		}
-		else
-		{
-			select_ = false;
-			paramToolAdditionalSelection_ = false;
-		}
-	}
+        }
+        else if (selectionToolIds.contains(toolAction->getParamToolId()))
+        {
+            select_ = true;
+            paramToolAdditionalSelection_ = true;
+        }
+        else
+        {
+            select_ = false;
+            paramToolAdditionalSelection_ = false;
+        }
+    }
 }
 
 
-void GraphView::setMap(float x,float y,float width,float height,int xRes,int yRes,const char *buf)
+void GraphView::setMap(float x, float y, float width, float height, int xRes, int yRes, const char *buf)
 {
-    
-   // QPixmap pixmap(xRes,yRes);
-    //pixmap.
-    backgroundItem->setPixmap(QPixmap::fromImage(QImage((uchar *)buf,xRes,yRes,QImage::Format_RGBA8888)));
-    backgroundItem->setPos(x,y);
+
+    // QPixmap pixmap(xRes,yRes);
+     //pixmap.
+    backgroundItem->setPixmap(QPixmap::fromImage(QImage((uchar *)buf, xRes, yRes, QImage::Format_RGBA8888)));
+    backgroundItem->setPos(x, y);
     double widthScale = width / backgroundItem->pixmap().width();
     double heightScale = height / backgroundItem->pixmap().height();
 
@@ -367,14 +367,14 @@ GraphView::rebuildRulers()
     double height = viewport()->size().height() / matrix().m22();
 
 #ifdef COVER_CONNECTION
-    COVERConnection::instance()->resizeMap(pos.x(),pos.y(),width,height);
+    COVERConnection::instance()->resizeMap(pos.x(), pos.y(), width, height);
 #endif
 
     if (!rulersActive_)
     {
         return;
     }
-    
+
     horizontalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
     verticalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
     update();
@@ -429,9 +429,9 @@ GraphView::zoomTo(const QString &zoomFactor)
 {
     // Erase %-sign and parse to double
     double scaleFactor = zoomFactor.left(zoomFactor.indexOf(tr("%"))).toDouble() / 100.0;
-    //	const QMatrix & vm = matrix();
-    //	resetMatrix();
-    //	translate(vm.dx(), vm.dy()); // this is 0.0 anyway!
+    // const QMatrix & vm = matrix();
+    // resetMatrix();
+    // translate(vm.dx(), vm.dy()); // this is 0.0 anyway!
 
     resetViewTransformation();
     scaleView(scaleFactor, scaleFactor);
@@ -459,7 +459,7 @@ GraphView::zoomIn(double zoom)
         zoom = MAX_ZOOM_IN / getScale();
     }
     scaleView(zoom, zoom);
-    //		update();
+    //  update();
     rebuildRulers();
 #undef MAX_ZOOM_IN
 }
@@ -470,7 +470,7 @@ void
 GraphView::zoomOut()
 {
     scaleView(0.8, 0.8);
-    //	update();
+    // update();
     rebuildRulers();
 }
 
@@ -498,7 +498,7 @@ GraphView::viewSelected()
     QList<QGraphicsItem *> selectList = scene()->selectedItems();
     QRectF boundingRect = QRectF();
 
-    foreach (QGraphicsItem *item, selectList)
+    foreach(QGraphicsItem * item, selectList)
     {
         boundingRect.operator|=(item->sceneBoundingRect());
     }
@@ -537,21 +537,21 @@ GraphView::loadGoogleMap()
     QString sizePair;
     QDir directoryOperator;
     QPointF sceneCenter = mapToScene(viewport()->rect().center());
-    
+
     projPJ from = topviewGraph_->getProjectData()->getProj4ReferenceFrom();
     projPJ to = topviewGraph_->getProjectData()->getProj4ReferenceTo();
-    double x=0, y=0, z=0;
-	if (from != nullptr && to != nullptr)
-	{
+    double x = 0, y = 0, z = 0;
+    if (from != nullptr && to != nullptr)
+    {
         x = sceneCenter.x();
         y = sceneCenter.y();
         z = 0;
-		int e = pj_transform(to , from, 1, 1, &x, &y, &z);
+        int e = pj_transform(to, from, 1, 1, &x, &y, &z);
         if (e != 0)
         {
             printf("Transform failed: %s\n", pj_strerrno(e));
         }
-	}
+    }
     bool mapRejected = false;
 
     //Sets up the UI
@@ -578,20 +578,20 @@ GraphView::loadGoogleMap()
     lineEdit3->setText("3,3");
     form.addRow(label3, lineEdit3);
     fields << lineEdit3;
-	char buf[500];
-	sprintf(buf, "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
-	lineEdit1->setText(buf);
+    char buf[500];
+    sprintf(buf, "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
+    lineEdit1->setText(buf);
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                               Qt::Horizontal, &dialog);
+        Qt::Horizontal, &dialog);
     form.addRow(&buttonBox);
     QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
     QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
     if (dialog.exec() == QDialog::Accepted) {
         location = lineEdit1->text();
-        maptype  = lineEdit2->text();
+        maptype = lineEdit2->text();
         sizePair = lineEdit3->text();
-        }
+    }
     else
         mapRejected = true;
 
@@ -606,7 +606,7 @@ GraphView::loadGoogleMap()
 
 
 
-    if(!mapRejected){
+    if (!mapRejected) {
 
         //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
         //QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
@@ -614,58 +614,58 @@ GraphView::loadGoogleMap()
         //system(qPrintable(XMLlocationCommand));
 
         QString tmpDir = topviewGraph_->getProjectData()->tempDir.path() + "/";
-		downloadFile(tmpDir+"location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
+        downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
-        QString lat="48.73964";
-        QString lon="9.09725";
+        QString lat = "48.73964";
+        QString lon = "9.09725";
 
         QFile xmlFile(tmpDir + "location.xml");
-        if(xmlFile.open(QFile::ReadOnly | QFile::Text))
+        if (xmlFile.open(QFile::ReadOnly | QFile::Text))
         {
 
-			QXmlStreamReader xmlReader(&xmlFile);
+            QXmlStreamReader xmlReader(&xmlFile);
 
 
-			//Finds latitude and longitude of the selected location by parsing downloaded XML document
+            //Finds latitude and longitude of the selected location by parsing downloaded XML document
 
-			if (xmlReader.readNextStartElement())
-			{
-				if (xmlReader.name() == "GeocodeResponse")
-				{
-					while (xmlReader.readNextStartElement())
-					{
-						if (xmlReader.name() == "status")
-						{
-							xmlReader.skipCurrentElement();
-						}
-						else if (xmlReader.name() == "result")
-						{
-							while (xmlReader.readNextStartElement())
-							{
-								if (xmlReader.name() != "geometry")
-								{
-									xmlReader.skipCurrentElement();
-								}
-								else if (xmlReader.name() == "geometry")
-									while (xmlReader.readNextStartElement())
-									{
-										if (xmlReader.name() == "location") {
-											while (xmlReader.readNextStartElement())
-											{
-												if (xmlReader.name() == "lat") {
-													lat = xmlReader.readElementText();
-												}
-												if (xmlReader.name() == "lng") {
-													lon = xmlReader.readElementText();
-												}
-											}
-										}
-									}
-							}
-						}
-					}
-				}
-			}
+            if (xmlReader.readNextStartElement())
+            {
+                if (xmlReader.name() == "GeocodeResponse")
+                {
+                    while (xmlReader.readNextStartElement())
+                    {
+                        if (xmlReader.name() == "status")
+                        {
+                            xmlReader.skipCurrentElement();
+                        }
+                        else if (xmlReader.name() == "result")
+                        {
+                            while (xmlReader.readNextStartElement())
+                            {
+                                if (xmlReader.name() != "geometry")
+                                {
+                                    xmlReader.skipCurrentElement();
+                                }
+                                else if (xmlReader.name() == "geometry")
+                                    while (xmlReader.readNextStartElement())
+                                    {
+                                        if (xmlReader.name() == "location") {
+                                            while (xmlReader.readNextStartElement())
+                                            {
+                                                if (xmlReader.name() == "lat") {
+                                                    lat = xmlReader.readElementText();
+                                                }
+                                                if (xmlReader.name() == "lng") {
+                                                    lon = xmlReader.readElementText();
+                                                }
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         //system(qPrintable("echo Y converted to " + QString::number(yPosition) + " X converted to " + QString::number(xPosition) + " z converted to " + QString::number(zPosition)));
@@ -684,13 +684,13 @@ GraphView::loadGoogleMap()
         QString zoom = "19";
         QString style = "&style=feature:all|element:labels|visibility:off";
         //QString uploadPrefix = "wget -O ";
-        QString uploadPrefix2 ="https://maps.googleapis.com/maps/api/staticmap?center=";
+        QString uploadPrefix2 = "https://maps.googleapis.com/maps/api/staticmap?center=";
         QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + style + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc";
 
 
         //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
-        double xOffset = 0.00000000000509775733811385*dlat*dlat*dlat*dlat + 0.0000000000712116529947624*dlat*dlat*dlat
-                - 0.000000249574727260668*dlat*dlat - 0.000000107541426772267*dlat + 0.0016557178;
+        double xOffset = 0.00000000000509775733811385 * dlat * dlat * dlat * dlat + 0.0000000000712116529947624 * dlat * dlat * dlat
+            - 0.000000249574727260668 * dlat * dlat - 0.000000107541426772267 * dlat + 0.0016557178;
         double yOffset = .00170;
         QString newLoc;
         double newLat;
@@ -700,44 +700,44 @@ GraphView::loadGoogleMap()
 
         //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
         double xSize = sizeX.toDouble();
-        if(xSize < 2)
+        if (xSize < 2)
             xSize = 3;
         double ySize = sizeY.toDouble();
         if (ySize < 2)
             ySize = 3;
-        int progress = xSize*ySize;
+        int progress = xSize * ySize;
 
         //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
         //Uses the previously determined offsets to change the center of each image
         int i = 0;
         int j = 0;
-        for (i = -xSize/2; i < xSize/2; i++)
+        for (i = -xSize / 2; i < xSize / 2; i++)
         {
-            for (j = -ySize/2; j < ySize/2; j++)
+            for (j = -ySize / 2; j < ySize / 2; j++)
             {
                 double latIterator = double(j);
                 double lonIterator = double(i);
-                newLat = dlat + -latIterator*xOffset;
-                newLon = dlon + lonIterator*yOffset;
-                newLoc = QString::number(newLat, 'f', 7)+ "," + QString::number(newLon, 'f', 7);
+                newLat = dlat + -latIterator * xOffset;
+                newLon = dlon + lonIterator * yOffset;
+                newLoc = QString::number(newLat, 'f', 7) + "," + QString::number(newLon, 'f', 7);
                 //system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
                 progress--;
                 QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
                 //QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
                 //system(qPrintable(command));
 
-				downloadFile(newFilename, uploadPrefix2 + newLoc + uploadPostfix);
+                downloadFile(newFilename, uploadPrefix2 + newLoc + uploadPostfix);
 
-                double yPosition = (newLat) * DEG_TO_RAD;
-                double xPosition = (newLon) * DEG_TO_RAD;
+                double yPosition = (newLat)*DEG_TO_RAD;
+                double xPosition = (newLon)*DEG_TO_RAD;
                 double zPosition = 0.0;
 
-                topviewGraph_->getProjectWidget()->getProjectionSettings()->transform(xPosition,yPosition,zPosition);
+                topviewGraph_->getProjectWidget()->getProjectionSettings()->transform(xPosition, yPosition, zPosition);
                 //ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
 
-                scenerySystemItem_->loadGoogleMap(newFilename, xPosition - 63 + i*1.75, yPosition - 65 + -j*1.65);
+                scenerySystemItem_->loadGoogleMap(newFilename, xPosition - 63 + i * 1.75, yPosition - 65 + -j * 1.65);
             }
-        }      
+        }
 
         xmlFile.remove();
         //system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 7)));
@@ -771,7 +771,7 @@ GraphView::loadBingMap()
             printf("Transform failed: %s\n", pj_strerrno(e));
         }
     }
-    QString tmpDir = topviewGraph_->getProjectData()->tempDir.path()+"/";
+    QString tmpDir = topviewGraph_->getProjectData()->tempDir.path() + "/";
     QString location;
     QString mapType;
     QString sizePair;
@@ -807,16 +807,16 @@ GraphView::loadBingMap()
     lineEdit1->setText(buf);
 
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                               Qt::Horizontal, &dialog);
+        Qt::Horizontal, &dialog);
     form.addRow(&buttonBox);
     QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
     QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
     if (dialog.exec() == QDialog::Accepted) {
         location = lineEdit1->text();
-        mapType  = lineEdit2->text();
+        mapType = lineEdit2->text();
         sizePair = lineEdit3->text();
-        }
+    }
     else
         mapRejected = true;
 
@@ -824,7 +824,7 @@ GraphView::loadBingMap()
     QString sizeX = sizePairList.value(0);
     QString sizeY = sizePairList.value(1);
 
-    if(!mapRejected){
+    if (!mapRejected) {
 
         //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
         //Bing's API to turn a location into a set of coordinates isn't as flexible as Google's, so we'll keep using Google's system for this part.
@@ -832,7 +832,7 @@ GraphView::loadBingMap()
 
        // system(qPrintable(XMLlocationCommand));
 
-		downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
+        downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
         QString lat = "48.73964";
         QString lon = "9.09725";
@@ -901,14 +901,14 @@ GraphView::loadBingMap()
 
         //system(qPrintable(XMLlocationCommandBing));
 
-		downloadFile("locationBing.xml", "http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm");
+        downloadFile("locationBing.xml", "http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm");
 
 
 
         //Here, we parse the XML file Bing's API gives us to find the bounding coordinates of the tile, so we can get the centers of our other tiles.
 
         QFile xmlFileBing("locationBing.xml");
-        if(!xmlFileBing.open(QFile::ReadOnly | QFile::Text))
+        if (!xmlFileBing.open(QFile::ReadOnly | QFile::Text))
             exit(0);
 
         QString boundingSouth;
@@ -920,55 +920,55 @@ GraphView::loadBingMap()
 
         if (xmlReaderBing.readNextStartElement())
         {
-            if(xmlReaderBing.name() == "Response")
+            if (xmlReaderBing.name() == "Response")
             {
-                while(xmlReaderBing.readNextStartElement())
+                while (xmlReaderBing.readNextStartElement())
                 {
-                    if(xmlReaderBing.name() != "ResourceSets")
+                    if (xmlReaderBing.name() != "ResourceSets")
                     {
                         xmlReaderBing.skipCurrentElement();
                     }
                     else
                     {
-                        while(xmlReaderBing.readNextStartElement())
+                        while (xmlReaderBing.readNextStartElement())
                         {
-                            if(xmlReaderBing.name() != "ResourceSet")
+                            if (xmlReaderBing.name() != "ResourceSet")
                             {
                                 xmlReaderBing.skipCurrentElement();
                             }
                             else
                             {
-                                while(xmlReaderBing.readNextStartElement())
+                                while (xmlReaderBing.readNextStartElement())
                                 {
-                                    if(xmlReaderBing.name() != "Resources")
+                                    if (xmlReaderBing.name() != "Resources")
                                     {
                                         xmlReaderBing.skipCurrentElement();
                                     }
                                     else
                                     {
-                                        while(xmlReaderBing.readNextStartElement())
+                                        while (xmlReaderBing.readNextStartElement())
                                         {
-                                            if(xmlReaderBing.name() == "StaticMapMetadata")
+                                            if (xmlReaderBing.name() == "StaticMapMetadata")
                                             {
-                                                while(xmlReaderBing.readNextStartElement())
+                                                while (xmlReaderBing.readNextStartElement())
                                                 {
-                                                    if(xmlReaderBing.name() == "BoundingBox")
+                                                    if (xmlReaderBing.name() == "BoundingBox")
                                                     {
-                                                        while(xmlReaderBing.readNextStartElement())
+                                                        while (xmlReaderBing.readNextStartElement())
                                                         {
-                                                            if(xmlReaderBing.name() == "SouthLatitude")
+                                                            if (xmlReaderBing.name() == "SouthLatitude")
                                                             {
                                                                 boundingSouth = xmlReaderBing.readElementText();
                                                             }
-                                                            if(xmlReaderBing.name() == "WestLongitude")
+                                                            if (xmlReaderBing.name() == "WestLongitude")
                                                             {
                                                                 boundingWest = xmlReaderBing.readElementText();
                                                             }
-                                                            if(xmlReaderBing.name() == "NorthLatitude")
+                                                            if (xmlReaderBing.name() == "NorthLatitude")
                                                             {
                                                                 boundingNorth = xmlReaderBing.readElementText();
                                                             }
-                                                            if(xmlReaderBing.name() == "EastLongitude")
+                                                            if (xmlReaderBing.name() == "EastLongitude")
                                                             {
                                                                 boundingEast = xmlReaderBing.readElementText();
                                                             }
@@ -983,91 +983,91 @@ GraphView::loadBingMap()
                                     }
                                 }
                             }
+                        }
                     }
                 }
             }
-        }
 
-        double boundingSouthNum = boundingSouth.toDouble();
-        double boundingWestNum  = boundingWest.toDouble();
-        double boundingNorthNum = boundingNorth.toDouble();
-        double boundingEastNum  = boundingEast.toDouble();
-        /*
-         * TODO: calculate the absolute values of the numbers to figure out what quadrant of the world we're in. Important for size calculations.
-        if(boundingNorthNum > boundingSouthNum)
-        {
-
-        }
-
-        */
-
-
-        double NorthSouthSize = boundingNorthNum - boundingSouthNum;
-        double WestEastSize   = boundingEastNum  - boundingWestNum;
-
-        QString uploadPrefix = "wget -O ";
-        QString uploadPrefix2 ="http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial/";
-        QString uploadPostfix = "/19?mapSize=1500,1500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm";
-
-
-
-        QString newLoc;
-        double newLat;
-        double newLon;
-        QString filename;
-
-
-        //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
-        //This should either be fixed later or some sort of notice should be given in the program that this is the minimum size.
-        double xSize = sizeX.toDouble();
-        if(xSize < 2)
-            xSize = 3;
-        double ySize = sizeY.toDouble();
-        if (ySize < 2)
-            ySize = 3;
-       int progress = xSize*ySize;
-
-        //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
-        //Uses the previously determined offsets to change the center of each image
-        int i = 0;
-        int j = 0;
-        for (i = -xSize/2; i < xSize/2; i++)
-        {
-            for (j = -ySize/2; j < ySize/2; j++)
+            double boundingSouthNum = boundingSouth.toDouble();
+            double boundingWestNum = boundingWest.toDouble();
+            double boundingNorthNum = boundingNorth.toDouble();
+            double boundingEastNum = boundingEast.toDouble();
+            /*
+             * TODO: calculate the absolute values of the numbers to figure out what quadrant of the world we're in. Important for size calculations.
+            if(boundingNorthNum > boundingSouthNum)
             {
-                double latIterator = double(j);
-                double lonIterator = double(i);
-                newLat = lat.toDouble() + -latIterator*NorthSouthSize;
-                newLon = lon.toDouble() + lonIterator*WestEastSize;
-                //system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
-                newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
-                progress--;
-                QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".jpg");
-                QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
-                //system(qPrintable(command));
-				downloadFile(newFilename, uploadPrefix2 + newLoc + uploadPostfix);
 
-
-                double yPosition = (newLat-NorthSouthSize/2) * DEG_TO_RAD;
-                double xPosition = (newLon-WestEastSize/2) * DEG_TO_RAD;
-                double zPosition = 0.0;
-
-                topviewGraph_->getProjectWidget()->getProjectionSettings()->transform(xPosition,yPosition,zPosition);
-                //ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
-
-                scenerySystemItem_->loadBingMap(newFilename, xPosition, yPosition);
             }
-        }
-        xmlFile.remove();
-        xmlFileBing.remove();
 
-        system(qPrintable("echo Latitude used: " + lat));
-        system(qPrintable("echo Longitude used: " + lon));
-        //directoryOperator.setCurrent("..");
-        //directoryOperator.setCurrent("..");
-        directoryOperator.setCurrent(currentDirectory);
+            */
+
+
+            double NorthSouthSize = boundingNorthNum - boundingSouthNum;
+            double WestEastSize = boundingEastNum - boundingWestNum;
+
+            QString uploadPrefix = "wget -O ";
+            QString uploadPrefix2 = "http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial/";
+            QString uploadPostfix = "/19?mapSize=1500,1500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm";
+
+
+
+            QString newLoc;
+            double newLat;
+            double newLon;
+            QString filename;
+
+
+            //doesn't work at all if one dimension is less than one, so, defaults to 3x3 if the user enters value less than 1
+            //This should either be fixed later or some sort of notice should be given in the program that this is the minimum size.
+            double xSize = sizeX.toDouble();
+            if (xSize < 2)
+                xSize = 3;
+            double ySize = sizeY.toDouble();
+            if (ySize < 2)
+                ySize = 3;
+            int progress = xSize * ySize;
+
+            //Grabs each image, and saves it to a file indicating its x,y coordinates (in the context of the map).
+            //Uses the previously determined offsets to change the center of each image
+            int i = 0;
+            int j = 0;
+            for (i = -xSize / 2; i < xSize / 2; i++)
+            {
+                for (j = -ySize / 2; j < ySize / 2; j++)
+                {
+                    double latIterator = double(j);
+                    double lonIterator = double(i);
+                    newLat = lat.toDouble() + -latIterator * NorthSouthSize;
+                    newLon = lon.toDouble() + lonIterator * WestEastSize;
+                    //system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
+                    newLoc = QString::number(newLat, 'f', 10) + "," + QString::number(newLon, 'f', 10);
+                    progress--;
+                    QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".jpg");
+                    QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
+                    //system(qPrintable(command));
+                    downloadFile(newFilename, uploadPrefix2 + newLoc + uploadPostfix);
+
+
+                    double yPosition = (newLat - NorthSouthSize / 2) * DEG_TO_RAD;
+                    double xPosition = (newLon - WestEastSize / 2) * DEG_TO_RAD;
+                    double zPosition = 0.0;
+
+                    topviewGraph_->getProjectWidget()->getProjectionSettings()->transform(xPosition, yPosition, zPosition);
+                    //ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
+
+                    scenerySystemItem_->loadBingMap(newFilename, xPosition, yPosition);
+                }
+            }
+            xmlFile.remove();
+            xmlFileBing.remove();
+
+            system(qPrintable("echo Latitude used: " + lat));
+            system(qPrintable("echo Longitude used: " + lon));
+            //directoryOperator.setCurrent("..");
+            //directoryOperator.setCurrent("..");
+            directoryOperator.setCurrent(currentDirectory);
+        }
     }
-}
 }
 
 /*! \brief .
@@ -1158,7 +1158,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
     if (doKeyPan_)
     {
         setDragMode(QGraphicsView::ScrollHandDrag);
-		QApplication::setOverrideCursor(Qt::OpenHandCursor);
+        QApplication::setOverrideCursor(Qt::OpenHandCursor);
         setInteractive(false); // this prevents the event from being passed to the scene
         QGraphicsView::mousePressEvent(event); // pass to baseclass
     }
@@ -1168,7 +1168,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
         doPan_ = true;
 
         setDragMode(QGraphicsView::ScrollHandDrag);
-		QApplication::setOverrideCursor(Qt::OpenHandCursor);
+        QApplication::setOverrideCursor(Qt::OpenHandCursor);
         setInteractive(false); // this prevents the event from being passed to the scene
 
         // Harharhar Hack //
@@ -1180,58 +1180,58 @@ GraphView::mousePressEvent(QMouseEvent *event)
         return;
     }
 #endif
-	else if (event->button() == Qt::LeftButton)
-	{
-		if (select_)
-		{
-			QGraphicsItem *item = NULL;
-			if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && !paramToolAdditionalSelection_)
-			{
-				item = scene()->itemAt(mapToScene(event->pos()), QGraphicsView::transform());
-			}
+    else if (event->button() == Qt::LeftButton)
+    {
+        if (select_)
+        {
+            QGraphicsItem *item = NULL;
+            if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && !paramToolAdditionalSelection_)
+            {
+                item = scene()->itemAt(mapToScene(event->pos()), QGraphicsView::transform());
+            }
 
-			if (item)
-			{
-				if (event != lastMouseEvent_)  // Remember Event in case tab is pressed
-				{
-					lastMouseEvent_ = new QMouseEvent(event->type(), event->localPos(), event->windowPos(), event->screenPos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
-				}
+            if (item)
+            {
+                if (event != lastMouseEvent_)  // Remember Event in case tab is pressed
+                {
+                    lastMouseEvent_ = new QMouseEvent(event->type(), event->localPos(), event->windowPos(), event->screenPos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
+                }
 
-				QGraphicsView::mousePressEvent(event); // pass to baseclass
-			}
-			else
-			{
-				doBoxSelect_ = BBActive;
+                QGraphicsView::mousePressEvent(event); // pass to baseclass
+            }
+            else
+            {
+                doBoxSelect_ = BBActive;
 
-				if (((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0) || paramToolAdditionalSelection_)
-				{
-					additionalSelection_ = true;
-				}
+                if (((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0) || paramToolAdditionalSelection_)
+                {
+                    additionalSelection_ = true;
+                }
 
-				mp_ = event->pos();
-			}
-		}
-		else if (doCircleSelect_ == CircleActive)
-		{
-			circleCenter_ = mapToScene(event->pos());
-			QPainterPath circle = QPainterPath();
-			circle.addEllipse(circleCenter_, radius_, radius_);
-			circleItem_->setPath(circle);
+                mp_ = event->pos();
+            }
+        }
+        else if (doCircleSelect_ == CircleActive)
+        {
+            circleCenter_ = mapToScene(event->pos());
+            QPainterPath circle = QPainterPath();
+            circle.addEllipse(circleCenter_, radius_, radius_);
+            circleItem_->setPath(circle);
 
-			// Select roads intersecting with circle
-			//
-			scene()->setSelectionArea(circle);
-		}
-		else 
-		{
-			if (doShapeEdit_)
-			{
-				shapeItem_->mousePressEvent(event);
-			}
+            // Select roads intersecting with circle
+            //
+            scene()->setSelectionArea(circle);
+        }
+        else
+        {
+            if (doShapeEdit_)
+            {
+                shapeItem_->mousePressEvent(event);
+            }
 
-			QGraphicsView::mousePressEvent(event); // pass to baseclass
-		}
-	}
+            QGraphicsView::mousePressEvent(event); // pass to baseclass
+        }
+    }
 }
 
 void
@@ -1245,18 +1245,18 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
         {
             return;
         }
-		else
-		{
-			if (!rubberBand_->isVisible())
-			{
-				rubberBand_->show();
-			}
-		}
+        else
+        {
+            if (!rubberBand_->isVisible())
+            {
+                rubberBand_->show();
+            }
+        }
 
         QPoint ep = event->pos();
 
         rubberBand_->setGeometry(QRect(qMin(mp_.x(), ep.x()), qMin(mp_.y(), ep.y()),
-                                       qAbs(mp_.x() - ep.x()) + 1, qAbs(mp_.y() - ep.y()) + 1));
+            qAbs(mp_.x() - ep.x()) + 1, qAbs(mp_.y() - ep.y()) + 1));
     }
     else if (doKeyPan_)
     {
@@ -1270,23 +1270,23 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
         delete newEvent;
     }
 #endif
-	else if (doCircleSelect_ == CircleActive)
-	{
-		// Draw circle with radius and mouse pos center
-		//
-		circleCenter_ = mapToScene(event->pos());
-		QPainterPath circle = QPainterPath();
-		circle.addEllipse(circleCenter_, radius_, radius_);
-		circleItem_->setPath(circle);
-
-		QGraphicsView::mouseMoveEvent(event); // pass to baseclass
-	}
-	else
+    else if (doCircleSelect_ == CircleActive)
     {
-		if (doShapeEdit_)
-		{
-			shapeItem_->mouseMoveEvent(event);
-		}
+        // Draw circle with radius and mouse pos center
+        //
+        circleCenter_ = mapToScene(event->pos());
+        QPainterPath circle = QPainterPath();
+        circle.addEllipse(circleCenter_, radius_, radius_);
+        circleItem_->setPath(circle);
+
+        QGraphicsView::mouseMoveEvent(event); // pass to baseclass
+    }
+    else
+    {
+        if (doShapeEdit_)
+        {
+            shapeItem_->mouseMoveEvent(event);
+        }
         QGraphicsView::mouseMoveEvent(event); // pass to baseclass
     }
 }
@@ -1295,170 +1295,170 @@ void
 GraphView::mouseReleaseEvent(QMouseEvent *event)
 {
 
-	if (doKeyPan_)
-	{
-		setDragMode(QGraphicsView::NoDrag);
-		setInteractive(true);
-		if (doBoxSelect_ == BBPressed)
-		{
-			doBoxSelect_ = BBActive;
-		}
-		doKeyPan_ = false;
-		QApplication::restoreOverrideCursor();
-	}
+    if (doKeyPan_)
+    {
+        setDragMode(QGraphicsView::NoDrag);
+        setInteractive(true);
+        if (doBoxSelect_ == BBPressed)
+        {
+            doBoxSelect_ = BBActive;
+        }
+        doKeyPan_ = false;
+        QApplication::restoreOverrideCursor();
+    }
 
 #ifdef USE_MIDMOUSE_PAN
-	else if (doPan_)
-	{
-		setDragMode(QGraphicsView::NoDrag);
-		setInteractive(true);
-		if (doBoxSelect_ == BBPressed)
-		{
-			doBoxSelect_ = BBActive;
-		}
-		doPan_ = false;
-		QApplication::restoreOverrideCursor();
-	}
+    else if (doPan_)
+    {
+        setDragMode(QGraphicsView::NoDrag);
+        setInteractive(true);
+        if (doBoxSelect_ == BBPressed)
+        {
+            doBoxSelect_ = BBActive;
+        }
+        doPan_ = false;
+        QApplication::restoreOverrideCursor();
+    }
 #endif
-	else if (doShapeEdit_)
-	{
-		shapeItem_->mouseReleaseEvent(event);
+    else if (doShapeEdit_)
+    {
+        shapeItem_->mouseReleaseEvent(event);
 
-		QGraphicsView::mouseReleaseEvent(event);
-	}
-	//	setDragMode(QGraphicsView::RubberBandDrag);
-	else if (!select_)
-	{
-		QGraphicsView::mouseReleaseEvent(event);
-	}
+        QGraphicsView::mouseReleaseEvent(event);
+    }
+    // setDragMode(QGraphicsView::RubberBandDrag);
+    else if (!select_)
+    {
+        QGraphicsView::mouseReleaseEvent(event);
+    }
 
-	else
-	{
+    else
+    {
 
-		if (doBoxSelect_ == BBActive)
-		{
-			doBoxSelect_ = BBOff;
+        if (doBoxSelect_ == BBActive)
+        {
+            doBoxSelect_ = BBOff;
 
-			if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
-			{
-				if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0) || paramToolAdditionalSelection_)
-				{
+            if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
+            {
+                if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0) || paramToolAdditionalSelection_)
+                {
 
-					// Deselect element from the previous selection
+                    // Deselect element from the previous selection
 
-					QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
+                    QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
 
-					QGraphicsView::mousePressEvent(event); // pass to baseclass
-					QList<QGraphicsItem *> selection = scene()->selectedItems();
+                    QGraphicsView::mousePressEvent(event); // pass to baseclass
+                    QList<QGraphicsItem *> selection = scene()->selectedItems();
 
-					QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
+                    QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
 
-					foreach (QGraphicsItem *item, oldSelection)
-					{
-						item->setSelected(true);
-					}
+                    foreach(QGraphicsItem * item, oldSelection)
+                    {
+                        item->setSelected(true);
+                    }
 
-					if (selectedItem)
-					{
-						if ((((event->modifiers() & Qt::ControlModifier) != 0) || paramToolAdditionalSelection_) && !oldSelection.contains(selectedItem))
-						{
-							selectedItem->setSelected(true);
-						}
-						else
-						{
-							selectedItem->setSelected(false);
-						}
-					}
+                    if (selectedItem)
+                    {
+                        if ((((event->modifiers() & Qt::ControlModifier) != 0) || paramToolAdditionalSelection_) && !oldSelection.contains(selectedItem))
+                        {
+                            selectedItem->setSelected(true);
+                        }
+                        else
+                        {
+                            selectedItem->setSelected(false);
+                        }
+                    }
 
-					if (paramToolAdditionalSelection_)
-					{
-						QGraphicsView::mouseReleaseEvent(event); // pass to baseclass
-					}
-				}
-				else
-				{
-					QGraphicsView::mousePressEvent(event);
-					QGraphicsView::mouseReleaseEvent(event);
-				}
-				return;
-			}
+                    if (paramToolAdditionalSelection_)
+                    {
+                        QGraphicsView::mouseReleaseEvent(event); // pass to baseclass
+                    }
+                }
+                else
+                {
+                    QGraphicsView::mousePressEvent(event);
+                    QGraphicsView::mouseReleaseEvent(event);
+                }
+                return;
+            }
 
-			QList<QGraphicsItem *> oldSelection;
+            QList<QGraphicsItem *> oldSelection;
 
-			if (additionalSelection_)
-			{
-				// Save old selection
+            if (additionalSelection_)
+            {
+                // Save old selection
 
-				oldSelection = scene()->selectedItems();
-			}
+                oldSelection = scene()->selectedItems();
+            }
 
-			// Set the new selection area
+            // Set the new selection area
 
-			QPainterPath selectionArea;
+            QPainterPath selectionArea;
 
-			selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
-			selectionArea.closeSubpath();
-			scene()->clearSelection();
-			scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+            selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
+            selectionArea.closeSubpath();
+            scene()->clearSelection();
+            scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
 
-			// Compare old and new selection lists and invert the selection state of elements contained in both
+            // Compare old and new selection lists and invert the selection state of elements contained in both
 
-			QList<QGraphicsItem *> selectList = scene()->selectedItems();
+            QList<QGraphicsItem *> selectList = scene()->selectedItems();
 
-			foreach(QGraphicsItem *item, oldSelection)
-			{
-				if (!paramToolAdditionalSelection_ && selectList.contains(item))
-				{
-					item->setSelected(false);
-					selectList.removeOne(item);
-				}
-				else
-				{
-					item->setSelected(true);
-				}
-			}
-
-
-			// deselect elements which were not in the oldSelection
-
-			if ((event->modifiers() & Qt::AltModifier) != 0)
-			{
-				foreach (QGraphicsItem *item, selectList)
-				{
-					item->setSelected(false);
-				}
-			}
-
-			rubberBand_->hide();
-
-		}
+            foreach(QGraphicsItem * item, oldSelection)
+            {
+                if (!paramToolAdditionalSelection_ && selectList.contains(item))
+                {
+                    item->setSelected(false);
+                    selectList.removeOne(item);
+                }
+                else
+                {
+                    item->setSelected(true);
+                }
+            }
 
 
-		if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) || paramToolAdditionalSelection_)
-		{
-			QGraphicsView::mouseReleaseEvent(event);
-		}
+            // deselect elements which were not in the oldSelection
 
-	}
+            if ((event->modifiers() & Qt::AltModifier) != 0)
+            {
+                foreach(QGraphicsItem * item, selectList)
+                {
+                    item->setSelected(false);
+                }
+            }
 
-	additionalSelection_ = false;
-	setInteractive(true);
+            rubberBand_->hide();
+
+        }
 
 
-    //	if(doBoxSelect_)
-    //	{
-    //	}
-    //	else if(doKeyPan_)
-    //	{
-    //	}
-    //	else if(doPan_)
-    //	{
-    //	}
-    //	else
-    //	{
-    ////	if(event->button() == Qt::MidButton) // end panning anyway
-    ////	{
-    //	}
+        if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) || paramToolAdditionalSelection_)
+        {
+            QGraphicsView::mouseReleaseEvent(event);
+        }
+
+    }
+
+    additionalSelection_ = false;
+    setInteractive(true);
+
+
+    // if(doBoxSelect_)
+    // {
+    // }
+    // else if(doKeyPan_)
+    // {
+    // }
+    // else if(doPan_)
+    // {
+    // }
+    // else
+    // {
+    //// if(event->button() == Qt::MidButton) // end panning anyway
+    //// {
+    // }
 }
 
 void
@@ -1466,15 +1466,15 @@ GraphView::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
     {
-		zoomTool_->zoomIn();
+        zoomTool_->zoomIn();
     }
     else
     {
-		zoomTool_->zoomOut();
+        zoomTool_->zoomOut();
     }
 
 
- //   QGraphicsView::wheelEvent(event);
+    //   QGraphicsView::wheelEvent(event);
 }
 
 void
@@ -1500,7 +1500,7 @@ GraphView::keyPressEvent(QKeyEvent *event)
             deletedSomething = false;
             QList<QGraphicsItem *> selectList = scene()->selectedItems();
 
-            foreach (QGraphicsItem *item, selectList)
+            foreach(QGraphicsItem * item, selectList)
             {
                 GraphElement *graphElement = dynamic_cast<GraphElement *>(item);
                 if (graphElement)
@@ -1531,40 +1531,40 @@ GraphView::keyPressEvent(QKeyEvent *event)
 void
 GraphView::keyReleaseEvent(QKeyEvent *event)
 {
-	QGraphicsView::keyReleaseEvent(event);
+    QGraphicsView::keyReleaseEvent(event);
 
-	switch (event->key())
-	{
-	case Qt::Key_Tab:
-	{
+    switch (event->key())
+    {
+    case Qt::Key_Tab:
+    {
         if (lastMouseEvent_)
         {
             QGraphicsView::mousePressEvent(lastMouseEvent_); // pass it again to baseclass
         }
-		break;
-	}
-	}
+        break;
+    }
+    }
 
 }
 
 void
 GraphView::dragEnterEvent(QDragEnterEvent *event)
 {
-	event->acceptProposedAction();
-	
+    event->acceptProposedAction();
+
 }
 
 void
 GraphView::dragMoveEvent(QDragMoveEvent *event)
 {
-	event->acceptProposedAction();
+    event->acceptProposedAction();
 }
 
 void
 GraphView::dropEvent(QDropEvent *event)
 {
-	event->acceptProposedAction();
-	QGraphicsView::dropEvent(event);
+    event->acceptProposedAction();
+    QGraphicsView::dropEvent(event);
 }
 
 void
@@ -1573,200 +1573,200 @@ GraphView::contextMenuEvent(QContextMenuEvent *event)
     if (doShapeEdit_)
     {
         shapeItem_->contextMenu(event);
-//        GraphViewShapeItem::contextMenuEvent(event);
+        //        GraphViewShapeItem::contextMenuEvent(event);
     }
-	else
-	{
-		QGraphicsView::contextMenuEvent(event);
-	}
+    else
+    {
+        QGraphicsView::contextMenuEvent(event);
+    }
 }
 
 void
 GraphView::createCircle(double radius)
 {
-	radius_ = radius;
-	doCircleSelect_ = CircleActive;
+    radius_ = radius;
+    doCircleSelect_ = CircleActive;
 
-	QPen pen(Qt::DashLine);
-	pen.setColor(ODD::instance()->colors()->brightBlue());
+    QPen pen(Qt::DashLine);
+    pen.setColor(ODD::instance()->colors()->brightBlue());
 
-	circleItem_ = new QGraphicsPathItem();
-	circleItem_->setPen(pen);
-	scene()->addItem(circleItem_);
+    circleItem_ = new QGraphicsPathItem();
+    circleItem_->setPen(pen);
+    scene()->addItem(circleItem_);
 }
 
 void
-	GraphView::deleteCircle()
+GraphView::deleteCircle()
 {
-	if (circleItem_)
-	{
-		doCircleSelect_ = CircleOff;
-	    scene()->removeItem(circleItem_);
+    if (circleItem_)
+    {
+        doCircleSelect_ = CircleOff;
+        scene()->removeItem(circleItem_);
         delete circleItem_;
         circleItem_ = NULL;
-	}
+    }
 }
 
 
 void GraphView::wgetInit()
 {
-	connect(&qnam, &QNetworkAccessManager::authenticationRequired,
-		this, &GraphView::slotAuthenticationRequired);
+    connect(&qnam, &QNetworkAccessManager::authenticationRequired,
+        this, &GraphView::slotAuthenticationRequired);
 #ifndef QT_NO_SSL
-	connect(&qnam, &QNetworkAccessManager::sslErrors,
-		this, &GraphView::sslErrors);
+    connect(&qnam, &QNetworkAccessManager::sslErrors,
+        this, &GraphView::sslErrors);
 #endif
 }
 
 void GraphView::startRequest(const QUrl &requestedUrl)
 {
-	url = requestedUrl;
-	httpRequestAborted = false;
+    url = requestedUrl;
+    httpRequestAborted = false;
 
-	reply = qnam.get(QNetworkRequest(url));
-	connect(reply, &QNetworkReply::finished, this, &GraphView::httpFinished);
-	connect(reply, &QIODevice::readyRead, this, &GraphView::httpReadyRead);
+    reply = qnam.get(QNetworkRequest(url));
+    connect(reply, &QNetworkReply::finished, this, &GraphView::httpFinished);
+    connect(reply, &QIODevice::readyRead, this, &GraphView::httpReadyRead);
 }
 
 void GraphView::downloadFile(const QString &fn, const QString &url)
 {
-	QUrl requestedUrl(url);
-	QString fileName=fn;
-	/*QString downloadDirectory = QDir::cleanPath("c:/tmp");
-	bool useDirectory = !downloadDirectory.isEmpty() && QFileInfo(downloadDirectory).isDir();
-	if (useDirectory)
-		fileName.prepend(downloadDirectory + '/');*/
-	if (QFile::exists(fileName))
-	{
-		QFile::remove(fileName);
-	}
+    QUrl requestedUrl(url);
+    QString fileName = fn;
+    /*QString downloadDirectory = QDir::cleanPath("c:/tmp");
+    bool useDirectory = !downloadDirectory.isEmpty() && QFileInfo(downloadDirectory).isDir();
+    if (useDirectory)
+        fileName.prepend(downloadDirectory + '/');*/
+    if (QFile::exists(fileName))
+    {
+        QFile::remove(fileName);
+    }
 
-	file = openFileForWrite(fileName);
-	if (!file)
-		return;
+    file = openFileForWrite(fileName);
+    if (!file)
+        return;
 
-	// schedule the request
-	startRequest(requestedUrl);
+    // schedule the request
+    startRequest(requestedUrl);
 
-	QTimer timeoutTimer;
-	QEventLoop loop;
-	//connect(reply, &QNetworkReply::finished, &loop, SLOT(quit()));
-	connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-	connect(&timeoutTimer, SIGNAL(timeout()), &loop, SLOT(quit()));
+    QTimer timeoutTimer;
+    QEventLoop loop;
+    //connect(reply, &QNetworkReply::finished, &loop, SLOT(quit()));
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(&timeoutTimer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
-	// wait for file to be downloaded
-	timeoutTimer.start(100000);
-	loop.exec(); //blocks untill either theSignalToWaitFor or timeout was fired
+    // wait for file to be downloaded
+    timeoutTimer.start(100000);
+    loop.exec(); //blocks untill either theSignalToWaitFor or timeout was fired
 }
 
 QFile *GraphView::openFileForWrite(const QString &fileName)
 {
-	QScopedPointer<QFile> file(new QFile(fileName));
-	if (!file->open(QIODevice::WriteOnly)) {
-		QMessageBox::information(this, tr("Error"),
-			tr("Unable to save the file %1: %2.")
-			.arg(QDir::toNativeSeparators(fileName),
-				file->errorString()));
-		return nullptr;
-	}
-	return file.take();
+    QScopedPointer<QFile> file(new QFile(fileName));
+    if (!file->open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("Error"),
+            tr("Unable to save the file %1: %2.")
+            .arg(QDir::toNativeSeparators(fileName),
+                file->errorString()));
+        return nullptr;
+    }
+    return file.take();
 }
 
 void GraphView::cancelDownload()
 {
-	httpRequestAborted = true;
-	reply->abort();
+    httpRequestAborted = true;
+    reply->abort();
 }
 
 void GraphView::httpFinished()
 {
-	QFileInfo fi;
-	if (file) {
-		fi.setFile(file->fileName());
-		file->close();
-		delete file;
-		file = nullptr;
-	}
+    QFileInfo fi;
+    if (file) {
+        fi.setFile(file->fileName());
+        file->close();
+        delete file;
+        file = nullptr;
+    }
 
-	if (httpRequestAborted) {
-		reply->deleteLater();
-		reply = nullptr;
-		return;
-	}
+    if (httpRequestAborted) {
+        reply->deleteLater();
+        reply = nullptr;
+        return;
+    }
 
-	if (reply->error()) {
-		QFile::remove(fi.absoluteFilePath());
-		reply->deleteLater();
-		reply = nullptr;
-		return;
-	}
+    if (reply->error()) {
+        QFile::remove(fi.absoluteFilePath());
+        reply->deleteLater();
+        reply = nullptr;
+        return;
+    }
 
-	const QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    const QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 
-	reply->deleteLater();
-	reply = nullptr;
+    reply->deleteLater();
+    reply = nullptr;
 
-	if (!redirectionTarget.isNull()) {
-		const QUrl redirectedUrl = url.resolved(redirectionTarget.toUrl());
-		if (QMessageBox::question(this, tr("Redirect"),
-			tr("Redirect to %1 ?").arg(redirectedUrl.toString()),
-			QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
-			QFile::remove(fi.absoluteFilePath());
-			return;
-		}
-		file = openFileForWrite(fi.absoluteFilePath());
-		if (!file) {
-			return;
-		}
-		startRequest(redirectedUrl);
-		return;
-	}
+    if (!redirectionTarget.isNull()) {
+        const QUrl redirectedUrl = url.resolved(redirectionTarget.toUrl());
+        if (QMessageBox::question(this, tr("Redirect"),
+            tr("Redirect to %1 ?").arg(redirectedUrl.toString()),
+            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+            QFile::remove(fi.absoluteFilePath());
+            return;
+        }
+        file = openFileForWrite(fi.absoluteFilePath());
+        if (!file) {
+            return;
+        }
+        startRequest(redirectedUrl);
+        return;
+    }
 
 }
 
 void GraphView::httpReadyRead()
 {
-	// this slot gets called every time the QNetworkReply has new data.
-	// We read all of its new data and write it into the file.
-	// That way we use less RAM than when reading it at the finished()
-	// signal of the QNetworkReply
-	if (file)
-		file->write(reply->readAll());
+    // this slot gets called every time the QNetworkReply has new data.
+    // We read all of its new data and write it into the file.
+    // That way we use less RAM than when reading it at the finished()
+    // signal of the QNetworkReply
+    if (file)
+        file->write(reply->readAll());
 }
 
 void GraphView::slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator)
 {
-	/*QDialog authenticationDialog;
-	Ui::Dialog ui;
-	ui.setupUi(&authenticationDialog);
-	authenticationDialog.adjustSize();
-	ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm(), url.host()));*/
+    /*QDialog authenticationDialog;
+    Ui::Dialog ui;
+    ui.setupUi(&authenticationDialog);
+    authenticationDialog.adjustSize();
+    ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm(), url.host()));*/
 
-	// Did the URL have information? Fill the UI
-	// This is only relevant if the URL-supplied credentials were wrong
-	/*ui.userEdit->setText(url.userName());
-	ui.passwordEdit->setText(url.password());
+    // Did the URL have information? Fill the UI
+    // This is only relevant if the URL-supplied credentials were wrong
+    /*ui.userEdit->setText(url.userName());
+    ui.passwordEdit->setText(url.password());
 
-	if (authenticationDialog.exec() == QDialog::Accepted) {
-		authenticator->setUser(ui.userEdit->text());
-		authenticator->setPassword(ui.passwordEdit->text());
-	}*/
+    if (authenticationDialog.exec() == QDialog::Accepted) {
+        authenticator->setUser(ui.userEdit->text());
+        authenticator->setPassword(ui.passwordEdit->text());
+    }*/
 }
 
 #ifndef QT_NO_SSL
 void GraphView::sslErrors(QNetworkReply *, const QList<QSslError> &errors)
 {
-	QString errorString;
-	foreach(const QSslError &error, errors) {
-		if (!errorString.isEmpty())
-			errorString += '\n';
-		errorString += error.errorString();
-	}
+    QString errorString;
+    foreach(const QSslError & error, errors) {
+        if (!errorString.isEmpty())
+            errorString += '\n';
+        errorString += error.errorString();
+    }
 
-	if (QMessageBox::warning(this, tr("SSL Errors"),
-		tr("One or more SSL errors has occurred:\n%1").arg(errorString),
-		QMessageBox::Ignore | QMessageBox::Abort) == QMessageBox::Ignore) {
-		reply->ignoreSslErrors();
-	}
+    if (QMessageBox::warning(this, tr("SSL Errors"),
+        tr("One or more SSL errors has occurred:\n%1").arg(errorString),
+        QMessageBox::Ignore | QMessageBox::Abort) == QMessageBox::Ignore) {
+        reply->ignoreSslErrors();
+    }
 }
 #endif

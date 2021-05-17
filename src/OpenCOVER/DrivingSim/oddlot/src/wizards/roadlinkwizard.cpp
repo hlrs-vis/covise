@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/29/2010
+ **
+ **************************************************************************/
 
 #include "roadlinkwizard.hpp"
 #include "ui_roadlinkwizard.h"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 
 #include "src/data/roadsystem/roadsystem.hpp"
@@ -67,7 +67,7 @@ RoadLinkWizard::init()
     //
     ui->roadsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    foreach (RSystemElementRoad *road, projectData_->getRoadSystem()->getRoads())
+    foreach(RSystemElementRoad * road, projectData_->getRoadSystem()->getRoads())
     {
         QListWidgetItem *item = new QListWidgetItem(road->getIdName());
         item->setData(Qt::UserRole, QVariant::fromValue((void *)road));
@@ -117,49 +117,49 @@ RoadLinkWizard::validateRunButton()
 void
 RoadLinkWizard::runCalculation()
 {
-    //	bool keepExisting = ui->keepExistingBox->isChecked();
-    //	double maxDistance = ui->distanceBox->value();
+    // bool keepExisting = ui->keepExistingBox->isChecked();
+    // double maxDistance = ui->distanceBox->value();
 
-    //	QMultiMap<double, RSystemElementRoad *> roadXCoords;
+    // QMultiMap<double, RSystemElementRoad *> roadXCoords;
 
-    //	foreach(QListWidgetItem * item, ui->roadsList->selectedItems())
-    //	{
-    //		// Parse back to road pointer //
-    //		//
-    //		void * pointer = item->data(Qt::UserRole).value<void *>();
-    //		RSystemElementRoad * road = static_cast<RSystemElementRoad *>(pointer);
+    // foreach(QListWidgetItem * item, ui->roadsList->selectedItems())
+    // {
+    //  // Parse back to road pointer //
+    //  //
+    //  void * pointer = item->data(Qt::UserRole).value<void *>();
+    //  RSystemElementRoad * road = static_cast<RSystemElementRoad *>(pointer);
 
-    //		roadXCoords.insert(road->getGlobalPoint(0.0).x(), road);
-    //		roadXCoords.insert(road->getGlobalPoint(road->getLength()).x(), road);
-    //	}
+    //  roadXCoords.insert(road->getGlobalPoint(0.0).x(), road);
+    //  roadXCoords.insert(road->getGlobalPoint(road->getLength()).x(), road);
+    // }
 
-    //	QMultiMap<double, RSystemElementRoad *>::const_iterator i = roadXCoords.constBegin();
-    //	RSystemElementRoad * roadOne = NULL;
-    //	RSystemElementRoad * roadTwo = NULL;
-    //	while (i != roadXCoords.constEnd())
-    //	{
-    //		RSystemElementRoad * road = i.value();
+    // QMultiMap<double, RSystemElementRoad *>::const_iterator i = roadXCoords.constBegin();
+    // RSystemElementRoad * roadOne = NULL;
+    // RSystemElementRoad * roadTwo = NULL;
+    // while (i != roadXCoords.constEnd())
+    // {
+    //  RSystemElementRoad * road = i.value();
 
-    //		// todo road == roadone/two
+    //  // todo road == roadone/two
 
-    //		if(roadTwo && roadOne)
-    //		{
+    //  if(roadTwo && roadOne)
+    //  {
 
-    //		}
+    //  }
 
-    //		else if(roadOne)
-    //		{
-    //			if()
-    //		}
+    //  else if(roadOne)
+    //  {
+    //   if()
+    //  }
 
-    //		else
-    //		{
-    //			roadOne = road;
-    //		}
+    //  else
+    //  {
+    //   roadOne = road;
+    //  }
 
-    //		qDebug() << i.key();
-    //		++i;
-    //	}
+    //  qDebug() << i.key();
+    //  ++i;
+    // }
 
     // Quit //
     //

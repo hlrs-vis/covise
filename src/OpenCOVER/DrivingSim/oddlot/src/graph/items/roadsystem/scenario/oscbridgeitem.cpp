@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #include "oscbridgeitem.hpp"
 
@@ -19,8 +19,8 @@
 #include "src/util/colorpalette.hpp"
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -48,10 +48,10 @@
 
 OSCBridgeItem::OSCBridgeItem(RoadSystemItem *roadSystemItem, Bridge *bridge, QPointF pos)
     : GraphElement(roadSystemItem, bridge)
-	, roadSystemItem_(roadSystemItem)
+    , roadSystemItem_(roadSystemItem)
     , bridge_(bridge)
     , pos_(pos)
-	, path_(NULL)
+    , path_(NULL)
 {
     init();
 }
@@ -66,12 +66,12 @@ OSCBridgeItem::init()
     // Hover Events //
     //
     setAcceptHoverEvents(true);
- //   setSelectable();
-	setFlag(ItemIsFocusable);
+    //   setSelectable();
+    setFlag(ItemIsFocusable);
 
-	// Save a tunnel 
-	//
-	tunnel_ = dynamic_cast<Tunnel *>(bridge_);
+    // Save a tunnel 
+    //
+    tunnel_ = dynamic_cast<Tunnel *>(bridge_);
 
 
     if (getTopviewGraph()) // not for profile graph
@@ -82,8 +82,8 @@ OSCBridgeItem::init()
         bridgeTextItem_->setZValue(1.0); // stack before siblings
     }
 
-	road_ = bridge_->getParentRoad(); 
-	pos_ = road_->getGlobalPoint(bridge_->getSStart());
+    road_ = bridge_->getParentRoad();
+    pos_ = road_->getGlobalPoint(bridge_->getSStart());
 
     updateColor();
     updatePosition();
@@ -95,7 +95,7 @@ OSCBridgeItem::init()
 void
 OSCBridgeItem::updateColor()
 {
-	outerColor_.setRgb(80, 80, 80);
+    outerColor_.setRgb(80, 80, 80);
 }
 
 /*!
@@ -104,12 +104,12 @@ OSCBridgeItem::updateColor()
 void
 OSCBridgeItem::createPath()
 {
-	if (path_)
-	{
-		delete path_;
-	}
+    if (path_)
+    {
+        delete path_;
+    }
 
-	path_ = new QPainterPath();
+    path_ = new QPainterPath();
 
     setBrush(QBrush(outerColor_));
     setPen(QPen(outerColor_, 2.0));
@@ -138,7 +138,7 @@ OSCBridgeItem::createPath()
                 path_->moveTo(currentPos.x(), currentPos.y());
             }
 
-            //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
+            //    double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
             double dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
 
             if ((totalLength + dist) > bridge_->getLength())
@@ -172,7 +172,7 @@ OSCBridgeItem::createPath()
                 path_->moveTo(currentPos.x(), currentPos.y());
             }
 
-            //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
+            //    double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
             double dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
 
             if ((totalLength + dist) > bridge_->getLength())
@@ -196,7 +196,7 @@ void
 OSCBridgeItem::updatePosition()
 {
 
- //   pos_ = road_->getGlobalPoint(bridge_->getSStart());
+    //   pos_ = road_->getGlobalPoint(bridge_->getSStart());
     updateColor();
     createPath();
 }
@@ -209,8 +209,8 @@ OSCBridgeItem::updatePosition()
 void
 OSCBridgeItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-	setCursor(Qt::OpenHandCursor);
-	setFocus();
+    setCursor(Qt::OpenHandCursor);
+    setFocus();
 
     // Text //
     //
@@ -225,7 +225,7 @@ OSCBridgeItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 void
 OSCBridgeItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
-	setCursor(Qt::ArrowCursor);
+    setCursor(Qt::ArrowCursor);
 
     // Text //
     //

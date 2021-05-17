@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.06.2010
+ **
+ **************************************************************************/
 
 #include "scenerysystemitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/scenerysystem/scenerysystem.hpp"
 #include "src/data/scenerysystem/scenerymap.hpp"
 #include "src/data/scenerysystem/heightmap.hpp"
@@ -86,7 +86,7 @@ ScenerySystemItem::loadGoogleMap(const QString &filename, double mapPosLat, doub
         qDebug("ERROR 1006151345! Pixmap could not be loaded!");
         return;
     }
-    SceneryMap *map = new SceneryMap("map0", filename, pixmap.width()*.10, pixmap.height()*.10, SceneryMap::DMT_Aerial);
+    SceneryMap *map = new SceneryMap("map0", filename, pixmap.width() * .10, pixmap.height() * .10, SceneryMap::DMT_Aerial);
     map->setX(mapPosLat);
     map->setY(mapPosLon);
 
@@ -103,7 +103,7 @@ ScenerySystemItem::loadBingMap(const QString &filename, double mapPosLat, double
         qDebug("ERROR 1006151345! Pixmap could not be loaded!");
         return;
     }
-    SceneryMap *map = new SceneryMap("map0", filename, pixmap.width()*.197, pixmap.height()*.197, SceneryMap::DMT_Aerial);
+    SceneryMap *map = new SceneryMap("map0", filename, pixmap.width() * .197, pixmap.height() * .197, SceneryMap::DMT_Aerial);
     map->setX(mapPosLat);
     map->setY(mapPosLon);
 
@@ -114,7 +114,7 @@ ScenerySystemItem::loadBingMap(const QString &filename, double mapPosLat, double
 void
 ScenerySystemItem::deleteMap()
 {
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         if (mapItem->isSelected())
         {
@@ -128,7 +128,7 @@ ScenerySystemItem::deleteMap()
 void
 ScenerySystemItem::lockMaps(bool locked)
 {
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         mapItem->setLocked(locked);
     }
@@ -138,7 +138,7 @@ void
 ScenerySystemItem::setMapOpacity(double opacity)
 {
 
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         if (mapItem->isSelected())
         {
@@ -153,7 +153,7 @@ void
 ScenerySystemItem::setMapX(double x)
 {
 
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         if (mapItem->isSelected())
         {
@@ -165,7 +165,7 @@ ScenerySystemItem::setMapX(double x)
 void
 ScenerySystemItem::setMapY(double y)
 {
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         if (mapItem->isSelected())
         {
@@ -178,7 +178,7 @@ void
 ScenerySystemItem::setMapWith(double width, bool keepRatio)
 {
 
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         if (mapItem->isSelected())
         {
@@ -190,7 +190,7 @@ ScenerySystemItem::setMapWith(double width, bool keepRatio)
 void
 ScenerySystemItem::setMapHeight(double height, bool keepRatio)
 {
-    foreach (SceneryMapItem *mapItem, mapItems_)
+    foreach(SceneryMapItem *mapItem, mapItems_)
     {
         if (mapItem->isSelected())
         {
@@ -225,7 +225,7 @@ ScenerySystemItem::updateObserver()
     {
         // A map has been added.
         //
-        foreach (SceneryMap *map, scenerySystem_->getSceneryMaps())
+        foreach(SceneryMap *map, scenerySystem_->getSceneryMaps())
         {
             if (!mapItems_.contains(map->getId()))
             {
@@ -235,7 +235,7 @@ ScenerySystemItem::updateObserver()
                 mapItems_.insert(mapItem->getMap()->getId(), mapItem);
             }
         }
-        foreach (Heightmap *map, scenerySystem_->getHeightmaps())
+        foreach(Heightmap *map, scenerySystem_->getHeightmaps())
         {
             if (!mapItems_.contains(map->getId()))
             {
@@ -246,13 +246,13 @@ ScenerySystemItem::updateObserver()
 
         // A map has been deleted.
         //
-        foreach (SceneryMapItem *mapItem, mapItems_)
+        foreach(SceneryMapItem *mapItem, mapItems_)
         {
             if (mapItem->getMap()->getDataElementChanges() & DataElement::CDE_DataElementDeleted
                 || mapItem->getMap()->getDataElementChanges() & DataElement::CDE_DataElementRemoved)
             {
                 mapItems_.remove(mapItem->getMap()->getId());
-                //				getProjectGraph()->addToGarbage(mapItem); // done by map itself
+                //    getProjectGraph()->addToGarbage(mapItem); // done by map itself
             }
         }
     }

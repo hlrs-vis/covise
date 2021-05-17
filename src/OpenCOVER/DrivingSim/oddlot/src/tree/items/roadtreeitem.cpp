@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #include "roadtreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/typesection.hpp"
 #include "src/data/roadsystem/track/trackcomponent.hpp"
@@ -70,7 +70,7 @@ RoadTreeItem::init()
     typesItem_ = new QTreeWidgetItem(this);
     typesItem_->setText(0, tr("types"));
 
-    foreach (TypeSection *element, road_->getTypeSections())
+    foreach(TypeSection * element, road_->getTypeSections())
     {
         new TypeSectionTreeItem(this, element, typesItem_);
     }
@@ -80,11 +80,11 @@ RoadTreeItem::init()
     objectsItem_ = new QTreeWidgetItem(this);
     objectsItem_->setText(0, tr("objects"));
 
-    foreach (Object *element, road_->getObjects())
+    foreach(Object * element, road_->getObjects())
     {
         new ObjectTreeItem(this, element, objectsItem_);
     }
-    foreach (Crosswalk *element, road_->getCrosswalks())
+    foreach(Crosswalk * element, road_->getCrosswalks())
     {
         new CrosswalkTreeItem(this, element, objectsItem_);
     }
@@ -93,7 +93,7 @@ RoadTreeItem::init()
     //
     bridgesItem_ = new QTreeWidgetItem(this);
     bridgesItem_->setText(0, tr("bridges and tunnels"));
-    foreach (Bridge *element, road_->getBridges())
+    foreach(Bridge * element, road_->getBridges())
     {
         new BridgeTreeItem(this, element, bridgesItem_);
     }
@@ -102,7 +102,7 @@ RoadTreeItem::init()
     //
     signalsItem_ = new QTreeWidgetItem(this);
     signalsItem_->setText(0, tr("signals"));
-    foreach (Signal *element, road_->getSignals())
+    foreach(Signal * element, road_->getSignals())
     {
         new SignalTreeItem(this, element, signalsItem_);
     }
@@ -110,7 +110,7 @@ RoadTreeItem::init()
     //
     sensorsItem_ = new QTreeWidgetItem(this);
     sensorsItem_->setText(0, tr("sensors"));
-    foreach (Sensor *element, road_->getSensors())
+    foreach(Sensor * element, road_->getSensors())
     {
         new SensorTreeItem(this, element, sensorsItem_);
     }
@@ -120,7 +120,7 @@ RoadTreeItem::init()
     tracksItem_ = new QTreeWidgetItem(this);
     tracksItem_->setText(0, tr("tracks"));
 
-    foreach (TrackComponent *element, road_->getTrackSections())
+    foreach(TrackComponent * element, road_->getTrackSections())
     {
         new TrackComponentTreeItem(this, element, tracksItem_);
     }
@@ -130,7 +130,7 @@ RoadTreeItem::init()
     elevationsItem_ = new QTreeWidgetItem(this);
     elevationsItem_->setText(0, tr("elevations"));
 
-    foreach (ElevationSection *element, road_->getElevationSections())
+    foreach(ElevationSection * element, road_->getElevationSections())
     {
         new ElevationSectionTreeItem(this, element, elevationsItem_);
     }
@@ -140,7 +140,7 @@ RoadTreeItem::init()
     superelevationsItem_ = new QTreeWidgetItem(this);
     superelevationsItem_->setText(0, tr("superelevations"));
 
-    foreach (SuperelevationSection *element, road_->getSuperelevationSections())
+    foreach(SuperelevationSection * element, road_->getSuperelevationSections())
     {
         new SuperelevationSectionTreeItem(this, element, superelevationsItem_);
     }
@@ -150,27 +150,27 @@ RoadTreeItem::init()
     crossfallsItem_ = new QTreeWidgetItem(this);
     crossfallsItem_->setText(0, tr("crossfalls"));
 
-    foreach (CrossfallSection *element, road_->getCrossfallSections())
+    foreach(CrossfallSection * element, road_->getCrossfallSections())
     {
         new CrossfallSectionTreeItem(this, element, crossfallsItem_);
     }
 
-	// RoadShapeSections //
-	//
-	shapesItem_ = new QTreeWidgetItem(this);
-	shapesItem_->setText(0, tr("shapes"));
+    // RoadShapeSections //
+    //
+    shapesItem_ = new QTreeWidgetItem(this);
+    shapesItem_->setText(0, tr("shapes"));
 
-	foreach(ShapeSection *element, road_->getShapeSections())
-	{
-		new ShapeSectionTreeItem(this, element, shapesItem_);
-	}
+    foreach(ShapeSection * element, road_->getShapeSections())
+    {
+        new ShapeSectionTreeItem(this, element, shapesItem_);
+    }
 
     // LaneSections //
     //
     lanesItem_ = new QTreeWidgetItem(this);
     lanesItem_->setText(0, tr("lanes"));
 
-    foreach (LaneSection *element, road_->getLaneSections())
+    foreach(LaneSection * element, road_->getLaneSections())
     {
         new LaneSectionTreeItem(this, element, lanesItem_);
     }
@@ -218,7 +218,7 @@ RoadTreeItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_TypeSectionChange)
     {
-        foreach (TypeSection *element, road_->getTypeSections())
+        foreach(TypeSection * element, road_->getTypeSections())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -230,7 +230,7 @@ RoadTreeItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_TrackSectionChange)
     {
-        foreach (TrackComponent *element, road_->getTrackSections())
+        foreach(TrackComponent * element, road_->getTrackSections())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -242,7 +242,7 @@ RoadTreeItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_ElevationSectionChange)
     {
-        foreach (ElevationSection *element, road_->getElevationSections())
+        foreach(ElevationSection * element, road_->getElevationSections())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -254,7 +254,7 @@ RoadTreeItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_SuperelevationSectionChange)
     {
-        foreach (SuperelevationSection *element, road_->getSuperelevationSections())
+        foreach(SuperelevationSection * element, road_->getSuperelevationSections())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -266,7 +266,7 @@ RoadTreeItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_CrossfallSectionChange)
     {
-        foreach (CrossfallSection *element, road_->getCrossfallSections())
+        foreach(CrossfallSection * element, road_->getCrossfallSections())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -276,21 +276,21 @@ RoadTreeItem::updateObserver()
         }
     }
 
-	if (changes & RSystemElementRoad::CRD_ShapeSectionChange)
-	{
-		foreach(ShapeSection *element, road_->getShapeSections())
-		{
-			if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-				|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-			{
-				new ShapeSectionTreeItem(this, element, shapesItem_);
-			}
-		}
-	}
+    if (changes & RSystemElementRoad::CRD_ShapeSectionChange)
+    {
+        foreach(ShapeSection * element, road_->getShapeSections())
+        {
+            if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+                || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+            {
+                new ShapeSectionTreeItem(this, element, shapesItem_);
+            }
+        }
+    }
 
     if (changes & RSystemElementRoad::CRD_LaneSectionChange)
     {
-        foreach (LaneSection *element, road_->getLaneSections())
+        foreach(LaneSection * element, road_->getLaneSections())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -302,7 +302,7 @@ RoadTreeItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_SignalChange)
     {
-        foreach (Signal *element, road_->getSignals())
+        foreach(Signal * element, road_->getSignals())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -313,7 +313,7 @@ RoadTreeItem::updateObserver()
     }
     if (changes & RSystemElementRoad::CRD_ObjectChange)
     {
-        foreach (Object *element, road_->getObjects())
+        foreach(Object * element, road_->getObjects())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -324,7 +324,7 @@ RoadTreeItem::updateObserver()
     }
     if (changes & RSystemElementRoad::CRD_BridgeChange)
     {
-        foreach (Bridge *element, road_->getBridges())
+        foreach(Bridge * element, road_->getBridges())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))

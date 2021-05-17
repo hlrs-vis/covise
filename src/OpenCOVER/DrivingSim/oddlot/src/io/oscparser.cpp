@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "oscparser.hpp"
 
-//#include "src/mainwindow.hpp"
+ //#include "src/mainwindow.hpp"
 
-// Data Model //
-//
+ // Data Model //
+ //
 #include "src/data/projectdata.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/oscsystem/oscelement.hpp"
@@ -70,12 +70,12 @@ using namespace OpenScenario;
 */
 OSCParser::OSCParser(OpenScenario::OpenScenarioBase *openScenarioBase, QObject *parent)
     : QObject(parent)
-	, openScenarioBase_(openScenarioBase)
+    , openScenarioBase_(openScenarioBase)
     , mode_(MODE_NONE)
 {
- //   doc_ = new QDomDocument();
-	projectData_ = dynamic_cast<ProjectData *>(parent);
-	oscBase_ = projectData_->getOSCBase();
+    //   doc_ = new QDomDocument();
+    projectData_ = dynamic_cast<ProjectData *>(parent);
+    oscBase_ = projectData_->getOSCBase();
 }
 
 /** DESTRUCTOR.
@@ -83,7 +83,7 @@ OSCParser::OSCParser(OpenScenario::OpenScenarioBase *openScenarioBase, QObject *
 */
 OSCParser::~OSCParser()
 {
- //   delete doc_;
+    //   delete doc_;
 }
 
 //################//
@@ -101,32 +101,32 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
     //
     mode_ = OSCParser::MODE_XOSC;
 
-/*	oscFactories * factories = oscFactories::instance();
-	oscFactory<oscObjectBase,std::string> factory;
-	factories->setObjectFactory(&factory);
-	factory.create(tr("Driver").toStdString());*/
+    /* oscFactories * factories = oscFactories::instance();
+        oscFactory<oscObjectBase,std::string> factory;
+        factories->setObjectFactory(&factory);
+        factory.create(tr("Driver").toStdString());*/
 
 
-	if (openScenarioBase_->loadFile(filename.toStdString(), nodeName.toStdString(), fileType.toStdString()) == false)
+    if (openScenarioBase_->loadFile(filename.toStdString(), nodeName.toStdString(), fileType.toStdString()) == false)
     {
         qDebug() << "failed to load OpenScenarioBase from file " << filename;
         return false;
     }
     // <OpenSCENARIO> //
     //
-	// TODO: validation of files should be selectable
-	//
-	//enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
-/*	bool validate = openScenarioBase_->getValidation();
-	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), nodeName.toStdString(), fileType.toStdString(), validate);
-	if (root == NULL)
-	{
-		QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
-			tr("no root element <OpenSCENARIO>!"));
-		return false;
-	}
+    // TODO: validation of files should be selectable
+    //
+    //enable/disable validation of parsed files of type fileType (OpenSCENARIO or catalog object files, e.g. vehicle, driver)
+/* bool validate = openScenarioBase_->getValidation();
+    xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString(), nodeName.toStdString(), fileType.toStdString(), validate);
+    if (root == NULL)
+    {
+        QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
+            tr("no root element <OpenSCENARIO>!"));
+        return false;
+    }
 
-	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
+    QString tagName =  xercesc::XMLString::transcode(root->getTagName());
     if (root == NULL || tagName != "OpenSCENARIO")
     {
         QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
@@ -136,8 +136,8 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
 
     // <OpenSCENARIO><header> //
     //
-	const OpenScenario::oscObjectBase * h = openScenarioBase_->fileHeader.getObject();
-    
+    const OpenScenario::oscObjectBase * h = openScenarioBase_->fileHeader.getObject();
+
     if (!h)
     {
         QMessageBox::warning(NULL, tr("ODD: XML Parser Error"),
@@ -149,7 +149,7 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
         parseHeaderElement(child);
     } */
 
-//	createElements(dynamic_cast<OpenScenario::oscObjectBase *>(openScenarioBase_));
+    // createElements(dynamic_cast<OpenScenario::oscObjectBase *>(openScenarioBase_));
 
     return true;
 }
@@ -157,24 +157,24 @@ OSCParser::parseXOSC(const QString &filename, const QString &nodeName, const QSt
 void
 OSCParser::createElements(const OpenScenario::oscObjectBase *object)
 {
-	OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
-	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
+    OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
+    for (OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin(); it != members.end(); it++)
     {
         oscMember *member = (*it).member;
-        if(member)
+        if (member)
         {
-			if(member->getType() == oscMemberValue::OBJECT)
+            if (member->getType() == oscMemberValue::OBJECT)
             {
-				oscObjectBase *memberObject = member->getObjectBase();
-				if (memberObject)
-				{
-					OSCElement *oscElement = new OSCElement(QString::fromStdString((*it).name), memberObject); 
-					oscBase_->addOSCElement(oscElement);
-					createElements(memberObject);
-				}
-			}
-		}
-	}
+                oscObjectBase *memberObject = member->getObjectBase();
+                if (memberObject)
+                {
+                    OSCElement *oscElement = new OSCElement(QString::fromStdString((*it).name), memberObject);
+                    oscBase_->addOSCElement(oscElement);
+                    createElements(memberObject);
+                }
+            }
+        }
+    }
 }
 
 

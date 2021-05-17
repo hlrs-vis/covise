@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "roadsettings.hpp"
 #include "ui_roadsettings.h"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
@@ -56,7 +56,7 @@ RoadSettings::RoadSettings(ProjectSettings *projectSettings, SettingsElement *pa
     //
     updateProperties();
     updateRoadLinks();
-    //	updateSectionCount();
+    // updateSectionCount();
 
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
     init_ = true;
@@ -73,30 +73,30 @@ RoadSettings::~RoadSettings()
 void
 RoadSettings::addLaneSectionPrototypes()
 {
-    foreach (const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype))
+    foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype))
     {
         ui->laneSectionComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
     }
-    foreach (const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype))
+    foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype))
     {
         ui->roadTypeComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
     }
-    foreach (const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_ElevationPrototype))
+    foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_ElevationPrototype))
     {
         ui->elevationComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
     }
-    foreach (const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype))
+    foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype))
     {
         ui->superelevationComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
     }
-    foreach (const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype))
+    foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype))
     {
         ui->crossfallComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
     }
-	foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype))
-	{
-		ui->shapeComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
-	}
+    foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype))
+    {
+        ui->shapeComboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
+    }
 }
 
 void
@@ -146,8 +146,8 @@ RoadSettings::updateRoadLinks()
 }
 
 //void
-//	RoadSettings
-//	::updateSectionCount()
+// RoadSettings
+// ::updateSectionCount()
 //{
 //}
 
@@ -161,13 +161,13 @@ RoadSettings::on_editingFinished()
     QString name = ui->nameBox->text();
     if (name != road_->getName())
     {
-		odrID newId = road_->getID();
-		newId.setName(name);
-		SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, name, NULL);
-		getProjectSettings()->executeCommand(command);
+        odrID newId = road_->getID();
+        newId.setName(name);
+        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, name, NULL);
+        getProjectSettings()->executeCommand(command);
     }
 
- 
+
 }
 void
 RoadSettings::on_addButton_released()
@@ -175,7 +175,7 @@ RoadSettings::on_addButton_released()
     // Open a dialog asking for the junction //
     //
     QStringList junctions;
-    foreach (RSystemElementJunction *junction, getProjectData()->getRoadSystem()->getJunctions())
+    foreach(RSystemElementJunction * junction, getProjectData()->getRoadSystem()->getJunctions())
     {
         junctions.append(junction->getID().speakingName());
     }
@@ -183,16 +183,16 @@ RoadSettings::on_addButton_released()
     QString newValue = QInputDialog::getItem(this, tr("ODD: Junction"), tr("Please select a junction:"), junctions, junctions.size() - 1, false, &ok);
     if (ok && !newValue.isEmpty())
     {
-		QStringList parts = newValue.split("_");
-		odrID newID;
-		if (parts.size() >= 1)
-		{
-			newID.setID(QVariant(parts[0]).toInt());
-		}
-		else
-		{
-			newID.setID(QVariant(newValue).toInt());
-		}
+        QStringList parts = newValue.split("_");
+        odrID newID;
+        if (parts.size() >= 1)
+        {
+            newID.setID(QVariant(parts[0]).toInt());
+        }
+        else
+        {
+            newID.setID(QVariant(newValue).toInt());
+        }
         RSystemElementJunction *junction = getProjectData()->getRoadSystem()->getJunction(newID);
         AddToJunctionCommand *command = new AddToJunctionCommand(getProjectData()->getRoadSystem(), road_, junction, NULL);
         getProjectSettings()->executeCommand(command);
@@ -226,7 +226,7 @@ RoadSettings::on_laneSectionComboBox_activated(int id)
 
     // Change types of selected items //
     //
-    foreach (DataElement *element, selectedElements)
+    foreach(DataElement * element, selectedElements)
     {
         RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
         if (road)
@@ -263,7 +263,7 @@ RoadSettings::on_roadTypeComboBox_activated(int id)
 
     // Change types of selected items //
     //
-    foreach (DataElement *element, selectedElements)
+    foreach(DataElement * element, selectedElements)
     {
         RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
         if (road)
@@ -300,7 +300,7 @@ RoadSettings::on_elevationComboBox_activated(int id)
 
     // Change types of selected items //
     //
-    foreach (DataElement *element, selectedElements)
+    foreach(DataElement * element, selectedElements)
     {
         RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
         if (road)
@@ -337,7 +337,7 @@ RoadSettings::on_superelevationComboBox_activated(int id)
 
     // Change types of selected items //
     //
-    foreach (DataElement *element, selectedElements)
+    foreach(DataElement * element, selectedElements)
     {
         RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
         if (road)
@@ -374,7 +374,7 @@ RoadSettings::on_crossfallComboBox_activated(int id)
 
     // Change types of selected items //
     //
-    foreach (DataElement *element, selectedElements)
+    foreach(DataElement * element, selectedElements)
     {
         RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
         if (road)
@@ -396,37 +396,37 @@ void
 RoadSettings::on_shapeComboBox_activated(int id)
 {
 
-	QList<PrototypeContainer<RSystemElementRoad *> *> prototypeList = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
-	RSystemElementRoad *shapePrototype = prototypeList.at(id)->getPrototype();
+    QList<PrototypeContainer<RSystemElementRoad *> *> prototypeList = prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
+    RSystemElementRoad *shapePrototype = prototypeList.at(id)->getPrototype();
 
-	QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
+    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
 
-	// Macro Command //
-	//
-	int numberOfSelectedElements = selectedElements.size();
-	if (numberOfSelectedElements > 1)
-	{
-		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Shape Prototype"));
-	}
+    // Macro Command //
+    //
+    int numberOfSelectedElements = selectedElements.size();
+    if (numberOfSelectedElements > 1)
+    {
+        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Shape Prototype"));
+    }
 
-	// Change types of selected items //
-	//
-	foreach(DataElement *element, selectedElements)
-	{
-		RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
-		if (road)
-		{
-			ChangeShapePrototypeCommand *command = new ChangeShapePrototypeCommand(road, shapePrototype, NULL);
-			getProjectSettings()->executeCommand(command);
-		}
-	}
+    // Change types of selected items //
+    //
+    foreach(DataElement * element, selectedElements)
+    {
+        RSystemElementRoad *road = dynamic_cast<RSystemElementRoad *>(element);
+        if (road)
+        {
+            ChangeShapePrototypeCommand *command = new ChangeShapePrototypeCommand(road, shapePrototype, NULL);
+            getProjectSettings()->executeCommand(command);
+        }
+    }
 
-	// Macro Command //
-	//
-	if (numberOfSelectedElements > 1)
-	{
-		getProjectData()->getUndoStack()->endMacro();
-	}
+    // Macro Command //
+    //
+    if (numberOfSelectedElements > 1)
+    {
+        getProjectData()->getUndoStack()->endMacro();
+    }
 }
 
 //##################//

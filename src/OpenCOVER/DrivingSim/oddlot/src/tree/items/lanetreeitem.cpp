@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/29/2010
+ **
+ **************************************************************************/
 
 #include "lanetreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
@@ -51,24 +51,24 @@ LaneTreeItem::init()
     //
     widthsItem_ = new QTreeWidgetItem(this);
 
-	widthsItem_->setText(0, tr("widths"));
-	foreach(LaneWidth *element, lane_->getWidthEntries())
-	{
-		new LaneWidthTreeItem(this, element, widthsItem_);
-	}
+    widthsItem_->setText(0, tr("widths"));
+    foreach(LaneWidth * element, lane_->getWidthEntries())
+    {
+        new LaneWidthTreeItem(this, element, widthsItem_);
+    }
 
-	widthsItem_->setText(0, tr("borders"));
-	foreach(LaneBorder *element, lane_->getBorderEntries())
-	{
-		new LaneWidthTreeItem(this, element, widthsItem_);
-	}
+    widthsItem_->setText(0, tr("borders"));
+    foreach(LaneBorder * element, lane_->getBorderEntries())
+    {
+        new LaneWidthTreeItem(this, element, widthsItem_);
+    }
 
 
     // LaneRoadMarks //
     //
     roadMarksItem_ = new QTreeWidgetItem(this);
     roadMarksItem_->setText(0, tr("roadMarks"));
-    foreach (LaneRoadMark *element, lane_->getRoadMarkEntries())
+    foreach(LaneRoadMark * element, lane_->getRoadMarkEntries())
     {
         new LaneRoadMarkTreeItem(this, element, roadMarksItem_);
     }
@@ -77,7 +77,7 @@ LaneTreeItem::init()
     //
     speedsItem_ = new QTreeWidgetItem(this);
     speedsItem_->setText(0, tr("speeds"));
-    foreach (LaneSpeed *element, lane_->getSpeedEntries())
+    foreach(LaneSpeed * element, lane_->getSpeedEntries())
     {
         new LaneSpeedTreeItem(this, element, speedsItem_);
     }
@@ -131,7 +131,7 @@ LaneTreeItem::updateObserver()
     //
     if (changes & Lane::CLN_WidthsChanged)
     {
-        foreach (LaneWidth *element, lane_->getWidthEntries())
+        foreach(LaneWidth * element, lane_->getWidthEntries())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -145,7 +145,7 @@ LaneTreeItem::updateObserver()
     //
     if (changes & Lane::CLN_RoadMarksChanged)
     {
-        foreach (LaneRoadMark *element, lane_->getRoadMarkEntries())
+        foreach(LaneRoadMark * element, lane_->getRoadMarkEntries())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -159,7 +159,7 @@ LaneTreeItem::updateObserver()
     //
     if (changes & Lane::CLN_SpeedsChanged)
     {
-        foreach (LaneSpeed *element, lane_->getSpeedEntries())
+        foreach(LaneSpeed * element, lane_->getSpeedEntries())
         {
             if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))

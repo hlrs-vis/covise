@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/15/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/15/2010
+ **
+ **************************************************************************/
 
 #include "laneroadsystemitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -41,7 +41,7 @@ LaneRoadSystemItem::~LaneRoadSystemItem()
 void
 LaneRoadSystemItem::init()
 {
-    foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
+    foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
     {
         laneRoadItems_.insert(road, new LaneRoadItem(this, road));
     }
@@ -50,19 +50,19 @@ LaneRoadSystemItem::init()
 void
 LaneRoadSystemItem::addRoadItem(LaneRoadItem *item)
 {
-	laneRoadItems_.insert(item->getRoad(), item);
+    laneRoadItems_.insert(item->getRoad(), item);
 }
 
 int
 LaneRoadSystemItem::removeRoadItem(LaneRoadItem *item)
 {
-	return laneRoadItems_.remove(item->getRoad());
+    return laneRoadItems_.remove(item->getRoad());
 }
 
 LaneRoadItem *
 LaneRoadSystemItem::getRoadItem(RSystemElementRoad *road)
 {
-	return laneRoadItems_.value(road, NULL);
+    return laneRoadItems_.value(road, NULL);
 }
 
 //##################//
@@ -75,10 +75,10 @@ LaneRoadSystemItem::getRoadItem(RSystemElementRoad *road)
 void
 LaneRoadSystemItem::rebuildMoveRotateHandles()
 {
-	foreach(LaneRoadItem *laneRoadItem, laneRoadItems_)
-	{
-		laneRoadItem->rebuildMoveRotateHandles(true);
-	}
+    foreach(LaneRoadItem * laneRoadItem, laneRoadItems_)
+    {
+        laneRoadItem->rebuildMoveRotateHandles(true);
+    }
 }
 
 /*! \brief .
@@ -87,10 +87,10 @@ LaneRoadSystemItem::rebuildMoveRotateHandles()
 void
 LaneRoadSystemItem::deleteHandles()
 {
-	foreach(LaneRoadItem *laneRoadItem, laneRoadItems_)
-	{
-		laneRoadItem->deleteHandles();
-	}
+    foreach(LaneRoadItem * laneRoadItem, laneRoadItems_)
+    {
+        laneRoadItem->deleteHandles();
+    }
 }
 
 //##################//
@@ -116,14 +116,14 @@ LaneRoadSystemItem::updateObserver()
     {
         // A road has been added (or deleted - but that will be handled by the road item itself).
         //
-        foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
+        foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
         {
             if ((road->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (road->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
                 // SectionItem //
                 //
-				laneRoadItems_.insert(road, new LaneRoadItem(this, road));
+                laneRoadItems_.insert(road, new LaneRoadItem(this, road));
             }
         }
     }

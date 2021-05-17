@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "crossfallroaditem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 
@@ -53,7 +53,7 @@ CrossfallRoadItem::CrossfallRoadItem(RoadSystemItem *roadSystemItem, RSystemElem
 
 CrossfallRoadItem::~CrossfallRoadItem()
 {
-	crossfallSectionItems_.clear();
+    crossfallSectionItems_.clear();
 }
 
 void
@@ -69,17 +69,17 @@ CrossfallRoadItem::init()
 
     // SectionItems //
     //
-    foreach (CrossfallSection *section, getRoad()->getCrossfallSections())
+    foreach(CrossfallSection * section, getRoad()->getCrossfallSections())
     {
         crossfallSectionItems_.insert(section->getSStart(), new CrossfallSectionItem(crossfallEditor_, this, section));
     }
 
     // Selection //
     //
-	if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
-	{
-		crossfallEditor_->addSelectedRoad(getRoad());
-	}
+    if (getRoad()->isElementSelected() || getRoad()->isChildElementSelected())
+    {
+        crossfallEditor_->addSelectedRoad(getRoad());
+    }
 }
 
 void
@@ -115,8 +115,8 @@ CrossfallRoadItem::updateObserver()
     {
         // A section has been added.
         //
-		QMap<double, CrossfallSection *> roadSections = getRoad()->getCrossfallSections();
-        foreach (CrossfallSection *section, roadSections)
+        QMap<double, CrossfallSection *> roadSections = getRoad()->getCrossfallSections();
+        foreach(CrossfallSection * section, roadSections)
         {
             if ((section->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -125,13 +125,13 @@ CrossfallRoadItem::updateObserver()
             }
         }
 
-		foreach(double s, crossfallSectionItems_.keys())
-		{
-			if (!roadSections.contains(s))
-			{
-				crossfallSectionItems_.remove(s);
-			}
-		}
+        foreach(double s, crossfallSectionItems_.keys())
+        {
+            if (!roadSections.contains(s))
+            {
+                crossfallSectionItems_.remove(s);
+            }
+        }
     }
 
     // DataElement //
@@ -161,13 +161,13 @@ void
 CrossfallRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 
-	// SectionItems //
-	//
-	if (getRoad()->isChildElementSelected())
-	{
-		foreach(CrossfallSectionItem *sectionItem, crossfallSectionItems_)
-		{
-			sectionItem->setSelected(true);
-		}
-	}
+    // SectionItems //
+    //
+    if (getRoad()->isChildElementSelected())
+    {
+        foreach(CrossfallSectionItem * sectionItem, crossfallSectionItems_)
+        {
+            sectionItem->setSelected(true);
+        }
+    }
 }

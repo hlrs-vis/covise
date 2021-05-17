@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/15/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/15/2010
+ **
+ **************************************************************************/
 
 #include "junctionlanesectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -64,12 +64,12 @@ JunctionLaneSectionItem::init()
 
     // Selection/Hovering //
     //
-    //	setAcceptHoverEvents(true);
+    // setAcceptHoverEvents(true);
     setSelectable();
 
     // SectionItems //
     //
-    foreach (Lane *lane, laneSection_->getLanes())
+    foreach(Lane * lane, laneSection_->getLanes())
     {
         if (lane->getId() != 0)
         {
@@ -104,7 +104,7 @@ JunctionLaneSectionItem::updateObserver()
     {
         // A lane has been added.
         //
-        foreach (Lane *lane, laneSection_->getLanes())
+        foreach(Lane * lane, laneSection_->getLanes())
         {
             if ((lane->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (lane->getDataElementChanges() & DataElement::CDE_DataElementAdded))
@@ -117,22 +117,22 @@ JunctionLaneSectionItem::updateObserver()
         }
     }
 
-/*	changes = laneSection_->getDataElementChanges();
-	if (changes & DataElement::CDE_ChildSelectionChange)
-	{
-		ODD::ToolId tool = junctionEditor_->getCurrentTool();
-		if (tool == ODD::TJE_LINK_ROADS)
-		{
-			if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)
-			{
-				junctionEditor_->createToolParameters(laneSection_->getParentRoad());
-			}
-			else if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_REMOVE)
-			{
-				junctionEditor_->removeToolParameters(laneSection_->getParentRoad());
-			}
-		}
-	} */
+    /* changes = laneSection_->getDataElementChanges();
+        if (changes & DataElement::CDE_ChildSelectionChange)
+        {
+            ODD::ToolId tool = junctionEditor_->getCurrentTool();
+            if (tool == ODD::TJE_LINK_ROADS)
+            {
+                if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)
+                {
+                    junctionEditor_->createToolParameters(laneSection_->getParentRoad());
+                }
+                else if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_REMOVE)
+                {
+                    junctionEditor_->removeToolParameters(laneSection_->getParentRoad());
+                }
+            }
+        } */
 }
 
 //################//
@@ -169,7 +169,7 @@ void
 JunctionLaneSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = junctionEditor_->getCurrentTool();
-	if (tool == ODD::TJE_SPLIT)
+    if (tool == ODD::TJE_SPLIT)
     {
         RSystemElementRoad *road = laneSection_->getParentRoad();
         double s = road->getSFromGlobalPoint(event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
@@ -223,7 +223,7 @@ JunctionLaneSectionItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     else if (tool == ODD::TLE_ADD)
     {
         setCursor(Qt::CrossCursor);
-        //		junctionEditor_->getInsertSectionHandle()->show();
+        //  junctionEditor_->getInsertSectionHandle()->show();
     }
     else if (tool == ODD::TLE_DEL)
     {
@@ -250,7 +250,7 @@ JunctionLaneSectionItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     }
     else if (tool == ODD::TLE_ADD)
     {
-        //		junctionEditor_->getInsertSectionHandle()->hide();
+        //  junctionEditor_->getInsertSectionHandle()->hide();
     }
     else if (tool == ODD::TLE_DEL)
     {
@@ -278,7 +278,7 @@ JunctionLaneSectionItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     }
     else if (tool == ODD::TLE_ADD)
     {
-        //		junctionEditor_->getInsertSectionHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
+        //  junctionEditor_->getInsertSectionHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
     }
     else if (tool == ODD::TLE_DEL)
     {

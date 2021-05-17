@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/8/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/8/2010
+ **
+ **************************************************************************/
 
 #include "wizardmanager.hpp"
 
@@ -19,8 +19,8 @@
 #include "src/gui/projectwidget.hpp"
 #include "src/data/projectdata.hpp"
 
-// Wizards //
-//
+ // Wizards //
+ //
 #include "elevationwizard.hpp"
 #include "superelevationwizard.hpp"
 #include "flatjunctionswizard.hpp"
@@ -79,15 +79,15 @@ WizardManager::init()
     connect(mainWindow_, SIGNAL(hasActiveProject(bool)), flatJunctionsWizardAction, SLOT(setEnabled(bool)));
 
     mainWindow_->getWizardsMenu()->addAction(flatJunctionsWizardAction);
-	
-	// Circle wizard //
-	//
-	QAction *circleWizardAction = new QAction(tr("&Circle wizard"), this);
-	flatJunctionsWizardAction->setStatusTip(tr("creates Circular tracks."));
-	connect(circleWizardAction, SIGNAL(triggered()), this, SLOT(runCircleWizard()));
-	connect(mainWindow_, SIGNAL(hasActiveProject(bool)), circleWizardAction, SLOT(setEnabled(bool)));
 
-	mainWindow_->getWizardsMenu()->addAction(circleWizardAction);
+    // Circle wizard //
+    //
+    QAction *circleWizardAction = new QAction(tr("&Circle wizard"), this);
+    flatJunctionsWizardAction->setStatusTip(tr("creates Circular tracks."));
+    connect(circleWizardAction, SIGNAL(triggered()), this, SLOT(runCircleWizard()));
+    connect(mainWindow_, SIGNAL(hasActiveProject(bool)), circleWizardAction, SLOT(setEnabled(bool)));
+
+    mainWindow_->getWizardsMenu()->addAction(circleWizardAction);
 
     // Road link wizard //
     //
@@ -96,7 +96,7 @@ WizardManager::init()
     connect(roadLinkWizardAction, SIGNAL(triggered()), this, SLOT(runRoadLinkWizard()));
     connect(mainWindow_, SIGNAL(hasActiveProject(bool)), roadLinkWizardAction, SLOT(setEnabled(bool)));
 
-    //	mainWindow_->getWizardsMenu()->addAction(roadLinkWizardAction);
+    // mainWindow_->getWizardsMenu()->addAction(roadLinkWizardAction);
 }
 
 //################//
@@ -140,11 +140,11 @@ WizardManager::runFlatJunctionsWizard()
 void
 WizardManager::runCircleWizard()
 {
-	if (mainWindow_->getActiveProject())
-	{
-		CircleWizard *wizard = new CircleWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
-		wizard->exec();
-	}
+    if (mainWindow_->getActiveProject())
+    {
+        CircleWizard *wizard = new CircleWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
+        wizard->exec();
+    }
 }
 
 void

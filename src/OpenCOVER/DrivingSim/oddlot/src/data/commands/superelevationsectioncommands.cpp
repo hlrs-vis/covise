@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #include "superelevationsectioncommands.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
@@ -145,7 +145,7 @@ MergeSuperelevationSectionCommand::MergeSuperelevationSectionCommand(Superelevat
     {
         newSection_->setElementSelected(true); // keep selection
     }*/
-    
+
     double l = superelevationSectionHigh->getSEnd() - superelevationSectionLow->getSStart();
 
     double h0 = superelevationSectionLow->getSuperelevationDegrees(superelevationSectionLow->getSStart());
@@ -294,7 +294,7 @@ RemoveSuperelevationSectionCommand::RemoveSuperelevationSectionCommand(Superelev
             return;
         }
     }
-    //	qDebug() << "s: " << s << ", sLow: " << sLow;
+    // qDebug() << "s: " << s << ", sLow: " << sLow;
 
     // New section //
     //
@@ -438,7 +438,7 @@ SmoothSuperelevationSectionCommand::SmoothSuperelevationSectionCommand(Superelev
     double h = b * l + c * l * l;
     sLow_ = superelevationSectionHigh->getSStart() + (h - bHigh * l) / (bHigh - bLow);
     sHigh_ = l + sLow_;
-    //	qDebug() << "sLow_: " << sLow_ << ", sHigh_: " << sHigh_;
+    // qDebug() << "sLow_: " << sLow_ << ", sHigh_: " << sHigh_;
 
     if ((sLow_ < superelevationSectionLow->getSStart() + MIN_SUPERELEVATIONSECTION_LENGTH) // plus one meter
         || (sHigh_ > superelevationSectionHigh->getSEnd() - MIN_SUPERELEVATIONSECTION_LENGTH) // minus one meter
@@ -455,7 +455,7 @@ SmoothSuperelevationSectionCommand::SmoothSuperelevationSectionCommand(Superelev
     newSectionHigh_ = new SuperelevationSection(sHigh_, oldSectionHigh_->getSuperelevationDegrees(sHigh_), oldSectionHigh_->getB(), 0.0, 0.0);
     if (oldSectionHigh_->isElementSelected())
     {
-		newSection_->setElementSelected(true);
+        newSection_->setElementSelected(true);
         newSectionHigh_->setElementSelected(true);
     }
 
@@ -531,12 +531,12 @@ SuperelevationMovePointsCommand::SuperelevationMovePointsCommand(const QList<Sup
     if (fabs(deltaPos_.manhattanLength()) < NUMERICAL_ZERO8 || (endPointSections_.isEmpty() && startPointSections_.isEmpty()))
     {
         setInvalid(); // Invalid because no change.
-        //		setText(QObject::tr("Cannot move superelevation point. Nothing to be done."));
+        //  setText(QObject::tr("Cannot move superelevation point. Nothing to be done."));
         setText("");
         return;
     }
 
-    foreach (SuperelevationSection *section, endPointSections_)
+    foreach(SuperelevationSection * section, endPointSections_)
     {
         oldEndPointsBs_.append(section->getB());
 
@@ -547,7 +547,7 @@ SuperelevationMovePointsCommand::SuperelevationMovePointsCommand(const QList<Sup
     }
 
     bool tooShort = false;
-    foreach (SuperelevationSection *section, startPointSections_)
+    foreach(SuperelevationSection * section, startPointSections_)
     {
         oldStartPointsAs_.append(section->getA());
         oldStartPointsBs_.append(section->getB());
@@ -558,7 +558,7 @@ SuperelevationMovePointsCommand::SuperelevationMovePointsCommand(const QList<Sup
             superelevationOnly_ = true;
         }
         else if ((section->getLength() - deltaPos_.x() < MIN_SUPERELEVATIONSECTION_LENGTH) // min length at end
-                 || (section->getParentRoad()->getSuperelevationSectionBefore(section->getSStart())->getLength() + deltaPos_.x() < MIN_SUPERELEVATIONSECTION_LENGTH))
+            || (section->getParentRoad()->getSuperelevationSectionBefore(section->getSStart())->getLength() + deltaPos_.x() < MIN_SUPERELEVATIONSECTION_LENGTH))
         {
             tooShort = true;
         }
@@ -598,7 +598,7 @@ SuperelevationMovePointsCommand::redo()
     // Set points //
     //
     int i = 0;
-    foreach (SuperelevationSection *section, endPointSections_)
+    foreach(SuperelevationSection * section, endPointSections_)
     {
         double startSuperelevation = section->getSuperelevationDegrees(section->getSStart());
         double endSuperelevation = section->getSuperelevationDegrees(section->getSEnd()) + deltaPos_.y();
@@ -607,7 +607,7 @@ SuperelevationMovePointsCommand::redo()
         ++i;
     }
     i = 0;
-    foreach (SuperelevationSection *section, startPointSections_)
+    foreach(SuperelevationSection * section, startPointSections_)
     {
         double startSuperelevation = section->getSuperelevationDegrees(section->getSStart()) + deltaPos_.y();
         double endSuperelevation = section->getSuperelevationDegrees(section->getSEnd());
@@ -620,7 +620,7 @@ SuperelevationMovePointsCommand::redo()
     //
     if (!superelevationOnly_)
     {
-        foreach (SuperelevationSection *section, startPointSections_)
+        foreach(SuperelevationSection * section, startPointSections_)
         {
             section->getParentRoad()->moveSuperelevationSection(section->getSStart(), section->getSStart() + deltaPos_.x());
         }
@@ -638,13 +638,13 @@ SuperelevationMovePointsCommand::undo()
     // Set points //
     //
     int i = 0;
-    foreach (SuperelevationSection *section, endPointSections_)
+    foreach(SuperelevationSection * section, endPointSections_)
     {
         section->setParametersDegrees(section->getA(), oldEndPointsBs_[i], 0.0, 0.0);
         ++i;
     }
     i = 0;
-    foreach (SuperelevationSection *section, startPointSections_)
+    foreach(SuperelevationSection * section, startPointSections_)
     {
         section->setParametersDegrees(oldStartPointsAs_[i], oldStartPointsBs_[i], 0.0, 0.0);
         ++i;
@@ -655,7 +655,7 @@ SuperelevationMovePointsCommand::undo()
     if (!superelevationOnly_)
     {
         i = 0;
-        foreach (SuperelevationSection *section, startPointSections_)
+        foreach(SuperelevationSection * section, startPointSections_)
         {
             section->getParentRoad()->moveSuperelevationSection(section->getSStart(), oldStartPointsSs_[i]);
             ++i;
@@ -729,12 +729,12 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     // Check for validity //
     //
     if (!road
-            || (maps.isEmpty()
+        || (maps.isEmpty()
 #ifdef COVER_CONNECTION
-                && !COVERConnection::instance()->isConnected()
+            && !COVERConnection::instance()->isConnected()
 #endif
-                )
-            || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+            )
+        || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
@@ -766,15 +766,15 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     //
     double *sampleSuperelevations = new double[pointCount];
 #ifdef COVER_CONNECTION
-    if(COVERConnection::instance()->isConnected())
+    if (COVERConnection::instance()->isConnected())
     {
         covise::TokenBuffer tb;
         tb << MSG_GetHeight;
-        tb << (pointCount*2);
+        tb << (pointCount * 2);
         for (int i = 0; i < pointCount; ++i)
         {
             double s = sStart + i * segmentLength; // [sStart, sEnd]
-            
+
             float wr = road_->getMaxWidth(s);
             float wl = road_->getMinWidth(s);
             QPointF posr = road_->getGlobalPoint(s, wr);
@@ -785,19 +785,19 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
             tb << (float)posl.y();
         }
         COVERConnection::instance()->send(tb);
-        covise::Message *msg=NULL;
-        if(COVERConnection::instance()->waitForMessage(&msg))
+        covise::Message *msg = NULL;
+        if (COVERConnection::instance()->waitForMessage(&msg))
         {
             covise::TokenBuffer rtb(msg);
             int type;
-            rtb >>  type;
-            if(type == MSG_GetHeight)
+            rtb >> type;
+            if (type == MSG_GetHeight)
             {
                 int pc;
                 rtb >> pc;
-                if((pc/2) == pointCount)
+                if ((pc / 2) == pointCount)
                 {
-                    float hr,hl;
+                    float hr, hl;
                     for (int i = 0; i < pointCount; ++i)
                     {
                         double s = sStart + i * segmentLength; // [sStart, sEnd]
@@ -806,8 +806,8 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
                         float wl = road_->getMinWidth(s);
                         rtb >> hr;
                         rtb >> hl;
-                        
-                        sampleSuperelevations[i] = atan((hr - hl) / (wr-wl))*180.0/M_PI;
+
+                        sampleSuperelevations[i] = atan((hr - hl) / (wr - wl)) * 180.0 / M_PI;
                     }
                 }
                 else
@@ -822,9 +822,9 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
         }
         else
         {
-            pointCount =0;
+            pointCount = 0;
         }
-        
+
     }
     else
 #endif
@@ -853,9 +853,9 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
 
     // Cubic approximation //
     //
-	if (useCubic_ && pointCount > 0)
+    if (useCubic_ && pointCount > 0)
     {
-        
+
         // Calculate Slopes //
         //
         double *dsuperelevations = new double[pointCount];
@@ -863,20 +863,20 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
 
         // Create Sections //
         //
-        int lastPoint=0;
-        SuperelevationSection *oldSection=NULL;
-        
+        int lastPoint = 0;
+        SuperelevationSection *oldSection = NULL;
+
         for (int i = 1; i < pointCount; ++i)
         {
-            double currentLength = segmentLength*(i-lastPoint);
-            if(i < pointCount - 1)
+            double currentLength = segmentLength * (i - lastPoint);
+            if (i < pointCount - 1)
             {
-                dsuperelevations[i] = 0.5 * (superelevations[i] - superelevations[lastPoint]) / (segmentLength*(i-lastPoint)) + 0.5 * (superelevations[i + 1] - superelevations[i]) / segmentLength;
+                dsuperelevations[i] = 0.5 * (superelevations[i] - superelevations[lastPoint]) / (segmentLength * (i - lastPoint)) + 0.5 * (superelevations[i + 1] - superelevations[i]) / segmentLength;
                 // evtl. gewichten
             }
             else
             {
-                dsuperelevations[pointCount - 1] = (superelevations[pointCount - 1] - superelevations[lastPoint]) / (segmentLength*((pointCount - 1)-lastPoint));
+                dsuperelevations[pointCount - 1] = (superelevations[pointCount - 1] - superelevations[lastPoint]) / (segmentLength * ((pointCount - 1) - lastPoint));
             }
             double s = sStart + lastPoint * segmentLength; // [sStart, sEnd]
 
@@ -885,16 +885,16 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
             double a = (dsuperelevations[i] + c - 2.0 * superelevations[i] / currentLength + 2.0 * d / currentLength) / (currentLength * currentLength);
             double b = (superelevations[i] - a * currentLength * currentLength * currentLength - c * currentLength - d) / (currentLength * currentLength);
 
-            double maxDistance=0;
-            
+            double maxDistance = 0;
+
             SuperelevationSection *section = new SuperelevationSection(s, d, c, b, a);
-            for(int n=(lastPoint+1);n<i;n++)
+            for (int n = (lastPoint + 1); n < i; n++)
             {
-                double dist = fabs(superelevations[n] - section->getSuperelevationDegrees(n*segmentLength));
-                if(dist > maxDistance)
+                double dist = fabs(superelevations[n] - section->getSuperelevationDegrees(n * segmentLength));
+                if (dist > maxDistance)
                     maxDistance = dist;
             }
-            if(maxDistance < maxDeviation_)
+            if (maxDistance < maxDeviation_)
             {
                 delete oldSection;
                 oldSection = section;
@@ -902,20 +902,20 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
             else
             {
                 newSections_.insert(s, oldSection);
-                lastPoint = i-1;
-                
-                double d = superelevations[i-1];
-                double c = dsuperelevations[i-1];
+                lastPoint = i - 1;
+
+                double d = superelevations[i - 1];
+                double c = dsuperelevations[i - 1];
                 double a = (dsuperelevations[i] + c - 2.0 * superelevations[i] / segmentLength + 2.0 * d / segmentLength) / (segmentLength * segmentLength);
                 double b = (superelevations[i] - a * segmentLength * segmentLength * segmentLength - c * segmentLength - d) / (segmentLength * segmentLength);
-                double s = sStart + (i-1) * segmentLength; // [sStart, sEnd]
+                double s = sStart + (i - 1) * segmentLength; // [sStart, sEnd]
                 oldSection = new SuperelevationSection(s, d, c, b, a);
-                lastPoint = i-1;
+                lastPoint = i - 1;
             }
 
         }
         delete[] dsuperelevations;
-        if(oldSection)
+        if (oldSection)
         {
             double s = sStart + lastPoint * segmentLength;
             newSections_.insert(s, oldSection);
@@ -925,7 +925,7 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
 
     // Linear approximation //
     //
-	else if (pointCount > 0)
+    else if (pointCount > 0)
     {
         // Create Sections //
         //
@@ -976,56 +976,56 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
     }
 
 #if 0
-	double pointsPerMeter = 0.1; // BAD: hard coded!
-	int pointCount = int(ceil((sEnd-sStart)*pointsPerMeter)); // TODO curvature...
-	double segmentLength = (sEnd-sStart)/(pointCount-1);
+    double pointsPerMeter = 0.1; // BAD: hard coded!
+    int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
+    double segmentLength = (sEnd - sStart) / (pointCount - 1);
 
-	// Sections //
-	//
-	double superelevations[pointCount];
-	SuperelevationSection * lastSection = NULL;
-	for(int i = 0; i < pointCount; ++i)
-	{
-		double s = sStart + i * segmentLength; // [sStart, sEnd]
+    // Sections //
+    //
+    double superelevations[pointCount];
+    SuperelevationSection *lastSection = NULL;
+    for (int i = 0; i < pointCount; ++i)
+    {
+        double s = sStart + i * segmentLength; // [sStart, sEnd]
 
-		// Height //
-		//
-		QPointF pos = road->getGlobalPoint(s);
-		double height = 0.0;
-		int count = 0;
-		foreach(Heightmap * map, maps_)
-		{
-			if(map->isIntersectedBy(pos))
-			{
-				height = height + map->getHeightmapValue(pos.x(), pos.y());
-				++count;
-			}
-		}
-		if(count != 0)
-		{
-			height = height/count;
-		}
+        // Height //
+        //
+        QPointF pos = road->getGlobalPoint(s);
+        double height = 0.0;
+        int count = 0;
+        foreach(Heightmap * map, maps_)
+        {
+            if (map->isIntersectedBy(pos))
+            {
+                height = height + map->getHeightmapValue(pos.x(), pos.y());
+                ++count;
+            }
+        }
+        if (count != 0)
+        {
+            height = height / count;
+        }
 
-		superelevations[i] = height + heightOffset_;
-	}
+        superelevations[i] = height + heightOffset_;
+    }
 
 
-	for(int i = 0; i < pointCount-1; ++i)
-	{
-		double s = sStart + i * segmentLength; // [sStart, sEnd]
-		double slope = (superelevations[i+1]-superelevations[i])/segmentLength;
-		if(lastSection
-			&& (fabs(lastSection->getB() - slope) < NUMERICAL_ZERO6)
-			&& (fabs(lastSection->getSuperelevation(s) - superelevations[i]) < NUMERICAL_ZERO6)
-		)
-		{
-			continue;
-		}
+    for (int i = 0; i < pointCount - 1; ++i)
+    {
+        double s = sStart + i * segmentLength; // [sStart, sEnd]
+        double slope = (superelevations[i + 1] - superelevations[i]) / segmentLength;
+        if (lastSection
+            && (fabs(lastSection->getB() - slope) < NUMERICAL_ZERO6)
+            && (fabs(lastSection->getSuperelevation(s) - superelevations[i]) < NUMERICAL_ZERO6)
+            )
+        {
+            continue;
+        }
 
-		SuperelevationSection * section = new SuperelevationSection(s, superelevations[i], slope, 0.0, 0.0);
-		newSections_.insert(s, section);
-		lastSection = section;
-	}
+        SuperelevationSection *section = new SuperelevationSection(s, superelevations[i], slope, 0.0, 0.0);
+        newSections_.insert(s, section);
+        lastSection = section;
+    }
 #endif
 
     delete[] superelevations;
@@ -1051,22 +1051,22 @@ ApplyHeightMapSuperelevationCommand::~ApplyHeightMapSuperelevationCommand()
 
     if (isUndone())
     {
-        foreach (SuperelevationSection *section, newSections_)
+        foreach(SuperelevationSection * section, newSections_)
         {
             delete section;
         }
-        foreach (CrossfallSection *section, newCSections_)
+        foreach(CrossfallSection * section, newCSections_)
         {
             delete section;
         }
     }
     else
     {
-        foreach (SuperelevationSection *section, oldSections_)
+        foreach(SuperelevationSection * section, oldSections_)
         {
             delete section;
         }
-        foreach (CrossfallSection *section, oldCSections_)
+        foreach(CrossfallSection * section, oldCSections_)
         {
             delete section;
         }
@@ -1141,8 +1141,8 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
     float wl = road_->getMinWidth(s);
     QPointF posr = road_->getGlobalPoint(s, wr);
     QPointF posl = road_->getGlobalPoint(s, wl);
- /*   double heightm = 0.0;
-    int countm = 0;*/
+    /*   double heightm = 0.0;
+       int countm = 0;*/
     double heightr = 0.0;
     int countr = 0;
     double heightl = 0.0;
@@ -1150,13 +1150,13 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
 
     // Take the average over all maps //
     //
-    foreach (Heightmap *map, maps_)
+    foreach(Heightmap * map, maps_)
     {
-     /*   if (map->isIntersectedBy(posm))
-        {
-            heightm = heightm + map->getHeightmapValue(posm.x(), posm.y());
-            ++countm;
-        }*/
+        /*   if (map->isIntersectedBy(posm))
+           {
+               heightm = heightm + map->getHeightmapValue(posm.x(), posm.y());
+               ++countm;
+           }*/
         if (map->isIntersectedBy(posr))
         {
             heightr = heightr + map->getHeightmapValue(posr.x(), posr.y());
@@ -1168,10 +1168,10 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
             ++countl;
         }
     }
-  /*  if (countm != 0)
-    {
-        heightm = heightm / countm;
-    }*/
+    /*  if (countm != 0)
+      {
+          heightm = heightm / countm;
+      }*/
     if (countr != 0)
     {
         heightr = heightr / countr;
@@ -1181,5 +1181,5 @@ ApplyHeightMapSuperelevationCommand::getSuperelevation(double s)
         heightl = heightl / countl;
     }
 
-    return atan((heightr - heightl) / (wr-wl))*180.0/M_PI;
+    return atan((heightr - heightl) / (wr - wl)) * 180.0 / M_PI;
 }

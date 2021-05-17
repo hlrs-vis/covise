@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   17.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   17.03.2010
+ **
+ **************************************************************************/
 
 #include "roadmarkvisitor.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -64,7 +64,7 @@ void
 RoadMarkVisitor::visit(RSystemElementRoad *road)
 {
     currentRoad_ = road;
-    //	currentRoad_->attach(currentRoadItem_); // TODO: observe road
+    // currentRoad_->attach(currentRoadItem_); // TODO: observe road
 
     road->acceptForLaneSections(this);
 }
@@ -78,7 +78,7 @@ RoadMarkVisitor::visit(LaneSection *laneSection)
     currentSectionItem_ = new QGraphicsPathItem(rootItem_);
 
     currentLaneSection_ = laneSection;
-    //	currentLaneSection_->attach(currentSectionItem_); // TODO: inherit from observer
+    // currentLaneSection_->attach(currentSectionItem_); // TODO: inherit from observer
 
     // Visit Lanes //
     //
@@ -156,7 +156,7 @@ RoadMarkVisitor::visit(LaneRoadMark *mark)
     // user can choose what to display
 
     QPen pen(QColor(82, 111, 96)); // greyish
-    //	QPen pen(QColor(238, 243, 238)); // whitish
+    // QPen pen(QColor(238, 243, 238)); // whitish
     pen.setWidthF(width);
 
     if (type == LaneRoadMark::RMT_BROKEN)

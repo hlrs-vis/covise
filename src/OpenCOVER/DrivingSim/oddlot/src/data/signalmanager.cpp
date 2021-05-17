@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.05.2010
+ **
+ **************************************************************************/
 
 #include "signalmanager.hpp"
 
-// Data //
-//
+ // Data //
+ //
 
-// IO //
-//
+ // IO //
+ //
 #include "src/io/domparser.hpp"
 
 // Qt //
@@ -38,14 +38,14 @@
 
 SignalManager::SignalManager(QObject *parent)
     : QObject(parent),
-      selectedSignalContainer_(NULL),
-      selectedObjectContainer_(NULL)
+    selectedSignalContainer_(NULL),
+    selectedObjectContainer_(NULL)
 {
 }
 
 SignalManager::~SignalManager()
 {
-    foreach (SignalContainer *signalType, signals_)
+    foreach(SignalContainer * signalType, signals_)
     {
         delete signalType;
     }
@@ -114,11 +114,11 @@ SignalManager::getCountry(ObjectContainer *objectContainer)
 SignalContainer *
 SignalManager::getSignalContainer(const QString &country, const QString &type, const QString &typeSubclass, const QString &subType)
 {
-	QList<SignalContainer *>countryList = signals_.values(country);
+    QList<SignalContainer *>countryList = signals_.values(country);
 
-	for (auto i = 0; i < countryList.size(); i++)
+    for (auto i = 0; i < countryList.size(); i++)
     {
-		SignalContainer *signal = countryList.at(i);
+        SignalContainer *signal = countryList.at(i);
         if ((signal->getSignalType() == type) && (signal->getSignalSubType() == subType) && (signal->getSignalTypeSubclass() == typeSubclass))
         {
             return signal;
@@ -131,16 +131,16 @@ SignalManager::getSignalContainer(const QString &country, const QString &type, c
 SignalContainer *
 SignalManager::getSignalContainer(const QString &country, const QString &name)
 {
-	QList<SignalContainer *>countryList = signals_.values(country);
+    QList<SignalContainer *>countryList = signals_.values(country);
 
-	for (auto i = 0; i < countryList.size(); i++)
-	{
-		SignalContainer *signal = countryList.at(i);
-		if (signal->getSignalName() == name)
-		{
-			return signal;
-		}
-	}
+    for (auto i = 0; i < countryList.size(); i++)
+    {
+        SignalContainer *signal = countryList.at(i);
+        if (signal->getSignalName() == name)
+        {
+            return signal;
+        }
+    }
 
     return NULL;
 }
@@ -158,9 +158,9 @@ SignalManager::loadSignals(const QString &fileName)
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
-        //		QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
-        //		.arg(fileName)
-        //		.arg(file.errorString()));
+        //  QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+        //  .arg(fileName)
+        //  .arg(file.errorString()));
         qDebug("Loading file failed: %s", fileName.toUtf8().constData());
         return false;
     }

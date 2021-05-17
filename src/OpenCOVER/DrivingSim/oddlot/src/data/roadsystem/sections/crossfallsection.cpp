@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "crossfallsection.hpp"
 
@@ -19,9 +19,9 @@
 
 #include "math.h"
 
-//###################//
-// Static Functions  //
-//###################//
+ //###################//
+ // Static Functions  //
+ //###################//
 
 CrossfallSection::DCrossfallSide
 CrossfallSection::parseCrossfallSide(const QString &side)
@@ -77,26 +77,26 @@ CrossfallSection::getCrossfallDegrees(double s /*, double t*/)
 {
     return f(s - getSStart());
 
-    //	if(t>0)
-    //	{
-    //		// Right side //
-    //		//
-    //		if(side_ != CrossfallSection::DCF_SIDE_LEFT)
-    //		{
-    //			return f(s - getSStart());
-    //		}
-    //	}
-    //	else
-    //	{
-    //		// Left side //
-    //		//
-    //		if(side_ != CrossfallSection::DCF_SIDE_RIGHT)
-    //		{
-    //			return f(s - getSStart());
-    //		}
-    //	}
+    // if(t>0)
+    // {
+    //  // Right side //
+    //  //
+    //  if(side_ != CrossfallSection::DCF_SIDE_LEFT)
+    //  {
+    //   return f(s - getSStart());
+    //  }
+    // }
+    // else
+    // {
+    //  // Left side //
+    //  //
+    //  if(side_ != CrossfallSection::DCF_SIDE_RIGHT)
+    //  {
+    //   return f(s - getSStart());
+    //  }
+    // }
     //
-    //	return 0.0;
+    // return 0.0;
 }
 
 double

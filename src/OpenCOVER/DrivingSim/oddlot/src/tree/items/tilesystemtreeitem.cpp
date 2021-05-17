@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #include "tilesystemtreeitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/tilesystem/tile.hpp"
 #include "src/data/projectdata.hpp"
 
@@ -46,12 +46,12 @@ TileSystemTreeItem::init()
     //
     setText(0, tr("Tiles"));
 
-    //	tilesItem_ = new QTreeWidgetItem(this);
+    // tilesItem_ = new QTreeWidgetItem(this);
 
     // Tiles //
     //
 
-    foreach (Tile *tile, getTileSystem()->getTiles())
+    foreach(Tile * tile, getTileSystem()->getTiles())
     {
         new TileTreeItem(this, tile, tilesItem_);
     }
@@ -81,7 +81,7 @@ TileSystemTreeItem::updateObserver()
     {
         // A tile has been added (or deleted - but that will be handled by the tile item itself).
         //
-        foreach (Tile *tile, getTileSystem()->getTiles())
+        foreach(Tile * tile, getTileSystem()->getTiles())
         {
             if ((tile->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (tile->getDataElementChanges() & DataElement::CDE_DataElementAdded))

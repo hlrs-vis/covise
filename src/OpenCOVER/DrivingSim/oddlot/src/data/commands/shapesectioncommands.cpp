@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #include "shapesectioncommands.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/shapesection.hpp"
 
@@ -40,7 +40,7 @@ SplitShapeSectionCommand::SplitShapeSectionCommand(ShapeSection *shapeSection, d
     //
  //   if ((oldSection_->getDegree() > 1) // only lines allowed
  //       || (fabs(splitPos_ - oldSection_->getSStart()) < MIN_SHAPESECTION_LENGTH)
-	if ((fabs(splitPos_ - oldSection_->getSStart()) < MIN_SHAPESECTION_LENGTH)
+    if ((fabs(splitPos_ - oldSection_->getSStart()) < MIN_SHAPESECTION_LENGTH)
         || (fabs(oldSection_->getSEnd() - splitPos_) < MIN_SHAPESECTION_LENGTH) // minimum length 1.0 m
         )
     {
@@ -57,7 +57,7 @@ SplitShapeSectionCommand::SplitShapeSectionCommand(ShapeSection *shapeSection, d
     // New section //
     //
 
-	newSection_ = new ShapeSection(splitPos, oldSection_->getParentRoad()->getMinWidth(splitPos));
+    newSection_ = new ShapeSection(splitPos, oldSection_->getParentRoad()->getMinWidth(splitPos));
 }
 
 /*! \brief .
@@ -122,7 +122,7 @@ RemoveShapeSectionCommand::RemoveShapeSectionCommand(ShapeSection *shapeSection,
     // Done //
     //
     setValid();
-    setText(QObject::tr("Remove ShapeSection")); 
+    setText(QObject::tr("Remove ShapeSection"));
 }
 
 /*! \brief .
@@ -170,28 +170,28 @@ RemoveShapeSectionCommand::undo()
 //##################################//
 
 PasteLateralShapeSectionsCommand::PasteLateralShapeSectionsCommand(ShapeSection *shapeSection, QMap<double, PolynomialLateralSection *> oldSections, QMap<double, PolynomialLateralSection *> newSections, DataCommand *parent)
-	: DataCommand(parent)
-	, shapeSection_(shapeSection)
-	, oldSections_(oldSections)
+    : DataCommand(parent)
+    , shapeSection_(shapeSection)
+    , oldSections_(oldSections)
 {
-	// Check for validity //
-	//
-	if (!shapeSection)
-	{
-		setInvalid(); // Invalid
-		setText(QObject::tr("Paste LateralShapeSections (invalid!)"));
-		return;
-	}
-	else
-	{
-		setValid();
-		setText(QObject::tr("Paste LateralShapeSections"));
-	}
+    // Check for validity //
+    //
+    if (!shapeSection)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("Paste LateralShapeSections (invalid!)"));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Paste LateralShapeSections"));
+    }
 
-	foreach(PolynomialLateralSection *poly, newSections)
-	{
-		newSections_.insert(poly->getTStart(), poly->getClone());
-	}
+    foreach(PolynomialLateralSection * poly, newSections)
+    {
+        newSections_.insert(poly->getTStart(), poly->getClone());
+    }
 
 }
 
@@ -200,14 +200,14 @@ PasteLateralShapeSectionsCommand::PasteLateralShapeSectionsCommand(ShapeSection 
 */
 PasteLateralShapeSectionsCommand::~PasteLateralShapeSectionsCommand()
 {
-	if (isUndone())
-	{
-		newSections_.clear();
-	}
-	else
-	{
-		oldSections_.clear();
-	}
+    if (isUndone())
+    {
+        newSections_.clear();
+    }
+    else
+    {
+        oldSections_.clear();
+    }
 }
 
 /*! \brief .
@@ -216,23 +216,23 @@ PasteLateralShapeSectionsCommand::~PasteLateralShapeSectionsCommand()
 void
 PasteLateralShapeSectionsCommand::redo()
 {
-	// set new polynomials //
-	//
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = oldSections_.constBegin();
-	while (it != oldSections_.constEnd())
-	{
-		shapeSection_->delShape(it.key());
-		it++;
-	}
+    // set new polynomials //
+    //
+    QMap<double, PolynomialLateralSection *>::ConstIterator it = oldSections_.constBegin();
+    while (it != oldSections_.constEnd())
+    {
+        shapeSection_->delShape(it.key());
+        it++;
+    }
 
-	it = newSections_.constBegin();
-	while (it != newSections_.constEnd())
-	{
-		shapeSection_->addShape(it.key(), it.value());
-		it++;
-	}
+    it = newSections_.constBegin();
+    while (it != newSections_.constEnd())
+    {
+        shapeSection_->addShape(it.key(), it.value());
+        it++;
+    }
 
-	setRedone();
+    setRedone();
 }
 
 /*! \brief .
@@ -241,22 +241,22 @@ PasteLateralShapeSectionsCommand::redo()
 void
 PasteLateralShapeSectionsCommand::undo()
 {
-	// set old polynomials //
-	//
-	QMap<double, PolynomialLateralSection *>::ConstIterator it = newSections_.constBegin();
-	while (it != newSections_.constEnd())
-	{
-		shapeSection_->delShape(it.key());
-		it++;
-	}
+    // set old polynomials //
+    //
+    QMap<double, PolynomialLateralSection *>::ConstIterator it = newSections_.constBegin();
+    while (it != newSections_.constEnd())
+    {
+        shapeSection_->delShape(it.key());
+        it++;
+    }
 
-	it = oldSections_.constBegin();
-	while (it != oldSections_.constEnd())
-	{
-		shapeSection_->addShape(it.key(), it.value());
-		it++;
-	}
+    it = oldSections_.constBegin();
+    while (it != oldSections_.constEnd())
+    {
+        shapeSection_->addShape(it.key(), it.value());
+        it++;
+    }
 
-	setUndone();
+    setUndone();
 }
 

@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/22/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/22/2010
+ **
+ **************************************************************************/
 
 #include "roadmarkitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -132,7 +132,7 @@ RoadMarkItem::createPath()
     if (sEnd < sStart)
         sEnd = sStart;
 
-    //	double pointsPerMeter = 1.0; // BAD: hard coded!
+    // double pointsPerMeter = 1.0; // BAD: hard coded!
     double pointsPerMeter = getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
     int pointCount = int(ceil((sEnd - sStart) * pointsPerMeter)); // TODO curvature...
     if (pointCount < 2)
@@ -154,41 +154,41 @@ RoadMarkItem::createPath()
     }
     else if (id < 0)
     {
-		if (parentLane_->isWidthActive())
-		{
-			for (int i = 0; i < pointCount; ++i)
-			{
-				double s = sStart + i * segmentLength; // [sStart, sEnd]
-				points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneSpanWidth(0, id, s) + parentRoad_->getLaneOffset(s));
-			}
-		}
-		else
-		{
-			for (int i = 0; i < pointCount; ++i)
-			{
-				double s = sStart + i * segmentLength; // [sStart, sEnd]
-				points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneWidth(id, s));
-			}
-		}
+        if (parentLane_->isWidthActive())
+        {
+            for (int i = 0; i < pointCount; ++i)
+            {
+                double s = sStart + i * segmentLength; // [sStart, sEnd]
+                points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneSpanWidth(0, id, s) + parentRoad_->getLaneOffset(s));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < pointCount; ++i)
+            {
+                double s = sStart + i * segmentLength; // [sStart, sEnd]
+                points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneWidth(id, s));
+            }
+        }
     }
     else
     {
-		if (parentLane_->isWidthActive())
-		{
-			for (int i = 0; i < pointCount; ++i)
-			{
-				double s = sStart + i * segmentLength; // [sStart, sEnd]
-				points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneSpanWidth(0, id, s) + parentRoad_->getLaneOffset(s));
-			}
-		}
-		else
-		{
-			for (int i = 0; i < pointCount; ++i)
-			{
-				double s = sStart + i * segmentLength; // [sStart, sEnd]
-				points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneWidth(id, s));
-			}
-		}
+        if (parentLane_->isWidthActive())
+        {
+            for (int i = 0; i < pointCount; ++i)
+            {
+                double s = sStart + i * segmentLength; // [sStart, sEnd]
+                points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneSpanWidth(0, id, s) + parentRoad_->getLaneOffset(s));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < pointCount; ++i)
+            {
+                double s = sStart + i * segmentLength; // [sStart, sEnd]
+                points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneWidth(id, s));
+            }
+        }
     }
 
     // Path //

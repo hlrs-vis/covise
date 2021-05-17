@@ -5,52 +5,52 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.03.2010
+ **
+ **************************************************************************/
 
 #include "tunnelobject.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
-Tunnel::TunnelType 
+Tunnel::TunnelType
 Tunnel::parseTunnelType(const QString &type)
 {
-	if (type == "standard")
-	{
-		return Tunnel::TT_STANDARD;
-	}
-	else if (type == "underpass")
-	{
-		return Tunnel::TT_UNDERPASS;
-	}
-	else
-	{
-		qDebug("WARNING: unknown tunnel type: %s", type.toUtf8().constData());
-		return Tunnel::TT_STANDARD;
-	}
+    if (type == "standard")
+    {
+        return Tunnel::TT_STANDARD;
+    }
+    else if (type == "underpass")
+    {
+        return Tunnel::TT_UNDERPASS;
+    }
+    else
+    {
+        qDebug("WARNING: unknown tunnel type: %s", type.toUtf8().constData());
+        return Tunnel::TT_STANDARD;
+    }
 }
 
-QString 
+QString
 Tunnel::parseTunnelTypeBack(int type)
 {
-	if (type == Tunnel::TT_STANDARD)
-	{
-		return  QString("standard");
-	}
-	else if (type == Tunnel::TT_UNDERPASS)
-	{
-		return  QString("underpass");
-	}
-	else
-	{
-		qDebug("WARNING: unknown tunnel type");
-		return  QString("none");
-	}
+    if (type == Tunnel::TT_STANDARD)
+    {
+        return  QString("standard");
+    }
+    else if (type == Tunnel::TT_UNDERPASS)
+    {
+        return  QString("underpass");
+    }
+    else
+    {
+        qDebug("WARNING: unknown tunnel type");
+        return  QString("none");
+    }
 }
 
 
@@ -60,8 +60,8 @@ Tunnel::parseTunnelTypeBack(int type)
 
 Tunnel::Tunnel(const odrID &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight)
     : Bridge(id, file, name, type, s, length)
-	, lighting_(lighting)
-	, daylight_(daylight)
+    , lighting_(lighting)
+    , daylight_(daylight)
 {
 
 }
@@ -106,7 +106,7 @@ Tunnel::getClone()
 {
     // Tunnel //
     //
-	Tunnel *clone = new Tunnel(getId(), getFileName(), getName(), getType(), getSStart(), getLength(), lighting_, daylight_);
+    Tunnel *clone = new Tunnel(getId(), getFileName(), getName(), getType(), getSStart(), getLength(), lighting_, daylight_);
 
     return clone;
 }

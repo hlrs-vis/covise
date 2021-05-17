@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.05.2010
+ **
+ **************************************************************************/
 
 #include "movehandle.hpp"
 
-//################//
-// CONSTRUCTOR    //
-//################//
+ //################//
+ // CONSTRUCTOR    //
+ //################//
 
 MoveHandle::MoveHandle(QGraphicsItem *parent)
     : Handle(parent)
@@ -39,7 +39,7 @@ MoveHandle::MoveHandle(QGraphicsItem *parent)
 
 MoveHandle::~MoveHandle()
 {
-    //	xy->detachObserver(this);
+    // xy->detachObserver(this);
 }
 
 //################//
@@ -93,10 +93,10 @@ MoveHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 ///*! \brief Handles the item's position changes.
 //*/
 //QVariant
-//	MoveHandle
-//	::itemChange(GraphicsItemChange change, const QVariant & value)
+// MoveHandle
+// ::itemChange(GraphicsItemChange change, const QVariant & value)
 //{
-//	return Handle::itemChange(change, value);
+// return Handle::itemChange(change, value);
 //}
 
 //################//

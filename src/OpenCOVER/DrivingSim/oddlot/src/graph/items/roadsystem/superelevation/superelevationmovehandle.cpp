@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #include "superelevationmovehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/commands/superelevationsectioncommands.hpp"
@@ -65,12 +65,12 @@ SuperelevationMoveHandle::SuperelevationMoveHandle(SuperelevationEditor *superel
     connect(removeAction_, SIGNAL(triggered()), this, SLOT(removeCorner()));
     connect(smoothAction_, SIGNAL(triggered()), this, SLOT(smoothCorner()));
 
-	// Text //
-	//
+    // Text //
+    //
 
-	heightTextItem_ = new TextHandle("", this, true);
-	heightTextItem_->setZValue(1.0); // stack before siblings
-	heightTextItem_->setVisible(false);
+    heightTextItem_ = new TextHandle("", this, true);
+    heightTextItem_->setZValue(1.0); // stack before siblings
+    heightTextItem_->setVisible(false);
 }
 
 SuperelevationMoveHandle::~SuperelevationMoveHandle()
@@ -114,7 +114,7 @@ SuperelevationMoveHandle::registerLowSlot(SuperelevationSection *superelevationS
 
     // Degrees Of Freedom Fries //
     //
-    //	updateDOF();
+    // updateDOF();
 }
 
 void
@@ -137,7 +137,7 @@ SuperelevationMoveHandle::registerHighSlot(SuperelevationSection *superelevation
 
     // Degrees Of Freedom //
     //
-    //	updateDOF();
+    // updateDOF();
 }
 
 void
@@ -186,20 +186,20 @@ SuperelevationMoveHandle::updateColor()
 const QString
 SuperelevationMoveHandle::getText()
 {
-	// Text //
-		//
-	QString text;
+    // Text //
+        //
+    QString text;
 
-	if (highSlot_)
-	{
-		text = QString("%1,%2").arg(highSlot_->getSStart()).arg(highSlot_->f(0.0), 0, 'f', 2);
-	}
-	else if (lowSlot_)
-	{
-		text = QString("%1,%2").arg(lowSlot_->getSEnd()).arg(lowSlot_->f(lowSlot_->getSEnd() - lowSlot_->getSStart()), 0, 'f', 2);
-	}
+    if (highSlot_)
+    {
+        text = QString("%1,%2").arg(highSlot_->getSStart()).arg(highSlot_->f(0.0), 0, 'f', 2);
+    }
+    else if (lowSlot_)
+    {
+        text = QString("%1,%2").arg(lowSlot_->getSEnd()).arg(lowSlot_->f(lowSlot_->getSEnd() - lowSlot_->getSStart()), 0, 'f', 2);
+    }
 
-	return text;
+    return text;
 }
 
 //################//
@@ -315,10 +315,10 @@ SuperelevationMoveHandle::removeCorner()
     MergeSuperelevationSectionCommand *command = new MergeSuperelevationSectionCommand(lowSlot_, highSlot_, NULL);
     if (command->isValid())
     {
-        
-    superelevationEditor_->getProfileGraph()->postponeGarbageDisposal();
+
+        superelevationEditor_->getProfileGraph()->postponeGarbageDisposal();
         lowSlot_->getUndoStack()->push(command);
-    superelevationEditor_->getProfileGraph()->finishGarbageDisposal();
+        superelevationEditor_->getProfileGraph()->finishGarbageDisposal();
     }
     else
     {
@@ -392,7 +392,7 @@ SuperelevationMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         superelevationEditor_->translateMoveHandles(scenePos(), event->scenePos());
     }
-	heightTextItem_->setText(getText());
+    heightTextItem_->setText(getText());
 
     MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
@@ -401,17 +401,17 @@ void
 SuperelevationMoveHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 
-	setFocus();
+    setFocus();
 
-	heightTextItem_->setText(getText());
-	heightTextItem_->setVisible(true);
+    heightTextItem_->setText(getText());
+    heightTextItem_->setVisible(true);
 
-	heightTextItem_->setPos(mapFromScene(event->scenePos()));
+    heightTextItem_->setPos(mapFromScene(event->scenePos()));
 
 
-	// Parent //
-	//
-//	MoveHandle::hoverEnterEvent(event); // pass to baseclass
+    // Parent //
+    //
+// MoveHandle::hoverEnterEvent(event); // pass to baseclass
 }
 
 void
@@ -419,13 +419,13 @@ SuperelevationMoveHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 
 
-	// Text //
-	//
-	heightTextItem_->setVisible(false);
+    // Text //
+    //
+    heightTextItem_->setVisible(false);
 
-	// Parent //
-	//
-	MoveHandle::hoverLeaveEvent(event); // pass to baseclass
+    // Parent //
+    //
+    MoveHandle::hoverLeaveEvent(event); // pass to baseclass
 }
 
 void

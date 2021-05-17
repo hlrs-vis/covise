@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #include "rsystemelement.hpp"
 
@@ -19,9 +19,9 @@
 
 #include <QStringList>
 
-/*! \brief The constructor does nothing special.
-*
-*/
+ /*! \brief The constructor does nothing special.
+ *
+ */
 RSystemElement::RSystemElement(const QString &name, const odrID &id, DRoadSystemElementType elementType)
     : DataElement()
     , elementType_(elementType)
@@ -69,7 +69,7 @@ void
 RSystemElement::setName(const QString &name)
 {
     name_ = name;
-	id_.setName(name);
+    id_.setName(name);
     addRSystemElementChanges(RSystemElement::CRE_NameChange);
 }
 

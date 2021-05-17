@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #include "zoomtool.hpp"
 
 #include "toolmanager.hpp"
 #include "src/mainwindow.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QWidget>
 #include <QToolBar>
 #include <QAction>
@@ -61,10 +61,10 @@ ZoomTool::ZoomTool(ToolManager *toolManager)
     zoomOutAction_->setStatusTip(tr("Zoom out."));
     connect(zoomOutAction_, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
-    //	zoomBoxAction = new QAction(tr("Zoom &Box"), this);
-    //	//zoomBoxAction->setShortcuts();
-    //	zoomBoxAction->setStatusTip(tr("Draw a box to zoom in."));
-    //	connect(zoomBoxAction, SIGNAL(triggered()), this, SLOT(zoomBox()));
+    // zoomBoxAction = new QAction(tr("Zoom &Box"), this);
+    // //zoomBoxAction->setShortcuts();
+    // zoomBoxAction->setStatusTip(tr("Draw a box to zoom in."));
+    // connect(zoomBoxAction, SIGNAL(triggered()), this, SLOT(zoomBox()));
 
     viewSelectedAction_ = new QAction(tr("View &Selected"), this);
     viewSelectedAction_->setStatusTip(tr("View selected"));
@@ -122,9 +122,9 @@ ZoomTool::ZoomTool(ToolManager *toolManager)
 
     // ToolManager //
     //
-    //	toolManager->addToolBar(zoomToolBar);
+    // toolManager->addToolBar(zoomToolBar);
     ODD::instance()->mainWindow()->addToolBar(zoomToolBar);
-    //	ODD::instance()->mainWindow()->addToolBarBreak();
+    // ODD::instance()->mainWindow()->addToolBarBreak();
 
     // View Menu //
     //
@@ -141,7 +141,7 @@ ZoomTool::ZoomTool(ToolManager *toolManager)
     viewMenu->addSeparator();
     viewMenu->addAction(hideSelectedAction_);
     viewMenu->addAction(hideSelectedRoadsAction_);
-    //	viewMenu->addAction(hideDeselectedAction_);
+    // viewMenu->addAction(hideDeselectedAction_);
     viewMenu->addAction(unhideAllAction_);
 
     viewMenu->addSeparator();

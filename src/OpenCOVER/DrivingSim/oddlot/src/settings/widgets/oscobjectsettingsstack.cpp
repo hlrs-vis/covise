@@ -5,20 +5,20 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #include "oscobjectsettingsstack.hpp"
 
 #include "src/mainwindow.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/oscsystem/oscelement.hpp"
 
 // Settings //
@@ -38,10 +38,10 @@
 OSCObjectSettingsStack::OSCObjectSettingsStack(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, OSCElement *element)
     : SettingsElement(projectSettings, parentSettingsElement, element)
     , init_(false)
-	, projectSettings_(projectSettings)
-	, element_(element)
+    , projectSettings_(projectSettings)
+    , element_(element)
 {
-	uiInit();
+    uiInit();
 
     init_ = true;
 
@@ -49,12 +49,12 @@ OSCObjectSettingsStack::OSCObjectSettingsStack(ProjectSettings *projectSettings,
 
 OSCObjectSettingsStack::~OSCObjectSettingsStack()
 {
-	for (int i = 0; i < stack_->count(); i++)
-	{
-		QWidget *widget = stack_->widget(i);
-		stack_->removeWidget(widget);
-		delete widget;
-	}
+    for (int i = 0; i < stack_->count(); i++)
+    {
+        QWidget *widget = stack_->widget(i);
+        stack_->removeWidget(widget);
+        delete widget;
+    }
 
 }
 
@@ -67,67 +67,67 @@ OSCObjectSettingsStack::~OSCObjectSettingsStack()
 void
 OSCObjectSettingsStack::uiInit()
 {
-	// Widget/Layout //
-	//
-	objectBoxLayout_ = new QVBoxLayout();
+    // Widget/Layout //
+    //
+    objectBoxLayout_ = new QVBoxLayout();
 
-	stack_ = new QStackedWidget();
+    stack_ = new QStackedWidget();
 
-	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_, NULL, NULL); 
+    OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, this, element_, NULL, NULL);
 
 
 }
 
-int 
+int
 OSCObjectSettingsStack::getStackSize()
 {
-	return stack_->count();
+    return stack_->count();
 }
 
-void 
+void
 OSCObjectSettingsStack::addWidget(QWidget *widget)
 {
-	if (widget)
-	{
-		stack_->addWidget(widget);
-		stack_->setCurrentWidget(widget);
-	}
+    if (widget)
+    {
+        stack_->addWidget(widget);
+        stack_->setCurrentWidget(widget);
+    }
 
-	objectBoxLayout_->addWidget(stack_);
-	setLayout(objectBoxLayout_);
-	widget->setFocus();
+    objectBoxLayout_->addWidget(stack_);
+    setLayout(objectBoxLayout_);
+    widget->setFocus();
 }
 
 QWidget *
 OSCObjectSettingsStack::getLastWidget()
 {
-/*	int stackSize = stack_->count();
-	return stack_->widget(stackSize - 1); */
+    /* int stackSize = stack_->count();
+        return stack_->widget(stackSize - 1); */
 
-	return stack_->currentWidget();
+    return stack_->currentWidget();
 }
 
 void
 OSCObjectSettingsStack::removeWidget(QWidget *widget)
 {
-	stack_->removeWidget(widget);
+    stack_->removeWidget(widget);
 }
 
 
 //################//
 // SLOTS          //
 //################//
-void 
+void
 OSCObjectSettingsStack::stackRemoveWidget()
 {
-	int i = stack_->currentIndex();
-	QWidget *widget = stack_->widget(i - 1);
-	if (widget)
-	{
-		stack_->setCurrentWidget(widget);
-		static_cast<OSCObjectSettings *>(widget)->updateProperties();
-	}
-	stack_->removeWidget(stack_->widget(i));
+    int i = stack_->currentIndex();
+    QWidget *widget = stack_->widget(i - 1);
+    if (widget)
+    {
+        stack_->setCurrentWidget(widget);
+        static_cast<OSCObjectSettings *>(widget)->updateProperties();
+    }
+    stack_->removeWidget(stack_->widget(i));
 }
 
 

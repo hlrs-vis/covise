@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/26/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/26/2010
+ **
+ **************************************************************************/
 
 #include "tracksparcshandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 #include "src/data/commands/trackcommands.hpp"
 
@@ -118,9 +118,9 @@ TrackSparcsHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 void
 TrackSparcsHandle::moveHandlePositionChange(const QPointF &pos)
 {
-    //	qDebug() << pos.x() << " " << pos.y();
-    //	qDebug() << "factor: " << pos.x()/(max_-min_);
-    //	getMoveHandle()->setPos(pos.x(), 0.0);
+    // qDebug() << pos.x() << " " << pos.y();
+    // qDebug() << "factor: " << pos.x()/(max_-min_);
+    // getMoveHandle()->setPos(pos.x(), 0.0);
     SetSpArcSFactorCommand *command = new SetSpArcSFactorCommand(parentSpArcSItem_->getSpArcS(), parentSpArcSItem_->getSpArcS()->getFactor() + pos.x() / (max_ - min_));
     parentSpArcSItem_->getProjectGraph()->executeCommand(command);
 }
