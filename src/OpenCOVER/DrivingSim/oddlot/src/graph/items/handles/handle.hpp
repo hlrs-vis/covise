@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.05.2010
+ **
+ **************************************************************************/
 
 #ifndef HANDLE_HPP
 #define HANDLE_HPP
@@ -29,8 +29,8 @@
 #include <QPen>
 #include <QCursor>
 
-// Utils //
-//
+ // Utils //
+ //
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
 #include "math.h"
@@ -39,9 +39,9 @@ class Handle : public QObject, public QGraphicsPathItem, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit Handle(QGraphicsItem *parent, bool flip = true);

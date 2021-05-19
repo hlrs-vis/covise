@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/17/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/17/2010
+ **
+ **************************************************************************/
 
 #ifndef VEHICLEGROUPTREEITEM_HPP
 #define VEHICLEGROUPTREEITEM_HPP
@@ -25,9 +25,9 @@ class VehicleGroupTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit VehicleGroupTreeItem(VehicleSystemTreeItem *parent, VehicleGroup *group, QTreeWidgetItem *fosterParent);

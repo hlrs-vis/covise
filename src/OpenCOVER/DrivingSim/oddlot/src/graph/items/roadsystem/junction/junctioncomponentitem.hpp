@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.04.2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONCOMPONENTITEM_HPP
 #define JUNCTIONCOMPONENTITEM_HPP
@@ -28,9 +28,9 @@ class JunctionComponentItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit JunctionComponentItem(JunctionRoadItem *parentJunctionRoadItem, TrackComponent *trackComponent);

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.03.2010
+ **
+ **************************************************************************/
 
 #ifndef GraphElement_HPP
 #define GraphElement_HPP
@@ -22,7 +22,7 @@
 
 class GraphElement : public QObject, public BaseGraphElement<QGraphicsPathItem>
 {
-	Q_OBJECT
+    Q_OBJECT
 
     //################//
     // FUNCTIONS      //
@@ -33,13 +33,13 @@ public:
     virtual ~GraphElement();
 
 
-	//################//
-	// SLOTS          //
-	//################//
+    //################//
+    // SLOTS          //
+    //################//
 
 public slots:
-	void hideGraphElement();
-	virtual void hideRoads();
+    void hideGraphElement();
+    virtual void hideRoads();
 
 };
 

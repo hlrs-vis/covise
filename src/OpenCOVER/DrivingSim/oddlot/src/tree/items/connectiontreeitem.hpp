@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/11/2010
+ **
+ **************************************************************************/
 
 #ifndef CONNECTIONTREEITEM_HPP
 #define CONNECTIONTREEITEM_HPP
@@ -25,9 +25,9 @@ class ConnectionTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ConnectionTreeItem(JunctionTreeItem *parent, JunctionConnection *connection, QTreeWidgetItem *fosterParent);

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   18.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   18.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SAMPLE_HPP
 #define SAMPLE_HPP
@@ -25,7 +25,7 @@ class Sample
     //################//
 
 public:
-    //	explicit Sample();
+    // explicit Sample();
     virtual ~Sample();
 
 protected:

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OBJECTITEM_HPP
 #define OBJECTITEM_HPP
@@ -30,9 +30,9 @@ class ObjectItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos);
@@ -51,10 +51,10 @@ public:
     //
     void updateColor();
     virtual void createPath();
-	void duplicate();
-    void updatePosition();	
-	void move(QPointF &diff);
-	void updateCategory();
+    void duplicate();
+    void updatePosition();
+    void move(QPointF &diff);
+    void updateCategory();
 
     // Text //
     //
@@ -65,7 +65,7 @@ public:
 
     // Garbage //
     //
-    //	virtual void			notifyDeletion();
+    // virtual void   notifyDeletion();
 
     // Obsever Pattern //
     //
@@ -84,12 +84,12 @@ public slots:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
 
 protected:
@@ -104,27 +104,27 @@ protected:
 private:
     void init();
 
-	RoadSystemItem * roadSystemItem_;
+    RoadSystemItem *roadSystemItem_;
 
     Object *object_;
-	RSystemElementRoad *road_;
-	RSystemElementRoad *closestRoad_;
+    RSystemElementRoad *road_;
+    RSystemElementRoad *closestRoad_;
     QPointF pos_;
-	QPointF pressPos_;
-	QPointF lastPos_;
-	QPainterPath *path_;
+    QPointF pressPos_;
+    QPointF lastPos_;
+    QPainterPath *path_;
 
-	bool doPan_;
-	bool copyPan_;
+    bool doPan_;
+    bool copyPan_;
 
     ObjectTextItem *objectTextItem_;
 
     QColor outerColor_;
-	int categorySize_;
+    int categorySize_;
 
     SignalEditor *signalEditor_;
 
-	SignalManager *signalManager_;
+    SignalManager *signalManager_;
 
 
 };

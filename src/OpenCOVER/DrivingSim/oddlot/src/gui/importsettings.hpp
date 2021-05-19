@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 #ifndef IMPORTSETTINGS_HPP
 #define IMPORTSETTINGS_HPP
 
@@ -19,16 +19,16 @@
 
 namespace Ui
 {
-class ImportSettings;
+    class ImportSettings;
 }
 
 class ImportSettings : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ImportSettings();

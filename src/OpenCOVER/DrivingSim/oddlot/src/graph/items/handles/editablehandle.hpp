@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/24/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/24/2010
+ **
+ **************************************************************************/
 
 #ifndef EDITABLEHANDLE_HPP
 #define EDITABLEHANDLE_HPP
 
 #include "baselanemovehandle.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QDoubleSpinBox>
 #include <QGraphicsProxyWidget>
 
@@ -29,9 +29,9 @@ class EditableHandle : public QGraphicsProxyWidget, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit EditableHandle(double value, BaseLaneMoveHandle *parent, bool flip = false);
@@ -44,9 +44,9 @@ public:
 protected:
 
 private:
-	EditableHandle(); /* not allowed */
-	EditableHandle(const EditableHandle &); /* not allowed */
-	EditableHandle &operator=(const EditableHandle &); /* not allowed */
+    EditableHandle(); /* not allowed */
+    EditableHandle(const EditableHandle &); /* not allowed */
+    EditableHandle &operator=(const EditableHandle &); /* not allowed */
 
 //################//
 // SIGNALS        //

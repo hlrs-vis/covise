@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OSCBASEITEM_HPP
 #define OSCBASEITEM_HPP
@@ -20,12 +20,12 @@
 
 namespace OpenScenario
 {
-class oscCatalog;
-class oscActions;
-class oscObject;
-class oscCatalogs;
-class oscPrivateAction;
-class oscPrivate;
+    class oscCatalog;
+    class oscActions;
+    class oscObject;
+    class oscCatalogs;
+    class oscPrivateAction;
+    class oscPrivate;
 }
 
 class TopviewGraph;
@@ -42,32 +42,32 @@ class OSCBaseItem : public SVGElement
     //################//
 
 public:
-	explicit OSCBaseItem(TopviewGraph *topviewGraph, OSCBase *oscBase);
+    explicit OSCBaseItem(TopviewGraph *topviewGraph, OSCBase *oscBase);
     virtual ~OSCBaseItem();
 
-	void init();
+    void init();
 
-	 // Graph //
-    //
+    // Graph //
+   //
     virtual TopviewGraph *getTopviewGraph() const
     {
         return topviewGraph_;
     }
 
-	// RoadSystemItem //
-	//
-	OSCRoadSystemItem *getRoadSystemItem()
-	{
-		return oscRoadSystemItem_;
-	}
-
-	void setRoadSystemItem(OSCRoadSystemItem *roadSystemItem)
-	{
-		oscRoadSystemItem_ = roadSystemItem;
-	}
-
-	 // OSCItems //
+    // RoadSystemItem //
     //
+    OSCRoadSystemItem *getRoadSystemItem()
+    {
+        return oscRoadSystemItem_;
+    }
+
+    void setRoadSystemItem(OSCRoadSystemItem *roadSystemItem)
+    {
+        oscRoadSystemItem_ = roadSystemItem;
+    }
+
+    // OSCItems //
+   //
     void appendOSCItem(OSCItem *oscItem);
     bool removeOSCItem(OSCItem *oscObjectItem);
     OSCItem *getOSCItem(const QString &id) const
@@ -88,33 +88,33 @@ public:
 
     // Garbage //
     //
-    //	virtual void			notifyDeletion();
+    // virtual void   notifyDeletion();
 
     // Obsever Pattern //
     //
     virtual void updateObserver();
 
- 
+
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-	OSCBase *oscBase_;
-	OpenScenario::oscActions *actions_;
-	OpenScenario::oscCatalogs *catalogs_;
+    OSCBase *oscBase_;
+    OpenScenario::oscActions *actions_;
+    OpenScenario::oscCatalogs *catalogs_;
 
-	OpenScenario::oscPrivateAction *getPrivateAction(OpenScenario::oscObject *object, OpenScenario::oscPrivate *privateObject);
-	OpenScenario::oscCatalog *getCatalog(OpenScenario::oscObject *object);
+    OpenScenario::oscPrivateAction *getPrivateAction(OpenScenario::oscObject *object, OpenScenario::oscPrivate *privateObject);
+    OpenScenario::oscCatalog *getCatalog(OpenScenario::oscObject *object);
 
-	 // OSCObjectItems //
-    //
+    // OSCObjectItems //
+   //
     QMap<QString, OSCItem *> oscItems_;
 
-	RoadSystem *roadSystem_;
-	OSCRoadSystemItem *oscRoadSystemItem_;
+    RoadSystem *roadSystem_;
+    OSCRoadSystemItem *oscRoadSystemItem_;
 
-	TopviewGraph *topviewGraph_;
+    TopviewGraph *topviewGraph_;
 
 };
 

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/15/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/15/2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONLANESECTIONITEM_HPP
 #define JUNCTIONLANESECTIONITEM_HPP
@@ -24,9 +24,9 @@ class ProjectEditor;
 class JunctionLaneSectionItem : public SectionItem
 {
     Q_OBJECT
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit JunctionLaneSectionItem(JunctionEditor *junctionEditor, RoadItem *parentRoadItem, LaneSection *laneSection);

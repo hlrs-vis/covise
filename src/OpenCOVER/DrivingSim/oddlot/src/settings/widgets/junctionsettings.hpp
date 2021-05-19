@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/11/2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONSETTINGS_HPP
 #define JUNCTIONSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class JunctionSettings;
+    class JunctionSettings;
 }
 
 class RSystemElementJunction;
@@ -29,9 +29,9 @@ class JunctionSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit JunctionSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, RSystemElementJunction *junction);

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/29/2010
+ **
+ **************************************************************************/
 
 #ifndef LANELINKITEM_HPP
 #define LANELINKITEM_HPP
@@ -26,9 +26,9 @@ class LaneLinkItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneLinkItem(LaneItem *parentLaneItem, Lane::D_LaneLinkType linkType);
@@ -70,9 +70,9 @@ public slots:
     //################//
 
 protected:
-    //	virtual void			mousePressEvent(QGraphicsSceneMouseEvent * event);
-    //	virtual void			mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
-    //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mousePressEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
     //################//
     // PROPERTIES     //

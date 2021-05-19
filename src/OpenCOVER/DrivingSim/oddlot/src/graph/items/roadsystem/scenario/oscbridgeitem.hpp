@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OSCBRIDGEITEM_HPP
 #define OSCBRIDGEITEM_HPP
@@ -29,17 +29,17 @@ class OSCBridgeItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OSCBridgeItem(RoadSystemItem *roadSystemItem, Bridge *bridge, QPointF pos);
     virtual ~OSCBridgeItem();
 
-	// Garbage //
+    // Garbage //
     //
-	virtual bool deleteRequest(){return false;};
+    virtual bool deleteRequest() { return false; };
 
     // Graphics //
     //
@@ -70,13 +70,13 @@ protected:
 private:
     void init();
 
-	RoadSystemItem *roadSystemItem_;
+    RoadSystemItem *roadSystemItem_;
     Bridge *bridge_;
-	Tunnel *tunnel_;
-	RSystemElementRoad *road_;
+    Tunnel *tunnel_;
+    RSystemElementRoad *road_;
     QPointF pos_;
 
-	QPainterPath *path_;
+    QPainterPath *path_;
 
     BridgeTextItem *bridgeTextItem_;
 

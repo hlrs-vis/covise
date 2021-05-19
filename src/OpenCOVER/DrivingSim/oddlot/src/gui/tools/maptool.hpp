@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   6/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   6/11/2010
+ **
+ **************************************************************************/
 
 #ifndef MAPTOOL_HPP
 #define MAPTOOL_HPP
@@ -28,15 +28,15 @@ class MapTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     /*! \brief Ids of the MapTools.
-	*
-	* This enum defines the Id of each tool.
-	*/
+    *
+    * This enum defines the Id of each tool.
+    */
     enum MapToolId
     {
         TMA_LOAD,
@@ -57,7 +57,7 @@ public:
 
 public:
     explicit MapTool(ToolManager *toolManager);
-    //	virtual ~MapTool(){ /* does nothing */ }
+    // virtual ~MapTool(){ /* does nothing */ }
 
 protected:
 private:
@@ -84,10 +84,10 @@ private slots:
     void loadBingMap();
     void lockMap(bool lock);
     void setOpacity(const QString &opacity);
-    //	void						setX();
-    //	void						setY();
-    //	void						setWidth();
-    //	void						setHeight();
+    // void      setX();
+    // void      setY();
+    // void      setWidth();
+    // void      setHeight();
 
     //################//
     // PROPERTIES     //
@@ -103,16 +103,16 @@ private:
     QAction *loadBingAction_;
     QAction *lockMapAction_;
     QComboBox *opacityComboBox_;
-    //	QDoubleSpinBox *		xLineEdit_;
-    //	QDoubleSpinBox *		yLineEdit_;
-    //	QDoubleSpinBox *		widthLineEdit_;
-    //	QDoubleSpinBox *		heightLineEdit_;
+    // QDoubleSpinBox *  xLineEdit_;
+    // QDoubleSpinBox *  yLineEdit_;
+    // QDoubleSpinBox *  widthLineEdit_;
+    // QDoubleSpinBox *  heightLineEdit_;
 
-    //	bool						keepRatio_;
-    //	double					lastX_;
-    //	double					lastY_;
-    //	double					lastWidth_;
-    //	double					lastHeight_;
+    // bool      keepRatio_;
+    // double     lastX_;
+    // double     lastY_;
+    // double     lastWidth_;
+    // double     lastHeight_;
 
     bool active_;
 };
@@ -127,7 +127,7 @@ class MapToolAction : public ToolAction
 public:
     explicit MapToolAction(MapTool::MapToolId mapToolId);
     explicit MapToolAction(const QString &opacity);
-    //	virtual ~MapToolAction(){ /* does nothing */ }
+    // virtual ~MapToolAction(){ /* does nothing */ }
 
     MapTool::MapToolId getMapToolId() const
     {
@@ -144,19 +144,19 @@ public:
         return toggled_;
     }
 
-    //	void						setX(double x);
-    //	double					getX() const { return x_; }
+    // void      setX(double x);
+    // double     getX() const { return x_; }
 
-    //	void						setY(double y);
-    //	double					getY() const { return y_; }
+    // void      setY(double y);
+    // double     getY() const { return y_; }
 
-    //	void						setWidth(double width, bool keepRatio);
-    //	double					getWidth() const { return width_; }
+    // void      setWidth(double width, bool keepRatio);
+    // double     getWidth() const { return width_; }
 
-    //	void						setHeight(double height, bool keepRatio);
-    //	double					getHeight() const { return height_; }
+    // void      setHeight(double height, bool keepRatio);
+    // double     getHeight() const { return height_; }
 
-    //	bool						isKeepRatio() const { return keepRatio_; }
+    // bool      isKeepRatio() const { return keepRatio_; }
 
 protected:
 private:
@@ -175,12 +175,12 @@ private:
 
     bool toggled_;
 
-    //	double					x_;
-    //	double					y_;
+    // double     x_;
+    // double     y_;
 
-    //	double					width_;
-    //	double					height_;
-    //	bool						keepRatio_;
+    // double     width_;
+    // double     height_;
+    // bool      keepRatio_;
 };
 
 #endif // MAPTOOL_HPP

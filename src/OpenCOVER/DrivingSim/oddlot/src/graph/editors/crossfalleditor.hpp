@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #ifndef CROSSFALLEDITOR_HPP
 #define CROSSFALLEDITOR_HPP
@@ -43,9 +43,9 @@ class CrossfallEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit CrossfallEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph);
@@ -82,8 +82,8 @@ public:
     // Tool, Mouse & Key //
     //
     virtual void toolAction(ToolAction *toolAction);
-    //	virtual void			mouseAction(MouseAction * mouseAction);
-    //	virtual void			keyAction(KeyAction * keyAction);
+    // virtual void   mouseAction(MouseAction * mouseAction);
+    // virtual void   keyAction(KeyAction * keyAction);
 
 protected:
     virtual void init();
@@ -99,11 +99,11 @@ private:
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply() {};
-	virtual void reject() {};
-	virtual void reset() {};
+    // Parameter Settings //
+    //
+    virtual void apply() {};
+    virtual void reject() {};
+    virtual void reset() {};
 
     //################//
     // PROPERTIES     //

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SIGNALEDITORTOOL_HPP
 #define SIGNALEDITORTOOL_HPP
@@ -29,9 +29,9 @@ class SignalEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SignalEditorTool(ToolManager *toolManager);
@@ -39,7 +39,7 @@ public:
     { /* does nothing */
     }
 
-	void signalSelection(bool);
+    void signalSelection(bool);
 
 private:
     SignalEditorTool(); /* not allowed */
@@ -48,9 +48,9 @@ private:
 
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -62,7 +62,7 @@ signals:
 public slots:
     void activateProject(bool hasActive);
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
 
     //################//
@@ -71,8 +71,8 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-	Ui::SignalRibbon *ui;
-	QButtonGroup *ribbonToolGroup_;
+    Ui::SignalRibbon *ui;
+    QButtonGroup *ribbonToolGroup_;
 
     bool active_;
 };

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/18/2010
+ **
+ **************************************************************************/
 
 #ifndef LANEITEM_HPP
 #define LANEITEM_HPP
@@ -25,9 +25,9 @@ class LaneItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneItem(LaneSectionItem *parentLaneSectionItem, Lane *lane);
@@ -49,10 +49,10 @@ public:
     void updateColor();
     virtual void createPath();
 
-	// Handles //
-	//
-	void rebuildMoveRotateHandles(bool delHandles);
-	void deleteHandles();
+    // Handles //
+    //
+    void rebuildMoveRotateHandles(bool delHandles);
+    void deleteHandles();
 
     // Obsever Pattern //
     //
@@ -82,10 +82,10 @@ public slots:
     //################//
 
 protected:
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-    //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
     //################//
     // PROPERTIES     //
@@ -99,8 +99,8 @@ private:
 
     RSystemElementRoad *grandparentRoad_;
 
-	LaneEditor *laneEditor_;
-	QGraphicsPathItem *handlesItem_;
+    LaneEditor *laneEditor_;
+    QGraphicsPathItem *handlesItem_;
 };
 
 #endif // LANEITEM_HPP

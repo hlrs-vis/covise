@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   21.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   21.06.2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONSECTIONITEM_HPP
 #define ELEVATIONSECTIONITEM_HPP
@@ -28,9 +28,9 @@ class ElevationSectionItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationSectionItem(ElevationEditor *elevationEditor, RoadItem *parentRoadItem, ElevationSection *elevationSection);
@@ -77,7 +77,7 @@ public slots:
     //################//
 
 protected:
-    //virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    //virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -92,7 +92,7 @@ protected:
     //################//
 
 private:
-	ElevationRoadItem *parentRoadItem_;
+    ElevationRoadItem *parentRoadItem_;
     ElevationEditor *elevationEditor_;
 
     ElevationSection *elevationSection_;

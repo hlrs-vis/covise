@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef BRIDGESETTINGS_HPP
 #define BRIDGESETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class BridgeSettings;
+    class BridgeSettings;
 }
 
 class Bridge;
@@ -30,9 +30,9 @@ class BridgeSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit BridgeSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Bridge *bridge);

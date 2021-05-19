@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.03.2010
+ **
+ **************************************************************************/
 
 #ifndef ROADTYPEEDITOR_HPP
 #define ROADTYPEEDITOR_HPP
@@ -31,9 +31,9 @@ class RoadTypeEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadTypeEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
@@ -55,14 +55,14 @@ public:
     }
     void setCurrentRoadType(TypeSection::RoadType roadType);
 
-	int setRoadTypeSelection(TypeSection::RoadType type);
-	void setRoadType(int);
+    int setRoadTypeSelection(TypeSection::RoadType type);
+    void setRoadType(int);
 
-	// Parameter Settings //
-	//
-	virtual void apply() {};
-	virtual void reject();
-	virtual void reset() {};
+    // Parameter Settings //
+    //
+    virtual void apply() {};
+    virtual void reject();
+    virtual void reset() {};
 
 protected:
     virtual void init();

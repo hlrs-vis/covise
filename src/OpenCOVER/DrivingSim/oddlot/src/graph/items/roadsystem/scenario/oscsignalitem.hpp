@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OSCSIGNALITEM_HPP
 #define OSCSIGNALITEM_HPP
@@ -28,9 +28,9 @@ class OSCSignalItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OSCSignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF pos);
@@ -38,7 +38,7 @@ public:
 
     // Garbage //
     //
-	virtual bool deleteRequest(){return false;};
+    virtual bool deleteRequest() { return false; };
 
     // Graphics //
     //
@@ -69,11 +69,11 @@ protected:
     //################//
 
 private:
-	RoadSystemItem * roadSystemItem_;
+    RoadSystemItem *roadSystemItem_;
     void init();
 
     Signal *signal_;
-	RSystemElementRoad *road_;
+    RSystemElementRoad *road_;
 
     QPointF pos_;
 

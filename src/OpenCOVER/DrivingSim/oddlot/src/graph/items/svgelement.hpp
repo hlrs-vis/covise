@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SVGElement_HPP
 #define SVGElement_HPP
@@ -23,28 +23,28 @@
 
 class SVGElement : public BaseGraphElement<QGraphicsSvgItem>
 {
-	Q_OBJECT
+    Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SVGElement(SVGElement *parentElement, DataElement *dataElement);
 
     virtual ~SVGElement();
 
-	//################//
-	// SLOTS          //
-	//################//
+    //################//
+    // SLOTS          //
+    //################//
 
 public slots:
-	void hideGraphElement();
-	virtual void hideRoads();
+    void hideGraphElement();
+    virtual void hideRoads();
 
 private:
 
- 
+
 };
 
 #endif // SVGElement_HPP

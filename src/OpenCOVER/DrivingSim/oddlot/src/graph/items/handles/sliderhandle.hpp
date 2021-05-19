@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/26/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/26/2010
+ **
+ **************************************************************************/
 
 #ifndef SLIDERHANDLE_HPP
 #define SLIDERHANDLE_HPP
@@ -24,9 +24,9 @@ class SliderHandle : public Handle
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SliderHandle(QGraphicsItem *parent);
@@ -55,7 +55,7 @@ protected:
     //################//
 
 public slots:
-    //	virtual void			moveHandlePositionChange(const QPointF & pos);
+    // virtual void   moveHandlePositionChange(const QPointF & pos);
 
     //################//
     // PROPERTIES     //

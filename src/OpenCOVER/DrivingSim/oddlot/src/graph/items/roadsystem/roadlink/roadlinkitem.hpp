@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/18/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADLINKITEM_HPP
 #define ROADLINKITEM_HPP
@@ -27,9 +27,9 @@ class RoadLinkItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadLinkItem(RoadLinkRoadItem *parent, RoadLink *roadLink);

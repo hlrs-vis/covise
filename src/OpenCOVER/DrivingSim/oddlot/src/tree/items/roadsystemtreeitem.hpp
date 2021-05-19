@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADSYSTEMTREEITEM_HPP
 #define ROADSYSTEMTREEITEM_HPP
@@ -24,9 +24,9 @@ class RoadSystemTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadSystemTreeItem(ProjectTree *projectTree, RoadSystem *roadSystem, QTreeWidgetItem *rootItem);

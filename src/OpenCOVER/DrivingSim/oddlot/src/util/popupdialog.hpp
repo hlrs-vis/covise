@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/8/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/8/2010
+ **
+ **************************************************************************/
 
 #ifndef POPUPDIALOG_HPP
 #define POPUPDIALOG_HPP
@@ -20,21 +20,21 @@
 
 class PopUpDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
-		//################//
-		// FUNCTIONS      //
-		//################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
-	explicit PopUpDialog(QWidget *parent = 0) :QDialog(parent) {};
+    explicit PopUpDialog(QWidget *parent = 0) :QDialog(parent) {};
 
-	//################//
-	// EVENTS         //
-	//################//
+    //################//
+    // EVENTS         //
+    //################//
 
 protected:
-	virtual void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
 };
 
 #endif // POPUPDIALOG_HPP

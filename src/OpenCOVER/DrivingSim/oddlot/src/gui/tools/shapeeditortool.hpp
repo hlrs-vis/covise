@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #ifndef SHAPEEDITORTOOL_HPP
 #define SHAPEEDITORTOOL_HPP
@@ -27,9 +27,9 @@ class ShapeEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ShapeEditorTool(ToolManager *toolManager);
@@ -45,9 +45,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -58,9 +58,9 @@ signals:
 
 public slots:
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
-	void handleRibbonToolClick(int);
+    void handleRibbonToolClick(int);
 
     //################//
     // PROPERTIES     //
@@ -68,9 +68,9 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-	Ui::ShapeRibbon *ui_;
+    Ui::ShapeRibbon *ui_;
 
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 };
 
 class ShapeEditorToolAction : public ToolAction

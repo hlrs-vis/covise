@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/29/2010
+ **
+ **************************************************************************/
 
 #ifndef LANEWIDTHTREEITEM_HPP
 #define LANEWIDTHTREEITEM_HPP
@@ -25,9 +25,9 @@ class LaneWidthTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneWidthTreeItem(LaneTreeItem *parent, LaneWidth *laneWidth_, QTreeWidgetItem *fosterParent);

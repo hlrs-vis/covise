@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/26/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/26/2010
+ **
+ **************************************************************************/
 
 #ifndef TRACKCOMPONENTSETTINGS_HPP
 #define TRACKCOMPONENTSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class TrackComponentSettings;
+    class TrackComponentSettings;
 }
 
 class TrackComponent;
@@ -29,9 +29,9 @@ class TrackComponentSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TrackComponentSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, TrackComponent *trackComponent);
@@ -54,8 +54,8 @@ private:
 private slots:
 
     void on_curv1Box_editingFinished();
-	void on_headingBox_editingFinished();
-	void on_curv2Box_editingFinished();
+    void on_headingBox_editingFinished();
+    void on_curv2Box_editingFinished();
     void on_xBox_editingFinished();
     void on_yBox_editingFinished();
     void on_factorBox_editingFinished();
@@ -73,8 +73,8 @@ private:
     TrackElementLine *line_;
     TrackElementArc *arc_;
     TrackElementSpiral *spiral_;
-	TrackElementPoly3 *poly3_;
-	TrackElementCubicCurve *c_curve_;
+    TrackElementPoly3 *poly3_;
+    TrackElementCubicCurve *c_curve_;
 
     TrackSpiralArcSpiral *sparcs_;
 };

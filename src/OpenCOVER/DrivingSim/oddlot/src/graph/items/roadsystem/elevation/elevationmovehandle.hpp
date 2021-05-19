@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   25.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   25.06.2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONMOVEHANDLE_HPP
 #define ELEVATIONMOVEHANDLE_HPP
@@ -26,9 +26,9 @@ class ElevationMoveHandle : public MoveHandle
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationMoveHandle(ElevationEditor *elevationEditor, QGraphicsItem *parent);
@@ -52,7 +52,7 @@ public:
     }
     void setDOF(int dof);
 
-	const QString getText();
+    const QString getText();
 
     // Observer Pattern //
     //
@@ -82,9 +82,9 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
     //################//
@@ -105,9 +105,9 @@ private:
     QAction *removeAction_;
     QAction *smoothAction_;
 
-	// Height //
-	//
-	TextHandle *heightTextItem_;
+    // Height //
+    //
+    TextHandle *heightTextItem_;
 };
 
 #endif // ELEVATIONMOVEHANDLE_HPP

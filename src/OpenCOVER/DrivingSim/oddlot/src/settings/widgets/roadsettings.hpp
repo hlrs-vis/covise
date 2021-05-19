@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADSETTINGS_HPP
 #define ROADSETTINGS_HPP
@@ -21,7 +21,7 @@
 
 namespace Ui
 {
-class RoadSettings;
+    class RoadSettings;
 }
 
 class RSystemElementRoad;
@@ -30,9 +30,9 @@ class RoadSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, RSystemElementRoad *road);
@@ -46,7 +46,7 @@ private:
     void updateProperties();
     void updateRoadLinks();
     void addLaneSectionPrototypes();
-    //	void						updateSectionCount();
+    // void      updateSectionCount();
 
     //################//
     // SLOTS          //
@@ -61,7 +61,7 @@ private slots:
     void on_elevationComboBox_activated(int);
     void on_superelevationComboBox_activated(int);
     void on_crossfallComboBox_activated(int);
-	void on_shapeComboBox_activated(int);
+    void on_shapeComboBox_activated(int);
 
     //################//
     // PROPERTIES     //

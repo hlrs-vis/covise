@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef TYPEEDITORTOOL_HPP
 #define TYPEEDITORTOOL_HPP
@@ -35,9 +35,9 @@ class TypeEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TypeEditorTool(ToolManager *toolManager);
@@ -52,9 +52,9 @@ private:
 
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -66,7 +66,7 @@ signals:
 public slots:
     void activateProject(bool hasActive);
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
     void handleRoadTypeSelection(int);
 
@@ -84,7 +84,7 @@ private:
     QGroupBox *selectGroupBox_;
     QMenu *roadTypeToolButtonMenu_;
     QToolButton *roadTypeToolButton_;
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 
     bool active_;
 };

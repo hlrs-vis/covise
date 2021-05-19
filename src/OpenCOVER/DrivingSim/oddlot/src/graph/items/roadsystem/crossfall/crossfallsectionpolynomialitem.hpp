@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.07.2010
+ **
+ **************************************************************************/
 
 #ifndef CROSSFALLSECTIONPOLYNOMIALITEM_HPP
 #define CROSSFALLSECTIONPOLYNOMIALITEM_HPP
@@ -27,9 +27,9 @@ class CrossfallSectionPolynomialItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit CrossfallSectionPolynomialItem(CrossfallRoadPolynomialItem *parentRoadItem, CrossfallSection *crossfallSection);

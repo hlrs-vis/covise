@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   6/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   6/11/2010
+ **
+ **************************************************************************/
 
 #ifndef MAPITEM_HPP
 #define MAPITEM_HPP
@@ -25,9 +25,9 @@ class SceneryMapItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SceneryMapItem(ScenerySystemItem *parentScenerySystem, SceneryMap *sceneryMap);

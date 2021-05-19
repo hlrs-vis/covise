@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.06.2010
+ **
+ **************************************************************************/
 
 #ifndef PROFILEGRAPHVIEW_HPP
 #define PROFILEGRAPHVIEW_HPP
@@ -28,9 +28,9 @@ class ProfileGraphView : public QGraphicsView
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProfileGraphView(ProfileGraphScene *scene, QWidget *parent);

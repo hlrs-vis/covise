@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef OSCEDITORTOOL_HPP
 #define OSCEDITORTOOL_HPP
@@ -30,9 +30,9 @@ class OpenScenarioEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OpenScenarioEditorTool(ToolManager *toolManager);
@@ -40,10 +40,10 @@ public:
     { /* does nothing */
     }
 
-    
-    void enableGraphEdit(bool);	
-	void setButtonColor(const QString &name,QColor color);
-	void objectSelection(bool);
+
+    void enableGraphEdit(bool);
+    void setButtonColor(const QString &name, QColor color);
+    void objectSelection(bool);
 
 private:
     OpenScenarioEditorTool(); /* not allowed */
@@ -53,9 +53,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -65,10 +65,10 @@ signals:
     //################//
 
 public slots:
-	void activateRibbonEditor();
-	void handleToolClick(int);
-	void handleCatalogSelection(int);
-	void handleGraphState(bool);
+    void activateRibbonEditor();
+    void handleToolClick(int);
+    void handleCatalogSelection(int);
+    void handleGraphState(bool);
 
     //################//
     // PROPERTIES     //
@@ -76,10 +76,10 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-	bool graphEdit_;
-	Ui::OSCRibbon *ui;
+    bool graphEdit_;
+    Ui::OSCRibbon *ui;
 
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 };
 
 class OpenScenarioEditorToolAction : public ToolAction
@@ -96,10 +96,10 @@ public:
     { /* does nothing */
     }
 
-	QString getText() const
-	{
-		return text_;
-	}
+    QString getText() const
+    {
+        return text_;
+    }
 
     bool getState() const
     {
@@ -116,7 +116,7 @@ private:
     //################//
 
 private:
-	QString text_;
+    QString text_;
     bool state_;
 };
 

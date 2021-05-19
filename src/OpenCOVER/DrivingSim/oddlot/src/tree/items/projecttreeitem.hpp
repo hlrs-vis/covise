@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTTREEITEM_HPP
 #define PROJECTTREEITEM_HPP
@@ -27,9 +27,9 @@ class ProjectTreeItem : public QObject, public QTreeWidgetItem, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProjectTreeItem(ProjectTreeItem *parent, DataElement *dataElement, QTreeWidgetItem *fosterParent = NULL);

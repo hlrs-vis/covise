@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #ifndef TILESYSTEMTREEITEM_HPP
 #define TILESYSTEMTREEITEM_HPP
@@ -24,9 +24,9 @@ class TileSystemTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TileSystemTreeItem(ProjectTree *projectTree, TileSystem *tileSystem, QTreeWidgetItem *rootItem);

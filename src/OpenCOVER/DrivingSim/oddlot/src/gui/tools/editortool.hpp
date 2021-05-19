@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef EDITORTOOL_HPP
 #define EDITORTOOL_HPP
@@ -25,9 +25,9 @@ class EditorTool : public QObject
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit EditorTool(ToolManager *toolManager);
@@ -37,16 +37,16 @@ public:
 
 protected:
 private:
-	EditorTool(); /* not allowed */
-	EditorTool(const EditorTool &); /* not allowed */
-	EditorTool &operator=(const EditorTool &); /* not allowed */
+    EditorTool(); /* not allowed */
+    EditorTool(const EditorTool &); /* not allowed */
+    EditorTool &operator=(const EditorTool &); /* not allowed */
 
     //################//
     // SIGNALS        //
     //################//
 
     //signals:
-    //	void						toolAction(ToolAction *);
+    // void      toolAction(ToolAction *);
 
     //################//
     // PROPERTIES     //

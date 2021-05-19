@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef CONTROLLERSETTINGS_HPP
 #define CONTROLLERSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class ControllerSettings;
+    class ControllerSettings;
 }
 
 class RSystemElementController;
@@ -29,9 +29,9 @@ class ControllerSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ControllerSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, RSystemElementController *controller);

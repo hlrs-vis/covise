@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/18/2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONLANEITEM_HPP
 #define JUNCTIONLANEITEM_HPP
@@ -25,9 +25,9 @@ class JunctionLaneItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit JunctionLaneItem(JunctionEditor *junctionEditor, JunctionLaneSectionItem *parentJunctionLaneSectionItem, Lane *lane);
@@ -69,7 +69,7 @@ private:
 
 public slots:
     virtual void hideParentRoad();
-    //	virtual void			removeSection();
+    // virtual void   removeSection();
     virtual void removeParentRoad();
 
     //################//
@@ -77,16 +77,16 @@ public slots:
     //################//
 
 protected:
-   	virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-	JunctionEditor *junctionEditor_;
+    JunctionEditor *junctionEditor_;
     JunctionLaneSectionItem *parentJunctionLaneSectionItem_;
 
     LaneSection *parentLaneSection_;

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/29/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADLINKWIZARD_HPP
 #define ROADLINKWIZARD_HPP
@@ -22,16 +22,16 @@ class ProjectData;
 
 namespace Ui
 {
-class RoadLinkWizard;
+    class RoadLinkWizard;
 }
 
 class RoadLinkWizard : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadLinkWizard(ProjectData *projectData, QWidget *parent = 0);

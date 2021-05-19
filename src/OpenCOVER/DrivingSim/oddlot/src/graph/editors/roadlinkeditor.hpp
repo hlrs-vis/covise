@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11.03.2010
+ **
+ **************************************************************************/
 
 #ifndef ROADLINKEDITOR_HPP
 #define ROADLINKEDITOR_HPP
@@ -32,9 +32,9 @@ class RoadLinkEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadLinkEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
@@ -43,10 +43,10 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *);
-	virtual void mouseAction(MouseAction *mouseAction);
+    virtual void mouseAction(MouseAction *mouseAction);
 
     void assignParameterSelection(ODD::ToolId id);
-	void clearToolObjectSelection();
+    void clearToolObjectSelection();
 
 protected:
     virtual void init();
@@ -62,11 +62,11 @@ private:
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply();
-	virtual void reject();
-	virtual void reset();
+    // Parameter Settings //
+    //
+    virtual void apply();
+    virtual void reject();
+    virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -77,28 +77,28 @@ private:
     //
     RoadLinkRoadSystemItem *roadSystemItem_;
 
-    void removeZeroWidthLanes(RSystemElementRoad * road); 
+    void removeZeroWidthLanes(RSystemElementRoad *road);
 
-	// List of selected roads //
-	//
-	QList<RSystemElementRoad *> selectedRoads_;
+    // List of selected roads //
+    //
+    QList<RSystemElementRoad *> selectedRoads_;
 
-	// Selected handles //
-	//
-	QGraphicsItem *linkItem_;
-	QGraphicsItem *sinkItem_;
+    // Selected handles //
+    //
+    QGraphicsItem *linkItem_;
+    QGraphicsItem *sinkItem_;
 
-	//Threshold for the linking roads
-	//
-	double threshold_;
+    //Threshold for the linking roads
+    //
+    double threshold_;
 
-	// Currently selected Parameter //
-	//
-	int currentParamId_;
+    // Currently selected Parameter //
+    //
+    int currentParamId_;
 
-	// necessary selected elements to make APPLY visible //
-	//
-	int applyCount_;
+    // necessary selected elements to make APPLY visible //
+    //
+    int applyCount_;
 };
 
 #endif // ROADLINKEDITOR_HPP

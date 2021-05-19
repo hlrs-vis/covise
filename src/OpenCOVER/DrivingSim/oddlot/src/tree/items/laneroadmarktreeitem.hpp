@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/29/2010
+ **
+ **************************************************************************/
 
 #ifndef LANEROADMARKTREEITEM_HPP
 #define LANEROADMARKTREEITEM_HPP
@@ -25,9 +25,9 @@ class LaneRoadMarkTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneRoadMarkTreeItem(LaneTreeItem *parent, LaneRoadMark *laneRoadMark, QTreeWidgetItem *fosterParent);

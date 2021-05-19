@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #ifndef SHAPESECTIONITEM_HPP
 #define SHAPESECTIONITEM_HPP
@@ -27,9 +27,9 @@ class ShapeSectionItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ShapeSectionItem(ShapeEditor *shapeEditor, RoadItem *parentRoadItem, ShapeSection *shapeSection);
@@ -66,17 +66,17 @@ private:
 public slots:
     virtual bool removeSection();
 
-	// Copy Shape Section //
-	//
-	void copyShapeSection();
-	void pasteShapeSection();
+    // Copy Shape Section //
+    //
+    void copyShapeSection();
+    void pasteShapeSection();
 
     //################//
     // EVENTS         //
     //################//
 
 protected:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -95,10 +95,10 @@ private:
 
     ShapeSection *shapeSection_;
 
-	ShapeSectionPolynomialItems *shapeSectionPolynomialItems_;
+    ShapeSectionPolynomialItems *shapeSectionPolynomialItems_;
 
-	QAction *copyShapeSectionAction_;
-	QAction *pasteShapeSectionAction_;
+    QAction *copyShapeSectionAction_;
+    QAction *pasteShapeSectionAction_;
 };
 
 #endif // SHAPESECTIONITEM_HPP

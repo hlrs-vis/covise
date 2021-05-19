@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef SIGNALSETTINGS_HPP
 #define SIGNALSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class SignalSettings;
+    class SignalSettings;
 }
 
 class Signal;
@@ -34,9 +34,9 @@ class SignalSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SignalSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Signal *signal);
@@ -49,7 +49,7 @@ public:
 
 private:
     void updateProperties();
-//    void updateProperties(QString country, SignalContainer *signalProperties);
+    //    void updateProperties(QString country, SignalContainer *signalProperties);
     double signalT(double s, double t, double roadDistance);
     void enableCrossingParams(bool value);
 
@@ -63,8 +63,8 @@ private slots:
     void onNameBoxEditingFinished();
     void on_sSpinBox_editingFinished();
     void onValueChanged();
-	void activateValidityWidget(bool);
-	void activateCrossingWidget(bool);
+    void activateValidityWidget(bool);
+    void activateCrossingWidget(bool);
 
     //################//
     // PROPERTIES     //
@@ -74,7 +74,7 @@ private:
     Ui::SignalSettings *ui;
 
     SignalManager *signalManager_;
-	SignalEditor *signalEditor_;
+    SignalEditor *signalEditor_;
     Signal *signal_;
 
     bool init_;

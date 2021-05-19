@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/19/2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONSETTINGS_HPP
 #define ELEVATIONSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class ElevationSettings;
+    class ElevationSettings;
 }
 
 class ElevationMoveHandle;
@@ -30,9 +30,9 @@ class ElevationSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, ElevationSection *elevationSection);

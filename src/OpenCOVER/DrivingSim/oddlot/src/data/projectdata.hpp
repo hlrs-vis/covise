@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTDATA_HPP
 #define PROJECTDATA_HPP
@@ -39,9 +39,9 @@ class ProjectData : public QObject, public DataElement
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     enum ProjectDataChange
@@ -110,10 +110,10 @@ public:
         return west_;
     }
 
-	GeoReference *getGeoReference()
-	{
-		return geoReferenceParams_;
-	}
+    GeoReference *getGeoReference()
+    {
+        return geoReferenceParams_;
+    }
 
     projPJ getProj4ReferenceTo()
     {
@@ -136,10 +136,10 @@ public:
     void setSouth(double south);
     void setEast(double east);
     void setWest(double west);
-	void setDimensions(double north, double south, double east, double west);
-	bool adaptView(double north, double south, double east, double west);
+    void setDimensions(double north, double south, double east, double west);
+    bool adaptView(double north, double south, double east, double west);
 
-	void setGeoReference(GeoReference *geoParams);
+    void setGeoReference(GeoReference *geoParams);
     void setProj4ReferenceTo(projPJ proj);
     void setProj4ReferenceFrom(projPJ proj);
 
@@ -183,13 +183,13 @@ public:
     }
     void setScenerySystem(ScenerySystem *scenerySystem);
 
-	// Oddlot OpenScenario elment base //
-	//
-	OSCBase * getOSCBase() const
-	{
-		return oscBase_;
-	}
-	void setOSCBase(OSCBase *base);
+    // Oddlot OpenScenario elment base //
+    //
+    OSCBase *getOSCBase() const
+    {
+        return oscBase_;
+    }
+    void setOSCBase(OSCBase *base);
 
     // ProjectData //
     //
@@ -198,12 +198,12 @@ public:
         return this;
     }
 
-   // ProjectWidget //
-   //
-   virtual ProjectWidget *getProjectWidget()
-   {
-      return projectWidget_;
-   }
+    // ProjectWidget //
+    //
+    virtual ProjectWidget *getProjectWidget()
+    {
+        return projectWidget_;
+    }
 
     // Undo/Redo //
     //
@@ -271,9 +271,9 @@ public slots:
 
     void projectActivated(bool active);
 
-	// OpenSCENARIO settings //
-	//
-	void changeOSCValidation(bool);
+    // OpenSCENARIO settings //
+    //
+    void changeOSCValidation(bool);
 
     //################//
     // PROPERTIES     //
@@ -320,9 +320,9 @@ private:
     //
     ScenerySystem *scenerySystem_; // owned
 
-	// Oddlot OpenScenario base //
+    // Oddlot OpenScenario base //
     //
-	OSCBase *oscBase_; // owned
+    OSCBase *oscBase_; // owned
 
     // Undo/Redo //
     //
@@ -340,9 +340,9 @@ private:
     //
     QList<DataElement *> hiddenElements_; // linked
 
-	// Georeference String //
-	//
-	GeoReference *geoReferenceParams_;
+    // Georeference String //
+    //
+    GeoReference *geoReferenceParams_;
 
     // Proj4 Object ProjFromString
     //

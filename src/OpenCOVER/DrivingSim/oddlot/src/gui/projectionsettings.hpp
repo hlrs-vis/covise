@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 #ifndef PROJECTIONSETTINGS_HPP
 #define PROJECTIONSETTINGS_HPP
 
@@ -24,7 +24,7 @@ class ProjectData;
 
 namespace Ui
 {
-class ProjectionSettings;
+    class ProjectionSettings;
 }
 
 class PresetInfo
@@ -39,9 +39,9 @@ class ProjectionSettings : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
 

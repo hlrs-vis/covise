@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #ifndef SIGNALTREEWIDGET_HPP
 #define SIGNALTREEWIDGET_HPP
@@ -33,20 +33,20 @@ class SignalTreeWidget : public QTreeWidget
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
-	explicit SignalTreeWidget(SignalManager *signalManager, MainWindow *mainWindow);
+    explicit SignalTreeWidget(SignalManager *signalManager, MainWindow *mainWindow);
     virtual ~SignalTreeWidget();
 
-	void setActiveProject(ProjectWidget *projectWidget)
-	{
-		projectWidget_ = projectWidget ;
-	}
+    void setActiveProject(ProjectWidget *projectWidget)
+    {
+        projectWidget_ = projectWidget;
+    }
 
-	void setSignalEditor(SignalEditor *signalEditor);
+    void setSignalEditor(SignalEditor *signalEditor);
 
 private:
     SignalTreeWidget(); /* not allowed */
@@ -63,12 +63,12 @@ private:
 public:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 protected:
-	virtual void mousePressEvent(QMouseEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
@@ -78,13 +78,13 @@ signals:
     //################//
 
 private:
-	ProjectWidget *projectWidget_;
+    ProjectWidget *projectWidget_;
     ProjectData *projectData_; // Model, linked
-	SignalManager *signalManager_;
-	ToolManager *toolManager_;
-	MainWindow *mainWindow_;
-	SignalEditor *signalEditor_;
-	ODD::ToolId currentTool_;
+    SignalManager *signalManager_;
+    ToolManager *toolManager_;
+    MainWindow *mainWindow_;
+    SignalEditor *signalEditor_;
+    ODD::ToolId currentTool_;
 
     QPointF dragStartPosition_;
 };

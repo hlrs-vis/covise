@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #ifndef CATALOGWIDGET_HPP
 #define CATALOGWIDGET_HPP
@@ -37,38 +37,38 @@ class QDropEvent;
 
 namespace OpenScenario
 {
-class oscObjectBase;
+    class oscObjectBase;
 }
 
 class CatalogWidget : public QWidget
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
-	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &name);
+    explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog, const QString &name);
     virtual ~CatalogWidget();
 
-/*	void setActiveProject(ProjectWidget *projectWidget)
-	{
-		projectWidget_ = projectWidget ;
-	} */
+    /* void setActiveProject(ProjectWidget *projectWidget)
+        {
+            projectWidget_ = projectWidget ;
+        } */
 
 
-	CatalogTreeWidget *getCatalogTreeWidget()
-	{
-		return catalogTreeWidget_;
-	}
+    CatalogTreeWidget *getCatalogTreeWidget()
+    {
+        return catalogTreeWidget_;
+    }
 
-	OpenScenario::oscCatalog *getCatalog()
-	{
-		return catalog_;
-	}
+    OpenScenario::oscCatalog *getCatalog()
+    {
+        return catalog_;
+    }
 
-	void onDeleteCatalogItem();
+    void onDeleteCatalogItem();
 
 protected:
 private:
@@ -78,19 +78,19 @@ private:
 
     void init();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
-    void toolAction(ToolAction *);	// This widget has to behave like a toolEditor and send the selected tool //
+    void toolAction(ToolAction *); // This widget has to behave like a toolEditor and send the selected tool //
 
-	//################//
+    //################//
     // SLOTS          //
     //################//
 
 public slots:
-	void handleToolClick();
+    void handleToolClick();
 
     //################//
     // PROPERTIES     //
@@ -98,44 +98,44 @@ public slots:
 
 private:
     ProjectData *projectData_; // Model, linked
-	MainWindow *mainWindow_;
+    MainWindow *mainWindow_;
 
-	CatalogTreeWidget *catalogTreeWidget_;
-	OpenScenario::oscCatalog *catalog_;
+    CatalogTreeWidget *catalogTreeWidget_;
+    OpenScenario::oscCatalog *catalog_;
 
-	// OpenScenario Base //
-	//
-	OSCBase *base_;
+    // OpenScenario Base //
+    //
+    OSCBase *base_;
 
-	const QString name_;	// catalog type
+    const QString name_; // catalog type
 
-	OpenScenario::oscObjectBase *object_;
-	OSCElement *oscElement_;
+    OpenScenario::oscObjectBase *object_;
+    OSCElement *oscElement_;
 
 };
 
 class CatalogDropArea : public DropArea
 {
-	//################//
+    //################//
     // FUNCTIONS      //
     //################//
 
 public:
-	explicit CatalogDropArea(CatalogWidget *catalogWidget, QPixmap *pixmap);
+    explicit CatalogDropArea(CatalogWidget *catalogWidget, QPixmap *pixmap);
 
 private:
     CatalogDropArea(); /* not allowed */
     CatalogDropArea(const CatalogWidget &, QPixmap *pixmap); /* not allowed */
     CatalogDropArea &operator=(const CatalogWidget &); /* not allowed */
 
-	//################//
+    //################//
     // SLOTS          //
     //################//
 protected:
     void dropEvent(QDropEvent *event);
 
 private:
-	CatalogWidget *catalogWidget_;
+    CatalogWidget *catalogWidget_;
 };
 
 

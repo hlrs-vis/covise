@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 #ifndef LODSETTINGS_HPP
 #define LODSETTINGS_HPP
 
@@ -19,16 +19,16 @@
 
 namespace Ui
 {
-class LODSettings;
+    class LODSettings;
 }
 
 class LODSettings : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LODSettings();

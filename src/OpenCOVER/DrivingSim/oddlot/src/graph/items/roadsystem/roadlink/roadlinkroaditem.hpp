@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADLINKROADITEM_HPP
 #define ROADLINKROADITEM_HPP
@@ -29,9 +29,9 @@ class RoadLinkRoadItem : public RoadItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadLinkRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road, RoadLinkEditor *editor);
@@ -79,7 +79,7 @@ public slots:
     //################//
 
 private:
-	RoadLinkEditor *editor_;
+    RoadLinkEditor *editor_;
 
     RoadLinkItem *predecessor_;
     RoadLinkItem *successor_;

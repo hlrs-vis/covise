@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   21.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   21.06.2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONEDITOR_HPP
 #define ELEVATIONEDITOR_HPP
@@ -47,9 +47,9 @@ class ElevationEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph);
@@ -87,20 +87,20 @@ public:
     void insertSelectedRoad(RSystemElementRoad *road);
     void initBox();
     void fitView();
-    QMap<QGraphicsItem*, ElevationSection*> getSelectedElevationSections(int count);
+    QMap<QGraphicsItem *, ElevationSection *> getSelectedElevationSections(int count);
 
     // MoveHandles //
     //
     void registerMoveHandle(ElevationMoveHandle *handle);
     int unregisterMoveHandle(ElevationMoveHandle *handle);
     bool translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos);
-	bool selectionChangedRoadSection();
+    bool selectionChangedRoadSection();
 
     // Tool, Mouse & Key //
     //
     virtual void toolAction(ToolAction *toolAction);
-    virtual void mouseAction(MouseAction * mouseAction);
-    //	virtual void			keyAction(KeyAction * keyAction);
+    virtual void mouseAction(MouseAction *mouseAction);
+    // virtual void   keyAction(KeyAction * keyAction);
 
 
 protected:
@@ -112,18 +112,18 @@ private:
     ElevationEditor(const ElevationEditor &); /* not allowed */
     ElevationEditor &operator=(const ElevationEditor &); /* not allowed */
 
-	void clearToolObjectSelection();
+    void clearToolObjectSelection();
 
     //################//
     // SLOTS          //
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply();
-	virtual void reject();
-	virtual void reset();
+    // Parameter Settings //
+    //
+    virtual void apply();
+    virtual void reject();
+    virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -145,12 +145,12 @@ private:
     // Smooth Radius and Slope //
     //
     double smoothRadius_;
-	double slope_;
+    double slope_;
 
     // ProfileGraph: Selected Item //
     //
-	QList<RSystemElementRoad *> selectedRoads_;
-	ElevationRoadPolynomialItem * selectedElevationItem_;
+    QList<RSystemElementRoad *> selectedRoads_;
+    ElevationRoadPolynomialItem *selectedElevationItem_;
 
     QMultiMap<int, ElevationMoveHandle *> selectedMoveHandles_;
 
@@ -160,10 +160,10 @@ private:
     qreal xtrans_;
 
 
-	// Elevation Editing //
-	//
-	QGraphicsItem *elevationSectionItem_;
-	QGraphicsItem *elevationSectionAdjacentItem_;
+    // Elevation Editing //
+    //
+    QGraphicsItem *elevationSectionItem_;
+    QGraphicsItem *elevationSectionAdjacentItem_;
 };
 
 #endif // ELEVATIONEDITOR_HPP

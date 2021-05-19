@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/19/2010
+ **
+ **************************************************************************/
 
 #ifndef HEIGHTMAPITEM_HPP
 #define HEIGHTMAPITEM_HPP
@@ -25,9 +25,9 @@ class HeightmapItem : public SceneryMapItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit HeightmapItem(ScenerySystemItem *parentScenerySystem, Heightmap *heightmap);
@@ -59,7 +59,7 @@ public slots:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
 
     //################//
     // PROPERTIES     //

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef ROADITEM_HPP
 #define ROADITEM_HPP
@@ -26,9 +26,9 @@ class RoadItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road);
@@ -81,7 +81,7 @@ public slots:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 protected:

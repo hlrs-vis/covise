@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 #ifndef OSCSETTINGS_HPP
 #define OSCSETTINGS_HPP
 
@@ -19,16 +19,16 @@
 
 namespace Ui
 {
-class OSCSettings;
+    class OSCSettings;
 }
 
 class OSCSettings : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OSCSettings(const QString &dir);
@@ -36,8 +36,8 @@ public:
 
     bool readValidation();
     bool loadDefaults();
-	QString getCatalogDir();
-    
+    QString getCatalogDir();
+
     static OSCSettings *instance()
     {
         return inst;
@@ -46,13 +46,13 @@ public:
 private:
     static OSCSettings *inst;
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void directoryChanged();
-	void readValidationChanged(bool);
+    void readValidationChanged(bool);
 
     //################//
     // SLOTS          //
@@ -60,7 +60,7 @@ signals:
 
 private slots:
     void okPressed();
-	void dirPushButtonPressed();
+    void dirPushButtonPressed();
 
 
     //################//
@@ -70,8 +70,8 @@ private slots:
 private:
     Ui::OSCSettings *ui;
 
-	bool validation_;
-	QString catalogDir_;
+    bool validation_;
+    QString catalogDir_;
 };
 
 #endif // OSCSETTINGS_HPP

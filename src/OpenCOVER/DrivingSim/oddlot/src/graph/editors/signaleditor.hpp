@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SIGNALEDITOR_HPP
 #define SIGNALEDITOR_HPP
@@ -40,9 +40,9 @@ class SignalEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SignalEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
@@ -62,28 +62,28 @@ public:
 
     // Move Signals //
     //
-	void duplicate();
-	void move(QPointF &diff);
+    void duplicate();
+    void move(QPointF &diff);
     void translateSignal(SignalItem *signal, QPointF &diff);
 
-	// New Signal with properties chosen in SignalTreeWidget //
-	//
-	Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
+    // New Signal with properties chosen in SignalTreeWidget //
+    //
+    Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
 
-	void translateObject(ObjectItem * objectItem, QPointF &diff);
+    void translateObject(ObjectItem *objectItem, QPointF &diff);
 
-	// New Object with properties chosen in SignalTreeWidget //
-	//
-	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
+    // New Object with properties chosen in SignalTreeWidget //
+    //
+    Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
 
-	void translateBridge(BridgeItem * bridgeItem, QPointF &diff);
+    void translateBridge(BridgeItem *bridgeItem, QPointF &diff);
 
-	void translate(QPointF &diff);
+    void translate(QPointF &diff);
 
     // RoadType //
     //
-    //	TypeSection::RoadType	getCurrentRoadType() const { return currentRoadType_; }
-    //	void							setCurrentRoadType(TypeSection::RoadType roadType);
+    // TypeSection::RoadType getCurrentRoadType() const { return currentRoadType_; }
+    // void       setCurrentRoadType(TypeSection::RoadType roadType);
 
 protected:
     virtual void init();
@@ -94,7 +94,7 @@ private:
     SignalEditor(const SignalEditor &); /* not allowed */
     SignalEditor &operator=(const SignalEditor &); /* not allowed */
 
-	void clearToolObjectSelection();
+    void clearToolObjectSelection();
     void assignParameterSelection(ODD::ToolId toolId);
 
     //################//
@@ -102,11 +102,11 @@ private:
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply();
-	virtual void reject();
-	virtual void reset();
+    // Parameter Settings //
+    //
+    virtual void apply();
+    virtual void reject();
+    virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -123,27 +123,27 @@ private:
 
     ODD::ToolId lastTool_;
 
-	// List of selected signals //
-	//
-	QList<Signal *> selectedSignals_;
+    // List of selected signals //
+    //
+    QList<Signal *> selectedSignals_;
 
-	// Selected Controller //
-	//
-	RSystemElementController *controller_;
+    // Selected Controller //
+    //
+    RSystemElementController *controller_;
 
 
-	// Signal Tree //
-	//
-	SignalTreeWidget *signalTree_;
-	SignalManager *signalManager_;
+    // Signal Tree //
+    //
+    SignalTreeWidget *signalTree_;
+    SignalManager *signalManager_;
 
-	// necessary selected elements to make APPLY visible //
-	//
-	int applyCount_;
+    // necessary selected elements to make APPLY visible //
+    //
+    int applyCount_;
 
     // RoadType //
     //
-    //	TypeSection::RoadType	currentRoadType_;
+    // TypeSection::RoadType currentRoadType_;
 };
 
 #endif // ROADTYPEEDITOR_HPP

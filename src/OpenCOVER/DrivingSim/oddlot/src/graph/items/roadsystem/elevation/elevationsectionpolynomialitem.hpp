@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.06.2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONSECTIONPOLYNOMIALITEM_HPP
 #define ELEVATIONSECTIONPOLYNOMIALITEM_HPP
@@ -27,9 +27,9 @@ class ElevationSectionPolynomialItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationSectionPolynomialItem(ElevationRoadPolynomialItem *parentRoadItem, ElevationSection *elevationSection);

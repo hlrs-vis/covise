@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 #ifndef OSMIMPORT_HPP
 #define OSMIMPORT_HPP
 
@@ -29,7 +29,7 @@ typedef unsigned __int64 uint64_t;
 
 namespace Ui
 {
-class OsmImport;
+    class OsmImport;
 }
 
 class ProjectWidget;
@@ -93,9 +93,9 @@ class OsmImport : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OsmImport();
@@ -107,8 +107,8 @@ public:
     };
     ProjectWidget *project;
 private:
-    QVector<osmNode*> nodes;
-    QVector<osmWay*> ways;
+    QVector<osmNode *> nodes;
+    QVector<osmWay *> ways;
     QNetworkAccessManager *nam;
     //################//
     // SLOTS          //
@@ -119,7 +119,7 @@ private slots:
     void on_preview_released();
     void finishedSlot(QNetworkReply *reply);
     bool parseDoc(QDomDocument &doc);
-    
+
 
     //################//
     // PROPERTIES     //

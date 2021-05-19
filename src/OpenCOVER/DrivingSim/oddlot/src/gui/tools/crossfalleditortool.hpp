@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #ifndef CROSSFALLEDITORTOOL_HPP
 #define CROSSFALLEDITORTOOL_HPP
@@ -28,9 +28,9 @@ class CrossfallEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit CrossfallEditorTool(ToolManager *toolManager);
@@ -46,9 +46,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -59,11 +59,11 @@ signals:
 
 public slots:
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
     void setRadius();
-	void handleRibbonToolClick(int);
-	void setRibbonRadius();
+    void handleRibbonToolClick(int);
+    void setRibbonRadius();
 
     //################//
     // PROPERTIES     //
@@ -71,10 +71,10 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-	Ui::CrossfallRibbon *ui_;
+    Ui::CrossfallRibbon *ui_;
 
     QDoubleSpinBox *radiusEdit_;
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 };
 
 class CrossfallEditorToolAction : public ToolAction

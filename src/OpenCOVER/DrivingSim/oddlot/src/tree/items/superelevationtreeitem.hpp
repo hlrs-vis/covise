@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/13/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/13/2010
+ **
+ **************************************************************************/
 
 #ifndef SUPERELEVATIONTREEITEM_HPP
 #define SUPERELEVATIONTREEITEM_HPP
@@ -25,9 +25,9 @@ class SuperelevationSectionTreeItem : public SectionTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SuperelevationSectionTreeItem(RoadTreeItem *parent, SuperelevationSection *section, QTreeWidgetItem *fosterParent);

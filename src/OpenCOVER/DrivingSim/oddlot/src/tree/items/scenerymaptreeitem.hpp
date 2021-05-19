@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/7/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/7/2010
+ **
+ **************************************************************************/
 
 #ifndef SCENERYMAPTREEITEM_HPP
 #define SCENERYMAPTREEITEM_HPP
@@ -25,9 +25,9 @@ class SceneryMapTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SceneryMapTreeItem(ScenerySystemTreeItem *parent, SceneryMap *map, QTreeWidgetItem *fosterParent);

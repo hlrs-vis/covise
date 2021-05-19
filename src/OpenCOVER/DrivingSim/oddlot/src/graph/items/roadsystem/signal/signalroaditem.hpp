@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SIGNALROADITEM_HPP
 #define SIGNALROADITEM_HPP
@@ -28,9 +28,9 @@ class SignalRoadItem : public RoadItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SignalRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road);
@@ -43,7 +43,7 @@ public:
 
     // Garbage //
     //
-    //	virtual void			notifyDeletion();
+    // virtual void   notifyDeletion();
 
     // Obsever Pattern //
     //
@@ -79,7 +79,7 @@ private:
 
     RSystemElementRoad *road_;
     SignalEditor *signalEditor_;
-	SignalManager *signalManager_;
+    SignalManager *signalManager_;
 
     QPointF pos_;
 };

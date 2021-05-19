@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11.03.2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONEDITOR_HPP
 #define JUNCTIONEDITOR_HPP
@@ -52,9 +52,9 @@ class JunctionEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 private:
     enum JunctionEditorState
@@ -96,11 +96,11 @@ public:
     int unregisterJunctionAddHandle(JunctionAddHandle *handle);
 
 #if 0
-	// RotateHandles //
-	//
-	void						registerJunctionRotateHandle(JunctionRotateHandle * handle);
-	int						unregisterJunctionRotateHandle(JunctionRotateHandle * handle);
-	double					rotateJunctionRotateHandles(double dHeading, double globalHeading);
+    // RotateHandles //
+    //
+    void      registerJunctionRotateHandle(JunctionRotateHandle *handle);
+    int      unregisterJunctionRotateHandle(JunctionRotateHandle *handle);
+    double     rotateJunctionRotateHandles(double dHeading, double globalHeading);
 #endif
 
     // Section Handle //
@@ -125,12 +125,12 @@ public:
 
     double widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth); // calculates the offset of a lane from the center of the road
 
-	void deselectLanes(RSystemElementRoad *road);
+    void deselectLanes(RSystemElementRoad *road);
     void assignParameterSelection(ODD::ToolId id);
     void getSelectedRoadsAndLanes();
-	void clearToolObjectSelection();
+    void clearToolObjectSelection();
 
-	//bool validateToolParameters();
+    //bool validateToolParameters();
 
 protected:
     virtual void init();
@@ -146,11 +146,11 @@ private:
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply();
-	virtual void reject();
-	virtual void reset();
+    // Parameter Settings //
+    //
+    virtual void apply();
+    virtual void reject();
+    virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -210,13 +210,13 @@ private:
     //
     double threshold_;
 
-	// Currently selected Parameter //
-	//
-	int currentParamId_;
+    // Currently selected Parameter //
+    //
+    int currentParamId_;
 
-	// necessary selected elements to make APPLY visible //
-	//
-	int applyCount_;
+    // necessary selected elements to make APPLY visible //
+    //
+    int applyCount_;
 
 };
 

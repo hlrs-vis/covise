@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTTREEWIDGET_HPP
 #define PROJECTTREEWIDGET_HPP
@@ -32,9 +32,9 @@ class ProjectTreeWidget : public QTreeWidget
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProjectTreeWidget(ProjectTree *projectTree, ProjectData *projectData);

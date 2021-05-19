@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SELECTIONTOOL_HPP
 #define SELECTIONTOOL_HPP
@@ -27,15 +27,15 @@ class SelectionTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     /*! \brief Ids of the zoom tools.
-	*
-	* This enum defines the Id of each tool.
-	*/
+    *
+    * This enum defines the Id of each tool.
+    */
     enum SelectionToolId
     {
         TSL_UNKNOWN,
@@ -108,10 +108,10 @@ public:
         return selectionToolId_;
     }
 
-	bool getBoundingBoxActive()
-	{
-		return boundingBoxActive_;
-	}
+    bool getBoundingBoxActive()
+    {
+        return boundingBoxActive_;
+    }
 
 
 protected:
@@ -128,7 +128,7 @@ protected:
 private:
     SelectionTool::SelectionToolId selectionToolId_;
 
-	bool boundingBoxActive_;
+    bool boundingBoxActive_;
 };
 
 #endif // SELECTIONTOOL_HPP

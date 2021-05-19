@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/8/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/8/2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONWIZARD_HPP
 #define ELEVATIONWIZARD_HPP
@@ -22,16 +22,16 @@ class ProjectData;
 
 namespace Ui
 {
-class ElevationWizard;
+    class ElevationWizard;
 }
 
 class ElevationWizard : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationWizard(ProjectData *projectData, QWidget *parent = 0);

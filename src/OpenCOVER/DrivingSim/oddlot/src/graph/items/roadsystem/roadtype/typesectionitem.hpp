@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.03.2010
+ **
+ **************************************************************************/
 
 #ifndef TYPESECTIONITEM_HPP
 #define TYPESECTIONITEM_HPP
@@ -27,9 +27,9 @@ class TypeSectionItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TypeSectionItem(RoadTypeEditor *typeEditor, RoadItem *parentRoadItem, TypeSection *typeSection);

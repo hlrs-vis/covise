@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10.03.2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTEDITOR_HPP
 #define PROJECTEDITOR_HPP
@@ -42,9 +42,9 @@ class ProjectEditor : public QObject
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProjectEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
@@ -59,11 +59,11 @@ public:
     {
         return currentTool_;
     }
-	void setParameterTool(ODD::ToolId id);
-	ODD::ToolId getCurrentParameterTool()
-	{
-		return currentParameterTool_;
-	}
+    void setParameterTool(ODD::ToolId id);
+    ODD::ToolId getCurrentParameterTool()
+    {
+        return currentParameterTool_;
+    }
     void focusParameterDialog(bool state);
     bool isCurrentTool(ODD::ToolId toolId)
     {
@@ -103,21 +103,21 @@ protected:
     virtual void init() = 0;
     virtual void kill() = 0;
 
-	// ToolParameters //
-	//
-	void createToolParameterSettingsApplyBox(Tool *tool, const ODD::EditorId &editorID);
-	void createToolParameterSettings(Tool *tool, const ODD::EditorId &editorID);
-	void generateToolParameterUI(Tool *tool);
-	void updateToolParameterUI(ToolParameter *param);
-	void delToolParameters();
-	template<class T>
-	void setToolValue(T *object, const QString &valueDisplayed);
-	template<class T>
-	void createToolParameters(T *object, int currentParameterID = -1);
-	template<class T>
-	void removeToolParameters(T *object);
+    // ToolParameters //
+    //
+    void createToolParameterSettingsApplyBox(Tool *tool, const ODD::EditorId &editorID);
+    void createToolParameterSettings(Tool *tool, const ODD::EditorId &editorID);
+    void generateToolParameterUI(Tool *tool);
+    void updateToolParameterUI(ToolParameter *param);
+    void delToolParameters();
+    template<class T>
+    void setToolValue(T *object, const QString &valueDisplayed);
+    template<class T>
+    void createToolParameters(T *object, int currentParameterID = -1);
+    template<class T>
+    void removeToolParameters(T *object);
 
-    void setToolValues(QList<ToolParameter*>& paramList);
+    void setToolValues(QList<ToolParameter *> &paramList);
     void resetToolValues(QList<ToolParameter *> &paramList);
 
 
@@ -134,22 +134,22 @@ public slots:
     void show();
     void hide();
 
-	// Parameter Settings //
-	//
-	virtual void apply() = 0;
-	virtual void reject();
-	virtual void reset() = 0;
+    // Parameter Settings //
+    //
+    virtual void apply() = 0;
+    virtual void reject();
+    virtual void reset() = 0;
 
     //################//
     // PROPERTIES     //
     //################//
 protected:
 
-	// ToolParameters //
-	//
-	Tool *tool_;
-	ToolParameterSettingsApplyBox *settingsApplyBox_;
-	ToolParameterSettings *settings_;
+    // ToolParameters //
+    //
+    Tool *tool_;
+    ToolParameterSettingsApplyBox *settingsApplyBox_;
+    ToolParameterSettings *settings_;
 
 private:
     // Project, Data, Graph //
@@ -157,12 +157,12 @@ private:
     ProjectWidget *projectWidget_;
     ProjectData *projectData_;
     TopviewGraph *topviewGraph_;
-	MainWindow *mainWindow_;
+    MainWindow *mainWindow_;
 
     // Tool //
     //
     ODD::ToolId currentTool_;
-	ODD::ToolId currentParameterTool_;
+    ODD::ToolId currentParameterTool_;
 
 };
 

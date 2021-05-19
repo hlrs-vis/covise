@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OSCOBJECTITEM_HPP
 #define OSCOBJECTITEM_HPP
@@ -30,9 +30,9 @@ class OSCObjectItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OSCObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos);
@@ -62,7 +62,7 @@ public:
 
     // Garbage //
     //
-    //	virtual void			notifyDeletion();
+    // virtual void   notifyDeletion();
 
 
     //################//
@@ -91,15 +91,15 @@ protected:
 private:
     void init();
 
-	RoadSystemItem * roadSystemItem_;
+    RoadSystemItem *roadSystemItem_;
 
     Object *object_;
-	RSystemElementRoad *road_;
+    RSystemElementRoad *road_;
     QPointF pos_;
-	QPainterPath *path_;
+    QPainterPath *path_;
 
-	bool doPan_;
-	bool copyPan_;
+    bool doPan_;
+    bool copyPan_;
 
     ObjectTextItem *objectTextItem_;
 

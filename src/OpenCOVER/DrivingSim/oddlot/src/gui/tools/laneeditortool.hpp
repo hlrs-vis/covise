@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/18/2010
+ **
+ **************************************************************************/
 
 #ifndef LANEEDITORTOOL_HPP
 #define LANEEDITORTOOL_HPP
@@ -28,9 +28,9 @@ class LaneEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneEditorTool(ToolManager *toolManager);
@@ -47,9 +47,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -60,24 +60,24 @@ signals:
 
 public slots:
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void setWidth();
     void setRibbonWidth();
     void handleToolClick(int);
-	void handleRibbonToolClick(int);
-	void onCheckBoxStateChanged(int);
-//	void setEditMode();
+    void handleRibbonToolClick(int);
+    void onCheckBoxStateChanged(int);
+    // void setEditMode();
 
-    //################//
-    // PROPERTIES     //
-    //################//
+        //################//
+        // PROPERTIES     //
+        //################//
 
 private:
     Ui::LaneRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *widthEdit_;
 
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 };
 
 class LaneEditorToolAction : public ToolAction

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #ifndef SUPERELEVATIONMOVEHANDLE_HPP
 #define SUPERELEVATIONMOVEHANDLE_HPP
@@ -27,9 +27,9 @@ class SuperelevationMoveHandle : public MoveHandle
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SuperelevationMoveHandle(SuperelevationEditor *superelevationEditor, QGraphicsItem *parent);
@@ -53,7 +53,7 @@ public:
     }
     void setDOF(int dof);
 
-	const QString getText();
+    const QString getText();
 
     // Observer Pattern //
     //
@@ -82,8 +82,8 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
     //################//
@@ -102,9 +102,9 @@ private:
     QAction *removeAction_;
     QAction *smoothAction_;
 
-	// Height //
-	//
-	TextHandle *heightTextItem_;
+    // Height //
+    //
+    TextHandle *heightTextItem_;
 };
 
 #endif // SUPERELEVATIONMOVEHANDLE_HPP

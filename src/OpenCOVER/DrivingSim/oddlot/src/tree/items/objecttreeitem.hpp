@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/13/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/13/2010
+ **
+ **************************************************************************/
 
 #ifndef OBJECTTREEITEM_HPP
 #define OBJECTTREEITEM_HPP
@@ -25,9 +25,9 @@ class ObjectTreeItem : public SectionTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ObjectTreeItem(RoadTreeItem *parent, Object *section, QTreeWidgetItem *fosterParent);

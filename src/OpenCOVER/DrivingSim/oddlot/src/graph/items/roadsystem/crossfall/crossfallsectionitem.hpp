@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #ifndef CROSSFALLSECTIONITEM_HPP
 #define CROSSFALLSECTIONITEM_HPP
@@ -27,9 +27,9 @@ class CrossfallSectionItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit CrossfallSectionItem(CrossfallEditor *crossfallEditor, RoadItem *parentRoadItem, CrossfallSection *crossfallSection);
@@ -71,7 +71,7 @@ public slots:
     //################//
 
 protected:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -86,7 +86,7 @@ protected:
     //################//
 
 private:
-	CrossfallRoadItem *parentRoadItem_;
+    CrossfallRoadItem *parentRoadItem_;
 
     CrossfallEditor *crossfallEditor_;
 

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.07.2010
+ **
+ **************************************************************************/
 
 #ifndef SHAPESECTIONPOLYNOMIALITEM_HPP
 #define SHAPESECTIONPOLYNOMIALITEM_HPP
@@ -34,9 +34,9 @@ class ShapeSectionPolynomialItem : public LateralSectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ShapeSectionPolynomialItem(ShapeSectionPolynomialItems *parentShapeSectionPolynomialItems, PolynomialLateralSection *polynomialLateralSection, ShapeEditor *shapeEditor);
@@ -45,17 +45,17 @@ public:
 
     // Section //
     //
-	PolynomialLateralSection *getPolynomialLateralSection() const
+    PolynomialLateralSection *getPolynomialLateralSection() const
     {
         return polynomialLateralSection_;
     }
 
-	// Root Item //
-	//
-	ShapeSectionPolynomialItems *getParentPolynomialItems()
-	{
-		return parentShapeSectionPolynomialItems_;
-	}
+    // Root Item //
+    //
+    ShapeSectionPolynomialItems *getParentPolynomialItems()
+    {
+        return parentShapeSectionPolynomialItems_;
+    }
 
     // Graphics //
     //
@@ -81,9 +81,9 @@ private:
 
 public:
 
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
 
@@ -109,20 +109,20 @@ public:
 private:
     // ShapeSectionPolynomialItems //
     //
-	ShapeSectionPolynomialItems *parentShapeSectionPolynomialItems_;
+    ShapeSectionPolynomialItems *parentShapeSectionPolynomialItems_;
 
     // Section //
     //
     PolynomialLateralSection *polynomialLateralSection_;
-	ShapeSection *shapeSection_;
+    ShapeSection *shapeSection_;
 
-	// Editor //
-	//
-	ShapeEditor *shapeEditor_;
+    // Editor //
+    //
+    ShapeEditor *shapeEditor_;
 
-	// SplineMoveHandles //
-	//
-	SplineMoveHandle *realPointLowHandle_, *realPointHighHandle_; 
+    // SplineMoveHandles //
+    //
+    SplineMoveHandle *realPointLowHandle_, *realPointHighHandle_;
 };
 
 #endif // SHAPESECTIONPOLYNOMIALITEM_HPP

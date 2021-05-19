@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   15.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   15.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OPENSCENARIOEDITOR_HPP
 #define OPENSCENARIOEDITOR_HPP
@@ -28,13 +28,13 @@ class CatalogTreeWidget;
 
 namespace OpenScenario
 {
-class OpenScenarioBase;
-class oscObjectBase;
-class oscObject;
-class oscCatalog;
-class oscTrajectory;
-class oscPrivateAction;
-class oscArrayMember;
+    class OpenScenarioBase;
+    class oscObjectBase;
+    class oscObject;
+    class oscCatalog;
+    class oscTrajectory;
+    class oscPrivateAction;
+    class oscArrayMember;
 }
 
 class OSCBaseItem;
@@ -48,9 +48,9 @@ class OpenScenarioEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
@@ -74,36 +74,36 @@ public:
 
     // Move Object //
     //
-	void move(QPointF &diff);
-	void translate(QPointF &diff);
-	void translateObject(OpenScenario::oscObject *oscObject, QPointF &diff);
+    void move(QPointF &diff);
+    void translate(QPointF &diff);
+    void translateObject(OpenScenario::oscObject *oscObject, QPointF &diff);
 
-	OpenScenario::oscCatalog *getCatalog(std::string name);
-	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
-	std::string getName(OpenScenario::oscArrayMember *arrayMember, const std::string &baseName);
-	OSCElement* cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject);
+    OpenScenario::oscCatalog *getCatalog(std::string name);
+    OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
+    std::string getName(OpenScenario::oscArrayMember *arrayMember, const std::string &baseName);
+    OSCElement *cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject);
 
 
-	// Catalog dock widget changed //
-	//
-	void catalogChanged(OpenScenario::oscCatalog *member);
+    // Catalog dock widget changed //
+    //
+    void catalogChanged(OpenScenario::oscCatalog *member);
 
-	// Edit Trajectory element //
-	//
-	void setTrajectoryElement(OSCElement *trajectory);
+    // Edit Trajectory element //
+    //
+    void setTrajectoryElement(OSCElement *trajectory);
 
-	// New Object with properties chosen in SignalTreeWidget //
-	//
-//	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
-	OSCRoadSystemItem *getRoadSystemItem()
-	{
-		return oscRoadSystemItem_;
-	}
+    // New Object with properties chosen in SignalTreeWidget //
+    //
+// Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
+    OSCRoadSystemItem *getRoadSystemItem()
+    {
+        return oscRoadSystemItem_;
+    }
 
     void addGraphToObserver(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList);
     void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList);
 
-	void enableSplineEditing(bool state);
+    void enableSplineEditing(bool state);
 
 protected:
     virtual void init();
@@ -119,12 +119,12 @@ private:
     //################//
 
 public slots:
-	void changeDirectories();
-	// Parameter Settings //
-	//
-	virtual void apply() {};
-	virtual void reject() {};
-	virtual void reset() {};
+    void changeDirectories();
+    // Parameter Settings //
+    //
+    virtual void apply() {};
+    virtual void reject() {};
+    virtual void reset() {};
 
     //################//
     // PROPERTIES     //
@@ -136,37 +136,37 @@ private:
     //
   //  OSCHandle *insertOSCHandle_;
 
-	TopviewGraph *topviewGraph_;
+    TopviewGraph *topviewGraph_;
 
-	// RoadSystem //
-	//
-	RoadSystem *roadSystem_;
-	 OSCRoadSystemItem * oscRoadSystemItem_;
+    // RoadSystem //
+    //
+    RoadSystem *roadSystem_;
+    OSCRoadSystemItem *oscRoadSystemItem_;
 
-	// MainWindow //
-	//
-	MainWindow * mainWindow_;
+    // MainWindow //
+    //
+    MainWindow *mainWindow_;
 
-	// OpenScenarioBase //
-	//
-	OSCBase * oscBase_;
-	OSCBaseItem * oscBaseItem_;
-	OSCBaseShapeItem *oscBaseShapeItem_;
-	OpenScenario::OpenScenarioBase *openScenarioBase_;
+    // OpenScenarioBase //
+    //
+    OSCBase *oscBase_;
+    OSCBaseItem *oscBaseItem_;
+    OSCBaseShapeItem *oscBaseShapeItem_;
+    OpenScenario::OpenScenarioBase *openScenarioBase_;
 
-	// Selected catalog //
-	//
-	OpenScenario::oscCatalog *oscCatalog_;
+    // Selected catalog //
+    //
+    OpenScenario::oscCatalog *oscCatalog_;
 
 
-	ODD::ToolId lastTool_;
-	QString lastOSCObjectName_;
+    ODD::ToolId lastTool_;
+    QString lastOSCObjectName_;
 
-	QString catalogElement_;
+    QString catalogElement_;
 
-	// Window with catalog entries //
-	//
-	CatalogTreeWidget *catalogTree_;
+    // Window with catalog entries //
+    //
+    CatalogTreeWidget *catalogTree_;
 
 
     // Selected waypoints //
@@ -175,7 +175,7 @@ private:
 
     // RoadType //
     //
-    //	TypeSection::RoadType	currentRoadType_;
+    // TypeSection::RoadType currentRoadType_;
 };
 
 #endif // OPENSCENARIOEDITOR_HPP

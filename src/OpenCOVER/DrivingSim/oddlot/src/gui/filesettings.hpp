@@ -12,24 +12,24 @@ namespace Ui
 class FileSettings : public QDialog
 {
     Q_OBJECT
-    public:
-        explicit FileSettings();
-        virtual ~FileSettings();
+public:
+    explicit FileSettings();
+    virtual ~FileSettings();
 
-        QTabWidget* getTabWidget()
-        {
-            return ui->tabWidget;
-        }
-        void addTab(QWidget *widget);
+    QTabWidget *getTabWidget()
+    {
+        return ui->tabWidget;
+    }
+    void addTab(QWidget *widget);
 
-    signals:
-        void emitOK();
+signals:
+    void emitOK();
 
-    private slots:
-        void okClicked();
+private slots:
+    void okClicked();
 
-    private:
-        Ui::FileSettings *ui;
+private:
+    Ui::FileSettings *ui;
 };
 
 #endif // FILESETTINGS_HPP

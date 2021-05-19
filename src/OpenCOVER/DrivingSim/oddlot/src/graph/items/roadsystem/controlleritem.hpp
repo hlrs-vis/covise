@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #ifndef CONTROLLERITEM_HPP
 #define CONTROLLERITEM_HPP
@@ -27,9 +27,9 @@ class ControllerItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ControllerItem(RoadSystemItem *roadSystemItem, RSystemElementController *controller);
@@ -86,7 +86,7 @@ private:
 
     // Text //
     //
-	QGraphicsTextItem *textItem_;
+    QGraphicsTextItem *textItem_;
 };
 
 #endif // CONTROLLERITEM_HPP

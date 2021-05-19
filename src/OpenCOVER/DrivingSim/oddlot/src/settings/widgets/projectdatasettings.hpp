@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/25/2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTDATASETTINGS_HPP
 #define PROJECTDATASETTINGS_HPP
@@ -20,16 +20,16 @@
 
 namespace Ui
 {
-class ProjectDataSettings;
+    class ProjectDataSettings;
 }
 
 class ProjectDataSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProjectDataSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, ProjectData *projectData);

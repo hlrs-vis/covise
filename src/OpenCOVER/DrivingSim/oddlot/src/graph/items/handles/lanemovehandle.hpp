@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   25.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   25.06.2010
+ **
+ **************************************************************************/
 
 #ifndef LANEMOVEHANDLE_HPP
 #define LANEMOVEHANDLE_HPP
 
 #include "src/graph/items/handles/baselanemovehandle.hpp"
 
-// Data  //
-//
+ // Data  //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
@@ -106,11 +106,11 @@ public:
 
         if (fabs(lowSlot_->getLength() - lowSlot_->getParentLane()->getParentLaneSection()->getSEnd()) < NUMERICAL_ZERO6)
         {
-			if (getContextMenu()->actions().size() > 2)
-			{
-				QAction *removeAction = getContextMenu()->actions().at(0);
-				getContextMenu()->removeAction(removeAction);
-			}
+            if (getContextMenu()->actions().size() > 2)
+            {
+                QAction *removeAction = getContextMenu()->actions().at(0);
+                getContextMenu()->removeAction(removeAction);
+            }
         }
 
         // Transformation //
@@ -147,11 +147,11 @@ public:
 
         if (highSlot_->getParentLane()->getWidthEntry(0.0) == highSlot_)
         {
-			if (getContextMenu()->actions().size() > 2)
-			{
-				QAction *removeAction = getContextMenu()->actions().at(0);
-				getContextMenu()->removeAction(removeAction);
-			}
+            if (getContextMenu()->actions().size() > 2)
+            {
+                QAction *removeAction = getContextMenu()->actions().at(0);
+                getContextMenu()->removeAction(removeAction);
+            }
         }
 
         // Transformation //
@@ -199,11 +199,11 @@ public:
         if (command->isValid())
         {
             lowSlot_->getUndoStack()->push(command);
-        } 
+        }
         else
         {
             delete command;
-        } 
+        }
 
     }
 
@@ -225,7 +225,7 @@ public:
 
     virtual void corner()
     {
-        if (isCorner_ )
+        if (isCorner_)
         {
             return;
         }
@@ -236,7 +236,7 @@ public:
             return;
         }
 
-        LaneBorderCornerCommand *command = new LaneBorderCornerCommand(lowSlot_, highSlot_, true,  NULL);
+        LaneBorderCornerCommand *command = new LaneBorderCornerCommand(lowSlot_, highSlot_, true, NULL);
         laneEditor_->getTopviewGraph()->executeCommand(command);
 
     }
@@ -304,16 +304,16 @@ public:
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
                 if (lowSlot_->getParentLane()->getId() > 0)
                 {
-					setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+                    setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
                 }
                 else
                 {
-					setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+                    setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
                 }
-				updateWidthItemValue();
+                updateWidthItemValue();
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
-				updateColor();
+                updateColor();
 
             }
 
@@ -338,16 +338,16 @@ public:
                 RSystemElementRoad *parentRoad = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
                 if (highSlot_->getParentLane()->getId() > 0)
                 {
-					setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
+                    setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
                 }
                 else
                 {
-					setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
+                    setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
                 }
-				updateWidthItemValue();
+                updateWidthItemValue();
                 setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
-				updateColor();
+                updateColor();
             }
         }
 
@@ -368,7 +368,7 @@ protected:
             {
                 laneEditor_->unregisterMoveHandle(this);
             }
-			BaseLaneMoveHandle::itemChange(change, value);
+            BaseLaneMoveHandle::itemChange(change, value);
             return value;
         }
 
@@ -380,54 +380,54 @@ protected:
         return MoveHandle::itemChange(change, value);
     }
 
-	virtual const double getWidth()
-	{
-		// Text //
-		//
-		double width;
+    virtual const double getWidth()
+    {
+        // Text //
+        //
+        double width;
 
-		if (highSlot_)
-		{
-			width = highSlot_->f(0.0);
-		}
-		else if (lowSlot_)
-		{
-			width = lowSlot_->f(lowSlot_->getSSectionEnd() - lowSlot_->getSSectionStartAbs());
-		}
+        if (highSlot_)
+        {
+            width = highSlot_->f(0.0);
+        }
+        else if (lowSlot_)
+        {
+            width = lowSlot_->f(lowSlot_->getSSectionEnd() - lowSlot_->getSSectionStartAbs());
+        }
 
-		return width;
-	}
+        return width;
+    }
 
-	virtual void setLaneWidth(double width)
-	{
-		QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
-		LaneMoveProperties *props = new LaneMoveProperties();
-		RSystemElementRoad *road;
-		double s;
-		if (lowSlot_)
-		{
-			props->lowSlot = lowSlot_;
-			road = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
-			s = lowSlot_->getSSectionEnd();
-		}
+    virtual void setLaneWidth(double width)
+    {
+        QMap<RSystemElementRoad *, QMultiMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
+        LaneMoveProperties *props = new LaneMoveProperties();
+        RSystemElementRoad *road;
+        double s;
+        if (lowSlot_)
+        {
+            props->lowSlot = lowSlot_;
+            road = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+            s = lowSlot_->getSSectionEnd();
+        }
 
-		if (highSlot_)
-		{
-			props->highSlot = highSlot_;
-			if (!lowSlot_)
-			{
-				road = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
-				s = highSlot_->getSSectionStartAbs();
-			}
-		}
+        if (highSlot_)
+        {
+            props->highSlot = highSlot_;
+            if (!lowSlot_)
+            {
+                road = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+                s = highSlot_->getSSectionStartAbs();
+            }
+        }
 
-		QMultiMap<double, LaneMoveProperties *> propsMap;
-		propsMap.insert(s, props);
-		selectedLaneMoveProps.insert(road, propsMap);
+        QMultiMap<double, LaneMoveProperties *> propsMap;
+        propsMap.insert(s, props);
+        selectedLaneMoveProps.insert(road, propsMap);
 
-		TranslateLaneBorderCommand *command = new TranslateLaneBorderCommand(selectedLaneMoveProps, width, QPointF(0, 0), NULL);
-		laneEditor_->getTopviewGraph()->executeCommand(command); 
-	}
+        TranslateLaneBorderCommand *command = new TranslateLaneBorderCommand(selectedLaneMoveProps, width, QPointF(0, 0), NULL);
+        laneEditor_->getTopviewGraph()->executeCommand(command);
+    }
 
 private:
     LaneMoveHandle(); /* not allowed */
@@ -440,11 +440,11 @@ private:
         {
             if (fabs(lowSlot_->df(highSlot_->getSSectionStartAbs() - lowSlot_->getSSectionStartAbs()) - highSlot_->df(0.0)) < NUMERICAL_ZERO3)
             {
-                    isCorner_ = false;
-                    setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-                    setPen(QPen(ODD::instance()->colors()->darkOrange()));
+                isCorner_ = false;
+                setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
+                setPen(QPen(ODD::instance()->colors()->darkOrange()));
 
-                    return;
+                return;
             }
         }
 

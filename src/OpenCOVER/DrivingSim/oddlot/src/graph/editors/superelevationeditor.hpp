@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   16.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   16.07.2010
+ **
+ **************************************************************************/
 
 #ifndef SUPERELEVATIONEDITOR_HPP
 #define SUPERELEVATIONEDITOR_HPP
@@ -44,9 +44,9 @@ class SuperelevationEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SuperelevationEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph);
@@ -71,7 +71,7 @@ public:
 
     //Get selected roads //
     //
-    SuperelevationRoadPolynomialItem* getSelectedSuperelevationItem()
+    SuperelevationRoadPolynomialItem *getSelectedSuperelevationItem()
     {
         return selectedSuperelevationItem_;
     };
@@ -80,7 +80,7 @@ public:
     //
     void addSelectedRoad(SuperelevationRoadPolynomialItem *roadItem);
     void delSelectedRoad(RSystemElementRoad *road);
-    void insertSelectedRoad(RSystemElementRoad* road);
+    void insertSelectedRoad(RSystemElementRoad *road);
     void initBox();
     void fitView();
 
@@ -93,8 +93,8 @@ public:
     // Tool, Mouse & Key //
     //
     virtual void toolAction(ToolAction *toolAction);
-    //	virtual void			mouseAction(MouseAction * mouseAction);
-    //	virtual void			keyAction(KeyAction * keyAction);
+    // virtual void   mouseAction(MouseAction * mouseAction);
+    // virtual void   keyAction(KeyAction * keyAction);
 
 protected:
     virtual void init();
@@ -110,11 +110,11 @@ private:
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply() {};
-	virtual void reject() {};
-	virtual void reset() {};
+    // Parameter Settings //
+    //
+    virtual void apply() {};
+    virtual void reject() {};
+    virtual void reset() {};
 
     //################//
     // PROPERTIES     //
@@ -139,8 +139,8 @@ private:
 
     // ProfileGraph: Selected Items //
     //
-    QList<RSystemElementRoad*> selectedRoads_;
-    SuperelevationRoadPolynomialItem* selectedSuperelevationItem_;
+    QList<RSystemElementRoad *> selectedRoads_;
+    SuperelevationRoadPolynomialItem *selectedSuperelevationItem_;
 
     QMultiMap<int, SuperelevationMoveHandle *> selectedMoveHandles_;
 

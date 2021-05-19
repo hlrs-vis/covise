@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.05.2010
+ **
+ **************************************************************************/
 
 #ifndef PROTOTYPE_HPP
 #define PROTOTYPE_HPP
@@ -36,7 +36,7 @@ class PrototypeContainer
     //################//
 
 public:
-    explicit PrototypeContainer(const QString &name, const QIcon &icon, T_DERIVED prototype,QString &system,QString &tn,QString &ln)
+    explicit PrototypeContainer(const QString &name, const QIcon &icon, T_DERIVED prototype, QString &system, QString &tn, QString &ln)
         : prototypeName_(name)
         , prototypeIcon_(icon)
         , prototype_(prototype)
@@ -111,7 +111,7 @@ private:
     QString prototypeName_;
     QIcon prototypeIcon_;
     T_DERIVED prototype_;
-    
+
     QString systemName;
     QString typeName;
     QString laneNumbers;
@@ -121,9 +121,9 @@ class PrototypeManager : public QObject
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     enum PrototypeType
@@ -139,7 +139,7 @@ public:
         PTP_ScenerySystemPrototype = 0x18,
         PTP_VehicleSystemPrototype = 0x100,
         PTP_PedestrianSystemPrototype = 0x200,
-		PTP_RoadShapePrototype = 0x20
+        PTP_RoadShapePrototype = 0x20
     };
 
     //################//
@@ -154,15 +154,15 @@ public:
     //
     bool loadPrototypes(const QString &fileName);
 
-    void addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type,QString &system,QString &typeName,QString &lanes);
+    void addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type, QString &system, QString &typeName, QString &lanes);
     QList<PrototypeContainer<RSystemElementRoad *> *> getRoadPrototypes(PrototypeManager::PrototypeType type) const
     {
         return roadPrototypes_.values(type);
     }
 
-	int getIndexOfLastInsertedPrototype(PrototypeManager::PrototypeType type);
-    
-    RSystemElementRoad *getRoadPrototype(PrototypeManager::PrototypeType type,QString typeName);
+    int getIndexOfLastInsertedPrototype(PrototypeManager::PrototypeType type);
+
+    RSystemElementRoad *getRoadPrototype(PrototypeManager::PrototypeType type, QString typeName);
 
     void addRoadSystemPrototype(const QString &name, const QIcon &icon, RoadSystem *roadSystem);
     QList<PrototypeContainer<RoadSystem *> *> getRoadSystemPrototypes() const

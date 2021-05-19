@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADLINKEDITORTOOL_HPP
 #define ROADLINKEDITORTOOL_HPP
@@ -29,9 +29,9 @@ class RoadLinkEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadLinkEditorTool(ToolManager *toolManager);
@@ -47,9 +47,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -60,9 +60,9 @@ signals:
 
 public slots:
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
-	void handleRibbonToolClick(int);
+    void handleRibbonToolClick(int);
     void setThreshold();
 
     //################//
@@ -70,10 +70,10 @@ public slots:
     //################//
 
 private:
-	Ui::RoadLinkRibbon *ui;
+    Ui::RoadLinkRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *thresholdEdit_;
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 };
 
 class RoadLinkEditorToolAction : public ToolAction

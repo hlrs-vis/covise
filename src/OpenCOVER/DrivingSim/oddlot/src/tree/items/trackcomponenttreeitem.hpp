@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/26/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/26/2010
+ **
+ **************************************************************************/
 
 #ifndef TRACKCOMPONENTTREEITEM_HPP
 #define TRACKCOMPONENTTREEITEM_HPP
@@ -25,9 +25,9 @@ class TrackComponentTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TrackComponentTreeItem(RoadTreeItem *parent, TrackComponent *component, QTreeWidgetItem *fosterParent);
@@ -46,7 +46,7 @@ public:
     virtual void updateObserver();
 
 protected:
-    //	virtual void			updateName() = 0;
+    // virtual void   updateName() = 0;
 
 private:
     TrackComponentTreeItem(); /* not allowed */

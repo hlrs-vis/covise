@@ -17,9 +17,9 @@ class TypeSectionSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 public:
     explicit TypeSectionSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, TypeSection *typesection);
     virtual ~TypeSectionSettings();

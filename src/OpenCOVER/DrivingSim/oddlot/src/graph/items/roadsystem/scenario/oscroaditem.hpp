@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef OSCSIGNALROADITEM_HPP
 #define OSCSIGNALROADITEM_HPP
@@ -26,17 +26,17 @@ class OSCRoadItem : public RoadItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OSCRoadItem(RoadSystemItem *roadSystemItem, RSystemElementRoad *road);
     virtual ~OSCRoadItem();
 
-	// Garbage //
+    // Garbage //
     //
-	virtual bool deleteRequest(){return false;};
+    virtual bool deleteRequest() { return false; };
 
     // Graphics //
     //

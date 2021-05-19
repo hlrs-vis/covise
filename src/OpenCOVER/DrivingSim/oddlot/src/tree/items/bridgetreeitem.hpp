@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/13/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/13/2010
+ **
+ **************************************************************************/
 
 #ifndef BRIDGETREEITEM_HPP
 #define BRIDGETREEITEM_HPP
@@ -25,9 +25,9 @@ class BridgeTreeItem : public SectionTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit BridgeTreeItem(RoadTreeItem *parent, Bridge *section, QTreeWidgetItem *fosterParent);

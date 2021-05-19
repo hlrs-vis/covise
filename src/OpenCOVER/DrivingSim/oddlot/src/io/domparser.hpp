@@ -5,19 +5,19 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   02.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   02.02.2010
+ **
+ **************************************************************************/
 
 #ifndef DOMPARSER_HPP
 #define DOMPARSER_HPP
 
 #include <QObject>
-// because of tr()
+ // because of tr()
 #include <QMap>
 #include <QStringList>
 
@@ -59,11 +59,11 @@ class DomParser : public QObject
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
-    enum Mode
+        enum Mode
     {
         MODE_NONE,
         MODE_XODR,
@@ -80,7 +80,7 @@ public:
     ~DomParser();
 
 
-	void warning(QString title, QString text);
+    void warning(QString title, QString text);
     // XODR //
     //
     bool parseXODR(QIODevice *device);
@@ -120,7 +120,7 @@ public:
     bool parseCarPool(const QDomElement &element);
     PoolVehicle *parsePoolVehicle(const QDomElement &element);
     Pool *parsePool(const QDomElement &element);
-	void StringToID(QString id, odrID &ID, odrID::IDType, int tileID);
+    void StringToID(QString id, odrID &ID, odrID::IDType, int tileID);
 
     RSystemElementRoad *parseRoadElement(QDomElement &child);
     bool parseTypeElement(QDomElement &element, RSystemElementRoad *road);
@@ -133,14 +133,14 @@ public:
     bool parseElevationElement(QDomElement &element, RSystemElementRoad *road);
     bool parseSuperelevationElement(QDomElement &element, RSystemElementRoad *road);
     bool parseCrossfallElement(QDomElement &element, RSystemElementRoad *road);
-	bool parseShapeElement(QDomElement &element, RSystemElementRoad *road);
+    bool parseShapeElement(QDomElement &element, RSystemElementRoad *road);
 
     bool parseLaneSectionElement(QDomElement &element, RSystemElementRoad *road);
     bool parseLaneElement(QDomElement &element, LaneSection *laneSection);
 
     bool parseControllerElement(QDomElement &child);
     bool parseJunctionElement(QDomElement &child);
-	bool parseJunctionGroupElement(QDomElement &child);
+    bool parseJunctionGroupElement(QDomElement &child);
     bool parseFiddleyardElement(QDomElement &child);
     bool parsePedFiddleyardElement(QDomElement &child);
     bool parseSceneryElement(QDomElement &child);
@@ -152,16 +152,16 @@ public:
     Pedestrian *parsePedElement(const QDomElement &element, bool defaultPed, bool templatePed);
 
 protected:
-    //	DomParser(){ /* not allowed */ };
+    // DomParser(){ /* not allowed */ };
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-	int parseTileID(const QDomElement &element);
+    int parseTileID(const QDomElement &element);
     QDomDocument *doc_;
-	float opendriveVersion_;
+    float opendriveVersion_;
 
     bool check(bool success, const QDomElement &element, const QString &attributeName, const QString &type);
     void setTile(const QString &id, QString &oldId);
@@ -182,8 +182,8 @@ private:
     DomParser::Mode mode_;
 
     QMap<QString, odrID> elementIDs_[odrID::NUM_IDs];
-	QMap<odrID, odrID> changedSignalIDs_;
-	bool disableWarnings;
+    QMap<odrID, odrID> changedSignalIDs_;
+    bool disableWarnings;
 };
 
 #endif // DOMPARSER_HPP

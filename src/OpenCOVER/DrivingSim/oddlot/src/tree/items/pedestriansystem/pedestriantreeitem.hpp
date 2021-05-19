@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/17/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/17/2010
+ **
+ **************************************************************************/
 
 #ifndef PEDESTRIANTREEITEM_HPP
 #define PEDESTRIANTREEITEM_HPP
@@ -25,9 +25,9 @@ class PedestrianTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit PedestrianTreeItem(PedestrianGroupTreeItem *parent, Pedestrian *pedestrian, QTreeWidgetItem *fosterParent);

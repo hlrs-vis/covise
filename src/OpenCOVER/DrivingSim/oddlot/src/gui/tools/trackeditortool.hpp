@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   06.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   06.04.2010
+ **
+ **************************************************************************/
 
 #ifndef TRACKEDITORTOOL_HPP
 #define TRACKEDITORTOOL_HPP
@@ -21,8 +21,8 @@
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QMap>
 class QGroupBox;
 
@@ -30,22 +30,22 @@ class TrackEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     /*! \brief Ids of the TrackEditor tools.
-	*
-	* This enum defines the Id of each tool.
-	*/
-    //	enum TrackEditorToolId
-    //	{
-    //		TTE_UNKNOWN,
-    //		TTE_SELECT,
-    //		TTE_INSERT,
-    //		TTE_DELETE
-    //	};
+    *
+    * This enum defines the Id of each tool.
+    */
+    // enum TrackEditorToolId
+    // {
+    //  TTE_UNKNOWN,
+    //  TTE_SELECT,
+    //  TTE_INSERT,
+    //  TTE_DELETE
+    // };
 
     //################//
     // FUNCTIONS      //
@@ -66,9 +66,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -80,7 +80,7 @@ signals:
 public slots:
     void sendToolAction();
 
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
 
     //################//
@@ -92,7 +92,7 @@ private:
 
     ODD::ToolId toolId_;
 
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 };
 
 class TrackEditorToolAction : public ToolAction

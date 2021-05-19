@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Nico Eichhorn (c) 2014
-**   <eichhorn@hlrs.de>
-**   12.09.2014
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Nico Eichhorn (c) 2014
+ **   <eichhorn@hlrs.de>
+ **   12.09.2014
+ **
+ **************************************************************************/
 
 #ifndef TILE_HPP
 #define TILE_HPP
@@ -19,16 +19,16 @@
 #include "src/data/tilesystem/tilesystem.hpp"
 #include "src/data/roadsystem/odrID.hpp"
 
-//
+ //
 class DataElement;
 
 class Tile : public QObject, public DataElement
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     enum TileChange
@@ -41,7 +41,7 @@ public:
 
 public:
     explicit Tile(const odrID &tileID);
-	explicit Tile(int tid);
+    explicit Tile(int tid);
     virtual ~Tile();
 
 public:
@@ -76,8 +76,8 @@ public:
     }
     void addTileChanges(int changes);
 
-	const QString getUniqueOSCID(const QString &suggestion,const QString &name);
-	void removeOSCID(const QString &ID);
+    const QString getUniqueOSCID(const QString &suggestion, const QString &name);
+    void removeOSCID(const QString &ID);
 
     // Visitor Pattern //
     //
@@ -96,7 +96,7 @@ private:
     //
     QString name_; // name of the element
     odrID id_; // unique ID within database
-	QSet<QString> oscIDs;
+    QSet<QString> oscIDs;
 };
 
 #endif // TILE_HPP

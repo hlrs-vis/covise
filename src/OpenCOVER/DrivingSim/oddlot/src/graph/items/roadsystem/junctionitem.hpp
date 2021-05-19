@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONITEM_HPP
 #define JUNCTIONITEM_HPP
@@ -27,9 +27,9 @@ class JunctionItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit JunctionItem(RoadSystemItem *roadSystemItem, RSystemElementJunction *junction);
@@ -71,9 +71,9 @@ public slots:
     //################//
 
 protected:
-//	virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	//	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
 public:
     //################//

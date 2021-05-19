@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   21.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   21.06.2010
+ **
+ **************************************************************************/
 
 #ifndef ELEVATIONEDITORTOOL_HPP
 #define ELEVATIONEDITORTOOL_HPP
@@ -28,9 +28,9 @@ class ElevationEditorTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ElevationEditorTool(ToolManager *toolManager);
@@ -46,9 +46,9 @@ private:
     void initToolBar();
     void initToolWidget();
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -59,16 +59,16 @@ signals:
 
 public slots:
     void activateEditor();
-	void activateRibbonEditor();
+    void activateRibbonEditor();
     void handleToolClick(int);
-	void handleRibbonToolClick(int);
+    void handleRibbonToolClick(int);
     void setRadius();
     void setHeight();
     void setIHeight();
     void setRHeight();
     void setRIHeight();
-	void setRRadius();
-	void setSectionStart();
+    void setRRadius();
+    void setSectionStart();
 
     //################//
     // PROPERTIES     //
@@ -77,7 +77,7 @@ public slots:
 private:
     Ui::ElevationRibbon *ui;
     ODD::ToolId toolId_;
-	QButtonGroup *ribbonToolGroup_;
+    QButtonGroup *ribbonToolGroup_;
 
     QDoubleSpinBox *radiusEdit_;
     QDoubleSpinBox *heightEdit_;
@@ -92,7 +92,7 @@ class ElevationEditorToolAction : public ToolAction
     //################//
 
 public:
-    explicit ElevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius, double height, double iHeight, double sectionStart=0.0);
+    explicit ElevationEditorToolAction(ODD::ToolId toolId, ODD::ToolId paramToolId, double radius, double height, double iHeight, double sectionStart = 0.0);
     virtual ~ElevationEditorToolAction()
     { /* does nothing */
     }
@@ -107,16 +107,16 @@ public:
         return height_;
     }
     void setHeight(double height);
-	double getIHeight()
-	{
-		return iHeight_;
-	}
-	void setIHeight(double iHeight);
-	double getSectionStart() const
-	{
-		return start_;
-	}
-	void setSectionStart(double start);
+    double getIHeight()
+    {
+        return iHeight_;
+    }
+    void setIHeight(double iHeight);
+    double getSectionStart() const
+    {
+        return start_;
+    }
+    void setSectionStart(double start);
 
 
 private:
@@ -131,8 +131,8 @@ private:
 private:
     double radius_;
     double height_;
-	double iHeight_;
-	double start_;
+    double iHeight_;
+    double start_;
 };
 
 #endif // ELEVATIONEDITORTOOL_HPP

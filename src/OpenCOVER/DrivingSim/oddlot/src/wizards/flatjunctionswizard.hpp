@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/3/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/3/2010
+ **
+ **************************************************************************/
 
 #ifndef FLATJUNCTIONSWIZARD_HPP
 #define FLATJUNCTIONSWIZARD_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class FlatJunctionsWizard;
+    class FlatJunctionsWizard;
 }
 
 class ProjectData;
@@ -29,9 +29,9 @@ class FlatJunctionsWizard : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit FlatJunctionsWizard(ProjectData *projectData, QWidget *parent = 0);

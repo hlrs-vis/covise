@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   17.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   17.03.2010
+ **
+ **************************************************************************/
 
 #ifndef LATERALSECTIONITEM_HPP
 #define LATERALSECTIONITEM_HPP
@@ -30,31 +30,31 @@ class LateralSectionItem : public QObject, public QGraphicsPathItem, public Obse
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LateralSectionItem(GraphElement *parentItem, LateralSection *lateralSection);
     virtual ~LateralSectionItem();
 
 
-	GraphElement *getParentSectionItem() const
+    GraphElement *getParentSectionItem() const
     {
         return parentItem_;
     }
 
     // Section //
     //
-	LateralSection *getLateralSection() const
+    LateralSection *getLateralSection() const
     {
         return lateralSection_;
     }
 
-	// Graph //
-	//
-	ProjectGraph *getProjectGraph() const;
-	virtual ProfileGraph *getProfileGraph() const;
+    // Graph //
+    //
+    ProjectGraph *getProjectGraph() const;
+    virtual ProfileGraph *getProfileGraph() const;
 
     // Obsever Pattern //
     //
@@ -62,12 +62,12 @@ public:
 
     // delete this item
     virtual bool deleteRequest();
-	void registerForDeletion();
-	virtual void notifyDeletion(); // to be implemented by subclasses
-	bool isInGarbage() const
-	{
-		return isInGarbage_;
-	}
+    void registerForDeletion();
+    virtual void notifyDeletion(); // to be implemented by subclasses
+    bool isInGarbage() const
+    {
+        return isInGarbage_;
+    }
 
 private:
     LateralSectionItem(); /* not allowed */
@@ -96,7 +96,7 @@ protected:
 protected:
     // GraphElement //
     //
-	GraphElement *parentItem_;
+    GraphElement *parentItem_;
 
 
 private:
@@ -104,9 +104,9 @@ private:
     //
     LateralSection *lateralSection_;
 
-	// Garbage //
-	//
-	bool isInGarbage_;
+    // Garbage //
+    //
+    bool isInGarbage_;
 };
 
 #endif // LATERALSECTIONITEM_HPP

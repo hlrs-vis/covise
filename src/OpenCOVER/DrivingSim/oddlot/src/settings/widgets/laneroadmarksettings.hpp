@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/29/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/29/2010
+ **
+ **************************************************************************/
 
 #ifndef LANEROADMARKSETTINGS_HPP
 #define LANEROADMARKSETTINGS_HPP
@@ -20,16 +20,16 @@
 
 namespace Ui
 {
-class LaneRoadMarkSettings;
+    class LaneRoadMarkSettings;
 }
 
 class LaneRoadMarkSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneRoadMarkSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, LaneRoadMark *laneRoadMark);

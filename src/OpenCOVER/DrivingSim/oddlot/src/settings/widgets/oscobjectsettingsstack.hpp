@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef OSCOBJECTSETTINGSSTACK_HPP
 #define OSCOBJECTSETTINGSSTACK_HPP
@@ -27,9 +27,9 @@ class OSCObjectSettingsStack : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit OSCObjectSettingsStack(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, OSCElement *element);
@@ -39,21 +39,21 @@ public:
     //
     virtual void updateObserver();
 
-	// Initialize generic user interface //
-	//
-	void uiInit();
+    // Initialize generic user interface //
+    //
+    void uiInit();
 
-	int getStackSize();
+    int getStackSize();
 
-	void addWidget(QWidget *widget);
-	QWidget *getLastWidget();
-	void removeWidget(QWidget *widget);
+    void addWidget(QWidget *widget);
+    QWidget *getLastWidget();
+    void removeWidget(QWidget *widget);
 
 private:
 
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
 
@@ -62,7 +62,7 @@ signals:
     //################//
 
 public slots:
-	void stackRemoveWidget();
+    void stackRemoveWidget();
 
     //################//
     // PROPERTIES     //
@@ -70,11 +70,11 @@ public slots:
 
 private:
     bool init_;
-	ProjectSettings *projectSettings_;
-	OSCElement *element_;
+    ProjectSettings *projectSettings_;
+    OSCElement *element_;
 
-	QStackedWidget *stack_;
-	QVBoxLayout *objectBoxLayout_;
+    QStackedWidget *stack_;
+    QVBoxLayout *objectBoxLayout_;
 };
 
 #endif // OSCOBJECTSETTINGSSTACK_HPP

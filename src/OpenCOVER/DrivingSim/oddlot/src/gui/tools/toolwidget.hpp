@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef TOOLWIDGET_HPP
 #define TOOLWIDGET_HPP
@@ -31,7 +31,7 @@ signals:
     void activated();
 
 public slots:
-	void activateWidget(int);
+    void activateWidget(int);
 
 private:
     int index_;

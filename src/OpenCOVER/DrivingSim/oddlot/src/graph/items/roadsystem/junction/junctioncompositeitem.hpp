@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.04.2010
+ **
+ **************************************************************************/
 
 #ifndef JUNCTIONCOMPOSITEITEM_HPP
 #define JUNCTIONCOMPOSITEITEM_HPP
@@ -24,9 +24,9 @@ class JunctionCompositeItem : public JunctionComponentItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit JunctionCompositeItem(JunctionRoadItem *parentJunctionRoadItem, TrackComposite *trackComposite);
@@ -61,13 +61,13 @@ public slots:
     //################//
 
 protected:
-    //	virtual void			mousePressEvent(QGraphicsSceneMouseEvent * event);
-    //	virtual void			mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
-    //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mousePressEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
     //
-    //	virtual void			hoverEnterEvent(QGraphicsSceneHoverEvent * event);
-    //	virtual void			hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
-    //	virtual void			hoverMoveEvent(QGraphicsSceneHoverEvent * event);
+    // virtual void   hoverEnterEvent(QGraphicsSceneHoverEvent * event);
+    // virtual void   hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
+    // virtual void   hoverMoveEvent(QGraphicsSceneHoverEvent * event);
 
     //################//
     // PROPERTIES     //

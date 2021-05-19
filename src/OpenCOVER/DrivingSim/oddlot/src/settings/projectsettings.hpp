@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/12/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/12/2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTSETTINGS_HPP
 #define PROJECTSETTINGS_HPP
@@ -23,7 +23,7 @@
 
 namespace Ui
 {
-class ErrorMessageTree;
+    class ErrorMessageTree;
 }
 
 class ProjectWidget;
@@ -40,9 +40,9 @@ class ProjectSettings : public QWidget, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProjectSettings(ProjectWidget *projectWidget, ProjectData *projectData);
@@ -67,9 +67,9 @@ public:
     //
     virtual void updateObserver();
 
-	// Error Messages //
-	//
-	void printErrorMessage(const QString &text);
+    // Error Messages //
+    //
+    void printErrorMessage(const QString &text);
 
 protected:
 private:
@@ -84,9 +84,9 @@ private:
     //################//
 
 public:
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
 
@@ -115,7 +115,7 @@ private:
 
     QVBoxLayout *settingsLayout_;
 
-	Ui::ErrorMessageTree *ui;
+    Ui::ErrorMessageTree *ui;
 
 };
 

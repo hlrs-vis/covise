@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/11/2010
+ **
+ **************************************************************************/
 
 #ifndef CATALOGTREEWIDGET_HPP
 #define CATALOGTREEWIDGET_HPP
@@ -35,35 +35,35 @@ class QTreeWidgetItem;
 
 namespace OpenScenario
 {
-class oscObject;
-class oscObjectBase;
-class OpenScenarioBase;
-class oscMember;
-class oscCatalog;
+    class oscObject;
+    class oscObjectBase;
+    class OpenScenarioBase;
+    class oscMember;
+    class oscCatalog;
 }
 
 class CatalogTreeWidget : public QTreeWidget, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
-	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog);
+    explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscCatalog *catalog);
     virtual ~CatalogTreeWidget();
 
-/*	void setActiveProject(ProjectWidget *projectWidget)
-	{
-		projectWidget_ = projectWidget ;
-	} */
+    /* void setActiveProject(ProjectWidget *projectWidget)
+        {
+            projectWidget_ = projectWidget ;
+        } */
 
-	void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
-	void createTree();
+    void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
+    void createTree();
 
 
-	// Obsever Pattern //
+    // Obsever Pattern //
     //
     virtual void updateObserver();
 
@@ -75,8 +75,8 @@ private:
 
     void init();
 
-	QTreeWidgetItem *getItem(const QString &name);
-	QTreeWidgetItem *getItem(OpenScenario::oscObjectBase *obj);
+    QTreeWidgetItem *getItem(const QString &name);
+    QTreeWidgetItem *getItem(OpenScenario::oscObjectBase *obj);
 
     //################//
     // EVENTS         //
@@ -86,9 +86,9 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
 
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
@@ -98,40 +98,40 @@ signals:
     //################//
 
 public slots:
-	void onVisibilityChanged(bool);
-	void onItemClicked(QTreeWidgetItem *item, int column);
+    void onVisibilityChanged(bool);
+    void onItemClicked(QTreeWidgetItem *item, int column);
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-	ProjectWidget *projectWidget_;
+    ProjectWidget *projectWidget_;
     ProjectData *projectData_; // Model, linked
-	MainWindow *mainWindow_;
-	OpenScenarioEditor *oscEditor_;
-	ToolManager *toolManager_;
+    MainWindow *mainWindow_;
+    OpenScenarioEditor *oscEditor_;
+    ToolManager *toolManager_;
 
-	// OpenScenario Base //
-	//
-	OSCBase *base_;
-	OpenScenario::OpenScenarioBase *openScenarioBase_;
+    // OpenScenario Base //
+    //
+    OSCBase *base_;
+    OpenScenario::OpenScenarioBase *openScenarioBase_;
 
-	OpenScenario::oscObjectBase *objectBase_;
-	// temporary: test base
-	OSCElement *testBase_;
-	std::string catalogName_; //catalog name
-	std::string catalogType_;
-	OpenScenario::oscCatalog *catalog_;
-	QString directoryPath_;
+    OpenScenario::oscObjectBase *objectBase_;
+    // temporary: test base
+    OSCElement *testBase_;
+    std::string catalogName_; //catalog name
+    std::string catalogType_;
+    OpenScenario::oscCatalog *catalog_;
+    QString directoryPath_;
 
-	OSCElement *oscElement_;
+    OSCElement *oscElement_;
 
-	OpenScenario::oscMember *currentMember_;
+    OpenScenario::oscMember *currentMember_;
 
-	ODD::ToolId currentTool_;
+    ODD::ToolId currentTool_;
 
-	QPointF dragStartPosition_;
+    QPointF dragStartPosition_;
 
 };
 

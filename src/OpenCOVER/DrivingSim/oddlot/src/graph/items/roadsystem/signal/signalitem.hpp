@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   12.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   12.03.2010
+ **
+ **************************************************************************/
 
 #ifndef SIGNALITEM_HPP
 #define SIGNALITEM_HPP
@@ -32,9 +32,9 @@ class SignalItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF pos);
@@ -55,8 +55,8 @@ public:
     virtual void createPath();
     void updatePosition();
 
-	void move(QPointF &diff);
-	void duplicate();
+    void move(QPointF &diff);
+    void duplicate();
 
     void updateCategory();
 
@@ -69,15 +69,15 @@ public:
 
     // Garbage //
     //
-    //	virtual void			notifyDeletion();
+    // virtual void   notifyDeletion();
 
     // Obsever Pattern //
     //
     virtual void updateObserver();
 
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);  // send action to copy the selected item //
@@ -99,12 +99,12 @@ public slots:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -116,12 +116,12 @@ protected:
     //################//
 
 private:
-	RoadSystemItem * roadSystemItem_;
+    RoadSystemItem *roadSystemItem_;
     void init();
 
     Signal *signal_;
-	RSystemElementRoad *road_;
-	RSystemElementRoad *closestRoad_;
+    RSystemElementRoad *road_;
+    RSystemElementRoad *closestRoad_;
 
     QPointF pos_;
     double size_;
@@ -133,26 +133,26 @@ private:
     double scale_;
 
     QPointF pressPos_;
-	QPointF lastPos_;
-	bool doPan_;
-	bool copyPan_;
+    QPointF lastPos_;
+    bool doPan_;
+    bool copyPan_;
 
     SignalTextItem *signalTextItem_;
 
     QGraphicsPixmapItem *pixmapItem_;
     QPixmap pixmap_;
-    
+
     bool showPixmap_;
 
     QColor outerColor_;
 
     SignalEditor *signalEditor_;
-    
-	SignalManager *signalManager_;
 
-    LODSettings * lodSettings_;
+    SignalManager *signalManager_;
 
-	int categorySize_;
+    LODSettings *lodSettings_;
+
+    int categorySize_;
 };
 
 #endif // ROADITEM_HPP

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   27.01.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   27.01.2010
+ **
+ **************************************************************************/
 
 #ifndef PROJECTWIDGET_HPP
 #define PROJECTWIDGET_HPP
@@ -55,9 +55,9 @@ class OSCElement;
 
 namespace OpenScenario
 {
-class OpenScenarioBase;
-class oscObject;
-class oscCatalog;
+    class OpenScenarioBase;
+    class oscObject;
+    class oscCatalog;
 }
 
 
@@ -76,17 +76,17 @@ class ProjectWidget : public QWidget
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
-	enum FileType
-	{
-		FT_All = 0x1,
-		FT_OpenDrive = 0x2,
-		FT_OpenScenario = 0x4
-	};
+    enum FileType
+    {
+        FT_All = 0x1,
+        FT_OpenDrive = 0x2,
+        FT_OpenScenario = 0x4
+    };
 
     explicit ProjectWidget(MainWindow *mainWindow);
     virtual ~ProjectWidget();
@@ -108,12 +108,12 @@ public:
     // File Handling //
     //
     void newFile(const QString &filename);
-	bool loadFile(const QString &fileName, FileType = FT_All);
+    bool loadFile(const QString &fileName, FileType = FT_All);
     bool loadTile(const QString &fileName);
     void setFile(const QString &fileName);
     bool save();
     bool saveAs();
-	bool saveFile(const QString &fileName, FileType = FT_All);
+    bool saveFile(const QString &fileName, FileType = FT_All);
     bool exportSpline();
     bool importIntermapFile(const QString &fileName);
     bool importCSVRoadFile(const QString &fileName);
@@ -121,13 +121,13 @@ public:
     bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
 
-	// Add catalogs //
-	//
-	CatalogTreeWidget *addCatalogTree(const QString & name, OpenScenario::oscCatalog *catalog);
-	void removeCatalogTrees();
-    
+    // Add catalogs //
+    //
+    CatalogTreeWidget *addCatalogTree(const QString &name, OpenScenario::oscCatalog *catalog);
+    void removeCatalogTrees();
+
     RSystemElementRoad *addLineStrip(QString name = "");
-    RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
+    RSystemElementRoad *addLineStrip(QString name, int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
     size_t getMaxLinearLength(size_t start);
     float getLinearError(size_t start, size_t len);
 
@@ -192,7 +192,7 @@ public:
 protected:
     ProjectionSettings *projectionSettings;
     LODSettings *lodSettings;
-	OSCSettings *oscSettings;
+    OSCSettings *oscSettings;
     std::vector<double> SlopeVector;
     std::vector<double> SVector; // S on road for each segment
     std::vector<int> FeatVector;
@@ -208,9 +208,9 @@ protected:
     //
     void closeEvent(QCloseEvent *event);
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
 
@@ -246,32 +246,32 @@ private:
 
     QString fileName_;
     QString strippedFileName_;
-	QString oscFileName_;
+    QString oscFileName_;
 
     bool isUntitled_; // used by save vs. saveAs
     bool isModified_;
 
     // MVC //
     //
-    ProjectData *projectData_; // model			// owned
+    ProjectData *projectData_; // model   // owned
 
-    TopviewGraph *topviewGraph_; // view			// owned
-    ProfileGraph *profileGraph_; // view			// owned
+    TopviewGraph *topviewGraph_; // view   // owned
+    ProfileGraph *profileGraph_; // view   // owned
 
     ProjectEditor *projectEditor_; // controller
     QMap<ODD::EditorId, ProjectEditor *> editors_; // owned
 
-	QList<CatalogWidget *> catalogWidgets_;
+    QList<CatalogWidget *> catalogWidgets_;
 
-    ProjectTree *projectTree_; // view			// owned
-    ProjectSettings *projectSettings_; // view			// owned
+    ProjectTree *projectTree_; // view   // owned
+    ProjectSettings *projectSettings_; // view   // owned
 
     // ChangeManager //
     //
     ChangeManager *changeManager_; // owned
 
-	// Active Project //
-	bool active_;
+    // Active Project //
+    bool active_;
 };
 
 #endif // PROJECTWIDGET_HPP

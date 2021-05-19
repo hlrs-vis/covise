@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11.03.2010
+ **
+ **************************************************************************/
 
 #ifndef TRACKEDITOR_HPP
 #define TRACKEDITOR_HPP
@@ -54,17 +54,17 @@ class TrackEditor : public ProjectEditor
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
 
-	enum CacheMode
-	{
-		NoCache,
-		DeviceCache
-	};
+    enum CacheMode
+    {
+        NoCache,
+        DeviceCache
+    };
 
 private:
     enum TrackEditorState
@@ -89,12 +89,12 @@ private:
         short int transform;
     };
 
-	enum GeometryPrimitive
-	{
-		LINE,
-		ARC_SPIRAL,
-		POLYNOMIAL
-	};
+    enum GeometryPrimitive
+    {
+        LINE,
+        ARC_SPIRAL,
+        POLYNOMIAL
+    };
 
     //################//
     // FUNCTIONS      //
@@ -132,8 +132,8 @@ public:
     void registerRoadRotateHandle(RoadRotateHandle *handle);
     int unregisterRoadRotateHandle(RoadRotateHandle *handle);
     bool rotateRoadRotateHandles(const QPointF &pivotPoint, double angleDegrees);
-	void setCacheMode(RSystemElementRoad *road, CacheMode cache);
-	void setChildCacheMode(QGraphicsItem *child, QGraphicsItem::CacheMode mode);
+    void setCacheMode(RSystemElementRoad *road, CacheMode cache);
+    void setChildCacheMode(QGraphicsItem *child, QGraphicsItem::CacheMode mode);
 
     // AddHandles //
     //
@@ -142,18 +142,18 @@ public:
 
     // Find selected roads //
     //
-    QMap<QGraphicsItem*, RSystemElementRoad*> getSelectedRoads(int count);
+    QMap<QGraphicsItem *, RSystemElementRoad *> getSelectedRoads(int count);
 
     // Register Roads //
     void registerRoad(RSystemElementRoad *road);
 
 
 #if 0
-	// RotateHandles //
-	//
-	void						registerTrackRotateHandle(TrackRotateHandle * handle);
-	int						unregisterTrackRotateHandle(TrackRotateHandle * handle);
-	double					rotateTrackRotateHandles(double dHeading, double globalHeading);
+    // RotateHandles //
+    //
+    void      registerTrackRotateHandle(TrackRotateHandle *handle);
+    int      unregisterTrackRotateHandle(TrackRotateHandle *handle);
+    double     rotateTrackRotateHandles(double dHeading, double globalHeading);
 #endif
 
     // Section Handle //
@@ -164,26 +164,26 @@ protected:
     virtual void init();
     virtual void kill();
 
-	void clearToolObjectSelection();
+    void clearToolObjectSelection();
 
 private:
     TrackEditor(); /* not allowed */
     TrackEditor(const TrackEditor &); /* not allowed */
     TrackEditor &operator=(const TrackEditor &); /* not allowed */
 
-	ToolParameter *addToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const QString &labelText);
-	void appendToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const ODD::ToolId &paramToolId, RSystemElementRoad *road);
+    ToolParameter *addToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const QString &labelText);
+    void appendToolParameter(const PrototypeManager::PrototypeType &type, const ODD::ToolId &toolId, const ODD::ToolId &paramToolId, RSystemElementRoad *road);
 
     //################//
     // SLOTS          //
     //################//
 
 public slots:
-	// Parameter Settings //
-	//
-	virtual void apply();
-	virtual void reject();
-	virtual void reset();
+    // Parameter Settings //
+    //
+    virtual void apply();
+    virtual void reject();
+    virtual void reset();
 
     //################//
     // PROPERTIES     //
@@ -194,32 +194,32 @@ private:
     //
     TrackRoadSystemItem *trackRoadSystemItem_;
 
-	// Prototype Manager //
-	//
-	PrototypeManager *prototypeManager_;
+    // Prototype Manager //
+    //
+    PrototypeManager *prototypeManager_;
 
-	// Selected roads //
-	//
-	QList<RSystemElementRoad *> selectedRoads_;
+    // Selected roads //
+    //
+    QList<RSystemElementRoad *> selectedRoads_;
 
     // MouseAction //
     //
     QPointF pressPoint_;
-	QPointF firstPressPoint_;
+    QPointF firstPressPoint_;
 
     // New Road Tool //
     //
     QGraphicsLineItem *newRoadLineItem_;
 
-	// New Polynomial Tool //
-	//
-	TrackMoveHandle *newRoadPolyItem_;
-	RSystemElementRoad *newPolyRoad_;
+    // New Polynomial Tool //
+    //
+    TrackMoveHandle *newRoadPolyItem_;
+    RSystemElementRoad *newPolyRoad_;
 
 
-	// New Circle Tool //
-	//
-	QGraphicsEllipseItem *newRoadCircleItem_;
+    // New Circle Tool //
+    //
+    QGraphicsEllipseItem *newRoadCircleItem_;
 
     // Add RoadSystem Tool //
     //
@@ -229,7 +229,7 @@ private:
     //
     QMultiMap<int, TrackMoveHandle *> selectedTrackMoveHandles_;
     QMultiMap<int, TrackAddHandle *> selectedTrackAddHandles_;
-    //QMultiMap<double, TrackRotateHandle *>	selectedTrackRotateHandles_;
+    //QMultiMap<double, TrackRotateHandle *> selectedTrackRotateHandles_;
 
     QMultiMap<int, RoadMoveHandle *> selectedRoadMoveHandles_;
     QMultiMap<int, RoadRotateHandle *> selectedRoadRotateHandles_;
@@ -250,19 +250,19 @@ private:
     // TODO
     SectionHandle *sectionHandle_;
 
-	// Prototypes
-	//
-	QMap<PrototypeManager::PrototypeType, PrototypeContainer<RSystemElementRoad *> *> currentPrototypes_;
-	GeometryPrimitive geometryPrimitiveType_;
+    // Prototypes
+    //
+    QMap<PrototypeManager::PrototypeType, PrototypeContainer<RSystemElementRoad *> *> currentPrototypes_;
+    GeometryPrimitive geometryPrimitiveType_;
 
-	// Road_MERGE Road_SNAP
-	//
-	QGraphicsItem *mergeItem_;
-	QGraphicsItem *appendItem_;
+    // Road_MERGE Road_SNAP
+    //
+    QGraphicsItem *mergeItem_;
+    QGraphicsItem *appendItem_;
 
-	// necessary selected elements to make APPLY visible //
-	//
-	int applyCount_;
+    // necessary selected elements to make APPLY visible //
+    //
+    int applyCount_;
 };
 
 #endif // TRACKEDITOR_HPP

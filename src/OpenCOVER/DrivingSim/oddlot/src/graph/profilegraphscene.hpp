@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   08.06.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   08.06.2010
+ **
+ **************************************************************************/
 
 #ifndef PROFILEGRAPHSCENE_HPP
 #define PROFILEGRAPHSCENE_HPP
@@ -24,21 +24,21 @@ class ProfileGraphScene : public QGraphicsScene
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ProfileGraphScene(const QRectF &sceneRect, QObject *parent);
-    //	virtual ~ProfileGraphScene(){ /* does nothing */ }
+    // virtual ~ProfileGraphScene(){ /* does nothing */ }
 
 protected:
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
-	signals :
-			void mouseActionSignal(MouseAction *);
+signals:
+    void mouseActionSignal(MouseAction *);
 
 private:
     ProfileGraphScene(); /* not allowed */
@@ -53,8 +53,8 @@ private:
 
 public:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     void doDeselect(bool s)
     {

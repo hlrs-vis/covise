@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef OBJECTSETTINGS_HPP
 #define OBJECTSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class ObjectSettings;
+    class ObjectSettings;
 }
 
 class Object;
@@ -31,9 +31,9 @@ class ObjectSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ObjectSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Object *object);
@@ -46,7 +46,7 @@ public:
 private:
     void updateProperties();
     void updateProperties(QString country, ObjectContainer *objectProperties);
-	void updateS(double s);
+    void updateS(double s);
     double objectT(double s, double t, double roadDistance);
 
     //################//
@@ -57,9 +57,9 @@ private slots:
     void onEditingFinished();
     void onEditingFinished(int);
     void on_sSpinBox_editingFinished();
-	void on_repeatSSpinBox_editingFinished();
+    void on_repeatSSpinBox_editingFinished();
     void onValueChanged();
-	void activateRepeatWidget(bool);
+    void activateRepeatWidget(bool);
 
     //################//
     // PROPERTIES     //

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/15/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/15/2010
+ **
+ **************************************************************************/
 
 #ifndef LANESECTIONITEM_HPP
 #define LANESECTIONITEM_HPP
@@ -25,9 +25,9 @@ class LaneItem;
 class LaneSectionItem : public SectionItem
 {
     Q_OBJECT
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneSectionItem(LaneEditor *laneEditor, RoadItem *parentRoadItem, LaneSection *laneSection);
@@ -49,20 +49,20 @@ public:
         return laneEditor_;
     }
 
-	// Graphics //
-	//
-	virtual void createPath();
+    // Graphics //
+    //
+    virtual void createPath();
 
-	// LaneItems //
-	//
-	void addLaneItem(LaneItem *item);
-	int removeLaneItem(LaneItem *item);
-	LaneItem *getLaneItem(Lane *lane);
+    // LaneItems //
+    //
+    void addLaneItem(LaneItem *item);
+    int removeLaneItem(LaneItem *item);
+    LaneItem *getLaneItem(Lane *lane);
 
-	// Handles //
-	//
-//	void rebuildMoveRotateHandles(bool delHandles);
-//	void deleteHandles();
+    // Handles //
+    //
+// void rebuildMoveRotateHandles(bool delHandles);
+// void deleteHandles();
 
     // Obsever Pattern //
     //
@@ -108,9 +108,9 @@ private:
     LaneSection *laneSection_;
     LaneEditor *laneEditor_;
 
-	// LaneSectionItems //
-	//
-	QMap<Lane *, LaneItem *> laneItems_;
+    // LaneSectionItems //
+    //
+    QMap<Lane *, LaneItem *> laneItems_;
 };
 
 #endif // LANESECTIONITEM_HPP

@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef ZOOMTOOL_HPP
 #define ZOOMTOOL_HPP
@@ -27,15 +27,15 @@ class ZoomTool : public EditorTool
 {
     Q_OBJECT
 
-    //################//
-    // STATIC         //
-    //################//
+        //################//
+        // STATIC         //
+        //################//
 
 public:
     /*! \brief Ids of the zoom tools.
-	*
-	* This enum defines the Id of each tool.
-	*/
+    *
+    * This enum defines the Id of each tool.
+    */
     enum ZoomToolId
     {
         TZM_UNKNOWN,
@@ -79,7 +79,7 @@ signals:
     // SLOTS          //
     //################//
 public slots:
-	void zoomIn();
+    void zoomIn();
     void zoomOut();
 
 
@@ -109,7 +109,7 @@ private:
     QComboBox *zoomComboBox_;
     QAction *zoomInAction_;
     QAction *zoomOutAction_;
-    //	QAction *		zoomBoxAction_;
+    // QAction *  zoomBoxAction_;
     QAction *viewSelectedAction_;
     QAction *rulerAction_;
 

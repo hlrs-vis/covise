@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   1/18/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   1/18/2010
+ **
+ **************************************************************************/
 
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
@@ -22,8 +22,8 @@
 
 #include <src/util/odd.hpp>
 
-// Project
-//
+ // Project
+ //
 #include <src/gui/projectwidget.hpp>
 
 
@@ -66,7 +66,7 @@ class COVERConnection;
 
 namespace Ui
 {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -75,9 +75,9 @@ class MainWindow : public QMainWindow
 
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
 
@@ -87,7 +87,7 @@ public:
     // Project //
     //
     ProjectWidget *getActiveProject();
-	ProjectWidget *getLastActiveProject();
+    ProjectWidget *getLastActiveProject();
 
     // Manager //
     //
@@ -131,7 +131,7 @@ public:
         return helpMenu_;
     }
 
-    const QString & getCovisedir()
+    const QString &getCovisedir()
     {
         return covisedir_;
     }
@@ -151,14 +151,14 @@ public:
     //
     void setProjectTree(QWidget *widget);
 
-	 // SignalTree //
-    //
+    // SignalTree //
+   //
     void setSignalTree(QWidget *widget);
 
-	SignalTreeWidget * getSignalTree()
-	{
-		return signalTree_;
-	}
+    SignalTreeWidget *getSignalTree()
+    {
+        return signalTree_;
+    }
 
     ProjectionSettings *getProjectionSettings()
     {
@@ -170,33 +170,33 @@ public:
         return fileSettings;
     }
 
-    ParameterDockWidget* getParameterDialog()
+    ParameterDockWidget *getParameterDialog()
     {
         return parameterDialog_;
     }
 
-	// ErrorMessageTree //
-	//
-	void setErrorMessageTree(QWidget *widget);
+    // ErrorMessageTree //
+    //
+    void setErrorMessageTree(QWidget *widget);
 
-	void showDock(ODD::EditorId editor);
-	void hideDock(ODD::EditorId editor);
+    void showDock(ODD::EditorId editor);
+    void hideDock(ODD::EditorId editor);
 
     // ProjectSettings //
     //
     void setProjectSettings(QWidget *widget);
 
-	// ProjectSignals //
+    // ProjectSignals //
     //
     void setProjectSignals(QWidget *widget);
 
-	void open(QString fileName, ProjectWidget::FileType type = ProjectWidget::FileType::FT_All);
+    void open(QString fileName, ProjectWidget::FileType type = ProjectWidget::FileType::FT_All);
     void openTile(QString fileName);
 
-	// add Catalog dock widgets when the project is openend
-	QDockWidget  *createCatalog(const QString &, QWidget *widget);
+    // add Catalog dock widgets when the project is openend
+    QDockWidget *createCatalog(const QString &, QWidget *widget);
 
-	void showParameterDialog(bool show, const QString &windowTitle = "", const QString &helpText = "");
+    void showParameterDialog(bool show, const QString &windowTitle = "", const QString &helpText = "");
 
     void updateCOVERConnectionIcon(const QIcon &icon);
 
@@ -227,29 +227,29 @@ private:
     void createTree();
     void createSettings();
     void createWizards();
-	void createErrorMessageTab();
-	void createParameterSettings();
+    void createErrorMessageTab();
+    void createParameterSettings();
 
     ProjectionSettings *projectionSettings;
 
     COVERConnection *coverConnection;
 
     OSCSettings *oscSettings;
-	ImportSettings *importSettings;
-	ExportSettings *exportSettings;
+    ImportSettings *importSettings;
+    ExportSettings *exportSettings;
     LODSettings *lodSettings;
 
     FileSettings *fileSettings;
 
     // Program Settings //
     //
-    //	void						readSettings();
-    //	void						writeSettings();
+    // void      readSettings();
+    // void      writeSettings();
 
     // Project //
     //
     ProjectWidget *createProject();
-	const QString  createProjectFilename();
+    const QString  createProjectFilename();
     QMdiSubWindow *findProject(const QString &fileName);
 
     //################//
@@ -260,13 +260,13 @@ protected:
     virtual void changeEvent(QEvent *event);
     virtual void closeEvent(QCloseEvent *event);
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void hasActiveProject(bool);
-	void activated();
+    void activated();
 
     //################//
     // SLOTS          //
@@ -282,7 +282,7 @@ public slots:
     //
     void toolAction(ToolAction *);
 
-	void settingsDockParentChanged(bool);
+    void settingsDockParentChanged(bool);
 
 private slots:
 
@@ -290,19 +290,19 @@ private slots:
     //
     void newFile();
     void open();
-	void openXODR();
-	void openXOSC();
-	void mergeXOSC();
+    void openXODR();
+    void openXOSC();
+    void mergeXOSC();
     void save();
     void openTile();
     void saveAs();
-	void saveAsXODR();
-	void saveAsXOSC();
+    void saveAsXODR();
+    void saveAsXOSC();
     void exportSpline();
     void changeSettings();
-	void changeOSCSettings();
-	void changeImportSettings();
-	void changeExportSettings();
+    void changeOSCSettings();
+    void changeImportSettings();
+    void changeExportSettings();
     void importIntermapRoad();
     void importCarMakerRoad();
     void importCSVRoad();
@@ -359,8 +359,8 @@ private:
     QUndoGroup *undoGroup_;
     UndoView *undoView_;
 
-	QDockWidget *errorDock_;
-	QWidget *emptyMessageWidget_;
+    QDockWidget *errorDock_;
+    QWidget *emptyMessageWidget_;
 
     QDockWidget *toolDock_;
     QDockWidget *ribbonToolDock_;
@@ -368,13 +368,13 @@ private:
     QDockWidget *treeDock_;
     QWidget *emptyTreeWidget_;
 
-	QDockWidget *signalsDock_;
+    QDockWidget *signalsDock_;
     QWidget *emptySignalsWidget_;
-	SignalTreeWidget *signalTree_;
+    SignalTreeWidget *signalTree_;
 
-    ParameterDockWidget* parameterDialog_;
+    ParameterDockWidget *parameterDialog_;
 
-	QList<QDockWidget*> catalogsDock_;
+    QList<QDockWidget *> catalogsDock_;
     QDockWidget *settingsDock_;
     QWidget *emptySettingsWidget_;
 

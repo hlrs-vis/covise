@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/8/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/8/2010
+ **
+ **************************************************************************/
 
 #ifndef CIRCLEWIZARD_HPP
 #define CIRCLEWIZARD_HPP
@@ -22,16 +22,16 @@ class ProjectData;
 
 namespace Ui
 {
-class CircleWizard;
+    class CircleWizard;
 }
 
 class CircleWizard : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit CircleWizard(ProjectData *projectData, QWidget *parent = 0);

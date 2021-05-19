@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/23/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/23/2010
+ **
+ **************************************************************************/
 
 #ifndef LANESETTINGS_HPP
 #define LANESETTINGS_HPP
@@ -27,16 +27,16 @@ class BaseLaneMoveHandle;
 class RoadSystemItem;
 namespace Ui
 {
-class LaneSettings;
+    class LaneSettings;
 }
 
 class LaneSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit LaneSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Lane *lane);
@@ -61,7 +61,7 @@ private:
     void updateLevel();
     void updatePredecessor();
     void updateSuccessor();
-	BaseLaneMoveHandle * getFirstSelectedLaneWidthHandle();
+    BaseLaneMoveHandle *getFirstSelectedLaneWidthHandle();
 
     //################//
     // SLOTS          //

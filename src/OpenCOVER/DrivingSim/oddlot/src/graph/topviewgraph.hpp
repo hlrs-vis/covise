@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #ifndef TOPVIEWGRAPH_HPP
 #define TOPVIEWGRAPH_HPP
@@ -25,9 +25,9 @@ class TopviewGraph : public ProjectGraph
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectData);

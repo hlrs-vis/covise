@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   14.07.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   14.07.2010
+ **
+ **************************************************************************/
 
 #ifndef CROSSFALLMOVEHANDLE_HPP
 #define CROSSFALLMOVEHANDLE_HPP
@@ -26,9 +26,9 @@ class CrossfallMoveHandle : public MoveHandle
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit CrossfallMoveHandle(CrossfallEditor *crossfallEditor, QGraphicsItem *parent);
@@ -52,7 +52,7 @@ public:
     }
     void setDOF(int dof);
 
-	const QString getText();
+    const QString getText();
 
     // Observer Pattern //
     //
@@ -81,9 +81,9 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
     //################//
     // PROPERTIES     //
@@ -101,9 +101,9 @@ private:
     QAction *removeAction_;
     QAction *smoothAction_;
 
-	// Height //
-	//
-	TextHandle *heightTextItem_;
+    // Height //
+    //
+    TextHandle *heightTextItem_;
 };
 
 #endif // CROSSFALLMOVEHANDLE_HPP

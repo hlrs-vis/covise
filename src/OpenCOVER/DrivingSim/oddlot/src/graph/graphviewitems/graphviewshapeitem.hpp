@@ -39,11 +39,11 @@
 
 class GraphView;
 
-class GraphViewShapeItem :  public QObject, public QGraphicsPathItem
+class GraphViewShapeItem : public QObject, public QGraphicsPathItem
 {
     Q_OBJECT
 
-     Q_PROPERTY(QEasingCurve easingCurve READ easingCurve WRITE setEasingCurve NOTIFY easingCurveChanged);
+        Q_PROPERTY(QEasingCurve easingCurve READ easingCurve WRITE setEasingCurve NOTIFY easingCurveChanged);
 
 public:
     explicit GraphViewShapeItem(GraphView *view, int x, int y, int width, int height);
@@ -52,9 +52,9 @@ public:
     void createPath();
     void contextMenu(QContextMenuEvent *event);
 
-	//################//
-	// SIGNALS        //
-	//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void easingCurveChanged();
@@ -76,21 +76,21 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
 
 protected:
- //   void contextMenuEvent(QContextMenuEvent *);
+    //   void contextMenuEvent(QContextMenuEvent *);
 
 
 private:
-	double m_minPointDistance;
+    double m_minPointDistance;
 
-	double s_;
-	double t_;
+    double s_;
+    double t_;
     QPointF pos_;
-	QGraphicsItemGroup *graphicItemGroup_;
+    QGraphicsItemGroup *graphicItemGroup_;
 
     QPointF pressPos_;
-	QPointF lastPos_;
-	bool doPan_;
-	bool copyPan_;
+    QPointF lastPos_;
+    bool doPan_;
+    bool copyPan_;
 
     QColor color_;
 
@@ -102,21 +102,23 @@ private:
     void invalidateSmoothList();
 
     QEasingCurve easingCurve() const
-    { return m_easingCurve; }
+    {
+        return m_easingCurve;
+    }
 
-	QPointF mapToCanvas(const QPointF &point);
-	QPointF mapFromCanvas(const QPointF &point);
-	void paintControlPoint(const QPointF &point, bool edit, bool realPoint, bool active, bool smooth);
+    QPointF mapToCanvas(const QPointF &point);
+    QPointF mapFromCanvas(const QPointF &point);
+    void paintControlPoint(const QPointF &point, bool edit, bool realPoint, bool active, bool smooth);
 
     int findControlPoint(const QPointF &point, qreal &distance);
     int findRealPoint(const QPointF &point);
     bool isSmooth(int i) const;
 
-    void smoothPoint( int index);
-    void cornerPoint( int index);
+    void smoothPoint(int index);
+    void cornerPoint(int index);
     void deletePoint(int index);
     void addPoint(const QPointF point);
-	void appendPoint(const QPointF point);
+    void appendPoint(const QPointF point);
     void finishEditing();
 
     bool isControlPointSmooth(int i) const;
@@ -135,15 +137,15 @@ private:
     QAction *m_smoothAction;
     QAction *m_cornerAction;
     QAction *m_addPoint;
-	QAction *m_appendPoint;
+    QAction *m_appendPoint;
     QAction *m_finishEdit;
 
-	QPointF startPoint;
-	QPointF endPoint;
-	int canvasWidth;
-	int canvasHeight;
+    QPointF startPoint;
+    QPointF endPoint;
+    int canvasWidth;
+    int canvasHeight;
 
-	bool selected;
+    bool selected;
 };
 
 #endif // GRAPHVIEWSHAPEITEM_HPP

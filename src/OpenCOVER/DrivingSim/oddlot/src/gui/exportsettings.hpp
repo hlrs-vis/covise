@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Uwe Woessner (c) 2013
-**   <woessner@hlrs.de.de>
-**   03/2013
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Uwe Woessner (c) 2013
+ **   <woessner@hlrs.de.de>
+ **   03/2013
+ **
+ **************************************************************************/
 #ifndef ExportSETTINGS_HPP
 #define ExportSETTINGS_HPP
 
@@ -19,29 +19,29 @@
 
 namespace Ui
 {
-class ExportSettings;
+    class ExportSettings;
 }
 
 class ExportSettings : public QDialog
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
 
-	enum ExportIDVariants
-	{
-		EXPORT_ORIGINAL=0,
-		EXPORT_NUMERICAL,
-		EXPORT_TILE_ID
-	};
+    enum ExportIDVariants
+    {
+        EXPORT_ORIGINAL = 0,
+        EXPORT_NUMERICAL,
+        EXPORT_TILE_ID
+    };
     explicit ExportSettings();
     virtual ~ExportSettings();
 
-	ExportIDVariants ExportIDVariant();
+    ExportIDVariants ExportIDVariant();
 
     static ExportSettings *instance()
     {

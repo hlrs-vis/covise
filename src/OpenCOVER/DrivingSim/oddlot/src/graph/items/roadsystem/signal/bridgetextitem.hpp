@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/25/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/25/2010
+ **
+ **************************************************************************/
 
 #ifndef BRIDGETEXTITEM_HPP
 #define BRIDGETEXTITEM_HPP
@@ -26,12 +26,12 @@ class BridgeTextItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
-	explicit BridgeTextItem(GraphElement *bridgeItem, Bridge *bridge);
+    explicit BridgeTextItem(GraphElement *bridgeItem, Bridge *bridge);
     virtual ~BridgeTextItem();
 
     virtual void createPath();
@@ -61,7 +61,7 @@ private:
 
 public slots:
     void handlePositionChange(const QPointF &pos);
-    //	void						handleSelectionChange(bool selected);
+    // void      handleSelectionChange(bool selected);
 
     //################//
     // EVENTS         //
@@ -71,12 +71,12 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    //	virtual void			mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
-    //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
+    // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
-    //	virtual void			hoverEnterEvent(QGraphicsSceneHoverEvent * event);
-    //	virtual void			hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
-    //	virtual void			hoverMoveEvent(QGraphicsSceneHoverEvent * event);
+    // virtual void   hoverEnterEvent(QGraphicsSceneHoverEvent * event);
+    // virtual void   hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
+    // virtual void   hoverMoveEvent(QGraphicsSceneHoverEvent * event);
 
     //################//
     // PROPERTIES     //

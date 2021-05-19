@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/19/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/19/2010
+ **
+ **************************************************************************/
 
 #ifndef SETTINGSELEMENT_HPP
 #define SETTINGSELEMENT_HPP
@@ -19,8 +19,8 @@
 #include <QWidget>
 #include "src/data/observer.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/projectdata.hpp"
 
 class DataElement;
@@ -33,9 +33,9 @@ class SettingsElement : public QWidget, public Observer
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SettingsElement(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, DataElement *dataElement);
@@ -71,7 +71,7 @@ public:
     {
         return parentSettingsElement_;
     }
-    //	void						setParentSettingsElement(SettingsElement * parentSettingsElement);
+    // void      setParentSettingsElement(SettingsElement * parentSettingsElement);
 
     // Observer Pattern //
     //
@@ -90,7 +90,7 @@ private:
     //################//
 
 public slots:
-    //	void						hideSettingsElement();
+    // void      hideSettingsElement();
 
     //################//
     // EVENTS         //

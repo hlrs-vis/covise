@@ -5,21 +5,21 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   20.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   20.04.2010
+ **
+ **************************************************************************/
 
 #ifndef SPLINEMOVEHANDLE_HPP
 #define SPLINEMOVEHANDLE_HPP
 
 #include "src/graph/items/handles/movehandle.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/lateralsections/polynomiallateralsection.hpp"
 
 class ShapeEditor;
@@ -31,11 +31,11 @@ class QGraphicsTextItem;
 
 class SplineMoveHandle : public MoveHandle
 {
-	Q_OBJECT
+    Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit SplineMoveHandle(ShapeEditor *shapeEditor, ShapeSectionPolynomialItem *parent, SplineControlPoint *corner);
@@ -51,29 +51,29 @@ private:
     SplineMoveHandle(); /* not allowed */
     SplineMoveHandle(const SplineMoveHandle &); /* not allowed */
 
-	void init();
+    void init();
     void updateColor();
 
-	//################//
-	// SLOTS          //
-	//################//
+    //################//
+    // SLOTS          //
+    //################//
 
 public slots:
-	void deleteCorner();
+    void deleteCorner();
 
     //################//
     // EVENTS         //
     //################//
 
 protected:
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
 protected:
-	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
     //################//
     // PROPERTIES     //
@@ -82,16 +82,16 @@ protected:
 protected:
 private:
     ShapeEditor *shapeEditor_;
-	SplineControlPoint *corner_;
-	ShapeSectionPolynomialItem *parentPolynomialItem_;
-	ShapeSectionPolynomialItems *parentPolynomialItems_;
+    SplineControlPoint *corner_;
+    ShapeSectionPolynomialItem *parentPolynomialItem_;
+    ShapeSectionPolynomialItems *parentPolynomialItems_;
 
-	PolynomialLateralSection *lateralSection_;
-	ShapeSection *shapeSection_;
+    PolynomialLateralSection *lateralSection_;
+    ShapeSection *shapeSection_;
 
-	QAction *deleteAction_;
+    QAction *deleteAction_;
 
-	QGraphicsTextItem *textHandle_;
+    QGraphicsTextItem *textHandle_;
 
 };
 

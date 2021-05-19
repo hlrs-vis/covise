@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/6/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/6/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADTREEITEM_HPP
 #define ROADTREEITEM_HPP
@@ -25,9 +25,9 @@ class RoadTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadTreeItem(RoadSystemTreeItem *parent, RSystemElementRoad *road, QTreeWidgetItem *fosterParent);
@@ -82,7 +82,7 @@ private:
     QTreeWidgetItem *elevationsItem_;
     QTreeWidgetItem *superelevationsItem_;
     QTreeWidgetItem *crossfallsItem_;
-	QTreeWidgetItem *shapesItem_;
+    QTreeWidgetItem *shapesItem_;
     QTreeWidgetItem *lanesItem_;
     QTreeWidgetItem *bridgesItem_;
 };

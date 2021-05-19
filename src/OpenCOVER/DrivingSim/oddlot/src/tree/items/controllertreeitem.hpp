@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/11/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/11/2010
+ **
+ **************************************************************************/
 
 #ifndef CONTROLLERTREEITEM_HPP
 #define CONTROLLERTREEITEM_HPP
@@ -25,9 +25,9 @@ class ControllerTreeItem : public ProjectTreeItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ControllerTreeItem(RoadSystemTreeItem *parent, RSystemElementController *controller, QTreeWidgetItem *fosterParent);

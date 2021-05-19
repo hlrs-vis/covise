@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/8/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/8/2010
+ **
+ **************************************************************************/
 
 #ifndef WIZARDMANAGER_HPP
 #define WIZARDMANAGER_HPP
@@ -26,9 +26,9 @@ class WizardManager : public QObject
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit WizardManager(MainWindow *mainWindow);
@@ -54,8 +54,8 @@ public:
 public slots:
     void runElevationWizard();
     void runSuperelevationWizard();
-	void runFlatJunctionsWizard();
-	void runCircleWizard();
+    void runFlatJunctionsWizard();
+    void runCircleWizard();
     void runRoadLinkWizard();
 
     //################//

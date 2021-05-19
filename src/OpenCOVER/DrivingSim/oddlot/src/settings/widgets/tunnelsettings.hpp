@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/2/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/2/2010
+ **
+ **************************************************************************/
 
 #ifndef TUNNELSETTINGS_HPP
 #define TUNNELSETTINGS_HPP
@@ -20,7 +20,7 @@
 
 namespace Ui
 {
-class TunnelSettings;
+    class TunnelSettings;
 }
 
 class Tunnel;
@@ -30,9 +30,9 @@ class TunnelSettings : public SettingsElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TunnelSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Tunnel *tunnel);

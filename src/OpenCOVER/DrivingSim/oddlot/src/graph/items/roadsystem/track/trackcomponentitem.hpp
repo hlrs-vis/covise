@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   22.04.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   22.04.2010
+ **
+ **************************************************************************/
 
 #ifndef TRACKCOMPONENTITEM_HPP
 #define TRACKCOMPONENTITEM_HPP
@@ -29,9 +29,9 @@ class TrackComponentItem : public GraphElement
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit TrackComponentItem(TrackRoadItem *parentTrackRoadItem, TrackComponent *trackComponent);

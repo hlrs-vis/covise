@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   31.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   31.03.2010
+ **
+ **************************************************************************/
 
 #ifndef TOOLMANAGER_HPP
 #define TOOLMANAGER_HPP
@@ -43,9 +43,9 @@ class ToolManager : public QObject
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit ToolManager(PrototypeManager *prototypeManager, QObject *parent);
@@ -67,43 +67,43 @@ public:
     {
         return toolBox_;
     }
-    
+
     QTabWidget *getRibbonWidget()
     {
         return ribbon_;
     }
     void setRibbon(QTabWidget *r)
     {
-        ribbon_=r;
+        ribbon_ = r;
     }
     void addToolBoxWidget(ToolWidget *widget, const QString &title);
     void addRibbonWidget(ToolWidget *widget, const QString &title, int index);
 
     void resendCurrentTool(ProjectWidget *project);
-	void resendStandardTool(ProjectWidget *project);
+    void resendStandardTool(ProjectWidget *project);
 
     SelectionTool *getSelectionTool()
     {
         return selectionTool_;
     }
 
-	ZoomTool *getZoomTool()
-	{
-		return zoomTool_;
-	}
+    ZoomTool *getZoomTool()
+    {
+        return zoomTool_;
+    }
 
     void enableOSCEditorToolButton(bool state);
-	void setPushButtonColor(const QString &name, QColor color);
+    void setPushButtonColor(const QString &name, QColor color);
     void activateSignalSelection(bool state);
-	void activateOSCObjectSelection(bool state);
+    void activateOSCObjectSelection(bool state);
 
-	// Save Project Editing State //
-	//
-	void addProjectEditingState(ProjectWidget *, ToolAction *toolAction);
-	void setProjectEditingState(ProjectWidget *project, ToolAction*);
-	ToolAction *getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId);
-	ToolAction *getProjectEditingState(ProjectWidget *project);
-	ToolAction *getLastToolAction(ODD::EditorId editorID);
+    // Save Project Editing State //
+    //
+    void addProjectEditingState(ProjectWidget *, ToolAction *toolAction);
+    void setProjectEditingState(ProjectWidget *project, ToolAction *);
+    ToolAction *getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId);
+    ToolAction *getProjectEditingState(ProjectWidget *project);
+    ToolAction *getLastToolAction(ODD::EditorId editorID);
 
 
 protected:
@@ -120,11 +120,11 @@ private:
 
 public slots:
     void toolActionSlot(ToolAction *);
-	void loadProjectEditor(bool active);
+    void loadProjectEditor(bool active);
 
-//################//
-// SIGNALS        //
-//################//
+    //################//
+    // SIGNALS        //
+    //################//
 
 signals:
     void toolAction(ToolAction *);
@@ -157,26 +157,26 @@ private:
     //
     SelectionTool *selectionTool_;
 
-	// ZoomTool //
-	//
-	ZoomTool *zoomTool_;
+    // ZoomTool //
+    //
+    ZoomTool *zoomTool_;
 
     // OpenScenarioEditorTool //
     //
     OpenScenarioEditorTool *oscEditorTool_;
 
-	// SignalEditorTool //
+    // SignalEditorTool //
     //
     SignalEditorTool *signalEditorTool_;
 
-	// Project, EditorTool, Toolaction //
-	//
-	QMap<ProjectWidget *, QList<ToolAction *>> editingStates_;
-	QMap<int, ToolAction *> standardToolAction_;
+    // Project, EditorTool, Toolaction //
+    //
+    QMap<ProjectWidget *, QList<ToolAction *>> editingStates_;
+    QMap<int, ToolAction *> standardToolAction_;
 
-	// MainWindow //
-	//
-	MainWindow *mainWindow_;
+    // MainWindow //
+    //
+    MainWindow *mainWindow_;
 
 };
 

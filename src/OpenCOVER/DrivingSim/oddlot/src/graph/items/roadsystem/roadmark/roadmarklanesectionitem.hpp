@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   11/22/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   11/22/2010
+ **
+ **************************************************************************/
 
 #ifndef ROADMARKLANESECTIONITEM_HPP
 #define ROADMARKLANESECTIONITEM_HPP
@@ -22,9 +22,9 @@ class RoadMarkLaneSectionItem : public SectionItem
 {
     Q_OBJECT
 
-    //################//
-    // FUNCTIONS      //
-    //################//
+        //################//
+        // FUNCTIONS      //
+        //################//
 
 public:
     explicit RoadMarkLaneSectionItem(RoadItem *parentRoadItem, LaneSection *laneSection);

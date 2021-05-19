@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   04.02.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   04.02.2010
+ **
+ **************************************************************************/
 
 #ifndef GRAPHVIEW_HPP
 #define GRAPHVIEW_HPP
@@ -65,8 +65,8 @@ public:
     {
         return circleCenter_;
     };
-	void createCircle(double radius);
-	void deleteCircle();
+    void createCircle(double radius);
+    void deleteCircle();
 
     void resetViewTransformation();
 
@@ -90,9 +90,9 @@ public:
     virtual void contextMenuEvent(QContextMenuEvent *e);
 
 protected:
-	virtual void dragEnterEvent(QDragEnterEvent *event);
-	virtual void dragMoveEvent(QDragMoveEvent *event);
-	virtual void dropEvent(QDropEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
     //################//
     // SLOTS          //
@@ -102,8 +102,8 @@ public slots:
     // Tools, Mouse & Key //
     //
     void toolAction(ToolAction *);
-    //	void						mouseAction(MouseAction *);
-    //	void						keyAction(KeyAction *);
+    // void      mouseAction(MouseAction *);
+    // void      keyAction(KeyAction *);
 
     // Rulers //
     //
@@ -119,7 +119,7 @@ public slots:
     void zoomBox();
     void viewSelected();
     void scaleView(qreal sx, qreal sy);
-    double getScaling() 
+    double getScaling()
     {
         return scaling_;
     }
@@ -137,32 +137,32 @@ public slots:
     void setMapY(double y);
     void setMapWidth(double width, bool keepRatio);
     void setMapHeight(double height, bool keepRatio);
-    void setMap(float x,float y,float width,float height,int xRes,int yRes,const char *buf);
+    void setMap(float x, float y, float width, float height, int xRes, int yRes, const char *buf);
 
     void setShapeEdit(bool edit)
     {
         doShapeEdit_ = edit;
     }
 
-	void shapeEditing(bool edit);
+    void shapeEditing(bool edit);
 
     void setSplineControlPoints(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList)
     {
         splineControlPoints_ = controlPoints;
-		splineSmoothList_ = smoothList;
+        splineSmoothList_ = smoothList;
     }
 
     QVector<QPointF> getSplineControlPoints(QVector<bool> &smoothList)
     {
-		smoothList = splineSmoothList_;
+        smoothList = splineSmoothList_;
 
         return splineControlPoints_;
-    } 
+    }
 
     void clearSplineControlPoints()
     {
         splineControlPoints_.clear();
-		splineSmoothList_.clear();
+        splineSmoothList_.clear();
     }
 
     //################//
@@ -172,12 +172,12 @@ public slots:
 private:
     TopviewGraph *topviewGraph_;
     GraphScene *graphScene_;
-	ZoomTool *zoomTool_;
+    ZoomTool *zoomTool_;
 
     bool doPan_;
     bool doKeyPan_;
-	bool select_;
-	QMouseEvent *lastMouseEvent_;
+    bool select_;
+    QMouseEvent *lastMouseEvent_;
 
     BoundingBoxStatusId doBoxSelect_;
     CircleStatusId doCircleSelect_;
@@ -195,7 +195,7 @@ private:
     QPoint mp_;
     QRubberBand *rubberBand_;
     bool additionalSelection_;
-	bool paramToolAdditionalSelection_;
+    bool paramToolAdditionalSelection_;
 
     // ScenerySystem //
     //
@@ -205,28 +205,28 @@ private:
     double scaling_;
 
     QVector<QPointF> splineControlPoints_;
-	QVector<bool> splineSmoothList_;
+    QVector<bool> splineSmoothList_;
 
-	/// http wget
-	void startRequest(const QUrl &requestedUrl);
+    /// http wget
+    void startRequest(const QUrl &requestedUrl);
 
-	private slots:
-	void downloadFile(const QString &fn, const QString &url);
-	void cancelDownload();
-	void httpFinished();
-	void httpReadyRead();
-	void slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator);
+private slots:
+    void downloadFile(const QString &fn, const QString &url);
+    void cancelDownload();
+    void httpFinished();
+    void httpReadyRead();
+    void slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator);
 #ifndef QT_NO_SSL
-	void sslErrors(QNetworkReply *, const QList<QSslError> &errors);
+    void sslErrors(QNetworkReply *, const QList<QSslError> &errors);
 #endif
-	private:
-		QUrl url;
-		QNetworkAccessManager qnam;
-		QNetworkReply *reply;
-		QFile *file;
-		bool httpRequestAborted;
-		void wgetInit();
-		QFile *openFileForWrite(const QString &fileName);
+private:
+    QUrl url;
+    QNetworkAccessManager qnam;
+    QNetworkReply *reply;
+    QFile *file;
+    bool httpRequestAborted;
+    void wgetInit();
+    QFile *openFileForWrite(const QString &fileName);
 
 };
 
