@@ -18,6 +18,7 @@
 
 #include <QMainWindow>
 #include <QTreeWidgetItem>
+#include <QUndoView>
 
 #include <src/util/odd.hpp>
 
@@ -70,6 +71,8 @@ class MainWindow;
 
 class MainWindow : public QMainWindow
 {
+    class UndoView;
+
     Q_OBJECT
 
     //################//
@@ -196,6 +199,8 @@ public:
 	void showParameterDialog(bool show, const QString &windowTitle = "", const QString &helpText = "");
 
     void updateCOVERConnectionIcon(const QIcon &icon);
+
+    void hideParameterSettings();
 
 
 private:
@@ -352,7 +357,7 @@ private:
 
     QDockWidget *undoDock_;
     QUndoGroup *undoGroup_;
-    QUndoView *undoView_;
+    UndoView *undoView_;
 
 	QDockWidget *errorDock_;
 	QWidget *emptyMessageWidget_;
@@ -391,7 +396,23 @@ private:
     QPushButton *coverButton;
 
     QToolBar *coverConnectionToolBar;
+
+
+    class UndoView : public QUndoView
+    {
+    public:
+
+        explicit UndoView(QUndoGroup *group, QWidget *parent = NULL);
+        virtual ~UndoView() {};
+
+    protected:
+        virtual void mouseReleaseEvent(QMouseEvent *event);
+
+    private:
+        MainWindow *mainWindow_;
+    };
 };
+
 
 
 #endif // MAINWINDOW_HPP

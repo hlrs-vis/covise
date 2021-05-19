@@ -746,8 +746,18 @@ MainWindow::createUndo()
 
     // Undo View //
     //
-    undoView_ = new QUndoView(undoGroup_);
+    undoView_ = new UndoView(undoGroup_, this);
     undoDock_->setWidget(undoView_);
+}
+
+void 
+MainWindow::hideParameterSettings()
+{
+    ProjectWidget *projectWidget = getActiveProject();
+    if (projectWidget)
+    {
+        projectWidget->getProjectEditor()->reject();
+    }
 }
 
 
@@ -1688,4 +1698,18 @@ MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+//################//
+// Constructors   //
+//################//
+MainWindow::UndoView::UndoView(QUndoGroup *group, QWidget *parent)
+    :QUndoView(group, parent) 
+{
+    mainWindow_ = dynamic_cast<MainWindow *>(parent);
+}
+
+void
+MainWindow::UndoView::mouseReleaseEvent(QMouseEvent *event)
+{
+   mainWindow_->hideParameterSettings();
+}
 

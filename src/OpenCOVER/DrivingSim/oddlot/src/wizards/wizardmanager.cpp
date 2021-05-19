@@ -112,6 +112,7 @@ WizardManager::runElevationWizard()
 {
     if (mainWindow_->getActiveProject())
     {
+        mainWindow_->hideParameterSettings();
         ElevationWizard *wizard = new ElevationWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
@@ -122,6 +123,7 @@ WizardManager::runSuperelevationWizard()
 {
     if (mainWindow_->getActiveProject())
     {
+        mainWindow_->hideParameterSettings();
         SuperelevationWizard *wizard = new SuperelevationWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
@@ -132,6 +134,7 @@ WizardManager::runFlatJunctionsWizard()
 {
     if (mainWindow_->getActiveProject())
     {
+        mainWindow_->hideParameterSettings();
         FlatJunctionsWizard *wizard = new FlatJunctionsWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
@@ -142,6 +145,7 @@ WizardManager::runCircleWizard()
 {
     if (mainWindow_->getActiveProject())
     {
+        mainWindow_->hideParameterSettings();
         CircleWizard *wizard = new CircleWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
@@ -152,6 +156,7 @@ WizardManager::runRoadLinkWizard()
 {
     if (mainWindow_->getActiveProject())
     {
+        mainWindow_->hideParameterSettings();
         RoadLinkWizard *wizard = new RoadLinkWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
