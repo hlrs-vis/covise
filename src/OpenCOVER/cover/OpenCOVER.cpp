@@ -922,7 +922,7 @@ class CheckVisitor: public osg::NodeVisitor
 
 void OpenCOVER::loop()
 {
-    while (!exitFlag)
+    while (true)
     {
         if(VRViewer::instance()->done())
             exitFlag = true;
@@ -932,6 +932,7 @@ void OpenCOVER::loop()
             VRViewer::instance()->disableSync();
             frame();
             frame();
+            return;
         }
         else
         {
