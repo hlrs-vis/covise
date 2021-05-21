@@ -9,6 +9,7 @@
 #ifndef _WIN32
 #include <wait.h>
 #include <unistd.h>
+#include <errno.h>
 #else
 #include <tchar.h>
 #include <stdio.h> 
@@ -35,7 +36,7 @@ void SigChildHandler::sigHandler(int sigNo) //  catch SIGTERM
 	if (sigNo == SIGCHLD)
 	{
 		int pid = waitpid(-1, NULL, WNOHANG);
-		std::cerr << "child with pid " << pid << " terminated " << std::endl;
+		std::cerr << "child with pid " << pid << " terminated" << std::endl;
 		emit childDied(pid);
 	}
 }
@@ -166,14 +167,20 @@ ChildProcess::ChildProcess(const char* path, const std::vector<std::string>& arg
 #else
 	auto argV = stringToCharVec(argS);
 	int pipefd[2];
-	int ret = pipe(pipefd);
-	if (ret < 0)
-	{
-		std::cerr << "error creating pipe in coviseDaemon" << std::endl;
-		std::cerr << strerror(errno) << std::endl;
-	}
+	if (pipe(pipefd) == -1)
+    {
+        std::cerr << "coviseDaemon: could not create pipe for executing " << path << ": " << strerror(errno) << std::endl;
+        return;
+    }
 	m_pid = fork();
-	if (m_pid == 0)
+    if (m_pid == -1)
+    {
+        std::cerr << "coviseDaemon: fork() for executing " << path << " failed: " << strerror(errno) << std::endl;
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return;
+    }
+    else if (m_pid == 0)
 	{
 		close(pipefd[0]); // close reading end in the child
 
@@ -184,7 +191,8 @@ ChildProcess::ChildProcess(const char* path, const std::vector<std::string>& arg
 
 		if (execvp(path, const_cast<char* const*>(argV.data())) == -1)
 		{
-			std::cerr << "failed to exec " << path << std::endl;
+			std::cerr << "coviseDaemon: failed to exec " << path << ": " << strerror(errno) << std::endl;
+            exit(1);
 		}
 	}
 	else
