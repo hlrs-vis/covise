@@ -26,6 +26,7 @@
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
 #include <cmath>
+#include <limits>
 
 bool ReadCOMSOLData::readFloat(const char *s, float *f)
 {

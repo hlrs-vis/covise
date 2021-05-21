@@ -20,7 +20,8 @@
 
 #include <sstream>
 #include <iomanip>
-#include <stdio.h>
+#include <limits>
+#include <cstdio>
 
 #include <osg/io_utils>
 

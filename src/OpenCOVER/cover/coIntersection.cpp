@@ -34,6 +34,7 @@
 
 #include <util/coWristWatch.h>
 #include <numeric>
+#include <limits>
 
 using namespace osg;
 using namespace osgUtil;
