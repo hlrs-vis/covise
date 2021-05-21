@@ -148,3 +148,9 @@ libglew-dev
 libglew2.0
 pyqt5-dev
 pyqt5-dev-tools
+
+
+
+
+gdal:
+./configure --prefix=/data/extern_libs/rhel8/gdal --with-cpp14 --with-poppler '--with-lzma' '--with-kml' 
