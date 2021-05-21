@@ -66,7 +66,6 @@ public:
     ChildProcess(const char *path, const std::vector<std::string> &args);
     ChildProcess(const ChildProcess &) = delete;
     const ChildProcess &operator=(const ChildProcess &) = delete;
-    ChildProcess &operator=(ChildProcess &&) = default;
     ~ChildProcess();
     bool operator<(const ChildProcess &other) const;
     bool operator==(const ChildProcess& other) const;

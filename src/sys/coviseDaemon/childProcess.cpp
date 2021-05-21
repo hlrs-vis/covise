@@ -7,7 +7,9 @@
 
 #include "childProcess.h"
 #ifndef _WIN32
+#ifndef __APPLE__
 #include <wait.h>
+#endif
 #include <unistd.h>
 #include <errno.h>
 #else
