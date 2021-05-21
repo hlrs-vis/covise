@@ -161,7 +161,7 @@ extern char username[100];
 
 // X11 snapshot function for Linux
 #define uint32 uint32_tiff
-#include "tiffio.h"
+#include <img/cotiffio.h>
 #undef uint32
 void x11SnapTIFF(Widget wid, const char *filename);
 #endif

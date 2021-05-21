@@ -23,6 +23,7 @@ SET(IMG_SOURCES
 )
 
 SET(IMG_HEADERS
+  cotiffio.h
   coBadImage.h
   coImage.h
   coImagePNG.h

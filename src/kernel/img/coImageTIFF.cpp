@@ -139,7 +139,7 @@ coImageTIFF::coImageTIFF()
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tiffio.h"
+#include "cotiffio.h"
 
 // we need a patched libtiff to be able to read rgba tiffs from photoshop
 //you can find this in extern_libs/linux/tiff

@@ -18,9 +18,7 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_TIFF
-#include <tiffio.h>
-#endif
+#include <img/cotiffio.h>
 #ifndef _WIN32
 #include <inttypes.h>
 #include <sys/time.h>

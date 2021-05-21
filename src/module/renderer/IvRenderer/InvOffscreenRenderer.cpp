@@ -77,7 +77,7 @@ _______________________________________________________________________
 // ================================= END SGI's original header =========================================
 
 #include <covise/covise.h>
-#include <tiffio.h>
+#include <img/cotiffio.h>
 
 #define _HAS_UINT
 

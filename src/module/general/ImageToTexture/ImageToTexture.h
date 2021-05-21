@@ -21,7 +21,7 @@
 
 #include <util/coviseCompat.h>
 #include <do/coDoPixelImage.h>
-#include <tiffio.h>
+#include <img/cotiffio.h>
 
 #define _HAS_UINT
 

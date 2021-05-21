@@ -19,7 +19,7 @@
 #ifndef _LOGO_H_
 #define _LOGO_H_
 
-#include <tiffio.h>
+#include <img/cotiffio.h>
 
 #define _HAS_UINT
 

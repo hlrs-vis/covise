@@ -28,10 +28,7 @@
 #include <GL/glut.h>
 #endif
 
-#ifdef HAVE_LIBTIFF
-#include <tiffio.h> /* Sam Leffler's libtiff library. */
-/* liegt in /usr/local/include/ */
-#endif
+#include <img/cotiffio.h>
 
 #include <stdio.h>
 #include <stdlib.h>

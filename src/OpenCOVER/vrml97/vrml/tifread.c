@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tiffio.h>
+#include <img/cotiffio.h>
 #ifndef _WIN32
 #include <inttypes.h>
 #endif
