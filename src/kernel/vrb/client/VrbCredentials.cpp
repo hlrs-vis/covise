@@ -17,7 +17,7 @@ std::string getIp()
 {
     std::string ip = coCoviseConfig::getEntry("System.VRB.Server");
     std::transform(ip.begin(), ip.end(), ip.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (ip == "localhost" || ip == "127.0.0.1")
+    if (ip.empty() || ip == "localhost" || ip == "127.0.0.1")
     {
         ip = Host::getHostaddress();
     }
