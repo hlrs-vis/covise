@@ -1860,7 +1860,8 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         const string &title = list[iel++];
         try
         {
-            m_hostManager.findHost(host).getModule(name, std::stoi(nr)).setTitle(title);
+            auto &mod = m_hostManager.findHost(host).getModule(name, std::stoi(nr));
+            mod.setTitle(title);
             ostringstream buffer;
             buffer << "MODULE_TITLE\n"
                    << name << "\n"
@@ -2455,7 +2456,14 @@ const NetModule *CTRLHandler::initModuleNode(const string &name, const string &n
         //  -1 dont"t send title
         if (action == 2)
             app.setTitle(title);
-
+        ostringstream osss;
+        osss << "MODULE_TITLE\n"
+             << name << "\n"
+             << app.instance() << "\n"
+             << ipAddress << "\n"
+             << app.title();
+        tmp_msg = Message{COVISE_MESSAGE_UI, osss.str()};
+        m_hostManager.sendAll<Userinterface>(tmp_msg);
         return &app;
     }
     catch (const Exception &e)
