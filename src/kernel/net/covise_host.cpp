@@ -83,6 +83,10 @@ std::string Host::lookupHostname(const char *numericIP)
 
             if (!res)
             {
+                if (strlen(hostname) == 0)
+                {
+                    return std::string(numericIP);
+                }
                 retVal = hostname;
                 return retVal;
             }
