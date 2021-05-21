@@ -166,7 +166,12 @@ ChildProcess::ChildProcess(const char* path, const std::vector<std::string>& arg
 #else
 	auto argV = stringToCharVec(argS);
 	int pipefd[2];
-	pipe(pipefd);
+	int ret = pipe(pipefd);
+	if (ret < 0)
+	{
+		cerr << "error creating pipe in coviseDaemon" << endl;
+		cerr << strerror(errno) << endl;
+	}
 	m_pid = fork();
 	if (m_pid == 0)
 	{
