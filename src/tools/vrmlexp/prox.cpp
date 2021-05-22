@@ -32,6 +32,7 @@ public:
         return new ProxSensorObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_PROX_SENSOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("ProxSensor"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(ProxSensor_CLASS_ID1,
                                          ProxSensor_CLASS_ID2); }

@@ -21,6 +21,7 @@
 #include "vrml.h"
 #include "anchor.h"
 #include "bookmark.h"
+#include "MouseCursors.h"
 
 //------------------------------------------------------
 
@@ -33,6 +34,7 @@ public:
         return new AnchorObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_ANCHOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("Anchor"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(Anchor_CLASS_ID1,
                                          Anchor_CLASS_ID2); }

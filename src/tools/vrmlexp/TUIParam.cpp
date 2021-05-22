@@ -109,6 +109,7 @@ public:
         return theTUIParam;
     }
     const TCHAR *ClassName() { return GetString(IDS_TUIPARAM_EDITOR); }
+    const TCHAR* NonLocalizedClassName() { return _T("TUIParam"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(TUIPARAM_CLASS_ID1, TUIPARAM_CLASS_ID2); }
     const TCHAR *Category() { return _T("COVER"); }

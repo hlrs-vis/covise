@@ -58,6 +58,7 @@ public:
         return new TabletUIObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_TABLETUI_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("TabletUI"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(TabletUI_CLASS_ID1, TabletUI_CLASS_ID2); }
     const TCHAR *Category() { return _T("COVER"); }

@@ -32,6 +32,7 @@ public:
         return new TimeSensorObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_TIME_SENSOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("TimeSensor"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(TimeSensor_CLASS_ID1,
                                          TimeSensor_CLASS_ID2); }

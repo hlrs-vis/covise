@@ -32,6 +32,7 @@ public:
         return new SkyObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_SKY_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("Sky"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(Sky_CLASS_ID1,
                                          Sky_CLASS_ID2); }

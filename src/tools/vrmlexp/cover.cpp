@@ -32,6 +32,7 @@ public:
         return new COVERObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_COVER_SENSOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("COVER"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(COVER_CLASS_ID1, COVER_CLASS_ID2); }
     const TCHAR *Category() { return _T("COVER"); }

@@ -207,6 +207,7 @@ public:
     int IsPublic() { return TRUE; }
     void *Create(BOOL loading = FALSE) { return new VRBLExport; }
     const TCHAR *ClassName() { return GetString(IDS_VRML_EXPORT_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("VRBLExport"); }
     SClass_ID SuperClassID() { return SCENE_EXPORT_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(VRBL_EXPORT_CLASS_ID, 0); }
     const TCHAR *Category() { return GetString(IDS_TH_SCENEEXPORT); }

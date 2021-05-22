@@ -34,6 +34,7 @@ public:
         return new SwitchObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_SWITCH_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("Switch"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(Switch_CLASS_ID1, Switch_CLASS_ID2); }
     const TCHAR *Category() { return _T("VRML97"); }

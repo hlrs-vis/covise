@@ -32,6 +32,7 @@ public:
         return new TouchSensorObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_TOUCH_SENSOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("TouchSensor"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(TouchSensor_CLASS_ID1, TouchSensor_CLASS_ID2); }
     const TCHAR *Category() { return _T("VRML97"); }

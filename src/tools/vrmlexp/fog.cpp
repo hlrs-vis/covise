@@ -32,6 +32,7 @@ public:
         return new FogObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_FOG_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("Fog"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(Fog_CLASS_ID1,
                                          Fog_CLASS_ID2); }

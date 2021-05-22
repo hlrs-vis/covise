@@ -78,16 +78,21 @@ public:
     void BeginEditParams(IObjParam *ip, ULONG flags, Animatable *prev);
     void EndEditParams(IObjParam *ip, ULONG flags, Animatable *next);
 
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    const TCHAR* GetObjectName(bool localized) const override { return localized ? GetString(IDS_FOG) : _T("Fog"); }
+#else
+
 #if MAX_PRODUCT_VERSION_MAJOR > 14
     virtual const
 #else
     virtual
 #endif
-        MCHAR *
+        MCHAR*
         GetObjectName()
     {
         return GetString(IDS_FOG);
-    }
+}
+#endif
 
     // From Object
     ObjectState Eval(TimeValue time);
@@ -115,10 +120,15 @@ public:
         return Class_ID(Fog_CLASS_ID1,
                         Fog_CLASS_ID2);
     }
-    void GetClassName(TSTR &s)
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    void GetClassName(MSTR& s, bool localized) const override { s = localized ? GetString(IDS_FOG_CLASS) : _T("Fog"); }
+#else
+
+    void GetClassName(TSTR& s)
     {
         s = GetString(IDS_FOG_CLASS);
     }
+#endif
     int IsKeyable()
     {
         return 1;

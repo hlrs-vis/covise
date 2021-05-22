@@ -107,16 +107,21 @@ public:
     void BeginEditParams(IObjParam *ip, ULONG flags, Animatable *prev);
     void EndEditParams(IObjParam *ip, ULONG flags, Animatable *next);
 
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    const TCHAR* GetObjectName(bool localized) const override { return localized ? GetString(IDS_BILLBOARD) : _T("Billboard"); }
+#else
+
 #if MAX_PRODUCT_VERSION_MAJOR > 14
     virtual const
 #else
     virtual
 #endif
-        MCHAR *
+        MCHAR*
         GetObjectName()
     {
         return GetString(IDS_BILLBOARD);
-    }
+}
+#endif
 
     ParamDimension *GetParameterDim(int pbIndex);
     TSTR GetParameterName(int pbIndex);
@@ -147,10 +152,15 @@ public:
         return Class_ID(Billboard_CLASS_ID1,
                         Billboard_CLASS_ID2);
     }
-    void GetClassName(TSTR &s)
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    void GetClassName(MSTR& s, bool localized) const override { s = localized ? GetString(IDS_BILLBOARD_CLASS) : _T("Billboard"); }
+#else
+
+    void GetClassName(TSTR& s)
     {
         s = GetString(IDS_BILLBOARD_CLASS);
     }
+#endif
     int IsKeyable()
     {
         return 1;

@@ -51,6 +51,7 @@ public:
     int IsPublic() { return 1; }
     void *Create(BOOL loading = FALSE) { return &theCppOut; }
     const TCHAR *ClassName() { return GetString(IDS_RB_CPPOBJECTOUT); }
+    const TCHAR* NonLocalizedClassName() { return _T("CppOut"); }
     SClass_ID SuperClassID() { return UTILITY_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(CPP_OUT_CLASS_ID, 0); }
     const TCHAR *Category() { return _T(""); }

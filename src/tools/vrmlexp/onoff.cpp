@@ -32,6 +32,7 @@ public:
         return new OnOffSwitchObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_ONOFF_SWITCH_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("OnOffSwitch"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(OnOffSwitch_CLASS_ID1, OnOffSwitch_CLASS_ID2); }
     const TCHAR *Category() { return _T("VRML97"); }

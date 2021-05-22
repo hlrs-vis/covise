@@ -50,6 +50,7 @@ public:
     int IsPublic() { return 1; }
     void *Create(BOOL loading = FALSE) { return &theResetPivot; }
     const TCHAR *ClassName() { return GetString(IDS_RB_ResetPivot_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("ResetPivot"); }
     SClass_ID SuperClassID() { return UTILITY_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(RESET_PIVOT_CLASS_ID, 0); }
     const TCHAR *Category() { return _T(""); }

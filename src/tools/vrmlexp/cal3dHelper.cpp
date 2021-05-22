@@ -763,6 +763,7 @@ public:
         return new Cal3DObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_CAL3D_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("Cal3D"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(CAL3D_CLASS_ID1,
                                          CAL3D_CLASS_ID2); }

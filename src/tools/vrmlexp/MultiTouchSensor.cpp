@@ -32,6 +32,7 @@ public:
         return new MultiTouchSensorObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_MT_SENSOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("MultiTouchSensor"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(MultiTouchSensor_CLASS_ID1, MultiTouchSensor_CLASS_ID2); }
     const TCHAR *Category() { return _T("COVER"); }

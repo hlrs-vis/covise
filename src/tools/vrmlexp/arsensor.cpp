@@ -32,6 +32,7 @@ public:
         return new ARSensorObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_AR_SENSOR_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("ARSensor"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(ARSensor_CLASS_ID1, ARSensor_CLASS_ID2); }
     const TCHAR *Category() { return _T("COVER"); }

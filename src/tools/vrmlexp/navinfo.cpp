@@ -32,6 +32,7 @@ public:
         return new NavInfoObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_NAV_INFO_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("NavInfo"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(NavInfo_CLASS_ID1,
                                          NavInfo_CLASS_ID2); }

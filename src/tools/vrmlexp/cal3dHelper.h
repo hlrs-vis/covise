@@ -190,16 +190,21 @@ public:
     void BeginEditParams(IObjParam *ip, ULONG flags, Animatable *prev);
     void EndEditParams(IObjParam *ip, ULONG flags, Animatable *next);
 
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    const TCHAR* GetObjectName(bool localized) const override { return localized ? GetString(IDS_CAL3D) : _T("Cal3D"); }
+#else
+
 #if MAX_PRODUCT_VERSION_MAJOR > 14
     virtual const
 #else
     virtual
 #endif
-        MCHAR *
+        MCHAR*
         GetObjectName()
     {
         return GetString(IDS_CAL3D);
-    }
+}
+#endif
 
     // From Object
     ObjectState Eval(TimeValue time);
@@ -234,10 +239,15 @@ public:
         return Class_ID(CAL3D_CLASS_ID1,
                         CAL3D_CLASS_ID2);
     }
-    void GetClassName(TSTR &s)
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    void GetClassName(MSTR& s, bool localized) const override { s = localized ? GetString(IDS_CAL3D_CLASS) : _T("Cal3D"); }
+#else
+
+    void GetClassName(TSTR& s)
     {
-        s = TSTR(GetString(IDS_CAL3D_CLASS));
+        s = GetString(IDS_CAL3D_CLASS);
     }
+#endif
     int IsKeyable()
     {
         return 1;

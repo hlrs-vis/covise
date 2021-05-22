@@ -68,6 +68,7 @@ public:
         return &thePolyCounter;
     }
     const TCHAR *ClassName() { return GetString(IDS_POLYGON_COUNTER_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("PolygonCounter"); }
     SClass_ID SuperClassID() { return UTILITY_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(0x585b47d1, 0x4f807635); }
     const TCHAR *Category() { return _T(""); }

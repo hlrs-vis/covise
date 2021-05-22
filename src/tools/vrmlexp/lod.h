@@ -108,16 +108,21 @@ public:
     void BeginEditParams(IObjParam *ip, ULONG flags, Animatable *prev);
     void EndEditParams(IObjParam *ip, ULONG flags, Animatable *next);
 
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    const TCHAR* GetObjectName(bool localized) const override { return localized ? GetString(IDS_LOD_CLASS) : _T("LOD"); }
+#else
+
 #if MAX_PRODUCT_VERSION_MAJOR > 14
     virtual const
 #else
     virtual
 #endif
-        MCHAR *
+        MCHAR*
         GetObjectName()
     {
-        return GetString(IDS_LOD);
-    }
+        return GetString(IDS_LOD_CLASS);
+}
+#endif
 
     void SetSize(float r);
     float GetSize(void)
@@ -161,10 +166,15 @@ public:
         return Class_ID(LOD_CLASS_ID1,
                         LOD_CLASS_ID2);
     }
-    void GetClassName(TSTR &s)
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    void GetClassName(MSTR& s, bool localized) const override { s = localized ? GetString(IDS_LOD_CLASS) : _T("LOD"); }
+#else
+
+    void GetClassName(TSTR& s)
     {
-        s = TSTR(GetString(IDS_LOD_CLASS));
+        s = GetString(IDS_LOD_CLASS);
     }
+#endif
     int IsKeyable()
     {
         return 1;

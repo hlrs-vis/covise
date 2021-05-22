@@ -105,16 +105,21 @@ public:
     void BeginEditParams(IObjParam *ip, ULONG flags, Animatable *prev);
     void EndEditParams(IObjParam *ip, ULONG flags, Animatable *next);
 
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    const TCHAR* GetObjectName(bool localized) const override { return localized ? GetString(IDS_PROX_SENSOR) : _T("ProxSensor"); }
+#else
+
 #if MAX_PRODUCT_VERSION_MAJOR > 14
     virtual const
 #else
     virtual
 #endif
-        MCHAR *
+        MCHAR*
         GetObjectName()
     {
         return GetString(IDS_PROX_SENSOR);
     }
+#endif
 
     Tab<ProxSensorObj *> GetObjects()
     {
@@ -151,10 +156,15 @@ public:
         return Class_ID(ProxSensor_CLASS_ID1,
                         ProxSensor_CLASS_ID2);
     }
-    void GetClassName(TSTR &s)
+#if MAX_PRODUCT_VERSION_MAJOR > 23
+    void GetClassName(MSTR& s, bool localized) const override { s = localized ? GetString(IDS_PROX_SENSOR_CLASS) : _T("ProxSensor"); }
+#else
+
+    void GetClassName(TSTR& s)
     {
         s = GetString(IDS_PROX_SENSOR_CLASS);
     }
+#endif
     int IsKeyable()
     {
         return 1;

@@ -33,6 +33,7 @@ public:
     int IsPublic() { return 1; }
     void *Create(BOOL loading = FALSE) { return new VRMLScriptObject; }
     const TCHAR *ClassName() { return GetString(IDS_SCRIPT_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("VRMLScript"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(VRML_SCRIPT_CLASS_ID1,
                                          VRML_SCRIPT_CLASS_ID2); }

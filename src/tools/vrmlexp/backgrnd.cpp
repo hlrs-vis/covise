@@ -32,6 +32,7 @@ public:
         return new BackgroundObject;
     }
     const TCHAR *ClassName() { return GetString(IDS_BACKGROUND_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("Background"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(Background_CLASS_ID1,
                                          Background_CLASS_ID2); }

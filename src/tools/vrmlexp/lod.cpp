@@ -32,6 +32,7 @@ public:
     int IsPublic() { return 1; }
     void *Create(BOOL loading = FALSE) { return new LODObject; }
     const TCHAR *ClassName() { return GetString(IDS_LOD_CLASS); }
+    const TCHAR* NonLocalizedClassName() { return _T("LOD"); }
     SClass_ID SuperClassID() { return HELPER_CLASS_ID; }
     Class_ID ClassID() { return Class_ID(LOD_CLASS_ID1,
                                          LOD_CLASS_ID2); }
