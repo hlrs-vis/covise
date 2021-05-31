@@ -1954,10 +1954,36 @@ RevitPlugin::handleMessage(Message *m)
 		ikInfos.clear();
 		doors.clear();
 		activeDoors.clear();
+		for (const auto& pi: phaseInfos)
+		{
+			delete pi->button;
+		}
 		phaseInfos.clear();
 
 	}
 	break;
+    case MSG_ViewPhase:
+    {
+		std::string currentPhaseName;
+		std::string phaseFilter;
+		TokenBuffer tb(m);
+		tb >> currentPhaseName;
+		tb >> phaseFilter;
+		setPhase(currentPhaseName);
+
+		for (const auto& pi : phaseInfos)
+		{
+			if (pi->PhaseName == currentPhaseName)
+			{
+				PhaseGroup->setActiveButton(pi->button);
+				//pi->button->setState(true);
+				break;
+			}
+		}
+
+		
+    }
+    break;
 	case MSG_Phases:
 	{
 		int numPhases=0;

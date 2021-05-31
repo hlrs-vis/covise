@@ -445,7 +445,8 @@ public:
         MSG_DesignOptionSets = 532,
         MSG_SelectDesignOption = 533,
         MSG_IKInfo = 534,
-        MSG_Phases = 535
+        MSG_Phases = 535,
+        MSG_ViewPhase = 536
     };
     enum ObjectTypes
     {

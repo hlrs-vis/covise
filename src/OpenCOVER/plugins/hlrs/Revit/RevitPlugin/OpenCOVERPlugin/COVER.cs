@@ -92,7 +92,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -485,6 +485,16 @@ namespace OpenCOVERPlugin
                     }
                     // this one handles Group.
                 }
+            }
+            if(View3D != null)
+            {
+                Parameter Phase = View3D.GetParameter(ParameterTypeId.ViewPhase);
+                Parameter PhaseFilter = View3D.GetParameter(ParameterTypeId.ViewPhaseFilter);
+                MessageBuffer mbView = new MessageBuffer();
+                mbView.add(Phase.AsValueString());
+                mbView.add(PhaseFilter.AsValueString());
+                sendMessage(mbView.buf, MessageTypes.ViewPhase);
+
             }
             iter.Reset();
             while (iter.MoveNext())
