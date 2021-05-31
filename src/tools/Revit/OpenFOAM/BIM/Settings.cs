@@ -1252,7 +1252,7 @@ namespace BIM.OpenFOAMExport
         private bool m_exportColor;
         private bool m_exportSharedCoordinates;
         private List<Category> m_SelectedCategories;
-        private DisplayUnitType m_Units;
+        private Autodesk.Revit.DB.ForgeTypeId m_Units;
 
         private Dictionary<string, object> m_Outlets;
         private Dictionary<string, object> m_Inlets;
@@ -1419,14 +1419,15 @@ namespace BIM.OpenFOAMExport
         /// <summary>
         /// Units for STL.
         /// </summary>
-        public DisplayUnitType Units {
+        /// we will always use Meters as a unit!!
+       /* public DisplayUnitType Units {
             get {
                 return m_Units;
             }
             set {
                 m_Units = value;
             }
-        }
+        }*/
 
         /// <summary>
         /// Get dicitionionary with default values.
@@ -1669,7 +1670,7 @@ namespace BIM.OpenFOAMExport
             double area = 0;
             foreach (Face face in faces)
             {
-                area += UnitUtils.ConvertFromInternalUnits(face.Area, DisplayUnitType.DUT_SQUARE_METERS);
+                area += UnitUtils.ConvertFromInternalUnits(face.Area, UnitTypeId.SquareMeters);
             }
             return area;
             //return UnitUtils.ConvertFromInternalUnits(face.Area, DisplayUnitType.DUT_SQUARE_METERS);
@@ -1690,7 +1691,7 @@ namespace BIM.OpenFOAMExport
                 {
                     foreach (Edge edge in edges.get_Item(0) as EdgeArray)
                     {
-                        boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, DisplayUnitType.DUT_METERS), 2);
+                        boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, UnitTypeId.Meters), 2);
                     }
                 }
             }
@@ -1700,7 +1701,7 @@ namespace BIM.OpenFOAMExport
             //{
             //    foreach (Edge edge in edges.get_Item(0) as EdgeArray)
             //    {
-            //        boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, DisplayUnitType.DUT_METERS), 2);
+            //        boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, UnitTypeId.Meters), 2);
             //    }
             //}
             return boundary;
@@ -1714,7 +1715,7 @@ namespace BIM.OpenFOAMExport
         /// <param name="lambda">Lambda expression.</param>
         /// <param name="convertFunc">Convert-function Func<Parameter, DisplayUnitType, T>.</param>
         /// <returns>Converted Parameter as T.</returns>
-        private T GetParamValue<T>(Parameter param, DisplayUnitType type, Func<bool> lambda, Func<Parameter, DisplayUnitType, T> convertFunc)
+        private T GetParamValue<T>(Parameter param, Autodesk.Revit.DB.ForgeTypeId type, Func<bool> lambda, Func<Parameter, Autodesk.Revit.DB.ForgeTypeId, T> convertFunc)
         {
             T paramValue = default;
             if (lambda())
@@ -1730,9 +1731,9 @@ namespace BIM.OpenFOAMExport
         /// <param name="param">Parameter of object.</param>
         /// <param name="type">DisplayUnitType.</param>
         /// <returns>Parameter value as double.</returns>
-        private double ConvertParameterToDisplayUnitType(Parameter param, DisplayUnitType type)
+        private double ConvertParameterToDisplayUnitType(Parameter param, Autodesk.Revit.DB.ForgeTypeId type)
         {
-            if (DisplayUnitType.DUT_UNDEFINED == type)
+            if (UnitTypeId.Custom == type)
             {
                 return param.AsInteger();
             }
@@ -1876,17 +1877,17 @@ namespace BIM.OpenFOAMExport
                 FamilyInstance instance = familyInstancesDomain[0];
 
                 Transform pos = instance.GetTransform();
-                m_WindSpeed = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "WindSpeed"), Autodesk.Revit.DB.DisplayUnitType.DUT_METERS_PER_SECOND);
-                m_ReferenceHeight = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "ReferenceHeight"), Autodesk.Revit.DB.DisplayUnitType.DUT_METERS_PER_SECOND);
+                m_WindSpeed = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "WindSpeed"), Autodesk.Revit.DB.UnitTypeId.MetersPerSecond);
+                m_ReferenceHeight = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "ReferenceHeight"), Autodesk.Revit.DB.UnitTypeId.MetersPerSecond);
                 
                 m_Profile = getString(instance, "WindProfile");
 
-                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units),
-                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units),
-                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), UnitTypeId.Meters);
+                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), UnitTypeId.Meters);
+                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), UnitTypeId.Meters);
+                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
+                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, UnitTypeId.Meters),
+                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, UnitTypeId.Meters));
                 m_DomainOrigin = origin - (pos.BasisX * width/2.0) - (pos.BasisY * depth / 2.0);
                 m_DomainX = pos.BasisX * width;
                 m_DomainY = pos.BasisY * depth;
@@ -2012,12 +2013,12 @@ namespace BIM.OpenFOAMExport
 
                 //Refinement
                 int level = getInt(instance, "RefinementLevel");
-                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units),
-                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units),
-                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), UnitTypeId.Meters);
+                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), UnitTypeId.Meters);
+                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), UnitTypeId.Meters);
+                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
+                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, UnitTypeId.Meters),
+                    UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, UnitTypeId.Meters));
                 m_RefinementBoxOrigin = origin - (pos.BasisX * width / 2.0) - (pos.BasisY * depth / 2.0);
                 m_RefinementBoxX = pos.BasisX * width;
                 m_RefinementBoxY = pos.BasisY * depth;
@@ -2088,7 +2089,7 @@ namespace BIM.OpenFOAMExport
                 {
                     if (flowRate == 0)
                     {
-                        flowRate = GetParamValue(param, DisplayUnitType.DUT_CUBIC_METERS_PER_SECOND, //UnitTypeId.CubicMetersPerSecond 
+                        flowRate = GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.CubicMetersPerSecond,
                             () => param.Definition.ParameterType == ParameterType.HVACAirflow, ConvertParameterToDisplayUnitType);
                         if (flowRate != 0)
                         {
@@ -2099,7 +2100,7 @@ namespace BIM.OpenFOAMExport
 
                     if (staticPressure == 0)
                     {
-                        staticPressure = GetParamValue(param, DisplayUnitType.DUT_PASCALS,
+                        staticPressure = GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Pascals,
                             () => param.Definition.Name.Equals("static Pressure") && param.Definition.ParameterType == ParameterType.HVACPressure,
                             ConvertParameterToDisplayUnitType);
                         if (staticPressure != 0)
@@ -2110,7 +2111,7 @@ namespace BIM.OpenFOAMExport
 
                     if (rpm == 0)
                     {
-                        rpm = (int)GetParamValue(param, DisplayUnitType.DUT_UNDEFINED,
+                        rpm = (int)GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Custom,
                             () => param.Definition.Name.Equals("RPM"), ConvertParameterToDisplayUnitType);
 
                         if (rpm != 0)

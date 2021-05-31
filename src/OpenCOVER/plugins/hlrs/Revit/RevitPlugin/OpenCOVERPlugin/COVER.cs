@@ -639,7 +639,11 @@ namespace OpenCOVERPlugin
                     mb.add(para.Id.IntegerValue);
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
-                    mb.add((int)para.Definition.ParameterType);
+#if REVIT2019 || REVIT2020 || REVIT2021
+                    mb.add("Undefined");
+#else
+                    mb.add(para.Definition.GetDataType().ToString());
+#endif
                     switch (para.StorageType)
                     {
                         case Autodesk.Revit.DB.StorageType.Double:
@@ -695,7 +699,11 @@ namespace OpenCOVERPlugin
                     mb.add(para.Id.IntegerValue);
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
-                    mb.add((int)para.Definition.ParameterType);
+#if REVIT2019 || REVIT2020 || REVIT2021
+                    mb.add("Undefined");
+#else
+                    mb.add(para.Definition.GetDataType().ToString());
+#endif
                     switch (para.StorageType)
                     {
                         case Autodesk.Revit.DB.StorageType.Double:
@@ -1151,7 +1159,11 @@ namespace OpenCOVERPlugin
                             else if (subproperty.Name == "texture_RealWorldScaleX")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+#if REVIT2019 || REVIT2020
                                 ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+#else
+                                ti.sx = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#endif
                             }
                             else if (subproperty.Name == "texture_UScale")
                             {
@@ -1166,17 +1178,29 @@ namespace OpenCOVERPlugin
                             else if (subproperty.Name == "texture_RealWorldScaleY")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+#if REVIT2019 || REVIT2020
                                 ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+#else
+                                ti.sy = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#endif
                             }
                             else if (subproperty.Name == "texture_RealWorldOffsetX")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+#if REVIT2019 || REVIT2020
                                 ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+#else
+                                ti.ox = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#endif
                             }
                             else if (subproperty.Name == "texture_RealWorldOffsetY")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
+#if REVIT2019 || REVIT2020
                                 ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
+#else
+                                ti.oy = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#endif
                             }
                             else if (subproperty.Name == "texture_WAngle")
                             {

@@ -1576,18 +1576,16 @@ namespace BIM.OpenFOAMExport
                             y = point.Y;
                             z = point.Z;
                         }
-                        if (BIM.OpenFOAMExport.Exporter.Instance.settings.Units != DisplayUnitType.DUT_UNDEFINED)
-                        {
-                            xyz[3 * n] = x* 0.304799999536704; //UnitUtils.ConvertFromInternalUnits(x, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                            xyz[3 * n + 1] = y* 0.304799999536704; //UnitUtils.ConvertFromInternalUnits(y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                            xyz[3 * n + 2] = z* 0.304799999536704; //UnitUtils.ConvertFromInternalUnits(z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-                        }
-                        else
+                        
+                        xyz[3 * n] = x * 0.304799999536704; //UnitUtils.ConvertFromInternalUnits(x, UnitTypeId.Meters);
+                        xyz[3 * n + 1] = y * 0.304799999536704; //UnitUtils.ConvertFromInternalUnits(y, UnitTypeId.Meters);
+                        xyz[3 * n + 2] = z* 0.304799999536704; //UnitUtils.ConvertFromInternalUnits(z, UnitTypeId.Meters);
+                       /* else
                         {
                             xyz[3 * n] = x;
                             xyz[3 * n + 1] = y;
                             xyz[3 * n + 2] = z;
-                        }
+                        }*/
 
                         var mypoint = new XYZ(xyz[3 * n], xyz[3 * n + 1], xyz[3 * n + 2]);
                         if(computeBoundingBox)

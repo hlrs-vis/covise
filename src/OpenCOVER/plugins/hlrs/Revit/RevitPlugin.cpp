@@ -1619,8 +1619,8 @@ RevitPlugin::handleMessage(Message *m)
 				tb >> name;
 				int StorageType;
 				tb >> StorageType;
-				int ParameterType;
-				tb >> ParameterType;
+				std::string ParameterType;
+                tb >> ParameterType;
 				ElementInfo *ei = it->second;
 				RevitParameter *p = new RevitParameter(pID, std::string(name), StorageType, ParameterType, (int)ei->parameters.size(), ei);
 				switch (StorageType)

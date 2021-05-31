@@ -349,7 +349,7 @@ public:
 class RevitParameter
 {
 public:
-    RevitParameter(int i, std::string n, int st, int pt, int num, ElementInfo *ele)
+    RevitParameter(int i, std::string n, int st, std::string pt, int num, ElementInfo *ele)
         : ID(i)
         , name(n)
         , StorageType(st)
@@ -360,7 +360,7 @@ public:
     int ID;
     std::string name;
     int StorageType;
-    int ParameterType;
+    std::string ParameterType;
     int number; // param number in Element;
     ElementInfo *element = nullptr;
     double d;

@@ -225,9 +225,9 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             m_CastellatedMeshControls.Add("resolveFeatureAngle", m_SettingsCMC["resolveFeatureAngle"]);
             m_CastellatedMeshControls.Add("refinementRegions", m_RefinementRegions);
             Vector3D tmp = new Vector3D(0,0,0);
-            tmp.X = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-            tmp.Y = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
-            tmp.Z = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units);
+            tmp.X = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.X, UnitTypeId.Meters);
+            tmp.Y = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Y, UnitTypeId.Meters);
+            tmp.Z = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Z, UnitTypeId.Meters);
             m_CastellatedMeshControls.Add("locationInMesh", tmp);
             m_CastellatedMeshControls.Add("allowFreeStandingZoneFaces", m_SettingsCMC["allowFreeStandingZoneFaces"]);
         }

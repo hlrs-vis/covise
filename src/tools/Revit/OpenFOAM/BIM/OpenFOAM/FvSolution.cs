@@ -30,7 +30,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
 
         private System.Windows.Media.Media3D.Vector3D ConvertToDisplayUnits(System.Windows.Media.Media3D.Vector3D v)
         {
-            return new System.Windows.Media.Media3D.Vector3D(UnitUtils.ConvertFromInternalUnits(v.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertFromInternalUnits(v.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertFromInternalUnits(v.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+            return new System.Windows.Media.Media3D.Vector3D(UnitUtils.ConvertFromInternalUnits(v.X, UnitTypeId.Meters), UnitUtils.ConvertFromInternalUnits(v.Y, UnitTypeId.Meters), UnitUtils.ConvertFromInternalUnits(v.Z, UnitTypeId.Meters));
         }
         /// <summary>
         /// Initialize attributes of this file.

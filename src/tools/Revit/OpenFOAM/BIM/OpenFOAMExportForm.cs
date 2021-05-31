@@ -73,12 +73,12 @@ namespace BIM.OpenFOAMExport
         /// <summary>
         /// Sorted dictionary for the unity properties that can be set in a drop down menu.
         /// </summary>
-        private readonly SortedDictionary<string, DisplayUnitType> m_DisplayUnits = new SortedDictionary<string, DisplayUnitType>();
+        private readonly SortedDictionary<string, Autodesk.Revit.DB.ForgeTypeId> m_DisplayUnits = new SortedDictionary<string, Autodesk.Revit.DB.ForgeTypeId>();
 
         /// <summary>
         /// Selected Unittype in comboBox.
         /// </summary>
-        private static DisplayUnitType m_SelectedDUT = DisplayUnitType.DUT_METERS;
+        private static Autodesk.Revit.DB.ForgeTypeId m_SelectedDUT = UnitTypeId.Meters;
 
 
         /// <summary>
@@ -143,8 +143,6 @@ namespace BIM.OpenFOAMExport
             // scan for categories to populate category list
             InitializeCategoryList();
 
-            //intialize unit
-            InitializeUnitsForSTL();
 
             // initialize the UI differently for Families
             if (revit.ActiveUIDocument.Document.IsFamilyDocument)
@@ -242,7 +240,7 @@ namespace BIM.OpenFOAMExport
             // get selected categories from the category list
             List<Category> selectedCategories = new List<Category>();
 
-            DisplayUnitType dup = DisplayUnitType.DUT_METERS;
+            Autodesk.Revit.DB.ForgeTypeId dup = UnitTypeId.Meters;
             if (!m_Direct)
             {
                 // only for projects
@@ -299,9 +297,9 @@ namespace BIM.OpenFOAMExport
                     {
                         var transform = instance.GetTransform();
                         LocationPoint localPoint = instance.Location as LocationPoint;
-                        double x = UnitUtils.ConvertFromInternalUnits(localPoint.Point.X, DisplayUnitType.DUT_METERS);
-                        double y = UnitUtils.ConvertFromInternalUnits(localPoint.Point.Y, DisplayUnitType.DUT_METERS);
-                        double z = UnitUtils.ConvertFromInternalUnits(localPoint.Point.Z, DisplayUnitType.DUT_METERS);
+                        double x = UnitUtils.ConvertFromInternalUnits(localPoint.Point.X, UnitTypeId.Meters);
+                        double y = UnitUtils.ConvertFromInternalUnits(localPoint.Point.Y, UnitTypeId.Meters);
+                        double z = UnitUtils.ConvertFromInternalUnits(localPoint.Point.Z, UnitTypeId.Meters);
                         BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh = new System.Windows.Media.Media3D.Vector3D(x, y, z);
                     }
 
@@ -536,38 +534,7 @@ namespace BIM.OpenFOAMExport
             }
         }
 
-        /// <summary>
-        /// Initialize comboBox for Units.
-        /// </summary>
-        private void InitializeUnitsForSTL()
-        {
-            string unitName = "Use Internal: Feet";
-            m_DisplayUnits.Add(unitName, DisplayUnitType.DUT_UNDEFINED);
-            int selectedIndex = comboBox_DUT.Items.Add(unitName);
-
-            if (m_SelectedDUT == DisplayUnitType.DUT_UNDEFINED)
-                m_SelectedDUT = DisplayUnitType.DUT_METERS;
-
-            Units currentUnits = m_Revit.ActiveUIDocument.Document.GetUnits();
-            DisplayUnitType currentDut = currentUnits.GetFormatOptions(UnitType.UT_Length).DisplayUnits;
-            // always use Meters
-            unitName = "Use Current: " + LabelUtils.GetLabelFor(currentDut);
-            m_DisplayUnits.Add(unitName, currentDut);
-            selectedIndex = comboBox_DUT.Items.Add(unitName);
-            if (m_SelectedDUT == currentDut)
-                comboBox_DUT.SelectedIndex = selectedIndex;
-
-            foreach (DisplayUnitType dut in UnitUtils.GetValidDisplayUnits(UnitType.UT_Length))
-            {
-                if (currentDut == dut)
-                    continue;
-                unitName = LabelUtils.GetLabelFor(dut);
-                m_DisplayUnits.Add(unitName, dut);
-                selectedIndex = comboBox_DUT.Items.Add(unitName);
-                if (m_SelectedDUT == dut)
-                    comboBox_DUT.SelectedIndex = selectedIndex;
-            }
-        }
+        
 
         /// <summary>
         /// Initialize category-tab.
@@ -798,10 +765,6 @@ namespace BIM.OpenFOAMExport
                 }
             }
 
-            //Set current selected unit
-            DisplayUnitType dup = m_DisplayUnits[comboBox_DUT.Text];
-            m_SelectedDUT = dup;
-            BIM.OpenFOAMExport.Exporter.Instance.settings.Units = dup;
 
             //Set current selected OpenFoam-Environment as active.
             OpenFOAMEnvironment env = (OpenFOAMEnvironment)comboBoxEnv.SelectedItem;
@@ -1402,25 +1365,25 @@ namespace BIM.OpenFOAMExport
         {
             System.Windows.Media.Media3D.Vector3D previousVec = BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh;
 
-            double xPre = UnitUtils.ConvertToInternalUnits(previousVec.X, DisplayUnitType.DUT_METERS);
-            double yPre = UnitUtils.ConvertToInternalUnits(previousVec.Y, DisplayUnitType.DUT_METERS);
-            double zPre = UnitUtils.ConvertToInternalUnits(previousVec.Z, DisplayUnitType.DUT_METERS);
+            double xPre = UnitUtils.ConvertToInternalUnits(previousVec.X, UnitTypeId.Meters);
+            double yPre = UnitUtils.ConvertToInternalUnits(previousVec.Y, UnitTypeId.Meters);
+            double zPre = UnitUtils.ConvertToInternalUnits(previousVec.Z, UnitTypeId.Meters);
 
             XYZ previousLocation = new XYZ(xPre, yPre, zPre);
             return previousLocation;
         }
         private XYZ ConvertFromDisplayUnits(XYZ v)
         {
-            return new XYZ(UnitUtils.ConvertToInternalUnits(v.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertToInternalUnits(v.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertToInternalUnits(v.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+            return new XYZ(UnitUtils.ConvertToInternalUnits(v.X, UnitTypeId.Meters), UnitUtils.ConvertToInternalUnits(v.Y, UnitTypeId.Meters), UnitUtils.ConvertToInternalUnits(v.Z, UnitTypeId.Meters));
         }
         private System.Windows.Media.Media3D.Vector3D ConvertFromDisplayUnits(System.Windows.Media.Media3D.Vector3D v)
         {
-            return new System.Windows.Media.Media3D.Vector3D(UnitUtils.ConvertToInternalUnits(v.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertToInternalUnits(v.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertToInternalUnits(v.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+            return new System.Windows.Media.Media3D.Vector3D(UnitUtils.ConvertToInternalUnits(v.X, UnitTypeId.Meters), UnitUtils.ConvertToInternalUnits(v.Y, UnitTypeId.Meters), UnitUtils.ConvertToInternalUnits(v.Z, UnitTypeId.Meters));
         }
 
         private XYZ ConvertToDisplayUnits(XYZ v)
         {
-            return new XYZ(UnitUtils.ConvertFromInternalUnits(v.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertFromInternalUnits(v.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertFromInternalUnits(v.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+            return new XYZ(UnitUtils.ConvertFromInternalUnits(v.X, UnitTypeId.Meters), UnitUtils.ConvertFromInternalUnits(v.Y, UnitTypeId.Meters), UnitUtils.ConvertFromInternalUnits(v.Z, UnitTypeId.Meters));
         }
         private XYZ toXYZ(System.Windows.Media.Media3D.Vector3D v)
         {
@@ -1428,7 +1391,7 @@ namespace BIM.OpenFOAMExport
         }
         private System.Windows.Media.Media3D.Vector3D ConvertToDisplayUnits(System.Windows.Media.Media3D.Vector3D v)
         {
-            return new System.Windows.Media.Media3D.Vector3D(UnitUtils.ConvertFromInternalUnits(v.X, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertFromInternalUnits(v.Y, BIM.OpenFOAMExport.Exporter.Instance.settings.Units), UnitUtils.ConvertFromInternalUnits(v.Z, BIM.OpenFOAMExport.Exporter.Instance.settings.Units));
+            return new System.Windows.Media.Media3D.Vector3D(UnitUtils.ConvertFromInternalUnits(v.X, UnitTypeId.Meters), UnitUtils.ConvertFromInternalUnits(v.Y, UnitTypeId.Meters), UnitUtils.ConvertFromInternalUnits(v.Z, UnitTypeId.Meters));
         }
         /// <summary>
         /// Enter event in txtBoxLocationInMesh.
