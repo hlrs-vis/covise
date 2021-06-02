@@ -279,8 +279,12 @@ std::vector<std::string> getModuleInfo(CoMsg* msg)
 {
     Message m(msg->type,msg->dh);
 	covise::NEW_UI uimsg{ m };
-	auto& pMsg = uimsg.unpackOrCast<covise::NEW_UI_PartnerInfo>();
     std::vector<std::string> modules;
+    if (uimsg.type != covise::NEW_UI_TYPE::PartnerInfo)
+    {
+        return modules;
+    }
+    auto& pMsg = uimsg.unpackOrCast<covise::NEW_UI_PartnerInfo>();
 	for (size_t i = 0; i < pMsg.modules.size(); i++)
 	{
         modules.push_back(pMsg.modules[i]);

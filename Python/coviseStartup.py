@@ -95,7 +95,7 @@ class Rec(Thread):
                 #print(" received message ", type)
                 #print(data)
                 
-                if ( type == 142 ):
+                if ( type == 142 ): #COVISE_MESSAGE_NEW_UI
                     CoviseMsgLoop().parse(msg)
                 else:
 
@@ -238,7 +238,7 @@ class _NewListAction(CoviseMsgLoopAction):
     def parse(self, msg):
         #print("NEW_LISTACTION::run")
         
-        modules = covise.getModuleInfo(msg)
+        modules = covise.getModuleInfo(msg) #getModuleInfo returns empty list if NEW_UI::type != PartnerInfo
         ii = 0;
         while ( ii < len(modules)):
              modName = modules[ii]
