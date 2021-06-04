@@ -197,7 +197,7 @@ void coVRAnimationManager::initAnimMenu()
     animStopItem->setPriority(ui::Element::Low);
 
 	animSyncItem = new ui::Button(animRowMenu, "Synchronize");
-	animSyncItem->setState(false);
+    animSyncItem->setState(true);
 	animSyncItem->setCallback([this](bool state)
 		{
 			animFrameItem->setShared(state);
@@ -205,6 +205,7 @@ void coVRAnimationManager::initAnimMenu()
 			animToggleItem->setShared(state);
 			
 		});
+    animSyncItem->callback()(true);
 }
 
 void coVRAnimationManager::setOscillate(bool state)
