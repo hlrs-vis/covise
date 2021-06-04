@@ -158,8 +158,6 @@ public:
     //
     // Messages to COVISE environment
     //
-    static int send_render_message(const char *keyword, const char *string);
-    static int send_render_binmessage(const char *keyword, const char *data, int len);
     static void send_quit_message();
     //
     // The callback functions called in callXXX  has to be
