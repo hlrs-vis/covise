@@ -140,7 +140,7 @@ bool CRBModule::connectToCrb(const SubProcess &crb)
 
 bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
 {
-    PROXY_CreateCrbProxy crbProxyRequest{toCrb.processId, processId, 0};
+    PROXY_CreateCrbProxy crbProxyRequest{toCrb.processId, processId, 30};
     sendCoviseMessage(crbProxyRequest, *host.hostManager.proxyConn());
     const std::array<const SubProcess *, 2> crbs{&toCrb, this};
     constexpr std::array<int, 2> msgTypes{COVISE_MESSAGE_PREPARE_CONTACT_DM, COVISE_MESSAGE_DM_CONTACT_DM};
