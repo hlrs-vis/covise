@@ -147,18 +147,15 @@ bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
     for (size_t i = 0; i < 2; i++)
     {
         Message proxyMsg;
-        if (&crbs[i]->host == &host.hostManager.getLocalHost()) //pass the port to the local crb, proxy crbs get informed direcly by the VRB
-        {
-            //receive opened port
-            host.hostManager.proxyConn()->recv_msg(&proxyMsg); //produces proxy not found warning
-            PROXY p{proxyMsg};
-            auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
-            //send host and port to crb
-            TokenBuffer tb1;
-            tb1 << crbProxyCreated.port << host.hostManager.getVrbClient().getCredentials().ipAddress;
-            Message msg{msgTypes[i], tb1.getData()};
-            crbs[i]->send(&msg);
-        }
+        //receive opened port
+        host.hostManager.proxyConn()->recv_msg(&proxyMsg); //produces proxy not found warning
+        PROXY p{proxyMsg};
+        auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
+        //send host and port to crb
+        TokenBuffer tb1;
+        tb1 << crbProxyCreated.port << host.hostManager.getVrbClient().getCredentials().ipAddress;
+        Message msg{msgTypes[i], tb1.getData()};
+        crbs[i]->send(&msg);
 
         //wait for VRB to confirm the connection
         host.hostManager.proxyConn()->recv_msg(&proxyMsg);

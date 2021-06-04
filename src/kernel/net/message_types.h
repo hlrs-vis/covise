@@ -376,6 +376,7 @@ enum sender_type
     SIMPLECONTROLLER = 8,
     STDINOUT = 9,
     COVISED = 10,
+    VRB = 11,
     ANY
 };
 

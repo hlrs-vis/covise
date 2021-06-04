@@ -84,7 +84,7 @@ int ControllerProxyConn::recv_uncached_msg(Message *msg, char *ip) const
     {
         msg->conn = &**proxy;
     }
-    else if (msg->sender != Connection::sender_id)
+    else if (msg->send_type != VRB && msg->sender != Connection::sender_id)
     {
         std::cerr << "ControllerProxyConn did not find proxy for process " << msg->sender << std::endl;
         return 0;
