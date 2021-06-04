@@ -17,6 +17,7 @@
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTextStream>
+#include <QTextBrowser>
 
 #include <iostream>
 #include <fstream>
@@ -199,13 +200,13 @@ void MainWindow::launchProgram(int senderID, const QString &senderDescription, v
 		auto textArea = new QScrollArea(this);
 		textArea->setWidgetResizable(true);
 
-		auto textLabel = new QLabel(textArea);
+		auto textLabel = new QTextBrowser(textArea);
 		textArea->setWidget(textLabel);
 		static int numSpawns = 0;
 		++numSpawns;
 		auto index = ui->childTabs->addTab(textArea, programNames[programID] + QString{" "} + QString::number(numSpawns));
 		m_remoteLauncher.spawnProgram(
-			programID, args, [textLabel](const QString &msg) { textLabel->setText(textLabel->text() + msg); }, [this, index]() { ui->childTabs->removeTab(index); });
+			programID, args, [textLabel](const QString &msg) { textLabel->setText(textLabel->toPlainText() + msg); }, [this, index]() { ui->childTabs->removeTab(index); });
 	}
 	else
 		m_remoteLauncher.sendPermission(senderID, false);
