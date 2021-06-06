@@ -386,6 +386,7 @@ namespace OpenCOVERPlugin
 
             FilteredElementCollector collector
               = new FilteredElementCollector(doc);
+            
 
             collector.OfCategory(BuiltInCategory.OST_DesignOptions);
 
@@ -452,8 +453,10 @@ namespace OpenCOVERPlugin
                 mb.add(1);
                 sendMessage(mb.buf, MessageTypes.ClearAll);
             }
+            double ProjectNorthAngle = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero).Angle;
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
+            mbdocinfo.add(ProjectNorthAngle);
             sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
             MessageBuffer mbPhases = new MessageBuffer();
             // Get the phase array which contains all the phases.

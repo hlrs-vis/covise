@@ -14,7 +14,6 @@
 #include <stdlib.h>
 
 #include <osg/Texture2D>
-#include <osgDB/ReadFile>
 #include <osgText/Font>
 #include <util/unixcompat.h>
 #include <util/coFileUtil.h>
@@ -469,17 +468,14 @@ osg::Node *LoadedFile::load()
         //fprintf(stderr, "coVRFileManager::loadFile(name=%s)   else\n", fileName);
         //(fileName,fileTypeString);
         //obj-Objects must not be rotated
-        osg::ref_ptr<osgDB::ReaderWriter::Options> op = new osgDB::ReaderWriter::Options("usemaxlodonly storegeomids optimize noRotation noTriStripPolygons singleobject");
        // don't run optimizer on STL and OBJ files
-
-        osg::ref_ptr<osgDB::Options> options = new osgDB::Options();
 
         std::string tmpFileName = adjustedFileName;
         if (fb)
         {
             tmpFileName = fb->getFilename(adjustedFileName);
         }
-        node = osgDB::readNodeFile(tmpFileName.c_str(), op);
+        node = osgDB::readNodeFile(tmpFileName.c_str(), coVRFileManager::instance()->options.get());
         if (node)
         {
             //OpenCOVER::instance()->databasePager->registerPagedLODs(node);
@@ -1059,6 +1055,11 @@ coVRFileManager::coVRFileManager()
     }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
+
+    options = new osgDB::ReaderWriter::Options;
+    options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
+    osgDB::Registry::instance()->setOptions(options);
+
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
 	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
 	path = resolveEnvs(path);

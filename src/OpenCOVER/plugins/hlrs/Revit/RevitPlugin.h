@@ -564,6 +564,7 @@ protected:
     std::string localTextureFile;
     std::string currentRevitFile;
     bool setViewpoint;
+    bool firstDocument=true;
     
 
     Message *msg = nullptr;

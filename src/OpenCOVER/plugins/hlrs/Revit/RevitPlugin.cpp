@@ -1924,7 +1924,9 @@ RevitPlugin::handleMessage(Message *m)
 		while (currentGroup.size() > 1)
 			currentGroup.pop();
 
-		revitGroup->removeChild(0, revitGroup->getNumChildren()); 
+		revitGroup->removeChild(0, revitGroup->getNumChildren());
+
+		firstDocument = true;
 
 		// remove viewpoints
 		maxEntryNumber = 0;
@@ -2113,9 +2115,16 @@ RevitPlugin::handleMessage(Message *m)
 	}
     case MSG_DocumentInfo:
     {
-        TokenBuffer tb(m);
+        TokenBuffer tb(m);	
         char *fileName;
         tb >> fileName;
+		double TrueNorthAngle = 0.0;
+		tb >> TrueNorthAngle;
+		if(firstDocument)
+		{
+			firstDocument = false;
+		revitGroup->setMatrix(osg::Matrix::rotate( TrueNorthAngle, osg::Vec3(0, 0, 1))* osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M));
+		}
         if (fileName != currentRevitFile)
         {
             setViewpoint = true;

@@ -27,6 +27,7 @@
 #include <memory>
 #include <osg/ref_ptr>
 #include <osg/Texture2D>
+#include <osgDB/ReadFile>
 #include <string>
 #include <vector>
 #include <vrb/client/SharedState.h>
@@ -288,6 +289,7 @@ private:
 		static std::string cutStringAt(const std::string &s, char delimiter);
 		///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
 		static std::string resolveEnvs(const std::string& s);
+        osg::ref_ptr<osgDB::ReaderWriter::Options> options;
 };
 }
 #endif
