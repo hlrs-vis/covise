@@ -53,6 +53,21 @@ Host* host;
 
 int main(int argc, char* argv[])
 {
+
+#ifndef _WIN32
+    setenv("CO_MODULE_BACKEND", "covise", true);
+
+#else 
+    _putenv_s("CO_MODULE_BACKEND", "covise");
+
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+    wVersionRequested = MAKEWORD(1, 1);
+
+    err = WSAStartup(wVersionRequested, &wsaData);
+#endif
+
     covise::setupEnvironment(argc, argv);
 
     int key;
@@ -77,19 +92,6 @@ int main(int argc, char* argv[])
     {
         setenv("DISPLAY", ":0", false);
     }
-#endif
-#ifndef _WIN32
-    setenv("CO_MODULE_BACKEND", "covise", true);
-
-#else 
-    _putenv_s("CO_MODULE_BACKEND", "covise");
-
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
-    wVersionRequested = MAKEWORD(1, 1);
-
-    err = WSAStartup(wVersionRequested, &wsaData);
 #endif
 
     int port = atoi(argv[1]);

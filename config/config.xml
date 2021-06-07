@@ -61,7 +61,7 @@
   <COVER>
       <DefaultScaleFactor value="1000" />
       <Stereo value="false" />
-      <File options="usemaxlodonly storegeomids optimize noRotation noTriStripPolygons singleobject minlod 1 " />
+      <File options="usemaxlodonly storegeomids optimize noRotation noTriStripPolygons singleobject minlod 1" /> <!-- srcSRS EPSG:32632 destSRS EPSG:31467 -->
       <!--Framebuffer bpc="10" srgb="false" alpha="-1" depth="24" /-->
       <UI>
           <VRUI toolbar="false" />

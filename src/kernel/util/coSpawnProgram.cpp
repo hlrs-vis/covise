@@ -26,7 +26,47 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
     }
 
 #ifdef _WIN32
-    _spawnvp(P_NOWAIT, execPath, const_cast<char *const *>(args.data()));
+    //_spawnvp(P_NOWAIT, execPath, const_cast<char *const *>(args.data()));
+
+    std::string win_cmd_line;
+    for (const auto& arg : args)
+    {
+        if (arg != nullptr)
+        {
+            win_cmd_line.append(arg);
+            win_cmd_line.append(" ");
+        }
+    }
+
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    // Start the child process.
+    if (!CreateProcess(NULL, // No module name (use command line)
+        (LPSTR)win_cmd_line.c_str(), // Command line
+        NULL, // Process handle not inheritable
+        NULL, // Thread handle not inheritable
+        FALSE, // Set handle inheritance to FALSE
+        0, // No creation flags
+        NULL, // Use parent's environment block
+        NULL, // Use parent's starting directory
+        &si, // Pointer to STARTUPINFO structure
+        &pi) // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        printf("Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), GetLastError());
+    }
+    else
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+
 #else
     int pid = fork();
     if (pid == 0)
