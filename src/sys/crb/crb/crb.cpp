@@ -54,12 +54,7 @@ Host* host;
 int main(int argc, char* argv[])
 {
 
-#ifndef _WIN32
-    setenv("CO_MODULE_BACKEND", "covise", true);
-
-#else 
-    _putenv_s("CO_MODULE_BACKEND", "covise");
-
+#ifdef _WIN32
     WORD wVersionRequested;
     WSADATA wsaData;
     int err;

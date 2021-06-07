@@ -128,7 +128,6 @@ std::string createDebugEnvironmentCommandLineForApple() {
         if (val)
             arg += std::string("export ") + e + "='" + val + "'; ";
     }
-    arg += "export CO_MODULE_BACKEND=covise; ";
     arg += "source '" + covisedir + "/.covise.sh'; ";
     arg += "source '" + covisedir + "/scripts/covise-env.sh'; ";
     return arg;
