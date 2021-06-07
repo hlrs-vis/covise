@@ -381,17 +381,4 @@ bool CovisePlugin::requestInteraction(coInteractor *inter, osg::Node *triggerNod
     return true;
 }
 
-void CovisePlugin::handleVrbMessage()
-{
-    coVRCommunication::instance()->handleVRB(m_vrbmsg);
-}
-
-void CovisePlugin::OpenCOVERCallback(void * userData, void * callbackData)
-{
-    CovisePlugin *thisCovisePlugin = (CovisePlugin *)userData;
-    thisCovisePlugin->m_vrbmsg = (covise::Message *)callbackData;
-    thisCovisePlugin->handleVrbMessage();
-
-}
-
 COVERPLUGIN(CovisePlugin)
