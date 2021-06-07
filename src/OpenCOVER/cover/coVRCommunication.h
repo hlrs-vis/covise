@@ -66,7 +66,7 @@ public:
     static coVRCommunication *instance();
 
     ~coVRCommunication();
-    void processRenderMessage(const char * key, const char * tmp);
+    void processARVideoFrame(const char * key, const char * tmp);
     void processVRBMessage(covise::TokenBuffer &tb);
 
     bool collaborative(); // returns true, if in collaborative mode

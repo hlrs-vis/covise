@@ -288,35 +288,12 @@ bool coVRCommunication::isMaster() // returns true, if we are master
     return true;
 }
 
-void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
+void coVRCommunication::processARVideoFrame(const char *key, const char *tmp)
 {
     if (!(strcmp(key, "AR_VIDEO_FRAME")) && ARToolKit::instance()->remoteAR)
     {
         ARToolKit::instance()->remoteAR->receiveImage(tmp);
     }
-    else if (!(strcmp(key, "SYNC_KEYBOARD")))
-    {
-        fprintf(stderr, "Slave receiving SYNC_KEYBOARD msg=[%s]\n", tmp);
-        int type, state, code;
-        if (sscanf(tmp, "%d %d %d", &type, &state, &code) != 3)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf failed" << endl;
-        }
-        /*  if(((sh->writePos+1)%RINGBUFLEN)==sh->readPos)
-        {
-           fprintf(stderr,"Keyboard Buffer Overflow!! discarding Events\n");
-           sh->readPos++;
-        }
-        sh->keyType[sh->writePos]=type;
-        sh->keyState[sh->writePos]=state;
-        sh->keyKeycode[sh->writePos]=code;
-        sh->writePos = ((sh->writePos+1)%RINGBUFLEN);*/
-    }
-    else 
-    {
-    cerr << " Render Message with key " << key << " not known, consider adressing new processVRBMessage function:" << endl;
-    }
-
 }
 
 void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
@@ -575,19 +552,10 @@ void coVRCommunication::handleVRB(Message *msg)
     {
         coVRPluginList::instance()->forwardMessage(msg->data);
     }
-    break;
     case COVISE_MESSAGE_RENDER:
     {
-        if (msg->data.data()[0] != 0)
-        {
-            std::string data(msg->data.data());
-            std::vector<std::string> tokens = split(data, '\n');
-            processRenderMessage(tokens[0].c_str(), tokens[1].c_str());
-        }
-        else
-        {
-            processRenderMessage(&msg->data.data()[1], &msg->data.data()[strlen(&msg->data.data()[1]) + 2]);
-        }
+        std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER or COVISE_MESSAGE_RENDER_MODULE, this might be deprecated." << std::endl
+                  << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
     }
     break;
     case COVISE_MESSAGE_SOCKET_CLOSED:
