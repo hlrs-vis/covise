@@ -172,7 +172,11 @@ void VrbMessageHandler::handleMessage(Message* msg)
 	}
 	break;
 	case COVISE_MESSAGE_RENDER:
-	case COVISE_MESSAGE_RENDER_MODULE: 
+	case COVISE_MESSAGE_RENDER_MODULE:
+	{
+		std::cerr << "VRB received COVISE_MESSAGE_RENDER or COVISE_MESSAGE_RENDER_MODULE, this might be deprecated." << std::endl
+				  << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
+	} 
 	case COVISE_MESSAGE_VRB_MESSAGE:
 	{
 		passMessageToParticipants(msg);
