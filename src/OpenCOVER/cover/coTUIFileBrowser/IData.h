@@ -68,7 +68,7 @@ public:
        * @return a QStringList pointer containing all the directories in path
        */
     virtual void reqDirectoryList(std::string path, int pId) = 0;
-    virtual void setDirectoryList(covise::Message &msg) = 0;
+    virtual void setDirectoryList(const covise::Message &msg) = 0;
 
     /**
        * Requests the list of files contained in a given path.
@@ -77,7 +77,7 @@ public:
        * @return a QStringList pointer containing all the files in path
        */
     virtual void reqFileList(std::string path, int pId) = 0;
-    virtual void setFileList(covise::Message &msg) = 0;
+    virtual void setFileList(const covise::Message &msg) = 0;
 
     /**
        * This function determines the directories of the current location's

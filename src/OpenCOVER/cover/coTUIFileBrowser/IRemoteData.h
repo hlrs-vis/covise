@@ -27,7 +27,7 @@ class IRemoteData : public IData
 {
 public:
     virtual void reqClientList(int pId) = 0;
-    virtual void setClientList(covise::Message &msg) = 0;
+    virtual void setClientList(const covise::Message &msg) = 0;
 };
 }
 #endif

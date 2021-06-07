@@ -35,10 +35,10 @@ class LocalData : public IData
 public:
     LocalData(coTUIElement *elem = NULL);
     ~LocalData(void);
-    void reqDirectoryList(std::string path, int pId);
-    void setDirectoryList(covise::Message &msg);
-    void reqFileList(std::string path, int pId);
-    void setFileList(covise::Message &msg);
+    void reqDirectoryList(std::string path, int pId) override;
+    void setDirectoryList(const covise::Message &msg) override;
+    void reqFileList(std::string path, int pId) override;
+    void setFileList(const covise::Message &msg) override;
 
     void reqHomeDir(int pId);
     void reqHomeFiles(int pId);

@@ -286,14 +286,14 @@ public:
     virtual ~coTUIFileBrowserButton();
 
     // Sends a directory list to TUI
-    virtual void setDirList(covise::Message &ms);
+    virtual void setDirList(const covise::Message &ms);
 
     // Sends a file list to TUI
-    virtual void setFileList(covise::Message &ms);
+    virtual void setFileList(const covise::Message &ms);
 
     // Sends the currently used directory to TUI
     // Uses setCurDir(char*)
-    void setCurDir(covise::Message &msg);
+    void setCurDir(const covise::Message &msg);
 
     // Sends the currently used directory to TUI
     void setCurDir(const char *dir);
@@ -305,7 +305,7 @@ public:
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
     // sends the list of VRB clients in a session to TUI
-    void setClientList(covise::Message &msg);
+    void setClientList(const covise::Message &msg);
 
     // retieve currently used data object
     // either LocalData, VRBData or AGData
@@ -315,7 +315,7 @@ public:
     IData *getVRBData();
 
     //Sends a list of drives to the TUI
-    void setDrives(covise::Message &ms);
+    void setDrives(const covise::Message &ms);
 
     // Returns the filename to a file in the local file system
     // based on a URI-Filelocation e.g. vrb://visper.hlrs.de//mnt/raid/tmp/test.wrl

@@ -2570,7 +2570,7 @@ bool coVRMSController::syncVRBMessages()
 		for (i = 0; i < numVrbMessages; i++)
 		{
 			sendSlaves(vrbMsgs[i]);
-			coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
+			coVRCommunication::instance()->handleVRB(*vrbMsgs[i]);
 			delete vrbMsgs[i];
 		}
 		sendSlaves(&numUdpMessages, sizeof(int));
@@ -2598,7 +2598,7 @@ bool coVRMSController::syncVRBMessages()
 				cerr << "sync_exit17 myID=" << myID << endl;
 				exit(0);
 			}
-			coVRCommunication::instance()->handleVRB(vrbMsg);
+			coVRCommunication::instance()->handleVRB(*vrbMsg);
 		}
 		if (readMaster(&numUdpMessages, sizeof(int)) < 0)
 		{

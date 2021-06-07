@@ -185,7 +185,7 @@ coTUIFileBrowserButton::~coTUIFileBrowserButton()
     this->mDirList.clear();
 }
 
-void coTUIFileBrowserButton::setClientList(Message &msg)
+void coTUIFileBrowserButton::setClientList(const covise::Message &msg)
 {
     //transmits a list of vrb clients as received by VRBServer
     //to the filebrowser gui
@@ -671,7 +671,7 @@ void coTUIFileBrowserButton::resend(bool create)
     tui()->send(rt);
 }
 
-void coTUIFileBrowserButton::setFileList(Message &msg)
+void coTUIFileBrowserButton::setFileList(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
     //std::string entry;
@@ -718,7 +718,7 @@ IData *coTUIFileBrowserButton::getVRBData()
     return this->getData("vrb");
 }
 
-void coTUIFileBrowserButton::setDirList(Message &msg)
+void coTUIFileBrowserButton::setDirList(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
     char *entry;
@@ -749,7 +749,7 @@ void coTUIFileBrowserButton::setDirList(Message &msg)
     tui()->send(rt);
 }
 
-void coTUIFileBrowserButton::setDrives(Message &ms)
+void coTUIFileBrowserButton::setDrives(const Message &ms)
 {
     TokenBuffer tb(&ms);
     char *entry;
@@ -776,7 +776,7 @@ void coTUIFileBrowserButton::setDrives(Message &ms)
     tui()->send(rt);
 }
 
-void coTUIFileBrowserButton::setCurDir(Message &msg)
+void coTUIFileBrowserButton::setCurDir(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
     int subtype = 0;

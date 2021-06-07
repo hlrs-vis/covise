@@ -29,10 +29,6 @@ VRBData::VRBData(coTUIElement *elem)
     this->mTUIElement = elem;
 }
 
-VRBData::~VRBData(void)
-{
-}
-
 void VRBData::reqDirectoryList(std::string path, int pId)
 {
     TokenBuffer tb;
@@ -55,7 +51,7 @@ void VRBData::reqDirectoryList(std::string path, int pId)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setDirectoryList(Message &msg)
+void VRBData::setDirectoryList(const covise::Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)
@@ -93,7 +89,7 @@ void VRBData::reqFileList(std::string path, int pId)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setFileList(Message &msg)
+void VRBData::setFileList(const covise::Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)
@@ -154,7 +150,7 @@ int VRBData::getId()
     return this->mId;
 }
 
-void VRBData::setCurDir(Message &msg)
+void VRBData::setCurDir(const covise::Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)
@@ -179,7 +175,7 @@ void VRBData::reqClientList(int pId)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setClientList(Message &msg)
+void VRBData::setClientList(const covise::Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)
@@ -202,7 +198,7 @@ void VRBData::reqDrives(int pId)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setRemoteDirList(Message &msg)
+void VRBData::setRemoteDirList(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
 
@@ -253,7 +249,7 @@ void VRBData::setRemoteDirList(Message &msg)
     }
 }
 
-void VRBData::setRemoteFileList(Message &msg)
+void VRBData::setRemoteFileList(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
 
@@ -299,7 +295,7 @@ void VRBData::setRemoteFileList(Message &msg)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setRemoteDir(Message &msg, std::string absPath)
+void VRBData::setRemoteDir(const covise::Message &msg, std::string absPath)
 {
     TokenBuffer tb(&msg);
 
@@ -322,7 +318,7 @@ void VRBData::setRemoteDir(Message &msg, std::string absPath)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setRemoteDrives(Message &msg)
+void VRBData::setRemoteDrives(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
 
@@ -362,7 +358,7 @@ void VRBData::setRemoteDrives(Message &msg)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setDrives(Message &msg)
+void VRBData::setDrives(const covise::Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)
@@ -464,7 +460,7 @@ bool VRBData::VRBWait()
             else if (type != TABLET_SET_FILE)
             {
                 std::cerr << "Wrong message handling in VRBData!" << std::endl;
-                coVRCommunication::instance()->handleVRB(msg);
+                coVRCommunication::instance()->handleVRB(*msg);
             }
 
             tb >> id;
@@ -514,7 +510,7 @@ bool VRBData::VRBWait()
         }
         else
         {
-            coVRCommunication::instance()->handleVRB(msg);
+            coVRCommunication::instance()->handleVRB(*msg);
         }
     } while (!bTransferReadyFlag);
     return bTransferReadyFlag;
@@ -541,7 +537,7 @@ void VRBData::reqRemoteFile(std::string filename, int pId)
     cover->sendVrbMessage(&m);
 }
 
-void VRBData::setFile(Message &msg)
+void VRBData::setFile(const covise::Message &msg)
 {
     std::cerr << "VRBData::setFile entered!" << std::endl;
     TokenBuffer tb(&msg);
@@ -597,7 +593,7 @@ void VRBData::setFile(Message &msg)
     std::cerr << "VRBData::setFile left!" << std::endl;
 }
 
-void VRBData::setRemoteFile(Message &msg)
+void VRBData::setRemoteFile(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
     int type;

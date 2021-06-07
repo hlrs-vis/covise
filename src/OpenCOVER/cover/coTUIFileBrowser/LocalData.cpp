@@ -83,7 +83,7 @@ void LocalData::reqDirectoryList(std::string path, int pId)
     }
 }
 
-void LocalData::setDirectoryList(Message &msg)
+void LocalData::setDirectoryList(const Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)
@@ -143,7 +143,7 @@ void LocalData::reqFileList(std::string path, int pId)
     }
 }
 
-void LocalData::setFileList(Message &msg)
+void LocalData::setFileList(const Message &msg)
 {
     coTUIFileBrowserButton *tuiElem = dynamic_cast<coTUIFileBrowserButton *>(this->mTUIElement);
     if (tuiElem != NULL)

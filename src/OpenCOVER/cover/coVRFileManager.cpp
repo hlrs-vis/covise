@@ -1830,7 +1830,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 				}
 				else
 				{
-					coVRCommunication::instance()->handleVRB(msg);
+					coVRCommunication::instance()->handleVRB(*msg);
 				}
 			}
 			else

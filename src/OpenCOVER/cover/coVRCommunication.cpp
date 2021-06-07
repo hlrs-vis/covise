@@ -439,7 +439,7 @@ void coVRCommunication::becomeMaster()
     me()->becomeMaster();
 }
 
-void coVRCommunication::handleVRB(Message *msg)
+void coVRCommunication::handleVRB(const Message &msg)
 {
 	//fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
 
@@ -447,12 +447,12 @@ void coVRCommunication::handleVRB(Message *msg)
 	{
         vrbc = new VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true);
     }
-    TokenBuffer tb(msg);
-    switch (msg->type)
+    TokenBuffer tb(&msg);
+    switch (msg.type)
     {
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
-        UserInfoMessage uim(msg);
+        UserInfoMessage uim(&msg);
         if (uim.hasMyInfo)      
         {
             me()->setID(uim.myClientID);
@@ -550,7 +550,7 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_RENDER_MODULE:
     {
-        coVRPluginList::instance()->forwardMessage(msg->data);
+        coVRPluginList::instance()->forwardMessage(msg.data);
     }
     case COVISE_MESSAGE_RENDER:
     {
@@ -606,27 +606,27 @@ void coVRCommunication::handleVRB(Message *msg)
 
         if (subtype == TABLET_SET_DIRLIST)
         {
-            locData->setDirectoryList(*msg);
+            locData->setDirectoryList(msg);
         }
         else if (subtype == TABLET_SET_FILELIST)
         {
-            locData->setFileList(*msg);
+            locData->setFileList(msg);
         }
         else if (subtype == TABLET_SET_CURDIR)
         {
-            locData->setCurDir(*msg);
+            locData->setCurDir(msg);
         }
         else if (subtype == TABLET_SET_CLIENTS)
         {
-            locData->setClientList(*msg);
+            locData->setClientList(msg);
         }
         else if (subtype == TABLET_SET_DRIVES)
         {
-            locData->setDrives(*msg);
+            locData->setDrives(msg);
         }
         else if (subtype == TABLET_SET_FILE)
         {
-            locData->setFile(*msg);
+            locData->setFile(msg);
         }
         else if (subtype == TABLET_SET_GLOBALLOAD)
         {
@@ -668,21 +668,21 @@ void coVRCommunication::handleVRB(Message *msg)
         if (subtype == TABLET_SET_DIRLIST)
         {
             //Call local file system operation for directory listing
-            locData->setRemoteDirList(*msg);
+            locData->setRemoteDirList(msg);
         }
         else if (subtype == TABLET_SET_FILELIST)
         {
             //Call local file system operation for file listing
-            locData->setRemoteFileList(*msg);
+            locData->setRemoteFileList(msg);
         }
         else if (subtype == TABLET_SET_DRIVES)
         {
             //Call local file system operation for file listing
-            locData->setRemoteDrives(*msg);
+            locData->setRemoteDrives(msg);
         }
         else if (subtype == TABLET_FB_FILE_SEL)
         {
-            locData->setRemoteFile(*msg);
+            locData->setRemoteFile(msg);
         }
         else
         {
@@ -741,7 +741,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_MESSAGE:
     {
 
-		if (msg->data.length() == 0)
+		if (msg.data.length() == 0)
 		{
 			fprintf(stderr, "empty message\n");
 			return;
@@ -753,7 +753,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED:
     {
         if (registry)
-            registry->update(tb, msg->type);
+            registry->update(tb, msg.type);
     }
     break;
     default:

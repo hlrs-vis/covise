@@ -31,37 +31,36 @@ class VRBData : public IRemoteData
 {
 public:
     VRBData(coTUIElement *elem = NULL);
-    ~VRBData(void);
-    void reqDirectoryList(std::string path, int pId);
-    void setDirectoryList(covise::Message &msg);
-    void reqFileList(std::string path, int pId);
-    void setFileList(covise::Message &msg);
+    void reqDirectoryList(std::string path, int pId) override;
+    void setDirectoryList(const covise::Message &msg) override;
+    void reqFileList(std::string path, int pId) override;
+    void setFileList(const covise::Message &msg) override;
 
-    void reqHomeDir(int pId);
-    void reqHomeFiles(int pId);
+    void reqHomeDir(int pId) override;
+    void reqHomeFiles(int pId) override;
 
     void reqDirUp(std::string basePath = "");
 
     vrb::VRBClient *getVRB();
     void setId(int id);
     int getId();
-    void setCurDir(covise::Message &msg);
-    void reqClientList(int pId);
-    void setClientList(covise::Message &msg);
-    void setDrives(covise::Message &msg);
+    void setCurDir(const covise::Message &msg);
+    void reqClientList(int pId) override;
+    void setClientList(const covise::Message &msg) override;
+    void setDrives(const covise::Message &msg);
 
     std::string getTmpFilename(const std::string url, int id);
     void *getTmpFileHandle(bool sync = false);
     void reqDrives(int pId);
 
-    void setRemoteFileList(covise::Message &msg);
-    void setRemoteDirList(covise::Message &msg);
-    void setRemoteDir(covise::Message &msg, std::string absPath);
-    void setRemoteDrives(covise::Message &msg);
-    void setRemoteFile(covise::Message &msg);
+    void setRemoteFileList(const covise::Message &msg);
+    void setRemoteDirList(const covise::Message &msg);
+    void setRemoteDir(const covise::Message &msg, std::string absPath);
+    void setRemoteDrives(const covise::Message &msg);
+    void setRemoteFile(const covise::Message &msg);
 
     void reqRemoteFile(std::string filename, int pId);
-    void setFile(covise::Message &msg);
+    void setFile(const covise::Message &msg);
 
     void setSelectedPath(std::string path);
     std::string getSelectedPath();
