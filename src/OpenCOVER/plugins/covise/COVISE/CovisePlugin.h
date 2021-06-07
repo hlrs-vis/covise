@@ -42,5 +42,7 @@ public:
     covise::Message *waitForVisMessage(int type) override;
     void expandBoundingSphere(osg::BoundingSphere &bs) override;
     bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse) override;
+private:
+    void handleVrbMessage(const covise::Message &msg);
 };
 #endif

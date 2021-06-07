@@ -63,7 +63,6 @@ private:
     static void renderCallback(void *userData, void *callbackData);
     static void masterSwitchCallback(void *userData, void *callbackData);
     static void paramCallback(bool inMapLoading, void *userData, void *callbackData);
-    static void doCustomCallback(void *userData, void *callbackData);
 
     void quit(void *callbackData);
     void addObject(void *callbackData);
@@ -71,7 +70,7 @@ private:
     void masterSwitch(void *callbackData);
     void render(void *callbackData);
     void param(const char *paraName);
-    void doCustom(void *callbackData);
+    void doCustom(const covise::Message& msg);
 
 public:
     enum Mode

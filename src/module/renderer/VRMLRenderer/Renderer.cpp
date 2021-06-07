@@ -30,7 +30,7 @@
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
 #include <net/covise_connect.h>
-
+#include <boost/algorithm/string.hpp>
 //
 // static stub callback functions calling the real class
 // member functions
@@ -70,12 +70,6 @@ void Renderer::paramCallback(bool /*inMapLoading*/, void *userData, void *)
 {
     Renderer *thisRenderer = (Renderer *)userData;
     thisRenderer->param(CoviseRender::get_reply_param_name());
-}
-
-void Renderer::doCustomCallback(void *userData, void *callbackData)
-{
-    Renderer *thisRenderer = (Renderer *)userData;
-    thisRenderer->doCustom(callbackData);
 }
 
 //
@@ -153,7 +147,8 @@ Renderer::Renderer(int argc, char *argv[])
     CoviseRender::set_add_object_callback(Renderer::addObjectCallback, this);
     CoviseRender::set_delete_object_callback(Renderer::deleteObjectCallback, this);
     CoviseRender::set_param_callback(Renderer::paramCallback, this);
-    CoviseRender::set_custom_callback(Renderer::doCustomCallback, this);
+    CoviseRender::set_custom_callback([this](const covise::Message &msg)
+                                      { doCustom(msg); });
 
     // send warning when using default: must be after init() call
     if (useDefault)
@@ -343,87 +338,78 @@ void Renderer::masterSwitch(void *callbackData)
     //   CoviseRender::sendInfo("Changing state to slave");
 }
 
-void Renderer::doCustom(void *callbackData)
+void Renderer::doCustom(const covise::Message& msg)
 {
-    Message *msg;
     char *tmp;
     int ret;
 
     //CoviseRender::sendInfo("doCustom callback called");
-    if (callbackData)
-    {
-        msg = (Message *)callbackData;
+
         //cerr << endl << "  Custom Callback  ";
         //cerr << endl << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
-        //cerr << " Message_type: " << msg->type << " from Sender: " << msg->sender << " Send_type: "  << msg->send_type << endl << "-------------------------------\n";
-        //if(msg->data) cerr << msg->data;
+        //cerr << " Message_type: " << msg.type << " from Sender: " << msg.sender << " Send_type: "  << msg.send_type << endl << "-------------------------------\n";
+        //if(msg.data) cerr << msg.data;
         //else cerr << " NULL content ";
         //cerr << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
-        switch (msg->type)
+    switch (msg.type)
+    {
+    case COVISE_MESSAGE_MAKE_DATA_CONNECTION:
+        cerr << endl << "--- MAKE_DATA_CONNECTION message \n";
+        ret = start_aws();
+        if (ret)
+            ; //register_vrml();
+        else
+            cerr << "\n Error starting aws !!!\n";
+        break;
+    case COVISE_MESSAGE_COMPLETE_DATA_CONNECTION:
+    case COVISE_MESSAGE_PORT:
+    {
+
+         std::string s{msg.data.data()};
+        std::vector<std::string> v;
+        boost::split(v, s, boost::is_any_of(" "));
+        m_aws_cport = std::stoi(v[0]);
+        m_aws_wport = std::stoi(v[1]);
+        cerr << endl << "--- "<< covise_msg_types_array[msg.type] << ": " << m_aws_cport << " " << m_aws_wport << endl;
+        register_vrml();
+        break;
+    }
+    case COVISE_MESSAGE_ASK_FOR_OBJECT:
+        if (objlist != NULL)
         {
-        case COVISE_MESSAGE_MAKE_DATA_CONNECTION:
-            cerr << endl << "--- MAKE_DATA_CONNECTION message \n";
-            ret = start_aws();
-            if (ret)
-                ; //register_vrml();
-            else
-                cerr << "\n Error starting aws !!!\n";
-            break;
-        case COVISE_MESSAGE_COMPLETE_DATA_CONNECTION:
-            tmp = strtok(msg->data.accessData(), " ");
-            m_aws_cport = atoi(tmp);
-            tmp = strtok(NULL, " ");
-            m_aws_wport = atoi(tmp);
-            cerr << endl << "--- COMPLETE_DATA_CONNECTION : " << m_aws_cport << " " << m_aws_wport << endl;
-            register_vrml();
-            break;
+            objlist->sendObjects(msg.conn);
+            objlist->sendTimestep(msg.conn);
+            sendViewPoint();
 
-        case COVISE_MESSAGE_PORT:
-            tmp = strtok(msg->data.accessData(), " ");
-            m_aws_cport = atoi(tmp);
-            tmp = strtok(NULL, " ");
-            m_aws_wport = atoi(tmp);
-            cerr << endl << "--- PORT : " << m_aws_cport << " " << m_aws_wport << endl;
-            register_vrml();
-            break;
-
-        case COVISE_MESSAGE_ASK_FOR_OBJECT:
-            if (objlist != NULL)
+            //sendObjectOK();
+            m_obj_needed = 0;
+            //m_cam_needed = 0;
+        }
+        break;
+    case COVISE_MESSAGE_SET_ACCESS:
+        m_camera_update = atoi(msg.data.data());
+        if (m_camera_update && objlist != NULL)
+        {
+            if (m_obj_needed)
             {
-                objlist->sendObjects(msg->conn);
-                objlist->sendTimestep(msg->conn);
-                sendViewPoint();
-
-                //sendObjectOK();
+                objlist->sendNewObjects(msg.conn);
                 m_obj_needed = 0;
                 //m_cam_needed = 0;
             }
-            break;
-        case COVISE_MESSAGE_SET_ACCESS:
-            m_camera_update = atoi(msg->data.data());
-            if (m_camera_update && objlist != NULL)
+            if (m_cam_needed)
             {
-                if (m_obj_needed)
-                {
-                    objlist->sendNewObjects(msg->conn);
-                    m_obj_needed = 0;
-                    //m_cam_needed = 0;
-                }
-                if (m_cam_needed)
-                {
-                    sendViewPoint();
-                    //m_cam_needed = 0;
-                }
-                objlist->sendTimestep(msg->conn);
+                sendViewPoint();
+                //m_cam_needed = 0;
             }
-            //cerr << endl << "$$$$ - SET_ACCESS :" << m_camera_update << endl;
-            break;
-        default:
-            break;
+            objlist->sendTimestep(msg.conn);
+        }
+        //cerr << endl << "$$$$ - SET_ACCESS :" << m_camera_update << endl;
+        break;
+    default:
+        break;
 
-        } // end switch
-    }
+    } // end switch
 }
 
 void Renderer::start(void)

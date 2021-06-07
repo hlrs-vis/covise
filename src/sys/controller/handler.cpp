@@ -810,6 +810,19 @@ void CTRLHandler::loadNetworkFile()
 
     if (m_options.netFile.empty())
         return;
+    //std::atomic_bool connected{false};
+    //m_hostManager.setOnConnectCallBack([&connected]()
+    //                                   { connected = true; });
+//
+    //for (size_t i = 0; i < 25;)
+    //{
+    //    if (connected)
+    //    {
+    //        break;
+    //    }
+    //    std::this_thread::sleep_for(std::chrono::microseconds(200));
+    //}
+
     //  look, if a path for searching is given, otherwise create a directory net
     char *returnPath = NULL;
     FILE *fp = CoviseBase::fopen(m_options.netFile.c_str(), "r", &returnPath);

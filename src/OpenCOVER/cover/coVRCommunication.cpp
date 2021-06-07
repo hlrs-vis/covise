@@ -725,6 +725,28 @@ void coVRCommunication::handleVRB(const Message &msg)
         coVRCollaboration::instance()->updateSharedStates();
     }
     break;
+    case COVISE_MESSAGE_VRBC_CHANGE_SESSION:
+    {
+        std::cerr << "received COVISE_MESSAGE_VRBC_CHANGE_SESSION from covise" << std::endl;
+        while (!vrbc->isConnected())
+        {
+            std::cerr << "OpenCOVER waiting for VRB connection" << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        while (me()->ID() == 0)
+        {
+            Message m;
+            vrbc->wait(&m);
+            assert(m.type != COVISE_MESSAGE_VRBC_CHANGE_SESSION);
+            handleVRB(m);
+        }
+
+        vrb::SessionID sessionID;
+        tb >> sessionID;
+        coVRCollaboration::instance()->sessionChanged(sessionID.isPrivate());
+        setSessionID(sessionID);
+    }
+    break;
     case COVISE_MESSAGE_VRB_SAVE_SESSION:
     {
         saveSessionFile(tb);

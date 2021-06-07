@@ -58,8 +58,8 @@ XtInputId CoviseBase::X_id = (XtInputId)0;
 
 CoviseCallback *CoviseBase::progressCallbackFunc = NULL;
 CoviseCallback *CoviseBase::masterSwitchCallbackFunc = NULL;
+CoviseCallback2 CoviseBase::customCallbackFunc;
 CoviseCallback *CoviseBase::quitInfoCallbackFunc = NULL;
-CoviseCallback *CoviseBase::customCallbackFunc = NULL;
 void *CoviseBase::progressUserData = 0L;
 void *CoviseBase::quitCallbackData = 0L;
 void *CoviseBase::quitUserData = 0L;
@@ -67,8 +67,6 @@ CoviseCallback *CoviseBase::quitCallbackFunc = NULL;
 void *CoviseBase::quitInfoCallbackData = 0L;
 void *CoviseBase::quitInfoUserData = 0L;
 void *CoviseBase::progressCallbackData = 0L;
-void *CoviseBase::customUserData = 0L;
-void *CoviseBase::customCallbackData = 0L;
 void *CoviseBase::masterSwitchUserData = 0L;
 CoviseParamCallback *CoviseBase::paramCallbackFunc = NULL;
 void *CoviseBase::paramUserData = 0L;
@@ -242,9 +240,9 @@ void CoviseBase::callQuitInfoCallback()
 //=====================================================================
 //
 //=====================================================================
-void CoviseBase::callCustomCallback()
+void CoviseBase::callCustomCallback(const covise::Message& msg)
 {
-    (*customCallbackFunc)(customUserData, customCallbackData);
+    customCallbackFunc(msg);
 }
 
 //=====================================================================
@@ -296,11 +294,9 @@ void CoviseBase::set_quit_info_callback(CoviseCallback *f, void *data)
 //=====================================================================
 //
 //=====================================================================
-void CoviseBase::set_custom_callback(CoviseCallback *f, void *data)
+void CoviseBase::set_custom_callback(const CoviseCallback2& f)
 {
     customCallbackFunc = f;
-    customUserData = data;
-    customCallbackData = (void *)NULL;
 }
 
 //=====================================================================
@@ -360,9 +356,7 @@ void CoviseBase::remove_quit_info_callback(void)
 //=====================================================================
 void CoviseBase::remove_custom_callback(void)
 {
-    customCallbackFunc = (CoviseCallback *)NULL;
-    customUserData = (void *)NULL;
-    customCallbackData = (void *)NULL;
+    customCallbackFunc = CoviseCallback2{};
 }
 
 //=====================================================================
@@ -388,12 +382,10 @@ void CoviseBase::remove_param_callback(void)
 //=====================================================================
 void CoviseBase::doCustom(Message *m)
 {
-
     // call back the function provided by the user
-    if (customCallbackFunc != NULL)
+    if (customCallbackFunc)
     {
-        customCallbackData = (void *)m;
-        callCustomCallback();
+        callCustomCallback(*m);
     }
 }
 

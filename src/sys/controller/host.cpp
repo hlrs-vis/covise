@@ -43,10 +43,11 @@ const SubProcess &RemoteHost::getProcess(sender_type type) const
 
 SubProcess &RemoteHost::getProcess(sender_type type)
 {
-    auto it = std::find_if(m_processes.begin(), m_processes.end(), [type](const ProcessList::value_type &m) {
-        //when called in destructor of netModule (after m_module.clear()) modules can be null)
-        return (m ? m->type == type : false);
-    });
+    auto it = std::find_if(m_processes.begin(), m_processes.end(), [type](const ProcessList::value_type &m)
+                           {
+                               //when called in destructor of netModule (after m_module.clear()) modules can be null)
+                               return (m ? m->type == type : false);
+                           });
     if (it != m_processes.end())
     {
         return *it->get();
@@ -61,13 +62,14 @@ const NetModule &RemoteHost::getModule(const std::string &name, int instance) co
 
 NetModule &RemoteHost::getModule(const std::string &name, int instance)
 {
-    auto app = std::find_if(begin(), end(), [&name, &instance](const std::unique_ptr<SubProcess> &mod) {
-        if (const auto app = dynamic_cast<const NetModule *>(&*mod))
-        {
-            return app->info().name == name && app->instance() == instance;
-        }
-        return false;
-    });
+    auto app = std::find_if(begin(), end(), [&name, &instance](const std::unique_ptr<SubProcess> &mod)
+                            {
+                                if (const auto app = dynamic_cast<const NetModule *>(&*mod))
+                                {
+                                    return app->info().name == name && app->instance() == instance;
+                                }
+                                return false;
+                            });
     if (app != end())
     {
         return dynamic_cast<NetModule &>(**app);
@@ -78,9 +80,8 @@ NetModule &RemoteHost::getModule(const std::string &name, int instance)
 void RemoteHost::removeModule(NetModule &app, int alreadyDead)
 {
     app.setDeadFlag(alreadyDead);
-    m_processes.erase(std::remove_if(m_processes.begin(), m_processes.end(), [&app](const std::unique_ptr<SubProcess> &mod) {
-                          return &*mod == &app;
-                      }),
+    m_processes.erase(std::remove_if(m_processes.begin(), m_processes.end(), [&app](const std::unique_ptr<SubProcess> &mod)
+                                     { return &*mod == &app; }),
                       m_processes.end());
 }
 
@@ -111,14 +112,15 @@ bool RemoteHost::startCrb()
         auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this});
         auto crbModule = m->get()->as<CRBModule>();
 
-        if (!crbModule->setupConn([this, &crbModule](int port, const std::string &ip) {
-                std::vector<std::string> args;
-                args.push_back(std::to_string(port));
-                args.push_back(ip);
-                args.push_back(std::to_string(crbModule->processId));
-                //std::cerr << "Requesting start of crb on host " << hostManager.getLocalHost().userInfo().ipAdress << " port: " << port << " id " << crbModule->processId << std::endl;
-                return launchCrb(vrb::Program::crb, args);
-            }))
+        if (!crbModule->setupConn([this, &crbModule](int port, const std::string &ip)
+                                  {
+                                      std::vector<std::string> args;
+                                      args.push_back(std::to_string(port));
+                                      args.push_back(ip);
+                                      args.push_back(std::to_string(crbModule->processId));
+                                      //std::cerr << "Requesting start of crb on host " << hostManager.getLocalHost().userInfo().ipAdress << " port: " << port << " id " << crbModule->processId << std::endl;
+                                      return launchCrb(vrb::Program::crb, args);
+                                  }))
         {
             std::cerr << "startCrb failed to spawn CRB connection" << std::endl;
             return false;
@@ -229,7 +231,8 @@ void RemoteHost::launchProcess(const CRB_EXEC &exec) const
 
 bool RemoteHost::isModuleAvailable(const std::string &moduleName) const
 {
-    auto it = std::find_if(m_availableModules.begin(), m_availableModules.end(), [&moduleName](const ModuleInfo *info) { return info->name == moduleName; });
+    auto it = std::find_if(m_availableModules.begin(), m_availableModules.end(), [&moduleName](const ModuleInfo *info)
+                           { return info->name == moduleName; });
     return it != m_availableModules.end();
 }
 
@@ -237,9 +240,8 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
                                               int posx, int posy, int copy, ExecFlag flags, NetModule *mirror)
 {
     // check the Category of the Module
-    auto moduleInfo = std::find_if(m_availableModules.begin(), m_availableModules.end(), [&name](const ModuleInfo *info) {
-        return info->name == name;
-    });
+    auto moduleInfo = std::find_if(m_availableModules.begin(), m_availableModules.end(), [&name](const ModuleInfo *info)
+                                   { return info->name == name; });
     if (moduleInfo == m_availableModules.end())
     {
         throw Exception{"failed to start " + name + "on " + userInfo().hostName + ": module not available!"};
@@ -471,7 +473,8 @@ void RemoteHost::clearProcesses()
 }
 
 HostManager::HostManager()
-    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise}), m_thread([this]() { handleVrb(); })
+    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise}), m_thread([this]()
+                                                                                                                                                                                                    { handleVrb(); })
 {
 }
 
@@ -567,9 +570,8 @@ const RemoteHost *HostManager::getHost(int clientID) const
 
 RemoteHost &HostManager::findHost(const std::string &ipAddress)
 {
-    auto h = std::find_if(m_hosts.begin(), m_hosts.end(), [&ipAddress](HostMap::value_type &host) {
-        return (host.second->state() != LaunchStyle::Disconnect && host.second->userInfo().ipAdress == ipAddress);
-    });
+    auto h = std::find_if(m_hosts.begin(), m_hosts.end(), [&ipAddress](HostMap::value_type &host)
+                          { return (host.second->state() != LaunchStyle::Disconnect && host.second->userInfo().ipAdress == ipAddress); });
     if (h != m_hosts.end())
     {
         return *h->second.get();
@@ -652,9 +654,8 @@ bool HostManager::slaveUpdate()
     for (const Renderer *renderer : getAllModules<Renderer>())
     {
         auto &masterUi = getMasterUi();
-        auto display = std::find_if(renderer->begin(), renderer->end(), [&masterUi](const Renderer::DisplayList::value_type &disp) {
-            return &disp->host == &masterUi.host;
-        });
+        auto display = std::find_if(renderer->begin(), renderer->end(), [&masterUi](const Renderer::DisplayList::value_type &disp)
+                                    { return &disp->host == &masterUi.host; });
         if (display != renderer->end())
         {
             ostringstream os;
@@ -678,9 +679,8 @@ const Userinterface &HostManager::getMasterUi() const
 Userinterface &HostManager::getMasterUi()
 {
     auto uis = getAllModules<Userinterface>();
-    auto masterUi = std::find_if(uis.begin(), uis.end(), [](const Userinterface *ui) {
-        return ui->status() == Userinterface::Status::Master;
-    });
+    auto masterUi = std::find_if(uis.begin(), uis.end(), [](const Userinterface *ui)
+                                 { return ui->status() == Userinterface::Status::Master; });
     assert(masterUi != uis.end());
     return **masterUi;
 }
@@ -759,10 +759,11 @@ bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
         sendAll<Userinterface>(infoMsg);
         auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cerr << " creating server conn: " << std::ctime(&now) << std::endl;
-        setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c) {
-            PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
-            return sendCoviseMessage(test, *m_vrb);
-        });
+        setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c)
+                              {
+                                  PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
+                                  return sendCoviseMessage(test, *m_vrb);
+                              });
         now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cerr << " waiting for response from vrb: " << std::ctime(&now) << std::endl;
         conCap = m_proxyRequired.waitForValue();
@@ -846,6 +847,17 @@ bool HostManager::handleVrbMessage()
                 m_localHost->second->setSession(uim.mySession);
 
                 m_hosts.erase(old);
+                for (const auto &rend : getAllModules<Renderer>())
+                {
+                    //request new session
+                    TokenBuffer tb;
+                    vrb::SessionID sid{m_vrb->ID(), "covise" + std::to_string(m_vrb->ID()) + "_" + std::to_string(rend->instance()), false};
+                    tb << sid;
+                    Message sessionRequest(COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION, tb.getData());
+                    m_vrb->send(&sessionRequest);
+                    covise::Message sessionUpdate{COVISE_MESSAGE_VRBC_CHANGE_SESSION, tb.getData()};
+                    rend->send(&sessionUpdate);
+                }
                 if (m_onConnectVrbCallBack)
                 {
                     m_onConnectVrbCallBack();

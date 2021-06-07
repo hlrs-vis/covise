@@ -48,6 +48,8 @@ CovisePlugin::CovisePlugin()
     setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
     new VRCoviseConnection();
+    CoviseRender::set_custom_callback([this](const covise::Message &msg)
+                                      { handleVrbMessage(msg); });
 }
 
 #ifdef PINBOARD
@@ -379,6 +381,11 @@ bool CovisePlugin::requestInteraction(coInteractor *inter, osg::Node *triggerNod
     else
         interaction->enableDirectInteractorFromGui(true);
     return true;
+}
+
+void CovisePlugin::handleVrbMessage(const covise::Message &msg)
+{
+    coVRCommunication::instance()->handleVRB(msg);
 }
 
 COVERPLUGIN(CovisePlugin)

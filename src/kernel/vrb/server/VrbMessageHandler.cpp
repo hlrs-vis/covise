@@ -262,7 +262,7 @@ void VrbMessageHandler::handleMessage(Message* msg)
 		{
 			bool wasMaster = c->isMaster();
 			c->setSession(res.get<sessionID>());
-			if (wasMaster)
+			if (wasMaster || clients.numInSession(res.get<sessionID>()))
 			{
 				determineNewMaster(c->sessionID());
 			}

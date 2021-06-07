@@ -15,7 +15,7 @@
 #include <covise/covise.h>
 #include <util/coTypes.h>
 #include <string>
-
+#include <functional>
 #ifndef _WIN32
 #include <dirent.h>
 #endif
@@ -59,6 +59,7 @@ struct TColormapChoice
  * Covise callbacks
  */
 typedef void CoviseCallback(void *userData, void *callbackData);
+typedef std::function<void(const covise::Message &)> CoviseCallback2;
 typedef void CoviseParamCallback(bool inMapLoading, void *userData, void *callbackData);
 
 class APPLEXPORT CoviseBase
@@ -144,9 +145,7 @@ protected:
     static CoviseCallback *quitInfoCallbackFunc;
     static void *quitInfoUserData;
     static void *quitInfoCallbackData;
-    static CoviseCallback *customCallbackFunc;
-    static void *customUserData;
-    static void *customCallbackData;
+    static CoviseCallback2 customCallbackFunc;
     static CoviseCallback *masterSwitchCallbackFunc;
     static void *masterSwitchUserData;
     static CoviseParamCallback *paramCallbackFunc;
@@ -155,7 +154,7 @@ protected:
     static void callProgressCallback(void);
     static void callQuitCallback(void);
     static void callQuitInfoCallback(void);
-    static void callCustomCallback(void);
+    static void callCustomCallback(const covise::Message& msg);
     static void callMasterSwitchCallback(void);
     static void callParamCallback(bool inMapLoading);
 
@@ -165,7 +164,7 @@ public:
     static void set_progress_callback(CoviseCallback *f, void *userData);
     static void set_quit_callback(CoviseCallback *f, void *userData);
     static void set_quit_info_callback(CoviseCallback *f, void *userData);
-    static void set_custom_callback(CoviseCallback *f, void *userData);
+    static void set_custom_callback(const CoviseCallback2 &f);
     static void set_param_callback(CoviseParamCallback *f, void *userData);
     static void remove_progress_callback();
     static void remove_quit_callback();
