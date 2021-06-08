@@ -288,7 +288,7 @@ float VRBClient::getSendDelay()
 void VRBClient::shutdown(){
     if(m_isConnected)
     {
-        shutdownAndCloseSocket(sConn->getSocket()->get_id());
+        shutdownSocket(sConn->getSocket()->get_id());
     }
 }
 

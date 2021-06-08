@@ -137,10 +137,10 @@ CrbProxyConn2::CrbProxyConn2(size_t fromProcId, size_t toProcId, const covise::M
                  m_connected = true;
                  while (conns[0].conn->is_connected() && conns[1].conn->is_connected())
                  {
-                   auto conn = connList.wait_for_input();
+                   auto conn = connList.check_for_input(5.0f);
                    if (!conn)
                    {
-                     return;
+                     continue;
                    }
 
                    Message msg;
@@ -171,9 +171,9 @@ CrbProxyConn2::~CrbProxyConn2()
   if (m_thread.joinable())
   {
     if (m_fromSocketId != 0)
-      shutdownAndCloseSocket(m_fromSocketId);
+      shutdownSocket(m_fromSocketId);
     if (m_toSocketId != 0)
-      shutdownAndCloseSocket(m_toSocketId);
+      shutdownSocket(m_toSocketId);
     m_thread.join();
   }
 }
@@ -289,7 +289,7 @@ CoviseProxy::~CoviseProxy()
     for (const auto &proxy : m_proxies)
     {
       if (proxy.second->getSocket())
-        shutdownAndCloseSocket(proxy.second->getSocket()->get_id());
+        shutdownSocket(proxy.second->getSocket()->get_id());
     }
     m_thread.join();
   }

@@ -136,10 +136,9 @@ extern "C" int close(int fildes);
 #define closesocket close
 #endif
 
-void covise::shutdownAndCloseSocket(int socketDescriptor)
+void covise::shutdownSocket(int socketDescriptor)
 {
     ::shutdown(socketDescriptor, 2); //2 for read and write
-    ::closesocket(socketDescriptor);
 }
 
 
