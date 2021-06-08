@@ -34,9 +34,8 @@ ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *par
         {
             auto b = new QPushButton(programNames[i], this);
             layout->addWidget(b);
-            connect(b, &QPushButton::clicked, this, [this, i]() {
-                emit requestProgramLaunch(static_cast<Program>(i), m_clientID);
-            });
+            connect(b, &QPushButton::clicked, this, [this, i]()
+                    { emit requestProgramLaunch(static_cast<Program>(i), m_clientID); });
         }
     }
 }
@@ -54,9 +53,8 @@ void ClientWidgetList::addClient(int clientID, const QString &clientInfo)
     m_layout->addWidget(cw);
     removeClient(clientID);
     m_clients[clientID] = cw;
-    connect(cw, &ClientWidget::requestProgramLaunch, this, [this](Program programID, int clientID) {
-        emit requestProgramLaunch(programID, clientID);
-    });
+    connect(cw, &ClientWidget::requestProgramLaunch, this, [this](Program programID, int clientID)
+            { emit requestProgramLaunch(programID, clientID); });
 }
 
 void ClientWidgetList::removeClient(int clientID)
@@ -69,4 +67,15 @@ void ClientWidgetList::removeClient(int clientID)
         cl->second = nullptr;
         m_clients.erase(cl);
     }
+}
+
+void ClientWidgetList::clear()
+{
+    for(auto w : m_clients)
+    {
+        m_layout->removeWidget(w.second);
+        delete w.second;
+        w.second = nullptr;
+    }
+    m_clients.clear();
 }

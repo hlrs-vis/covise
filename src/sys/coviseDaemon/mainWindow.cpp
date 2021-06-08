@@ -268,11 +268,13 @@ void MainWindow::initConfigSettings()
 void MainWindow::setRemoteLauncherCallbacks()
 {
 	connect(&m_remoteLauncher, &CoviseDaemon::connectedSignal, this, &MainWindow::setStateConnected);
-	connect(&m_remoteLauncher, &CoviseDaemon::disconnectedSignal, this, [this]() {
-		setStateDisconnected();
-		if (ui->autoconnectCheckBox->isChecked())
-			onConnectBtnClicked();
-	});
+	connect(&m_remoteLauncher, &CoviseDaemon::disconnectedSignal, this, [this]()
+			{
+				m_clientList->clear();
+				setStateDisconnected();
+				if (ui->autoconnectCheckBox->isChecked())
+					onConnectBtnClicked();
+			});
 	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);

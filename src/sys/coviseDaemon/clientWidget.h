@@ -38,6 +38,7 @@ public:
     ClientWidgetList(QScrollArea *scrollArea, QWidget *parent);
     void addClient(int clientID, const QString &clientInfo);
     void removeClient(int clientID);
+    void clear();
 signals:
     void requestProgramLaunch(vrb::Program programID, int clientID);
 
