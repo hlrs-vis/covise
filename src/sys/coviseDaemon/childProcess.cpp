@@ -22,6 +22,7 @@
 #include <array>
 #include <iostream>
 #include <cstdio>
+#include <sstream>
 constexpr int BUFSIZE = 2048;
 
 std::vector<const char*> stringToCharVec(const std::vector<std::string>& v)
