@@ -14,10 +14,11 @@
 #include <QCloseEvent>
 #include <QMenu>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QShortcut>
 #include <QSystemTrayIcon>
-#include <QTextStream>
 #include <QTextBrowser>
+#include <QTextStream>
 
 #include <iostream>
 #include <fstream>
@@ -51,8 +52,6 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 	setHotkeys();
 	handleAutoconnect();
 	setStartupWindowStyle();
-
-	
 }
 
 MainWindow::~MainWindow()
@@ -187,6 +186,18 @@ void MainWindow::removeClient(int clientID)
 	m_clientList->removeClient(clientID);
 }
 
+void updateTextBrowser(QTextBrowser *tb, const QString &msg)
+{
+	QScrollBar *scrollbar = tb->verticalScrollBar();
+	bool scrollbarAtBottom = (scrollbar->value() >= (scrollbar->maximum() - 4));
+	int scrollbarPrevValue = scrollbar->value();
+	tb->setText(tb->toPlainText() + msg);
+	if (scrollbarAtBottom)
+		scrollbar->setValue(scrollbar->maximum());
+	else
+		scrollbar->setValue(scrollbarPrevValue);
+}
+
 void MainWindow::launchProgram(int senderID, const QString &senderDescription, vrb::Program programID, const std::vector<std::string> &args)
 {
 	bool execute = ui->autostartCheckBox->isChecked();
@@ -200,13 +211,18 @@ void MainWindow::launchProgram(int senderID, const QString &senderDescription, v
 		auto textArea = new QScrollArea(this);
 		textArea->setWidgetResizable(true);
 
-		auto textLabel = new QTextBrowser(textArea);
-		textArea->setWidget(textLabel);
+		auto textBrowser = new QTextBrowser(textArea);
+		textArea->setWidget(textBrowser);
 		static int numSpawns = 0;
 		++numSpawns;
 		auto index = ui->childTabs->addTab(textArea, programNames[programID] + QString{" "} + QString::number(numSpawns));
 		m_remoteLauncher.spawnProgram(
-			programID, args, [textLabel](const QString &msg) { textLabel->setText(textLabel->toPlainText() + msg); }, [this, index]() { ui->childTabs->removeTab(index); });
+			programID, args, [textBrowser](const QString &msg)
+			{
+				updateTextBrowser(textBrowser, msg);
+			},
+			[this, index]()
+			{ ui->childTabs->removeTab(index); });
 	}
 	else
 		m_remoteLauncher.sendPermission(senderID, false);
@@ -283,11 +299,12 @@ void MainWindow::setRemoteLauncherCallbacks()
 void MainWindow::initClientList()
 {
 	m_clientList = new ClientWidgetList(ui->clientsScrollArea, ui->clientsScrollArea);
-	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](vrb::Program programID, int clientID) {
-		std::cerr << "launching " << vrb::programNames[programID] << " on client " << clientID << std::endl;
+	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](vrb::Program programID, int clientID)
+			{
+				std::cerr << "launching " << vrb::programNames[programID] << " on client " << clientID << std::endl;
 
-		m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
-	});
+				m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
+			});
 }
 
 void MainWindow::setHotkeys()
@@ -295,25 +312,26 @@ void MainWindow::setHotkeys()
 	auto escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
 	auto enter = new QShortcut(QKeySequence(Qt::Key_Return), this);
 	auto sideMenu = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab), this);
-	connect(enter, &QShortcut::activated, this, [this]() {
-		if (!m_isConnecting)
-		{
-			onConnectBtnClicked();
-		}
-	});
-	connect(escape, &QShortcut::activated, this, [this]() {
-		if (m_isConnecting)
-		{
-			onCancelBtnClicked();
-		}
-		else
-		{
-			onDisconnectBtnClicked();
-		}
-	});
-	connect(sideMenu, &QShortcut::activated, this, [this]() {
-		on_actionSideMenuAction_triggered();
-	});
+	connect(enter, &QShortcut::activated, this, [this]()
+			{
+				if (!m_isConnecting)
+				{
+					onConnectBtnClicked();
+				}
+			});
+	connect(escape, &QShortcut::activated, this, [this]()
+			{
+				if (m_isConnecting)
+				{
+					onCancelBtnClicked();
+				}
+				else
+				{
+					onDisconnectBtnClicked();
+				}
+			});
+	connect(sideMenu, &QShortcut::activated, this, [this]()
+			{ on_actionSideMenuAction_triggered(); });
 }
 
 void MainWindow::handleAutoconnect()
@@ -378,17 +396,18 @@ void MainWindow::createTrayIcon()
 	connect(exit, &QAction::triggered, &QApplication::quit);
 	trayMenu->addAction("Open", this, &MainWindow::showThis);
 	m_tray->setContextMenu(trayMenu);
-	connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
-		switch (reason)
-		{
-		case QSystemTrayIcon::DoubleClick:
-		case QSystemTrayIcon::Trigger:
-			showThis();
-			break;
-		default:
-			break;
-		}
-	});
+	connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason)
+			{
+				switch (reason)
+				{
+				case QSystemTrayIcon::DoubleClick:
+				case QSystemTrayIcon::Trigger:
+					showThis();
+					break;
+				default:
+					break;
+				}
+			});
 }
 
 void MainWindow::showConnectionProgressBar(int seconds)
@@ -402,13 +421,14 @@ void MainWindow::showConnectionProgressBar(int seconds)
 		m_waitFuture.get();
 	}
 
-	m_waitFuture = std::async(std::launch::async, [this, seconds, resolution]() {
-		while (m_isConnecting)
-		{
-			QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
-		}
-	});
+	m_waitFuture = std::async(std::launch::async, [this, seconds, resolution]()
+							  {
+								  while (m_isConnecting)
+								  {
+									  QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
+									  std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
+								  }
+							  });
 }
 
 bool MainWindow::askForPermission(const QString &senderDescription, vrb::Program programID)
@@ -437,7 +457,8 @@ std::vector<std::string> MainWindow::parseCmdArgsInput()
 {
 	auto args = covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
 	std::vector<std::string> a(args.size());
-	std::transform(args.begin(), args.end(), a.begin(), [](const char *c) { return c; });
+	std::transform(args.begin(), args.end(), a.begin(), [](const char *c)
+				   { return c; });
 	return a;
 }
 
