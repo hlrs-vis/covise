@@ -1761,8 +1761,6 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
 
     else if (key == "DEPEND")
     {
-        broadcastMsgToOtherUis(*msg);
-
         const string &name = list[iel++];
         const string &nr = list[iel++];
         const string &host = list[iel++];
