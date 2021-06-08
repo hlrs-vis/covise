@@ -138,6 +138,11 @@ CrbProxyConn2::CrbProxyConn2(size_t fromProcId, size_t toProcId, const covise::M
                  while (conns[0].conn->is_connected() && conns[1].conn->is_connected())
                  {
                    auto conn = connList.wait_for_input();
+                   if (!conn)
+                   {
+                     return;
+                   }
+
                    Message msg;
                    conn->recv_msg(&msg);
                    if (msg.type == COVISE_MESSAGE_SOCKET_CLOSED || msg.type == COVISE_MESSAGE_CLOSE_SOCKET || msg.type == COVISE_MESSAGE_QUIT)
