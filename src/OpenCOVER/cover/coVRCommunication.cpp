@@ -81,6 +81,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <thread>
 
 #ifdef _WIN32
 #include <io.h>

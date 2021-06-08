@@ -162,7 +162,6 @@ private:
     static void renderCallback(void *userData, void *callbackData);
     static void masterSwitchCallback(void *userData, void *callbackData);
     static void paramCallback(bool inMapLoading, void *userData, void *callbackData);
-    static void doCustomCallback(void *userData, void *callbackData);
 
     // instance renderer callbacks
     void quit(void *callbackData);
@@ -171,7 +170,7 @@ private:
     void masterSwitch(void *callbackData);
     void render(void *callbackData);
     void param(bool inMapLoading, const char *paraName, void *callbackData);
-    void doCustom(void *callbackData);
+    void doCustom(const covise::Message *msg);
 
     void addObject(const coDistributedObject *geo, const coDistributedObject *col, const coDistributedObject *norm, const coDistributedObject *tex, int timeStep = -1);
     void deleteObject(const coDistributedObject *object);

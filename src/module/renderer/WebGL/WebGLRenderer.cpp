@@ -818,7 +818,9 @@ WebGLRenderer::WebGLRenderer(int argc, char *argv[])
     CoviseRender::set_add_object_callback(WebGLRenderer::addObjectCallback, this);
     CoviseRender::set_delete_object_callback(WebGLRenderer::deleteObjectCallback, this);
     CoviseRender::set_param_callback(WebGLRenderer::paramCallback, this);
-    CoviseRender::set_custom_callback(WebGLRenderer::doCustomCallback, this);
+    CoviseRender::set_custom_callback([this](const covise::Message &msg){
+            doCustom(&msg);
+            });
 
     static char defVal[256];
     sprintf(defVal, "data.xml");
@@ -926,12 +928,6 @@ void WebGLRenderer::paramCallback(bool inMapLoading, void *userData, void *callb
 {
     WebGLRenderer *thisRenderer = (WebGLRenderer *)userData;
     thisRenderer->param(inMapLoading, CoviseRender::get_reply_param_name(), callbackData);
-}
-
-void WebGLRenderer::doCustomCallback(void *userData, void *callbackData)
-{
-    WebGLRenderer *thisRenderer = (WebGLRenderer *)userData;
-    thisRenderer->doCustom(callbackData);
 }
 
 void WebGLRenderer::quit(void * /*callbackData*/)
@@ -1233,8 +1229,9 @@ void WebGLRenderer::masterSwitch(void * /*callbackData*/)
 {
 }
 
-void WebGLRenderer::doCustom(void * /*callbackData*/)
+void WebGLRenderer::doCustom(const covise::Message *msg)
 {
+    (void)msg;
 }
 
 /*
