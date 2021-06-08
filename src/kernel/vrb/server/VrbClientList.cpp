@@ -184,7 +184,7 @@ VRBSClient *VRBClientList::get(const Connection *c)
     return nullptr;
 }
 
-int VRBClientList::numInSession(vrb::SessionID &session)
+int VRBClientList::numInSession(const vrb::SessionID &session)
 {
     int num = 0;
     for (auto &cl : m_clients)

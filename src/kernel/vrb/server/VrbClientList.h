@@ -117,7 +117,7 @@ public:
     void sendMessageToClient(int clientID, covise::TokenBuffer &stb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
 	static std::string cutFileName(const std::string& fileName);
-    int numInSession(vrb::SessionID &Group);
+    int numInSession(const vrb::SessionID &Group);
     size_t numberOfClients();
     void addClient(VRBSClient *cl);
     void removeClient(VRBSClient *cl);
