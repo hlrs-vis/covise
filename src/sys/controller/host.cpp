@@ -845,23 +845,11 @@ bool HostManager::handleVrbMessage()
                 m_localHost = m_hosts.insert(HostMap::value_type{uim.myClientID, std::move(old->second)}).first;
                 m_localHost->second->setID(uim.myClientID);
                 m_localHost->second->setSession(uim.mySession);
-
                 m_hosts.erase(old);
-                for (const auto &rend : getAllModules<Renderer>())
-                {
-                    //request new session
-                    TokenBuffer tb;
-                    vrb::SessionID sid{m_vrb->ID(), "covise" + std::to_string(m_vrb->ID()) + "_" + std::to_string(rend->instance()), false};
-                    tb << sid;
-                    Message sessionRequest(COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION, tb.getData());
-                    m_vrb->send(&sessionRequest);
-                    covise::Message sessionUpdate{COVISE_MESSAGE_VRBC_CHANGE_SESSION, tb.getData()};
-                    rend->send(&sessionUpdate);
-                }
+                moveRendererInNewSessions();
+
                 if (m_onConnectVrbCallBack)
-                {
                     m_onConnectVrbCallBack();
-                }
             }
             for (auto &cl : uim.otherClients)
             {
@@ -946,3 +934,18 @@ bool HostManager::handleVrbMessage()
     }
     return true;
 }
+
+void HostManager::moveRendererInNewSessions()
+{
+    for (const auto &rend : getAllModules<Renderer>())
+    {
+        //request new session
+        TokenBuffer tb;
+        vrb::SessionID sid{m_vrb->ID(), "covise" + std::to_string(m_vrb->ID()) + "_" + std::to_string(rend->instance()), false};
+        tb << sid;
+        Message sessionRequest(COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION, tb.getData());
+        m_vrb->send(&sessionRequest);
+        covise::Message sessionUpdate{COVISE_MESSAGE_VRBC_CHANGE_SESSION, tb.getData()};
+        rend->send(&sessionUpdate);
+    }
+}   

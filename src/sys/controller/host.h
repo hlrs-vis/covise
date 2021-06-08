@@ -197,6 +197,8 @@ private:
     void createProxyConn();
     void handleVrb();
     bool handleVrbMessage();
+    void moveRendererInNewSessions();
+
 };
 } //namespace controller
 } //namespace covise
