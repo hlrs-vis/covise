@@ -345,7 +345,7 @@ namespace OpenCOVERPlugin
                 if (null != room)
                 {
                     BoundingBoxXYZ bb = room.get_BoundingBox(null);
-                    if ((bb.Min.X < x && x < bb.Max.X) && (bb.Min.Y < y && y < bb.Max.Y) && (bb.Min.Z < height && height < bb.Max.Z))
+                    if (bb !=null && (bb.Min.X < x && x < bb.Max.X) && (bb.Min.Y < y && y < bb.Max.Y) && (bb.Min.Z < height && height < bb.Max.Z))
                     {
                         /* SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
                          options.SpatialElementBoundaryLocation = SpatialElementBoundaryLocation.Finish;
