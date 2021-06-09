@@ -550,9 +550,9 @@
    <LenkMaus value="/dev/input/mouse3"/>
    <PedalMaus value="/dev/input/mouse4"/>
    <isBike value="false"/>
-   <FlightGear value="false"/>
-   <isParaglider value="false"/>
-   <isSkateboard value="true"/>
+   <FlightGear value="true"/>
+   <isParaglider value="true"/>
+   <isSkateboard value="false"/>
    </Bicycle>
    <SteeringWheel>
 
