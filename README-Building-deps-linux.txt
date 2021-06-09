@@ -154,3 +154,43 @@ pyqt5-dev-tools
 
 gdal:
 ./configure --prefix=/data/extern_libs/rhel8/gdal --with-cpp14 --with-poppler '--with-lzma' '--with-kml' 
+
+spack:
+checkout to /sw/.../vis/spack
+git clone https://github.com/aumuell/spack.git
+git checkout covise (oder vistle)
+export http_proxy=socks5h://localhost:1082
+export HTTPS_PROXY=socks5h://localhost:1082
+
+. spack/share/spack/setup-env.sh
+spack external find
+
+adjust .spack/packages.yaml
+qt:
+    buildable: false
+    externals:
+    - spec: qt@5.15.0+opengl
+      prefix: /usr
+    - spec: opengl@4.6.0
+      prefix: /usr
+
+
+adjust .spack/config.yaml:
+
+config:
+          # This is the path to the root of the Spack install tree.
+          #   # You can use $spack here to refer to the root of the spack instance.
+    install_tree:
+        root: /sw/vulcan-CentOS8/hlrs/non-spack/vis/spack
+    build_stage:
+    - ~/ws/spack/stage
+    build_jobs: 64
+
+spack install -v covise target=nehalem
+
+to run:
+qsub -l select=1:node_type=vis,walltime=00:30:00 -X -I -q smp
+module load vis/VirtualGL/2.6.5
+turbovncserver
+. /sw/vulcan-CentOS8/hlrs/non-spack/vis/spack/share/spack/setup-env.sh
+
