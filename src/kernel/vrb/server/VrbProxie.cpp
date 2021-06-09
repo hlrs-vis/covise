@@ -57,7 +57,7 @@ CrbProxyConn::CrbProxyConn(size_t fromProcId, size_t toProcId, const covise::Mes
                                                     sendConnectionToController(conn.id, c.get_port(), controller);
                                                     return true;
                                                   });
-                   PROXY_ProxyConnected pc{static_cast<bool>(conn.id)};
+                   PROXY_ProxyConnected pc{static_cast<bool>(c)};
                    auto msg = pc.createMessage();
                    msg.sender = conn.id;
                    msg.send_type = VRB;
@@ -267,7 +267,7 @@ const Connection *CoviseProxy::openConn(int processID, sender_type type, int tim
         Message launchMsg;
         c->recv_msg(&launchMsg);
         handleMessage(launchMsg);
-        if (c == m_controllerCon && launchMsg.type == COVISE_MESSAGE_QUIT)
+        if (launchMsg.send_type == sender_type::CONTROLLER && launchMsg.type == COVISE_MESSAGE_QUIT)
         {
           break; //the launch of the crb was cancelled
         }
@@ -279,6 +279,10 @@ const Connection *CoviseProxy::openConn(int processID, sender_type type, int tim
   else //wait for initial connection
   {
     connected = conn->acceptOne(timeout) >= 0;
+  }
+  if (!connected)
+  {
+    std::cerr << "CoviseProxy connection to " << processID << " failed. timeout was " << timeout << std::endl;
   }
 
   PROXY_ProxyConnected conMsg{connected};
