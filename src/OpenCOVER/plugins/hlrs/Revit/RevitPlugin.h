@@ -521,6 +521,7 @@ public:
     std::list<PhaseInfo*> phaseInfos;
     void setPhase(std::string phaseName);
     int currentPhase=0;
+    double TrueNorthAngle = 0.0;
 protected:
     static RevitPlugin *plugin;
     ui::Label *label1 = nullptr;

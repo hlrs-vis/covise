@@ -954,6 +954,7 @@ void RevitViewpointEntry::activate()
 	osg::Matrix irotMat;
 	irotMat.invert(rotMat);
 	mat.postMult(irotMat);
+	mat.preMult(osg::Matrix::rotate(myPlugin->TrueNorthAngle,osg::Vec3(0,0,-1)));
 
 	osg::Matrix scMat;
 	osg::Matrix iscMat;
@@ -2118,7 +2119,6 @@ RevitPlugin::handleMessage(Message *m)
         TokenBuffer tb(m);	
         char *fileName;
         tb >> fileName;
-		double TrueNorthAngle = 0.0;
 		tb >> TrueNorthAngle;
 		if(firstDocument)
 		{
@@ -3499,10 +3499,10 @@ void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * ima
 
     if (type == TextureInfo::diffuse)
     {
-        osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)diffuseTexture->sx);
-        osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)diffuseTexture->sy);
-        osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)diffuseTexture->ox);
-        osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)diffuseTexture->oy);
+        osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)(diffuseTexture->sx * REVIT_FEET_TO_M));
+        osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)(diffuseTexture->sy * REVIT_FEET_TO_M));
+        osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)(diffuseTexture->ox * REVIT_FEET_TO_M));
+        osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)(diffuseTexture->oy * REVIT_FEET_TO_M));
         osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)diffuseTexture->angle);
         geoState->addUniform(revitSX);
         geoState->addUniform(revitSY);
@@ -3526,10 +3526,10 @@ void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * ima
         geoState->setTextureAttribute(textureUnit, normalTexture);
         textureUnit++;
 
-        osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)bumpTexture->sx);
-        osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)bumpTexture->sy);
-        osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)bumpTexture->ox);
-        osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)bumpTexture->oy);
+        osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)(bumpTexture->sx * REVIT_FEET_TO_M));
+        osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)(bumpTexture->sy * REVIT_FEET_TO_M));
+        osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)(bumpTexture->ox * REVIT_FEET_TO_M));
+        osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)(bumpTexture->oy * REVIT_FEET_TO_M));
         osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)bumpTexture->angle);
         geoState->addUniform(revitSX);
         geoState->addUniform(revitSY);
