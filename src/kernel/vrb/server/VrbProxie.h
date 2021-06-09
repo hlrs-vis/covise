@@ -30,24 +30,8 @@ struct ProxyConn : covise::ServerConnection //basically a Serverconnection that 
 
 struct CrbProxyConn //connects two crbs by opening a ServerCOnnection to each of them
 {
-  enum Direction
-  {
-    To,
-    From
-  };
-  bool init(Direction dir, int procID, int timeout, const covise::MessageSenderInterface &controller,const covise::MessageSenderInterface &controllerOrProxy, covise::ConnectionList &connList);
-  bool tryPassMessage(const covise::Message &msg) const; //if msg fits one of the connections, msg is forwarded to the other. Returns true if it did so.
+  CrbProxyConn(size_t fromProcId, size_t toProcId, const covise::MessageSenderInterface &controller, int timeout, std::function<void(const CrbProxyConn&)> disconnectedCb);
   ~CrbProxyConn();
-
-private:
-  covise::ConnectionList *m_connList = nullptr;
-  std::array<const covise::Connection *, 2> m_conns; //toConn, fromConn
-};
-
-struct CrbProxyConn2
-{
-  CrbProxyConn2(size_t fromProcId, size_t toProcId, const covise::MessageSenderInterface &controller, int timeout, std::function<void(const CrbProxyConn2&)> disconnectedCb);
-  ~CrbProxyConn2();
 
 private:
   std::thread m_thread;
@@ -69,11 +53,11 @@ private:
   covise::ConnectionList m_conns;
   const covise::Connection *m_controllerCon = nullptr;
   std::map<int, const covise::Connection *> m_proxies;
-  std::vector<std::unique_ptr<CrbProxyConn2>> m_crbProxies;
+  std::vector<std::unique_ptr<CrbProxyConn>> m_crbProxies;
   std::thread m_thread;
   std::atomic_bool m_quit{false};
   std::mutex m_crbProxyMutex;
-  std::vector<const CrbProxyConn2 *> m_disconnectedCrbProxyies;
+  std::vector<const CrbProxyConn *> m_disconnectedCrbProxyies;
   const covise::Connection *openConn(int processID, covise::sender_type type, int timeout, const covise::MessageSenderInterface &requestor);
   void handleMessage(covise::Message &msg);
 

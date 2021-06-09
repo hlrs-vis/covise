@@ -24,80 +24,16 @@ bool ProxyConn::sendMessage(const covise::Message *msg) const
   return Connection::sendMessage(msg->sender, (int)msg->send_type, msg);
 }
 
-void sendConnectionToCrbProxy(CrbProxyConn::Direction dir, int processId, int port, const MessageSenderInterface &crbProxy)
-{
-  constexpr std::array<int, 2> types{COVISE_MESSAGE_PREPARE_CONTACT_DM, COVISE_MESSAGE_DM_CONTACT_DM};
-  TokenBuffer tb;
-  tb << port << Host::getHostaddress();
-  Message msg{types[dir], tb.getData()};
-  msg.sender = processId;
-  msg.send_type = CRB;
-  crbProxy.send(&msg);
-}
-
 void sendConnectionToController(int processId, int port, const MessageSenderInterface &controller)
 {
   PROXY_ProxyCreated p{port};
   auto msg = p.createMessage();
-  msg.sender = processId;
+  msg.sender = processId;       
   msg.send_type = VRB;
   controller.send(&msg);
 }
 
-bool CrbProxyConn::init(Direction dir, int processId, int timeout, const covise::MessageSenderInterface &controller, const covise::MessageSenderInterface &controllerOrProxy, covise::ConnectionList &connList)
-{
-  auto conn = setupServerConnection(processId, CRB, timeout, [&controller, &controllerOrProxy, dir, processId](const covise::ServerConnection &c)
-                                    {
-                                      if (&controller != &controllerOrProxy) //the crb is running as proxy, directly inform him about this connection
-                                      {
-                                        sendConnectionToCrbProxy(dir, processId, c.get_port(), controllerOrProxy);
-                                      }
-                                      else //pass msg through controller to local crb
-                                      {
-                                        sendConnectionToController(processId, c.get_port(), controller);
-                                      }
-                                      return true;
-                                    });
-  PROXY_ProxyConnected connected{conn != nullptr};
-  auto msg = connected.createMessage();
-  msg.send_type = CRB;
-  msg.sender = processId;
-  controller.send(&msg);
-  if (!conn)
-    return false;
-  m_conns[dir] = connList.add(std::move(conn));
-  m_connList = &connList;
-
-  return true;
-}
-
-bool CrbProxyConn::tryPassMessage(const Message &msg) const
-{
-  auto c = std::find(m_conns.begin(), m_conns.end(), msg.conn);
-  if (c != m_conns.end())
-  {
-    int pos = c - m_conns.begin();
-    if (!m_conns[!pos]->sendMessage(&msg))
-    {
-      std::cerr << "failed to send message " << covise_msg_types_array[msg.type] << " to " << m_conns[!pos]->get_sender_id() << std::endl;
-    }
-    //else
-    //  std::cerr << "passing msg " << covise_msg_types_array[msg.type] << " from process " << m_conns[pos]->get_sender_id() << " to " << m_conns[!pos]->get_sender_id() << std::endl;
-    return true;
-  }
-  return false;
-}
-
-CrbProxyConn::~CrbProxyConn()
-{
-  if (m_connList)
-  {
-    m_connList->remove(m_conns[0]);
-    m_connList->remove(m_conns[1]);
-  }
-}
-
-CrbProxyConn2::CrbProxyConn2(size_t fromProcId, size_t toProcId, const covise::MessageSenderInterface &controller, int timeout, std::function<void(const CrbProxyConn2 &)> disconnectedCb)
+CrbProxyConn::CrbProxyConn(size_t fromProcId, size_t toProcId, const covise::MessageSenderInterface &controller, int timeout, std::function<void(const CrbProxyConn &)> disconnectedCb)
     : m_thread([this, fromProcId, toProcId, &controller, timeout, disconnectedCb]()
                {
                  std::atomic_bool m_connected{false};
@@ -166,7 +102,7 @@ CrbProxyConn2::CrbProxyConn2(size_t fromProcId, size_t toProcId, const covise::M
 {
 }
 
-CrbProxyConn2::~CrbProxyConn2()
+CrbProxyConn::~CrbProxyConn()
 {
   if (m_thread.joinable())
   {
@@ -233,7 +169,7 @@ void CoviseProxy::handleMessage(Message &msg)
       {
         auto &crb = p.unpackOrCast<PROXY_CreateCrbProxy>();
         std::array<size_t, 2> ids{crb.toProcID, crb.fromProcID};
-        m_crbProxies.emplace_back(new CrbProxyConn2{crb.fromProcID, crb.toProcID, *m_controllerCon, crb.timeout, [this](const CrbProxyConn2 &crbproxy)
+        m_crbProxies.emplace_back(new CrbProxyConn{crb.fromProcID, crb.toProcID, *m_controllerCon, crb.timeout, [this](const CrbProxyConn &crbproxy)
                                                     {
                                                       std::lock_guard<std::mutex> g{m_crbProxyMutex};
                                                       m_disconnectedCrbProxyies.push_back(&crbproxy);
@@ -365,7 +301,7 @@ void CoviseProxy::deleteDisconnectedCrbProxies()
   std::lock_guard<std::mutex> g{m_crbProxyMutex};
   for (const auto toErase : m_disconnectedCrbProxyies)
   {
-    auto it = std::find_if(m_crbProxies.begin(), m_crbProxies.end(), [toErase](const std::unique_ptr<CrbProxyConn2> &c)
+    auto it = std::find_if(m_crbProxies.begin(), m_crbProxies.end(), [toErase](const std::unique_ptr<CrbProxyConn> &c)
                            { return c.get() == toErase; });
     assert(it != m_crbProxies.end());
     m_crbProxies.erase(it);
