@@ -398,7 +398,6 @@ bool RemoteHost::addPartner()
 
 bool RemoteHost::removePartner()
 {
-    m_state = covise::LaunchStyle::Disconnect;
     auto &masterUi = hostManager.getMasterUi();
     if (this == &masterUi.host)
     {
@@ -742,9 +741,20 @@ bool HostManager::launchOfCrbPermitted() const
     return m_launchPermission.waitForValue();
 }
 
-std::unique_ptr<Message> HostManager::hasProxyMessage()
+std::unique_ptr<Message> HostManager::receiveProxyMessage()
 {
-    return m_proxyConnection ? m_proxyConnection->getCachedMsg() : nullptr;
+    if (!m_proxyConnection)
+        return nullptr;
+    std::unique_ptr<Message> m = m_proxyConnection->getCachedMsg();
+    if (m)
+        return m;
+
+    if(m_proxyConnection->check_for_input())
+    {
+        m.reset(new Message{});
+        m_proxyConnection->recv_msg(m.get());
+    }
+    return m;
 }
 
 bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)

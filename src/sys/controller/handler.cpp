@@ -221,7 +221,7 @@ void CTRLHandler::loop()
         std::unique_ptr<Message> msg;
         if (!m_quitNow)
         {
-            if (auto pmsg = m_hostManager.hasProxyMessage())
+            if (auto pmsg = m_hostManager.receiveProxyMessage())
                 msg = std::move(pmsg);
             else
             {
@@ -623,10 +623,13 @@ void CTRLHandler::handleClosedMsg(const std::unique_ptr<Message> &msg)
         if (auto p_rend = dynamic_cast<Renderer *>(p_app))
         {
             auto disp = p_rend->getDisplay(peer_id);
-            std::stringstream ss;
-            ss << "The " << disp->get()->host.userInfo().userName << "@" << disp->get()->host.userInfo().ipAdress << "'s display of the "
-               << p_rend->info().name << p_rend->instance() << " crashed !!!";
-            msg_txt = ss.str();
+            if (disp->get()->host.state() != covise::LaunchStyle::Disconnect)
+            {
+                std::stringstream ss;
+                ss << "The " << disp->get()->host.userInfo().userName << "@" << disp->get()->host.userInfo().ipAdress << "'s display of the "
+                << p_rend->title() << " crashed !!!";
+                msg_txt = ss.str();
+            }
             instance = p_rend->instance();
             p_rend->removeDisplay(disp);
             if (p_rend->numDisplays() == 0)
@@ -2121,7 +2124,6 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
                 }
             }
         }
-
         sendCollaborativeState();
     }
     break;

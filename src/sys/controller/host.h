@@ -178,7 +178,7 @@ public:
     void resetModuleInstances();
     const ControllerProxyConn *proxyConn() const;
     bool launchOfCrbPermitted() const;
-    std::unique_ptr<Message> hasProxyMessage();
+    std::unique_ptr<Message> receiveProxyMessage();
 
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.

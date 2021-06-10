@@ -20,9 +20,8 @@ ProxyConnection::ProxyConnection(const ControllerProxyConn &serverConn, int port
     send_type = type;
     peer_id_ = processId;
     peer_type_ = type;
-    CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(&serverConn, [this]() {
-        sock = nullptr;
-    });
+    CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(&serverConn, [this]()
+                                                                                { sock = nullptr; });
 }
 
 ProxyConnection::~ProxyConnection()
@@ -48,9 +47,9 @@ int ControllerProxyConn::recv_msg(Message *msg, char *ip) const
 
 int ControllerProxyConn::recv_msg(int processID, int senderType, Message *msg, char *ip) const
 {
-    auto cached = std::find_if(m_cachedMsgs.begin(), m_cachedMsgs.end(), [processID, senderType](const Message &m) {
-        return m.send_type == senderType && m.sender == processID;
-    });
+    assert(msg);
+    auto cached = std::find_if(m_cachedMsgs.begin(), m_cachedMsgs.end(), [processID, senderType](const Message &m)
+                               { return m.send_type == senderType && m.sender == processID; });
     if (cached != m_cachedMsgs.end())
     {
         msg->copyAndReuseData(*cached);
@@ -77,9 +76,8 @@ int ControllerProxyConn::recv_uncached_msg(Message *msg, char *ip) const
 {
     int retval = Connection::recv_msg(msg, ip);
     assert(msg->send_type != sender_type::UNDEFINED);
-    auto proxy = std::find_if(m_proxies.begin(), m_proxies.end(), [msg](const std::unique_ptr<ProxyConnection> &c) {
-        return c->get_sender_id() == msg->sender;
-    });
+    auto proxy = std::find_if(m_proxies.begin(), m_proxies.end(), [msg](const std::unique_ptr<ProxyConnection> &c)
+                              { return c->get_sender_id() == msg->sender; });
     if (proxy != m_proxies.end())
     {
         msg->conn = &**proxy;
@@ -101,9 +99,8 @@ ProxyConnection *ControllerProxyConn::addProxy(int portOnServer, int processId, 
 
 void ControllerProxyConn::removeProxy(ProxyConnection *proxy) const
 {
-    m_proxies.erase(std::remove_if(m_proxies.begin(), m_proxies.end(), [proxy](const std::unique_ptr<ProxyConnection> &c) {
-                        return &*c == proxy;
-                    }),
+    m_proxies.erase(std::remove_if(m_proxies.begin(), m_proxies.end(), [proxy](const std::unique_ptr<ProxyConnection> &c)
+                                   { return &*c == proxy; }),
                     m_proxies.end());
 }
 

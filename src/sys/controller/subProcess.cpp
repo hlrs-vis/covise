@@ -87,8 +87,6 @@ bool SubProcess::connectToCrb(const SubProcess &crb)
     return connectModuleToCrb(crb, ConnectionType::ModuleToCrb);
 }
 
-
-
 bool SubProcess::connectModuleToCrb(const SubProcess &toCrb, ConnectionType type)
 {
     constexpr std::array<covise::covise_msg_type, 2> prepareMessages{COVISE_MESSAGE_PREPARE_CONTACT, COVISE_MESSAGE_PREPARE_CONTACT_DM};
@@ -144,33 +142,35 @@ void waitForProxyMsg(std::unique_ptr<Message> &msg, const Connection &conn)
 
 bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> sendConnMessage)
 {
-    constexpr int timeout = 0; // do not timeout
+    constexpr int timeout = 10; // do not timeout
     if (&host == &host.hostManager.getLocalHost() || !host.proxyHost())
     {
-        auto conn = setupServerConnection(processId, type, timeout, [&sendConnMessage, this](const ServerConnection &c) {
-            m_conn = &c;
-            return sendConnMessage(c.get_port(), host.hostManager.getLocalHost().userInfo().ipAdress);
-        });
+        auto conn = setupServerConnection(processId, type, timeout, [&sendConnMessage, this](const ServerConnection &c)
+                                          {
+                                              m_conn = &c;
+                                              return sendConnMessage(c.get_port(), host.hostManager.getLocalHost().userInfo().ipAdress);
+                                          });
         if (conn)
         {
             m_conn = CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn));
-            CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(m_conn, [this]() { m_conn = nullptr; });
+            CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(m_conn, [this]()
+                                                                                        { m_conn = nullptr; });
             return true;
         }
         return false;
     }
     else //create proxy conn via vrb
     {
-        auto controllerConn = host.hostManager.proxyConn();
+        auto proxyConn = host.hostManager.proxyConn();
         PROXY_CreateSubProcessProxie p{processId, type, timeout};
-        sendCoviseMessage(p, *controllerConn);
+        sendCoviseMessage(p, *proxyConn);
         std::unique_ptr<Message> msg{new Message{}};
-        waitForProxyMsg(msg, *controllerConn);
+        waitForProxyMsg(msg, *proxyConn);
         PROXY proxy{*msg};
-        m_conn = controllerConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
+        m_conn = proxyConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
         if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress))
         {
-            waitForProxyMsg(msg, *controllerConn);
+            waitForProxyMsg(msg, *proxyConn);
             PROXY pr{*msg};
             if (!pr.unpackOrCast<PROXY_ProxyConnected>().success)
             {
@@ -181,7 +181,7 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         }
         else
         {
-            waitForProxyMsg(msg, *controllerConn); //receive PROXY_ProxyConnected so that it is out of msq
+            waitForProxyMsg(msg, *proxyConn); //receive PROXY_ProxyConnected so that it is out of msq
             return false;
         }
     }
@@ -189,13 +189,14 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
 
 bool SubProcess::start(const char *instance, const char *category)
 {
-    return setupConn([this, instance, category](int port, const std::string &ip) {
-        auto &controllerHost = host.hostManager.getLocalHost();
-        CRB_EXEC crbExec{covise::ExecFlag::Normal, m_executableName.c_str(), port, ip.c_str(), static_cast<int>(processId), instance,
-                         host.userInfo().ipAdress.c_str(), host.userInfo().hostName.c_str(),
-                         category, host.hostManager.getLocalHost().ID(), vrb::VrbCredentials{}, std::vector<std::string>{}};
+    return setupConn([this, instance, category](int port, const std::string &ip)
+                     {
+                         auto &controllerHost = host.hostManager.getLocalHost();
+                         CRB_EXEC crbExec{covise::ExecFlag::Normal, m_executableName.c_str(), port, ip.c_str(), static_cast<int>(processId), instance,
+                                          host.userInfo().ipAdress.c_str(), host.userInfo().hostName.c_str(),
+                                          category, host.hostManager.getLocalHost().ID(), vrb::VrbCredentials{}, std::vector<std::string>{}};
 
-        host.launchProcess(crbExec);
-        return true;
-    });
+                         host.launchProcess(crbExec);
+                         return true;
+                     });
 }
