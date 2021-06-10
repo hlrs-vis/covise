@@ -1792,22 +1792,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		//wait for the file
 		do
 		{
-			if (cover->connectedToCovise())
-			{
-				std::vector<covise::Message*> msgs = coVRCommunication::instance()->waitCoviseMessages();
-				for (auto m : msgs)
-				{
-					if (m->type == COVISE_MESSAGE_VRB_SEND_FILE)
-					{
-						m_sendFileMessages.push_back(m);
-					}
-					else
-					{
-						coVRCommunication::instance()->handleCoviseMessage(m);
-					}
-				}
-			}
-			else if ((vrbc && vrbc->isConnected()) || !coVRMSController::instance()->isMaster())
+			if ((vrbc && vrbc->isConnected()) || !coVRMSController::instance()->isMaster())
 			{
 				if (coVRMSController::instance()->isMaster())
 				{
