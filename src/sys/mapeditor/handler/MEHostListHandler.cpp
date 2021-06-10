@@ -106,7 +106,7 @@ QString MEHostListHandler::getIPAddress(const QString &sname)
 {
     foreach (MEHost *nptr, hostList)
     {
-        if (nptr->getShortname() == sname)
+        if (nptr->getHostname() == sname)
             return nptr->getIPAddress();
     }
     return (NULL);
@@ -116,7 +116,7 @@ int MEHostListHandler::getClientId(const QString &sname)
 {
     foreach (MEHost *nptr, hostList)
     {
-        if (nptr->getShortname() == sname)
+        if (nptr->getHostname() == sname)
             return nptr->clientId;
     }
     return 0;
@@ -142,7 +142,7 @@ QStringList MEHostListHandler::getList2()
     QStringList list;
 
     foreach (MEHost *nptr, hostList)
-        list << nptr->getUsername() + "@" + nptr->getShortname();
+        list << nptr->getUsername() + "@" + nptr->getHostname();
 
     return (list);
 }
@@ -167,7 +167,7 @@ QString MEHostListHandler::getDNSHostname(const QString &sname)
 {
     foreach (MEHost *nptr, hostList)
     {
-        if (nptr->getShortname() == sname)
+        if (nptr->getHostname() == sname)
             return nptr->getDNSHostname();
     }
     return (NULL);

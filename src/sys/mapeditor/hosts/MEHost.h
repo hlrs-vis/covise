@@ -94,10 +94,6 @@ public:
     {
         return username;
     };
-    QString getShortname()
-    {
-        return shortname;
-    };
     QString getDNSHostname()
     {
         return hostname;
@@ -146,7 +142,6 @@ private:
     QPixmap m_icon;
     QString text; // text in lists
     QString hostname; // full hostname
-    QString shortname; // short hostname
     QString username; // user id, not used
     QString ipname; // ip address
     QColor hostcolor; // current color for host

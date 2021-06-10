@@ -106,7 +106,7 @@ bool MENodeListHandler::nodesForHost(const QString &text)
 {
     foreach (MENode *nptr, nodeList)
     {
-        if (text == nptr->getHost()->getShortname())
+        if (text == nptr->getHost()->getHostname())
             return true;
     }
     return false;

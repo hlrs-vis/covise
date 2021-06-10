@@ -88,7 +88,7 @@ MEFileBrowser::MEFileBrowser(QWidget *parent, MEFileBrowserPort *p)
         netType = MODULEPORT;
         node = port->getNode();
         host = node->getHost();
-        title = node->getNodeTitle() + "@" + host->getShortname() + "[" + port->getName() + "]";
+        title = node->getNodeTitle() + "@" + host->getHostname() + "[" + port->getName() + "]";
         //title = MEMainHandler::instance()->generateTitle(QString (node->getTitle() + ":" + port->getName()) );
 
         // catch the red book signals from a module node

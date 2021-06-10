@@ -1771,7 +1771,7 @@ bool MEMainHandler::canQuitSession()
         return true;
 
     MEHost *host = MEHostListHandler::instance()->getFirstHost();
-    if (localHost == host->getShortname())
+    if (localHost == host->getHostname())
         return false;
 
     bool exist = MENodeListHandler::instance()->nodesForHost(localHost);

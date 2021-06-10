@@ -54,10 +54,9 @@ MEHost::MEHost(int clientId,const std::string &name, const std::string & user)
 
 // get the real hostname for ip address  (visrl.rrz.uni-koeln.de)
     hostname = QString::fromStdString(covise::Host::lookupHostname(name.c_str()));
-    shortname = hostname.section('.', 0, 0);
 
     // make name for lists
-    text = shortname;
+    text = hostname;
     text.prepend("@");
     text.prepend(username);
 
@@ -117,8 +116,8 @@ void MEHost::init()
     // set an action for this host
     // used by node menu for move to/copy to
     m_categoryMenu = new QMenu(0);
-    m_hostAction = new QAction(username + "@" + shortname, 0);
-    m_copyMoveAction = new QAction(username + "@" + shortname, 0);
+    m_hostAction = new QAction(username + "@" + hostname, 0);
+    m_copyMoveAction = new QAction(username + "@" + hostname, 0);
     QObject::connect(m_hostAction, SIGNAL(hovered()), MEGraphicsView::instance(), SLOT(hoveredHostCB()));
     QObject::connect(m_copyMoveAction, SIGNAL(triggered()), MEGraphicsView::instance(), SLOT(triggeredHostCB()));
     m_hostAction->setMenu(m_categoryMenu);
