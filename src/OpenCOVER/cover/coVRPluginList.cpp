@@ -156,11 +156,23 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
 }
 
 coVRPluginList::coVRPluginList()
+:m_sharedLoadedPlugins("coVRPluginList")
 {
     singleton = this;
     m_requestedTimestep = -1;
     m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
+    m_sharedLoadedPlugins.setUpdateFunction([this]() {
+        auto l = m_sharedLoadedPlugins.value();
+        for(const auto& plugin : l)
+        {
+            std::string s = plugin.first;
+            if (!s.empty() && !getPlugin(s.c_str()))
+            {
+                addPlugin(s.c_str(), plugin.second);
+            }
+        }
+    });
 }
 
 void coVRPluginList::loadDefault()
@@ -554,6 +566,8 @@ coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
 {
     std::string arg(name);
+    TokenBuffer tb;
+    tb << domain;
     std::string n = coVRMSController::instance()->syncString(arg);
     if (n != arg)
     {
@@ -584,6 +598,10 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
             }
         }
     }
+    auto l = m_sharedLoadedPlugins.value();
+    l.emplace_back(std::make_pair(std::string{name}, domain));
+    m_sharedLoadedPlugins = l;
+
     return m;
 }
 

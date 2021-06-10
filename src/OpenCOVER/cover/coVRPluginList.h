@@ -24,6 +24,7 @@
 #include "coVRDynLib.h"
 #include "coVRPlugin.h"
 #include <osg/Drawable>
+#include <vrb/client/SharedState.h>
 #include <map>
 
 namespace vrb
@@ -190,12 +191,14 @@ private:
     typedef std::map<std::string, coVRPlugin *> PluginMap;
     PluginMap m_plugins;
     std::vector<coVRPlugin *> m_loadedPlugins[NumPluginDomains];
+    vrb::SharedState<std::vector<std::pair<std::string, PluginDomain>>> m_sharedLoadedPlugins;
 
     typedef std::vector<CO_SHLIB_HANDLE> HandleList;
     HandleList m_unloadNext, m_unloadQueue;
     int m_numOutstandingTimestepPlugins = 0;
     int m_requestedTimestep = -1;
     int m_currentTimestep = 0;
+
 };
 }
 #endif
