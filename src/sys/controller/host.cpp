@@ -398,6 +398,7 @@ bool RemoteHost::addPartner()
 
 bool RemoteHost::removePartner()
 {
+    m_state = LaunchStyle::Disconnect;
     auto &masterUi = hostManager.getMasterUi();
     if (this == &masterUi.host)
     {
