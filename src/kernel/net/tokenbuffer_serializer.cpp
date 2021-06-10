@@ -48,10 +48,13 @@ TokenBufferDataType getTokenBufferDataType<double>(const double &type) {
     return TokenBufferDataType::DOUBLE;
 }
 
+
 std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType typeID) {
+    static bool abbort = true;
     if (typeID == TokenBufferDataType::TODETERMINE)
     {
         tb >> typeID;
+        abbort = false;
     }
     std::string valueString;
     switch (typeID)
@@ -62,6 +65,7 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
         break;
     case TokenBufferDataType::UNDEFINED:
         valueString = "data of length: " + std::to_string(tb.getData().length());
+        abbort = true;
         break;
     case TokenBufferDataType::BOOL:
         bool b;
@@ -97,7 +101,9 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
         {
             valueString += "\n [" + std::to_string(i) + "] ";
             valueString += tokenBufferToString(std::move(tb), tID);
-        }
+            if (abbort)
+                break;
+            }
 		break;
 	case TokenBufferDataType::MAP:
 	{
@@ -111,8 +117,11 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
 		{
 			valueString += "\n [" + std::to_string(i) + "] ";
 			valueString += tokenBufferToString(std::move(tb), keyType);
+            if (abbort)
 			valueString += " | ";
 			valueString += tokenBufferToString(std::move(tb), valueType);
+            if (abbort)
+                break;
 		}
 	}
 	break;
@@ -124,12 +133,15 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
 		valueString = "Pair: ";
 		valueString += tokenBufferToString(std::move(tb), firstType);
 		valueString += " | ";
-		valueString += tokenBufferToString(std::move(tb), secondType);
-	}
+        if(abbort)
+            break;
+        valueString += tokenBufferToString(std::move(tb), secondType);
+    }
 	break;
     case TokenBufferDataType::TRANSFERFUNCTION:
     {
         valueString = "Transfer function";
+        abbort = true;
     }
     break;
     case TokenBufferDataType::Enum:
