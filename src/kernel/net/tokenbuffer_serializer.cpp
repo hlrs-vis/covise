@@ -132,6 +132,13 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType ty
         valueString = "Transfer function";
     }
     break;
+    case TokenBufferDataType::Enum:
+    {
+        int i;
+        tb >> i;
+        valueString += std::to_string(i);
+    }
+    break;
     }
     return valueString;
 }

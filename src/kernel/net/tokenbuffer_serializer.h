@@ -36,7 +36,8 @@ enum class TokenBufferDataType
     SET,    //7
     MAP,	//8
     PAIR,	//9
-    TRANSFERFUNCTION	//10
+    TRANSFERFUNCTION,	//10
+    Enum
 };
 
 NETEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, TokenBufferDataType t);
@@ -51,9 +52,13 @@ enum MapChangeType
 
 };
 template<class T>
-TokenBufferDataType getTokenBufferDataType(const T& type)
+typename std::enable_if<!std::is_enum<T>::value, TokenBufferDataType>::type getTokenBufferDataType(const T& type)
 {
     return TokenBufferDataType::UNDEFINED;
+}
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, TokenBufferDataType>::type getTokenBufferDataType(T type) {
+    return TokenBufferDataType::Enum;
 }
 template<class T>
 TokenBufferDataType getTokenBufferDataType(const std::vector<T>& type)
@@ -88,6 +93,7 @@ template <>
 NETEXPORT TokenBufferDataType getTokenBufferDataType<char >(const char& type);
 template <>
 NETEXPORT TokenBufferDataType getTokenBufferDataType<double>(const double& type);
+
 //tries to convert the serializedWithType tokenbuffer to a string
 NETEXPORT std::string tokenBufferToString(covise::TokenBuffer&& tb, TokenBufferDataType typeID = TokenBufferDataType::TODETERMINE);
 
