@@ -161,7 +161,7 @@ public:
     void insertNetworkInHistory(const QString &module);
     void saveNetwork(const QString &mapname);
     void openDroppedMap(const QString &mapname);
-    void requestNode(const QString &module, const QString &host, int x, int y, MENode *, copyModes);
+    void requestNode(const QString &module, const QString &hostIP, int x, int y, MENode *, copyModes);
     void mapWasChanged(const QString &reason);
     void showModuleHelp(const QString &category, const QString &module);
     void updateLoadedMapname(const QString &mapname);

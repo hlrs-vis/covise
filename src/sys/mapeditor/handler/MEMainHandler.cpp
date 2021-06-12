@@ -1812,7 +1812,7 @@ void MEMainHandler::showClipboardNodes(const QStringList &list)
 //!
 //! request a node from controller
 //!
-void MEMainHandler::requestNode(const QString &modulename, const QString &nodename,
+void MEMainHandler::requestNode(const QString &modulename, const QString &HostIP,
                                 int x, int y, MENode *m_clonedNode, MEMainHandler::copyModes mode)
 {
 
@@ -1838,7 +1838,12 @@ void MEMainHandler::requestNode(const QString &modulename, const QString &nodena
 
     // send a normal INIT
     int key = -1;
-    buffer << modulename << QString::number(key) << nodename << cx << cy;
+    QString hostIP = HostIP;
+    if (hostIP.length() == 0)
+    {
+        hostIP = localIP;
+    }
+    buffer << modulename << QString::number(key) << hostIP << cx << cy;
 
     // send copy  or move init
     if (mode == MEMainHandler::SYNC)
