@@ -1344,7 +1344,8 @@ void MENode::init(const QString &modulename, const QString &num,
 
     setPos(xx, yy);
 
-    if (getHostname() != MEHostListHandler::instance()->getIPAddress(MEMainHandler::instance()->localHost))
+    //if (getHostname() != MEHostListHandler::instance()->getIPAddress(MEMainHandler::instance()->localHost))
+    if (host->getIPAddress() != MEMainHandler::instance()->localIP)
         isLocal = false;
 }
 
