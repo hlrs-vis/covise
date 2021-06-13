@@ -8,6 +8,7 @@
 #ifndef CTRL_OBJECT_H
 #define CTRL_OBJECT_H
 #include "list.h"
+#include <list>
 #include <net/covise_connect.h>
 #include <covise/covise_msg.h>
 namespace covise
@@ -243,7 +244,7 @@ class object
 {
     std::string name; /* name of the Object */
     obj_from_conn from; /* input-connection to a net_module */
-    std::vector<obj_conn> to;
+    std::list<obj_conn> to;
     data_list *dataobj; /* referencelist of the dataobjects */
 
 public:
@@ -271,11 +272,11 @@ public:
         return from;
     };
 
-    std::vector<obj_conn> &get_to()
+    std::list<obj_conn> &get_to()
     {
         return to;
     };
-    const std::vector<obj_conn> &get_to() const
+    const std::list<obj_conn> &get_to() const
     {
         return to;
     };
