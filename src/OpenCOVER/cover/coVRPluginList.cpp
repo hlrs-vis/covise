@@ -155,24 +155,55 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
     }
 }
 
+std::vector<std::string> getSharedPlugins()
+{
+    std::vector<std::string> sharedPlugins;
+    coCoviseConfig::ScopeEntries pluginNameEntries = coCoviseConfig::getScopeEntries("COVER.Plugin");
+    const char **pluginNames = pluginNameEntries.getValue();
+    if (pluginNames != NULL)
+    {
+        int i = 0;
+        while (pluginNames[i])
+        {
+            bool exists = false;
+            if (coCoviseConfig::isOn("shared", std::string("COVER.Plugin.") + pluginNames[i], false, &exists))
+            {
+                sharedPlugins.push_back(pluginNames[i]);
+            }
+            i++; // skip name
+            i++; //skip value (may be NULL)
+        }
+    }
+    return sharedPlugins;
+}
+
 coVRPluginList::coVRPluginList()
-:m_sharedLoadedPlugins("coVRPluginList")
 {
     singleton = this;
     m_requestedTimestep = -1;
     m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
-    m_sharedLoadedPlugins.setUpdateFunction([this]() {
-        auto l = m_sharedLoadedPlugins.value();
-        for(const auto& plugin : l)
-        {
-            std::string s = plugin.first;
-            if (!s.empty() && !getPlugin(s.c_str()))
+    std::vector<std::string> sharedPlugins = getSharedPlugins();
+
+    for(const auto& plugin : sharedPlugins)
+    {
+        auto p = m_sharedPlugins.emplace(std::make_pair(plugin, std::unique_ptr < vrb::SharedState<bool>> {new vrb::SharedState<bool>{"coVRPluginList_plugin"}}));
+        p.first->second->setUpdateFunction([p, plugin, this]() {
+            if (p.first->second->value())
             {
-                addPlugin(s.c_str(), plugin.second);
+                addPlugin(p.first->first.c_str());
             }
-        }
-    });
+            else
+            {
+                auto *m = getPlugin(p.first->first.c_str());
+                if (m)
+                {
+                    unload(m);
+                }
+            }
+        });
+
+    }
 }
 
 void coVRPluginList::loadDefault()
@@ -283,6 +314,11 @@ void coVRPluginList::unload(coVRPlugin *plugin)
         m_unloadQueue.push_back(plugin->handle);
 		cover->preparePluginUnload();
         unmanage(plugin);
+        auto shared = m_sharedPlugins.find(plugin->getName());
+        if (shared != m_sharedPlugins.end())
+        {
+            *shared->second = false;
+        }
         delete plugin;
         updateState();
     }
@@ -598,10 +634,11 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
             }
         }
     }
-    auto l = m_sharedLoadedPlugins.value();
-    l.emplace_back(std::make_pair(std::string{name}, domain));
-    m_sharedLoadedPlugins = l;
-
+    auto shared = m_sharedPlugins.find(name);
+    if (shared != m_sharedPlugins.end())
+    {
+        *shared->second = true;
+    }
     return m;
 }
 

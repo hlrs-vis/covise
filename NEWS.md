@@ -5,8 +5,13 @@ Recent changes
 This document only covers changes that are important for using Covise and OpenCOVER. This includes changes on the UI, the config and requirements.
 For technical changes please have a look at the git commits.
 
+14.06. 2021 Adjusted config entry for COVER plugins
+---------------------------------------------------
+Added new attribute to COVER.Plugin entries: shared="on"/"off".
+If set on the plugin will be loaded in a collaborative session if a partner load the plugin. 
 
-03.05.201 Integrated OpenCOVER's remote daemon in the coviseDaemon
+
+03.05.2021 Integrated OpenCOVER's remote daemon in the coviseDaemon
 ------------------------------------------------------------------
 This daemon is used to start COVER slaves in a multi display environment. This feature can be enabled for the coviseDaemon by adding the config entry <Daemon port="your port" /> to the COVER section.
 For OpenCOVER to use this, also in the COVER section, set NumSlaves to >= 1 and add a line like

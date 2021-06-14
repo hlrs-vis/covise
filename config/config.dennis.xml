@@ -52,7 +52,7 @@
 	
    <VRB>
     <Server value="localhost" tcpPort="31251" udpPort="49999" />
-	  <RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
+	  <RemoteFetch value="on" path="/tmp/remoteFetch" />
     <CheckConnectionTimeout value ="5"/>
    </VRB>
 
@@ -146,7 +146,7 @@
    <CompositorIceT menu="false" />
    <ViewPoint value="true" />
    <Measure menu="true" />
-   <PointCloud>
+   <PointCloud shared="true">
    <PointSize value="4" />
    </PointCloud>
     <Bullet value="off" />
@@ -247,7 +247,7 @@
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 
-   <!--Revit value="off" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" /-->
+   <Revit value="off" shared="on"/>
 
    </Plugin>
 

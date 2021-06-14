@@ -191,8 +191,7 @@ private:
     typedef std::map<std::string, coVRPlugin *> PluginMap;
     PluginMap m_plugins;
     std::vector<coVRPlugin *> m_loadedPlugins[NumPluginDomains];
-    vrb::SharedState<std::vector<std::pair<std::string, PluginDomain>>> m_sharedLoadedPlugins;
-
+    std::map<std::string, std::unique_ptr<vrb::SharedState<bool>>> m_sharedPlugins;
     typedef std::vector<CO_SHLIB_HANDLE> HandleList;
     HandleList m_unloadNext, m_unloadQueue;
     int m_numOutstandingTimestepPlugins = 0;
