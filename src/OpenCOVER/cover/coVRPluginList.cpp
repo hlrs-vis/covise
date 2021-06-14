@@ -187,7 +187,7 @@ coVRPluginList::coVRPluginList()
 
     for(const auto& plugin : sharedPlugins)
     {
-        auto p = m_sharedPlugins.emplace(std::make_pair(plugin, std::unique_ptr < vrb::SharedState<bool>> {new vrb::SharedState<bool>{"coVRPluginList_plugin"}}));
+        auto p = m_sharedPlugins.emplace(std::make_pair(plugin, std::unique_ptr < vrb::SharedState<bool>> {new vrb::SharedState<bool>{"coVRPluginList_" + plugin}}));
         p.first->second->setUpdateFunction([p, plugin, this]() {
             if (p.first->second->value())
             {
