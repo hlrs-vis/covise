@@ -159,6 +159,10 @@ public:
 private:
     coVRPluginList();
     ~coVRPluginList();
+    coVRPluginList(const coVRPluginList &) = delete;
+    coVRPluginList(coVRPluginList &&) = delete;
+    coVRPluginList &operator=(const coVRPluginList &) = delete;
+    coVRPluginList &operator=(coVRPluginList &&) = delete;
     //! call init method of all plugins
     void init();
     //! call init2 method of all plugins
