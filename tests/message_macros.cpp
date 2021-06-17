@@ -19,6 +19,45 @@ namespace test
     IMPL_SUB_MESSAGE_CLASS(VRB_LOAD_SESSION, VrbMessageType, Launcher, int, clientID, std::vector<std::string>, args)
     IMPL_SUB_MESSAGE_CLASS(VRB_LOAD_SESSION, VrbMessageType, Avatar, std::string, name, std::vector<float>, pos)
 
+    void testErrorHandling()
+    {
+        std::vector<std::string> args;
+        args.push_back("test1");
+        args.push_back("test2");
+        VRB_LOAD_SESSION_Launcher launcher{154, args};
+        //std::cerr << launcher << std::endl;
+
+        covise::TokenBuffer tb;
+        tb << launcher;
+        covise::Message msg = launcher.createMessage();
+
+        VRB_LOAD_SESSION ls{msg};
+        try
+        {
+            auto &error = ls.unpackOrCast<VRB_LOAD_SESSION_Avatar>();
+            std::cerr << "message_macros.h : cast to wrong sub-message does not fail correctly " << std::endl;
+            abort();
+        }
+        catch (const std::exception& ex)
+        {
+            //std::cerr << "invalid sub-message cast correctly threw: " << std::endl
+            //          << ex.what() << std::endl;
+        }
+        msg.type = covise::COVISE_MESSAGE_OBJECT_FOUND; //random wrong type
+        try
+        {
+            VRB_LOAD_SESSION error{msg};
+            std::cerr << "message_macros.h : cast to wrong message does not fail correctly " << std::endl;
+            abort();
+        }
+        catch (const std::exception& ex)
+        {
+            //std::cerr << "invalid message cast correctly threw: " << std::endl
+            //          << ex.what() << std::endl;
+        }
+
+    }
+
     void testMessageClass()
     {
         std::vector<std::string> args;
@@ -31,10 +70,7 @@ namespace test
         assert(vrbMessage.args[0] == "test1");
         assert(vrbMessage.args[1] == "test2");
         //std::cerr << vrbMessage << std::endl;
-        covise::TokenBuffer tb;
-        tb << vrbMessage;
-        covise::Message msg{tb};
-        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+        covise::Message msg = vrbMessage.createMessage();
         VRB_MESSAGE vrbMessage2{msg};
         assert(vrbMessage2.messageType == 5);
         assert(vrbMessage2.clientID == 123);
@@ -56,9 +92,7 @@ namespace test
         assert(launcher.clientID == 154);
         assert(launcher.args.size() == 2);
         assert(launcher.args[1] == "test2");
-        covise::TokenBuffer tb;
-        tb << launcher;
-        covise::Message msg{tb};
+        covise::Message msg = launcher.createMessage();
         msg.type = covise::COVISE_MESSAGE_VRB_LOAD_SESSION;
         VRB_LOAD_SESSION m{msg};
         switch (m.type)
@@ -80,6 +114,7 @@ namespace test
     {
         testMessageClass();
         testMessageSubCLass();
+        testErrorHandling();
     }
 
 } // namespace test
