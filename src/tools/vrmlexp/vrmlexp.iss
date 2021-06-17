@@ -6,7 +6,7 @@
 #define EXTERNLIBS GetEnv("EXTERNLIBS")
 #define COMMONDIR GetEnv("COVISEDIR") +"\..\common"
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
-#define MAXDIR "c:/Program Files/Autodesk/3ds Max 2020"
+#define MAXDIR "c:/Program Files/Autodesk/3ds Max 2022"
 
 #if ARCHSUFFIX == ""
   #define ARCHSUFFIX GetEnv("ARCHSUFFIX")
@@ -25,7 +25,7 @@ PrivilegesRequired=admin
 OutputDir={#COVISEDIR+"\DIST"}    
 
 #if ARCHSUFFIX == "zebuopt"
-OutputBaseFilename=HLRS_Max2021.1_x64_VRML_Exporter   
+OutputBaseFilename=HLRS_Max2022_x64_VRML_Exporter   
 ArchitecturesInstallIn64BitMode="x64"  
 #elif ARCHSUFFIX == "zackelopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
@@ -34,7 +34,7 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yorooopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
-OutputBaseFilename=HLRS_Max2021.1_x64_VRML_Exporter    
+OutputBaseFilename=HLRS_Max2022_x64_VRML_Exporter    
 ArchitecturesInstallIn64BitMode="x64"  
 ;ProcessorsAllowed="x64"
 #endif

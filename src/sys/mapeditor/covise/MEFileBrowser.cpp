@@ -101,9 +101,7 @@ MEFileBrowser::MEFileBrowser(QWidget *parent, MEFileBrowserPort *p)
         node = NULL;
         netType = OPENNET;
 
-        QString longname;
-        longname = MEHostListHandler::instance()->getIPAddress(MEMainHandler::instance()->localHost);
-        host = MEHostListHandler::instance()->getHost(longname);
+        host = MEHostListHandler::instance()->getHost(MEMainHandler::instance()->localIP);
         title = "COVISE: File Browser";
     }
 
