@@ -168,7 +168,6 @@ void CoviseProxy::handleMessage(Message &msg)
       case PROXY_TYPE::CreateCrbProxy:
       {
         auto &crb = p.unpackOrCast<PROXY_CreateCrbProxy>();
-        std::array<size_t, 2> ids{crb.toProcID, crb.fromProcID};
         m_crbProxies.emplace_back(new CrbProxyConn{crb.fromProcID, crb.toProcID, *m_controllerCon, crb.timeout, [this](const CrbProxyConn &crbproxy)
                                                     {
                                                       std::lock_guard<std::mutex> g{m_crbProxyMutex};

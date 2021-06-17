@@ -142,13 +142,13 @@ bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
 {
     PROXY_CreateCrbProxy crbProxyRequest{toCrb.processId, processId, 30};
     sendCoviseMessage(crbProxyRequest, *host.hostManager.proxyConn());
-    const std::array<const SubProcess *, 2> crbs{&toCrb, this};
+    const std::array<const SubProcess *, 2> crbs{this, &toCrb};
     constexpr std::array<int, 2> msgTypes{COVISE_MESSAGE_PREPARE_CONTACT_DM, COVISE_MESSAGE_DM_CONTACT_DM};
     for (size_t i = 0; i < 2; i++)
     {
         Message proxyMsg;
         //receive opened port
-        host.hostManager.proxyConn()->recv_msg(&proxyMsg); //produces proxy not found warning
+        host.hostManager.proxyConn()->recv_msg(crbs[i]->processId, VRB, &proxyMsg); //produces proxy not found warning
         PROXY p{proxyMsg};
         auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
         //send host and port to crb
@@ -158,7 +158,7 @@ bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
         crbs[i]->send(&msg);
 
         //wait for VRB to confirm the connection
-        host.hostManager.proxyConn()->recv_msg(&proxyMsg);
+        host.hostManager.proxyConn()->recv_msg(crbs[i]->processId, VRB, &proxyMsg);
         PROXY p2{proxyMsg};
         if (!p2.unpackOrCast<PROXY_ProxyConnected>().success)
         {
