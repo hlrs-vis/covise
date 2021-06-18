@@ -982,42 +982,46 @@ BOOL CALLBACK
 
             HWND cb = GetDlgItem(hDlg, IDC_COMBO1);
             int sel = ComboBox_GetCurSel(cb);
-            if (ComboBox_GetCount(cb) == 2)
+            if (sel >= 0)
             {
-                sel += 13;
-                if (sel == 13)
+                if (ComboBox_GetCount(cb) == 2)
                 {
-                    ComboBox_ResetContent(cb);
-                    for (int i = 0; i < 16; i++)
-                        if (elementTypes[i].implemented)
-                            ComboBox_AddString(cb, elementTypes[i].elementName);
-                }
-            }
-            else
-            {
-                int index = 0;
-                for (int i = 0; i < 16; i++)
-                    if ((index == sel) && elementTypes[i].implemented)
+                    sel += 13;
+                    if (sel == 13)
                     {
-                        sel = i;
-                        break;
+                        ComboBox_ResetContent(cb);
+                        for (int i = 0; i < 16; i++)
+                            if (elementTypes[i].implemented)
+                                ComboBox_AddString(cb, elementTypes[i].elementName);
                     }
-                    else if (elementTypes[i].implemented)
-                        index++;
+                }
+                else
+                {
+                    int index = 0;
+                    for (int i = 0; i < 16; i++)
+                        if ((index == sel) && elementTypes[i].implemented)
+                        {
+                            sel = i;
+                            break;
+                        }
+                        else if (elementTypes[i].implemented)
+                            index++;
+                }
+
+                TabletUIElement* elParent = NULL;
+                int j = (int)SendMessage(GetDlgItem(hDlg, IDC_PARENT_COMBOBOX),
+                    CB_GETCURSEL, 0, 0);
+                if (j != LB_ERR)
+                    elParent = (TabletUIElement*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_PARENT_COMBOBOX), j);
+                TabletUIElement* el = th->addTUIElement(th, sel, elParent, NULL);
+
+                th->updateElementTree(el);
+                EnableWindow(GetDlgItem(hDlg, IDC_TUIELEMENT_DEL),
+                    (th->elements.Count() > 0));
+
+                return true;
             }
-
-            TabletUIElement *elParent = NULL;
-            int j = (int)SendMessage(GetDlgItem(hDlg, IDC_PARENT_COMBOBOX),
-                                     CB_GETCURSEL, 0, 0);
-            if (j != LB_ERR)
-                elParent = (TabletUIElement *)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_PARENT_COMBOBOX), j);
-            TabletUIElement *el = th->addTUIElement(th, sel, elParent, NULL);
-
-            th->updateElementTree(el);
-            EnableWindow(GetDlgItem(hDlg, IDC_TUIELEMENT_DEL),
-                         (th->elements.Count() > 0));
-
-            return TRUE;
+            return false;
         }
         case IDC_RECONNECT:
         {

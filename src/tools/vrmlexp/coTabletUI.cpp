@@ -3452,10 +3452,20 @@ coTabletUI::~coTabletUI()
 	if (tUI == this)
 		tUI = nullptr;
 
+	if (connFuture.valid())
+	{
+		lock();
+		auto status = connFuture.wait_for(std::chrono::seconds(30));
+	}
+
 	delete serverConn;
-	delete conn;
+	serverConn = nullptr;
+	delete conn; 
+	conn = nullptr;
 	delete serverHost;
+	serverHost = nullptr;
 	delete localHost;
+	localHost = nullptr;
 }
 
 int coTabletUI::getID()
