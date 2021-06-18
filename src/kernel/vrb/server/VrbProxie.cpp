@@ -90,7 +90,7 @@ CrbProxyConn::CrbProxyConn(size_t fromProcId, size_t toProcId, const covise::Mes
                    {
                      msg.sender = conns[conn == conns[0].conn].conn->get_sender_id();
                    }
-                   if (!msg.send_type == sender_type::UNDEFINED)
+                   if (msg.send_type != sender_type::UNDEFINED)
                    {
                      msg.send_type = conns[conn == conns[0].conn].conn->get_sendertype();
                    }
