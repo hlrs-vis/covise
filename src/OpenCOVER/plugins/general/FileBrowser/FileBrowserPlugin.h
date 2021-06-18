@@ -16,16 +16,16 @@ class FileBrowserPlugin : public coVRPlugin, public cui::coFileBrowserListener, 
 {
   public:
     FileBrowserPlugin();
-    ~FileBrowserPlugin();
-    bool init();
-    void menuEvent(coMenuItem*);
-    void preFrame();
+    ~FileBrowserPlugin() override;
+    bool init() override;
+    void menuEvent(coMenuItem*) override;
+    void preFrame() override;
 
     void updateOSGCaveUI();
 
-    virtual bool fileBrowserEvent(cui::coFileBrowser*, std::string&, std::string&, int, int);
+    bool fileBrowserEvent(cui::coFileBrowser*, std::string&, std::string&, int, int) override;
 
-    void message(int, int, int, const void*);
+    void message(int, int, int, const void*) override;
 
     coPopupHandle * handle;
     coFrame * frame;

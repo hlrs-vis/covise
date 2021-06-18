@@ -100,7 +100,7 @@ private:
 
     void handleTouchMoved(const void *data);
 
-    virtual void message(int toWhom, int type, int length, const void *data); // sendMessage...
+    void message(int toWhom, int type, int length, const void *data) override; // sendMessage...
 
     virtual void update(); // coInteraction interface
 

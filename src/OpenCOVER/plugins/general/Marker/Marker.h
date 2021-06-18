@@ -59,13 +59,13 @@ private:
 
 public:
     MarkerSensor(Mark *m, osg::Node *n);
-    ~MarkerSensor();
+    ~MarkerSensor() override;
     // this method is called if intersection just started
     // and should be overloaded
-    virtual void activate();
+    void activate() override;
 
     // should be overloaded, is called if intersection finishes
-    virtual void disactivate();
+    void disactivate() override;
 };
 
 class Mark
@@ -114,7 +114,7 @@ class Marker : public coVRPlugin, public coMenuListener, public coButtonActor, p
 
 private:
     coSensorList sensorList;
-    void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
     Mark *currentMarker;
     Mark *previousMarker;
     string myHost;
@@ -152,7 +152,7 @@ private:
     osg::ref_ptr<osg::Group> mainNode;
 
     void setScaleAll(float);
-    void buttonEvent(coButton *);
+    void buttonEvent(coButton *) override;
     void setVisible(bool);
     string getMyHost();
     void setMMString(char *, string);
@@ -160,18 +160,18 @@ private:
     bool isIDInUse(int);
 
 protected:
-    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
+    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context) override;
 
 public:
     static Marker *plugin;
 
     Marker();
-    virtual ~Marker();
-    bool init();
+    ~Marker() override;
+    bool init() override;
 
     // this will be called in PreFrame
-    void preFrame();
-    void message(int toWhom, int type, int len, const void *buf);
+    void preFrame() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
     void setCurrentMarker(Mark *m);
     int menuSelected; // TRUE if menu itme "Cube" was selected
     //void setMarkers(string);

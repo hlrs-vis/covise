@@ -63,29 +63,26 @@ public:
     static VariantPlugin *plugin;
 
     VariantPlugin();
-    ~VariantPlugin();
+    ~VariantPlugin() override;
 
     // this will be called in PreFrame
-    void preFrame();
+    void preFrame() override;
     //this will be called by changing the selected object
-    virtual bool selectionChanged();
-    virtual bool pickedObjChanged();
+    virtual bool selectionChanged() override;
+    virtual bool pickedObjChanged() override;
 
 #ifdef VRUI
     void menuEvent(coMenuItem *menu_VariantPluginitem);
 #endif
     // this will be called if a COVISE object arrives
-    bool init();
-    void addNode(osg::Node *, const RenderObject *);
-    void removeNode(osg::Node *node, bool /*isGroup*/, osg::Node *realNode);
-    void message(int toWhom, int type, int len, const void *buf);
+    bool init() override;
+    void addNode(osg::Node *, const RenderObject *) override;
+    void removeNode(osg::Node *node, bool /*isGroup*/, osg::Node *realNode) override;
+    void message(int toWhom, int type, int len, const void *buf) override;
     void setMenuItem(Variant *var, bool state);
-    void tabletEvent(coTUIElement *);
+    void tabletEvent(coTUIElement *) override;
 
     void updateTUItemPos();
-
-    int setTransMatrix(Variant *var);
-    int setTransMatrix(Variant *var, osg::Vec3d vec);
 
     osg::BoundingBox getBoundingBox(osg::Node *node);
     void clearTranslations(TRANS dir);

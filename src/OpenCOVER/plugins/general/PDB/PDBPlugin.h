@@ -626,18 +626,18 @@ protected:
 
 public:
     PDBPlugin();
-    bool init();
-    virtual ~PDBPlugin();
-    void buttonEvent(coButton *);
-    void preFrame();
-    void setTimestep(int ts);
+    bool init() override;
+    ~PDBPlugin() override;
+    void buttonEvent(coButton *) override;
+    void preFrame() override;
+    void setTimestep(int ts) override;
     void setMMString(char *, string);
     string getMyHost();
     void setNamePopup(string);
     bool loadDataImage(string);
     string getRelativeTempPath();
     string getCurrentPath();
-    void message(int, int, int, const void *);
+    void message(int, int, int, const void *) override;
 };
 #endif
 

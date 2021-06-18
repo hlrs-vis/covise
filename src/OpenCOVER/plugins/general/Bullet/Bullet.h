@@ -128,7 +128,7 @@ class Bullet : public coVRPlugin, public coMenuListener, public coButtonActor, p
 private:
     coSensorList sensorList;
     std::string fileName;
-    void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
     BulletProbe *currentBullet;
     BulletProbe *previousBullet;
     string myHost;
@@ -170,7 +170,7 @@ private:
     osg::ref_ptr<osg::Group> mainNode;
 
     void setScaleAll(float);
-    void buttonEvent(coButton *);
+    void buttonEvent(coButton *) override;
     void setVisible(bool);
     string getMyHost();
     void setMMString(char *, string);
@@ -178,7 +178,7 @@ private:
     bool isIDInUse(int);
 
 protected:
-    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
+    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context) override;
 
 public:
     static Bullet *plugin;
@@ -187,12 +187,12 @@ public:
     static int unloadBullet(const char *filename, const char *);
 
     Bullet();
-    virtual ~Bullet();
-    bool init();
+    ~Bullet() override;
+    bool init() override;
 
     // this will be called in PreFrame
-    void preFrame();
-    void message(int toWhom, int type, int len, const void *buf);
+    void preFrame() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
     void setCurrentBullet(BulletProbe *m);
     int menuSelected; // TRUE if menu itme "Cube" was selected
     //void setBullets(string);

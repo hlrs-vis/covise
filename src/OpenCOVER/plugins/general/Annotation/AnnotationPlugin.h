@@ -141,7 +141,7 @@ private:
     // The VR Menu Interface
     void createMenuEntry(); ///< create a VR menu item "Annotations"
     void removeMenuEntry(); ///< remove the VR menu item
-    void menuEvent(coMenuItem *); ///< handles VR menu events
+    void menuEvent(coMenuItem *) override; ///< handles VR menu events
 
     coCheckboxMenuItem *annotationsMenuCheckbox;
     coSubMenuItem *annotationsMenuItem;
@@ -172,16 +172,16 @@ private:
     //Events from the TabletUI
 
     /// DOCUMENT ME!
-    void tabletPressEvent(coTUIElement *);
+    void tabletPressEvent(coTUIElement *) override;
 
     /// DOCUMENT ME!
-    void tabletEvent(coTUIElement *);
+    void tabletEvent(coTUIElement *) override;
 
     /// DOCUMENT ME!
-    void tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb);
+    void tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb) override;
 
     /// DOCUMENT ME!
-    void buttonEvent(coButton *);
+    void buttonEvent(coButton *) override;
 
     /// change visibility of specific annotation instance
     void setVisible(Annotation *annot, bool vis);
@@ -215,18 +215,18 @@ private:
 
 protected:
     void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti,
-                          int context);
+                          int context) override;
 
 public:
     static AnnotationPlugin *plugin;
 
     AnnotationPlugin();
-    virtual ~AnnotationPlugin();
+    ~AnnotationPlugin() override;
 
-    bool init();
+    bool init() override;
 
-    void preFrame(); ///< this will be called in PreFrame
-    void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
+    void preFrame() override; ///< this will be called in PreFrame
+    void message(int toWhom, int type, int len, const void *buf) override; ///< handle incoming messages
     void setCurrentAnnotation(Annotation *m); ///< change current annotation
     int menuSelected; ///< TRUE if menu item "New Annotation" was selected
     void deleteAllAnnotations(); ///< deletes all unlocked/local annotations

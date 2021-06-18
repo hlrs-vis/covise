@@ -116,7 +116,7 @@ class Schweissen : public coVRPlugin, public coMenuListener, public coButtonActo
 
 private:
     coSensorList sensorList;
-    void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
     Schweissbrenner *currentSchweissbrenner;
     Schweissbrenner *previousSchweissbrenner;
     string myHost;
@@ -152,7 +152,7 @@ private:
     osg::ref_ptr<osg::Group> mainNode;
 
     void setScaleAll(float);
-    void buttonEvent(coButton *);
+    void buttonEvent(coButton *) override;
     void setVisible(bool);
     string getMyHost();
     void setMMString(char *, string);
@@ -160,7 +160,7 @@ private:
     bool isIDInUse(int);
 
 protected:
-    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
+    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context) override;
 
 public:
     static Schweissen *plugin;
@@ -172,12 +172,12 @@ public:
     coNavInteraction *interactionC; ///< interaction for third button
 
     Schweissen();
-    virtual ~Schweissen();
-    bool init();
+    ~Schweissen() override;
+    bool init() override;
 
     // this will be called in PreFrame
-    void preFrame();
-    void message(int toWhom, int type, int len, const void *buf);
+    void preFrame() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
     void setcurrentSchweissbrenner(Schweissbrenner *m);
     int menuSelected; // TRUE if menu itme "Cube" was selected
     //void setSchweissens(string);

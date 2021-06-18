@@ -52,14 +52,14 @@ class PBufferSnapShot : public coVRPlugin,
 
 public:
     PBufferSnapShot();
-    virtual ~PBufferSnapShot();
-    bool init();
+    ~PBufferSnapShot() override;
+    bool init() override;
 
-    void preFrame();
-    void preSwapBuffers(int windowNumber);
+    void preFrame() override;
+    void preSwapBuffers(int windowNumber) override;
 
-    void guiToRenderMsg(const char *msg);
-    void message(int toWhom, int type, int len, const void *buf);
+    void guiToRenderMsg(const char *msg) override;
+    void message(int toWhom, int type, int len, const void *buf) override;
 
 private:
     osg::ref_ptr<osg::Camera::DrawCallback> drawCallback;
@@ -110,13 +110,13 @@ private:
     coTUIToggleButton *tuiSnapOnSlaves;
     coTUIToggleButton *tuiTransparentBackground;
 
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
+    void tabletEvent(coTUIElement *tUIItem) override;
+    void tabletPressEvent(coTUIElement *tUIItem) override;
+    void tabletReleaseEvent(coTUIElement *tUIItem) override;
 
     void prepareSnapshot();
 
-    virtual void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
 
     inline void cameraCallbackExit() const;
 

@@ -143,7 +143,7 @@ private:
 
     covise::DLinkList<Dimension *> dims;
 
-    void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
     void createMenuEntry(); // create a menu items
     void removeMenuEntry(); // remove the menu items
 
@@ -152,10 +152,10 @@ public:
     static Measure *plugin;
 
     Measure();
-    virtual ~Measure();
-    bool init();
-    void preFrame();
-    void message(int toWhom, int type, int len, const void *buf);
+    ~Measure() override;
+    bool init() override;
+    void preFrame() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
     void setCurrentMeasure(Mark *m);
 };
 

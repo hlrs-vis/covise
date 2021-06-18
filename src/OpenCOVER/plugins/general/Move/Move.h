@@ -56,7 +56,7 @@ class MoveInfo : public vruiUserData
 {
 public:
     MoveInfo();
-    ~MoveInfo();
+    ~MoveInfo() override;
     osg::Matrix initialMat;
     float lastScaleX;
     float lastScaleY;
@@ -68,16 +68,16 @@ class Move : public coVRPlugin, public coMenuListener, public coTUIListener, pub
 {
 public:
     Move();
-    virtual ~Move();
-    bool init();
-    void preFrame();
-    void message(int toWhom, int type, int len, const void *buf);
-    void newInteractor(const RenderObject *container, coInteractor *it);
-    void addNode(osg::Node *, const RenderObject *);
-    void removeNode(osg::Node *, bool isGroup, osg::Node *realNode);
+    ~Move() override;
+    bool init() override;
+    void preFrame() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
+    void newInteractor(const RenderObject *container, coInteractor *it) override;
+    void addNode(osg::Node *, const RenderObject *) override;
+    void removeNode(osg::Node *, bool isGroup, osg::Node *realNode) override;
 
-    virtual bool selectionChanged();
-    virtual bool pickedObjChanged();
+    bool selectionChanged() override;
+    bool pickedObjChanged() override;
 
 private:
     // toolbar and kids
@@ -153,9 +153,9 @@ private:
     int level;
     int oldLevel;
     // menu event for buttons and stuff
-    void tabletPressEvent(coTUIElement *);
-    void menuEvent(coMenuItem *);
-    void tabletEvent(coTUIElement *);
+    void tabletPressEvent(coTUIElement *) override;
+    void menuEvent(coMenuItem *) override;
+    void tabletEvent(coTUIElement *) override;
     void selectLevel();
     int numLevels;
     bool allowMove;

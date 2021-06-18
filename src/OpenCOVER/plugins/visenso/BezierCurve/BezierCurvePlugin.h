@@ -109,7 +109,6 @@ private:
     void elevateDegreeOfCurve();
     void reduceDegreeOfCurveForest();
     void reduceDegreeOfCurveFarin();
-    //      void message(int, int , int , const void *iData);
     void removeMenuEntries();
     void changeStatus();
 

@@ -34,12 +34,12 @@ class LogoPlugin : public coVRPlugin
 {
 public:
     LogoPlugin();
-    ~LogoPlugin();
-    virtual bool init();
-    virtual bool destroy();
+    ~LogoPlugin() override;
+    bool init() override;
+    bool destroy() override;
 
-    void preFrame();
-    virtual void message(int toWhom, int type, int length, const void *data);
+    void preFrame() override;
+    void message(int toWhom, int type, int length, const void *data) override;
 
 private:
     Logo *defaultLogo;

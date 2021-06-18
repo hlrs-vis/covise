@@ -56,7 +56,7 @@ using covise::TokenBuffer;
 
 RemoteDT *RemoteDT::plugin = NULL;
 
-void RemoteDT::keyEvent(int type, int keysym, int mod)
+void RemoteDT::key(int type, int keysym, int mod)
 {
     if (desktop)
     {

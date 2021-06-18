@@ -236,19 +236,19 @@ private:
     bool scheduleUnregister = false;;
 public:
     IKSensor(RevitPlugin *r,IKInfo* a, osg::Node* n);
-    ~IKSensor();
+    ~IKSensor() override;
     vrui::coCombinedButtonInteraction* getInteraction() { return interaction; };
 
-    virtual void miss();
-    virtual int hit(vruiHit* hit);
-    virtual void update();
+    void miss() override;
+    int hit(vruiHit* hit) override;
+    void update() override;
 
     // this method is called if intersection just started
     // and should be overloaded
-    virtual void activate();
+    void activate() override;
 
     // should be overloaded, is called if intersection finishes
-    virtual void disactivate();
+    void disactivate() override;
 };
 
 
@@ -459,16 +459,16 @@ public:
 		OBJ_TYPE_Inline
     };
     RevitPlugin();
-    ~RevitPlugin();
-    virtual bool init();
+    ~RevitPlugin() override;
+    bool init() override;
     static RevitPlugin *instance()
     {
         return plugin;
     };
-	bool update();
+	bool update() override;
     // this will be called in PreFrame
-	void preFrame();
-    void key(int type, int keySym, int mod);
+	void preFrame() override;
+    void key(int type, int keySym, int mod) override;
 
     /// <summary>
     /// set visibility depending on current selected phase
@@ -508,7 +508,7 @@ public:
 
     bool sendMessage(Message &m);
     
-    void message(int toWhom, int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf) override;
     void deactivateAllViewpoints();
     int getAnnotationID(int revitID);
     int getRevitAnnotationID(int ai);

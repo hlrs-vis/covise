@@ -58,44 +58,44 @@ class Plugin
 public:
     Plugin();
 
-    virtual ~Plugin();
+    ~Plugin() override;
 
     //
     // from coVRPlugin
     //
 
     // this function is called when COVER is up and running and the plugin is initialized
-    virtual bool init();
+    virtual bool init() override;
 
     // reimplement to do early cleanup work and return false to prevent unloading
-    virtual bool destroy();
+    virtual bool destroy() override;
 
     // this function is called from the main thread before rendering a frame
-    virtual void preFrame();
+    virtual void preFrame() override;
 
     // this function is called if a message arrives
-    virtual void message(int toWhom, int type, int length, void const *data);
+    virtual void message(int toWhom, int type, int length, void const *data) override;
 
 protected:
     //
     // from TouchInteraction
     //
 
-    virtual void onTouchesBeingPressed(Touches const &touches);
+    void onTouchesBeingPressed(Touches const &touches) override;
 
     //
     // Called when a new touch is recognized
     // Returns whether the message has been processed
     //
-    virtual bool onTouchPressed(Touches const &touches, Touch const &reason);
+    bool onTouchPressed(Touches const &touches, Touch const &reason) override;
 
     //
     // Called when a touch has moved
     // Returns whether the message has been processed
     //
-    virtual bool onTouchesMoved(Touches const &touches);
+    bool onTouchesMoved(Touches const &touches) override;
 
-    virtual void onTouchesBeingReleased(Touches const &touches);
+    void onTouchesBeingReleased(Touches const &touches) override;
 
     //
     // Called when a touch is released
@@ -103,13 +103,13 @@ protected:
     //
     // NOTE: id is actually invalid and touches might be empty!
     //
-    virtual bool onTouchReleased(Touches const &touches, Touch const &reason);
+    bool onTouchReleased(Touches const &touches, Touch const &reason) override;
 
     //
     // Called when the touch interaction has been canceled
     // Returns whether the message has been processed
     //
-    virtual bool onTouchesCanceled();
+    bool onTouchesCanceled() override;
 
 private:
     void sendPressEvents(Touches const &touches);

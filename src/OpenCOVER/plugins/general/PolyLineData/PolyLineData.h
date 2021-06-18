@@ -44,19 +44,19 @@ public:
     static PolyLineDataPlugin *plugin;
 
     PolyLineDataPlugin();
-    virtual ~PolyLineDataPlugin();
+    ~PolyLineDataPlugin() override;
 
-    void tabletEvent(coTUIElement *);
-    void tabletPressEvent(coTUIElement *);
-    void tabletReleaseEvent(coTUIElement *);
+    void tabletEvent(coTUIElement *) override;
+    void tabletPressEvent(coTUIElement *) override;
+    void tabletReleaseEvent(coTUIElement *) override;
 
-    void preFrame();
-    virtual void menuEvent(coMenuItem *menuItem);
+    void preFrame() override;
+    virtual void menuEvent(coMenuItem *menuItem) override;
     void drawInit();
 
-    void message(int toWhom, int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf) override;
 
-    bool init();
+    bool init() override;
 
 private:
     std::vector<osg::Vec3Array *> points;

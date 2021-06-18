@@ -33,29 +33,29 @@ class coTUIElement;
 class LocalData : public IData
 {
 public:
-    LocalData(coTUIElement *elem = NULL);
-    ~LocalData(void);
+    LocalData(coTUIElement *elem = nullptr);
+    ~LocalData() override;
     void reqDirectoryList(std::string path, int pId) override;
     void setDirectoryList(const covise::Message &msg) override;
     void reqFileList(std::string path, int pId) override;
     void setFileList(const covise::Message &msg) override;
 
-    void reqHomeDir(int pId);
-    void reqHomeFiles(int pId);
+    void reqHomeDir(int pId) override;
+    void reqHomeFiles(int pId) override;
     void setHomeDir();
 
     void reqDirUp(std::string basePath = "", int pId = 0);
     void setCurDir(covise::Message &msg);
 
     //	LocationType getType();
-    std::string getTmpFilename(const std::string url, int id);
-    void *getTmpFileHandle(bool sync = false);
-    void reqDrives(int pId);
+    std::string getTmpFilename(const std::string url, int id) override;
+    void *getTmpFileHandle(bool sync = false) override;
+    void reqDrives(int pId) override;
 
     void setFile(std::string file);
 
-    void setSelectedPath(std::string path);
-    std::string getSelectedPath();
+    void setSelectedPath(std::string path) override;
+    std::string getSelectedPath() override;
 
     std::string resolveToAbsolute(std::string dir);
 

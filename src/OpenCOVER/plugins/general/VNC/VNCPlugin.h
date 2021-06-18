@@ -61,13 +61,13 @@ public:
     static VNCPlugin *plugin;
 
     VNCPlugin();
-    virtual ~VNCPlugin();
-    bool init();
+    ~VNCPlugin() override;
+    bool init() override;
 
     void initUI();
-    void tabletEvent(coTUIElement *);
-    void tabletPressEvent(coTUIElement *);
-    void tabletReleaseEvent(coTUIElement *);
+    void tabletEvent(coTUIElement *) override;
+    void tabletPressEvent(coTUIElement *) override;
+    void tabletReleaseEvent(coTUIElement *) override;
 
     /// server may be a hostname or an IP-address
     void connectToServer(const char *server, unsigned port, const char *password);
@@ -87,10 +87,10 @@ public:
     /// Set visibility of specific session
     void setVisible(bool on, const char *hostname, unsigned int port);
 
-    void preFrame();
-    virtual void menuEvent(coMenuItem *menuItem);
+    void preFrame() override;
+    virtual void menuEvent(coMenuItem *menuItem) override;
     void drawInit();
-    void message(int toWhom, int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf) override;
 
     /**
     * this is here until there are other means to get events
@@ -99,7 +99,7 @@ public:
     * type is either 6 (key down) or 7 (key up)
     * keysym seems to be a X keysym
     */
-    void key(int type, int keysym, int mod);
+    void key(int type, int keysym, int mod) override;
 
     void setNewWindowActor(VNCWindowActor *actor);
 

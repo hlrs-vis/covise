@@ -78,8 +78,8 @@ private:
 
 public:
     ClipPlanePlugin();
-    virtual ~ClipPlanePlugin();
-    bool init();
-    void message(int toWhom, int type, int len, const void *buf);
-    void preFrame();
+    ~ClipPlanePlugin() override;
+    bool init() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
+    void preFrame() override;
 };

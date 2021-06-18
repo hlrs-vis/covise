@@ -71,35 +71,35 @@ public:
 
     
     OddlotPlugin();
-    ~OddlotPlugin();
-    virtual bool init();
+    ~OddlotPlugin() override;
+    bool init() override;
     static OddlotPlugin *instance()
     {
         return plugin;
     };
 
     // this will be called in PreFrame
-    bool update();
-    void preFrame();
+    bool update() override;
+    void preFrame() override;
 
     void destroyMenu();
     void createMenu();
     
     void createCamera();
-    virtual void menuEvent(coMenuItem *aButton);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    void menuEvent(coMenuItem *aButton) override;
+    void tabletEvent(coTUIElement *tUIItem) override;
+    void tabletPressEvent(coTUIElement *tUIItem) override;
 
     void sendMessage(Message &m);
     
-    void message(int toWhom, int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf) override;
     void sendImage();
 protected:
 
-	virtual osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const;
-	virtual osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const;
-	virtual osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const;
-	virtual osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const;
+	osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
+	osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
+	osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
+	osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const override;
     void setProjection(float xPos, float yPos, float width, float height);
     static OddlotPlugin *plugin;
 

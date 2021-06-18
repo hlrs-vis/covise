@@ -33,9 +33,7 @@ public:
     virtual void preFrame();
     virtual void key(int type, int keySym, int mod);
     virtual void userEvent(int mod);
-    //    virtual void param(const char *paramName, bool inMapLoading );
     virtual void guiToRenderMsg(const char *msg);
-    //    virtual void message(int toWhom, int type, int length, const void *data);
 
     static int loadCoxmlUrl(const opencover::Url &url, osg::Group *group, const char *ck = "");
     static int loadCoxml(const char *filename, osg::Group *group, const char *ck = "");

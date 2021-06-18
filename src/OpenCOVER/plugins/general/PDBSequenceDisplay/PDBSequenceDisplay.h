@@ -112,7 +112,7 @@ class PDBSequenceDisplay : public coVRPlugin, public coMenuListener, public coBu
     // switch node for attaching vrml scenes
     osg::ref_ptr<osg::Switch> mainNode; //new
 
-    void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
 
 private:
     void ChangeLabel(int);
@@ -124,15 +124,15 @@ private:
     void GotoChainAndPos(std::string chain, int pos);
 
 protected:
-    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
+    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context) override;
 
 public:
     PDBSequenceDisplay();
-    ~PDBSequenceDisplay();
-    bool init();
-    void buttonEvent(coButton *);
-    void preFrame();
-    void message(int toWhom, int type, int, const void *buf);
+    ~PDBSequenceDisplay() override;
+    bool init() override;
+    void buttonEvent(coButton *) override;
+    void preFrame() override;
+    void message(int toWhom, int type, int, const void *buf) override;
     int FileExists(const char *filename);
 };
 

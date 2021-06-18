@@ -124,27 +124,27 @@ class SGBrowser : public coVRPlugin, public coTUIListener, public coSelectionLis
 {
 public:
     SGBrowser();
-    virtual ~SGBrowser();
-    bool init();
+    ~SGBrowser() override;
+    bool init() override;
 
-    virtual bool selectionChanged();
-    virtual bool pickedObjChanged();
+    bool selectionChanged() override;
+    bool pickedObjChanged() override;
     //_____________________________this will be called in PreFrame_____________________________
-    void preFrame();
-    void message(int toWhom, int type, int len, const void *buf);
-    void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode);
-    void addNode(osg::Node *node, const RenderObject *obj);
+    void preFrame() override;
+    void message(int toWhom, int type, int len, const void *buf) override;
+    void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode) override;
+    void addNode(osg::Node *node, const RenderObject *obj) override;
     bool processTexture(coTUISGBrowserTab *sGBrowserTab, TexVisitor *texvis, osg::StateSet *ss);
 
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-    virtual void tabletSelectEvent(coTUIElement *tUIItem);
-    virtual void tabletChangeModeEvent(coTUIElement *tUIItem);
-    virtual void tabletFindEvent(coTUIElement *tUIItem);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletCurrentEvent(coTUIElement *tUIItem);
-    virtual void tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb);
-    virtual void tabletLoadFilesEvent(char *nodeName);
+    virtual void tabletPressEvent(coTUIElement *tUIItem) override;
+    virtual void tabletReleaseEvent(coTUIElement *tUIItem) override;
+    virtual void tabletSelectEvent(coTUIElement *tUIItem) override;
+    virtual void tabletChangeModeEvent(coTUIElement *tUIItem) override;
+    virtual void tabletFindEvent(coTUIElement *tUIItem) override;
+    virtual void tabletEvent(coTUIElement *tUIItem) override;
+    virtual void tabletCurrentEvent(coTUIElement *tUIItem) override;
+    virtual void tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb) override;
+    virtual void tabletLoadFilesEvent(char *nodeName) override;
 
     //   virtual void hideNode();
     static SGBrowser *plugin;

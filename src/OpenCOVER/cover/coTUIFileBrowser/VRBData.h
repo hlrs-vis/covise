@@ -30,7 +30,7 @@ namespace opencover
 class VRBData : public IRemoteData
 {
 public:
-    VRBData(coTUIElement *elem = NULL);
+    VRBData(coTUIElement *elem = nullptr);
     void reqDirectoryList(std::string path, int pId) override;
     void setDirectoryList(const covise::Message &msg) override;
     void reqFileList(std::string path, int pId) override;
@@ -49,9 +49,9 @@ public:
     void setClientList(const covise::Message &msg) override;
     void setDrives(const covise::Message &msg);
 
-    std::string getTmpFilename(const std::string url, int id);
-    void *getTmpFileHandle(bool sync = false);
-    void reqDrives(int pId);
+    std::string getTmpFilename(const std::string url, int id) override;
+    void *getTmpFileHandle(bool sync = false) override;
+    void reqDrives(int pId) override;
 
     void setRemoteFileList(const covise::Message &msg);
     void setRemoteDirList(const covise::Message &msg);
@@ -62,8 +62,8 @@ public:
     void reqRemoteFile(std::string filename, int pId);
     void setFile(const covise::Message &msg);
 
-    void setSelectedPath(std::string path);
-    std::string getSelectedPath();
+    void setSelectedPath(std::string path) override;
+    std::string getSelectedPath() override;
     bool VRBWait();
 
     void reqGlobalLoad(std::string url, int pId);
