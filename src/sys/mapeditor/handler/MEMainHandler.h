@@ -15,31 +15,33 @@
 #include <string>
 #include <utility>
 #include <mutex>
-
+#include <atomic>
 #include <comsg/NEW_UI.h>
 
 
 class QListWidget;
 class QListWidgetItem;
+class QMessageBox;
 class QNetworkReply;
 
-class MEUserInterface;
-class MEMainHandler;
-class MEMessageHandler;
-class MELinkListHandler;
-class MEHelpViewer;
-class MESessionSettings;
 class MECSCW;
 class MECSCWParam;
+class MEDeleteHostDialog;
+class MEHelpViewer;
+class MEHost;
+class MELinkListHandler;
+class MEMainHandler;
+class MEMessageHandler;
+class MEMessageHandler;
+class MEMirrorHostDialog;
+class MEModuleTree;
 class MENode;
 class MEPort;
-class MEHost;
-class MEModuleTree;
-class METimer;
-class MEMessageHandler;
-class MEDeleteHostDialog;
-class MEMirrorHostDialog;
 class MERemotePartner;
+class MESessionSettings;
+class METimer;
+class MEUserInterface;
+class MEWaitingForConnection;
 namespace covise
 {
 enum class LaunchStyle : int;
@@ -200,6 +202,7 @@ signals:
 
     void usingNode(const QString &);
     void developerMode(bool);
+    void activatePartnerDialogue();
 
 public slots:
 
@@ -262,6 +265,8 @@ private:
     MENode *m_currentNode, *m_newNode;
     MESessionSettings *m_settings;
     MERemotePartner *m_addPartnerDialog = nullptr;
+    MEWaitingForConnection *m_waitingForConnectionDialog = nullptr;
+    std::atomic_bool m_showPartnerDialogue{true};
     MECSCWParam *m_CSCWParam;
     MEDeleteHostDialog *m_deleteHostBox;
     MEMirrorHostDialog *m_mirrorBox;

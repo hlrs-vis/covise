@@ -26,7 +26,8 @@ namespace covise{
         AvailablePartners,
         RequestNewHost,
         AvailableModules,
-        PartnerInfo
+        PartnerInfo,
+        ConnectionCompleted
     };
     DECL_MESSAGE_WITH_SUB_CLASSES(NEW_UI, NEW_UI_TYPE, COMSGEXPORT)
 
@@ -52,6 +53,7 @@ DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, Clie
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, char *, hostName, char *, userName, vrb::VrbCredentials, vrbCredentials)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailableModules, COMSGEXPORT, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, COMSGEXPORT, int, clientId, std::string, ipAddress, std::string, userName, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
+DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ConnectionCompleted, COMSGEXPORT, int, dummy);
 
 }//covise
 

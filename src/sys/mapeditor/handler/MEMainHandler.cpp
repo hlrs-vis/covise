@@ -11,23 +11,23 @@
 #include <sys/types.h>
 #endif
 
+#include <QAction>
+#include <QApplication>
+#include <QDateTime>
 #include <QDebug>
-#include <QTimer>
+#include <QDesktopServices>
 #include <QDesktopWidget>
-#include <QLibrary>
-#include <QStyleFactory>
 #include <QDir>
 #include <QHBoxLayout>
-#include <QListWidget>
 #include <QLabel>
-#include <QUrl>
+#include <QLibrary>
+#include <QListWidget>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QApplication>
-#include <QAction>
-#include <QDateTime>
 #include <QNetworkReply>
+#include <QPushButton>
+#include <QStyleFactory>
+#include <QTimer>
+#include <QUrl>
 
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
@@ -44,6 +44,7 @@
 #include "MEMessageHandler.h"
 #include "MENodeListHandler.h"
 #include "MERemotePartner.h"
+#include "MEWaitingForConnection.h"
 #include "modulePanel/MEModulePanel.h"
 #include "nodes/MECategory.h"
 #include "nodes/MENode.h"
@@ -1013,16 +1014,39 @@ void MEMainHandler::addPartner()
 {
     if (!m_addPartnerDialog)
     {
-        m_addPartnerDialog = new MERemotePartner(mapEditor);
-        connect(m_addPartnerDialog, &MERemotePartner::clientAction, this, [this](const covise::ClientInfo &client) {
-            requestPartnerAction(client.style, std::vector<int>{client.id});
-            m_addPartnerDialog->hide();
-
-        });
+        m_addPartnerDialog = new MERemotePartner{mapEditor};
+        connect(m_addPartnerDialog, &MERemotePartner::clientAction, this, [this](const covise::ClientInfo &client)
+                {
+                    requestPartnerAction(client.style, std::vector<int>{client.id});
+                    m_addPartnerDialog->hide();
+                    m_showPartnerDialogue = false;
+                });
     }
-    std::lock_guard<std::mutex> g{m_remotePartnerMutex};
-    m_addPartnerDialog->setPartners(m_remotePartners);
-    m_addPartnerDialog->show();
+    if (!m_waitingForConnectionDialog)
+    {
+        m_waitingForConnectionDialog = new MEWaitingForConnection{mapEditor};
+        connect(this, &MEMainHandler::activatePartnerDialogue, this, [this]()
+                {
+                    m_showPartnerDialogue = true;
+                    if (m_waitingForConnectionDialog->isVisible())
+                    {
+                        m_waitingForConnectionDialog->hide();
+                        addPartner();
+                    }
+                });
+    }
+    {
+        std::lock_guard<std::mutex> g{m_remotePartnerMutex};
+        m_addPartnerDialog->setPartners(m_remotePartners);
+    }
+    if (m_showPartnerDialogue)
+    {
+        m_addPartnerDialog->show();
+    }
+    else
+    {
+        int ret = m_waitingForConnectionDialog->exec();
+    }
 }
 
 void MEMainHandler::requestPartnerAction(covise::LaunchStyle launchStyle, const std::vector<int> &clients){

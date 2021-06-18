@@ -1150,6 +1150,11 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
         }
     }
     break;
+    case NEW_UI_TYPE::ConnectionCompleted:
+    {
+        emit MEMainHandler::instance()->activatePartnerDialogue();
+    }
+    break;
     default:
         break;
     }

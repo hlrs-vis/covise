@@ -104,7 +104,6 @@ void MERemotePartner::setPartners(const covise::ClientList &partners)
 {
     if (m_parent)
     {
-        QPoint p{4, 4};
         move(m_parent->pos() + QPoint{m_parent->rect().width() / 2, m_parent->rect().height() / 2} - rect().center());
     }
     m_clients = new ClientWidgetList(m_ui->partnersArea, this, partners);

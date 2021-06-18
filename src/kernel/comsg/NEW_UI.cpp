@@ -37,6 +37,7 @@ IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, ClientList, clien
 IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, char*, hostName, char*, userName, vrb::VrbCredentials, vrbCredentials)
 IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailableModules, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, int, clientId, std::string, ipAddress, std::string, userName, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
+IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ConnectionCompleted, int, dummy);
 
 
 } //covise

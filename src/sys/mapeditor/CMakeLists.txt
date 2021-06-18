@@ -96,6 +96,7 @@ SET(MAPEDITOR_SOURCES ${MAPEDITOR_SOURCES}
   covise/MEFileBrowser.cpp
   covise/MEMessageHandler.cpp
   covise/MERemotePartner.cpp
+  covise/MEWaitingForConnection.cpp
   )
 
 
@@ -172,7 +173,8 @@ SET(MAPEDITOR_MOC_HEADERS
 SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
   covise/MEFileBrowser.h
   covise/MEMessageHandler.h
-  covise/MERemotePartner.h)
+  covise/MERemotePartner.h
+  covise/MEWaitingForConnection.h)
 
 if(COVISE_USE_QT4)
    SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
@@ -225,7 +227,7 @@ QT_ADD_RESOURCES(MAPEDITOR_RCC_FILES
 
 QT_WRAP_CPP(MAPEDITOR_MOC_SRCS ${MAPEDITOR_MOC_HEADERS})
 
-QT_WRAP_UI(MAPEDITOR_UI_SRCS "forms/MEAboutDialog.ui" "forms/MERemotePartner.ui")
+QT_WRAP_UI(MAPEDITOR_UI_SRCS "forms/MEAboutDialog.ui" "forms/MERemotePartner.ui" "forms/MEWaitingForConnection.ui")
 QT_WRAP_UI(widgets/MERemotePartner.ui)
 ADD_COVISE_EXECUTABLE(${TARGETNAME} MACOSX_BUNDLE
   ${MAPEDITOR_SOURCES} ${MAPEDITOR_HEADERS}

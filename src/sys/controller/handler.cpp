@@ -2125,6 +2125,10 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
             }
         }
         sendCollaborativeState();
+        //inform ui that the connection process is over
+        NEW_UI_ConnectionCompleted cmsg{0};
+        auto m = cmsg.createMessage();
+        m_hostManager.sendAll<Userinterface>(m);
     }
     break;
     case NEW_UI_TYPE::RequestAvailablePartners:

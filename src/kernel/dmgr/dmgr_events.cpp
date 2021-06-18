@@ -241,7 +241,7 @@ int DataManagerProcess::handle_msg(Message *msg)
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_PREPARE_CONTACT:
     {
-        auto conn = setupServerConnection(id, CRB, 0, [this, &msg](const ServerConnection &c) {
+        auto conn = setupServerConnection(id, CRB, 10, [this, &msg](const ServerConnection &c) {
             TokenBuffer tb;
             tb << c.get_port();
             Message portmsg{COVISE_MESSAGE_PORT, tb.getData()};
@@ -252,6 +252,11 @@ int DataManagerProcess::handle_msg(Message *msg)
         {
             tmpconn = list_of_connections->add(std::move(conn));
         }
+        else
+        {
+            std::cerr << "connection attempt to other crb timed out" << std::endl;
+        }
+
         retval = 1;
         break;
     }
