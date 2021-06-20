@@ -494,8 +494,22 @@ namespace OpenCOVERPlugin
                 Parameter Phase = View3D.GetParameter(ParameterTypeId.ViewPhase);
                 Parameter PhaseFilter = View3D.GetParameter(ParameterTypeId.ViewPhaseFilter);
                 MessageBuffer mbView = new MessageBuffer();
-                mbView.add(Phase.AsValueString());
-                mbView.add(PhaseFilter.AsValueString());
+                if(Phase!=null)
+                {
+                    mbView.add(Phase.AsValueString());
+                }
+                else
+                {
+                    mbView.add("");
+                }
+                if (PhaseFilter != null)
+                {
+                    mbView.add(PhaseFilter.AsValueString());
+                }
+                else
+                {
+                    mbView.add("");
+                }
                 sendMessage(mbView.buf, MessageTypes.ViewPhase);
 
             }
