@@ -3053,7 +3053,7 @@ RevitPlugin::preFrame()
 				TokenBuffer stb;
 				
 
-				osg::Matrix mat = cover->getBaseMat()*NorthRotMat*RevitScale;
+				osg::Matrix mat = RevitScale* NorthRotMat* cover->getBaseMat();
 				osg::Matrix invMat;
 				invMat.invert(mat);
 				osg::Matrix viewerTrans = cover->getViewerMat() * invMat;
@@ -3074,9 +3074,9 @@ RevitPlugin::preFrame()
 
 					double eyePosition[3];
 					double viewDirection[3];
-					eyePosition[0] = -eyePos[0];
-					eyePosition[1] = -eyePos[1];
-					eyePosition[2] = -eyePos[2];
+					eyePosition[0] = eyePos[0];
+					eyePosition[1] = eyePos[1];
+					eyePosition[2] = eyePos[2];
 
 					viewDirection[0] = viewDir[0];
 					viewDirection[1] = viewDir[1];
