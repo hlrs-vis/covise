@@ -522,6 +522,8 @@ public:
     void setPhase(std::string phaseName);
     int currentPhase=0;
     double TrueNorthAngle = 0.0;
+    osg::Matrix NorthRotMat;
+    osg::Matrix RevitScale;
 protected:
     static RevitPlugin *plugin;
     ui::Label *label1 = nullptr;

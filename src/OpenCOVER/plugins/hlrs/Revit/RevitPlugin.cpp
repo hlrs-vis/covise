@@ -2122,8 +2122,10 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> TrueNorthAngle;
 		if(firstDocument)
 		{
-			firstDocument = false;
-		revitGroup->setMatrix(osg::Matrix::rotate( TrueNorthAngle, osg::Vec3(0, 0, 1))* osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M));
+		    firstDocument = false;
+    	            NorthRotMat=osg::Matrix::rotate( TrueNorthAngle, osg::Vec3(0, 0, 1));
+                    RevitScale=osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
+		    revitGroup->setMatrix(NorthRotMat*RevitScale );
 		}
         if (fileName != currentRevitFile)
         {
@@ -3049,30 +3051,21 @@ RevitPlugin::preFrame()
 			if (cover->frameTime() > lastTime + 4)
 			{
 				TokenBuffer stb;
+				
 
-				osg::Matrix mat = cover->getXformMat();
-				osg::Matrix viewerTrans;
-				viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
-				osg::Matrix itransMat;
-				itransMat.invert(viewerTrans);
-				mat.postMult(itransMat);
-
-
-				osg::Matrix scMat;
-				osg::Matrix iscMat;
-				float scaleFactor = cover->getScale();
-				scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
-				iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
-				mat.postMult(iscMat);
-				mat.preMult(scMat);
-
-				osg::Matrix irotMat = mat;
-				irotMat.setTrans(0, 0, 0);
-
-				osg::Matrix rotMat;
-				rotMat.invert(irotMat);
-				mat.postMult(rotMat);
-				osg::Vec3 eyePos = mat.getTrans();
+				osg::Matrix mat = cover->getBaseMat()*NorthRotMat*RevitScale;
+				osg::Matrix invMat;
+				invMat.invert(mat);
+				osg::Matrix viewerTrans = cover->getViewerMat() * invMat;
+				
+				
+				osg::Vec3 eyePos = viewerTrans.getTrans();
+				osg::Vec3 viewDir;
+				viewDir[0] = viewerTrans(1, 0);
+				viewDir[1] = viewerTrans(1, 1);
+				viewDir[2] = viewerTrans(1, 2);
+				viewDir.normalize();
+				
 				static osg::Vec3 oldEyePos(0, 0, 0);
 				if ((eyePos - oldEyePos).length() > 0.3) // if distance to old pos > 30cm
 				{
@@ -3081,13 +3074,14 @@ RevitPlugin::preFrame()
 
 					double eyePosition[3];
 					double viewDirection[3];
-					eyePosition[0] = -eyePos[0] / REVIT_FEET_TO_M;
-					eyePosition[1] = -eyePos[1] / REVIT_FEET_TO_M;
-					eyePosition[2] = -eyePos[2] / REVIT_FEET_TO_M;
+					eyePosition[0] = -eyePos[0];
+					eyePosition[1] = -eyePos[1];
+					eyePosition[2] = -eyePos[2];
 
-					viewDirection[0] = rotMat(1, 0);
-					viewDirection[1] = rotMat(1, 1);
-					viewDirection[2] = rotMat(1, 2);
+					viewDirection[0] = viewDir[0];
+					viewDirection[1] = viewDir[1];
+					viewDirection[2] = viewDir[2];
+					
 
 					stb << (double)eyePosition[0];
 					stb << (double)eyePosition[1];
