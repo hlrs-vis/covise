@@ -91,7 +91,8 @@ public:
         SGBrowserSetOutputType = 2016,
 
         //Vistle messages
-        VistleMessage = 9000,
+        VistleMessageIn = 9000, // distribute message received from Vistle to plugins
+        VistleMessageOut = 9001, // let Vistle plugin forward message to Vistle
 
         // HLRS plugins start with 10000 ----------------------------------------
         HLRS_ACInterfaceSnapshotPath = 10333,
