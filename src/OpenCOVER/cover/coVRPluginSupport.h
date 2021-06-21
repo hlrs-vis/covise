@@ -532,9 +532,6 @@ private:
 	bool m_connectedToCovise = false;
     void setFrameRealTime(double ft);
 
-    //! calls the callback
-    void callButtonCallback(const char *buttonName);
-
     float scaleFactor; ///< scale depending on viewer-screen FOV
     float viewerDist; ///< distance of viewer from screen
     osg::Vec3 eyeToScreen; ///< eye to screen center vector
