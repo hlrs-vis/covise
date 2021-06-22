@@ -142,7 +142,7 @@ void waitForProxyMsg(std::unique_ptr<Message> &msg, const Connection &conn)
 
 bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> sendConnMessage)
 {
-    constexpr int timeout = 10; // do not timeout
+    constexpr int timeout = 10; 
     if (&host == &host.hostManager.getLocalHost() || !host.proxyHost())
     {
         auto conn = setupServerConnection(processId, type, timeout, [&sendConnMessage, this](const ServerConnection &c)

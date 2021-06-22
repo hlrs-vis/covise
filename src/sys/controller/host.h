@@ -69,11 +69,9 @@ struct RemoteHost : vrb::RemoteClient
     bool isModuleAvailable(const std::string &moduleName) const;
     NetModule &startApplicationModule(const string &name, const string &instanz, 
                           int posx, int posy, int copy, ExecFlag flags, NetModule *mirror = nullptr);
-    bool get_mark() const;
-    void reset_mark();
-    void mark_save();
     bool removePartner();
     bool proxyHost() const;
+    void setCode(int code);
 
 private:
     bool addPartner();
@@ -89,19 +87,20 @@ private:
     std::vector<const ModuleInfo*> m_availableModules; //contains references to hostmanagers available modules
     int m_shmID;
     int m_timeout = 30;
-    bool m_saveInfo = false;
     bool m_isProxy = false;
+    std::atomic_int m_code;
 
 protected:
     covise::LaunchStyle m_state = covise::LaunchStyle::Disconnect;
     virtual void connectShm(const CRBModule &crbModule);
-
+    virtual bool askForPermission();
     virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs);
 };
 
 struct LocalHost : RemoteHost{
     LocalHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = "");
     virtual void connectShm(const CRBModule &crbModule) override;
+    virtual bool askForPermission() override;
     virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs) override;
 };
 
@@ -118,7 +117,7 @@ public:
     } uiState;
 
     void sendPartnerList() const; 
-    std::vector<bool> handleAction(const covise::NEW_UI_HandlePartners &msg);
+    void handleAction(const covise::NEW_UI_HandlePartners &msg, const std::string &netFilename);
     void setOnConnectCallBack(std::function<void(void)> cb);
     int vrbClientID() const;
     const vrb::VRBClient &getVrbClient() const;
@@ -179,6 +178,7 @@ public:
     const ControllerProxyConn *proxyConn() const;
     bool launchOfCrbPermitted() const;
     std::unique_ptr<Message> receiveProxyMessage();
+    std::mutex &mutex() const;
 
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.

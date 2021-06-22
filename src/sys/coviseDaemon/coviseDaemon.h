@@ -14,6 +14,7 @@
 #include <vrb/ProgramType.h>
 #include <vrb/client/VrbCredentials.h>
 #include <vrb/client/VRBClient.h>
+#include <vrb/client/LaunchRequest.h>
 
 #include <QObject>
 #include <QSocketNotifier>
@@ -26,25 +27,32 @@
 #include <thread>
 #include <vector>
 
+Q_DECLARE_METATYPE(covise::Message);
+
 //The CoviseDaemon that listens to launch request submitted via VRB
 class CoviseDaemon : public QObject
 {
     Q_OBJECT
 public:
+    typedef std::function<bool(const QString &launchDescription)> AskForPermissionCb;
+
     ~CoviseDaemon();
     void connect(const vrb::VrbCredentials &credentials = vrb::VrbCredentials{});
     void disconnect();
     void printClientInfo();
-    void sendPermission(int clientID, bool permit);
-    void spawnProgram(vrb::Program p, const std::vector<std::string> &args, const std::function<void(const QString& output)> outputCallback, const std::function<void(void)> &diedCallback);
+    void setLaunchRequestCallback(const AskForPermissionCb &cb);
 public slots:
     void sendLaunchRequest(vrb::Program p, int lientID, const std::vector<std::string> &args = std::vector<std::string>{});
 signals:
-    void launchSignal(int senderID, QString senderDescription, vrb::Program programID, std::vector<std::string> startOptions); //namespace must be explicitly stated for qRegisterMetaType
     void connectedSignal();
     void disconnectedSignal();
     void updateClient(int clientID, QString clientInfo);
     void removeClient(int id);
+    void childProgramOutput(const QString &child, const QString &output);
+    void childTerminated(const QString &child);
+    void receivedVrbMsg(const covise::Message &msg);
+private slots:
+    bool handleVRB(const covise::Message& msg);
 
 private:
     typedef std::lock_guard<std::mutex> Guard;
@@ -55,19 +63,36 @@ private:
     std::unique_ptr<vrb::VRBClient> m_client = nullptr;
     std::unique_ptr<std::thread> m_thread;
     std::mutex m_mutex;
-
+    AskForPermissionCb m_askForPermissionCb;
     vrb::SessionID m_sessionID;
     std::set<vrb::RemoteClient> m_clientList;
     std::set<ChildProcess> m_children;
-
+    std::vector<std::unique_ptr<vrb::VRB_MESSAGE>> m_launchRequests;
     void loop();
-    bool handleVRB();
+    void spawnProgram(vrb::Program p, const std::vector<std::string> &args);
     bool removeOtherClient(covise::TokenBuffer &tb);
-    void handleVrbLauncherMessage(covise::Message &msg);
+    void handleVrbLauncherMessage(const covise::Message &msg);
+    bool askForPermission(int clientId, vrb::Program p);
+
     std::set<vrb::RemoteClient>::iterator findClient(int id);
-    
+
+    struct ProgramToLaunch
+    {
+
+        ProgramToLaunch(vrb::Program p, int requestorId);
+        ProgramToLaunch(vrb::Program p, int requestorId, int code);
+
+        bool operator==(const ProgramToLaunch &other) const;
+        int code() const;
+
+    private:
+        vrb::Program m_p;
+        int m_requestorId;
+        int m_code;
+    };
+
+    std::vector<ProgramToLaunch> m_allowedProgramsToLaunch;
 };
 QString getClientInfo(const vrb::RemoteClient &cl);
-
 
 #endif

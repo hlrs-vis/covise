@@ -5,9 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include "clientWidget.h"
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
-#include "clientWidget.h"
 
 #include <util/coSpawnProgram.h>
 
@@ -59,9 +59,9 @@ MainWindow::~MainWindow()
 	cdConfig->save();
 
 	m_isConnecting = false;
-	if (m_waitFuture.valid())
+	if (m_connectionBarTread && m_connectionBarTread->joinable())
 	{
-		m_waitFuture.get();
+		m_connectionBarTread->join();
 	}
 	delete ui;
 }
@@ -186,48 +186,6 @@ void MainWindow::removeClient(int clientID)
 	m_clientList->removeClient(clientID);
 }
 
-void updateTextBrowser(QTextBrowser *tb, const QString &msg)
-{
-	QScrollBar *scrollbar = tb->verticalScrollBar();
-	bool scrollbarAtBottom = (scrollbar->value() >= (scrollbar->maximum() - 4));
-	int scrollbarPrevValue = scrollbar->value();
-	tb->setText(tb->toPlainText() + msg);
-	if (scrollbarAtBottom)
-		scrollbar->setValue(scrollbar->maximum());
-	else
-		scrollbar->setValue(scrollbarPrevValue);
-}
-
-void MainWindow::launchProgram(int senderID, const QString &senderDescription, vrb::Program programID, const std::vector<std::string> &args)
-{
-	bool execute = ui->autostartCheckBox->isChecked();
-	if (!execute)
-		execute = askForPermission(senderDescription, programID);
-	if (execute)
-	{
-		std::cerr << "launching " << vrb::programNames[programID] << std::endl;
-		m_remoteLauncher.sendPermission(senderID, true);
-
-		auto textArea = new QScrollArea(this);
-		textArea->setWidgetResizable(true);
-
-		auto textBrowser = new QTextBrowser(textArea);
-		textArea->setWidget(textBrowser);
-		static int numSpawns = 0;
-		++numSpawns;
-		auto index = ui->childTabs->addTab(textArea, programNames[programID] + QString{" "} + QString::number(numSpawns));
-		m_remoteLauncher.spawnProgram(
-			programID, args, [textBrowser](const QString &msg)
-			{
-				updateTextBrowser(textBrowser, msg);
-			},
-			[this, index]()
-			{ ui->childTabs->removeTab(index); });
-	}
-	else
-		m_remoteLauncher.sendPermission(senderID, false);
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 	if (ui->backgroundCheckBox->isChecked())
@@ -293,7 +251,20 @@ void MainWindow::setRemoteLauncherCallbacks()
 			});
 	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
-	connect(&m_remoteLauncher, &CoviseDaemon::launchSignal, this, &MainWindow::launchProgram);
+	connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
+			{
+				auto childOutput = std::find(m_childOutputs.begin(), m_childOutputs.end(), childId);
+				if (childOutput == m_childOutputs.end())
+				{
+					childOutput = m_childOutputs.emplace(m_childOutputs.end(), childId, ui->childTabs);
+				}
+				childOutput->addText(txt);
+			});
+
+	connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
+			{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
+	m_remoteLauncher.setLaunchRequestCallback([this](const QString &request)
+											  { return askForPermission(request); });
 }
 
 void MainWindow::initClientList()
@@ -412,38 +383,46 @@ void MainWindow::createTrayIcon()
 
 void MainWindow::showConnectionProgressBar(int seconds)
 {
-	int resolution = 2;
-	ui->progressBar->reset();
-	ui->progressBar->setRange(0, resolution * seconds);
-	ui->progressBar->setVisible(true);
-	if (m_waitFuture.valid())
+	if (m_connectionBarTread && m_connectionBarTread->joinable())
 	{
-		m_waitFuture.get();
+		return;
 	}
+	m_connectionBarTread.reset(new std::thread([this, seconds]()
+											   {
+												   std::future<void> waitFuture;
 
-	m_waitFuture = std::async(std::launch::async, [this, seconds, resolution]()
-							  {
-								  while (m_isConnecting)
-								  {
-									  QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
-									  std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
-								  }
-							  });
+												   int resolution = 2;
+												   ui->progressBar->reset();
+												   ui->progressBar->setRange(0, resolution * seconds);
+												   ui->progressBar->setVisible(true);
+												   if (waitFuture.valid())
+												   {
+													   waitFuture.get();
+												   }
+
+												   waitFuture = std::async(std::launch::async, [this, seconds, resolution]()
+																		   {
+																			   while (m_isConnecting)
+																			   {
+																				   QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
+																				   std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
+																			   }
+																		   });
+											   }));
 }
 
-bool MainWindow::askForPermission(const QString &senderDescription, vrb::Program programID)
+bool MainWindow::askForPermission(const QString &request)
 {
+	if (ui->autostartCheckBox->isChecked())
+		return true;
+
 	bool wasVisible = isVisible();
 	show(); //if main window is not visible showing the message box may crash
-
-	QString text;
-	QTextStream ss(&text);
-	ss << "Host " << senderDescription << " requests execution of " << vrb::programNames[programID] << ".";
 
 	QMessageBox msgBox{this};
 	msgBox.setMinimumSize(200, 200);
 	msgBox.setWindowTitle("Application execution request");
-	msgBox.setText(text);
+	msgBox.setText(request);
 	msgBox.setInformativeText("Do you want to execute this application?");
 	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	msgBox.setDefaultButton(QMessageBox::Ok);

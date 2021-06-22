@@ -84,7 +84,7 @@ public:
     int getIndex(MEParameterPort *);
     int getHostID()
     {
-        return host->clientId;
+        return host->clientId();
     };
     int getNodeID()
     {

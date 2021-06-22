@@ -107,6 +107,8 @@ RemoteHost::ProcessList::iterator RemoteHost::end()
 
 bool RemoteHost::startCrb()
 {
+    if (!askForPermission())
+        return false;
     try
     {
         auto m = m_processes.emplace(m_processes.end(), new CRBModule{*this});
@@ -147,6 +149,22 @@ bool RemoteHost::startCrb()
 void RemoteHost::connectShm(const CRBModule &crbModule)
 {
     //only needed for localhost
+}
+
+bool RemoteHost::askForPermission()
+{
+    if (m_exectype == ExecType::VRB)
+    {
+        covise::VRB_PERMIT_LAUNCH_Ask ask{hostManager.getVrbClient().ID(), ID(), vrb::Program::crb};
+        sendCoviseMessage(ask, hostManager.getVrbClient());
+        if (!hostManager.launchOfCrbPermitted())
+        {
+            Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};
+            hostManager.getMasterUi().send(&m);
+            return false;
+        }
+    }
+    return true;
 }
 
 void RemoteHost::determineAvailableModules(const CRBModule &crb)
@@ -262,21 +280,6 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
     return app;
 }
 
-bool RemoteHost::get_mark() const
-{
-    return m_saveInfo;
-}
-
-void RemoteHost::reset_mark()
-{
-    m_saveInfo = false;
-}
-
-void RemoteHost::mark_save()
-{
-    m_saveInfo = true;
-}
-
 bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
 {
 
@@ -284,14 +287,7 @@ bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cm
     {
     case controller::ExecType::VRB:
     {
-        vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), std::vector<std::string>{}, cmdArgs}, &hostManager.getVrbClient());
-        if (!hostManager.launchOfCrbPermitted())
-        {
-            Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};
-            hostManager.getMasterUi().send(&m);
-            removePartner();
-            return false;
-        }
+        vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), std::vector<std::string>{}, cmdArgs, static_cast<int>(m_code)}, &hostManager.getVrbClient());
     }
     break;
     case controller::ExecType::Manual:
@@ -322,6 +318,11 @@ LocalHost::LocalHost(const HostManager &manager, vrb::Program type, const std::s
 void LocalHost::connectShm(const CRBModule &crbModule)
 {
     CTRLGlobal::getInstance()->controller->get_shared_memory(crbModule.conn());
+}
+
+bool LocalHost::askForPermission()
+{
+    return true;
 }
 
 covise::LaunchStyle RemoteHost::state() const
@@ -374,19 +375,27 @@ RemoteHost::RemoteHost(const HostManager &manager, vrb::RemoteClient &&base)
 
 bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequired)
 {
-    m_state = action;
     m_isProxy = proxyRequired;
+    bool retval = false;
     switch (action)
     {
     case covise::LaunchStyle::Partner:
-        return addPartner();
+        retval = addPartner();
+        break;
     case covise::LaunchStyle::Host:
-        return startCrb();
+        retval = startCrb();
+        break;
     case covise::LaunchStyle::Disconnect:
-        return removePartner();
+        retval = removePartner();
+        break;
     default:
-        return false;
+        retval = false;
     }
+    if (retval)
+    {
+        m_state = action;
+    }
+    return retval;
 }
 
 bool RemoteHost::addPartner()
@@ -442,6 +451,7 @@ bool RemoteHost::removePartner()
         clearProcesses();
         // notify the other CRBs
         msg = Message{COVISE_MESSAGE_CRB_QUIT, userInfo().ipAdress};
+        m_state = LaunchStyle::Disconnect;
         for (const auto &host : hostManager)
         {
             if (host.second->state() != LaunchStyle::Disconnect) //this->m_state should already be set to Disconnect
@@ -462,6 +472,11 @@ bool RemoteHost::removePartner()
 bool RemoteHost::proxyHost() const
 {
     return m_isProxy;
+}
+
+void RemoteHost::setCode(int code)
+{
+    m_code = code;
 }
 
 void RemoteHost::clearProcesses()
@@ -503,10 +518,9 @@ void HostManager::sendPartnerList() const
     sendAll<Userinterface>(msg);
 }
 
-std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg)
+void HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg, const std::string &netFilename)
 {
 
-    std::vector<bool> retval;
     for (auto clID : msg.clients)
     {
         auto hostIt = m_hosts.find(clID);
@@ -518,11 +532,27 @@ std::vector<bool> HostManager::handleAction(const covise::NEW_UI_HandlePartners 
             {
                 proxyRequired = checkIfProxyRequiered(clID, hostIt->second->userInfo().hostName);
             }
-            retval.push_back(hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired));
+            if (hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired) && msg.launchStyle == LaunchStyle::Partner)
+            {
+                const auto &ui = dynamic_cast<const Userinterface &>(hostIt->second->getProcess(sender_type::USERINTERFACE));
+
+                ui.sendCurrentNetToUI(netFilename);
+                // add displays for the existing renderers on the new partner
+                for (const auto &renderer : getAllModules<Renderer>())
+                {
+                    if (renderer->isOriginal())
+                    {
+                        renderer->addDisplayAndHandleConnections(ui);
+                    }
+                }
+            }
+            if (clID < 0 && msg.launchStyle == LaunchStyle::Disconnect) //the deamon already disconnected
+            {
+                m_hosts.erase(hostIt);
+            }
         }
     }
     sendPartnerList();
-    return retval;
 }
 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)
@@ -750,12 +780,17 @@ std::unique_ptr<Message> HostManager::receiveProxyMessage()
     if (m)
         return m;
 
-    if(m_proxyConnection->check_for_input())
+    if (m_proxyConnection->check_for_input())
     {
         m.reset(new Message{});
         m_proxyConnection->recv_msg(m.get());
     }
     return m;
+}
+
+std::mutex &HostManager::mutex() const
+{
+    return m_mutex;
 }
 
 bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
@@ -876,7 +911,24 @@ bool HostManager::handleVrbMessage()
     case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
     {
         covise::VRB_PERMIT_LAUNCH permission{msg};
-        m_launchPermission.setValue(permission.permit);
+        switch (permission.type)
+        {
+        case VRB_PERMIT_LAUNCH_TYPE::Answer:
+        {
+            auto &answer = permission.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
+            if (auto h = getHost(answer.launcherID))
+            {
+                h->setCode(answer.code);
+                m_launchPermission.setValue(answer.permit);
+            }
+            else
+                std::cerr << "received VRB_PERMIT_LAUNCH_Answer from unknown coviseDaemon with clientID " << answer.launcherID << std::endl;
+        }
+        break;
+
+        default:
+            break;
+        }
     }
     break;
     case COVISE_MESSAGE_PROXY:
@@ -909,14 +961,27 @@ bool HostManager::handleVrbMessage()
                 auto clIt = m_hosts.find(id);
                 if (clIt != m_hosts.end())
                 {
-                    if (clIt->second->state() == LaunchStyle::Disconnect)
+                    if (clIt->second->state() != LaunchStyle::Disconnect)
                     {
-                        m_hosts.erase(clIt);
+                        int i = -1;
+                        while (true)
+                        {
+                            auto hostsToRemove = m_hosts.find(i);
+                            if (hostsToRemove != m_hosts.end())
+                            {
+                                ++i;
+                            }
+                            else
+                            {
+                                NEW_UI_ChangeClientId c{clIt->second->ID(), i};
+                                clIt->second->setID(i);
+                                sendAll<Userinterface>(c.createMessage());
+                                m_hosts[i] = std::move(clIt->second);
+                                break;
+                            }
+                        }
                     }
-                    else
-                    {
-                        //disconnect partner
-                    }
+                    m_hosts.erase(clIt);
                 }
             }
             sendPartnerList();
@@ -959,4 +1024,4 @@ void HostManager::moveRendererInNewSessions()
         covise::Message sessionUpdate{COVISE_MESSAGE_VRBC_CHANGE_SESSION, tb.getData()};
         rend->send(&sessionUpdate);
     }
-}   
+}

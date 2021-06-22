@@ -50,7 +50,8 @@ class MEHost
 public:
     MEHost(int clientId, const std::string &name, const std::string & user);
     ~MEHost();
-    const int clientId;
+    int clientId() const;
+    void setClientId(int clientID);
     QVector<MECategory *> catList; // list of categories
     QVector<MEHost *> mirrorList; // list of hosts for mirroring
 
@@ -146,6 +147,7 @@ private:
     QString ipname; // ip address
     QColor hostcolor; // current color for host
     MEHostTreeItem *modroot;
+    int m_clientId = 0;
 };
 
 Q_DECLARE_METATYPE(MEHost *);

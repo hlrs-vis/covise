@@ -242,7 +242,6 @@ void CTRLHandler::loop()
 //!
 void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
 {
-
     string copyMessageData;
 
     //  copy message to a secure place
@@ -254,6 +253,7 @@ void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
     if (m_quitNow)
         msg->type = COVISE_MESSAGE_QUIT;
     CTRLGlobal *global = CTRLGlobal::getInstance();
+    std::lock_guard<std::mutex>(m_hostManager.mutex());
     switch (msg->type)
     {
     case COVISE_MESSAGE_EMPTY:
@@ -2102,29 +2102,10 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
     case NEW_UI_TYPE::HandlePartners:
     {
         auto &handlePartnerMsg = msg.unpackOrCast<NEW_UI_HandlePartners>();
-        auto errors = m_hostManager.handleAction(handlePartnerMsg);
-        assert(errors.size() == handlePartnerMsg.clients.size());
-        if (handlePartnerMsg.launchStyle == LaunchStyle::Partner)
-        {
-            for (size_t i = 0; i < errors.size(); i++)
-            {
-                if (errors[i])
-                {
-                    const auto &ui = dynamic_cast<const Userinterface &>(m_hostManager.getHost(handlePartnerMsg.clients[i])->getProcess(sender_type::USERINTERFACE));
-
-                    ui.sendCurrentNetToUI(m_globalFilename);
-                    // add displays for the existing renderers on the new partner
-                    for (const auto &renderer : m_hostManager.getAllModules<Renderer>())
-                    {
-                        if (renderer->isOriginal())
-                        {
-                            renderer->addDisplayAndHandleConnections(ui);
-                        }
-                    }
-                }
-            }
-        }
+        m_hostManager.handleAction(handlePartnerMsg, m_globalFilename);
         sendCollaborativeState();
+
+
         //inform ui that the connection process is over
         NEW_UI_ConnectionCompleted cmsg{0};
         auto m = cmsg.createMessage();

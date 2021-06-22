@@ -271,7 +271,7 @@ void coVRTcpSlave::start()
         args.push_back(std::to_string(port));
         args.push_back(hn);
 
-        vrb::VRB_MESSAGE msg{0, vrb::Program::opencover, 0, env, args};
+        vrb::VRB_MESSAGE msg{0, vrb::Program::opencover, 0, env, args, 0};
         vrb::sendCoviseMessage(msg, clientConn);
     }
     else if (strncmp(command.c_str(), "covRemote", 9) == 0)

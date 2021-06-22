@@ -9,6 +9,7 @@
 #define MainWindow_H
 
 #include "coviseDaemon.h"
+#include "childOutput.h"
 
 #include <QMainWindow>
 
@@ -51,7 +52,6 @@ private slots:
     void setStateConnected();
     void updateClient(int clientID, QString clientInfo);
     void removeClient(int clientID);
-    void launchProgram(int senderID, const QString& senderDescription, vrb::Program programID, const std::vector<std::string> &args);
     void closeEvent(QCloseEvent* event) override;
 
 signals:
@@ -63,7 +63,7 @@ private:
     QSystemTrayIcon* m_tray = nullptr;
     std::mutex m_mutex;
     std::atomic_bool m_isConnecting{false};
-    std::future<void> m_waitFuture;
+    std::unique_ptr<std::thread> m_connectionBarTread;
     ClientWidgetList *m_clientList;
     CoviseDaemon m_remoteLauncher;
     covise::coConfigGroup *cdConfig;
@@ -73,6 +73,7 @@ private:
     covise::coConfigBool cfgBackground;
     covise::coConfigBool cfgMinimized;
     covise::coConfigString cfgArguments;
+    std::vector<ChildOutput> m_childOutputs;
     void initConfigSettings();
 
     void initUi(const vrb::VrbCredentials &credentials);
@@ -88,7 +89,7 @@ private:
     void createTrayIcon();
 
     void showConnectionProgressBar(int seconds);
-    bool askForPermission(const QString &senderDescription, vrb::Program programID);
+    bool askForPermission(const QString &request);
     
     void saveOptions();
 

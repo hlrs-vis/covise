@@ -11,7 +11,7 @@
 
 namespace vrb{
 
-IMPL_MESSAGE_CLASS(VRB_MESSAGE, int, senderID, Program, program, int, clientID, std::vector<std::string>, environment, std::vector<std::string>, args)
+IMPL_MESSAGE_CLASS(VRB_MESSAGE, int, senderID, Program, program, int, clientID, std::vector<std::string>, environment, std::vector<std::string>, args, int, code)
 
 bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, const covise::MessageSenderInterface *sender){
     covise::TokenBuffer outerTb, innerTb;

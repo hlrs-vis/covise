@@ -1155,6 +1155,16 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
         emit MEMainHandler::instance()->activatePartnerDialogue();
     }
     break;
+    case NEW_UI_TYPE::ChangeClientId:
+    {
+        auto &c = msg.unpackOrCast<NEW_UI_ChangeClientId>();
+        MEHost *host = MEHostListHandler::instance()->getHost(c.oldId);
+        if (host)
+            host->setClientId(c.newId);
+        else
+            std::cerr << "host " << c.oldId << "not found" << std::endl;
+    }
+    break;
     default:
         break;
     }

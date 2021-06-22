@@ -49,7 +49,7 @@ MEHost *MEHostListHandler::getHost(int id)
 {
     foreach (MEHost *nptr, hostList)
     {
-        if (nptr->clientId == id)
+        if (nptr->clientId() == id)
             return nptr;
     }
 
@@ -117,7 +117,7 @@ int MEHostListHandler::getClientId(const QString &sname)
     foreach (MEHost *nptr, hostList)
     {
         if (nptr->getHostname() == sname)
-            return nptr->clientId;
+            return nptr->clientId();
     }
     return 0;
 }
@@ -198,7 +198,7 @@ int MEHostListHandler::getHostID(const QString &user, const QString &host)
     foreach (MEHost *nptr, hostList)
     {
         if (nptr->getHostname() == host && nptr->getUsername() == user)
-            return (nptr->clientId);
+            return (nptr->clientId());
     }
 
     return (-1);

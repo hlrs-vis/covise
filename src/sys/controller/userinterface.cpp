@@ -160,10 +160,7 @@ void Userinterface::updateUI()
     });
     for (const CRBModule *crb : crbs)
     {
-        if (crb->host.state() != LaunchStyle::Disconnect)
-        {
-            send(&crb->initMessage);
-        }
+        send(&crb->initMessage);
     }
 }
 

@@ -47,7 +47,7 @@ MEHostTreeItem::~MEHostTreeItem()
 */
 
 MEHost::MEHost(int clientId,const std::string &name, const std::string & user)
-    : clientId(clientId)
+    : m_clientId(clientId)
     , username(user.c_str())
     , ipname(name.c_str())
 {
@@ -83,6 +83,16 @@ MEHost::~MEHost()
         delete modroot;
 
     numHosts--;
+}
+
+int MEHost::clientId() const
+{
+    return m_clientId;
+}
+
+void MEHost::setClientId(int clientID)
+{
+    m_clientId = clientID;
 }
 
 //!
