@@ -64,6 +64,7 @@ private:
     bool keepPositionInScene;
     float distanceFromCamera;
     bool moveToCam;
+    bool depthScale;
 
     osg::Vec3f moveToCamera(const osg::Vec3f &point, float distance);
 
@@ -134,6 +135,8 @@ public:
     // RotationMode _mode;
 
     void update();
+
+    void setDepthScale(bool s) { depthScale = s; }
 };
 }
 #endif

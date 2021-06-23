@@ -1101,6 +1101,11 @@ void RevitPlugin::createMenu()
 	viewpointGroup = new ui::ButtonGroup(viewpointMenu, "revitViewpoints");
 	viewsCombo = new ui::SelectionList(revitMenu, "views");
 
+	toggleRoomLabels = new ui::Button(roomInfoMenu, "Show Labels");
+	toggleRoomLabels->setCallback([this](bool state) {for (const auto& r : roomInfos) { if (state) r->label->show(); else r->label->hide(); }});
+	toggleRoomLabels->setState(false);
+
+
 	label1 = new ui::Label(roomInfoMenu,"RoomInfoLabel1");
 	label1->setText("No Room");
 
@@ -1567,6 +1572,7 @@ RevitPlugin::handleMessage(Message *m)
 		viewsCombo->setList(items);
 	}
 	break;
+	
     case MSG_Finished:
     {
         for (auto Mat = MaterialInfos.begin(); Mat != MaterialInfos.end(); Mat++)
@@ -1944,6 +1950,12 @@ RevitPlugin::handleMessage(Message *m)
 			}
 		}
 		ElementIDMap.clear();
+
+		for (auto& iter : roomInfos)
+		{
+			delete iter;
+		}
+		roomInfos.clear();
 		for (std::map<int, MaterialInfo *>::iterator it = MaterialInfos.begin(); it != MaterialInfos.end(); it++)
 		{
 			delete (it->second);
@@ -2169,6 +2181,42 @@ RevitPlugin::handleMessage(Message *m)
 		}
 		break;
 	}
+	case MSG_AddRoomInfo:
+	{
+		TokenBuffer tb(m);
+		int ID;
+		int documentID;
+		tb >> ID;
+		tb >> documentID;
+		char* name;
+		tb >> name;
+		double area;
+		tb >> area;
+		float x, y, z;
+		tb >> x;
+		tb >> y;
+		tb >> z;
+		osg::Vec3 pos(x, y, z);
+		bool foundIt = false;
+		for (const auto& it : roomInfos)
+		{
+			if (it->ID == ID && it->documentID == documentID)
+			{
+				foundIt = true;
+				RevitRoomInfo* room = it;
+				room->area = area;
+				room->name = name;
+				room->textPosition = pos;
+				room->updateBillboard();
+				break;
+			}
+		}
+		if (!foundIt)
+		{
+			roomInfos.push_back(new RevitRoomInfo(pos, name, ID, documentID, area));
+		}
+	}
+	break;
 	case MSG_AddView:
 	{
 		TokenBuffer tb(m);
@@ -3702,3 +3750,32 @@ bool DoorInfo::update(osg::Vec3 &viewerPosition)
 	return true;
 }
 
+
+RevitRoomInfo::RevitRoomInfo(osg::Vec3 pos, std::string n, int id, int docID, double a)
+{
+	name = n;
+	textPosition = pos;
+	ID = id;
+	documentID = docID;
+	area = a;
+	label = nullptr;
+	updateBillboard();
+}
+RevitRoomInfo::~RevitRoomInfo()
+{
+	delete label;
+}
+void RevitRoomInfo::updateBillboard()
+{
+	osg::Vec4 fgcolor(0.0f, 1.0f, 0.0f, 1.0f);
+	float fontSize = 0.02f * cover->getSceneSize();
+	delete label;
+	label = new coVRLabel(name.c_str(), 1, 1, fgcolor,VRViewer::instance()->getBackgroundColor());
+	label->setDepthScale(false);
+	label->reAttachTo(RevitPlugin::instance()->getCurrentGroup());
+	label->setPosition(textPosition);
+	if (RevitPlugin::instance()->toggleRoomLabels->state())
+		label->show();
+	else
+		label->hide();
+}

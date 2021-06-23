@@ -92,7 +92,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase, AddRoomInfo };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -769,6 +769,10 @@ namespace OpenCOVERPlugin
             if (elem is Autodesk.Revit.DB.View)
             {
                 sendViewpoint(elem);
+            }
+            else if (elem is Autodesk.Revit.DB.Architecture.Room)
+            {
+                sendRoom(elem);
             }
             if (elem.IsHidden(View3D))
             {
@@ -1937,6 +1941,26 @@ namespace OpenCOVERPlugin
             }
             else
             {
+            }
+        }
+
+        private void sendRoom(Autodesk.Revit.DB.Element elem)
+        {
+            Autodesk.Revit.DB.Architecture.Room room = (Autodesk.Revit.DB.Architecture.Room)elem;
+            if(room!=null)
+            {
+                Autodesk.Revit.DB.LocationPoint ElementPosPoint = room.Location as Autodesk.Revit.DB.LocationPoint;
+                if (ElementPosPoint != null)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(DocumentID);
+                    mb.add(room.Name);
+                    mb.add(room.Area);
+
+                    mb.add(ElementPosPoint.Point);
+                    sendMessage(mb.buf, MessageTypes.AddRoomInfo);
+                }
             }
         }
         private void sendTextNote(Autodesk.Revit.DB.Element elem)

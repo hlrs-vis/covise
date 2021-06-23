@@ -45,6 +45,7 @@
 #include <cover/ui/Group.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/coVRLabel.h>
 
 #include "IK/CRobot.h"
 #include "IK/CAlgoFactory.h"
@@ -133,6 +134,23 @@ private:
     osg::Vec3 viewDirection;
     osg::Vec3 upDirection;
     ui::Button * menuEntry = nullptr;
+};
+
+class RevitRoomInfo
+{
+public:
+    RevitRoomInfo(osg::Vec3 pos, std::string n, int id, int docID, double a);
+    virtual ~RevitRoomInfo();
+    void updateBillboard();
+
+    int ID;
+    int documentID;
+    bool isActive = false;
+    const std::string& getName()const { return name; };
+    std::string name;
+    osg::Vec3 textPosition;
+    double area;
+    coVRLabel* label;
 };
 
 class ElementInfo
@@ -446,7 +464,8 @@ public:
         MSG_SelectDesignOption = 533,
         MSG_IKInfo = 534,
         MSG_Phases = 535,
-        MSG_ViewPhase = 536
+        MSG_ViewPhase = 536,
+        MSG_AddRoomInfo = 537
     };
     enum ObjectTypes
     {
@@ -524,12 +543,15 @@ public:
     double TrueNorthAngle = 0.0;
     osg::Matrix NorthRotMat;
     osg::Matrix RevitScale;
+    osg::Group* getCurrentGroup() { return currentGroup.top(); };
+    ui::Button* toggleRoomLabels = nullptr;
 protected:
     static RevitPlugin *plugin;
     ui::Label *label1 = nullptr;
     ui::SelectionList* viewsCombo;
     ui::Menu *roomInfoMenu = nullptr;
-    std::vector<RevitViewpointEntry *> viewpointEntries;
+    std::vector<RevitViewpointEntry*> viewpointEntries;
+    std::vector<RevitRoomInfo*> roomInfos;
     ui::Action *addCameraButton = nullptr;
     ui::Action *updateCameraButton = nullptr;
 

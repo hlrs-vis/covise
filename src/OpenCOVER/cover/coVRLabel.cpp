@@ -79,7 +79,9 @@ coVRLabel::coVRLabel(const char *name, float fontsize, float lineLen, osg::Vec4 
     text->setCharacterSize(fontsize);
     text->setText(name, osgText::String::ENCODING_UTF8);
     text->setPosition(osg::Vec3(0, lineLen, 0));
+
     label->addDrawable(text);
+    label->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 
     osg::StateSet *linegeostate = label->getOrCreateStateSet();
     linegeostate->setAttributeAndModes(mtl, osg::StateAttribute::ON);
@@ -145,7 +147,7 @@ coVRLabel::coVRLabel(const char *name, float fontsize, float lineLen, osg::Vec4 
     quadgeostate->setAttributeAndModes(mtl, osg::StateAttribute::ON);
     quadgeostate->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-    if (bgc.a() < 1.0f)
+    if (bgc.a() < 0.9f)
     {
         quadgeostate->setMode(GL_BLEND, osg::StateAttribute::ON);
         quadgeostate->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
@@ -168,10 +170,10 @@ coVRLabel::coVRLabel(const char *name, float fontsize, float lineLen, osg::Vec4 
     quadGeoset->setNormalArray(normala);
     quadGeoset->setNormalBinding(osg::Geometry::BIND_OVERALL);
     qc = new osg::Vec3Array();
-    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMin() - h, -0.001 * cover->getSceneSize()));
-    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMin() - h, -0.001 * cover->getSceneSize()));
-    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMax() + h, -0.001 * cover->getSceneSize()));
-    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMax() + h, -0.001 * cover->getSceneSize()));
+    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMin() - h, -0.1 * fontsize));
+    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMin() - h, -0.1 * fontsize));
+    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMax() + h, -0.1 * fontsize));
+    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMax() + h, -0.1 * fontsize));
     quadGeoset->setVertexArray(qc);
     quadGeoset->addPrimitiveSet(primitives);
 
@@ -326,17 +328,17 @@ coVRLabel::update()
         pos = moveToCamera(pos, distanceFromCamera);
     }
 
-    osg::Vec3 viewerVec = cover->getViewerMat().getTrans();
-    osg::Vec3 viewerToPos = pos - viewerVec;
-
-    float depthFactor = viewerToPos.length() / viewerVec.length();
     osg::Matrix m;
     m.makeTranslate(pos[0], pos[1], pos[2] /*+(offset*depthFactor)*/);
     //float depthFactor = cover->getInteractorScale(pos)*cover->getScale();
 
     //depthFactor = fabs((pos[1] + viewerDist)/viewerDist);
-    if (!coVRConfig::instance()->orthographic())
+    if (!coVRConfig::instance()->orthographic() && depthScale)
     {
+        osg::Vec3 viewerVec = cover->getViewerMat().getTrans();
+        osg::Vec3 viewerToPos = pos - viewerVec;
+
+        float depthFactor = viewerToPos.length() / viewerVec.length();
         m.preMult(osg::Matrix::scale(depthFactor, depthFactor, depthFactor));
     }
     posTransform->setMatrix(m);
@@ -389,10 +391,10 @@ coVRLabel::setString(const char *name)
     //(*qc)[0].set(osg::Vec3(bb.xMin()-h, bb.yMax()+h, -0.001*cover->getSceneSize()));
 
     qc = new osg::Vec3Array();
-    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMin() - h, -0.001 * cover->getSceneSize()));
-    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMin() - h, -0.001 * cover->getSceneSize()));
-    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMax() + h, -0.001 * cover->getSceneSize()));
-    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMax() + h, -0.001 * cover->getSceneSize()));
+    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMin() - h, -0.1 * text->getCharacterHeight()));
+    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMin() - h, -0.1 * text->getCharacterHeight()));
+    qc->push_back(osg::Vec3(bb.xMax() + h, bb.yMax() + h, -0.1 * text->getCharacterHeight()));
+    qc->push_back(osg::Vec3(bb.xMin() - h, bb.yMax() + h, -0.1 * text->getCharacterHeight()));
 
     quadGeoset->setVertexArray(qc);
     quadGeoset->dirtyDisplayList();
