@@ -80,6 +80,8 @@ int ControllerProxyConn::recv_uncached_msg(Message *msg, char *ip) const
                               { return c->get_sender_id() == msg->sender; });
     if (proxy != m_proxies.end())
     {
+        if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
+            removeProxy(proxy->get());
         msg->conn = &**proxy;
     }
     else if (msg->send_type != VRB && msg->sender != Connection::sender_id)
@@ -99,9 +101,14 @@ ProxyConnection *ControllerProxyConn::addProxy(int portOnServer, int processId, 
 
 void ControllerProxyConn::removeProxy(ProxyConnection *proxy) const
 {
-    m_proxies.erase(std::remove_if(m_proxies.begin(), m_proxies.end(), [proxy](const std::unique_ptr<ProxyConnection> &c)
-                                   { return &*c == proxy; }),
-                    m_proxies.end());
+    auto p = std::find_if(m_proxies.begin(), m_proxies.end(), [proxy](const std::unique_ptr<ProxyConnection> &c)
+                          { return &*c == proxy; });
+    if (p != m_proxies.end())
+    {
+        for (const auto &cb : m_onRemoveCallbacks[p->get()])
+            cb();
+        m_proxies.erase(p);
+    }
 }
 
 std::unique_ptr<Message> ControllerProxyConn::getCachedMsg() const
@@ -113,4 +120,9 @@ std::unique_ptr<Message> ControllerProxyConn::getCachedMsg() const
     msg->copyAndReuseData(m_cachedMsgs.back());
     m_cachedMsgs.pop_back();
     return msg;
+}
+
+void ControllerProxyConn::addRemoveNotice(const ProxyConnection *conn, const std::function<void(void)> callback) const
+{
+    m_onRemoveCallbacks[conn].push_back(callback);
 }

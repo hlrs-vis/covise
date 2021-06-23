@@ -167,7 +167,9 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         std::unique_ptr<Message> msg{new Message{}};
         waitForProxyMsg(msg, *proxyConn);
         PROXY proxy{*msg};
-        m_conn = proxyConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
+        auto conn = proxyConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
+        proxyConn->addRemoveNotice(conn, [this](){ m_conn = nullptr; });
+        m_conn = conn;
         if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress))
         {
             waitForProxyMsg(msg, *proxyConn);

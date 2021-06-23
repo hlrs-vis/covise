@@ -38,11 +38,14 @@ struct ControllerProxyConn : ClientConnection
     ProxyConnection *addProxy(int portOnServer, int processId, sender_type type) const;
     void removeProxy(ProxyConnection *proxy) const;
     std::unique_ptr<Message> getCachedMsg() const;
+    void addRemoveNotice(const ProxyConnection *conn, const std::function<void(void)> callback) const;
 
 private:
     mutable std::vector<std::unique_ptr<ProxyConnection>> m_proxies;
     mutable std::deque<Message> m_cachedMsgs;
+    mutable std::map<const ProxyConnection *, std::vector<std::function<void(void)>>> m_onRemoveCallbacks;
     int recv_uncached_msg(Message *msg, char *ip = nullptr) const;
+
 };
 } // namespace controller
 
