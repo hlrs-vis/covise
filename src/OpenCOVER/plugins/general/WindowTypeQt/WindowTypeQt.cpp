@@ -158,12 +158,12 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #ifdef USE_X11_ICE
         IceSetIOErrorHandler(&iceIOErrorHandler);
 #endif
+        QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+        QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
         //qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
-        qApp->setAttribute(Qt::AA_UseDesktopOpenGL);
-        qApp->setAttribute(Qt::AA_ShareOpenGLContexts);
 #if QT_VERSION >= 0x050800
         qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
 #endif
