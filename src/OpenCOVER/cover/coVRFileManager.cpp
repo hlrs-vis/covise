@@ -972,7 +972,9 @@ void coVRFileManager::unloadFile(const char *file)
     START("coVRFileManager::unloadFile");
     if (file)
     {
-        auto it = m_files.find(file);
+        std::string validFileName(file);
+        convertBackslash(validFileName);
+        auto it = m_files.find(validFileName);
         if (it == m_files.end())
             return;
 
