@@ -263,11 +263,10 @@ VRSceneGraph::~VRSceneGraph()
 
     delete coVRShadowManager::instance();
 
-    int n = m_objectsRoot->getNumChildren();
-
-    for (int i = n - 1; i >= 0; i--)
+    while (m_objectsRoot->getNumChildren() > 0)
     {
-        osg::ref_ptr<osg::Node> thisNode = m_objectsRoot->getChild(i);
+        int n = m_objectsRoot->getNumChildren();
+        osg::ref_ptr<osg::Node> thisNode = m_objectsRoot->getChild(n-1);
         while (thisNode && thisNode->getNumParents() > 0)
             thisNode->getParent(0)->removeChild(thisNode.get());
     }
