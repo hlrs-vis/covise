@@ -25,13 +25,13 @@ namespace vrml
     class VRMLEXPORT VrmlNodeMovieTexture;
 typedef struct
 {
-    bool loop;
-    float speed;
-    double start;
-    double stop;
-    bool repeatS;
-    bool repeatT;
-    bool playing;
+    bool loop = false;
+    float speed = 1.f;
+    double start = 0.;
+    double stop = 0.;
+    bool repeatS = false;
+    bool repeatT = false;
+    bool playing = false;
     VrmlNodeMovieTexture *mtNode;
 } movieProperties;
 
