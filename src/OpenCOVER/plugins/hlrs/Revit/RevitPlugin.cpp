@@ -147,7 +147,7 @@ osg::Vec3 IKInfo::getOrientation()
 
 void IKInfo::intiIK()
 {
-	int numAxis = axis.size();
+	unsigned int numAxis = axis.size();
 	if (numAxis == 6)
 	{
 		numAxis = 4;
@@ -888,7 +888,7 @@ void RevitParameter::createUI(ui::Group *group, int pos)
 
 }
 
-RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id, int docID)
+RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id, int docID, osg::Group *myGroup)
 	: menuEntry(NULL)
 {
 	myPlugin = plugin;
@@ -896,7 +896,9 @@ RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3
 	entryNumber = plugin->maxEntryNumber++;
 	eyePosition = pos;
 	viewDirection = -dir;
+	viewDirection.normalize();
 	upDirection = up;
+	upDirection.normalize();
 	ID = id;
 	documentID = docID;
 
@@ -905,6 +907,7 @@ RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3
 	menuEntry->setState(false);
 	menuEntry->setCallback([this](bool state) {if (state) activate(); });
 	isActive = false;
+	myTransform = dynamic_cast<osg::MatrixTransform*>(myGroup);
 
 }
 
@@ -937,24 +940,25 @@ void RevitViewpointEntry::activate()
 	    menuEntry->setState(true);
 	isActive = true;
 	osg::Matrix mat, rotMat;
-	mat.makeTranslate(-eyePosition[0] * REVIT_FEET_TO_M, -eyePosition[1] * REVIT_FEET_TO_M, -eyePosition[2] * REVIT_FEET_TO_M);
-	//rotMat.makeRotate(-ori[3], Vec3(ori[0],ori[1],ori[2]));
-	rotMat.makeIdentity();
+	mat.makeTranslate(eyePosition[0], eyePosition[1], eyePosition[2]);
 	osg::Vec3 xDir = viewDirection ^ upDirection;
+	xDir.normalize();
 
-	rotMat(0, 0) = xDir[0];
-	rotMat(0, 1) = xDir[1];
-	rotMat(0, 2) = xDir[2];
-	rotMat(1, 0) = viewDirection[0];
-	rotMat(1, 1) = viewDirection[1];
-	rotMat(1, 2) = viewDirection[2];
-	rotMat(2, 0) = upDirection[0];
-	rotMat(2, 1) = upDirection[1];
-	rotMat(2, 2) = upDirection[2];
-	osg::Matrix irotMat;
-	irotMat.invert(rotMat);
-	mat.postMult(irotMat);
-	mat.preMult(osg::Matrix::rotate(myPlugin->TrueNorthAngle,osg::Vec3(0,0,-1)));
+	mat(0, 0) = xDir[0];
+	mat(0, 1) = xDir[1];
+	mat(0, 2) = xDir[2];
+	mat(1, 0) = viewDirection[0];
+	mat(1, 1) = viewDirection[1];
+	mat(1, 2) = viewDirection[2];
+	mat(2, 0) = upDirection[0];
+	mat(2, 1) = upDirection[1];
+	mat(2, 2) = upDirection[2];
+
+
+	osg::Matrix ivMat;
+	ivMat.invert(mat* myPlugin->RevitScale * myPlugin->NorthRotMat); // viewpoint positions are in the master project coordinate system, not in the local one.
+	//ivMat.invert(mat*myTransform->getMatrix());
+    ivMat =  ivMat * osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
 
 	osg::Matrix scMat;
 	osg::Matrix iscMat;
@@ -962,12 +966,12 @@ void RevitViewpointEntry::activate()
 	cover->setScale(scaleFactor);
 	scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
 	iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
-	mat.postMult(scMat);
-	mat.preMult(iscMat);
+	ivMat.postMult(scMat);
+	ivMat.preMult(iscMat);
 	osg::Matrix viewerTrans;
 	viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
-	mat.postMult(viewerTrans);
-	cover->setXformMat(mat);
+	ivMat.postMult(viewerTrans);
+	cover->setXformMat(ivMat);
 }
 
 void RevitViewpointEntry::updateCamera()
@@ -1300,8 +1304,7 @@ bool RevitPlugin::sendMessage(Message &m)
 {
 	if (toRevit) // false on slaves
 	{
-        if (toRevit->sendMessage(&m) > 0)
-            return true;
+		return toRevit->sendMessage(&m);
 	}
     return false;
 }
@@ -2265,7 +2268,7 @@ RevitPlugin::handleMessage(Message *m)
 		{
 
 			// add viewpoint to menu
-			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, documentID);
+			RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name, ID, documentID,currentGroup.top());
 			viewpointEntries.push_back(vpe);
 		/*	sort(viewpointEntries.begin(), viewpointEntries.end(), [](const RevitViewpointEntry *a, const RevitViewpointEntry *b) {
 				const std::string& an = a->getName();

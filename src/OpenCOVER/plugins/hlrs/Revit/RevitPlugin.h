@@ -112,7 +112,7 @@ public:
 class RevitViewpointEntry
 {
 public:
-    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,int docID);
+    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,int docID, osg::Group *myGroup);
     virtual ~RevitViewpointEntry();
     
     void setValues(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, std::string n);
@@ -130,6 +130,7 @@ public:
 private:
     std::string name;
     RevitPlugin *myPlugin = nullptr;
+    osg::MatrixTransform *myTransform;
     osg::Vec3 eyePosition;
     osg::Vec3 viewDirection;
     osg::Vec3 upDirection;
