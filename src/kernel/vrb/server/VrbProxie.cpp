@@ -183,6 +183,18 @@ void CoviseProxy::handleMessage(Message &msg)
       const auto proxy = m_proxies.find(msg.sender);
       if (proxy != m_proxies.end())
       {
+        while (proxy->second->check_for_input()) //handle module messages first in case of unhandled quit msg
+        {
+          Message m;
+          proxy->second->recv_msg(&m);
+          handleMessage(m);
+          if (isQuitMessage(m))
+          {
+            std::cerr << "found quit msg before controller msg" << std::endl;
+            return;
+          }
+        }
+
         proxy->second->sendMessage(&msg);
         if (msg.type == COVISE_MESSAGE_QUIT)
         {
