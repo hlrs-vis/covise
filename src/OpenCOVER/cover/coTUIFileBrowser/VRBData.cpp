@@ -136,8 +136,7 @@ void VRBData::reqDirUp(std::string /*basePath*/)
 
 vrb::VRBClient *VRBData::getVRB()
 {
-    // Using vrbc from OpenCOVER.h
-    return vrbc;
+    return OpenCOVER::instance()->vrbc();
 }
 
 void VRBData::setId(int id)

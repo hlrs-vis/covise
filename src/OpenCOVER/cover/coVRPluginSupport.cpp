@@ -416,24 +416,6 @@ opencover::coVRMessageSender *coVRPluginSupport::getSender()
     return this;
 }
 
-void coVRPluginSupport::connectToCovise(bool connected)
-{
-	if (coVRMSController::instance()->isMaster())
-	{
-		coVRMSController::instance()->sendSlaves((bool*)&connected, sizeof(connected));
-	}
-	else
-	{
-		coVRMSController::instance()->readMaster((bool*)& connected, sizeof(connected));
-	}
-	m_connectedToCovise = connected;
-}
-
-bool coVRPluginSupport::connectedToCovise()
-{
-    return m_connectedToCovise;
-}
-
 bool coVRPluginSupport::sendGrMessage(const coGRMsg &gr, int msgType) const
 {
     std::string s = gr.getString();
@@ -1449,7 +1431,7 @@ bool coVRPluginSupport::isHighQuality() const
 
 bool coVRPluginSupport::isVRBconnected()
 {
-    return vrbc->isConnected();
+    return OpenCOVER::instance()->isVRBconnected();
 }
 
 void coVRPluginSupport::protectScenegraph()
@@ -1459,7 +1441,7 @@ void coVRPluginSupport::protectScenegraph()
 
 bool coVRPluginSupport::sendVrbMessage(const covise::MessageBase *msg) const
 {
-    if(vrbc)
+    if(const auto vrbc = OpenCOVER::instance()->vrbc())
     {
         vrbc->send(msg);
         return true;

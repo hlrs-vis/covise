@@ -124,7 +124,6 @@ public:
     {
         return (numSlaves > 0);
     };
-	void setStartSession(const std::string& sessionName);
     int readMaster(void *c, int n, bool mcastOverTCP);
     int readMaster(void *c, int n);
     int readMasterDraw(void *c, int n, bool mcastOverTCP);
@@ -200,7 +199,6 @@ public:
 #endif
 
 private:
-	std::string startSession;
     bool debugLevel(int l) const;
     int m_debugLevel;
     bool master;
@@ -236,7 +234,6 @@ private:
     int multicastMaxLength;
 
     int magicFd; // filedescriptor for magic sync
-
     covise::Socket *socket;
     covise::Socket *socketDraw;
     coVRSlave *slaves[MAX_NUMBER_OF_SLAVES];

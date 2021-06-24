@@ -524,12 +524,8 @@ public:
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
     opencover::coVRMessageSender *getSender();
-	void connectToCovise(bool connected);
-	bool connectedToCovise();
-
     bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
 private:
-	bool m_connectedToCovise = false;
     void setFrameRealTime(double ft);
 
     float scaleFactor; ///< scale depending on viewer-screen FOV

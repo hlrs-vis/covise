@@ -588,15 +588,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
         rtb << TABLET_SET_VALUE;
         rtb << TABLET_SET_VRBSTAT;
         rtb << ID;
-
-        if (vrbc != NULL && vrbc->isConnected())
-        {
-            rtb << (int)true;
-        }
-        else
-        {
-            rtb << (int)false;
-        }
+        rtb << static_cast<int>(OpenCOVER::instance()->isVRBconnected());
 
         tui()->send(rtb);
     }

@@ -639,11 +639,6 @@ void coVRMSController::setDrawStatistics(bool enable)
     m_drawStatistics = enable;
 }
 
-void coVRMSController::setStartSession(const std::string& sessionName)
-{
-	startSession = sessionName;
-}
-
 void coVRMSController::checkMark(const char *file, int line)
 {
     cerr << file << line << endl;
@@ -2512,17 +2507,16 @@ bool coVRMSController::syncVRBMessages()
 	UdpMessage* udpMsg = new UdpMessage;
 	if (master)
 	{
-		if (vrbc && vrbc->isConnected())
+		if (OpenCOVER::instance()->isVRBconnected())
 		{
 			//poll tcp messages
-			while (vrbc->poll(vrbMsg))
+			while (OpenCOVER::instance()->vrbc()->poll(vrbMsg))
 			{
 				vrbMsgs[numVrbMessages] = vrbMsg;
 				numVrbMessages++;
                 if (vrbMsg->type == COVISE_MESSAGE_SOCKET_CLOSED)
                 {
-                    delete vrbc;
-                    vrbc = nullptr;
+                    OpenCOVER::instance()->restartVrbc();
                     return false;
                 }
 
@@ -2532,11 +2526,11 @@ bool coVRMSController::syncVRBMessages()
 					cerr << "too many VRB Messages!!" << endl;
 					break;
 				}
-				if (!vrbc->isConnected())
+				if (!OpenCOVER::instance()->isVRBconnected())
 					break;
 			}
 			//poll udp messages
-			while (vrbc->pollUdp(udpMsg))
+			while (OpenCOVER::instance()->vrbc()->pollUdp(udpMsg))
 			{
 				udpMsgs[numUdpMessages] = udpMsg;
 				numUdpMessages++;
@@ -2547,7 +2541,7 @@ bool coVRMSController::syncVRBMessages()
 					break;
 				}
                 cerr << "received udp msg from client " << udpMsg->sender << ": " << udpMsg->type << "" << endl;
-				if (!vrbc->isConnected())
+				if (!OpenCOVER::instance()->isVRBconnected())
 					break;
 			}
 		}
@@ -2564,10 +2558,7 @@ bool coVRMSController::syncVRBMessages()
 				{
 					fprintf(stderr, "trying to establish VRB connection\n");
 				}
-
-				if (vrbc == NULL)
-					vrbc = new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(),false,true);
-				vrbc->connectToServer(startSession);
+                OpenCOVER::instance()->startVrbc();
 				oldSec = curSec;
 			}
 		}

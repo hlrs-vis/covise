@@ -52,8 +52,6 @@ class coVRPlugin;
 class coTabletUI;
 class coTUITabFolder;
 
-extern COVEREXPORT vrb::VRBClient *vrbc;
-
 class COVEREXPORT OpenCOVER
 {
 private:
@@ -129,6 +127,11 @@ public:
     bool watchFileDescriptor(int fd);
     //! remove fd from filedescriptors to watch
     bool unwatchFileDescriptor(int fd);
+    const vrb::VRBClient *vrbc() const;
+    vrb::VRBClient *vrbc();
+    void startVrbc();
+    void restartVrbc();
+    bool isVRBconnected() const;
 
 private:
 #ifdef HAS_MPI
@@ -138,6 +141,8 @@ private:
     bool m_initialized = false;
     std::vector<coTabletUI *> tabletUIs;
     std::vector<coTUITabFolder *> tabletTabs;
+    std::unique_ptr<vrb::VRBClient> m_vrbc;
+	std::string m_startSession;
 
     std::set<int> m_watchedFds;
 };

@@ -391,7 +391,7 @@ void coVRCollaboration::showCollaborative(bool visible)
 
 float coVRCollaboration::getSyncInterval()
 {
-    if (vrbc)
+    if (auto vrbc = OpenCOVER::instance()->vrbc())
     {
         if (syncInterval < vrbc->getSendDelay() * 2.0)
             return vrbc->getSendDelay() * 2.0;

@@ -161,10 +161,8 @@ void coVRCommunication::toggleClientState(bool state){
         m_vrbMenu->updateState(false);
         me()->setSession(vrb::SessionID());
         m_privateSessionID = vrb::SessionID();
-        vrbc->shutdown();
-        delete vrbc;
-        //std::this_thread::sleep_for(std::chrono::seconds(2));
-        vrbc = new vrb::VRBClient(Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true);
+        OpenCOVER::instance()->vrbc()->shutdown();
+        OpenCOVER::instance()->restartVrbc();
         coVRCollaboration::instance()->updateSharedStates();
     }
     connected = state;
@@ -444,10 +442,7 @@ void coVRCommunication::handleVRB(const Message &msg)
 {
 	//fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
 
-    if (!vrbc) 
-	{
-        vrbc = new VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true);
-    }
+    OpenCOVER::instance()->startVrbc();
     TokenBuffer tb(&msg);
     switch (msg.type)
     {
@@ -457,7 +452,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         if (uim.hasMyInfo)      
         {
             me()->setID(uim.myClientID);
-            vrbc->setID(uim.myClientID);
+            OpenCOVER::instance()->vrbc()->setID(uim.myClientID);
             connected();
             m_privateSessionID = uim.myPrivateSession;
             coVRPartnerList::instance()->setSessionID(me()->ID(), uim.mySession);
@@ -729,7 +724,7 @@ void coVRCommunication::handleVRB(const Message &msg)
     case COVISE_MESSAGE_VRBC_CHANGE_SESSION:
     {
         std::cerr << "received COVISE_MESSAGE_VRBC_CHANGE_SESSION from covise" << std::endl;
-        while (!vrbc->isConnected())
+        while (!OpenCOVER::instance()->isVRBconnected())
         {
             std::cerr << "OpenCOVER waiting for VRB connection" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -737,7 +732,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         while (me()->ID() == 0)
         {
             Message m;
-            vrbc->wait(&m);
+            OpenCOVER::instance()->vrbc()->wait(&m);
             assert(m.type != COVISE_MESSAGE_VRBC_CHANGE_SESSION);
             handleVRB(m);
         }
@@ -897,7 +892,7 @@ Message *coVRCommunication::waitForMessage(int messageType)
 	int ret = 0;
         if (coVRMSController::instance()->isMaster())
         {
-            ret = vrbc->wait(m, messageType);
+            ret = OpenCOVER::instance()->vrbc()->wait(m, messageType);
             coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
             if (ret != -1)
        		coVRMSController::instance()->sendSlaves(m);

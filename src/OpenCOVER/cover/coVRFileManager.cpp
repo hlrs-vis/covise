@@ -1863,28 +1863,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 
 	const char *buf = nullptr;
     int numBytes = 0;
-
-
-
-    //if (strncmp(filePath, "vrb://", 6) == 0)
-    //{
-    //    //Request file from VRB
-    //    std::cerr << "VRB file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
-    //    coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filePath));
-    //    std::string sresult = locFB->getFilename(filePath).c_str();
-    //    char *result = new char[sresult.size() + 1];
-    //    strcpy(result, sresult.c_str());
-    //    return std::string(result);
-    //}
-    //else if (strncmp(filePath, "agtk3://", 8) == 0)
-    //{
-    //    //REquest file from AG data store
-    //    std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
-    //    coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filePath));
-    //    return std::string(locFB->getFilename(filePath).c_str());
-    //}
-	//request file from vrb
-	if (vrbc || cover->connectedToCovise() ||!coVRMSController::instance()->isMaster())
+	if (OpenCOVER::instance()->isVRBconnected() ||!coVRMSController::instance()->isMaster())
 	{
 		if (coVRMSController::instance()->isMaster())
 		{
@@ -1902,11 +1881,11 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		//wait for the file
 		do
 		{
-			if ((vrbc && vrbc->isConnected()) || !coVRMSController::instance()->isMaster())
+			if (OpenCOVER::instance()->isVRBconnected() || !coVRMSController::instance()->isMaster())
 			{
 				if (coVRMSController::instance()->isMaster())
 				{
-					vrbc->wait(msg);
+					OpenCOVER::instance()->vrbc()->wait(msg);
 					coVRMSController::instance()->sendSlaves((char*)& message, sizeof(message));
 					coVRMSController::instance()->sendSlaves(msg);
 				}

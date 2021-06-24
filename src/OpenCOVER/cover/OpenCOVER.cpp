@@ -99,7 +99,6 @@
 
 using namespace opencover;
 using namespace covise;
-vrb::VRBClient *opencover::vrbc = nullptr;
 static char envOsgNotifyLevel[200];
 static char envDisplay[1000];
 
@@ -352,7 +351,7 @@ bool OpenCOVER::init()
 
 
     int c = 0;
-    std::string collaborativeOptionsFile, viewpointsFile, startSession;
+    std::string collaborativeOptionsFile, viewpointsFile;
     while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::g:")) != -1)
     {
         switch (c)
@@ -394,7 +393,7 @@ bool OpenCOVER::init()
         }
 		case 'g':
 		{
-			startSession = optarg;
+			m_startSession = optarg;
 		}
 		break;
         case 'h':
@@ -650,7 +649,6 @@ bool OpenCOVER::init()
         //fprintf(stderr, "no covise connection\n");
     }
     hud = coHud::instance();
-	cover->connectToCovise(loadCovisePlugin);
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
@@ -702,18 +700,15 @@ bool OpenCOVER::init()
         hud->show();
         hud->redraw();
     }
-	coVRMSController::instance()->setStartSession(startSession);
     // Connect to VRBroker, if available
     if (coVRMSController::instance()->isMaster())
     {
-
-        
         if (loadCovisePlugin)//use covise session
         {
             auto cmdExec = getExecFromCmdArgs(coCommandLine::instance()->argc(), coCommandLine::instance()->argv());
             std::stringstream ss;
             ss << "covise" << cmdExec.vrbClientIdOfController << "_" << cmdExec.moduleId;
-            startSession = ss.str();
+            m_startSession = ss.str();
             m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials});
         }
         if (m_vrbCredentials)
@@ -721,18 +716,14 @@ bool OpenCOVER::init()
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-            vrbc = new vrb::VRBClient(vrb::Program::opencover, *m_vrbCredentials, coVRMSController::instance()->isSlave(),true);
         }
         else
         {
             hud->setText2("connecting");
             hud->setText3("to VRB");
-            vrbc = new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true);
         }
         hud->redraw();
-        std::cerr << "startSession: " << startSession << std::endl;
-        coVRMSController::instance()->setStartSession(startSession);
-        vrbc->connectToServer(startSession);
+        startVrbc();
     }
 
     coVRLighting::instance()->initMenu();
@@ -1487,8 +1478,7 @@ OpenCOVER::requestQuit()
     }
     if (terminateOnCoverQuit)
         coVRPluginList::instance()->requestQuit(true);
-    delete vrbc;
-    vrbc = NULL;
+    m_vrbc.reset(nullptr);
     setExitFlag(true);
     // exit COVER, even if COVER has a vrb connection
 }
@@ -1536,4 +1526,33 @@ bool OpenCOVER::unwatchFileDescriptor(int fd)
     return true;
 }
 
+const vrb::VRBClient *OpenCOVER::vrbc() const
+{
+    return m_vrbc.get();
+}
+
+vrb::VRBClient *OpenCOVER::vrbc()
+{
+    return m_vrbc.get();
+}
+
+void OpenCOVER::startVrbc()
+{
+    if (!m_vrbc)
+        restartVrbc();
+}
+
+void OpenCOVER::restartVrbc()
+{
+    if (m_vrbCredentials)
+        m_vrbc.reset(new vrb::VRBClient(vrb::Program::opencover, *m_vrbCredentials, coVRMSController::instance()->isSlave(),true));
+    else
+        m_vrbc.reset(new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true));
+    m_vrbc->connectToServer(m_startSession);
+}
+
+bool OpenCOVER::isVRBconnected() const
+{
+    return m_vrbc && m_vrbc->isConnected();
+}
 
