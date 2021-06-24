@@ -1368,8 +1368,8 @@ const Connection *ConnectionList::add(std::unique_ptr<Connection> &&conn){
     auto connPtr = conn.get();
     if (conn->get_id() > maxfd)
         maxfd = conn->get_id();
-    FD_SET(conn->get_id(), &fdvar);
-    connlist.push_back(std::move(conn)); // field for the select call
+    FD_SET(conn->get_id(), &fdvar); // field for the select call
+    connlist.push_back(std::move(conn)); 
     return connPtr;
 }
 
