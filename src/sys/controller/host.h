@@ -176,7 +176,7 @@ public:
     const ModuleInfo &registerModuleInfo(const std::string &name, const std::string &category) const;
     void resetModuleInstances();
     const ControllerProxyConn *proxyConn() const;
-    bool launchOfCrbPermitted() const;
+    bool launchOfCrbPermitted(int targetClientId) const;
     std::unique_ptr<Message> receiveProxyMessage();
     std::mutex &mutex() const;
 

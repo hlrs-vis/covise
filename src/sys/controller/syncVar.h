@@ -14,8 +14,12 @@ namespace covise{
 namespace controller{
 
 template<typename T>
-struct SyncVar{
-
+class SyncVar{
+public:
+    void reset(){
+        m_updated = false;
+    }
+    
     void setValue(const T &value)
     {
         {
@@ -23,16 +27,15 @@ struct SyncVar{
             m_value = value;
             m_updated = true;
         }
-        m_conVar.notify_one();
+        m_conVar.notify_all();
     }
     const T &waitForValue()
     {
-        if (!m_updated)
+        std::unique_lock<std::mutex> lk(m_m);
+        while (!m_updated)
         {
-          std::unique_lock<std::mutex> lk(m_m);
           m_conVar.wait(lk);
         }
-        std::lock_guard<std::mutex>g(m_m);
         m_updated = false;
         return m_value;
     }

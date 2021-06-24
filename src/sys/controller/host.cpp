@@ -155,9 +155,7 @@ bool RemoteHost::askForPermission()
 {
     if (m_exectype == ExecType::VRB)
     {
-        covise::VRB_PERMIT_LAUNCH_Ask ask{hostManager.getVrbClient().ID(), ID(), vrb::Program::crb};
-        sendCoviseMessage(ask, hostManager.getVrbClient());
-        if (!hostManager.launchOfCrbPermitted())
+        if (!hostManager.launchOfCrbPermitted(ID()))
         {
             Message m{COVISE_MESSAGE_WARNING, "Partner " + userInfo().userName + "@" + userInfo().hostName + " refused to launch COVISE!"};
             hostManager.getMasterUi().send(&m);
@@ -767,8 +765,11 @@ const ControllerProxyConn *HostManager::proxyConn() const
     return &*m_proxyConnection;
 }
 
-bool HostManager::launchOfCrbPermitted() const
+bool HostManager::launchOfCrbPermitted(int targetClientIdId) const
 {
+    m_launchPermission.reset();
+    covise::VRB_PERMIT_LAUNCH_Ask ask{getVrbClient().ID(), targetClientIdId, vrb::Program::crb};
+    sendCoviseMessage(ask, getVrbClient());
     return m_launchPermission.waitForValue();
 }
 
@@ -915,6 +916,7 @@ bool HostManager::handleVrbMessage()
             if (auto h = getHost(answer.launcherID))
             {
                 h->setCode(answer.code);
+                std::cerr << "set m_launchPermission valuse to " << answer.permit << std::endl;
                 m_launchPermission.setValue(answer.permit);
             }
             else
