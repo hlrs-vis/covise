@@ -1105,7 +1105,8 @@ void RevitPlugin::createMenu()
 	viewpointGroup = new ui::ButtonGroup(viewpointMenu, "revitViewpoints");
 	viewsCombo = new ui::SelectionList(revitMenu, "views");
 
-	toggleRoomLabels = new ui::Button(roomInfoMenu, "Show Labels");
+	toggleRoomLabels = new ui::Button(roomInfoMenu, "ShowLabels");
+    toggleRoomLabels->setText("Show Labels");
 	toggleRoomLabels->setCallback([this](bool state) {for (const auto& r : roomInfos) { if (state) r->label->show(); else r->label->hide(); }});
 	toggleRoomLabels->setState(false);
 
