@@ -20,6 +20,7 @@
 #include <covise/covise_appproc.h>
 #include <comsg/CRB_EXEC.h>
 #include <comsg/NEW_UI.h>
+#include <comsg/PROXY.h>
 
 #include "MEMessageHandler.h"
 #include "MEFileBrowser.h"
@@ -329,7 +330,12 @@ void MEMessageHandler::dataReceived(int)
                 case covise::COVISE_MESSAGE_PARAMDESC:
                     // used in python interface
                     break;
-
+                case covise::COVISE_MESSAGE_PROXY:
+                {
+                    covise::PROXY p{*msg};
+                    std::cerr << "received proxy message type " << static_cast<int>(p.type) << " from " << msg->sender << " type " << msg->send_type << std::endl;
+                }
+                break;
                 default:
                     qCritical() << "======> unknown message type" << msg->type;
                     qCritical() << "======> ... data = " << msg->data.data();
