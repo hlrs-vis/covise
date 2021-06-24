@@ -189,7 +189,7 @@ private:
     mutable std::mutex m_mutex;
     std::function<void(void)> m_onConnectVrbCallBack;
     std::atomic_bool m_terminateVrb{false};
-    const ControllerProxyConn *m_proxyConnection = nullptr;
+    std::unique_ptr<ControllerProxyConn> m_proxyConnection;
     SyncVar<int> m_proxyConnPort;
     SyncVar<covise::ConnectionCapability> m_proxyRequired;
     mutable SyncVar<bool> m_launchPermission;

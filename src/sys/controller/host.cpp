@@ -764,7 +764,7 @@ void HostManager::resetModuleInstances()
 
 const ControllerProxyConn *HostManager::proxyConn() const
 {
-    return m_proxyConnection;
+    return &*m_proxyConnection;
 }
 
 bool HostManager::launchOfCrbPermitted() const
@@ -843,13 +843,9 @@ void HostManager::createProxyConn()
         //connect
         auto proxyConnPort = m_proxyConnPort.waitForValue();
         Host h{m_vrb->getCredentials().ipAddress.c_str()};
-        auto conn = createConnectedConn<ControllerProxyConn>(&h, proxyConnPort, 1000, (int)CONTROLLER);
-        if (!conn)
-        {
+        m_proxyConnection = createConnectedConn<ControllerProxyConn>(&h, proxyConnPort, 1000, (int)CONTROLLER);
+        if (!m_proxyConnection)
             std::cerr << "failed to create proxy connection via VRB" << std::endl;
-        }
-
-        m_proxyConnection = dynamic_cast<const ControllerProxyConn *>(CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn)));
     }
 }
 

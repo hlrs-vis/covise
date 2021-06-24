@@ -20,8 +20,8 @@ ProxyConnection::ProxyConnection(const ControllerProxyConn &serverConn, int port
     send_type = type;
     peer_id_ = processId;
     peer_type_ = type;
-    CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(&serverConn, [this]()
-                                                                                { sock = nullptr; });
+    serverConn.addRemoveNotice(this, [this]()
+                               { sock = nullptr; });
 }
 
 ProxyConnection::~ProxyConnection()
@@ -80,9 +80,12 @@ int ControllerProxyConn::recv_uncached_msg(Message *msg, char *ip) const
                               { return c->get_sender_id() == msg->sender; });
     if (proxy != m_proxies.end())
     {
-        if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
-            removeProxy(proxy->get());
         msg->conn = &**proxy;
+        if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
+        {
+            removeProxy(proxy->get());
+            msg->conn = nullptr;
+        }
     }
     else if (msg->send_type != VRB && msg->sender != Connection::sender_id)
     {
