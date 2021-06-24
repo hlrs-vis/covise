@@ -173,6 +173,7 @@ void CoviseProxy::handleMessage(Message &msg)
                                                       std::lock_guard<std::mutex> g{m_crbProxyMutex};
                                                       m_disconnectedCrbProxyies.push_back(&crbproxy);
                                                     }});
+        return;
       }
       default:
         break;
