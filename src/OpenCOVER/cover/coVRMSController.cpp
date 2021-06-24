@@ -2519,7 +2519,14 @@ bool coVRMSController::syncVRBMessages()
 			{
 				vrbMsgs[numVrbMessages] = vrbMsg;
 				numVrbMessages++;
-				vrbMsg = new Message;
+                if (vrbMsg->type == COVISE_MESSAGE_SOCKET_CLOSED)
+                {
+                    delete vrbc;
+                    vrbc = nullptr;
+                    return false;
+                }
+
+                vrbMsg = new Message;
 				if (numVrbMessages >= MAX_VRB_MESSAGES)
 				{
 					cerr << "too many VRB Messages!!" << endl;
