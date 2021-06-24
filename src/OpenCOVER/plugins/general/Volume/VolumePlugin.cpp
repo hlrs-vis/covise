@@ -1319,7 +1319,6 @@ void VolumePlugin::saveDefaultTransferFunction(void *userData)
 
 int VolumePlugin::loadFile(const char *fName, osg::Group *parent, const vvVolDesc *params)
 {
-    (void)parent;
     vvDebugMsg::msg(1, "VolumePlugin::loadFile()");
 
     const char *fn = coVRFileManager::instance()->getName(fName);
@@ -1363,7 +1362,7 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent, const vvVolDes
         tfeItem->setState(true);
     }
 
-    updateVolume(fileName, vd, false, fileName);
+    updateVolume(fileName, vd, false, fileName, nullptr, parent);
 
     return 1;
 }
