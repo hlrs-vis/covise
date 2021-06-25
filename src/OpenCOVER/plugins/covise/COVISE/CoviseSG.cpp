@@ -42,6 +42,15 @@ void CoviseSG::deleteNode(const char *nodeName, bool isGroup)
         return;
     }
 
+    auto itf = m_attachedFileList.find(nodeName);
+    if (itf != m_attachedFileList.end())
+    {
+        if (cover->debugLevel(3))
+            fprintf(stderr, "deleteNode: unloading file attached to %s\n", nodeName);
+        coVRFileManager::instance()->unloadFile(itf->second.c_str());
+        m_attachedFileList.erase(itf);
+    }
+
     NodeList::iterator it = m_attachedNodeList.find(nodeName);
     if (it != m_attachedNodeList.end())
     {
@@ -51,10 +60,6 @@ void CoviseSG::deleteNode(const char *nodeName, bool isGroup)
         {
             VRRegisterSceneGraph::instance()->unregisterNode(it->second, cover->getObjectsRoot()->getName());
             cover->getObjectsRoot()->removeChild(it->second);
-        }
-        else
-        {
-            coVRFileManager::instance()->unloadFile();
         }
         m_attachedNodeList.erase(it);
     }
@@ -122,9 +127,13 @@ osg::Node *CoviseSG::findNode(const std::string &name)
     return NULL;
 }
 
-void CoviseSG::attachNode(const char *attacheeName, osg::Node *node)
+void CoviseSG::attachNode(const char *attacheeName, osg::Node *node, const char *filename)
 {
     m_attachedNodeList[attacheeName] = node;
+    if (filename)
+    {
+        m_attachedFileList[attacheeName] = filename;
+    }
 }
 
 void CoviseSG::attachLabel(const char *attacheeName, const char *text)

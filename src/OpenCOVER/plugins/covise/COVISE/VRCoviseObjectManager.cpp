@@ -1895,14 +1895,14 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                     strcat(tmpName, "/");
                     strcat(tmpName, modelName);
                     modelNode = coVRFileManager::instance()->loadFile(tmpName, NULL, NULL, geometry->getName());
+                    coviseSG->attachNode(object, modelNode, tmpName);
                     delete[] tmpName;
                 }
                 else
                 {
                     modelNode = coVRFileManager::instance()->loadFile(modelName, NULL, NULL, geometry->getName());
+                    coviseSG->attachNode(object, modelNode, modelName);
                 }
-
-                coviseSG->attachNode(object, modelNode);
             }
             /*.----------------------------------------------------------------------------------------------------------------------------
            Attributes for read and modifying CAD-Datafiles, e.g. JT-Data-Files
@@ -1978,7 +1978,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 //reading CAD-File and adding the new CAD-File structure under the <mt> node
                 coVRFileManager::instance()->loadFile(CAD_FILE, NULL, mt, geometry->getName());
                 //attaching <mt> with <object> to get the correct name of the node in the SceneGraphBrowser
-                coviseSG->attachNode(object, mt);
+                coviseSG->attachNode(object, mt, CAD_FILE);
             }
             //..----------------------------------------------------------------------------------------------------------------------------------
             //------------------------------------------------------------------------------------------------------------------------------------

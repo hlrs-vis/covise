@@ -30,6 +30,7 @@ class CoviseSG
 
     typedef std::map<std::string, osg::Node *> NodeList;
     typedef std::map<std::string, opencover::coVRLabel *> LabelList;
+    typedef std::map<std::string, std::string> FileList;
 
     void addNode(osg::Node *node, osg::Group *parent, opencover::RenderObject *ro);
     void addNode(osg::Node *node, const char *parentName, opencover::RenderObject *ro);
@@ -37,7 +38,7 @@ class CoviseSG
     osg::Node *findNode(const std::string &name);
 
     // attach a node to another (the attached node will be deleted with the other node)
-    void attachNode(const char *attacheeName, osg::Node *attached);
+    void attachNode(const char *attacheeName, osg::Node *attached, const char *filename=nullptr);
     void attachLabel(const char *attacheeName, const char *label);
 
  private:
@@ -46,5 +47,6 @@ class CoviseSG
 
     NodeList m_addedNodeList, m_attachedNodeList;
     LabelList m_attachedLabelList;
+    FileList m_attachedFileList;
 };
 #endif
