@@ -89,7 +89,6 @@ GiswalkPlugin::GiswalkPlugin()
 static FileHandler handlers[] = {
     { NULL,
       GiswalkPlugin::sloadGCode,
-      GiswalkPlugin::sloadGCode,
       GiswalkPlugin::unloadGCode,
       "smap" }
 };

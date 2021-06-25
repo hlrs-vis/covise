@@ -60,7 +60,6 @@ ThreeDTK *plugin = NULL;
 FileHandler fileHandler[] = {
     { NULL,
       ThreeDTK::loadFile,
-      ThreeDTK::loadFile,
       ThreeDTK::unloadFile,
       "oct" }
 };

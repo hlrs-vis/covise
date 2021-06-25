@@ -348,11 +348,9 @@ void playerUnavailableCB()
 static FileHandler handlers[] = {
 	{ NULL,
 	  MidiPlugin::loadMidi,
-	  MidiPlugin::loadMidi,
 	  MidiPlugin::unloadMidi,
 	  "MID" },
 	{ NULL,
-	  MidiPlugin::loadMidi,
 	  MidiPlugin::loadMidi,
 	  MidiPlugin::unloadMidi,
 	  "mid" }

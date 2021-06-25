@@ -72,7 +72,6 @@ OpenScenarioPlugin *OpenScenarioPlugin::plugin = NULL;
 static FileHandler handlers[] = {
 	{ NULL,
 	  OpenScenarioPlugin::loadOSC,
-	  OpenScenarioPlugin::loadOSC,
 	  NULL,
 	  "xosc" }
 };

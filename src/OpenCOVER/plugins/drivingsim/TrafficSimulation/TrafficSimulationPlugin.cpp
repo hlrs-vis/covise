@@ -66,7 +66,6 @@ TrafficSimulationPlugin *TrafficSimulationPlugin::plugin = NULL;
 static FileHandler handlers[] = {
     { NULL,
       TrafficSimulationPlugin::loadOD,
-      TrafficSimulationPlugin::loadOD,
       NULL,
       "xodr" }
 };

@@ -20,16 +20,13 @@ static const int NUM_HANDLERS = 3;
 static const FileHandler handlers[] = {
     { NULL,
       BPAPlugin::SloadBPA,
-      BPAPlugin::SloadBPA,
       BPAPlugin::SunloadBPA,
       "nfix" },
     { NULL,
       BPAPlugin::SloadBPA,
-      BPAPlugin::SloadBPA,
       BPAPlugin::SunloadBPA,
       "nfi" },
     { NULL,
-      BPAPlugin::SloadBPA,
       BPAPlugin::SloadBPA,
       BPAPlugin::SunloadBPA,
       "bpadxf" }

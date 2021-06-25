@@ -50,7 +50,6 @@ using namespace boost;
 static const FileHandler handlers[] = {
     { NULL,
       BorePlugin::SloadBore,
-      BorePlugin::SloadBore,
       BorePlugin::SunloadBore,
       "bcsv" },
 };

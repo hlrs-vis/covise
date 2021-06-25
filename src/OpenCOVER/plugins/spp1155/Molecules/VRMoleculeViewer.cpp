@@ -60,16 +60,13 @@ VRMoleculeViewer *plugin = NULL;
 FileHandler fileHandler[] = {
     { NULL,
       VRMoleculeViewer::loadFile,
-      VRMoleculeViewer::loadFile,
       VRMoleculeViewer::unloadFile,
       "via" },
     { NULL,
       VRMoleculeViewer::loadFile,
-      VRMoleculeViewer::loadFile,
       VRMoleculeViewer::unloadFile,
       "vim" },
     { NULL,
-      VRMoleculeViewer::loadFile,
       VRMoleculeViewer::loadFile,
       VRMoleculeViewer::unloadFile,
       "vis" }

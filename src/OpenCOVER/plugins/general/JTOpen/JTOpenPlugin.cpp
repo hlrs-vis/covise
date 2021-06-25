@@ -845,7 +845,6 @@ JTOpenPlugin *JTOpenPlugin::plugin = NULL;
 static FileHandler handlers[] = {
     { NULL,
       JTOpenPlugin::loadJT,
-      JTOpenPlugin::loadJT,
       JTOpenPlugin::unloadJT,
       "jt" }
 };

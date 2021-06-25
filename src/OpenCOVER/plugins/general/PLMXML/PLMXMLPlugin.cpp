@@ -51,11 +51,9 @@ osg::Group *PLMXMLPlugin::currentGroup = NULL;
 static FileHandler handlers[] = {
     { NULL,
       PLMXMLPlugin::loadPLMXML,
-      PLMXMLPlugin::loadPLMXML,
       PLMXMLPlugin::unloadPLMXML,
       "plmxml" },
     { NULL,
-      PLMXMLPlugin::loadPLMXML,
       PLMXMLPlugin::loadPLMXML,
       PLMXMLPlugin::unloadPLMXML,
       "xml" }

@@ -26,7 +26,6 @@
 static FileHandler TextHandler = {
     FileLoaderPlugin::loadUrl,
     FileLoaderPlugin::loadFile,
-    FileLoaderPlugin::replace,
     FileLoaderPlugin::unload,
     "txt"
 };
@@ -60,15 +59,6 @@ int FileLoaderPlugin::loadFile(const char *filename, osg::Group *parent, const c
     * of OpenSceneGraph nodes and add it as a child of parent,
     * parent might be NULL */
     fprintf(stderr, "FileLoaderPlugin::loadFile(%s,%p,%s)\n", filename, parent, ck);
-    return 0;
-}
-
-int FileLoaderPlugin::replace(const char *filename, osg::Group *parent, const char *ck)
-{
-    /* here you should replace your old scene graph and add the
-    * newly created scenegraph to parent,
-    * parent might be NULL */
-    fprintf(stderr, "FileLoaderPlugin::replace(%s,%p,%s)\n", filename, parent, ck);
     return 0;
 }
 

@@ -38,7 +38,6 @@ starDust *starDust::plugin = NULL;
 FileHandler fileHandler[] = {
     { NULL,
       starDust::loadFile,
-      starDust::loadFile,
       starDust::unloadFile,
       "starDust" }
 };

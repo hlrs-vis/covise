@@ -32,11 +32,9 @@ ScriptPlugin *ScriptPlugin::plugin = NULL;
 static FileHandler handlers[] = {
     { NULL,
       ScriptPlugin::loadQS,
-      ScriptPlugin::loadQS,
       ScriptPlugin::unloadQS,
       "qs" },
     { NULL,
-      ScriptPlugin::loadQS,
       ScriptPlugin::loadQS,
       ScriptPlugin::unloadQS,
       "js" }

@@ -42,7 +42,6 @@ static FileHandler handler =
 {
    0,
    CADCv3DPlugin::loadCadHandler,
-   CADCv3DPlugin::replaceCadHandler,
    CADCv3DPlugin::unloadCadHandler,
    "cgl"
 };
@@ -109,12 +108,6 @@ int CADCv3DPlugin::loadCad(const char *filename, osg::Group *)
     }
 
     return 1;
-}
-
-int CADCv3DPlugin::replaceCad(const char *filename, osg::Group *group)
-{
-    unloadCad(filename);
-    return loadCad(filename, group);
 }
 
 int CADCv3DPlugin::unloadCad(const char *filename)
@@ -376,13 +369,6 @@ int CADCv3DPlugin::loadCadHandler(const char *filename, osg::Group *group)
 {
     if (CADCv3DPlugin::plugin)
         return plugin->loadCad(filename, group);
-    return 0;
-}
-
-int CADCv3DPlugin::replaceCadHandler(const char *filename, osg::Group *group)
-{
-    if (CADCv3DPlugin::plugin)
-        return plugin->replaceCad(filename, group);
     return 0;
 }
 

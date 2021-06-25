@@ -49,11 +49,9 @@ static const int NUM_HANDLERS = 2;
 static const FileHandler handlers[] = {
     { NULL,
       AmberPlugin::loadAmber,
-      AmberPlugin::loadAmber,
       AmberPlugin::unloadAmber,
       "top" },
     { NULL,
-      AmberPlugin::loadAmber,
       AmberPlugin::loadAmber,
       AmberPlugin::unloadAmber,
       "trj" }

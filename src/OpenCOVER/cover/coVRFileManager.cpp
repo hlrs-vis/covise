@@ -348,22 +348,7 @@ struct LoadedFile
         if (!key.empty())
             ck = key.c_str();
 
-        if (handler && handler->replaceFile)
-        {
-            osg::Group *parent = cover->getObjectsRoot();
-            if (node && node->getNumParents() > 0)
-                parent = node->getParent(0);
-            handler->replaceFile(url.str().c_str(), parent, ck);
-            if (parent->getNumChildren() > 0)
-            {
-                node = parent->getChild(0);
-            }
-            else
-            {
-                node = nullptr;
-            }
-        }
-        else if (unload())
+        if (unload())
         {
             return load();
         }
@@ -1666,7 +1651,6 @@ int coVRFileManager::unregisterFileHandler(const FileHandler *handler)
         {
             const FileHandler *p = *it;
             if (p->loadFile == handler->loadFile
-                && p->replaceFile == handler->replaceFile
                 && p->unloadFile == handler->unloadFile)
             {
                 fileHandlerList.erase(it);

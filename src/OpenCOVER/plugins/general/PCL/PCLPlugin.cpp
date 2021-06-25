@@ -73,11 +73,9 @@ PCLPlugin::PCLPlugin()
 static FileHandler handlers[] = {
     { NULL,
       PCLPlugin::sloadPCD,
-      PCLPlugin::sloadPCD,
       PCLPlugin::unloadPCD,
       "pcd" },
     { NULL,
-      PCLPlugin::sloadOCT,
       PCLPlugin::sloadOCT,
       PCLPlugin::unloadOCT,
       "oct_idx" }

@@ -71,11 +71,9 @@ public:
     }
 
     int loadCad(const char *filename, osg::Group *group);
-    int replaceCad(const char *filename, osg::Group *group);
     int unloadCad(const char *filename);
 
     static int loadCadHandler(const char *filename, osg::Group *group);
-    static int replaceCadHandler(const char *filename, osg::Group *group);
     static int unloadCadHandler(const char *filename);
 
 private:

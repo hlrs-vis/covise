@@ -65,7 +65,6 @@ using namespace opencover;
 static const FileHandler handlers[] = {
     { NULL,
       GPSPlugin::SloadGPX,
-      GPSPlugin::SloadGPX,
       GPSPlugin::SunloadGPX,
       "gpx" }
 };

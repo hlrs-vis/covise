@@ -33,7 +33,6 @@ public:
 
     static int loadUrl(const Url &url, osg::Group *parent, const char *ck = "");
     static int loadFile(const char *filename, osg::Group *parent, const char *ck = "");
-    static int replace(const char *filename, osg::Group *parent, const char *ck = "");
     static int unload(const char *filename, const char *ck = "");
 };
 #endif

@@ -49,11 +49,9 @@ EarthPlugin *EarthPlugin::plugin = NULL;
 FileHandler fileHandler[] = {
     { NULL,
       EarthPlugin::sLoadFile,
-      EarthPlugin::sLoadFile,
       EarthPlugin::sUnloadFile,
       "earth" },
     { NULL,
-      EarthPlugin::sLoadKmlFile,
       EarthPlugin::sLoadKmlFile,
       EarthPlugin::sUnloadKmlFile,
       "kml" }

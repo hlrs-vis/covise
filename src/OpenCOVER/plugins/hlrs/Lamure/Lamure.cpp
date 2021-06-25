@@ -33,7 +33,6 @@ static const int NUM_HANDLERS = 1;
 static const FileHandler handlers[] = {
     { NULL,
       LamurePlugin::SloadBVH,
-      LamurePlugin::SloadBVH,
       LamurePlugin::SunloadBVH,
       "bvh" }
 };

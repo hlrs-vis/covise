@@ -105,7 +105,6 @@ typedef struct
 {
     int (*loadUrl)(const Url &url, osg::Group *parent, const char *covise_key);
     int (*loadFile)(const char *filename, osg::Group *parent, const char *covise_key);
-    int (*replaceFile)(const char *filename, osg::Group *parent, const char *covise_key);
     int (*unloadFile)(const char *filename, const char *covise_key);
     const char *extension;
 } FileHandler;

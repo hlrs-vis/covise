@@ -72,7 +72,7 @@
 SceneEditor *SceneEditor::plugin = NULL;
 
 static opencover::FileHandler coxmlFileHandlers[] = {
-    { SceneEditor::loadCoxmlUrl, SceneEditor::loadCoxml, SceneEditor::replaceCoxml,
+    { SceneEditor::loadCoxmlUrl, SceneEditor::loadCoxml,
       SceneEditor::unloadCoxml, "coxml" }
 };
 

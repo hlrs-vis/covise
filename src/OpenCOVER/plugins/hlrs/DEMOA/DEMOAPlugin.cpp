@@ -103,11 +103,9 @@ DEMOAPlugin::DEMOAPlugin()
 static FileHandler handlers[] = {
     { NULL,
       DEMOAPlugin::sloadANI,
-      DEMOAPlugin::sloadANI,
       DEMOAPlugin::unloadANI,
       "dani" },
     { NULL,
-      DEMOAPlugin::sloadANI,
       DEMOAPlugin::sloadANI,
       DEMOAPlugin::unloadANI,
       "dsim" }

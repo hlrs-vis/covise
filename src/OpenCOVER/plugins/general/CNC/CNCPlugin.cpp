@@ -527,7 +527,6 @@ CNCPlugin::CNCPlugin()
 static FileHandler handlers[] = {
     { NULL,
       CNCPlugin::sloadGCode,
-      CNCPlugin::sloadGCode,
       CNCPlugin::unloadGCode,
       "gcode" }
 };

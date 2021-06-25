@@ -61,7 +61,6 @@ vrml::Player *Bullet::player = NULL;
 static FileHandler handlers[] = {
     { NULL,
       Bullet::sloadBullet,
-      Bullet::sloadBullet,
       Bullet::unloadBullet,
       "bullet" }
 };
