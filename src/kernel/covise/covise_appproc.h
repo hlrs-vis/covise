@@ -41,7 +41,7 @@ public:
     void contact_datamanager(int port); // build connection to datamanager
     void send_data_msg(Message *); // send message to the datamanager
     void recv_data_msg(Message *); // recv a message from the datamanager
-    void exch_data_msg(Message *, int...); // exch message with datamanager (recommended)
+    void exch_data_msg(Message *, const std::vector<int> &messageTypes); //send msg and wait for a response with one of messageTypes 
     //void add_new_part_obj(coDistributedObject *po) { part_obj_list->add(po); };
     // gets part obj out of list
     //coDistributedObject *get_part_obj(char *pname);

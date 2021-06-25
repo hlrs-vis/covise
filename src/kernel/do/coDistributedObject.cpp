@@ -77,7 +77,7 @@ static coShmArray *getShmArray(const char *name)
     char *tmpptr = new char[len];
     strcpy(tmpptr, name);
     Message msg{ COVISE_MESSAGE_GET_OBJECT, DataHandle{tmpptr, len} };
-    ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
+    ApplicationProcess::approc->exch_data_msg(&msg, {COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND});
     coShmArray *shmarr = nullptr;
     // this is a local message, so no conversion is necessary
     if (msg.type == COVISE_MESSAGE_OBJECT_FOUND)
@@ -341,7 +341,7 @@ int coDistributedObject::destroy()
 #endif
     Message msg{ COVISE_MESSAGE_DESTROY_OBJECT, DataHandle{name, strlen(name) + 1, false} };
     // next line changed from send_data_msg
-    ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_MSG_OK, COVISE_MESSAGE_MSG_FAILED);
+    ApplicationProcess::approc->exch_data_msg(&msg, {COVISE_MESSAGE_MSG_OK, COVISE_MESSAGE_MSG_FAILED});
     //    msg->data = DataHandle{};
     //    ApplicationProcess::approc->recv_data_msg(msg);
     if (msg.type == COVISE_MESSAGE_MSG_OK)
@@ -361,7 +361,7 @@ char *coDistributedObject::object_on_hosts() const
     char *data;
 
     Message msg{ COVISE_MESSAGE_OBJECT_ON_HOSTS, DataHandle{name, strlen(name) + 1, false} };
-    ApplicationProcess::approc->exch_data_msg(&msg, 1, COVISE_MESSAGE_OBJECT_ON_HOSTS);
+    ApplicationProcess::approc->exch_data_msg(&msg, {COVISE_MESSAGE_OBJECT_ON_HOSTS});
     if (msg.type == COVISE_MESSAGE_OBJECT_ON_HOSTS)
     {
         return msg.data.accessData();
@@ -454,7 +454,7 @@ int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
 #endif
     int otype = type_no;
     ShmMessage shmmsg{ name, otype, dt, ct, no_of_allocs };
-    ApplicationProcess::approc->exch_data_msg(&shmmsg, 2, COVISE_MESSAGE_NEW_OBJECT_OK, COVISE_MESSAGE_NEW_OBJECT_FAILED);
+    ApplicationProcess::approc->exch_data_msg(&shmmsg, {COVISE_MESSAGE_NEW_OBJECT_OK, COVISE_MESSAGE_NEW_OBJECT_FAILED});
     delete[] ct;
     delete[] dt;
 
@@ -1253,7 +1253,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     ct[1] = attr_len;
     dt[1] = CHARSHMARRAY;
     shmmsg = new ShmMessage(dt, ct, 2);
-    ApplicationProcess::approc->exch_data_msg(shmmsg, 2, COVISE_MESSAGE_MALLOC_LIST_OK, COVISE_MESSAGE_MALLOC_FAILED);
+    ApplicationProcess::approc->exch_data_msg(shmmsg, {COVISE_MESSAGE_MALLOC_LIST_OK, COVISE_MESSAGE_MALLOC_FAILED});
     if (shmmsg->type != COVISE_MESSAGE_MALLOC_LIST_OK)
     {
         print_comment(__LINE__, __FILE__, "error in addAttribute for distributed object %s", name);
@@ -1350,7 +1350,7 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         dt[i + 1] = CHARSHMARRAY;
     }
     shmmsg = new ShmMessage(dt, ct, no + 1);
-    ApplicationProcess::approc->exch_data_msg(shmmsg, 2, COVISE_MESSAGE_MALLOC_LIST_OK, COVISE_MESSAGE_MALLOC_FAILED);
+    ApplicationProcess::approc->exch_data_msg(shmmsg, {COVISE_MESSAGE_MALLOC_LIST_OK, COVISE_MESSAGE_MALLOC_FAILED});
     if (shmmsg->type != COVISE_MESSAGE_MALLOC_LIST_OK)
     {
         print_comment(__LINE__, __FILE__, "error in addAttribute for distributed object %s", name);
@@ -1705,7 +1705,7 @@ void coDistributedObject::getObjectFromShm()
     tmpptr = new char[len];
     strcpy(tmpptr, name);
     Message msg(COVISE_MESSAGE_GET_OBJECT, DataHandle(tmpptr, len));
-    ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
+    ApplicationProcess::approc->exch_data_msg(&msg, {COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND});
     // this is a local message, so no conversion is necessary
     if (msg.type == COVISE_MESSAGE_OBJECT_FOUND)
     {

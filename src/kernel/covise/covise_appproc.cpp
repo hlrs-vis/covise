@@ -80,64 +80,41 @@ void ApplicationProcess::recv_data_msg(Message *msg)
 #endif
 }
 
-void ApplicationProcess::exch_data_msg(Message *msg, int count...)
+void ApplicationProcess::exch_data_msg(Message *msg, const std::vector<int> &messageTypes)
 {
-    va_list ap;
-
-#ifdef DEBUG
-    char tmp_str[255];
-#endif
-
-    va_start(ap, count);
-
-    // Changed aw 05/00 : Always check for SOCKET_CLOSED
-    int *type_list = new int[count + 1];
-    for (int i = 0; i < count; i++)
-        type_list[i] = va_arg(ap, int);
-    va_end(ap);
-    type_list[count] = COVISE_MESSAGE_SOCKET_CLOSED;
-
 #ifdef CRAY
     datamgr->handle_msg(msg);
 #else
     if (!datamanager->sendMessage(msg))
     {
         list_of_connections->remove(datamanager);
-        delete[] type_list;
         return;
     }
     msg->data = DataHandle{};
 
-    int type_match = 0;
-    while (!type_match)
+    while (datamanager->recv_msg(msg))
     {
-        datamanager->recv_msg(msg);
-        for (int i = 0; i <= count; i++)
-            if (msg->type == type_list[i])
-                type_match = 1;
-        if (type_match == 0)
+        if (std::find(messageTypes.begin(), messageTypes.end(), msg->type) != messageTypes.end() || msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
         {
-            if (msg->type == COVISE_MESSAGE_NEW_SDS)
-            {
-                handle_shm_msg(msg);
-                msg->data = DataHandle{};
-            }
-            else
-            {
-                Message *list_msg = new Message;
-                list_msg->copyAndReuseData(*msg);
-                msg_queue->add(list_msg);
+            return;
+        }
+        if (msg->type == COVISE_MESSAGE_NEW_SDS)
+        {
+            handle_shm_msg(msg);
+            msg->data = DataHandle{};
+        }
+        else
+        {
+            Message *list_msg = new Message;
+            list_msg->copyAndReuseData(*msg);
+            msg_queue->add(list_msg);
 #ifdef DEBUG
-                sprintf(tmp_str, "msg %s added to queue", covise_msg_types_array[msg->type]);
-                print_comment(__LINE__, __FILE__, tmp_str);
+        print_comment(__LINE__, __FILE__, (std::string{"msg "} + covise_msg_types_array[msg->type] + " added to queue").c_str());
 #endif
-            }
         }
     }
-
-    msg->conn = datamanager;
 #endif
-    delete[] type_list; // Uwe Woessner
+
 }
 
 void ApplicationProcess::contact_datamanager(int p)
@@ -146,7 +123,7 @@ void ApplicationProcess::contact_datamanager(int p)
     datamanager = list_of_connections->addNewConn<DataManagerConnection>(p, id, (int)send_type);
    
     Message msg{ COVISE_MESSAGE_GET_SHM_KEY, DataHandle{} };
-    exch_data_msg(&msg, 1, COVISE_MESSAGE_GET_SHM_KEY);
+    exch_data_msg(&msg, {COVISE_MESSAGE_GET_SHM_KEY});
     if (msg.type != COVISE_MESSAGE_GET_SHM_KEY || msg.data.data() == nullptr)
     {
         cerr << "didn't get GET_SHM_KEY\n";
