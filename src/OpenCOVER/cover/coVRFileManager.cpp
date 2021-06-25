@@ -344,13 +344,24 @@ struct LoadedFile
 
     osg::Node *reload()
     {
-        const char *ck = nullptr;
-        if (!key.empty())
-            ck = key.c_str();
+        std::vector<osg::ref_ptr<osg::Group>> parents;
+        while (node && node->getNumParents() > 0) {
+            unsigned i = node->getNumParents() - 1;
+            auto p = node->getParent(i);
+            parents.emplace_back(p);
+            p->removeChild(node);
+        }
 
-        if (unload())
-        {
-            return load();
+        int lc = loadCount;
+        while (loadCount > 0)
+            unload();
+        assert(node == nullptr);
+        node = nullptr;
+        while (loadCount < lc)
+            node = load();
+
+        for (const auto &p : parents) {
+            p->addChild(node);
         }
 
         return node;
@@ -398,9 +409,6 @@ struct LoadedFile
           node->getParent(n-1)->removeChild(node);
       }
       node = nullptr;
-
-      if (ok && button)
-          button->setState(false);
 
       return ok;
   }
@@ -544,9 +552,6 @@ osg::Node *LoadedFile::load()
 
     if (isRoot)
         coVRFileManager::instance()->m_loadingFile = nullptr;
-
-    if (button)
-        button->setState(true);
 
     assert(loadCount == 0);
     if (node)
@@ -841,6 +846,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	if (fe->button)
 	{
 		fe->button->setShared(true);
+		fe->button->setState(true);
 	}
 
     auto node = fe->load();
@@ -877,9 +883,6 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
 osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
-    if (m_lastFile)
-        m_lastFile->unload();
-
     return loadFile(fileName, fb, parent, covise_key);
 }
 
@@ -1016,6 +1019,10 @@ void coVRFileManager::reloadFile()
     {
         std::cerr << "reloading " << m_lastFile->url << std::endl;
         m_lastFile->reload();
+    }
+    else
+    {
+        std::cerr << "nothing to reload" << std::endl;
     }
 }
 
