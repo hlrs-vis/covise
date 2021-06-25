@@ -11,6 +11,7 @@
 
 #include <vrb/RemoteClient.h>
 #include <net/message_sender_interface.h>
+#include <net/covise_connect.h>
 
 #include <mutex>
 #include <string>
@@ -25,8 +26,6 @@ namespace covise
 class Host;
 class CoviseConfig;
 class Connection;
-class ClientConnection;
-class UDPConnection;
 class Message;
 class TokenBuffer;
 class UdpMessage;
@@ -40,7 +39,7 @@ class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient, public covise::Messa
 public:
     VRBClient(Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
     VRBClient(Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
-    ~VRBClient();
+
     bool connectToServer(std::string sessionName = ""); 
     bool completeConnection();
 
@@ -58,9 +57,8 @@ public:
     const VrbCredentials &getCredentials() const;
 
 private:
-    covise::ClientConnection *sConn = nullptr; // tcp connection to Server
-
-	covise::UDPConnection* udpConn = nullptr; //udp connection to server
+    std::unique_ptr<covise::ClientConnection> sConn; // tcp connection to Server
+    std::unique_ptr<covise::UDPConnection> udpConn; //udp connection to server
 
     VrbCredentials m_credentials;
     covise::Host *serverHost = nullptr;
@@ -68,14 +66,11 @@ private:
     bool useUDP = false; // only setup a udp connection if this is true, this should be true only in OpenCOVER (and only one instance per computer :-(
     mutable float sendDelay = 0.1f; // low-pass filtered time for sending one packet of 1000 bytes
     std::mutex connMutex;
-    std::atomic_bool m_isConnected{false};
 #ifndef _M_CEE //no future in Managed OpenCOVER
-    std::future<covise::ClientConnection *> connFuture;
-	std::future<covise::UDPConnection*> udpConnFuture;
+    std::future<std::unique_ptr<covise::ClientConnection>> connFuture;
+	std::future<std::unique_ptr<covise::UDPConnection>> udpConnFuture;
 #endif
-    bool firstVrbConnection = true;
-	std::mutex udpConnMutex;
-    bool firstUdpVrbConnection = true;
+    std::atomic_bool m_shutdown{false};
 
     bool sendMessage(const covise::Message* m) const override;
     bool sendMessage(const covise::UdpMessage *m) const override;

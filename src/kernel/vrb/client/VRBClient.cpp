@@ -17,7 +17,6 @@
 #endif
 
 #include <config/CoviseConfig.h>
-#include <net/covise_connect.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/message.h>
@@ -44,12 +43,6 @@ VRBClient::VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, boo
     {
         serverHost = new Host(credentials.ipAddress.c_str());
     }
-}
-
-VRBClient::~VRBClient()
-{
-    delete sConn;
-	delete udpConn;
 }
 
 bool VRBClient::poll(Message *m)
@@ -208,34 +201,38 @@ bool VRBClient::connectToServer(std::string sessionName)
     {
 		setupUdpConn();
 	}
-	if (isSlave || serverHost == NULL|| sConn != nullptr)
+	if (isSlave || !serverHost || sConn)
         return 0;
 
     connMutex.lock();
     if (!connFuture.valid())
     {
-        connFuture = std::async(std::launch::async, [this]() -> ClientConnection *
+        connFuture = std::async(std::launch::async, [this]() -> std::unique_ptr<covise::ClientConnection>
         {
-            ClientConnection *myConn = new ClientConnection(serverHost, m_credentials.tcpPort, 0, (sender_type)0,0, 1.0);
-            if (!myConn->is_connected()) // could not open server port
+            bool firstVrbConnection = true;
+            m_shutdown = false;
+            while (!m_shutdown)
             {
-                if (firstVrbConnection)
+                auto myConn = std::unique_ptr<ClientConnection>{new ClientConnection(serverHost, m_credentials.tcpPort, 0, (sender_type)0, 0, 1.0)};
+                if (!myConn->is_connected()) // could not open server port
                 {
-                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_credentials.tcpPort);
-                    firstVrbConnection = false;
+                    if (firstVrbConnection)
+                    {
+                        fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_credentials.tcpPort);
+                        firstVrbConnection = false;
+                    }
+                    sleep(1);
                 }
-
-                delete myConn;
-                myConn = NULL;
-                sleep(1);
-                return nullptr;
+                else
+                {
+                    struct linger linger;
+                    linger.l_onoff = 0;
+                    linger.l_linger = 1;
+                    setsockopt(myConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+                    return myConn;
+                }
             }
-            struct linger linger;
-            linger.l_onoff = 0;
-            linger.l_linger = 1;
-            setsockopt(myConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-            return myConn;
+            return nullptr;
         });
     }
     connMutex.unlock();
@@ -259,7 +256,6 @@ bool VRBClient::completeConnection(){
             sConn = connFuture.get();
             if(sConn != nullptr)
             {
-                m_isConnected = true;
                 TokenBuffer tb;
                 tb << *this;
                 Message msg(tb);
@@ -276,7 +272,7 @@ void VRBClient::setupUdpConn()
 {
     if(serverHost)
     {
-	udpConn = new UDPConnection(0, 0, m_credentials.udpPort, serverHost->getAddress());
+	    udpConn.reset(new UDPConnection(0, 0, m_credentials.udpPort, serverHost->getAddress()));
     }
 }
 
@@ -286,7 +282,8 @@ float VRBClient::getSendDelay()
 }
 
 void VRBClient::shutdown(){
-    if(m_isConnected)
+    m_shutdown = true;
+    if(isConnected())
     {
         shutdownSocket(sConn->getSocket()->get_id());
     }

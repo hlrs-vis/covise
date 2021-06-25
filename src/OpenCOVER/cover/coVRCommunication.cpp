@@ -152,7 +152,7 @@ void coVRCommunication::disconnected()
 
 void coVRCommunication::toggleClientState(bool state){
     static bool connected{false};
-    if (connected)
+    if (connected && !state)
     {
         connected = false;
         cerr << "VRB requests to quit " << endl;

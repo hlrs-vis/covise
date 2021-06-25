@@ -143,10 +143,10 @@ void CoviseDaemon::loop()
                 }
             }
 
+            m_client->connectToServer();
             while (m_shouldBeConnected && !m_terminate && !m_client->isConnected())
             {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
-                m_client->connectToServer();
             }
 
             while (m_shouldBeConnected && !m_terminate)

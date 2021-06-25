@@ -855,10 +855,10 @@ void HostManager::handleVrb()
     using namespace covise;
     while (!m_terminateVrb)
     {
+        m_vrb->connectToServer();
         while (!m_terminateVrb && !m_vrb->isConnected())
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            m_vrb->connectToServer();
         }
         while (!m_terminateVrb && handleVrbMessage())
         {
