@@ -1653,6 +1653,23 @@ int coVRFileManager::unregisterFileHandler(const FileHandler *handler)
             if (p->loadFile == handler->loadFile
                 && p->unloadFile == handler->unloadFile)
             {
+                for (auto it = m_files.begin(), next = it; it != m_files.end(); it = next)
+                {
+                    auto &fe = it->second;
+                    if (m_lastFile == fe)
+                        m_lastFile = nullptr;
+                    if (fe->handler == p)
+                    {
+                        while (fe->unload())
+                            ;
+                        fe->updateButton();
+                        delete fe;
+                        next = m_files.erase(it);
+                    }
+                    next = it;
+                    ++next;
+                }
+
                 fileHandlerList.erase(it);
                 return 0;
             }
