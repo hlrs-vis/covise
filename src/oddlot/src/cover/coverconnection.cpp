@@ -15,9 +15,9 @@
 
 #include "coverconnection.hpp"
 #include "../gui/lodsettings.hpp"
-#include "../../PluginUtil/PluginMessageTypes.h"
+#include <PluginUtil/PluginMessageTypes.h>
 
-#include "../../plugins/hlrs/OddlotLink/oddlotMessageTypes.h"
+#include <OddlotLink/oddlotMessageTypes.h>
 #include <net/covise_host.h>
 #include <net/message_types.h>
 #include <net/message.h>

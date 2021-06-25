@@ -634,14 +634,14 @@ SET(ODDLOT_FORMS
 SET(ODDLOT_RESOURCES
    style/style.qrc
    icons/tools/tools.qrc
-   ../../../../share/covise/signs/icons/signalIcons.qrc
-   ../../../../share/covise/icons/svg/svgIcons.qrc
+   ../../share/covise/signs/icons/signalIcons.qrc
+   ../../share/covise/icons/svg/svgIcons.qrc
 )
 SET(ODDLOT_OTHER_FILES
      prototypes/prototypes.odd
 	 prototypes/TJunctionTown.odd
 )
-IF(COVISE_FOUND)
+IF(NOT COVISE_BUILD_ONLY_ODDLOT)
     ADD_DEFINITIONS(-DCOVER_CONNECTION)
     SET(ODDLOT_SOURCES ${ODDLOT_SOURCES} 
         src/cover/coverconnection.cpp
@@ -649,9 +649,11 @@ IF(COVISE_FOUND)
     SET(ODDLOT_MOC_HEADERS ${ODDLOT_MOC_HEADERS} 
         src/cover/coverconnection.hpp
     )
-    INCLUDE_DIRECTORIES("../../plugins/hlrs/OddlotLink") 
-    SET(EXTRA_LIBS ${EXTRA_LIBS} ${COVISE_NET_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_CONFIG_LIBRARY})
-ENDIF(COVISE_FOUND)
+    INCLUDE_DIRECTORIES("../OpenCOVER") 
+    INCLUDE_DIRECTORIES("../OpenCOVER/plugins/hlrs") 
+    INCLUDE_DIRECTORIES("../OpenCOVER/plugins/hlrs/OddlotLink") 
+    SET(EXTRA_LIBS ${EXTRA_LIBS} coNet coUtil coConfig)
+ENDIF(NOT COVISE_BUILD_ONLY_ODDLOT)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${OPENCRG_INCLUDE_DIR} ${EIGEN_INCLUDE_DIR}) 
 

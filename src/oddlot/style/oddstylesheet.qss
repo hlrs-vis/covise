@@ -57,12 +57,12 @@ color: black;
 QTreeView::branch:closed:has-children:!has-siblings,
 QTreeView::branch:closed:has-children:has-siblings {
 border-image: none;
-image: url(/src/covise/src/OpenCOVER/DrivingSim/oddlot/src/branch_closed.png);
+image: url(/src/covise/src/oddlot/src/branch_closed.png);
 }
 QTreeView::branch:open:has-children:!has-siblings,
 QTreeView::branch:open:has-children:has-siblings {
 border-image: none;
-image: url(/src/covise/src/OpenCOVER/DrivingSim/oddlot/src/branch_open.png);
+image: url(/src/covise/src/oddlot/src/branch_open.png);
 }
 QLineEdit{
 background-color: rgb(50, 50, 50);

@@ -711,7 +711,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         //path to covise directory
         bf::path coDir = getEnvVariable("COVISEDIR");
         //relative path from covise directory to OpenSCENARIO directory
-        bf::path oscDirRelPath = bf::path("src/OpenCOVER/DrivingSim/OpenScenario");
+        bf::path oscDirRelPath = bf::path("src/kernel/OpenScenario");
         //relative path from OpenSCENARIO directory to directory with schema files
         bf::path xsdDirRelPath = bf::path("xml-schema");
 
@@ -827,7 +827,7 @@ xercesc::DOMElement *OpenScenarioBase::getDefaultXML(const std::string &fileType
 	//path to covise directory
 	bf::path coDir = getEnvVariable("COVISEDIR");
 	//relative path from covise directory to OpenSCENARIO directory
-	bf::path oscDirRelPath = bf::path("src/OpenCOVER/DrivingSim/OpenScenario");
+	bf::path oscDirRelPath = bf::path("src/kernel/OpenScenario");
 	//relative path from OpenSCENARIO directory to directory with schema files
 	bf::path xsdDirRelPath = bf::path("xml-default");
 
