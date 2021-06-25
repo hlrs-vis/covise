@@ -1,6 +1,6 @@
 #include "coSpawnProgram.h"
 #include "coLog.h"
-
+#include <string_util.h>
 #ifdef _WIN32
 #include <stdio.h>
 #include <process.h>
@@ -9,15 +9,15 @@
 #else
 #include <unistd.h>
 #include <string.h>
+#include <algorithm>
 #include <sys/errno.h>
 #endif
 #include <signal.h>
-
+#include <boost/algorithm/algorithm.hpp>
 #include <array>
-
 using namespace covise;
 
-void covise::spawnProgram(const char* execPath, const std::vector<const char *> &args)
+void covise::spawnProgram(const char *execPath, const std::vector<const char *> &args)
 {
     if (!execPath || args[args.size() - 1])
     {
@@ -29,7 +29,7 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
     //_spawnvp(P_NOWAIT, execPath, const_cast<char *const *>(args.data()));
 
     std::string win_cmd_line;
-    for (const auto& arg : args)
+    for (const auto &arg : args)
     {
         if (arg != nullptr)
         {
@@ -37,7 +37,6 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
             win_cmd_line.append(" ");
         }
     }
-
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -47,17 +46,17 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
     ZeroMemory(&pi, sizeof(pi));
 
     // Start the child process.
-    if (!CreateProcess(NULL, // No module name (use command line)
-        (LPSTR)win_cmd_line.c_str(), // Command line
-        NULL, // Process handle not inheritable
-        NULL, // Thread handle not inheritable
-        FALSE, // Set handle inheritance to FALSE
-        0, // No creation flags
-        NULL, // Use parent's environment block
-        NULL, // Use parent's starting directory
-        &si, // Pointer to STARTUPINFO structure
-        &pi) // Pointer to PROCESS_INFORMATION structure
-        )
+    if (!CreateProcess(NULL,                        // No module name (use command line)
+                       (LPSTR)win_cmd_line.c_str(), // Command line
+                       NULL,                        // Process handle not inheritable
+                       NULL,                        // Thread handle not inheritable
+                       FALSE,                       // Set handle inheritance to FALSE
+                       0,                           // No creation flags
+                       NULL,                        // Use parent's environment block
+                       NULL,                        // Use parent's starting directory
+                       &si,                         // Pointer to STARTUPINFO structure
+                       &pi)                         // Pointer to PROCESS_INFORMATION structure
+    )
     {
         printf("Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), GetLastError());
     }
@@ -71,11 +70,9 @@ void covise::spawnProgram(const char* execPath, const std::vector<const char *> 
     int pid = fork();
     if (pid == 0)
     {
-        if(execvp(execPath, const_cast<char *const *>(args.data())) == -1){
-
-            print_error(__LINE__, __FILE__, " exec of \"%s\" failed %s", execPath, strerror(errno));
-            exit(1);
-        }
+        execvp(execPath, const_cast<char *const *>(args.data()));
+        print_error(__LINE__, __FILE__, " exec of \"%s\" failed %s", execPath, strerror(errno));
+        exit(1);
     }
     else
     {
@@ -99,8 +96,9 @@ void covise::spawnProgram(const std::string &name, const std::vector<std::string
     spawnProgram(name.c_str(), argV);
 }
 
-std::vector<const char*> createOsasciptArgs() {
-    std::vector<const char*> args;
+std::vector<std::string> createOsasciptArgs()
+{
+    std::vector<std::string> args;
     args.push_back("osascript");
     args.push_back("-e");
     args.push_back("tell application \"Terminal\"");
@@ -110,13 +108,13 @@ std::vector<const char*> createOsasciptArgs() {
     return args;
 }
 
-std::string createDebugEnvironmentCommandLineForApple() {
+std::string createDebugEnvironmentCommandLineForApple()
+{
     std::string covisedir;
     if (getenv("COVISEDIR"))
         covisedir = getenv("COVISEDIR");
 
-
-    std::array<const char*, 3> env;
+    std::array<const char *, 3> env;
     env[0] = "COVISEDIR";
     env[1] = "ARCHSUFFIX";
     env[2] = "COCONFIG";
@@ -124,7 +122,7 @@ std::string createDebugEnvironmentCommandLineForApple() {
     std::string arg = "do script with command \"";
     for (const auto e : env)
     {
-        const char* val = getenv(e);
+        const char *val = getenv(e);
         if (val)
             arg += std::string("export ") + e + "='" + val + "'; ";
     }
@@ -133,8 +131,63 @@ std::string createDebugEnvironmentCommandLineForApple() {
     return arg;
 }
 
+struct Spawn
+{
+    std::string execPath;
+    std::vector<std::string> args;
+};
 
-void covise::spawnProgramWithDebugger(const char* execPath, const std::string &debugCommands, const std::vector<const char*>& args) {
+#ifndef WIN32
+
+void trySpawn(const std::string &execName, const std::vector<Spawn> &spawns)
+{
+    int pid = fork();
+    if (pid == 0)
+    {
+        for (const auto &spawn : spawns)
+        {
+            auto args = cmdArgsToCharVec(spawn.args);
+            execvp(spawn.execPath.c_str(), const_cast<char *const *>(args.data()));
+        }
+        print_error(__LINE__, __FILE__, " exec of \"%s\" failed %s", execName.c_str(), strerror(errno));
+        exit(1);
+    }
+    else
+    {
+        // Needed to prevent zombies
+        // if childs terminate
+        signal(SIGCHLD, SIG_IGN);
+    }
+}
+#endif // !WIN32
+
+#ifdef __APPLE__
+
+#endif
+std::vector<std::string> appleArgs(const std::string &debugPath, const std::string &execPath, const std::vector<std::string> &args, bool memcheck)
+{
+    auto command = createOsasciptArgs();
+    std::string arg = createDebugEnvironmentCommandLineForApple();
+
+    //arg += "gdb --args ";
+    arg += debugPath;
+    arg += execPath;
+    if (!memcheck)
+        arg += " -- ";
+
+    for (const auto a : args)
+        arg += " " + a;
+    if (!memcheck)
+        arg += "; exit";
+    arg += "\"";
+    command.push_back(arg);
+    command.push_back("-e");
+    command.push_back("end tell");
+    return command;
+}
+
+void covise::spawnProgramWithDebugger(const std::string &execPath, const std::string &debugCommands, const std::vector<std::string> &args)
+{
 #ifdef WIN32
     std::string win_cmd_line;
     STARTUPINFO si;
@@ -150,20 +203,19 @@ void covise::spawnProgramWithDebugger(const char* execPath, const std::string &d
         win_cmd_line.append(" ");
     }
 
-
     // launch & debug
     // launch the child process "suspended" then attach debugger and resume child's main thread
-    if (!CreateProcess(execPath, // No module name (use command line)
-        (LPSTR)win_cmd_line.c_str(), // Command line
-        NULL, // Process handle not inheritable
-        NULL, // Thread handle not inheritable
-        FALSE, // Set handle inheritance to FALSE
-        CREATE_SUSPENDED, // create in suspended state
-        NULL, // Use parent's environment block
-        NULL, // Use parent's starting directory
-        &si, // Pointer to STARTUPINFO structure
-        &pi) // Pointer to PROCESS_INFORMATION structure
-        )
+    if (!CreateProcess(execPath,                    // No module name (use command line)
+                       (LPSTR)win_cmd_line.c_str(), // Command line
+                       NULL,                        // Process handle not inheritable
+                       NULL,                        // Thread handle not inheritable
+                       FALSE,                       // Set handle inheritance to FALSE
+                       CREATE_SUSPENDED,            // create in suspended state
+                       NULL,                        // Use parent's environment block
+                       NULL,                        // Use parent's starting directory
+                       &si,                         // Pointer to STARTUPINFO structure
+                       &pi)                         // Pointer to PROCESS_INFORMATION structure
+    )
     {
         fprintf(stderr, "Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), (int)GetLastError());
     }
@@ -219,123 +271,81 @@ void covise::spawnProgramWithDebugger(const char* execPath, const std::string &d
         CloseHandle(pi.hThread);
     }
 #else // !WIN32
-    std::vector<const char*> debugArgs;
+    std::vector<Spawn> spawns;
 #ifdef __APPLE__
-    debugArgs = createOsasciptArgs();
-    std::string arg = createDebugEnvironmentCommandLineForApple();
-
-    //arg += "gdb --args ";
-    arg += "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb ";
-    arg += execPath;
-    arg += " -- ";
-    for (int i = 1; args[i]; ++i)
     {
-        arg += " ";
-        arg += args[i];
+        Spawn &s = *spawns.emplace(spawns.end());
+        s.execPath = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb ";
+        s.args = appleArgs(s.execPath, execPath, args, false);
+        std::string arg = createDebugEnvironmentCommandLineForApple();
     }
-    arg += "; exit";
-    arg += "\"";
-    debugArgs.push_back(arg.c_str());
-    debugArgs.push_back("-e");
-    debugArgs.push_back("end tell");
-    debugArgs.push_back(nullptr);
-    spawnProgram(execPath, debugArgs);
 #endif
-    bool defaultCommand = false;
-    std::string command;
-    command = debugCommands;
-    if (command.empty())
-    {
-        command = "konsole -e gdb --args";
-        defaultCommand = true;
-    }
-    debugArgs = parseCmdArgString(command);
-    debugArgs.push_back(execPath);
-    debugArgs.insert(debugArgs.end(), args.begin(), args.end());
-    spawnProgram(execPath, debugArgs);
+    bool defaultCommand = debugCommands.empty();
+    Spawn &s = *spawns.emplace(spawns.end());
+    s.execPath = "Konsole";
+    s.args = defaultCommand ? std::vector<std::string>{"Konsole", "-e", "gdb", "--args"} : parseCmdArgString(debugCommands);
+    s.args.emplace_back(execPath);
+    s.args.insert(s.args.end(), args.begin(), args.end());
 
     if (defaultCommand)
     {
-        // try again with xterm
-        debugArgs[0] = "xterm";
-        spawnProgram(execPath, debugArgs);
+        auto &s2 = *spawns.emplace(spawns.end(), s);
+        s2.execPath = s2.args[0] = "xterm";
     }
-
-#endif // WIN32
+    trySpawn(execPath, spawns);
+#endif // !WIN32
 }
 
-
-void covise::spawnProgramWithMemCheck(const char* execPath, const std::string& debugCommands, const std::vector<const char*>& args) {
-   
-#ifdef WIN32
-    spawnProgramWithDebugger(execPath, "", args);
-#else //!WIN32
-    std::vector<const char*> debugArgs;
-#ifdef __APPLE__
-
-    debugArgs = createOsasciptArgs();
-    std::string arg = createDebugEnvironmentCommandLineForApple();
-
-    arg += "valgrind --trace-children=no --dsymutil=yes ";
-    arg += execPath;
-
-    for (int i = 1; args[i]; ++i)
-    {
-        arg += " ";
-        arg += args[i];
-    }
-    arg += "\"";
-    debugArgs.push_back(arg.c_str());
-    debugArgs.push_back("-e");
-    debugArgs.push_back("end tell");
-    debugArgs.push_back(nullptr);
-    spawnProgram(execPath, debugArgs);
-#endif
-
-    bool defaultCommand = false;
-    std::string command = debugCommands;
-    if (command.empty())
-    {
-#ifdef __APPLE__
-        command = "konsole --noclose -e valgrind --trace-children=no --dsymutil=yes";
-#else
-        command = "xterm -hold -e valgrind --trace-children=no";
-#endif
-        defaultCommand = true;
-    }
-    debugArgs = parseCmdArgString(command);
-    debugArgs.push_back(execPath);
-    debugArgs.insert(debugArgs.end(), args.begin(), args.end());
-    spawnProgram(execPath, debugArgs);
-
-    if (defaultCommand)
-    {
-
-        debugArgs[1] = const_cast<char*>("xterm");
-        debugArgs.erase(debugArgs.begin());
-        spawnProgram(execPath, debugArgs);
-    }
-#endif //!WIN32
-
-}
-
-
-
-std::vector<const char*> covise::parseCmdArgString(const std::string &commandLine)
+void covise::spawnProgramWithMemCheck(const std::string &execPath, const std::string &debugCommands, const std::vector<std::string> &args)
 {
-    std::vector<const char*> args;
 
-    std::string delim = " ";
+#ifdef WIN32
+    spawnProgramWithDebugger(execPath, debugCommands, args);
+#else //!WIN32
+    std::vector<Spawn> spawns;
 
-    size_t start = 0;
-    auto end = commandLine.find(delim);
-    while (end != std::string::npos)
+#ifdef __APPLE__
     {
-        args.emplace_back(commandLine.substr(start, end - start).c_str());
-        start = end + delim.length();
-        end = commandLine.find(delim, start);
+        Spawn &s = *spawns.emplace(spawns.end());
+        s.execPath = "valgrind --trace-children=no --dsymutil=yes ";
+        s.args = appleArgs(s.execPath, execPath, args, false);
+        std::string arg = createDebugEnvironmentCommandLineForApple();
     }
-    return args;
+#endif
+    bool defaultCommand = debugCommands.empty();
+    Spawn &s = *spawns.emplace(spawns.end());
+
+    s.args = defaultCommand ?
+#ifdef __APPLE__
+    std::vector<std::string>{"konsole", "--noclose", "-e", "valgrind", "--trace-children=no", "--dsymutil=yes"}
+#else
+    std::vector<std::string>{"konsole", "-hold", "-e", "valgrind", "--trace-children=no"}
+#endif
+    : parseCmdArgString(debugCommands);
+    s.args.emplace_back(execPath);
+    s.args.insert(s.args.end(), args.begin(), args.end());
+    s.execPath = s.args[0];
+
+    if (defaultCommand)
+    {
+        auto &s2 = *spawns.emplace(spawns.end(), s);
+        s2.execPath = s2.args[0] = "xterm";
+    }
+    trySpawn(execPath, spawns);
+
+#endif //!WIN32
 }
 
+std::vector<std::string> covise::parseCmdArgString(const std::string &commandLine)
+{
+    return split(commandLine, ' ');
+}
 
+std::vector<const char *> covise::cmdArgsToCharVec(const std::vector<std::string> &args)
+{
+    std::vector<const char *> v(args.size() + 1);
+    std::transform(args.begin(), args.end(), v.begin(), [](const std::string &s)
+                   { return s.c_str(); });
+    v[args.size()] = nullptr;
+    return v;
+}

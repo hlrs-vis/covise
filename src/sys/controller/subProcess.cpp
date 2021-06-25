@@ -194,7 +194,7 @@ bool SubProcess::start(const char *instance, const char *category)
     return setupConn([this, instance, category](int port, const std::string &ip)
                      {
                          auto &controllerHost = host.hostManager.getLocalHost();
-                         CRB_EXEC crbExec{covise::ExecFlag::Normal, m_executableName.c_str(), port, ip.c_str(), static_cast<int>(processId), instance,
+                         CRB_EXEC crbExec{m_execFlag, m_executableName.c_str(), port, ip.c_str(), static_cast<int>(processId), instance,
                                           host.userInfo().ipAdress.c_str(), host.userInfo().hostName.c_str(),
                                           category, host.hostManager.getLocalHost().ID(), vrb::VrbCredentials{}, std::vector<std::string>{}};
 

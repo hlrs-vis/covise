@@ -10,6 +10,7 @@
 
 #include <functional>
 
+#include <comsg/CRB_EXEC.h>
 #include <covise/covise.h>
 #include <covise/covise_msg.h>
 #include <net/covise_connect.h>
@@ -81,6 +82,7 @@ protected:
     virtual bool connectToCrb(const SubProcess &crb);
     bool connectModuleToCrb(const SubProcess &toCrb, ConnectionType type);
     const Connection *m_conn = nullptr; // connection to this other module managed by process::list_of_connections
+    ExecFlag m_execFlag = ExecFlag::Normal;
 private:
     const Type m_type; //type use to safely upcast
     const std::string m_executableName;

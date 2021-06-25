@@ -4,6 +4,7 @@
 #include <cstring>
 #include <net/message.h>
 #include <net/message_types.h>
+#include <util/coSpawnProgram.h>
 namespace test {
 void test_crbExec() {
 	std::vector<std::string> params;

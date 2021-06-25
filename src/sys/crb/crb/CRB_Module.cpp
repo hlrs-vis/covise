@@ -81,9 +81,8 @@ const char *module::get_category() const
 
 void module::start(const CRB_EXEC & exec)
 {
-    auto a = getCmdArgs(exec);
-    auto args = cmdArgsToCharVec(a);
-    args[0] = execpath.c_str();
+    auto args = getCmdArgs(exec);
+    args.erase(args.begin()); 
     switch (exec.flag)
     {
     case ExecFlag::Normal:

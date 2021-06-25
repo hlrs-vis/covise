@@ -192,6 +192,7 @@ size_t NetModule::instance() const
 void NetModule::init(const MapPosition &pos, int copy, ExecFlag flag, NetModule *mirror)
 {
     m_position = pos;
+    m_execFlag = flag;
     if (!start(std::to_string(m_instance).c_str(), info().category.c_str()) || !connectToCrb())
     {
         std::cerr << "Application::init failed to start module " << info().name << std::endl;

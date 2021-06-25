@@ -40,7 +40,6 @@ namespace covise{
     COMSGEXPORT std::vector<std::string> getCmdArgs(const CRB_EXEC &exec);
     COMSGEXPORT CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]);
 
-    COMSGEXPORT std::vector<const char*> cmdArgsToCharVec(const std::vector<std::string>& args);
 
 } //covise
 

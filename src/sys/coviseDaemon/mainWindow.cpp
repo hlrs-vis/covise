@@ -434,11 +434,7 @@ bool MainWindow::askForPermission(const QString &request)
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()
 {
-	auto args = covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
-	std::vector<std::string> a(args.size());
-	std::transform(args.begin(), args.end(), a.begin(), [](const char *c)
-				   { return c; });
-	return a;
+	return covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
 }
 
 //free functions

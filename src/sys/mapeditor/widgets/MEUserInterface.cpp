@@ -29,9 +29,10 @@
 #include <QMimeData>
 #include <QTimer>
 
-#include <covise/covise_msg.h>
-#include <config/coConfig.h>
 #include <comsg/CRB_EXEC.h>
+#include <config/coConfig.h>
+#include <covise/covise_msg.h>
+#include <util/coSpawnProgram.h>
 
 #include "MEUserInterface.h"
 #include "MEGraphicsView.h"

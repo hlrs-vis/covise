@@ -127,13 +127,6 @@ CRB_EXEC getExecFromCmdArgs(int argC, char* argV[]) {
 	return exec;
 }
 
-std::vector<const char*> cmdArgsToCharVec(const std::vector<std::string>& args) {
-	std::vector<const char*> v(args.size() + 1);
-	std::transform(args.begin(), args.end(), v.begin(), [](const std::string& s) {return s.c_str(); });
-	v[args.size()] = nullptr;
-	return v;
-}
-
 } //covise
 
 
