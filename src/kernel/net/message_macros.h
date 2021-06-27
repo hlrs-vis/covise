@@ -1,10 +1,11 @@
 #ifndef MESSAGE_MACROS_H
 #define MESSAGE_MACROS_H
 
-#include <util/tryPrint.h>
-#include <memory>
 #include <cassert>
 #include <cstring>
+#include <memory>
+#include <string>
+#include <util/tryPrint.h>
 
 namespace covise
 {
