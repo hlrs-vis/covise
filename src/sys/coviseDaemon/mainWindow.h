@@ -12,9 +12,9 @@
 #include "childOutput.h"
 
 #include <QMainWindow>
+#include <QTimer>
 
 #include <memory>
-#include <future>
 #include <config/coConfigBool.h>
 #include <config/coConfigInt.h>
 #include <config/coConfigString.h>
@@ -63,7 +63,7 @@ private:
     QSystemTrayIcon* m_tray = nullptr;
     std::mutex m_mutex;
     std::atomic_bool m_isConnecting{false};
-    std::unique_ptr<std::thread> m_connectionBarTread;
+    QTimer m_progressBarTimer;
     ClientWidgetList *m_clientList;
     CoviseDaemon m_remoteLauncher;
     covise::coConfigGroup *cdConfig;

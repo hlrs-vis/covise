@@ -57,12 +57,8 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 MainWindow::~MainWindow()
 {
 	cdConfig->save();
-
+	m_progressBarTimer.stop();
 	m_isConnecting = false;
-	if (m_connectionBarTread && m_connectionBarTread->joinable())
-	{
-		m_connectionBarTread->join();
-	}
 	delete ui;
 }
 
@@ -135,12 +131,16 @@ void MainWindow::updateStatusBar()
 		if (ui->progressBar->maximum() > 0 && newVal >= ui->progressBar->maximum()) //timeout
 		{
 			setStateDisconnected();
+			m_progressBarTimer.stop();
 		}
 		else
 		{
 			ui->progressBar->setValue(newVal);
 		}
 	}
+	else
+		m_progressBarTimer.stop();
+
 }
 
 void MainWindow::setStateDisconnected()
@@ -208,6 +208,8 @@ void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 	ui->hostIpf->setText(QString(credentials.ipAddress.c_str()));
 	ui->progressBar->setVisible(false);
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
+	connect(&m_progressBarTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);
+	setStackedWidget(ui->InfoStackedWidget, 1);
 }
 
 void MainWindow::initConfigSettings()
@@ -383,32 +385,14 @@ void MainWindow::createTrayIcon()
 
 void MainWindow::showConnectionProgressBar(int seconds)
 {
-	if (m_connectionBarTread && m_connectionBarTread->joinable())
+	int resolution = 2;
+	ui->progressBar->reset();
+	ui->progressBar->setRange(0, resolution * seconds);
+	ui->progressBar->setVisible(true);
+	if (!m_progressBarTimer.isActive())
 	{
-		return;
+		m_progressBarTimer.start(1000 / resolution);
 	}
-	m_connectionBarTread.reset(new std::thread([this, seconds]()
-											   {
-												   std::future<void> waitFuture;
-
-												   int resolution = 2;
-												   ui->progressBar->reset();
-												   ui->progressBar->setRange(0, resolution * seconds);
-												   ui->progressBar->setVisible(true);
-												   if (waitFuture.valid())
-												   {
-													   waitFuture.get();
-												   }
-
-												   waitFuture = std::async(std::launch::async, [this, seconds, resolution]()
-																		   {
-																			   while (m_isConnecting)
-																			   {
-																				   QMetaObject::invokeMethod(this, "updateStatusBarSignal", Qt::QueuedConnection);
-																				   std::this_thread::sleep_for(std::chrono::milliseconds(1000 / resolution));
-																			   }
-																		   });
-											   }));
 }
 
 bool MainWindow::askForPermission(const QString &request)
