@@ -13,7 +13,7 @@
 #include <sys/errno.h>
 #endif
 #include <signal.h>
-#include <boost/algorithm/algorithm.hpp>
+#include <algorithm>
 #include <array>
 using namespace covise;
 
@@ -205,7 +205,7 @@ void covise::spawnProgramWithDebugger(const std::string &execPath, const std::st
 
     // launch & debug
     // launch the child process "suspended" then attach debugger and resume child's main thread
-    if (!CreateProcess(execPath,                    // No module name (use command line)
+    if (!CreateProcess(execPath.c_str(),                    // No module name (use command line)
                        (LPSTR)win_cmd_line.c_str(), // Command line
                        NULL,                        // Process handle not inheritable
                        NULL,                        // Thread handle not inheritable
