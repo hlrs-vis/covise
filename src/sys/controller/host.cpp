@@ -488,17 +488,16 @@ void RemoteHost::clearProcesses()
 }
 
 HostManager::HostManager()
-    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise}), m_thread([this]()
-                                                                                                                                                                                                    { handleVrb(); })
+    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first)
+    , m_vrb(new vrb::VRBClient{vrb::Program::covise}) 
 {
+    m_vrb->connectToServer();
 }
 
 HostManager::~HostManager()
 {
-    m_terminateVrb = true;
     m_hosts.clear(); //host that use vrb proxy must be deleted before vrb conn is shutdown
     m_vrb->shutdown();
-    m_thread.join();
 }
 
 void HostManager::sendPartnerList() const
@@ -556,13 +555,11 @@ void HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg, const s
 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)
 {
-    std::lock_guard<std::mutex> g{m_mutex};
     m_onConnectVrbCallBack = cb;
 }
 
 int HostManager::vrbClientID() const
 {
-    std::lock_guard<std::mutex> g{m_mutex};
     return m_vrb->ID();
 }
 
@@ -782,16 +779,14 @@ std::unique_ptr<Message> HostManager::receiveProxyMessage()
     return m;
 }
 
-std::mutex &HostManager::mutex() const
-{
-    return m_mutex;
-}
-
 bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
 {
     PROXY_ConnectionCheck check{clID, m_vrb->ID()};
     sendCoviseMessage(check, *m_vrb);
-    auto conCap = m_proxyRequired.waitForValue();
+    Message retval;
+    m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
+    PROXY proxyMsg{ retval };
+    auto conCap = proxyMsg.unpackOrCast<PROXY_ConnectionState>().capability;
     if (conCap == ConnectionCapability::NotChecked)
     {
         int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
@@ -806,7 +801,9 @@ bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
                               });
         now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cerr << " waiting for response from vrb: " << std::ctime(&now) << std::endl;
-        conCap = m_proxyRequired.waitForValue();
+        m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
+        PROXY proxyMsg2{ retval };
+        conCap = proxyMsg2.unpackOrCast<PROXY_ConnectionState>().capability;
         now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cerr << " received response from vrb: " << std::ctime(&now) << std::endl;
     }
@@ -835,9 +832,11 @@ void HostManager::createProxyConn()
         PROXY_CreateControllerProxy p{m_vrb->ID()};
         sendCoviseMessage(p, *m_vrb);
         //connect
-        auto proxyConnPort = m_proxyConnPort.waitForValue();
+        Message retval;
+        m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
+        PROXY proxyMsg{ retval };
         Host h{m_vrb->getCredentials().ipAddress.c_str()};
-        m_proxyConnection = createConnectedConn<ControllerProxyConn>(&h, proxyConnPort, 1000, (int)CONTROLLER);
+        m_proxyConnection = createConnectedConn<ControllerProxyConn>(&h, proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port, 1000, (int)CONTROLLER);
         if (!m_proxyConnection)
             std::cerr << "failed to create proxy connection via VRB" << std::endl;
     }
@@ -845,33 +844,21 @@ void HostManager::createProxyConn()
 
 void HostManager::handleVrb()
 {
-    using namespace covise;
-    while (!m_terminateVrb)
-    {
-        m_vrb->connectToServer();
-        while (!m_terminateVrb && !m_vrb->isConnected())
-        {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-        while (!m_terminateVrb && handleVrbMessage())
-        {
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    while (m_vrb->isConnected() && handleVrbMessage()) {
     }
 }
 
 bool HostManager::handleVrbMessage()
 {
     covise::Message msg;
-    m_vrb->wait(&msg);
-
+    if (!m_vrb->poll(&msg))
+        return false;
     switch (msg.type)
     {
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
 
         {
-            std::lock_guard<std::mutex> g{m_mutex};
             vrb::UserInfoMessage uim(&msg);
             if (uim.hasMyInfo)
             {
@@ -906,7 +893,6 @@ bool HostManager::handleVrbMessage()
         case VRB_PERMIT_LAUNCH_TYPE::Answer:
         {
             auto &answer = permission.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
-            std::lock_guard<std::mutex> g{ m_mutex };
             if (auto h = getHost(answer.launcherID))
             {
                 if (!answer.permit) {
@@ -928,24 +914,6 @@ bool HostManager::handleVrbMessage()
         }
     }
     break;
-    case COVISE_MESSAGE_PROXY:
-    {
-        PROXY proxyMsg{msg};
-        switch (proxyMsg.type)
-        {
-        case PROXY_TYPE::ProxyCreated:
-            m_proxyConnPort.setValue(proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port);
-            break;
-        case PROXY_TYPE::ConnectionState:
-        {
-            m_proxyRequired.setValue(proxyMsg.unpackOrCast<PROXY_ConnectionState>().capability);
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    break;
     case COVISE_MESSAGE_VRB_QUIT:
     {
         TokenBuffer tb{&msg};
@@ -953,33 +921,30 @@ bool HostManager::handleVrbMessage()
         tb >> id;
         if (id != m_vrb->ID())
         {
+            auto clIt = m_hosts.find(id);
+            if (clIt != m_hosts.end())
             {
-                std::lock_guard<std::mutex> g{m_mutex};
-                auto clIt = m_hosts.find(id);
-                if (clIt != m_hosts.end())
+                if (clIt->second->state() != LaunchStyle::Disconnect)
                 {
-                    if (clIt->second->state() != LaunchStyle::Disconnect)
+                    int i = -1;
+                    while (true)
                     {
-                        int i = -1;
-                        while (true)
+                        auto hostsToRemove = m_hosts.find(i);
+                        if (hostsToRemove != m_hosts.end())
                         {
-                            auto hostsToRemove = m_hosts.find(i);
-                            if (hostsToRemove != m_hosts.end())
-                            {
-                                ++i;
-                            }
-                            else
-                            {
-                                NEW_UI_ChangeClientId c{clIt->second->ID(), i};
-                                clIt->second->setID(i);
-                                sendAll<Userinterface>(c.createMessage());
-                                m_hosts[i] = std::move(clIt->second);
-                                break;
-                            }
+                            ++i;
+                        }
+                        else
+                        {
+                            NEW_UI_ChangeClientId c{clIt->second->ID(), i};
+                            clIt->second->setID(i);
+                            sendAll<Userinterface>(c.createMessage());
+                            m_hosts[i] = std::move(clIt->second);
+                            break;
                         }
                     }
-                    m_hosts.erase(clIt);
                 }
+                m_hosts.erase(clIt);
             }
             sendPartnerList();
             break;
@@ -999,6 +964,7 @@ bool HostManager::handleVrbMessage()
         m_localHost->second->setID(0);
         std::cerr << "lost connection to vrb" << std::endl;
         m_vrb.reset(new vrb::VRBClient{vrb::Program::covise});
+        m_vrb->connectToServer();
         return false;
     }
     break;

@@ -218,16 +218,23 @@ void CTRLHandler::loop()
 {
     while (!m_exit)
     {
+        m_hostManager.handleVrb();
         std::unique_ptr<Message> msg;
         if (!m_quitNow)
         {
             if (auto pmsg = m_hostManager.receiveProxyMessage())
                 msg = std::move(pmsg);
-            else
-            {
-                msg.reset(CTRLGlobal::getInstance()->controller->wait_for_msg());
+            else 
+                msg.reset(CTRLGlobal::getInstance()->controller->check_for_msg());
+            static int waitTime = 0;
+            if (msg) {
+                handleMsg(msg);
+                waitTime = 0;
             }
-            handleMsg(msg);
+            else {
+                std::this_thread::sleep_for(std::chrono::microseconds(10 * waitTime));
+                 waitTime < 50? ++waitTime : 3 * 5;
+            }
         }
         else
         {
@@ -253,7 +260,6 @@ void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
     if (m_quitNow)
         msg->type = COVISE_MESSAGE_QUIT;
     CTRLGlobal *global = CTRLGlobal::getInstance();
-    std::lock_guard<std::mutex> g(m_hostManager.mutex());
     switch (msg->type)
     {
     case COVISE_MESSAGE_EMPTY:

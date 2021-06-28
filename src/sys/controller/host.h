@@ -178,23 +178,17 @@ public:
     void resetModuleInstances();
     const ControllerProxyConn *proxyConn() const;
     std::unique_ptr<Message> receiveProxyMessage();
-    std::mutex &mutex() const;
+    void handleVrb();
 
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
     std::unique_ptr<vrb::VRBClient> m_vrb;
     HostMap m_hosts;
     HostMap::iterator m_localHost;
-    std::thread m_thread;
-    mutable std::mutex m_mutex;
     std::function<void(void)> m_onConnectVrbCallBack;
-    std::atomic_bool m_terminateVrb{false};
     std::unique_ptr<ControllerProxyConn> m_proxyConnection;
-    SyncVar<int> m_proxyConnPort;
-    SyncVar<covise::ConnectionCapability> m_proxyRequired;
     bool checkIfProxyRequiered(int clID, const std::string &hostName);
     void createProxyConn();
-    void handleVrb();
     bool handleVrbMessage();
     void moveRendererInNewSessions();
 
