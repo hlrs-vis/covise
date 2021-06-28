@@ -71,8 +71,8 @@ struct RemoteHost : vrb::RemoteClient
                           int posx, int posy, int copy, ExecFlag flags, NetModule *mirror = nullptr);
     bool removePartner();
     bool proxyHost() const;
-    void setCode(int code);
-
+    void permitLaunch(int code);
+    covise::LaunchStyle desiredState() const;
 private:
     bool addPartner();
     void launchScipt(vrb::Program exec, const std::vector<std::string> &cmdArgs);  //need to create a new remote host for these
@@ -92,15 +92,16 @@ private:
 
 protected:
     covise::LaunchStyle m_state = covise::LaunchStyle::Disconnect;
+    covise::LaunchStyle m_desiredState = covise::LaunchStyle::Disconnect;
+    bool m_hasPermission = false;
     virtual void connectShm(const CRBModule &crbModule);
-    virtual bool askForPermission();
+    virtual void askForPermission();
     virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs);
 };
 
 struct LocalHost : RemoteHost{
     LocalHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = "");
     virtual void connectShm(const CRBModule &crbModule) override;
-    virtual bool askForPermission() override;
     virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs) override;
 };
 
@@ -176,7 +177,6 @@ public:
     const ModuleInfo &registerModuleInfo(const std::string &name, const std::string &category) const;
     void resetModuleInstances();
     const ControllerProxyConn *proxyConn() const;
-    bool launchOfCrbPermitted(int targetClientId) const;
     std::unique_ptr<Message> receiveProxyMessage();
     std::mutex &mutex() const;
 
@@ -192,7 +192,6 @@ private:
     std::unique_ptr<ControllerProxyConn> m_proxyConnection;
     SyncVar<int> m_proxyConnPort;
     SyncVar<covise::ConnectionCapability> m_proxyRequired;
-    mutable SyncVar<bool> m_launchPermission;
     bool checkIfProxyRequiered(int clID, const std::string &hostName);
     void createProxyConn();
     void handleVrb();
