@@ -157,6 +157,7 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
                                                                                         { m_conn = nullptr; });
             return true;
         }
+        m_conn = nullptr;
         return false;
     }
     else //create proxy conn via vrb

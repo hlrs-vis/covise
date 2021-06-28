@@ -225,7 +225,7 @@ bool containsDisplay(const std::vector<std::unique_ptr<Display>> &displays, cons
            }) != displays.end();
 }
 
-bool Renderer::initDisplays(int copy)
+void Renderer::initDisplays(int copy)
 {
     const SubProcess *localUi = nullptr;
     try
@@ -250,17 +250,16 @@ bool Renderer::initDisplays(int copy)
     else if (!localUi || copy == 4) // no ui on this host or it's a mirror node
     {
         if (containsDisplay(m_displays, host))
-            return true;
+            return;
 
         Display &newDisplay = **m_displays.emplace(m_displays.end(), new Display{*this, host});
         newDisplay.set_execstat(Userinterface::Mirror);
         std::string info_str = info().name + "\n" + std::to_string(instance()) + "\n" + getHost();
         if (!newDisplay.start(std::to_string(instance()).c_str(), info().category.c_str()))
         {
-            return false;
+            throw Exception{"initDisplays: failed to start module"};
         }
     }
-    return 1;
 }
 
 void Renderer::copyConnectivity()

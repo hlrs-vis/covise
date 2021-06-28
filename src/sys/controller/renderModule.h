@@ -96,7 +96,7 @@ private:
     DisplayList::iterator addDisplay(const Userinterface &ui);
     DisplayList m_displays;
     mutable int m_ready = 0;
-    bool initDisplays(int copy);
+    void initDisplays(int copy);
     void copyConnectivity() override;
 };
 

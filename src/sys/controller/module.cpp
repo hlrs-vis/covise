@@ -195,13 +195,10 @@ void NetModule::init(const MapPosition &pos, int copy, ExecFlag flag, NetModule 
     m_execFlag = flag;
     if (!start(std::to_string(m_instance).c_str(), info().category.c_str()) || !connectToCrb())
     {
-        std::cerr << "Application::init failed to start module " << info().name << std::endl;
-        return;
+        throw Exception{"Application::init failed to start module " + info().name};
     }
     if (copy == 4 && mirror)
-    {
         this->mirror(mirror);
-    }
     Message msg;
     recv_msg(&msg);
     if (!msg.data.data())

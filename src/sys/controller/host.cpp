@@ -263,19 +263,15 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
         throw Exception{"failed to start " + name + "on " + userInfo().hostName + ": module not available!"};
     }
     int nr = std::stoi(instanz);
-    SubProcess *module = nullptr;
+    std::unique_ptr<NetModule> module;
     if ((*moduleInfo)->category == "Renderer")
-    {
-        module = &**m_processes.emplace(m_processes.end(), new Renderer{*this, **moduleInfo, nr});
-    }
+        module.reset(new Renderer{*this, **moduleInfo, nr});
+
     else
-    {
-        module = &**m_processes.emplace(m_processes.end(), new NetModule{*this, **moduleInfo, nr});
-    }
+        module.reset(new NetModule{*this, **moduleInfo, nr});
     // set initial values
-    auto &app = dynamic_cast<NetModule &>(*module);
-    app.init({posx, posy}, copy, flags, mirror);
-    return app;
+    module->init({posx, posy}, copy, flags, mirror);
+    return dynamic_cast<NetModule&>( **m_processes.emplace(m_processes.end(), std::move(module)));
 }
 
 bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
