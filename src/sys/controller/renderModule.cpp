@@ -11,8 +11,8 @@
 #include "handler.h"
 #include "exception.h"
 
+using namespace covise;
 using namespace covise::controller;
-
 //**********************************************************************
 //
 // 			DISPLAY

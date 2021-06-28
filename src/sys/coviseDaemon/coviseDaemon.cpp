@@ -30,6 +30,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <ctime>
 #include <cmath>
 #include <sstream>
 #include <string>
