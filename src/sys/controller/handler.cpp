@@ -253,7 +253,7 @@ void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
     if (m_quitNow)
         msg->type = COVISE_MESSAGE_QUIT;
     CTRLGlobal *global = CTRLGlobal::getInstance();
-    std::lock_guard<std::mutex>(m_hostManager.mutex());
+    std::lock_guard<std::mutex> g(m_hostManager.mutex());
     switch (msg->type)
     {
     case COVISE_MESSAGE_EMPTY:
