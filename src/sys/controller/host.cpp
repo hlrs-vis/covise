@@ -151,15 +151,8 @@ void RemoteHost::connectShm(const CRBModule &crbModule)
 
 void RemoteHost::askForPermission()
 {
-    if (m_exectype == ExecType::VRB)
-    {
         covise::VRB_PERMIT_LAUNCH_Ask ask{ hostManager.getVrbClient().ID(), ID(), vrb::Program::crb };
         sendCoviseMessage(ask, hostManager.getVrbClient());
-    }
-    else {
-        m_hasPermission = true;
-        handlePartnerAction(m_desiredState, m_isProxy);
-    }
 }
 
 void RemoteHost::determineAvailableModules(const CRBModule &crb)
@@ -363,7 +356,7 @@ bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequi
 {
     m_isProxy = proxyRequired;
     bool retval = false;
-    if (action == covise::LaunchStyle::Disconnect || m_hasPermission) {
+    if (action == covise::LaunchStyle::Disconnect || m_hasPermission || m_exectype != ExecType::VRB) {
         m_hasPermission = false;
     
         switch (action)
@@ -516,34 +509,15 @@ void HostManager::sendPartnerList() const
     sendAll<Userinterface>(msg);
 }
 
-void HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg, const std::string &netFilename)
+void HostManager::handleActions(const covise::NEW_UI_HandlePartners &msg)
 {
-
     for (auto clID : msg.clients)
     {
         auto hostIt = m_hosts.find(clID);
         if (hostIt != m_hosts.end())
         {
             hostIt->second->setTimeout(msg.timeout);
-            bool proxyRequired = false;
-            if (msg.launchStyle != LaunchStyle::Disconnect)
-            {
-                proxyRequired = checkIfProxyRequiered(clID, hostIt->second->userInfo().hostName);
-            }
-            if (hostIt->second->handlePartnerAction(msg.launchStyle, proxyRequired) && msg.launchStyle == LaunchStyle::Partner)
-            {
-                const auto &ui = dynamic_cast<const Userinterface &>(hostIt->second->getProcess(sender_type::USERINTERFACE));
-
-                ui.sendCurrentNetToUI(netFilename);
-                // add displays for the existing renderers on the new partner
-                for (const auto &renderer : getAllModules<Renderer>())
-                {
-                    if (renderer->isOriginal())
-                    {
-                        renderer->addDisplayAndHandleConnections(ui);
-                    }
-                }
-            }
+            handleAction(msg.launchStyle, *hostIt->second);
             if (clID < 0 && msg.launchStyle == LaunchStyle::Disconnect) //the deamon already disconnected
             {
                 m_hosts.erase(hostIt);
@@ -551,6 +525,29 @@ void HostManager::handleAction(const covise::NEW_UI_HandlePartners &msg, const s
         }
     }
     sendPartnerList();
+}
+
+void HostManager::handleAction(LaunchStyle style, RemoteHost &h)
+{
+    bool proxyRequired = false;
+    if (style != LaunchStyle::Disconnect)
+    {
+        proxyRequired = checkIfProxyRequiered(h.ID(), h.userInfo().hostName);
+    }
+    if (h.handlePartnerAction(style, proxyRequired) && style == LaunchStyle::Partner)
+    {
+        const auto &ui = dynamic_cast<const Userinterface &>(h.getProcess(sender_type::USERINTERFACE));
+
+        ui.sendCurrentNetToUI(CTRLHandler::instance()->globalFile());
+        // add displays for the existing renderers on the new partner
+        for (const auto &renderer : getAllModules<Renderer>())
+        {
+            if (renderer->isOriginal())
+            {
+                renderer->addDisplayAndHandleConnections(ui);
+            }
+        }
+    }
 }
 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)
@@ -901,7 +898,7 @@ bool HostManager::handleVrbMessage()
                 }
                 else {
                     h->permitLaunch(answer.code);
-                    h->handlePartnerAction(h->desiredState(), checkIfProxyRequiered(h->ID(), h->userInfo().hostName));
+                    handleAction(h->desiredState(), *h);
                 }
             }
             else

@@ -2108,7 +2108,7 @@ void CTRLHandler::handleNewUi(const NEW_UI &msg)
     case NEW_UI_TYPE::HandlePartners:
     {
         auto &handlePartnerMsg = msg.unpackOrCast<NEW_UI_HandlePartners>();
-        m_hostManager.handleAction(handlePartnerMsg, m_globalFilename);
+        m_hostManager.handleActions(handlePartnerMsg);
         sendCollaborativeState();
 
 
@@ -2874,6 +2874,11 @@ bool CTRLHandler::recreate(const string &content, readMode mode)
     m_writeUndoBuffer = true;
 
     return true;
+}
+
+const std::string &CTRLHandler::globalFile() const
+{
+    return m_globalFilename;
 }
 
 void CTRLHandler::addHostIfnotAlreadyAdded(const std::string &hostAddress, const std::string &userName, LaunchStyle style)

@@ -118,7 +118,9 @@ public:
     } uiState;
 
     void sendPartnerList() const; 
-    void handleAction(const covise::NEW_UI_HandlePartners &msg, const std::string &netFilename);
+    void handleActions(const covise::NEW_UI_HandlePartners &msg);
+    void handleAction(LaunchStyle style, RemoteHost &h);
+
     void setOnConnectCallBack(std::function<void(void)> cb);
     int vrbClientID() const;
     const vrb::VRBClient &getVrbClient() const;

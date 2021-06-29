@@ -62,6 +62,7 @@ public:
     void handleClosedMsg(const std::unique_ptr<Message>& msg);
 
     bool recreate(const string &content, readMode mode);
+    const std::string &globalFile() const;
 
 private:
     bool m_exit = false; //flag to exit main loop and terminate the controller
