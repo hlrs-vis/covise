@@ -524,7 +524,6 @@ void HostManager::handleActions(const covise::NEW_UI_HandlePartners &msg)
             }
         }
     }
-    sendPartnerList();
 }
 
 void HostManager::handleAction(LaunchStyle style, RemoteHost &h)
@@ -534,6 +533,7 @@ void HostManager::handleAction(LaunchStyle style, RemoteHost &h)
     {
         proxyRequired = checkIfProxyRequiered(h.ID(), h.userInfo().hostName);
     }
+    bool error = false;
     if (h.handlePartnerAction(style, proxyRequired) && style == LaunchStyle::Partner)
     {
         const auto &ui = dynamic_cast<const Userinterface &>(h.getProcess(sender_type::USERINTERFACE));
@@ -547,7 +547,13 @@ void HostManager::handleAction(LaunchStyle style, RemoteHost &h)
                 renderer->addDisplayAndHandleConnections(ui);
             }
         }
+        //inform ui that the connection process is over
+        sendPartnerList();
+        NEW_UI_ConnectionCompleted cmsg{h.ID()};
+        auto m = cmsg.createMessage();
+        sendAll<Userinterface>(m);
     }
+        
 }
 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)

@@ -1158,7 +1158,7 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
     break;
     case NEW_UI_TYPE::ConnectionCompleted:
     {
-        emit MEMainHandler::instance()->activatePartnerDialogue();
+        emit MEMainHandler::instance()->connectionCompleted(msg.unpackOrCast<NEW_UI_ConnectionCompleted>().partnerClientId);
     }
     break;
     case NEW_UI_TYPE::ChangeClientId:

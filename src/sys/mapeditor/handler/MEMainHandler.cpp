@@ -1019,7 +1019,6 @@ void MEMainHandler::addPartner()
                 {
                     requestPartnerAction(client.style, std::vector<int>{client.id});
                     m_addPartnerDialog->hide();
-                    m_showPartnerDialogue = false;
                 });
     }
     if (!m_waitingForConnectionDialog)
@@ -1027,7 +1026,6 @@ void MEMainHandler::addPartner()
         m_waitingForConnectionDialog = new MEWaitingForConnection{mapEditor};
         connect(this, &MEMainHandler::activatePartnerDialogue, this, [this]()
                 {
-                    m_showPartnerDialogue = true;
                     if (m_waitingForConnectionDialog->isVisible())
                     {
                         m_waitingForConnectionDialog->hide();
@@ -1054,6 +1052,12 @@ void MEMainHandler::requestPartnerAction(covise::LaunchStyle launchStyle, const 
     int timeout = 30;
     covise::NEW_UI_HandlePartners msg{launchStyle, timeout, clients};
     covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
+    std::lock_guard<std::mutex> g{m_remotePartnerMutex};
+    if (launchStyle != covise::LaunchStyle::Disconnect)
+    {
+        m_showPartnerDialogue = false;
+        m_requestedClients = clients;
+    }
 }
 
 void MEMainHandler::deleteSelectedNodes()
@@ -1322,6 +1326,18 @@ QColor MEMainHandler::getHostColor(int entry)
 void MEMainHandler::updateRemotePartners(const covise::ClientList &partners){
     std::lock_guard<std::mutex> g{m_remotePartnerMutex};
     m_remotePartners = partners;
+}
+
+void MEMainHandler::connectionCompleted(int clientId)
+{
+    std::unique_lock<std::mutex> g{m_remotePartnerMutex};
+    m_requestedClients.erase(std::remove(m_requestedClients.begin(), m_requestedClients.end(), clientId), m_requestedClients.end());
+    if (m_requestedClients.empty())
+    {
+        m_showPartnerDialogue = true;
+        g.unlock();
+        emit activatePartnerDialogue();
+    }
 }
 
 //!

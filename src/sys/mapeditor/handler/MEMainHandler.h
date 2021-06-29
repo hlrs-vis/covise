@@ -198,6 +198,7 @@ public:
 
     void initNode(int nodeid, MEHost *host, covise::coRecvBuffer &tb);
     void updateRemotePartners(const covise::ClientList &partners);
+    void connectionCompleted(int clientId);
 signals:
 
     void usingNode(const QString &);
@@ -266,7 +267,8 @@ private:
     MESessionSettings *m_settings;
     MERemotePartner *m_addPartnerDialog = nullptr;
     MEWaitingForConnection *m_waitingForConnectionDialog = nullptr;
-    std::atomic_bool m_showPartnerDialogue{true};
+    bool m_showPartnerDialogue{true};
+    std::vector<int> m_requestedClients;
     MECSCWParam *m_CSCWParam;
     MEDeleteHostDialog *m_deleteHostBox;
     MEMirrorHostDialog *m_mirrorBox;
