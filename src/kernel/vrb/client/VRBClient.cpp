@@ -45,6 +45,11 @@ VRBClient::VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, boo
     }
 }
 
+
+VRBClient::~VRBClient()
+{
+    shutdown();
+}
 bool VRBClient::poll(Message *m)
 {
     if (isSlave)
