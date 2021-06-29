@@ -151,8 +151,8 @@ void RemoteHost::connectShm(const CRBModule &crbModule)
 
 void RemoteHost::askForPermission()
 {
-        covise::VRB_PERMIT_LAUNCH_Ask ask{ hostManager.getVrbClient().ID(), ID(), vrb::Program::crb };
-        sendCoviseMessage(ask, hostManager.getVrbClient());
+    covise::VRB_PERMIT_LAUNCH_Ask ask{hostManager.getVrbClient().ID(), ID(), vrb::Program::crb};
+    sendCoviseMessage(ask, hostManager.getVrbClient());
 }
 
 void RemoteHost::determineAvailableModules(const CRBModule &crb)
@@ -261,7 +261,7 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
         module.reset(new NetModule{*this, **moduleInfo, nr});
     // set initial values
     module->init({posx, posy}, copy, flags, mirror);
-    return dynamic_cast<NetModule&>( **m_processes.emplace(m_processes.end(), std::move(module)));
+    return dynamic_cast<NetModule &>(**m_processes.emplace(m_processes.end(), std::move(module)));
 }
 
 bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
@@ -352,18 +352,24 @@ RemoteHost::RemoteHost(const HostManager &manager, vrb::RemoteClient &&base)
 {
 }
 
+bool RemoteHost::wantsTochangeState() const
+{
+    return m_state != m_desiredState;
+}
+
 bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequired)
 {
     m_isProxy = proxyRequired;
     bool retval = false;
-    if (action == covise::LaunchStyle::Disconnect || m_hasPermission || m_exectype != ExecType::VRB) {
+    if (action == covise::LaunchStyle::Disconnect || m_hasPermission || m_exectype != ExecType::VRB)
+    {
         m_hasPermission = false;
-    
+
         switch (action)
         {
         case covise::LaunchStyle::Partner:
             retval = addPartner();
-        break;
+            break;
         case covise::LaunchStyle::Host:
             retval = startCrb();
             break;
@@ -378,7 +384,9 @@ bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequi
             m_state = action;
         }
         return retval;
-    } else {
+    }
+    else
+    {
         m_desiredState = action;
         askForPermission();
         return false;
@@ -394,6 +402,12 @@ bool RemoteHost::addPartner()
 
 bool RemoteHost::removePartner()
 {
+    if (m_state == LaunchStyle::Disconnect)
+    {
+        m_desiredState = LaunchStyle::Disconnect;
+        return true;
+    }
+
     m_state = LaunchStyle::Disconnect;
     auto &masterUi = hostManager.getMasterUi();
     if (this == &masterUi.host)
@@ -467,10 +481,10 @@ void RemoteHost::permitLaunch(int code)
     m_code = code;
 }
 
-covise::LaunchStyle RemoteHost::desiredState() const     {
+covise::LaunchStyle RemoteHost::desiredState() const
+{
     return m_desiredState;
 }
-
 
 void RemoteHost::clearProcesses()
 {
@@ -481,8 +495,7 @@ void RemoteHost::clearProcesses()
 }
 
 HostManager::HostManager()
-    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first)
-    , m_vrb(new vrb::VRBClient{vrb::Program::covise}) 
+    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise})
 {
     m_vrb->connectToServer();
 }
@@ -533,27 +546,29 @@ void HostManager::handleAction(LaunchStyle style, RemoteHost &h)
     {
         proxyRequired = checkIfProxyRequiered(h.ID(), h.userInfo().hostName);
     }
-    bool error = false;
-    if (h.handlePartnerAction(style, proxyRequired) && style == LaunchStyle::Partner)
+    if (h.handlePartnerAction(style, proxyRequired))
     {
-        const auto &ui = dynamic_cast<const Userinterface &>(h.getProcess(sender_type::USERINTERFACE));
-
-        ui.sendCurrentNetToUI(CTRLHandler::instance()->globalFile());
-        // add displays for the existing renderers on the new partner
-        for (const auto &renderer : getAllModules<Renderer>())
+        if (style == LaunchStyle::Partner)
         {
-            if (renderer->isOriginal())
+            const auto &ui = dynamic_cast<const Userinterface &>(h.getProcess(sender_type::USERINTERFACE));
+
+            ui.sendCurrentNetToUI(CTRLHandler::instance()->globalFile());
+            // add displays for the existing renderers on the new partner
+            for (const auto &renderer : getAllModules<Renderer>())
             {
-                renderer->addDisplayAndHandleConnections(ui);
+                if (renderer->isOriginal())
+                {
+                    renderer->addDisplayAndHandleConnections(ui);
+                }
             }
         }
+
         //inform ui that the connection process is over
         sendPartnerList();
         NEW_UI_ConnectionCompleted cmsg{h.ID()};
         auto m = cmsg.createMessage();
         sendAll<Userinterface>(m);
     }
-        
 }
 
 void HostManager::setOnConnectCallBack(std::function<void(void)> cb)
@@ -788,7 +803,7 @@ bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
     sendCoviseMessage(check, *m_vrb);
     Message retval;
     m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
-    PROXY proxyMsg{ retval };
+    PROXY proxyMsg{retval};
     auto conCap = proxyMsg.unpackOrCast<PROXY_ConnectionState>().capability;
     if (conCap == ConnectionCapability::NotChecked)
     {
@@ -805,7 +820,7 @@ bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
         now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cerr << " waiting for response from vrb: " << std::ctime(&now) << std::endl;
         m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
-        PROXY proxyMsg2{ retval };
+        PROXY proxyMsg2{retval};
         conCap = proxyMsg2.unpackOrCast<PROXY_ConnectionState>().capability;
         now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cerr << " received response from vrb: " << std::ctime(&now) << std::endl;
@@ -837,7 +852,7 @@ void HostManager::createProxyConn()
         //connect
         Message retval;
         m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
-        PROXY proxyMsg{ retval };
+        PROXY proxyMsg{retval};
         Host h{m_vrb->getCredentials().ipAddress.c_str()};
         m_proxyConnection = createConnectedConn<ControllerProxyConn>(&h, proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port, 1000, (int)CONTROLLER);
         if (!m_proxyConnection)
@@ -847,7 +862,8 @@ void HostManager::createProxyConn()
 
 void HostManager::handleVrb()
 {
-    while (m_vrb->isConnected() && handleVrbMessage()) {
+    while (m_vrb->isConnected() && handleVrbMessage())
+    {
     }
 }
 
@@ -898,11 +914,13 @@ bool HostManager::handleVrbMessage()
             auto &answer = permission.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
             if (auto h = getHost(answer.launcherID))
             {
-                if (!answer.permit) {
-                    Message m{ COVISE_MESSAGE_WARNING, "Partner " + h->userInfo().userName + "@" + h->userInfo().hostName + " refused to launch COVISE!" };
+                if (!answer.permit)
+                {
+                    Message m{COVISE_MESSAGE_WARNING, "Partner " + h->userInfo().userName + "@" + h->userInfo().hostName + " refused to launch COVISE!"};
                     getMasterUi().send(&m);
                 }
-                else {
+                else if (h->wantsTochangeState())
+                {
                     h->permitLaunch(answer.code);
                     handleAction(h->desiredState(), *h);
                 }

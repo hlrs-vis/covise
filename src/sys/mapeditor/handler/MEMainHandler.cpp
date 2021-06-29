@@ -1032,6 +1032,11 @@ void MEMainHandler::addPartner()
                         addPartner();
                     }
                 });
+        connect(m_waitingForConnectionDialog, &MEWaitingForConnection::abort, this, [this]()
+                { 
+                    covise::NEW_UI_HandlePartners msg{covise::LaunchStyle::Disconnect, 0, m_requestedClients};
+                    covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
+                });
     }
     {
         std::lock_guard<std::mutex> g{m_remotePartnerMutex};

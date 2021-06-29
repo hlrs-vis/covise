@@ -14,6 +14,8 @@ class MEWaitingForConnection : public QDialog
     Q_OBJECT
 public:
     explicit MEWaitingForConnection(QWidget *parent = nullptr);
+signals:
+    void abort();
 
 private:
     const QWidget *m_parent = nullptr;

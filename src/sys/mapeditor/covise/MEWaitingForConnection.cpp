@@ -6,6 +6,7 @@ MEWaitingForConnection::MEWaitingForConnection(QWidget *parent)
 {
     m_ui->setupUi(this);
     connect(m_ui->okBtn, &QPushButton::pressed, this, &QWidget::hide);
+    connect(m_ui->abortBtn, &QPushButton::pressed, this, &MEWaitingForConnection::abort);
 }
 
 void MEWaitingForConnection::showEvent(QShowEvent * event)

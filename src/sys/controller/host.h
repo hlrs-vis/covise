@@ -45,7 +45,7 @@ struct RemoteHost : vrb::RemoteClient
     RemoteHost(const RemoteHost &other) = delete;
     
     const HostManager &hostManager;
-    
+    bool wantsTochangeState() const;
     bool handlePartnerAction(covise::LaunchStyle action, bool proxyRequired);
     covise::LaunchStyle state() const;
     void setTimeout(int seconds);
