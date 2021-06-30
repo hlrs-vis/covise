@@ -123,8 +123,8 @@ void CoviseDaemon::spawnProgram(Program p, const std::vector<std::string> &args)
 
 void CoviseDaemon::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
-    covise::VRB_PERMIT_LAUNCH_Ask{m_client->ID(), clientID, p};
-    m_sentLaunchRequests.emplace_back(std::unique_ptr<vrb::VRB_MESSAGE>{new vrb::VRB_MESSAGE{m_client->ID(), p, clientID, std::vector<std::string>{}, args, 0}});
+    vrb::VRB_MESSAGE m{m_client->ID(), p, clientID, std::vector<std::string>{}, args, 0};
+    vrb::sendLaunchRequestToRemoteLaunchers(m, m_client.get());
 }
 
 void CoviseDaemon::answerPermissionRequest(vrb::Program p, int clientID, bool answer)
