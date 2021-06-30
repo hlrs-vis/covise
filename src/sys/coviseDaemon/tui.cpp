@@ -19,30 +19,36 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
                 std::cerr << "disconnected!" << std::endl;
                 m_launcher.connect();
             });
-    m_launcher.setLaunchRequestCallback([this](QString launchDescription)
-                                        {
-                                            std::lock_guard<std::mutex> g(m_mutex);
-                                            if (m_autostart)
-                                            {
-                                                return true;
-                                            }
-                                            else
-                                            {
-                                                std::cerr << launchDescription.toStdString() << std::endl;
-                                                std::cerr << "Do you want to execute that program?" << std::endl;
-                                                while (true)
-                                                {
-                                                    std::string arg;
-                                                    std::cin >> arg;
-                                                    if (arg == "y" || arg == "yes")
-                                                        return true;
-                                                    else if (arg == "n" || arg == "no")
-                                                        return false;
-                                                    else
-                                                        std::cerr << "Please enter yes or no:" << std::endl;
-                                                }
-                                            }
-                                        });
+    QObject::connect(&m_launcher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientID, const QString &description)
+            {
+                std::lock_guard<std::mutex> g(m_mutex);
+                if (m_autostart)
+                {
+                    m_launcher.answerPermissionRequest(p, clientID, true);
+                }
+                else
+                {
+                    std::cerr << description.toStdString() << std::endl;
+                    std::cerr << "Do you want to execute that program?" << std::endl;
+                    while (true)
+                    {
+                        std::string arg;
+                        std::cin >> arg;
+                        if (arg == "y" || arg == "yes")
+                        {
+                            m_launcher.answerPermissionRequest(p, clientID, true);
+                            return;
+                        }
+                        else if (arg == "n" || arg == "no")
+                        {
+                            m_launcher.answerPermissionRequest(p, clientID, true);
+                            return;
+                        }
+                        else
+                            std::cerr << "Please enter yes or no:" << std::endl;
+                    }
+                }
+            });
     connect(&m_launcher, &CoviseDaemon::childProgramOutput, this, [](const QString &child, const QString &msg)
             { std::cerr << msg.toStdString() << std::endl; });
 
@@ -54,9 +60,9 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
 
     connect(&m_cinNotifier, &QSocketNotifier::activated, this, [this]()
             {
-        std::string command;
-        std::cin >> command;
-        handleCommand(command);
+                std::string command;
+                std::cin >> command;
+                handleCommand(command);
             });
 }
 

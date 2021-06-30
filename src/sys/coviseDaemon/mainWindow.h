@@ -23,6 +23,9 @@ namespace Ui
 {
     class MainWindow;
 }
+namespace covise{
+    class NonBlockingDialogue;
+}
 class ClientWidgetList;
 class QStackedWidget;
 class QSystemTrayIcon;
@@ -74,6 +77,9 @@ private:
     covise::coConfigBool cfgMinimized;
     covise::coConfigString cfgArguments;
     std::vector<ChildOutput> m_childOutputs;
+    covise::NonBlockingDialogue *m_askForPermissionDiag = nullptr;
+    int m_askForPermissionOk, m_askForPermissionAbort;
+    QMetaObject::Connection m_askForPermissionConn;
     void initConfigSettings();
 
     void initUi(const vrb::VrbCredentials &credentials);
@@ -89,7 +95,7 @@ private:
     void createTrayIcon();
 
     void showConnectionProgressBar(int seconds);
-    bool askForPermission(const QString &request);
+    void askForPermission(vrb::Program p, int clientID, const QString &description);
     
     void saveOptions();
 

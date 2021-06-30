@@ -284,6 +284,7 @@ private:
     void saveMap();
     void setLocalHost(int id, const QString &name, const QString &user);
     void requestPartnerAction(covise::LaunchStyle launchStyle, const std::vector<int> &clients);
+    void updatePartnerDialogue(std::unique_lock<std::mutex>& mutex);
 private slots:
 
     void printCB();

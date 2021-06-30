@@ -61,12 +61,15 @@ void CoviseDaemon::connect(const vrb::VrbCredentials &credentials)
     if (!m_thread)
     {
         qRegisterMetaType<covise::Message>();
+        qRegisterMetaType<vrb::Program>();
         QObject::connect(this, &CoviseDaemon::receivedVrbMsg, this, &CoviseDaemon::handleVRB);
         m_thread.reset(new std::thread([this]()
                                        {
                                            qRegisterMetaType<vrb::Program>();
                                            qRegisterMetaType<std::vector<std::string>>();
                                            qRegisterMetaType<covise::Message>();
+                                           qRegisterMetaType<vrb::Program>();
+
                                            loop();
                                        }));
     }
@@ -102,11 +105,6 @@ void CoviseDaemon::printClientInfo()
     }
 }
 
-void CoviseDaemon::setLaunchRequestCallback(const AskForPermissionCb &cb)
-{
-    m_askForPermissionCb = cb;
-}
-
 void CoviseDaemon::spawnProgram(Program p, const std::vector<std::string> &args)
 {
     static int numStarts = 0;
@@ -126,7 +124,28 @@ void CoviseDaemon::spawnProgram(Program p, const std::vector<std::string> &args)
 void CoviseDaemon::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
 {
     covise::VRB_PERMIT_LAUNCH_Ask{m_client->ID(), clientID, p};
-    m_launchRequests.emplace_back(std::unique_ptr<vrb::VRB_MESSAGE>{new vrb::VRB_MESSAGE{m_client->ID(), p, clientID, std::vector<std::string>{}, args, 0}});
+    m_sentLaunchRequests.emplace_back(std::unique_ptr<vrb::VRB_MESSAGE>{new vrb::VRB_MESSAGE{m_client->ID(), p, clientID, std::vector<std::string>{}, args, 0}});
+}
+
+void CoviseDaemon::answerPermissionRequest(vrb::Program p, int clientID, bool answer)
+{
+    if (m_receivedLaunchRequest)
+    {
+        if (answer)
+        {
+            std::lock_guard<std::mutex> g(m_mutex);
+            spawnProgram(m_receivedLaunchRequest->program, m_receivedLaunchRequest->args);
+            m_receivedLaunchRequest = nullptr;
+        }
+    }
+    else
+    {
+        int code = 0;
+        if (answer)
+            code = m_allowedProgramsToLaunch.emplace(m_allowedProgramsToLaunch.end(), p, clientID)->code();
+        covise::VRB_PERMIT_LAUNCH_Answer a{clientID, m_client->ID(), answer, code};
+        sendCoviseMessage(a, *m_client.get());
+    }
 }
 
 void CoviseDaemon::loop()
@@ -235,32 +254,26 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         {
         case VRB_PERMIT_LAUNCH_TYPE::Ask:
         {
-            auto &ask = p.unpackOrCast<VRB_PERMIT_LAUNCH_Ask>();
-            if (ask.launcherID == m_client->ID())
+            auto &a = p.unpackOrCast<VRB_PERMIT_LAUNCH_Ask>();
+            if (a.launcherID == m_client->ID())
             {
-                auto cl = findClient(ask.senderID);
-                auto allowed = askForPermission(ask.senderID, ask.program);
-                int code = 0;
-                if (allowed)
-                    code = m_allowedProgramsToLaunch.emplace(m_allowedProgramsToLaunch.end(), ask.program, ask.senderID)->code();
-                covise::VRB_PERMIT_LAUNCH_Answer answer{ask.senderID, m_client->ID(), allowed, code};
-                sendCoviseMessage(answer, *m_client.get());
+                ask(a.program, a.senderID);
             }
         }
         break;
         case VRB_PERMIT_LAUNCH_TYPE::Answer:
         {
             auto &answer = p.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
-            auto launchRequest = std::find_if(m_launchRequests.begin(), m_launchRequests.end(), [this, &answer](const std::unique_ptr<vrb::VRB_MESSAGE> &request)
+            auto launchRequest = std::find_if(m_sentLaunchRequests.begin(), m_sentLaunchRequests.end(), [this, &answer](const std::unique_ptr<vrb::VRB_MESSAGE> &request)
                                               { return request->clientID == answer.launcherID && answer.requestorID == m_client->ID(); });
-            if (launchRequest != m_launchRequests.end())
+            if (launchRequest != m_sentLaunchRequests.end())
             {
                 if (answer.permit)
                 {
                     vrb::VRB_MESSAGE v{launchRequest->get()->senderID, launchRequest->get()->program, launchRequest->get()->clientID, launchRequest->get()->environment, launchRequest->get()->args, answer.code};
                     sendLaunchRequestToRemoteLaunchers(v, m_client.get());
                 }
-                m_launchRequests.erase(launchRequest);
+                m_sentLaunchRequests.erase(launchRequest);
             }
         }
         break;
@@ -316,39 +329,35 @@ std::set<vrb::RemoteClient>::iterator CoviseDaemon::findClient(int id)
 
 void CoviseDaemon::handleVrbLauncherMessage(const covise::Message &msg)
 {
-    vrb::VRB_MESSAGE lrq{msg};
-    if (lrq.clientID != m_client->ID())
+    m_receivedLaunchRequest = nullptr;
+    auto lrq = std::unique_ptr<vrb::VRB_MESSAGE>{new vrb::VRB_MESSAGE{msg}};
+    if (lrq->clientID != m_client->ID())
     {
         return;
     }
 
-    ProgramToLaunch p{lrq.program, lrq.senderID, lrq.code};
+    ProgramToLaunch p{lrq->program, lrq->senderID, lrq->code};
     auto permission = std::find(m_allowedProgramsToLaunch.begin(), m_allowedProgramsToLaunch.end(), p) != m_allowedProgramsToLaunch.end();
 
     if (!permission)
     {
-        permission = askForPermission(lrq.senderID, lrq.program);
+        m_receivedLaunchRequest = std::move(lrq);
+        ask(m_receivedLaunchRequest->program, m_receivedLaunchRequest->senderID);
     }
-
-    if (permission)
+    else
     {
         std::lock_guard<std::mutex> g(m_mutex);
-        spawnProgram(lrq.program, lrq.args);
+        spawnProgram(lrq->program, lrq->args);
     }
 }
 
-bool CoviseDaemon::askForPermission(int clientId, vrb::Program p)
+void CoviseDaemon::ask(vrb::Program p, int clientID)
 {
-    auto cl = findClient(clientId);
-
-    if (cl != m_clientList.end() && m_askForPermissionCb)
-    {
-        QString desc;
-        QTextStream ts{&desc};
-        ts << cl->userInfo().userName.c_str() << "@" << cl->userInfo().hostName.c_str() << " requests to launch " << vrb::programNames[p] << ":\n";
-        return m_askForPermissionCb(desc);
-    }
-    return false;
+    auto cl = findClient(clientID);
+    QString desc;
+    QTextStream ts{&desc};
+    ts << cl->userInfo().userName.c_str() << "@" << cl->userInfo().hostName.c_str() << " requests to launch " << vrb::programNames[p] << ":\n";
+    emit askForPermission(p, clientID, desc);
 }
 
 QString getClientInfo(const vrb::RemoteClient &cl)

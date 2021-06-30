@@ -27,22 +27,18 @@
 #include <thread>
 #include <vector>
 
-Q_DECLARE_METATYPE(covise::Message);
-
 //The CoviseDaemon that listens to launch request submitted via VRB
 class CoviseDaemon : public QObject
 {
     Q_OBJECT
 public:
-    typedef std::function<bool(const QString &launchDescription)> AskForPermissionCb;
-
     ~CoviseDaemon();
     void connect(const vrb::VrbCredentials &credentials = vrb::VrbCredentials{});
     void disconnect();
     void printClientInfo();
-    void setLaunchRequestCallback(const AskForPermissionCb &cb);
 public slots:
-    void sendLaunchRequest(vrb::Program p, int lientID, const std::vector<std::string> &args = std::vector<std::string>{});
+    void sendLaunchRequest(vrb::Program p, int clientID, const std::vector<std::string> &args = std::vector<std::string>{});
+    void answerPermissionRequest(vrb::Program p, int clientID, bool answer); 
 signals:
     void connectedSignal();
     void disconnectedSignal();
@@ -51,6 +47,8 @@ signals:
     void childProgramOutput(const QString &child, const QString &output);
     void childTerminated(const QString &child);
     void receivedVrbMsg(const covise::Message &msg);
+    void askForPermission(vrb::Program p, int clientID, const QString &description); //must call answerPermissionRequest
+
 private slots:
     bool handleVRB(const covise::Message& msg);
 
@@ -63,17 +61,16 @@ private:
     std::unique_ptr<vrb::VRBClient> m_client = nullptr;
     std::unique_ptr<std::thread> m_thread;
     std::mutex m_mutex;
-    AskForPermissionCb m_askForPermissionCb;
     vrb::SessionID m_sessionID;
     std::set<vrb::RemoteClient> m_clientList;
     std::set<ChildProcess> m_children;
-    std::vector<std::unique_ptr<vrb::VRB_MESSAGE>> m_launchRequests;
+    std::vector<std::unique_ptr<vrb::VRB_MESSAGE>> m_sentLaunchRequests;
+    std::unique_ptr<vrb::VRB_MESSAGE> m_receivedLaunchRequest;
     void loop();
     void spawnProgram(vrb::Program p, const std::vector<std::string> &args);
     bool removeOtherClient(covise::TokenBuffer &tb);
     void handleVrbLauncherMessage(const covise::Message &msg);
-    bool askForPermission(int clientId, vrb::Program p);
-
+    void ask(vrb::Program p, int clientID);
     std::set<vrb::RemoteClient>::iterator findClient(int id);
 
     struct ProgramToLaunch

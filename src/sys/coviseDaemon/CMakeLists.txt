@@ -54,6 +54,7 @@ target_link_libraries(coviseDaemon
                        coUtil
                        coVRBClient
                        coMessages
+                       coQtUtil
                        ) 
 
 COVISE_INSTALL_TARGET(coviseDaemon)

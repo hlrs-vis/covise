@@ -10,6 +10,7 @@
 #include "ui_mainWindow.h"
 
 #include <util/coSpawnProgram.h>
+#include <qtutil/NonBlockingDialogue.h>
 
 #include <QCloseEvent>
 #include <QMenu>
@@ -140,7 +141,6 @@ void MainWindow::updateStatusBar()
 	}
 	else
 		m_progressBarTimer.stop();
-
 }
 
 void MainWindow::setStateDisconnected()
@@ -210,6 +210,11 @@ void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 	connect(&m_progressBarTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);
 	setStackedWidget(ui->InfoStackedWidget, 1);
+	m_askForPermissionDiag = new covise::NonBlockingDialogue{this};
+	m_askForPermissionDiag->setWindowTitle("Application execution request");
+	m_askForPermissionDiag->setQuestion("Do you want to execute this application?");
+	m_askForPermissionOk = m_askForPermissionDiag->addOption("Ok");
+	m_askForPermissionAbort = m_askForPermissionDiag->addOption("Abort");
 }
 
 void MainWindow::initConfigSettings()
@@ -265,8 +270,13 @@ void MainWindow::setRemoteLauncherCallbacks()
 
 	connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
 			{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
-	m_remoteLauncher.setLaunchRequestCallback([this](const QString &request)
-											  { return askForPermission(request); });
+	connect(&m_remoteLauncher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientID, const QString &description)
+			{
+				disconnect(m_askForPermissionConn);
+				m_askForPermissionConn = connect(m_askForPermissionDiag, &covise::NonBlockingDialogue::answer, this, [p, clientID, this](int answer)
+												 { m_remoteLauncher.answerPermissionRequest(p, clientID, answer == m_askForPermissionOk); });
+				askForPermission(p, clientID, description);
+			});
 }
 
 void MainWindow::initClientList()
@@ -395,25 +405,18 @@ void MainWindow::showConnectionProgressBar(int seconds)
 	}
 }
 
-bool MainWindow::askForPermission(const QString &request)
+void MainWindow::askForPermission(vrb::Program p, int clientID, const QString &description)
 {
 	if (ui->autostartCheckBox->isChecked())
-		return true;
+		m_remoteLauncher.answerPermissionRequest(p, clientID, true);
+	else
+	{
+		bool wasVisible = isVisible();
+		show(); //if main window is not visible showing the message box may crash
 
-	bool wasVisible = isVisible();
-	show(); //if main window is not visible showing the message box may crash
-
-	QMessageBox msgBox{this};
-	msgBox.setMinimumSize(200, 200);
-	msgBox.setWindowTitle("Application execution request");
-	msgBox.setText(request);
-	msgBox.setInformativeText("Do you want to execute this application?");
-	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-	msgBox.setDefaultButton(QMessageBox::Ok);
-	int ret = msgBox.exec();
-	if (!wasVisible)
-		hide();
-	return ret == QMessageBox::Ok ? true : false;
+		m_askForPermissionDiag->setInfo(description);
+		m_askForPermissionDiag->show();
+	}
 }
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()
