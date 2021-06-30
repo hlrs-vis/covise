@@ -402,9 +402,12 @@ bool RemoteHost::addPartner()
 
 bool RemoteHost::removePartner()
 {
-    if (m_state == LaunchStyle::Disconnect)
+    if (m_state == LaunchStyle::Disconnect) //already disconnected 
     {
         m_desiredState = LaunchStyle::Disconnect;
+        //inform coviseDaemon that launch request is invalid
+        VRB_PERMIT_LAUNCH_Abort abort{hostManager.getVrbClient().ID(), ID(), vrb::Program::crb};
+        sendCoviseMessage(abort, hostManager.getVrbClient());
         return true;
     }
 
@@ -918,6 +921,9 @@ bool HostManager::handleVrbMessage()
                 {
                     Message m{COVISE_MESSAGE_WARNING, "Partner " + h->userInfo().userName + "@" + h->userInfo().hostName + " refused to launch COVISE!"};
                     getMasterUi().send(&m);
+                    NEW_UI_ConnectionCompleted cmsg{h->ID()};
+                    m = cmsg.createMessage();
+                    sendAll<Userinterface>(m);
                 }
                 else if (h->wantsTochangeState())
                 {

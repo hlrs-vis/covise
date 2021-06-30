@@ -24,6 +24,7 @@ SET(REMOTE_LAUNCHER_SOURCES
   coviseDaemon.cpp
   main.cpp
   mainWindow.cpp
+  permissionRequest.cpp
   tui.cpp
   tuiCommands.cpp
 )
@@ -36,6 +37,7 @@ SET(REMOTE_LAUNCHER_HEADER
   coviseDaemon.h
   mainWindow.h
   metaTypes.h
+  permissionRequest.h
   tui.h
   tuiCommands.h
 )

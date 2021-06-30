@@ -210,11 +210,6 @@ void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 	connect(&m_progressBarTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);
 	setStackedWidget(ui->InfoStackedWidget, 1);
-	m_askForPermissionDiag = new covise::NonBlockingDialogue{this};
-	m_askForPermissionDiag->setWindowTitle("Application execution request");
-	m_askForPermissionDiag->setQuestion("Do you want to execute this application?");
-	m_askForPermissionOk = m_askForPermissionDiag->addOption("Ok");
-	m_askForPermissionAbort = m_askForPermissionDiag->addOption("Abort");
 }
 
 void MainWindow::initConfigSettings()
@@ -270,13 +265,9 @@ void MainWindow::setRemoteLauncherCallbacks()
 
 	connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
 			{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
-	connect(&m_remoteLauncher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientID, const QString &description)
-			{
-				disconnect(m_askForPermissionConn);
-				m_askForPermissionConn = connect(m_askForPermissionDiag, &covise::NonBlockingDialogue::answer, this, [p, clientID, this](int answer)
-												 { m_remoteLauncher.answerPermissionRequest(p, clientID, answer == m_askForPermissionOk); });
-				askForPermission(p, clientID, description);
-			});
+	connect(&m_remoteLauncher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientId, const QString &description)
+			{ askForPermission(p, clientId, description); });
+	connect(&m_remoteLauncher, &CoviseDaemon::askForPermissionAbort, this, &MainWindow::removePermissionRequest);
 }
 
 void MainWindow::initClientList()
@@ -411,12 +402,20 @@ void MainWindow::askForPermission(vrb::Program p, int clientID, const QString &d
 		m_remoteLauncher.answerPermissionRequest(p, clientID, true);
 	else
 	{
-		bool wasVisible = isVisible();
-		show(); //if main window is not visible showing the message box may crash
-
-		m_askForPermissionDiag->setInfo(description);
-		m_askForPermissionDiag->show();
+		auto pr = m_permissionRequests.emplace(m_permissionRequests.end(), new PermissionRequest{p, clientID, description, this});
+		connect(pr->get(), &PermissionRequest::permit, this, [p, clientID, this](int answer)
+				{ m_remoteLauncher.answerPermissionRequest(p, clientID, answer); });
+		connect(pr->get(), &PermissionRequest::permit, this, [p, clientID, this](int answer)
+				{ removePermissionRequest(p, clientID); });
+		pr->get()->show();
 	}
+}
+
+void MainWindow::removePermissionRequest(vrb::Program p, int clientID)
+{
+	m_permissionRequests.erase(std::remove_if(m_permissionRequests.begin(), m_permissionRequests.end(), [p, clientID](const std::unique_ptr<PermissionRequest> &request)
+											  { return request->program() == p && request->requestorId() == clientID; }),
+							   m_permissionRequests.end());
 }
 
 std::vector<std::string> MainWindow::parseCmdArgsInput()

@@ -178,27 +178,30 @@ namespace vrb
 		break;
 		case COVISE_MESSAGE_VRB_PERMIT_LAUNCH:
 		{
+#define FORWARD_PERMIT_MESSAGE(type, member) \
+	auto &f = permit.unpackOrCast<type>();   \
+	auto cl = clients.get(f.member);         \
+	if (cl)                                  \
+	{                                        \
+		sendCoviseMessage(f, *cl);           \
+	}
+
 			covise::VRB_PERMIT_LAUNCH permit{*msg};
 			switch (permit.type)
 			{
 			case VRB_PERMIT_LAUNCH_TYPE::Answer:
 			{
-				auto &answer = permit.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
-				auto cl = clients.get(answer.requestorID);
-				if (cl)
-				{
-					sendCoviseMessage(answer, *cl);
-				}
+				FORWARD_PERMIT_MESSAGE(VRB_PERMIT_LAUNCH_Answer, requestorID)
 			}
 			break;
 			case VRB_PERMIT_LAUNCH_TYPE::Ask:
 			{
-				auto &ask = permit.unpackOrCast<VRB_PERMIT_LAUNCH_Ask>();
-				auto cl = clients.get(ask.launcherID);
-				if (cl)
-				{
-					sendCoviseMessage(ask, *cl);
-				}
+				FORWARD_PERMIT_MESSAGE(VRB_PERMIT_LAUNCH_Ask, launcherID)
+			}
+			break;
+			case VRB_PERMIT_LAUNCH_TYPE::Abort:
+			{
+				FORWARD_PERMIT_MESSAGE(VRB_PERMIT_LAUNCH_Abort, launcherID)
 			}
 			break;
 			default:

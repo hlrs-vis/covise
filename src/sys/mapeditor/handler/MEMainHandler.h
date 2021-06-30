@@ -41,14 +41,13 @@ class MERemotePartner;
 class MESessionSettings;
 class METimer;
 class MEUserInterface;
-class MEWaitingForConnection;
 namespace covise
 {
 enum class LaunchStyle : int;
 class coSendBuffer;
 class coRecvBuffer;
 class Message;
-
+class NonBlockingDialogue;
 } // namespace covise
 
 #include <config/coConfig.h>
@@ -266,7 +265,7 @@ private:
     MENode *m_currentNode, *m_newNode;
     MESessionSettings *m_settings;
     MERemotePartner *m_addPartnerDialog = nullptr;
-    MEWaitingForConnection *m_waitingForConnectionDialog = nullptr;
+    covise::NonBlockingDialogue *m_waitingForConnectionDialog = nullptr;
     bool m_showPartnerDialogue{true};
     std::vector<int> m_requestedClients;
     MECSCWParam *m_CSCWParam;

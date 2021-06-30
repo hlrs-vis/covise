@@ -8,8 +8,9 @@
 #ifndef MainWindow_H
 #define MainWindow_H
 
-#include "coviseDaemon.h"
 #include "childOutput.h"
+#include "coviseDaemon.h"
+#include "permissionRequest.h"
 
 #include <QMainWindow>
 #include <QTimer>
@@ -56,6 +57,7 @@ private slots:
     void updateClient(int clientID, QString clientInfo);
     void removeClient(int clientID);
     void closeEvent(QCloseEvent* event) override;
+    void removePermissionRequest(vrb::Program p, int clientID);
 
 signals:
     void updateStatusBarSignal();
@@ -77,9 +79,9 @@ private:
     covise::coConfigBool cfgMinimized;
     covise::coConfigString cfgArguments;
     std::vector<ChildOutput> m_childOutputs;
-    covise::NonBlockingDialogue *m_askForPermissionDiag = nullptr;
-    int m_askForPermissionOk, m_askForPermissionAbort;
-    QMetaObject::Connection m_askForPermissionConn;
+    std::vector<std::unique_ptr<PermissionRequest>> m_permissionRequests;
+
+    
     void initConfigSettings();
 
     void initUi(const vrb::VrbCredentials &credentials);
@@ -96,7 +98,6 @@ private:
 
     void showConnectionProgressBar(int seconds);
     void askForPermission(vrb::Program p, int clientID, const QString &description);
-    
     void saveOptions();
 
     std::vector<std::string> parseCmdArgsInput();

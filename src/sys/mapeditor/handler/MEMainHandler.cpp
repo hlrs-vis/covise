@@ -29,11 +29,12 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <comsg/NEW_UI.h>
+#include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
-#include <covise/covise_appproc.h>
+#include <qtutil/NonBlockingDialogue.h>
 #include <util/covise_version.h>
-#include <comsg/NEW_UI.h>
 
 #include "MEFavoriteListHandler.h"
 #include "MEFileBrowser.h"
@@ -44,7 +45,6 @@
 #include "MEMessageHandler.h"
 #include "MENodeListHandler.h"
 #include "MERemotePartner.h"
-#include "MEWaitingForConnection.h"
 #include "modulePanel/MEModulePanel.h"
 #include "nodes/MECategory.h"
 #include "nodes/MENode.h"
@@ -1023,7 +1023,12 @@ void MEMainHandler::addPartner()
     }
     if (!m_waitingForConnectionDialog)
     {
-        m_waitingForConnectionDialog = new MEWaitingForConnection{mapEditor};
+        m_waitingForConnectionDialog = new covise::NonBlockingDialogue{mapEditor};
+        m_waitingForConnectionDialog->setWindowTitle("Connection in progress");
+        m_waitingForConnectionDialog->setInfo("Connection procedure in progress...");
+        m_waitingForConnectionDialog->setQuestion("The \"manage partner\" dialogue will be awailable as soon as the connection is compleeted.");
+        auto ok = m_waitingForConnectionDialog->addOption("Ok");
+        auto abort = m_waitingForConnectionDialog->addOption("Abort");
         connect(this, &MEMainHandler::activatePartnerDialogue, this, [this]()
                 {
                     if (m_waitingForConnectionDialog->isVisible())
@@ -1032,10 +1037,13 @@ void MEMainHandler::addPartner()
                         addPartner();
                     }
                 });
-        connect(m_waitingForConnectionDialog, &MEWaitingForConnection::abort, this, [this]()
+        connect(m_waitingForConnectionDialog, &covise::NonBlockingDialogue::answer, this, [abort, this](int option)
                 { 
-                    covise::NEW_UI_HandlePartners msg{covise::LaunchStyle::Disconnect, 0, m_requestedClients};
-                    covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
+                    if (option == abort)
+                    {       
+                        covise::NEW_UI_HandlePartners msg{covise::LaunchStyle::Disconnect, 0, m_requestedClients};
+                        covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
+                    }
                 });
     }
     {

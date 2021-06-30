@@ -277,6 +277,15 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
             }
         }
         break;
+        case VRB_PERMIT_LAUNCH_TYPE::Abort:
+        {
+            auto &abort = p.unpackOrCast<VRB_PERMIT_LAUNCH_Abort>();
+            if (abort.launcherID == m_client->ID())
+            {
+                emit askForPermissionAbort(abort.program, abort.requestorID);
+            }
+        }
+        break;
         default:
             break;
         }

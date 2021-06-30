@@ -48,6 +48,7 @@ signals:
     void childTerminated(const QString &child);
     void receivedVrbMsg(const covise::Message &msg);
     void askForPermission(vrb::Program p, int clientID, const QString &description); //must call answerPermissionRequest
+    void askForPermissionAbort(vrb::Program p, int clientID); //must call answerPermissionRequest
 
 private slots:
     bool handleVRB(const covise::Message& msg);
