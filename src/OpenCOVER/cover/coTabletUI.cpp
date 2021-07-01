@@ -84,7 +84,7 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIButton::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -594,7 +594,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIFileBrowserButton::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -930,7 +930,7 @@ void coTUIColorTriangle::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIColorTriangle::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1002,7 +1002,7 @@ void coTUIColorButton::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIColorButton::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1080,7 +1080,7 @@ void coTUIColorTab::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIColorTab::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1152,7 +1152,7 @@ void coTUINav::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUINav::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1204,7 +1204,7 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIBitmapButton::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1287,7 +1287,7 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUITabFolder::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1354,7 +1354,7 @@ void coTUIUITab::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "coTUIUITab::parseMessage err: unknown event " << i << endl;
+        cerr << "coTUIUITab::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -1459,7 +1459,7 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUITab::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -2087,7 +2087,7 @@ void coTUISplitter::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUISplitter::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -2192,7 +2192,7 @@ void coTUIFrame::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIFrame::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -2281,7 +2281,7 @@ void coTUIToggleButton::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIToggleButton::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -2360,7 +2360,7 @@ void coTUIToggleBitmapButton::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIToggleBitmapButton::parseMessage: unknown event " << i << endl;
     }
 }
 
@@ -4469,7 +4469,7 @@ bool coTabletUI::update()
             {
                 if (coVRMSController::instance()->readMaster(&m) < 0)
                 {
-                    cerr << "ccould not read message from Master" << endl;
+                    cerr << "coTabletUI::update: could not read message from Master" << endl;
                     //cerr << "sync_exit13 " << myID << endl;
                     exit(0);
                 }
@@ -4510,7 +4510,7 @@ bool coTabletUI::update()
             break;
             default:
             {
-                cerr << "unknown Message type" << endl;
+                cerr << "coTabletUI::updates: unknown Message type " << m.type << endl;
             }
             break;
             }
@@ -4590,7 +4590,7 @@ void coTUIGroupBox::parseMessage(TokenBuffer &tb)
     }
     else
     {
-        cerr << "unknown event " << i << endl;
+        cerr << "coTUIGroupBox::parseMessage: unknown event " << i << endl;
     }
 }
 
