@@ -851,16 +851,20 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     auto node = fe->load();
     fe->updateButton();
-    if (isRoot && node != NULL)
+    if (node != NULL)
     {
 		m_files[validFileName] = fe;
 
-        m_lastFile = fe;
         fe->filebrowser = nullptr;
 
         parent->addChild(node);
 
-        VRRegisterSceneGraph::instance()->registerNode(node, parent->getName());
+        if (isRoot) {
+            m_lastFile = fe;
+
+            VRRegisterSceneGraph::instance()->registerNode(node,
+                                                           parent->getName());
+        }
     }
     else
     {
