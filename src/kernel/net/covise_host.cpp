@@ -656,6 +656,17 @@ static bool isAddressConfigured(unsigned char address[4])
 #endif
 }
 
+#ifndef _WIN32
+static bool isVirtualInterfaceName(const char *ifname)
+{
+    if (!strncmp(ifname, "vmnet", 5))
+        return true;
+    if (!strncmp(ifname, "docker", 6))
+        return true;
+    return false;
+}
+#endif
+
 // inspired by Samba 3.0.28a's _get_interfaces from lib/interfaces.c
 static bool findPrimaryIpAddress(unsigned char address[4])
 {
@@ -663,11 +674,12 @@ static bool findPrimaryIpAddress(unsigned char address[4])
     char buf[10240];
     std::vector<ifreq *> ifrequest = getNetworkInterfaces(buf, sizeof(buf));
 
+    // try to find something that is not a VMware/Docker interface, prefer
+    // non-private addresses
     int n = ifrequest.size();
-    // try to find something that is not a VMware interface
     for (int i = n - 1; i >= 0; --i)
     {
-        if (!strncmp(ifrequest[i]->ifr_name, "vmnet", 5))
+        if (isVirtualInterfaceName(ifrequest[i]->ifr_name))
             continue;
 
         struct in_addr ipaddr = (*(struct sockaddr_in *)&ifrequest[i]->ifr_addr).sin_addr;
@@ -681,10 +693,22 @@ static bool findPrimaryIpAddress(unsigned char address[4])
             return true;
     }
 
-    // use anything except vmnet interfaces
     for (int i = n - 1; i >= 0; --i)
     {
-        if (!strncmp(ifrequest[i]->ifr_name, "vmnet", 5))
+        struct in_addr ipaddr = (*(struct sockaddr_in *)&ifrequest[i]->ifr_addr).sin_addr;
+        in_addr_t addr = ipaddr.s_addr;
+        address[0] = addr & 0xff;
+        address[1] = (addr >> 8) & 0xff;
+        address[2] = (addr >> 16) & 0xff;
+        address[3] = (addr >> 24) & 0xff;
+
+        if (isRoutableAddress(address))
+            return true;
+    }
+
+    for (int i = n - 1; i >= 0; --i)
+    {
+        if (isVirtualInterfaceName(ifrequest[i]->ifr_name))
             continue;
 
         struct in_addr ipaddr = (*(struct sockaddr_in *)&ifrequest[i]->ifr_addr).sin_addr;
