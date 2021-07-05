@@ -119,6 +119,9 @@ namespace covise
 #define MY_OVERLOADED_26(MacroName, MacroNameLast, T00, N00, T01, N01, T02, N02, T03, N03, N04, T04, T05, N05, T06, N06, T07, N07, T08, N08, T09, N09, T10, N10, T11, N11, T12, N12) MacroName(T00, N00) MY_OVERLOADED_24(MacroName, MacroNameLast, T01, N01, T02, N02, T03, N03, N04, T04, T05, N05, T06, N06, T07, N07, T08, N08, T09, N09, T10, N10, T11, N11, T12, N12)
 
 #define DECLARATION(type, name) \
+    type name;
+
+#define CONST_DECLARATION(type, name) \
     const type name;
 
 #define CONSTRUCTOR_ELEMENT_LAST(type, name) \
@@ -141,6 +144,9 @@ namespace covise
 #define FILL_TOKENBUFFER(type, name) \
     << msg.name
 
+#define TAKE_FROM_TOKENBUFFER(type, name) \
+    >> msg.name
+
 #define PRINT_CLASS(type, name)                                          \
     os << #name << ": ";                                                 \
     covise::tryPrintWithError(os, msg.name, #type, " is not printable"); \
@@ -150,6 +156,32 @@ namespace covise
     covise::detail::equals(c1.name, c2.name) &&
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
+
+#define DECL_TB_SERIALIZABLE_STRUCT(ClassName, export, ...)                                \
+    struct export ClassName{                                                               \
+        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))};                     \
+    export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg); \
+    export covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, ClassName &msg);       \
+    export std::ostream &operator<<(std::ostream &os, const ClassName &msg);
+
+#define IMPL_TB_SERIALIZABLE_STRUCT(ClassName, ...)                                       \
+    covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg)      \
+    {                                                                                        \
+        tb EXPAND(MY_OVERLOADED(FILL_TOKENBUFFER, FILL_TOKENBUFFER, __VA_ARGS__));           \
+        return tb;                                                                           \
+    }                                                                                        \
+    covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, ClassName &msg)            \
+    {                                                                                        \
+        tb EXPAND(MY_OVERLOADED(TAKE_FROM_TOKENBUFFER, TAKE_FROM_TOKENBUFFER, __VA_ARGS__)); \
+        return tb;                                                                           \
+    }                                                                                        \
+    std::ostream &operator<<(std::ostream &os, const ClassName &msg)                    \
+    {                                                                                        \
+        os << #ClassName << ":" << std::endl;                                                \
+        EXPAND(MY_OVERLOADED(PRINT_CLASS, PRINT_CLASS, __VA_ARGS__));                        \
+        os << std::endl;                                                                     \
+        return os;                                                                           \
+    }
 
 //use in header files to declare a type that can be sent and received via messages
 //ClassName: message type without COVISE_MESSAGE_
@@ -162,7 +194,7 @@ namespace covise
 #define DECL_MESSAGE_CLASS(ClassName, export, ...)                                                     \
     struct export ClassName                                                                            \
     {                                                                                                  \
-        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                   \
+        EXPAND(MY_OVERLOADED(CONST_DECLARATION, CONST_DECLARATION, __VA_ARGS__))                                   \
         ClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__)));  \
         explicit ClassName(const covise::Message &msg);                                                \
         covise::Message createMessage() const;                                                         \
@@ -216,7 +248,7 @@ namespace covise
     struct export FullClassName : ClassName                                                                        \
     {                                                                                                              \
         friend struct ClassName;                                                                                   \
-        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                               \
+        EXPAND(MY_OVERLOADED(CONST_DECLARATION, CONST_DECLARATION, __VA_ARGS__))                                               \
         explicit FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))); \
         covise::Message createMessage() const;                                                                     \
                                                                                                                    \
