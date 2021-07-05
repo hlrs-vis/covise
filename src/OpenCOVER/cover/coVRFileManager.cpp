@@ -268,11 +268,12 @@ std::string shortenUrl(const Url &url, size_t length=20)
     return url.str();
 }
 
-struct LoadedFile
+struct LoadedFile: public osg::Observer
 {
-    LoadedFile(const Url &url, ui::Button *button=nullptr)
+    LoadedFile(const Url &url, ui::Button *button=nullptr, bool isRoot=false)
         : url(url)
         , button(button)
+        , isRoot(isRoot)
     {
         if  (button)
         {
@@ -289,12 +290,30 @@ struct LoadedFile
             updateButton();
         }
     }
+    
+    ~LoadedFile()
+    {
+        if (node && !isRoot)
+        {
+            node->ref();
+            node->unref_nodelete();
+        }
+    }
+
+    void objectDeleted(void *d) override
+    {
+        auto *deleted = static_cast<osg::Referenced *>(d);
+        std::cerr << "coVRFileManager: LoadedFile: parent of " << url.str() << " deleted" << std::endl;
+        parents.erase(static_cast<osg::Group *>(deleted));
+    }
 
     Url url;
     std::shared_ptr<ui::Button> button;
+
+    bool isRoot = false;
     std::string key;
     osg::ref_ptr<osg::Node> node;
-    std::vector<osg::ref_ptr<osg::Group>> parents;
+    std::set<osg::Group *> parents;
     const FileHandler *handler = nullptr;
     coVRIOReader *reader = nullptr;
     coTUIFileBrowserButton *filebrowser = nullptr;
@@ -327,6 +346,7 @@ struct LoadedFile
             {
                 for (const auto &p : parents) {
                     p->addChild(node);
+                    p->removeObserver(this);
                 }
             }
             parents.clear();
@@ -334,7 +354,8 @@ struct LoadedFile
             while (node && node->getNumParents() > 0) {
                 unsigned i = node->getNumParents() - 1;
                 auto p = node->getParent(i);
-                parents.emplace_back(p);
+                parents.emplace(p);
+                p->addObserver(this);
                 p->removeChild(node);
             }
         }
@@ -555,7 +576,9 @@ osg::Node *LoadedFile::load()
 
     assert(loadCount == 0);
     if (node)
+    {
         ++loadCount;
+    }
 
     return node;
 }
@@ -785,7 +808,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 			m_sharedFiles = v;
 		}
 	}
-    auto fe = new LoadedFile(url, button);
+    auto fe = new LoadedFile(url, button, isRoot);
     if (covise_key)
         fe->key = covise_key;
     fe->filebrowser = fb;
@@ -793,8 +816,11 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     OpenCOVER::instance()->hud->setText2("loading");
     OpenCOVER::instance()->hud->setText3(validFileName);
     OpenCOVER::instance()->hud->redraw();
+
     if (isRoot)
     {
+        m_loadingFile = fe;
+
         if(viewPointFile == "" && url.isLocal())
         {
             const char *ext = strchr(url.path().c_str(), '.');
@@ -853,35 +879,36 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     fe->updateButton();
     if (node != NULL)
     {
-		m_files[validFileName] = fe;
-
         fe->filebrowser = nullptr;
 
         parent->addChild(node);
 
         if (isRoot) {
+            m_files[validFileName] = fe;
+
             m_lastFile = fe;
 
             VRRegisterSceneGraph::instance()->registerNode(node,
                                                            parent->getName());
         }
     }
-    else
-    {
-        delete fe;
-    }
 
     if (isRoot)
     {
+        //VRViewer::instance()->forceCompile();
+  
 		if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
         else
             OpenCOVER::instance()->hud->setText2("failed to load");
         OpenCOVER::instance()->hud->redraw();
     }
+    else
+    {
+        delete fe;
+    }
 
     this->fileFBMap.erase(key);
-    //VRViewer::instance()->forceCompile();
     return node;
 }
 
@@ -1056,6 +1083,8 @@ void coVRFileManager::unloadFile(const char *file)
         if (!fe->unload())
             std::cerr << "unloading " << fe->url << " failed";
         fe->updateButton();
+
+        std::cerr << "unloaded " << fe->url << ": #instances=" << fe->numInstances();
 
         if (fe->numInstances() == 0)
         {
