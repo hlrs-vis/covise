@@ -289,6 +289,11 @@ TokenBuffer &TokenBuffer::operator=(const TokenBuffer &other)
 	return *this;
 }
 
+bool TokenBuffer::operator==(const TokenBuffer &other) const
+{
+    return currdata == other.currdata;
+}
+
 TokenBuffer &TokenBuffer::operator>>(bool &b)
 {
     checktype(TbBool);

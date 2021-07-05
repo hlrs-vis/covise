@@ -113,6 +113,7 @@ public:
     TokenBuffer(const char *dat, int len, bool nbo = false);
     virtual ~TokenBuffer();
     TokenBuffer &operator=(const TokenBuffer &other);
+    bool operator==(const TokenBuffer &other) const;
 
     const DataHandle& getData();
     const char *getBinary(int n);
