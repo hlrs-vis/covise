@@ -79,7 +79,11 @@ public:
         RefPtr(const RefPtr<T> &s);
         RefPtr<T> &operator=(const RefPtr<T> &s);
 
-        virtual ~RefPtr();
+        virtual ~RefPtr()
+        {
+            //COCONFIGLOG("coCoviseConfig::RefPtr<T>::<dest> info: destroying");
+            release();
+        }
 
         T getValue();
         const T getValue() const;
@@ -112,13 +116,6 @@ coCoviseConfig::RefPtr<T>::RefPtr()
     //COCONFIGLOG("coCoviseConfig::RefPtr<T>::<init> info: creating");
     ptr = 0;
     refCount = 1;
-}
-
-template <typename T>
-coCoviseConfig::RefPtr<T>::~RefPtr<T>()
-{
-    //COCONFIGLOG("coCoviseConfig::RefPtr<T>::<dest> info: destroying");
-    release();
 }
 
 template <typename T>
