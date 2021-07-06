@@ -41,7 +41,7 @@ struct RemoteHost : vrb::RemoteClient
 {
     RemoteHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = ""); //constructs a client with local information
     RemoteHost(const HostManager& manager, vrb::RemoteClient &&base); //constructs real remote client
-    RemoteHost(RemoteHost &&other) = default;
+    RemoteHost(RemoteHost &&other) = delete;
     RemoteHost(const RemoteHost &other) = delete;
     
     const HostManager &hostManager;
