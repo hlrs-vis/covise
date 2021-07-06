@@ -23,7 +23,7 @@ namespace vrml
 {
 
     class VRMLEXPORT VrmlNodeMovieTexture;
-typedef struct
+struct movieProperties
 {
     bool loop = false;
     float speed = 1.f;
@@ -33,7 +33,7 @@ typedef struct
     bool repeatT = false;
     bool playing = false;
     VrmlNodeMovieTexture *mtNode;
-} movieProperties;
+};
 
 class VRMLEXPORT VrmlNode;
 class VRMLEXPORT VrmlScene;

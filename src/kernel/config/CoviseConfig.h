@@ -115,7 +115,7 @@ coCoviseConfig::RefPtr<T>::RefPtr()
 }
 
 template <typename T>
-coCoviseConfig::RefPtr<T>::~RefPtr()
+coCoviseConfig::RefPtr<T>::~RefPtr<T>()
 {
     //COCONFIGLOG("coCoviseConfig::RefPtr<T>::<dest> info: destroying");
     release();
