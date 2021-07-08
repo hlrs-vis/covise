@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
+
 Table of Contents
 =================
 
@@ -29,11 +31,9 @@ Table of Contents
 * [Source Code Organization](#source-code-organization)
 
 
-![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
-
 
 Software in This Repository
-====================
+===========================
 
 COVISE and OpenCOVER
 --------------------
