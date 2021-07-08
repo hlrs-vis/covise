@@ -1,4 +1,36 @@
-[![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
+Table of Contents
+=================
+
+* [Software in This Repository](#software-in-this-repository)
+   * [COVISE and OpenCOVER](#covise-and-opencover)
+   * [Other Software](#other-software)
+* [License](#license)
+* [Support &amp; Mailing Lists](#support--mailing-lists)
+* [Getting Binaries and Automated Installation](#getting-binaries-and-automated-installation)
+   * [macOS](#macos)
+   * [Windows](#windows)
+* [Getting the Source Code](#getting-the-source-code)
+   * [UNIX and Command Line](#unix-and-command-line)
+   * [Working with Git](#working-with-git)
+      * [UNIX](#unix)
+* [Building COVISE and OpenCOVER](#building-covise-and-opencover)
+   * [Build Requirements](#build-requirements)
+   * [Optional Dependencies](#optional-dependencies)
+   * [Tracking Dependencies](#tracking-dependencies)
+   * [Directory for Third Party Dependencies](#directory-for-third-party-dependencies)
+   * [Building on UNIX](#building-on-unix)
+      * [Building only OpenCOVER](#building-only-opencover)
+   * [Building on Windows](#building-on-windows)
+   * [Changing CMake Settings](#changing-cmake-settings)
+* [Building Documentation](#building-documentation)
+* [Invoking COVISE](#invoking-covise)
+   * [UNIX](#unix-1)
+   * [Windows](#windows-1)
+* [Source Code Organization](#source-code-organization)
+
+
+![Build Status](https://travis-ci.org/hlrs-vis/covise.svg?branch=master)](https://travis-ci.org/hlrs-vis/covise)
+
 
 Software in This Repository
 ====================
