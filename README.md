@@ -87,14 +87,17 @@ Building COVISE and OpenCOVER
 Build Requirements
 ------------------
 
+The script `scripts/install-deps.sh` will help you to install the dependencies
+provided by your Linux distribution (Debian/Ubuntu and RHEL/CentOS).
+
 - **C++ compiler**:
   C++11
 
-  On Windows, we currently use Visual Studio 2017 (VC14).
-  GCC 4.8 and newer should work.
+  On Windows, we currently use Visual Studio 2019 (VC15).
+  GCC 5.3 and newer should work.
 
 - **CMake**:
-  3.1 or newer is required, but currently we suggest CMake 3.7
+  3.1 or newer is required, but currently we suggest CMake 3.7 or newer
 - **XercesC**:
 - **Qt**:
   Qt 5 is required by the graphical user interface.
@@ -146,7 +149,7 @@ Optional Dependencies
 ---------------------
 - **JPEG Turbo**
 - **VTK**
-  Version 6 is required.
+  Version 6 or newer is required.
 - **Flex** and **Bison**
   Lexer/Parser generators, required to build VRML plugin.
 - **Open Inventor**
@@ -183,12 +186,19 @@ Building on UNIX
       make #invoke cmake followed by make
 
 This command sequence sets environment variables necessary while building
-COVISE, invokes `cmake` for the COVISE project, and builds COVISE.
+COVISE, invokes `cmake` for the COVISE project, and builds COVISE with 
+OpenCOVER.
 
 After an initial build, it is possible to invoke `make` from within
 subdirectories of `covise/src`.
 
 No installation is required: you can use COVISE directly from the build tree.
+
+### Building only OpenCOVER
+
+      cd covise
+      source .covise.sh #set environment variables
+      COVISE_CMAKE_OPTIONS=-DCOVISE_BUILD_ONLY_COVER=ON make #invoke cmake with provided options followed by make
 
 Building on Windows
 -------------------
@@ -217,15 +227,17 @@ This might help you work around build problems.
     cd ${COVISEDIR}/${ARCHSUFFIX}/build.covise
     ccmake ../..
 
+- `COVISE_BUILD_ONLY_COVER`: build only the OpenCOVER VR/desktop renderer without the COVISE visualization pipeline
+- `COVISE_BUILD_ONLY_ODDLOT`: build only the road editor OddLOT
+- `COVISE_BUILD_DRIVINGSIM`: enable the driving simulator components of OpenCOVER
 - `COVISE_USE_VIRVO`: disable support for direct volume rendering
-- `COVISE_BUILD_DRIVINGSIM`: enable the road editor oddlot
 - `COVISE_USE_CUDA`: disable use of CUDA
-- `COVISE_USE_QT4`: enable Qt 4
 - `COVISE_CPU_ARCH`: set optimization for the CPU in your computer
 - `COVISE_BUILD_RENDERER`: disable building the desktop renderer
 
 After changing any of these settings, you have to restart the build process.
 
+You can also provide initial CMake options by adding them to the environment `COVISE_CMAKE_OPTIONS` before calling `make`.
 
 Building Documentation
 ======================
@@ -311,6 +323,8 @@ Source Code Organization
   - `src/OpenCOVER`:
     VR renderer with its plug-ins
 
+  - `src/oddlot`:
+    OpenDRIVE road editor OddLOT
 
 
 [1]:   http://www.hlrs.de/covise/
