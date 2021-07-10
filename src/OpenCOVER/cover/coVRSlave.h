@@ -85,7 +85,7 @@ private:
 class COVEREXPORT coVRMpiSlave : public coVRSlave
 {
 public:
-    coVRMpiSlave(int ID, MPI_Comm appComm, MPI_Comm drawComm);
+    coVRMpiSlave(int ID, MPI_Comm appComm, int drawRank, MPI_Comm drawComm);
     virtual ~coVRMpiSlave();
     virtual void start();
     virtual void accept();
@@ -100,6 +100,7 @@ public:
 private:
     MPI_Comm appComm;
     MPI_Comm drawComm;
+    int drawRank = -1;
 };
 #endif
 }

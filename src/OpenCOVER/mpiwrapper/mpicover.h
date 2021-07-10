@@ -4,6 +4,6 @@
 #include <mpi.h>
 #include "export.h"
 
-extern "C" int MPICOVEREXPORT mpi_main(MPI_Comm comm, int argc, char *argv[]);
+extern "C" int MPICOVEREXPORT mpi_main(MPI_Comm comm, int shmGroupRoot, int argc, char *argv[]);
 
 #endif

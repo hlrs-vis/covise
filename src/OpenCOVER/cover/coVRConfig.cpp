@@ -134,7 +134,8 @@ coVRConfig::coVRConfig()
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
-    const int numScreens = coCoviseConfig::getInt("COVER.NumScreens", 1);
+    int numScreens = coConfigConstants::getShmGroupRootRank()<0 || coConfigConstants::getRank()==coConfigConstants::getShmGroupRootRank() ? 1 : 0;
+    numScreens = coCoviseConfig::getInt("COVER.NumScreens", numScreens);
     if (numScreens < 0)
     {
 	std::cerr << "COVER.NumScreens cannot be < 0" << std::endl;
@@ -689,6 +690,18 @@ coVRConfig::coVRConfig()
         m_language = GERMAN;
     else
         m_language = ENGLISH;
+
+    if (debugLevel(2))
+    {
+        std::cerr << "configured with "
+            << this->numScreens() << " screens, "
+            << this->numWindows() << " windows, "
+            << this->numChannels() << " channels, "
+            << this->numViewports() << " viewports, "
+            << this->numBlendingTextures() << " blending textures, "
+            << this->numPBOs() << " PBOs."
+            << std::endl;
+    }
 }
 
 coVRConfig::~coVRConfig()

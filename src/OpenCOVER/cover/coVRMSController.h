@@ -244,6 +244,7 @@ private:
 #ifdef HAS_MPI
     MPI_Comm appComm;
     MPI_Comm drawComm;
+    std::vector<int> drawRank;
 #endif
 
     int heartBeatCounter, heartBeatCounterDraw;

@@ -38,8 +38,9 @@ public:
     static const QString &getMaster();
 
     static void setBackend(const QString &backend);
-    static void setRank(int rank);
+    static void setRank(int rank, int shmGroupRootRank=-1);
     static int getRank();
+    static int getShmGroupRootRank();
 
 protected:
     coConfigConstants();
@@ -50,7 +51,8 @@ private:
     QString hostname;
     QString master;
     QStringList archlist;
-    int rank;
+    int rank = -1;
+    int shmGroupRoot = -1;
 
     static coConfigConstants *instance;
 

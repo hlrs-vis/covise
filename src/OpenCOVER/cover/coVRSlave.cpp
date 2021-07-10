@@ -372,10 +372,11 @@ void coVRTcpSlave::accept()
 
 #ifdef HAS_MPI
 
-coVRMpiSlave::coVRMpiSlave(int ID, MPI_Comm appComm, MPI_Comm drawComm)
+coVRMpiSlave::coVRMpiSlave(int ID, MPI_Comm appComm, int drawRank, MPI_Comm drawComm)
     : coVRSlave(ID)
     , appComm(appComm)
     , drawComm(drawComm)
+    , drawRank(drawRank)
 {
 }
 
@@ -400,8 +401,11 @@ int coVRMpiSlave::send(const void *c, int n)
 
 int coVRMpiSlave::readDraw(void *c, int n)
 {
+    if (drawRank < 0)
+        return n;
+
     MPI_Status status;
-    MPI_Recv(c, n, MPI_BYTE, myID, coVRMSController::DrawTag, drawComm, &status);
+    MPI_Recv(c, n, MPI_BYTE, drawRank, coVRMSController::DrawTag, drawComm, &status);
     int count;
     MPI_Get_count(&status, MPI_BYTE, &count);
     return count;
@@ -409,7 +413,10 @@ int coVRMpiSlave::readDraw(void *c, int n)
 
 int coVRMpiSlave::sendDraw(const void *c, int n)
 {
-    CO_MPI_SEND(const_cast<void *>(c), n, MPI_BYTE, myID, coVRMSController::DrawTag, drawComm);
+    if (drawRank < 0)
+        return n;
+
+    CO_MPI_SEND(const_cast<void *>(c), n, MPI_BYTE, drawRank, coVRMSController::DrawTag, drawComm);
     return n;
 }
 

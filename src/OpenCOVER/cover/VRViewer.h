@@ -53,6 +53,9 @@ class COVEREXPORT VRViewer : public osgViewer::Viewer, public ui::Owner
 {
     friend class OpenCOVER;
 public:
+    /** Whether this cluster instance/rank has any framebuffers to draw into.*/
+    static bool mustDraw();
+
     /** Updated the scene.  Handle any queued up events, do an update traversal and set the CameraGroup's setViewByMatrix if any camera manipulators are active.*/
     virtual bool update();
 

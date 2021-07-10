@@ -42,32 +42,7 @@
 
 #include <util/coExport.h>
 
-#ifdef WIN32
-static char *strcasestr(char *source, char *target)
-{
-    size_t i = 0, len = 0;
-    unsigned char after_space = 1;
-
-    len = strlen(target);
-    for (; source[i] != '\0'; i++)
-    {
-
-        if (!after_space && source[i] != ' ')
-            continue;
-        if (source[i] == ' ')
-        {
-            after_space = 1;
-            continue;
-        }
-        after_space = 0;
-        if (!strncasecmp((source + i), target, len))
-            return (source + i);
-    }
-    return NULL;
-}
-#endif
-
-extern "C" COEXPORT int mpi_main(MPI_Comm comm, int argc, char *argv[])
+extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, int argc, char *argv[])
 {
     int mpiinit = 0;
     MPI_Initialized(&mpiinit);
@@ -101,7 +76,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int argc, char *argv[])
         mastername.resize(len);
     MPI_Bcast(&mastername[0], len, MPI_BYTE, 0, comm);
 
-    covise::coConfigConstants::setRank(myID);
+    covise::coConfigConstants::setRank(myID, shmGroupRoot);
     covise::coConfigConstants::setMaster(QString::fromStdString(mastername));
 
 #ifdef _WIN32

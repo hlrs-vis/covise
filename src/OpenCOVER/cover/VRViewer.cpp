@@ -1069,7 +1069,9 @@ VRViewer::config()
     }
     if (statsDisplay)
         statsDisplay->updateThreadingModelText(getThreadingModel());
-    realize();
+
+    if (mustDraw())
+        realize();
 
     setAffinity();
 
@@ -1887,6 +1889,11 @@ void VRViewer::disableSync()
     unsyncedFrames = 1000000;
 }
 
+bool VRViewer::mustDraw()
+{
+    return coVRConfig::instance()->numChannels() > 0;
+}
+
 // OpenCOVER
 void VRViewer::frame()
 {
@@ -1894,7 +1901,8 @@ void VRViewer::frame()
     lastFrameTime = cover->currentTime();
 
     double startFrame = elapsedTime();
-    osgViewer::Viewer::frame(cover->frameTime());
+    if (mustDraw())
+        osgViewer::Viewer::frame(cover->frameTime());
     if (getViewerStats()->collectStats("frame"))
     {
         double endFrame = elapsedTime();

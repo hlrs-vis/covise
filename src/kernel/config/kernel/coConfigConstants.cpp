@@ -157,11 +157,12 @@ const QString &coConfigConstants::getMaster()
     return instance->master;
 }
 
-void coConfigConstants::setRank(int rank)
+void coConfigConstants::setRank(int rank, int shmGroupRoot)
 {
     if (!instance)
         new coConfigConstants();
     instance->rank = rank;
+    instance->shmGroupRoot = shmGroupRoot;
 }
 
 int coConfigConstants::getRank()
@@ -169,6 +170,13 @@ int coConfigConstants::getRank()
     if (!instance)
         new coConfigConstants();
     return instance->rank;
+}
+
+int coConfigConstants::getShmGroupRootRank()
+{
+    if (!instance)
+        new coConfigConstants();
+    return instance->shmGroupRoot;
 }
 
 void coConfigConstants::setBackend(const QString &backend)

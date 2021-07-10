@@ -122,7 +122,14 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     int mpiInit = 0;
     MPI_Initialized(&mpiInit);
     if (mpiInit)
-        MPI_Comm_dup(appComm, &drawComm);
+    {
+        drawRank.resize(numSlaves+1, -1);
+        MPI_Comm_split(appComm, VRViewer::mustDraw() ? 1 : MPI_UNDEFINED, AmyID, &drawComm);
+        int dr = -1;
+        if (VRViewer::mustDraw())
+            MPI_Comm_rank(drawComm, &dr);
+        MPI_Gather(&dr, 1, MPI_INT, drawRank.data(), 1, MPI_INT, 0, appComm);
+    }
 #endif
 
     MARK0("coVRMSController::coVRMSController");
@@ -470,19 +477,25 @@ coVRMSController::coVRMSController(const MPI_Comm *comm)
     assert(!s_singleton);
     s_singleton = this;
 
-#ifdef HAS_MPI
-    int mpiInit = 0;
-    MPI_Initialized(&mpiInit);
-    if (mpiInit)
-        MPI_Comm_dup(appComm, &drawComm);
-    assert(mpiInit);
-#endif
-
     MARK0("coVRMSController::coVRMSController");
     m_debugLevel = covise::coCoviseConfig::getInt("COVER.DebugLevel", m_debugLevel);
-
     if (debugLevel(2))
         fprintf(stderr, "\nnew coVRMSController\n");
+
+    int mpiInit = 0;
+    MPI_Initialized(&mpiInit);
+    assert(mpiInit);
+    MPI_Comm_rank(appComm, &myID);
+    MPI_Comm_size(appComm, &numSlaves);
+    --numSlaves;
+
+    drawRank.resize(numSlaves+1, -1);
+    MPI_Comm_split(appComm, VRViewer::mustDraw() ? 1 : MPI_UNDEFINED, myID, &drawComm);
+    int dr = -1;
+    if (VRViewer::mustDraw())
+        MPI_Comm_rank(drawComm, &dr);
+    MPI_Gather(&dr, 1, MPI_INT, drawRank.data(), 1, MPI_INT, 0, appComm);
+
 #ifdef DEBUG_MESSAGES
     debugMessageCounter = 0;
     debugMessagesCheck = true;
@@ -535,10 +548,6 @@ coVRMSController::coVRMSController(const MPI_Comm *comm)
     if (debugLevel(3))
         fprintf(stderr, "syncMode: MPI\n");
 
-    MPI_Comm_size(appComm, &numSlaves);
-    --numSlaves;
-
-    MPI_Comm_rank(appComm, &myID);
     master = myID == 0;
     slave = !master;
 
@@ -1544,7 +1553,7 @@ void coVRMSController::startSlaves()
 #ifdef HAS_MPI
             if (syncMode == SYNC_MPI)
             {
-                slaves[i] = new coVRMpiSlave(i + 1, appComm, drawComm);
+                slaves[i] = new coVRMpiSlave(i + 1, appComm, drawRank[i+1], drawComm);
             }
             else
 #endif
