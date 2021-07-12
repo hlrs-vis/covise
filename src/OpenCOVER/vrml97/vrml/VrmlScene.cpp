@@ -1272,30 +1272,8 @@ void VrmlScene::render(Viewer *viewer)
             char **navTypes = ni->navTypes();
             if ((navTypes) && (navTypes[0]))
             {
-                if (strcmp(navTypes[0], "WALK") == 0)
-                {
-                    System::the->setNavigationType(System::NAV_WALK);
-                }
-                if (strcmp(navTypes[0], "DRIVE") == 0)
-                {
-                    System::the->setNavigationType(System::NAV_DRIVE);
-                }
-                else if (strcmp(navTypes[0], "EXAMINE") == 0)
-                {
-                    System::the->setNavigationType(System::NAV_EXAMINE);
-                }
-                else if (strcmp(navTypes[0], "FLY") == 0)
-                {
-                    System::the->setNavigationType(System::NAV_FLY);
-                }
-                else if (strcmp(navTypes[0], "SCALE") == 0)
-                {
-                    System::the->setNavigationType(System::NAV_SCALE);
-                }
-                else if (strcmp(navTypes[0], "NONE") == 0)
-                {
-                    System::the->setNavigationType(System::NAV_NONE);
-                }
+
+                System::the->setNavigationType(navTypes[0]);
                 System::the->setNavigationDriveSpeed(ni->speed());
             }
         }

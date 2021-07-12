@@ -139,17 +139,8 @@ public:
     virtual void createMenu() = 0;
     virtual void destroyMenu() = 0;
 
-    enum NavigationType
-    {
-        NAV_NONE,
-        NAV_WALK,
-        NAV_EXAMINE,
-        NAV_FLY,
-        NAV_SCALE,
-        NAV_DRIVE
-    };
 
-    virtual void setNavigationType(NavigationType nav) = 0;
+    virtual void setNavigationType(std::string) = 0;
     virtual void setNavigationStepSize(double stepsize) = 0;
     virtual void setNavigationDriveSpeed(double drivespeed) = 0;
     virtual void setNearFar(float near, float far) = 0;

@@ -52,6 +52,23 @@ namespace opencover
 {
 class coMeasurement;
 class coVRLabel;
+class coVRPlugin;
+
+class COVEREXPORT coVRNavigationProvider
+{
+public:
+    coVRNavigationProvider(const std::string name, coVRPlugin* plugin);
+    virtual ~coVRNavigationProvider();
+    coVRPlugin *plugin;
+    ui::Button* navMenuButton = nullptr;
+    std::string getName() { return name; };
+    virtual void setEnabled(bool enabled);
+    bool isEnabled() { return enabled; };
+    int ID;
+private:
+    std::string name;
+    bool enabled=false;
+};
 
 class COVEREXPORT coVRNavigationManager: public ui::Owner
 {
@@ -103,6 +120,7 @@ public:
     void updateHandMat(osg::Matrix &mat);
     void setHandType(int pt);
     void setNavMode(NavMode mode, bool updateGroup=true);
+    void setNavMode(std::string navMode);
     NavMode getMode()
     {
         return navMode;
@@ -227,6 +245,9 @@ public:
     {
         guiTranslateFactor = f;
     }
+    void registerNavigationProvider(coVRNavigationProvider*);
+    void unregisterNavigationProvider(coVRNavigationProvider*);
+
 
 private:
     bool doMouseNav;
@@ -239,6 +260,7 @@ private:
     bool ignoreCollision;
     NavMode navMode;
     NavMode oldNavMode;
+    std::list<coVRNavigationProvider*> navigationProviders;
 
     /* until button is released */
 

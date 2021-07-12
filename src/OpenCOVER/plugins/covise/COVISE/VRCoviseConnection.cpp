@@ -687,38 +687,7 @@ VRCoviseConnection::receiveRenderMessage()
                 // set navigationMode
                 std::string navmode(trackingMsg.getNavigationMode());
                 auto nav = coVRNavigationManager::instance();
-                if (navmode == "")
-                {
-                    // do nothing
-                }
-                else if (navmode == "NavNone")
-                {
-                    nav->setNavMode(coVRNavigationManager::NavNone);
-                }
-                else if (navmode == "XForm")
-                {
-                    nav->setNavMode(coVRNavigationManager::XForm);
-                }
-                else if (navmode == "Scale")
-                {
-                    nav->setNavMode(coVRNavigationManager::Scale);
-                }
-                else if (navmode == "Walk")
-                {
-                    nav->setNavMode(coVRNavigationManager::Walk);
-                }
-                else if (navmode == "Drive")
-                {
-                    nav->setNavMode(coVRNavigationManager::Glide);
-                }
-                else if (navmode == "Fly")
-                {
-                    nav->setNavMode(coVRNavigationManager::Fly);
-                }
-                else
-                {
-                    std::cerr << "VRCoviseConnection: navigation mode " << navmode << " not implemented" << std::endl;
-                }
+                nav->setNavMode(navmode);
                 //enable tracking in opencover
 
                 //vld: VRTracker use. Enable tracking. Add the method in input?

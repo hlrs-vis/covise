@@ -115,7 +115,7 @@ public:
     void createMenu() override;
     void destroyMenu() override;
 
-    void setNavigationType(NavigationType nav) override;
+    void setNavigationType(std::string) override;
     void setNavigationStepSize(double size) override;
     void setNavigationDriveSpeed(double speed) override;
     void setNearFar(float near, float far) override;

@@ -856,33 +856,9 @@ void SystemCover::setActivePerson(int p) // set the active Person
     Input::instance()->setActivePerson(p);
 }
 
-void SystemCover::setNavigationType(System::NavigationType nav)
+void SystemCover::setNavigationType(std::string modeName)
 {
-    auto navi = coVRNavigationManager::instance();
-    switch (nav)
-    {
-    case NAV_NONE:
-        navi->setNavMode(coVRNavigationManager::NavNone);
-        break;
-    case NAV_FLY:
-        navi->setNavMode(coVRNavigationManager::Fly);
-        break;
-    case NAV_WALK:
-        navi->setNavMode(coVRNavigationManager::Walk);
-        break;
-    case NAV_EXAMINE:
-        navi->setNavMode(coVRNavigationManager::XForm);
-        break;
-    case NAV_DRIVE:
-        navi->setNavMode(coVRNavigationManager::Glide);
-        break;
-    case NAV_SCALE:
-        navi->setNavMode(coVRNavigationManager::Scale);
-        break;
-    default:
-        fprintf(stderr, "SystemCover::setNavigationType: unknown navigation type\n");
-        break;
-    }
+    coVRNavigationManager::instance()->setNavMode(modeName);
 }
 
 void SystemCover::setNavigationStepSize(double stepsize)

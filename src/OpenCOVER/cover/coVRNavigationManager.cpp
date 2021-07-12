@@ -77,7 +77,7 @@
 #include <osgDB/WriteFile>
 #include <osg/ShapeDrawable>
 #include <osg/io_utils>
-
+#include <boost/algorithm/string/predicate.hpp>
 
 using namespace osg;
 using namespace opencover;
@@ -114,6 +114,21 @@ static float mouseScreenWidth()
 static float mouseScreenHeight()
 {
     return Input::instance()->mouse()->screenHeight();
+}
+
+coVRNavigationProvider::coVRNavigationProvider(const std::string n, coVRPlugin* p)
+{
+    name = n;
+    plugin = p;
+    ID = -1;
+}
+coVRNavigationProvider::~coVRNavigationProvider()
+{
+}
+
+void coVRNavigationProvider::setEnabled(bool state)
+{
+    enabled = state;
 }
 
 coVRNavigationManager *coVRNavigationManager::instance()
@@ -275,6 +290,37 @@ void coVRNavigationManager::initInteractionDevice()
    else
       fprintf(stderr, "Wii Navigation Visenso OFF\n");*/
     wiiFlag = 0;
+}
+
+void coVRNavigationManager::registerNavigationProvider(coVRNavigationProvider *np)
+{
+    for (const auto& n : navigationProviders)
+    {
+        if (n->getName() == np->getName())
+        {
+            cerr << "Navigation \"" << n->getName() << "\" already registered" << endl;
+            return;
+        }
+    }
+    np->ID = NumNavModes + navigationProviders.size();
+    np->navMenuButton = new ui::Button(navModes_, np->getName(), navGroup_, np->ID);
+
+    navigationProviders.push_back(np);
+
+}
+void coVRNavigationManager::unregisterNavigationProvider(coVRNavigationProvider *np)
+{
+    for (const auto& n : navigationProviders)
+    {
+        if (n == np)
+        {
+            navigationProviders.remove(np);
+            delete np->navMenuButton;
+            np->navMenuButton = nullptr;
+            return;
+        }
+    }
+    cerr << "Navigation \"" << np->getName() << "\" not found" << endl;
 }
 
 int coVRNavigationManager::readConfigFile()
@@ -1529,6 +1575,51 @@ coVRNavigationManager::update()
     }
 }
 
+void coVRNavigationManager::setNavMode(std::string modeName)
+{
+
+    if (modeName == "")
+    {
+        // do nothing
+    }
+    else if (boost::iequals(modeName,"NavNone") || boost::iequals(modeName, "None"))
+    {
+        setNavMode(coVRNavigationManager::NavNone);
+    }
+    else if (boost::iequals(modeName, "XForm") || boost::iequals(modeName, "EXAMINE"))
+    {
+        setNavMode(coVRNavigationManager::XForm);
+    }
+    else if (boost::iequals(modeName, "Scale"))
+    {
+        setNavMode(coVRNavigationManager::Scale);
+    }
+    else if (boost::iequals(modeName, "Walk") || boost::iequals(modeName, "ANY"))
+    {
+        setNavMode(coVRNavigationManager::Walk);
+    }
+    else if (boost::iequals(modeName, "Drive"))
+    {
+        setNavMode(coVRNavigationManager::Glide);
+    }
+    else if (boost::iequals(modeName, "Fly"))
+    {
+        setNavMode(coVRNavigationManager::Fly);
+    }
+    else
+    {
+        for (const auto& n : navigationProviders)
+        {
+            if (n->getName() == modeName)
+            {
+                setNavMode((NavMode)n->ID);
+                return;
+            }
+        }
+        std::cerr << "VRCoviseConnection: navigation mode " << modeName << " not implemented" << std::endl;
+    }
+}
+
 void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
 {
     //std::cerr << "navMode = " << mode << ", was " <<  navMode << ", old = " << oldNavMode << std::endl;
@@ -1631,7 +1722,24 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
             selectInteractButton_->setState(true, updateGroup);
         break;
     default:
-        if (navMode != NavOther)
+        bool found = false;
+        for (const auto& n : navigationProviders)
+        {
+            if (n->ID == mode)
+            {
+                interactionA->setName(n->getName());
+                if (n->navMenuButton)
+                    n->navMenuButton->setState(true, updateGroup);
+                n->setEnabled(true);
+                found = true;
+            }
+            else
+            {
+                if(n->isEnabled())
+                   n->setEnabled(false);
+            }
+        }
+        if (!found && navMode != NavOther)
             fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
         break;
     }
