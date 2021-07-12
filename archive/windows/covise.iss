@@ -279,7 +279,7 @@ Source: {#BIN}\Tools\*.exe; DestDir: {#DBIN}\Tools; Flags: recursesubdirs; Compo
 ; Source: {#BIN}\Tracer\*.exe; DestDir: {#DBIN}\Tracer; Flags: recursesubdirs; Components: core
 Source: {#BIN}\Obsolete\*.exe; DestDir: {#DBIN}\Obsolete; Flags: recursesubdirs skipifsourcedoesntexist; Components: core
 
-Source: {#BIN}\Renderer\QtRenderer.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs; Components: core
+Source: {#BIN}\Renderer\QtRenderer.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\coin3d\bin\*.dll; DestDir: {#DLIB}; Components: core
 
 
