@@ -8,7 +8,7 @@ include_directories(${MPI_INCLUDE_PATH})
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 
-ADD_COVISE_LIBRARY(mpicover SHARED mpicover.cpp)
+ADD_COVISE_LIBRARY(mpicover SHARED mpicover.cpp mpicover.h)
 target_link_libraries(mpicover coOpenCOVER ${COVISE_VRBCLIENT_LIBRARY}
    ${COVISE_GRMSG_LIBRRARY} ${COVISE_UTIL_LIBRARY} ${EXTRA_LIBS})
 qt_use_modules(mpicover Core)

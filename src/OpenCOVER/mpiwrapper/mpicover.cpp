@@ -42,8 +42,14 @@
 
 #include <util/coExport.h>
 
+#include "mpicover.h"
+#include "export.h"
+
 extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, int argc, char *argv[])
 {
+    mpi_main_t *typecheck = mpi_main;
+    (void)typecheck;
+
     int mpiinit = 0;
     MPI_Initialized(&mpiinit);
     if (!mpiinit)
