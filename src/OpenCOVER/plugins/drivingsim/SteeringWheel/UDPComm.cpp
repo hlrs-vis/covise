@@ -88,6 +88,7 @@ UDPComm::UDPComm(int port, const char *hostname)
     // port numbers - must be correct
     if (port <= 0 || port > 332767)
     {
+        strcpy(d_error,"Port number out of range [0..32767]");
         fprintf(stderr, "Port number out of range [0..32767]");
         return;
     }
@@ -102,6 +103,7 @@ UDPComm::UDPComm(int port, const char *hostname)
     d_socket = (int)socket(AF_INET, SOCK_DGRAM, 0);
     if (d_socket < 0)
     {
+        strcpy(d_error,"Error creating socket");
         fprintf(stderr, "Error creating socket port: %s", strerror(errno));
         return;
     }
@@ -138,6 +140,7 @@ UDPComm::UDPComm(const char *hostPort, int localPort, const char *mcastif, int m
     retval = sscanf(dpoint + 1, "%d", &port);
     if (retval != 1)
     {
+        strcpy(d_error,"UDPComm::UDPComm: sscanf failed");
         std::cerr << "UDPComm::UDPComm: sscanf failed" << std::endl;
         return;
     }
@@ -157,7 +160,8 @@ int UDPComm::openReceivePort(int portnumber)
     d_rsocket = (int)socket(AF_INET, SOCK_DGRAM, 0);
     if (d_rsocket < 0)
     {
-        fprintf(stderr, "+VRC+ socket creation failed\n");
+        strcpy(d_error,"UDPComm::openReceivePort: socket creation failed");
+        fprintf(stderr, "UDPComm::openReceivePort: socket creation failed\n");
         return -1;
     }
 
@@ -175,6 +179,7 @@ int UDPComm::openReceivePort(int portnumber)
     fprintf(stderr, "UDPComm:: d_rsocket %d\n", d_rsocket);
     if (bind(d_rsocket, (sockaddr *)&any_adr, sizeof(any_adr)) < 0)
     {
+        strcpy(d_error,"UDPComm:: Could not bind to port");
         fprintf(stderr, "UDPComm:: Could not bind to port %d\n", portnumber);
         return -1;
     }
@@ -193,6 +198,7 @@ void UDPComm::setup(const char *hostname, int port, int localPort,
     // port numbers - must be correct
     if (port <= 0 || port > 332767)
     {
+        strcpy(d_error,"Port number out of range [0..32767]");
         fprintf(stderr, "Port number out of range [0..32767]");
         return;
     }
@@ -205,6 +211,7 @@ void UDPComm::setup(const char *hostname, int port, int localPort,
 #endif
     if (openReceivePort(localPort) < 0)
     {
+        strcpy(d_error,"Error opening local port");
         fprintf(stderr, "Error opening local port: %d %s", localPort, strerror(errno));
         return;
     }
@@ -212,6 +219,7 @@ void UDPComm::setup(const char *hostname, int port, int localPort,
     d_socket = (int)socket(AF_INET, SOCK_DGRAM, 0);
     if (d_socket < 0)
     {
+        strcpy(d_error,"Error creating socket port");
         fprintf(stderr, "Error creating socket port: %s", strerror(errno));
         return;
     }

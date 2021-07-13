@@ -310,6 +310,10 @@ void coVRNavigationManager::registerNavigationProvider(coVRNavigationProvider *n
 }
 void coVRNavigationManager::unregisterNavigationProvider(coVRNavigationProvider *np)
 {
+    if(np->isEnabled())
+    {
+        setNavMode(coVRNavigationManager::XForm);
+    }
     for (const auto& n : navigationProviders)
     {
         if (n == np)
@@ -1649,6 +1653,11 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
     }
 
     navMode = mode;
+        for (const auto& n : navigationProviders)
+        {
+                if(n->isEnabled())
+                   n->setEnabled(false);
+        }
 
     switch (mode)
     {
@@ -1732,11 +1741,6 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
                     n->navMenuButton->setState(true, updateGroup);
                 n->setEnabled(true);
                 found = true;
-            }
-            else
-            {
-                if(n->isEnabled())
-                   n->setEnabled(false);
             }
         }
         if (!found && navMode != NavOther)
