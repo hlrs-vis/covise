@@ -2939,8 +2939,6 @@ Vector2D RoadSystem::searchPositionFollowingRoad(const Vector3D &worldPos, Road 
             }
         }
 
-        Road *getConnectingPath();
-        int getConnectingPathDirection();
         Junction *nextJunction = dynamic_cast<Junction *>(nextTarmacConnection->getConnectingTarmac());
         if (nextJunction)
         {
