@@ -16,7 +16,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <coVRNavigationManager.h>
+#include <cover/coVRNavigationManager.h>
+#include <cover/coVRPlugin.h>
+#include <OpenThreads/Thread>
 
 
 
@@ -51,7 +53,7 @@ struct SBCtrlData
 
 
 
-class PLUGINEXPORT Skateboard :  public coVRPlugin, public OpenThreads::Thread, public coVRNavigationProvider
+class PLUGINEXPORT Skateboard :  public opencover::coVRPlugin, public OpenThreads::Thread, public opencover::coVRNavigationProvider
 {
 public:
     Skateboard();
@@ -67,16 +69,22 @@ public:
     void syncData();
     bool doStop;
 private:
+    float stepSizeUp;
+    float stepSizeDown;
     bool init();
-    virtual void setEnabled();
+    void MoveToFloor();
+    virtual void setEnabled(bool);
     void updateThread();
 
     UDPComm *udp;
-    BicyclePlugin* bicycle;
     SBData sbData;
     SBCtrlData sbControl;
     int ret;
     OpenThreads::Mutex mutex;
+    float speed=0.0;
+    osg::Node *oldFloorNode;
+    osg::NodePath oldNodePath;
+    osg::Matrix oldFloorMatrix;
 };
 
 #endif /* Skateboard_H */
