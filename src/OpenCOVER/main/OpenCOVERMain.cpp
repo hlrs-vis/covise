@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
 #ifdef MPI_COVER
     if (forceMpi)
     {
-        Renderer = new opencover::OpenCOVER(&comm);
+        Renderer = new opencover::OpenCOVER(&comm, nullptr);
     }
     else
 #endif

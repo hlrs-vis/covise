@@ -197,10 +197,11 @@ OpenCOVER::OpenCOVER()
 }
 
 #ifdef HAS_MPI
-OpenCOVER::OpenCOVER(const MPI_Comm *comm)
+OpenCOVER::OpenCOVER(const MPI_Comm *comm, pthread_barrier_t *shmBarrier)
     : m_visPlugin(NULL)
     , m_forceMpi(true)
     , m_comm(*comm)
+    , m_shmBarrier(shmBarrier)
     , m_renderNext(true)
 {
     initCudaGlInterop();
@@ -433,7 +434,7 @@ bool OpenCOVER::init()
 #ifdef HAS_MPI
     if (m_forceMpi)
     {
-        new coVRMSController(&m_comm);
+        new coVRMSController(&m_comm, m_shmBarrier);
     }
     else
 #endif

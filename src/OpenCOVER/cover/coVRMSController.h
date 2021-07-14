@@ -106,7 +106,7 @@ public:
     static coVRMSController *instance();
     coVRMSController(int AmyID = -1, const char *addr = NULL, int port = 0);
 #ifdef HAS_MPI
-    coVRMSController(const MPI_Comm *comm);
+    coVRMSController(const MPI_Comm *comm, pthread_barrier_t *shmBarrier = nullptr);
 #endif
     ~coVRMSController();
     void startSlaves();
@@ -148,6 +148,7 @@ public:
     {
         return myID;
     };
+    void shmBarrier(); // barrier among all ranks on a node accessing the same shmem segment
     void sync();
     void startupSync();
     void syncApp(int frameNum);
@@ -245,6 +246,7 @@ private:
     MPI_Comm appComm;
     MPI_Comm drawComm;
     std::vector<int> drawRank;
+    pthread_barrier_t *pthreadShmBarrier = nullptr;
 #endif
 
     int heartBeatCounter, heartBeatCounterDraw;

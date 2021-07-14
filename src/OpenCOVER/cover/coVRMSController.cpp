@@ -29,6 +29,7 @@
 #ifdef HAS_MPI
 #include <mpi.h>
 #define MPI_BCAST
+#define MPI_BARRIER
 #ifndef CO_MPI_SEND
 #define CO_MPI_SEND MPI_Ssend
 #endif
@@ -461,7 +462,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
 }
 
 #ifdef HAS_MPI
-coVRMSController::coVRMSController(const MPI_Comm *comm)
+coVRMSController::coVRMSController(const MPI_Comm *comm, pthread_barrier_t *shmBarrier)
     : m_debugLevel(2)
     , master(true)
     , slave(false)
@@ -470,6 +471,7 @@ coVRMSController::coVRMSController(const MPI_Comm *comm)
     , socketDraw(0)
     , appComm(*comm)
     , drawComm(*comm)
+    , pthreadShmBarrier(shmBarrier)
     , heartBeatCounter(0)
     , heartBeatCounterDraw(0)
 
@@ -1430,8 +1432,12 @@ void coVRMSController::syncDraw()
 #ifdef HAS_MPI
     else if (syncMode == SYNC_MPI)
     {
+#ifdef MPI_BARRIER
+        MPI_Barrier(drawComm);
+#else
         waitForSlavesDraw();
         sendGoDraw();
+#endif
     }
 #endif
 }
@@ -1683,6 +1689,14 @@ void coVRMSController::startupSync()
     }
 }
 
+void coVRMSController::shmBarrier()
+{
+#ifdef HAS_MPI
+    if (pthreadShmBarrier)
+        pthread_barrier_wait(pthreadShmBarrier);
+#endif
+}
+
 void coVRMSController::sync()
 {
     if (numSlaves == 0)
@@ -1779,8 +1793,13 @@ void coVRMSController::sync()
 #ifdef HAS_MPI
     else if (syncMode == SYNC_MPI)
     {
+        shmBarrier();
+#ifdef MPI_BARRIER
+        MPI_Barrier(appComm);
+#else
         waitForSlaves();
         sendGo();
+#endif
     }
 #endif
 }
@@ -2314,6 +2333,7 @@ int coVRMSController::syncData(void *data, int size)
 #if defined(HAS_MPI) && defined(MPI_BCAST)
     if (syncMode == SYNC_MPI)
     {
+        shmBarrier();
         MPI_Bcast(data, size, MPI_BYTE, 0, appComm);
         return size;
     }
@@ -2384,6 +2404,7 @@ bool coVRMSController::reduceOr(bool val)
 #ifdef HAS_MPI
     if (syncMode == SYNC_MPI)
     {
+        shmBarrier();
         int in = val ? 1 : 0, out = in;
         MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LOR, 0, appComm);
         return out != 0;
@@ -2414,6 +2435,7 @@ bool coVRMSController::reduceAnd(bool val)
 #ifdef HAS_MPI
     if (syncMode == SYNC_MPI)
     {
+        shmBarrier();
         int in = val ? 1 : 0, out = in;
         MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LAND, 0, appComm);
         return out != 0;
@@ -2444,6 +2466,7 @@ bool coVRMSController::allReduceOr(bool val)
 #ifdef HAS_MPI
     if (syncMode == SYNC_MPI)
     {
+        shmBarrier();
         int in = val ? 1 : 0, out = in;
         MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LOR, appComm);
         return out != 0;
@@ -2461,6 +2484,7 @@ bool coVRMSController::allReduceAnd(bool val)
 #ifdef HAS_MPI
     if (syncMode == SYNC_MPI)
     {
+        shmBarrier();
         int in = val ? 1 : 0, out = in;
         MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LAND, appComm);
         return out != 0;

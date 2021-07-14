@@ -79,7 +79,7 @@ private:
 public:
     OpenCOVER();
 #ifdef HAS_MPI
-    OpenCOVER(const MPI_Comm *comm);
+    OpenCOVER(const MPI_Comm *comm, pthread_barrier_t *shmBarrier);
 #endif
 #ifdef WIN32
     OpenCOVER(HWND parentWindow);
@@ -136,6 +136,7 @@ public:
 private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
+    pthread_barrier_t *m_shmBarrier = nullptr;
 #endif
     bool m_renderNext;
     bool m_initialized = false;
