@@ -293,10 +293,11 @@ struct LoadedFile: public osg::Observer
     
     ~LoadedFile()
     {
-        if (node && !isRoot)
-        {
-            node->ref();
-            node->unref_nodelete();
+        if (cover->debugLevel(3)) {
+            if (node)
+                std::cerr << "coVRFileManager: LoadedFile: destroy " << url.str() << ", refcount=" << node->referenceCount() << std::endl;
+            else
+                std::cerr << "coVRFileManager: LoadedFile: destroy " << url.str() << ", NO NODE" << std::endl;
         }
     }
 
@@ -429,6 +430,13 @@ struct LoadedFile: public osg::Observer
               break;
           node->getParent(n-1)->removeChild(node);
       }
+      if (cover->debugLevel(3)) {
+          if (node)
+              std::cerr << "unload: node removed from all parents, refcount="
+                        << node->referenceCount() << std::endl;
+          else
+              std::cerr << "unload: node is NULL" << std::endl;
+      }
       node = nullptr;
 
       return ok;
@@ -448,10 +456,6 @@ osg::Node *LoadedFile::load()
 
     auto adjustedFileName = url.str();
     auto &fb = filebrowser;
-
-    bool isRoot = coVRFileManager::instance()->m_loadingFile==nullptr;
-    if (isRoot)
-        coVRFileManager::instance()->m_loadingFile = this;
 
     osg::ref_ptr<osg::Group> fakeParent = new osg::Group;
     if (handler)
@@ -1049,7 +1053,9 @@ void coVRFileManager::reloadFile()
     if (m_lastFile)
     {
         std::cerr << "reloading " << m_lastFile->url << std::endl;
+        m_loadingFile = m_lastFile;
         m_lastFile->reload();
+        m_loadingFile = nullptr;
     }
     else
     {
@@ -1062,12 +1068,13 @@ void coVRFileManager::unloadFile(const char *file)
     START("coVRFileManager::unloadFile");
     if (file)
     {
+        //std::cerr << "coVRFileManager::unloadFile: file=" << file << std::endl;
         std::string validFileName(file);
         convertBackslash(validFileName);
         auto it = m_files.find(validFileName);
         if (it == m_files.end())
         {
-            std::cerr << validFileName << " not loaded";
+            std::cerr << validFileName << " not loaded" << std::endl;
             return;
         }
 
@@ -1081,10 +1088,10 @@ void coVRFileManager::unloadFile(const char *file)
         }
 
         if (!fe->unload())
-            std::cerr << "unloading " << fe->url << " failed";
+            std::cerr << "unloading " << fe->url << " failed" << std::endl;
         fe->updateButton();
 
-        std::cerr << "unloaded " << fe->url << ": #instances=" << fe->numInstances();
+        //std::cerr << "unloaded " << fe->url << ": #instances=" << fe->numInstances() << std::endl;
 
         if (fe->numInstances() == 0)
         {
