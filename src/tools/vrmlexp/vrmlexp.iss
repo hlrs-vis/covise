@@ -218,15 +218,15 @@ begin
   Result:=true;
                                
       
-  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\23.0','Installdir',MaxDir)) then
+  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\24.0','Installdir',MaxDir)) then
       begin
-          MaxVersion:=23;    
+          MaxVersion:=24;    
       end;
   
   if MaxVersion = 0 then
   begin
       Result:=false;
-      MsgBox('Did not find 3ds Max, please install 3ds Max 2021.1 first!', mbError, MB_OK);
+      MsgBox('Did not find 3ds Max, please install 3ds Max 2022.0 first!', mbError, MB_OK);
   end;
 
 end;

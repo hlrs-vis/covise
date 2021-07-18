@@ -845,7 +845,8 @@ PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass,
     int pedestrianIndex = dis(gen);
 
     pedestrianModel p = pedestrianModels[pedestrianIndex];
-    return new PedestrianGeometry(ID, p.fileName,p.scale, 40.0, a, pedestrianGroup);
+    const float pedestrianLODDistance = 40.0; //1600 
+    return new PedestrianGeometry(ID, p.fileName,p.scale, pedestrianLODDistance, a, pedestrianGroup);
 }
 
 void SumoTraCI::getPedestriansFromConfig()
