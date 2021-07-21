@@ -14,7 +14,7 @@
 IntToFloat::IntToFloat(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Convert IntArray to Float")
 {
-    p_input = addInputPort("Input", "IntArr", "input");
+    p_input = addInputPort("Input", "IntArr|Byte", "input");
     p_input->setRequired(1);
     p_output = addOutputPort("Output", "Float", "output");
 }
@@ -26,26 +26,37 @@ int IntToFloat::compute(const char *)
     if (!dobj)
         return FAIL;
     const coDoIntArr *intarr = dynamic_cast<const coDoIntArr *>(dobj);
-    if (!intarr)
-        return FAIL;
+    const coDoByte *bytearr = dynamic_cast<const coDoByte *>(dobj);
 
-    // CREATE
-
-    int numPoints = intarr->getSize() - 1;
-    std::cerr << numPoints;
+    int numPoints=0;
+    if (intarr)
+    	numPoints = intarr->getSize() - 1;
+    if(bytearr)
+   	numPoints = bytearr->getNumPoints();
     const char *outName = p_output->getObjName();
     coDoFloat *outObj = new coDoFloat(outName, numPoints);
-    outObj->copyAllAttributes(intarr);
+    outObj->copyAllAttributes(dobj);
+    // CREATE
 
     // CALCULATE
-
-    int *inPtr;
     float *outPtr;
-    intarr->getAddress(&inPtr);
     outObj->getAddress(&outPtr);
-    for (int i = 0; i < numPoints; ++i)
-    {
-        outPtr[i] = (float)inPtr[i];
+
+    if(intarr) {
+    	int *inPtr;
+   	intarr->getAddress(&inPtr);
+    	for (int i = 0; i < numPoints; ++i)
+    	{
+        	outPtr[i] = (float)inPtr[i];
+    	}
+    }
+    if(bytearr) {
+    	unsigned char *inPtr;
+   	bytearr->getAddress(&inPtr);
+    	for (int i = 0; i < numPoints; ++i)
+    	{
+        	outPtr[i] = (float)inPtr[i]/255.0;
+    	}
     }
 
     p_output->setCurrentObject(outObj);
