@@ -330,6 +330,7 @@ type_spec: TYPE ENSIGHTV
 
 any_identifier: IDENTIFIER
     | POINT_IDENTIFIER
+    | STRING
 
 model_spec: MODEL any_identifier 
           {
@@ -357,7 +358,7 @@ model_spec: MODEL any_identifier
 	      int ts( $<token>2.iVal );
 	      caseFile_.setGeoTsIdx(ts);
           //}   
-	      //	      fprintf(stderr,"  ENSIGHT MODEL <%s> TIMESET <%d> found\n", ensight_geofile.c_str(), ts);
+	      	      fprintf(stderr,"  ENSIGHT MODEL <%s> TIMESET <%d> found\n", ensight_geofile.c_str(), ts);
           }
           | MODEL INTEGER INTEGER any_identifier 
           {
@@ -425,7 +426,39 @@ model_spec: MODEL any_identifier
 
         
 
-variable_spec: var_pre VAR_POST
+variable_spec: var_pre IDENTIFIER STRING
+          {
+	      	      fprintf(stderr," var_pre STRING %s\n", $<token>2.szValue);
+	      std::string tmp($<token>2.szValue);
+	      size_t last = tmp.find(" ");
+	      if ( last == std::string::npos ) {
+		  last = tmp.find("\t");
+		  if ( last == std::string::npos ) {
+		      std::cerr << "CaseParser::yyparse() filename or description for variable missing" << std::endl;
+		  }
+	      }
+	      std::string desc( tmp.substr( 0, last ) );
+	      size_t len( tmp.size() );
+	      size_t snd( tmp.find_first_not_of(" ",last) );
+	      std::string fname( tmp.substr( snd, len-snd ) );
+	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
+	      
+	      actIt_->setDesc( desc );
+
+	      actIt_->setFileName( trim(fname) );
+	      
+	      if ( actIt_ != NULL ) {
+		  caseFile_.addDataIt( *actIt_ );
+	      }
+	      else {
+		  std::cerr << "CaseParser::yyparse() try to add NULL DataItem" << std::endl;
+	      }
+
+	      delete actIt_;
+	      actIt_ = NULL;
+
+	  }
+	  | var_pre  VAR_POST
           {
 	      	      fprintf(stderr," VAR_POST %s\n", $<token>2.szValue);
 	      std::string tmp($<token>2.szValue);
@@ -528,13 +561,13 @@ variable_spec: var_pre VAR_POST
 
 var_pre :  var_type var_rela 
           {
-	      	      fprintf(stderr," var_type var_rela\n");
+	      	      fprintf(stderr,"var_pre: var_type var_rela\n");
 	  }
 
 var_type: SCALAR
           {  
 	      actIt_ = new DataItem;
-	      	      fprintf(stderr,"     ENSIGHT SCALAR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT SCALAR VARIABLE \n");
 	      actIt_->setType( DataItem::scalar );
 	  }
           | VECTOR 
