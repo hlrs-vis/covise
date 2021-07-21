@@ -173,6 +173,7 @@ ADD_SUBDIRECTORY(cover/input/dev)
 ADD_SUBDIRECTORY(DrivingSim)
 
 USING(MPI optional)
+USING(Pthreads optional)
 using(Boost)
 #add_subdirectory(libvtrans)
 #include_directories(libvtrans)

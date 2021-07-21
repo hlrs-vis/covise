@@ -23,6 +23,7 @@
 
 #ifdef HAS_MPI
 #include <mpi.h>
+#include <pthread.h>
 #endif
 
 #include <string>
