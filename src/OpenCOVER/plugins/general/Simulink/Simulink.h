@@ -40,7 +40,7 @@
 #include <vrml97/vrml/VrmlMFInt.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
-#include <udpComm.h>
+#include <UDPComm.h>
 
 using namespace vrml;
 using namespace opencover;
