@@ -1692,8 +1692,10 @@ void coVRMSController::startupSync()
 void coVRMSController::shmBarrier()
 {
 #ifdef HAS_MPI
+#ifndef __APPLE__
     if (pthreadShmBarrier)
         pthread_barrier_wait(pthreadShmBarrier);
+#endif
 #endif
 }
 

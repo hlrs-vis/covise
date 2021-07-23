@@ -28,7 +28,11 @@
 #include <memory>
 #ifdef HAS_MPI
 #include <mpi.h>
+#ifdef __APPLE__
+typedef void pthread_barrier_t;
+#else
 #include <pthread.h>
+#endif
 #endif
 
 namespace covise
