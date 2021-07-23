@@ -191,7 +191,7 @@ bool VRBClient::sendMessage(const Message* m) const
 bool VRBClient::isConnected()
 {
     if (isSlave)
-        return 1;
+        return true;
     if (sConn == NULL)
     {
         return completeConnection();
@@ -290,7 +290,8 @@ void VRBClient::shutdown(){
     m_shutdown = true;
     if(isConnected())
     {
-        shutdownSocket(sConn->getSocket()->get_id());
+        if (sConn && sConn->getSocket())
+            shutdownSocket(sConn->getSocket()->get_id());
     }
 }
 
