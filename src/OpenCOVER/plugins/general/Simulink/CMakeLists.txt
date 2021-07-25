@@ -10,5 +10,5 @@ SET(SOURCES
 )
 include_directories("../../drivingsim/SteeringWheel")
 cover_add_plugin(Simulink)
-TARGET_LINK_LIBRARIES(Simulink)
+#TARGET_LINK_LIBRARIES(Simulink)
 #COVER_INSTALL_PLUGIN(Simulink)

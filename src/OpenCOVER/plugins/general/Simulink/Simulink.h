@@ -83,6 +83,8 @@ private:
     // eventOuts
     VrmlMFFloat d_floats;
     VrmlMFInt d_ints;
+    VrmlMFFloat d_floatsIn;
+    VrmlMFInt d_intsIn;
 };
 
 class SimulinkPlugin : public coVRPlugin
@@ -104,6 +106,7 @@ public:
 
     bool update();
     bool readVal(void *buf, unsigned int numBytes);
+    void sendData(int numFloats, float* floats, int numInts, int* ints);
 
 private:
     unsigned short serverPort = 0;

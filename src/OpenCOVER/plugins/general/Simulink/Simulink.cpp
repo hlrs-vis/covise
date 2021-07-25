@@ -38,6 +38,8 @@ VrmlNodeType *VrmlNodeSimulink::defineType(VrmlNodeType *t)
     t->addExposedField("enabled", VrmlField::SFBOOL);
     t->addEventOut("ints_changed", VrmlField::MFINT32);
     t->addEventOut("floats_changed", VrmlField::MFFLOAT);
+    t->addEventIn("intsIn", VrmlField::MFINT32);
+    t->addEventIn("floatsIn", VrmlField::MFFLOAT);
 
     return t;
 }
@@ -100,6 +102,10 @@ const VrmlField *VrmlNodeSimulink::getField(const char *fieldName)
         return &d_enabled;
     else if (strcmp(fieldName, "floats_changed") == 0)
         return &d_floats;
+    else if (strcmp(fieldName, "intsIn") == 0)
+        return &d_intsIn;
+    else if (strcmp(fieldName, "floatsIn") == 0)
+        return &d_floatsIn;
     else if (strcmp(fieldName, "ints_changed") == 0)
         return &d_ints;
     else
@@ -114,6 +120,11 @@ void VrmlNodeSimulink::eventIn(double timeStamp,
 
     // Check exposedFields
     //else
+    if (strcmp(eventName, "floatsIn") == 0 || strcmp(eventName, "intsIn") == 0)
+    {
+        SimulinkPlugin::plugin->sendData(d_floatsIn.size(), d_floatsIn.get(),d_intsIn.size(),d_intsIn.get());
+    }
+
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
     }
@@ -146,6 +157,17 @@ void VrmlNodeSimulink::render(Viewer *)
 	for (int i = 0; i < SimulinkPlugin::plugin->numInts; i++)
 		fprintf(stderr, "%d;", SimulinkPlugin::plugin->intValues[i]);
 	fprintf(stderr, "\n");*/
+}
+
+void SimulinkPlugin::sendData(int numFloats, float* floats, int numInts, int* ints)
+{
+    int bufSize= numFloats * sizeof(float) + numInts * sizeof(int) + 2 * sizeof(int);
+    char* buf = new char[bufSize];
+    *((int*)buf) = numFloats;
+    *(((int*)buf)+1) = numInts;
+    memcpy(buf + 2 * sizeof(int), floats, numFloats * sizeof(float));
+    memcpy(buf + 2 * sizeof(int)+ numFloats * sizeof(float), ints, numInts * sizeof(int));
+    udp->send(buf, bufSize);
 }
 
 SimulinkPlugin::SimulinkPlugin()
@@ -251,8 +273,14 @@ SimulinkPlugin::update()
         int ret = 0;
         bool receivedData = false;
             do {
-                ret = udp->receive(tmpbuf, 1000,0);
-                receivedData = true;
+                ret = udp->receive(tmpbuf, 1000,0); if (ret > -1) {
+                    if (ret != *((int*)tmpbuf) * sizeof(float) + *(((int*)tmpbuf) + 1) * sizeof(int) + 2 * sizeof(int)) {
+                        std::cerr << "wrong number of bytes";
+                    }
+                    else {
+                        receivedData = true;
+                    }
+                }
             } while (ret >= 2 * 4);
         if(receivedData)
         {

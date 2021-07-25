@@ -19,6 +19,7 @@
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRPlugin.h>
 #include <OpenThreads/Thread>
+#include <cover/input/dev/Joystick/Joystick.h>
 
 
 
@@ -83,6 +84,14 @@ private:
     osg::Node *oldFloorNode;
     osg::NodePath oldNodePath;
     osg::Matrix oldFloorMatrix;
+    osg::Matrix TransformMat;
+    Joystick* dev;
+    int joystickNumber;
+    int xIndex;
+    int yIndex;
+    float xScale;
+    float yScale;
+    bool debugPrint;
 };
 
 #endif /* Wheelchair_H */

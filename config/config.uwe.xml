@@ -34,7 +34,13 @@
 	<Device>
            <joystick driver="Joystick" device="/dev/input/cyberstick"/>
 	</Device>
+        <Valuator>
+           <CaveJoyX device="joystick" valuatorIndex="0" />
+        </Valuator>
 
+        <Persons>
+           <Person name="Dummy"  valuator0="CaveJoyX" />
+        </Persons>
 
    </Input>
   <Plugin>

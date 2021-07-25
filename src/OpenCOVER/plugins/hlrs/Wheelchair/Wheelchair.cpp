@@ -16,6 +16,10 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
+
+
+#include <cover/input/input.h>
+
 using namespace opencover;
 
 static float zeroAngle = 1152.;
@@ -49,7 +53,15 @@ bool Wheelchair::init()
 	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31319);
 	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31319);
 	std::cerr << "Wheelchair config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-	
+
+    joystickNumber = covise::coCoviseConfig::getInt("Wheelchair.joystickNumber", 0);
+    yIndex = covise::coCoviseConfig::getInt("Wheelchair.yIndex", 5);
+    yScale = covise::coCoviseConfig::getFloat("Wheelchair.yScale", 10);
+    xIndex = covise::coCoviseConfig::getInt("Wheelchair.xIndex", 2);
+    xScale = covise::coCoviseConfig::getFloat("Wheelchair.xScale", 0.02);
+    debugPrint = covise::coCoviseConfig::isOn("Wheelchair.debugPrint", false);
+
+    dev = dynamic_cast<Joystick*>(Input::instance()->getDevice("joystick"));
         return true;
         
 }
@@ -91,78 +103,58 @@ void Wheelchair::syncData()
 
 bool Wheelchair::update()
 {
-    if(isEnabled())
+    if (isEnabled())
     {
-       double dT = cover->frameDuration();
-       float wheelBase = 0.98;
-       float v = speed;
-       osg::Vec3d normal = getNormal();
-       fprintf(stderr, "normal(%f %f) %d\n", normal.x(), normal.y(), getButton());
-       if (getButton() == 2)
-       {
-           speed += 0.01;
-       }
-       if (getWeight() < 10)
-       {
-           speed = 0;
-       }
-       speed += -1*0.05*normal.y();
-       if(speed < 0)
-       {
-           speed =0;
-       }
-       if(speed > 5)
-       {
-           speed =5;
-       }
-       if (getWeight() < 10)
-       {
-           speed = 0;
-       }
-       v = speed;
-       float s = v * dT;
-       osg::Vec3 V(0, -s, 0);
-       wheelBase = 0.5;
-       float rotAngle = 0.0;
-        fprintf(stderr,"v: %f \n",v );
-       if ((s < 0.0001 && s > -0.0001)) // straight
-       {
-           //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
-           //fprintf(stderr,"V: %f %f %f\n",V[0], V[1], V[2] );
-       }
-       else
-       {
-           float wheelAngle = normal.x()/-2.0;
-           float r = tan(M_PI_2 - wheelAngle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
-           float u = 2.0 * r * M_PI;
-           rotAngle = (s / u) * 2.0 * M_PI;
-           V[1] = -r * sin(rotAngle);
-           V[0] = -(r - r * cos(rotAngle));
-       }
-
-       osg::Matrix relTrans;
-       osg::Matrix relRot;
-       relRot.makeRotate(-rotAngle, 0, 0, 1);
-       relTrans.makeTranslate(V*1000); // m to mm
-       
-       //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
-       osg::Matrix TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
-       TransformMat = TransformMat * relRot * relTrans ;
-
-       MoveToFloor();
-
-       
-       
-       
-        if (coVRMSController::instance()->isMaster())
+        double dT = cover->frameDuration();
+        float wheelBase = 0.98;
+        if (dev && dev->number_axes[joystickNumber] >= 1)
         {
-            coVRMSController::instance()->sendSlaves((char *)TransformMat.ptr(), sizeof(TransformMat));
+            if (debugPrint)
+            {
+                for (int i = 0; i < dev->number_axes[joystickNumber]; i++)
+                    fprintf(stderr, "%d %f    ", i, dev->axes[joystickNumber][i]);
+            }
+
+            float v = dev->axes[joystickNumber][yIndex]*yScale*coVRNavigationManager::instance()->getDriveSpeed();
+            float x = dev->axes[joystickNumber][xIndex];
+            if (x < 0.002 && x > -0.002)
+                x = 0;
+
+        float s = v * dT;
+        osg::Vec3 V(0, -s, 0);
+        wheelBase = 0.5;
+        float rotAngle = 0.0;
+        //fprintf(stderr, "v: %f \n", v);
+        if ((s < 0.0001 && s > -0.0001)) // straight
+        {
         }
         else
         {
-            coVRMSController::instance()->readMaster((char *)TransformMat.ptr(), sizeof(TransformMat));
+            rotAngle = x * xScale;
+        }
+
+        osg::Matrix relTrans;
+        osg::Matrix relRot;
+        relRot.makeRotate(-rotAngle, 0, 0, 1);
+        relTrans.makeTranslate(V * 1000); // m to mm
+
+        //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
+        TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
+        TransformMat = TransformMat * relRot * relTrans;
+
+        MoveToFloor();
+
+
+        if (coVRMSController::instance()->isMaster())
+        {
+            coVRMSController::instance()->sendSlaves((char*)TransformMat.ptr(), sizeof(TransformMat));
+        }
+        else
+        {
+            coVRMSController::instance()->readMaster((char*)TransformMat.ptr(), sizeof(TransformMat));
         }
         VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
+    }
        
     }
     return false;
@@ -230,7 +222,7 @@ void Wheelchair::MoveToFloor()
     }
 
     //  get xform matrix
-    osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+    //TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
 
     if (floorNode && floorNode == oldFloorNode)
     {
@@ -277,10 +269,10 @@ void Wheelchair::MoveToFloor()
             sf = 1.0 / sf;
             iS.makeScale(sf, sf, sf);
             imT.invert_4x4(modelTransform);
-            dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
+            TransformMat = iS *imT*oldFloorMatrix * S * TransformMat;
             oldFloorMatrix = modelTransform;
             // set new xform matrix
-            VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+            VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
             // now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
             //
             VRSceneGraph::instance()->getTransform()->accept(visitor);
@@ -312,10 +304,10 @@ void Wheelchair::MoveToFloor()
     //  apply translation , so that isectPt is at floorLevel
     osg::Matrix tmp;
     tmp.makeTranslate(0, 0, -dist);
-    dcs_mat.postMult(tmp);
+    TransformMat.postMult(tmp);
 
     // set new xform matrix
-    VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+    //VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
 
     if ((floorNode != oldFloorNode) && !isect.nodePath.empty())
     {
