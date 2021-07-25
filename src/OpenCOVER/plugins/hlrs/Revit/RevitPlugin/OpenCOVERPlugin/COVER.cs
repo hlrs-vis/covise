@@ -906,10 +906,17 @@ namespace OpenCOVERPlugin
             }
             if (elem.Category != null)
             {
-                if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                if(elem.Category.CategoryType != CategoryType.Model)
                 {
-                    return;
+                    if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
+                    {
+                        return;
+                    }
                 }
+            }
+            if (elem is Autodesk.Revit.DB.ImportInstance)
+            {
+                String name = elem.Name;
             }
             if (elem is Autodesk.Revit.DB.TextNote)
             {
@@ -1256,12 +1263,15 @@ namespace OpenCOVERPlugin
             OverrideGraphicSettings gs;
             // try to get graphic overrides for DepthOnly rendering
             bool depthOnly = false;
-            gs = View3D.GetCategoryOverrides(elem.Category.Id);
-            if (gs != null)
+            if (elem.Category != null)
             {
-                if (gs.Halftone)
+                gs = View3D.GetCategoryOverrides(elem.Category.Id);
+                if (gs != null)
                 {
-                    depthOnly = true;
+                    if (gs.Halftone)
+                    {
+                        depthOnly = true;
+                    }
                 }
             }
             gs = View3D.GetElementOverrides(elem.Id);
@@ -1508,7 +1518,7 @@ namespace OpenCOVERPlugin
             
 
             
-            if (elementGeom == null || elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1)
+            if (elementGeom == null /*|| elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1*/)
             {
                 return;
             }
@@ -2134,7 +2144,7 @@ namespace OpenCOVERPlugin
             int triangles = 0;
             int maintriangles = 0;
             bool twoSided = false;
-            if(elem.Name == "" && elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
+            if(elem.Name == "" && elem.Category!=null && elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
                 return;
 
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
@@ -3217,43 +3227,46 @@ namespace OpenCOVERPlugin
         }
         public void idleUpdate(object sender, Autodesk.Revit.UI.Events.IdlingEventArgs e)
         {
-            e.SetRaiseWithoutDelay();
-
             UIApplication uiapp = sender as UIApplication;
-            Document doc = uiapp.ActiveUIDocument.Document;
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            if(!toCOVER.Connected)
-                cApplication.Idling -= idlingHandler;
-
-            while (COVER.Instance.messageQueue.Count > 0)
+            if (uiapp.ActiveUIDocument != null)
             {
-                COVERMessage m = COVER.Instance.messageQueue.Dequeue();
+                e.SetRaiseWithoutDelay();
 
-                if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition || (MessageTypes)m.messageType == MessageTypes.SetView || (MessageTypes)m.messageType == MessageTypes.Resend)//read only messages
+                Document doc = uiapp.ActiveUIDocument.Document;
+                UIDocument uidoc = uiapp.ActiveUIDocument;
+                if (!toCOVER.Connected)
+                    cApplication.Idling -= idlingHandler;
+
+                while (COVER.Instance.messageQueue.Count > 0)
                 {
-                    COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc, uiapp);
-                }
-                else
-                {
-                    Transaction transaction = new Transaction(doc);
+                    COVERMessage m = COVER.Instance.messageQueue.Dequeue();
 
-                    FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
-
-                    failOpt.SetClearAfterRollback(true);
-                    failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
-                    transaction.SetFailureHandlingOptions(failOpt);
-
-                    if (transaction.Start("changeParameters") == TransactionStatus.Started)
+                    if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition || (MessageTypes)m.messageType == MessageTypes.SetView || (MessageTypes)m.messageType == MessageTypes.Resend)//read only messages
                     {
                         COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc, uiapp);
-                        if (TransactionStatus.Committed != transaction.Commit())
-                        {
-                            // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
-                            //an error occured end resolution was cancled thus this change can't be committed.
-                            // just ignore it and dont bug the user
-                        }
                     }
+                    else
+                    {
+                        Transaction transaction = new Transaction(doc);
 
+                        FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
+
+                        failOpt.SetClearAfterRollback(true);
+                        failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
+                        transaction.SetFailureHandlingOptions(failOpt);
+
+                        if (transaction.Start("changeParameters") == TransactionStatus.Started)
+                        {
+                            COVER.Instance.handleMessage(m.message, m.messageType, doc, uidoc, uiapp);
+                            if (TransactionStatus.Committed != transaction.Commit())
+                            {
+                                // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                                //an error occured end resolution was cancled thus this change can't be committed.
+                                // just ignore it and dont bug the user
+                            }
+                        }
+
+                    }
                 }
             }
         }
