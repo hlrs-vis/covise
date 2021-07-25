@@ -3412,14 +3412,14 @@ osg::Image *MaterialInfo::createNormalMap(osg::Image *srcImage, double pStrength
 			for (size_t column = 0; column < width; ++column)
 			{
 				// surrounding pixels
-				const pixel *topLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row - 1, width));
-				const pixel *top = (const pixel*)srcImage->data(repeat(column, height), repeat(row - 1, width));
-				const pixel *topRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row - 1, width));
-				const pixel *right = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row, width));
-				const pixel *bottomRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row + 1, width));
-				const pixel *bottom = (const pixel*)srcImage->data(repeat(column, height), repeat(row + 1, width));
-				const pixel *bottomLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row + 1, width));
-				const pixel *left = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row, width));
+				const pixel *topLeft = (const pixel*)srcImage->data(repeat(column - 1, width), repeat(row - 1, height));
+				const pixel *top = (const pixel*)srcImage->data(repeat(column, width), repeat(row - 1, height));
+				const pixel *topRight = (const pixel*)srcImage->data(repeat(column + 1, width), repeat(row - 1, height));
+				const pixel *right = (const pixel*)srcImage->data(repeat(column + 1, width), repeat(row, height));
+				const pixel *bottomRight = (const pixel*)srcImage->data(repeat(column + 1, width), repeat(row + 1, height));
+				const pixel *bottom = (const pixel*)srcImage->data(repeat(column, width), repeat(row + 1, height));
+				const pixel *bottomLeft = (const pixel*)srcImage->data(repeat(column - 1, width), repeat(row + 1, height));
+				const pixel *left = (const pixel*)srcImage->data(repeat(column - 1, width), repeat(row, height));
 
 				// their intensities
 				const double tl = topLeft->red / 255.0;
@@ -3454,14 +3454,14 @@ osg::Image *MaterialInfo::createNormalMap(osg::Image *srcImage, double pStrength
 			for (size_t column = 0; column < width; ++column)
 			{
 				// surrounding pixels
-				const pixel *topLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row - 1, width));
-				const pixel *top = (const pixel*)srcImage->data(repeat(column, height), repeat(row - 1, width));
-				const pixel *topRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row - 1, width));
-				const pixel *right = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row, width));
-				const pixel *bottomRight = (const pixel*)srcImage->data(repeat(column + 1, height), repeat(row + 1, width));
-				const pixel *bottom = (const pixel*)srcImage->data(repeat(column, height), repeat(row + 1, width));
-				const pixel *bottomLeft = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row + 1, width));
-				const pixel *left = (const pixel*)srcImage->data(repeat(column - 1, height), repeat(row, width));
+				const pixel *topLeft = (const pixel*)srcImage->data(repeat(column - 1, width), repeat(row - 1, height));
+				const pixel *top = (const pixel*)srcImage->data(repeat(column, width), repeat(row - 1, height));
+				const pixel *topRight = (const pixel*)srcImage->data(repeat(column + 1, width), repeat(row - 1, height));
+				const pixel *right = (const pixel*)srcImage->data(repeat(column + 1, width), repeat(row, height));
+				const pixel *bottomRight = (const pixel*)srcImage->data(repeat(column + 1, width), repeat(row + 1, height));
+				const pixel *bottom = (const pixel*)srcImage->data(repeat(column, width), repeat(row + 1, height));
+				const pixel *bottomLeft = (const pixel*)srcImage->data(repeat(column - 1, width), repeat(row + 1, height));
+				const pixel *left = (const pixel*)srcImage->data(repeat(column - 1, width), repeat(row, height));
 
 				// their intensities
 				const double tl = intensity(*topLeft);
