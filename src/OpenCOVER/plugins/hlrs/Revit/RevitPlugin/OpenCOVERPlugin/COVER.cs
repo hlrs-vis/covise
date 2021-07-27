@@ -1344,11 +1344,21 @@ namespace OpenCOVERPlugin
                     }
                     else
                     {
+                        if(elem.Category!=null && ((elem.Category.LineColor.Red != 0) || (elem.Category.LineColor.Green != 0) || (elem.Category.LineColor.Blue != 0))) // if line color is not black, use this instead of just white
+                        {
+                            mb.add((byte)elem.Category.LineColor.Red); // color
+                            mb.add((byte)elem.Category.LineColor.Green);
+                            mb.add((byte)elem.Category.LineColor.Blue);
+                            mb.add((byte)255);
+                            mb.add(-1); // material ID
+                        }
+                        else { 
                         mb.add((byte)250); // color
                         mb.add((byte)250);
                         mb.add((byte)250);
                         mb.add((byte)255);
                         mb.add(-1); // material ID
+                        }
                     }
                     sendMessage(mb.buf, MessageTypes.NewObject);
                     if (num == 0)
