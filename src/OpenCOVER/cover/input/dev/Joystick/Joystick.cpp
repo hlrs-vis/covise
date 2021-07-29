@@ -18,6 +18,10 @@
 #if !defined(_WIN32) && !defined(__APPLE__)
  //#define USE_XINPUT
 #define USE_LINUX
+#include <fcntl.h>
+#include <linux/joystick.h> // das muss nach osg kommen, wegen KEY_F1
+#include <unistd.h>
+
 #endif
 
 #ifdef USE_XINPUT
@@ -38,7 +42,6 @@ Joystick::Joystick(const std::string &config)
     : InputDevice(config)
 {
     JoystickMutex.lock();
-	g_pDI = NULL;
 	numLocalJoysticks = 0;
 	for (int i = 0; i < MAX_NUMBER_JOYSTICKS; i++)
 	{
@@ -51,6 +54,8 @@ Joystick::Joystick(const std::string &config)
 		axes[i] = NULL;
 		POVs[i] = NULL;
 	}
+#ifdef WIN32
+	g_pDI = NULL;
 	HRESULT hr;
 
 	// Register with the DirectInput subsystem and get a pointer
@@ -94,6 +99,45 @@ Joystick::Joystick(const std::string &config)
 				POVs[i][n] = 0;
 		}
 	}
+#else
+#ifdef HAVE_NO_DEV_INPUT_JOYSTICK
+        const char *devName = "/dev/js";
+#else
+        const char *devName = "/dev/input/js";
+#endif
+#define DEVICE_LEN 512
+        string joystickDev = covise::coCoviseConfig::getEntry("device", configPath(), devName);
+    int version=0;
+	for (numLocalJoysticks  = 0; numLocalJoysticks < MAX_NUMBER_JOYSTICKS; numLocalJoysticks++)
+	{
+        std::string devName = joystickDev+to_string(numLocalJoysticks);
+        if ((fd[numLocalJoysticks] = open(devName.c_str(), O_RDONLY)) < 0)
+        {
+            if(numLocalJoysticks == 0)
+            {
+            cerr << "failed to opent " << devName << endl;
+            perror("joystick initialisation failed: ");
+            }
+            break;
+        }
+
+        ioctl(fd[numLocalJoysticks], JSIOCGVERSION, &version);
+        ioctl(fd[numLocalJoysticks], JSIOCGAXES, &number_axes[numLocalJoysticks]);
+        if (number_axes[numLocalJoysticks] > 0)
+        {
+            axes[numLocalJoysticks] = new float[number_axes[numLocalJoysticks]];
+            for (int i = 0; i < number_axes[numLocalJoysticks]; i++)
+                axes[numLocalJoysticks][i] = 0;
+        }
+        ioctl(fd[numLocalJoysticks], JSIOCGBUTTONS, &number_buttons[numLocalJoysticks]);
+        if (number_buttons[numLocalJoysticks] > 0)
+        {
+            buttons[numLocalJoysticks] = new int[number_buttons[numLocalJoysticks]];
+            for (int i = 0; i < number_buttons[numLocalJoysticks]; i++)
+                buttons[numLocalJoysticks][i] = 0;
+        }
+     }
+#endif
     JoystickMutex.unlock();
 }
 
@@ -108,7 +152,11 @@ Joystick::~Joystick()
     JoystickMutex.unlock();
 }
 
-
+bool Joystick::needsThread() const 
+{ 
+return true;
+}
+#ifdef WIN32
 //-----------------------------------------------------------------------------
 // Name: EnumJoysticksCallback()
 // Desc: Called once for each enumerated joystick. If we find one, create a
@@ -234,6 +282,7 @@ BOOL Joystick::EnumObjects(const DIDEVICEOBJECTINSTANCE *pdidoi)
 	return DIENUM_CONTINUE;
 }
 
+#endif
 
 
 //==========================main loop =================
@@ -245,13 +294,12 @@ BOOL Joystick::EnumObjects(const DIDEVICEOBJECTINSTANCE *pdidoi)
  */
 bool Joystick::poll()
 {
-	int i;
-
+    #ifdef WIN32
 	HRESULT hr;
 	DIJOYSTATE2 js; // DInput joystick state
 	usleep(0.02);
 	int bs = 0;
-	for (i = 0; i < numLocalJoysticks; i++)
+	for (int i = 0; i < numLocalJoysticks; i++)
 	{
 
 		// Poll the device to read the current state
@@ -336,6 +384,49 @@ bool Joystick::poll()
 	}
     m_valid = true;
     m_mutex.unlock();
+    #else
+	for (int joystickNumber = 0; joystickNumber < numLocalJoysticks; joystickNumber++)
+    {
+       int button_pressed = -1;
+    int button_released = -1;
+    struct js_event js;
+    if (fd[joystickNumber] == -1)
+    {
+        while (read(fd[joystickNumber], &js,
+                sizeof(struct js_event)) == sizeof(struct js_event))
+        {
+#ifdef DEBUG
+            fprintf(stderr, "Event: type %d, time %d, number %d, value %d\n",
+                js.type, js.time, js.number, js.value);
+#endif
+            switch (js.type & ~JS_EVENT_INIT)
+            {
+            case JS_EVENT_BUTTON:
+                cout << "js.value" << js.value << endl;
+                cout << "js.number" << js.number << endl;
+                cout << "joystickNumber" << joystickNumber << endl;
+                if (js.value)
+                {
+                    buttons[joystickNumber][js.number] = 1;
+                    button_pressed = js.number;
+                }
+                else
+                {
+                    buttons[joystickNumber][js.number] = 0;
+                    button_released = js.number;
+                }
+                break;
+            case JS_EVENT_AXIS:
+                axes[joystickNumber][js.number] = js.value / 32767.0f;
+                break;
+            }
+            if ((button_pressed != -1) || (button_released != -1))
+                break;
+        }
+ 
+        }
+    }
+    #endif
     return true;
 }
 

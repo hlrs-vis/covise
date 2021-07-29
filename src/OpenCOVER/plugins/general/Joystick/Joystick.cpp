@@ -177,7 +177,7 @@ bool JoystickPlugin::init()
         return false;
 
     JoystickPlugin::plugin = this;
-    dev = dynamic_cast<Joystick *>(Input::instance()->getDevice("joystick"));
+    dev = (Joystick *)(Input::instance()->getDevice("joystick"));
 
     VrmlNamespace::addBuiltIn(VrmlNodeJoystick::defineType());
     return true;

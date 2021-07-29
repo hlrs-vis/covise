@@ -79,6 +79,8 @@ public:
 	LPDIRECTINPUT8 g_pDI;
 	LPDIRECTINPUTDEVICE8 g_pJoystick[MAX_NUMBER_JOYSTICKS];
 	TemporaryWindow window;
+#else
+    int fd[MAX_NUMBER_JOYSTICKS];
 #endif
 
 	int numLocalJoysticks;
@@ -92,7 +94,7 @@ public:
 	float *POVs[MAX_NUMBER_JOYSTICKS];
 
 
-	virtual bool needsThread() const { return true; }; //< whether a thread should be spawned - reimplement if not necessary
+	virtual bool needsThread() const; //< whether a thread should be spawned - reimplement if not necessary
     Joystick(const std::string &name);
     virtual ~Joystick();
 };

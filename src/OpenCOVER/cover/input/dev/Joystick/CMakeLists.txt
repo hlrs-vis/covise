@@ -1,5 +1,3 @@
-USING(NatNet)
-
 SET(HEADERS
    Joystick.h
 )

@@ -73,6 +73,7 @@ private:
     float stepSizeDown;
     bool init();
     void MoveToFloor();
+    float getYAccelaration();
     virtual void setEnabled(bool);
     void updateThread();
 
@@ -85,6 +86,7 @@ private:
     osg::Node *oldFloorNode;
     osg::NodePath oldNodePath;
     osg::Matrix oldFloorMatrix;
+    osg::Matrix TransformMat;
 };
 
 #endif /* Skateboard_H */

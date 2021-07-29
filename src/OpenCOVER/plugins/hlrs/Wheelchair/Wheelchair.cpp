@@ -16,6 +16,7 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
+#include <cover/input/dev/Joystick/Joystick.h>
 
 
 #include <cover/input/input.h>
@@ -61,7 +62,7 @@ bool Wheelchair::init()
     xScale = covise::coCoviseConfig::getFloat("Wheelchair.xScale", 0.02);
     debugPrint = covise::coCoviseConfig::isOn("Wheelchair.debugPrint", false);
 
-    dev = dynamic_cast<Joystick*>(Input::instance()->getDevice("joystick"));
+    dev = (Joystick*)(Input::instance()->getDevice("joystick"));
         return true;
         
 }

@@ -25,7 +25,6 @@ static float zeroAngle = 1152.;
 Skateboard::Skateboard()
 	: udp(NULL), coVRNavigationProvider("Skateboard",this)
 {
-	init();
 	sbData.fl = 0;
 	sbData.fr = 0;
 	sbData.rl = 0;
@@ -115,69 +114,70 @@ bool Skateboard::update()
 {
     if(isEnabled())
     {
-       double dT = cover->frameDuration();
-       float wheelBase = 0.98;
-       float v = speed;
-       osg::Vec3d normal = getNormal();
-       fprintf(stderr, "normal(%f %f) %d\n", normal.x(), normal.y(), getButton());
-       if (getButton() == 2)
-       {
-           speed += 0.01;
-       }
-       if (getWeight() < 10)
-       {
-           speed = 0;
-       }
-       speed += -1*0.05*normal.y();
-       if(speed < 0)
-       {
-           speed =0;
-       }
-       if(speed > 5)
-       {
-           speed =5;
-       }
-       if (getWeight() < 10)
-       {
-           speed = 0;
-       }
-       v = speed;
-       float s = v * dT;
-       osg::Vec3 V(0, -s, 0);
-       wheelBase = 0.5;
-       float rotAngle = 0.0;
-        fprintf(stderr,"v: %f \n",v );
-       if ((s < 0.0001 && s > -0.0001)) // straight
-       {
-           //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
-           //fprintf(stderr,"V: %f %f %f\n",V[0], V[1], V[2] );
-       }
-       else
-       {
-           float wheelAngle = normal.x()/-2.0;
-           float r = tan(M_PI_2 - wheelAngle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
-           float u = 2.0 * r * M_PI;
-           rotAngle = (s / u) * 2.0 * M_PI;
-           V[1] = -r * sin(rotAngle);
-           V[0] = -(r - r * cos(rotAngle));
-       }
-
-       osg::Matrix relTrans;
-       osg::Matrix relRot;
-       relRot.makeRotate(-rotAngle, 0, 0, 1);
-       relTrans.makeTranslate(V*1000); // m to mm
-       
-       //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
-       osg::Matrix TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
-       TransformMat = TransformMat * relRot * relTrans ;
-
-       MoveToFloor();
-
-       
-       
-       
         if (coVRMSController::instance()->isMaster())
         {
+	       double dT = cover->frameDuration();
+	       float wheelBase = 0.98;
+	       float v;
+	       osg::Vec3d normal = getNormal();
+	       fprintf(stderr, "normal(%f %f) %d\n", normal.x(), normal.y(), getButton());
+	       if (getButton() == 2)
+	       {
+		   speed += 0.01;
+	       }
+	       TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
+               float a = getYAccelaration();
+	           fprintf(stderr, "acc %f", a * 1000 * dT);
+               speed += a * dT;
+               //if(speed >= 0)
+               //{
+	           speed += -1*0.05*normal.y();
+               //}
+	       if(speed > 5)
+	       {
+		   speed =5;
+	       }
+	       if(speed < -5)
+	       {
+		   speed = -5;
+	       }
+	       if (getWeight() < 10)
+	       {
+		   speed = 0;
+	       }
+	       v = speed;
+	       float s = v * dT;
+	       osg::Vec3 V(0, s, 0);
+	       wheelBase = 0.5;
+	       float rotAngle = 0.0;
+		fprintf(stderr,"v: %f \n",v );
+	       if ((s < 0.0001 && s > -0.0001)) // straight
+	       {
+		   //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
+		   //fprintf(stderr,"V: %f %f %f\n",V[0], V[1], V[2] );
+	       }
+	       else
+	       {
+		   float wheelAngle = normal.x()/-2.0;
+		   float r = tan(M_PI_2 - wheelAngle * 0.2 / (((fabs(v) * 0.2) + 1))) * wheelBase;
+		   float u = 2.0 * r * M_PI;
+		   rotAngle = (s / u) * 2.0 * M_PI;
+		   V[1] = r * sin(rotAngle);
+		   V[0] = (r - r * cos(rotAngle));
+	       }
+
+	       osg::Matrix relTrans;
+	       osg::Matrix relRot;
+	       relRot.makeRotate(-rotAngle, 0, 0, 1);
+	       relTrans.makeTranslate(V*-1000); // m to mm (move world in the opposite direction
+	       
+	       //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
+	       TransformMat = TransformMat * relRot * relTrans ;
+
+               fprintf(stderr,"acc %f\n", a);
+	       MoveToFloor();
+       
+       
             coVRMSController::instance()->sendSlaves((char *)TransformMat.ptr(), sizeof(TransformMat));
         }
         else
@@ -190,6 +190,82 @@ bool Skateboard::update()
     return false;
 }
 
+float Skateboard::getYAccelaration()
+{
+    float floorHeight = VRSceneGraph::instance()->floorHeight();
+
+    //  just adjust height here
+
+    osg::Matrix viewer = cover->getViewerMat();
+    osg::Vec3 pos = viewer.getTrans();
+
+    // down segment
+    osg::Vec3 p0, q0;
+    p0.set(pos[0], pos[1], floorHeight + stepSizeUp);
+    q0.set(pos[0], pos[1], floorHeight - stepSizeDown);
+
+    osg::ref_ptr<osg::LineSegment> ray[2];
+    ray[0] = new osg::LineSegment(p0, q0);
+
+    // down segment 2
+    p0.set(pos[0], pos[1] + 10, floorHeight + stepSizeUp);
+    q0.set(pos[0], pos[1] + 10, floorHeight - stepSizeDown);
+    ray[1] = new osg::LineSegment(p0, q0);
+
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[2];
+    for (int i=0; i<2; ++i)
+    {
+        intersectors[i] = coIntersection::instance()->newIntersector(ray[i]->start(), ray[i]->end());
+        igroup->addIntersector(intersectors[i]);
+    }
+
+    osgUtil::IntersectionVisitor visitor(igroup);
+    visitor.setTraversalMask(Isect::Walk);
+    VRSceneGraph::instance()->getTransform()->accept(visitor);
+
+    bool haveIsect[2];
+    for (int i=0; i<2; ++i)
+        haveIsect[i] = intersectors[i]->containsIntersections();
+    if (!haveIsect[0] && !haveIsect[1])
+    {
+        return 0.0f;
+    }
+
+    osg::Node *floorNode = NULL;
+
+    osgUtil::LineSegmentIntersector::Intersection isect;
+    if (haveIsect[0])
+    {
+        isect = intersectors[0]->getFirstIntersection();
+    }
+    if (haveIsect[1])
+    {
+        isect = intersectors[1]->getFirstIntersection();
+    }
+
+    auto n = isect.getWorldIntersectNormal();
+    //n = osg::Matrix::transform3x3(n,TransformMat);
+    n.normalize();
+    fprintf(stderr,"n: %f %f %f\n",n.x(), n.y(), n.z());
+/*
+    auto g = osg::Vec3(0, 0, -9.81); 
+    osg::Matrix invTrans = TransformMat.invert();
+    n *= invTrans;
+    n.normalize();
+    fprintf(stderr,"n: %f %f %f\n",n.x(), n.y(), n.z());
+    osg::Vec3 rotN = osg::Vec3(n.x(), -n.z(), n.y());
+    auto downDir = rotN * (rotN * g);
+    fprintf(stderr,"d: %f %f %f\n",downDir.x(), downDir.y(), downDir.z());
+    osg::Vec3 dir;
+    return downDir * dir;
+*/
+    osg::Vec2 n2D{n.y(), n.z()};
+    osg::Vec2 rotN{n2D.y(), -n2D.x()};
+    rotN.normalize();
+    osg::Vec2 g{0, -9.81};
+    return g * rotN;
+}
 void Skateboard::MoveToFloor()
 {
     float floorHeight = VRSceneGraph::instance()->floorHeight();
@@ -252,7 +328,7 @@ void Skateboard::MoveToFloor()
     }
 
     //  get xform matrix
-    osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+    osg::Matrix dcs_mat = TransformMat;
 
     if (floorNode && floorNode == oldFloorNode)
     {
@@ -336,8 +412,7 @@ void Skateboard::MoveToFloor()
     tmp.makeTranslate(0, 0, -dist);
     dcs_mat.postMult(tmp);
 
-    // set new xform matrix
-    VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+    TransformMat = dcs_mat;
 
     if ((floorNode != oldFloorNode) && !isect.nodePath.empty())
     {
