@@ -117,7 +117,7 @@
         <item>
          <widget class="QStackedWidget" name="InfoStackedWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_3">
            <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -226,7 +226,7 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="7" column="0">
                <widget class="QLabel" name="label_9">
                 <property name="text">
                  <string>Args</string>
@@ -268,8 +268,49 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
+              <item row="7" column="1">
                <widget class="QLineEdit" name="cmdArgsInput"/>
+              </item>
+              <item row="5" column="1">
+               <widget class="QComboBox" name="OutputModesCB">
+                <item>
+                 <property name="text">
+                  <string>Gui</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Cmd</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>File</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>No</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Output mode</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="outputFileLabel">
+                <property name="text">
+                 <string>File</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QLineEdit" name="outputFile"/>
               </item>
              </layout>
             </item>

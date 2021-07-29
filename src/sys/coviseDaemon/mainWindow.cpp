@@ -13,6 +13,7 @@
 #include <qtutil/NonBlockingDialogue.h>
 
 #include <QCloseEvent>
+#include <QComboBox>
 #include <QMenu>
 #include <QMessageBox>
 #include <QScrollBar>
@@ -40,7 +41,7 @@
 using namespace vrb;
 
 MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::MainWindow), cfgTimeout("System.CoviseDaemon.Timeout"), cfgAutostart("System.CoviseDaemon.Autostart"), cfgAutoConnect("System.CoviseDaemon.AutoConnect"), cfgBackground("System.CoviseDaemon.Background"), cfgMinimized("System.CoviseDaemon.Minimized"), cfgArguments("System.CoviseDaemon.Arguments")
+	: QMainWindow(parent), ui(new Ui::MainWindow), cfgTimeout("System.CoviseDaemon.Timeout"), cfgAutostart("System.CoviseDaemon.Autostart"), cfgAutoConnect("System.CoviseDaemon.AutoConnect"), cfgBackground("System.CoviseDaemon.Background"), cfgMinimized("System.CoviseDaemon.Minimized"), cfgArguments("System.CoviseDaemon.Arguments"), cfgOutputMode("System.CoviseDaemon.OutputMode"), cfgOutputModeFile("System.CoviseDaemon.OutputModeFile")
 {
 	qRegisterMetaType<vrb::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
@@ -210,8 +211,37 @@ void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 	connect(&m_progressBarTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);
 	setStackedWidget(ui->InfoStackedWidget, 1);
+
+	initOutputModes();
 }
 
+void MainWindow::initOutputModes()
+{
+	QString dir = "/var/tmp/";
+	dir += getenv("USER");
+	dir += "/";
+	ui->outputFile->setText(dir);
+	ui->outputFile->hide();
+	ui->outputFileLabel->hide();
+	connect(ui->OutputModesCB, &QComboBox::currentTextChanged, this, [this](const QString &currentText)
+			{
+				if (currentText == "File")
+				{
+					ui->outputFile->show();
+					ui->outputFileLabel->show();
+				}
+				else
+				{
+					ui->outputFile->hide();
+					ui->outputFileLabel->hide();
+				}
+				cfgOutputMode = currentText;
+				reconnectOutPut();
+			});
+	connect(ui->outputFile, &QLineEdit::textEdited, this, [this](const QString &s)
+			{ cfgOutputModeFile = s; });
+}
+#include <functional>
 void MainWindow::initConfigSettings()
 {
 	cdConfig = new covise::coConfigGroup("CoviseDaemon");
@@ -224,6 +254,8 @@ void MainWindow::initConfigSettings()
 	cfgBackground.setAutoUpdate(true);
 	cfgMinimized.setAutoUpdate(true);
 	cfgArguments.setAutoUpdate(true);
+	cfgOutputMode.setAutoUpdate(true);
+	cfgOutputModeFile.setAutoUpdate(true);
 
 	cfgTimeout.setSaveToGroup(cdConfig);
 	cfgAutostart.setSaveToGroup(cdConfig);
@@ -231,6 +263,8 @@ void MainWindow::initConfigSettings()
 	cfgBackground.setSaveToGroup(cdConfig);
 	cfgMinimized.setSaveToGroup(cdConfig);
 	cfgArguments.setSaveToGroup(cdConfig);
+	cfgOutputMode.setSaveToGroup(cdConfig);
+	cfgOutputModeFile.setSaveToGroup(cdConfig);
 
 	ui->timeoutSlider->setValue(cfgTimeout);
 	on_timeoutSlider_sliderMoved(cfgTimeout);
@@ -239,6 +273,8 @@ void MainWindow::initConfigSettings()
 	ui->backgroundCheckBox->setChecked(cfgBackground);
 	ui->minimizedCheckBox->setChecked(cfgMinimized);
 	ui->cmdArgsInput->setText(cfgArguments);
+	ui->OutputModesCB->setCurrentText(cfgOutputMode);
+	ui->outputFile->setText(cfgOutputModeFile);
 }
 
 void MainWindow::setRemoteLauncherCallbacks()
@@ -253,21 +289,54 @@ void MainWindow::setRemoteLauncherCallbacks()
 			});
 	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
-	connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
-			{
-				auto childOutput = std::find(m_childOutputs.begin(), m_childOutputs.end(), childId);
-				if (childOutput == m_childOutputs.end())
-				{
-					childOutput = m_childOutputs.emplace(m_childOutputs.end(), childId, ui->childTabs);
-				}
-				childOutput->addText(txt);
-			});
-
-	connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
-			{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
+	reconnectOutPut();
 	connect(&m_remoteLauncher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientId, const QString &description)
 			{ askForPermission(p, clientId, description); });
 	connect(&m_remoteLauncher, &CoviseDaemon::askForPermissionAbort, this, &MainWindow::removePermissionRequest);
+}
+
+void MainWindow::reconnectOutPut(){
+
+	static QMetaObject::Connection outPutConn;
+	static QMetaObject::Connection terminateConn;
+	if (outPutConn)
+		disconnect(outPutConn);
+	if (ui->OutputModesCB->currentText() == "Gui")
+	{
+		outPutConn = connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
+				{
+					auto childOutput = std::find(m_childOutputs.begin(), m_childOutputs.end(), childId);
+					if (childOutput == m_childOutputs.end())
+					{
+						childOutput = m_childOutputs.emplace(m_childOutputs.end(), childId, ui->childTabs);
+					}
+					childOutput->addText(txt);
+				});
+		terminateConn = connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
+				{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
+	}
+	else if (ui->OutputModesCB->currentText() == "File")
+	{
+		outPutConn = connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
+				{
+					auto childOutput = std::find_if(m_childOutputFiles.begin(), m_childOutputFiles.end(), [childId](const std::pair<QString, std::unique_ptr<std::fstream>> &file)
+													{ return file.first == childId; });
+					if (childOutput == m_childOutputFiles.end())
+					{
+						std::string dir = ui->outputFile->text().toStdString() + childId.toStdString() + ".log";
+						childOutput = m_childOutputFiles.emplace(m_childOutputFiles.end(), std::pair<QString, std::unique_ptr<std::fstream>>{childId, std::unique_ptr<std::fstream>(new std::fstream(dir, std::ios_base::out))});
+					}
+					(*childOutput->second) << txt.toStdString();
+				});
+		terminateConn = connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
+				{ m_childOutputFiles.erase(std::remove_if(m_childOutputFiles.begin(), m_childOutputFiles.end(), [childId](const std::pair<QString, std::unique_ptr<std::fstream>> &file)
+													{ return file.first == childId; }), m_childOutputFiles.end()); });
+	}
+	else if (ui->OutputModesCB->currentText() == "Cmd")
+	{
+		outPutConn = connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
+				{ std::cerr << txt.toStdString(); });
+	}
 }
 
 void MainWindow::initClientList()

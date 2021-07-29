@@ -78,14 +78,19 @@ private:
     covise::coConfigBool cfgBackground;
     covise::coConfigBool cfgMinimized;
     covise::coConfigString cfgArguments;
+    covise::coConfigString cfgOutputMode;
+    covise::coConfigString cfgOutputModeFile;
     std::vector<ChildOutput> m_childOutputs;
+    std::vector<std::pair<QString, std::unique_ptr<std::fstream>>> m_childOutputFiles;
     std::vector<std::unique_ptr<PermissionRequest>> m_permissionRequests;
 
-    
     void initConfigSettings();
+    void initOutputModes();
 
     void initUi(const vrb::VrbCredentials &credentials);
     void setRemoteLauncherCallbacks();
+    void reconnectOutPut();
+
     void readOptions();
     void initClientList();
     void setHotkeys();
