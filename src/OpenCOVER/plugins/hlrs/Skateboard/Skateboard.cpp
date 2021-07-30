@@ -133,12 +133,12 @@ bool Skateboard::update()
                {
 	           speed += -1*0.05*normal.y();
                }
-               else{
-	           speed += -1*0.05*normal.y();
+               else if(normal.y() {
+	           speed -= -1*0.05*normal.y();
                }
 	       if(speed > 5)
 	       {
-		   speed =5;
+		   speed = Z 05;
 	       }
 	       if(speed < -5)
 	       {
