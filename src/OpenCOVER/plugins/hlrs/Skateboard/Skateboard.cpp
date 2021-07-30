@@ -126,13 +126,16 @@ bool Skateboard::update()
 		   speed += 0.01;
 	       }
 	       TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
+
                float a = getYAccelaration();
-	           fprintf(stderr, "acc %f", a * 1000 * dT);
                speed += a * dT;
-               //if(speed >= 0)
-               //{
+               if(speed >= 0)
+               {
 	           speed += -1*0.05*normal.y();
-               //}
+               }
+               else{
+	           speed += -1*0.05*normal.y();
+               }
 	       if(speed > 5)
 	       {
 		   speed =5;
@@ -150,7 +153,7 @@ bool Skateboard::update()
 	       osg::Vec3 V(0, s, 0);
 	       wheelBase = 0.5;
 	       float rotAngle = 0.0;
-		fprintf(stderr,"v: %f \n",v );
+	       fprintf(stderr,"v: %f \n",v );
 	       if ((s < 0.0001 && s > -0.0001)) // straight
 	       {
 		   //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
@@ -174,7 +177,7 @@ bool Skateboard::update()
 	       //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
 	       TransformMat = TransformMat * relRot * relTrans ;
 
-               fprintf(stderr,"acc %f\n", a);
+               fprintf(stderr,"a: %f\n", a);
 	       MoveToFloor();
        
        
