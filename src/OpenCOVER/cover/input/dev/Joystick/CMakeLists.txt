@@ -1,3 +1,8 @@
+IF (APPLE)
+    RETURN()
+ENDIF()
+
+
 SET(HEADERS
    Joystick.h
 )
