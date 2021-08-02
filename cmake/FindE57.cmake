@@ -12,6 +12,7 @@ ENDIF(E57_INCLUDE_DIR)
 FIND_PATH(E57_INCLUDE_DIR "e57/E57Simple.h"
   PATHS
   $ENV{EXTERNLIBS}/e57/include
+  $ENV{EXTERNLIBS}/libe57/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include
   /usr/local/include
@@ -29,6 +30,7 @@ SET(E57_DBG_NAMES e57D libE57RefImplD.a E57RefImpl-d.lib)
 FIND_LIBRARY(E57_LIBRARY NAMES ${E57_NAMES}
   PATHS
   $ENV{EXTERNLIBS}/e57
+  $ENV{EXTERNLIBS}/libe57
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
