@@ -447,7 +447,7 @@ void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
         ys = (int)((max_y - min_y) / zsize);
         ysize = (max_y - min_y) / ys;
         xs = (int)((max_x - min_x) / zsize);
-        xsize = (max_x - min_x) / zs;
+        xsize = (max_x - min_x) / xs;
     }
 
     std::map<int, int>::iterator it;
