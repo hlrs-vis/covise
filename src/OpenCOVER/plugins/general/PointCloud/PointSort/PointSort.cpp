@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <float.h>
+#include <limits.h>
 #include <vector>
 #include <algorithm>
 #include <map>
@@ -34,6 +35,7 @@ namespace alg = std;
 #endif
 
 using namespace std;
+
 bool intensityOnly;
 bool readScannerPositions = false;
 uint32_t fileVersion=1;
@@ -64,16 +66,32 @@ struct ScannerPosition
     osg::Vec3 point;
 };
 
+struct PointCloudStatistics
+{
+    float min_x;
+    float min_y;
+    float min_z;
+
+    float max_x;
+    float max_y;
+    float max_z;
+    
+    uint32_t psetMaxSize;
+    uint32_t psetMinSize;
+
+    PointCloudStatistics()
+        : min_x(FLT_MAX), min_y(FLT_MAX), min_z(FLT_MAX),
+          max_x(FLT_MIN), max_y(FLT_MIN), max_z(FLT_MIN),
+          psetMaxSize(0), psetMinSize(UINT_MAX)
+        {
+        }
+};
+
 bool sortfunction(Point i, Point j) { return (i.l < j.l); };
 
 void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::vector<ScannerPosition> &posVec)
 {
 
-	cout << "Input Data: " << filename << endl;
-
-	int len = strlen(filename);
-	if ((len > 4) && strcasecmp((filename + len - 4), ".e57") == 0)
-	{
 
 #ifdef HAVE_E57
 
@@ -312,159 +330,210 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 #else
 		cout << "Missing e75 library " << filename << endl;
 #endif
-	}
-	else
-	{
 
-		ifstream file(filename, ios::in | ios::binary);
-
-		int count = 0;
-		if (file.is_open())
-		{
-            size_t vecBegin = vec.size();
-			uint32_t size;
-			file.read((char *)&size, sizeof(uint32_t));
-			cerr << "Total num of sets is " << (size) << endl;
-			cerr << "max_size: " << vec.max_size() << "\n";
-			cerr << "size: " << vec.size() << "\n";
-			for (uint32_t i = 0; i < size; i++)
-			{
-				unsigned int psize;
-				file.read((char *)&psize, sizeof(psize));
-				printf("Size of set %d is %d\n", i, psize);
-				// read point data
-				size_t numP = psize;
-				size_t numF = 3 * numP;
-				printf("numFloats %zu is %d\n", (size_t)i, (int)numF);
-				float *coord = new float[numF];
-				uint32_t *icolor = new uint32_t[psize];
-				file.read((char *)(coord), (sizeof(float) * 3 * psize));
-				//read color data
-				file.read((char *)(icolor), (sizeof(uint32_t) * psize));
-				Point point;
-				for (size_t j = 0; j < psize; j++)
-				{
-					point.x = coord[j * 3];
-					point.y = coord[j * 3 + 1];
-					point.z = coord[j * 3 + 2];
-					point.rgba = icolor[j];
-					point.l = 0;
-					vec.push_back(point);
-
-					if (point.x < min_x)
-						min_x = point.x;
-					if (point.y < min_y)
-						min_y = point.y;
-					if (point.z < min_z)
-						min_z = point.z;
-
-					if (point.x > max_x)
-						max_x = point.x;
-					if (point.y > max_y)
-						max_y = point.y;
-					if (point.z > max_z)
-						max_z = point.z;
-				}
-				delete[] coord;
-				delete[] icolor;
-			}
-            if (readScannerPositions)
-            {
-                //read Scanner positions
-                uint32_t version;
-                file.read((char *)&version,sizeof(uint32_t));
-                cerr << "Version " << (version) << endl;
-                uint32_t numPositions;
-                file.read((char *)&numPositions, sizeof(uint32_t));
-                for (int i=0; i!=numPositions; i++)
-                {
-                    ScannerPosition pos;
-                    file.read((char *)&pos.ID, sizeof(uint32_t));
-                    file.read((char *)&pos.point._v, sizeof(float) * 3);
-                    posVec.push_back(pos);
-                    cerr << "Scannerposition " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
-                }
-
-                //uint32_t size;
-                file.read((char *)&size, sizeof(uint32_t));
-                cerr << "Total num of sets with scanner position is " << (size) << endl;
-                for (uint32_t i = 0; i < size; i++)
-                {
-                    unsigned int psize;
-                    file.read((char *)&psize, sizeof(psize));
-                    printf("Size of set %d is %d\n", i, psize);
-                    // read position ID data
-                    size_t numP = psize;
-
-                    uint32_t *IDs = new uint32_t[numP];
-
-                    file.read((char *)(IDs), (sizeof(uint32_t) * psize));
-
-                    for (size_t j = 0; j < psize; j++)
-                    {
-                        vec.at(j+vecBegin).ID = IDs[j];
-                    }
-                    delete[] IDs;
-                }
-            }
-            file.close();
-		}
-	}
 }
 
-void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
+
+// ----------------------------------------------------------------------------
+// readPTSB()
+// ----------------------------------------------------------------------------
+int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
+             std::vector<ScannerPosition> &posVec,
+             PointCloudStatistics &pcStats)
 {
+    cout << "reading ptsb point cloud from " << filename << endl;
+    
+    int count = 0;
+    uint8_t result = 0;
+    
+    ifstream file(filename, ios::in | ios::binary);
 
-    int xl, yl, zl, xs, ys, zs;
+    if (file.is_open())
+    {
+        size_t vecBegin = vec.size();
+        uint32_t size;
+        
+        file.read((char *)&size, sizeof(uint32_t));
 
-    float xsize, ysize, zsize;
-    xs = ys = zs = grid;
+        cout << "    total num of sets: " << size << endl;
 
-    xsize = (max_x - min_x) / grid;
-    ysize = (max_y - min_y) / grid;
-    zsize = (max_z - min_z) / grid;
+        for (uint32_t i = 0; i < size; ++i)
+        {
+            unsigned int psize;
 
-    // compute preportional grid sizes
+            // read size of point data in this set
+            file.read((char *)&psize, sizeof(psize));
+            size_t numP = psize;
+            size_t numF = 3 * numP;
+
+            if (numP < pcStats.psetMinSize) pcStats.psetMinSize = numP;
+            if (numP > pcStats.psetMaxSize) pcStats.psetMaxSize = numP;
+            
+            // read point coordinates
+            float *coord = new float[numF];
+            file.read((char *)(coord), (sizeof(float) * 3 * psize));
+
+            // read point color data
+            uint32_t *icolor = new uint32_t[psize];
+            file.read((char *)(icolor), (sizeof(uint32_t) * psize));
+
+            Point point;
+
+            for (size_t j = 0; j < psize; ++j)
+            {
+                point.x = coord[j * 3];
+                point.y = coord[j * 3 + 1];
+                point.z = coord[j * 3 + 2];
+                point.rgba = icolor[j];
+                point.l = 0;
+
+                vec.push_back(point);
+
+                if (point.x < pcStats.min_x) pcStats.min_x = point.x;
+                if (point.y < pcStats.min_y) pcStats.min_y = point.y;
+                if (point.z < pcStats.min_z) pcStats.min_z = point.z;
+                
+                if (point.x > pcStats.max_x) pcStats.max_x = point.x;
+                if (point.y > pcStats.max_y) pcStats.max_y = point.y;
+                if (point.z > pcStats.max_z) pcStats.max_z = point.z;
+            }
+
+            delete[] coord;
+            delete[] icolor;
+        }
+
+        cout << "    smallest set size: " << pcStats.psetMinSize << endl;
+        cout << "    largest set size : " << pcStats.psetMaxSize << endl;
+        
+        cout << "    min coord values " << pcStats.min_x << " / " << pcStats.min_y << " / " << pcStats.min_z << endl;
+        cout << "    max coord values " << pcStats.max_x << " / " << pcStats.max_y << " / " << pcStats.max_z << endl;
+
+        // read scanner positions and ids from file
+        // and map the ids to the point set
+        if (readScannerPositions)
+        {
+            uint32_t version;
+            file.read((char *)&version,sizeof(uint32_t));
+            
+            cout << "    version: " << version << endl;
+
+            // read size of scanner positions data set
+            uint32_t numPositions;
+            file.read((char *)&numPositions, sizeof(uint32_t));
+
+            // read scanner positions
+            for (int i = 0; i != numPositions; ++i)
+            {
+                ScannerPosition pos;
+
+                file.read((char *)&pos.ID, sizeof(uint32_t));
+                file.read((char *)&pos.point._v, sizeof(float) * 3);
+
+                posVec.push_back(pos);
+
+                cout << "    scanner position " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
+            }
+            
+            // read num of sets
+            file.read((char *)&size, sizeof(uint32_t));
+            cout << "    total num of sets with scanner position: " << size << endl;
+
+            for (uint32_t i = 0; i < size; ++i)
+            {
+                // read size of set
+                unsigned int psize;
+                file.read((char *)&psize, sizeof(psize));
+
+                // read position ID data
+                size_t numP = psize;
+                uint32_t *IDs = new uint32_t[numP];
+                file.read((char *)(IDs), (sizeof(uint32_t) * psize));
+
+                // map IDs to points
+                for (size_t j = 0; j < psize; j++)
+                {
+                    vec.at(j+vecBegin).ID = IDs[j];
+                }
+                
+                delete[] IDs;
+            }
+        }
+        
+        file.close();
+    }
+    else
+    {
+        cout << "error: could not open file" << endl;
+        result = -1;
+    }
+    
+    return result;
+}
+
+// ----------------------------------------------------------------------------
+// labelData()
+// ----------------------------------------------------------------------------
+void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
+               PointCloudStatistics &pcStats)
+{
+    cout << "sorting point cloud" << endl;
+    
+    int xl;
+    int yl;
+    int zl;
+
+    // init: number of grid elements per axis
+    int xs = grid;
+    int ys = grid;
+    int zs = grid;
+
+    // init: length of grid element in x,y,z direction with non isometric grid
+    float xsize = (pcStats.max_x - pcStats.min_x) / grid;
+    float ysize = (pcStats.max_y - pcStats.min_y) / grid;
+    float zsize = (pcStats.max_z - pcStats.min_z) / grid;
+
+    // compute proportional grid sizes, dependent on smallest grid element length 
     if (xsize <= ysize && xsize <= zsize)
     {
         xs = grid;
-        ys = (int)((max_y - min_y) / xsize);
-        ysize = (max_y - min_y) / ys;
-        zs = (int)((max_z - min_z) / xsize);
-        zsize = (max_z - min_z) / zs;
+        ys = (int)((pcStats.max_y - pcStats.min_y) / xsize);
+        ysize = (pcStats.max_y - pcStats.min_y) / ys;
+        zs = (int)((pcStats.max_z - pcStats.min_z) / xsize);
+        zsize = (pcStats.max_z - pcStats.min_z) / zs;
     }
     else if (ysize <= xsize && ysize <= zsize)
     {
         ys = grid;
-        xs = (int)((max_x - min_x) / ysize);
-        xsize = (max_x - min_x) / xs;
-        zs = (int)((max_z - min_z) / ysize);
-        zsize = (max_z - min_z) / zs;
+        xs = (int)((pcStats.max_x - pcStats.min_x) / ysize);
+        xsize = (pcStats.max_x - pcStats.min_x) / xs;
+        zs = (int)((pcStats.max_z - pcStats.min_z) / ysize);
+        zsize = (pcStats.max_z - pcStats.min_z) / zs;
     }
     else
     {
         zs = grid;
-        ys = (int)((max_y - min_y) / zsize);
-        ysize = (max_y - min_y) / ys;
-        xs = (int)((max_x - min_x) / zsize);
-        xsize = (max_x - min_x) / xs;
+        ys = (int)((pcStats.max_y - pcStats.min_y) / zsize);
+        ysize = (pcStats.max_y - pcStats.min_y) / ys;
+        xs = (int)((pcStats.max_x - pcStats.min_x) / zsize);
+        xsize = (pcStats.max_x - pcStats.min_x) / xs;
     }
 
+    cout << "    number of points: " << vec.size() << endl;
+    cout << "    size of grid element " << xsize << " " << ysize << " " << zsize << endl;
+    cout << "    number of grid elements " << xs << " x " << ys << " x " << zs << endl;
+
+    // find corresponding grid element for each point
     std::map<int, int>::iterator it;
 
-	printf("Number of points is %d\n", (int)vec.size());
-	printf("min %f %f %f\n", min_x, min_y, min_z);
-	printf("max %f %f %f\n", max_x, max_y, max_z);
-	printf("size %f %f %f\n", xsize, ysize, zsize);
-	printf("grid %d\n", grid);
-
-    for (int i = 0; i < vec.size(); i++)
+    for (int i = 0; i < vec.size(); ++i)
     {
+        // compute grid number
+        xl = (int)((vec.at(i).x - pcStats.min_x) / xsize);
+        yl = (int)((vec.at(i).y - pcStats.min_y) / ysize);
+        zl = (int)((vec.at(i).z - pcStats.min_z) / zsize);
 
-        xl = (int)((vec.at(i).x - min_x) / xsize);
-        yl = (int)((vec.at(i).y - min_y) / ysize);
-        zl = (int)((vec.at(i).z - min_z) / zsize);
 
+        
         if (xl == xs)
             xl--;
         if (yl == ys)
@@ -472,8 +541,10 @@ void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
         if (zl == zs)
             zl--;
 
+        // store grid element serialized label with point
         vec.at(i).l = xl + (yl * xs) + (zl * xs * ys);
 
+        // count points per grid element for sorting
         it = lookUp.find(vec.at(i).l);
         if (it != lookUp.end())
         {
@@ -485,9 +556,10 @@ void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
         }
     }
 
-    cout << "Total Number of sets is " << lookUp.size() << endl;
+    cout << "    number of sets: " << lookUp.size() << endl;
 
     // randomize all the data
+    // needed to distribute points in grid cell equally in vector<> for filtering
     //std::random_shuffle(vec.begin(), vec.end());
     alg::random_shuffle(vec.begin(), vec.end());
 
@@ -496,9 +568,10 @@ void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
     alg::sort(vec.begin(), vec.end(), sortfunction);
 }
 
+// ----------------------------------------------------------------------------
 void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &lookUp, int maxPointsPerCube, std::vector<ScannerPosition> scanPositions)
 {
-    cout << "Output Data: " << filename << endl;
+    cout << "writing point cloud datat to " << filename << endl;
 
     ofstream file(filename, ios::out | ios::binary | ios::ate);
     int numPointsToWrite;
@@ -604,43 +677,75 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 }
             }
         }
+        file.close();
+        cout << "    data written" << endl;
     }
-    file.close();
-
-    cout << "Data Written!" << endl;
+    else
+    {
+        cout << "error: could not open output file" << endl;
+    }
 }
 
+
+// ----------------------------------------------------------------------------
+// printHelpPage()
+// ----------------------------------------------------------------------------
+void printHelpPage()
+{
+    cout << endl;
+    cout << "PointSort - rearrange and filter point cloud data" << endl;
+    cout << endl;
+    cout << "Usage: PointSort [options ...] inputfile outputfile" << endl;
+    cout << endl;
+    cout << "options" << endl;
+    cout << "  -d              divisionsize (default: 25)" << endl;
+    cout << "  -p              max points per cube (default: 100000000 eq no filter)" << endl;
+    cout << "  -i              use intensity only" << endl;
+    cout << "  -s              read scanner position" << endl;
+    cout << endl;
+    cout << "examples" << endl;
+    cout << "  PointSort input.ptsb output_sorted.ptsb" << endl;
+    cout << endl;
+}
+
+// ----------------------------------------------------------------------------
+// main()
+// ----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-
-    // TODO these values should be command line arguments
     int maxPointsPerCube = 100000000; // note set to -1 if no max points per cube is specified
     int divisionSize = 25;
     formatTypes format = FORMAT_IRGB;
+    
     std::vector<Point> vec;
     std::map<int, int> lookUp;
     std::vector<ScannerPosition> positions;
 
     min_x = min_y = min_z = FLT_MAX;
     max_x = max_y = max_z = FLT_MIN;
-
     int nread = 0;
     intensityOnly=false;
-    if (argc < 3) /* argc should be > 3 for correct execution */
+
+    if (argc < 3) /* argc should be >= 3 for correct execution */
     {
-        printf("Minimal two params required. read README.txt\n");
+        printf("error: minimal two params required\n");
+        printHelpPage();
+        
+        return -1;
     }
     else
     {
+        PointCloudStatistics pcStats;
+        
         for (int i = 1; i < argc - 1; i++)
         {
             if(argv[i][0] == '-')
             {
-               if(argv[i][1] == 'i')
-               {
-                   intensityOnly=true;
-               }
-
+                if(argv[i][1] == 'i')
+                {
+                    intensityOnly=true;
+                }
+                
                 if (argv[i][1] == 'd')
                 {
                     ++i;
@@ -674,33 +779,40 @@ int main(int argc, char **argv)
                         maxPointsPerCube = 100000000;
                     }
                 }
+                
                 if(argv[i][1] == 's')
                 {
                     readScannerPositions=true;
                 }
-
             }
             else
             {
                 ++nread;
-                printf("Reading %s\n", argv[i]);
-                ReadData(argv[i], vec, format, positions);
-
-				printf("min %f %f %f\n", min_x, min_y, min_z);
-				printf("max %f %f %f\n", max_x, max_y, max_z);
-            }
+                
+                int len = strlen(argv[i]);
+                if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
+                {
+                    ReadData(argv[i], vec, format, positions);
+                }
+                else
+                {
+                    readPTSB(argv[i], vec, format, positions, pcStats);
+                }
+                
+            }            
         }
+        
         if (nread > 0)
         {
-            printf("Sorting data\n");
-            LabelData(divisionSize, vec, lookUp);
-            printf("Persisting data\n");
+            labelData(divisionSize, vec, lookUp, pcStats);
             WriteData(argv[argc - 1], vec, lookUp, maxPointsPerCube, positions);
         }
         else
         {
             printf("Nothing read\n");
         }
+        
+        return 0;
     }
     return 0;
 }
