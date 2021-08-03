@@ -157,12 +157,13 @@ gdal:
 
 spack:
 checkout to /sw/.../vis/spack
-git clone https://github.com/aumuell/spack.git
-git checkout covise (oder vistle)
+git clone https://github.com/spack/spack.git
+git clone https://github.com/hlrs-vis/spack-hlrs-vis.git
 export http_proxy=socks5h://localhost:1082
 export HTTPS_PROXY=socks5h://localhost:1082
 
 . spack/share/spack/setup-env.sh
+spack repo add spack-hlrs-vis
 spack external find
 
 adjust .spack/packages.yaml
