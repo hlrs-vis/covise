@@ -5,116 +5,153 @@
 
  * License: LGPL 2+ */
 
+// ----------------------------------------------------------------------------
+// A description of the Pulse API and a complete list of JSON-RPC 2.0 commands
+// for the Barco F-Series can be found in:
+//   Barco End User Reference Guid
+//   RS232 and Network Command Catalog
+//   For JSON RPC/Pulse Based Projectors For F70
+// ----------------------------------------------------------------------------
+
 #include <stdio.h>
 #include <iostream>
 #include <net/covise_host.h>
 #include <net/covise_connect.h>
 #include <net/covise_socket.h>
 #include <string.h>
+#include <algorithm>
 
 #ifndef WIN32
 #include <unistd.h>
 #endif
+
 using namespace std;
 using namespace covise;
 
+#define PROJECTOR_CMD_PORT 9090 
+
+const char* CMD_ON = "{\"jsonrpc\": \"2.0\",\"method\": \"system.poweron\",\"params\": {\"property\": \"system.state\"  },\"id\": 3}\n";
+const char* CMD_OFF = "{\"jsonrpc\": \"2.0\",\"method\": \"system.poweroff\",\"params\": {\"property\": \"system.state\"  },\"id\": 3}\n";
+const char* CMD_LASER40 = "{\"jsonrpc\": \"2.0\",\"method\": \"property.set\",\"params\": {\"property\": \"illumination.sources.laser.power\",\"value\": 40  },\"id\": 5}\n";
+const char* CMD_LASER90 = "{\"jsonrpc\": \"2.0\",\"method\": \"property.set\",\"params\": {\"property\": \"illumination.sources.laser.power\",\"value\": 90  },\"id\": 5}\n";
+const char* CMD_LASER100 = "{\"jsonrpc\": \"2.0\",\"method\": \"property.set\",\"params\": {\"property\": \"illumination.sources.laser.power\",\"value\": 100  },\"id\": 5}\n";
+
 unsigned char commandBuffer[100];
 
-
-unsigned char generateChecksum(unsigned char *buf,int len)
-{
-    int sum = 0;
-    for (int i = 1; i < len; i++) // skip first byte
-    {
-        sum += buf[i];
-    }
-    return (unsigned int) (sum % 256); 
-}
-int genCommand(unsigned char c1, unsigned char c2, unsigned char c3)
-{
-            commandBuffer[0] = 0xFE;
-            commandBuffer[1] = 0x00; // device address
-            commandBuffer[2] = 0x00; // answer prefix (1)
-            commandBuffer[3] = 0x03; // answer prefix (2)
-            commandBuffer[4] = 0x02; // answer prefix data (send result)
-            commandBuffer[5] = c1; // command byte (1)
-            commandBuffer[6] = c2; // command byte (2)
-            commandBuffer[7] = c3; // data byte (0x01 = switch lamps on)
-            commandBuffer[8] = generateChecksum(commandBuffer,8);
-            commandBuffer[9] = 0xFF;
-
-            return 10;
-}
+// ----------------------------------------------------------------------------
+// main()
+// ----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
+    
+    unsigned char commandBuffer[256];
+    size_t commandLength = 0;
+    
     // check arguments
     if (argc != 3)
     {
-        cerr << "Wrong argument number" << endl;
-        cerr << "Usage: as3dctrl projector command " << endl;
+        cerr << "f80ctrl - basic barco f-series projector control" << endl;
+        cerr << "error: wrong number of arguments" << endl << endl;
+        cerr << "Usage: f80ctrl [IP/ADDRESS OF PROJECTOR] [COMMAND]" << endl;
+        cerr << "" << endl;
+        cerr << "commands     json object" << endl;
+        cerr << "  on          " << CMD_ON;
+        cerr << "  off         " << CMD_OFF;
+        cerr << "  laser40     " << CMD_LASER40;
+        cerr << "  laser90     " << CMD_LASER90;
+        cerr << "  laser100    " << CMD_LASER100;
         return 1;
     }
+    
     Host *pro = new Host(argv[1]);
-
-    SimpleClientConnection *projector = new SimpleClientConnection(pro, 9999);
+    SimpleClientConnection *projector = new SimpleClientConnection(pro, PROJECTOR_CMD_PORT);
+    
     if (projector->is_connected())
     {
-            int commandLength=0;
-            if(strcmp(argv[1],"on") == 0)
+        // cout << "connected to " << argv[1] << endl;
+
+        if(strcmp(argv[2],"on") == 0)
+        {
+            strcpy((char*) commandBuffer, "{\"jsonrpc\": \"2.0\",\"method\": \"system.poweron\",\"params\": {\"property\": \"system.state\"  },\"id\": 3}\n");
+        }
+        else if(strcmp(argv[2],"off") == 0)
+        {
+            strcpy((char*) commandBuffer, "{\"jsonrpc\": \"2.0\",\"method\": \"system.poweroff\",\"params\": {\"property\": \"system.state\"  },\"id\": 3}\n");
+        }
+        else if(strcmp(argv[2],"laser40") == 0)
+        {
+            strcpy((char*) commandBuffer, "{\"jsonrpc\": \"2.0\",\"method\": \"property.set\",\"params\": {\"property\": \"illumination.sources.laser.power\",\"value\": 40  },\"id\": 5}");
+        }
+        else if(strcmp(argv[2],"laser90") == 0)
+        {
+            strcpy((char*) commandBuffer, "{\"jsonrpc\": \"2.0\",\"method\": \"property.set\",\"params\": {\"property\": \"illumination.sources.laser.power\",\"value\": 90  },\"id\": 5}");
+        }
+        else if(strcmp(argv[2],"laser100") == 0)
+        {
+            strcpy((char*) commandBuffer, "{\"jsonrpc\": \"2.0\",\"method\": \"property.set\",\"params\": {\"property\": \"illumination.sources.laser.power\",\"value\": 100  },\"id\": 5}");
+        }
+        else
+        {
+            commandBuffer[0] = '\n';
+        }
+        
+        // cout << "cmd: " << commandBuffer << endl;
+        // cout << "len: " << strlen((char*)commandBuffer) << endl;
+
+        commandLength = strlen((char*)commandBuffer);
+
+        if (commandLength > 1)
+        {
+            int numWritten = projector->getSocket()->write(commandBuffer, commandLength);
+            if (numWritten < commandLength)
             {
-                commandLength = genCommand(0x76,0x1A,0x01);
+                cerr << "error: could not send all bytes, only" << numWritten << " of " << commandLength << endl;
             }
-            else if(strcmp(argv[1],"off") == 0)
+            else
             {
-                commandLength = genCommand(0x76,0x1A,0x00);
-            }
-            if (commandLength > 0)
-            {
-                int numWritten = projector->getSocket()->write(commandBuffer, commandLength);
-                if (numWritten < commandLength)
+                unsigned char replyBuffer[1000];
+                projector->getSocket()->setNonBlocking(true);
+                time_t startZeit = time(NULL);
+
+                do
                 {
-                    cerr << "could not send all bytes, only" << numWritten << " of " << commandLength << endl;
-                }
-                else
-                {
-                    unsigned char replyBuffer[1000];
-                    projector->getSocket()->setNonBlocking(true);
-                    time_t startZeit = time(NULL);
+                    int numRead;
+                    
                     do
                     {
-                        int numRead;
-                        do
-                        {
-                            errno = 0;
+                        errno = 0;
 #ifdef _WIN32
-                            numRead = ::recv(projector->getSocket()->get_id(), (char *)replyBuffer, 1000, 0);
-                        } while (((projector->getSocket()->getErrno() == WSAEINPROGRESS) || (projector->getSocket()->getErrno() == WSAEINTR)));
+                        numRead = ::recv(projector->getSocket()->get_id(), (char *)replyBuffer, 1000, 0);
+                    }
+                    while (((projector->getSocket()->getErrno() == WSAEINPROGRESS) || (projector->getSocket()->getErrno() == WSAEINTR)));
 #else
-                            numRead = ::read(projector->getSocket()->get_id(), replyBuffer, 1000);
-                        } while ((errno == EAGAIN || errno == EINTR));
+                        numRead = ::read(projector->getSocket()->get_id(), replyBuffer, 1000);
+                    }
+                    while ((errno == EAGAIN || errno == EINTR));
 #endif
-
-                        if (numRead > 0)
-                        {
-                            if(numRead == 5)
-                            {
-                                if(replyBuffer[0] == 0xFE)
-                                    return replyBuffer[4];
-                                else
-                                return -1;
-                            }
-                            else
-                            {
-                                return -1;
-                            }
-                            break;
-                        }
-                    } while (time(NULL) < startZeit + 1);
+                
+                    if (numRead > 0)
+                    {
+                        //cout << "recv: " << replyBuffer << endl;
+                        return 0;
+                    }
+                    
                 }
+                while (time(NULL) < startZeit + 1);
+                cerr << "error: timeout" << endl;
             }
+        }
+        else
+        {
+            cerr << "error: unknown command" << endl;
+        }
     }
     else
     {
-        cerr << "could not connect to projector " << argv[1] << " on port 0xAAA0" << endl;
+        cerr << "error: could not connect to projector " << argv[1] << " on port " << PROJECTOR_CMD_PORT << endl;
     }
+
+    return -1;
 }
+
+// ----------------------------------------------------------------------------
