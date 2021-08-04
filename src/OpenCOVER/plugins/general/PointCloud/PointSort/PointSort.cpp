@@ -289,7 +289,7 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 							     if(!intensityOnly)
 							     {
 								int r = ((redData[i] - colorRedOffset)*255.0) / colorRedRange;
-								int g = ((greenData[i] - colorGreenOffset)*255.0) / colorBlueRange;
+								int g = ((greenData[i] - colorGreenOffset)*255.0) / colorGreenRange;
 								int b = ((blueData[i] - colorBlueOffset)*255.0) / colorBlueRange;
 								point.rgba = r | g << 8 | b << 16;
 							     }
