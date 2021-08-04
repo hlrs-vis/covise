@@ -59,14 +59,15 @@ void CoverDaemon::handleConnections()
                 {
                    if (localVal != val)
                    {
-                       std::cerr << "Warning COVER host is using different environment for " << var << ":" << std::endl
-                                 << "host uses " << val << " local is " << localVal << std::endl;
+                       std::cerr << "Warning: COVER host is using different environment for " << var << ":" << std::endl
+                                 << "host uses " << val << " local is " << localVal << std::endl
+                                 << "The cover slave will be forced to use " << val << std::endl;
                    }
                 }
                 
             }
 
-            spawnProgram(vrb::programNames[lrq.program], lrq.args);
+            spawnProgram(vrb::programNames[lrq.program], lrq.args, lrq.environment);
         }
     }
 }
