@@ -360,7 +360,7 @@ bool Joystick::poll()
 	m_mutex.lock();
 	bs = 0;
 	int vs = 0;
-	for (i = 0; i < numLocalJoysticks; i++)
+	for (int i = 0; i < numLocalJoysticks; i++)
 	{
 
 		for (int n = 0; n < number_buttons[i]; n++)
