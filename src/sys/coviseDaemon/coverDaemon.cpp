@@ -50,6 +50,22 @@ void CoverDaemon::handleConnections()
         if (msg.type == covise::COVISE_MESSAGE_VRB_MESSAGE)
         {
             vrb::VRB_MESSAGE lrq{msg};
+            for(const auto &env : lrq.environment)
+            {
+                auto delim = env.find_first_of("=");
+                auto var = env.substr(0, delim);
+                auto val = env.substr(delim + 1);
+                if (auto localVal = getenv(var.c_str()))
+                {
+                   if (localVal != val)
+                   {
+                       std::cerr << "Warning COVER host is using different environment for " << var << ":" << std::endl
+                                 << "host uses " << val << " local is " << localVal << std::endl;
+                   }
+                }
+                
+            }
+
             spawnProgram(vrb::programNames[lrq.program], lrq.args);
         }
     }
