@@ -14,7 +14,7 @@
 #include <vector>
 
 //Daemon to start COVER slaves in a multi monitor setup.
-//Enabled by setting <Deamon port="my port" /> under the COVER section in the config file
+//Enabled by setting <Daemon port="my port" /> under the COVER section in the config file
 struct CoverDaemon : QObject
 {
     Q_OBJECT
