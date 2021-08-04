@@ -8,10 +8,10 @@
 namespace covise
 {
     //execPath: executable path, args: first arg must be executable name, last arg must be nullptr;
-    UTILEXPORT void spawnProgram(const char* execPath, const std::vector<const char *> &args);
+    UTILEXPORT void spawnProgram(const char* execPath, const std::vector<const char *> &args, const std::vector<const char *> &env = {});
 
     //execPath: executable path, args: command line args
-    UTILEXPORT void spawnProgram(const std::string & execPath, const std::vector<std::string> &args);
+    UTILEXPORT void spawnProgram(const std::string & execPath, const std::vector<std::string> &args, const std::vector<std::string> &env = {});
 
     //execPath: executable path, debugCommands: coCoviseConfig::getEntry("System.CRB.DebugCommand"), args: first arg must be executable name, last arg must be nullptr;
     UTILEXPORT void spawnProgramWithDebugger(const std::string& execPath, const std::string &debugCommands,const std::vector<std::string>& args);

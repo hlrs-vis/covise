@@ -1,8 +1,8 @@
 #include "coSpawnProgram.h"
 #include "coLog.h"
 #include <string_util.h>
-#ifdef _WIN32
 #include <stdio.h>
+#ifdef _WIN32
 #include <process.h>
 #include <stdlib.h>
 #include <Windows.h>
@@ -15,19 +15,82 @@
 #include <signal.h>
 #include <algorithm>
 #include <array>
+#include <iostream>
 using namespace covise;
 
-void covise::spawnProgram(const char *execPath, const std::vector<const char *> &args)
+extern char **environ;
+
+std::vector<const char *> stringVecToNullTerminatedCharVec(const std::vector<std::string> &v)
+{
+    std::vector<const char *> retval(v.size() + 1);
+    std::transform(v.begin(), v.end(), retval.begin(), [](const std::string &s)
+                   { return s.c_str(); });
+    retval.back() = nullptr;
+    return retval;
+}
+
+std::vector<std::string> updateEnvironment(const std::vector<const char *> &newEnv)
+{
+    std::vector<std::string> tmpEnv;
+    std::vector<size_t> replaced;
+    char **s = environ;
+    auto end = std::find(newEnv.begin(), newEnv.end(), nullptr);
+    for (; *s; s++)
+    {
+        std::string envVar{*s};
+        auto delim = envVar.find_first_of("=");
+        auto var = envVar.substr(0, delim);
+        std::string val;
+        auto newEnvIt = std::find_if(newEnv.begin(), end, [&var](const char *e)
+                                     { return !strncmp(var.c_str(), e, var.size()); });
+        if (newEnvIt == end)
+        {
+            tmpEnv.push_back(envVar);
+        }
+        else
+        {
+            const char *c = *newEnvIt;
+            tmpEnv.push_back(val + (c + val.size()));
+            replaced.push_back(newEnvIt - newEnv.begin());
+        }
+    }
+    for (size_t i = 0; i < end - newEnv.begin(); i++)
+    {
+        if (std::find(replaced.begin(), replaced.end(), i) == replaced.end())
+        {
+            tmpEnv.push_back(newEnv[i]);
+        }
+    }
+    return tmpEnv;
+}
+
+void covise::spawnProgram(const char *execPath, const std::vector<const char *> &args, const std::vector<const char *> &env)
 {
     if (!execPath || args[args.size() - 1])
     {
         print_error(__LINE__, __FILE__, "spawnProgram called with invalid args");
         return;
     }
+    auto newEnv = updateEnvironment(env);
 
 #ifdef _WIN32
     //_spawnvp(P_NOWAIT, execPath, const_cast<char *const *>(args.data()));
-
+   
+    //convert environment to null-terminated block of null-terminated char strings
+    int envSize = 1;
+    for (const auto& s : newEnv)
+        envSize += s.size() + 1;
+    std::vector<char> winEnvChar(envSize);
+    auto winEnvPos = winEnvChar.begin();
+    for (const auto& s : newEnv)
+    {
+        std::copy(s.begin(), s.end(), winEnvPos);
+        winEnvPos += s.size();
+        *winEnvPos = '\0';
+        ++winEnvPos;
+    }
+    *winEnvPos = '\0';
+    //convert args to windows command line
     std::string win_cmd_line;
     for (const auto &arg : args)
     {
@@ -52,7 +115,7 @@ void covise::spawnProgram(const char *execPath, const std::vector<const char *> 
                        NULL,                        // Thread handle not inheritable
                        FALSE,                       // Set handle inheritance to FALSE
                        0,                           // No creation flags
-                       NULL,                        // Use parent's environment block
+                       (LPVOID)winEnvChar.data(),   // Use parent's environment block
                        NULL,                        // Use parent's starting directory
                        &si,                         // Pointer to STARTUPINFO structure
                        &pi)                         // Pointer to PROCESS_INFORMATION structure
@@ -70,7 +133,8 @@ void covise::spawnProgram(const char *execPath, const std::vector<const char *> 
     int pid = fork();
     if (pid == 0)
     {
-        execvp(execPath, const_cast<char *const *>(args.data()));
+        auto newEnvChar = stringVecToNullTerminatedCharVec(newEnv);
+        execvpe(execPath, const_cast<char *const *>(args.data()), const_cast<char *const *>(newEnvChar.data()));
         print_error(__LINE__, __FILE__, " exec of \"%s\" failed %s", execPath, strerror(errno));
         exit(1);
     }
@@ -83,7 +147,7 @@ void covise::spawnProgram(const char *execPath, const std::vector<const char *> 
 #endif
 }
 
-void covise::spawnProgram(const std::string &name, const std::vector<std::string> &args)
+void covise::spawnProgram(const std::string &name, const std::vector<std::string> &args, const std::vector<std::string> &env)
 {
 
     std::vector<const char *> argV{args.size() + 2};
@@ -93,7 +157,7 @@ void covise::spawnProgram(const std::string &name, const std::vector<std::string
         argV[i + 1] = args[i].c_str();
     }
     argV[args.size() + 1] = nullptr;
-    spawnProgram(name.c_str(), argV);
+    spawnProgram(name.c_str(), argV, stringVecToNullTerminatedCharVec(env));
 }
 
 std::vector<std::string> createOsasciptArgs()
