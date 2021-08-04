@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string.h>
 #include <ctype.h>
@@ -39,9 +40,6 @@ using namespace std;
 bool intensityOnly;
 bool readScannerPositions = false;
 uint32_t fileVersion=1;
-
-float min_x, min_y, min_z;
-float max_x, max_y, max_z;
 
 enum formatTypes
 {
@@ -79,6 +77,8 @@ struct PointCloudStatistics
     uint32_t psetMaxSize;
     uint32_t psetMinSize;
 
+    uint64_t pcSize;
+    
     PointCloudStatistics()
         : min_x(FLT_MAX), min_y(FLT_MAX), min_z(FLT_MAX),
           max_x(FLT_MIN), max_y(FLT_MIN), max_z(FLT_MIN),
@@ -87,9 +87,12 @@ struct PointCloudStatistics
         }
 };
 
-bool sortfunction(Point i, Point j) { return (i.l < j.l); };
-
-void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::vector<ScannerPosition> &posVec)
+// ----------------------------------------------------------------------------
+// readE57()
+// ----------------------------------------------------------------------------
+void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
+             std::vector<ScannerPosition> &posVec,
+             PointCloudStatistics &pcStats)
 {
 
 
@@ -260,19 +263,19 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 							point.x = p[0];
 							point.y = p[1];
 							point.z = p[2];
-							if (point.x < min_x)
-								min_x = point.x;
-							if (point.y < min_y)
-								min_y = point.y;
-							if (point.z < min_z)
-								min_z = point.z;
+							if (point.x < pcStats.min_x)
+								pcStats.min_x = point.x;
+							if (point.y < pcStats.min_y)
+								pcStats.min_y = point.y;
+							if (point.z < pcStats.min_z)
+								pcStats.min_z = point.z;
 
-							if (point.x > max_x)
-								max_x = point.x;
-							if (point.y > max_y)
-								max_y = point.y;
-							if (point.z > max_z)
-								max_z = point.z;
+							if (point.x > pcStats.max_x)
+								pcStats.max_x = point.x;
+							if (point.y > pcStats.max_y)
+								pcStats.max_y = point.y;
+							if (point.z > pcStats.max_z)
+								pcStats.max_z = point.z;
 
 
 							if (bIntensity) {		//Normalize intensity to 0 - 1.
@@ -333,7 +336,6 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 
 }
 
-
 // ----------------------------------------------------------------------------
 // readPTSB()
 // ----------------------------------------------------------------------------
@@ -342,8 +344,7 @@ int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
              PointCloudStatistics &pcStats)
 {
     cout << "reading ptsb point cloud from " << filename << endl;
-    
-    int count = 0;
+
     uint8_t result = 0;
     
     ifstream file(filename, ios::in | ios::binary);
@@ -355,8 +356,11 @@ int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
         
         file.read((char *)&size, sizeof(uint32_t));
 
-        cout << "    total num of sets: " << size << endl;
+        cout << "    total num of sets    : " << size << endl;
 
+        uint64_t count_avg = 0;
+        vector<uint32_t> vecFindMedian;
+        
         for (uint32_t i = 0; i < size; ++i)
         {
             unsigned int psize;
@@ -366,6 +370,9 @@ int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
             size_t numP = psize;
             size_t numF = 3 * numP;
 
+            count_avg += psize;
+            vecFindMedian.push_back(psize);
+            
             if (numP < pcStats.psetMinSize) pcStats.psetMinSize = numP;
             if (numP > pcStats.psetMaxSize) pcStats.psetMaxSize = numP;
             
@@ -402,11 +409,14 @@ int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
             delete[] icolor;
         }
 
-        cout << "    smallest set size: " << pcStats.psetMinSize << endl;
-        cout << "    largest set size : " << pcStats.psetMaxSize << endl;
+        std::sort(vecFindMedian.begin(), vecFindMedian.end(), [](const int a, const int b){ return a < b; });
         
-        cout << "    min coord values " << pcStats.min_x << " / " << pcStats.min_y << " / " << pcStats.min_z << endl;
-        cout << "    max coord values " << pcStats.max_x << " / " << pcStats.max_y << " / " << pcStats.max_z << endl;
+        cout << "    set size avg         : " << count_avg / size << endl;
+        cout << "    set size median      : " << vecFindMedian.at(vecFindMedian.size()/2) << endl;
+        cout << "    smallest set size    : " << pcStats.psetMinSize << endl;
+        cout << "    largest set size     : " << pcStats.psetMaxSize << endl;
+        cout << "    min coord values       " << pcStats.min_x << " / " << pcStats.min_y << " / " << pcStats.min_z << endl;
+        cout << "    max coord values       " << pcStats.max_x << " / " << pcStats.max_y << " / " << pcStats.max_z << endl;
 
         // read scanner positions and ids from file
         // and map the ids to the point set
@@ -472,6 +482,8 @@ int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
 
 // ----------------------------------------------------------------------------
 // labelData()
+//! computes a grid structure and maps the points to the structure, then sorts
+//! the points in vector<Point> according to their positions within the grid
 // ----------------------------------------------------------------------------
 void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
                PointCloudStatistics &pcStats)
@@ -518,9 +530,11 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
         xsize = (pcStats.max_x - pcStats.min_x) / xs;
     }
 
-    cout << "    number of points: " << vec.size() << endl;
-    cout << "    size of grid element " << xsize << " " << ysize << " " << zsize << endl;
-    cout << "    number of grid elements " << xs << " x " << ys << " x " << zs << endl;
+    pcStats.pcSize = vec.size();
+    
+    cout << "    number of points     : " << pcStats.pcSize << endl;
+    cout << "    size of grid element   " << xsize << " " << ysize << " " << zsize << endl;
+    cout << "    number of grid elements " << xs << " x " << ys << " x " << zs << " = " << xs * ys * zs << endl;
 
     // find corresponding grid element for each point
     std::map<int, int>::iterator it;
@@ -531,8 +545,6 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
         xl = (int)((vec.at(i).x - pcStats.min_x) / xsize);
         yl = (int)((vec.at(i).y - pcStats.min_y) / ysize);
         zl = (int)((vec.at(i).z - pcStats.min_z) / zsize);
-
-
         
         if (xl == xs)
             xl--;
@@ -556,8 +568,29 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
         }
     }
 
-    cout << "    number of sets: " << lookUp.size() << endl;
+    cout << "    number of sets with points: " << lookUp.size() << "   ( "<< int((((float)lookUp.size() / (xs * ys * zs)) * 100) + 0.5) << "% )" << endl;
 
+    uint64_t count_avg = 0;
+    vector<uint32_t> vecFindMedian;
+    uint32_t setMaxSize = 0;
+    uint32_t setMinSize = UINT_MAX;
+
+    for (auto const& it : lookUp)
+    {
+        if (it.second > setMaxSize) setMaxSize = it.second;
+        if (it.second < setMinSize) setMinSize = it.second;
+        
+        count_avg += it.second;
+        vecFindMedian.push_back(it.second);
+    }
+
+    std::sort(vecFindMedian.begin(), vecFindMedian.end(), [](const int a, const int b){ return a < b; });
+        
+    cout << "    element size avg     : " << count_avg / vecFindMedian.size() << endl;
+    cout << "    element size median  : " << vecFindMedian.at(vecFindMedian.size()/2) << endl;
+    cout << "    smallest element size: " << setMinSize << endl;
+    cout << "    largest element size : " << setMaxSize << endl;
+     
     // randomize all the data
     // needed to distribute points in grid cell equally in vector<> for filtering
     //std::random_shuffle(vec.begin(), vec.end());
@@ -565,13 +598,18 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
 
     // sort data
     //std::sort(vec.begin(), vec.end(), sortfunction);
-    alg::sort(vec.begin(), vec.end(), sortfunction);
+    //bool sortfunction(Point i, Point j) { return (i.l < j.l); };
+    alg::sort(vec.begin(), vec.end(), [](const Point i, const Point j){ return (i.l < j.l); });
 }
 
 // ----------------------------------------------------------------------------
-void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &lookUp, int maxPointsPerCube, std::vector<ScannerPosition> scanPositions)
+// writeData()
+// ----------------------------------------------------------------------------
+void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &lookUp,
+               int maxPointsPerCube, std::vector<ScannerPosition> scanPositions,
+               PointCloudStatistics &pcStats)
 {
-    cout << "writing point cloud datat to " << filename << endl;
+    cout << "writing point cloud data to " << filename << endl;
 
     ofstream file(filename, ios::out | ios::binary | ios::ate);
     int numPointsToWrite;
@@ -581,10 +619,16 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
         int number_of_sets = (int)lookUp.size();
         int index = 0;
 
+        uint64_t count_avg = 0;
+        uint64_t count_removed = 0;
+        vector<uint32_t> vecFindMedian;
+        uint32_t setMaxSize = 0;
+        uint32_t setMinSize = UINT_MAX;
+        
         // write the number of sets
         file.write((char *)&(number_of_sets), sizeof(int));
 
-        for (int i = 0; i < number_of_sets; i++)
+        for (int i = 0; i < number_of_sets; ++i)
         {
             // get first in set to find set number
             Point first = vec.at(index);
@@ -600,23 +644,30 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 if (maxPointsPerCube != -1 && maxPointsPerCube < numPoints)
                 {
                     numPointsToWrite = maxPointsPerCube;
+                    count_removed += numPoints - maxPointsPerCube;
                 }
                 else
                 {
                     numPointsToWrite = numPoints;
                 }
 
+                count_avg += numPointsToWrite;
+                vecFindMedian.push_back(numPointsToWrite);
+                if (numPointsToWrite > setMaxSize) setMaxSize = numPointsToWrite;
+                if (numPointsToWrite < setMinSize) setMinSize = numPointsToWrite;
+        
+                
                 // write size
                 file.write((char *)&(numPointsToWrite), sizeof(int));
 
                 // write points
-                for (int j = index; j < numPointsToWrite + index; j++)
+                for (int j = index; j < numPointsToWrite + index; ++j)
                 {
                     file.write((char *)&(vec.at(j).x), sizeof(float) * 3);
                 }
 
                 // write colors
-                for (int j = index; j < numPointsToWrite + index; j++)
+                for (int j = index; j < numPointsToWrite + index; ++j)
                 {
                     file.write((char *)&(vec.at(j).rgba), sizeof(uint32_t));
                 }
@@ -624,7 +675,19 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 // increment offset
                 index = index + numPoints;
             }
+            else
+            {
+                cout << "error: sorting went wrong" << endl;
+            }
         }
+
+        std::sort(vecFindMedian.begin(), vecFindMedian.end(), [](const int a, const int b){ return a < b; });
+        
+        cout << "    element size avg     : " << count_avg / vecFindMedian.size() << endl;
+        cout << "    element size median  : " << vecFindMedian.at(vecFindMedian.size()/2) << endl;
+        cout << "    smallest element size: " << setMinSize << endl;
+        cout << "    largest element size : " << setMaxSize << endl;
+        cout << "    points removed       : " << count_removed << "   ( "<< int(((float)count_removed / pcStats.pcSize * 100) + 0.5) << "% )" << endl;    
         if (readScannerPositions)
         {
             //  Do the same thing for scanner positions
@@ -686,7 +749,6 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
     }
 }
 
-
 // ----------------------------------------------------------------------------
 // printHelpPage()
 // ----------------------------------------------------------------------------
@@ -699,7 +761,8 @@ void printHelpPage()
     cout << endl;
     cout << "options" << endl;
     cout << "  -d              divisionsize (default: 25)" << endl;
-    cout << "  -p              max points per cube (default: 100000000 eq no filter)" << endl;
+    cout << "  -p              max points per cube (default: 100000000)" << endl;
+    cout << "                  note: set to -1 if no max points per cube is specified" << endl;
     cout << "  -i              use intensity only" << endl;
     cout << "  -s              read scanner position" << endl;
     cout << endl;
@@ -713,7 +776,7 @@ void printHelpPage()
 // ----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-    int maxPointsPerCube = 100000000; // note set to -1 if no max points per cube is specified
+    int maxPointsPerCube = 100000000; 
     int divisionSize = 25;
     formatTypes format = FORMAT_IRGB;
     
@@ -721,8 +784,6 @@ int main(int argc, char **argv)
     std::map<int, int> lookUp;
     std::vector<ScannerPosition> positions;
 
-    min_x = min_y = min_z = FLT_MAX;
-    max_x = max_y = max_z = FLT_MIN;
     int nread = 0;
     intensityOnly=false;
 
@@ -792,7 +853,7 @@ int main(int argc, char **argv)
                 int len = strlen(argv[i]);
                 if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
                 {
-                    ReadData(argv[i], vec, format, positions);
+                    readE57(argv[i], vec, format, positions, pcStats);
                 }
                 else
                 {
@@ -805,7 +866,7 @@ int main(int argc, char **argv)
         if (nread > 0)
         {
             labelData(divisionSize, vec, lookUp, pcStats);
-            WriteData(argv[argc - 1], vec, lookUp, maxPointsPerCube, positions);
+            writeData(argv[argc - 1], vec, lookUp, maxPointsPerCube, positions, pcStats);
         }
         else
         {
@@ -816,3 +877,5 @@ int main(int argc, char **argv)
     }
     return 0;
 }
+
+// ----------------------------------------------------------------------------
