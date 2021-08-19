@@ -1,5 +1,5 @@
 MACRO(USE_JSBSIM)
-  covise_find_package(JSBSim)
+  covise_find_package(JSBSIM)
   IF ((NOT JSBSIM_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing JSBSIM")
     RETURN()
