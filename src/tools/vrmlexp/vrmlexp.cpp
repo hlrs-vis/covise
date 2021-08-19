@@ -39,6 +39,7 @@
 #include "fog.h"
 #include "sky.h"
 #include "sound.h"
+#include "thermal.h"
 #include "touch.h"
 #include "prox.h"
 #include "vrml2.h"

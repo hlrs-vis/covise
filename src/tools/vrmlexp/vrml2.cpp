@@ -54,6 +54,7 @@
 #include "sky.h"
 #include "audio.h"
 #include "sound.h"
+#include "thermal.h"
 #include "touch.h"
 #include "prox.h"
 #include "appd.h"
@@ -4313,7 +4314,66 @@ VRML2Export::VrmlOutSound(INode *node, SoundObject *obj, int level)
 
 		return TRUE;
 }
+BOOL
+VRML2Export::VrmlOutThermal(INode* node, ThermalObject* obj, int level)
+{
+	float turbulence, minBack, maxBack, minFront, maxFront,height;
+	Point3 velocity(0, 0, 0);
 
+	obj->pblock->GetValue(PB_THERMAL_MIN_BACK, mStart, minBack, FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_MAX_BACK, mStart, maxBack, FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_MIN_FRONT, mStart, minFront, FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_MAX_FRONT, mStart, maxFront, FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_TURBULENCE, mStart, turbulence, FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_VX, mStart, velocity[0], FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_VY, mStart, velocity[1], FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_VZ, mStart, velocity[2], FOREVER);
+	obj->pblock->GetValue(PB_THERMAL_HEIGHT, mStart, height, FOREVER);
+
+	Point3 dir(0, -1, 0);
+
+	FORDER(minBack, maxBack);
+	FORDER(minFront, maxFront);
+	if (minFront < minBack)
+	{
+		float temp = minFront;
+		minFront = minBack;
+		minBack = temp;
+		temp = maxFront;
+		maxFront = maxBack;
+		maxBack = temp;
+		dir = -dir;
+	}
+
+	Indent(level);
+	MSTREAMPRINTF("DEF %s Thermal {\n"), mNodes.GetNodeName(node));
+	Indent(level + 1);
+	MSTREAMPRINTF("direction %s\n"), point(dir));
+	Indent(level + 1);
+	MSTREAMPRINTF("turbulence %s\n"), floatVal(turbulence));
+	Indent(level + 1);
+	MSTREAMPRINTF("location 0 0 0\n"));
+	Indent(level + 1);
+	MSTREAMPRINTF("maxBack %s\n"), floatVal(maxBack));
+	Indent(level + 1);
+	MSTREAMPRINTF("maxFront %s\n"), floatVal(maxFront));
+	Indent(level + 1);
+	MSTREAMPRINTF("minBack %s\n"), floatVal(minBack));
+	Indent(level + 1);
+	MSTREAMPRINTF("minFront %s\n"), floatVal(minFront));
+	Indent(level + 1);
+	bool oldmz = mZUp;
+	mZUp = true;
+	MSTREAMPRINTF("velocity %s\n"), point(velocity));
+	mZUp = oldmz;
+	Indent(level + 1);
+	MSTREAMPRINTF("height %s\n"), floatVal(height));
+	Indent(level + 1);
+		Indent(level);
+		MSTREAMPRINTFNOSTRINGS("}\n"));
+
+		return TRUE;
+}
 static INode *
 GetTopLevelParent(INode *node)
 {
@@ -5736,7 +5796,10 @@ VRML2Export::VrmlOutSpecial(INode *node, INode *parent,
 		return VrmlOutCamera(node, obj, level + 1);
 
 	if (id == SoundClassID)
-		return VrmlOutSound(node, (SoundObject *)obj, level + 1);
+		return VrmlOutSound(node, (SoundObject*)obj, level + 1);
+
+	if (id == ThermalClassID)
+		return VrmlOutThermal(node, (ThermalObject *)obj, level + 1);
 
 	if (id == ProxSensorClassID)
 		return VrmlOutProxSensor(node, (ProxSensorObject *)obj, level + 1);
@@ -5856,7 +5919,7 @@ VRML2Export::isVrmlObject(INode *node, Object *obj, INode *parent, bool hastVisC
 #ifndef NO_CAL3D
 		id == Class_ID(CAL3D_CLASS_ID1, CAL3D_CLASS_ID2) ||
 #endif
-		id == SoundClassID || id == ProxSensorClassID)
+		id == SoundClassID || id == ThermalClassID || id == ProxSensorClassID)
 		return TRUE;
 
 	// only animated lights come out in scene graph

@@ -55,7 +55,8 @@ extern ClassDesc *GetOnOffSwitchDesc();
 extern ClassDesc *GetTabletUIDesc();
 extern ClassDesc *GetResetPivotDesc();
 extern ClassDesc *GetMultiTouchSensorDesc();
-extern ClassDesc *GetCal3DDesc();
+extern ClassDesc* GetCal3DDesc();
+extern ClassDesc* GetThermalDesc();
 
 HINSTANCE hInstance;
 int controlsInit = FALSE;
@@ -115,9 +116,9 @@ __declspec(dllexport) const TCHAR *LibDescription()
 }
 
 #ifndef NO_UTILITY_POLYGONCOUNTER // russom - 12/04/01
-#define NUM_BASE_CLASSES 25
+#define NUM_BASE_CLASSES 26
 #else
-#define NUM_BASE_CLASSES 24
+#define NUM_BASE_CLASSES 25
 #endif
 
 #ifdef _DEBUG
@@ -184,8 +185,10 @@ __declspec(dllexport) ClassDesc *LibClassDesc(int i)
         return GetCal3DDesc();
     case 23:
         return GetVRMLCOVISEObjectDesc();
-#ifndef NO_UTILITY_POLYGONCOUNTER // russom - 12/04/01
     case 24:
+        return GetThermalDesc();
+#ifndef NO_UTILITY_POLYGONCOUNTER // russom - 12/04/01
+    case 25:
         return GetPolyCounterDesc();
 #endif
 //case 15: return GetMrBlueDesc();

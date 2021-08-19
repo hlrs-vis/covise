@@ -860,6 +860,42 @@ BEGIN
     GROUPBOX        "Bounding Box",IDC_STATIC,3,35,100,40
 END
 
+IDD_THERMAL DIALOGEX 0, 0, 108, 160
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_TURBULENCE_EDIT,"CustEdit",WS_TABSTOP,59,5,36,10
+    LTEXT           "Turbulence:",-1,8,5,37,8
+    CONTROL         "",IDC_TURBULENCE_SPIN,"SpinnerControl",0x0,95,5,7,10
+    CONTROL         "",IDC_VX_EDIT,"CustEdit",WS_TABSTOP,59,18,36,10
+    LTEXT           "VX:",-1,8,18,37,8
+    CONTROL         "",IDC_VX_SPIN,"SpinnerControl",0x0,95,18,7,10
+    LTEXT           "Min Front:",-1,8,68,36,9
+    CONTROL         "",IDC_MIN_FRONT_EDIT,"CustEdit",WS_TABSTOP,59,67,36,10
+    CONTROL         "",IDC_MIN_FRONT_SPIN,"SpinnerControl",0x0,95,67,7,10
+    LTEXT           "Min Back:",-1,8,80,36,9
+    CONTROL         "",IDC_MIN_BACK_EDIT,"CustEdit",WS_TABSTOP,59,79,36,10
+    CONTROL         "",IDC_MIN_BACK_SPIN,"SpinnerControl",0x0,95,79,7,10
+    LTEXT           "Max Front:",-1,8,93,37,9
+    CONTROL         "",IDC_MAX_FRONT_EDIT,"CustEdit",WS_TABSTOP,59,92,36,10
+    CONTROL         "",IDC_MAX_FRONT_SPIN,"SpinnerControl",0x0,95,92,7,10
+    LTEXT           "Max Back:",-1,8,105,37,9
+    CONTROL         "",IDC_MAX_BACK_EDIT,"CustEdit",WS_TABSTOP,59,104,36,10
+    CONTROL         "",IDC_MAX_BACK_SPIN,"SpinnerControl",0x0,95,104,7,10
+    LTEXT           "Icon Size:",-1,8,143,37,8
+    CONTROL         "",IDC_ICON_EDIT,"CustEdit",WS_TABSTOP,59,143,36,10
+    CONTROL         "",IDC_ICON_SPIN,"SpinnerControl",0x0,95,143,7,10
+    CONTROL         "",IDC_VY_EDIT,"CustEdit",WS_TABSTOP,59,31,36,10
+    LTEXT           "VY:",-1,8,31,37,8
+    CONTROL         "",IDC_VY_SPIN,"SpinnerControl",0x0,95,31,7,10
+    CONTROL         "",IDC_VZ_EDIT,"CustEdit",WS_TABSTOP,59,44,36,10
+    LTEXT           "VZ:",-1,8,44,37,8
+    CONTROL         "",IDC_VZ_SPIN,"SpinnerControl",0x0,95,44,7,10
+    CONTROL         "",IDC_HEIGHT_EDIT,"CustEdit",WS_TABSTOP,59,116,36,10
+    LTEXT           "Height:",-1,8,116,37,8
+    CONTROL         "",IDC_HEIGHT_SPIN,"SpinnerControl",0x0,95,116,7,10
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1002,6 +1038,10 @@ BEGIN
     IDD_COVISEOOBJECT, DIALOG
     BEGIN
     END
+
+    IDD_THERMAL, DIALOG
+    BEGIN
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1012,6 +1052,11 @@ END
 //
 
 IDD_VRBLEXP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_THERMAL AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -1189,6 +1234,7 @@ BEGIN
     IDS_MT_SENSOR_CLASS     "MultiTouchSensor"
     IDS_MultiTouchSensor_PICK_MODE "Pick MultiTouch action object"
     IDS_MT_SURFACE          "Surface Gizmo"
+    IDS_THERMAL             "Thermal"
 END
 
 STRINGTABLE
@@ -1284,6 +1330,11 @@ STRINGTABLE
 BEGIN
     IDS_COVISEOBJECT_CLASS  "COVISEObject"
     IDS_COVISEOBJECT        "COVISEObject"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_THERMAL_CLASS       "Thermal"
 END
 
 #endif    // English (United States) resources

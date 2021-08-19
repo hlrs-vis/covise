@@ -161,6 +161,7 @@
 #define IDD_INS1                        1062
 #define IDD_COVISEOOBJECT               1062
 #define IDC_FLIPBOOK_ONCE               1063
+#define IDD_THERMAL                     1063
 #define IDC_URL                         1068
 #define IDC_URL_PREFIX                  1068
 #define IDC_TITLE                       1068
@@ -307,7 +308,9 @@
 #define IDC_RADIUS_SPIN                 1205
 #define IDC_ICON_EDIT                   1206
 #define IDC_ICON_SPIN                   1207
+#define IDC_VY_SPIN                     1208
 #define IDC_ENABLE                      1209
+#define IDC_VZ_SPIN                     1209
 #define IDC_PICK                        1210
 #define IDC_SIZE_EDIT                   1211
 #define IDC_PICK_EXIT                   1211
@@ -449,11 +452,18 @@
 #define IDC_ACTION_SPIN2                1342
 #define IDC_CAL_CFG_URL                 1345
 #define IDC_ShaderUniformEDIT           1346
+#define IDC_TURBULENCE_EDIT             1347
+#define IDC_VX_EDIT                     1348
 #define IDC_MAX_POLY_EDIT               1349
+#define IDC_VY_EDIT                     1349
 #define IDC_MAX_POLY_SPIN               1350
+#define IDC_VZ_EDIT                     1350
 #define IDC_MAX_SELECTED_EDIT           1351
+#define IDC_VX_EDIT4                    1351
 #define IDC_MAX_SELECTED_SPIN           1352
+#define IDC_VX_SPIN                     1352
 #define IDC_NEAR_EDIT                   1353
+#define IDC_TURBULENCE_SPIN             1353
 #define IDC_NEAR_SPIN                   1354
 #define IDC_FAR_EDIT                    1355
 #define IDC_FAR_SPIN                    1356
@@ -462,9 +472,7 @@
 #define IDC_COVISEOOBJECT_SIZE_SPINNER  1359
 #define IDC_COVISEOOBJECT_BBOX_SIZE     1360
 #define IDC_COVISEOOBJECT_BBOX_DEF      1361
-#ifndef _MSC_VER
 #define _MSC_VER                        1900
-#endif
 #define IDS_PANELTITLE                  5012
 #define IDS_TUIPARAM_EDITOR             5017
 #define IDS_DS_CREATE                   10008
@@ -534,6 +542,8 @@
 #define IDS_MT_SENSOR_CLASS             30652
 #define IDS_MultiTouchSensor_PICK_MODE  30653
 #define IDS_MT_SURFACE                  30654
+#define IDS_THERMAL                     30655
+#define IDS_THERMAL_CLASS               30656
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -542,7 +552,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1347
+#define _APS_NEXT_CONTROL_VALUE         1354
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

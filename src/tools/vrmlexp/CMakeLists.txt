@@ -89,6 +89,7 @@ resettm.cpp
 script.cpp
 Sky.cpp
 sound.cpp
+thermal.cpp
 switch.cpp
 tabletui.cpp
 timer.cpp
@@ -140,6 +141,7 @@ resource.h
 script.h
 Sky.h
 sound.h
+thermal.h
 switch.h
 tabletui.h
 target.h
