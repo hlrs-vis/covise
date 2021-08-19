@@ -15,6 +15,10 @@
 #include "mmsystem.h"
 #include <QMessageBox>
 #include <QTimer>
+#include "remoteSound.h"
+#include <config/CoviseConfig.h>
+#include <net/message_types.h>
+#include <net/tokenbuffer.h>
 
 // internal prototypes (required for the Metrowerks CodeWarrior compiler)
 int main(int argc, char *argv[]);
@@ -39,6 +43,82 @@ void mainWindow::velocityChanged(int val)
 	updateValues();
 }
 
+bool mainWindow::handleClient(covise::Message* msg)
+{
+    if ((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
+    {
+        std::cerr << "mainWindow: socket closed" << std::endl;
+
+        for (const auto& c : clients)
+        {
+            if (msg->conn == c->toClient)
+            {
+                clients.remove(c);
+                delete c;
+                break;
+            }
+        }
+        return true; // we have been deleted, exit immediately
+    }
+    covise::TokenBuffer tb(msg);
+    switch (msg->type)
+    {
+    case covise::COVISE_MESSAGE_TABLET_UI:
+    {
+        soundClient* currentClient = nullptr;
+        for (const auto& c : clients)
+        {
+            if (msg->conn == c->toClient)
+            {
+                currentClient = c;
+                break;
+            }
+        }
+        if (currentClient)
+        {
+            int type;
+            tb >> type;
+            switch (type)
+            {
+            case SOUND_CLIENT_INFO:
+            {
+                std::string IP;
+                std::string host;
+                std::string user;
+                tb >> IP;
+                tb >> host;
+                tb >> user;
+                currentClient->setClientInfo(IP, host, user);
+                break;
+            }
+            case SOUND_NEW_SOUND:
+            {
+                break;
+            }
+            case SOUND_DELETE_SOUND:
+            {
+                break;
+            }
+            case SOUND_SOUND_FILE:
+            {
+                break;
+            }
+            }
+        }
+    }
+    break;
+    default:
+    {
+        if (msg->type >= 0 && msg->type < covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE)
+            std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << " " << covise::covise_msg_types_array[msg->type] << std::endl;
+        else
+            std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << std::endl;
+    }
+    break;
+    }
+    return false;
+}
+
 void mainWindow::slipChanged(int val)
 {
 	updateValues();
@@ -48,47 +128,53 @@ void mainWindow::dataReceived(int socket)
 {
     messageReceived = true;
     int msgSize = udpclient->readMessage();
-    if (msgSize >= 12)
+    if (msgSize > sizeof(int))
     {
-        float *floatValues = (float *)udpclient->rawBuffer();
-        speedValue = floatValues[0];
-        carSpeed = floatValues[1];
-        engineTorque = floatValues[2];
-        slipValue = floatValues[3];
-		CarRPM->setValue(speedValue);
-		CarLoad->setValue(engineTorque);
-		WheelVelocity->setValue(carSpeed);
-		Wheelslip->setValue(slipValue);
-    }
-    else if (msgSize == 2) // two bytes start/stop/ soundnumber
-    {
-        int soundNumber = udpclient->rawBuffer()[1];
-        char action = udpclient->rawBuffer()[0];
-        if (soundNumber < eventSounds.size())
+        const int* rawBuffer = (int*)udpclient->rawBuffer();
+        const char* payload = udpclient->rawBuffer() + sizeof(int);
+        unsigned int msgType = *rawBuffer;
+        if (msgType == TypeCarSound)
         {
-            if (action == '\0')
+            float* floatValues = (float*)payload;
+            speedValue = floatValues[0];
+            carSpeed = floatValues[1];
+            engineTorque = floatValues[2];
+            slipValue = floatValues[3];
+            CarRPM->setValue(speedValue);
+            CarLoad->setValue(engineTorque);
+            WheelVelocity->setValue(carSpeed);
+            Wheelslip->setValue(slipValue);
+        }
+        else if (msgType == TypeSimpleSound) // two bytes start/stop/ soundnumber
+        {
+            int soundNumber = payload[1];
+            char action = payload[0];
+            if (soundNumber < eventSounds.size())
             {
-                eventSounds[soundNumber]->stop();
-            }
-            else if (action == '\1')
-            {
-                eventSounds[soundNumber]->start();
-            }
-            else if (action == '\2')
-            {
-                eventSounds[soundNumber]->continuePlaying();
-            }
-            else if (action == '\3')
-            {
-                eventSounds[soundNumber]->loop(true);
-            }
-            else if (action == '\4')
-            {
-                eventSounds[soundNumber]->loop(false);
-            }
-            else if (action == '\5')
-            {
-                eventSounds[soundNumber]->rewind();
+                if (action == '\0')
+                {
+                    eventSounds[soundNumber]->stop();
+                }
+                else if (action == '\1')
+                {
+                    eventSounds[soundNumber]->start();
+                }
+                else if (action == '\2')
+                {
+                    eventSounds[soundNumber]->continuePlaying();
+                }
+                else if (action == '\3')
+                {
+                    eventSounds[soundNumber]->loop(true);
+                }
+                else if (action == '\4')
+                {
+                    eventSounds[soundNumber]->loop(false);
+                }
+                else if (action == '\5')
+                {
+                    eventSounds[soundNumber]->rewind();
+                }
             }
         }
     }
@@ -116,6 +202,12 @@ void mainWindow::watchdog()
 void mainWindow::startAnlasser()
 {
     anlasser->start();
+}
+void mainWindow::selectClient(QTreeWidgetItem*)
+{
+}
+void mainWindow::selectSound(QTreeWidgetItem*)
+{
 }
 void mainWindow::startHupe()
 {
@@ -148,7 +240,22 @@ mainWindow::mainWindow(QWidget *parent)
     engineTorque = 0.0;
     messageReceived = true;
 
-    udpclient = new UDPComm(31804);
+    //clientTable->setFont(smallFont);
+    QStringList labels;
+    labels << "Master"
+        << "ID"
+        << "Application"
+        << "User"
+        << "Host"
+        << "IP";
+    clientTable->setHeaderLabels(labels);
+    clientTable->setMinimumSize(clientTable->sizeHint());
+    clientTable->header()->resizeSections(QHeaderView::ResizeToContents);
+    connect(clientTable, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+        this, SLOT(selectClient(QTreeWidgetItem*)));
+
+    UDPPort = covise::coCoviseConfig::getInt("UDPPort", "RemoteSound", 31804);
+    udpclient = new UDPComm(UDPPort);
     socketNotifier = new QSocketNotifier(udpclient->getReceiveSocket(), QSocketNotifier::Read);
     QObject::connect(socketNotifier, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
 
@@ -163,6 +270,8 @@ mainWindow::mainWindow(QWidget *parent)
     connect(watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdog()));
     watchdogTimer->start(2000);
 
+
+    TCPPort = covise::coCoviseConfig::getInt("TCPPort", "RemoteSound", 31805);
     show();
     myInstance = this;
 
@@ -229,6 +338,10 @@ mainWindow::mainWindow(QWidget *parent)
 		fprintf(stderr, "%s\n", path);
 	}*/
 
+    if (openServer() < 0)
+    {
+        return;
+    }
 
 	CarEventInstance = NULL;
 	CarEventDescription = NULL;
@@ -255,9 +368,107 @@ mainWindow::mainWindow(QWidget *parent)
 	result = WheelEventInstance->start();
 	result = WheelEventInstance->setVolume(1.0);
 	eventsystem->update();
+
 }
+
+//------------------------------------------------------------------------
+void mainWindow::closeServer()
+//------------------------------------------------------------------------
+{
+    delete serverSN;
+    serverSN = NULL;
+
+    if (sConn)
+    {
+        connections.remove(sConn);
+        sConn = NULL;
+    }
+
+    if (clientConn)
+    {
+        connections.remove(clientConn);
+        clientConn = NULL;
+    }
+
+}
+
+//------------------------------------------------------------------------
+int mainWindow::openServer()
+//------------------------------------------------------------------------
+{
+    connections.remove(sConn);
+    sConn = connections.tryAddNewListeningConn<covise::ServerConnection>(TCPPort, 0, 0);
+    if (!sConn)
+    {
+        return (-1);
+    }
+
+    msg = new covise::Message;
+
+    serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
+
+    //cerr << "listening on port " << port << endl;
+// weil unter windows manchmal Messages verloren gehen
+// der SocketNotifier wird nicht oft genug aufgerufen)
+#if defined(_WIN32) || defined(__APPLE__)
+    m_periodictimer = new QTimer;
+    QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(processMessages()));
+    m_periodictimer->start(1000);
+#endif
+
+    QObject::connect(serverSN, SIGNAL(activated(int)), this, SLOT(processMessages()));
+    return 0;
+}
+
+//------------------------------------------------------------------------
+bool mainWindow::serverRunning()
+//------------------------------------------------------------------------
+{
+    return sConn && sConn->is_connected();
+}
+
+//------------------------------------------------------------------------
+void mainWindow::processMessages()
+//------------------------------------------------------------------------
+{
+    //qDebug() << "process message called";
+    const covise::Connection* conn;
+    while ((conn = connections.check_for_input(0.0001f)))
+    {
+        if (conn == sConn) // connection to server port
+        {
+            auto conn = sConn->spawn_connection();
+            struct linger linger;
+            linger.l_onoff = 0;
+            linger.l_linger = 0;
+            setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger));
+            clientConn = connections.add(std::move(conn)); //add new connection;
+            soundClient *sc = new soundClient(clientConn);
+            clients.push_back(sc);
+        }
+        else
+        {
+            if (conn->recv_msg(msg))
+            {
+                if (msg)
+                {
+                    if (handleClient(msg))
+                    {
+                        return; // we have been deleted, exit immediately
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 mainWindow *mainWindow::myInstance = NULL;
 mainWindow::~mainWindow()
 {
+    for (const auto& c : clients)
+    {
+        delete c;
+    }
+    clients.clear();
 }

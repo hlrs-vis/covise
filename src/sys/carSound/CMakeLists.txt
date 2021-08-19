@@ -17,6 +17,7 @@ INCLUDE_DIRECTORIES(
 SET(CS_SOURCES
   main.cpp
   mainWindow.cpp
+  soundClient.cpp
   ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.cpp
   EventSoundSample.cpp
 )
@@ -31,12 +32,15 @@ SET(CS_HEADERS
   iasiodrv.h
   SoundSample.h
   SoundSweep.h
+  soundClient.h
+  remoteSoundMessages.h
   ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.h
   EventSoundSample.h
 )
 
 SET(CS_MOC_HEADERS
   mainWindow.h
+  soundClient.h
 )
 
 IF(WIN32)
@@ -48,12 +52,16 @@ QT_WRAP_UI(CS_UI_SRCS "carSound.ui")
 
 QT_WRAP_CPP(CS_MOC_SRCS ${CS_MOC_HEADERS})
 
-ADD_COVISE_EXECUTABLE(carSound ${CS_SOURCES} ${CS_HEADERS} ${CS_MOC_HEADERS} ${CS_MOC_SRCS} ${CS_UI_SRCS})
+QT_ADD_RESOURCES(CS_RCC_FILES
+  icons.qrc
+)
+
+ADD_COVISE_EXECUTABLE(carSound ${CS_SOURCES} ${CS_HEADERS} ${CS_MOC_HEADERS} ${CS_MOC_SRCS} ${CS_UI_SRCS} ${CS_RCC_FILES})
 IF(BASEARCHSUFFIX STREQUAL "gecko" OR BASEARCHSUFFIX STREQUAL "heiner")
   ADD_COVISE_COMPILE_FLAGS(carSound "-Wno-non-virtual-dtor")
 ENDIF()
 
-TARGET_LINK_LIBRARIES(carSound ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(carSound coNet coUtil coConfig ${EXTRA_LIBS})
 
 qt_use_modules(carSound Core Widgets Gui Network Xml)
 

@@ -10,6 +10,9 @@
 #include "UDPComm.h"
 #include <QSocketNotifier>
 #include <fmod_studio.hpp>
+#include <net/covise_connect.h>
+#include "soundClient.h"
+class QTreeWidgetItem;
 
 class mainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -22,6 +25,8 @@ public:
     {
         return myInstance;
     };
+
+
     float oldPitch;
     int speedValue;
     float carSpeed;
@@ -52,10 +57,28 @@ public:
 	FMOD::Studio::ParameterInstance *WheelVelocity;
 	FMOD::Studio::ParameterInstance *Wheelslip;
 
+
+    int openServer();
+    int TCPPort = 31805;
+    int UDPPort = 31804;
+    QSocketNotifier* serverSN;
+    const covise::ServerConnection* sConn = nullptr;
+    const covise::Connection* clientConn = nullptr;
+    covise::ConnectionList connections;
+    covise::Message* msg = nullptr;
+    QTimer* m_periodictimer = nullptr;
+    std::list<soundClient*>clients;
+
 private:
     static mainWindow *myInstance;
 	void updateValues();
 private slots:
+    void closeServer();
+    void processMessages();
+    bool handleClient(covise::Message* msg);
+    bool serverRunning();
+    void selectClient(QTreeWidgetItem*);
+    void selectSound(QTreeWidgetItem*);
     virtual void speedChanged(int val);
 	virtual void velocityChanged(int val);
 	virtual void slipChanged(int val);
