@@ -20,6 +20,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRNavigationManager.h>
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
@@ -32,34 +33,56 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/Label.h>
+
+#include <proj_api.h>
+
+#include <vrml97/vrml/VrmlNodeChild.h>
+#include <vrml97/vrml/VrmlSFFloat.h>
+#include <vrml97/vrml/VrmlSFVec3f.h>
+
 class UDPComm;
 
 using JSBSim::FGXMLFileRead;
 using JSBSim::Element;
 using namespace opencover;
 using namespace covise;
+using namespace vrml;
 
-class JSBSimPlugin : public coVRPlugin, public ui::Owner
+class JSBSimPlugin : public coVRPlugin, public ui::Owner, public opencover::coVRNavigationProvider
 {
 public:
     JSBSimPlugin();
     ~JSBSimPlugin();
     bool init();
-    static JSBSimPlugin *plugin;
 
     bool update();
+    virtual void setEnabled(bool);
+    static JSBSimPlugin* instance() { return plugin; };
+    void addThermal(const osg::Vec3& velocity, float turbulence);
 
 private:
-    ui::Menu *JSBMenu;
-    ui::Action *printCatalog;
-    ui::Button *pauseButton;
-    ui::Action *resetButton;
-    ui::Action *upButton;
+    static JSBSimPlugin* plugin;
+    ui::Menu* JSBMenu;
+    ui::Action* printCatalog;
+    ui::Button* pauseButton;
+    ui::Button* DebugButton;
+    ui::Action* resetButton;
+    ui::Action* upButton;
+    ui::Group* Weather;
+    ui::Label* WindLabel;
+    ui::EditField* WX;
+    ui::EditField* WY;
+    ui::EditField* WZ;
 
     SGPath RootDir;
     SGPath ScriptName;
-    string AircraftName;
-    SGPath ResetName;
+    std::string AircraftDir;
+    std::string EnginesDir;
+    std::string SystemsDir;
+    std::string AircraftName;
+    std::string resetFile;
     vector <string> LogOutputName;
     vector <SGPath> LogDirectiveName;
     vector <string> CommandLineProperties;
@@ -71,21 +94,21 @@ private:
     double frame_duration = 0.0;
     double printTime = 0.0;
 
-    JSBSim::FGFDMExec* FDMExec;
-    JSBSim::FGTrim* trimmer;
+    JSBSim::FGFDMExec* FDMExec = nullptr;
+    JSBSim::FGTrim* trimmer = nullptr;
 
-    JSBSim::FGAtmosphere*      Atmosphere;
-    JSBSim::FGWinds*           Winds;
-    JSBSim::FGFCS*             FCS;
-    JSBSim::FGPropulsion*      Propulsion;
-    JSBSim::FGMassBalance*     MassBalance;
-    JSBSim::FGAircraft*        Aircraft;
-    JSBSim::FGPropagate*       Propagate;
-    JSBSim::FGAuxiliary*       Auxiliary;
-    JSBSim::FGAerodynamics*    Aerodynamics;
-    JSBSim::FGGroundReactions* GroundReactions;
-    JSBSim::FGInertial*        Inertial;
-    JSBSim::FGAccelerations*   Accelerations;
+    std::shared_ptr <JSBSim::FGAtmosphere>      Atmosphere;
+    std::shared_ptr <JSBSim::FGWinds>           Winds;
+    std::shared_ptr <JSBSim::FGFCS>            FCS;
+    std::shared_ptr <JSBSim::FGPropulsion>      Propulsion;
+    std::shared_ptr <JSBSim::FGMassBalance>     MassBalance;
+    std::shared_ptr <JSBSim::FGAircraft>        Aircraft;
+    std::shared_ptr <JSBSim::FGPropagate>       Propagate;
+    std::shared_ptr <JSBSim::FGAuxiliary>       Auxiliary;
+    std::shared_ptr <JSBSim::FGAerodynamics>    Aerodynamics;
+    std::shared_ptr <JSBSim::FGGroundReactions> GroundReactions;
+    std::shared_ptr <JSBSim::FGInertial>        Inertial;
+    std::shared_ptr <JSBSim::FGAccelerations>   Accelerations;
 
     JSBSim::FGPropagate::VehicleState initialLocation;
 
@@ -98,10 +121,11 @@ private:
         double elevator;
         double aileron;
     } fgcontrol;
-    UDPComm *udp;
+    UDPComm* udp;
     void initUDP();
+    bool initJSB();
     bool updateUdp();
-    void reset(double dz=0.0);
+    void reset(double dz = 0.0);
 
     //! this functions is called when a key is pressed or released
     virtual void key(int type, int keySym, int mod);
@@ -116,5 +140,50 @@ private:
     double actual_elapsed_time = 0;
     double cycle_duration = 0;
     OpenThreads::Mutex mutex;
+
+    projPJ pj_from, pj_to;
+    std::string coviseSharedDir;
+    osg::Vec3d projectOffset;
+    osg::Matrix lastPos;
+    osg::Vec3 currentVelocity;
+    float currentTurbulence;
+    osg::Vec3 targetVelocity;
+    float targetTurbulence;
+};
+
+class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
+{
+public:
+    // Define the fields of Car nodes
+    static VrmlNodeType* defineType(VrmlNodeType* t = 0);
+    virtual VrmlNodeType* nodeType() const;
+
+    VrmlNodeThermal(VrmlScene* scene = 0);
+    VrmlNodeThermal(const VrmlNodeThermal& n);
+    virtual ~VrmlNodeThermal();
+
+    virtual VrmlNode* cloneMe() const;
+
+    virtual ostream& printFields(ostream& os, int indent);
+
+    virtual void setField(const char* fieldName, const VrmlField& fieldValue);
+    const VrmlField* getField(const char* fieldName);
+
+    void eventIn(double timeStamp, const char* eventName,
+        const VrmlField* fieldValue);
+
+    virtual void render(Viewer*);
+
+    VrmlSFVec3f d_direction;
+    VrmlSFVec3f d_location;
+    VrmlSFFloat d_maxBack;
+    VrmlSFFloat d_maxFront;
+    VrmlSFFloat d_minBack;
+    VrmlSFFloat d_minFront;
+    VrmlSFFloat d_height;
+    VrmlSFVec3f d_velocity;
+    VrmlSFFloat d_turbulence;
+private:
+
 };
 #endif

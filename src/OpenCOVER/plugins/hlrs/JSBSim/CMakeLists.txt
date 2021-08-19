@@ -1,4 +1,6 @@
 using(JSBSIM)
+using(VRML)
+USING(PROJ4)
 
 SET(HEADERS
     ../../drivingsim/SteeringWheel/UDPComm.h

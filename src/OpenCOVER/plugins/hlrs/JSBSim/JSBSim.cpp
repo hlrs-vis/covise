@@ -21,6 +21,7 @@
 #include "models/FGPropulsion.h"
 #include "models/FGAerodynamics.h"
 #include "models/FGAircraft.h"
+#include "models/atmosphere/FGWinds.h"
 #include "models/propulsion/FGEngine.h"
 #include "models/propulsion/FGPiston.h"
 #include "cover/VRSceneGraph.h"
@@ -28,10 +29,13 @@
 #include <UDPComm.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
+#include <stdlib.h>
+
+#include <vrml97/vrml/VrmlNamespace.h>
 
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
-JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui)
+JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigationProvider("Paraglider", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
 #if defined(_MSC_VER)
@@ -52,6 +56,13 @@ JSBSimPlugin::~JSBSimPlugin()
     fprintf(stderr, "JSBSimPlugin::~JSBSimPlugin\n");
 
     delete FDMExec;
+    delete printCatalog;
+    delete DebugButton;
+    delete resetButton;
+    delete upButton;
+    delete JSBMenu;
+
+    coVRNavigationManager::instance()->unregisterNavigationProvider(this);
 
 }
 
@@ -64,7 +75,11 @@ void JSBSimPlugin::reset(double dz)
     SimStartTime = cover->frameTime();
     osg::Vec3 viewerPosInFeet = cover->getInvBaseMat().getTrans() / 0.3048;
 
-    double radius = (il.GetRadius() + viewerPosInFeet[2]);
+    //viewerPosInFeet.set(0, 0, 0);
+    osg::Vec3 dir;
+    //dir.set(0, 1, 0);
+
+    double radius = (Propagate->GetVState().vLocation.GetSeaLevelRadius() + viewerPosInFeet[2]);
     double ecX, ecY, ecZ;
     ecX = viewerPosInFeet[2] + radius;
     ecY = -viewerPosInFeet[1];
@@ -85,68 +100,58 @@ void JSBSimPlugin::reset(double dz)
         mLat = 0.0;
     else
         mLat = atan2(ecZ, rxy);
-    osg::Matrix viewer = cover->getInvBaseMat();
-    osg::Vec3 dir;
+    osg::Matrix viewer = cover->getBaseMat();
     for (int i = 0; i < 3; i++)
         dir[i] = viewer(1, i);
     osg::Vec3 y(0, 1, 0);
     dir.normalize();
+/*
+
+    double v[3];
+
+    v[0] = viewerPosInFeet[0] - projectOffset[0];
+    v[1] = viewerPosInFeet[1] - projectOffset[1];
+    v[2] = viewerPosInFeet[2] - projectOffset[2];
+    int error = pj_transform(pj_to, pj_from, 1, 0, v,v+1, v+2);
+    if (error != 0)
+    {
+        fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
+    }
+    mLon = v[0];
+    mLat = v[1];*/
 
 
-    FDMExec->GetIC()->SetLatitudeRadIC(mLat);
-    FDMExec->GetIC()->SetLongitudeRadIC(mLon);
-    FDMExec->GetIC()->SetAltitudeASLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3)+dz/0.3048);
-    FDMExec->GetIC()->SetPsiRadIC(atan2(y[1], y[0]) - atan2(dir[1], dir[0]) - M_PI_2);
-    FDMExec->GetIC()->SetThetaRadIC(0.0);
-    FDMExec->GetIC()->SetPhiRadIC(0.0);
+    std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
+    if (!IC->Load(SGPath(resetFile))) {
+        cerr << "Initialization unsuccessful" << endl;
+    }
+    IC->SetLatitudeRadIC(mLat);
+    IC->SetLongitudeRadIC(mLon);
+    IC->SetAltitudeASLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3)*0.0833 + (dz) / 0.3048);
+    IC->SetAltitudeAGLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3)*0.0833 + (dz) / 0.3048);
+    IC->SetPsiRadIC((-(atan2(y[1], y[0]) - atan2(dir[1], dir[0]) ))- M_PI_2 );// heading
+    //IC->SetPsiRadIC(0.0); // heading
+    //IC->SetThetaRadIC(-20.0*DEG_TO_RAD); // pitch from reset file beause the paraglider is sensitive to start pitch
+    IC->SetPhiRadIC(0.0); // roll
+    //IC->SetUBodyFpsIC(10); // U is Body X direction --> forwards
 
 
 
     Propagate->InitModel();
+    Propagate->InitializeDerivatives();
     FDMExec->RunIC();
-}
 
-bool JSBSimPlugin::init()
+    Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+    targetVelocity.set(WX->number(), WY->number(), WZ->number());
+    currentVelocity.set(WX->number(), WY->number(), WZ->number());
+    JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
+
+    lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
+
+   }
+
+bool JSBSimPlugin::initJSB()
 {
-    delete udp;
-
-    const std::string host = covise::coCoviseConfig::getEntry("value", "JSBSim.serverHost", "141.58.8.212");
-    unsigned short serverPort = covise::coCoviseConfig::getInt("JSBSim.serverPort", 1234);
-    unsigned short localPort = covise::coCoviseConfig::getInt("JSBSim.localPort", 5252);
-    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-    udp = new UDPComm(host.c_str(), serverPort, localPort);
-
-    JSBMenu = new ui::Menu("JSBSim", this);
-
-    printCatalog = new ui::Action(JSBMenu, "printCatalog");
-    printCatalog->setCallback([this]() {
-        if (FDMExec)
-            FDMExec->PrintPropertyCatalog();
-    });
-    pauseButton = new ui::Button(JSBMenu, "pause");
-    pauseButton->setState(false);
-    pauseButton->setCallback([this](bool state) {
-        if (FDMExec)
-        {
-            if (state)
-                FDMExec->Hold();
-            else
-                FDMExec->Resume();
-        }
-    });
-
-    resetButton = new ui::Action(JSBMenu, "reset");
-    resetButton->setCallback([this]() {
-        if (FDMExec)
-            reset();
-    });
-
-    upButton = new ui::Action(JSBMenu, "Up");
-    upButton->setCallback([this]() {
-        if (FDMExec)
-            reset(100);
-    });
-
     // *** SET UP JSBSIM *** //
     FDMExec = new JSBSim::FGFDMExec();
     FDMExec->SetRootDir(RootDir);
@@ -155,6 +160,14 @@ bool JSBSimPlugin::init()
     FDMExec->SetSystemsPath(SGPath("systems"));
     FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
     FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
+
+
+    FDMExec->SetPropertyValue("simulation/gravitational-torque", false);
+    FDMExec->SetPropertyValue("environment/config/enabled", false);
+    FDMExec->SetPropertyValue("environment/atmosphere/temperature-deg-sea-level", 15.0);
+    FDMExec->SetPropertyValue("environment/atmosphere/pressure-inhg-sea-level", 29.92126);
+    FDMExec->SetPropertyValue("environment/atmosphere/wind-speed-kt", 0.0);
+
 
 
     Atmosphere = FDMExec->GetAtmosphere();
@@ -170,18 +183,19 @@ bool JSBSimPlugin::init()
     GroundReactions = FDMExec->GetGroundReactions();
     Accelerations = FDMExec->GetAccelerations();
 
+    Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+
     if (nohighlight) FDMExec->disableHighLighting();
-    
+
     bool result = false;
 
     std::string line = coCoviseConfig::getEntry("COVER.Plugin.JSBSim.ScriptName");
-    SGPath ScriptName;
     ScriptName.set(line);
-    std::string AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft");
-    std::string AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model", "paraglider");
-    std::string EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Engines");
-    std::string SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Systems");
-    std::string resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml");
+    AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft");
+    AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model", "paraglider");
+    EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft/paraglider/Engines");
+    SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft/paraglider/Systems");
+    resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml");
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {
 
@@ -206,31 +220,156 @@ bool JSBSimPlugin::init()
             return false;
         }
 
-        JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
-        if (!IC->Load(SGPath(resetFile))) {
-            cerr << "Initialization unsuccessful" << endl;
-            return false;
-        }
     }
     else {
         cout << "  No Aircraft, Script, or Reset information given" << endl << endl;
         return false;
     }
+    std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
+    if (!IC->Load(SGPath(resetFile))) {
+        cerr << "Initialization unsuccessful" << endl;
+        return false;
+    }
 
     il.SetLatitude(0.0);
     il.SetLongitude(0.0);
-    il.SetAltitudeASL(0.0);
 
     fgcontrol.aileron = 0.0;
     fgcontrol.elevator = 0.0;
 
     reset(0.0);
 
-    
     // PRINT SIMULATION CONFIGURATION
-    //FDMExec->PrintSimulationConfiguration();
-    
+    FDMExec->PrintSimulationConfiguration();
 
+    // Dump the simulation state (position, orientation, etc.)
+    FDMExec->GetPropagate()->DumpState();
+
+    // Perform trim if requested via the initialization file
+    JSBSim::TrimMode icTrimRequested = (JSBSim::TrimMode)FDMExec->GetIC()->TrimRequested();
+    if (icTrimRequested != JSBSim::TrimMode::tNone) {
+        trimmer = new JSBSim::FGTrim(FDMExec, icTrimRequested);
+        try {
+            trimmer->DoTrim();
+
+            if (FDMExec->GetDebugLevel() > 0)
+                trimmer->Report();
+
+            delete trimmer;
+        }
+        catch (string& msg) {
+            cerr << endl << msg << endl << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+bool JSBSimPlugin::init()
+{
+    delete udp;
+
+    const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.JSBSim.serverHost", "141.58.8.212");
+    unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.serverPort", 1234);
+    unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.localPort", 5252);
+    RootDir = covise::coCoviseConfig::getEntry("rootDir", "COVER.Plugin.JSBSim", "C:\\src\\gitbase\\jsbsim").c_str();
+    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+    udp = new UDPComm(host.c_str(), serverPort, localPort);
+
+    //mapping of coordinates
+#ifdef WIN32
+    const char* pValue;
+    size_t len;
+    errno_t err = _dupenv_s(&((char*)pValue), &len, "COVISEDIR");
+    if (err)
+        pValue = "";
+#else
+    const char* pValue = getenv("COVISEDIR");
+    if (!pValue)
+        pValue = "";
+#endif
+    coviseSharedDir = std::string(pValue) + "/share/covise/";
+
+    std::string proj_from = coCoviseConfig::getEntry("from", "COVER.Plugin.JSBSim.Projection", "+proj=latlong +datum=WGS84");
+    if (!(pj_from = pj_init_plus(proj_from.c_str())))
+    {
+        fprintf(stderr, "ERROR: pj_init_plus failed with pj_from = %s\n", proj_from.c_str());
+    }
+
+    std::string proj_to = coCoviseConfig::getEntry("to", "COVER.Plugin.JSBSim.Projection", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam");// +nadgrids=" + dir + std::string("BETA2007.gsb");
+
+    if (!(pj_to = pj_init_plus(proj_to.c_str())))
+    {
+        fprintf(stderr, "ERROR: pj_init_plus failed with pj_to = %s\n", proj_to.c_str());
+    }
+    projectOffset[0] = coCoviseConfig::getFloat("offetX", "COVER.Plugin.JSBSim.Projection", 0);
+    projectOffset[1] = coCoviseConfig::getFloat("offetY", "COVER.Plugin.JSBSim.Projection", 0);
+    projectOffset[2] = coCoviseConfig::getFloat("offetZ", "COVER.Plugin.JSBSim.Projection", 0);
+
+    JSBMenu = new ui::Menu("JSBSim", this);
+
+    printCatalog = new ui::Action(JSBMenu, "printCatalog");
+    printCatalog->setCallback([this]() {
+        if (FDMExec)
+            FDMExec->PrintPropertyCatalog();
+    });
+    pauseButton = new ui::Button(JSBMenu, "pause");
+    pauseButton->setState(false);
+    pauseButton->setCallback([this](bool state) {
+        if (FDMExec)
+        {
+            if (state)
+                FDMExec->Hold();
+            else
+                FDMExec->Resume();
+        }
+    });
+
+    DebugButton = new ui::Button(JSBMenu, "debug");
+    DebugButton->setState(false);
+
+    resetButton = new ui::Action(JSBMenu, "reset");
+    resetButton->setCallback([this]() {
+        initJSB();
+            reset();
+    });
+
+    upButton = new ui::Action(JSBMenu, "Up");
+    upButton->setCallback([this]() {
+        if (FDMExec)
+            reset(100);
+    });
+
+
+
+    Weather = new ui::Group(JSBMenu, "Weather");
+    WindLabel = new ui::Label(Weather, "Wind");
+    WX = new ui::EditField(Weather, "X");
+    WY = new ui::EditField(Weather, "Y");
+    WZ = new ui::EditField(Weather, "Z");
+    WX->setValue(0.0);
+    WY->setValue(0.0);
+    WZ->setValue(0.0);
+    WX->setCallback([this](std::string v) {
+        Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        });
+    WY->setCallback([this](std::string v) {
+        Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        });
+    WZ->setCallback([this](std::string v) {
+        Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        });
+
+    currentVelocity.set(WX->number(), WY->number(), WZ->number());
+    currentTurbulence = 0;
+    initJSB();
+    reset();
+
+        
+
+    coVRNavigationManager::instance()->registerNavigationProvider(this);
+
+    VrmlNamespace::addBuiltIn(VrmlNodeThermal::defineType());
     return true;
 }
 
@@ -268,6 +407,11 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
         {
             reset();
         }
+        else if (keySym == 'R')
+        {
+            initJSB();
+            reset();
+        }
         break;
     }
     fprintf(stderr, "Keysym: %d\n", keySym);
@@ -279,66 +423,141 @@ JSBSimPlugin::update()
 {
     updateUdp();
 
-    FCS->SetDaCmd(fgcontrol.aileron);
-    FCS->SetDeCmd(fgcontrol.elevator);
+    if (isEnabled())
+    {
 
-    for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
-        FCS->SetThrottleCmd(i,1.0);
-        FCS->SetMixtureCmd(i,1.0);
-
-        switch (Propulsion->GetEngine(i)->GetType())
+        if (VRSceneGraph::instance()->getTransform()->getMatrix() != lastPos) // if someone else moved e.g. a new viewpoint has been set, then do a reset to this position
         {
-        case JSBSim::FGEngine::etPiston:
-        { // FGPiston code block
-            JSBSim::FGPiston* eng = (JSBSim::FGPiston*)Propulsion->GetEngine(i);
-            eng->SetMagnetos(3);
-            break;
-        } // end FGPiston code block
+            reset();
         }
-        { // FGEngine code block
-            JSBSim::FGEngine* eng = Propulsion->GetEngine(i);
-            eng->SetStarter(1);
-            eng->SetRunning(1);
-        } // end FGEngine code block
-    }
-    bool result = false;
+        else
+        {
+            FCS->SetDaCmd(fgcontrol.aileron);
+            FCS->SetDeCmd(fgcontrol.elevator);
 
-    while (FDMExec->GetSimTime() + SimStartTime < cover->frameTime())
+            for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
+                FCS->SetThrottleCmd(i, 1.0);
+                FCS->SetMixtureCmd(i, 1.0);
+
+                switch (Propulsion->GetEngine(i)->GetType())
+                {
+                case JSBSim::FGEngine::etPiston:
+                { // FGPiston code block
+                    auto piston_engine = static_pointer_cast<JSBSim::FGPiston>(Propulsion->GetEngine(i));
+                    piston_engine->SetMagnetos(3);
+                    break;
+                } // end FGPiston code block
+                }
+                { // FGEngine code block
+                    auto eng = Propulsion->GetEngine(i);
+                    eng->SetStarter(1);
+                    eng->SetRunning(1);
+                } // end FGEngine code block
+            }
+            bool result = false;
+
+            while (FDMExec->GetSimTime() + SimStartTime < cover->frameTime())
+            {
+                if (FDMExec->Holding()) break;
+                try
+                {
+                    result = FDMExec->Run();
+                    if (!result)
+                    {
+                        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+                        break;
+                    }
+                }
+                catch (std::string s)
+                {
+                    fprintf(stderr, "oops, exception %s\n", s.c_str());
+                    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+                }
+                catch (...)
+                {
+                    fprintf(stderr, "oops, exception\n");
+                    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+                }
+            }
+            if (result)
+            {
+                if (DebugButton->state())
+                {
+                    FDMExec->GetPropagate()->DumpState();
+                }
+
+                osg::Matrix rot;
+                rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, -1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(0, 1, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(1, 0, 0));
+                osg::Matrix trans;
+
+                JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
+                float scale = cover->getScale();
+
+                /*
+                double v[3];
+
+                v[0] = location.vLocation.GetLongitude();
+                v[1] = location.vLocation.GetLatitude();
+                v[2] = location.vLocation.GetGeodAltitude() * 0.3048;
+                int error = pj_transform(pj_from, pj_to, 1, 0, v, v + 1, v + 2);
+                if (error != 0)
+                {
+                    fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
+                }
+
+                trans.makeTranslate(v[1]*scale, v[0] * scale, v[2] * scale);
+
+                */
+
+                trans.makeTranslate(location.vLocation(3) * 0.3048 * scale, -location.vLocation(2) * 0.3048 * scale, (location.vLocation(1) - location.vLocation.GetSeaLevelRadius()) * 0.3048 * scale);
+                osg::Matrix preRot;
+                preRot.makeRotate(-M_PI_2, 0, 0, 1.0);
+                osg::Matrix newPos = osg::Matrix::inverse(preRot * eyePoint * rot * trans);
+                /*JSBSim::FGMatrix33 tb2lMat = Propagate->GetTb2l();
+                Plane.makeIdentity();
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        Plane(i, j) = tb2lMat.Entry(i+1, j+1);
+                 Plane.invert(Plane); */
+
+                if (FDMExec && !FDMExec->Holding() && !newPos.isNaN())
+                {
+                    lastPos = newPos;
+                    VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
+                    coVRCollaboration::instance()->SyncXform();
+                    if (targetVelocity != currentVelocity)
+                    {
+                        osg::Vec3 diff = targetVelocity - currentVelocity;
+                        if (diff.length2() < 0.0001)
+                        {
+                            currentVelocity = targetVelocity;
+                        }
+                        else
+                        {
+                            currentVelocity += diff * 0.1;
+                        }
+                    }
+                    Winds->SetWindNED(currentVelocity.y(), currentVelocity.x(), -currentVelocity.z());
+                    Winds->SetTurbGain(currentTurbulence);
+                    fprintf(stderr, "cv: %f\n", currentVelocity.z());
+                    targetVelocity.set(WX->number(), WY->number(), WZ->number());
+                    targetTurbulence = 0;
+                }
+            }
+            return result;
+        }
+        return true;
+    }
+    return false;
+}
+
+void JSBSimPlugin::setEnabled(bool flag)
+{
+    coVRNavigationProvider::setEnabled(flag);
+    if (flag)
     {
-        if (FDMExec->Holding()) break;
-        result = FDMExec->Run();
+        reset();
     }
-
-    //if (cover->frameTime() > printTime + 1)
-    //{
-    //    printTime = cover->frameTime();
-        // Dump the simulation state (position, orientation, etc.)
-        //FDMExec->GetPropagate()->DumpState();
-    //}
-
-    osg::Matrix rot;
-    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, -1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht) , osg::Vec3(0, 1, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(1, 0, 0));
-    osg::Matrix trans;
-
-    JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
-    float scale = cover->getScale();
-    trans.makeTranslate(location.vLocation(3)*0.3048*scale, -location.vLocation(2)*0.3048*scale, (location.vLocation(1) - il.GetRadius())*0.3048*scale);
-    osg::Matrix preRot;
-    preRot.makeRotate(-M_PI_2, 0, 0, 1.0);
-    osg::Matrix Plane = osg::Matrix::inverse(preRot*eyePoint*rot*trans);
-    /*JSBSim::FGMatrix33 tb2lMat = Propagate->GetTb2l();
-    Plane.makeIdentity();
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            Plane(i, j) = tb2lMat.Entry(i+1, j+1);
-     Plane.invert(Plane); */
-
-    if (FDMExec && !FDMExec->Holding())
-    {
-        VRSceneGraph::instance()->getTransform()->setMatrix(Plane);
-        coVRCollaboration::instance()->SyncXform();
-    }
-    return true;
 }
 
 bool
@@ -347,6 +566,7 @@ JSBSimPlugin::updateUdp()
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
     if (udp)
     {
+        static bool firstTime = true;
         int status = udp->receive(&fgcontrol, sizeof(FGControl),0.001);
 
         if (status == sizeof(FGControl))
@@ -355,16 +575,21 @@ JSBSimPlugin::updateUdp()
             byteSwap(fgcontrol.elevator);
             FCS->SetDaCmd(fgcontrol.aileron);
             FCS->SetDeCmd(fgcontrol.elevator);
+            firstTime = true;
         }
         else if (status == -1)
         {
-            std::cerr << "FlightGear::update: error while reading data" << std::endl;
-            initUDP();
+            if (firstTime)
+            {
+                std::cerr << "JSBSimPlugin::updateUdp: error while reading data" << std::endl;
+                firstTime = false;
+            }
+            //initUDP();
             return false;
         }
         else
         {
-            std::cerr << "FlightGear::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
+            std::cerr << "JSBSimPlugin::updateUdp: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
             initUDP();
             return false;
         }
@@ -376,12 +601,212 @@ void JSBSimPlugin::initUDP()
 {
     delete udp;
 
-    const std::string host = covise::coCoviseConfig::getEntry("value", "JSBSim.serverHost", "141.58.8.212");
-    unsigned short serverPort = covise::coCoviseConfig::getInt("JSBSim.serverPort", 1234);
-    unsigned short localPort = covise::coCoviseConfig::getInt("JSBSim.localPort", 5252);
+    const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.JSBSim.serverHost", "141.58.8.212");
+    unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.serverPort", 1234);
+    unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.localPort", 5252);
     std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
     udp = new UDPComm(host.c_str(), serverPort, localPort);
     return;
 }
 
+void JSBSimPlugin::addThermal(const osg::Vec3& velocity, float turbulence)
+{
+    targetVelocity += velocity;
+    targetTurbulence += turbulence;
+}
+
 COVERPLUGIN(JSBSimPlugin)
+
+
+static VrmlNode* creator(VrmlScene* scene)
+{
+    return new VrmlNodeThermal(scene);
+}
+
+// Define the built in VrmlNodeType:: "Thermal" fields
+
+VrmlNodeType* VrmlNodeThermal::defineType(VrmlNodeType* t)
+{
+    static VrmlNodeType* st = 0;
+
+    if (!t)
+    {
+        if (st)
+            return st; // Only define the type once.
+        t = st = new VrmlNodeType("Thermal", creator);
+    }
+
+    VrmlNodeChild::defineType(t); // Parent class
+
+
+
+    t->addExposedField("direction", VrmlField::SFVEC3F);
+    t->addExposedField("intensity", VrmlField::SFFLOAT);
+    t->addExposedField("location", VrmlField::SFVEC3F);
+    t->addExposedField("maxBack", VrmlField::SFFLOAT);
+    t->addExposedField("maxFront", VrmlField::SFFLOAT);
+    t->addExposedField("minBack", VrmlField::SFFLOAT);
+    t->addExposedField("minFront", VrmlField::SFFLOAT);
+    t->addExposedField("height", VrmlField::SFFLOAT);
+    t->addExposedField("velocity", VrmlField::SFVEC3F);
+    t->addExposedField("turbulence", VrmlField::SFFLOAT);
+
+    return t;
+}
+
+VrmlNodeType* VrmlNodeThermal::nodeType() const
+{
+    return defineType(0);
+}
+
+VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
+    : VrmlNodeChild(scene)
+    , d_direction(0, 0, 1)
+    , d_location(0, 0, 0)
+    , d_maxBack(10)
+    , d_maxFront(10)
+    , d_minBack(1)
+    , d_minFront(1)
+    , d_height(100)
+    , d_velocity(0, 0, 4)
+    , d_turbulence(0.0)
+{
+}
+
+
+VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
+    : VrmlNodeChild(n.d_scene)
+{
+    d_direction = n.d_direction;
+    d_location = n.d_location;
+    d_maxBack = n.d_maxBack;
+    d_maxFront = n.d_maxFront;
+    d_minBack = n.d_minBack;
+    d_minFront = n.d_minFront;
+    d_height = n.d_height;
+    d_velocity = n.d_velocity;
+    d_turbulence = n.d_turbulence;
+}
+
+VrmlNodeThermal::~VrmlNodeThermal()
+{
+}
+
+VrmlNode* VrmlNodeThermal::cloneMe() const
+{
+    return new VrmlNodeThermal(*this);
+}
+
+ostream& VrmlNodeThermal::printFields(ostream& os, int indent)
+{
+    return os;
+}
+
+// Set the value of one of the node fields.
+
+void VrmlNodeThermal::setField(const char* fieldName,
+    const VrmlField& fieldValue)
+{
+
+    if
+        TRY_FIELD(direction, SFVec3f)
+    else if
+        TRY_FIELD(location, SFVec3f)
+    else if
+        TRY_FIELD(maxBack, SFFloat)
+    else if
+        TRY_FIELD(maxFront, SFFloat)
+    else if
+        TRY_FIELD(minBack, SFFloat)
+    else if
+        TRY_FIELD(minFront, SFFloat)
+    else if
+        TRY_FIELD(height, SFFloat)
+    else if
+        TRY_FIELD(velocity, SFVec3f)
+    else if
+        TRY_FIELD(turbulence, SFFloat)
+    else
+        VrmlNodeChild::setField(fieldName, fieldValue);
+}
+
+const VrmlField* VrmlNodeThermal::getField(const char* fieldName)
+{
+    if (strcmp(fieldName, "direction") == 0)
+        return &d_direction;
+    else if (strcmp(fieldName, "location") == 0)
+        return &d_location;
+    else if (strcmp(fieldName, "maxBack") == 0)
+        return &d_maxBack;
+    else if (strcmp(fieldName, "maxFront") == 0)
+        return &d_maxFront;
+    else if (strcmp(fieldName, "minBack") == 0)
+        return &d_minBack;
+    else if (strcmp(fieldName, "minFront") == 0)
+        return &d_minFront;
+    else if (strcmp(fieldName, "height") == 0)
+        return &d_height;
+    else if (strcmp(fieldName, "velocity") == 0)
+        return &d_velocity;
+    else if (strcmp(fieldName, "turbulence") == 0)
+        return &d_turbulence;
+    else
+        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
+    return 0;
+}
+
+void VrmlNodeThermal::eventIn(double timeStamp,
+    const char* eventName,
+    const VrmlField* fieldValue)
+{
+    //if (strcmp(eventName, "carNumber"))
+    // {
+    //}
+    // Check exposedFields
+    //else
+    {
+        VrmlNode::eventIn(timeStamp, eventName, fieldValue);
+    }
+
+}
+
+void VrmlNodeThermal::render(Viewer* viewer)
+{
+    // Is viewer inside the cylinder?
+    float x, y, z;
+    viewer->getPosition(&x, &y, &z);
+    if (y > d_location.y() && y < d_location.y()+d_height.get())
+    {
+        VrmlSFVec3f toViewer(x, y, z);
+        toViewer.subtract(&d_location); // now we have the vector to the viewer
+        VrmlSFVec3f dir = d_direction;
+        *(toViewer.get() + 1) = 0; // y == height = 0
+        *(dir.get() + 1) = 0;
+        float dist = (float)toViewer.length();
+        toViewer.normalize();
+        dir.normalize();
+        // angle between the sound direction and the viewer
+        float angle = (float)acos(toViewer.dot(&d_direction));
+        //fprintf(stderr,"angle: %f",angle/M_PI*180.0);
+        float cang = (float)cos(angle / 2.0);
+        float rmin, rmax;
+        double intensity;
+        rmin = fabs(d_minBack.get() * d_minFront.get() / (cang * cang * (d_minBack.get() - d_minFront.get()) + d_minFront.get()));
+        rmax = fabs(d_maxBack.get() * d_maxFront.get() / (cang * cang * (d_maxBack.get() - d_maxFront.get()) + d_maxFront.get()));
+        //fprintf(stderr,"rmin: %f rmax: %f",rmin,rmax);
+        if (dist <= rmin)
+            intensity = 1.0;
+        else if (dist > rmax)
+            intensity = 0.0;
+        else
+        {
+            intensity = (rmax - dist) / (rmax - rmin);
+        }
+        osg::Vec3 v(d_velocity.x(), -d_velocity.z(), d_velocity.y()); // velocities are in VRML orientation (y-up)
+        v *= intensity;
+        JSBSimPlugin::instance()->addThermal(v, d_turbulence.get() * intensity);
+    }
+    setModified();
+}
+
+

@@ -12,6 +12,7 @@ ENDIF(JSBSIM_INCLUDE_DIR)
 FIND_PATH(JSBSIM_INCLUDE_DIR "JSBSim/FGFDMExec.h"
   PATHS
   $ENV{JSBSIM_HOME}/include
+  $ENV{EXTERNLIBS}/jsbsim/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include
   /usr/local/include
@@ -29,6 +30,7 @@ SET(JSBSIM_DBG_NAMES JSBSimd)
 FIND_LIBRARY(JSBSIM_LIBRARY NAMES ${JSBSIM_NAMES}
   PATHS
   $ENV{JSBSIM_HOME}
+  $ENV{EXTERNLIBS}/jsbsim
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
