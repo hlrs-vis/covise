@@ -20,6 +20,7 @@ SET(CS_SOURCES
   soundClient.cpp
   ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.cpp
   EventSoundSample.cpp
+  ClientSoundSample.cpp
 )
 
 SET(CS_HEADERS
@@ -36,6 +37,7 @@ SET(CS_HEADERS
   remoteSoundMessages.h
   ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.h
   EventSoundSample.h
+  ClientSoundSample.h
 )
 
 SET(CS_MOC_HEADERS

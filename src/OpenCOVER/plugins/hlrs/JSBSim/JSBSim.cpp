@@ -46,6 +46,8 @@ JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigati
     feenableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 
+    rsClient = new remoteSound::Client("127.0.0.1", 31805, "JSBSim");
+    varioSound = rsClient->getSound("C:\\src\\gitbase\\jsbsim\\fgaddon\\flightgear-fgaddon-r5985-trunk-Aircraft-Icaro_MRX13\\Sounds\\vario.wav");
     plugin = this;
     udp = nullptr;
 }
@@ -55,14 +57,15 @@ JSBSimPlugin::~JSBSimPlugin()
 {
     fprintf(stderr, "JSBSimPlugin::~JSBSimPlugin\n");
 
+    coVRNavigationManager::instance()->unregisterNavigationProvider(this);
     delete FDMExec;
     delete printCatalog;
     delete DebugButton;
     delete resetButton;
     delete upButton;
     delete JSBMenu;
+    delete rsClient;
 
-    coVRNavigationManager::instance()->unregisterNavigationProvider(this);
 
 }
 
@@ -537,9 +540,28 @@ JSBSimPlugin::update()
                             currentVelocity += diff * 0.1;
                         }
                     }
+                    float vSpeed = location.vUVW(3);
+                    float pitch = -vSpeed / 10.0;
+                    if (pitch < -1)
+                        pitch = -1;
+                    if (pitch > 1)
+                        pitch = 1;
+                    pitch = 0.8 + (pitch + 1.0) * 0.3;
+                    varioSound->setPitch(pitch);
+
+                    float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
+                    if (vol > 1.0)
+                        vol = 1.0;
+                    if (vol < 0.0)
+                        vol = 0.0;
+                    varioSound->setVolume(vol);
+                    if (vol > 1.0)
+                        vol = 1.0;
+
+
                     Winds->SetWindNED(currentVelocity.y(), currentVelocity.x(), -currentVelocity.z());
                     Winds->SetTurbGain(currentTurbulence);
-                    fprintf(stderr, "cv: %f\n", currentVelocity.z());
+                    //fprintf(stderr, "cv: %f\n", currentVelocity.z());
                     targetVelocity.set(WX->number(), WY->number(), WZ->number());
                     targetTurbulence = 0;
                 }
@@ -557,6 +579,11 @@ void JSBSimPlugin::setEnabled(bool flag)
     if (flag)
     {
         reset();
+        varioSound->play();
+    }
+    else
+    {
+        varioSound->stop();
     }
 }
 

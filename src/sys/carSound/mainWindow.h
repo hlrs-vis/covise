@@ -63,11 +63,11 @@ public:
     int UDPPort = 31804;
     QSocketNotifier* serverSN;
     const covise::ServerConnection* sConn = nullptr;
-    const covise::Connection* clientConn = nullptr;
     covise::ConnectionList connections;
     covise::Message* msg = nullptr;
     QTimer* m_periodictimer = nullptr;
     std::list<soundClient*>clients;
+    ClientSoundSample* currentSound = nullptr;
 
 private:
     static mainWindow *myInstance;
@@ -87,6 +87,15 @@ private slots:
     virtual void watchdog();
     virtual void startHupe();
     virtual void stopHupe();
+    void play() { if (currentSound) currentSound->start(); };
+    void stop() { if (currentSound) currentSound->stop(); };
+    void rewind() { if (currentSound) currentSound->rewind(); };
+    void volume(int v) 
+    {
+        if (currentSound) 
+            currentSound->volume(2*v/99.0); 
+    };
+    void pitch(int p) { if (currentSound) currentSound->pitch(0.7+(0.6*p/99.0)); };
 
 signals:
 };

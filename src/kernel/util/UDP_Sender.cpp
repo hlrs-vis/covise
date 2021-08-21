@@ -236,6 +236,7 @@ UDP_Sender::getIP(const char *hostname)
     // try dot notation
 
 	struct in_addr v4;
+    v4.s_addr = INADDR_NONE;
 	int err = inet_pton(AF_INET, hostname, &v4);
     if (v4.s_addr != INADDR_NONE)
         return (v4.s_addr);

@@ -397,4 +397,9 @@
 #define SCAEXPORT COIMPORT
 #endif
 
+#if defined(RS_EXPORT) || defined(COVISE_RS)
+#define RSEXPORT COEXPORT
+#else
+#define RSEXPORT COIMPORT
+#endif
 #endif

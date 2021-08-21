@@ -62,6 +62,10 @@ IF(COMMAND cmake_policy)
        cmake_policy(SET CMP0043 NEW)
     endif()
 
+    if (POLICY CMP0048)
+        cmake_policy(SET CMP0048 NEW)
+    endif()
+	
     if(POLICY CMP0054)
        # in if()'s, only deref unquoted variable names
        cmake_policy(SET CMP0054 NEW)
@@ -71,6 +75,11 @@ IF(COMMAND cmake_policy)
         # make find_include/find_library search in <PackageName>_ROOT prefix
         cmake_policy(SET CMP0074 NEW)
     endif()
+	
+    if (POLICY CMP0086)
+        cmake_policy(SET CMP0086 NEW)
+    endif()
+	
 ENDIF()
 endmacro(covise_cmake_policy)
 

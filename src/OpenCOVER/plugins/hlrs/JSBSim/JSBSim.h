@@ -42,6 +42,8 @@
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
 
+#include <rsClient/remoteSoundClient.h>
+
 class UDPComm;
 
 using JSBSim::FGXMLFileRead;
@@ -75,6 +77,7 @@ private:
     ui::EditField* WX;
     ui::EditField* WY;
     ui::EditField* WZ;
+    remoteSound::Client* rsClient;
 
     SGPath RootDir;
     SGPath ScriptName;
@@ -149,6 +152,7 @@ private:
     float currentTurbulence;
     osg::Vec3 targetVelocity;
     float targetTurbulence;
+    remoteSound::Sound* varioSound;
 };
 
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild

@@ -12,5 +12,5 @@ SET(SOURCES
 )
 include_directories("../../drivingsim/SteeringWheel")
 cover_add_plugin(JSBSim)
-TARGET_LINK_LIBRARIES(JSBSim)
+TARGET_LINK_LIBRARIES(JSBSim coRSClient)
 #COVER_INSTALL_PLUGIN(JSBSim)

@@ -165,7 +165,7 @@ int UDPComm::openReceivePort(int portnumber)
         return -1;
     }
 
-    fprintf(stderr, "portnumber: %d\n", portnumber);
+    //fprintf(stderr, "portnumber: %d\n", portnumber);
 
     // FILL SOCKET ADRESS STRUCTURE
     sockaddr_in any_adr;
@@ -176,7 +176,7 @@ int UDPComm::openReceivePort(int portnumber)
     any_adr.sin_addr.s_addr = htonl(INADDR_ANY); // accept data from anyone
 
     // BIND TO A LOCAL PROTOCOL PORT
-    fprintf(stderr, "UDPComm:: d_rsocket %d\n", d_rsocket);
+    //fprintf(stderr, "UDPComm:: d_rsocket %d\n", d_rsocket);
     if (bind(d_rsocket, (sockaddr *)&any_adr, sizeof(any_adr)) < 0)
     {
         strcpy(d_error,"UDPComm:: Could not bind to port");

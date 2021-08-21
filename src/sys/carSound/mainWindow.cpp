@@ -15,7 +15,7 @@
 #include "mmsystem.h"
 #include <QMessageBox>
 #include <QTimer>
-#include "remoteSound.h"
+#include "remoteSoundMessages.h"
 #include <config/CoviseConfig.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
@@ -53,7 +53,7 @@ bool mainWindow::handleClient(covise::Message* msg)
         {
             if (msg->conn == c->toClient)
             {
-                clients.remove(c);
+                connections.remove(c->toClient);
                 delete c;
                 break;
             }
@@ -63,7 +63,7 @@ bool mainWindow::handleClient(covise::Message* msg)
     covise::TokenBuffer tb(msg);
     switch (msg->type)
     {
-    case covise::COVISE_MESSAGE_TABLET_UI:
+    case covise::COVISE_MESSAGE_SOUND:
     {
         soundClient* currentClient = nullptr;
         for (const auto& c : clients)
@@ -82,17 +82,22 @@ bool mainWindow::handleClient(covise::Message* msg)
             {
             case SOUND_CLIENT_INFO:
             {
-                std::string IP;
-                std::string host;
+                std::string Application;
                 std::string user;
-                tb >> IP;
-                tb >> host;
+                std::string host;
+                std::string IP;
+                tb >> Application;
                 tb >> user;
-                currentClient->setClientInfo(IP, host, user);
+                tb >> host;
+                tb >> IP;
+                currentClient->setClientInfo(Application, user, host, IP);
                 break;
             }
             case SOUND_NEW_SOUND:
             {
+                std::string fileName;
+                tb >> fileName;
+                currentClient->addSound(fileName);
                 break;
             }
             case SOUND_DELETE_SOUND:
@@ -177,6 +182,59 @@ void mainWindow::dataReceived(int socket)
                 }
             }
         }
+        else if (msgType == TypeRemoteSoundDelay) // 
+        {
+            RemoteSoundDelayData* rsdd = (RemoteSoundDelayData*)rawBuffer;
+            for (const auto& c : clients)
+            {
+                for (const auto& s : c->sounds)
+                {
+                    if (s->ID == rsdd->soundID)
+                    {
+                        s->setDelay(rsdd->startValue, rsdd->endValue, rsdd->stopChannel);
+                        break;
+                    }
+                }
+            }
+        }
+        else if (msgType == TypeRemoteSound) // action and flot value
+        {
+            RemoteSoundData* rsd = (RemoteSoundData*)rawBuffer;
+            for (const auto& c : clients)
+            {
+                for (const auto& s : c->sounds)
+                {
+                    if (s->ID == rsd->soundID)
+                    {
+                        if (rsd->action == (unsigned char)remoteSoundActions::Stop)
+                        {
+                            s->stop();
+                        }
+                        else if (rsd->action == (unsigned char)remoteSoundActions::Start)
+                        {
+                            s->start();
+                        }
+                        else if (rsd->action == (unsigned char)remoteSoundActions::enableLoop)
+                        {
+                            s->loop(true,(int)rsd->value);
+                        }
+                        else if (rsd->action == (unsigned char)remoteSoundActions::disableLoop)
+                        {
+                            s->loop(false, 0);
+                        }
+                        else if (rsd->action == (unsigned char)remoteSoundActions::Volume)
+                        {
+                            s->volume(rsd->value);
+                        }
+                        else if (rsd->action == (unsigned char)remoteSoundActions::Pitch)
+                        {
+                            s->pitch(rsd->value);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 	eventsystem->update();
 }
@@ -206,8 +264,20 @@ void mainWindow::startAnlasser()
 void mainWindow::selectClient(QTreeWidgetItem*)
 {
 }
-void mainWindow::selectSound(QTreeWidgetItem*)
+void mainWindow::selectSound(QTreeWidgetItem *item)
 {
+    currentSound = nullptr;
+    for (const auto& c : clients)
+    {
+        for (const auto& s : c->sounds)
+        {
+            if (s->myItem == item)
+            {
+                currentSound = s;
+                break;
+            }
+        }
+    }
 }
 void mainWindow::startHupe()
 {
@@ -242,8 +312,7 @@ mainWindow::mainWindow(QWidget *parent)
 
     //clientTable->setFont(smallFont);
     QStringList labels;
-    labels << "Master"
-        << "ID"
+    labels << "ID"
         << "Application"
         << "User"
         << "Host"
@@ -253,6 +322,19 @@ mainWindow::mainWindow(QWidget *parent)
     clientTable->header()->resizeSections(QHeaderView::ResizeToContents);
     connect(clientTable, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
         this, SLOT(selectClient(QTreeWidgetItem*)));
+
+    QStringList soundLabels;
+    soundLabels << "ID"
+        << "State"
+        << "Client"
+        << "FileName"
+        << "Volume"
+        << "Pitch";
+    soundTable->setHeaderLabels(soundLabels);
+    soundTable->setMinimumSize(soundTable->sizeHint());
+    soundTable->header()->resizeSections(QHeaderView::ResizeToContents);
+    connect(soundTable, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+        this, SLOT(selectSound(QTreeWidgetItem*)));
 
     UDPPort = covise::coCoviseConfig::getInt("UDPPort", "RemoteSound", 31804);
     udpclient = new UDPComm(UDPPort);
@@ -265,6 +347,12 @@ mainWindow::mainWindow(QWidget *parent)
     QObject::connect(anlasserButton, SIGNAL(pressed()), this, SLOT(startAnlasser()));
     QObject::connect(hupeButton, SIGNAL(pressed()), this, SLOT(startHupe()));
     QObject::connect(hupeButton, SIGNAL(released()), this, SLOT(stopHupe()));
+
+    QObject::connect(playButton, SIGNAL(pressed()), this, SLOT(play()));
+    QObject::connect(stopButton, SIGNAL(pressed()), this, SLOT(stop()));
+    QObject::connect(rewindButton, SIGNAL(pressed()), this, SLOT(rewind()));
+    QObject::connect(volumeDial, SIGNAL(valueChanged(int)), this, SLOT(volume(int)));
+    QObject::connect(pitchDial, SIGNAL(valueChanged(int)), this, SLOT(pitch(int)));
 
     watchdogTimer = new QTimer(this);
     connect(watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdog()));
@@ -384,12 +472,6 @@ void mainWindow::closeServer()
         sConn = NULL;
     }
 
-    if (clientConn)
-    {
-        connections.remove(clientConn);
-        clientConn = NULL;
-    }
-
 }
 
 //------------------------------------------------------------------------
@@ -442,7 +524,7 @@ void mainWindow::processMessages()
             linger.l_onoff = 0;
             linger.l_linger = 0;
             setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger));
-            clientConn = connections.add(std::move(conn)); //add new connection;
+            const covise::Connection* clientConn = connections.add(std::move(conn)); //add new connection;
             soundClient *sc = new soundClient(clientConn);
             clients.push_back(sc);
         }
@@ -466,9 +548,8 @@ void mainWindow::processMessages()
 mainWindow *mainWindow::myInstance = NULL;
 mainWindow::~mainWindow()
 {
-    for (const auto& c : clients)
+    while (clients.size())
     {
-        delete c;
+        delete clients.front();
     }
-    clients.clear();
 }

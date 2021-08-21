@@ -36,6 +36,8 @@ CarSound::CarSound()
     {
         toCarSound = new UDPComm(port, hostname.c_str());
     }
+    sd.msgType = TypeCarSound;
+    ssd.msgType = TypeSimpleSound;
 }
 CarSound::~CarSound()
 {
@@ -64,44 +66,39 @@ void CarSound::setSpeed(float speed)
 }
 void CarSound::stop(enum SoundSource ss)
 {
-    char buf[2];
-    buf[0] = '\0';
-    buf[1] = (char)ss;
+    ssd.action = '\0';
+    ssd.soundNum = (char)ss;
     if (toCarSound)
-        toCarSound->send(&buf, 2);
+        toCarSound->send(&ssd, sizeof(ssd));
 }
 void CarSound::start(enum SoundSource ss)
 {
-    char buf[2];
-    buf[0] = '\1';
-    buf[1] = (char)ss;
+    ssd.action = '\1';
+    ssd.soundNum = (char)ss;
     if (toCarSound)
-        toCarSound->send(&buf, 2);
+        toCarSound->send(&ssd, sizeof(ssd));
 }
 void CarSound::continuePlaying(enum SoundSource ss)
 {
-    char buf[2];
-    buf[0] = '\2';
-    buf[1] = (char)ss;
+    ssd.action = '\2';
+    ssd.soundNum = (char)ss;
     if (toCarSound)
-        toCarSound->send(&buf, 2);
+        toCarSound->send(&ssd, sizeof(ssd));
 }
 void CarSound::loop(enum SoundSource ss, bool state)
 {
-    char buf[2];
     if (state)
-        buf[0] = '\3';
+        ssd.action = '\3';
     else
-        buf[0] = '\4';
-    buf[1] = (char)ss;
+        ssd.action = '\4';
+    ssd.soundNum = (char)ss;
     if (toCarSound)
-        toCarSound->send(&buf, 2);
+        toCarSound->send(&ssd, sizeof(ssd));
 }
 void CarSound::rewind(enum SoundSource ss)
 {
-    char buf[2];
-    buf[0] = '\5';
-    buf[1] = (char)ss;
+    ssd.action = '\5';
+    ssd.soundNum = (char)ss;
     if (toCarSound)
-        toCarSound->send(&buf, 2);
+        toCarSound->send(&ssd, sizeof(ssd));
 }

@@ -9,15 +9,10 @@
 #define CAR_SOUND_H
 
 #include <util/common.h>
+#include "../../../../sys/carSound/remoteSoundMessages.h"
 
 #include "UDPComm.h"
-struct SoundData
-{
-    float engineSpeed;
-    float carSpeed;
-    float torque;
-    float slip;
-};
+
 class CarSound
 {
 public:
@@ -42,7 +37,8 @@ public:
 private:
     CarSound();
     static CarSound *theInstance;
-    SoundData sd;
+    CarSoundData sd;
+    SimpleSoundData ssd;
     UDPComm *toCarSound;
 };
 
