@@ -97,14 +97,14 @@ Url::Url(const std::string &url)
     }
     if (it == url.end())
         return;
-    m_scheme = std::string(url.begin(), it);
-    ++it;
-
 #ifdef WIN32
     // probably just a drive letter, not a URL scheme
     if (it - url.begin() <= 1)
         return;
 #endif
+
+    m_scheme = std::string(url.begin(), it);
+    ++it;
 
     int numSlash = 0;
     auto authorityBegin = it;
