@@ -7,6 +7,8 @@
 #include <net/message_types.h>
 #include <util/UDP_Sender.h>
 
+#include <QtDebug>
+
 using namespace remoteSound;
 Client::Client(std::string hostname, int port, std::string a, std::string u)
 {

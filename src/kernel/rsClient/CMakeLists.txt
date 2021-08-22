@@ -9,7 +9,7 @@ SET(RSCLIENT_SOURCES
 SET(RSCLIENT_HEADERS
   remoteSoundClient.h
   remoteSound.h
-  ../../sys/CarSound/remoteSoundMessages.h
+  ../../sys/carSound/remoteSoundMessages.h
 )
 
 ADD_COVISE_LIBRARY(coRSClient ${COVISE_LIB_TYPE} ${RSCLIENT_SOURCES} ${RSCLIENT_HEADERS})
