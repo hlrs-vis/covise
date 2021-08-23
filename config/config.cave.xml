@@ -210,6 +210,9 @@
     <Multisample value="OFF" numSamples="4" numBuffers="2" mode="FASTEST" />
    <AnisotropicFiltering value="0" />
    <Plugin>
+    <Skateboard>
+        <Position x="0" y="0" />
+    </Skateboard>
     <COVERScript value="off"/>
     <Variant value="on"/>
     <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
