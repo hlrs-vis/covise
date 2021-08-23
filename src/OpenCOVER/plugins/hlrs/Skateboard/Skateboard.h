@@ -74,6 +74,10 @@ private:
     bool init();
     void MoveToFloor();
     float getYAccelaration();
+    float oldAngle = 0;
+    float wheelBase = 0.445;
+    osg::Matrix getBoardXMatrix();
+    osg::Matrix getBoardMatrix();
     virtual void setEnabled(bool);
     void updateThread();
 
@@ -87,6 +91,7 @@ private:
     osg::NodePath oldNodePath;
     osg::Matrix oldFloorMatrix;
     osg::Matrix TransformMat;
+    osg::Matrix SkateboardPos;
 };
 
 #endif /* Skateboard_H */

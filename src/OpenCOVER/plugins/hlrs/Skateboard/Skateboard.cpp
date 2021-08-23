@@ -17,6 +17,7 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
+#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 using namespace opencover;
 
 static float zeroAngle = 1152.;
@@ -33,7 +34,7 @@ Skateboard::Skateboard()
 	sbControl.cmd = 0;
 	sbControl.value = 0;
 
-        stepSizeUp=200;
+        stepSizeUp=2000;
         stepSizeDown=2000;
         coVRNavigationManager::instance()->registerNavigationProvider(this);
 }
@@ -46,10 +47,21 @@ Skateboard::~Skateboard()
 bool Skateboard::init()
 {
 	delete udp;
+        float floorHeight = VRSceneGraph::instance()->floorHeight();
 
-	const std::string host = covise::coCoviseConfig::getEntry("value", "Skateboard.serverHost", "192.168.178.36");
-	unsigned short serverPort = covise::coCoviseConfig::getInt("Skateboard.serverPort", 31319);
-	unsigned short localPort = covise::coCoviseConfig::getInt("Skateboard.localPort", 31319);
+	const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.Skateboard.serverHost", "192.168.178.36");
+	unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.serverPort", 31319);
+	unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.localPort", 31319);
+        float x = covise::coCoviseConfig::getFloat("x","COVER.Plugin.Skateboard.Position", 0);
+        float y = covise::coCoviseConfig::getFloat("y","COVER.Plugin.Skateboard.Position", 0);
+        float z = covise::coCoviseConfig::getFloat("z","COVER.Plugin.Skateboard.Position", floorHeight);
+        float h = covise::coCoviseConfig::getFloat("h","COVER.Plugin.Skateboard.Position", 0);
+        float p = covise::coCoviseConfig::getFloat("p","COVER.Plugin.Skateboard.Position", 0);
+        float r = covise::coCoviseConfig::getFloat("r","COVER.Plugin.Skateboard.Position", 0);
+
+        MAKE_EULER_MAT(SkateboardPos, h,p,r);
+        SkateboardPos.postMultTranslate(osg::Vec3(x,y,z));
+        
 	std::cerr << "Skateboard config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
         bool ret = false;
 	if(coVRMSController::instance()->isMaster())
@@ -117,10 +129,9 @@ bool Skateboard::update()
         if (coVRMSController::instance()->isMaster())
         {
 	       double dT = cover->frameDuration();
-	       float wheelBase = 0.98;
 	       float v;
 	       osg::Vec3d normal = getNormal();
-	       fprintf(stderr, "normal(%f %f) %d\n", normal.x(), normal.y(), getButton());
+	       //fprintf(stderr, "normal(%f %f) %d\n", normal.x(), normal.y(), getButton());
 	       if (getButton() == 2)
 	       {
 		   speed += 0.01;
@@ -129,39 +140,44 @@ bool Skateboard::update()
 
                float a = getYAccelaration();
                speed += a * dT;
-               if(speed >= 0)
-               {
-	           speed += -1*0.05*normal.y();
+               speed -= 0.00003 * speed * speed * dT;
+
+               const int normalYShifted = normal.y() + 1;
+               if (getWeight() >= 10 && speed < 5.0f){
+                   if(normalYShifted < 0)
+	               speed += -0.03*normalYShifted;
                }
-               else if(normal.y() {
-	           speed -= -1*0.05*normal.y();
-               }
-	       if(speed > 5)
+
+               const int maxSpeed = 10;
+	       if(speed > maxSpeed)
 	       {
-		   speed = Z 05;
+		   speed = maxSpeed;
 	       }
-	       if(speed < -5)
+	       if(speed < -maxSpeed)
 	       {
-		   speed = -5;
+		   speed = -maxSpeed;
 	       }
 	       if (getWeight() < 10)
 	       {
-		   speed = 0;
+                   //speed -= a * dT;
+		   speed += (speed > 0 ? -1 : 1) * 0.1;
+                   if(fabs(speed) < 0.2)
+                       speed = 0;
 	       }
 	       v = speed;
+               //fprintf(stderr,"a: %f\n", a);
+	    //   fprintf(stderr,"v: %f \n",v );
 	       float s = v * dT;
 	       osg::Vec3 V(0, s, 0);
-	       wheelBase = 0.5;
 	       float rotAngle = 0.0;
-	       fprintf(stderr,"v: %f \n",v );
 	       if ((s < 0.0001 && s > -0.0001)) // straight
 	       {
 		   //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
 		   //fprintf(stderr,"V: %f %f %f\n",V[0], V[1], V[2] );
 	       }
-	       else
+	       else if (getWeight() >= 10)
 	       {
-		   float wheelAngle = normal.x()/-2.0;
+		   float wheelAngle = normal.x()/-4.0;
 		   float r = tan(M_PI_2 - wheelAngle * 0.2 / (((fabs(v) * 0.2) + 1))) * wheelBase;
 		   float u = 2.0 * r * M_PI;
 		   rotAngle = (s / u) * 2.0 * M_PI;
@@ -169,16 +185,15 @@ bool Skateboard::update()
 		   V[0] = (r - r * cos(rotAngle));
 	       }
 
+
 	       osg::Matrix relTrans;
 	       osg::Matrix relRot;
 	       relRot.makeRotate(-rotAngle, 0, 0, 1);
 	       relTrans.makeTranslate(V*-1000); // m to mm (move world in the opposite direction
 	       
-	       //fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
-	       TransformMat = TransformMat * relRot * relTrans ;
+               auto mat = getBoardMatrix();
 
-               fprintf(stderr,"a: %f\n", a);
-	       MoveToFloor();
+	       TransformMat = mat * relTrans * relRot;
        
        
             coVRMSController::instance()->sendSlaves((char *)TransformMat.ptr(), sizeof(TransformMat));
@@ -193,256 +208,130 @@ bool Skateboard::update()
     return false;
 }
 
+osgUtil::LineSegmentIntersector::Intersection getFirstIntersection(osg::ref_ptr<osg::LineSegment> ray, bool* haveISect){
+
+    //  just adjust height here
+
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector;
+    intersector = coIntersection::instance()->newIntersector(ray->start(), ray->end());
+    igroup->addIntersector(intersector);
+
+    osgUtil::IntersectionVisitor visitor(igroup);
+    visitor.setTraversalMask(Isect::Walk);
+    VRSceneGraph::instance()->getTransform()->accept(visitor);
+
+    *haveISect = intersector->containsIntersections();
+    if(!*haveISect){
+        return {};
+    }
+
+    return intersector->getFirstIntersection();
+}
+
+osg::Matrix Skateboard::getBoardMatrix(){
+    float wheelDis = wheelBase*1000.0;
+    osg::Vec3 pos = SkateboardPos.getTrans();
+    osg::Vec3d y{SkateboardPos(1, 0), SkateboardPos(1, 1), SkateboardPos(1, 2)};
+    osg::Vec3 rearPos = pos + y * -wheelDis;
+
+
+    osg::ref_ptr<osg::LineSegment> rayFront;
+    {
+	    // down segment
+	    osg::Vec3 p0, q0;
+	    p0.set(pos[0], pos[1], pos[2] + stepSizeUp);
+	    q0.set(pos[0], pos[1], pos[2] - stepSizeDown);
+
+	    rayFront = new osg::LineSegment(p0, q0);
+    }
+    osg::ref_ptr<osg::LineSegment> rayBack;
+	{
+	    // down segment
+	    osg::Vec3 p0, q0;
+            
+	    p0.set(rearPos[0], rearPos[1], rearPos[2] + stepSizeUp);
+	    q0.set(rearPos[0], rearPos[1], rearPos[2] - stepSizeDown);
+
+	    rayBack = new osg::LineSegment(p0, q0);
+	}
+    bool intersects;
+    auto front = getFirstIntersection(rayFront, &intersects);
+    if(!intersects){
+        return TransformMat;
+    }
+    auto back = getFirstIntersection(rayBack, &intersects);
+    if(!intersects){
+        return TransformMat;
+    }
+
+    auto frontNormal = front.getWorldIntersectNormal();
+    frontNormal.normalize();
+    auto backNormal = back.getWorldIntersectNormal();
+    backNormal.normalize();
+    //fprintf(stderr,"f %f \n",frontNormal*osg::Vec3(0,0,1));
+    //fprintf(stderr,"b %f \n",backNormal*osg::Vec3(0,0,1) );
+    if(frontNormal*osg::Vec3(0,0,1) < 0.2)
+        return TransformMat;
+    if(backNormal*osg::Vec3(0,0,1) < 0.2)
+        return TransformMat;
+
+    osg::Vec3d newY = front.getWorldIntersectPoint() - back.getWorldIntersectPoint();
+    newY.normalize();
+    osg::Vec3d newX = newY ^ frontNormal;
+    newX.normalize();
+    osg::Vec3d newZ = newX ^ newY;
+    newZ.normalize();
+
+    osg::Vec3d translation = front.getWorldIntersectPoint();
+
+    osg::Matrix newMatrix;
+
+    newMatrix(0,0) = newX.x();
+    newMatrix(0,1) = newX.y();
+    newMatrix(0,2) = newX.z();
+
+    newMatrix(1,0) = newY.x();
+    newMatrix(1,1) = newY.y();
+    newMatrix(1,2) = newY.z();
+
+    newMatrix(2,0) = newZ.x();
+    newMatrix(2,1) = newZ.y();
+    newMatrix(2,2) = newZ.z();
+    
+    newMatrix = newMatrix * osg::Matrix::translate(translation);
+    
+    osg::Matrix Nn = newMatrix;
+    osg::Matrix invNn;
+    invNn.invert(Nn);
+
+    osg::Matrix NewTransform = TransformMat * invNn * SkateboardPos;
+    osg::Vec3d z{NewTransform(2,0), NewTransform(2, 1), NewTransform(2, 2)};
+    //fprintf(stderr,"z %f \n",z*osg::Vec3(0,0,1));
+    if(z*osg::Vec3(0,0,1) < 0.2)
+        return TransformMat;
+     
+    return  NewTransform;
+}
+
+
 float Skateboard::getYAccelaration()
 {
-    float floorHeight = VRSceneGraph::instance()->floorHeight();
+    osg::Vec3d x{TransformMat(0, 0), TransformMat(0, 1), TransformMat(0, 2)};
+    x.normalize();
+    osg::Vec3d y{TransformMat(1, 0), TransformMat(1, 1), TransformMat(1, 2)};
+    y.normalize();
+    osg::Vec3d z_yz{0, TransformMat(2, 1), TransformMat(2, 2)};
+    z_yz.normalize();
 
-    //  just adjust height here
-
-    osg::Matrix viewer = cover->getViewerMat();
-    osg::Vec3 pos = viewer.getTrans();
-
-    // down segment
-    osg::Vec3 p0, q0;
-    p0.set(pos[0], pos[1], floorHeight + stepSizeUp);
-    q0.set(pos[0], pos[1], floorHeight - stepSizeDown);
-
-    osg::ref_ptr<osg::LineSegment> ray[2];
-    ray[0] = new osg::LineSegment(p0, q0);
-
-    // down segment 2
-    p0.set(pos[0], pos[1] + 10, floorHeight + stepSizeUp);
-    q0.set(pos[0], pos[1] + 10, floorHeight - stepSizeDown);
-    ray[1] = new osg::LineSegment(p0, q0);
-
-    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[2];
-    for (int i=0; i<2; ++i)
-    {
-        intersectors[i] = coIntersection::instance()->newIntersector(ray[i]->start(), ray[i]->end());
-        igroup->addIntersector(intersectors[i]);
-    }
-
-    osgUtil::IntersectionVisitor visitor(igroup);
-    visitor.setTraversalMask(Isect::Walk);
-    VRSceneGraph::instance()->getTransform()->accept(visitor);
-
-    bool haveIsect[2];
-    for (int i=0; i<2; ++i)
-        haveIsect[i] = intersectors[i]->containsIntersections();
-    if (!haveIsect[0] && !haveIsect[1])
-    {
-        return 0.0f;
-    }
-
-    osg::Node *floorNode = NULL;
-
-    osgUtil::LineSegmentIntersector::Intersection isect;
-    if (haveIsect[0])
-    {
-        isect = intersectors[0]->getFirstIntersection();
-    }
-    if (haveIsect[1])
-    {
-        isect = intersectors[1]->getFirstIntersection();
-    }
-
-    auto n = isect.getWorldIntersectNormal();
-    //n = osg::Matrix::transform3x3(n,TransformMat);
-    n.normalize();
-    fprintf(stderr,"n: %f %f %f\n",n.x(), n.y(), n.z());
-/*
-    auto g = osg::Vec3(0, 0, -9.81); 
-    osg::Matrix invTrans = TransformMat.invert();
-    n *= invTrans;
-    n.normalize();
-    fprintf(stderr,"n: %f %f %f\n",n.x(), n.y(), n.z());
-    osg::Vec3 rotN = osg::Vec3(n.x(), -n.z(), n.y());
-    auto downDir = rotN * (rotN * g);
-    fprintf(stderr,"d: %f %f %f\n",downDir.x(), downDir.y(), downDir.z());
-    osg::Vec3 dir;
-    return downDir * dir;
-*/
-    osg::Vec2 n2D{n.y(), n.z()};
-    osg::Vec2 rotN{n2D.y(), -n2D.x()};
-    rotN.normalize();
-    osg::Vec2 g{0, -9.81};
-    return g * rotN;
+    float cangle = 1.0 - z_yz * osg::Vec3(0, 0, 1);
+    if(z_yz[1]>0  )
+        cangle *= -1;
+    //fprintf(stderr,"z_yz %f x0 %f sprod: %f\n",z_yz[1],x[0],cangle);
+    float a = cangle * 9.81;
+    return a;
 }
-void Skateboard::MoveToFloor()
-{
-    float floorHeight = VRSceneGraph::instance()->floorHeight();
 
-    //  just adjust height here
-
-    osg::Matrix viewer = cover->getViewerMat();
-    osg::Vec3 pos = viewer.getTrans();
-
-    // down segment
-    osg::Vec3 p0, q0;
-    p0.set(pos[0], pos[1], floorHeight + stepSizeUp);
-    q0.set(pos[0], pos[1], floorHeight - stepSizeDown);
-
-    osg::ref_ptr<osg::LineSegment> ray[2];
-    ray[0] = new osg::LineSegment(p0, q0);
-
-    // down segment 2
-    p0.set(pos[0], pos[1] + 10, floorHeight + stepSizeUp);
-    q0.set(pos[0], pos[1] + 10, floorHeight - stepSizeDown);
-    ray[1] = new osg::LineSegment(p0, q0);
-
-    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[2];
-    for (int i=0; i<2; ++i)
-    {
-        intersectors[i] = coIntersection::instance()->newIntersector(ray[i]->start(), ray[i]->end());
-        igroup->addIntersector(intersectors[i]);
-    }
-
-    osgUtil::IntersectionVisitor visitor(igroup);
-    visitor.setTraversalMask(Isect::Walk);
-    VRSceneGraph::instance()->getTransform()->accept(visitor);
-
-    bool haveIsect[2];
-    for (int i=0; i<2; ++i)
-        haveIsect[i] = intersectors[i]->containsIntersections();
-    if (!haveIsect[0] && !haveIsect[1])
-    {
-        oldFloorNode = NULL;
-        return;
-
-    }
-
-    osg::Node *floorNode = NULL;
-
-    float dist = FLT_MAX;
-    osgUtil::LineSegmentIntersector::Intersection isect;
-    if (haveIsect[0])
-    {
-        isect = intersectors[0]->getFirstIntersection();
-        dist = isect.getWorldIntersectPoint()[2] - floorHeight;
-        floorNode = isect.nodePath.back();
-    }
-    if (haveIsect[1] && fabs(intersectors[1]->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-    {
-        isect = intersectors[1]->getFirstIntersection();
-        dist = isect.getWorldIntersectPoint()[2] - floorHeight;
-        floorNode = isect.nodePath.back();
-    }
-
-    //  get xform matrix
-    osg::Matrix dcs_mat = TransformMat;
-
-    if (floorNode && floorNode == oldFloorNode)
-    {
-        // we are walking on the same object as last time so move with the object if it is moving
-        osg::Matrix modelTransform;
-        modelTransform.makeIdentity();
-        int on = oldNodePath.size() - 1;
-        bool notSamePath = false;
-        for (int i = isect.nodePath.size() - 1; i >= 0; i--)
-        {
-            osg::Node*n = isect.nodePath[i];
-            if (n == cover->getObjectsRoot())
-                break;
-            osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
-            if (t != NULL)
-            {
-                modelTransform = modelTransform * t->getMatrix();
-            }
-            // check if this is really the same object as it could be a reused object thus compare the whole NodePath
-            // instead of just the last node
-            if (on < 0 || n != oldNodePath[on])
-            {
-                //oops, not same path
-                notSamePath = true;
-            }
-            on--;
-        }
-        if (notSamePath)
-        {
-            oldFloorMatrix = modelTransform;
-            oldFloorNode = floorNode;
-            oldNodePath = isect.nodePath;
-        }
-        else if (modelTransform != oldFloorMatrix)
-        {
-
-            //osg::Matrix iT;
-            osg::Matrix iS;
-            osg::Matrix S;
-            osg::Matrix imT;
-            //iT.invert_4x4(dcs_mat);
-            float sf = cover->getScale();
-            S.makeScale(sf, sf, sf);
-            sf = 1.0 / sf;
-            iS.makeScale(sf, sf, sf);
-            imT.invert_4x4(modelTransform);
-            dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
-            oldFloorMatrix = modelTransform;
-            // set new xform matrix
-            VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-            // now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
-            //
-            VRSceneGraph::instance()->getTransform()->accept(visitor);
-
-            osgUtil::IntersectionVisitor visitor(igroup);
-            igroup->reset();
-            visitor.setTraversalMask(Isect::Walk);
-            VRSceneGraph::instance()->getTransform()->accept(visitor);
-
-            for (int i=0; i<2; ++i)
-                haveIsect[i] = intersectors[i]->containsIntersections();
-            dist = FLT_MAX;
-            if (haveIsect[0])
-            {
-                isect = intersectors[0]->getFirstIntersection();
-                dist = isect.getWorldIntersectPoint()[2] - floorHeight;
-                floorNode = isect.nodePath.back();
-            }
-            if (haveIsect[1] && fabs(intersectors[1]->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-            {
-                isect = intersectors[1]->getFirstIntersection();
-                dist = isect.getWorldIntersectPoint()[2] - floorHeight;
-                floorNode = isect.nodePath.back();
-            }
-        }
-    }
-
-
-    //  apply translation , so that isectPt is at floorLevel
-    osg::Matrix tmp;
-    tmp.makeTranslate(0, 0, -dist);
-    dcs_mat.postMult(tmp);
-
-    TransformMat = dcs_mat;
-
-    if ((floorNode != oldFloorNode) && !isect.nodePath.empty())
-    {
-        osg::Matrix modelTransform;
-        modelTransform.makeIdentity();
-        for (int i = isect.nodePath.size() - 1; i >= 0; i--)
-        {
-            osg::Node*n = isect.nodePath[i];
-            if (n == cover->getObjectsRoot())
-                break;
-            osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
-            if (t != NULL)
-            {
-                modelTransform = modelTransform * t->getMatrix();
-            }
-        }
-        oldFloorMatrix = modelTransform;
-        oldNodePath = isect.nodePath;
-    }
-
-    oldFloorNode = floorNode;
-
-    // do not sync with remote, they will do the same
-    // on their side SyncXform();
-	
-    // coVRCollaboration::instance()->SyncXform();
-}
 void Skateboard::setEnabled(bool flag)
 {
     coVRNavigationProvider::setEnabled(flag);
