@@ -5,6 +5,10 @@
 #include <net/tokenbuffer.h>
 #include <util/UDP_Sender.h>
 
+#ifndef _M_CEE //no future in Managed OpenCOVER
+#include <future>
+#endif
+
 namespace covise
 {
     class ClientConnection;
@@ -22,8 +26,10 @@ namespace remoteSound
     public:
         Client(std::string hostname, int port, std::string Application, std::string user="");
         ~Client();
-        bool connectToServer(std::string hostname, int port);
+        bool connectToServer();
+        bool completeConnection();
         Sound* getSound(const std::string filename);
+        void update();
 
         bool isConnected();
         bool send(covise::TokenBuffer& tb);
@@ -32,11 +38,20 @@ namespace remoteSound
         covise::UDP_Sender *udpSender;
 
 
+        std::list<remoteSound::Sound*> sounds;
     private:
-        std::unique_ptr<covise::ClientConnection> sConn; // tcp connection to Server
+        std::unique_ptr<covise::ClientConnection> sConn=nullptr; // tcp connection to Server
         covise::Host* serverHost = nullptr;
+        std::string hostname;
+        int port;
         std::string Application;
         std::string user;
         bool sendMessage(const covise::Message* m) const;
+
+        std::mutex connMutex;
+#ifndef _M_CEE //no future in Managed OpenCOVER
+        std::future<std::unique_ptr<covise::ClientConnection>> connFuture;
+#endif
+        std::atomic_bool m_shutdown{ false };
     };
 }

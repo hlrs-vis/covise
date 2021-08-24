@@ -39,6 +39,11 @@ JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigationProvider("Paraglider", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
+
+    remoteSoundServer = coCoviseConfig::getEntry("server", "COVER.Plugin.JSBSim.Sound", "localhost");
+    remoteSoundPort = coCoviseConfig::getInt("port", "COVER.Plugin.JSBSim.Sound", 31805);
+    VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", "C:\\src\\gitbase\\jsbsim\\fgaddon\\flightgear-fgaddon-r5985-trunk-Aircraft-Icaro_MRX13\\Sounds\\vario.wav");
+    WindSound = coCoviseConfig::getEntry("wind", "COVER.Plugin.JSBSim.Sound", "C:\\src\\gitbase\\jsbsim\\fgaddon\\flightgear-fgaddon-r5985-trunk-Aircraft-Icaro_MRX13\\Sounds\\vario.wav");
 #if defined(_MSC_VER)
     // _clearfp();
     // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
@@ -47,8 +52,11 @@ JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigati
     feenableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 
-    rsClient = new remoteSound::Client("127.0.0.1", 31805, "JSBSim");
-    varioSound = rsClient->getSound("C:\\src\\gitbase\\jsbsim\\fgaddon\\flightgear-fgaddon-r5985-trunk-Aircraft-Icaro_MRX13\\Sounds\\vario.wav");
+    rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
+    varioSound = rsClient->getSound(VarioSound);
+    windSound = rsClient->getSound(WindSound);
+    varioSound->setLoop(true, -1);
+    windSound->setLoop(true, -1);
     plugin = this;
     udp = nullptr;
 }
@@ -426,6 +434,7 @@ bool
 JSBSimPlugin::update()
 {
     updateUdp();
+    rsClient->update();
 
     if (isEnabled())
     {

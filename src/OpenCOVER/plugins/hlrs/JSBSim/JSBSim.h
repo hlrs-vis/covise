@@ -153,6 +153,11 @@ private:
     osg::Vec3 targetVelocity;
     float targetTurbulence;
     remoteSound::Sound* varioSound;
+    remoteSound::Sound* windSound;
+    std::string remoteSoundServer;
+    int remoteSoundPort;
+    std::string VarioSound;
+    std::string WindSound;
 };
 
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild

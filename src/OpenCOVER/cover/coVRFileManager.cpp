@@ -563,7 +563,7 @@ osg::Node *LoadedFile::load()
         {
             osg::Group *g = new osg::Group();
             node = g;
-            for (int i = 0; i < n; ++i)
+            for (unsigned int i = 0; i < n; ++i)
             {
                 g->addChild(fakeParent->getChild(i));
             }
