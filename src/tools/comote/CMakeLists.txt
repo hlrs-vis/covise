@@ -87,3 +87,4 @@ TARGET_LINK_LIBRARIES(comote
   ${JPEGTURBO_LIBRARIES}
   ${OPENGL_LIBRARIES}
 )
+target_include_directories(comote PRIVATE coQtUtil)

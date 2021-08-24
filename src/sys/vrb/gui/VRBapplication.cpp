@@ -17,25 +17,26 @@
 #include <net/tokenbuffer.h>
 #include "VRBServer.h"
 
+#include <QFrame>
+#include <QHeaderView>
 #include <QImage>
+#include <QLabel>
+#include <QListWidgetItem>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QPixmap>
+#include <QSignalMapper>
+#include <QSplitter>
+#include <QStyleFactory>
+#include <QTextEdit>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
-#include <QMenuBar>
-#include <QSplitter>
-#include <QWidget>
-#include <QFrame>
-#include <QTimer>
-#include <QLabel>
-#include <QMessageBox>
 #include <QTreeWidget>
-#include <QListWidgetItem>
-#include <QSignalMapper>
-#include <QStyleFactory>
 #include <QWhatsThis>
-#include <QHeaderView>
+#include <QWidget>
+#include <qtutil/Qt5_15_deprecated.h>
 //#include <QAccel>
-#include <QTextEdit>
 
 #include "icons/filenew.xpm"
 #include "icons/fileopen.xpm"
@@ -293,7 +294,7 @@ void ApplicationWindow::createTabWidget(QSplitter *split)
 
         curve[j] = new VRBCurve(wtab[0]);
         curve[j]->setLabel(text);
-        grid[0]->addWidget(curve[j], row, 0, 1, 2, 0);
+        grid[0]->addWidget(curve[j], row, 0, 1, 2, Qt::AlignVCenter);
         row++;
     }
 
@@ -389,7 +390,7 @@ void ApplicationWindow::createCurves(VrbUiClient *vrb)
         vrb->myLabels[j * 2 + 1] = text;
         curve->setClient(vrb);
         curve->setLabel(text);
-        grid[j + 1]->addWidget(curve, currRow + 1, 0, 1, 2, 0);
+        grid[j + 1]->addWidget(curve, currRow + 1, 0, 1, 2, Qt::AlignVCenter);
         curve->run();
     }
 

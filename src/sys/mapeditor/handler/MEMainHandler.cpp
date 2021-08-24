@@ -555,7 +555,7 @@ void MEMainHandler::readConfigFile()
                     << "LightPink";
 
     else
-        m_hostColor = serv.split(' ', QString::SkipEmptyParts);
+        m_hostColor = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
     // get favorite list
     serv = mapConfig->getValue("System.MapEditor.General.FavoritesList");
@@ -572,20 +572,20 @@ void MEMainHandler::readConfigFile()
     }
 
     else
-        flist = serv.split(' ', QString::SkipEmptyParts);
+        flist = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
     MEFavoriteListHandler::instance()->storeFavoriteList(flist);
 
     // read module history
     serv = mapConfig->getValue("System.MapEditor.General.ModuleHistory");
     if (!serv.isNull())
-        moduleHistory = serv.split(' ', QString::SkipEmptyParts);
+        moduleHistory = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
     // read network history
     serv = mapConfig->getValue("System.MapEditor.General.NetworkHistory");
     if (!serv.isNull())
     {
-        networkHistory = serv.split(' ', QString::SkipEmptyParts);
+        networkHistory = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
         foreach (QString tmp, networkHistory)
         {
             QAction *ac = new QAction(tmp, 0);

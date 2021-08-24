@@ -1,5 +1,5 @@
 #include <vrcwhsensbindex.h>
-
+#include <qtutil/Qt5_15_deprecated.h>
 
 /*****
  * constructor - destructor
@@ -61,7 +61,7 @@ QString VRCWHSensBIndex::getGuiButtonDevice() const
    if (bDev == OTHER)
    {
       QStringList bDevList = ui.buttonDevLineEdit->text().split(
-            QRegExp("\\s+"), QString::SkipEmptyParts);
+            QRegExp("\\s+"), SplitBehaviorFlags::SkipEmptyParts);
 
       //we only use the first entry
       if (bDevList.isEmpty())

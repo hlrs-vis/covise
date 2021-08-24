@@ -20,14 +20,14 @@
 \****************************************************************************/
 
 #include "ReadCommandPlugin.h"
-#include <cover/coVRPluginSupport.h>
+#include <QTextStream>
 #include <cover/OpenCOVER.h>
+#include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRNavigationManager.h>
-#include <cover/VRSceneGraph.h>
-
-#include <QTextStream>
+#include <cover/coVRPluginSupport.h>
+#include <qtutil/Qt5_15_deprecated.h>
 
 ReadCommandPlugin::ReadCommandPlugin()
     : keepRunning(true)
@@ -55,7 +55,7 @@ void ReadCommandPlugin::run()
         if (!input.isNull())
         {
             lock.lock();
-            ostream << "ReadCommandPlugin::preFrame info: got command \"" << input << "\"" << endl;
+            ostream << "ReadCommandPlugin::preFrame info: got command \"" << input << "\"" << QT::endl;
             queue.append(input);
             lock.unlock();
         }

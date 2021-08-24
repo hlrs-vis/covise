@@ -7,6 +7,7 @@
 
 
 #include <QSlider>
+#include <qtutil/Qt5_15_deprecated.h>
 
 #include "MEIntSliderPort.h"
 #include "MELineEdit.h"
@@ -125,7 +126,7 @@ void MEIntSliderPort::defineParam(QString svalue, int apptype)
 
 #else
 
-    QStringList list = svalue.split(" ", QString::SkipEmptyParts);
+    QStringList list = svalue.split(" ", SplitBehaviorFlags::SkipEmptyParts);
 
     m_min = list[0].toLong();
     m_max = list[1].toLong();

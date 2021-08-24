@@ -187,7 +187,7 @@ void MEMaterialChooser::convertValue(const QString &name, const QString &value, 
 {
     covise::coConfig *config = covise::coConfig::getInstance();
     QString text = config->getString(value, name, def);
-    QStringList list = text.split(' ', QString::SkipEmptyParts);
+    QStringList list = text.split(' ', SplitBehaviorFlags::SkipEmptyParts);
     data.append(list[0].toFloat());
     data.append(list[1].toFloat());
     data.append(list[2].toFloat());

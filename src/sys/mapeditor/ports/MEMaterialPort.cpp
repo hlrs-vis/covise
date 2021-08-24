@@ -100,7 +100,7 @@ void MEMaterialPort::defineParam(QString value, int apptype)
 #else
 
     // define a material
-    QStringList list = value.split(' ', QString::SkipEmptyParts);
+    QStringList list = value.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
     m_name = list[0];
     for (int j = 1; j < list.size(); j++)
@@ -131,7 +131,7 @@ void MEMaterialPort::modifyParameter(QString lvalue)
 
 #else
 
-    QStringList list = lvalue.split(' ', QString::SkipEmptyParts);
+    QStringList list = lvalue.split(' ', SplitBehaviorFlags::SkipEmptyParts);
     m_name = list[0];
 
     m_values.clear();

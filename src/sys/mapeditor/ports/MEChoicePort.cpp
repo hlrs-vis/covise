@@ -7,8 +7,9 @@
 
 
 
-#include <QHBoxLayout>
 #include <QDebug>
+#include <QHBoxLayout>
+#include <qtutil/Qt5_15_deprecated.h>
 
 #include "MEChoicePort.h"
 #include "MELineEdit.h"
@@ -85,7 +86,7 @@ void MEChoicePort::defineParam(QString value, int apptype)
 
     // choices - send only current index of list
     // choices - send the complete list
-    QStringList list = value.split(" ", QString::SkipEmptyParts);
+    QStringList list = value.split(" ", SplitBehaviorFlags::SkipEmptyParts);
     int count = list.count();
 
     // current index to choice list

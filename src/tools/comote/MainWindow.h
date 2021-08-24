@@ -11,6 +11,7 @@
 #define MAIN_WINDOW_H
 
 #include <QMainWindow>
+#include <qtutil/Qt5_15_deprecated.h>
 
 #include "ui_MainWindow.h"
 
@@ -22,8 +23,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+#ifdef QT_5_DEPRECATED
+    MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags{});
+#else
     MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
-
+#endif
     virtual ~MainWindow();
 
 protected:

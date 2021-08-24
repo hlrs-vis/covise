@@ -118,7 +118,7 @@ void MEColorMapPort::defineParam(QString value, int apptype)
     m_colorMap = new MEColorMap(this, 0);
 
     // fill colormap
-    QStringList list = value.split(' ', QString::SkipEmptyParts);
+    QStringList list = value.split(' ', SplitBehaviorFlags::SkipEmptyParts);
     if (list[2] == "RGBAX")
     {
         int numSteps = list[3].toInt();
@@ -198,7 +198,7 @@ void MEColorMapPort::modifyParam(QStringList list, int noOfValues, int istart)
             {
                 for (int i = 0; i < cmapSteps; i++)
                 {
-                    QStringList item = list[istart + 4 + i].split(QRegExp("\\s+"), QString::SkipEmptyParts);
+                    QStringList item = list[istart + 4 + i].split(QRegExp("\\s+"), SplitBehaviorFlags::SkipEmptyParts);
                     for (int j = 0; j < 5; j++)
                     {
                         if (j < item.count())

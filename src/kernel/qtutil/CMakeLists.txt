@@ -8,6 +8,7 @@ set(QTUTIL_HEADERS
     FileSysAccess.h
     NetHelp.h
     NonBlockingDialogue.h
+    Qt5_15_deprecated.h
 )
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

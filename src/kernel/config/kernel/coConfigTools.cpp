@@ -33,7 +33,7 @@ bool coConfigTools::matchingHost(const QString *host)
     if (coConfigConstants::getHostname().isEmpty())
         return true;
 
-    QStringList hosts = host->split(',', QString::SkipEmptyParts);
+    QStringList hosts = host->split(',', SplitBehaviorFlags::SkipEmptyParts);
     for (QStringList::iterator it = hosts.begin(); it != hosts.end(); ++it)
     {
         QString h = it->trimmed().toLower();
@@ -57,7 +57,7 @@ bool coConfigTools::matchingMaster(const QString *master)
     if (coConfigConstants::getMaster().isEmpty())
         return true;
 
-    QStringList masters = master->split(',', QString::SkipEmptyParts);
+    QStringList masters = master->split(',', SplitBehaviorFlags::SkipEmptyParts);
     for (QStringList::iterator it = masters.begin(); it != masters.end(); ++it)
     {
         QString m = it->trimmed().toLower();

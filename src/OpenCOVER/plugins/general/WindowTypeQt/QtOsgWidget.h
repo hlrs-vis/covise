@@ -14,7 +14,11 @@ class QtOsgWidget: public QOpenGLWidget
     Q_OBJECT
 
 public:
+#ifdef QT_5_DEPRECATED
+    QtOsgWidget(QWidget* parent=nullptr, Qt::WindowFlags f={});
+#else
     QtOsgWidget(QWidget* parent=nullptr, Qt::WindowFlags f=0);
+#endif
     virtual ~QtOsgWidget();
 
     osgViewer::GraphicsWindowEmbedded *graphicsWindow() const;

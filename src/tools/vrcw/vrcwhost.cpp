@@ -1,10 +1,11 @@
 #include "vrcwhost.h"
 
+#include <QHostAddress>
+#include <QHostInfo>
+#include <QItemSelectionModel>
 #include <QMessageBox>
 #include <algorithm>
-#include <QHostInfo>
-#include <QHostAddress>
-#include <QItemSelectionModel>
+#include <qtutil/Qt5_15_deprecated.h>
 
 #include "vrcwhostprojection.h"
 #include "vrcwtrackinghw.h"
@@ -163,7 +164,7 @@ execMode VRCWHost::getGuiExec() const
 QVector<QString> VRCWHost::readHostLineEdit() const
 {
    return ((ui.hostsLineEdit->text()).split(
-         QRegExp("\\s+"), QString::SkipEmptyParts)).toVector();
+         QRegExp("\\s+"), SplitBehaviorFlags::SkipEmptyParts)).toVector();
 }
 
 //OS-Version des Programms ausgeben

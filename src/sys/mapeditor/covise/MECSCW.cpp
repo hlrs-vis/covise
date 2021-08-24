@@ -333,7 +333,7 @@ void MECSCWParam::setDefaults(QString name)
     if (!line.empty())
     {
         text = line.c_str();
-        item = text.split(" ", QString::SkipEmptyParts);
+        item = text.split(" ", SplitBehaviorFlags::SkipEmptyParts);
         connectionModes->setCurrentIndex(connectionModes->findText(item[1]));
         timeout->setText(item[2]);
     }

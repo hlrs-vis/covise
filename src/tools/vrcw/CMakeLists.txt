@@ -102,7 +102,7 @@ qt_add_resources(RESOURCES
 
 add_covise_executable(VRConfWizard MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${UI_SOURCES} ${RESOURCES} ${MOC_SOURCES})
 qt_use_modules(VRConfWizard OpenGL Widgets Network Xml)
-
+target_include_directories(VRConfWizard PRIVATE coQtUtil)
 covise_install_target(VRConfWizard)
 
 target_link_libraries(VRConfWizard

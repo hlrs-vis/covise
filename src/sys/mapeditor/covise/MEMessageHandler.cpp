@@ -145,7 +145,7 @@ void MEMessageHandler::dataReceived(int)
             }
             else
             {
-                QStringList list = QString(msg->data.data()).split("\n", QString::SkipEmptyParts);
+                QStringList list = QString(msg->data.data()).split("\n", SplitBehaviorFlags::SkipEmptyParts);
 
 #if 0
             qDebug() << "Message received _________________________";
