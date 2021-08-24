@@ -1,6 +1,7 @@
 using(JSBSIM)
 using(VRML)
 USING(PROJ4)
+set (CMAKE_CXX_STANDARD 17)
 
 SET(HEADERS
     ../../drivingsim/SteeringWheel/UDPComm.h

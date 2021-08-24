@@ -32,6 +32,7 @@
 #include <stdlib.h>
 
 #include <vrml97/vrml/VrmlNamespace.h>
+#include <vrml97/vrml/VrmlNodeType.h>
 
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
