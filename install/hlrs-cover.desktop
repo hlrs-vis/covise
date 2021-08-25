@@ -7,6 +7,6 @@ GenericName=Virtual Environment Renderer
 Exec=opencover %u
 Comment=COVISE Virtual Environment Renderer
 Icon=hlrs-cover
-MimeType=model/vrml;
+MimeType=x-scheme-handler/cover;model/vrml;
 Terminal=false
 Categories=Qt;Graphics;Science;DataVisualization;
