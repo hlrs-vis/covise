@@ -1,4 +1,5 @@
-USING(Revit)
+#USING(Revit)
+cmake_minimum_required(VERSION 3.21)
 PROJECT(RevitPlugin CSharp)
 include(CSharpUtilities)
 

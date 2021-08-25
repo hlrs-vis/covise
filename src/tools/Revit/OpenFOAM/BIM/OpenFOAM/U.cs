@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// Represents velocity parameter in CFD-Simulation in OpenFOAM.
@@ -32,7 +32,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="_OutletNames">Patchnames of the outlets as string-array.</param>
         public U(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, Settings settings, List<string> _wallNames,
             List<string> _InletNames, List<string> _OutletNames, List<string> _SlipNames)
-            :base(version, path, attributes, format, settings, "U", "volVectorField", _wallNames, _InletNames, _OutletNames,_SlipNames)
+            : base(version, path, attributes, format, settings, "U", "volVectorField", _wallNames, _InletNames, _OutletNames, _SlipNames)
         {
         }
 

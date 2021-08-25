@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace BIM.OpenFOAMExport.OpenFOAMUI
+namespace OpenFOAMInterface.BIM.OpenFOAMUI
 {
     partial class OpenFOAMTextBoxForm
     {

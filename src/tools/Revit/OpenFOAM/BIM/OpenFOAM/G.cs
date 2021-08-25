@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// This class is for the parameter g file in constant folder.
@@ -23,7 +23,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="format">Ascii or Binary</param>
         /// <param name="settings">Settings-object</param>
         public G(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, Settings settings)
-            :base("g", "uniformDimensionedVectorField", version, path, attributes, format)
+            : base("g", "uniformDimensionedVectorField", version, path, attributes, format)
         {
             InitAttributes();
         }

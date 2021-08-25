@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
-namespace BIM.OpenFOAMExport.OpenFOAMUI
+namespace OpenFOAMInterface.BIM.OpenFOAMUI
 {
     /// <summary>
     /// A treeNode that is used to store values inside the node in a OpenFOAMTreeView.
@@ -98,7 +98,7 @@ namespace BIM.OpenFOAMExport.OpenFOAMUI
         public OpenFOAMTreeNode(string text, ref Settings _settings, List<string> _keyPath, T _value)
             : base(text)
         {
-            BIM.OpenFOAMExport.Exporter.Instance.settings = _settings;
+            Exporter.Instance.settings = _settings;
             m_KeyPath = new List<string>();
             foreach (string s in _keyPath)
             {
@@ -148,7 +148,7 @@ namespace BIM.OpenFOAMExport.OpenFOAMUI
             set
             {
                 m_Value = value;
-                BIM.OpenFOAMExport.Exporter.Instance.settings.UpdateSettingsEntry(m_KeyPath, m_Value);
+                Exporter.Instance.settings.UpdateSettingsEntry(m_KeyPath, m_Value);
             }
         }
     }

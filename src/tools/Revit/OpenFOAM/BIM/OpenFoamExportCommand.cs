@@ -5,24 +5,19 @@
 
  * License: LGPL 2+ */
 
-using System;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using utils;
-
-using Autodesk.Revit;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     /// <summary>
     /// Class OpenFOAMExportCommand is the entry of the AddIn program.
     /// </summary>
     [Regeneration(RegenerationOption.Manual)]
     [Transaction(TransactionMode.Manual)]
-    
+
     public class OpenFOAMExportCommand : IExternalCommand
     {
         /// <summary>
@@ -49,15 +44,15 @@ namespace BIM.OpenFOAMExport
         {
 
             m_Revit = commandData.Application;
-            BIM.OpenFOAMExport.Exporter.Instance.exportForm = new OpenFOAMExportForm(m_Revit);
-            BIM.OpenFOAMExport.Exporter.Instance.settings.setDocument(m_Revit);
+            Exporter.Instance.exportForm = new OpenFOAMExportForm(m_Revit);
+            Exporter.Instance.settings.setDocument(m_Revit);
 
             //for repeating click-events
-            System.Collections.IEnumerator iterator = System.Windows.Forms.Application.OpenForms.GetEnumerator();
-            while(iterator.MoveNext())
+            System.Collections.IEnumerator iterator = Application.OpenForms.GetEnumerator();
+            while (iterator.MoveNext())
             {
                 System.Windows.Forms.Form form = iterator.Current as System.Windows.Forms.Form;
-                if(form is OpenFOAMExportForm)
+                if (form is OpenFOAMExportForm)
                 {
                     return Result.Succeeded;
                 }
@@ -76,13 +71,13 @@ namespace BIM.OpenFOAMExport
                 return Result.Failed;
 
             System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-            System.Windows.Forms.Application.EnableVisualStyles();
+            Application.EnableVisualStyles();
             //exportForm.TopMost = true;
 
             //Start modal form with with responsive messageloop.
-            System.Windows.Forms.Application.Run(BIM.OpenFOAMExport.Exporter.Instance.exportForm);
+            Application.Run(Exporter.Instance.exportForm);
 
-            if (BIM.OpenFOAMExport.Exporter.Instance.exportForm.DialogResult == DialogResult.Cancel)
+            if (Exporter.Instance.exportForm.DialogResult == DialogResult.Cancel)
             {
                 return Result.Cancelled;
             }

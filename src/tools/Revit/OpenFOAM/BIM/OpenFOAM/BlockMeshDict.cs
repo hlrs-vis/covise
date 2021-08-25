@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// The BlockMeshDict-Class contains all attributes for blockMesh in Openfoam.

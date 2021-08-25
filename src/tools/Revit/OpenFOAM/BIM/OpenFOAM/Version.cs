@@ -4,7 +4,8 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-namespace BIM.OpenFOAMExport.OpenFOAM
+
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// Represents the OpenFoam-Version.
@@ -47,7 +48,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="env"></param>
         private void SetVersionsByEnv(OpenFOAMEnvironment env)
         {
-            if(env == OpenFOAMEnvironment.blueCFD)
+            if (env == OpenFOAMEnvironment.blueCFD)
             {
 
             }
@@ -84,8 +85,8 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 "|    \\\\/     M anipulation  |                                                 |\n" +
                 "\\*---------------------------------------------------------------------------*/\n" +
                 "/* Revit-OpenFOAM-Addin {1}                 *\\\n" +
-                "\\*---------------------------------------------------------------------------*/\n", 
-                version.OFFullVer, version.AddinVer); 
+                "\\*---------------------------------------------------------------------------*/\n",
+                version.OFFullVer, version.AddinVer);
         }
     }
 }

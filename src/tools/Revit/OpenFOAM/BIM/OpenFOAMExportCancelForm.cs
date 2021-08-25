@@ -6,15 +6,9 @@
  * License: LGPL 2+ */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     public partial class OpenFOAMExportCancelForm : Form
     {
@@ -44,7 +38,7 @@ namespace BIM.OpenFOAMExport
             m_CancelProcess = !m_CancelProcess;
 
             if (!m_CancelProcess)
-                this.Close();
+                Close();
         }
     }
 }

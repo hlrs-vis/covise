@@ -15,10 +15,9 @@ using System.Windows.Media.Media3D;
 using System.Windows.Forms;
 using System;
 using System.Linq;
-using BIM.OpenFOAMExport.OpenFOAM;
 using utils;
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     /// <summary>
     /// Properties of a duct terminal.
@@ -1438,8 +1437,6 @@ namespace BIM.OpenFOAMExport
             }
         }
 
-
-
         static public string getString(FamilyInstance familyInstance, string paramName)
         {
             IList<Parameter> parameters = familyInstance.GetParameters(paramName);
@@ -1452,7 +1449,7 @@ namespace BIM.OpenFOAMExport
         static public Vector3D getVector(FamilyInstance familyInstance, string paramName)
         {
             String s = getString(familyInstance, paramName);
-            List<double> vec = BIM.OpenFOAMExport.OpenFOAMUI.OpenFOAMTreeView.GetListFromVector3DString(s);
+            List<double> vec = OpenFOAMUI.OpenFOAMTreeView.GetListFromVector3DString(s);
             return new Vector3D(vec[0], vec[1], vec[2]);
 
         }
@@ -2059,17 +2056,17 @@ namespace BIM.OpenFOAMExport
         /// <returns>true, if BIMData used.</returns>
         private bool InitBIMData()
         {
-            if (BIM.OpenFOAMExport.Exporter.Instance.settings == null)
+            if (Exporter.Instance.settings == null)
             {
                 return false;
             }
 
             //get duct-terminals in active document
 
-            Autodesk.Revit.DB.View simulationView = BIM.OpenFOAMExport.Exporter.Instance.FindView(document, "Simulation");
+            Autodesk.Revit.DB.View simulationView = Exporter.Instance.FindView(document, "Simulation");
             if (simulationView == null)
             {
-                simulationView = BIM.OpenFOAMExport.Exporter.Instance.FindView(document, "{3D}");
+                simulationView = Exporter.Instance.FindView(document, "{3D}");
             }
             if (simulationView == null)
             {
@@ -2159,19 +2156,19 @@ namespace BIM.OpenFOAMExport
                     //...............................................
                     //for swirlFlowRateInletVelocity as type => -(faceNormal) = flowRate direction default => the value is positive inwards => -flowRate
                     DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea);
-                    BIM.OpenFOAMExport.Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
+                    Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
                     outletCount++;
                 }
                 else if (nameDuct.Contains("Zuluft") || nameDuct.Contains("Inlet"))
                 {
                     DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
-                    BIM.OpenFOAMExport.Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
+                    Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
                     inletCount++;
                 }
                 //AddDuctParameterToSettings(nameDuct, faceNormal, faceBoundary, surfaceArea, flowRate, meanFlowVelocity, staticPressure, rpm);
 
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_InletElements)
+            foreach (var entry in Exporter.Instance.settings.m_InletElements)
             {
                 FamilyInstance instance = entry as FamilyInstance;
                 string nameDuct = "Inlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -2186,10 +2183,10 @@ namespace BIM.OpenFOAMExport
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry); 
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
-                BIM.OpenFOAMExport.Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
+                Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
                 inletCount++;
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_OutletElements)
+            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
             {
                 FamilyInstance instance = entry as FamilyInstance;
                 string nameDuct = "Outlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -2204,12 +2201,12 @@ namespace BIM.OpenFOAMExport
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
-                BIM.OpenFOAMExport.Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
+                Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
                 outletCount++;
             }
 
-            BIM.OpenFOAMExport.Exporter.Instance.settings.InletCount = inletCount;
-            BIM.OpenFOAMExport.Exporter.Instance.settings.OutletCount = outletCount;
+            Exporter.Instance.settings.InletCount = inletCount;
+            Exporter.Instance.settings.OutletCount = outletCount;
 
             return true;
         }
@@ -3452,7 +3449,7 @@ namespace BIM.OpenFOAMExport
                             {
                                 //density of air at 20 degree and 1 bar in kg/m³ = 1.204
                                 //rho-normalized pressure
-                                OpenFOAMCalculator calculator = new OpenFOAMCalculator();
+                                OpenFOAM.OpenFOAMCalculator calculator = new();
                                 if (properties.ExternalPressure != 0)
                                 {
                                     v = -calculator.CalculateRhoNormalizedPressure(properties.ExternalPressure, 1.204);
@@ -3468,7 +3465,7 @@ namespace BIM.OpenFOAMExport
                             else if (param.Name.Equals(InitialFOAMParameter.p_rgh.ToString()))
                             {
                                 //p_rgh = p - rho*g*h => not implemented h => TO-DO: GET H 
-                                OpenFOAMCalculator calculator = new OpenFOAMCalculator();
+                                OpenFOAM.OpenFOAMCalculator calculator = new();
                                 if (properties.ExternalPressure != 0)
                                 {
                                     v = -calculator.CalculateRhoNormalizedPressure(properties.ExternalPressure, 1.204);
@@ -3643,7 +3640,7 @@ namespace BIM.OpenFOAMExport
         /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
         private KEpsilon CalculateKEpsilon(double area, double boundary, double meanFlowVelocity)
         {
-            OpenFOAMCalculator calculator = new OpenFOAMCalculator();
+            OpenFOAM.OpenFOAMCalculator calculator = new();
 
             double kinematicViscosity = calculator.InterpolateKinematicViscosity(m_TempInlet - 273.15);
 

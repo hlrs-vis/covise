@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// Abstract base class for simulation parameter that vary with used simulation-model.
@@ -147,12 +147,12 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 patch = (FOAMParameterPatch<dynamic>)m_DictFile[s];
                 m_BoundaryField.Add(s, patch.Attributes);
             }
-            else if(inletOutlet == 1)
+            else if (inletOutlet == 1)
             {
                 patch = (FOAMParameterPatch<dynamic>)m_DictFile["inlet"];
                 m_BoundaryField.Add(s, patch.Attributes);
             }
-            else if(inletOutlet == 2)
+            else if (inletOutlet == 2)
             {
                 patch = (FOAMParameterPatch<dynamic>)m_DictFile["outlet"];
                 m_BoundaryField.Add(s, patch.Attributes);

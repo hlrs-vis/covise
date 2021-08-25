@@ -17,7 +17,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     partial class OpenFOAMExportCancelForm
     {
@@ -58,14 +58,14 @@ namespace BIM.OpenFOAMExport
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
-            // STLExportCancelForm
+            // OpenFOAMExportCancelForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ControlBox = false;
             this.Controls.Add(this.btnCancel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Name = "STLExportCancelForm";
+            this.Name = "OpenFOAMExportCancelForm";
             this.ResumeLayout(false);
 
         }

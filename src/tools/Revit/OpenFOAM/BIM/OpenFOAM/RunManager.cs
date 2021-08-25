@@ -4,9 +4,7 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-using BIM.OpenFOAMExport.OpenFOAMUI;
 using System;
-using BIM.OpenFOAMExport;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,7 +12,7 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// Abstract base-class runmanager contains functions which have to be implemented for each OpenFOAM-Run-Environment itselfs.
@@ -49,8 +47,8 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <summary>
         /// Path to install folder of the Environment.
         /// </summary>
-        protected string m_FOAMEnvPath;        
-        
+        protected string m_FOAMEnvPath;
+
         /// <summary>
         /// Path to command.bat.
         /// </summary>
@@ -69,7 +67,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <summary>
         /// TextBox-Form for install folder of simulation environment which will be called if installFolder not default path.
         /// </summary>
-        private OpenFOAMTextBoxForm m_OpenFOAMTxtForm;
+        private OpenFOAMUI.OpenFOAMTextBoxForm m_OpenFOAMTxtForm;
 
         /// <summary>
         /// Getter-Setter for numberOfSubdomains.
@@ -175,7 +173,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             {
                 if (m_NumberOfSubdomains != 0)
                 {
-                    if(m_NumberOfSubdomains > 1)
+                    if (m_NumberOfSubdomains > 1)
                     {
                         if (command.Equals("snappyHexMesh"))
                         {
@@ -184,7 +182,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                             runCommands.Add("reconstructParMesh -constant" + log + "reconstructParMesh.log");
                             continue;
                         }
-                        else if (command.Equals("simpleFoam")  || command.Equals("buoyantBoussinesqSimpleFoam"))
+                        else if (command.Equals("simpleFoam") || command.Equals("buoyantBoussinesqSimpleFoam"))
                         {
                             runCommands.Add("decomposePar");
                             //runCommands.Add("mpirun -n " + DecomposeParDict.NumberOfSubdomains + " renumberMesh -overwrite -parallel");
@@ -206,7 +204,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                     FileName = m_CommandBat,
                     WorkingDirectory = m_CasePath
                 };
-                
+
                 //start batch
                 using (Process process = Process.Start(startInfo))
                 {
@@ -340,7 +338,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="configPath">Path to config.</param>
         private void NewConfig()
         {
-            StreamWriter sw = new StreamWriter(m_ConfigPath);
+            StreamWriter sw = new(m_ConfigPath);
             sw.NewLine = "\n";
             sw.WriteLine("**********************Config for OpenFOAM-Environment**********************");
 
@@ -352,7 +350,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             else
             {
                 StartOpenFOAMTextBoxForm();
-                if(m_Status != DataGenerator.GeneratorStatus.SUCCESS)
+                if (m_Status != DataGenerator.GeneratorStatus.SUCCESS)
                     sw.WriteLine(m_EnvTag + " " + m_FOAMEnvPath);
             }
             sw.Close();
@@ -364,17 +362,17 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="defaultEnvPath">Default simulation environment path.</param>
         private void StartOpenFOAMTextBoxForm()
         {
-            Regex reg = new Regex("^\\S+$");
-            m_OpenFOAMTxtForm = new OpenFOAMTextBoxForm(reg, m_DefaultEnvPath, "Searching for " + m_DefaultEnvPath.Substring(m_DefaultEnvPath.LastIndexOf('\\')));
-            
+            Regex reg = new("^\\S+$");
+            m_OpenFOAMTxtForm = new(reg, m_DefaultEnvPath, "Searching for " + m_DefaultEnvPath.Substring(m_DefaultEnvPath.LastIndexOf('\\')));
+
             //set txtBoxForm to active Form
             m_OpenFOAMTxtForm.ShowDialog();
 
-            if(m_OpenFOAMTxtForm.CancelProcess)
+            if (m_OpenFOAMTxtForm.CancelProcess)
             {
                 m_Status = DataGenerator.GeneratorStatus.CANCEL;
             }
-            else if(reg.IsMatch(m_OpenFOAMTxtForm.Text))
+            else if (reg.IsMatch(m_OpenFOAMTxtForm.Text))
             {
                 m_FOAMEnvPath = m_OpenFOAMTxtForm.TxtBox.Text;
                 m_Status = DataGenerator.GeneratorStatus.SUCCESS;
@@ -420,7 +418,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         public override List<string> InitialEnvRunCommands()
         {
             //if casepath is on another drive than openfoam environment => additional tag /d
-            if(m_CasePath.ToCharArray()[0] != m_FOAMEnvPath.ToCharArray()[0])
+            if (m_CasePath.ToCharArray()[0] != m_FOAMEnvPath.ToCharArray()[0])
             {
                 m_CasePath = "/d " + m_CasePath;
             }
@@ -533,7 +531,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <summary>
         /// Default alias strings.
         /// </summary>
-        private List<string> m_AliasString = new List<string> { "source", "of", "ofx", /*"bash", */"call"};
+        private List<string> m_AliasString = new List<string> { "source", "of", "ofx", /*"bash", */"call" };
 
         /// <summary>
         /// Constructor needs the casePath of the openFoam-case and environment.
@@ -541,7 +539,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="casePath">Path to openFfoam-case.</param>
         /// <param name="env">Enum that specifies the environment.</param>
         public RunManagerSSH(string casePath, OpenFOAMEnvironment env)
-            :base(casePath, env)
+            : base(casePath, env)
         {
             m_CommandBat = casePath + @"\RunSSH.bat";
         }
@@ -557,16 +555,16 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             //***********************SSH FOR LINUX IMPLEMENTED*******************/
             List<string> shellCommands = new List<string>
             {
-                "ssh -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -t " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() + " mkdir -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder +"\n",
-                "scp -P " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -r " + m_CasePath + " " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() + ":" + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder,
-                "ssh -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -t " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() +
-                " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.OfAlias + 
-                "; cd " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder+"/"+CaseDir
+                "ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() + " mkdir -p " + Exporter.Instance.settings.SSH.ServerCaseFolder +"\n",
+                "scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + m_CasePath + " " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder,
+                "ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() +
+                " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + Exporter.Instance.settings.SSH.OfAlias +
+                "; cd " + Exporter.Instance.settings.SSH.ServerCaseFolder+"/"+CaseDir
             };
 
-            if(BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Slurm)
+            if (Exporter.Instance.settings.SSH.Slurm)
             {
-                shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.SlurmCommand + " ./Allrun");
+                shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + Exporter.Instance.settings.SSH.SlurmCommand + " ./Allrun");
             }
 
             return shellCommands;
@@ -583,19 +581,19 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             string CaseDir = m_CasePath.Substring(m_CasePath.LastIndexOf("\\"));
 
             //Download directory from Server: scp -r user@ssh.example.com:/path/to/remote/source /path/to/local/destination
-            if (BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Download)
+            if (Exporter.Instance.settings.SSH.Download)
             {
-                string CasePathResults = m_CasePath+"_results";
-                if(!Directory.Exists(CasePathResults))
+                string CasePathResults = m_CasePath + "_results";
+                if (!Directory.Exists(CasePathResults))
                 {
                     Directory.CreateDirectory(CasePathResults);
                 }
-                
-                commands.Add("scp -P " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -r " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString()+ ":" + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder + "/" + CaseDir + "/* " + CasePathResults);
+
+                commands.Add("scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder + "/" + CaseDir + "/* " + CasePathResults);
             }
-            if(BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Delete)
+            if (Exporter.Instance.settings.SSH.Delete)
             {
-                commands.Add("ssh -p " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Port + " -t " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ConnectionString() +  " \"rm -rf " + BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.ServerCaseFolder);
+                commands.Add("ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() + " \"rm -rf " + Exporter.Instance.settings.SSH.ServerCaseFolder);
             }
             bool succeed = base.RunCommands(commands);
             return succeed;
@@ -609,7 +607,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         public override void WriteLine(StreamWriter sw, string command)
         {
             //add \" as command to show the end of the commands for one bash operation
-            if(command.Contains("scp")||command.Equals("\""))
+            if (command.Contains("scp") || command.Equals("\""))
             {
                 sw.WriteLine(command);
                 return;
@@ -620,7 +618,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 return;
             }
 
-            if (BIM.OpenFOAMExport.Exporter.Instance.settings.SSH.Slurm)
+            if (Exporter.Instance.settings.SSH.Slurm)
             {
                 //current state => only Allrun
                 sw.Write(command + ";");
@@ -640,7 +638,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         {
             foreach (string alias in m_AliasString)
             {
-                if(command.Contains(alias))
+                if (command.Contains(alias))
                 {
                     return true;
                 }

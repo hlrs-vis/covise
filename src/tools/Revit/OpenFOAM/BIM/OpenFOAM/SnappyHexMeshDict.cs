@@ -4,16 +4,13 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-using System;
 using System.Collections.Generic;
 using System.Windows;
 using Autodesk.Revit.DB;
 using System.Windows.Media.Media3D;
-using System.Collections;
-using System.Text;
 using utils;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// The class SnappyHexMeshDict heritates from abstract class FoamDict and contains all default attributes for this openFOAM-File.
@@ -112,8 +109,8 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             FoamFile.Attributes.Add("snapControls", m_DictFile["snapControls"]);
             FoamFile.Attributes.Add("addLayersControls", m_DictFile["addLayersControls"]);
             FoamFile.Attributes.Add("meshQualityControls", m_DictFile["meshQualityControls"]);
-            FoamFile.Attributes.Add("debug", BIM.OpenFOAMExport.Exporter.Instance.settings.Debug);
-            FoamFile.Attributes.Add("mergeTolerance", BIM.OpenFOAMExport.Exporter.Instance.settings.MergeTolerance);
+            FoamFile.Attributes.Add("debug", Exporter.Instance.settings.Debug);
+            FoamFile.Attributes.Add("mergeTolerance", Exporter.Instance.settings.MergeTolerance);
         }
 
         /// <summary>
@@ -143,10 +140,10 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             else
             {
 
-                    m_Stl.Add("type", "triSurfaceMesh");
-                    m_Stl.Add(nameGeometry, m_STLName);
-                    m_Stl.Add(regions, m_Regions);
-                    string nameWithExtension = m_STLName + ".stl";
+                m_Stl.Add("type", "triSurfaceMesh");
+                m_Stl.Add(nameGeometry, m_STLName);
+                m_Stl.Add(regions, m_Regions);
+                string nameWithExtension = m_STLName + ".stl";
                 m_Geometry.Add(nameWithExtension, m_Stl);
             }
             Settings s = Exporter.Instance.settings;
@@ -192,17 +189,17 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 //m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
                 m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.MeshResolution)
+            foreach (var entry in Exporter.Instance.settings.MeshResolution)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
                 m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_InletElements)
+            foreach (var entry in Exporter.Instance.settings.m_InletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 m_Regions.Add("Inlet_" + name, new Dictionary<string, object> { { nameGeometry, "Inlet_" + name } });
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_OutletElements)
+            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 m_Regions.Add("Outlet_" + name, new Dictionary<string, object> { { nameGeometry, "Outlet_" + name } });
@@ -215,16 +212,16 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         private void InitCastellatedMeshControls()
         {
             InitRefinementSurfaces();
-            InitLocationInMesh();           
-            List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels", "features"};
-            foreach(var s in addAttributes)
+            InitLocationInMesh();
+            List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels", "features" };
+            foreach (var s in addAttributes)
             {
                 m_CastellatedMeshControls.Add(s, m_SettingsCMC[s]);
             }
             m_CastellatedMeshControls.Add("refinementSurfaces", m_RefinementSurfaces);
             m_CastellatedMeshControls.Add("resolveFeatureAngle", m_SettingsCMC["resolveFeatureAngle"]);
             m_CastellatedMeshControls.Add("refinementRegions", m_RefinementRegions);
-            Vector3D tmp = new Vector3D(0,0,0);
+            Vector3D tmp = new Vector3D(0, 0, 0);
             tmp.X = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.X, UnitTypeId.Meters);
             tmp.Y = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Y, UnitTypeId.Meters);
             tmp.Z = UnitUtils.ConvertFromInternalUnits(m_LocationInMesh.Z, UnitTypeId.Meters);
@@ -266,10 +263,10 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             //patchtype dict
             Dictionary<string, object> patchType = new Dictionary<string, object> { { "type", "patch" } };
             Settings s = Exporter.Instance.settings;
-            if (s.RefinementBoxOrigin[0]!=0)
+            if (s.RefinementBoxOrigin[0] != 0)
             {
                 int lev = s.RefinementBoxLevel;
-                m_RefinementRegions.Add("boxRotated", new Dictionary<string, object>() { { "mode", "inside" }, { "levels", "((0.0001 "+lev+"))" } });
+                m_RefinementRegions.Add("boxRotated", new Dictionary<string, object>() { { "mode", "inside" }, { "levels", "((0.0001 " + lev + "))" } });
             }
 
             foreach (var face in m_Faces)
@@ -287,7 +284,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
                 //m_RegionsRefinementCastellated.Add(name, new Dictionary<string, object>() { { level, vec} });
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.MeshResolution)
+            foreach (var entry in Exporter.Instance.settings.MeshResolution)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
                 //if(name.Contains("Zuluft") || name.Contains("Abluft") || name.Contains("Outlet") || name.Contains("Inlet"))
@@ -300,13 +297,13 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 //m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", "wall" } });
                 m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec } });
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_InletElements)
+            foreach (var entry in Exporter.Instance.settings.m_InletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 vec = (Vector)m_SettingsCMC["inletLevel"];
                 m_RefinementSurfaces.Add("Inlet_" + name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
             }
-            foreach (var entry in BIM.OpenFOAMExport.Exporter.Instance.settings.m_OutletElements)
+            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 vec = (Vector)m_SettingsCMC["outletLevel"];
@@ -319,7 +316,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// </summary>
         private void InitLocationInMesh()
         {
-            m_LocationInMesh = BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh;
+            m_LocationInMesh = Exporter.Instance.settings.LocationInMesh;
         }
     }
 }

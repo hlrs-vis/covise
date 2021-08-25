@@ -12,19 +12,20 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Collections.Generic;
-using System.Windows.Media.Media3D;
 using System.Linq;
 using Autodesk.Revit.DB;
 using RevitView = Autodesk.Revit.DB.View;
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     public sealed class Exporter
     {
         public OpenFOAMExportForm exportForm = null;
-        public Settings settings=null;
-        public static Exporter Instance {
-            get {
+        public Settings settings = null;
+        public static Exporter Instance
+        {
+            get
+            {
                 return Nested.instance;
             }
         }
@@ -44,13 +45,13 @@ namespace BIM.OpenFOAMExport
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             collector.OfClass(typeof(RevitView));
 
-            IEnumerable<Element> selectedView = from view in collector.ToList<Element>()
+            IEnumerable<Element> selectedView = from view in collector.ToList()
                                                 where view.Name == activeViewName
                                                 select view;
 
             if (selectedView.Count() > 0)
             {
-                return (selectedView.First() as RevitView);
+                return selectedView.First() as RevitView;
             }
 
             return null;
@@ -67,7 +68,7 @@ namespace BIM.OpenFOAMExport
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             collector.OfClass(typeof(RevitView));
 
-            IEnumerable<Element> selectedView = from view in collector.ToList<Element>()
+            IEnumerable<Element> selectedView = from view in collector.ToList()
                                                 where view.Name == activeViewName
                                                 select view;
 
@@ -124,7 +125,7 @@ namespace BIM.OpenFOAMExport
                 PushButton setupButton = panel.AddItem(setupData) as PushButton;
                 using (Stream xstr = new MemoryStream())
                 {
-                    BIM.Properties.Resources.logo_64.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
+                    Properties.Resources.logo_64.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
                     xstr.Seek(0, SeekOrigin.Begin);
                     BitmapDecoder bdc = new BmpBitmapDecoder(xstr, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                     setupButton.LargeImage = bdc.Frames[0];
@@ -138,7 +139,7 @@ namespace BIM.OpenFOAMExport
                 PushButton button = panel.AddItem(data) as PushButton;
                 using (Stream xstr = new MemoryStream())
                 {
-                    BIM.Properties.Resources.setupIcon.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
+                    Properties.Resources.setupIcon.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
                     xstr.Seek(0, SeekOrigin.Begin);
                     BitmapDecoder bdc = new BmpBitmapDecoder(xstr, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                     button.LargeImage = bdc.Frames[0];

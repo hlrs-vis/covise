@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BIM {
+namespace OpenFOAMInterface.BIM {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace BIM {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class OpenFOAMExportResource {
+    public class OpenFOAMExportResource {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace BIM {
         ///   Gibt die zwischengespeicherte ResourceManager-Instanz zurück, die von dieser Klasse verwendet wird.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BIM.OpenFOAMExportResource", typeof(OpenFOAMExportResource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("OpenFOAMInterface.BIM.OpenFOAMExportResource", typeof(OpenFOAMExportResource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace BIM {
         ///   Ressourcenzuordnungen, die diese stark typisierte Ressourcenklasse verwenden.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die STLFile was not saved.x ähnelt.
         /// </summary>
-        internal static string CANCEL_FILE_NOT_SAVED {
+        public static string CANCEL_FILE_NOT_SAVED {
             get {
                 return ResourceManager.GetString("CANCEL_FILE_NOT_SAVED", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Occur an unknown error,the application will be terminated. ähnelt.
         /// </summary>
-        internal static string ERR_EXCEPTION {
+        public static string ERR_EXCEPTION {
             get {
                 return ResourceManager.GetString("ERR_EXCEPTION", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die File is ReadOnly. ähnelt.
         /// </summary>
-        internal static string ERR_FILE_READONLY {
+        public static string ERR_FILE_READONLY {
             get {
                 return ResourceManager.GetString("ERR_FILE_READONLY", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Invalid Format for string: ähnelt.
         /// </summary>
-        internal static string ERR_FORMAT {
+        public static string ERR_FORMAT {
             get {
                 return ResourceManager.GetString("ERR_FORMAT", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Occur an IO error,the application will be terminated. ähnelt.
         /// </summary>
-        internal static string ERR_IO_EXCEPTION {
+        public static string ERR_IO_EXCEPTION {
             get {
                 return ResourceManager.GetString("ERR_IO_EXCEPTION", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die There is no solid in this document. ähnelt.
         /// </summary>
-        internal static string ERR_NOSOLID {
+        public static string ERR_NOSOLID {
             get {
                 return ResourceManager.GetString("ERR_NOSOLID", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Save STLFile has failed. ähnelt.
         /// </summary>
-        internal static string ERR_SAVE_FILE_FAILED {
+        public static string ERR_SAVE_FILE_FAILED {
             get {
                 return ResourceManager.GetString("ERR_SAVE_FILE_FAILED", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Make sure you have the required permission to read or write files. ähnelt.
         /// </summary>
-        internal static string ERR_SECURITY_EXCEPTION {
+        public static string ERR_SECURITY_EXCEPTION {
             get {
                 return ResourceManager.GetString("ERR_SECURITY_EXCEPTION", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The vector entries cannot be converted into double. ähnelt.
         /// </summary>
-        internal static string ERR_VECTOR_FORMAT {
+        public static string ERR_VECTOR_FORMAT {
             get {
                 return ResourceManager.GetString("ERR_VECTOR_FORMAT", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die STL Exporter ähnelt.
         /// </summary>
-        internal static string MESSAGE_BOX_TITLE {
+        public static string MESSAGE_BOX_TITLE {
             get {
                 return ResourceManager.GetString("MESSAGE_BOX_TITLE", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die .stl ähnelt.
         /// </summary>
-        internal static string SAVE_DIALOG_DEFAULT_FILE_EXTEND {
+        public static string SAVE_DIALOG_DEFAULT_FILE_EXTEND {
             get {
                 return ResourceManager.GetString("SAVE_DIALOG_DEFAULT_FILE_EXTEND", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die stl files (*.stl)|*.stl|All files (*.*)|*.* ähnelt.
         /// </summary>
-        internal static string SAVE_DIALOG_FILE_FILTER {
+        public static string SAVE_DIALOG_FILE_FILTER {
             get {
                 return ResourceManager.GetString("SAVE_DIALOG_FILE_FILTER", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace BIM {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Warning: All linked models must use the same Project Location Position as the host model ähnelt.
         /// </summary>
-        internal static string WARN_PROJECT_POSITION {
+        public static string WARN_PROJECT_POSITION {
             get {
                 return ResourceManager.GetString("WARN_PROJECT_POSITION", resourceCulture);
             }

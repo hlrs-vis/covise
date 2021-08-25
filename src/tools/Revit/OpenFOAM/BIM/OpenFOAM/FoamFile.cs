@@ -13,7 +13,7 @@ using System.Security;
 using System.Collections;
 using System.Windows;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// Interface for FoamFiles.
