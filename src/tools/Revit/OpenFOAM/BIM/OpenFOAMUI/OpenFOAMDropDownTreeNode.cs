@@ -4,12 +4,12 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
- 
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace BIM.OpenFOAMExport.OpenFOAMUI
+namespace OpenFOAMInterface.BIM.OpenFOAMUI
 {
     /// <summary>
     /// This class is in use for list OpenFOAM-Parameter as a dropdownlist.
@@ -32,7 +32,7 @@ namespace BIM.OpenFOAMExport.OpenFOAMUI
         public OpenFOAMDropDownTreeNode(T _value, ref Settings _settings, List<string> _keyPath)
             : base(_value.ToString(), ref _settings, _keyPath, _value)
         {
-            if(_value is Enum)
+            if (_value is Enum)
             {
                 var @enum = _value as Enum;
                 foreach (var value in Enum.GetValues(@enum.GetType()))
@@ -40,11 +40,11 @@ namespace BIM.OpenFOAMExport.OpenFOAMUI
                     m_ComboBox.Items.Add(value);
                 }
             }
-            else if(_value is bool)
+            else if (_value is bool)
             {
                 //bool? => nullable bool
                 bool? _bool = _value as bool?;
-                if(_bool != null)
+                if (_bool != null)
                 {
                     m_ComboBox.Items.Add(_bool);
                     m_ComboBox.Items.Add(!_bool);

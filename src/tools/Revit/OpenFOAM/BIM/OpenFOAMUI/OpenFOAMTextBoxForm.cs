@@ -8,7 +8,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace BIM.OpenFOAMExport.OpenFOAMUI
+namespace OpenFOAMInterface.BIM.OpenFOAMUI
 {
     /// <summary>
     /// Class that uses Form as base class combined with a textBox.

@@ -4,13 +4,13 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
- // Original Source Code: https://www.codeproject.com/Articles/14544/A-TreeView-Control-with-ComboBox-Dropdown-Nodes
+// Original Source Code: https://www.codeproject.com/Articles/14544/A-TreeView-Control-with-ComboBox-Dropdown-Nodes
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media.Media3D;
 
-namespace BIM.OpenFOAMExport.OpenFOAMUI
+namespace OpenFOAMInterface.BIM.OpenFOAMUI
 {
     /// <summary>
     /// The class OpenFOAMTextBoxTreeNode is an child class from TreeNode and offers a additional Textbox.
@@ -51,7 +51,7 @@ namespace BIM.OpenFOAMExport.OpenFOAMUI
             {
                 m_Format = "int/double";
             }
-            else if(Value is string)
+            else if (Value is string)
             {
                 m_Format = "string";
             }
@@ -80,6 +80,6 @@ namespace BIM.OpenFOAMExport.OpenFOAMUI
         /// <summary>
         /// Getter for format-string.
         /// </summary>
-        public string Format { get => m_Format;}
+        public string Format { get => m_Format; }
     }
 }

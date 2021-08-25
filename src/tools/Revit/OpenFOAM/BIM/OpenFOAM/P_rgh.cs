@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// P_rgh-Parameter for HeatTransfer.

@@ -5,25 +5,19 @@
 
  * License: LGPL 2+ */
 
-using System;
 using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using utils;
-
-using Autodesk.Revit;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     /// <summary>
     /// Class OpenFOAMSimulateCommand is the entry of the AddIn program.
     /// </summary>
     [Regeneration(RegenerationOption.Manual)]
     [Transaction(TransactionMode.Manual)]
-    
+
     public class OpenFOAMSimulateCommand : IExternalCommand
     {
         /// <summary>
@@ -52,20 +46,20 @@ namespace BIM.OpenFOAMExport
 
             m_Revit = commandData.Application;
 
-            BIM.OpenFOAMExport.Exporter.Instance.settings.setDocument(m_Revit);
+            Exporter.Instance.settings.setDocument(m_Revit);
             string fileName = "wallSTL.stl";
             // save Revit document's triangular data in a temporary file, generate openFOAM-casefolder and start simulation
 
-            Directory.CreateDirectory(BIM.OpenFOAMExport.Exporter.Instance.settings.localCaseFolder);
-            Directory.CreateDirectory(BIM.OpenFOAMExport.Exporter.Instance.settings.localCaseFolder + "\\constant");
-            Directory.CreateDirectory(BIM.OpenFOAMExport.Exporter.Instance.settings.localCaseFolder + "\\constant\\triSurface");
+            Directory.CreateDirectory(Exporter.Instance.settings.localCaseFolder);
+            Directory.CreateDirectory(Exporter.Instance.settings.localCaseFolder + "\\constant");
+            Directory.CreateDirectory(Exporter.Instance.settings.localCaseFolder + "\\constant\\triSurface");
 
             DataGenerator Generator = new DataGenerator(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
             DataGenerator.GeneratorStatus succeed = Generator.SaveSTLFile(fileName);
-            if(succeed == DataGenerator.GeneratorStatus.SUCCESS)
-            { 
-                BIM.OpenFOAMExport.Exporter.Instance.settings.initConfigs();
-                succeed = Generator.CreateOpenFOAMCase(BIM.OpenFOAMExport.Exporter.Instance.settings.localCaseFolder);
+            if (succeed == DataGenerator.GeneratorStatus.SUCCESS)
+            {
+                Exporter.Instance.settings.initConfigs();
+                succeed = Generator.CreateOpenFOAMCase(Exporter.Instance.settings.localCaseFolder);
             }
 
 

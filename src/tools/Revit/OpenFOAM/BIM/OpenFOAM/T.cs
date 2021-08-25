@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// This class represents the temprature for a heat transfer simulation in OpenFOAM.

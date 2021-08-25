@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// This class is used for initialize the turbulence properties for the OpenFOAM simulation.

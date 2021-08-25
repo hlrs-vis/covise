@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// MeshDict is in use for meshing with cfMesh.

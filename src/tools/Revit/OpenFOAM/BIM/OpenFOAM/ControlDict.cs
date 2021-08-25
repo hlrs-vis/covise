@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// The ControlDict-Class represents the controlDict in the OpenFOAM-System folder.
@@ -28,7 +28,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <param name="settings">Settings-object</param>
         /// <param name="_functions">Additional functions as string</param>
         public ControlDict(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, string _functions)
-            : base("controlDict" , "dictionary", version, path, attributes, format)
+            : base("controlDict", "dictionary", version, path, attributes, format)
         {
             m_Functions = new Dictionary<string, object>();
 
@@ -40,11 +40,11 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            FoamFile.Attributes.Add("application", BIM.OpenFOAMExport.Exporter.Instance.settings.AppSolverControlDict);
+            FoamFile.Attributes.Add("application", Exporter.Instance.settings.AppSolverControlDict);
             base.InitAttributes();
             FoamFile.Attributes.Add("functions", m_Functions);
         }
-        
+
         /// <summary>
         /// Initializes functions dictionary.
         /// </summary>

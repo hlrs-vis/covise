@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// The DecomposParDict-Class contains all attributes for decomposing case for parallel computing in Openfoam.
@@ -17,11 +17,11 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// Number of cpu cores
         /// </summary>        
         private int m_NumberOfSubdomains;
-        
+
         /// <summary>
         /// Getter for numberOfSubdomains
         /// </summary>
-        public int NumberOfSubdomains { get => m_NumberOfSubdomains;}
+        public int NumberOfSubdomains { get => m_NumberOfSubdomains; }
 
         /// <summary>
         /// Contructor.
@@ -45,7 +45,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            m_NumberOfSubdomains = BIM.OpenFOAMExport.Exporter.Instance.settings.NumberOfSubdomains;
+            m_NumberOfSubdomains = Exporter.Instance.settings.NumberOfSubdomains;
             FoamFile.Attributes.Add("numberOfSubdomains", m_NumberOfSubdomains);
             base.InitAttributes();
         }

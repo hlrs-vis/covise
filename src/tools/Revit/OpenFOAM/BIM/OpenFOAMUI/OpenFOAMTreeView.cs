@@ -11,7 +11,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media.Media3D;
 
-namespace BIM.OpenFOAMExport.OpenFOAMUI
+namespace OpenFOAMInterface.BIM.OpenFOAMUI
 {
     /// <summary>
     /// Use this class for list <see cref="T:OpenFOAMTreeNode"/> and <see cref="T:OpenFOAMDropDownTreeNode"/> in a <see cref="T:TreeView"/>.

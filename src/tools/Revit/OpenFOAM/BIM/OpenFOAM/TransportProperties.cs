@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Windows;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// TransportProperties-Dictionary in Constant-Folder.
@@ -38,15 +38,15 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            m_TransportModel = BIM.OpenFOAMExport.Exporter.Instance.settings.TransportModel;
+            m_TransportModel = Exporter.Instance.settings.TransportModel;
             Dictionary<string, object> transportModelParameterSettings = m_DictFile["transportModelParameter"] as Dictionary<string, object>;
 
             //nu-Unit = default
-            int[] m_Unit = new int[] { 0, 2, -1, 0, 0, 0, 0};
+            int[] m_Unit = new int[] { 0, 2, -1, 0, 0, 0, 0 };
             FoamFile.Attributes.Add("transportModel", m_TransportModel);
             string modelParameterValue = string.Empty;
 
-            if(m_TransportModel != TransportModel.Newtonian)
+            if (m_TransportModel != TransportModel.Newtonian)
             {
                 Dictionary<string, object> transportModelParemeter = new Dictionary<string, object>();
                 foreach (var v in transportModelParameterSettings)
@@ -72,7 +72,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             }
             else
             {
-                foreach(var obj in transportModelParameterSettings)
+                foreach (var obj in transportModelParameterSettings)
                 {
                     m_Unit = ChangeDimension(obj.Key);
                     if (m_Unit != null)
@@ -125,11 +125,11 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             {
                 dim = new int[] { 0, 0, 0, 0, 0, 0, 0 };
             }
-            else if(tag.Equals("Prt"))
+            else if (tag.Equals("Prt"))
             {
                 dim = ChangeDimension("Pr");
             }
-            else if(tag.Equals("nu"))
+            else if (tag.Equals("nu"))
             {
                 dim = new int[] { 0, 2, -1, 0, 0, 0, 0 };
             }
@@ -151,7 +151,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             string modelParameterValue = string.Empty;
             string entry = string.Empty;
             string value = string.Empty;
-            if(_value.GetType() == typeof(double))
+            if (_value.GetType() == typeof(double))
             {
                 double v = (double)_value;
                 value = v.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat);
@@ -161,9 +161,9 @@ namespace BIM.OpenFOAMExport.OpenFOAM
                 value = _value.ToString();
             }
 
-            for(int i = 0; i < unit.Length; i++)
+            for (int i = 0; i < unit.Length; i++)
             {
-                if(i == unit.Length-1)
+                if (i == unit.Length - 1)
                 {
                     entry += unit[i];
                     break;

@@ -12,7 +12,7 @@ using System.Security;
 using System.Windows.Forms;
 using Autodesk.Revit.DB;
 
-namespace BIM.OpenFOAMExport
+namespace OpenFOAMInterface.BIM
 {
     /// <summary>
     /// Base class providing interface to save data to STL file.
@@ -50,7 +50,7 @@ namespace BIM.OpenFOAMExport
         /// <param name="format">File format.</param>
         public SaveData(string fileName, SaveFormat format)
         {
-            m_FileName = BIM.OpenFOAMExport.Exporter.Instance.settings.localCaseFolder + "\\constant\\triSurface\\"+fileName;
+            m_FileName = Exporter.Instance.settings.localCaseFolder + "\\constant\\triSurface\\"+fileName;
             m_SaveFormat = format;
         }
 

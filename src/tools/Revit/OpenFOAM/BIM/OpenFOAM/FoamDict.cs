@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 using System.Collections.Generic;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// Represents general OpenFOAM-File.
@@ -42,7 +42,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         /// <summary>
         /// Getter for the FoamFile.
         /// </summary>
-        public FOAMFile FoamFile { get => m_FoamFile;}
+        public FOAMFile FoamFile { get => m_FoamFile; }
 
         /// <summary>
         /// Constructor.
@@ -67,7 +67,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
             {
                 m_FoamFile = new FoamFileAsBinary(/*m_Name*/_name, version, path, /*m_Class*/_class, attributes, format);
             }
-            Dictionary<string, object> m_ParentDictionary = BIM.OpenFOAMExport.Exporter.Instance.settings.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
+            Dictionary<string, object> m_ParentDictionary = Exporter.Instance.settings.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
             m_DictFile = m_ParentDictionary[_name] as Dictionary<string, object>;
         }
 
@@ -78,7 +78,7 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         {
             foreach (var obj in m_DictFile)
             {
-                if(obj.Value == null)
+                if (obj.Value == null)
                 {
                     continue;
                 }

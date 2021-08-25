@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using Autodesk.Revit.DB;
 
-namespace BIM.OpenFOAMExport.OpenFOAM
+namespace OpenFOAMInterface.BIM.OpenFOAM
 {
     /// <summary>
     /// This class is represantive for the fvSolution-Dictionary in the system folder of the openFOAM-case-folder.
@@ -39,14 +39,14 @@ namespace BIM.OpenFOAMExport.OpenFOAM
         {
             Dictionary<string, object> m_SIMPLE = m_DictFile["SIMPLE"] as Dictionary<string, object>;
 
-            object val=null;
-            if(m_SIMPLE.TryGetValue("pRefPoint",out val)==true)
+            object val = null;
+            if (m_SIMPLE.TryGetValue("pRefPoint", out val) == true)
             {
-                m_SIMPLE["pRefPoint"] = ConvertToDisplayUnits(BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh);
+                m_SIMPLE["pRefPoint"] = ConvertToDisplayUnits(Exporter.Instance.settings.LocationInMesh);
             }
             else
             {
-                m_SIMPLE.Add("pRefPoint", ConvertToDisplayUnits(BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh)/*"(" + BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat).Replace(';', ' ') + ")"*/);
+                m_SIMPLE.Add("pRefPoint", ConvertToDisplayUnits(Exporter.Instance.settings.LocationInMesh)/*"(" + BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat).Replace(';', ' ') + ")"*/);
             }
             base.InitAttributes();
         }
