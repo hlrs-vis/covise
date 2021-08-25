@@ -15,6 +15,7 @@
 #include <config/CoviseConfig.h>
 
 #ifdef HAVE_VTK
+#include <limits>
 #include <vtkVersion.h>
 #include <vtkPolyData.h>
 #include <vtkSmoothPolyDataFilter.h>

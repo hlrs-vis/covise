@@ -9,6 +9,7 @@
 #endif
 
 #ifdef HAVE_VTK
+#include <limits>
 #include <vtkVersion.h>
 #include <vtkDataSet.h>
 #include <vtkDataArray.h>

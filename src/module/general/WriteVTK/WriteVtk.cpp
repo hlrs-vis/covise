@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <limits>
 #include <vtkPointSet.h>
 #include <vtkPolyData.h>
 #include <vtkStructuredGrid.h>
