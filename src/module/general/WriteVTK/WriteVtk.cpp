@@ -177,9 +177,20 @@ int WriteVtk::compute(const char *)
     {
         std::vector<int> inputType, inputTexType;
         int portnum = 0;
-        vtkDataSet *dataset = coVtk::covise2Vtk(m_inPorts[portnum]->getCurrentObject());
+        vtk = coVtk::covise2Vtk(m_inPorts[portnum]->getCurrentObject());
+        if (!vtk && m_inPorts[portnum]->getCurrentObject())
+        {
+            sendError("conversion to VTK format failed for input port %s", m_inPorts[portnum]->getName());
+            return STOP_PIPELINE;
+        }
+        vtk = dynamic_cast<vtkDataSet *>(vtk);
+        if (!vtk)
+        {
+            sendError("conversion to required type vtkDataSet failed for input port %s", m_inPorts[portnum]->getName());
+            return STOP_PIPELINE;
+        }
         coVtk::Flags flags = coVtk::None;
-        if (dynamic_cast<vtkImageData *>(dataset))
+        if (dynamic_cast<vtkImageData *>(vtk))
             flags = coVtk::RequireDouble;
         int type = 0;
         if (dynamic_cast<const coDoTexture *>(m_inPorts[portnum]->getCurrentObject()))
@@ -187,18 +198,6 @@ int WriteVtk::compute(const char *)
         if (dynamic_cast<const coDoPixelImage *>(m_inPorts[portnum]->getCurrentObject()))
             type = 2;
         inputType.push_back(type);
-        if (!dataset && m_inPorts[portnum]->getCurrentObject())
-        {
-            sendError("conversion to VTK format failed for input port %s", m_inPorts[portnum]->getName());
-            return STOP_PIPELINE;
-        }
-        vtk = dynamic_cast<vtkDataSet *>(dataset);
-        if (!vtk)
-        {
-            dataset->Delete();
-            sendError("conversion to required type vtkDataSet failed for input port %s", m_inPorts[portnum]->getName());
-            return STOP_PIPELINE;
-        }
         vtkDataSetAttributes *vattr = vtk->GetPointData();
 
         ++portnum;
