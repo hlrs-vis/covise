@@ -272,10 +272,10 @@ int net_interface::get_state(const controller::NetModule *mod) const
     int tmp;
 
     // get object-state:
-    if (!obj)
+    if (obj)
     {
         // INIT, NEW, OLD
-        string tmp_state = obj->get_conn_state(mod, this->get_name());
+        string tmp_state = obj->get_conn_state(mod, get_name());
         if (tmp_state == "INIT")
         {
             tmp = S_INIT;
