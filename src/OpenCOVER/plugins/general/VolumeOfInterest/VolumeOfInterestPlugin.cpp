@@ -43,6 +43,7 @@ VolumeOfInterestPlugin::VolumeOfInterestPlugin()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n    new VolumeOfInterestPlugin\n");
+    plugin = this;
 }
 
 bool VolumeOfInterestPlugin::init()
