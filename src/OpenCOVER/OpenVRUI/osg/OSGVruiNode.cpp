@@ -118,7 +118,7 @@ void OSGVruiNode::removeAllChildren()
 
     Group *group = this->node->asGroup();
 
-    if (group || (group->getNumChildren() > 0))
+    if (group && (group->getNumChildren() > 0))
     {
         group->removeChild(0, group->getNumChildren());
     }
