@@ -38,7 +38,7 @@ using namespace std;
 #include "coFileUtil.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <sstream>
 namespace covise
 {
 
@@ -569,7 +569,7 @@ const char *coDirectoryImpl::check_path(const char *pathname, const char *path)
 char *coDirectory::canonical(const char *name)
 {
     const char *path = name;
-    static char newpath[path_buffer_size];
+    stringstream ss;
     const char *s = (path);
     s = coDirectoryImpl::chop_slash(s);
     s = coDirectoryImpl::interpret_tilde(s);
@@ -585,32 +585,31 @@ char *coDirectory::canonical(const char *name)
     s = coDirectoryImpl::collapse_slash_slash(s);
 
     if (s[0] == '\0')
-        sprintf(newpath, "./");
+        ss << "./";
 
     else if (!coDirectoryImpl::dot_slash(s)
              && !coDirectoryImpl::dot_dot_slash(s)
              && !coDirectoryImpl::is_absolute(s))
-        sprintf(newpath, "./%s", s);
+        ss << "./" << s;
 
     else if (coDirectoryImpl::ifdir(s)
              && s[strlen(s) - 1] != '/')
-        sprintf(newpath, "%s/", s);
+        ss << s << "/";
 
     else
-        sprintf(newpath, "%s", s);
-
+        ss << s;
+    auto newpath = ss.str();
 #ifdef _WIN32
     if ((newpath[0] == '/') && (newpath[1] != '/')) // if it is an absolute path and not a UNC name, add a drive letter
     {
-        memmove(newpath + 2, newpath, strlen(newpath) + 1);
-        newpath[0] = 'A' + _getdrive() - 1;
-        newpath[1] = ':';
+        stringstream drive;
+        drive << (char)('A' + _getdrive() - 1) << ":";
+        newpath = drive.str() + newpath;
     }
 #endif
 
-    size_t n = strlen(newpath);
-    char *r = new char[n + 1];
-    strcpy(r, newpath);
+    char *r = new char[newpath.size() + 1];
+    strcpy(r, newpath.c_str());
     return r;
 }
 
