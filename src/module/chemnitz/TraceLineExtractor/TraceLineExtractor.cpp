@@ -558,13 +558,12 @@ int TraceLineExtractor::compute(const char *port)
                 {
                     choice_traceIDText[textPos] = new char[80];
                     ((coDoText *)((coDoSet *)traceSetPtr->getElement(textPos))->getElement(2))->getAddress(&textPtr);
-//					strcpy_s(choice_traceIDText[textPos++], 80*sizeof(char), textPtr );
-#ifdef WIN32
-                    sprintf_s(choice_traceIDText[textPos++], 80 * sizeof(char), "%d. %s", textPos - 1, textPtr);
-#else
-                snprintf(choice_traceIDText[textPos], 80 * sizeof(char), "%d. %s", textPos, textPtr);
-                textPos++;
-#endif
+                    if (textPtr)
+                    {
+                        sprintf_s(choice_traceIDText[textPos], 80 * sizeof(char), "%d. %s", textPos, textPtr);
+                        textPos++;
+                    }
+                    
                 }
 
                 choice_traceIDText[textPos] = new char[80];
