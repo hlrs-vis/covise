@@ -385,7 +385,7 @@ void AssembleUsg::findData(const coDoSet *set_in)
                 x_data_in.push_back(x_data);
                 y_data_in.push_back(y_data);
                 z_data_in.push_back(z_data);
-                num_points_in.push_back(float_elem->getNumPoints());
+                num_points_in.push_back(vec3_elem->getNumPoints());
             }
         }
     }
