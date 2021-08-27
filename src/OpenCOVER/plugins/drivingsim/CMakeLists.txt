@@ -4,7 +4,6 @@ endif()
 set(MAIN_FOLDER "drivingsim")
 set(PLUGIN_CATEGORY "drivingsim")
 
-COVISE_FIND_PACKAGE(OpenCRG)
 COVISE_FIND_PACKAGE(V8)
 
 add_subdirectory(MotionPlatform)

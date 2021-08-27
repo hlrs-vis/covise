@@ -1,5 +1,5 @@
 MACRO(USE_WIRINGPI)
-  FIND_PACKAGE(WiringPi)
+  COVISE_FIND_PACKAGE(WIRINGPI)
   IF ((NOT WIRINGPI_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing wiringPi")
     RETURN()

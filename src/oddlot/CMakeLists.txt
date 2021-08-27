@@ -9,7 +9,7 @@ cmake_minimum_required (VERSION 2.6)
 #  SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../../cmake/windows;${CMAKE_MODULE_PATH}")
 #ENDIF()
 
-#covise_find_package(XercesC REQUIRED)
+#covise_find_package(XERCESC REQUIRED)
 #covise_find_package(TIFF)
 #covise_find_package(ZLIB)
 #covise_find_package(JPEG)
