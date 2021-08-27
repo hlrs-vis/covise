@@ -340,8 +340,7 @@ bool fasi2::readClientVal(void *buf, unsigned int numBytes)
         if (readBytes < 0)
         {
             std::cout << "error reading data from socket" << std::endl;
-            delete toClientConn;
-            toClientConn = NULL;
+            toClientConn.reset();
             return false;
         }
         numRead += readBytes;
@@ -355,7 +354,7 @@ void fasi2::run()
     bool running = true;
     bool wasRunning = false;
     vehicleDynamics->platformToGround();
-    toClientConn = NULL;
+    toClientConn.reset();
     while (running)
     {
         fum->update();
@@ -370,7 +369,7 @@ void fasi2::run()
             }
             else
             {
-                toClientConn = NULL;
+                toClientConn.reset();
             }
         }
         if (toClientConn)
@@ -411,8 +410,7 @@ void fasi2::run()
                 int written = toClientConn->getSocket()->write(&remoteData, sizeof(remoteData));
                 if (written < 0)
                 {
-                    delete toClientConn;
-                    toClientConn = NULL;
+                    toClientConn.reset();
                     std::cout << "Cresetw " << sharedState.frameTime << std::endl;
                 }
             }
