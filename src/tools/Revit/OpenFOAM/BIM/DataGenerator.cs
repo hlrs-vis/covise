@@ -38,6 +38,8 @@ namespace OpenFOAMInterface.BIM
     {
         //STL-Exporter objects
         public enum GeneratorStatus { SUCCESS, FAILURE, CANCEL };
+        public enum WriteStages { Wall, Inlet, Outlet, MeshResolution, AirTerminal };
+
         private SaveData m_Writer;
         private readonly RevitApplication m_RevitApp;
         private readonly Document m_ActiveDocument;
@@ -45,7 +47,6 @@ namespace OpenFOAMInterface.BIM
         private int m_TriangularNumber;
         private bool singleFile;
         private bool computeBoundingBox = true;
-        public enum WriteStages { Wall, Inlet, Outlet, MeshResolution, AirTerminal };
         private WriteStages WriteStage = WriteStages.Wall;
         /// <summary>
         /// Name of the STL.
@@ -180,7 +181,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="path">location for the OpenFOAM-folder</param>
         public GeneratorStatus CreateOpenFOAMCase(string path)
         {
-            List<string> minCaseFolders = new List<string>();
+            List<string> minCaseFolders = new();
 
             //first level folders
             string constant = Path.Combine(path, "constant");
@@ -222,15 +223,15 @@ namespace OpenFOAMInterface.BIM
 
 
             //generate files
-            OpenFOAM.Version version = new OpenFOAM.Version();
-            m_OpenFOAMDictionaries = new List<OpenFOAM.FOAMDict>();
+            OpenFOAM.Version version = new();
+            m_OpenFOAMDictionaries = new List<FOAMDict>();
 
             //init folders
             InitSystemFolder(version, system);
             InitNullFolder(version, nullFolder);
             InitConstantFolder(version, constant);
 
-            foreach (OpenFOAM.FOAMDict openFOAMDictionary in m_OpenFOAMDictionaries)
+            foreach (FOAMDict openFOAMDictionary in m_OpenFOAMDictionaries)
             {
                 openFOAMDictionary.Init();
             }
@@ -831,7 +832,7 @@ namespace OpenFOAMInterface.BIM
             string stlName = pathSTL.Substring(pathSTL.LastIndexOf("\\") + 1).Split('.')[0];
             m_STLName = stlName;
 
-            string pathFolder = Exporter.Instance.settings.localCaseFolder;
+            string pathFolder = Exporter.Instance.settings.LocalCaseFolder;
 
             //contains all duct terminals lists of each document
             Dictionary<Document, List<Element>> terminalListOfAllDocuments = new Dictionary<Document, List<Element>>();

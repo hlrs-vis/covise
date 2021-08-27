@@ -162,7 +162,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         public virtual bool RunCommands(List<string> commands)
         {
             //create initial Environment commands.
-            List<string> runCommands = new List<string>();
+            List<string> runCommands = new();
             List<string> envCommands = InitialEnvRunCommands();
             foreach (string s in envCommands)
             {

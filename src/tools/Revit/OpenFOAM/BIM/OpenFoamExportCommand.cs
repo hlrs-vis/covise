@@ -45,19 +45,22 @@ namespace OpenFOAMInterface.BIM
 
             m_Revit = commandData.Application;
             Exporter.Instance.exportForm = new OpenFOAMExportForm(m_Revit);
-            Exporter.Instance.settings.setDocument(m_Revit);
+            Exporter.Instance.settings.SetDocument(m_Revit);
 
             //for repeating click-events
             System.Collections.IEnumerator iterator = Application.OpenForms.GetEnumerator();
+            Result result = new();
             while (iterator.MoveNext())
             {
                 System.Windows.Forms.Form form = iterator.Current as System.Windows.Forms.Form;
                 if (form is OpenFOAMExportForm)
                 {
-                    return Result.Succeeded;
+                    result = Result.Succeeded;
+                    break;
                 }
             }
-            Result result = StartOpenFOAMExportForm();
+            if (result == Result.Succeeded)
+                result = StartOpenFOAMExportForm();
             return result;
 
         }

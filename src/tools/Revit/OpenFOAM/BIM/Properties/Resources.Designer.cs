@@ -9,8 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace OpenFOAMInterface.BIM.Properties {
-    using System;
-    
     
     /// <summary>
     ///   Eine stark typisierte Ressourcenklasse zum Suchen von lokalisierten Zeichenfolgen usw.
@@ -39,7 +37,7 @@ namespace OpenFOAMInterface.BIM.Properties {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("OpenFOAMInterface.BIM.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BIM.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -66,6 +64,16 @@ namespace OpenFOAMInterface.BIM.Properties {
         public static System.Drawing.Bitmap logo_64 {
             get {
                 object obj = ResourceManager.GetObject("logo_64", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap openfoaminterface {
+            get {
+                object obj = ResourceManager.GetObject("openfoaminterface", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
