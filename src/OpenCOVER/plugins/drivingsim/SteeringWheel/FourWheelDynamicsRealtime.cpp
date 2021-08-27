@@ -15,6 +15,8 @@
 #include <osg/Geometry>
 #include <osg/Geode>
 #include <osg/PositionAttitudeTransform>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 
 using namespace vehicleUtil;
 
@@ -749,34 +751,36 @@ void FourWheelDynamicsRealtime::determineGroundPlane()
     gealg::mv<3, 0x040201>::type p_bfr = (cardyn::p_b + grade<1>((!cardyn::q_b) * (cardyn::r_wfr - cardyn::z * cardyn::r_w - cardyn::u_wfr - Dv_wfr) * cardyn::q_b))(y);
     gealg::mv<3, 0x040201>::type p_br = (cardyn::p_b + grade<1>((!cardyn::q_b) * ((cardyn::r_wrl - cardyn::u_wrl - Dv_wrl + cardyn::r_wrr - cardyn::u_wrr - Dv_wrr) * 0.5 - cardyn::z * cardyn::r_w) * cardyn::q_b))(y);
 
-    osg::LineSegment *normalFL = new osg::LineSegment(osg::Vec3(-(p_bfl - n_b * 10.0)()[1], (p_bfl - n_b * 10.0)()[0], (p_bfl - n_b * 10.0)()[2]),
+    auto normalFL = new osgUtil::LineSegmentIntersector(osg::Vec3(-(p_bfl - n_b * 10.0)()[1], (p_bfl - n_b * 10.0)()[0], (p_bfl - n_b * 10.0)()[2]),
                                                       osg::Vec3(-(p_bfl + n_b * 0.2)()[1], (p_bfl + n_b * 0.2)()[0], (p_bfl + n_b * 0.2)()[2]));
-    osg::LineSegment *normalFR = new osg::LineSegment(osg::Vec3(-(p_bfr - n_b * 10.0)()[1], (p_bfr - n_b * 10.0)()[0], (p_bfr - n_b * 10.0)()[2]),
+    auto normalFR = new osgUtil::LineSegmentIntersector(osg::Vec3(-(p_bfr - n_b * 10.0)()[1], (p_bfr - n_b * 10.0)()[0], (p_bfr - n_b * 10.0)()[2]),
                                                       osg::Vec3(-(p_bfr + n_b * 0.2)()[1], (p_bfr + n_b * 0.2)()[0], (p_bfr + n_b * 0.2)()[2]));
-    osg::LineSegment *normalR = new osg::LineSegment(osg::Vec3(-(p_br - n_b * 10.0)()[1], (p_br - n_b * 10.0)()[0], (p_br - n_b * 10.0)()[2]),
+    auto normalR = new osgUtil::LineSegmentIntersector(osg::Vec3(-(p_br - n_b * 10.0)()[1], (p_br - n_b * 10.0)()[0], (p_br - n_b * 10.0)()[2]),
                                                      osg::Vec3(-(p_br + n_b * 0.2)()[1], (p_br + n_b * 0.2)()[0], (p_br + n_b * 0.2)()[2]));
 
     //wheelTransformRR->setPosition(osg::Vec3(-(p_br-n_b)()[1], (p_br-n_b)()[0], (p_br-n_b)()[2]));
 
-    osgUtil::IntersectVisitor visitor;
+    auto ig = new osgUtil::IntersectorGroup;
+    osgUtil::IntersectionVisitor visitor(ig);
+    ig->addIntersector(normalFL);
+    ig->addIntersector(normalFR);
+    ig->addIntersector(normalR);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(normalFL);
-    visitor.addLineSegment(normalFR);
-    visitor.addLineSegment(normalR);
     cover->getObjectsRoot()->accept(visitor);
 
     gealg::mv<4, 0x08040201>::type p_ifl;
     gealg::mv<4, 0x08040201>::type p_ifr;
     gealg::mv<4, 0x08040201>::type p_ir;
 
-    if (visitor.getNumHits(normalFL))
+    if (normalFL->containsIntersections())
     {
-        osg::Vec3d intersectFL = visitor.getHitList(normalFL).front().getWorldIntersectPoint();
+        osg::Vec3d intersectFL = normalFL->getFirstIntersection().getWorldIntersectPoint();
         p_ifl[0] = intersectFL.y();
         p_ifl[1] = -intersectFL.x();
         p_ifl[2] = intersectFL.z();
         p_ifl[3] = 1.0;
-        osg::Node *n = visitor.getHitList(normalFL).front().getNodePath().back();
+#if 0
+        osg::Node *n = normalFL->getFirstIntersection().getNodePath().back();
         if (n)
             std::cerr << "Node: " << n->getName();
         //fprintf(stderr,"Node: %s",n->getName());
@@ -784,6 +788,7 @@ void FourWheelDynamicsRealtime::determineGroundPlane()
         else
             std::cerr << "Node: NoName";
         //fprintf(stderr,"Node: NoName");
+#endif
     }
     else
     {
@@ -791,9 +796,9 @@ void FourWheelDynamicsRealtime::determineGroundPlane()
         p_ifl = part<4, 0x08040201>(p_bfl);
         p_ifl[3] = 1.0;
     }
-    if (visitor.getNumHits(normalFR))
+    if (normalFR->containsIntersections())
     {
-        osg::Vec3d intersectFR = visitor.getHitList(normalFR).front().getWorldIntersectPoint();
+        osg::Vec3d intersectFR = normalFR->getFirstIntersection().getWorldIntersectPoint();
         p_ifr[0] = intersectFR.y();
         p_ifr[1] = -intersectFR.x();
         p_ifr[2] = intersectFR.z();
@@ -805,9 +810,9 @@ void FourWheelDynamicsRealtime::determineGroundPlane()
         p_ifr = part<4, 0x08040201>(p_bfr);
         p_ifr[3] = 1.0;
     }
-    if (visitor.getNumHits(normalR))
+    if (normalR->containsIntersections())
     {
-        osg::Vec3d intersectR = visitor.getHitList(normalR).front().getWorldIntersectPoint();
+        osg::Vec3d intersectR = normalR->getFirstIntersection().getWorldIntersectPoint();
         p_ir[0] = intersectR.y();
         p_ir[1] = -intersectR.x();
         p_ir[2] = intersectR.z();
@@ -859,35 +864,33 @@ void FourWheelDynamicsRealtime::determineHermite()
     v[2] = (((cardyn::dp_b + grade<1>((!cardyn::q_b) * cardyn::r_wrl * cardyn::q_b * cardyn::w_b - (!cardyn::q_b) * cardyn::du_wrl * cardyn::q_b))))(y); //v[2]=(v[2] ^ n_b)*(~n_b);
     v[3] = (((cardyn::dp_b + grade<1>((!cardyn::q_b) * cardyn::r_wrr * cardyn::q_b * cardyn::w_b - (!cardyn::q_b) * cardyn::du_wrr * cardyn::q_b))))(y); //v[3]=(v[3] ^ n_b)*(~n_b);
 
-    osgUtil::IntersectVisitor visitor;
+    auto ig = new osgUtil::IntersectorGroup;
+    osgUtil::IntersectionVisitor visitor(ig);
     visitor.setTraversalMask(Isect::Collision);
 
-    std::vector<osg::LineSegment *> normal(4);
+    std::vector<osgUtil::LineSegmentIntersector *> normal(4);
     for (int i = 0; i < 4; ++i)
     {
         gealg::mv<3, 0x040201>::type p = r[i] + v[i] * dt;
-        normal[i] = new osg::LineSegment(osg::Vec3(-(p - n_b * 5.0)()[1], (p - n_b * 5.0)()[0], (p - n_b * 5.0)()[2]),
+        normal[i] = new osgUtil::LineSegmentIntersector(osg::Vec3(-(p - n_b * 5.0)()[1], (p - n_b * 5.0)()[0], (p - n_b * 5.0)()[2]),
                                          osg::Vec3(-(p + n_b * 0.2)()[1], (p + n_b * 0.2)()[0], (p + n_b * 0.2)()[2]));
-        visitor.addLineSegment(normal[i]);
+        ig->addIntersector(normal[i]);
     }
     cover->getObjectsRoot()->accept(visitor);
 
     for (int i = 0; i < 4; ++i)
     {
-        if (visitor.getNumHits(normal[i]))
+        if (normal[i]->containsIntersections())
         {
-            //osgUtil::Hit& hit = visitor.getHitList(normal[i]).front();
-            osgUtil::Hit &hit = visitor.getHitList(normal[i]).back();
-
-            osg::Vec3d intersect = hit.getWorldIntersectPoint();
+            osg::Vec3d intersect = normal[i]->getFirstIntersection().getWorldIntersectPoint();
             r_i[i][0] = intersect.y();
             r_i[i][1] = -intersect.x();
             r_i[i][2] = intersect.z();
 
-            osg::Vec3d normal = hit.getWorldIntersectNormal();
-            n_i[i][0] = normal.y();
-            n_i[i][1] = -normal.x();
-            n_i[i][2] = normal.z();
+            osg::Vec3d n = normal[i]->getFirstIntersection().getWorldIntersectNormal();
+            n_i[i][0] = n.y();
+            n_i[i][1] = -n.x();
+            n_i[i][2] = n.z();
         }
         else
         {
