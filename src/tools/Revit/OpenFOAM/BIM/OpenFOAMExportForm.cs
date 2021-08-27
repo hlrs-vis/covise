@@ -39,12 +39,10 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private ElementId m_SphereLocationInMesh;
 
-
         /// <summary>
         /// Current objects in scenes with parameter mesh resoluton.
         /// </summary>
         //private List<Element> m_MeshResolutionObjects;
-
 
         /// <summary>
         /// For click events.
@@ -59,7 +57,7 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Sorted dictionary for the category-TreeView.
         /// </summary>
-        private SortedDictionary<string, Category> m_CategoryList = new SortedDictionary<string, Category>();
+        private SortedDictionary<string, Category> m_CategoryList = new();
 
         /// <summary>
         /// OpenFOAM-TreeView for default simulation parameter
@@ -69,12 +67,12 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Sorted dictionary for the unity properties that can be set in a drop down menu.
         /// </summary>
-        private readonly SortedDictionary<string, Autodesk.Revit.DB.ForgeTypeId> m_DisplayUnits = new SortedDictionary<string, Autodesk.Revit.DB.ForgeTypeId>();
+        private readonly SortedDictionary<string, ForgeTypeId> m_DisplayUnits = new();
 
         /// <summary>
         /// Selected Unittype in comboBox.
         /// </summary>
-        private static Autodesk.Revit.DB.ForgeTypeId m_SelectedDUT = UnitTypeId.Meters;
+        private static ForgeTypeId m_SelectedDUT = UnitTypeId.Meters;
 
 
         /// <summary>
@@ -90,22 +88,22 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Regular expression for 3 dim vector.
         /// </summary>
-        private Regex m_LocationReg = new Regex("^" + m_Entry + "\\s+" + m_Entry + "\\s+" + m_Entry + "$");
+        private Regex m_LocationReg = new("^" + m_Entry + "\\s+" + m_Entry + "\\s+" + m_Entry + "$");
 
         /// <summary>
         /// Regular Expression for txtBoxUserIP.
         /// </summary>
-        private readonly Regex m_RegUserIP = new Regex("^\\S+@\\S+$");
+        private readonly Regex m_RegUserIP = new("^\\S+@\\S+$");
 
         /// <summary>
         /// Regular Expression for txtBoxServerCaseFolder.
         /// </summary>
-        private readonly Regex m_RegServerCasePath = new Regex("^\\S+$");
+        private readonly Regex m_RegServerCasePath = new("^\\S+$");
 
         /// <summary>
         /// Regular Expression for txtBoxPort.
         /// </summary>
-        private readonly Regex m_RegPort = new Regex("^\\d+$");
+        private readonly Regex m_RegPort = new("^\\d+$");
 
         /// <summary>
         /// Constructor.
@@ -115,30 +113,29 @@ namespace OpenFOAMInterface.BIM
         {
             InitializeComponent();
 
-            m_OpenFOAMTreeView = new OpenFOAMUI.OpenFOAMTreeView();
+            m_OpenFOAMTreeView = new();
             m_Revit = revit;
 
             //needs to be implemented cause of non-modal window.
             FormClosed += OpenFOAMExportForm_FormClosed;
-            m_Revit.ViewActivating += Revit_ViewActivating;            
-            
+            m_Revit.ViewActivating += Revit_ViewActivating;
+
             m_ActiveDocument = m_Revit.ActiveUIDocument.Document;
-            
+
             tbSSH.Enabled = true;
             tbOpenFOAM.Enabled = true;
 
             //set size for OpenFOAMTreeView
             InitializeOFTreeViewSize();
-            
+
             // get new data generator
-            m_Generator = new DataGenerator(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
+            m_Generator = new(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
 
             //add OpenFOAMTreeView to container default
             gbDefault.Controls.Add(m_OpenFOAMTreeView);
 
             // scan for categories to populate category list
             InitializeCategoryList();
-
 
             // initialize the UI differently for Families
             if (revit.ActiveUIDocument.Document.IsFamilyDocument)
@@ -175,14 +172,14 @@ namespace OpenFOAMInterface.BIM
         /// <param name="revit"></param>
         /// <param name="direct"></param>
         public OpenFOAMExportForm(UIApplication revit, bool direct = true)
-        {   
+        {
             m_Revit = revit;
             m_Direct = direct;
             m_Revit.ViewActivating += Revit_ViewActivating;
             m_ActiveDocument = m_Revit.ActiveUIDocument.Document;
 
             // get new data generator
-            m_Generator = new DataGenerator(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
+            m_Generator = new(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
 
             // initialize settings
             InitializeSettings();
@@ -231,12 +228,11 @@ namespace OpenFOAMInterface.BIM
         private void InitializeSettings()
         {
             rbBinary.Checked = (Exporter.Instance.settings.SaveFormat == SaveFormat.binary);
-            
 
             // get selected categories from the category list
-            List<Category> selectedCategories = new List<Category>();
+            List<Category> selectedCategories = new();
 
-            Autodesk.Revit.DB.ForgeTypeId dup = UnitTypeId.Meters;
+            ForgeTypeId dup = UnitTypeId.Meters;
             if (!m_Direct)
             {
                 // only for projects
@@ -247,13 +243,11 @@ namespace OpenFOAMInterface.BIM
                         AddSelectedTreeNode(treeNode, selectedCategories);
                     }
                 }
-                /*DisplayUnitType */dup = m_DisplayUnits[comboBox_DUT.Text];
+                /*DisplayUnitType */
+                dup = m_DisplayUnits[comboBox_DUT.Text];
             }
 
             //saveFormat = SaveFormat.ascii;
-
-            
-
             //return true;
         }
 
@@ -274,7 +268,6 @@ namespace OpenFOAMInterface.BIM
             string alias = "of1812";
             string caseFolder = "/mnt/raid/home/hpcmdjur/OpenFOAMRemote/";
             string slurmCommand = "eval salloc -n " + 4;
-
 
             FilteredElementCollector collector = new FilteredElementCollector(m_Revit.ActiveUIDocument.Document);
             collector.WhereElementIsNotElementType();
@@ -311,114 +304,114 @@ namespace OpenFOAMInterface.BIM
 
                         //if (instance.Name.Contains(BIM.OpenFOAMExport.Exporter.Instance.settings.OpenFOAMObjectName))
                         //{
-                            //        switch (param.Definition.Name)
-                            //        {
-                            //            case "numberOfSubdomains":
-                            //                {
-                            //                    m_Settings.NumberOfSubdomains = param.AsInteger();
-                            //                    break;
-                            //                }
+                        //        switch (param.Definition.Name)
+                        //        {
+                        //            case "numberOfSubdomains":
+                        //                {
+                        //                    m_Settings.NumberOfSubdomains = param.AsInteger();
+                        //                    break;
+                        //                }
 
-                            //            case "environment":
-                            //                {
-                            //                    var e = m_Settings.OpenFOAMEnvironment;
-                            //                    Enum.TryParse(param.AsString(), out e);
-                            //                    m_Settings.OpenFOAMEnvironment = e;
-                            //                    break;
-                            //                }
+                        //            case "environment":
+                        //                {
+                        //                    var e = m_Settings.OpenFOAMEnvironment;
+                        //                    Enum.TryParse(param.AsString(), out e);
+                        //                    m_Settings.OpenFOAMEnvironment = e;
+                        //                    break;
+                        //                }
 
-                            //            case "solver":
-                            //                {
-                            //                    var e = m_Settings.AppSolverControlDict;
-                            //                    Enum.TryParse(param.AsString(), out e);
-                            //                    m_Settings.AppSolverControlDict = e;
-                            //                    break;
-                            //                }
+                        //            case "solver":
+                        //                {
+                        //                    var e = m_Settings.AppSolverControlDict;
+                        //                    Enum.TryParse(param.AsString(), out e);
+                        //                    m_Settings.AppSolverControlDict = e;
+                        //                    break;
+                        //                }
 
-                            //            case "userIP":
-                            //                {
-                            //                    userIP = param.AsString();
-                            //                    break;
-                            //                }
+                        //            case "userIP":
+                        //                {
+                        //                    userIP = param.AsString();
+                        //                    break;
+                        //                }
 
-                            //            case "alias":
-                            //                {
-                            //                    alias = param.AsString();
-                            //                    break;
-                            //                }
+                        //            case "alias":
+                        //                {
+                        //                    alias = param.AsString();
+                        //                    break;
+                        //                }
 
-                            //            case "caseFolder":
-                            //                {
-                            //                    caseFolder = param.AsString();
-                            //                    break;
-                            //                }
+                        //            case "caseFolder":
+                        //                {
+                        //                    caseFolder = param.AsString();
+                        //                    break;
+                        //                }
 
-                            //            case "port":
-                            //                {
-                            //                    port = param.AsInteger();
-                            //                    break;
-                            //                }
+                        //            case "port":
+                        //                {
+                        //                    port = param.AsInteger();
+                        //                    break;
+                        //                }
 
-                            //            case "slurmcommand":
-                            //                {
-                            //                    slurmCommand = param.AsString();
-                            //                    break;
-                            //                }
-                            //            case "download":
-                            //                {
-                            //                    dowload = Convert.ToBoolean(param.AsString());
-                            //                    break;
-                            //                }
-                            //            case "delete":
-                            //                {
-                            //                    delete = Convert.ToBoolean(param.AsString());
-                            //                    break;
-                            //                }
-                            //            case "slurm":
-                            //                {
-                            //                    slurm = Convert.ToBoolean(param.AsString());
-                            //                    break;
-                            //                }
-                            //            //case "distribution":
-                            //            //    {
-                            //            //        if(!m_LocationReg.IsMatch(param.AsString()))
-                            //            //        {
-                            //            //            MessageBox.Show("Wrong format for distribution.",
-                            //            //                OpenFOAMExportResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            //            //            break;
-                            //            //        }
-                            //            //        var vec = OpenFOAMTreeView.GetListFromVector3DString(param.AsString());
-                            //            //        Vector3D vector = new Vector3D(vec[0], vec[1], vec[2]);
-                            //            //        m_Settings.HierarchicalCoeffs.SetN(vector);
-                            //            //        m_Settings.SimpleCoeffs.SetN(vector);
-                            //            //        break;
-                            //            //    }
-                            //        }
-                            //    }
-                            //    //}
-                            //    //catch (Exception)
-                            //    //{
-                            //    //MessageBox.Show(OpenFOAMExportResource.ERR_FORMAT + " Format-Exception in class OpenFOAMExportForm in method SearchForObjects.",
-                            //    //    OpenFOAMExportResource.MESSAGE_BOX_TITLE,
-                            //    //    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            //    //return false;
-                            //    //}
-                            //}
+                        //            case "slurmcommand":
+                        //                {
+                        //                    slurmCommand = param.AsString();
+                        //                    break;
+                        //                }
+                        //            case "download":
+                        //                {
+                        //                    dowload = Convert.ToBoolean(param.AsString());
+                        //                    break;
+                        //                }
+                        //            case "delete":
+                        //                {
+                        //                    delete = Convert.ToBoolean(param.AsString());
+                        //                    break;
+                        //                }
+                        //            case "slurm":
+                        //                {
+                        //                    slurm = Convert.ToBoolean(param.AsString());
+                        //                    break;
+                        //                }
+                        //            //case "distribution":
+                        //            //    {
+                        //            //        if(!m_LocationReg.IsMatch(param.AsString()))
+                        //            //        {
+                        //            //            MessageBox.Show("Wrong format for distribution.",
+                        //            //                OpenFOAMExportResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        //            //            break;
+                        //            //        }
+                        //            //        var vec = OpenFOAMTreeView.GetListFromVector3DString(param.AsString());
+                        //            //        Vector3D vector = new Vector3D(vec[0], vec[1], vec[2]);
+                        //            //        m_Settings.HierarchicalCoeffs.SetN(vector);
+                        //            //        m_Settings.SimpleCoeffs.SetN(vector);
+                        //            //        break;
+                        //            //    }
+                        //        }
+                        //    }
+                        //    //}
+                        //    //catch (Exception)
+                        //    //{
+                        //    //MessageBox.Show(OpenFOAMExportResource.ERR_FORMAT + " Format-Exception in class OpenFOAMExportForm in method SearchForObjects.",
+                        //    //    OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                        //    //    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        //    //return false;
+                        //    //}
+                        //}
 
-                            //SSH ssh = m_Settings.SSH;
-                            //ssh.Port = port;
-                            //ssh.OfAlias = alias;
-                            //ssh.ServerCaseFolder = caseFolder;
-                            //ssh.Slurm = slurm;
-                            //ssh.SlurmCommand = slurmCommand;
-                            //ssh.Download = dowload;
-                            //ssh.Delete = delete;
+                        //SSH ssh = m_Settings.SSH;
+                        //ssh.Port = port;
+                        //ssh.OfAlias = alias;
+                        //ssh.ServerCaseFolder = caseFolder;
+                        //ssh.Slurm = slurm;
+                        //ssh.SlurmCommand = slurmCommand;
+                        //ssh.Download = dowload;
+                        //ssh.Delete = delete;
 
-                            //var split = userIP.Split('@');
-                            //ssh.User = split[0];
-                            //ssh.ServerIP = split[1];
-                            //m_Settings.SSH = ssh;
-                            ////m_Settings.Update();
+                        //var split = userIP.Split('@');
+                        //ssh.User = split[0];
+                        //ssh.ServerIP = split[1];
+                        //m_Settings.SSH = ssh;
+                        ////m_Settings.Update();
 
                         //}
 
@@ -515,7 +508,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private void InitializeDefaultParameterOpenFOAM()
         {
-            List<string> keyPath = new List<string>();
+            List<string> keyPath = new();
             foreach (var att in Exporter.Instance.settings.SimulationDefault)
             {
                 keyPath.Add(att.Key);
@@ -530,7 +523,7 @@ namespace OpenFOAMInterface.BIM
             }
         }
 
-        
+
 
         /// <summary>
         /// Initialize category-tab.
@@ -571,7 +564,7 @@ namespace OpenFOAMInterface.BIM
             if (parent == null)
                 return null;
 
-            TreeNode treeNode = new TreeNode(parent)
+            TreeNode treeNode = new(parent)
             {
                 Tag = parent
             };
@@ -582,12 +575,12 @@ namespace OpenFOAMInterface.BIM
             if (dict.Count == 0)
                 return treeNode;
 
-            foreach(var att in dict)
+            foreach (var att in dict)
             {
                 //new datatypes needs to be handled here.
                 keyPath.Add(att.Key);
-                TreeNode child = new TreeNode(att.Key);
-                if (att.Value is Dictionary<string,object>)
+                TreeNode child = new(att.Key);
+                if (att.Value is Dictionary<string, object>)
                 {
                     child = GetChildNode(att.Key, att.Value as Dictionary<string, object>, keyPath);
                 }
@@ -600,13 +593,13 @@ namespace OpenFOAMInterface.BIM
                 else if (att.Value is bool)
                 {
                     bool? _bool = att.Value as bool?;
-                    if(_bool != null)
+                    if (_bool != null)
                     {
                         OpenFOAMUI.OpenFOAMDropDownTreeNode<dynamic> dropDown = new((bool)_bool, ref Exporter.Instance.settings, keyPath);
                         child.Nodes.Add(dropDown);
                     }
                 }
-                else if(att.Value is FOAMParameterPatch<dynamic>)
+                else if (att.Value is FOAMParameterPatch<dynamic>)
                 {
                     FOAMParameterPatch<dynamic> patch = (FOAMParameterPatch<dynamic>)att.Value;
                     child = GetChildNode(att.Key, patch.Attributes, keyPath);
@@ -631,29 +624,29 @@ namespace OpenFOAMInterface.BIM
         /// <param name="category"></param>
         /// <param name="view">Current view.</param>
         /// <returns></returns>
-        private TreeNode GetChildNode(Category category,Autodesk.Revit.DB.View view)
+        private TreeNode GetChildNode(Category category, Autodesk.Revit.DB.View view)
         {
-            if(category == null)
+            if (category == null)
                 return null;
 
             if (!category.get_AllowsVisibilityControl(view))
                 return null;
 
-            TreeNode treeNode = new TreeNode(category.Name)
+            TreeNode treeNode = new(category.Name)
             {
                 Tag = category,
                 Checked = true
             };
 
             if (category.SubCategories.Size == 0)
-            {                
+            {
                 return treeNode;
             }
 
             foreach (Category subCategory in category.SubCategories)
             {
-                TreeNode child = GetChildNode(subCategory,view);
-                if(child !=null)
+                TreeNode child = GetChildNode(subCategory, view);
+                if (child != null)
                     treeNode.Nodes.Add(child);
             }
 
@@ -691,7 +684,7 @@ namespace OpenFOAMInterface.BIM
 
             if (!string.IsNullOrEmpty(fileName))
             {
-                if(!m_Direct)
+                if (!m_Direct)
                 {
                     if (!UpdateNonDefaultSettings())
                         return;
@@ -794,14 +787,14 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="treeNode"></param>
         /// <param name="selectedCategories"></param>
-        private void AddSelectedTreeNode(TreeNode treeNode,List<Category> selectedCategories)
+        private void AddSelectedTreeNode(TreeNode treeNode, List<Category> selectedCategories)
         {
             if (treeNode.Checked)
-              selectedCategories.Add((Category)treeNode.Tag);
+                selectedCategories.Add((Category)treeNode.Tag);
 
-            if(treeNode.Nodes.Count != 0)
+            if (treeNode.Nodes.Count != 0)
             {
-                foreach(TreeNode child in treeNode.Nodes)
+                foreach (TreeNode child in treeNode.Nodes)
                 {
                     AddSelectedTreeNode(child, selectedCategories);
                 }
@@ -828,7 +821,7 @@ namespace OpenFOAMInterface.BIM
         {
             foreach (TreeNode treeNode in tvCategories.Nodes)
             {
-                SetCheckedforTreeNode(treeNode,true);
+                SetCheckedforTreeNode(treeNode, true);
             }
         }
 
@@ -841,7 +834,7 @@ namespace OpenFOAMInterface.BIM
         {
             foreach (TreeNode treeNode in tvCategories.Nodes)
             {
-                SetCheckedforTreeNode(treeNode,false);
+                SetCheckedforTreeNode(treeNode, false);
             }
         }
 
@@ -850,7 +843,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="treeNode">The tree node.</param>
         /// <param name="selected">Checked or not.</param>
-        private void SetCheckedforTreeNode(TreeNode treeNode,bool selected)
+        private void SetCheckedforTreeNode(TreeNode treeNode, bool selected)
         {
             treeNode.Checked = selected;
             if (treeNode.Nodes.Count != 0)
@@ -922,7 +915,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="e">The event args.</param>
         private void ComboBoxEnv_SelectedValueChanged(object sender, EventArgs e)
         {
-            if((OpenFOAMEnvironment)comboBoxEnv.SelectedItem == OpenFOAMEnvironment.ssh)
+            if ((OpenFOAMEnvironment)comboBoxEnv.SelectedItem == OpenFOAMEnvironment.ssh)
             {
                 tbSSH.Enabled = true;
             }
@@ -1057,8 +1050,8 @@ namespace OpenFOAMInterface.BIM
 
             //if (m_RegServerCasePath.IsMatch(txtBox))
             //{
-                SSH ssh = Exporter.Instance.settings.SSH;
-                ssh.SlurmCommand = txtBox/*Convert.ToInt32(txtBox)*/;
+            SSH ssh = Exporter.Instance.settings.SSH;
+            ssh.SlurmCommand = txtBox/*Convert.ToInt32(txtBox)*/;
             Exporter.Instance.settings.SSH = ssh;
             //}
             //else
@@ -1082,7 +1075,7 @@ namespace OpenFOAMInterface.BIM
             ssh.Slurm = cbSlurm.Checked;
             Exporter.Instance.settings.SSH = ssh;
 
-            if(cbSlurm.Checked)
+            if (cbSlurm.Checked)
             {
                 txtBoxSlurmCmd.Enabled = true;
             }
@@ -1122,7 +1115,7 @@ namespace OpenFOAMInterface.BIM
 
             //TO-DO: IF XML-CONFIG IMPLEMENTED => ADD CHANGES
         }
-        
+
         /// <summary>
         /// Click-Event for txtBoxLocationInMesh.
         /// </summary>
@@ -1130,7 +1123,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="e">EventArgs</param>
         private void TxtBoxLocationInMesh_Click(object sender, EventArgs e)
         {
-            if(!m_Clicked)
+            if (!m_Clicked)
             {
                 //System.Windows.Media.Media3D.Vector3D location = BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh;
                 TopMost = true;
@@ -1258,7 +1251,7 @@ namespace OpenFOAMInterface.BIM
                     {
                         doc.ActiveView.SetElementOverrides(e.Id, ogsFade);
                         e.CanBeLocked();
-                       
+
                         //m_Revit.ActiveUIDocument.Selection.
                         e.Pinned = true;
                     }
@@ -1293,7 +1286,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="color"></param>
         private void ColoringSolid(Document doc, ElementId solidId, Autodesk.Revit.DB.Color color)
         {
-            if(doc.GetElement(solidId) == null)
+            if (doc.GetElement(solidId) == null)
             {
                 return;
             }
@@ -1383,7 +1376,7 @@ namespace OpenFOAMInterface.BIM
         }
         private XYZ toXYZ(System.Windows.Media.Media3D.Vector3D v)
         {
-            return new XYZ(v.X,v.Y,v.Z);
+            return new XYZ(v.X, v.Y, v.Z);
         }
         private System.Windows.Media.Media3D.Vector3D ConvertToDisplayUnits(System.Windows.Media.Media3D.Vector3D v)
         {
@@ -1410,7 +1403,7 @@ namespace OpenFOAMInterface.BIM
             TopMost = false;
 
             var vector = GetLocationOfElementAsVector(m_SphereLocationInMesh);
-            if(vector != new System.Windows.Media.Media3D.Vector3D())
+            if (vector != new System.Windows.Media.Media3D.Vector3D())
             {
                 Exporter.Instance.settings.LocationInMesh = vector;
             }
@@ -1449,7 +1442,7 @@ namespace OpenFOAMInterface.BIM
                 return location;
 
             var locationInMesh = m_ActiveDocument.GetElement(id) as DirectShape;
-            if(locationInMesh != null)
+            if (locationInMesh != null)
             {
                 var geometry = locationInMesh.get_Geometry(new Options());
                 foreach (Solid solid in geometry)
@@ -1534,7 +1527,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="e">ViewActivatedEventArgs.</param>
         private void Revit_ViewActivating(object sender, ViewActivatingEventArgs e)
         {
-            if(m_Changed || m_Clicked)
+            if (m_Changed || m_Clicked)
             {
                 TxtBoxLocationInMesh_Leave(sender, e);
             }

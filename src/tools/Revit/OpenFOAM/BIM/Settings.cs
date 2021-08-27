@@ -1177,9 +1177,9 @@ namespace OpenFOAMInterface.BIM
         private XYZ m_RefinementBoxY;
         private XYZ m_RefinementBoxZ;
         private int m_RefinementBoxLevel;
-        private double m_WindSpeed=10.0;
-        private double m_ReferenceHeight=6.0;
-        private string m_Profile="constant";
+        private double m_WindSpeed = 10.0;
+        private double m_ReferenceHeight = 6.0;
+        private string m_Profile = "constant";
         private string m_localCaseFolder;
         private Dictionary<string, object> m_RefinementRegions;
         private bool m_AllowFreeStandingZoneFaces;
@@ -1251,7 +1251,7 @@ namespace OpenFOAMInterface.BIM
         private bool m_exportColor;
         private bool m_exportSharedCoordinates;
         private List<Category> m_SelectedCategories;
-        private Autodesk.Revit.DB.ForgeTypeId m_Units;
+        private ForgeTypeId m_Units;
 
         private Dictionary<string, object> m_Outlets;
         private Dictionary<string, object> m_Inlets;
@@ -1265,7 +1265,7 @@ namespace OpenFOAMInterface.BIM
 
         //Getter-Setter ControlDict        
         public SolverControlDict AppSolverControlDict { get => m_AppControlDictSolver; set => m_AppControlDictSolver = value; }
-        public string localCaseFolder { get => m_localCaseFolder; set => m_localCaseFolder = value; }
+        public string LocalCaseFolder { get => m_localCaseFolder; set => m_localCaseFolder = value; }
 
         //Getter-Setter DecomposeParDict
         public int NumberOfSubdomains { get => m_NumberOfSubdomains; set => m_NumberOfSubdomains = value; }
@@ -1319,28 +1319,37 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Binary or ASCII STL file.
         /// </summary>
-        public SaveFormat SaveFormat {
-            get {
+        public SaveFormat SaveFormat
+        {
+            get
+            {
                 return m_SaveFormat;
             }
-            set {
+            set
+            {
                 m_SaveFormat = value;
             }
         }
 
-        public List<Element> DuctTerminals {
-            get {
+        public List<Element> DuctTerminals
+        {
+            get
+            {
                 return m_DuctTerminals;
             }
-            set {
+            set
+            {
                 m_DuctTerminals = value;
             }
         }
-        public List<ElementId> InletOutletMaterials {
-            get {
+        public List<ElementId> InletOutletMaterials
+        {
+            get
+            {
                 return m_InletOutletMaterials;
             }
-            set {
+            set
+            {
                 m_InletOutletMaterials = value;
             }
         }
@@ -1349,11 +1358,14 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// The range of elements to be exported.
         /// </summary>
-        public ElementsExportRange ExportRange {
-            get {
+        public ElementsExportRange ExportRange
+        {
+            get
+            {
                 return m_ExportRange;
             }
-            set {
+            set
+            {
                 m_ExportRange = value;
             }
         }
@@ -1361,8 +1373,10 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// SnappyHexMesh or cfMesh.
         /// </summary>
-        public MeshType Mesh {
-            get {
+        public MeshType Mesh
+        {
+            get
+            {
                 return m_Mesh;
             }
         }
@@ -1370,11 +1384,14 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Include linked models.
         /// </summary>
-        public bool IncludeLinkedModels {
-            get {
+        public bool IncludeLinkedModels
+        {
+            get
+            {
                 return m_IncludeLinkedModels;
             }
-            set {
+            set
+            {
                 m_IncludeLinkedModels = value;
             }
         }
@@ -1382,11 +1399,14 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Export Color.
         /// </summary>
-        public bool ExportColor {
-            get {
+        public bool ExportColor
+        {
+            get
+            {
                 return m_exportColor;
             }
-            set {
+            set
+            {
                 m_exportColor = value;
             }
         }
@@ -1394,11 +1414,14 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Export point in shared coordinates.
         /// </summary>
-        public bool ExportSharedCoordinates {
-            get {
+        public bool ExportSharedCoordinates
+        {
+            get
+            {
                 return m_exportSharedCoordinates;
             }
-            set {
+            set
+            {
                 m_exportSharedCoordinates = value;
             }
         }
@@ -1406,11 +1429,14 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Include selected categories.
         /// </summary>
-        public List<Category> SelectedCategories {
-            get {
+        public List<Category> SelectedCategories
+        {
+            get
+            {
                 return m_SelectedCategories;
             }
-            set {
+            set
+            {
                 m_SelectedCategories = value;
             }
         }
@@ -1431,8 +1457,10 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Get dicitionionary with default values.
         /// </summary>
-        public Dictionary<string, object> SimulationDefault {
-            get {
+        public Dictionary<string, object> SimulationDefault
+        {
+            get
+            {
                 return m_SimulationDefaultList;
             }
         }
@@ -1601,8 +1629,8 @@ namespace OpenFOAMInterface.BIM
             m_TurbulenceParameter = new TurbulenceParameter(simulationType, rasModel, true, true);
 
             //SSH
-            m_SSH = new SSH("hpcwoess", "visent.hlrs.de", "of2012", "/mnt/raid/home/hpcwoess/foam",
-                true, false, true, 22, "eval salloc -n " + numberOfSubdomains);
+            m_SSH = new("hpcwoess", "visent.hlrs.de", "of2012", "/mnt/raid/home/hpcwoess/foam",
+                true, false, true, 31022, "eval salloc -n " + numberOfSubdomains);
 
             //General
             m_IncludeLinkedModels = includeLinkedModels;
@@ -1686,7 +1714,7 @@ namespace OpenFOAMInterface.BIM
                 var edges = face.EdgeLoops;
                 if (!edges.IsEmpty && edges != null)
                 {
-                    foreach (Edge edge in edges.get_Item(0) as EdgeArray)
+                    foreach (Edge edge in edges.get_Item(0))
                     {
                         boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, UnitTypeId.Meters), 2);
                     }
@@ -1712,7 +1740,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="lambda">Lambda expression.</param>
         /// <param name="convertFunc">Convert-function Func<Parameter, DisplayUnitType, T>.</param>
         /// <returns>Converted Parameter as T.</returns>
-        private T GetParamValue<T>(Parameter param, Autodesk.Revit.DB.ForgeTypeId type, Func<bool> lambda, Func<Parameter, Autodesk.Revit.DB.ForgeTypeId, T> convertFunc)
+        private T GetParamValue<T>(Parameter param, ForgeTypeId type, Func<bool> lambda, Func<Parameter, ForgeTypeId, T> convertFunc)
         {
             T paramValue = default;
             if (lambda())
@@ -1772,23 +1800,23 @@ namespace OpenFOAMInterface.BIM
             m_MinRefinementCalls = 10;
             m_MaxLoadUnbalance = 0.10;
             m_NCellsBetweenLevels = 3;
-            m_Features = new ArrayList();
+            m_Features = new();
             //m_FeatureLevel = 3;
-            m_WallLevel = new Vector(3, 3);
-            m_OutletLevel = new Vector(4, 4);
-            m_InletLevel = new Vector(4, 4);
+            m_WallLevel = new(3, 3);
+            m_OutletLevel = new(4, 4);
+            m_InletLevel = new(4, 4);
             m_ResolveFeatureAngle = 180;
-            m_RefinementRegions = new Dictionary<string, object>();
+            m_RefinementRegions = new();
             m_AllowFreeStandingZoneFaces = true;
-            m_LocationInMesh = new Vector3D(65.6, 0, 16.4);
-            m_DomainOrigin = new XYZ(0, 0, 0);
-            m_DomainX = new XYZ(0, 0, 0);
-            m_DomainY = new XYZ(0, 0, 0);
-            m_DomainZ = new XYZ(0, 0, 0);
-            m_RefinementBoxOrigin = new XYZ(0, 0, 0);
-            m_RefinementBoxX = new XYZ(0, 0, 0);
-            m_RefinementBoxY = new XYZ(0, 0, 0);
-            m_RefinementBoxZ = new XYZ(0, 0, 0);
+            m_LocationInMesh = new(65.6, 0, 16.4);
+            m_DomainOrigin = new(0, 0, 0);
+            m_DomainX = new(0, 0, 0);
+            m_DomainY = new(0, 0, 0);
+            m_DomainZ = new(0, 0, 0);
+            m_RefinementBoxOrigin = new(0, 0, 0);
+            m_RefinementBoxX = new(0, 0, 0);
+            m_RefinementBoxY = new(0, 0, 0);
+            m_RefinementBoxZ = new(0, 0, 0);
 
 
 
@@ -1803,7 +1831,7 @@ namespace OpenFOAMInterface.BIM
 
             //SnappyHexMesh-AddLayersControl
             m_RelativeSizes = true;
-            m_Layers = new Dictionary<string, object>();
+            m_Layers = new();
             m_ExpansionRatio = 1.1;
             m_FinalLayerThickness = 0.7;
             m_MinThickness = 0.1;
@@ -1848,17 +1876,17 @@ namespace OpenFOAMInterface.BIM
             m_TempInlet = kelvin + 29;
         }
 
-        public void setDocument(UIApplication revit)
+        public void SetDocument(UIApplication revit)
         {
             m_Revit = revit;
             document = m_Revit.ActiveUIDocument.Document;
-            localCaseFolder = "c:\\tmp";
+            LocalCaseFolder = "c:\\tmp";
 
             // try to get OpenFoamObject and initialize from there
 
-            ElementClassFilter filter = new ElementClassFilter(typeof(FamilyInstance));
+            ElementClassFilter filter = new(typeof(FamilyInstance));
             // Apply the filter to the elements in the active document
-            FilteredElementCollector collector = new FilteredElementCollector(document);
+            FilteredElementCollector collector = new(document);
             collector.WherePasses(filter);
 
             // Use Linq query to find family instances whose name is OpenFOAM
@@ -1867,25 +1895,25 @@ namespace OpenFOAMInterface.BIM
                            select element;
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
-            List<FamilyInstance> familyInstancesDomain = queryBox.Cast<FamilyInstance>().ToList<FamilyInstance>();
+            List<FamilyInstance> familyInstancesDomain = queryBox.Cast<FamilyInstance>().ToList();
             if (familyInstancesDomain.Count > 0)
             {
                 computeBoundingBox = false;
                 FamilyInstance instance = familyInstancesDomain[0];
 
                 Transform pos = instance.GetTransform();
-                m_WindSpeed = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "WindSpeed"), Autodesk.Revit.DB.UnitTypeId.MetersPerSecond);
-                m_ReferenceHeight = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "ReferenceHeight"), Autodesk.Revit.DB.UnitTypeId.MetersPerSecond);
-                
+                m_WindSpeed = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "WindSpeed"), UnitTypeId.MetersPerSecond);
+                m_ReferenceHeight = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "ReferenceHeight"), UnitTypeId.MetersPerSecond);
+
                 m_Profile = getString(instance, "WindProfile");
 
                 double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), UnitTypeId.Meters);
                 double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), UnitTypeId.Meters);
                 double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), UnitTypeId.Meters);
-                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
+                XYZ origin = new(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, UnitTypeId.Meters));
-                m_DomainOrigin = origin - (pos.BasisX * width/2.0) - (pos.BasisY * depth / 2.0);
+                m_DomainOrigin = origin - (pos.BasisX * width / 2.0) - (pos.BasisY * depth / 2.0);
                 m_DomainX = pos.BasisX * width;
                 m_DomainY = pos.BasisY * depth;
                 m_DomainZ = pos.BasisZ * height;
@@ -1896,7 +1924,7 @@ namespace OpenFOAMInterface.BIM
                         select element;
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
-            List<FamilyInstance> familyInstances = query.Cast<FamilyInstance>().ToList<FamilyInstance>();
+            List<FamilyInstance> familyInstances = query.Cast<FamilyInstance>().ToList();
             if (familyInstances.Count > 0)
             {
                 FamilyInstance instance = familyInstances[0];
@@ -1908,10 +1936,10 @@ namespace OpenFOAMInterface.BIM
                 m_LocationInMesh.Y = pos.Origin.Y;
                 m_LocationInMesh.Z = pos.Origin.Z;
                 m_LocationInMesh.Z += getDouble(instance, "height");
-                localCaseFolder = getString(instance, "localCaseFolder");
+                LocalCaseFolder = getString(instance, "localCaseFolder");
 
                 //environment
-                String foamEnv = getString(instance, "OpenFOAM Environment");
+                var foamEnv = getString(instance, "OpenFOAM Environment");
                 if (foamEnv == "ssh")
                 {
                     m_openFOAMEnvironment = OpenFOAMEnvironment.ssh;
@@ -1962,8 +1990,8 @@ namespace OpenFOAMInterface.BIM
                     temp = 298.15;
                 m_TempInternalField = temp;
 
-                int maxGlobalCells = getInt(instance,"maxGlobalCells");
-                if(maxGlobalCells > 1)
+                int maxGlobalCells = getInt(instance, "maxGlobalCells");
+                if (maxGlobalCells > 1)
                 {
                     m_MaxGlobalCells = maxGlobalCells;
                 }
@@ -1991,17 +2019,17 @@ namespace OpenFOAMInterface.BIM
                 m_EndTime = getInt(instance, "endTime");
                 if (m_EndTime == 0)
                     m_EndTime = 100;
-                if(m_WriteInterval > m_EndTime)
+                if (m_WriteInterval > m_EndTime)
                     m_WriteInterval = m_EndTime;
             }
 
             // Use Linq query to find family instances whose name is OpenFOAM
             var queryBoxRef = from element in collector
-                           where element.Name == "OpenFOAMRefinementRegion"
-                           select element;
+                              where element.Name == "OpenFOAMRefinementRegion"
+                              select element;
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
-            List<FamilyInstance> familyInstancesRefRegion = queryBoxRef.Cast<FamilyInstance>().ToList<FamilyInstance>();
+            List<FamilyInstance> familyInstancesRefRegion = queryBoxRef.Cast<FamilyInstance>().ToList();
             if (familyInstancesRefRegion.Count > 0)
             {
                 FamilyInstance instance = familyInstancesRefRegion[0];
@@ -2013,7 +2041,7 @@ namespace OpenFOAMInterface.BIM
                 double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), UnitTypeId.Meters);
                 double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), UnitTypeId.Meters);
                 double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), UnitTypeId.Meters);
-                XYZ origin = new XYZ(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
+                XYZ origin = new(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, UnitTypeId.Meters));
                 m_RefinementBoxOrigin = origin - (pos.BasisX * width / 2.0) - (pos.BasisY * depth / 2.0);
@@ -2031,7 +2059,7 @@ namespace OpenFOAMInterface.BIM
 
         }
 
-        public void initConfigs()
+        public void InitConfigs()
         {
 
             // if solver changes
@@ -2042,7 +2070,7 @@ namespace OpenFOAMInterface.BIM
 
             if (!InitBIMData())
             {
-                System.Windows.Forms.MessageBox.Show("Problem with initializing BIM-Data.",
+                MessageBox.Show("Problem with initializing BIM-Data.",
                     OpenFOAMExportResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
@@ -2144,9 +2172,9 @@ namespace OpenFOAMInterface.BIM
                 double meanFlowVelocity = 0;
                 double staticPressure = 0;
                 int rpm = 0;
-                getFlowParameters(instance, ref flowRate,ref meanFlowVelocity,ref staticPressure,ref rpm,ref surfaceArea);
+                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
 
-                
+
                 //string nameDuct = AutodeskHelperFunctions.GenerateNameFromElement(element);
 
                 if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet"))
@@ -2177,10 +2205,10 @@ namespace OpenFOAMInterface.BIM
                 double flowRate = 0;
                 double meanFlowVelocity = 0;
                 double staticPressure = 0;
-                int rpm=0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref  surfaceArea);
+                int rpm = 0;
+                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
 
-                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry); 
+                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
                 Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
                 inletCount++;
@@ -2195,7 +2223,7 @@ namespace OpenFOAMInterface.BIM
                 double flowRate = 0;
                 double meanFlowVelocity = 0;
                 double staticPressure = 0;
-                int rpm=0;
+                int rpm = 0;
                 getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -2566,7 +2594,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private void CreateControlDictionary()
         {
-            Dictionary<string, object> m_ControlDict = new Dictionary<string, object>();
+            Dictionary<string, object> m_ControlDict = new();
 
             m_ControlDict.Add("startFrom", m_StartFrom);
             m_ControlDict.Add("startTime", m_StartTime);
@@ -2839,56 +2867,56 @@ namespace OpenFOAMInterface.BIM
                 switch (m_AppControlDictSolver)
                 {
                     case SolverControlDict.simpleFoam:
-                    {
-                        //U
-                        InitialParameter U = CreateInitialParameter(model, InitialFOAMParameter.U);
+                        {
+                            //U
+                            InitialParameter U = CreateInitialParameter(model, InitialFOAMParameter.U);
 
-                        //p
-                        InitialParameter p = CreateInitialParameter(model, InitialFOAMParameter.p);
+                            //p
+                            InitialParameter p = CreateInitialParameter(model, InitialFOAMParameter.p);
 
-                        initialParameters.Add(U);
-                        initialParameters.Add(p);
-                        break;
-                    }
+                            initialParameters.Add(U);
+                            initialParameters.Add(p);
+                            break;
+                        }
                     case SolverControlDict.buoyantBoussinesqSimpleFoam:
-                    {
-                        //U
-                        InitialParameter U = CreateInitialParameter(model, InitialFOAMParameter.U);
+                        {
+                            //U
+                            InitialParameter U = CreateInitialParameter(model, InitialFOAMParameter.U);
 
-                        //alphat
-                        InitialParameter alphat = CreateInitialParameter(model, InitialFOAMParameter.alphat);
+                            //alphat
+                            InitialParameter alphat = CreateInitialParameter(model, InitialFOAMParameter.alphat);
 
-                        //T
-                        InitialParameter T = CreateInitialParameter(model, InitialFOAMParameter.T);
+                            //T
+                            InitialParameter T = CreateInitialParameter(model, InitialFOAMParameter.T);
 
-                        //p_rgh
-                        InitialParameter p_rgh = CreateInitialParameter(model, InitialFOAMParameter.p_rgh);
+                            //p_rgh
+                            InitialParameter p_rgh = CreateInitialParameter(model, InitialFOAMParameter.p_rgh);
 
-                        initialParameters.Add(U);
-                        initialParameters.Add(p_rgh);
-                        initialParameters.Add(alphat);
-                        initialParameters.Add(T);
+                            initialParameters.Add(U);
+                            initialParameters.Add(p_rgh);
+                            initialParameters.Add(alphat);
+                            initialParameters.Add(T);
 
-                        break;
-                    }
-                    //not implemented solver yet
-                    //case SolverControlDict.adjointShapeOptimizationFoam:
-                    //case SolverControlDict.boundaryFoam:
-                    //case SolverControlDict.icoFoam:
-                    //case SolverControlDict.nonNewtonianIcoFoam:
-                    //case SolverControlDict.pimpleDyMFoam:
-                    //case SolverControlDict.pimpleFoam:
-                    //case SolverControlDict.pisoFoam:
-                    //case SolverControlDict.porousSimpleFoam:
-                    //case SolverControlDict.shallowWaterFoam:
-                    //case SolverControlDict.SRFPimpleFoam:
-                    //case SolverControlDict.SRFSimpleFoam:
-                    //case SolverControlDict.buoyantBoussinesqPimpleFoam:
-                    //case SolverControlDict.buoyantPimpleFoam:
-                    //case SolverControlDict.buoyantSimpleFoam:
-                    //case SolverControlDict.chtMultiRegionFoam:
-                    //case SolverControlDict.chtMultiRegionSimpleFoam:
-                    //    break;
+                            break;
+                        }
+                        //not implemented solver yet
+                        //case SolverControlDict.adjointShapeOptimizationFoam:
+                        //case SolverControlDict.boundaryFoam:
+                        //case SolverControlDict.icoFoam:
+                        //case SolverControlDict.nonNewtonianIcoFoam:
+                        //case SolverControlDict.pimpleDyMFoam:
+                        //case SolverControlDict.pimpleFoam:
+                        //case SolverControlDict.pisoFoam:
+                        //case SolverControlDict.porousSimpleFoam:
+                        //case SolverControlDict.shallowWaterFoam:
+                        //case SolverControlDict.SRFPimpleFoam:
+                        //case SolverControlDict.SRFSimpleFoam:
+                        //case SolverControlDict.buoyantBoussinesqPimpleFoam:
+                        //case SolverControlDict.buoyantPimpleFoam:
+                        //case SolverControlDict.buoyantSimpleFoam:
+                        //case SolverControlDict.chtMultiRegionFoam:
+                        //case SolverControlDict.chtMultiRegionSimpleFoam:
+                        //    break;
                 }
             }
         }
@@ -2904,24 +2932,24 @@ namespace OpenFOAMInterface.BIM
             switch (m_TurbulenceParameter.SimType)
             {
                 case SimulationType.laminar:
-                {
-                    //not implemented yet!
-                    break;
-                }
+                    {
+                        //not implemented yet!
+                        break;
+                    }
                 case SimulationType.RAS:
-                {
-                    RAS ras = (RAS)m_TurbulenceParameter.StructModel;
-                    RASModel rasM = ras.RASModel;
-                    callFunc(initialParameters, rasM);
-                    break;
-                }
+                    {
+                        RAS ras = (RAS)m_TurbulenceParameter.StructModel;
+                        RASModel rasM = ras.RASModel;
+                        callFunc(initialParameters, rasM);
+                        break;
+                    }
                 case SimulationType.LES:
-                {
-                    LES les = (LES)m_TurbulenceParameter.StructModel;
-                    LESModel lesM = les.LESModel;
-                    callFunc(initialParameters, lesM);
-                    break;
-                }
+                    {
+                        LES les = (LES)m_TurbulenceParameter.StructModel;
+                        LESModel lesM = les.LESModel;
+                        callFunc(initialParameters, lesM);
+                        break;
+                    }
             }
         }
 
@@ -2955,40 +2983,40 @@ namespace OpenFOAMInterface.BIM
             {
                 case RASModel.kEpsilon:
                 case RASModel.RNGkEpsilon:
-                {
-                    // k
-                    InitialParameter k = CreateInitialParameter(model, InitialFOAMParameter.k);
+                    {
+                        // k
+                        InitialParameter k = CreateInitialParameter(model, InitialFOAMParameter.k);
 
-                    //epsilon
-                    InitialParameter epsilon = CreateInitialParameter(model, InitialFOAMParameter.epsilon);
+                        //epsilon
+                        InitialParameter epsilon = CreateInitialParameter(model, InitialFOAMParameter.epsilon);
 
-                    //nut
-                    InitialParameter nut = CreateInitialParameter(model, InitialFOAMParameter.nut);
+                        //nut
+                        InitialParameter nut = CreateInitialParameter(model, InitialFOAMParameter.nut);
 
-                    initialParameters.Add(k);
-                    initialParameters.Add(epsilon);
-                    initialParameters.Add(nut);
-                    break;
-                }
-                //not implemented rasmodels
-                //case RASModel.buoyantKEpsilon:
-                //case RASModel.kkLOmega:
-                //case RASModel.kOmega:
-                //case RASModel.kOmegaSST:
-                //case RASModel.kOmegaSSTLM:
-                //case RASModel.kOmegaSSTSAS:
-                //case RASModel.LamBremhorstKE:
-                //case RASModel.LaunderSharmaKE:
-                //case RASModel.LienCubicKE:
-                //case RASModel.LienLeschzine:
-                //case RASModel.LRR:
-                //case RASModel.qZeta:
-                //case RASModel.realizableKE:
-                //case RASModel.ShihQuadraticKE:
-                //case RASModel.SpalartAllmaras:
-                //case RASModel.SSG:
-                //case RASModel.v2f:
-                //    break;
+                        initialParameters.Add(k);
+                        initialParameters.Add(epsilon);
+                        initialParameters.Add(nut);
+                        break;
+                    }
+                    //not implemented rasmodels
+                    //case RASModel.buoyantKEpsilon:
+                    //case RASModel.kkLOmega:
+                    //case RASModel.kOmega:
+                    //case RASModel.kOmegaSST:
+                    //case RASModel.kOmegaSSTLM:
+                    //case RASModel.kOmegaSSTSAS:
+                    //case RASModel.LamBremhorstKE:
+                    //case RASModel.LaunderSharmaKE:
+                    //case RASModel.LienCubicKE:
+                    //case RASModel.LienLeschzine:
+                    //case RASModel.LRR:
+                    //case RASModel.qZeta:
+                    //case RASModel.realizableKE:
+                    //case RASModel.ShihQuadraticKE:
+                    //case RASModel.SpalartAllmaras:
+                    //case RASModel.SSG:
+                    //case RASModel.v2f:
+                    //    break;
             }
         }
 
@@ -3028,145 +3056,145 @@ namespace OpenFOAMInterface.BIM
             switch (param)
             {
                 case InitialFOAMParameter.p:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.0, model);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.wall, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", -1.5, PatchType.outlet, true);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.floor, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.sky, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.sidewalls, false);
-                    break;
-                }
+                    {
+                        parameter = new InitialParameter(param.ToString(), 0.0, model);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.wall, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", -1.5, PatchType.outlet, true);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.floor, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.sky, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.sidewalls, false);
+                        break;
+                    }
                 case InitialFOAMParameter.U:
-                {
-                    parameter = new InitialParameter(param.ToString(), new Vector3D(0.0, 0.0, 0.0), model);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.wall, true);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, -0.25), PatchType.inlet, true);
-                    CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.outlet, true);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.floor, true);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.sky, true);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.sidewalls, true);
-                    foreach (var outlet in parameter.Patches)
                     {
-                        if (outlet.Value.Type == PatchType.outlet)
+                        parameter = new InitialParameter(param.ToString(), new Vector3D(0.0, 0.0, 0.0), model);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.wall, true);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, -0.25), PatchType.inlet, true);
+                        CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.outlet, true);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.floor, true);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.sky, true);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", new Vector3D(0.0, 0.0, 0.0), PatchType.sidewalls, true);
+                        foreach (var outlet in parameter.Patches)
                         {
-                            if (outlet.Value.Attributes.ContainsKey("rpm"))
-                                break;
+                            if (outlet.Value.Type == PatchType.outlet)
+                            {
+                                if (outlet.Value.Attributes.ContainsKey("rpm"))
+                                    break;
 
-                            outlet.Value.Attributes.Add("inletValue uniform", new Vector3D(0.0, 0.0, 0.0));
+                                outlet.Value.Attributes.Add("inletValue uniform", new Vector3D(0.0, 0.0, 0.0));
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
                 case InitialFOAMParameter.nut:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.0, model);
-                    CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.wall, false);
-                    CreateFOAMParameterPatches(parameter, "calculated", "uniform", 0.0, PatchType.inlet, false);
-                    CreateFOAMParameterPatches(parameter, "calculated", "uniform", 0.0, PatchType.outlet, false);
-                    CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.floor, false);
-                    CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.sky, false);
-                    CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.sidewalls, false);
-                    break;
-                }
+                    {
+                        parameter = new InitialParameter(param.ToString(), 0.0, model);
+                        CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.wall, false);
+                        CreateFOAMParameterPatches(parameter, "calculated", "uniform", 0.0, PatchType.inlet, false);
+                        CreateFOAMParameterPatches(parameter, "calculated", "uniform", 0.0, PatchType.outlet, false);
+                        CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.floor, false);
+                        CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.sky, false);
+                        CreateFOAMParameterPatches(parameter, "nutkWallFunction", "uniform", 0.0, PatchType.sidewalls, false);
+                        break;
+                    }
                 case InitialFOAMParameter.k:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.1, model);
-                    CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.wall, /*false*/true);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", 0.1, PatchType.inlet, /*false*/true);
-                    CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", 0.1, PatchType.outlet, false/*true*/);
-                    CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.floor, true);
-                    CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.sky, true);
-                    CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.sidewalls, true);
-                    foreach (var outlet in parameter.Patches)
                     {
-                        if (outlet.Value.Type == PatchType.outlet)
+                        parameter = new InitialParameter(param.ToString(), 0.1, model);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.wall, /*false*/true);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", 0.1, PatchType.inlet, /*false*/true);
+                        CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", 0.1, PatchType.outlet, false/*true*/);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.floor, true);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.sky, true);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.sidewalls, true);
+                        foreach (var outlet in parameter.Patches)
                         {
-                            outlet.Value.Attributes.Add("inletValue uniform", 0.1);
+                            if (outlet.Value.Type == PatchType.outlet)
+                            {
+                                outlet.Value.Attributes.Add("inletValue uniform", 0.1);
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
                 case InitialFOAMParameter.epsilon:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.01, model);
-                    CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.wall, true/*false*/);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", 0.01, PatchType.inlet, /*false */true);
-                    CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", 0.1, PatchType.outlet, false /*true*/);
-                    CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.floor, true); ;
-                    CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.sky, true); ;
-                    CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.sidewalls, true);
-                    foreach (var outlet in parameter.Patches)
                     {
-                        if (outlet.Value.Type == PatchType.outlet)
+                        parameter = new InitialParameter(param.ToString(), 0.01, model);
+                        CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.wall, true/*false*/);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", 0.01, PatchType.inlet, /*false */true);
+                        CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", 0.1, PatchType.outlet, false /*true*/);
+                        CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.floor, true); ;
+                        CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.sky, true); ;
+                        CreateFOAMParameterPatches(parameter, "epsilonWallFunction", "uniform", 0.01, PatchType.sidewalls, true);
+                        foreach (var outlet in parameter.Patches)
                         {
-                            outlet.Value.Attributes.Add("inletValue uniform", 0.1);
+                            if (outlet.Value.Type == PatchType.outlet)
+                            {
+                                outlet.Value.Attributes.Add("inletValue uniform", 0.1);
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
 
                 case InitialFOAMParameter.alphat:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.0, model);
-                    CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.wall, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.outlet, false);
-                    CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.floor, false);
-                    CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.sky, false);
-                    CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.sidewalls, false);
-                    foreach (var wall in parameter.Patches)
                     {
-                        if (wall.Value.Type == PatchType.wall || wall.Value.Type == PatchType.floor || wall.Value.Type == PatchType.sky || wall.Value.Type == PatchType.sidewalls)
+                        parameter = new InitialParameter(param.ToString(), 0.0, model);
+                        CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.wall, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.outlet, false);
+                        CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.floor, false);
+                        CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.sky, false);
+                        CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.sidewalls, false);
+                        foreach (var wall in parameter.Patches)
                         {
-                            wall.Value.Attributes.Add("Prt", "0.85");
+                            if (wall.Value.Type == PatchType.wall || wall.Value.Type == PatchType.floor || wall.Value.Type == PatchType.sky || wall.Value.Type == PatchType.sidewalls)
+                            {
+                                wall.Value.Attributes.Add("Prt", "0.85");
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
 
                 case InitialFOAMParameter.T:
-                {
-                    parameter = new InitialParameter(param.ToString(), m_TempInternalField/*m_TransportModelParameter["TRef"]*/, model);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.wall, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempInlet, PatchType.inlet, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.outlet, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.floor, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.sky, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.sidewalls, false);
-                    break;
-                }
+                    {
+                        parameter = new InitialParameter(param.ToString(), m_TempInternalField/*m_TransportModelParameter["TRef"]*/, model);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.wall, false);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempInlet, PatchType.inlet, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.outlet, false);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.floor, false);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.sky, false);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.sidewalls, false);
+                        break;
+                    }
 
                 case InitialFOAMParameter.p_rgh:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.0, model);
-                    CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.wall, false);
-                    CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", -1.5, PatchType.outlet, true);
-                    CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.floor, false);
-                    CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.sky, false);
-                    CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.sidewalls, false);
-                    foreach (var wall in parameter.Patches)
                     {
-                        if (wall.Value.Type == PatchType.wall || wall.Value.Type == PatchType.floor || wall.Value.Type == PatchType.sky || wall.Value.Type == PatchType.sidewalls)
+                        parameter = new InitialParameter(param.ToString(), 0.0, model);
+                        CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.wall, false);
+                        CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", -1.5, PatchType.outlet, true);
+                        CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.floor, false);
+                        CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.sky, false);
+                        CreateFOAMParameterPatches(parameter, "fixedFluxPressure", "uniform", 0.0, PatchType.sidewalls, false);
+                        foreach (var wall in parameter.Patches)
                         {
-                            wall.Value.Attributes.Add("rho", "rhok");
+                            if (wall.Value.Type == PatchType.wall || wall.Value.Type == PatchType.floor || wall.Value.Type == PatchType.sky || wall.Value.Type == PatchType.sidewalls)
+                            {
+                                wall.Value.Attributes.Add("rho", "rhok");
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
                 default:
-                {
-                    parameter = new InitialParameter(param.ToString(), 0.0, model);
-                    CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.wall, false);
-                    CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.inlet, false);
-                    CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.outlet, false);
-                    CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.floor, false);
-                    CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.sky, false);
-                    CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.sidewalls, false);
-                    break;
-                }
+                    {
+                        parameter = new InitialParameter(param.ToString(), 0.0, model);
+                        CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.wall, false);
+                        CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.inlet, false);
+                        CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.outlet, false);
+                        CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.floor, false);
+                        CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.sky, false);
+                        CreateFOAMParameterPatches(parameter, "", "", 0.0, PatchType.sidewalls, false);
+                        break;
+                    }
             }
 
             return parameter;
@@ -3187,440 +3215,440 @@ namespace OpenFOAMInterface.BIM
             switch (pType)
             {
                 case PatchType.inlet:
-                {
-                    FOAMParameterPatch<dynamic> _inlet = default;
-                    if(!DomainX.IsZeroLength())
                     {
-                        //TODO get Velocity from Instance
-
-                        if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
+                        FOAMParameterPatch<dynamic> _inlet = default;
+                        if (!DomainX.IsZeroLength())
                         {
-                            XYZ v = DomainY.Normalize() * WindSpeed;
-                            if(Profile == "atm")
-                            {
-                                type = "atmBoundaryLayerInletVelocity";
-                                v = new XYZ(0,0,0);
-                            }
-                            _inlet = new FOAMParameterPatch<dynamic>(type, uniform, new Vector3D(v.X, v.Y, v.Z), pType);
+                            //TODO get Velocity from Instance
 
-                            if (Profile == "atm")
+                            if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
                             {
-                                XYZ fv = DomainY.Normalize();
-                                _inlet.Attributes.Add("kappa", 0.4);
-                                _inlet.Attributes.Add("Cmu", 0.09);
-                                _inlet.Attributes.Add("flowDir", new Vector3D(fv.X, fv.Y, fv.Z));
-                                _inlet.Attributes.Add("zDir", new Vector3D(0, 0, 1));
-                                _inlet.Attributes.Add("Uref", WindSpeed);
-                                _inlet.Attributes.Add("Zref", ReferenceHeight);
-                                _inlet.Attributes.Add("z0 uniform", 0.01);
-                                _inlet.Attributes.Add("d uniform", 0.0);
-                                _inlet.Attributes.Add("zGround uniform", 0.0);
+                                XYZ v = DomainY.Normalize() * WindSpeed;
+                                if (Profile == "atm")
+                                {
+                                    type = "atmBoundaryLayerInletVelocity";
+                                    v = new XYZ(0, 0, 0);
+                                }
+                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, new Vector3D(v.X, v.Y, v.Z), pType);
 
-                            }
-                            param.Patches.Add("inlet", _inlet);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
-                        {
-                            if (Profile == "atm")
-                            {
-                                type = "atmBoundaryLayerInletEpsilon";
-                            }
-                            _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0.1, pType);
+                                if (Profile == "atm")
+                                {
+                                    XYZ fv = DomainY.Normalize();
+                                    _inlet.Attributes.Add("kappa", 0.4);
+                                    _inlet.Attributes.Add("Cmu", 0.09);
+                                    _inlet.Attributes.Add("flowDir", new Vector3D(fv.X, fv.Y, fv.Z));
+                                    _inlet.Attributes.Add("zDir", new Vector3D(0, 0, 1));
+                                    _inlet.Attributes.Add("Uref", WindSpeed);
+                                    _inlet.Attributes.Add("Zref", ReferenceHeight);
+                                    _inlet.Attributes.Add("z0 uniform", 0.01);
+                                    _inlet.Attributes.Add("d uniform", 0.0);
+                                    _inlet.Attributes.Add("zGround uniform", 0.0);
 
-                            if (Profile == "atm")
-                            {
-                                XYZ fv = DomainY.Normalize();
-                                _inlet.Attributes.Add("kappa", 0.4);
-                                _inlet.Attributes.Add("Cmu", 0.09);
-                                _inlet.Attributes.Add("flowDir", new Vector3D(fv.X, fv.Y, fv.Z));
-                                _inlet.Attributes.Add("zDir", new Vector3D(0, 0, 1));
-                                _inlet.Attributes.Add("Uref", WindSpeed);
-                                _inlet.Attributes.Add("Zref", ReferenceHeight);
-                                _inlet.Attributes.Add("z0 uniform", 0.01);
-                                _inlet.Attributes.Add("d uniform", 0.0);
-                                _inlet.Attributes.Add("zGround uniform", 0.0);
-
-                            }
-                            param.Patches.Add("inlet", _inlet);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
-                        {
-                            if (Profile == "atm")
-                            {
-                                type = "atmBoundaryLayerInletK";
-                            }
-                            _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0.1, pType);
-
-                            if (Profile == "atm")
-                            {
-                                XYZ fv = DomainY.Normalize();
-                                _inlet.Attributes.Add("kappa", 0.4);
-                                _inlet.Attributes.Add("Cmu", 0.09);
-                                _inlet.Attributes.Add("flowDir", new Vector3D(fv.X, fv.Y, fv.Z));
-                                _inlet.Attributes.Add("zDir", new Vector3D(0, 0, 1));
-                                _inlet.Attributes.Add("Uref", WindSpeed);
-                                _inlet.Attributes.Add("Zref", ReferenceHeight);
-                                _inlet.Attributes.Add("z0 uniform", 0.01);
-                                _inlet.Attributes.Add("d uniform", 0.0);
-                                _inlet.Attributes.Add("zGround uniform", 0.0);
-
-                            }
-                            param.Patches.Add("inlet", _inlet);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
-                        {
-                            if (Profile == "atm")
-                            {
-                                type = "calculated";
-                            }
-                            _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0.0, pType);
-
-                            param.Patches.Add("inlet", _inlet);
-                        }
-                        else
-                        {
-                            _inlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
-                            param.Patches.Add(pType.ToString(), _inlet);
-                        }
-                    }
-                    if (Inlet.Count == 0 || !useBIM)
-                    {
-                        if (DomainX.IsZeroLength())
-                        {
-                            _inlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
-                            param.Patches.Add(pType.ToString(), _inlet);
-                        }
-                    }
-                    else
-                    {
-                        foreach (var inlet in Inlet)
-                        {
-                            var properties = (DuctProperties)inlet.Value;
-                            object v = default;
-                            if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
-                            {
-                                //KEpsilon k = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
-                                //v = k.K;
-                                v = 0.1;
-                                type = "fixedValue";
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                param.Patches.Add("inlet", _inlet);
                             }
                             else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
                             {
-                                //KEpsilon kEpsilon = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
-                                //v = kEpsilon.Epsilon;
-                                v = 0.01;
-                                type = "fixedValue";
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                if (Profile == "atm")
+                                {
+                                    type = "atmBoundaryLayerInletEpsilon";
+                                }
+                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0.1, pType);
+
+                                if (Profile == "atm")
+                                {
+                                    XYZ fv = DomainY.Normalize();
+                                    _inlet.Attributes.Add("kappa", 0.4);
+                                    _inlet.Attributes.Add("Cmu", 0.09);
+                                    _inlet.Attributes.Add("flowDir", new Vector3D(fv.X, fv.Y, fv.Z));
+                                    _inlet.Attributes.Add("zDir", new Vector3D(0, 0, 1));
+                                    _inlet.Attributes.Add("Uref", WindSpeed);
+                                    _inlet.Attributes.Add("Zref", ReferenceHeight);
+                                    _inlet.Attributes.Add("z0 uniform", 0.01);
+                                    _inlet.Attributes.Add("d uniform", 0.0);
+                                    _inlet.Attributes.Add("zGround uniform", 0.0);
+
+                                }
+                                param.Patches.Add("inlet", _inlet);
                             }
-                            else if (param.Name.Equals(InitialFOAMParameter.alphat.ToString()))
+                            else if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
                             {
-                                type = "calculated";
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
+                                if (Profile == "atm")
+                                {
+                                    type = "atmBoundaryLayerInletK";
+                                }
+                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0.1, pType);
+
+                                if (Profile == "atm")
+                                {
+                                    XYZ fv = DomainY.Normalize();
+                                    _inlet.Attributes.Add("kappa", 0.4);
+                                    _inlet.Attributes.Add("Cmu", 0.09);
+                                    _inlet.Attributes.Add("flowDir", new Vector3D(fv.X, fv.Y, fv.Z));
+                                    _inlet.Attributes.Add("zDir", new Vector3D(0, 0, 1));
+                                    _inlet.Attributes.Add("Uref", WindSpeed);
+                                    _inlet.Attributes.Add("Zref", ReferenceHeight);
+                                    _inlet.Attributes.Add("z0 uniform", 0.01);
+                                    _inlet.Attributes.Add("d uniform", 0.0);
+                                    _inlet.Attributes.Add("zGround uniform", 0.0);
+
+                                }
+                                param.Patches.Add("inlet", _inlet);
                             }
                             else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
                             {
-                                type = "calculated";
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
-                            {
-                                if (properties.FaceNormal == null)
-                                    properties.FaceNormal = new XYZ(0, 0, 0);
-                                v = new Vector3D(properties.FaceNormal.X, properties.FaceNormal.Y, properties.FaceNormal.Z) * properties.MeanFlowVelocity;
-
-                                if (properties.RPM != 0)
+                                if (Profile == "atm")
                                 {
-                                    type = "swirlFlowRateInletVelocity";
-                                    v = new Vector3D(0, 0, 0);
-                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                                    _inlet.Attributes.Add("rpm      constant", properties.RPM);
-                                    _inlet.Attributes.Add("flowRate     constant", properties.FlowRate);
-                                    param.Patches.Add(inlet.Key, _inlet);
-                                    continue;
+                                    type = "calculated";
                                 }
-                                else
-                                {
-                                    type = "flowRateInletVelocity";
-                                    v = new Vector3D(0, 0, 0);
-                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                                    _inlet.Attributes.Add("volumetricFlowRate     constant", properties.FlowRate);
-                                    _inlet.Attributes.Add("extrapolateProfile", "no");
-                                }
+                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0.0, pType);
 
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
-                            {
-                                type = "zeroGradient";
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.p_rgh.ToString()))
-                            {
-                                type = "fixedFluxPressure";
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
-                                _inlet.Attributes.Add("rho", "rhok");
+                                param.Patches.Add("inlet", _inlet);
                             }
                             else
                             {
-                                v = value;
-                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
+                                param.Patches.Add(pType.ToString(), _inlet);
                             }
-                            param.Patches.Add(inlet.Key, _inlet);
+                        }
+                        if (Inlet.Count == 0 || !useBIM)
+                        {
+                            if (DomainX.IsZeroLength())
+                            {
+                                _inlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
+                                param.Patches.Add(pType.ToString(), _inlet);
+                            }
+                        }
+                        else
+                        {
+                            foreach (var inlet in Inlet)
+                            {
+                                var properties = (DuctProperties)inlet.Value;
+                                object v = default;
+                                if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
+                                {
+                                    //KEpsilon k = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
+                                    //v = k.K;
+                                    v = 0.1;
+                                    type = "fixedValue";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
+                                {
+                                    //KEpsilon kEpsilon = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
+                                    //v = kEpsilon.Epsilon;
+                                    v = 0.01;
+                                    type = "fixedValue";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.alphat.ToString()))
+                                {
+                                    type = "calculated";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
+                                {
+                                    type = "calculated";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
+                                {
+                                    if (properties.FaceNormal == null)
+                                        properties.FaceNormal = new XYZ(0, 0, 0);
+                                    v = new Vector3D(properties.FaceNormal.X, properties.FaceNormal.Y, properties.FaceNormal.Z) * properties.MeanFlowVelocity;
+
+                                    if (properties.RPM != 0)
+                                    {
+                                        type = "swirlFlowRateInletVelocity";
+                                        v = new Vector3D(0, 0, 0);
+                                        _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                        _inlet.Attributes.Add("rpm      constant", properties.RPM);
+                                        _inlet.Attributes.Add("flowRate     constant", properties.FlowRate);
+                                        param.Patches.Add(inlet.Key, _inlet);
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        type = "flowRateInletVelocity";
+                                        v = new Vector3D(0, 0, 0);
+                                        _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                        _inlet.Attributes.Add("volumetricFlowRate     constant", properties.FlowRate);
+                                        _inlet.Attributes.Add("extrapolateProfile", "no");
+                                    }
+
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
+                                {
+                                    type = "zeroGradient";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.p_rgh.ToString()))
+                                {
+                                    type = "fixedFluxPressure";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
+                                    _inlet.Attributes.Add("rho", "rhok");
+                                }
+                                else
+                                {
+                                    v = value;
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                param.Patches.Add(inlet.Key, _inlet);
+                            }
                         }
                     }
-                }
-                break;
+                    break;
 
 
                 case PatchType.outlet:
-                {
-                    FOAMParameterPatch<dynamic> _outlet;
-                    if (Outlet.Count == 0 || !useBIM)
                     {
-                        _outlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
-                        param.Patches.Add(pType.ToString(), _outlet);
-                    }
-                    else
-                    {
-                        foreach (var outlet in Outlet)
+                        FOAMParameterPatch<dynamic> _outlet;
+                        if (Outlet.Count == 0 || !useBIM)
                         {
-                            var properties = (DuctProperties)outlet.Value;
-                            object v = default;
-                            if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
-                            {
-                                KEpsilon k = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
-                                v = k.K;
-                                type = "zeroGradient";
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
-                            {
-                                KEpsilon epsilon = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
-                                v = epsilon.Epsilon;
-                                type = "zeroGradient";
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.T.ToString()))
-                            {
-                                type = "zeroGradient";
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
-                            {
-                                type = "calculated";
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.alphat.ToString()))
-                            {
-                                type = "calculated";
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
-                            {
-                                if (properties.RPM != 0)
-                                {
-                                    type = "swirlFlowRateInletVelocity";
-                                    v = new Vector3D(0, 0, 0);
-                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                                    _outlet.Attributes.Add("rpm     constant", properties);
-                                    _outlet.Attributes.Add("flowRate    constant", properties.FlowRate/* / OutletCount*/);
-                                    param.Patches.Add(outlet.Key, _outlet);
-                                    continue;
-                                }
-                                else
-                                {
-                                    /*if (properties.FaceNormal == null)
-                                        properties.FaceNormal = new XYZ(0, 0, 0);
-                                    v = new Vector3D(properties.FaceNormal.X, properties.FaceNormal.Y, properties.FaceNormal.Z) * properties.MeanFlowVelocity;*/
-
-                                    type = "inletOutlet";
-                                    v = new Vector3D(0, 0, 0);
-                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                                }
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
-                            {
-                                //density of air at 20 degree and 1 bar in kg/m³ = 1.204
-                                //rho-normalized pressure
-                                OpenFOAM.OpenFOAMCalculator calculator = new();
-                                if (properties.ExternalPressure != 0)
-                                {
-                                    v = -calculator.CalculateRhoNormalizedPressure(properties.ExternalPressure, 1.204);
-                                }
-                                else
-                                {
-                                    v = value;
-                                }
-                                v=0;
-                                type = "fixedValue";
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                            }
-                            else if (param.Name.Equals(InitialFOAMParameter.p_rgh.ToString()))
-                            {
-                                //p_rgh = p - rho*g*h => not implemented h => TO-DO: GET H 
-                                OpenFOAM.OpenFOAMCalculator calculator = new();
-                                if (properties.ExternalPressure != 0)
-                                {
-                                    v = -calculator.CalculateRhoNormalizedPressure(properties.ExternalPressure, 1.204);
-                                }
-                                else
-                                {
-                                    v = value;
-                                }
-                                type = "fixedValue";
-                                v = 0;
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                            }
-                            else
-                            {
-                                v = value;
-                                _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
-                            }
-                            param.Patches.Add(outlet.Key, _outlet);
+                            _outlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
+                            param.Patches.Add(pType.ToString(), _outlet);
                         }
+                        else
+                        {
+                            foreach (var outlet in Outlet)
+                            {
+                                var properties = (DuctProperties)outlet.Value;
+                                object v = default;
+                                if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
+                                {
+                                    KEpsilon k = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
+                                    v = k.K;
+                                    type = "zeroGradient";
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
+                                {
+                                    KEpsilon epsilon = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
+                                    v = epsilon.Epsilon;
+                                    type = "zeroGradient";
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.T.ToString()))
+                                {
+                                    type = "zeroGradient";
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
+                                {
+                                    type = "calculated";
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.alphat.ToString()))
+                                {
+                                    type = "calculated";
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
+                                {
+                                    if (properties.RPM != 0)
+                                    {
+                                        type = "swirlFlowRateInletVelocity";
+                                        v = new Vector3D(0, 0, 0);
+                                        _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                        _outlet.Attributes.Add("rpm     constant", properties);
+                                        _outlet.Attributes.Add("flowRate    constant", properties.FlowRate/* / OutletCount*/);
+                                        param.Patches.Add(outlet.Key, _outlet);
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        /*if (properties.FaceNormal == null)
+                                            properties.FaceNormal = new XYZ(0, 0, 0);
+                                        v = new Vector3D(properties.FaceNormal.X, properties.FaceNormal.Y, properties.FaceNormal.Z) * properties.MeanFlowVelocity;*/
+
+                                        type = "inletOutlet";
+                                        v = new Vector3D(0, 0, 0);
+                                        _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                    }
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
+                                {
+                                    //density of air at 20 degree and 1 bar in kg/m³ = 1.204
+                                    //rho-normalized pressure
+                                    OpenFOAM.OpenFOAMCalculator calculator = new();
+                                    if (properties.ExternalPressure != 0)
+                                    {
+                                        v = -calculator.CalculateRhoNormalizedPressure(properties.ExternalPressure, 1.204);
+                                    }
+                                    else
+                                    {
+                                        v = value;
+                                    }
+                                    v = 0;
+                                    type = "fixedValue";
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                else if (param.Name.Equals(InitialFOAMParameter.p_rgh.ToString()))
+                                {
+                                    //p_rgh = p - rho*g*h => not implemented h => TO-DO: GET H 
+                                    OpenFOAM.OpenFOAMCalculator calculator = new();
+                                    if (properties.ExternalPressure != 0)
+                                    {
+                                        v = -calculator.CalculateRhoNormalizedPressure(properties.ExternalPressure, 1.204);
+                                    }
+                                    else
+                                    {
+                                        v = value;
+                                    }
+                                    type = "fixedValue";
+                                    v = 0;
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                else
+                                {
+                                    v = value;
+                                    _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
+                                }
+                                param.Patches.Add(outlet.Key, _outlet);
+                            }
+                        }
+                        break;
                     }
-                    break;
-                }
 
                 case PatchType.wall:
-                {
-                    FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.wall);
-                    param.Patches.Add(pType.ToString(), wall);
-                    break;
-                }
-                case PatchType.sky:
-                {
-                    FOAMParameterPatch<dynamic> _sky = default;
-                    if (!DomainX.IsZeroLength() && Profile == "atm")
-                    {
-                        if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
-                        {
-
-                            //  (HW:Table 1):
-                            //  u^* ~ Uref*kappa/ln((Zref+z0)/z0)
-                            double Uref = WindSpeed;
-                            double Zref = ReferenceHeight;
-                            double z0 = 0.01;
-                            double kappa =0.41;
-                            double rho = 1.22;
-                            double u =Uref*kappa/Math.Log((Zref+z0)/z0);
-
-                            double tau = rho*(u*u); // = 0.390796574
-
-                            //tau(0.390796574 0 0);
-
-                            _sky = new FOAMParameterPatch<dynamic>("fixedShearStress", uniform, new Vector3D(0,0,0), pType);
-                            _sky.Attributes.Add("tau", new Vector3D(tau, 0, 0));
-
-                            param.Patches.Add("upperWall", _sky);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
-                        {
-                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.sky);
-                            param.Patches.Add("upperWall", wall);
-
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
-                        {
-                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.sky);
-                            param.Patches.Add("upperWall", wall);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
-                        {
-                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.sky);
-                            param.Patches.Add("upperWall", wall);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
-                        {
-                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("calculated", uniform, 0.0, PatchType.sky);
-                            param.Patches.Add("upperWall", wall);
-                        }
-                        else
-                        {
-                            _sky = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
-                            param.Patches.Add(pType.ToString(), _sky);
-                        }
-                    }
-                    else
-                    { 
-                    FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.wall);
-                    param.Patches.Add(pType.ToString(), wall);
-                    }
-                    break;
-                }
-                case PatchType.floor:
-                {
-                    FOAMParameterPatch<dynamic> _floor = default;
-                    if (!DomainX.IsZeroLength() && Profile == "atm")
-                    {
-                        if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
-                        {
-                            _floor = new FOAMParameterPatch<dynamic>("noSlip", "", "", pType);
-                            param.Patches.Add("lowerWall", _floor);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
-                        {
-
-                            double Cmu = 0.09;
-                            double kappa = 0.41;
-                            double zGround = 0;
-
-                            _floor = new FOAMParameterPatch<dynamic>("epsilonWallFunction", uniform, 0.01, pType);
-                            _floor.Attributes.Add("kappa", kappa);
-                            _floor.Attributes.Add("Cmu", Cmu);
-                            _floor.Attributes.Add("zGround", zGround);
-                            param.Patches.Add("lowerWall", _floor);
-
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
-                        {
-                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("kqRWallFunction", uniform, 0.0, PatchType.floor);
-                            param.Patches.Add("lowerWall", wall);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
-                        {
-                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.floor);
-                            param.Patches.Add("lowerWall", wall);
-                        }
-                        else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
-                        {
-
-                            double z0 = 0.01;
-                            double Cmu = 0.09;
-                            double kappa = 0.41;
-                            double zGround = 0;
-
-                            _floor = new FOAMParameterPatch<dynamic>("atmNutkWallFunction", uniform, 0.0, pType);
-                            _floor.Attributes.Add("kappa", kappa);
-                            _floor.Attributes.Add("Cmu", Cmu);
-                            _floor.Attributes.Add("z0", z0);
-                            _floor.Attributes.Add("zGround", zGround);
-                            param.Patches.Add("lowerWall", _floor);
-                        }
-                        else
-                        {
-                            _floor = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
-                            param.Patches.Add(pType.ToString(), _floor);
-                        }
-                    }
-                    else
                     {
                         FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.wall);
                         param.Patches.Add(pType.ToString(), wall);
+                        break;
                     }
-                    break;
-                }
-                case PatchType.none:
-                {
-                    foreach (var entry in m_MeshResolutionObjects)
+                case PatchType.sky:
                     {
-                        FOAMParameterPatch<dynamic> mesh = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.none);
-                        FamilyInstance instance = entry.Key as FamilyInstance;
-                        param.Patches.Add(instance.Name + "_" + entry.Key.Id, mesh);
+                        FOAMParameterPatch<dynamic> _sky = default;
+                        if (!DomainX.IsZeroLength() && Profile == "atm")
+                        {
+                            if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
+                            {
 
+                                //  (HW:Table 1):
+                                //  u^* ~ Uref*kappa/ln((Zref+z0)/z0)
+                                double Uref = WindSpeed;
+                                double Zref = ReferenceHeight;
+                                double z0 = 0.01;
+                                double kappa = 0.41;
+                                double rho = 1.22;
+                                double u = Uref * kappa / Math.Log((Zref + z0) / z0);
+
+                                double tau = rho * (u * u); // = 0.390796574
+
+                                //tau(0.390796574 0 0);
+
+                                _sky = new FOAMParameterPatch<dynamic>("fixedShearStress", uniform, new Vector3D(0, 0, 0), pType);
+                                _sky.Attributes.Add("tau", new Vector3D(tau, 0, 0));
+
+                                param.Patches.Add("upperWall", _sky);
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
+                            {
+                                FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.sky);
+                                param.Patches.Add("upperWall", wall);
+
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
+                            {
+                                FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.sky);
+                                param.Patches.Add("upperWall", wall);
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
+                            {
+                                FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.sky);
+                                param.Patches.Add("upperWall", wall);
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
+                            {
+                                FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("calculated", uniform, 0.0, PatchType.sky);
+                                param.Patches.Add("upperWall", wall);
+                            }
+                            else
+                            {
+                                _sky = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
+                                param.Patches.Add(pType.ToString(), _sky);
+                            }
+                        }
+                        else
+                        {
+                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.wall);
+                            param.Patches.Add(pType.ToString(), wall);
+                        }
+                        break;
                     }
-                    break;
-                }
+                case PatchType.floor:
+                    {
+                        FOAMParameterPatch<dynamic> _floor = default;
+                        if (!DomainX.IsZeroLength() && Profile == "atm")
+                        {
+                            if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
+                            {
+                                _floor = new FOAMParameterPatch<dynamic>("noSlip", "", "", pType);
+                                param.Patches.Add("lowerWall", _floor);
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
+                            {
+
+                                double Cmu = 0.09;
+                                double kappa = 0.41;
+                                double zGround = 0;
+
+                                _floor = new FOAMParameterPatch<dynamic>("epsilonWallFunction", uniform, 0.01, pType);
+                                _floor.Attributes.Add("kappa", kappa);
+                                _floor.Attributes.Add("Cmu", Cmu);
+                                _floor.Attributes.Add("zGround", zGround);
+                                param.Patches.Add("lowerWall", _floor);
+
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
+                            {
+                                FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("kqRWallFunction", uniform, 0.0, PatchType.floor);
+                                param.Patches.Add("lowerWall", wall);
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
+                            {
+                                FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>("zeroGradient", "", "", PatchType.floor);
+                                param.Patches.Add("lowerWall", wall);
+                            }
+                            else if (param.Name.Equals(InitialFOAMParameter.nut.ToString()))
+                            {
+
+                                double z0 = 0.01;
+                                double Cmu = 0.09;
+                                double kappa = 0.41;
+                                double zGround = 0;
+
+                                _floor = new FOAMParameterPatch<dynamic>("atmNutkWallFunction", uniform, 0.0, pType);
+                                _floor.Attributes.Add("kappa", kappa);
+                                _floor.Attributes.Add("Cmu", Cmu);
+                                _floor.Attributes.Add("z0", z0);
+                                _floor.Attributes.Add("zGround", zGround);
+                                param.Patches.Add("lowerWall", _floor);
+                            }
+                            else
+                            {
+                                _floor = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
+                                param.Patches.Add(pType.ToString(), _floor);
+                            }
+                        }
+                        else
+                        {
+                            FOAMParameterPatch<dynamic> wall = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.wall);
+                            param.Patches.Add(pType.ToString(), wall);
+                        }
+                        break;
+                    }
+                case PatchType.none:
+                    {
+                        foreach (var entry in m_MeshResolutionObjects)
+                        {
+                            FOAMParameterPatch<dynamic> mesh = new FOAMParameterPatch<dynamic>(type, uniform, value, PatchType.none);
+                            FamilyInstance instance = entry.Key as FamilyInstance;
+                            param.Patches.Add(instance.Name + "_" + entry.Key.Id, mesh);
+
+                        }
+                        break;
+                    }
             }
         }
 

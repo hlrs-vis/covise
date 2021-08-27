@@ -50,7 +50,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="format">File format.</param>
         public SaveData(string fileName, SaveFormat format)
         {
-            m_FileName = Exporter.Instance.settings.localCaseFolder + "\\constant\\triSurface\\"+fileName;
+            m_FileName = Exporter.Instance.settings.LocalCaseFolder + "\\constant\\triSurface\\" + fileName;
             m_SaveFormat = format;
         }
 
@@ -108,12 +108,12 @@ namespace OpenFOAMInterface.BIM
         FileStream fileWriteStream = null;
         BinaryWriter binaryWriter = null;
 
-        private Autodesk.Revit.DB.Color m_color = null;
+        private Color m_color = null;
 
         /// <summary>
         /// Color of trangle mesh to export in Binary format.
         /// </summary>
-        public Autodesk.Revit.DB.Color Color
+        public Color Color
         {
             set { m_color = value; }
         }
@@ -234,8 +234,8 @@ namespace OpenFOAMInterface.BIM
                 }
 
                 // add color to stl file using two bytes.
-                if(m_color!=null)
-                    binaryWriter.Write((UInt16)(((m_color.Red) >>3) | (((m_color.Green) >>3)<<5) | (((m_color.Blue)>>3)<<10)));
+                if (m_color != null)
+                    binaryWriter.Write((ushort)(((m_color.Red) >> 3) | (((m_color.Green) >> 3) << 5) | (((m_color.Blue) >> 3) << 10)));
                 else
                 {
                     // add two spaces to stl file using two bytes.
@@ -352,7 +352,7 @@ namespace OpenFOAMInterface.BIM
                     File.Delete(m_FileName);
                 }
 
-                stlFile = new StreamWriter(m_FileName);
+                stlFile = new(m_FileName);
                 stlFile.NewLine = "\n";
                 fileAttribute = File.GetAttributes(m_FileName) | fileAttribute;
                 File.SetAttributes(m_FileName, fileAttribute);
@@ -409,7 +409,7 @@ namespace OpenFOAMInterface.BIM
 
             string newName = name.Replace(" ", "_");
             ElementId id = elem.Id;
-            if(init)
+            if (init)
             {
                 stlFile.WriteLine("solid " + newName + "_" + id);
             }
@@ -451,7 +451,7 @@ namespace OpenFOAMInterface.BIM
             bool succeed = true;
             try
             {
-                StringBuilder normalSb = new StringBuilder(/*MSG0*/"  facet normal ");
+                StringBuilder normalSb = new(/*MSG0*/"  facet normal ");
                 for (int j = 0; j < 3; j++)
                 {
                     //Numberformat should be english in stl
@@ -463,7 +463,7 @@ namespace OpenFOAMInterface.BIM
                 stlFile.WriteLine(/*MSG0*/"    outer loop");
                 for (int i = 0; i < 3; i++)
                 {
-                    StringBuilder vertexSb = new StringBuilder(/*MSG0*/"       vertex ");
+                    StringBuilder vertexSb = new(/*MSG0*/"       vertex ");
 
                     for (int j = 0; j < 3; j++)
                     {

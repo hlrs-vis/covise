@@ -22,19 +22,17 @@ namespace OpenFOAMInterface.BIM
         public static string SaveDialog()
         {
             // save file dialog options
-            using (SaveFileDialog saveDialog = new SaveFileDialog())
-            {
-                saveDialog.OverwritePrompt = true;
-                saveDialog.AddExtension = true;
-                saveDialog.DefaultExt = OpenFOAMExportResource.SAVE_DIALOG_DEFAULT_FILE_EXTEND;
-                saveDialog.Filter = OpenFOAMExportResource.SAVE_DIALOG_FILE_FILTER;
+            using SaveFileDialog saveDialog = new();
+            saveDialog.OverwritePrompt = true;
+            saveDialog.AddExtension = true;
+            saveDialog.DefaultExt = OpenFOAMExportResource.SAVE_DIALOG_DEFAULT_FILE_EXTEND;
+            saveDialog.Filter = OpenFOAMExportResource.SAVE_DIALOG_FILE_FILTER;
 
-                if (DialogResult.OK != saveDialog.ShowDialog())
-                {
-                    return string.Empty;
-                }
-                return saveDialog.FileName;
+            if (DialogResult.OK != saveDialog.ShowDialog())
+            {
+                return string.Empty;
             }
+            return saveDialog.FileName;
         }
 
         /// <summary>
