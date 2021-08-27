@@ -1,8 +1,7 @@
 #USING(Revit)
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.0)
 PROJECT(RevitPlugin CSharp)
 include(CSharpUtilities)
-
 
 add_library(OpenFOAMInterface SHARED
 BIM/AssemblyInfo.cs
@@ -55,7 +54,7 @@ BIM/OpenFOAM/TurbulenceProperties.cs
 BIM/OpenFOAM/U.cs
 BIM/OpenFOAM/Version.cs
 BIM/Resources/logo_64.png
-BIM/Resources/OpenFoamExport.addin
+BIM/Resources/OpenFOAMInterface.addin
 BIM/Resources/wind_32.png
 BIM/Resources/wind_32_reworked.png
 BIM/Resources/wind_64.ico
