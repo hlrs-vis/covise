@@ -12,7 +12,6 @@ MACRO(USE_HDF5)
     endforeach(comp ${ARGV})
     using_message("Using HDF5 ${opt}: component=${component}")
 
-    COVISE_FIND_PACKAGE(HDF5 COMPONENTS C HL CXX)
     IF (NOT HDF5_FOUND)
       USING_MESSAGE("Skipping because of missing HDF5")
       RETURN()

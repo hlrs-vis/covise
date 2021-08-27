@@ -1,5 +1,4 @@
 MACRO(USE_OPENCV)
-  COVISE_FIND_PACKAGE(OpenCV)
   IF ((NOT OPENCV_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing OPENCV")
     RETURN()

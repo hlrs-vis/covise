@@ -14,7 +14,6 @@ MACRO(USE_VIRVO)
 
     if (COVISE_USE_VIRVO)
         USE_BOOST(${opt})
-        covise_find_package(GDCM QUIET)
         if (GDCM_FOUND)
           include(${GDCM_USE_FILE})
           add_definitions(-DHAVE_GDCM)

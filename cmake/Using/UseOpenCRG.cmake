@@ -1,5 +1,4 @@
 MACRO(USE_OPENCRG)
-    covise_find_package(OpenCRG)
     if ((NOT OPENCRG_FOUND) AND (${ARGC} LESS 1))
         using_message("Skipping because of missing OpenCRG")
         return()
