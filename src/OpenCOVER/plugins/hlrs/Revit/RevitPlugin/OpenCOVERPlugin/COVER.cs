@@ -906,13 +906,14 @@ namespace OpenCOVERPlugin
             }
             if (elem.Category != null)
             {
-                if(elem.Category.CategoryType != CategoryType.Model)
-                {
+                //if(elem.Category.CategoryType != CategoryType.Model)
+                //{
+
                     if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
                     {
                         return;
                     }
-                }
+                //}
             }
             if (elem is Autodesk.Revit.DB.ImportInstance)
             {
@@ -2154,8 +2155,17 @@ namespace OpenCOVERPlugin
             int triangles = 0;
             int maintriangles = 0;
             bool twoSided = false;
-            if(elem.Name == "" && elem.Category!=null && elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
+            if(elem.Name == "")
                 return;
+            if(elem.Category!=null)
+            { 
+                if(elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
+                return;
+                if(elem.Category.Name == "Legendenkomponenten")
+                    return;
+                if (elem.Category.Name == "Detailelemente")
+                    return;
+            }
 
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
             if (faces.Size == 0)
