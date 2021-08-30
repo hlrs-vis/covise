@@ -63,7 +63,11 @@ void Sound::resend()
             ftb << fileName;
 
             char* fileBuf = new char[fileSize];
+#ifdef WIN32
             int fd = open(fileName.c_str(),O_RDONLY|O_BINARY);
+#else
+            int fd = open(fileName.c_str(),O_RDONLY);
+#endif
             size_t sr = read(fd, fileBuf, fileSize);
             if(sr != fileSize)
             {
