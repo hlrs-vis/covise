@@ -1923,6 +1923,7 @@ namespace BIM.OpenFOAMExport
                     m_SSH.ServerCaseFolder = getString(instance, "serverCaseFolder");
                     m_SSH.OfAlias = getString(instance, "openFOAM alias");
                     m_SSH.SlurmCommand = getString(instance, "batchCommand");
+                    m_SSH.Port = getInt(instance, "port");
                 }
                 if (foamEnv == "blueCFD")
                 {
@@ -2097,7 +2098,7 @@ namespace BIM.OpenFOAMExport
                             continue;
                         }
                     }
-
+                    
                     if (staticPressure == 0)
                     {
                         staticPressure = GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Pascals,
@@ -3133,7 +3134,7 @@ namespace BIM.OpenFOAMExport
                 {
                     parameter = new InitialParameter(param.ToString(), m_TempInternalField/*m_TransportModelParameter["TRef"]*/, model);
                     CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.wall, false);
-                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempInlet, PatchType.inlet, false);
+                    CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempInlet, PatchType.inlet, true);
                     CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.outlet, false);
                     CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.floor, false);
                     CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", m_TempWall, PatchType.sky, false);
@@ -3378,6 +3379,7 @@ namespace BIM.OpenFOAMExport
                 case PatchType.outlet:
                 {
                     FOAMParameterPatch<dynamic> _outlet;
+               
                     if (Outlet.Count == 0 || !useBIM)
                     {
                         _outlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
@@ -3385,6 +3387,11 @@ namespace BIM.OpenFOAMExport
                     }
                     else
                     {
+                        if (!DomainX.IsZeroLength())
+                        {
+                            _outlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
+                            param.Patches.Add(pType.ToString(), _outlet);
+                        }
                         foreach (var outlet in Outlet)
                         {
                             var properties = (DuctProperties)outlet.Value;
