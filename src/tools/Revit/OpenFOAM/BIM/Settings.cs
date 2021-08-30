@@ -1251,7 +1251,6 @@ namespace OpenFOAMInterface.BIM
         private bool m_exportColor;
         private bool m_exportSharedCoordinates;
         private List<Category> m_SelectedCategories;
-        private ForgeTypeId m_Units;
 
         private Dictionary<string, object> m_Outlets;
         private Dictionary<string, object> m_Inlets;

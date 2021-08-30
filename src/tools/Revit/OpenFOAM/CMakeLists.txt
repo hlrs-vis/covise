@@ -1,4 +1,4 @@
-#USING(Revit)
+USING(Revit)
 cmake_minimum_required(VERSION 3.0)
 PROJECT(RevitPlugin CSharp)
 include(CSharpUtilities)
@@ -120,6 +120,7 @@ BIM/OpenFOAMUI/OpenFOAMTextBoxForm.resx
 )
 set_property(TARGET OpenFOAMInterface PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
 #set_property(TARGET OpenFOAMInterface PROPERTY WIN32_EXECUTABLE TRUE)
+set_property(TARGET OpenFOAMInterface PROPERTY VS_GLOBAL_ROOTNAMESPACE "OpenFOAMInterface")
 
 set_property(TARGET OpenFOAMInterface PROPERTY VS_DOTNET_REFERENCES
     ${EXTRA_REFS}

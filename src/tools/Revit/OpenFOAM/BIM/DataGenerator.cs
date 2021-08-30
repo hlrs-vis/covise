@@ -826,7 +826,6 @@ namespace OpenFOAMInterface.BIM
         private GeneratorStatus ScanElement(ElementsExportRange exportRange)
         {
             List<Document> documents = new List<Document>();
-            GeneratorStatus status = GeneratorStatus.FAILURE;
 
             string pathSTL = m_Writer.FileName;
             string stlName = pathSTL.Substring(pathSTL.LastIndexOf("\\") + 1).Split('.')[0];

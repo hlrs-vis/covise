@@ -260,14 +260,14 @@ namespace OpenFOAMInterface.BIM
             bool succeed = false;
 
             //SSH
-            int port = 22;
-            bool dowload = true;
-            bool delete = false;
-            bool slurm = true;
-            string userIP = "hpcmdjur@visent.hlrs.de";
-            string alias = "of1812";
-            string caseFolder = "/mnt/raid/home/hpcmdjur/OpenFOAMRemote/";
-            string slurmCommand = "eval salloc -n " + 4;
+            //int port = 22;
+            //bool dowload = true;
+            //bool delete = false;
+            //bool slurm = true;
+            //string userIP = "hpcmdjur@visent.hlrs.de";
+            //string alias = "of1812";
+            //string caseFolder = "/mnt/raid/home/hpcmdjur/OpenFOAMRemote/";
+            //string slurmCommand = "eval salloc -n " + 4;
 
             FilteredElementCollector collector = new FilteredElementCollector(m_Revit.ActiveUIDocument.Document);
             collector.WhereElementIsNotElementType();
