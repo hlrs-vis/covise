@@ -13,10 +13,13 @@
 #include <QMessageBox>
 #include "mainWindow.h"
 #include <net/tokenbuffer.h>
+#include <net/message_types.h>
 #include "remoteSoundMessages.h"
+#include <boost/filesystem.hpp>
 
-ClientSoundSample::ClientSoundSample(std::string name, soundClient *c)
+ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, time_t fileTime, soundClient *c)
 {
+    namespace fs = boost::filesystem;
     FMOD_RESULT result;
 	sound = NULL;
 	channel = NULL;
@@ -40,6 +43,77 @@ ClientSoundSample::ClientSoundSample(std::string name, soundClient *c)
     myItem->setText(SoundColumns::CClient, QString::number(client->ID));
     myItem->setText(SoundColumns::CFileName,fileName.c_str());
     myItem->setIcon(SoundColumns::CState, stopIcon);
+
+    fs::path p(fileName);
+    size_t localFileSize = fs::file_size(p);
+    time_t localFileTime = fs::last_write_time(p);
+    if (fileSize == localFileSize)
+    {
+        covise::TokenBuffer tb;
+        tb << (int)SoundMessages::SOUND_SOUND_ID;
+        tb << ID;
+        client->send(tb);
+    }
+    else
+    {
+        cacheFileName = createCacheFileName(fileName);
+        fs::path cp(cacheFileName);
+        size_t localFileSize = fs::file_size(cp);
+        time_t localFileTime = fs::last_write_time(cp);
+        if (fileSize == localFileSize && localFileTime == fileTime)
+        {
+            covise::TokenBuffer tb;
+            tb << (int)SoundMessages::SOUND_SOUND_ID;
+            tb << ID;
+            client->send(tb);
+        }
+        else
+        {
+            covise::TokenBuffer tb;
+            tb << (int)SoundMessages::SOUND_SOUND_ID;
+            tb << -1; // report back that we need this file
+            client->send(tb);
+            covise::Message *m = client->receiveMessage();
+
+            if (m->type == covise::COVISE_MESSAGE_CLOSE_SOCKET || m->type == covise::COVISE_MESSAGE_SOCKET_CLOSED || m->type == covise::COVISE_MESSAGE_QUIT)
+            {
+                mainWindow::instance()->removeClient(this->client);
+            }
+            else if (m->type == covise::COVISE_MESSAGE_SOUND)
+            {
+                covise::TokenBuffer tb(m);
+                int type;
+                std::string fn;
+                size_t fs;
+                time_t ft;
+                tb >> type;
+                if(type == SoundMessages::SOUND_SOUND_FILE)
+                {
+                    tb >> fn;
+                    tb >> fs;
+                    tb >> ft;
+
+                    const char* fileBuf = tb.getBinary(fs);
+                    int fd = open(cacheFileName.c_str(), O_RDWR | O_BINARY);
+                    size_t sr = write(fd, fileBuf, fileSize);
+                    close(fd);
+                    fs::last_write_time(cp, localFileTime);
+
+                    covise::TokenBuffer tb;
+                    tb << (int)SoundMessages::SOUND_SOUND_ID;
+                    tb << ID;
+                    client->send(tb);
+                }
+            }
+            else
+            {
+                cerr << "wrong message in new ClientSoundSample" << endl;
+                covise::TokenBuffer tb;
+                tb << (int)SoundMessages::SOUND_SOUND_ID;
+                tb << -1; // failed
+            }
+        }
+    }
 
     covise::TokenBuffer tb;
     tb << (int)SoundMessages::SOUND_SOUND_ID;
@@ -116,6 +190,22 @@ void ClientSoundSample::pitch(float p)
 void ClientSoundSample::setDelay(unsigned long long dspclock_start, unsigned long long dspclock_end, bool stopchannels)
 {
     channel->setDelay(dspclock_start, dspclock_end, stopchannels);
+}
+
+std::string ClientSoundSample::createCacheFileName(const std::string& fileName)
+{
+    std::string cn = fileName;
+    size_t sl = cn.length();
+    for (size_t i=0;i<sl;i++)
+    {
+        if (cn[i] == ':')
+            cn[i] = '_';
+        else if (cn[i] == '\\')
+            cn[i] = '_';
+        else if (cn[i] == '/')
+            cn[i] = '_';
+    }
+    return cn;
 }
 
 int ClientSoundSample::IDCounter = 10;

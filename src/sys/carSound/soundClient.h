@@ -24,12 +24,14 @@ class soundClient: public QObject
 public:
     soundClient(const covise::Connection * conn);
     ~soundClient();
-    void setClientInfo(const std::string Application, const std::string user, const std::string host, std::string IP);
+    void setClientInfo(const std::string &Application, const std::string &user, const std::string &host, std::string &IP);
     const covise::Connection* toClient;
     unsigned int ID;
-    void addSound(std::string fileName);
+    void addSound(const std::string&fileName, size_t fileSize, time_t fileTime);
 
     bool send(covise::TokenBuffer& tb);
+    covise::Message* receiveMessage();
+
     std::list<ClientSoundSample*> sounds;
 private:
     QSocketNotifier *clientSN;

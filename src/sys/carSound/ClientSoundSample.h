@@ -28,7 +28,7 @@ class soundClient;
 class ClientSoundSample
 {
 public:
-    ClientSoundSample(std::string name, soundClient*c);
+    ClientSoundSample(const std::string &name, size_t fileSize, time_t fileTime, soundClient*c);
     ~ClientSoundSample();
     bool isPlaying()
     {
@@ -51,6 +51,7 @@ private:
     bool playing;
     bool looping;
     std::string fileName;
+    std::string cacheFileName;
     soundClient* client;
     static int IDCounter;
     QIcon stopIcon;
@@ -58,6 +59,7 @@ private:
     QIcon pauseIcon;
     QIcon backwardIcon;
     QIcon forwardIcon;
+    std::string createCacheFileName(const std::string &fileName);
 
 };
 

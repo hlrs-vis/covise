@@ -5,6 +5,7 @@
 # @author Uwe
 
 USING(FMOD)
+USING(BOOST)
 find_qt()
 #SET(QT_USE_QTXML 1)
 #SET(QT_USE_QTUITOOLS 1)

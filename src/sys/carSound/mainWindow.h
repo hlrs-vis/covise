@@ -68,6 +68,7 @@ public:
     QTimer* m_periodictimer = nullptr;
     std::list<soundClient*>clients;
     ClientSoundSample* currentSound = nullptr;
+    void removeClient(soundClient* c);
 
 private:
     static mainWindow *myInstance;

@@ -43,6 +43,11 @@ void mainWindow::velocityChanged(int val)
 	updateValues();
 }
 
+void mainWindow::removeClient(soundClient *c)
+{
+    connections.remove(c->toClient);
+    delete c;
+}
 bool mainWindow::handleClient(covise::Message* msg)
 {
     if ((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
@@ -53,8 +58,7 @@ bool mainWindow::handleClient(covise::Message* msg)
         {
             if (msg->conn == c->toClient)
             {
-                connections.remove(c->toClient);
-                delete c;
+                removeClient(c);
                 break;
             }
         }
@@ -96,8 +100,12 @@ bool mainWindow::handleClient(covise::Message* msg)
             case SOUND_NEW_SOUND:
             {
                 std::string fileName;
+                size_t fileSize;
+                time_t fileTime;
                 tb >> fileName;
-                currentClient->addSound(fileName);
+                tb >> fileSize;
+                tb >> fileTime;
+                currentClient->addSound(fileName,fileSize,fileTime);
                 break;
             }
             case SOUND_DELETE_SOUND:

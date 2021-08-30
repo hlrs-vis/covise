@@ -126,6 +126,22 @@ void Client::update()
     {
         connectToServer();
     }
+    else
+    {
+        if (sConn && sConn->check_for_input()) // check for QUIT Messages
+        {
+            covise::Message* m = receiveMessage();
+            switch (m->type)
+            {
+            case covise::COVISE_MESSAGE_CLOSE_SOCKET:
+            case covise::COVISE_MESSAGE_QUIT:
+            case covise::COVISE_MESSAGE_SOCKET_CLOSED:
+                sConn.reset();
+                break;
+            }
+            delete m;
+        }
+    }
 }
 
 bool Client::isConnected()

@@ -1,6 +1,7 @@
 #include "remoteSound.h"
 #include "remoteSoundClient.h"
 #include "../../sys/carSound/remoteSoundMessages.h"
+#include <boost/filesystem.hpp>
 
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
@@ -15,8 +16,8 @@ Sound::Sound(Client *c , const std::string fn)
     soundID = 0;
 
     rsd.msgType = SoundMessages::TypeRemoteSound;
-    rsd.soundID = soundID;
     rsdd.msgType = SoundMessages::TypeRemoteSoundDelay;
+    rsd.soundID = soundID;
     rsdd.soundID = soundID;
     resend();
     client->sounds.push_back(this);
@@ -31,35 +32,63 @@ Sound::~Sound()
 }
 void Sound::resend()
 {
-    if(client->isConnected())
+    namespace fs = boost::filesystem;
+    if (client->isConnected())
     {
-    covise::TokenBuffer tb;
-    tb << (int)SoundMessages::SOUND_NEW_SOUND;
-    tb << fileName;
-    client->send(tb);
-    covise::Message* m = client->receiveMessage();
-    covise::TokenBuffer rtb(m);
-    int messageType = 0;
-    rtb >> messageType;
-    if (messageType != (int)SoundMessages::SOUND_SOUND_ID)
-    {
-        fprintf(stderr, "wrong message in reply to NEW_SOUND\n");
-    }
-    rtb >> soundID;
-    if (soundID < 0)
-    {
-        // not in cache: send file
-        m = client->receiveMessage();
+        fs::path p(fileName);
+        auto stat = fs::status(p);
+        size_t fileSize = fs::file_size(p);
+        time_t fileTime = fs::last_write_time(p);;
+        covise::TokenBuffer tb;
+        tb << (int)SoundMessages::SOUND_NEW_SOUND;
+        tb << fileName;
+        tb << fileSize;
+        tb << fileTime;
+        client->send(tb);
+        covise::Message* m = client->receiveMessage();
         covise::TokenBuffer rtb(m);
+        int messageType = 0;
+        rtb >> messageType;
+        if (messageType != (int)SoundMessages::SOUND_SOUND_ID)
+        {
+            fprintf(stderr, "wrong message in reply to NEW_SOUND\n");
+        }
         rtb >> soundID;
-    }
-    if (playing)
-        play();
-    else
-        stop();
-    setLoop(loop, loopCount);
-    setVolume(volume);
-    setPitch(pitch);
+        if (soundID < 0)
+        {
+            // not in cache: send file
+
+            covise::TokenBuffer ftb;
+            ftb << (int)SoundMessages::SOUND_SOUND_FILE;
+            ftb << fileName;
+
+            char* fileBuf = new char[fileSize];
+            int fd = open(fileName.c_str(),O_RDONLY|O_BINARY);
+            size_t sr = read(fd, fileBuf, fileSize);
+            if(sr != fileSize)
+            {
+                cerr << "could not read sound file: expected " << fileSize << " but read " << sr << endl;
+            }
+            ftb << sr;
+            ftb << fileTime;
+            ftb.addBinary(fileBuf, sr);
+            client->send(ftb);
+            delete[] fileBuf;
+            m = client->receiveMessage();
+            covise::TokenBuffer rtb(m);
+            rtb >> soundID;
+        }
+
+        rsd.soundID = soundID;
+        rsdd.soundID = soundID;
+
+        if (playing)
+            play();
+        else
+            stop();
+        setLoop(loop, loopCount);
+        setVolume(volume);
+        setPitch(pitch);
     }
 }
 

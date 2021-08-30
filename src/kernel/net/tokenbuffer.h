@@ -121,7 +121,8 @@ public:
     const char *allocBinary(int n);
 
     TokenBuffer &operator<<(const bool b);
-    TokenBuffer &operator<<(const uint64_t i);
+    TokenBuffer& operator<<(const uint64_t i);
+    TokenBuffer& operator<<(const time_t i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
     //TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
 #endif
@@ -136,7 +137,8 @@ public:
     TokenBuffer &operator<<(const TokenBuffer &t);
 
     TokenBuffer &operator>>(bool &b);
-    TokenBuffer &operator>>(uint64_t &i);
+    TokenBuffer& operator>>(uint64_t& i);
+    TokenBuffer& operator>>(time_t& i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
     //TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }
 #endif

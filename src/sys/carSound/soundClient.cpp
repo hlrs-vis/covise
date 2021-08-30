@@ -19,7 +19,7 @@ soundClient::soundClient(const covise::Connection* conn)
 }
 
 
-void soundClient::setClientInfo(const std::string a, const std::string u, const std::string h, std::string ip)
+void soundClient::setClientInfo(const std::string &a, const std::string &u, const std::string &h, std::string &ip)
 {
     application = a;
     user = u;
@@ -31,9 +31,9 @@ void soundClient::setClientInfo(const std::string a, const std::string u, const 
     myItem->setText(Columns::IP, IP.c_str());
 }
 
-void soundClient::addSound(std::string fileName)
+void soundClient::addSound(const std::string &fileName,size_t fileSize,time_t fileTime)
 {
-    sounds.push_back(new ClientSoundSample(fileName,this));
+    sounds.push_back(new ClientSoundSample(fileName, fileSize, fileTime, this));
 }
 
 soundClient::~soundClient()
@@ -53,6 +53,14 @@ bool soundClient::send(covise::TokenBuffer& tb)
     covise::Message* m = new covise::Message(tb);
     m->type = covise::COVISE_MESSAGE_SOUND;
     return toClient->sendMessage(m);
+}
+
+covise::Message* soundClient::receiveMessage()
+{
+    covise::Message* m = new covise::Message();
+    m->type = covise::COVISE_MESSAGE_QUIT;
+    int res = toClient->recv_msg(m);
+    return m;
 }
 
 unsigned int soundClient::IDCounter = 0;
