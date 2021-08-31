@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+ <fx>
+
+  <engine>
+   <name>engine</name>
+   <path>Sounds/wasp.wav</path>
+   <mode>looped</mode>
+   <property>/sim/model/MRX13/engine_running</property>
+   <volume>
+    <property>/sim/model/GenericEngine/magnitude</property>
+    <factor>0.0125</factor>
+    <min>0.9</min>
+    <offset>0.</offset>
+   </volume>
+
+   <pitch>
+    <property>/sim/model/GenericEngine/magnitude</property>
+    <factor>0.01875</factor>
+    <min>0.</min>
+    <max>0.0</max>
+    <offset>0.5</offset>
+   </pitch>
+  </engine>
+
+  <wind>
+   <name>wind</name>
+   <mode>looped</mode>
+   <path>Sounds/wind.wav</path>
+   <property>/velocities/airspeed-kt</property>
+   <volume>
+    <property>/position/altitude-ft</property>
+    <factor>-0.000015</factor>
+    <offset>1.0</offset>
+    <min>0.1</min>
+    <max>1.0</max>
+   </volume>
+   <volume>
+     <property>/velocities/airspeed-kt</property>
+     <factor>0.013</factor>
+     <min>0.03</min>
+     <max>1.2</max>
+   </volume>
+   <pitch>
+    <property>/velocities/airspeed-kt</property>
+    <factor>10.012</factor>
+    <offset>1.25</offset>
+   </pitch>
+  </wind>
+
+  <variometer>
+   <name>variometer</name>
+   <mode>looped</mode>
+   <path>Aircraft/Icaro_MRX13/Sounds/vario.wav</path>
+   <condition>
+    <greater-than>
+     <property>velocities/vertical-speed-fps</property>
+     <value>0.01</value>
+    </greater-than>
+    <property>instrumentation/variometer/switch</property>
+   </condition>
+   <pitch>
+    <property>velocities/vertical-speed-fps</property>
+    <factor>0.125</factor>
+    <offset>1.0</offset>
+   </pitch>
+   <pitch>
+    <property>instrumentation/variometer/sensitivity</property>
+    <factor>1.0</factor>
+    <offset>0.0</offset>
+   </pitch>
+   <volume>
+    <property>instrumentation/variometer/volume</property>
+    <factor>1</factor>
+    <offset>0.0</offset>
+   </volume>
+  </variometer>
+
+  <whack>
+   <name>whack</name>
+   <mode>once</mode>
+   <path>Aircraft/Icaro_MRX13/Sounds/whack.wav</path>
+   <condition>
+    <property>gear/gear[6]/wow</property>
+   </condition>
+   <volume>
+    <factor>1</factor>
+    <offset>1.0</offset>
+    <min>0.0</min>
+    <max>5.0</max>
+   </volume>
+  </whack>
+<!--
+  <zipper_unzip>
+   <name>unzip</name>
+   <mode>once</mode>
+   <path>Aircraft/Icaro_MRX13/Sounds/zipper.wav</path>
+   <condition>
+    <property>controls/gear/gear-down</property>
+   </condition>
+   <volume>
+    <factor>1</factor>
+    <offset>1.0</offset>
+    <min>0.0</min>
+    <max>1.0</max>
+   </volume>
+  </zipper_unzip>
+-->
+  <zipper_zip>
+   <name>zip</name>
+   <mode>once</mode>
+   <path>Aircraft/Icaro_MRX13/Sounds/zipper.wav</path>
+   <condition>
+    <not>
+     <property>controls/gear/gear-down</property>
+    </not>
+   </condition>
+   <delay-sec>2.</delay-sec>
+   <volume>
+    <factor>1</factor>
+    <offset>1.0</offset>
+    <min>0.0</min>
+    <max>5.0</max>
+   </volume>
+  </zipper_zip>
+
+  <wing_failure>
+   <name>wing_failure</name>
+   <mode>once</mode>
+   <path>Aircraft/Icaro_MRX13/Sounds/whack.wav</path>
+   <condition>
+    <property>sim/model/MRX13/wing-failure</property>
+   </condition>
+   <volume>
+    <factor>1</factor>
+    <offset>1.0</offset>
+    <min>0.0</min>
+    <max>5.0</max>
+   </volume>
+  </wing_failure>
+
+ </fx>
+
+</PropertyList>
