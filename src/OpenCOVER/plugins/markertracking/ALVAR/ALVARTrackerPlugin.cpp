@@ -673,7 +673,7 @@ ALVARPlugin::preFrame()
                         
                         const int calibCountMax = 50;
                         const int calibRows = 6;
-                        const int calibColumns = 8;
+                        const int calibColumns = 9;
                         if (!calibrated)
                         {
                             // If we have already collected enough data to make the calibration
