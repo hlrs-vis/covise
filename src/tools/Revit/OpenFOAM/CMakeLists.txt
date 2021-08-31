@@ -59,17 +59,19 @@ BIM/Resources/wind_32.png
 BIM/Resources/wind_32_reworked.png
 BIM/Resources/wind_64.ico
 BIM/Resources/wind_64.png
+BIM/Resources/openfoaminterface.png
 )
 
 set_property(SOURCE BIM/Resources/OpenFoamInterfaceHelp.html PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/DropDownTreeView.dll PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/logo_64.png PROPERTY VS_TOOL_OVERRIDE "Resource")
-set_property(SOURCE BIM/Resources/OpenFoamExport.addin PROPERTY VS_TOOL_OVERRIDE "Resource")
+set_property(SOURCE BIM/Resources/OpenFOAMInterface.addin PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/PackageContents.xml PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/wind_32.png PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/wind_32_reworked.png PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/wind_64.ico PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/wind_64.png PROPERTY VS_TOOL_OVERRIDE "Resource")
+set_property(SOURCE BIM/Resources/openfoaminterface.png PROPERTY VS_TOOL_OVERRIDE "Resource")
 
 # Set the C# language version (defaults to 3.0).
 set(CMAKE_CSharp_FLAGS "/langversion:latest")
