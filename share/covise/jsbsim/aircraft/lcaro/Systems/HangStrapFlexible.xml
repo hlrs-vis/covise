@@ -1,0 +1,319 @@
+<?xml version="1.0"?>
+
+<system name="HangStrapFlexible">
+
+ <!-- Pilot mass shift due to loose hang strap -->
+ <property value="0"> systems/weightshift/cg_pilot_shift-z-inch-custom </property>
+ <property value="0"> /sim/model/MRX13/hang-strap-flexible </property>
+ <property value="0"> /sim/model/MRX13/with-wheels </property>
+ <property value="0"> fcs/throttle-generic-engine-norm </property>
+ <property value="0"> /sim/model/MRX13/engine_running </property>
+ <property value="0"> /sim/model/MRX13/wing-failure-enable </property>
+ <property value="0"> /controls/flight/pilot-attitude-deg </property>
+ <property value="0"> /controls/engines/engine/magnetos </property>
+ <property value="0"> /sim/model/MRX13/DrogueChute </property>
+ <property value="0"> /controls/flight/spoilers </property>
+ <property value="0"> /environment/rain-norm </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cyb </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cyp </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cyr </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Clb </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Clp </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Clr </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Clda </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cmalpha </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cmq </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cnb </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cnp </property>
+ <property value="1"> /sim/model/MRX13/stability/factor-Cnr </property>
+ <property value="32"> /sim/model/Parachutes/CDxA-EmergencyChute-sqft </property>
+ <property value="12"> /sim/model/Parachutes/CDxA-DrogueChute-sqft </property>
+ 
+   
+   
+ 
+
+
+ <channel name="distance wing pilot">
+
+  <!-- variables
+  distance pivot upper legs to pilot shoulder pivot = 0.532m = 20.945inch (absolute distance)
+  distance-z upright (90deg) pilot shoulder pivot to hangpoint = 0.777m = 30.590inch
+  distance-z pivot upper legs to pilot shoulder pivot = 0.5297m = 20.854inch
+  distance-z pivot upper legs to RotateAboutPilot pivot = 0.8355m = 32.894inch
+  angle between pivot upper legs and horizontal pilot shoulder pivot = 5.50deg
+  distance-z pivot upper legs to hangpoint = 1.3067m = 51.445inch
+  distance pivot upper legs to pivot hang strap = 0.1612m = 6.3386inch (only distance-z)
+  distance pivot upper legs to pivot hang strap = 0.16195m = 6.37600inch (absolute distance)
+  angle between vertical and pivot upper legs to pivot hang strap = 5.53deg
+  systems/HangStrapFlexible/distance_wing_pilot_max-z-inch
+  fcs/pilot-attitude-pos-deg
+
+  1 m = 39.37 inch = 3.2808 feet
+  -->
+
+  <fcs_function name="systems/HangStrapFlexible/distance_wing_pilot-z-inch-max">
+   <function>
+    <description>maximal possible distance from hangpoint to pilot shoulder pivot</description>
+    <sum>
+     <difference>
+      <!-- delta z pivot upper legs to RotateAboutPilot pivot (NOT hangpoint!) -->
+      <value>51.445</value>
+      <!-- delta z due to distance pivot upper legs to pilot shoulder pivot-->
+      <product>
+       <value>20.945</value>
+        <sin>
+         <product>
+          <sum>
+           <property>fcs/pilot-attitude-pos-deg</property>
+           <value>5.50</value>
+          </sum>
+          <value>0.0174532</value>
+         </product>
+        </sin>
+       </product>
+      </difference>
+
+      <!-- delta z due to difference pivot upper leg to pivot hang strap -->
+      <sum>
+       <!-- distance-z pivot upper legs to pivot hang strap -->
+       <value>-6.339</value>
+       <product>
+        <!-- absolute distance pivot upper legs to pivot hang strap -->
+        <value>6.376</value>
+        <cos>
+         <product>
+          <sum>
+           <property>fcs/pilot-attitude-pos-deg</property>
+           <value>-5.53</value>
+          </sum>
+         <value>0.0174532</value>
+        </product>
+       </cos>
+      </product>
+     </sum>
+     <!-- distance-z RotatAboutPilot pivot to hang point -->
+     <value>-18.55</value>
+    </sum>
+   </function>
+  </fcs_function>
+
+ </channel>
+
+
+ <channel name="pilot mass offset">
+
+  <switch name="systems/weightshift/cg_pilot_shift-z-inch-max">
+   <description>different shift on-ground and in-air</description>
+   <default value="50"/>
+   <test  value="systems/HangStrapFlexible/distance_wing_pilot-z-inch-max">
+    systems/on-ground == 1
+   </test>
+  </switch>
+
+  <switch name="systems/HangStrapFlexible/fbz-contact-lbs">
+   <description>contact point forces acting on wing (glider)</description>
+   <default value="forces/fbz-gear-lbs"/>
+   <test  value="0">   
+    systems/on-ground == 1
+   </test>
+  </switch>
+
+  <!-- variables 
+  accelerations/a-glider-z-ft_sec2 (down is -)
+  accelerations/gravity-ft_sec2
+  accelerations/Nz                 (down is +)
+  forces/fbz-aero-lbs              (up is -)
+  forces/fbz-gear-lbs              (up is -)
+  inertia/empty-weight-lbs
+  inertia/weight-lbs
+  simulation/dt
+  simulation/channel-dt
+
+  systems/weightshift/cg_pilot_shift-z-inch (offset of the pilot NOT the wing!)
+
+  distance pilot point mass to hangpoint = -53.15inch = -1.35m
+  this values are used for normalization of pilot-shift-z-norm
+
+  1ft = 12inch
+  -->
+
+  <!--
+     chosen system for all forces, accelerations and z-coordinate: up is +
+     chosen system is the pilot or c.g. system. This means the translation of the wing is calculated
+     but the translation of the pilot is animated (this is confusing but more convienient for some animations)
+  -->
+
+  <accelerometer name="HangStrapFlexible/a-hangpoint-z-ft_sec2-jsbsim">
+   <location unit="IN">
+    <x>0.</x>
+    <y>0.</y>
+    <z>0.</z>
+   </location>
+   <!--
+   <orientation unit="DEG">
+    <roll>0.</roll>
+    <pitch>-90.</pitch>
+    <yaw>0.</yaw>
+   </orientation>
+   -->
+   <axis>Z</axis>
+   <output>accelerations/a-hangpoint-z-ft_sec2</output>
+  </accelerometer>
+
+  <!--
+    Acceleration of wing:
+    F_aero + m_wing * a_wing = m_wing * a_wing_rel
+    F_aero-lbs*graviy-ft-sec2 + m_wing-lbs * a_wing-ft-sec2 = m_wing * a_wing_rel
+    On ground the contact-point forces must be taken into account. But this forces are not
+    exclusively available in JSBSim ( fbz-gear = f-gear + f-contact-point )
+    Assumption: If wow(legs)=0 (on-ground=1) then fbz-gear acts on wing (glider)
+   -->
+
+  <fcs_function name="systems/HangStrapFlexible/a-wing-z-abs_ft_sec2">
+   <function>
+    <description>absolute acceleration of wing</description>
+    <sum>
+     <quotient>
+      <product>
+       <sum>
+        <property>forces/fbz-aero-lbs</property>
+        <property>systems/HangStrapFlexible/fbz-contact-lbs</property>
+        <product>
+         <property>external_reactions/drop/magnitude</property>
+         <property>external_reactions/drop/z</property>
+        </product>
+       </sum>
+       <value>-1</value>
+       <property>accelerations/gravity-ft_sec2</property>
+      </product>
+      <property>inertia/empty-weight-lbs</property>
+     </quotient>
+     <property>accelerations/a-hangpoint-z-ft_sec2</property>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/HangStrapFlexible/a-system-z-abs_ft_sec2">
+   <function>
+    <description>absolute acceleration of entire system</description>
+    <!-- This is only a rough assumption. Mass without wing-mass is required
+    when wing separates from pilot. F_Aero must be subtracted from F_Gear. -->
+    <sum>
+     <quotient>
+      <product>
+       <property>forces/fbz-gear-lbs</property>
+       <value>-1</value>
+       <property>accelerations/gravity-ft_sec2</property>
+      </product>
+      <property>inertia/weight-lbs</property>
+     </quotient>
+     <product>
+      <property>accelerations/Nz</property>
+      <property>accelerations/gravity-ft_sec2</property>
+      <value>-1</value>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <summer name="systems/HangStrapFlexible/a-wing-z-rel_ft_sec2">
+   <input> systems/HangStrapFlexible/a-wing-z-abs_ft_sec2</input>
+   <input>-systems/HangStrapFlexible/a-system-z-abs_ft_sec2</input>
+   <clipto>
+    <min>-500</min>
+    <max>500</max>
+   </clipto>
+  </summer>
+
+  <fcs_function name="systems/HangStrapFlexible/delta_pilot_shift-z-inch">
+   <function>
+    <product>
+     <sum>
+      <product>
+       <value>0.5</value>
+       <property>systems/HangStrapFlexible/a-wing-z-rel_ft_sec2</property>
+       <pow>
+        <property>simulation/dt</property>
+        <value>2</value>
+       </pow>
+      </product>
+      <product>
+       <property>systems/HangStrapFlexible/vz_rel_ft_sec</property>
+       <property>simulation/dt</property>
+      </product>
+     </sum>
+     <value>-12</value> <!-- ft2inch -->
+    </product>
+   </function>
+  </fcs_function>
+
+  <summer name="systems/HangStrapFlexible/cg_pilot_shift-z-inch">
+   <input> systems/weightshift/cg_pilot_shift-z-inch </input>
+   <input> systems/HangStrapFlexible/delta_pilot_shift-z-inch </input>
+   <clipto>
+    <min>systems/weightshift/cg_pilot_shift-z-inch-custom</min>
+    <max>systems/weightshift/cg_pilot_shift-z-inch-max</max>
+   </clipto>
+  </summer>
+
+  <switch name="systems/weightshift/cg_pilot_shift-z-inch">
+   <default value="systems/HangStrapFlexible/cg_pilot_shift-z-inch"/>
+   <test logic="AND" value="systems/weightshift/cg_pilot_shift-z-inch-custom">
+    /sim/model/MRX13/hang-strap-flexible == 0
+    systems/on-ground == 0
+   </test>
+   <test logic="AND" value="systems/weightshift/cg_pilot_shift-z-inch-custom">
+    forces/hold-down == 1
+   </test>
+  </switch>
+
+  <fcs_function name="systems/HangStrapFlexible/delta_vz_rel_ft_sec">
+   <function>
+   <description>incremental change of velocity at timestep n</description>
+    <product>
+     <property>systems/HangStrapFlexible/a-wing-z-rel_ft_sec2</property>
+     <property>simulation/dt</property>
+     <value>1</value>
+    </product>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/HangStrapFlexible/vz_rel_ft_sec_n1">
+   <function>
+   <description>new velocity at timestep n+1</description>
+    <sum>
+     <property>systems/HangStrapFlexible/vz_rel_ft_sec</property>
+     <property>systems/HangStrapFlexible/delta_vz_rel_ft_sec</property>
+     <value>0</value>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <switch name="systems/HangStrapFlexible/vz_rel_ft_sec">
+   <default value="systems/HangStrapFlexible/vz_rel_ft_sec_n1"/>
+   <test logic="OR" value="0">
+    systems/weightshift/cg_pilot_shift-z-inch GE systems/weightshift/cg_pilot_shift-z-inch-max
+    systems/weightshift/cg_pilot_shift-z-inch LE systems/weightshift/cg_pilot_shift-z-inch-custom
+   </test>
+  </switch>
+
+  <!--
+  <pure_gain name="pilot_shift-inch2m">
+    <description>property for animation in m</description>
+    <input>systems/weightshift/cg_pilot_shift-z-inch</input>
+    <gain>0.0254</gain>
+    <output>/surface-positions/pilot_shift-z-m</output>
+  </pure_gain>
+  -->
+
+  <pure_gain name="pilot_shift-norm">
+    <description>property for animation (normalized)</description>
+    <input>systems/weightshift/cg_pilot_shift-z-inch</input>
+    <gain>0.0188</gain>
+    <output>/surface-positions/pilot_shift-z-norm</output>
+  </pure_gain>
+
+ </channel>
+
+</system>

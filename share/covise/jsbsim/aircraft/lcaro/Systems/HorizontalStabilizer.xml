@@ -1,0 +1,326 @@
+<?xml version="1.0"?>
+
+<system name="HorizontalStabilizer">
+
+ <!-- initialization -->
+ <property value="0"> systems/Stabilizer/hstab_enable </property>
+
+ <!-- variables
+  aero/alpha-eff-deg: angle between flow and keel
+  aero/alpha-deg: angle between flow and datum (here: -15deg for flow in keel direction)
+  systems/Stabilizer/hstab_pitch-deg: angle between hstab and keel
+  systems/Stabilizer/hstab_alpha_rel-deg: angle between relative flow (at hstab position) and datum
+  aero/alpha-eff-hstab-deg: angle between relative flow (at hstab position) and hstab 
+                            (angle in hstab-body-system)
+  u, w: velocity component in body system (w=0 for alpha-deg=0 NOT for alpha-eff-deg=0)
+  systems/Stabilizer/hstab_location-xb-ft in body system
+  systems/Stabilizer/hstab_location-zb-ft in body system
+
+  Note: This implementation accounts implicitly for the aerodamping of the stabilizer because
+        the RELATIVE flow vector (flow + induced flow due to pitch-rate) is used
+ 
+ -->
+
+
+ <channel name="horizontal stabilizer" execute="systems/Stabilizer/hstab_enable">
+
+
+  <fcs_function name="systems/Stabilizer/hstab_w_rel-fts">
+   <function>
+    <description>Relative Velocity for hstab: w + (w due to alpha_dot) (Pivot C.G.)</description>
+    <sum>
+     <property>velocities/w-aero-fps</property>
+     <product>
+      <difference>
+       <property>systems/Stabilizer/hstab_location-xb-ft</property>
+       <product>
+        <property>inertia/cg-x-in</property>
+        <value>0.083333</value>
+       </product>
+      </difference>
+      <property>velocities/q-rad_sec</property>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/hstab_u_rel-fts">
+   <function>
+    <description>Relative Velocity for hstab: u + (u due to alpha_dot) (Pivot C.G.)</description>
+    <sum>
+     <property>velocities/u-aero-fps</property>
+     <product>
+      <difference>
+       <property>systems/Stabilizer/hstab_location-zb-ft</property>
+       <product>
+        <property>inertia/cg-z-in</property>
+        <value>0.083333</value>
+       </product>
+      </difference>
+      <property>velocities/q-rad_sec</property>
+      <value>-1</value>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/hstab_alpha_rel-deg">
+   <function>
+    <description>Relative angle of attack for hstab</description>
+    <todegrees>
+     <atan2>
+      <property>systems/Stabilizer/hstab_w_rel-fts</property>
+      <property>systems/Stabilizer/hstab_u_rel-fts</property>
+     </atan2>
+    </todegrees>
+   </function>
+  </fcs_function>
+
+  <summer name="aero/alpha-eff-hstab-deg">
+   <input>systems/Stabilizer/hstab_pitch-deg</input>
+   <input>systems/Stabilizer/hstab_alpha_rel-deg</input>
+   <input>-aero/alpha-deg</input>
+   <input>aero/alpha-eff-deg</input>
+  </summer>
+
+  <!--
+  <summer name="aero/alpha-eff-hstab-deg">
+   <input>systems/Stabilizer/hstab_pitch-deg</input>
+   <input>aero/alpha-eff-deg</input>
+  </summer>
+  -->
+
+
+  <fcs_function name="systems/Stabilizer/hstab_qbarUW-psf">
+   <function>
+    <description>Relative dynamic pressure for hstab</description>
+    <product>
+     <value>0.5</value>
+     <property>atmosphere/rho-slugs_ft3</property>
+     <sum>
+      <pow>
+       <property>systems/Stabilizer/hstab_u_rel-fts</property>
+       <value>2</value>
+      </pow>
+      <pow>
+       <property>systems/Stabilizer/hstab_w_rel-fts</property>
+       <value>2</value>
+      </pow>
+     </sum>
+    </product>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/CLalpha_rel-hstab">
+   <function>
+    <description>Horizontal Stabilizer: Lift_due_to_alpha (Ref 8: NACA0009 Re=360.000)</description>
+    <product>
+     <property>systems/Stabilizer/hstab_qbarUW-psf</property>
+     <property>systems/Stabilizer/Sh-sqft</property>
+     <table>
+      <independentVar lookup="row">aero/alpha-eff-hstab-deg</independentVar>
+      <tableData>
+        -180.  0.0
+        -170.  0.8
+        -160.  0.68
+        -150.  0.86
+        -140.  0.98
+        -130.  0.9
+        -120.  0.8
+         -90.  0.0
+         -60. -0.9
+         -50. -1.05
+         -40. -1.1
+         -30. -0.95
+         -20. -0.73
+         -15. -0.7
+         -10. -0.8
+          -5. -0.48
+           0.  0.0
+           5.  0.48
+          10.  0.8
+          15.  0.7
+          20.  0.73
+          30.  0.95
+          40.  1.1
+          50.  1.05
+          60.  0.9
+          90.  0.0
+         120. -0.8
+         130. -0.9
+         140. -0.98
+         150. -0.86
+         160. -0.68
+         170. -0.8
+         180.  0.0
+      </tableData>
+     </table>
+    </product>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/CDalpha_rel-hstab">
+   <function>
+    <description>Horizontal Stabilizer: Drag_due_to_alpha (Ref 8: NACA0009 Re=360.000)</description>
+    <product>
+     <property>systems/Stabilizer/hstab_qbarUW-psf</property>
+     <property>systems/Stabilizer/Sh-sqft</property>
+     <table>
+      <independentVar lookup="row">aero/alpha-eff-hstab-deg</independentVar>
+      <tableData>
+        -180. 0
+        -170. 0.1
+        -160. 0.3
+        -150. 0.58
+        -130. 1.25
+        -110. 1.7
+         -90. 1.8
+         -70. 1.7
+         -60. 1.5
+         -50. 1.26
+         -40. 0.9
+         -30. 0.6
+         -20. 0.3
+         -10. 0.04
+          -5. 0.011
+           0. 0.006
+           5. 0.011
+          10. 0.04
+          20. 0.3
+          30. 0.6
+          40. 0.9
+          50. 1.26
+          60. 1.5
+          70. 1.7
+          90. 1.8
+         110. 1.7
+         130. 1.25
+         150. 0.58
+         160. 0.3
+         170. 0.1
+         180. 0
+      </tableData>
+     </table>
+    </product>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/CN-hstab">
+   <function>
+    <description>Normal force in glider-system (body system)</description>
+    <sum>
+     <product>
+      <property>systems/Stabilizer/CLalpha_rel-hstab</property>
+      <cos>
+       <toradians>
+        <property>systems/Stabilizer/hstab_alpha_rel-deg</property>
+       </toradians>
+      </cos>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CDalpha_rel-hstab</property>
+      <sin>
+       <toradians>
+        <property>systems/Stabilizer/hstab_alpha_rel-deg</property>
+       </toradians>
+      </sin>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/CA-hstab">
+   <function>
+    <description>Axial force in glider system (body system)</description>
+    <difference>
+     <product>
+      <property>systems/Stabilizer/CDalpha_rel-hstab</property>
+      <cos>
+       <toradians>
+        <property>systems/Stabilizer/hstab_alpha_rel-deg</property>
+       </toradians>
+      </cos>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CLalpha_rel-hstab</property>
+      <sin>
+       <toradians>
+        <property>systems/Stabilizer/hstab_alpha_rel-deg</property>
+       </toradians>
+      </sin>
+     </product>
+    </difference>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/Cm-hstab">
+   <function>
+    <description>Moment due to Horizontal Stabilizer (Pivot Hang Point)</description>
+    <difference>
+     <product>
+      <property>systems/Stabilizer/CA-hstab</property>
+      <property>systems/Stabilizer/hstab_location-zb-ft</property>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CN-hstab</property>
+      <property>systems/Stabilizer/hstab_location-xb-ft</property>
+     </product>
+    </difference>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/CLalpha-hstab">
+   <function>
+    <description>Lift in glider-system (wind system)</description>
+    <difference>
+     <product>
+      <property>systems/Stabilizer/CN-hstab</property>
+      <cos>
+       <toradians>
+        <property>aero/alpha-deg</property>
+       </toradians>
+      </cos>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CA-hstab</property>
+      <sin>
+       <toradians>
+        <property>aero/alpha-deg</property>
+       </toradians>
+      </sin>
+     </product>
+    </difference>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/CDalpha-hstab">
+   <function>
+    <description>Drag in glider-system (wind system)</description>
+    <sum>
+     <product>
+      <property>systems/Stabilizer/CN-hstab</property>
+      <sin>
+       <toradians>
+        <property>aero/alpha-deg</property>
+       </toradians>
+      </sin>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CA-hstab</property>
+      <cos>
+       <toradians>
+        <property>aero/alpha-deg</property>
+       </toradians>
+      </cos>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+ </channel>
+
+</system>

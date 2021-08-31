@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+
+<system name="Groundhandling">
+
+ <channel name="check_if_on_ground">
+  <switch name="systems/on-ground">
+   <default value="0"/>
+   <test logic="OR" value="1">
+    gear/unit[0]/WOW == 1
+    gear/unit[1]/WOW == 1
+    gear/unit[2]/WOW == 1
+    gear/unit[3]/WOW == 1
+   </test> 
+   <output>/sim/model/MRX13/on-ground</output>
+  </switch>
+
+  <summer name="systems/in-air">
+   <input>-systems/on-ground</input>
+   <bias>1</bias>
+  </summer>
+ </channel>
+
+ <channel name="RunningForce">
+  <switch name="systems/running-force">
+   <default value="fcs/running-force-norm"/>
+   <test value="0.">
+    position/h-agl-ft gt 9.
+   </test>
+   <output>fcs/running-force-norm</output>
+  </switch>
+ </channel>
+
+ <channel name="RunningOnGround">
+  <fcs_function name="systems/RunningForceOnGround">
+   <function>
+    <product>
+     <p>fcs/running-force-norm</p>
+     <p>gear/gear-pos-norm</p>
+     <v>80.</v>
+    </product>
+   </function>
+   <output>external_reactions/walkforward/magnitude</output>
+  </fcs_function>
+ </channel>
+
+ <channel name="TurningOnGround">
+  <fcs_function name="systems/TurningMomentOnGround">
+   <function>
+    <product>
+     <p>fcs/rudder-cmd-norm</p>
+     <p>gear/gear-pos-norm</p>
+     <v>20.</v>
+     <v>1.</v>
+    </product>
+   </function>
+  </fcs_function>
+  <switch name="systems/TurningMoment">
+   <default value="0.0"/>
+   <test value="systems/TurningMomentOnGround">
+    position/h-agl-ft lt 9.
+   </test>
+   <clipto>
+    <min> -100. </min>
+    <max>  100. </max>
+   </clipto>
+   <output>external_reactions/turn/magnitude</output>
+  </switch>
+ </channel>
+<!--
+ <channel name="ParkingBrake">
+  <switch name="systems/ParkingBrake1">
+   <default value="/controls/gear/brake-parking"/>
+   <test value="0.">
+    fcs/running-force-norm ne 0.
+   </test>
+   <output>/controls/gear/brake-parking</output>
+  </switch>
+
+  <switch name="systems/ParkingBrake2">
+   <default value="/controls/gear/brake-parking"/>
+   <test value="1.">
+    /gear/gear[1]/position-norm eq 0.
+   </test>
+   <output>/controls/gear/brake-parking</output>
+  </switch>
+ </channel>
+ -->
+
+ <channel name="AlphaBetaDueToPilotInput">
+
+  <switch name="aero/beta-onground-deg">
+   <default value="0.0"/>
+   <test value="fcs/rudder-pos-deg">
+    systems/on-ground == 1
+   </test>
+  </switch>
+
+  <summer name="aero/beta-eff-deg">
+   <input>aero/beta-deg</input>
+   <input>aero/beta-onground-deg</input>
+  </summer>
+
+  <pure_gain name="aero/beta-eff-rad">
+   <input>aero/beta-eff-deg</input>
+   <gain>0.0174532</gain>  <!-- pi/180 -->
+  </pure_gain>
+
+  <fcs_function name="aero/alpha-ground-elevator-deg">
+   <function>
+    <description>alpha due to elevator input on ground</description>
+    <product>
+     <property>fcs/elevator-pos-deg</property>
+     <value>-1.</value>
+     <cos>
+      <property>aero/beta-eff-rad</property>
+     </cos>
+    </product>
+   </function>
+  </fcs_function>
+
+  <switch name="aero/alpha-onground-deg">
+   <default value="0.0"/>
+   <test value="aero/alpha-ground-elevator-deg">
+    systems/on-ground == 1
+   </test>
+  </switch>
+
+  <summer name="aero/alpha-eff-deg">
+   <input>aero/alpha-deg</input>
+   <input>aero/alpha-onground-deg</input>
+   <bias>15.0</bias>
+  </summer>
+
+ </channel>
+
+</system>
