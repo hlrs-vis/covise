@@ -46,10 +46,10 @@ JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigati
     const char *VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
     if (VS == nullptr)
         VS = "";
+    VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", VS);
     const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind.wav");
     if (WS == nullptr)
         WS = "";
-    VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", VS);
     WindSound = coCoviseConfig::getEntry("wind", "COVER.Plugin.JSBSim.Sound", WS);
 #if defined(_MSC_VER)
     // _clearfp();
@@ -210,23 +210,22 @@ bool JSBSimPlugin::initJSB()
 
     std::string line = coCoviseConfig::getEntry("COVER.Plugin.JSBSim.ScriptName");
     ScriptName.set(line);
-    const char* AD = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft");
-    const char* ED = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft/paraglider/Engines");
-    const char* SD = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft/paraglider/Systems");
-    const char* RF = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft/paraglider/reset00.xml");
-
+    const char* AD = coVRFileManager::instance()->getName("share/covise/jsbsim/aircraft");
     if (AD == nullptr)
         AD = "";
-    if (ED == nullptr)
-        ED = "";
-    if (SD == nullptr)
-        SD = "";
-    if (RF == nullptr)
-        RF = "";
     AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", AD);
     AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model", "paraglider");
+    const char* ED = coVRFileManager::instance()->getName("share/covise/jsbsim/aircraft/paraglider/Engines");
+    if (ED == nullptr)
+        ED = "";
     EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", ED);
+    const char* SD = coVRFileManager::instance()->getName("share/covise/jsbsim/aircraft/paraglider/Systems");
+    if (SD == nullptr)
+        SD = "";
     SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", SD);
+    const char* RF = coVRFileManager::instance()->getName("share/covise/jsbsim/aircraft/paraglider/reset00.xml");
+    if (RF == nullptr)
+        RF = "";
     resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", RF);
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {

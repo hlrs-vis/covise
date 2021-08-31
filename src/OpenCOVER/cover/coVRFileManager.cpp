@@ -1277,10 +1277,9 @@ const char *coVRFileManager::getName(const char *file)
     while (dirname != NULL)
     {
         sprintf(buf, "%s/%s", dirname, file);
-        fp = ::fopen(buf, "r");
-        if (fp != NULL)
+        boost::filesystem::path p(buf);
+        if(boost::filesystem::exists(p))
         {
-            fclose(fp);
             delete[] coPath;
             return buf;
         }
