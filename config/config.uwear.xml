@@ -47,7 +47,7 @@
   <System>
   
    <VRB>
-    <Server value="viscluster80.hlrs.de" tcpPort="31252" udpPort="51000"/>
+    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="51000"/>
    </VRB>
 <!--   <ShmSize value="2097152"/> -->
    <!--<ShmSize value="33554432"/>-->
@@ -386,6 +386,12 @@
                         <Offset x="-500" y="-140" z="850" h="180" p="-90" r="0" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
+                    <Marker name="ObjectMarker14" >
+                        <Pattern value="14" />
+                        <Size value="1800" />
+                        <Offset x="-1545.24" y="-1347.12" z="2852" h="180" p="180" r="180" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
 					<!-- porsche
                     <Marker name="ObjectMarker12" >
                         <Pattern value="77" />
@@ -584,13 +590,13 @@
                     </Marker-->
 					
 					<Marker name="Tracer12" >
-                        <Pattern value="72" />
+                        <Pattern value="720" />
                         <Size value="350" />
                         <Offset x="0" y="0" z="400" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
 					<Marker name="Tracer13" >
-                        <Pattern value="60" />
+                        <Pattern value="600" />
                         <Size value="350" />
                         <Offset x="0" y="0" z="400" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
@@ -614,7 +620,7 @@
                 <ALVAR value="ON">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="0" width="1920" height="1080" />
+                    <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->

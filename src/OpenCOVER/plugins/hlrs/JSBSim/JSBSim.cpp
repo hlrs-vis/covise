@@ -33,6 +33,7 @@
 
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
+#include <cover/coVRFileManager.h>
 
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
@@ -42,8 +43,14 @@ JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigati
 
     remoteSoundServer = coCoviseConfig::getEntry("server", "COVER.Plugin.JSBSim.Sound", "localhost");
     remoteSoundPort = coCoviseConfig::getInt("port", "COVER.Plugin.JSBSim.Sound", 31805);
-    VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", "C:\\src\\gitbase\\jsbsim\\fgaddon\\flightgear-fgaddon-r5985-trunk-Aircraft-Icaro_MRX13\\Sounds\\vario.wav");
-    WindSound = coCoviseConfig::getEntry("wind", "COVER.Plugin.JSBSim.Sound", "C:\\src\\gitbase\\jsbsim\\fgaddon\\flightgear-fgaddon-r5985-trunk-Aircraft-Icaro_MRX13\\Sounds\\vario.wav");
+    const char *VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
+    if (VS == nullptr)
+        VS = "";
+    const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind.wav");
+    if (WS == nullptr)
+        WS = "";
+    VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", VS);
+    WindSound = coCoviseConfig::getEntry("wind", "COVER.Plugin.JSBSim.Sound", WS);
 #if defined(_MSC_VER)
     // _clearfp();
     // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
@@ -203,11 +210,24 @@ bool JSBSimPlugin::initJSB()
 
     std::string line = coCoviseConfig::getEntry("COVER.Plugin.JSBSim.ScriptName");
     ScriptName.set(line);
-    AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft");
+    const char* AD = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft");
+    const char* ED = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft/paraglider/Engines");
+    const char* SD = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft/paraglider/Systems");
+    const char* RF = coVRFileManager::instance()->getName("share/covise/jsbsim/jsbsim/aircraft/paraglider/reset00.xml");
+
+    if (AD == nullptr)
+        AD = "";
+    if (ED == nullptr)
+        ED = "";
+    if (SD == nullptr)
+        SD = "";
+    if (RF == nullptr)
+        RF = "";
+    AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", AD);
     AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model", "paraglider");
-    EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft/paraglider/Engines");
-    SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft/paraglider/Systems");
-    resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", "C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml");
+    EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", ED);
+    SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", SD);
+    resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", RF);
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {
 

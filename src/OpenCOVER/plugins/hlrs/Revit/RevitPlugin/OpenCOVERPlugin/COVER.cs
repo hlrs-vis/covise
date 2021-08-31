@@ -2161,6 +2161,8 @@ namespace OpenCOVERPlugin
             { 
                 if(elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
                 return;
+                if(elem.CreatedPhaseId.IntegerValue == -1)
+                    return;
                 if(elem.Category.Name == "Legendenkomponenten")
                     return;
                 if (elem.Category.Name == "Detailelemente")
