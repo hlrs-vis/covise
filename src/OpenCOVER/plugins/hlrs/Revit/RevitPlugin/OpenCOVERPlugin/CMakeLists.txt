@@ -21,7 +21,8 @@ SET(BINLIB_SUFFIX "lib")
 SET(MYPATH_POSTFIX )
 
 set_target_properties(OpenCOVERPlugin PROPERTIES FOLDER "Plugins/RevitPlugins")
-set_target_properties(OpenCOVERPlugin PROPERTIES OUTPUT_NAME OpenCOVERPlugin$<$<CONFIG:Debug>:_d>)
+set_target_properties(OpenCOVERPlugin PROPERTIES RELEASE_OUTPUT_NAME OpenCOVERPlugin)
+set_target_properties(OpenCOVERPlugin PROPERTIES DEBUG_OUTPUT_NAME OpenCOVERPlugin_d)
 
 IF(CMAKE_CONFIGURATION_TYPES)
       # generator supports configuration types

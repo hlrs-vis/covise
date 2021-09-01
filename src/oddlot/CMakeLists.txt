@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.6...3.1)
 #project (oddlot)
 
 #OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)
@@ -34,6 +34,11 @@ USING(BOOST)
 using(OpenScenario)
 USING(OpenCRG)
 using(EIGEN)
+
+
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif()
 
 PROJECT(oddlot C CXX)
 

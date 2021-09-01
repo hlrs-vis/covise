@@ -78,6 +78,8 @@ set_target_properties(OpenFOAMInterface PROPERTIES FOLDER "Plugins/RevitPlugins"
 SET(BINLIB_SUFFIX "lib")
 SET(MYPATH_POSTFIX )
 set_target_properties(OpenFOAMInterface PROPERTIES OUTPUT_NAME OpenFOAMInterface$<$<CONFIG:Debug>:_d>)
+set_target_properties(OpenFOAMInterface PROPERTIES RELEASE_OUTPUT_NAME OpenFOAMInterface)
+set_target_properties(OpenFOAMInterface PROPERTIES DEBUG_OUTPUT_NAME OpenFOAMInterface_d)
 
 IF(CMAKE_CONFIGURATION_TYPES)
       # generator supports configuration types

@@ -1,6 +1,6 @@
 MACRO(USE_PTHREADS)
    if(MSVC OR MINGW)
-      covise_find_package(Pthreads)
+      covise_find_package(PTHREADS)
       if (NOT PTHREADS_FOUND)
          using_message("Skipping pthread for Windows was not found!")
          return()

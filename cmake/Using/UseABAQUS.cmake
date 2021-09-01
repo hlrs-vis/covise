@@ -1,5 +1,5 @@
 MACRO(USE_ABAQUS)
-  FIND_PACKAGE(Abaqus)
+  FIND_PACKAGE(ABAQUS)
   IF ((NOT ABAQUS_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing ABAQUS")
     RETURN()
