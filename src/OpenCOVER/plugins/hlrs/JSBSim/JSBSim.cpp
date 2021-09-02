@@ -47,7 +47,7 @@ JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigati
     if (VS == nullptr)
         VS = "";
     VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", VS);
-    const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind.wav");
+    const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav");
     if (WS == nullptr)
         WS = "";
     WindSound = coCoviseConfig::getEntry("wind", "COVER.Plugin.JSBSim.Sound", WS);
