@@ -524,6 +524,16 @@
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>
+   <JSBSim>
+   <Sound server="141.58.8.223" />
+   <!--ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" /-->
+   <!--Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml"-->
+   <!--/Model-->
+   <!--Model aircraft="paraglider" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml">
+   </Model-->
+   <!--Model aircraft="lcaro" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/aircraft/lcaro/Systems" resetFile="C:/src/gitbase/jsbsim/aircraft/lcaro/reset00.xml">
+   </Model-->
+   </JSBSim>
         <ARToolKit value="Off">
 		   <Capture value="Off" />
 		   <Stereo value="OFF" />
