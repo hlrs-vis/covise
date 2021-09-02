@@ -40,7 +40,8 @@ JSBSimPlugin* JSBSimPlugin::plugin = NULL;
 JSBSimPlugin::JSBSimPlugin() : ui::Owner("JSBSimPlugin", cover->ui), coVRNavigationProvider("Paraglider", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
-
+if (coVRMSController::instance()->isMaster())
+        {
     remoteSoundServer = coCoviseConfig::getEntry("server", "COVER.Plugin.JSBSim.Sound", "localhost");
     remoteSoundPort = coCoviseConfig::getInt("port", "COVER.Plugin.JSBSim.Sound", 31805);
     const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
@@ -64,6 +65,7 @@ JSBSimPlugin::JSBSimPlugin() : ui::Owner("JSBSimPlugin", cover->ui), coVRNavigat
     windSound = rsClient->getSound(WindSound);
     varioSound->setLoop(true, -1);
     windSound->setLoop(true, -1);
+}
     plugin = this;
     udp = nullptr;
 }
@@ -74,6 +76,8 @@ JSBSimPlugin::~JSBSimPlugin()
     fprintf(stderr, "JSBSimPlugin::~JSBSimPlugin\n");
 
     coVRNavigationManager::instance()->unregisterNavigationProvider(this);
+if (coVRMSController::instance()->isMaster())
+        {
     delete FDMExec;
     delete printCatalog;
     delete DebugButton;
@@ -81,6 +85,7 @@ JSBSimPlugin::~JSBSimPlugin()
     delete upButton;
     delete JSBMenu;
     delete rsClient;
+}
 
 
 }
@@ -304,8 +309,6 @@ bool JSBSimPlugin::init()
     unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.serverPort", 1234);
     unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.localPort", 5252);
     RootDir = covise::coCoviseConfig::getEntry("rootDir", "COVER.Plugin.JSBSim", "C:\\src\\gitbase\\jsbsim").c_str();
-    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-    udp = new UDPComm(host.c_str(), serverPort, localPort);
 
     //mapping of coordinates
 #ifdef WIN32
@@ -382,21 +385,27 @@ bool JSBSimPlugin::init()
     WY->setValue(0.0);
     WZ->setValue(0.0);
     WX->setCallback([this](std::string v) {
-        Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
         });
     WY->setCallback([this](std::string v) {
-        Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
         });
     WZ->setCallback([this](std::string v) {
-        Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
         });
 
     currentVelocity.set(WX->number(), WY->number(), WZ->number());
     currentTurbulence = 0;
+
+
+if (coVRMSController::instance()->isMaster())
+        {
+    initUDP();
+    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
     initJSB();
     reset();
 
-
+        }
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
@@ -406,6 +415,8 @@ bool JSBSimPlugin::init()
 
 void JSBSimPlugin::key(int type, int keySym, int mod)
 {
+if (coVRMSController::instance()->isMaster())
+        {
     (void)mod;
     switch (type)
     {
@@ -448,18 +459,25 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
     fprintf(stderr, "Keysym: %d\n", keySym);
     fprintf(stderr, "Aileron: %lf Elevator %lf\n", fgcontrol.aileron, fgcontrol.elevator);
 }
+}
 
 bool
 JSBSimPlugin::update()
 {
+if (coVRMSController::instance()->isMaster())
+        {
     updateUdp();
     rsClient->update();
+}
 
     if (isEnabled())
     {
-
+if (coVRMSController::instance()->isMaster())
+        {
+            bool result = true;
         if (VRSceneGraph::instance()->getTransform()->getMatrix() != lastPos) // if someone else moved e.g. a new viewpoint has been set, then do a reset to this position
         {
+            lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
             reset();
         }
         else
@@ -486,7 +504,6 @@ JSBSimPlugin::update()
                     eng->SetRunning(1);
                 } // end FGEngine code block
             }
-            bool result = false;
 
             while (FDMExec->GetSimTime() + SimStartTime < cover->frameTime())
             {
@@ -555,8 +572,6 @@ JSBSimPlugin::update()
                 if (FDMExec && !FDMExec->Holding() && !newPos.isNaN())
                 {
                     lastPos = newPos;
-                    VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
-                    coVRCollaboration::instance()->SyncXform();
                     if (targetVelocity != currentVelocity)
                     {
                         osg::Vec3 diff = targetVelocity - currentVelocity;
@@ -595,8 +610,20 @@ JSBSimPlugin::update()
                     targetTurbulence = 0;
                 }
             }
-            return result;
+
         }
+
+            coVRMSController::instance()->sendSlaves((char *)lastPos.ptr(), sizeof(lastPos));
+                    VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
+                    coVRCollaboration::instance()->SyncXform();
+            return result;
+}
+else
+{
+            coVRMSController::instance()->readMaster((char *)lastPos.ptr(), sizeof(lastPos));
+                    VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
+                    coVRCollaboration::instance()->SyncXform();
+}
         return true;
     }
     return false;
@@ -605,6 +632,8 @@ JSBSimPlugin::update()
 void JSBSimPlugin::setEnabled(bool flag)
 {
     coVRNavigationProvider::setEnabled(flag);
+if (coVRMSController::instance()->isMaster())
+{
     if (flag)
     {
         reset();
@@ -614,6 +643,7 @@ void JSBSimPlugin::setEnabled(bool flag)
     {
         varioSound->stop();
     }
+}
 }
 
 bool
