@@ -305,10 +305,10 @@ bool JSBSimPlugin::init()
 {
     delete udp;
 
-    const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.JSBSim.serverHost", "141.58.8.212");
-    unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.serverPort", 1234);
-    unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.localPort", 5252);
-    RootDir = covise::coCoviseConfig::getEntry("rootDir", "COVER.Plugin.JSBSim", "C:\\src\\gitbase\\jsbsim").c_str();
+    const char* rd = coVRFileManager::instance()->getName("share/covise/jsbsim");
+    if(rd==nullptr)
+        rd="";
+    RootDir = covise::coCoviseConfig::getEntry("rootDir", "COVER.Plugin.JSBSim", rd).c_str();
 
     //mapping of coordinates
 #ifdef WIN32
@@ -661,6 +661,7 @@ JSBSimPlugin::updateUdp()
             byteSwap(fgcontrol.elevator);
             FCS->SetDaCmd(fgcontrol.aileron);
             FCS->SetDeCmd(fgcontrol.elevator);
+            std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
             firstTime = true;
         }
         else if (status == -1)
@@ -687,9 +688,9 @@ void JSBSimPlugin::initUDP()
 {
     delete udp;
 
-    const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.JSBSim.serverHost", "141.58.8.212");
-    unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.serverPort", 1234);
-    unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.JSBSim.localPort", 5252);
+    host = covise::coCoviseConfig::getEntry("host", "COVER.Plugin.JSBSim.Glider", "141.58.8.212");
+    serverPort = covise::coCoviseConfig::getInt("serverPort","COVER.Plugin.JSBSim.Glider", 1236);
+    localPort = covise::coCoviseConfig::getInt("localPort","COVER.Plugin.JSBSim.Glider", 1234);
     std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
     udp = new UDPComm(host.c_str(), serverPort, localPort);
     return;

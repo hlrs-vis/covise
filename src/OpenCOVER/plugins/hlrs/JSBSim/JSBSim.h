@@ -158,6 +158,9 @@ private:
     int remoteSoundPort;
     std::string VarioSound;
     std::string WindSound;
+    std::string host;
+    unsigned short serverPort;
+    unsigned short localPort; 
 };
 
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
