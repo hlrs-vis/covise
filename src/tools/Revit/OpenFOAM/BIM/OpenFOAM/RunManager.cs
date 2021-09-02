@@ -11,6 +11,7 @@ using System.IO;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -205,20 +206,21 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     WorkingDirectory = m_CasePath
                 };
 
-                //start batch
-                using (Process process = Process.Start(startInfo))
-                {
-                    // don't wait
-                    //process.WaitForExit();
-                    //if(process.ExitCode != 0)
-                    //{
-                    //    MessageBox.Show("Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use" +
-                    //        " check the VPN connection." +
-                    //        "\nC#-Process ExitCode: " + process.ExitCode,
-                    //        OpenFOAMExportResource.MESSAGE_BOX_TITLE);
-                    //    return false;
-                    //} 
-                }
+                //start batch in new thread
+                var proc = new Thread(() => {
+                    using (Process process = Process.Start(startInfo))
+                    {
+                        process.WaitForExit();
+                        if(process.ExitCode != 0)
+                        {
+                            MessageBox.Show("Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use" +
+                                " check the VPN connection." +
+                                "\nC#-Process ExitCode: " + process.ExitCode,
+                                OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE);
+                        } 
+                    }
+                });
+                proc.Start();
             }
             else
             {
