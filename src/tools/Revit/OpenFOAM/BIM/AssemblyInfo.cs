@@ -12,12 +12,12 @@ using System.Reflection;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("OpenFOAM Plugin")]
+[assembly: AssemblyTitle("OpenFOAM Plugin for Revit")]
 [assembly: AssemblyDescription("Export STL file with Patches and a OpenFOAM Config for HVAC-Simulation for a Revit model")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HLRS Stuttgart")]
 [assembly: AssemblyProduct("OpenFOAM Plugin")]
-[assembly: AssemblyCopyright("©2021 HLRS, Inc. All rights reserved.")]
+[assembly: AssemblyCopyright("ï¿½2021 HLRS, Inc. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,7 +32,7 @@ using System.Reflection;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
