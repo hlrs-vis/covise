@@ -13,10 +13,10 @@ details.
 Build Requirements
 ------------------
 
-- **Visual Studio MSBuild Tools**
+- **Visual Studio MSBuild Tools**:
   with C#-Development environment and SDK for CMD
 
-- **.NET**
+- **.NET**:
   at least 5
   
 - **CMake**:
