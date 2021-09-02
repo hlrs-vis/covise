@@ -57,7 +57,7 @@ if (coVRMSController::instance()->isMaster())
     // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
     //     _MCW_EM);
 #elif defined(__GNUC__) && !defined(sgi) && !defined(__APPLE__)
-    feenableexcept(FE_DIVBYZERO | FE_INVALID);
+    //feenableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 
     rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
