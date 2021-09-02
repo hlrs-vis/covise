@@ -525,7 +525,9 @@
    <PointSize value="4" />
    </PointCloud>
    <JSBSim>
+   <Glider serverPort="1235" localPort="1234" />
    <Sound server="141.58.8.223" />
+
    <!--ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" /-->
    <!--Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml"-->
    <!--/Model-->
