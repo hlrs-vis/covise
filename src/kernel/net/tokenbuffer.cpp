@@ -368,7 +368,7 @@ TokenBuffer &TokenBuffer::operator<<(const uint64_t i)
 
 TokenBuffer& covise::TokenBuffer::operator<<(const time_t i)
 {
-    return operator<<((int64_t)i);
+    return operator<<((uint64_t)i);
 }
 
 TokenBuffer &TokenBuffer::operator<<(const uint32_t i)
@@ -888,7 +888,7 @@ TokenBuffer &TokenBuffer::operator>>(uint64_t &i)
 
 TokenBuffer& TokenBuffer::operator>>(time_t& i)
 {
-    return operator>>((int64_t&)i);
+    return operator>>((uint64_t&)i);
 }
 
 TokenBuffer &TokenBuffer::operator>>(std::string &s)

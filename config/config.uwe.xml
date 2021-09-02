@@ -54,8 +54,10 @@
         <isParaglider value="off"/>
         <isSkateboard value="on"/>
    </Bicycle>
-   
+   COVER.Plugin.JSBSim.Sound
    <JSBSim>
+   <Sound  server="192.168.178.100"   />
+   
    <!--ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" /-->
    <!--Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml">
    </Model-->

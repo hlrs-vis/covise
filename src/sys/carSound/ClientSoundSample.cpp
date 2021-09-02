@@ -94,7 +94,11 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
                     tb >> ft;
 
                     const char* fileBuf = tb.getBinary(fs);
+#ifdef WIN32
                     int fd = open(cacheFileName.c_str(), O_RDWR | O_BINARY);
+#else
+                    int fd = open(cacheFileName.c_str(), O_RDWR);
+#endif
                     size_t sr = write(fd, fileBuf, fileSize);
                     close(fd);
                     fs::last_write_time(cp, localFileTime);
