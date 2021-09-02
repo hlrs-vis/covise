@@ -48,6 +48,7 @@ namespace OpenFOAMInterface.BIM
         private bool singleFile;
         private bool computeBoundingBox = true;
         private WriteStages WriteStage = WriteStages.Wall;
+
         /// <summary>
         /// Name of the STL.
         /// </summary>
@@ -84,11 +85,10 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private SortedDictionary<string, Category> m_Categories;
 
-
         /// <summary>
         /// Cancel GUI
         /// </summary>
-        private readonly OpenFOAMExportCancelForm m_StlExportCancel = new OpenFOAMExportCancelForm();
+        private readonly OpenFOAMCancelForm m_StlCancel = new();
 
         /// <summary>
         /// Materials from inlet/outlet
@@ -162,9 +162,6 @@ namespace OpenFOAMInterface.BIM
                 case OpenFOAMEnvironment.blueCFD:
                     m_RunManager = new RunManagerBlueCFD(casePath, Exporter.Instance.settings.OpenFOAMEnvironment);
                     break;
-                //case OpenFOAMEnvironment.docker:
-                //    m_RunManager = new RunManagerDocker(casePath, BIM.OpenFOAMExport.Exporter.Instance.settings.OpenFOAMEnvironment);
-                //    break;
                 case OpenFOAMEnvironment.ssh:
                     m_RunManager = new RunManagerSSH(casePath, Exporter.Instance.settings.OpenFOAMEnvironment);
                     break;
@@ -211,16 +208,6 @@ namespace OpenFOAMInterface.BIM
             {
                 return status;
             }
-
-            /*String foamFile = path + "\\" + m_STLName + ".foam";
-            //.foam-File
-            if (File.Exists(foamFile))
-            {
-                File.Delete(foamFile);
-            }
-            File.Create(foamFile);
-            */
-
 
             //generate files
             OpenFOAM.Version version = new();
@@ -363,7 +350,7 @@ namespace OpenFOAMInterface.BIM
                     FileAttributes tempAtt = fileAttribute & FileAttributes.ReadOnly;
                     if (FileAttributes.ReadOnly == tempAtt)
                     {
-                        MessageBox.Show(OpenFOAMExportResource.ERR_FILE_READONLY, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                        MessageBox.Show(OpenFOAMInterfaceResource.ERR_FILE_READONLY, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                               MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         return false;
                     }
@@ -383,19 +370,19 @@ namespace OpenFOAMInterface.BIM
             }
             catch (SecurityException)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_SECURITY_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
             catch (IOException)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_IO_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
             catch (Exception)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
@@ -674,7 +661,7 @@ namespace OpenFOAMInterface.BIM
                     computeBoundingBox = true;
                 }
 
-                m_StlExportCancel.Show();
+                m_StlCancel.Show();
 
                 // save data in certain STL file
                 if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
@@ -694,22 +681,22 @@ namespace OpenFOAMInterface.BIM
 
                 if (status != GeneratorStatus.SUCCESS)
                 {
-                    m_StlExportCancel.Close();
+                    m_StlCancel.Close();
                     return status;
                 }
 
-                if (m_StlExportCancel.CancelProcess == true)
+                if (m_StlCancel.CancelProcess == true)
                 {
-                    m_StlExportCancel.Close();
+                    m_StlCancel.Close();
                     return GeneratorStatus.CANCEL;
                 }
 
                 if (0 == m_TriangularNumber)
                 {
-                    MessageBox.Show(OpenFOAMExportResource.ERR_NOSOLID, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                    MessageBox.Show(OpenFOAMInterfaceResource.ERR_NOSOLID, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                              MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                    m_StlExportCancel.Close();
+                    m_StlCancel.Close();
                     return GeneratorStatus.FAILURE;
                 }
 
@@ -724,22 +711,22 @@ namespace OpenFOAMInterface.BIM
             }
             catch (SecurityException)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_SECURITY_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                m_StlExportCancel.Close();
+                m_StlCancel.Close();
                 return GeneratorStatus.FAILURE;
             }
             catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_EXCEPTION + "\n" + e.Message, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION + "\n" + e.Message, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                m_StlExportCancel.Close();
+                m_StlCancel.Close();
                 return GeneratorStatus.FAILURE;
             }
 
-            m_StlExportCancel.Close();
+            m_StlCancel.Close();
             return GeneratorStatus.SUCCESS;
         }
 
@@ -890,7 +877,7 @@ namespace OpenFOAMInterface.BIM
                 {
                     Application.DoEvents();
 
-                    if (m_StlExportCancel.CancelProcess == true)
+                    if (m_StlCancel.CancelProcess == true)
                         return GeneratorStatus.FAILURE;
 
                     //Element element = iterator.Current;
@@ -1056,7 +1043,6 @@ namespace OpenFOAMInterface.BIM
                     break;
 
                 // save data in certain STL file
-
                 if (!singleFile)
                 {
                     if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
@@ -1087,20 +1073,6 @@ namespace OpenFOAMInterface.BIM
                 {
                     m_Writer.CloseFile();
                 }
-
-                //Face currentFace = face.Value.Key;
-
-                ////face.Key.Key = Name + ID
-                //m_Writer.WriteSolidName(face.Key.Key,true);
-                //Mesh mesh = currentFace.Triangulate();
-                //if(mesh == null)
-                //{
-                //    continue;
-                //}
-
-                ////face.Key.Value = Document ; face.Value.Value = transform
-                //WriteFaceToSTL(face.Key.Value, mesh, currentFace, face.Value.Value);
-                //m_Writer.WriteSolidName(face.Key.Key, false);
             }
         }
 
@@ -1722,26 +1694,28 @@ namespace utils
         /// Map for critical chars.
         /// </summary>
         private static Dictionary<char, string> charmap = new Dictionary<char, string>() {
-            {'¿', "A"}, {'¡', "A"}, {'¬', "A"}, {'√', "A"}, {'ƒ', "Ae"}, {'≈', "A"}, {'∆', "Ae"},
-            {'«', "C"},
-            {'»', "E"}, {'…', "E"}, {' ', "E"}, {'À', "E"},
-            {'Ã', "I"}, {'Õ', "I"}, {'Œ', "I"}, {'œ', "I"},
-            {'–', "Dh"}, {'ﬁ', "Th"},
-            {'—', "N"},
-            {'“', "O"}, {'”', "O"}, {'‘', "O"}, {'’', "O"}, {'÷', "Oe"}, {'ÿ', "Oe"},
-            {'Ÿ', "U"}, {'⁄', "U"}, {'€', "U"}, {'‹', "Ue"},
-            {'›', "Y"},
-            {'ﬂ', "ss"},
-            {'‡', "a"}, {'·', "a"}, {'‚', "a"}, {'„', "a"}, {'‰', "ae"}, {'Â', "a"}, {'Ê', "ae"},
-            {'Á', "c"},
-            {'Ë', "e"}, {'È', "e"}, {'Í', "e"}, {'Î', "e"},
-            {'Ï', "i"}, {'Ì', "i"}, {'Ó', "i"}, {'Ô', "i"},
-            {'', "dh"}, {'˛', "th"},
-            {'Ò', "n"},
-            {'Ú', "o"}, {'Û', "o"}, {'Ù', "o"}, {'ı', "o"}, {'ˆ', "oe"}, {'¯', "oe"},
-            {'˘', "u"}, {'˙', "u"}, {'˚', "u"}, {'¸', "ue"},
-            {'˝', "y"}, {'ˇ', "y"}
+            {'√Ä', "A"}, {'√Å', "A"}, {'√Ç', "A"}, {'√É', "A"}, {'√Ñ', "Ae"}, {'√Ö', "A"}, {'√Ü', "Ae"},
+            {'√á', "C"},
+            {'√à', "E"}, {'√â', "E"}, {'√ä', "E"}, {'√ã', "E"},
+            {'√å', "I"}, {'√ç', "I"}, {'√é', "I"}, {'√è', "I"},
+            {'√ê', "Dh"}, {'√û', "Th"},
+            {'√ë', "N"},
+            {'√í', "O"}, {'√ì', "O"}, {'√î', "O"}, {'√ï', "O"}, {'√ñ', "Oe"}, {'√ò', "Oe"},
+            {'√ô', "U"}, {'√ö', "U"}, {'√õ', "U"}, {'√ú', "Ue"},
+            {'√ù', "Y"},
+            {'√ü', "ss"},
+            {'√†', "a"}, {'√°', "a"}, {'√¢', "a"}, {'√£', "a"}, {'√§', "ae"}, {'√•', "a"}, {'√¶', "ae"},
+            {'√ß', "c"},
+            {'√®', "e"}, {'√©', "e"}, {'√™', "e"}, {'√´', "e"},
+            {'√¨', "i"}, {'√≠', "i"}, {'√Æ', "i"}, {'√Ø', "i"},
+            {'√∞', "dh"}, {'√æ', "th"},
+            {'√±', "n"},
+            {'√≤', "o"}, {'√≥', "o"}, {'√¥', "o"}, {'√µ', "o"}, {'√∂', "oe"}, {'√∏', "oe"},
+            {'√π', "u"}, {'√∫', "u"}, {'√ª', "u"}, {'√º', "ue"},
+            {'√Ω', "y"}, {'√ø', "y"}
         };
+
+        public static Dictionary<char, string> Charmap { get => charmap; set => charmap = value; }
 
         /// <summary>
         /// Substitute critical chars with unicode conform chars.
@@ -1755,7 +1729,7 @@ namespace utils
               (sb, c) =>
               {
                   string r;
-                  if (charmap.TryGetValue(c, out r))
+                  if (Charmap.TryGetValue(c, out r))
                   {
                       return sb.Append(r);
                   }

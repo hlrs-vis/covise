@@ -150,7 +150,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAMUI
         private void BtnHelp_Click(object sender, EventArgs e)
         {
             //TO-DO: REWORK WITH OPENFOAMEXPORTRESOURCE.
-            MessageBox.Show("Please insert the variable path that is listed on the left.", OpenFOAMExportResource.MESSAGE_BOX_TITLE);
+            MessageBox.Show("Please insert the variable path that is listed on the left.", OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE);
         }
     }
 }

@@ -20,7 +20,6 @@ namespace OpenFOAMInterface.BIM
 {
     public sealed class Exporter
     {
-        public OpenFOAMExportForm exportForm = null;
         public Settings settings = null;
         public static Exporter Instance
         {
@@ -88,15 +87,15 @@ namespace OpenFOAMInterface.BIM
             internal static readonly Exporter instance = new Exporter();
         }
     }
-    public class OpenFOAMExporterUI : IExternalApplication
+    public class OpenFOAMInterfaceApp : IExternalApplication
     {
         // Fields
         private static string AddInPath;
 
         // Methods
-        static OpenFOAMExporterUI()
+        static OpenFOAMInterfaceApp()
         {
-            AddInPath = typeof(OpenFOAMExporterUI).Assembly.Location;
+            AddInPath = typeof(OpenFOAMInterfaceApp).Assembly.Location;
         }
 
         Result IExternalApplication.OnShutdown(UIControlledApplication application)
@@ -117,37 +116,22 @@ namespace OpenFOAMInterface.BIM
                 RibbonPanel panel = application.CreateRibbonPanel(str);
                 string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-                string assemblyname = typeof(OpenFOAMExporterUI).Assembly.GetName().Name;
+                string assemblyname = typeof(OpenFOAMInterfaceApp).Assembly.GetName().Name;
                 string dllName = directoryName + @"\" + assemblyname + ".dll";
 
-                //PushButtonData setupData = new("OpenFOAM Simulate", "Simulate", dllName, "BIM.OpenFOAMExport.OpenFOAMSimulateCommand");
-                PushButtonData setupData = new("OpenFOAM Simulate", "Simulate", dllName, "OpenFOAMInterface.BIM.OpenFOAMSimulateCommand");
-                PushButton setupButton = panel.AddItem(setupData) as PushButton;
+                PushButtonData simBtnData = new("OpenFOAM Simulate", "Simulate", dllName, "OpenFOAMInterface.BIM.OpenFOAMSimulateCommand");
+                PushButton simulateButton = panel.AddItem(simBtnData) as PushButton;
                 using (Stream xstr = new MemoryStream())
                 {
                     Properties.Resources.openfoaminterface.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
                     xstr.Seek(0, SeekOrigin.Begin);
                     BitmapDecoder bdc = new BmpBitmapDecoder(xstr, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
-                    setupButton.LargeImage = bdc.Frames[0];
+                    simulateButton.LargeImage = bdc.Frames[0];
                 }
-                setupButton.ToolTip = "The OpenFOAM Interface for Revit is designed to produce a stereolithography file (STL) of your building model and a OpenFOAM-Config.";
-                setupButton.LongDescription = "The OpenFOAM Iterface for Autodesk Revit is a project designed to create an STL file from a 3D building information model for OpenFOAM with a Config-File that includes the boundary conditions for airflow simulations.";
+                simulateButton.ToolTip = "The OpenFOAM Interface for Revit is designed to produce a stereolithography file (STL) of your building model and a OpenFOAM-Config.";
+                simulateButton.LongDescription = "The OpenFOAM Iterface for Autodesk Revit is a project designed to create an STL file from a 3D building information model for OpenFOAM with a Config-File that includes the boundary conditions for airflow simulations.";
                 ContextualHelp help = new(ContextualHelpType.ChmFile, directoryName + @"\Resources\OpenFoamInterfaceHelp.html");
-                setupButton.SetContextualHelp(help);
-
-                //PushButtonData data = new("OpenFOAM Exporter settings", "Settings", dllName, "BIM.OpenFOAMExport.OpenFOAMExportCommand");
-                //PushButtonData data = new("OpenFOAMInterface settings", "Settings", dllName, "OpenFOAMInterface.BIM.OpenFOAMExportCommand");
-                //PushButton button = panel.AddItem(data) as PushButton;
-                //using (Stream xstr = new MemoryStream())
-                //{
-                //    Properties.Resources.setupIcon.Save(xstr, System.Drawing.Imaging.ImageFormat.Bmp);
-                //    xstr.Seek(0, SeekOrigin.Begin);
-                //    BitmapDecoder bdc = new BmpBitmapDecoder(xstr, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
-                //    button.LargeImage = bdc.Frames[0];
-                //}
-                //button.ToolTip = "The OpenFOAM Interface for Revit is designed to produce a stereolithography file (STL) of your building model and a OpenFOAM-Config.";
-                //button.LongDescription = "The OpenFOAM Iterface for Autodesk Revit is a project designed to create an STL file from a 3D building information model for OpenFOAM with a Config-File that includes the boundary conditions for airflow simulations.";
-                //button.SetContextualHelp(help);
+                simulateButton.SetContextualHelp(help);
 
                 return Result.Succeeded;
             }

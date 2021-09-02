@@ -25,8 +25,8 @@ namespace OpenFOAMInterface.BIM
             using SaveFileDialog saveDialog = new();
             saveDialog.OverwritePrompt = true;
             saveDialog.AddExtension = true;
-            saveDialog.DefaultExt = OpenFOAMExportResource.SAVE_DIALOG_DEFAULT_FILE_EXTEND;
-            saveDialog.Filter = OpenFOAMExportResource.SAVE_DIALOG_FILE_FILTER;
+            saveDialog.DefaultExt = OpenFOAMInterfaceResource.SAVE_DIALOG_DEFAULT_FILE_EXTEND;
+            saveDialog.Filter = OpenFOAMInterfaceResource.SAVE_DIALOG_FILE_FILTER;
 
             if (DialogResult.OK != saveDialog.ShowDialog())
             {
@@ -42,7 +42,7 @@ namespace OpenFOAMInterface.BIM
         [Conditional("DEBUG")]
         public static void ShowDebug(string exception)
         {
-            MessageBox.Show(exception, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+            MessageBox.Show(exception, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
     }

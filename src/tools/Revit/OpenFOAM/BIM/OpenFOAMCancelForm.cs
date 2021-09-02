@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace OpenFOAMInterface.BIM
 {
-    public partial class OpenFOAMExportCancelForm : Form
+    public partial class OpenFOAMCancelForm : Form
     {
         private bool m_CancelProcess = false;
 
@@ -23,7 +23,7 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Constructor.
         /// </summary>
-        public OpenFOAMExportCancelForm()
+        public OpenFOAMCancelForm()
         {
             InitializeComponent();
         }

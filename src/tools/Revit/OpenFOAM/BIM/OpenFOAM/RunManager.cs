@@ -115,7 +115,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     FileAttributes tempAtt = fileAttribute & FileAttributes.ReadOnly;
                     if (FileAttributes.ReadOnly == tempAtt)
                     {
-                        MessageBox.Show(OpenFOAMExportResource.ERR_FILE_READONLY, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                        MessageBox.Show(OpenFOAMInterfaceResource.ERR_FILE_READONLY, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                               MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         return false;
                     }
@@ -135,19 +135,19 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             catch (SecurityException)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_SECURITY_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
             catch (IOException)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_IO_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
             catch (Exception)
             {
-                MessageBox.Show(OpenFOAMExportResource.ERR_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
@@ -236,7 +236,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             m_EnvTag = "<" + m_Env + ">"; ;
 
             string assemblyDirCorrect = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            //m_ConfigPath = "c:/tmp/" + "openfoam_env_config.config";
             m_ConfigPath = assemblyDirCorrect + "openfoam_env_config.config";
             switch (m_Env)
             {
@@ -250,11 +249,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                         m_DefaultEnvPath = @"C:\Windows\System32\bash.exe";
                         break;
                     }
-                //case OpenFOAMEnvironment.docker:
-                //    {
-                //        //implement docker runmanger.
-                //        break;
-                //    }
                 case OpenFOAMEnvironment.ssh:
                     {
                         m_DefaultEnvPath = @"C:\Windows\System32\OpenSSH\ssh.exe";

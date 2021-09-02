@@ -19,7 +19,7 @@
 
 namespace OpenFOAMInterface.BIM
 {
-    partial class OpenFOAMExportCancelForm
+    partial class OpenFOAMCancelForm
     {
         /// <summary>
         /// Required designer variable.
@@ -47,25 +47,29 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OpenFOAMExportCancelForm));
             this.btnCancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnCancel
             // 
-            resources.ApplyResources(this.btnCancel, "btnCancel");
+            this.btnCancel.Location = new System.Drawing.Point(81, 12);
             this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 0;
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
-            // OpenFOAMExportCancelForm
+            // OpenFOAMCancelForm
             // 
-            resources.ApplyResources(this, "$this");
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(238, 49);
             this.ControlBox = false;
             this.Controls.Add(this.btnCancel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Name = "OpenFOAMExportCancelForm";
+            this.Name = "OpenFOAMCancelForm";
+            this.Text = "Exporting STL";
             this.ResumeLayout(false);
 
         }

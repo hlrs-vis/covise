@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,52 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="btnCancel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>107, 35</value>
+  <data name="CANCEL_FILE_NOT_SAVED" xml:space="preserve">
+    <value>STLFile was not saved.x</value>
   </data>
-  <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 23</value>
+  <data name="ERR_EXCEPTION" xml:space="preserve">
+    <value>Occur an unknown error,the application will be terminated.</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="btnCancel.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+  <data name="ERR_FILE_READONLY" xml:space="preserve">
+    <value>File is ReadOnly.</value>
   </data>
-  <data name="btnCancel.Text" xml:space="preserve">
-    <value>Cancel</value>
+  <data name="ERR_FORMAT" xml:space="preserve">
+    <value>Invalid Format for string:</value>
   </data>
-  <data name="&gt;&gt;btnCancel.Name" xml:space="preserve">
-    <value>btnCancel</value>
+  <data name="ERR_IO_EXCEPTION" xml:space="preserve">
+    <value>Occur an IO error,the application will be terminated.</value>
   </data>
-  <data name="&gt;&gt;btnCancel.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="ERR_NOSOLID" xml:space="preserve">
+    <value>There is no solid in this document.</value>
   </data>
-  <data name="&gt;&gt;btnCancel.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="ERR_SAVE_FILE_FAILED" xml:space="preserve">
+    <value>Save STLFile has failed.</value>
   </data>
-  <data name="&gt;&gt;btnCancel.ZOrder" xml:space="preserve">
-    <value>0</value>
+  <data name="ERR_SECURITY_EXCEPTION" xml:space="preserve">
+    <value>Make sure you have the required permission to read or write files.</value>
   </data>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>6, 13</value>
+  <data name="ERR_VECTOR_FORMAT" xml:space="preserve">
+    <value>The vector entries cannot be converted into double.</value>
   </data>
-  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>292, 83</value>
+  <data name="MESSAGE_BOX_TITLE" xml:space="preserve">
+    <value>STL Exporter</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
-    <value>CenterScreen</value>
+  <data name="SAVE_DIALOG_DEFAULT_FILE_EXTEND" xml:space="preserve">
+    <value>.stl</value>
   </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>Exporting STL</value>
+  <data name="SAVE_DIALOG_FILE_FILTER" xml:space="preserve">
+    <value>stl files (*.stl)|*.stl|All files (*.*)|*.*</value>
   </data>
-  <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>OpenFOAMExportCancelForm</value>
-  </data>
-  <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="WARN_PROJECT_POSITION" xml:space="preserve">
+    <value>Warning: All linked models must use the same Project Location Position as the host model</value>
   </data>
 </root>

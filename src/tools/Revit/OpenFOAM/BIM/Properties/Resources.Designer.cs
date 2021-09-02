@@ -63,29 +63,9 @@ namespace OpenFOAMInterface.BIM.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap logo_64 {
-            get {
-                object obj = ResourceManager.GetObject("logo_64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
-        /// </summary>
         public static System.Drawing.Bitmap openfoaminterface {
             get {
                 object obj = ResourceManager.GetObject("openfoaminterface", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap setupIcon {
-            get {
-                object obj = ResourceManager.GetObject("setupIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

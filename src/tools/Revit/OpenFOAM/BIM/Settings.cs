@@ -45,7 +45,7 @@ namespace OpenFOAMInterface.BIM
         public double Boundary { get; set; }
 
         /// <summary>
-        /// Air flow rate in m³/s.
+        /// Air flow rate in mï¿½/s.
         /// </summary>
         public double FlowRate { get; set; }
 
@@ -1464,6 +1464,44 @@ namespace OpenFOAMInterface.BIM
             }
         }
 
+        /// <summary>
+        /// This method extract entries from a vector that is given as string, convert them to double and 
+        /// return them as List.
+        /// </summary>
+        /// <param name="vecString">Vector-String</param>
+        /// <returns>Double-List</returns>
+        public static List<double> ConvertVecStrToList(string vecString)
+        {
+            List<double> entries = new List<double>();
+            if(vecString.Equals("")|| vecString == string.Empty)
+            {
+                return entries;
+            }
+            double j = 0;
+            foreach (string s in vecString.Split(' '))
+            {
+                s.Trim(' ');
+                if (s.Equals(""))
+                {
+                    continue;
+                }
+                try
+                {
+                    j = Convert.ToDouble(s, System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+                }
+                catch (FormatException)
+                {
+                    System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_VECTOR_FORMAT,
+                        OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return entries;
+                }
+                
+                entries.Add(j);
+            }
+            return entries;
+        }
+
         static public string getString(FamilyInstance familyInstance, string paramName)
         {
             IList<Parameter> parameters = familyInstance.GetParameters(paramName);
@@ -1476,9 +1514,8 @@ namespace OpenFOAMInterface.BIM
         static public Vector3D getVector(FamilyInstance familyInstance, string paramName)
         {
             String s = getString(familyInstance, paramName);
-            List<double> vec = OpenFOAMUI.OpenFOAMTreeView.GetListFromVector3DString(s);
+            List<double> vec = ConvertVecStrToList(s);
             return new Vector3D(vec[0], vec[1], vec[2]);
-
         }
         static public int getInt(FamilyInstance familyInstance, string paramName)
         {
@@ -2056,12 +2093,10 @@ namespace OpenFOAMInterface.BIM
             m_System.Clear();
             m_Constant.Clear();
             m_Null.Clear();
-
         }
 
         public void InitConfigs()
         {
-
             // if solver changes
             InitFvSchemes();
             InitFvSolutionRelaxationFactors();
@@ -2071,7 +2106,7 @@ namespace OpenFOAMInterface.BIM
             if (!InitBIMData())
             {
                 MessageBox.Show("Problem with initializing BIM-Data.",
-                    OpenFOAMExportResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
             InitOpenFOAMFolderDictionaries();
@@ -2147,8 +2182,8 @@ namespace OpenFOAMInterface.BIM
                 }
                 catch (Exception)
                 {
-                    System.Windows.Forms.MessageBox.Show(OpenFOAMExportResource.ERR_FORMAT + " Format-Exception in class OpenFOAMExportForm in method InitDuctParameters.",
-                        OpenFOAMExportResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_FORMAT + " Format-Exception in class OpenFOAMExportForm in method InitDuctParameters.",
+                        OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
             }
@@ -2173,8 +2208,6 @@ namespace OpenFOAMInterface.BIM
                 double staticPressure = 0;
                 int rpm = 0;
                 getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
-
-
                 //string nameDuct = AutodeskHelperFunctions.GenerateNameFromElement(element);
 
                 if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet"))
@@ -2243,7 +2276,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="faceNormal">Face normal.</param>
         /// <param name="faceBoundary">Boundary of the surface.</param>
-        /// <param name="flowRate">The flow rate in duct terminal in m³/s.</param>
+        /// <param name="flowRate">The flow rate in duct terminal in mï¿½/s.</param>
         /// <param name="meanFlowVelocity">Mean flow velocity through terminal.</param>
         /// <param name="externalPressure">External Pressure.</param>
         /// <param name="rpm">Revolution per minute.</param>
@@ -2514,10 +2547,6 @@ namespace OpenFOAMInterface.BIM
             InitSystemDictionary();
             InitConstantDictionary();
             InitNullDictionary();
-
-            //XMLHandler handler = new XMLHandler(this);
-            //CREATES XML BASED ON DEFAULT SETTINGS => NO READ FUNCTION FOR SETTINGS AND OPENFOAMEXPORTFORM IMPLEMENTED YET
-            //CreateConfig();
         }
 
         /// <summary>
@@ -3474,7 +3503,7 @@ namespace OpenFOAMInterface.BIM
                                 }
                                 else if (param.Name.Equals(InitialFOAMParameter.p.ToString()))
                                 {
-                                    //density of air at 20 degree and 1 bar in kg/m³ = 1.204
+                                    //density of air at 20 degree and 1 bar in kg/mï¿½ = 1.204
                                     //rho-normalized pressure
                                     OpenFOAM.OpenFOAMCalculator calculator = new();
                                     if (properties.ExternalPressure != 0)

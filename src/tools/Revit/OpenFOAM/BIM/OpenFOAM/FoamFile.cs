@@ -367,7 +367,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     FileAttributes tempAtt = fileAttribute & FileAttributes.ReadOnly;
                     if (FileAttributes.ReadOnly == tempAtt)
                     {
-                        System.Windows.Forms.MessageBox.Show(OpenFOAMExportResource.ERR_FILE_READONLY, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                        System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_FILE_READONLY, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                               MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         return false;
                     }
@@ -381,19 +381,19 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             catch (SecurityException)
             {
-                System.Windows.Forms.MessageBox.Show(OpenFOAMExportResource.ERR_SECURITY_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
             catch (IOException)
             {
-                System.Windows.Forms.MessageBox.Show(OpenFOAMExportResource.ERR_IO_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
             catch (Exception)
             {
-                System.Windows.Forms.MessageBox.Show(OpenFOAMExportResource.ERR_EXCEPTION, OpenFOAMExportResource.MESSAGE_BOX_TITLE,
+                System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 succeed = false;
             }
