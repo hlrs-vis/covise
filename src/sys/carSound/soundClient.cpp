@@ -52,6 +52,7 @@ bool soundClient::send(covise::TokenBuffer& tb)
 {
     covise::Message* m = new covise::Message(tb);
     m->type = covise::COVISE_MESSAGE_SOUND;
+    if(toClient)
     return toClient->sendMessage(m);
 }
 

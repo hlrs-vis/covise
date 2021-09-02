@@ -45,8 +45,13 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
     myItem->setIcon(SoundColumns::CState, stopIcon);
 
     fs::path p(fileName);
-    size_t localFileSize = fs::file_size(p);
-    time_t localFileTime = fs::last_write_time(p);
+    size_t localFileSize = 0;
+    time_t localFileTime = 0;
+    if (fs::exists(p))
+    {
+        localFileSize = fs::file_size(p);
+        localFileTime = fs::last_write_time(p);
+    }
     if (fileSize == localFileSize)
     {
         covise::TokenBuffer tb;
@@ -58,8 +63,13 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
     {
         cacheFileName = createCacheFileName(fileName);
         fs::path cp(cacheFileName);
-        size_t localFileSize = fs::file_size(cp);
-        time_t localFileTime = fs::last_write_time(cp);
+        size_t localFileSize = 0;
+        time_t localFileTime = 0;
+        if (fs::exists(cp))
+        {
+            localFileSize = fs::file_size(cp);
+            localFileTime = fs::last_write_time(cp);
+        }
         if (fileSize == localFileSize && localFileTime == fileTime)
         {
             covise::TokenBuffer tb;
@@ -73,11 +83,13 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
             tb << (int)SoundMessages::SOUND_SOUND_ID;
             tb << -1; // report back that we need this file
             client->send(tb);
-            covise::Message *m = client->receiveMessage();
+
+            covise::Message* m = client->receiveMessage();
 
             if (m->type == covise::COVISE_MESSAGE_CLOSE_SOCKET || m->type == covise::COVISE_MESSAGE_SOCKET_CLOSED || m->type == covise::COVISE_MESSAGE_QUIT)
             {
                 mainWindow::instance()->removeClient(this->client);
+                return;
             }
             else if (m->type == covise::COVISE_MESSAGE_SOUND)
             {
@@ -95,18 +107,23 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
 
                     const char* fileBuf = tb.getBinary(fs);
 #ifdef WIN32
-                    int fd = open(cacheFileName.c_str(), O_RDWR | O_BINARY);
+                    int fd = open(cacheFileName.c_str(), O_RDWR | O_BINARY | O_CREAT);
 #else
-                    int fd = open(cacheFileName.c_str(), O_RDWR);
+                    int fd = open(cacheFileName.c_str(), O_RDWR | O_CREAT);
 #endif
+                    if (fd == -1)
+                    {
+                        fprintf(stderr, "could not write to %s", cacheFileName.c_str());
+                        covise::TokenBuffer tb;
+                        tb << (int)SoundMessages::SOUND_SOUND_ID;
+                        tb << -1;
+                        client->send(tb);
+                        return;
+                    }
                     size_t sr = write(fd, fileBuf, fileSize);
                     close(fd);
-                    fs::last_write_time(cp, localFileTime);
+                    fs::last_write_time(cp, ft);
 
-                    covise::TokenBuffer tb;
-                    tb << (int)SoundMessages::SOUND_SOUND_ID;
-                    tb << ID;
-                    client->send(tb);
                 }
             }
             else
@@ -115,6 +132,7 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
                 covise::TokenBuffer tb;
                 tb << (int)SoundMessages::SOUND_SOUND_ID;
                 tb << -1; // failed
+                client->send(tb);
             }
         }
     }

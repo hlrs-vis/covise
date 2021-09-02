@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-//
-//
+ //
+ //
 
 #include "JSBSim.h"
 #include "models/FGFCS.h"
@@ -35,15 +35,15 @@
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <cover/coVRFileManager.h>
 
-JSBSimPlugin *JSBSimPlugin::plugin = NULL;
+JSBSimPlugin* JSBSimPlugin::plugin = NULL;
 
-JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui), coVRNavigationProvider("Paraglider", this)
+JSBSimPlugin::JSBSimPlugin() : ui::Owner("JSBSimPlugin", cover->ui), coVRNavigationProvider("Paraglider", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
 
     remoteSoundServer = coCoviseConfig::getEntry("server", "COVER.Plugin.JSBSim.Sound", "localhost");
     remoteSoundPort = coCoviseConfig::getInt("port", "COVER.Plugin.JSBSim.Sound", 31805);
-    const char *VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
+    const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
     if (VS == nullptr)
         VS = "";
     VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", VS);
@@ -106,7 +106,7 @@ void JSBSimPlugin::reset(double dz)
     double r02 = ecX * ecX + ecY * ecY;
     double rxy = sqrt(r02);
     double mLon, mLat;
-    eyePoint.makeTranslate(Aircraft->GetXYZep(1)*25.4, Aircraft->GetXYZep(2)*25.4, Aircraft->GetXYZep(3)*25.4);
+    eyePoint.makeTranslate(Aircraft->GetXYZep(1) * 25.4, Aircraft->GetXYZep(2) * 25.4, Aircraft->GetXYZep(3) * 25.4);
 
 
     // Compute the longitude and latitude itself
@@ -124,20 +124,20 @@ void JSBSimPlugin::reset(double dz)
         dir[i] = viewer(1, i);
     osg::Vec3 y(0, 1, 0);
     dir.normalize();
-/*
+    /*
 
-    double v[3];
+        double v[3];
 
-    v[0] = viewerPosInFeet[0] - projectOffset[0];
-    v[1] = viewerPosInFeet[1] - projectOffset[1];
-    v[2] = viewerPosInFeet[2] - projectOffset[2];
-    int error = pj_transform(pj_to, pj_from, 1, 0, v,v+1, v+2);
-    if (error != 0)
-    {
-        fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
-    }
-    mLon = v[0];
-    mLat = v[1];*/
+        v[0] = viewerPosInFeet[0] - projectOffset[0];
+        v[1] = viewerPosInFeet[1] - projectOffset[1];
+        v[2] = viewerPosInFeet[2] - projectOffset[2];
+        int error = pj_transform(pj_to, pj_from, 1, 0, v,v+1, v+2);
+        if (error != 0)
+        {
+            fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
+        }
+        mLon = v[0];
+        mLat = v[1];*/
 
 
     std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
@@ -146,9 +146,9 @@ void JSBSimPlugin::reset(double dz)
     }
     IC->SetLatitudeRadIC(mLat);
     IC->SetLongitudeRadIC(mLon);
-    IC->SetAltitudeASLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3)*0.0833 + (dz) / 0.3048);
-    IC->SetAltitudeAGLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3)*0.0833 + (dz) / 0.3048);
-    IC->SetPsiRadIC((-(atan2(y[1], y[0]) - atan2(dir[1], dir[0]) ))- M_PI_2 );// heading
+    IC->SetAltitudeASLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3) * 0.0833 + (dz) / 0.3048);
+    IC->SetAltitudeAGLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3) * 0.0833 + (dz) / 0.3048);
+    IC->SetPsiRadIC((-(atan2(y[1], y[0]) - atan2(dir[1], dir[0]))) - M_PI_2);// heading
     //IC->SetPsiRadIC(0.0); // heading
     //IC->SetThetaRadIC(-20.0*DEG_TO_RAD); // pitch from reset file beause the paraglider is sensitive to start pitch
     IC->SetPhiRadIC(0.0); // roll
@@ -167,7 +167,7 @@ void JSBSimPlugin::reset(double dz)
 
     lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
 
-   }
+}
 
 bool JSBSimPlugin::initJSB()
 {
@@ -343,7 +343,7 @@ bool JSBSimPlugin::init()
     printCatalog->setCallback([this]() {
         if (FDMExec)
             FDMExec->PrintPropertyCatalog();
-    });
+        });
     pauseButton = new ui::Button(JSBMenu, "pause");
     pauseButton->setState(false);
     pauseButton->setCallback([this](bool state) {
@@ -354,7 +354,7 @@ bool JSBSimPlugin::init()
             else
                 FDMExec->Resume();
         }
-    });
+        });
 
     DebugButton = new ui::Button(JSBMenu, "debug");
     DebugButton->setState(false);
@@ -362,14 +362,14 @@ bool JSBSimPlugin::init()
     resetButton = new ui::Action(JSBMenu, "reset");
     resetButton->setCallback([this]() {
         initJSB();
-            reset();
-    });
+        reset();
+        });
 
     upButton = new ui::Action(JSBMenu, "Up");
     upButton->setCallback([this]() {
         if (FDMExec)
             reset(100);
-    });
+        });
 
 
 
@@ -396,7 +396,7 @@ bool JSBSimPlugin::init()
     initJSB();
     reset();
 
-        
+
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
@@ -412,23 +412,23 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
     case (osgGA::GUIEventAdapter::KEYDOWN):
         if (keySym == 'l' || keySym == 65363)
         {
-            if(fgcontrol.aileron < 0.99)
-            fgcontrol.aileron += 0.1;
+            if (fgcontrol.aileron < 0.99)
+                fgcontrol.aileron += 0.1;
         }
         else if (keySym == 'j' || keySym == 65361)
         {
             if (fgcontrol.aileron > -0.99)
-            fgcontrol.aileron -= 0.1;
+                fgcontrol.aileron -= 0.1;
         }
         else if (keySym == 'm' || keySym == 65364)
         {
             if (fgcontrol.elevator < 0.99)
-            fgcontrol.elevator += 0.1;
+                fgcontrol.elevator += 0.1;
         }
         else if (keySym == 'i' || keySym == 65362)
         {
             if (fgcontrol.elevator > -0.99)
-            fgcontrol.elevator -= 0.1;
+                fgcontrol.elevator -= 0.1;
         }
         else if (keySym == 'u')
         {
@@ -446,7 +446,7 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
         break;
     }
     fprintf(stderr, "Keysym: %d\n", keySym);
-    fprintf(stderr, "Aileron: %lf Elevator %lf\n", fgcontrol.aileron,fgcontrol.elevator);
+    fprintf(stderr, "Aileron: %lf Elevator %lf\n", fgcontrol.aileron, fgcontrol.elevator);
 }
 
 bool
@@ -623,7 +623,7 @@ JSBSimPlugin::updateUdp()
     if (udp)
     {
         static bool firstTime = true;
-        int status = udp->receive(&fgcontrol, sizeof(FGControl),0.001);
+        int status = udp->receive(&fgcontrol, sizeof(FGControl), 0.001);
 
         if (status == sizeof(FGControl))
         {
@@ -831,7 +831,7 @@ void VrmlNodeThermal::render(Viewer* viewer)
     // Is viewer inside the cylinder?
     float x, y, z;
     viewer->getPosition(&x, &y, &z);
-    if (y > d_location.y() && y < d_location.y()+d_height.get())
+    if (y > d_location.y() && y < d_location.y() + d_height.get())
     {
         VrmlSFVec3f toViewer(x, y, z);
         toViewer.subtract(&d_location); // now we have the vector to the viewer

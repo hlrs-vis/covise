@@ -60,6 +60,7 @@ void Sound::resend()
                 if (messageType != (int)SoundMessages::SOUND_SOUND_ID)
                 {
                     fprintf(stderr, "wrong message in reply to NEW_SOUND\n");
+                    return;
                 }
                 rtb >> soundID;
                 if (soundID < 0)
@@ -88,6 +89,12 @@ void Sound::resend()
                     delete[] fileBuf;
                     m = client->receiveMessage();
                     covise::TokenBuffer rtb(m);
+                    rtb >> messageType;
+                    if (messageType != (int)SoundMessages::SOUND_SOUND_ID)
+                    {
+                        fprintf(stderr, "wrong message in reply to NEW_SOUND\n");
+                        return;
+                    }
                     rtb >> soundID;
                 }
 
