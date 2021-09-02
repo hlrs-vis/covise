@@ -6,28 +6,21 @@ include(CSharpUtilities)
 add_library(OpenFOAMInterface SHARED
 BIM/AssemblyInfo.cs
 BIM/DataGenerator.cs
-BIM/OpenFoamDialogManager.cs
-BIM/OpenFoamExportCommand.cs
-BIM/OpenFoamSimulateCommand.cs
-BIM/OpenFOAMExporterUI.cs
-BIM/OpenFOAMExportResource.Designer.cs
-BIM/OpenFOAMExportResource.resx
+BIM/OpenFOAMDialogManager.cs
+BIM/OpenFOAMSimulateCommand.cs
+BIM/OpenFOAMInterfaceApp.cs
+BIM/OpenFOAMInterfaceResource.Designer.cs
+BIM/OpenFOAMInterfaceResource.resx
 BIM/SaveData.cs
 BIM/Settings.cs
-BIM/OpenFOAMExportCancelForm.cs
-BIM/OpenFOAMExportCancelForm.Designer.cs
-BIM/OpenFOAMExportCancelForm.resx
-BIM/OpenFOAMExportForm.cs
-BIM/OpenFOAMExportForm.Designer.cs
-BIM/OpenFOAMExportForm.resx
+BIM/OpenFOAMCancelForm.cs
+BIM/OpenFOAMCancelForm.Designer.cs
+BIM/OpenFOAMCancelForm.resx
 BIM/Properties/Resources.Designer.cs
 BIM/Properties/Resources.resx
-BIM/OpenFOAMUI/OpenFOAMDropDownTreeNode.cs
 BIM/OpenFOAMUI/OpenFOAMTextBoxForm.Designer.cs
 BIM/OpenFOAMUI/OpenFOAMTextBoxForm.cs
-BIM/OpenFOAMUI/OpenFOAMTextBoxTreeNode.cs
-BIM/OpenFOAMUI/OpenFOAMTreeNode.cs
-BIM/OpenFOAMUI/OpenFOAMTreeView.cs
+BIM/OpenFOAMUI/OpenFOAMTextBoxForm.resx
 BIM/OpenFOAM/Alphat.cs
 BIM/OpenFOAM/BlockMeshDict.cs
 BIM/OpenFOAM/ControlDict.cs
@@ -53,24 +46,14 @@ BIM/OpenFOAM/TransportProperties.cs
 BIM/OpenFOAM/TurbulenceProperties.cs
 BIM/OpenFOAM/U.cs
 BIM/OpenFOAM/Version.cs
-BIM/Resources/logo_64.png
 BIM/Resources/OpenFOAMInterface.addin
-BIM/Resources/wind_32.png
-BIM/Resources/wind_32_reworked.png
-BIM/Resources/wind_64.ico
-BIM/Resources/wind_64.png
 BIM/Resources/openfoaminterface.png
 )
 
 set_property(SOURCE BIM/Resources/OpenFoamInterfaceHelp.html PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/DropDownTreeView.dll PROPERTY VS_TOOL_OVERRIDE "Resource")
-set_property(SOURCE BIM/Resources/logo_64.png PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/OpenFOAMInterface.addin PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/PackageContents.xml PROPERTY VS_TOOL_OVERRIDE "Resource")
-set_property(SOURCE BIM/Resources/wind_32.png PROPERTY VS_TOOL_OVERRIDE "Resource")
-set_property(SOURCE BIM/Resources/wind_32_reworked.png PROPERTY VS_TOOL_OVERRIDE "Resource")
-set_property(SOURCE BIM/Resources/wind_64.ico PROPERTY VS_TOOL_OVERRIDE "Resource")
-set_property(SOURCE BIM/Resources/wind_64.png PROPERTY VS_TOOL_OVERRIDE "Resource")
 set_property(SOURCE BIM/Resources/openfoaminterface.png PROPERTY VS_TOOL_OVERRIDE "Resource")
 
 # Set the C# language version (defaults to 3.0).
@@ -106,18 +89,15 @@ IF(CMAKE_CONFIGURATION_TYPES)
     ENDIF(CMAKE_CONFIGURATION_TYPES)
 
 csharp_set_designer_cs_properties(
-BIM/OpenFOAMExportResource.Designer.cs
-BIM/OpenFOAMExportResource.resx
+BIM/OpenFOAMInterfaceResource.Designer.cs
+BIM/OpenFOAMInterfaceResource.resx
 BIM/Properties/Resources.resx
 )
 csharp_set_windows_forms_properties(
 BIM/AssemblyInfo.cs
-BIM/OpenFOAMExportCancelForm.cs
-BIM/OpenFOAMExportCancelForm.Designer.cs
-BIM/OpenFOAMExportCancelForm.resx
-BIM/OpenFOAMExportForm.resx
-BIM/OpenFOAMExportForm.Designer.cs
-BIM/OpenFOAMExportForm.cs
+BIM/OpenFOAMCancelForm.cs
+BIM/OpenFOAMCancelForm.Designer.cs
+BIM/OpenFOAMCancelForm.resx
 BIM/OpenFOAMUI/OpenFOAMTextBoxForm.cs
 BIM/OpenFOAMUI/OpenFOAMTextBoxForm.Designer.cs
 BIM/OpenFOAMUI/OpenFOAMTextBoxForm.resx
