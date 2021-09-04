@@ -33,10 +33,6 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
 
     ID = IDCounter++;
 
-    result = mainWindow::instance()->system->createSound(name.c_str(), FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &sound); // FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
-    //ERRCHECK(result);
-    result = mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
-    //ERRCHECK(result);
 
     myItem = new QTreeWidgetItem(mainWindow::instance()->soundTable);
     myItem->setText(SoundColumns::CSoundID, QString::number(ID));
@@ -106,6 +102,7 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
                     tb >> ft;
 
                     const char* fileBuf = tb.getBinary(fs);
+                    fileName = cacheFileName;
 #ifdef WIN32
                     int fd = open(cacheFileName.c_str(), O_RDWR | O_BINARY | O_CREAT);
 #else
@@ -137,6 +134,10 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
         }
     }
 
+    result = mainWindow::instance()->system->createSound(fileName.c_str(), FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &sound); // FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
+    //ERRCHECK(result);
+    result = mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
+    //ERRCHECK(result);
     covise::TokenBuffer tb;
     tb << (int)SoundMessages::SOUND_SOUND_ID;
     tb << ID;
