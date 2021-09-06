@@ -176,5 +176,14 @@ namespace OpenFOAMInterface.BIM {
                 return ResourceManager.GetString("WARN_PROJECT_POSITION", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid format for OpenFOAM parameter. ähnelt.
+        /// </summary>
+        public static string ERR_OPENFOAM_PARAM_INVALID {
+            get {
+                return ResourceManager.GetString("ERR_OPENFOAM_PARAM_INVALID", resourceCulture);
+            }
+        }
     }
 }
