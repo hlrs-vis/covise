@@ -25,7 +25,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <summary>
         /// Addin-Version.
         /// </summary>
-        public string AddinVer { set; get; } = "0.0.1";
+        public string AddinVer { set; get; } = "2.0.0.0";
 
         /// <summary>
         /// Header object.
@@ -39,6 +39,9 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         public Version(OpenFOAMEnvironment env = OpenFOAMEnvironment.blueCFD)
         {
             SetVersionsByEnv(env);
+            System.Reflection.Assembly ass = System.Reflection.Assembly.GetExecutingAssembly();
+            // Versionsinfo of Assembly
+            AddinVer = ass.GetName().Version.ToString();
             Header = new Header(this);
         }
 
