@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using System.Linq;
@@ -30,12 +31,30 @@ namespace OpenFOAMInterface.BIM
     using RunManagerBlueCFD = OpenFOAM.RunManagerBlueCFD;
     using RunManagerSSH = OpenFOAM.RunManagerSSH;
     using RunManagerWSL = OpenFOAM.RunManagerWSL;
+    public readonly ref struct FOAMFileData
+    {
+        public List<string> Param { get; }
+        public List<string> Wall { get; }
+        public List<string> Inlet { get; }
+        public List<string> Outlet { get; }
+        public List<string> Slip { get; }
+
+        public FOAMFileData(in List<string> param, in List<string> wall, in List<string> inlet, in List<string> outlet, in List<string> slip)
+        {
+            Param = param;
+            Wall = wall;
+            Inlet = inlet;
+            Outlet = outlet;
+            Slip = slip;
+        }
+    }
 
     /// <summary>
     /// Generate triangular data and save them in a temporary file.
     /// </summary>
     public class DataGenerator
     {
+
         //STL-Exporter objects
         public enum GeneratorStatus { SUCCESS, FAILURE, CANCEL };
         public enum WriteStages { Wall, Inlet, Outlet, MeshResolution, AirTerminal };
@@ -48,6 +67,29 @@ namespace OpenFOAMInterface.BIM
         private bool singleFile;
         private bool computeBoundingBox = true;
         private WriteStages WriteStage = WriteStages.Wall;
+
+        private readonly Dictionary<string, Type> m_TypeMap = new()
+        {
+            { "U.", typeof(OpenFOAM.U) },
+            { "p.", typeof(OpenFOAM.P) },
+            { "epsilon.", typeof(OpenFOAM.Epsilon) },
+            { "nut.", typeof(OpenFOAM.Nut) },
+            { "k.", typeof(OpenFOAM.K) },
+            { "alphat.", typeof(OpenFOAM.Alphat) },
+            { "p_rgh.", typeof(OpenFOAM.P_rgh) },
+            { "T.", typeof(OpenFOAM.T) }
+        };
+        private Type[] m_foamParamConstType = new Type[] {
+            typeof(OpenFOAM.Version),
+            typeof(string),
+            typeof(Dictionary<string, object>),
+            typeof(SaveFormat),
+            typeof(Settings),
+            typeof(List<string>),
+            typeof(List<string>),
+            typeof(List<string>) ,
+            typeof(List<string>)
+        };
 
         /// <summary>
         /// Name of the STL.
@@ -155,6 +197,7 @@ namespace OpenFOAMInterface.BIM
         /// Initialize Runmanager as RunManagerBlueCFD or RunManagerDocker depending on the WindowsFOAMVersion that is set in Settings.
         /// </summary>
         /// <param name="casePath">Path to openFOAM-Case.</param>
+        /// <returns>Status of runmanager after initialization and generation of files.</returns>
         private GeneratorStatus InitRunManager(string casePath)
         {
             switch (Exporter.Instance.settings.OpenFOAMEnvironment)
@@ -176,6 +219,7 @@ namespace OpenFOAMInterface.BIM
         /// Create OpenFOAM-Folder at given path.
         /// </summary>
         /// <param name="path">location for the OpenFOAM-folder</param>
+        /// <returns>Success if generation of foam case went well.</returns>
         public GeneratorStatus CreateOpenFOAMCase(string path)
         {
             List<string> minCaseFolders = new();
@@ -215,8 +259,11 @@ namespace OpenFOAMInterface.BIM
 
             //init folders
             InitSystemFolder(version, system);
-            InitNullFolder(version, nullFolder);
             InitConstantFolder(version, constant);
+            if (InitNullFolder(version, nullFolder) == GeneratorStatus.FAILURE)
+            {
+                return GeneratorStatus.FAILURE;
+            }
 
             foreach (FOAMDict openFOAMDictionary in m_OpenFOAMDictionaries)
             {
@@ -240,14 +287,6 @@ namespace OpenFOAMInterface.BIM
                 commands.Add("rm -r processor*");
 
             }
-
-            //List<string> commands = new List<string> { "blockMesh", "surfaceFeatureExtract", "snappyHexMesh", "rm -r processor*" };
-            ////, "simpleFoam", "rm -r processor*"};
-            //commands.Add(BIM.OpenFOAMExport.Exporter.Instance.settings.AppSolverControlDict.ToString());
-            //commands.Add("rm -r processor*");
-            //commands.Add("rm - rf constant/extendedFeatureEdgeMesh > / dev / null 2 > &1");
-            //commands.Add("rm -f constant/triSurface/buildings.eMesh > /dev/null 2>&1");
-            //commands.Add("rm -f constant/polyMesh/boundary > /dev/null 2>&1");
 
             //run commands in windows-openfoam-environment
             if (!m_RunManager.RunCommands(commands))
@@ -332,10 +371,11 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Creates general file in openfoam case folder.
         /// For example: Allrun, Allclean
+        /// </summary>
         /// <paramref name="path"/>Path<param>ref name="path"/>
         /// <paramref name="name"/>Name of the file<paramref name="name"/>
         /// <paramref name="text"/>Text for file.<paramref name="text"/>
-        /// </summary>
+        /// <returns>boolean that indicates if the generation of a file succeeded.</returns>
         private bool CreateGeneralFile(string path, string name, string text)
         {
             bool succeed = true;
@@ -350,8 +390,7 @@ namespace OpenFOAMInterface.BIM
                     FileAttributes tempAtt = fileAttribute & FileAttributes.ReadOnly;
                     if (FileAttributes.ReadOnly == tempAtt)
                     {
-                        MessageBox.Show(OpenFOAMInterfaceResource.ERR_FILE_READONLY, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                              MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_FILE_READONLY);
                         return false;
                     }
                     File.Delete(m_Path);
@@ -368,22 +407,9 @@ namespace OpenFOAMInterface.BIM
                     sw.Write(text);
                 }
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                ShowDialog(ref e);
                 succeed = false;
             }
             return succeed;
@@ -418,7 +444,7 @@ namespace OpenFOAMInterface.BIM
                     }
             }
 
-            //generate Files
+            //generate system dictionary objects 
             OpenFOAM.BlockMeshDict blockMeshDictionary = new(version, blockMeshDict, null, SaveFormat.ascii, m_LowerEdgeVector, m_UpperEdgeVector);
             OpenFOAM.ControlDict controlDictionary = new(version, controlDict, null, SaveFormat.ascii, null);
             OpenFOAM.SurfaceFeatureExtract surfaceFeatureExtractDictionary = new(version, surfaceFeatureExtractDict, null, SaveFormat.ascii, m_STLName);
@@ -444,7 +470,8 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="version">Current version-object</param>
         /// <param name="nullFolder">Path to nullfolder.</param>
-        private void InitNullFolder(OpenFOAM.Version version, string nullFolder)
+        /// <returns>GeneratorStatus which indicates that nothing went wrong while object instantiation.</returns>
+        private GeneratorStatus InitNullFolder(OpenFOAM.Version version, string nullFolder)
         {
             List<string> paramList = new List<string>();
 
@@ -472,9 +499,9 @@ namespace OpenFOAMInterface.BIM
                 }
             }
             wallNames.Add("wallSTL");
+
             // add ComputationalDomain in/and outlets
-            Settings s = Exporter.Instance.settings;
-            if (!s.DomainX.IsZeroLength()) // ComputationalDomain Family instance exists
+            if (!Exporter.Instance.settings.DomainX.IsZeroLength()) // ComputationalDomain Family instance exists
             {
                 inletNames.Add("inlet");
                 outletNames.Add("outlet");
@@ -486,75 +513,101 @@ namespace OpenFOAMInterface.BIM
             {
                 wallNames.Add("boundingBox");
             }
-            foreach (var entry in Exporter.Instance.settings.MeshResolution)
-            {
-                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
-                wallNames.Add(name);
-            }
-            foreach (var entry in Exporter.Instance.settings.m_InletElements)
-            {
-                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                inletNames.Add("Inlet_" + name);
-            }
-            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
-            {
-                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                outletNames.Add("Outlet_" + name);
-            }
+
+            InitNullDirList(setList: Exporter.Instance.settings.MeshResolution.Keys.ToList(),
+                            output: ref wallNames);
+            InitNullDirList(setList: Exporter.Instance.settings.m_InletElements,
+                            output: ref inletNames,
+                            prefix: "Inlet_");
+            InitNullDirList(setList: Exporter.Instance.settings.m_OutletElements,
+                            output: ref outletNames,
+                            prefix: "Outlet_");
+
+            FOAMFileData nullFOAMFileNames = new(
+                paramList,
+                wallNames,
+                inletNames,
+                outletNames,
+                slipNames
+            );
+
             //generate Files
-            GenerateFOAMFiles(version, paramList, wallNames, inletNames, outletNames, slipNames);
+            return GenerateFOAMFileObjects(version, nullFOAMFileNames);
         }
 
         /// <summary>
-        /// Generate FOAM files.
+        /// Fill given output with names generated with element entries from setList.
+        /// </summary>
+        /// <param name="prefix">Prefix for entry input name.</param>
+        /// <param name="postfix">Postfix for entry intput name.</param>
+        /// <param name="setList">Reference to elementlist in settings.</param>
+        /// <param name="output">Reference to output list.</param>
+        private void InitNullDirList(in List<Element> setList, ref List<string> output, in string prefix = "", in string postfix = "")
+        {
+            foreach (Element entry in setList)
+            {
+                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
+                output.Add(prefix + name + postfix);
+            }
+        }
+
+        /// <summary>
+        /// Get corresponding foamfile constructor for given string.
+        /// </summary>
+        /// <param name="name">Name of constructor as string.</param>
+        /// <returns>Type of object if string is in m_TypeMap else null.</returns>
+        private Type GetFOAMFileConstructorType(in string name)
+        {
+            foreach (var keyconstructor in m_TypeMap)
+            {
+                if (name.Contains(keyconstructor.Key))
+                {
+                    return keyconstructor.Value;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Generate FOAMFile objects.
         /// </summary>
         /// <param name="version">Version.</param>
-        /// <param name="param">List of FOAMParameter as string.</param>
-        /// <param name="inletNames">List of inlet names as string.</param>
-        /// <param name="outletNames">List of outlet names as string.</param>
-        private void GenerateFOAMFiles(OpenFOAM.Version version, List<string> param, List<string> wallNames, List<string> inletNames, List<string> outletNames, List<string> slipNames)
+        /// <param name="ffdn">FOAMFiledata struct that contains all names for foamfile generation.</param>
+        /// <returns>Current status of generator that indicates that objects instantiation went well.</returns>
+        private GeneratorStatus GenerateFOAMFileObjects(in OpenFOAM.Version version, in FOAMFileData ffdn)
         {
             FOAMDict parameter;
-            foreach (string nameParam in param)
+
+            foreach (string nameParam in ffdn.Param)
             {
-                if (nameParam.Contains("U."))
-                {
-                    parameter = new OpenFOAM.U(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
+                if (nameParam.Contains("p.")) {
+                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffdn.Wall, ffdn.Inlet, ffdn.Outlet, ffdn.Slip );
+                    m_OpenFOAMDictionaries.Add(parameter);
+                    continue;
                 }
-                else if (nameParam.Contains("p."))
+                try
                 {
-                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
+                    var type = GetFOAMFileConstructorType(nameParam);
+
+                    // Get the public instance constructor for type
+                    ConstructorInfo foamParamConstructor = type.GetConstructor(m_foamParamConstType);
+                    if (foamParamConstructor != null)
+                    {
+                        parameter = (FOAMDict)foamParamConstructor.Invoke(new Object[] { version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffdn.Wall, ffdn.Inlet, ffdn.Outlet, ffdn.Slip });
+                        m_OpenFOAMDictionaries.Add(parameter);
+                    }
+                    else
+                    {
+                        OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_OPENFOAM_PARAM_INVALID);
+                        return GeneratorStatus.FAILURE;
+                    }
                 }
-                else if (nameParam.Contains("epsilon."))
+                catch (Exception e)
                 {
-                    parameter = new OpenFOAM.Epsilon(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
+                    ShowDialog(ref e);
                 }
-                else if (nameParam.Contains("nut."))
-                {
-                    parameter = new OpenFOAM.Nut(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
-                }
-                else if (nameParam.Contains("k."))
-                {
-                    parameter = new OpenFOAM.K(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
-                }
-                else if (nameParam.Contains("alphat"))
-                {
-                    parameter = new OpenFOAM.Alphat(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
-                }
-                else if (nameParam.Contains("p_rgh"))
-                {
-                    parameter = new OpenFOAM.P_rgh(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
-                }
-                else if (nameParam.Contains("T"))
-                {
-                    parameter = new OpenFOAM.T(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
-                }
-                else
-                {
-                    parameter = new OpenFOAM.U(version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, wallNames, inletNames, outletNames, slipNames);
-                }
-                m_OpenFOAMDictionaries.Add(parameter);
             }
+            return GeneratorStatus.SUCCESS;
         }
 
         /// <summary>
@@ -562,7 +615,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="version">Version-object.</param>
         /// <param name="constantFolder">Path to constant folder.</param>
-        private void InitConstantFolder(OpenFOAM.Version version, string constantFolder)
+        private void InitConstantFolder(in OpenFOAM.Version version, in string constantFolder)
         {
             string transportProperties = Path.Combine(constantFolder, "transportProperties.");
             string g = Path.Combine(constantFolder, "g.");
@@ -584,7 +637,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="doc">Active document.</param>
         /// <param name="category">BuiltInCategory from the Autodesk database.</param>
         /// <returns>List of elements with specified category instances.</returns>
-        public static List<Element> GetDefaultCategoryListOfClass<T>(Document document, BuiltInCategory category, string viewName)
+        public static List<Element> GetDefaultCategoryListOfClass<T>(in Document document, in BuiltInCategory category, in string viewName)
         {
             // find the view having the same name of ActiveView.Name in active and linked model documents.
             ElementId viewId = Exporter.Instance.FindViewId(document, viewName);
@@ -606,7 +659,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="doc">Document-object which will used for searching in.</param>
         /// <param name="elements">Element-List which will used for searching in.</param>
         /// <returns>List of ElementId's from the materials.</returns>
-        public static List<ElementId> GetMaterialList(List<Element> elements, List<string> materialNames)
+        public static List<ElementId> GetMaterialList(in List<Element> elements, in List<string> materialNames)
         {
             List<ElementId> materialIds = new List<ElementId>();
             foreach (Element elem in elements)
@@ -629,11 +682,6 @@ namespace OpenFOAMInterface.BIM
                             materialIds.Add(id);
                         }
                     }
-
-                    //if(material.Name.Equals("Inlet") || material.Name.Equals("Outlet"))
-                    //{
-                    //    materialIds.Add(id);
-                    //}
                 }
             }
 
@@ -645,16 +693,11 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="fileName">The name of the STL file to be saved.</param>
         /// <param name="settings">Settings for save operation.</param>
-        /// <returns>Successful or failed.</returns>      
-        public GeneratorStatus SaveSTLFile(string fileName)
+        /// <returns>Successful or failure.</returns>      
+        public GeneratorStatus SaveSTLFile(in string fileName)
         {
-            ///***********************************************Easier to Debug without try and catch********************************************************************///
-            ///*********************************************************************************************************************************///
-            ///********************************************************************************************************************************///
-            ///*******************************************************************************************************************************///
             try
             {
-
                 computeBoundingBox = false;
                 if (Exporter.Instance.settings.DomainX.IsZeroLength())
                 {
@@ -693,8 +736,7 @@ namespace OpenFOAMInterface.BIM
 
                 if (0 == m_TriangularNumber)
                 {
-                    MessageBox.Show(OpenFOAMInterfaceResource.ERR_NOSOLID, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_NOSOLID);
 
                     m_StlCancel.Close();
                     return GeneratorStatus.FAILURE;
@@ -709,19 +751,9 @@ namespace OpenFOAMInterface.BIM
 
                 m_Writer.CloseFile();
             }
-            catch (SecurityException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                m_StlCancel.Close();
-                return GeneratorStatus.FAILURE;
-            }
             catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION + "\n" + e.Message, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
+                ShowDialog(ref e);
                 m_StlCancel.Close();
                 return GeneratorStatus.FAILURE;
             }
@@ -1013,14 +1045,7 @@ namespace OpenFOAMInterface.BIM
                     KeyValuePair<List<Face>/*Face*/, Transform> inletOutlet = ExtractMaterialFaces(elements.Key, geometry, null, m_InletOutletMaterials);
                     KeyValuePair<string, Document> inletOutletID = new KeyValuePair<string, Document>(
                         AutodeskHelperFunctions.GenerateNameFromElement(elem), elements.Key);
-                    //if (inletOutlet.Key != null)
-                    //{
                     m_FacesInletOutlet.Add(inletOutletID, inletOutlet);
-                    /* }
-                     else
-                     {
-                         m_FacesInletOutlet.Add(inletOutletID, null);
-                     }*/
                     m_Writer.WriteSolidName(elemName, false);
                     if (!singleFile)
                     {
@@ -1578,7 +1603,7 @@ namespace OpenFOAMInterface.BIM
                 catch (Exception ex)
                 {
                     m_TriangularNumber--;
-                    OpenFOAMDialogManager.ShowDebug(ex.Message);
+                    ShowDialog(ref ex);
                     continue;
                 }
 
@@ -1656,7 +1681,7 @@ namespace OpenFOAMInterface.BIM
             }
             catch (Exception ex)
             {
-                OpenFOAMDialogManager.ShowDebug(ex.Message);
+                ShowDialog(ref ex);
             }
 
             return linkedDocs;
@@ -1678,6 +1703,24 @@ namespace OpenFOAMInterface.BIM
             linkElements.AddRange(familySymbolCollector.OfClass(typeof(FamilySymbol)).ToList());
 
             return linkElements;
+        }
+
+        /// <summary>
+        /// Shows error dialog for corresponding exception.
+        /// </summary>
+        /// <param name="e">Catched exception.</param>
+        private static void ShowDialog(ref Exception e) {
+            switch (e) {
+                case IOException:
+                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION);
+                    break;
+                case SecurityException:
+                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION);
+                    break;
+                default:
+                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_EXCEPTION);
+                    break;
+            }
         }
     }
 }
