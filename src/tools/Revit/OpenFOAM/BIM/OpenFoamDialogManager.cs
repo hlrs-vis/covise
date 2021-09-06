@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -42,8 +43,19 @@ namespace OpenFOAMInterface.BIM
         [Conditional("DEBUG")]
         public static void ShowDebug(string exception)
         {
-            MessageBox.Show(exception, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                           MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            ShowError(exception);
+        }
+
+        /// <summary>
+        /// Used to show OpenFOAMInterfaceResource error message.
+        /// </summary>
+        /// <param name="opErrMsg">The error message.</param>
+        public static void ShowError(string opErrMsg)
+        {
+            MessageBox.Show(opErrMsg,
+                            OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Exclamation);
         }
     }
 }
