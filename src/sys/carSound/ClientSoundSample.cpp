@@ -72,6 +72,7 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
             tb << (int)SoundMessages::SOUND_SOUND_ID;
             tb << ID;
             client->send(tb);
+            fileName = cacheFileName;
         }
         else
         {
@@ -137,6 +138,10 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
     result = mainWindow::instance()->system->createSound(fileName.c_str(), FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &sound); // FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
     //ERRCHECK(result);
     result = mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
+    if (channel == nullptr)
+    {
+        myItem->setText(SoundColumns::CSoundID, "Failed to load");
+    }
     //ERRCHECK(result);
     covise::TokenBuffer tb;
     tb << (int)SoundMessages::SOUND_SOUND_ID;
@@ -174,18 +179,24 @@ void ClientSoundSample::start()
 };
 void ClientSoundSample::continuePlaying()
 {
-    playing = true;
-    FMOD_RESULT result;
-    result = channel->setPaused(!playing); // This is where the sound really starts.
+    if (channel != nullptr)
+    {
+        playing = true;
+        FMOD_RESULT result;
+        result = channel->setPaused(!playing); // This is where the sound really starts.
+    }
     myItem->setIcon(SoundColumns::CState, playIcon);
     //ERRCHECK(result);
 };
 void ClientSoundSample::stop()
 {
-    playing = false;
-    FMOD_RESULT result;
-    result = channel->setPaused(!playing); // This is where the sound really starts.
-    channel->setPosition(0, FMOD_TIMEUNIT_PCM);
+    if (channel != nullptr)
+    {
+        playing = false;
+        FMOD_RESULT result;
+        result = channel->setPaused(!playing); // This is where the sound really starts.
+        channel->setPosition(0, FMOD_TIMEUNIT_PCM);
+    }
     myItem->setIcon(SoundColumns::CState, stopIcon);
     //ERRCHECK(result);
 };
@@ -193,26 +204,38 @@ void ClientSoundSample::rewind(){};
 void ClientSoundSample::loop(bool l,int count)
 {
     looping = l;
-    if (l)
-        channel->setLoopCount(count);
-    else
-        channel->setLoopCount(0);
+    if (channel != nullptr)
+    {
+        if (l)
+            channel->setLoopCount(count);
+        else
+            channel->setLoopCount(0);
+    }
 };
 
 void ClientSoundSample::volume(float v)
 {
-    channel->setVolume(v);
+    if (channel != nullptr)
+    {
+        channel->setVolume(v);
+    }
     myItem->setText(SoundColumns::CVolume, QString::number(v));
 }
 void ClientSoundSample::pitch(float p)
 {
-    channel->setPitch(p);
+    if (channel != nullptr)
+    {
+        channel->setPitch(p);
+    }
     myItem->setText(SoundColumns::CPitch, QString::number(p));
 }
 
 void ClientSoundSample::setDelay(unsigned long long dspclock_start, unsigned long long dspclock_end, bool stopchannels)
 {
-    channel->setDelay(dspclock_start, dspclock_end, stopchannels);
+    if (channel != nullptr)
+    {
+        channel->setDelay(dspclock_start, dspclock_end, stopchannels);
+    }
 }
 
 std::string ClientSoundSample::createCacheFileName(const std::string& fileName)
