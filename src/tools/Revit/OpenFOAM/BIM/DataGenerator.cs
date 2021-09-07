@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
@@ -246,8 +247,14 @@ namespace OpenFOAMInterface.BIM
             {
                 Directory.CreateDirectory(folder);
             }
+            string zipPath = path;
 
-            GeneratorStatus status = InitRunManager(path);
+            if (Exporter.Instance.settings.OpenFOAMEnvironment == OpenFOAMEnvironment.ssh)
+            {
+                zipPath = path + ".zip";
+            }
+
+            GeneratorStatus status = InitRunManager(zipPath);
             if (status != GeneratorStatus.SUCCESS)
             {
                 return status;
@@ -285,8 +292,14 @@ namespace OpenFOAMInterface.BIM
                 commands.Add("rm -r processor*");
                 commands.Add(Exporter.Instance.settings.AppSolverControlDict.ToString());
                 commands.Add("rm -r processor*");
-
             }
+
+            //zip file before pushing to cluster
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+            ZipFile.CreateFromDirectory(path, zipPath);
 
             //run commands in windows-openfoam-environment
             if (!m_RunManager.RunCommands(commands))
@@ -532,7 +545,7 @@ namespace OpenFOAMInterface.BIM
             );
 
             //generate Files
-            return GenerateFOAMFileObjects(version, nullFOAMFileNames);
+            return GenerateNullDirFOAMDictObj(version, nullFOAMFileNames);
         }
 
         /// <summary>
@@ -552,11 +565,11 @@ namespace OpenFOAMInterface.BIM
         }
 
         /// <summary>
-        /// Get corresponding foamfile constructor for given string.
+        /// Get corresponding foamfile type for given string.
         /// </summary>
         /// <param name="name">Name of constructor as string.</param>
         /// <returns>Type of object if string is in m_TypeMap else null.</returns>
-        private Type GetFOAMFileConstructorType(in string name)
+        private Type GetNullDirFOAMDictType(in string name)
         {
             foreach (var keyconstructor in m_TypeMap)
             {
@@ -574,20 +587,21 @@ namespace OpenFOAMInterface.BIM
         /// <param name="version">Version.</param>
         /// <param name="ffdn">FOAMFiledata struct that contains all names for foamfile generation.</param>
         /// <returns>Current status of generator that indicates that objects instantiation went well.</returns>
-        private GeneratorStatus GenerateFOAMFileObjects(in OpenFOAM.Version version, in FOAMFileData ffdn)
+        private GeneratorStatus GenerateNullDirFOAMDictObj(in OpenFOAM.Version version, in FOAMFileData ffdn)
         {
             FOAMDict parameter;
 
             foreach (string nameParam in ffdn.Param)
             {
-                if (nameParam.Contains("p.")) {
-                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffdn.Wall, ffdn.Inlet, ffdn.Outlet, ffdn.Slip );
+                if (nameParam.Contains("p."))
+                {
+                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffdn.Wall, ffdn.Inlet, ffdn.Outlet, ffdn.Slip);
                     m_OpenFOAMDictionaries.Add(parameter);
                     continue;
                 }
                 try
                 {
-                    var type = GetFOAMFileConstructorType(nameParam);
+                    var type = GetNullDirFOAMDictType(nameParam);
 
                     // Get the public instance constructor for type
                     ConstructorInfo foamParamConstructor = type.GetConstructor(m_foamParamConstType);
@@ -1012,8 +1026,6 @@ namespace OpenFOAMInterface.BIM
             m_FacesInletOutlet = new Dictionary<KeyValuePair<string, Document>, KeyValuePair<List<Face>/*Face*/, Transform>>();
             foreach (var elements in terminals)
             {
-
-
                 foreach (Element elem in elements.Value)
                 {
 
@@ -1110,8 +1122,6 @@ namespace OpenFOAMInterface.BIM
             WriteStage = WriteStages.MeshResolution;
             foreach (var element in Exporter.Instance.settings.MeshResolution.Keys)
             {
-
-
                 GeometryElement geometry = null;
                 geometry = element.get_Geometry(m_ViewOptions);
                 if (null == geometry)
@@ -1709,8 +1719,10 @@ namespace OpenFOAMInterface.BIM
         /// Shows error dialog for corresponding exception.
         /// </summary>
         /// <param name="e">Catched exception.</param>
-        private static void ShowDialog(ref Exception e) {
-            switch (e) {
+        private static void ShowDialog(ref Exception e)
+        {
+            switch (e)
+            {
                 case IOException:
                     OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION);
                     break;
