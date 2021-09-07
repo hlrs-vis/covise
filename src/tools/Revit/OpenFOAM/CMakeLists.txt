@@ -26,9 +26,9 @@ add_library(OpenFOAMInterface SHARED
   BIM/OpenFOAM/ControlDict.cs
   BIM/OpenFOAM/DecomposeParDict.cs
   BIM/OpenFOAM/Epsilon.cs
-  BIM/OpenFOAM/FoamDict.cs
-  BIM/OpenFOAM/FoamFile.cs
-  BIM/OpenFOAM/FoamParameter.cs
+  BIM/OpenFOAM/FOAMDict.cs
+  BIM/OpenFOAM/FOAMFile.cs
+  BIM/OpenFOAM/FOAMParameter.cs
   BIM/OpenFOAM/FvSchemes.cs
   BIM/OpenFOAM/FvSolution.cs
   BIM/OpenFOAM/G.cs
@@ -109,6 +109,7 @@ set_property(TARGET OpenFOAMInterface PROPERTY VS_DOTNET_REFERENCES
   ${EXTRA_REFS}
   "PresentationCore"
   "System"
+  "System.IO.Compression.FileSystem"
   "System.Drawing"
   "System.Windows.Forms"
   "WindowsBase"
