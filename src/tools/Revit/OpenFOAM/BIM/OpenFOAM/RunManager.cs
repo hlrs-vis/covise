@@ -6,12 +6,14 @@
  * License: LGPL 2+ */
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -97,12 +99,12 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="sw">Streamwriter.</param>
         /// <param name="command">Command.</param>
-        public abstract void WriteLine(StreamWriter sw, string command);
+        public abstract void WriteLine(StreamWriter sw, in string command);
 
         /// <summary>
         /// Create bat and write given commands into batch file.
         /// </summary>
-        public virtual bool WriteToCommandBat(List<string> command)
+        public virtual bool WriteToCommandBat(in List<string> command)
         {
             bool succeed = true;
 
@@ -160,7 +162,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="commands">Contains commands as string.</param>
         /// <returns>True if suceed and false if not.</returns>
-        public virtual bool RunCommands(List<string> commands)
+        public virtual bool RunCommands(in List<string> commands)
         {
             //create initial Environment commands.
             List<string> runCommands = new();
@@ -170,6 +172,27 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 runCommands.Add(s);
             }
             string log = " | tee " + @"log/";
+            InitFOAMCommands(log, commands, ref runCommands);
+
+            //write commands into batch file
+            bool succeed = WriteToCommandBat(runCommands);
+            if (succeed)
+            {
+                //start process in new thread
+                var proc = new Thread(async () => { await StartBatchAsync(succeed); });
+                proc.Start();
+            }
+            return succeed;
+        }
+
+        /// <summary>
+        /// Initialize output list with additional commands for openfoam commands.
+        /// </summary>
+        /// <param name="log">log command</param>
+        /// <param name="commands">Contains commands as string.</param>
+        /// <param name="output">Output list .</param>
+        private void InitFOAMCommands(in string log, in List<string> commands, ref List<string> output) 
+        {
             foreach (string command in commands)
             {
                 if (m_NumberOfSubdomains != 0)
@@ -178,55 +201,65 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     {
                         if (command.Equals("snappyHexMesh"))
                         {
-                            runCommands.Add("decomposePar" + log + "decomposepar.log");
-                            runCommands.Add("mpirun -np " + m_NumberOfSubdomains + " " + command + " -overwrite -parallel " + log + command + ".log");
-                            runCommands.Add("reconstructParMesh -constant" + log + "reconstructParMesh.log");
+                            output.Add("decomposePar" + log + "decomposepar.log");
+                            output.Add("mpirun -np " + m_NumberOfSubdomains + " " + command + " -overwrite -parallel " + log + command + ".log");
+                            output.Add("reconstructParMesh -constant" + log + "reconstructParMesh.log");
                             continue;
                         }
                         else if (command.Equals("simpleFoam") || command.Equals("buoyantBoussinesqSimpleFoam"))
                         {
-                            runCommands.Add("decomposePar");
+                            output.Add("decomposePar");
                             //runCommands.Add("mpirun -n " + DecomposeParDict.NumberOfSubdomains + " renumberMesh -overwrite -parallel");
-                            runCommands.Add("mpirun -np " + m_NumberOfSubdomains + " " + command + " -parallel " + log + command + ".log");
-                            runCommands.Add("reconstructPar " + Exporter.Instance.settings.ReconstructParOption);
+                            output.Add("mpirun -np " + m_NumberOfSubdomains + " " + command + " -parallel " + log + command + ".log");
+                            output.Add("reconstructPar " + Exporter.Instance.settings.ReconstructParOption);
                             continue;
                         }
                     }
                 }
-                runCommands.Add(command);
+                output.Add(command);
             }
+        }
 
-            //write commands into batch file
-            bool succeed = WriteToCommandBat(runCommands);
-            if (succeed)
-            {
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    FileName = m_CommandBat,
-                    WorkingDirectory = m_CasePath
-                };
+        /// <summary>
+        /// Start Batch asynchronous.
+        /// </summary>
+        /// <param name="succeed">Will indicate if async call was successful.</param>
+        /// <returns>Task for asynchronous operation.</returns>
+        private async Task StartBatchAsync(bool succeed) => succeed = await Task.Run(() => StartProcessAndExtractZipAsync());
 
-                //start batch in new thread
-                var proc = new Thread(() => {
-                    using (Process process = Process.Start(startInfo))
-                    {
-                        process.WaitForExit();
-                        if(process.ExitCode != 0)
-                        {
-                            MessageBox.Show("Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use" +
-                                " check the VPN connection." +
-                                "\nC#-Process ExitCode: " + process.ExitCode,
-                                OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE);
-                        } 
-                    }
-                });
-                proc.Start();
-            }
-            else
+        /// <summary>
+        /// Wrapper for starting the process and extracting the downloaded zipfile.
+        /// </summary>
+        /// <returns>Task for asynchronous operation with bool as result which indicates status of process after execution.</returns>
+        private async Task<bool> StartProcessAndExtractZipAsync()
+        {
+            var startProc = await StartProcess();            
+            string fileName = Path.GetFileName(m_CasePath);
+            string caseDir = Path.GetDirectoryName(m_CasePath);
+            string casePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
+            ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults);
+            return startProc;
+        }
+
+        /// <summary>
+        /// Starts the process.
+        /// </summary>
+        /// <returns>Task for asynchronous operation with bool as result which indicates status of process after execution.</returns>
+        private async Task<bool> StartProcess()
+        {
+            ProcessStartInfo startInfo = new()
             {
+                FileName = m_CommandBat,
+                WorkingDirectory = m_CasePath
+            };
+            using var process = Process.Start(startInfo);
+            await Task.Run(() => process.WaitForExit());
+            if (process.ExitCode != 0)
+            {
+                OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_SIM_RUN);
                 return false;
             }
-            return succeed;
+            return true;
         }
 
         /// <summary>
@@ -432,7 +465,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="sw">StreamWriter object.</param>
         /// <param name="command">Command as string.</param>
-        public override void WriteLine(StreamWriter sw, string command)
+        public override void WriteLine(StreamWriter sw, in string command)
         {
             sw.WriteLine(command);
         }
@@ -473,7 +506,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="commands">Contains commands as string.</param>
         /// <returns>True if suceed and false if not.</returns>
-        public override bool RunCommands(List<string> commands)
+        public override bool RunCommands(in List<string> commands)
         {
             commands.Add("\"");
             bool succeed = base.RunCommands(commands);
@@ -485,7 +518,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="sw">StreamWriter object.</param>
         /// <param name="command">Command as string.</param>
-        public override void WriteLine(StreamWriter sw, string command)
+        public override void WriteLine(StreamWriter sw, in string command)
         {
             if (command.Equals("\"") || command.Contains("bash") || command.Contains("blockMesh") || command.Contains("All"))
             {
@@ -513,7 +546,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         }
 
 
-        public override void WriteLine(StreamWriter sw, string command)
+        public override void WriteLine(StreamWriter sw, in string command)
         {
             throw new NotImplementedException();
         }
@@ -537,7 +570,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         public RunManagerSSH(string casePath, OpenFOAMEnvironment env)
             : base(casePath, env)
         {
-            m_CommandBat = casePath + @"\RunSSH.bat";
+            m_CommandBat = Path.GetDirectoryName(casePath) + @"\" + Path.GetFileNameWithoutExtension(casePath) + @"\RunSSH.bat";
         }
 
         /// <summary>
@@ -546,7 +579,10 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <returns>List with shell commands as string.</returns>
         public override List<string> InitialEnvRunCommands()
         {
-            string CaseDir = m_CasePath.Substring(m_CasePath.LastIndexOf("\\"));
+            string fileName = Path.GetFileName(m_CasePath);
+            string caseDir = Path.GetDirectoryName(m_CasePath);
+            string serverDir = Exporter.Instance.settings.SSH.ServerCaseFolder;
+            string serverCaseDir = Exporter.Instance.settings.SSH.ServerCaseFolder + Path.GetFileNameWithoutExtension(fileName);
 
             //***********************SSH FOR LINUX IMPLEMENTED*******************/
             List<string> shellCommands = new List<string>
@@ -555,13 +591,19 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 "scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + m_CasePath + " " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder,
                 "ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() +
                 " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + Exporter.Instance.settings.SSH.OfAlias +
-                "; cd " + Exporter.Instance.settings.SSH.ServerCaseFolder+"/"+CaseDir
+                "; mkdir " + serverCaseDir +
+                "; cd " + serverDir +
+                "; unzip " + fileName + " -d " + serverCaseDir +
+                "; rm " + fileName +
+                "; cd " + serverCaseDir
             };
 
             if (Exporter.Instance.settings.SSH.Slurm)
             {
                 shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + Exporter.Instance.settings.SSH.SlurmCommand + " ./Allrun");
             }
+            shellCommands.Add("cd " + serverDir);
+            shellCommands.Add("zip -r " + fileName + " " + Path.GetFileNameWithoutExtension(fileName));
 
             return shellCommands;
         }
@@ -571,21 +613,22 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="commands">Contains commands as string.</param>
         /// <returns>True if suceed and false if not.</returns>
-        public override bool RunCommands(List<string> commands)
+        public override bool RunCommands(in List<string> commands)
         {
             commands.Add("\"");
-            string CaseDir = m_CasePath.Substring(m_CasePath.LastIndexOf("\\"));
+            string fileName = Path.GetFileName(m_CasePath);
+            string caseDir = Path.GetDirectoryName(m_CasePath);
 
             //Download directory from Server: scp -r user@ssh.example.com:/path/to/remote/source /path/to/local/destination
             if (Exporter.Instance.settings.SSH.Download)
             {
-                string CasePathResults = m_CasePath + "_results";
+                string CasePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
                 if (!Directory.Exists(CasePathResults))
                 {
                     Directory.CreateDirectory(CasePathResults);
                 }
 
-                commands.Add("scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder + "/" + CaseDir + "/* " + CasePathResults);
+                commands.Add("scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder + fileName + " " + CasePathResults + ".zip");
             }
             if (Exporter.Instance.settings.SSH.Delete)
             {
@@ -600,7 +643,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="sw">StreamWriter object.</param>
         /// <param name="command">Command as string.</param>
-        public override void WriteLine(StreamWriter sw, string command)
+        public override void WriteLine(StreamWriter sw, in string command)
         {
             //add \" as command to show the end of the commands for one bash operation
             if (command.Contains("scp") || command.Equals("\""))
