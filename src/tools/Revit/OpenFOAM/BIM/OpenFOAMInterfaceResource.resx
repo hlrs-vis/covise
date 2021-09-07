@@ -134,7 +134,7 @@
     <comment/>
   </data>
   <data name="ERR_IO_EXCEPTION" xml:space="preserve">
-    <value>Occur an IO error,the application will be terminated.</value>
+    <value>IO error, the application will be terminated.</value>
     <comment/>
   </data>
   <data name="ERR_NOSOLID" xml:space="preserve">
@@ -154,7 +154,7 @@
     <comment/>
   </data>
   <data name="MESSAGE_BOX_TITLE" xml:space="preserve">
-    <value>STL Exporter</value>
+    <value>OpenFOAMInterface</value>
     <comment/>
   </data>
   <data name="SAVE_DIALOG_DEFAULT_FILE_EXTEND" xml:space="preserve">
@@ -171,6 +171,10 @@
   </data>
   <data name="ERR_OPENFOAM_PARAM_INVALID" xml:space="preserve">
     <value>Invalid format for OpenFOAM parameter.</value>
+    <comment/>
+  </data>
+  <data name="ERR_SIM_RUN" xml:space="preserve">
+    <value>Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use check the connection details.</value>
     <comment/>
   </data>
 </root>

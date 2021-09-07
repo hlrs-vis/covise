@@ -185,5 +185,14 @@ namespace OpenFOAMInterface.BIM {
                 return ResourceManager.GetString("ERR_OPENFOAM_PARAM_INVALID", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use check the connection details. ähnelt.
+        /// </summary>
+        public static string ERR_SIM_RUN {
+            get {
+                return ResourceManager.GetString("ERR_SIM_RUN", resourceCulture);
+            }
+        }
     }
 }
