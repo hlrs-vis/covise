@@ -2881,27 +2881,27 @@ int main(int argc, char *argv[])
 
     READER_CONTROL->addOutputPort(GEOPORT3D, "geoOut_3D", "UnstructuredGrid", "Geometry", false);
 
-    READER_CONTROL->addOutputPort(DPORT1_3D, "sdata1_3D", "Float", "data1-3d");
-    READER_CONTROL->addOutputPort(DPORT2_3D, "sdata2_3D", "Float", "data2-3d");
-    READER_CONTROL->addOutputPort(DPORT3_3D, "sdata3_3D", "Float", "data3-3d");
-    READER_CONTROL->addOutputPort(DPORT4_3D, "vdata1_3D", "Vec3", "data2-3d");
-    READER_CONTROL->addOutputPort(DPORT5_3D, "vdata2_3D", "Vec3", "data2-3d");
+    READER_CONTROL->addOutputPort(DPORT1_3D, "sdata1_3D", "Float", "scalar data1-3d");
+    READER_CONTROL->addOutputPort(DPORT2_3D, "sdata2_3D", "Float", "scalar data2-3d");
+    READER_CONTROL->addOutputPort(DPORT3_3D, "sdata3_3D", "Float", "scalar data3-3d");
+    READER_CONTROL->addOutputPort(DPORT4_3D, "vdata1_3D", "Vec3", "vector data1-3d");
+    READER_CONTROL->addOutputPort(DPORT5_3D, "vdata2_3D", "Vec3", "vector data2-3d");
 
     READER_CONTROL->addOutputPort(GEOPORT2D, "geoOut_2D", "Polygons", "Geometry", false);
 
-    READER_CONTROL->addOutputPort(DPORT1_2D, "sdata1_2D", "Float", "data1-2d");
-    READER_CONTROL->addOutputPort(DPORT2_2D, "sdata2_2D", "Float", "data2-2d");
-    READER_CONTROL->addOutputPort(DPORT3_2D, "sdata3_2D", "Float", "data3-2d");
-    READER_CONTROL->addOutputPort(DPORT4_2D, "vdata1_2D", "Vec3", "data1-2d");
-    READER_CONTROL->addOutputPort(DPORT5_2D, "vdata2_2D", "Vec3", "data2-2d");
+    READER_CONTROL->addOutputPort(DPORT1_2D, "sdata1_2D", "Float", "scalar data1-2d");
+    READER_CONTROL->addOutputPort(DPORT2_2D, "sdata2_2D", "Float", "scalar data2-2d");
+    READER_CONTROL->addOutputPort(DPORT3_2D, "sdata3_2D", "Float", "scalar data3-2d");
+    READER_CONTROL->addOutputPort(DPORT4_2D, "vdata1_2D", "Vec3", "vector data1-2d");
+    READER_CONTROL->addOutputPort(DPORT5_2D, "vdata2_2D", "Vec3", "vector data2-2d");
 
     READER_CONTROL->addOutputPort(GEOPORT1D, "geoOut_1D", "Points", "Measured points", false);
 
-    READER_CONTROL->addOutputPort(DPORT1_1D, "sdata1_1D", "Float", "data1-1d");
-    READER_CONTROL->addOutputPort(DPORT2_1D, "sdata2_1D", "Float", "data2-1d");
-    READER_CONTROL->addOutputPort(DPORT3_1D, "sdata3_1D", "Float", "data3-1d");
-    READER_CONTROL->addOutputPort(DPORT4_1D, "vdata1_1D", "Vec3", "data1-1d");
-    READER_CONTROL->addOutputPort(DPORT5_1D, "vdata2_1D", "Vec3", "data2-1d");
+    READER_CONTROL->addOutputPort(DPORT1_1D, "sdata1_1D", "Float", "scalar data1-1d");
+    READER_CONTROL->addOutputPort(DPORT2_1D, "sdata2_1D", "Float", "scalar data2-1d");
+    READER_CONTROL->addOutputPort(DPORT3_1D, "sdata3_1D", "Float", "scalar data3-1d");
+    READER_CONTROL->addOutputPort(DPORT4_1D, "vdata1_1D", "Vec3", "vector data1-1d");
+    READER_CONTROL->addOutputPort(DPORT5_1D, "vdata2_1D", "Vec3", "vector data2-1d");
 
     // create the module
     coReader *application = new ReadEnsight(argc, argv);
