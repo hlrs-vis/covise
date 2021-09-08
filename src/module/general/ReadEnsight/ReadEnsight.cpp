@@ -2132,11 +2132,13 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                         float* xn = NULL, * yn = NULL, * zn = NULL;
                         Reducer r(dc);
                         r.removeUnusedData(xn, yn, zn, it->subParts_IndexList.at(subPart),currentNumCoord);
+			scalarData=it->arr2_==nullptr;
 
                         char c[16];
                         sprintf(c, "%d", subPart);
                         string oNmsub = oNm + "_sp_" + string(c);
                         string oNmCTVsub = oNmCTV + "_sp_" + string(c);
+                        string oNmsubv = oNm + "v_sp_" + string(c);
 
                         if (xn != NULL)
                         {
@@ -2150,7 +2152,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                             }
                             else
                             {
-                                subObjects[subPart] = new coDoVec3((oNmsub + "t").c_str(), // TODO: name
+                                subObjects[subPart] = new coDoVec3(oNmsubv.c_str(), // TODO: name
                                     currentNumCoord,
                                     xn, yn, zn);
                             }
