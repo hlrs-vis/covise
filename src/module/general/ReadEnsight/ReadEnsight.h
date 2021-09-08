@@ -37,6 +37,7 @@ const int Failure(1);
 
 /////////////////////
 const int MAX_LIST_SIZE(500000000);
+// test const int MAX_LIST_SIZE(600000);
 //////////////////////
 
 class ReadEnsight : public coReader

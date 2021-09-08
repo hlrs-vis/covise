@@ -126,7 +126,8 @@ public:
     coDistributedObject *distGeo2d_;
     coDistributedObject *distGeo3d_;
 
-    vector<int> subParts_numElem, subParts_numConn;
+    vector<int> subParts_numElem, subParts_numConn, subParts_numCoord;
+    vector<const int*>  subParts_IndexList;
 
 private:
     int partNum_;

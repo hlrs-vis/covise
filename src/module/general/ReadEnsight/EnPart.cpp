@@ -143,6 +143,10 @@ EnPart::EnPart(const EnPart &p)
         subParts_numElem.push_back(p.subParts_numElem[i]);
     for (i = 0; i < p.subParts_numConn.size(); ++i)
         subParts_numConn.push_back(p.subParts_numConn[i]);
+    for (i = 0; i < p.subParts_numCoord.size(); ++i)
+        subParts_numCoord.push_back(p.subParts_numCoord[i]);
+    for (i = 0; i < p.subParts_IndexList.size(); ++i)
+        subParts_IndexList.push_back(p.subParts_IndexList[i]);
 }
 
 const EnPart &
@@ -209,7 +213,11 @@ const EnPart &
     subParts_numConn.clear();
     for (i = 0; i < p.subParts_numConn.size(); ++i)
         subParts_numConn.push_back(p.subParts_numConn[i]);
-
+    for (i = 0; i < p.subParts_numCoord.size(); ++i)
+        subParts_numCoord.push_back(p.subParts_numCoord[i]);
+    for (i = 0; i < p.subParts_IndexList.size(); ++i)
+        subParts_IndexList.push_back(p.subParts_IndexList[i]);
+    
     return *this;
 }
 

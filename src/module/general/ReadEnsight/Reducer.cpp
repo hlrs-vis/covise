@@ -160,6 +160,50 @@ Reducer::removeUnused(float **xn, float **yn, float **zn)
     return numCoord - redCnt - 1;
 }
 
+
+void
+Reducer::removeUnusedData(float* &xn, float* &yn, float* &zn, const int *IndexMap, int numRed)
+{
+    if (IndexMap != NULL)
+    {
+        int i;
+        int numCoord(dc_.getNumCoord());
+        bool scalar = dc_.y == nullptr;
+        xn = new float[numRed];
+        yn = new float[numRed];
+        zn = new float[numRed];
+
+        int cnt(0);
+        int idx;
+        if (scalar)
+        {
+            for (i = 0; i < numCoord; ++i)
+            {
+                idx = IndexMap[i];
+                if (idx >= 0)
+                {
+                    xn[cnt] = dc_.x[i];
+                    cnt++;
+                }
+            }
+        }
+        else
+        {
+            for (i = 0; i < numCoord; ++i)
+            {
+                idx = IndexMap[i];
+                if (idx >= 0)
+                {
+                    xn[cnt] = dc_.x[i];
+                    yn[cnt] = dc_.y[i];
+                    zn[cnt] = dc_.z[i];
+                    cnt++;
+                }
+            }
+        }
+    }
+}
+
 DataCont
 Reducer::reduceAndCopyData()
 {

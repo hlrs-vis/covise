@@ -493,7 +493,7 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
             {
                 // increment refcounter recursive
                 tmp[jj] = objects3d[0];
-                tmp[jj]->incRefCount();
+                incrRefCnt(objects3d[0]);
             }
             tmp[jj] = NULL;
             objects3d = tmp;
@@ -1760,6 +1760,9 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                     Reducer r(dc);
                     r.removeUnused(&xn, &yn, &zn);
                     (*it).indexMap3d_ = (int *)r.getIdxMap(); // TODO
+
+                    it->subParts_numCoord.push_back(dc.getNumCoord());
+                    it->subParts_IndexList.push_back(r.getIdxMap()); // we need to save this to be able to map per vertex data
 // create grid
 #ifdef DEBUG
                     cerr << "    create grid" << endl;
@@ -2023,64 +2026,157 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
 #ifdef DEBUG
                 cerr << " vertex data" << endl;
 #endif
-                int *index = NULL;
-                if (dim == EnFile::EnFile::DIM2D)
+                int* index = NULL;
+                float* dx_, * dy_, * dz_;
+                int numElem;
+                if (dim == EnFile::DIM2D)
+                {
+                    dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_;
+                    numElem = it->numEleRead2d();
                     index = it->indexMap2d_;
-                if (dim == EnFile::EnFile::DIM3D)
-                    index = it->indexMap3d_;
-                Reducer red(dcIn, index);
-                //cerr << "       IDX-MAP GET "  << (*it).indexMap3d_ << "   ";
-                //cerr << dcIn.getNumCoord() << endl;
-
-                DataCont dcOut;
-                if (case_.getVersion() == CaseFile::gold)
-                {
-
-                    dcIn.setNumCoord(it->numCoords());
-                    dcIn.x = it->arr1_;
-                    dcIn.y = it->arr2_;
-                    dcIn.z = it->arr3_;
-
-                    // set data to 0 if a part without data arrives
-                    // if (dcOut.x == NULL)
-                    if (dcIn.x == NULL)
-                    {
-                        cerr << " DATA  NULL " << it->comment() << endl;
-                        if (scalarData)
-                        {
-                            dcIn.x = new float[it->numCoords()];
-                            fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
-                        }
-                        else
-                        {
-                            dcIn.x = new float[it->numCoords()];
-                            fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
-                            dcIn.y = new float[it->numCoords()];
-                            fill(dcIn.y, dcIn.y + it->numCoords(), 0.0);
-                            dcIn.z = new float[it->numCoords()];
-                            fill(dcIn.z, dcIn.z + it->numCoords(), 0.0);
-                        }
-                    }
-                    it->arr1_ = NULL;
-                    it->arr2_ = NULL;
-                    it->arr3_ = NULL;
                 }
-                dcOut = red.reduceAndCopyData();
-
-
-                if (scalarData)
+                if (dim == EnFile::DIM3D)
                 {
-                    tmp = new coDoFloat(oNm.c_str(),
-                                        dcOut.getNumCoord(),
-                                        dcOut.x);
+                    dx_ = it->d3dx_; dy_ = it->d3dy_; dz_ = it->d3dz_;
+                    numElem = it->numEleRead3d();
+                    index = it->indexMap3d_;
+                }
+                scalarData = (dy_ == NULL) && (dz_ == NULL);
+                if (it->subParts_numElem.empty())
+                {
+                    Reducer red(dcIn, index);
+                    //cerr << "       IDX-MAP GET "  << (*it).indexMap3d_ << "   ";
+                    //cerr << dcIn.getNumCoord() << endl;
+
+                    DataCont dcOut;
+                    if (case_.getVersion() == CaseFile::gold)
+                    {
+
+                        dcIn.setNumCoord(it->numCoords());
+                        dcIn.x = it->arr1_;
+                        dcIn.y = it->arr2_;
+                        dcIn.z = it->arr3_;
+
+                        // set data to 0 if a part without data arrives
+                        // if (dcOut.x == NULL)
+                        if (dcIn.x == NULL)
+                        {
+                            cerr << " DATA  NULL " << it->comment() << endl;
+                            if (scalarData)
+                            {
+                                dcIn.x = new float[it->numCoords()];
+                                fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
+                            }
+                            else
+                            {
+                                dcIn.x = new float[it->numCoords()];
+                                fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
+                                dcIn.y = new float[it->numCoords()];
+                                fill(dcIn.y, dcIn.y + it->numCoords(), 0.0);
+                                dcIn.z = new float[it->numCoords()];
+                                fill(dcIn.z, dcIn.z + it->numCoords(), 0.0);
+                            }
+                        }
+                        it->arr1_ = NULL;
+                        it->arr2_ = NULL;
+                        it->arr3_ = NULL;
+                    }
+                    dcOut = red.reduceAndCopyData();
+
+
+                    if (scalarData)
+                    {
+                        tmp = new coDoFloat(oNm.c_str(),
+                            dcOut.getNumCoord(),
+                            dcOut.x);
+                    }
+                    else
+                    {
+                        tmp = new coDoVec3(oNm.c_str(),
+                            dcOut.getNumCoord(),
+                            dcOut.x, dcOut.y, dcOut.z);
+                    }
+                    dcOut.cleanAll();
                 }
                 else
                 {
-                    tmp = new coDoVec3(oNm.c_str(),
-                                       dcOut.getNumCoord(),
-                                       dcOut.x, dcOut.y, dcOut.z);
+                    // split geometry !!!
+#ifdef DEBUG
+                    cerr << "  split" << endl;
+#endif
+
+                    // prepare
+                    int numberOfSubParts = it->subParts_numElem.size();
+                    coDistributedObject** subObjects = new coDistributedObject * [numberOfSubParts + 1];
+                    subObjects[numberOfSubParts] = NULL;
+                    const coDistributedObject* geoObj = getGeoObject(step, cnt, dim);
+                    // work on the sub parts
+                    for (int subPart = 0; subPart < numberOfSubParts; ++subPart)
+                    {
+#ifdef DEBUG
+                        cerr << "   subPart: " << subPart << endl;
+#endif
+                        // split (create temp lists)
+                        int numCoords = it->numCoords();
+                        int currentNumElem = it->subParts_numElem.at(subPart);
+                        int currentNumConn = it->subParts_numConn.at(subPart);
+                        int currentNumCoord = it->subParts_numCoord.at(subPart);
+
+                        DataCont dc;
+                        dc.setNumCoord(numCoords);
+                        dc.setNumElem(currentNumElem);
+                        dc.setNumConn(currentNumConn);
+                        dc.x = it->arr1_;
+                        dc.y = it->arr2_;
+                        dc.z = it->arr3_;
+                        float* xn = NULL, * yn = NULL, * zn = NULL;
+                        Reducer r(dc);
+                        r.removeUnusedData(xn, yn, zn, it->subParts_IndexList.at(subPart),currentNumCoord);
+
+                        char c[16];
+                        sprintf(c, "%d", subPart);
+                        string oNmsub = oNm + "_sp_" + string(c);
+                        string oNmCTVsub = oNmCTV + "_sp_" + string(c);
+
+                        if (xn != NULL)
+                        {
+
+
+                            if (scalarData)
+                            {
+                                subObjects[subPart] = new coDoFloat(oNmsub.c_str(), // TODO: name
+                                    currentNumCoord,
+                                    xn);
+                            }
+                            else
+                            {
+                                subObjects[subPart] = new coDoVec3((oNmsub + "t").c_str(), // TODO: name
+                                    currentNumCoord,
+                                    xn, yn, zn);
+                            }
+
+                        }
+                        else
+                        {
+                            float dummy = 0;
+                            subObjects[subPart] = new coDoFloat(oNmsub.c_str(), 1, &dummy);
+                        }
+                        //             // clean tmp lists
+                        delete[] xn;
+                        delete[] yn;
+                        delete[] zn;
+
+                    }
+
+                    // create set and clean up
+                    tmp = new coDoSet(oNmCTV.c_str(), subObjects);
+                    for (int i = 0; i < numberOfSubParts; ++i)
+                        delete subObjects[i];
+                    delete[] subObjects;
+#ifdef DEBUG
+                    cerr << "   done" << endl;
+#endif
                 }
-                dcOut.cleanAll();
             }
 
             /************/
