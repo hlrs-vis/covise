@@ -1576,7 +1576,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 
     coDistributedObject **retArr = new coDistributedObject *[3];
 
-    PartList thePl = globalParts_[step];
+    PartList &thePl = globalParts_[step];
     int numActiveSetEle = 0;
     PartList::iterator it = thePl.begin();
     while (it != thePl.end())
@@ -1802,11 +1802,6 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
             // remove trailing blanks
             string partname = it->comment();
             int idx = partname.length() - 1;
-            while (idx >= 0)
-            {
-                idx--;
-            }
-            idx = partname.length() - 1;
             while (idx >= 0 && partname.at(idx) <= 32)
             {
                 idx--;
@@ -2027,21 +2022,15 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                 cerr << " vertex data" << endl;
 #endif
                 int* index = NULL;
-                float* dx_, * dy_, * dz_;
-                int numElem;
                 if (dim == EnFile::DIM2D)
                 {
-                    dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_;
-                    numElem = it->numEleRead2d();
                     index = it->indexMap2d_;
                 }
                 if (dim == EnFile::DIM3D)
                 {
-                    dx_ = it->d3dx_; dy_ = it->d3dy_; dz_ = it->d3dz_;
-                    numElem = it->numEleRead3d();
                     index = it->indexMap3d_;
                 }
-                scalarData = (dy_ == NULL) && (dz_ == NULL);
+                scalarData = (it->arr2_ == nullptr);
                 if (it->subParts_numElem.empty())
                 {
                     Reducer red(dcIn, index);
@@ -2132,7 +2121,6 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                         float* xn = NULL, * yn = NULL, * zn = NULL;
                         Reducer r(dc);
                         r.removeUnusedData(xn, yn, zn, it->subParts_IndexList.at(subPart),currentNumCoord);
-			scalarData=it->arr2_==nullptr;
 
                         char c[16];
                         sprintf(c, "%d", subPart);
