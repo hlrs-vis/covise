@@ -1335,14 +1335,14 @@ namespace OpenFOAMInterface.BIM
                         newTransform = transform.Multiply(instance.Transform);  // get a transformation of the affine 3-space
                     }
                     ExtractSolidList(document, instance.SymbolGeometry, newTransform, solids);
-                    break;
+                    continue;
                 }
 
                 GeometryElement geomElement = gObject as GeometryElement;
                 if (null != geomElement)
                 {
                     ExtractSolidList(document, instance.SymbolGeometry, transform, solids);
-                    break;
+                    continue;
                 }
             }
         }
