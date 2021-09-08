@@ -10,6 +10,7 @@ extern "C" {
 #include <cover/coVRStatsDisplay.h>
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
+#include <util/threadname.h>
 
 using namespace opencover;
 
@@ -83,6 +84,8 @@ void NvTop::preFrame()
         m_needThread = true;
 
         m_thread.reset(new std::thread([this](){
+
+            covise::setThreadName("NvTop");
 
             for (;;) {
                 usleep(30000);

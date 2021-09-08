@@ -8,6 +8,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
 #include <config/coConfigConstants.h>
+#include <util/threadname.h>
 
 #ifdef WIN32
 #include <sys/timeb.h>
@@ -945,7 +946,10 @@ void FFMPEGPlugin::videoWrite(int format)
     {
         encodeFuture.reset(new std::future<bool>);
     }
-    *encodeFuture = std::async(std::launch::async, [this,encodeAndWrite](){ return encodeAndWrite(myPlugin->frameCount, myPlugin->inWidth, myPlugin->inHeight); });
+    *encodeFuture = std::async(std::launch::async, [this,encodeAndWrite](){
+        setThreadName("ffmpeg encoder");
+        return encodeAndWrite(myPlugin->frameCount, myPlugin->inWidth, myPlugin->inHeight);
+    });
 
     myPlugin->frameCount++;
     if (cover->frameTime() - myPlugin->starttime >= 1)

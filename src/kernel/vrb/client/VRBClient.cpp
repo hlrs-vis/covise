@@ -25,6 +25,7 @@
 #include <net/udpMessage.h>
 #include <net/udp_message_types.h>
 #include <util/common.h>
+#include <util/threadname.h>
 
 using namespace vrb;
 using namespace covise;
@@ -214,6 +215,8 @@ bool VRBClient::connectToServer(std::string sessionName)
     {
         connFuture = std::async(std::launch::async, [this]() -> std::unique_ptr<covise::ClientConnection>
         {
+            setThreadName("VRBClient:conn");
+
             bool firstVrbConnection = true;
             m_shutdown = false;
             while (!m_shutdown)

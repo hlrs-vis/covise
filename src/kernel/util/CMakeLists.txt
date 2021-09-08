@@ -12,6 +12,8 @@
 # maybe change the following to use ${BASEARCHSUFFIX}
 ADD_DEFINITIONS(-DUTIL_EXPORTS -DCOVISE_UTIL)
 
+USING(Pthreads)
+
 IF(WIN32)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DARCHSUFFIX=\\\"${BASEARCHSUFFIX}opt\\\"")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DARCHSUFFIX=\\\"${BASEARCHSUFFIX}opt\\\"")
@@ -46,6 +48,7 @@ SET(UTIL_SOURCES
   covise_version.cpp
   environment.cpp
   string_util.cpp
+  threadname.cpp
 )
 
 SET(UTIL_HEADERS
@@ -86,6 +89,7 @@ SET(UTIL_HEADERS
   covise_regexp.h
   covise_version.h
   environment.h
+  threadname.h
   tryPrint.h
   unixcompat.h
 )

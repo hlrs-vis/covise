@@ -14,6 +14,7 @@
 #include "inputdevice.h"
 
 #include <config/CoviseConfig.h>
+#include <util/threadname.h>
 
 #include <iostream>
 #include <sstream>
@@ -23,12 +24,6 @@
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 
-#ifdef __linux
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <pthread.h>
-#endif
 
 
 using namespace std;
@@ -172,11 +167,7 @@ bool InputDevice::isValid() const
  */
 void InputDevice::run()
 {
-#ifdef __linux
-#if __GLIBC__>=2 && __GLIBC_MINOR__>=12
-    pthread_setname_np(pthread_self(), m_name.c_str());
-#endif
-#endif
+    setThreadName(m_name.c_str());
 
     bool again = true;
     while (again)

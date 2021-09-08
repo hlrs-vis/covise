@@ -19,6 +19,7 @@
 #include <TrafficSimulation/CarGeometry.h>
 #include <net/tokenbuffer.h>
 #include <util/unixcompat.h>
+#include <util/threadname.h>
 
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
@@ -194,11 +195,7 @@ simOpenPASS::~simOpenPASS()
 
 void simOpenPASS::run()
 {
-#ifdef __linux
-#if __GLIBC__>=2 && __GLIBC_MINOR__>=12
-    pthread_setname_np(pthread_self(),"simOpenPASSThread");
-#endif
-#endif
+    setThreadName("simOpenPASSThread");
     delete runInstantiator;
     runInstantiator = new RunInstantiator(*configurationContainer,
         *frameworkModuleContainer,

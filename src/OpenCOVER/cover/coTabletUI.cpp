@@ -9,6 +9,7 @@
 
 #include <util/unixcompat.h>
 #include <util/coTabletUIMessages.h>
+#include <util/threadname.h>
 #include "coTabletUI.h"
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
@@ -4285,6 +4286,8 @@ bool coTabletUI::update()
                 connectedHost = NULL;
                 connFuture = std::async(std::launch::async, [this]() -> covise::Host *
                 {
+                    setThreadName("tabletUI:conn");
+
                     ClientConnection *nconn = nullptr;
                     Host *host = nullptr;
                     if (serverHost)
