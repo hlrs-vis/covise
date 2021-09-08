@@ -393,6 +393,8 @@ bool JSBSimPlugin::init()
     WZ->setCallback([this](std::string v) {
         if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
         });
+    VLabel = new ui::Label(JSBMenu,"V");
+    VzLabel = new ui::Label(JSBMenu,"Vz");
 
     currentVelocity.set(WX->number(), WY->number(), WZ->number());
     currentTurbulence = 0;
@@ -585,6 +587,8 @@ if (coVRMSController::instance()->isMaster())
                         }
                     }
                     float vSpeed = location.vUVW(3);
+                    VzLabel->setText("Vz: " + std::to_string(vSpeed));
+                    VLabel->setText("V: " + std::to_string(location.vUVW.Magnitude(1,2)));
                     float pitch = -vSpeed / 10.0;
                     if (pitch < -1)
                         pitch = -1;
@@ -653,16 +657,13 @@ JSBSimPlugin::updateUdp()
     if (udp)
     {
         static bool firstTime = true;
-        int status = udp->receive(&fgcontrol, sizeof(FGControl), 0.001);
+        int status = udp->receive(&fgcontrol, sizeof(FGControl), 0.0);
 
         if (status == sizeof(FGControl))
         {
             byteSwap(fgcontrol.aileron);
             byteSwap(fgcontrol.elevator);
-            FCS->SetDaCmd(fgcontrol.aileron);
-            FCS->SetDeCmd(fgcontrol.elevator);
             std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
-            firstTime = true;
         }
         else if (status == -1)
         {

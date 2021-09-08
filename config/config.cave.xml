@@ -533,7 +533,7 @@
    <!--/Model-->
    <!--Model aircraft="paraglider" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml">
    </Model-->
-   <!--Model aircraft="lcaro" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/aircraft/lcaro/Systems" resetFile="C:/src/gitbase/jsbsim/aircraft/lcaro/reset00.xml">
+   <!--Model aircraft="lcaro" enginesDir="engine" systemsDir="aircraft/lcaro/Systems" resetFile="reset00.xml">
    </Model-->
    </JSBSim>
         <ARToolKit value="Off">

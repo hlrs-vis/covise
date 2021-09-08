@@ -74,6 +74,8 @@ private:
     ui::Action* upButton;
     ui::Group* Weather;
     ui::Label* WindLabel;
+    ui::Label* VLabel;
+    ui::Label* VzLabel;
     ui::EditField* WX;
     ui::EditField* WY;
     ui::EditField* WZ;
