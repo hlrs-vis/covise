@@ -58,6 +58,10 @@ namespace OpenFOAMInterface.BIM
         /// Face normal of the surface.
         /// </summary>
         public XYZ FaceNormal { get; set; }
+        /// <summary>
+        /// Flow Temperature.
+        /// </summary>
+        public double Temperature { get; set; }
     }
 
     /// <summary>
@@ -2138,10 +2142,13 @@ namespace OpenFOAMInterface.BIM
 
             //get materials
             m_InletOutletMaterials = DataGenerator.GetMaterialList(m_DuctTerminals, new List<string> { "Inlet", "Outlet" });
+            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(Exporter.Instance.settings.m_InletElements, new List<string> { "Inlet", "Outlet" })) ;
+            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(Exporter.Instance.settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
+
             return InitDuctParameters();
         }
 
-        private void getFlowParameters(FamilyInstance instance, ref double flowRate, ref double meanFlowVelocity, ref double staticPressure, ref int rpm, ref double surfaceArea)
+        private void getFlowParameters(FamilyInstance instance, ref double flowRate, ref double meanFlowVelocity, ref double staticPressure, ref int rpm, ref double surfaceArea, ref double temperature)
         {
             foreach (Parameter param in instance.Parameters)
             {
@@ -2151,7 +2158,7 @@ namespace OpenFOAMInterface.BIM
                     {
                         flowRate = GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.CubicMetersPerSecond,
                             () => param.Definition.ParameterType == ParameterType.HVACAirflow, ConvertParameterToDisplayUnitType);
-                        if (flowRate != 0)
+                        if (flowRate != 0 && surfaceArea > 0)
                         {
                             meanFlowVelocity = flowRate / surfaceArea;
                             continue;
@@ -2177,6 +2184,19 @@ namespace OpenFOAMInterface.BIM
                         if (rpm != 0)
                         {
                             continue;
+                        }
+                    }
+                    if (temperature == 0)
+                    {
+                        temperature = (double)GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Kelvin,
+                            () => param.Definition.Name.Equals("Temperature") && param.Definition.ParameterType == ParameterType.HVACTemperature, ConvertParameterToDisplayUnitType);
+
+                        if (temperature != 0)
+                        {
+                            continue;
+                        }else
+                        {
+                            temperature = m_TempInternalField;
                         }
                     }
                 }
@@ -2207,7 +2227,8 @@ namespace OpenFOAMInterface.BIM
                 double meanFlowVelocity = 0;
                 double staticPressure = 0;
                 int rpm = 0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
+                double temperature = 0;
+                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
                 //string nameDuct = AutodeskHelperFunctions.GenerateNameFromElement(element);
 
                 if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet"))
@@ -2215,13 +2236,13 @@ namespace OpenFOAMInterface.BIM
                     //negate faceNormal = outlet.
                     //...............................................
                     //for swirlFlowRateInletVelocity as type => -(faceNormal) = flowRate direction default => the value is positive inwards => -flowRate
-                    DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea);
+                    DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
                     Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
                     outletCount++;
                 }
                 else if (nameDuct.Contains("Zuluft") || nameDuct.Contains("Inlet"))
                 {
-                    DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
+                    DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
                     Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
                     inletCount++;
                 }
@@ -2239,10 +2260,11 @@ namespace OpenFOAMInterface.BIM
                 double meanFlowVelocity = 0;
                 double staticPressure = 0;
                 int rpm = 0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
+                double temperature = 0;
+                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
+                DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
                 Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
                 inletCount++;
             }
@@ -2257,10 +2279,11 @@ namespace OpenFOAMInterface.BIM
                 double meanFlowVelocity = 0;
                 double staticPressure = 0;
                 int rpm = 0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea);
+                double temperature = 0;
+                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea);
+                DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
                 Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
                 outletCount++;
             }
@@ -2283,7 +2306,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="surfaceArea">Area of the surface.</param>
         /// <returns>Ductproperties with given parameters.</returns>
         private static DuctProperties CreateDuctProperties(XYZ faceNormal, double faceBoundary, double flowRate,
-            double meanFlowVelocity, double externalPressure, int rpm, double surfaceArea)
+            double meanFlowVelocity, double externalPressure, int rpm, double surfaceArea, double temperature)
         {
             return new DuctProperties
             {
@@ -2293,7 +2316,8 @@ namespace OpenFOAMInterface.BIM
                 MeanFlowVelocity = meanFlowVelocity,
                 FlowRate = flowRate,
                 RPM = rpm,
-                ExternalPressure = externalPressure
+                ExternalPressure = externalPressure,
+                Temperature = temperature
             };
         }
         /// <summary>
@@ -3389,7 +3413,7 @@ namespace OpenFOAMInterface.BIM
                                     if (properties.RPM != 0)
                                     {
                                         type = "swirlFlowRateInletVelocity";
-                                        v = new Vector3D(0, 0, 0);
+                                        //v = new Vector3D(0, 0, 0);
                                         _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
                                         _inlet.Attributes.Add("rpm      constant", properties.RPM);
                                         _inlet.Attributes.Add("flowRate     constant", properties.FlowRate);
@@ -3399,7 +3423,7 @@ namespace OpenFOAMInterface.BIM
                                     else
                                     {
                                         type = "flowRateInletVelocity";
-                                        v = new Vector3D(0, 0, 0);
+                                        //v = new Vector3D(0, 0, 0);
                                         _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
                                         _inlet.Attributes.Add("volumetricFlowRate     constant", properties.FlowRate);
                                         _inlet.Attributes.Add("extrapolateProfile", "no");
@@ -3417,6 +3441,11 @@ namespace OpenFOAMInterface.BIM
                                     _inlet = new FOAMParameterPatch<dynamic>(type, uniform, 0, pType);
                                     _inlet.Attributes.Add("rho", "rhok");
                                 }
+                                else if (param.Name.Equals(InitialFOAMParameter.T.ToString()))
+                                {
+                                    type = "fixedValue";
+                                    _inlet = new FOAMParameterPatch<dynamic>(type, uniform, properties.Temperature, pType);
+                                }
                                 else
                                 {
                                     v = value;
@@ -3433,18 +3462,13 @@ namespace OpenFOAMInterface.BIM
                 {
                     FOAMParameterPatch<dynamic> _outlet;
                
-                    if (Outlet.Count == 0 || !useBIM)
+                    if (Outlet.Count == 0 || !useBIM || !DomainX.IsZeroLength())
                     {
                         _outlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
                         param.Patches.Add(pType.ToString(), _outlet);
                     }
                     else
                     {
-                        if (!DomainX.IsZeroLength())
-                        {
-                            _outlet = new FOAMParameterPatch<dynamic>(type, uniform, value, pType);
-                            param.Patches.Add(pType.ToString(), _outlet);
-                        }
                         foreach (var outlet in Outlet)
                         {
                             var properties = (DuctProperties)outlet.Value;
