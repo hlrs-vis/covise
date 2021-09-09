@@ -1867,12 +1867,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
         // remove trailing blanks
         string partname = it->comment();
         size_t idx = partname.length() - 1;
-        while (idx >= 0)
-        {
-            idx--;
-        }
-        idx = partname.length() - 1;
-        while (idx >= 0 && partname.at(idx) <= 32)
+        while (idx > 0 && partname.at(idx) <= 32)
         {
             idx--;
         }
