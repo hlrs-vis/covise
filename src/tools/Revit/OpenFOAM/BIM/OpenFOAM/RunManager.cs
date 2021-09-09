@@ -175,14 +175,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             InitFOAMCommands(log, commands, ref runCommands);
 
             //write commands into batch file
-            bool succeed = WriteToCommandBat(runCommands);
-            if (succeed)
-            {
-                //start process in new thread
-                var proc = new Thread(async () => { await StartBatchAsync(succeed); });
-                proc.Start();
-            }
-            return succeed;
+            if (WriteToCommandBat(runCommands))
+                StartBatchAsync(); //start process asynchronous
+            else
+                return false;
+            return true;
         }
 
         /// <summary>
@@ -191,7 +188,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="log">log command</param>
         /// <param name="commands">Contains commands as string.</param>
         /// <param name="output">Output list .</param>
-        private void InitFOAMCommands(in string log, in List<string> commands, ref List<string> output) 
+        private void InitFOAMCommands(in string log, in List<string> commands, ref List<string> output)
         {
             foreach (string command in commands)
             {
@@ -223,9 +220,8 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <summary>
         /// Start Batch asynchronous.
         /// </summary>
-        /// <param name="succeed">Will indicate if async call was successful.</param>
         /// <returns>Task for asynchronous operation.</returns>
-        private async Task StartBatchAsync(bool succeed) => succeed = await Task.Run(() => StartProcessAndExtractZipAsync());
+        private async void StartBatchAsync() => await Task.Run(() => StartProcessAndExtractZipAsync());
 
         /// <summary>
         /// Wrapper for starting the process and extracting the downloaded zipfile.
@@ -233,11 +229,13 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <returns>Task for asynchronous operation with bool as result which indicates status of process after execution.</returns>
         private async Task<bool> StartProcessAndExtractZipAsync()
         {
-            var startProc = await StartProcess();            
+            var startProc = await StartProcess();
             string fileName = Path.GetFileName(m_CasePath);
             string caseDir = Path.GetDirectoryName(m_CasePath);
             string casePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
-            ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults);
+            if (Directory.Exists(casePathResults))
+                Directory.Delete(casePathResults, true);
+            await Task.Run(() => ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults));
             return startProc;
         }
 
