@@ -188,20 +188,20 @@ protected:
     virtual string getStr();
 
     // skip n ints
-    void skipInt(const int &n);
+    void skipInt(const uint64_t &n);
 
     // skip n floats
-    void skipFloat(const int &n);
+    void skipFloat(const uint64_t &n);
 
     // get integer
     virtual int getInt();
     int getIntRaw();
 
     // get integer array
-    virtual int *getIntArr(const int &n, int *iarr = NULL);
+    virtual int *getIntArr(const uint64_t &n, int *iarr = NULL);
 
     // get float array
-    virtual float *getFloatArr(const int &n, float *farr = NULL);
+    virtual float *getFloatArr(const uint64_t &n, float *farr = NULL);
 
     // find a part by its part number
     virtual EnPart *findPart(const int &partNum) const;
@@ -245,6 +245,6 @@ protected:
 private:
     string name_;
 
-    void getIntArrHelper(const int &n, int *iarr = NULL);
+    void getIntArrHelper(const uint64_t &n, int *iarr = NULL);
 };
 #endif

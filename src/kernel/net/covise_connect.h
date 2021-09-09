@@ -404,7 +404,7 @@ const Conn* tryAddNewConnectedConn(Args&&...args){
     void reset();
     const Connection *next();
     //Connection at(int index);					  // get specific entry from listpos i
-    int count(); // returns the number of current elements
+    size_t count(); // returns the number of current elements
     void addRemoveNotice(const Connection *conn, const std::function<void(void)> callback);
 
 private:

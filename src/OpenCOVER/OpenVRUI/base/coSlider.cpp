@@ -418,7 +418,7 @@ bool coSlider::update()
                 linearValue = getLinearValue() + interactionWheel[i]->getWheelCount() * (getLinearMax() - getLinearMin()) / 30.0f;
                 if (logarithmic)
                 {
-                    value = pow(10., linearValue);
+                    value = pow(10.0f, linearValue);
                     if (integer)
                     {
                         value = (float)(static_cast<int>(value));
@@ -533,7 +533,7 @@ int coSlider::hit(vruiHit *hit)
         else
             linearValue = getLinearMin();
         if (logarithmic)
-            value = pow(10., linearValue);
+            value = pow(10.0f, linearValue);
         else
             value = linearValue;
         if (integer)

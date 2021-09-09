@@ -187,17 +187,17 @@ DataFileBin::readCells(dimType dim, coDistributedObject **outObjects, const stri
                     resetPart(actPartNr, actPart);
                 }
                 // fill arrays for each element
-                int cnt(0);
-                int ii = 0;
+                uint64_t cnt(0);
+                uint64_t ii = 0;
                 float *tempCoords = NULL;
-                int startMark2d = 0, startMark3d = 0;
+                uint64_t startMark2d = 0, startMark3d = 0;
                 for (ii = 0; ii < actPart->getNumEle(); ++ii)
                 {
                     string elementType(strip(getStr().substr(0, 8)));
                     EnElement actEle(actPart->findElement(elementType));
                     if (actEle.valid())
                     {
-                        int nCellsPerEle(actPart->getElementNum(elementType));
+                        uint64_t nCellsPerEle(actPart->getElementNum(elementType));
                         switch (dim_)
                         {
                         case 1:

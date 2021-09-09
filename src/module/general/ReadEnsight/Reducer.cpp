@@ -48,7 +48,7 @@ Reducer::Reducer(DataCont &dc, int *im)
 //
 // Method
 //
-int
+uint64_t
 Reducer::removeUnused(float **xn, float **yn, float **zn)
 {
     // check if we got a complete container
@@ -60,7 +60,7 @@ Reducer::removeUnused(float **xn, float **yn, float **zn)
     }
 
     // 0= unused 1=used
-    int numCoord = dc_.getNumCoord();
+    uint64_t numCoord = dc_.getNumCoord();
     unsigned int *blacklist = NULL;
     try
     {
@@ -71,7 +71,7 @@ Reducer::removeUnused(float **xn, float **yn, float **zn)
         cout << "Exception (alloc of locArr Line: __LINE__) : " << e.what();
     }
 
-    int i;
+    uint64_t i;
 
     try
     {
@@ -89,8 +89,8 @@ Reducer::removeUnused(float **xn, float **yn, float **zn)
         idxMap_[i] = -1;
     }
 
-    int maxCorn(dc_.getNumConn());
-    int redCnt(0);
+    uint64_t maxCorn(dc_.getNumConn());
+    uint64_t redCnt(0);
 
     for (i = 0; i < maxCorn; ++i)
         blacklist[dc_.cl[i]] = 1;
@@ -162,12 +162,12 @@ Reducer::removeUnused(float **xn, float **yn, float **zn)
 
 
 void
-Reducer::removeUnusedData(float* &xn, float* &yn, float* &zn, const int *IndexMap, int numRed)
+Reducer::removeUnusedData(float* &xn, float* &yn, float* &zn, const int *IndexMap, uint64_t numRed)
 {
     if (IndexMap != NULL)
     {
-        int i;
-        int numCoord(dc_.getNumCoord());
+        uint64_t i;
+        uint64_t numCoord(dc_.getNumCoord());
         bool scalar = dc_.y == nullptr;
         xn = new float[numRed];
         yn = new float[numRed];
@@ -210,9 +210,9 @@ Reducer::reduceAndCopyData()
     DataCont ret;
     if (idxMap_ != NULL)
     {
-        int i;
-        int numRed(0);
-        int numCoord(dc_.getNumCoord());
+        uint64_t i;
+        uint64_t numRed(0);
+        uint64_t numCoord(dc_.getNumCoord());
 
         for (i = 0; i < numCoord; ++i)
         {
@@ -261,7 +261,7 @@ Reducer::reduceAndCopyData()
     }
     else
     {
-        int numCoord(dc_.getNumCoord());
+        uint64_t numCoord(dc_.getNumCoord());
         if (dc_.x != NULL)
             ret.x = new float[numCoord];
         if (dc_.y != NULL)
@@ -287,9 +287,9 @@ Reducer::reduceData()
 {
     if (idxMap_ != NULL)
     {
-        int i;
-        int numRed(0);
-        int numCoord(dc_.getNumCoord());
+        uint64_t i;
+        uint64_t numRed(0);
+        uint64_t numCoord(dc_.getNumCoord());
 
         for (i = 0; i < numCoord; ++i)
         {

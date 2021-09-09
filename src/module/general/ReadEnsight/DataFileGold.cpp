@@ -70,7 +70,7 @@ DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const str
         float val;
         size_t id(0);
         int actPartNr;
-        int numVal = 0;
+        uint64_t numVal = 0;
         EnPart *actPart(NULL);
         float *arr1 = NULL, *arr2 = NULL, *arr3 = NULL;
         int j, eleCnt2d = 0, eleCnt3d = 0;
@@ -173,7 +173,7 @@ DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const str
                     string elementType(strip(tmp));
                     EnElement elem(elementType);
 
-                    int anzEle(0);
+                    uint64_t anzEle(0);
                     // we have a valid ENSIGHT element
                     if (elem.valid())
                     {
@@ -282,7 +282,7 @@ DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const str
                     {
                         currPart = *actPart;
                     }
-                    int numParts = currPart.getNumEle();
+                    uint64_t numParts = currPart.getNumEle();
                     // skip data
                     while (numParts > 0)
                     {
@@ -290,7 +290,7 @@ DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const str
                         ++lineCnt_;
                         string elementType(strip(buf));
                         EnElement elem(elementType);
-                        int anzEle(0);
+                        uint64_t anzEle(0);
                         // we have a valid ENSIGHT element
                         if (elem.valid())
                         {
@@ -327,7 +327,7 @@ DataFileGold::read(dimType dim, coDistributedObject **outObjects, const string &
         int numGot(0);
         size_t id(0);
         int actPartNr;
-        int numVal = 0;
+        uint64_t numVal = 0;
         EnPart *actPart = NULL, altPart;
 
         float *arr1 = NULL, *arr2 = NULL, *arr3 = NULL;

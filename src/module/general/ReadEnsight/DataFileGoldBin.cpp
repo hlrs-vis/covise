@@ -168,7 +168,7 @@ DataFileGoldBin::readCells(dimType dim, coDistributedObject **outObjects, const 
             {
                 string elementType(strip(elemName));
                 EnElement elem(elementType);
-                int anzEle(0);
+                uint64_t anzEle(0);
                 // we have a valid ENSIGHT element
                 if (elem.valid())
                 {
@@ -278,14 +278,14 @@ DataFileGoldBin::readCells(dimType dim, coDistributedObject **outObjects, const 
                     currPart = *actPart;
                 }
 
-                int numParts = currPart.getNumEle();
+                uint64_t numParts = currPart.getNumEle();
                 // skip data
                 while ((!feof(in_)) && (numParts > 0))
                 {
                     currentLine = getStr();
                     string elementType(strip(currentLine));
                     EnElement elem(elementType);
-                    int anzEle(0);
+                    uint64_t anzEle(0);
                     // we have a valid ENSIGHT element
                     if (elem.valid())
                     {
@@ -333,7 +333,7 @@ DataFileGoldBin::read(dimType dim, coDistributedObject **outObjects, const strin
         while (!feof(in_))
         {
             float *arr1 = NULL, *arr2 = NULL, *arr3 = NULL;
-            int numVal;
+            uint64_t numVal;
             string tmp(getStr());
             // we only read the first time step
             if (tmp.find("END TIME STEP") != string::npos)

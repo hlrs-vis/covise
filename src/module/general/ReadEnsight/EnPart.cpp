@@ -310,7 +310,7 @@ EnPart::findElement(const string &name) const
     return e;
 }
 
-int
+uint64_t
 EnPart::getElementNum(const string &name) const
 {
     unsigned int i;
@@ -326,25 +326,25 @@ EnPart::getElementNum(const string &name) const
     return ret;
 }
 
-int
+uint64_t
 EnPart::getTotNumEle() const
 {
     return std::accumulate(numList_.begin(), numList_.end(), 0);
 }
 
-int
+uint64_t
 EnPart::getTotNumEle2d() const
 {
     return std::accumulate(numList2d_.begin(), numList2d_.end(), 0);
 }
 
-int
+uint64_t
 EnPart::getTotNumEle3d() const
 {
     return std::accumulate(numList3d_.begin(), numList3d_.end(), 0);
 }
 
-int
+uint64_t
 EnPart::getTotNumCorners2d() // doesnt work with nsided since that element type doesnt have a specific number of corners
 {
     int ret = 0, anz = 0, nc = 0;
@@ -361,7 +361,7 @@ EnPart::getTotNumCorners2d() // doesnt work with nsided since that element type 
     return ret;
 }
 
-int
+uint64_t
 EnPart::getTotNumCorners3d() // doesnt work with nfaced since that element type doesnt have a specific number of corners
 {
     int ret = 0, anz = 0, nc = 0;
@@ -378,7 +378,7 @@ EnPart::getTotNumCorners3d() // doesnt work with nfaced since that element type 
     return ret;
 }
 
-int
+size_t
 EnPart::getNumEle() const
 {
     return elementList_.size();
@@ -401,7 +401,7 @@ EnPart::partInfoString(const int &ref) const
     infoStr += " | ";
 
     // comment
-    unsigned int j;
+    size_t j;
     string outComment(comment_);
     const int ensightMaxStringLen(80); // max. length of ensight comment is 80
 
@@ -441,7 +441,7 @@ EnPart::isActive() const
     return active_;
 }
 
-int
+uint64_t
 EnPart::getTotNumberOfCorners() const
 {
     unsigned int i;
@@ -456,61 +456,61 @@ EnPart::getTotNumberOfCorners() const
 }
 
 void
-EnPart::setNumCoords(const int &n)
+EnPart::setNumCoords(const uint64_t &n)
 {
     numCoords_ = n;
 }
 
-int
+uint64_t
 EnPart::numCoords()
 {
     return numCoords_;
 }
 
-int
+uint64_t
 EnPart::numEleRead2d() const
 {
     return numEleRead2d_;
 }
 
-int
+uint64_t
 EnPart::numEleRead3d() const
 {
     return numEleRead3d_;
 }
 
 void
-EnPart::setNumEleRead2d(const int &n)
+EnPart::setNumEleRead2d(const uint64_t &n)
 {
     numEleRead2d_ = n;
 }
 
 void
-EnPart::setNumEleRead3d(const int &n)
+EnPart::setNumEleRead3d(const uint64_t &n)
 {
     numEleRead3d_ = n;
 }
 
-int
+uint64_t
 EnPart::numConnRead2d() const
 {
     return numConnRead2d_;
 }
 
-int
+uint64_t
 EnPart::numConnRead3d() const
 {
     return numConnRead3d_;
 }
 
 void
-EnPart::setNumConnRead2d(const int &n)
+EnPart::setNumConnRead2d(const uint64_t &n)
 {
     numConnRead2d_ = n;
 }
 
 void
-EnPart::setNumConnRead3d(const int &n)
+EnPart::setNumConnRead3d(const uint64_t &n)
 {
     numConnRead3d_ = n;
 }

@@ -100,7 +100,7 @@ private:
                    const string &fileNameBase,
                    const bool &pV, const int &dim = 1, const string &desc = "");
 
-    EnFile *createDataFilePtr(const string &filename, const int &d, const int &numCoord);
+    EnFile *createDataFilePtr(const string &filename, const uint64_t &d, const uint64_t&numCoord);
 
     // helper for static geometry / transinet data
     void extendArrays(const int &numTimesteps);
@@ -119,8 +119,8 @@ private:
 
     CaseFile case_;
 
-    vector<int> numCoords_;
-    vector<int> numCoordsM_;
+    vector<uint64_t> numCoords_;
+    vector<uint64_t> numCoordsM_;
     vector<int> numElem_;
     vector<int *> idxMaps_;
     int geoTimesetIdx_;

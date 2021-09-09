@@ -351,7 +351,7 @@ EnFile::~EnFile()
 
 // helper skip n floats or doubles
 void
-EnFile::skipFloat(const int &n)
+EnFile::skipFloat(const uint64_t &n)
 {
     if (binType_ == EnFile::FBIN)
     { // check for block markers
@@ -386,7 +386,7 @@ EnFile::skipFloat(const int &n)
 
 // helper skip n ints
 void
-EnFile::skipInt(const int &n)
+EnFile::skipInt(const uint64_t&n)
 {
     if (binType_ == EnFile::FBIN)
     { // check for block markers
@@ -523,7 +523,7 @@ EnFile::getIntRaw()
 }
 
 int *
-EnFile::getIntArr(const int &n, int *iarr)
+EnFile::getIntArr(const uint64_t &n, int *iarr)
 {
     if ((n == 0) || (iarr == NULL))
         return NULL;
@@ -557,16 +557,16 @@ EnFile::getIntArr(const int &n, int *iarr)
 }
 
 void
-EnFile::getIntArrHelper(const int &n, int *iarr)
+EnFile::getIntArrHelper(const uint64_t &n, int *iarr)
 {
     //////////////////////////// quick workaround (the original code doesn't work if n*sizeof(int) exceeds maxint)
     // TODO: we now use fread() -> is this still nescessary?
     if (n > 100000000)
     {
-        int offset(0);
+        uint64_t offset(0);
         while (offset < n)
         {
-            int current = n - offset;
+            uint64_t current = n - offset;
             if (current > 100000000)
                 current = 100000000;
             getIntArrHelper(current, (iarr + offset));
@@ -598,7 +598,7 @@ EnFile::setPartList(PartList *p)
 }
 
 float *
-EnFile::getFloatArr(const int &n, float *farr)
+EnFile::getFloatArr(const uint64_t &n, float *farr)
 {
     if ((n == 0) || (farr == NULL))
         return NULL;
@@ -722,16 +722,16 @@ EnFile::buildParts(const bool &isPerVert)
 {
     if (partList_ != NULL)
     {
-        unsigned int i;
+        uint64_t i;
         // allocate memory of the data container
         // 1st: find out how may values
-        int totalNumberOfElements(0);
+        uint64_t totalNumberOfElements(0);
         for (i = 0; i < partList_->size(); ++i)
         {
             EnPart &p((*partList_)[i]);
             if (p.isActive())
             {
-                int numEle;
+                uint64_t numEle;
                 if (isPerVert)
                     numEle = p.numCoords();
                 else
@@ -771,7 +771,7 @@ EnFile::buildParts(const bool &isPerVert)
             EnPart &p((*partList_)[i]);
             if (p.isActive())
             {
-                int numEle;
+                uint64_t numEle;
                 if (isPerVert)
                     numEle = p.numCoords();
                 else

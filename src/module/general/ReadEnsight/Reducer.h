@@ -34,8 +34,8 @@ public:
 
     // removed unused coordinates
     // return the number of unused coordinates
-    int removeUnused(float **xn = NULL, float **yn = NULL, float **zn = NULL);
-    void removeUnusedData(float* &xn, float* &yn, float* &zn, const int* im, int numRed);
+    uint64_t removeUnused(float **xn = NULL, float **yn = NULL, float **zn = NULL);
+    void removeUnusedData(float* &xn, float* &yn, float* &zn, const int* im, uint64_t numRed);
 
 
     int reduceData();

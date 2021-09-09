@@ -319,7 +319,7 @@ float map_to_isosurface(float coord_x1, float coord_x2, float coord_y1, float co
 
     else
     {
-        dist_x1x2 = sqrt(pow(coord_x1 - coord_x2, 2) + pow(coord_y1 - coord_y2, 2) + pow(coord_z1 - coord_z2, 2));
+        dist_x1x2 = sqrt(pow(coord_x1 - coord_x2, 2.0f) + pow(coord_y1 - coord_y2, 2.0f) + pow(coord_z1 - coord_z2, 2.0f));
 
         // Avoid division by zero
         if (dist_x1x2 == 0)
@@ -329,7 +329,7 @@ float map_to_isosurface(float coord_x1, float coord_x2, float coord_y1, float co
 
         else
         {
-            dist_x1xiso = sqrt(pow(coord_x1 - coord_isox, 2) + pow(coord_y1 - coord_isoy, 2) + pow(coord_z1 - coord_isoz, 2));
+            dist_x1xiso = sqrt(pow(coord_x1 - coord_isox, 2.0f) + pow(coord_y1 - coord_isoy, 2.0f) + pow(coord_z1 - coord_isoz, 2.0f));
             mapped_value = data_1 + ((data_2 - data_1) / dist_x1x2) * dist_x1xiso;
         }
     }

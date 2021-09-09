@@ -387,7 +387,7 @@ bool coValuePoti::update()
             lastRoll = mouseRotation;
             newValue = linearValue;
             if (logarithmic)
-                newValue = pow(10., linearValue);
+                newValue = pow(10.0f, linearValue);
 
             newValue = coClamp(newValue, minValue, maxValue);
         }

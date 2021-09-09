@@ -68,24 +68,24 @@ public:
     EnElement findElement(const string &name) const;
 
     // returns number of cells per element
-    int getElementNum(const string &name) const;
+    uint64_t getElementNum(const string &name) const;
 
     // return the total number of corners in *this
-    int getTotNumberOfCorners() const;
-    int getTotNumCorners2d();
-    int getTotNumCorners3d();
+    uint64_t getTotNumberOfCorners() const;
+    uint64_t getTotNumCorners2d();
+    uint64_t getTotNumCorners3d();
 
     // return the total number of elements contained in *this
-    int getTotNumEle() const;
-    int getTotNumEle2d() const;
-    int getTotNumEle3d() const;
+    uint64_t getTotNumEle() const;
+    uint64_t getTotNumEle2d() const;
+    uint64_t getTotNumEle3d() const;
 
     // return the total number of elements contained in *this
     // havig a dimensionality dim
-    int getTotNumEle(const int &dim);
+    uint64_t getTotNumEle(const int &dim);
 
     // return the number of different element-types contained in *this
-    int getNumEle() const;
+    size_t getNumEle() const;
 
     void setComment(const string &comm);
     void setComment(const char *ch);
@@ -96,19 +96,19 @@ public:
     bool isActive() const;
 
     // set number of Coords - needed for GOLD
-    void setNumCoords(const int &n);
+    void setNumCoords(const uint64_t &n);
 
-    int numCoords();
+    uint64_t numCoords();
 
-    int numEleRead2d() const;
-    int numEleRead3d() const;
-    void setNumEleRead2d(const int &n);
-    void setNumEleRead3d(const int &n);
+    uint64_t numEleRead2d() const;
+    uint64_t numEleRead3d() const;
+    void setNumEleRead2d(const uint64_t &n);
+    void setNumEleRead3d(const uint64_t &n);
 
-    int numConnRead2d() const;
-    int numConnRead3d() const;
-    void setNumConnRead2d(const int &n);
-    void setNumConnRead3d(const int &n);
+    uint64_t numConnRead2d() const;
+    uint64_t numConnRead3d() const;
+    void setNumConnRead2d(const uint64_t &n);
+    void setNumConnRead3d(const uint64_t &n);
 
     // delete all fields (see below) and reset pointers to NULL
     void clearFields();
@@ -140,7 +140,7 @@ private:
     string comment_;
     // if true part will be used to build up covise data
     bool active_;
-    int numCoords_;
+    uint64_t numCoords_;
 
     uint64_t numEleRead2d_;
     uint64_t numEleRead3d_;

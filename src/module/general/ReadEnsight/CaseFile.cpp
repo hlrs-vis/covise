@@ -284,7 +284,7 @@ TimeSet::getFileNames(const std::string &t)
     std::string stars(t.substr(beg, end - beg));
     std::string post(t.substr(end));
 
-    int width(stars.size());
+    int width((int)stars.size());
 
     std::vector<int>::iterator it;
 

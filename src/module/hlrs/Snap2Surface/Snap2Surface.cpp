@@ -224,13 +224,13 @@ int Snap2Surface::compute(const char *)
             switch (axis)
             {
             case 0:
-                x_out[i] = inter_pt.x + delta;
+                x_out[i] = (float)inter_pt.x + delta;
                 break;
             case 1:
-                y_out[i] = inter_pt.y + delta;
+                y_out[i] = (float)inter_pt.y + delta;
                 break;
             case 2:
-                z_out[i] = inter_pt.z + delta;
+                z_out[i] = (float)inter_pt.z + delta;
                 break;
             }
         }

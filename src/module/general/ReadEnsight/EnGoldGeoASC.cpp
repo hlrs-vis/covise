@@ -788,9 +788,9 @@ EnGoldGeoASC::parseForParts()
 int
 EnGoldGeoASC::allocateMemory()
 {
-    int totNumCoords(0);
-    int totNumEle(0);
-    int totNumCorners(0);
+    uint64_t totNumCoords(0);
+    uint64_t totNumEle(0);
+    uint64_t totNumCorners(0);
 
     if (!ens->masterPL_.empty())
     {

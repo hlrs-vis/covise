@@ -248,13 +248,13 @@ DataFileAsc::readCells(dimType dim, coDistributedObject **outObjects, const stri
             EnElement elem(actPart->findElement(elementType));
             if (elem.valid())
             {
-                int numberOfElements(0);
+                uint64_t numberOfElements(0);
                 if (actPart != NULL)
                     numberOfElements = actPart->getElementNum(elementType);
 
                 if (numberOfElements > 0)
                 {
-                    int valuesToRead(numberOfElements * dim_);
+                    uint64_t valuesToRead(numberOfElements * dim_);
 
                     // 		    cerr << "DataFileAsc::readCells(..) read "
                     // 			 << elementType

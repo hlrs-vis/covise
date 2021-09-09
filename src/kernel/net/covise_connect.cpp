@@ -948,7 +948,7 @@ bool Connection::sendMessage(int senderId, int senderType, const Message* msg) c
     std::vector<char> buf(packetSize);
     std::copy(header.begin(), header.end(), (int*)buf.data());
     std::copy(msg->data.data(), msg->data.data() + packetSize - sizeof(header), buf.begin() + sizeof(header));
-    int retval = sock->write(buf.data(), packetSize);
+    int retval = sock->write(buf.data(), (unsigned int)packetSize);
     if (!retval || retval == COVISE_SOCKET_INVALID)
         return false;
     if (sizeof(header) + msg->data.length() >= WRITE_BUFFER_SIZE)
@@ -1346,7 +1346,7 @@ ConnectionList::ConnectionList(ServerConnection *o_s)
     return;
 }
 
-int ConnectionList::count()
+size_t ConnectionList::count()
 {
     return connlist.size();
 }

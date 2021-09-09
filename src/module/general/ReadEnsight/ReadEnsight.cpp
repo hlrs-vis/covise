@@ -724,8 +724,8 @@ ReadEnsight::incrRefCnt(const coDistributedObject *obj)
 
 EnFile *
 ReadEnsight::createDataFilePtr(const string &filename,
-                               const int &d,
-                               const int &numCoord)
+                               const uint64_t &d,
+                               const uint64_t &numCoord)
 {
     // create representation of data file..
     // and check file type
@@ -737,12 +737,12 @@ ReadEnsight::createDataFilePtr(const string &filename,
         if (case_.getVersion() == CaseFile::gold)
         {
             //cerr << "ReadEnsight::createDataFilePtr(..) DataFileGoldBin to be created" << endl;
-            enf = new DataFileGoldBin(this, filename, d, numCoord, binType_);
+            enf = new DataFileGoldBin(this, filename, (int)d, (int)numCoord, binType_);
         }
         else
         {
             //cerr << "ReadEnsight::createDataFilePtr(..) DataFileBin CBIN to be created" << endl;
-            enf = new DataFileBin(this, filename, d, numCoord, binType_);
+            enf = new DataFileBin(this, filename, (int)d, (int)numCoord, binType_);
         }
         break;
 
@@ -750,12 +750,12 @@ ReadEnsight::createDataFilePtr(const string &filename,
         if (case_.getVersion() == CaseFile::gold)
         {
             //cerr << "ReadEnsight::createDataFilePtr(..) DataFileGold to be created" << endl;
-            enf = new DataFileGold(this, filename, d, numCoord);
+            enf = new DataFileGold(this, filename, (int)d, (int)numCoord);
         }
         else
         {
             //cerr << "ReadEnsight::createDataFilePtr(..) DataFileAsc to be created" << endl;
-            enf = new DataFileAsc(this, filename, d, numCoord);
+            enf = new DataFileAsc(this, filename, (int)d, (int)numCoord);
         }
         break;
     case EnFile::UNKNOWN:
@@ -777,7 +777,7 @@ ReadEnsight::extendArrays(const int &numTimesteps)
     //cerr << "ReadEnsight::extendArrays(..) geoTimesetIdx " << geoTimesetIdx_  << endl;
     if (geoTimesetIdx_ == -1)
     {
-        int nc(numCoords_[0]);
+        uint64_t nc(numCoords_[0]);
         //       int ne( numElem_[0] );
         //const int *idxMap = idxMaps_[0];
         PartList pl(globalParts_[0]);
@@ -1591,7 +1591,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
     it = thePl.begin();
 
     float *x = NULL, *y = NULL, *z = NULL;
-    int numCoordsGlob = 0, numCoords = 0;
+    uint64_t numCoordsGlob = 0, numCoords = 0;
     // if we have Ensight 5,6 the first part contains the coordinates
     // rem: we have a global coordinate list in this case
     if (case_.getVersion() != CaseFile::gold)
@@ -1711,8 +1711,8 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                         connOffset += numConn;
                     }
                 }
-                it->subParts_numElem.push_back(it->numEleRead3d() - (unsigned int)elemOffset);
-                it->subParts_numConn.push_back(it->numConnRead3d() - (unsigned int)connOffset);
+                it->subParts_numElem.push_back((unsigned int)(it->numEleRead3d() - elemOffset));
+                it->subParts_numConn.push_back((unsigned int)(it->numConnRead3d() - connOffset));
                 // prepare
                 size_t numberOfSubParts = it->subParts_numElem.size();
                 coDistributedObject **subObjects = new coDistributedObject *[numberOfSubParts + 1];
@@ -1887,7 +1887,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 
         if (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0 && it->isActive()) // HACK: if no elements read, output coordinates as points at the 2D port
         {
-            coDoPoints *tmp = new coDoPoints(oNm.c_str(), it->numCoords(), it->x3d_, it->y3d_, it->z3d_);
+            coDoPoints *tmp = new coDoPoints(oNm.c_str(), (int)it->numCoords(), it->x3d_, it->y3d_, it->z3d_);
             tmp->addAttribute("PART", (partname).c_str());
             objects2d[cnt++] = tmp;
             (*it).distGeo2d_ = tmp;
@@ -2004,7 +2004,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
     int cnt = 0;
     while (it != thePl.end())
     {
-        int numElem;
+        uint64_t numElem;
         if (dim == EnFile::EnFile::DIM2D)
             numElem = it->numEleRead2d();
         if (dim == EnFile::EnFile::DIM3D)
@@ -2106,10 +2106,10 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                         cerr << "   subPart: " << subPart << endl;
 #endif
                         // split (create temp lists)
-                        int numCoords = it->numCoords();
-                        int currentNumElem = it->subParts_numElem.at(subPart);
-                        int currentNumConn = it->subParts_numConn.at(subPart);
-                        int currentNumCoord = it->subParts_numCoord.at(subPart);
+                        uint64_t numCoords = it->numCoords();
+                        uint64_t currentNumElem = it->subParts_numElem.at(subPart);
+                        uint64_t currentNumConn = it->subParts_numConn.at(subPart);
+                        uint64_t currentNumCoord = it->subParts_numCoord.at(subPart);
 
                         DataCont dc;
                         dc.setNumCoord(numCoords);
@@ -2135,13 +2135,13 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                             if (scalarData)
                             {
                                 subObjects[subPart] = new coDoFloat(oNmsub.c_str(), // TODO: name
-                                    currentNumCoord,
+                                    (int)currentNumCoord,
                                     xn);
                             }
                             else
                             {
                                 subObjects[subPart] = new coDoVec3(oNmsubv.c_str(), // TODO: name
-                                    currentNumCoord,
+                                    (int)currentNumCoord,
                                     xn, yn, zn);
                             }
 
@@ -2180,7 +2180,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                 cerr << " elem: " << it->subParts_numElem.size() << " conn: " << it->subParts_numConn.size() << endl;
 #endif
                 float *dx_, *dy_, *dz_;
-                int numElem;
+                uint64_t numElem;
                 if (dim == EnFile::DIM2D)
                 {
                     dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_; 
@@ -2206,7 +2206,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                             //cerr << oNm.c_str() << "  DATAPTR " << it->d3dx_;
                             //cerr << " numEleRead3d " << it->numEleRead3d() << endl;
                             tmp = new coDoFloat(oNm.c_str(),
-                                                numElem,
+                                                (int)numElem,
                                                 dx_);
                             delete[] dx_;
                             if (dim == EnFile::DIM2D)
@@ -2221,7 +2221,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                         else
                         {
                             tmp = new coDoVec3((oNm + "t").c_str(),
-                                               numElem,
+                                               (int)numElem,
                                                dx_, dy_, dz_);
                             delete[] dx_; delete[] dy_; delete[] dz_;
                             if (dim == EnFile::DIM2D)

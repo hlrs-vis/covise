@@ -45,6 +45,11 @@ inline void byteSwap(uint32_t *values, int no)
         *values = ((*values & 0x000000ff) << 24) | ((*values & 0x0000ff00) << 8) | ((*values & 0x00ff0000) >> 8) | ((*values & 0xff000000) >> 24);
 }
 
+inline void byteSwap(uint32_t* values, uint64_t no)
+{
+    for (uint64_t i = 0; i < no; i++, values++)
+        *values = ((*values & 0x000000ff) << 24) | ((*values & 0x0000ff00) << 8) | ((*values & 0x00ff0000) >> 8) | ((*values & 0xff000000) >> 24);
+}
 inline void byteSwap(int32_t *values, int no)
 {
     byteSwap((uint32_t *)values, no);
@@ -73,6 +78,20 @@ inline void byteSwap(int64_t &value)
 inline void byteSwap(uint64_t *values, int no)
 {
     int i;
+    for (i = 0; i < no; i++, values++)
+    {
+        *values =
+#if defined(_WIN32) && !defined(__MINGW32__)
+            ((*values & 0x00000000000000ff) << 56) | ((*values & 0x000000000000ff00) << 40) | ((*values & 0x0000000000ff0000) << 24) | ((*values & 0x00000000ff000000) << 8) | ((*values & 0x000000ff00000000) >> 8) | ((*values & 0x0000ff0000000000) >> 24) | ((*values & 0x00ff000000000000) >> 40) | ((*values & 0xff00000000000000) >> 56);
+#else
+            ((*values & 0x00000000000000ffll) << 56) | ((*values & 0x000000000000ff00ll) << 40) | ((*values & 0x0000000000ff0000ll) << 24) | ((*values & 0x00000000ff000000ll) << 8) | ((*values & 0x000000ff00000000ll) >> 8) | ((*values & 0x0000ff0000000000ll) >> 24) | ((*values & 0x00ff000000000000ll) >> 40) | ((*values & 0xff00000000000000ll) >> 56);
+#endif
+    }
+}
+
+inline void byteSwap(uint64_t* values, uint64_t no)
+{
+    uint64_t i;
     for (i = 0; i < no; i++, values++)
     {
         *values =
