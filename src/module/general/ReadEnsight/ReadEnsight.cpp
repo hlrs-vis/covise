@@ -383,7 +383,7 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
     // set object names and create object arrays for timesteps
     string objNameBase2d = READER_CONTROL->getAssocObjName(portTok2d);
     string objNameBase3d = READER_CONTROL->getAssocObjName(portTok3d);
-	int size = numTs + 1;
+	size_t size = numTs + 1;
 	if (numTs == 0)
 		size = 2;
 		
@@ -432,7 +432,7 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
         }
 
         coModule::sendInfo(" start reading geometry ( %s ) - please be patient..", (*ii).c_str());
-        enf->read(EnFile::GEOMETRY, objects2d,objects3d, actObjNm2d,actObjNm3d,cnt, numTs);
+        enf->read(EnFile::GEOMETRY, objects2d,objects3d, actObjNm2d,actObjNm3d,cnt, (int)numTs);
 
 #ifdef DEBUG
         cerr << " elem: " << pl->at(0).subParts_numElem.size() << " conn: " << pl->at(0).subParts_numConn.size() << endl;
@@ -613,7 +613,7 @@ ReadEnsight::readMGeometry(const int &portTok1d)
         coModule::sendInfo(" start reading geometry ( %s ) - please be patient..", (*ii).c_str());
         enf->read(EnFile::DIM1D, objects1d, actObjNm1d, cnt, realNumTs);
 
-        numCoordsM_.push_back(enf->getDataCont().getNumCoord());
+        numCoordsM_.push_back((int)enf->getDataCont().getNumCoord());
         objects1d[cnt] = enf->getDataObject(actObjNm1d);
         if (objects1d[cnt] != NULL)
             cnt++;
@@ -1672,9 +1672,9 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                 // xn, yn, zn, dc.tl );
 
                 tmp = new coDoUnstructuredGrid(oNm.c_str(),
-                                               dc.getNumElem(),
-                                               dc.getNumConn(),
-                                               dc.getNumCoord(),
+                                               (int)dc.getNumElem(),
+                                               (int)dc.getNumConn(),
+                                               (int)dc.getNumCoord(),
                                                dc.el, dc.cl,
                                                xn, yn, zn, dc.tl);
 
@@ -1703,18 +1703,18 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                     {
                         // found a reason to split
                         // i is the first element after the split
-                        unsigned int numElem = i - elemOffset;
-                        unsigned int numConn = it->el3d_[i] - connOffset;
+                        unsigned int numElem = (unsigned int)(i - elemOffset);
+                        unsigned int numConn = (unsigned int)(it->el3d_[i] - connOffset);
                         it->subParts_numElem.push_back(numElem);
                         it->subParts_numConn.push_back(numConn);
                         elemOffset += numElem;
                         connOffset += numConn;
                     }
                 }
-                it->subParts_numElem.push_back(it->numEleRead3d() - elemOffset);
-                it->subParts_numConn.push_back(it->numConnRead3d() - connOffset);
+                it->subParts_numElem.push_back(it->numEleRead3d() - (unsigned int)elemOffset);
+                it->subParts_numConn.push_back(it->numConnRead3d() - (unsigned int)connOffset);
                 // prepare
-                int numberOfSubParts = it->subParts_numElem.size();
+                size_t numberOfSubParts = it->subParts_numElem.size();
                 coDistributedObject **subObjects = new coDistributedObject *[numberOfSubParts + 1];
                 subObjects[numberOfSubParts] = NULL;
                 // work on the sub parts
@@ -1735,7 +1735,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                     int *tmp_tl = new int[currentNumElem];
                     for (int i = 0; i < currentNumElem; ++i)
                     {
-                        tmp_el[i] = it->el3d_[elemOffset + i] - connOffset;
+                        tmp_el[i] = (int)(it->el3d_[elemOffset + i] - connOffset);
                         tmp_tl[i] = it->tl3d_[elemOffset + i];
                     }
                     int *tmp_cl = new int[currentNumConn];
@@ -1761,7 +1761,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                     r.removeUnused(&xn, &yn, &zn);
                     (*it).indexMap3d_ = (int *)r.getIdxMap(); // TODO
 
-                    it->subParts_numCoord.push_back(dc.getNumCoord());
+                    it->subParts_numCoord.push_back((int)dc.getNumCoord());
                     it->subParts_IndexList.push_back(r.getIdxMap()); // we need to save this to be able to map per vertex data
 // create grid
 #ifdef DEBUG
@@ -1772,9 +1772,9 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                     sprintf(sp, "%d", subPart);
                     string subName = oNm + "_sub_" + string(sp);
                     subObjects[subPart] = new coDoUnstructuredGrid(subName.c_str(),
-                                                                   dc.getNumElem(),
-                                                                   dc.getNumConn(),
-                                                                   dc.getNumCoord(),
+                                                                   (int)dc.getNumElem(),
+                                                                   (int)dc.getNumConn(),
+                                                                   (int)dc.getNumCoord(),
                                                                    dc.el, dc.cl,
                                                                    xn, yn, zn, dc.tl);
                     //             // clean tmp lists
@@ -1801,7 +1801,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 
             // remove trailing blanks
             string partname = it->comment();
-            int idx = partname.length() - 1;
+            size_t idx = partname.length() - 1;
             while (idx >= 0 && partname.at(idx) <= 32)
             {
                 idx--;
@@ -1866,7 +1866,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 
         // remove trailing blanks
         string partname = it->comment();
-        int idx = partname.length() - 1;
+        size_t idx = partname.length() - 1;
         while (idx >= 0)
         {
             idx--;
@@ -1929,9 +1929,9 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
             it->indexMap2d_ = (int *)r.getIdxMap();
 
             coDoPolygons *tmp = new coDoPolygons(oNm.c_str(),
-                                                 dc.getNumCoord(), xn, yn, zn,
-                                                 dc.getNumConn(), dc.cl,
-                                                 dc.getNumElem(), dc.el);
+                                                 (int)dc.getNumCoord(), xn, yn, zn,
+                                                 (int)dc.getNumConn(), dc.cl,
+                                                 (int)dc.getNumElem(), dc.el);
 
             tmp->addAttribute("PART", partname.c_str());
             if (autoColoring_->getValue())
@@ -2054,16 +2054,16 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                             if (scalarData)
                             {
                                 dcIn.x = new float[it->numCoords()];
-                                fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
+                                fill(dcIn.x, dcIn.x + it->numCoords(), 0.0f);
                             }
                             else
                             {
                                 dcIn.x = new float[it->numCoords()];
-                                fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
+                                fill(dcIn.x, dcIn.x + it->numCoords(), 0.0f);
                                 dcIn.y = new float[it->numCoords()];
-                                fill(dcIn.y, dcIn.y + it->numCoords(), 0.0);
+                                fill(dcIn.y, dcIn.y + it->numCoords(), 0.0f);
                                 dcIn.z = new float[it->numCoords()];
-                                fill(dcIn.z, dcIn.z + it->numCoords(), 0.0);
+                                fill(dcIn.z, dcIn.z + it->numCoords(), 0.0f);
                             }
                         }
                         it->arr1_ = NULL;
@@ -2076,13 +2076,13 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                     if (scalarData)
                     {
                         tmp = new coDoFloat(oNm.c_str(),
-                            dcOut.getNumCoord(),
+                            (int)dcOut.getNumCoord(),
                             dcOut.x);
                     }
                     else
                     {
                         tmp = new coDoVec3(oNm.c_str(),
-                            dcOut.getNumCoord(),
+                            (int)dcOut.getNumCoord(),
                             dcOut.x, dcOut.y, dcOut.z);
                     }
                     dcOut.cleanAll();
@@ -2095,12 +2095,12 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
 #endif
 
                     // prepare
-                    int numberOfSubParts = it->subParts_numElem.size();
+                    size_t numberOfSubParts = it->subParts_numElem.size();
                     coDistributedObject** subObjects = new coDistributedObject * [numberOfSubParts + 1];
                     subObjects[numberOfSubParts] = NULL;
                     const coDistributedObject* geoObj = getGeoObject(step, cnt, dim);
                     // work on the sub parts
-                    for (int subPart = 0; subPart < numberOfSubParts; ++subPart)
+                    for (unsigned int subPart = 0; subPart < numberOfSubParts; ++subPart)
                     {
 #ifdef DEBUG
                         cerr << "   subPart: " << subPart << endl;
@@ -2253,13 +2253,13 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
 #endif
 
                     // prepare
-                    int numberOfSubParts = it->subParts_numElem.size();
+                    size_t numberOfSubParts = it->subParts_numElem.size();
                     coDistributedObject **subObjects = new coDistributedObject *[numberOfSubParts + 1];
                     subObjects[numberOfSubParts] = NULL;
                     const coDistributedObject *geoObj = getGeoObject(step, cnt, dim);
                     // work on the sub parts
                     int offset(0);
-                    for (int subPart = 0; subPart < numberOfSubParts; ++subPart)
+                    for (unsigned int subPart = 0; subPart < numberOfSubParts; ++subPart)
                     {
 #ifdef DEBUG
                         cerr << "   subPart: " << subPart << endl;
@@ -2382,7 +2382,7 @@ ReadEnsight::readData1d(const int &portTok1d,
 {
     int rNumTs;
     vector<string> allFiles(mkFileNames(fileNameBase, rNumTs));
-    int totNumTs(allFiles.size());
+    int totNumTs((int)allFiles.size());
 
     if (totNumTs == 0)
         allFiles.push_back(fileNameBase);
@@ -2517,7 +2517,7 @@ ReadEnsight::readData2d(const int &portTok2d,
 {
     int rNumTs;
     vector<string> allFiles(mkFileNames(fileNameBase, rNumTs));
-    int totNumTs(allFiles.size());
+    int totNumTs((int)allFiles.size());
 
     if (totNumTs == 0)
         allFiles.push_back(fileNameBase);
@@ -2656,7 +2656,7 @@ ReadEnsight::readData3d(const int &portTok3d,
 {
     int rNumTs;
     vector<string> allFiles(mkFileNames(fileNameBase, rNumTs));
-    int totNumTs(allFiles.size());
+    int totNumTs((int)allFiles.size());
 
     if (totNumTs == 0)
         allFiles.push_back(fileNameBase);
