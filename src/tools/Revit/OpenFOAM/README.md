@@ -17,12 +17,14 @@ Build Requirements
   with C#-Development environment and SDK for CMD
 
 - **.NET**:
-  at least 5
+  at least 5 or Framework 4.8
   
 - **CMake**:
   at least 3.0
 
 - **Revit**:
+  at least 2019
+
   Autodesk Revit needs to be installed for the dependencies RevitAPI.dll and RevitAPIUI.dll (default Folder <Program Files>/Autodesk/"Revit <version>")
 
 Building OpenFOAMInterface with cmake-gui and visual studio 2019
