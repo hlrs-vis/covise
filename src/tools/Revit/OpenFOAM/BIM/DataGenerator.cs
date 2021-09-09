@@ -314,16 +314,23 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="path">Path to case folder.</param>
         /// <param name="commands">List of commands.</param>
-        private void SetupLinux(string path, List<string> commands)
+        private void SetupLinux(in string path, in List<string> commands)
         {
             string allrun;
+            const string header_runDir = "#!/bin/sh" +
+                "\ncd ${0%/*} || exit 1    # run from this directory";
+
+            const string header_runFunction = header_runDir +
+                "\n# Source tutorial run functions" +
+                "\n. $WM_PROJECT_DIR/bin/tools/RunFunctions";
+
+            const string header_cleanFunction = header_runDir +
+                "\n# Source tutorial clean functions" +
+                "\n. $WM_PROJECT_DIR/bin/tools/CleanFunctions";
+
             if (Exporter.Instance.settings.NumberOfSubdomains != 1)
             {
-                allrun = "#!/bin/sh" +
-                "\ncd ${0%/*} || exit 1    # run from this directory" +
-                "\n" +
-                "\n# Source tutorial run functions" +
-                "\n. $WM_PROJECT_DIR/bin/tools/RunFunctions" +
+                allrun = header_runFunction +
                 "\nrunApplication surfaceFeatureExtract" +
                 "\n" +
                 "\nrunApplication blockMesh" +
@@ -345,11 +352,7 @@ namespace OpenFOAMInterface.BIM
             }
             else
             {
-                allrun = "#!/bin/sh" +
-                "\ncd ${0%/*} || exit 1    # run from this directory" +
-                "\n" +
-                "\n# Source tutorial run functions" +
-                "\n. $WM_PROJECT_DIR/bin/tools/RunFunctions" +
+                allrun = header_runFunction +
                 "\n" +
                 "\nrunApplication surfaceFeatureExtract" +
                 "\n" +
@@ -361,13 +364,9 @@ namespace OpenFOAMInterface.BIM
                 "\n#------------------------------------------------------------------------------";
             }
 
-            if (CreateGeneralFile(path, "Allrun.", allrun))
+            if (CreateRootDirFile(path, "Allrun.", allrun))
             {
-                string allclean = "#!/bin/sh" +
-                    "\ncd ${0%/*} || exit 1    # run from this directory" +
-                    "\n" +
-                    "\n# Source tutorial clean functions" +
-                    "\n. $WM_PROJECT_DIR/bin/tools/CleanFunctions" +
+                const string allclean = header_cleanFunction +
                     "\n" +
                     "\ncleanCase" +
                     "\n" +
@@ -377,48 +376,93 @@ namespace OpenFOAMInterface.BIM
                     "\n" +
                     "\n#------------------------------------------------------------------------------";
 
-                CreateGeneralFile(path, "Allclean.", allclean);
+                CreateRootDirFile(path, "Allclean.", allclean);
             }
+        }
+
+        /// <summary>
+        /// Check if the file attribute equals readonly. If that is the case then show an error.
+        /// </summary>
+        /// <paramref name="path"/>File path.<paramref name="path"/>
+        /// <returns>boolean that indicates if the deletion of a file was successful.</returns>
+        private bool CheckFileAttIsReadonly(in FileAttributes fileAttributes)
+        {
+            if (FileAttributes.ReadOnly == fileAttributes)
+            {
+                OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_FILE_READONLY);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Check if  file under given path exists and is not readonly and delete it .
+        /// </summary>
+        /// <paramref name="path"/>File path.<paramref name="path"/>
+        /// <returns>boolean that indicates if the deletion of a file was successful.</returns>
+        private bool CheckFileExistAndIsReadOnly(in string path)
+        {
+            if (File.Exists(path))
+            {
+                var fileAttribute = File.GetAttributes(path);
+                FileAttributes tempAtt = fileAttribute & FileAttributes.ReadOnly;
+                if (!CheckFileAttIsReadonly(tempAtt))
+                {
+                    return false;
+                }
+                File.Delete(path);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Creates file under path with given text and attribute.
+        /// </summary>
+        /// <paramref name="path"/>Path<paramref name="path"/>
+        /// <paramref name="text"/>Text for file.<paramref name="text"/>
+        /// <paramref name="fileAttributes"/>Type of file.<paramref name="fileAttributes"/>
+        /// <returns>boolean that indicates if the generation of a file was successful.</returns>
+        private bool CreateFileWithStreamWriter(in string path, in string text, in FileAttributes fileAttribute)
+        {
+            using var sw = new StreamWriter(path);
+            sw.NewLine = "\n";
+            var newFileAttribute = File.GetAttributes(path) | fileAttribute;
+            File.SetAttributes(path, newFileAttribute);
+
+            // Add information to the file.
+            sw.Write(text);
+            return true;
+        }
+
+        /// <summary>
+        /// Creates file under path with given text and attributes.
+        /// </summary>
+        /// <paramref name="path"/>Path<paramref name="path"/>
+        /// <paramref name="text"/>Text for file.<paramref name="text"/>
+        /// <paramref name="fileAttributes"/>Type of file.<paramref name="fileAttributes"/>
+        /// <returns>boolean that indicates if the generation of a file was successful.</returns>
+        private bool CreateFile(in string path, in string text, in FileAttributes fileAttribute)
+        {
+            if (CheckFileExistAndIsReadOnly(path))
+                return CreateFileWithStreamWriter(path, text, fileAttribute);
+            return false;
         }
 
         /// <summary>
         /// Creates general file in openfoam case folder.
         /// For example: Allrun, Allclean
         /// </summary>
-        /// <paramref name="path"/>Path<param>ref name="path"/>
+        /// <paramref name="path"/>Path<paramref name="path"/>
         /// <paramref name="name"/>Name of the file<paramref name="name"/>
         /// <paramref name="text"/>Text for file.<paramref name="text"/>
         /// <returns>boolean that indicates if the generation of a file succeeded.</returns>
-        private bool CreateGeneralFile(string path, string name, string text)
+        private bool CreateRootDirFile(in string path, in string name, in string text)
         {
             bool succeed = true;
-            string m_Path = Path.Combine(path, name);
+            string newPath = Path.Combine(path, name);
             try
             {
-                FileAttributes fileAttribute = FileAttributes.Normal;
-
-                if (File.Exists(m_Path))
-                {
-                    fileAttribute = File.GetAttributes(m_Path);
-                    FileAttributes tempAtt = fileAttribute & FileAttributes.ReadOnly;
-                    if (FileAttributes.ReadOnly == tempAtt)
-                    {
-                        OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_FILE_READONLY);
-                        return false;
-                    }
-                    File.Delete(m_Path);
-                }
-
-                //Create File.
-                using (StreamWriter sw = new StreamWriter(m_Path))
-                {
-                    sw.NewLine = "\n";
-                    fileAttribute = File.GetAttributes(m_Path) | fileAttribute;
-                    File.SetAttributes(m_Path, fileAttribute);
-
-                    // Add information to the file.
-                    sw.Write(text);
-                }
+                succeed = CreateFile(newPath, text, FileAttributes.Normal);
             }
             catch (Exception e)
             {
@@ -433,7 +477,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="version">Current version-object.</param>
         /// <param name="system">Path to system folder.</param>
-        private void InitSystemFolder(OpenFOAM.Version version, string system)
+        private void InitSystemFolder(in OpenFOAM.Version version, in string system)
         {
             //files in the system folder
             string blockMeshDict = Path.Combine(system, "blockMeshDict.");
@@ -458,24 +502,18 @@ namespace OpenFOAMInterface.BIM
             }
 
             //generate system dictionary objects 
-            OpenFOAM.BlockMeshDict blockMeshDictionary = new(version, blockMeshDict, null, SaveFormat.ascii, m_LowerEdgeVector, m_UpperEdgeVector);
-            OpenFOAM.ControlDict controlDictionary = new(version, controlDict, null, SaveFormat.ascii, null);
-            OpenFOAM.SurfaceFeatureExtract surfaceFeatureExtractDictionary = new(version, surfaceFeatureExtractDict, null, SaveFormat.ascii, m_STLName);
             OpenFOAM.DecomposeParDict decomposeParDictionary = new(version, decomposeParDict, null, SaveFormat.ascii);
-            OpenFOAM.FvSchemes fvSchemesDictionary = new(version, fvSchemes, null, SaveFormat.ascii);
-            OpenFOAM.FvSolution fvSolutionDictionary = new(version, fvSolution, null, SaveFormat.ascii);
-            OpenFOAM.SnappyHexMeshDict snappyHexMeshDictionary = new(version, meshDict, null, SaveFormat.ascii, m_STLName, m_STLWallName, m_FacesInletOutlet);
 
             //runmanager have to know how much cpu's should be used
             m_RunManager.NumberOfSubdomains = decomposeParDictionary.NumberOfSubdomains;
 
-            m_OpenFOAMDictionaries.Add(blockMeshDictionary);
-            m_OpenFOAMDictionaries.Add(controlDictionary);
-            m_OpenFOAMDictionaries.Add(surfaceFeatureExtractDictionary);
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.BlockMeshDict(version, blockMeshDict, null, SaveFormat.ascii, m_LowerEdgeVector, m_UpperEdgeVector));
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.ControlDict(version, controlDict, null, SaveFormat.ascii, null));
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.SurfaceFeatureExtract(version, surfaceFeatureExtractDict, null, SaveFormat.ascii, m_STLName));
             m_OpenFOAMDictionaries.Add(decomposeParDictionary);
-            m_OpenFOAMDictionaries.Add(fvSchemesDictionary);
-            m_OpenFOAMDictionaries.Add(fvSolutionDictionary);
-            m_OpenFOAMDictionaries.Add(snappyHexMeshDictionary);
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.FvSchemes(version, fvSchemes, null, SaveFormat.ascii));
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.FvSolution(version, fvSolution, null, SaveFormat.ascii));
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.SnappyHexMeshDict(version, meshDict, null, SaveFormat.ascii, m_STLName, m_STLWallName, m_FacesInletOutlet));
         }
 
         /// <summary>
@@ -484,7 +522,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="version">Current version-object</param>
         /// <param name="nullFolder">Path to nullfolder.</param>
         /// <returns>GeneratorStatus which indicates that nothing went wrong while object instantiation.</returns>
-        private GeneratorStatus InitNullFolder(OpenFOAM.Version version, string nullFolder)
+        private GeneratorStatus InitNullFolder(in OpenFOAM.Version version, in string nullFolder)
         {
             List<string> paramList = new List<string>();
 
@@ -551,10 +589,10 @@ namespace OpenFOAMInterface.BIM
         /// <summary>
         /// Fill given output with names generated with element entries from setList.
         /// </summary>
-        /// <param name="prefix">Prefix for entry input name.</param>
-        /// <param name="postfix">Postfix for entry intput name.</param>
         /// <param name="setList">Reference to elementlist in settings.</param>
         /// <param name="output">Reference to output list.</param>
+        /// <param name="prefix">Prefix for entry input name.</param>
+        /// <param name="postfix">Postfix for entry intput name.</param>
         private void InitNullDirList(in List<Element> setList, ref List<string> output, in string prefix = "", in string postfix = "")
         {
             foreach (Element entry in setList)
@@ -585,17 +623,16 @@ namespace OpenFOAMInterface.BIM
         /// Generate FOAMFile objects.
         /// </summary>
         /// <param name="version">Version.</param>
-        /// <param name="ffdn">FOAMFiledata struct that contains all names for foamfile generation.</param>
+        /// <param name="ffd">FOAMFiledata struct that contains all names for foamfile generation.</param>
         /// <returns>Current status of generator that indicates that objects instantiation went well.</returns>
-        private GeneratorStatus GenerateNullDirFOAMDictObj(in OpenFOAM.Version version, in FOAMFileData ffdn)
+        private GeneratorStatus GenerateNullDirFOAMDictObj(in OpenFOAM.Version version, in FOAMFileData ffd)
         {
             FOAMDict parameter;
-
-            foreach (string nameParam in ffdn.Param)
+            foreach (string nameParam in ffd.Param)
             {
                 if (nameParam.Contains("p."))
                 {
-                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffdn.Wall, ffdn.Inlet, ffdn.Outlet, ffdn.Slip);
+                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffd.Wall, ffd.Inlet, ffd.Outlet, ffd.Slip);
                     m_OpenFOAMDictionaries.Add(parameter);
                     continue;
                 }
@@ -607,7 +644,7 @@ namespace OpenFOAMInterface.BIM
                     ConstructorInfo foamParamConstructor = type.GetConstructor(m_foamParamConstType);
                     if (foamParamConstructor != null)
                     {
-                        parameter = (FOAMDict)foamParamConstructor.Invoke(new Object[] { version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffdn.Wall, ffdn.Inlet, ffdn.Outlet, ffdn.Slip });
+                        parameter = (FOAMDict)foamParamConstructor.Invoke(new Object[] { version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffd.Wall, ffd.Inlet, ffd.Outlet, ffd.Slip });
                         m_OpenFOAMDictionaries.Add(parameter);
                     }
                     else
@@ -804,7 +841,6 @@ namespace OpenFOAMInterface.BIM
                     }
                 }
             }
-
             return m_Categories;
         }
 
