@@ -43,7 +43,7 @@ Install Addin
 
 Copy OpenFOAMInterface.addin from the directory `<sourcedir>/BIM/Resources` and OpenFOAMInterface.dll from your default build output folder (depending on you Visual Studio Setup it's `C:\opt\lib\`) to `C:\Users\<Username>\AppData\Roaming\Autodesk\Revit\Addins\<Version>`.
 
-Your good to go. Revit will prompt you at startup to choose if you wanna load the addin always.
+Your good to go. Revit will prompt you always at startup to choose if you wanna load the addin.
 
 Have fun.
 
