@@ -1495,9 +1495,7 @@ namespace OpenFOAMInterface.BIM
                 }
                 catch (FormatException)
                 {
-                    System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_VECTOR_FORMAT,
-                        OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_VECTOR_FORMAT);
                     return entries;
                 }
                 
@@ -2194,16 +2192,16 @@ namespace OpenFOAMInterface.BIM
                         if (temperature != 0)
                         {
                             continue;
-                        }else
+                        }
+                        else
                         {
                             temperature = m_TempInternalField;
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    System.Windows.Forms.MessageBox.Show(OpenFOAMInterfaceResource.ERR_FORMAT + " Format-Exception in class OpenFOAMExportForm in method InitDuctParameters.",
-                        OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    OpenFOAMDialogManager.ShowDialogException(e);
                     return;
                 }
             }

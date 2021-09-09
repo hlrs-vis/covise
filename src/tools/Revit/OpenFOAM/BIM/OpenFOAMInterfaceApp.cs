@@ -6,7 +6,6 @@
  * License: LGPL 2+ */
 
 using System;
-using Autodesk.Revit.UI;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -14,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using RevitView = Autodesk.Revit.DB.View;
 
 namespace OpenFOAMInterface.BIM
@@ -147,9 +147,9 @@ namespace OpenFOAMInterface.BIM
 
                 return Result.Succeeded;
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                MessageBox.Show(exception.ToString(), "OpenFOAM Interface for Revit");
+                OpenFOAMDialogManager.ShowDialogException(e);
                 return Result.Failed;
             }
         }

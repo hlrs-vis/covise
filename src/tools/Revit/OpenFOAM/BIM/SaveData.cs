@@ -6,9 +6,8 @@
  * License: LGPL 2+ */
 
 using System;
-using System.IO;
 using System.Text;
-using System.Security;
+using System.IO;
 using System.Windows.Forms;
 using Autodesk.Revit.DB;
 
@@ -170,22 +169,9 @@ namespace OpenFOAMInterface.BIM
                 }
                 binaryWriter.Write(entityName);
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;
@@ -245,22 +231,9 @@ namespace OpenFOAMInterface.BIM
                     binaryWriter.Write(anotherSpace);
                 }
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;
@@ -280,22 +253,9 @@ namespace OpenFOAMInterface.BIM
                 //write the tringle number to the STL file using 4 bytes.
                 binaryWriter.Write(m_TriangularNumber);
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;
@@ -359,22 +319,9 @@ namespace OpenFOAMInterface.BIM
 
                 //stlFile.WriteLine(/*MSG0*/"solid " + m_FileName); //file header
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;
@@ -478,22 +425,9 @@ namespace OpenFOAMInterface.BIM
                 stlFile.WriteLine(/*MSG0*/"    endloop");
                 stlFile.WriteLine(/*MSG0*/"  endfacet");
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;

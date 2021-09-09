@@ -8,6 +8,8 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Security;
+using System.IO;
 
 namespace OpenFOAMInterface.BIM
 {
@@ -41,7 +43,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         /// <param name="exception">The exception message.</param>
         [Conditional("DEBUG")]
-        public static void ShowDebug(string exception)
+        public static void ShowDebug(in string exception)
         {
             ShowError(exception);
         }
@@ -50,12 +52,36 @@ namespace OpenFOAMInterface.BIM
         /// Used to show OpenFOAMInterfaceResource error message.
         /// </summary>
         /// <param name="opErrMsg">The error message.</param>
-        public static void ShowError(string opErrMsg)
+        public static void ShowError(in string opErrMsg)
         {
             MessageBox.Show(opErrMsg,
                             OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Exclamation);
+        }
+
+        /// <summary>
+        /// Shows error dialog for corresponding exception.
+        /// </summary>
+        /// <param name="e">Catched exception.</param>
+        public static void ShowDialogException(in Exception e)
+        {
+            switch (e)
+            {
+                case FormatException:
+                    ShowError(OpenFOAMInterfaceResource.ERR_FORMAT);
+                    break;
+                case IOException:
+                    ShowError(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION);
+                    break;
+                case SecurityException:
+                    ShowError(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION);
+                    break;
+                default:
+                    ShowError(OpenFOAMInterfaceResource.ERR_EXCEPTION + 
+                    "\nUnregistered exception: " + e.ToString());
+                    break;
+            }
         }
     }
 }

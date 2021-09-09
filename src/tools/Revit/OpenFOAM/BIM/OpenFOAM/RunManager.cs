@@ -6,10 +6,9 @@
  * License: LGPL 2+ */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Diagnostics;
-using System.IO;
-using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Threading;
@@ -135,23 +134,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                         WriteLine(commandBat, com);
                     }
                 }
+                succeed = true;
             }
-            catch (SecurityException)
+            catch (Exception e)
             {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                succeed = false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(OpenFOAMInterfaceResource.ERR_EXCEPTION, OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE,
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;

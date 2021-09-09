@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using System.Linq;
 using System.Windows.Forms;
-using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
@@ -55,7 +54,6 @@ namespace OpenFOAMInterface.BIM
     /// </summary>
     public class DataGenerator
     {
-
         //STL-Exporter objects
         public enum GeneratorStatus { SUCCESS, FAILURE, CANCEL };
         public enum WriteStages { Wall, Inlet, Outlet, MeshResolution, AirTerminal };
@@ -466,7 +464,7 @@ namespace OpenFOAMInterface.BIM
             }
             catch (Exception e)
             {
-                ShowDialog(ref e);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 succeed = false;
             }
             return succeed;
@@ -655,7 +653,8 @@ namespace OpenFOAMInterface.BIM
                 }
                 catch (Exception e)
                 {
-                    ShowDialog(ref e);
+                    OpenFOAMDialogManager.ShowDialogException(e);
+                    return GeneratorStatus.FAILURE;
                 }
             }
             return GeneratorStatus.SUCCESS;
@@ -804,7 +803,7 @@ namespace OpenFOAMInterface.BIM
             }
             catch (Exception e)
             {
-                ShowDialog(ref e);
+                OpenFOAMDialogManager.ShowDialogException(e);
                 m_StlCancel.Close();
                 return GeneratorStatus.FAILURE;
             }
@@ -1649,7 +1648,7 @@ namespace OpenFOAMInterface.BIM
                 catch (Exception ex)
                 {
                     m_TriangularNumber--;
-                    ShowDialog(ref ex);
+                    OpenFOAMDialogManager.ShowDialogException(ex);
                     continue;
                 }
 
@@ -1727,7 +1726,7 @@ namespace OpenFOAMInterface.BIM
             }
             catch (Exception ex)
             {
-                ShowDialog(ref ex);
+                OpenFOAMDialogManager.ShowDialogException(ex);
             }
 
             return linkedDocs;
@@ -1749,26 +1748,6 @@ namespace OpenFOAMInterface.BIM
             linkElements.AddRange(familySymbolCollector.OfClass(typeof(FamilySymbol)).ToList());
 
             return linkElements;
-        }
-
-        /// <summary>
-        /// Shows error dialog for corresponding exception.
-        /// </summary>
-        /// <param name="e">Catched exception.</param>
-        private static void ShowDialog(ref Exception e)
-        {
-            switch (e)
-            {
-                case IOException:
-                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION);
-                    break;
-                case SecurityException:
-                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION);
-                    break;
-                default:
-                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_EXCEPTION);
-                    break;
-            }
         }
     }
 }
