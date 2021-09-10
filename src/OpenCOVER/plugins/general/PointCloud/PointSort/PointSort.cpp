@@ -577,8 +577,8 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
 
     for (auto const& it : lookUp)
     {
-        if (it.second > setMaxSize) setMaxSize = it.second;
-        if (it.second < setMinSize) setMinSize = it.second;
+        if (it.second > (int)setMaxSize) setMaxSize = it.second;
+        if (it.second < (int)setMinSize) setMinSize = it.second;
         
         count_avg += it.second;
         vecFindMedian.push_back(it.second);
@@ -653,8 +653,8 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
 
                 count_avg += numPointsToWrite;
                 vecFindMedian.push_back(numPointsToWrite);
-                if (numPointsToWrite > setMaxSize) setMaxSize = numPointsToWrite;
-                if (numPointsToWrite < setMinSize) setMinSize = numPointsToWrite;
+                if (numPointsToWrite > (int)setMaxSize) setMaxSize = numPointsToWrite;
+                if (numPointsToWrite < (int)setMinSize) setMinSize = numPointsToWrite;
         
                 
                 // write size

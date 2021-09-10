@@ -132,7 +132,7 @@ int UDPBroadcast::openReceivePort(int portnumber)
         return -1;
     }
 
-    return d_rsocket;
+    return (int)d_rsocket;
 }
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++ Do the complete set-up
@@ -164,7 +164,7 @@ void UDPBroadcast::setup(const char *hostname, int port, int localPort,
         return;
     }
     // Create the socket
-    d_socket = socket(AF_INET, SOCK_DGRAM, 0);
+    d_socket = (int)socket(AF_INET, SOCK_DGRAM, 0);
     if (d_socket < 0)
     {
         std::cerr << "Error creating socket port: " << localPort << " " << strerror(errno) << std::endl;
