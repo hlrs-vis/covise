@@ -74,7 +74,7 @@ void MessageReceiver::_waitForConnection()
     _serverSocket = new Socket(_port);
 
     std::cout << "Waiting for connection on port " << _port << "... ";
-    int accepted = _serverSocket->accept(_timeout);
+    int accepted = _serverSocket->accept((float)_timeout);
     if (accepted == -1)
     {
         std::cout << "failed!" << std::endl;

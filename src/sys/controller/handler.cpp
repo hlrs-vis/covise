@@ -625,7 +625,7 @@ void CTRLHandler::handleClosedMsg(const std::unique_ptr<Message> &msg)
         }
 
         bool del_mod = false;
-        int instance = 0;
+        size_t instance = 0;
         if (auto p_rend = dynamic_cast<Renderer *>(p_app))
         {
             auto disp = p_rend->getDisplay(peer_id);
@@ -1159,7 +1159,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
             {
 				for (NetModule* app : apps)
 				{
-					int instance = app->instance() + 1000 * (app->numMirrors() + 1);
+					size_t instance = app->instance() + 1000 * (app->numMirrors() + 1);
 					NetModule::MapPosition pos{ (app->pos().x + (app->numMirrors() + 1) * 400), app->pos().y };
 					try
 					{
@@ -1204,7 +1204,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         string oldhost = list[iel++];
 
         //  store the current parameters of the module to be replaced
-        int numOldInputParams = 0;
+        size_t numOldInputParams = 0;
         vector<NetModule *> appList;
         vector<string> from_param;
 
@@ -1561,7 +1561,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
                 throw Exception{""};
             }
         }
-        catch (const Exception &e)
+        catch (const Exception &/*e*/)
         {
             string buffer = "MASTER-REQ FAILED: Bad hostAddress (" + string(hostAddress) + ")\n";
             Message tmpmsg{COVISE_MESSAGE_UI, buffer};
@@ -3129,7 +3129,7 @@ void CTRLHandler::sendCollaborativeState()
                 auto &ui = host.second->getProcess(sender_type::USERINTERFACE);
                 buffer << Userinterface::getStatusName(dynamic_cast<Userinterface &>(ui).status()) << "\n";
             }
-            catch (const std::exception &e)
+            catch (const std::exception &/*e*/)
             {
                 buffer << "NONE\n";
             }

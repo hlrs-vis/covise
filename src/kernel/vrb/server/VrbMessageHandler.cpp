@@ -337,7 +337,7 @@ namespace vrb
 	}
 	int VrbMessageHandler::numberOfClients()
 	{
-		return clients.numberOfClients();
+		return (int)clients.numberOfClients();
 	}
 	void VrbMessageHandler::addClient(ConnectionDetails::ptr &&clientCon)
 	{

@@ -88,6 +88,8 @@ private:
     std::string SystemsDir;
     std::string AircraftName;
     std::string resetFile;
+    std::string geometryFile;
+    osg::ref_ptr<osg::MatrixTransform> geometryTrans;
     vector <string> LogOutputName;
     vector <SGPath> LogDirectiveName;
     vector <string> CommandLineProperties;

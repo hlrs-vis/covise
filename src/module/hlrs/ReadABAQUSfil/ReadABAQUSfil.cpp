@@ -204,7 +204,7 @@ void ReadABAQUSfil::param(const char* paramName, bool in_map_loading)
                 }
                 else
                 {
-                    numRead = read(fd, ((char*)fil_array) + readBytes, toRead);
+                    numRead = read(fd, ((char*)fil_array) + readBytes, (unsigned int)toRead);
                     if (numRead <= 0)
                     {
                         sendError("Failed to read ABAQUS result file '%s' %s",

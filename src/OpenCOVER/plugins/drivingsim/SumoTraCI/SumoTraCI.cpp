@@ -632,7 +632,7 @@ void SumoTraCI::interpolateVehiclePosition()
     osg::Matrix rotOffset;
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
 	osg::Vec3  speed;
-	double aSpeed;
+	//double aSpeed;
 	float timeToDest = 1 - (currentTime - lastResultTime);
 
         int v=0;

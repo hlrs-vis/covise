@@ -11,6 +11,7 @@
 #include <QSocketNotifier>
 #include <fmod_studio.hpp>
 #include <net/covise_connect.h>
+#include <config/coConfig.h>
 #include "soundClient.h"
 class QTreeWidgetItem;
 
@@ -69,6 +70,9 @@ public:
     std::list<soundClient*>clients;
     ClientSoundSample* currentSound = nullptr;
     void removeClient(soundClient* c);
+    covise::coConfigGroup *soundConfig;
+
+    covise::coConfigString cacheDir;
 
 private:
     static mainWindow *myInstance;
@@ -88,6 +92,8 @@ private slots:
     virtual void watchdog();
     virtual void startHupe();
     virtual void stopHupe();
+    virtual void onDirBrowser();
+    void onDirChanged(const QString& d);
     void play() { if (currentSound) currentSound->start(); };
     void stop() { if (currentSound) currentSound->stop(); };
     void rewind() { if (currentSound) currentSound->rewind(); };

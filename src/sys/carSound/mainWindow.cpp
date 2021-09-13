@@ -19,6 +19,7 @@
 #include <config/CoviseConfig.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
+#include <qfiledialog.h>
 
 // internal prototypes (required for the Metrowerks CodeWarrior compiler)
 int main(int argc, char *argv[]);
@@ -298,25 +299,40 @@ void mainWindow::stopHupe()
 
 mainWindow *theWindow;
 
-mainWindow::mainWindow(QWidget *parent)
+mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir")
 {
-	
+
     //CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     theWindow = this;
     setupUi(this);
     speedSlider->setMaximum(8000);
     speedSlider->setMinimum(90);
     speedSlider->setValue(90);
-	velocitySlider->setMaximum(100);
-	velocitySlider->setMinimum(0);
-	velocitySlider->setValue(0);
-	carSpeed = 0;
-	SlipSlider->setMaximum(100);
-	SlipSlider->setMinimum(0);
-	SlipSlider->setValue(0);
-	slipValue = 0;
+    velocitySlider->setMaximum(100);
+    velocitySlider->setMinimum(0);
+    velocitySlider->setValue(0);
+    carSpeed = 0;
+    SlipSlider->setMaximum(100);
+    SlipSlider->setMinimum(0);
+    SlipSlider->setValue(0);
+    slipValue = 0;
     engineTorque = 0.0;
     messageReceived = true;
+
+    // automatic storage of config values
+    soundConfig = new covise::coConfigGroup("RemoteSound");
+    soundConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "RemoteSound.xml", "local", true);
+    covise::coConfig::getInstance()->addConfig(soundConfig);
+    cacheDir.setAutoUpdate(true);
+    cacheDir.setSaveToGroup(soundConfig);
+    if (!cacheDir.hasValidValue())
+    {
+        cacheDir = "c:/tmp";
+
+        std::cerr << std::string(QString(cacheDir).toUtf8()) << std::endl;
+    }
+    cacheDirectory->setText(cacheDir);
+    std::cerr << std::string(QString(cacheDir).toUtf8()) << std::endl;
 
     //clientTable->setFont(smallFont);
     QStringList labels;
@@ -343,6 +359,8 @@ mainWindow::mainWindow(QWidget *parent)
     soundTable->header()->resizeSections(QHeaderView::ResizeToContents);
     connect(soundTable, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
         this, SLOT(selectSound(QTreeWidgetItem*)));
+    connect(dirBrowser, SIGNAL(clicked(bool)), this, SLOT(onDirBrowser()));
+    connect(cacheDirectory, SIGNAL(textEdited(const QString &)), this, SLOT(onDirChanged(const QString&)));
 
     UDPPort = covise::coCoviseConfig::getInt("UDPPort", "RemoteSound", 31804);
     udpclient = new UDPComm(UDPPort);
@@ -552,6 +570,48 @@ void mainWindow::processMessages()
     }
 }
 
+void mainWindow::onDirBrowser()
+{
+    QStringList fileNames;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    if (dialog.exec())
+    {
+        fileNames = dialog.selectedFiles();
+        cacheDirectory->setText(fileNames[0]);
+        cacheDir = fileNames[0];
+        soundConfig->save();
+    }
+}
+void mainWindow::onDirChanged(const QString& d)
+{
+    QString dirName = cacheDirectory->text();
+    if (QDir(dirName).exists())
+    {
+        cacheDir = dirName;
+        soundConfig->save();
+    }
+    if (!cacheDirectory->hasFocus())
+    {
+        cerr << "no focus" << endl;
+    }
+    /*else
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Directory" + dirName + "does not exist,", "Create it?",
+            QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            if (QDir().mkpath(dirName))
+            {
+                cacheDir = dirName;
+                soundConfig->save();
+            }
+        }
+        else {
+            qDebug() << "Yes was *not* clicked";
+        }
+    }*/
+}
 
 mainWindow *mainWindow::myInstance = NULL;
 mainWindow::~mainWindow()

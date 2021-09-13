@@ -171,7 +171,7 @@ void Renderer::quit(void *callbackData)
 
     if (m_wconn != NULL)
     {
-        int l = strlen(" ") + 1;
+        size_t l = strlen(" ") + 1;
         char* d = new char[l];
         strcpy(d, " ");
         Message p_msg{ COVISE_MESSAGE_SOCKET_CLOSED , DataHandle(d, l)};
@@ -340,7 +340,7 @@ void Renderer::masterSwitch(void *callbackData)
 
 void Renderer::doCustom(const covise::Message& msg)
 {
-    char *tmp;
+    //char *tmp;
     int ret;
 
     //CoviseRender::sendInfo("doCustom callback called");

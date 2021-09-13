@@ -34,6 +34,7 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <cover/coVRFileManager.h>
+#include <osg/Vec3>
 
 JSBSimPlugin* JSBSimPlugin::plugin = NULL;
 
@@ -59,6 +60,29 @@ if (coVRMSController::instance()->isMaster())
 #elif defined(__GNUC__) && !defined(sgi) && !defined(__APPLE__)
     //feenableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
+    const char* GF = coVRFileManager::instance()->getName("share/covise/jsbsim/geometry/paraglider.osgb");
+    if (GF == nullptr)
+        GF = "";
+    geometryFile = coCoviseConfig::getEntry("geometry", "COVER.Plugin.JSBSim.Geometry", GF);
+    float tx = coCoviseConfig::getFloat("x", "COVER.Plugin.JSBSim.Geometry", 0.0);
+    float ty = coCoviseConfig::getFloat("y", "COVER.Plugin.JSBSim.Geometry", 0.0);
+    float tz = coCoviseConfig::getFloat("z", "COVER.Plugin.JSBSim.Geometry", 0.0);
+    float th = coCoviseConfig::getFloat("h", "COVER.Plugin.JSBSim.Geometry", 0.0);
+    float tp = coCoviseConfig::getFloat("p", "COVER.Plugin.JSBSim.Geometry", 0.0);
+    float tr = coCoviseConfig::getFloat("r", "COVER.Plugin.JSBSim.Geometry", 0.0);
+    float ts = coCoviseConfig::getFloat("scale", "COVER.Plugin.JSBSim.Geometry", 1000.0);
+    osg::Matrix gt = osg::Matrix::scale(ts,ts,ts)*osg::Matrix::rotate(th, osg::Vec3(0,0,1), tp, osg::Vec3(1,0,0),  tr, osg::Vec3(0,1,0)) *  osg::Matrix::translate(tx, ty, tz);
+    geometryTrans = new osg::MatrixTransform(gt);
+    cover->getScene()->addChild(geometryTrans);
+    osg::Node* n = coVRFileManager::instance()->loadFile(geometryFile.c_str());
+    if(n!=nullptr)
+    {
+        geometryTrans->addChild(n);
+    }
+    else
+    {
+        cerr << "could not load Geometry file " << geometryFile << endl;
+    }
 
     rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
     varioSound = rsClient->getSound(VarioSound);
@@ -75,6 +99,7 @@ JSBSimPlugin::~JSBSimPlugin()
 {
     fprintf(stderr, "JSBSimPlugin::~JSBSimPlugin\n");
 
+    cover->getScene()->removeChild(geometryTrans);
     coVRNavigationManager::instance()->unregisterNavigationProvider(this);
 if (coVRMSController::instance()->isMaster())
         {
