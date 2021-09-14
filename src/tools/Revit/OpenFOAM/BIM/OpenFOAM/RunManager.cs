@@ -216,13 +216,16 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <returns>Task for asynchronous operation with bool as result which indicates status of process after execution.</returns>
         private async Task<bool> StartProcessAndExtractZipAsync()
         {
-            var startProc = await StartProcess();
             string fileName = Path.GetFileName(m_CasePath);
             string caseDir = Path.GetDirectoryName(m_CasePath);
             string casePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
             if (Directory.Exists(casePathResults))
                 Directory.Delete(casePathResults, true);
-            await Task.Run(() => ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults));
+            if (File.Exists(casePathResults + ".zip"))
+                File.Delete(casePathResults +".zip");
+            var startProc = await StartProcess();
+            if (File.Exists(casePathResults+".zip"))
+                 await Task.Run(() => ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults));
             return startProc;
         }
 
