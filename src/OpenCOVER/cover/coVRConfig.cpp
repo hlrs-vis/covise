@@ -115,7 +115,15 @@ coVRConfig::coVRConfig()
 
     /// path for the viewpoint file: initialized by 1st param() call
 
-    m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+    if (const char *dl = getenv("COVER_DEBUG"))
+    {
+        m_dLevel = atoi(dl);
+        std::cerr << "setting debug level from environment COVER_DEBUG to " << m_dLevel << std::endl;
+    }
+    else
+    {
+        m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+    }
     
     int hsize, vsize, x, y, z;
     m_passiveStereo = false;
