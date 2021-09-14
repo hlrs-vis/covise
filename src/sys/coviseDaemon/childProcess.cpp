@@ -39,9 +39,26 @@ void SigChildHandler::sigHandler(int sigNo) //  catch SIGTERM
 {
 	if (sigNo == SIGCHLD)
 	{
-		int pid = waitpid(-1, NULL, WNOHANG);
-		std::cerr << "child with pid " << pid << " terminated" << std::endl;
-		emit childDied(pid);
+        int wstatus;
+		while (pid_t pid = waitpid(-1, &wstatus, WNOHANG))
+        {
+            if (pid < 0)
+            {
+                std::cerr << "waitpid error: " << strerror(errno) << std::endl;
+                break;
+            }
+            std::cerr << "child with pid " << pid << " terminated";
+            if (WIFEXITED(wstatus))
+            {
+                std::cerr << ": exit code " << WEXITSTATUS(wstatus);
+            }
+            else if (WIFSIGNALED(wstatus))
+            {
+                std::cerr << ": signal " << WTERMSIG(wstatus);
+            }
+            std::cerr << std::endl;
+            emit childDied(pid);
+        }
 	}
 }
 
