@@ -18,9 +18,9 @@
 #include <util/coLog.h>
 #include <covise/covise_msg.h>
 #include <covise/covise_appproc.h>
-#include <comsg/CRB_EXEC.h>
-#include <comsg/NEW_UI.h>
-#include <comsg/PROXY.h>
+#include <messages/CRB_EXEC.h>
+#include <messages/NEW_UI.h>
+#include <messages/PROXY.h>
 
 #include "MEMessageHandler.h"
 #include "MEFileBrowser.h"

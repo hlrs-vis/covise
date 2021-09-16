@@ -40,7 +40,7 @@
 
 #include <net/message.h>
 #include <net/covise_socket.h>
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 
 #include "coVRPluginSupport.h"
 #include "coVRConfig.h"

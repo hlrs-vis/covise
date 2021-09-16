@@ -1,5 +1,5 @@
 #include "CRB_EXEC.h"
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 #include <cassert>
 #include <cstring>
 #include <net/message.h>

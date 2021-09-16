@@ -11,8 +11,8 @@
 #include "VrbServerRegistry.h"
 #include "VrbSessionList.h"
 
-#include <comsg/PROXY.h>
-#include <comsg/VRB_PERMIT_LAUNCH.h>
+#include <messages/PROXY.h>
+#include <messages/VRB_PERMIT_LAUNCH.h>
 #include <net/covise_connect.h>
 #include <net/dataHandle.h>
 #include <net/message_types.h>

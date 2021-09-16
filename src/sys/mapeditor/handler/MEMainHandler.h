@@ -16,7 +16,7 @@
 #include <utility>
 #include <mutex>
 #include <atomic>
-#include <comsg/NEW_UI.h>
+#include <messages/NEW_UI.h>
 
 
 class QListWidget;

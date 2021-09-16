@@ -52,7 +52,7 @@ using namespace std;
 #include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 
 #include <covise/Covise_Util.h>
 #include <config/CoviseConfig.h>

@@ -8,8 +8,8 @@
 #include <covise/covise.h>
 #include <appl/CoviseBase.h>
 
-#include <comsg/CRB_EXEC.h>
-#include <comsg/NEW_UI.h>
+#include <messages/CRB_EXEC.h>
+#include <messages/NEW_UI.h>
 #include <net/covise_host.h>
 #include <util/coFileUtil.h>
 #include <util/coSpawnProgram.h>

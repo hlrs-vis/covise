@@ -10,7 +10,7 @@
 
 #include <functional>
 
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 #include <covise/covise.h>
 #include <covise/covise_msg.h>
 #include <net/covise_connect.h>

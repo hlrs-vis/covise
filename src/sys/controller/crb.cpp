@@ -11,7 +11,7 @@
 #include "handler.h"
 #include "proxyConnection.h"
 
-#include <comsg/PROXY.h>
+#include <messages/PROXY.h>
 #include <net/message_types.h>
 #include <util/covise_version.h>
 

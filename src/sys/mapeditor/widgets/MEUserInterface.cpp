@@ -29,7 +29,7 @@
 #include <QMimeData>
 #include <QTimer>
 
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 #include <config/coConfig.h>
 #include <covise/covise_msg.h>
 #include <util/coSpawnProgram.h>

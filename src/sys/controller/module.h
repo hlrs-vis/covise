@@ -14,7 +14,7 @@
 #include "subProcess.h"
 #include "netLink.h"
 #include "moduleInfo.h"
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 
 
 namespace covise{

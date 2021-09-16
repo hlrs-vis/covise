@@ -26,7 +26,7 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <util/unixcompat.h>
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 
 #include "handler.h"
 #include "global.h"

@@ -9,10 +9,10 @@
 #include <cassert>
 #include <chrono>
 
-#include <comsg/CRB_EXEC.h>
-#include <comsg/NEW_UI.h>
-#include <comsg/PROXY.h>
-#include <comsg/VRB_PERMIT_LAUNCH.h>
+#include <messages/CRB_EXEC.h>
+#include <messages/NEW_UI.h>
+#include <messages/PROXY.h>
+#include <messages/VRB_PERMIT_LAUNCH.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/message_types.h>

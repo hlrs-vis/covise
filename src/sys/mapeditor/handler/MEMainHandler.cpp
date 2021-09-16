@@ -29,7 +29,7 @@
 #include <QTimer>
 #include <QUrl>
 
-#include <comsg/NEW_UI.h>
+#include <messages/NEW_UI.h>
 #include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>

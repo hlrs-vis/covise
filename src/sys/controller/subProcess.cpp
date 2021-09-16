@@ -13,8 +13,8 @@
 #include "proxyConnection.h"
 #include "util.h"
 
-#include <comsg/CRB_EXEC.h>
-#include <comsg/PROXY.h>
+#include <messages/CRB_EXEC.h>
+#include <messages/PROXY.h>
 #include <covise/covise.h>
 #include <covise/covise_msg.h>
 #include <covise/covise_process.h>

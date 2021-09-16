@@ -16,9 +16,9 @@
 #include <chrono>
 #include <boost/program_options.hpp>
 
-#include <comsg/CRB_EXEC.h>
-#include <comsg/NEW_UI.h>
-#include <comsg/coviseLaunchOptions.h>
+#include <messages/CRB_EXEC.h>
+#include <messages/NEW_UI.h>
+#include <messages/coviseLaunchOptions.h>
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
 #include <util/coSignal.h>

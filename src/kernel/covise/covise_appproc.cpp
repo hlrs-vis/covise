@@ -10,7 +10,7 @@
 #include <shm/covise_shm.h>
 #include <net/covise_socket.h>
 #include <net/covise_host.h>
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 
 #ifdef _WIN32
 typedef int pid_t;

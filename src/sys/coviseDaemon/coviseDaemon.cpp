@@ -7,8 +7,8 @@
 
 #include "coviseDaemon.h"
 
-#include <comsg/PROXY.h>
-#include <comsg/VRB_PERMIT_LAUNCH.h>
+#include <messages/PROXY.h>
+#include <messages/VRB_PERMIT_LAUNCH.h>
 #include <config/CoviseConfig.h>
 #include <net/covise_connect.h>
 #include <net/covise_host.h>

@@ -35,7 +35,7 @@ using namespace std;
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 #include <util/coLog.h>
 #include <config/CoviseConfig.h>
 #ifdef _WIN32

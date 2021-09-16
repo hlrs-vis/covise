@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <vrb/UserInfo.h>
-#include <comsg/PROXY.h>
+#include <messages/PROXY.h>
 namespace vrb{
 
 struct ConnectionState{

@@ -13,11 +13,11 @@
 #include <map>
 #include <mutex>
 
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 #include <vrb/RemoteClient.h>
 #include <vrb/client/VRBClient.h>
-#include <comsg/coviseLaunchOptions.h>
-#include <comsg/PROXY.h>
+#include <messages/coviseLaunchOptions.h>
+#include <messages/PROXY.h>
 
 #include "config.h"
 #include "subProcess.h"

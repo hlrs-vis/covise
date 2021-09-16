@@ -10,7 +10,7 @@
 
 #include <net/message_types.h>
 #include "subProcess.h"
-#include <comsg/NEW_UI.h>
+#include <messages/NEW_UI.h>
 namespace covise
 {
 namespace controller

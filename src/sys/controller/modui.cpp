@@ -20,7 +20,7 @@
 #include "subProcess.h"
 #include "crb.h"
 
-#include <comsg/CRB_EXEC.h>
+#include <messages/CRB_EXEC.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfig.h>
 #include <covise/covise_process.h>

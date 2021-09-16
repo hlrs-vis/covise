@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "VrbProxie.h"
-#include <comsg/PROXY.h>
+#include <messages/PROXY.h>
 #include <net/covise_socket.h>
 #include <net/message_types.h>
 #include <net/message_types.h>
