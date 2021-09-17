@@ -3157,6 +3157,7 @@ namespace OpenCOVERPlugin
                 while (true)
                 {
                     int len = 0;
+                    int numZeros = 0;
                     while (len < 16)
                     {
                         int numRead;
@@ -3169,6 +3170,16 @@ namespace OpenCOVERPlugin
                             // probably socket closed
                             setConnected(false);
                             return;
+                        }
+                        if(numRead ==0)
+                        {
+                            numZeros++;
+                            if(numZeros > 100)
+                            {
+                                // this socket is probably closed (Read should block)
+                                setConnected(false);
+                                return;
+                            }
                         }
                         len += numRead;
                     }
@@ -3190,6 +3201,15 @@ namespace OpenCOVERPlugin
                             // probably socket closed
                             setConnected(false);
                             return;
+                        }
+                        if(numRead == 0)
+                        {
+                            numZeros++;
+                            if(numZeros > 100)
+                            {
+                                setConnected(false);
+                                return;
+                            }
                         }
                         len += numRead;
                     }
