@@ -113,7 +113,7 @@ public:
 private:
     static coVRCommunication *s_instance;
 
-	vrui::coNavInteraction* remoteNavInteraction = nullptr;;
+	vrui::coNavInteraction* remoteNavInteraction = nullptr;
     int randomID = 0;
     bool ignoreRemoteTransform = false;
     std::map<int, VRBData *> mfbData;
