@@ -154,7 +154,7 @@
    <Annotation menu="true" />
    <Measure menu="true" />
    <TangiblePosition menu="true" />
-   <Revit value="on" menu="true" />
+   <Revit value="off" menu="true" />
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>
