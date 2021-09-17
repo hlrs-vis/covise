@@ -41,6 +41,10 @@ Client::Client(std::string h, int p, std::string a, std::string u)
 
 Client::~Client()
 {
+    if (connFuture.valid())
+    {
+        m_shutdown = true;
+    }
     delete udpSender;
 }
 

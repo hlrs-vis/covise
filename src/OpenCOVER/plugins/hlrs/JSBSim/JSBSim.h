@@ -58,6 +58,7 @@ public:
     JSBSimPlugin();
     ~JSBSimPlugin();
     bool init();
+    bool destroy();
 
     bool update();
     virtual void setEnabled(bool);
@@ -199,6 +200,7 @@ public:
     VrmlSFFloat d_height;
     VrmlSFVec3f d_velocity;
     VrmlSFFloat d_turbulence;
+    static int numThermalNodes;
 private:
 
 };

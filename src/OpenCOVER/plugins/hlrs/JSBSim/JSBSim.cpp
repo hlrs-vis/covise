@@ -96,11 +96,23 @@ if (coVRMSController::instance()->isMaster())
     udp = nullptr;
 }
 
+
+//! reimplement to do early cleanup work and return false to prevent unloading
+bool JSBSimPlugin::destroy()
+{
+    if (VrmlNodeThermal::numThermalNodes > 0)
+    {
+        cerr << "Thermal nodes are still in use, can't delete JSBSimPlugin" << endl;
+        return false;
+    }
+    
+    return true;
+}
+
 // this is called if the plugin is removed at runtime
 JSBSimPlugin::~JSBSimPlugin()
 {
     fprintf(stderr, "JSBSimPlugin::~JSBSimPlugin\n");
-
     cover->getScene()->removeChild(geometryTrans);
     coVRNavigationManager::instance()->unregisterNavigationProvider(this);
 if (coVRMSController::instance()->isMaster())
@@ -774,8 +786,9 @@ VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
     , d_velocity(0, 0, 4)
     , d_turbulence(0.0)
 {
+    numThermalNodes++;
 }
-
+int VrmlNodeThermal::numThermalNodes = 0;
 
 VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
     : VrmlNodeChild(n.d_scene)
@@ -789,10 +802,12 @@ VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
     d_height = n.d_height;
     d_velocity = n.d_velocity;
     d_turbulence = n.d_turbulence;
+    numThermalNodes++;
 }
 
 VrmlNodeThermal::~VrmlNodeThermal()
 {
+    numThermalNodes--;
 }
 
 VrmlNode* VrmlNodeThermal::cloneMe() const
