@@ -1446,6 +1446,11 @@ bool coVRPluginSupport::sendVrbMessage(const covise::MessageBase *msg) const
         vrbc->send(msg);
         return true;
     }
+
+    if (const auto *m = dynamic_cast<const covise::Message *>(msg)) {
+        return coVRPluginList::instance()->sendVisMessage(m);
+    }
+
     return false;
 }
 

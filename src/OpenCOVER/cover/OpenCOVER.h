@@ -74,6 +74,7 @@ private:
 
     void waitForWindowID();
 
+    bool m_loadVistlePlugin = false;
     coVRPlugin *m_visPlugin;
     bool m_forceMpi;
 

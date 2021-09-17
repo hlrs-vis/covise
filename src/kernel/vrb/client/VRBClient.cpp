@@ -46,14 +46,25 @@ VRBClient::VRBClient(covise::Program p, const vrb::VrbCredentials &credentials, 
     }
 }
 
+VRBClient::VRBClient(covise::Program p, covise::MessageSenderInterface *sender, bool isSlave, bool useUDP)
+: vrb::RemoteClient(p)
+, m_sender(sender)
+, isSlave(isSlave)
+, useUDP(useUDP)
+{
+}
 
 VRBClient::~VRBClient()
 {
-    shutdown();
+    if (!m_sender)
+        shutdown();
 }
+
 bool VRBClient::poll(Message *m)
 {
     if (isSlave)
+        return false;
+    if (m_sender)
         return false;
     if (sConn->check_for_input())
     {
@@ -61,19 +72,25 @@ bool VRBClient::poll(Message *m)
         return true;
     }
 	return false;
-
-
 }
+
 bool VRBClient::pollUdp(covise::UdpMessage* m)
 {
+    if (m_sender)
+        return false;
+
 	if (!udpConn)
 	{
 		return false;
 	}
 	return udpConn->recv_udp_msg(m);
 }
+
 int VRBClient::wait(Message *m)
 {
+    if (m_sender)
+        return 0;
+
 #ifdef MB_DEBUG
     std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
     std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
@@ -93,6 +110,9 @@ int VRBClient::wait(Message *m)
 
 int VRBClient::wait(Message *m, int messageType)
 {
+    if (m_sender)
+        return 0;
+
 #ifdef MB_DEBUG
     if (m->type != COVISE_MESSAGE_EMPTY)
     {
@@ -136,9 +156,17 @@ int VRBClient::wait(Message *m, int messageType)
 
 bool VRBClient::sendMessage(const covise::UdpMessage* m) const
 {
+    if (m_sender)
+    {
+        if (!useUDP)
+            return false;
+
+        return m_sender->send(m);
+    }
+
 	if (!udpConn) // not connected to a server
 	{
-		return 0;
+		return false;
 	}
     m->sender = ID();
 	return udpConn->send_udp_msg(m);
@@ -147,6 +175,11 @@ bool VRBClient::sendMessage(const covise::UdpMessage* m) const
 
 bool VRBClient::sendMessage(const Message* m) const
 {
+    if (m_sender)
+    {
+        return m_sender->send(m);
+    }
+
     if (!sConn)
     {
         return false;
@@ -158,7 +191,7 @@ bool VRBClient::sendMessage(const Message* m) const
 #endif
 
 	if (serverHost == NULL)
-		return 0;
+		return false;
 	//cerr << "sendMessage " << conn << endl;
 
 #ifdef _MSC_VER
@@ -186,11 +219,14 @@ bool VRBClient::sendMessage(const Message* m) const
 	if (m->data.length() > 1000)
 		delay /= m->data.length() / 1000;
 	sendDelay = 0.99f * sendDelay + delay * 0.01f;
-	return 1;
+	return true;
 }
 
 bool VRBClient::isConnected()
 {
+    if (m_sender)
+        return true;
+
     if (isSlave)
         return true;
     if (sConn == NULL)
@@ -203,12 +239,18 @@ bool VRBClient::isConnected()
 bool VRBClient::connectToServer(std::string sessionName)
 {
     setSession(vrb::SessionID{ID(), sessionName});
+    if (m_sender)
+    {
+        completeConnection();
+        return true;
+    }
+
     if (!udpConn && !isSlave && useUDP)
     {
 		setupUdpConn();
 	}
 	if (isSlave || !serverHost || sConn)
-        return 0;
+        return false;
 
     connMutex.lock();
     if (!connFuture.valid())
@@ -255,6 +297,18 @@ bool VRBClient::connectToServer(std::string sessionName)
 }
 
 bool VRBClient::completeConnection(){
+
+    TokenBuffer tb;
+    tb << *this;
+    Message msg(tb);
+    msg.type = COVISE_MESSAGE_VRB_CONTACT;
+
+    if (m_sender)
+    {
+        return m_sender->send(&msg);
+    }
+
+
     if (connFuture.valid())
     {
         std::lock_guard<std::mutex> g(connMutex);
@@ -264,10 +318,6 @@ bool VRBClient::completeConnection(){
             sConn = connFuture.get();
             if(sConn != nullptr)
             {
-                TokenBuffer tb;
-                tb << *this;
-                Message msg(tb);
-                msg.type = COVISE_MESSAGE_VRB_CONTACT;
                 sConn->sendMessage(&msg);
                 return true;
             }
@@ -278,6 +328,9 @@ bool VRBClient::completeConnection(){
 
 void VRBClient::setupUdpConn() 
 {
+    if (m_sender)
+        return;
+
     if(serverHost)
     {
 	    udpConn.reset(new UDPConnection(0, 0, m_credentials.udpPort, serverHost->getAddress()));
@@ -291,6 +344,9 @@ float VRBClient::getSendDelay()
 
 void VRBClient::shutdown(){
     m_shutdown = true;
+    if (m_sender)
+        return;
+
     if(isConnected())
     {
         if (sConn && sConn->getSocket())

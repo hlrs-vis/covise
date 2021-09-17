@@ -664,8 +664,8 @@ bool OpenCOVER::init()
     {
         const char *vistlePlugin = getenv("VISTLE_PLUGIN");
         bool loadVistlePlugin = vistlePlugin;
-        loadVistlePlugin = coVRMSController::instance()->syncBool(loadVistlePlugin);
-        if (loadVistlePlugin)
+        m_loadVistlePlugin = coVRMSController::instance()->syncBool(loadVistlePlugin);
+        if (m_loadVistlePlugin)
         {
             loadFiles = false;
             m_visPlugin = coVRPluginList::instance()->addPlugin("Vistle");
@@ -712,14 +712,11 @@ bool OpenCOVER::init()
             m_startSession = ss.str();
             m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials});
         }
-        if (m_vrbCredentials)
-        {
+        if (m_vrbCredentials) {
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-        }
-        else
-        {
+        } else {
             hud->setText2("connecting");
             hud->setText3("to VRB");
         }
@@ -1545,7 +1542,29 @@ void OpenCOVER::startVrbc()
 
 void OpenCOVER::restartVrbc()
 {
-    if (m_vrbCredentials)
+    if (m_loadVistlePlugin) {
+        class PluginMessageSender : public covise::MessageSenderInterface {
+            coVRPlugin *m_plugin = nullptr;
+
+          public:
+            PluginMessageSender(coVRPlugin *plugin) : m_plugin(plugin) {}
+
+            bool sendMessage(const covise::Message *msg) const override {
+                return m_plugin->sendVisMessage(msg);
+            }
+
+            bool sendMessage(const UdpMessage *msg) const override {
+                return false;
+            }
+        };
+
+        auto sender = new PluginMessageSender(m_visPlugin);
+        m_vrbc.reset(new vrb::VRBClient(covise::Program::opencover, sender,
+                                        coVRMSController::instance()->isSlave(),
+                                        false));
+        m_startSession = "Vistle";
+    }
+    else if (m_vrbCredentials)
     {
         if (cover->debugLevel(2))
             std::cerr << "starting VRB client with credentials from memory" << std::endl;
@@ -1564,4 +1583,3 @@ bool OpenCOVER::isVRBconnected() const
 {
     return m_vrbc && m_vrbc->isConnected();
 }
-

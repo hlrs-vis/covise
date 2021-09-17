@@ -39,6 +39,7 @@ class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient, public covise::Messa
 public:
     VRBClient(covise::Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
     VRBClient(covise::Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
+    VRBClient(covise::Program p, covise::MessageSenderInterface *sender, bool isSlave = false, bool useUDP=false);
     ~VRBClient();
     bool connectToServer(std::string sessionName = "");
     bool completeConnection();
@@ -60,6 +61,7 @@ private:
     std::unique_ptr<covise::ClientConnection> sConn; // tcp connection to Server
     std::unique_ptr<covise::UDPConnection> udpConn; //udp connection to server
 
+    covise::MessageSenderInterface *m_sender = nullptr;
     VrbCredentials m_credentials;
     covise::Host *serverHost = nullptr;
     bool isSlave = false; // it true, we are a slave in a multiPC config, so do not actually connect to server
