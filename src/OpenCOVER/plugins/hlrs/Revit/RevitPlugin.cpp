@@ -2167,22 +2167,38 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> numSets;
 		for (int i = 0; i < numSets; i++)
 		{
-			RevitDesignOptionSet *set = new RevitDesignOptionSet();
-			designOptionSets.push_back(set);
-			set->DocumentID = documentID;
-			tb >> set->ID;
-			tb >> set->name;
-			int numDOs;
-			tb >> numDOs;
-			for(int n = 0; n < numDOs; n++)
-			{
-				RevitDesignOption DO(set);
-				tb >> DO.ID;
-				tb >> DO.name;
-				tb >> DO.visible;
-				set->designOptions.push_back(DO);
-			}
-			set->createSelectionList();
+			int setID;
+			std::string setName;
+			tb >> setID;
+            tb >> setName;
+            bool found = false;
+            for (const auto& s : designOptionSets)
+            {
+                if (s->ID == setID)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                RevitDesignOptionSet* set = new RevitDesignOptionSet();
+                designOptionSets.push_back(set);
+                set->DocumentID = documentID;
+                set->ID = setID;
+                set->name = setName;
+                int numDOs;
+                tb >> numDOs;
+                for (int n = 0; n < numDOs; n++)
+                {
+                    RevitDesignOption DO(set);
+                    tb >> DO.ID;
+                    tb >> DO.name;
+                    tb >> DO.visible;
+                    set->designOptions.push_back(DO);
+                }
+                set->createSelectionList();
+            }
 		}
 		break;
 	}

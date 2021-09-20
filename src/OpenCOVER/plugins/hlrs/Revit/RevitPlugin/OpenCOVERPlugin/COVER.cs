@@ -99,10 +99,11 @@ namespace OpenCOVERPlugin
 
         private System.Net.Sockets.TcpClient toCOVER;
         private Autodesk.Revit.DB.Options mOptions;
-        private Autodesk.Revit.DB.View3D View3D;
-        private String LinkedFileName="";
-        private Autodesk.Revit.DB.RevitLinkInstance CurrentLink=null;
-        private int LinkedDocumentID = 0;
+        public Autodesk.Revit.DB.View3D View3D;
+        public String LinkedFileName="";
+        public Autodesk.Revit.DB.RevitLinkInstance CurrentLink=null;
+        public int LinkedDocumentID = 0;
+        public List<Document> documentList=null;
         public int DocumentID = 0;
         private Autodesk.Revit.DB.Document document;
         private UIControlledApplication cApplication;
@@ -251,7 +252,9 @@ namespace OpenCOVERPlugin
         COVER()
         {
 
-            designOptionSets = new List<cDesignOptionSet>();
+
+           documentList = new List<Document>();
+        designOptionSets = new List<cDesignOptionSet>();
 
             phaseDict = new Dictionary<ElementId,int>();
 
@@ -382,6 +385,7 @@ namespace OpenCOVERPlugin
             document = doc;
             if (uidoc != null) // this is a child document don't clear
             {
+                designOptionSets.Clear();
                 MessageBuffer mbc = new MessageBuffer();
                 if (MaterialInfos == null)
                     MaterialInfos = new Dictionary<ElementId, bool>();
@@ -390,7 +394,6 @@ namespace OpenCOVERPlugin
                 mbc.add(1);
                 sendMessage(mbc.buf, MessageTypes.ClearAll);
             }
-            designOptionSets.Clear();
             //FilteredElementCollector collector = new FilteredElementCollector(doc);
             //collector.WhereElementIsElementType().OfClass(typeof(DesignOption));
 
@@ -960,6 +963,7 @@ namespace OpenCOVERPlugin
                     LinkedFileName = linkDoc.Title;
                     CurrentLink = link;
                     DocumentID = LinkedDocumentID++;
+                    documentList.Add(linkDoc);
                     COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, linkDoc);
                     DocumentID = 0;
                     LinkedFileName = "";
@@ -2773,12 +2777,15 @@ namespace OpenCOVERPlugin
                 case MessageTypes.Resend:
                     {
                         Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
-                    View3D = null;
-                    LinkedFileName = "";
-                    CurrentLink = null;
-                    LinkedDocumentID = 0;
-                    DocumentID = 0;
-                    COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
+                        View3D = null;
+                        LinkedFileName = "";
+                        CurrentLink = null;
+                        LinkedDocumentID = 0;
+                        DocumentID = 0;
+                        documentList.Clear();
+
+                        documentList.Add(doc);
+                        COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
 
                         ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
                         FilteredElementCollector FamilyCollector = new FilteredElementCollector(uidoc.Document);
@@ -3071,7 +3078,9 @@ namespace OpenCOVERPlugin
                     int docID = buf.readInt();
 
                     Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
-                    Autodesk.Revit.DB.Element elem = document.GetElement(id);
+                    Document selectedDoc = documentList[docID];
+
+                            Autodesk.Revit.DB.Element elem = selectedDoc.GetElement(id);
                     DesignOption des = (DesignOption)elem;
                     designoptionMod.SetSelection(des.Name);
                 }

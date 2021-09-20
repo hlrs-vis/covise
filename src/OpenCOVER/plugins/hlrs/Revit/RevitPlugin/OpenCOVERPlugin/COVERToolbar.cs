@@ -31,6 +31,14 @@ namespace OpenCOVERPlugin
 
                     //ElementDesignOptionFilter filter = new ElementDesignOptionFilter(activeOptId);
 
+                    COVER.Instance.View3D = null;
+                    COVER.Instance.LinkedFileName = "";
+                    COVER.Instance.CurrentLink = null;
+                    COVER.Instance.LinkedDocumentID = 0;
+                    COVER.Instance.DocumentID = 0;
+                    COVER.Instance.documentList.Clear();
+
+                    COVER.Instance.documentList.Add(commandData.Application.ActiveUIDocument.Document);
                     Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(commandData.Application.ActiveUIDocument.Document);
                     COVER.Instance.SendGeometry(collector./*WherePasses(filter).*/WhereElementIsNotElementType().GetElementIterator(), commandData.Application.ActiveUIDocument, commandData.Application.ActiveUIDocument.Document);
 
