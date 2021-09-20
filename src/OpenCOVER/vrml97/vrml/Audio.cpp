@@ -99,11 +99,15 @@ static AudioFileType audioFileType(const char *url, FILE *)
 #else
     char *suffix = strrchr((char *)url, '.');
     if (suffix)
+    {
         ++suffix;
 
     if (strcmp(suffix, "wav") == 0 || strcmp(suffix, "WAV") == 0)
         return AudioFile_WAV;
 
+    else
+        return AudioFile_UNKNOWN;
+    }
     else
         return AudioFile_UNKNOWN;
 #endif
