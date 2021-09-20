@@ -194,7 +194,7 @@ demo 65 "Jeremy" run_jeremy
 demo 66 "Infinities" cover /data/Labyrinth/labSoundNew.wrl
 demo 67 "Fendi" cover /data/FENDI/wrl/praesentation.wrl
 demo 68 "Benjamin virtual museum" cover /data/architekten/architekten/caveAEC/praesentation.wrl
-demo 69 "Gyjho Frank virtual museum" cover /data/visenso/Some_Demos_2014/Museum/museum_neu/plattform_k.WRL
+demo 69 "Gyjho Frank virtual museum" cover /data/visenso/Some_Demos_2014/museum_neu/plattform_k.WRL
 demo 70 "Gabi Bingula" cover /data/architekten/architekten/GABI/dist/praesentation.wrl
 
 # MISC
