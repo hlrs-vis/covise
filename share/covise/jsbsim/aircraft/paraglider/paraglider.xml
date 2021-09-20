@@ -47,7 +47,7 @@
     <location name="EYEPOINT" unit="IN">
       <x> 0 </x>
       <y> 0 </y>
-      <z> -330 </z>
+      <z> -230 </z>
     </location>
     <location name="VRP" unit="IN">
       <x> 0 </x>
@@ -71,7 +71,7 @@
       <location name="POINTMASS" unit="IN">
         <x>  1 </x>
         <y>  0 </y>
-        <z> -330 </z>
+        <z> -230 </z>
       </location>
     </pointmass>
   </mass_balance>
