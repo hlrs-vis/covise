@@ -1978,6 +1978,10 @@ RevitPlugin::handleMessage(Message *m)
 			delete pi->button;
 		}
 		phaseInfos.clear();
+		for (const auto &set: designOptionSets)
+			delete set;
+		designOptionSets.clear();
+		
 
 	}
 	break;
@@ -2156,9 +2160,6 @@ RevitPlugin::handleMessage(Message *m)
     }
 	case MSG_DesignOptionSets:
 	{
-		for (const auto &set: designOptionSets)
-			delete set;
-		designOptionSets.clear();
 		TokenBuffer tb(m);
 		int documentID;
 		tb >> documentID;
