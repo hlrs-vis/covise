@@ -380,6 +380,16 @@ namespace OpenCOVERPlugin
 
             // document might have changed so set it again.
             document = doc;
+            if (uidoc != null) // this is a child document don't clear
+            {
+                MessageBuffer mbc = new MessageBuffer();
+                if (MaterialInfos == null)
+                    MaterialInfos = new Dictionary<ElementId, bool>();
+                MaterialInfos.Clear();
+                mbc = new MessageBuffer();
+                mbc.add(1);
+                sendMessage(mbc.buf, MessageTypes.ClearAll);
+            }
             designOptionSets.Clear();
             //FilteredElementCollector collector = new FilteredElementCollector(doc);
             //collector.WhereElementIsElementType().OfClass(typeof(DesignOption));
@@ -444,15 +454,6 @@ namespace OpenCOVERPlugin
             }
             sendMessage(mb.buf, MessageTypes.DesignOptionSets);
 
-            if (uidoc !=null) // this is a child document don't clear
-            {
-                if (MaterialInfos == null)
-                    MaterialInfos = new Dictionary<ElementId, bool>();
-                MaterialInfos.Clear();
-                mb = new MessageBuffer();
-                mb.add(1);
-                sendMessage(mb.buf, MessageTypes.ClearAll);
-            }
             double ProjectNorthAngle = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero).Angle;
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);

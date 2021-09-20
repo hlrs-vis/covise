@@ -55,7 +55,6 @@
         <isParaglider value="off"/>
         <isSkateboard value="on"/>
    </Bicycle>
-   COVER.Plugin.JSBSim.Sound
    <JSBSim>
    <Sound  server="192.168.178.100"   />
    

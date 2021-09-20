@@ -178,7 +178,7 @@ void coBillboard::accept(NodeVisitor &nv)
                 osg::Matrix tmpMat;
                 if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
                 {
-                    tmpMat = *cs->getModelViewMatrix();
+                    tmpMat = *cs->getModelViewMatrix() * osg::Matrix::rotate(90,osg::Vec3(1,0,0));
                 }
                 else
                     tmpMat = (*cs->getModelViewMatrix() * cover->envCorrectMat);
@@ -204,13 +204,7 @@ void coBillboard::accept(NodeVisitor &nv)
                 Vec3 tmpVec2;
                 Vec3 tmpVec3;
                 tmpVec1.set(tmpMat(0, 0), tmpMat(0, 1), tmpMat(0, 2));
-                tmpVec1.set(tmpMat(0, 0), tmpMat(0, 1), tmpMat(0, 2));
-                tmpVec1.set(tmpMat(0, 0), tmpMat(0, 1), tmpMat(0, 2));
                 tmpVec2.set(tmpMat(1, 0), tmpMat(1, 1), tmpMat(1, 2));
-                tmpVec2.set(tmpMat(1, 0), tmpMat(1, 1), tmpMat(1, 2));
-                tmpVec2.set(tmpMat(1, 0), tmpMat(1, 1), tmpMat(1, 2));
-                tmpVec3.set(tmpMat(2, 0), tmpMat(2, 1), tmpMat(2, 2));
-                tmpVec3.set(tmpMat(2, 0), tmpMat(2, 1), tmpMat(2, 2));
                 tmpVec3.set(tmpMat(2, 0), tmpMat(2, 1), tmpMat(2, 2));
 
                 tmpVec1.normalize();

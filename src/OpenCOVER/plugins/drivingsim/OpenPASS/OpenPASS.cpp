@@ -195,7 +195,15 @@ simOpenPASS::~simOpenPASS()
 
 void simOpenPASS::run()
 {
+#ifdef WIN32
+    HRESULT r;
+    r = SetThreadDescription(
+        GetCurrentThread(),
+        L"simOpenPASSThread!"
+    );
+#else
     setThreadName("simOpenPASSThread");
+#endif
     delete runInstantiator;
     runInstantiator = new RunInstantiator(*configurationContainer,
         *frameworkModuleContainer,
