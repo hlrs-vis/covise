@@ -58,7 +58,7 @@ class Group;
 class FileBrowser;
 class Action;
 class SelectionList;
-};
+}
 class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public opencover::coVRMessageSender
 {
 public:

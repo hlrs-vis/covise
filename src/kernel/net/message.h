@@ -54,10 +54,10 @@ inline void swap_short_bytes(unsigned short *bytes, int no)
 }
 
 #else
-inline void swap_byte(unsigned int){};
-inline void swap_bytes(unsigned int *, int){};
-inline void swap_short_byte(unsigned short){};
-inline void swap_short_bytes(unsigned short *, int){};
+inline void swap_byte(unsigned int){}
+inline void swap_bytes(unsigned int *, int){}
+inline void swap_short_byte(unsigned short){}
+inline void swap_short_bytes(unsigned short *, int){}
 #endif
 
 class TokenBuffer;
