@@ -2199,6 +2199,20 @@ RevitPlugin::handleMessage(Message *m)
                 }
                 set->createSelectionList();
             }
+            else
+            {
+                int numDOs;
+                tb >> numDOs;
+                for (int n = 0; n < numDOs; n++)
+                {
+                int ID;
+                std::string DOName;
+                bool DOvisible;
+                    tb >> ID;
+                    tb >> DOName;
+                    tb >> DOvisible;
+                }
+            }
 		}
 		break;
 	}
