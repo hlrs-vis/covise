@@ -323,6 +323,7 @@ public:
     int DocumentID;
     void updateTexture(TextureInfo::textureType type, osg::Image *image);
     osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
+    bool isTransparent;
 };
 
 class PhaseInfo

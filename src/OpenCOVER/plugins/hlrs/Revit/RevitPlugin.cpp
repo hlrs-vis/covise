@@ -2540,7 +2540,7 @@ RevitPlugin::handleMessage(Message *m)
 				geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
 			}
 
-			if (a < 250)
+			if (a < 250 || (mi!=nullptr && mi->isTransparent))
 			{
 				geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 				geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
@@ -3544,20 +3544,25 @@ TextureInfo::TextureInfo(TokenBuffer & tb)
 	image = nullptr;
 }
 
-MaterialInfo::MaterialInfo(TokenBuffer & tb)
+MaterialInfo::MaterialInfo(TokenBuffer& tb)
 {
 	tb >> ID;
 	tb >> DocumentID;
 	diffuseTexture = new TextureInfo(tb);
-    diffuseTexture->type = TextureInfo::diffuse;
+	diffuseTexture->type = TextureInfo::diffuse;
 	bumpTexture = new TextureInfo(tb);
-    bumpTexture->type = TextureInfo::bump;
+	bumpTexture->type = TextureInfo::bump;
 	tb >> bumpTexture->amount;
 	r = diffuseTexture->r;
 	g = diffuseTexture->g;
 	b = diffuseTexture->b;
 	a = 255;
 	shader = NULL;
+	isTransparent = false;
+	if (diffuseTexture->image != nullptr)
+	{
+		isTransparent = diffuseTexture->image->isImageTranslucent();
+	}
 }
 
 void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * image)
@@ -3589,6 +3594,7 @@ void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * ima
         if(bumpTexture->image == NULL)
             shader = coVRShaderList::instance()->get("RevitDiffuse");
         diffuseTexture->image = image;
+		isTransparent = diffuseTexture->image->isImageTranslucent();
     }
     else if (type == TextureInfo::bump)
     {
