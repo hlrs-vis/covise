@@ -29,6 +29,7 @@ std::vector<const char *> stringVecToNullTerminatedCharVec(const std::vector<std
     return retval;
 }
 
+#ifdef _WIN32
 std::vector<std::string> updateEnvironment(const std::vector<const char *> &newEnv)
 {
     std::vector<std::string> tmpEnv;
@@ -63,6 +64,7 @@ std::vector<std::string> updateEnvironment(const std::vector<const char *> &newE
     }
     return tmpEnv;
 }
+#endif
 
 void covise::spawnProgram(const char *execPath, const std::vector<const char *> &args, const std::vector<const char *> &env)
 {
@@ -71,9 +73,10 @@ void covise::spawnProgram(const char *execPath, const std::vector<const char *> 
         print_error(__LINE__, __FILE__, "spawnProgram called with invalid args");
         return;
     }
-    auto newEnv = updateEnvironment(env);
 
 #ifdef _WIN32
+    auto newEnv = updateEnvironment(env);
+
     //_spawnvp(P_NOWAIT, execPath, const_cast<char *const *>(args.data()));
    
     //convert environment to null-terminated block of null-terminated char strings
@@ -121,7 +124,7 @@ void covise::spawnProgram(const char *execPath, const std::vector<const char *> 
                        &pi)                         // Pointer to PROCESS_INFORMATION structure
     )
     {
-        printf("Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), GetLastError());
+        fprintf(stderr, "Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), GetLastError());
     }
     else
     {
@@ -130,20 +133,31 @@ void covise::spawnProgram(const char *execPath, const std::vector<const char *> 
     }
 
 #else
-    int pid = fork();
-    if (pid == 0)
+    pid_t pid = fork();
+    if (pid == -1)
     {
-        auto newEnvChar = stringVecToNullTerminatedCharVec(newEnv);
-        execvpe(execPath, const_cast<char *const *>(args.data()), const_cast<char *const *>(newEnvChar.data()));
-        print_error(__LINE__, __FILE__, " exec of \"%s\" failed %s", execPath, strerror(errno));
-        exit(1);
+        // parent: error
+        std::cerr << "forking for executing " << execPath << " failed: " << strerror(errno) << std::endl;
+        return;
     }
-    else
+    else if (pid > 0)
     {
-        // Needed to prevent zombies
-        // if childs terminate
-        signal(SIGCHLD, SIG_IGN);
+        // parent: all good
+        // FIXME: this is a surprising side-effect of forking a child process
+        signal(SIGCHLD, SIG_IGN); // Needed to prevent zombies if childs terminate
+        return;
     }
+
+    // child
+    for (auto &v: env)
+    {
+        if (!v)
+            break;
+        putenv(const_cast<char *>(v));
+    }
+    execvp(execPath, const_cast<char * const *>(args.data()));
+    std::cerr << "executing " << execPath << " failed: " << strerror(errno) << std::endl;
+    exit(1);
 #endif
 }
 
