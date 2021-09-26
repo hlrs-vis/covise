@@ -9,6 +9,9 @@
         <FileType name="top" plugin="Amber" />
         <FileType name="trj" plugin="Amber" />
         <FileType name="bvh" plugin="Lamure" />
+        <FileType name="ifc" plugin="IFC" />
+        <FileType name="stp" plugin="IFC" />
+        <FileType name="step" plugin="IFC" />
         
         <FileType name="bpadxf" plugin="BPA" />
         <FileType name="nfi" plugin="BPA" />

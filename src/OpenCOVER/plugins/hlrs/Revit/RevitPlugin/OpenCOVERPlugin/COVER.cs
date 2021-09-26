@@ -912,11 +912,16 @@ namespace OpenCOVERPlugin
             {
                 //if(elem.Category.CategoryType != CategoryType.Model)
                 //{
-
+                try {                     
                     if (!elem.Category.get_Visible(View3D as Autodesk.Revit.DB.View))
                     {
                         return;
                     }
+                }
+                catch
+                {
+
+                }
                 //}
             }
             if (elem is Autodesk.Revit.DB.ImportInstance)
