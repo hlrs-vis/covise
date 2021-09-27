@@ -14,12 +14,12 @@ git clone https://github.com/randombit/botan
 cd botan 
 python configure.py --cc=msvc --os=windows --debug-mode --msvc-runtime=MDd --library-suffix=d --prefix=C:\src\externlibs\zebu\botan\debug
 nmake
-namke check
-namake install
+nmake check
+nmake install
 python configure.py --cc=msvc --os=windows --msvc-runtime=MD --prefix=C:\src\externlibs\zebu\botan\release
 nmake
-namke check
-namake install
+nmake check
+nmake install
 
 
 #ZLIB
