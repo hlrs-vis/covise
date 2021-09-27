@@ -698,9 +698,9 @@ BorePlugin::~BorePlugin()
     Bore_map.clear();
 	delete BoreHolesVisible;
     delete BoreTab;
-	if(BoreGroup->getParent(0))
+	while(BoreGroup.get() && BoreGroup->getNumParents())
 	{
-		BoreGroup->getParent(0)->removeChild(BoreGroup);
+		BoreGroup->getParent(0)->removeChild(BoreGroup.get());
 	}
 }
 
