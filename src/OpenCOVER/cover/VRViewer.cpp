@@ -1902,7 +1902,13 @@ void VRViewer::frame()
 
     double startFrame = elapsedTime();
     if (mustDraw())
+    {
         osgViewer::Viewer::frame(cover->frameTime());
+    }
+    else
+    {
+        coVRPluginList::instance()->clusterSyncDraw();
+    }
     if (getViewerStats()->collectStats("frame"))
     {
         double endFrame = elapsedTime();
