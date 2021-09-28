@@ -44,7 +44,7 @@ void Sound::resend()
             covise::TokenBuffer tb;
             tb << (int)SoundMessages::SOUND_NEW_SOUND;
             tb << fileName;
-            tb << fileSize;
+            tb << (uint32_t)fileSize;
             tb << fileTime;
             client->send(tb);
             covise::Message* m = client->receiveMessage();
@@ -77,12 +77,17 @@ void Sound::resend()
 #else
                     int fd = open(fileName.c_str(), O_RDONLY);
 #endif
-                    size_t sr = read(fd, fileBuf, fileSize);
+                    ssize_t sr = read(fd, fileBuf, fileSize);
+                    if (sr == -1)
+                    {
+                        cerr << "could not read sound file: " << strerror(errno) << endl;
+                        sr = 0;
+                    }
                     if (sr != fileSize)
                     {
                         cerr << "could not read sound file: expected " << fileSize << " but read " << sr << endl;
                     }
-                    ftb << sr;
+                    ftb << (uint32_t)sr;
                     ftb << fileTime;
                     ftb.addBinary(fileBuf, sr);
                     client->send(ftb);
