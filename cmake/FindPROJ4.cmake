@@ -11,15 +11,16 @@ ENDIF(PROJ4_INCLUDE_DIR)
 
 FIND_PATH(PROJ4_INCLUDE_DIR "proj_api.h"
   PATHS
-  $ENV{EXTERNLIBS}/proj4/include
-  ~/Library/Frameworks/include
-  /Library/Frameworks/include
-  /usr/local/include
-  /usr/include
-  /sw/include # Fink
-  /opt/local/include # DarwinPorts
-  /opt/csw/include # Blastwave
-  /opt/include
+  $ENV{EXTERNLIBS}/proj4
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
+  PATH_SUFFIXES include
   DOC "PROJ4 - Headers"
 )
 
