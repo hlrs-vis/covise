@@ -11,18 +11,19 @@ ENDIF(OPENCRG_INCLUDE_DIR)
 
 FIND_PATH(OPENCRG_INCLUDE_DIR "crgBaseLib.h"
   PATHS
-  $ENV{OPENCRG_HOME}/include
-  $ENV{EXTERNLIBS}/OpenCRG/include
-  $ENV{EXTERNLIBS}/opencrg/include
-  $ENV{EXTERNLIBS}/opencrg/1.1.2/include
-  ~/Library/Frameworks/include
-  /Library/Frameworks/include
-  /usr/local/include
-  /usr/include
-  /sw/include # Fink
-  /opt/local/include # DarwinPorts
-  /opt/csw/include # Blastwave
-  /opt/include
+  $ENV{OPENCRG_HOME}
+  $ENV{EXTERNLIBS}/OpenCRG
+  $ENV{EXTERNLIBS}/opencrg
+  $ENV{EXTERNLIBS}/opencrg/1.1.2
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+  /opt
+  PATH_SUFFIXES include inc
   DOC "OpenCRG - Headers"
 )
 
