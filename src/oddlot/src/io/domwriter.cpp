@@ -1419,7 +1419,7 @@ DomWriter::visit(Lane *lane)
     {
         if (currentRightLaneElement_.isNull())
         {
-            currentRightLaneElement_ = doc_->createElement("right");
+            currentRightLaneElement_ = doc_->createElement("left");
             currentLaneSectionElement_.appendChild(currentRightLaneElement_);
         }
         currentLaneElement_ = doc_->createElement("lane");
@@ -1439,7 +1439,7 @@ DomWriter::visit(Lane *lane)
     {
         if (currentLeftLaneElement_.isNull())
         {
-            currentLeftLaneElement_ = doc_->createElement("left");
+            currentLeftLaneElement_ = doc_->createElement("right");
             currentLaneSectionElement_.appendChild(currentLeftLaneElement_);
         }
         currentLaneElement_ = doc_->createElement("lane");
@@ -1447,7 +1447,7 @@ DomWriter::visit(Lane *lane)
     }
     currentLaneElement_.setAttribute("id", lane->getId());
     currentLaneElement_.setAttribute("type", Lane::parseLaneTypeBack(lane->getLaneType()));
-    currentLaneElement_.setAttribute("level", lane->getLevel());
+    currentLaneElement_.setAttribute("level", lane->getLevel() ? "true" : "false");
 
     // <lane><link><predecessor/successor> //
     //
