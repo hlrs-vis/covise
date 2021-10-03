@@ -11,15 +11,12 @@ ENDIF(EIGEN_INCLUDE_DIR)
 
 FIND_PATH(EIGEN_INCLUDE_DIR "Eigen/Eigen"
   PATHS
-  $ENV{EXTERNLIBS}/eigen/include
+  $ENV{EXTERNLIBS}/eigen
   ~/Library/Frameworks
   /Library/Frameworks
-  /usr/local/include/eigen3
-  /usr/local/include/eigen
-  /usr/local/include
-  /usr/include/eigen3
-  /usr/include/eigen
-  /usr/include
+  /usr/local
+  /usr
+  PATH_SUFFIXES include/eigen3 include/eigen include
   DOC "EIGEN - Headers"
 )
 
