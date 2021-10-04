@@ -28,13 +28,32 @@ int main(int argc, char **argv)
 {
     covise::setupEnvironment(argc, argv);
     bool gui = true;
+    bool help = false;
     for (size_t i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "--console")==0)
         {
             gui = false;
         }
+        if (strcmp(argv[i], "--tui")==0)
+        {
+            gui = false;
+        }
+        if (strcmp(argv[i], "--help")==0)
+        {
+            help = true;
+        }
     }
+    if (help)
+    {
+        std::cerr << argv[0] << " [--help|--console|--tui]" << std::endl;
+        std::cerr << "  --help:        print this message" << std::endl;
+        std::cerr << "  --tui:         use text user interface" << std::endl;
+        std::cerr << "  --console:     use text user interface" << std::endl;
+
+        return 0;
+    }
+
     if (gui)
     {
 		QApplication a(argc, argv);
