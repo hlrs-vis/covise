@@ -23,12 +23,12 @@ IMPL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, HandlePartners,
 
 TokenBuffer &operator<<(TokenBuffer &tb, const ClientInfo &cl)
 {
-    tb << cl.id << cl.hostName << cl.style;
+    tb << cl.id << cl.hostName << cl.userName << cl.style;
     return tb;
 }
 TokenBuffer &operator>>(TokenBuffer &tb, ClientInfo &cl)
 {
-    tb >> cl.id >> cl.hostName >> cl.style;
+    tb >> cl.id >> cl.hostName >> cl.userName >> cl.style;
     return tb;
 }
 

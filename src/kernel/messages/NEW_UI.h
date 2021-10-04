@@ -43,6 +43,7 @@ namespace covise{
     {
         int id;
         std::string hostName;
+        std::string userName;
         LaunchStyle style;
 };
 

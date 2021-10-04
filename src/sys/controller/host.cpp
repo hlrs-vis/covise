@@ -517,7 +517,7 @@ void HostManager::sendPartnerList() const
     {
         if (host.first != m_localHost->first)
         {
-            clients.push_back(ClientInfo{host.second->ID(), host.second->userInfo().hostName, host.second->state()});
+            clients.push_back(ClientInfo{host.second->ID(), host.second->userInfo().hostName, host.second->userInfo().userName, host.second->state()});
         }
     }
     NEW_UI_AvailablePartners p{std::move(clients)};

@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <sstream>
 
 using namespace covise;
 bool enablePartnerObtions(covise::LaunchStyle partnerStyle, covise::LaunchStyle action) //enable disconnect of host or partner, enable partner + host if disconnect
@@ -20,12 +21,14 @@ ClientWidget::ClientWidget(const covise::ClientInfo &partner, QWidget *parent)
 {
 
     this->setMaximumHeight(60);
-    QString s = partner.hostName.c_str();
-    s += ", id:" + QString::number(partner.id);
+
+    std::stringstream ss;
+    ss << partner.userName << "@" << partner.hostName <<
+    ", id: " << partner.id;
 
     auto *layout = new QVBoxLayout(this);
     layout->setDirection(QVBoxLayout::LeftToRight);
-    auto *content = new QLabel(s, this);
+    auto *content = new QLabel(ss.str().c_str(), this);
     layout->addWidget(content, 0, Qt::AlignTop);
 
     if (partner.style == LaunchStyle::Disconnect)
