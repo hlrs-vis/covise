@@ -10,6 +10,7 @@
 
 #include <QVector>
 #include <QTreeWidgetItem>
+#include <vrb/UserInfo.h>
 
 namespace covise
 {
@@ -48,12 +49,12 @@ class MEHost
 {
 
 public:
-    MEHost(int clientId, const std::string &name, const std::string & user);
+    MEHost(int clientId, const vrb::UserInfo &hostInfo);
     ~MEHost();
     int clientId() const;
     void setClientId(int clientID);
     QVector<MECategory *> catList; // list of categories
-    QVector<MEHost *> mirrorList; // list of hosts for mirroring
+    QVector<MEHost *> mirrorList;  // list of hosts for mirroring
 
     bool hasGUI()
     {
@@ -91,30 +92,12 @@ public:
     {
         return hostcolor;
     };
-    QString getUsername()
-    {
-        return username;
-    };
-    QString getDNSHostname()
-    {
-        return hostname;
-    }
-    QString getText()
-    {
-        return text;
-    }
-    QTreeWidgetItem *getModuleRoot()
-    {
-        return modroot;
-    };
-    QString getIPAddress()
-    {
-        return ipname;
-    };
-    QString getHostname()
-    {
-        return hostname;
-    };
+    QString getUsername();
+    QString getDNSHostname();
+    QString getText();
+    QTreeWidgetItem *getModuleRoot();
+    QString getIPAddress();
+    QString getHostname();
 
     MEDaemon *getDaemon()
     {
@@ -130,8 +113,8 @@ public:
 
 private:
     static int numHosts; // no. of hosts
-    bool gui = false; // host has an user interface
-    int numNo = -1; // no. of parallel nodes, normally 1
+    bool gui = false;    // host has an user interface
+    int numNo = -1;      // no. of parallel nodes, normally 1
 
     void init();
 
@@ -141,10 +124,7 @@ private:
     QAction *m_hostAction, *m_copyMoveAction;
     QMenu *m_categoryMenu;
     QPixmap m_icon;
-    QString text; // text in lists
-    QString hostname; // full hostname
-    QString username; // user id, not used
-    QString ipname; // ip address
+    const vrb::UserInfo m_hostInfo;
     QColor hostcolor; // current color for host
     MEHostTreeItem *modroot;
     int m_clientId = 0;

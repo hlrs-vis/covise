@@ -45,7 +45,7 @@ bool CRBModule::init()
     auto &moduleMsg = uiMsg.unpackOrCast<NEW_UI_AvailableModules>();
     
     checkCoviseVersion(moduleMsg.coviseVersion, getHost());
-    initMessage = NEW_UI_PartnerInfo{host.ID(), getHost(), host.userInfo().userName, moduleMsg.coviseVersion, moduleMsg.modules, moduleMsg.categories}.createMessage();
+    initMessage = NEW_UI_PartnerInfo{host.ID(), host.userInfo(), moduleMsg.coviseVersion, moduleMsg.modules, moduleMsg.categories}.createMessage();
 
     tryReceiveMessage(interfaceMessage);
     queryDataPath();

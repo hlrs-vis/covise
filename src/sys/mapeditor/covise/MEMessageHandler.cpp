@@ -1137,7 +1137,7 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
     case NEW_UI_TYPE::PartnerInfo:
     {
         auto &p = msg.unpackOrCast<NEW_UI_PartnerInfo>();
-        MEMainHandler::instance()->initHost(p.clientId, p.ipAddress, p.userName, p.modules, p.categories);
+        MEMainHandler::instance()->initHost(p.clientId, p.partnerInfo, p.modules, p.categories);
     }
     break;
     case NEW_UI_TYPE::HandlePartners:

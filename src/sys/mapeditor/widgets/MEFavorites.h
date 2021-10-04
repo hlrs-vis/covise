@@ -22,7 +22,7 @@ class MEFavorites : public QToolButton
     Q_OBJECT
 
 public:
-    MEFavorites(QWidget *parent = 0, QString sname = QString::null);
+    MEFavorites(QWidget *parent = 0, QString sname = QString{});
     ~MEFavorites();
 
     void setModuleName(const QString &);

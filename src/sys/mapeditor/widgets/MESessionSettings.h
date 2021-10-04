@@ -24,7 +24,7 @@ class MESessionSettings : public QDialog
     Q_OBJECT
 
 public:
-    MESessionSettings(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    MESessionSettings(QWidget *parent = 0, Qt::WindowFlags f = Qt::WindowFlags{});
     ~MESessionSettings();
 
 private:

@@ -55,7 +55,6 @@ TokenBuffer &vrb::operator<<(TokenBuffer &tb, const UserInfo &userInfo)
     return tb;
 }
 
-
 std::ostream &vrb::operator<<(std::ostream &os, const UserInfo &userInfo)
 {
     os << "name:     " << userInfo.userName << std::endl;

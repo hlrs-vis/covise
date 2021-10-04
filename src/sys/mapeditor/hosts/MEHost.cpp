@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-
 #include <QMenu>
 
 #include <net/covise_host.h>
@@ -15,14 +14,12 @@
 
 #include "MEDaemon.h"
 #include "MEHost.h"
-#include "widgets/MEGraphicsView.h"
-#include "widgets/MEUserInterface.h"
-#include "widgets/MEModuleTree.h"
+#include "dataObjects/MEDataTree.h"
 #include "handler/MEMainHandler.h"
 #include "nodes/MECategory.h"
-#include "dataObjects/MEDataTree.h"
-
-;
+#include "widgets/MEGraphicsView.h"
+#include "widgets/MEModuleTree.h"
+#include "widgets/MEUserInterface.h"
 
 int MEHost::numHosts = 0; // no. of hosts
 
@@ -32,8 +29,7 @@ int MEHost::numHosts = 0; // no. of hosts
 */
 
 MEHostTreeItem::MEHostTreeItem(MEHost *h, QTreeWidget *view, int type)
-    : QTreeWidgetItem(view, type)
-    , m_host(h)
+    : QTreeWidgetItem(view, type), m_host(h)
 {
 }
 
@@ -46,23 +42,11 @@ MEHostTreeItem::~MEHostTreeItem()
    \brief This class handles the hosts for a Covise session
 */
 
-MEHost::MEHost(int clientId,const std::string &name, const std::string & user)
-    : m_clientId(clientId)
-    , username(user.c_str())
-    , ipname(name.c_str())
+MEHost::MEHost(int clientId, const vrb::UserInfo &hostInfo)
+    : m_clientId(clientId), m_hostInfo(hostInfo)
 {
-
-// get the real hostname for ip address  (visrl.rrz.uni-koeln.de)
-    hostname = QString::fromStdString(covise::Host::lookupHostname(name.c_str()));
-
-    // make name for lists
-    text = hostname;
-    text.prepend("@");
-    text.prepend(username);
-
     init();
 }
-
 
 MEHost::~MEHost()
 {
@@ -108,7 +92,7 @@ void MEHost::init()
     hostcolor.getHsv(&hue, &s, &v);
     QColor color_dark;
     color_dark.setHsv(hue, 255, v);
-
+    QString text = getText();
     // make root entry in data tree
     dataroot = new MEDataTreeItem(MEDataTree::instance(), text, hostcolor);
     QBrush brush(color_dark, Qt::SolidPattern);
@@ -126,8 +110,8 @@ void MEHost::init()
     // set an action for this host
     // used by node menu for move to/copy to
     m_categoryMenu = new QMenu(0);
-    m_hostAction = new QAction(username + "@" + hostname, 0);
-    m_copyMoveAction = new QAction(username + "@" + hostname, 0);
+    m_hostAction = new QAction(text, 0);
+    m_copyMoveAction = new QAction(text, 0);
     QObject::connect(m_hostAction, SIGNAL(hovered()), MEGraphicsView::instance(), SLOT(hoveredHostCB()));
     QObject::connect(m_copyMoveAction, SIGNAL(triggered()), MEGraphicsView::instance(), SLOT(triggeredHostCB()));
     m_hostAction->setMenu(m_categoryMenu);
@@ -137,6 +121,32 @@ void MEHost::init()
     m_hostAction->setData(var);
     m_copyMoveAction->setData(var);
 }
+
+QString MEHost::getUsername()
+{
+    return m_hostInfo.userName.c_str();
+};
+QString MEHost::getDNSHostname()
+{
+    return m_hostInfo.hostName.c_str();
+}
+QString MEHost::getText()
+{
+    return (m_hostInfo.userName + "@" + m_hostInfo.hostName).c_str();
+    ;
+}
+QTreeWidgetItem *MEHost::getModuleRoot()
+{
+    return modroot;
+};
+QString MEHost::getIPAddress()
+{
+    return m_hostInfo.ipAdress.c_str();
+};
+QString MEHost::getHostname()
+{
+    return m_hostInfo.hostName.c_str();
+};
 
 //!
 //!  add categories and modulenames coming from controller
@@ -167,7 +177,6 @@ void MEHost::setGUI(bool state)
 
     modroot->setIcon(0, m_icon);
 }
-
 
 //!
 //!  get the category pointer for a certain name on a host
