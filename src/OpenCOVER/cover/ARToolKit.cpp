@@ -520,7 +520,7 @@ void ARToolKit::update()
                 {
                     if (currentMarker->isVisible())
                     {
-                        if (currentMarker->calibrate->getState())
+                        if (currentMarker->calibrate !=nullptr && currentMarker->calibrate->getState())
                         {
                             doCallibration = true;
                         }
