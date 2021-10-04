@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-using namespace vrb;
+using namespace covise;
 
 ClientWidget::ClientWidget(int clientID, const QString &clientInfo, QWidget *parent)
     : QWidget(parent), m_clientID(clientID)

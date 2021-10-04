@@ -20,7 +20,7 @@
 #include <util/coSignal.h>
 #include <util/coSpawnProgram.h>
 #include <vrb/PrintClientList.h>
-#include <vrb/ProgramType.h>
+#include <net/program_type.h>
 #include <vrb/SessionID.h>
 #include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
@@ -48,27 +48,27 @@ CoviseDaemon::~CoviseDaemon()
     }
 }
 
-void CoviseDaemon::connect(const vrb::VrbCredentials &credentials)
+void CoviseDaemon::connect(const VrbCredentials &credentials)
 {
 
     m_shouldBeConnected = true;
     {
         Guard g{m_mutex};
-        m_credentials.reset(new vrb::VrbCredentials(credentials));
+        m_credentials.reset(new VrbCredentials(credentials));
         m_newCredentials = true;
         m_clientList.clear();
     }
     if (!m_thread)
     {
         qRegisterMetaType<covise::Message>();
-        qRegisterMetaType<vrb::Program>();
+        qRegisterMetaType<covise::Program>();
         QObject::connect(this, &CoviseDaemon::receivedVrbMsg, this, &CoviseDaemon::handleVRB);
         m_thread.reset(new std::thread([this]()
                                        {
-                                           qRegisterMetaType<vrb::Program>();
+                                           qRegisterMetaType<covise::Program>();
                                            qRegisterMetaType<std::vector<std::string>>();
                                            qRegisterMetaType<covise::Message>();
-                                           qRegisterMetaType<vrb::Program>();
+                                           qRegisterMetaType<covise::Program>();
 
                                            loop();
                                        }));
@@ -87,10 +87,10 @@ void CoviseDaemon::disconnect()
 void CoviseDaemon::printClientInfo()
 {
     Guard g{m_mutex};
-    std::vector<const vrb::RemoteClient *> partner;
+    std::vector<const RemoteClient *> partner;
     for (const auto &cl : m_clientList)
     {
-        if (cl.userInfo().userType == vrb::Program::coviseDaemon)
+        if (cl.userInfo().userType == covise::Program::coviseDaemon)
         {
             partner.push_back(&cl);
         }
@@ -105,12 +105,12 @@ void CoviseDaemon::printClientInfo()
     }
 }
 
-void CoviseDaemon::spawnProgram(Program p, const std::vector<std::string> &args)
+void CoviseDaemon::spawnProgram(covise::Program p, const std::vector<std::string> &args)
 {
     static int numStarts = 0;
     ++numStarts;
-    QString name = QString(vrb::programNames[p]) + "_" + QString::number(numStarts);
-    auto child = m_children.emplace(programNames[p], args);
+    QString name = QString(covise::programNames[p]) + "_" + QString::number(numStarts);
+    auto child = m_children.emplace(covise::programNames[p], args);
     auto &c = *child.first;
     QObject::connect(&*child.first, &ChildProcess::output, this, [name, this](const QString &output)
                      { emit childProgramOutput(name, output); });
@@ -121,13 +121,13 @@ void CoviseDaemon::spawnProgram(Program p, const std::vector<std::string> &args)
                      });
 }
 
-void CoviseDaemon::sendLaunchRequest(Program p, int clientID, const std::vector<std::string> &args)
+void CoviseDaemon::sendLaunchRequest(covise::Program p, int clientID, const std::vector<std::string> &args)
 {
-    vrb::VRB_MESSAGE m{m_client->ID(), p, clientID, std::vector<std::string>{}, args, 0};
-    vrb::sendLaunchRequestToRemoteLaunchers(m, m_client.get());
+    VRB_MESSAGE m{m_client->ID(), p, clientID, std::vector<std::string>{}, args, 0};
+    sendLaunchRequestToRemoteLaunchers(m, m_client.get());
 }
 
-void CoviseDaemon::answerPermissionRequest(vrb::Program p, int clientID, bool answer)
+void CoviseDaemon::answerPermissionRequest(covise::Program p, int clientID, bool answer)
 {
     if (m_receivedLaunchRequest)
     {
@@ -158,7 +158,7 @@ void CoviseDaemon::loop()
                 Guard g(m_mutex);
                 if (m_newCredentials)
                 {
-                    m_client.reset(new VRBClient{vrb::Program::coviseDaemon, *m_credentials});
+                    m_client.reset(new VRBClient{covise::Program::coviseDaemon, *m_credentials});
                     m_newCredentials = false;
                 }
             }
@@ -206,7 +206,7 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         for (auto &cl : uim.otherClients)
         {
             assert(findClient(cl.ID()) == m_clientList.end());
-            if (cl.userInfo().userType == vrb::Program::coviseDaemon)
+            if (cl.userInfo().userType == covise::Program::coviseDaemon)
             {
                 emit updateClient(cl.ID(), getClientInfo(cl));
             }
@@ -264,13 +264,13 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         case VRB_PERMIT_LAUNCH_TYPE::Answer:
         {
             auto &answer = p.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
-            auto launchRequest = std::find_if(m_sentLaunchRequests.begin(), m_sentLaunchRequests.end(), [this, &answer](const std::unique_ptr<vrb::VRB_MESSAGE> &request)
+            auto launchRequest = std::find_if(m_sentLaunchRequests.begin(), m_sentLaunchRequests.end(), [this, &answer](const std::unique_ptr<VRB_MESSAGE> &request)
                                               { return request->clientID == answer.launcherID && answer.requestorID == m_client->ID(); });
             if (launchRequest != m_sentLaunchRequests.end())
             {
                 if (answer.permit)
                 {
-                    vrb::VRB_MESSAGE v{launchRequest->get()->senderID, launchRequest->get()->program, launchRequest->get()->clientID, launchRequest->get()->environment, launchRequest->get()->args, answer.code};
+                    VRB_MESSAGE v{launchRequest->get()->senderID, launchRequest->get()->program, launchRequest->get()->clientID, launchRequest->get()->environment, launchRequest->get()->args, answer.code};
                     sendLaunchRequestToRemoteLaunchers(v, m_client.get());
                 }
                 m_sentLaunchRequests.erase(launchRequest);
@@ -319,7 +319,7 @@ bool CoviseDaemon::removeOtherClient(covise::TokenBuffer &tb)
         auto cl = findClient(id);
         if (cl != m_clientList.end())
         {
-            if (cl->userInfo().userType == vrb::Program::coviseDaemon)
+            if (cl->userInfo().userType == covise::Program::coviseDaemon)
             {
                 emit removeClient(id);
             }
@@ -330,16 +330,16 @@ bool CoviseDaemon::removeOtherClient(covise::TokenBuffer &tb)
     return false;
 }
 
-std::set<vrb::RemoteClient>::iterator CoviseDaemon::findClient(int id)
+std::set<RemoteClient>::iterator CoviseDaemon::findClient(int id)
 {
-    return std::find_if(m_clientList.begin(), m_clientList.end(), [id](const vrb::RemoteClient &client)
+    return std::find_if(m_clientList.begin(), m_clientList.end(), [id](const RemoteClient &client)
                         { return id == client.ID(); });
 }
 
 void CoviseDaemon::handleVrbLauncherMessage(const covise::Message &msg)
 {
     m_receivedLaunchRequest = nullptr;
-    auto lrq = std::unique_ptr<vrb::VRB_MESSAGE>{new vrb::VRB_MESSAGE{msg}};
+    auto lrq = std::unique_ptr<VRB_MESSAGE>{new VRB_MESSAGE{msg}};
     if (lrq->clientID != m_client->ID())
     {
         return;
@@ -360,16 +360,16 @@ void CoviseDaemon::handleVrbLauncherMessage(const covise::Message &msg)
     }
 }
 
-void CoviseDaemon::ask(vrb::Program p, int clientID)
+void CoviseDaemon::ask(covise::Program p, int clientID)
 {
     auto cl = findClient(clientID);
     QString desc;
     QTextStream ts{&desc};
-    ts << cl->userInfo().userName.c_str() << "@" << cl->userInfo().hostName.c_str() << " requests to launch " << vrb::programNames[p] << ":\n";
+    ts << cl->userInfo().userName.c_str() << "@" << cl->userInfo().hostName.c_str() << " requests to launch " << covise::programNames[p] << ":\n";
     emit askForPermission(p, clientID, desc);
 }
 
-QString getClientInfo(const vrb::RemoteClient &cl)
+QString getClientInfo(const RemoteClient &cl)
 {
     QString s;
     QTextStream ss(&s);
@@ -378,13 +378,13 @@ QString getClientInfo(const vrb::RemoteClient &cl)
     return s;
 }
 
-CoviseDaemon::ProgramToLaunch::ProgramToLaunch(vrb::Program p, int requestorId)
+CoviseDaemon::ProgramToLaunch::ProgramToLaunch(covise::Program p, int requestorId)
     : m_p(p), m_requestorId(requestorId)
 {
     m_code = QRandomGenerator::system()->generate();
 }
 
-CoviseDaemon::ProgramToLaunch::ProgramToLaunch(vrb::Program p, int requestorId, int code)
+CoviseDaemon::ProgramToLaunch::ProgramToLaunch(covise::Program p, int requestorId, int code)
     : m_p(p), m_requestorId(requestorId), m_code(code)
 {
 }

@@ -1,24 +1,20 @@
 set(VRB_SOURCES
     PrintClientList.cpp
-    ProgramType.cpp
     Registry.cpp
     RegistryClass.cpp
     RegistryVariable.cpp
     RemoteClient.cpp
     SessionID.cpp	
-    UserInfo.cpp
     VrbSetUserInfoMessage.cpp
 )
 
 set(VRB_HEADERS
     PrintClientList.h
-    ProgramType.h
     Registry.h
     RegistryClass.h
     RegistryVariable.h
     RemoteClient.h
     SessionID.h
-    UserInfo.h
     VrbSetUserInfoMessage.h
 )
 

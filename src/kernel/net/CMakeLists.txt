@@ -20,9 +20,11 @@ SET(NET_SOURCES
   dataHandle.cpp
   message.cpp
   message_sender_interface.cpp
+  program_type.cpp
   tokenbuffer.cpp
   tokenbuffer_serializer.cpp
   udpMessage.cpp
+  userinfo.cpp
 )
 
 SET(NET_HEADERS
@@ -34,12 +36,13 @@ SET(NET_HEADERS
   message_macros.h
   message_sender_interface.h
   message_types.h
+  program_type.h
   tokenbuffer.h
   tokenbuffer_serializer.h
   tokenbuffer_util.h
   udpMessage.h
   udp_message_types.h
-
+  userinfo.h
 )
 
 ADD_COVISE_LIBRARY(coNet ${COVISE_LIB_TYPE} ${NET_SOURCES} ${NET_HEADERS})

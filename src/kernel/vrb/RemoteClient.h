@@ -5,7 +5,7 @@
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
 #include <vrb/SessionID.h>
-#include <vrb/UserInfo.h>
+#include <net/userinfo.h>
 
 #include <string>
 #include <memory>
@@ -16,7 +16,7 @@ namespace vrb
 class VRBEXPORT RemoteClient
 {
 public:
-    RemoteClient(Program type, const std::string& sessionName = ""); //constructs a client with local information
+    RemoteClient(covise::Program type, const std::string& sessionName = ""); //constructs a client with local information
     RemoteClient(covise::TokenBuffer &tb); //constructs real remote client
     RemoteClient(RemoteClient &&other) = default;
     RemoteClient(const RemoteClient &other) = delete;
@@ -28,7 +28,7 @@ public:
     void setID(int id);
     virtual const vrb::SessionID &sessionID() const;
     virtual void setSession(const vrb::SessionID &g);
-    const UserInfo &userInfo() const;
+    const covise::UserInfo &userInfo() const;
     virtual void setMaster(int clientID);
     bool isMaster() const;
 
@@ -36,7 +36,7 @@ public:
 protected:
     int m_id = 0;
     SessionID m_session;
-    UserInfo m_userInfo;
+    covise::UserInfo m_userInfo;
 
 };
 

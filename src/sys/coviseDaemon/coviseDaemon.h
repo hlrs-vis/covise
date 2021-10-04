@@ -11,7 +11,7 @@
 #include "childProcess.h"
 #include "metaTypes.h"
 
-#include <vrb/ProgramType.h>
+#include <net/program_type.h>
 #include <vrb/client/VrbCredentials.h>
 #include <vrb/client/VRBClient.h>
 #include <vrb/client/LaunchRequest.h>
@@ -37,8 +37,8 @@ public:
     void disconnect();
     void printClientInfo();
 public slots:
-    void sendLaunchRequest(vrb::Program p, int clientID, const std::vector<std::string> &args = std::vector<std::string>{});
-    void answerPermissionRequest(vrb::Program p, int clientID, bool answer); 
+    void sendLaunchRequest(covise::Program p, int clientID, const std::vector<std::string> &args = std::vector<std::string>{});
+    void answerPermissionRequest(covise::Program p, int clientID, bool answer); 
 signals:
     void connectedSignal();
     void disconnectedSignal();
@@ -47,8 +47,8 @@ signals:
     void childProgramOutput(const QString &child, const QString &output);
     void childTerminated(const QString &child);
     void receivedVrbMsg(const covise::Message &msg);
-    void askForPermission(vrb::Program p, int clientID, const QString &description); //must call answerPermissionRequest
-    void askForPermissionAbort(vrb::Program p, int clientID); //must call answerPermissionRequest
+    void askForPermission(covise::Program p, int clientID, const QString &description); //must call answerPermissionRequest
+    void askForPermissionAbort(covise::Program p, int clientID); //must call answerPermissionRequest
 
 private slots:
     bool handleVRB(const covise::Message& msg);
@@ -68,23 +68,23 @@ private:
     std::vector<std::unique_ptr<vrb::VRB_MESSAGE>> m_sentLaunchRequests;
     std::unique_ptr<vrb::VRB_MESSAGE> m_receivedLaunchRequest;
     void loop();
-    void spawnProgram(vrb::Program p, const std::vector<std::string> &args);
+    void spawnProgram(covise::Program p, const std::vector<std::string> &args);
     bool removeOtherClient(covise::TokenBuffer &tb);
     void handleVrbLauncherMessage(const covise::Message &msg);
-    void ask(vrb::Program p, int clientID);
+    void ask(covise::Program p, int clientID);
     std::set<vrb::RemoteClient>::iterator findClient(int id);
 
     struct ProgramToLaunch
     {
 
-        ProgramToLaunch(vrb::Program p, int requestorId);
-        ProgramToLaunch(vrb::Program p, int requestorId, int code);
+        ProgramToLaunch(covise::Program p, int requestorId);
+        ProgramToLaunch(covise::Program p, int requestorId, int code);
 
         bool operator==(const ProgramToLaunch &other) const;
         int code() const;
 
     private:
-        vrb::Program m_p;
+        covise::Program m_p;
         int m_requestorId;
         int m_code;
     };

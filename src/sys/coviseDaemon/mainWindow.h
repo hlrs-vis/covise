@@ -57,7 +57,7 @@ private slots:
     void updateClient(int clientID, QString clientInfo);
     void removeClient(int clientID);
     void closeEvent(QCloseEvent* event) override;
-    void removePermissionRequest(vrb::Program p, int clientID);
+    void removePermissionRequest(covise::Program p, int clientID);
 
 signals:
     void updateStatusBarSignal();
@@ -102,7 +102,7 @@ private:
     void createTrayIcon();
 
     void showConnectionProgressBar(int seconds);
-    void askForPermission(vrb::Program p, int clientID, const QString &description);
+    void askForPermission(covise::Program p, int clientID, const QString &description);
     void saveOptions();
 
     std::vector<std::string> parseCmdArgsInput();

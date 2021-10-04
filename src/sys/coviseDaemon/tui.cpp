@@ -8,7 +8,7 @@
 CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autostart)
     : m_autostart(autostart), m_cinNotifier(0, QSocketNotifier::Type::Read) //on std in
 {
-    qRegisterMetaType<vrb::Program>();
+    qRegisterMetaType<covise::Program>();
     qRegisterMetaType<std::vector<std::string>>();
 
     std::cerr << "connecting to VRB on " << credentials.ipAddress << ", TCP-Port: " << credentials.tcpPort << ", UDP-Port: " << credentials.udpPort << std::endl;
@@ -19,7 +19,7 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
                 std::cerr << "disconnected!" << std::endl;
                 m_launcher.connect();
             });
-    QObject::connect(&m_launcher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientID, const QString &description)
+    QObject::connect(&m_launcher, &CoviseDaemon::askForPermission, this, [this](covise::Program p, int clientID, const QString &description)
             {
                 std::lock_guard<std::mutex> g(m_mutex);
                 if (m_autostart)
@@ -88,11 +88,11 @@ void CommandLineUi::createCommands()
                                                                            m_launcher.printClientInfo();
                                                                        }}));
 
-    for (int i = 0; i < static_cast<int>(vrb::Program::LAST_DUMMY); i++)
+    for (int i = 0; i < static_cast<int>(covise::Program::LAST_DUMMY); i++)
     {
-        if (i != static_cast<int>(vrb::Program::coviseDaemon))
+        if (i != static_cast<int>(covise::Program::coviseDaemon))
         {
-            m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<vrb::Program>(i), m_launcher}));
+            m_commands.push_back(std::unique_ptr<CommandInterface>(new LaunchCommand{static_cast<covise::Program>(i), m_launcher}));
         }
     }
 }

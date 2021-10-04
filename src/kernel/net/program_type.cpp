@@ -1,8 +1,8 @@
-#include "ProgramType.h"
+#include "program_type.h"
 
-#include <net/tokenbuffer.h>
+#include "tokenbuffer.h"
 
-using namespace vrb;
+using namespace covise;
 
 const char *ProgramNames::operator[](Program p) const
 {
@@ -26,19 +26,19 @@ constexpr size_t ProgramNames::size() const
     return detail::programNames.size();
 }
 
-covise::TokenBuffer &vrb::operator<<(covise::TokenBuffer &tb, const vrb::Program &p){
+covise::TokenBuffer &covise::operator<<(covise::TokenBuffer &tb, const covise::Program &p){
     tb << static_cast<int>(p);
     return tb;
 }
 
-covise::TokenBuffer &vrb::operator>>(covise::TokenBuffer &tb, vrb::Program &p){
+covise::TokenBuffer &covise::operator>>(covise::TokenBuffer &tb, covise::Program &p){
     int type;
     tb >> type;
     p = static_cast<Program>(type);
     return tb;
 }
 
-std::ostream &vrb::operator<<(std::ostream &os, const vrb::Program &p){
+std::ostream &covise::operator<<(std::ostream &os, const covise::Program &p){
     os << programNames[p];
     return os;
 }

@@ -39,7 +39,7 @@ class Userinterface;
 struct ControllerProxyConn;
 struct RemoteHost : vrb::RemoteClient
 {
-    RemoteHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = ""); //constructs a client with local information
+    RemoteHost(const HostManager& manager, covise::Program type, const std::string& sessionName = ""); //constructs a client with local information
     RemoteHost(const HostManager& manager, vrb::RemoteClient &&base); //constructs real remote client
     RemoteHost(RemoteHost &&other) = delete;
     RemoteHost(const RemoteHost &other) = delete;
@@ -75,8 +75,8 @@ struct RemoteHost : vrb::RemoteClient
     covise::LaunchStyle desiredState() const;
 private:
     bool addPartner();
-    void launchScipt(vrb::Program exec, const std::vector<std::string> &cmdArgs);  //need to create a new remote host for these
-    void launchManual(vrb::Program exec, const std::vector<std::string> &cmdArgs); //
+    void launchScipt(covise::Program exec, const std::vector<std::string> &cmdArgs);  //need to create a new remote host for these
+    void launchManual(covise::Program exec, const std::vector<std::string> &cmdArgs); //
 
     bool startUI(std::unique_ptr<Userinterface> &&ui, const UIOptions &options);
     void determineAvailableModules(const CRBModule &crb);
@@ -96,13 +96,13 @@ protected:
     bool m_hasPermission = false;
     virtual void connectShm(const CRBModule &crbModule);
     virtual void askForPermission();
-    virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs);
+    virtual bool launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs);
 };
 
 struct LocalHost : RemoteHost{
-    LocalHost(const HostManager& manager, vrb::Program type, const std::string& sessionName = "");
+    LocalHost(const HostManager& manager, covise::Program type, const std::string& sessionName = "");
     virtual void connectShm(const CRBModule &crbModule) override;
-    virtual bool launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs) override;
+    virtual bool launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs) override;
 };
 
 

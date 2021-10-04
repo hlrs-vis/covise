@@ -1454,7 +1454,7 @@ void MEMainHandler::settingXML()
 //!
 //! add a new host (called from covise)
 //!
-void MEMainHandler::initHost(int clientId, const vrb::UserInfo &partnerInfo, const std::vector<std::string> &modules, const std::vector<std::string> &categories)
+void MEMainHandler::initHost(int clientId, const covise::UserInfo &partnerInfo, const std::vector<std::string> &modules, const std::vector<std::string> &categories)
 {
     MEHost *host = new MEHost(clientId, partnerInfo);
     host->addHostItems(modules, categories);

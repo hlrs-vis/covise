@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 #include "permissionRequest.h"
 
-PermissionRequest::PermissionRequest(vrb::Program program, int requestorId, const QString &description, QWidget* parent)
+PermissionRequest::PermissionRequest(covise::Program program, int requestorId, const QString &description, QWidget* parent)
 : covise::NonBlockingDialogue(parent)
 , m_program(program)
 , m_requestorId(requestorId)
@@ -20,7 +20,7 @@ PermissionRequest::PermissionRequest(vrb::Program program, int requestorId, cons
             { emit permit(option == a); });
 }
 
-vrb::Program PermissionRequest::program() const
+covise::Program PermissionRequest::program() const
 {
     return m_program;
 }

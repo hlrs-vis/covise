@@ -273,7 +273,7 @@ void coVRTcpSlave::start()
         std::string config = "COCONFIG=";
         config += getenv("COCONFIG");
         env.push_back(config);
-        vrb::VRB_MESSAGE msg{0, vrb::Program::opencover, 0, env, args, 0};
+        vrb::VRB_MESSAGE msg{0, covise::Program::opencover, 0, env, args, 0};
         vrb::sendCoviseMessage(msg, clientConn);
     }
     else if (strncmp(command.c_str(), "covRemote", 9) == 0)

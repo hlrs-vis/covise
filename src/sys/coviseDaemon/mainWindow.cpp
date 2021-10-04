@@ -43,7 +43,7 @@ using namespace vrb;
 MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow), cfgTimeout("System.CoviseDaemon.Timeout"), cfgAutostart("System.CoviseDaemon.Autostart"), cfgAutoConnect("System.CoviseDaemon.AutoConnect"), cfgBackground("System.CoviseDaemon.Background"), cfgMinimized("System.CoviseDaemon.Minimized"), cfgArguments("System.CoviseDaemon.Arguments"), cfgOutputMode("System.CoviseDaemon.OutputMode"), cfgOutputModeFile("System.CoviseDaemon.OutputModeFile")
 {
-	qRegisterMetaType<vrb::Program>();
+	qRegisterMetaType<covise::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
 
 	initUi(credentials);
@@ -290,7 +290,7 @@ void MainWindow::setRemoteLauncherCallbacks()
 	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
 	reconnectOutPut();
-	connect(&m_remoteLauncher, &CoviseDaemon::askForPermission, this, [this](vrb::Program p, int clientId, const QString &description)
+	connect(&m_remoteLauncher, &CoviseDaemon::askForPermission, this, [this](covise::Program p, int clientId, const QString &description)
 			{ askForPermission(p, clientId, description); });
 	connect(&m_remoteLauncher, &CoviseDaemon::askForPermissionAbort, this, &MainWindow::removePermissionRequest);
 }
@@ -342,9 +342,9 @@ void MainWindow::reconnectOutPut(){
 void MainWindow::initClientList()
 {
 	m_clientList = new ClientWidgetList(ui->clientsScrollArea, ui->clientsScrollArea);
-	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](vrb::Program programID, int clientID)
+	connect(m_clientList, &ClientWidgetList::requestProgramLaunch, this, [this](covise::Program programID, int clientID)
 			{
-				std::cerr << "launching " << vrb::programNames[programID] << " on client " << clientID << std::endl;
+				std::cerr << "launching " << covise::programNames[programID] << " on client " << clientID << std::endl;
 
 				m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
 			});
@@ -465,7 +465,7 @@ void MainWindow::showConnectionProgressBar(int seconds)
 	}
 }
 
-void MainWindow::askForPermission(vrb::Program p, int clientID, const QString &description)
+void MainWindow::askForPermission(covise::Program p, int clientID, const QString &description)
 {
 	if (ui->autostartCheckBox->isChecked())
 		m_remoteLauncher.answerPermissionRequest(p, clientID, true);
@@ -480,7 +480,7 @@ void MainWindow::askForPermission(vrb::Program p, int clientID, const QString &d
 	}
 }
 
-void MainWindow::removePermissionRequest(vrb::Program p, int clientID)
+void MainWindow::removePermissionRequest(covise::Program p, int clientID)
 {
 	m_permissionRequests.erase(std::remove_if(m_permissionRequests.begin(), m_permissionRequests.end(), [p, clientID](const std::unique_ptr<PermissionRequest> &request)
 											  { return request->program() == p && request->requestorId() == clientID; }),

@@ -1,5 +1,5 @@
-#ifndef VRB_PROGRAM_TYPE_H
-#define VRB_PROGRAM_TYPE_H
+#ifndef NET_PROGRAM_TYPE_H
+#define NET_PROGRAM_TYPE_H
 
 #include <util/coExport.h>
 
@@ -7,10 +7,7 @@
 #include <ostream>
 
 namespace covise{
-    class TokenBuffer;
-}
-
-namespace vrb{
+class TokenBuffer;
 
 enum class Program
 {
@@ -30,7 +27,7 @@ namespace detail{
         };
 }
 
-struct VRBEXPORT ProgramNames
+struct NETEXPORT ProgramNames
 {
     const char *operator[](Program p) const;
     const char *operator[](size_t p) const;
@@ -40,10 +37,10 @@ struct VRBEXPORT ProgramNames
 };
 constexpr ProgramNames programNames;
 
-VRBEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const vrb::Program &userType);
-VRBEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, vrb::Program &userType);
-VRBEXPORT std::ostream &operator<<(std::ostream &os, const vrb::Program &userInfo);    
+NETEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const covise::Program &userType);
+NETEXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, covise::Program &userType);
+NETEXPORT std::ostream &operator<<(std::ostream &os, const covise::Program &userInfo);    
 
 }
 
-#endif // !VRB_PROGRAM_TYPE_H
+#endif // !NET_PROGRAM_TYPE_H

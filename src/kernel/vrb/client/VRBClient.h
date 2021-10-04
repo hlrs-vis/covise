@@ -37,8 +37,8 @@ class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient, public covise::Messa
 {
 
 public:
-    VRBClient(Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
-    VRBClient(Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
+    VRBClient(covise::Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
+    VRBClient(covise::Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
     ~VRBClient();
     bool connectToServer(std::string sessionName = "");
     bool completeConnection();

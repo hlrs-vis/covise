@@ -67,7 +67,7 @@ void CoverDaemon::handleConnections()
                 
             }
 
-            spawnProgram(vrb::programNames[lrq.program], lrq.args, lrq.environment);
+            spawnProgram(covise::programNames[lrq.program], lrq.args, lrq.environment);
         }
     }
 }

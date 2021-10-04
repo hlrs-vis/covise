@@ -53,10 +53,11 @@ target_link_libraries(coviseDaemon
                        Qt5::Core
                        Qt5::Gui
                        Qt5::Widgets
+                       coMessages
+                       coNet
+                       coQtUtil
                        coUtil
                        coVRBClient
-                       coMessages
-                       coQtUtil
                        ) 
 
 COVISE_INSTALL_TARGET(coviseDaemon)

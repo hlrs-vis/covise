@@ -2,7 +2,7 @@
 #define VRB_CLIENT_LAUNCH_REQUEST_H
 
 
-#include <vrb/ProgramType.h>
+#include <net/program_type.h>
 #include <util/coExport.h>
 
 #include <string>
@@ -12,7 +12,7 @@
 
 namespace vrb{
 
-DECL_MESSAGE_CLASS(VRB_MESSAGE, VRBCLIENTEXPORT, int, senderID, Program, program, int, clientID, std::vector<std::string>, environment, std::vector<std::string>, args, int, code)
+DECL_MESSAGE_CLASS(VRB_MESSAGE, VRBCLIENTEXPORT, int, senderID, covise::Program, program, int, clientID, std::vector<std::string>, environment, std::vector<std::string>, args, int, code)
 VRBCLIENTEXPORT bool sendLaunchRequestToRemoteLaunchers(const VRB_MESSAGE &lrq, const covise::MessageSenderInterface *sender);
 
 

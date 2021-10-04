@@ -5,21 +5,20 @@
 #include <net/message_types.h>
 #include <algorithm>
 using namespace vrb;
-
-RemoteClient::RemoteClient(Program type, const std::string& sessionName)
-    : m_userInfo(type)
-    , m_session(0, sessionName)
+using namespace covise;
+RemoteClient::RemoteClient(Program type, const std::string &sessionName)
+    : m_userInfo(type), m_session(0, sessionName)
 {
 }
 namespace vrb{
 namespace detail{
-int getID(covise::TokenBuffer &tb){
+int getID(TokenBuffer &tb){
     int i;
     tb >> i;
     return i;
 }
 
-SessionID getSid(covise::TokenBuffer &tb){
+SessionID getSid(TokenBuffer &tb){
     SessionID sid;
     tb >> sid;
     return sid;
@@ -27,7 +26,7 @@ SessionID getSid(covise::TokenBuffer &tb){
 }//detail
 }//vrb
 
-RemoteClient::RemoteClient(covise::TokenBuffer &tb)
+RemoteClient::RemoteClient(TokenBuffer &tb)
     : m_id(detail::getID(tb)) 
     , m_session(detail::getSid(tb))
     , m_userInfo(tb)
@@ -77,7 +76,7 @@ void RemoteClient::print() const
 }
 
 
-covise::TokenBuffer &vrb::operator<<(covise::TokenBuffer &tb, const RemoteClient &rc){
+TokenBuffer &vrb::operator<<(TokenBuffer &tb, const RemoteClient &rc){
     tb << rc.ID() << rc.sessionID() << rc.userInfo();
     return tb;
 }

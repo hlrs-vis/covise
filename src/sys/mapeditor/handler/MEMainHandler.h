@@ -179,7 +179,7 @@ public:
     };
     void updateHistoryFiles(const QString &);
     void storeMapName(const QString &mapname);
-    void initHost(int clientId, const vrb::UserInfo &partnerInfo, const std::vector<std::string> &modules, const std::vector<std::string> &categories);
+    void initHost(int clientId, const covise::UserInfo &partnerInfo, const std::vector<std::string> &modules, const std::vector<std::string> &categories);
     void finishNode(const QStringList &);
     void setDescriptionOfNode(const QStringList &);
     void showClipboardNodes(const QStringList &);

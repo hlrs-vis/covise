@@ -42,7 +42,7 @@ MEHostTreeItem::~MEHostTreeItem()
    \brief This class handles the hosts for a Covise session
 */
 
-MEHost::MEHost(int clientId, const vrb::UserInfo &hostInfo)
+MEHost::MEHost(int clientId, const covise::UserInfo &hostInfo)
     : m_clientId(clientId), m_hostInfo(hostInfo)
 {
     init();

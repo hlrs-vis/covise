@@ -10,7 +10,7 @@
 
 #include <QVector>
 #include <QTreeWidgetItem>
-#include <vrb/UserInfo.h>
+#include <net/userinfo.h>
 
 namespace covise
 {
@@ -49,7 +49,7 @@ class MEHost
 {
 
 public:
-    MEHost(int clientId, const vrb::UserInfo &hostInfo);
+    MEHost(int clientId, const covise::UserInfo &hostInfo);
     ~MEHost();
     int clientId() const;
     void setClientId(int clientID);
@@ -124,7 +124,7 @@ private:
     QAction *m_hostAction, *m_copyMoveAction;
     QMenu *m_categoryMenu;
     QPixmap m_icon;
-    const vrb::UserInfo m_hostInfo;
+    const covise::UserInfo m_hostInfo;
     QColor hostcolor; // current color for host
     MEHostTreeItem *modroot;
     int m_clientId = 0;

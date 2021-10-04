@@ -9,19 +9,19 @@
 #define COVISE_DAEMON_PERMISSION_REQUEST_H
 
 #include <qtutil/NonBlockingDialogue.h>
-#include <vrb/ProgramType.h>
+#include <net/program_type.h>
 class PermissionRequest : public covise::NonBlockingDialogue
 {
     Q_OBJECT
 public:
-    PermissionRequest(vrb::Program program, int requestorId, const QString &description, QWidget* parent = nullptr);
-    vrb::Program program() const;
+    PermissionRequest(covise::Program program, int requestorId, const QString &description, QWidget* parent = nullptr);
+    covise::Program program() const;
     int requestorId() const;
 signals:
     void permit(bool doPermit);
 
 private:
-    vrb::Program m_program;
+    covise::Program m_program;
     int m_requestorId;
 };
 

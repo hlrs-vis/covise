@@ -27,17 +27,17 @@ void Command::execute(const std::string &command)
     }
 }
 
-LaunchCommand::LaunchCommand(vrb::Program program, CoviseDaemon &launcher)
+LaunchCommand::LaunchCommand(covise::Program program, CoviseDaemon &launcher)
     : m_program(program), m_launcher(launcher) {}
 
 void LaunchCommand::print() const
 {
-    std::cerr << "Command: " << vrb::programNames[m_program] << " + client ID + args: launch " << vrb::programNames[m_program] << " on the specified client" << std::endl;
+    std::cerr << "Command: " << covise::programNames[m_program] << " + client ID + args: launch " << covise::programNames[m_program] << " on the specified client" << std::endl;
 }
 
 void LaunchCommand::execute(const std::string &command)
 {
-    if (command.substr(0, strlen(vrb::programNames[m_program])) == vrb::programNames[m_program])
+    if (command.substr(0, strlen(covise::programNames[m_program])) == covise::programNames[m_program])
     {
         int clID = 0;
         std::vector<std::string> args;
@@ -55,7 +55,7 @@ void LaunchCommand::execute(const std::string &command)
         }
         catch (const std::exception &e)
         {
-            std::cerr << "Command requiers int after " << programNames[m_program] << ", " << command.substr(strlen(vrb::programNames[m_program]) + 1) << "found:" << e.what() << '\n';
+            std::cerr << "Command requiers int after " << covise::programNames[m_program] << ", " << command.substr(strlen(covise::programNames[m_program]) + 1) << "found:" << e.what() << '\n';
             return;
         }
         m_launcher.sendLaunchRequest(m_program, clID, args);

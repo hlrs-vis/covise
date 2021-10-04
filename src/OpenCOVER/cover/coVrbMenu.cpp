@@ -80,7 +80,7 @@ namespace opencover
                                               args.push_back("-g");
                                               args.push_back(coVRCommunication::instance()->getSessionID().name());
                                           }
-                                          vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), vrb::Program::opencover, getRemoteLauncherClientID(index), std::vector<std::string>(), args, 0}, cover);
+                                          vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), covise::Program::opencover, getRemoteLauncherClientID(index), std::vector<std::string>(), args, 0}, cover);
                                       });
 
         //save and load sessions
@@ -185,7 +185,7 @@ namespace opencover
         std::vector<std::string> remoteLauncher;
         for (const auto &partner : *coVRPartnerList::instance())
         {
-            if (partner->userInfo().userType == vrb::Program::coviseDaemon)
+            if (partner->userInfo().userType == covise::Program::coviseDaemon)
             {
                 remoteLauncher.push_back(partner->userInfo().userName);
             }
@@ -220,7 +220,7 @@ namespace opencover
         int i = 0, clientID = 0;
         while (partner != coVRPartnerList::instance()->end())
         {
-            if ((*partner)->userInfo().userType == vrb::Program::coviseDaemon)
+            if ((*partner)->userInfo().userType == covise::Program::coviseDaemon)
             {
                 if (i == index)
                 {

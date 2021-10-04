@@ -30,11 +30,11 @@
 using namespace vrb;
 using namespace covise;
 
-VRBClient::VRBClient(vrb::Program p, const char *collaborativeConfigurationFile, bool slave, bool p_useUDP)
+VRBClient::VRBClient(covise::Program p, const char *collaborativeConfigurationFile, bool slave, bool p_useUDP)
     : VRBClient(p, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave, p_useUDP)
     {}
 
-VRBClient::VRBClient(vrb::Program p, const vrb::VrbCredentials &credentials, bool slave, bool p_useUDP)
+VRBClient::VRBClient(covise::Program p, const vrb::VrbCredentials &credentials, bool slave, bool p_useUDP)
     : vrb::RemoteClient(p)
     , m_credentials(credentials)
 	, isSlave(slave)

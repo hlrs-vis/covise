@@ -119,7 +119,7 @@ bool RemoteHost::startCrb()
                                       args.push_back(ip);
                                       args.push_back(std::to_string(crbModule->processId));
                                       //std::cerr << "Requesting start of crb on host " << hostManager.getLocalHost().userInfo().ipAdress << " port: " << port << " id " << crbModule->processId << std::endl;
-                                      return launchCrb(vrb::Program::crb, args);
+                                      return launchCrb(covise::Program::crb, args);
                                   }))
         {
             std::cerr << "startCrb failed to spawn CRB connection" << std::endl;
@@ -151,7 +151,7 @@ void RemoteHost::connectShm(const CRBModule &crbModule)
 
 void RemoteHost::askForPermission()
 {
-    covise::VRB_PERMIT_LAUNCH_Ask ask{hostManager.getVrbClient().ID(), ID(), vrb::Program::crb};
+    covise::VRB_PERMIT_LAUNCH_Ask ask{hostManager.getVrbClient().ID(), ID(), covise::Program::crb};
     sendCoviseMessage(ask, hostManager.getVrbClient());
 }
 
@@ -264,7 +264,7 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
     return dynamic_cast<NetModule &>(**m_processes.emplace(m_processes.end(), std::move(module)));
 }
 
-bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
+bool RemoteHost::launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
 
     switch (m_exectype)
@@ -286,14 +286,14 @@ bool RemoteHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cm
     return true;
 }
 
-bool LocalHost::launchCrb(vrb::Program exec, const std::vector<std::string> &cmdArgs)
+bool LocalHost::launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
-    auto execPath = coviseBinDir() + vrb::programNames[exec];
+    auto execPath = coviseBinDir() + covise::programNames[exec];
     spawnProgram(execPath, cmdArgs);
     return true;
 }
 
-LocalHost::LocalHost(const HostManager &manager, vrb::Program type, const std::string &sessionName)
+LocalHost::LocalHost(const HostManager &manager, covise::Program type, const std::string &sessionName)
     : RemoteHost(manager, type, sessionName)
 {
     m_state = LaunchStyle::Local;
@@ -314,11 +314,11 @@ void RemoteHost::setTimeout(int seconds)
     m_timeout = seconds;
 }
 
-void RemoteHost::launchScipt(vrb::Program exec, const std::vector<std::string> &cmdArgs)
+void RemoteHost::launchScipt(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
     std::stringstream start_string;
     std::string script_name;
-    start_string << script_name << " " << vrb::programNames[exec];
+    start_string << script_name << " " << covise::programNames[exec];
     for (const auto arg : cmdArgs)
         start_string << " " << arg;
     start_string << " " << userInfo().hostName;
@@ -330,10 +330,10 @@ void RemoteHost::launchScipt(vrb::Program exec, const std::vector<std::string> &
     }
 }
 
-void RemoteHost::launchManual(vrb::Program exec, const std::vector<std::string> &cmdArgs)
+void RemoteHost::launchManual(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
     std::stringstream text;
-    text << "please start \"" << vrb::programNames[exec];
+    text << "please start \"" << covise::programNames[exec];
     for (const auto arg : cmdArgs)
         text << " " << arg;
     text << "\" on " << userInfo().hostName;
@@ -342,7 +342,7 @@ void RemoteHost::launchManual(vrb::Program exec, const std::vector<std::string> 
     std::cerr << text.str() << std::endl;
 }
 
-RemoteHost::RemoteHost(const HostManager &manager, vrb::Program type, const std::string &sessionName)
+RemoteHost::RemoteHost(const HostManager &manager, covise::Program type, const std::string &sessionName)
     : RemoteClient(type, sessionName), hostManager(manager)
 {
 }
@@ -406,7 +406,7 @@ bool RemoteHost::removePartner()
     {
         m_desiredState = LaunchStyle::Disconnect;
         //inform coviseDaemon that launch request is invalid
-        VRB_PERMIT_LAUNCH_Abort abort{hostManager.getVrbClient().ID(), ID(), vrb::Program::crb};
+        VRB_PERMIT_LAUNCH_Abort abort{hostManager.getVrbClient().ID(), ID(), covise::Program::crb};
         sendCoviseMessage(abort, hostManager.getVrbClient());
         return true;
     }
@@ -498,7 +498,7 @@ void RemoteHost::clearProcesses()
 }
 
 HostManager::HostManager()
-    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, vrb::Program::covise}})).first), m_vrb(new vrb::VRBClient{vrb::Program::covise})
+    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, covise::Program::covise}})).first), m_vrb(new vrb::VRBClient{covise::Program::covise})
 {
     m_vrb->connectToServer();
 }
@@ -898,7 +898,7 @@ bool HostManager::handleVrbMessage()
             }
             for (auto &cl : uim.otherClients)
             {
-                if (cl.userInfo().userType == vrb::Program::coviseDaemon)
+                if (cl.userInfo().userType == covise::Program::coviseDaemon)
                 {
                     m_hosts.insert(HostMap::value_type{cl.ID(), std::unique_ptr<RemoteHost>{new RemoteHost{*this, std::move(cl)}}});
                 }
@@ -990,7 +990,7 @@ bool HostManager::handleVrbMessage()
         m_localHost = m_hosts.insert(HostMap::value_type{0, std::move(local)}).first;
         m_localHost->second->setID(0);
         std::cerr << "lost connection to vrb" << std::endl;
-        m_vrb.reset(new vrb::VRBClient{vrb::Program::covise});
+        m_vrb.reset(new vrb::VRBClient{covise::Program::covise});
         m_vrb->connectToServer();
         return false;
     }

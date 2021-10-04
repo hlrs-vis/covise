@@ -13,7 +13,7 @@
 #include <util/coExport.h>
 #include <vrb/RemoteClient.h>
 #include <vrb/SessionID.h>
-#include <vrb/UserInfo.h>
+#include <net/userinfo.h>
 #include <net/message_sender_interface.h>
 
 #include <string>
@@ -126,7 +126,7 @@ public:
     /// pass Message to all other session participants 
     void passOnMessage(const covise::MessageBase* msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
     /// bradcast the message to all clients of the progam type
-    void broadcastMessageToProgramm(vrb::Program program, covise::MessageBase *msg);
+    void broadcastMessageToProgramm(covise::Program program, covise::MessageBase *msg);
     ///write the info of all clients in the tokenbuffer
     void collectClientInfo(covise::TokenBuffer &tb, const VRBSClient *recipient) const;
     VRBSClient *getNextPossibleFileOwner(const std::string &fileName, const vrb::SessionID &id);

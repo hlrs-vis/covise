@@ -1549,13 +1549,13 @@ void OpenCOVER::restartVrbc()
     {
         if (cover->debugLevel(2))
             std::cerr << "starting VRB client with credentials from memory" << std::endl;
-        m_vrbc.reset(new vrb::VRBClient(vrb::Program::opencover, *m_vrbCredentials, coVRMSController::instance()->isSlave(),true));
+        m_vrbc.reset(new vrb::VRBClient(covise::Program::opencover, *m_vrbCredentials, coVRMSController::instance()->isSlave(),true));
     }
     else
     {
         if (cover->debugLevel(2))
             std::cerr << "starting VRB client with options from " << coVRConfig::instance()->collaborativeOptionsFile << std::endl;
-        m_vrbc.reset(new vrb::VRBClient(vrb::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true));
+        m_vrbc.reset(new vrb::VRBClient(covise::Program::opencover, coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave(),true));
     }
     m_vrbc->connectToServer(m_startSession);
 }

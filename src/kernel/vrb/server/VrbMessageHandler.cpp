@@ -211,7 +211,7 @@ namespace vrb
 		break;
 		case COVISE_MESSAGE_BROADCAST_TO_PROGRAM:
 		{
-			vrb::Program p;
+			covise::Program p;
 			int messageType;
 			covise::DataHandle broadcastDh;
 			tb >> p >> messageType >> broadcastDh;

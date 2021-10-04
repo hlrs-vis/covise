@@ -245,7 +245,7 @@ void VRBClientList::passOnMessage(const covise::MessageBase* msg, const vrb::Ses
     }
 }
 
-void VRBClientList::broadcastMessageToProgramm(vrb::Program program, covise::MessageBase *msg)
+void VRBClientList::broadcastMessageToProgramm(covise::Program program, covise::MessageBase *msg)
 {
     for (auto &cl : m_clients)
     {

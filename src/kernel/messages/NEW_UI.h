@@ -14,7 +14,7 @@
 #include <util/coExport.h>
 #include <utility>
 #include <vector>
-#include <vrb/UserInfo.h>
+#include <net/userinfo.h>
 #include <vrb/client/VrbCredentials.h>
 
 #define COMMA ,
@@ -54,7 +54,7 @@ typedef std::vector<ClientInfo> ClientList;
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, ClientList, clients)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, char *, hostName, char *, userName, vrb::VrbCredentials, vrbCredentials)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailableModules, COMSGEXPORT, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, COMSGEXPORT, int, clientId, vrb::UserInfo, partnerInfo, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
+DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, COMSGEXPORT, int, clientId, covise::UserInfo, partnerInfo, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ConnectionCompleted, COMSGEXPORT, int, partnerClientId);
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ChangeClientId, COMSGEXPORT, int, oldId, int, newId);
 

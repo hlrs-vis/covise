@@ -41,7 +41,7 @@ coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
 coVRPartner::coVRPartner()
     : ui::Owner("VRPartner-Me", cover->ui)
-    , vrb::RemoteClient(vrb::Program::opencover)
+    , vrb::RemoteClient(covise::Program::opencover)
 {
     m_avatar = new VRAvatar(this);
 }
@@ -125,7 +125,7 @@ void coVRPartner::updateUi()
     if (!m_ui)
     {
         m_ui = new ui::CollaborativePartner("VRPartner"+std::to_string(m_id), this, coVRPartnerList::instance()->group());
-        if (coVRCollaboration::instance()->partnerGroup() && m_userInfo.userType == vrb::Program::opencover)
+        if (coVRCollaboration::instance()->partnerGroup() && m_userInfo.userType == covise::Program::opencover)
         {
             coVRCollaboration::instance()->partnerGroup()->add(m_ui);
         }

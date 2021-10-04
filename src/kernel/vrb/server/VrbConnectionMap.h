@@ -8,14 +8,14 @@
 #define VRB_CONNECTION_MAP_H
 
 #include <vector>
-#include <vrb/UserInfo.h>
+#include <net/userinfo.h>
 #include <messages/PROXY.h>
 namespace vrb{
 
 struct ConnectionState{
-  const UserInfo from, to;
+  const covise::UserInfo from, to;
   const covise::ConnectionCapability state;
-  ConnectionState(const UserInfo &from, const UserInfo &to, covise::ConnectionCapability s);
+  ConnectionState(const covise::UserInfo &from, const covise::UserInfo &to, covise::ConnectionCapability s);
 };
 
 bool operator==(const ConnectionState &a, const ConnectionState &b);
@@ -24,7 +24,7 @@ struct ConnectionMap
 {
 
   void addConn(const ConnectionState &conn);
-  covise::ConnectionCapability check(const UserInfo &from, const UserInfo &to) const;
+  covise::ConnectionCapability check(const covise::UserInfo &from, const covise::UserInfo &to) const;
 private:
   std::vector<ConnectionState> m_conns;
 };

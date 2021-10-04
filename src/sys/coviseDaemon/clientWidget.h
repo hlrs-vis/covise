@@ -10,7 +10,7 @@
 
 #include "metaTypes.h"
 
-#include <vrb/ProgramType.h>
+#include <net/program_type.h>
 
 #include <QWidget>
 #include <QScrollArea>
@@ -25,7 +25,7 @@ public:
     ClientWidget(int clientID, const QString &clientInfo, QWidget *parent);
 
 signals:
-    void requestProgramLaunch(vrb::Program programID, int clientID);
+    void requestProgramLaunch(covise::Program programID, int clientID);
 
 private:
     int m_clientID;
@@ -40,7 +40,7 @@ public:
     void removeClient(int clientID);
     void clear();
 signals:
-    void requestProgramLaunch(vrb::Program programID, int clientID);
+    void requestProgramLaunch(covise::Program programID, int clientID);
 
 private:
     QVBoxLayout *m_layout = nullptr;

@@ -33,12 +33,12 @@ private:
 
 struct LaunchCommand : CommandInterface{
 
-    LaunchCommand(vrb::Program program, CoviseDaemon &launcher);
+    LaunchCommand(covise::Program program, CoviseDaemon &launcher);
     void print() const override;
 
     void execute(const std::string &command) override;
     private:
-        vrb::Program m_program;
+        covise::Program m_program;
         CoviseDaemon &m_launcher;
 };
 

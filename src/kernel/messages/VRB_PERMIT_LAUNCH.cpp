@@ -15,7 +15,7 @@
 namespace covise
 {
   IMPL_MESSAGE_WITH_SUB_CLASSES(VRB_PERMIT_LAUNCH, VRB_PERMIT_LAUNCH_TYPE);
-  IMPL_SUB_MESSAGE_CLASS(VRB_PERMIT_LAUNCH, VRB_PERMIT_LAUNCH_TYPE, Ask, int, senderID, int, launcherID, vrb::Program, program);
+  IMPL_SUB_MESSAGE_CLASS(VRB_PERMIT_LAUNCH, VRB_PERMIT_LAUNCH_TYPE, Ask, int, senderID, int, launcherID, covise::Program, program);
   IMPL_SUB_MESSAGE_CLASS(VRB_PERMIT_LAUNCH, VRB_PERMIT_LAUNCH_TYPE, Answer, int, requestorID, int, launcherID, bool, permit, int, code);
-  IMPL_SUB_MESSAGE_CLASS(VRB_PERMIT_LAUNCH, VRB_PERMIT_LAUNCH_TYPE, Abort, int, requestorID, int, launcherID, vrb::Program, program);
+  IMPL_SUB_MESSAGE_CLASS(VRB_PERMIT_LAUNCH, VRB_PERMIT_LAUNCH_TYPE, Abort, int, requestorID, int, launcherID, covise::Program, program);
 }

@@ -1,15 +1,12 @@
-#include "UserInfo.h"
+#include "userinfo.h"
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
 #include <net/tokenbuffer.h>
 
 
 using namespace covise;
-using namespace vrb;
 
-
-
-namespace vrb{
+namespace covise{
 namespace detail{
 
 Program getUserType(covise::TokenBuffer& tb){
@@ -25,7 +22,7 @@ std::string getString(covise::TokenBuffer& tb){
 
 } //detail
 
-} //vrb
+} //covise
 
 
 UserInfo::UserInfo(covise::TokenBuffer &tb)
@@ -49,13 +46,13 @@ UserInfo::UserInfo(Program type)
 
 }
 
-TokenBuffer &vrb::operator<<(TokenBuffer &tb, const UserInfo &userInfo)
+TokenBuffer &covise::operator<<(TokenBuffer &tb, const UserInfo &userInfo)
 {
     tb << userInfo.userType << userInfo.userName << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url;
     return tb;
 }
 
-std::ostream &vrb::operator<<(std::ostream &os, const UserInfo &userInfo)
+std::ostream &covise::operator<<(std::ostream &os, const UserInfo &userInfo)
 {
     os << "name:     " << userInfo.userName << std::endl;
     os << "ip:       " << userInfo.ipAdress << std::endl;
