@@ -33,16 +33,13 @@ using namespace covise;
 namespace opencover
 {
 
-
     VrbMenu::VrbMenu()
         : ui::Owner("VRBMenu", cover->ui)
     {
-        coVRCommunication::instance()->addOnConnectCallback([this]() {
-            updateState(true);
-        });
-        coVRCommunication::instance()->addOnDisconnectCallback([this]() {
-            updateState(false);
-        });
+        coVRCommunication::instance()->addOnConnectCallback([this]()
+                                                            { updateState(true); });
+        coVRCommunication::instance()->addOnDisconnectCallback([this]()
+                                                               { updateState(false); });
     }
 
     void VrbMenu::initFileMenu()
@@ -54,38 +51,37 @@ namespace opencover
 
         m_newSessionBtn = new ui::Action(m_sessionGroup, "newSession");
         m_newSessionBtn->setText("New session");
-        m_newSessionBtn->setCallback([this](void) {
-            requestNewSession("");
-        });
+        m_newSessionBtn->setCallback([this](void)
+                                     { requestNewSession(""); });
 
         m_newSessionEf = new ui::EditField(m_sessionGroup, "newSessionEf");
         m_newSessionEf->setText("enter session name");
-        m_newSessionEf->setCallback([this](std::string name) {
-            requestNewSession(name);
-        });
+        m_newSessionEf->setCallback([this](std::string name)
+                                    { requestNewSession(name); });
 
         m_sessionsSl = new ui::SelectionList(m_sessionGroup, "CurrentSessionSl");
         m_sessionsSl->setText("Current session");
-        m_sessionsSl->setCallback([this](int id) {
-            selectSession(id);
-        });
+        m_sessionsSl->setCallback([this](int id)
+                                  { selectSession(id); });
         m_sessionsSl->setList(std::vector<std::string>());
 
         m_remoteLauncher = new ui::SelectionList(m_sessionGroup, "remotePartnerSl");
         m_remoteLauncher->setText("Launch remote COVER");
         m_remoteLauncher->setList(std::vector<std::string>());
         m_remoteLauncher->setEnabled(false);
-        m_remoteLauncher->setCallback([this](int index) {
-            std::vector<std::string> args;
-            args.push_back("-C");
-            const auto vrbc = OpenCOVER::instance()->vrbc();
-            args.push_back(vrbc->getCredentials().ipAddress + ":" + std::to_string(vrbc->getCredentials().tcpPort));
-            if (!coVRCommunication::instance()->getSessionID().isPrivate()) {
-                args.push_back("-g");
-                args.push_back(coVRCommunication::instance()->getSessionID().name());
-            }
-            vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), vrb::Program::opencover, getRemoteLauncherClientID(index), std::vector<std::string>(), args, 0}, cover);
-            });
+        m_remoteLauncher->setCallback([this](int index)
+                                      {
+                                          std::vector<std::string> args;
+                                          args.push_back("-C");
+                                          const auto vrbc = OpenCOVER::instance()->vrbc();
+                                          args.push_back(vrbc->getCredentials().ipAddress + ":" + std::to_string(vrbc->getCredentials().tcpPort));
+                                          if (!coVRCommunication::instance()->getSessionID().isPrivate())
+                                          {
+                                              args.push_back("-g");
+                                              args.push_back(coVRCommunication::instance()->getSessionID().name());
+                                          }
+                                          vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), vrb::Program::opencover, getRemoteLauncherClientID(index), std::vector<std::string>(), args, 0}, cover);
+                                      });
 
         //save and load sessions
         m_ioGroup = new ui::Group("IoGroup", this);
@@ -95,16 +91,14 @@ namespace opencover
         m_saveSession = new ui::FileBrowser(m_ioGroup, "SaveSession", true);
         m_saveSession->setText("Save session");
         m_saveSession->setFilter("*.vrbreg;");
-        m_saveSession->setCallback([this](const std::string &file) {
-            saveSession(file);
-        });
+        m_saveSession->setCallback([this](const std::string &file)
+                                   { saveSession(file); });
 
         m_loadSession = new ui::FileBrowser(m_ioGroup, "LoadSession");
         m_loadSession->setText("Load session");
         m_loadSession->setFilter("*.vrbreg;");
-        m_loadSession->setCallback([this](const std::string &file) {
-            loadSession(file);
-        });
+        m_loadSession->setCallback([this](const std::string &file)
+                                   { loadSession(file); });
 
         updateState(false);
     }
@@ -156,8 +150,6 @@ namespace opencover
         }
     }
 
-
-
     //session functions : public
     void VrbMenu::updateSessions(const std::vector<vrb::SessionID> &sessions)
     {
@@ -170,7 +162,12 @@ namespace opencover
             {
                 m_availiableSessions.push_back(session);
                 std::stringstream ss;
-                ss << session;
+                ss << session.name();
+                if (!session.isPrivate())
+                    ss << ", host: " << coVRPartnerList::instance()->get(session.master())->userInfo().userName << "@" << coVRPartnerList::instance()->get(session.master())->userInfo().hostName;
+                else
+                    ss << ", private";
+
                 sessionNames.push_back(ss.str());
             }
             if (session == coVRCommunication::instance()->getSessionID())
@@ -182,7 +179,8 @@ namespace opencover
         m_sessionsSl->select(index);
     }
 
-    void VrbMenu::updateRemoteLauncher(){
+    void VrbMenu::updateRemoteLauncher()
+    {
 
         std::vector<std::string> remoteLauncher;
         for (const auto &partner : *coVRPartnerList::instance())
@@ -216,23 +214,23 @@ namespace opencover
         m_sessionsSl->select(index);
     }
 
-int getRemoteLauncherClientID(int index){
-    auto partner = coVRPartnerList::instance()->begin();
-    int i = 0, clientID = 0;
-    while (partner != coVRPartnerList::instance()->end())
+    int getRemoteLauncherClientID(int index)
     {
-        if ((*partner)->userInfo().userType == vrb::Program::coviseDaemon)
+        auto partner = coVRPartnerList::instance()->begin();
+        int i = 0, clientID = 0;
+        while (partner != coVRPartnerList::instance()->end())
         {
-            if (i == index)
+            if ((*partner)->userInfo().userType == vrb::Program::coviseDaemon)
             {
-                return (*partner)->ID();
+                if (i == index)
+                {
+                    return (*partner)->ID();
+                }
+                ++i;
             }
-            ++i;
+            ++partner;
         }
-        ++partner;
+        return 0;
     }
-    return 0;
-}
-
 
 } // namespace opencover
