@@ -164,7 +164,12 @@ namespace opencover
                 std::stringstream ss;
                 ss << session.name();
                 if (!session.isPrivate())
-                    ss << ", host: " << coVRPartnerList::instance()->get(session.master())->userInfo().userName << "@" << coVRPartnerList::instance()->get(session.master())->userInfo().hostName;
+                {
+                    if (auto partner = coVRPartnerList::instance()->get(session.master()))
+                    {
+                        ss << ", host: " << partner->userInfo().userName << "@" << partner->userInfo().hostName;
+                    }
+                }
                 else
                     ss << ", private";
 
