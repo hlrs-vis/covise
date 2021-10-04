@@ -101,7 +101,7 @@ bool mainWindow::handleClient(covise::Message* msg)
             case SOUND_NEW_SOUND:
             {
                 std::string fileName;
-                uint32_t fileSize;
+                uint64_t fileSize;
                 time_t fileTime;
                 tb >> fileName;
                 tb >> fileSize;
