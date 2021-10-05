@@ -267,7 +267,7 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
 bool RemoteHost::launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
 
-    switch (m_exectype)
+    switch (CTRLHandler::instance()->Config.getexectype(userInfo().hostName))
     {
     case controller::ExecType::VRB:
     {
@@ -361,7 +361,7 @@ bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequi
 {
     m_isProxy = proxyRequired;
     bool retval = false;
-    if (action == covise::LaunchStyle::Disconnect || m_hasPermission || m_exectype != ExecType::VRB)
+    if (action == covise::LaunchStyle::Disconnect || m_hasPermission || CTRLHandler::instance()->Config.getexectype(userInfo().hostName) != ExecType::VRB)
     {
         m_hasPermission = false;
 

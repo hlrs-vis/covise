@@ -82,7 +82,6 @@ private:
     void determineAvailableModules(const CRBModule &crb);
     void clearProcesses(); //order: modules->ui->crb
 
-    ExecType m_exectype = ExecType::VRB;
     ProcessList m_processes;
     std::vector<const ModuleInfo*> m_availableModules; //contains references to hostmanagers available modules
     int m_shmID;

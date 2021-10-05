@@ -2001,9 +2001,9 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         {
             try
             {
-                int id = m_hostManager.findHost(hostAddress).ID();
-                ExecType exectype = Config.getexectype(id);
-                int timeout = Config.gettimeout(id);
+                auto &hostName = m_hostManager.findHost(hostAddress).userInfo().hostName;
+                ExecType exectype = Config.getexectype(hostName);
+                int timeout = Config.gettimeout(hostName);
                 ostringstream buffer;
                 buffer << "HOSTINFO\n"
                        << static_cast<int>(exectype) << "\n"
