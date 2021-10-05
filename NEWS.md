@@ -5,6 +5,13 @@ Recent changes
 This document only covers changes that are important for using Covise and OpenCOVER. This includes changes on the UI, the config and requirements.
 For technical changes please have a look at the git commits.
 
+05.10.2021 Confugurable hosts
+----------------------------- 
+Configure manually startable hosts in config file under System.HostConfig, e.g.: 
+   <Host name="dennis-MS-7C94" method="manual" hostname="dennis-MS-7C94" user="dennis" ip="127.0.0.1" timeout="60" memory="shm"/>
+
+
+
 14.06. 2021 Adjusted config entry for COVER plugins
 ---------------------------------------------------
 Added new attribute to COVER.Plugin entries: shared="on"/"off".

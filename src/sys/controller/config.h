@@ -17,6 +17,7 @@
 #include <netdb.h>
 #endif
 #include <config/CoviseConfig.h>
+#include <vector>
 
 #define COVISE_MAXHOSTCONFIG 2000
 
@@ -24,6 +25,7 @@
 
 namespace covise
 {
+class UserInfo;
 namespace controller{
     
 constexpr int DEFAULT_TIMEOUT = 30;
@@ -77,6 +79,9 @@ public:
     char *set_display(const std::string &hostName, const char *e);
 
 };
+
+std::vector<covise::UserInfo> getConfiguredHosts();
+
 } //namespace controller 
 } //namespace covise
 

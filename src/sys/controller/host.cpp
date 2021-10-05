@@ -402,7 +402,7 @@ bool RemoteHost::addPartner()
 
 bool RemoteHost::removePartner()
 {
-    if (m_state == LaunchStyle::Disconnect) //already disconnected 
+    if (m_state == LaunchStyle::Disconnect) //already disconnected
     {
         m_desiredState = LaunchStyle::Disconnect;
         //inform coviseDaemon that launch request is invalid
@@ -501,6 +501,17 @@ HostManager::HostManager()
     : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, covise::Program::covise}})).first), m_vrb(new vrb::VRBClient{covise::Program::covise})
 {
     m_vrb->connectToServer();
+    auto userInfos = getConfiguredHosts();
+    std::cerr << userInfos.size() << " hosts are preconfigured" << std::endl;
+    int i = 1000; //hope that this does not conflict with ids given by vrb
+    for (auto &userInfo : userInfos)
+    {
+        covise::TokenBuffer tb;
+        tb << i << vrb::SessionID{} << userInfo;
+        tb.rewind();
+        m_hosts.insert(HostMap::value_type{i, std::unique_ptr<RemoteHost>{new RemoteHost{*this, vrb::RemoteClient{tb}}}});
+        ++i;
+    }
 }
 
 HostManager::~HostManager()
@@ -802,6 +813,9 @@ std::unique_ptr<Message> HostManager::receiveProxyMessage()
 
 bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
 {
+    if (!m_vrb->isConnected())
+        return false;
+
     PROXY_ConnectionCheck check{clID, m_vrb->ID()};
     sendCoviseMessage(check, *m_vrb);
     Message retval;

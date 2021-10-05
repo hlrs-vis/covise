@@ -9,7 +9,7 @@
 #endif
 #include <covise/covise.h>
 #include <util/unixcompat.h>
-
+#include <net/userinfo.h>
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h>
@@ -185,4 +185,43 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
         print_error(__LINE__, __FILE__, "Wrong exec mode %s for %s, should be vrb, manual or script (covise.config)! Using default vrb", shm_mode.c_str(), host->first.c_str());
         fflush(stderr);
     }
+}
+
+std::vector<covise::UserInfo> covise::controller::getConfiguredHosts()
+{
+    std::vector<UserInfo> retval;
+    auto entries = coCoviseConfig::getScopeEntries("System.HostConfig", "Host");
+    auto hosts = entries.getValue();
+    std::cerr << "trying to find entries:" << std::endl;
+
+    if (hosts)
+    {
+        std::cerr << "configured hosts:" << std::endl;
+
+        int i = 0;
+        while (hosts[i])
+        {
+            std::string key = "System.HostConfig." + std::string{hosts[i]};
+            std::cerr << "key = " << key << "method = " << coCoviseConfig::getEntry("method", key, "vrb") << std::endl;
+            if (coCoviseConfig::getEntry("method", key, "vrb") == "manual")
+            {
+                std::cerr << hosts[i] << std::endl;
+                
+                covise::TokenBuffer tb;
+                tb << Program::crb
+                   << coCoviseConfig::getEntry("user", key, "empty")
+                   << coCoviseConfig::getEntry("ip", key, "empty")
+                   << coCoviseConfig::getEntry("hostname", key, "empty")
+                   << coCoviseConfig::getEntry("email", key, "empty")
+                   << coCoviseConfig::getEntry("url", key, "empty");
+
+                tb.rewind();
+                retval.push_back(UserInfo{tb});
+            }
+
+            ++i;
+        }
+    }
+
+    return retval;
 }
