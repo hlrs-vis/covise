@@ -214,7 +214,7 @@
         <Position x="0" y="0" />
     </Skateboard>
     <COVERScript value="off"/>
-    <Variant value="on"/>
+    <Variant value="true"/>
     <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
     <TrackObjects menu="on" value="off" >
