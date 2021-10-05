@@ -127,9 +127,8 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
     std::string key = "System.HostConfig.Host:" + host->first;
     host->second.timeout = coCoviseConfig::getInt("timeout", key, DEFAULT_TIMEOUT);
     host->second.timeout = host->second.timeout == 0 ? DEFAULT_TIMEOUT : host->second.timeout;
-    std ::string shm_mode = coCoviseConfig::getEntry("memory", key, "shm");
-    std ::string exec_mode = coCoviseConfig::getEntry("method", key, "vrb");
 
+    std ::string shm_mode = coCoviseConfig::getEntry("memory", key, "shm");
     if (strcasecmp(shm_mode.c_str(), "shm") == 0 || strcasecmp(shm_mode.c_str(), "sysv") == 0)
     {
         host->second.shmMode = ShmMode::Default;
@@ -146,15 +145,17 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
     {
         host->second.shmMode = ShmMode::NoShm;
     }
-    else if (strcasecmp(shm_mode.c_str(), "proxie") == 0)
+    else if (strcasecmp(shm_mode.c_str(), "proxie") == 0 || strcasecmp(shm_mode.c_str(), "proxy") == 0)
     {
         host->second.shmMode = ShmMode::Proxie;
     }
     else
     {
-        print_error(__LINE__, __FILE__, "Wrong memory mode %s for %s, should be shm, mmap, or none (covise.config)! Using default shm", shm_mode.c_str(), host->first.c_str());
+        print_error(__LINE__, __FILE__, "Wrong memory mode %s for %d, should be sysv, posix, mmap, proxy, or none (config.xml)! Using default (sysv)", shm_mode.c_str(), host->first.c_str());
         fflush(stderr);
     }
+
+    std ::string exec_mode = coCoviseConfig::getEntry("method", key, "vrb");
     if (strcasecmp(exec_mode.c_str(), "rexec") == 0 ||
         strcasecmp(exec_mode.c_str(), "rsh") == 0 ||
         strcasecmp(exec_mode.c_str(), "ssh") == 0 ||
@@ -165,7 +166,7 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
         strcasecmp(exec_mode.c_str(), "globus_gram") == 0)
     {
         std::cerr << "exec mode " << exec_mode << " is no longer supported" << std::endl
-                  << "exec mode is set to default(VRB)" << std::endl;
+                  << "exec mode is set to default (VRB)" << std::endl;
         host->second.exectype = ExecType::VRB;
     }
     else if (strcasecmp(exec_mode.c_str(), "manual") == 0)
