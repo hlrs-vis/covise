@@ -36,6 +36,8 @@
 using namespace covise;
 using namespace covise::controller;
 
+constexpr int clientIdForPreconfigured = 1000;//hope that ids greater than this do not conflict with ids given by vrb
+
 const SubProcess &RemoteHost::getProcess(sender_type type) const
 {
     return const_cast<RemoteHost *>(this)->getProcess(type);
@@ -266,13 +268,11 @@ NetModule &RemoteHost::startApplicationModule(const string &name, const string &
 
 bool RemoteHost::launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
-
-    switch (CTRLHandler::instance()->Config.getexectype(userInfo().hostName))
+    auto execType = ID() < clientIdForPreconfigured ? ExecType::VRB : CTRLHandler::instance()->Config.getexectype(userInfo().hostName);
+    switch (execType)
     {
     case controller::ExecType::VRB:
-    {
         vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), std::vector<std::string>{}, cmdArgs, static_cast<int>(m_code)}, &hostManager.getVrbClient());
-    }
     break;
     case controller::ExecType::Manual:
         launchManual(exec, cmdArgs);
@@ -496,14 +496,13 @@ void RemoteHost::clearProcesses()
         m_processes.pop_back();
     }
 }
-
 HostManager::HostManager()
     : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, covise::Program::covise}})).first), m_vrb(new vrb::VRBClient{covise::Program::covise})
 {
     m_vrb->connectToServer();
     auto userInfos = getConfiguredHosts();
     std::cerr << userInfos.size() << " hosts are preconfigured" << std::endl;
-    int i = 1000; //hope that this does not conflict with ids given by vrb
+    int i = clientIdForPreconfigured; 
     for (auto &userInfo : userInfos)
     {
         covise::TokenBuffer tb;
