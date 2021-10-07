@@ -192,17 +192,12 @@ std::vector<covise::UserInfo> covise::controller::getConfiguredHosts()
     std::vector<UserInfo> retval;
     auto entries = coCoviseConfig::getScopeEntries("System.HostConfig", "Host");
     auto hosts = entries.getValue();
-    std::cerr << "trying to find entries:" << std::endl;
-
     if (hosts)
     {
-        std::cerr << "configured hosts:" << std::endl;
-
         int i = 0;
-        while (hosts[i])
+        while (hosts[i] != nullptr)
         {
             std::string key = "System.HostConfig." + std::string{hosts[i]};
-            std::cerr << "key = " << key << "method = " << coCoviseConfig::getEntry("method", key, "vrb") << std::endl;
             if (coCoviseConfig::getEntry("method", key, "vrb") == "manual")
             {
                 std::cerr << hosts[i] << std::endl;
@@ -218,8 +213,7 @@ std::vector<covise::UserInfo> covise::controller::getConfiguredHosts()
                 tb.rewind();
                 retval.push_back(UserInfo{tb});
             }
-
-            ++i;
+            i = i + 2; //skip value
         }
     }
 
