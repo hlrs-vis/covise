@@ -1413,13 +1413,13 @@ void
 DomWriter::visit(Lane *lane)
 {
 
-    // <laneSection><right/left/center><lane> //
+    // <laneSection><left/center/right><lane> //
     //
     if (lane->getId() < 0)
     {
         if (currentRightLaneElement_.isNull())
         {
-            currentRightLaneElement_ = doc_->createElement("left");
+            currentRightLaneElement_ = doc_->createElement("right");
             currentLaneSectionElement_.appendChild(currentRightLaneElement_);
         }
         currentLaneElement_ = doc_->createElement("lane");
@@ -1439,7 +1439,7 @@ DomWriter::visit(Lane *lane)
     {
         if (currentLeftLaneElement_.isNull())
         {
-            currentLeftLaneElement_ = doc_->createElement("right");
+            currentLeftLaneElement_ = doc_->createElement("left");
             currentLaneSectionElement_.appendChild(currentLeftLaneElement_);
         }
         currentLaneElement_ = doc_->createElement("lane");
