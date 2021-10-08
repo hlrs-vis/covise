@@ -396,6 +396,12 @@ void MainWindow::setStartupWindowStyle()
 		ui->backgroundCheckBox->setChecked(false);
 		ui->backgroundCheckBox->hide();
 	}
+        if (ui->backgroundCheckBox->isChecked())
+        {
+            if (!m_tray)
+                createTrayIcon();
+            m_tray->show();
+        }
 	if (ui->minimizedCheckBox->isChecked())
 	{
 		if (!ui->backgroundCheckBox->isChecked())
@@ -415,16 +421,24 @@ void MainWindow::setStartupWindowStyle()
 
 void MainWindow::showThis()
 {
-	m_tray->hide();
+        if (!ui->backgroundCheckBox->isChecked() && m_tray)
+        {
+            m_tray->hide();
+        }
 	show();
 }
 
 void MainWindow::hideThis()
 {
+    bool created = false;
 	if (!m_tray)
+        {
 		createTrayIcon();
+                created = true;
+        }
 	m_tray->show();
-	m_tray->showMessage("COVISE Daemon", " running in background");
+        if (created)
+            m_tray->showMessage("COVISE Daemon", " running in background");
 	hide();
 }
 
@@ -445,6 +459,9 @@ void MainWindow::createTrayIcon()
 				{
 				case QSystemTrayIcon::DoubleClick:
 				case QSystemTrayIcon::Trigger:
+                                     if (isVisible())
+					hideThis();
+                                     else
 					showThis();
 					break;
 				default:
