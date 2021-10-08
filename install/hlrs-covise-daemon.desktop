@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0.0
+Encoding=UTF-8
+Name=COVISE Daemon
+GenericName=Scientific Visualization Environment
+Exec=coviseDaemon %f
+Comment=Collaborative Visualization and Simulation Environment Daemon
+Icon=hlrs-covise-daemon
+Terminal=false
+Categories=Qt;Graphics;Science;DataVisualization;
