@@ -18,6 +18,7 @@ SET(CONTROLLER_SOURCES
   global.cpp
   handler.cpp
   host.cpp
+  hostManager.cpp
   main.cpp
   modui.cpp
   module.cpp
@@ -40,6 +41,7 @@ SET(CONTROLLER_HEADERS
   global.h
   handler.h
   host.h
+  hostManager.h
   list.h
   modui.h
   module.h

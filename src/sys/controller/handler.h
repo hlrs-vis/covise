@@ -15,7 +15,7 @@
 
 #include <vrb/client/VRBClient.h>
 
-#include "host.h"
+#include "hostManager.h"
 #include "userinterface.h"
 #include "config.h"
 
