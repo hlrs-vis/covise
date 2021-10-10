@@ -44,7 +44,7 @@ public:
     void loop();
 
 	bool startUdpServer();
-    int openServer();
+    int openServer(bool printport);
     void closeServer();
     void removeConnection(const covise::Connection *conn) override;
 
@@ -69,5 +69,3 @@ private:
 
 };
 #endif
-
-

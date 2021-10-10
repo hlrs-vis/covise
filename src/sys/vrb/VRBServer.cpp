@@ -131,13 +131,31 @@ void VRBServer::removeConnection(const covise::Connection * conn)
     }
 }
 
-int VRBServer::openServer()
+int VRBServer::openServer(bool printport)
 {
-    sConn = connections.tryAddNewListeningConn<ServerConnection>(m_tcpPort, 0, 0);
-    if (!sConn)
+    if (printport) {
+        for (int port = 1024; port <= 0xffff; ++port) {
+            sConn = connections.tryAddNewListeningConn<ServerConnection>(port, 0, 0);
+            if (sConn) {
+                m_tcpPort = port;
+                std::cout << port << std::endl << std::endl << std::flush;
+                break;
+            }
+        }
+
+        if (!sConn) {
+            fprintf(stderr, "Could not open server on any port\n");
+            return (-1);
+        }
+    }
+    else
     {
-        fprintf(stderr, "Could not open server port %d\n", m_tcpPort);
-        return (-1);
+        sConn = connections.tryAddNewListeningConn<ServerConnection>(m_tcpPort,
+                                                                     0, 0);
+        if (!sConn) {
+            fprintf(stderr, "Could not open server port %d\n", m_tcpPort);
+            return (-1);
+        }
     }
     if (!msg)
         msg = new Message;
@@ -267,6 +285,3 @@ bool VRBServer::startUdpServer()
 	}
 	return true;
 }
-
-
-

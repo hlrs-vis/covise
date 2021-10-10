@@ -29,6 +29,7 @@ int main(int argc, char **argv)
     covise::setupEnvironment(argc, argv);
     bool gui = true;
     bool help = false;
+    bool printport = false;
     for (size_t i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "--console")==0)
@@ -38,6 +39,10 @@ int main(int argc, char **argv)
         if (strcmp(argv[i], "--tui")==0)
         {
             gui = false;
+        }
+        if (strcmp(argv[i], "--printport")==0)
+        {
+            printport = true;
         }
         if (strcmp(argv[i], "--help")==0)
         {
@@ -67,11 +72,11 @@ int main(int argc, char **argv)
         mw->show();
         a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
 		VRBServer server(gui);
-		if (server.openServer() < 0)
+		if (server.openServer(printport) < 0)
 		{
 			return -1;
 		}
-		if (!server.startUdpServer())
+		if (!printport && !server.startUdpServer())
 		{
 			cerr << "failed to open udp socket" << endl;
 		}
@@ -83,11 +88,11 @@ int main(int argc, char **argv)
 	else
 	{
 		VRBServer server(gui);
-		if (server.openServer() < 0)
+		if (server.openServer(printport) < 0)
 		{
 			return -1;
 		}
-		if (!server.startUdpServer())
+		if (!printport && !server.startUdpServer())
 		{
 			cerr << "failed to open udp socket" << endl;
 		}
