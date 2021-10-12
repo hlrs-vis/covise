@@ -1062,7 +1062,7 @@ void MEMainHandler::addPartner()
 
 void MEMainHandler::requestPartnerAction(covise::LaunchStyle launchStyle, const std::vector<int> &clients){
 
-    int timeout = 30;
+    int timeout = 0;
     covise::NEW_UI_HandlePartners msg{launchStyle, timeout, clients};
     covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
     std::lock_guard<std::mutex> g{m_remotePartnerMutex};

@@ -11,13 +11,13 @@
 #include <net/message_macros.h>
 #include <net/message_types.h>
 #include <util/coExport.h>
+#include <vector>
 #include <vrb/client/VrbCredentials.h>
-
 namespace covise{
 
 enum class PROXY_TYPE
 {
-    CreateControllerProxy, CreateSubProcessProxie, ProxyCreated, ProxyConnected, CreateCrbProxy, CrbProxyCreated, ConnectionTest, ConnectionState, ConnectionCheck
+    CreateControllerProxy, CreateSubProcessProxie, ProxyCreated, ProxyConnected, CreateCrbProxy, CrbProxyCreated, ConnectionTest, ConnectionState, ConnectionCheck, Abort
 
 };
 
@@ -37,6 +37,7 @@ DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, CreateCrbProxy, COMSGEXPORT, uint32_t,
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionTest, COMSGEXPORT, int, fromClientID, int, toClientID, int, port, int, timeout)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionState, COMSGEXPORT, int, fromClientID, int, toClientID, ConnectionCapability, capability)
 DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, ConnectionCheck, COMSGEXPORT, int, fromClientID, int, toClientID)
+DECL_SUB_MESSAGE_CLASS(PROXY, PROXY_TYPE, Abort, COMSGEXPORT, std::vector<int>, processIds)
 
 
 

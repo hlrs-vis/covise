@@ -151,7 +151,7 @@ void ControlConfig::addhostinfo_from_config(const HostMap::iterator &host)
     }
     else
     {
-        print_error(__LINE__, __FILE__, "Wrong memory mode %s for %d, should be sysv, posix, mmap, proxy, or none (config.xml)! Using default (sysv)", shm_mode.c_str(), host->first.c_str());
+        print_error(__LINE__, __FILE__, "Wrong memory mode %s for %s, should be sysv, posix, mmap, proxy, or none (config.xml)! Using default (sysv)", shm_mode.c_str(), host->first.c_str());
         fflush(stderr);
     }
 

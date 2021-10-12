@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-
 #define setfill qtsetfill
 #define setprecision qtsetprecision
 #define setw qtsetw
@@ -55,6 +54,7 @@ int main(int argc, char **argv)
         std::cerr << "  --help:        print this message" << std::endl;
         std::cerr << "  --tui:         use text user interface" << std::endl;
         std::cerr << "  --console:     use text user interface" << std::endl;
+        std::cerr << "  --printport:   let VRB chose a port and print it to commandline" << std::endl;
 
         return 0;
     }
@@ -63,14 +63,14 @@ int main(int argc, char **argv)
     {
 		QApplication a(argc, argv);
 #ifdef __APPLE__
-        a.setAttribute(Qt::AA_DontShowIconsInMenus);
+		a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
 		a.setWindowIcon(QIcon(":/icons/vrbIcon.png"));
 
 		mw = new ApplicationWindow();
-        mw->setWindowTitle("VRB");
-        mw->show();
-        a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+		mw->setWindowTitle("VRB");
+		mw->show();
+		a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
 		VRBServer server(gui);
 		if (server.openServer(printport) < 0)
 		{
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
 		server.closeServer();
 		return exitcode;
-    }
+	}
 	else
 	{
 		VRBServer server(gui);
@@ -105,7 +105,4 @@ int main(int argc, char **argv)
 		server.closeServer();
 		return exitcode;
 	}
-
-
-
 }

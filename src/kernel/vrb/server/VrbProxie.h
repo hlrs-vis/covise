@@ -33,6 +33,7 @@ struct CrbProxyConn //connects two crbs by opening a ServerCOnnection to each of
   CrbProxyConn(size_t fromProcId, size_t toProcId, const covise::MessageSenderInterface &controller, int timeout, std::function<void(const CrbProxyConn&)> disconnectedCb);
   ~CrbProxyConn();
 
+  const int m_fromProcId, m_toProcId;
 private:
   std::thread m_thread;
   std::atomic_int m_fromSocketId{0}, m_toSocketId{0};
@@ -48,6 +49,7 @@ public:
   ~CoviseProxy();
 
   int controllerPort() const;
+  void abortClientConnection(int daemonId);
 
 private:
   covise::ConnectionList m_conns;

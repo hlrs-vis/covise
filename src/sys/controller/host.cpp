@@ -408,6 +408,15 @@ bool RemoteHost::removePartner()
         //inform coviseDaemon that launch request is invalid
         VRB_PERMIT_LAUNCH_Abort abort{hostManager.getVrbClient().ID(), ID(), covise::Program::crb};
         sendCoviseMessage(abort, hostManager.getVrbClient());
+        if (m_isProxy)
+        {
+            std::vector<int> procs(m_processes.size());
+            for(const auto& proc: m_processes)
+                procs.push_back(proc->processId);
+            PROXY_Abort abort(procs);
+            sendCoviseMessage(abort, *hostManager.proxyConn());
+        }
+
         return true;
     }
 
