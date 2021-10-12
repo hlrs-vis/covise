@@ -23,7 +23,7 @@
  * Class for a very simple UDP communication
  *
  */
-class UDPComm
+class UTILEXPORT UDPComm
 {
 public:
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -68,6 +68,8 @@ public:
     // returns number of bytes read into buffer or -1
     int readMessage(); // read a Datagram with a maximum size of UDP_COMM_MAX_SIZE;
     int getMessagePart(void *buf, int size); // get part of this message, returns the number of bytes copied to buf or -1
+
+    int enableBroadcast(bool state);
 
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // ++ Attribute request/set functions

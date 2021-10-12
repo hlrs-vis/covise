@@ -7,13 +7,10 @@ using(VRML)
 #    INCLUDE_DIRECTORIES(${MIDIFILE_INCLUDE_DIR})
 SET(HEADERS
   midiPlugin.h
-    ../../drivingsim/SteeringWheel/UDPComm.h
 )
 SET(SOURCES
   midiPlugin.cpp
-    ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
-include_directories("../../drivingsim/SteeringWheel")
 cover_add_plugin(Midi)
 IF(WIN32)
  TARGET_LINK_LIBRARIES(Midi winmm ${EXTRA_LIBS})

@@ -7,7 +7,7 @@
 
 
 #include "Skateboard.h"
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>

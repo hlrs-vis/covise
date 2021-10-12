@@ -14,7 +14,7 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Barrier>
 #include <OpenThreads/Mutex>
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 
 #ifndef WIN32
 #include <termios.h>

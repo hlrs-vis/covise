@@ -25,7 +25,6 @@ SET(HEADERS
  Porsche.h
  FKFS.h
  FFWheel.h
- UDPComm.h
  CAN.h
  CanInterface.h
  CanOpenBus.h
@@ -50,7 +49,6 @@ SET(SOURCES
  Porsche.cpp
  FKFS.cpp
  FFWheel.cpp
- UDPComm.cpp
  CAN.cpp
  CanOpenBus.cpp
  ServoStar.cpp

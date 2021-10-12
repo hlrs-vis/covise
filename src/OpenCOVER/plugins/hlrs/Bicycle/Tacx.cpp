@@ -7,7 +7,7 @@
 
 
 #include "Tacx.h"
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 #include <config/CoviseConfig.h>
 
 static float zeroAngle = 1152.;

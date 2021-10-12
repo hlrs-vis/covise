@@ -15,7 +15,7 @@
 #include <OpenThreads/Barrier>
 #include <OpenThreads/Mutex>
 #include "VehicleDynamics.h"
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 
 #ifndef WIN32
 #include <termios.h>

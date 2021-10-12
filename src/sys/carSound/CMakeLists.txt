@@ -12,14 +12,10 @@ find_qt()
 #INCLUDE(${QT_USE_FILE})
 
 
-INCLUDE_DIRECTORIES(
-  "${COVISEDIR}/src/OpenCOVER/plugins/drivingsim/SteeringWheel"
-)
 SET(CS_SOURCES
   main.cpp
   mainWindow.cpp
   soundClient.cpp
-  ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.cpp
   EventSoundSample.cpp
   ClientSoundSample.cpp
 )
@@ -36,7 +32,6 @@ SET(CS_HEADERS
   SoundSweep.h
   soundClient.h
   remoteSoundMessages.h
-  ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.h
   EventSoundSample.h
   ClientSoundSample.h
 )

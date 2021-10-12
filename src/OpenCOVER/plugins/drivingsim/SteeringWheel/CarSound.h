@@ -11,7 +11,7 @@
 #include <util/common.h>
 #include "../../../../sys/carSound/remoteSoundMessages.h"
 
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 
 class CarSound
 {

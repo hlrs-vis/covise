@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 #include <cover/coVRPluginSupport.h>
 
 //void calcAverageMatrix(osg::Matrix& result, const osg::Matrix& input);    

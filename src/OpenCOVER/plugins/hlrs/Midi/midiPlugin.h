@@ -38,7 +38,7 @@
 const int numChannels = 16;
 const int numKeys = 127;
 
-#include <UDPComm.h>
+#include <util/UDPComm.h>
 namespace smf
 {
     // just for compiling with MidiFile inside and outside of smf namespace

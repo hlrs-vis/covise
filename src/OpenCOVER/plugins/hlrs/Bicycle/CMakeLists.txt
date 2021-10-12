@@ -12,7 +12,6 @@ SET(HEADERS
   Bicycle.h
   FlightGear.h
   Skateboard.h
-  ../../drivingsim/SteeringWheel/UDPComm.h
 )
 SET(SOURCES
   AVRserialcom.cpp
@@ -20,21 +19,17 @@ SET(SOURCES
   Bicycle.cpp
   FlightGear.cpp
   Skateboard.cpp
-  ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
-include_directories("../../drivingsim/SteeringWheel")
 cover_add_plugin(Bicycle)
-TARGET_LINK_LIBRARIES(Bicycle ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(Bicycle coUtil ${EXTRA_LIBS})
 #COVER_INSTALL_PLUGIN(Bicycle)
 
 SET(TS_HEADERS
   Tacx.h
-  ../../drivingsim/SteeringWheel/UDPComm.h
 )
 SET(TS_SOURCES
   TacxServer.cpp
   Tacx.cpp
-  ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
 
 ADD_COVISE_EXECUTABLE(TacxServer  ${TS_SOURCES} ${TS_HEADERS})

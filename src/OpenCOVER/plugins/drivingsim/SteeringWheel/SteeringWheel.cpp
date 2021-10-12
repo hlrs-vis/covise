@@ -57,7 +57,7 @@ using namespace vehicleUtil;
 #endif
 
 #include <PluginUtil/PluginMessageTypes.h>
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 
 SteeringWheelPlugin *SteeringWheelPlugin::plugin = NULL;
 

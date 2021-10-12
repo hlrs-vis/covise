@@ -49,6 +49,7 @@ SET(UTIL_SOURCES
   environment.cpp
   string_util.cpp
   threadname.cpp
+  UDPComm.cpp
 )
 
 SET(UTIL_HEADERS
@@ -92,6 +93,7 @@ SET(UTIL_HEADERS
   threadname.h
   tryPrint.h
   unixcompat.h
+  UDPComm.h
 )
 
 SET(SYSDEP_HEADERS

@@ -26,7 +26,7 @@
 #include "models/propulsion/FGPiston.h"
 #include "cover/VRSceneGraph.h"
 #include "cover/coVRCollaboration.h"
-#include <UDPComm.h>
+#include <util/UDPComm.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
 #include <stdlib.h>

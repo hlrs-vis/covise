@@ -542,3 +542,9 @@ void UDPComm::setError_SW(bool status)
 {
     UDPComm::error_SW = status;
 }
+
+int UDPComm::enableBroadcast(bool state)
+{
+
+    return setsockopt(d_socket, SOL_SOCKET, SO_BROADCAST, (char*)&state, sizeof(int));
+}

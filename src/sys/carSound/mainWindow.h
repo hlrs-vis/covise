@@ -7,7 +7,7 @@
 
 #include "ui_carSound.h"
 #include "EventSoundSample.h"
-#include "UDPComm.h"
+#include <util/UDPComm.h>
 #include <QSocketNotifier>
 #include <fmod_studio.hpp>
 #include <net/covise_connect.h>

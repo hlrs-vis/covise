@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include "../../plugins/drivingsim/SteeringWheel/UDPComm.h"
+#include <util/UDPComm.h>
 #include "PorscheFFZ.h"
 
 #include "VehicleManager.h"
@@ -16,9 +16,6 @@
 #include "projects/radarcones.hpp"
 
 #include "UDPBroadcast.h"
-// some alternative classes (haven't got broadcast functionality?):
-// #include <util/UDP_Sender.h>
-// #include "UDPComm.h"
 
 // RoadSystem //
 //

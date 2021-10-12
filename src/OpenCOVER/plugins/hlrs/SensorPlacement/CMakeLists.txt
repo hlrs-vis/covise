@@ -11,7 +11,6 @@ SET(HEADERS
  GA.h
  Camera.h
  UDP.h
-  ../../drivingsim/SteeringWheel/UDPComm.h
 )
 
 SET(SOURCES
@@ -24,9 +23,7 @@ SET(SOURCES
   GA.cpp
   Camera.cpp
   UDP.cpp
-  ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
 
-include_directories("../../drivingsim/SteeringWheel")
 
 cover_add_plugin(SensorPlacement ${HEADERS} ${SOURCES})
