@@ -112,6 +112,8 @@ public:
 	//
 	void addLaneSectionChanges(int changes);
 
+    void sortLanes();
+
 protected:
 private:
     LaneSection(); /* not allowed */

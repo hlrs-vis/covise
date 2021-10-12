@@ -1405,6 +1405,7 @@ DomWriter::visit(LaneSection *laneSection)
     currentRightLaneElement_ = NullNode;
     currentCenterLaneElement_ = NullNode;
     currentLeftLaneElement_ = NullNode;
+    laneSection->sortLanes();
 
     laneSection->acceptForLanes(this);
 }

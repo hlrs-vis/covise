@@ -21,6 +21,7 @@
 #include "lanewidth.hpp"
 #include "laneborder.hpp"
 #include <cmath>
+#include <algorithm>
 
 
   //####################//
@@ -788,6 +789,12 @@ void LaneSection::accept(Visitor *visitor)
     visitor->visit(this);
 }
 
+/*! \brief Accepts a visitor for the lanes.
+ */
+void LaneSection::sortLanes()
+{
+    std::sort(lanes_, lanes_.begin(), lanes_.end();
+}
 /*! \brief Accepts a visitor for the lanes.
  */
 void LaneSection::acceptForLanes(Visitor *visitor)
