@@ -45,7 +45,7 @@ void TUIWebview::setValue(TabletValue type, covise::TokenBuffer& tb) ///TUIWebvi
 {
     if (type == TABLET_STRING)
     {
-        char* v;
+        const char* v;
         tb >> v; ///pointer to the begin of tranfered string (url) is saved in v 
         Webview->load(QUrl(v)); ///new url is loaded
     }
