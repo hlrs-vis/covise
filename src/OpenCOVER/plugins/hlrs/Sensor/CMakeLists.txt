@@ -16,14 +16,11 @@ endif()
 
 SET(HEADERS
   Sensor.h
-  ../../drivingsim/SteeringWheel/UDPComm.h
 )
 SET(SOURCES
   Sensor.cpp
-  ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
 include_directories(
-	"../../drivingsim/SteeringWheel"
 	${X11_Xinput_INCLUDE_PATH}
 )
 cover_add_plugin(Sensor)

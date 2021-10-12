@@ -285,10 +285,10 @@ std::vector<std::string> getModuleInfo(CoMsg* msg)
         return modules;
     }
     auto& pMsg = uimsg.unpackOrCast<covise::NEW_UI_PartnerInfo>();
-	for (size_t i = 0; i < pMsg.modules.size(); i++)
+	for (size_t i = 0; i < pMsg.modules().size(); i++)
 	{
-        modules.push_back(pMsg.modules[i]);
-        modules.push_back(pMsg.categories[i]);
+        modules.push_back(pMsg.modules()[i]);
+        modules.push_back(pMsg.categories()[i]);
 	}
     return modules;
 }
