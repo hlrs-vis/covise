@@ -58,6 +58,7 @@ public:
     enum PluginDomain
     {
         Default,
+        Vis,
         Window,
         Input,
         NumPluginDomains // keep last

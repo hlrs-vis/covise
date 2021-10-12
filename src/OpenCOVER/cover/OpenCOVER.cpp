@@ -653,7 +653,7 @@ bool OpenCOVER::init()
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
-		m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
+		m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE", coVRPluginList::Vis);
         if (!m_visPlugin)
         {
             fprintf(stderr, "failed to load COVISE plugin\n");
@@ -668,7 +668,7 @@ bool OpenCOVER::init()
         if (m_loadVistlePlugin)
         {
             loadFiles = false;
-            m_visPlugin = coVRPluginList::instance()->addPlugin("Vistle");
+            m_visPlugin = coVRPluginList::instance()->addPlugin("Vistle", coVRPluginList::Vis);
             if (!m_visPlugin)
             {
                 fprintf(stderr, "failed to load Vistle plugin\n");
@@ -1392,9 +1392,10 @@ OpenCOVER::~OpenCOVER()
     if (m_visPlugin)
         coVRPluginList::instance()->unload(m_visPlugin);
 #endif
-    m_visPlugin = NULL;
     coVRFileManager::instance()->unloadFile();
     coVRPluginList::instance()->unloadAllPlugins();
+    m_visPlugin = NULL;
+    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Vis);
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
     //delete vrbHost;
