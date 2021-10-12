@@ -204,8 +204,8 @@ void VRBData::setRemoteDirList(const covise::Message &msg)
     int type = 0;
     int recvid = 0;
     int recv_vrbId = 0;
-    char *location = NULL;
-    char *filter = NULL;
+    const char *location = NULL;
+    const char *filter = NULL;
 
     tb >> type;
     tb >> recvid;
@@ -254,8 +254,8 @@ void VRBData::setRemoteFileList(const covise::Message &msg)
 
     int type = 0;
     int recvid = 0;
-    char *location = NULL;
-    char *filter = NULL;
+    const char *location = NULL;
+    const char *filter = NULL;
     int recv_vrbId = 0;
 
     tb >> type;
@@ -323,8 +323,8 @@ void VRBData::setRemoteDrives(const covise::Message &msg)
 
     int type = 0;
     int recvid = 0;
-    char *location = NULL;
-    char *filter = NULL;
+    const char *location = NULL;
+    const char *filter = NULL;
     int id = 0;
 
     tb >> type;
@@ -431,7 +431,7 @@ bool VRBData::VRBWait()
     int id = 0;
     int size = 0;
     const char *data = NULL;
-    char *filename = NULL;
+    const char *filename = NULL;
 
     Message *msg = new Message;
     do
@@ -545,7 +545,7 @@ void VRBData::setFile(const covise::Message &msg)
     int id;
     int size;
     const char *data = NULL;
-    char *filename = NULL;
+    const char *filename = NULL;
 
     tb >> type;
 
@@ -598,7 +598,7 @@ void VRBData::setRemoteFile(const covise::Message &msg)
     int type;
     int recvId = 0;
     int id = 0;
-    char *path = NULL;
+    const char *path = NULL;
 
     tb >> type;
     tb >> id;

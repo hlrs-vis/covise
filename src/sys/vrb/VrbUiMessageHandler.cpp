@@ -29,7 +29,7 @@ using namespace covise;
 
 void VrbUiMessageHandler::updateApplicationWindow(const std::string& cl, int sender, const std::string& var, const covise::DataHandle& value)
 {
-    char * charVal;
+    const char * charVal;
 	TokenBuffer tb(value);
     if (cl == "SharedState")
     {

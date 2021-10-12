@@ -149,7 +149,7 @@ public:
     TokenBuffer &operator>>(float &f);
     TokenBuffer &operator>>(double &f);
     TokenBuffer &operator>>(std::string &s);
-    TokenBuffer &operator>>(char *&c);
+    TokenBuffer &operator>>(const char *&c);
     TokenBuffer& operator>>(DataHandle& d);
     TokenBuffer &operator>>(TokenBuffer &tb);
     

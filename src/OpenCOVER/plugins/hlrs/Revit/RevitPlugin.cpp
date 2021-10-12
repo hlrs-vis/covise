@@ -1485,7 +1485,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 		std::string text;
 		TokenBuffer tb((const char *)buf, len);
 		int id, owner,docID;
-		char *ctext;
+		const char *ctext;
 		tb >> id;
 		tb >> docID;
 		tb >> owner;
@@ -1601,9 +1601,7 @@ RevitPlugin::handleMessage(Message *m)
 	{
 		TokenBuffer tb(m);
 		double area;
-		char *roomNumber;
-		char *roomName;
-		char *levelName;
+		const char *roomNumber, *roomName, *levelName;
 		tb >> roomNumber;
 		tb >> roomName;
 		tb >> area;
@@ -1631,7 +1629,7 @@ RevitPlugin::handleMessage(Message *m)
 				fprintf(stderr, "PFound: %d\n", ID);
 				int pID;
 				tb >> pID;
-				char *name;
+				const char *name;
 				tb >> name;
 				int StorageType;
 				tb >> StorageType;
@@ -1668,7 +1666,7 @@ RevitPlugin::handleMessage(Message *m)
 		int ID,docID;
 		tb >> ID;
 		tb >> docID;
-		char *name;
+		const char *name;
 		tb >> name;
 		osg::Group *newGroup = new osg::Group();
 		newGroup->setName(name);
@@ -1687,7 +1685,7 @@ RevitPlugin::handleMessage(Message *m)
 		int ID, docID;
 		tb >> ID;
 		tb >> docID;
-		char *name;
+		const char *name;
 		tb >> name;
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
 		newTrans->setName(name);
@@ -1843,7 +1841,7 @@ RevitPlugin::handleMessage(Message *m)
 		int ID, docID;
 		tb >> ID;
 		tb >> docID;
-		char *name;
+		const char *name;
 		tb >> name;
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
 		osg::Matrix m;
@@ -1894,7 +1892,7 @@ RevitPlugin::handleMessage(Message *m)
 		int ID, docID;
 		tb >> ID;
 		tb >> docID;
-		char *name;
+		const char *name;
 		tb >> name;
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
 		osg::Matrix m;
@@ -2110,7 +2108,7 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> ID;
 		tb >> docID;
 		float x, y, z;
-		char *text;
+		const char *text;
 		tb >> x;
 		tb >> y;
 		tb >> z;
@@ -2142,7 +2140,7 @@ RevitPlugin::handleMessage(Message *m)
     case MSG_DocumentInfo:
     {
         TokenBuffer tb(m);	
-        char *fileName;
+        const char *fileName;
         tb >> fileName;
 		tb >> TrueNorthAngle;
 		if(firstDocument)
@@ -2228,7 +2226,7 @@ RevitPlugin::handleMessage(Message *m)
 		int documentID;
 		tb >> ID;
 		tb >> documentID;
-		char* name;
+		const char* name;
 		tb >> name;
 		double area;
 		tb >> area;
@@ -2264,7 +2262,7 @@ RevitPlugin::handleMessage(Message *m)
 		int documentID;
 		tb >> ID;
 		tb >> documentID;
-		char *name;
+		const char *name;
 		tb >> name;
 		float x, y, z;
 		tb >> x;
@@ -2419,7 +2417,7 @@ RevitPlugin::handleMessage(Message *m)
 			ElementIDMap[docID][ID] = ei;
 			//fprintf(stderr, "NewID: %d\n", ID);
 		}
-		char *name;
+		const char *name;
 		tb >> name;
 		ei->name = name;
 		ei->ID = ID;

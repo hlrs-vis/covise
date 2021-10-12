@@ -209,7 +209,7 @@ TokenBuffer &TokenBuffer::operator<<(const int i)
     return *this;
 }
 
-TokenBuffer &TokenBuffer::operator>>(char *&c)
+TokenBuffer &TokenBuffer::operator>>(const char *&c)
 {
     checktype(TbString);
     char *end = data.accessData() + data.length() - 1;

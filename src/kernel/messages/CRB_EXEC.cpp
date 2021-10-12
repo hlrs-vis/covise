@@ -31,14 +31,14 @@ TokenBuffer& operator>>(TokenBuffer& tb, ExecFlag& flag) {
 
 IMPL_MESSAGE_CLASS(CRB_EXEC,
 	ExecFlag, flag,
-	char*, name,
+	const char*, name,
 	int, controllerPort,
-	char *, controllerIp,
+	const char *, controllerIp,
 	int, moduleCount,
-	char*, moduleId,
-	char*, moduleIp,
-	char*, moduleHostName,
-	char*, category,
+	const char *, moduleId,
+	const char *, moduleIp,
+	const char *, moduleHostName,
+	const char *, category,
 	int, vrbClientIdOfController,
     vrb::VrbCredentials, vrbCredentials,
 	std::vector<std::string>, params)
@@ -61,22 +61,22 @@ const char* adoptedChar(const char* c) {
 std::vector<std::string> getCmdArgs(const CRB_EXEC& exec) {
 
 	size_t l = numMembers;
-	l += exec.params.size();
+	l += exec.params().size();
 	std::vector<std::string> args(l);
 	size_t pos = 0;
-	args[pos++] = charToString(exec.name);
-	args[pos++] = std::to_string(exec.controllerPort);
-	args[pos++] = charToString(exec.controllerIp);
-	args[pos++] = std::to_string(exec.moduleCount);
-	args[pos++] = charToString(exec.moduleId);
-	args[pos++] = charToString(exec.moduleIp);
-	args[pos++] = charToString(exec.moduleHostName);
-	args[pos++] = std::to_string(exec.vrbClientIdOfController);
-	args[pos++] = exec.vrbCredentials.ipAddress;
-	args[pos++] = std::to_string(exec.vrbCredentials.tcpPort);
-	args[pos++] = std::to_string(exec.vrbCredentials.udpPort);
-	args[pos++] = std::to_string(exec.params.size());
-	for (auto& arg : exec.params)
+	args[pos++] = charToString(exec.name());
+	args[pos++] = std::to_string(exec.controllerPort());
+	args[pos++] = charToString(exec.controllerIp());
+	args[pos++] = std::to_string(exec.moduleCount());
+	args[pos++] = charToString(exec.moduleId());
+	args[pos++] = charToString(exec.moduleIp());
+	args[pos++] = charToString(exec.moduleHostName());
+	args[pos++] = std::to_string(exec.vrbClientIdOfController());
+	args[pos++] = exec.vrbCredentials().ipAddress();
+	args[pos++] = std::to_string(exec.vrbCredentials().tcpPort());
+	args[pos++] = std::to_string(exec.vrbCredentials().udpPort());
+	args[pos++] = std::to_string(exec.params().size());
+	for (auto& arg : exec.params())
 	{
 		args[pos++] = arg;
 	}

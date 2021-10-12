@@ -53,7 +53,7 @@ void TUIListBox::setValue(TabletValue type, covise::TokenBuffer &tb)
     //cerr << "setValue " << type << endl;
     if (type == TABLET_ADD_ENTRY)
     {
-        char *en;
+        const char *en;
         tb >> en;
         QString entry(en);
         static_cast<QListWidget *>(widget)->addItem(entry);
@@ -63,7 +63,7 @@ void TUIListBox::setValue(TabletValue type, covise::TokenBuffer &tb)
         QListWidget *cb = static_cast<QListWidget *>(widget);
         int num = cb->count();
         int i;
-        char *en;
+        const char *en;
         tb >> en;
         QString entry(en);
         for (i = 0; i < num; i++)
@@ -81,7 +81,7 @@ void TUIListBox::setValue(TabletValue type, covise::TokenBuffer &tb)
         QListWidget *cb = static_cast<QListWidget *>(widget);
         int num = cb->count();
         int i;
-        char *en;
+        const char *en;
         tb >> en;
         QString entry(en);
         for (i = 0; i < num; i++)

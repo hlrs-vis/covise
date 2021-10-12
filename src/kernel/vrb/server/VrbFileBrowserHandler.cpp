@@ -22,9 +22,9 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 	int id = 0;
 	int recvId = 0;
 	int type = 0;
-	char* filter = NULL;
-	char* path = NULL;
-	char* location = NULL;
+	const char* filter = NULL;
+	const char* path = NULL;
+	const char* location = NULL;
 	QStringList list;
 
 	//Message for tabletui filebrowser request
@@ -367,7 +367,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 #ifdef MB_DEBUG
 		std::cerr << "::HANDLECLIENT VRB FileBrowser Request GlobalLoad!" << std::endl;
 #endif
-		char* curl = NULL;
+		const char* curl = NULL;
 		tb >> curl;
 
 		TokenBuffer tb2;
@@ -520,7 +520,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		std::cerr << "::HANDLECLIENT VRB FileBrowser RemoteRequest FileList!" << std::endl;
 #endif
 		int size = 0;
-		char* entry = NULL;
+		const char* entry = NULL;
 
 		tb >> size;
 
@@ -548,7 +548,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 #ifdef MB_DEBUG
 		std::cerr << "::HANDLECLIENT VRB FileBrowser RemoteRequest NoSuccess!" << std::endl;
 #endif
-		char* comment = NULL;
+		const char* comment = NULL;
 
 		tb >> comment;
 
@@ -571,7 +571,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		std::cerr << "::HANDLECLIENT VRB FileBrowser RemoteRequest DirList!" << std::endl;
 #endif
 		int size = 0;
-		char* entry = NULL;
+		const char* entry = NULL;
 
 		tb >> size;
 
@@ -599,7 +599,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 #ifdef MB_DEBUG
 		std::cerr << "::HANDLECLIENT VRB FileBrowser RemoteRequest FileRequest!" << std::endl;
 #endif
-		char* filename = NULL;
+		const char* filename = NULL;
 		int size = 0;
 		tb >> filename;
 		tb >> size;
@@ -621,7 +621,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 #ifdef MB_DEBUG
 		std::cerr << "::HANDLECLIENT VRB FileBrowser RemoteRequest DirChange!" << std::endl;
 #endif
-		char* cpath = NULL;
+		const char* cpath = NULL;
 		tb >> cpath;
 		TokenBuffer rtb;
 		rtb << TABLET_SET_CURDIR;
@@ -641,7 +641,7 @@ void vrb::handleFileBrowserRemoteRequest(covise::Message* msg)
 		std::cerr << "::HANDLECLIENT VRB FileBrowser RemoteRequest DriveList!" << std::endl;
 #endif
 		int size = 0;
-		char* entry = NULL;
+		const char* entry = NULL;
 
 		tb >> size;
 

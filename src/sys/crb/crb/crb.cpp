@@ -548,7 +548,7 @@ int main(int argc, char* argv[])
         case COVISE_MESSAGE_CRB_EXEC:
         {
             CRB_EXEC crbExec{ msg };
-            if (strcmp(crbExec.category, "") != 0)
+            if (strcmp(crbExec.category(), "") != 0)
             {
                 mod.start(crbExec);
                 //old code: read name and category out of buffer and pass the rest
@@ -557,7 +557,7 @@ int main(int argc, char* argv[])
             {
                 auto a = getCmdArgs(crbExec);
                 auto args = cmdArgsToCharVec(a);
-                const char* appName = crbExec.name;
+                const char* appName = crbExec.name();
                 std::string execpath;
                 const char* covisedir = getenv("COVISEDIR");
                 const char* archsuffix = getenv("ARCHSUFFIX");

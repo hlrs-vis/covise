@@ -134,7 +134,7 @@ void CoviseDaemon::answerPermissionRequest(covise::Program p, int clientID, bool
         if (answer)
         {
             std::lock_guard<std::mutex> g(m_mutex);
-            spawnProgram(m_receivedLaunchRequest->program, m_receivedLaunchRequest->args);
+            spawnProgram(m_receivedLaunchRequest->program(), m_receivedLaunchRequest->args());
             m_receivedLaunchRequest = nullptr;
         }
     }
@@ -220,17 +220,17 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         if (p.type == PROXY_TYPE::ConnectionTest)
         {
             auto &proxyTest = p.unpackOrCast<PROXY_ConnectionTest>();
-            auto toPartner = findClient(proxyTest.toClientID);
+            auto toPartner = findClient(proxyTest.toClientID());
             if (toPartner != m_clientList.end())
             {
                 auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                std::cerr << " starting conn test with timeout " << proxyTest.timeout << " : " << std::ctime(&now) << std::endl;
+                std::cerr << " starting conn test with timeout " << proxyTest.timeout() << " : " << std::ctime(&now) << std::endl;
                 Host testHost{toPartner->userInfo().ipAdress.c_str()};
-                ClientConnection testConn{&testHost, proxyTest.port, 0, 0, 0, static_cast<double>(proxyTest.timeout)};
+                ClientConnection testConn{&testHost, proxyTest.port(), 0, 0, 0, static_cast<double>(proxyTest.timeout())};
 
                 now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 std::cerr << " ClientConnection is connected : " << testConn.is_connected() << " : " << std::ctime(&now) << std::endl;
-                PROXY_ConnectionState stateMsg{proxyTest.fromClientID, proxyTest.toClientID, testConn.is_connected() ? ConnectionCapability::DirectConnectionPossible : ConnectionCapability::ProxyRequired};
+                PROXY_ConnectionState stateMsg{proxyTest.fromClientID(), proxyTest.toClientID(), testConn.is_connected() ? ConnectionCapability::DirectConnectionPossible : ConnectionCapability::ProxyRequired};
                 sendCoviseMessage(stateMsg, *m_client);
             }
         }
@@ -255,9 +255,9 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         case VRB_PERMIT_LAUNCH_TYPE::Ask:
         {
             auto &a = p.unpackOrCast<VRB_PERMIT_LAUNCH_Ask>();
-            if (a.launcherID == m_client->ID())
+            if (a.launcherID() == m_client->ID())
             {
-                ask(a.program, a.senderID);
+                ask(a.program(), a.senderID());
             }
         }
         break;
@@ -265,12 +265,12 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         {
             auto &answer = p.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
             auto launchRequest = std::find_if(m_sentLaunchRequests.begin(), m_sentLaunchRequests.end(), [this, &answer](const std::unique_ptr<VRB_MESSAGE> &request)
-                                              { return request->clientID == answer.launcherID && answer.requestorID == m_client->ID(); });
+                                              { return request->clientID() == answer.launcherID() && answer.requestorID() == m_client->ID(); });
             if (launchRequest != m_sentLaunchRequests.end())
             {
-                if (answer.permit)
+                if (answer.permit())
                 {
-                    VRB_MESSAGE v{launchRequest->get()->senderID, launchRequest->get()->program, launchRequest->get()->clientID, launchRequest->get()->environment, launchRequest->get()->args, answer.code};
+                    VRB_MESSAGE v{launchRequest->get()->senderID(), launchRequest->get()->program(), launchRequest->get()->clientID(), launchRequest->get()->environment(), launchRequest->get()->args(), answer.code()};
                     sendLaunchRequestToRemoteLaunchers(v, m_client.get());
                 }
                 m_sentLaunchRequests.erase(launchRequest);
@@ -280,9 +280,9 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
         case VRB_PERMIT_LAUNCH_TYPE::Abort:
         {
             auto &abort = p.unpackOrCast<VRB_PERMIT_LAUNCH_Abort>();
-            if (abort.launcherID == m_client->ID())
+            if (abort.launcherID() == m_client->ID())
             {
-                emit askForPermissionAbort(abort.program, abort.requestorID);
+                emit askForPermissionAbort(abort.program(), abort.requestorID());
             }
         }
         break;
@@ -340,23 +340,23 @@ void CoviseDaemon::handleVrbLauncherMessage(const covise::Message &msg)
 {
     m_receivedLaunchRequest = nullptr;
     auto lrq = std::unique_ptr<VRB_MESSAGE>{new VRB_MESSAGE{msg}};
-    if (lrq->clientID != m_client->ID())
+    if (lrq->clientID() != m_client->ID())
     {
         return;
     }
 
-    ProgramToLaunch p{lrq->program, lrq->senderID, lrq->code};
+    ProgramToLaunch p{lrq->program(), lrq->senderID(), lrq->code()};
     auto permission = std::find(m_allowedProgramsToLaunch.begin(), m_allowedProgramsToLaunch.end(), p) != m_allowedProgramsToLaunch.end();
 
     if (!permission)
     {
         m_receivedLaunchRequest = std::move(lrq);
-        ask(m_receivedLaunchRequest->program, m_receivedLaunchRequest->senderID);
+        ask(m_receivedLaunchRequest->program(), m_receivedLaunchRequest->senderID());
     }
     else
     {
         std::lock_guard<std::mutex> g(m_mutex);
-        spawnProgram(lrq->program, lrq->args);
+        spawnProgram(lrq->program(), lrq->args());
     }
 }
 

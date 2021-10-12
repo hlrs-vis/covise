@@ -168,14 +168,14 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         std::unique_ptr<Message> msg{new Message{}};
         waitForProxyMsg(msg, *proxyConn);
         PROXY proxy{*msg};
-        auto conn = proxyConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port, processId, type);
+        auto conn = proxyConn->addProxy(proxy.unpackOrCast<PROXY_ProxyCreated>().port(), processId, type);
         proxyConn->addRemoveNotice(conn, [this](){ m_conn = nullptr; });
         m_conn = conn;
-        if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress))
+        if (sendConnMessage(m_conn->get_port(), host.hostManager.getVrbClient().getCredentials().ipAddress()))
         {
             waitForProxyMsg(msg, *proxyConn);
             PROXY pr{*msg};
-            if (!pr.unpackOrCast<PROXY_ProxyConnected>().success)
+            if (!pr.unpackOrCast<PROXY_ProxyConnected>().success())
             {
                 cerr << "* timelimit in accept for module " << m_executableName << " exceeded!!" << endl;
                 return false;

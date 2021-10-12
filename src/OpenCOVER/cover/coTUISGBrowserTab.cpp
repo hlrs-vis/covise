@@ -216,7 +216,7 @@ void coTUISGBrowserTab::loadFilesFlag(bool state)
     else
         setVal(TABLET_LOADFILE_SATE, 0);
 }
-void coTUISGBrowserTab::hideSimNode(bool state, char *nodePath, char *simPath)
+void coTUISGBrowserTab::hideSimNode(bool state, const char *nodePath, const char *simPath)
 {
     if (state)
     {
@@ -227,7 +227,7 @@ void coTUISGBrowserTab::hideSimNode(bool state, char *nodePath, char *simPath)
         setVal(TABLET_SIM_SHOW_HIDE, 1, nodePath, simPath);
     }
 }
-void coTUISGBrowserTab::setSimPair(char *nodePath, char *simPath, char *simName)
+void coTUISGBrowserTab::setSimPair(const char *nodePath, const char *simPath, const char *simName)
 {
     setVal(TABLET_SIM_SETSIMPAIR, nodePath, simPath, simName);
 }
@@ -326,7 +326,7 @@ void coTUISGBrowserTab::parseTextureMessage(TokenBuffer &tb)
     tb >> type;
     if (type == TABLET_TEX_CHANGE)
     {
-        char *path = nullptr;
+        const char *path = nullptr;
         int dataLength = 0;
         tb >> textureNumber;
         tb >> textureMode;
@@ -780,7 +780,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     case TABLET_BROWSER_EXPAND_UPDATE:
     {
         visitorMode = UPDATE_EXPAND;
-        char *path;
+        const char *path;
         tb >> path;
         expandPath = std::string(path);
 
@@ -791,7 +791,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     case TABLET_BROWSER_SELECTED_NODE:
     {
         visitorMode = SET_SELECTION;
-        char *path, *pPath;
+        const char *path, *pPath;
         tb >> path;
         selectPath = std::string(path);
         tb >> pPath;
@@ -811,7 +811,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     case TABLET_BROWSER_SHOW_NODE:
     {
         visitorMode = SHOW_NODE;
-        char *path, *pPath;
+        const char *path, *pPath;
         tb >> path;
         showhidePath = std::string(path);
         tb >> pPath;
@@ -824,7 +824,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     case TABLET_BROWSER_HIDE_NODE:
     {
         visitorMode = HIDE_NODE;
-        char *path, *pPath;
+        const char *path, *pPath;
         tb >> path;
         showhidePath = std::string(path);
         tb >> pPath;
@@ -862,7 +862,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     }
     case TABLET_BROWSER_FIND:
     {
-        char *fname;
+        const char *fname;
         visitorMode = FIND_NODE;
         tb >> fname;
         findName = std::string(fname);
@@ -872,11 +872,11 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
     }
     case TABLET_BROWSER_LOAD_FILES:
     {
-        char *fname;
+        const char *fname;
         tb >> fname;
 
         if (listener)
-            listener->tabletLoadFilesEvent(fname);
+            listener->tabletLoadFilesEvent((char*)fname);
         break;
     }
     break;

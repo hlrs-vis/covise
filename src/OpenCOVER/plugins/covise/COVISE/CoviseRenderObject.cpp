@@ -577,7 +577,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         TokenBuffer tb(&msg);
 
         strncpy(type, tb.getBinary(7), 7);
-        char *n;
+        const char *n;
         tb >> n;
         name = new char[strlen(n) + 1];
         strcpy(name, n);
@@ -973,7 +973,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
             TokenBuffer tb(&msg);
 
             strncpy(type, tb.getBinary(7), 7);
-            char *n;
+            const char *n;
             tb >> n;
             name = new char[strlen(n) + 1];
             strcpy(name, n);

@@ -303,9 +303,9 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     //gottlieb<
     if (type == TABLET_SIM_SETSIMPAIR)
     {
-        char *nodePath;
-        char *simPath;
-        char *simName;
+        const char *nodePath;
+        const char *simPath;
+        const char *simName;
         tb >> nodePath;
         tb >> simPath;
         tb >> simName;
@@ -325,8 +325,8 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     {
         int state;
         tb >> state;
-        char *nodePath;
-        char *simPath;
+        const char *nodePath;
+        const char *simPath;
         tb >> nodePath;
         tb >> simPath;
 
@@ -353,9 +353,9 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     if (type == TABLET_BROWSER_NODE)
     {
         int nodetype, numChildren;
-        char *name;
-        char *nodeClassName;
-        char *path, *parentPath;
+        const char *name;
+        const char *nodeClassName;
+        const char *path, *parentPath;
         int nodeMode;
 
         tb >> nodetype;
@@ -426,7 +426,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_BROWSER_CURRENT_NODE)
     {
-        char *path;
+        const char *path;
         tb >> path;
         QString itemPath(path);
 
@@ -441,8 +441,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_BROWSER_REMOVE_NODE)
     {
-        char *path;
-        char *pPath;
+        const char *path, *pPath;
         tb >> path;
         tb >> pPath;
         QString itemPath(path);
@@ -472,8 +471,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 
         if (item)
         {
-            char *path;
-            char *pPath;
+            const char *path, *pPath;
             int mode, trans;
             tb >> path;
             tb >> pPath;
@@ -594,7 +592,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     else if (type == TABLET_TEX_CHANGE)
     {
         int buttonNumber;
-        char *currentPath;
+        const char *currentPath;
         tb >> buttonNumber;
         tb >> currentPath;
         std::string path = std::string(currentPath);
@@ -673,14 +671,14 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == GET_SHADER)
     {
-        char *name;
+        const char *name;
         tb >> name;
         QString shaderName(name);
         propertyDialog->addShader(shaderName);
     }
     else if (type == GET_UNIFORMS)
     {
-        char *name, *type, *value, *min, *max, *textureFile;
+        const char *name, *type, *value, *min, *max, *textureFile;
         tb >> name;
         tb >> type;
         tb >> value;
@@ -697,7 +695,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == GET_SOURCE)
     {
-        char *vertex, *fragment, *geometry, *tessControl, *tessEval;
+        const char *vertex, *fragment, *geometry, *tessControl, *tessEval;
         tb >> vertex;
         tb >> fragment;
         tb >> geometry;
@@ -712,7 +710,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == UPDATE_UNIFORM)
     {
-        char *Sname, *Uname, *value, *textureFile;
+        const char *Sname, *Uname, *value, *textureFile;
         tb >> Sname;
         tb >> Uname;
         tb >> value;
@@ -726,7 +724,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == UPDATE_VERTEX)
     {
-        char *Sname, *vertex;
+        const char *Sname, *vertex;
         tb >> Sname;
         tb >> vertex;
         QString SName(Sname);
@@ -736,7 +734,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == UPDATE_TESSCONTROL)
     {
-        char *Sname, *tessControl;
+        const char *Sname, *tessControl;
         tb >> Sname;
         tb >> tessControl;
         QString SName(Sname);
@@ -746,7 +744,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == UPDATE_TESSEVAL)
     {
-        char *Sname, *tessEval;
+        const char *Sname, *tessEval;
         tb >> Sname;
         tb >> tessEval;
         QString SName(Sname);
@@ -756,7 +754,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == UPDATE_FRAGMENT)
     {
-        char *Sname, *fragment;
+        const char *Sname, *fragment;
         tb >> Sname;
         tb >> fragment;
         QString SName(Sname);
@@ -766,7 +764,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == UPDATE_GEOMETRY)
     {
-        char *Sname, *geometry;
+        const char *Sname, *geometry;
         tb >> Sname;
         tb >> geometry;
         QString SName(Sname);
@@ -776,7 +774,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == SET_NUM_VERT)
     {
-        char *Sname;
+        const char *Sname;
         int value;
         tb >> Sname;
         tb >> value;
@@ -787,7 +785,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == SET_INPUT_TYPE)
     {
-        char *Sname;
+        const char *Sname;
         int value;
         tb >> Sname;
         tb >> value;
@@ -798,7 +796,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == SET_OUTPUT_TYPE)
     {
-        char *Sname;
+        const char *Sname;
         int value;
         tb >> Sname;
         tb >> value;

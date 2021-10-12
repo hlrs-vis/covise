@@ -876,8 +876,8 @@ public:
     virtual void incTextureListCount();
     virtual void sendTexture();
     virtual void loadFilesFlag(bool state);
-    virtual void hideSimNode(bool state, char *nodePath, char *parentPath);
-    virtual void setSimPair(char *nodePath, char *simPath, char *simName);
+    virtual void hideSimNode(bool state, const char *nodePath, const char *parentPath);
+    virtual void setSimPair(const char *nodePath, const char *simPath, const char *simName);
 
     virtual int queueIsEmpty() const
     {

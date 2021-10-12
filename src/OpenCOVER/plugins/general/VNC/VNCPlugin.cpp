@@ -392,8 +392,7 @@ void VNCPlugin::message(int toWhom, int type, int len, const void *buf)
     case PluginMessageTypes::RemoteDTConnectToHost:
     {
         TokenBuffer tb((const char *)buf, len);
-        char *c_hostname;
-        char *c_passwd;
+        const char *c_hostname, *c_passwd;
         unsigned int port;
 
         tb >> c_hostname;
@@ -410,7 +409,7 @@ void VNCPlugin::message(int toWhom, int type, int len, const void *buf)
     case PluginMessageTypes::RemoteDTDisconnect:
     {
         TokenBuffer tb((const char *)buf, len);
-        char *c_hostname;
+        const char *c_hostname;
         unsigned int port;
 
         tb >> c_hostname;
@@ -426,7 +425,7 @@ void VNCPlugin::message(int toWhom, int type, int len, const void *buf)
     case PluginMessageTypes::RemoteDTShowDesktop:
     {
         TokenBuffer tb((const char *)buf, len);
-        char *c_hostname;
+        const char *c_hostname;
         unsigned int port;
 
         tb >> c_hostname;
@@ -441,7 +440,7 @@ void VNCPlugin::message(int toWhom, int type, int len, const void *buf)
     case PluginMessageTypes::RemoteDTHideDesktop:
     {
         TokenBuffer tb((const char *)buf, len);
-        char *c_hostname;
+        const char *c_hostname;
         unsigned int port;
 
         tb >> c_hostname;

@@ -52,7 +52,7 @@ TokenBuffer &operator>>(TokenBuffer &tb, ClientInfo &cl);
 
 typedef std::vector<ClientInfo> ClientList; 
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, ClientList, clients)
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, char *, hostName, char *, userName, vrb::VrbCredentials, vrbCredentials)
+DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, const char *, hostName, const char *, userName, vrb::VrbCredentials, vrbCredentials)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailableModules, COMSGEXPORT, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, COMSGEXPORT, int, clientId, covise::UserInfo, partnerInfo, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ConnectionCompleted, COMSGEXPORT, int, partnerClientId);

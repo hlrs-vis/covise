@@ -50,7 +50,7 @@ void CoverDaemon::handleConnections()
         if (msg.type == covise::COVISE_MESSAGE_VRB_MESSAGE)
         {
             vrb::VRB_MESSAGE lrq{msg};
-            for(const auto &env : lrq.environment)
+            for(const auto &env : lrq.environment())
             {
                 auto delim = env.find_first_of("=");
                 auto var = env.substr(0, delim);
@@ -67,7 +67,7 @@ void CoverDaemon::handleConnections()
                 
             }
 
-            spawnProgram(covise::programNames[lrq.program], lrq.args, lrq.environment);
+            spawnProgram(covise::programNames[lrq.program()], lrq.args(), lrq.environment());
         }
     }
 }

@@ -689,7 +689,7 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
         int type;
         tb >> type;
 
-        char *text;
+        const char *text;
         int annotID;
         int state;
         float color;
@@ -1184,7 +1184,7 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
         tb >> id;
         int owner;
         tb >> owner;
-        char *text;
+        const char *text;
         tb >> text;
         //std::cout << "Annotation Text Message: " << text << std::endl;
 

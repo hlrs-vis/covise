@@ -62,7 +62,7 @@ void TUIComboBox::setValue(TabletValue type, covise::TokenBuffer &tb)
     //cerr << "setValue " << type << endl;
     if (type == TABLET_ADD_ENTRY)
     {
-        char *en;
+        const char *en;
         tb >> en;
         QString entry(en);
         combo->addItem(entry);
@@ -71,7 +71,7 @@ void TUIComboBox::setValue(TabletValue type, covise::TokenBuffer &tb)
     {
         int num = combo->count();
         int i;
-        char *en;
+        const char *en;
         tb >> en;
         QString entry(en);
         for (i = 0; i < num; i++)
@@ -87,7 +87,7 @@ void TUIComboBox::setValue(TabletValue type, covise::TokenBuffer &tb)
     {
         int num = combo->count();
         int i;
-        char *en;
+        const char *en;
         tb >> en;
         QString entry(en);
         for (i = 0; i < num; i++)

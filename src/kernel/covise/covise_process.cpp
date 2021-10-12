@@ -587,12 +587,12 @@ Process::Process(const char *n, int i, sender_type st, int port)
 Process::Process(const char *n, int arc, char *arv[], sender_type st)
 {
     auto crbExec = covise::getExecFromCmdArgs(arc, arv);
-    id = crbExec.moduleCount;
+    id = crbExec.moduleCount();
     name = n;
     send_type = st;
     init_env();
-    covise_hostname = crbExec.moduleIp;
-    host = new Host(crbExec.moduleHostName);
+    covise_hostname = crbExec.moduleIp();
+    host = new Host(crbExec.moduleHostName());
 //char *instance = arv[4];
 
 #ifdef __linux__

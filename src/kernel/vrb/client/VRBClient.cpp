@@ -30,23 +30,23 @@
 using namespace vrb;
 using namespace covise;
 
-VRBClient::VRBClient(covise::Program p, const char *collaborativeConfigurationFile, bool slave, bool p_useUDP)
-    : VRBClient(p, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave, p_useUDP)
+VRBClientBase::VRBClientBase(covise::Program p, const char *collaborativeConfigurationFile, bool slave, bool p_useUDP)
+    : VRBClientBase(p, readcollaborativeConfigurationFile(collaborativeConfigurationFile), slave, p_useUDP)
     {}
 
-VRBClient::VRBClient(covise::Program p, const vrb::VrbCredentials &credentials, bool slave, bool p_useUDP)
+VRBClientBase::VRBClientBase(covise::Program p, const vrb::VrbCredentials &credentials, bool slave, bool p_useUDP)
     : vrb::RemoteClient(p)
     , m_credentials(credentials)
 	, isSlave(slave)
     , useUDP(p_useUDP)
 {
-    if (!credentials.ipAddress.empty())
+    if (!credentials.ipAddress().empty())
     {
-        serverHost = new Host(credentials.ipAddress.c_str());
+        serverHost = new Host(credentials.ipAddress().c_str());
     }
 }
 
-VRBClient::VRBClient(covise::Program p, covise::MessageSenderInterface *sender, bool isSlave, bool useUDP)
+VRBClientBase::VRBClientBase(covise::Program p, covise::MessageSenderInterface *sender, bool isSlave, bool useUDP)
 : vrb::RemoteClient(p)
 , m_sender(sender)
 , isSlave(isSlave)
@@ -54,7 +54,7 @@ VRBClient::VRBClient(covise::Program p, covise::MessageSenderInterface *sender, 
 {
 }
 
-VRBClient::~VRBClient()
+VRBClientBase::~VRBClientBase()
 {
     if (!m_sender)
         shutdown();
@@ -154,7 +154,7 @@ int VRBClient::wait(Message *m, int messageType)
 }
 
 
-bool VRBClient::sendMessage(const covise::UdpMessage* m) const
+bool VRBClientBase::sendMessage(const covise::UdpMessage* m) const
 {
     if (m_sender)
     {
@@ -173,7 +173,7 @@ bool VRBClient::sendMessage(const covise::UdpMessage* m) const
 
 }
 
-bool VRBClient::sendMessage(const Message* m) const
+bool VRBClientBase::sendMessage(const Message* m) const
 {
     if (m_sender)
     {
@@ -222,7 +222,7 @@ bool VRBClient::sendMessage(const Message* m) const
 	return true;
 }
 
-bool VRBClient::isConnected()
+bool VRBClientBase::isConnected()
 {
     if (m_sender)
         return true;
@@ -236,7 +236,7 @@ bool VRBClient::isConnected()
     return sConn->is_connected();
 }
 
-bool VRBClient::connectToServer(std::string sessionName)
+bool VRBClientBase::connectToServer(std::string sessionName)
 {
     setSession(vrb::SessionID{ID(), sessionName});
     if (m_sender)
@@ -257,18 +257,18 @@ bool VRBClient::connectToServer(std::string sessionName)
     {
         connFuture = std::async(std::launch::async, [this]() -> std::unique_ptr<covise::ClientConnection>
         {
-            setThreadName("VRBClient:conn");
+            setThreadName("VRBClientBase:conn");
 
             bool firstVrbConnection = true;
             m_shutdown = false;
             while (!m_shutdown)
             {
-                auto myConn = std::unique_ptr<ClientConnection>{new ClientConnection(serverHost, m_credentials.tcpPort, 0, (sender_type)0, 0, 1.0)};
+                auto myConn = std::unique_ptr<ClientConnection>{new ClientConnection(serverHost, m_credentials.tcpPort(), 0, (sender_type)0, 0, 1.0)};
                 if (!myConn->is_connected()) // could not open server port
                 {
                     if (firstVrbConnection)
                     {
-                        fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_credentials.tcpPort);
+                        fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_credentials.tcpPort());
                         firstVrbConnection = false;
                     }
                     sleep(1);
@@ -296,7 +296,7 @@ bool VRBClient::connectToServer(std::string sessionName)
     return true;
 }
 
-bool VRBClient::completeConnection(){
+bool VRBClientBase::completeConnection(){
 
     TokenBuffer tb;
     tb << *this;
@@ -326,23 +326,23 @@ bool VRBClient::completeConnection(){
     return false;
 }
 
-void VRBClient::setupUdpConn() 
+void VRBClientBase::setupUdpConn() 
 {
     if (m_sender)
         return;
 
     if(serverHost)
     {
-	    udpConn.reset(new UDPConnection(0, 0, m_credentials.udpPort, serverHost->getAddress()));
+	    udpConn.reset(new UDPConnection(0, 0, m_credentials.udpPort(), serverHost->getAddress()));
     }
 }
 
-float VRBClient::getSendDelay()
+float VRBClientBase::getSendDelay()
 {
     return sendDelay;
 }
 
-void VRBClient::shutdown(){
+void VRBClientBase::shutdown(){
     m_shutdown = true;
     if (m_sender)
         return;
@@ -354,7 +354,7 @@ void VRBClient::shutdown(){
     }
 }
 
-const vrb::VrbCredentials &VRBClient::getCredentials() const{
+const vrb::VrbCredentials &VRBClientBase::getCredentials() const{
     return m_credentials;
 }
 
@@ -373,7 +373,7 @@ vrb::VrbCredentials vrb::readcollaborativeConfigurationFile(const char *collabor
                 retval_fgets = fgets(buf, 5000, fp);
                 if (retval_fgets == NULL)
                 {
-                    std::cerr << "VRBClient::VRBClient: fgets failed" << std::endl;
+                    std::cerr << "VRBClientBase::VRBClientBase: fgets failed" << std::endl;
                     return vrb::VrbCredentials{};
                 }
                 if (strncmp(buf, "server:", 7) == 0)
@@ -383,7 +383,7 @@ vrb::VrbCredentials vrb::readcollaborativeConfigurationFile(const char *collabor
                     retval = sscanf(buf, "server:%s", hostName);
                     if (retval != 1)
                     {
-                        std::cerr << "VRBClient::VRBClient: sscanf failed" << std::endl;
+                        std::cerr << "VRBClientBase::VRBClientBase: sscanf failed" << std::endl;
                         delete[] hostName;
                         return vrb::VrbCredentials{};
                     }
@@ -410,4 +410,86 @@ vrb::VrbCredentials vrb::readcollaborativeConfigurationFile(const char *collabor
         }
     }
     return vrb::VrbCredentials{};
+}
+
+bool VRBClient::poll(Message *m)
+{
+    if (isSlave)
+        return false;
+    if (sConn->check_for_input())
+    {
+        sConn->recv_msg(m);
+        return true;
+    }
+	return false;
+
+
+}
+bool VRBClient::pollUdp(covise::UdpMessage* m)
+{
+	if (!udpConn)
+	{
+		return false;
+	}
+	return udpConn->recv_udp_msg(m);
+}
+int VRBClient::wait(Message *m)
+{
+#ifdef MB_DEBUG
+    std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
+    std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
+#endif
+    if (isSlave)
+        return 0;
+    if (messageQueue.size())
+    {
+        *m = *(messageQueue.front()); // copy message
+        messageQueue.remove(messageQueue.front());
+        delete m;
+        return 1;
+    }
+
+    return sConn->recv_msg(m);
+}
+
+int VRBClient::wait(Message *m, int messageType)
+{
+#ifdef MB_DEBUG
+    if (m->type != COVISE_MESSAGE_EMPTY)
+    {
+        std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
+        std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
+        std::cerr << "VRBCLIENT::MESSAGEWAIT: Type: " << messageType << std::endl;
+    }
+#endif
+    int ret = 1;
+    while (ret > 0)
+    {
+        ret = sConn->recv_msg(m);
+        if (m->type == messageType)
+        {
+            return ret;
+        }
+        else
+        {
+            Message *msg = new Message(*m);
+            messageQueue.push_back(msg);
+        }
+        if(udpConn)
+        {
+		int udpret = udpConn->recv_msg(m);
+		if (m->type == messageType)
+		{
+			return udpret;
+		}
+		else
+		{
+			Message* msg = new Message(*m);
+			messageQueue.push_back(msg);
+		}
+        }
+
+
+    }
+    return ret;
 }

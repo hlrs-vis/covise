@@ -64,19 +64,19 @@ namespace test
         args.push_back("test1");
         args.push_back("test2");
         VRB_MESSAGE vrbMessage{5, 123, args};
-        assert(vrbMessage.messageType == 5);
-        assert(vrbMessage.clientID == 123);
-        assert(vrbMessage.args.size() == 2);
-        assert(vrbMessage.args[0] == "test1");
-        assert(vrbMessage.args[1] == "test2");
+        assert(vrbMessage.messageType() == 5);
+        assert(vrbMessage.clientID() == 123);
+        assert(vrbMessage.args().size() == 2);
+        assert(vrbMessage.args()[0] == "test1");
+        assert(vrbMessage.args()[1] == "test2");
         //std::cerr << vrbMessage << std::endl;
         covise::Message msg = vrbMessage.createMessage();
         VRB_MESSAGE vrbMessage2{msg};
-        assert(vrbMessage2.messageType == 5);
-        assert(vrbMessage2.clientID == 123);
-        assert(vrbMessage2.args.size() == 2);
-        assert(vrbMessage2.args[0] == "test1");
-        assert(vrbMessage2.args[1] == "test2");
+        assert(vrbMessage2.messageType() == 5);
+        assert(vrbMessage2.clientID() == 123);
+        assert(vrbMessage2.args().size() == 2);
+        assert(vrbMessage2.args()[0] == "test1");
+        assert(vrbMessage2.args()[1] == "test2");
         assert(vrbMessage == vrbMessage2);
         //std::cerr << vrbMessage2 << std::endl;
     }
@@ -89,9 +89,9 @@ namespace test
         VRB_LOAD_SESSION_Launcher launcher{154, args};
         //std::cerr << launcher << std::endl;
 
-        assert(launcher.clientID == 154);
-        assert(launcher.args.size() == 2);
-        assert(launcher.args[1] == "test2");
+        assert(launcher.clientID() == 154);
+        assert(launcher.args().size() == 2);
+        assert(launcher.args()[1] == "test2");
         covise::Message msg = launcher.createMessage();
         msg.type = covise::COVISE_MESSAGE_VRB_LOAD_SESSION;
         VRB_LOAD_SESSION m{msg};
@@ -102,9 +102,9 @@ namespace test
             break;
         case VrbMessageType::Launcher:
             auto &launcher2 = m.unpackOrCast<VRB_LOAD_SESSION_Launcher>();
-            assert(launcher2.clientID == 154);
-            assert(launcher2.args.size() == 2);
-            assert(launcher2.args[1] == "test2");
+            assert(launcher2.clientID() == 154);
+            assert(launcher2.args().size() == 2);
+            assert(launcher2.args()[1] == "test2");
             //std::cerr << launcher2 << std::endl;
             break;
         }

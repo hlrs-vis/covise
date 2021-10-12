@@ -1,6 +1,7 @@
 #ifndef MESSAGE_MACROS_H
 #define MESSAGE_MACROS_H
 
+#include "message_types.h"
 #include <cassert>
 #include <cstring>
 #include <memory>
@@ -15,28 +16,6 @@ namespace covise
 
     namespace detail
     {
-        //Wrap constructor arguments to take pointers and arithmetic types as value and other types as const ref
-
-        template <class T, class Enable = void>
-        struct Wrapper
-        {
-            Wrapper(const T &t) : m_t(t) {}
-            operator const T &() const { return m_t; }
-
-        private:
-            const T &m_t;
-        }; // primary template
-
-        template <class T>
-        struct Wrapper<T, typename std::enable_if<std::is_pointer<T>::value || std::is_arithmetic<T>::value>::type>
-        {
-            Wrapper(const T t) : m_t(t) {}
-            operator const T() const { return m_t; }
-
-        private:
-            const T m_t;
-        };
-
         template <typename T>
         bool equals(const T &t1, const T &t2)
         {
@@ -66,6 +45,18 @@ namespace covise
                 throw std::runtime_error("Type mismatch in message_macros: msg type " + std::to_string(msgType) + " , class type " + std::to_string(classType));
             return Dummy{};
         }
+
+        template <class T, class Enable = void>
+        struct ValueOrRef
+        {
+            typedef const T &RetVal;
+        }; // primary template
+
+        template <class T>
+        struct ValueOrRef<T, typename std::enable_if<std::is_arithmetic<T>::value || std::is_pointer<T>::value>::type>
+        {
+            typedef T RetVal;
+        };
 
     } //detail
 
@@ -118,48 +109,51 @@ namespace covise
 #define MY_OVERLOADED_24(MacroName, MacroNameLast, T00, N00, T01, N01, T02, N02, T03, N03, N04, T04, T05, N05, T06, N06, T07, N07, T08, N08, T09, N09, T10, N10, T11, N11) MacroName(T00, N00) MY_OVERLOADED_22(MacroName, MacroNameLast, T01, N01, T02, N02, T03, N03, N04, T04, T05, N05, T06, N06, T07, N07, T08, N08, T09, N09, T10, N10, T11, N11)
 #define MY_OVERLOADED_26(MacroName, MacroNameLast, T00, N00, T01, N01, T02, N02, T03, N03, N04, T04, T05, N05, T06, N06, T07, N07, T08, N08, T09, N09, T10, N10, T11, N11, T12, N12) MacroName(T00, N00) MY_OVERLOADED_24(MacroName, MacroNameLast, T01, N01, T02, N02, T03, N03, N04, T04, T05, N05, T06, N06, T07, N07, T08, N08, T09, N09, T10, N10, T11, N11, T12, N12)
 
-#define DECLARATION(type, name) \
-    type name;
+#define ACCESSOR(type, name) \
+    typename covise::detail::ValueOrRef<type>::RetVal name() const { return CAT(m_, name); }\
 
-#define CONST_DECLARATION(type, name) \
-    const type name;
+#define DECLARATION(type, name) \
+    type CAT(m_, name);
 
 #define CONSTRUCTOR_ELEMENT_LAST(type, name) \
-    const covise::detail::Wrapper<const type> &name
+    typename covise::detail::ValueOrRef<type>::RetVal name
+    
 #define CONSTRUCTOR_ELEMENT(type, name) \
     CONSTRUCTOR_ELEMENT_LAST(type, name),
 
-#define CONSTRUCTOR_INITIALIZER_ELEM(type, name) \
-    name(name),
-
 #define CONSTRUCTOR_INITIALIZER_ELEM_LAST(type, name) \
-    name(name)
+     CAT(m_, name)(name)
 
-#define CONSTRUCTOR_INITIALIZER_TB(type, name) \
-    name(covise::detail::get<type>(tb)),
+#define CONSTRUCTOR_INITIALIZER_ELEM(type, name) \
+    CONSTRUCTOR_INITIALIZER_ELEM_LAST(type, name),
+
 
 #define CONSTRUCTOR_INITIALIZER_TB_LAST(type, name) \
-    name(covise::detail::get<type>(tb))
+     CAT(m_, name)(covise::detail::get<type>(tb))
+
+#define CONSTRUCTOR_INITIALIZER_TB(type, name) \
+    CONSTRUCTOR_INITIALIZER_TB_LAST(type, name),
 
 #define FILL_TOKENBUFFER(type, name) \
-    << msg.name
+    << msg.name()
 
 #define TAKE_FROM_TOKENBUFFER(type, name) \
-    >> msg.name
+    >> msg.CAT(m_, name)
 
 #define PRINT_CLASS(type, name)                                          \
     os << #name << ": ";                                                 \
-    covise::tryPrintWithError(os, msg.name, #type, " is not printable"); \
+    covise::tryPrintWithError(os, msg.name(), #type, " is not printable"); \
     os << ", ";
 
 #define CHECK_EQUALITY(type, name) \
-    covise::detail::equals(c1.name, c2.name) &&
+    covise::detail::equals(c1.name(), c2.name()) &&
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 
 #define DECL_TB_SERIALIZABLE_STRUCT(ClassName, export, ...)                                \
     struct export ClassName{                                                               \
-        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))};                     \
+        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                       \
+            EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))};                       \
     export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg); \
     export covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, ClassName &msg);       \
     export std::ostream &operator<<(std::ostream &os, const ClassName &msg);
@@ -194,12 +188,13 @@ namespace covise
 #define DECL_MESSAGE_CLASS(ClassName, export, ...)                                                     \
     struct export ClassName                                                                            \
     {                                                                                                  \
-        EXPAND(MY_OVERLOADED(CONST_DECLARATION, CONST_DECLARATION, __VA_ARGS__))                                   \
         ClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__)));  \
         explicit ClassName(const covise::Message &msg);                                                \
         covise::Message createMessage() const;                                                         \
+        EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))                                   \
                                                                                                        \
     private:                                                                                           \
+        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                   \
         ClassName(covise::detail::Dummy, covise::TokenBuffer &&tb);                                    \
     };                                                                                                 \
     export covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const ClassName &msg);             \
@@ -245,14 +240,20 @@ namespace covise
     }
 
 #define DECL_SUB_MESSAGE_CLASS_DETAIL(ClassName, FullClassName, EnumClass, EnumType, export, ...)                  \
-    struct export FullClassName : ClassName                                                                        \
+    struct export FullClassName : public ClassName                                                                        \
     {                                                                                                              \
         friend struct ClassName;                                                                                   \
-        EXPAND(MY_OVERLOADED(CONST_DECLARATION, CONST_DECLARATION, __VA_ARGS__))                                               \
         explicit FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))); \
+        FullClassName(const FullClassName &) = delete;                                                             \
+        FullClassName(FullClassName &&) = default;                                                                 \
+        FullClassName &operator=(const FullClassName &) = delete;                                                  \
+        FullClassName &operator=(FullClassName &&) = default;                                                      \
+        ~FullClassName() = default;                                                                                \
         covise::Message createMessage() const;                                                                     \
+        EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))                                                     \
                                                                                                                    \
     private:                                                                                                       \
+        EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                               \
         static const EnumClass subType = EnumClass::EnumType;                                                      \
         explicit FullClassName(const covise::Message &msg);                                                        \
         explicit FullClassName(covise::detail::Dummy, covise::TokenBuffer &&tb);                                   \
@@ -305,6 +306,7 @@ namespace covise
         ClassName(const covise::Message &msg);                                                     \
         virtual ~ClassName() = default;                                                            \
         const EnumClass type;                                                                      \
+        static constexpr int MessageType = covise::CAT(COVISE_MESSAGE_, ClassName);                \
         template <typename Derived>                                                                \
         const Derived &unpackOrCast() const                                                        \
         {                                                                                          \
@@ -326,7 +328,7 @@ namespace covise
     private:                                                                                       \
         ClassName(covise::detail::Dummy, covise::TokenBuffer &&tb, const covise::Message &msg);    \
         const covise::Message *m_msg = nullptr;                                                    \
-        mutable std::unique_ptr<ClassName> m_subMsg;                                               \
+        mutable std::shared_ptr<ClassName> m_subMsg;                                               \
     };
 
 #define IMPL_MESSAGE_WITH_SUB_CLASSES(ClassName, EnumClass)                                                                                                                       \

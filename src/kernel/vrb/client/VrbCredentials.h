@@ -9,13 +9,19 @@ namespace covise
 }
 namespace vrb
 {
-struct VRBCLIENTEXPORT VrbCredentials
+class VRBCLIENTEXPORT VrbCredentials
 {
+public:
     VrbCredentials(const std::string &ipAddress, unsigned int tcpPort, unsigned int udpPort);
     VrbCredentials();
-    const std::string ipAddress;
-    const unsigned int tcpPort;
-    const unsigned int udpPort;
+
+    const std::string &ipAddress() const;
+    unsigned int tcpPort() const;
+    unsigned int udpPort() const;
+private:
+    std::string m_ipAddress;
+    unsigned int m_tcpPort;
+    unsigned int m_udpPort;
 };
 VRBCLIENTEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &, const VrbCredentials &cred);
 VRBCLIENTEXPORT bool operator==(const VrbCredentials &cred1, const VrbCredentials &cred2);

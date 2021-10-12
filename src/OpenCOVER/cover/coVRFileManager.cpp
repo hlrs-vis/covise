@@ -2015,7 +2015,7 @@ int coVRFileManager::getFileId(const char* url)
 }
 void coVRFileManager::sendFile(TokenBuffer &tb)
 {
-    char *filename;
+    const char *filename;
     tb >> filename;
     int requestorsID;
     tb >> requestorsID;

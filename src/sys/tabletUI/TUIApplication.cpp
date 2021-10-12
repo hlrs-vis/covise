@@ -668,7 +668,7 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         {
             tb >> ID;
             int elementTypeInt, parent;
-            char *name;
+            const char *name;
             tb >> elementTypeInt;
             tb >> parent;
             tb >> name;

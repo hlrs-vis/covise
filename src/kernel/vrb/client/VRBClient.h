@@ -33,23 +33,21 @@ enum udp_msg_type : int;
 }
 namespace vrb{
 
-class VRBCLIENTEXPORT VRBClient : public vrb::RemoteClient, public covise::MessageSenderInterface
+
+
+class VRBCLIENTEXPORT VRBClientBase : public vrb::RemoteClient, public covise::MessageSenderInterface
 {
 
 public:
-    VRBClient(covise::Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
-    VRBClient(covise::Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
-    VRBClient(covise::Program p, covise::MessageSenderInterface *sender, bool isSlave = false, bool useUDP=false);
-    ~VRBClient();
+    VRBClientBase(covise::Program p, const char *collaborativeConfigurationFile = NULL, bool isSlave = false, bool useUDP=false);
+    VRBClientBase(covise::Program p, const VrbCredentials &credentials, bool isSlave = false, bool useUDP=false);
+    VRBClientBase(covise::Program p, covise::MessageSenderInterface *sender, bool isSlave = false, bool useUDP=false);
+    ~VRBClientBase();
+
     bool connectToServer(std::string sessionName = "");
     bool completeConnection();
 
     bool isConnected();
-    bool poll(covise::Message *m);
-	bool pollUdp(covise::UdpMessage* m);
-    int wait(covise::Message *m);
-    int wait(covise::Message *m, int messageType);
-
 
 	void setupUdpConn();
     std::list<covise::Message *> messageQueue;
@@ -57,7 +55,7 @@ public:
     void shutdown(); //threadsafe, shuts down the tcp socked, don't use the client after a call to this function
     const VrbCredentials &getCredentials() const;
 
-private:
+protected:
     std::unique_ptr<covise::ClientConnection> sConn; // tcp connection to Server
     std::unique_ptr<covise::UDPConnection> udpConn; //udp connection to server
 
@@ -77,6 +75,17 @@ private:
     bool sendMessage(const covise::Message* m) const override;
     bool sendMessage(const covise::UdpMessage *m) const override;
 };
+
+
+class VRBCLIENTEXPORT VRBClient: public VRBClientBase{
+    using VRBClientBase::VRBClientBase;
+public:
+    bool poll(covise::Message *m);
+	bool pollUdp(covise::UdpMessage* m);
+    int wait(covise::Message *m);
+    int wait(covise::Message *m, int messageType);
+};
+
 VrbCredentials readcollaborativeConfigurationFile(const char *collaborativeConfigurationFile);
 }
 #endif

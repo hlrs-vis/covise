@@ -708,9 +708,9 @@ bool OpenCOVER::init()
         {
             auto cmdExec = getExecFromCmdArgs(coCommandLine::instance()->argc(), coCommandLine::instance()->argv());
             std::stringstream ss;
-            ss << "covise" << cmdExec.vrbClientIdOfController << "_" << cmdExec.moduleId;
+            ss << "covise" << cmdExec.vrbClientIdOfController() << "_" << cmdExec.moduleId();
             m_startSession = ss.str();
-            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials});
+            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials()});
         }
         if (m_vrbCredentials) {
             hud->setText2("connecting(VRB)");

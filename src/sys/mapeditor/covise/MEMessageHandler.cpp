@@ -166,7 +166,7 @@ void MEMessageHandler::dataReceived(int)
                 case covise::COVISE_MESSAGE_CRB_EXEC:
                 {
                     covise::CRB_EXEC exec{*msg};
-                    if (!strcmp(exec.name ,"ViNCE") || !strcmp(exec.name,"Renderer"))
+                    if (!strcmp(exec.name() ,"ViNCE") || !strcmp(exec.name(),"Renderer"))
                         MEUserInterface::instance()->startRenderer(exec);
                 }
                 break;
@@ -1124,17 +1124,17 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
     case NEW_UI_TYPE::AvailablePartners:
     {
         auto &subMsg = msg.unpackOrCast<NEW_UI_AvailablePartners>();
-        MEMainHandler::instance()->updateRemotePartners(subMsg.clients);
+        MEMainHandler::instance()->updateRemotePartners(subMsg.clients());
     }
     break;
     case NEW_UI_TYPE::RequestNewHost:
     {
         auto &subMsg = msg.unpackOrCast<NEW_UI_RequestNewHost>();
-        QString text = "Please start coviseDaemon on host " + QString{subMsg.hostName} +
-                       " as user " + QString(subMsg.userName) +
-                       "\nand connect to the VRB server running on " + QString(subMsg.vrbCredentials.ipAddress.c_str()) +
-                       " listening on port " + QString::number(subMsg.vrbCredentials.tcpPort) +
-                       " (udp-port: " + QString::number(subMsg.vrbCredentials.udpPort) + ") and try again";
+        QString text = "Please start coviseDaemon on host " + QString{subMsg.hostName()} +
+                       " as user " + QString(subMsg.userName()) +
+                       "\nand connect to the VRB server running on " + QString(subMsg.vrbCredentials().ipAddress().c_str()) +
+                       " listening on port " + QString::number(subMsg.vrbCredentials().tcpPort()) +
+                       " (udp-port: " + QString::number(subMsg.vrbCredentials().udpPort()) + ") and try again";
         MEUserInterface::instance()->printMessage(text);
         
     }
@@ -1142,15 +1142,15 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
     case NEW_UI_TYPE::PartnerInfo:
     {
         auto &p = msg.unpackOrCast<NEW_UI_PartnerInfo>();
-        MEMainHandler::instance()->initHost(p.clientId, p.partnerInfo, p.modules, p.categories);
+        MEMainHandler::instance()->initHost(p.clientId(), p.partnerInfo(), p.modules(), p.categories());
     }
     break;
     case NEW_UI_TYPE::HandlePartners:
     {
         auto &subMsg = msg.unpackOrCast<NEW_UI_HandlePartners>();
-        if (subMsg.launchStyle == LaunchStyle::Disconnect)
+        if (subMsg.launchStyle() == LaunchStyle::Disconnect)
         {
-            for(int clientId : subMsg.clients)
+            for(int clientId : subMsg.clients())
             {
                 MEHost *host = MEHostListHandler::instance()->getHost(clientId);
                 if (host)
@@ -1163,17 +1163,17 @@ void MEMessageHandler::receiveUIMessage(const covise::NEW_UI&msg){
     break;
     case NEW_UI_TYPE::ConnectionCompleted:
     {
-        emit MEMainHandler::instance()->connectionCompleted(msg.unpackOrCast<NEW_UI_ConnectionCompleted>().partnerClientId);
+        emit MEMainHandler::instance()->connectionCompleted(msg.unpackOrCast<NEW_UI_ConnectionCompleted>().partnerClientId());
     }
     break;
     case NEW_UI_TYPE::ChangeClientId:
     {
         auto &c = msg.unpackOrCast<NEW_UI_ChangeClientId>();
-        MEHost *host = MEHostListHandler::instance()->getHost(c.oldId);
+        MEHost *host = MEHostListHandler::instance()->getHost(c.oldId());
         if (host)
-            host->setClientId(c.newId);
+            host->setClientId(c.newId());
         else
-            std::cerr << "host " << c.oldId << "not found" << std::endl;
+            std::cerr << "host " << c.oldId() << "not found" << std::endl;
     }
     break;
     default:

@@ -83,7 +83,7 @@ void module::start(const CRB_EXEC & exec)
 {
     auto args = getCmdArgs(exec);
     args.erase(args.begin()); 
-    switch (exec.flag)
+    switch (exec.flag())
     {
     case ExecFlag::Normal:
         spawnProgram(execpath.c_str(), args);
@@ -352,7 +352,7 @@ std::pair<std::vector<std::string>, std::vector<std::string>> moduleList::getMod
 
 bool moduleList::start(const CRB_EXEC& exec)
 {
-    if (find(exec.name, exec.category))
+    if (find(exec.name(), exec.category()))
     {
         current()->start(exec);
         return true;;

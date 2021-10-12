@@ -164,13 +164,13 @@ void CoviseProxy::handleMessage(Message &msg)
       case PROXY_TYPE::CreateSubProcessProxie:
       {
         auto &createSubProcessProxie = p.unpackOrCast<PROXY_CreateSubProcessProxie>();
-        addProxy(createSubProcessProxie.procID, createSubProcessProxie.senderType, createSubProcessProxie.timeout);
+        addProxy(createSubProcessProxie.procID(), createSubProcessProxie.senderType(), createSubProcessProxie.timeout());
         return;
       }
       case PROXY_TYPE::CreateCrbProxy:
       {
         auto &crb = p.unpackOrCast<PROXY_CreateCrbProxy>();
-        m_crbProxies.emplace_back(new CrbProxyConn{crb.fromProcID, crb.toProcID, *m_controllerCon, crb.timeout, [this](const CrbProxyConn &crbproxy)
+        m_crbProxies.emplace_back(new CrbProxyConn{crb.fromProcID(), crb.toProcID(), *m_controllerCon, crb.timeout(), [this](const CrbProxyConn &crbproxy)
                                                    {
                                                      std::lock_guard<std::mutex> g{m_crbProxyMutex};
                                                      m_disconnectedCrbProxyies.push_back(&crbproxy);
@@ -180,7 +180,7 @@ void CoviseProxy::handleMessage(Message &msg)
       case PROXY_TYPE::Abort:
       {
         auto &abort = p.unpackOrCast<PROXY_Abort>();
-        for (auto proc : abort.processIds)
+        for (auto proc : abort.processIds())
           abortClientConnection(proc);
       }
       break;

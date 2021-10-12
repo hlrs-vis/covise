@@ -204,9 +204,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 {
 	ui->setupUi(this);
-	ui->tcpInput->setValue(credentials.tcpPort);
-	ui->udpInput->setValue(credentials.udpPort);
-	ui->hostIpf->setText(QString(credentials.ipAddress.c_str()));
+	ui->tcpInput->setValue(credentials.tcpPort());
+	ui->udpInput->setValue(credentials.udpPort());
+	ui->hostIpf->setText(QString(credentials.ipAddress().c_str()));
 	ui->progressBar->setVisible(false);
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 	connect(&m_progressBarTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);

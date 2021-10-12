@@ -84,7 +84,7 @@ void TUIPopUp::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_STRING)
     {
-        char *v;
+        const char *v;
         tb >> v;
         value = v;
         textEdit->insertPlainText(value);

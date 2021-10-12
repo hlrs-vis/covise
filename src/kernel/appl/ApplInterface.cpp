@@ -376,17 +376,17 @@ void Covise::init(int argc, char *argv[])
     err = WSAStartup(wVersionRequested, &wsaData);
 #endif
     auto crbExec = covise::getExecFromCmdArgs(argc, argv);
-    const char* p = strrchr(crbExec.name, '/');
+    const char* p = strrchr(crbExec.name(), '/');
     if (p)
         m_name = p + 1;
     else
-        m_name = crbExec.name;
+        m_name = crbExec.name();
     int len = m_name.size();
     if (len >= 4 && m_name.compare(len - 4, 4, ".exe") == 0)
     {
         m_name.erase(len - 4, 4);
     }
-    instance = crbExec.moduleId;
+    instance = crbExec.moduleId();
     //fprintf(stderr,"-- appmod = new ApplicationProcess\n");
     appmod = new ApplicationProcess(m_name.c_str(), argc, argv);
     //fprintf(stderr,"-- appmod = %x\n", appmod);

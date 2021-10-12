@@ -440,7 +440,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             auto sGBrowserTab = t.tab;
 
             int mode;
-            char *path, *pPath;
+            const char *path, *pPath;
 
             TokenBuffer _tb;
 
@@ -452,7 +452,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             if (mode == SET_PROPERTIES)
             {
                 int depthOnly, all, remove, j, trans;
-                char *children;
+                const char *children;
                 tb >> path;
                 tb >> pPath;
                 tb >> depthOnly;
@@ -534,7 +534,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             if (mode == GET_UNIFORMS)
             {
 
-                char *name;
+                const char *name;
                 tb >> name;
                 std::string shaderName = std::string(name);
                 coVRShader *_shader = shaderList->get(shaderName);
@@ -593,7 +593,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == STORE_SHADER)
             {
-                char *shaderName;
+                const char *shaderName;
                 tb >> shaderName;
                 coVRShader *_shader = shaderList->get(shaderName);
                 if (_shader)
@@ -603,7 +603,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == SET_SHADER)
             {
-                char *name;
+                const char *name;
                 tb >> path;
                 tb >> name;
 
@@ -615,7 +615,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == SET_UNIFORM)
             {
-                char *Sname, *Uname, *Uvalue, *StexFile;
+                const char *Sname, *Uname, *Uvalue, *StexFile;
                 tb >> Sname;
                 tb >> Uname;
                 tb >> Uvalue;
@@ -634,7 +634,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 
             if (mode == SET_INPUT_TYPE)
             {
-                char *Sname;
+                const char *Sname;
                 int value;
                 tb >> Sname;
                 tb >> value;
@@ -649,7 +649,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == SET_OUTPUT_TYPE)
             {
-                char *Sname;
+                const char *Sname;
                 int value;
                 tb >> Sname;
                 tb >> value;
@@ -664,7 +664,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == SET_NUM_VERT)
             {
-                char *Sname;
+                const char *Sname;
                 int value;
                 tb >> Sname;
                 tb >> value;
@@ -679,7 +679,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == SET_VERTEX)
             {
-                char *Sname, *Vvalue;
+                const char *Sname, *Vvalue;
                 tb >> Sname;
                 tb >> Vvalue;
 
@@ -694,7 +694,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 
             if (mode == SET_TESSCONTROL)
             {
-                char *Sname, *Vvalue;
+                const char *Sname, *Vvalue;
                 tb >> Sname;
                 tb >> Vvalue;
 
@@ -709,7 +709,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 
             if (mode == SET_TESSEVAL)
             {
-                char *Sname, *Vvalue;
+                const char *Sname, *Vvalue;
                 tb >> Sname;
                 tb >> Vvalue;
 
@@ -724,7 +724,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 
             if (mode == SET_FRAGMENT)
             {
-                char *Sname, *Fvalue;
+                const char *Sname, *Fvalue;
                 tb >> Sname;
                 tb >> Fvalue;
 
@@ -738,7 +738,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             }
             if (mode == SET_GEOMETRY)
             {
-                char *Sname, *Gvalue;
+                const char *Sname, *Gvalue;
                 tb >> Sname;
                 tb >> Gvalue;
 
@@ -843,9 +843,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 
     if (type == PluginMessageTypes::PLMXMLSetSimPair) //message from PLMXML -> show Node
     {
-        char *nodePath;
-        char *simPath;
-        char *simName;
+        const char *nodePath, *simPath, *simName;
         tb >> nodePath;
         tb >> simPath;
         tb >> simName;
@@ -855,8 +853,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 
     if (type == PluginMessageTypes::PLMXMLShowNode) //message from PLMXML -> show Node
     {
-        char *nodePath;
-        char *simPath;
+        const char *nodePath;
+        const char *simPath;
         tb >> nodePath;
         tb >> simPath;
         for (auto t: tuis)
@@ -864,8 +862,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::PLMXMLHideNode) //message from PLMXML -> hide Node
     {
-        char *nodePath;
-        char *simPath;
+        const char *nodePath;
+        const char *simPath;
         tb >> nodePath;
         tb >> simPath;
         for (auto t: tuis)
@@ -873,14 +871,14 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::PLMXMLLoadFiles) //message from PLMXML ->create Load-Files Button
     {
-        char *Sname;
+        const char *Sname;
         tb >> Sname;
         for (auto t: tuis)
             t.tab->loadFilesFlag(true); //calls the loadFilesFlag-methode in /src/renderer/OpenCOVER/cover/coTabletUI.cpp
     } //>gottlieb
     if (type == PluginMessageTypes::SGBrowserSetFragment) // Set Fragment
     {
-        char *Sname, *Fvalue;
+        const char *Sname, *Fvalue;
         tb >> Sname;
         tb >> Fvalue;
         std::string SName = std::string(Sname);
@@ -903,7 +901,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserSetGeometry) // Set Fragment
     {
-        char *Sname, *Gvalue;
+        const char *Sname, *Gvalue;
         tb >> Sname;
         tb >> Gvalue;
         std::string SName = std::string(Sname);
@@ -938,7 +936,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserSetNumVertex) // Set Vertex
     {
-        char *Sname;
+        const char *Sname;
         int value;
         tb >> Sname;
         tb >> value;
@@ -960,7 +958,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 
     if (type == PluginMessageTypes::SGBrowserSetOutputType)
     {
-        char *Sname;
+        const char *Sname;
         int value;
         tb >> Sname;
         tb >> value;
@@ -982,7 +980,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 
     if (type == PluginMessageTypes::SGBrowserSetInputType)
     {
-        char *Sname;
+        const char *Sname;
         int value;
         tb >> Sname;
         tb >> value;
@@ -1004,7 +1002,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserSetVertex) // Set Vertex
     {
-        char *Sname, *Vvalue;
+        const char *Sname, *Vvalue;
         tb >> Sname;
         tb >> Vvalue;
         std::string SName = std::string(Sname);
@@ -1027,7 +1025,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserSetTessControl) // Set TessControl
     {
-        char *Sname, *Vvalue;
+        const char *Sname, *Vvalue;
         tb >> Sname;
         tb >> Vvalue;
         std::string SName = std::string(Sname);
@@ -1050,7 +1048,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserSetTessEval) // Set TessEval
     {
-        char *Sname, *Vvalue;
+        const char *Sname, *Vvalue;
         tb >> Sname;
         tb >> Vvalue;
         std::string SName = std::string(Sname);
@@ -1073,7 +1071,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserSetUniform) // Set Uniform
     {
-        char *Sname, *Uname, *Uvalue, *StexFile;
+        const char *Sname, *Uname, *Uvalue, *StexFile;
         tb >> Sname;
         tb >> Uname;
         tb >> Uvalue;
@@ -1108,7 +1106,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 
     if (type == PluginMessageTypes::SGBrowserSetShader) // Set Shader
     {
-        char *path, *name;
+        const char *path, *name;
         tb >> path;
         tb >> name;
         std::string nodePath = std::string(path);
@@ -1122,7 +1120,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserRemoveShader) //Remove Shader
     {
-        char *path;
+        const char *path;
         tb >> path;
 
         std::string nodePath = std::string(path);
@@ -1329,7 +1327,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     if (type == PluginMessageTypes::SGBrowserRemoveTexture) // Remove Texture
     {
         int texNumber;
-        char *path;
+        const char *path;
         osg::Node *propNode = NULL;
 
         tb >> path;
@@ -1367,7 +1365,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     {
         int all, remove, transparent;
         int j, depthOnly;
-        char *path, *pPath, *children;
+        const char *path, *pPath, *children;
         osg::Node *propNode = NULL;
 
         tb >> path;
@@ -1525,7 +1523,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 #endif
 
         int i;
-        char *path, *pPath;
+        const char *path, *pPath;
         osg::Node *propNode = NULL;
 
         tb >> path;

@@ -74,7 +74,7 @@ namespace opencover
                                           std::vector<std::string> args;
                                           args.push_back("-C");
                                           const auto vrbc = OpenCOVER::instance()->vrbc();
-                                          args.push_back(vrbc->getCredentials().ipAddress + ":" + std::to_string(vrbc->getCredentials().tcpPort));
+                                          args.push_back(vrbc->getCredentials().ipAddress() + ":" + std::to_string(vrbc->getCredentials().tcpPort()));
                                           if (!coVRCommunication::instance()->getSessionID().isPrivate())
                                           {
                                               args.push_back("-g");

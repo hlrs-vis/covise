@@ -389,7 +389,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
         break;
     case vrb::AR_VIDEO_FRAME:
     {
-        char * tmp;
+        const char * tmp;
         tb >> tmp;
         ARToolKit::instance()->remoteAR->receiveImage(tmp);
     }
@@ -498,20 +498,6 @@ void coVRCommunication::handleVRB(const Message &msg)
 
     }
     break;
-    case COVISE_MESSAGE_VRB_CONNECT_TO_COVISE:
-    {
-        char *ip;
-        tb >> ip;
-        int argc;
-        tb >> argc;
-        char **argv = new char *[argc];
-        for (int i = 0; i < argc; i++)
-        {
-            tb >> argv[i];
-        }
-       //VRCoviseConnectio::covconn = new VRCoviseConnection(argc, argv);
-    }
-    break;
     case COVISE_MESSAGE_VRB_GUI:
     {
         int subtype;
@@ -520,7 +506,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         {
         case LOAD_FILE:
         {
-            char *fileName;
+            const char *fileName;
             tb >> fileName;
             coVRFileManager::instance()->loadFile(fileName);
         }
@@ -568,7 +554,7 @@ void coVRCommunication::handleVRB(const Message &msg)
     break;
     case COVISE_MESSAGE_VRB_CURRENT_FILE:
     {
-        char *filename;
+        const char *filename;
         int remoteID;
         tb >> remoteID;
         tb >> filename;
@@ -629,7 +615,7 @@ void coVRCommunication::handleVRB(const Message &msg)
             // Enable loading here
 
             //Retrieve Data object
-            char *curl = NULL;
+            const char *curl = NULL;
 
             tb >> curl;
 

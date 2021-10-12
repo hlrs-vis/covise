@@ -417,8 +417,7 @@ void RemoteDT::message(int toWhom, int type, int len, const void *buf)
     case PluginMessageTypes::RemoteDTConnectToHost:
     {
         TokenBuffer tb((const char *)buf, len);
-        char *c_ip;
-        char *c_passwd;
+        const char *c_ip, *c_passwd;
         unsigned int port;
 
         tb >> c_ip;

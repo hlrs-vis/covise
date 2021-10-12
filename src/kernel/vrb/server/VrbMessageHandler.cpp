@@ -156,7 +156,7 @@ namespace vrb
 		break;
 		case COVISE_MESSAGE_VRB_CONNECT_TO_COVISE:
 		{
-			char *ip;
+			const char *ip;
 			tb >> ip;
 			if (VRBSClient *c = clients.get(ip))
 			{
@@ -180,7 +180,7 @@ namespace vrb
 		{
 #define FORWARD_PERMIT_MESSAGE(type, member) \
 	auto &f = permit.unpackOrCast<type>();   \
-	auto cl = clients.get(f.member);         \
+	auto cl = clients.get(f.member());         \
 	if (cl)                                  \
 	{                                        \
 		sendCoviseMessage(f, *cl);           \
@@ -749,10 +749,10 @@ namespace vrb
 		{
 			auto &p = msg.unpackOrCast<PROXY_CreateControllerProxy>();
 			int port = 0;
-			auto controllerProxy = m_proxies.find(p.vrbClientID);
+			auto controllerProxy = m_proxies.find(p.vrbClientID());
 			if (controllerProxy == m_proxies.end())
 			{
-				controllerProxy = m_proxies.emplace(std::make_pair(p.vrbClientID, std::unique_ptr<CoviseProxy>{new CoviseProxy{*clients.get(p.vrbClientID)}})).first;
+				controllerProxy = m_proxies.emplace(std::make_pair(p.vrbClientID(), std::unique_ptr<CoviseProxy>{new CoviseProxy{*clients.get(p.vrbClientID())}})).first;
 			}
 			else
 			{
@@ -763,22 +763,22 @@ namespace vrb
 		case PROXY_TYPE::ConnectionCheck:
 		{
 			auto &p = msg.unpackOrCast<PROXY_ConnectionCheck>();
-			auto fromCl = clients.get(p.fromClientID);
-			auto toCl = clients.get(p.toClientID);
+			auto fromCl = clients.get(p.fromClientID());
+			auto toCl = clients.get(p.toClientID());
 			covise::ConnectionCapability cap;
 			if (fromCl && toCl)
 			{
 				assert(fromCl->userInfo().userType == Program::coviseDaemon);
 				cap = m_connectionStates.check(fromCl->userInfo(), toCl->userInfo());
 			}
-			PROXY_ConnectionState capMsg{p.fromClientID, p.toClientID, cap};
+			PROXY_ConnectionState capMsg{p.fromClientID(), p.toClientID(), cap};
 			sendCoviseMessage(capMsg, *toCl);
 		}
 		break;
 		case PROXY_TYPE::ConnectionTest:
 		{
 			auto &p = msg.unpackOrCast<PROXY_ConnectionTest>();
-			auto fromCl = clients.get(p.fromClientID);
+			auto fromCl = clients.get(p.fromClientID());
 			if (fromCl)
 				sendCoviseMessage(p, *fromCl);
 		}
@@ -786,11 +786,11 @@ namespace vrb
 		case PROXY_TYPE::ConnectionState:
 		{
 			auto &p = msg.unpackOrCast<PROXY_ConnectionState>();
-			auto fromCl = clients.get(p.fromClientID);
-			auto toCl = clients.get(p.toClientID);
+			auto fromCl = clients.get(p.fromClientID());
+			auto toCl = clients.get(p.toClientID());
 			if (fromCl && toCl)
 			{
-				m_connectionStates.addConn(ConnectionState{fromCl->userInfo(), toCl->userInfo(), p.capability});
+				m_connectionStates.addConn(ConnectionState{fromCl->userInfo(), toCl->userInfo(), p.capability()});
 				sendCoviseMessage(p, *toCl);
 			}
 		}

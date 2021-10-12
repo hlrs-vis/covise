@@ -1,5 +1,6 @@
 #include "CRB_EXEC.h"
 #include <messages/CRB_EXEC.h>
+#include <messages/PROXY.h>
 #include <cassert>
 #include <cstring>
 #include <net/message.h>
@@ -17,18 +18,18 @@ void test_crbExec() {
 	auto args = covise::cmdArgsToCharVec(a);
 	covise::CRB_EXEC crbExec2 = covise::getExecFromCmdArgs(a.size(), const_cast<char**>(args.data()));
 	//std::cerr << crbExec2 << std::endl << std::endl;
-	assert(!strcmp(crbExec1.name, crbExec2.name));
-	assert(!strcmp(crbExec1.controllerIp, crbExec2.controllerIp));
-	assert(!strcmp(crbExec1.moduleId, crbExec2.moduleId));
-	assert(!strcmp(crbExec1.moduleIp, crbExec2.moduleIp));
-	assert(!strcmp(crbExec1.moduleHostName, crbExec2.moduleHostName));
-	assert(!crbExec2.category);
-	assert(crbExec1.params[0] == crbExec2.params[0]);
-	assert(crbExec1.params[1] == crbExec2.params[1]);
-	assert(crbExec1.vrbCredentials.ipAddress == crbExec2.vrbCredentials.ipAddress);
-	assert(crbExec1.vrbCredentials.tcpPort == crbExec2.vrbCredentials.tcpPort);
-	assert(crbExec1.vrbCredentials.udpPort == crbExec2.vrbCredentials.udpPort);
-
+	assert(!strcmp(crbExec1.name(), crbExec2.name()));
+	assert(!strcmp(crbExec1.controllerIp(), crbExec2.controllerIp()));
+	assert(!strcmp(crbExec1.moduleId(), crbExec2.moduleId()));
+	assert(!strcmp(crbExec1.moduleIp(), crbExec2.moduleIp()));
+	assert(!strcmp(crbExec1.moduleHostName(), crbExec2.moduleHostName()));
+	assert(!crbExec2.category());
+	assert(crbExec1.params()[0] == crbExec2.params()[0]);
+	assert(crbExec1.params()[1] == crbExec2.params()[1]);
+	assert(crbExec1.vrbCredentials().ipAddress() == crbExec2.vrbCredentials().ipAddress());
+	assert(crbExec1.vrbCredentials().tcpPort() == crbExec2.vrbCredentials().tcpPort());
+	assert(crbExec1.vrbCredentials().udpPort() == crbExec2.vrbCredentials().udpPort());
+	crbExec1 = crbExec2;
 	covise::TokenBuffer tb;
 	tb << crbExec1;
 	covise::Message msg(tb);
@@ -36,6 +37,9 @@ void test_crbExec() {
 	covise::CRB_EXEC crbExec3{msg};
 	assert(crbExec1 == crbExec3);
 
+	covise::PROXY_ConnectionState ps1{0, 0, covise::ConnectionCapability::DirectConnectionPossible};
+	auto ps2 = std::move(ps1);
+	
 }
 
 

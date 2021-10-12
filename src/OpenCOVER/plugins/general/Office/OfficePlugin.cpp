@@ -108,7 +108,7 @@ void OfficeConnection::handleMessage(Message *m)
     {
     case OfficePlugin::MSG_String:
         {
-            char *line;
+            const char *line;
             tb >> line;
             lastMessage->setText(line);
             if(strncmp(line,"setViewpoint",12)==0)
@@ -132,13 +132,13 @@ void OfficeConnection::handleMessage(Message *m)
         break;
     case OfficePlugin::MSG_ApplicationType:
         {
-            char *at=NULL;
+            const char *at=NULL;
             tb >> at;
             if(at)
             {
              applicationType = at;
             }
-            char *pn;
+            const char *pn;
             tb >> pn;
             productName = pn;
             fprintf(stderr,"applicationType: %s  product: %s\n",at,pn);

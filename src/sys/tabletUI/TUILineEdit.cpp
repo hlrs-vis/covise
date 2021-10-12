@@ -98,7 +98,7 @@ void TUILineEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
     //cerr << "TUILineEdit::setValue info: type = " << type << endl;
     if (type == TABLET_STRING)
     {
-        char *v;
+        const char *v;
         tb >> v;
         value = v;
         //cerr << "TUILineEdit::setValue " << value << endl;

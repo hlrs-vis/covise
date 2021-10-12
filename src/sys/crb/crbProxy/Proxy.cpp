@@ -33,22 +33,22 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
     auto args = getCmdArgs(messageData);
 
     int serverPort;
-    auto newModuleConn = std::unique_ptr<ServerConnection>(new ServerConnection(&serverPort, messageData.moduleCount, APPLICATIONMODULE));
+    auto newModuleConn = std::unique_ptr<ServerConnection>(new ServerConnection(&serverPort, messageData.moduleCount(), APPLICATIONMODULE));
     if (!moduleConn->is_connected())
         return;
     newModuleConn->listen();
-    CRB_EXEC newMessage{messageData.flag,
-                        messageData.name,
+    CRB_EXEC newMessage{messageData.flag(),
+                        messageData.name(),
                         serverPort,
                         crbConn->myHost->getAddress(),
-                        messageData.moduleCount,
-                        messageData.moduleId,
-                        messageData.moduleIp,
-                        messageData.moduleHostName,
-                        messageData.category,
-                        messageData.vrbClientIdOfController,
-                        messageData.vrbCredentials,
-                        messageData.params};
+                        messageData.moduleCount(),
+                        messageData.moduleId(),
+                        messageData.moduleIp(),
+                        messageData.moduleHostName(),
+                        messageData.category(),
+                        messageData.vrbClientIdOfController(),
+                        messageData.vrbCredentials(),
+                        messageData.params()};
 
     //cerr << " new Message:" << newMessage << endl;
     sendCoviseMessage(newMessage, *crbConn->toCrb);
@@ -58,10 +58,10 @@ Proxy::Proxy(const CRB_EXEC& messageData, CRBConnection *crbC)
         cerr << "* timelimit in accept for module exceeded!!" << endl;
         return;
     }
-    Host h {messageData.controllerIp};
-    ctrlConn = new ClientConnection(&h, messageData.controllerPort, messageData.moduleCount, APPLICATIONMODULE);
+    Host h {messageData.controllerIp()};
+    ctrlConn = new ClientConnection(&h, messageData.controllerPort(), messageData.moduleCount(), APPLICATIONMODULE);
     moduleConn = dynamic_cast<const ServerConnection*>(crbConn->listOfConnections->add(std::move(newModuleConn)));
-    ctrlConn = dynamic_cast<const ClientConnection*>(crbConn->listOfConnections->add(std::unique_ptr<ClientConnection>(new ClientConnection(&h, messageData.controllerPort, messageData.moduleCount, APPLICATIONMODULE))));
+    ctrlConn = dynamic_cast<const ClientConnection*>(crbConn->listOfConnections->add(std::unique_ptr<ClientConnection>(new ClientConnection(&h, messageData.controllerPort(), messageData.moduleCount(), APPLICATIONMODULE))));
 }
 
 Proxy::~Proxy()

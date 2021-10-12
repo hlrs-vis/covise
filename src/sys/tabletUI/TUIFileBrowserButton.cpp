@@ -150,7 +150,7 @@ void TUIFileBrowserButton::sendSelectedFile(QString file, QString dir, bool load
 void TUIFileBrowserButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     int size;
-    char *entry;
+    const char *entry;
     QString strEntry;
     QStringList list;
 
@@ -234,9 +234,9 @@ void TUIFileBrowserButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 #ifdef MB_DEBUG
         std::cerr << "Received FilterList!" << std::endl;
 #endif
-        char *filterList = NULL;
+        const char *filterList = NULL;
         tb >> filterList;
-        emit updateFilterList(filterList);
+        emit updateFilterList((char*)filterList);
     }
     else if (type == TABLET_SET_LOCATION)
     {

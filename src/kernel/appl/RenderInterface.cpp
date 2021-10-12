@@ -365,8 +365,8 @@ void CoviseRender::init(int argc, char *argv[])
     socket_id = appmod->get_socket_id(CoviseRender::remove_socket);
     h_name = (char *)appmod->get_hostname();
     auto crbExec = covise::getExecFromCmdArgs(argc, argv);
-    m_name =crbExec.name;
-    instance = crbExec.moduleId;
+    m_name =crbExec.name();
+    instance = crbExec.moduleId();
 
     print_comment(__LINE__, __FILE__, "Renderer Module succeeded");
 

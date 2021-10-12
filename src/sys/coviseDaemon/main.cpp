@@ -23,9 +23,9 @@ namespace po = boost::program_options;
 vrb::VrbCredentials readCredentials(const po::variables_map &vm)
 {
         vrb::VrbCredentials cr{};
-        std::string ip = cr.ipAddress;
-        auto tcp = cr.tcpPort;
-        auto udp = cr.udpPort;
+        std::string ip = cr.ipAddress();
+        auto tcp = cr.tcpPort();
+        auto udp = cr.udpPort();
         if (vm.count("host"))
         {
                 ip = vm["host"].as<std::string>();

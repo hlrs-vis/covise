@@ -158,9 +158,9 @@ void RemoteHost::determineAvailableModules(const CRBModule &crb)
 {
     NEW_UI msg{crb.initMessage};
     auto &pMsg = msg.unpackOrCast<NEW_UI_PartnerInfo>();
-    for (size_t i = 0; i < pMsg.modules.size(); i++)
+    for (size_t i = 0; i < pMsg.modules().size(); i++)
     {
-        m_availableModules.emplace_back(&hostManager.registerModuleInfo(pMsg.modules[i], pMsg.categories[i]));
+        m_availableModules.emplace_back(&hostManager.registerModuleInfo(pMsg.modules()[i], pMsg.categories()[i]));
     }
 }
 
@@ -230,7 +230,7 @@ void RemoteHost::launchProcess(const CRB_EXEC &exec) const
     catch (const Exception &e)
     {
         std::cerr << e.what() << '\n';
-        std::cerr << "failed to start module " << exec.name << " on host " << exec.moduleHostName << ": no crb running on that host" << std::endl;
+        std::cerr << "failed to start module " << exec.name() << " on host " << exec.moduleHostName() << ": no crb running on that host" << std::endl;
     }
 }
 
@@ -413,7 +413,6 @@ bool RemoteHost::removePartner()
             PROXY_Abort abort(procs);
             sendCoviseMessage(abort, *hostManager.proxyConn());
         }
-
         return true;
     }
 

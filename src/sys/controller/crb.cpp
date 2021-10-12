@@ -44,8 +44,8 @@ bool CRBModule::init()
     NEW_UI uiMsg{msg};
     auto &moduleMsg = uiMsg.unpackOrCast<NEW_UI_AvailableModules>();
     
-    checkCoviseVersion(moduleMsg.coviseVersion, getHost());
-    initMessage = NEW_UI_PartnerInfo{host.ID(), host.userInfo(), moduleMsg.coviseVersion, moduleMsg.modules, moduleMsg.categories}.createMessage();
+    checkCoviseVersion(moduleMsg.coviseVersion(), getHost());
+    initMessage = NEW_UI_PartnerInfo{host.ID(), host.userInfo(), moduleMsg.coviseVersion(), moduleMsg.modules(), moduleMsg.categories()}.createMessage();
 
     tryReceiveMessage(interfaceMessage);
     queryDataPath();
@@ -153,14 +153,14 @@ bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
         auto &crbProxyCreated = p.unpackOrCast<PROXY_ProxyCreated>();
         //send host and port to crb
         TokenBuffer tb1;
-        tb1 << crbProxyCreated.port << host.hostManager.getVrbClient().getCredentials().ipAddress;
+        tb1 << crbProxyCreated.port() << host.hostManager.getVrbClient().getCredentials().ipAddress();
         Message msg{msgTypes[i], tb1.getData()};
         crbs[i]->send(&msg);
 
         //wait for VRB to confirm the connection
         host.hostManager.proxyConn()->recv_msg(crbs[i]->processId, VRB, &proxyMsg);
         PROXY p2{proxyMsg};
-        if (!p2.unpackOrCast<PROXY_ProxyConnected>().success)
+        if (!p2.unpackOrCast<PROXY_ProxyConnected>().success())
         {
             std::cerr << "failed to connect crb on " << host.userInfo().ipAdress << " to crb on " << toCrb.host.userInfo().ipAdress << " via vrb proxy" << std::endl;
             return false;

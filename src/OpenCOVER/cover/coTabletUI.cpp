@@ -192,7 +192,7 @@ void coTUIFileBrowserButton::setClientList(const covise::Message &msg)
     //to the filebrowser gui
     TokenBuffer tb(&msg);
     //std::string entry;
-    char *entry = NULL;
+    const char *entry = NULL;
     int subtype;
     int size;
     int id;
@@ -254,8 +254,8 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     else if (i == TABLET_FB_FILE_SEL)
     {
         //File selected for opening in OpenCOVER
-        char *cstrFile = NULL;
-        char *cstrDirectory = NULL;
+        const char *cstrFile = NULL;
+        const char *cstrDirectory = NULL;
 		bool bLoadAll=false;
         std::string protocol;
 
@@ -372,7 +372,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
         // is adjusted accordingly.
         // This also triggers a refresh of the file list in the filebrowser
 
-        char *filter = NULL;
+        const char *filter = NULL;
         std::string strFilter;
 
         tb >> filter;
@@ -391,7 +391,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_REQ_DIRCHANGE)
     {
-        char *dir = NULL;
+        const char *dir = NULL;
         std::string strDir;
 
         tb >> dir;
@@ -464,7 +464,7 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_SET_LOCATION)
     {
-        char *location = NULL;
+        const char *location = NULL;
         tb >> location;
 #ifdef FILEBROWSER_DEBUG
         std::cerr << "Setting new location!" << std::endl;
@@ -526,8 +526,8 @@ void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     {
         std::string protocol;
         VRBData *locData = NULL;
-        char *location = NULL;
-        char *file = NULL;
+        const char *location = NULL;
+        const char *file = NULL;
         tb >> location;
         tb >> file;
 
@@ -668,7 +668,7 @@ void coTUIFileBrowserButton::setFileList(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
     //std::string entry;
-    char *entry = NULL;
+    const char *entry = NULL;
     int subtype;
     int size;
     int id;
@@ -714,7 +714,7 @@ IData *coTUIFileBrowserButton::getVRBData()
 void coTUIFileBrowserButton::setDirList(const covise::Message &msg)
 {
     TokenBuffer tb(&msg);
-    char *entry;
+    const char *entry;
     int subtype;
     int size;
     int id;
@@ -745,7 +745,7 @@ void coTUIFileBrowserButton::setDirList(const covise::Message &msg)
 void coTUIFileBrowserButton::setDrives(const Message &ms)
 {
     TokenBuffer tb(&ms);
-    char *entry;
+    const char *entry;
     int subtype;
     int size;
     int id;
@@ -774,7 +774,7 @@ void coTUIFileBrowserButton::setCurDir(const covise::Message &msg)
     TokenBuffer tb(&msg);
     int subtype = 0;
     int id = 0;
-    char *dirValue = NULL;
+    const char *dirValue = NULL;
 
     tb >> subtype;
     tb >> id;
@@ -2439,7 +2439,7 @@ void coTUIEditField::setImmediate(bool i)
 
 void coTUIEditField::parseMessage(TokenBuffer &tb)
 {
-    char *m;
+    const char *m;
     tb >> m;
     text = m;
     emit tabletEvent();
@@ -2512,7 +2512,7 @@ void coTUIEditTextField::setImmediate(bool i)
 
 void coTUIEditTextField::parseMessage(TokenBuffer &tb)
 {
-    char *m;
+    const char *m;
     tb >> m;
     text = m;
     emit tabletEvent();
@@ -2794,7 +2794,7 @@ coTUITextSpinEditField::~coTUITextSpinEditField()
 
 void coTUITextSpinEditField::parseMessage(TokenBuffer &tb)
 {
-    char *m;
+    const char *m;
     tb >> m;
     text = m;
     emit tabletEvent();
@@ -3685,7 +3685,7 @@ void coTUIPopUp::setImmediate(bool i)
 
 void coTUIPopUp::parseMessage(TokenBuffer &tb)
 {
-    char *m;
+    const char *m;
     tb >> m;
     text = m;
     emit tabletEvent();
@@ -4430,7 +4430,7 @@ bool coTabletUI::update()
             Message m;
             conn->recv_msg(&m);
             TokenBuffer tb(&m);
-            char *hostName;
+            const char *hostName;
             tb >> hostName;
             serverHost = new Host(hostName);
 

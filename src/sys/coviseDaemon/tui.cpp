@@ -11,7 +11,7 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
     qRegisterMetaType<covise::Program>();
     qRegisterMetaType<std::vector<std::string>>();
 
-    std::cerr << "connecting to VRB on " << credentials.ipAddress << ", TCP-Port: " << credentials.tcpPort << ", UDP-Port: " << credentials.udpPort << std::endl;
+    std::cerr << "connecting to VRB on " << credentials.ipAddress() << ", TCP-Port: " << credentials.tcpPort() << ", UDP-Port: " << credentials.udpPort() << std::endl;
     connect(&m_launcher, &CoviseDaemon::connectedSignal, this, []()
             { std::cerr << "connected!" << std::endl; });
     connect(&m_launcher, &CoviseDaemon::disconnectedSignal, this, [this]()

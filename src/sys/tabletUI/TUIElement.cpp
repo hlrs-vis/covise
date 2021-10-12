@@ -87,7 +87,7 @@ void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_LABEL)
     {
-        char *l;
+        const char *l;
         tb >> l;
         QString text = l;
         setLabel(text);
