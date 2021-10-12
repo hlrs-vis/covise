@@ -102,14 +102,6 @@ demo 35 "Hildesheim" cover /data/hildesheim/33-VR/out/praesentation.wrl
 # URBAN PLANNING
 category="Urban Planning"
 
-run_campus_bicycle() {
-    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
-    SUMO=$!
-    opencover $COVISEDIR/src/OpenCOVER/plugins/hlrs/Bicycle/BicycleCampus.wrl opencover://plugin/SumoTraCI
-    kill $SUMO
-}
-demo 36 "Campus with Sumo and bicycle simulator" run_campus_bicycle
-
 run_stuttgart() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
@@ -117,15 +109,6 @@ run_stuttgart() {
     kill $SUMO
 }
 demo 37 "Stuttgart with Sumo" run_stuttgart
-
-run_stuttgart_hidalgo() {
-    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
-    SUMO=$!
-    vistle /data/StuttgartForecast/stuttgart_air_quality_Jan2021.vsl
-    kill $SUMO
-}
-demo 49 "Stuttgart Hidalgo with Sumo" run_stuttgart_hidalgo
-
 
 demo 38 "Spielplatz Stuttgart West" covise /data/covise_net/2017/Spielplatz.net
 run_herrenberg() {
@@ -143,6 +126,22 @@ run_campus() {
     kill $SUMO
 }
 demo 40 "Campus with Sumo" run_campus
+
+run_marienplatz() {
+    bash /data/CapeReviso/SumoMarienplatz/250x250m/startSumo.sh &
+    SUMO=$!
+    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
+    kill $SUMO
+}
+demo 48 "Stuttgart with Marienplatz Sumo" run_marienplatz
+
+run_stuttgart_hidalgo() {
+    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
+    SUMO=$!
+    vistle /data/StuttgartForecast/stuttgart_air_quality_Jan2021.vsl
+    kill $SUMO
+}
+demo 49 "Stuttgart Hidalgo with Sumo" run_stuttgart_hidalgo
     
 # LKA
 category="LKA"
