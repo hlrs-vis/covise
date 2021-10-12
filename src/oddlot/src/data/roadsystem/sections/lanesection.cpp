@@ -791,16 +791,13 @@ void LaneSection::accept(Visitor *visitor)
 
 /*! \brief Accepts a visitor for the lanes.
  */
-void LaneSection::sortLanes()
-{
-    std::sort(lanes_, lanes_.begin(), lanes_.end();
-}
-/*! \brief Accepts a visitor for the lanes.
- */
 void LaneSection::acceptForLanes(Visitor *visitor)
-{
-    foreach(Lane * child, lanes_)
-    {
-        child->accept(visitor);
+{  // iterating back to front should do the trick of writing out left lanes first
+    QMapIterator<int, Lane *> child(lanes_);
+    child.toBack();
+    while (child.hasPrevious()) {
+        child.previous();
+
+        child.value()->accept(visitor);
     }
 }
