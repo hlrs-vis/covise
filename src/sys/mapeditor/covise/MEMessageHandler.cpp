@@ -60,6 +60,11 @@ MEMessageHandler::MEMessageHandler(int argc, char **argv)
 
     // make socket
     int TCP_Socket = m_userInterface->get_socket_id(remove_socket);
+    if (TCP_Socket < 0)
+    {
+        fprintf(stderr, "failed to connect to controller\n");
+        exit(-1);
+    }
     QSocketNotifier* sn = new QSocketNotifier(TCP_Socket, QSocketNotifier::Read);
 
     // weil unter windows manchmal Messages verloren gehen

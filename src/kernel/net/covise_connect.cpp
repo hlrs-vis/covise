@@ -161,6 +161,10 @@ Connection::~Connection() // close connection (for subclasses)
 int Connection::get_id(void (*remove_func)(int)) const
 {
     remove_socket = remove_func;
+    if (sock == nullptr)
+    {
+        return -1;
+    }
     return sock->get_id();
 }
 
