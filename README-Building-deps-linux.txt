@@ -195,3 +195,5 @@ module load vis/VirtualGL/2.6.5
 turbovncserver
 . /sw/vulcan-CentOS8/hlrs/non-spack/vis/spack/share/spack/setup-env.sh
 
+#proj
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/proj
