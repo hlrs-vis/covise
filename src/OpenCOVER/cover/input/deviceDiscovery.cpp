@@ -15,6 +15,8 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#else
+#include <arpa/inet.h>
 #endif
 #include "deviceDiscovery.h"
 #include <util/UDPComm.h>
