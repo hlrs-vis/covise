@@ -562,6 +562,11 @@ namespace vrb
 
 		assert(!clients.get(msg->conn));
 		VRBSClient *c = createNewClient(tb, msg);
+        if (!c)
+        {
+            std::cerr << "VRB new client: INVALID" << std::endl;
+            return;
+        }
 		clients.addClient(c);
 		//create unique private session for the client
 		vrb::SessionID privateSid{c->ID()};
