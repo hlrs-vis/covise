@@ -1393,13 +1393,9 @@ OpenCOVER::~OpenCOVER()
     {
         fprintf(stderr, "\ndelete OpenCOVER\n");
     }
-#if 0
-    if (m_visPlugin)
-        coVRPluginList::instance()->unload(m_visPlugin);
-#endif
+    m_visPlugin = NULL; // prevent any new messages from being sent
     coVRFileManager::instance()->unloadFile();
     coVRPluginList::instance()->unloadAllPlugins();
-    m_visPlugin = NULL;
     coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Vis);
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
@@ -1553,7 +1549,9 @@ void OpenCOVER::restartVrbc()
 
           public:
             bool sendMessage(const covise::Message *msg) const override {
-                return coVRPluginList::instance()->sendVisMessage(msg);
+                if (OpenCOVER::instance()->m_visPlugin)
+                    return coVRPluginList::instance()->sendVisMessage(msg);
+                return false;
             }
 
             bool sendMessage(const UdpMessage *msg) const override {
@@ -1562,6 +1560,8 @@ void OpenCOVER::restartVrbc()
         };
 
         auto sender = new PluginMessageSender();
+        if (cover->debugLevel(2))
+            std::cerr << "starting VRB client with credentials from Vistle, session=" << m_visPlugin->collaborativeSessionId() << std::endl;
         m_vrbc.reset(new vrb::VRBClient(covise::Program::opencover, sender,
                                         coVRMSController::instance()->isSlave(),
                                         false));
