@@ -22,6 +22,7 @@
 
 #include "RecordPathPlugin.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
 #include <osg/Geode>
@@ -34,7 +35,9 @@
 #include <osg/LineSegment>
 #include <osg/Matrix>
 #include <osg/Vec3>
-#include <osgUtil/IntersectVisitor>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
+#include "cover/coIntersection.h"
 #define MAXSAMPLES 1200
 using namespace osg;
 using namespace osgUtil;
@@ -181,6 +184,7 @@ RecordPathPlugin::~RecordPathPlugin()
     cover->getObjectsRoot()->removeChild(geode.get());
 }
 
+
 void
 RecordPathPlugin::preFrame()
 {
@@ -219,18 +223,21 @@ RecordPathPlugin::preFrame()
             ref_ptr<LineSegment> ray = new LineSegment();
             ray->set(q0, q1);
 
-            IntersectVisitor visitor;
-            visitor.setTraversalMask(Isect::Intersection);
-            visitor.addLineSegment(ray.get());
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector;
+    intersector = coIntersection::instance()->newIntersector(ray->start(), ray->end());
+    igroup->addIntersector(intersector);
 
-            cover->getScene()->accept(visitor);
+    osgUtil::IntersectionVisitor visitor(igroup);
+    visitor.setTraversalMask(Isect::Walk);
+    VRSceneGraph::instance()->getTransform()->accept(visitor);
 
-            if (visitor.getNumHits(ray.get()))
-            {
-                //VRUILOG("coIntersection::intersect info: hit")
-                Hit hitInformation = visitor.getHitList(ray.get()).front();
-                q0 = hitInformation.getWorldIntersectPoint();
-                objectName[frameNumber] = hitInformation._geode->getName().c_str();
+    if(intersector->containsIntersections())
+    {
+
+                osgUtil::LineSegmentIntersector::Intersection is = intersector->getFirstIntersection();
+                q0 = is.getWorldIntersectPoint();
+                objectName[frameNumber] = is._geode->getName().c_str();
                 osg::Vec3 temp;
                 temp = q0 * cover->getInvBaseMat();
 
