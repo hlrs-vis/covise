@@ -650,6 +650,10 @@ bool OpenCOVER::init()
     {
         //fprintf(stderr, "no covise connection\n");
     }
+
+    cover->vruiView = new ui::VruiView;
+    cover->ui->addView(cover->vruiView);
+
     hud = coHud::instance();
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
@@ -701,28 +705,6 @@ bool OpenCOVER::init()
     {
         hud->show();
         hud->redraw();
-    }
-    // Connect to VRBroker, if available
-    if (coVRMSController::instance()->isMaster())
-    {
-        if (loadCovisePlugin)//use covise session
-        {
-            auto cmdExec = getExecFromCmdArgs(coCommandLine::instance()->argc(), coCommandLine::instance()->argv());
-            std::stringstream ss;
-            ss << "covise" << cmdExec.vrbClientIdOfController() << "_" << cmdExec.moduleId();
-            m_startSession = ss.str();
-            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials()});
-        }
-        if (m_vrbCredentials) {
-            hud->setText2("connecting(VRB)");
-            hud->setText3("AG mode");
-            hud->redraw();
-        } else {
-            hud->setText2("connecting");
-            hud->setText3("to VRB");
-        }
-        hud->redraw();
-        startVrbc();
     }
 
     coVRLighting::instance()->initMenu();
@@ -778,9 +760,6 @@ bool OpenCOVER::init()
         m_quit->setVisible(false);
     }
 
-    cover->vruiView = new ui::VruiView;
-    cover->ui->addView(cover->vruiView);
-
     auto tab = coVRTui::instance()->mainFolder;
     cover->ui->addView(new ui::TabletView("mainTui", tab));
     tabletUIs.push_back(coTabletUI::instance());
@@ -803,6 +782,29 @@ bool OpenCOVER::init()
     coVRPluginList::instance()->init();
 
     hud->redraw();
+
+    // Connect to VRBroker, if available
+    if (coVRMSController::instance()->isMaster())
+    {
+        if (loadCovisePlugin)//use covise session
+        {
+            auto cmdExec = getExecFromCmdArgs(coCommandLine::instance()->argc(), coCommandLine::instance()->argv());
+            std::stringstream ss;
+            ss << "covise" << cmdExec.vrbClientIdOfController() << "_" << cmdExec.moduleId();
+            m_startSession = ss.str();
+            m_vrbCredentials.reset(new vrb::VrbCredentials{cmdExec.vrbCredentials()});
+        }
+        if (m_vrbCredentials) {
+            hud->setText2("connecting(VRB)");
+            hud->setText3("AG mode");
+            hud->redraw();
+        } else {
+            hud->setText2("connecting");
+            hud->setText3("to VRB");
+        }
+        hud->redraw();
+        startVrbc();
+    }
 
     double loadStart = cover->currentTime();
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
@@ -1548,13 +1550,10 @@ void OpenCOVER::restartVrbc()
 {
     if (m_loadVistlePlugin) {
         class PluginMessageSender : public covise::MessageSenderInterface {
-            coVRPlugin *m_plugin = nullptr;
 
           public:
-            PluginMessageSender(coVRPlugin *plugin) : m_plugin(plugin) {}
-
             bool sendMessage(const covise::Message *msg) const override {
-                return m_plugin->sendVisMessage(msg);
+                return coVRPluginList::instance()->sendVisMessage(msg);
             }
 
             bool sendMessage(const UdpMessage *msg) const override {
@@ -1562,11 +1561,11 @@ void OpenCOVER::restartVrbc()
             }
         };
 
-        auto sender = new PluginMessageSender(m_visPlugin);
+        auto sender = new PluginMessageSender();
         m_vrbc.reset(new vrb::VRBClient(covise::Program::opencover, sender,
                                         coVRMSController::instance()->isSlave(),
                                         false));
-        m_startSession = "Vistle";
+        m_startSession = m_visPlugin->collaborativeSessionId();
     }
     else if (m_vrbCredentials)
     {

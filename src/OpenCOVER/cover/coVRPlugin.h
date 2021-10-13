@@ -310,6 +310,13 @@ public:
         return false;
     }
 
+    //! for visualisation system plugins: return string identifying collaborative session uniquely
+    virtual std::string collaborativeSessionId() const
+    {
+        return "";
+    }
+
+
     //! for visualisation system plugins: wait for message, return NULL if no such plugin
     virtual covise::Message *waitForVisMessage(int messageType)
     {
