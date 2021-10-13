@@ -32,6 +32,7 @@ SET(UTIL_SOURCES
   Triangulator.cpp
   UDPComm.cpp
   UDP_Sender.cpp
+  asyncWait.cpp
   coErr.cpp
   coException.cpp
   coFileUtil.cpp
@@ -61,6 +62,7 @@ SET(UTIL_HEADERS
   UDPComm.h
   UDP_Sender.h
   XGetopt.h
+  asyncWait.h
   byteswap.h
   coErr.h
   coException.h
