@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-#ifndef _RecordPath_PLUGIN_H
-#define _RecordPath_PLUGIN_H
+#ifndef _PCL_PLUGIN_H
+#define _PCL_PLUGIN_H
 /****************************************************************************\
 **                                                            (C)2005 HLRS  **
 **                                                                          **
-** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
+** Description: PCL Plugin                                                  **
 **                                                                          **
 **                                                                          **
-** Author: U.Woessner		                                                 **
+** Author: U.Woessner		                                                **
 **                                                                          **
-** History:  								                                 **
-** April-05  v1	    				       		                         **
+** History:  								                                **
+** April-05  v1	    				       	   	                            **
 **                                                                          **
 **                                                                          **
 \****************************************************************************/

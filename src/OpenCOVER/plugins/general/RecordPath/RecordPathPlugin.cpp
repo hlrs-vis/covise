@@ -237,7 +237,8 @@ RecordPathPlugin::preFrame()
 
                 osgUtil::LineSegmentIntersector::Intersection is = intersector->getFirstIntersection();
                 q0 = is.getWorldIntersectPoint();
-                objectName[frameNumber] = is._geode->getName().c_str();
+                osg::Node* n = *(is.nodePath.end());
+                objectName[frameNumber] = n->getName().c_str();
                 osg::Vec3 temp;
                 temp = q0 * cover->getInvBaseMat();
 
