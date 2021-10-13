@@ -53,12 +53,14 @@ namespace opencover
         void run(); //regularly check for new devices
 
         std::vector<deviceInfo*> devices;
+        std::vector<deviceInfo*> toAdd;
 
     private:
         bool running = true;
         std::string broadcastAddress;
         int port;
         UDPComm * dComm=nullptr;
+        OpenThreads::Mutex mutex;
     };
 
 }

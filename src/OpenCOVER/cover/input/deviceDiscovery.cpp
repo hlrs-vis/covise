@@ -23,6 +23,7 @@
 #include <config/CoviseConfig.h>
 #include <util/threadname.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRMSController.h>
 
 namespace opencover
 {
@@ -43,7 +44,7 @@ namespace opencover
     deviceDiscovery::deviceDiscovery()
     {
         broadcastAddress = covise::coCoviseConfig::getEntry("broadcastAddress", "COVER.Input.DeviceDiscovery", "141.58.8.255");
-        port = covise::coCoviseConfig::getInt("port", "COVER.Input.DeviceDiscovery", 31319);
+        port = covise::coCoviseConfig::getInt("port", "COVER.Input.DeviceDiscovery", 31320);
         dComm = new UDPComm(broadcastAddress.c_str(), port, port);
         if (dComm->enableBroadcast(true) < 0)
         {
@@ -52,8 +53,11 @@ namespace opencover
     }
     void deviceDiscovery::init()
     {
-        start();
-        dComm->send("enum", 5);
+	if (coVRMSController::instance()->isMaster())
+	{
+            start();
+            dComm->send("enum", 5);
+	}
     }
     deviceDiscovery::~deviceDiscovery()
     {
@@ -62,6 +66,33 @@ namespace opencover
 
     void deviceDiscovery::update()
     {
+        OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+        int numToAdd = toAdd.size();
+	if (coVRMSController::instance()->isMaster())
+	{  
+            coVRMSController::instance()->sendSlaves(&numToAdd, sizeof(numToAdd));
+	    for(const auto &i:toAdd)
+	    {
+		int len = i->pluginName.length();
+		coVRMSController::instance()->sendSlaves(&len, sizeof(len));
+		coVRMSController::instance()->sendSlaves(i->pluginName.c_str(), len+1);
+		cover->addPlugin(i->pluginName.c_str());
+	    }
+	}
+	else
+	{
+            coVRMSController::instance()->readMaster(&numToAdd, sizeof(numToAdd));
+	    for(int i=0;i<numToAdd;i++)
+	    {
+		std::string pluginName;
+		int len = 0;
+		char buf[1000];
+		coVRMSController::instance()->readMaster(&len, sizeof(len));
+		coVRMSController::instance()->readMaster(buf, len+1);
+		cover->addPlugin(buf);
+	    }
+	    toAdd.clear();
+	}
     }
     void deviceDiscovery::run()
     {
@@ -79,9 +110,10 @@ namespace opencover
                 inet_ntop(AF_INET, &(sin.sin_addr), str, INET_ADDRSTRLEN);
                 if (strncmp(buffer, "devInfo", 7) == 0)
                 {
+                    OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
                     deviceInfo* di = new deviceInfo(buffer, str);
                     devices.push_back(di);
-                    cover->addPlugin(di->pluginName.c_str());
+		    toAdd.push_back(di);
                 }
                 fprintf(stderr, "message received %s from %s\n", buffer,str);
             }

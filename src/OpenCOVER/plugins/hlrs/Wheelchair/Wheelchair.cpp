@@ -50,8 +50,8 @@ bool Wheelchair::init()
 {
 
 	//const std::string host = covise::coCoviseConfig::getEntry("value", "Wheelchair.serverHost", "192.168.178.36");
-	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31319);
-	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31320);
+	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31320);
+	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31321);
 
     joystickNumber = covise::coCoviseConfig::getInt("Wheelchair.joystickNumber", 0);
     yIndex = covise::coCoviseConfig::getInt("Wheelchair.yIndex", 5);
@@ -145,7 +145,7 @@ bool Wheelchair::update()
         float wheelBase = 0.98;
         float v = 0;
         float x = 0;
-        if (dev && dev->number_axes[joystickNumber] >= 1)
+        /*if (dev && dev->number_axes[joystickNumber] >= 10)
         {
             if (debugPrint)
             {
@@ -157,7 +157,7 @@ bool Wheelchair::update()
             x = dev->axes[joystickNumber][xIndex];
             if (x < 0.002 && x > -0.002)
                 x = 0;
-        }
+        }*/
         float s = v * dT;
         if (ml != 0 || mr != 0)
         {
