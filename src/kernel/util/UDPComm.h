@@ -98,6 +98,7 @@ public:
     static void errorStatus_SW();
     static bool getError_SW();
     static void setError_SW(bool);
+    sockaddr_in& getRemoteAddess() { return remote_adr; };
 
 protected:
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -145,5 +146,8 @@ private:
 
     // Variable für Ein-/Ausblenden der Netzwerkfehler
     static bool error_SW;
+
+    sockaddr_in  remote_adr;
+    socklen_t rlen;
 };
 #endif

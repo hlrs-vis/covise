@@ -323,8 +323,6 @@ int UDPComm::send(const void *buffer, int numBytes)
 
 int UDPComm::receive(void *buffer, int numBytes, double timeout)
 {
-    /*sockaddr remote_adr;
-   socklen_t rlen;*/
 
     // check wether we already received package
     fd_set readfds;
@@ -340,7 +338,8 @@ int UDPComm::receive(void *buffer, int numBytes, double timeout)
 
     //fprintf(stderr,"UDPComm: reading %d  socket: %d\n",numBytes,d_rsocket);
     // receive a package
-    int numbytes = recvfrom(d_rsocket, (char *)buffer, numBytes, 0, 0, 0);
+    rlen = sizeof(remote_adr);
+    int numbytes = recvfrom(d_rsocket, (char *)buffer, numBytes, 0, (struct sockaddr*)&remote_adr, &rlen);
 
     if (numbytes <=0)
     {
@@ -349,7 +348,8 @@ int UDPComm::receive(void *buffer, int numBytes, double timeout)
         if (numbytes < 0)
         {
             int numToRead = 0;
-            numToRead = recvfrom(d_rsocket, (char *)buffer, numBytes, MSG_PEEK, 0, 0);
+            rlen = sizeof(remote_adr);
+            numToRead = recvfrom(d_rsocket, (char *)buffer, numBytes, MSG_PEEK, (struct sockaddr*)&remote_adr, &rlen);
 
             fprintf(stderr, "Errno: %d MSG_PEER:%d\n", WSAGetLastError(), numToRead);
             //DebugBreak();

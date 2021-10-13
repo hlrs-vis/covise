@@ -17,6 +17,8 @@
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
 #include <cover/input/dev/Joystick/Joystick.h>
+#include <cover/input/input.h>
+#include <cover/input/deviceDiscovery.h>
 
 
 #include <cover/input/input.h>
@@ -29,14 +31,11 @@ static float zeroAngle = 1152.;
 Wheelchair::Wheelchair()
 	: coVRNavigationProvider("Wheelchair",this)
 {
-	init();
-	sbData.fl = 0;
-	sbData.fr = 0;
-	sbData.rl = 0;
-	sbData.rr = 0;
-	sbData.button = 0;
-	sbControl.cmd = 0;
-	sbControl.value = 0;
+    wcData.countLeft = 0;
+    wcData.countRight = 0;
+    wcData.state = 0;
+    float u = M_PI * 0.6;
+    mPerCount = u / 4800;
 
         stepSizeUp=200;
         stepSizeDown=2000;
@@ -50,10 +49,9 @@ Wheelchair::~Wheelchair()
 bool Wheelchair::init()
 {
 
-	const std::string host = covise::coCoviseConfig::getEntry("value", "Wheelchair.serverHost", "192.168.178.36");
+	//const std::string host = covise::coCoviseConfig::getEntry("value", "Wheelchair.serverHost", "192.168.178.36");
 	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31319);
-	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31319);
-	std::cerr << "Wheelchair config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31320);
 
     joystickNumber = covise::coCoviseConfig::getInt("Wheelchair.joystickNumber", 0);
     yIndex = covise::coCoviseConfig::getInt("Wheelchair.yIndex", 5);
@@ -61,6 +59,38 @@ bool Wheelchair::init()
     xIndex = covise::coCoviseConfig::getInt("Wheelchair.xIndex", 2);
     xScale = covise::coCoviseConfig::getFloat("Wheelchair.xScale", 0.02);
     debugPrint = covise::coCoviseConfig::isOn("Wheelchair.debugPrint", false);
+    udp = nullptr;
+    dev = nullptr;
+    if (coVRMSController::instance()->isMaster())
+    {
+        std::string host = "";
+        for(const auto &i:opencover::Input::instance()->dD->devices)
+        {
+            if (i->pluginName == "Wheelchair")
+            {
+                host = i->address;
+                udp = new UDPComm(host.c_str(), serverPort, localPort);
+                if (!udp->isBad())
+                {
+                    ret = true;
+                    start();
+                }
+                else
+                {
+                    std::cerr << "Skateboard: falided to open local UDP port" << localPort << std::endl;
+                    ret = false;
+                }
+                break;
+            }
+        }
+           
+        coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster(&ret, sizeof(ret));
+    }
+
 
     dev = (Joystick*)(Input::instance()->getDevice("joystick"));
         return true;
@@ -94,11 +124,11 @@ void Wheelchair::syncData()
 {
         if (coVRMSController::instance()->isMaster())
         {
-            coVRMSController::instance()->sendSlaves(&sbData, sizeof(sbData));
+            coVRMSController::instance()->sendSlaves(&wcData, sizeof(wcData));
         }
         else
         {
-            coVRMSController::instance()->readMaster(&sbData, sizeof(sbData));
+            coVRMSController::instance()->readMaster(&wcData, sizeof(wcData));
         }
 }
 
@@ -106,8 +136,15 @@ bool Wheelchair::update()
 {
     if (isEnabled())
     {
+        //fprintf(stderr, "wc %ld %ld\n", wcData.countLeft, wcData.countRight);
+
+        float ml = (wcData.countLeft - oldCountLeft)* mPerCount;
+        float mr = (wcData.countRight - oldCountRight)*mPerCount;
+        oldCountRight = wcData.countRight;
         double dT = cover->frameDuration();
         float wheelBase = 0.98;
+        float v = 0;
+        float x = 0;
         if (dev && dev->number_axes[joystickNumber] >= 1)
         {
             if (debugPrint)
@@ -116,23 +153,35 @@ bool Wheelchair::update()
                     fprintf(stderr, "%d %f    ", i, dev->axes[joystickNumber][i]);
             }
 
-            float v = dev->axes[joystickNumber][yIndex]*yScale*coVRNavigationManager::instance()->getDriveSpeed();
-            float x = dev->axes[joystickNumber][xIndex];
+            v = dev->axes[joystickNumber][yIndex] * yScale * coVRNavigationManager::instance()->getDriveSpeed();
+            x = dev->axes[joystickNumber][xIndex];
             if (x < 0.002 && x > -0.002)
                 x = 0;
-
+        }
         float s = v * dT;
+        if (ml != 0 || mr != 0)
+        {
+            s = (ml / 2.0 + mr / 2.0);
+        }
+        if (s > 10 || s < -10)
+        {
+            s = 0;
+        }
         osg::Vec3 V(0, -s, 0);
         wheelBase = 0.5;
-        float rotAngle = 0.0;
+        float rotAngle = sin((mr-ml)/0.3);
         //fprintf(stderr, "v: %f \n", v);
         if ((s < 0.0001 && s > -0.0001)) // straight
         {
         }
         else
         {
-            rotAngle = x * xScale;
+            if (v > 0)
+            {
+                rotAngle = x * xScale;
+            }
         }
+        fprintf(stderr, "s %f r %f\n", s, rotAngle);
 
         osg::Matrix relTrans;
         osg::Matrix relRot;
@@ -155,9 +204,10 @@ bool Wheelchair::update()
             coVRMSController::instance()->readMaster((char*)TransformMat.ptr(), sizeof(TransformMat));
         }
         VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
+        oldCountLeft = wcData.countLeft;
+        oldCountRight = wcData.countRight;
     }
        
-    }
     return false;
 }
 
@@ -340,12 +390,49 @@ void Wheelchair::setEnabled(bool flag)
 {
     coVRNavigationProvider::setEnabled(flag);
     //WakeUp Wheelchair
+    if (udp)
+    {
+        if (flag)
+        {
+            udp->send("start");
+        }
+        else
+        {
+            udp->send("stop");
+        }
+    }
     Initialize();
 
 }
 void Wheelchair::updateThread()
 {
-	
+    if (udp)
+    {
+        char tmpBuf[10000];
+        int status = udp->receive(&tmpBuf, 10000);
+
+
+        if (status > 0 && status >= sizeof(WCData))
+        {
+
+            {
+                OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+                memcpy(&wcData, tmpBuf, sizeof(WCData));
+            }
+
+        }
+        else if (status == -1)
+        {
+            std::cerr << "Wheelchair::update: error while reading data" << std::endl;
+            return;
+        }
+        else
+        {
+            std::cerr << "Wheelchair::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
+            return;
+        }
+
+    }
 }
 void Wheelchair::Initialize()
 {
@@ -354,27 +441,9 @@ void Wheelchair::Initialize()
         }
 }
 
-osg::Vec3d Wheelchair::getNormal()
-{
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	float w = (sbData.fl + sbData.fr + sbData.rl + sbData.rr) / 4.0;
-	float fs = sbData.fl + sbData.fr;
-	float rs = sbData.rl + sbData.rr;
-	float sl = sbData.fl + sbData.rl;
-	float sr = sbData.fr + sbData.rr;
-
-	return osg::Vec3d((sl - sr) / w, (fs - rs) / w, 1.0);
-}
-
-float Wheelchair::getWeight() // weight in Kg
-{
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	return float((sbData.fl + sbData.fr + sbData.rl + sbData.rr) / 4.0);
-}
-
 unsigned char Wheelchair::getButton()
 {
-	return sbData.button;
+	return wcData.state;
 }
 COVERPLUGIN(Wheelchair)
 

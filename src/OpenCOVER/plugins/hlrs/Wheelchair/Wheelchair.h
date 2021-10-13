@@ -20,6 +20,7 @@
 #include <cover/coVRPlugin.h>
 #include <OpenThreads/Thread>
 #include <cover/input/dev/Joystick/Joystick.h>
+#include <util/UDPComm.h>
 
 
 
@@ -31,23 +32,12 @@
 #define Wheelchair_H
 
 #pragma pack(push, 1)
-struct SBData 
+struct WCData 
 {
-    float fl;
-    float fr;
-    float rl;
-    float rr;
-    unsigned int button;
-};
-#pragma pack(pop)
 
-
-
-#pragma pack(push, 1)
-struct SBCtrlData
-{
-    unsigned char  cmd;
-    int 	  value; 
+    int64_t countLeft;
+    int64_t countRight;
+    uint32_t state;
 };
 #pragma pack(pop)
 
@@ -59,8 +49,6 @@ public:
     Wheelchair();
     ~Wheelchair();
     bool update();
-    osg::Vec3d getNormal();
-    float getWeight();// weight in Kg
     virtual void run();
     volatile bool running;
     void stop();
@@ -75,9 +63,8 @@ private:
     void MoveToFloor();
     virtual void setEnabled(bool);
     void updateThread();
-
-    SBData sbData;
-    SBCtrlData sbControl;
+    UDPComm* udp=nullptr;
+    WCData wcData;
     int ret;
     OpenThreads::Mutex mutex;
     float speed=0.0;
@@ -92,6 +79,9 @@ private:
     float xScale;
     float yScale;
     bool debugPrint;
+    float mPerCount;
+    int64_t oldCountLeft=0;
+    int64_t oldCountRight=0;
 };
 
 #endif /* Wheelchair_H */

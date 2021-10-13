@@ -225,6 +225,7 @@ SET(DEVICE_SOURCES
    input/valuator.cpp
 
    input/coMousePointer.cpp
+   input/deviceDiscovery.cpp
 )
 
 SET(DEVICE_HEADERS
@@ -239,6 +240,7 @@ SET(DEVICE_HEADERS
 
    input/VRKeys.h
    input/coMousePointer.h
+   input/deviceDiscovery.h
 )
 
 IF(HAVE_NORM) # or NORM_FOUND ... TODO

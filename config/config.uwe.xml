@@ -31,6 +31,7 @@
     <UseDisplayLists value="false" />
     <UseVertexBufferObjects value="false" />
    <Input>
+    <DeviceDiscovery broadcastAddress="192.168.178.255" port="31319" />
     <MouseNav value="ON" />
 	<Device>
            <joystick driver="Joystick" device="/dev/input/cyberstick"/>

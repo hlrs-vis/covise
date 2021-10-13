@@ -85,6 +85,7 @@
 
 #include <input/input.h>
 #include <input/coMousePointer.h>
+#include <input/deviceDiscovery.h>
 #include "ui/VruiView.h"
 #include "ui/TabletView.h"
 #include "ui/Action.h"
@@ -877,7 +878,9 @@ bool OpenCOVER::init()
                   << std::endl;
     }
 
+    Input::instance()->dD->init();
     m_initialized = true;
+
     return true;
 }
 

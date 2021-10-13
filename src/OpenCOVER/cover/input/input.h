@@ -27,6 +27,7 @@ namespace opencover
 {
 
 class InputDevice;
+class deviceDiscovery;
 class DriverFactoryBase;
 class coMousePointer;
 
@@ -105,6 +106,7 @@ public:
     Valuator *getValuator(const std::string &name); //< a single analog value
 
     coMousePointer *mouse() const;
+    deviceDiscovery* dD;
 
 private:
     Input();

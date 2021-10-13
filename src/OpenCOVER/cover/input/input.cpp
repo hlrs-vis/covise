@@ -25,6 +25,7 @@
 #include "input.h"
 #include "inputdevice.h"
 #include "input_const.h"
+#include "deviceDiscovery.h"
 
 #include <iostream>
 #include <sstream>
@@ -50,6 +51,7 @@ Input::Input()
 , activePerson(NULL)
 {
     assert(!s_singleton);
+    dD = new deviceDiscovery();
 }
 
 bool Input::init()
@@ -615,6 +617,7 @@ bool Input::update()
     unsigned int len = 0;
 
     bool changed = false;
+    dD->update();
 
     if (coVRMSController::instance()->isMaster())
     {
