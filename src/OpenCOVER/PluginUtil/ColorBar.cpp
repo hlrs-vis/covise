@@ -87,24 +87,27 @@ ColorBar::ColorBar(ui::Menu *menu)
 
     });
 
-    uiColorBar_ = new ui::SpecialElement("VruiColorBar", this);
+    if (cover->vruiView)
+    {
+        uiColorBar_ = new ui::SpecialElement("VruiColorBar", this);
 
-    colorsMenu_->add(uiColorBar_);
-    uiColorBar_->registerCreateDestroy(cover->vruiView->typeBit(),
-                                       [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
-        auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
-        assert(vve);
-        colorbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r.data(), g.data(), b.data(), a.data());
-        vve->m_menuItem = colorbar_;
-    },
-    [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
-        auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
-        assert(vve);
-        assert(!colorbar_ || !vve->m_menuItem || vve->m_menuItem == colorbar_);
-        delete colorbar_;
-        colorbar_ = nullptr;
-        vve->m_menuItem = nullptr;
-    });
+        colorsMenu_->add(uiColorBar_);
+        uiColorBar_->registerCreateDestroy(cover->vruiView->typeBit(),
+                [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
+                auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
+                assert(vve);
+                colorbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r.data(), g.data(), b.data(), a.data());
+                vve->m_menuItem = colorbar_;
+                },
+                [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
+                auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
+                assert(vve);
+                assert(!colorbar_ || !vve->m_menuItem || vve->m_menuItem == colorbar_);
+                delete colorbar_;
+                colorbar_ = nullptr;
+                vve->m_menuItem = nullptr;
+                });
+    }
 
     autoScale_ = new ui::Button("AutoRange", this);
     colorsMenu_->add(autoScale_);
