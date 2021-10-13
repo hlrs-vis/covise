@@ -12,6 +12,7 @@ SET(VRBCLIENT_SOURCES
   VRBMessage.cpp
   VrbClientRegistry.cpp
   VrbCredentials.cpp
+  AsyncClient.cpp
 )
 
 SET(VRBCLIENT_HEADERS
@@ -25,6 +26,7 @@ SET(VRBCLIENT_HEADERS
   VRBMessage.h
   VrbClientRegistry.h
   VrbCredentials.h
+  AsyncClient.h
 )
 
 ADD_COVISE_LIBRARY(coVRBClient ${COVISE_LIB_TYPE} ${VRBCLIENT_SOURCES} ${VRBCLIENT_HEADERS})
