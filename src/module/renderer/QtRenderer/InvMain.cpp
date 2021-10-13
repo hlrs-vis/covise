@@ -113,11 +113,11 @@ InvMain::InvMain(int argc, char *argv[])
     //
     auto crbExec = covise::getExecFromCmdArgs(argc, argv);
 
-    m_name = proc_name = crbExec.name;
-    port = crbExec.controllerPort;
-    h_name = host = crbExec.controllerIp;
-    proc_id = crbExec.moduleCount;
-    instance = crbExec.moduleId;
+    m_name = proc_name = crbExec.name();
+    port = crbExec.controllerPort();
+    h_name = host = crbExec.controllerIp();
+    proc_id = crbExec.moduleCount();
+    instance = crbExec.moduleId();
     //
     // contact controller
     //
@@ -172,9 +172,9 @@ InvMain::InvMain(int argc, char *argv[])
     //
     // create a render manager
     //
-    render_name = crbExec.name;
+    render_name = crbExec.name();
     render_name.append("_");
-    render_name.append(crbExec.moduleId);
+    render_name.append(crbExec.moduleId());
     render_name.append("@");
     QString tmphostname = QString::fromStdString(Host::lookupHostname(hostname.toLatin1()));
     render_name.append(tmphostname.section('.', 0, 0));
