@@ -39,12 +39,28 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
+#include <config/CoviseConfig.h>
 #define MAXSAMPLES 1200
 using namespace osg;
 using namespace osgUtil;
 
 RecordPathPlugin::RecordPathPlugin() : ui::Owner("RecordPathPlugin", cover->ui)
 {
+    std::string proj_from = coCoviseConfig::getEntry("from", "COVER.Plugin.RecordPath.Projection", "+proj=latlong +datum=WGS84");
+    if (!(pj_from = pj_init_plus(proj_from.c_str())))
+    {
+        fprintf(stderr, "ERROR: pj_init_plus failed with pj_from = %s\n", proj_from.c_str());
+    }
+
+    std::string proj_to = coCoviseConfig::getEntry("to", "COVER.Plugin.RecordPath.Projection", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam");// +nadgrids=" + dir + std::string("BETA2007.gsb");
+
+    if (!(pj_to = pj_init_plus(proj_to.c_str())))
+    {
+        fprintf(stderr, "ERROR: pj_init_plus failed with pj_to = %s\n", proj_to.c_str());
+    }
+    projectOffset[0] = coCoviseConfig::getFloat("offetX", "COVER.Plugin.JSBSim.Projection", 0);
+    projectOffset[1] = coCoviseConfig::getFloat("offetY", "COVER.Plugin.JSBSim.Projection", 0);
+    projectOffset[2] = coCoviseConfig::getFloat("offetZ", "COVER.Plugin.JSBSim.Projection", 0);
 }
 
 bool RecordPathPlugin::init()
@@ -394,11 +410,24 @@ void RecordPathPlugin::save()
     FILE *fp = fopen(filename.c_str(), "w");
     if (fp)
     {
-        fprintf(fp, "# x,      y,      z,      dx,      dy,     dz\n");
+        fprintf(fp, "# lat, lon, x,      y,      z,      dx,      dy,     dz\n");
         fprintf(fp, "# numFrames: %d\n", frameNumber);
         for (int n = 0; n < frameNumber; n++)
+        { 
+
+        double v[3];
+
+        v[0] = positions[n * 3 + 0]- projectOffset[0];
+        v[1] = positions[n * 3 + 1] - projectOffset[1];
+        v[2] = positions[n * 3 + 2] - projectOffset[2];
+        int error = pj_transform(pj_to, pj_from, 1, 0, v,v+1, v+2);
+        if (error != 0)
         {
-            fprintf(fp, "%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f\n", positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n]);
+            fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
+        }
+        double mLon = v[0];
+        double mLat = v[1];
+            fprintf(fp, "%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f\n", mLat, mLon, positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n]);
         }
         fclose(fp);
     }

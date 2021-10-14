@@ -38,6 +38,7 @@ using namespace opencover;
 #include <cover/ui/Action.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+#include <proj_api.h>
 
 class RecordPathPlugin : public coVRPlugin, public ui::Owner
 {
@@ -79,6 +80,9 @@ private:
     float length;
     const char **objectName;
     std::string filename;
+
+    osg::Vec3d projectOffset;
+    projPJ pj_from, pj_to;
 
     void save();
 

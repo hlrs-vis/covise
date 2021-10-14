@@ -1,5 +1,6 @@
 #OpenCOVER plugins general RecordPath
 
+USING(PROJ4)
 
 SET(HEADERS
   RecordPathPlugin.h
