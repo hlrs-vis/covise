@@ -27,7 +27,7 @@ namespace Tipsify {
 
 template<class Index>
 struct Neighbors {
-    Index maxIndex = 0;
+    Index maxIndexP1 = 0; // maximum index plus 1
     std::vector<int> use; // no. of triangles where vertex is used
     std::vector<Index> tl; // list of triangles
     std::vector<Index> offset; // offset into list of triangles where sublist for a vertex starts
@@ -42,34 +42,34 @@ Neighbors<Index> buildNeighbours(const Index *idx, size_t size, Index maxIndex) 
     N.use.resize(maxIndex+1);
     const Index *end = idx+size;
     for (const Index *v = idx; v<end; ++v) {
-        if (*v > N.maxIndex) {
-            N.maxIndex = *v;
-            if (N.use.size()<N.maxIndex+1)
-                N.use.resize(N.maxIndex+1);
+        if (*v + 1 > N.maxIndexP1) {
+            N.maxIndexP1 = *v + 1;
+            if (N.use.size()<N.maxIndexP1)
+                N.use.resize(N.maxIndexP1);
         }
         ++N.use[*v];
     }
-    N.use.resize(N.maxIndex+1);
+    N.use.resize(N.maxIndexP1);
 
-    N.offset.reserve(N.maxIndex+2);
+    N.offset.reserve(N.maxIndexP1 + 1);
     Index sum = 0;
     N.offset.push_back(sum);
     N.offset.push_back(sum);
-    for (Index v=0; v<=N.maxIndex; ++v) {
+    for (Index v=0; v<N.maxIndexP1; ++v) {
         sum += N.use[v];
         N.offset.push_back(sum);
     }
     assert(sum == size);
     assert(N.offset[0] == 0);
     assert(N.offset[1] == 0);
-    assert(N.offset[N.maxIndex+1] < sum);
+    assert(N.maxIndexP1 == 0 || N.offset[N.maxIndexP1] < sum);
 
     N.tl.resize(sum);
     for (size_t i=0; i<size; ++i) {
         Index v = idx[i];
         N.tl[N.offset[v+1]++] = i/3;
     }
-    assert(N.offset[N.maxIndex+1] == sum);
+    assert(N.offset[N.maxIndexP1] == sum);
 
     return N;
 }
@@ -85,6 +85,9 @@ void tipsify(Index *idx, size_t num, int cachesize=20, int batchsize=-1) {
 
     using namespace Tipsify;
 
+    if (num == 0)
+        return;
+
     auto N = buildNeighbours<Index>(idx, num, num);
 
     std::vector<Index> out; // optimized index list
@@ -93,10 +96,10 @@ void tipsify(Index *idx, size_t num, int cachesize=20, int batchsize=-1) {
     std::vector<char> emitted(N.tl.size()); // if a triangle has already been emitted
 
     std::vector<Index> deadEndStack;
-    std::vector<int> cachetime(N.maxIndex+1);
+    std::vector<int> cachetime(N.maxIndexP1);
     int time=cachesize+1;
     size_t cursor = 0;
-    Index f = idx[0]; // start vertex for triangle fans
+    Index f = num > 0 ? idx[0] : InvalidIndex; // start vertex for triangle fans
     int remaininbatch = batchsize;
     while (f != InvalidIndex) {
 
