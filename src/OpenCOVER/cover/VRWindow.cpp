@@ -457,6 +457,10 @@ VRWindow::createWin(int i)
         }
 
         const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
+        if (coVRConfig::instance()->windows[i].screenNum >= 0)
+        {
+            traits->coVRConfig::instance()->windows[i].screenNum;
+        }
         if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
         {
             traits->displayNum = 0;
@@ -495,6 +499,10 @@ VRWindow::createWin(int i)
                 traits->hostName = host;
             traits->displayNum = coVRConfig::instance()->pipes[pipeNum].x11DisplayNum;
             traits->screenNum = coVRConfig::instance()->pipes[pipeNum].x11ScreenNum;
+            if (coVRConfig::instance()->windows[i].screenNum >= 0)
+            {
+                traits->coVRConfig::instance()->windows[i].screenNum;
+            }
 
             // if possible, share graphics context with other windows
             for (int j=0; j<i; ++j)

@@ -386,6 +386,7 @@ coVRConfig::coVRConfig()
         std::transform(w.type.begin(), w.type.end(), w.type.begin(), ::tolower);
         w.swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
         w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
+        w.screenNum = coCoviseConfig::getInt("screen", str, -1);
     }
 
     m_stereoState = false;

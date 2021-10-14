@@ -151,6 +151,7 @@ struct windowStruct
     bool doublebuffer;
     int swapGroup;
     int swapBarrier;
+    int screenNum;
     std::string type;
     coVRPlugin *windowPlugin;
 
@@ -172,6 +173,7 @@ struct windowStruct
     , swapGroup(-1)
     , swapBarrier(-1)
     , windowPlugin(NULL)
+    , screenNum(-1)
     {}
 };
 
