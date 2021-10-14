@@ -25,6 +25,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
+
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Array>
@@ -42,7 +43,7 @@
 using namespace osg;
 using namespace osgUtil;
 
-RecordPathPlugin::RecordPathPlugin()
+RecordPathPlugin::RecordPathPlugin() : ui::Owner("RecordPathPlugin", cover->ui)
 {
 }
 
@@ -52,77 +53,195 @@ bool RecordPathPlugin::init()
 
     length = 1;
     recordRate = 1;
-    filename = NULL;
+    filename = "path.csv";
 
-    PathTab = new coTUITab("RecordPath", coVRTui::instance()->mainFolder->getID());
-    record = new coTUIToggleButton("Record", PathTab->getID());
-    stop = new coTUIButton("Stop", PathTab->getID());
-    play = new coTUIButton("Play", PathTab->getID());
-    reset = new coTUIButton("Reset", PathTab->getID());
-    saveButton = new coTUIButton("Save", PathTab->getID());
 
-    viewPath = new coTUIToggleButton("View Path", PathTab->getID());
-    viewDirections = new coTUIToggleButton("Viewing Directions", PathTab->getID());
-    viewlookAt = new coTUIToggleButton("View Target", PathTab->getID());
+    recordPathMenu = new ui::Menu("RecordPath", this);
 
-    lengthLabel = new coTUILabel("Length", PathTab->getID());
-    lengthLabel->setPos(0, 4);
-    lengthEdit = new coTUIEditFloatField("length", PathTab->getID());
-    lengthEdit->setValue(1);
-    lengthEdit->setPos(1, 4);
+    record = new ui::Button(recordPathMenu, "Record");
+    record->setText("Record");
+    record->setState(false);
+    record->setCallback([this](bool state) {
+        if (state)
+        {
+            playing = false;
+        }
+        else
+        {
+        }
+        });
 
-    radiusLabel = new coTUILabel("Radius", PathTab->getID());
-    radiusLabel->setPos(2, 4);
-    radiusEdit = new coTUIEditFloatField("radius", PathTab->getID());
-    radiusEdit->setValue(1);
-    radiusEdit->setEventListener(this);
-    radiusEdit->setPos(3, 4);
-    renderMethod = new coTUIComboBox("renderMethod", PathTab->getID());
-    renderMethod->addEntry("renderMethod CPU Billboard");
-    renderMethod->addEntry("renderMethod Cg Shader");
-    renderMethod->addEntry("renderMethod Point Sprite");
-    renderMethod->setSelectedEntry(0);
-    renderMethod->setEventListener(this);
-    renderMethod->setPos(0, 5);
+    play = new ui::Button(recordPathMenu, "Play");
+    play->setText("Play");
+    play->setState(false);
+    play->setCallback([this](bool state) {
+        if (state)
+        {
 
-    recordRateLabel = new coTUILabel("recordRate", PathTab->getID());
-    recordRateLabel->setPos(0, 3);
-    recordRateTUI = new coTUIEditIntField("Fps", PathTab->getID());
-    recordRateTUI->setEventListener(this);
-    recordRateTUI->setValue(1);
-    //recordRateTUI->setText("Fps:");
-    recordRateTUI->setPos(1, 3);
+            playing = true;
+        }
+        else
+        {
+            playing = false;
+        }
+        });
 
-    fileNameBrowser = new coTUIFileBrowserButton("File", PathTab->getID());
-    fileNameBrowser->setMode(coTUIFileBrowserButton::SAVE);
-    fileNameBrowser->setFilterList("*.txt");
-    fileNameBrowser->setPos(0, 7);
-    fileNameBrowser->setEventListener(this);
+    reset = new ui::Action(recordPathMenu, "reset");
+    reset->setText("reset");
+    reset->setCallback([this]() {
+        frameNumber = 0;
+        record->setState(false);
+        playing = false;
+        });
 
-    numSamples = new coTUILabel("SampleNum: 0", PathTab->getID());
-    numSamples->setPos(0, 6);
-    PathTab->setPos(0, 0);
-    record->setPos(0, 0);
-    record->setEventListener(this);
-    stop->setPos(1, 0);
-    stop->setEventListener(this);
-    play->setPos(2, 0);
-    play->setEventListener(this);
-    reset->setPos(3, 0);
-    reset->setEventListener(this);
-    saveButton->setPos(4, 0);
-    saveButton->setEventListener(this);
+    saveButton = new ui::Action(recordPathMenu, "save");
+    saveButton->setText("save");
+    saveButton->setCallback([this]() {
+            save();
+        });
+
+    viewPath = new ui::Button(recordPathMenu, "viewPath");
+    viewPath->setText("viewPath");
+    viewPath->setState(false);
+    viewPath->setCallback([this](bool state) {
+        char label[100];
+        sprintf(label, "numSamples: %d", frameNumber);
+        numSamples->setText(label);
+        if (state)
+        {
+            geode = new Geode();
+            geom = new Geometry();
+            geode->setStateSet(geoState.get());
+
+            geom->setColorBinding(Geometry::BIND_OFF);
+
+            geode->addDrawable(geom.get());
+            geode->setName("Viewer Positions");
+            // set up geometry
+            Vec3Array* vert = new Vec3Array;
+            DrawArrayLengths* primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
+            primitives->push_back(frameNumber);
+            for (int n = 0; n < frameNumber; n++)
+            {
+                vert->push_back(Vec3(positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2]));
+            }
+            geom->setVertexArray(vert);
+            geom->addPrimitiveSet(primitives);
+            geom->dirtyDisplayList();
+            opencover::cover->getObjectsRoot()->addChild(geode.get());
+        }
+        else
+        {
+            opencover::cover->getObjectsRoot()->removeChild(geode.get());
+        }
+        });
+
+    viewlookAt = new ui::Button(recordPathMenu, "viewlookAt");
+    viewlookAt->setText("viewlookAt");
+    viewlookAt->setState(false);
+    viewlookAt->setCallback([this](bool state) {
+        if (state)
+        {
+            float* radii, r;
+            r = radiusEdit->number();
+            radii = new float[frameNumber];
+            for (int n = 0; n < frameNumber; n++)
+                radii[n] = r;
+            lookAtSpheres->setCoords(frameNumber, lookat[0], lookat[1], lookat[2], radii);
+            for (int n = 0; n < frameNumber; n++)
+                lookAtSpheres->setColor(n, 1, 0.2, 0.2, 1);
+            opencover::cover->getObjectsRoot()->addChild(lookAtGeode.get());
+        }
+        else
+        {
+            opencover::cover->getObjectsRoot()->removeChild(lookAtGeode.get());
+
+            lookAtGeode = new Geode();
+            lookAtGeode->addDrawable(lookAtSpheres.get());
+            lookAtGeode->setName("Viewer lookAtPositions");
+        }
+        });
+
+    viewDirections = new ui::Button(recordPathMenu, "viewDirections");
+    viewDirections->setText("viewDirections");
+    viewDirections->setState(false);
+    viewDirections->setCallback([this](bool state) {
+        if (state)
+        {
+
+            dirGeode = new Geode();
+            dirGeom = new Geometry();
+            dirGeode->setStateSet(geoState.get());
+
+            dirGeom->setColorBinding(Geometry::BIND_OFF);
+
+            dirGeode->addDrawable(dirGeom.get());
+            dirGeode->setName("Viewer Positions");
+            // set up geometry
+            Vec3Array* vert = new Vec3Array;
+            DrawArrayLengths* primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
+            for (int n = 0; n < frameNumber; n++)
+            {
+                primitives->push_back(2);
+                Vec3 pos(positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2]);
+                Vec3 look(lookat[0][n], lookat[1][n], lookat[2][n]);
+                Vec3 diff = look - pos;
+                diff.normalize();
+                diff *= length;
+                vert->push_back(pos);
+
+                vert->push_back(pos + diff);
+            }
+            dirGeom->setVertexArray(vert);
+            dirGeom->addPrimitiveSet(primitives);
+            opencover::cover->getObjectsRoot()->addChild(dirGeode.get());
+        }
+        else
+        {
+            opencover::cover->getObjectsRoot()->removeChild(dirGeode.get());
+        }
+        });
+
+
+    lengthEdit = new ui::EditField(recordPathMenu, "length");
+    lengthEdit->setText("length");
+    lengthEdit->setCallback([this](std::string value) {
+        length = lengthEdit->number();
+        });
+
+    recordRateEdit = new ui::EditField(recordPathMenu, "recordRate");
+    recordRateEdit->setText("recordRate");
+    recordRateEdit->setCallback([this](std::string value) {
+        recordRate = 1.0 / recordRateEdit->number();
+        });
+
+    renderMethod = new ui::SelectionList(recordPathMenu, "renderMethod");
+    renderMethod->setText("Task type");
+    renderMethod->append("CPU Billboard");
+    renderMethod->append("Cg Shader");
+    renderMethod->append("Point Sprite");
+    renderMethod->select(0);
+    renderMethod->setCallback([this](int idx) {
+        lookAtSpheres->setRenderMethod((coSphere::RenderMethod)idx);
+        });
+
+
+
+    filenameEdit = new ui::EditField(recordPathMenu, "filename");
+    lengthEdit->setText("path.csv");
+    lengthEdit->setCallback([this](std::string value) {
+        filename = value;
+        });
+
+    numSamples = new ui::Label(recordPathMenu, "numSamples");
+    numSamples->setText("");
+
+
     positions = new float[3 * MAXSAMPLES + 3];
     lookat[0] = new float[MAXSAMPLES + 1];
     lookat[1] = new float[MAXSAMPLES + 1];
     lookat[2] = new float[MAXSAMPLES + 1];
     objectName = new const char *[MAXSAMPLES + 3];
-    viewPath->setPos(0, 2);
-    viewPath->setEventListener(this);
-    viewlookAt->setPos(1, 2);
-    viewlookAt->setEventListener(this);
-    viewDirections->setPos(2, 2);
-    viewDirections->setEventListener(this);
     frameNumber = 0;
     record->setState(false);
     playing = false;
@@ -156,23 +275,19 @@ RecordPathPlugin::~RecordPathPlugin()
     fprintf(stderr, "RecordPathPlugin::~RecordPathPlugin\n");
 
     delete record;
-    delete stop;
     delete play;
     delete reset;
     delete saveButton;
     delete viewPath;
     delete viewDirections;
     delete viewlookAt;
-    delete lengthLabel;
     delete lengthEdit;
-    delete radiusLabel;
     delete radiusEdit;
     delete renderMethod;
-    delete recordRateLabel;
-    delete recordRateTUI;
+    delete recordRateEdit;
+    delete filenameEdit;
     delete numSamples;
-    delete PathTab;
-    delete[] filename;
+    delete recordPathMenu;
 
     delete[] positions;
     delete[] lookat[0];
@@ -188,7 +303,7 @@ RecordPathPlugin::~RecordPathPlugin()
 void
 RecordPathPlugin::preFrame()
 {
-    if (record->getState())
+    if (record->state())
     {
         static double oldTime = 0;
         static double oldUpdateTime = 0;
@@ -198,7 +313,7 @@ RecordPathPlugin::preFrame()
             oldUpdateTime = time;
             char label[100];
             sprintf(label, "numSamples: %d", frameNumber);
-            numSamples->setLabel(label);
+            numSamples->setText(label);
         }
         if (time - oldTime > recordRate)
         {
@@ -223,22 +338,27 @@ RecordPathPlugin::preFrame()
             ref_ptr<LineSegment> ray = new LineSegment();
             ray->set(q0, q1);
 
-    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector;
-    intersector = coIntersection::instance()->newIntersector(ray->start(), ray->end());
-    igroup->addIntersector(intersector);
+            osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+            osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector;
+            intersector = coIntersection::instance()->newIntersector(ray->start(), ray->end());
+            igroup->addIntersector(intersector);
 
-    osgUtil::IntersectionVisitor visitor(igroup);
-    visitor.setTraversalMask(Isect::Walk);
-    VRSceneGraph::instance()->getTransform()->accept(visitor);
+            osgUtil::IntersectionVisitor visitor(igroup);
+            visitor.setTraversalMask(Isect::Walk);
+            VRSceneGraph::instance()->getTransform()->accept(visitor);
 
-    if(intersector->containsIntersections())
-    {
+            if (intersector->containsIntersections())
+            {
 
                 osgUtil::LineSegmentIntersector::Intersection is = intersector->getFirstIntersection();
                 q0 = is.getWorldIntersectPoint();
-                osg::Node* n = *(is.nodePath.end());
-                objectName[frameNumber] = n->getName().c_str();
+                auto npIt = is.nodePath.end();
+                if (npIt != is.nodePath.begin())
+                {
+                    npIt--;
+                    osg::Node* n = *(npIt);
+                    objectName[frameNumber] = n->getName().c_str();
+                }
                 osg::Vec3 temp;
                 temp = q0 * cover->getInvBaseMat();
 
@@ -265,45 +385,13 @@ RecordPathPlugin::preFrame()
                 record->setState(false);
                 playing = false;
             }
-        }
+        };
     }
 }
 
-void RecordPathPlugin::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == lengthEdit)
-    {
-        length = lengthEdit->getValue();
-    }
-    else if (tUIItem == renderMethod)
-    {
-        lookAtSpheres->setRenderMethod((coSphere::RenderMethod)renderMethod->getSelectedEntry());
-    }
-    else if (tUIItem == recordRateTUI)
-    {
-        recordRate = 1.0 / recordRateTUI->getValue();
-    }
-    else if (tUIItem == fileNameBrowser)
-    {
-        std::string fn = fileNameBrowser->getSelectedPath();
-        delete filename;
-        filename = new char[fn.length()];
-        strcpy(filename, fn.c_str());
-
-        if (filename[0] != '\0')
-        {
-            char *pchar;
-            if ((pchar = strstr(filename, "://")) != NULL)
-            {
-                pchar += 3;
-                strcpy(filename, pchar);
-            }
-        }
-    }
-}
 void RecordPathPlugin::save()
 {
-    FILE *fp = fopen(filename, "w");
+    FILE *fp = fopen(filename.c_str(), "w");
     if (fp)
     {
         fprintf(fp, "# x,      y,      z,      dx,      dy,     dz\n");
@@ -320,135 +408,5 @@ void RecordPathPlugin::save()
     }
 }
 
-void RecordPathPlugin::tabletPressEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == play)
-    {
-        playing = true;
-    }
-
-    if (tUIItem == saveButton)
-    {
-        save();
-    }
-
-    else if (tUIItem == record)
-    {
-        playing = false;
-    }
-    else if (tUIItem == stop)
-    {
-        record->setState(false);
-        playing = false;
-    }
-    else if (tUIItem == reset)
-    {
-        frameNumber = 0;
-        record->setState(false);
-        playing = false;
-    }
-    else if (tUIItem == lengthEdit)
-    {
-        length = lengthEdit->getValue();
-    }
-    else if (tUIItem == viewlookAt)
-    {
-        if (viewlookAt->getState())
-        {
-            float *radii, r;
-            r = radiusEdit->getValue();
-            radii = new float[frameNumber];
-            for (int n = 0; n < frameNumber; n++)
-                radii[n] = r;
-            lookAtSpheres->setCoords(frameNumber, lookat[0], lookat[1], lookat[2], radii);
-            for (int n = 0; n < frameNumber; n++)
-                lookAtSpheres->setColor(n, 1, 0.2, 0.2, 1);
-            cover->getObjectsRoot()->addChild(lookAtGeode.get());
-        }
-        else
-        {
-            cover->getObjectsRoot()->removeChild(lookAtGeode.get());
-
-            lookAtGeode = new Geode();
-            lookAtGeode->addDrawable(lookAtSpheres.get());
-            lookAtGeode->setName("Viewer lookAtPositions");
-        }
-    }
-    else if (tUIItem == viewPath)
-    {
-        char label[100];
-        sprintf(label, "numSamples: %d", frameNumber);
-        numSamples->setLabel(label);
-        if (viewPath->getState())
-        {
-            geode = new Geode();
-            geom = new Geometry();
-            geode->setStateSet(geoState.get());
-
-            geom->setColorBinding(Geometry::BIND_OFF);
-
-            geode->addDrawable(geom.get());
-            geode->setName("Viewer Positions");
-            // set up geometry
-            Vec3Array *vert = new Vec3Array;
-            DrawArrayLengths *primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
-            primitives->push_back(frameNumber);
-            for (int n = 0; n < frameNumber; n++)
-            {
-                vert->push_back(Vec3(positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2]));
-            }
-            geom->setVertexArray(vert);
-            geom->addPrimitiveSet(primitives);
-            geom->dirtyDisplayList();
-            cover->getObjectsRoot()->addChild(geode.get());
-        }
-        else
-        {
-            cover->getObjectsRoot()->removeChild(geode.get());
-        }
-    }
-    else if (tUIItem == viewDirections)
-    {
-        if (viewDirections->getState())
-        {
-
-            dirGeode = new Geode();
-            dirGeom = new Geometry();
-            dirGeode->setStateSet(geoState.get());
-
-            dirGeom->setColorBinding(Geometry::BIND_OFF);
-
-            dirGeode->addDrawable(dirGeom.get());
-            dirGeode->setName("Viewer Positions");
-            // set up geometry
-            Vec3Array *vert = new Vec3Array;
-            DrawArrayLengths *primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
-            for (int n = 0; n < frameNumber; n++)
-            {
-                primitives->push_back(2);
-                Vec3 pos(positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2]);
-                Vec3 look(lookat[0][n], lookat[1][n], lookat[2][n]);
-                Vec3 diff = look - pos;
-                diff.normalize();
-                diff *= length;
-                vert->push_back(pos);
-
-                vert->push_back(pos + diff);
-            }
-            dirGeom->setVertexArray(vert);
-            dirGeom->addPrimitiveSet(primitives);
-            cover->getObjectsRoot()->addChild(dirGeode.get());
-        }
-        else
-        {
-            cover->getObjectsRoot()->removeChild(dirGeode.get());
-        }
-    }
-}
-
-void RecordPathPlugin::tabletReleaseEvent(coTUIElement *tUIItem)
-{
-    (void)tUIItem;
-}
 
 COVERPLUGIN(RecordPathPlugin)

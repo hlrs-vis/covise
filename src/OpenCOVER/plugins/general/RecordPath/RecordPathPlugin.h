@@ -31,8 +31,15 @@ using namespace opencover;
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <PluginUtil/coSphere.h>
+#include <cover/ui/Owner.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/SelectionList.h>
 
-class RecordPathPlugin : public coVRPlugin, public coTUIListener
+class RecordPathPlugin : public coVRPlugin, public ui::Owner
 {
 public:
     RecordPathPlugin();
@@ -41,31 +48,27 @@ public:
 
     // this will be called in PreFrame
     void preFrame();
-    coTUITab *PathTab;
-    coTUIToggleButton *record;
-    coTUIButton *stop;
-    coTUIButton *play;
-    coTUIButton *reset;
-    coTUIButton *saveButton;
-    coTUIToggleButton *viewPath;
-    coTUIToggleButton *viewlookAt;
-    coTUIToggleButton *viewDirections;
-    coTUILabel *numSamples;
-    coTUILabel *recordRateLabel;
-    coTUIEditIntField *recordRateTUI;
-    coTUILabel *lengthLabel;
-    coTUIEditFloatField *lengthEdit;
-    coTUILabel *radiusLabel;
-    coTUIEditFloatField *radiusEdit;
-    coTUIFileBrowserButton *fileNameBrowser;
-    coTUIComboBox *renderMethod;
+
+    ui::Menu* recordPathMenu = nullptr;
+    ui::Button* record = nullptr;
+    ui::Button* play = nullptr;
+    ui::Action* reset = nullptr;
+    ui::Action* saveButton = nullptr;
+    ui::EditField* filePath = nullptr;
+
+    ui::Button* viewPath = nullptr;
+    ui::Button* viewlookAt = nullptr;
+    ui::Button* viewDirections = nullptr;
+    ui::Label *numSamples = nullptr;
+    ui::EditField* recordRateEdit = nullptr;
+    ui::EditField* lengthEdit = nullptr;
+    ui::EditField* radiusEdit = nullptr;
+    ui::EditField* filenameEdit = nullptr;
+    ui::SelectionList* renderMethod = nullptr;
     osg::ref_ptr<osg::StateSet> geoState;
     osg::ref_ptr<osg::Material> linemtl;
     osg::ref_ptr<osg::LineWidth> lineWidth;
 
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-    virtual void tabletEvent(coTUIElement *tUIItem);
 
 private:
     bool playing;
@@ -75,7 +78,7 @@ private:
     float *lookat[3];
     float length;
     const char **objectName;
-    char *filename;
+    std::string filename;
 
     void save();
 
