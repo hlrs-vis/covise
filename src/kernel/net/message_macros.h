@@ -58,6 +58,12 @@ namespace covise
             typedef T RetVal;
         };
 
+        enum class MessageSyle
+        {
+            Primary,
+            SubMessage
+        };
+
     } //detail
 
 } // namespace covise
@@ -188,10 +194,11 @@ namespace covise
 #define DECL_MESSAGE_CLASS(ClassName, export, ...)                                                     \
     struct export ClassName                                                                            \
     {                                                                                                  \
+        static constexpr covise::detail::MessageSyle Style = covise::detail::MessageSyle::Primary;     \
         ClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__)));  \
         explicit ClassName(const covise::Message &msg);                                                \
         covise::Message createMessage() const;                                                         \
-        EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))                                   \
+        EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))                                         \
                                                                                                        \
     private:                                                                                           \
         EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                   \
@@ -240,9 +247,11 @@ namespace covise
     }
 
 #define DECL_SUB_MESSAGE_CLASS_DETAIL(ClassName, FullClassName, EnumClass, EnumType, export, ...)                  \
-    struct export FullClassName : public ClassName                                                                        \
+    struct export FullClassName : public ClassName                                                                 \
     {                                                                                                              \
         friend struct ClassName;                                                                                   \
+        static constexpr covise::detail::MessageSyle Style = covise::detail::MessageSyle::SubMessage;              \
+        typedef ClassName Base;                                                                                    \
         explicit FullClassName(EXPAND(MY_OVERLOADED(CONSTRUCTOR_ELEMENT, CONSTRUCTOR_ELEMENT_LAST, __VA_ARGS__))); \
         FullClassName(const FullClassName &) = delete;                                                             \
         FullClassName(FullClassName &&) = default;                                                                 \
@@ -252,9 +261,9 @@ namespace covise
         covise::Message createMessage() const;                                                                     \
         EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))                                                     \
                                                                                                                    \
+        static const EnumClass subType = EnumClass::EnumType;                                                      \
     private:                                                                                                       \
         EXPAND(MY_OVERLOADED(DECLARATION, DECLARATION, __VA_ARGS__))                                               \
-        static const EnumClass subType = EnumClass::EnumType;                                                      \
         explicit FullClassName(const covise::Message &msg);                                                        \
         explicit FullClassName(covise::detail::Dummy, covise::TokenBuffer &&tb);                                   \
     };                                                                                                             \
@@ -320,6 +329,12 @@ namespace covise
                 m_subMsg.reset(new Derived(*m_msg));                                               \
             }                                                                                      \
             return *dynamic_cast<const Derived *>(m_subMsg.get());                                 \
+        }                                                                                          \
+        template <typename Derived>                                                                \
+        Derived createDerived() const                                                              \
+        {                                                                                          \
+            assert(m_msg);                                                                         \
+            return Derived{*m_msg};                                                                \
         }                                                                                          \
                                                                                                    \
     protected:                                                                                     \
