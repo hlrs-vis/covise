@@ -60,100 +60,6 @@ VRBClientBase::~VRBClientBase()
         shutdown();
 }
 
-bool VRBClient::poll(Message *m)
-{
-    if (isSlave)
-        return false;
-    if (m_sender)
-        return false;
-    if (sConn->check_for_input())
-    {
-        sConn->recv_msg(m);
-        return true;
-    }
-	return false;
-}
-
-bool VRBClient::pollUdp(covise::UdpMessage* m)
-{
-    if (m_sender)
-        return false;
-
-	if (!udpConn)
-	{
-		return false;
-	}
-	return udpConn->recv_udp_msg(m);
-}
-
-int VRBClient::wait(Message *m)
-{
-    if (m_sender)
-        return 0;
-
-#ifdef MB_DEBUG
-    std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
-    std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
-#endif
-    if (isSlave)
-        return 0;
-    if (messageQueue.size())
-    {
-        *m = *(messageQueue.front()); // copy message
-        messageQueue.remove(messageQueue.front());
-        delete m;
-        return 1;
-    }
-
-    return sConn->recv_msg(m);
-}
-
-int VRBClient::wait(Message *m, int messageType)
-{
-    if (m_sender)
-        return 0;
-
-#ifdef MB_DEBUG
-    if (m->type != COVISE_MESSAGE_EMPTY)
-    {
-        std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
-        std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
-        std::cerr << "VRBCLIENT::MESSAGEWAIT: Type: " << messageType << std::endl;
-    }
-#endif
-    int ret = 1;
-    while (ret > 0)
-    {
-        ret = sConn->recv_msg(m);
-        if (m->type == messageType)
-        {
-            return ret;
-        }
-        else
-        {
-            Message *msg = new Message(*m);
-            messageQueue.push_back(msg);
-        }
-        if(udpConn)
-        {
-		int udpret = udpConn->recv_msg(m);
-		if (m->type == messageType)
-		{
-			return udpret;
-		}
-		else
-		{
-			Message* msg = new Message(*m);
-			messageQueue.push_back(msg);
-		}
-        }
-
-
-    }
-    return ret;
-}
-
-
 bool VRBClientBase::sendMessage(const covise::UdpMessage* m) const
 {
     if (m_sender)
@@ -419,4 +325,84 @@ vrb::VrbCredentials vrb::readcollaborativeConfigurationFile(const char *collabor
         }
     }
     return vrb::VrbCredentials{};
+}
+
+bool VRBClient::poll(Message *m)
+{
+    if (isSlave)
+        return false;
+    if (sConn->check_for_input())
+    {
+        sConn->recv_msg(m);
+        return true;
+    }
+	return false;
+
+
+}
+bool VRBClient::pollUdp(covise::UdpMessage* m)
+{
+	if (!udpConn)
+	{
+		return false;
+	}
+	return udpConn->recv_udp_msg(m);
+}
+int VRBClient::wait(Message *m)
+{
+#ifdef MB_DEBUG
+    std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
+    std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
+#endif
+    if (isSlave)
+        return 0;
+    if (messageQueue.size())
+    {
+        *m = *(messageQueue.front()); // copy message
+        messageQueue.remove(messageQueue.front());
+        delete m;
+        return 1;
+    }
+
+    return sConn->recv_msg(m);
+}
+
+int VRBClient::wait(Message *m, int messageType)
+{
+#ifdef MB_DEBUG
+    if (m->type != COVISE_MESSAGE_EMPTY)
+    {
+        std::cerr << "VRBCLIENT::MESSAGEWAIT: Message: " << m->type << std::endl;
+        std::cerr << "VRBCLIENT::MESSAGEWAIT: Data: " << m->data << std::endl;
+        std::cerr << "VRBCLIENT::MESSAGEWAIT: Type: " << messageType << std::endl;
+    }
+#endif
+    int ret = 1;
+    while (ret > 0)
+    {
+        ret = sConn->recv_msg(m);
+        if (m->type == messageType)
+        {
+            return ret;
+        }
+        else
+        {
+            Message *msg = new Message(*m);
+            messageQueue.push_back(msg);
+        }
+        if(udpConn)
+        {
+            int udpret = udpConn->recv_msg(m);
+            if (m->type == messageType)
+            {
+                return udpret;
+            }
+            else
+            {
+                Message* msg = new Message(*m);
+                messageQueue.push_back(msg);
+            }
+        }
+    }
+    return ret;
 }
