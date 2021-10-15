@@ -158,6 +158,9 @@ bool VRBClientBase::sendMessage(const covise::UdpMessage* m) const
 {
     if (m_sender)
     {
+        if (isSlave)
+            return false;
+
         if (!useUDP)
             return false;
 
@@ -177,6 +180,8 @@ bool VRBClientBase::sendMessage(const Message* m) const
 {
     if (m_sender)
     {
+        if (isSlave)
+            return false;
         return m_sender->send(m);
     }
 
@@ -241,6 +246,8 @@ bool VRBClientBase::connectToServer(std::string sessionName)
     setSession(vrb::SessionID{ID(), sessionName});
     if (m_sender)
     {
+        if (isSlave)
+            return false;
         completeConnection();
         return true;
     }
@@ -305,6 +312,8 @@ bool VRBClientBase::completeConnection(){
 
     if (m_sender)
     {
+        if (isSlave)
+            return false;
         return m_sender->send(&msg);
     }
 
