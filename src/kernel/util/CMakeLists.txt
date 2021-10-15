@@ -30,8 +30,10 @@ SET(UTIL_SOURCES
   ChoiceList.cpp
   SerialCom.cpp
   Triangulator.cpp
+  UDPComm.cpp
   UDP_Sender.cpp
   coErr.cpp
+  coException.cpp
   coFileUtil.cpp
   coLog.cpp
   coMaterial.cpp
@@ -49,7 +51,6 @@ SET(UTIL_SOURCES
   environment.cpp
   string_util.cpp
   threadname.cpp
-  UDPComm.cpp
 )
 
 SET(UTIL_HEADERS
@@ -57,10 +58,12 @@ SET(UTIL_HEADERS
   DLinkList.h
   SerialCom.h
   Triangulator.h
+  UDPComm.h
   UDP_Sender.h
   XGetopt.h
   byteswap.h
   coErr.h
+  coException.h
   coExport.h
   coFileUtil.h
   coHash.h
@@ -93,7 +96,6 @@ SET(UTIL_HEADERS
   threadname.h
   tryPrint.h
   unixcompat.h
-  UDPComm.h
 )
 
 SET(SYSDEP_HEADERS
