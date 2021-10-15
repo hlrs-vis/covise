@@ -23,12 +23,12 @@ using namespace covise;
 using namespace covise::controller;
 
 HostManager::HostManager()
-    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, covise::Program::covise}})).first), m_vrb(new vrb::VRBClient{covise::Program::covise})
+    : m_localHost(m_hosts.insert(HostMap::value_type(0, std::unique_ptr<RemoteHost>{new LocalHost{*this, covise::Program::covise}})).first), m_vrb(new vrb::AsyncClient{covise::Program::covise})
 {
     m_vrb->connectToServer();
     auto userInfos = getConfiguredHosts();
     std::cerr << userInfos.size() << " hosts are preconfigured" << std::endl;
-    int i = clientIdForPreconfigured; 
+    int i = clientIdForPreconfigured;
     for (auto &userInfo : userInfos)
     {
         covise::TokenBuffer tb;
@@ -41,8 +41,25 @@ HostManager::HostManager()
 
 HostManager::~HostManager()
 {
+    releasePendingPartner();
     m_hosts.clear(); //host that use vrb proxy must be deleted before vrb conn is shutdown
     m_vrb->shutdown();
+}
+
+void HostManager::releasePendingPartner()
+{
+    for (const auto &h : m_hosts)
+    {
+        if (h.second->state() == LaunchStyle::Pending)
+        {
+            covise::NEW_UI_HandlePartners pMsg{covise::LaunchStyle::Disconnect, 0, std::vector<int>{h.second->ID()}};
+            m_vrb->addMessage(pMsg.createMessage());
+            //inform coviseDaemon that launch request is invalid
+            VRB_PERMIT_LAUNCH_Abort abort{m_vrb->ID(), h.second->ID(), covise::Program::crb};
+            sendCoviseMessage(abort, *m_vrb);
+        }
+    }
+    //
 }
 
 void HostManager::sendPartnerList() const
@@ -80,33 +97,53 @@ void HostManager::handleActions(const covise::NEW_UI_HandlePartners &msg)
 
 void HostManager::handleAction(LaunchStyle style, RemoteHost &h)
 {
-    bool proxyRequired = false;
-    if (style != LaunchStyle::Disconnect)
-    {
-        proxyRequired = checkIfProxyRequiered(h.ID(), h.userInfo().hostName);
-    }
-    if (h.handlePartnerAction(style, proxyRequired))
-    {
-        if (style == LaunchStyle::Partner)
-        {
-            const auto &ui = dynamic_cast<const Userinterface &>(h.getProcess(sender_type::USERINTERFACE));
 
-            ui.sendCurrentNetToUI(CTRLHandler::instance()->globalFile());
-            // add displays for the existing renderers on the new partner
-            for (const auto &renderer : getAllModules<Renderer>())
-            {
-                if (renderer->isOriginal())
+    if (isConnected(style))
+    {
+        auto id = h.ID();
+        auto &permission = AsyncWait<VRB_PERMIT_LAUNCH_Answer>(std::bind(&HostManager::waitForPermission, this, id),
+                                                               std::bind(&HostManager::handlePermission, this, id, std::placeholders::_1));
+        auto &handlePartnerAction = AsyncWait<bool>(
+            []()
+            { return true; },
+            std::bind(&HostManager::finishHandlePartner, this, style, id));
+
+        if (m_vrb->isConnected())
+        {
+            auto &proxyRequired = AsyncWait<ConnectionCapability>(
+                std::bind(&HostManager::waitForConnectionCapability, this, id),
+                std::bind(&HostManager::handleConnectionCapability, this, id, std::placeholders::_1));
+
+            auto &createProxy = AsyncWait<PROXY_ProxyCreated>(
+                [this, id]()
                 {
-                    renderer->addDisplayAndHandleConnections(ui);
-                }
-            }
+                    const auto &host = m_hosts[id];
+                    if (host->proxyHost() && !m_proxyConnection)
+                    {
+                        //request listening conn on server
+                        PROXY_CreateControllerProxy p{m_vrb->ID()};
+                        sendCoviseMessage(p, *m_vrb);
+                        return m_vrb->wait<PROXY_ProxyCreated>();
+                    }
+                    else //do nothing in createProxyConn
+                    {
+                        return PROXY_ProxyCreated{-1};
+                    }
+                },
+                std::bind(&HostManager::createProxyConn, this, std::placeholders::_1));
+
+            permission >> proxyRequired >> createProxy >> handlePartnerAction;
+        }
+        else
+        {
+            permission >> handlePartnerAction;
         }
 
-        //inform ui that the connection process is over
-        sendPartnerList();
-        NEW_UI_ConnectionCompleted cmsg{h.ID()};
-        auto m = cmsg.createMessage();
-        sendAll<Userinterface>(m);
+        permission.wait();
+    }
+    else
+    {
+        finishHandlePartner(style, h.ID());
     }
 }
 
@@ -120,7 +157,7 @@ int HostManager::vrbClientID() const
     return m_vrb->ID();
 }
 
-const vrb::VRBClient &HostManager::getVrbClient() const
+const vrb::VRBClientBase &HostManager::getVrbClient() const
 {
     return *m_vrb;
 }
@@ -275,7 +312,7 @@ std::string HostManager::getHostsInfo() const
     int numPartners = 0;
     for (const auto &h : *this)
     {
-        if (h.second->state() != LaunchStyle::Disconnect)
+        if (isConnected(h.second->state()))
         {
             ++numPartners;
             auto &host = *h.second;
@@ -336,70 +373,140 @@ std::unique_ptr<Message> HostManager::receiveProxyMessage()
     return m;
 }
 
-bool HostManager::checkIfProxyRequiered(int clID, const std::string &hostName)
+bool HostManager::handleConnectionCapability(int clID, covise::ConnectionCapability capability)
 {
-    if (!m_vrb->isConnected())
-        return false;
+    std::string msgStr = "Connection to " + m_hosts[clID]->userInfo().hostName + " is created ";
+    m_hosts[clID]->setProxyHost(capability == ConnectionCapability::ProxyRequired);
+    msgStr += capability == ConnectionCapability::ProxyRequired ? "via proxy" : "directly";
+    Message m{COVISE_MESSAGE_WARNING, msgStr};
+    sendAll<Userinterface>(m);
+    return true;
+}
 
-    PROXY_ConnectionCheck check{clID, m_vrb->ID()};
-    sendCoviseMessage(check, *m_vrb);
-    Message retval;
-    m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
-    PROXY proxyMsg{retval};
-    auto conCap = proxyMsg.unpackOrCast<PROXY_ConnectionState>().capability();
-    if (conCap == ConnectionCapability::NotChecked)
+bool isCancelConnectionAttemptMsg(int partnerId, const covise::Message &msg)
+{
+    if (msg.type == covise::COVISE_MESSAGE_NEW_UI)
     {
-        int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
-        Message infoMsg{COVISE_MESSAGE_WARNING, "Testing the connection to " + hostName + ", timeout is " + std::to_string(timeout) + " seconds."};
-        sendAll<Userinterface>(infoMsg);
-        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::cerr << " creating server conn: " << std::ctime(&now) << std::endl;
-        setupServerConnection(0, 0, timeout, [this, timeout, clID](const ServerConnection &c)
-                              {
-                                  PROXY_ConnectionTest test{clID, m_vrb->ID(), c.get_port(), timeout};
-                                  return sendCoviseMessage(test, *m_vrb);
-                              });
-        now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::cerr << " waiting for response from vrb: " << std::ctime(&now) << std::endl;
-        m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
-        PROXY proxyMsg2{retval};
-        conCap = proxyMsg2.unpackOrCast<PROXY_ConnectionState>().capability();
-        now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::cerr << " received response from vrb: " << std::ctime(&now) << std::endl;
+        NEW_UI ui{msg};
+        if (ui.type == NEW_UI_TYPE::HandlePartners)
+        {
+            auto &partners = ui.unpackOrCast<NEW_UI_HandlePartners>();
+            if (partners.clients().size() == 1 && partners.clients()[0] == partnerId && partners.launchStyle() == covise::LaunchStyle::Disconnect)
+            {
+                return true;
+            }
+        }
     }
-    assert(conCap != ConnectionCapability::NotChecked);
-    std::string msgStr;
-    if (conCap == ConnectionCapability::ProxyRequired)
+    return false;
+}
+
+VRB_PERMIT_LAUNCH_Answer HostManager::waitForPermission(int partnerId)
+{
+    m_hosts[partnerId]->askForPermission();
+    sendPartnerList(); //set pending state in ui
+    auto msg = m_vrb->wait([this, partnerId](const covise::Message &msg)
+                           {
+                               if (msg.type == covise::COVISE_MESSAGE_VRB_PERMIT_LAUNCH)
+                               {
+                                   VRB_PERMIT_LAUNCH pl{msg};
+                                   if (pl.type == VRB_PERMIT_LAUNCH_TYPE::Answer)
+                                       return true;
+                               }
+                               return isCancelConnectionAttemptMsg(partnerId, msg);
+                           });
+
+    if (msg.type == covise::COVISE_MESSAGE_VRB_PERMIT_LAUNCH)
     {
-        createProxyConn();
-        msgStr = "Connection to " + hostName + " timed out, creating proxy via VRB.";
+        VRB_PERMIT_LAUNCH pl{msg};
+        return pl.createDerived<VRB_PERMIT_LAUNCH_Answer>();
     }
     else
     {
-        msgStr = "Connection to " + hostName + " successful.";
+        //inform coviseDaemon that launch request is invalid
+        VRB_PERMIT_LAUNCH_Abort abort{m_vrb->ID(), partnerId, covise::Program::crb};
+        sendCoviseMessage(abort, *m_vrb);
+        return VRB_PERMIT_LAUNCH_Answer{m_vrb->ID(), partnerId, false, 0};
     }
-
-    Message m{COVISE_MESSAGE_WARNING, msgStr};
-    sendAll<Userinterface>(m);
-    return conCap == ConnectionCapability::ProxyRequired;
 }
 
-void HostManager::createProxyConn()
+bool HostManager::handlePermission(int partnerId, const VRB_PERMIT_LAUNCH_Answer &answer)
 {
-    if (!m_proxyConnection)
+    auto &h = m_hosts[partnerId];
+    if (!answer.permit())
     {
-        //request listening conn on server
-        PROXY_CreateControllerProxy p{m_vrb->ID()};
-        sendCoviseMessage(p, *m_vrb);
-        //connect
-        Message retval;
-        m_vrb->wait(&retval, COVISE_MESSAGE_PROXY);
-        PROXY proxyMsg{retval};
-        Host h{m_vrb->getCredentials().ipAddress().c_str()};
-        m_proxyConnection = createConnectedConn<ControllerProxyConn>(&h, proxyMsg.unpackOrCast<PROXY_ProxyCreated>().port(), 1000, (int)CONTROLLER);
-        if (!m_proxyConnection)
-            std::cerr << "failed to create proxy connection via VRB" << std::endl;
+        Message m{COVISE_MESSAGE_WARNING, "Partner " + h->userInfo().userName + "@" + h->userInfo().hostName + " refused to launch COVISE!"};
+        getMasterUi().send(&m);
+        h->removePartner();
+        sendPartnerList();
+        return false;
     }
+    h->setCode(answer.code());
+    return true;
+}
+
+bool HostManager::finishHandlePartner(LaunchStyle style, int partnerId)
+{
+    auto &h = *m_hosts[partnerId];
+    if (h.handlePartnerAction(style))
+    {
+        if (style == LaunchStyle::Partner)
+        {
+            const auto &ui = dynamic_cast<const Userinterface &>(h.getProcess(sender_type::USERINTERFACE));
+
+            ui.sendCurrentNetToUI(CTRLHandler::instance()->globalFile());
+            // add displays for the existing renderers on the new partner
+            for (const auto &renderer : getAllModules<Renderer>())
+            {
+                if (renderer->isOriginal())
+                {
+                    renderer->addDisplayAndHandleConnections(ui);
+                }
+            }
+        }
+
+        //inform ui that the connection process is over
+        sendPartnerList();
+        return true;
+    }
+    return false;
+}
+
+ConnectionCapability HostManager::waitForConnectionCapability(int partnerClientId)
+{
+    PROXY_ConnectionCheck check{partnerClientId, m_vrb->ID()};
+    sendCoviseMessage(check, *m_vrb);
+    std::function<bool(const PROXY_ConnectionState &)> lookForState = [partnerClientId](const PROXY_ConnectionState &state)
+    { return state.fromClientID() == partnerClientId; };
+    auto state = m_vrb->wait(lookForState).capability();
+    if (state == ConnectionCapability::NotChecked)
+    {
+        int timeout = coCoviseConfig::getInt("System.VRB.CheckConnectionTimeout", 6);
+        Message m{COVISE_MESSAGE_WARNING, "Testing the connection with timeout " + std::to_string(timeout)};
+        sendAll<Userinterface>(m);
+        setupServerConnection(0, 0, timeout, [this, partnerClientId, timeout](const ServerConnection &c)
+                              {
+                                  PROXY_ConnectionTest test{partnerClientId, m_vrb->ID(), c.get_port(), timeout};
+                                  return sendCoviseMessage(test, *m_vrb);
+                              });
+        state = m_vrb->wait(lookForState).capability();
+        assert(state != ConnectionCapability::NotChecked);
+    }
+    return state;
+}
+
+bool HostManager::createProxyConn(const PROXY_ProxyCreated &proxyCreated)
+{
+    if (proxyCreated.port() > 0)
+    {
+        Host h{m_vrb->getCredentials().ipAddress().c_str()};
+        m_proxyConnection = createConnectedConn<ControllerProxyConn>(&h, proxyCreated.port(), 1000, (int)CONTROLLER);
+        if (!m_proxyConnection)
+        {
+            std::cerr << "failed to create proxy connection via VRB" << std::endl;
+            return false;
+        }
+    }
+    return true;
 }
 
 void HostManager::handleVrb()
@@ -411,6 +518,7 @@ void HostManager::handleVrb()
 
 bool HostManager::handleVrbMessage()
 {
+    handleAsyncWaits();
     covise::Message msg;
     if (!m_vrb->poll(&msg))
         return false;
@@ -456,19 +564,7 @@ bool HostManager::handleVrbMessage()
             auto &answer = permission.unpackOrCast<VRB_PERMIT_LAUNCH_Answer>();
             if (auto h = getHost(answer.launcherID()))
             {
-                if (!answer.permit())
-                {
-                    Message m{COVISE_MESSAGE_WARNING, "Partner " + h->userInfo().userName + "@" + h->userInfo().hostName + " refused to launch COVISE!"};
-                    getMasterUi().send(&m);
-                    NEW_UI_ConnectionCompleted cmsg{h->ID()};
-                    m = cmsg.createMessage();
-                    sendAll<Userinterface>(m);
-                }
-                else if (h->wantsTochangeState())
-                {
-                    h->permitLaunch(answer.code());
-                    handleAction(h->desiredState(), *h);
-                }
+                std::cerr << "VRB_PERMIT_LAUNCH_Answer should be handled in connection attempt and not here! " << answer.launcherID() << std::endl;
             }
             else
                 std::cerr << "received VRB_PERMIT_LAUNCH_Answer from unknown coviseDaemon with clientID " << answer.launcherID() << std::endl;
@@ -529,7 +625,7 @@ bool HostManager::handleVrbMessage()
         m_localHost = m_hosts.insert(HostMap::value_type{0, std::move(local)}).first;
         m_localHost->second->setID(0);
         std::cerr << "lost connection to vrb" << std::endl;
-        m_vrb.reset(new vrb::VRBClient{covise::Program::covise});
+        m_vrb.reset(new vrb::AsyncClient{covise::Program::covise});
         m_vrb->connectToServer();
         return false;
     }

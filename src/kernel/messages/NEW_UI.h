@@ -55,7 +55,6 @@ DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailablePartners, COMSGEXPORT, Clie
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, RequestNewHost, COMSGEXPORT, const char *, hostName, const char *, userName, vrb::VrbCredentials, vrbCredentials)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, AvailableModules, COMSGEXPORT, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, PartnerInfo, COMSGEXPORT, int, clientId, covise::UserInfo, partnerInfo, std::string, coviseVersion, std::vector<std::string>, modules, std::vector<std::string>, categories)
-DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ConnectionCompleted, COMSGEXPORT, int, partnerClientId);
 DECL_SUB_MESSAGE_CLASS(NEW_UI, NEW_UI_TYPE, ChangeClientId, COMSGEXPORT, int, oldId, int, newId);
 
 }//covise

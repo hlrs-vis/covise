@@ -20,7 +20,6 @@
 #include <util/covise_version.h>
 #include <vrb/client/LaunchRequest.h>
 
-
 #include "crb.h"
 #include "exception.h"
 #include "global.h"
@@ -152,6 +151,9 @@ void RemoteHost::askForPermission()
 {
     covise::VRB_PERMIT_LAUNCH_Ask ask{hostManager.getVrbClient().ID(), ID(), covise::Program::crb};
     sendCoviseMessage(ask, hostManager.getVrbClient());
+    m_state = covise::LaunchStyle::Pending;
+    m_code = 0;
+    m_isProxy = false;
 }
 
 void RemoteHost::determineAvailableModules(const CRBModule &crb)
@@ -270,7 +272,7 @@ bool RemoteHost::launchCrb(covise::Program exec, const std::vector<std::string> 
     {
     case controller::ExecType::VRB:
         vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{hostManager.getVrbClient().ID(), exec, ID(), std::vector<std::string>{}, cmdArgs, static_cast<int>(m_code)}, &hostManager.getVrbClient());
-    break;
+        break;
     case controller::ExecType::Manual:
         launchManual(exec, cmdArgs);
         break;
@@ -311,6 +313,11 @@ void RemoteHost::setTimeout(int seconds)
     m_timeout = seconds;
 }
 
+void RemoteHost::setCode(int code)
+{
+    m_code = code;
+}
+
 void RemoteHost::launchScipt(covise::Program exec, const std::vector<std::string> &cmdArgs)
 {
     std::stringstream start_string;
@@ -349,45 +356,28 @@ RemoteHost::RemoteHost(const HostManager &manager, vrb::RemoteClient &&base)
 {
 }
 
-bool RemoteHost::wantsTochangeState() const
+bool RemoteHost::handlePartnerAction(covise::LaunchStyle action)
 {
-    return m_state != m_desiredState;
-}
-
-bool RemoteHost::handlePartnerAction(covise::LaunchStyle action, bool proxyRequired)
-{
-    m_isProxy = proxyRequired;
     bool retval = false;
-    if (action == covise::LaunchStyle::Disconnect || m_hasPermission || CTRLHandler::instance()->Config.getexectype(userInfo().hostName) != ExecType::VRB)
+    switch (action)
     {
-        m_hasPermission = false;
-
-        switch (action)
-        {
-        case covise::LaunchStyle::Partner:
-            retval = addPartner();
-            break;
-        case covise::LaunchStyle::Host:
-            retval = startCrb();
-            break;
-        case covise::LaunchStyle::Disconnect:
-            retval = removePartner();
-            break;
-        default:
-            retval = false;
-        }
-        if (retval)
-        {
-            m_state = action;
-        }
-        return retval;
+    case covise::LaunchStyle::Partner:
+        retval = addPartner();
+        break;
+    case covise::LaunchStyle::Host:
+        retval = startCrb();
+        break;
+    case covise::LaunchStyle::Disconnect:
+        retval = removePartner();
+        break;
+    default:
+        retval = false;
     }
-    else
+    if (retval)
     {
-        m_desiredState = action;
-        askForPermission();
-        return false;
+        m_state = action;
     }
+    return retval;
 }
 
 bool RemoteHost::addPartner()
@@ -399,16 +389,20 @@ bool RemoteHost::addPartner()
 
 bool RemoteHost::removePartner()
 {
+    if(m_state == LaunchStyle::Pending)
+    {
+        m_state = LaunchStyle::Disconnect;
+        return true;
+    }
     if (m_state == LaunchStyle::Disconnect) //already disconnected
     {
-        m_desiredState = LaunchStyle::Disconnect;
         //inform coviseDaemon that launch request is invalid
         VRB_PERMIT_LAUNCH_Abort abort{hostManager.getVrbClient().ID(), ID(), covise::Program::crb};
         sendCoviseMessage(abort, hostManager.getVrbClient());
         if (m_isProxy) //inform vrb to calcel all connection atempts to proxys of this host
         {
             std::vector<int> procs(m_processes.size());
-            for(const auto& proc: m_processes)
+            for (const auto &proc : m_processes)
                 procs.push_back(proc->processId);
             PROXY_Abort abort(procs);
             sendCoviseMessage(abort, *hostManager.proxyConn());
@@ -463,10 +457,10 @@ bool RemoteHost::removePartner()
         m_state = LaunchStyle::Disconnect;
         for (const auto &host : hostManager)
         {
-            if (host.second->state() != LaunchStyle::Disconnect) //this->m_state should already be set to Disconnect
+            if (isConnected(host.second->state())) //this->m_state should already be set to Disconnect
             {
                 host.second->getProcess(sender_type::CRB).send(&msg);
-            }
+            } /*  */
         }
     }
     catch (const Exception &e)
@@ -483,15 +477,9 @@ bool RemoteHost::proxyHost() const
     return m_isProxy;
 }
 
-void RemoteHost::permitLaunch(int code)
+void RemoteHost::setProxyHost(bool isProxy)
 {
-    m_hasPermission = true;
-    m_code = code;
-}
-
-covise::LaunchStyle RemoteHost::desiredState() const
-{
-    return m_desiredState;
+    m_isProxy = isProxy;
 }
 
 void RemoteHost::clearProcesses()

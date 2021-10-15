@@ -1018,45 +1018,12 @@ void MEMainHandler::addPartner()
         connect(m_addPartnerDialog, &MERemotePartner::clientAction, this, [this](const covise::ClientInfo &client)
                 {
                     requestPartnerAction(client.style, std::vector<int>{client.id});
-                    m_addPartnerDialog->hide();
-                });
-    }
-    if (!m_waitingForConnectionDialog)
-    {
-        m_waitingForConnectionDialog = new covise::NonBlockingDialogue{mapEditor};
-        m_waitingForConnectionDialog->setWindowTitle("Connection in progress");
-        m_waitingForConnectionDialog->setInfo("Connection procedure in progress...");
-        m_waitingForConnectionDialog->setQuestion("The \"manage partner\" dialogue will be awailable as soon as the connection is compleeted.");
-        auto ok = m_waitingForConnectionDialog->addOption("Ok");
-        auto abort = m_waitingForConnectionDialog->addOption("Abort");
-        connect(this, &MEMainHandler::activatePartnerDialogue, this, [this]()
-                {
-                    if (m_waitingForConnectionDialog->isVisible())
-                    {
-                        m_waitingForConnectionDialog->hide();
-                        addPartner();
-                    }
-                });
-        connect(m_waitingForConnectionDialog, &covise::NonBlockingDialogue::answer, this, [abort, this](int option)
-                { 
-                    if (option == abort)
-                    {       
-                        covise::NEW_UI_HandlePartners msg{covise::LaunchStyle::Disconnect, 0, m_requestedClients};
-                        covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
-                    }
                 });
     }
     {
         std::lock_guard<std::mutex> g{m_remotePartnerMutex};
         m_addPartnerDialog->setPartners(m_remotePartners);
-    }
-    if (m_showPartnerDialogue)
-    {
         m_addPartnerDialog->show();
-    }
-    else
-    {
-        int ret = m_waitingForConnectionDialog->exec();
     }
 }
 
@@ -1065,24 +1032,7 @@ void MEMainHandler::requestPartnerAction(covise::LaunchStyle launchStyle, const 
     int timeout = 0;
     covise::NEW_UI_HandlePartners msg{launchStyle, timeout, clients};
     covise::sendCoviseMessage(msg, *MEMessageHandler::instance());
-    std::lock_guard<std::mutex> g{m_remotePartnerMutex};
-    if (launchStyle != covise::LaunchStyle::Disconnect)
-    {
-        m_showPartnerDialogue = false;
-        m_requestedClients = clients;
-    }
 }
-
-void MEMainHandler::updatePartnerDialogue(std::unique_lock<std::mutex>& mutex)
-{
-    if (m_requestedClients.empty())
-    {
-        m_showPartnerDialogue = true;
-        mutex.unlock();
-        emit activatePartnerDialogue();
-    }
-}
-
 
 void MEMainHandler::deleteSelectedNodes()
 {
@@ -1350,23 +1300,11 @@ QColor MEMainHandler::getHostColor(int entry)
 void MEMainHandler::updateRemotePartners(const covise::ClientList &partners){
     std::unique_lock<std::mutex> g{m_remotePartnerMutex};
     m_remotePartners = partners;
-    for (auto i = m_requestedClients.begin(); i != m_requestedClients.end();)
+    if (m_addPartnerDialog)
     {
-        auto found = std::find_if(m_remotePartners.begin(), m_remotePartners.end(), [i](const covise::ClientInfo &info)
-                                  { return info.id == *i; }) != m_remotePartners.end();
-        if (!found)
-            i = m_requestedClients.erase(i);
-        else
-            ++i;
+        m_addPartnerDialog->setPartners(m_remotePartners);
     }
-    updatePartnerDialogue(g);
-}
-
-void MEMainHandler::connectionCompleted(int clientId)
-{
-    std::unique_lock<std::mutex> g{m_remotePartnerMutex};
-    m_requestedClients.erase(std::remove(m_requestedClients.begin(), m_requestedClients.end(), clientId), m_requestedClients.end());
-    updatePartnerDialogue(g);
+    
 }
 
 //!

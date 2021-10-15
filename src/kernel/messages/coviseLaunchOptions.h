@@ -9,12 +9,13 @@ enum class LaunchStyle
     Partner,
     Host,
     Disconnect,
+    Pending, 
     LAST_DUMMY
 };
 constexpr int numLaunchStyles = static_cast < int>(LaunchStyle::LAST_DUMMY);
 namespace detail
 {
-    constexpr std::array<const char *, numLaunchStyles> LaunchStyleNames{"Local", "Partner", "Host", "Disconnect"};
+    constexpr std::array<const char *, numLaunchStyles> LaunchStyleNames{"Local", "Partner", "Host", "Disconnect", "Pending"};
 }
 struct LaunchStyleNames{
     const char *operator[](LaunchStyle l)const{
@@ -22,6 +23,11 @@ struct LaunchStyleNames{
     }
 };
 constexpr LaunchStyleNames launchStyleNames;
+
+constexpr bool isConnected(LaunchStyle style)
+{
+    return style == LaunchStyle::Partner || style == LaunchStyle::Host;
+}
 
 } // namespace covise
 

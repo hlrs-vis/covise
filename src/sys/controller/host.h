@@ -13,15 +13,15 @@
 #include <mutex>
 
 #include <messages/CRB_EXEC.h>
+#include <messages/PROXY.h>
+#include <messages/coviseLaunchOptions.h>
+#include <util/asyncWait.h>
 #include <vrb/RemoteClient.h>
 #include <vrb/client/VRBClient.h>
-#include <messages/coviseLaunchOptions.h>
-#include <messages/PROXY.h>
 
 #include "config.h"
 #include "subProcess.h"
 #include "syncVar.h"
-
 namespace covise
 {
 struct NEW_UI_HandlePartners;
@@ -45,10 +45,10 @@ struct RemoteHost : vrb::RemoteClient
     RemoteHost(const RemoteHost &other) = delete;
     
     const HostManager &hostManager;
-    bool wantsTochangeState() const;
-    bool handlePartnerAction(covise::LaunchStyle action, bool proxyRequired);
+    bool handlePartnerAction(covise::LaunchStyle action);
     covise::LaunchStyle state() const;
     void setTimeout(int seconds);
+    void setCode(int code);
     bool startCrb();
     bool startUI(const UIOptions &options);
     const SubProcess &getProcess(sender_type type) const;
@@ -71,8 +71,8 @@ struct RemoteHost : vrb::RemoteClient
                           int posx, int posy, int copy, ExecFlag flags, NetModule *mirror = nullptr);
     bool removePartner();
     bool proxyHost() const;
-    void permitLaunch(int code);
-    covise::LaunchStyle desiredState() const;
+    void setProxyHost(bool isProxy);
+    virtual void askForPermission();
 private:
     bool addPartner();
     void launchScipt(covise::Program exec, const std::vector<std::string> &cmdArgs);  //need to create a new remote host for these
@@ -91,10 +91,8 @@ private:
 
 protected:
     covise::LaunchStyle m_state = covise::LaunchStyle::Disconnect;
-    covise::LaunchStyle m_desiredState = covise::LaunchStyle::Disconnect;
     bool m_hasPermission = false;
     virtual void connectShm(const CRBModule &crbModule);
-    virtual void askForPermission();
     virtual bool launchCrb(covise::Program exec, const std::vector<std::string> &cmdArgs);
 };
 

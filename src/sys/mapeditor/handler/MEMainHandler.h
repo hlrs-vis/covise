@@ -197,12 +197,10 @@ public:
 
     void initNode(int nodeid, MEHost *host, covise::coRecvBuffer &tb);
     void updateRemotePartners(const covise::ClientList &partners);
-    void connectionCompleted(int clientId);
 signals:
 
     void usingNode(const QString &);
     void developerMode(bool);
-    void activatePartnerDialogue();
 
 public slots:
 
@@ -265,9 +263,6 @@ private:
     MENode *m_currentNode, *m_newNode;
     MESessionSettings *m_settings;
     MERemotePartner *m_addPartnerDialog = nullptr;
-    covise::NonBlockingDialogue *m_waitingForConnectionDialog = nullptr;
-    bool m_showPartnerDialogue{true};
-    std::vector<int> m_requestedClients;
     MECSCWParam *m_CSCWParam;
     MEDeleteHostDialog *m_deleteHostBox;
     MEMirrorHostDialog *m_mirrorBox;
@@ -283,7 +278,6 @@ private:
     void saveMap();
     void setLocalHost(int id, const QString &name, const QString &user);
     void requestPartnerAction(covise::LaunchStyle launchStyle, const std::vector<int> &clients);
-    void updatePartnerDialogue(std::unique_lock<std::mutex>& mutex);
 private slots:
 
     void printCB();

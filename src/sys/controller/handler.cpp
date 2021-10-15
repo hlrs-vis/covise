@@ -629,7 +629,7 @@ void CTRLHandler::handleClosedMsg(const std::unique_ptr<Message> &msg)
         if (auto p_rend = dynamic_cast<Renderer *>(p_app))
         {
             auto disp = p_rend->getDisplay(peer_id);
-            if (disp->get()->host.state() != covise::LaunchStyle::Disconnect)
+            if (isConnected(disp->get()->host.state()))
             {
                 std::stringstream ss;
                 ss << "The " << disp->get()->host.userInfo().userName << "@" << disp->get()->host.userInfo().ipAdress << "'s display of the "
@@ -1171,7 +1171,7 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         auto apps = m_hostManager.getAllModules<NetModule>();
         for (auto &host : m_hostManager)
         {
-            if(host.second->state() != LaunchStyle::Disconnect)
+            if(isConnected(host.second->state()))
             {
 				for (NetModule* app : apps)
 				{
@@ -3134,7 +3134,7 @@ void CTRLHandler::sendCollaborativeState()
     int numHosts = 0;
     for (const auto &host : m_hostManager)
     {
-        if (host.second->state() != LaunchStyle::Disconnect)
+        if (isConnected(host.second->state()))
         {
             buffer << (host.second->state() == LaunchStyle::Host ? "COHOST" : "COPARTNER") << "\n"
                    << host.second->userInfo().ipAdress << "\n"

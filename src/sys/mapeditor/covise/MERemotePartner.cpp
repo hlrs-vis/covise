@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QProgressBar>
 #include <sstream>
 
 using namespace covise;
@@ -48,6 +49,23 @@ ClientWidget::ClientWidget(const covise::ClientInfo &partner, QWidget *parent)
         connect(hostBtn, &QPushButton::clicked, this, [this, &partner]() {
             ClientInfo i = partner;
             i.style = LaunchStyle::Host;
+            emit clientAction(i);
+        });
+    }
+    else if(partner.style == LaunchStyle::Pending)
+    {
+        auto progress = new QProgressBar(this);
+        progress->setMinimum(0);
+        progress->setMaximum(0);
+        progress->setToolTip("Waiting for connection");
+        layout->addWidget(progress);
+        
+        auto cancelBtn = new QPushButton(this);
+        cancelBtn->setText("Cancel");
+        layout->addWidget(cancelBtn);
+        connect(cancelBtn, &QPushButton::clicked, this, [this, &partner]() {
+            ClientInfo i = partner;
+            i.style = LaunchStyle::Disconnect;
             emit clientAction(i);
         });
     }

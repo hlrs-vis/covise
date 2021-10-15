@@ -2,42 +2,46 @@
 #define CONTROLLER_HOSTMANAGER_H
 
 #include "host.h"
+#include <vrb/client/AsyncClient.h>
 
 namespace covise{
 struct NEW_UI_HandlePartners;
-
-namespace controller{
-
-class HostManager
+struct VRB_PERMIT_LAUNCH_Answer;
+namespace controller
 {
-public:
-    typedef std::map<int, std::unique_ptr<RemoteHost>> HostMap;
-    HostManager();
-    ~HostManager();
-    struct UiState{
-        int masterRequestSenderId = 0;
-    } uiState;
 
-    void sendPartnerList() const; 
-    void handleActions(const covise::NEW_UI_HandlePartners &msg);
-    void handleAction(LaunchStyle style, RemoteHost &h);
+    class HostManager
+    {
+    public:
+        typedef std::map<int, std::unique_ptr<RemoteHost>> HostMap;
+        HostManager();
+        ~HostManager();
+        struct UiState
+        {
+            int masterRequestSenderId = 0;
+        } uiState;
+        void releasePendingPartner();
+        void sendPartnerList() const;
+        void handleActions(const covise::NEW_UI_HandlePartners &msg);
+        void handleAction(LaunchStyle style, RemoteHost &h);
 
-    void setOnConnectCallBack(std::function<void(void)> cb);
-    int vrbClientID() const;
-    const vrb::VRBClient &getVrbClient() const;
-    
-    LocalHost &getLocalHost();
-    const LocalHost &getLocalHost() const;
-    
-    RemoteHost *getHost(int clientID);
-    const RemoteHost *getHost(int clientID) const;
+        void setOnConnectCallBack(std::function<void(void)> cb);
+        int vrbClientID() const;
+        const vrb::VRBClientBase &getVrbClient() const;
 
-    RemoteHost &findHost(const std::string &ipAddress); //this will cause collaborative work on a single host to fail
-    const RemoteHost &findHost(const std::string &ipAddress) const;
+        LocalHost &getLocalHost();
+        const LocalHost &getLocalHost() const;
 
-    std::vector<const SubProcess *> getAllModules(sender_type type) const;
-    template<typename T>
-    std::vector<const T*> getAllModules() const{
+        RemoteHost *getHost(int clientID);
+        const RemoteHost *getHost(int clientID) const;
+
+        RemoteHost &findHost(const std::string &ipAddress); //this will cause collaborative work on a single host to fail
+        const RemoteHost &findHost(const std::string &ipAddress) const;
+
+        std::vector<const SubProcess *> getAllModules(sender_type type) const;
+        template <typename T>
+        std::vector<const T *> getAllModules() const
+        {
             auto v =  const_cast<HostManager *>(this)->getAllModules<T>();
             std::vector<const T *> modules(v.size());
             std::transform(v.begin(), v.end(), modules.begin(), [](T *t) {
@@ -85,18 +89,21 @@ public:
 
 private:
     mutable std::set<ModuleInfo> m_availableModules; //every module that is available on at leaset one host. This manages the instance ids of the modules.
-    std::unique_ptr<vrb::VRBClient> m_vrb;
+    std::unique_ptr<vrb::AsyncClient> m_vrb;
     HostMap m_hosts;
     HostMap::iterator m_localHost;
     std::function<void(void)> m_onConnectVrbCallBack;
     std::unique_ptr<ControllerProxyConn> m_proxyConnection;
-    bool checkIfProxyRequiered(int clID, const std::string &hostName);
-    void createProxyConn();
+    bool createProxyConn(const PROXY_ProxyCreated &proxyCreated);
     bool handleVrbMessage();
     void moveRendererInNewSessions();
 
+    VRB_PERMIT_LAUNCH_Answer waitForPermission(int partnerId);
+    bool handlePermission(int partnerId, const VRB_PERMIT_LAUNCH_Answer &answer);
+    bool finishHandlePartner(LaunchStyle style, int partnerId);
+    covise::ConnectionCapability waitForConnectionCapability(int partnerId);
+    bool handleConnectionCapability(int partnerId, covise::ConnectionCapability capability);
 };
-
 }
 }
 
