@@ -922,17 +922,32 @@ void OpenCOVER::loop()
             exitFlag = true;
         exitFlag = coVRMSController::instance()->syncBool(exitFlag);
         if (exitFlag)
+            break;
+        frame();
+    }
+
+    VRViewer::instance()->disableSync();
+
+    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
+    if (!exitCommand.empty())
+    {
+        int ret = system(exitCommand.c_str());
+        if (ret == -1)
         {
-            VRViewer::instance()->disableSync();
-            frame();
-            frame();
-            return;
+            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
         }
-        else
+        else if (ret > 0)
         {
-            frame();
+            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
         }
     }
+
+    m_visPlugin = NULL; // prevent any new messages from being sent
+    coVRFileManager::instance()->unloadFile();
+    frame();
+    coVRPluginList::instance()->unloadAllPlugins();
+    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Vis);
+    frame();
 }
 
 void OpenCOVER::handleEvents(int type, int state, int code)
@@ -1379,28 +1394,10 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
-    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
-    if (!exitCommand.empty())
-    {
-        int ret = system(exitCommand.c_str());
-        if (ret == -1)
-        {
-            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
-        }
-        else if (ret > 0)
-        {
-            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
-        }
-    }
-
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\ndelete OpenCOVER\n");
     }
-    m_visPlugin = NULL; // prevent any new messages from being sent
-    coVRFileManager::instance()->unloadFile();
-    coVRPluginList::instance()->unloadAllPlugins();
-    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Vis);
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
     //delete vrbHost;
