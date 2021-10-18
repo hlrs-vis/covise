@@ -410,7 +410,7 @@ void RecordPathPlugin::save()
     FILE *fp = fopen(filename.c_str(), "w");
     if (fp)
     {
-        fprintf(fp, "# lat, lon, x,      y,      z,      dx,      dy,     dz\n");
+        fprintf(fp, "# lat, lon, x,      y,      z,      dx,      dy,     dz, objectName\n");
         fprintf(fp, "# numFrames: %d\n", frameNumber);
         for (int n = 0; n < frameNumber; n++)
         { 
@@ -427,7 +427,15 @@ void RecordPathPlugin::save()
         }
         double mLon = v[0];
         double mLat = v[1];
-            fprintf(fp, "%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f\n", mLat, mLon, positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n]);
+        if (objectName[n] != nullptr)
+        {
+
+            fprintf(fp, "%010.6f,%010.6f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,\"%s\"\n", mLat, mLon, positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n],objectName[n]);
+        }
+        else
+        {
+            fprintf(fp, "%010.6f,%010.6f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,\"\"\n", mLat, mLon, positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n]);
+        }
         }
         fclose(fp);
     }
