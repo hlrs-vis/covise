@@ -38,6 +38,8 @@ namespace alg = std;
 using namespace std;
 
 bool intensityOnly;
+bool bTestMode = false;
+bool bShowHeatMap = false;
 bool readScannerPositions = false;
 uint32_t fileVersion=1;
 
@@ -581,8 +583,8 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
 
     for (auto const& it : lookUp)
     {
-        if (it.second > (int)setMaxSize) setMaxSize = it.second;
-        if (it.second < (int)setMinSize) setMinSize = it.second;
+        if (it.second > setMaxSize) setMaxSize = it.second;
+        if (it.second < setMinSize) setMinSize = it.second;
         
         count_avg += it.second;
         vecFindMedian.push_back(it.second);
@@ -628,6 +630,46 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
         vector<uint32_t> vecFindMedian;
         uint32_t setMaxSize = 0;
         uint32_t setMinSize = UINT_MAX;
+
+        int r = 55;
+        int g = 55;
+        int b = 55;
+        std::srand(std::time(nullptr));
+        int maxHeatmapValue = 0;
+
+        // we need to know the maxPointsPerCube in advance
+        if ((bTestMode == true) && (bShowHeatMap == true))
+        {
+            for (int i = 0; i < number_of_sets; ++i)
+            {
+                // get first in set to find set number
+                Point first = vec.at(index);
+                
+                std::map<int, int>::iterator it;
+                it = lookUp.find(first.l);
+                if (it != lookUp.end())
+                {
+                    int numPoints = (*it).second;
+                    
+                    // restrict number of points written
+                    if (maxPointsPerCube != -1 && maxPointsPerCube < numPoints)
+                    {
+                        numPointsToWrite = maxPointsPerCube;
+                        count_removed += numPoints - maxPointsPerCube;
+                    }
+                    else
+                    {
+                        numPointsToWrite = numPoints;
+                    }
+
+                    if (numPointsToWrite > maxHeatmapValue) maxHeatmapValue = numPointsToWrite;
+
+                    index = index + numPoints;
+                }
+            }
+        }
+
+        index = 0;
         
         // write the number of sets
         file.write((char *)&(number_of_sets), sizeof(int));
@@ -636,7 +678,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
         {
             // get first in set to find set number
             Point first = vec.at(index);
-
+                 
             std::map<int, int>::iterator it;
             it = lookUp.find(first.l);
             if (it != lookUp.end())
@@ -657,10 +699,9 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
 
                 count_avg += numPointsToWrite;
                 vecFindMedian.push_back(numPointsToWrite);
-                if (numPointsToWrite > (int)setMaxSize) setMaxSize = numPointsToWrite;
-                if (numPointsToWrite < (int)setMinSize) setMinSize = numPointsToWrite;
-        
-                
+                if (numPointsToWrite > setMaxSize) setMaxSize = numPointsToWrite;
+                if (numPointsToWrite < setMinSize) setMinSize = numPointsToWrite;
+                        
                 // write size
                 file.write((char *)&(numPointsToWrite), sizeof(int));
 
@@ -670,9 +711,33 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                     file.write((char *)&(vec.at(j).x), sizeof(float) * 3);
                 }
 
+                if (bTestMode == true)
+                {
+                    if (bShowHeatMap == true)
+                    {
+                        if (maxHeatmapValue > 0)
+                        {
+                            r =  (numPointsToWrite * 255 / maxHeatmapValue) ;
+                        }
+                        else
+                        {
+                            r = 0;
+                        }
+                    }
+                    else
+                    {
+                        g = rand() % 200 + 55;
+                    }
+                }
+               
                 // write colors
                 for (int j = index; j < numPointsToWrite + index; ++j)
                 {
+                    if (bTestMode == true)
+                    {
+                        vec.at(j).rgba = r | g << 8 | b << 16;
+                    }
+
                     file.write((char *)&(vec.at(j).rgba), sizeof(uint32_t));
                 }
 
@@ -769,9 +834,11 @@ void printHelpPage()
     cout << "                  note: set to -1 if no max points per cube is specified" << endl;
     cout << "  -i              use intensity only" << endl;
     cout << "  -s              read scanner position" << endl;
+    cout << "  -t              test mode to examine point cloud structure" << endl;
+    cout << "  -h              heat map representation of point density (only in test mode)" << endl; 
     cout << endl;
     cout << "examples" << endl;
-    cout << "  PointSort input.ptsb output_sorted.ptsb" << endl;
+    cout << "  PointSort -t -h -d 10 -p 20000 input.ptsb output_sorted.ptsb" << endl;
     cout << endl;
 }
 
@@ -790,7 +857,9 @@ int main(int argc, char **argv)
 
     int nread = 0;
     intensityOnly=false;
-
+    bTestMode = false;
+    bShowHeatMap = false;
+    
     if (argc < 3) /* argc should be >= 3 for correct execution */
     {
         printf("error: minimal two params required\n");
@@ -810,7 +879,18 @@ int main(int argc, char **argv)
                 {
                     intensityOnly=true;
                 }
-                
+
+                if(argv[i][1] == 't')
+                {
+                    bTestMode = true;
+                    cout << "WARNING: point cloud output will be modified!" << endl << endl;
+                }
+
+                if(argv[i][1] == 'h')
+                {
+                    bShowHeatMap = true;
+                }
+
                 if (argv[i][1] == 'd')
                 {
                     ++i;
