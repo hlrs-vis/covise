@@ -40,6 +40,15 @@ using namespace opencover;
 #include <cover/ui/SelectionList.h>
 #include <proj_api.h>
 
+class recordEntry
+{
+public:
+    osg::Vec3 pos;
+    osg::Vec3 dir;
+    std::string objectName;
+    double timestamp;
+};
+
 class RecordPathPlugin : public coVRPlugin, public ui::Owner
 {
 public:
@@ -73,15 +82,13 @@ public:
 
 private:
     bool playing;
-    int frameNumber;
     double recordRate;
-    float *positions;
-    float *lookat[3];
-    float length;
-    const char **objectName;
+    double length;
+    std::list<recordEntry> recordList;
     std::string filename;
 
     osg::Vec3d projectOffset;
+    float* radii = nullptr, * xc = nullptr, * yc = nullptr, * zc=nullptr;
     projPJ pj_from, pj_to;
 
     void save();

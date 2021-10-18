@@ -40,7 +40,7 @@
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
 #include <config/CoviseConfig.h>
-#define MAXSAMPLES 1200
+#define MAXSAMPLES 120000
 using namespace osg;
 using namespace osgUtil;
 
@@ -105,7 +105,7 @@ bool RecordPathPlugin::init()
     reset = new ui::Action(recordPathMenu, "reset");
     reset->setText("reset");
     reset->setCallback([this]() {
-        frameNumber = 0;
+        recordList.clear();
         record->setState(false);
         playing = false;
         });
@@ -121,7 +121,7 @@ bool RecordPathPlugin::init()
     viewPath->setState(false);
     viewPath->setCallback([this](bool state) {
         char label[100];
-        sprintf(label, "numSamples: %d", frameNumber);
+        sprintf(label, "numSamples: %zd", recordList.size());
         numSamples->setText(label);
         if (state)
         {
@@ -136,10 +136,10 @@ bool RecordPathPlugin::init()
             // set up geometry
             Vec3Array* vert = new Vec3Array;
             DrawArrayLengths* primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
-            primitives->push_back(frameNumber);
-            for (int n = 0; n < frameNumber; n++)
+            primitives->push_back(recordList.size());
+            for (const auto& i : recordList)
             {
-                vert->push_back(Vec3(positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2]));
+                vert->push_back(i.pos);
             }
             geom->setVertexArray(vert);
             geom->addPrimitiveSet(primitives);
@@ -158,13 +158,27 @@ bool RecordPathPlugin::init()
     viewlookAt->setCallback([this](bool state) {
         if (state)
         {
-            float* radii, r;
+            float r;
             r = radiusEdit->number();
-            radii = new float[frameNumber];
-            for (int n = 0; n < frameNumber; n++)
+            delete[] radii;
+            delete[] xc;
+            delete[] yc;
+            delete[] zc;
+            radii = new float[recordList.size()];
+            xc = new float[recordList.size()];
+            yc = new float[recordList.size()];
+            zc = new float[recordList.size()];
+            int n = 0;
+            for (const auto& i : recordList)
+            {
                 radii[n] = r;
-            lookAtSpheres->setCoords(frameNumber, lookat[0], lookat[1], lookat[2], radii);
-            for (int n = 0; n < frameNumber; n++)
+                xc[n] = i.pos[0] + i.dir[0];
+                yc[n] = i.pos[1] + i.dir[1];
+                zc[n] = i.pos[2] + i.dir[2];
+                n++;
+            }
+            lookAtSpheres->setCoords(recordList.size(), xc, yc, zc, radii);
+            for (int n = 0; n < recordList.size(); n++)
                 lookAtSpheres->setColor(n, 1, 0.2, 0.2, 1);
             opencover::cover->getObjectsRoot()->addChild(lookAtGeode.get());
         }
@@ -196,17 +210,15 @@ bool RecordPathPlugin::init()
             // set up geometry
             Vec3Array* vert = new Vec3Array;
             DrawArrayLengths* primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
-            for (int n = 0; n < frameNumber; n++)
+            for (const auto& i : recordList)
             {
                 primitives->push_back(2);
-                Vec3 pos(positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2]);
-                Vec3 look(lookat[0][n], lookat[1][n], lookat[2][n]);
-                Vec3 diff = look - pos;
+                Vec3 diff = i.dir - i.pos;
                 diff.normalize();
                 diff *= length;
-                vert->push_back(pos);
+                vert->push_back(i.pos);
 
-                vert->push_back(pos + diff);
+                vert->push_back(i.pos + diff);
             }
             dirGeom->setVertexArray(vert);
             dirGeom->addPrimitiveSet(primitives);
@@ -221,12 +233,21 @@ bool RecordPathPlugin::init()
 
     lengthEdit = new ui::EditField(recordPathMenu, "length");
     lengthEdit->setText("length");
+    lengthEdit->setValue(1.0);
     lengthEdit->setCallback([this](std::string value) {
         length = lengthEdit->number();
         });
+    
+    radiusEdit = new ui::EditField(recordPathMenu, "radiusEdit");
+    radiusEdit->setText("radius");
+    radiusEdit->setValue(0.1);
+    radiusEdit->setCallback([this](std::string value) {
+        
+        });
 
     recordRateEdit = new ui::EditField(recordPathMenu, "recordRate");
-    recordRateEdit->setText("recordRate");
+    recordRateEdit->setText("recordRateEdit");
+    recordRateEdit->setValue(1.0);
     recordRateEdit->setCallback([this](std::string value) {
         recordRate = 1.0 / recordRateEdit->number();
         });
@@ -243,9 +264,10 @@ bool RecordPathPlugin::init()
 
 
 
-    filenameEdit = new ui::EditField(recordPathMenu, "filename");
-    lengthEdit->setText("path.csv");
-    lengthEdit->setCallback([this](std::string value) {
+    filenameEdit = new ui::EditField(recordPathMenu, "filenameEdit");
+    filenameEdit->setText("filename");
+    filenameEdit->setValue("path.csv");
+    filenameEdit->setCallback([this](std::string value) {
         filename = value;
         });
 
@@ -253,12 +275,6 @@ bool RecordPathPlugin::init()
     numSamples->setText("");
 
 
-    positions = new float[3 * MAXSAMPLES + 3];
-    lookat[0] = new float[MAXSAMPLES + 1];
-    lookat[1] = new float[MAXSAMPLES + 1];
-    lookat[2] = new float[MAXSAMPLES + 1];
-    objectName = new const char *[MAXSAMPLES + 3];
-    frameNumber = 0;
     record->setState(false);
     playing = false;
 
@@ -305,11 +321,10 @@ RecordPathPlugin::~RecordPathPlugin()
     delete numSamples;
     delete recordPathMenu;
 
-    delete[] positions;
-    delete[] lookat[0];
-    delete[] lookat[1];
-    delete[] lookat[2];
-    delete[] objectName;
+    delete[] radii;
+    delete[] xc;
+    delete[] yc;
+    delete[] zc;
     cover->getObjectsRoot()->removeChild(lookAtGeode.get());
     cover->getObjectsRoot()->removeChild(dirGeode.get());
     cover->getObjectsRoot()->removeChild(geode.get());
@@ -328,7 +343,7 @@ RecordPathPlugin::preFrame()
         {
             oldUpdateTime = time;
             char label[100];
-            sprintf(label, "numSamples: %d", frameNumber);
+            sprintf(label, "numSamples: %zd", recordList.size());
             numSamples->setText(label);
         }
         if (time - oldTime > recordRate)
@@ -337,10 +352,9 @@ RecordPathPlugin::preFrame()
             osg::Matrix mat = cover->getInvBaseMat();
             osg::Matrix viewMat = cover->getViewerMat();
             osg::Matrix viewMatObj = viewMat * mat;
-
-            positions[frameNumber * 3] = viewMatObj.getTrans().x();
-            positions[frameNumber * 3 + 1] = viewMatObj.getTrans().y();
-            positions[frameNumber * 3 + 2] = viewMatObj.getTrans().z();
+            recordEntry re;
+            re.pos = viewMatObj.getTrans();
+            re.timestamp = time;
 
             Vec3 q0, q1;
             q0.set(0.0f, 0.0f, 0.0f);
@@ -373,14 +387,11 @@ RecordPathPlugin::preFrame()
                 {
                     npIt--;
                     osg::Node* n = *(npIt);
-                    objectName[frameNumber] = n->getName().c_str();
+                    re.objectName = n->getName();
                 }
                 osg::Vec3 temp;
                 temp = q0 * cover->getInvBaseMat();
-
-                lookat[0][frameNumber] = temp.x();
-                lookat[1][frameNumber] = temp.y();
-                lookat[2][frameNumber] = temp.z();
+                re.dir = temp - re.pos;
             }
             else
             {
@@ -388,20 +399,18 @@ RecordPathPlugin::preFrame()
                 osg::Vec3 dir(viewMatObj(1, 0), viewMatObj(1, 1), viewMatObj(1, 2));
                 temp = viewMatObj.getTrans() + dir;
                 temp = temp * cover->getInvBaseMat();
-                lookat[0][frameNumber] = temp.x();
-                lookat[1][frameNumber] = temp.y();
-                lookat[2][frameNumber] = temp.z();
-                objectName[frameNumber] = NULL;
+                re.dir = re.pos - temp;
             }
 
-            frameNumber++;
 
-            if (frameNumber >= MAXSAMPLES)
+            if (recordList.size() >= MAXSAMPLES)
             {
                 record->setState(false);
                 playing = false;
             }
-        };
+
+            recordList.push_back(re);
+        }
     }
 }
 
@@ -410,32 +419,24 @@ void RecordPathPlugin::save()
     FILE *fp = fopen(filename.c_str(), "w");
     if (fp)
     {
-        fprintf(fp, "# lat, lon, x,      y,      z,      dx,      dy,     dz, objectName\n");
-        fprintf(fp, "# numFrames: %d\n", frameNumber);
-        for (int n = 0; n < frameNumber; n++)
-        { 
-
-        double v[3];
-
-        v[0] = positions[n * 3 + 0]- projectOffset[0];
-        v[1] = positions[n * 3 + 1] - projectOffset[1];
-        v[2] = positions[n * 3 + 2] - projectOffset[2];
-        int error = pj_transform(pj_to, pj_from, 1, 0, v,v+1, v+2);
-        if (error != 0)
-        {
-            fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
-        }
-        double mLon = v[0];
-        double mLat = v[1];
-        if (objectName[n] != nullptr)
+        fprintf(fp, "# timestamp; lat; lon; x;      y;      z;      dx;      dy;     dz; objectName\n");
+        fprintf(fp, "# numFrames: %zd\n", recordList.size());
+        for (const auto& i : recordList)
         {
 
-            fprintf(fp, "%010.6f,%010.6f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,\"%s\"\n", mLat, mLon, positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n],objectName[n]);
-        }
-        else
-        {
-            fprintf(fp, "%010.6f,%010.6f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,%010.3f,\"\"\n", mLat, mLon, positions[n * 3], positions[n * 3 + 1], positions[n * 3 + 2], lookat[0][n], lookat[1][n], lookat[2][n]);
-        }
+            double v[3];
+
+            v[0] = i.pos.x() - projectOffset[0];
+            v[1] = i.pos.y() - projectOffset[1];
+            v[2] = i.pos.z() - projectOffset[2];
+            int error = pj_transform(pj_to, pj_from, 1, 0, v, v + 1, v + 2);
+            if (error != 0)
+            {
+                fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
+            }
+            double mLon = v[0];
+            double mLat = v[1];
+            fprintf(fp, "%10.1lf; %10.6f; %10.6f; %10.3f; %10.3f; %10.3f; %10.3f; %10.3f; %10.3f; \"%s\"\n", i.timestamp, mLat, mLon, i.pos.x(), i.pos.y(), i.pos.z(), i.dir.x(), i.dir.y(), i.dir.z(), i.objectName.c_str());
         }
         fclose(fp);
     }
