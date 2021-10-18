@@ -241,8 +241,9 @@ void CoviseProxy::handleMessage(Message &msg)
 CoviseProxy::~CoviseProxy()
 {
   m_quit = true;
-  if (m_controllerCon && m_thread.joinable())
+  if (m_thread.joinable())
   {
+    shutdown();
     for (const auto &proxy : m_proxies)
     {
       if (proxy.second->getSocket())
@@ -275,6 +276,15 @@ void CoviseProxy::abortClientConnection(int processId)
     //}
 }
 
+void CoviseProxy::shutdown()
+{
+  if (m_socketId != 0)
+  {
+    shutdownSocket(m_socketId);
+  }
+}
+
+
 template <typename T>
 void sendProxyMessage(const T &msg, int processID, const covise::MessageSenderInterface &sender)
 {
@@ -288,6 +298,7 @@ const Connection *CoviseProxy::openConn(int processID, sender_type type, int tim
 {
   int port = 0;
   auto conn = createListeningConn<ProxyConn>(&port, processID, type);
+  m_socketId = conn->getSocket()->get_id();
   PROXY_ProxyCreated retMsg{port};
   sendProxyMessage(retMsg, processID, requestor);
   bool connected = false;

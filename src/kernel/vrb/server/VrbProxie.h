@@ -47,9 +47,9 @@ public:
   CoviseProxy &operator=(const CoviseProxy &) = delete;
   CoviseProxy &operator=(CoviseProxy &&) = delete;
   ~CoviseProxy();
-
   int controllerPort() const;
   void abortClientConnection(int daemonId);
+  void shutdown(); //prevent this from beeing stuck in openConn
 
 private:
   covise::ConnectionList m_conns;
@@ -60,6 +60,7 @@ private:
   std::atomic_bool m_quit{false};
   std::mutex m_crbProxyMutex;
   std::vector<const CrbProxyConn *> m_disconnectedCrbProxyies;
+  std::atomic_int m_socketId{0};
   const covise::Connection *openConn(int processID, covise::sender_type type, int timeout, const covise::MessageSenderInterface &requestor);
   void handleMessage(covise::Message &msg);
 
