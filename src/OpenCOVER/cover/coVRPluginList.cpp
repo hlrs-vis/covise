@@ -144,7 +144,6 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
         unmanage(plug);
         delete plug;
     }
-    unloadQueued();
 
     if (havePlugins)
     {
