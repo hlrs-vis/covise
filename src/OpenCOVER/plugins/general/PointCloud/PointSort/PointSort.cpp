@@ -82,7 +82,7 @@ struct PointCloudStatistics
     PointCloudStatistics()
         : min_x(FLT_MAX), min_y(FLT_MAX), min_z(FLT_MAX),
           max_x(FLT_MIN), max_y(FLT_MIN), max_z(FLT_MIN),
-          psetMaxSize(0), psetMinSize(UINT_MAX)
+          psetMaxSize(0), psetMinSize(UINT_MAX), pcSize(0)
         {
         }
 };
@@ -312,7 +312,11 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 				delete[] redData;
 				delete[] greenData;
 				delete[] blueData;
-
+                                delete[] idElementValue;
+                                delete[] startPointIndex;
+                                delete[] pointCount;
+                                delete[] rowIndex;
+                                delete[] columnIndex;
 			}
 
 			eReader.Close();
