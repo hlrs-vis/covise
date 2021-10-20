@@ -23,23 +23,32 @@ using namespace covise;
 using namespace opencover;
 using namespace osg;
 
+#define VERBOSE_CONSOLE 1
+
 PointCloudInteractor::PointCloudInteractor(coInteraction::InteractionType type, const char *name, coInteraction::InteractionPriority priority, PointCloudPlugin *p)
     : coTrackerButtonInteraction(type, name, priority)
     , m_selectedWithBox(false)
 {
-	plugin = p;
-    fprintf(stderr, "\nPointCloudInteractor\n");
+#ifdef VERBOSE_CONSOLE
+    cout << "PlugIn.PointCloud: call PointCloudInteractor()" << endl;
+#endif
+    
+    plugin = p;
     selectedPointsGroup = new osg::Group();
     previewPointsGroup = new osg::Group();
-	axisGeode = new osg::Geode();
+    axisGeode = new osg::Geode();
     cover->getObjectsRoot()->addChild(selectedPointsGroup.get());
     cover->getObjectsRoot()->addChild(previewPointsGroup.get());
-	cover->getObjectsRoot()->addChild(axisGeode.get());
+    cover->getObjectsRoot()->addChild(axisGeode.get());
 }
 
 
 PointCloudInteractor::~PointCloudInteractor()
 {
+#ifdef VERBOSE_CONSOLE
+    cout << "PlugIn.PointCloud: call ~PointCloudInteractor()" << endl;
+#endif
+
 destroy();
 }
 

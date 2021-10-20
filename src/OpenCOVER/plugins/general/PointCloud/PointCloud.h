@@ -66,7 +66,7 @@ private:
     float max_x, max_y, max_z;
     void createGeodes(osg::Group *, const std::string &);
     int pointSetSize;
-    PointSet *pointSet;
+    PointSet *pointSet = nullptr;
     osg::Vec3 vecBase;
     std::vector<ImageFileEntry> pointVec;
     void clearData();
@@ -76,17 +76,23 @@ private:
     float intensityScale;
     bool intColor;
     bool polar;
-	float pointSizeValue;
-    float lodScale = 1.f;
-    bool adaptLOD = true;
+    
+    float pointSizeValue = 4;
+    
+    bool adaptLOD = true; // LOD enable/disable
+    bool updateLOD = false; // update LOD state in next preFrame()
+    float lodScale = 1.f; // levelOfDetail is multiplied by loadScale for each node
+    float lodFarDistance = 40; // distance at which lod is set to minimum (25...inf)
+    float lodNearDistance = 15; // distance until which lod is set to maximum (0...15)
+    
     static PointCloudInteractor *s_pointCloudInteractor;
-	static PointCloudInteractor *secondary_Interactor;
+    static PointCloudInteractor *secondary_Interactor;
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
-	void addButton(FileInfo &fInfo);
-	void saveMoves();
-	string FileToMove = "";
+    void addButton(FileInfo &fInfo);
+    void saveMoves();
+    string FileToMove = "";
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -117,6 +123,12 @@ protected:
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
+
+    ui::Slider* lodFarDistanceSlider = nullptr;
+    ui::Slider* lodNearDistanceSlider = nullptr;
+
+
+    
     //NurbsSurface *nurbsSurface = nullptr;
 
     void changeAllLOD(float lod);

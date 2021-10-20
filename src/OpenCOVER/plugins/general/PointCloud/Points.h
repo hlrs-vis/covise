@@ -24,16 +24,35 @@ struct Color
 
 struct PointSet
 {
-    int size;
+    int size = 0;
     float xmin;
     float xmax;
     float ymin;
     float ymax;
     float zmin;
     float zmax;
-    Point *points;
-    Color *colors;
-    uint32_t *IDs;
+    Point *points = nullptr;
+    Color *colors = nullptr;
+    uint32_t *IDs = nullptr;
+
+    PointSet()
+        : IDs(nullptr), colors(nullptr), points(nullptr), size(0)
+        { }
+    ~PointSet()
+        {
+            if (points != nullptr)
+            {
+                delete[] points;
+            }
+            if (colors != nullptr)
+            {
+                delete[] colors;
+            }
+            if (IDs != nullptr)
+            {
+                delete[] IDs;
+            }
+        }
 };
 
 struct pointSelection
