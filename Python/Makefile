@@ -19,7 +19,6 @@ endif
 
 
 all:
-	$(MAKE) clean
 	$(MAKE) $(SCRIPTINTERFACE)
 	$(MAKE) $(CO_PYWRAPPER)
 	$(MAKE) vr-prepare
