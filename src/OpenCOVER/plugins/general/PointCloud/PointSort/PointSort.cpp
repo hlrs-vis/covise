@@ -715,7 +715,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 {
                     if (bShowHeatMap == true)
                     {
-                        if (maxHeatmapValue > 0)
+                        if (maxHeatmapValue >= 0)
                         {
                             r =  (numPointsToWrite * 255 / maxHeatmapValue) ;
                         }
@@ -829,7 +829,7 @@ void printHelpPage()
     cout << "Usage: PointSort [options ...] inputfile outputfile" << endl;
     cout << endl;
     cout << "options" << endl;
-    cout << "  -d              divisionsize (default: 25)" << endl;
+    cout << "  -d              divisionsize (default: 10)" << endl;
     cout << "  -p              max points per cube (default: 100000000)" << endl;
     cout << "                  note: set to -1 if no max points per cube is specified" << endl;
     cout << "  -i              use intensity only" << endl;
@@ -848,7 +848,7 @@ void printHelpPage()
 int main(int argc, char **argv)
 {
     int maxPointsPerCube = 100000000; 
-    int divisionSize = 25;
+    int divisionSize = 10;
     formatTypes format = FORMAT_IRGB;
     
     std::vector<Point> vec;
@@ -904,7 +904,7 @@ int main(int argc, char **argv)
                     {
                         printf("-d divisionSize cannot be 0\n");
                         continue;
-                        divisionSize = 25;
+                        divisionSize = 10;
                     }
                 }
 
