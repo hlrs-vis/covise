@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 #
 # Translation functions for vr-prepare
 # Visenso GmbH
@@ -37,3 +38,6 @@ qtproxies.i18n_string = _i18n_string
 ### run /usr/bin/pyuic4
 # there's no main function, so just import the module
 import PyQt5.uic.pyuic
+
+if __name__ == '__main__':
+    PyQt5.uic.pyuic.main()
