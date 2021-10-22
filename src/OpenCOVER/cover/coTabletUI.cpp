@@ -4232,6 +4232,19 @@ coTabletUI::~coTabletUI()
     if (tUI == this)
         tUI = nullptr;
 
+    if (connFuture.valid())
+    {
+        lock();
+        auto status = connFuture.wait_for(std::chrono::seconds(0));
+        if (status == std::future_status::ready)
+        {
+            (void)connFuture.get();
+        }
+        unlock();
+    }
+    connectedHost = nullptr;
+    conn.reset();
+
     delete serverHost;
     delete localHost;
 }
