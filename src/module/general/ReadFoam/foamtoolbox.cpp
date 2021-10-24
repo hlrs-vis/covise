@@ -824,8 +824,6 @@ HeaderInfo readFoamHeader(std::istream &stream)
 
     info.valid = qi::phrase_parse(fileheader.begin(), fileheader.end(),
                                   headerParser, headerSkipper, info);
-    std::cerr << "field header" << info.header << "<<< end" << std::endl;
-    std::cerr << "object" << info.object << "<<< end" << std::endl;
 
     if (!info.valid)
     {
