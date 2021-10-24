@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+// clang-format off
 /**************************************************************************\
  **                                                           (C)2013 RUS  **
  **                                                                        **
@@ -1058,6 +1059,19 @@ struct on_disk<unsigned long>
     typedef FoamIndex type;
 };
 
+// int64_t on macOS is a long long
+template<>
+struct on_disk<long long>
+{
+    typedef FoamIndex type;
+};
+
+template<>
+struct on_disk<unsigned long long>
+{
+    typedef FoamIndex type;
+};
+
 }
 
 // requires 
@@ -1455,24 +1469,14 @@ bool isPointingInwards(index_t face,
         // then face is a boundary-face and normal vector goes out of the domain by default
         return false;
     }
-    else
-    {
-        index_t owner = owners[face];
-        index_t neighbor = neighbors[face];
-        assert(owner == cell || neighbor == cell);
-        index_t other = owner==cell ? neighbor : owner;
-        // cell is the index of current cell and j is index of other cell sharing the same face
-        // if index of cell is higher than index of the "next door" cell
-        // then normal vector points inwards else outwards
-        if (cell > other)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    index_t owner = owners[face];
+    index_t neighbor = neighbors[face];
+    assert(owner == cell || neighbor == cell);
+    index_t other = owner==cell ? neighbor : owner;
+    // cell is the index of current cell and other is index of other cell sharing the same face
+    // if index of cell is higher than index of the "next door" cell
+    // then normal vector points inwards else outwards
+    return (cell > other)
 }
 
 vertex_set getVerticesForCell(
