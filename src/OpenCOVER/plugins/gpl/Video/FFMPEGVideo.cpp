@@ -486,6 +486,8 @@ void FFMPEGPlugin::close_all(bool stream, int format)
         AVPacket pkt;
         av_init_packet(&pkt);
         pkt.data = video_outbuf;
+        if(video_st==nullptr)
+            break;
         pkt.stream_index = video_st->index;
         pkt.size = video_outbuf_size;
         int err = avcodec_encode_video2(codecCtx, &pkt, nullptr, &got_output);

@@ -160,6 +160,15 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 				double * zData = NULL;
 				if (scanHeader.pointFields.cartesianZField)
 					zData = new double[nSize];
+				double * rangeData = NULL;
+				if (scanHeader.pointFields.sphericalRangeField)
+					rangeData = new double[nSize];
+				double * azData = NULL;
+				if (scanHeader.pointFields.sphericalAzimuthField)
+					azData = new double[nSize];
+				double * elData = NULL;
+				if (scanHeader.pointFields.sphericalElevationField)
+					elData = new double[nSize];
 
 				double *	intData = NULL;
 				bool		bIntensity = false;
@@ -239,12 +248,12 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 					NULL,
 					redData,			//!< pointer to a buffer with the color red data
 					greenData,			//!< pointer to a buffer with the color green data
-					blueData/*,*/			//!< pointer to a buffer with the color blue data
-											/*NULL,
-											NULL,
-											NULL,
-											NULL,
-											rowIndex,			//!< pointer to a buffer with the rowIndex
+					blueData,			//!< pointer to a buffer with the color blue data
+											NULL, //sColorInvalid
+											rangeData,
+											azData,
+											elData
+											/*rowIndex,			//!< pointer to a buffer with the rowIndex
 											columnIndex			//!< pointer to a buffer with the columnIndex*/
 				);
 
@@ -260,6 +269,8 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 
 						if (isInvalidData[i] == 0)
 						{
+						       if(xData)
+						       {
 							osg::Vec3 p(xData[i], yData[i], zData[i]);
 							p = p * m;
 							point.x = p[0];
@@ -298,6 +309,48 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 
 							}
 							vec.push_back(point);
+							}
+							else if(rangeData)
+							{
+							osg::Vec3 p(rangeData[i]*cos( elData[i])*cos(azData[i]), rangeData[i]*cos(elData[i])*sin(azData[i]),rangeData[i]*sin( elData[i]));
+							p = p * m;
+							point.x = p[0];
+							point.y = p[1];
+							point.z = p[2];
+							if (point.x < pcStats.min_x)
+								pcStats.min_x = point.x;
+							if (point.y < pcStats.min_y)
+								pcStats.min_y = point.y;
+							if (point.z < pcStats.min_z)
+								pcStats.min_z = point.z;
+
+							if (point.x > pcStats.max_x)
+								pcStats.max_x = point.x;
+							if (point.y > pcStats.max_y)
+								pcStats.max_y = point.y;
+							if (point.z > pcStats.max_z)
+								pcStats.max_z = point.z;
+
+
+							if (bIntensity) {		//Normalize intensity to 0 - 1.
+								int intensity = ((intData[i] - intOffset) / intRange) * 255;
+								point.l = intensity;
+								point.rgba = intensity | intensity << 8 | intensity << 16;
+							}
+
+
+							if (bColor) {			//Normalize color to 0 - 255
+							     if(!intensityOnly)
+							     {
+								int r = ((redData[i] - colorRedOffset)*255.0) / colorRedRange;
+								int g = ((greenData[i] - colorGreenOffset)*255.0) / colorGreenRange;
+								int b = ((blueData[i] - colorBlueOffset)*255.0) / colorBlueRange;
+								point.rgba = r | g << 8 | b << 16;
+							     }
+
+							}
+							vec.push_back(point);
+							}
 
 						}
 					}
@@ -310,6 +363,9 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 				delete[] xData;
 				delete[] yData;
 				delete[] zData;
+				delete[] rangeData;
+				delete[] azData;
+				delete[] elData;
 				delete[] intData;
 				delete[] redData;
 				delete[] greenData;

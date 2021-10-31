@@ -21,7 +21,7 @@ int main(int argc, char* const* argv)
 {
     xenomai_init(&argc, &argv);
     
-    CanOpenController *steerCon = new CanOpenController("can0");
+    CanOpenController *steerCon = new CanOpenController("can1");
     XenomaiSteeringWheel *steerWheel = new XenomaiSteeringWheel(*steerCon, 1);
     steerWheel->center();
     while(true)

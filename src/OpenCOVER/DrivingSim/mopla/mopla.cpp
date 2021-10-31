@@ -173,14 +173,13 @@ void mopla::run()
 			motPlat->getSendMutex().release();
 		}
      
-		if (st != movingDown && p_ignitionLock->getLockState() == IgnitionLock::ENGINESTOP)
+		if (st != movingDown && st != standby && p_ignitionLock->getLockState() == IgnitionLock::ENGINESTOP)
 		{
 			std::cout << "ENGINESTOP detected" << std::endl;
 			st = movingDown;
 			motPlat->getSendMutex().acquire(period);
 			motPlat->switchToMode<ValidateMotionPlatform::controlToGround>();
 			motPlat->getSendMutex().release();
-			
 			
 		}
 		
