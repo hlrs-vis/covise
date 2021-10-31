@@ -1476,7 +1476,7 @@ bool isPointingInwards(index_t face,
     // cell is the index of current cell and other is index of other cell sharing the same face
     // if index of cell is higher than index of the "next door" cell
     // then normal vector points inwards else outwards
-    return (cell > other)
+    return (cell > other);
 }
 
 vertex_set getVerticesForCell(

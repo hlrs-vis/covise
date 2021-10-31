@@ -1148,6 +1148,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         else
             num_ports=0;
         m_case.timedirs[t] = bn;
+	m_case.completeMeshDirs[t] = m_case.constantdir;
     }
     //Mesh
     int skipfactor = skipfactorParam->getValue();
