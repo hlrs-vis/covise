@@ -18,6 +18,8 @@
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include <cover/input/input.h>
+#include <cover/input/deviceDiscovery.h>
 using namespace opencover;
 
 static float zeroAngle = 1152.;
@@ -40,8 +42,10 @@ Skateboard::Skateboard()
 }
 Skateboard::~Skateboard()
 {
+    coVRNavigationManager::instance()->unregisterNavigationProvider(this);
+    running = false;
+
 	delete udp;
-        coVRNavigationManager::instance()->unregisterNavigationProvider(this);
 }
 
 bool Skateboard::init()
@@ -51,7 +55,7 @@ bool Skateboard::init()
 
 	const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.Skateboard.serverHost", "192.168.178.36");
 	unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.serverPort", 31319);
-	unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.localPort", 31319);
+	unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.localPort", 31320);
         float x = covise::coCoviseConfig::getFloat("x","COVER.Plugin.Skateboard.Position", 0);
         float y = covise::coCoviseConfig::getFloat("y","COVER.Plugin.Skateboard.Position", 0);
         float z = covise::coCoviseConfig::getFloat("z","COVER.Plugin.Skateboard.Position", floorHeight);
@@ -64,21 +68,32 @@ bool Skateboard::init()
         
 	std::cerr << "Skateboard config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
         bool ret = false;
-	if(coVRMSController::instance()->isMaster())
-	{
-	    udp = new UDPComm(host.c_str(), serverPort, localPort);
-            if(!udp->isBad())
+
+        if (coVRMSController::instance()->isMaster())
+        {
+            std::string host = "";
+            for (const auto& i : opencover::Input::instance()->dD->devices)
             {
-               ret= true;
-               start();
+                if (i->pluginName == "Skateboard")
+                {
+                    host = i->address;
+                    udp = new UDPComm(host.c_str(), serverPort, localPort);
+                    if (!udp->isBad())
+                    {
+                        ret = true;
+                        start();
+                    }
+                    else
+                    {
+                        std::cerr << "Skateboard: falided to open local UDP port" << localPort << std::endl;
+                        ret = false;
+                    }
+                    break;
+                }
             }
-            else
-            {
-	        std::cerr << "Skateboard: falided to open local UDP port" << localPort << std::endl;
-	        ret = false;
-            }
+
             coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
-	}
+        }
         else
         {
             coVRMSController::instance()->readMaster(&ret, sizeof(ret));
@@ -335,6 +350,17 @@ float Skateboard::getYAccelaration()
 void Skateboard::setEnabled(bool flag)
 {
     coVRNavigationProvider::setEnabled(flag);
+    if (udp)
+    {
+        if (flag)
+        {
+            udp->send("start");
+        }
+        else
+        {
+            udp->send("stop");
+        }
+    }
     //WakeUp Skateboard
     Initialize();
 
@@ -353,12 +379,18 @@ void Skateboard::updateThread()
 			{
 				OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 				memcpy(&sbData, tmpBuf, sizeof(SBData));
+                fprintf(stderr, "%lf %lf %lf %lf\n", sbData.fl, sbData.fr, sbData.rl, sbData.rr);
 			}
 
 		}
 		else if (status == -1)
 		{
-			std::cerr << "Skateboard::update: error while reading data" << std::endl;
+            if(isEnabled()) // otherwise we are not supposed to receive anything
+            { 
+			    std::cerr << "Skateboard::update: error while reading data" << std::endl;
+                if(udp) // try to wake up the skateboard (if the first start UDP message was lost)
+                udp->send("start");
+            }
 			return;
 		}
 		else
@@ -374,6 +406,7 @@ void Skateboard::Initialize()
         if (coVRMSController::instance()->isMaster())
         {
 	    sbControl.cmd = 1;
+
 	    ret = udp->send(&sbControl, sizeof(SBCtrlData));
         }
 }

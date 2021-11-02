@@ -44,7 +44,7 @@ namespace opencover
     deviceDiscovery::deviceDiscovery()
     {
         broadcastAddress = covise::coCoviseConfig::getEntry("broadcastAddress", "COVER.Input.DeviceDiscovery", "141.58.8.255");
-        port = covise::coCoviseConfig::getInt("port", "COVER.Input.DeviceDiscovery", 31320);
+        port = covise::coCoviseConfig::getInt("port", "COVER.Input.DeviceDiscovery", 31319);
         dComm = new UDPComm(broadcastAddress.c_str(), port, port);
         if (dComm->enableBroadcast(true) < 0)
         {

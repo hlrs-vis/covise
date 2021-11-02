@@ -43,14 +43,16 @@ Wheelchair::Wheelchair()
 }
 Wheelchair::~Wheelchair()
 {
-        coVRNavigationManager::instance()->unregisterNavigationProvider(this);
+    coVRNavigationManager::instance()->unregisterNavigationProvider(this);
+    running = false;
+    delete udp;
 }
 
 bool Wheelchair::init()
 {
 
 	//const std::string host = covise::coCoviseConfig::getEntry("value", "Wheelchair.serverHost", "192.168.178.36");
-	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31320);
+	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31319);
 	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31321);
 
     joystickNumber = covise::coCoviseConfig::getInt("Wheelchair.joystickNumber", 0);
@@ -77,7 +79,7 @@ bool Wheelchair::init()
                 }
                 else
                 {
-                    std::cerr << "Skateboard: falided to open local UDP port" << localPort << std::endl;
+                    std::cerr << "Wheelchair: falided to open local UDP port" << localPort << std::endl;
                     ret = false;
                 }
                 break;
@@ -423,7 +425,12 @@ void Wheelchair::updateThread()
         }
         else if (status == -1)
         {
-            std::cerr << "Wheelchair::update: error while reading data" << std::endl;
+            if (isEnabled()) // otherwise we are not supposed to receive anything
+            {
+                std::cerr << "Wheelchair::update: error while reading data" << std::endl;
+                if (udp) // try to wake up the Wheelchair (if the first start UDP message was lost)
+                    udp->send("start");
+            }
             return;
         }
         else
