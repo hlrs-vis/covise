@@ -2004,7 +2004,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
             numElem = it->numEleRead2d();
         if (dim == EnFile::EnFile::DIM3D)
             numElem = it->numEleRead3d();
-        if ((numElem > 0) && (it->isActive()) || (dim == EnFile::EnFile::DIM2D && (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0))) // HACK: if no elements read, output coordinates as points at the 2D port)
+        if (((numElem > 0)  || (dim == EnFile::EnFile::DIM2D && (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0)))&& it->isActive()) // HACK: if no elements read, output coordinates as points at the 2D port)
         {
             char cn[16];
             sprintf(cn, "%d", it->getPartNum());
