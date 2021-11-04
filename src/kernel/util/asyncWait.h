@@ -45,14 +45,24 @@ public:
     //wait for the condition to accure
     void wait()
     {
+#ifdef _WIN32
+        m_future = std::async(std::launch::async, [this]() {
+            return std::unique_ptr<Param>{new Param{ m_condition() }};
+            });
+#else
         m_future = std::async(std::launch::async, m_condition);
+#endif
     }
 
     bool operator()() override
     {
         if (m_future.valid() && m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         {
+#ifdef _WIN32
+            m_response(*m_future.get());
+#else
             m_response(m_future.get());
+#endif
             return true;
         }
         return false;
@@ -93,7 +103,11 @@ public:
 private:
     Response m_response;
     Condition m_condition;
+#ifdef _WIN32
+    std::future<std::unique_ptr<Param>> m_future;
+#else
     std::future<Param> m_future;
+#endif
     AsyncWaitInterface *next = nullptr;
 };
 
