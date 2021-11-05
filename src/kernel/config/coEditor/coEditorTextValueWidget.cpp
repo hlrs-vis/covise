@@ -10,7 +10,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QAction>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 coEditorTextValueWidget::coEditorTextValueWidget(QWidget *parent, const QString name, Type type)
     : coEditorValueWidget(parent, type)
@@ -31,7 +31,7 @@ coEditorTextValueWidget::~coEditorTextValueWidget()
 void coEditorTextValueWidget::setValue(const QString &valueName, const QString &value,
                                        const QString &readableAttrRule,
                                        const QString &attributeDescription,
-                                       bool, const QRegExp &rx)
+                                       bool, const QRegularExpression &rx)
 {
     fvariable = valueName;
     fvalue = value;
@@ -47,7 +47,7 @@ void coEditorTextValueWidget::setValue(const QString &valueName, const QString &
 
     layout = new QHBoxLayout(this);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setObjectName(QString::fromUtf8("layout"));
     valueLabel = new QLabel(this);
     valueLabel->setText(valueName);
@@ -75,9 +75,9 @@ void coEditorTextValueWidget::setValue(const QString &valueName, const QString &
     valueLineEdit->setAlignment(Qt::AlignRight);
     valueLineEdit->setDragEnabled(true);
 
-    if (!rx.isEmpty())
+    if (!rx.pattern().isEmpty())
     {
-        QValidator *validator = new QRegExpValidator(rx, this);
+        QValidator *validator = new QRegularExpressionValidator(rx, this);
         valueLineEdit->setValidator(validator);
     }
     // returnPressed is only send, if expression is valid. then we need to call coConfigEntry->setValue

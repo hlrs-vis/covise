@@ -988,7 +988,7 @@ bool coConfigEntry::isList() const
 
 QString &coConfigEntry::cleanName(QString &name)
 {
-    name.replace(QRegExp("\\."), "_");
+    name.replace('.', "_");
     name.replace(':', "|");
     return name;
 }

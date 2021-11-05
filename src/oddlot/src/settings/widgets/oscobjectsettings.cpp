@@ -249,7 +249,7 @@ OSCObjectSettings::uiInit()
 
                 QComboBox *comboBox = new QComboBox();
                 objectGridLayout->addWidget(comboBox, choiceComboBoxRow, 0);
-                connect(comboBox, SIGNAL(activated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
+                connect(comboBox, SIGNAL(textActivated(const QString &)), this, SLOT(onChoiceChanged(const QString &)));
 
                 QString name = "choice" + QString::number(choiceNumber);
 

@@ -13,7 +13,8 @@
 
 #include "ports/MEParameterPort.h"
 
-class QStringList;
+#include <QStringList>
+
 class QWidget;
 class QComboBox;
 class QVBoxLayout;

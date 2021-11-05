@@ -1234,7 +1234,11 @@ void TUITF2DEditor::updateBrush(QTabletEvent *e)
         myPen.setWidth(currentBrushWidth);
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (e->pointerType() == QTabletEvent::Eraser)
+#else
+    if (e->pointerType() == QPointingDevice::PointerType::Eraser)
+#endif
     {
         myColor.setAlpha(0);
         myPen.setWidthF(e->pressure() * 10 + 1);

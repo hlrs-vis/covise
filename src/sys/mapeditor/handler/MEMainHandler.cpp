@@ -16,7 +16,6 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QDir>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -25,6 +24,7 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QPushButton>
+#include <QScreen>
 #include <QStyleFactory>
 #include <QTimer>
 #include <QUrl>
@@ -68,8 +68,8 @@ QColor MEMainHandler::s_multiColor, MEMainHandler::s_dataColor, MEMainHandler::s
 QColor MEMainHandler::s_requestedColor, MEMainHandler::s_optionalColor, MEMainHandler::s_defColor, MEMainHandler::s_dependentColor;
 
 QFont MEMainHandler::s_normalFont, MEMainHandler::s_boldFont, MEMainHandler::s_itBoldFont, MEMainHandler::s_italicFont;
-QSize MEMainHandler::screenSize;
 QPalette MEMainHandler::defaultPalette;
+QSize MEMainHandler::screenSize;
 
 QString MEMainHandler::framework;
 
@@ -175,6 +175,8 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     localHost = "";
     m_localHostID = -1;
     m_mapName = "";
+
+    screenSize = qApp->primaryScreen()->availableSize();
 
     framework = "COVISE";
     pm_logo = QPixmap(":/icons/covise.xpm");
@@ -350,9 +352,6 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     m_autoSaveTimer->start(cfg_AutoSaveTime * 1000);
 
     // get screen size and default palette
-    QWidget *desktop = new QDesktopWidget();
-    screenSize = desktop->size();
-    delete desktop;
     defaultPalette = QApplication::palette();
 
     // set a proper window title

@@ -48,13 +48,13 @@ coEditorGroupWidget::coEditorGroupWidget(QWidget *parent, const QString &name,
     //MainLayout of this group widget, still place to add sth outside the SectionBox
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(-1);
-    mainLayout->setMargin(2); //platz um die groupBox
+    mainLayout->setContentsMargins(2, 2, 2, 2); //platz um die groupBox
     mainLayout->setObjectName(QString::fromUtf8("mainLayout"));
 
     //Layout of GroupBox, still sth like a helpLine can be added inside the SectionBox
     QVBoxLayout *vboxLayout1 = new QVBoxLayout(groupGroup);
     vboxLayout1->setSpacing(2); //abstand zw items innerhalb der box
-    vboxLayout1->setMargin(3); //abstand zw boxRand und items
+    vboxLayout1->setContentsMargins(3, 3, 3, 3); //abstand zw boxRand und items
     vboxLayout1->setObjectName(QString::fromUtf8("vboxLayout1"));
     groupGroup->setLayout(vboxLayout1);
 
@@ -74,7 +74,7 @@ coEditorGroupWidget::coEditorGroupWidget(QWidget *parent, const QString &name,
     //Layout for entries, entries widget are added here
     groupGroupLayout = new QVBoxLayout(groupEntryWidget);
     groupGroupLayout->addStretch(1); // add a stretch item that eats empty space
-    groupGroupLayout->setMargin(5);
+    groupGroupLayout->setContentsMargins(5, 5, 5, 5);
     groupGroupLayout->setObjectName(QString::fromUtf8("groupGroupLayout"));
     groupEntryWidget->setLayout(groupGroupLayout);
 

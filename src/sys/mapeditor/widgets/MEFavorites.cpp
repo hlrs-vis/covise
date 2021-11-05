@@ -102,7 +102,7 @@ void MEFavorites::mouseMoveEvent(QMouseEvent *e)
     drag->setMimeData(mimeData);
     drag->setPixmap(MEMainHandler::instance()->pm_file);
 
-    drag->start();
+    drag->exec(Qt::CopyAction);
     e->accept();
 }
 

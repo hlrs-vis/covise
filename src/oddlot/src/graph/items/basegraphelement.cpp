@@ -30,7 +30,7 @@
 //
 #include "src/gui/projectwidget.hpp"
 
-#include <QtSvg/QGraphicsSvgItem>
+#include <QGraphicsSvgItem>
 
 //################//
 // CONSTRUCTOR    //

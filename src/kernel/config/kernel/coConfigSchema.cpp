@@ -10,6 +10,7 @@
 #include <config/coConfigSchemaInfosList.h>
 #include <config/coConfigLog.h>
 #include <QFileInfo>
+#include <QRegularExpression>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/psvi/XSModel.hpp>
@@ -310,8 +311,7 @@ QHash<QString, QString> *coConfigSchema::createFromSchemaFileAnnotation(xercesc:
     }
 
     QString annotation = QString::fromUtf16(reinterpret_cast<const ushort *>(anno->getAnnotationString()));
-    QRegExp rx("</?xs:appinfo.*>");
-    rx.setMinimal(1);
+    QRegularExpression rx("</?xs:appinfo.*?>");
     QStringList annos = annotation.split(rx);
     for (QStringList::const_iterator iter = annos.begin(); iter != annos.end(); ++iter)
     {

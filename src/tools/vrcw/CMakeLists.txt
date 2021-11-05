@@ -1,4 +1,4 @@
-if (COVISE_USE_QT4)
+if (NOT COVISE_USE_QT5)
     return()
 endif()
 

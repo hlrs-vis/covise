@@ -230,7 +230,7 @@ void VRBData::setRemoteDirList(const covise::Message &msg)
     rt << TABLET_REMSET_DIRLIST;
     rt << recvid;
     rt << recv_vrbId;
-    rt << locDirList.size();
+    rt << (int)locDirList.size();
 
     for (int i = 0; i < locDirList.size(); i++)
     {

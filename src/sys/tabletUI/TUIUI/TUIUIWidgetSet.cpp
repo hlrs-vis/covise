@@ -91,7 +91,7 @@ void TUIUIWidgetSet::initValue(QWidget *widget)
 
     if (cb != 0)
     {
-        connect(cb, SIGNAL(activated(QString)),
+        connect(cb, SIGNAL(textActivated(QString)),
                 this, SLOT(textValueChanged(QString)));
         connect(cb, SIGNAL(editTextChanged(QString)),
                 this, SLOT(textValueChanged(QString)));
@@ -352,13 +352,8 @@ void TUIUIWidgetSet::sliderValueChanged(int v)
 
     if (this->type == "FloatSlider")
     {
-#if QT_VERSION >= 0x040600
         float minimum = this->helpers["min"].toFloat();
         float maximum = this->helpers["max"].toFloat();
-#else
-        float minimum = this->helpers["min"].toDouble();
-        float maximum = this->helpers["max"].toDouble();
-#endif
         float fv = minimum + (float(v) / INT_MAX * (maximum - minimum));
         value = fv;
     }

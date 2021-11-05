@@ -14,6 +14,7 @@
 #include <QPolygon>
 #include <QMap>
 #include <QPen>
+#include <QStringList>
 
 class QPaintEvent;
 class QLabel;
@@ -21,7 +22,6 @@ class QMouseEvent;
 class QKeyEvent;
 class QMenu;
 class QBoxLayout;
-class QStringList;
 class QColor;
 class QComboBox;
 class QString;

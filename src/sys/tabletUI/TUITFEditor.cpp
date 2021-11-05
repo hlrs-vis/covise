@@ -180,7 +180,7 @@ void TUITF1DEditor::parseMessage(covise::TokenBuffer &tb)
 void TUITF1DEditor::valueChanged(covise::TokenBuffer &tb)
 {
     // first, send color points
-    tb << this->colorPoints.count();
+    tb << (int)this->colorPoints.count();
     for (int i = 0; i < this->colorPoints.count(); ++i)
     {
         tb << (float)this->colorPoints.at(i)->getColor().red() / 255.0f;

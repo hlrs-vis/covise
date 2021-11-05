@@ -4,21 +4,28 @@
 
 using namespace covise;
 
-bool coConfigTools::matchingAttributes(QHash<QString, QString *> attributes)
+bool coConfigTools::matchingAttributes(const QHash<QString, QString *> &attributes)
 {
-    const QString *master = attributes["MASTER"];
+    if (attributes.empty())
+        return true;
+
+    auto it = attributes.find("MASTER");
+    const QString *master = it == attributes.end() ? nullptr : *it;
     if (!matchingMaster(master))
         return false;
 
-    const QString *host = attributes["HOST"];
+    it = attributes.find("HOST");
+    const QString *host = it == attributes.end() ? nullptr : *it;
     if (!matchingHost(host))
         return false;
 
-    const QString *arch = attributes["ARCH"];
+    it = attributes.find("ARCH");
+    const QString *arch = it == attributes.end() ? nullptr : *it;
     if (!matchingArch(arch))
         return false;
 
-    const QString *rank = attributes["RANK"];
+    it = attributes.find("RANK");
+    const QString *rank = it == attributes.end() ? nullptr : *it;
     if (!matchingRank(rank))
         return false;
 

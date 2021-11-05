@@ -9,7 +9,7 @@
 #define BOOLVALUEWIDGET
 #include "coEditorValueWidget.h"
 #include <QString>
-#include <QRegExp>
+#include <QRegularExpression>
 
 class QCheckBox;
 
@@ -28,7 +28,7 @@ public slots:
     void setValue(const QString &valueName, const QString &value,
                   const QString &readableAttrRule = QString(),
                   const QString &attributeDescription = QString(),
-                  bool required = false, const QRegExp &rx = QRegExp("^.*"));
+                  bool required = false, const QRegularExpression &rx = QRegularExpression("^.*"));
     void suicide();
     void undo();
 

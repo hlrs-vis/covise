@@ -765,8 +765,7 @@ QtSliderWidget::QtSliderWidget(QBoxLayout::Direction dir, QWidget *parent)
 
     m_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     m_layout->setSpacing(0);
-    m_layout->setMargin(1);
-    //m_layout->setContentsMargins(1, 1, 1, 1);
+    m_layout->setContentsMargins(1, 1, 1, 1);
     m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_slider->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_slider->setMaximumWidth(400);
@@ -804,7 +803,7 @@ void QtSliderWidget::setText(const QString &text)
 void QtSliderWidget::setWidthText(const QString &text)
 {
     QFontMetrics fm(m_label->font());
-#if QT_VERSION >= 0x050c00
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     int w = fm.horizontalAdvance(text);
 #else
     int w = fm.width(text);

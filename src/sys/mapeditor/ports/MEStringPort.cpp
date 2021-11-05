@@ -175,7 +175,7 @@ void MEStringPort::makeLayout(layoutType type, QWidget *w)
 {
 
     QHBoxLayout *hBox = new QHBoxLayout(w);
-    hBox->setMargin(2);
+    hBox->setContentsMargins(2, 2, 2, 2);
     hBox->setSpacing(2);
 
     editLine[type] = new MELineEdit();

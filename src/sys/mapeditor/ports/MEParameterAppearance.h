@@ -9,10 +9,10 @@
 #define ME_MODULELABEL_H
 
 #include <QLabel>
+#include <QStringList>
 #include <QVector>
 
 class QMenu;
-class QStringList;
 class QMouseEvent;
 class QAction;
 

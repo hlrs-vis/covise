@@ -24,13 +24,12 @@ coEditorBoolValueWidget::~coEditorBoolValueWidget()
 void coEditorBoolValueWidget::setValue(const QString &valueName, const QString &value,
                                        const QString &readableAttrRule,
                                        const QString &attributeDescription,
-                                       bool required, const QRegExp &rx)
+                                       bool required, const QRegularExpression &rx)
 {
     fvariable = valueName;
     fvalue = value;
 
     QString attributeRule = readableAttrRule;
-    rx.isEmpty();
 
     QHBoxLayout *layout;
     QLabel *valueLabel;
@@ -43,7 +42,7 @@ void coEditorBoolValueWidget::setValue(const QString &valueName, const QString &
 
     layout = new QHBoxLayout(this);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setObjectName(QString::fromUtf8("layout"));
     valueLabel = new QLabel(this);
     valueLabel->setText(valueName);

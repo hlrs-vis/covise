@@ -326,7 +326,7 @@ void coConfigDefaultPaths::setNames()
 
     if (!homedir.isEmpty())
     {
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         configLocalPath = QDir::toNativeSeparators(homedir + path);
 #else
         configLocalPath = QDir::convertSeparators(homedir + path);

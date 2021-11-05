@@ -167,7 +167,7 @@ void MEMaterialPort::makeLayout(layoutType type, QWidget *container)
 {
     //create a vertical layout for 2 rows
     QVBoxLayout *vb = new QVBoxLayout(container);
-    vb->setMargin(1);
+    vb->setContentsMargins(1, 1, 1, 1);
     vb->setSpacing(1);
 
     // create first container widgets

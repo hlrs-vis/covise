@@ -410,7 +410,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
                 if (!showNodes)
                 {
                     if (!showItem)
-                        treeWidget->setItemHidden(item, true);
+                        item->setHidden(true);
                 }
             }
         }
@@ -436,7 +436,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         selectCBox->setCheckState(Qt::Unchecked);
         nodeTreeItem *currentItem = treeWidget->findParent(itemPath);
         treeWidget->scrollToItem(currentItem);
-        treeWidget->setItemSelected(currentItem, true);
+        currentItem->setSelected(true);
         connect(treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
     }
     else if (type == TABLET_BROWSER_REMOVE_NODE)
@@ -655,7 +655,8 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
             image = image.mirrored();
         }
         int num = numItems;
-        QString dateTime = QString("%1_%2").arg(QDateTime::currentDateTime().toTime_t()).arg(num);
+        auto t = std::chrono::steady_clock::now().time_since_epoch();
+        QString dateTime = QString("%1_%2").arg(t.count()).arg(num);
 
         QString fileName = texturePluginTempDir + "texture" + dateTime + ".png";
         if (image.save(fileName, "PNG"))
@@ -1280,7 +1281,8 @@ void TUISGBrowserTab::loadTexture()
                 delete[] c;
             }
         }
-        QString indexStr = QString("%1").arg(QDateTime::currentDateTime().toTime_t());
+        auto t = std::chrono::steady_clock::now().time_since_epoch();
+        QString indexStr = QString("%1").arg(t.count());
         int index = indexStr.toInt();
         QPixmap map;
         if (map.load(newName))
@@ -1886,7 +1888,7 @@ void TUISGBrowserTab::findItem()
     treeWidget->clearSelection();
     for (i = 0; i < findlist.size(); i++)
     {
-        treeWidget->setItemSelected(findlist.at(i), true);
+        findlist.at(i)->setSelected(true);
     }
     if (findlist.isEmpty())
         findEdit->setText("not found");
@@ -1917,7 +1919,7 @@ void TUISGBrowserTab::setColorState(QTreeWidgetItem *item, bool show, bool setCo
         if (item->text(5) != "switch")
             item->setText(3, "hide");
     }
-    item->setTextColor(0, color);
+    item->setForeground(0, color);
 
     for (i = 0; i < item->childCount(); i++)
     {
@@ -2157,7 +2159,7 @@ void TUISGBrowserTab::updateItemState(QTreeWidgetItem *item, int column)
     {
         for (int j = 0; j < item->childCount(); j++)
         {
-            treeWidget->setItemSelected(item->child(j), true);
+            item->child(j)->setSelected(true);
             updateItemState(item->child(j), column);
         }
     }
@@ -2327,12 +2329,12 @@ nodeTreeItem::nodeTreeItem(nodeTree *item, const QString &text, QString classNam
 
     if ((nodeMode == 1) || (nodeMode == 0))
     {
-        setTextColor(0, color);
+        setForeground(0, color);
         setText(3, "show");
     }
     else if (nodeMode == 2)
     {
-        setTextColor(0, hideColor);
+        setForeground(0, hideColor);
         setText(3, "hide");
     }
 
@@ -2370,7 +2372,7 @@ nodeTreeItem::nodeTreeItem(nodeTreeItem *item, const QString &text, QString clas
     if (item)
     {
         parentColor.setNamedColor(item->text(2));
-        isColor = item->textColor(0);
+        isColor = item->foreground(0).color();
     }
 
     if ((nodeMode == 1) || (nodeMode == 0))
@@ -2378,21 +2380,21 @@ nodeTreeItem::nodeTreeItem(nodeTreeItem *item, const QString &text, QString clas
         if (item)
         {
             if (isColor == parentColor)
-                setTextColor(0, color);
+                setForeground(0, color);
             else
-                setTextColor(0, isColor);
+                setForeground(0, isColor);
             setText(3, item->text(3));
         }
         else
         {
-            setTextColor(0, color);
+            setForeground(0, color);
             setText(3, "show");
             setCheckState(0, Qt::Checked);
         }
     }
     else if (nodeMode == 2)
     {
-        setTextColor(0, hideColor);
+        setForeground(0, hideColor);
         setText(3, "hide");
         setCheckState(0, Qt::Unchecked);
     }

@@ -61,7 +61,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			TokenBuffer rtb;
 			rtb << TABLET_SET_DIRLIST;
 			rtb << id;
-			rtb << list.size();
+			rtb << (int)list.size();
 			for (int i = 0; i < list.size(); i++)
 			{
 				std::string tempStr = list.at(i).toStdString();
@@ -173,7 +173,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			//Create new message
 			tb2 << TABLET_SET_DRIVES;
 			tb2 << id;
-			tb2 << list.size();
+			tb2 << (int)list.size();
 			for (int i = 0; i < list.size(); i++)
 			{
 				QFileInfo info = list.at(i);
@@ -220,7 +220,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		//Create new message
 		tb2 << TABLET_SET_CLIENTS;
 		tb2 << id;
-		tb2 << tuiClientList.size() + 1;
+		tb2 << (int)tuiClientList.size() + 1;
 		for (int i = 0; i < tuiClientList.size(); i++)
 		{
 			std::string tempStr = tuiClientList.at(i).toStdString();
@@ -410,7 +410,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			TokenBuffer ltb;
 			ltb << TABLET_SET_DIRLIST;
 			ltb << id;
-			ltb << dirList.size();
+			ltb << (int)dirList.size();
 
 			for (int i = 0; i < dirList.size(); i++)
 			{
@@ -465,7 +465,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 			TokenBuffer ltb;
 			ltb << TABLET_SET_FILELIST;
 			ltb << id;
-			ltb << fileList.size();
+			ltb << (int)fileList.size();
 
 			for (int i = 0; i < fileList.size(); i++)
 			{

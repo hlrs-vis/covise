@@ -40,9 +40,7 @@ void TUITextCheck::keyPressEvent(QKeyEvent *e)
     if ((e->key() == Qt::Key_Return) || (e->key() == Qt::Key_Enter))
     {
         palette.setBrush(QPalette::WindowText, Qt::black);
-#if QT_VERSION >= 0x050000
         emit returnPressed();
-#endif
     }
     else
     {
@@ -74,9 +72,7 @@ void TUITextCheck::focusInEvent(QFocusEvent *e)
 //------------------------------------------------------------------------
 void TUITextCheck::focusOutEvent(QFocusEvent *e)
 {
-#if QT_VERSION >= 0x050000
     emit editingFinished();
-#endif
     emit focusChanged(false);
 
     QTextEdit::focusOutEvent(e);

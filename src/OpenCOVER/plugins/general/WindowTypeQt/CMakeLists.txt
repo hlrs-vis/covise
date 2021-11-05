@@ -1,3 +1,7 @@
+if (COVISE_USE_QT5 AND Qt5OpenGL_VERSION VERSION_LESS 5.4.0)
+    return()
+endif()
+
 if (COVISE_USE_X11)
     covise_find_package(X11)
     if (X11_FOUND)
@@ -34,7 +38,7 @@ set(SOURCES
 qt_add_resources(QRC_SOURCES about.qrc icons.qrc)
 qt_wrap_ui(UI_SOURCES AboutDialog.ui KeyboardHelp.ui)
 cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES})
-qt_use_modules(WindowTypeQt Core Widgets OpenGL)
+qt_use_modules(WindowTypeQt Core Widgets OpenGL OpenGLWidgets)
 if (COVISE_USE_X11)
     if (Qt5X11Extras_FOUND)
         qt_use_modules(WindowTypeQt X11Extras)

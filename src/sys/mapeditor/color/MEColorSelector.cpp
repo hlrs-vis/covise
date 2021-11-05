@@ -8,9 +8,9 @@
 
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QCursor>
+#include <QScreen>
 
 #include "MEColorSelector.h"
 #include "MEColorSelector.h"
@@ -58,8 +58,7 @@ void MEColorSelector::mouseReleaseEvent(QMouseEvent *e)
 
 QColor MEColorSelector::grabColor(const QPoint &p)
 {
-    QDesktopWidget *desktop = QApplication::desktop();
-    QPixmap pm = QPixmap::grabWindow(desktop->winId(), p.x(), p.y(), 1, 1);
+    QPixmap pm = qApp->primaryScreen()->grabWindow(0, p.x(), p.y(), 1, 1);
     QImage i = pm.toImage();
     return i.pixel(0, 0);
 }

@@ -8,9 +8,9 @@
 #ifndef ME_CHOICEPORT_H
 #define ME_CHOICEPORT_H
 
+#include <QStringList>
 #include "ports/MEParameterPort.h"
 
-class QStringList;
 class QString;
 class QWidget;
 
@@ -31,10 +31,6 @@ public:
     MEChoicePort(MENode *node, QGraphicsScene *scene, const QString &portname, int paramtype, const QString &description, int porttype);
 
     ~MEChoicePort();
-
-#ifdef YAC
-    void setValues(covise::coRecvBuffer &);
-#endif
 
     void restoreParam();
     void storeParam();

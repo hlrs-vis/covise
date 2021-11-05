@@ -134,7 +134,6 @@ public:
 
 protected:
     // Tablet pressure handling
-    QTabletEvent::TabletDevice myTabletDevice;
     bool deviceDown;
     bool leftButtonDown;
     bool rightButtonDown;

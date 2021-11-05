@@ -17,6 +17,7 @@
 #include <net/tokenbuffer.h>
 #include "VRBServer.h"
 
+#include <QActionGroup>
 #include <QFrame>
 #include <QHeaderView>
 #include <QImage>
@@ -110,7 +111,7 @@ ApplicationWindow::ApplicationWindow()
     w = new QFrame(split);
     w->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
     box = new QVBoxLayout(w);
-    box->setMargin(5);
+    box->setContentsMargins(5, 5, 5, 5);
 
     table = new QTreeWidget(w);
     table->setFont(smallFont);
@@ -152,7 +153,7 @@ ApplicationWindow::ApplicationWindow()
     msgFrame = new QFrame(central);
     msgFrame->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
     box = new QVBoxLayout(msgFrame);
-    box->setMargin(5);
+    box->setContentsMargins(5, 5, 5, 5);
     label = new QLabel(msgFrame);
     label->setText("Message Area");
     label->setAlignment(Qt::AlignCenter);
@@ -250,7 +251,7 @@ void ApplicationWindow::createToolbar()
 
     QToolBar *fileTools = new QToolBar(tr("VRB Toolbar"), this);
     fileTools->layout()->setSpacing(2);
-    fileTools->layout()->setMargin(0);
+    fileTools->layout()->setContentsMargins(0, 0, 0, 0);
     addToolBar(fileTools);
     QAction *exitAction = fileTools->addAction(quitIcon, tr("Exit"), qApp, SLOT(closeAllWindows()));
     exitAction->setToolTip(tr("exit"));

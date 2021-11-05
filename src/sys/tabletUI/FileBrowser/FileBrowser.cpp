@@ -145,17 +145,17 @@ void FileBrowser::CreateDialogLayout()
     gridLayout = new QGridLayout(this);
     gridLayout->setSizeConstraint(QLayout::SetNoConstraint);
     gridLayout->setSpacing(6);
-    gridLayout->setMargin(9);
+    gridLayout->setContentsMargins(9, 9, 9, 9);
     gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
     gridLayout1 = new QGridLayout();
     gridLayout1->setSizeConstraint(QLayout::SetNoConstraint);
     gridLayout1->setSpacing(6);
-    gridLayout1->setMargin(0);
+    gridLayout1->setContentsMargins(0, 0, 0, 0);
     gridLayout1->setObjectName(QString::fromUtf8("gridLayout1"));
     gridLayout2 = new QGridLayout();
     gridLayout2->setSizeConstraint(QLayout::SetNoConstraint);
     gridLayout2->setSpacing(6);
-    gridLayout2->setMargin(0);
+    gridLayout2->setContentsMargins(0, 0, 0, 0);
     gridLayout2->setObjectName(QString::fromUtf8("gridLayout2"));
     splitter = new QSplitter(this);
     splitter->setObjectName(QString::fromUtf8("splitter"));
@@ -204,7 +204,7 @@ void FileBrowser::CreateDialogLayout()
 
     vboxLayout->setSizeConstraint(QLayout::SetNoConstraint);
     vboxLayout->setSpacing(6);
-    vboxLayout->setMargin(0);
+    vboxLayout->setContentsMargins(0, 0, 0, 0);
     vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
     btnHome = new QPushButton(this);
     btnHome->setObjectName(QString::fromUtf8("btnHome"));
@@ -243,7 +243,7 @@ void FileBrowser::CreateDialogLayout()
     hboxLayout = new QHBoxLayout();
     hboxLayout->setSizeConstraint(QLayout::SetNoConstraint);
     hboxLayout->setSpacing(6);
-    hboxLayout->setMargin(0);
+    hboxLayout->setContentsMargins(0, 0, 0, 0);
     hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
     cmbDirectory = new QComboBox(this);
     cmbDirectory->setObjectName(QString::fromUtf8("cmbDirectory"));

@@ -138,9 +138,7 @@ void MEGraphicsView::init()
     setDragMode(QGraphicsView::RubberBandDrag);
     setRenderHints(QPainter::Antialiasing);
     setInteractive(true);
-#if QT_VERSION >= 0x040400
     setViewportUpdateMode(BoundingRectViewportUpdate);
-#endif
     setBackgroundBrush(QColor(230, 230, 230));
     //setRubberBandSelectionMode ( Qt::ContainsItemBoundingRect );
 
@@ -349,7 +347,7 @@ void MEGraphicsView::wheelEvent(QWheelEvent *e)
 {
     // CTRL + scroll --> scale viewport
     if (e->modifiers() == Qt::ControlModifier)
-        scaleView(pow(2., -e->delta() / 1000.0));
+        scaleView(pow(2., -e->angleDelta().y() / 1000.0));
 
     else
         QGraphicsView::wheelEvent(e);
@@ -360,14 +358,14 @@ void MEGraphicsView::wheelEvent(QWheelEvent *e)
 //!
 void MEGraphicsView::scaleView(qreal scaleFactor)
 {
-    QMatrix m = matrix();
+    QTransform m = transform();
     qreal factor = m.scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
     factor = qMin(factor, 2.0);
     factor = qMax(factor, 0.25);
 
     emit factorChanged(factor);
 
-    QMatrix m2(factor, m.m12(), m.m21(), factor, m.dx(), m.dy());
+    QTransform m2(factor, m.m12(), m.m21(), factor, m.dx(), m.dy());
 
     QPointF viewsize = m2.map(QPoint(viewport()->size().width(), viewport()->size().height())) - m2.map(QPoint(0, 0));
     if (m_currViewRect.width() < viewsize.x() * viewportOversize)
@@ -380,7 +378,7 @@ void MEGraphicsView::scaleView(qreal scaleFactor)
     }
     setSceneRect(m_currViewRect);
 
-    setMatrix(m2);
+    setTransform(m2);
 }
 
 //!
@@ -422,7 +420,7 @@ void MEGraphicsView::mousePressEvent(QMouseEvent *e)
         clearPortSelections(MEPortSelectionHandler::Clicked);
     }
 
-    else if (e->button() == Qt::MidButton)
+    else if (e->button() == Qt::MiddleButton)
     {
         setCursor(Qt::OpenHandCursor);
         setDragMode(QGraphicsView::ScrollHandDrag);
@@ -451,7 +449,7 @@ void MEGraphicsView::mousePressEvent(QMouseEvent *e)
 //!
 void MEGraphicsView::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() == Qt::MidButton)
+    if (e->button() == Qt::MiddleButton)
     {
         m_dragMode = false;
         QMouseEvent *mouseEvent = new QMouseEvent(QEvent::MouseButtonRelease,
@@ -1022,13 +1020,13 @@ void MEGraphicsView::viewAll(qreal scaleMax)
     m_currViewRect = r;
     setSceneRect(r);
     fitInView(r, Qt::KeepAspectRatio);
-    const QMatrix &m = matrix();
+    const QTransform &m = transform();
     qreal factor = m.m11();
     factor = qMin(factor, 2.0);
     if (scaleMax > 0.)
         factor = qMin(factor, scaleMax);
-    QMatrix m2(factor, 0., 0., factor, r.center().x(), r.center().y());
-    setMatrix(m2);
+    QTransform m2(factor, 0., 0., factor, r.center().x(), r.center().y());
+    setTransform(m2);
     MEUserInterface::instance()->updateScaleViewCB(factor);
     updateSceneRect();
 }
@@ -1057,7 +1055,7 @@ void MEGraphicsView::scaleView50()
 void MEGraphicsView::showMap()
 {
     QPointF pos = (scene()->itemsBoundingRect()).topLeft();
-    QPointF viewPoint = matrix().map(pos);
+    QPointF viewPoint = transform().map(pos);
 
     horizontalScrollBar()->setValue((int)viewPoint.x());
     verticalScrollBar()->setValue((int)viewPoint.y());

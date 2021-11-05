@@ -21,13 +21,14 @@
 
 #include "ReadCommandPlugin.h"
 #include <QTextStream>
+#include <QIODevice>
+#include <QRegularExpression>
 #include <cover/OpenCOVER.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRPluginSupport.h>
-#include <qtutil/Qt5_15_deprecated.h>
 
 ReadCommandPlugin::ReadCommandPlugin()
     : keepRunning(true)
@@ -45,7 +46,6 @@ ReadCommandPlugin::~ReadCommandPlugin()
 void ReadCommandPlugin::run()
 {
     static QTextStream istream(stdin, QIODevice::ReadOnly);
-    static QTextStream ostream(stdout, QIODevice::WriteOnly);
 
     QString input;
 
@@ -55,7 +55,7 @@ void ReadCommandPlugin::run()
         if (!input.isNull())
         {
             lock.lock();
-            ostream << "ReadCommandPlugin::preFrame info: got command \"" << input << "\"" << QT::endl;
+            std::cerr << "ReadCommandPlugin::preFrame info: got command \"" << input.toStdString() << "\"" << endl;
             queue.append(input);
             lock.unlock();
         }
@@ -77,7 +77,7 @@ void ReadCommandPlugin::preFrame()
         {
             QString uri = command.section(' ', 1).simplified();
             if (uri.startsWith("file://"))
-                uri.remove(QRegExp("^file://"));
+                uri.remove(QRegularExpression("^file://"));
             coVRFileManager::instance()->loadFile(uri.toLatin1().data());
         }
         else if (command == "viewall")

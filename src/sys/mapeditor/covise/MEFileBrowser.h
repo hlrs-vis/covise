@@ -10,13 +10,13 @@
 
 #include <QDialog>
 #include <QLabel>
+#include <QStringList>
 
 class QComboBox;
 class QVBoxLayout;
 class QHBoxLayout;
 class QLineEdit;
 class QPushButton;
-class QStringList;
 class QListWidget;
 class QListWidgetItem;
 

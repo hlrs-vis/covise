@@ -9,6 +9,7 @@
 #define ME_MESSAGEHANDLER_H
 
 #include <QObject>
+#include <QStringList>
 #include <net/message_sender_interface.h>
 class QTimer;
 
@@ -19,8 +20,6 @@ class NEW_UI;
 class UdpMessage;
 class UserInterface;
 } // namespace covise
-
-class QStringList;
 
 class MENode;
 class MEUserInterface;

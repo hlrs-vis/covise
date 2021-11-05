@@ -8,9 +8,9 @@
 #ifndef ME_GLWIDGET_H
 #define ME_GLWIDGET_H
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 
-class MEMaterialDisplay : public QGLWidget
+class MEMaterialDisplay : public QOpenGLWidget
 {
     Q_OBJECT
 

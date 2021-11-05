@@ -108,12 +108,12 @@ void MEColorMap::makeEditor()
 {
     // set main layout
     mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(2);
+    mainLayout->setContentsMargins(2, 2, 2, 2);
     mainLayout->setSpacing(2);
 
     namebox = new QComboBox();
     namebox->setToolTip("Currently available predefined colormaps");
-    connect(namebox, SIGNAL(activated(const QString &)), this, SLOT(loadMap(const QString &)));
+    connect(namebox, SIGNAL(textActivated(const QString &)), this, SLOT(loadMap(const QString &)));
     namebox->addItems(mapNames);
 
     if (port)
@@ -130,7 +130,7 @@ void MEColorMap::makeEditor()
     // add the color tables
     QGroupBox *gb = new QGroupBox("RGB-Alpha Table", this);
     QGridLayout *grid = new QGridLayout();
-    grid->setMargin(2);
+    grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(0);
 
     // add the  RGBtables
@@ -189,7 +189,7 @@ void MEColorMap::makeEditor()
     // add a histogramm
     histo = new QGroupBox("Histogram", this);
     grid = new QGridLayout();
-    grid->setMargin(2);
+    grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(0);
 
     // create a widget containing a data histogramm
@@ -806,7 +806,7 @@ void MEColorMap::saveXMLCB()
     QString text = QInputDialog::getText(this,
                                          tr("COVISE - ColorMap Editor"),
                                          tr("Please enter the colormap name "),
-                                         QLineEdit::Normal, QString::null, &ok);
+                                         QLineEdit::Normal, QString(), &ok);
     if (ok && !text.isEmpty())
         name = text;
 
@@ -1221,7 +1221,7 @@ void MEColorMarkerContainer::mousePressEvent(QMouseEvent *e)
     {
         MEColorPoint *cp = colorMap->points.at(i);
         QRect ra = cp->geometry();
-        if (ra.contains(e->x(), e->y()))
+        if (ra.contains(e->pos().x(), e->y()))
             list.append(cp);
     }
 
@@ -1229,7 +1229,7 @@ void MEColorMarkerContainer::mousePressEvent(QMouseEvent *e)
     if (list.isEmpty())
     {
         clickPoint = NULL;
-        float xpos = (float)(e->x()) / (float)width();
+        float xpos = (float)(e->pos().x()) / (float)width();
         emit newPoint(xpos);
         return;
     }
@@ -1254,7 +1254,7 @@ void MEColorMarkerContainer::mousePressEvent(QMouseEvent *e)
     if (clickPoint)
     {
         QRect ra = clickPoint->geometry();
-        offset = e->x() - ra.left();
+        offset = e->pos().x() - ra.left();
         emit pickPoint(clickPoint);
     }
 }

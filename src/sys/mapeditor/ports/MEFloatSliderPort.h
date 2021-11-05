@@ -10,7 +10,7 @@
 
 #include "ports/MESliderPort.h"
 
-class QStringList;
+#include <QStringList>
 
 //================================================
 class MEFloatSliderPort : public MESliderPort

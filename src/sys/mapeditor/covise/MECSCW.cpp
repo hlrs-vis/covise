@@ -13,9 +13,7 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QListWidget>
-#if QT_VERSION >= 0x040400
 #include <QFormLayout>
-#endif
 
 #include <config/CoviseConfig.h>
 #include <covise/covise_msg.h>
@@ -146,25 +144,11 @@ void MECSCW::setHostCB(QListWidgetItem *item)
         m_selectionHost->setText(item->text());
 }
 
-#if QT_VERSION >= 0x040400
-
 #define makeLine(text, widget, type)           \
     label = new QLabel(text);                  \
     label->setFont(MEMainHandler::s_boldFont); \
     widget = new type();                       \
     grid->addRow(label, widget);
-
-#else
-
-#define makeLine(text, widget, type)                                     \
-    label = new QLabel(text);                                            \
-    label->setFont(MEMainHandler::s_boldFont);                           \
-    widget = new type();                                                 \
-    grid->addWidget(label, index, 0, Qt::AlignVCenter | Qt::AlignRight); \
-    grid->addWidget(widget, index, 1);                                   \
-    ++index;
-
-#endif
 
 /*!
    \class MECSCWParam
@@ -193,12 +177,7 @@ MECSCWParam::MECSCWParam(QWidget *parent)
          << "SSL"
          << "VRB";
 
-#if QT_VERSION >= 0x040400
     QFormLayout *grid = new QFormLayout();
-#else
-    QGridLayout *grid = new QGridLayout();
-    int index = 0;
-#endif
 
     makeLine("Hostname", hostname, QLineEdit);
     hostname->setText(MEMainHandler::instance()->localHost);

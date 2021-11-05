@@ -42,7 +42,7 @@ MEControlParameter::MEControlParameter(MENode *node)
     // create a vertical layout
     // contains a header & a container widget
     QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->setMargin(2);
+    vbox->setContentsMargins(2, 2, 2, 2);
     vbox->setSpacing(2);
 
     // create the info label widget
@@ -92,7 +92,7 @@ QFrame *MEControlParameter::createHeader()
 
     // create the layout
     QHBoxLayout *hbox = new QHBoxLayout(header);
-    hbox->setMargin(1);
+    hbox->setContentsMargins(1, 1, 1, 1);
     hbox->setSpacing(1);
 
     // add some icons to the header box

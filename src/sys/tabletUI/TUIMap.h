@@ -9,7 +9,7 @@
 #define CO_TUI_MAP_H
 
 #include <QObject>
-#include <QMatrix>
+#include <QTransform>
 #include <QPolygon>
 #include <QPixmap>
 
@@ -104,7 +104,7 @@ public slots:
     void cam(bool);
 
 protected:
-    QMatrix wm;
+    QTransform wm;
     MapCanvas *canvas;
     QGraphicsView *view;
     QTabWidget *tabWidget;

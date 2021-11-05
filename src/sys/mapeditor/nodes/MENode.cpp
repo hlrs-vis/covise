@@ -207,7 +207,7 @@ void MENode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     rect.setHeight(rect.height() + distance);
     rect.setX(rect.x() - distance);
     rect.setY(rect.y() - distance);
-    painter->drawRoundRect(rect, 6, 6);
+    painter->drawRoundedRect(rect, 6, 6);
 }
 
 void MENode::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
@@ -973,7 +973,7 @@ void MENode::createPorts(QStringList token)
 
     // write node to mapeditor.xml
     // -> value
-    QString tmp = QString("%1:%2(%3)").arg(QDateTime::currentDateTime().toTime_t()).arg(moduleName).arg(category);
+    QString tmp = QString("%1:%2(%3)").arg(QDateTime::currentDateTime().toString(Qt::ISODate)).arg(moduleName).arg(category);
     MEMainHandler::instance()->insertModuleInHistory(tmp);
 
     // insert node in data tree

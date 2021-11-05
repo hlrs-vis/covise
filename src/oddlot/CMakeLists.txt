@@ -1,4 +1,7 @@
 cmake_minimum_required (VERSION 2.6...3.1)
+if(NOT COVISE_USE_QT5)
+    return()
+endif()
 #project (oddlot)
 
 #SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../../cmake;${CMAKE_MODULE_PATH}")
@@ -14,7 +17,7 @@ cmake_minimum_required (VERSION 2.6...3.1)
 #find_package(COVISE)
 
 #INCLUDE(CoviseHelperMacros)
-#INCLUDE(Qt4-5)
+#INCLUDE(Qt5-6)
 #find_qt()
 #FIND_PACKAGE(QT)
 
@@ -666,7 +669,7 @@ QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
 
 
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
-qt_use_modules(oddlot Core Widgets Gui Network Xml Svg)
+qt_use_modules(oddlot Core Widgets Gui Network Xml Svg SvgWidgets)
 TARGET_LINK_LIBRARIES(oddlot
    ${EXTRA_LIBS} ${OPENCRG_LIBRARIES}
 ) 

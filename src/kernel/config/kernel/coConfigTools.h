@@ -14,7 +14,7 @@
 class coConfigTools
 {
  public:
-    static bool matchingAttributes(QHash<QString, QString *> attributes);
+    static bool matchingAttributes(const QHash<QString, QString *> &attributes);
     static bool matchingHost(const QString *host);
     static bool matchingMaster(const QString *master);
     static bool matchingArch(const QString *arch);

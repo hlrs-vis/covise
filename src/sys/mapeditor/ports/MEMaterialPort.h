@@ -10,10 +10,9 @@
 
 #include <QVector>
 #include <QMap>
+#include <QStringList>
 
 #include "ports/MEParameterPort.h"
-
-class QStringList;
 
 class MENode;
 class MEMaterialDisplay;

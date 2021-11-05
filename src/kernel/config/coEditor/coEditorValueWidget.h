@@ -9,7 +9,7 @@
 #define VALUEWIDGET
 #include <QWidget>
 #include <QString>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QMessageBox>
 
 class coEditorValueWidget : public QWidget
@@ -44,7 +44,7 @@ public slots:
     virtual void setValue(const QString &valueName, const QString &value,
                           const QString &readableAttrRule = QString(),
                           const QString &attributeDescription = QString(),
-                          bool required = false, const QRegExp &rx = QRegExp("^.*")) = 0;
+                          bool required = false, const QRegularExpression &rx = QRegularExpression("^.*")) = 0;
     virtual void suicide() = 0;
     virtual void undo() = 0;
 

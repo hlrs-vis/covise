@@ -27,7 +27,7 @@ MEControlParameterLine::MEControlParameterLine(QWidget *parent, MEParameterPort 
 
     // create a horizontal layout
     m_boxLayout = new QHBoxLayout(this);
-    m_boxLayout->setMargin(2);
+    m_boxLayout->setContentsMargins(2, 2, 2, 2);
     m_boxLayout->setSpacing(2);
 
     // create the parameter text

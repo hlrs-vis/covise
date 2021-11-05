@@ -52,7 +52,7 @@ void LocalData::reqDirectoryList(std::string path, int pId)
     TokenBuffer rt;
     rt << TABLET_SET_DIRLIST;
     rt << pId;
-    rt << locDirList.size();
+    rt << (int)locDirList.size();
 
     for (int i = 0; i < locDirList.size(); i++)
     {
@@ -126,7 +126,7 @@ void LocalData::reqFileList(std::string path, int pId)
     TokenBuffer rt;
     rt << TABLET_SET_FILELIST;
     rt << pId;
-    rt << locFileList.size();
+    rt << (int)locFileList.size();
 
     for (int i = 0; i < locFileList.size(); i++)
     {
@@ -167,7 +167,7 @@ void LocalData::reqHomeDir(int pId)
     TokenBuffer rt;
     rt << TABLET_SET_DIRLIST;
     rt << pId;
-    rt << locDirList.size();
+    rt << (int)locDirList.size();
 
     for (int i = 0; i < locDirList.size(); i++)
     {
@@ -199,7 +199,7 @@ void LocalData::reqHomeFiles(int pId)
     TokenBuffer rt;
     rt << TABLET_SET_FILELIST;
     rt << pId;
-    rt << locFileList.size();
+    rt << (int)locFileList.size();
 
     for (int i = 0; i < locFileList.size(); i++)
     {
@@ -235,7 +235,7 @@ void LocalData::reqDirUp(std::string basePath, int pId)
     TokenBuffer rt;
     rt << TABLET_SET_DIRLIST;
     rt << pId;
-    rt << locDirList.size();
+    rt << (int)locDirList.size();
 
     for (int i = 0; i < locDirList.size(); i++)
     {
@@ -254,7 +254,7 @@ void LocalData::reqDirUp(std::string basePath, int pId)
         TokenBuffer tb;
         tb << TABLET_SET_FILELIST;
         tb << pId;
-        tb << locFileList.size();
+        tb << (int)locFileList.size();
 
         for (int i = 0; i < locFileList.size(); i++)
         {

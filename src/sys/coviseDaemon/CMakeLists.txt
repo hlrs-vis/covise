@@ -1,11 +1,4 @@
 
-COVISE_FIND_PACKAGE(Qt5 REQUIRED 
-                COMPONENTS 
-                    Core
-                    Gui
-                    Widgets
-)
-
 USING(BOOST)
 
 set(CMAKE_AUTOMOC ON)
@@ -50,14 +43,12 @@ SET(VRB_MOC_SRCS
 ADD_COVISE_EXECUTABLE(coviseDaemon ${REMOTE_LAUNCHER_SOURCES} ${REMOTE_LAUNCHER_HEADER} ${VRB_MOC_SRCS})
 
 target_link_libraries(coviseDaemon 
-                       Qt5::Core
-                       Qt5::Gui
-                       Qt5::Widgets
                        coMessages
                        coNet
                        coQtUtil
                        coUtil
                        coVRBClient
                        ) 
+qt_use_modules(coviseDaemon Core Gui Widgets)
 
 COVISE_INSTALL_TARGET(coviseDaemon)

@@ -311,7 +311,7 @@ void MEFileBrowserPort::makeLayout(layoutType type, QWidget *container)
     //create a vertical layout for 2 rows
 
     QVBoxLayout *vb = new QVBoxLayout(container);
-    vb->setMargin(1);
+    vb->setContentsMargins(1, 1, 1, 1);
     vb->setSpacing(1);
 
     // create first container widgets
@@ -322,7 +322,7 @@ void MEFileBrowserPort::makeLayout(layoutType type, QWidget *container)
     // create for each widget a horizontal layout
 
     QHBoxLayout *controlBox = new QHBoxLayout(w1);
-    controlBox->setMargin(2);
+    controlBox->setContentsMargins(2, 2, 2, 2);
     controlBox->setSpacing(2);
 
     // pixmap button

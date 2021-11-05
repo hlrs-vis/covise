@@ -227,7 +227,7 @@ TUIMap::TUIMap(int id, int type, QWidget *w, int parent, QString name)
     tabWidget->insertTab(0, view, name);
     scale = 1;
     wm.scale(1, 1); // Zooms in by 2 times
-    view->setMatrix(wm);
+    view->setTransform(wm);
     doZoom = false;
     doPan = false;
     doCam = false;
@@ -252,7 +252,7 @@ void TUIMap::zoomIn()
     else
     {
         wm.scale(1.1, 1.1); // Zooms in by 0.2
-        view->setMatrix(wm);
+        view->setTransform(wm);
         view->update();
     }
     std::cerr << "zoomIn" << scale << std::endl;
@@ -262,7 +262,7 @@ void TUIMap::zoomOut()
 {
     scale *= 0.9f;
     wm.scale(0.9, 0.9); // Zooms out by 0.2
-    view->setMatrix(wm);
+    view->setTransform(wm);
     view->update();
     std::cerr << "zoomOut" << scale << std::endl;
 }
@@ -270,7 +270,7 @@ void TUIMap::zoomOut()
 void TUIMap::viewAll()
 {
     wm.reset();
-    view->setMatrix(wm);
+    view->setTransform(wm);
     view->fitInView(view->sceneRect());
 }
 
@@ -435,19 +435,19 @@ void MapCanvasView::moveRubber(QMouseEvent *e)
 
         tuiMap->rhx = rx;
         tuiMap->rhy = ry;
-        if (rx < e->x())
-            tuiMap->rdx = e->x() - rx;
+        if (rx < e->pos().x())
+            tuiMap->rdx = e->pos().x() - rx;
         else
         {
-            tuiMap->rdx = rx - e->x();
-            tuiMap->rhx = e->x();
+            tuiMap->rdx = rx - e->pos().x();
+            tuiMap->rhx = e->pos().x();
         }
-        if (ry < e->y())
-            tuiMap->rdy = e->y() - ry;
+        if (ry < e->pos().y())
+            tuiMap->rdy = e->pos().y() - ry;
         else
         {
-            tuiMap->rdy = ry - e->y();
-            tuiMap->rhy = e->y();
+            tuiMap->rdy = ry - e->pos().y();
+            tuiMap->rhy = e->pos().y();
         }
 
 #if 0
@@ -608,8 +608,8 @@ void MapCanvasView::contentsMousePressEvent(QMouseEvent *e)
     //std::cerr << e->pos().x() << std::endl;
 
     firstMove = true;
-    rx = e->x();
-    ry = e->y();
+    rx = e->pos().x();
+    ry = e->pos().y();
 // TODO proper porting to qt4
 #if 0
    startCPosX = contentsX();
@@ -655,12 +655,12 @@ void MapCanvasView::contentsMouseMoveEvent(QMouseEvent *e)
 #if 0
       setContentsPos(startCPosX+(rx-e->x()),startCPosY+(ry-e->y()));
 #endif
-        ensureVisible(QRectF(startCPosX + (rx - e->x()), startCPosY + (ry - e->y()), 5, 5));
+        ensureVisible(QRectF(startCPosX + (rx - e->pos().x()), startCPosY + (ry - e->pos().y()), 5, 5));
     }
 
     if (moving)
     {
-        QPoint p = matrix().inverted().map(e->pos());
+        QPoint p = transform().inverted().map(e->pos());
         moving->moveBy(p.x() - moving_start.x(),
                        p.y() - moving_start.y());
         moving_start = p;
@@ -736,7 +736,7 @@ void CamItem::recalc(int fx, int fy, int tx, int ty)
     double angle = acos(dy);
     if (dx > 0)
         angle *= -1;
-    QMatrix rot;
+    QTransform rot;
     std::cerr << "angle" << angle << std::endl;
     rot.rotate(angle * 180.0 / M_PI);
     for (int i = 0; i < 8; i++)

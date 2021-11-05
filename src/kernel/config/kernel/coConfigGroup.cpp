@@ -54,7 +54,7 @@ coConfigGroup::coConfigGroup(const coConfigGroup *source)
 coConfigRoot *coConfigGroup::addConfig(const QString &filename, const QString &name, bool create)
 {
 
-    if (configs[name])
+    if (configs.find(name) != configs.end())
     {
         COCONFIGLOG("coConfigGroup::addConfig err: tried to add config " << filename << " twice");
         return configs[name];

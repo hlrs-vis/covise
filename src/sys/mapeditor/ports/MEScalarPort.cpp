@@ -146,7 +146,7 @@ void MEScalarPort::makeControlLine(layoutType, QWidget *w)
     // create a vertical layout for 2 rows
 
     QHBoxLayout *vb = new QHBoxLayout(w);
-    vb->setMargin(2);
+    vb->setContentsMargins(2, 2, 2, 2);
     vb->setSpacing(2);
 
     // text editor line
@@ -167,7 +167,7 @@ void MEScalarPort::makeModuleLine(layoutType, QWidget *w)
     // create a vertical layout for 2 rows
 
     QHBoxLayout *vb = new QHBoxLayout(w);
-    vb->setMargin(2);
+    vb->setContentsMargins(2, 2, 2, 2);
     vb->setSpacing(2);
 
     // create two container widgets
@@ -181,11 +181,11 @@ void MEScalarPort::makeModuleLine(layoutType, QWidget *w)
     // create for each widget a horizontal layout
 
     QHBoxLayout *hb1 = new QHBoxLayout(firstLine);
-    hb1->setMargin(2);
+    hb1->setContentsMargins(2, 2, 2, 2);
     hb1->setSpacing(2);
 
     QHBoxLayout *hb2 = new QHBoxLayout(secondLine);
-    hb2->setMargin(2);
+    hb2->setContentsMargins(2, 2, 2, 2);
     hb2->setSpacing(2);
 
     // text editor line
@@ -212,7 +212,7 @@ void MEScalarPort::makeStepper(layoutType, QWidget *w)
     // horizontal Layout
 
     QHBoxLayout *hbox = new QHBoxLayout(w);
-    hbox->setMargin(2);
+    hbox->setContentsMargins(2, 2, 2, 2);
     hbox->setSpacing(2);
 
     // text filed with current value

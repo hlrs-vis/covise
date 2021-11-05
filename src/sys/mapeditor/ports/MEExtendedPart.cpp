@@ -29,7 +29,7 @@ MEExtendedPart::MEExtendedPart(QWidget *parent, MEParameterPort *p)
 
     // create layout
     extendedLayout = new QHBoxLayout(this);
-    extendedLayout->setMargin(2);
+    extendedLayout->setContentsMargins(2, 2, 2, 2);
     extendedLayout->setSpacing(2);
 
     hide();

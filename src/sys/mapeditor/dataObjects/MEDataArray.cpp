@@ -131,7 +131,7 @@ void MEDataArray::makeLayout()
     // create the main layout
 
     main = new QVBoxLayout(this);
-    main->setMargin(2);
+    main->setContentsMargins(2, 2, 2, 2);
     main->setSpacing(2);
 
     // add a title line and use the right hist color
@@ -389,7 +389,7 @@ void MEDataArray::fillTable(int rows, int cols)
             {
                 if (cur >= end)
                     break;
-                buffer.sprintf("%08x", *cur);
+                buffer.asprintf("%08x", *cur);
                 m_table->setItem(i, j, new QTableWidgetItem(buffer));
                 cur += m_step;
             }
@@ -415,7 +415,7 @@ void MEDataArray::fillTable(int rows, int cols)
                 {
                     if (cur >= end)
                         break;
-                    buffer.sprintf(format, *cur, static_cast<int>(*cur));
+                    buffer.asprintf(format, *cur, static_cast<int>(*cur));
                     m_table->setItem(i, j, new QTableWidgetItem(buffer));
                     cur += m_step;
                 }
@@ -634,7 +634,7 @@ void MEDataArray::indexCB()
     if (m_notation->isChecked())
     {
         char *tmpchar = (char *)&m_dataPointer[2];
-        buf.sprintf("%08x", tmpchar[m_index]);
+        buf.asprintf("%08x", tmpchar[m_index]);
         m_lvalue->setText(buf);
     }
 
@@ -646,7 +646,7 @@ void MEDataArray::indexCB()
         case covise::STRINGSHMARRAY:
         {
             char *tmpchar = (char *)&m_dataPointer[2];
-            buf.sprintf("%08x", tmpchar[m_index]);
+            buf.asprintf("%08x", tmpchar[m_index]);
             m_lvalue->setText(buf);
         }
         break;

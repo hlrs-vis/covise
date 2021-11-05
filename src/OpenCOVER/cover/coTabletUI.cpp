@@ -1366,7 +1366,7 @@ void coTUIUITab::sendEvent(const QString &source, const QString &event)
     tb << TABLET_UI_COMMAND;
     tb << ID;
     tb << source.toStdString();
-    tb << (event.size() + 1) * 2;
+    tb << (int)(event.size() + 1) * 2;
     tb.addBinary((const char *)event.utf16(), (event.size() + 1) * 2);
 
     tui()->send(tb);
@@ -1403,7 +1403,7 @@ bool coTUIUITab::loadUIFile(const std::string &filename)
     tb << TABLET_SET_VALUE;
     tb << TABLET_UI_USE_DESCRIPTION;
     tb << ID;
-    tb << (this->uiDescription.size() + 1) * 2;
+    tb << (int)(this->uiDescription.size() + 1) * 2;
     tb.addBinary((const char *)this->uiDescription.utf16(), (this->uiDescription.size() + 1) * 2);
 
     tui()->send(tb);

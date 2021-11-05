@@ -4,6 +4,7 @@
 #include <cover/ui/View.h>
 
 #include <QObject>
+#include <QWidget>
 #include <QWidgetAction>
 #include <QBoxLayout>
 

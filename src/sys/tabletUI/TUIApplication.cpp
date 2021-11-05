@@ -835,7 +835,7 @@ void TUIMainWindow::createMenubar()
     // File menu
     QMenu *file = menuBar()->addMenu("&File");
     _exit = new QAction(QPixmap(qexit), "&Quit", this);
-    _exit->setShortcut(Qt::CTRL + Qt::Key_Q);
+    _exit->setShortcut(Qt::CTRL | Qt::Key_Q);
     _exit->setToolTip("Close the tablet UI");
     connect(_exit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
     file->addAction(_exit);
@@ -913,7 +913,7 @@ void TUIMainWindow::createToolbar()
     int index = fontsize->findText(ss);
     fontsize->setCurrentIndex(index);
     toolbar->addWidget(fontsize);
-    connect(fontsize, SIGNAL(activated(const QString &)),
+    connect(fontsize, SIGNAL(textActivated(const QString &)),
             this, SLOT(fontCB(const QString &)));
     toolbar->addSeparator();
 
@@ -958,7 +958,7 @@ void TUIMainWindow::createToolbar()
         qtstyles->setCurrentIndex(qtstyles->findText("Default"));
     }
 
-    connect(qtstyles, SIGNAL(activated(const QString &)),
+    connect(qtstyles, SIGNAL(textActivated(const QString &)),
             this, SLOT(styleCB(const QString &)));
 
 
@@ -979,7 +979,7 @@ void TUIMainWindow::createToolbar()
         idx = numColumns->findText(QString::number(numberOfColumns));
     }
     numColumns->setCurrentIndex(idx);
-    void (QComboBox::*activated)(const QString &) = &QComboBox::activated;
+    void (QComboBox::*activated)(const QString &) = &QComboBox::textActivated;
     connect(numColumns, activated, [this](QString num){
         int ncol = -1;
         if (num != "Unlimited")

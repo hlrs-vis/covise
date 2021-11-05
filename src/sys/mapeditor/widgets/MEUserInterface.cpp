@@ -21,13 +21,13 @@
 #include <QVBoxLayout>
 #include <QMenuBar>
 #include <QSpinBox>
-#include <QDesktopWidget>
 #include <QWhatsThis>
 #include <QInputDialog>
 #include <QProgressBar>
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QTimer>
+#include <QScreen>
 
 #include <messages/CRB_EXEC.h>
 #include <config/coConfig.h>
@@ -185,8 +185,8 @@ void MEUserInterface::init()
     setWindowIcon(m_mainHandler->pm_logo);
 
     // try to figure out a reasonable window position and size
-    QDesktopWidget desktop;
-    QRect maxScreen = desktop.availableGeometry(-1);
+    QScreen *screen = QApplication::primaryScreen();
+    QRect maxScreen = screen->geometry();
     QPoint topLeft = maxScreen.topLeft();
 
     // rerarrange windows if entries in the XML file exist
@@ -440,7 +440,7 @@ void MEUserInterface::makeRightContent(QWidget *w)
     // create main layout
     QVBoxLayout *vb = new QVBoxLayout(w);
     vb->setSpacing(2);
-    vb->setMargin(2);
+    vb->setContentsMargins(2, 2, 2, 2);
 
     // set a proper label for widget
     QLabel *l = new QLabel("Control Panel", w);
@@ -537,11 +537,7 @@ void MEUserInterface::createActions()
     addMyAction(m_mainHandler, m_filesave_a, "&Save", saveNet, ":/icons/filesave32.png", QKeySequence::Save, "Save the current map");
     addMyAction(m_mainHandler, m_filesaveas, "Save As...", saveAsNet, "", QKeySequence::SaveAs, "Save current map as new file");
     addMyAction(m_mainHandler, m_settings_a, "Se&ttings...", settingXML, ":/icons/settings.png", 0, "Configure the Map Editor");
-#if QT_VERSION >= 0x040600
     m_settings_a->setShortcuts(QList<QKeySequence>() << QKeySequence::Preferences << Qt::CTRL + Qt::Key_T);
-#else
-    m_settings_a->setShortcuts(QList<QKeySequence>() << Qt::CTRL + Qt::Key_T);
-#endif
     addMyAction(m_mainHandler, m_exec_a, "&Execute All", execNet, ":/icons/execall.png", 0, "Execute the whole pipeline");
     m_exec_a->setShortcuts(QList<QKeySequence>() << QKeySequence::Refresh << Qt::CTRL + Qt::Key_E);
     addMyAction(m_mainHandler, m_addpartner_a, "Manage &Partner...", addPartner, ":/icons/add_user.png", 0, "Add a partner (with userinterface)");
@@ -549,7 +545,7 @@ void MEUserInterface::createActions()
     addMyAction(m_mainHandler, m_deleteAll_a, "&Delete All", clearNet, "", 0, "Clear the visual programming area");
     addMyAction(this, m_gridproxy_a, "Grid Proxy...", gridProxy, "", 0, "");
     addMyAction(m_mainHandler, m_snapshot_a, "Snapshot", printCB, ":/icons/snapshot.png", 0, "Make a snapshot of the canvas");
-    m_snapshot_a->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_P);
+    m_snapshot_a->setShortcut(Qt::CTRL | Qt::ALT | Qt::Key_P);
 
     addMyAction(m_mainHandler, m_about_qt_a, "About Qt...", aboutQt, "", 0, "");
     addMyAction(m_mainHandler, m_about_a, "About COVISE...", about, "", 0, "");
@@ -740,7 +736,7 @@ void MEUserInterface::createToolbar()
 
     m_toolBar = new METoolBar();
     m_toolBar->layout()->setSpacing(2);
-    m_toolBar->layout()->setMargin(0);
+    m_toolBar->layout()->setContentsMargins(0, 0, 0, 0);
     m_toolBar->setAcceptDrops(true);
     addToolBar(m_toolBar);
 
@@ -793,7 +789,7 @@ void MEUserInterface::createToolbar()
 
     updateScaleViewCB(1);
 
-    connect(m_scaleViewBox, SIGNAL(activated(const QString &)), this, SLOT(scaleViewCB(const QString &)));
+    connect(m_scaleViewBox, SIGNAL(textActivated(const QString &)), this, SLOT(scaleViewCB(const QString &)));
     connect(m_graphicsView, SIGNAL(factorChanged(qreal)), this, SLOT(updateScaleViewCB(qreal)));
     hb1->addWidget(m_scaleViewBox);
 
@@ -927,7 +923,7 @@ void MEUserInterface::showMatchingNodes()
     QString text = QInputDialog::getText(this,
                                          (m_mainHandler->framework + "::Search modules and/or categories"),
                                          ("Please enter the search string"),
-                                         QLineEdit::Normal, QString::null, &ok);
+                                         QLineEdit::Normal, QString(), &ok);
 
     text = text.trimmed();
     if (ok && !text.isEmpty())
@@ -1386,7 +1382,7 @@ void MEUserInterface::scaleViewCB(const QString &text)
 {
     QString value = text.section('%', 0, 0);
     qreal factor = value.toFloat() / 100.;
-    m_graphicsView->resetMatrix();
+    m_graphicsView->resetTransform();
     m_graphicsView->scaleView(factor);
 }
 

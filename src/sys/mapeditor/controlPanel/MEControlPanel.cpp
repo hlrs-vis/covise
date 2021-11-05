@@ -30,7 +30,7 @@ MEControlPanel::MEControlPanel(QWidget *parent)
 
     // create a main widget & layout
     m_boxLayout = new QVBoxLayout(this);
-    m_boxLayout->setMargin(2);
+    m_boxLayout->setContentsMargins(2, 2, 2, 2);
     m_boxLayout->setSpacing(2);
     m_boxLayout->addStretch(1);
 

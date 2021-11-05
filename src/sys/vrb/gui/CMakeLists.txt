@@ -4,13 +4,6 @@
 #
 # @author Blasius Czink
 
-COVISE_FIND_PACKAGE(Qt5 REQUIRED 
-COMPONENTS 
-Core
-Gui
-Widgets
-)
-
 USING(BOOST)
 
 ADD_DEFINITIONS(-DGUI)
@@ -57,13 +50,11 @@ ENDIF()
 # COVISE_WNOERROR(coVRML BASEARCH gecko heiner)
 
 TARGET_LINK_LIBRARIES(vrb
-                        Qt5::Core
-                        Qt5::Gui
-                        Qt5::Widgets
                         coNet
                         coQtUtil
                         coUtil
                         coVRB
                         coVRBServer)
+QT_USE_MODULES(vrb Core Gui Widgets)
 
 COVISE_INSTALL_TARGET(vrb)

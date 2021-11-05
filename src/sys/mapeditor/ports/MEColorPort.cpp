@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QtDebug>
+#include <qtutil/Qt5_15_deprecated.h>
 
 #include "MEColorPort.h"
 #include "MELineEdit.h"
@@ -224,7 +225,7 @@ void MEColorPort::makeLayout(layoutType type, QWidget *container)
 
     //create a vertical layout for 2 rows
     QVBoxLayout *vb = new QVBoxLayout(container);
-    vb->setMargin(1);
+    vb->setContentsMargins(1, 1, 1, 1);
     vb->setSpacing(1);
 
     // create first container widgets
@@ -233,7 +234,7 @@ void MEColorPort::makeLayout(layoutType type, QWidget *container)
 
     // create for each widget a horizontal layout
     QHBoxLayout *controlBox = new QHBoxLayout(w1);
-    controlBox->setMargin(2);
+    controlBox->setContentsMargins(2, 2, 2, 2);
     controlBox->setSpacing(2);
 
     // add folder pixmap
@@ -337,7 +338,7 @@ void MEColorPort::textCB(const QString &)
         type = CONTROL;
 
     else
-        qCritical() << "did not find Color line edit" << endl;
+        qCritical() << "did not find Color line edit" << Qt::endl;
 
 #ifdef YAC
 

@@ -460,7 +460,7 @@ void QtOsgWidget::wheelEvent(QWheelEvent *event)
 {
     setKeyboardModifiers(event);
     event->accept();
-#ifdef QT_5_DEPRECATED
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     osgGA::GUIEventAdapter::ScrollingMotion motion =
         event->angleDelta().y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
     if (event->angleDelta().x() != 0)
@@ -483,7 +483,7 @@ osgGA::EventQueue* QtOsgWidget::getEventQueue() const
 
 float QtOsgWidget::pixelRatio() const
 {
-#if QT_VERSION >= 0x050600
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     return devicePixelRatioF();
 #else
     return devicePixelRatio();

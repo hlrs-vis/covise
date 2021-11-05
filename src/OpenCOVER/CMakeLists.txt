@@ -83,7 +83,7 @@ else()
 
    set(CMAKE_INSTALL_PREFIX "${COVISE_INSTALL_PREFIX}")
 
-   INCLUDE(Qt4-5)
+   INCLUDE(Qt5-6)
    find_qt()
 endif()
 

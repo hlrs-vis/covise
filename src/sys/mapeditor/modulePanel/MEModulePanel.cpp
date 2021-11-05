@@ -69,7 +69,7 @@ void MEModulePanel::init()
 
     // make the main layout for this windows
     QVBoxLayout *main = new QVBoxLayout();
-    main->setMargin(2);
+    main->setContentsMargins(2, 2, 2, 2);
     main->setSpacing(2);
 
     // make a scrollview main window that contains a tabwidget

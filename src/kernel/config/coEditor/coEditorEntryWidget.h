@@ -9,6 +9,7 @@
 #define ENTRYWIDGET
 
 #include <QWidget>
+#include <QRegularExpression>
 #include <config/coConfigEntry.h>
 //the observer
 // #include "config/coConfigEditorEntry.h"
@@ -64,7 +65,7 @@ private:
                             const QString &attributeDescription = QString(),
                             bool empty = false, bool required = false);
     void createQregXpValue(const QString &valueName, const QString &value,
-                           const QRegExp &rx = QRegExp("^.*"),
+                           const QRegularExpression &rx = QRegularExpression("^.*"),
                            const QString &readableAttrRule = QString(),
                            const QString &attributeDescription = QString(),
                            bool empty = false, bool required = false);

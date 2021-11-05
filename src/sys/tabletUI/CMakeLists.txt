@@ -23,7 +23,7 @@ ADD_COVISE_EXECUTABLE(tabletUI MACOSX_BUNDLE ${TUI_SOURCES} ${TUI_HEADERS} ${TUI
 qt_use_modules(tabletUI Xml UiTools Widgets Quick)
 
 if (COVISE_USE_WEBENGINE)
-  qt_use_modules(tabletUI Webengine WebEngineWidgets)
+  qt_use_modules(tabletUI WebEngine WebEngineWidgets)
   ADD_DEFINITIONS(-DUSE_WEBENGINE)
 endif()
 

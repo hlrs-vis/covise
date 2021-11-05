@@ -40,7 +40,7 @@ MEColorChooser::MEColorChooser(QWidget *parent)
     topLay->addWidget(gb);
 
     QGridLayout *grid = new QGridLayout();
-    grid->setMargin(2);
+    grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(2);
 
     // set the color picker rectangle
@@ -70,7 +70,7 @@ MEColorChooser::MEColorChooser(QWidget *parent)
     gb = new QGroupBox("Opacity", this);
     topLay->addWidget(gb);
     grid = new QGridLayout();
-    grid->setMargin(2);
+    grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(1);
 
     // set a kind of slider for alpha value
@@ -401,8 +401,8 @@ void MELuminanceSlider::paintEvent(QPaintEvent *)
     p.drawPixmap(1, coff, *pix);
     const QPalette &g = palette();
     qDrawShadePanel(&p, r, g, true);
-    p.setPen(g.foreground().color());
-    p.setBrush(g.foreground());
+    p.setPen(g.windowText().color());
+    p.setBrush(g.windowText());
     QPolygon a;
     int y = val2y(val);
     a.setPoints(3, w, y, w + 5, y + 5, w + 5, y - 5);
@@ -599,12 +599,12 @@ int MEAlphaSlider::val2y(int v)
 
 void MEAlphaSlider::mouseMoveEvent(QMouseEvent *m)
 {
-    setVal(y2val(m->y()));
+    setVal(y2val(m->pos().y()));
 }
 
 void MEAlphaSlider::mousePressEvent(QMouseEvent *m)
 {
-    setVal(y2val(m->y()));
+    setVal(y2val(m->pos().y()));
 }
 
 void MEAlphaSlider::mouseReleaseEvent(QMouseEvent *)
@@ -663,8 +663,8 @@ void MEAlphaSlider::paintEvent(QPaintEvent *)
     p.drawPixmap(1, coff, *pix);
     const QPalette &g = palette();
     qDrawShadePanel(&p, r, g, true);
-    p.setPen(g.foreground().color());
-    p.setBrush(g.foreground());
+    p.setPen(g.windowText().color());
+    p.setBrush(g.windowText());
     QPolygon a;
     int y = val2y(val);
     a.setPoints(3, w, y, w + 5, y + 5, w + 5, y - 5);

@@ -15,7 +15,7 @@ class MEApplication : public QApplication
 {
     Q_OBJECT
 public:
-    MEApplication(int &argc, char *argv[]);
+    MEApplication(int &argc, char **argv);
 
 protected:
     bool event(QEvent *);

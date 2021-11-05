@@ -22,7 +22,7 @@ TUIAnnotationTab::TUIAnnotationTab(int id, int type, QWidget *w, int parent, QSt
 
     gridLayout = new QGridLayout(frame);
     gridLayout->setSpacing(6);
-    gridLayout->setMargin(9);
+    gridLayout->setContentsMargins(9, 9, 9, 9);
     gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
 
     groupBoxCurrent = new QGroupBox(w);
@@ -43,7 +43,7 @@ TUIAnnotationTab::TUIAnnotationTab(int id, int type, QWidget *w, int parent, QSt
 
     gridLayout1 = new QGridLayout(groupBoxCurrent);
     gridLayout1->setSpacing(6);
-    gridLayout1->setMargin(6);
+    gridLayout1->setContentsMargins(6, 6, 6, 6);
     gridLayout1->setObjectName(QString::fromUtf8("gridLayout1"));
 
     sliderColor = new QSlider(groupBoxCurrent);
@@ -113,7 +113,7 @@ TUIAnnotationTab::TUIAnnotationTab(int id, int type, QWidget *w, int parent, QSt
 
     gridLayout2 = new QGridLayout(groupBoxAll);
     gridLayout2->setSpacing(6);
-    gridLayout2->setMargin(6);
+    gridLayout2->setContentsMargins(6, 6, 6, 6);
     gridLayout2->setObjectName(QString::fromUtf8("gridLayout2"));
 
     pushButtonDeleteAll = new QPushButton(groupBoxAll);

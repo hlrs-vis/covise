@@ -23,7 +23,7 @@
 */
 
 MEMaterialDisplay::MEMaterialDisplay(QWidget *parent)
-    : QGLWidget(parent)
+    : QOpenGLWidget(parent)
     , selected(false)
 {
     object = 0;
@@ -64,7 +64,7 @@ void MEMaterialDisplay::setValues(const QVector<float> &values)
 {
     data.clear();
     data = values;
-    updateGL();
+    update();
 }
 
 //!

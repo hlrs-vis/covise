@@ -17,9 +17,7 @@
 #include <QDialogButtonBox>
 #include <QMessageBox>
 
-#if QT_VERSION >= 0x040400
 #include <QFormLayout>
-#endif
 
 #include "MEDialogTools.h"
 #include "MEGraphicsView.h"
@@ -54,9 +52,6 @@ MERenameDialog::MERenameDialog(int mode, const QString &text, QWidget *parent)
 
     else // single
     {
-
-#if QT_VERSION >= 0x040400
-
         m_renameLineEdit = new QLineEdit();
         connect(m_renameLineEdit, SIGNAL(returnPressed()), this, SLOT(accepted()));
 
@@ -64,32 +59,6 @@ MERenameDialog::MERenameDialog(int mode, const QString &text, QWidget *parent)
         grid->addRow("Old title", new QLabel(text));
         grid->addRow("New title", m_renameLineEdit);
         box->addLayout(grid);
-
-#else
-
-        QGridLayout *grid = new QGridLayout();
-        box->addLayout(grid);
-
-        QLabel *label = new QLabel();
-        label->setText("Old title   ");
-        label->setFont(MEMainHandler::s_boldFont);
-        grid->addWidget(label, 0, 0);
-
-        m_renameLineEdit = new QLineEdit();
-        m_renameLineEdit->setReadOnly(true);
-        m_renameLineEdit->setText(text);
-        grid->addWidget(m_renameLineEdit, 0, 1);
-
-        label = new QLabel();
-        label->setText("New title   ");
-        label->setFont(MEMainHandler::s_boldFont);
-        grid->addWidget(label, 1, 0);
-
-        m_renameLineEdit = new QLineEdit();
-        grid->addWidget(m_renameLineEdit, 1, 1);
-        connect(m_renameLineEdit, SIGNAL(returnPressed()), this, SLOT(accepted()));
-
-#endif
     }
 
     QDialogButtonBox *bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

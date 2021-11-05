@@ -35,7 +35,7 @@ MEModuleParameter::MEModuleParameter(QWidget *parent, MENode *node)
 
     // create the main layout
     QVBoxLayout *main = new QVBoxLayout(m_main);
-    main->setMargin(2);
+    main->setContentsMargins(2, 2, 2, 2);
     main->setSpacing(2);
 
     // create an info line at the top containing module description

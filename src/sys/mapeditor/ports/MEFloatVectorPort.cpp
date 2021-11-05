@@ -13,7 +13,7 @@
 #include "MEMessageHandler.h"
 #include "nodes/MENode.h"
 
-;
+#include <qtutil/Qt5_15_deprecated.h>
 
 //------------------------------------------------------------------------
 //
@@ -65,7 +65,7 @@ void MEFloatVectorPort::textCB(const QString &)
         type = CONTROL;
 
     else
-        qCritical() << "did not find FloatVector line edit" << endl;
+        qCritical() << "did not find FloatVector line edit" << QT::endl;
 
 
     m_vector.clear();

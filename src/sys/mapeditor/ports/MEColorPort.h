@@ -9,10 +9,10 @@
 #define ME_COLORPORT_H
 
 #include <QVector>
+#include <QStringList>
 
 #include "ports/MEParameterPort.h"
 
-class QStringList;
 class QWidget;
 class QDialog;
 

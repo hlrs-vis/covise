@@ -10,7 +10,7 @@
 
 #include <QFileOpenEvent>
 
-MEApplication::MEApplication(int &argc, char *argv[])
+MEApplication::MEApplication(int &argc, char **argv)
     : QApplication(argc, argv)
 {
 }

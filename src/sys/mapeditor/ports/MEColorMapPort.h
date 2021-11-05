@@ -9,9 +9,9 @@
 #define ME_COLORMAPPORT_H
 
 #include <QVector>
+#include <QStringList>
 #include "ports/MEParameterPort.h"
 
-class QStringList;
 class QWidget;
 class QComboBox;
 class QDialog;

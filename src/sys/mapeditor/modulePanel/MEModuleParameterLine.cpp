@@ -48,13 +48,13 @@ MEModuleParameterLine::MEModuleParameterLine(MEParameterPort *port, QFrame *fram
     // m_textFrame contains for each port pixmaps & parameter name
     // m_container contains the widgets for a port parameter
     QVBoxLayout *vb1 = new QVBoxLayout(m_textFrame);
-    vb1->setMargin(2);
+    vb1->setContentsMargins(2, 2, 2, 2);
     vb1->setSpacing(2);
 
     // create layout for pixmaps and name
     QBoxLayout *hb1 = new QHBoxLayout();
     vb1->addLayout(hb1);
-    hb1->setMargin(2);
+    hb1->setContentsMargins(2, 2, 2, 2);
     hb1->setSpacing(2);
 
     // pinCol -- set pin pixmap

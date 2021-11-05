@@ -13,9 +13,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
-#if QT_VERSION >= 0x040400
 #include <QFormLayout>
-#endif
 #include <QGridLayout>
 #include <QStyleFactory>
 #include <QDialogButtonBox>
@@ -103,8 +101,6 @@ void MESessionSettings::initState()
     autoSaveTimeEdit->setText(QString::number(MEMainHandler::instance()->cfg_AutoSaveTime));
 }
 
-#if QT_VERSION >= 0x040400
-
 #define addSetting(type, widget, labeltext, tooltip) \
     do                                               \
     {                                                \
@@ -114,21 +110,6 @@ void MESessionSettings::initState()
         widget->setToolTip(tooltip);                 \
         grid->addRow(label, widget);                 \
     } while (0)
-
-#else
-
-#define addSetting(type, widget, labeltext, tooltip) \
-    do                                               \
-    {                                                \
-        QLabel *label = new QLabel(labeltext);       \
-        widget = new type();                         \
-        grid->addWidget(label, i, 0);                \
-        grid->addWidget(widget, i, 1);               \
-        label->setToolTip(tooltip);                  \
-        widget->setToolTip(tooltip);                 \
-    } while (0)
-
-#endif
 
 //!
 //! make a grid layout for setting options
@@ -141,11 +122,7 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
     container->setFont(MEMainHandler::s_boldFont);
     mainLayout->addWidget(container);
 
-#if QT_VERSION >= 0x040400
     QFormLayout *grid = new QFormLayout();
-#else
-    QGridLayout *grid = new QGridLayout();
-#endif
 
     int i = 0;
     addSetting(QComboBox, qtStyleComboBox, "Qt style",
@@ -176,11 +153,7 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
     container = new QGroupBox("Saving", this);
     container->setFont(MEMainHandler::s_boldFont);
     mainLayout->addWidget(container);
-#if QT_VERSION >= 0x040400
     grid = new QFormLayout();
-#else
-    grid = new QGridLayout();
-#endif
 
     i = 0;
     addSetting(QLineEdit, autoSaveTimeEdit, "Autosave interval",
@@ -191,11 +164,7 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
     container = new QGroupBox("Visual Programming", this);
     container->setFont(MEMainHandler::s_boldFont);
     mainLayout->addWidget(container);
-#if QT_VERSION >= 0x040400
     grid = new QFormLayout();
-#else
-    grid = new QGridLayout();
-#endif
 
     i = 0;
     addSetting(QCheckBox, hideUnusedModulesBox, "Hide unused modules",

@@ -60,13 +60,13 @@
 //========================================================
 // implement our own message handler
 //========================================================
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void debugMsgHandler(QtMsgType type, const QMessageLogContext &, const QString &message)
 #else
 void debugMsgHandler(QtMsgType type, const char *message)
 #endif
 {
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     const QString &msg = message;
 #else
     const QString msg(message);
@@ -108,7 +108,7 @@ void debugMsgHandler(QtMsgType type, const char *message)
         std::cerr << "Fatal: " << msg.toStdString() << std::endl;
         QMessageBox::critical(0, "Debug - Fatal", msg);
         break;
-#if QT_VERSION >= 0x050500
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     case QtInfoMsg:
         std::cerr << "Info: " << msg.toStdString() << std::endl;
         break;
@@ -135,14 +135,17 @@ int main(int argc, char **argv)
 {
     QT_REQUIRE_VERSION_PATCHED(argc, argv, "4.3.0")
     std::cerr << "starting mapeditor" << std::endl;
-    QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/telekom.pem"));
-    QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/dfn.pem"));
-    QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/uni-stuttgart.pem"));
+
+    auto sslconf = QSslConfiguration::defaultConfiguration();
+    sslconf.addCaCertificates(QSslCertificate::fromPath(":/certs/telekom.pem"));
+    sslconf.addCaCertificates(QSslCertificate::fromPath(":/certs/dfn.pem"));
+    sslconf.addCaCertificates(QSslCertificate::fromPath(":/certs/uni-stuttgart.pem"));
+    QSslConfiguration::setDefaultConfiguration(sslconf);
 
     covise::Socket::initialize();
 
     // start user interface process
-#if QT_VERSION >= 0x050600
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     MEApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 #endif
     MEApplication a(argc, argv);
@@ -157,7 +160,7 @@ int main(int argc, char **argv)
 #ifdef Q_OS_MAC
     a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 #endif
 
@@ -167,7 +170,7 @@ int main(int argc, char **argv)
     });
 
 // this has to be done after creating MEMainHandler - generateTitle depends on it
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     qInstallMessageHandler(debugMsgHandler);
 #else
     qInstallMsgHandler(debugMsgHandler);

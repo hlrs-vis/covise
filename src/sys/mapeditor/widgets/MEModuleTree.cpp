@@ -810,10 +810,10 @@ void MEModuleTree::contextMenuEvent(QContextMenuEvent *e)
 //!
 //! Only CopyAction allowed ! (seems to be a problem on MacOS only)
 //!
-void MEModuleTree::startDrag(Qt::DropActions /*supportedActions*/)
+void MEModuleTree::startDrag(Qt::DropActions supportedActions)
 {
     if (m_mainHandler->isMaster())
-        QAbstractItemView::startDrag(Qt::CopyAction);
+        QAbstractItemView::startDrag(supportedActions);
 }
 
 void MEModuleTree::dragEnterEvent(QDragEnterEvent *event)
@@ -993,18 +993,20 @@ bool OperationWaiter::wait(int limit)
 {
     m_done = false;
 
-    QTime t;
-    t.start();
-    while (!m_done && (limit < 0 || t.elapsed() < limit))
+    auto t = std::chrono::steady_clock::now();
+
+    while (!m_done && (limit < 0 || std::chrono::steady_clock::now()-t < std::chrono::milliseconds(limit)))
     {
         usleep(10000);
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
+    auto elapsed = std::chrono::steady_clock::now() - t;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
     if (m_done)
-        qDebug() << "operation finished successfully in" << t.elapsed() << "ms";
+        qDebug() << "operation finished successfully in" << ms.count() << "ms";
     else
-        qDebug() << "operation given up after" << t.elapsed() << "ms";
+        qDebug() << "operation given up after" << ms.count() << "ms";
 
     return m_done;
 }

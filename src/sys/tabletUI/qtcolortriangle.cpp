@@ -1783,7 +1783,7 @@ void ColorDisplay::setColor(const QColor &col)
     c = col;
 
     QString s;
-    s.sprintf("#%02x%02x%02x", c.red(), c.green(), c.blue());
+    s.asprintf("#%02x%02x%02x", c.red(), c.green(), c.blue());
     setToolTip(s);
 
     update();

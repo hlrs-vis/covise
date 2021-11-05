@@ -12,6 +12,8 @@
 #include <QDialogButtonBox>
 #include <QAction>
 #include <QDebug>
+#include <QRegularExpression>
+#include <qtutil/Qt5_15_deprecated.h>
 
 #include "MEColorMapPort.h"
 #include "MELineEdit.h"
@@ -175,7 +177,7 @@ void MEColorMapPort::modifyParam(QStringList list, int noOfValues, int istart)
                 m_colorMap->updateMax(list[istart + 1].toFloat());
             }
             else
-                qWarning() << "Invalid ColorMap description " << list[istart + 2] << endl;
+                qWarning() << "Invalid ColorMap description " << list[istart + 2] << QT::endl;
         }
 
         else if (list[istart + 2] == "RGBAX")
@@ -198,7 +200,7 @@ void MEColorMapPort::modifyParam(QStringList list, int noOfValues, int istart)
             {
                 for (int i = 0; i < cmapSteps; i++)
                 {
-                    QStringList item = list[istart + 4 + i].split(QRegExp("\\s+"), SplitBehaviorFlags::SkipEmptyParts);
+                    QStringList item = list[istart + 4 + i].split(QRegularExpression("\\s+"), SplitBehaviorFlags::SkipEmptyParts);
                     for (int j = 0; j < 5; j++)
                     {
                         if (j < item.count())
@@ -348,7 +350,7 @@ void MEColorMapPort::makeLayout(layoutType type, QWidget *container)
 
     //create a vertical layout for 2 rows
     QVBoxLayout *vb = new QVBoxLayout(container);
-    vb->setMargin(1);
+    vb->setContentsMargins(1, 1, 1, 1);
     vb->setSpacing(1);
 
     // create first container widgets
@@ -357,7 +359,7 @@ void MEColorMapPort::makeLayout(layoutType type, QWidget *container)
 
     // create for each widget a horizontal layout
     QHBoxLayout *controlBox = new QHBoxLayout(w1);
-    controlBox->setMargin(2);
+    controlBox->setContentsMargins(2, 2, 2, 2);
     controlBox->setSpacing(2);
 
     // add filder pixmap

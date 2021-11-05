@@ -14,7 +14,7 @@ class QtOsgWidget: public QOpenGLWidget
     Q_OBJECT
 
 public:
-#ifdef QT_5_DEPRECATED
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     QtOsgWidget(QWidget* parent=nullptr, Qt::WindowFlags f={});
 #else
     QtOsgWidget(QWidget* parent=nullptr, Qt::WindowFlags f=0);

@@ -166,7 +166,7 @@ void TUIFunctionEditorTab::make1DEditor()
 
     gb = new QGroupBox("RGB-Alpha Table", widget);
     QGridLayout *grid = new QGridLayout();
-    grid->setMargin(2);
+    grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(0);
 
     // Set up our command bar
@@ -184,7 +184,7 @@ void TUIFunctionEditorTab::make1DEditor()
     chkOwnColor = NULL;
 
     QHBoxLayout *editorCmdLayout = new QHBoxLayout();
-    editorCmdLayout->setMargin(2);
+    editorCmdLayout->setContentsMargins(2, 2, 2, 2);
     editorCmdLayout->setSpacing(2);
     editorCmdLayout->addWidget(drawAlphaFree);
     editorCmdLayout->addWidget(eraseAlphaFree);
@@ -227,7 +227,7 @@ void TUIFunctionEditorTab::make2DEditor()
 
     gb = new QGroupBox("RGB-Alpha Table", widget);
     QGridLayout *grid = new QGridLayout();
-    grid->setMargin(2);
+    grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(0);
 
     // Set up our command bar
@@ -314,7 +314,7 @@ void TUIFunctionEditorTab::make2DEditor()
     paintCmdLayout->addWidget(chkOwnColor);
 
     QVBoxLayout *editorCmdLayout = new QVBoxLayout();
-    editorCmdLayout->setMargin(2);
+    editorCmdLayout->setContentsMargins(2, 2, 2, 2);
     editorCmdLayout->setSpacing(2);
     editorCmdLayout->addLayout(backCmdLayout);
     editorCmdLayout->addSpacing(3);
@@ -389,7 +389,7 @@ void TUIFunctionEditorTab::makeEditor()
 {
     // set main layout
     mainLayout = new QVBoxLayout();
-    mainLayout->setMargin(2);
+    mainLayout->setContentsMargins(2, 2, 2, 2);
     mainLayout->setSpacing(2);
 
     // add the color chooser
@@ -563,7 +563,7 @@ void TUIFunctionEditorTab::makeToolbar()
     QWidget *w = new QWidget(widget);
 
     QHBoxLayout *box = new QHBoxLayout(w);
-    box->setMargin(1);
+    box->setContentsMargins(1, 1, 1, 1);
     box->setSpacing(1);
 
     // create some buttons
@@ -852,7 +852,7 @@ void TUIHistogram::paintEvent(QPaintEvent *e)
     float fx = float(width() / (cmax - cmin));
     qreal start = (m_fmin - cmin) * fx;
     qreal end = (m_fmax - cmin) * fx;
-    p.fillRect(QRectF(start, 0, end - start, height()), palette().brush(QPalette::Background));
+    p.fillRect(QRectF(start, 0, end - start, height()), palette().brush(QPalette::Window));
 
     if (m_data)
     {

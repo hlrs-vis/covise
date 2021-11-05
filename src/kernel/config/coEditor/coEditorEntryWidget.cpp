@@ -132,7 +132,7 @@ void coEditorEntryWidget::createConstruct()
     entryWidgetLayout = new QVBoxLayout;
     entryWidgetLayout->setObjectName(QString::fromUtf8("entryWidgetLayout"));
     entryWidgetLayout->setSpacing(1);
-    entryWidgetLayout->setMargin(1);
+    entryWidgetLayout->setContentsMargins(1, 1, 1, 1);
     valuesOfEntryGroup->setLayout(entryWidgetLayout);
 
     QVBoxLayout *entryWidgetMainLayout = new QVBoxLayout;
@@ -140,7 +140,7 @@ void coEditorEntryWidget::createConstruct()
     entryWidgetMainLayout->addWidget(valuesOfEntryGroup);
     entryWidgetMainLayout->insertStretch(1, 2);
     entryWidgetMainLayout->setSpacing(3);
-    entryWidgetMainLayout->setMargin(2);
+    entryWidgetMainLayout->setContentsMargins(2, 2, 2, 2);
     setLayout(entryWidgetMainLayout);
 
     deleteAction = new QAction(tr("Delete this entry, with all its values ?"), this);
@@ -158,7 +158,7 @@ void coEditorEntryWidget::createConstruct()
 // get data from entry, call then fitting function to display
 void coEditorEntryWidget::examineEntry()
 {
-    QRegExp rx;
+    QRegularExpression rx;
     QString value, attrDescription, attrReadableRule, attrDefaultValue;
     bool infoWidget = 0;
 
@@ -220,7 +220,7 @@ void coEditorEntryWidget::examineEntry()
             }
             else
             {
-                if (rx.isEmpty() || !rx.isValid())
+                if (rx.pattern().isEmpty() || !rx.isValid())
                 {
                     //warn no RegExp from schema
                     rx.setPattern("^.*");
@@ -246,7 +246,7 @@ void coEditorEntryWidget::examineEntry()
 }
 
 void coEditorEntryWidget::createQregXpValue(const QString &valueName, const QString &value,
-                                            const QRegExp &rx, const QString &readableAttrRule,
+                                            const QRegularExpression &rx, const QString &readableAttrRule,
                                             const QString &attributeDescription,
                                             bool empty, bool required)
 {

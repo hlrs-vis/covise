@@ -9,8 +9,8 @@
 #define ME_PREFERENCE_H
 
 #include <QFrame>
+#include <QStringList>
 
-class QStringList;
 class QCheckBox;
 class QComboBox;
 

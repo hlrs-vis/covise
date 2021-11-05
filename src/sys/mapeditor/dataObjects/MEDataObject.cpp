@@ -8,9 +8,7 @@
 
 
 #include <QPushButton>
-#if QT_VERSION >= 0x040400
 #include <QFormLayout>
-#endif
 #include <QGridLayout>
 #include <QLabel>
 #include <QGroupBox>
@@ -319,88 +317,88 @@ bool MEDataObject::getDataObjectPointer(int i)
     switch (m_dataObjectInfo[i].type)
     {
     case covise::CHARSHM:
-        typeBuffer.sprintf("%c", *(char *)m_dataObjectInfo[i].ptr);
-        valueBuffer.sprintf("char");
+        typeBuffer.asprintf("%c", *(char *)m_dataObjectInfo[i].ptr);
+        valueBuffer.asprintf("char");
         break;
     case covise::SHORTSHM:
-        typeBuffer.sprintf("%d", *(short *)m_dataObjectInfo[i].ptr);
-        valueBuffer.sprintf("short");
+        typeBuffer.asprintf("%d", *(short *)m_dataObjectInfo[i].ptr);
+        valueBuffer.asprintf("short");
         break;
     case covise::INTSHM:
-        typeBuffer.sprintf("%d", *(int *)m_dataObjectInfo[i].ptr);
-        valueBuffer.sprintf("int");
+        typeBuffer.asprintf("%d", *(int *)m_dataObjectInfo[i].ptr);
+        valueBuffer.asprintf("int");
         break;
     case covise::LONGSHM:
-        typeBuffer.sprintf("%ld", *(long *)m_dataObjectInfo[i].ptr);
-        valueBuffer.sprintf("long");
+        typeBuffer.asprintf("%ld", *(long *)m_dataObjectInfo[i].ptr);
+        valueBuffer.asprintf("long");
         break;
     case covise::FLOATSHM:
-        typeBuffer.sprintf("%#f", *(float *)m_dataObjectInfo[i].ptr);
-        valueBuffer.sprintf("float");
+        typeBuffer.asprintf("%#f", *(float *)m_dataObjectInfo[i].ptr);
+        valueBuffer.asprintf("float");
         break;
     case covise::DOUBLESHM:
-        typeBuffer.sprintf("%#E", *(double *)m_dataObjectInfo[i].ptr);
-        valueBuffer.sprintf("double");
+        typeBuffer.asprintf("%#E", *(double *)m_dataObjectInfo[i].ptr);
+        valueBuffer.asprintf("double");
         break;
     case covise::CHARSHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length (-1 for 64-bit workaround)
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("char[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("char[]");
         haveChildren = 1;
         break;
     case covise::SHORTSHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("short[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("short[]");
         haveChildren = true;
         break;
     case covise::INTSHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("int[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("int[]");
         haveChildren = true;
         break;
     case covise::LONGSHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("long[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("long[]");
         haveChildren = true;
         break;
     case covise::FLOATSHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("float[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("float[]");
         haveChildren = true;
         break;
     case covise::DOUBLESHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("double[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("double[]");
         haveChildren = true;
         break;
     case covise::STRINGSHMARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("string[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("string[]");
         haveChildren = true;
         break;
     case covise::SHMPTRARRAY:
         m_dataPointer = (int *)m_dataObjectInfo[i].ptr;
         // length
-        typeBuffer.sprintf("%d", m_dataPointer[1] - 1);
-        valueBuffer.sprintf("shm[]");
+        typeBuffer.asprintf("%d", m_dataPointer[1] - 1);
+        valueBuffer.asprintf("shm[]");
         haveChildren = true;
         break;
     default:
-        typeBuffer.sprintf("%s", m_dataObjectInfo[i].type_name);
-        valueBuffer.sprintf("shm[]");
+        typeBuffer.asprintf("%s", m_dataObjectInfo[i].type_name);
+        valueBuffer.asprintf("shm[]");
         break;
     }
     return haveChildren;

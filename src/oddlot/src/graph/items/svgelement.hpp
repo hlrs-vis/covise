@@ -17,7 +17,7 @@
 #define SVGElement_HPP
 
 
-#include <QtSvg/QGraphicsSvgItem>
+#include <QGraphicsSvgItem>
 #include "src/graph/items/basegraphelement.hpp"
 
 

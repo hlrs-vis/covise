@@ -11,6 +11,7 @@
 #include <util/coTypes.h>
 #include <QTextStream>
 #include <qtutil/Qt5_15_deprecated.h>
+
 namespace covise
 {
 

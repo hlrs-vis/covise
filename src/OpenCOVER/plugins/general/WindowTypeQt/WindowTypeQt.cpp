@@ -40,6 +40,7 @@
 #include <QMessageBox>
 #include <QDialog>
 #include <QWindow>
+#include <QFile>
 
 #include "ui_AboutDialog.h"
 
@@ -164,7 +165,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
         //qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
-#if QT_VERSION >= 0x050800
+#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
         qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
 #endif
 #ifdef __APPLE__
@@ -247,7 +248,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     {
         toolbar = new QToolBar("Toolbar", win.window);
         toolbar->layout()->setSpacing(2);
-        toolbar->layout()->setMargin(0);
+        toolbar->layout()->setContentsMargins(0, 0, 0, 0);
         win.window->addToolBar(toolbar);
         toolbar->show();
         window->addContextAction(toolbar->toggleViewAction());
@@ -317,7 +318,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
 
-#if QT_VERSION >= 0x050A00
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     bool found = false;
     bool sRGB = covise::coCoviseConfig::isOn("srgb", "COVER.Framebuffer", false, &found);
     if (!found)
@@ -330,7 +331,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #endif
     QSurfaceFormat::setDefaultFormat(format);
     win.widget = new QtOsgWidget(win.window);
-#if QT_VERSION >= 0x050A00
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     if (sRGB)
     {
         win.widget->setTextureFormat(GL_SRGB8_ALPHA8);

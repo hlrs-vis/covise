@@ -23,7 +23,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-#ifdef QT_5_DEPRECATED
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags{});
 #else
     MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);

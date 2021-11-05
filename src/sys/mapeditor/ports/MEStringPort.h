@@ -10,7 +10,8 @@
 
 #include "ports/MEParameterPort.h"
 
-class QStringList;
+#include <QStringList>
+
 class QString;
 class QWidget;
 

@@ -201,7 +201,7 @@ void MEFileBrowser::makeLastLine()
     // main horizontal container layout
     QHBoxLayout *box = new QHBoxLayout();
     mainLayout->addLayout(box);
-    box->setMargin(2);
+    box->setContentsMargins(2, 2, 2, 2);
     box->setSpacing(2);
 
     // filename input field
@@ -218,7 +218,7 @@ void MEFileBrowser::makeLastLine()
     m_fileBox->setLineEdit(new LineEdit);
     m_fileBox->setFocusPolicy(Qt::StrongFocus);
     m_fileBox->setFocus();
-    connect(m_fileBox, SIGNAL(activated(const QString &)), this, SLOT(historyCB(const QString &)));
+    connect(m_fileBox, SIGNAL(textActivated(const QString &)), this, SLOT(historyCB(const QString &)));
     box->addWidget(m_fileBox, 1);
 
     l->setFocusProxy(m_fileBox);
@@ -227,7 +227,7 @@ void MEFileBrowser::makeLastLine()
     //----------------------------------------------------
     box = new QHBoxLayout();
     mainLayout->addLayout(box);
-    box->setMargin(2);
+    box->setContentsMargins(2, 2, 2, 2);
     box->setSpacing(2);
 
     // filter input field
@@ -241,7 +241,7 @@ void MEFileBrowser::makeLastLine()
     filter->setEditable(true);
     filter->setInsertPolicy(QComboBox::InsertAtTop);
     filter->setLineEdit(new LineEdit);
-    connect(filter, SIGNAL(activated(const QString &)), this, SLOT(filterCB(const QString &)));
+    connect(filter, SIGNAL(textActivated(const QString &)), this, SLOT(filterCB(const QString &)));
     box->addWidget(filter, 1);
 
     l->setFocusProxy(filter);
@@ -266,7 +266,7 @@ void MEFileBrowser::makeExplorer()
     QWidget *w1 = new QWidget();
     split->addWidget(w1);
     QVBoxLayout *l1 = new QVBoxLayout(w1);
-    l1->setMargin(2);
+    l1->setContentsMargins(2, 2, 2, 2);
     l1->setSpacing(2);
 
     QLabel *label = new QLabel("Directory List", w1);
@@ -287,7 +287,7 @@ void MEFileBrowser::makeExplorer()
     QWidget *w2 = new QWidget();
     split->addWidget(w2);
     QVBoxLayout *l2 = new QVBoxLayout(w2);
-    l2->setMargin(2);
+    l2->setContentsMargins(2, 2, 2, 2);
     l2->setSpacing(2);
 
     label = new QLabel("File List", w2);
@@ -1198,7 +1198,7 @@ myPathLabel::myPathLabel(const QString &text, QWidget *parent)
 {
     setFrameStyle(QFrame::Panel | QFrame::Raised);
     setLineWidth(1);
-    setMargin(4);
+    setContentsMargins(4, 4, 4, 4);
     setFocusPolicy(Qt::NoFocus);
     setAutoFillBackground(true);
 }

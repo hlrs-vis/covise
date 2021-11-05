@@ -162,7 +162,7 @@ void coEditorMainWindow::createConstruct()
                               " the statusBar at the bottom of this window will show information for the rules\n"
                               " of the item the mouse is over.\n"));
 
-    startLayout->setMargin(10);
+    startLayout->setContentsMargins(10, 10, 10, 10);
     startLayout->addWidget(startLineEdit);
     stackedCenterWidget->addWidget(startScreen);
     stackedCenterWidget->setCurrentWidget(startScreen);
@@ -422,10 +422,10 @@ void coEditorMainWindow::createActions()
       connect(changeConfigScopeAct , SIGNAL(triggered()), this, SLOT(initEmpty()));
    */
 
-    connect(hostsComboBox, SIGNAL(activated(const QString &)),
+    connect(hostsComboBox, SIGNAL(textActivated(const QString &)),
             this, SLOT(changeHost(const QString &)));
 
-    connect(archComboBox, SIGNAL(activated(const QString &)),
+    connect(archComboBox, SIGNAL(textActivated(const QString &)),
             this, SLOT(changeArch(const QString &)));
 
     addHostAct = new QAction(QIcon(":/images/add.png"), tr("Add a new Host"), this);
@@ -523,7 +523,7 @@ void coEditorMainWindow::addFile(const QString &fileName)
 void coEditorMainWindow::informcoEditorGroupWidgets(const QString &hostName)
 {
     QString lookup = hostName; // gruppenobjectName = Host:GroupName
-    QRegExp rx(hostName + ".*");
+    QRegularExpression rx(hostName + ".*");
     // find all coEditorGroupWidgets for this host
     QList<coEditorGroupWidget *> searchedGroups = stackedCenterWidget->findChildren<coEditorGroupWidget *>(rx);
     if (!searchedGroups.isEmpty())

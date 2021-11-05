@@ -10,12 +10,13 @@
 
 #include "ports/MEPort.h"
 
+#include <QStringList>
+
 namespace covise
 {
 class coDistributedObject;
 }
 
-class QStringList;
 class QColor;
 class QString;
 class QWidget;

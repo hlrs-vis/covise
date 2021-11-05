@@ -154,7 +154,7 @@ MACRO(COVISE_FIND_PACKAGE package)
 ENDMACRO(COVISE_FIND_PACKAGE PACKAGE)
 
 include(FindPackageHandleStandardArgs)
-include(Qt4-5)
+include(Qt5-6)
 include(CoviseHelperMacros)
 
 covise_find_boost()

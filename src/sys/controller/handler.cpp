@@ -67,11 +67,7 @@ std::string autosaveFile()
 #else
     file += "/.covise";
 #endif
-#if QT_VERSION < 0x040400
-    pid_t pid = getpid();
-#else
     qint64 pid = QCoreApplication::applicationPid();
-#endif
     file += "/autosave-" + QString(Host().getAddress()) + "-" + QString::number(pid) + ".net";
     return file.toStdString();
 }
