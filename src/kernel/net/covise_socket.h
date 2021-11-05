@@ -8,6 +8,7 @@
 #ifndef EC_SOCKET_H
 #define EC_SOCKET_H
 #include <iostream>
+#include <mutex>
 
 #include <errno.h>
 #include <math.h>
@@ -127,6 +128,7 @@ class SSLServerConnection;
 class NETEXPORT Socket
 {
 protected:
+    static std::mutex mutex;
     static int stport;
     static char **ip_alias_list;
     static Host **host_alias_list;

@@ -107,6 +107,7 @@ Initial revision
 
 using namespace covise;
 
+std::mutex Socket::mutex;
 int Socket::stport = 31000;
 char **Socket::ip_alias_list = NULL;
 Host **Socket::host_alias_list = NULL;
@@ -166,6 +167,7 @@ FirewallConfig *FirewallConfig::the()
 void Socket::initialize()
 {
 #ifdef _WIN32
+    std::unique_lock<std::mutex> guard(mutex);
     if (!bInitialised)
     {
         int err;
@@ -183,6 +185,7 @@ void Socket::initialize()
 void Socket::uninitialize()
 {
 #ifdef _WIN32
+    std::unique_lock<std::mutex> guard(mutex);
     if (bInitialised)
     {
         int err;
@@ -196,8 +199,6 @@ Socket::Socket(int, int sfd)
 {
     sock_id = sfd;
     host = NULL;
-    ip_alias_list = NULL;
-    host_alias_list = NULL;
     port = 0;
     this->connected = true;
 }
@@ -212,8 +213,6 @@ Socket::Socket(int socket_id, sockaddr_in *sockaddr)
 		buf[0] = '\0';
 	}
 	host = new Host(buf);
-    ip_alias_list = NULL;
-    host_alias_list = NULL;
     port = ntohs(sockaddr->sin_port);
     this->connected = true;
 }
@@ -531,6 +530,7 @@ Socket::Socket(int *p)
 
     setTCPOptions();
 
+    std::unique_lock<std::mutex> guard(mutex);
     memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
     s_addr_in.sin_family = AF_INET;
     s_addr_in.sin_addr.s_addr = INADDR_ANY;
@@ -582,6 +582,7 @@ Socket::Socket(int *p)
     }
     *p = port = ntohs(s_addr_in.sin_port);
     stport++;
+    guard.unlock();
 #ifdef DEBUG
     fprintf(stderr, "bind succeeded: port=%d, addr=0x%08x\n", *p, s_addr_in.sin_addr.s_addr);
 #endif
@@ -1054,6 +1055,7 @@ Host *Socket::get_ip_alias(const Host *test_host)
     const char *hostname, *aliasname;
     const char *th_address;
 
+    std::unique_lock<std::mutex> guard(mutex);
     if (ip_alias_list == NULL)
     {
         // get Network entries IpAlias
@@ -1115,6 +1117,8 @@ Host *Socket::get_ip_alias(const Host *test_host)
         host_alias_list[count] = NULL;
         //delete[] alias_list;
     }
+    guard.unlock();
+
     th_address = test_host->getAddress();
     j = 0;
     //    cerr << "looking for matches\n";
