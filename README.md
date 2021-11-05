@@ -232,6 +232,12 @@ No installation is required: you can use COVISE directly from the build tree.
       source .covise.sh #set environment variables
       COVISE_CMAKE_OPTIONS=-DCOVISE_BUILD_ONLY_COVER=ON make #invoke cmake with provided options followed by make
 
+### Building only OddLOT
+
+      cd covise
+      source .covise.sh #set environment variables
+      COVISE_CMAKE_OPTIONS=-DCOVISE_BUILD_ONLY_ODDLOT=ON make #invoke cmake with provided options followed by make
+
 Building on Windows
 -------------------
 Also on Windows, you should work from a command prompt:
