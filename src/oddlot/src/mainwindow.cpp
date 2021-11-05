@@ -45,6 +45,7 @@
 #include <QToolBox>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QHBoxLayout>
 
 // Utils //
 //
@@ -90,7 +91,6 @@ MainWindow::MainWindow(QWidget *parent)
     createMdiArea();
     createTree();
     createSettings();
-    createParameterSettings();
 
     //createFileSettings();
 
@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
     createErrorMessageTab();
     createPrototypes();
     createTools();
+    createParameterSettings();
     createSignals();
     createWizards();
 
@@ -607,7 +608,16 @@ MainWindow::createTools()
     ribbonToolDockToggleAction->setStatusTip(tr("Show/hide the ribbon."));
     viewMenu_->addAction(ribbonToolDockToggleAction);
 
-    ribbonToolDock_->setWidget(toolManager_->getRibbonWidget());
+    dockAreaWidget_ = new QMainWindow;
+    dockAreaWidget_->setWindowFlags(Qt::Widget);
+    dockAreaWidget_->setMinimumSize(50,100);
+
+    QWidget* RobbonContainer = new QWidget;
+    QHBoxLayout* layout = new QHBoxLayout(RobbonContainer);
+    layout->addWidget(toolManager_->getRibbonWidget());
+    layout->addWidget(dockAreaWidget_);
+    layout->setStretchFactor(dockAreaWidget_, 10);
+    ribbonToolDock_->setWidget(RobbonContainer);
 
 }
 
@@ -687,7 +697,7 @@ MainWindow::createParameterSettings()
     parameterDialog_->setMinimumWidth(200);
     parameterDialog_->setMinimumHeight(152);
 
-    addDockWidget(Qt::RightDockWidgetArea, parameterDialog_);
+    dockAreaWidget_->addDockWidget(Qt::RightDockWidgetArea, parameterDialog_);
 
     // Show/Hide Action //
     //

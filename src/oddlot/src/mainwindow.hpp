@@ -378,7 +378,7 @@ private:
     QDockWidget *settingsDock_;
     QWidget *emptySettingsWidget_;
 
-
+    QMainWindow* dockAreaWidget_=nullptr;
     // StatusBar //
     //
     QLabel *locationLabel_;
