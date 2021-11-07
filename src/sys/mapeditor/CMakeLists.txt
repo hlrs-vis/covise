@@ -175,16 +175,6 @@ SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
   covise/MERemotePartner.h)
 
 
-if(COVISE_USE_QT4)
-   SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
-      widgets/METextBrowser.h
-   )
-   SET(MAPEDITOR_SOURCES ${MAPEDITOR_SOURCES}
-      widgets/METextBrowser.cpp
-   )
-   ADD_DEFINITIONS(-DUSE_TEXTBROWSER)
-endif()
-
 if (COVISE_USE_WEBENGINE)
    SET(MAPEDITOR_MOC_HEADERS ${MAPEDITOR_MOC_HEADERS}
      widgets/MEWebEnginePage.h
@@ -245,14 +235,6 @@ endif()
 if(Qt5Positioning_FOUND)
   qt_use_modules(${TARGETNAME} Positioning Location)
 endif(Qt5Positioning_FOUND)
-if(COVISE_USE_QT4)
-   IF(QT_QTWEBKIT_FOUND)
-      ADD_DEFINITIONS(-DQT_WEBKIT)
-      SET(QT_USE_QTWEBKIT 1)
-   else()
-      MESSAGE("Not building support for downloading docs from web server: no QtWebKit found")
-   ENDIF()
-endif()
 
 IF(APPLE)
    SET_TARGET_PROPERTIES(${TARGETNAME} PROPERTIES OUTPUT_NAME "COVISE")

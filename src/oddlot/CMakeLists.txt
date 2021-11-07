@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 2.6...3.1)
 #project (oddlot)
 
-#OPTION(COVISE_USE_QT4 "Use Qt 4" OFF)
-
 #SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../../cmake;${CMAKE_MODULE_PATH}")
 
 #IF(WIN32)
