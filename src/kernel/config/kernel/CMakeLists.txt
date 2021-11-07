@@ -26,7 +26,6 @@ SET(CONFIG_SOURCES
   coConfigString.cpp
   coConfigFloat.cpp
   coConfigInt.cpp
-  coConfigImportReader.cpp
   coConfigLong.cpp
   CoviseConfig.cpp
   coConfigSchema.cpp
@@ -52,7 +51,6 @@ SET(CONFIG_DEV_HEADERS
   ../coConfigEntryToEditor.h
   ../coConfigFloat.h
   ../coConfigGroup.h
-  ../coConfigImportReader.h
   ../coConfigInt.h
   ../coConfigLog.h
   ../coConfigLong.h

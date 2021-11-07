@@ -20,7 +20,6 @@ set(CONFIG_HEADERS
     coConfigFloat.h
     coConfigGroup.h
     coConfig.h
-    coConfigImportReader.h
     coConfigInt.h
     coConfigLog.h
     coConfigLong.h
