@@ -33,7 +33,7 @@ private:
 	int mNumVar;
 	std::vector<std::string> mVarNames;
 	std::vector<Zone> mZones;
-	std::auto_ptr<Impl> pimpl;
+	std::unique_ptr<Impl> pimpl;
 };
 
 MeshBaseVec Read(std::string const & iFile, std::string const & iZoneRindList);

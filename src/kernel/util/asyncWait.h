@@ -17,6 +17,7 @@ namespace covise
 class AsyncWaitInterface
 {
 public:
+    virtual ~AsyncWaitInterface() = default;
     virtual bool operator()() = 0;
     virtual void wait() = 0;
     virtual void remove() = 0;

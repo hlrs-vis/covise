@@ -222,14 +222,6 @@ Transform::useTransformAttribute(const coDistributedObject *inGeo)
     delete[] value;
 }
 
-struct IsSpace : public std::unary_function<char, bool>
-{
-    bool operator()(const char &c) const
-    {
-        return (isspace(c) != 0);
-    }
-};
-
 static void
 EliminateTrailingSpaces(char *buf)
 {
@@ -237,7 +229,7 @@ EliminateTrailingSpaces(char *buf)
         return;
     string loc_buf(buf);
     string::reverse_iterator ri(std::find_if(loc_buf.rbegin(), loc_buf.rend(),
-                                             std::not1(IsSpace())));
+                                             [](const char c){return !std::isspace(c);}));
     string::iterator it(ri.base());
     string correct_buf(loc_buf.begin(), it);
     strcpy(buf, correct_buf.c_str());

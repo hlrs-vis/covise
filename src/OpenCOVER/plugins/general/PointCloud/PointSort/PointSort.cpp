@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <vector>
 #include <algorithm>
+#include <random>
 #include <map>
 #include <stdint.h>
 #include <osg/Matrix>
@@ -656,7 +657,7 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
     // randomize all the data
     // needed to distribute points in grid cell equally in vector<> for filtering
     //std::random_shuffle(vec.begin(), vec.end());
-    alg::random_shuffle(vec.begin(), vec.end());
+    alg::shuffle(vec.begin(), vec.end(), std::default_random_engine(1));
 
     // sort data
     //std::sort(vec.begin(), vec.end(), sortfunction);
