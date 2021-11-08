@@ -281,11 +281,10 @@ namespace tcpip
 			//"Address already in use" error protection
 			{
 
+				int reuseaddr = 1;
 				#ifdef WIN32
-					//setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuseaddr, sizeof(reuseaddr));
-					// No address reuse in Windows!!!
+					setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuseaddr, sizeof(reuseaddr));
 				#else
-    				int reuseaddr = 1;
 					setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
 				#endif
 			}

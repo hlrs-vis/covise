@@ -175,6 +175,9 @@ int UDPComm::openReceivePort(int portnumber)
     any_adr.sin_port = htons(portnumber);
     any_adr.sin_addr.s_addr = htonl(INADDR_ANY); // accept data from anyone
 
+    int reuseaddr = 1;
+    setsockopt(d_rsocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuseaddr, sizeof(reuseaddr));
+
     // BIND TO A LOCAL PROTOCOL PORT
     //fprintf(stderr, "UDPComm:: d_rsocket %d\n", d_rsocket);
     if (bind(d_rsocket, (sockaddr *)&any_adr, sizeof(any_adr)) < 0)
