@@ -9,7 +9,11 @@
 
 # 2.8.7 is too old for identifying clang
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1...3.10)
-set (CMAKE_CXX_STANDARD 11) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
+if(APPLE)
+  set (CMAKE_CXX_STANDARD 17) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
+else()
+  set (CMAKE_CXX_STANDARD 11) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
+endif()
 set (CXX_STANDARD_REQUIRED ON) 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -171,8 +175,17 @@ endif()
 OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
+if(APPLE)
+    OPTION(COVISE_USE_QT5 "Use Qt 5" OFF)
+else()
+    OPTION(COVISE_USE_QT5 "Use Qt 5" ON)
+endif()
 IF(UNIX)
-  OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
+  IF(COVISE_USE_QT5)
+    OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
+  ELSE()
+    OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" OFF)
+  ENDIF()
 ELSE(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" OFF)
 ENDIF(UNIX)
@@ -206,11 +219,6 @@ else()
     OPTION(COVISE_USE_X11 "Use X11" ON)
 endif()
 
-if(APPLE)
-    OPTION(COVISE_USE_QT5 "Use Qt 5" OFF)
-else()
-    OPTION(COVISE_USE_QT5 "Use Qt 5" ON)
-endif()
 OPTION(COVISE_USE_OPENCV3 "Use OpenCV3" ON)
 OPTION(COVISE_USE_MERCURY "Use MERCURY" ON)
 
