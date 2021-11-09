@@ -26,6 +26,7 @@ SET(HEADERS
   EnFile.h
   MGeoFileAsc.h
   MGeoFileBin.h
+  MEnGoldMPGASC.h
   GeoFileAsc.h
   GeoFileBin.h
   GeomLexer.h
@@ -48,6 +49,7 @@ SET(SOURCES
   GeoFileBin.cpp
   MGeoFileAsc.cpp
   MGeoFileBin.cpp
+  MEnGoldMPGASC.cpp
   ReadEnsight.cpp
   Reducer.cpp
   AutoColors.cpp

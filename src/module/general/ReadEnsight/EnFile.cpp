@@ -28,6 +28,8 @@
 #include "EnGoldGeoBIN.h"
 #include "EnElement.h"
 #include "ReadEnsight.h"
+#include "MEnGoldMPGASC.h"
+
 
 #include <util/coviseCompat.h>
 #include <api/coModule.h>
@@ -56,8 +58,29 @@ EnFile::createGeometryFile(ReadEnsight *mod, const CaseFile &c, const string &fi
     EnFile::BinType binType(enf->binType());
     // Ensight version
     int version(c.getVersion());
+    const char* ending = strrchr(filename.c_str(), '.');
 
-    if (filename.length() >= 5 && strncasecmp(filename.c_str() + filename.length() - 5, ".mgeo", 5) == 0)
+
+    if (ending && strncasecmp(ending,".mpg",4) == 0)
+    {
+        // Ensight 6
+        if (version == CaseFile::gold)
+        {
+            switch (binType)
+            {
+            case EnFile::NOBIN:
+                // close file
+                delete enf;
+                enf = new MEnGoldMPGASC(mod, filename);
+                break;
+            case EnFile::UNKNOWN:
+                delete enf;
+                return NULL;
+                break;
+            }
+        }
+    }
+    else if (filename.length() >= 5 && strncasecmp(filename.c_str() + filename.length() - 5, ".mgeo", 5) == 0)
     {
         // Ensight 6
         if (version == CaseFile::v6)
