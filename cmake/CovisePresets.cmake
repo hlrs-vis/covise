@@ -170,14 +170,12 @@ IF(NOT COVISE_CONFIGURED_ONCE)
     IF(BASEARCHSUFFIX STREQUAL "leopard")
       SET(CMAKE_OSX_ARCHITECTURES "x86_64;i386" CACHE STRING "Build architectures for OSX" FORCE)
     ENDIF()
-
-    # work around bug in gfortran 4.2.1
-    SET (CMAKE_Fortran_FLAGS_DEBUG "-gdwarf-2" CACHE STRING "Flags used by the compiler during debug builds." FORCE)
-    SET (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O2 -gdwarf-2" CACHE STRING "Flags used by the compiler during Release with Debug Info builds." FORCE)
   ENDIF(APPLE)
 
-  # continue to support old fortran code with gnu fortran 8
-  SET (CMAKE_Fortran_FLAGS "-std=legacy" CACHE STRING "general fortran flags" FORCE)
+  IF(COVISE_USE_FORTRAN)
+    # continue to support old ortran code with gnu fortran 8
+    SET (CMAKE_Fortran_FLAGS "-std=legacy" CACHE STRING "general fortran flags" FORCE)
+  ENDIF()
 
   # IF(CMAKE_COMPILER_IS_GNUCXX)
   #   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -fno-omit-frame-pointer")
