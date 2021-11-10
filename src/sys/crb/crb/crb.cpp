@@ -566,13 +566,13 @@ int main(int argc, char* argv[])
                     execpath += std::string(covisedir) + "/" + archsuffix + "/bin/";
                 }
 #if defined(__APPLE__) && !defined(__USE_WS_X11__)
-                if (crbExec.name && !strcmp(crbExec.name, "mapeditor"))
+                if (crbExec.name() && !strcmp(crbExec.name(), "mapeditor"))
                 {
                     execpath += ("COVISE.app/Contents/MacOS/");
                     appName = "COVISE";
                     args[0] = (char*)appName;
                 }
-                if (crbExec.name && !strcmp(crbExec.name, "wsinterface"))
+                if (crbExec.name() && !strcmp(crbExec.name(), "wsinterface"))
                 {
                     execpath += ("wsinterface.app/Contents/MacOS/");
                 }
