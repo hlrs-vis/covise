@@ -2081,86 +2081,86 @@ void VolumePlugin::makeVolumeCurrent(VolumeMap::iterator it)
 
 void VolumePlugin::updateTFEData()
 {
-    if (editor)
+    if (!editor)
+        return;
+
+    if (currentVolume != volumes.end())
     {
-        if (currentVolume != volumes.end())
+        tfApplyCBData.volume = &currentVolume->second;
+        tfApplyCBData.drawable = currentVolume->second.drawable.get();
+        if (tfApplyCBData.drawable)
         {
-            tfApplyCBData.volume = &currentVolume->second;
-            tfApplyCBData.drawable = currentVolume->second.drawable.get();
-            if (tfApplyCBData.drawable)
+            vvVolDesc *vd = tfApplyCBData.drawable->getVolumeDescription();
+            if (vd)
             {
-                vvVolDesc *vd = tfApplyCBData.drawable->getVolumeDescription();
-                if (vd)
+                if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                 {
-                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
-                    {
-                        size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
-                        vvColor fg(1.0f, 1.0f, 1.0f);
-                        vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, 0,1);
-                        editor->updateBackground(&tfeBackgroundTexture[0]);
-                        editor->pinedit->setBackgroundType(0); // histogram
-                        editor->enableHistogram(true);
-                    }
-                    else
-                    {
-                        editor->enableHistogram(false);
-                    }
+                    size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
+                    vvColor fg(1.0f, 1.0f, 1.0f);
+                    vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, 0,1);
+                    editor->updateBackground(&tfeBackgroundTexture[0]);
+                    editor->pinedit->setBackgroundType(0); // histogram
+                    editor->enableHistogram(true);
+                }
+                else
+                {
+                    editor->enableHistogram(false);
+                }
 
-                    editor->setNumChannels(vd->getChan());
+                editor->setNumChannels(vd->getChan());
 
-                    editor->setTransferFuncs(currentVolume->second.tf);
-                    
-                    int objID = std::isdigit(currentVolume->first.c_str()[0]) ? currentVolume->first.c_str()[0] : -1;
-                    for (int c = 0; c < vd->getChan(); ++c)
-                    {
-                        editor->setActiveChannel(c);
-                        editor->setMin(objID > 0 ? minData[objID][c] : vd->range(c)[0]);
-                        editor->setMax(objID > 0 ? maxData[objID][c] : vd->range(c)[1]);
-                    }
+                editor->setTransferFuncs(currentVolume->second.tf);
+                
+                int objID = std::isdigit(currentVolume->first.c_str()[0]) ? currentVolume->first.c_str()[0] : -1;
+                for (int c = 0; c < vd->getChan(); ++c)
+                {
+                    editor->setActiveChannel(c);
+                    editor->setMin(objID > 0 ? minData[objID][c] : vd->range(c)[0]);
+                    editor->setMax(objID > 0 ? maxData[objID][c] : vd->range(c)[1]);
+                }
 
-                    editor->setActiveChannel(currentVolume->second.curChannel);
-                    tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
-                    if (tfApplyCBData.volume->mapTF)
-                        mapTFToMinMax(currentVolume, vd);
-                    
-                    tfApplyCBData.drawable->setChannelWeights(editor->getChannelWeights());
-                    tfApplyCBData.drawable->setUseChannelWeights(editor->getUseChannelWeights());
+                editor->setActiveChannel(currentVolume->second.curChannel);
+                tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
+                if (tfApplyCBData.volume->mapTF)
+                    mapTFToMinMax(currentVolume, vd);
+                
+                tfApplyCBData.drawable->setChannelWeights(editor->getChannelWeights());
+                tfApplyCBData.drawable->setUseChannelWeights(editor->getUseChannelWeights());
 
-                    instantMode = tfApplyCBData.drawable->getInstantMode();
-                    editor->setInstantMode(instantMode);
+                instantMode = tfApplyCBData.drawable->getInstantMode();
+                editor->setInstantMode(instantMode);
 
-                    //after loading data, if we have a tabletUI,
-                    // 1) notify the tabletUI function editor of its dimensionality (channel number)
-                    // 2) send it the histogram if the plugin is configured this way
-                    functionEditorTab->setDimension(vd->getChan());
-                    delete[] functionEditorTab -> histogramData;
-                    functionEditorTab->histogramData = NULL;
+                //after loading data, if we have a tabletUI,
+                // 1) notify the tabletUI function editor of its dimensionality (channel number)
+                // 2) send it the histogram if the plugin is configured this way
+                functionEditorTab->setDimension(vd->getChan());
+                delete[] functionEditorTab -> histogramData;
+                functionEditorTab->histogramData = NULL;
 
-                    int buckets[2] = {
-                        coTUIFunctionEditorTab::histogramBuckets,
-                        vd->getChan() == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
-                    };
-                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
-                    {
-                        functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
-                        if (vd->getChan() == 1)
-                            vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, 0,1);
-                            else
-                            //TODO: allow to pass in multiple min/max pairs
-                                vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,0,1);
-                        editor->enableHistogram(true);
-                        std::cerr << "enabling histogram" << std::endl;
-                    }
-                    else
-                    {
-                        std::cerr << "disabling histogram" << std::endl;
-                        editor->enableHistogram(false);
-                    }
+                int buckets[2] = {
+                    coTUIFunctionEditorTab::histogramBuckets,
+                    vd->getChan() == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
+                };
+                if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
+                {
+                    functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
+                    if (vd->getChan() == 1)
+                        vd->makeHistogram(0, 0, 1, buckets, functionEditorTab->histogramData, 0,1);
+                        else
+                        //TODO: allow to pass in multiple min/max pairs
+                            vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,0,1);
+                    editor->enableHistogram(true);
+                    std::cerr << "enabling histogram" << std::endl;
+                }
+                else
+                {
+                    std::cerr << "disabling histogram" << std::endl;
+                    editor->enableHistogram(false);
                 }
             }
         }
-        editor->update();
     }
+    editor->update();
 }
 
 void VolumePlugin::preFrame()
