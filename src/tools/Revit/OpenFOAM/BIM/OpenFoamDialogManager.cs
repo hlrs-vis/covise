@@ -66,22 +66,15 @@ namespace OpenFOAMInterface.BIM
         /// <param name="e">Catched exception.</param>
         public static void ShowDialogException(in Exception e)
         {
-            switch (e)
+            string ofERR = e switch
             {
-                case FormatException:
-                    ShowError(OpenFOAMInterfaceResource.ERR_FORMAT);
-                    break;
-                case IOException:
-                    ShowError(OpenFOAMInterfaceResource.ERR_IO_EXCEPTION);
-                    break;
-                case SecurityException:
-                    ShowError(OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION);
-                    break;
-                default:
-                    ShowError(OpenFOAMInterfaceResource.ERR_EXCEPTION + 
-                    "\nUnregistered exception: " + e.ToString());
-                    break;
-            }
+                FormatException => OpenFOAMInterfaceResource.ERR_FORMAT,
+                IOException => OpenFOAMInterfaceResource.ERR_IO_EXCEPTION,
+                SecurityException => OpenFOAMInterfaceResource.ERR_SECURITY_EXCEPTION,
+                _ => OpenFOAMInterfaceResource.ERR_EXCEPTION +
+"\nUnregistered exception: " + e.ToString(),
+            };
+            ShowError(ofERR + "C#-Message: " + e.Message);
         }
     }
 }
