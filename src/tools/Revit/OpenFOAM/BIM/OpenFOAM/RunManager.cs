@@ -219,13 +219,22 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             string fileName = Path.GetFileName(m_CasePath);
             string caseDir = Path.GetDirectoryName(m_CasePath);
             string casePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
-            if (Directory.Exists(casePathResults))
-                Directory.Delete(casePathResults, true);
-            if (File.Exists(casePathResults + ".zip"))
-                File.Delete(casePathResults +".zip");
+            try
+            {
+                if (Directory.Exists(casePathResults))
+                    Directory.Delete(casePathResults, true);
+
+                if (File.Exists(casePathResults + ".zip"))
+                    File.Delete(casePathResults + ".zip");
+            }
+            catch (Exception e)
+            {
+                OpenFOAMDialogManager.ShowDialogException(e);
+                return false;
+            }
             var startProc = await StartProcess();
-            if (File.Exists(casePathResults+".zip"))
-                 await Task.Run(() => ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults));
+            if (File.Exists(casePathResults + ".zip"))
+                await Task.Run(() => ZipFile.ExtractToDirectory(casePathResults + ".zip", casePathResults));
             return startProc;
         }
 
