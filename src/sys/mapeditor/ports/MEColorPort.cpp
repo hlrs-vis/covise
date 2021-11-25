@@ -338,7 +338,12 @@ void MEColorPort::textCB(const QString &)
         type = CONTROL;
 
     else
-        qCritical() << "did not find Color line edit" << Qt::endl;
+        qCritical() << "did not find Color line edit" <<
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+        Qt::endl;
+#else
+        endl;
+#endif        
 
 #ifdef YAC
 

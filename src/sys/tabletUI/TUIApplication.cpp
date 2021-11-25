@@ -114,6 +114,12 @@
 
 TUIMainWindow *TUIMainWindow::appwin = 0;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+#define ACTIVATED textActivated
+#else
+#define ACTIVATED activated
+#endif
+
 //======================================================================
 
 TUIMainWindow *TUIMainWindow::getInstance()
@@ -913,7 +919,7 @@ void TUIMainWindow::createToolbar()
     int index = fontsize->findText(ss);
     fontsize->setCurrentIndex(index);
     toolbar->addWidget(fontsize);
-    connect(fontsize, SIGNAL(textActivated(const QString &)),
+    connect(fontsize, SIGNAL(ACTIVATED(const QString &)),
             this, SLOT(fontCB(const QString &)));
     toolbar->addSeparator();
 
@@ -958,7 +964,7 @@ void TUIMainWindow::createToolbar()
         qtstyles->setCurrentIndex(qtstyles->findText("Default"));
     }
 
-    connect(qtstyles, SIGNAL(textActivated(const QString &)),
+    connect(qtstyles, SIGNAL(ACTIVATED(const QString &)),
             this, SLOT(styleCB(const QString &)));
 
 
@@ -979,7 +985,7 @@ void TUIMainWindow::createToolbar()
         idx = numColumns->findText(QString::number(numberOfColumns));
     }
     numColumns->setCurrentIndex(idx);
-    void (QComboBox::*activated)(const QString &) = &QComboBox::textActivated;
+    void (QComboBox::*activated)(const QString &) = &QComboBox::ACTIVATED;
     connect(numColumns, activated, [this](QString num){
         int ncol = -1;
         if (num != "Unlimited")
