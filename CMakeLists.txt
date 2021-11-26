@@ -176,7 +176,7 @@ OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for
 OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 if(APPLE)
-    OPTION(COVISE_USE_QT5 "Use Qt 5" OFF)
+    OPTION(COVISE_USE_QT5 "Use Qt 5" ON)
 else()
     OPTION(COVISE_USE_QT5 "Use Qt 5" ON)
 endif()
