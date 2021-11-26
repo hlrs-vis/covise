@@ -1,7 +1,7 @@
 /* This file is part of COVISE.
 
    You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
+   version 2.1 or later, see LICENSE.txt.
 
  * License: LGPL 2+ */
 
@@ -115,6 +115,58 @@ static bool is_directory(const fs::Path &path) {
     return fs::is_directory(path);
 }
 
+static std::vector<std::string> compression_extensions{".gz"};
+
+static bool is_compression_extension(const std::string &ext)
+{
+    auto it = std::find(compression_extensions.begin(), compression_extensions.end(), ext);
+    return it != compression_extensions.end();
+}
+
+static bool is_valid_extension(const std::string &ext)
+{
+    if (ext.empty())
+        return true;
+
+    return is_compression_extension(ext);
+}
+
+template<class Path>
+static std::string get_stem(const Path &path)
+{
+    std::string stem = path.stem().string();
+    std::string ext = path.extension().string();
+
+    if (is_compression_extension(ext))
+        return stem;
+
+    return stem + ext;
+}
+
+static std::string get_stem(const fs::Entry &entry)
+{
+    fs::Path path(entry);
+    return get_stem(path);
+}
+
+template<class Path>
+static std::string get_extension(const Path &path)
+{
+    std::string stem = path.stem().string();
+    std::string ext = path.extension().string();
+
+    if (is_compression_extension(ext))
+        return ext;
+
+    return std::string();
+}
+
+static std::string get_extension(const fs::Entry &entry)
+{
+    fs::Path path(entry);
+    return get_extension(path);
+}
+
 class FilteringStreamDeleter
 {
 public:
@@ -206,11 +258,11 @@ bool checkMeshDirectory(CaseInfo &info, const Path &meshdir, bool time)
     for (Iterator it(meshdir); it != Iterator(); ++it)
     {
         Path ent(*it);
-        std::string stem = ent.stem().string();
-        std::string ext = ent.extension().string();
+        std::string stem = get_stem(ent);
+        std::string ext = get_extension(ent);
         if (stem == "points" || stem == "faces" || stem == "owner" || stem == "neighbour")
         {
-            if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
+            if (::is_directory(*it) || !is_valid_extension(ext))
             {
                 std::cerr << "ignoring " << ent.string() << std::endl;
             }
@@ -270,9 +322,9 @@ bool checkLagrangianDirectory(CaseInfo &info, Path lagdir, bool time)
     for (Iterator it(lagdir); it != Iterator(); ++it)
     {
         Path ent(*it);
-        std::string stem = ent.stem().string();
-        std::string ext = ent.extension().string();
-        if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
+        std::string stem = get_stem(ent);
+        std::string ext = get_extension(ent);
+        if (::is_directory(*it) || !is_valid_extension(ext))
         {
             if (stem == "positions")
             {
@@ -1623,23 +1675,27 @@ BOOST_IOSTREAMS_PIPABLE(stream_limiter, 1)
 std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base, const std::string &filename)
 {
     std::string container = casedir + "/" + base + "/" + filename;
+    std::string extension;
     std::shared_ptr<std::istream> stream;
-    bool zipped = false;
     int64_t offset = 0;
     size_t size = 0;
     bool intar = false;
     bool partialfile = false;
     archive_streambuf *buf = nullptr;
+    auto valid_extensions = compression_extensions;
+    valid_extensions.push_back("");
     if (archived) {
         if (boost::algorithm::starts_with(base, "processor")) {
             const char *p = base.c_str() + strlen("processor");
             int proc = atoi(p);
             fs::Path root = getProcessor<fs::Model, fs::Path>(*this, proc);
-            const fs::File *file = root.getModel()->findFile(base + "/" + filename + ".gz");
-            if (file) {
-                zipped = true;
-            } else  {
-                file = root.getModel()->findFile(base + "/" + filename);
+            const fs::File *file = nullptr;
+            for (auto ext: valid_extensions) {
+                file = root.getModel()->findFile(base + "/" + filename + ext);
+                if (file) {
+                    extension = ext;
+                    break;
+                }
             }
             if (file) {
                 container = root.getModel()->getContainer();
@@ -1658,10 +1714,12 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
             }
         }
     } else {
-        bf::path zipfile(container+".gz");
-        if (bf::exists(zipfile) && !::is_directory(zipfile)) {
-            container += ".gz";
-            zipped = true;
+        for (auto ext: compression_extensions) {
+            bf::path zipfile(container+ext);
+            if (bf::exists(zipfile) && !::is_directory(zipfile)) {
+                container += ext;
+                extension = ext;
+            }
         }
     }
 
@@ -1678,7 +1736,7 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
         }
         if (offset>0)
             sf->seekg(offset);
-        if (!zipped && !intar)
+        if (extension.empty() && !intar)
         {
             return std::shared_ptr<std::istream>(sf);
         }
@@ -1686,8 +1744,13 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
     }
 
     bi::filtering_istream *fi = new bi::filtering_istream;
-    if (zipped) {
-        fi->push(bi::gzip_decompressor());
+    if (!extension.empty()) {
+        if (extension == ".gz") {
+            fi->push(bi::gzip_decompressor());
+        } else {
+            std::cerr << "getStreamForFile(base=" << base << ", filename=" << filename << "): do not know how to decompress " << extension << std::endl;
+            return std::shared_ptr<std::istream>();
+        }
     }
     if (partialfile) {
         fi->push(stream_limiter<char>(size));
