@@ -390,7 +390,7 @@ bool checkCaseDataDirectory(CaseInfo &info, const Path &timedir, bool time)
         }
         else
         {
-            std::string stem = p.stem().string();
+            std::string stem = get_stem(p);
             if (!boost::algorithm::ends_with(stem, "Dict") && !boost::algorithm::ends_with(stem, "Properties"))
             {
                 if (time)
