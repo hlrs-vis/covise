@@ -288,6 +288,7 @@ demo 122 "Receiver: Volume Down" sasu kenwoodVolDown
 demo 123 "Receiver: Input: Video 1" sasu kenwoodVideo
 demo 124 "Receiver: Input: Au" sasu kenwoodAux
 
+
 # Vistle
 category="Vistle"
 demo 25 "Audi" vistle /data/vistle/audi.vsl
