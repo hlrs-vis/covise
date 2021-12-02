@@ -195,6 +195,53 @@ Optional Dependencies
         cmake -DCMAKE_INSTALL_PREFIX=$EXTERNLIBS/inventor ..
         cmake --build . --target all
         cmake --build . --target install
+dependencies on Redhat8:
+dnf -y install xerces-c
+dnf -y install xerces-c-devel
+
+dnf -y install glibc-static
+
+dnf -y install libXi-devel
+dnf -y install glibc-utils
+
+dnf -y install glut
+dnf -y install glut-devel
+dnf -y install boost
+dnf -y install boost-devel
+
+dnf -y install cmake   
+dnf -y install cmake3  
+
+dnf -y install qt5-qttools-devel
+dnf -y install qt5-qtscript-devel
+dnf -y install qt5-qtsvg-devel
+dnf -y install qt5-qttools-static
+dnf -y install glew-devel
+dnf -y install libtiff-devel
+dnf -y install qt5-qtquickcontrols
+dnf -y install qt5-qtdeclarative-devel
+dnf -y install qt5-qtlocation qt5-qtlocation-devel
+
+dnf -y install boost-chrono
+dnf -y install boost-date-time
+dnf -y install boost-filesystem
+dnf -y install boost-iostreams
+dnf -y install boost-locale
+dnf -y install boost-program-options
+dnf -y install boost-regex
+dnf -y install boost-serialization
+dnf -y install boost-system
+dnf -y install boost-thread
+dnf --enablerepo=PowerTools install qt5-qttools-static
+dnf --enablerepo=PowerTools install libGLEW
+dnf --enablerepo=PowerTools install glew-devel
+
+dnf install http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-1.noarch.rpm
+dnf install gcc-gfortran
+dnf --enablerepo=PowerTools install libstdc++-static
+dnf --enablerepo=PowerTools install boost-static
+dnf install python3-pyqt5-sip
+
 
 Tracking Dependencies
 ---------------------
