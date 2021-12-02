@@ -59,7 +59,6 @@ void DTrackDriver::initArrays()
 
     //
     m_numHands = dt->getNumHand();
-    cout<<"DTrack hands calibrated:"<<m_numHands<<endl;
     for (size_t i=0;i<m_numHands;++i)
     {
     	const DTrack_Hand_Type_d *h = dt->getHand(i);
