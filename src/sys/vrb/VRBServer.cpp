@@ -174,26 +174,24 @@ void VRBServer::loop()
 {
     while (1)
     {
-		processMessages();
+		processMessages(10.f);
     }
 }
 
-void VRBServer::processMessages()
+void VRBServer::processMessages(float waitTime)
 {
-	while (const Connection *conn = connections.check_for_input(0.0001f))
+	while (const Connection *conn = connections.check_for_input(waitTime))
     {
-        std::unique_ptr<Connection> clientConn;
-        if (conn == sConn) //tcp connection to server port
-        {
-			clientConn = sConn->spawn_connection();
-		}
-        else if (conn == udpConn) //udp connection
+        if (conn == udpConn) //udp connection
 		{
 			processUdpMessages();
 			return;
 		}
-		if(clientConn)
-		{
+        else if (conn == sConn) //tcp connection to server port
+        {
+            std::unique_ptr<Connection> clientConn;
+            clientConn = sConn->spawn_connection();
+
             struct linger linger;
             linger.l_onoff = 0;
             linger.l_linger = 0;
@@ -227,7 +225,6 @@ void VRBServer::processMessages()
             {
                 static_cast<VrbUiMessageHandler*>(handler)->setClientNotifier(conn, false);
             }
-
 
             if (conn->recv_msg(msg))
             {

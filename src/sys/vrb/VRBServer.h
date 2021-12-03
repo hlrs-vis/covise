@@ -36,7 +36,7 @@ class VRBServer : public QObject, public vrb::ServerInterface
 Q_OBJECT
 private slots:
 
-    void processMessages();
+    void processMessages(float waitTime = 0.0001f);
 	void processUdpMessages();
 public:
     VRBServer(bool gui);
