@@ -107,7 +107,16 @@ osgCal::CoreModel *PedestrianFactory::getCoreModel(const std::string &modelFile)
     osg::ref_ptr<osgCal::MeshParameters> meshParams = new osgCal::MeshParameters;
     meshParams->useDepthFirstMesh = false;
     meshParams->software = false;
-    coreModel->load(tmpModelFile, meshParams.get());
+    try
+    {
+      coreModel->load(tmpModelFile, meshParams.get());
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << "PedestrianFactory::getCoreModel(" << tmpModelFile << "): exception during load:" << std::endl
+                  << e.what() << std::endl;
+        return nullptr;
+    }
 
     // Add it to the map
     coreModelMap.insert(pair<std::string, osg::ref_ptr<osgCal::CoreModel> >(tmpModelFile, coreModel));

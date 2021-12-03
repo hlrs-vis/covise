@@ -99,9 +99,9 @@ void Cal3dCore::loadCore(const char *fn)
             coreModel->load(fn, p.get());
         }
     }
-    catch (std::runtime_error &e)
+    catch (std::exception &e)
     {
-        std::cout << "runtime error during load:" << std::endl
+        std::cout << "exception during load:" << std::endl
                   << e.what() << std::endl;
         return;
     }
@@ -201,7 +201,17 @@ static VrmlNode *creator(VrmlScene *scene)
 
 void Cal3dNode::loadModel(Cal3dCore *core)
 {
-    model->load(core->getCoreModel(), core->getMeshAdder());
+    try
+    {
+      model->load(core->getCoreModel(), core->getMeshAdder());
+    }
+    catch (std::exception &e)
+    {
+        std::cout << "exception during load:" << std::endl
+                  << e.what() << std::endl;
+        myTransform->setMatrix(osg::Matrix::identity());
+        return;
+    }
     osg::Matrix mat;
     mat.makeScale(core->getScale(), core->getScale(), core->getScale());
     myTransform->setMatrix(mat * osg::Matrix::rotate(-M_PI / 2.0, 1, 0, 0));

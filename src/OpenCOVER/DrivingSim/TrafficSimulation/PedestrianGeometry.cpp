@@ -40,8 +40,11 @@ PedestrianGeometry::PedestrianGeometry(std::string &name, std::string &modelFile
     pedModel = new osgCal::Model();
     meshAdder = new osgCal::DefaultMeshAdder;
     osg::ref_ptr<osgCal::CoreModel> coreModel = PedestrianFactory::Instance()->getCoreModel(modelFile);
-    pedModel->load(coreModel, meshAdder);
-    pedLOD->addChild(pedModel);
+    if (coreModel)
+    {
+        pedModel->load(coreModel, meshAdder);
+        pedLOD->addChild(pedModel);
+    }
 
     // Make active (set default mask)
     mask = pedTransform->getNodeMask() & ~(opencover::Isect::Intersection | opencover::Isect::Collision | opencover::Isect::Walk);
