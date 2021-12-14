@@ -256,7 +256,7 @@ namespace covise
         FullClassName(const FullClassName &) = delete;                                                             \
         FullClassName(FullClassName &&) = default;                                                                 \
         FullClassName &operator=(const FullClassName &) = delete;                                                  \
-        FullClassName &operator=(FullClassName &&) = default;                                                      \
+        FullClassName &operator=(FullClassName &&) = delete;                                                      \
         ~FullClassName() = default;                                                                                \
         covise::Message createMessage() const;                                                                     \
         EXPAND(MY_OVERLOADED(ACCESSOR, ACCESSOR, __VA_ARGS__))                                                     \

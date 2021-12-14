@@ -551,7 +551,7 @@ class PDBPlugin : public coMenuListener, public coButtonActor, public coValuePot
         CT_CYLINDER
     };
 
-    void menuEvent(coMenuItem *);
+    void menuEvent(coMenuItem *) override;
     void loadPDB(string &, DataBankType);
     void clearSwitch();
     bool downloadPDBFile(string &, DataBankType);
@@ -608,19 +608,19 @@ protected:
     TopsanViewer *topsan;
     SequenceViewer *sview;
 
-    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
-    bool fileBrowserEvent(cui::coFileBrowser *, std::string &, std::string &, int, int);
+    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context) override;
+    bool fileBrowserEvent(cui::coFileBrowser *, std::string &, std::string &, int, int) override;
     void setAllMovable(bool);
     bool loadPDBFile(std::string, Switch *);
     osg::Node *loadVRMLFile(std::string &);
     void initCoverAnimation();
     void updateNumTimesteps();
-    void pickBoxButtonEvent(cui::PickBox *, cui::InputDevice *, int);
-    void pickBoxMoveEvent(cui::PickBox *, cui::InputDevice *);
+    void pickBoxButtonEvent(cui::PickBox *, cui::InputDevice *, int) override;
+    void pickBoxMoveEvent(cui::PickBox *, cui::InputDevice *) override;
     void layoutProteinsCylinder();
     void layoutProteinsGrid();
     void readSetFile(std::string, vector<string> *);
-    void markerEvent(cui::Marker *, int, int);
+    void markerEvent(cui::Marker *, int, int) override;
 
     int uidcounter;
 

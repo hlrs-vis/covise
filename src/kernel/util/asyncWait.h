@@ -44,7 +44,7 @@ public:
     AsyncWaitClass &operator=(const AsyncWaitClass &) = delete;
 
     //wait for the condition to accure
-    void wait()
+    void wait() override
     {
 #ifdef _WIN32
         m_future = std::async(std::launch::async, [this]() {
