@@ -100,6 +100,7 @@ void coUIElement::childResized(bool shrink)
 {
     if (getParent())
     {
+        assert(getParent() != this);
         getParent()->childResized(shrink);
     }
     else
@@ -170,6 +171,7 @@ void coUIElement::setSize(float xs, float ys, float zs)
 */
 coUIContainer *coUIElement::getParent()
 {
+    assert(this != parentContainer);
     return parentContainer;
 }
 
