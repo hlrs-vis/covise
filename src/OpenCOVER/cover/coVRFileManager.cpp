@@ -623,6 +623,13 @@ osg::Node *coVRFileManager::loadIcon(const char *filename)
         }
         if (name == NULL)
         {
+            std::string fn = "share/covise/icons/";
+            fn += filename;
+            fn += ".obj";
+            name = getName(fn.c_str());
+        }
+        if (name == NULL)
+        {
             if (cover->debugLevel(4))
                 fprintf(stderr, "Did not find icon %s\n", filename);
             return NULL;
