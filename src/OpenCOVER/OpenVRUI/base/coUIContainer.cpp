@@ -78,20 +78,6 @@ void coUIContainer::removeElement(coUIElement *el)
     el->setParent(0);
 }
 
-/** 
-  @param el element to remove
-*/
-void coUIContainer::removeLastElement()
-{
-    fprintf(stderr, "coUIContainer::removeLastElement\n");
-    list<coUIElement *>::iterator it = elements.end();
-    it--;
-    it--;
-    fprintf(stderr, "last element is %s\n", (*it)->getUniqueName());
-    elements.remove(*it);
-    (*it)->setParent(0);
-}
-
 /** set the alignment in X direction of the children
     default is CENTER
 */

@@ -41,7 +41,6 @@ public:
     virtual void shrinkToMin();
     virtual void addElement(coUIElement *element); ///< Appends a child to this container.
     virtual void removeElement(coUIElement *element); ///< Removes a child from this container.
-    virtual void removeLastElement(); ///< Removes a child from this container.
     virtual void showElement(coUIElement *element); ///< Adds the specified element to the scenegraph
     void setXAlignment(int a); ///< set the alignment in X direction of the children
     void setYAlignment(int a); ///< set the alignment in Y direction of the children
