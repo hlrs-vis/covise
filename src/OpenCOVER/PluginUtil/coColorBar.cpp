@@ -140,23 +140,29 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     for (i = 0; i < MAX_LABELS; i++)
     {
         labels_[i] = new vrui::coLabel();
+        labels_[i]->setUniqueName("label" + std::to_string(i));
         hspaces_[i] = new vrui::coTexturedBackground((const uint *)tickImage_.data(), (const uint *)tickImage_.data(), (const uint *)tickImage_.data(), 4, 32, 32, 1);
+        hspaces_[i]->setUniqueName("hspaces" + std::to_string(i));
         hspaces_[i]->setMinWidth(60);
         hspaces_[i]->setMinHeight(LabelHeight);
         labelAndHspaces_[i] = new vrui::coRowContainer(vrui::coRowContainer::HORIZONTAL);
+        labelAndHspaces_[i]->setUniqueName("labelAndSpaces" + std::to_string(i));
         labelAndHspaces_[i]->setVgap(0.0);
         labelAndHspaces_[i]->setHgap(0.0);
         labelAndHspaces_[i]->addElement(hspaces_[i]);
         labelAndHspaces_[i]->addElement(labels_[i]);
         vspaces_[i] = new vrui::coColoredBackground(bg, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+        vspaces_[i]->setUniqueName("vspaces" + std::to_string(i));
         vspaces_[i]->setMinWidth(60);
         vspaces_[i]->setMinHeight(0);
     }
     allLabels_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
+    allLabels_->setUniqueName("allLabels");
     allLabels_->setVgap(0.0);
     allLabels_->setHgap(0.0);
 
     speciesLabel_ = new vrui::coLabel();
+    speciesLabel_->setUniqueName("speciesLabel");
 
     std::string precision = covise::coCoviseConfig::getEntry("COVER.Plugin.ColorBars.Precision");
     if (!precision.empty())
@@ -185,13 +191,16 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     image_.resize(4 * 256 * 2); // 4 componenten, 256*2 gross
     makeImage(numColors_, r, g, b, a);
     texture_ = new vrui::coTexturedBackground((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
+    texture_->setUniqueName("texture");
     texture_->setMinHeight(LabelHeight); // entspricht einer color
     texture_->setMinWidth(100);
     texture_->setHeight(Height);
     vspace_ = new vrui::coColoredBackground(bg, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+    vspace_->setUniqueName("vspace");
     vspace_->setMinWidth(2);
     vspace_->setMinHeight(30);
     textureAndVspace_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
+    textureAndVspace_->setUniqueName("textureAndVspace");
     textureAndVspace_->setVgap(0.0);
     textureAndVspace_->setHgap(0.0);
 
@@ -200,6 +209,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
 
     // create container for the two containers
     textureAndLabels_ = new vrui::coRowContainer(vrui::coRowContainer::HORIZONTAL);
+    textureAndLabels_->setUniqueName("textureAndLabels");
     textureAndLabels_->setVgap(0.0);
     textureAndLabels_->setHgap(0.0);
 
@@ -208,6 +218,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
 
     // create background and add top container
     background_ = new vrui::coColoredBackground(bg, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+    background_->setUniqueName("background");
 
     if (inMenu)
     {
@@ -216,6 +227,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     else
     {
         everything_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
+        everything_->setUniqueName("everything");
         everything_->setVgap(10.0);
         everything_->setHgap(10.0);
 
