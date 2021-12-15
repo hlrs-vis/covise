@@ -262,7 +262,7 @@ bool coUIElement::isVisible() const
     return visible;
 }
 
-void coUIElement::setUniqueName(const char *newname)
+void coUIElement::setUniqueName(const std::string &newname)
 {
     Unique_Name = newname;
 }

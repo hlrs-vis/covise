@@ -147,7 +147,7 @@ public:
         return LEFT;
     }
 
-    void setUniqueName(const char *);
+    void setUniqueName(const std::string &name);
     const char *getUniqueName() const;
 
     /// get the Element's classname
