@@ -283,13 +283,7 @@ bool coVRCollaboration::update()
 	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()) //i am navigating
 	{
 		//store my viewpoint in shared state to be able to reload it
-		if (coVRCommunication::instance()->getSessionID().isPrivate()
-			|| syncMode == TightCoupling
-			|| (syncMode == MasterSlaveCoupling && isMaster()))
-		{
-			avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-			scaleFactor = VRSceneGraph::instance()->scaleFactor();
-		}
+        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
 	}
     return changed;
 }
