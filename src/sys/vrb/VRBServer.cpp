@@ -69,11 +69,13 @@ extern ApplicationWindow *mw;
 #ifndef MAX_PATH
 #define MAX_PATH 1024
 #endif
-vrb::VRBClientList *vrbClients;
 //#define MB_DEBUG
+
+vrb::VRBClientList *vrbClients;
 
 using namespace covise;
 using namespace vrb;
+
 VRBServer::VRBServer(bool gui)
     :m_gui(gui)
 {
@@ -182,15 +184,24 @@ void VRBServer::processMessages(float waitTime)
 {
 	while (const Connection *conn = connections.check_for_input(waitTime))
     {
-        if (conn == udpConn) //udp connection
-		{
+#ifdef MB_DEBUG
+        std::cerr << "VRB: have input" << std::endl;
+#endif
+        if (conn == udpConn) // udp connection
+        {
 			processUdpMessages();
 			return;
 		}
         else if (conn == sConn) //tcp connection to server port
         {
+#ifdef MB_DEBUG
+            std::cerr << "accepting new client connection" << std::endl;
+#endif
             std::unique_ptr<Connection> clientConn;
             clientConn = sConn->spawn_connection();
+#ifdef MB_DEBUG
+            std::cerr << "spawned new client connection" << std::endl;
+#endif
 
             struct linger linger;
             linger.l_onoff = 0;
