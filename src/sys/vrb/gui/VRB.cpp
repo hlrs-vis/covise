@@ -26,9 +26,17 @@ ApplicationWindow *mw;
 int main(int argc, char **argv)
 {
     covise::setupEnvironment(argc, argv);
-    bool gui = true;
     bool help = false;
     bool printport = false;
+
+    std::string exec(argv[0]);
+    auto lastslash = exec.rfind('/');
+    if (lastslash != std::string::npos)
+    {
+        exec = exec.substr(lastslash+1);
+    }
+    bool gui = exec != "vrbc";
+
     for (size_t i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "--console")==0)
