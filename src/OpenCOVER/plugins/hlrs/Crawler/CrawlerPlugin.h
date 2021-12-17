@@ -24,6 +24,8 @@ to show/hide several CrawlerPlugins in the cover menu (CrawlerPlugins item)
 \****************************************************************************/
 
 #include "PxPhysicsAPI.h"
+#include <PxFoundation.h>
+#include <foundation/Px.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -53,7 +55,7 @@ using namespace physx;
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
 
-class CrawlerPlugin : public coVRPlugin, public coMenuListener, public coTUIListener
+class CrawlerPlugin : public coVRPlugin, public coMenuListener, public coTUIListener, public PxPhysicsInsertionCallback
 {
     friend class mySensor;
 public:
@@ -68,7 +70,7 @@ public:
     void menuEvent(coMenuItem *menu_CrawlerPluginitem);
     // this will be called if a COVISE object arrives
     bool init();
-    void message(int toWhom, int type, int len, const void *buf) override;
+    //void message(int toWhom, int type, int len, const void *buf) override;
     void tabletEvent(coTUIElement *);
     
     unsigned int numActiveActor;
@@ -93,14 +95,18 @@ private:
     coTUIComboBox *CrawlerPluginTUIcombo;
     std::map<std::string, coTUIToggleButton *> tui_header_trans;
 
+    virtual PxBase* buildObjectFromData(PxConcreteType::Enum type, void* data) {
+        return nullptr;
+    };
+
     bool firsttime;
 
 
-    PxDefaultAllocator			gAllocator;
+    PxAllocatorCallback*			gAllocator;
     PxDefaultErrorCallback		gErrorCallback;
 
 
-    PxVisualDebuggerConnection*	gConnection;
+    //PxVisualDebuggerConnection*	gConnection;
 
     // Actor Globals
     PxRigidStatic*				gGroundPlane;

@@ -40,9 +40,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coMenuChangeListener.h>
+//#include <OpenVRUI/coMenuChangeListener.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coToolboxMenuItem.h>
+#include <pvd/PxProfileZoneManager.h>
 
 using namespace covise;
 using namespace opencover;
@@ -71,7 +72,7 @@ CrawlerPlugin::CrawlerPlugin()
 
     gMaterial	= NULL;
 
-    gConnection	= NULL;
+    //gConnection	= NULL;
 
 
     gGroundPlane = NULL;
@@ -82,14 +83,9 @@ CrawlerPlugin::CrawlerPlugin()
 bool CrawlerPlugin::init()
 {
     cover_menu = NULL;
-    VRMenu *menu = VRPinboard::instance()->namedMenu("COVER");
-    if (menu)
-    {
-        cover_menu = menu->getCoMenu();
-        button = new coSubMenuItem("Crawlers");
-        crawler_menu = new coRowMenu("Crawlers");
-    }
-
+    button = new coSubMenuItem("Crawlers");
+    crawler_menu = new coRowMenu("Crawlers");
+    cover->getMenu()->add(button);
     //tuTab
     CrawlerPluginTab = new coTUITab("Crawlers", coVRTui::instance()->mainFolder->getID());
     CrawlerPluginTab->setPos(0, 0);
@@ -141,10 +137,6 @@ void CrawlerPlugin::tabletEvent(coTUIElement *elem)
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
-void CrawlerPlugin::message(int type, int len, const void *buf)
-{
-
-}
 
 //===============================================================================						  
 //							   VRC - CrawlerSim
@@ -177,6 +169,7 @@ bool CrawlerPlugin::loadWRL(const char *path, PxU32 &xDimension, PxU32 &zDimensi
     {
         char lineHeader[128];	// read the first word of the line
         int res = fscanf(file, "%s", lineHeader);
+        float fdummy;
         if (res == EOF) break;	// EOF = End Of File. Quit the loop.
 
         // else : parse lineHeader
@@ -185,7 +178,7 @@ bool CrawlerPlugin::loadWRL(const char *path, PxU32 &xDimension, PxU32 &zDimensi
         else if (strcmp(lineHeader, "xSpacing") == 0)	{ fscanf(file, "%i", &xSpacing);	/*printf("%i\n", xSpacing);*/	}
         else if (strcmp(lineHeader, "zSpacing") == 0)	{ fscanf(file, "%i", &zSpacing);	/*printf("%i\n", zSpacing);*/	}
 
-        else if (strcmp(lineHeader, "scale") == 0) { double dummy = 0; fscanf(file, "%f %f", &dummy, &heightscale); /*printf("%f\n", heightscale);*/ }
+        else if (strcmp(lineHeader, "scale") == 0) { double dummy = 0; fscanf(file, "%f %f", &fdummy, &heightscale); /*printf("%f\n", heightscale);*/ }
 
         else if (strcmp(lineHeader, "height[") == 0)
         {
@@ -276,27 +269,29 @@ bool CrawlerPlugin::loadWRL(const char *path, PxU32 &xDimension, PxU32 &zDimensi
 void CrawlerPlugin::initPhysics()
 {
     //-----Creating foundation for PhysX-----
-    gFoundation	= PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+    gFoundation	= PxCreateFoundation(PX_PHYSICS_VERSION, *gAllocator, gErrorCallback);
 
-    PxProfileZoneManager* profileZoneManager = NULL;//&PxProfileZoneManager::createProfileZoneManager(gFoundation);
+    profile::PxProfileZoneManager* profileZoneManager = NULL;//&PxProfileZoneManager::createProfileZoneManager(gFoundation);
 
     PxTolerancesScale MyTolerancesScale;
     MyTolerancesScale.length = 0.01;
-    MyTolerancesScale.mass = 1000;
+    //MyTolerancesScale.mass = 1000;
     MyTolerancesScale.speed = 10;
 
+    physx::PxPvd* mPvd=nullptr;
+
     //-----Creating instance of PhysX SDK-----
-    gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(MyTolerancesScale), true, profileZoneManager);
+    gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(MyTolerancesScale), true, mPvd);
 
     if(gPhysics == NULL) { cerr<<"Error creating PhysX3 device, Exiting..."<<endl; exit(1); }
 
-    if(gPhysics->getPvdConnectionManager())
+  /*  if (gPhysics->getPvdConnectionManager())
     {
         gPhysics->getVisualDebugger()->setVisualizeConstraints(true);
         gPhysics->getVisualDebugger()->setVisualDebuggerFlag(PxVisualDebuggerFlag::eTRANSMIT_CONTACTS, true);
         gPhysics->getVisualDebugger()->setVisualDebuggerFlag(PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES, true);	
-        gConnection = PxVisualDebuggerExt::createConnection(gPhysics->getPvdConnectionManager(), PVD_HOST, 5425, 10);
-    }
+        //gConnection = PxVisualDebuggerExt::createConnection(gPhysics->getPvdConnectionManager(), PVD_HOST, 5425, 10);
+    }*/
 
     //-----Creating Scene-----
     PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -355,17 +350,23 @@ void CrawlerPlugin::initPhysics()
     hfDesc.format             = PxHeightFieldFormat::eS16_TM;
     hfDesc.nbColumns          = xDimension;
     hfDesc.nbRows             = zDimension;
-    hfDesc.thickness          = -1.0f;
+    //hfDesc.thickness          = -1.0f;
     hfDesc.samples.data       = samples;
     hfDesc.samples.stride     = sizeof(PxHeightFieldSample);
 
-    PxHeightField* aHeightField = gPhysics->createHeightField(hfDesc);
+    PxHeightField* aHeightField = gCooking->createHeightField(hfDesc,*this);
 
     PxHeightFieldGeometry hfGeom(aHeightField, PxMeshGeometryFlags(), heightscale, xSpacing, zSpacing);		//heightScale, rowScale, colScale);
 
     PxVec3 HeightfieldOffset = PxVec3(xDimension/2 - 0.5, 0.0, zDimension/2 - 0.5);
     PxRigidStatic* aHeightFieldActor = gPhysics->createRigidStatic(PxTransform(-HeightfieldOffset));
+
+#if (PX_PHYSICS_VERSION_MAJOR > 3)
+    PxShape * aHeightFieldShape = PxRigidActorExt::createExclusiveShape(*aHeightFieldActor,hfGeom, *gMaterial);
+    aHeightFieldActor->attachShape(*aHeightFieldShape);
+#else
     PxShape* aHeightFieldShape = aHeightFieldActor->createShape(hfGeom, *gMaterial);
+#endif
 
     aHeightFieldActor->setActorFlag(PxActorFlag::eVISUALIZATION, false);					//Koordinatensystem an/aus
 
@@ -437,7 +438,11 @@ PxConvexMesh* CrawlerPlugin::createConvexMesh(const PxVec3* verts, const PxU32 n
 	convexDesc.points.count			= numVerts;
 	convexDesc.points.stride		= sizeof(PxVec3);
 	convexDesc.points.data			= verts;
-	convexDesc.flags				= PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::eINFLATE_CONVEX;
+	convexDesc.flags				= PxConvexFlag::eCOMPUTE_CONVEX 
+#if !(PX_PHYSICS_VERSION_MAJOR > 3)
+        | PxConvexFlag::eINFLATE_CONVEX
+#endif
+        ;
 
 	PxConvexMesh* convexMesh = NULL;
 	PxDefaultMemoryOutputStream buf;
@@ -464,11 +469,13 @@ void CrawlerPlugin::cleanupPhysics()
     gCooking->release();
     gScene->release();
     gDispatcher->release();
+    #if !(PX_PHYSICS_VERSION_MAJOR > 3)
     PxProfileZoneManager* profileZoneManager = gPhysics->getProfileZoneManager();
     if(gConnection != NULL)
         gConnection->release();
-    gPhysics->release();	
-    profileZoneManager->release();	
+    profileZoneManager->release();
+#endif
+    gPhysics->release();
     gFoundation->release();
 }
 

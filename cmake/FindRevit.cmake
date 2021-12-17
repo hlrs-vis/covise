@@ -5,17 +5,18 @@
 #  REVIT_LIBRARIES      - list of libraries when using revit
 #  REVIT_FOUND          - True if revit was found.
 
-
+SET(tmpPATH $ENV{ProgramFiles})
+string(REPLACE "\\" "/" tmpPATH "${tmpPATH}")
 
 FIND_PATH(REVIT_DIRECTORY NAMES AdWindows.dll RevitAPI.dll
   PATHS
-  $ENV{ProgramFiles}/Autodesk/"Revit 2024"
-  $ENV{ProgramFiles}/Autodesk/"Revit 2023"
-  $ENV{ProgramFiles}/Autodesk/"Revit 2022"
-  $ENV{ProgramFiles}/Autodesk/"Revit 2021"
-  $ENV{ProgramFiles}/Autodesk/"Revit 2020"
-  $ENV{ProgramFiles}/Autodesk/"Revit 2019"
-  "c:/Program Files/Autodesk/Revit 2020"
+  ${tmpPATH}/Autodesk/"Revit 2024"
+  ${tmpPATH}/Autodesk/"Revit 2023"
+  ${tmpPATH}/Autodesk/"Revit 2022"
+  ${tmpPATH}/Autodesk/"Revit 2021"
+  ${tmpPATH}/Autodesk/"Revit 2020"
+  ${tmpPATH}/Autodesk/"Revit 2019"
+  "c:/Program Files/Autodesk/Revit 2022"
   NO_DEFAULT_PATH
 )
 IF (REVIT_DIRECTORY)

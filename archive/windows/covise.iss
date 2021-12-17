@@ -238,7 +238,8 @@ Source: {#LIB}\*.dll; DestDir: {#DLIB}; Flags: recursesubdirs; Components: core
 Source: {#LIB}\*.lib; DestDir: {#DLIB}; Flags: recursesubdirs; Components: core
 
 ;microsoft mpi for opencover
-Source: c:\windows\system32\msmpi*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: c:\windows\system32\msmpi*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core     
+
 
 #if ARCHSUFFIX == "vista"
 Source: {#EXTERNLIBS}\runtime\vcredist_x86_sp1_secfix.exe; DestDir: {#DLIB}; Flags: recursesubdirs; Components: core
@@ -377,7 +378,8 @@ Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoe
 Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover               
 Source: {#EXTERNLIBS}\gdcm\bin\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\osgEphemeris\bin\*.dll; DestDir: {#DLIB}; Components: opencover          
+Source: {#EXTERNLIBS}\osgEphemeris\bin\*.dll; DestDir: {#DLIB}; Components: opencover      
+Source: C:\src\externlibs\zebu\PhysX\bin\win.x86_64.vc142.md\release\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
 Source: C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\Proj4\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\embree\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
