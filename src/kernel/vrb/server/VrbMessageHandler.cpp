@@ -559,6 +559,12 @@ namespace vrb
 
 	void VrbMessageHandler::handleNewClient(covise::TokenBuffer &tb, covise::Message *msg)
 	{
+		if (clients.get(msg->conn))
+		{
+			auto h = msg->conn->get_hostname();
+			std::cerr << "VRB new client: rejecting duplicate connection from " << (h ? h : "unknown host") << ":" << msg->conn->get_port() << std::endl;
+			return;
+		}
 
 		assert(!clients.get(msg->conn));
 		VRBSClient *c = createNewClient(tb, msg);
