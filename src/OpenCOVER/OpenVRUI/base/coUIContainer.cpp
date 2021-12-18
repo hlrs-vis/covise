@@ -41,14 +41,13 @@ coUIContainer::~coUIContainer()
 */
 void coUIContainer::addElement(coUIElement *el)
 {
-    coUIContainer *test = this;
-
     // Make sure this element is not its own parent:
-    while ((test = test->getParent()))
+    for (auto test = this; test; test = test->getParent())
     {
-        if (test == this)
+        if (test == el)
         {
             VRUILOG("coUIContainer::addElement warn: circular parentship prevented")
+            assert(test != el);
             return;
         }
     }
