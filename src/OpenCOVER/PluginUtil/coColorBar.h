@@ -72,7 +72,7 @@ private:
     std::string name_; // the name of the colors module for example Colors_1
     std::string species_;
 
-    void makeImage(int numColors, const float *r, const float *g, const float *b, const float *a);
+    void makeImage(int numColors, const float *r, const float *g, const float *b, const float *a, bool swapped);
     void makeTickImage();
     void makeLabelValues();
 

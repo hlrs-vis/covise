@@ -45,6 +45,12 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
 {
     double min = minIO;
     double max = maxIO;
+    bool swapped = false;
+    if (min > max) 
+    {
+        swapped = true;
+        std::swap(min, max);
+    }
 
     double basis[3] = { 1.0, 2.0, 5.0 };
     double tens = 1.0;
@@ -114,6 +120,11 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
          sprintf(mask,"%%.0f");
    }
    */
+    if (swapped)
+    {
+        std::swap(min, max);
+    }
+
     minIO = (float)min;
     maxIO = (float)max;
 }
@@ -189,7 +200,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
 
     // create texture
     image_.resize(4 * 256 * 2); // 4 componenten, 256*2 gross
-    makeImage(numColors_, r, g, b, a);
+    makeImage(numColors_, r, g, b, a, min_ > max_);
     texture_ = new vrui::coTexturedBackground((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
     texture_->setUniqueName("texture");
     texture_->setMinHeight(LabelHeight); // entspricht einer color
@@ -292,6 +303,7 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
         allLabels_->removeElement(labelAndHspaces_[i]);
         allLabels_->removeElement(vspaces_[i]);
     }
+    assert(allLabels_->getSize() == 0);
 
     // update labels
     makeLabelValues();
@@ -331,7 +343,7 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     }
 
     // update image
-    makeImage(numColors_, r, g, b, a);
+    makeImage(numColors_, r, g, b, a, min_ > max_);
     texture_->setImage((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
     texture_->setHeight(Height);
 }
@@ -342,7 +354,7 @@ const char *coColorBar::getName() const
 }
 
 void
-coColorBar::makeImage(int numColors, const float *r, const float *g, const float *b, const float *a)
+coColorBar::makeImage(int numColors, const float *r, const float *g, const float *b, const float *a, bool swapped)
 {
     unsigned char *cur;
     int x, y, idx;
@@ -353,6 +365,8 @@ coColorBar::makeImage(int numColors, const float *r, const float *g, const float
         for (x = 0; x < 2; x++)
         {
             idx = (int)(((float)y / 256.0) * numColors);
+            if (swapped)
+                idx = numColors - idx - 1;
             *cur = (unsigned char)(255.0 * r[idx]);
             cur++;
 
@@ -411,13 +425,11 @@ coColorBar::makeTickImage()
 void
 coColorBar::makeLabelValues()
 {
-    float step;
-    int i;
-
     // create labels
     numLabels_ = numColors_ + 1;
     if (numColors_ < 256)
     {
+        // label every n-th step
         for (int i=1; i<(256/MAX_LABELS)+1; ++i)
         {
             if (numColors_ % i != 0)
@@ -445,14 +457,27 @@ coColorBar::makeLabelValues()
     }
     assert(numLabels_ <= MAX_LABELS);
 
-    step = (max_ - min_) / (numLabels_ - 1);
+    float step = (max_ - min_) / (numLabels_ - 1);
 
-    labelValues_[0] = max_;
-    if (numLabels_ > 0)
-        labelValues_[numLabels_ - 1] = min_;
-    for (i = 1; i < numLabels_ - 1; i++)
+    if (step < 0)
     {
-        labelValues_[i] = max_ - i * step;
+        labelValues_[0] = min_;
+        for (int i = 1; i < numLabels_ - 1; i++) {
+            labelValues_[i] = min_ + i * step;
+        }
+        for (int i = numLabels_ > 0 ? numLabels_ - 1 : 0; i < MAX_LABELS; i++) {
+            labelValues_[i] = max_;
+        }
+    }
+    else
+    {
+        labelValues_[0] = max_;
+        for (int i = 1; i < numLabels_ - 1; i++) {
+            labelValues_[i] = max_ - i * step;
+        }
+        for (int i = numLabels_ > 0 ? numLabels_ - 1 : 0; i < MAX_LABELS; i++) {
+            labelValues_[i] = min_;
+        }
     }
 }
 
