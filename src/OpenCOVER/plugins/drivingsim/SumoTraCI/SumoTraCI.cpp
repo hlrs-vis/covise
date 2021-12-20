@@ -47,14 +47,46 @@ int gPrecision;
 using namespace opencover;
 using namespace TrafficSimulation;
 
+
+void simulationConfig::add(ui::Menu* menu)
+{
+    button = new ui::Button(menu, name);
+        button->setPriority(ui::Element::Low);
+    button->setState(false);
+    button->setShared(false);
+    button->setCallback([this](bool load) {
+        SumoTraCI::instance()->loadConfig(configFile);
+        });
+}
+
+SumoTraCI* SumoTraCI:: thisPlugin=nullptr;
+
 SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
 {
     fprintf(stderr, "SumoTraCI::SumoTraCI\n");
+    thisPlugin = this;
 	connected = false;
     initUI();
     const char *coviseDir = getenv("COVISEDIR");
     std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
+
+    covise::coCoviseConfig::ScopeEntries configEntries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Configs");
+    const char** configEntryNames = configEntries.getValue();
+    if (configEntryNames != NULL)
+    {
+        int i = 0;
+        while (configEntryNames[i]&&configEntryNames[i + 1])
+        {
+
+            simulationConfig sc(configEntryNames[i], configEntryNames[i + 1]);
+            auto res = configItems.insert(std::pair<std::string, simulationConfig>(configEntryNames[i], sc));
+            res.first->second.add(configEntriesMenu);
+            i++; // skip name
+            i++; //skip value (may be NULL)
+
+        }
+    }
     //AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
     //av = getAgentVehicle("truck","truck","truck_truck");
     pf = PedestrianFactory::Instance();
@@ -75,6 +107,22 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
     getVehiclesFromConfig();
     loadAllVehicles(); 
 	lineUpAllPedestrianModels(); // preload pedestrians;
+}
+
+void SumoTraCI::loadConfig(const std::string& configFileName)
+{
+    if (connected)
+    {
+        for (auto currentEntity = loadedEntities.begin(); currentEntity != loadedEntities.end(); currentEntity++) // delete all vehicles
+        {
+                delete currentEntity->second;
+        }
+        loadedEntities.clear();
+        std::vector<std::string> args(1);
+        args[0] = configFileName;
+        client.load(args);
+        subscribeToSimulation();
+    }
 }
 
 AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
@@ -117,6 +165,7 @@ SumoTraCI::~SumoTraCI()
 		if(connected)
 		{
 			client.close();
+            loadedEntities.clear();
 		}
     }
     //cover->getScene()->removeChild(vehicleGroup);
@@ -235,6 +284,9 @@ void SumoTraCI::lineUpAllPedestrianModels()
 bool SumoTraCI::initUI()
 {
 	traciMenu = new ui::Menu("TraCI", this);
+
+    configEntriesMenu = new ui::Menu("SumoConfigs", traciMenu);
+
 	pedestriansVisible = new ui::Button(traciMenu, "Pedestrians");
 	pedestriansVisible->setState(true);
 	pedestriansVisible->setCallback([this](bool state) {

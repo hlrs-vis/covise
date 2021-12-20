@@ -78,21 +78,40 @@ struct vehicleModel
 vehicleModel::vehicleModel(std::string t, std::string n, double s) : vehicleName(t), fileName(n),scale(s) {}
 vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
 
+class simulationConfig
+{
+public:
+    std::string name;
+    std::string configFile;
+    ui::Button* button = nullptr;
+
+    simulationConfig(const std::string& name, const std::string & config)
+        : name(name),configFile(config)
+    {
+    }
+
+    void add(ui::Menu* menu);
+};
+
 class SumoTraCI : public opencover::coVRPlugin , public ui::Owner
 {
 public:
     SumoTraCI();
     ~SumoTraCI();
+    static SumoTraCI *instance() { return thisPlugin; };
 
     void preFrame();
     bool initConnection();
+    void loadConfig(const std::string&);
 
 private:
     TraCIAPI client;
 
     bool initUI();
     bool compareTAZending(std::string& TAZ, std::string ending);
-    ui::Menu *traciMenu;
+    ui::Menu* traciMenu;
+    ui::Menu* configEntriesMenu;
+    
 	ui::Button* pedestriansVisible;
 	ui::Button* busVisible;
 	ui::Button* passengerVisible;
@@ -113,6 +132,8 @@ private:
     ui::Button *fixModalSplitWalkingUI;
     
     std::vector<modalSplit> modalSplits;
+
+    std::map<std::string, simulationConfig> configItems;
     //std::map<std::string, ui::Slider*> modalSplits;
     
     
@@ -181,5 +202,6 @@ bool balanceModalSplits();
 
 std::vector<std::string> sourceTAZs;
 std::vector<std::string> sinkTAZs;
+    static SumoTraCI *thisPlugin;
 };
 #endif
