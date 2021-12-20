@@ -5792,7 +5792,7 @@ VRML2Export::VrmlOutSpecial(INode *node, INode *parent,
 	if (id == Class_ID(LOD_CLASS_ID1, LOD_CLASS_ID2))
 		return VrmlOutLOD(node, (LODObject *)obj, level + 1, mirrored);
 
-	if (id == Class_ID(SIMPLE_CAM_CLASS_ID, 0) || id == Class_ID(LOOKAT_CAM_CLASS_ID, 0))
+	if (IsCamera(node))
 		return VrmlOutCamera(node, obj, level + 1);
 
 	if (id == SoundClassID)
