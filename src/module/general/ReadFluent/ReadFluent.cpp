@@ -109,8 +109,12 @@ void Fluent::param(const char *paramname, bool inMapLoading)
             sendError("ERROR: filename is NULL");
             return;
         }
-        if (readFile(fileName) < 0)
-            return;
+        if (lastFileName != fileName)
+        {
+            if (readFile(fileName) < 0)
+                return;
+            lastFileName = fileName;
+        }
         if (dataFileName)
         {
             if (!inMapLoading)
@@ -1846,6 +1850,10 @@ Fluent::readFile(const char *fileName)
                             if (type > 1000)
                             {
                                 faceFlag[i] = 1; // this is a face from nonconformal
+                            }
+                            if (elementType > MaxVert)
+                            {
+                                cerr << "oops: elementType:" << elementType;
                             }
                             for (n = 0; n < elementType; n++)
                             {

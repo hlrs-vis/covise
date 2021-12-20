@@ -149,6 +149,7 @@ private:
     //  Local data
     char tmpBuf[1000];
     char *dataFileName;
+    std::string lastFileName;
     int varTypes[1000];
     int varIsFace[1000];
     int numVars;
