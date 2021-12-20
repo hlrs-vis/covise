@@ -120,7 +120,9 @@ if "%BASEARCHSUFFIX%" EQU "zebu"  (
 )
 
 if "%VC14_15%" EQU "yes" (
-   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" ( 
+   if exist "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" ( 
+    call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" ( 
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
    ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" ( 
    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
@@ -129,9 +131,11 @@ if "%VC14_15%" EQU "yes" (
     
     if NOT defined VS150COMNTOOLS% (
     if NOT defined VS160COMNTOOLS% (
+    if NOT defined VS170COMNTOOLS% (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
+	)
 	)
 	)
 ) else if "%BASEARCHSUFFIX%" EQU "win32" (
@@ -321,6 +325,11 @@ if not defined PYTHONHOME  (
 )
 
 
+if "%USE_OPT_LIBS%" == "1" (
+  set "PATHADD=%PATHADD%;%EXTERNLIBS%\PhysX\bin\win.x86_64.vc142.md\release"
+) else (
+  set "PATHADD=%PATHADD%;%EXTERNLIBS%\PhysX\bin\win.x86_64.vc142.md\debug"
+)
 if not defined ALL_EXTLIBS ( 
   set "ALL_EXTLIBS=%EXTERNLIBS%\all"
   set "PATH=%EXTERNLIBS%\all;%PATH%"
