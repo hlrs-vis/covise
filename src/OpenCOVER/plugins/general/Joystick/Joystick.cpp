@@ -38,6 +38,8 @@ VrmlNodeType* VrmlNodeJoystick::defineType(VrmlNodeType* t)
     t->addExposedField("joystickNumber", VrmlField::SFINT32);
     t->addEventOut("buttons_changed", VrmlField::MFINT32);
     t->addEventOut("axes_changed", VrmlField::MFFLOAT);
+    t->addEventOut("sliders_changed", VrmlField::MFFLOAT);
+    t->addEventOut("POVs_changed", VrmlField::MFFLOAT);
 
     return t;
 }
@@ -109,6 +111,10 @@ const VrmlField* VrmlNodeJoystick::getField(const char* fieldName)
         return &d_joystickNumber;
     else if (strcmp(fieldName, "axes_changed") == 0)
         return &d_axes;
+    else if (strcmp(fieldName, "sliders_changed") == 0)
+        return &d_sliders;
+    else if (strcmp(fieldName, "POVs_changed") == 0)
+        return &d_POVs;
     else if (strcmp(fieldName, "buttons_changed") == 0)
         return &d_buttons;
     else
@@ -148,6 +154,18 @@ void VrmlNodeJoystick::render(Viewer*)
             d_axes.set(JoystickPlugin::plugin->dev->number_axes[joystickNumber], JoystickPlugin::plugin->dev->axes[joystickNumber]);
             // Send the new value
             eventOut(timeStamp, "axes_changed", d_axes);
+        }
+        if (JoystickPlugin::plugin->dev->number_sliders[joystickNumber] && JoystickPlugin::plugin->dev->sliders[joystickNumber])
+        {
+            d_sliders.set(JoystickPlugin::plugin->dev->number_sliders[joystickNumber], JoystickPlugin::plugin->dev->sliders[joystickNumber]);
+            // Send the new value
+            eventOut(timeStamp, "sliders_changed", d_sliders);
+        }
+        if (JoystickPlugin::plugin->dev->number_POVs[joystickNumber] && JoystickPlugin::plugin->dev->POVs[joystickNumber])
+        {
+            d_POVs.set(JoystickPlugin::plugin->dev->number_POVs[joystickNumber], JoystickPlugin::plugin->dev->POVs[joystickNumber]);
+            // Send the new value
+            eventOut(timeStamp, "POVs_changed", d_POVs);
         }
     }
 

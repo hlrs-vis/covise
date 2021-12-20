@@ -64,6 +64,8 @@ private:
 
     // State
     vrml::VrmlMFFloat d_axes;
+    vrml::VrmlMFFloat d_sliders;
+    vrml::VrmlMFFloat d_POVs;
     vrml::VrmlMFInt d_buttons;
 };
 namespace vrui
