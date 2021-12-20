@@ -1173,6 +1173,35 @@ namespace OpenCOVERPlugin
             }
             return ti;
         }
+
+        private double getTransparency(Autodesk.Revit.DB.Material materialElement, Autodesk.Revit.DB.Element elem)
+        {
+
+            TextureInfo ti = new TextureInfo();
+            Autodesk.Revit.DB.AppearanceAssetElement materialAsset = elem.Document.GetElement(materialElement.AppearanceAssetId) as Autodesk.Revit.DB.AppearanceAssetElement;
+            if (materialAsset != null)
+            {
+                Asset theAsset = materialAsset.GetRenderingAsset();
+                List<AssetProperty> assets = new List<AssetProperty>();
+                for (int idx = 0; idx < theAsset.Size; idx++)
+                {
+                    AssetProperty ap = theAsset.Get(idx);
+                    assets.Add(ap);
+                }
+                assets = assets.OrderBy(ap => ap.Name).ToList();
+                for (int idx = 0; idx < assets.Count; idx++)
+                {
+                    AssetProperty ap = assets[idx];
+                    if (ap.Name == "transparent_distance")
+                    {
+                        AssetPropertyDistance val = ap as AssetPropertyDistance;
+                        return (val.Value/100.0)*255;
+                    }
+
+                }
+            }
+            return ((100 - (materialElement.Transparency)) / 100.0) * 255;
+        }
         private bool getTextureInfo(AssetProperty ap, TextureInfo ti)
         {
             if (ap.NumberOfConnectedProperties > 0)
@@ -1349,7 +1378,7 @@ namespace OpenCOVERPlugin
                     {
                         sendMaterial(materialElement, elem);
                         mb.add(materialElement.Color);
-                        mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                        mb.add((byte)(getTransparency(materialElement,elem)));
                         mb.add(materialElement.Id.IntegerValue); // material ID
 
                     }
@@ -1394,7 +1423,8 @@ namespace OpenCOVERPlugin
                         Autodesk.Revit.DB.ElementId materialID;
                         materialID = faces.get_Item(0).MaterialElementId;
                         Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(materialID) as Autodesk.Revit.DB.Material;
-                        if (materialElement == null || materialElement.MaterialClass != "System")
+                     //   if (materialElement == null || materialElement.MaterialClass != "System")
+                     // Imported CAD Models have System Material class by default, thus dont sort them out
                         {
                             if(createGroups)
                             {
@@ -1715,6 +1745,10 @@ namespace OpenCOVERPlugin
             }
             if (elem.Category!=null)
             {
+                if (elem.Category.Name == "Legendenkomponenten")
+                    return;
+                if (elem.Category.Name == "Legend Components")
+                    return;
                 if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
                 {
                     hasStyle = false;
@@ -2088,9 +2122,18 @@ namespace OpenCOVERPlugin
                 {
                     scale = 1/3.28084;
                 }
-                mb.add(geomInstance.Transform.BasisX.Multiply(scale));
-                mb.add(geomInstance.Transform.BasisY.Multiply(scale));
-                mb.add(geomInstance.Transform.BasisZ.Multiply(scale));
+                if(geomInstance.Transform.BasisX.IsUnitLength())
+                {
+                    mb.add(geomInstance.Transform.BasisX.Multiply(scale));
+                    mb.add(geomInstance.Transform.BasisY.Multiply(scale));
+                    mb.add(geomInstance.Transform.BasisZ.Multiply(scale));
+                }
+                else// it is already scaled
+                {
+                    mb.add(geomInstance.Transform.BasisX);
+                    mb.add(geomInstance.Transform.BasisY);
+                    mb.add(geomInstance.Transform.BasisZ);
+                }
                 mb.add(geomInstance.Transform.Origin);
             }
             catch (Autodesk.Revit.Exceptions.InvalidOperationException)
@@ -2160,15 +2203,10 @@ namespace OpenCOVERPlugin
         }
         private void SendSolid(string prefix,Autodesk.Revit.DB.Solid geomSolid, Autodesk.Revit.DB.Element elem,bool doWalk)
         {
-            Autodesk.Revit.DB.Material m = null;
-            bool sameMaterial = true;
-            int triangles = 0;
-            int maintriangles = 0;
-            bool twoSided = false;
-            if(elem.Name == "")
+            if (elem.Name == "")
                 return;
-            if(elem.Category!=null)
-            { 
+            if (elem.Category != null)
+            {
                 if(elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
                 return;
                 if(elem.CreatedPhaseId.IntegerValue == -1)
@@ -2178,12 +2216,17 @@ namespace OpenCOVERPlugin
                 if (elem.Category.Name == "Detailelemente")
                     return;
             }
-
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
             if (faces.Size == 0)
             {
                 return;
             }
+            Autodesk.Revit.DB.Material m = null;
+            bool sameMaterial = true;
+            int triangles = 0;
+            int maintriangles = 0;
+            bool twoSided = false;
+
 
 
             /*Autodesk.Revit.DB.WallType wallType = elem.Document.GetElement(elem.GetTypeId()) as Autodesk.Revit.DB.WallType; // get element type
@@ -2326,7 +2369,7 @@ namespace OpenCOVERPlugin
                 {
                     sendMaterial(m,elem);
                     mb.add(m.Color);
-                    mb.add((byte)(((100 - (m.Transparency)) / 100.0) * 255));
+                    mb.add((byte)(getTransparency(m, elem)));
                     mb.add(m.Id.IntegerValue);
                     mb.add(DocumentID);
                 }
@@ -2376,7 +2419,7 @@ namespace OpenCOVERPlugin
 
                                         sendMaterial(materialElement, elem);
                                         mb.add(materialElement.Color);
-                                        mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                                        mb.add((byte)(getTransparency(materialElement, elem)));
                                         mb.add(materialElement.Id.IntegerValue);
                                         mb.add(DocumentID);
                                     }
@@ -2415,7 +2458,7 @@ namespace OpenCOVERPlugin
 
                                 sendMaterial(materialElement, elem);
                                 mb.add(materialElement.Color);
-                                mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                                mb.add((byte)(getTransparency(materialElement, elem)));
                                 mb.add(materialElement.Id.IntegerValue);
                                 mb.add(DocumentID);
                             }
