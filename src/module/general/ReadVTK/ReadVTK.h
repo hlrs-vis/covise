@@ -82,11 +82,13 @@ private:
 
     coBooleanParam *m_pTime;
     coIntSliderParam *m_pTimeMin;
-    coIntSliderParam *m_pTimeMax;
+    coIntSliderParam* m_pTimeMax;
+    coIntSliderParam* m_pTimeSkip;
 
 
     int m_iTimestep;
     int m_iTimestepMin;
     int m_iTimestepMax;
+    int m_iTimestepSkip;
 };
 #endif // _READ_VTK_H

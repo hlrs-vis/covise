@@ -146,6 +146,9 @@ ReadVTK::ReadVTK(int argc, char *argv[])
     m_pTimeMax = addIntSliderParam("timesteps_max", "Adjust maximal timestep.");
     m_pTimeMax->setValue(0);
 
+    m_pTimeSkip = addIntSliderParam("timesteps_skip", "skip N timesteps");
+    m_pTimeSkip->setValue(0);
+
     m_iTimestep = 0;
     m_iTimestepMin = 0;
     m_iTimestepMax = 0;
@@ -290,9 +293,10 @@ void ReadVTK::update()
 
     m_iTimestepMax = m_pTimeMax->getValue();
     m_iTimestepMin = m_pTimeMin->getValue();
+    m_iTimestepSkip = m_pTimeSkip->getValue();
 
     std::vector<coDistributedObject*> dogrid, dopoint[NumPorts], docell[NumPorts], donormal;
-    for (int iTimestep = m_iTimestepMin; iTimestep <= m_iTimestepMax; iTimestep++)
+    for (int iTimestep = m_iTimestepMin; iTimestep <= m_iTimestepMax; iTimestep+=(1+m_iTimestepSkip))
     {
         std::string grid_name = m_portGrid->getObjName();
         std::string normal_name = m_portNormals->getObjName();
