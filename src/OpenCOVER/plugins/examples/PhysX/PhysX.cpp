@@ -84,9 +84,10 @@ void PhysX::key(int type, int keySym, int mod)
 {
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {
-        osg::Matrix invMV = cover->getViewerMat();
-        invMV.invert(invMV);
-        osg::Vec3 start = osg::Vec3() * invMV, target = osg::Y_AXIS * invMV;
+        osg::Matrix VM = cover->getViewerMat();
+        osg::Matrix invVM;
+        invVM.invert(VM);
+        osg::Vec3 start = VM.getTrans() * cover->getInvBaseMat(), target = osg::Y_AXIS * invVM * cover->getInvBaseMat();
         target = (target - start); target.normalize(); target *= 50.0f;
             if (keySym == '1' && _root.valid())
             {
