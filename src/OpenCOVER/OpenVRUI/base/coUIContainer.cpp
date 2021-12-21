@@ -12,7 +12,7 @@
 #include <OpenVRUI/sginterface/vruiUIElementProvider.h>
 
 #include <OpenVRUI/util/vruiLog.h>
-
+#include <cassert>
 using std::list;
 
 namespace vrui

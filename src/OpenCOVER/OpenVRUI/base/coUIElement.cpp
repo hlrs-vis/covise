@@ -5,19 +5,18 @@
 
  * License: LGPL 2+ */
 
-#include <stdio.h>
 
-#include <OpenVRUI/coUIElement.h>
 #include <OpenVRUI/coUIContainer.h>
-
-#include <OpenVRUI/sginterface/vruiUIElementProvider.h>
+#include <OpenVRUI/coUIElement.h>
+#include <OpenVRUI/sginterface/vruiGroupNode.h>
 #include <OpenVRUI/sginterface/vruiRendererInterface.h>
 #include <OpenVRUI/sginterface/vruiTransformNode.h>
-#include <OpenVRUI/sginterface/vruiGroupNode.h>
-
-#include <string.h>
-
+#include <OpenVRUI/sginterface/vruiUIElementProvider.h>
 #include <OpenVRUI/util/vruiLog.h>
+
+#include <cassert>
+#include <stdio.h>
+#include <string>
 
 namespace vrui
 {
