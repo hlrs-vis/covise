@@ -15,6 +15,7 @@ enum class Program
     opencover,
     coviseDaemon,
     crb,
+    external,
     LAST_DUMMY
 };
 namespace detail{
@@ -24,6 +25,7 @@ namespace detail{
         "opencover",
         "coviseDaemon",
         "crb",
+        "external"
         };
 }
 
