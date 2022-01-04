@@ -31,6 +31,8 @@
 #include <cover/OpenCOVER.h>
 #include <cover/VRWindow.h>
 #include <cover/ui/Manager.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -98,6 +100,7 @@ bool enableCompositing(QWidget *window, bool state)
 }
 
 WindowTypeQtPlugin::WindowTypeQtPlugin()
+: ui::Owner("QtWindow", cover->ui)
 {
     //fprintf(stderr, "WindowTypeQtPlugin::WindowTypeQtPlugin\n");
 }
@@ -243,6 +246,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         win.menubar = win.window->menuBar();
     win.menubar->show();
     QToolBar *toolbar = nullptr;
+    ui::Button *toggleToolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
     if (useToolbar)
     {
@@ -252,6 +256,18 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         win.window->addToolBar(toolbar);
         toolbar->show();
         window->addContextAction(toolbar->toggleViewAction());
+
+        toggleToolbar = new ui::Button("ToggleToolbar", this);
+        toggleToolbar->setVisible(false, ~ui::View::WindowMenu);
+        toggleToolbar->setText("Show toolbar");
+        toggleToolbar->setState(true);
+        cover->viewOptionsMenu->add(toggleToolbar);
+        toggleToolbar->setCallback([toolbar](bool state) {
+            toolbar->toggleViewAction()->trigger();
+        });
+        QObject::connect(toolbar->toggleViewAction(), &QAction::toggled, [toggleToolbar](bool checked) {
+            toggleToolbar->setState(checked);
+        });
     }
     win.toolbar = toolbar;
     win.view.emplace_back(new ui::QtView(win.menubar, toolbar));

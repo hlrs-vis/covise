@@ -9,6 +9,7 @@
 #define WINDOW_TYPE_QT
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 #include <vector>
 
 #include <QWidget>
@@ -27,7 +28,7 @@ class QtView;
 }
 }
 
-class WindowTypeQtPlugin : public opencover::coVRPlugin
+class WindowTypeQtPlugin : public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
     WindowTypeQtPlugin();
