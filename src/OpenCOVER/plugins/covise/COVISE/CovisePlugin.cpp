@@ -52,48 +52,6 @@ CovisePlugin::CovisePlugin()
                                       { handleVrbMessage(msg); });
 }
 
-#ifdef PINBOARD
-static void initPinboard(VRPinboard *pb)
-{
-    pb->addFunction("Execute", VRPinboard::BTYPE_FUNC, "execute", "COVISE", VRCoviseConnection::executeCallback, VRCoviseConnection::covconn);
-    pb->addFunction("CuttingSurface", VRPinboard::BTYPE_NAVGROUP, "CuttingSurface", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("CutGeometry", VRPinboard::BTYPE_NAVGROUP, "CutGeometry", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("Isosurface", VRPinboard::BTYPE_NAVGROUP, "IsoSurface", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("Tracer", VRPinboard::BTYPE_NAVGROUP, "Tracer", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("TracerUSG", VRPinboard::BTYPE_NAVGROUP, "TracerUsg", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("Stracer", VRPinboard::BTYPE_NAVGROUP, "STracer", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("TracerSTR", VRPinboard::BTYPE_NAVGROUP, "TracerStr", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("TetraTrace", VRPinboard::BTYPE_NAVGROUP, "TetraTrace", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("MagTracer", VRPinboard::BTYPE_NAVGROUP, "MagTracer", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("MagBlockTracer", VRPinboard::BTYPE_NAVGROUP, "MagBlockTracer", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("CellTracer", VRPinboard::BTYPE_NAVGROUP, "CellTracer", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-    pb->addFunction("LTracer", VRPinboard::BTYPE_NAVGROUP, "LTracer", "COVISE", ObjectManager::feedbackCallback, ObjectManager::instance());
-
-    //void configInteractionPinboard() {
-    // now we make the EXECUTE button
-    if (VRCoviseConnection::covconn)
-    {
-        int i = pb->getIndex("EXECUTE");
-
-        if (!pb->customPinboard)
-        {
-            pb->functions[i].isInPinboard = true;
-            pb->makeButton(pb->functions[i].functionName, pb->functions[i].defButtonName,
-                           pb->functions[i].defMenuName, pb->functions[i].functionType,
-                           pb->functions[i].callback, pb->functions[i].callbackClass);
-        }
-        else
-        {
-            if (pb->functions[i].isInPinboard)
-                pb->makeButton(pb->functions[i].functionName,
-                               pb->functions[i].customButtonName,
-                               pb->functions[i].customMenuName, pb->functions[i].functionType,
-                               pb->functions[i].callback, pb->functions[i].callbackClass);
-        }
-    }
-}
-#endif
-
 static void messageCallback(const DataHandle &dh)
 {
     coVRPluginList::instance()->forwardMessage(dh);
@@ -102,9 +60,7 @@ static void messageCallback(const DataHandle &dh)
 bool CovisePlugin::init()
 {
     coVRDistributionManager::instance().init();
-#ifdef PINBOARD
-    initPinboard(VRPinboard::instance());
-#else
+
     if (!cover->visMenu)
     {
         cover->visMenu = new ui::Menu("COVISE", this);
@@ -125,7 +81,7 @@ bool CovisePlugin::init()
             //cover->visMenu->add(selectInteract);
         }
     }
-#endif
+
     //CoviseRender::set_custom_callback(CovisePlugin::OpenCOVERCallback, this); //get covisemessages from 
     CoviseRender::set_render_module_callback(messageCallback);
     return VRCoviseConnection::covconn;

@@ -81,10 +81,6 @@ private:
     covise::coMaterialList *materialList;
     CoviseSG *coviseSG;
 
-#ifdef PINBOARD
-    typedef std::map<std::string, std::vector<buttonSpecCell *> > ButtonsMap;
-    ButtonsMap buttonsMap;
-#endif
     //
     // coDoSet handling
     //
@@ -114,15 +110,6 @@ private:
                            CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container, const char *lod);
     void removeGeometry(const char *name, bool);
 
-#ifdef PINBOARD
-    void addPinboardButton(const char *buttonId, int moduleInstance, const char *feedback_info, const char *name);
-    void addFeedbackButton(const char *container, const char *feedback_info, const char *name);
-    void removeButtonsForContainer(const char *container);
-    void removeAllButtons();
-
-    void feedback(buttonSpecCell *spec);
-#endif
-
     opencover::coInteractor *handleInteractors(CoviseRenderObject *container,
                            CoviseRenderObject *geo, CoviseRenderObject *norm, CoviseRenderObject *col, CoviseRenderObject *tex) const;
 
@@ -141,18 +128,11 @@ public:
 
     ~ObjectManager();
     ObjectManager();
-#ifdef PINBOARD
-    void addCoviseMenu(const char *container, buttonSpecCell *);
-#endif
     void deleteObject(const char *name, bool groupobj = true);
     void addObject(const char *name, const covise::coDistributedObject *obj = NULL);
     void coviseError(const char *error);
 
     void update(void);
-
-#ifdef PINBOARD
-    static void feedbackCallback(void *objectManager, buttonSpecCell *spec);
-#endif
 };
 }
 #endif

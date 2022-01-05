@@ -103,9 +103,6 @@ Slider::Slider(const char *attrib, const char *sa, osg::Node *n)
     if (sliderType == 'M')
     {
         stream >> subMenu;
-#ifdef PINBOARD
-        updateMenu();
-#endif
     }
     else
     {
@@ -287,10 +284,6 @@ Slider::~Slider()
         sphereTransform = 0;
     }
 
-#ifdef PINBOARD
-    if (button)
-        button->spec.calledClass = NULL;
-#endif
     delete[] sattrib;
 }
 
@@ -379,24 +372,6 @@ void Slider::updateValue(osg::Vec3 position,
     updatePosition();
 }
 
-#ifdef PINBOARD
-void Slider::updateSpec(buttonSpecCell *spec)
-{
-    min = spec->sliderMin;
-    max = spec->sliderMax;
-
-    value = spec->state;
-    if (spec->dragState == BUTTON_RELEASED)
-    {
-        if (value != oldValue)
-        {
-            updateParameter();
-            oldValue = value;
-        }
-    }
-}
-#endif
-
 bool Slider::updateInteraction()
 {
     coTrackerButtonInteraction::update();
@@ -440,82 +415,6 @@ void Slider::updatePosition()
         sphereTransform->setMatrix(mat);
     }
 }
-
-#ifdef PINBOARD
-void Slider::updateMenu()
-{
-    char buf[200];
-    char buf2[200];
-    char buf3[200];
-    VRMenu *menu;
-    sprintf(buf, "%s", moduleName.c_str());
-    strcpy(buf3, buf);
-    if (!(menu = VRPinboard::instance()->namedMenu(buf)))
-    {
-        buttonSpecCell *spec = new buttonSpecCell();
-        spec->actionType = BUTTON_SUBMENU;
-        strcpy(spec->subMenuName, buf);
-        sprintf(buf2, "%s...", moduleName.c_str());
-        strcpy(spec->name, buf2);
-        spec->callback = NULL;
-        spec->calledClass = (void *)this;
-        spec->state = false;
-        spec->dashed = false;
-        spec->group = cover->createUniqueButtonGroupId();
-        VRPinboard::instance()->addButtonToMainMenu(spec);
-        ObjectManager::instance()->addCoviseMenu(NULL, spec);
-    }
-
-    sprintf(buf, "%s %s", moduleName.c_str(), subMenu.c_str());
-    if (!(menu = VRPinboard::instance()->namedMenu(buf)))
-    {
-        buttonSpecCell *spec = new buttonSpecCell();
-        spec->actionType = BUTTON_SUBMENU;
-        strcpy(spec->subMenuName, buf);
-        sprintf(buf2, "%s...", subMenu.c_str());
-        strcpy(spec->name, buf2);
-        spec->callback = NULL;
-        spec->calledClass = (void *)this;
-        spec->state = false;
-        spec->dashed = false;
-        spec->group = cover->createUniqueButtonGroupId();
-        spec->setMenu(buf3);
-        VRPinboard::instance()->addButtonToNamedMenu(spec, buf3);
-    }
-
-    if (!(menu = VRPinboard::instance()->namedMenu(buf)))
-    {
-        fprintf(stderr, "Pinboard Error, could not create Menu %s \n", buf);
-        return;
-    }
-    button = menu->namedButton(parameterName.c_str());
-    if (button)
-    {
-        button->spec.sliderMin = min;
-        button->spec.sliderMax = max;
-        button->spec.state = value;
-        button->spec.oldState = value;
-        button->setState(value);
-        button->spec.calledClass = (void *)this;
-    }
-    else
-    {
-        buttonSpecCell *spec = new buttonSpecCell();
-        spec->setMenu(buf);
-        strcpy(spec->name, parameterName.c_str());
-        spec->actionType = BUTTON_SLIDER;
-        spec->callback = &Slider::menuCallback;
-        spec->calledClass = (void *)this;
-        spec->state = value;
-        spec->oldState = value;
-        spec->dashed = false;
-        spec->group = -1;
-        spec->sliderMin = min;
-        spec->sliderMax = max;
-        menu->addButton(spec);
-    }
-}
-#endif
 
 int Slider::isSlider(const char *n)
 {
@@ -567,14 +466,6 @@ void Slider::doInteraction()
 
     updateValue(position, direction);
 }
-
-#ifdef PINBOARD
-void Slider::menuCallback(void *slider, buttonSpecCell *spec)
-{
-    if (slider)
-        ((Slider *)slider)->updateSpec(spec);
-}
-#endif
 
 Slider *SliderList::find(osg::Vec3 position, osg::Vec3 direction, float *distance)
 {

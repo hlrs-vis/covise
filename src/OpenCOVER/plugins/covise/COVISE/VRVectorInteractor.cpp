@@ -115,9 +115,6 @@ VectorInteractor::VectorInteractor(const char *attrib, const char *sa, osg::Node
     updatePosition();
     transform->addChild(getArrow());
     cover->getObjectsRoot()->addChild(transform);
-#ifdef PINBOARD
-    addMenue();
-#endif
 
     delete[] buf;
 }
@@ -211,96 +208,6 @@ void VectorInteractor::updatePosition()
     transform->setMatrix(m);
     //fprintf(stderr,"Value: %f\n",value);
 }
-
-#ifdef PINBOARD
-void
-VectorInteractor::addMenue()
-{
-    if (menue)
-        return;
-    menue = 1;
-    buttonSpecCell spec;
-
-    strcpy(spec.name, "FloatVector");
-    spec.actionType = BUTTON_SWITCH;
-    spec.callback = &VectorInteractor::menuCallback;
-    spec.calledClass = (void *)this;
-    spec.state = 0.0;
-    spec.dashed = false;
-    spec.group = 0;
-    VRPinboard::instance()->addButtonToMainMenu(&spec);
-
-    return;
-}
-
-void VectorInteractor::updateMenu()
-{
-    buttonSpecCell spec;
-    char buf[200];
-    char buf2[200];
-    char buf3[200];
-    VRMenu *menu;
-    sprintf(buf, "%s", moduleName);
-    strcpy(buf3, buf);
-    if (!(menu = VRPinboard::instance()->namedMenu(buf)))
-    {
-        spec.actionType = BUTTON_SUBMENU;
-        strcpy(spec.subMenuName, buf);
-        sprintf(buf2, "%s ...", moduleName);
-        strcpy(spec.name, buf2);
-        spec.callback = NULL;
-        spec.calledClass = (void *)this;
-        spec.state = false;
-        spec.dashed = false;
-        spec.group = cover->createUniqueButtonGroupId();
-        VRPinboard::instance()->addButtonToMainMenu(&spec);
-    }
-    if (subMenu)
-    {
-        sprintf(buf, "%s %s", moduleName, subMenu);
-        if (!(menu = VRPinboard::instance()->namedMenu(buf)))
-        {
-            spec.actionType = BUTTON_SUBMENU;
-            strcpy(spec.subMenuName, buf);
-            sprintf(buf2, "%s ...", subMenu);
-            strcpy(spec.name, buf2);
-            spec.callback = NULL;
-            spec.calledClass = (void *)this;
-            spec.state = false;
-            spec.dashed = false;
-            spec.group = cover->createUniqueButtonGroupId();
-            VRPinboard::instance()->addButtonToNamedMenu(&spec, buf3);
-        }
-    }
-    if (!(menu = VRPinboard::instance()->namedMenu(buf)))
-    {
-        fprintf(stderr, "Pinboard Error, could not create Menu %s \n", buf);
-        return;
-    }
-    VRButton *button;
-    button = menu->namedButton(parameterName);
-    if (button)
-    {
-        //button->spec.sliderMin= min;
-        //button->spec.sliderMax= max;
-        //button->spec.state= value;
-        //button->update();
-    }
-    else
-    {
-        strcpy(spec.name, parameterName);
-        spec.actionType = BUTTON_SLIDER;
-        spec.callback = &VectorInteractor::menuCallback;
-        spec.calledClass = (void *)this;
-        //spec.state= value;
-        spec.dashed = false;
-        spec.group = -1;
-        //spec.sliderMin= min;
-        //spec.sliderMax= max;
-        menu->addButton(&spec);
-    }
-}
-#endif
 
 int VectorInteractor::isVectorInteractor(const char *n)
 {
@@ -498,18 +405,6 @@ void VectorInteractorList::removeAll(osg::Node *n)
             next();
     }
 }
-
-#ifdef PINBOARD
-void VectorInteractor::menuCallback(void *slider, buttonSpecCell *spec)
-{
-    if (strcmp(spec->name, "FloatVector") == 0)
-    {
-        VRSceneGraph::instance()->manipulate(spec);
-    }
-    else
-        ((VectorInteractor *)slider)->update(spec);
-}
-#endif
 
 osg::Node *VectorInteractor::getArrow()
 {
