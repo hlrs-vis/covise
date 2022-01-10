@@ -8,6 +8,23 @@ SET(HEADERS
 
 SET(SOURCES
   CEF.cpp
+  
 )
 
 cover_add_plugin(Browser)
+
+
+SET(HEADERS
+)
+SET(SOURCES
+  CEFBrowserHelper.cpp
+  CEFBrowserHelper.manifest
+)
+if(WIN32)
+ADD_COVISE_EXECUTABLE(CEFBrowserHelper WIN32)
+else(WIN32)
+ADD_COVISE_EXECUTABLE(CEFBrowserHelper)
+endif(WIN32)
+COVISE_WNOERROR(CEFBrowserHelper)
+
+TARGET_LINK_LIBRARIES(CEFBrowserHelper ${EXTRA_LIBS} )

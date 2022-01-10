@@ -260,6 +260,14 @@ if not defined  OPENSCENEGRAPH_HOME (
    )
 )
 
+if exist %EXTERNLIBS%\cef\Release\libcef.dll (
+   if "%USE_OPT_LIBS%" == "1" (
+	 set "PATH=%PATH%;%EXTERNLIBS%\cef\Release"
+   ) else (
+	 set "PATH=%PATH%;%EXTERNLIBS%\cef\Debug"
+   )
+)
+
 if not defined ALVAR_HOME  (
    set "ALVAR_HOME=%EXTERNLIBS%\ALVAR"
    set "ALVAR_DEFINES=HAVE_ALVAR"
