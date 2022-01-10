@@ -93,7 +93,8 @@ coTexturedBackground::coTexturedBackground(const uint *normalImage,
                                            const uint *highlightImage,
                                            const uint *disabledImage,
                                            int comp, int ns, int nt, int nr,
-                                           coTexturedBackgroundActor *actor)
+                                           coTexturedBackgroundActor *actor, 
+                                           TextureSet::TexturePixelFormatType pf)
 {
     myActor = actor;
     normalTexName = "";
@@ -103,8 +104,9 @@ coTexturedBackground::coTexturedBackground(const uint *normalImage,
     texXSize = 0;
     texYSize = 0;
     myScale = 1.0;
+    
 
-    currentTextures = new TextureSet(normalImage, highlightImage, disabledImage, comp, ns, nt, nr);
+    currentTextures = new TextureSet(normalImage, highlightImage, disabledImage, comp, ns, nt, nr,pf);
 
     if (myActor != NULL)
         vruiIntersection::getIntersectorForAction("coAction")->add(getDCS(), this);
@@ -120,10 +122,10 @@ coTexturedBackground::~coTexturedBackground()
 void coTexturedBackground::setImage(const uint *normalImage,
                                     const uint *highlightImage,
                                     const uint *disabledImage,
-                                    int comp, int ns, int nt, int nr)
+                                    int comp, int ns, int nt, int nr, TextureSet::TexturePixelFormatType pixelFormat)
 {
     delete currentTextures;
-    currentTextures = new TextureSet(normalImage, highlightImage, disabledImage, comp, ns, nt, nr);
+    currentTextures = new TextureSet(normalImage, highlightImage, disabledImage, comp, ns, nt, nr,pixelFormat);
     updated = true;
     uiElementProvider->update();
 }

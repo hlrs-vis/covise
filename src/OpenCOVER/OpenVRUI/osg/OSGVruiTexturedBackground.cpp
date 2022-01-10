@@ -68,9 +68,12 @@ void OSGVruiTexturedBackground::update()
 
         Image *image = texNormal->getImage();
 
-        GLenum pixel_format = tex->comp == 3 ? GL_RGB : GL_RGBA;
 
-        image->setImage(tex->s, tex->t, tex->r, pixel_format, pixel_format, GL_UNSIGNED_BYTE,
+        GLenum pixel_format = (GLenum)tex->pixelFormat;
+        if(pixel_format == coTexturedBackground::TextureSet::PF_DEFAULT)
+            pixel_format = tex->comp == 3 ? GL_RGB : GL_RGBA;
+
+        image->setImage(tex->s, tex->t, tex->r, tex->comp == 3 ? GL_RGB : GL_RGBA, pixel_format, GL_UNSIGNED_BYTE,
                         (unsigned char *)tex->normalTextureImage, Image::NO_DELETE, tex->comp);
         image->dirty();
         texNormal->dirtyTextureObject();

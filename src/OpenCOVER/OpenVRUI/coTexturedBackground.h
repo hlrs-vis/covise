@@ -61,18 +61,13 @@ class OPENVRUIEXPORT coTexturedBackground
       public coAction
 {
 public:
-    coTexturedBackground(const std::string &normalTexture, const std::string &highlightTexture,
-                         const std::string &disabledTexture, coTexturedBackgroundActor *actor = 0);
-    coTexturedBackground(const uint *normalImage, const uint *highlightImage,
-                         const uint *disabledImage, int comp, int ns, int nt, int nr,
-                         coTexturedBackgroundActor *actor = 0);
-    virtual ~coTexturedBackground();
 
     class TextureSet
     {
 
     public:
-        TextureSet(const uint *nt, const uint *ht, const uint *dt, int comp, int s, int t, int r)
+        enum TexturePixelFormatType { PF_DEFAULT = 0, PF_RGB = 0x1907, PF_RGBA = 0x1908, PF_GL_LUMINANCE = 0x1909, PF_BGRA = 0x80E1 };
+        TextureSet(const uint* nt, const uint* ht, const uint* dt, int comp, int s, int t, int r, TextureSet::TexturePixelFormatType pf = TextureSet::PF_DEFAULT)
             : start(0.0f, 0.0f)
             , end(1.0f, 1.0f)
         {
@@ -83,15 +78,17 @@ public:
             this->s = s;
             this->t = t;
             this->r = r;
+            pixelFormat = pf;
         }
 
-        const uint *normalTextureImage;
-        const uint *highlightedTextureImage;
-        const uint *disabledTextureImage;
+        const uint* normalTextureImage;
+        const uint* highlightedTextureImage;
+        const uint* disabledTextureImage;
         int comp;
         int s;
         int t;
         int r;
+        TexturePixelFormatType pixelFormat = PF_DEFAULT;
 
         struct TexCoord
         {
@@ -107,6 +104,14 @@ public:
         TexCoord start;
         TexCoord end;
     };
+
+    coTexturedBackground(const std::string &normalTexture, const std::string &highlightTexture,
+                         const std::string &disabledTexture, coTexturedBackgroundActor *actor = 0);
+    coTexturedBackground(const uint *normalImage, const uint *highlightImage,
+                         const uint *disabledImage, int comp, int ns, int nt, int nr,
+                         coTexturedBackgroundActor *actor = 0, TextureSet::TexturePixelFormatType pixelFormat = TextureSet::PF_DEFAULT);
+    virtual ~coTexturedBackground();
+
 
     virtual int hit(vruiHit *hit);
     virtual void miss();
@@ -143,7 +148,7 @@ public:
     }
 
     void setImage(const uint *normalImage, const uint *highlightImage,
-                  const uint *disabledImage, int comp, int ns, int nt, int nr);
+                  const uint *disabledImage, int comp, int ns, int nt, int nr, TextureSet::TexturePixelFormatType pixelFormat=TextureSet::PF_DEFAULT);
 
     /// get the Element's classname
     virtual const char *getClassName() const;
