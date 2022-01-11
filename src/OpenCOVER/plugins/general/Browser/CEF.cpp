@@ -2,7 +2,7 @@
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRCollaboration.h>
-#include <cover/coCollabinterface.h>
+#include <cover/coCollabInterface.h>
 #include <cover/coIntersection.h>
 #include "include/cef_browser.h"
 #include "include/cef_request_context.h"
@@ -32,6 +32,7 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/Action.h>
+#include <algorithm>
 
 
 void CEF::OnContextInitialized() {
@@ -88,10 +89,16 @@ bool CEF_client::OnContextMenuCommand( CefRefPtr<CefBrowser> browser, CefRefPtr<
     return false;
 }
 #else
+#ifdef __APPLE__
+void CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+    rect = CefRect(0, 0, std::max(8,width), std::max(8,height)); // never give an empty rectangle!!
+}
+#else
 bool CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
-    rect = CefRect(0, 0, max(8, width), max(8, height)); // never give an empty rectangle!!
+    rect = CefRect(0, 0, std::max(8, width), std::max(8, height)); // never give an empty rectangle!!
     return true;
 }
+#endif
 #endif
 
 void CEF_client::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height)
@@ -308,6 +315,7 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
 
 
     CefSettings settings;
+    CefSettingsTraits::init(&settings);
 
     char* cd;
     char* as;

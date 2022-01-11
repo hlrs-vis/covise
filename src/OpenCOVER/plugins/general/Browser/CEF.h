@@ -87,7 +87,11 @@ public:
     void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
     bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
 #else
-    bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect);
+#ifdef __APPLE__
+    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+#else
+    bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+#endif
 #endif
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
     void resize(int resolution, float aspect);
@@ -121,7 +125,7 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         int mX = -1;
         int mY = -1;
 
-        bool update();
+        bool update() override;
 
         // CefApp methods:
         CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override {
@@ -135,7 +139,7 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
 
     public:
         CEF();
-        bool init();
+        bool init() override;
         virtual ~CEF();
         CefRefPtr<CefBrowser> browser;
         CefRefPtr<CEF_client> client;
