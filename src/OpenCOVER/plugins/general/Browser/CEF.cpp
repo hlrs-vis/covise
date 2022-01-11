@@ -12,6 +12,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefsimple/simple_handler.h"
 #include "CEFWindowsKey.h"
+#include <config/CoviseConfig.h>
 
 #include <OpenVRUI/coToolboxMenu.h>
 #include <OpenVRUI/coRowMenu.h>
@@ -308,26 +309,39 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
 
     CefSettings settings;
 
+    char* cd;
+    char* as;
+    std::string coviseDir;
+    std::string archSuffix;
+    if ((cd = getenv("COVISEDIR")) == NULL)
+    {
+        cerr << "COVISEDIR variable not set !!" << endl;
+        coviseDir = "c:\\Program Files\\Covise";
+    }
+    else
+        coviseDir = cd;
+    if ((as = getenv("ARCHSUFFIX")) == NULL)
+    {
+        cerr << "ARCHSUFFIX variable not set !!" << endl;
+        archSuffix = "zebuopt";
+    }
+    else
+        archSuffix = as;
 
 #ifdef _WIN32
-#ifdef _DEBUG
-    std::string bsp ="c:/src/covise/zebu/bin/CEFBrowserHelper.exe";
+    std::string bsp = coviseDir + "/" + archSuffix + "/bin/CEFBrowserHelper.exe";
 #else
-    std::string bsp = "c:/src/covise/zebuopt/bin/CEFBrowserHelper.exe";
+    std::string bsp = coviseDir + "/" + archSuffix + "/bin/CEFBrowserHelper";
 #endif
-#else
-    string bsp = VRSceneManager::get()->getOriginalWorkdir() + path + "/CefSubProcess";
-#endif
-
-    std::string rdp = "C:/src/externlibs/zebu/cef/Resources";
-    std::string ldp = "c:/src/externlibs/zebu/cef/Resources/locales";
-    std::string lfp = "c:/src/externlibs/zebu/cef/Resources/wblog.log";
+    std::string rdp = coviseDir + "/share/covise/cef/Resources";
+    std::string ldp = coviseDir + "/share/covise/cef/Resources/locales";
+    std::string lfp = coviseDir + "/share/covise/cef/Resources/wblog.log";
     CefString(&settings.browser_subprocess_path).FromASCII(bsp.c_str());
-    CefString(&settings.locales_dir_path).FromASCII(ldp.c_str());
-    CefString(&settings.resources_dir_path).FromASCII(rdp.c_str());
-    CefString(&settings.log_file).FromASCII(lfp.c_str());
+    CefString(&settings.locales_dir_path).FromASCII(covise::coCoviseConfig::getEntry("localesDirPath", "COVER.Plugin.Browser", ldp).c_str());
+    CefString(&settings.resources_dir_path).FromASCII(covise::coCoviseConfig::getEntry("resourcesDirPath", "COVER.Plugin.Browser", rdp).c_str());
+    CefString(&settings.log_file).FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());
     
-    //settings.log_severity = LOGSEVERITY_VERBOSE;
+    settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
     settings.no_sandbox = true;
 #ifdef _WIN32
     settings.windowless_rendering_enabled = true;
