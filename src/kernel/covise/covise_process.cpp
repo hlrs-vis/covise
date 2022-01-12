@@ -802,6 +802,7 @@ Message *Process::wait_for_msg()
         case COVISE_MESSAGE_EMPTY:
         case COVISE_MESSAGE_STDINOUT_EMPTY:
             list_of_connections->remove(conn);
+            msg->conn = nullptr;
             print_comment(__LINE__, __FILE__, "Socket Closed");
             return msg;
         //break;
@@ -871,6 +872,7 @@ Message *Process::check_for_msg(float time)
             case COVISE_MESSAGE_EMPTY:
             case COVISE_MESSAGE_SOCKET_CLOSED:
                 list_of_connections->remove(conn);
+                msg->conn = nullptr;
                 print_comment(__LINE__, __FILE__, "Socket Closed");
                 return msg;
             case COVISE_MESSAGE_NEW_SDS:
@@ -914,6 +916,8 @@ Message *Process::wait_for_msg(int covise_msg_type, const Connection *conn = 0)
         default:
             if (conn == 0 || tmpconn == conn)
             {
+                if (msg->conn == conn)
+                    msg->conn = nullptr;
                 if (msg->type == covise_msg_type)
                     return msg;
             }
@@ -964,8 +968,9 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
         case COVISE_MESSAGE_EMPTY:
         case COVISE_MESSAGE_SOCKET_CLOSED:
             list_of_connections->remove(tmpconn);
+            tmpconn == nullptr;
+            msg->conn = nullptr;
             print_comment(__LINE__, __FILE__, "Socket Closed");
-        //delete tmpconn;
         default:
             if (conn == 0 || tmpconn == conn)
             {

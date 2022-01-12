@@ -124,6 +124,7 @@ private:
     void new_obj_names();
     void sendFinish();
     void delete_rez_objs();
+    virtual void onConnectionClosed() override;
 
 protected:
     enum

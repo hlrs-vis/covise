@@ -39,12 +39,13 @@ NetModule::NetModule(const RemoteHost &host, const ModuleInfo &moduleInfo, int i
 bool NetModule::isOnTop() const
 {
     bool onTop = true;
-    connectivity().forAllNetInterfaces([&onTop](const net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Input && interface.get_conn_state())
-        {
-            onTop = false;
-        }
-    });
+    connectivity().forAllNetInterfaces([&onTop](const net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Input && interface.get_conn_state())
+                                           {
+                                               onTop = false;
+                                           }
+                                       });
     return onTop;
 }
 
@@ -256,7 +257,8 @@ void NetModule::copyConnectivity()
     m_connectivity.inputParams = m_info.connectivity().inputParams;
     m_connectivity.outputParams = m_info.connectivity().outputParams;
     m_connectivity.interfaces.resize(m_info.connectivity().interfaces.size());
-    std::transform(m_info.connectivity().interfaces.begin(), m_info.connectivity().interfaces.end(), m_connectivity.interfaces.begin(), [](const std::unique_ptr<C_interface> &inter) { return std::unique_ptr<net_interface>(new net_interface{*inter}); });
+    std::transform(m_info.connectivity().interfaces.begin(), m_info.connectivity().interfaces.end(), m_connectivity.interfaces.begin(), [](const std::unique_ptr<C_interface> &inter)
+                   { return std::unique_ptr<net_interface>(new net_interface{*inter}); });
 }
 
 int NetModule::testOriginalcount(const string &interfaceName) const
@@ -268,9 +270,8 @@ int NetModule::testOriginalcount(const string &interfaceName) const
     }
     else
     {
-        auto org = std::find_if(m_mirrors.begin(), m_mirrors.end(), [](const NetModule *mirror) {
-            return mirror->m_mirror == ORG_MIRR;
-        });
+        auto org = std::find_if(m_mirrors.begin(), m_mirrors.end(), [](const NetModule *mirror)
+                                { return mirror->m_mirror == ORG_MIRR; });
         if (org != m_mirrors.end())
         {
             try
@@ -433,17 +434,36 @@ void NetModule::sendFinish()
 
 void NetModule::delete_rez_objs()
 {
-    connectivity().forAllNetInterfaces([](net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output && interface.get_conn_state())
-        {
-            object *p_obj = interface.get_object();
-            if (p_obj != NULL)
-            {
-                p_obj->del_rez_DO();
-                p_obj->del_dep_data();
-            }
-        }
-    });
+    connectivity().forAllNetInterfaces([](net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output && interface.get_conn_state())
+                                           {
+                                               object *p_obj = interface.get_object();
+                                               if (p_obj != NULL)
+                                               {
+                                                   p_obj->del_rez_DO();
+                                                   p_obj->del_dep_data();
+                                               }
+                                           }
+                                       });
+}
+
+void NetModule::onConnectionClosed()
+{
+    std::stringstream ss;
+    ss << "DIED\n"
+       << info().name << "\n"
+       << instance() << "\n"
+       << host.userInfo().ipAdress;
+    Message msg{COVISE_MESSAGE_UI, ss.str()};
+    host.hostManager.sendAll<Userinterface>(msg);
+
+    ss = std::stringstream{};
+    ss << "Module " << fullName() << "@" << host.userInfo().ipAdress << " crashed !!!";
+    host.hostManager.sendAll<Userinterface>(Message{COVISE_MESSAGE_COVISE_ERROR, ss.str()});
+
+    CTRLHandler::instance()->finishExecuteIfLastRunning(*this);
+    setAlive(false);
 }
 
 std::string NetModule::getStartMessage()
@@ -452,12 +472,13 @@ std::string NetModule::getStartMessage()
     buff << serialize();
 
     int numOutputConnections = 0;
-    m_connectivity.forAllNetInterfaces([&numOutputConnections](const net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output || interface.get_conn_state())
-        {
-            ++numOutputConnections;
-        }
-    });
+    m_connectivity.forAllNetInterfaces([&numOutputConnections](const net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output || interface.get_conn_state())
+                                           {
+                                               ++numOutputConnections;
+                                           }
+                                       });
     buff << numOutputConnections << "\n"
          << m_connectivity.inputParams.size() << "\n";
 
@@ -533,30 +554,32 @@ void NetModule::sendWarningMsgToMasterUi(const std::string &msg)
 bool NetModule::delete_old_objs()
 {
     bool deleted = false;
-    m_connectivity.forAllNetInterfaces([&deleted](net_interface &interface) {
-        // is the Interface connected ?
-        if (interface.get_direction() == Direction::Output && interface.get_conn_state())
-        {
-            object *p_obj = interface.get_object();
-            if (p_obj && !p_obj->isEmpty())
-            {
-                p_obj->del_old_DO();
-                deleted = true;
-                return;
-            }
-        }
-    });
+    m_connectivity.forAllNetInterfaces([&deleted](net_interface &interface)
+                                       {
+                                           // is the Interface connected ?
+                                           if (interface.get_direction() == Direction::Output && interface.get_conn_state())
+                                           {
+                                               object *p_obj = interface.get_object();
+                                               if (p_obj && !p_obj->isEmpty())
+                                               {
+                                                   p_obj->del_old_DO();
+                                                   deleted = true;
+                                                   return;
+                                               }
+                                           }
+                                       });
     return deleted;
 }
 
 void NetModule::new_obj_names()
 {
-    m_connectivity.forAllNetInterfaces([](net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output && interface.get_conn_state())
-        {
-            interface.get_object()->newDataObject();
-        }
-    });
+    m_connectivity.forAllNetInterfaces([](net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output && interface.get_conn_state())
+                                           {
+                                               interface.get_object()->newDataObject();
+                                           }
+                                       });
 }
 
 std::string NetModule::get_outparaobj() const
@@ -580,28 +603,29 @@ std::string NetModule::get_outparaobj() const
         buff << intf_count << "\n";
 
         // get objects
-        m_connectivity.forAllNetInterfaces([&err, &buff](const net_interface &interface) {
-            if (interface.get_direction() == controller::Direction::Output)
-            {
-                if (interface.get_conn_state())
-                {
-                    buff << interface.get_name() << "\n";
+        m_connectivity.forAllNetInterfaces([&err, &buff](const net_interface &interface)
+                                           {
+                                               if (interface.get_direction() == controller::Direction::Output)
+                                               {
+                                                   if (interface.get_conn_state())
+                                                   {
+                                                       buff << interface.get_name() << "\n";
 
-                    string obj_name = interface.get_object()->get_current_name();
-                    if (!obj_name.empty())
-                        buff << obj_name << "\n";
-                    else
-                        buff << "NO_OBJ\n"; //DeletedModuleFinished");
-                }
-                else
-                {
-                    print_comment(__LINE__, __FILE__, "ERROR: send_finisCTRLGlobal::getInstance()-> Interfaces not connected \n");
-                    cerr << "\n ERROR: send_finisCTRLGlobal::getInstance()-> Interfaces not connected !!!\n";
-                    err = true;
-                    return;
-                } // if state
-            }
-        });
+                                                       string obj_name = interface.get_object()->get_current_name();
+                                                       if (!obj_name.empty())
+                                                           buff << obj_name << "\n";
+                                                       else
+                                                           buff << "NO_OBJ\n"; //DeletedModuleFinished");
+                                                   }
+                                                   else
+                                                   {
+                                                       print_comment(__LINE__, __FILE__, "ERROR: send_finisCTRLGlobal::getInstance()-> Interfaces not connected \n");
+                                                       cerr << "\n ERROR: send_finisCTRLGlobal::getInstance()-> Interfaces not connected !!!\n";
+                                                       err = true;
+                                                       return;
+                                                   } // if state
+                                               }
+                                           });
     } // !renderer
     return err ? "" : buff.str();
 }
@@ -619,38 +643,40 @@ std::string NetModule::get_inparaobj() const
 
     buffS << getNumInterfaces(controller::Direction::Input) << "\n";
 
-    m_connectivity.forAllNetInterfaces([&buffS, this](const net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Input)
-        {
-            buffS << serializeInputInterface(interface);
-        }
-    });
+    m_connectivity.forAllNetInterfaces([&buffS, this](const net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Input)
+                                           {
+                                               buffS << serializeInputInterface(interface);
+                                           }
+                                       });
     return buffS.str();
 }
 
 bool NetModule::startModuleWaitingAbove(NumRunning &numRunning)
 {
     bool oneWaiting = false;
-    m_connectivity.forAllNetInterfaces([&numRunning, &oneWaiting, this](net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Input)
-        {
-            // is the interface connected?
-            if (interface.get_conn_state() == true)
-            {
-                auto mod = interface.get_object()->get_from().get_mod();
-                if (mod->startflag())
-                {
-                    oneWaiting = true;
-                    mod->resetStartFlag();
-                    if (!mod->isOneRunningAbove(1))
-                    {
-                        numRunning.apps++;
-                        mod->execute(numRunning);
-                    }
-                }
-            }
-        }
-    });
+    m_connectivity.forAllNetInterfaces([&numRunning, &oneWaiting, this](net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Input)
+                                           {
+                                               // is the interface connected?
+                                               if (interface.get_conn_state() == true)
+                                               {
+                                                   auto mod = interface.get_object()->get_from().get_mod();
+                                                   if (mod->startflag())
+                                                   {
+                                                       oneWaiting = true;
+                                                       mod->resetStartFlag();
+                                                       if (!mod->isOneRunningAbove(1))
+                                                       {
+                                                           numRunning.apps++;
+                                                           mod->execute(numRunning);
+                                                       }
+                                                   }
+                                               }
+                                           }
+                                       });
     return oneWaiting;
 }
 
@@ -661,22 +687,24 @@ int NetModule::numRunning() const
 
 void NetModule::setStart()
 {
-    connectivity().forAllNetInterfaces([](net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output)
-        {
-            interface.get_object()->setStartFlagOnConnectedModules();
-        }
-    });
+    connectivity().forAllNetInterfaces([](net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output)
+                                           {
+                                               interface.get_object()->setStartFlagOnConnectedModules();
+                                           }
+                                       });
 }
 
 void NetModule::startModulesUnder(NumRunning &numRunning)
 {
-    connectivity().forAllNetInterfaces([&numRunning](net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output)
-        {
-            interface.get_object()->start_modules(numRunning);
-        }
-    });
+    connectivity().forAllNetInterfaces([&numRunning](net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output)
+                                           {
+                                               interface.get_object()->start_modules(numRunning);
+                                           }
+                                       });
 }
 
 bool NetModule::isOneRunningAbove(bool first) const
@@ -706,24 +734,25 @@ bool NetModule::isOneRunningAbove(bool first) const
 bool NetModule::is_one_running_under() const
 {
     bool oneRunningUnder = false;
-    connectivity().forAllNetInterfaces([&oneRunningUnder](const net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output &&
-            interface.get_object())
-        {
-            const auto &to = interface.get_object()->get_to();
-            for (const auto &conn : to)
-            {
-                const NetModule *app = conn.get_mod();
-                if (app &&
-                    !dynamic_cast<const Renderer *>(app) &&
-                    app->isExecuting())
-                {
-                    oneRunningUnder = true;
-                    return;
-                }
-            }
-        }
-    });
+    connectivity().forAllNetInterfaces([&oneRunningUnder](const net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output &&
+                                               interface.get_object())
+                                           {
+                                               const auto &to = interface.get_object()->get_to();
+                                               for (const auto &conn : to)
+                                               {
+                                                   const NetModule *app = conn.get_mod();
+                                                   if (app &&
+                                                       !dynamic_cast<const Renderer *>(app) &&
+                                                       app->isExecuting())
+                                                   {
+                                                       oneRunningUnder = true;
+                                                       return;
+                                                   }
+                                               }
+                                           }
+                                       });
     return oneRunningUnder;
 }
 
@@ -795,18 +824,19 @@ void NetModule::delete_dep_objs()
 {
     bool objs_deleted = false;
 
-    m_connectivity.forAllNetInterfaces([&objs_deleted](net_interface &interface) {
-        if (interface.get_direction() == controller::Direction::Output && interface.get_conn_state())
-        {
-            object *p_obj = interface.get_object();
-            if ((p_obj != NULL) && (!p_obj->isEmpty()))
-            {
-                p_obj->del_all_DO(0);
-                objs_deleted = true;
-                p_obj->del_dep_data();
-            }
-        }
-    });
+    m_connectivity.forAllNetInterfaces([&objs_deleted](net_interface &interface)
+                                       {
+                                           if (interface.get_direction() == controller::Direction::Output && interface.get_conn_state())
+                                           {
+                                               object *p_obj = interface.get_object();
+                                               if ((p_obj != NULL) && (!p_obj->isEmpty()))
+                                               {
+                                                   p_obj->del_all_DO(0);
+                                                   objs_deleted = true;
+                                                   p_obj->del_dep_data();
+                                               }
+                                           }
+                                       });
     // update the mapeditor with
     if (objs_deleted)
         sendFinish();
@@ -897,9 +927,8 @@ std::string NetModule::get_module(bool forSaving) const
 
 void NetModule::setDeadFlag(int flag)
 {
-    connectivity().forAllNetInterfaces([flag](net_interface &interface) {
-        interface.setDeadFlag(flag);
-    });
+    connectivity().forAllNetInterfaces([flag](net_interface &interface)
+                                       { interface.setDeadFlag(flag); });
 }
 
 void NetModule::writeScript(std::ofstream &of) const

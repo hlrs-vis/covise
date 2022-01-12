@@ -37,7 +37,7 @@ CRBModule::~CRBModule()
 bool CRBModule::init()
 {
     Message msg;
-    tryReceiveMessage(msg);
+    recv_msg(&msg);
     if (!msg.data.data())
         return false;
 
@@ -47,7 +47,7 @@ bool CRBModule::init()
     checkCoviseVersion(moduleMsg.coviseVersion(), getHost());
     initMessage = NEW_UI_PartnerInfo{host.ID(), host.userInfo(), moduleMsg.coviseVersion(), moduleMsg.modules(), moduleMsg.categories()}.createMessage();
 
-    tryReceiveMessage(interfaceMessage);
+    recv_msg(&interfaceMessage);
     queryDataPath();
 
     for (const auto crb : host.hostManager.getAllModules<CRBModule>())
@@ -95,31 +95,11 @@ void CRBModule::sendMaster(const Message &msg)
     }
 }
 
-bool CRBModule::tryReceiveMessage(Message &msg)
-{
-    recv_msg(&msg);
-    switch (msg.type)
-    {
-    case COVISE_MESSAGE_EMPTY:
-    case COVISE_MESSAGE_CLOSE_SOCKET:
-    case COVISE_MESSAGE_SOCKET_CLOSED:
-    {
-        std::unique_ptr<Message> m(&msg);
-        CTRLHandler::instance()->handleClosedMsg(m);
-        m.release();
-    }
-    return false;
-    default:
-        break;
-    }
-    return true;
-}
-
 void CRBModule::queryDataPath()
 {
     Message msg{COVISE_MESSAGE_QUERY_DATA_PATH, ""};
     send(&msg);
-    tryReceiveMessage(msg);
+    recv_msg(&msg);
     if (msg.type == COVISE_MESSAGE_SEND_DATA_PATH)
         covisePath = msg.data.data();
 }
@@ -167,4 +147,9 @@ bool CRBModule::connectCrbsViaProxy(const SubProcess &toCrb)
         }
     }
     return true;
+}
+
+void CRBModule::onConnectionClosed()
+{
+    std::cerr << "crb crashed!" << std::endl;
 }

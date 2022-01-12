@@ -62,9 +62,12 @@ protected:
     Status m_status;
     bool rendererIsPossible;
     bool rendererIsActive;
+    UIOptions m_options;
     void updateUI();
-};
 
+private:
+    virtual void onConnectionClosed() override;
+};
 
 struct MapEditor : Userinterface
 {

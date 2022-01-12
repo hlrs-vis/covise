@@ -7,6 +7,7 @@
 
 #include "controlProcess.h"
 #include "crb.h"
+#include "global.h"
 #include "handler.h"
 #include "list.h"
 #include "module.h"
@@ -87,14 +88,14 @@ void data::del_data(const controller::CRBModule &crb)
 //	fflush(msg_prot);
 #endif
 
-    std::unique_ptr<Message> recvMsg(new Message{});
-    crb.recv_msg(&*recvMsg);
-    switch (recvMsg->type)
+    Message recvMsg;
+    crb.recv_msg(&recvMsg);
+    switch (recvMsg.type)
     {
     case COVISE_MESSAGE_EMPTY:
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_SOCKET_CLOSED:
-        CTRLHandler::instance()->handleClosedMsg(recvMsg);
+        CTRLGlobal::getInstance()->controller->getConnectionList()->remove(recvMsg.conn);
         break;
 
     case COVISE_MESSAGE_MSG_OK:

@@ -262,7 +262,6 @@ void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_SOCKET_CLOSED:
     {
-        handleClosedMsg(msg);
         break;
     }
 
@@ -586,102 +585,6 @@ void CTRLHandler::handleMsg(const std::unique_ptr<Message> &msg)
     if (m_quitNow == 0)
     {
         copyMessageData.clear();
-    }
-}
-
-//!
-//! handle the message COVISE_MESSAGE_EMPTY, COVISE_MESSAGE_CLOSE_SOCKET, COVISE_MESSAGE_SOCKET_CLOSED:
-//!
-void CTRLHandler::handleClosedMsg(const std::unique_ptr<Message> &msg)
-{
-
-    if (msg->conn == NULL)
-        return;
-    std::string msg_txt;
-    sender_type peer_type = (sender_type)msg->conn->get_peer_type();
-    int peer_id = msg->conn->get_peer_id();
-    CTRLGlobal *global = CTRLGlobal::getInstance();
-    //  look which socket is broken
-    switch (peer_type)
-    {
-    case RENDERER:
-    case APPLICATIONMODULE:
-    {
-        auto p_mod = m_hostManager.findModule(peer_id);
-        if (!p_mod)
-        {
-            break;
-        }
-
-        auto p_app = p_mod->as<NetModule>();
-        if (!p_app)
-        {
-            std::cerr << "crb or userinterface crashed " << std::endl;
-            break;
-        }
-
-        bool del_mod = false;
-        size_t instance = 0;
-        if (auto p_rend = dynamic_cast<Renderer *>(p_app))
-        {
-            auto disp = p_rend->getDisplay(peer_id);
-            if (isConnected(disp->get()->host.state()))
-            {
-                std::stringstream ss;
-                ss << "The " << disp->get()->host.userInfo().userName << "@" << disp->get()->host.userInfo().ipAdress << "'s display of the "
-                << p_rend->title() << " crashed !!!";
-                msg_txt = ss.str();
-            }
-            instance = p_rend->instance();
-            p_rend->removeDisplay(disp);
-            if (p_rend->numDisplays() == 0)
-                del_mod = true;
-        }
-        else
-        {
-            del_mod = true;
-            std::stringstream ss;
-            ss << "Module " << p_app->fullName() << "@" << p_app->host.userInfo().ipAdress << " crashed !!!";
-            msg_txt = ss.str();
-            instance = p_app->instance();
-        }
-        m_hostManager.sendAll<Userinterface>(Message{COVISE_MESSAGE_COVISE_ERROR, msg_txt});
-
-        // module have to be deleted
-        if (del_mod)
-        {
-            std::stringstream ss;
-            ss << "DIED\n"
-               << p_app->info().name << "\n"
-               << instance << "\n"
-               << p_mod->host.userInfo().ipAdress;
-            Message msg{COVISE_MESSAGE_UI, ss.str()};
-            m_hostManager.sendAll<Userinterface>(msg);
-
-            finishExecuteIfLastRunning(*p_app);
-            p_app->setAlive(false);
-        }
-        break;
-    }
-
-    case USERINTERFACE:
-    {
-        auto mod = m_hostManager.findModule(peer_id);
-        if (auto ui = mod->as<Userinterface>())
-        {
-            cerr << "Map editor crashed " << ui->host.userInfo().userName << "@" << ui->host.userInfo().ipAdress << endl;
-            cerr << "Trying to restart session " << endl;
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-            ui->restart(m_options.uiOptions);
-            m_hostManager.sendPartnerList();
-        }
-        break;
-    }
-
-    default:
-    {
-        break;
-    }
     }
 }
 

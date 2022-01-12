@@ -633,7 +633,7 @@ int DataManagerProcess::handle_msg(Message *msg)
         print_comment(__LINE__, __FILE__, "CLOSE_SOCKET: %d", msg->conn->get_port());
         //#endif
         list_of_connections->remove(msg->conn);
-        delete msg->conn;
+        msg->conn = nullptr;
         retval = 1;
         break;
     }

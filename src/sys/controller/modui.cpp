@@ -52,16 +52,16 @@ void uif::start(const controller::CRBModule &crb, const string &execname, const 
         applmod->connectToCrb();
 
         // im normalen Module: receive Module description
-        std::unique_ptr<Message> msg{new Message{}};
-        applmod->recv_msg(&*msg);
+        Message msg;
+        applmod->recv_msg(&msg);
 
-        switch (msg->type)
+        switch (msg.type)
         {
         case COVISE_MESSAGE_EMPTY:
         case COVISE_MESSAGE_CLOSE_SOCKET:
         case COVISE_MESSAGE_SOCKET_CLOSED:
         {
-            CTRLHandler::instance()->handleClosedMsg(msg);
+            CTRLGlobal::getInstance()->controller->getConnectionList()->remove(msg.conn);
         }
         break;
         default:
@@ -80,11 +80,11 @@ void uif::start(const controller::CRBModule &crb, const string &execname, const 
 
         char *tmp = new char[data.length() + 1];
         strcpy(tmp, data.c_str());
-        msg->data = DataHandle{tmp, strlen(tmp) + 1};
-        msg->type = COVISE_MESSAGE_GENERIC;
-        applmod->send(&*msg);
+        msg.data = DataHandle{tmp, strlen(tmp) + 1};
+        msg.type = COVISE_MESSAGE_GENERIC;
+        applmod->send(&msg);
 
-            /* code */
+        /* code */
     }
     catch (const std::exception &e)
     {

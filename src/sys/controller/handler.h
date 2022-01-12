@@ -59,10 +59,9 @@ public:
 
     ControlConfig Config;
 
-    void handleClosedMsg(const std::unique_ptr<Message>& msg);
-
     bool recreate(const string &content, readMode mode);
     const std::string &globalFile() const;
+    void finishExecuteIfLastRunning(const NetModule &app);
 
 private:
     bool m_exit = false; //flag to exit main loop and terminate the controller
@@ -124,7 +123,6 @@ void sendCurrentNetToUI(const MessageSenderInterface &ui);
 
 void sendGenericInfoToRenderer(const std::string& prefix, const Message &msg);
 void broadcastMsgToOtherUis(const Message &msg);
-void finishExecuteIfLastRunning(const NetModule&app);
 void saveCurrentNetworkFile(const std::string &filename);
 bool loadNetworkFile(const std::string &filename);
 

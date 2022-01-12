@@ -164,6 +164,15 @@ void Userinterface::updateUI()
     }
 }
 
+void Userinterface::onConnectionClosed()
+{
+    cerr << "Map editor crashed " << host.userInfo().userName << "@" << host.userInfo().ipAdress << endl;
+    cerr << "Trying to restart session " << endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    restart(m_options);
+    host.hostManager.sendPartnerList();
+}
+
 MapEditor::MapEditor(const RemoteHost &h)
     : Userinterface(h, "mapeditor")
 {
@@ -171,6 +180,7 @@ MapEditor::MapEditor(const RemoteHost &h)
 
 bool MapEditor::start(const UIOptions &options, bool restart) // if restart is true a restart was done
 {
+    m_options = options;
     if (!SubProcess::start("001"))
         return false;
     if (!connectToCrb())

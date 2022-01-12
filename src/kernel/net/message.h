@@ -65,9 +65,17 @@ class NETEXPORT MessageBase
 {
 public:
     DataHandle data;
-    const Connection* conn = nullptr; // connection at which message has been received (if so)
-	MessageBase();
-	MessageBase(TokenBuffer& tb);
+    // connection at which message has been received (if so)
+    //warning: the connection might get deleted on receiving a
+    // COVISE_MESSAGE_CLOSE_SOCKET
+    // COVISE_MESSAGE_STDINOUT_EMPTY
+    // COVISE_MESSAGE_EMPTY
+    // COVISE_MESSAGE_SOCKET_CLOSED
+    //message. This leaves a trailing conn pointer!
+    //-> do not use conn when handling one of those messages!
+    const Connection *conn = nullptr;
+    MessageBase();
+    MessageBase(TokenBuffer& tb);
     MessageBase(DataHandle& dh);
 	virtual ~MessageBase() = default;
 	virtual void print() = 0;

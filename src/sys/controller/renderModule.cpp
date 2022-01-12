@@ -78,11 +78,6 @@ void Display::quit()
 #endif
 }
 
-bool Display::get_NEXT_DEL()
-{
-    return NEXT_DEL;
-}
-
 void Display::send_add(const string &DO_name)
 {
     if (DO_name.empty())
@@ -90,8 +85,6 @@ void Display::send_add(const string &DO_name)
 
     CTRLHandler::instance()->numRunning().apps++;
     CTRLHandler::instance()->numRunning().renderer++;
-
-    NEXT_DEL = true;
 
 #ifdef NEW_RENDER_MSG
     string tmp = "ADD\n" + DO_name + "\n";
@@ -110,12 +103,9 @@ void Display::send_del(const string &DO_old_name, const string &DO_new_name)
     CTRLHandler::instance()->numRunning().apps++;
     CTRLHandler::instance()->numRunning().renderer++;
 
-    NEXT_DEL = true; // DEL or REPLACE possible after REPLACE
-
     // test, if new-name is an empty string -> only DELETE
     if (DO_new_name.empty())
     {
-        NEXT_DEL = true;
         DO_name = DO_new_name;
 
         if (!DO_old_name.empty())
@@ -158,6 +148,18 @@ void Display::send_del(const string &DO_old_name, const string &DO_new_name)
     }
 
     // else REPLACE
+}
+
+void Display::onConnectionClosed()
+{
+    if (isConnected(host.state()))
+    {
+        std::stringstream ss;
+        ss << "The " << host.userInfo().userName << "@" << host.userInfo().ipAdress << "'s display of the "
+           << m_renderer.title() << " crashed !!!";
+        host.hostManager.sendAll<Userinterface>(Message{COVISE_MESSAGE_COVISE_ERROR, ss.str()});
+    }
+    auto it = m_renderer.getDisplay(processId);
 }
 
 Renderer::Renderer(const RemoteHost &host, const ModuleInfo &moduleInfo, int instance)

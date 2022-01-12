@@ -1416,9 +1416,14 @@ void ConnectionList::remove(const Connection *c) // remove a connection and upda
     if (curidx >= connlist.size())
         curidx = connlist.size();
 
-    for(const auto& cb : m_onRemoveCallbacks[c])
+    auto cbIt = m_onRemoveCallbacks.find(c);
+    if (cbIt != m_onRemoveCallbacks.end())
     {
-        cb();
+        for (const auto &cb : cbIt->second)
+        {
+            cb();
+        }
+        m_onRemoveCallbacks.erase(cbIt);
     }
 }
 

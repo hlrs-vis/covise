@@ -1,7 +1,7 @@
 #ifndef COVISE_VRB_CLIENT_INTERFACE_H
 #define COVISE_VRB_CLIENT_INTERFACE_H
 
-#include <util/coExport.h>
+#include "export.h"
 #include <string>
 #include <vector>
 

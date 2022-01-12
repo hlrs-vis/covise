@@ -81,6 +81,7 @@ protected:
 
     virtual bool connectToCrb(const SubProcess &crb);
     bool connectModuleToCrb(const SubProcess &toCrb, ConnectionType type);
+    virtual void onConnectionClosed();
     const Connection *m_conn = nullptr; // connection to this other module managed by process::list_of_connections
     ExecFlag m_execFlag = ExecFlag::Normal;
 private:

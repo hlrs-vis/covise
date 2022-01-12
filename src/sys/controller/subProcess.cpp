@@ -154,7 +154,10 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
         {
             m_conn = CTRLGlobal::getInstance()->controller->getConnectionList()->add(std::move(conn));
             CTRLGlobal::getInstance()->controller->getConnectionList()->addRemoveNotice(m_conn, [this]()
-                                                                                        { m_conn = nullptr; });
+                                                                                        {
+                                                                                            m_conn = nullptr;
+                                                                                            onConnectionClosed();
+                                                                                        });
             return true;
         }
         m_conn = nullptr;
@@ -188,6 +191,14 @@ bool SubProcess::setupConn(std::function<bool(int port, const std::string &ip)> 
             return false;
         }
     }
+}
+
+void SubProcess::onConnectionClosed()
+{
+    //this is called only if the callback is called from this class's destructor
+    //in this case doing nothing is the right choice
+    //if this is called outside the destructor the overloads are dynamically chosen
+    //and clean um the process
 }
 
 bool SubProcess::start(const char *instance, const char *category)

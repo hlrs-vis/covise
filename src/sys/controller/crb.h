@@ -29,11 +29,10 @@ public:
 private:
     bool checkCoviseVersion(const std::string &version, const std::string &hostname);
     void sendMaster(const Message &msg);
-    bool tryReceiveMessage(Message &msg);
     void queryDataPath();
     bool connectToCrb(const SubProcess &crb) override;
     bool connectCrbsViaProxy(const SubProcess &toCrb);
-
+    virtual void onConnectionClosed() override;
 };
 
 } // namespace controller

@@ -99,12 +99,6 @@
 #define VRBSERVEREXPORT COIMPORT
 #endif
 
-#if defined(coVRBClientInterface_EXPORTS)
-#define VRBClientInterfaceEXPORT COEXPORT
-#else
-#define VRBClientInterfaceEXPORT COIMPORT
-#endif
-
 #if defined(COVISE_FILE)
 #define FILEEXPORT COEXPORT
 #else

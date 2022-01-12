@@ -20,10 +20,10 @@ class Display : public SubProcess
     static const SubProcess::Type moduleType = SubProcess::Type::Display;
     controller::Userinterface::Status excovise_status = Userinterface::Status::Init;
     bool DISPLAY_READY = false;
-    bool NEXT_DEL = false;
     string DO_name;
     int m_helper = 0;
     const Renderer &m_renderer;
+    virtual void onConnectionClosed() override;
 
 public:
     Display(controller::Renderer &renderer, const controller::RemoteHost &ui);
@@ -47,7 +47,6 @@ public:
 
     void set_DISPLAY(bool bvar);
     bool get_DISPLAY();
-    bool get_NEXT_DEL();
 
     void quit();
 
