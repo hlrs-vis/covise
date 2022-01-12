@@ -25,15 +25,21 @@ else()
   unset(_ENV_CEF_ROOT)
 endif()
 
+set(ERROR TRUE)
 if(NOT DEFINED _CEF_ROOT_EXPLICIT)
-  message(FATAL_ERROR "Must specify a CEF_ROOT value via CMake or environment variable.")
+  message(WARNING "Specify a CEF_ROOT value via CMake or environment variable to find CEF")
+  set(ERROR FALSE)
+
 endif()
 
 if(NOT IS_DIRECTORY "${_CEF_ROOT}/cmake")
-  message(FATAL_ERROR "No CMake bootstrap found for CEF binary distribution at: ${CEF_ROOT}.")
+  message(WARNING "No CMake bootstrap found for CEF binary distribution at: ${CEF_ROOT}.")
+  set(ERROR FALSE)
 endif()
 
-# Execute additional cmake files from the CEF binary distribution.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${_CEF_ROOT}/cmake")
-include("cef_variables")
-include("cef_macros")
+if(ERROR)
+  # Execute additional cmake files from the CEF binary distribution.
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${_CEF_ROOT}/cmake")
+  include("cef_variables")
+  include("cef_macros")
+endif()
