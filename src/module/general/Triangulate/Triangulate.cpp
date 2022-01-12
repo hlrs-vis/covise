@@ -283,12 +283,16 @@ int Triangulate::compute(const char *)
         if (in.numberoffacets)
         {
             cerr << "calling tetrahedralize with a point cloud and a list of boundary polygons" << endl;
-            tetrahedralize("pYY", &in, &out);
+            auto pYY = strdup("pYY");
+            tetrahedralize(pYY, &in, &out);
+            free(pYY);
         }
         else
         {
             cerr << "calling tetrahedralize with a point cloud" << endl;
-            tetrahedralize("", &in, &out);
+            auto empty = strdup("");
+            tetrahedralize(empty, &in, &out);
+            free(empty);
         }
 
         int numElem = out.numberoftetrahedra;
