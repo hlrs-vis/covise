@@ -15,9 +15,9 @@ class VrbClientInternals
 public:
     VrbClientInternals(const std::string &ip, unsigned int port);
     VrbClientInternals(const VrbClientInternals &) = delete;
-    VrbClientInternals(VrbClientInternals &&) = default;
+    VrbClientInternals(VrbClientInternals &&) = delete;
     VrbClientInternals &operator=(const VrbClientInternals &) = delete;
-    VrbClientInternals &operator=(VrbClientInternals &&) = default;
+    VrbClientInternals &operator=(VrbClientInternals &&) = delete;
     ~VrbClientInternals() = default;
 
     bool isConnected();
