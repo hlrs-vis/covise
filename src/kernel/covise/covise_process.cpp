@@ -968,7 +968,6 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
         case COVISE_MESSAGE_EMPTY:
         case COVISE_MESSAGE_SOCKET_CLOSED:
             list_of_connections->remove(tmpconn);
-            tmpconn == nullptr;
             msg->conn = nullptr;
             print_comment(__LINE__, __FILE__, "Socket Closed");
         default:
