@@ -919,8 +919,11 @@ void TUIMainWindow::createToolbar()
     int index = fontsize->findText(ss);
     fontsize->setCurrentIndex(index);
     toolbar->addWidget(fontsize);
-    connect(fontsize, SIGNAL(ACTIVATED(const QString &)),
-            this, SLOT(fontCB(const QString &)));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    connect(fontsize, SIGNAL(textActivated(const QString &)), this, SLOT(fontCB(const QString &)));
+#else
+    connect(fontsize, SIGNAL(activated(const QString &)), this, SLOT(fontCB(const QString &)));
+#endif
     toolbar->addSeparator();
 
     //styles
@@ -964,8 +967,11 @@ void TUIMainWindow::createToolbar()
         qtstyles->setCurrentIndex(qtstyles->findText("Default"));
     }
 
-    connect(qtstyles, SIGNAL(ACTIVATED(const QString &)),
-            this, SLOT(styleCB(const QString &)));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    connect(qtstyles, SIGNAL(textActivated(const QString &)), this, SLOT(styleCB(const QString &)));
+#else
+    connect(qtstyles, SIGNAL(activated(const QString &)), this, SLOT(styleCB(const QString &)));
+#endif
 
 
     toolbar->addSeparator();
