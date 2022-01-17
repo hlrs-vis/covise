@@ -22,8 +22,8 @@ cd %ARCHSUFFIX%
 :COVISE
 mkdir build.covise
 cd build.covise
-cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" -DCOVISE_BUILD_RENDERER:BOOL=OFF -DCOVISE_USE_VISIONARAY:BOOL=OFF ../..
-REM cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" -DCOVISE_BUILD_RENDERER:BOOL=OFF ../..
+cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" -DCOVISE_USE_VISIONARAY:BOOL=OFF ../..
+REM cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" ../..
 if errorlevel 1 goto UPDIR
 msbuild /m covise.sln /p:Configuration=%cfg% %verb% %par%
 if errorlevel 1 goto UPDIR

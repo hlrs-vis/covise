@@ -307,7 +307,7 @@ OSF1)  	ARCHSUFFIX=dec  	;;
       #   install_runtime_example_modules
 
       #   INSTALLED_RENDERERS=""
-      #   for REND in inventor pf osg coin sg; do
+      #   for REND in osg; do
       #      install_runtime_renderer
       #   done
 
@@ -1342,12 +1342,6 @@ install_runtime_renderer()
 
 install_runtime_renderer_plugins()
 {
-   case "$REND" in
-      coin|inventor)
-         return
-         ;;
-   esac
-
    echo " "
    test -z $PROJECT && PROJECT=General
    echo "Installing $PROJECT $REND plugins..."

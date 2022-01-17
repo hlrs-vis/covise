@@ -130,9 +130,8 @@ provided by your Linux distribution (Debian/Ubuntu and RHEL/CentOS).
   3.1 or newer is required, but currently we suggest CMake 3.7 or newer
 - **XercesC**:
 - **Qt**:
-  Qt 5 is required by the graphical user interface.
-  If you want to use the Qt/Coin3D/SoQt based desktop renderer (QtRender),
-  then this version of Qt has to match the one that SoQt is built against.
+  Qt 5 or 6 is required by the graphical user interface.
+  Not everything, most importantly OddLOT, works with Qt 6 yet.
 
   For Qt5, you need the following modules:
     - `Qt5Core`
@@ -182,6 +181,7 @@ Optional Dependencies
   Version 6 or newer is required.
 - **Flex** and **Bison**
   Lexer/Parser generators, required to build VRML plugin.
+<<<<<<< HEAD
 - **Open Inventor**
   The old desktop renderer on Linux requires Open Inventor.
   The binaries shipped with most Linux distributions do not correctly render fonts on 64
@@ -239,6 +239,8 @@ dnf install gcc-gfortran
 dnf --enablerepo=PowerTools install libstdc++-static
 dnf --enablerepo=PowerTools install boost-static
 dnf install python3-pyqt5-sip
+=======
+>>>>>>> eabdfcd88 (remove inventor and qt renderers)
 
 
 Tracking Dependencies
@@ -316,7 +318,6 @@ This might help you work around build problems.
 - `COVISE_USE_VIRVO`: disable support for direct volume rendering
 - `COVISE_USE_CUDA`: disable use of CUDA
 - `COVISE_CPU_ARCH`: set optimization for the CPU in your computer
-- `COVISE_BUILD_RENDERER`: disable building the desktop renderer
 
 After changing any of these settings, you have to restart the build process.
 
