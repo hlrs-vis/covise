@@ -111,6 +111,21 @@ WindowTypeQtPlugin::~WindowTypeQtPlugin()
     //fprintf(stderr, "WindowTypeQtPlugin::~WindowTypeQtPlugin\n");
 }
 
+bool WindowTypeQtPlugin::init()
+{
+    bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
+    if (useToolbar)
+    {
+        m_toggleToolbar = new ui::Button("ToggleToolbar", this);
+        m_toggleToolbar->setVisible(false, ~ui::View::WindowMenu);
+        m_toggleToolbar->setText("Show toolbar");
+        m_toggleToolbar->setState(true);
+        cover->viewOptionsMenu->add(m_toggleToolbar);
+    }
+
+    return true;
+}
+
 bool WindowTypeQtPlugin::destroy()
 {
     while (!m_windows.empty())
@@ -246,7 +261,6 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         win.menubar = win.window->menuBar();
     win.menubar->show();
     QToolBar *toolbar = nullptr;
-    ui::Button *toggleToolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
     if (useToolbar)
     {
@@ -257,17 +271,12 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         toolbar->show();
         window->addContextAction(toolbar->toggleViewAction());
 
-        toggleToolbar = new ui::Button("ToggleToolbar", this);
-        toggleToolbar->setVisible(false, ~ui::View::WindowMenu);
-        toggleToolbar->setText("Show toolbar");
-        toggleToolbar->setState(true);
-        cover->viewOptionsMenu->add(toggleToolbar);
-        toggleToolbar->setCallback([toolbar](bool state) {
-            toolbar->toggleViewAction()->trigger();
-        });
-        QObject::connect(toolbar->toggleViewAction(), &QAction::toggled, [toggleToolbar](bool checked) {
-            toggleToolbar->setState(checked);
-        });
+        if (m_toggleToolbar)
+        {
+            m_toggleToolbar->setCallback([toolbar](bool state) { toolbar->toggleViewAction()->trigger(); });
+            QObject::connect(toolbar->toggleViewAction(), &QAction::toggled,
+                             [this](bool checked) { m_toggleToolbar->setState(checked); });
+        }
     }
     win.toolbar = toolbar;
     win.view.emplace_back(new ui::QtView(win.menubar, toolbar));

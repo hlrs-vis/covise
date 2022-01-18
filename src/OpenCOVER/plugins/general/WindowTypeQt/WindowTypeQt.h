@@ -25,6 +25,7 @@ namespace opencover {
 class QtMainWindow;
 namespace ui {
 class QtView;
+class Button;
 }
 }
 
@@ -33,6 +34,7 @@ class WindowTypeQtPlugin : public opencover::coVRPlugin, public opencover::ui::O
 public:
     WindowTypeQtPlugin();
     ~WindowTypeQtPlugin();
+    bool init() override;
     bool destroy() override;
     bool update() override;
 
@@ -68,5 +70,6 @@ private:
     QDialog *m_keyboardHelp = nullptr;
     bool m_deleteQApp = false;
     bool m_initializing = true;
+    opencover::ui::Button *m_toggleToolbar = nullptr;
 };
 #endif
