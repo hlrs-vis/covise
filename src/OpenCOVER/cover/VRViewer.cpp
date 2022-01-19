@@ -1895,7 +1895,7 @@ bool VRViewer::mustDraw()
 }
 
 // OpenCOVER
-void VRViewer::frame()
+void VRViewer::frame(double simulationTime)
 {
 
     lastFrameTime = cover->currentTime();

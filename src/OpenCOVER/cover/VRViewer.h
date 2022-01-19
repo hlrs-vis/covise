@@ -60,7 +60,7 @@ public:
     virtual bool update();
 
     /** Dispatch the cull and draw for each of the Camera's for this frame.*/
-    virtual void frame();
+    void frame(double simulationTime = USE_REFERENCE_TIME) override;
 
     bool handleEvents();
 
@@ -69,7 +69,7 @@ public:
     static int unsyncedFrames;
 
     /** Start any threads required by the viewer.*/
-    virtual void startThreading();
+    void startThreading() override;
 
     void addCamera(osg::Camera *camera);
     void removeCamera(osg::Camera *camera);
@@ -93,7 +93,7 @@ private:
     char monoCommand[500];
     double lastFrameTime;
 
-    virtual void renderingTraversals();
+    void renderingTraversals() override;
 
     // view
     osg::Vec3 viewPos, viewDir; //, viewYDir;
@@ -165,9 +165,9 @@ public:
     void config();
     void unconfig();
 
-    virtual void getCameras(Cameras &cameras, bool onlyActive = true);
-    virtual void getContexts(Contexts &contexts, bool onlyValid = true);
-    virtual void getScenes(Scenes &scenes, bool onlyValid = true);
+    void getCameras(Cameras &cameras, bool onlyActive = true) override;
+    void getContexts(Contexts &contexts, bool onlyValid = true) override;
+    void getScenes(Scenes &scenes, bool onlyValid = true) override;
 
     void updateViewerMat(const osg::Matrix &mat);
     void setViewerMat(osg::Matrix &mat)

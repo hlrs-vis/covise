@@ -172,8 +172,8 @@ struct windowStruct
     , doublebuffer(true)
     , swapGroup(-1)
     , swapBarrier(-1)
-    , windowPlugin(NULL)
     , screenNum(-1)
+    , windowPlugin(NULL)
     {}
 };
 
