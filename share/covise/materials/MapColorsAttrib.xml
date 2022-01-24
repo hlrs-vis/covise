@@ -2,6 +2,7 @@
 <!-- also used by Vistle -->
 <attribute name="dataAttrib" type="float" value="10"/>
 
+<uniform name="dataValid" type="bool" value="true"/>
 <uniform name="rangeMin" type="float" value="0."/>
 <uniform name="rangeMax" type="float" value="1."/>
 <uniform name="texUnit1" type="sampler1D" value="1"/>
@@ -10,6 +11,7 @@
 <uniform name="Light1Enabled" type="bool" value="false"/>
 
 <vertexProgram>
+uniform sampler2D texUnit0;
 attribute float dataAttrib;
 varying float data;
 
@@ -30,113 +32,6 @@ void main (void)
 }
 </vertexProgram>
 
-<fragmentProgram>
-uniform sampler1D texUnit1;
-uniform float rangeMin, rangeMax;
-uniform bool blendWithMaterial;
-uniform bool Light0Enabled, Light1Enabled;
-
-varying float data;
-varying vec3 V;
-varying vec3 N;
-
-vec4 Ambient;
-vec4 Diffuse;
-vec4 Specular;
-
-void directionalLight(in int i, in vec3 normal)
-{
-   float nDotVP;         // normal . light direction
-   float nDotHV;         // normal . light half vector
-   float pf;             // power factor
-
-   nDotVP = max(0.0, dot(normal, normalize(vec3 (gl_LightSource[i].position))));
-   nDotHV = max(0.0, dot(normal, vec3 (gl_LightSource[i].halfVector)));
-
-   if (nDotVP == 0.0)
-   {
-       pf = 0.0;
-   }
-   else
-   {
-       pf = pow(nDotHV, gl_FrontMaterial.shininess);
-
-   }
-   Ambient  += gl_LightSource[i].ambient;
-   Diffuse  += gl_LightSource[i].diffuse * nDotVP;
-   Specular += gl_LightSource[i].specular * pf;
-}
-
-void pointLight(in int i, in vec3 N, in vec3 eye)
-{
-   float pf;           // power factor
-   float d;            // distance from surface to light source
-
-   vec3 L = normalize(gl_LightSource[i].position.xyz - V);
-   float NdotL = max(0.0, dot(N,L));
-   vec3 E = normalize(-V);
-   vec3 R = normalize(-reflect(L,N));
-
-   // Compute distance between surface and light position
-   d = length(L);
-
-   // Compute attenuation
-   float attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +
-       gl_LightSource[i].linearAttenuation * d +
-       gl_LightSource[i].quadraticAttenuation * d * d);
-
-   if (NdotL == 0.0)
-   {
-       pf = 0.0;
-   }
-   else
-   {
-       pf = pow(max(0.0, dot(R,E)), gl_FrontMaterial.shininess);
-   }
-   Ambient  += gl_LightSource[i].ambient * attenuation;
-   Diffuse  += gl_LightSource[i].diffuse * NdotL * attenuation;
-   Specular += gl_LightSource[i].specular * pf * attenuation;
-}
-
-vec4 flight(in vec3 normal, vec4 color)
-{
-    vec3 eye = vec3 (0.0, 0.0, 1.0);
-
-    // Clear the light intensity accumulators
-    Ambient  = vec4 (0.0);
-    Diffuse  = vec4 (0.0);
-    Specular = vec4 (0.0);
-
-    if (Light0Enabled)
-        pointLight(0, normal, eye);
-    if (Light1Enabled)
-        pointLight(1, normal, eye);
-
-    //directionalLight(2, normal);
-
-    return color * (Diffuse + Ambient) + Specular * color.a;
-}
-
-
-void main (void) 
-{
-    float t = (data-rangeMin)/(rangeMax-rangeMin);
-    vec4 color = texture1D(texUnit1, t);
-    if (blendWithMaterial)
-    {
-        color = mix(gl_FrontMaterial.diffuse, color, color.a);
-        color.a = 1.0;
-    }
-
-    if (gl_FrontFacing)
-        gl_FragColor = flight(normalize(N), color);
-    else
-        gl_FragColor = flight(-normalize(N), color);
-
-    if (!blendWithMaterial)
-    {
-        gl_FragColor.a = color.a;
-    }
-}
+<fragmentProgram value="MapColorsFragment.glsl">
 </fragmentProgram>
 </MapColorsAttrib>

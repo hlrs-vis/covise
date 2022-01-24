@@ -1,0 +1,84 @@
+<MapColorsHeightMap>
+<!-- used by Vistle -->
+
+<!-- these uniforms are used in MapColorsFragment.glsl -->
+<uniform name="rangeMin" type="float" value="0."/>
+<uniform name="rangeMax" type="float" value="1."/>
+<uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="blendWithMaterial" type="bool" value="false"/>
+<uniform name="Light0Enabled" type="bool" value="true"/>
+<uniform name="Light1Enabled" type="bool" value="false"/>
+
+<!-- from geometry program -->
+<uniform name="heightTex" type="sampler2DRect" value="2"/>
+<uniform name="dataTex" type="sampler2DRect" value="0"/>
+<uniform name="size" type="vec2" value="0 0"/>
+<uniform name="dist" type="vec2" value="1 1"/>
+<uniform name="origin" type="vec3" value="0 0 0"/>
+
+<vertexProgram>
+void main(void) {
+   gl_Position = vec4(gl_Vertex.xy, 0., 1.);
+}
+</vertexProgram>
+<geometryProgram>
+#version 120
+#extension GL_EXT_geometry_shader4 : enable
+#extension GL_ARB_texture_rectangle: enable
+
+uniform sampler2DRect heightTex;
+uniform sampler2DRect dataTex;
+uniform vec2 size;
+uniform vec2 dist;
+uniform vec4 origin;
+
+uniform vec2 off[] = vec2[4]( vec2(0,0), vec2(0,1), vec2(1,0), vec2(1,1) );
+
+varying vec3 N;
+varying vec3 V;
+varying float data;
+
+float getHeight(vec2 xy) {
+   return texture2DRect(heightTex, xy).r;
+}
+
+float getData(vec2 xy) {
+   return texture2DRect(dataTex, xy).r;
+}
+
+vec4 pos(vec2 xy, float h) {
+   vec4 p = origin + vec4(dist * xy, h, 0.);
+   return p;
+}
+
+void createVertex(vec2 xy) {
+   float h = getHeight(xy);
+   V = gl_ModelViewProjectionMatrix * pos(xy, h);
+   gl_Position = V;
+   gl_ClipVertex = V;
+
+   float dx = 0., dy = 0.;
+   float hn = h, hs = h, he = h, hw = h;
+   if (xy.x >= 1) { he = getHeight(xy-vec2(1,0)); dx += dist.x; }
+   if (xy.x < size.x) { hw = getHeight(xy+vec2(1,0)); dx += dist.x; }
+   if (xy.y >= 1) { hs = getHeight(xy+vec2(0,1)); dy += dist.y; }
+   if (xy.y < size.y) { hn = getHeight(xy+vec2(0,1)); dy += dist.y; }
+   N = normalize(vec3((hw-he)/dx, (hn-hs)/dy, 1.));
+
+   //vec4 color = texture2DRect(col, xy);
+   vec4 color = vec4(1, 1, 0, 1);
+   gl_FrontColor = color;
+   data = getData(xy);
+   EmitVertex();
+}
+
+void main() {
+   vec2 xy = gl_PositionIn[0].xy;
+
+   for (int i=0; i<4; ++i)
+       createVertex(xy+off[i]);
+   EndPrimitive();
+}
+</geometryProgram>
+<fragmentProgram value="MapColorsFragment.glsl" />
+</MapColorsHeightMap>
