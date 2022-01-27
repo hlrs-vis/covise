@@ -105,7 +105,7 @@ category="Urban Planning"
 run_stuttgart() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
-    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
+    vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
     kill $SUMO
 }
 demo 37 "Stuttgart with Sumo" run_stuttgart
@@ -130,7 +130,7 @@ demo 40 "Campus with Sumo" run_campus
 run_marienplatz() {
     bash /data/CapeReviso/SumoMarienplatz/250x250m/startSumo.sh &
     SUMO=$!
-    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
+    vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
     kill $SUMO
 }
 demo 48 "Stuttgart with Marienplatz Sumo" run_marienplatz
@@ -138,7 +138,7 @@ demo 48 "Stuttgart with Marienplatz Sumo" run_marienplatz
 run_stuttgart_hidalgo() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
-    vistle /data/StuttgartForecast/stuttgart_air_quality_Jan2021.vsl
+    vistle -e /data/StuttgartForecast/stuttgart_air_quality_Jan2021.vsl
     kill $SUMO
 }
 demo 49 "Stuttgart Hidalgo with Sumo" run_stuttgart_hidalgo

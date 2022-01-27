@@ -334,6 +334,7 @@ tools:
 - latex2html
 - doxygen
 - graphviz
+- epstopdf
 
 Then you can:
 
