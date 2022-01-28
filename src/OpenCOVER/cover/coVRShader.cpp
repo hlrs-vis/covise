@@ -412,7 +412,6 @@ coVRShader::coVRShader(const std::string &n, const std::string &d)
     wasCloned = false;
     name = n;
     dir = d;
-    geometryShader = NULL;
     geomParams[0] = 3;
     geomParams[1] = GL_POINTS;
     geomParams[2] = GL_POINTS;
@@ -654,6 +653,12 @@ void coVRShader::loadMaterial()
                             std::stringstream buffer;
                             buffer << t.rdbuf();
                             code = buffer.str();
+                            if (code.empty())
+                                cerr << "WARNING: empty fragment program in " << filename << std::endl;
+                        }
+                        else
+                        {
+                            cerr << "WARNING: could not find fragment program " << filename << std::endl;
                         }
                     }
 					xercesc::XMLString::release(&value);
@@ -677,7 +682,7 @@ void coVRShader::loadMaterial()
                     geomParams[0] = atoi(numVertices);
                     //FIXME glGetIntegerv requires a valid OpenGL context, otherwise: crash
                     //if (geomParams[0] != 0) glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT,&geomParams[0]);
-                    if (geomParams[0] != 0)
+                    if (geomParams[0] == 0)
                         geomParams[0] = 1024;
 
                     char *inputType = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("inputType"))); xercesc::XMLString::release(&t1);
@@ -695,19 +700,51 @@ void coVRShader::loadMaterial()
                     char *outputType = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("outputType"))); xercesc::XMLString::release(&t1);
                     if (strcmp(outputType, "POINTS") == 0)
                         geomParams[2] = GL_POINTS;
+                    else if (strcmp(outputType, "LINES") == 0)
+                        geomParams[2] = GL_LINES;
                     else if (strcmp(outputType, "LINE_STRIP") == 0)
                         geomParams[2] = GL_LINE_STRIP;
                     else
                         geomParams[2] = GL_TRIANGLE_STRIP;
 
-                    char *code = xercesc::XMLString::transcode(node->getTextContent());
-                    if (code && code[0] != '\0')
+                    std::string code = "";
+                    char *value =
+                        xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("value")));
+                    xercesc::XMLString::release(&t1);
+                    if (value && value[0] != '\0')
+                    {
+                        std::string filename = findAsset(value);
+                        if (!filename.empty())
+                        {
+                            std::ifstream t(filename.c_str());
+                            std::stringstream buffer;
+                            buffer << t.rdbuf();
+                            code = buffer.str();
+                            if (code.empty())
+                                cerr << "WARNING: empty geometry program in " << filename << std::endl;
+                        }
+                        else
+                        {
+                            cerr << "WARNING: could not find geometry program " << filename << std::endl;
+                        }
+                    }
+                    xercesc::XMLString::release(&value);
+                    if (code.empty())
+                    {
+                        char *c = xercesc::XMLString::transcode(node->getTextContent());
+                        if (c && c[0] != '\0')
+                            code = c;
+                        xercesc::XMLString::release(&c);
+                    }
+                    if (!code.empty())
+                    {
                         geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
-					
-					xercesc::XMLString::release(&numVertices);
-					xercesc::XMLString::release(&inputType);
-					xercesc::XMLString::release(&outputType);
-					xercesc::XMLString::release(&code);
+                        geometryShader->setName(name);
+                    }
+
+                    xercesc::XMLString::release(&numVertices);
+                    xercesc::XMLString::release(&inputType);
+                    xercesc::XMLString::release(&outputType);
                 }
                 else if (strcmp(tagName, "vertexProgram") == 0)
                 {
@@ -722,6 +759,12 @@ void coVRShader::loadMaterial()
                             std::stringstream buffer;
                             buffer << t.rdbuf();
                             code = buffer.str();
+                            if (code.empty())
+                                cerr << "WARNING: empty vertex program in " << filename << std::endl;
+                        }
+                        else
+                        {
+                            cerr << "WARNING: could not find vertex program " << filename << std::endl;
                         }
                     }
                     if (code == "")
@@ -913,16 +956,15 @@ void coVRShader::setData(TokenBuffer &tb)
         if (geometryShader == NULL)
         {
             geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
-
             program->addShader(geometryShader.get());
-            program->setParameter(GL_GEOMETRY_VERTICES_OUT_EXT, geomParams[0]);
-            program->setParameter(GL_GEOMETRY_INPUT_TYPE_EXT, geomParams[1]);
-            program->setParameter(GL_GEOMETRY_OUTPUT_TYPE_EXT, geomParams[2]);
         }
         else
         {
             geometryShader->setShaderSource(code.c_str());
         }
+        program->setParameter(GL_GEOMETRY_VERTICES_OUT_EXT, geomParams[0]);
+        program->setParameter(GL_GEOMETRY_INPUT_TYPE_EXT, geomParams[1]);
+        program->setParameter(GL_GEOMETRY_OUTPUT_TYPE_EXT, geomParams[2]);
         geometryShader->dirtyShader();
     }
     else if (type == SHADER_VERTEX)
