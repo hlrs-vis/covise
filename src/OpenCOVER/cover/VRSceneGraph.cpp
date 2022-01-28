@@ -279,6 +279,8 @@ void VRSceneGraph::config()
     // if menu mode is on -- hide menus
     if (coVRConfig::instance()->isMenuModeOn())
         setMenuMode(false);
+
+    setMenu(m_showMenu);
 }
 
 int VRSceneGraph::readConfigFile()
@@ -303,6 +305,9 @@ int VRSceneGraph::readConfigFile()
     m_coordAxis = coCoviseConfig::isOn("COVER.CoordAxis", false);
 
     wiiPos = coCoviseConfig::getFloat("COVER.WiiPointerPos", -250.0);
+
+    bool configured = false;
+    m_showMenu = coCoviseConfig::isOn("visible", "COVER.UI.VRUI", m_showMenu, &configured);
 
     return 0;
 }
@@ -373,7 +378,8 @@ void VRSceneGraph::initSceneGraph()
     m_menuGroupNode = new osg::Group();
     m_menuGroupNode->setNodeMask(m_menuGroupNode->getNodeMask()&~Isect::ReceiveShadow);
     m_menuGroupNode->setName("MenuGroupNode");
-    m_scene->addChild(m_menuGroupNode.get());
+    if (m_showMenu)
+        m_scene->addChild(m_menuGroupNode.get());
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
