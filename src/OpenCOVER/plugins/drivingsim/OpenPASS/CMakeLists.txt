@@ -6,7 +6,9 @@ using(VehicleUtil)
 using(TrafficSimulation)
 using(OpenScenario)
 USING(OPENTHREADS)
+using(Qt)
 
+  find_package(Qt5 COMPONENTS Concurrent  Xml XmlPatterns REQUIRED)
 set (CMAKE_CXX_STANDARD 17)
 set(HEADERS
   OpenPASS.h
@@ -36,6 +38,9 @@ set(SOURCES
 )
 
 cover_add_plugin(observationCOVER ${HEADERS} ${SOURCES})
+
+qt_use_modules(observationCOVER Core XmlPatterns)
+
 set_target_properties(observationCOVER PROPERTIES DEBUG_POSTFIX "d")
 if(NOT MSVC)
     add_covise_compile_flags(observationCOVER "-Wno-error=deprecated")

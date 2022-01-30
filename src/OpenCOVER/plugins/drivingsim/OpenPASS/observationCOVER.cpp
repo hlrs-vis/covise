@@ -37,10 +37,10 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT const std::string& OpenPASS_GetVersio
 extern "C" OBSERVATION_COVER_SHARED_EXPORT ObservationInterface* OpenPASS_CreateInstance(
     StochasticsInterface* stochastics,
     WorldInterface* world,
-    SimulationSlave::EventNetworkInterface* eventNetwork,
+    core::EventNetworkInterface* eventNetwork,
     const ParameterInterface* parameters,
     const CallbackInterface* callbacks,
-    DataStoreReadInterface * dataStore)
+    DataBufferReadInterface * dataStore)
 {
     Callbacks = callbacks;
 
@@ -87,7 +87,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_MasterPreHook(Observati
 {
     try
     {
-        implementation->MasterPreHook();
+        implementation->OpSimulationManagerPreHook();
     }
     catch (const std::runtime_error& ex)
     {
@@ -116,7 +116,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_MasterPostHook(Observat
 {
     try
     {
-        implementation->MasterPostHook(filename);
+        implementation->OpSimulationManagerPostHook(filename);
     }
     catch (const std::runtime_error& ex)
     {
@@ -144,7 +144,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlavePreHook(Observatio
 {
     try
     {
-        implementation->SlavePreHook();
+        implementation->OpSimulationPreHook();
     }
     catch (const std::runtime_error& ex)
     {
@@ -172,7 +172,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlavePreRunHook(Observa
 {
     try
     {
-        implementation->SlavePreRunHook();
+        implementation->OpSimulationPreRunHook();
     }
     catch (const std::runtime_error& ex)
     {
@@ -202,7 +202,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlaveUpdateHook(Observa
 {
     try
     {
-        implementation->SlaveUpdateHook(time, runResult);
+        implementation->OpSimulationUpdateHook(time, runResult);
     }
     catch (const std::runtime_error& ex)
     {
@@ -231,7 +231,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlavePostRunHook(Observ
 {
     try
     {
-        implementation->SlavePostRunHook(runResult);
+        implementation->OpSimulationPostRunHook(runResult);
     }
     catch (const std::runtime_error& ex)
     {
@@ -259,7 +259,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT bool OpenPASS_SlavePostHook(Observati
 {
     try
     {
-        implementation->SlavePostHook();
+        implementation->OpSimulationPostHook();
     }
     catch (const std::runtime_error& ex)
     {
@@ -288,7 +288,7 @@ extern "C" OBSERVATION_COVER_SHARED_EXPORT const std::string OpenPASS_SlaveResul
 {
     try
     {
-        return implementation->SlaveResultFile();
+        return implementation->OpSimulationResultFile();
     }
     catch (const std::runtime_error& ex)
     {

@@ -58,7 +58,7 @@
 int gPrecision;
 
 using namespace opencover;
-using namespace SimulationSlave;
+using namespace core;
 using namespace openpass::core;
 
 //-----------------------------------------------------------------------------
@@ -153,9 +153,9 @@ simOpenPASS::simOpenPASS(OpenPASS* op)
         exit(EXIT_FAILURE);
     }
 
-    auto& libraries = configurationContainer->GetSlaveConfig()->GetExperimentConfig().libraries;
+    auto& libraries = configurationContainer->GetSimulationConfig()->GetExperimentConfig().libraries;
     libraries["ObservationLibrary"] = "observationCOVER";
-    ObservationInstanceCollection& oic = configurationContainer->GetSlaveConfig()->GetObservationConfig();
+    ObservationInstanceCollection& oic = configurationContainer->GetSimulationConfig()->GetObservationConfig();
     ObservationInstance oi;
     oi.id = oic.size();
     oi.libraryName = std::string(covisedir) + "/" + archsuffix + "/lib/OpenCOVER/plugins/observationCOVER";
@@ -170,13 +170,13 @@ simOpenPASS::simOpenPASS(OpenPASS* op)
         oic,
         libraries.at("StochasticsLibrary"),
         libraries.at("WorldLibrary"),
-        configurationContainer->GetSlaveConfig()->GetSpawnPointsConfig()
+        configurationContainer->GetSimulationConfig()->GetSpawnPointsConfig()
     );
     callbacks = new SimulationCommon::Callbacks;
-    frameworkModuleContainer = new FrameworkModuleContainer(*frameworkModules, configurationContainer, runtimeInformation, callbacks);
+    frameworkModuleContainer = new core::FrameworkModuleContainer(*frameworkModules, configurationContainer, runtimeInformation, callbacks);
 
-    configurationContainer->GetSlaveConfig()->GetExperimentConfig().numberOfInvocations = 100000000;
-    openPass->loadXosc(configurationContainer->GetSlaveConfig()->GetScenarioConfig().scenarioPath.c_str());
+    configurationContainer->GetSimulationConfig()->GetExperimentConfig().numberOfInvocations = 100000000;
+    openPass->loadXosc(configurationContainer->GetSimulationConfig()->GetScenarioConfig().scenarioPath.c_str());
     runInstantiator = nullptr;
 
 

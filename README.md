@@ -123,7 +123,7 @@ provided by your Linux distribution (Debian/Ubuntu and RHEL/CentOS).
 - **C++ compiler**:
   C++11
 
-  On Windows, we currently use Visual Studio 2019 (VC15).
+  On Windows, we currently use Visual Studio 2022 (VC17).
   GCC 5.3 and newer should work.
 
 - **CMake**:

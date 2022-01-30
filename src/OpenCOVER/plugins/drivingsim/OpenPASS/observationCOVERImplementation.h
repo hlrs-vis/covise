@@ -37,12 +37,12 @@ class ObservationCOVERImplementation : ObservationInterface
 public:
     const std::string COMPONENTNAME = "ObservationCOVER";
 
-    ObservationCOVERImplementation(SimulationSlave::EventNetworkInterface* eventNetwork,
+    ObservationCOVERImplementation(core::EventNetworkInterface* eventNetwork,
                                  StochasticsInterface* stochastics,
                                  WorldInterface* world,
                                  const ParameterInterface* parameters,
                                  const CallbackInterface* callbacks,
-                                 DataStoreReadInterface* dataStore);
+                                 DataBufferReadInterface* dataBuffer);
     ObservationCOVERImplementation(const ObservationCOVERImplementation&) = delete;
     ObservationCOVERImplementation(ObservationCOVERImplementation&&) = delete;
     ObservationCOVERImplementation& operator=(const ObservationCOVERImplementation&) = delete;
@@ -51,13 +51,13 @@ public:
 
     //virtual void Insert(int time, int agentId, LoggingGroup group, const std::string& key, const std::string& value) override;
     //virtual void InsertEvent(std::shared_ptr<EventInterface> event) override;
-    virtual void SlavePreHook() override;
-    virtual void SlavePreRunHook() override;
-    virtual void SlavePostRunHook(const RunResultInterface& runResult) override;
-    virtual void SlaveUpdateHook(int, RunResultInterface&) override;
-    virtual void MasterPreHook() override {}
-    virtual void MasterPostHook(const std::string&) override {}
-    virtual void SlavePostHook() override;
+    virtual void OpSimulationPreHook() override;
+    virtual void OpSimulationPreRunHook() override;
+    virtual void OpSimulationPostRunHook(const RunResultInterface& runResult) override;
+    virtual void OpSimulationUpdateHook(int, RunResultInterface&) override;
+    virtual void OpSimulationManagerPreHook() override {}
+    virtual void OpSimulationManagerPostHook(const std::string&) override {}
+    virtual void OpSimulationPostHook() override;
 
 
     //-----------------------------------------------------------------------------
@@ -67,13 +67,13 @@ public:
     //-----------------------------------------------------------------------------
     //virtual void InformObserverOnSpawn(AgentInterface* agent) override;
 
-    virtual const std::string SlaveResultFile() override
+    virtual const std::string OpSimulationResultFile() override
     {
         return "";
     }
 
 private:
-    SimulationSlave::EventNetworkInterface* eventNetwork;
+    core::EventNetworkInterface* eventNetwork;
 };
 
 

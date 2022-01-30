@@ -19,17 +19,17 @@
 #include "observationCOVERImplementation.h"
 #include "OpenPASS.h"
 
-ObservationCOVERImplementation::ObservationCOVERImplementation(SimulationSlave::EventNetworkInterface* eventNetwork,
+ObservationCOVERImplementation::ObservationCOVERImplementation(core::EventNetworkInterface* eventNetwork,
         StochasticsInterface* stochastics,
         WorldInterface* world,
         const ParameterInterface* parameters,
         const CallbackInterface* callbacks,
-         DataStoreReadInterface* dataStore) :
+         DataBufferReadInterface* dataBuffer) :
     ObservationInterface(stochastics,
                          world,
                          parameters,
                          callbacks,
-                         dataStore),
+                         dataBuffer),
     eventNetwork(eventNetwork)
 {
     
@@ -46,27 +46,27 @@ ObservationCOVERImplementation::ObservationCOVERImplementation(SimulationSlave::
 //    eventNetwork->InsertEvent(event);
 //}
 
-void ObservationCOVERImplementation::SlavePreHook()
+void ObservationCOVERImplementation::OpSimulationPreHook()
 {
   
 }
 
-void ObservationCOVERImplementation::SlavePreRunHook()
+void ObservationCOVERImplementation::OpSimulationPreRunHook()
 {
     
 }
 
-void ObservationCOVERImplementation::SlaveUpdateHook(int time, RunResultInterface& runResult)
+void ObservationCOVERImplementation::OpSimulationUpdateHook(int time, RunResultInterface& runResult)
 {
     OpenPASS::instance()->updateTime(time, GetWorld());
 }
 
-void ObservationCOVERImplementation::SlavePostRunHook(const RunResultInterface& runResult)
+void ObservationCOVERImplementation::OpSimulationPostRunHook(const RunResultInterface& runResult)
 {
     OpenPASS::instance()->postRun(runResult);
 }
 
-void ObservationCOVERImplementation::SlavePostHook()
+void ObservationCOVERImplementation::OpSimulationPostHook()
 {
 }
 

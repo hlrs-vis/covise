@@ -77,7 +77,7 @@ namespace OpenScenario
     class OpenScenarioBase;
 }
 class OpenPASS; 
-namespace SimulationSlave
+namespace core
 {
     class RunInstantiator;
     class FrameworkModuleContainer;
@@ -121,13 +121,13 @@ public:
 
 private:
     OpenPASS* openPass;
-    SimulationSlave::RunInstantiator* runInstantiator;
+    core::RunInstantiator* runInstantiator;
     openpass::core::Directories* directories;
     FrameworkModules* frameworkModules;
     ConfigurationFiles* configurationFiles;
     Configuration::ConfigurationContainer* configurationContainer;
     SimulationCommon::Callbacks* callbacks;
-    SimulationSlave::FrameworkModuleContainer* frameworkModuleContainer;
+    core::FrameworkModuleContainer* frameworkModuleContainer;
 };
 
 class agentInfo
