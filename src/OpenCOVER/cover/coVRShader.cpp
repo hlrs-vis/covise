@@ -78,7 +78,12 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
         }
         else
         {
-            bool b = !(strcmp(value.c_str(),"false")==0 || strtod(value.c_str(), NULL)==0);
+            bool b = true;
+            if (value == "false")
+                b = false;
+            char *end = nullptr;
+            if (strtod(value.c_str(), &end) == 0 && end != value.c_str())
+                b = false;
             uniform = new osg::Uniform(name.c_str(), b);
         }
     }
