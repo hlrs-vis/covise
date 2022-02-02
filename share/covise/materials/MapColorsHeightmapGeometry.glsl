@@ -13,7 +13,7 @@ uniform vec2 off[] = vec2[4](vec2(0, 0), vec2(0, 1), vec2(1, 0), vec2(1, 1));
 
 varying out vec3 N;
 varying out vec3 V;
-varying out float data = 0.;
+varying out float data;
 
 float getHeight(vec2 xy)
 {
@@ -64,6 +64,8 @@ void createVertex(vec2 xy)
 
     if (dataValid)
         data = getData(xy);
+    else
+        data = 0.;
     EmitVertex();
 }
 
