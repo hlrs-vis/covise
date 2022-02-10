@@ -291,6 +291,7 @@ demo 124 "Receiver: Input: Au" sasu kenwoodAux
 
 # Vistle
 category="Vistle"
+demo 24 "Klima MPAS" vistle /data/MPAS/MPAS_full.vsl
 demo 25 "Audi" vistle /data/vistle/audi.vsl
 run_ihs_pumpturbine_remote() {
     ssh visent.hlrs.de /mnt/raid/soft/vistle/bin/run_vistle.sh -b -e /data/vistle/pt-cached.vsl &
