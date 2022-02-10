@@ -371,6 +371,7 @@ MulticastConnection::MulticastConnection(int id, int s_type, int p,
 ClientConnection::ClientConnection(Host *h, int p, int id, int s_type,
                                    int retries, double timeout)
 {
+    //fprintf(stderr,"port:%d\n",p);
     char dataformat;
     lhost = NULL;
     if (!h) // host is local (usually DataManagerConnection uses this)

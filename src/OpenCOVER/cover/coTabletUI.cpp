@@ -4365,7 +4365,7 @@ bool coTabletUI::update()
 
                         return nullptr;
                     }
-
+                    if(msg->type == covise::COVISE_MESSAGE_TABLET_UI)
                     {
                         TokenBuffer stb(msg);
                         int sgPort = 0;
@@ -4392,6 +4392,15 @@ bool coTabletUI::update()
                             return nullptr;
                         }
                         sgConn = cconn;
+                    }
+                    else
+                    {
+                    delete msg;
+                    conn.reset(nullptr);
+
+                    delete sgConn;
+                    sgConn = NULL;
+                    return nullptr;
                     }
 
                     return host;
