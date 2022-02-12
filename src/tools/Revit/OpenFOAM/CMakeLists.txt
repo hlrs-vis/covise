@@ -1,5 +1,5 @@
 USING(Revit)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 PROJECT(RevitPlugin CSharp)
 include(CSharpUtilities)
 
@@ -13,6 +13,8 @@ add_library(OpenFOAMInterface SHARED
   BIM/OpenFOAMInterfaceResource.resx
   BIM/SaveData.cs
   BIM/Settings.cs
+  BIM/Structs.cs
+  BIM/Enums.cs
   BIM/OpenFOAMCancelForm.cs
   BIM/OpenFOAMCancelForm.Designer.cs
   BIM/OpenFOAMCancelForm.resx
@@ -103,7 +105,7 @@ csharp_set_windows_forms_properties(
   BIM/OpenFOAMUI/OpenFOAMTextBoxForm.resx
 )
 
-set_property(TARGET OpenFOAMInterface PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
+set_property(TARGET OpenFOAMInterface PROPERTY DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
 set_property(TARGET OpenFOAMInterface PROPERTY VS_GLOBAL_ROOTNAMESPACE "OpenFOAMInterface")
 set_property(TARGET OpenFOAMInterface PROPERTY VS_DOTNET_REFERENCES
   ${EXTRA_REFS}
