@@ -13,6 +13,7 @@ using Autodesk.Revit.DB;
 
 namespace OpenFOAMInterface.BIM
 {
+    using Enums;
     /// <summary>
     /// Base class providing interface to save data to STL file.
     /// </summary>

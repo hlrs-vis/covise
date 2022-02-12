@@ -7,6 +7,8 @@
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
+    using Enums;
+
     /// <summary>
     /// Represents the OpenFoam-Version.
     /// </summary>

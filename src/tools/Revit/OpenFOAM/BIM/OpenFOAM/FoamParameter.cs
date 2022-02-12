@@ -8,6 +8,8 @@ using System.Collections.Generic;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
+    using Structs.FOAM;
+
     /// <summary>
     /// Abstract base class for simulation parameter that vary with used simulation-model.
     /// </summary>

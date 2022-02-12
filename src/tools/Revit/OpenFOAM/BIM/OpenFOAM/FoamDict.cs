@@ -4,6 +4,7 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
+global using SaveFormat = OpenFOAMInterface.BIM.Enums.SaveFormat;
 using System.Collections.Generic;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
@@ -13,22 +14,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
     /// </summary>
     public abstract class FOAMDict
     {
-        ///// <summary>
-        ///// Name of the file
-        ///// </summary>
-        //protected string m_Name = string.Empty;
-
-        ///// <summary>
-        ///// Class of the file
-        ///// </summary>
-        //protected string m_Class = string.Empty;
-
-
-        ///// <summary>
-        ///// ParentDictionary of the simulation dictionary in settings.
-        ///// </summary>
-        //protected Dictionary<string, object> m_ParentDictionary;
-
         /// <summary>
         /// Dictionary in settings which contains all attributes for this file.
         /// </summary>
@@ -56,16 +41,13 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="settings">Settings-object</param>
         public FOAMDict(string _name, string _class, Version version, string path, Dictionary<string, object> attributes, SaveFormat format)
         {
-            //m_Name = _name;
-            //m_Class = _class;
-
             if (format == SaveFormat.ascii)
             {
-                m_FoamFile = new FoamFileAsAscII(/*m_Name*/_name, version, path, /*m_Class*/_class, attributes, format);
+                m_FoamFile = new FoamFileAsAscII(_name, version, path, _class, attributes, format);
             }
             else if (format == SaveFormat.binary)
             {
-                m_FoamFile = new FoamFileAsBinary(/*m_Name*/_name, version, path, /*m_Class*/_class, attributes, format);
+                m_FoamFile = new FoamFileAsBinary(_name, version, path, _class, attributes, format);
             }
             Dictionary<string, object> m_ParentDictionary = Exporter.Instance.settings.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
             m_DictFile = m_ParentDictionary[_name] as Dictionary<string, object>;

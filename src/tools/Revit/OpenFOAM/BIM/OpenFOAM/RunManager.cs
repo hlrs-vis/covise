@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
+    using Enums;
+
     /// <summary>
     /// Abstract base-class runmanager contains functions which have to be implemented for each OpenFOAM-Run-Environment itselfs.
     /// </summary>

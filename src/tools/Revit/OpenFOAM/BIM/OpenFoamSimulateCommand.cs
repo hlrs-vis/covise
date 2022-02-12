@@ -42,14 +42,11 @@ namespace OpenFOAMInterface.BIM
         /// </returns>
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            //for repeating click-events
-
             m_Revit = commandData.Application;
-
             Exporter.Instance.settings.SetDocument(m_Revit);
             string fileName = "wallSTL.stl";
-            // save Revit document's triangular data in a temporary file, generate openFOAM-casefolder and start simulation
 
+            // save Revit document's triangular data in a temporary file, generate openFOAM-casefolder and start simulation
             Directory.CreateDirectory(Exporter.Instance.settings.LocalCaseFolder);
             Directory.CreateDirectory(Exporter.Instance.settings.LocalCaseFolder + "\\constant");
             Directory.CreateDirectory(Exporter.Instance.settings.LocalCaseFolder + "\\constant\\triSurface");

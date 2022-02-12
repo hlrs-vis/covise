@@ -9,6 +9,8 @@ using System.Windows;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
+    using TransportModel = Enums.TransportModel;
+    
     /// <summary>
     /// TransportProperties-Dictionary in Constant-Folder.
     /// </summary>

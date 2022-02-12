@@ -18,6 +18,7 @@ using RevitView = Autodesk.Revit.DB.View;
 
 namespace OpenFOAMInterface.BIM
 {
+    using Structs.General;
     public sealed class Exporter
     {
         public Settings settings = null;
@@ -87,6 +88,7 @@ namespace OpenFOAMInterface.BIM
             internal static readonly Exporter instance = new Exporter();
         }
     }
+
     public class OpenFOAMInterfaceApp : IExternalApplication
     {
         // Fields
@@ -108,22 +110,7 @@ namespace OpenFOAMInterface.BIM
             try
             {
                 //set default settings
-                Exporter.Instance.settings = new(
-                    SaveFormat.ascii,
-                    ElementsExportRange.OnlyVisibleOnes,
-                    true,
-                    false,
-                    false,
-                    false,
-                    0,
-                    101,
-                    1,
-                    100,
-                    2/*purgeWrite*/,
-                    8,
-                    7,
-                    4
-                );
+                Exporter.Instance.settings = Settings.Default;
 
                 string appName = "OpenFOAM Interface";
                 RibbonPanel panel = application.CreateRibbonPanel(appName);
