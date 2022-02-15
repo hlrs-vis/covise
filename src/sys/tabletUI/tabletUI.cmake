@@ -104,9 +104,11 @@ SET(TUI_MOC_HEADERS
 if (WIRINGPI_FOUND)
    SET(TUI_SOURCES ${TUI_SOURCES}
       Thyssen.cpp
+      ThyssenButton.cpp
       )
    SET(TUI_HEADERS ${TUI_HEADERS}
       Thyssen.h
+      ThyssenButton.h
       )
 endif (WIRINGPI_FOUND)
 

@@ -109,6 +109,7 @@
 #include <cassert>
 #ifdef HAVE_WIRINGPI
 #include "Thyssen.h"
+#include "ThyssenButton.h"
 #endif
 
 
@@ -497,6 +498,12 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
     case TABLET_TEXT_FIELD:
         return new TUILabel(id, type, w, parent, name);
     case TABLET_BUTTON:
+#ifdef HAVE_WIRINGPI
+        if(subString(name,0,7) == "thyssen")
+        {
+              return new ThyssenButton(id,type,w,parent,name);
+        }
+#endif
         return new TUIButton(id, type, w, parent, name);
     case TABLET_FILEBROWSER_BUTTON:
         return new TUIFileBrowserButton(id, type, w, parent, name);
