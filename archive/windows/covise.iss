@@ -162,6 +162,7 @@
 
 [Setup]
 ;compiler-related
+SignTool=signtool $f
 
 PrivilegesRequired=None
 #ifdef X64Arch
