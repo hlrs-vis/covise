@@ -193,19 +193,15 @@ LaneEditor::toolAction(ToolAction *toolAction)
                 applyCount_ = 1;
                 QMap<QGraphicsItem *, Lane *> lanes = getSelectedLanes(applyCount_);
 
-                ToolValue<Lane> *laneParam;
+
                 Lane *lane = NULL;
                 if (!lanes.isEmpty())
                 {
                     lane = lanes.first();
-                    QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
-                    laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", false, "", textDisplayed, lane);
-                    laneItem_ = lanes.firstKey();
                 }
-                else
-                {
-                    laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", true);
-                }
+
+                ToolValue<Lane> *laneParam = new ToolValue<Lane>(ODD::TLE_INSERT, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select Lane", true);
+
                 tool_ = new Tool(ODD::TLE_INSERT, 1);
                 tool_->readParams(laneParam);
                 ToolValue<int> *param;
@@ -225,6 +221,14 @@ LaneEditor::toolAction(ToolAction *toolAction)
                 tool_->readParams(widthParam);
 
                 createToolParameterSettingsApplyBox(tool_, ODD::ELN);
+
+                if (lane)
+                {
+                    QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
+                    setToolValue(lane, textDisplayed);
+                    laneItem_ = lanes.firstKey();
+                }
+
                 ODD::mainWindow()->showParameterDialog(true, "Insert new Lane", "Specify lane id and width, select a lane and press APPLY");
 
             }
@@ -255,23 +259,45 @@ LaneEditor::toolAction(ToolAction *toolAction)
                     ToolParameter *p = tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID);
                     ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(p);
                     int laneId = *v->getValue();
-                    Lane *lane = dynamic_cast<ToolValue<Lane> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT))->getValue();
 
-                    if (lane)
+                    ToolValue<Lane> *vLaneParam = dynamic_cast<ToolValue<Lane> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT));
+                    Lane *lane = vLaneParam->getValue();
+
+                    if (laneId != 0)
                     {
-                        int rightmost = lane->getParentLaneSection()->getRightmostLaneId() - 1;
-                        int leftmost = lane->getParentLaneSection()->getLeftmostLaneId() + 1;
+                        if (lane)
+                        {
+                            DeselectDataElementCommand *deselectCommand = new DeselectDataElementCommand(lane);
+                            getProjectGraph()->executeCommand(deselectCommand);
 
-                        if (laneId < rightmost)
-                        {
-                            v->setValue(rightmost);
-                            updateToolParameterUI(p);
+                            int rightmost = lane->getParentLaneSection()->getRightmostLaneId();
+                            int leftmost = lane->getParentLaneSection()->getLeftmostLaneId();
+
+                            if (laneId = (laneId < rightmost) ? rightmost : (laneId > leftmost) ? leftmost : laneId)
+                            {
+                                v->setValue(laneId);
+                                updateToolParameterUI(p);
+                            }
+
+                            lane = lane->getParentLaneSection()->getLane(laneId);
+                            SelectDataElementCommand *command = new SelectDataElementCommand(lane);
+                            getProjectGraph()->executeCommand(command);
                         }
-                        else if (laneId > leftmost)
-                        {
-                            v->setValue(leftmost);
-                            updateToolParameterUI(p);
-                        }
+                    }
+                    else
+                    {
+                        v->setValue(lane->getId());
+                        updateToolParameterUI(v);
+                    }
+
+                    settings_->activateParameter(vLaneParam);
+                }
+                else if (action->getParamToolId() == ODD::TLE_INSERT_LANE_WIDTH)
+                {
+                    ToolParameter *param = tool_->getParam(ODD::TLE_INSERT, ODD::TPARAM_SELECT);
+                    if (param)
+                    {
+                        settings_->activateParameter(param);
                     }
                 }
             }
@@ -335,57 +361,6 @@ LaneEditor::mouseAction(MouseAction *mouseAction)
     {
         QPointF mousePoint = mouseAction->getEvent()->scenePos();
     }
-    else if (tool == ODD::TLE_INSERT)
-    {
-        if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-        {
-            if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    for (int i = 0; i < selectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        LaneItem *laneItem = dynamic_cast<LaneItem *>(item);
-                        if (laneItem && (item != laneItem_))
-                        {
-                            if (laneItem_)
-                            {
-                                laneItem_->setSelected(false);
-                                int index = selectedItems.indexOf(laneItem_);
-                                if (index > i)
-                                {
-                                    selectedItems.removeAt(index);
-                                }
-                            }
-
-                            Lane *lane = laneItem->getLane();
-                            QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
-                            setToolValue<Lane>(lane, textDisplayed);
-
-                            laneItem_ = item;
-
-                            ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID));
-                            v->setValue(lane->getId());
-                            updateToolParameterUI(v);
-                        }
-                        else if (item != laneItem_)
-                        {
-                            item->setSelected(false);
-                        }
-                    }
-                    mouseAction->intercept();
-
-                    // verify if apply can be displayed //
-                    if (tool_->verify())
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
 }
 
 void
@@ -422,6 +397,40 @@ int
 LaneEditor::unregisterMoveHandle(BaseLaneMoveHandle *handle)
 {
     return selectedLaneMoveHandles_.removeOne(handle);
+}
+
+void
+LaneEditor::registerLane(LaneItem *item, Lane *lane)
+{
+    if (item != laneItem_)
+    {
+        QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
+        setToolValue<Lane>(lane, textDisplayed);
+
+        laneItem_ = item;
+
+        ToolValue<int> *v = dynamic_cast<ToolValue<int> *>(tool_->getParam(ODD::TLE_INSERT, ODD::TLE_INSERT_LANE_ID));
+        v->setValue(lane->getId());
+        updateToolParameterUI(v);
+
+        // verify if apply can be displayed //
+        if (tool_->verify())
+        {
+            settingsApplyBox_->setApplyButtonVisible(true);
+        }
+    }
+}
+
+void
+LaneEditor::deregisterLane(LaneItem *item)
+{
+    if (item == laneItem_)
+    {
+        ToolParameter *param = tool_->getParam(ODD::TLE_INSERT, ODD::ODD::TPARAM_SELECT);
+        delToolValue(param);
+        laneItem_ = NULL;
+        settingsApplyBox_->setApplyButtonVisible(false);
+    }
 }
 
 bool

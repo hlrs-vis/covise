@@ -66,7 +66,7 @@ LaneSectionItem::init()
     {
         if (lane->getId() != 0)
         {
-            laneItems_.insert(lane, new LaneItem(this, lane));
+            laneItems_.insert(lane, new LaneItem(laneEditor_, this, lane));
         }
     }
 }
@@ -165,7 +165,7 @@ LaneSectionItem::updateObserver()
             {
                 if (lane->getId() != 0)
                 {
-                    laneItems_.insert(lane, new LaneItem(this, lane));
+                    laneItems_.insert(lane, new LaneItem(laneEditor_, this, lane));
                 }
             }
         }

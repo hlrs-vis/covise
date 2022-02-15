@@ -72,3 +72,29 @@ CircularHandle::~CircularHandle()
 
 // return Handle::itemChange(change, value);
 //}
+
+/* QVariant
+CircularHandle::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemSelectedHasChanged)
+    {
+        if (value.toBool())
+        {
+            if (!parentItem_->sinkHandleMouseEvent())
+            {
+                setSelected(false);
+            }
+        }
+    }
+
+    return value;
+}
+
+void
+CircularHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (parentItem_->sinkHandleMouseEvent())
+    {
+        Handle::mousePressEvent(event); // pass to baseclass
+    }
+} */

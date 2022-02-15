@@ -63,8 +63,8 @@
 // CONSTRUCTOR    //
 //################//
 
-TrackSpArcSItem::TrackSpArcSItem(TrackRoadItem *parentTrackRoadItem, TrackSpiralArcSpiral *trackSpArcS)
-    : TrackCompositeItem(parentTrackRoadItem, trackSpArcS)
+TrackSpArcSItem::TrackSpArcSItem(TrackRoadItem *parentTrackRoadItem, TrackSpiralArcSpiral *trackSpArcS, TrackEditor *trackEditor)
+    : TrackCompositeItem(parentTrackRoadItem, trackSpArcS, trackEditor)
     , trackSpArcS_(trackSpArcS)
 {
     // Init //
@@ -72,8 +72,8 @@ TrackSpArcSItem::TrackSpArcSItem(TrackRoadItem *parentTrackRoadItem, TrackSpiral
     init();
 }
 
-TrackSpArcSItem::TrackSpArcSItem(TrackComponentItem *parentTrackComponentItem, TrackSpiralArcSpiral *trackSpArcS)
-    : TrackCompositeItem(parentTrackComponentItem, trackSpArcS)
+TrackSpArcSItem::TrackSpArcSItem(TrackComponentItem *parentTrackComponentItem, TrackSpiralArcSpiral *trackSpArcS, TrackEditor *trackEditor)
+    : TrackCompositeItem(parentTrackComponentItem, trackSpArcS, trackEditor)
     , trackSpArcS_(trackSpArcS)
 {
     // Init //

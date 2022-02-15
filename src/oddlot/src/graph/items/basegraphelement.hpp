@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.03.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   23.03.2010
+ **
+ **************************************************************************/
 
 #ifndef BaseGraphElement_HPP
 #define BaseGraphElement_HPP
@@ -19,8 +19,8 @@
 #include <QGraphicsItem>
 #include "src/data/observer.hpp"
 
-// Qt //
-//
+ // Qt //
+ //
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
 #include <QGraphicsSceneContextMenuEvent>
@@ -88,108 +88,108 @@ public:
 
     // ParentBaseGraphElement //
     //
-BaseGraphElement<T> *getParentBaseGraphElement() const
-{
-	return parentBaseGraphElement_;
-}
-//	void						setParentBaseGraphElement(BaseGraphElement * parentBaseGraphElement);
+    BaseGraphElement<T> *getParentBaseGraphElement() const
+    {
+        return parentBaseGraphElement_;
+    }
+    // void      setParentBaseGraphElement(BaseGraphElement * parentBaseGraphElement);
 
-// Graphics //
-//
-void enableHighlighting(bool enable);
-void setHighlighting(bool highlight);
-void setOpacitySettings(double highlightOpacity, double normalOpacity);
-void updateHighlightingState();
+    // Graphics //
+    //
+    void enableHighlighting(bool enable);
+    void setHighlighting(bool highlight);
+    void setOpacitySettings(double highlightOpacity, double normalOpacity);
+    void updateHighlightingState();
 
-virtual void createPath()
-{ /* does nothing */
-}
+    virtual void createPath()
+    { /* does nothing */
+    }
 
-void setHovered(bool hovered);
-bool isHovered()
-{
-	return hovered_;
-}
+    void setHovered(bool hovered);
+    bool isHovered()
+    {
+        return hovered_;
+    }
 
-// Observer Pattern //
-//
-virtual void updateObserver();
+    // Observer Pattern //
+    //
+    virtual void updateObserver();
 
 protected:
-	// ContextMenu //
-	//
-	QMenu *getContextMenu()
-	{
-		return contextMenu_;
-	}
-	QMenu *getHideMenu() const
-	{
-		return hideMenu_;
-	}
-	QMenu *getRemoveMenu() const
-	{
-		return removeMenu_;
-	}
+    // ContextMenu //
+    //
+    QMenu *getContextMenu()
+    {
+        return contextMenu_;
+    }
+    QMenu *getHideMenu() const
+    {
+        return hideMenu_;
+    }
+    QMenu *getRemoveMenu() const
+    {
+        return removeMenu_;
+    }
 
 private:
-	BaseGraphElement(); /* not allowed */
-	BaseGraphElement(const BaseGraphElement &); /* not allowed */
-	BaseGraphElement &operator=(const BaseGraphElement &); /* not allowed */
+    BaseGraphElement(); /* not allowed */
+    BaseGraphElement(const BaseGraphElement &); /* not allowed */
+    BaseGraphElement &operator=(const BaseGraphElement &); /* not allowed */
 
-	void init();
+    void init();
     T *This();
     const T *This() const;
 
 
-	//################//
-	// EVENTS         //
-	//################//
+    //################//
+    // EVENTS         //
+    //################//
 
 protected:
-	virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
+    virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
 
-	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-	//	virtual void			hoverMoveEvent(QGraphicsSceneHoverEvent * event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    // virtual void   hoverMoveEvent(QGraphicsSceneHoverEvent * event);
 
-	//################//
-	// PROPERTIES     //
-	//################//
+    //################//
+    // PROPERTIES     //
+    //################//
 
 private:
-	// ParentBaseGraphElement //
-	//
-	BaseGraphElement<T> *parentBaseGraphElement_;
+    // ParentBaseGraphElement //
+    //
+    BaseGraphElement<T> *parentBaseGraphElement_;
 
-	// DataElement //
-	//
-	DataElement *dataElement_;
+    // DataElement //
+    //
+    DataElement *dataElement_;
 
-	// Graphics //
-	//
-	bool hovered_;
+    // Graphics //
+    //
+    bool hovered_;
 
-	bool useHighlighting_;
-	double highlightOpacity_;
-	double normalOpacity_;
+    bool useHighlighting_;
+    double highlightOpacity_;
+    double normalOpacity_;
 
-	// Garbage //
-	//
-	bool isInGarbage_;
+    // Garbage //
+    //
+    bool isInGarbage_;
 
-	// ContextMenu //
-	//
-	QMenu *contextMenu_;
-	QMenu *hideMenu_;
-	QMenu *removeMenu_;
+    // ContextMenu //
+    //
+    QMenu *contextMenu_;
+    QMenu *hideMenu_;
+    QMenu *removeMenu_;
 
-	// Select element beneath //
-	//
-	QPointF lastMousePos_;
+    // Select element beneath //
+    //
+    QPointF lastMousePos_;
 };
 
 

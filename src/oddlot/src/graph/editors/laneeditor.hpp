@@ -24,6 +24,7 @@ class ProjectData;
 class TopviewGraph;
 
 class LaneRoadSystemItem;
+class LaneItem;
 class BaseLaneMoveHandle;
 
 class SectionHandle;
@@ -57,6 +58,10 @@ public:
     //
     void registerMoveHandle(BaseLaneMoveHandle *handle);
     int unregisterMoveHandle(BaseLaneMoveHandle *handle);
+
+    // Lanes //
+    void registerLane(LaneItem *item, Lane *lane);
+    void deregisterLane(LaneItem *laneItem);
 
 
     bool translateLaneBorder(const QPointF &pressPos, const QPointF &mousePos, double width = 0.0, bool setWidth = false);

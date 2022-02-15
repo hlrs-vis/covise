@@ -44,7 +44,25 @@ RoadLinkRoadSystemItem::init()
 {
     foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
     {
-        new RoadLinkRoadItem(this, road, editor_);
+        roadLinkRoadItems_.insert(road, new RoadLinkRoadItem(this, road, editor_));
+    }
+}
+
+void
+RoadLinkRoadSystemItem::setHandlesSelectable(bool selectable)
+{
+    foreach(RoadLinkRoadItem * item, roadLinkRoadItems_)
+    {
+        item->setHandlesSelectable(selectable);
+    }
+}
+
+void
+RoadLinkRoadSystemItem::setRoadsSelectable(bool selectable)
+{
+    foreach(RoadLinkRoadItem * item, roadLinkRoadItems_)
+    {
+        item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
     }
 }
 

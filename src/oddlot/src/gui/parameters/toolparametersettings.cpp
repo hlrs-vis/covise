@@ -515,7 +515,7 @@ ToolParameterSettings::generateUI(QFrame *box)
 
     if (buttonGroup_->buttons().size() < 2)
     {
-        buttonGroup_->setExclusive(false);
+     //   buttonGroup_->setExclusive(false);
     }
     connect(buttonGroup_, SIGNAL(buttonPressed(int)), this, SLOT(onButtonPressed(int)));
 
@@ -729,6 +729,14 @@ ToolParameterSettings::onButtonPressed(int paramId)
 
 }
 
+void 
+ToolParameterSettings::activateParameter(ToolParameter *param)
+{
+    unsigned int paramId = params_->key(param);
+    QAbstractButton *button = buttonGroup_->button(paramId);
+    button->click();
+}
+
 void ToolParameterSettings::activateNextParameter()
 {
 
@@ -775,10 +783,11 @@ ToolParameterSettings::setObjectSelected(int id, const QString &objectName, cons
 
     setLabels(id, objectName, buttonText);
 
-    if (!buttonGroup_->exclusive() && buttonGroup_->checkedButton())
+ /*   if (!buttonGroup_->exclusive() && buttonGroup_->checkedButton()) 
     {
+        qDebug("uncheck button");
         buttonGroup_->checkedButton()->setChecked(false);
-    }
+    } */
 }
 
 void
@@ -912,13 +921,16 @@ ToolParameterSettingsApplyBox::enterEvent(QEvent *event)
 void
 ToolParameterSettingsApplyBox::focus(short state)
 {
-    if (state)
+    if (dialogBox_)
     {
-        ok_->setFocus();
-    }
-    else
-    {
-        ok_->clearFocus();
+        if (state)
+        {
+            ok_->setFocus();
+        }
+        else
+        {
+            ok_->clearFocus();
+        }
     }
 }
 

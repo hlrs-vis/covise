@@ -21,90 +21,90 @@ template<class T>
 class ToolValue : public ToolParameter
 {
 public:
-	explicit ToolValue<T>(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, bool active = false, const QString &labelText = "", const QString& valueDisplayed = "", T* value = NULL) :
-		ToolParameter(toolId, paramToolId, list, type, text, active, labelText, valueDisplayed)
-		, value_(value)
-	{
-		if (value)
-		{
-			setValid(true);
-		}
-	}
+    explicit ToolValue<T>(ODD::ToolId toolId, ODD::ToolId paramToolId, char list, ParameterTypes type, const QString &text, bool active = false, const QString &labelText = "", const QString &valueDisplayed = "", T *value = NULL) :
+        ToolParameter(toolId, paramToolId, list, type, text, active, labelText, valueDisplayed)
+        , value_(value)
+    {
+        if (value)
+        {
+            setValid(true);
+        }
+    }
 
-	virtual ~ToolValue()
-	{
-//		delete value_;
-		value_ = NULL;
-	};
+    virtual ~ToolValue()
+    {
+        //  delete value_;
+        value_ = NULL;
+    };
 
-	virtual void delParamValue()
-	{
-		value_ = NULL;
-		setValueDisplayed("");
-	}
+    virtual void delParamValue()
+    {
+        value_ = NULL;
+        setValueDisplayed("");
+    }
 
-	ToolValue<T> *clone()
-	{
-		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), isActive(), getLabelText(), getValueDisplayed(), value_);
+    ToolValue<T> *clone()
+    {
+        ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), isActive(), getLabelText(), getValueDisplayed(), value_);
 
-		return value;
-	}
+        return value;
+    }
 
-	ToolValue<T> *parameterClone()
-	{
-		ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), isActive(), getLabelText());
+    ToolValue<T> *parameterClone()
+    {
+        ToolValue<T> *value = new ToolValue<T>(getToolId(), getParamToolId(), getListIndex(), getType(), getText(), isActive(), getLabelText());
 
-		return value;
-	}
+        return value;
+    }
 
-	T *getValue()
-	{
-		return value_;
-	}
+    T *getValue()
+    {
+        return value_;
+    }
 
-	void setValue(T value)
-	{
-		if (!value_)
-		{
-			value_ = new T;
-		}
-		*value_ = value;
-		setValid(true);
-	}
+    void setValue(T value)
+    {
+        if (!value_)
+        {
+            value_ = new T;
+        }
+        *value_ = value;
+        setValid(true);
+    }
 
-	void setValue(T *value)
-	{
-		value_ = value;
-		if (value)
-		{
-			setValid(true);
-		}
-	}
+    void setValue(T *value)
+    {
+        value_ = value;
+        if (value)
+        {
+            setValid(true);
+        }
+    }
 
-	virtual bool verify()
-	{
-		if (!value_)
-		{
-			return false;
-		}
+    virtual bool verify()
+    {
+        if (!value_)
+        {
+            return false;
+        }
 
-		T *v = static_cast<T *>(value_);
-		if (!v)
-		{
-			return false;
-		}
+        T *v = static_cast<T *>(value_);
+        if (!v)
+        {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-
-private:
-	ToolValue(); /* not allowed */
-	ToolValue(const ToolValue &); /* not allowed */
-	ToolValue &operator=(const ToolValue &); /* not allowed */
 
 private:
-	T *value_;
+    ToolValue(); /* not allowed */
+    ToolValue(const ToolValue &); /* not allowed */
+    ToolValue &operator=(const ToolValue &); /* not allowed */
+
+private:
+    T *value_;
 };
 
 #endif // TOOLVALUE_HPP

@@ -145,7 +145,9 @@ public:
     QMap<QGraphicsItem *, RSystemElementRoad *> getSelectedRoads(int count);
 
     // Register Roads //
-    void registerRoad(RSystemElementRoad *road);
+    bool registerRoad(QGraphicsItem *trackItem, RSystemElementRoad *road);
+    bool deregisterRoad(QGraphicsItem *trackItem, RSystemElementRoad *road);
+
 
 
 #if 0
@@ -164,7 +166,8 @@ protected:
     virtual void init();
     virtual void kill();
 
-    void clearToolObjectSelection();
+    void clearToolObjectSelection(QList<ToolParameter *> *parameterVector = NULL, RSystemElementRoad **firstRoad = NULL, RSystemElementRoad **secondRoad = NULL);
+    void getToolObjectSelection(QList<ToolParameter *> *parameterList, RSystemElementRoad **firstRoad, RSystemElementRoad **secondRoad);
 
 private:
     TrackEditor(); /* not allowed */

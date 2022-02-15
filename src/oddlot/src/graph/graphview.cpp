@@ -202,7 +202,8 @@ GraphView::shapeEditing(bool edit)
 void
 GraphView::toolAction(ToolAction *toolAction)
 {
-    static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT_CONTROLS << ODD::TLE_SELECT_ALL << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT << ODD::TEL_SELECT << ODD::TSE_SELECT;
+    static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT_CONTROLS << ODD::TLE_SELECT_ALL << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT << ODD::TEL_SELECT << ODD::TSE_SELECT << ODD::TLE_INSERT;
+    static QList<ODD::ToolId> singleParameterSelectionToolIds = QList<ODD::ToolId>() << ODD::TRL_LINK << ODD::TRL_SINK;
 
     // Zoom //
     //
@@ -318,6 +319,7 @@ GraphView::toolAction(ToolAction *toolAction)
         //  }
     }
 
+    doBoxSelect_ = BBOff;
     ODD::EditorId editorId = toolAction->getEditorId();
     if (editorId != ODD::ENO_EDITOR)
     {
@@ -330,6 +332,11 @@ GraphView::toolAction(ToolAction *toolAction)
         {
             select_ = true;
             paramToolAdditionalSelection_ = true;
+
+            if (singleParameterSelectionToolIds.contains(toolAction->getToolId()))
+            {
+                doBoxSelect_ = BBDeactivated;
+            }
         }
         else
         {
@@ -1184,8 +1191,13 @@ GraphView::mousePressEvent(QMouseEvent *event)
     {
         if (select_)
         {
+            if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && paramToolAdditionalSelection_)
+            {
+                event->setModifiers(Qt::ControlModifier);
+            }
+
             QGraphicsItem *item = NULL;
-            if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && !paramToolAdditionalSelection_)
+            if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
             {
                 item = scene()->itemAt(mapToScene(event->pos()), QGraphicsView::transform());
             }
@@ -1199,11 +1211,13 @@ GraphView::mousePressEvent(QMouseEvent *event)
 
                 QGraphicsView::mousePressEvent(event); // pass to baseclass
             }
-            else
+
+            else if (doBoxSelect_ != BBDeactivated)
             {
+
                 doBoxSelect_ = BBActive;
 
-                if (((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0) || paramToolAdditionalSelection_)
+                if ((event->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) != 0) 
                 {
                     additionalSelection_ = true;
                 }
@@ -1331,9 +1345,48 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
     {
         QGraphicsView::mouseReleaseEvent(event);
     }
+    else if (doBoxSelect_ == BBDeactivated)
+    {
+        if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
+        {
+            event->setModifiers(Qt::ControlModifier);
+        }
 
+
+
+
+        // Deselect element from the previous selection
+
+        QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
+
+        QGraphicsView::mousePressEvent(event); // pass to baseclass
+        if (!event->isAccepted()) return;
+        QList<QGraphicsItem *> selection = scene()->selectedItems();
+
+        QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
+
+
+        if (selectedItem)
+        {
+            if (!oldSelection.contains(selectedItem))
+            {
+                selectedItem->setSelected(true);
+            }
+            else
+            {
+                selectedItem->setSelected(false);
+            }
+        }
+
+        return;
+
+    }
     else
     {
+        if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && paramToolAdditionalSelection_)
+        {
+            event->setModifiers(Qt::ControlModifier);
+        }
 
         if (doBoxSelect_ == BBActive)
         {
@@ -1341,7 +1394,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
             if ((mp_ - event->pos()).manhattanLength() < QApplication::startDragDistance())
             {
-                if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0) || paramToolAdditionalSelection_)
+                if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) != 0)
                 {
 
                     // Deselect element from the previous selection
@@ -1349,18 +1402,15 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
                     QList<QGraphicsItem *> oldSelection = scene()->selectedItems();
 
                     QGraphicsView::mousePressEvent(event); // pass to baseclass
+                    if (!event->isAccepted()) return;
                     QList<QGraphicsItem *> selection = scene()->selectedItems();
 
                     QGraphicsItem *selectedItem = scene()->mouseGrabberItem();
 
-                    foreach(QGraphicsItem * item, oldSelection)
-                    {
-                        item->setSelected(true);
-                    }
 
                     if (selectedItem)
                     {
-                        if ((((event->modifiers() & Qt::ControlModifier) != 0) || paramToolAdditionalSelection_) && !oldSelection.contains(selectedItem))
+                        if (((event->modifiers() & Qt::ControlModifier) != 0)  && !oldSelection.contains(selectedItem))
                         {
                             selectedItem->setSelected(true);
                         }
@@ -1368,11 +1418,6 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
                         {
                             selectedItem->setSelected(false);
                         }
-                    }
-
-                    if (paramToolAdditionalSelection_)
-                    {
-                        QGraphicsView::mouseReleaseEvent(event); // pass to baseclass
                     }
                 }
                 else
@@ -1407,7 +1452,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
             foreach(QGraphicsItem * item, oldSelection)
             {
-                if (!paramToolAdditionalSelection_ && selectList.contains(item))
+                if (selectList.contains(item))
                 {
                     item->setSelected(false);
                     selectList.removeOne(item);
@@ -1421,7 +1466,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
             // deselect elements which were not in the oldSelection
 
-            if ((event->modifiers() & Qt::AltModifier) != 0)
+            if ((event->modifiers() & Qt::AltModifier) != 0) 
             {
                 foreach(QGraphicsItem * item, selectList)
                 {
@@ -1434,7 +1479,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
         }
 
 
-        if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) || paramToolAdditionalSelection_)
+        if ((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0)
         {
             QGraphicsView::mouseReleaseEvent(event);
         }

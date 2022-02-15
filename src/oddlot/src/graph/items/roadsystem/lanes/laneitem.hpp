@@ -30,7 +30,7 @@ class LaneItem : public GraphElement
         //################//
 
 public:
-    explicit LaneItem(LaneSectionItem *parentLaneSectionItem, Lane *lane);
+    explicit LaneItem(LaneEditor *laneEditor, LaneSectionItem *parentLaneSectionItem, Lane *lane);
     virtual ~LaneItem();
 
     // Lane //

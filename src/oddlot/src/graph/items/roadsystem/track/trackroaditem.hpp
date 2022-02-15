@@ -19,6 +19,7 @@
 #include "src/graph/items/roadsystem/roaditem.hpp"
 
 class TrackRoadSystemItem;
+class TrackComponentItem;
 class RSystemElementRoad;
 
 class TrackEditor;
@@ -31,7 +32,7 @@ class TrackRoadItem : public RoadItem
     //################//
 
 public:
-    explicit TrackRoadItem(TrackRoadSystemItem *parentTrackRoadSystemItem, RSystemElementRoad *road);
+    explicit TrackRoadItem(TrackRoadSystemItem *parentTrackRoadSystemItem, RSystemElementRoad *road, TrackEditor *trackEditor);
     virtual ~TrackRoadItem();
 
     // Garbage //
@@ -44,6 +45,10 @@ public:
     void rebuildAddHandles(bool delHandles);
     void rebuildRoadMoveRotateHandles(bool delHandles);
     void deleteHandles();
+
+    // Components //
+    //
+    void setComponentItemsSelectable(bool selectable);
 
     // Graph //
     //
@@ -66,7 +71,7 @@ private:
     //################//
 
 public:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+    // virtual QVariant itemChange(GraphicsItemChange change, const QVariant & value);
 
     //################//
     // PROPERTIES     //
@@ -85,6 +90,10 @@ private:
     //
     QGraphicsPathItem *handlesItem_;
     QGraphicsPathItem *handlesAddItem_;
+
+    // TrackComponentItems //
+    //
+    QMap<TrackComponent *, TrackComponentItem *> trackComponentItems_;
 };
 
 #endif // TRACKROADITEM_HPP

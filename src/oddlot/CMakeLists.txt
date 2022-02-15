@@ -291,6 +291,7 @@ SET(ODDLOT_SOURCES
     src/data/scenerysystem/scenerytesselation.cpp
     src/graph/items/roadsystem/roadlink/roadlinkhandle.cpp
     src/graph/items/roadsystem/roadlink/roadlinkitem.cpp
+	src/graph/items/roadsystem/roadlink/roadlinksinkhandle.cpp
     src/data/visitors/boundingboxvisitor.cpp
     src/graph/items/roadsystem/roadlink/roadlinksinkitem.cpp
     src/graph/items/handles/circularhandle.cpp

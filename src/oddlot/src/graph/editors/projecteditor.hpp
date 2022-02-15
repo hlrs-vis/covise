@@ -112,6 +112,8 @@ protected:
     void delToolParameters();
     template<class T>
     void setToolValue(T *object, const QString &valueDisplayed);
+    void delToolValue(ODD::ToolId toolId, ODD::ToolId paramToolId);
+    void delToolValue(ToolParameter *p);
     template<class T>
     void createToolParameters(T *object, int currentParameterID = -1);
     template<class T>

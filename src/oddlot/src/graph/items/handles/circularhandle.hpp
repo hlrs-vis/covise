@@ -34,8 +34,8 @@ public:
         return pos();
     }
 
-    //	bool						getPassSelectionToParent() const { return passSelectionToParent_; }
-    //	void						setPassSelectionToParent(bool passSelectionToParent);
+    // bool      getPassSelectionToParent() const { return passSelectionToParent_; }
+    // void      setPassSelectionToParent(bool passSelectionToParent);
 
 protected:
 private:
@@ -48,14 +48,14 @@ private:
     //################//
 
 protected:
-    //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
+   // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-    //	bool						passSelectionToParent_;
+    // bool      passSelectionToParent_;
 };
 
 #endif // CIRCULARHANDLE_HPP

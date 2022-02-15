@@ -5,13 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10.05.2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10.05.2010
+ **
+ **************************************************************************/
 
 #ifndef KEYACTION_HPP
 #define KEYACTION_HPP
@@ -27,7 +27,7 @@ class KeyAction
 
 public:
     /*! \brief
-	*/
+    */
     enum KeyActionType
     {
         ATK_PRESS,

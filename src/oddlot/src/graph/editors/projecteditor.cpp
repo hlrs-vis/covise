@@ -63,7 +63,7 @@ void ProjectEditor::setToolValue<RSystemElementRoad>(RSystemElementRoad *, const
 template
 void ProjectEditor::setToolValue<RSystemElementJunction>(RSystemElementJunction *, const QString &);
 template
-void ProjectEditor::setToolValue<RoadLinkSinkItem>(RoadLinkSinkItem *, const QString &);
+void ProjectEditor::setToolValue<RoadLinkSinkHandle>(RoadLinkSinkHandle *, const QString &);
 template
 void ProjectEditor::setToolValue<RoadLinkHandle>(RoadLinkHandle *, const QString &);
 template
@@ -229,6 +229,20 @@ ProjectEditor::setToolValue(T *object, const QString &valueDisplayed)
     {
         fprintf(stderr, "Error: wrong type in ProjectEditor::setToolValue \n");
     }
+}
+
+void 
+ProjectEditor::delToolValue(ODD::ToolId toolId, ODD::ToolId paramToolId)
+{
+    ToolParameter *p = tool_->getParam(toolId, paramToolId);
+    delToolValue(p);
+}
+
+void 
+ProjectEditor::delToolValue(ToolParameter *p)
+{
+    p->delParamValue();
+    settings_->setLabels(tool_->getParamId(p), p->getValueDisplayed(), p->getText());
 }
 
 

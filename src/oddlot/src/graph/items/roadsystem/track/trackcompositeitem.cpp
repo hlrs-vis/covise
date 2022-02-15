@@ -22,7 +22,7 @@
 
 // Graph //
 //
-//#include "trackroaditem.hpp"
+#include "src/graph/editors/trackeditor.hpp"
 
 // Editor //
 //
@@ -32,8 +32,8 @@
 // CONSTRUCTOR    //
 //################//
 
-TrackCompositeItem::TrackCompositeItem(TrackRoadItem *parentTrackRoadItem, TrackComposite *trackComposite)
-    : TrackComponentItem(parentTrackRoadItem, trackComposite)
+TrackCompositeItem::TrackCompositeItem(TrackRoadItem *parentTrackRoadItem, TrackComposite *trackComposite, TrackEditor *trackEditor)
+    : TrackComponentItem(parentTrackRoadItem, trackComposite, trackEditor)
     , trackComposite_(trackComposite)
 {
     // Init //
@@ -41,8 +41,8 @@ TrackCompositeItem::TrackCompositeItem(TrackRoadItem *parentTrackRoadItem, Track
     init();
 }
 
-TrackCompositeItem::TrackCompositeItem(TrackComponentItem *parentTrackComponentItem, TrackComposite *trackComposite)
-    : TrackComponentItem(parentTrackComponentItem, trackComposite)
+TrackCompositeItem::TrackCompositeItem(TrackComponentItem *parentTrackComponentItem, TrackComposite *trackComposite, TrackEditor *trackEditor)
+    : TrackComponentItem(parentTrackComponentItem, trackComposite, trackEditor)
     , trackComposite_(trackComposite)
 {
     // Init //

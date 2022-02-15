@@ -34,8 +34,8 @@ class TrackSpArcSItem : public TrackCompositeItem
     //################//
 
 public:
-    explicit TrackSpArcSItem(TrackRoadItem *parentTrackRoadItem, TrackSpiralArcSpiral *trackSpArcS);
-    explicit TrackSpArcSItem(TrackComponentItem *parentTrackComponentItem, TrackSpiralArcSpiral *trackSpArcS);
+    explicit TrackSpArcSItem(TrackRoadItem *parentTrackRoadItem, TrackSpiralArcSpiral *trackSpArcS, TrackEditor *trackEditor);
+    explicit TrackSpArcSItem(TrackComponentItem *parentTrackComponentItem, TrackSpiralArcSpiral *trackSpArcS, TrackEditor *trackEditor);
     virtual ~TrackSpArcSItem();
 
     // Track //

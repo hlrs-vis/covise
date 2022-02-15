@@ -19,6 +19,7 @@
 #include "trackcomponentitem.hpp"
 
 class TrackElement;
+class TrackEditor;
 
 class TrackElementItem : public TrackComponentItem
 {
@@ -29,8 +30,8 @@ class TrackElementItem : public TrackComponentItem
         //################//
 
 public:
-    explicit TrackElementItem(TrackRoadItem *parentTrackRoadItem, TrackElement *trackElement);
-    explicit TrackElementItem(TrackComponentItem *parentTrackComponentItem, TrackElement *trackElement);
+    explicit TrackElementItem(TrackRoadItem *parentTrackRoadItem, TrackElement *trackElement, TrackEditor *trackEditor);
+    explicit TrackElementItem(TrackComponentItem *parentTrackComponentItem, TrackElement *trackElement, TrackEditor *trackEditor);
     virtual ~TrackElementItem();
 
     // Graphics //
@@ -75,6 +76,10 @@ private:
     // Track //
     //
     TrackElement *trackElement_;
+
+    // Editor //
+    //
+    TrackEditor *trackEditor_;
 
     // Mouse //
     //

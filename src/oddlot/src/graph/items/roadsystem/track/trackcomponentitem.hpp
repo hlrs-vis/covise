@@ -34,8 +34,8 @@ class TrackComponentItem : public GraphElement
         //################//
 
 public:
-    explicit TrackComponentItem(TrackRoadItem *parentTrackRoadItem, TrackComponent *trackComponent);
-    explicit TrackComponentItem(TrackComponentItem *parentTrackComponentItem, TrackComponent *trackComponent);
+    explicit TrackComponentItem(TrackRoadItem *parentTrackRoadItem, TrackComponent *trackComponent, TrackEditor *trackEditor);
+    explicit TrackComponentItem(TrackComponentItem *parentTrackComponentItem, TrackComponent *trackComponent, TrackEditor *trackEditor);
     virtual ~TrackComponentItem();
 
     TrackRoadItem *getParentTrackRoadItem() const

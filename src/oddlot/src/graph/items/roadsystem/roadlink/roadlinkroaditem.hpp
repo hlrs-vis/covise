@@ -53,6 +53,8 @@ public:
         return successor_;
     }
 
+    void setHandlesSelectable(bool selectable);
+
     // Obsever Pattern //
     //
     virtual void updateObserver();
@@ -66,6 +68,16 @@ private:
 
     void updatePredecessor();
     void updateSuccessor();
+
+//################//
+// EVENTS         //
+//################//
+
+protected:
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
 
     //################//
     // SLOTS          //

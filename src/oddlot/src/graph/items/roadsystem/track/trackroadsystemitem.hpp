@@ -20,6 +20,7 @@
 
 class RSystemElementRoad;
 class TrackRoadItem;
+class TrackEditor;
 
 class TrackRoadSystemItem : public RoadSystemItem
 {
@@ -29,7 +30,7 @@ class TrackRoadSystemItem : public RoadSystemItem
     //################//
 
 public:
-    explicit TrackRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem);
+    explicit TrackRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem, TrackEditor *trackEditor);
     virtual ~TrackRoadSystemItem();
 
     // Garbage //
@@ -40,7 +41,8 @@ public:
     //
     void addRoadItem(TrackRoadItem *item);
     int removeRoadItem(TrackRoadItem *item);
-	TrackRoadItem *getRoadItem(RSystemElementRoad *road);
+    TrackRoadItem *getRoadItem(RSystemElementRoad *road);
+    void setRoadItemsSelectable(bool selectable);
 
     // Handles //
     //
@@ -68,6 +70,10 @@ private:
     // RoadItems //
     //
     QMap<RSystemElementRoad *, TrackRoadItem *> trackRoadItems_;
+
+    // Editor //
+    //
+    TrackEditor *trackEditor_;
 };
 
 #endif // TRACKROADSYSTEMITEM_HPP

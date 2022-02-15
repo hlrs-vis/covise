@@ -46,7 +46,8 @@ public:
     {
         BBOff, // BoundingBox selection mode not selected
         BBActive, // BoundingBox active
-        BBPressed // BoundingBox Button pressed, but not active, e.g. during pan
+        BBPressed, // BoundingBox Button pressed, but not active, e.g. during pan
+        BBDeactivated // BoundingBox selection mode not possible
     };
 
     enum CircleStatusId // Circle Button Status

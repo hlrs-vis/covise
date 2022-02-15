@@ -13,12 +13,8 @@
  **
  **************************************************************************/
 
-#include "roadlinkhandle.hpp"
+#include "roadlinksinkhandle.hpp"
 
- // Data //
- //
- //#include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
- //#include "src/data/commands/trackcommands.hpp"
 
  // Graph //
  //
@@ -26,7 +22,7 @@
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/editors/roadlinkeditor.hpp"
 
-#include "roadlinkitem.hpp"
+#include "roadlinksinkitem.hpp"
 
 // GUI //
 //
@@ -41,19 +37,18 @@
 // CONSTRUCTOR    //
 //################//
 
-RoadLinkHandle::RoadLinkHandle(RoadLinkItem *parentRoadLinkItem, RoadLinkEditor *editor)
-    : LinkHandle(parentRoadLinkItem)
-    , parentRoadLinkItem_(parentRoadLinkItem)
+RoadLinkSinkHandle::RoadLinkSinkHandle(RoadLinkSinkItem *parentRoadLinkSinkItem, RoadLinkEditor *editor)
+    : CircularHandle(parentRoadLinkSinkItem)
+    , parentRoadLinkSinkItem_(parentRoadLinkSinkItem)
     , editor_(editor)
 {
-    setHandleType(LinkHandle::DHLT_CENTER);
 
     // Flags //
     //
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
-RoadLinkHandle::~RoadLinkHandle()
+RoadLinkSinkHandle::~RoadLinkSinkHandle()
 {
 }
 
@@ -61,17 +56,17 @@ RoadLinkHandle::~RoadLinkHandle()
 // EVENTS         //
 //################//
 
-void 
-RoadLinkHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void
+RoadLinkSinkHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = editor_->getCurrentTool();
 
     if (!isSelected())
     {
-        if (tool == ODD::TRL_LINK)
+        if (tool == ODD::TRL_SINK)
         {
-           if (!editor_->registerLinkHandle(this, parentRoadLinkItem_->getParentRoad()))
-               event->ignore();
+            if (!editor_->registerLinkSinkHandle(this, parentRoadLinkSinkItem_->getParentRoad()))
+                event->ignore();
         }
         else if (editor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)
         {
@@ -82,27 +77,28 @@ RoadLinkHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
         if ((tool == ODD::TRL_LINK) || (tool == ODD::TRL_SINK))
         {
-            editor_->deregisterHandle(this, ODD::TRL_LINK);
+            editor_->deregisterHandle(this, ODD::TRL_SINK);
         }
     }
 }
 
+
 void
-RoadLinkHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+RoadLinkSinkHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     setCursor(Qt::OpenHandCursor);
     Handle::hoverEnterEvent(event);
 }
 
 void
-RoadLinkHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+RoadLinkSinkHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     setCursor(Qt::ArrowCursor);
     Handle::hoverLeaveEvent(event);
 }
 
 void
-RoadLinkHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+RoadLinkSinkHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     Handle::hoverMoveEvent(event);
 }

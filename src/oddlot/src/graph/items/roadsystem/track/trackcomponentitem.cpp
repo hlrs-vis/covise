@@ -49,9 +49,9 @@
 // CONSTRUCTOR    //
 //################//
 
-TrackComponentItem::TrackComponentItem(TrackRoadItem *parentTrackRoadItem, TrackComponent *trackComponent)
+TrackComponentItem::TrackComponentItem(TrackRoadItem *parentTrackRoadItem, TrackComponent *trackComponent, TrackEditor *trackEditor)
     : GraphElement(parentTrackRoadItem, trackComponent)
-    , trackEditor_(NULL)
+    , trackEditor_(trackEditor)
     , parentTrackRoadItem_(parentTrackRoadItem)
     , parentTrackComponentItem_(NULL)
     , trackComponent_(trackComponent)
@@ -61,9 +61,9 @@ TrackComponentItem::TrackComponentItem(TrackRoadItem *parentTrackRoadItem, Track
     init();
 }
 
-TrackComponentItem::TrackComponentItem(TrackComponentItem *parentTrackComponentItem, TrackComponent *trackComponent)
+TrackComponentItem::TrackComponentItem(TrackComponentItem *parentTrackComponentItem, TrackComponent *trackComponent, TrackEditor *trackEditor)
     : GraphElement(parentTrackComponentItem, trackComponent)
-    , trackEditor_(NULL)
+    , trackEditor_(trackEditor)
     , parentTrackRoadItem_(NULL)
     , parentTrackComponentItem_(parentTrackComponentItem)
     , trackComponent_(trackComponent)
@@ -82,14 +82,6 @@ TrackComponentItem::~TrackComponentItem()
 void
 TrackComponentItem::init()
 {
-    // TrackEditor //
-    //
-    trackEditor_ = dynamic_cast<TrackEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
-    if (!trackEditor_)
-    {
-        qDebug("Warning 1007131313! TrackComponentItem not created by an TrackEditor");
-    }
-
     // TrackItems //
     //
     foreach(TrackComponent * track, trackComponent_->getChildTrackComponents())
@@ -97,14 +89,14 @@ TrackComponentItem::init()
         if (track->getTrackType() == TrackComponent::DTT_SPARCS)
         {
             TrackSpiralArcSpiral *sparcs = dynamic_cast<TrackSpiralArcSpiral *>(track);
-            new TrackSpArcSItem(this, sparcs);
+            new TrackSpArcSItem(this, sparcs, trackEditor_);
         }
         else if ((track->getTrackType() == TrackComponent::DTT_LINE)
             || (track->getTrackType() == TrackComponent::DTT_ARC)
             || (track->getTrackType() == TrackComponent::DTT_SPIRAL))
         {
             TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
-            new TrackElementItem(this, trackElement);
+            new TrackElementItem(this, trackElement, trackEditor_);
         }
         else
         {

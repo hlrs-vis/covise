@@ -19,6 +19,7 @@
 #include "trackcomponentitem.hpp"
 
 class TrackComposite;
+class TrackEditor;
 
 class TrackCompositeItem : public TrackComponentItem
 {
@@ -29,8 +30,8 @@ class TrackCompositeItem : public TrackComponentItem
         //################//
 
 public:
-    explicit TrackCompositeItem(TrackRoadItem *parentTrackRoadItem, TrackComposite *trackComposite);
-    explicit TrackCompositeItem(TrackComponentItem *parentTrackComponentItem, TrackComposite *trackComposite);
+    explicit TrackCompositeItem(TrackRoadItem *parentTrackRoadItem, TrackComposite *trackComposite, TrackEditor *trackeditor);
+    explicit TrackCompositeItem(TrackComponentItem *parentTrackComponentItem, TrackComposite *trackComposite, TrackEditor *trackeditor);
     virtual ~TrackCompositeItem();
 
     // Graphics //

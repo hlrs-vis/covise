@@ -23,6 +23,10 @@
 #include "src/data/roadsystem/junctionconnection.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
 
+// Graph //
+//
+#include "src/graph/editors/roadlinkeditor.hpp"
+
 // Items //
 //
 #include "roadlinkroaditem.hpp"
@@ -41,11 +45,12 @@
 
 #define DISTANCE 2.0
 
-RoadLinkItem::RoadLinkItem(RoadLinkRoadItem *parent, RoadLink *roadLink)
+RoadLinkItem::RoadLinkItem(RoadLinkRoadItem *parent, RoadLinkEditor *editor, RoadLink *roadLink)
     : GraphElement(parent, roadLink)
+    , parentRoadItem_(parent)
+    , editor_(editor)
     , roadLink_(roadLink)
     , type_(roadLink->getRoadLinkType())
-    , parentRoadItem_(parent)
     , parentRoad_(roadLink->getParentRoad())
     , targetRoad_(NULL)
     , targetJunction_(NULL)
@@ -57,11 +62,12 @@ RoadLinkItem::RoadLinkItem(RoadLinkRoadItem *parent, RoadLink *roadLink)
 /*! No RoadLink: Observe road instead.
 *
 */
-RoadLinkItem::RoadLinkItem(RoadLinkRoadItem *parent, RoadLink::RoadLinkType roadLinkType)
+RoadLinkItem::RoadLinkItem(RoadLinkRoadItem *parent, RoadLinkEditor *editor, RoadLink::RoadLinkType roadLinkType)
     : GraphElement(parent, parent->getRoad())
-    , roadLink_(NULL)
-    , type_(roadLinkType)
     , parentRoadItem_(parent)
+    , editor_(editor)
+    , type_(roadLinkType)
+    , roadLink_(NULL)
     , parentRoad_(parent->getRoad())
     , targetRoad_(NULL)
     , targetJunction_(NULL)
@@ -93,6 +99,7 @@ RoadLinkItem::~RoadLinkItem()
 void
 RoadLinkItem::init()
 {
+
     // Observer //
     //
     if (roadLink_ && roadLink_->getElementType() == "road")
@@ -136,7 +143,7 @@ RoadLinkItem::init()
 
     // Handle //
     //
-    roadLinkHandle_ = new RoadLinkHandle(this);
+    roadLinkHandle_ = new RoadLinkHandle(this, editor_);
 
     // Color and Path //
     //
@@ -153,6 +160,12 @@ RoadLink::RoadLinkType
 RoadLinkItem::getRoadLinkType() const
 {
     return type_;
+}
+
+void
+RoadLinkItem::setHandlesSelectable(bool selectable)
+{
+    roadLinkHandle_->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
 }
 
 void

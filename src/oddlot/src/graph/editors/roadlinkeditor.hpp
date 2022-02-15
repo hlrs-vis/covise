@@ -25,8 +25,9 @@ class RoadLinkRoadSystemItem;
 class RSystemElementRoad;
 class LaneSection;
 class Lane;
-
-class QGraphicsItem;
+class RoadLinkHandle;
+class RoadLinkSinkHandle;
+class Handle;
 
 class RoadLinkEditor : public ProjectEditor
 {
@@ -43,10 +44,15 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *);
-    virtual void mouseAction(MouseAction *mouseAction);
 
     void assignParameterSelection(ODD::ToolId id);
     void clearToolObjectSelection();
+
+    void registerRoad(RSystemElementRoad *road);
+    void deregisterRoad(RSystemElementRoad *road);
+    bool registerLinkHandle(RoadLinkHandle *linkHandle, RSystemElementRoad *road);
+    void deregisterHandle(Handle *handle, ODD::ToolId toolId);
+    bool registerLinkSinkHandle(RoadLinkSinkHandle *linkSinkHandle, RSystemElementRoad *road);
 
 protected:
     virtual void init();
@@ -56,6 +62,8 @@ private:
     RoadLinkEditor(); /* not allowed */
     RoadLinkEditor(const RoadLinkEditor &); /* not allowed */
     RoadLinkEditor &operator=(const RoadLinkEditor &); /* not allowed */
+
+    void resetTool();
 
     //################//
     // SLOTS          //
@@ -85,8 +93,8 @@ private:
 
     // Selected handles //
     //
-    QGraphicsItem *linkItem_;
-    QGraphicsItem *sinkItem_;
+    RoadLinkHandle *linkHandle_;
+    RoadLinkSinkHandle *sinkHandle_;
 
     //Threshold for the linking roads
     //

@@ -66,8 +66,9 @@
 // CONSTRUCTOR    //
 //################//
 
-LaneItem::LaneItem(LaneSectionItem *parentLaneSectionItem, Lane *lane)
+LaneItem::LaneItem(LaneEditor *laneEditor, LaneSectionItem *parentLaneSectionItem, Lane *lane)
     : GraphElement(parentLaneSectionItem, lane)
+    , laneEditor_(laneEditor)
     , parentLaneSectionItem_(parentLaneSectionItem)
     , parentLaneSection_(parentLaneSectionItem->getLaneSection())
     , lane_(lane)
@@ -91,10 +92,6 @@ LaneItem::init()
     // Observer Pattern //
     //
     grandparentRoad_->attachObserver(this);
-
-    // LaneEditor //
-    //
-    laneEditor_ = dynamic_cast<LaneEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
 
     // Selection/Hovering //
     //
@@ -353,6 +350,25 @@ LaneItem::updateObserver()
     {
         createPath();
     }
+
+    // Data //
+    //
+    changes = lane_->getDataElementChanges();
+
+    if (changes & DataElement::CDE_SelectionChange)
+    {
+        if (laneEditor_->getCurrentTool() == ODD::TLE_INSERT)
+        {
+            if (lane_->isElementSelected())
+            {
+                laneEditor_->registerLane(this, lane_);
+            }
+            else
+            {
+                laneEditor_->deregisterLane(this);
+            }
+        }
+    }
 }
 
 //################//
@@ -362,10 +378,18 @@ LaneItem::updateObserver()
 void
 LaneItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    LaneEditor *editor = parentLaneSectionItem_->getLaneEditor();
-    if ((editor->getCurrentTool() == ODD::TLE_INSERT) && (editor->getCurrentParameterTool() != ODD::TPARAM_SELECT))
+    if (laneEditor_->getCurrentTool() == ODD::TLE_INSERT) 
     {
-        return;
+        if (laneEditor_->getCurrentParameterTool() != ODD::TPARAM_SELECT)
+        {
+            event->ignore();
+            return;
+        }
+
+        if (!isSelected())
+        {
+            laneEditor_->registerLane(this, lane_);
+        }
     }
 
     QGraphicsItem::mousePressEvent(event);
@@ -375,7 +399,7 @@ void
 LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 
-    ODD::ToolId tool = parentLaneSectionItem_->getLaneEditor()->getCurrentTool();
+    ODD::ToolId tool = laneEditor_->getCurrentTool();
     if ((tool == ODD::TLE_ADD_WIDTH) && (event->button() == Qt::LeftButton))
     {
         double s = grandparentRoad_->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd()) - parentLaneSection_->getSStart();
@@ -404,6 +428,12 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         InsertLaneWidthCommand *command = new InsertLaneWidthCommand(lane_, newLaneWidth, newLaneBorder);
         getProjectGraph()->executeCommand(command);
     }
+    else if ((laneEditor_->getCurrentTool() == ODD::TLE_INSERT) && (laneEditor_->getCurrentParameterTool() != ODD::TPARAM_SELECT))
+    {
+        event->ignore();
+        return;
+    }
+
     parentLaneSectionItem_->mouseReleaseEvent(event);
 }
 
@@ -411,7 +441,7 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void
 LaneItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
-    ODD::ToolId tool = parentLaneSectionItem_->getLaneEditor()->getCurrentTool();
+    ODD::ToolId tool = laneEditor_->getCurrentTool();
     if (tool == ODD::TLE_ADD_WIDTH)
     {
         setCursor(Qt::CrossCursor);
@@ -419,8 +449,8 @@ LaneItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         double s = grandparentRoad_->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
         double t = parentLaneSection_->getTValue(lane_, s, lane_->getWidth(s - parentLaneSection_->getSStart()));
 
-        parentLaneSectionItem_->getLaneEditor()->getAddWidthHandle()->updatePos(parentLaneSectionItem_->getParentRoadItem(), grandparentRoad_->getGlobalPoint(s, t), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
-        parentLaneSectionItem_->getLaneEditor()->getAddWidthHandle()->show();
+        laneEditor_->getAddWidthHandle()->updatePos(parentLaneSectionItem_->getParentRoadItem(), grandparentRoad_->getGlobalPoint(s, t), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
+        laneEditor_->getAddWidthHandle()->show();
     }
     parentLaneSectionItem_->hoverMoveEvent(event);
 }

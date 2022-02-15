@@ -21,11 +21,15 @@
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
 
+// Graph //
+//
+#include "src/graph/editors/roadlinkeditor.hpp"
+
 // Items //
 //
 #include "roadlinkroaditem.hpp"
 #include "roadlinkhandle.hpp"
-#include "src/graph/items/handles/circularhandle.hpp"
+#include "roadlinksinkhandle.hpp"
 
 // Utils //
 //
@@ -40,12 +44,14 @@
 
 #define DISTANCE 2.0
 
-RoadLinkSinkItem::RoadLinkSinkItem(RoadLinkRoadItem *parent, bool isStart)
+RoadLinkSinkItem::RoadLinkSinkItem(RoadLinkRoadItem *parent, RoadLinkEditor *editor, bool isStart)
     : GraphElement(parent, parent->getRoad())
     , // observes parent road
     isStart_(isStart)
     , parentRoadItem_(parent)
+    , editor_(editor)
     , parentRoad_(parent->getRoad())
+    , sinkHandle_(NULL)
 {
     init();
 }
@@ -68,15 +74,21 @@ RoadLinkSinkItem::init()
     setBrush(theBrush);
 
     setFlag(QGraphicsItem::ItemIgnoresParentOpacity, true);
-    setFlag(QGraphicsItem::ItemIsSelectable, true);
+ //   setFlag(QGraphicsItem::ItemIsSelectable, true);
     setOpacitySettings(1.0, 1.0); // ...always highlighted
 
-    sinkHandle_ = new CircularHandle(this);
-    sinkHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    sinkHandle_ = new RoadLinkSinkHandle(this, editor_);
+ //   sinkHandle_->setFlag(QGraphicsItem::ItemIsSelectable, true);
     // sinkHandle_->setPassSelectionToParent(true);
 
     updateColor();
     createPath();
+}
+
+void 
+RoadLinkSinkItem::setHandlesSelectable(bool selectable)
+{
+    sinkHandle_->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
 }
 
 //################//
@@ -89,28 +101,9 @@ RoadLinkSinkItem::updateColor()
     QBrush theBrush = brush();
     QPen thePen = pen();
 
-    // if(roadLink_)
-    // {
-    //  if(roadLink_->isLinkValid())
-    //  {
-    //   roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
-    //   roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkGreen()));
     theBrush.setColor(ODD::instance()->colors()->brightGreen());
     thePen.setColor(ODD::instance()->colors()->darkGreen());
-    //  }
-    //  else
-    //  {
-    //   roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightRed()));
-    //   roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkRed()));
-    //   thePen.setColor(ODD::instance()->colors()->darkRed());
-    //  }
-    // }
-    // else
-    // {
-    //  roadLinkHandle_->setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-    //  roadLinkHandle_->setPen(QPen(ODD::instance()->colors()->darkOrange()));
-    //  thePen.setColor(ODD::instance()->colors()->darkOrange());
-    // }
+
     setBrush(theBrush);
     setPen(thePen);
 }
@@ -189,10 +182,4 @@ RoadLinkSinkItem::updateObserver()
         createPath();
     }
 
-    //  if((changes & RSystemElementRoad::CRD_PredecessorChange)
-    //   && (type_ == RoadLink::DRL_PREDECESSOR)
-    //  )
-    //  {
-
-    //  }
 }

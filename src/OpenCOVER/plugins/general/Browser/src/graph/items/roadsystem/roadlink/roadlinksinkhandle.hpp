@@ -13,15 +13,15 @@
 **
 **************************************************************************/
 
-#ifndef ROADLINKHANDLE_HPP
-#define ROADLINKHANDLE_HPP
+#ifndef ROADLINKSINKHANDLE_HPP
+#define ROADLINKSINKHANDLE_HPP
 
-#include "src/graph/items/handles/linkhandle.hpp"
+#include "src/graph/items/handles/circularhandle.hpp"
 
-class RoadLinkItem;
+class RoadLinkSinkItem;
 class RoadLinkEditor;
 
-class RoadLinkHandle : public LinkHandle
+class RoadLinkSinkHandle : public CircularHandle
 {
 
     //################//
@@ -29,12 +29,12 @@ class RoadLinkHandle : public LinkHandle
     //################//
 
 public:
-    explicit RoadLinkHandle(RoadLinkItem *parentRoadLinkItem, RoadLinkEditor *editor);
-    virtual ~RoadLinkHandle();
+    explicit RoadLinkSinkHandle(RoadLinkSinkItem *parentRoadLinkItem, RoadLinkEditor *editor);
+    virtual ~RoadLinkSinkHandle();
 
-    RoadLinkItem *getParentRoadLinkItem() const
+    RoadLinkSinkItem *getParentRoadLinkSinkItem() const
     {
-        return parentRoadLinkItem_;
+        return parentRoadLinkSinkItem_;
     }
 
     void updateTransformation();
@@ -42,16 +42,16 @@ public:
 
 protected:
 private:
-    RoadLinkHandle(); /* not allowed */
-    RoadLinkHandle(const RoadLinkHandle &); /* not allowed */
-    RoadLinkHandle &operator=(const RoadLinkHandle &); /* not allowed */
+    RoadLinkSinkHandle(); /* not allowed */
+    RoadLinkSinkHandle(const RoadLinkSinkHandle &); /* not allowed */
+    RoadLinkSinkHandle &operator=(const RoadLinkSinkHandle &); /* not allowed */
 
     //################//
     // EVENTS         //
     //################//
 
 protected:
-  //  virtual QVariant itemChange(GraphicsItemChange change, const QVariant & value);
+//    virtual QVariant itemChange(GraphicsItemChange change, const QVariant & value);
 
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
@@ -64,8 +64,8 @@ protected:
     //################//
 
 private:
-    RoadLinkItem *parentRoadLinkItem_;
+    RoadLinkSinkItem *parentRoadLinkSinkItem_;
     RoadLinkEditor *editor_;
 };
 
-#endif // ROADLINKHANDLE_HPP
+#endif // ROADLINKSINKHANDLE_HPP

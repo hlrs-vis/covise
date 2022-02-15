@@ -18,10 +18,11 @@
 
 #include "src/graph/items/graphelement.hpp"
 
+class RoadLinkEditor;
 class RoadLinkRoadItem;
 class RoadLinkHandle;
 
-class CircularHandle;
+class RoadLinkSinkHandle;
 
 class RoadLinkSinkItem : public GraphElement
 {
@@ -32,7 +33,7 @@ class RoadLinkSinkItem : public GraphElement
         //################//
 
 public:
-    explicit RoadLinkSinkItem(RoadLinkRoadItem *parent, bool isStart);
+    explicit RoadLinkSinkItem(RoadLinkRoadItem *parent, RoadLinkEditor *editor, bool isStart);
     virtual ~RoadLinkSinkItem();
 
     bool getIsStart() const
@@ -43,6 +44,12 @@ public:
     {
         return parentRoad_;
     }
+    RoadLinkSinkHandle *getRoadLinkSinkHandle() const
+    {
+        return sinkHandle_;
+    }
+
+    void setHandlesSelectable(bool selectable);
 
     // Graphics //
     //
@@ -72,10 +79,6 @@ private:
 
 public slots:
 
-    //################//
-    // EVENTS         //
-    //################//
-
 public:
     //################//
     // PROPERTIES     //
@@ -84,6 +87,8 @@ public:
 private:
     bool isStart_;
 
+    RoadLinkEditor *editor_;
+
     // Road //
     //
     RoadLinkRoadItem *parentRoadItem_;
@@ -91,7 +96,7 @@ private:
 
     // Handle //
     //
-    CircularHandle *sinkHandle_;
+    RoadLinkSinkHandle *sinkHandle_;
 };
 
 #endif // ROADLINKSINKITEM_HPP

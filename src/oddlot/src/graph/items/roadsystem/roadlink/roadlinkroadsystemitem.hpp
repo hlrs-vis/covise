@@ -19,6 +19,7 @@
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 
 class RoadLinkEditor;
+class RoadLinkRoadItem;
 
 class RoadLinkRoadSystemItem : public RoadSystemItem
 {
@@ -30,6 +31,9 @@ class RoadLinkRoadSystemItem : public RoadSystemItem
 public:
     explicit RoadLinkRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem, RoadLinkEditor *editor);
     virtual ~RoadLinkRoadSystemItem();
+
+    void setHandlesSelectable(bool selectable);
+    void setRoadsSelectable(bool selectable);
 
     // Obsever Pattern //
     //
@@ -47,7 +51,11 @@ private:
     //################//
 
 private:
-	RoadLinkEditor *editor_;
+    // RoadItems //
+    //
+    QMap<RSystemElementRoad *, RoadLinkRoadItem *> roadLinkRoadItems_;
+
+    RoadLinkEditor *editor_;
 };
 
 #endif // ROADLINKROADSYSTEMITEM_HPP

@@ -70,6 +70,7 @@ public:
         return currentParamId_;
     }
 
+    void activateParameter(ToolParameter *param);
     virtual void activateNextParameter();
     void setLables(QList<ToolParameter *> &paramList);
 

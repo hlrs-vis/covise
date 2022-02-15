@@ -59,9 +59,10 @@
 // CONSTRUCTOR    //
 //################//
 
-TrackElementItem::TrackElementItem(TrackRoadItem *parentTrackRoadItem, TrackElement *trackElement)
-    : TrackComponentItem(parentTrackRoadItem, trackElement)
+TrackElementItem::TrackElementItem(TrackRoadItem *parentTrackRoadItem, TrackElement *trackElement, TrackEditor *trackEditor)
+    : TrackComponentItem(parentTrackRoadItem, trackElement, trackEditor)
     , trackElement_(trackElement)
+    , trackEditor_(trackEditor)
 {
     // Init //
     //
@@ -70,9 +71,10 @@ TrackElementItem::TrackElementItem(TrackRoadItem *parentTrackRoadItem, TrackElem
     init();
 }
 
-TrackElementItem::TrackElementItem(TrackComponentItem *parentTrackComponentItem, TrackElement *trackElement)
-    : TrackComponentItem(parentTrackComponentItem, trackElement)
+TrackElementItem::TrackElementItem(TrackComponentItem *parentTrackComponentItem, TrackElement *trackElement, TrackEditor *trackEditor)
+    : TrackComponentItem(parentTrackComponentItem, trackElement, trackEditor)
     , trackElement_(trackElement)
+    , trackEditor_(trackEditor)
 {
     // Init //
     //
@@ -297,9 +299,20 @@ TrackElementItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         {
             return; // does nothing
         }
-        else if ((tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP))
+        else if ((tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP) || (tool == ODD::TTE_ROAD_APPEND))
         {
-            return;
+            if (!isSelected())
+            {
+                if (!trackEditor_->registerRoad(this, trackElement_->getParentRoad()))
+                {
+                    event->ignore();
+                    return;
+                }
+            }
+            else
+            {
+                trackEditor_->deregisterRoad(this, trackElement_->getParentRoad());
+            }
         }
     }
 
@@ -377,10 +390,6 @@ TrackElementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             //
             SplitTrackRoadCommand *command = new SplitTrackRoadCommand(road, s, NULL);
             getProjectGraph()->executeCommand(command);
-            return;
-        }
-        else if ((tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP))
-        {
             return;
         }
         //  else if(tool == ODD::TTE_MOVE)

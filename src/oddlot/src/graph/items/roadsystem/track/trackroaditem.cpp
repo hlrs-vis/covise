@@ -59,9 +59,9 @@
 #include <QCursor>
 #include <QGraphicsSceneHoverEvent>
 
-TrackRoadItem::TrackRoadItem(TrackRoadSystemItem *parentTrackRoadSystemItem, RSystemElementRoad *road)
+TrackRoadItem::TrackRoadItem(TrackRoadSystemItem *parentTrackRoadSystemItem, RSystemElementRoad *road, TrackEditor *trackEditor)
     : RoadItem(parentTrackRoadSystemItem, road)
-    , trackEditor_(NULL)
+    , trackEditor_(trackEditor)
     , parentTrackRoadSystemItem_(parentTrackRoadSystemItem)
     , handlesItem_(NULL)
     , handlesAddItem_(NULL)
@@ -77,14 +77,6 @@ TrackRoadItem::~TrackRoadItem()
 void
 TrackRoadItem::init()
 {
-    // TrackEditor //
-    //
-    trackEditor_ = dynamic_cast<TrackEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
-    if (!trackEditor_)
-    {
-        qDebug("Warning 1007041414! TrackRoadItem not created by an TrackEditor");
-    }
-
     // Parent //
     //
     parentTrackRoadSystemItem_->addRoadItem(this);
@@ -105,6 +97,26 @@ TopviewGraph *TrackRoadItem::getTopviewGraph() const
 void
 TrackRoadItem::rebuildSections(bool fullRebuild)
 {
+    if (fullRebuild)
+    {
+        trackComponentItems_.clear();
+    }
+    else
+    {
+        QMap<TrackComponent *, TrackComponentItem *>::iterator it = trackComponentItems_.begin();
+        while (it != trackComponentItems_.end())
+        {
+            TrackComponent *track = it.key();
+            if (track->getDataElementChanges() & DataElement::CDE_DataElementRemoved)
+            {
+                it = trackComponentItems_.erase(it);
+            }
+            else
+            {
+                it++;
+            }
+        }
+    }
 
     foreach(TrackComponent * track, getRoad()->getTrackSections())
     {
@@ -118,7 +130,7 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
             if (track->getTrackType() == TrackComponent::DTT_SPARCS)
             {
                 TrackSpiralArcSpiral *sparcs = dynamic_cast<TrackSpiralArcSpiral *>(track);
-                new TrackSpArcSItem(this, sparcs);
+                trackComponentItems_.insert(track, new TrackSpArcSItem(this, sparcs, trackEditor_));
             }
             else if ((track->getTrackType() == TrackComponent::DTT_LINE)
                 || (track->getTrackType() == TrackComponent::DTT_ARC)
@@ -127,7 +139,7 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
                 || (track->getTrackType() == TrackComponent::DTT_CUBICCURVE))
             {
                 TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
-                new TrackElementItem(this, trackElement);
+                trackComponentItems_.insert(track, new TrackElementItem(this, trackElement, trackEditor_));
             }
             else
             {
@@ -171,6 +183,15 @@ TrackRoadItem::notifyDeletion()
     parentTrackRoadSystemItem_->removeRoadItem(this);
 
     deleteHandles();
+}
+
+void 
+TrackRoadItem::setComponentItemsSelectable(bool selectable)
+{
+    foreach(TrackComponentItem * item, trackComponentItems_)
+    {
+        item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    }
 }
 
 //##################//
@@ -289,7 +310,37 @@ TrackRoadItem::updateObserver()
     {
         // A section has been added.
         rebuildSections(false); // no full rebuild, only update
+        return;
     }
+
+    changes = getRoad()->getDataElementChanges();
+
+    if (changes & DataElement::CDE_SelectionChange)
+    {
+        ODD::ToolId tool = trackEditor_->getCurrentTool();
+        if (getRoad()->isElementSelected())
+        {
+            if ((tool == ODD::TTE_ROAD_APPEND) || (tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP))
+            {
+                foreach(TrackComponentItem * item, trackComponentItems_)
+                {
+                    item->setSelected(true);
+                }
+            }
+        }
+        else
+        {
+            if ((tool == ODD::TTE_ROAD_APPEND) || (tool == ODD::TTE_ROAD_MERGE) || (tool == ODD::TTE_ROAD_SNAP))
+            {
+                foreach(TrackComponentItem * item, trackComponentItems_)
+                {
+                    item->setSelected(false);
+                }
+            }
+        }
+    }
+
+
 }
 
 //################//

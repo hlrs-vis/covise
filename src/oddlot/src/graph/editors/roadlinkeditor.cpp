@@ -47,6 +47,7 @@
 #include "src/graph/items/roadsystem/roadlink/roadlinkitem.hpp"
 #include "src/graph/items/roadsystem/roadlink/roadlinkhandle.hpp"
 #include "src/graph/items/roadsystem/roadlink/roadlinksinkitem.hpp"
+#include "src/graph/items/roadsystem/roadlink/roadlinksinkhandle.hpp"
 
 #include "src/graph/items/roadsystem/junctionitem.hpp"
 
@@ -73,8 +74,8 @@ RoadLinkEditor::RoadLinkEditor(ProjectWidget *projectWidget, ProjectData *projec
     : ProjectEditor(projectWidget, projectData, topviewGraph)
     , roadSystemItem_(NULL)
     , threshold_(10.0)
-    , linkItem_(NULL)
-    , sinkItem_(NULL)
+    , linkHandle_(NULL)
+    , sinkHandle_(NULL)
 {
 }
 
@@ -129,9 +130,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 {
     if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
     {
-        clearToolObjectSelection();
-        delToolParameters();
-        ODD::mainWindow()->showParameterDialog(false);
+        resetTool();
     }
 
     // Parent //
@@ -150,11 +149,12 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
             if ((paramTool == ODD::TNO_TOOL) && !tool_)
             {
                 getTopviewGraph()->getScene()->deselectAll();
+                roadSystemItem_->setRoadsSelectable(false);
 
                 ToolValue<RoadLinkHandle> *param = new ToolValue<RoadLinkHandle>(ODD::TRL_LINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Arrow Handle", true);
                 tool_ = new Tool(ODD::TRL_LINK, 4);
                 tool_->readParams(param);
-                ToolValue<RoadLinkSinkItem> *roadParam = new ToolValue<RoadLinkSinkItem>(ODD::TRL_SINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Circular Sink");
+                ToolValue<RoadLinkSinkHandle> *roadParam = new ToolValue<RoadLinkSinkHandle>(ODD::TRL_SINK, ODD::TPARAM_SELECT, 0, ToolParameter::ParameterTypes::OBJECT, "Select Circular Sink");
                 tool_->readParams(roadParam);
 
                 createToolParameterSettingsApplyBox(tool_, ODD::ERL);
@@ -169,6 +169,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
             if ((paramTool == ODD::TNO_TOOL) && !tool_)
             {
+                roadSystemItem_->setHandlesSelectable(false);
 
                 ToolValue<double> *param = new ToolValue<double>(ODD::TRL_THRESHOLD, ODD::TPARAM_VALUE, 0, ToolParameter::ParameterTypes::DOUBLE, "Threshold");
                 param->setValue(threshold_);
@@ -192,6 +193,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
             if ((paramTool == ODD::TNO_TOOL) && !tool_)
             {
+                roadSystemItem_->setHandlesSelectable(false);
 
                 ToolValue<RSystemElementRoad> *param = new ToolValue<RSystemElementRoad>(ODD::TRL_UNLINK, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
                 tool_ = new Tool(ODD::TRL_UNLINK, 4);
@@ -208,6 +210,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
     }
     else if (toolAction->getToolId() == ODD::TRL_THRESHOLD)
     {
+
         ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
         if (action)
         {
@@ -232,14 +235,8 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                         foreach(RSystemElementRoad * road, roads)
                         {
                             DeselectDataElementCommand *command = new DeselectDataElementCommand(road, NULL);
-                            getProjectGraph()->executeCommand(command);
-                            selectedRoads_.removeOne(road);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
+                            getProjectGraph()->executeCommand(command); 
+                            deregisterRoad(road);
                         }
                     }
                 }
@@ -375,6 +372,108 @@ RoadLinkEditor::removeZeroWidthLanes(RSystemElementRoad *road)
     }
 }
 
+void 
+RoadLinkEditor::registerRoad(RSystemElementRoad *road)
+{
+    createToolParameters<RSystemElementRoad>(road);
+    selectedRoads_.append(road);
+
+    int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+    if (objectCount >= applyCount_)
+    {
+        settingsApplyBox_->setApplyButtonVisible(true);
+    }
+}
+
+void 
+RoadLinkEditor::deregisterRoad(RSystemElementRoad *road)
+{
+    removeToolParameters<RSystemElementRoad>(road);
+    selectedRoads_.removeOne(road);
+
+    int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+    if (objectCount < applyCount_)
+    {
+        settingsApplyBox_->setApplyButtonVisible(false);
+    }
+}
+
+bool 
+RoadLinkEditor::registerLinkHandle(RoadLinkHandle *roadLinkHandle, RSystemElementRoad *road)
+{
+    if (roadLinkHandle != linkHandle_)
+    {
+        if (sinkHandle_ && (road == sinkHandle_->getParentRoadLinkSinkItem()->getParentRoad()))
+        {
+            return false;
+        }
+
+        if (linkHandle_)
+        {
+            linkHandle_->setSelected(false);
+        }
+
+        setToolValue<RoadLinkHandle>(roadLinkHandle, road->getIdName());
+
+        linkHandle_ = roadLinkHandle;
+
+        // verify if apply can be displayed //
+        if (tool_->verify())
+        {
+            settingsApplyBox_->setApplyButtonVisible(true);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void
+RoadLinkEditor::deregisterHandle(Handle *handle, ODD::ToolId toolId)
+{
+    delToolValue(toolId, ODD::TPARAM_SELECT);
+    if (handle == linkHandle_)
+    {
+        linkHandle_ = NULL;
+    }
+    else if (handle == sinkHandle_)
+    {
+        sinkHandle_ = NULL;
+    }
+    settingsApplyBox_->setApplyButtonVisible(false);
+}
+
+bool
+RoadLinkEditor::registerLinkSinkHandle(RoadLinkSinkHandle *linkSinkHandle, RSystemElementRoad *road)
+{
+    if (linkSinkHandle != sinkHandle_)
+    {
+        if (linkHandle_ && (road == linkHandle_->getParentRoadLinkItem()->getParentRoad()))
+        {
+            return false;
+        }
+
+        if (sinkHandle_)
+        {
+            sinkHandle_->setSelected(false);
+        }
+
+        setToolValue<RoadLinkSinkHandle>(linkSinkHandle, road->getIdName());
+        sinkHandle_ = linkSinkHandle;
+
+        // verify if apply can be displayed //
+        if (tool_->verify())
+        {
+            settingsApplyBox_->setApplyButtonVisible(true);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 void
 RoadLinkEditor::apply()
 {
@@ -425,12 +524,12 @@ RoadLinkEditor::apply()
     else if (toolId == ODD::TRL_LINK)
     {
         RoadLinkHandle *handle = dynamic_cast<ToolValue<RoadLinkHandle> *>(tool_->getParam(ODD::TRL_LINK, ODD::TPARAM_SELECT))->getValue();
-        RoadLinkSinkItem *sink = dynamic_cast<ToolValue<RoadLinkSinkItem> *>(tool_->getParam(ODD::TRL_SINK, ODD::TPARAM_SELECT))->getValue();
+        RoadLinkSinkHandle *sinkHandle = dynamic_cast<ToolValue<RoadLinkSinkHandle> *>(tool_->getParam(ODD::TRL_SINK, ODD::TPARAM_SELECT))->getValue();
 
         RoadLinkItem *item = handle->getParentRoadLinkItem();
+        RoadLinkSinkItem *sink = sinkHandle->getParentRoadLinkSinkItem();
 
         RSystemElementRoad *road = sink->getParentRoad();
-
         JunctionConnection::ContactPointValue contactPoint;
         if (sink->getIsStart())
         {
@@ -517,7 +616,7 @@ RoadLinkEditor::apply()
         SetRoadLinkCommand *command = new SetRoadLinkCommand(item->getParentRoad(), item->getRoadLinkType(), newRoadLink, newConnection, junction);
         getProjectGraph()->executeCommand(command);
 
-        linkItem_ = NULL;
+        linkHandle_ = NULL;
 
     }
 }
@@ -525,15 +624,15 @@ RoadLinkEditor::apply()
 void
 RoadLinkEditor::clearToolObjectSelection()
 {
-    if (sinkItem_)
+    if (sinkHandle_)
     {
-        sinkItem_->setSelected(false);
-        sinkItem_ = NULL;
+        sinkHandle_->setSelected(false);
+        sinkHandle_ = NULL;
     }
-    if (linkItem_)
+    if (linkHandle_)
     {
-        linkItem_->setSelected(false);
-        linkItem_ = NULL;
+        linkHandle_->setSelected(false);
+        linkHandle_ = NULL;
     }
 
     QList<DataElement *> dataElementList;
@@ -551,270 +650,42 @@ RoadLinkEditor::clearToolObjectSelection()
 void
 RoadLinkEditor::reset()
 {
-    ODD::ToolId toolId = tool_->getToolId();
     clearToolObjectSelection();
     delToolParameters();
 }
 
-void RoadLinkEditor::reject()
+void
+RoadLinkEditor::resetTool()
 {
-    ProjectEditor::reject();
 
     if (tool_)
     {
+        ODD::ToolId toolId = tool_->getToolId();
+        if (toolId == ODD::TRL_ROADLINK)
+        {
+            roadSystemItem_->setHandlesSelectable(true);
+        }
+        else if (toolId == ODD::TRL_LINK)
+        {
+            roadSystemItem_->setRoadsSelectable(true);
+        }
         clearToolObjectSelection();
         delToolParameters();
         ODD::mainWindow()->showParameterDialog(false);
     }
 }
 
+void RoadLinkEditor::reject()
+{
+    ProjectEditor::reject();
+
+    resetTool();
+}
+
 // ################//
 // MOUSE & KEY    //
 //################//
 
-/*! \brief .
-*
-*/
-void
-RoadLinkEditor::mouseAction(MouseAction *mouseAction)
-{
-    static QList<QGraphicsItem *> oldSelectedItems;
 
-    QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
-    ProjectEditor::mouseAction(mouseAction);
-
-    ODD::ToolId currentToolId = getCurrentTool();
-    if ((currentToolId == ODD::TRL_ROADLINK) || (currentToolId == ODD::TRL_UNLINK))
-    {
-        if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-        {
-            if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    if (selectedRoads_.empty())
-                    {
-                        oldSelectedItems.clear();
-                    }
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    QList<RSystemElementRoad *>selectionChangedRoads;
-                    QMap<RSystemElementRoad *, QGraphicsItem *>graphicRoadItems;
-
-                    for (int i = 0; i < selectedItems.size();)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        RoadLinkRoadItem *roadItem = dynamic_cast<RoadLinkRoadItem *>(item);
-                        if (roadItem)
-                        {
-                            RSystemElementRoad *road = roadItem->getRoad();
-                            if (!oldSelectedItems.contains(item))
-                            {
-                                if (!selectionChangedRoads.contains(road))
-                                {
-                                    if (!selectedRoads_.contains(road))
-                                    {
-                                        createToolParameters<RSystemElementRoad>(road);
-                                        selectedRoads_.append(road);
-
-                                        item->setSelected(true);
-                                    }
-                                    else
-                                    {
-                                        item->setSelected(false);
-                                        graphicRoadItems.insert(road, item);
-
-                                        removeToolParameters<RSystemElementRoad>(road);
-                                        selectedRoads_.removeOne(road);
-                                    }
-                                    selectionChangedRoads.append(road);
-                                }
-                                else if (!selectedRoads_.contains(road))
-                                {
-                                    graphicRoadItems.insert(road, item);
-                                }
-                            }
-                            else
-                            {
-                                int j = oldSelectedItems.indexOf(item);
-                                oldSelectedItems.takeAt(j);
-                                graphicRoadItems.insert(road, item);
-                            }
-                            i++;
-                        }
-                        else
-                        {
-                            RoadLinkSinkItem *linkSinkItem = dynamic_cast<RoadLinkSinkItem *>(item);
-                            if (!linkSinkItem)
-                            {
-                                item->setSelected(false);
-                            }
-                            selectedItems.removeAt(i);
-                        }
-                    }
-
-                    for (int i = 0; i < selectionChangedRoads.size(); i++)
-                    {
-                        RSystemElementRoad *road = selectionChangedRoads.at(i);
-                        if (!selectedRoads_.contains(road))
-                        {
-                            QGraphicsItem *roadItem = graphicRoadItems.value(road);
-                            selectedItems.removeOne(roadItem);
-                            oldSelectedItems.removeOne(roadItem);
-                            graphicRoadItems.remove(road);
-                        }
-                    }
-
-                    for (int i = 0; i < oldSelectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = oldSelectedItems.at(i);
-                        RoadLinkRoadItem *roadItem = dynamic_cast<RoadLinkRoadItem *>(item);
-                        if (roadItem)
-                        {
-                            RSystemElementRoad *road = roadItem->getRoad();
-                            if (!selectionChangedRoads.contains(road))
-                            {
-                                item->setSelected(false);
-
-                                removeToolParameters<RSystemElementRoad>(road);
-                                selectedRoads_.removeOne(road);
-
-                                selectionChangedRoads.append(road);
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < selectionChangedRoads.size(); i++)
-                    {
-                        RSystemElementRoad *road = selectionChangedRoads.at(i);
-                        if (!selectedRoads_.contains(road))
-                        {
-                            QGraphicsItem *roadItem = graphicRoadItems.value(road);
-                            selectedItems.removeOne(roadItem);
-                            graphicRoadItems.remove(road);
-                        }
-                    }
-                    oldSelectedItems = selectedItems;
-                    mouseAction->intercept();
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
-                    if (objectCount >= applyCount_)
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-        else
-        {
-            mouseAction->intercept();
-        }
-    }
-    else if (currentToolId == ODD::TRL_LINK)
-    {
-        if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-        {
-            if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    for (int i = 0; i < selectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        RoadLinkHandle *roadLinkHandle = dynamic_cast<RoadLinkHandle *>(item);
-                        if (roadLinkHandle && (item != linkItem_))
-                        {
-                            if (linkItem_)
-                            {
-                                linkItem_->setSelected(false);
-                                int index = selectedItems.indexOf(linkItem_);
-                                if (index > i)
-                                {
-                                    selectedItems.removeAt(index);
-                                }
-                            }
-
-                            RSystemElementRoad *road = roadLinkHandle->getParentRoadLinkItem()->getParentRoad();
-                            setToolValue<RoadLinkHandle>(roadLinkHandle, road->getIdName());
-
-                            linkItem_ = item;
-                            linkItem_->setSelected(true);
-                        }
-                        else if ((item != sinkItem_) && (item != linkItem_))
-                        {
-                            item->setSelected(false);
-                        }
-                    }
-                    mouseAction->intercept();
-
-                    // verify if apply can be displayed //
-                    if (tool_->verify())
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-        else
-        {
-            mouseAction->intercept();
-        }
-    }
-    else if (currentToolId == ODD::TRL_SINK)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    for (int i = 0; i < selectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        CircularHandle *linkSinkHandle = dynamic_cast<CircularHandle *>(item);
-                        if (linkSinkHandle && (item != sinkItem_))
-                        {
-                            RoadLinkSinkItem *linkSinkItem = dynamic_cast<RoadLinkSinkItem *>(linkSinkHandle->parentItem());
-                            if (linkSinkItem)
-                            {
-                                if (sinkItem_)
-                                {
-                                    sinkItem_->setSelected(false);
-                                    int index = selectedItems.indexOf(sinkItem_);
-                                    if (index > i)
-                                    {
-                                        selectedItems.removeAt(index);
-                                    }
-                                }
-
-                                setToolValue<RoadLinkSinkItem>(linkSinkItem, linkSinkItem->getParentRoad()->getIdName());
-                                sinkItem_ = item;
-                                sinkItem_->setSelected(true);
-                            }
-                        }
-                        else if ((item != linkItem_) && (item != sinkItem_))
-                        {
-                            item->setSelected(false);
-                        }
-                    }
-                    mouseAction->intercept();
-
-                    // verify if apply can be displayed //
-                    if (tool_->verify())
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-
-    }
-}
 
 

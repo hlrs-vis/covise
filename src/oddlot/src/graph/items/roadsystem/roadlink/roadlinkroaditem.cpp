@@ -81,8 +81,8 @@ RoadLinkRoadItem::init()
 
     // Sink items //
     //
-    startSinkItem_ = new RoadLinkSinkItem(this, true);
-    endSinkItem_ = new RoadLinkSinkItem(this, false);
+    startSinkItem_ = new RoadLinkSinkItem(this, editor_, true);
+    endSinkItem_ = new RoadLinkSinkItem(this, editor_, false);
 
     // RoadLinks //
     //
@@ -100,11 +100,11 @@ RoadLinkRoadItem::updatePredecessor()
 {
     if (getRoad()->getPredecessor())
     {
-        predecessor_ = new RoadLinkItem(this, getRoad()->getPredecessor()); // old one deletes itself
+        predecessor_ = new RoadLinkItem(this, editor_, getRoad()->getPredecessor()); // old one deletes itself
     }
     else
     {
-        predecessor_ = new RoadLinkItem(this, RoadLink::DRL_PREDECESSOR);
+        predecessor_ = new RoadLinkItem(this, editor_, RoadLink::DRL_PREDECESSOR);
     }
     predecessor_->updateTransform();
 }
@@ -114,13 +114,22 @@ RoadLinkRoadItem::updateSuccessor()
 {
     if (getRoad()->getSuccessor())
     {
-        successor_ = new RoadLinkItem(this, getRoad()->getSuccessor());
+        successor_ = new RoadLinkItem(this, editor_, getRoad()->getSuccessor());
     }
     else
     {
-        successor_ = new RoadLinkItem(this, RoadLink::DRL_SUCCESSOR);
+        successor_ = new RoadLinkItem(this, editor_, RoadLink::DRL_SUCCESSOR);
     }
     successor_->updateTransform();
+}
+
+void 
+RoadLinkRoadItem::setHandlesSelectable(bool selectable)
+{
+    predecessor_->setHandlesSelectable(selectable);
+    successor_->setHandlesSelectable(selectable);
+    startSinkItem_->setHandlesSelectable(selectable);
+    endSinkItem_->setHandlesSelectable(selectable);
 }
 
 //################//
@@ -221,6 +230,53 @@ RoadLinkRoadItem::createPath()
         successor_->updateTransform();
     }
 }
+
+//################//
+// EVENTS         //
+//################//
+
+QVariant
+RoadLinkRoadItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemSelectedHasChanged)
+    {
+        ODD::ToolId tool = editor_->getCurrentTool();
+        if (value.toBool())
+        {
+            if (((tool == ODD::TRL_ROADLINK) || (tool == ODD::TRL_UNLINK)) && (editor_->getCurrentParameterTool() == ODD::TPARAM_SELECT))
+            {
+                editor_->registerRoad(getRoad()); 
+            }
+        }
+        else
+        {
+            if ((tool == ODD::TRL_ROADLINK) || (tool == ODD::TRL_UNLINK))
+            {
+                editor_->deregisterRoad(getRoad()); 
+            } 
+        } 
+    }
+
+    BaseGraphElement::itemChange(change, value);
+
+    return value;
+}
+
+void
+RoadLinkRoadItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    ODD::ToolId tool = editor_->getCurrentTool();
+
+    if (!isSelected())
+    {
+        if (((tool == ODD::TRL_ROADLINK) || (tool == ODD::TRL_UNLINK)) && (editor_->getCurrentParameterTool() != ODD::TPARAM_SELECT))
+        {
+              event->ignore();
+        }
+    }
+}
+
+
 
 //##################//
 // Observer Pattern //

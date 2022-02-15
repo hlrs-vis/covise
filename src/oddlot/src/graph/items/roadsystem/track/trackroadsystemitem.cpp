@@ -23,13 +23,15 @@
 // Graph //
 //
 #include "src/graph/items/roadsystem/track/trackroaditem.hpp"
+#include "src/graph/editors/trackeditor.hpp"
 
 //################//
 // CONSTRUCTOR    //
 //################//
 
-TrackRoadSystemItem::TrackRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem)
+TrackRoadSystemItem::TrackRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem, TrackEditor *trackEditor)
     : RoadSystemItem(topviewGraph, roadSystem)
+    , trackEditor_(trackEditor)
 {
     init();
 }
@@ -43,7 +45,7 @@ TrackRoadSystemItem::init()
 {
     foreach(RSystemElementRoad * road, getRoadSystem()->getRoads())
     {
-        trackRoadItems_.insert(road, new TrackRoadItem(this, road));
+        trackRoadItems_.insert(road, new TrackRoadItem(this, road, trackEditor_));
     }
 }
 
@@ -72,6 +74,16 @@ TrackRoadItem *
 TrackRoadSystemItem::getRoadItem(RSystemElementRoad *road)
 {
     return trackRoadItems_.value(road, NULL);
+}
+
+void 
+TrackRoadSystemItem::setRoadItemsSelectable(bool selectable)
+{
+    foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
+    {
+        trackRoadItem->setComponentItemsSelectable(!selectable);
+        trackRoadItem->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    }
 }
 
 //##################//
@@ -156,7 +168,7 @@ TrackRoadSystemItem::updateObserver()
             if ((road->getDataElementChanges() & DataElement::CDE_DataElementCreated)
                 || (road->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
-                trackRoadItems_.insert(road, new TrackRoadItem(this, road));
+                trackRoadItems_.insert(road, new TrackRoadItem(this, road, trackEditor_));
             }
         }
     }

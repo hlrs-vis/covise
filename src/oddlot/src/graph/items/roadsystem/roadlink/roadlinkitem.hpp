@@ -21,6 +21,7 @@
 #include "src/data/roadsystem/roadlink.hpp"
 
 class RoadLinkRoadItem;
+class RoadLinkEditor;
 class RoadLinkHandle;
 
 class RoadLinkItem : public GraphElement
@@ -32,8 +33,8 @@ class RoadLinkItem : public GraphElement
         //################//
 
 public:
-    explicit RoadLinkItem(RoadLinkRoadItem *parent, RoadLink *roadLink);
-    explicit RoadLinkItem(RoadLinkRoadItem *parent, RoadLink::RoadLinkType roadLinkType);
+    explicit RoadLinkItem(RoadLinkRoadItem *parent, RoadLinkEditor *editor, RoadLink *roadLink);
+    explicit RoadLinkItem(RoadLinkRoadItem *parent, RoadLinkEditor *editor, RoadLink::RoadLinkType roadLinkType);
     virtual ~RoadLinkItem();
 
     // Road //
@@ -47,6 +48,10 @@ public:
         return roadLink_;
     }
     RoadLink::RoadLinkType getRoadLinkType() const;
+
+    // Handle //
+    //
+    void setHandlesSelectable(bool selectable);
 
     // Graphics //
     //
@@ -110,6 +115,10 @@ private:
     // Handle //
     //
     RoadLinkHandle *roadLinkHandle_;
+
+    // Editor //
+    //
+    RoadLinkEditor *editor_;
 };
 
 #endif // ROADLINKITEM_HPP
