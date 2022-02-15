@@ -337,6 +337,9 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 #osgBullet
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgbullet -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/osgWorks/lib;c:/src/externlibs/zebu/osgWorks;c:/src/externlibs/zebu/Bullet;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/cal3d  -DBulletInstallType="Alternate Install Location" -DBulletInstallLocation=c:/src/externlibs/zebu/bullet
 
+#GDCM
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/gdcm -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/cal3d
+
 
 #assimp
 https://github.com/assimp/assimp.git
