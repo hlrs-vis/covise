@@ -50,7 +50,6 @@ private:
 	std::map<int, std::unique_ptr<vrb::SharedState<int>>> remoteLocks;
 	//setup SharedState for this group
 	void initializeRemoteLock(int group);
-	bool naviagationBlockedByme = false;
 	
 protected:
     static coInteractionManager *im;

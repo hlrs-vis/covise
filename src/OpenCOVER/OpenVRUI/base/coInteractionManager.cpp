@@ -318,24 +318,18 @@ void coInteractionManager::doRemoteLock(int groupId)
 {
 	auto it = remoteLocks.find(groupId);
 	if ((*it->second).value() < 0)
-	{
 		*(it->second) = vruiRendererInterface::the()->getClientId();
-		naviagationBlockedByme = true;
-	}
 }
 
 void coInteractionManager::doRemoteUnLock(int groupId)
 {
 	auto it = remoteLocks.find(groupId);
 	if ((*it->second).value() == vruiRendererInterface::the()->getClientId())
-	{
 		*(it->second) = -1;
-		naviagationBlockedByme = false;
-	}
 }
 bool coInteractionManager::isNaviagationBlockedByme()
 {
-	return naviagationBlockedByme;
+	return remoteLocks[1]->value() == vruiRendererInterface::the()->getClientId();
 }
 void coInteractionManager::initializeRemoteLock(int group)
 {
@@ -355,7 +349,6 @@ void coInteractionManager::initializeRemoteLock(int group)
 				{
 					(*interaction)->cancelInteraction();
 					(*interaction)->pause();
-					naviagationBlockedByme = false;
 				}
 			}
 		}
