@@ -67,7 +67,6 @@ private:
     void setSyncInterval();
     std::set<int> m_sessions;
     bool syncXform = false;
-    bool syncScale = false;
 	bool wasLo = false;
     float syncInterval;
     bool oldMasterStatus = true;
@@ -113,8 +112,6 @@ public:
     void SyncXform();
 	//sync scale of world with partner
     void UnSyncXform();
-    void SyncScale();
-    void UnSyncScale();
     void sessionChanged(bool isPrivate);
     void remoteTransform(osg::Matrix &mat);
     void remoteScale(float d);

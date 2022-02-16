@@ -2101,7 +2101,6 @@ void coVRNavigationManager::doMouseXform()
             doTrans.mult(actTransState, trans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doTrans);
             coVRCollaboration::instance()->SyncXform();
-            coVRCollaboration::instance()->SyncScale();
         }
         coVRCollaboration::instance()->SyncXform();
     }
@@ -2136,7 +2135,6 @@ void coVRNavigationManager::doMouseScale(float newScaleFactor)
     VRSceneGraph::instance()->getTransform()->setMatrix(xform_mat);
     VRSceneGraph::instance()->setScaleFactor(newScaleFactor);
     coVRCollaboration::instance()->SyncXform();
-    coVRCollaboration::instance()->SyncScale();
 }
 
 void coVRNavigationManager::doMouseScale()
@@ -2210,7 +2208,6 @@ void coVRNavigationManager::stopMouseNav()
     relx0 = x0 - originX; //relativ zum Ursprung des Koordinatensystems
     rely0 = y0 - originY; //dito
     coVRCollaboration::instance()->UnSyncXform();
-    coVRCollaboration::instance()->UnSyncScale();
 }
 
 void coVRNavigationManager::startMouseNav()
@@ -2391,13 +2388,11 @@ void coVRNavigationManager::doScale()
     VRSceneGraph::instance()->getTransform()->setMatrix(xform_mat);
     VRSceneGraph::instance()->setScaleFactor(dcsScaleFactor);
     coVRCollaboration::instance()->SyncXform();
-    coVRCollaboration::instance()->SyncScale();
 }
 
 void coVRNavigationManager::stopScale()
 {
     coVRCollaboration::instance()->UnSyncXform();
-    coVRCollaboration::instance()->UnSyncScale();
 }
 
 void coVRNavigationManager::startFly()

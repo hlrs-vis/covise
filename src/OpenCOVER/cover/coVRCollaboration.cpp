@@ -71,7 +71,6 @@ coVRCollaboration *coVRCollaboration::instance()
 coVRCollaboration::coVRCollaboration()
     : ui::Owner("coVRCollaboration", cover->ui)
     , syncXform(0)
-    , syncScale(0)
     , syncInterval(0.3)
     , showAvatar(1)
     , syncMode("coVRCollaboration_syncMode", LooseCoupling, ALWAYS_SHARE)
@@ -259,18 +258,7 @@ bool coVRCollaboration::update()
         changed = true;
 	//
 	double thisTime = cover->frameTime();
-    if (syncScale)
-    {
-        static float last_dcs_scale_factor = 0.0;
-        const float scaleFactor = VRSceneGraph::instance()->scaleFactor();
-        if (scaleFactor != last_dcs_scale_factor)
-        {
-            last_dcs_scale_factor = scaleFactor;
-            VRSceneGraph::instance()->setScaleFactor(scaleFactor, false);
-        }
 
-		//syncScale = 0;
-    }
     //sync avatar position 
 	static double lastAvatarUpdateTime = 0.0;
     if (m_visible
@@ -284,6 +272,7 @@ bool coVRCollaboration::update()
 	{
 		//store my viewpoint in shared state to be able to reload it
         avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+        scaleFactor = VRSceneGraph::instance()->scaleFactor();
 	}
     return changed;
 }
@@ -298,16 +287,6 @@ void coVRCollaboration::UnSyncXform()
     syncXform = false;
 }
 
-void coVRCollaboration::SyncScale() //! mark VRSceneGraph::m_scaleTransform as dirty
-{
-    syncScale = true;
-}
-
-void coVRCollaboration::UnSyncScale()
-{
-    syncScale = false;
-}
-
 void opencover::coVRCollaboration::sessionChanged(bool isPrivate)
 {
     if (!isPrivate && syncMode == LooseCoupling)
@@ -317,7 +296,6 @@ void opencover::coVRCollaboration::sessionChanged(bool isPrivate)
     else //dont sync when in private session
     {
         UnSyncXform();
-        UnSyncScale();
         coVRPartnerList::instance()->hideAvatars();
     }
 }
@@ -443,12 +421,10 @@ void coVRCollaboration::syncModeChanged(int mode) {
             m_returnToMaster->setEnabled(true);
         }
         SyncXform();
-        SyncScale();
         break;
     case TightCoupling:
         coVRPartnerList::instance()->hideAvatars();
         SyncXform();
-        SyncScale();
         m_returnToMaster->setEnabled(false);
         break;
 

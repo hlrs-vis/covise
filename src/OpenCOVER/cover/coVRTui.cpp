@@ -1264,7 +1264,6 @@ void coVRTui::doTabScale()
     newScaleFactor = exp(log(maxFactor) * ((newx - relx0) / ampl));
     cover->setScale(actScaleFactor * newScaleFactor);
     coVRCollaboration::instance()->SyncXform();
-    coVRCollaboration::instance()->SyncScale();
 }
 
 void coVRTui::doTabWalk()
