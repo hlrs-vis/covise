@@ -36,5 +36,5 @@ if (COVISE_OPENCOVER_INTERNAL_PROJECT AND NOT COVISE_BUILD_ONLY_ODDLOT
 endif()
 
 if (COVISE_BUILD_ONLY_ODDLOT OR NOT COVISE_BUILD_ONLY_COVER)
-    #add_subdirectory(oddlot)
+    add_subdirectory(oddlot)
 endif()
