@@ -89,6 +89,7 @@ namespace OpenFOAMInterface.BIM
         private double m_BlockMeshResolution;
 
         //ControlDict
+        // private InitialSettingsParameter m_settingsParam;
         private ControlDictParameters m_controlDictParam;
 
         //SurfaceFeatureExtract
@@ -240,6 +241,7 @@ namespace OpenFOAMInterface.BIM
         public bool computeBoundingBox = true;
 
         public ControlDictParameters ControlDictParameters { get => m_controlDictParam; }
+        // public ControlDictParameters ControlDictParameters { get => m_settingsParam.ControlDict; }
 
         //Getter-Setter Runmanager
         public OpenFOAMEnvironment OpenFOAMEnvironment { get => m_openFOAMEnvironment; set => m_openFOAMEnvironment = value; }
@@ -563,6 +565,7 @@ namespace OpenFOAMInterface.BIM
 
             //ControlDict
             m_controlDictParam = param.ControlDict;
+            // m_settingsParam = param;
 
             //surfaceFeatureExtract
             m_ExtractionMethod = extractionMethod;
@@ -602,10 +605,10 @@ namespace OpenFOAMInterface.BIM
             m_SSH = new("hpcwoess", "visent.hlrs.de", "of2012", "/mnt/raid/home/hpcwoess/foam",
                 true, false, true, 31022, "eval salloc -n " + ControlDictParameters.NumberOfSubdomains);
 
-            //General
-            m_IncludeLinkedModels = param.IncludeLinkedModels;
-            m_exportColor = param.ExportColor;
-            m_exportSharedCoordinates = param.ExportSharedCoordinates;
+            // //General
+            // m_IncludeLinkedModels = param.IncludeLinkedModels;
+            // m_exportColor = param.ExportColor;
+            // m_exportSharedCoordinates = param.ExportSharedCoordinates;
         }
 
         /// <summary>
@@ -1791,20 +1794,19 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private void CreateFoamParametersDictionaries()
         {
-            Dictionary<string, object> m_Dict = new Dictionary<string, object>();
-            List<NullParameter> initialParameters = new List<NullParameter>();
+            var initialParameters = new List<NullParameter>();
             CreateFOAMParamterList(initialParameters);
             foreach (NullParameter initParam in initialParameters)
             {
-                m_Dict = new Dictionary<string, object>();
-                m_Dict.Add("internalField", (object)initParam.InternalField);
+                var dict = new Dictionary<string, object>();
+                dict.Add("internalField", (object)initParam.InternalField);
                 //string patchName = string.Empty;
 
                 foreach (var patch in initParam.Patches)
                 {
-                    m_Dict.Add(patch.Key, patch.Value);
+                    dict.Add(patch.Key, patch.Value);
                 }
-                m_Null.Add(initParam.Name, m_Dict);
+                m_Null.Add(initParam.Name, dict);
             }
         }
 
@@ -2387,14 +2389,14 @@ namespace OpenFOAMInterface.BIM
                                 object v = default;
                                 if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
                                 {
-                                    KEpsilon k = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
+                                    KEpsilon k = new(properties.Area, properties.Boundary, properties.MeanFlowVelocity, m_TempInlet);
                                     v = k.K;
                                     type = "zeroGradient";
                                     _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
                                 }
                                 else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
                                 {
-                                    KEpsilon epsilon = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
+                                    KEpsilon epsilon = new(properties.Area, properties.Boundary, properties.MeanFlowVelocity, m_TempInlet);
                                     v = epsilon.Epsilon;
                                     type = "zeroGradient";
                                     _outlet = new FOAMParameterPatch<dynamic>(type, uniform, "", pType);
@@ -2621,38 +2623,6 @@ namespace OpenFOAMInterface.BIM
                         break;
                     }
             }
-        }
-
-
-        /// <summary>
-        /// Calculate k and epsilon with OpenFOAMCalculator-class.
-        /// </summary>
-        /// <param name="area">Area of inlet surface.</param>
-        /// <param name="boundary">Boundary of inlet surface.</param>
-        /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
-        private KEpsilon CalculateKEpsilon(double area, double boundary, double meanFlowVelocity)
-        {
-            OpenFOAM.OpenFOAMCalculator calculator = new();
-
-            double kinematicViscosity = calculator.InterpolateKinematicViscosity(m_TempInlet - 273.15);
-
-            double characteristicLength = calculator.CalculateHydraulicDiameter(area, boundary);
-            double reynoldsNumber = calculator.CalculateReynoldsnumber(Math.Abs(meanFlowVelocity), kinematicViscosity, characteristicLength);
-
-            double turbulenceLengthScale = calculator.EstimateTurbulencLengthScalePipe(characteristicLength);
-            double turbulenceIntensity = calculator.EstimateTurbulenceIntensityPipe(reynoldsNumber);
-
-            double k = 0;
-            double epsilon = 0;
-            if (meanFlowVelocity != 0)
-            {
-                k = calculator.CalculateK(Math.Abs(meanFlowVelocity), turbulenceIntensity);
-                epsilon = calculator.CalculateEpsilon(turbulenceLengthScale, k);
-            }
-
-            KEpsilon kepsilon = new(k, epsilon);
-
-            return kepsilon;
         }
 
         /// <summary>

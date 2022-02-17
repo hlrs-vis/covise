@@ -32,16 +32,9 @@ namespace OpenFOAMInterface.BIM
     using RunManagerSSH = OpenFOAM.RunManagerSSH;
     using RunManagerWSL = OpenFOAM.RunManagerWSL;
     using Enums;
-    // using ElementsExportRange = Enums.ElementsExportRange;
-    // using OpenFOAMEnvironment = Enums.OpenFOAMEnvironment;
+
     public readonly ref struct FOAMFileData
     {
-        public List<string> Param { get; }
-        public List<string> Wall { get; }
-        public List<string> Inlet { get; }
-        public List<string> Outlet { get; }
-        public List<string> Slip { get; }
-
         public FOAMFileData(in List<string> param, in List<string> wall, in List<string> inlet, in List<string> outlet, in List<string> slip)
         {
             Param = param;
@@ -50,6 +43,11 @@ namespace OpenFOAMInterface.BIM
             Outlet = outlet;
             Slip = slip;
         }
+        public List<string> Param { get; }
+        public List<string> Wall { get; }
+        public List<string> Inlet { get; }
+        public List<string> Outlet { get; }
+        public List<string> Slip { get; }
     }
 
     /// <summary>

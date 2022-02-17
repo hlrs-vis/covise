@@ -165,7 +165,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// </summary>
             public bool ExportSharedCoordinates { readonly get => _exportSharedCoordinates; set => _exportSharedCoordinates = value; }
 
-            public readonly override string ToString() => $"{ControlDict}, {Format}, {ExportRange}, {IncludeLinkedModels}, {ExportColor}, {ExportSharedCoordinates}";
+            public readonly override string ToString() => $"{ControlDict.ToString()}, {Format}, {ExportRange}, {IncludeLinkedModels}, {ExportColor}, {ExportSharedCoordinates}";
         }
     }
 
@@ -186,11 +186,12 @@ namespace OpenFOAMInterface.BIM.Structs
             public ControlDictParameters() : this(
                 SolverControlDict.buoyantBoussinesqSimpleFoam,
                 StartFrom.latestTime,
-                StopAt.endTime, 
-                WriteControl.timeStep, 
-                WriteFormat.ascii, 
-                WriteCompression.off, 
-                TimeFormat.general, false, 0, 101, 1, 100, 2, 8, 7, 4) { }
+                StopAt.endTime,
+                WriteControl.timeStep,
+                WriteFormat.ascii,
+                WriteCompression.off,
+                TimeFormat.general, false, 0, 101, 1, 100, 2, 8, 7, 4)
+            { }
             public ControlDictParameters(in SolverControlDict solver, in StartFrom from, in StopAt at,
                                          in WriteControl writeControl, in WriteFormat writeFormat, in WriteCompression writeCompression,
                                          in TimeFormat time, bool runTimeModifiable, double start, double end,
@@ -216,43 +217,43 @@ namespace OpenFOAMInterface.BIM.Structs
             }
 
             private SolverControlDict _appControlDictSolver;
-            public SolverControlDict AppControlDictSolver {readonly get => _appControlDictSolver; set => _appControlDictSolver = value;}
+            public SolverControlDict AppControlDictSolver { readonly get => _appControlDictSolver; set => _appControlDictSolver = value; }
 
             private StartFrom _startFrom;
             /// <summary>
             /// Where to start from after rerun of simulation.
             /// </summary>
-            public StartFrom StartFrom { readonly get => _startFrom; set => _startFrom = value;}
+            public StartFrom StartFrom { readonly get => _startFrom; set => _startFrom = value; }
 
             private StopAt _stopAt;
             /// <summary>
             /// Condition for stop.
             /// </summary>
-            public StopAt StopAt { readonly get => _stopAt; set => _stopAt = value;}
+            public StopAt StopAt { readonly get => _stopAt; set => _stopAt = value; }
 
             private WriteControl _writeControl;
             /// <summary>
             /// Specify control scheme.
             /// </summary>
-            public WriteControl WriteControl { readonly get => _writeControl; set => _writeControl = value;}
+            public WriteControl WriteControl { readonly get => _writeControl; set => _writeControl = value; }
 
             private WriteFormat _writeFromat;
             /// <summary>
             /// ASCII or Binary.
             /// </summary>
-            public WriteFormat WriteFormat { readonly get => _writeFromat; set => _writeFromat = value;}
+            public WriteFormat WriteFormat { readonly get => _writeFromat; set => _writeFromat = value; }
 
             private WriteCompression _writeCompression;
             /// <summary>
             /// Compression on or off. 
             /// </summary>
-            public WriteCompression WriteCompression{ readonly get => _writeCompression; set => _writeCompression = value;}
+            public WriteCompression WriteCompression { readonly get => _writeCompression; set => _writeCompression = value; }
 
             private TimeFormat _timeFormat;
             /// <summary>
             /// Formate of timesteps.
             /// </summary>
-            public TimeFormat TimeFormat { readonly get => _timeFormat; set => _timeFormat = value;}
+            public TimeFormat TimeFormat { readonly get => _timeFormat; set => _timeFormat = value; }
 
             private bool _runTimeModifiable;
             /// <summary>
@@ -314,25 +315,59 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// K-Epsilon turbulence model datatype.
         /// </summary>
-        public struct KEpsilon
+        readonly public struct KEpsilon
         {
             public KEpsilon(double k, double epsilon)
             {
-                _k = k;
-                _epsilon = epsilon;
+                K = k;
+                Epsilon = epsilon;
             }
 
-            private double _k;
+            /// <summary>
+            ///  Contructor which calculates via CalculateKEpsilon.
+            /// </summary>
+            /// <param name="area">Area of inlet surface.</param>
+            /// <param name="boundary">Boundary of inlet surface.</param>
+            /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
+            /// <param name="tempInlet"> CUrrent temp on inlet.</param>
+            public KEpsilon(double area, double boundary, double meanFlowVelocity, double tempInlet) => this.CalculateKEpsilon(area, boundary, meanFlowVelocity, tempInlet);
+
             /// <summary>
             /// Turbulence energie.
             /// </summary>
-            public double K { readonly get => _k; set => _k = value; }
+            // public double K { readonly get => _k; set => _k = value; }
+            public readonly double K { readonly get; set; }
 
-            private double _epsilon;
             /// <summary>
             /// Dissipation rate.
             /// </summary>
-            public double Epsilon { readonly get => _epsilon; set => _epsilon = value; }
+            // public double Epsilon { readonly get => _epsilon; set => _epsilon = value; }
+            public readonly double Epsilon { get; set; }
+
+            /// <summary>
+            /// Calculate k and epsilon with OpenFOAMCalculator-class.
+            /// </summary>
+            /// <param name="area">Area of inlet surface.</param>
+            /// <param name="boundary">Boundary of inlet surface.</param>
+            /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
+            /// <param name="temp"> CUrrent temp.</param>
+            private void CalculateKEpsilon(double area, double boundary, double meanFlowVelocity, double temp)
+            {
+                OpenFOAM.OpenFOAMCalculator calculator = new();
+
+                double kinematicViscosity = calculator.InterpolateKinematicViscosity(temp - 273.15);
+                double characteristicLength = calculator.CalculateHydraulicDiameter(area, boundary);
+                double reynoldsNumber = calculator.CalculateReynoldsnumber(Math.Abs(meanFlowVelocity), kinematicViscosity, characteristicLength);
+
+                double turbulenceLengthScale = calculator.EstimateTurbulencLengthScalePipe(characteristicLength);
+                double turbulenceIntensity = calculator.EstimateTurbulenceIntensityPipe(reynoldsNumber);
+
+                if (meanFlowVelocity != 0)
+                {
+                    K = calculator.CalculateK(Math.Abs(meanFlowVelocity), turbulenceIntensity);
+                    Epsilon = calculator.CalculateEpsilon(turbulenceLengthScale, 0);
+                }
+            }
         }
 
         /// <summary>
@@ -341,36 +376,6 @@ namespace OpenFOAMInterface.BIM.Structs
         public struct NullParameter
         {
             /// <summary>
-            /// Name of Parameter.
-            /// </summary>
-            string name;
-
-            /// <summary>
-            /// Value of internalField.
-            /// </summary>
-            dynamic internalField;
-
-            /// <summary>
-            /// List of inlet-, outlet-, wall-patches.
-            /// </summary>
-            Dictionary<string, FOAMParameterPatch<dynamic>> patches;
-
-            /// <summary>
-            /// Solver for incompressible CFD.
-            /// </summary>
-            SolverControlDict solver;
-
-            /// <summary>
-            /// Turbulence simulationType.
-            /// </summary>
-            SimulationType simulationType;
-
-            /// <summary>
-            /// Turbulence-model.
-            /// </summary>
-            dynamic turbulenceModel;
-
-            /// <summary>
             /// Constructor.
             /// </summary>
             /// <param name="_name">Name for parameter.</param>
@@ -378,46 +383,51 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="_turbulenceModel">Turbulence-model.</param>
             /// <param name="_solverInc">Incompressible-Solver</param>
             /// <param name="_stype">Turbulence-type.</param>
-            public NullParameter(string _name, dynamic _internalField, dynamic _turbulenceModel,
-                in SolverControlDict _solverInc = SolverControlDict.simpleFoam, in SimulationType _stype = SimulationType.RAS)
+            public NullParameter(in string name, in dynamic internalField, in dynamic turbulenceModel,
+                in SolverControlDict solverInc = SolverControlDict.simpleFoam, in SimulationType stype = SimulationType.RAS)
             {
-                name = _name;
-                turbulenceModel = _turbulenceModel;
-                simulationType = _stype;
-                patches = new Dictionary<string, FOAMParameterPatch<dynamic>>();
-                internalField = _internalField;
-                solver = _solverInc;
+                _name = name;
+                _turbulenceModel = turbulenceModel;
+                _simulationType = stype;
+                _patches = new Dictionary<string, FOAMParameterPatch<dynamic>>();
+                _internalField = internalField;
+                _solver = solverInc;
             }
-
+            private string _name;
             /// <summary>
-            /// Getter-Setter for name of parameter.
+            /// Name of Parameter.
             /// </summary>
-            public string Name { get => name; set => name = value; }
+            public string Name { readonly get => _name; set => _name = value; }
 
+            private dynamic _internalField;
             /// <summary>
-            /// Getter-Setter for internalfield.
+            /// Value of internalField.
             /// </summary>
-            public dynamic InternalField { get => internalField; set => internalField = value; }
+            public dynamic InternalField { readonly get => _internalField; set => _internalField = value; }
 
+            private Dictionary<string, FOAMParameterPatch<dynamic>> _patches;
             /// <summary>
-            /// Getter-Setter for Patches that contains inlets, outlets and the wall.
+            /// List of inlet-, outlet-, wall-patches.
             /// </summary>
-            public Dictionary<string, FOAMParameterPatch<dynamic>> Patches { get => patches; }
+            public Dictionary<string, FOAMParameterPatch<dynamic>> Patches { readonly get => _patches; set => _patches = value; }
 
+            private SolverControlDict _solver;
             /// <summary>
-            /// Getter-Setter for incompressible solver.
+            /// Solver for incompressible CFD.
             /// </summary>
-            public SolverControlDict SolverInc { get => solver; set => solver = value; }
+            public SolverControlDict Solver { readonly get => _solver; set => _solver = value; }
 
+            private SimulationType _simulationType;
             /// <summary>
-            /// Getter-Setter for turbulence simulationType.
+            /// Turbulence simulationType.
             /// </summary>
-            public SimulationType SimulationType { get => simulationType; set => simulationType = value; }
+            public SimulationType SimulationType { readonly get => _simulationType; set => _simulationType = value; }
 
+            private dynamic _turbulenceModel;
             /// <summary>
-            /// Getter-Setter for turbulence model.
+            /// Turbulence-model.
             /// </summary>
-            public dynamic TurbulenceModel { get => turbulenceModel; set => turbulenceModel = value; }
+            public dynamic TurbulenceModel { readonly get => _turbulenceModel; set => _turbulenceModel = value; }
         }
         /// <summary>
         /// Patch for boundaryField in Parameter-Dictionaries.
