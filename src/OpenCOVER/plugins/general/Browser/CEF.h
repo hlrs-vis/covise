@@ -53,7 +53,7 @@ class CEF_client : public CefClient, public CefRenderHandler, public CefContextM
 private:
     int width = 1024;
     int height = 1024;
-    CEF* cef;
+    CEF *cef = nullptr;
     vrui::coCombinedButtonInteraction* interactionA; ///< interaction for first button
     vrui::coCombinedButtonInteraction* interactionB; ///< interaction for second button
     vrui::coCombinedButtonInteraction* interactionC; ///< interaction for third button
@@ -99,7 +99,7 @@ public:
 private:
 
     unsigned char*imageBuffer=nullptr;
-    coPopupHandle* popupHandle;
+    coPopupHandle *popupHandle = nullptr;
     coTexturedBackground* videoTexture;
     bool bufferChanged = false;
 

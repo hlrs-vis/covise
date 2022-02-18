@@ -10,6 +10,7 @@
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
+#include "include/wrapper/cef_library_loader.h"
 #include "tests/cefsimple/simple_handler.h"
 #include "CEFWindowsKey.h"
 #include <config/CoviseConfig.h>
@@ -312,7 +313,6 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
         }
         });
 
-
     CefSettings settings;
     CefSettingsTraits::init(&settings);
 
@@ -335,33 +335,48 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
     else
         archSuffix = as;
 
-#ifdef _WIN32
-    std::string bsp = coviseDir + "/" + archSuffix + "/bin/CEFBrowserHelper.exe";
-#else
     std::string bsp = coviseDir + "/" + archSuffix + "/bin/CEFBrowserHelper";
+#ifdef _WIN32
+    bsp += ".exe";
 #endif
+    CefString(&settings.browser_subprocess_path) = bsp;
+#ifndef __APPLE__
     std::string rdp = coviseDir + "/share/covise/cef/Resources";
     std::string ldp = coviseDir + "/share/covise/cef/Resources/locales";
+    CefString(&settings.locales_dir_path)
+        .FromString(covise::coCoviseConfig::getEntry("localesDirPath", "COVER.Plugin.Browser", ldp));
+    CefString(&settings.resources_dir_path)
+        .FromString(covise::coCoviseConfig::getEntry("resourcesDirPath", "COVER.Plugin.Browser", rdp));
     std::string lfp = coviseDir + "/share/covise/cef/Resources/wblog.log";
-    CefString(&settings.browser_subprocess_path).FromASCII(bsp.c_str());
-    CefString(&settings.locales_dir_path).FromASCII(covise::coCoviseConfig::getEntry("localesDirPath", "COVER.Plugin.Browser", ldp).c_str());
-    CefString(&settings.resources_dir_path).FromASCII(covise::coCoviseConfig::getEntry("resourcesDirPath", "COVER.Plugin.Browser", rdp).c_str());
-    CefString(&settings.log_file).FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());
-    
+#else
+    std::string lfp = "/tmp/cef.log";
+    CefString(&settings.log_file).FromString(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp));
+    std::string extlib;
+    if (auto el = getenv("EXTERNLIBS"))
+    {
+        extlib = el;
+    }
+    else
+    {
+        cerr << "EXTERNLIBS variable not set !!" << endl;
+        extlib = coviseDir + "/extern_libs/" + archSuffix;
+    }
+    std::string fwpath = extlib + "/cef/Release/Chromium Embedded Framework.framework";
+    CefString(&settings.log_file).FromString(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp));
+    CefString(&settings.framework_dir_path) =
+        covise::coCoviseConfig::getEntry("frameworkDirPath", "COVER.Plugin.Browser", fwpath);
+#endif
+
     settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
     settings.no_sandbox = true;
-#ifdef _WIN32
     settings.windowless_rendering_enabled = true;
+#ifdef _WIN32
     //settings.log_severity = LOGSEVERITY_VERBOSE;
 #endif
 
     CefMainArgs args;
 
     CefInitialize(args, settings, this, 0);
-
-
-
-
 }
 
 CEF::~CEF() {
