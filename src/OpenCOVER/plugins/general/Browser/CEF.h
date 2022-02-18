@@ -90,7 +90,7 @@ public:
 #ifdef __APPLE__
     void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
 #else
-    bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
 #endif
 #endif
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;

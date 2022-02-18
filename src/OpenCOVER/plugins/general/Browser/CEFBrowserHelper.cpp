@@ -3,6 +3,7 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
+#include <type_traits>
 #include <iostream>
 #include "include/cef_app.h"
 #include "include/base/cef_logging.h"

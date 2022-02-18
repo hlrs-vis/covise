@@ -49,7 +49,7 @@ void CEF::OnContextInitialized() {
 #elif defined(CEF18)
     win.SetAsWindowless(0);
 #else
-    win.SetAsWindowless(0, true);
+    win.SetAsWindowless(0);
 #endif
 
 
@@ -94,9 +94,8 @@ void CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     rect = CefRect(0, 0, std::max(8,width), std::max(8,height)); // never give an empty rectangle!!
 }
 #else
-bool CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+void CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     rect = CefRect(0, 0, std::max(8, width), std::max(8, height)); // never give an empty rectangle!!
-    return true;
 }
 #endif
 #endif

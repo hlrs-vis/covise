@@ -86,6 +86,9 @@ protected:
 
 private slots:
     void timerDone();
+#ifdef HAVE_WIRINGPI
+    void thyssenTtimerDone();
+#endif
     void fontCB(const QString &);
     void styleCB(const QString &);
     void about();

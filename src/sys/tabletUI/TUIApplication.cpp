@@ -169,6 +169,10 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     // timer.....waits for disconneting vrb clients
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerDone()));
+#ifdef HAVE_WIRINGPI
+    thyssenTimer = new QTimer(this);
+    connect(thyssenTimer, SIGNAL(timeout()), this, SLOT(thyssenTimerDone()));
+#endif
 
     resize(500, 200);
 }
@@ -191,6 +195,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 
 #ifdef HAVE_WIRINGPI
     thyssenPanel = new ThyssenPanel();
+    thyssenTimer.start(100);
     thyssenPanel->led->setLED(0,true);
 #endif
 
@@ -206,6 +211,10 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerDone()));
+#ifdef HAVE_WIRINGPI
+    thyssenTimer = new QTimer(this);
+    connect(thyssenTimer, SIGNAL(timeout()), this, SLOT(thyssenTimerDone()));
+#endif
 
 // create the menus and toolbar buttons
 //createMenubar();
@@ -276,6 +285,13 @@ void TUIMainWindow::timerDone()
 {
     timer->stop();
 }
+
+#ifdef HAVE_WIRINGPI
+void TUIMainWindow::thyssenTimerDone()
+{
+    thyssenPannel->update();
+}
+#endif
 
 //------------------------------------------------------------------------
 void TUIMainWindow::closeServer()
