@@ -118,6 +118,7 @@ uncomment the following in pyconfig.h
 #				pragma comment(lib,"python3.lib")
 #			else
 //#				pragma comment(lib,"python35.lib")
+
 #OpenSSL
 use openssl from python externals
 PATH=D:\src\gitbase\Python-3.5.2\externals\nasm-2.11.06;%PATH%
