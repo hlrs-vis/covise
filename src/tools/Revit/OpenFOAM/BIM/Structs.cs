@@ -180,6 +180,7 @@ namespace OpenFOAMInterface.BIM.Structs
         {
             private static ControlDictParameters def = new ControlDictParameters();
             public static ref readonly ControlDictParameters Default => ref def;
+
             /// <summary>
             /// Default constructor ControlDictParameters.
             /// </summary>
@@ -315,12 +316,13 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// K-Epsilon turbulence model datatype.
         /// </summary>
-        readonly public struct KEpsilon
+        public struct KEpsilon
         {
+            public KEpsilon() : this(0, 0) { }
             public KEpsilon(double k, double epsilon)
             {
-                K = k;
-                Epsilon = epsilon;
+                _k = k;
+                _epsilon = epsilon;
             }
 
             /// <summary>
@@ -330,19 +332,20 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="boundary">Boundary of inlet surface.</param>
             /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
             /// <param name="tempInlet"> CUrrent temp on inlet.</param>
-            public KEpsilon(double area, double boundary, double meanFlowVelocity, double tempInlet) => this.CalculateKEpsilon(area, boundary, meanFlowVelocity, tempInlet);
+            public KEpsilon(double area, double boundary, double meanFlowVelocity, double tempInlet) : this(0,0) => CalculateKEpsilon(area, boundary, meanFlowVelocity, tempInlet);
 
+            private double _k;
             /// <summary>
             /// Turbulence energie.
             /// </summary>
-            // public double K { readonly get => _k; set => _k = value; }
-            public readonly double K { readonly get; set; }
+            public double K { readonly get => _k; set => _k = value; }
 
+            private double _epsilon;
             /// <summary>
             /// Dissipation rate.
             /// </summary>
-            // public double Epsilon { readonly get => _epsilon; set => _epsilon = value; }
-            public readonly double Epsilon { get; set; }
+            public double Epsilon { readonly get => _epsilon; set => _epsilon = value; }
+            // public readonly double Epsilon { get; set; }
 
             /// <summary>
             /// Calculate k and epsilon with OpenFOAMCalculator-class.
@@ -350,7 +353,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="area">Area of inlet surface.</param>
             /// <param name="boundary">Boundary of inlet surface.</param>
             /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
-            /// <param name="temp"> CUrrent temp.</param>
+            /// <param name="temp"> Current temp.</param>
             private void CalculateKEpsilon(double area, double boundary, double meanFlowVelocity, double temp)
             {
                 OpenFOAM.OpenFOAMCalculator calculator = new();
@@ -358,14 +361,13 @@ namespace OpenFOAMInterface.BIM.Structs
                 double kinematicViscosity = calculator.InterpolateKinematicViscosity(temp - 273.15);
                 double characteristicLength = calculator.CalculateHydraulicDiameter(area, boundary);
                 double reynoldsNumber = calculator.CalculateReynoldsnumber(Math.Abs(meanFlowVelocity), kinematicViscosity, characteristicLength);
-
                 double turbulenceLengthScale = calculator.EstimateTurbulencLengthScalePipe(characteristicLength);
                 double turbulenceIntensity = calculator.EstimateTurbulenceIntensityPipe(reynoldsNumber);
 
                 if (meanFlowVelocity != 0)
                 {
-                    K = calculator.CalculateK(Math.Abs(meanFlowVelocity), turbulenceIntensity);
-                    Epsilon = calculator.CalculateEpsilon(turbulenceLengthScale, 0);
+                    _k = calculator.CalculateK(Math.Abs(meanFlowVelocity), turbulenceIntensity);
+                    _epsilon = calculator.CalculateEpsilon(turbulenceLengthScale, 0);
                 }
             }
         }
