@@ -21,6 +21,7 @@
 #include <vrb/RegistryVariable.h>
 #include <vrb/SessionID.h>
 #include <vrb/Registry.h>
+#include <util/coExport.h>
 
 namespace covise
 {
@@ -32,7 +33,7 @@ namespace vrb
 {
 class serverRegVar;
 
-class VrbServerRegistry : public VrbRegistry
+class VRBSERVEREXPORT VrbServerRegistry: public VrbRegistry
 {
 public:
     explicit VrbServerRegistry(const SessionID &session);

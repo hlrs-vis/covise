@@ -50,20 +50,20 @@ struct COVER_UI_EXPORT VruiViewElement: public View::ViewElement, public vrui::c
 };
 
 //! concrete implementation of View for showing user interface \ref Element "elements" in VR based on the OpenVRUI framework
-class VruiView: public View
+class COVER_UI_EXPORT VruiView: public View
 {
     friend struct VruiViewElement;
 
  public:
-   VruiView();
-   ~VruiView();
+     VruiView();
+     ~VruiView();
 
-   bool update() override;
+     bool update() override;
 
-   ViewType typeBit() const override;
+     ViewType typeBit() const override;
 
-   COVER_UI_EXPORT vrui::coMenu *getMenu(const Element *elem) const;
-   COVER_UI_EXPORT vrui::coMenuItem *getItem(const Element *elem) const;
+     vrui::coMenu *getMenu(const Element *elem) const;
+     vrui::coMenuItem *getItem(const Element *elem) const;
 
 
  private:
