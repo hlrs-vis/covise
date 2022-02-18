@@ -354,7 +354,8 @@ void TUIUIWidgetSet::sliderValueChanged(int v)
     {
         float minimum = this->helpers["min"].toFloat();
         float maximum = this->helpers["max"].toFloat();
-        float fv = minimum + (float(v) / INT_MAX * (maximum - minimum));
+        int int_max = INT_MAX;
+        float fv = minimum + (float(v) / int_max * (maximum - minimum));
         value = fv;
     }
     else

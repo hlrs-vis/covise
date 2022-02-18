@@ -100,12 +100,13 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 	int work_group_size = 16;
 
 	// we just assume for now someone changed the configuration
-	if (((float)rand() / (RAND_MAX)) < 0.05)
+    int rand_max = RAND_MAX;
+	if (((float)rand() / (rand_max)) < 0.05)
 	{
 		configuration_changed = true;
 		for (int i = 0; i < num_lights; i++)
 		{
-			configuration_vec[i] = ((float)rand() / (RAND_MAX));
+			configuration_vec[i] = ((float)rand() / (rand_max));
 		}
 	}
 

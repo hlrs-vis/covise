@@ -375,7 +375,7 @@ fob::processSerialStream()
     do
     {
         receiveSer(dataString, 1);
-        if ((*terminate == true)
+        if (*terminate == true
 #ifdef VISENSO
 #ifndef _WIN32
             || (getppid() == 1)
@@ -411,7 +411,7 @@ fob::processSerialStream()
         {
             //      fprintf(stderr,". ");
             receiveSer(dataString, 1);
-            if ((*terminate == true)
+            if (*terminate == true
 #ifdef VISENSO
 #ifndef _WIN32
                 || (getppid() == 1)

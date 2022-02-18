@@ -67,11 +67,11 @@ QSlider *MEFloatSliderPort::makeSlider(QWidget *parent)
 {
     QSlider *m_slider = new QSlider(Qt::Horizontal, parent);
     int rangemin = 0;
-    int rangemax = INT_MAX;
-    int sliderstep = int(m_step / (m_max - m_min) * INT_MAX);
+    int int_max = INT_MAX;
+    int sliderstep = int(m_step / (m_max - m_min) * int_max);
     int slidervalue = fToI(m_value);
 
-    m_slider->setRange(rangemin, rangemax);
+    m_slider->setRange(rangemin, int_max);
     m_slider->setValue(slidervalue);
     m_slider->setSingleStep(sliderstep);
     m_slider->setTracking(true);
@@ -332,7 +332,8 @@ void MEFloatSliderPort::sendParamMessage()
 int MEFloatSliderPort::fToI(float fvalue)
 {
     float ff = (fvalue - m_min) / (m_max - m_min);
-    int ival = int(INT_MAX * ff);
+    int int_max = INT_MAX;
+    int ival = int(int_max * ff);
     return ival;
 }
 
@@ -341,7 +342,8 @@ int MEFloatSliderPort::fToI(float fvalue)
 //!
 float MEFloatSliderPort::iToF(int ivalue)
 {
-    float fval = m_min + (float(ivalue) / INT_MAX * (m_max - m_min));
+    int int_max = INT_MAX;
+    float fval = m_min + (float(ivalue) / int_max * (m_max - m_min));
     return fval;
 }
 

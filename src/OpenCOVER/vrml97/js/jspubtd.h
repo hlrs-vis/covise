@@ -52,7 +52,7 @@ typedef uint16 jschar;
 typedef int32 jsint;
 typedef uint32 jsuint;
 typedef float64 jsdouble;
-typedef jsword jsval;
+typedef jsuword jsval;
 typedef jsword jsid;
 typedef int32 jsrefcount; /* PRInt32 if JS_THREADSAFE, see jslock.h */
 
