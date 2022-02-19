@@ -47,8 +47,9 @@ namespace opencover
 using namespace vrui;
 using namespace opencover;
 class CEF;
+class CEF_client;
 
-class CEF_client : public CefClient, public CefRenderHandler, public CefContextMenuHandler, public vrui::vruiCollabInterface, public vrui::coAction
+class CEF_client : public CefClient, public CefRenderHandler, public CefLifeSpanHandler, public CefContextMenuHandler, public vrui::vruiCollabInterface, public vrui::coAction
 {
 private:
     int width = 1024;
@@ -62,10 +63,13 @@ private:
 
 public:
     CEF_client(CEF *c);
-    ~CEF_client();
+    virtual ~CEF_client();
 
     CefRefPtr<CefRenderHandler> GetRenderHandler() override;
+    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() { return this; };
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
+
+    virtual bool DoClose(CefRefPtr<CefBrowser> browser);
 
     // hit is called whenever the button
     // with this action is intersected
@@ -94,8 +98,10 @@ public:
 #endif
 #endif
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
+
     void resize(int resolution, float aspect);
 
+    CEF* cef;
 private:
 
     unsigned char*imageBuffer=nullptr;
@@ -152,7 +158,6 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         void reload();
         const std::string &getURL();
         void resize();
-        opencover::coCOIM* coim;
         virtual void key(int type, int keySym, int mod) override;
 
         IMPLEMENT_REFCOUNTING(CEF);

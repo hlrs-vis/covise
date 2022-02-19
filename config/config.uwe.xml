@@ -46,6 +46,7 @@
 
    </Input>
   <Plugin>
+   <Browser logLevel="1" logFile="/tmp/browserlog.txt" />
                 <OddlotLink value="off"  /><!-- kills cull performance and sets LODScale to 0 bad for osgEarth-->
   
    <Bicycle>

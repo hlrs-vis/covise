@@ -14,6 +14,7 @@
 #include "tests/cefsimple/simple_handler.h"
 #include "CEFWindowsKey.h"
 #include <config/CoviseConfig.h>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 
 #include <OpenVRUI/coToolboxMenu.h>
 #include <OpenVRUI/coRowMenu.h>
@@ -34,6 +35,11 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/Action.h>
 #include <algorithm>
+
+
+
+boost::scoped_ptr<coCOIM> CEFCoim; // keep before other items (to be destroyed last)
+
 
 
 void CEF::OnContextInitialized() {
@@ -72,9 +78,35 @@ CefRefPtr<CefClient> CEF::GetDefaultClient() {
 }
 
 
+
 #ifdef _WIN32
 void CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     rect = CefRect(0, 0, std::max(8,width), std::max(8,height)); // never give an empty rectangle!!
+}
+
+
+bool CEF_client::DoClose(CefRefPtr<CefBrowser> browser)
+{
+    if (cef->browser == nullptr)
+    {
+        // done already
+        return false;
+    }
+    if (browser->IsSame(cef->browser))
+    {
+        LOG(INFO) << "CEF::DoClose: Closing the browser";
+        cef->browser = nullptr;
+        //HWND hwnd = getHwnd();
+        //::DestroyWindow(hwnd);
+        // we have to return false, otherwise this browser will not be removed before destruction
+        return false;  
+        // true=we've handled the event ourselves; do not send WM_CLOSE
+    }
+    else
+    {
+        LOG(INFO) << "CEF::DoClose: Closing a sub-browser (may be dev tools)";
+        return false;  // false=close the window; WM_CLOSE will bubble up to the parent window
+    }
 }
 
 //Disable context menu
@@ -118,9 +150,11 @@ void CEF_client::resize(int resolution, float aspect) {
     height = width/aspect;
 }
 
-CEF_client::CEF_client(CEF *c) : vruiCollabInterface(c->coim, "CEFBrowser", vruiCollabInterface::PinEditor) 
+
+CEF_client::CEF_client(CEF *c) : vruiCollabInterface(CEFCoim.get(), "CEFBrowser", vruiCollabInterface::PinEditor)
 {
     cef = c;
+
 
     interactionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "CEFBrowser", coInteraction::Menu);
     interactionB = new coCombinedButtonInteraction(coInteraction::ButtonB, "CEFBrowser", coInteraction::Menu);
@@ -156,6 +190,7 @@ CEF_client::~CEF_client()
     delete interactionA;
     delete interactionB;
     delete interactionC;
+    delete popupHandle;
 }
 
 void CEF_client::update()
@@ -238,8 +273,9 @@ CefRefPtr<CefContextMenuHandler> CEF_client::GetContextMenuHandler() { return th
 
 CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
 {
+    AddRef(); // count our own reference as well.
 
-    coim = new coCOIM(this);
+    CEFCoim.reset(new coCOIM(this));
 
     browser = nullptr;
     menu = new ui::Menu("Browser", this);
@@ -339,18 +375,15 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
 #ifdef _WIN32
     bsp += ".exe";
 #endif
-    CefString(&settings.browser_subprocess_path) = bsp;
-#ifndef __APPLE__
-    std::string rdp = coviseDir + "/share/covise/cef/Resources";
-    std::string ldp = coviseDir + "/share/covise/cef/Resources/locales";
-    CefString(&settings.locales_dir_path)
-        .FromString(covise::coCoviseConfig::getEntry("localesDirPath", "COVER.Plugin.Browser", ldp));
-    CefString(&settings.resources_dir_path)
-        .FromString(covise::coCoviseConfig::getEntry("resourcesDirPath", "COVER.Plugin.Browser", rdp));
-    std::string lfp = coviseDir + "/share/covise/cef/Resources/wblog.log";
+  
+
+    std::string lfp = "/tmp/cef.log";    
+    CefString(&settings.log_file).FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());#ifndef __APPLE__
+
+
+    CefString(&settings.browser_subprocess_path).FromASCII(bsp.c_str());
+
 #else
-    std::string lfp = "/tmp/cef.log";
-    CefString(&settings.log_file).FromString(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp));
     std::string extlib;
     if (auto el = getenv("EXTERNLIBS"))
     {
@@ -362,11 +395,9 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
         extlib = coviseDir + "/extern_libs/" + archSuffix;
     }
     std::string fwpath = extlib + "/cef/Release/Chromium Embedded Framework.framework";
-    CefString(&settings.log_file).FromString(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp));
     CefString(&settings.framework_dir_path) =
         covise::coCoviseConfig::getEntry("frameworkDirPath", "COVER.Plugin.Browser", fwpath);
 #endif
-
     settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
@@ -379,11 +410,22 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
     CefInitialize(args, settings, this, 0);
 }
 
+
 CEF::~CEF() {
+    delete backButton;
+    delete forwardButton;
+    delete reloadButton;
+    delete urlLine;
+    delete menu;
+
     std::cout << "CEF destroyed " << client->HasOneRef() << " " << browser->HasOneRef() << std::endl;
-    browser->GetHost()->CloseBrowser(false);
-    client = nullptr;
-    browser = nullptr;
+    browser->GetHost()->CloseBrowser(true);
+
+    for (int attempts = 0; browser != nullptr && attempts < 1000; ++attempts) // waiting for the Browser to close
+    {
+        Sleep(100);
+        CefDoMessageLoopWork();
+    }
 
     CefShutdown();
 }

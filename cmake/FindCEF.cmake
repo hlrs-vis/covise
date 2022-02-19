@@ -36,7 +36,7 @@ FIND_PATH(CEF_INCLUDE_DIR "include/base/cef_macros.h"
 )
 
 SET(CEF_NAMES cef libcef "Chromium Embedded Framework")
-SET(CEF_DBG_NAMES cefd libcefd)
+SET(CEF_DBG_NAMES cefd libcefd libcef cef)
 
 FIND_LIBRARY(CEF_LIBRARY NAMES ${CEF_NAMES}
   PATHS
