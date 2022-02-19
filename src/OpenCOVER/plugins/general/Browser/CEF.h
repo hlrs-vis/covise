@@ -66,10 +66,10 @@ public:
     virtual ~CEF_client();
 
     CefRefPtr<CefRenderHandler> GetRenderHandler() override;
-    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() { return this; };
+    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
 
-    virtual bool DoClose(CefRefPtr<CefBrowser> browser);
+    bool DoClose(CefRefPtr<CefBrowser> browser) override;
 
     // hit is called whenever the button
     // with this action is intersected
@@ -87,16 +87,10 @@ public:
     void hide();
 
 #ifdef _WIN32
-    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
     void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
     bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
-#else
-#ifdef __APPLE__
-    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
-#else
-    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
 #endif
-#endif
+    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 
     void resize(int resolution, float aspect);

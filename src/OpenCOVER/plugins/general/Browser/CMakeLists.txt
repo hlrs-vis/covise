@@ -1,20 +1,16 @@
 #OpenCOVER plugins general Browser based on Chromium Embedded Framework
 USING(CEF)
 
-if(APPLE)
-  add_definitions(-DCEF18)
-endif()
 
 SET(HEADERS
   CEF.h
   CEFkeyssymdef.h
 )
-
 SET(SOURCES
   CEF.cpp
 )
-
 cover_add_plugin(Browser)
+set_property(TARGET Browser PROPERTY CXX_STANDARD 14)
 
 
 SET(HEADERS
@@ -33,6 +29,4 @@ else()
 endif()
 COVISE_WNOERROR(CEFBrowserHelper)
 set_property(TARGET CEFBrowserHelper PROPERTY CXX_STANDARD 14)
-set_property(TARGET Browser PROPERTY CXX_STANDARD 14)
-
 TARGET_LINK_LIBRARIES(CEFBrowserHelper ${EXTRA_LIBS} )
