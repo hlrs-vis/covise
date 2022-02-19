@@ -10,7 +10,9 @@
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
+#ifdef __APPLE__
 #include "include/wrapper/cef_library_loader.h"
+#endif
 #include "tests/cefsimple/simple_handler.h"
 #include "CEFWindowsKey.h"
 #include <config/CoviseConfig.h>
@@ -378,7 +380,8 @@ CEF::CEF() : ui::Owner("BrowserPlugin", cover->ui)
   
 
     std::string lfp = "/tmp/cef.log";    
-    CefString(&settings.log_file).FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());#ifndef __APPLE__
+    CefString(&settings.log_file).FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());
+#ifndef __APPLE__
 
 
     CefString(&settings.browser_subprocess_path).FromASCII(bsp.c_str());

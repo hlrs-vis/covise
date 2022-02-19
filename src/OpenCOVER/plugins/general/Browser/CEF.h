@@ -101,7 +101,6 @@ public:
 
     void resize(int resolution, float aspect);
 
-    CEF* cef;
 private:
 
     unsigned char*imageBuffer=nullptr;
