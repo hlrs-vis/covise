@@ -16,13 +16,14 @@
 <uniform name="size" type="vec2" value="0 0"/>
 <uniform name="dist" type="vec2" value="1 1"/>
 <uniform name="origin" type="vec4" value="0 0 0 1"/>
+<uniform name="patchSize" type="vec2" value="3 3"/>
 
 <vertexProgram>
 void main(void) {
    gl_Position = vec4(gl_Vertex.xy, 0., 1.);
 }
 </vertexProgram>
-<geometryProgram inputType="POINTS" outputType="TRIANGLE_STRIP" numVertices="4" value="MapColorsHeightmapGeometry.glsl">
+<geometryProgram inputType="POINTS" outputType="TRIANGLE_STRIP" numVertices="24" value="MapColorsHeightmapGeometry.glsl">
 </geometryProgram>
 <fragmentProgram value="MapColorsFragment.glsl" />
 </MapColorsHeightMap>

@@ -8,12 +8,20 @@ uniform sampler2DRect dataTex;
 uniform vec2 size;
 uniform vec2 dist;
 uniform vec4 origin;
-
-uniform vec2 off[] = vec2[4](vec2(0, 0), vec2(0, 1), vec2(1, 0), vec2(1, 1));
+uniform vec2 patchSize;
 
 varying out vec3 N;
 varying out vec3 V;
 varying out float data;
+
+#define CACHE 1
+
+#if CACHE
+#define MaxPatchSizeY 3
+#
+vec4 posCache[MaxPatchSizeY+1];
+vec4 norm_dataCache[MaxPatchSizeY+1];
+#endif
 
 float getHeight(vec2 xy)
 {
@@ -31,10 +39,26 @@ vec4 pos(vec2 xy, float h)
     return p;
 }
 
-void createVertex(vec2 xy)
+#if CACHE
+void useVertex(int idx)
+{
+    gl_Position = posCache[idx];
+    gl_ClipVertex = gl_Position;
+    V = gl_Position.xyz / gl_Position.w;
+    N = norm_dataCache[idx].xyz;
+    data = norm_dataCache[idx].w;
+    EmitVertex();
+}
+#endif
+
+void createVertex(vec2 xy, int idx)
 {
     float h = getHeight(xy);
     gl_Position = gl_ModelViewProjectionMatrix * pos(xy, h);
+#if CACHE
+    if (idx >= 0)
+        posCache[idx] = gl_Position;
+#endif
     gl_ClipVertex = gl_Position;
     V = gl_Position.xyz / gl_Position.w;
 
@@ -61,11 +85,19 @@ void createVertex(vec2 xy)
         dy += dist.y;
     }
     N = normalize(gl_NormalMatrix * vec3((hw - he) / dx, (hn - hs) / dy, 1.));
+#if CACHE
+    if (idx >= 0)
+        norm_dataCache[idx].xyz = N;
+#endif
 
     if (dataValid)
         data = getData(xy);
     else
         data = 0.;
+#if CACHE
+    if (idx >= 0)
+        norm_dataCache[idx].w = data;
+#endif
     EmitVertex();
 }
 
@@ -73,7 +105,38 @@ void main()
 {
     vec2 xy = gl_PositionIn[0].xy;
 
-    for (int i = 0; i < 4; ++i)
-        createVertex(xy + off[i]);
+    createVertex(xy + vec2(0, 0), -1);
+    createVertex(xy + vec2(1, 0), 0);
+    for (int y = 1; y < patchSize.y + 1; ++y)
+    {
+        if (xy.y + y == size.y)
+            break;
+        createVertex(xy + vec2(0, y), -1);
+        createVertex(xy + vec2(1, y), y);
+    }
     EndPrimitive();
+
+    for (int x = 1; x < patchSize.x; ++x)
+    {
+        if (xy.x + x == size.x - 1)
+            break;
+#if CACHE
+        useVertex(0);
+#else
+        createVertex(xy + vec2(x, 0), -1);
+#endif
+        createVertex(xy + vec2(x + 1, 0), 0);
+        for (int y = 1; y < patchSize.y + 1; ++y)
+        {
+            if (xy.y + y == size.y)
+                break;
+#if CACHE
+            useVertex(y);
+#else
+            createVertex(xy + vec2(x, y), -1);
+#endif
+            createVertex(xy + vec2(x + 1, y), y);
+        }
+        EndPrimitive();
+    }
 }
