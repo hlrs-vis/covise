@@ -278,7 +278,8 @@ namespace OpenFOAMInterface.BIM
         public TransportModel TransportModel { get => m_TransportModel; set => m_TransportModel = value; }
 
         //Getter-Setter-SSH
-        public SSH SSH { get => m_SSH; set => m_SSH = value; }
+        // public SSH SSH { get => m_SSH; set => m_SSH = value; }
+        public SSH SSH { get => m_SSH; }
 
         //Getter for Outlets.
         public Dictionary<string, object> Outlet { get => m_Outlets; }
@@ -526,7 +527,7 @@ namespace OpenFOAMInterface.BIM
         /// Constructor.
         /// </summary>
         /// <param name="param"> Holds default parameter for the settings. </param>
-        public Settings(InitialSettingsParameter param)
+        public Settings(in InitialSettingsParameter param)
         {
             Init(param);
         }
@@ -535,7 +536,7 @@ namespace OpenFOAMInterface.BIM
         /// Initialize Settings.
         /// </summary>
         /// <param name="initParam"> Holds default parameter for the settings. </param>
-        private void Init(InitialSettingsParameter param)
+        private void Init(in InitialSettingsParameter param)
         {
             // get selected categories from the category list
             m_SelectedCategories = new List<Category>();
@@ -602,13 +603,7 @@ namespace OpenFOAMInterface.BIM
             m_TurbulenceParameter = new TurbulenceParameter(simulationType, rasModel, true, true);
 
             //SSH
-            m_SSH = new("hpcwoess", "visent.hlrs.de", "of2012", "/mnt/raid/home/hpcwoess/foam",
-                true, false, true, 31022, "eval salloc -n " + ControlDictParameters.NumberOfSubdomains);
-
-            // //General
-            // m_IncludeLinkedModels = param.IncludeLinkedModels;
-            // m_exportColor = param.ExportColor;
-            // m_exportSharedCoordinates = param.ExportSharedCoordinates;
+            m_SSH = SSH.Default;
         }
 
         /// <summary>
@@ -787,8 +782,6 @@ namespace OpenFOAMInterface.BIM
             m_RefinementBoxY = new(0, 0, 0);
             m_RefinementBoxZ = new(0, 0, 0);
 
-
-
             //SnappyHexMesh-SnapControls
             m_NSmoothPatch = 5;
             m_Tolerance = 5;
@@ -862,6 +855,7 @@ namespace OpenFOAMInterface.BIM
             var queryBox = from element in collector
                            where element.Name == "OpenFOAMDomain"
                            select element;
+
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
             List<FamilyInstance> familyInstancesDomain = queryBox.Cast<FamilyInstance>().ToList();
@@ -891,6 +885,7 @@ namespace OpenFOAMInterface.BIM
             var query = from element in collector
                         where element.Name == "OpenFOAM"
                         select element;
+
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
             List<FamilyInstance> familyInstances = query.Cast<FamilyInstance>().ToList();
@@ -912,12 +907,16 @@ namespace OpenFOAMInterface.BIM
                 if (foamEnv == "ssh")
                 {
                     m_openFOAMEnvironment = OpenFOAMEnvironment.ssh;
-                    m_SSH.User = getString(instance, "user");
-                    m_SSH.ServerIP = getString(instance, "host");
-                    m_SSH.ServerCaseFolder = getString(instance, "serverCaseFolder");
-                    m_SSH.OfAlias = getString(instance, "openFOAM alias");
-                    m_SSH.SlurmCommand = getString(instance, "batchCommand");
-                    m_SSH.Port = getInt(instance, "port");
+                    m_SSH = new(
+                        user: getString(instance, "user"),
+                        ip: getString(instance, "host"),
+                        alias: getString(instance, "openFOAM alias"),
+                        caseFolder: getString(instance, "serverCaseFolder"),
+                        download: true,
+                        delete: false,
+                        slurm: true,
+                        port: getInt(instance, "port"),
+                        slurmCommand: getString(instance, "batchCommand"));
                 }
                 if (foamEnv == "blueCFD")
                 {
@@ -999,6 +998,7 @@ namespace OpenFOAMInterface.BIM
             var queryBoxRef = from element in collector
                               where element.Name == "OpenFOAMRefinementRegion"
                               select element;
+
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
             List<FamilyInstance> familyInstancesRefRegion = queryBoxRef.Cast<FamilyInstance>().ToList();
@@ -1242,17 +1242,19 @@ namespace OpenFOAMInterface.BIM
         private static DuctProperties CreateDuctProperties(XYZ faceNormal, double faceBoundary, double flowRate,
             double meanFlowVelocity, double externalPressure, int rpm, double surfaceArea, double temperature)
         {
-            return new DuctProperties
-            {
-                Area = surfaceArea,
-                Boundary = faceBoundary,
-                FaceNormal = faceNormal,
-                MeanFlowVelocity = meanFlowVelocity,
-                FlowRate = flowRate,
-                RPM = rpm,
-                ExternalPressure = externalPressure,
-                Temperature = temperature
-            };
+            if (faceNormal == null)
+                faceNormal = new XYZ(0, 0, 0);
+
+            return new DuctProperties(
+                faceNormal: faceNormal,
+                area: surfaceArea,
+                boundary: faceBoundary,
+                meanFlowVelocity: meanFlowVelocity,
+                flowRate: flowRate,
+                rpm: rpm,
+                externalPressure: externalPressure,
+                temp: temperature
+             );
         }
         /// <summary>
         /// Initialize FvSchemes default attributes.
@@ -2297,16 +2299,12 @@ namespace OpenFOAMInterface.BIM
                                 object v = default;
                                 if (param.Name.Equals(InitialFOAMParameter.k.ToString()))
                                 {
-                                    //KEpsilon k = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
-                                    //v = k.K;
                                     v = 0.1;
                                     type = "fixedValue";
                                     _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
                                 }
                                 else if (param.Name.Equals(InitialFOAMParameter.epsilon.ToString()))
                                 {
-                                    //KEpsilon kEpsilon = CalculateKEpsilon(properties.Area, properties.Boundary, properties.MeanFlowVelocity);
-                                    //v = kEpsilon.Epsilon;
                                     v = 0.01;
                                     type = "fixedValue";
                                     _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
@@ -2323,14 +2321,11 @@ namespace OpenFOAMInterface.BIM
                                 }
                                 else if (param.Name.Equals(InitialFOAMParameter.U.ToString()))
                                 {
-                                    if (properties.FaceNormal == null)
-                                        properties.FaceNormal = new XYZ(0, 0, 0);
                                     v = new Vector3D(properties.FaceNormal.X, properties.FaceNormal.Y, properties.FaceNormal.Z) * properties.MeanFlowVelocity;
 
                                     if (properties.RPM != 0)
                                     {
                                         type = "swirlFlowRateInletVelocity";
-                                        //v = new Vector3D(0, 0, 0);
                                         _inlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
                                         _inlet.Attributes.Add("rpm      constant", properties.RPM);
                                         _inlet.Attributes.Add("flowRate     constant", properties.FlowRate);
@@ -2373,7 +2368,6 @@ namespace OpenFOAMInterface.BIM
                         }
                     }
                     break;
-
 
                 case PatchType.outlet:
                     {

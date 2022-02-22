@@ -14,14 +14,14 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// SSH struct contains all informations about the tunnel-connection.
         /// </summary>
-        public struct SSH
+        readonly public struct SSH
         {
             private static SSH def = new SSH();
             public static ref readonly SSH Default => ref def;
-
             public SSH() : this("username", "hostname", "openfoam alias", "path/to/compute/dir/on/server",
                 true, false, true, 22, "eval salloc -n 16")
             { }
+
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -34,136 +34,119 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="_port">SSH Port.</param>
             /// <param name="_slurmCommand">Slurm command specify tags.</param>
             /// <param name="_slurm">use slurm.</param>
+            // public SSH(string user, string ip, string alias, string caseFolder, bool download, bool delete, bool slurm, int port, string slurmCommand)
             public SSH(in string user, in string ip, in string alias, in string caseFolder, bool download, bool delete, bool slurm, int port, in string slurmCommand)
             {
-                _user = user;
-                _serverIP = ip;
-                _ofAlias = alias;
-                _serverCaseFolder = caseFolder;
-                _download = download;
-                _delete = delete;
-                _slurm = slurm;
-                _port = port;
-                _slurmCommands = slurmCommand;
+                this.User = user;
+                this.ServerIP = ip;
+                this.OfAlias = alias;
+                this.ServerCaseFolder = caseFolder;
+                this.Download = download;
+                this.Delete = delete;
+                this.Slurm = slurm;
+                this.Port = port;
+                this.SlurmCommand = slurmCommand;
             }
 
             /// <summary>
             /// Username.
             /// </summary>
-            private string _user;
-            public string User { readonly get => _user; set => _user = value; }
+            public string User { get; }
 
             /// <summary>
             /// IP of the server (/local computer-name)
             /// </summary>
-            private string _serverIP;
-            public string ServerIP { readonly get => _serverIP; set => _serverIP = value; }
+            public string ServerIP { get; }
 
             /// <summary>
             /// Alias to start openFOAM-Environment on the server.
             /// </summary>
-            private string _ofAlias;
-            public string OfAlias { readonly get => _ofAlias; set => _ofAlias = value; }
+            public string OfAlias { get; }
 
             /// <summary>
             /// Folder on server openfoam case will be copied to.
             /// </summary>
-            private string _serverCaseFolder;
-            public string ServerCaseFolder { readonly get => _serverCaseFolder; set => _serverCaseFolder = value; }
+            public string ServerCaseFolder { get; }
 
             /// <summary>
             /// Threads used.
             /// </summary>
-            private string _slurmCommands;
-            public string SlurmCommand { readonly get => _slurmCommands; set => _slurmCommands = value; }
+            public string SlurmCommand { get; }
 
             /// <summary>
             /// Port server.
             /// </summary>
-            private int _port;
-            public int Port { readonly get => _port; set => _port = value; }
+            public int Port { get; }
 
             /// <summary>
             /// Download after simulation.
             /// </summary>
-            private bool _download;
-            public bool Download { readonly get => _download; set => _download = value; }
+            public bool Download { get; }
 
             /// <summary>
             /// Delete after simulation.
             /// </summary>
-            private bool _delete;
-            public bool Delete { readonly get => _delete; set => _delete = value; }
+            public bool Delete { get; }
 
             /// <summary>
             /// Use slurm.
             /// </summary>
-            private bool _slurm;
-            public bool Slurm { readonly get => _slurm; set => _slurm = value; }
+            public bool Slurm { get; }
 
             /// <summary>
             /// Connection string.
             /// </summary>
             /// <returns>user + @ + serverIP as string.</returns>
-            public string ConnectionString()
-            {
-                return _user + "@" + _serverIP;
-            }
+            public string ConnectionString() => User + "@" + ServerIP;
         }
 
         /// <summary>
         /// Struct for intializing Settings variables.
         /// </summary>
-        public struct InitialSettingsParameter
+        readonly public struct InitialSettingsParameter
         {
             private static InitialSettingsParameter def = new InitialSettingsParameter();
             public static ref readonly InitialSettingsParameter Default => ref def;
             public InitialSettingsParameter() : this(SaveFormat.ascii, ElementsExportRange.OnlyVisibleOnes, ControlDictParameters.Default, true, false, false) { }
             public InitialSettingsParameter(in SaveFormat format, in ElementsExportRange export, in ControlDictParameters control, bool includeLinkedModels, bool exportColor, bool exportSharedCoordinates)
             {
-                _format = format;
-                _exportRange = export;
-                _controlDict = control;
-                _includeLinkedModels = includeLinkedModels;
-                _exportColor = exportColor;
-                _exportSharedCoordinates = exportSharedCoordinates;
+                this.Format = format;
+                this.ExportRange = export;
+                this.ControlDict = control;
+                this.IncludeLinkedModels = includeLinkedModels;
+                this.ExportColor = exportColor;
+                this.ExportSharedCoordinates = exportSharedCoordinates;
             }
 
-            private ControlDictParameters _controlDict;
             /// <summary>
             /// Struct ControlDictParamertes.
             /// </summary>
-            public ControlDictParameters ControlDict { readonly get => _controlDict; set => _controlDict = value; }
+            public ControlDictParameters ControlDict { get; }
 
-            private SaveFormat _format;
             /// <summary>
             /// SaveFormat enum
             /// </summary>
-            public SaveFormat Format { readonly get => _format; set => _format = value; }
+            public SaveFormat Format { get; }
 
-            private ElementsExportRange _exportRange;
             /// <summary>
             /// ExportRange enum.
             /// </summary>
-            public ElementsExportRange ExportRange { readonly get => _exportRange; set => _exportRange = value; }
+            public ElementsExportRange ExportRange { get; }
 
-            private bool _includeLinkedModels;
             /// <summary>
             /// IncludedLinkedModels.
             /// </summary>
-            public bool IncludeLinkedModels { readonly get => _includeLinkedModels; set => _includeLinkedModels = value; }
+            public bool IncludeLinkedModels { get; }
 
-            private bool _exportColor;
             /// <summary>
             /// ExportColor enum.
             /// </summary>
-            public bool ExportColor { readonly get => _exportColor; set => _exportColor = value; }
+            public bool ExportColor { get; }
 
-            private bool _exportSharedCoordinates;
             /// <summary>
             /// ExportSharedCoordinater for STL.
             /// </summary>
-            public bool ExportSharedCoordinates { readonly get => _exportSharedCoordinates; set => _exportSharedCoordinates = value; }
+            public bool ExportSharedCoordinates { get; }
 
             public readonly override string ToString() => $"{ControlDict.ToString()}, {Format}, {ExportRange}, {IncludeLinkedModels}, {ExportColor}, {ExportSharedCoordinates}";
         }
@@ -193,6 +176,7 @@ namespace OpenFOAMInterface.BIM.Structs
                 WriteCompression.off,
                 TimeFormat.general, false, 0, 101, 1, 100, 2, 8, 7, 4)
             { }
+
             public ControlDictParameters(in SolverControlDict solver, in StartFrom from, in StopAt at,
                                          in WriteControl writeControl, in WriteFormat writeFormat, in WriteCompression writeCompression,
                                          in TimeFormat time, bool runTimeModifiable, double start, double end,
@@ -200,43 +184,25 @@ namespace OpenFOAMInterface.BIM.Structs
                                          double writePrecision, double timePrecision, int numberOfSubdomains)
             {
                 _appControlDictSolver = solver;
-                _startFrom = from;
-                _stopAt = at;
-                _writeControl = writeControl;
                 _writeFromat = writeFormat;
-                _writeCompression = writeCompression;
-                _timeFormat = time;
-                _runTimeModifiable = runTimeModifiable;
-                _startTime = start;
                 _endTime = end;
-                _deltaT = deltaT;
                 _writeInterval = writeInterval;
-                _purgeWrite = purgeWrite;
-                _writePrecision = writePrecision;
-                _timePrecision = timePrecision;
                 _numberOfSubdomains = numberOfSubdomains;
+                this.StartFrom = from;
+                this.StopAt = at;
+                this.WriteControl = writeControl;
+                this.WriteCompression = writeCompression;
+                this.TimeFormat = time;
+                this.RunTimeModifiable = runTimeModifiable;
+                this.StartTime = start;
+                this.DeltaT = deltaT;
+                this.PurgeWrite = purgeWrite;
+                this.WritePrecision = writePrecision;
+                this.TimePrecision = timePrecision;
             }
 
             private SolverControlDict _appControlDictSolver;
             public SolverControlDict AppControlDictSolver { readonly get => _appControlDictSolver; set => _appControlDictSolver = value; }
-
-            private StartFrom _startFrom;
-            /// <summary>
-            /// Where to start from after rerun of simulation.
-            /// </summary>
-            public StartFrom StartFrom { readonly get => _startFrom; set => _startFrom = value; }
-
-            private StopAt _stopAt;
-            /// <summary>
-            /// Condition for stop.
-            /// </summary>
-            public StopAt StopAt { readonly get => _stopAt; set => _stopAt = value; }
-
-            private WriteControl _writeControl;
-            /// <summary>
-            /// Specify control scheme.
-            /// </summary>
-            public WriteControl WriteControl { readonly get => _writeControl; set => _writeControl = value; }
 
             private WriteFormat _writeFromat;
             /// <summary>
@@ -244,41 +210,11 @@ namespace OpenFOAMInterface.BIM.Structs
             /// </summary>
             public WriteFormat WriteFormat { readonly get => _writeFromat; set => _writeFromat = value; }
 
-            private WriteCompression _writeCompression;
-            /// <summary>
-            /// Compression on or off. 
-            /// </summary>
-            public WriteCompression WriteCompression { readonly get => _writeCompression; set => _writeCompression = value; }
-
-            private TimeFormat _timeFormat;
-            /// <summary>
-            /// Formate of timesteps.
-            /// </summary>
-            public TimeFormat TimeFormat { readonly get => _timeFormat; set => _timeFormat = value; }
-
-            private bool _runTimeModifiable;
-            /// <summary>
-            /// Bool for ControlDict.
-            /// </summary>
-            public bool RunTimeModifiable { readonly get => _runTimeModifiable; set => _runTimeModifiable = value; }
-
-            private double _startTime;
-            /// <summary>
-            /// Start time for ControlDict.
-            /// </summary>
-            public double StartTime { readonly get => _startTime; set => _startTime = value; }
-
             private double _endTime;
             /// <summary>
             /// End time for ControlDict.
             /// </summary>
             public double EndTime { readonly get => _endTime; set => _endTime = value; }
-
-            private double _deltaT;
-            /// <summary>
-            /// DeltaT for ControlDict.
-            /// </summary>
-            public double DeltaT { readonly get => _deltaT; set => _deltaT = value; }
 
             private double _writeInterval;
             /// <summary>
@@ -286,29 +222,66 @@ namespace OpenFOAMInterface.BIM.Structs
             /// </summary>
             public double WriteInterval { readonly get => _writeInterval; set => _writeInterval = value; }
 
-            private double _purgeWrite;
-            /// <summary>
-            /// PurgeWrite for ControlDict.
-            /// </summary>
-            public double PurgeWrite { readonly get => _purgeWrite; set => _purgeWrite = value; }
-
-            /// <summary>
-            /// WritePrecision for ControlDict.
-            /// </summary>
-            private double _writePrecision;
-            public double WritePrecision { readonly get => _writePrecision; set => _writePrecision = value; }
-
-            private double _timePrecision;
-            /// <summary>
-            /// TimePrecision for ControlDict.
-            /// </summary>
-            public double TimePrecision { readonly get => _timePrecision; set => _timePrecision = value; }
-
             private int _numberOfSubdomains;
             /// <summary>
             /// Number of CPU's
             /// </summary>
             public int NumberOfSubdomains { readonly get => _numberOfSubdomains; set => _numberOfSubdomains = value; }
+
+            /// <summary>
+            /// Where to start from after rerun of simulation.
+            /// </summary>
+            public readonly StartFrom StartFrom { get; }
+
+            /// <summary>
+            /// Condition for stop.
+            /// </summary>
+            public readonly StopAt StopAt { get; }
+
+            /// <summary>
+            /// Specify control scheme.
+            /// </summary>
+            public readonly WriteControl WriteControl { get; }
+
+            /// <summary>
+            /// Compression on or off. 
+            /// </summary>
+            public readonly WriteCompression WriteCompression { get; }
+
+            /// <summary>
+            /// Formate of timesteps.
+            /// </summary>
+            public readonly TimeFormat TimeFormat { get; }
+
+            /// <summary>
+            /// Bool for ControlDict.
+            /// </summary>
+            public readonly bool RunTimeModifiable { get; }
+
+            /// <summary>
+            /// Start time for ControlDict.
+            /// </summary>
+            public readonly double StartTime { get; }
+
+            /// <summary>
+            /// DeltaT for ControlDict.
+            /// </summary>
+            public readonly double DeltaT { get; }
+
+            /// <summary>
+            /// PurgeWrite for ControlDict.
+            /// </summary>
+            public readonly double PurgeWrite { get; }
+
+            /// <summary>
+            /// WritePrecision for ControlDict.
+            /// </summary>
+            public readonly double WritePrecision { get; }
+
+            /// <summary>
+            /// TimePrecision for ControlDict.
+            /// </summary>
+            public readonly double TimePrecision { get; }
 
             public readonly override string ToString() => $"{RunTimeModifiable}, {StartTime}, {EndTime}, {DeltaT}, {WriteInterval}, {PurgeWrite}, {WritePrecision}, {TimePrecision}, {NumberOfSubdomains}";
         }
@@ -332,7 +305,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="boundary">Boundary of inlet surface.</param>
             /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
             /// <param name="tempInlet"> CUrrent temp on inlet.</param>
-            public KEpsilon(double area, double boundary, double meanFlowVelocity, double tempInlet) : this(0,0) => CalculateKEpsilon(area, boundary, meanFlowVelocity, tempInlet);
+            public KEpsilon(in double area, in double boundary, in double meanFlowVelocity, in double tempInlet) : this(0, 0) => CalculateKEpsilon(area, boundary, meanFlowVelocity, tempInlet);
 
             private double _k;
             /// <summary>
@@ -345,7 +318,6 @@ namespace OpenFOAMInterface.BIM.Structs
             /// Dissipation rate.
             /// </summary>
             public double Epsilon { readonly get => _epsilon; set => _epsilon = value; }
-            // public readonly double Epsilon { get; set; }
 
             /// <summary>
             /// Calculate k and epsilon with OpenFOAMCalculator-class.
@@ -354,7 +326,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="boundary">Boundary of inlet surface.</param>
             /// <param name="meanFlowVelocity">Mean flow velocity through inlet.</param>
             /// <param name="temp"> Current temp.</param>
-            private void CalculateKEpsilon(double area, double boundary, double meanFlowVelocity, double temp)
+            private void CalculateKEpsilon(in double area, in double boundary, in double meanFlowVelocity, in double temp)
             {
                 OpenFOAM.OpenFOAMCalculator calculator = new();
 
@@ -388,24 +360,23 @@ namespace OpenFOAMInterface.BIM.Structs
             public NullParameter(in string name, in dynamic internalField, in dynamic turbulenceModel,
                 in SolverControlDict solverInc = SolverControlDict.simpleFoam, in SimulationType stype = SimulationType.RAS)
             {
-                _name = name;
-                _turbulenceModel = turbulenceModel;
-                _simulationType = stype;
+                this.Name = name;
+                this.InternalField = internalField;
+                this.TurbulenceModel = turbulenceModel;
+                this.Solver = solverInc;
+                this.SimulationType = stype;
                 _patches = new Dictionary<string, FOAMParameterPatch<dynamic>>();
-                _internalField = internalField;
-                _solver = solverInc;
             }
-            private string _name;
+
             /// <summary>
             /// Name of Parameter.
             /// </summary>
-            public string Name { readonly get => _name; set => _name = value; }
+            public readonly string Name { get; }
 
-            private dynamic _internalField;
             /// <summary>
             /// Value of internalField.
             /// </summary>
-            public dynamic InternalField { readonly get => _internalField; set => _internalField = value; }
+            public readonly dynamic InternalField { get; }
 
             private Dictionary<string, FOAMParameterPatch<dynamic>> _patches;
             /// <summary>
@@ -413,89 +384,68 @@ namespace OpenFOAMInterface.BIM.Structs
             /// </summary>
             public Dictionary<string, FOAMParameterPatch<dynamic>> Patches { readonly get => _patches; set => _patches = value; }
 
-            private SolverControlDict _solver;
             /// <summary>
             /// Solver for incompressible CFD.
             /// </summary>
-            public SolverControlDict Solver { readonly get => _solver; set => _solver = value; }
+            public readonly SolverControlDict Solver { get; }
 
-            private SimulationType _simulationType;
+            // private SimulationType _simulationType;
             /// <summary>
             /// Turbulence simulationType.
             /// </summary>
-            public SimulationType SimulationType { readonly get => _simulationType; set => _simulationType = value; }
+            // public SimulationType SimulationType { readonly get => _simulationType; set => _simulationType = value; }
+            public readonly SimulationType SimulationType { get; }
 
-            private dynamic _turbulenceModel;
             /// <summary>
             /// Turbulence-model.
             /// </summary>
-            public dynamic TurbulenceModel { readonly get => _turbulenceModel; set => _turbulenceModel = value; }
+            public readonly dynamic TurbulenceModel { get; }
         }
+
         /// <summary>
         /// Patch for boundaryField in Parameter-Dictionaries.
         /// </summary>
         /// <typeparam name="T">Type for value.</typeparam>
-        public struct FOAMParameterPatch<T>
+        readonly public struct FOAMParameterPatch<T>
         {
-            /// <summary>
-            /// Type of patch.
-            /// </summary>
-            string type;
-
-            /// <summary>
-            /// PatchType-Enum: inlet, outlet or wall.
-            /// </summary>
-            PatchType patchType;
-
-            /// <summary>
-            /// Attributes of the patch.
-            /// </summary>
-            Dictionary<string, object> attributes;
-
-            /// <summary>
-            /// Value of the patch.
-            /// </summary>
-            T value;
-
             /// <summary>
             /// Constructor.
             /// </summary>
             /// <param name="_type">Type of Patch</param>
             /// <param name="_uniform">uniform or nonuniform.</param>
             /// <param name="_value">Vector3D or double.</param>
-            public FOAMParameterPatch(string _type, string _uniform, T _value, PatchType _patchType)
+            /// <param name="_patchType">Enum pathtype. </param>
+            public FOAMParameterPatch(in string _type, in string _uniform, in T _value, in PatchType _patchType)
             {
-                value = _value;
-                type = _type;
-                patchType = _patchType;
+                this.Type = _patchType;
                 if (!_value.Equals(default) && !_uniform.Equals(""))
                 {
-                    attributes = new Dictionary<string, object>
-                {
-                    { "type", type },
-                    { "value " + _uniform, value}
-                };
+                    this.Attributes = new Dictionary<string, object>
+                    {
+                        { "type", _type },
+                        { "value " + _uniform, _value}
+                    };
                 }
                 else
                 {
-                    attributes = new Dictionary<string, object>
-                {
-                    { "type", type }
-                };
+                    this.Attributes = new Dictionary<string, object>
+                    {
+                        { "type", _type }
+                    };
                 }
-
             }
 
             /// <summary>
             /// Getter-Method for patchType.
             /// </summary>
-            public PatchType Type { get => patchType; }
+            public PatchType Type { get; }
 
             /// <summary>
             /// Getter for Attributes
             /// </summary>
-            public Dictionary<string, object> Attributes { get => attributes; }
+            public Dictionary<string, object> Attributes { get; }
         }
+
         /// <summary>
         /// Coeffs-Parameter for DecomposeParDict.
         /// </summary>
@@ -529,7 +479,6 @@ namespace OpenFOAMInterface.BIM.Structs
             public void SetN(int numberOfSubdomains)
             {
                 //Algo for subDomains
-
             }
 
             /// <summary>
@@ -610,64 +559,72 @@ namespace OpenFOAMInterface.BIM.Structs
             public Dictionary<string, object> ToDictionary()
             {
                 Dictionary<string, object> pList = new Dictionary<string, object>
-            {
-                {"agglomerator" , Agglomerator},
-                {"relTol" , Param.RelTol },
-                {"tolerance" , Param.Tolerance },
-                {"nCellsInCoarsesLevel", NCellsInCoarsesLevel },
-                {"smoother" , Param.Smoother },
-                {"solver" , Param.Solver },
-                {"cacheAgglomeration" , CacheAgglomeration },
-                {"nPostSweeps" , NPostSweeps },
-                {"nPreSweepsre" , NPreSweepsre },
-                {"mergeLevels", MergeLevels }
-            };
+                {
+                    {"agglomerator" , Agglomerator},
+                    {"relTol" , Param.RelTol },
+                    {"tolerance" , Param.Tolerance },
+                    {"nCellsInCoarsesLevel", NCellsInCoarsesLevel },
+                    {"smoother" , Param.Smoother },
+                    {"solver" , Param.Solver },
+                    {"cacheAgglomeration" , CacheAgglomeration },
+                    {"nPostSweeps" , NPostSweeps },
+                    {"nPreSweepsre" , NPreSweepsre },
+                    {"mergeLevels", MergeLevels }
+                };
                 return pList;
             }
         }
+
         /// <summary>
         /// Fv-SolutionParam
         /// </summary>
         public struct FvSolutionParameter
         {
-            //Paramter that has to be set in FvSolitonDict
+            public FvSolutionParameter(in Smoother smoother, in SolverFV solver, in Preconditioner precond, in double relTol, in double tolerance, in int nSweeps)
+            {
+                _smoother = smoother;
+                _solver = solver;
+                _preconditioner = precond;
+                _relTol = relTol;
+                _tolerance = tolerance;
+                _nSweeps = nSweeps;
+            }
+
             /// <summary>
             /// Smoother-type.
             /// </summary>
-            Smoother smoother;
+            private Smoother _smoother;
+            public Smoother Smoother { readonly get => _smoother; set => _smoother = value; }
 
             /// <summary>
             /// Solver for FvSolutionDict.
             /// </summary>
-            SolverFV solver;
+            private SolverFV _solver;
+            public SolverFV Solver { readonly get => _solver; set => _solver = value; }
 
             /// <summary>
             /// Double for relTol in FvSolutionDict.
             /// </summary>
-            double relTol;
+            private double _relTol;
+            public double RelTol { readonly get => _relTol; set => _relTol = value; }
 
             /// <summary>
             /// Double for tolerance in FvSolutionDict.
             /// </summary>
-            double tolerance;
+            private double _tolerance;
+            public double Tolerance { readonly get => _tolerance; set => _tolerance = value; }
 
             /// <summary>
             /// Double for nSweeps in FvSolutionDict.
             /// </summary>
-            int nSweeps;
+            private int _nSweeps;
+            public int NSweeps { readonly get => _nSweeps; set => _nSweeps = value; }
 
             /// <summary>
             /// Manipulates the matrix equation (AP^(-1))*Px=b to solve it more readily.
             /// </summary>
-            Preconditioner preconditioner;
-
-            //Getter-Setter for Parameter
-            public Smoother Smoother { get => smoother; set => smoother = value; }
-            public SolverFV Solver { get => solver; set => solver = value; }
-            public double RelTol { get => relTol; set => relTol = value; }
-            public double Tolerance { get => tolerance; set => tolerance = value; }
-            public int NSweeps { get => nSweeps; set => nSweeps = value; }
-            public Preconditioner Preconditioner { get => preconditioner; set => preconditioner = value; }
+            private Preconditioner _preconditioner;
+            public Preconditioner Preconditioner { readonly get => _preconditioner; set => _preconditioner = value; }
 
             /// <summary>
             /// Creates a Dictionary of data.
@@ -676,15 +633,15 @@ namespace OpenFOAMInterface.BIM.Structs
             public Dictionary<string, object> ToDictionary()
             {
                 Dictionary<string, object> paramList = new Dictionary<string, object>
-            {
-                {"relTol" , RelTol },
-                {"tolerance" , Tolerance },
-                {"nSweeps" , NSweeps},
-                {"smoother" , Smoother },
-                {"solver" , Solver },
-                {"preconditioner", Preconditioner }
+                {
+                    {"relTol" , RelTol },
+                    {"tolerance" , Tolerance },
+                    {"nSweeps" , NSweeps},
+                    {"smoother" , Smoother },
+                    {"solver" , Solver },
+                    {"preconditioner", Preconditioner }
 
-            };
+                };
                 return paramList;
             }
         }
@@ -692,18 +649,8 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// Turbulence attributes for the openfoam dictionary turbulenceProperties.
         /// </summary>
-        public struct TurbulenceParameter
+        readonly public struct TurbulenceParameter
         {
-            /// <summary>
-            /// Type of simulation.
-            /// </summary>
-            SimulationType simulationType;
-
-            /// <summary>
-            /// Model for simulation
-            /// </summary>
-            ValueType _structModel;
-
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -713,17 +660,15 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="printCoeff">true = on, false = off</param>
             public TurbulenceParameter(SimulationType simType, Enum simModel, bool turbulence = true, bool printCoeff = true)
             {
-                simulationType = simType;
-                _structModel = null;
-                switch (simulationType)
+                this.SimType = simType;
+                this.StructModel = null;
+                switch (simType)
                 {
                     case SimulationType.RAS:
-                        RAS ras = new RAS((RASModel)simModel, turbulence, printCoeff);
-                        _structModel = ras;
+                        this.StructModel = new RAS((RASModel)simModel, turbulence, printCoeff);
                         break;
                     case SimulationType.LES:
-                        LES les = new LES((LESModel)simModel);
-                        _structModel = les;
+                        this.StructModel = new LES((LESModel)simModel);
                         //TO-DO: Implement.
                         break;
                     case SimulationType.laminar:
@@ -735,14 +680,14 @@ namespace OpenFOAMInterface.BIM.Structs
             }
 
             /// <summary>
-            /// Getter for simulationType.
+            /// Type of simulation.
             /// </summary>
-            public SimulationType SimType { get => simulationType; }
+            public SimulationType SimType { get; }
 
             /// <summary>
-            /// Getter for structModel.
+            /// Model for simulation
             /// </summary>
-            public ValueType StructModel { get => _structModel; }
+            public ValueType StructModel { get; }
 
             /// <summary>
             /// This methode creates and returns the attributes as dictionary<string, object>.
@@ -751,13 +696,13 @@ namespace OpenFOAMInterface.BIM.Structs
             public Dictionary<string, object> ToDictionary()
             {
                 Dictionary<string, object> dict = new Dictionary<string, object>
-            {
-                { "simulationType", simulationType }
-            };
-                switch (simulationType)
+                {
+                    { "simulationType", SimType }
+                };
+                switch (SimType)
                 {
                     case SimulationType.RAS:
-                        dict.Add(simulationType.ToString(), ((RAS)_structModel).ToDictionary());
+                        dict.Add(SimType.ToString(), ((RAS)StructModel).ToDictionary());
                         break;
                     case SimulationType.LES:
                         //TO-DO: Implement LES.
@@ -776,20 +721,14 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <summary>
             /// RAS-Model attributes in turbulenceProperties.
             /// </summary>
-            public struct RAS
+            readonly public struct RAS
             {
                 //internal enum for on and off
-                enum OnOff
+                public enum OnOff
                 {
                     on = 0,
                     off
                 }
-                //Enum for model name
-                RASModel rasModel;
-                //turbulence on or off
-                OnOff turbulence;
-                //print coefficient on or off
-                OnOff printCoeffs;
 
                 /// <summary>
                 /// Constructor.
@@ -799,27 +738,25 @@ namespace OpenFOAMInterface.BIM.Structs
                 /// <param name="printCoeff">printCoeef true = on, false = off</param>
                 public RAS(RASModel model, bool turb, bool printCoeff)
                 {
-                    rasModel = model;
-                    if (turb)
-                    {
-                        turbulence = OnOff.on;
-                    }
-                    else
-                    {
-                        turbulence = OnOff.off;
-                    }
-
-                    if (printCoeff)
-                    {
-                        printCoeffs = OnOff.on;
-                    }
-                    else
-                    {
-                        printCoeffs = OnOff.off;
-                    }
+                    this.RASModel = model;
+                    this.Turbulence = turb ? OnOff.on : OnOff.off;
+                    this.PrintCoeffs = printCoeff ? OnOff.on : OnOff.off;
                 }
 
-                public RASModel RASModel { get => rasModel; }
+                ///<summary>
+                /// Enum for model name
+                ///</summary> 
+                public RASModel RASModel { get; }
+
+                ///<summary>
+                /// turbulence on or off
+                ///</summary> 
+                public OnOff Turbulence { get; }
+
+                ///<summary>
+                /// print coefficient on or off
+                ///</summary> 
+                public OnOff PrintCoeffs { get; }
 
                 /// <summary>
                 /// Returns all attributes as Dictionary<string,object>
@@ -827,28 +764,25 @@ namespace OpenFOAMInterface.BIM.Structs
                 /// <returns>Dictionary filled with attributes.</returns>
                 public Dictionary<string, object> ToDictionary()
                 {
-                    Dictionary<string, object> dict = new Dictionary<string, object>
-            {
-                { "RASModel", rasModel },
-                { "turbulence", turbulence },
-                { "printCoeffs", printCoeffs}
-            };
-                    return dict;
+                    return new Dictionary<string, object>
+                    {
+                        { "RASModel", RASModel },
+                        { "turbulence", Turbulence },
+                        { "printCoeffs", PrintCoeffs}
+                    };
                 }
             }
 
             /// <summary>
             /// Simulationmodel LES-Parameter.
             /// </summary>
-            public struct LES
+            readonly public struct LES
             {
-                LESModel lesModel;
-                public LES(LESModel _lesModel)
+                public LES(LESModel lESModel)
                 {
-                    lesModel = _lesModel;
+                    this.LESModel = lESModel;
                 }
-
-                public LESModel LESModel { get => lesModel; }
+                public LESModel LESModel { get; }
                 //TO-DO: implement LES
             }
 
@@ -868,46 +802,58 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// Properties of a duct terminal.
         /// </summary>
-        public struct DuctProperties
+        readonly public struct DuctProperties
         {
+            public DuctProperties(in XYZ faceNormal, int rpm, in double externalPressure, in double area, in double boundary, in double flowRate, in double meanFlowVelocity, in double temp)
+            {
+                this.FaceNormal = faceNormal;
+                this.RPM = rpm;
+                this.ExternalPressure = externalPressure;
+                this.Area = area;
+                this.Boundary = boundary;
+                this.FlowRate = flowRate;
+                this.MeanFlowVelocity = meanFlowVelocity;
+                this.Temperature = temp;
+            }
+
             /// <summary>
             /// RPM for swirl diffuser.
             /// </summary>
-            public int RPM { get; set; }
+            public int RPM { get; }
 
             /// <summary>
             /// External pressure.
             /// </summary>
-            public double ExternalPressure { get; set; }
+            public double ExternalPressure { get; }
 
             /// <summary>
             /// Area of the surface.
             /// </summary>
-            public double Area { get; set; }
+            public double Area { get; }
 
             /// <summary>
             /// Boundary of the surface.
             /// </summary>
-            public double Boundary { get; set; }
+            public double Boundary { get; }
 
             /// <summary>
             /// Air flow rate in m�/s.
             /// </summary>
-            public double FlowRate { get; set; }
+            public double FlowRate { get; }
 
             /// <summary>
             /// Mean flow velocity through surface.
             /// </summary>
-            public double MeanFlowVelocity { get; set; }
+            public double MeanFlowVelocity { get; }
 
             /// <summary>
             /// Face normal of the surface.
             /// </summary>
-            public XYZ FaceNormal { get; set; }
+            public XYZ FaceNormal { get; }
             /// <summary>
             /// Flow Temperature.
             /// </summary>
-            public double Temperature { get; set; }
+            public double Temperature { get; }
         }
     }
 }
