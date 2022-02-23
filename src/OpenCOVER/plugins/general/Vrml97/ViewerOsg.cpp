@@ -3889,6 +3889,7 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
     char *shaderName = new char[strlen(shaderNameAndValues) + 1];
     strcpy(shaderName, shaderNameAndValues);
     char *c = shaderName;
+    // % between parameter name and value
     while (*c != '\0')
     {
         if (*c == '%')
@@ -3899,112 +3900,110 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
             *c = '.';
         c++;
     }
+
+    // terminate shaderName and advance past it
     c = shaderName;
-    char *paramName;
-    char *nextParamName;
-    char *value;
     while (*c != '\0')
     {
         if (*c == '_' || *c == '-')
         {
             *c = '\0';
-            coVRShader *shader = coVRShaderList::instance()->get(shaderName);
-            if (shader == NULL)
-            { // try to find a local shader definition
-                if (d_currentObject->MyDoc)
-                {
-                    char *dirName = new char[strlen(d_currentObject->MyDoc) + 1];
-                    strcpy(dirName, d_currentObject->MyDoc);
-                    char *pos = strrchr(dirName, '/');
-                    char *pos2 = strrchr(dirName, '\\');
-                    if (pos2 > pos)
-                        pos = pos2;
-                    if (pos != NULL)
-                    {
-                        *pos = '\0';
-                        std::string dir(dirName);
-                        shader = coVRShaderList::instance()->add(shaderName, dir);
-                    }
-                    else
-                    {
-                        std::string dir(".");
-                        shader = coVRShaderList::instance()->add(shaderName, dir);
-                    }
-                    delete[] dirName;
-                }
-            }
-            if (shader)
-            {
-                if (shader->isTransparent())
-                    d_currentObject->transparent = true;
-                if(pGeode != NULL && drawable != NULL)
-                {
-                    shader->apply(pGeode, drawable);
-                }
-                else
-                {
-                    shader->apply(d_currentObject->pNode->getOrCreateStateSet());
-                }
-                std::list<coVRUniform *> uniformList = shader->getUniforms();
+            ++c;
+            break;
+        }
+        ++c;
+    }
 
-                c++;
-                paramName = c;
-                // now parse for parameters, _ between params, = between name and value
-                while (*c != '\0')
-                {
-                    if (*c == '=')
-                    {
-                        *c = '\0';
-                        c++;
-                        value = c;
-                        if(*c!='\0')
-                        {
-                            c++;
-                        }
-                        // search for end of Value
-                        while (*c != '\0')
-                        {
-                            if (*c == '_') // replace _ in values with blanks
-                            {
-                                *c = ' ';
-                            }
-                                while (c != value)
-                                {
-                                    if (*c == ' ')
-                                    {
-                                        *c = '\0';
-                                        c++;
-                                        nextParamName = c;
-                                        break;
-                                    }
-                                    c--;
-                                }
-                                //here we have paramName and value;
-                                std::string paramN(paramName);
-                                std::list<coVRUniform *>::iterator it;
-                                for (it = uniformList.begin(); it != uniformList.end(); it++)
-                                {
-                                    if ((*it)->getName() == paramN)
-                                    {
-                                        (*it)->setValue(value);
-                                        break;
-                                    }
-                                }
-                                paramName = nextParamName;
-                            c++;
-                        }
-                    }
-                    c++;
-                }
+    coVRShader *shader = coVRShaderList::instance()->get(shaderName);
+    if (shader == NULL)
+    { // try to find a local shader definition
+        if (d_currentObject->MyDoc)
+        {
+            char *dirName = new char[strlen(d_currentObject->MyDoc) + 1];
+            strcpy(dirName, d_currentObject->MyDoc);
+            char *pos = strrchr(dirName, '/');
+#ifdef _WIN32
+            char *pos2 = strrchr(dirName, '\\');
+            if (pos2 > pos)
+                pos = pos2;
+#endif
+            if (pos != NULL)
+            {
+                *pos = '\0';
+                std::string dir(dirName);
+                shader = coVRShaderList::instance()->add(shaderName, dir);
             }
             else
             {
-                if (cover->debugLevel(1))
-                    cerr << "ERROR: no shader found with name:" << shaderName << endl;
+                std::string dir(".");
+                shader = coVRShaderList::instance()->add(shaderName, dir);
             }
-            break;
+            delete[] dirName;
         }
+    }
+    if (shader == NULL)
+    {
+        if (cover->debugLevel(1))
+            cerr << "ERROR: no shader found with name:" << shaderName << endl;
+        return;
+    }
+
+    std::list<coVRUniform *> uniformList = shader->getUniforms();
+    auto applyParam = [uniformList](const char *n, const char *value)
+    {
+        std::string name(n);
+        //std::cerr << "setting param: " << name << "=" << value << std::endl;
+        auto it = std::find_if(uniformList.begin(), uniformList.end(),
+                               [name](const coVRUniform *uni) { return uni->getName() == name; });
+        if (it != uniformList.end())
+            (*it)->setValue(value);
+    };
+
+    //std::cerr << "parsing params for " << shaderName << ": " << c << std::endl;
+    // now parse for parameters, _ between params, = between name and value
+    const char *paramName = c;
+    const char *value = nullptr;
+    while (*c != '\0')
+    {
+        // next parameter
+        if (*c == '_' /* || *c == '-'*/)
+        {
+            // terminate value
+            *c = '\0';
+
+            if (value)
+            {
+                applyParam(paramName, value);
+            }
+
+            paramName = c + 1;
+            value = nullptr;
+        }
+        // value for current parameter
+        else if (*c == '=')
+        {
+            // terminate current parameter name
+            *c = '\0';
+            value = c + 1;
+        }
+
         c++;
+    }
+    // apply last parameter
+    if (value)
+    {
+        applyParam(paramName, value);
+    }
+
+    if (shader->isTransparent())
+        d_currentObject->transparent = true;
+    if (pGeode != NULL && drawable != NULL)
+    {
+        shader->apply(pGeode, drawable);
+    }
+    else
+    {
+        shader->apply(d_currentObject->pNode->getOrCreateStateSet());
     }
 }
 
