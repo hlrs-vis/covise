@@ -9,7 +9,7 @@
      
     void main( void )
     {
-Texcoord = gl_MultiTexCoord0;
+Texcoord = gl_MultiTexCoord0.xy;
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 	    gl_Position = ftransform();	
     }
@@ -24,7 +24,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
     void main( void )
     {
       vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
-      DiffuseColor.rgb  =((DiffuseColor.rgb - 0.5f) * Contrast) + 0.5f;
+      DiffuseColor.rgb  =((DiffuseColor.rgb - 0.5) * Contrast) + 0.5;
       DiffuseColor.rgb += vec3(Brightness,Brightness,Brightness);
       
       gl_FragColor = DiffuseColor ;	
