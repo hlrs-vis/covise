@@ -1879,12 +1879,19 @@ void SSLConnection::setPasswdCallback(SSLConnection::PasswordCallback *cb, void 
 }
 
 //SSLServerConnection
-SSLServerConnection::SSLServerConnection(SSLConnection::PasswordCallback *cb, void *userData)
+SSLServerConnection::SSLServerConnection(SSLConnection::PasswordCallback *cb, void *userData, const KeyFiles& keyfiles, bool overloadDummy)
     : SSLConnection()
+    , m_keyfiles(keyfiles)
 {
     SSL_load_error_strings();
+
+
     SSLeay_add_ssl_algorithms();
     CONST_SSL_METHOD_P meth = SSLv23_server_method();
+    if (meth == NULL) {
+        fprintf(stderr, "SSLServerConnection(): Method creation failed!\n");
+        return;
+    }
     //SSL_METHOD* meth = SSLv2_server_method();
     //SSL_METHOD* meth = TLSv1_server_method();
     if (!mCTX)
@@ -1899,22 +1906,18 @@ SSLServerConnection::SSLServerConnection(SSLConnection::PasswordCallback *cb, vo
     SSL_CTX_set_mode(mCTX, SSL_MODE_AUTO_RETRY);
     setPasswdCallback(cb, userData);
 
-    std::string certfile = coCoviseConfig::getEntry("System.CoviseDaemon.Certificate");
-    std::string keyfile = coCoviseConfig::getEntry("System.CoviseDaemon.Keyfile");
-    std::string cafile = coCoviseConfig::getEntry("System.CoviseDaemon.CAFile");
-
     int result = 0;
-    result = SSL_CTX_load_verify_locations(mCTX, cafile.c_str(), NULL);
+    result = SSL_CTX_load_verify_locations(mCTX, keyfiles.cafile.c_str(), NULL);
     if (result <= 0)
     {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): verify_locations - Exitcode (5)\n");
+        fprintf(stderr, "SSLServerConnection(): verify_locations - Exitcode (5)\n");
         exit(5);
     }
 
-    if (coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false))
+    if (keyfiles.enableCertificateCheck)
     {
 
-        SSL_CTX_set_client_CA_list(mCTX, SSL_load_client_CA_file(cafile.c_str()));
+        SSL_CTX_set_client_CA_list(mCTX, SSL_load_client_CA_file(keyfiles.cafile.c_str()));
         SSL_CTX_set_verify(mCTX, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
     }
     else
@@ -1922,103 +1925,47 @@ SSLServerConnection::SSLServerConnection(SSLConnection::PasswordCallback *cb, vo
         SSL_CTX_set_verify(mCTX, SSL_VERIFY_NONE, NULL);
     }
 
-    if (SSL_CTX_use_certificate_file(mCTX, certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate_file(mCTX, keyfiles.certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
     {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): Exitcode (3)\n");
+        fprintf(stderr, "SSLServerConnection(): Exitcode (3)\n");
         exit(3);
     }
-    if (SSL_CTX_use_PrivateKey_file(mCTX, keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey_file(mCTX, keyfiles.keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
     {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): Exitcode (4)\n");
+        fprintf(stderr, "SSLServerConnection(): Exitcode (4)\n");
         exit(4);
     }
 
     if (!SSL_CTX_check_private_key(mCTX))
     {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): Private key does not match the certificate public key\n");
+        fprintf(stderr, "SSLServerConnection(): Private key does not match the certificate public key\n");
         exit(5);
     }
 
     //Setup for SSL based on socket allocated in Connection(int sfd)
     mSSL = SSL_new(mCTX);
-    if (!mSSL)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): Couldn't create SSL object!\n");
+    if (!mSSL) {
+        fprintf(stderr, "SSLServerConnection(): Couldn't create SSL object!\n");
+    }
+}
+
+SSLServerConnection::SSLServerConnection(SSLConnection::PasswordCallback* cb, void* userData, const KeyFiles& keyfiles)
+    :SSLServerConnection(cb, userData, keyfiles, true)         {
+    if (!mSSL) {
         return;
     }
-    SSLSocket *locSocket = dynamic_cast<SSLSocket *>(sock);
+    sock = new SSLSocket();
+    SSLSocket* locSocket = dynamic_cast<SSLSocket*>(sock);
     locSocket->setSSL(mSSL);
 }
 
-SSLServerConnection::SSLServerConnection(int *p, int id, int s_type, PasswordCallback *cb, void *userData)
-    : SSLConnection()
+
+SSLServerConnection::SSLServerConnection(int *p, int id, int s_type, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles)
+    : SSLServerConnection(cb, userData, keyfiles, true)
 {
-    SSL_load_error_strings();
-    SSLeay_add_ssl_algorithms();
-    CONST_SSL_METHOD_P meth = SSLv23_server_method();
-    //SSL_METHOD* meth = SSLv2_server_method();
-    //SSL_METHOD* meth = TLSv1_server_method();
-
-    if (!mCTX)
-    {
-        mCTX = SSL_CTX_new(meth);
-    }
-    if (!mCTX)
-    {
-        exit(2);
-    }
-
-    SSL_CTX_set_mode(mCTX, SSL_MODE_AUTO_RETRY);
-    setPasswdCallback(cb, userData);
-
-    std::string certfile = coCoviseConfig::getEntry("System.CoviseDaemon.Certificate");
-    std::string keyfile = coCoviseConfig::getEntry("System.CoviseDaemon.Keyfile");
-    std::string cafile = coCoviseConfig::getEntry("System.CoviseDaemon.CAFile");
-
-    int result = 0;
-    result = SSL_CTX_load_verify_locations(mCTX, cafile.c_str(), NULL);
-    if (result <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): verify_locations - Exitcode (5)\n");
-        exit(5);
-    }
-
-    if (coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false))
-    {
-
-        SSL_CTX_set_client_CA_list(mCTX, SSL_load_client_CA_file(cafile.c_str()));
-        SSL_CTX_set_verify(mCTX, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
-    }
-    else
-    {
-        SSL_CTX_set_verify(mCTX, SSL_VERIFY_NONE, NULL);
-    }
-
-    if (SSL_CTX_use_certificate_file(mCTX, certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int *p, int id, sender_type s_type): Exitcode (3)\n");
-        exit(3);
-    }
-    if (SSL_CTX_use_PrivateKey_file(mCTX, keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int *p, int id, sender_type s_type): Exitcode (4)\n");
-        exit(4);
-    }
-
-    if (!SSL_CTX_check_private_key(mCTX))
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int *p, int id, sender_type s_type): Private key does not match the certificate public key\n");
-        exit(5);
-    }
-
-    //Setup for SSL based on socket allocated in Connection(int sfd)
-    mSSL = SSL_new(mCTX);
-    if (!mSSL)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int *p, int id, sender_type s_type): Couldn't create SSL object!\n");
+    if (!mSSL) {
         return;
     }
-
     sender_id = id;
     send_type = s_type;
     sock = new SSLSocket(p, this->mSSL);
@@ -2031,158 +1978,17 @@ SSLServerConnection::SSLServerConnection(int *p, int id, int s_type, PasswordCal
     port = *p;
 }
 
-SSLServerConnection::SSLServerConnection(int p, int id, int st, PasswordCallback *cb, void *userData)
-    : SSLConnection()
+SSLServerConnection::SSLServerConnection(int p, int id, int sendType, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles)
+    : SSLServerConnection(&p, id, sendType, cb, userData, keyfiles)
 {
-    SSL_load_error_strings();
-    SSLeay_add_ssl_algorithms();
-    CONST_SSL_METHOD_P meth = SSLv23_server_method();
-    //SSL_METHOD* meth = SSLv2_server_method();
-    //SSL_METHOD* meth = TLSv1_server_method();
-    if (!mCTX)
-    {
-        mCTX = SSL_CTX_new(meth);
-    }
-    if (!mCTX)
-    {
-        exit(2);
-    }
-
-    SSL_CTX_set_mode(mCTX, SSL_MODE_AUTO_RETRY);
-    setPasswdCallback(cb, userData);
-
-    std::string certfile = coCoviseConfig::getEntry("System.CoviseDaemon.Certificate");
-    std::string keyfile = coCoviseConfig::getEntry("System.CoviseDaemon.Keyfile");
-    std::string cafile = coCoviseConfig::getEntry("System.CoviseDaemon.CAFile");
-    int result = 0;
-    result = SSL_CTX_load_verify_locations(mCTX, cafile.c_str(), NULL);
-    if (result <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): verify_locations - Exitcode (5)\n");
-        exit(5);
-    }
-
-    if (coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false))
-    {
-
-        SSL_CTX_set_client_CA_list(mCTX, SSL_load_client_CA_file(cafile.c_str()));
-        SSL_CTX_set_verify(mCTX, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
-    }
-    else
-    {
-        SSL_CTX_set_verify(mCTX, SSL_VERIFY_NONE, NULL);
-    }
-
-    if (SSL_CTX_use_certificate_file(mCTX, certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int p, int id, sender_type st): Exitcode (3)\n");
-        exit(3);
-    }
-    if (SSL_CTX_use_PrivateKey_file(mCTX, keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int p, int id, sender_type st): Exitcode (4)\n");
-        exit(4);
-    }
-
-    if (!SSL_CTX_check_private_key(mCTX))
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int p, int id, sender_type st): Private key does not match the certificate public key\n");
-        exit(5);
-    }
-
-    //Setup for SSL based on socket allocated in Connection(int sfd)
-    mSSL = SSL_new(mCTX);
-    if (!mSSL)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(int p, int id, sender_type st): Couldn't create SSL object!\n");
-        return;
-    }
-
-    sender_id = id;
-    send_type = st;
-    port = p;
-    this->sock = new SSLSocket(p, this->mSSL); //Creates a new socket and binds
-    if (sock->get_id() == -1)
-    {
-        delete sock;
-        sock = NULL;
-        port = 0;
-    }
 }
 
-SSLServerConnection::SSLServerConnection(SSLSocket *socket, PasswordCallback *cb, void *userData)
+SSLServerConnection::SSLServerConnection(SSLSocket *socket, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles)
+    :SSLServerConnection(cb, userData, keyfiles, true)
 {
-    SSL_load_error_strings();
-    SSLeay_add_ssl_algorithms();
-    CONST_SSL_METHOD_P meth = SSLv23_server_method();
-    //meth = SSLv2_server_method();
-    //meth = TLSv1_server_method();
-    if (meth == NULL)
-    {
-        fprintf(stderr, "SSLServerConnection(Socket*): Method creation failed!\n");
+    if (!mSSL) {
         return;
     }
-    if (!mCTX)
-    {
-        mCTX = SSL_CTX_new(meth);
-    }
-    if (!mCTX)
-    {
-        fprintf(stderr, "SSLServerConnection(Socket*): Context creation failed!\n");
-        return;
-    }
-
-    SSL_CTX_set_mode(mCTX, SSL_MODE_AUTO_RETRY);
-    setPasswdCallback(cb, userData);
-
-    std::string certfile = coCoviseConfig::getEntry("System.CoviseDaemon.Certificate");
-    std::string keyfile = coCoviseConfig::getEntry("System.CoviseDaemon.Keyfile");
-    std::string cafile = coCoviseConfig::getEntry("System.CoviseDaemon.CAFile");
-
-    int result = 0;
-    result = SSL_CTX_load_verify_locations(mCTX, cafile.c_str(), NULL);
-    if (result <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(): verify_locations - Exitcode (5)\n");
-        exit(5);
-    }
-
-    if (coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false))
-    {
-
-        SSL_CTX_set_client_CA_list(mCTX, SSL_load_client_CA_file(cafile.c_str()));
-        SSL_CTX_set_verify(mCTX, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
-    }
-    else
-    {
-        SSL_CTX_set_verify(mCTX, SSL_VERIFY_NONE, NULL);
-    }
-
-    if (SSL_CTX_use_certificate_file(mCTX, certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(SSLSocket*): Exitcode (3)\n");
-        exit(3);
-    }
-    if (SSL_CTX_use_PrivateKey_file(mCTX, keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(SSLSocket*): Exitcode (4)\n");
-        exit(4);
-    }
-
-    if (!SSL_CTX_check_private_key(mCTX))
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(SSLSocket*): Private key does not match the certificate public key\n");
-        exit(5);
-    }
-
-    //Setup for SSL based on socket allocated in Connection(int sfd)
-    mSSL = SSL_new(mCTX);
-    if (!mSSL)
-    {
-        fprintf(stderr, "SSLServerConnection::SSLServerConnection(SSLSocket*): Couldn't create SSL object!\n");
-        return;
-    }
-
     sock = socket;
     SSLSocket *locSocket = dynamic_cast<SSLSocket *>(sock);
     locSocket->setSSL(mSSL);
@@ -2248,7 +2054,7 @@ SSLServerConnection *SSLServerConnection::spawnConnection()
         return NULL;
     }
 
-    return locSock->spawnConnection(mSSLCB, mSSLUserData);
+    return locSock->spawnConnection(mSSLCB, mSSLUserData, m_keyfiles);
 }
 
 std::string SSLServerConnection::getSSLSubjectUID()
@@ -2302,7 +2108,7 @@ std::string SSLServerConnection::getSSLSubjectName()
 }
 
 //SSLClientConnection
-SSLClientConnection::SSLClientConnection(Host *h, int p, SSLClientConnection::PasswordCallback *cb, void *userData /*,int retries*/)
+SSLClientConnection::SSLClientConnection(Host *h, int p, SSLClientConnection::PasswordCallback *cb, void *userData, const KeyFiles& keyfiles)
 {
     //SSL init
     SSL_load_error_strings();
@@ -2322,14 +2128,10 @@ SSLClientConnection::SSLClientConnection(Host *h, int p, SSLClientConnection::Pa
     //Always verify server
     SSL_CTX_set_verify(mCTX, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
 
-    std::string certfile = coCoviseConfig::getEntry("System.CoviseDaemon.Certificate");
-    std::string keyfile = coCoviseConfig::getEntry("System.CoviseDaemon.Keyfile");
-    std::string CAfile = coCoviseConfig::getEntry("System.CoviseDaemon.CAFile");
-
-    if (CAfile != "")
+    if (!keyfiles.cafile.empty())
     {
         fprintf(stderr, "SSLClientConnection::SSLClientConnection(Host*,int,int): Loading CA certificate...\n");
-        if (SSL_CTX_load_verify_locations(mCTX, CAfile.c_str(), NULL) <= 0)
+        if (SSL_CTX_load_verify_locations(mCTX, keyfiles.cafile.c_str(), NULL) <= 0)
         {
             fprintf(stderr, "SSLClientConnection::SSLClientConnection(Host*,int,int): CA certificate loading failed\n");
             exit(3);
@@ -2337,15 +2139,14 @@ SSLClientConnection::SSLClientConnection(Host *h, int p, SSLClientConnection::Pa
         fprintf(stderr, "SSLClientConnection::SSLClientConnection(Host*,int,int): ...CA certificate loaded\n");
     }
 
-    if (coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false))
+    if (keyfiles.enableCertificateCheck)
     {
-
-        if (SSL_CTX_use_certificate_chain_file(mCTX, certfile.c_str()) <= 0)
+        if (SSL_CTX_use_certificate_chain_file(mCTX, keyfiles.certfile.c_str()) <= 0)
         {
             fprintf(stderr, "SSLServerConnection::SSLServerConnection(SSLSocket*): Exitcode (3)\n");
             exit(3);
         }
-        if (SSL_CTX_use_PrivateKey_file(mCTX, keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
+        if (SSL_CTX_use_PrivateKey_file(mCTX, keyfiles.keyfile.c_str(), SSL_FILETYPE_PEM) <= 0)
         {
             fprintf(stderr, "SSLServerConnection::SSLServerConnection(SSLSocket*): Exitcode (4)\n");
             exit(4);

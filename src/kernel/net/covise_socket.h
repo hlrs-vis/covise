@@ -232,7 +232,7 @@ public:
     int write(const void *buf, unsigned int nbyte);
     int connect(sockaddr_in addr /*, int retries, double timeout*/);
 
-    SSLServerConnection *spawnConnection(SSLConnection::PasswordCallback *cb, void *userData);
+    SSLServerConnection *spawnConnection(SSLConnection::PasswordCallback *cb, void *userData, const SSLConnection::KeyFiles &keyfiles);
 
     void setSSL(SSL *pSSL);
 

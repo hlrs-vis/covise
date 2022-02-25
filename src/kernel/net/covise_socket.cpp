@@ -1613,7 +1613,7 @@ void SSLSocket::setSSL(SSL *pSSL)
     mSSLObject = pSSL;
 }
 
-SSLServerConnection *SSLSocket::spawnConnection(SSLConnection::PasswordCallback *cb, void *userData)
+SSLServerConnection *SSLSocket::spawnConnection(SSLConnection::PasswordCallback *cb, void *userData, const SSLConnection::KeyFiles& keyfiles)
 {
     cerr << "SSLSocket::spawnConnection(): Spawn new connection!" << endl;
     struct sockaddr_in client_addr;
@@ -1629,6 +1629,9 @@ SSLServerConnection *SSLSocket::spawnConnection(SSLConnection::PasswordCallback 
       cerr << "SSLSocket::spawnConnection(): Making socket blocking failed" << endl;
       cerr << "SSLSocket::spawnConnection(): Error-Number: " << err << endl;
    }*/
+
+
+
 
     cerr << "SSLSocket::spawnConnection(): New socket:" << endl;
 	char buf[100];
@@ -1656,7 +1659,7 @@ SSLServerConnection *SSLSocket::spawnConnection(SSLConnection::PasswordCallback 
     cerr << "SSLSocket::spawnConnection(): Spawn new Socket based on spawned socket id" << endl;
     SSLSocket *sock = new SSLSocket(new_sock_id, &client_addr, mSSLObject);
     cerr << "SSLSocket::spawnConnection(): Spawn new Connection based on spawned socket" << endl;
-    SSLServerConnection *locConn = new SSLServerConnection(sock, cb, userData);
+    SSLServerConnection *locConn = new SSLServerConnection(sock, cb, userData, keyfiles);
 
     return locConn;
 }

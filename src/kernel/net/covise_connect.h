@@ -423,6 +423,12 @@ class NETEXPORT SSLConnection : public Connection
 public:
     typedef int(PasswordCallback)(char *buf, int size, int rwflag, void *userdata);
 
+    struct KeyFiles {
+        bool enableCertificateCheck = false; //coCoviseConfig::isOn("System.CoviseDaemon.EnableCertificateCheck", false)
+        std::string certfile;//std::string certfile = coCoviseConfig::getEntry("System.CoviseDaemon.Certificate");
+        std::string keyfile;//std::string keyfile = coCoviseConfig::getEntry("System.CoviseDaemon.Keyfile");
+        std::string cafile;//std::string cafile = coCoviseConfig::getEntry("System.CoviseDaemon.CAFile");
+    };
     SSLConnection();
     SSLConnection(int sfd);
     ~SSLConnection();
@@ -468,10 +474,12 @@ private:
 class NETEXPORT SSLServerConnection : public SSLConnection
 {
 public:
-    SSLServerConnection(PasswordCallback *cb, void *userData);
-    SSLServerConnection(int *p, int id, int s_type, PasswordCallback *cb, void *userData);
-    SSLServerConnection(int p, int id, int st, PasswordCallback *cb, void *userData);
-    SSLServerConnection(SSLSocket *socket, PasswordCallback *cb, void *userData);
+    
+    SSLServerConnection(PasswordCallback* cb, void* userData, const KeyFiles& keyfiles, bool overloadDummy);
+    SSLServerConnection(PasswordCallback *cb, void *userData, const KeyFiles& keyfiles);
+    SSLServerConnection(int *p, int id, int sendType, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles);
+    SSLServerConnection(int p, int id, int sendType, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles);
+    SSLServerConnection(SSLSocket *socket, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles);
     ~SSLServerConnection();
 
     int accept();
@@ -485,12 +493,13 @@ public:
 
 protected:
 private:
+    const KeyFiles m_keyfiles;
 };
 
 class NETEXPORT SSLClientConnection : public SSLConnection
 {
 public:
-    SSLClientConnection(Host *, int p, PasswordCallback *cb, void *userData /*,int retries = 20*/);
+    SSLClientConnection(Host *, int p, PasswordCallback *cb, void *userData, const KeyFiles& keyfiles); 
     ~SSLClientConnection();
 
     int connect();
