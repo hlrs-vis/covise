@@ -15,33 +15,17 @@
 std::string
 strip(const std::string &str)
 {
-    char *chtmp = new char[1 + str.size()];
-    strcpy(chtmp, str.c_str());
+    std::string retval = str;
+    while (!retval.empty() && isspace(retval[retval.size() - 1]))
+        retval.pop_back();
 
-    char *c = chtmp;
-    char *pstart = chtmp;
-
-    c += strlen(chtmp) - 1;
-
-    while (c >= pstart)
+    size_t i = 0;
+    for (; i < retval.size(); ++i)
     {
-        if (isspace(*c))
-        {
-            *c = '\0';
-            c--;
-        }
-        else
+        if (!isspace(retval[i]))
             break;
     }
-
-    while (isspace(*pstart))
-    {
-        pstart++;
-    }
-
-    pstart[strlen(pstart)] = '\0';
-
-    return std::string(pstart);
+    return retval.substr(i);
 }
 
 std::string
@@ -82,15 +66,34 @@ isIntNumber(const std::string &str)
     return -1;
 }
 
-std::vector<std::string> split(const std::string &str, char delimiter)
+std::vector<std::string> split(const std::string &str, char delimiter, bool skipEmptyParts)
 {
     std::stringstream stream(str);
     std::string item;
     std::vector<std::string> rv;
     while (std::getline(stream, item, delimiter))
     {
+        if (skipEmptyParts && item.empty())
+            continue;
         rv.push_back(item);
     }
+    return rv;
+}
+
+std::vector<std::string> split(const std::string &str, const std::regex &delimiter, bool skipEmptyParts)
+{
+    std::vector<std::string> rv;
+    std::smatch m;
+    auto s = str;
+    while (std::regex_search(s, m, delimiter))
+    {
+        std::string p = m.prefix();
+        if (!p.empty() || !skipEmptyParts)
+            rv.push_back(p);
+        s = m.suffix();
+    }
+    rv.push_back(s);
+
     return rv;
 }
 
@@ -100,6 +103,15 @@ std::string toLower(const std::string &str)
     size_t size = str.length();
     for (int ch = 0; ch < size; ++ch)
         lower.push_back((unsigned char)tolower(str[ch]));
+    return lower;
+}
+
+std::string toUpper(const std::string &str)
+{
+    std::string lower;
+    size_t size = str.length();
+    for (int ch = 0; ch < size; ++ch)
+        lower.push_back((unsigned char)toupper(str[ch]));
     return lower;
 }
 
