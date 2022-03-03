@@ -88,12 +88,6 @@ namespace vrb
 			sendFile(msg, tb);
 		}
 		break;
-		case COVISE_MESSAGE_VRB_CURRENT_FILE:
-		{
-			assert(false);
-			//deprecated, use COVISE_MESSAGE_VRB_REQUEST_FILE and sharedState coVRFileManager_filePaths
-		}
-		break;
 		case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
 		{
 			changeRegVar(tb);

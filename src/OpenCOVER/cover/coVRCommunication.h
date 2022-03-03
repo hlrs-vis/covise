@@ -88,8 +88,7 @@ public:
     int getNumberOfPartners();
     void setFBData(IData *data);
     void handleVRB(const covise::Message &msg);
-	void handleUdp(covise::UdpMessage* msg);
-    void setCurrentFile(const char *filename);
+    void handleUdp(covise::UdpMessage *msg);
     virtual void update(vrb::clientRegClass *theChangedClass);
 
     void becomeMaster();

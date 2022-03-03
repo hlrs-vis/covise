@@ -552,29 +552,6 @@ void coVRCommunication::handleVRB(const Message &msg)
         coVRFileManager::instance()->sendFile(tb);
     }
     break;
-    case COVISE_MESSAGE_VRB_CURRENT_FILE:
-    {
-        const char *filename;
-        int remoteID;
-        tb >> remoteID;
-        tb >> filename;
-        if (!filename)
-            break;
-        coVRPartnerList::instance()->get(remoteID)->setFile(filename);
-        /*if(currentFile)
-         {
-            if(strcmp(currentFile,filename)==0)
-            {
-               break;
-            }
-         }
-         delete[] currentFile;
-         currentFile = new char[strlen(filename)+1];
-         strcpy(currentFile,filename);
-         cerr << "Loading remote file "<< filename << endl;
-         cover->loadFile(filename);*/
-    }
-    break;
     case COVISE_MESSAGE_VRB_FB_SET:
     {
 
@@ -787,40 +764,6 @@ void coVRCommunication::handleUdp(covise::UdpMessage* msg)
 		break;
 	}
 
-}
-
-void coVRCommunication::setCurrentFile(const char *filename)
-{
-	assert(true);
-	//if (!filename)
-    //    return;
-    //me()->setFile(filename);
-    //TokenBuffer tb;
-    //tb << filename;
-    //registry->setVar(0, "VRMLFile", std::to_string(me()->getID()), std::move(tb));
-
-    //if (currentFile)
-    //{
-    //    if (strcmp(currentFile, filename) == 0)
-    //    {
-    //        return;
-    //    }
-    //}
-    //delete[] currentFile;
-    //currentFile = new char[strlen(filename) + 1];
-    //strcpy(currentFile, filename);
-    //TokenBuffer rtb3;
-    //rtb3 << me()->getID();
-    //rtb3 << (char *)filename;
-    //send(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
-
-    //if (coVRPluginList::instance()->getPlugin("ACInterface"))
-    //{
-    //    TokenBuffer tb;
-    //    tb << filename;
-    //    send(NULL, "ACInterface", PluginMessageTypes::HLRS_ACInterfaceModelLoadedPath, tb.get_length(), tb.get_data());
-    //    tb.delete_data();
-    //}
 }
 
 void coVRCommunication::saveSessionFile(covise::TokenBuffer &tb)

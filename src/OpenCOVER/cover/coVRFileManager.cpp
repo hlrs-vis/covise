@@ -481,13 +481,11 @@ osg::Node *LoadedFile::load()
 
                 if (handler->loadFile)
                     handler->loadFile(tmpFileName.c_str(), fakeParent, covise_key);
-                coVRCommunication::instance()->setCurrentFile(tmpFileName.c_str());
             }
             else
             {
                 if (handler->loadFile)
                     handler->loadFile(adjustedFileName.c_str(), fakeParent, covise_key);
-                coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
             }
         }
     }
@@ -519,8 +517,6 @@ osg::Node *LoadedFile::load()
                 std::cerr << "coVRFileManager::loadFile info: loading full" << std::endl;
             reader->load(filenameToLoad, fakeParent);
         }
-
-        coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
     }
     else
     {
@@ -537,8 +533,7 @@ osg::Node *LoadedFile::load()
         node = osgDB::readNodeFile(tmpFileName.c_str(), coVRFileManager::instance()->options.get());
         if (node)
         {
-            //OpenCOVER::instance()->databasePager->registerPagedLODs(node);
-            coVRCommunication::instance()->setCurrentFile(adjustedFileName.c_str());
+            // OpenCOVER::instance()->databasePager->registerPagedLODs(node);
             node->setNodeMask(node->getNodeMask() & (~Isect::Intersection));
             if (cover->debugLevel(3))
                 fprintf(stderr, "coVRFileManager::loadFile setting nodeMask of %s to %x\n", node->getName().c_str(), node->getNodeMask());

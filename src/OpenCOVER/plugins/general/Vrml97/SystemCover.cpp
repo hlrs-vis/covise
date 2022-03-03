@@ -838,7 +838,6 @@ bool SystemCover::setViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpo
 void SystemCover::setCurrentFile(const char *filename)
 {
     Vrml97Plugin::plugin->isNewVRML = true;
-    coVRCommunication::instance()->setCurrentFile(filename);
 }
 
 void SystemCover::setMenuVisibility(bool vis)
