@@ -23,15 +23,10 @@ FIND_PATH(CEF_INCLUDE_DIR "include/base/cef_macros.h"
   PATHS
   $ENV{CEF_HOME}/include
   $ENV{EXTERNLIBS}/cef/include
-  ~/Library/Frameworks/include
-  /Library/Frameworks/include
-  /usr/local/include
-  /usr/include
-  /sw/include # Fink
-  /opt/local/include # DarwinPorts
-  /opt/csw/include # Blastwave
+  /opt/local/include
+  /opt/cef/include
   /opt/include
-  PATH_SUFFIXES CEF
+  PATH_SUFFIXES CEF cef
   DOC "CEF - Headers"
 )
 
@@ -42,33 +37,23 @@ FIND_LIBRARY(CEF_LIBRARY NAMES ${CEF_NAMES}
   PATHS
   $ENV{CEF_HOME}
   $ENV{EXTERNLIBS}/cef
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
   /opt/local
-  /opt/csw
+  /opt/cef
   /opt
   PATH_SUFFIXES Release lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015
   DOC "CEF - Library"
 )
-SET(CEF_WRAPPER_NAMES libcef_dll_wrapper.a libcef_dll_wrapper.lib)
-SET(CEF_WRAPPER_DBG_NAMES libcef_dll_wrapperD.a libcef_dll_wrapperD.lib)
+SET(CEF_WRAPPER_NAMES libcef_dll_wrapper.a libcef_dll_wrapper.lib cef_dll_wrapper)
+SET(CEF_WRAPPER_DBG_NAMES libcef_dll_wrapperD.a libcef_dll_wrapperD.lib cef_dll_wrapperd)
 
 FIND_LIBRARY(CEF_WRAPPER_LIBRARY NAMES ${CEF_WRAPPER_NAMES}
   PATHS
   $ENV{CEF_HOME}
   $ENV{EXTERNLIBS}/cef
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
   /opt/local
-  /opt/csw
+  /opt/cef
   /opt
-  PATH_SUFFIXES Debug lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015
+  PATH_SUFFIXES Release lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015 libcef_dll_wrapper
   DOC "CEF - Library"
 )
 
@@ -81,14 +66,20 @@ IF(MSVC)
     PATHS
     $ENV{CEF_HOME}/lib
     $ENV{EXTERNLIBS}/cef
-    PATH_SUFFIXES lib lib64 lib/win_64_VS2015
+    /opt/local
+    /opt/cef
+    /opt
+    PATH_SUFFIXES Debug lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015
     DOC "CEF - Library (Debug)"
   )
   FIND_LIBRARY(CEF_WRAPPER_LIBRARY_DEBUG NAMES ${CEF_WRAPPER_DBG_NAMES}
     PATHS
     $ENV{CEF_HOME}/lib
     $ENV{EXTERNLIBS}/cef
-    PATH_SUFFIXES lib lib64 lib/win_64_VS2015
+    /opt/local
+    /opt/cef
+    /opt
+    PATH_SUFFIXES Debug lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015 libcef_dll_wrapper
     DOC "CEF - _WRAPPER Library (Debug)"
   )
   
@@ -97,70 +88,23 @@ IF(MSVC)
     SET(CEF_LIBRARIES optimized ${CEF_LIBRARY} debug ${CEF_LIBRARY_DEBUG} optimized ${CEF_WRAPPER_LIBRARY} debug ${CEF_WRAPPER_LIBRARY_DEBUG} )
   ENDIF(CEF_LIBRARY_DEBUG AND CEF_LIBRARY)
 
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(CEF DEFAULT_MSG CEF_LIBRARY CEF_LIBRARY_DEBUG CEF_INCLUDE_DIR)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(CEF DEFAULT_MSG CEF_LIBRARY CEF_LIBRARY_DEBUG CEF_INCLUDE_DIR CEF_WRAPPER_LIBRARY CEF_WRAPPER_LIBRARY_DEBUG)
 
-  MARK_AS_ADVANCED(CEF_LIBRARY CEF_LIBRARY_DEBUG CEF_INCLUDE_DIR)
+  MARK_AS_ADVANCED(CEF_LIBRARY CEF_LIBRARY_DEBUG CEF_INCLUDE_DIR CEF_WRAPPER_LIBRARY CEF_WRAPPER_LIBRARY_DEBUG)
   
 ELSE(MSVC)
   # rest of the world
   SET(CEF_LIBRARIES ${CEF_LIBRARY} ${CEF_WRAPPER_LIBRARY})
 
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(CEF DEFAULT_MSG CEF_LIBRARY CEF_INCLUDE_DIR)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(CEF DEFAULT_MSG CEF_LIBRARY CEF_WRAPPER_LIBRARY CEF_INCLUDE_DIR)
   
-  MARK_AS_ADVANCED(CEF_LIBRARY CEF_INCLUDE_DIR)
+  MARK_AS_ADVANCED(CEF_LIBRARY CEF_INCLUDE_DIR CEF_WRAPPER_LIBRARY)
   
 ENDIF(MSVC)
 
 IF(CEF_FOUND)
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
-MESSAGE("CEF_FOUND")
   SET(CEF_INCLUDE_DIRS ${CEF_INCLUDE_DIR})
 ELSE(CEF_FOUND)
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-MESSAGE("NOT CEF_FOUND")
-
-
-
 
 # Find the CEF binary distribution root directory.
 set(_CEF_ROOT "")
@@ -179,7 +123,7 @@ else()
   unset(_ENV_CEF_ROOT)
 endif()
 
-set(ERROR FASLE)
+set(ERROR FALSE)
 if(NOT DEFINED _CEF_ROOT_EXPLICIT)
   message(WARNING "Specify a CEF_ROOT value via CMake or environment variable to find CEF")
   set(ERROR TRUE)
