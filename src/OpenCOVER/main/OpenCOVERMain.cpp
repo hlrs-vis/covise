@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 #endif
     }
     covise::coConfigConstants::setRank(myID);
-    covise::coConfigConstants::setMaster(QString::fromStdString(mastername));
+    covise::coConfigConstants::setMaster(mastername);
 
     if (argc > 1 && 0 == strcmp(argv[1], "-d"))
     {

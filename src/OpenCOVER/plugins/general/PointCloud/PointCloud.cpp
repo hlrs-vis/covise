@@ -447,30 +447,15 @@ int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, cons
 // read in and store the menu data from the configuration file
 void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, ui::Group *subMenu)
 {
-    coCoviseConfig::ScopeEntries e = coCoviseConfig::getScopeEntries(menu);
-    const char **entries = e.getValue();
-    if (entries != nullptr)
+    coCoviseConfig::ScopeEntries entries = coCoviseConfig::getScopeEntries(menu);
+    for (const auto &entry : entries)
     {
-        while (*entries != nullptr)
-        {
-            const char *menuName = *entries;
-            entries++;
-            const char *fileName = *entries;
-            entries++;
-            if ((fileName != nullptr) && (menuName != nullptr))
-            {
-                std::string filename= fileName;
-                //create button and append it to the submenu
-                ui::Button *temp = new ui::Button(subMenu, fileName);
-                temp->setCallback([this, filename](bool state){
-                    if (state)
-                    {
-                        createGeodes(planetTrans, filename);
-                    }
-                });
-                menulist.push_back(ImageFileEntry(menuName, fileName, (ui::Element *)temp));
-            }
-        }
+        ui::Button *temp = new ui::Button(subMenu, entry.second);
+        temp->setCallback([this, entry](bool state)
+                          {
+                if (state)
+                    createGeodes(planetTrans, entry.second); });
+        menulist.push_back(ImageFileEntry(entry.first.c_str(), entry.second.c_str(), (ui::Element *)temp));
     }
 }
 

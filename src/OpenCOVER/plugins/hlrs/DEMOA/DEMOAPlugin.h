@@ -33,8 +33,9 @@ using namespace opencover;
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <PluginUtil/coSphere.h>
-#include <QStringList>
-#include <QMap>
+#include <set>
+#include <map>
+#include <string>
 #include "parmblock.h"
 
 class D_Primitive;
@@ -62,16 +63,16 @@ public:
     std::string aniFileName;
     std::string path;
 
-    int currentMap;
-    QStringList mapNames;
-    QMap<QString, int> mapSize;
-    QMap<QString, float *> mapValues;
+    std::set<std::string>::const_iterator currentMap;
+    std::set<std::string> mapNames;
+    std::map<std::string, int> mapSize;
+    std::map<std::string, float *> mapValues;
 
     osg::ref_ptr<osg::StateSet> geoState;
     osg::ref_ptr<osg::Material> linemtl;
     osg::ref_ptr<osg::LineWidth> lineWidth;
     osg::Vec4 getColor(float pos);
-    void deleteColorMap(const QString &name);
+    void deleteColorMap(const std::string &name);
 
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletReleaseEvent(coTUIElement *tUIItem);

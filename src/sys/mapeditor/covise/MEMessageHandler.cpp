@@ -32,7 +32,7 @@
 #include "nodes/MENode.h"
 #include "ports/MEFileBrowserPort.h"
 #include "ports/MEDataPort.h"
-
+#include <qtutil/Qt5_15_deprecated.h>
 MEMessageHandler *MEMessageHandler::singleton = NULL;
 
 using covise::Message;

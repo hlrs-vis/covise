@@ -16,13 +16,13 @@
 #include <WS2tcpip.h>
 #include <io.h>
 #endif
-#include <util/common.h>
 #include <assert.h>
-#include <sys/types.h>
-
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+#include <sys/types.h>
+#include <util/common.h>
+#include <util/string_util.h>
 
 #ifdef __APPLE__
 #include <crt_externs.h>
@@ -369,36 +369,22 @@ coSimLib::coSimLib(int argc, char *argv[], const char *name, const char *desc)
     d_numCells = d_numVert = 0;
 
     // analyse all STARTUP lines
-    const char **entry;
-    const char **ePtr;
-
     coCoviseConfig::ScopeEntries e = coCoviseConfig::getScopeEntries(configName, "Startup");
-    entry = e.getValue();
-
-    ePtr = entry;
-    d_numStartup = 0;
-    while (ePtr && *ePtr)
-    {
-        d_numStartup++;
-        ePtr++;
-    }
-    d_numStartup /= 2;
 
     // copy all STARTUP lines into buffers
     if (d_numStartup)
     {
-        d_startup_line = new const char *[d_numStartup];
-        d_startup_label = new char *[d_numStartup];
-        for (i = 0; i < d_numStartup; i++)
+        d_startup_line = new const char *[e.size()];
+        d_startup_label = new char *[e.size()];
+        // for (i = 0; i < d_numStartup; i++)
+        for (const auto &entry : e)
         {
             // skip leading blanks in field
-            const char *actEntry = entry[2 * i + 1];
-            while (*actEntry && isspace(*actEntry))
-                actEntry++;
+            auto actEntry = strip(entry.second);
 
             // copy complete string to names field
-            d_startup_label[i] = new char[strlen(actEntry) + 1];
-            strcpy(d_startup_label[i], actEntry);
+            d_startup_label[i] = new char[actEntry.size() + 1];
+            strcpy(d_startup_label[i], actEntry.c_str());
             char *cPtr = d_startup_label[i];
 
             // find next space
@@ -418,8 +404,8 @@ coSimLib::coSimLib(int argc, char *argv[], const char *name, const char *desc)
             else
             {
                 cerr << "only label, but no text in startup line:\n    \""
-                     << entry[2 * i + 1] << '"' << endl;
-                d_startup_line[i] = actEntry;
+                     << entry.second << '"' << endl;
+                d_startup_line[i] = d_startup_label[i];
             }
         }
     }

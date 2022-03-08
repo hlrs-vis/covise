@@ -10,105 +10,101 @@
 
 #include "coConfigConstants.h"
 #include "coConfigEntryString.h"
-#include "coConfigEntryPtrList.h"
 #include "coConfigSchemaInfos.h"
 
-#include <QHash>
-#include <QObject>
-#include <QString>
-#include <QRegExp>
-#include <QList>
+#include <string>
 
 #include <util/coTypes.h>
 
 #include "coConfigEditorController.h"
 
-#ifndef CO_gcc3
-EXPORT_TEMPLATE2(template class CONFIGEXPORT QHash<QString, QString *>)
-#endif
-
 namespace covise
 {
+    class coConfigEntry;
 
-class CONFIGEXPORT coConfigEntry : public Subject<coConfigEntry>
-{
-    friend class coConfigXercesEntry;
+    typedef std::vector<std::unique_ptr<coConfigEntry>> coConfigEntryPtrList;
 
-public:
-    coConfigEntry();
-    virtual ~coConfigEntry();
+    class CONFIGEXPORT coConfigEntry : public Subject<coConfigEntry>
+    {
+        friend class coConfigXercesEntry;
 
-    coConfigEntryStringList getScopeList(QString scope);
-    coConfigEntryStringList getVariableList(QString scope);
-    void appendVariableList(coConfigEntryStringList &list,QString scope);
+    public:
+        coConfigEntry() = default;
+        coConfigEntry(const coConfigEntry&) = delete;
+        coConfigEntry(coConfigEntry&&) = default;
+        coConfigEntry& operator=(const coConfigEntry&) = delete;
+        coConfigEntry& operator=(coConfigEntry&&) = default;
+        virtual ~coConfigEntry() = default;
 
-    coConfigEntryString getValue(const QString &variable, QString scope);
-    //coConfigEntryStringList getValues(const QString & variable, QString scope);
+        coConfigEntryStringList getScopeList(const std::string &scope);
+        coConfigEntryStringList getVariableList(const std::string &scope);
+        void appendVariableList(coConfigEntryStringList &list, const std::string &scope);
 
-    const char *getEntry(const char *variable);
+        coConfigEntryString getValue(const std::string &variable, const std::string &scope);
+        // coConfigEntryStringList getValues(const std::string & variable, std::string scope);
 
-    bool setValue(const QString &variable, const QString &value,
-                  const QString &section);
-    void addValue(const QString &variable, const QString &value,
-                  const QString &section);
+        const char *getEntry(const char *variable);
 
-    bool deleteValue(const QString &variable, const QString &section);
-    bool deleteSection(const QString &section);
+        bool setValue(const std::string &variable, const std::string &value,
+                      const std::string &section);
+        void addValue(const std::string &variable, const std::string &value,
+                      const std::string &section);
 
-    bool hasValues() const;
+        bool deleteValue(const std::string &variable, const std::string &section);
+        bool deleteSection(const std::string &section);
 
-    const QString &getPath() const;
-    QString getName() const;
-    const char *getCName() const;
-    const QString &getConfigName() const;
+        bool hasValues() const;
 
-    bool isList() const;
-    bool hasChildren() const;
+        const std::string &getPath() const;
+        std::string getName() const;
+        const char *getCName() const;
+        const std::string &getConfigName() const;
 
-    void setReadOnly(bool ro);
-    bool isReadOnly() const;
+        bool isList() const;
+        bool hasChildren() const;
 
-    static QString &cleanName(QString &name);
+        void setReadOnly(bool ro);
+        bool isReadOnly() const;
 
-    coConfigSchemaInfos *getSchemaInfos();
-    void setSchemaInfos(coConfigSchemaInfos *infos);
+        static std::string &cleanName(std::string &name);
 
-    void entryChanged();
+        coConfigSchemaInfos *getSchemaInfos();
+        void setSchemaInfos(coConfigSchemaInfos *infos);
 
-    virtual void merge(const coConfigEntry *with);
-    virtual coConfigEntry *clone() const = 0;
+        void entryChanged();
+        const coConfigEntryPtrList &getChildren() const;
+        virtual void merge(const coConfigEntry *with);
+        virtual coConfigEntry *clone() const = 0;
 
-protected:
-    coConfigEntry(const coConfigEntry *entry);
+    protected:
+        coConfigEntry(const coConfigEntry *entry);
 
-    void setPath(const QString &path);
-    void makeSection(const QString &section);
+        void setPath(const std::string &path);
+        void makeSection(const std::string &section);
 
-private:
-    bool matchingAttributes() const;
-    bool matchingHost() const;
-    bool matchingMaster() const;
-    bool matchingArch() const;
-    bool matchingRank() const;
+    private:
+        bool matchingAttributes() const;
+        bool matchingHost() const;
+        bool matchingMaster() const;
+        bool matchingArch() const;
+        bool matchingRank() const;
 
-    coConfigConstants::ConfigScope configScope;
-    QString configName;
-    QString path;
+        coConfigConstants::ConfigScope configScope;
+        std::string configName;
+        std::string path;
 
-    bool isListNode;
-    bool readOnly;
+        bool isListNode = false;
+        bool readOnly = false;
 
-    coConfigEntryPtrList children;
-    QHash<QString, QString *> attributes;
-    QStringList textNodes;
+        coConfigEntryPtrList children;
+        std::map<std::string, std::string> attributes;
+        std::set<std::string> textNodes;
 
-    coConfigSchemaInfos *schemaInfos;
-    QString elementGroup;
+        coConfigSchemaInfos *schemaInfos = nullptr;
+        std::string elementGroup;
 
-    //TODO How to get rid of this friend...
-    friend class coConfigEntryToEditor;
-    mutable char *cName;
-    mutable QString name;
-};
+        mutable char *cName = nullptr;
+        mutable std::string name;
+    };
 }
 #endif

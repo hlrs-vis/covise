@@ -9,22 +9,22 @@
 
 using namespace covise;
 
-QList<coConfigEntry *> coConfigEntryToEditor::getSubEntries(coConfigEntry *entry)
+std::vector<coConfigEntry *> coConfigEntryToEditor::getSubEntries(coConfigEntry *entry)
 {
-    QList<coConfigEntry *> subEntries;
-    subEntries.clear();
+    std::vector<coConfigEntry *> subEntries;
     if (entry)
     {
-        for (coConfigEntryPtrList::const_iterator item = entry->children.begin();
-             item != entry->children.end(); ++item)
+        for (coConfigEntryPtrList::const_iterator item = entry->getChildren().begin();
+             item != entry->getChildren().end(); ++item)
         {
             if ((*item) != 0 && (*item)->hasValues())
             {
-                subEntries.append((*item));
+                subEntries.push_back(item->get());
             }
             if ((*item)->hasChildren())
             {
-                subEntries += coConfigEntryToEditor::getSubEntries((*item));
+                auto children = coConfigEntryToEditor::getSubEntries(item->get());
+                subEntries.insert(subEntries.end(), children.begin(), children.end());
             }
         }
     }

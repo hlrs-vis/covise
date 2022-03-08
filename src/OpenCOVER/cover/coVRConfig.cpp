@@ -146,8 +146,8 @@ coVRConfig::coVRConfig()
     numScreens = coCoviseConfig::getInt("COVER.NumScreens", numScreens);
     if (numScreens < 0)
     {
-	std::cerr << "COVER.NumScreens cannot be < 0" << std::endl;
-	exit(1);
+        std::cerr << "COVER.NumScreens cannot be < 0" << std::endl;
+        exit(1);
     }
     if (numScreens > 50)
     {

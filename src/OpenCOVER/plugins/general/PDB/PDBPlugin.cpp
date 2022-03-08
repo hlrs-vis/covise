@@ -2041,24 +2041,12 @@ bool PDBPlugin::downloadPDBFile(string &filename, DataBankType dbtype)
 void PDBPlugin::readMenuConfigData(const char *menu, vector<PDBFileEntry> &menulist, coRowMenu &subMenu)
 {
     coCoviseConfig::ScopeEntries e = coCoviseConfig::getScopeEntries(menu);
-    const char **entries = e.getValue();
-    if (entries)
+    for (const auto &entry : e)
     {
-        while (*entries)
-        {
-            const char *menuName = *entries;
-            entries++;
-            const char *fileName = *entries;
-            entries++;
-            if (fileName && menuName)
-            {
-                //create button and append it to the submenu
-                coButtonMenuItem *temp = new coButtonMenuItem(menuName);
-                subMenu.add(temp);
-                temp->setMenuListener(this);
-                menulist.push_back(PDBFileEntry(menuName, fileName, (coMenuItem *)temp));
-            }
-        }
+        coButtonMenuItem *temp = new coButtonMenuItem(entry.first);
+        subMenu.add(temp);
+        temp->setMenuListener(this);
+        menulist.push_back(PDBFileEntry(entry.first.c_str(), entry.second.c_str(), (coMenuItem *)temp));
     }
 }
 

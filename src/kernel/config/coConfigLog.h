@@ -9,50 +9,40 @@
 #define COCONFIGLOG_H
 
 #include <util/coTypes.h>
-#include <QTextStream>
-#include <qtutil/Qt5_15_deprecated.h>
-
+#include <iostream>
 namespace covise
 {
-
-class CONFIGEXPORT coConfigLog
-{
-
-public:
-    static QTextStream cerr;
-    static QTextStream cout;
-};
 }
-#define COCONFIGMSG(message)                          \
-    {                                                 \
-        covise::coConfigLog::cout << message << QT::endl; \
+#define COCONFIGMSG(message)               \
+    {                                      \
+        std::cout << message << std::endl; \
     }
 
-#define COCONFIGLOG(message)                          \
-    {                                                 \
-        covise::coConfigLog::cerr << message << QT::endl; \
+#define COCONFIGLOG(message)               \
+    {                                      \
+        std::cerr << message << std::endl; \
     }
 
 #define COCONFIGDBG(message)                                                 \
     {                                                                        \
         if (covise::coConfig::getDebugLevel() == covise::coConfig::DebugAll) \
         {                                                                    \
-            covise::coConfigLog::cerr << message << QT::endl;                    \
+            std::cerr << message << std::endl;                               \
         }                                                                    \
     }
 #define COCONFIGDBG_GET_SET(message)                                             \
     {                                                                            \
         if (covise::coConfig::getDebugLevel() >= covise::coConfig::DebugGetSets) \
         {                                                                        \
-            covise::coConfigLog::cerr << message << QT::endl;                        \
+            std::cerr << message << std::endl;                                   \
         }                                                                        \
     }
-#define COCONFIGDBG_DEFAULT(message)                      \
-    {                                                     \
-        if (covise::coConfig::isDebug())                  \
-        {                                                 \
-            covise::coConfigLog::cerr << message << QT::endl; \
-        }                                                 \
+#define COCONFIGDBG_DEFAULT(message)           \
+    {                                          \
+        if (covise::coConfig::isDebug())       \
+        {                                      \
+            std::cerr << message << std::endl; \
+        }                                      \
     }
 
 #include <config/coConfig.h>

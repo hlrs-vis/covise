@@ -8,21 +8,14 @@
 #ifndef COCONFIG_ENTRYTOEDITOR_H
 #define COCONFIG_ENTRYTOEDITOR_H
 #include <config/coConfigEntry.h>
+#include <string>
+#include <vector>
 namespace covise
 {
 
-class coConfigEntryToEditor
-{
-public:
-    static QList<coConfigEntry *> getSubEntries(coConfigEntry *entry);
-
-protected:
-    coConfigEntryToEditor()
+    namespace coConfigEntryToEditor
     {
-    }
-
-private:
-    static QStringList groups;
-};
+        std::vector<coConfigEntry *> getSubEntries(coConfigEntry *entry);
+}
 }
 #endif

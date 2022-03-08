@@ -412,18 +412,17 @@ void ParticleViewer::readConfig()
     coConfig *config = coConfig::getInstance();
 
     // read the name of all colormaps in file
-    QStringList list;
-    list = config->getVariableList("Colormaps");
+    auto list = config->getVariableList("Colormaps").entries();
 
-    for (int i = 0; i < list.size(); i++)
-        mapNames.append(list[i]);
+    for (const auto &var : list)
+        mapNames.append(var.entry.c_str());
 
     // read the values for each colormap
     for (int k = 1; k < mapNames.size(); k++)
     {
         // get all definition points for the colormap
         QString cmapname = "Colormaps." + mapNames[k];
-        QStringList variable = config->getVariableList(cmapname);
+        auto variable = config->getVariableList(cmapname.toStdString()).entries();
 
         mapSize.insert(mapNames[k], variable.size());
         float *cval = new float[variable.size() * 5];
@@ -433,7 +432,7 @@ void ParticleViewer::readConfig()
         int it = 0;
         for (int l = 0; l < variable.size() * 5; l = l + 5)
         {
-            QString tmp = cmapname + ".Point:" + QString::number(it);
+            std::string tmp = cmapname.toStdString() + ".Point:" + std::to_string(it);
             cval[l] = config->getFloat("x", tmp, -1.0);
             if (cval[l] == -1)
             {
@@ -448,9 +447,9 @@ void ParticleViewer::readConfig()
     }
 
     // read values of local colormap files in .covise
-    QString place = coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "colormaps";
+    auto place = coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "colormaps";
 
-    QDir directory(place);
+    QDir directory(place.c_str());
     if (directory.exists())
     {
         QStringList filters;
@@ -463,51 +462,50 @@ void ParticleViewer::readConfig()
         for (int j = 0; j < files.size(); j++)
         {
             coConfigGroup *colorConfig = new coConfigGroup("ColorMap");
-            colorConfig->addConfig(place + "/" + files[j], "local", true);
+            colorConfig->addConfig(place + "/" + files[j].toStdString(), "local", true);
 
             // read the name of the colormaps
-            QStringList list;
-            list = colorConfig->getVariableList("Colormaps");
+            auto list = colorConfig->getVariableList("Colormaps").entries();
 
             // loop over all colormaps in one file
-            for (int i = 0; i < list.size(); i++)
+            for (const auto &e : list)
             {
-
+                QString entry = e.entry.c_str();
                 // remove global colormap with same name
-                int index = mapNames.indexOf(list[i]);
+                int index = mapNames.indexOf(entry);
                 if (index != -1)
                 {
                     mapNames.removeAt(index);
-                    deleteColorMap(list[i]);
+                    deleteColorMap(entry);
                 }
-                mapNames.append(list[i]);
+                mapNames.append(entry);
 
                 // get all definition points for the colormap
                 QString cmapname = "Colormaps." + mapNames.last();
-                QStringList variable = colorConfig->getVariableList(cmapname);
+                auto variable = colorConfig->getVariableList(cmapname.toStdString()).entries();
 
-                mapSize.insert(list[i], variable.size());
+                mapSize.insert(entry, variable.size());
                 float *cval = new float[variable.size() * 5];
-                mapValues.insert(list[i], cval);
+                mapValues.insert(entry, cval);
 
                 // read the rgbax values
                 int it = 0;
                 for (int l = 0; l < variable.size() * 5; l = l + 5)
                 {
-                    QString tmp = cmapname + ".Point:" + QString::number(it);
-                    cval[l] = (colorConfig->getValue("x", tmp, " -1.0")).toFloat();
+                    std::string tmp = cmapname.toStdString() + ".Point:" + std::to_string(it);
+                    cval[l] = std::stof(colorConfig->getValue("x", tmp, " -1.0").entry);
                     if (cval[l] == -1)
                     {
                         cval[l] = (1.0 / (variable.size() - 1)) * (l / 5);
                     }
-                    cval[l + 1] = (colorConfig->getValue("r", tmp, "1.0")).toFloat();
-                    cval[l + 2] = (colorConfig->getValue("g", tmp, "1.0")).toFloat();
-                    cval[l + 3] = (colorConfig->getValue("b", tmp, "1.0")).toFloat();
-                    cval[l + 4] = (colorConfig->getValue("a", tmp, "1.0")).toFloat();
+                    cval[l + 1] = std::stof(colorConfig->getValue("r", tmp, "1.0").entry);
+                    cval[l + 2] = std::stof(colorConfig->getValue("g", tmp, "1.0").entry);
+                    cval[l + 3] = std::stof(colorConfig->getValue("b", tmp, "1.0").entry);
+                    cval[l + 4] = std::stof(colorConfig->getValue("a", tmp, "1.0").entry);
                     it++;
                 }
             }
-            config->removeConfig(place + "/" + files[j]);
+            config->removeConfig(place + "/" + files[j].toStdString());
         }
     }
     mapNames.sort();

@@ -18,6 +18,8 @@
 #include "MEMaterialDisplay.h"
 #include "material.inc"
 
+#include <qtutil/Qt5_15_deprecated.h>
+
 static int nValues = 14;
 static QString userDef = "User Defined";
 
@@ -186,7 +188,7 @@ void MEMaterialChooser::convertValue(const QString &name, const QString &value, 
                                      QVector<float> &data)
 {
     covise::coConfig *config = covise::coConfig::getInstance();
-    QString text = config->getString(value, name, def);
+    QString text = std::string(config->getString(value.toStdString(), name.toStdString(), def.toStdString())).c_str();
     QStringList list = text.split(' ', SplitBehaviorFlags::SkipEmptyParts);
     data.append(list[0].toFloat());
     data.append(list[1].toFloat());
@@ -225,28 +227,27 @@ void MEMaterialChooser::readMaterials()
     // read the name of all materials in config files (user defined materials)
     covise::coConfig *config = covise::coConfig::getInstance();
     QString scope = "Module.Material";
-    QStringList list;
-    list = config->getVariableList(scope);
+    auto list = config->getVariableList(scope.toStdString()).entries();
 
-    m_numUserMaterials = list.size();
-    if (m_numUserMaterials != 0)
+    if (list.empty())
         m_materialGroups.append(userDef);
 
     // read the values for each materials
-    for (int k = 0; k < m_numUserMaterials; k++)
+    for (const auto entry : list)
     {
         QVector<float> data;
-        QString name = scope + "." + list[k];
+        QString name = scope + "." + entry.entry.c_str();
 
         convertValue(name, "ambient", "0.7 0.7 0.7", data);
         convertValue(name, "diffuse", "0.1 0.5 0.8", data);
         convertValue(name, "specular", "1.0 1.0 1.0", data);
         convertValue(name, "emissive", "0.3 0.2 0.2", data);
-        data.append(config->getFloat("shininess", name, 0.2f));
-        data.append(config->getFloat("transparency", name, 1.0f));
-        QString matname = config->getString("name", name, "Standard");
-        m_materials.insert(matname, data);
-        m_materialNameList.insert(userDef, matname);
+        auto n = name.toStdString();
+        data.append(config->getFloat("shininess", n, 0.2f));
+        data.append(config->getFloat("transparency", n, 1.0f));
+        std::string matname = config->getString("name", n, "Standard");
+        m_materials.insert(matname.c_str(), data);
+        m_materialNameList.insert(userDef, matname.c_str());
     }
 }
 

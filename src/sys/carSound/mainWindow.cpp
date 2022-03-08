@@ -329,10 +329,10 @@ mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir"
     {
         cacheDir = "c:/tmp";
 
-        std::cerr << std::string(QString(cacheDir).toUtf8()) << std::endl;
+        std::cerr << std::string(cacheDir) << std::endl;
     }
-    cacheDirectory->setText(cacheDir);
-    std::cerr << std::string(QString(cacheDir).toUtf8()) << std::endl;
+    cacheDirectory->setText(std::string(cacheDir).c_str());
+    std::cerr << std::string(cacheDir) << std::endl;
 
     //clientTable->setFont(smallFont);
     QStringList labels;
@@ -579,7 +579,7 @@ void mainWindow::onDirBrowser()
     {
         fileNames = dialog.selectedFiles();
         cacheDirectory->setText(fileNames[0]);
-        cacheDir = fileNames[0];
+        cacheDir = fileNames[0].toStdString();
         soundConfig->save();
     }
 }
@@ -588,7 +588,7 @@ void mainWindow::onDirChanged(const QString& d)
     QString dirName = cacheDirectory->text();
     if (QDir(dirName).exists())
     {
-        cacheDir = dirName;
+        cacheDir = dirName.toStdString();
         soundConfig->save();
     }
     if (!cacheDirectory->hasFocus())

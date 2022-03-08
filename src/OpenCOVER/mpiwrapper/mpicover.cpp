@@ -83,7 +83,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
     MPI_Bcast(&mastername[0], len, MPI_BYTE, 0, comm);
 
     covise::coConfigConstants::setRank(myID, shmGroupRoot);
-    covise::coConfigConstants::setMaster(QString::fromStdString(mastername));
+    covise::coConfigConstants::setMaster(mastername);
 
 #ifdef _WIN32
     // note: console has to be allocated after possible handling of argument '-d',

@@ -73,15 +73,9 @@ void CoviseConfigShader::readConfig()
     std::string pluginpath("COVER.Plugin.CoviseConfigShader");
 
     coCoviseConfig::ScopeEntries viewpointEntries = coCoviseConfig::getScopeEntries(pluginpath, "Scope");
-    const char **it = viewpointEntries.getValue();
-    while (it && *it)
+    for (const auto &viewpoint : viewpointEntries)
     {
-        const char *name = *it;
-        it++;
-        if (!it)
-            break;
-        it++;
-
+        const std::string &name = viewpoint.first.c_str();
         std::string regexp;
         std::string shader;
         bool smooth;

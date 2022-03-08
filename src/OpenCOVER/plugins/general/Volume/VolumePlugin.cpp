@@ -836,21 +836,8 @@ bool VolumePlugin::init()
     }
 
     // Read volume file entries from covise.config:
-    covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.Volume.Files");
-    const char **entries = e.getValue();
-    if (entries)
-    {
-        while (*entries)
-        {
-            const char *menuName = *entries;
-            entries++;
-            const char *fileName = *entries;
-            entries++;
-            //if(fileName && menuName)
-            // cerr << "VolumePlugin: file " << fileName << "   " << menuName << endl;
-            fileList.push_back(new FileEntry(fileName, menuName));
-        }
-    }
+    for (const auto &entry : covise::coCoviseConfig::getScopeEntries("COVER.Plugin.Volume.Files"))
+        fileList.push_back(new FileEntry(entry.second.c_str(), entry.first.c_str()));
     // Load volume data:
     std::string line = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.VolumeFile");
     if (!line.empty())

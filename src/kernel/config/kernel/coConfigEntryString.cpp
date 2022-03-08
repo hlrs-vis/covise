@@ -8,171 +8,87 @@
 #include <config/coConfigLog.h>
 #include <config/coConfigEntryString.h>
 
-#include <QRegExp>
-
 using std::ostream;
 using namespace covise;
 
-coConfigEntryString::coConfigEntryString(const QString &string, const coConfigConstants::ConfigScope scope,
-                                         const QString &configName, bool isListItem)
-    : QString(string)
-{
-
-    configScope = scope;
-    this->configName = configName;
-    listItem = isListItem;
-}
-
-coConfigEntryString::~coConfigEntryString()
+coConfigEntryString::coConfigEntryString(const std::string &entry, const std::string &configName, const std::string &configGroupName, coConfigConstants::ConfigScope scope, bool isListItem)
+    : entry(entry), configName(configName), configGroupName(configGroupName), configScope(scope), islistItem(isListItem)
 {
 }
 
-coConfigConstants::ConfigScope coConfigEntryString::getConfigScope() const
+bool covise::operator<(const coConfigEntryString &first, const coConfigEntryString &second)
 {
-    return configScope;
+    return first.entry < second.entry || (first.entry == second.entry && first.configName < second.configName) || (first.configName == second.configName && first.configGroupName < second.configGroupName);
 }
 
-coConfigEntryString &coConfigEntryString::setConfigScope(coConfigConstants::ConfigScope scope)
+coConfigEntryStringList &coConfigEntryStringList::merge(const coConfigEntryStringList &list)
 {
-    // if (scope == coConfigConstants::Default) {
-    //   std::cerr << "coConfigEntryString::setConfigScope warn: Setting default scope on " << *this << std::endl;
-    // }
-    configScope = scope;
-    return *this;
-}
-
-const QString &coConfigEntryString::getConfigName() const
-{
-    return configName;
-}
-
-coConfigEntryString &coConfigEntryString::setConfigName(const QString &name)
-{
-    configName = name;
-    return *this;
-}
-
-const QString &coConfigEntryString::getConfigGroupName() const
-{
-    return configGroupName;
-}
-
-coConfigEntryString &coConfigEntryString::setConfigGroupName(const QString &name)
-{
-    configGroupName = name;
-    return *this;
-}
-
-bool coConfigEntryString::isListItem() const
-{
-    return listItem;
-}
-
-void coConfigEntryString::setListItem(bool on)
-{
-    listItem = on;
-}
-
-coConfigEntryStringList::coConfigEntryStringList()
-{
-    listType = UNKNOWN;
-    COCONFIGDBG("coConfigEntryStringList::<init> info: creating");
-}
-
-coConfigEntryStringList::~coConfigEntryStringList()
-{
-}
-
-coConfigEntryStringList coConfigEntryStringList::merge(coConfigEntryStringList &list)
-{
-
-    if (list.size()>0)
+    if(!list.entries().empty())
     {
-        std::list<coConfigEntryString>::iterator iterator = list.begin();
-
-        while (iterator != list.end())
-        {
-            remove(*iterator);
-            push_back(*iterator);
-            iterator++;
-        }
-
-        this->listType = list.listType;
+        m_listType = list.m_listType;
+        m_entries.insert(list.m_entries.begin(), list.m_entries.end());
     }
     return *this;
 }
 
-coConfigEntryStringList coConfigEntryStringList::filter(const QRegExp &filter) const
+coConfigEntryStringList coConfigEntryStringList::filter(const std::regex &filter) const
 {
 
     COCONFIGDBG("coConfigEntryStringList::filter info: filtering");
 
     coConfigEntryStringList list;
 
-    for (coConfigEntryStringList::const_iterator iterator = begin();
-         iterator != end(); ++iterator)
+    for (const auto &configEntry : m_entries)
     {
-
-        if (filter.exactMatch(*iterator))
-        {
-            list.push_back(*iterator);
-        }
+        if (std::regex_search(configEntry.entry, filter))
+            list.m_entries.insert(configEntry);
     }
 
-    list.setListType(this->listType);
-
-    return list;
-}
-
-coConfigEntryStringList::operator QStringList()
-{
-
-    COCONFIGDBG("coConfigEntryStringList::operator QStringList info: casting");
-
-    QStringList list;
-
-    for (coConfigEntryStringList::const_iterator iterator = begin();
-         iterator != end(); ++iterator)
-    {
-
-        list.append(*iterator);
-    }
+    list.setListType(m_listType);
 
     return list;
 }
 
 coConfigEntryStringList::ListType coConfigEntryStringList::getListType() const
 {
-    COCONFIGDBG("coConfigEntryStringList::getListType info: type is " << this->listType);
-    return listType;
+    COCONFIGDBG("coConfigEntryStringList::getListType info: type is " << m_listType);
+    return m_listType;
 }
 
 void coConfigEntryStringList::setListType(coConfigEntryStringList::ListType listType)
 {
-    this->listType = listType;
-    COCONFIGDBG("coConfigEntryStringList::setListType info: new type is " << this->listType);
+    m_listType = listType;
+    COCONFIGDBG("coConfigEntryStringList::setListType info: new type is " << m_listType);
+}
+
+std::set<coConfigEntryString> &coConfigEntryStringList::entries()
+{
+    return m_entries;
+}
+
+const std::set<coConfigEntryString> &coConfigEntryStringList::entries() const
+{
+    return m_entries;
 }
 
 namespace covise
 {
 
-QTextStream &operator<<(QTextStream &out, const coConfigEntryStringList list)
-{
-
-    out << "[";
-
-    coConfigEntryStringList::const_iterator iterator = list.begin();
-    while (iterator != list.end())
+    std::stringstream &operator<<(std::stringstream &out, const coConfigEntryStringList list)
     {
 
-        out << *iterator;
-        iterator++;
-        if (iterator != list.end())
-            out << ",";
+        out << "[";
+
+        auto iterator = list.entries().begin();
+        while (iterator != list.entries().end())
+        {
+
+            out << iterator->entry;
+            iterator++;
+            if (iterator != list.entries().end())
+                out << ",";
+        }
+        out << "]";
+        return out;
     }
-
-    out << "]";
-
-    return out;
-}
 }

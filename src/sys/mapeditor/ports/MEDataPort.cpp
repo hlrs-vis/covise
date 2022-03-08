@@ -38,8 +38,7 @@
 
 #include <do/coDoColormap.h>
 #include <do/coDoGeometry.h>
-
-;
+#include <qtutil/Qt5_15_deprecated.h>
 
 static bool isRegularType(const QString &t);
 static bool isKnownType(const QString &t);

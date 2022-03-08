@@ -165,33 +165,28 @@ covise::coAtomInfo::coAtomInfo()
     coConfig::getInstance()->addConfig(m_mapConfig);
 
     coCoviseConfig::ScopeEntries mappingEntries = coCoviseConfig::getScopeEntries("Module.AtomMapping");
-    if (mappingEntries.getValue() == NULL)
+    if (mappingEntries.empty())
     {
         // add global atommapping.xml to current coviseconfig
         m_mapConfig->addConfig(coConfigDefaultPaths::getDefaultGlobalConfigFilePath() + "atommapping.xml", "global", true);
         coConfig::getInstance()->addConfig(m_mapConfig);
         // retrieve the values of atommapping.xml and build the GUI
+        mappingEntries = coCoviseConfig::getScopeEntries("Module.AtomMapping");
     }
-    coCoviseConfig::ScopeEntries mappingEntries2 = coCoviseConfig::getScopeEntries("Module.AtomMapping");
 
-    const char **mapEntry = mappingEntries2.getValue();
-    if (mapEntry == NULL)
-        std::cout << "AtomMapping is NULL" << std::endl;
+    if (mappingEntries.empty())
+        std::cout << "The scope Module.AtomMapping is not available in your covise.config file!" << std::endl;
     int iNrCurrent = 0;
     float radius;
     char cAtomName[256];
 
-    if (mapEntry == NULL || *mapEntry == NULL)
-        std::cout << "The scope Module.AtomMapping is not available in your covise.config file!" << std::endl;
-
-    const char **curEntry = mapEntry;
-    while (curEntry && *curEntry)
+    for (const auto &entry : mappingEntries)
     {
-        int num = atoi(curEntry[0]);
+        int num = atoi(entry.first.c_str());
         float ac[4];
         char acType[100];
         coChemicalElement ce;
-        int iScanResult = sscanf(curEntry[1], "%s %s %f %f %f %f %f", acType, cAtomName, &radius, &ac[0], &ac[1], &ac[2], &ac[3]);
+        int iScanResult = sscanf(entry.second.c_str(), "%s %s %f %f %f %f %f", acType, cAtomName, &radius, &ac[0], &ac[1], &ac[2], &ac[3]);
         if (iScanResult == 7)
         {
             ce.valid = true;
@@ -219,7 +214,6 @@ covise::coAtomInfo::coAtomInfo()
                 idMap[all[num].symbol] = num;
             }
         }
-        curEntry += 2;
     }
 }
 

@@ -62,7 +62,7 @@ TiledDisplay::TiledDisplay()
     tileX = config->getInt("x", "COVER.TiledDisplay"); // Doesn't do anything yet
     tileY = config->getInt("y", "COVER.TiledDisplay"); // Doesn't do anything yet
     number = config->getInt("number", "COVER.TiledDisplay");
-    compositor = ((QString)config->getString("compositor", "COVER.TiledDisplay", "viscose.hlrs.de")).toStdString();
+    compositor = config->getString("compositor", "COVER.TiledDisplay", "viscose.hlrs.de");
 
     // Check if we are master and internal compositing is on
     if (internalCompositor && number == 0)

@@ -66,31 +66,27 @@ ReadPress::ReadPress(int argc, char *argv[])
     coConfig::getInstance()->addConfig(m_mapConfig);
 
     coCoviseConfig::ScopeEntries mappingEntries = coCoviseConfig::getScopeEntries("Module.AtomMapping");
-    if (mappingEntries.getValue() == NULL)
+    if (mappingEntries.empty())
     {
         // add global atommapping.xml to current coviseconfig
         m_mapConfig->addConfig(coConfigDefaultPaths::getDefaultGlobalConfigFilePath() + "atommapping.xml", "global", true);
         coConfig::getInstance()->addConfig(m_mapConfig);
+        mappingEntries = coCoviseConfig::getScopeEntries("Module.AtomMapping");
+
         // retrieve the values of atommapping.xml and build the GUI
     }
-    coCoviseConfig::ScopeEntries mappingEntries2 = coCoviseConfig::getScopeEntries("Module.AtomMapping");
 
-    const char **mapEntry = mappingEntries2.getValue();
-    if (mapEntry == NULL)
-        std::cout << "AtomMapping is NULL" << std::endl;
+    if (mappingEntries.empty())
+        std::cout << "The scope Module.AtomMapping is not available in your covise.config file!" << std::endl;
     int iNrCurrent = 0;
     float radius;
     char cAtomName[256];
     char cAtomType[TYPELENGTH];
 
-    if (mapEntry == NULL || *mapEntry == NULL)
-        std::cout << "The scope Module.AtomMapping is not available in your covise.config file!" << std::endl;
-
-    const char **curEntry = mapEntry;
-    while (curEntry && *curEntry)
+    for (const auto &entry : mappingEntries)
     {
         AtomColor ac;
-        int iScanResult = sscanf(curEntry[1], "%3s %s %f %f %f %f %f", cAtomType, cAtomName, &radius, &ac.color[0], &ac.color[1], &ac.color[2], &ac.color[3]);
+        int iScanResult = sscanf(entry.second.c_str(), "%3s %s %f %f %f %f %f", cAtomType, cAtomName, &radius, &ac.color[0], &ac.color[1], &ac.color[2], &ac.color[3]);
 
         if (iScanResult == 7)
         {
@@ -108,13 +104,13 @@ ReadPress::ReadPress(int argc, char *argv[])
             AtomID[cAtomType] = iNrCurrent;
 
             //fprintf(stderr, "%d: name=%s (%s)\n", iNrCurrent+1, cAtomName, ac.type);
-            if (iNrCurrent + 1 != atoi(curEntry[0]))
+            if (iNrCurrent + 1 != std::stoi(entry.first))
+                ;
             {
                 std::cout << "Your atommapping.xml is garbled" << std::endl;
             }
         }
         iNrCurrent++;
-        curEntry += 2;
     }
 }
 

@@ -150,8 +150,7 @@ void Colors::initCOLORS()
 void Colors::readMaps()
 {
     // get names of colormaps ind config-colormap.xml
-    coCoviseConfig::ScopeEntries keysEntries = coCoviseConfig::getScopeEntries("Colormaps");
-    const char **keys = keysEntries.getValue();
+    coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries("Colormaps");
 
     vector<string> mapNames;
 #ifdef NO_COLORMAP_PARAM
@@ -159,15 +158,8 @@ void Colors::readMaps()
 #else
     mapNames.push_back("Editable");
 #endif
-    if (keys)
-    {
-        int i = 0;
-        while (keys[i] != NULL)
-        {
-            mapNames.push_back(keys[i]);
-            i = i + 2;
-        }
-    }
+    for (const auto &key : keys)
+        mapNames.push_back(key.first);
 
     // allocate place for n colormaps
     numColormaps = (int)mapNames.size();
@@ -212,83 +204,75 @@ void Colors::readMaps()
     {
         string name = "Colormaps." + mapNames[i];
         bool absolute = coCoviseConfig::isOn("absolute", name, false);
-        coCoviseConfig::ScopeEntries entries = coCoviseConfig::getScopeEntries(name);
-        const char **keys = entries.getValue();
+        coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries(name);
 
         // read names
-        if (keys)
+        int no = keys.size();
+
+        // read all sampling points
+        float diff = 1.0f / (no - 1);
+        float pos = 0.0f;
+        for (int j = 0; j < no; j++)
         {
-            int no;
-            for (no = 0; keys[no] != NULL; no = no + 2)
+            ostringstream out;
+            out << j;
+            string tmp = name + ".Point:" + out.str();
+
+            bool rgb = false;
+            string rgba = coCoviseConfig::getEntry("rgba", tmp);
+            if (rgba.empty())
             {
+                rgb = true;
+                rgba = coCoviseConfig::getEntry("rgb", tmp);
             }
-            no = no / 2;
-
-            // read all sampling points
-            float diff = 1.0f / (no - 1);
-            float pos = 0.0f;
-            for (int j = 0; j < no; j++)
+            if (!rgba.empty())
             {
-                ostringstream out;
-                out << j;
-                string tmp = name + ".Point:" + out.str();
-
-                bool rgb = false;
-                string rgba = coCoviseConfig::getEntry("rgba", tmp);
-                if (rgba.empty())
+                float a = 1.;
+                uint32_t c = strtol(rgba.c_str(), NULL, 16);
+                if (!rgb)
                 {
-                    rgb = true;
-                    rgba = coCoviseConfig::getEntry("rgb", tmp);
-                }
-                if (!rgba.empty())
-                {
-                    float a = 1.;
-                    uint32_t c = strtol(rgba.c_str(), NULL, 16);
-                    if (!rgb)
-                    {
-                        a = (c & 0xff) / 255.0f;
-                        c >>= 8;
-                    }
-                    float b = (c & 0xff) / 255.0f;
+                    a = (c & 0xff) / 255.0f;
                     c >>= 8;
-                    float g = (c & 0xff) / 255.0f;
-                    c >>= 8;
-                    float r = (c & 0xff) / 255.0f;
-                    colormaps[i].mapValues.push_back(r);
-                    colormaps[i].mapValues.push_back(g);
-                    colormaps[i].mapValues.push_back(b);
-                    colormaps[i].mapValues.push_back(a);
-                    colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("x", tmp, pos));
                 }
-                else
-                {
-                    colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("r", tmp, 1.0));
-                    colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("g", tmp, 1.0));
-                    colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("b", tmp, 1.0));
-                    colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("a", tmp, 1.0));
-                    colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("x", tmp, pos));
-                }
-                pos = pos + diff;
+                float b = (c & 0xff) / 255.0f;
+                c >>= 8;
+                float g = (c & 0xff) / 255.0f;
+                c >>= 8;
+                float r = (c & 0xff) / 255.0f;
+                colormaps[i].mapValues.push_back(r);
+                colormaps[i].mapValues.push_back(g);
+                colormaps[i].mapValues.push_back(b);
+                colormaps[i].mapValues.push_back(a);
+                colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("x", tmp, pos));
             }
-
-            colormapAttributes[i].isAbsolute = absolute;
-            colormapAttributes[i].min = 0.;
-            colormapAttributes[i].max = 1.;
-
-            if (absolute)
+            else
             {
-                float min = colormaps[i].mapValues[0 + 4];
-                float max = colormaps[i].mapValues[(no - 1) * 5 + 4];
-                colormapAttributes[i].min = min;
-                colormapAttributes[i].max = max;
-                for (int j = 0; j < no; ++j)
-                {
-                    float x = colormaps[i].mapValues[j * 5 + 4];
-                    colormaps[i].mapValues[j * 5 + 4] = (x - min) / (max - min);
-                }
+                colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("r", tmp, 1.0));
+                colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("g", tmp, 1.0));
+                colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("b", tmp, 1.0));
+                colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("a", tmp, 1.0));
+                colormaps[i].mapValues.push_back(coCoviseConfig::getFloat("x", tmp, pos));
             }
-            colormaps[i].mapName = mapNames[i];
+            pos = pos + diff;
         }
+
+        colormapAttributes[i].isAbsolute = absolute;
+        colormapAttributes[i].min = 0.;
+        colormapAttributes[i].max = 1.;
+
+        if (absolute)
+        {
+            float min = colormaps[i].mapValues[0 + 4];
+            float max = colormaps[i].mapValues[(no - 1) * 5 + 4];
+            colormapAttributes[i].min = min;
+            colormapAttributes[i].max = max;
+            for (int j = 0; j < no; ++j)
+            {
+                float x = colormaps[i].mapValues[j * 5 + 4];
+                colormaps[i].mapValues[j * 5 + 4] = (x - min) / (max - min);
+            }
+        }
+        colormaps[i].mapName = mapNames[i];
     }
 
     // set defined colormaps

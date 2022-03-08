@@ -251,7 +251,7 @@ std::string ClientSoundSample::createCacheFileName(const std::string& fileName)
         else if (cn[i] == '/')
             cn[i] = '_';
     }
-    return std::string(mainWindow::instance()->cacheDir.operator QString().toUtf8())+"/"+ cn;
+    return std::string(mainWindow::instance()->cacheDir)+"/"+ cn;
 }
 
 int ClientSoundSample::IDCounter = 10;

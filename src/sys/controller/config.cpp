@@ -192,29 +192,23 @@ std::vector<covise::UserInfo> covise::controller::getConfiguredHosts()
 {
     std::vector<UserInfo> retval;
     auto entries = coCoviseConfig::getScopeEntries("System.HostConfig", "Host");
-    auto hosts = entries.getValue();
-    if (hosts)
+    for (const auto &host : entries)
     {
-        int i = 0;
-        while (hosts[i] != nullptr)
+        std::string key = "System.HostConfig." + host.first;
+        if (coCoviseConfig::getEntry("method", key, "vrb") == "manual")
         {
-            std::string key = "System.HostConfig." + std::string{hosts[i]};
-            if (coCoviseConfig::getEntry("method", key, "vrb") == "manual")
-            {
-                std::cerr << hosts[i] << std::endl;
-                
-                covise::TokenBuffer tb;
-                tb << Program::crb
-                   << coCoviseConfig::getEntry("user", key, "empty")
-                   << coCoviseConfig::getEntry("ip", key, "empty")
-                   << coCoviseConfig::getEntry("hostname", key, "empty")
-                   << coCoviseConfig::getEntry("email", key, "empty")
-                   << coCoviseConfig::getEntry("url", key, "empty");
+            std::cerr << host.first << std::endl;
 
-                tb.rewind();
-                retval.push_back(UserInfo{tb});
-            }
-            i = i + 2; //skip value
+            covise::TokenBuffer tb;
+            tb << Program::crb
+               << coCoviseConfig::getEntry("user", key, "empty")
+               << coCoviseConfig::getEntry("ip", key, "empty")
+               << coCoviseConfig::getEntry("hostname", key, "empty")
+               << coCoviseConfig::getEntry("email", key, "empty")
+               << coCoviseConfig::getEntry("url", key, "empty");
+
+            tb.rewind();
+            retval.push_back(UserInfo{tb});
         }
     }
 

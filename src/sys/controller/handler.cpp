@@ -194,19 +194,18 @@ const UIOptions &CTRLHandler::uiOptions()
 
 void CTRLHandler::lookupSiblings()
 {
-    coConfigEntryStringList list = coConfig::getInstance()->getScopeList("System.Siblings");
+    auto list = coConfig::getInstance()->getScopeList("System.Siblings").entries();
 
-    std::list<coConfigEntryString>::iterator listentry = list.begin();
-    while (listentry != list.end() && (!list.empty()))
+    auto listentry = list.begin();
+    for (const auto &listentry : coConfig::getInstance()->getScopeList("System.Siblings").entries())
     {
-        cerr << "Sibling: " << (*listentry).toStdString() << endl;
-        QString value = coConfig::getInstance()->getString("mod1", QString("System.Siblings.") + (*listentry), "");
-        QString value2 = coConfig::getInstance()->getString("mod2", QString("System.Siblings.") + (*listentry), "");
-        cerr << "Sibling: Entry = " << value.toStdString() << endl;
+        cerr << "Sibling: " << listentry.entry << endl;
+        std::string value = coConfig::getInstance()->getString("mod1", "System.Siblings." + listentry.entry, "");
+        std::string value2 = coConfig::getInstance()->getString("mod2", "System.Siblings." + listentry.entry, "");
+        cerr << "Sibling: Entry = " << value << endl;
 
-        siblings.push_back(std::pair<std::string, std::string>(value.toStdString(), value2.toStdString()));
-        //mHostList.push_back(value.toStdString());
-        listentry++;
+        siblings.push_back(std::pair<std::string, std::string>(value, value2));
+        // mHostList.push_back(value.toStdString());
     }
 }
 

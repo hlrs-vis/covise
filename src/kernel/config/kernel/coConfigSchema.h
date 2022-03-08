@@ -9,10 +9,9 @@
 #define COCONFIGSCHEMA_H
 
 #include <config/coConfigEntry.h>
-#include <config/coConfigSchemaInfosList.h>
-#include <QHash>
-#include <QString>
-#include <QStringList>
+#include <string>
+#include <set>
+#include <map>
 
 #include <xercesc/framework/psvi/XSConstants.hpp>
 #include <xercesc/framework/psvi/XSModelGroup.hpp>
@@ -29,7 +28,7 @@ namespace covise
 {
 
 class coConfigSchemaInfos;
-class coConfigSchemaInfosList;
+typedef std::set<coConfigSchemaInfos *> coConfigSchemaInfosList;
 
 class CONFIGEXPORT coConfigSchema
 {
@@ -49,11 +48,11 @@ public:
         return 0;
     }
 
-    static void loadSchema(const QString &filename = 0);
+    static void loadSchema(const std::string &filename = 0);
 
-    QStringList getGroupsFromSchema();
-    coConfigSchemaInfosList *getSchemaInfosForGroup(const QString groupName);
-    coConfigSchemaInfos *getSchemaInfosForElement(const QString &name);
+    std::set<std::string> getGroupsFromSchema();
+    coConfigSchemaInfosList *getSchemaInfosForGroup(const std::string groupName);
+    coConfigSchemaInfos *getSchemaInfosForElement(const std::string &name);
     //    coConfigSchemaInfos* getSchemaInfos(xercesc::XSElementDeclaration* elementDecl);
 
 protected:
@@ -67,23 +66,23 @@ protected:
 private:
     static xercesc::XSModel *xsModel;
     static coConfigSchema *configSchema;
-    static QString fileName;
+    static std::string fileName;
 
-    coConfigSchemaInfos *createSchemaInfos(xercesc::XSElementDeclaration *elementDecl, const QString parent = QString(""));
+    coConfigSchemaInfos *createSchemaInfos(xercesc::XSElementDeclaration *elementDecl, const std::string parent = std::string(""));
     void sortInGroups();
     void walkTree();
     void addAnnotationsForElement(xercesc::XSElementDeclaration *elementDecl, coConfigSchemaInfos *schemaInfos);
-    QHash<QString, QString> *createFromSchemaFileAnnotationsList(xercesc::XSAnnotationList *annoList);
-    QHash<QString, QString> *createFromSchemaFileAnnotation(xercesc::XSAnnotation *anno);
-    QString processSimpleTypeDefinition(xercesc::XSSimpleTypeDefinition *xsSimpleTypeDef);
-    //QStringList processParticle(xercesc::XSParticle *xsParticle);
-    QList<xercesc::XSElementDeclaration *> processParticle(xercesc::XSParticle *xsParticle);
-    QString printCompositorTypeConnector(xercesc::XSModelGroup::COMPOSITOR_TYPE type);
+    std::map<std::string, std::string> createFromSchemaFileAnnotationsList(xercesc::XSAnnotationList *annoList);
+    std::map<std::string, std::string> createFromSchemaFileAnnotation(xercesc::XSAnnotation *anno);
+    std::string processSimpleTypeDefinition(xercesc::XSSimpleTypeDefinition *xsSimpleTypeDef);
+    // std::set<std::string> processParticle(xercesc::XSParticle *xsParticle);
+    std::vector<xercesc::XSElementDeclaration *> processParticle(xercesc::XSParticle *xsParticle);
+    std::string printCompositorTypeConnector(xercesc::XSModelGroup::COMPOSITOR_TYPE type);
 
     // key is path of element, value is pointer to the elements coConfigSchemaInfos
-    QHash<QString, coConfigSchemaInfos *> elements;
+    std::map<std::string, coConfigSchemaInfos *> elements;
     // key is name of group, value is list with all coConfigSchemaInfos
-    QHash<QString, coConfigSchemaInfosList *> groups;
+    std::map<std::string, coConfigSchemaInfosList> groups;
     bool walked;
 };
 }

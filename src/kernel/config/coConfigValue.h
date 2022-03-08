@@ -8,7 +8,7 @@
 #ifndef COCONFIGVALUE_H
 #define COCONFIGVALUE_H
 
-#include <QString>
+#include <string>
 #include <util/coTypes.h>
 
 namespace covise
@@ -21,16 +21,16 @@ class coConfigValue
 {
 
 public:
-    coConfigValue(const QString &configGroupName, const QString &variable, const QString &section);
-    coConfigValue(const QString &variable, const QString &section);
-    coConfigValue(const QString &simpleVariable);
+    coConfigValue(const std::string &configGroupName, const std::string &variable, const std::string &section);
+    coConfigValue(const std::string &variable, const std::string &section);
+    coConfigValue(const std::string &simpleVariable);
     coConfigValue(coConfigGroup *group,
-                  const QString &variable, const QString &section);
+                  const std::string &variable, const std::string &section);
     coConfigValue(coConfigGroup *group,
-                  const QString &simpleVariable);
+                  const std::string &simpleVariable);
     coConfigValue(const coConfigValue<T> &value);
 
-    virtual ~coConfigValue();
+    virtual ~coConfigValue() = default;
 
     virtual void update();
     virtual bool hasValidValue();
@@ -51,14 +51,14 @@ public:
     virtual bool isModified() const;
 
 protected:
-    virtual T fromString(const QString &value) const = 0;
-    virtual QString toString(const T &value) const = 0;
+    virtual T fromString(const std::string &value) const = 0;
+    virtual std::string toString(const T &value) const = 0;
 
-    QString variable;
-    QString section;
-    QString value;
-    QString unmodifiedValue;
-    QString configGroupName;
+    std::string variable;
+    std::string section;
+    std::string value;
+    std::string unmodifiedValue;
+    std::string configGroupName;
 
     bool autoUpdate;
     bool modified;

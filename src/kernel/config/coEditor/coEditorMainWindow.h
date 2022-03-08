@@ -15,7 +15,6 @@
 #include <config/coConfigEntry.h>
 #include <config/coConfigGroup.h>
 #include <config/coConfig.h>
-#include <config/coConfigSchemaInfosList.h>
 
 class QAction;
 class QHBoxLayout;
@@ -32,7 +31,6 @@ namespace covise
 class coConfigEntry;
 class coConfigGroup;
 class coConfig;
-class coConfigSchemaInfosList;
 }
 
 class coEditorMainWindow : public QMainWindow
@@ -88,7 +86,9 @@ private:
     void createConstruct();
     QHash<QString, covise::coConfigEntry *> getEntriesForGroup(const QString groupNamePath);
     void workGroup(const QString &name, covise::coConfigEntry *entry = 0, covise::coConfigSchemaInfosList *infos = 0);
-    void createTreeModel(QStringList elementGroups);
+    template<typename Container>
+    void createTreeModel(const Container &elementGroups);
+    
     void clearData();
 
     QString currentFile;

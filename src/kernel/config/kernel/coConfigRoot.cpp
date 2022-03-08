@@ -5,20 +5,18 @@
 
  * License: LGPL 2+ */
 
-#include <config/coConfigRoot.h>
-#include "coConfigXercesRoot.h"
-#include "coConfigXercesEntry.h"
-#include <config/coConfigLog.h>
-#include <config/coConfigConstants.h>
 #include "coConfigRootErrorHandler.h"
 #include "coConfigTools.h"
+#include "coConfigXercesConverter.h"
+#include "coConfigXercesEntry.h"
+#include "coConfigXercesRoot.h"
 
-#include <QFileInfo>
-#include <QDir>
-
-#include <QRegExp>
-#include <QTextStream>
-
+#include <codecvt>
+#include <config/coConfigConstants.h>
+#include <config/coConfigLog.h>
+#include <config/coConfigRoot.h>
+#include <iostream>
+#include <util/string_util.h>
 #include <xercesc/dom/DOM.hpp>
 #if XERCES_VERSION_MAJOR < 3
 #include <xercesc/dom/DOMWriter.hpp>
@@ -30,20 +28,19 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/validators/common/GrammarResolver.hpp>
 #include <xercesc/validators/schema/SchemaGrammar.hpp>
-
+#include <boost/filesystem.hpp>
+#include <array>
 using namespace covise;
 
-coConfigRoot *coConfigRoot::createNew(const QString &name, const QString &filename,
+coConfigRoot *coConfigRoot::createNew(const std::string &name, const std::string &filename,
                                       bool create, coConfigGroup *group)
 {
     return new coConfigXercesRoot(name, filename, create, group);
 }
 
-coConfigRoot::coConfigRoot(const QString &name, const QString &filename,
+coConfigRoot::coConfigRoot(const std::string &name, const std::string &filename,
                            bool create, coConfigGroup *group)
-    : globalConfig(0)
-    , clusterConfig(0)
-    , hostConfig(0)
+    : globalConfig(0), clusterConfig(0), hostConfig(0)
 {
 
     this->filename = filename;
@@ -61,68 +58,69 @@ coConfigRoot::~coConfigRoot()
 }
 
 /**
- * Creates a copy of a coConfigXercesRoot. The group the copy belongs to is set to 0. 
+ * Creates a copy of a coConfigXercesRoot. The group the copy belongs to is set to 0.
  * Makes a deep copy of all coConfigEntries belonging to this group.
  */
 
 coConfigXercesRoot::coConfigXercesRoot(const coConfigXercesRoot *source)
     : coConfigRoot(source->configName, source->filename, source->create, 0)
 {
-    this->activeHostname = source->activeHostname;
-    this->activeCluster = source->activeCluster;
-    this->hostnames = source->hostnames;
-    this->masternames = source->masternames;
+    activeHostname = source->activeHostname;
+    activeCluster = source->activeCluster;
+    hostnames = source->hostnames;
+    masternames = source->masternames;
 
-    this->configName = source->configName;
+    configName = source->configName;
 
-    this->globalConfig = source->globalConfig->clone();
+    globalConfig = source->globalConfig->clone();
 
-    for (QHash<QString, coConfigEntry *>::const_iterator entry = source->hostConfigs.begin(); entry != source->hostConfigs.end(); ++entry)
+    for (auto entry : source->hostConfigs)
     {
-        if (entry.value())
-            this->hostConfigs.insert(entry.key(), entry.value()->clone());
+        if (entry.second)
+            hostConfigs.insert({entry.first, entry.second->clone()});
         else
-            this->hostConfigs.insert(entry.key(), 0);
+            hostConfigs.insert({entry.first, nullptr});
     }
 
-    if (this->hostConfigs.contains(this->activeHostname))
-        this->hostConfig = this->hostConfigs[this->activeHostname];
+    if (hostConfigs.find(activeHostname) != hostConfigs.end())
+        hostConfig = hostConfigs[activeHostname];
     else
-        this->hostConfig = 0;
+        hostConfig = 0;
 
-    for (QHash<QString, coConfigEntry *>::const_iterator entry = source->clusterConfigs.begin(); entry != source->clusterConfigs.end(); ++entry)
+    for (auto entry : source->clusterConfigs)
     {
-        if (entry.value())
-            this->clusterConfigs.insert(entry.key(), entry.value()->clone());
+        if (entry.second)
+            clusterConfigs.insert({entry.first, entry.second->clone()});
         else
-            this->clusterConfigs.insert(entry.key(), 0);
+            clusterConfigs.insert({entry.first, nullptr});
     }
 
-    if (this->clusterConfigs.contains(this->activeCluster))
-        this->clusterConfig = this->clusterConfigs[this->activeCluster];
+    if (clusterConfigs.find(activeCluster) != clusterConfigs.end())
+        clusterConfig = clusterConfigs[activeCluster];
     else
-        this->clusterConfig = 0;
+        clusterConfig = nullptr;
 
-    this->create = source->create;
-    this->readOnly = source->readOnly;
+    create = source->create;
+    readOnly = source->readOnly;
 }
 
-coConfigXercesRoot::coConfigXercesRoot(const QString &name, const QString &filename,
+coConfigXercesRoot::coConfigXercesRoot(const std::string &name, const std::string &filename,
                                        bool create, coConfigGroup *group)
     : coConfigRoot(name, filename, create, group)
 {
     load(create);
 }
 
-coConfigXercesRoot::coConfigXercesRoot(const xercesc::DOMNode *node, const QString &name,
-                                       const QString &filename, coConfigGroup *group)
+coConfigXercesRoot::coConfigXercesRoot(const xercesc::DOMNode *node, const std::string &name,
+                                       const std::string &filename, coConfigGroup *group)
     : coConfigRoot(name, filename, false, group)
 {
     xercesc::DOMNode *globalConfigNode = 0;
     xercesc::DOMNodeList *nodeList = node->getChildNodes();
     for (int it = 0; it < nodeList->getLength(); ++it)
     {
-        QString nodeName = QString::fromUtf16(reinterpret_cast<const ushort *>(nodeList->item(it)->getNodeName()));
+        auto nodeName = xercescToStdString(nodeList->item(it)->getNodeName());
+
         if (nodeName == "COCONFIG")
         {
             globalConfigNode = nodeList->item(it);
@@ -157,28 +155,28 @@ void coConfigRoot::setGroup(coConfigGroup *group)
     this->group = group;
 }
 
-QStringList coConfigRoot::getHostnameList() const
+const std::set<std::string> &coConfigRoot::getHostnameList() const
 {
     return hostnames;
 }
 
-QString coConfigRoot::getActiveHost() const
+const std::string &coConfigRoot::getActiveHost() const
 {
     return activeHostname;
 }
 
-bool coConfigRoot::setActiveHost(const QString &host)
+bool coConfigRoot::setActiveHost(const std::string &host)
 {
-    if (hostnames.contains(host.toLower()))
+    if (hostnames.find(toLower(host)) != hostnames.end())
     {
-        //cerr << "coConfigRoot::setActiveHost info: setting active host "
-        //     << host << endl;
-        activeHostname = host.toLower();
+        // cerr << "coConfigRoot::setActiveHost info: setting active host "
+        //      << host << endl;
+        activeHostname = toLower(host);
 
         hostConfig = hostConfigs[activeHostname];
-        if (hostConfig == 0)
+        if (!hostConfig)
         {
-            hostConfigs[activeHostname] = hostConfig = 0;
+            hostConfigs[activeHostname] = hostConfig = nullptr;
         }
 
         return true;
@@ -186,30 +184,30 @@ bool coConfigRoot::setActiveHost(const QString &host)
     else
     {
 
-        COCONFIGLOG("coConfigRoot::setActiveHost warn: could not set active host " << host.toLower() << ", this: " << this);
+        COCONFIGLOG("coConfigRoot::setActiveHost warn: could not set active host " << toLower(host) << ", this: " << this);
         return false;
     }
 }
 
-QStringList coConfigRoot::getClusterList() const
+const std::set<std::string> &coConfigRoot::getClusterList() const
 {
     return masternames;
 }
 
-QString coConfigRoot::getActiveCluster() const
+const std::string &coConfigRoot::getActiveCluster() const
 {
     return activeCluster;
 }
 
-bool coConfigRoot::setActiveCluster(const QString &master)
+bool coConfigRoot::setActiveCluster(const std::string &master)
 {
-    if (masternames.contains(master.toLower()) || master.isEmpty())
+    if (masternames.find(toLower(master)) != masternames.end() || master.empty())
     {
-        //cerr << "coConfigRoot::setActiveCluster info: setting active master "
-        //     << master << endl;
-        activeCluster = master.toLower();
+        // cerr << "coConfigRoot::setActiveCluster info: setting active master "
+        //      << master << endl;
+        activeCluster = toLower(master);
 
-        if (master.isEmpty())
+        if (master.empty())
         {
             clusterConfig = 0;
         }
@@ -227,12 +225,12 @@ bool coConfigRoot::setActiveCluster(const QString &master)
     else
     {
 
-        COCONFIGDBG("coConfigRoot::setActiveCluster warn: could not set active cluster " << master.toLower());
+        COCONFIGDBG("coConfigRoot::setActiveCluster warn: could not set active cluster " << toLower(master));
         return false;
     }
 }
 
-const QString &coConfigRoot::getConfigName() const
+const std::string &coConfigRoot::getConfigName() const
 {
     return configName;
 }
@@ -248,11 +246,10 @@ void coConfigRoot::reload()
 
 void coConfigXercesRoot::load(bool create)
 {
-
-    QFileInfo configfile(findConfigFile(filename));
-    if (configfile.isFile())
+    auto configfile = findConfigFile(filename);
+    if (boost::filesystem::exists(configfile))
     {
-        xercesc::DOMNode *globalConfigNode = loadFile(configfile.filePath());
+        xercesc::DOMNode *globalConfigNode = loadFile(configfile);
         if (globalConfigNode)
         {
             setContentsFromDom(globalConfigNode);
@@ -272,20 +269,17 @@ void coConfigXercesRoot::load(bool create)
         }
     }
 
-    if (!hostnames.contains(coConfigConstants::getHostname()))
+    hostnames.insert(coConfigConstants::getHostname());
+    if (!coConfigConstants::getMaster().empty())
     {
-        hostnames.append(coConfigConstants::getHostname());
-    }
-    if (!coConfigConstants::getMaster().isEmpty() && !masternames.contains(coConfigConstants::getMaster()))
-    {
-        masternames.append(coConfigConstants::getMaster());
+        masternames.insert(coConfigConstants::getMaster());
     }
 
-    if (!hostnames.contains(activeHostname))
+    if (hostnames.find(activeHostname) == hostnames.end())
     {
         activeHostname = coConfigConstants::getHostname();
     }
-    if (!masternames.contains(activeCluster))
+    if (masternames.find(activeCluster) == masternames.end())
     {
         activeCluster = coConfigConstants::getMaster();
     }
@@ -294,9 +288,38 @@ void coConfigXercesRoot::load(bool create)
     setActiveHost(activeHostname);
 }
 
+void readHosts(const std::string &hostTemp, std::set<std::string> &hostnames, std::map<std::string, coConfigEntry *> &configs, const std::string &configName, xercesc::DOMElement *node, coConfigEntry *globalConfig)
+{
+    auto hosts = split(hostTemp, ',', true);
+    for (const auto &host : hosts)
+    {
+        std::string hostname = toLower(strip(host));
+        // cerr << "coConfigRoot::setContentsFromDom info: adding for host " << hostname.latin1() << endl;
+        if (hostnames.insert(hostname).second)
+        {
+            configs.insert({hostname, coConfigXercesEntry::restoreFromDom(node, configName)});
+        }
+        else
+        {
+            auto &hostConfig = configs[hostname];
+            if (!hostConfig)
+                hostConfig = coConfigXercesEntry::restoreFromDom(node, configName);
+            else
+                hostConfig->merge(coConfigXercesEntry::restoreFromDom(node, configName));
+
+            // Temporary attributes cleanup
+            if (globalConfig)
+            {
+                globalConfig->deleteValue("scope", std::string());
+                globalConfig->deleteValue("configname", std::string());
+            }
+        }
+    }
+}
+
 void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
 {
-    //COCONFIGLOG("coConfigRoot::setContentsFromDom info: creating tree from " << configName);
+    // COCONFIGLOG("coConfigRoot::setContentsFromDom info: creating tree from " << configName);
 
     if (node)
     {
@@ -308,7 +331,7 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
             if (!node)
                 continue;
 
-            QString nodeName = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getNodeName()));
+            auto nodeName = xercescToStdString(node->getNodeName());
 
             if (nodeName == "GLOBAL")
             {
@@ -320,11 +343,10 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                 else
                 {
                     // Temporary attributes
-                    globalConfigNode->setAttribute(xercesc::XMLString::transcode("scope"),
-                                                   xercesc::XMLString::transcode("global"));
-
-                    globalConfigNode->setAttribute(xercesc::XMLString::transcode("configname"),
-                                                   reinterpret_cast<const XMLCh *>(configName.utf16()));
+                    globalConfigNode->setAttribute(stringToXexcesc("scope").get(),
+                                                   stringToXexcesc("global").get());
+                    globalConfigNode->setAttribute(stringToXexcesc("configname").get(),
+                                                   stringToXexcesc(configName).get());
 
                     if (globalConfig == 0)
                     {
@@ -335,140 +357,62 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                         globalConfig->merge(coConfigXercesEntry::restoreFromDom(node, configName));
                     }
                     // Temporary attributes cleanup
-                    globalConfig->deleteValue("scope", QString());
-                    globalConfig->deleteValue("configname", QString());
+                    globalConfig->deleteValue("scope", "");
+                    globalConfig->deleteValue("configname", "");
                 }
             }
             else if (nodeName == "LOCAL")
             {
 
                 // Temporary attributes
-                node->setAttribute(xercesc::XMLString::transcode("scope"),
-                                   xercesc::XMLString::transcode("host"));
+                node->setAttribute(stringToXexcesc("scope").get(),
+                                   stringToXexcesc("host").get());
 
-                node->setAttribute(xercesc::XMLString::transcode("configname"),
-                                   reinterpret_cast<const XMLCh *>(configName.utf16()));
+                node->setAttribute(stringToXexcesc("configname").get(),
+                                   stringToXexcesc(configName).get());
 
-                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("HOST"))));
-
-                QStringList hosts = hostTemp.split(',', SplitBehaviorFlags::SkipEmptyParts);
-                for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
-                {
-                    QString hostname = (*i).trimmed().toLower();
-                    //cerr << "coConfigRoot::setContentsFromDom info: adding for host " << hostname.latin1() << endl;
-                    if (!hostnames.contains(hostname))
-                    {
-                        hostnames.append(hostname);
-                        hostConfigs.insert(hostname, coConfigXercesEntry::restoreFromDom(node, configName));
-                    }
-                    else
-                    {
-                        if (hostConfigs[hostname] == 0)
-                            hostConfigs.insert(hostname, coConfigXercesEntry::restoreFromDom(node, configName));
-                        else
-                            hostConfigs[hostname]->merge(coConfigXercesEntry::restoreFromDom(node, configName));
-
-                        // Temporary attributes cleanup
-                        if (globalConfig)
-                        {
-                            globalConfig->deleteValue("scope", QString());
-                            globalConfig->deleteValue("configname", QString());
-                        }
-                    }
-                }
+                std::string hostTemp = xercescToStdString(node->getAttribute(stringToXexcesc("HOST").get()));
+                readHosts(hostTemp, hostnames, hostConfigs, configName, node, globalConfig);
             }
             else if (nodeName == "CLUSTER")
             {
 
                 // Temporary attributes
-                node->setAttribute(xercesc::XMLString::transcode("scope"),
-                                   xercesc::XMLString::transcode("cluster"));
+                node->setAttribute(stringToXexcesc("scope").get(),
+                                   stringToXexcesc("cluster").get());
 
-                node->setAttribute(xercesc::XMLString::transcode("configname"),
-                                   reinterpret_cast<const XMLCh *>(configName.utf16()));
+                node->setAttribute(stringToXexcesc("configname").get(),
+                                   stringToXexcesc(configName).get());
 
-                QString hostTemp = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("MASTER"))));
-
-                QStringList hosts = hostTemp.split(',', SplitBehaviorFlags::SkipEmptyParts);
-                for (QStringList::iterator i = hosts.begin(); i != hosts.end(); ++i)
-                {
-                    QString hostname = (*i).trimmed().toLower();
-                    if (!masternames.contains(hostname))
-                    {
-                        masternames.append(hostname);
-                        clusterConfigs.insert(hostname, coConfigXercesEntry::restoreFromDom(node, configName));
-                    }
-                    else
-                    {
-                        if (clusterConfigs[hostname] == 0)
-                        {
-                            clusterConfigs.insert(hostname, coConfigXercesEntry::restoreFromDom(node, configName));
-                        }
-                        else
-                        {
-                            clusterConfigs[hostname]->merge(coConfigXercesEntry::restoreFromDom(node, configName));
-                        }
-
-                        // Temporary attributes cleanup
-                        if (globalConfig)
-                        {
-                            globalConfig->deleteValue("scope", QString());
-                            globalConfig->deleteValue("configname", QString());
-                        }
-                    }
-                }
+                std::string hostTemp = xercescToStdString(node->getAttribute(stringToXexcesc("MASTER").get()));
+                readHosts(hostTemp, masternames, clusterConfigs, configName, node, globalConfig);
             }
             else if (nodeName == "INCLUDE" || nodeName == "TRYINCLUDE")
             {
-                QHash<QString, QString *> attributes;
-                QString arch, host, rank, master;
-                const ushort *archUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("ARCH")));
-                const ushort *rankUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("RANK")));
-                const ushort *hostUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("HOST")));
-                const ushort *masterUtf16 = reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("MASTER")));
-                if (archUtf16)
+                std::map<std::string, std::string> attributes;
+                for (const auto &attributeName : coConfigTools::attributeNames)
                 {
-                    arch = QString::fromUtf16(archUtf16);
-                    if (!arch.isEmpty())
-                        attributes["ARCH"] = &arch;
+                    auto val = xercescToStdString(node->getAttribute(stringToXexcesc(attributeName).get()));
+                    if (!val.empty())
+                        attributes.insert({attributeName, val});
                 }
-                if (rankUtf16)
-                {
-                    rank = QString::fromUtf16(rankUtf16);
-                    if (!rank.isEmpty())
-                        attributes["RANK"] = &rank;
-                }
-                if (hostUtf16)
-                {
-                    host = QString::fromUtf16(hostUtf16);
-                    if (!host.isEmpty())
-                        attributes["HOST"] = &host;
-                }
-                if (masterUtf16)
-                {
-                    master = QString::fromUtf16(masterUtf16);
-                    if (!master.isEmpty())
-                        attributes["MASTER"] = &master;
-                }
-
                 if (coConfigTools::matchingAttributes(attributes))
                 {
-                    QString filename = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getFirstChild()->getNodeValue())).trimmed();
-                    if (!included.contains(filename))
+                    std::string filename = strip(xercescToStdString(node->getFirstChild()->getNodeValue()));
+                    if (included.find(filename) == included.end())
                     {
                         COCONFIGDBG("coConfigRoot::setContentsFromDom info: INCLUDE:  filename: " << filename);
 
                         xercesc::DOMNode *includeNode = 0;
 
                         // try in current directory first
-                        QDir pwd = QDir(this->filename);
-                        pwd.cdUp();
-                        QString localPath = pwd.filePath(filename);
-                        if (QFileInfo(localPath).isFile())
+                        boost::filesystem::path p{this->filename};
+                        std::string localPath = (p.parent_path() / filename).string();
+                        if (boost::filesystem::exists(localPath))
                         {
                             includeNode = loadFile(localPath);
                         }
-                        else if (!node->getAttribute(xercesc::XMLString::transcode("global")) || QString::fromUtf16(reinterpret_cast<const ushort *>(node->getAttribute(xercesc::XMLString::transcode("global")))) == "0")
+                        else if (!node->getAttribute(stringToXexcesc("global").get()) || xercescToStdString(node->getAttribute(stringToXexcesc("global").get())) == "0")
                             includeNode = loadFile(findConfigFile(filename, false));
                         else
                             includeNode = loadFile(findConfigFile(filename, true));
@@ -500,12 +444,12 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
         }
     }
 
-    if (!coConfigConstants::getMaster().isEmpty() && !masternames.contains(coConfigConstants::getMaster()))
+    if (!coConfigConstants::getMaster().empty())
     {
-        masternames.append(coConfigConstants::getMaster());
+        masternames.insert(coConfigConstants::getMaster());
     }
 
-    if (!masternames.contains(activeCluster))
+    if (masternames.find(activeCluster) == masternames.end())
     {
         activeCluster = coConfigConstants::getMaster();
     }
@@ -514,19 +458,16 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
     // Set active host
     //
 
-    if (!hostnames.contains(coConfigConstants::getHostname()))
-    {
-        hostnames.append(coConfigConstants::getHostname());
-    }
+    hostnames.insert(coConfigConstants::getHostname());
 
-    if (!hostnames.contains(activeHostname))
+    if (hostnames.find(activeHostname) == hostnames.end())
     {
         activeHostname = coConfigConstants::getHostname();
     }
     setActiveHost(activeHostname);
 }
 
-coConfigEntryStringList coConfigRoot::getScopeList(const QString &section, const QString &variableName) const
+coConfigEntryStringList coConfigRoot::getScopeList(const std::string &section, const std::string &variableName) const
 {
 
     coConfigEntryStringList global;
@@ -542,17 +483,17 @@ coConfigEntryStringList coConfigRoot::getScopeList(const QString &section, const
     coConfigEntryStringList merged = global.merge(cluster);
     merged = merged.merge(host);
 
-    if (variableName.isEmpty())
+    if (variableName.empty())
     {
         return merged;
     }
     else
     {
-        return merged.filter(QRegExp("^" + variableName + ":.*"));
+        return merged.filter(std::regex("^" + variableName + ":.*"));
     }
 }
 
-coConfigEntryStringList coConfigRoot::getVariableList(const QString &section) const
+coConfigEntryStringList coConfigRoot::getVariableList(const std::string &section) const
 {
 
     coConfigEntryStringList global;
@@ -568,35 +509,33 @@ coConfigEntryStringList coConfigRoot::getVariableList(const QString &section) co
     return global.merge(cluster).merge(host);
 }
 
-coConfigEntryString coConfigRoot::getValue(const QString &variable,
-                                           const QString &section,
-                                           const QString &defaultValue) const
+coConfigEntryString coConfigRoot::getValue(const std::string &variable,
+                                           const std::string &section,
+                                           const std::string &defaultValue) const
 {
 
     coConfigEntryString value = getValue(variable, section);
-    if (value.isNull())
-    {
-        return coConfigEntryString(defaultValue).setConfigName(configName);
-    }
+    if (value.entry.empty())
+        return coConfigEntryString{defaultValue, configName};
     return value;
 }
 
-coConfigEntryString coConfigRoot::getValue(const QString &simpleVariable) const
+coConfigEntryString coConfigRoot::getValue(const std::string &simpleVariable) const
 {
     return getValue("value", simpleVariable);
 }
 
-coConfigEntryString coConfigRoot::getValue(const QString &variable,
-                                           const QString &section) const
+coConfigEntryString coConfigRoot::getValue(const std::string &variable,
+                                           const std::string &section) const
 {
 
     if (hostConfig)
     {
         coConfigEntryString localItem = hostConfig->getValue(variable, section);
 
-        if (!localItem.isNull())
+        if (!localItem.entry.empty())
         {
-            localItem.setConfigName(configName);
+            localItem.configName = configName;
             return localItem;
         }
     }
@@ -605,9 +544,9 @@ coConfigEntryString coConfigRoot::getValue(const QString &variable,
     {
         coConfigEntryString localItem = clusterConfig->getValue(variable, section);
 
-        if (!localItem.isNull())
+        if (!localItem.entry.empty())
         {
-            localItem.setConfigName(configName);
+            localItem.configName = configName;
             return localItem;
         }
     }
@@ -616,14 +555,14 @@ coConfigEntryString coConfigRoot::getValue(const QString &variable,
     {
         coConfigEntryString globalItem = globalConfig->getValue(variable, section);
 
-        if (!globalItem.isNull())
+        if (!globalItem.entry.empty())
         {
-            globalItem.setConfigName(configName);
+            globalItem.configName = configName;
             return globalItem;
         }
     }
 
-    //cerr << "coConfig::getValue info: " << section << "."
+    // cerr << "coConfig::getValue info: " << section << "."
     //<< variable << "=" << (item.isNull() ? "*NULL*" : item) << endl;
 
     return coConfigEntryString();
@@ -647,45 +586,34 @@ const char *coConfigRoot::getEntry(const char *variable) const
     return item;
 }
 
-bool coConfigRoot::isOn(const QString &simpleVariable, bool defaultValue) const
+bool coConfigRoot::isOn(const std::string &simpleVariable, bool defaultValue) const
 {
     return isOn("value", simpleVariable, defaultValue);
 }
 
-bool coConfigRoot::isOn(const QString &simpleVariable) const
+bool coConfigRoot::isOn(const std::string &simpleVariable) const
 {
     return isOn("value", simpleVariable);
 }
 
-bool coConfigRoot::isOn(const QString &variable, const QString &section,
+bool coConfigRoot::isOn(const std::string &variable, const std::string &section,
                         bool defaultValue) const
 {
 
-    coConfigEntryString value = getValue(variable, section);
+    auto value = getValue(variable, section).entry;
 
-    if (value.isNull())
+    if (value.empty())
         return defaultValue;
 
-    if ((value.toLower() == "on") || (value.toLower() == "true") || (value.toInt() > 0))
+    if (toLower(value) == "on" || toLower(value) == "true" || atoi(value.c_str()) > 0)
         return true;
     else
         return false;
 }
 
-bool coConfigRoot::isOn(const QString &variable, const QString &section) const
-{
-
-    coConfigEntryString value = getValue(variable, section);
-
-    if ((value.toLower() == "on") || (value.toLower() == "true") || (value == "1"))
-        return true;
-    else
-        return false;
-}
-
-void coConfigRoot::setValue(const QString &variable, const QString &value,
-                            const QString &section,
-                            const QString &targetHost, bool move)
+void coConfigRoot::setValue(const std::string &variable, const std::string &value,
+                            const std::string &section,
+                            const std::string &targetHost, bool move)
 {
 
     if (move)
@@ -699,17 +627,17 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
         return;
     }
 
-    //coConfigEntryString oldValue = getValue(variable, section);
+    // coConfigEntryString oldValue = getValue(variable, section);
 
     coConfigConstants::ConfigScope scope = coConfigConstants::Default;
 
-    //if (oldValue.isNull()) {
-    //  scope = coConfigConstants::Global;
-    //} else {
-    //  scope = oldValue.getConfigScope();
-    //}
+    // if (oldValue.isNull()) {
+    //   scope = coConfigConstants::Global;
+    // } else {
+    //   scope = oldValue.getConfigScope();
+    // }
 
-    if (targetHost == QString())
+    if (targetHost == std::string())
     {
         scope = coConfigConstants::Global;
     }
@@ -730,7 +658,7 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
         break;
 
     case coConfigConstants::Cluster:
-        if (targetHost == QString())
+        if (targetHost == std::string())
         {
             if (!clusterConfig->setValue(variable, value, section))
                 clusterConfig->addValue(variable, value, section);
@@ -748,7 +676,7 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
         break;
 
     case coConfigConstants::Host:
-        if ((targetHost.toLower() == activeHostname) || (targetHost == QString()))
+        if ((toLower(targetHost) == activeHostname) || (targetHost == std::string()))
         {
             if (!hostConfig->setValue(variable, value, section))
                 hostConfig->addValue(variable, value, section);
@@ -774,8 +702,8 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
     //      << " = " << oldValue << " in scope " << oldValue.getConfigScope() << endl;
 }
 
-bool coConfigRoot::deleteValue(const QString &variable, const QString &section,
-                               const QString &targetHost)
+bool coConfigRoot::deleteValue(const std::string &variable, const std::string &section,
+                               const std::string &targetHost)
 {
 
     if (isReadOnly())
@@ -784,7 +712,7 @@ bool coConfigRoot::deleteValue(const QString &variable, const QString &section,
         return false;
     }
 
-    if (targetHost == QString())
+    if (targetHost == std::string())
     {
         if (globalConfig)
             return globalConfig->deleteValue(variable, section);
@@ -799,7 +727,7 @@ bool coConfigRoot::deleteValue(const QString &variable, const QString &section,
     return false;
 }
 
-bool coConfigRoot::deleteSection(const QString &section, const QString &targetHost)
+bool coConfigRoot::deleteSection(const std::string &section, const std::string &targetHost)
 {
     if (isReadOnly())
     {
@@ -807,7 +735,7 @@ bool coConfigRoot::deleteSection(const QString &section, const QString &targetHo
         return false;
     }
 
-    if (targetHost == QString())
+    if (targetHost == std::string())
     {
         if (globalConfig)
             return globalConfig->deleteSection(section);
@@ -822,7 +750,7 @@ bool coConfigRoot::deleteSection(const QString &section, const QString &targetHo
     return false;
 }
 
-bool coConfigRoot::save(const QString &filename) const
+bool coConfigRoot::save(const std::string &filename) const
 {
 
     if (isReadOnly())
@@ -831,35 +759,35 @@ bool coConfigRoot::save(const QString &filename) const
         return true;
     }
 
-    QString saveToFile = filename;
-    if (filename == QString())
+    std::string saveToFile = filename;
+    if (filename == std::string())
     {
         saveToFile = this->filename;
     }
 
-    if (saveToFile == QString())
+    if (saveToFile == std::string())
     {
         COCONFIGDBG("coConfigRoot::save info: no filename given, skipping save");
         return true;
     }
 
-    xercesc::DOMImplementation *impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+    xercesc::DOMImplementation *impl = xercesc::DOMImplementationRegistry::getDOMImplementation(stringToXexcesc("Core").get());
 
-    xercesc::DOMDocument *document = impl->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
+    xercesc::DOMDocument *document = impl->createDocument(0, stringToXexcesc("COCONFIG").get(), 0);
 
     xercesc::DOMElement *rootElement = document->getDocumentElement();
 
 #if XERCES_VERSION_MAJOR < 3
-    document->setVersion(xercesc::XMLString::transcode("1.0"));
+    document->setVersion(stringToXexcesc("1.0").get());
     document->setStandalone(true);
-    document->setEncoding(xercesc::XMLString::transcode("utf8"));
+    document->setEncoding(stringToXexcesc("utf8").get());
 #else
-    document->setXmlVersion(xercesc::XMLString::transcode("1.0"));
+    document->setXmlVersion(stringToXexcesc("1.0").get());
     document->setXmlStandalone(true);
 #endif
 
-    //    xercesc::DOMProcessingInstruction * processingInstruction =   document->createProcessingInstruction(xercesc::XMLString::transcode("xml"),
-    //           xercesc::XMLString::transcode("version=\"1.0\""));
+    //    xercesc::DOMProcessingInstruction * processingInstruction =   document->createProcessingInstruction(stringToXexcesc("xml"),
+    //           stringToXexcesc("version=\"1.0\""));
     //     rootElement->appendChild(processingInstruction);
 
     COCONFIGDBG("coConfigRoot::save info: writing config " << configName << " to " << saveToFile);
@@ -867,32 +795,31 @@ bool coConfigRoot::save(const QString &filename) const
     if (coConfigXercesEntry *gc = dynamic_cast<coConfigXercesEntry *>(globalConfig))
     {
         COCONFIGDBG("coConfigRoot::save info: saving global config ");
-        rootElement->appendChild(document->createTextNode(xercesc::XMLString::transcode("\n")));
+        rootElement->appendChild(document->createTextNode(stringToXexcesc("\n").get()));
         rootElement->appendChild(gc->storeToDom(*document));
-        rootElement->appendChild(document->createTextNode(xercesc::XMLString::transcode("\n")));
+        rootElement->appendChild(document->createTextNode(stringToXexcesc("\n").get()));
     }
     else
     {
         COCONFIGDBG("coConfigRoot::save info: skipping save of global config");
     }
 
-    QList<QString> keys = hostConfigs.keys();
-    for (QList<QString>::const_iterator i = keys.begin(); i != keys.end(); ++i)
+    for (const auto &hostConfig : hostConfigs)
     {
-        coConfigEntry *config = hostConfigs[*i];
+        coConfigEntry *config = hostConfig.second;
         if (coConfigXercesEntry *c = dynamic_cast<coConfigXercesEntry *>(config))
         {
-            COCONFIGDBG("coConfigRoot::save info: saving host config for " << *i);
-            QString confignameAttr = config->getValue("configname", QString());
+            COCONFIGDBG("coConfigRoot::save info: saving host config for " << hostConfig.first);
+            std::string confignameAttr = config->getValue("configname", std::string()).entry;
             // configname attr is only intern. No need to write it to file.
-            c->deleteValue("configname", QString());
+            c->deleteValue("configname", std::string());
             rootElement->appendChild(c->storeToDom(*document));
             // set attr again (NOTE shall it be saveToFile), maybe the libary is still in use
-            c->setValue("configname", confignameAttr, QString());
-            rootElement->appendChild(document->createTextNode(xercesc::XMLString::transcode("\n")));
+            c->setValue("configname", confignameAttr, std::string());
+            rootElement->appendChild(document->createTextNode(stringToXexcesc("\n").get()));
         }
         else
-            COCONFIGDBG("coConfigRoot::save info: null entry for " << *i << "!");
+            COCONFIGDBG("coConfigRoot::save info: null entry for " << hostConfig.first << "!");
     }
 
 #if XERCES_VERSION_MAJOR < 3
@@ -911,16 +838,16 @@ bool coConfigRoot::save(const QString &filename) const
     xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
 
     writer->getDomConfig();
-    //xercesc::DOMConfiguration* dc = writer->getDomConfig();
+    // xercesc::DOMConfiguration* dc = writer->getDomConfig();
 
-    //dc->setParameter(xercesc::XMLUni::fgDOMErrorHandler,errorHandler);
+    // dc->setParameter(xercesc::XMLUni::fgDOMErrorHandler,errorHandler);
 
-    //dc->setParameter(xercesc::XMLUni::fgDOMWRTDiscardDefaultContent,true);
+    // dc->setParameter(xercesc::XMLUni::fgDOMWRTDiscardDefaultContent,true);
 
     xercesc::DOMLSOutput *theOutput = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    theOutput->setEncoding(xercesc::XMLString::transcode("utf8"));
+    theOutput->setEncoding(stringToXexcesc("utf8").get());
 
-    bool written = writer->writeToURI(rootElement, xercesc::XMLString::transcode(saveToFile.toLatin1()));
+    bool written = writer->writeToURI(rootElement, stringToXexcesc(saveToFile).get());
     if (!written)
         COCONFIGLOG("coConfigRoot::save info: Could not open file for writing !");
     delete writer;
@@ -930,66 +857,64 @@ bool coConfigRoot::save(const QString &filename) const
     return written;
 }
 
-QString coConfigRoot::findConfigFile(const QString &filename, bool preferGlobal)
+std::string coConfigRoot::findConfigFile(const std::string &filename, bool preferGlobal)
 {
 
-    QFile configfile;
-
+    boost::filesystem::path configfile;
     if (preferGlobal)
     {
 
-        findGlobalConfig(filename, configfile);
-        if (!configfile.exists())
-            findLocalConfig(filename, configfile);
+        auto configfile = findGlobalConfig(filename);
+        if (!boost::filesystem::exists(configfile))
+            configfile = findLocalConfig(filename);
     }
     else
     {
 
-        findLocalConfig(filename, configfile);
-        if (!configfile.exists())
-            findGlobalConfig(filename, configfile);
+        configfile = findLocalConfig(filename);
+        if (!boost::filesystem::exists(configfile))
+            configfile = findGlobalConfig(filename);
     }
 
-    return configfile.fileName();
+    return configfile.string();
 }
 
-void coConfigRoot::findLocalConfig(const QString &filename, QFile &configfile)
+boost::filesystem::path coConfigRoot::findLocalConfig(const std::string &filename)
 {
-
-    QString localConfigPath = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
-    QDir d;
-
-    d = QDir(localConfigPath);
-    if (d.exists())
-        configfile.setFileName(d.absoluteFilePath(filename));
+    std::string localConfigPath = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
+    boost::filesystem::path d{localConfigPath};
+    if (boost::filesystem::exists(d))
+        return boost::filesystem::path{boost::filesystem::absolute(filename, localConfigPath)};
+    return boost::filesystem::path{};
 }
 
-void coConfigRoot::findGlobalConfig(const QString &filename, QFile &configfile)
+boost::filesystem::path coConfigRoot::findGlobalConfig(const std::string &filename)
 {
-    QStringList pathEntries = coConfigDefaultPaths::getSearchPath();
+    std::set<std::string> pathEntries = coConfigDefaultPaths::getSearchPath();
 
-    for (QStringList::const_iterator pathEntry = pathEntries.begin(); pathEntry != pathEntries.end(); ++pathEntry)
+    for (const auto &pathEntry : pathEntries)
     {
-        QDir d = QDir(*pathEntry + QDir::separator() + "config");
-        configfile.setFileName(d.absoluteFilePath(filename));
-        COCONFIGDBG("coConfigRoot::findConfigFile info: trying " << configfile.fileName());
-        if (!configfile.exists())
+        boost::filesystem::path d{pathEntry + pathSeparator + "config" + pathSeparator + filename};
+        COCONFIGDBG("coConfigRoot::findConfigFile info: trying " << d.string());
+        if (!boost::filesystem::exists(d))
         {
-            d = QDir(*pathEntry);
-            configfile.setFileName(d.absoluteFilePath(filename));
-            COCONFIGDBG("coConfigRoot::findConfigFile info: trying " << configfile.fileName());
+            d = boost::filesystem::path{boost::filesystem::absolute(filename)};
+            COCONFIGDBG("coConfigRoot::findConfigFile info: trying " << d.string());
         }
-        if (configfile.exists())
-            break;
+        if (boost::filesystem::exists(d))
+            return d;
     }
+    return boost::filesystem::path{};
 }
 
-xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
+xercesc::DOMNode *coConfigXercesRoot::loadFile(const std::string &filename)
 {
-    //create Parser, get Schema file and return element
+    // create Parser, get Schema file and return element
     xercesc::DOMElement *globalConfigElement = 0;
-    QString schemaFile;
-    if (!QFileInfo(filename).isFile())
+    std::string schemaFile;
+    boost::filesystem::path p;
+    boost::filesystem::is_regular_file(filename);
+    if (!boost::filesystem::is_regular_file(filename))
     {
         COCONFIGDBG("coConfigRoot::loadFile err: non existent filename: " << filename);
         return globalConfigElement;
@@ -1001,16 +926,16 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
         coConfigRootErrorHandler handler;
 
         xercesc::XMLGrammarPool *grammarPool;
-        QString externalSchemaFile = getenv("COCONFIG_SCHEMA");
-        if (QFileInfo(externalSchemaFile).isFile())
+        auto externalSchemaFile = getenv("COCONFIG_SCHEMA");
+        if (externalSchemaFile && boost::filesystem::is_regular_file(externalSchemaFile))
         {
             schemaFile = externalSchemaFile;
-            COCONFIGDBG("coConfigRoot::loadFile info externalSchemaFile: " << schemaFile.toLatin1());
+            COCONFIGDBG("coConfigRoot::loadFile info externalSchemaFile: " << schemaFile);
         }
 
         try
         {
-// Getting a XSmodel from the SchemaGrammar, needed to process annotations
+            // Getting a XSmodel from the SchemaGrammar, needed to process annotations
 
 #if XERCES_VERSION_MAJOR < 3
             grammarPool = new xercesc::XMLGrammarPoolImpl(xercesc::XMLPlatformUtils::fgMemoryManager);
@@ -1019,10 +944,10 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
             grammarPool = NULL;
             parser = new xercesc::XercesDOMParser(0, xercesc::XMLPlatformUtils::fgMemoryManager, grammarPool);
 #endif
-            parser->setExternalNoNamespaceSchemaLocation(reinterpret_cast<const XMLCh *>(schemaFile.utf16()));
+            parser->setExternalNoNamespaceSchemaLocation(stringToXexcesc(schemaFile).get());
             parser->setDoNamespaces(true); // n o change
             parser->useCachedGrammarInParse(true);
-            //parser->setDoValidation( true );
+            // parser->setDoValidation( true );
             parser->setIncludeIgnorableWhitespace(false);
             parser->setErrorHandler(&handler);
             if (schemaFile.length() > 0)
@@ -1031,14 +956,14 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
                 parser->setValidationSchemaFullChecking(true);
                 // change to Validate possible Never, Auto, Always
                 parser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
-                parser->loadGrammar(reinterpret_cast<const XMLCh *>(schemaFile.utf16()), xercesc::Grammar::SchemaGrammarType, true);
+                parser->loadGrammar(stringToXexcesc(schemaFile).get(), xercesc::Grammar::SchemaGrammarType, true);
             }
             //  Try parsing fallback schema file, if there was an error
             // ------------ Disabled for now -----------------
             //          if (handler.getSawErrors())
             //          {
             //             handler.resetErrors();
-            //             QString fallbackSchema =  getenv("COVISEDIR") ;
+            //             std::string fallbackSchema =  getenv("COVISEDIR") ;
             //             fallbackSchema.append("/src/kernel/config/coEditor/schema.xsd");
             //             COCONFIGDBG ("coConfigRoot::loadFile err: Parsing '"
             //                   << schemaFile <<"' failed. Trying fallback:" << fallbackSchema );
@@ -1066,26 +991,25 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
 
 // work around for UNC file names
 #ifdef WIN32
-            char *fileName = new char[filename.length() + 1];
-            strcpy(fileName, filename.toLatin1());
+            auto fileName = filename;
             if (fileName[0] == '/' && fileName[1] == '/')
             {
                 fileName[1] = '\\';
                 fileName[0] = '\\';
             }
-            parser->parse(fileName);
+            parser->parse(fileName.c_str());
 #else
-            parser->parse(filename.toLatin1());
+            parser->parse(stringToXexcesc(filename).get());
 #endif
         }
         catch (const xercesc::XMLException &toCatch)
         {
-            QString message = QString::fromUtf16(reinterpret_cast<const ushort *>(toCatch.getMessage()));
+            std::string message = xercescToStdString(toCatch.getMessage());
             COCONFIGLOG("coConfigRoot::loadFile err: xmlparse failed " << message);
         }
         catch (const xercesc::DOMException &toCatch)
         {
-            QString message = QString::fromUtf16(reinterpret_cast<const ushort *>(toCatch.getMessage()));
+            std::string message = xercescToStdString(toCatch.getMessage());
             COCONFIGLOG("coConfigRoot::loadFile err: xmlparse failed " << message);
         }
         catch (...)
@@ -1102,7 +1026,7 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const QString &filename)
         xercesc::DOMDocument *xmlDoc = parser->getDocument();
         globalConfigElement = xmlDoc->getDocumentElement();
 
-        if (globalConfigElement == 0 || QString::fromUtf16(reinterpret_cast<const ushort *>(globalConfigElement->getNodeName())) != "COCONFIG")
+        if (globalConfigElement == 0 || xercescToStdString(globalConfigElement->getNodeName()) != "COCONFIG")
         {
             COCONFIGLOG("coConfigRoot::loadFile err: COCONFIG not found in " << filename);
         }
@@ -1129,79 +1053,75 @@ bool coConfigRoot::isReadOnly() const
 
 void coConfigRoot::clear()
 {
-    {
-        QList<QString> keys = hostConfigs.keys();
-        for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
-        {
-            delete hostConfigs.take(*key);
-        }
-    }
-    {
-        QList<QString> keys = clusterConfigs.keys();
-        for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
-        {
-            delete clusterConfigs.take(*key);
-        }
-    }
+    for (const auto &hostConfig : hostConfigs)
+        delete hostConfig.second;
+    hostConfigs.clear();
+
+    for (const auto &clusterConfig : clusterConfigs)
+        delete clusterConfig.second;
+    clusterConfigs.clear();
 
     delete globalConfig;
 
-    globalConfig = 0;
-    clusterConfig = 0;
-    hostConfig = 0;
+    globalConfig = nullptr;
+    clusterConfig = nullptr;
+    hostConfig = nullptr;
 }
 
 void coConfigXercesRoot::createGlobalConfig()
 {
     COCONFIGDBG("coConfigRoot::createGlobalConfig info: creating global config");
 
-    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
-    xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
+    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(stringToXexcesc("Core").get());
+    xercesc::DOMDocument *document = implLoad->createDocument(0, stringToXexcesc("COCONFIG").get(), nullptr);
     xercesc::DOMElement *rootNode = document->getDocumentElement();
-    xercesc::DOMElement *globalElement = document->createElement(xercesc::XMLString::transcode("GLOBAL"));
+    xercesc::DOMElement *globalElement = document->createElement(stringToXexcesc("GLOBAL").get());
     rootNode->appendChild(globalElement);
     setContentsFromDom(document->getDocumentElement());
 }
 
-void coConfigXercesRoot::createHostConfig(const QString &hostname)
+void coConfigXercesRoot::createHostConfig(const std::string &hostname)
 {
     COCONFIGDBG("coConfigRoot::createHostConfig info: creating local config for host " << hostname);
 
-    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
-    xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
+    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(stringToXexcesc("Core").get());
+    xercesc::DOMDocument *document = implLoad->createDocument(0, stringToXexcesc("COCONFIG").get(), nullptr);
     xercesc::DOMElement *rootNode = document->getDocumentElement();
-    xercesc::DOMElement *localElement = document->createElement(xercesc::XMLString::transcode("LOCAL"));
-    localElement->setAttribute(xercesc::XMLString::transcode("HOST"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
+    xercesc::DOMElement *localElement = document->createElement(stringToXexcesc("LOCAL").get());
+    localElement->setAttribute(stringToXexcesc("HOST").get(), stringToXexcesc(toLower(hostname)).get());
     rootNode->appendChild(localElement);
     setContentsFromDom(document->getDocumentElement());
 }
 
-void coConfigXercesRoot::createClusterConfig(const QString &hostname)
+void coConfigXercesRoot::createClusterConfig(const std::string &hostname)
 {
     COCONFIGDBG("coConfigRoot::createClusterConfig info: creating cluster config for master " << hostname);
 
-    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
-    xercesc::DOMDocument *document = implLoad->createDocument(0, xercesc::XMLString::transcode("COCONFIG"), 0);
+    xercesc::DOMImplementation *implLoad = xercesc::DOMImplementationRegistry::getDOMImplementation(stringToXexcesc("Core").get());
+    xercesc::DOMDocument *document = implLoad->createDocument(0, stringToXexcesc("COCONFIG").get(), nullptr);
     xercesc::DOMElement *rootNode = document->getDocumentElement();
-    xercesc::DOMElement *localElement = document->createElement(xercesc::XMLString::transcode("CLUSTER"));
-    localElement->setAttribute(xercesc::XMLString::transcode("MASTER"), reinterpret_cast<const XMLCh *>(hostname.toLower().utf16()));
+    xercesc::DOMElement *localElement = document->createElement(stringToXexcesc("CLUSTER").get());
+    localElement->setAttribute(stringToXexcesc("MASTER").get(), stringToXexcesc(toLower(hostname)).get());
     rootNode->appendChild(localElement);
     setContentsFromDom(document->getDocumentElement());
 }
 
-QStringList coConfigRoot::getHosts()
+std::set<std::string> coConfigRoot::getHosts()
 {
-    return hostConfigs.keys();
+    std::set<std::string> hosts;
+    for (const auto &host : hostConfigs)
+        hosts.insert(host.first);
+    return hosts;
 }
 
-coConfigEntry *coConfigRoot::getConfigForHost(const QString &hostname)
+coConfigEntry *coConfigRoot::getConfigForHost(const std::string &hostname)
 {
-    return hostConfigs[hostname.toLower()];
+    return hostConfigs[toLower(hostname)];
 }
 
-coConfigEntry *coConfigRoot::getConfigForCluster(const QString &masterhost)
+coConfigEntry *coConfigRoot::getConfigForCluster(const std::string &masterhost)
 {
-    return clusterConfigs[masterhost.toLower()];
+    return clusterConfigs[toLower(masterhost)];
 }
 
 coConfigRoot *coConfigXercesRoot::clone() const
@@ -1209,33 +1129,27 @@ coConfigRoot *coConfigXercesRoot::clone() const
     return new coConfigXercesRoot(this);
 }
 
+void merge(std::map<std::string, coConfigEntry *> &toMerge, const std::map<std::string, coConfigEntry *> &mergeWith, std::set<std::string> &masters)
+{
+    for (const auto &wihtClusterConfig : mergeWith)
+    {
+        auto clusterConfig = toMerge.find(wihtClusterConfig.first);
+        if (clusterConfig != toMerge.end())
+        {
+            if (clusterConfig->second)
+                clusterConfig->second->merge(wihtClusterConfig.second);
+        }
+        else
+        {
+            toMerge.insert({wihtClusterConfig.first, wihtClusterConfig.second->clone()});
+            masters.insert(wihtClusterConfig.first);
+        }
+    }
+}
+
 void coConfigXercesRoot::merge(const coConfigRoot *with)
 {
-    this->globalConfig->merge(with->globalConfig);
-    for (QHash<QString, coConfigEntry *>::const_iterator entry = with->clusterConfigs.begin(); entry != with->clusterConfigs.end(); ++entry)
-    {
-        if (this->clusterConfigs.contains(entry.key()))
-        {
-            if (this->clusterConfigs[entry.key()])
-                this->clusterConfigs[entry.key()]->merge(entry.value());
-        }
-        else
-        {
-            this->clusterConfigs[entry.key()] = entry.value()->clone();
-            this->masternames.append(entry.key());
-        }
-    }
-    for (QHash<QString, coConfigEntry *>::const_iterator entry = with->hostConfigs.begin(); entry != with->hostConfigs.end(); ++entry)
-    {
-        if (this->hostConfigs.contains(entry.key()))
-        {
-            if (this->hostConfigs[entry.key()])
-                this->hostConfigs[entry.key()]->merge(entry.value());
-        }
-        else
-        {
-            this->hostConfigs[entry.key()] = entry.value()->clone();
-            this->hostnames.append(entry.key());
-        }
-    }
+    globalConfig->merge(with->globalConfig);
+    ::merge(clusterConfigs, with->clusterConfigs, masternames);
+    ::merge(hostConfigs, with->hostConfigs, hostnames);
 }

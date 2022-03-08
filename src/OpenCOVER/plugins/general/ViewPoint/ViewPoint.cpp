@@ -17,32 +17,34 @@
 #include <cover/coVRFileManager.h>
 #include <config/CoviseConfig.h>
 #include <cover/ui/Menu.h>
-#include <cover/ui/Action.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/Slider.h>
-#include <net/message_types.h>
-#include <net/message.h>
-#include <util/unixcompat.h>
-#include <grmsg/coGRMsg.h>
-#include <grmsg/coGRCreateViewpointMsg.h>
-#include <grmsg/coGRCreateDefaultViewpointMsg.h>
-#include <grmsg/coGRDeleteViewpointMsg.h>
-#include <grmsg/coGRShowViewpointMsg.h>
-#include <grmsg/coGRKeyWordMsg.h>
-#include <grmsg/coGRToggleFlymodeMsg.h>
-#include <grmsg/coGRChangeViewpointMsg.h>
-#include <grmsg/coGRChangeViewpointIdMsg.h>
-#include <grmsg/coGRChangeViewpointNameMsg.h>
-#include <grmsg/coGRViewpointChangedMsg.h>
-#include <grmsg/coGRActivatedViewpointMsg.h>
-#include <grmsg/coGRToggleVPClipPlaneModeMsg.h>
-#include <grmsg/coGRTurnTableAnimationMsg.h>
 #include <cover/OpenCOVER.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRConfig.h>
-#include <osg/ClipNode>
 #include <cover/coVRPluginList.h>
-
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <grmsg/coGRActivatedViewpointMsg.h>
+#include <grmsg/coGRChangeViewpointIdMsg.h>
+#include <grmsg/coGRChangeViewpointMsg.h>
+#include <grmsg/coGRChangeViewpointNameMsg.h>
+#include <grmsg/coGRCreateDefaultViewpointMsg.h>
+#include <grmsg/coGRCreateViewpointMsg.h>
+#include <grmsg/coGRDeleteViewpointMsg.h>
+#include <grmsg/coGRKeyWordMsg.h>
+#include <grmsg/coGRMsg.h>
+#include <grmsg/coGRShowViewpointMsg.h>
+#include <grmsg/coGRToggleFlymodeMsg.h>
+#include <grmsg/coGRToggleVPClipPlaneModeMsg.h>
+#include <grmsg/coGRTurnTableAnimationMsg.h>
+#include <grmsg/coGRViewpointChangedMsg.h>
+#include <net/message.h>
+#include <net/message_types.h>
+#include <osg/ClipNode>
+#include <util/string_util.h>
+#include <util/unixcompat.h>
+#include <array>
+#include <string>
 using namespace osg;
 using namespace opencover;
 using namespace grmsg;
@@ -429,227 +431,62 @@ bool ViewPoints::init()
     });
 
     // the slave and the master have to read the default viewpoints from config
-
     coCoviseConfig::ScopeEntries viewpointEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.ViewPoint", "Viewpoints");
-    const char **it = viewpointEntries.getValue();
-    while (it && *it)
+    for (const auto &viewpoint : viewpointEntries)
     {
-        string n = *it;
-        it++;
-        const char *vp = *it;
-        it++;
-        string vpname = n.substr(11);
-        const char *name = vpname.c_str();
+        string name = toLower(viewpoint.first.substr(11));
+        string vp = viewpoint.second;
 
-        if (name && vp)
+        if (!vp.empty())
         {
             ViewDesc *newVP;
-            if (strncasecmp(name, "left", 4) == 0)
+            const static std::array<std::pair<std::string, Vec3>, 7> viewPointAliases = {
+                std::make_pair("left", Vec3(90, 0, 0)),
+                std::make_pair("right", Vec3(-90, 0, 0)),
+                std::make_pair("front", Vec3(0, 0, 0)),
+                std::make_pair("back", Vec3(180, 0, 0)),
+                std::make_pair("top", Vec3(0, 90, 0)),
+                std::make_pair("bottom", Vec3(0, -90, 0)),
+                std::make_pair("halftop", Vec3(45, 20, -20))};
+
+            bool on = isOn(vp.c_str());
+            bool matched = false;
+            for (const auto &alias : viewPointAliases)
             {
-                name = "left";
-                if (isOn(vp))
+                if (alias.first == name)
                 {
-                    Vec3 hpr(90, 0, 0);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "right", 5) == 0)
-            {
-                name = "right";
-                if (isOn(vp))
-                {
-                    Vec3 hpr(-90, 0, 0);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "front", 5) == 0)
-            {
-                name = "front";
-                if (isOn(vp))
-                {
-                    Vec3 hpr(0, 0, 0);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "back", 4) == 0)
-            {
-                name = "back";
-                if (isOn(vp))
-                {
-                    Vec3 hpr(180, 0, 0);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "top", 3) == 0)
-            {
-                name = "top";
-                if (isOn(vp))
-                {
-                    Vec3 hpr(0, 90, 0);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "bottom", 6) == 0)
-            {
-                name = "bottom";
-                if (isOn(vp))
-                {
-                    Vec3 hpr(0, -90, 0);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "halftop", 7) == 0)
-            {
-                name = "halftop";
-                if (isOn(vp))
-                {
-                    Vec3 hpr(45, 20, -20);
-                    newVP = new ViewDesc(name, id_, hpr, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "center", 6) == 0)
-            {
-                if (isOn(vp))
-                {
-                    newVP = new ViewDesc(name, id_, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strncasecmp(name, "behind", 6) == 0)
-            {
-                if (isOn(vp))
-                {
-                    newVP = new ViewDesc(name, id_, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
+                    matched = true;
+                    if (on)
+                    {
+                        newVP = new ViewDesc(name.c_str(), id_, alias.second, viewPointMenu_, flightMenu_, editVPMenu_, this);
+                        viewpoints.push_back(newVP);
+                        if (blockConfigInFlight)
+                            newVP->setFlightState(false);
+                        numberOfDefaultVP++;
+                    }
+                    break;
                 }
             }
 
-            else if (strncasecmp(name, "onfloor", 7) == 0)
+            if (!matched && (name == "center" || name == "behind" || name == "onfloor"))
             {
-                if (isOn(vp))
+                matched = true;
+                if (on)
                 {
-                    //fprintf(stderr,"vor  onfloor id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, viewPointMenu_, flightMenu_, editVPMenu_, this);
+                    newVP = new ViewDesc(name.c_str(), id_, viewPointMenu_, flightMenu_, editVPMenu_, this);
                     viewpoints.push_back(newVP);
                     if (blockConfigInFlight)
                         newVP->setFlightState(false);
                     numberOfDefaultVP++;
                 }
             }
-
-            else if (strcmp(name, "0.001") == 0)
+            char *p;
+            float converted = strtof(name.c_str(), &p);
+            if (!matched && !*p) // conversion worked
             {
-                if (isOn(vp))
+                if (on)
                 {
-                    //fprintf(stderr,"vor  0.001 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 0.001, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strcmp(name, "0.01") == 0)
-            {
-                if (isOn(vp))
-                {
-                    //fprintf(stderr,"vor  0.01 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 0.01, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strcmp(name, "0.1") == 0)
-            {
-                if (isOn(vp))
-                {
-                    //fprintf(stderr,"vor  0.1 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 0.1, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strcmp(name, "1") == 0)
-            {
-                if (isOn(vp))
-                {
-                    //fprintf(stderr,"vor  1 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 1, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strcmp(name, "10") == 0)
-            {
-                if (isOn(vp))
-                {
-                    //fprintf(stderr,"vor  10 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 10, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    //fprintf(stderr,"vor  10 id_=%d\n", id_);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strcmp(name, "100") == 0)
-            {
-                if (isOn(vp))
-                {
-                    //fprintf(stderr,"vor  100 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 100, viewPointMenu_, flightMenu_, editVPMenu_, this);
-                    viewpoints.push_back(newVP);
-                    if (blockConfigInFlight)
-                        newVP->setFlightState(false);
-                    numberOfDefaultVP++;
-                }
-            }
-            else if (strcmp(name, "1000") == 0)
-            {
-                if (isOn(vp))
-                {
-                    //fprintf(stderr,"vor  1000 id_=%d\n", id_);
-                    newVP = new ViewDesc(name, id_, 1000, viewPointMenu_, flightMenu_, editVPMenu_, this);
+                    newVP = new ViewDesc(name.c_str(), id_, converted, viewPointMenu_, flightMenu_, editVPMenu_, this);
                     viewpoints.push_back(newVP);
                     if (blockConfigInFlight)
                         newVP->setFlightState(false);
@@ -658,7 +495,7 @@ bool ViewPoints::init()
             }
             else
             {
-                newVP = new ViewDesc(name, id_, vp, viewPointMenu_, flightMenu_, editVPMenu_, this);
+                newVP = new ViewDesc(name.c_str(), id_, vp.c_str(), viewPointMenu_, flightMenu_, editVPMenu_, this);
                 viewpoints.push_back(newVP);
                 if (blockConfigInFlight)
                     newVP->setFlightState(false);
@@ -2700,24 +2537,20 @@ void ViewPoints::sendDefaultViewPoint()
     if (coVRMSController::instance()->isMaster())
     {
         coCoviseConfig::ScopeEntries viewpointEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.ViewPoint", "Viewpoints");
-        const char **it = viewpointEntries.getValue();
         // save the default viewpoints in those maps
         std::set<const char *> defaultVps;
-        while (it && *it)
+        for (const auto &viewpoint : viewpointEntries)
         {
-            const char *name = *it;
+            const char *name = viewpoint.first.c_str();
 
-            it++;
-            const char *vp = *it;
-            it++;
+            const char *vp = viewpoint.second.c_str();
 
-            if (name && vp
-                && (!strstr(name, "FLYING"))
-                && (!strstr(name, "FLIGHT_TIME"))
-                && (!strstr(name, "FLY_CONFIG"))
-                && (!strstr(name, "LOOP"))
-                && (!strstr(name, "QUICK_NAV"))
-                && (!strstr(name, "VRML_WRITE_VIEWPOINT")))
+            if ((!strstr(name, "FLYING")) &&
+                (!strstr(name, "FLIGHT_TIME")) &&
+                (!strstr(name, "FLY_CONFIG")) &&
+                (!strstr(name, "LOOP")) &&
+                (!strstr(name, "QUICK_NAV")) &&
+                (!strstr(name, "VRML_WRITE_VIEWPOINT")))
             {
 
                 // name text is now e.g. "Viewpoints:top" instead of "top"

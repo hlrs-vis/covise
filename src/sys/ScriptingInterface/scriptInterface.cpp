@@ -360,29 +360,17 @@ char **
 getCoConfigSubEntries(const char *entry)
 {
     coCoviseConfig::ScopeEntries keysEntries = coCoviseConfig::getScopeEntries(entry);
-    const char **keys = keysEntries.getValue();
-
-    if (keys == NULL)
-    {
-        return NULL;
-    }
-
+    if (keysEntries.empty())
+        return nullptr;
     // create copy of keys and skip every second entry (is NULL)
-    char **subKeys;
-    int numSubKeys = 0;
-    while (keys[2 * numSubKeys] != NULL)
-    {
-        numSubKeys++;
-    }
-    subKeys = new char *[numSubKeys + 1];
-    subKeys[numSubKeys] = NULL;
-    for (int i = 0; i < numSubKeys; i++)
-    {
-        size_t str_len = strlen(keys[2 * i]);
-        subKeys[i] = new char[str_len + 1];
-        strcpy(subKeys[i], keys[2 * i]);
-    }
+    char **subKeys = new char *[keysEntries.size() + 1];
 
+    size_t i = 0;
+    for (const auto &entry : keysEntries)
+    {
+        subKeys[i++] = new char[entry.first.size() + 1];
+        strcpy(subKeys[i], entry.first.c_str());
+    }
     return subKeys;
 }
 

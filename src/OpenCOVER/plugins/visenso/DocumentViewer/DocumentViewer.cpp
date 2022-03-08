@@ -53,19 +53,11 @@ bool DocumentViewerPlugin::init()
 
     vsize_ = coCoviseConfig::getFloat("COVER.Plugin.DocumentViewer.Vsize", -1);
     aspect_ratio_ = coCoviseConfig::getFloat("COVER.Plugin.DocumentViewer.AspectRatio", 0);
-    coCoviseConfig::ScopeEntries documentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.DocumentViewer", "Document");
-    const char **document = documentEntries.getValue();
+    coCoviseConfig::ScopeEntries documents = coCoviseConfig::getScopeEntries("COVER.Plugin.DocumentViewer", "Document");
 
-    while (document && *document)
+    for (const auto &document : documents)
     {
-        const char *documentName = *document;
-        document++;
-        const char *imageName = *document;
-        document++;
-
-        add(documentName, imageName);
-        delete[] documentName;
-        delete[] imageName;
+        add(document.first.c_str(), document.second.c_str());
     }
 
     coverMenuButton_ = new coSubMenuItem("Documents...");

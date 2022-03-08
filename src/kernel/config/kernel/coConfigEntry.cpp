@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-#include <QRegExp>
 #include <list>
 
 #include <xercesc/dom/DOM.hpp>
@@ -15,7 +14,9 @@
 #include "coConfigSchema.h"
 #include "coConfigXercesEntry.h"
 #include "coConfigTools.h"
+#include "coConfigXercesConverter.h"
 
+#include <util/string_util.h>
 using namespace covise;
 
 // #include <config/coConfigEvent.h>
@@ -28,45 +29,17 @@ coConfigXercesEntry::~coConfigXercesEntry()
 {
 }
 
-coConfigEntry::coConfigEntry()
-    : isListNode(false)
-    , readOnly(false)
-    , cName(0)
-    , name(QString())
-{
-    schemaInfos = 0;
-}
-
 coConfigEntry::coConfigEntry(const coConfigEntry *source)
-    : configScope(source->configScope)
-    , configName(source->configName)
-    , path(source->path)
-    , isListNode(source->isListNode)
-    , readOnly(source->readOnly)
-    , textNodes(source->textNodes)
-    , schemaInfos(source->schemaInfos)
-    , elementGroup(source->elementGroup)
-    , cName(0)
-    , name(source->name)
+    : configScope(source->configScope), configName(source->configName), path(source->path), isListNode(source->isListNode), readOnly(source->readOnly), textNodes(source->textNodes), schemaInfos(source->schemaInfos), elementGroup(source->elementGroup), cName(0), name(source->name), attributes(source->attributes)
 {
     for (coConfigEntryPtrList::const_iterator child = source->children.begin();
          child != source->children.end(); ++child)
     {
         coConfigEntry *childClone = (*child)->clone();
         if (childClone)
-            this->children.push_back(childClone);
+            this->children.emplace_back(childClone);
         else
             COCONFIGDBG("coConfigEntry::<init> err: child clone returned 0");
-    }
-
-    QList<QString> keys = source->attributes.keys();
-
-    for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
-    {
-        if (source->attributes[*key] == 0)
-            this->attributes[*key] = 0;
-        else
-            this->attributes[*key] = new QString(*(source->attributes[*key]));
     }
 }
 
@@ -75,20 +48,15 @@ coConfigXercesEntry::coConfigXercesEntry(const coConfigXercesEntry *source)
 {
 }
 
-coConfigEntry::~coConfigEntry()
-{
-    //    notify();
-    QList<QString> keys = attributes.keys();
-    for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
-    {
-        delete attributes.take(*key);
-    }
-}
-
 void coConfigEntry::entryChanged()
 {
     //COCONFIGDBG("coConfigEntry::entryChanged(): info: notify called  " << this->getName());
     notify();
+}
+
+const coConfigEntryPtrList &coConfigEntry::getChildren() const
+{
+    return children;
 }
 
 bool coConfigEntry::matchingAttributes() const
@@ -98,71 +66,66 @@ bool coConfigEntry::matchingAttributes() const
 
 xercesc::DOMNode *coConfigXercesEntry::storeToDom(xercesc::DOMDocument &document, int indent)
 {
-
-    xercesc::DOMElement *element = document.createElement(reinterpret_cast<const XMLCh *>(path.section('.', -1).utf16()));
+    xercesc::DOMElement *element = document.createElement(stringToXexcesc(split(path, '.').back()).get());
 
     if (xercesc::DOMNode::ELEMENT_NODE == element->getNodeType())
     {
-        bool include = QString::fromUtf16(reinterpret_cast<const ushort *>(element->getNodeName())) == "INCLUDE";
-        bool tryinclude = QString::fromUtf16(reinterpret_cast<const ushort *>(element->getNodeName())) == "TRYINCLUDE";
+        bool include = xercescToStdString(element->getNodeName()) == "INCLUDE";
+        bool tryinclude = xercescToStdString(element->getNodeName()) == "TRYINCLUDE";
         if (include || tryinclude)
         {
             if (isListNode)
             {
-                QList<QString> keys = attributes.keys();
-
-                for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
+                for (const auto &attribute : attributes)
                 {
-                    element->setAttribute(reinterpret_cast<const XMLCh *>((*key).utf16()), reinterpret_cast<const XMLCh *>((*attributes[*key]).utf16()));
+                    element->setAttribute(stringToXexcesc(attribute.first).get(), stringToXexcesc(attribute.second).get());
                     COCONFIGDBG("coConfigEntry::storeToDom info: includenode");
                 }
                 element->appendChild(document.createTextNode(xercesc::XMLString::transcode("\n  ")));
-                QStringList values;
-                for (QStringList::iterator it = textNodes.begin(); it != textNodes.end(); ++it)
+                std::string values;
+                for (const auto &textNode : textNodes)
                 {
-                    values.append(*it);
+                    values.append(textNode + "\n ");
                 }
-                element->appendChild(document.createTextNode(reinterpret_cast<const XMLCh *>(values.join("\n  ").utf16())));
+                values.pop_back();
+                values.pop_back();
+                element->appendChild(document.createTextNode(stringToXexcesc(values).get()));
             }
             element->appendChild(document.createTextNode(xercesc::XMLString::transcode("\n")));
         }
         else
         {
-            QList<QString> keys = attributes.keys();
-
-            for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
+            for (const auto &attribute : attributes)
             {
-                if (attributes[*key])
-                {
-                    element->setAttribute(reinterpret_cast<const XMLCh *>((*key).utf16()), reinterpret_cast<const XMLCh *>((*attributes[*key]).utf16()));
-                    COCONFIGDBG("coConfigEntry::storeToDom info: noIncludenode key " << (*key) << " attr " << (*attributes[*key]));
-                }
+                element->setAttribute(stringToXexcesc(attribute.first).get(), stringToXexcesc(attribute.second).get());
+                COCONFIGDBG("coConfigEntry::storeToDom info: noIncludenode key " << attribute.first << " attr " << attribute.second);
             }
 
-            if (isListNode)
+            if (isListNode && !textNodes.empty())
             {
-                QStringList values;
-                for (QStringList::iterator it = textNodes.begin(); it != textNodes.end(); ++it)
+                std::string values = std::string(indent, ' ') + *textNodes.begin();
+                std::string ending = "\n" + std::string(indent, ' ');
+
+                for (auto i = ++textNodes.begin(); i != textNodes.end(); i++)
                 {
-                    values.append(*it);
-                    COCONFIGDBG("coConfigEntry::storeToDom info: listnode " << (*it));
+                    values += ending + *i;
                 }
-                element->appendChild(document.createTextNode(reinterpret_cast<const XMLCh *>(values.join("\n" + QString().fill(' ', indent)).utf16())));
+                element->appendChild(document.createTextNode(stringToXexcesc(values).get()));
             }
 
             for (coConfigEntryPtrList::iterator entry = children.begin();
                  entry != children.end(); ++entry)
             {
                 COCONFIGDBG("coConfigEntry::storeToDom info: children " << (*entry)->getName());
-                element->appendChild(document.createTextNode(reinterpret_cast<const XMLCh *>(QString("\n" + QString().fill(' ', indent)).utf16())));
-                coConfigXercesEntry *xentry = dynamic_cast<coConfigXercesEntry *>(*entry);
+                element->appendChild(document.createTextNode(stringToXexcesc("\n" + std::string(indent, ' ')).get()));
+                coConfigXercesEntry *xentry = dynamic_cast<coConfigXercesEntry *>(entry->get());
                 if (xentry)
                     element->appendChild((xentry)->storeToDom(document, indent + 2));
                 COCONFIGDBG("coConfigEntry::storeToDom info: childexit " << (*entry)->getName());
             }
 
             if (indent > 2)
-                element->appendChild(document.createTextNode(reinterpret_cast<const XMLCh *>(QString("\n" + QString().fill(' ', indent - 2)).utf16())));
+                element->appendChild(document.createTextNode(stringToXexcesc("\n" + std::string(indent - 2, ' ')).get()));
             else
                 element->appendChild(document.createTextNode(xercesc::XMLString::transcode("\n")));
         }
@@ -172,31 +135,31 @@ xercesc::DOMNode *coConfigXercesEntry::storeToDom(xercesc::DOMDocument &document
 }
 
 coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
-                                                   const QString &configName)
+                                                   const std::string &configName)
 {
     coConfigEntry *entry = new coConfigXercesEntry();
-    QString qNodeName = QString::fromUtf16(reinterpret_cast<const ushort *>(node->getNodeName()));
-    QString path = qNodeName;
+    std::string qNodeName = xercescToStdString(node->getNodeName());
+    std::string path = qNodeName;
     entry->configName = configName;
 
-    if (configName.isNull())
+    if (configName.empty())
     {
         COCONFIGLOG("coConfigEntry::restoreFromDom warn: no config name: ");
     }
 
     // Tree upward iteration to get scope attribute and complete path ,if not already one step before yac
     xercesc::DOMNode *scopeNode = node;
-
-    if (node->getParentNode() == 0 && QString::fromUtf16(reinterpret_cast<const ushort *>(node->getNodeName())).toUpper() != "COCONFIG" && node->getNodeType() != xercesc::DOMNode::DOCUMENT_NODE)
+    if (node->getParentNode() == 0 && toUpper(xercescToStdString(node->getNodeName())) != "COCONFIG" && node->getNodeType() != xercesc::DOMNode::DOCUMENT_NODE)
     {
     }
     else
     { //iterate parents
         for (xercesc::DOMNode *parent = node->getParentNode();
-             parent != 0 && QString::fromUtf16(reinterpret_cast<const ushort *>(parent->getNodeName())).toUpper() != "COCONFIG" && parent->getNodeType() != xercesc::DOMNode::DOCUMENT_NODE;
+             parent != 0 &&
+             toUpper(xercescToStdString(parent->getNodeName())) != "COCONFIG" && parent->getNodeType() != xercesc::DOMNode::DOCUMENT_NODE;
              parent = parent->getParentNode())
         {
-            path = QString::fromUtf16(reinterpret_cast<const ushort *>(parent->getNodeName())) + "." + path;
+            path = xercescToStdString(parent->getNodeName()) + "." + path;
             scopeNode = parent;
         }
     }
@@ -206,20 +169,20 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
     if (xercesc::DOMNode::ELEMENT_NODE == scopeNode->getNodeType())
     {
         xercesc::DOMElement *scopeElement = static_cast<xercesc::DOMElement *>(scopeNode);
-        QString configScope = QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getAttribute(scopeTag)));
-        if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "GLOBAL")
+        std::string configScope = xercescToStdString(scopeElement->getAttribute(scopeTag));
+        if (toUpper(xercescToStdString(scopeElement->getNodeName())) == "GLOBAL")
         {
             entry->configScope = coConfigConstants::Global;
         }
-        else if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "LOCAL")
+        else if (toUpper(xercescToStdString(scopeElement->getNodeName())) == "LOCAL")
         {
             entry->configScope = coConfigConstants::Host;
         }
-        else if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "CLUSTER")
+        else if (toUpper(xercescToStdString(scopeElement->getNodeName())) == "CLUSTER")
         {
             entry->configScope = coConfigConstants::Cluster;
         }
-        else if (!configScope.isNull())
+        else if (!configScope.empty())
         {
             COCONFIGLOG("coConfigEntry::restoreFromDom warn: unknown config scope <" << configScope << ">");
         }
@@ -230,11 +193,7 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
     // get node attributes and their values
     xercesc::DOMNamedNodeMap *map = node->getAttributes();
     for (int ctr = 0; ctr < map->getLength(); ++ctr)
-    {
-        QString nodeName = QString::fromUtf16(reinterpret_cast<const ushort *>(map->item(ctr)->getNodeName()));
-        QString nodeValue = QString::fromUtf16(reinterpret_cast<const ushort *>(map->item(ctr)->getNodeValue()));
-        entry->attributes.insert(nodeName, new QString(nodeValue));
-    }
+        entry->attributes.insert({xercescToStdString(map->item(ctr)->getNodeName()), xercescToStdString(map->item(ctr)->getNodeValue())});
 
     // collect all child nodes. if text, add. if element start recursition
     xercesc::DOMNodeList *nodeList = node->getChildNodes();
@@ -243,18 +202,18 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
         //if textNode, not empty line, it is added to entry
         if (nodeList->item(i)->getNodeType() == xercesc::DOMNode::TEXT_NODE)
         {
-            QString nodeValue = QString::fromUtf16(reinterpret_cast<const ushort *>(nodeList->item(i)->getNodeValue()));
-            if (!nodeValue.trimmed().isEmpty())
+            std::string nodeValue = xercescToStdString(nodeList->item(i)->getNodeValue());
+            if (!strip(nodeValue).empty())
             {
                 entry->isListNode = true;
-                QStringList textlist = nodeValue.split("\n", SplitBehaviorFlags::SkipEmptyParts);
-                for (QStringList::iterator i = textlist.begin(); i != textlist.end(); ++i)
+                auto textlist = split(nodeValue, '\n', true);
+                for (auto text : textlist)
                 {
-                    QString singleNodeValue = (*i).trimmed();
-                    if (!singleNodeValue.isEmpty())
+                    std::string singleNodeValue = strip(text);
+                    if (!singleNodeValue.empty())
                     {
-                        entry->attributes.insert(*i, new QString());
-                        entry->textNodes.append(*i);
+                        entry->attributes[text] = "";
+                        entry->textNodes.insert(text);
                     }
                 }
             }
@@ -262,7 +221,7 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
         if (xercesc::DOMNode::ELEMENT_NODE == nodeList->item(i)->getNodeType())
         {
             if (coConfigXercesEntry *xentry = dynamic_cast<coConfigXercesEntry *>(entry))
-                xentry->children.push_back(coConfigXercesEntry::restoreFromDom(static_cast<xercesc::DOMElement *>(nodeList->item(i)), configName));
+                xentry->children.emplace_back(coConfigXercesEntry::restoreFromDom(static_cast<xercesc::DOMElement *>(nodeList->item(i)), configName));
         }
     }
     //COCONFIGLOG( "coConfigEntry::restoreFromDom info: new entry : "<< path );
@@ -288,131 +247,109 @@ void coConfigEntry::merge(const coConfigEntry *with)
         {
             if ((*entry)->getName() == (*myEntry)->getName())
             {
-                (*myEntry)->merge((*entry));
+                (*myEntry)->merge((entry->get()));
                 break;
             }
         }
 
         if (myEntry == children.end())
-            children.push_back((*entry)->clone());
+            children.emplace_back((*entry)->clone());
     }
 
-    // FIXME Merge attributes
-    QList<QString> keys = attributes.keys();
-    QList<QString> withKeys = with->attributes.keys();
-
-    for (QList<QString>::iterator withKey = withKeys.begin(); withKey != withKeys.end(); ++withKey)
-    {
-        if (keys.contains(*withKey))
-        {
-            //          COCONFIGDBG("coConfigEntry::merge warn: duplicate attribute " << withKey->toLatin1().data() << ", ignoring");
-        }
-        else
-        {
-            COCONFIGDBG("coConfigEntry::merge info: merging attribute " << withKey->toLatin1().data());
-            attributes.insert(*withKey, with->attributes[*withKey]);
-        }
-    }
+    attributes.insert(with->attributes.begin(), with->attributes.end());
 }
-
-// coConfigEntry * coConfigEntry::clone() const
-// {
-//    if (this == 0)
-//       return 0;
-//    else
-//       return new coConfigEntry(this);
-// }
 
 coConfigEntry *coConfigXercesEntry::clone() const
 {
     return new coConfigXercesEntry(this);
 }
 
-void coConfigEntry::setPath(const QString &path)
+void coConfigEntry::setPath(const std::string &path)
 {
     this->path = path;
 }
 
-const QString &coConfigEntry::getPath() const
+const std::string &coConfigEntry::getPath() const
 {
     return path;
 }
 
-const QString &coConfigEntry::getConfigName() const
+const std::string &coConfigEntry::getConfigName() const
 {
     return configName;
 }
 
-QString coConfigEntry::getName() const
+std::string coConfigEntry::getName() const
 {
-
-    if (this->name.isEmpty())
+    if (name.empty())
     {
-        QString *nameAttrPtr = attributes["name"];
-        if (!nameAttrPtr)
-            nameAttrPtr = attributes["index"];
-        if (nameAttrPtr)
+        name = split(path, '.').back();
+        cleanName(name);
+
+        std::string attr;
+        auto nameAttrPtr = std::find_if(attributes.begin(), attributes.end(), [](const std::pair<std::string, std::string> &p)
+                                        { return p.first == "name" || p.first == "index"; });
+        if (nameAttrPtr != attributes.end())
         {
-            QString nameAttr = *nameAttrPtr;
+            std::string nameAttr = nameAttrPtr->second;
             cleanName(nameAttr);
 
-            QString name = path.section('.', -1);
+            name = split(path, '.').back();
             cleanName(name);
-
-            //cerr << name + "." + nameAttr << endl;
-            this->name = name + ":" + nameAttr;
-        }
-        else
-        {
-            this->name = path.section('.', -1);
-            cleanName(this->name);
+            name += ":" + nameAttr;
         }
     }
 
-    return this->name;
+    return name;
 }
 
 const char *coConfigEntry::getCName() const
 {
     getName();
-    if ((cName == 0) || (name != cName))
-    {
-        delete[] cName;
-        cName = new char[name.length() + 20];
-        strcpy(cName, name.toLatin1());
-    }
-    return cName;
+    return name.c_str();
 }
 
-coConfigEntryStringList coConfigEntry::getScopeList(QString scope)
+struct Scope
+{
+    Scope(const std::string &scope)
+    {
+        if (!scope.empty())
+        {
+            auto pos = scope.find('.');
+            if (pos != std::string::npos)
+            {
+                childName = scope.substr(0, pos);
+                this->scope = scope.substr(pos + 1);
+            }
+            else
+            {
+                childName = scope;
+            }
+        }
+    }
+
+    std::string scope, childName;
+};
+
+coConfigEntryStringList
+coConfigEntry::getScopeList(const std::string &scope)
 {
     coConfigEntryStringList list;
 
     if (!matchingAttributes())
         return list;
 
-    if (!scope.isNull())
+    if (!scope.empty())
     {
 
-        QString childname;
-
-        if (scope.contains('.'))
-        {
-            childname = scope.section('.', 0, 0);
-            scope = scope.section('.', 1);
-        }
-        else
-        {
-            childname = scope;
-            scope = QString();
-        }
+        Scope s(scope);
 
         for (coConfigEntryPtrList::iterator child = children.begin();
              child != children.end(); ++child)
         {
-            if ((*child)->getName() == childname)
+            if ((*child)->getName() == s.childName)
             {
-                coConfigEntryStringList newList = (*child)->getScopeList(scope);
+                coConfigEntryStringList newList = (*child)->getScopeList(s.scope);
                 list.merge(newList);
             }
         }
@@ -423,152 +360,78 @@ coConfigEntryStringList coConfigEntry::getScopeList(QString scope)
     if (isListNode)
     {
         COCONFIGDBG("coConfigEntry::getScopeList info: getting PLAIN_LIST");
-        QStringList values;
-        for (QStringList::iterator it = textNodes.begin(); it != textNodes.end(); ++it)
-        {
-            coConfigEntryString listEntry(*it, configScope, configName);
-            list.push_back(listEntry);
-        }
+        list.entries().insert(textNodes.begin(), textNodes.end());
         list.setListType(coConfigEntryStringList::PLAIN_LIST);
     }
     else
     {
         COCONFIGDBG("coConfigEntry::getScopeList info: getting VARIABLE");
-        for (coConfigEntryPtrList::iterator entry = children.begin();
-             entry != children.end(); ++entry)
+        for (const auto &entry : children)
         {
-            coConfigEntryString listEntry((*entry)->getName(), configScope, configName);
-            list.push_back(listEntry);
+            coConfigEntryString listEntry{entry->getName(), configName, "", configScope};
+            list.entries().insert(listEntry);
         }
         list.setListType(coConfigEntryStringList::VARIABLE);
     }
     return list;
 }
 
-coConfigEntryStringList coConfigEntry::getVariableList(QString scope)
+coConfigEntryStringList coConfigEntry::getVariableList(const std::string &scope)
 {
     coConfigEntryStringList list;
-    list.setListType(coConfigEntryStringList::VARIABLE);
-
-    if (!matchingAttributes())
-        return list;
-
-    if (!scope.isNull())
-    {
-
-        QString childname;
-
-        if (scope.contains('.'))
-        {
-            childname = scope.section('.', 0, 0);
-            scope = scope.section('.', 1);
-        }
-        else
-        {
-            childname = scope;
-            scope = QString();
-        }
-
-        for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
-        {
-            if ((*child)->getName() == childname)
-                (*child)->appendVariableList(list,scope);
-        }
-
-        return list;
-    }
-
-    QList<QString> keys = attributes.keys();
-
-    for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
-    {
-        coConfigEntryString listEntry((*key), configScope, configName);
-        if (isListNode)
-            listEntry.setListItem(true);
-        list.push_back(listEntry);
-    }
-
+    appendVariableList(list, scope);
     return list;
 }
 
-void coConfigEntry::appendVariableList(coConfigEntryStringList& list, QString scope)
+void coConfigEntry::appendVariableList(coConfigEntryStringList &list, const std::string &scope)
 {
 
     list.setListType(coConfigEntryStringList::VARIABLE);
 
     if (matchingAttributes())
     {
-        if (!scope.isNull())
+        if (!scope.empty())
         {
-
-            QString childname;
-
-            if (scope.contains('.'))
-            {
-                childname = scope.section('.', 0, 0);
-                scope = scope.section('.', 1);
-            }
-            else
-            {
-                childname = scope;
-                scope = QString();
-            }
-
+            Scope s(scope);
             for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
             {
-                if ((*child)->getName() == childname)
-                    (*child)->appendVariableList(list,scope);
+                if ((*child)->getName() == s.childName)
+                    (*child)->appendVariableList(list, s.scope);
             }
-
         }
         else
         {
-
-            QList<QString> keys = attributes.keys();
-
-            for (QList<QString>::iterator key = keys.begin(); key != keys.end(); ++key)
+            for (const auto &attribute : attributes)
             {
-                coConfigEntryString listEntry((*key), configScope, configName);
+                coConfigEntryString listEntry{attribute.first, configName, "", configScope};
                 if (isListNode)
-                    listEntry.setListItem(true);
-                list.push_back(listEntry);
+                    listEntry.islistItem = true;
+                list.entries().insert(listEntry);
             }
         }
     }
 }
 
-
-coConfigEntryString coConfigEntry::getValue(const QString &variable, QString scope)
+coConfigEntryString coConfigEntry::getValue(const std::string &variable, const std::string &scope)
 {
     if (!matchingAttributes())
     {
         return coConfigEntryString();
     }
 
-    if (!scope.isEmpty())
+    if (!scope.empty())
     {
 
+        Scope s(scope);
         coConfigEntryString value;
-        QString childname;
-
-        if (scope.contains('.'))
-        {
-            childname = scope.section('.', 0, 0);
-            scope = scope.section('.', 1);
-        }
-        else
-        {
-            childname = scope;
-            scope = QString();
-        }
 
         for (coConfigEntryPtrList::iterator child = children.begin();
              child != children.end(); ++child)
         {
-            if ((*child)->getName() == childname)
+            if ((*child)->getName() == s.childName)
             {
-                value = (*child)->getValue(variable, scope);
-                if (!value.isNull())
+                value = (*child)->getValue(variable, s.scope);
+                if (!value.entry.empty())
                     break;
             }
         }
@@ -576,31 +439,26 @@ coConfigEntryString coConfigEntry::getValue(const QString &variable, QString sco
         return value;
     }
 
-    QString var;
-    if (!variable.isEmpty())
-    {
+    std::string var;
+    if (!variable.empty())
         var = variable;
-    }
     else
-    {
         var = "value";
-    }
 
-    if (QString *attr = attributes[var])
+    auto attr = attributes.find(var);
+    if (attr != attributes.end() && !attr->second.empty())
     {
-        //COCONFIGLOG("coConfigEntry::getValue info: variable " << var << " found");
-        coConfigEntryString value = *attr;
-        value.setConfigScope(configScope);
-        value.setConfigName(configName);
+        // COCONFIGLOG("coConfigEntry::getValue info: variable " << var << " found");
+        coConfigEntryString value{attr->second, configName, "", configScope};
         return value;
     }
     else
     {
-        //COCONFIGLOG("coConfigEntry::getValue info: variable " << var << " not found");
-        return coConfigEntryString(QString());
+        // COCONFIGLOG("coConfigEntry::getValue info: variable " << var << " not found");
+        return coConfigEntryString();
     }
 
-    return coConfigEntryString(QString());
+    return coConfigEntryString();
 }
 
 const char *coConfigEntry::getEntry(const char *variable)
@@ -610,14 +468,12 @@ const char *coConfigEntry::getEntry(const char *variable)
     static char *entry = 0;
 
     if (!matchingAttributes())
-    {
         return 0;
-    }
 
     if (variable)
     {
 
-        //COCONFIGLOG("coConfigEntry::getEntry info: variable " << variable);
+        // COCONFIGLOG("coConfigEntry::getEntry info: variable " << variable);
 
         char *dotpos = (char *)strchr(variable, '.');
 
@@ -665,10 +521,11 @@ const char *coConfigEntry::getEntry(const char *variable)
     }
     else
     {
-        if (QString *attr = attributes["value"])
+        auto attr = attributes.find("value");
+        if (attr != attributes.end() && !attr->second.empty())
         {
-            //COCONFIGLOG("coConfigEntry::getEntry info: value " << attr->latin1());
-            return attr->toLatin1();
+            // COCONFIGLOG("coConfigEntry::getEntry info: value " << attr->latin1());
+            return attr->second.c_str();
         }
         else
         {
@@ -677,34 +534,22 @@ const char *coConfigEntry::getEntry(const char *variable)
     }
 }
 
-bool coConfigEntry::setValue(const QString &variable,
-                             const QString &value,
-                             const QString &section)
+bool coConfigEntry::setValue(const std::string &variable,
+                             const std::string &value,
+                             const std::string &section)
 {
 
     bool found = false;
 
-    QString scope = section;
-    if (!scope.isNull())
+    if (!section.empty())
     {
 
-        QString childname;
-
-        if (scope.contains('.'))
-        {
-            childname = scope.section('.', 0, 0);
-            scope = scope.section('.', 1);
-        }
-        else
-        {
-            childname = scope;
-            scope = QString();
-        }
+        Scope s(section);
 
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
         {
-            if ((*child)->getName() == childname)
-                found |= (*child)->setValue(variable, value, scope);
+            if ((*child)->getName() == s.childName)
+                found |= (*child)->setValue(variable, value, s.scope);
         }
 
         return found;
@@ -713,101 +558,77 @@ bool coConfigEntry::setValue(const QString &variable,
     if (isReadOnly())
         return false;
 
-    QString var;
-    if (!variable.isNull())
-    {
+    std::string var;
+    if (!variable.empty())
         var = variable;
-    }
     else
-    {
         var = "value";
-    }
 
-    if (attributes[var])
-    {
-        attributes.remove(var);
-    }
-
-    attributes.insert(var, new QString(value));
+    attributes[var] = value;
 
     if (var == "name")
     {
         delete[] this->cName;
         this->cName = 0;
-        this->name = QString();
+        this->name = std::string();
     }
     else if (var == "index")
     {
         delete[] this->cName;
         this->cName = 0;
-        this->name = QString();
+        this->name = std::string();
     }
-    entryChanged(); //msg Observer
+    entryChanged(); // msg Observer
     return true;
 
-    //cerr << "coConfigEntry::setValue info: " << variable << " = " << value << endl;
+    // cerr << "coConfigEntry::setValue info: " << variable << " = " << value << endl;
 }
 
-void coConfigEntry::addValue(const QString &variable, const QString &value, const QString &section)
+void coConfigEntry::addValue(const std::string &variable, const std::string &value, const std::string &section)
 {
 
-    QString childname;
-    QString scope = section;
-
-    coConfigEntryPtrList *listOne = new coConfigEntryPtrList();
-    coConfigEntryPtrList *listTwo = new coConfigEntryPtrList();
-    coConfigEntryPtrList *listSwap;
+    std::vector<coConfigEntry *> listOne, listTwo;
 
     // Filling list with this coConfigEntry
-    listTwo->push_back(this);
+    listTwo.push_back(this);
 
     // Traverse the whole section
-    while (!scope.isNull())
+    Scope s(section);
+
+    while (!s.scope.empty())
     {
 
-        if (scope.contains('.'))
-        {
-            // Cut first part of the section
-            childname = scope.section('.', 0, 0);
-            scope = scope.section('.', 1);
-        }
-        else
-        {
-            childname = scope;
-            scope = QString();
-        }
+        s = Scope(s.scope);
 
-        listOne->clear();
+        listOne.clear();
 
         // Look, if the section exists as a child of an entry in the list
-        for (coConfigEntryPtrList::iterator entry = listTwo->begin();
-             entry != listTwo->end(); ++entry)
+        for (auto entry = listTwo.begin();
+             entry != listTwo.end(); ++entry)
         {
             for (coConfigEntryPtrList::iterator index = (*entry)->children.begin(); index != (*entry)->children.end(); ++index)
             {
-                if ((*index)->getName() == childname)
+                if ((*index)->getName() == s.childName)
                 {
                     // As long as there are entries with the section name, add those to listOne
-                    listOne->push_back(*index);
+                    listOne.push_back(index->get());
                 }
             }
         }
 
-        if (listOne->size()==0)
+        if (listOne.size() == 0)
         {
             // New entry, make section and possibly subsections
-            if (scope.length() > 0)
-                (*(listTwo->begin()))->makeSection(childname + "." + scope);
+            if (s.scope.length() > 0)
+                (*(listTwo.begin()))->makeSection(s.childName + "." + s.scope);
             else
-                (*(listTwo->begin()))->makeSection(childname);
+                (*(listTwo.begin()))->makeSection(s.childName);
             break;
         }
         else
         {
             // Take the list of entries and use them as the base for the next search
-            listSwap = listTwo;
-            listTwo = listOne;
-            listOne = listSwap;
+            std::swap(listOne, listTwo);
         }
     }
 
@@ -816,10 +637,10 @@ void coConfigEntry::addValue(const QString &variable, const QString &value, cons
     setValue(variable, value, section);
 }
 
-void coConfigEntry::makeSection(const QString &section)
+void coConfigEntry::makeSection(const std::string &section)
 {
 
-    if (section.isNull())
+    if (section.empty())
         return;
 
     if (isReadOnly())
@@ -828,42 +649,33 @@ void coConfigEntry::makeSection(const QString &section)
     }
 
     coConfigEntry *entry = new coConfigXercesEntry();
-
-    QString variable;
-    if (section.contains('.'))
+    Scope s(section);
+    auto sp = split(s.childName, ':');
+    if (sp.size() > 1)
     {
-        variable = section.section('.', 0, 0);
-    }
-    else
-    {
-        variable = section;
+        entry->attributes.insert({"name", sp[1]});
+        s.childName = sp[0];
     }
 
-    if (variable.contains(':'))
-    {
-        entry->attributes.insert("name", new QString(variable.section(':', 1, 1)));
-        variable = variable.section(':', 0, 0);
-    }
-
-    COCONFIGDBG("coConfigEntry::makeSection info: making section " << variable);
+    COCONFIGDBG("coConfigEntry::makeSection info: making section " << s.childName);
 
     entry->configName = configName;
     entry->configScope = configScope;
 
-    entry->setPath(path + "." + variable);
+    entry->setPath(path + "." + s.childName);
 
-    children.push_back(entry);
+    children.emplace_back(entry);
 
-    if (section.contains('.'))
+    if (!s.scope.empty())
     {
-        entry->makeSection(section.section('.', 1));
+        entry->makeSection(s.scope);
     }
 
     // append coConfigSchemaInfos for this new entry
     if (coConfigSchema::getInstance())
     {
-        //entry->schemaInfos = coConfigSchema::getInstance()->getSchemaInfosForElement(qNodeName);
-        //QString id = path + "." +
+        // entry->schemaInfos = coConfigSchema::getInstance()->getSchemaInfosForElement(qNodeName);
+        // std::string id = path + "." +
         entry->schemaInfos = coConfigSchema::getInstance()->getSchemaInfosForElement(entry->getPath());
         //COCONFIGDBG( "coConfigEntry::restoreFromDom info: entry " << qNodeName <<"  has SchemaInfos " << entry->getSchemaInfos());
     }
@@ -871,34 +683,22 @@ void coConfigEntry::makeSection(const QString &section)
         COCONFIGDBG("coConfigEntry::restoreFromDom err: no SchemaInfos yet");
 }
 
-bool coConfigEntry::deleteValue(const QString &variable, const QString &section)
+bool coConfigEntry::deleteValue(const std::string &variable, const std::string &section)
 {
 
     bool removed = false;
 
-    QString scope = section;
-    if (!scope.isNull())
+    if (!section.empty())
     {
 
-        QString childname;
-
-        if (scope.contains('.'))
-        {
-            childname = scope.section('.', 0, 0);
-            scope = scope.section('.', 1);
-        }
-        else
-        {
-            childname = scope;
-            scope = QString();
-        }
+        Scope s(section);
 
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
         {
 
-            if ((*child)->getName() == childname)
+            if ((*child)->getName() == s.childName)
             {
-                bool removedSomething = (*child)->deleteValue(variable, scope);
+                bool removedSomething = (*child)->deleteValue(variable, s.scope);
                 removed |= removedSomething;
                 if (removedSomething && !(*child)->hasValues() && !(*child)->hasChildren())
                 {
@@ -913,17 +713,18 @@ bool coConfigEntry::deleteValue(const QString &variable, const QString &section)
     if (isReadOnly())
         return false;
 
-    if (attributes[variable])
+    auto attribute = attributes.find(variable);
+    if (attribute != attributes.end())
     {
         COCONFIGDBG("coConfigEntry::deleteValue info: deleting " << variable);
-        attributes.remove(variable);
+        attributes.erase(attribute);
         entryChanged(); //msg Observer
         return true;
     }
-    else if (textNodes.contains(variable))
+    else if (textNodes.find(variable) != textNodes.end())
     {
         COCONFIGDBG("coConfigEntry::deleteValue info: deleting " << variable);
-        attributes.remove(variable);
+        attributes.erase(variable);
         entryChanged(); //msg Observer
         return true;
     }
@@ -933,21 +734,17 @@ bool coConfigEntry::deleteValue(const QString &variable, const QString &section)
     }
 }
 
-bool coConfigEntry::deleteSection(const QString &section)
+bool coConfigEntry::deleteSection(const std::string &section)
 {
 
-    QString scope = section;
     bool removed = false;
-
-    if (scope.contains('.'))
+    Scope s(section);
+    if (s.scope.empty())
     {
-        QString childname = scope.section('.', 0, 0);
-        scope = scope.section('.', 1);
-
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
         {
-            if ((*child)->getName() == childname)
-                removed |= (*child)->deleteSection(scope);
+            if ((*child)->getName() == s.childName)
+                removed |= (*child)->deleteSection(s.scope);
         }
     }
     else
@@ -959,7 +756,7 @@ bool coConfigEntry::deleteSection(const QString &section)
 
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
         {
-            if ((*child)->getName() == scope)
+            if ((*child)->getName() == section)
             {
                 COCONFIGDBG("coConfigEntry::deleteSection info: removing " << (*child)->getPath());
                 child = children.erase(child);
@@ -973,7 +770,7 @@ bool coConfigEntry::deleteSection(const QString &section)
 
 bool coConfigEntry::hasValues() const
 {
-    return (!attributes.isEmpty() || !textNodes.isEmpty());
+    return (!attributes.empty() || !textNodes.empty());
 }
 
 bool coConfigEntry::hasChildren() const
@@ -986,10 +783,10 @@ bool coConfigEntry::isList() const
     return isListNode;
 }
 
-QString &coConfigEntry::cleanName(QString &name)
+std::string &coConfigEntry::cleanName(std::string &name)
 {
-    name.replace('.', "_");
-    name.replace(':', "|");
+    name = replace(name, ".", "_", -1);
+    name = replace(name, ":", "|", -1);
     return name;
 }
 

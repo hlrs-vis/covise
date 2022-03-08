@@ -72,21 +72,16 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
 
     covise::coCoviseConfig::ScopeEntries configEntries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Configs");
-    const char** configEntryNames = configEntries.getValue();
-    if (configEntryNames != NULL)
+    if (!configEntries.empty())
     {
-        int i = 0;
-        while (configEntryNames[i]&&configEntryNames[i + 1])
+        for (const auto &entry : configEntries)
         {
-
-            simulationConfig sc(configEntryNames[i], configEntryNames[i + 1]);
-            auto res = configItems.insert(std::pair<std::string, simulationConfig>(configEntryNames[i], sc));
+            simulationConfig sc(entry.first, entry.second);
+            auto res = configItems.insert(std::pair<std::string, simulationConfig>(entry.first, sc));
             res.first->second.add(configEntriesMenu);
-            i++; // skip name
-            i++; //skip value (may be NULL)
-
         }
     }
+
     //AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
     //av = getAgentVehicle("truck","truck","truck_truck");
     pf = PedestrianFactory::Instance();
@@ -903,20 +898,9 @@ PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass,
 
 void SumoTraCI::getPedestriansFromConfig()
 {
-    covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Pedestrians");
-    const char **entries = e.getValue();
-    if (entries)
-    {
-        while (*entries)
-        {
-            const char *fileName = *entries;
-            entries++;
-            const char *scaleChar = *entries;
-            entries++;
-            double scale = atof(scaleChar);
-            pedestrianModels.push_back(pedestrianModel(fileName, scale));
-        }
-    }
+    covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Pedestrians");
+    for (const auto &entry : entries)
+        pedestrianModels.push_back(pedestrianModel(entry.first, atof(entry.second.c_str())));
 }
 
 void SumoTraCI::getVehiclesFromConfig()
@@ -925,20 +909,10 @@ void SumoTraCI::getVehiclesFromConfig()
     {
         std::vector<vehicleModel> * vehicles = new std::vector<vehicleModel>;
         vehicleModelMap[*itr]=vehicles;
-        covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Vehicles."+*itr);
-        const char **entries = e.getValue();
-        if (entries)
-        {
-            while (*entries)
-            {
-                const char *vehicleName = *entries;
-                entries++;
-                const char *fileName = *entries;
-                entries++;
-                vehicleModel m = vehicleModel(vehicleName, fileName);
-                vehicles->push_back(m);
-            }
-        }
+        covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Vehicles."+*itr);
+        for (const auto &entry : entries)
+            vehicles->emplace_back(entry.first, entry.second);
+
         if (vehicles->size() == 0)
         {
             fprintf(stderr, "please add vehicle config %s\n", ("COVER.Plugin.SumoTraCI.Vehicles." + *itr).c_str());

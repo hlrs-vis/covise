@@ -13,127 +13,49 @@ namespace covise
 class coConfig;
 
 template <class T>
-coConfigValue<T>::coConfigValue(const QString & configGroupName, const QString & variable, const QString & section)
+coConfigValue<T>::coConfigValue(const std::string &configGroupName, const std::string &variable, const std::string &section)
+    : coConfigValue(variable, section)
 {
-
-   this->variable = variable;
-   this->section = section;
    this->configGroupName = configGroupName;
-   this->autoUpdate = false;
-
-   this->modified = false;
-   this->unmodifiedValue = value;
-
-   this->saveToGroup = 0;
-   this->group = 0;
-
 }
 
-
 template <class T>
-coConfigValue<T>::coConfigValue(const QString & variable, const QString & section)
+coConfigValue<T>::coConfigValue(const std::string &variable, const std::string &section)
+    : variable(variable), section(section), autoUpdate(false), modified(false), saveToGroup(0), group(0)
 {
-
-   this->variable = variable;
-   this->section = section;
-   this->configGroupName = QString();
-   this->autoUpdate = false;
-
-   this->modified = false;
-   this->unmodifiedValue = value;
-
-   this->saveToGroup = 0;
-   this->group = 0;
-
 }
 
-
 template <class T>
-coConfigValue<T>::coConfigValue(const QString & simpleVariable)
+coConfigValue<T>::coConfigValue(const std::string &simpleVariable)
+    : coConfigValue("value", simpleVariable)
 {
-
-   this->variable = "value";
-   this->section = simpleVariable;
-   this->configGroupName = QString();
-   this->autoUpdate = false;
-
-   this->modified = false;
-   this->unmodifiedValue = value;
-
-   this->saveToGroup = 0;
-   this->group = 0;
-
 }
 
+template <class T>
+coConfigValue<T>::coConfigValue(coConfigGroup *group, const std::string &simpleVariable)
+    : coConfigValue(group, "value", simpleVariable)
+{
+}
 
 template <class T>
-coConfigValue<T>::coConfigValue(coConfigGroup * group, const QString & simpleVariable)
+coConfigValue<T>::coConfigValue(coConfigGroup *group,
+                                const std::string &variable, const std::string &section)
+    : coConfigValue(variable, section)
 {
-
-   this->variable = "value";
-   this->section = simpleVariable;
-   this->configGroupName = QString();
-   this->autoUpdate = false;
-
-   this->modified = false;
-   this->unmodifiedValue = value;
-
    this->saveToGroup = group;
    this->group = group;
-
 }
 
-
 template <class T>
-coConfigValue<T>::coConfigValue(coConfigGroup * group,
-                                const QString & variable, const QString & section)
-{
-
-   this->variable = variable;
-   this->section = section;
-   this->configGroupName = QString();
-   this->autoUpdate = false;
-
-   this->modified = false;
-   this->unmodifiedValue = value;
-
-   this->saveToGroup = group;
-   this->group = group;
-
-}
-
-
-template <class T>
-coConfigValue<T>::coConfigValue(const coConfigValue<T> & value)
-{
-
-   //COCONFIGLOG("coConfigValue<T>::<init> info: copy");
-
-   this->value = value.value;
-   this->variable = value.variable;
-   this->section = value.section;
-   this->configGroupName = value.configGroupName;
-
-   this->autoUpdate = value.autoUpdate;
-
-   this->modified = value.modified;
-   this->unmodifiedValue = value.unmodifiedValue;
-
-   this->saveToGroup = value.saveToGroup;
-   this->group = value.group;
-
+coConfigValue<T>::coConfigValue(const coConfigValue<T> &value)
+    : value(value.value), variable(value.variable), section(value.section), configGroupName(value.configGroupName), autoUpdate(value.autoUpdate), modified(value.modified), unmodifiedValue(value.unmodifiedValue), saveToGroup(value.saveToGroup), group(value.group)
 #ifdef COCONFIGVALUE_USE_CACHE
-   this->cache = value.cache;
+      ,
+      cache(value.cache)
 #endif
-}
-
-
-template <class T>
-coConfigValue<T>::~coConfigValue()
 {
-
+   // COCONFIGLOG("coConfigValue<T>::<init> info: copy");
 }
-
 
 template <class T>
 coConfigValue<T> & coConfigValue<T>::operator=(const T & rhs)
@@ -153,7 +75,7 @@ coConfigValue<T> & coConfigValue<T>::operator=(const T & rhs)
    //std::cerr << "coConfigValue<T>::operator=T info: " << variable << " in " << section << " = " << value << std::endl;
    if (saveToGroup)
       saveToGroup->setValue(variable, value, section);
-   else if(!configGroupName.isNull())
+   else if (!configGroupName.empty())
    {
       //std::cerr << "coConfigValue<T>::operator=T info: setting in group " << configGroupName << std::endl;
       coConfig::getInstance()->setValueInConfig(variable, value, section, configGroupName);
@@ -191,12 +113,12 @@ void coConfigValue<T>::update()
 
    if (group)
    {
-      value = group->getValue(variable, section);
+      value = group->getValue(variable, section).entry;
       //std::cerr << "coConfigValue<T>::update info: group value " << section << "." << variable << " = " << (value.isNull() ? "*NULL*" : value) << std::endl;
    }
    else
    {
-      value = coConfig::getInstance()->getValue(variable, section);
+      value = coConfig::getInstance()->getValue(variable, section).entry;
       //COCONFIGLOG("coConfigValue<T>::update info: value " << section << "." << variable << " = " << (value.isNull() ? "*NULL*" : value));
    }
 
@@ -227,9 +149,9 @@ bool coConfigValue<T>::isAutoUpdate() const
 template <class T>
 bool coConfigValue<T>::hasValidValue()
 {
-   if (isAutoUpdate()) update();
-   //COCONFIGLOG("coConfigValue<T>::hasValidValue info: value " << section << "." << variable << " = " << (value.isNull() ? "*NULL*" : value));
-   return !value.isNull();
+   // if (isAutoUpdate()) update();
+   // COCONFIGLOG("coConfigValue<T>::hasValidValue info: value " << section << "." << variable << " = " << (value.isNull() ? "*NULL*" : value));
+   return !value.empty();
 }
 
 
@@ -237,7 +159,7 @@ template <class T>
 bool coConfigValue<T>::hasValidValue() const
 {
    //COCONFIGLOG("coConfigValue<T>::hasValidValue info: value " << section << "." << variable << " = " << (value.isNull() ? "*NULL*" : value));
-   return !value.isNull();
+   return !value.empty();
 }
 
 

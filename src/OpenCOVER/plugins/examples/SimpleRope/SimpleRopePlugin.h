@@ -60,6 +60,9 @@
 #include <osg/Point>
 
 #include <cover/coTabletUI.h>
+#include <set>
+#include <map>
+#include <string>
 
 using namespace opencover;
 using namespace vrui;
@@ -176,7 +179,6 @@ public:
     float twistRadius;
     float toolRadiusSquare;
     int numColors;
-    int currentMap;
     float topRadius;
     float squareRope;
     float cubicRope;
@@ -186,16 +188,16 @@ public:
         CYLINDER_TOOL = 0,
         SPHERE_TOOL
     };
-    QStringList mapNames;
-    QMap<QString, int> mapSize;
-    QMap<QString, float *> mapValues;
+    std::set<std::string> mapNames;
+    std::map<std::string, int> mapSize;
+    std::map<std::string, float *> mapValues;
 
     typedef float FlColor[5];
 
 private:
     void tabletPressEvent(coTUIElement *);
     void tabletEvent(coTUIElement *);
-    void deleteColorMap(const QString &);
+    void deleteColorMap(const std::string &);
     void readConfig();
     FlColor *interpolateColormap(FlColor map[], int numSteps);
     osg::Vec4 getColor(float pos);

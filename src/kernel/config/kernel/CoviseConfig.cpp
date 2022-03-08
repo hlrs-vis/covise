@@ -11,10 +11,8 @@
 #include <config/coConfig.h>
 
 #include <iostream>
-using namespace std;
-using namespace covise;
 
-#include <QString>
+using namespace covise;
 
 coCoviseConfig::coCoviseConfig()
 {
@@ -63,9 +61,9 @@ std::string coCoviseConfig::getEntry(const std::string &variable, const std::str
 
 std::string coCoviseConfig::getEntry(const std::string &variable, const std::string &entry, const std::string &defaultValue, bool *exists)
 {
-    QString val = coConfig::getInstance()->getValue(QString::fromStdString(variable), QString::fromStdString(entry));
+    std::string val = coConfig::getInstance()->getValue(variable, entry).entry;
 
-    if (val.isNull())
+    if (val.empty())
     {
         if (exists)
             *exists = false;
@@ -75,10 +73,9 @@ std::string coCoviseConfig::getEntry(const std::string &variable, const std::str
     if (exists)
         *exists = true;
 
-    COCONFIGDBG("coCoviseConfig::getEntry info: " << entry.c_str() << "/" << variable.c_str() << " = "
-                                                  << (!val.isNull() ? qPrintable(val) : "*NULL*"));
+    COCONFIGDBG("coCoviseConfig::getEntry info: " << entry << "/" << variable << " = " << val);
 
-    return val.toStdString();
+    return val;
 }
 
 /**
@@ -104,7 +101,7 @@ int coCoviseConfig::getInt(const std::string &entry, int defaultValue, bool *exi
 int coCoviseConfig::getInt(const std::string &variable, const std::string &entry, int defaultValue, bool *exists)
 {
     COCONFIGDBG("coCoviseConfig::getInt info: enter " << entry.c_str() << "/" << variable.c_str() << " default " << defaultValue);
-    coConfigInt val = coConfig::getInstance()->getInt(QString::fromStdString(variable), QString::fromStdString(entry));
+    coConfigInt val = coConfig::getInstance()->getInt(variable, entry);
     COCONFIGDBG("coCoviseConfig::getInt info: " << entry.c_str() << "/" << variable.c_str() << " = " << val
                                                 << " (" << val.hasValidValue() << ")");
     if (exists)
@@ -139,7 +136,7 @@ long coCoviseConfig::getLong(const std::string &entry, long defaultValue, bool *
 long coCoviseConfig::getLong(const std::string &variable, const std::string &entry, long defaultValue, bool *exists)
 {
     COCONFIGDBG("coCoviseConfig::getLong info: enter " << entry.c_str() << "/" << variable.c_str() << " default " << defaultValue);
-    coConfigLong val = coConfig::getInstance()->getLong(QString::fromStdString(variable), QString::fromStdString(entry));
+    coConfigLong val = coConfig::getInstance()->getLong(variable, entry);
     COCONFIGDBG("coCoviseConfig::getLong info: " << entry.c_str() << "/" << variable.c_str() << " = " << val
                                                  << " (" << val.hasValidValue() << ")");
     if (exists)
@@ -175,7 +172,7 @@ bool coCoviseConfig::isOn(const std::string &entry, bool defaultValue, bool *exi
 bool coCoviseConfig::isOn(const std::string &variable, const std::string &entry, bool defaultValue, bool *exists)
 {
     COCONFIGDBG("coCoviseConfig::isOn info: enter " << entry.c_str() << "/" << variable.c_str() << " default " << defaultValue);
-    coConfigBool val = coConfig::getInstance()->getBool(QString::fromStdString(variable), QString::fromStdString(entry));
+    coConfigBool val = coConfig::getInstance()->getBool(variable, entry);
     COCONFIGDBG("coCoviseConfig::isOn info: " << entry.c_str() << "/" << variable.c_str() << " = " << val
                                               << " (" << val.hasValidValue() << ")");
     if (exists)
@@ -210,7 +207,7 @@ float coCoviseConfig::getFloat(const std::string &entry, float defaultValue, boo
 float coCoviseConfig::getFloat(const std::string &variable, const std::string &entry, float defaultValue, bool *exists)
 {
     COCONFIGDBG("coCoviseConfig::getFloat info: enter " << entry.c_str() << "/" << variable.c_str() << " default " << defaultValue);
-    coConfigFloat val = coConfig::getInstance()->getFloat(QString::fromStdString(variable), QString::fromStdString(entry));
+    coConfigFloat val = coConfig::getInstance()->getFloat(variable, entry);
     COCONFIGDBG("coCoviseConfig::getFloat info: " << entry.c_str() << " = " << val
                                                   << " (" << val.hasValidValue() << ")");
     if (exists)
@@ -222,24 +219,18 @@ float coCoviseConfig::getFloat(const std::string &variable, const std::string &e
         return defaultValue;
 }
 
-namespace
-{
-
 std::vector<std::string> getScopeNamesHelper(const coCoviseConfig::ScopeEntries &entries)
 {
     std::vector<std::string> result;
-    if (const char **values = entries.getValue())
+    for (const auto &pair : entries)
     {
-        for (const char **name = values; *name; name += 2)
-        {
-            if (const char *p = strchr(*name, ':'))
-                result.push_back(p + 1);
-            else
-                result.push_back(*name);
-        }
+        auto pos = pair.first.find(':');
+        if (pos != std::string::npos)
+            result.emplace_back(pair.first.substr(pos + 1));
+        else
+            result.push_back(pair.first);
     }
     return result;
-}
 }
 
 std::vector<std::string> coCoviseConfig::getScopeNames(const std::string &scope, const std::string &name)
@@ -250,252 +241,41 @@ std::vector<std::string> coCoviseConfig::getScopeNames(const std::string &scope,
         return getScopeNamesHelper(getScopeEntries(scope, name));
 }
 
-// retrieve all values of a scope: return 2n+1 arr name/val/name.../val/NULL
-coCoviseConfig::ScopeEntries coCoviseConfig::getScopeEntries(const std::string &scope)
-{
-    return ScopeEntries(scope.c_str(), 0);
-}
-
-// get all entries for one scope/name
 coCoviseConfig::ScopeEntries coCoviseConfig::getScopeEntries(const std::string &scope, const std::string &name)
 {
-    return ScopeEntries(scope.c_str(), name.c_str());
-}
 
-// static char * findToken(const char *&tokenPtr)
-// {
+    ScopeEntries entries;
+    coConfigEntryStringList list = coConfig::getInstance()->getScopeList(scope, name);
 
-//    char *token;
-//    int tokenLen = 0;
+    COCONFIGDBG("coCoviseConfig::ScopeEntries::<init>(" << scope << ", " << name << ": size = " << list.entries().size());
 
-//    // find begin of token
-//    while ( tokenPtr[0] && isspace(tokenPtr[0]) )
-//    {
-//       tokenPtr++;
-//    }
-//    if (!tokenPtr[0])
-//       return(NULL);
-
-//    int inQuote = 0;
-//    int pos = 0;
-//    while (tokenPtr[pos] && (!isspace(tokenPtr[pos]) || inQuote))
-//    {
-
-//       if ( (tokenPtr[pos]=='"') && ((pos == 0) || (tokenPtr[pos-1] != '\\' ) ) )
-//          inQuote = !inQuote;
-//       tokenLen++;
-//       pos++;
-//    }
-
-//    // token umkopieren
-//    token = new char[tokenLen+1];
-
-//    inQuote = 0;
-//    pos = 0;
-//    int newLen = 0;
-
-//    // solange nicht am ende && (nicht blank || innerhalb quote)
-//    while (tokenPtr[pos] && (!isspace(tokenPtr[pos]) || inQuote))
-//    {
-
-//       if ( (tokenPtr[pos]=='"') && ((pos == 0) || (tokenPtr[pos-1] !='\\')) )
-//       {
-//          inQuote = !inQuote;
-
-//       }
-//       else
-//       {
-//          if ( (tokenPtr[pos] !='\\') || (tokenPtr[pos+1] != '"') )
-//          {
-//             token[newLen] = tokenPtr[pos];
-//             newLen++;
-//          }
-//       }
-//       pos++;
-//    }
-
-//    token[newLen] = '\0';
-
-//    tokenPtr += tokenLen;
-
-//    return(token);
-// }
-
-// int coCoviseConfig::getTokens(const char * entry, char **& tokens)
-// {
-
-//    int numTokens = 0;
-//    const char * line;
-//    char * token;
-//    int i;
-
-//    const char * tokenPtr;
-
-//    Entry e = coCoviseConfig::getEntry(entry);
-//    line = e.getValue();
-
-//    if (line)
-//    {
-
-//       // find number of tokens
-
-//       tokenPtr = line;
-
-//       token = findToken(tokenPtr);
-//       while (token)                               // =! '\0'
-//       {
-//          delete[] token;
-//          numTokens++;
-//          token = findToken(tokenPtr);
-
-//       }
-
-//       tokenPtr = line;
-
-//       tokens = new char*[numTokens];
-
-//       for (i = 0; i < numTokens; i++)
-//       {
-
-//          token = findToken(tokenPtr);
-
-//          tokens[i] = new char[strlen(token)+1];
-//          strcpy(tokens[i], token);
-//          delete[] token;
-//       }
-//    }
-//    else
-//    {
-//       numTokens = -1;
-//    }
-//    return(numTokens);
-// }
-
-coCoviseConfig::ScopeEntries::ScopeEntries(const char *scope, const char *name)
-{
-
-    coConfigEntryStringList list;
-    if (name)
-    {
-        list = coConfig::getInstance()->getScopeList(scope, name);
-    }
-    else
-    {
-        list = coConfig::getInstance()->getScopeList(scope);
-    }
-
-    COCONFIGDBG(QString("coCoviseConfig::ScopeEntries::<init>(%1,%2): size = %3").arg(scope, QString(name), qPrintable(QString::number(list.size()))));
-
-    if (list.size()==0)
-        return;
-
-    QString scopeEntry(scope);
-    scopeEntry.append(".%1");
-
-    char **ptr_ = new char *[list.size() * 2 + 1];
-    int ctr = 0;
+    if (list.entries().size() == 0)
+        return entries;
 
     if (list.getListType() == coConfigEntryStringList::PLAIN_LIST)
     {
         COCONFIGDBG("coCoviseConfig::getScopeEntries info: PLAIN_LIST");
-        for (coConfigEntryStringList::iterator i = list.begin(); i != list.end(); ++i)
+        for (const auto entry : list.entries())
         {
-            QString value = (*i).section(' ', 0, 0);
-            if (!value.isNull())
+            auto pos = entry.entry.find(' ');
+            if (pos != std::string::npos)
             {
-                ptr_[ctr] = new char[strlen(value.toLatin1().constData()) + 1];
-                strcpy(ptr_[ctr], value.toLatin1().constData());
+                entries.insert({entry.entry.substr(0, pos), entry.entry.substr(pos + 1)});
             }
-            else
-            {
-                ptr_[ctr] = 0;
-            }
-            ++ctr;
-
-            value = (*i).section(' ', 1);
-            if (!value.isNull())
-            {
-                ptr_[ctr] = new char[strlen(value.toLatin1().constData()) + 1];
-                strcpy(ptr_[ctr], value.toLatin1().constData());
-            }
-            else
-            {
-                ptr_[ctr] = 0;
-            }
-            ++ctr;
-
-            //COCONFIGLOG("coCoviseConfig::getScopeEntries info: " << rv_[ctr - 2] << " = " << rv_[ctr - 1]);
+            // COCONFIGLOG("coCoviseConfig::getScopeEntries info: " << rv_[ctr - 2] << " = " << rv_[ctr - 1]);
         }
     }
     else if (list.getListType() == coConfigEntryStringList::VARIABLE)
     {
         COCONFIGDBG("coCoviseConfig::getScopeEntries info: VARIABLE");
-        for (coConfigEntryStringList::iterator i = list.begin(); i != list.end(); ++i)
+        for (const auto entry : list.entries())
         {
-            QString value(*i);
-            ptr_[ctr] = new char[strlen(value.toLatin1().constData()) + 1];
-            strcpy(ptr_[ctr], value.toLatin1().constData());
-            ++ctr;
-            //Wenn ich das recht verstanden habe,
-            //wird hier eine Liste aufgebaut, wobei
-            // an den geradzahligen Positionen ( bei Zaehlung vn Null )
-            //der "Variablenname"
-            //und an den ungeradzahligen Positionen der
-            //jeweilige Wert steht.
-
-            value = coConfig::getInstance()->getValue(scopeEntry.arg(*i));
-            if (!value.isNull())
-            {
-                ptr_[ctr] = new char[strlen(value.toLatin1().constData()) + 1];
-                strcpy(ptr_[ctr], value.toLatin1().constData());
-            }
-            else
-            {
-                ptr_[ctr] = 0;
-            }
-            ++ctr;
+            entries.insert({entry.entry, coConfig::getInstance()->getValue(scope + "." + entry.entry).entry});
         }
     }
     else
     {
         COCONFIGLOG("coCoviseConfig::getScopeEntries warn: UNKNOWN");
     }
-
-    ptr_[ctr] = 0;
-
-    ptr = const_cast<const char **>(ptr_);
-}
-
-void coCoviseConfig::ScopeEntries::release()
-{
-    if (ptr)
-    {
-        if (--refCount == 0)
-        {
-            COCONFIGLOG("coCoviseConfig::ScopeEntries::release info: destroying ptr");
-            for (unsigned int ctr = 0; ptr[ctr]; ++ctr)
-            {
-                delete[] ptr[ctr];
-                delete[] ptr[++ctr];
-            }
-            delete[] ptr;
-            ptr = 0;
-        }
-    }
-}
-
-const char **coCoviseConfig::ScopeEntries::getValue()
-{
-    return RefPtr<const char **>::getValue();
-}
-
-const char **coCoviseConfig::ScopeEntries::getValue() const
-{
-    return RefPtr<const char **>::getValue();
-}
-
-coCoviseConfig::ScopeEntries &coCoviseConfig::ScopeEntries::operator=(const ScopeEntries &s)
-{
-    RefPtr<const char **>::operator=(s);
-    return *this;
+    return entries;
 }

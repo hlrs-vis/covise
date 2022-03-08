@@ -29,11 +29,12 @@
 #include <QTimer>
 #include <QUrl>
 
-#include <messages/NEW_UI.h>
 #include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
+#include <messages/NEW_UI.h>
 #include <net/covise_host.h>
 #include <qtutil/NonBlockingDialogue.h>
+#include <qtutil/Qt5_15_deprecated.h>
 #include <util/covise_version.h>
 
 #include "MEFavoriteListHandler.h"
@@ -133,42 +134,7 @@ MEMessageHandler *MEMainHandler::messageHandler = NULL;
 */
 
 MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> quitFunc)
-    : QObject()
-    , cfg_storeWindowConfig("System.MapEditor.General.StoreLayout")
-    , cfg_ErrorHandling("System.MapEditor.General.ErrorOutput")
-    , cfg_DeveloperMode("System.MapEditor.General.DeveloperMode")
-    , cfg_HideUnusedModules("System.MapEditor.General.HideUnusedModules")
-    , cfg_AutoConnect("System.MapEditor.General.AutoConnectHosts")
-    , cfg_TopLevelBrowser("System.MapEditor.General.TopLevelBrowser")
-    , cfg_ImbeddedRenderer("System.MapEditor.General.TopLevelBrowser")
-    , cfg_TabletUITabs("System.MapEditor.General.TabletUITabs")
-    , cfg_AutoSaveTime("time", "System.MapEditor.Saving.AutoSave")
-    , cfg_ModuleHistoryLength("System.MapEditor.Saving.ModuleHistoryLength")
-    , cfg_GridSize("System.MapEditor.VisualProgramming.SnapFactor")
-    , cfg_HostColors("System.MapEditor.VisualProgramming.HostColors")
-    , cfg_QtStyle("System.UserInterface.QtStyle")
-    , cfg_HighColor("System.MapEditor.VisualProgramming.HighlightColor")
-    , cfg_NetworkHistoryLength(10)
-    , m_deleteAutosaved_a(NULL)
-    , m_copyMode(NORMAL)
-    , m_masterUI(true)
-    , force(false)
-    , m_loadedMapWasModified(false)
-    , m_autoSave(false)
-    , m_waitForClose(false)
-    , m_executeOnChange(false)
-    , m_inMapLoading(false)
-    , m_mirrorMode(false)
-    , m_connectedPartner(0)
-    , m_portSize(14)
-    , m_autoSaveTimer(NULL)
-    , m_currentNode(NULL)
-    , m_newNode(NULL)
-    , m_settings(NULL)
-    , m_deleteHostBox(NULL)
-    , m_mirrorBox(NULL)
-    , m_requestingMaster(false)
-    , m_quitFunc(quitFunc)
+    : QObject(), cfg_storeWindowConfig("System.MapEditor.General.StoreLayout"), cfg_ErrorHandling("System.MapEditor.General.ErrorOutput"), cfg_DeveloperMode("System.MapEditor.General.DeveloperMode"), cfg_HideUnusedModules("System.MapEditor.General.HideUnusedModules"), cfg_AutoConnect("System.MapEditor.General.AutoConnectHosts"), cfg_TopLevelBrowser("System.MapEditor.General.TopLevelBrowser"), cfg_ImbeddedRenderer("System.MapEditor.General.TopLevelBrowser"), cfg_TabletUITabs("System.MapEditor.General.TabletUITabs"), cfg_AutoSaveTime("time", "System.MapEditor.Saving.AutoSave"), cfg_ModuleHistoryLength("System.MapEditor.Saving.ModuleHistoryLength"), cfg_GridSize("System.MapEditor.VisualProgramming.SnapFactor"), m_cfg_HostColors("System.MapEditor.VisualProgramming.HostColors"), m_cfg_QtStyle("System.UserInterface.QtStyle"), m_cfg_HighColor("System.MapEditor.VisualProgramming.HighlightColor"), cfg_NetworkHistoryLength(10), m_deleteAutosaved_a(NULL), m_copyMode(NORMAL), m_masterUI(true), force(false), m_loadedMapWasModified(false), m_autoSave(false), m_waitForClose(false), m_executeOnChange(false), m_inMapLoading(false), m_mirrorMode(false), m_connectedPartner(0), m_portSize(14), m_autoSaveTimer(NULL), m_currentNode(NULL), m_newNode(NULL), m_settings(NULL), m_deleteHostBox(NULL), m_mirrorBox(NULL), m_requestingMaster(false), m_quitFunc(quitFunc)
 {
     // init some variables
     singleton = this;
@@ -236,9 +202,9 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     cfg_AutoSaveTime.setAutoUpdate(true);
     cfg_ModuleHistoryLength.setAutoUpdate(true);
     cfg_GridSize.setAutoUpdate(true);
-    cfg_HostColors.setAutoUpdate(true);
-    cfg_QtStyle.setAutoUpdate(true);
-    cfg_HighColor.setAutoUpdate(true);
+    m_cfg_HostColors.setAutoUpdate(true);
+    m_cfg_QtStyle.setAutoUpdate(true);
+    m_cfg_HighColor.setAutoUpdate(true);
 
     cfg_HideUnusedModules.setSaveToGroup(mapConfig);
     cfg_AutoConnect.setSaveToGroup(mapConfig);
@@ -247,10 +213,10 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     cfg_ErrorHandling.setSaveToGroup(mapConfig);
     cfg_DeveloperMode.setSaveToGroup(mapConfig);
     cfg_AutoSaveTime.setSaveToGroup(mapConfig);
-    cfg_QtStyle.setSaveToGroup(mapConfig);
-    cfg_HighColor.setSaveToGroup(mapConfig);
+    m_cfg_QtStyle.setSaveToGroup(mapConfig);
+    m_cfg_HighColor.setSaveToGroup(mapConfig);
+    m_cfg_HostColors.setSaveToGroup(mapConfig);
     cfg_GridSize.setSaveToGroup(mapConfig);
-    cfg_HostColors.setSaveToGroup(mapConfig);
     cfg_storeWindowConfig.setSaveToGroup(mapConfig);
     cfg_ModuleHistoryLength.setSaveToGroup(mapConfig);
     cfg_ImbeddedRenderer.setSaveToGroup(mapConfig);
@@ -482,12 +448,11 @@ void MEMainHandler::readConfigFile()
 
 // default values
 
+    if (!m_cfg_QtStyle.hasValidValue())
 #ifdef _WIN32
-    if (!cfg_QtStyle.hasValidValue())
-        cfg_QtStyle = "Windows";
+        m_cfg_QtStyle = "Windows";
 #else
-    if (!cfg_QtStyle.hasValidValue())
-        cfg_QtStyle = "";
+        m_cfg_QtStyle = "";
 #endif
 
     if (!cfg_AutoSaveTime.hasValidValue())
@@ -512,15 +477,15 @@ void MEMainHandler::readConfigFile()
         cfg_storeWindowConfig = false;
     if (!cfg_ImbeddedRenderer.hasValidValue())
         cfg_ImbeddedRenderer = false;
-    if (!cfg_HighColor.hasValidValue())
-        cfg_HighColor = "red";
+    if (!m_cfg_HighColor.hasValidValue())
+        m_cfg_HighColor = "red";
 
-    s_highlightColor.setNamedColor(cfg_HighColor);
+    s_highlightColor.setNamedColor(cfg_HighColor());
 
     // set layout style
-    if (cfg_QtStyle.hasValidValue() && !QString(cfg_QtStyle).isEmpty())
+    if (m_cfg_QtStyle.hasValidValue() && !std::string(m_cfg_QtStyle).empty())
     {
-        QStyle *s = QStyleFactory::create(cfg_QtStyle);
+        QStyle *s = QStyleFactory::create(cfg_QtStyle());
         if (s)
             QApplication::setStyle(s);
     }
@@ -543,9 +508,9 @@ void MEMainHandler::readConfigFile()
     }
 
     // get host colors
-    QString serv = mapConfig->getValue("System.MapEditor.General.HostColors");
+    QString serv = mapConfig->getValue("System.MapEditor.General.HostColors").entry.c_str();
 
-    if (serv.isNull())
+    if (serv.isEmpty())
         m_hostColor << "LightBlue"
                     << "PaleGreen"
                     << "khaki"
@@ -557,7 +522,7 @@ void MEMainHandler::readConfigFile()
         m_hostColor = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
     // get favorite list
-    serv = mapConfig->getValue("System.MapEditor.General.FavoritesList");
+    serv = mapConfig->getValue("System.MapEditor.General.FavoritesList").entry.c_str();
     QStringList flist;
     if (serv.isNull())
     {
@@ -576,12 +541,12 @@ void MEMainHandler::readConfigFile()
     MEFavoriteListHandler::instance()->storeFavoriteList(flist);
 
     // read module history
-    serv = mapConfig->getValue("System.MapEditor.General.ModuleHistory");
+    serv = mapConfig->getValue("System.MapEditor.General.ModuleHistory").entry.c_str();
     if (!serv.isNull())
         moduleHistory = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
     // read network history
-    serv = mapConfig->getValue("System.MapEditor.General.NetworkHistory");
+    serv = mapConfig->getValue("System.MapEditor.General.NetworkHistory").entry.c_str();
     if (!serv.isNull())
     {
         networkHistory = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
@@ -635,7 +600,7 @@ void MEMainHandler::insertModuleInHistory(const QString &insertText)
         moduleHistory.takeLast();
 
     // update list in mapeditor.xml
-    mapConfig->setValue("System.MapEditor.General.ModuleHistory", moduleHistory.join(" "));
+    mapConfig->setValue("System.MapEditor.General.ModuleHistory", moduleHistory.join(" ").toStdString());
 }
 
 //!
@@ -656,7 +621,7 @@ void MEMainHandler::insertNetworkInHistory(const QString &insertText)
         networkHistory.takeLast();
 
     // update list in mapeditor.xml
-    mapConfig->setValue("System.MapEditor.General.NetworkHistory", networkHistory.join(" "));
+    mapConfig->setValue("System.MapEditor.General.NetworkHistory", networkHistory.join(" ").toStdString());
 
     QAction *ac = new QAction(insertText, 0);
     connect(ac, SIGNAL(triggered(bool)), this, SLOT(openNetworkFile(bool)));
@@ -671,7 +636,7 @@ void MEMainHandler::storeSessionParam()
 {
     // store host colors
     QString tmp = m_hostColor.join(" ");
-    mapConfig->setValue("System.MapEditor.General.HostColors", tmp);
+    mapConfig->setValue("System.MapEditor.General.HostColors", tmp.toStdString());
 
     // store category name and open/close state
     MEHost *nptr = MEHostListHandler::instance()->getFirstHost();
@@ -679,9 +644,9 @@ void MEMainHandler::storeSessionParam()
     {
         QTreeWidgetItem *category = cptr->getCategoryItem();
         if (category->isExpanded())
-            mapConfig->setValue(cptr->getName(), "true", "System.MapEditor.General.Category");
+            mapConfig->setValue(cptr->getName().toStdString(), "true", "System.MapEditor.General.Category");
         else
-            mapConfig->setValue(cptr->getName(), "false", "System.MapEditor.General.Category");
+            mapConfig->setValue(cptr->getName().toStdString(), "false", "System.MapEditor.General.Category");
     }
 
     // store window configuration
@@ -1369,7 +1334,7 @@ void MEMainHandler::settingXML()
     if (m_settings->exec() == QDialog::Accepted)
     {
         mapConfig->save();
-        s_highlightColor.setNamedColor(cfg_HighColor);
+        s_highlightColor.setNamedColor(cfg_HighColor());
 
         if (m_autoSaveTimer)
         {
@@ -1378,9 +1343,9 @@ void MEMainHandler::settingXML()
         }
 
         // set layout style
-        if (cfg_QtStyle.hasValidValue() && !QString(cfg_QtStyle).isEmpty())
+        if (m_cfg_QtStyle.hasValidValue() && !cfg_QtStyle().isEmpty())
         {
-            QStyle *s = QStyleFactory::create(cfg_QtStyle);
+            QStyle *s = QStyleFactory::create(cfg_QtStyle());
             if (s)
                 QApplication::setStyle(s);
         }

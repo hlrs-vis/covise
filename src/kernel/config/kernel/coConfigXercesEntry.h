@@ -10,10 +10,7 @@
 
 #include <config/coConfigEntry.h>
 
-#include <QObject>
-#include <QString>
-#include <QRegExp>
-#include <QList>
+#include <string>
 
 #include <util/coTypes.h>
 
@@ -39,7 +36,7 @@ public:
     coConfigXercesEntry();
     virtual ~coConfigXercesEntry();
 
-    static coConfigEntry *restoreFromDom(xercesc::DOMElement *node, const QString &configName);
+    static coConfigEntry *restoreFromDom(xercesc::DOMElement *node, const std::string &configName);
     xercesc::DOMNode *storeToDom(xercesc::DOMDocument &document, int indent = 2);
 
     virtual coConfigEntry *clone() const;

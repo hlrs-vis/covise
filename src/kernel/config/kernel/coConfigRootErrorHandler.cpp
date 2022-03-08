@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "coConfigRootErrorHandler.h"
-
+#include "coConfigXercesConverter.h"
 using namespace covise;
 
 coConfigRootErrorHandler::coConfigRootErrorHandler()
@@ -17,23 +17,23 @@ coConfigRootErrorHandler::coConfigRootErrorHandler()
 void coConfigRootErrorHandler::warning(const xercesc::SAXParseException &e)
 {
     // if file could not be opend, handle that warning as an error
-    if (QString::fromUtf16(reinterpret_cast<const ushort *>(e.getMessage())).contains("The primary document entity could not be opened."))
+    if (xercescToStdString(e.getMessage()).find("The primary document entity could not be opened.") != std::string::npos)
     {
         fSawErrors = true;
         COCONFIGDBG("coConfigRootErrorHandler::error err: schema file could not be opened");
-        COCONFIGDBG("coConfigRootErrorHandler::error err: " << QString::fromUtf16(reinterpret_cast<const ushort *>(e.getMessage())));
+        COCONFIGDBG("coConfigRootErrorHandler::error err: " << xercescToStdString(e.getMessage()));
     }
     else
     {
-        COCONFIGLOG("coConfigRootErrorHandler::warning warn: parse warning in file (l,c): " << QString::fromUtf16(reinterpret_cast<const ushort *>(e.getSystemId())) << " (" << e.getLineNumber() << ", " << e.getColumnNumber() << ")");
-        COCONFIGLOG("coConfigRootErrorHandler::warning warn: " << QString::fromUtf16(reinterpret_cast<const ushort *>(e.getMessage())));
+        COCONFIGLOG("coConfigRootErrorHandler::warning warn: parse warning in file (l,c): " << xercescToStdString(e.getSystemId()) << " (" << e.getLineNumber() << ", " << e.getColumnNumber() << ")");
+        COCONFIGLOG("coConfigRootErrorHandler::warning warn: " << xercescToStdString(e.getMessage()));
     }
 }
 
 void coConfigRootErrorHandler::error(const xercesc::SAXParseException &e)
 {
-    COCONFIGLOG("coConfigRootErrorHandler::error err: parse warning in file (l,c): " << QString::fromUtf16(reinterpret_cast<const ushort *>(e.getSystemId())) << " (" << e.getLineNumber() << ", " << e.getColumnNumber() << ")");
-    COCONFIGLOG("coConfigRootErrorHandler::error err: " << QString::fromUtf16(reinterpret_cast<const ushort *>(e.getMessage())));
+    COCONFIGLOG("coConfigRootErrorHandler::error err: parse warning in file (l,c): " << xercescToStdString(e.getSystemId()) << " (" << e.getLineNumber() << ", " << e.getColumnNumber() << ")");
+    COCONFIGLOG("coConfigRootErrorHandler::error err: " << xercescToStdString(e.getMessage()));
 }
 
 void coConfigRootErrorHandler::fatalError(const xercesc::SAXParseException &e)

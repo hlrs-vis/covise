@@ -128,23 +128,20 @@ moduleList::moduleList()
     }
 
     coCoviseConfig::ScopeEntries mae = coCoviseConfig::getScopeEntries("System.CRB", "ModuleAlias");
-    const char **moduleAliases = mae.getValue();
-    for (int i = 0; moduleAliases && moduleAliases[i] != NULL && moduleAliases[i+1] != NULL; i = i + 2)
+    for (const auto &alias : mae)
     {
-        //fprintf(stderr, "___ %s___%s\n", moduleAliases[i], moduleAliases[i+1]);
-        char *line = new char[strlen(moduleAliases[i]) + 1];
-        strcpy(line, moduleAliases[i]);
+        char *line = new char[alias.first.size() + 1];
+        strcpy(line, alias.first.c_str());
         strtok(line, ":");
         char *newName = strtok(NULL, ":");
 
-        char *oldName = new char[strlen(moduleAliases[i + 1]) + 1];
-        strcpy(oldName, moduleAliases[i + 1]);
+        char *oldName = new char[alias.second.size() + 1];
+        strcpy(oldName, alias.second.c_str());
 
         //fprintf(stderr, "module alias: %s -> %s\n", newName, oldName);
         aliasMap.insert(Alias(oldName, newName));
         aliasedSet.insert(newName);
     }
-
     tmpp = STRDUP(covisepath);
 
 #ifdef _WIN32

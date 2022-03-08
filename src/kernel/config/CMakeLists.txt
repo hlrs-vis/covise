@@ -10,16 +10,17 @@ IF(COVISE_BUILD)
 ENDIF(COVISE_BUILD)
 
 set(CONFIG_HEADERS
+    CoviseConfig.h
+    coConfig.h
     coConfigBool.h
     coConfigConstants.h
     coConfigEditorController.h
     coConfigEntry.h
-    coConfigEntryPtrList.h
     coConfigEntryString.h
     coConfigEntryToEditor.h
+    coConfigFile.h
     coConfigFloat.h
     coConfigGroup.h
-    coConfig.h
     coConfigInt.h
     coConfigLog.h
     coConfigLong.h
@@ -28,7 +29,6 @@ set(CONFIG_HEADERS
     coConfigSchemaInfosList.h
     coConfigString.h
     coConfigValue.h
-    CoviseConfig.h
 )
 
 COVISE_INSTALL_HEADERS(config ${CONFIG_HEADERS})

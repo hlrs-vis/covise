@@ -973,13 +973,13 @@ void TUIMainWindow::createToolbar()
     mapConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "mapqt.xml", "local", true);
     covise::coConfig::getInstance()->addConfig(mapConfig);
 
-    QString currStyle = mapConfig->getValue("System.UserInterface.QtStyle");
-    if (!currStyle.isEmpty())
+    auto currStyle = mapConfig->getValue("System.UserInterface.QtStyle").entry;
+    if (!currStyle.empty())
     {
-        QStyle *s = QStyleFactory::create(currStyle);
+        QStyle *s = QStyleFactory::create(currStyle.c_str());
         if (s)
             QApplication::setStyle(s);
-        qtstyles->setCurrentIndex(qtstyles->findText(currStyle));
+        qtstyles->setCurrentIndex(qtstyles->findText(currStyle.c_str()));
     }
     else
 #endif

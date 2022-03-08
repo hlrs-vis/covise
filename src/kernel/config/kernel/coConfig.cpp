@@ -10,14 +10,9 @@
 
 #include <math.h>
 
-#include <QFile>
-#include <QFileInfo>
-#include <QDir>
-
 #include <xercesc/dom/DOM.hpp>
-#include <QRegExp>
-#include <QTextStream>
-
+#include <util/string_util.h>
+#include <boost/filesystem/operations.hpp>
 using namespace std;
 using namespace covise;
 
@@ -30,10 +25,10 @@ coConfig::coConfig()
     isGlobalConfig = false;
     adminMode = false;
 
-    QString debugModeEnv = getenv("COCONFIG_DEBUG");
-    if (!debugModeEnv.isNull())
+    auto dm = getenv("COCONFIG_DEBUG");
+    if (dm)
     {
-        unsigned int dl = debugModeEnv.toUInt();
+        unsigned int dl = atoi(dm);
         switch (dl)
         {
         case DebugOff:
@@ -61,71 +56,62 @@ coConfig::coConfig()
 
 coConfig::~coConfig()
 {
-    QList<QString> keys = configGroups.keys();
-    for (QList<QString>::iterator i = keys.begin(); i != keys.end(); ++i)
-    {
-        delete configGroups.take(*i);
-    }
+    for (auto &group : configGroups)
+        delete group.second;
 }
 
-const QStringList &coConfig::getHostnameList() const
+const std::set<std::string> &coConfig::getHostnameList() const
 {
     return hostnames;
 }
 
-const QString &coConfig::getActiveHost() const
+const std::string &coConfig::getActiveHost() const
 {
     return activeHostname;
 }
 
-bool coConfig::setActiveHost(const QString &host)
+bool coConfig::setActiveHost(const std::string &host)
 {
 
-    if (hostnames.contains(host.toLower()))
+    if (hostnames.find(toLower(host)) != hostnames.end())
     {
         //cerr << "coConfig::setActiveHost info: setting active host "
         //     << host << endl;
-        activeHostname = host.toLower();
+        activeHostname = toLower(host);
 
-        for (QHash<QString, coConfigGroup *>::iterator i = configGroups.begin(); i != configGroups.end(); ++i)
-        {
-            (*i)->setActiveHost(activeHostname);
-        }
+        for (auto &group : configGroups)
+            group.second->setActiveHost(activeHostname);
 
         return true;
     }
     else
     {
-
-        COCONFIGLOG("coConfig::setActiveHost warn: could not set active host " << host.toLower());
+        COCONFIGLOG("coConfig::setActiveHost warn: could not set active host " << toLower(host));
         return false;
     }
 }
 
-const QString &coConfig::getActiveCluster() const
+const std::string &coConfig::getActiveCluster() const
 {
     return activeCluster;
 }
 
-bool coConfig::setActiveCluster(const QString &master)
+bool coConfig::setActiveCluster(const std::string &master)
 {
-    if (masternames.contains(master.toLower()) || master.isEmpty())
+    if (masternames.find(toLower(master)) != masternames.end() || master.empty())
     {
         //cerr << "coConfig::setActiveCluster info: setting active cluster "
         //     << host << endl;
-        activeCluster = master.toLower();
+        activeCluster = toLower(master);
 
-        for (QHash<QString, coConfigGroup *>::iterator i = configGroups.begin(); i != configGroups.end(); ++i)
-        {
-            (*i)->setActiveCluster(activeCluster);
-        }
+        for (auto &group : configGroups)
+            group.second->setActiveCluster(activeCluster);
 
         return true;
     }
     else
     {
-
-        COCONFIGDBG("coConfig::setActiveCluster warn: could not set active cluster " << master.toLower());
+        COCONFIGDBG("coConfig::setActiveCluster warn: could not set active cluster " << toLower(master));
         return false;
     }
 }
@@ -135,21 +121,19 @@ void coConfig::reload()
 
     COCONFIGDBG("coConfig::reload info: reloading config");
 
-    for (QHash<QString, coConfigGroup *>::iterator i = configGroups.begin(); i != configGroups.end(); ++i)
-    {
-        (*i)->reload();
-    }
+    for (auto &group : configGroups)
+        group.second->reload();
 }
 
 void coConfig::load()
 {
 
-    QString configGlobal = coConfigDefaultPaths::getDefaultGlobalConfigFileName();
-    QString configLocal = coConfigDefaultPaths::getDefaultLocalConfigFileName();
+    std::string configGlobal = coConfigDefaultPaths::getDefaultGlobalConfigFileName();
+    std::string configLocal = coConfigDefaultPaths::getDefaultLocalConfigFileName();
 
-    if (!configGlobal.isEmpty())
+    if (!configGlobal.empty())
         COCONFIGDBG("coConfig::load info: global config file in " << configGlobal);
-    if (!configLocal.isEmpty())
+    if (!configLocal.empty())
         COCONFIGDBG("coConfig::load info: local  config file in " << configLocal);
 
     coConfigGroup *mainGroup = new coConfigGroup("config");
@@ -161,7 +145,7 @@ void coConfig::load()
     // Load user configuration
     mainGroup->addConfig(configLocal, "local", true);
 
-    configGroups.insert("config", mainGroup);
+    configGroups["config"] = mainGroup;
 
     // Set active host
 
@@ -172,78 +156,69 @@ void coConfig::load()
     setActiveHost(activeHostname);
 }
 
-coConfigEntryStringList coConfig::getScopeList(const QString &section,
-                                               const QString &variableName) const
+coConfigEntryStringList coConfig::getScopeList(const std::string &section,
+                                               const std::string &variableName) const
 {
 
     coConfigEntryStringList merged;
 
-    for (QHash<QString, coConfigGroup *>::const_iterator i = configGroups.begin(); i != configGroups.end(); ++i)
+    for (const auto &configGroup : configGroups)
     {
-        coConfigEntryStringList list = (*i)->getScopeList(section, variableName);
-        merged = merged.merge(list);
+        coConfigEntryStringList list = configGroup.second->getScopeList(section, variableName);
+        merged.merge(list);
     }
-
-    if (variableName.isEmpty())
+    if (variableName.empty())
     {
         return merged;
     }
     else
     {
         // FIXME Do I have to?
-        return merged.filter(QRegExp("^" + variableName + ":.*"));
+        return merged.filter(std::regex("^" + variableName + ":.*"));
     }
 }
 
-coConfigEntryStringList coConfig::getVariableList(const QString &section) const
+coConfigEntryStringList coConfig::getVariableList(const std::string &section) const
 {
 
     coConfigEntryStringList merged;
 
-    for (QHash<QString, coConfigGroup *>::const_iterator i = configGroups.begin(); i != configGroups.end(); ++i)
+    for (const auto &configGroup : configGroups)
     {
-        coConfigEntryStringList list = (*i)->getVariableList(section);
+        coConfigEntryStringList list = configGroup.second->getVariableList(section);
         merged = merged.merge(list);
     }
-
     return merged;
 }
 
-coConfigEntryString coConfig::getValue(const QString &variable,
-                                       const QString &section,
-                                       const QString &defaultValue) const
+coConfigEntryString coConfig::getValue(const std::string &variable,
+                                       const std::string &section,
+                                       const std::string &defaultValue) const
 {
 
     coConfigEntryString value = getValue(variable, section);
-    if (value.isNull())
-    {
-        return coConfigEntryString(defaultValue);
-    }
-
+    if (value.entry.empty())
+        return coConfigEntryString{defaultValue};
     return value;
 }
 
-coConfigEntryString coConfig::getValue(const QString &simpleVariable) const
+coConfigEntryString coConfig::getValue(const std::string &simpleVariable) const
 {
     return getValue("value", simpleVariable);
 }
 
-coConfigEntryString coConfig::getValue(const QString &variable,
-                                       const QString &section) const
+coConfigEntryString coConfig::getValue(const std::string &variable,
+                                       const std::string &section) const
 {
 
     coConfigEntryString item;
 
-    for (QHash<QString, coConfigGroup *>::const_iterator i = configGroups.begin(); i != configGroups.end(); ++i)
+    for (const auto configGroup : configGroups)
     {
-
-        coConfigEntryString currentValue = (*i)->getValue(variable, section);
-        if (!currentValue.isNull())
+        coConfigEntryString currentValue = configGroup.second->getValue(variable, section);
+        if (!currentValue.entry.empty())
             item = currentValue;
     }
-
-    //cerr << "coConfigGroup::getValue info: " << section << "."
-    //     << variable << "=" << (item.isNull() ? "*NULL*" : item) << endl;
 
     return item;
 }
@@ -253,10 +228,10 @@ const char *coConfig::getEntry(const char *simpleVariable) const
 
     const char *item = 0;
 
-    for (QHash<QString, coConfigGroup *>::const_iterator i = configGroups.begin(); i != configGroups.end(); ++i)
+    for (const auto configGroup : configGroups)
     {
 
-        const char *currentValue = (*i)->getEntry(simpleVariable);
+        const char *currentValue = configGroup.second->getEntry(simpleVariable);
         if (currentValue)
             item = currentValue;
     }
@@ -264,10 +239,10 @@ const char *coConfig::getEntry(const char *simpleVariable) const
     return item;
 }
 
-coConfigString coConfig::getString(const QString &variable, const QString &section, const QString &defaultValue) const
+coConfigString coConfig::getString(const std::string &variable, const std::string &section, const std::string &defaultValue) const
 {
 
-    coConfigString value(variable, section);
+    coConfigString value{variable, section};
 
     if (value.hasValidValue())
     {
@@ -280,13 +255,13 @@ coConfigString coConfig::getString(const QString &variable, const QString &secti
     }
 }
 
-coConfigString coConfig::getString(const QString &simpleVariable) const
+coConfigString coConfig::getString(const std::string &simpleVariable) const
 {
     //FIXME
     return getString("value", simpleVariable, "");
 }
 
-coConfigInt coConfig::getInt(const QString &variable, const QString &section, int defaultValue) const
+coConfigInt coConfig::getInt(const std::string &variable, const std::string &section, int defaultValue) const
 {
 
     coConfigInt value(variable, section);
@@ -302,22 +277,22 @@ coConfigInt coConfig::getInt(const QString &variable, const QString &section, in
     }
 }
 
-coConfigInt coConfig::getInt(const QString &simpleVariable, int defaultValue) const
+coConfigInt coConfig::getInt(const std::string &simpleVariable, int defaultValue) const
 {
     return getInt("value", simpleVariable, defaultValue);
 }
 
-coConfigInt coConfig::getInt(const QString &variable, const QString &section) const
+coConfigInt coConfig::getInt(const std::string &variable, const std::string &section) const
 {
     return coConfigInt(variable, section);
 }
 
-coConfigInt coConfig::getInt(const QString &simpleVariable) const
+coConfigInt coConfig::getInt(const std::string &simpleVariable) const
 {
     return getInt("value", simpleVariable);
 }
 
-coConfigLong coConfig::getLong(const QString &variable, const QString &section, long defaultValue) const
+coConfigLong coConfig::getLong(const std::string &variable, const std::string &section, long defaultValue) const
 {
 
     coConfigLong value(variable, section);
@@ -333,22 +308,22 @@ coConfigLong coConfig::getLong(const QString &variable, const QString &section, 
     }
 }
 
-coConfigLong coConfig::getLong(const QString &simpleVariable, long defaultValue) const
+coConfigLong coConfig::getLong(const std::string &simpleVariable, long defaultValue) const
 {
     return getLong("value", simpleVariable, defaultValue);
 }
 
-coConfigLong coConfig::getLong(const QString &variable, const QString &section) const
+coConfigLong coConfig::getLong(const std::string &variable, const std::string &section) const
 {
     return coConfigLong(variable, section);
 }
 
-coConfigLong coConfig::getLong(const QString &simpleVariable) const
+coConfigLong coConfig::getLong(const std::string &simpleVariable) const
 {
     return getLong("value", simpleVariable);
 }
 
-coConfigBool coConfig::getBool(const QString &variable, const QString &section, bool defaultValue) const
+coConfigBool coConfig::getBool(const std::string &variable, const std::string &section, bool defaultValue) const
 {
 
     coConfigBool value(variable, section);
@@ -364,22 +339,22 @@ coConfigBool coConfig::getBool(const QString &variable, const QString &section, 
     }
 }
 
-coConfigBool coConfig::getBool(const QString &simpleVariable, bool defaultValue) const
+coConfigBool coConfig::getBool(const std::string &simpleVariable, bool defaultValue) const
 {
     return getBool("value", simpleVariable, defaultValue);
 }
 
-coConfigBool coConfig::getBool(const QString &variable, const QString &section) const
+coConfigBool coConfig::getBool(const std::string &variable, const std::string &section) const
 {
     return coConfigBool(variable, section);
 }
 
-coConfigBool coConfig::getBool(const QString &variable, const char *section) const
+coConfigBool coConfig::getBool(const std::string &variable, const char *section) const
 {
-    return coConfigBool(variable, QString(section));
+    return coConfigBool(variable, std::string(section));
 }
 
-coConfigBool coConfig::getBool(const QString &simpleVariable) const
+coConfigBool coConfig::getBool(const std::string &simpleVariable) const
 {
     return getBool("value", simpleVariable);
 }
@@ -396,8 +371,8 @@ coConfigBool coConfig::getBool(const QString &simpleVariable) const
  *         variable was not found.
  */
 
-coConfigFloat coConfig::getFloat(const QString &variable,
-                                 const QString &section,
+coConfigFloat coConfig::getFloat(const std::string &variable,
+                                 const std::string &section,
                                  float defaultValue) const
 {
 
@@ -429,7 +404,7 @@ coConfigFloat coConfig::getFloat(const QString &variable,
  * @return The value of the variable as float or the default value if the
  *         variable was not found.
  */
-coConfigFloat coConfig::getFloat(const QString &simpleVariable, float defaultValue) const
+coConfigFloat coConfig::getFloat(const std::string &simpleVariable, float defaultValue) const
 {
     return getFloat("value", simpleVariable, defaultValue);
 }
@@ -441,8 +416,8 @@ coConfigFloat coConfig::getFloat(const QString &simpleVariable, float defaultVal
  * @param section Section of the variable.
  * @return The value of the variable as float.
  */
-coConfigFloat coConfig::getFloat(const QString &variable,
-                                 const QString &section) const
+coConfigFloat coConfig::getFloat(const std::string &variable,
+                                 const std::string &section) const
 {
     return coConfigFloat(variable, section);
 }
@@ -454,7 +429,7 @@ coConfigFloat coConfig::getFloat(const QString &variable,
  * @param simpleVariable Section of the variable &quot;value&quot;.
  * @return The value of the variable as float.
  */
-coConfigFloat coConfig::getFloat(const QString &simpleVariable) const
+coConfigFloat coConfig::getFloat(const std::string &simpleVariable) const
 {
     return getFloat("value", simpleVariable);
 }
@@ -470,7 +445,7 @@ coConfigFloat coConfig::getFloat(const QString &simpleVariable) const
  *         <I>false</I> if not,
  *         <I>defaultValue</I> if the variable does not exist.
  */
-bool coConfig::isOn(const QString &simpleVariable, bool defaultValue) const
+bool coConfig::isOn(const std::string &simpleVariable, bool defaultValue) const
 {
     return isOn("value", simpleVariable, defaultValue);
 }
@@ -484,7 +459,7 @@ bool coConfig::isOn(const QString &simpleVariable, bool defaultValue) const
  * @return <I>true</I>, if the variable has above values,
  *         <I>false</I> if not or the variable does not exist.
  */
-bool coConfig::isOn(const QString &simpleVariable) const
+bool coConfig::isOn(const std::string &simpleVariable) const
 {
     return isOn("value", simpleVariable);
 }
@@ -500,44 +475,19 @@ bool coConfig::isOn(const QString &simpleVariable) const
  *         <I>false</I> if not,
  *         <I>defaultValue</I> if the variable does not exist.
  */
-bool coConfig::isOn(const QString &variable, const QString &section,
+bool coConfig::isOn(const std::string &variable, const std::string &section,
                     bool defaultValue) const
 {
 
-    coConfigEntryString value = getValue(variable, section);
+    auto value = getValue(variable, section).entry;
 
-    if (value.isNull())
+    if (value.empty())
         return defaultValue;
 
-    if ((value.toLower() == "on") || (value.toLower() == "true") || (value.toInt() > 0))
+    if (toLower(value) == "on" || toLower(value) == "true" || atoi(value.c_str()) > 0)
         return true;
     else
         return false;
-}
-
-/**
- * @brief Checks if a variable in the configuration is set to &quot;on&quot;.
- *
- * As &quot;on&quot; count the case insensitive values of <I>on</I>, <I>true</I> and <I>1</I>.
- * @param variable Variable to check.
- * @param section Section of the variable.
- * @return <I>true</I>, if the variable has above values,
- *         <I>false</I> if not or the variable does not exist.
- */
-bool coConfig::isOn(const QString &variable, const QString &section) const
-{
-
-    coConfigEntryString value = getValue(variable, section);
-
-    if ((value.toLower() == "on") || (value.toLower() == "true") || (value == "1"))
-        return true;
-    else
-        return false;
-}
-
-bool coConfig::isOn(const QString &variable, const char *section) const
-{
-    return isOn(variable, QString(section));
 }
 
 /**
@@ -547,32 +497,32 @@ bool coConfig::isOn(const QString &variable, const char *section) const
  * @param configGroup Configuration group to set the value in.
  *
  * For other parameters, see
- * coConfig::setValue(const QString & variable, const QString & value, const QString & section, const QString & config, bool move).
+ * coConfig::setValue(const std::string & variable, const std::string & value, const std::string & section, const std::string & config, bool move).
  *
  */
-void coConfig::setValueForHost(const QString &variable, const QString &value, const QString &section,
-                               const QString &targetHost, bool move,
-                               const QString &config, const QString &configGroup)
+void coConfig::setValueForHost(const std::string &variable, const std::string &value, const std::string &section,
+                               const std::string &targetHost, bool move,
+                               const std::string &config, const std::string &configGroup)
 {
 
     coConfigEntryString oldValue = getValue(variable, section);
 
     coConfigGroup *group;
-    QString groupName;
-    QString groupConfigName;
+    std::string groupName;
+    std::string groupConfigName;
 
-    if (config.isNull())
+    if (config.empty())
     {
         //if (oldValue.isNull() || oldValue.getConfigGroupName() == "global")
-        if (oldValue.isNull() || oldValue.getConfigName() == "global")
+        if (oldValue.entry.empty() || oldValue.configName == "global")
         {
             groupName = "config";
             groupConfigName = "local";
         }
         else
         {
-            groupName = oldValue.getConfigGroupName();
-            groupConfigName = oldValue.getConfigName();
+            groupName = oldValue.configGroupName;
+            groupConfigName = oldValue.configName;
         }
     }
     else
@@ -580,7 +530,7 @@ void coConfig::setValueForHost(const QString &variable, const QString &value, co
         groupName = config;
     }
 
-    if (!configGroup.isNull())
+    if (!configGroup.empty())
         groupConfigName = configGroup;
 
     group = configGroups[groupName];
@@ -593,7 +543,7 @@ void coConfig::setValueForHost(const QString &variable, const QString &value, co
 
     //    cerr << "coConfig::setValue info: " << section << "." << variable
     //       << " = " << value << " in config '" << groupName << "'"
-    //       << (targetHost ? " on host " + targetHost : QString("")) << endl;
+    //       << (targetHost ? " on host " + targetHost : std::string("")) << endl;
 
     group->setValue(variable, value, section, groupConfigName, targetHost, move);
 
@@ -609,10 +559,10 @@ void coConfig::setValueForHost(const QString &variable, const QString &value, co
  * @param configGroup Configuration group to set the value in.
  *
  * For other parameters, see
- * coConfig::setValue(const QString & variable, const QString & value, const QString & section, const QString & config, bool move).
+ * coConfig::setValue(const std::string & variable, const std::string & value, const std::string & section, const std::string & config, bool move).
  */
-void coConfig::setValueInConfig(const QString &variable, const QString &value, const QString &section,
-                                const QString &configGroup, const QString &config, bool move)
+void coConfig::setValueInConfig(const std::string &variable, const std::string &value, const std::string &section,
+                                const std::string &configGroup, const std::string &config, bool move)
 {
 
     setValueForHost(variable, value, section, 0, move, config, configGroup);
@@ -632,11 +582,11 @@ void coConfig::setValueInConfig(const QString &variable, const QString &value, c
  * @param config Configuration to set the variable in. For defaults see above
  * @param move Delete the value from its old location <B>*not implemented yet*</B>
  */
-void coConfig::setValue(const QString &variable, const QString &value, const QString &section,
-                        const QString &config, bool move)
+void coConfig::setValue(const std::string &variable, const std::string &value, const std::string &section,
+                        const std::string &config, bool move)
 {
 
-    setValueForHost(variable, value, section, 0, move, config);
+    setValueForHost(variable, value, section, "", move, config);
 }
 
 /**
@@ -649,7 +599,7 @@ void coConfig::setValue(const QString &variable, const QString &value, const QSt
  * @param simpleVariable Section of the variable to set. The variable itself is called &quot;value&quot;
  * @param value Value to set to.
  */
-void coConfig::setValue(const QString &simpleVariable, const QString &value)
+void coConfig::setValue(const std::string &simpleVariable, const std::string &value)
 {
     setValue("value", value, simpleVariable);
 }
@@ -668,16 +618,16 @@ void coConfig::setValue(const QString &simpleVariable, const QString &value)
  *
  * @return true, if something was deleted.
  */
-bool coConfig::deleteValueForHost(const QString &variable, const QString &section,
-                                  const QString &targetHost,
-                                  const QString &config, const QString &configGroup)
+bool coConfig::deleteValueForHost(const std::string &variable, const std::string &section,
+                                  const std::string &targetHost,
+                                  const std::string &config, const std::string &configGroup)
 {
 
     coConfigGroup *group;
-    QString groupName;
-    QString groupConfigName;
+    std::string groupName;
+    std::string groupConfigName;
 
-    if (config.isNull())
+    if (config.empty())
     {
         groupName = "config";
         groupConfigName = "local";
@@ -688,7 +638,7 @@ bool coConfig::deleteValueForHost(const QString &variable, const QString &sectio
         groupConfigName = "local";
     }
 
-    if (!configGroup.isNull())
+    if (!configGroup.empty())
         groupConfigName = configGroup;
 
     group = configGroups[groupName];
@@ -713,11 +663,11 @@ bool coConfig::deleteValueForHost(const QString &variable, const QString &sectio
  *
  * @return true, if something was deleted.
  */
-bool coConfig::deleteValueInConfig(const QString &variable, const QString &section,
-                                   const QString &configGroup, const QString &config)
+bool coConfig::deleteValueInConfig(const std::string &variable, const std::string &section,
+                                   const std::string &configGroup, const std::string &config)
 {
 
-    return deleteValueForHost(variable, section, 0, config, configGroup);
+    return deleteValueForHost(variable, section, "", config, configGroup);
 }
 
 /**
@@ -730,9 +680,9 @@ bool coConfig::deleteValueInConfig(const QString &variable, const QString &secti
  *
  * @return true, if something was deleted.
  */
-bool coConfig::deleteValue(const QString &variable, const QString &section, const QString &config)
+bool coConfig::deleteValue(const std::string &variable, const std::string &section, const std::string &config)
 {
-    return deleteValueForHost(variable, section, 0, config);
+    return deleteValueForHost(variable, section, "", config);
 }
 
 /**
@@ -742,7 +692,7 @@ bool coConfig::deleteValue(const QString &variable, const QString &section, cons
  * @param simpleVariable Variable to delete. This method deletes the variable &quot;value&quot;
  * @return true, if something was deleted.
  */
-bool coConfig::deleteValue(const QString &simpleVariable)
+bool coConfig::deleteValue(const std::string &simpleVariable)
 {
     return deleteValue("value", simpleVariable);
 }
@@ -757,15 +707,15 @@ bool coConfig::deleteValue(const QString &simpleVariable)
  * @param config Name of the configuration to delete this section from.
  * @return true, if something was deleted.
  */
-bool coConfig::deleteSectionForHost(const QString &section, const QString &targetHost,
-                                    const QString &config, const QString &configGroup)
+bool coConfig::deleteSectionForHost(const std::string &section, const std::string &targetHost,
+                                    const std::string &config, const std::string &configGroup)
 {
 
     coConfigGroup *group;
-    QString groupName;
-    QString groupConfigName;
+    std::string groupName;
+    std::string groupConfigName;
 
-    if (config.isNull())
+    if (config.empty())
     {
         groupName = "config";
         groupConfigName = "local";
@@ -776,12 +726,12 @@ bool coConfig::deleteSectionForHost(const QString &section, const QString &targe
         groupConfigName = "local";
     }
 
-    if (!configGroup.isNull())
+    if (!configGroup.empty())
         groupConfigName = configGroup;
 
     group = configGroups[groupName];
 
-    if (group == 0)
+    if (!group)
     {
         COCONFIGLOG("coConfig::deleteValueForHost warn: unknown config group " << groupName);
         return false;
@@ -799,10 +749,10 @@ bool coConfig::deleteSectionForHost(const QString &section, const QString &targe
  * @param config Name of the configuration to delete this section from.
  * @return true, if something was deleted.
  */
-bool coConfig::deleteSectionInConfig(const QString &section, const QString &configGroup, const QString &config)
+bool coConfig::deleteSectionInConfig(const std::string &section, const std::string &configGroup, const std::string &config)
 {
 
-    return deleteSectionForHost(section, 0, config, configGroup);
+    return deleteSectionForHost(section, "", config, configGroup);
 }
 
 /**
@@ -813,9 +763,9 @@ bool coConfig::deleteSectionInConfig(const QString &section, const QString &conf
  * @param config Name of the configuration to delete this section from.
  * @return true, if something was deleted.
  */
-bool coConfig::deleteSection(const QString &section, const QString &config)
+bool coConfig::deleteSection(const std::string &section, const std::string &config)
 {
-    return deleteSectionForHost(section, 0, config);
+    return deleteSectionForHost(section, "", config);
 }
 
 /**
@@ -830,15 +780,12 @@ bool coConfig::deleteSection(const QString &section, const QString &config)
  */
 bool coConfig::save() const
 {
-
     bool saved = true;
-
-    for (QHash<QString, coConfigGroup *>::const_iterator i = configGroups.begin(); i != configGroups.end(); ++i)
+    for (const auto &configGroup : configGroups)
     {
-        COCONFIGDBG("coConfig::save info: saving group " << (*i)->getGroupName());
-        saved &= (*i)->save();
+        COCONFIGDBG("coConfig::save info: saving group " << configGroup.second->getGroupName());
+        saved &= configGroup.second->save();
     }
-
     return saved;
 }
 
@@ -847,18 +794,18 @@ bool coConfig::save() const
  *
  * @return true, if the configuration was exported successfully.
  */
-bool coConfig::save(const QString &filename) const
+bool coConfig::save(const std::string &filename) const
 {
 
     bool saved = true;
 
-    QHash<QString, coConfigGroup *>::const_iterator group = configGroups.begin();
+    auto group = configGroups.begin();
 
-    coConfigGroup *merged = (*group)->clone();
+    coConfigGroup *merged = group->second->clone();
 
     for (++group; group != configGroups.end(); ++group)
     {
-        merged->merge(*group);
+        merged->merge(group->second);
     }
     merged->flatten();
     merged->setReadOnly(false);
@@ -881,8 +828,9 @@ bool coConfig::save(const QString &filename) const
  */
 void coConfig::setAdminMode(bool mode)
 {
-
-    if (QFileInfo(coConfigDefaultPaths::getDefaultGlobalConfigFileName()).isWritable())
+    boost::filesystem::perms prms;
+    boost::filesystem::permissions(coConfigDefaultPaths::getDefaultGlobalConfigFileName(), prms);
+    if ((prms & boost::filesystem::perms::group_write) != boost::filesystem::perms::no_perms)
     {
         adminMode = mode;
         if (adminMode)
@@ -913,7 +861,7 @@ bool coConfig::isAdminMode()
  * @param name Name of the new configuration. Has to be unique.
  * @param create If the file does not exist, create a new, empty configuration.
  */
-void coConfig::addConfig(const QString &filename, const QString &name, bool create)
+void coConfig::addConfig(const std::string &filename, const std::string &name, bool create)
 {
     configGroups["config"]->addConfig(filename, name, create);
 }
@@ -925,11 +873,11 @@ void coConfig::addConfig(const QString &filename, const QString &name, bool crea
  */
 void coConfig::addConfig(coConfigGroup *group)
 {
-    configGroups.insert(group->getGroupName(), group);
-    this->hostnames.append(group->getHostnameList());
-    this->hostnames.removeDuplicates();
-    this->masternames.append(group->getClusterList());
-    this->masternames.removeDuplicates();
+    configGroups.insert({group->getGroupName(), group});
+    auto hostnameList = group->getHostnameList();
+    auto clusterList = group->getClusterList();
+    hostnames.insert(hostnameList.begin(), hostnameList.end());
+    masternames.insert(clusterList.begin(), clusterList.end());
 }
 
 /**
@@ -937,19 +885,19 @@ void coConfig::addConfig(coConfigGroup *group)
  *
  * @param name Name of the configuration.
  */
-void coConfig::removeConfig(const QString &name)
+void coConfig::removeConfig(const std::string &name)
 {
     configGroups["config"]->removeConfig(name);
 
-    this->hostnames.clear();
-    this->masternames.clear();
-    foreach (coConfigGroup *group, configGroups)
+    hostnames.clear();
+    masternames.clear();
+    for (const auto group : configGroups)
     {
-        this->hostnames.append(group->getHostnameList());
-        this->masternames.append(group->getClusterList());
+        auto hostnameList = group.second->getHostnameList();
+        auto clusterList = group.second->getClusterList();
+        hostnames.insert(hostnameList.begin(), hostnameList.end());
+        masternames.insert(clusterList.begin(), clusterList.end());
     }
-    this->hostnames.removeDuplicates();
-    this->masternames.removeDuplicates();
 }
 
 /**

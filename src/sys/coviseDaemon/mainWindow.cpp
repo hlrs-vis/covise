@@ -99,7 +99,7 @@ void MainWindow::on_minimizedCheckBox_clicked()
 }
 void MainWindow::on_cmdArgsInput_textChanged()
 {
-	cfgArguments = ui->cmdArgsInput->text();
+	cfgArguments = ui->cmdArgsInput->text().toStdString();
 }
 
 void MainWindow::onConnectBtnClicked()
@@ -235,11 +235,11 @@ void MainWindow::initOutputModes()
 					ui->outputFile->hide();
 					ui->outputFileLabel->hide();
 				}
-				cfgOutputMode = currentText;
+				cfgOutputMode = currentText.toStdString();
 				reconnectOutPut();
 			});
 	connect(ui->outputFile, &QLineEdit::textEdited, this, [this](const QString &s)
-			{ cfgOutputModeFile = s; });
+			{ cfgOutputModeFile = s.toStdString(); });
 }
 #include <functional>
 void MainWindow::initConfigSettings()
@@ -272,9 +272,9 @@ void MainWindow::initConfigSettings()
 	ui->autoconnectCheckBox->setChecked(cfgAutoConnect);
 	ui->backgroundCheckBox->setChecked(cfgBackground);
 	ui->minimizedCheckBox->setChecked(cfgMinimized);
-	ui->cmdArgsInput->setText(cfgArguments);
-	ui->OutputModesCB->setCurrentText(cfgOutputMode);
-	ui->outputFile->setText(cfgOutputModeFile);
+	ui->cmdArgsInput->setText(std::string(cfgArguments).c_str());
+	ui->OutputModesCB->setCurrentText(std::string(cfgOutputMode).c_str());
+	ui->outputFile->setText(std::string(cfgOutputModeFile).c_str());
 }
 
 void MainWindow::setRemoteLauncherCallbacks()

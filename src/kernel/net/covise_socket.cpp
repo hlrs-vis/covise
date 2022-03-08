@@ -16,6 +16,7 @@
 
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
+#include <util/string_util.h>
 #include <iostream>
 
 #include <sys/types.h>
@@ -109,10 +110,10 @@ using namespace covise;
 
 std::mutex Socket::mutex;
 int Socket::stport = 31000;
-char **Socket::ip_alias_list = NULL;
-Host **Socket::host_alias_list = NULL;
-bool Socket::bInitialised = false;
 
+bool Socket::bInitialised = false;
+std::vector<std::string> Socket::ip_alias_list;
+std::vector<Host *> Socket::host_alias_list;
 #ifdef PROTOTYPES_FOR_FUNCTIONS_FROM_SYSTEM_HEADERS
 #ifndef CRAY
 extern "C" void herror(const char *string);
@@ -1050,87 +1051,39 @@ int Socket::setNonBlocking(bool on)
 
 Host *Socket::get_ip_alias(const Host *test_host)
 {
-    int i, j, no, count;
+    int i, j, count;
     const char **alias_list;
-    const char *hostname, *aliasname;
+    std::string hostname, aliasname;
     const char *th_address;
 
     std::unique_lock<std::mutex> guard(mutex);
-    if (ip_alias_list == NULL)
+    if (ip_alias_list.empty())
     {
         // get Network entries IpAlias
         coCoviseConfig::ScopeEntries aliasEntries = coCoviseConfig::getScopeEntries("System.Network", "IpAlias");
-        alias_list = aliasEntries.getValue();
-        if (alias_list == NULL)
+        for (const auto &a : aliasEntries)
         {
-            ip_alias_list = new char *[1];
-            host_alias_list = new Host *[1];
-            count = 0;
-        }
-        else
-        {
-            // clean up
-            // find no of entries
-            for (no = 0; alias_list[no] != NULL; no++)
+            auto both = {a.first, a.second};
+            for (const auto &alias : both)
             {
-            }
-
-            // allocat arrays
-            ip_alias_list = new char *[no + 1];
-            host_alias_list = new Host *[no + 1];
-            // process entries
-            count = 0;
-            for (i = 0; i < no; i++)
-            {
-                // isolate hostname
-                j = 0;
-                hostname = alias_list[i];
-                while (hostname[j] != '\t' && hostname[j] != '\0' && hostname[j] != '\n' && hostname[j] != ' ')
-                    j++;
-                if (hostname[j] == '\0')
-                    continue;
-                char *hostName = new char[j + 1];
-                strncpy(hostName, hostname, j);
-                hostName[j] = '\0';
-                // isolate alias
-                aliasname = &hostname[j + 1];
-                while (*aliasname == ' ' || *aliasname == '\t')
-                    aliasname++;
-                j = 0;
-                while (aliasname[j] != '\t' && aliasname[j] != '\0' && aliasname[j] != '\n' && aliasname[j] != ' ')
-                    j++;
-
-                char *aliasName = new char[j + 1];
-                strncpy(aliasName, aliasname, j);
-                aliasName[j] = '\0';
-                //	    cerr << "Alias: " << hostname << ", " << aliasname << endl;
-                // enter name into list
-                ip_alias_list[count] = hostName;
+                // isolate hostname and alias Name
+                std::regex space("[[:space:]]");
+                auto parts = split(alias, space, true);
+                auto hostName = parts[0];
+                auto aliasName = parts[1];
+                ip_alias_list.push_back(hostName);
                 // enter host into list
-                host_alias_list[count] = new Host(aliasName);
-                delete[] aliasName;
-                count++;
+                host_alias_list.push_back(new Host(aliasName.c_str()));
             }
         }
-        // init last entry
-        ip_alias_list[count] = NULL;
-        host_alias_list[count] = NULL;
-        //delete[] alias_list;
     }
     guard.unlock();
 
-    th_address = test_host->getAddress();
-    j = 0;
     //    cerr << "looking for matches\n";
-    while (ip_alias_list[j] != NULL)
+    for (size_t i = 0; i < ip_alias_list.size(); i++)
     {
-        if (strcmp(ip_alias_list[j], th_address) == 0)
-        {
-            //	    cerr << "found: " << ip_alias_list[j] << endl;
-            return (new Host(*(host_alias_list[j])));
-        }
-        //	cerr << ip_alias_list[j] << " != " << th_address << endl;
-        j++;
+        if (ip_alias_list[i] == test_host->getAddress())
+            return new Host(*host_alias_list[i]);
     }
     //    cerr << "no match\n";
     return (new Host(*test_host));

@@ -12,40 +12,40 @@
 
 using namespace covise;
 
-coConfigString::coConfigString(const QString &configGroupName, const QString &variable, const QString &section)
-    : coConfigValue<QString>(configGroupName, variable, section)
+coConfigString::coConfigString(const std::string &configGroupName, const std::string &variable, const std::string &section)
+    : coConfigValue<std::string>(configGroupName, variable, section)
 {
 
     update();
     //cerr << "coConfigString::<init> info: 0: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigString::coConfigString(const QString &variable, const QString &section)
-    : coConfigValue<QString>(variable, section)
+coConfigString::coConfigString(const std::string &variable, const std::string &section)
+    : coConfigValue<std::string>(variable, section)
 {
 
     update();
     //cerr << "coConfigString::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigString::coConfigString(const QString &simpleVariable)
-    : coConfigValue<QString>(simpleVariable)
+coConfigString::coConfigString(const std::string &simpleVariable)
+    : coConfigValue<std::string>(simpleVariable)
 {
 
     update();
     //cerr << "coConfigString::<init> info: 2: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigString::coConfigString(coConfigGroup *group, const QString &variable, const QString &section)
-    : coConfigValue<QString>(group, variable, section)
+coConfigString::coConfigString(coConfigGroup *group, const std::string &variable, const std::string &section)
+    : coConfigValue<std::string>(group, variable, section)
 {
 
     update();
     //cerr << "coConfigString::<init> info: 3: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigString::coConfigString(coConfigGroup *group, const QString &simpleVariable)
-    : coConfigValue<QString>(group, simpleVariable)
+coConfigString::coConfigString(coConfigGroup *group, const std::string &simpleVariable)
+    : coConfigValue<std::string>(group, simpleVariable)
 {
 
     update();
@@ -53,7 +53,7 @@ coConfigString::coConfigString(coConfigGroup *group, const QString &simpleVariab
 }
 
 coConfigString::coConfigString(const coConfigString &value)
-    : coConfigValue<QString>(value)
+    : coConfigValue<std::string>(value)
 {
 }
 
@@ -61,19 +61,19 @@ coConfigString::~coConfigString()
 {
 }
 
-QString coConfigString::fromString(const QString &value) const
+std::string coConfigString::fromString(const std::string &value) const
 {
     return value;
 }
 
-QString coConfigString::toString(const QString &value) const
+std::string coConfigString::toString(const std::string &value) const
 {
     return value;
 }
 
-coConfigString &coConfigString::operator=(QString value)
+coConfigString &coConfigString::operator=(std::string value)
 {
     //cerr << "coConfigString::operator= info: setting to " << value << endl;
-    coConfigValue<QString>::operator=(value);
+    coConfigValue<std::string>::operator=(value);
     return *this;
 }

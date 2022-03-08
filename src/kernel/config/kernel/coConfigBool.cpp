@@ -7,11 +7,12 @@
 
 #define COCONFIGVALUE_USE_CACHE
 #include <config/coConfig.h>
+#include <util/string_util.h>
 //#include "coConfigValue.inl"
 
 using namespace covise;
 
-coConfigBool::coConfigBool(const QString &configGroupName, const QString &variable, const QString &section)
+coConfigBool::coConfigBool(const std::string &configGroupName, const std::string &variable, const std::string &section)
     : coConfigValue<bool>(configGroupName, variable, section)
 {
 
@@ -19,7 +20,7 @@ coConfigBool::coConfigBool(const QString &configGroupName, const QString &variab
     //cerr << "coConfigBool::<init> info: 0: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigBool::coConfigBool(const QString &variable, const QString &section)
+coConfigBool::coConfigBool(const std::string &variable, const std::string &section)
     : coConfigValue<bool>(variable, section)
 {
 
@@ -27,7 +28,7 @@ coConfigBool::coConfigBool(const QString &variable, const QString &section)
     //cerr << "coConfigBool::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigBool::coConfigBool(const QString &simpleVariable)
+coConfigBool::coConfigBool(const std::string &simpleVariable)
     : coConfigValue<bool>(simpleVariable)
 {
 
@@ -35,7 +36,7 @@ coConfigBool::coConfigBool(const QString &simpleVariable)
     //cerr << "coConfigBool::<init> info: 2: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigBool::coConfigBool(coConfigGroup *group, const QString &variable, const QString &section)
+coConfigBool::coConfigBool(coConfigGroup *group, const std::string &variable, const std::string &section)
     : coConfigValue<bool>(group, variable, section)
 {
 
@@ -43,7 +44,7 @@ coConfigBool::coConfigBool(coConfigGroup *group, const QString &variable, const 
     //cerr << "coConfigBool::<init> info: 3: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigBool::coConfigBool(coConfigGroup *group, const QString &simpleVariable)
+coConfigBool::coConfigBool(coConfigGroup *group, const std::string &simpleVariable)
     : coConfigValue<bool>(group, simpleVariable)
 {
 
@@ -60,12 +61,12 @@ coConfigBool::~coConfigBool()
 {
 }
 
-bool coConfigBool::fromString(const QString &value) const
+bool coConfigBool::fromString(const std::string &value) const
 {
-    return (value.toLower() == "on" || value.toLower() == "true" || value.toInt() > 0);
+    return (toLower(value) == "on" || toLower(value) == "true" || atoi(value.c_str()) > 0);
 }
 
-QString coConfigBool::toString(const bool &value) const
+std::string coConfigBool::toString(const bool &value) const
 {
     return (value ? "on" : "off");
 }

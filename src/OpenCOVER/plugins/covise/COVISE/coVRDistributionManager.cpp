@@ -31,7 +31,7 @@
 
 #include <net/tokenbuffer.h>
 #include <net/message.h>
-
+#include <util/string_util.h>
 #define LOG_CERR(x)            \
     {                          \
         if (std::cerr.bad())   \
@@ -62,7 +62,7 @@ opencover::coVRDistributionManager::coVRDistributionManager()
         return;
 
     // Some sanity checks before activating the manager
-    if (covise::coConfig::getInstance()->getValue("COVER.Parallel.Type") == "Distributed")
+    if (covise::coConfig::getInstance()->getValue("COVER.Parallel.Type").entry == "Distributed")
     {
         covise::coConfigString method = covise::coConfig::getInstance()->getString("COVER.Parallel.Method");
         if (method.hasValidValue())
@@ -70,7 +70,7 @@ opencover::coVRDistributionManager::coVRDistributionManager()
 
             this->active = true;
 
-            std::string algo = ((QString)covise::coConfig::getInstance()->getString("value", "COVER.Parallel.DistributionAlgorithm", "RoundRobin")).toStdString();
+            std::string algo = covise::coConfig::getInstance()->getString("value", "COVER.Parallel.DistributionAlgorithm", "RoundRobin");
 
             if (DistributionAlgorithm::create(algo) == 0)
             {
@@ -105,8 +105,7 @@ bool opencover::coVRDistributionManager::init()
     {
 
         opencover::coVRMSController *msControl = opencover::coVRMSController::instance();
-
-        opencover::coVRParallelRenderPlugin *implementation = dynamic_cast<opencover::coVRParallelRenderPlugin *>(opencover::coVRPluginList::instance()->addPlugin(((QString)method).toLatin1().data()));
+        opencover::coVRParallelRenderPlugin *implementation = dynamic_cast<opencover::coVRParallelRenderPlugin *>(opencover::coVRPluginList::instance()->addPlugin(std::string(method).c_str()));
 
         if (implementation == 0)
         {
@@ -405,13 +404,13 @@ opencover::coVRDistributionManager::RenderNode::RenderNode(const std::string &na
         enabled.resize(coVRMSController::instance()->clusterSize());
     }
 
-    this->hostname = covise::coConfigConstants::getHostname().toStdString();
+    this->hostname = covise::coConfigConstants::getHostname();
 
     covise::coConfigString displaysConfig = covise::coConfig::getInstance()->getString("COVER.Parallel.Displays");
 
-    QStringList displays = ((QString)displaysConfig).split(",");
+    auto displays = split(displaysConfig, ',');
 
-    if (displays.contains(hostname.c_str()))
+    if (std::find(displays.begin(), displays.end(), hostname) != displays.end())
         this->display = true;
 
     this->slaveIndex = coVRMSController::instance()->getID();
@@ -632,7 +631,7 @@ covise::TokenBuffer &opencover::operator>>(covise::TokenBuffer &tb, opencover::c
 opencover::coVRDistributionManager::RenderGroup::RenderGroup()
     : id(-1)
 {
-    std::string algo = ((QString)covise::coConfig::getInstance()->getString("value", "COVER.Parallel.DistributionAlgorithm", "RoundRobin")).toStdString();
+    std::string algo = covise::coConfig::getInstance()->getString("value", "COVER.Parallel.DistributionAlgorithm", "RoundRobin");
 
     this->distributionAlgorithm = DistributionAlgorithm::create(algo);
 

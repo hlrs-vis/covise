@@ -69,10 +69,10 @@ MESessionSettings::MESessionSettings(QWidget *parent, Qt::WindowFlags f)
     styles.sort();
 
     qtStyleComboBox->addItems(styles);
-    if (QString(MEMainHandler::instance()->cfg_QtStyle).isEmpty())
+    if (MEMainHandler::instance()->cfg_QtStyle().isEmpty())
         qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText("Default"));
     else
-        qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText(MEMainHandler::instance()->cfg_QtStyle));
+        qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText(MEMainHandler::instance()->cfg_QtStyle()));
 
     initState();
 }
@@ -95,9 +95,9 @@ void MESessionSettings::initState()
     developerModeCheckBox->setChecked(MEMainHandler::instance()->cfg_DeveloperMode);
     //imbeddedRenderBox->setChecked(MEMainHandler::instance()->cfg_ImbeddedRenderer);
 
-    qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText(MEMainHandler::instance()->cfg_QtStyle));
+    qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText(MEMainHandler::instance()->cfg_QtStyle()));
 
-    highlightColorEdit->setText(MEMainHandler::instance()->cfg_HighColor);
+    highlightColorEdit->setText(MEMainHandler::instance()->cfg_HighColor());
     autoSaveTimeEdit->setText(QString::number(MEMainHandler::instance()->cfg_AutoSaveTime));
 }
 
@@ -209,19 +209,19 @@ void MESessionSettings::save()
       MEMainHandler::instance()->rendererModeHasChanged();
    }*/
 
-    if (QString(MEMainHandler::instance()->cfg_QtStyle) != qtStyleComboBox->currentText())
+    if (QString(MEMainHandler::instance()->cfg_QtStyle()) != qtStyleComboBox->currentText())
     {
         if (qtStyleComboBox->currentText() == "Default")
-            MEMainHandler::instance()->cfg_QtStyle = "";
+            MEMainHandler::instance()->cfg_QtStyle("");
         else
-            MEMainHandler::instance()->cfg_QtStyle = qtStyleComboBox->currentText();
+            MEMainHandler::instance()->cfg_QtStyle(qtStyleComboBox->currentText());
     }
 
     if (QString::number(MEMainHandler::instance()->cfg_AutoSaveTime) != autoSaveTimeEdit->text())
         MEMainHandler::instance()->cfg_AutoSaveTime = autoSaveTimeEdit->text().toInt();
 
-    if (QString(MEMainHandler::instance()->cfg_HighColor) != highlightColorEdit->text())
-        MEMainHandler::instance()->cfg_HighColor = highlightColorEdit->text();
+    if (QString(MEMainHandler::instance()->cfg_HighColor()) != highlightColorEdit->text())
+        MEMainHandler::instance()->cfg_HighColor(highlightColorEdit->text());
 
     accept();
 }

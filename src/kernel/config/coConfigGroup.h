@@ -8,16 +8,10 @@
 #ifndef COCONFIGGROUP_H
 #define COCONFIGGROUP_H
 
-#include <QHash>
-
 #include <config/coConfigEntryString.h>
 #include <config/coConfigEntry.h>
 #include <config/coConfigRoot.h>
 #include <util/coTypes.h>
-
-#ifndef CO_gcc3
-EXPORT_TEMPLATE2(template class CONFIGEXPORT QHash<QString, covise::coConfigRoot *>)
-#endif
 
 namespace covise
 {
@@ -26,64 +20,62 @@ class CONFIGEXPORT coConfigGroup
 {
 
 public:
-    coConfigGroup(const QString &groupName);
+    coConfigGroup(const std::string &groupName);
     virtual ~coConfigGroup();
 
-    virtual coConfigEntryStringList getScopeList(const QString &section = 0,
-                                                 const QString &variableName = 0) const;
-    virtual coConfigEntryStringList getVariableList(const QString &section = 0) const;
+    virtual coConfigEntryStringList getScopeList(const std::string &section = "",
+                                                 const std::string &variableName = "") const;
+    virtual coConfigEntryStringList getVariableList(const std::string &section = "") const;
 
-    virtual coConfigEntryString getValue(const QString &variable,
-                                         const QString &section,
-                                         const QString &defaultValue) const;
-    virtual coConfigEntryString getValue(const QString &variable,
-                                         const QString &section) const;
-    virtual coConfigEntryString getValue(const QString &simpleVariable) const;
+    virtual coConfigEntryString getValue(const std::string &variable,
+                                         const std::string &section,
+                                         const std::string &defaultValue) const;
+    virtual coConfigEntryString getValue(const std::string &variable,
+                                         const std::string &section) const;
+    virtual coConfigEntryString getValue(const std::string &simpleVariable) const;
 
     virtual const char *getEntry(const char *simpleVariable) const;
 
-    virtual bool isOn(const QString &variable, const QString &section, bool defaultValue) const;
-    virtual bool isOn(const QString &variable, const QString &section) const;
-    virtual bool isOn(const QString &simpleVariable, bool defaultValue) const;
-    virtual bool isOn(const QString &simpleVariable) const;
+    virtual bool isOn(const std::string &variable, const std::string &section, bool defaultValue = false) const;
+    virtual bool isOn(const std::string &simpleVariable, bool defaultValue = false) const;
 
-    virtual void setValue(const QString &variable, const QString &value,
-                          const QString &section,
-                          const QString &configuration = QString(),
-                          const QString &targetHost = QString(), bool move = false);
+    virtual void setValue(const std::string &variable, const std::string &value,
+                          const std::string &section,
+                          const std::string &configuration = std::string(),
+                          const std::string &targetHost = std::string(), bool move = false);
 
-    virtual void setValue(const QString &simpleVariable, const QString &value);
+    virtual void setValue(const std::string &simpleVariable, const std::string &value);
 
-    virtual bool deleteValue(const QString &variable, const QString &section,
-                             const QString &configuration = QString(),
-                             const QString &targetHost = QString());
+    virtual bool deleteValue(const std::string &variable, const std::string &section,
+                             const std::string &configuration = std::string(),
+                             const std::string &targetHost = std::string());
 
-    virtual bool deleteSection(const QString &section,
-                               const QString &configuration = QString(),
-                               const QString &targetHost = QString());
+    virtual bool deleteSection(const std::string &section,
+                               const std::string &configuration = std::string(),
+                               const std::string &targetHost = std::string());
 
-    virtual QStringList getHostnameList() /*const*/;
-    virtual QString getActiveHost() const;
-    virtual bool setActiveHost(const QString &host);
+    virtual std::set<std::string> getHostnameList() /*const*/;
+    virtual std::string getActiveHost() const;
+    virtual bool setActiveHost(const std::string &host);
 
-    virtual QStringList getClusterList() /*const*/;
-    virtual QString getActiveCluster() const;
-    virtual bool setActiveCluster(const QString &master);
+    virtual std::set<std::string> getClusterList() /*const*/;
+    virtual std::string getActiveCluster() const;
+    virtual bool setActiveCluster(const std::string &master);
 
-    virtual const QString &getGroupName() const;
+    virtual const std::string &getGroupName() const;
 
     virtual void reload();
-    //virtual bool save(const QString & filename, ConfigScope scope = Global) const;
+    // virtual bool save(const std::string & filename, ConfigScope scope = Global) const;
 
-    virtual coConfigRoot *addConfig(const QString &filename, const QString &name, bool create = false);
-    virtual void removeConfig(const QString &name);
+    virtual coConfigRoot *addConfig(const std::string &filename, const std::string &name, bool create = false);
+    virtual void removeConfig(const std::string &name);
 
-    virtual bool save(const QString &filename = QString()) const;
+    virtual bool save(const std::string &filename = std::string()) const;
 
-    void setReadOnly(const QString &config, bool ro);
+    void setReadOnly(const std::string &config, bool ro);
     void setReadOnly(bool ro);
 
-    bool isReadOnly(const QString &config) const;
+    bool isReadOnly(const std::string &config) const;
     bool isReadOnly() const;
 
     virtual coConfigGroup *clone() const;
@@ -93,15 +85,15 @@ public:
 private:
     coConfigGroup(const coConfigGroup *source);
 
-    QString activeHostname;
-    QStringList hostnames;
-    QString activeCluster;
-    QStringList masternames;
-    QString groupName;
+    std::string activeHostname;
+    std::set<std::string> hostnames;
+    std::string activeCluster;
+    std::set<std::string> masternames;
+    std::string groupName;
 
     bool readOnly;
-    //friend  QHash<QString, coConfigEntry*> mainWindow::loadFile(const QString & fileName);
-    QHash<QString, coConfigRoot *> configs;
+    // friend  QHash<std::string, coConfigEntry*> mainWindow::loadFile(const std::string & fileName);
+    std::map<std::string, coConfigRoot *> configs;
 };
 }
 #endif

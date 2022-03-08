@@ -384,7 +384,7 @@ void MEModuleTree::addHostList(MEHost *currentHost)
     // this must be the last step otherwise the hidden items were not shown correctly
     foreach (MECategory *category, currentHost->catList)
     {
-        bool ocstate = m_mainHandler->getConfig()->isOn(category->getName(), "System.MapEditor.General.Category", false);
+        bool ocstate = m_mainHandler->getConfig()->isOn(category->getName().toStdString(), "System.MapEditor.General.Category", false);
         if (ocstate)
         {
             QTreeWidgetItem *item = category->getCategoryItem();

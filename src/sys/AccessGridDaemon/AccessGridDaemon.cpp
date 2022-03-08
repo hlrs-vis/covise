@@ -5,8 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-#include <qsocketnotifier.h>
 #define IOMANIPH
 // don't include iomanip.h becaus it interferes with qt
 

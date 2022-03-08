@@ -8,7 +8,7 @@
 #include <config/coConfigLog.h>
 #include <config/coConfigConstants.h>
 #include <config/coConfig.h>
-
+#include <util/string_util.h>
 #ifdef _WIN32
 #include <winsock2.h>
 #include <locale.h>
@@ -18,9 +18,13 @@
 
 #include <stdlib.h>
 
-#include <QDir>
-
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 #include <iostream>
+#include <locale>
+#include <codecvt>
+
 using namespace std;
 using namespace covise;
 
@@ -30,6 +34,24 @@ using namespace covise;
 coConfigDefaultPaths *coConfigDefaultPaths::instance = 0;
 coConfigConstants *coConfigConstants::instance = 0;
 
+#ifdef WIN32
+
+namespace detail
+{
+    wchar_t t = '/';
+
+    char wcharToChar(wchar_t w)
+    {
+        char c = ' ';
+        wctomb(&c, w);
+        return c;
+    }
+}
+char covise::pathSeparator = detail::wcharToChar(detail::t);
+
+#else
+char covise::pathSeparator = boost::filesystem::path::preferred_separator;
+#endif
 coConfigConstants::coConfigConstants()
 {
     if (instance == 0)
@@ -39,7 +61,7 @@ coConfigConstants::coConfigConstants()
 
     backend = "covise";
 
-    hostname = QString();
+    hostname = std::string();
 
     rank = -1;
 }
@@ -50,7 +72,7 @@ coConfigConstants::~coConfigConstants()
         instance = 0;
 }
 
-const QStringList &coConfigConstants::getArchList()
+const std::set<std::string> &coConfigConstants::getArchList()
 {
 
     if (!instance)
@@ -59,26 +81,26 @@ const QStringList &coConfigConstants::getArchList()
     if (instance->archlist.empty())
     {
 #ifdef _WIN32
-        instance->archlist << "windows";
+        instance->archlist.insert("windows");
 #else
-        instance->archlist << "unix";
+        instance->archlist.insert("unix");
 
 #ifdef __APPLE__
-        instance->archlist << "mac";
+        instance->archlist.insert("mac");
 #else
-        instance->archlist << "x11";
+        instance->archlist.insert("x11");
 #endif
 #endif
 
         const char *archsuffix = getenv("ARCHSUFFIX");
         if (archsuffix)
         {
-            QString as(archsuffix);
-            instance->archlist << as;
+            std::string as(archsuffix);
+            instance->archlist.insert(as);
 
-            if (as.endsWith("opt"))
+            if (boost::algorithm::ends_with(as, "opt"))
             {
-                instance->archlist << as.left(as.length() - 3);
+                instance->archlist.insert(as.substr(0, as.size() - 3));
             }
         }
     }
@@ -86,22 +108,23 @@ const QStringList &coConfigConstants::getArchList()
     return instance->archlist;
 }
 
-const QString &coConfigConstants::getHostname()
+const std::string &coConfigConstants::getHostname()
 {
 
     if (!instance)
         new coConfigConstants();
 
-    if (instance->hostname == QString())
+    if (instance->hostname.empty())
     {
-        instance->hostname = getenv("COVISE_CONFIG");
-        if (instance->hostname != QString())
+        auto h = getenv("COVISE_CONFIG");
+        if (h)
         {
+            instance->hostname = h;
             COCONFIGDBG_DEFAULT("coConfigConstants::getHostname info: LOCAL hostname is '" + instance->hostname + "' (from COVISE_CONFIG)");
         }
     }
 
-    if (instance->hostname == QString())
+    if (instance->hostname == std::string())
     {
 #ifdef _WIN32
         WORD wVersionRequested;
@@ -120,12 +143,14 @@ const QString &coConfigConstants::getHostname()
         }
         else
         {
-            instance->hostname = QString(hostnameTmp).toLower();
-            if (instance->hostname.contains('.'))
-                instance->hostname = instance->hostname.split('.')[0];
+            instance->hostname = hostnameTmp;
+            std::transform(instance->hostname.begin(), instance->hostname.end(), instance->hostname.begin(),
+                           [](unsigned char c)
+                           { return std::tolower(c); });
+            instance->hostname = instance->hostname.substr(0, instance->hostname.find('.'));
         }
 
-        if (instance->hostname != QString())
+        if (!instance->hostname.empty())
         {
             COCONFIGDBG_DEFAULT("coConfigConstants::getHostname info: LOCAL hostname is '" + instance->hostname + "' (from gethostname)");
         }
@@ -134,25 +159,26 @@ const QString &coConfigConstants::getHostname()
     return instance->hostname;
 }
 
-void coConfigConstants::setMaster(const QString &hostname)
+void coConfigConstants::setMaster(const std::string &hostname)
 {
     if (!instance)
         new coConfigConstants();
-    instance->master = hostname.toLower();
-    instance->master = instance->master.split('.')[0];
+    instance->master = toLower(hostname);
+    instance->master = instance->master.substr(0, instance->master.find('.'));
+
     COCONFIGDBG_DEFAULT("coConfigConstants::setMaster info: CLUSTER master is '" + hostname);
     coConfig::getInstance()->setActiveCluster(instance->master);
 }
 
-const QString &coConfigConstants::getMaster()
+const std::string &coConfigConstants::getMaster()
 {
 
     if (!instance)
         new coConfigConstants();
 
-    if (instance->master == QString())
+    if (instance->master == std::string())
     {
-        //COCONFIGLOG("coConfigConstants::getMaster info: master hostname is not set");
+        // COCONFIGLOG("coConfigConstants::getMaster info: master hostname is not set");
     }
     return instance->master;
 }
@@ -179,14 +205,14 @@ int coConfigConstants::getShmGroupRootRank()
     return instance->shmGroupRoot;
 }
 
-void coConfigConstants::setBackend(const QString &backend)
+void coConfigConstants::setBackend(const std::string &backend)
 {
     if (!instance)
         new coConfigConstants();
     instance->backend = backend;
 }
 
-const QString &coConfigConstants::getBackend()
+const std::string &coConfigConstants::getBackend()
 {
     if (!instance)
         new coConfigConstants();
@@ -207,7 +233,7 @@ coConfigDefaultPaths::~coConfigDefaultPaths()
 /**
  * \brief Used to convert an old COVISE config to the new XML format
  */
-const QString &coConfigDefaultPaths::getDefaultTransformFileName()
+const std::string &coConfigDefaultPaths::getDefaultTransformFileName()
 {
     return getInstance()->defaultTransform;
 }
@@ -215,7 +241,7 @@ const QString &coConfigDefaultPaths::getDefaultTransformFileName()
 /**
  * \brief Full filename of the local configuration
  */
-const QString &coConfigDefaultPaths::getDefaultLocalConfigFileName()
+const std::string &coConfigDefaultPaths::getDefaultLocalConfigFileName()
 {
     return getInstance()->configLocal;
 }
@@ -223,7 +249,7 @@ const QString &coConfigDefaultPaths::getDefaultLocalConfigFileName()
 /**
  * \brief Full filename of the global configuration
  */
-const QString &coConfigDefaultPaths::getDefaultGlobalConfigFileName()
+const std::string &coConfigDefaultPaths::getDefaultGlobalConfigFileName()
 {
     return getInstance()->configGlobal;
 }
@@ -231,7 +257,7 @@ const QString &coConfigDefaultPaths::getDefaultGlobalConfigFileName()
 /**
  * \brief Full path to the local configuration
  */
-const QString &coConfigDefaultPaths::getDefaultLocalConfigFilePath()
+const std::string &coConfigDefaultPaths::getDefaultLocalConfigFilePath()
 {
     return getInstance()->configLocalPath;
 }
@@ -239,7 +265,7 @@ const QString &coConfigDefaultPaths::getDefaultLocalConfigFilePath()
 /**
  * \brief Full path to the global configuration
  */
-const QString &coConfigDefaultPaths::getDefaultGlobalConfigFilePath()
+const std::string &coConfigDefaultPaths::getDefaultGlobalConfigFilePath()
 {
     return getInstance()->configGlobalPath;
 }
@@ -247,7 +273,7 @@ const QString &coConfigDefaultPaths::getDefaultGlobalConfigFilePath()
 /**
  * \brief Search path to for locating configurations
  */
-const QStringList &coConfigDefaultPaths::getSearchPath()
+const std::set<std::string> &coConfigDefaultPaths::getSearchPath()
 {
     return getInstance()->searchPath;
 }
@@ -259,12 +285,12 @@ void coConfigDefaultPaths::setNames()
 {
 
     // define global config file
-    QString yacdir;
+    const char *yacdir;
 
     // Check for environment variables to override default locations
-    QString configGlobalOverride = getenv("COCONFIG");
-    QString configLocalOverride = getenv("COCONFIG_LOCAL");
-    QString configDir = getenv("COCONFIG_DIR");
+    auto configGlobalOverride = getenv("COCONFIG");
+    auto configLocalOverride = getenv("COCONFIG_LOCAL");
+    auto configDir = getenv("COCONFIG_DIR");
 
     if (coConfigConstants::getBackend() == "covise")
     {
@@ -277,29 +303,29 @@ void coConfigDefaultPaths::setNames()
         yacdir = getenv("COVISEDIR");
     }
 
-    if (!yacdir.isEmpty() || !configDir.isEmpty())
+    if (yacdir || configDir)
     {
-        if (!configDir.isEmpty())
-            configGlobalPath = configDir + QDir::separator();
+        if (configDir)
+            configGlobalPath = configDir + pathSeparator;
         else
-            configGlobalPath = yacdir + QDir::separator() + "config" + QDir::separator();
+            configGlobalPath = std::string(yacdir) + pathSeparator + "config" + pathSeparator;
 
         // Look for config if override is given
-        if (!configGlobalOverride.isEmpty() && QFile::exists(configGlobalOverride))
+        if (configGlobalOverride && boost::filesystem::exists(configGlobalOverride))
         {
             configGlobal = configGlobalOverride;
         }
-        else if (!configGlobalOverride.isEmpty() && QFile::exists(QString("%1%2%3").arg(configGlobalPath, QString(QChar(QDir::separator())), configGlobalOverride)))
+        else if (configGlobalOverride && boost::filesystem::exists(configGlobalPath + pathSeparator + configGlobalOverride))
         {
-            configGlobal = configGlobalPath + QDir::separator() + configGlobalOverride;
+            configGlobal = configGlobalPath + pathSeparator + configGlobalOverride;
         }
         // Look in default locations
         else
         {
-            if (!configGlobalOverride.isEmpty())
+            if (configGlobalOverride)
                 COCONFIGLOG("coConfigDefaultPaths::setNames warn: global override not found, trying default config");
 
-            if (QFile::exists(QString("%1config.%2.xml").arg(configGlobalPath, coConfigConstants::getHostname())))
+            if (boost::filesystem::exists(configGlobalPath + "config." + coConfigConstants::getHostname() + ".xml"))
             {
                 configGlobal = configGlobalPath + "config." + coConfigConstants::getHostname() + ".xml";
             }
@@ -309,34 +335,29 @@ void coConfigDefaultPaths::setNames()
             }
         }
     }
-    else if (configGlobalOverride.isEmpty())
+    else if (!configGlobalOverride)
     {
         COCONFIGLOG("coConfigDefaultPaths::setNames warn: no COVISE_PATH set");
-        configGlobal = configGlobalOverride;
+        configGlobal.clear();
     }
 
 // define local config file
 #ifndef _WIN32
-    QString homedir = getenv("HOME");
-    QString path = QString("/.%1/").arg(coConfigConstants::getBackend());
+    auto homedir = getenv("HOME");
+    std::string path = "/." + coConfigConstants::getBackend() + "/";
 #else
-    QString homedir = getenv("USERPROFILE");
-    QString path = QString("/%1/").arg(coConfigConstants::getBackend());
+    auto homedir = getenv("USERPROFILE");
+    std::string path = "/" + coConfigConstants::getBackend() + "/";
 #endif
 
-    if (!homedir.isEmpty())
+    if (homedir)
     {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-        configLocalPath = QDir::toNativeSeparators(homedir + path);
-#else
-        configLocalPath = QDir::convertSeparators(homedir + path);
-#endif
-        QDir dir;
+        configLocalPath = boost::filesystem::path{boost::filesystem::path{homedir + path}.make_preferred().native() }.string();
 
         // Create path to store configuration. For security reasons don't create if override is set.
-        if (!dir.exists(configLocalPath) && configLocalOverride.isEmpty())
+        if (!boost::filesystem::exists(configLocalPath) && !configLocalOverride)
         {
-            if (dir.mkdir(configLocalPath))
+            if (boost::filesystem::create_directory(configLocalPath))
             {
                 COCONFIGDBG("coConfigDefaultPaths::setNames() info: created path:" << configLocalPath);
             }
@@ -347,21 +368,21 @@ void coConfigDefaultPaths::setNames()
         }
 
         // Look for config if override is given
-        if (!configLocalOverride.isEmpty() && QFile::exists(configLocalOverride))
+        if (configLocalOverride && boost::filesystem::exists(configLocalOverride))
         {
             configLocal = configLocalOverride;
         }
-        else if (!configLocalOverride.isEmpty() && QFile::exists(QString("%1%2%3").arg(configLocalPath, QString(QChar(QDir::separator())), configLocalOverride)))
+        else if (configLocalOverride && boost::filesystem::exists(configLocalPath + pathSeparator + configLocalOverride))
         {
-            configLocal = configLocalPath + QDir::separator() + configLocalOverride;
+            configLocal = configLocalPath + pathSeparator + configLocalOverride;
         }
         // Look in default locations
         else
         {
-            if (!configLocalOverride.isEmpty())
+            if (configLocalOverride)
                 COCONFIGLOG("coConfigDefaultPaths::setNames warn: local override not found, trying default config");
 
-            if (QFile::exists(configLocalPath + "config." + coConfigConstants::getHostname() + ".xml"))
+            if (boost::filesystem::exists(configLocalPath + "config." + coConfigConstants::getHostname() + ".xml"))
             {
                 configLocal = configLocalPath + "config." + coConfigConstants::getHostname() + ".xml";
             }
@@ -371,7 +392,7 @@ void coConfigDefaultPaths::setNames()
             }
         }
     }
-    else if (!configLocalOverride.isEmpty())
+    else if (configLocalOverride)
     {
         COCONFIGLOG("coConfigDefaultPaths::setNames() warn: no HOME set");
         configLocal = configLocalOverride;
@@ -379,25 +400,27 @@ void coConfigDefaultPaths::setNames()
 
     COCONFIGDBG("coConfigDefaultPaths::setNames info: Searching user config in " << configLocal);
 
-    defaultTransform = yacdir + QDir::separator() + CO_CONFIG_TRANSFORM_FILE;
+    defaultTransform = std::string(yacdir) + pathSeparator + CO_CONFIG_TRANSFORM_FILE;
 
-    QString sPath;
-
-    if (coConfigConstants::getBackend() == "covise")
-        sPath = getenv("COVISE_PATH");
+    std::string sPath;
+    auto pathEnv = getenv("COVISE_PATH");
+    if (pathEnv && coConfigConstants::getBackend() == "covise")
+        sPath = pathEnv;
     else
         COCONFIGDBG("coConfigDefaultPaths::setNames warn: unknown environment, not setting any search path");
 
-    if (!configDir.isEmpty())
-        searchPath = QStringList(configDir);
+    if (configDir)
+        searchPath = std::set<std::string>{configDir};
     else
-        searchPath = QStringList();
+        searchPath = std::set<std::string>{};
 
 #ifdef _WIN32
-    searchPath += sPath.split(';', SplitBehaviorFlags::SkipEmptyParts);
+    char splitter = ';';
 #else
-    searchPath += sPath.split(':', SplitBehaviorFlags::SkipEmptyParts);
+    char splitter = ':';
 #endif
+    auto s = split(sPath, splitter, true);
+    searchPath.insert(s.begin(), s.end());
 }
 
 void coConfigConstants::initXerces()

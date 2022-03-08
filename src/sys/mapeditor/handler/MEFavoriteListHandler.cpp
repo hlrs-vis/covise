@@ -73,7 +73,7 @@ void MEFavoriteListHandler::createFavorites()
 
     for ( int k = 0; k < favorites.count(); k++)
         favoriteList.append(new MEFavorites(tb, favorites[k]));
-    MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" "));
+    MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
     if (!favoriteList.isEmpty())
         MEUserInterface::instance()->hideFavoriteLabel();
 }
@@ -93,7 +93,7 @@ void MEFavoriteListHandler::insertFavorite(const QString &newname, const QString
         QToolBar *tb = MEUserInterface::instance()->getToolBar();
         favoriteList.append(new MEFavorites(tb, newname));
         updateFavorites();
-        MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" "));
+        MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
         MEUserInterface::instance()->hideFavoriteLabel();
     }
 }
@@ -110,7 +110,7 @@ void MEFavoriteListHandler::addFavorite(const QString &newname)
         QToolBar *tb = MEUserInterface::instance()->getToolBar();
         favoriteList.append(new MEFavorites(tb, newname));
         updateFavorites();
-        MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" "));
+        MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
         MEUserInterface::instance()->hideFavoriteLabel();
     }
 }
@@ -131,7 +131,7 @@ void MEFavoriteListHandler::removeFavorite(const QString &name)
     }
     favorites.removeAt(favorites.indexOf(name));
 
-    MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" "));
+    MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
     if (favoriteList.isEmpty())
         MEUserInterface::instance()->showFavoriteLabel();
 }

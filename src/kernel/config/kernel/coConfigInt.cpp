@@ -7,11 +7,12 @@
 
 #define COCONFIGVALUE_USE_CACHE
 #include <config/coConfig.h>
+#include <util/string_util.h>
 //#include "coConfigValue.inl"
 
 using namespace covise;
 
-coConfigInt::coConfigInt(const QString &configGroupName, const QString &variable, const QString &section)
+coConfigInt::coConfigInt(const std::string &configGroupName, const std::string &variable, const std::string &section)
     : coConfigValue<int>(configGroupName, variable, section)
 {
 
@@ -19,7 +20,7 @@ coConfigInt::coConfigInt(const QString &configGroupName, const QString &variable
     //cerr << "coConfigInt::<init> info: 0: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigInt::coConfigInt(const QString &variable, const QString &section)
+coConfigInt::coConfigInt(const std::string &variable, const std::string &section)
     : coConfigValue<int>(variable, section)
 {
 
@@ -27,7 +28,7 @@ coConfigInt::coConfigInt(const QString &variable, const QString &section)
     //cerr << "coConfigInt::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigInt::coConfigInt(const QString &simpleVariable)
+coConfigInt::coConfigInt(const std::string &simpleVariable)
     : coConfigValue<int>(simpleVariable)
 {
 
@@ -35,7 +36,7 @@ coConfigInt::coConfigInt(const QString &simpleVariable)
     //cerr << "coConfigInt::<init> info: 2: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigInt::coConfigInt(coConfigGroup *group, const QString &variable, const QString &section)
+coConfigInt::coConfigInt(coConfigGroup *group, const std::string &variable, const std::string &section)
     : coConfigValue<int>(group, variable, section)
 {
 
@@ -43,7 +44,7 @@ coConfigInt::coConfigInt(coConfigGroup *group, const QString &variable, const QS
     //cerr << "coConfigInt::<init> info: 3: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigInt::coConfigInt(coConfigGroup *group, const QString &simpleVariable)
+coConfigInt::coConfigInt(coConfigGroup *group, const std::string &simpleVariable)
     : coConfigValue<int>(group, simpleVariable)
 {
 
@@ -57,29 +58,26 @@ coConfigInt::coConfigInt(const coConfigInt &value)
     //COCONFIGLOG("coConfigInt::<init> info: copy");
 }
 
-coConfigInt::~coConfigInt()
+int coConfigInt::fromString(const std::string &value) const
 {
-}
-
-int coConfigInt::fromString(const QString &value) const
-{
-    QString v = value.toLower();
+    std::string v = toLower(value);
     int mult = 1;
-    if (v.endsWith("k"))
+    char end = v[v.size() - 1];
+    if (end == 'k')
         mult = 1024;
-    else if (v.endsWith("m"))
+    else if (end == 'm')
         mult = 1024 * 1024;
-    else if (v.endsWith("g"))
+    else if (end == 'g')
         mult = 1024 * 1024 * 1024;
     if (mult > 1)
-        v = v.left(v.length() - 1);
+        v.pop_back();
 
-    return v.toInt(0, 0) * mult;
+    return atoi(v.c_str()) * mult;
 }
 
-QString coConfigInt::toString(const int &value) const
+std::string coConfigInt::toString(const int &value) const
 {
-    return QString::number(value);
+    return std::to_string(value);
 }
 
 coConfigInt &coConfigInt::operator=(int value)

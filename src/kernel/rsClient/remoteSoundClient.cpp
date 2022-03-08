@@ -7,8 +7,6 @@
 #include <net/message_types.h>
 #include <util/UDP_Sender.h>
 
-#include <QtDebug>
-
 using namespace remoteSound;
 Client::Client(std::string h, int p, std::string a, std::string u)
 {
@@ -26,7 +24,6 @@ Client::Client(std::string h, int p, std::string a, std::string u)
         char* login = getlogin();
         if (!login)
         {
-            qWarning() << "Getting user name failed";
             login = getenv("USER");
         }
         if (login)

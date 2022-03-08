@@ -49,7 +49,7 @@ public:
     void preSwapBuffers(int windowNumber);
 
 private:
-    static void allocatePixelBuffer(uint8_t **pixel_buffer, GLenum format, uint width, uint height);
+    static void allocatePixelBuffer(uint8_t **pixel_buffer, GLenum format, uint8_t width, uint8_t height);
     int oldWidth, oldHeight;
     uint8_t *pixels_left_eye;
     uint8_t *pixels_right_eye;

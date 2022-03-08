@@ -7,17 +7,18 @@
 
 #ifndef COCONFIGTOOLS_H
 #define COCONFIGTOOLS_H
-
-#include <QHash>
-#include <QString>
-
-class coConfigTools
+#include <util/coExport.h>
+#include <string>
+#include <map>
+#include <array>
+class CONFIGEXPORT coConfigTools
 {
  public:
-    static bool matchingAttributes(const QHash<QString, QString *> &attributes);
-    static bool matchingHost(const QString *host);
-    static bool matchingMaster(const QString *master);
-    static bool matchingArch(const QString *arch);
-    static bool matchingRank(const QString *rank);
+    static const std::array<const char*, 4> attributeNames;
+    static bool matchingAttributes(const std::map<std::string, std::string> &attributes);
+    static bool matchingHost(const std::string &host);
+    static bool matchingMaster(const std::string &master);
+    static bool matchingArch(const std::string &arch);
+    static bool matchingRank(const std::string &rank);
 };
 #endif

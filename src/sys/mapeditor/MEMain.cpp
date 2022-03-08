@@ -135,8 +135,7 @@ int main(int argc, char **argv)
 {
     QT_REQUIRE_VERSION_PATCHED(argc, argv, "4.3.0")
     std::cerr << "starting mapeditor" << std::endl;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     auto sslconf = QSslConfiguration::defaultConfiguration();
     sslconf.addCaCertificates(QSslCertificate::fromPath(":/certs/telekom.pem"));
     sslconf.addCaCertificates(QSslCertificate::fromPath(":/certs/dfn.pem"));

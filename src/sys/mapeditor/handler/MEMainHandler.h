@@ -93,7 +93,37 @@ public:
     covise::coConfigBool cfg_HideUnusedModules, cfg_AutoConnect, cfg_TopLevelBrowser, cfg_ImbeddedRenderer;
     covise::coConfigBool cfg_TabletUITabs;
     covise::coConfigInt cfg_AutoSaveTime, cfg_ModuleHistoryLength, cfg_GridSize;
-    covise::coConfigString cfg_HostColors, cfg_QtStyle, cfg_HighColor;
+
+    QString cfg_HostColors()
+    {
+        return QString(std::string(m_cfg_HostColors).c_str());
+    }
+    QString cfg_QtStyle()
+    {
+        return QString(std::string(m_cfg_QtStyle).c_str());
+    }
+    QString cfg_HighColor()
+    {
+        return QString(std::string(m_cfg_HighColor).c_str());
+    }
+
+    void cfg_HostColors(const QString &s)
+    {
+        m_cfg_HostColors = s.toStdString();
+    }
+    void cfg_QtStyle(const QString &s)
+    {
+        m_cfg_QtStyle = s.toStdString();
+    }
+    void cfg_HighColor(const QString &s)
+    {
+        m_cfg_HighColor = s.toStdString();
+    }
+
+private:
+    covise::coConfigString m_cfg_HostColors, m_cfg_QtStyle, m_cfg_HighColor;
+
+public:
     QString cfg_SavePath;
     int cfg_NetworkHistoryLength;
 

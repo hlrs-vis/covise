@@ -157,20 +157,12 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
 std::vector<std::string> getSharedPlugins()
 {
     std::vector<std::string> sharedPlugins;
-    coCoviseConfig::ScopeEntries pluginNameEntries = coCoviseConfig::getScopeEntries("COVER.Plugin");
-    const char **pluginNames = pluginNameEntries.getValue();
-    if (pluginNames != NULL)
+    coCoviseConfig::ScopeEntries pluginNames = coCoviseConfig::getScopeEntries("COVER.Plugin");
+    for (const auto &pluginName : pluginNames)
     {
-        int i = 0;
-        while (pluginNames[i])
+        if (coCoviseConfig::isOn("shared", std::string("COVER.Plugin.") + pluginName.first, false))
         {
-            bool exists = false;
-            if (coCoviseConfig::isOn("shared", std::string("COVER.Plugin.") + pluginNames[i], false, &exists))
-            {
-                sharedPlugins.push_back(pluginNames[i]);
-            }
-            i++; // skip name
-            i++; //skip value (may be NULL)
+            sharedPlugins.push_back(pluginName.first);
         }
     }
     return sharedPlugins;
@@ -220,35 +212,23 @@ void coVRPluginList::loadDefault()
         addToMenu.push_back(true);
     }
 
-    coCoviseConfig::ScopeEntries pluginNameEntries = coCoviseConfig::getScopeEntries("COVER.Plugin");
-    const char **pluginNames = pluginNameEntries.getValue();
-    if (pluginNames != NULL)
+    coCoviseConfig::ScopeEntries pluginNames = coCoviseConfig::getScopeEntries("COVER.Plugin");
+    for (const auto &pluginName : pluginNames)
     {
-        int i = 0;
-        while (pluginNames[i])
+        std::string entryName = "COVER.Plugin." + pluginName.first;
+        if (coCoviseConfig::isOn("menu", entryName, false))
         {
-            char *entryName = new char[strlen(pluginNames[i]) + 100];
-            sprintf(entryName, "COVER.Plugin.%s", pluginNames[i]);
-
-            bool exists = false;
-            if (coCoviseConfig::isOn("menu", entryName, false, &exists))
-            {
-                coVRPlugin *m = getPlugin(pluginNames[i]);
-                PluginMenu::instance()->addEntry(pluginNames[i], m);
-                auto it = std::find(plugins.begin(), plugins.end(), std::string(entryName));
-                if (it != plugins.end()) {
-                    addToMenu[it-plugins.begin()] = false;
-                }
+            coVRPlugin *m = getPlugin(pluginName.first.c_str());
+            PluginMenu::instance()->addEntry(pluginName.first, m);
+            auto it = std::find(plugins.begin(), plugins.end(), std::string(entryName));
+            if (it != plugins.end()) {
+                addToMenu[it-plugins.begin()] = false;
             }
+        }
 
-            if (coCoviseConfig::isOn(entryName, false))
-            {
-                plugins.push_back(pluginNames[i]);
-            }
-
-            delete[] entryName;
-            i++; // skip name
-            i++; //skip value (may be NULL)
+        if (coCoviseConfig::isOn(entryName, false))
+        {
+            plugins.push_back(pluginName.first);
         }
     }
     if(!coVRConfig::instance()->viewpointsFile.empty())

@@ -19,29 +19,29 @@ coConfigSchemaInfos::~coConfigSchemaInfos()
 }
 
 //real name
-const QString &coConfigSchemaInfos::getElement()
+const std::string &coConfigSchemaInfos::getElement()
 {
     return element;
 }
 
-const QString &coConfigSchemaInfos::getElementPath()
+const std::string &coConfigSchemaInfos::getElementPath()
 {
     //returns sth like LOCAL.Cover
     return elementPath;
 }
 
 //shown name
-const QString &coConfigSchemaInfos::getElementName()
+const std::string &coConfigSchemaInfos::getElementName()
 {
     return elementName;
 }
 
-const QString &coConfigSchemaInfos::getElementDescription()
+const std::string &coConfigSchemaInfos::getElementDescription()
 {
     return elementDescription;
 }
 
-const QString &coConfigSchemaInfos::getElementGroup()
+const std::string &coConfigSchemaInfos::getElementGroup()
 {
     //fallback for elementGroup can be Path
     //if (elementGroup.isEmpty()) return elementPath;
@@ -49,58 +49,70 @@ const QString &coConfigSchemaInfos::getElementGroup()
 }
 
 //NOTE
-QStringList coConfigSchemaInfos::getElementAllowedChildren()
+const std::set<std::string> &coConfigSchemaInfos::getElementAllowedChildren() const
 {
     return allowedChildren;
 }
 
-QList<QString> coConfigSchemaInfos::getAttributes()
+std::set<std::string> coConfigSchemaInfos::getAttributes() const
 {
-    return attributes.keys();
+    std::set<std::string> s;
+    for (const auto &attribute : attributes)
+        s.insert(attribute.first);
+    return s;
 }
 
-void coConfigSchemaInfos::setReadableElementRule(const QString &rule)
+void coConfigSchemaInfos::setReadableElementRule(const std::string &rule)
 {
     readableElementRule = rule;
 }
 
-void coConfigSchemaInfos::setElement(const QString &name)
+void coConfigSchemaInfos::setElement(const std::string &name)
 {
     element = name;
 }
 
-void coConfigSchemaInfos::setElementPath(const QString &path)
+void coConfigSchemaInfos::setElementPath(const std::string &path)
 {
     //path comes in as .COCONFIG... so cut this,
-    elementPath = path.section(".", 2);
-    //returns sth like LOCAL.Cover
+    size_t num = 0;
+    for (size_t i = 0; i < path.size(); i++)
+    {
+        if (path[i] == '.')
+            ++num;
+        if (num == 2)
+        {
+            elementPath = path.substr(++i);
+            break;
+        }
+    }
+    // returns sth like LOCAL.Cover
 }
 
-void coConfigSchemaInfos::setElementName(const QString &name)
+void coConfigSchemaInfos::setElementName(const std::string &name)
 {
     elementName = name;
 }
 
-void coConfigSchemaInfos::setElementDescription(const QString &elDescription)
+void coConfigSchemaInfos::setElementDescription(const std::string &elDescription)
 {
     elementDescription = elDescription;
 }
 
-void coConfigSchemaInfos::setElementGroup(const QString &group)
+void coConfigSchemaInfos::setElementGroup(const std::string &group)
 {
     elementGroup = group;
 }
 
-void coConfigSchemaInfos::setAllowedChildren(QStringList children)
+void coConfigSchemaInfos::setAllowedChildren(const std::set<std::string> &children)
 {
-    allowedChildren.clear();
-    allowedChildren << children;
+    allowedChildren = children;
 }
 
-void coConfigSchemaInfos::addAttribute(const QString &attr, bool required, const QString &defValue,
-                                       const QString &readableRule, const QString &regExpressionString, const QString &attrDescription)
+void coConfigSchemaInfos::addAttribute(const std::string &attr, bool required, const std::string &defValue,
+                                       const std::string &readableRule, const std::string &regExpressionString, const std::string &attrDescription)
 {
-    if (!attributes.contains(attr))
+    if (attributes.find(attr) == attributes.end())
     {
         attrData data;
         data.required = required;
@@ -108,18 +120,15 @@ void coConfigSchemaInfos::addAttribute(const QString &attr, bool required, const
         data.readableRule = readableRule;
         data.attrDescription = attrDescription;
         data.regularExpressionString = regExpressionString;
-        attributes.insert(attr, data);
+        attributes.insert({attr, data});
     }
 }
 
-attrData *coConfigSchemaInfos::getAttributeData(const QString &attribute)
+attrData *coConfigSchemaInfos::getAttributeData(const std::string &attribute)
 {
-    if (attributes.contains(attribute))
-    {
-        return &attributes[attribute];
-    }
+    auto it = attributes.find(attribute);
+    if(it != attributes.end())
+        return &it->second;
     else
-    {
-        return 0;
-    }
+        return nullptr;
 }

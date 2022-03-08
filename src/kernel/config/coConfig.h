@@ -8,7 +8,8 @@
 #ifndef COCONFIG_H
 #define COCONFIG_H
 
-#include <QHash>
+#include <set>
+#include <map>
 
 #include "coConfigBool.h"
 #include "coConfigConstants.h"
@@ -19,10 +20,6 @@
 #include "coConfigString.h"
 #include <util/coTypes.h>
 
-#ifndef CO_gcc3
-EXPORT_TEMPLATE2(template class CONFIGEXPORT QHash<QString, covise::coConfigGroup *>)
-#endif
-
 namespace covise
 {
 
@@ -30,119 +27,117 @@ class CONFIGEXPORT coConfig
 {
 
 public:
-    coConfigEntryStringList getScopeList(const QString &section = 0,
-                                         const QString &variableName = 0) const;
-    coConfigEntryStringList getVariableList(const QString &section = 0) const;
+    coConfigEntryStringList getScopeList(const std::string &section = "",
+                                         const std::string &variableName = "") const;
+    coConfigEntryStringList getVariableList(const std::string &section = "") const;
 
-    coConfigEntryString getValue(const QString &variable,
-                                 const QString &section,
-                                 const QString &defaultValue) const;
-    coConfigEntryString getValue(const QString &variable,
-                                 const QString &section) const;
-    coConfigEntryString getValue(const QString &simpleVariable) const;
+    coConfigEntryString getValue(const std::string &variable,
+                                 const std::string &section,
+                                 const std::string &defaultValue) const;
+    coConfigEntryString getValue(const std::string &variable,
+                                 const std::string &section) const;
+    coConfigEntryString getValue(const std::string &simpleVariable) const;
 
     const char *getEntry(const char *simpleVariable) const;
 
-    coConfigFloat getFloat(const QString &variable,
-                           const QString &section,
+    coConfigFloat getFloat(const std::string &variable,
+                           const std::string &section,
                            float defaultValue) const;
-    coConfigFloat getFloat(const QString &simpleVariable,
+    coConfigFloat getFloat(const std::string &simpleVariable,
                            float defaultValue) const;
-    coConfigFloat getFloat(const QString &variable,
-                           const QString &section) const;
-    coConfigFloat getFloat(const QString &simpleVariable) const;
+    coConfigFloat getFloat(const std::string &variable,
+                           const std::string &section) const;
+    coConfigFloat getFloat(const std::string &simpleVariable) const;
 
-    coConfigInt getInt(const QString &variable,
-                       const QString &section,
+    coConfigInt getInt(const std::string &variable,
+                       const std::string &section,
                        int defaultValue) const;
-    coConfigInt getInt(const QString &simpleVariable,
+    coConfigInt getInt(const std::string &simpleVariable,
                        int defaultValue) const;
-    coConfigInt getInt(const QString &variable,
-                       const QString &section) const;
-    coConfigInt getInt(const QString &simpleVariable) const;
+    coConfigInt getInt(const std::string &variable,
+                       const std::string &section) const;
+    coConfigInt getInt(const std::string &simpleVariable) const;
 
-    coConfigLong getLong(const QString &variable,
-                         const QString &section,
+    coConfigLong getLong(const std::string &variable,
+                         const std::string &section,
                          long defaultValue) const;
-    coConfigLong getLong(const QString &simpleVariable,
+    coConfigLong getLong(const std::string &simpleVariable,
                          long defaultValue) const;
-    coConfigLong getLong(const QString &variable,
-                         const QString &section) const;
-    coConfigLong getLong(const QString &simpleVariable) const;
+    coConfigLong getLong(const std::string &variable,
+                         const std::string &section) const;
+    coConfigLong getLong(const std::string &simpleVariable) const;
 
-    coConfigBool getBool(const QString &variable,
-                         const QString &section,
+    coConfigBool getBool(const std::string &variable,
+                         const std::string &section,
                          bool defaultValue) const;
-    coConfigBool getBool(const QString &simpleVariable,
+    coConfigBool getBool(const std::string &simpleVariable,
                          bool defaultValue) const;
-    coConfigBool getBool(const QString &variable,
-                         const QString &section) const;
-    coConfigBool getBool(const QString &variable,
+    coConfigBool getBool(const std::string &variable,
+                         const std::string &section) const;
+    coConfigBool getBool(const std::string &variable,
                          const char *section) const;
-    coConfigBool getBool(const QString &simpleVariable) const;
+    coConfigBool getBool(const std::string &simpleVariable) const;
 
-    coConfigString getString(const QString &variable,
-                             const QString &section,
-                             const QString &defaultValue) const;
-    coConfigString getString(const QString &simpleVariable) const;
+    coConfigString getString(const std::string &variable,
+                             const std::string &section,
+                             const std::string &defaultValue) const;
+    coConfigString getString(const std::string &simpleVariable) const;
 
-    bool isOn(const QString &variable, const QString &section, bool defaultValue) const;
-    bool isOn(const QString &variable, const QString &section) const;
-    bool isOn(const QString &variable, const char *section) const;
-    bool isOn(const QString &simpleVariable, bool defaultValue) const;
-    bool isOn(const QString &simpleVariable) const;
+    bool isOn(const std::string &variable, const std::string &section, bool defaultValue = false) const;
+    bool isOn(const std::string &simpleVariable, bool defaultValue) const;
+    bool isOn(const std::string &simpleVariable) const;
 
-    void setValueForHost(const QString &variable, const QString &value,
-                         const QString &section,
-                         const QString &targetHost, bool move = false,
-                         const QString &config = 0, const QString &configGroup = 0);
+    void setValueForHost(const std::string &variable, const std::string &value,
+                         const std::string &section,
+                         const std::string &targetHost, bool move = false,
+                         const std::string &config = "", const std::string &configGroup = "");
 
-    void setValueInConfig(const QString &variable, const QString &value,
-                          const QString &section,
-                          const QString &configGroup,
-                          const QString &config = "config",
+    void setValueInConfig(const std::string &variable, const std::string &value,
+                          const std::string &section,
+                          const std::string &configGroup,
+                          const std::string &config = "config",
                           bool move = false);
 
-    void setValue(const QString &variable, const QString &value,
-                  const QString &section,
-                  const QString &config = 0,
+    void setValue(const std::string &variable, const std::string &value,
+                  const std::string &section,
+                  const std::string &config = "",
                   bool move = false);
 
-    void setValue(const QString &simpleVariable, const QString &value);
+    void setValue(const std::string &simpleVariable, const std::string &value);
 
-    bool deleteValueForHost(const QString &variable, const QString &section,
-                            const QString &targetHost,
-                            const QString &config = 0, const QString &configGroup = 0);
+    bool deleteValueForHost(const std::string &variable, const std::string &section,
+                            const std::string &targetHost,
+                            const std::string &config = "", const std::string &configGroup = "");
 
-    bool deleteValueInConfig(const QString &variable, const QString &section,
-                             const QString &configGroup, const QString &config = "config");
+    bool deleteValueInConfig(const std::string &variable, const std::string &section,
+                             const std::string &configGroup, const std::string &config = "config");
 
-    bool deleteValue(const QString &variable, const QString &section, const QString &config = 0);
+    bool deleteValue(const std::string &variable, const std::string &section, const std::string &config = "");
 
-    bool deleteValue(const QString &simpleVariable);
+    bool deleteValue(const std::string &simpleVariable);
 
-    bool deleteSectionForHost(const QString &section, const QString &targetHost,
-                              const QString &config = 0, const QString &configGroup = 0);
+    bool deleteSectionForHost(const std::string &section, const std::string &targetHost,
+                              const std::string &config = "", const std::string &configGroup = "");
 
-    bool deleteSectionInConfig(const QString &section, const QString &configGroup, const QString &config = "config");
+    bool deleteSectionInConfig(const std::string &section, const std::string &configGroup, const std::string &config = "config");
 
-    bool deleteSection(const QString &section, const QString &config = 0);
+    bool deleteSection(const std::string &section, const std::string &config = "");
 
-    const QStringList &getHostnameList() const;
-    const QString &getActiveHost() const;
-    bool setActiveHost(const QString &host);
-    const QString &getActiveCluster() const;
-    bool setActiveCluster(const QString &master);
+    const std::set<std::string> &getHostnameList() const;
+    const std::string &getActiveHost() const;
+    bool setActiveHost(const std::string &host);
+    const std::string &getActiveCluster() const;
+    bool setActiveCluster(const std::string &master);
 
-    virtual void addConfig(const QString &filename, const QString &name, bool create = false);
+    virtual void addConfig(const std::string &filename, const std::string &name, bool create = false);
     virtual void addConfig(coConfigGroup *group);
-    virtual void removeConfig(const QString &name);
+    virtual void removeConfig(const std::string &name);
 
     //void destroyOwnInstance();
     void reload();
 
     bool save() const;
-    bool save(const QString &filename) const;
+    bool save(const std::string &filename) const;
 
     void setAdminMode(bool mode);
     bool isAdminMode();
@@ -179,19 +174,19 @@ public: /*static*/
         return config;
     }
 
-    //static coConfig *getOwnInstance(const QString & filename = 0);
+    // static coConfig *getOwnInstance(const std::string & filename = "");
 
 protected:
     bool isGlobalConfig;
 
 private:
     static coConfig *config;
-    QString activeHostname;
-    QStringList hostnames;
-    QString activeCluster;
-    QStringList masternames;
+    std::string activeHostname;
+    std::set<std::string> hostnames;
+    std::string activeCluster;
+    std::set<std::string> masternames;
 
-    QHash<QString, coConfigGroup *> configGroups;
+    std::map<std::string, coConfigGroup *> configGroups;
 
     bool adminMode;
     static DebugLevel debugLevel;

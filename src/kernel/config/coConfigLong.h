@@ -22,12 +22,12 @@ class CONFIGEXPORT coConfigLong : public coConfigValue<long>
 {
 
 public:
-    coConfigLong(const QString &configGroupName, const QString &variable, const QString &section);
-    coConfigLong(const QString &variable, const QString &section);
-    coConfigLong(const QString &simpleVariable);
+    coConfigLong(const std::string &configGroupName, const std::string &variable, const std::string &section);
+    coConfigLong(const std::string &variable, const std::string &section);
+    coConfigLong(const std::string &simpleVariable);
     coConfigLong(coConfigGroup *group,
-                 const QString &variable, const QString &section);
-    coConfigLong(coConfigGroup *group, const QString &simpleVariable);
+                 const std::string &variable, const std::string &section);
+    coConfigLong(coConfigGroup *group, const std::string &simpleVariable);
     coConfigLong(const coConfigLong &value);
 
     virtual ~coConfigLong();
@@ -35,8 +35,8 @@ public:
     coConfigLong &operator=(long);
 
 protected:
-    virtual long fromString(const QString &value) const;
-    virtual QString toString(const long &value) const;
+    virtual long fromString(const std::string &value) const;
+    virtual std::string toString(const long &value) const;
 };
 }
 #undef COCONFIGVALUE_USE_CACHE

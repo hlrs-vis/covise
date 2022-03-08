@@ -15,25 +15,25 @@ namespace covise
 
 class coConfigGroup;
 
-class CONFIGEXPORT coConfigString : public coConfigValue<QString>
+class CONFIGEXPORT coConfigString : public coConfigValue<std::string>
 {
 
 public:
-    coConfigString(const QString &configGroupName, const QString &variable, const QString &section);
-    coConfigString(const QString &variable, const QString &section);
-    coConfigString(const QString &simpleVariable);
+    coConfigString(const std::string &configGroupName, const std::string &variable, const std::string &section);
+    coConfigString(const std::string &variable, const std::string &section);
+    coConfigString(const std::string &simpleVariable);
     coConfigString(coConfigGroup *group,
-                   const QString &variable, const QString &section);
-    coConfigString(coConfigGroup *group, const QString &simpleVariable);
+                   const std::string &variable, const std::string &section);
+    coConfigString(coConfigGroup *group, const std::string &simpleVariable);
     coConfigString(const coConfigString &value);
 
     virtual ~coConfigString();
 
-    coConfigString &operator=(QString);
+    coConfigString &operator=(std::string);
 
 protected:
-    virtual QString fromString(const QString &value) const;
-    virtual QString toString(const QString &value) const;
+    virtual std::string fromString(const std::string &value) const;
+    virtual std::string toString(const std::string &value) const;
 };
 }
 #endif

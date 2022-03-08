@@ -188,7 +188,7 @@ void coEditorMainWindow::createConstruct()
 
     konfig = coConfig::getInstance();
     konfig->setDebugLevel(coConfig::DebugAll);
-    oneConfigGroup = new coConfigGroup(QString::fromUtf8("gruppe"));
+    oneConfigGroup = new coConfigGroup("gruppe");
     konfig->addConfig(oneConfigGroup);
 }
 
@@ -308,7 +308,7 @@ void coEditorMainWindow::openSchema()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Schema file"), "", tr("Schema files (*.xsd);; Any (*.*)"));
     if (!fileName.isEmpty())
     {
-        coConfigSchema::loadSchema(fileName);
+        coConfigSchema::loadSchema(fileName.toStdString());
         coConfigSchema *schema = coConfigSchema::getInstance();
         if (schema)
         {
@@ -544,15 +544,16 @@ QHash<QString, coConfigEntry *> coEditorMainWindow::loadFile(const QString &file
     if (QFileInfo(fileName).isFile())
     {
         // add the config to Editor's coConfigGroup. second arg is actually name, but here the same
-        oneConfigGroup->addConfig(fileName, fileName);
+        std::string filename = fileName.toStdString();
+        oneConfigGroup->addConfig(filename, filename);
         // get the coConfigRoot for the just added file
-        coConfigRoot *root = oneConfigGroup->addConfig(fileName, fileName);
+        coConfigRoot *root = oneConfigGroup->addConfig(filename, filename);
         // get all HostNames for this coConfigRoot,i.e duplicate Roots hostConfigs
-        QStringList hosts = root->getHosts();
-        for (QList<QString>::const_iterator hostname = hosts.begin(); hostname != hosts.end(); ++hostname)
+        auto hosts = root->getHosts();
+        for (const auto &hostname : hosts)
         {
             // insert all HostName, coConfigEntry* into hostConfigs Hash
-            hostConfigs.insert(*hostname, root->getConfigForHost(*hostname));
+            hostConfigs.insert(hostname.c_str(), root->getConfigForHost(hostname));
         }
         // special handling of global section
         if (root->getGlobalConfig() && root->getGlobalConfig()->hasChildren())
@@ -589,7 +590,7 @@ void coEditorMainWindow::removeFile(const QString &file)
     clearData();
     hostsComboBox->clear();
     //remove file
-    oneConfigGroup->removeConfig(file);
+    oneConfigGroup->removeConfig(file.toStdString());
     int i = files.indexOf(file);
     files.removeAt(i);
     if (files.isEmpty())
@@ -620,7 +621,7 @@ bool coEditorMainWindow::saveFile(const QString &fileName)
     if (currentFile.compare(fileName) != 0) // if filename has changed
     {
         //setCurrentFile(fileName);
-        saved = oneConfigGroup->save(fileName);
+        saved = oneConfigGroup->save(fileName.toStdString());
     }
     else // filename is still the same
     {
@@ -657,7 +658,7 @@ void coEditorMainWindow::changeGroup(const QModelIndex &index)
 {
     QStandardItem *item = static_cast<QStandardItemModel *>(treeView->model())->itemFromIndex(index);
     QString lookup = item->data().toString(); //name of active group
-    workGroup(lookup, 0, coConfigSchema::getInstance()->getSchemaInfosForGroup(item->data().toString()));
+    workGroup(lookup, 0, coConfigSchema::getInstance()->getSchemaInfosForGroup(item->data().toString().toStdString()));
 }
 
 void coEditorMainWindow::changeHost(const QString &activeHost)
@@ -734,28 +735,28 @@ QHash<QString, coConfigEntry *> coEditorMainWindow::getEntriesForGroup(const QSt
             for (QList<coConfigEntry *>::const_iterator roots = rootEntries.begin(); roots != rootEntries.end(); ++roots)
             {
                 // get all of their children , then add first occurances
-                QList<coConfigEntry *> subEntries = coConfigEntryToEditor::getSubEntries(*roots);
-                for (QList<coConfigEntry *>::const_iterator iter = subEntries.begin(); iter != subEntries.end(); ++iter)
+                auto subEntries = coConfigEntryToEditor::getSubEntries(*roots);
+                for (const auto &iter : subEntries)
                 {
-                    if ((*iter) != 0 /*&& (*iter)->getSchemaInfos() != 0*/) // check if coConfigEntry not is Null and has a coConfigSchemaInfos
+                    if (iter) // check if coConfigEntry not is Null and has a coConfigSchemaInfos
                     {
                         // add schemaInfos to Entry NOTE new here was before in entry
                         // check if entry already has a schemaInfos, otherwise fetch it
-                        coConfigSchemaInfos *entriesInfo = (*iter)->getSchemaInfos();
+                        coConfigSchemaInfos *entriesInfo = iter->getSchemaInfos();
                         if (!entriesInfo) // try getting schemaInfos for this entry
                         {
-                            entriesInfo = coConfigSchema::getInstance()->getSchemaInfosForElement((*iter)->getPath());
-                            (*iter)->setSchemaInfos(entriesInfo);
+                            entriesInfo = coConfigSchema::getInstance()->getSchemaInfosForElement(iter->getPath());
+                            iter->setSchemaInfos(entriesInfo);
                         }
                         // check if this coConfigEntry belongs to the searched group
-                        if (entriesInfo && QString::compare(entriesInfo->getElementGroup(), groupNamePath) == 0)
+                        if (entriesInfo && QString::compare(entriesInfo->getElementGroup().c_str(), groupNamePath) == 0)
                         {
                             // use name of elemet as name, e.g Shortcut:bin
-                            QString name = (*iter)->getName();
+                            QString name = iter->getName().c_str();
                             // if element with this name has not been added, add it. Otherwise ignore
                             if (!groupList.contains(name))
                             {
-                                groupList.insert(name, (*iter));
+                                groupList.insert(name, iter);
                             }
                         }
                     }
@@ -766,10 +767,10 @@ QHash<QString, coConfigEntry *> coEditorMainWindow::getEntriesForGroup(const QSt
 
     return groupList;
 }
-
-void coEditorMainWindow::createTreeModel(QStringList elementGroups)
+template <typename Container>
+void coEditorMainWindow::createTreeModel(const Container &elementGroups)
 {
-    if (elementGroups.isEmpty())
+    if (elementGroups.empty())
     {
         statusBar()->showMessage(tr("coEditorMainWindow::createTreeModel warn: No elementGroups"), 10000);
         return;
@@ -785,20 +786,21 @@ void coEditorMainWindow::createTreeModel(QStringList elementGroups)
         //       generalItem->setEditable (0);
         //       parentItem->appendRow (generalItem);
 
-        for (QStringList::const_iterator group = elementGroups.begin(); group != elementGroups.end(); ++group)
+        for (const auto g : elementGroups)
         {
-            //group should be sth like LOCAL.Cover.Plugin,,  make a tree
-            QStringList list = (*group).split("."); //so or -> ?
+            QString group(g.c_str());
+            // group should be sth like LOCAL.Cover.Plugin,,  make a tree
+            QStringList list = group.split("."); // so or -> ?
             for (int i = 0; i < list.size(); ++i)
             {
                 // check from left if parts of this new group are already created
-                QString test = group->section(".", i, i);
+                QString test = group.section(".", i, i);
                 QList<QStandardItem *> searchedItem = model->findItems(test, Qt::MatchRecursive);
                 if (searchedItem.isEmpty())
                 {
                     //create new element in Tree, set its data to elementGroup,
                     QStandardItem *item = new QStandardItem(test);
-                    item->setData(group->section(".", 0, i));
+                    item->setData(group.section(".", 0, i));
                     item->setEditable(0);
                     parentItem->appendRow(item);
                     parentItem = item;
@@ -843,13 +845,13 @@ void coEditorMainWindow::setValue(const QString &variable, const QString &value,
         //section is like GLOBAL.Plugin, now remove GLOBAL
         //section.section (".", 1);
         //       cerr << "coEditorMainWindow::set gobal var "  << variable.toLatin1().data() << " value " << value.toLatin1().data() << " SaveTosection " << saveTosection.toLatin1().data() << " Insection " << section.toLatin1().data() << endl;
-        oneConfigGroup->setValue(variable, value, section /*, currentFile, target */);
+        oneConfigGroup->setValue(variable.toStdString(), value.toStdString(), section.toStdString() /*, currentFile, target */);
     }
     else
     {
         // NOTE currentFile must have a value
         //       cerr << "coEditorMainWindow::set local var "  << variable.toLatin1().data() << " value " << value.toLatin1().data() << " section " << section.toLatin1().data()  << " Insection " << section.toLatin1().data() << " file " << currentFile.toLatin1().data() << " " << endl;
-        oneConfigGroup->setValue(variable, value, section, currentFile, target);
+        oneConfigGroup->setValue(variable.toStdString(), value.toStdString(), section.toStdString(), currentFile.toStdString(), target.toStdString());
     }
 
     statusBar()->showMessage(tr("set a value"), 2000);
@@ -866,11 +868,11 @@ void coEditorMainWindow::deleteValue(const QString &variable, const QString &sec
     }
     if (target.toUpper() == "GLOBAL")
     {
-        oneConfigGroup->deleteValue(variable, section /*.section ("AL.", 1)*/ /*, currentFile, target*/);
+        oneConfigGroup->deleteValue(variable.toStdString(), section.toStdString() /*.section ("AL.", 1)*/ /*, currentFile, target*/);
     }
     else
     {
-        oneConfigGroup->deleteValue(variable, section /*.section ("AL.", 1)*/, currentFile, target);
+        oneConfigGroup->deleteValue(variable.toStdString(), section.toStdString() /*.section ("AL.", 1)*/, currentFile.toStdString(), target.toStdString());
     }
 
     statusBar()->showMessage(tr("deleted a value"), 2000);

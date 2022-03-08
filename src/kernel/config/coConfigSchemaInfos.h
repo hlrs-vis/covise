@@ -9,12 +9,11 @@
 #define CONFIGSCHEMAINFOS
 
 // #include <config/coConfigSchema.h>
+#include <map>
+#include <set>
+#include <string>
 #include <util/coTypes.h>
-#include <QString>
-#include <QRegExp>
-#include <QHash>
-#include <QList>
-#include <QStringList>
+#include <vector>
 
 // holds the data for one attribute
 
@@ -24,7 +23,7 @@ namespace covise
 typedef struct
 {
     bool required;
-    QString defaultValue, readableRule, regularExpressionString, attrDescription;
+    std::string defaultValue, readableRule, regularExpressionString, attrDescription;
 } attrData;
 
 class CONFIGEXPORT coConfigSchemaInfos
@@ -34,30 +33,32 @@ public:
     coConfigSchemaInfos();
     ~coConfigSchemaInfos();
 
-    const QString &getElement(); // real name
-    const QString &getElementPath();
-    const QString &getElementName(); // shown name
-    const QString &getElementDescription();
-    const QString &getElementGroup(); // group to that the element belongs
-    QStringList getElementAllowedChildren();
-    QList<QString> getAttributes(); // list of all attributes for this element
+    const std::string &getElement(); // real name
+    const std::string &getElementPath();
+    const std::string &getElementName(); // shown name
+    const std::string &getElementDescription();
+    const std::string &getElementGroup(); // group to that the element belongs
+    const std::set<std::string> &getElementAllowedChildren() const;
+    std::set<std::string> getAttributes() const; // list of all attributes for this element
     // pointer to the attribute data
-    attrData *getAttributeData(const QString &attribute);
+    attrData *getAttributeData(const std::string &attribute);
 
 private:
-    void setElement(const QString &name);
-    void setReadableElementRule(const QString &rule);
-    void setElementPath(const QString &path);
-    void setElementName(const QString &name);
-    void setElementDescription(const QString &elDescription);
-    void setElementGroup(const QString &group);
-    void setAllowedChildren(QStringList children);
-    void addAttribute(const QString &attr, bool required, const QString &defValue, const QString &readableRule = 0,
-                      const QString &regExpressionString = 0, const QString &attrDescription = 0);
+    void setElement(const std::string &name);
+    void setReadableElementRule(const std::string &rule);
+    void setElementPath(const std::string &path);
+    void setElementName(const std::string &name);
+    void setElementDescription(const std::string &elDescription);
+    void setElementGroup(const std::string &group);
+    void setAllowedChildren(const std::set<std::string> &children);
+    void addAttribute(const std::string &attr, bool required, const std::string &defValue, const std::string &readableRule = "",
+                      const std::string &regExpressionString = "", const std::string &attrDescription = "");
 
-    QString element, elementPath, readableElementRule, elementName, elementDescription, elementGroup;
-    QStringList allowedChildren;
-    QHash<QString, attrData> attributes;
+    std::string element, elementPath, readableElementRule, elementName, elementDescription, elementGroup;
+    std::set<std::string> allowedChildren;
+    std::map<std::string, attrData> attributes;
 };
+
+typedef std::set<coConfigSchemaInfos *> coConfigSchemaInfosList;
 }
 #endif

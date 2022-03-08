@@ -1376,8 +1376,7 @@ void FFMPEGPlugin::loadParams(int select)
 
 int FFMPEGPlugin::readParams()
 {
-    QString path = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
-    std::string pathname = path.toStdString();
+    std::string pathname = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
     pathname += "videoparams.xml";
 #ifndef WIN32
 	XMLCh *t1 = NULL;
@@ -1455,8 +1454,7 @@ int FFMPEGPlugin::readParams()
 
 void FFMPEGPlugin::saveParams()
 {
-    QString path = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
-    std::string pathname = path.toStdString();
+    std::string pathname = coConfigDefaultPaths::getDefaultLocalConfigFilePath();
     pathname += "videoparams.xml";
 
 #ifndef WIN32

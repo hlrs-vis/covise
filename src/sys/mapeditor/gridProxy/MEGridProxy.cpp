@@ -131,15 +131,14 @@ MEGridProxy::MEGridProxy(QWidget *parent)
 #endif
 
     int i = 0;
-    covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("GLOBUS.certificates");
-    const char **line = entries.getValue();
-    if (line)
+    covise::coCoviseConfig::ScopeEntries lines = covise::coCoviseConfig::getScopeEntries("GLOBUS.certificates");
+    if (!lines.empty())
     {
-        while (line[i] != NULL)
+        for (const auto &line : lines)
         {
             int add = 1;
             char buf[128];
-            snprintf(buf, 128, "GLOBUS.certificates.%s", line[i]);
+            snprintf(buf, 128, "GLOBUS.certificates.%s", line.first.c_str());
             std::string confCert = covise::coCoviseConfig::getEntry("cert", buf);
             std::string confKey = covise::coCoviseConfig::getEntry("key", buf);
 
@@ -153,8 +152,6 @@ MEGridProxy::MEGridProxy(QWidget *parent)
                 certTable->setItem(num - 1, 0, new QTableWidgetItem(confCert.c_str()));
                 certTable->setItem(num - 1, 1, new QTableWidgetItem(confKey.c_str()));
             }
-
-            i += 2;
         }
     }
     else

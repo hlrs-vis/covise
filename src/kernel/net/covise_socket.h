@@ -7,12 +7,12 @@
 
 #ifndef EC_SOCKET_H
 #define EC_SOCKET_H
-#include <iostream>
-#include <mutex>
-
 #include <errno.h>
-#include <math.h>
 #include <fcntl.h>
+#include <iostream>
+#include <math.h>
+#include <mutex>
+#include <vector>
 
 #ifdef _WIN32
 #include <io.h>
@@ -130,8 +130,8 @@ class NETEXPORT Socket
 protected:
     static std::mutex mutex;
     static int stport;
-    static char **ip_alias_list;
-    static Host **host_alias_list;
+    static std::vector<std::string> ip_alias_list;
+    static std::vector<Host *> host_alias_list;
     static bool bInitialised;
     struct sockaddr_in s_addr_in;
     Host *host; // host on the other end of the socket

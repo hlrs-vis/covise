@@ -22,12 +22,12 @@ class CONFIGEXPORT coConfigBool : public coConfigValue<bool>
 {
 
 public:
-    coConfigBool(const QString &configGroupName, const QString &variable, const QString &section);
-    coConfigBool(const QString &variable, const QString &section);
-    coConfigBool(const QString &simpleVariabl);
+    coConfigBool(const std::string &configGroupName, const std::string &variable, const std::string &section);
+    coConfigBool(const std::string &variable, const std::string &section);
+    coConfigBool(const std::string &simpleVariabl);
     coConfigBool(coConfigGroup *group,
-                 const QString &variable, const QString &section);
-    coConfigBool(coConfigGroup *group, const QString &simpleVariable);
+                 const std::string &variable, const std::string &section);
+    coConfigBool(coConfigGroup *group, const std::string &simpleVariable);
     coConfigBool(const coConfigBool &value);
 
     virtual ~coConfigBool();
@@ -35,8 +35,8 @@ public:
     coConfigBool &operator=(bool);
 
 protected:
-    virtual bool fromString(const QString &value) const;
-    virtual QString toString(const bool &value) const;
+    virtual bool fromString(const std::string &value) const;
+    virtual std::string toString(const bool &value) const;
 };
 }
 #undef COCONFIGVALUE_USE_CACHE

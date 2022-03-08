@@ -69,16 +69,11 @@ std::string FileSysAccess::getTempDir()
     char *lpPathBuffer = new char[reqBufferSize];
     reqBufferSize = GetTempPathA(reqBufferSize, lpPathBuffer);
     tempPath = lpPathBuffer;
-    coConfigString cotempPath = coConfig::getInstance()->getString("value", "COVER.Tmp", lpPathBuffer);
-    QString qtemp = (QString)cotempPath;
-    tempPath = qtemp.toStdString();
+    tempPath = coConfig::getInstance()->getString("value", "COVER.Tmp", lpPathBuffer);
     delete[] lpPathBuffer;
 #else
-    coConfigString cotempPath = coConfig::getInstance()->getString("value", "COVER.Tmp", "/var/tmp");
-    QString qtemp = (QString)cotempPath;
-    tempPath = qtemp.toStdString();
+    tempPath = coConfig::getInstance()->getString("value", "COVER.Tmp", "/var/tmp");
 #endif
-
     return tempPath;
 }
 

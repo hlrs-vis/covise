@@ -36,6 +36,7 @@
 #include "hosts/MEHost.h"
 #include "nodes/MENode.h"
 #include "ports/MEFileBrowserPort.h"
+#include <qtutil/Qt5_15_deprecated.h>
 
 int MEFileBrowser::instance = 0;
 

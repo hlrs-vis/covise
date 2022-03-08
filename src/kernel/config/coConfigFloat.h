@@ -22,12 +22,12 @@ class CONFIGEXPORT coConfigFloat : public coConfigValue<float>
 {
 
 public:
-    coConfigFloat(const QString &configGroupName, const QString &variable, const QString &section);
-    coConfigFloat(const QString &variable, const QString &section);
-    coConfigFloat(const QString &simpleVariable);
+    coConfigFloat(const std::string &configGroupName, const std::string &variable, const std::string &section);
+    coConfigFloat(const std::string &variable, const std::string &section);
+    coConfigFloat(const std::string &simpleVariable);
     coConfigFloat(coConfigGroup *group,
-                  const QString &variable, const QString &section);
-    coConfigFloat(coConfigGroup *group, const QString &simpleVariable);
+                  const std::string &variable, const std::string &section);
+    coConfigFloat(coConfigGroup *group, const std::string &simpleVariable);
     coConfigFloat(const coConfigFloat &value);
 
     virtual ~coConfigFloat();
@@ -35,8 +35,8 @@ public:
     coConfigFloat &operator=(float);
 
 protected:
-    virtual float fromString(const QString &value) const;
-    virtual QString toString(const float &value) const;
+    virtual float fromString(const std::string &value) const;
+    virtual std::string toString(const float &value) const;
 };
 }
 #undef COCONFIGVALUE_USE_CACHE

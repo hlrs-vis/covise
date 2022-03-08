@@ -20,7 +20,6 @@
 #include "coEditorValidatedQLineEdit.h"
 
 #include <config/kernel/coConfigSchema.h>
-#include <config/coConfigSchemaInfosList.h>
 
 #include <iostream> // for DEBUG only
 
@@ -99,8 +98,7 @@ void coEditorGroupWidget::update(coConfigEntry *subject)
 {
     if (subject->hasValues())
     {
-        QString name = subject->getName();
-        QString lookup = subject->getPath().section(".", 1, -2) + "." + subject->getName();
+        QString lookup = QString(subject->getPath().c_str()).section(".", 1, -2) + "." + subject->getName().c_str();
         coEditorEntryWidget *searchedEntryWidget = findChild<coEditorEntryWidget *>(lookup);
         if (searchedEntryWidget != 0)
         {
@@ -117,16 +115,13 @@ void coEditorGroupWidget::addEntry(const QString name, coConfigEntry *entry, boo
     // before the stretch element
     int positionInLayout = groupGroupLayout->count() - 1;
     //check if element is already declared and has to be changed
-    if (entries.contains(name) && overwrite)
+    if (overwrite) // delete old infowidget. to create a new one  that now has a entry
     {
-        entries.take(name);
-        coEditorEntryWidget *declaredWidget = this->findChild<coEditorEntryWidget *>(entry->getPath().section(".", 1, -2) + "." + entry->getName());
-        positionInLayout = groupGroupLayout->indexOf(declaredWidget);
-        delete declaredWidget;
-    }
-    else if (overwrite) //delete old infowidget. to create a new one  that now has a entry
-    {
-        coEditorEntryWidget *declaredWidget = this->findChild<coEditorEntryWidget *>(entry->getPath().section(".", 1, -2) + "." + entry->getName());
+        if (entries.contains(name))
+        {
+            entries.take(name);
+        }
+        coEditorEntryWidget *declaredWidget = this->findChild<coEditorEntryWidget *>(QString(entry->getPath().c_str()).section(".", 1, -2) + "." + entry->getName().c_str());
         positionInLayout = groupGroupLayout->indexOf(declaredWidget);
         delete declaredWidget;
     }
@@ -169,19 +164,19 @@ void coEditorGroupWidget::createInfoWidgets()
     if (!addedInfoWidgets)
     {
         if (!groupList)
-            groupList = coConfigSchema::getInstance()->getSchemaInfosForGroup(groupName);
+            groupList = coConfigSchema::getInstance()->getSchemaInfosForGroup(groupName.toStdString());
         // is still empty at start
         if (groupList)
         {
-            for (QList<coConfigSchemaInfos *>::const_iterator iter = groupList->begin(); iter != groupList->end(); ++iter)
+            for (auto iter = groupList->begin(); iter != groupList->end(); ++iter)
             {
-                QString name = (*iter)->getElement(); //this is elementName e.g. VRViewPointPlugin
+                auto name = (*iter)->getElement(); // this is elementName e.g. VRViewPointPlugin
                 //NOTE here add check compositor type, then decide wether to add or not
                 // check if it has attributes
-                if (!(*iter)->getAttributes().isEmpty())
+                if (!(*iter)->getAttributes().empty())
                 {
                     // check if already exists.
-                    if (!entries.contains(name) && !infoWidgetList.contains(name))
+                    if (!entries.contains(name.c_str()) && !infoWidgetList.contains(name.c_str()))
                     {
                         // create infos coEditorEntryWidget.
                         createInfoWidget(*iter);
@@ -231,7 +226,7 @@ void coEditorGroupWidget::deleteRequest(coEditorEntryWidget *widget)
 {
     QString name = widget->objectName();
     // create new InfoWidget if neccessary
-    if (!infoWidgetList.contains(widget->getSchemaInfo()->getElement()))
+    if (!infoWidgetList.contains(widget->getSchemaInfo()->getElement().c_str()))
     {
         createInfoWidget(widget->getSchemaInfo());
     }
@@ -245,10 +240,10 @@ void coEditorGroupWidget::updateInfoWidgets(const QString &newName, coConfigSche
     //    QString path = info->getElementPath();
     //    QString cleanName = newName;
 
-    QString fullName = info->getElementName() + ":" + newName;
-    entries.insert(fullName, NULL);
+    std::string fullName = info->getElementName() + ":" + newName.toStdString();
+    entries.insert(fullName.c_str(), NULL);
     // create new InfoWidget if neccessary
-    if (!infoWidgetList.contains(info->getElement()))
+    if (!infoWidgetList.contains(info->getElement().c_str()))
     {
         createInfoWidget(info);
     }
@@ -256,22 +251,15 @@ void coEditorGroupWidget::updateInfoWidgets(const QString &newName, coConfigSche
 
 void coEditorGroupWidget::removeFromInfoWidgetList(coConfigSchemaInfos *info)
 {
-    infoWidgetList.removeAt(infoWidgetList.indexOf(info->getElement()));
+    infoWidgetList.removeAt(infoWidgetList.indexOf(info->getElement().c_str()));
 }
 
 //check if this name is free or ocupied
 bool coEditorGroupWidget::nameIsFree(const QString &newName, coEditorEntryWidget *entryWid)
 {
 
-    QString fullName = entryWid->getSchemaInfo()->getElementName() + ":" + newName;
-    if (entries.keys().contains(fullName)) // TODO Check if neccessary - see XsModel.compositorType
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    std::string fullName = entryWid->getSchemaInfo()->getElementName() + ":" + newName.toStdString();
+    return !entries.keys().contains(fullName.c_str()); // TODO Check if neccessary - see XsModel.compositorType
 }
 
 /// create new infoWidget and add it to the layout
@@ -291,7 +279,7 @@ void coEditorGroupWidget::createInfoWidget(coConfigSchemaInfos *info)
     connect(this, SIGNAL(showYourselfInfoWidgets()), myEntry, SLOT(show()));
     // insert widget before the stretch element
     groupGroupLayout->insertWidget(groupGroupLayout->count() - 1, myEntry);
-    infoWidgetList.append(info->getElement()); // add to infoWidgetList that holds names of all infowidgets.
+    infoWidgetList.append(info->getElement().c_str()); // add to infoWidgetList that holds names of all infowidgets.
 }
 
 // coEditorMainWindow::workgroup will check this value and collect the sub entries new if outOfDate is true

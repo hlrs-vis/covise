@@ -8,11 +8,10 @@
 #ifndef COCONFIGENTRYSTRING_H
 #define COCONFIGENTRYSTRING_H
 
-#include <QStringList>
-#include <QTextStream>
+#include <sstream>
 #include <list>
 
-class QRegExp;
+#include <regex>
 
 #include "coConfigConstants.h"
 #include <util/coTypes.h>
@@ -20,62 +19,41 @@ class QRegExp;
 namespace covise
 {
 
-class CONFIGEXPORT coConfigEntryString : public QString
-{
-
-public:
-    coConfigEntryString(const QString &string = QString(),
-                        const coConfigConstants::ConfigScope scope = coConfigConstants::Default,
-                        const QString &configName = "",
-                        bool isListItem = false);
-
-    virtual ~coConfigEntryString();
-
-    coConfigConstants::ConfigScope getConfigScope() const;
-    coConfigEntryString &setConfigScope(coConfigConstants::ConfigScope scope);
-
-    const QString &getConfigName() const;
-    coConfigEntryString &setConfigName(const QString &name);
-
-    const QString &getConfigGroupName() const;
-    coConfigEntryString &setConfigGroupName(const QString &name);
-
-    bool isListItem() const;
-    void setListItem(bool on);
-
-private:
-    QString configName;
-    QString configGroupName;
-    coConfigConstants::ConfigScope configScope;
-    bool listItem;
-};
-
-class CONFIGEXPORT coConfigEntryStringList : public std::list<coConfigEntryString>
-{
-
-public:
-    coConfigEntryStringList();
-    ~coConfigEntryStringList();
-
-    enum ListType
+    struct CONFIGEXPORT coConfigEntryString
     {
-        UNKNOWN = 0,
-        VARIABLE,
-        PLAIN_LIST
+        // apperently c++11 cant figger out how braced enclosed initialization works
+        coConfigEntryString(const std::string &entry = "", const std::string &configName = "", const std::string &configGroupName = "", coConfigConstants::ConfigScope scope = coConfigConstants::ConfigScope::Default, bool isListItem = false);
+        std::string entry;
+        std::string configName;
+        std::string configGroupName;
+        coConfigConstants::ConfigScope configScope = coConfigConstants::Default;
+        bool islistItem = false;
     };
 
-    coConfigEntryStringList merge(coConfigEntryStringList &list);
-    coConfigEntryStringList filter(const QRegExp &filter) const;
+    bool CONFIGEXPORT operator<(const coConfigEntryString &first, const coConfigEntryString &second);
+    class CONFIGEXPORT coConfigEntryStringList
+    {
+    public:
+        enum ListType
+        {
+            UNKNOWN = 0,
+            VARIABLE,
+            PLAIN_LIST
+        };
 
-    operator QStringList();
+        coConfigEntryStringList &merge(const coConfigEntryStringList &list);
+        coConfigEntryStringList filter(const std::regex &filter) const;
 
-    ListType getListType() const;
-    void setListType(ListType listType);
+        ListType getListType() const;
+        void setListType(ListType listType);
+        std::set<coConfigEntryString> &entries();
+        const std::set<coConfigEntryString> &entries() const;
 
-private:
-    ListType listType;
+    private:
+        std::set<coConfigEntryString> m_entries;
+        ListType m_listType = ListType::UNKNOWN;
 };
 
-QTextStream &operator<<(QTextStream &out, const coConfigEntryStringList list);
+std::stringstream &operator<<(std::stringstream &out, const coConfigEntryStringList list);
 }
 #endif

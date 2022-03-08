@@ -8,9 +8,6 @@
 #ifndef COCONFIGXERCESROOT_H
 #define COCONFIGXERCESROOT_H
 
-#include <QFile>
-#include <QHash>
-
 #include <config/coConfigRoot.h>
 #include <config/coConfigEntry.h>
 #include <config/coConfigEntryString.h>
@@ -36,14 +33,12 @@ class coConfigXercesRoot : public coConfigRoot
 {
 
 public:
-    coConfigXercesRoot(const QString &name, const QString &filename,
+    coConfigXercesRoot(const std::string &name, const std::string &filename,
                        bool create = false, coConfigGroup *group = NULL);
-    coConfigXercesRoot(const xercesc::DOMNode *node, const QString &name,
-                       const QString &filename = QString(), coConfigGroup *group = NULL);
+    coConfigXercesRoot(const xercesc::DOMNode *node, const std::string &name,
+                       const std::string &filename = std::string(), coConfigGroup *group = NULL);
 
     virtual ~coConfigXercesRoot();
-
-    //      QHash<QString, QString>*  getSchemaInfosForNode (xercesc::DOMNode* node);
 
     virtual coConfigRoot *clone() const;
     virtual void merge(const coConfigRoot *with);
@@ -53,13 +48,13 @@ private:
 
     void setContentsFromDom(const xercesc::DOMNode *node);
 
-    xercesc::DOMNode *loadFile(const QString &filename);
+    xercesc::DOMNode *loadFile(const std::string &filename);
 
     virtual void load(bool create = false);
 
     virtual void createGlobalConfig();
-    virtual void createClusterConfig(const QString &hostname);
-    virtual void createHostConfig(const QString &hostname);
+    virtual void createClusterConfig(const std::string &hostname);
+    virtual void createHostConfig(const std::string &hostname);
 };
 }
 #endif

@@ -104,55 +104,22 @@ std::string Host::lookupHostname(const char *numericIP)
         retVal = numericIP;
         //TODO coConfig - das muss wieder richtig geparst werden
         coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
-        const char **ipEntries = ipe.getValue();
-        const char *last;
-        if (NULL != ipEntries)
-        {
-            bool gotAll = false;
-            bool found = false;
-            do
-            {
-                //An IpTable Entry has the form
-                //<symbolic> <numeric>
-                //The CoviseConfig::getScopeEntries
-                //method gets them word by word
-                //so we have to parse two of them
-                last = *ipEntries;
-                fprintf(stderr, "IPTABLE:%s ", last);
-                ipEntries++;
-                if (NULL != *ipEntries)
-                {
-                    fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
-                    if (0 == strcmp(numericIP, *ipEntries))
-                    {
-                        //We found the entry
-                        retVal = last;
-                        found = true;
-                    }
-                    else
-                    {
-                        //There is an entry, but it does not match
-                        ipEntries++;
-                        if (NULL == *ipEntries)
-                        {
-                            onlyNumeric = true;
-                            gotAll = true;
-                            retVal = numericIP;
-                        }
-                    }
-                }
-                else
-                {
-                    //We got all entries, the last of which is incomplete
-                    onlyNumeric = true;
-                    gotAll = true;
-                    retVal = numericIP;
-                }
-            } while ((!gotAll) && (!found));
-        }
-        else
-        {
+        bool found;
+        if (ipe.empty())
             onlyNumeric = true;
+        for (const auto &entry : ipe)
+        {
+            if (entry.second == numericIP)
+            {
+                retVal = entry.first;
+                found = true;
+                break;
+            }
+            else
+            {
+                onlyNumeric = true;
+                retVal = numericIP;
+            }
         }
     }
 #ifdef DEBUG

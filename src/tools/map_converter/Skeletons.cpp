@@ -88,20 +88,19 @@ Skeletons::obtainLocal(const char *bDir)
 {
     AliasMap aliasMap;
     covise::coCoviseConfig::ScopeEntries mae = covise::coCoviseConfig::getScopeEntries("System.CRB", "ModuleAlias");
-    const char **moduleAliases = mae.getValue();
-    for (int i = 0; moduleAliases && moduleAliases[i] != NULL; i = i + 2)
+    for (const auto &alias : mae)
     {
         //fprintf(stderr, "___ %s___%s\n", moduleAliases[i], moduleAliases[i+1]);
-        char *line = new char[strlen(moduleAliases[i]) + 1];
+        char *line = new char[alias.first.size() + 1];
 
-        strcpy(line, moduleAliases[i]);
+        strcpy(line, alias.first.c_str());
         strtok(line, ":");
         char *p = strtok(NULL, ":");
         std::string newName(p ? p : "");
         size_t pos = newName.find('/');
         if (pos != std::string::npos)
             newName = std::string(newName, pos + 1);
-        std::string oldName(moduleAliases[i + 1]);
+        std::string oldName(alias.second);
         aliasMap.insert(Alias(newName, oldName));
 
         delete[] line;

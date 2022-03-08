@@ -8,12 +8,12 @@
 
 #include <QHBoxLayout>
 
-#include "MEVectorPort.h"
 #include "MELineEdit.h"
-#include "widgets/MEUserInterface.h"
+#include "MEVectorPort.h"
 #include "handler/MEMainHandler.h"
 #include "nodes/MENode.h"
-
+#include "widgets/MEUserInterface.h"
+#include <qtutil/Qt5_15_deprecated.h>
 //------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------

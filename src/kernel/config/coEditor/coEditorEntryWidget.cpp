@@ -40,9 +40,13 @@ coEditorEntryWidget::coEditorEntryWidget(QWidget *parent, coEditorGroupWidget *g
     if (entry)
     {
         rootEntry = entry;
+        QString path = entry->getPath().c_str();
+        // set section (used by save and delete) - same as entryWidgetName
+        // e.g COVER.Plugin.AKToolbar.Shortcut -- LOCAL ... and Shortcut is cut then  Shortcut:Main - is added to have COVER.Plugin.AKToolbar.Shortcut:Main
+        section = path.section(".", 1, -2) + "." + entry->getName().c_str();
         if (entryWidgetName.isEmpty()) // if no name was given in constructor, name will be full path:name.
         {
-            entryWidgetName = entry->getPath().section(".", 1, -2) + (".") + (entry->getName());
+            entryWidgetName = section;
         }
         // set the name of this object - coEditorGroupWidget::update  will search for it.
         setObjectName(entryWidgetName);
@@ -53,19 +57,6 @@ coEditorEntryWidget::coEditorEntryWidget(QWidget *parent, coEditorGroupWidget *g
         {
             examineEntry();
         }
-        //       // means entry is not mentioned in schema, ALL group
-        //       else
-        //       {
-        //          valuesOfEntryGroup->setTitle(rootEntry->getPath().section ('.', 1)) ;
-        //          valuesOfEntryGroup->setToolTip("This entry is NOT mentioned in schema");
-        //          valuesOfEntryGroup->setDisabled (1);
-        // //          valuesOfEntryGroup->hide();
-        //       }
-
-        // set section (used by save and delete) - same as entryWidgetName
-        // e.g COVER.Plugin.AKToolbar.Shortcut -- LOCAL ... and Shortcut is cut then  Shortcut:Main - is added to have COVER.Plugin.AKToolbar.Shortcut:Main
-        section = entry->getPath().section(".", 1, -2) + (".") + (entry->getName());
-
         connect(deleteAction, SIGNAL(triggered()), this, SLOT(suicide()));
         //       connect(deleteAction , SIGNAL(triggered()), group, SLOT(deleteRequest(QWidget*)));
         connect(moveToHostAction, SIGNAL(triggered()), this, SLOT(moveToHost()));
@@ -91,10 +82,13 @@ coEditorEntryWidget::coEditorEntryWidget(QWidget *parent, coEditorGroupWidget *g
     if (infos)
     {
         info = infos;
+        QString elemPath = info->getElementPath().c_str();
+        // set section (used by save and delete)
+        section = elemPath.section("AL.", 1) + "." + info->getElement().c_str();
         if (entryWidgetName.isEmpty()) // if no name was given in constructor, name of this widget will be full path + name.
         {
             // cut LOCAL or GLOBAL
-            entryWidgetName = info->getElementPath().section("AL.", 1) + (".") + (info->getElement());
+            entryWidgetName = section;
         }
         setObjectName(entryWidgetName);
 
@@ -106,9 +100,6 @@ coEditorEntryWidget::coEditorEntryWidget(QWidget *parent, coEditorGroupWidget *g
         palette.setColor(QPalette::Active, QPalette::Window, QColor("lightblue"));
         // palette.setColor(QPalette::Active, QPalette::Base, QPalette::Window);
         valuesOfEntryGroup->setPalette(palette);
-
-        // set section (used by save and delete)
-        section = info->getElementPath().section("AL.", 1) + "." + info->getElement();
 
         connect(deleteAction, SIGNAL(triggered()), this, SLOT(explainShowInfoButton()));
         connect(this, SIGNAL(nameAdded(const QString &, coConfigSchemaInfos *)),
@@ -163,39 +154,39 @@ void coEditorEntryWidget::examineEntry()
     bool infoWidget = 0;
 
     // set title and description
-    valuesOfEntryGroup->setToolTip(info->getElementDescription());
+    valuesOfEntryGroup->setToolTip(info->getElementDescription().c_str());
     // fetch allowed attributes from schemaInfos
-    QList<QString> attributes = info->getAttributes();
-    if (attributes.isEmpty())
+    auto attributes = info->getAttributes();
+    if (attributes.empty())
     {
         // warn no attributes found for this element
         this->hide();
         return;
     }
     // check if element has only one attribute, because then we replace "value" with the name of the entry itself. Also there is no BoxTitle
-    if (attributes.count() == 1 && attributes.first() == "value")
+    if (attributes.size() == 1 && *attributes.begin() == "value")
     {
         singleEntry = true;
         valuesOfEntryGroup->setTitle(QString());
     }
     else
-        valuesOfEntryGroup->setTitle(info->getElementName());
+        valuesOfEntryGroup->setTitle(info->getElementName().c_str());
 
     // iterate over allowed attributes and create widgets for the attributes
-    for (QList<QString>::const_iterator item = attributes.begin(); item != attributes.end(); ++item)
+    for (auto item = attributes.begin(); item != attributes.end(); ++item)
     {
 
         // get value for this attribute from coConfigEntry
         if (rootEntry)
-            value = rootEntry->getValue((*item), QString());
+            value = rootEntry->getValue((*item), "").entry.c_str();
         //check wether there is a attrData structure for this attribute and get Data
         attrData *attributeData = info->getAttributeData((*item));
         if (attributeData)
         {
-            rx.setPattern(attributeData->regularExpressionString);
-            attrDescription = attributeData->attrDescription;
-            attrReadableRule = attributeData->readableRule;
-            attrDefaultValue = attributeData->defaultValue;
+            rx.setPattern(attributeData->regularExpressionString.c_str());
+            attrDescription = attributeData->attrDescription.c_str();
+            attrReadableRule = attributeData->readableRule.c_str();
+            attrDefaultValue = attributeData->defaultValue.c_str();
             //bool required = attributeData->required;
         }
         //check if it is a real entry or a info entry
@@ -205,18 +196,18 @@ void coEditorEntryWidget::examineEntry()
             infoWidget = 1;
         }
 
-        if (!valuesList.contains(*item)) // check if this widget already has a children coEditorValueWidget for this attribute
+        if (!valuesList.contains(item->c_str())) // check if this widget already has a children coEditorValueWidget for this attribute
         {
-            valuesList.append(*item);
+            valuesList.append(item->c_str());
             // create a new coEditorValueWidget for this attribute depending on its type
             //TODO better way to decide between attribute  boolean or lineEdit
             if (value.toLower() == "true" || value.toLower() == "on" || value.toLower() == "false" || value.toLower() == "off" || attrReadableRule.contains("bool"))
             {
                 // if(!attrReadableRule.isEmpty() && attrReadableRule.contains("bool"))
                 if (singleEntry) // replace "value" with the name of the entry itself.
-                    createBooleanValue(info->getElementName(), value, attrDescription, infoWidget);
+                    createBooleanValue(info->getElementName().c_str(), value, attrDescription, infoWidget);
                 else
-                    createBooleanValue((*item), value, attrDescription, infoWidget);
+                    createBooleanValue(item->c_str(), value, attrDescription, infoWidget);
             }
             else
             {
@@ -226,9 +217,9 @@ void coEditorEntryWidget::examineEntry()
                     rx.setPattern("^.*");
                 }
                 if (singleEntry) // replace "value" with the name of the entry itself.
-                    createQregXpValue(info->getElementName(), value, rx, attrReadableRule, attrDescription, infoWidget);
+                    createQregXpValue(info->getElementName().c_str(), value, rx, attrReadableRule, attrDescription, infoWidget);
                 else
-                    createQregXpValue((*item), value, rx, attrReadableRule, attrDescription, infoWidget);
+                    createQregXpValue(item->c_str(), value, rx, attrReadableRule, attrDescription, infoWidget);
             }
         }
         else // there is a coEditorValueWidget for this attribute
@@ -376,12 +367,12 @@ void coEditorEntryWidget::suicide()
 {
     if (rootEntry)
     {
-        QList<QString> attributes = /*rootEntry->getSchemaInfos()*/ info->getAttributes(); // fetch allowed attributes from schemaInfos
-        if (!attributes.isEmpty())
+        auto attributes = /*rootEntry->getSchemaInfos()*/ info->getAttributes(); // fetch allowed attributes from schemaInfos
+        if (!attributes.empty())
         {
-            for (QList<QString>::const_iterator item = attributes.begin(); item != attributes.end(); ++item)
+            for (auto item = attributes.begin(); item != attributes.end(); ++item)
             {
-                rootEntry->deleteValue(*item, QString());
+                rootEntry->deleteValue(*item, "");
             }
         }
     }
@@ -471,7 +462,7 @@ void coEditorEntryWidget::refresh(coConfigEntry *subject)
     {
         rootEntry = subject;
     }
-    QString newName = rootEntry->getName().section(":", 1);
+    QString newName = QString(rootEntry->getName().c_str()).section(":", 1);
     //setName(newName);
 }
 

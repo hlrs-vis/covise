@@ -15,7 +15,6 @@
 //the observer template
 #include <config/coConfigEditorController.h>
 #include <config/coConfigSchemaInfos.h>
-#include <config/coConfigSchemaInfosList.h>
 #include <config/coConfigEntry.h>
 
 class QVBoxLayout;
@@ -26,7 +25,6 @@ namespace covise
 {
 class coConfigEntry;
 class coConfigSchemaInfos;
-class coConfigSchemaInfosList;
 }
 
 class coEditorGroupWidget : public QWidget, covise::Observer<covise::coConfigEntry>

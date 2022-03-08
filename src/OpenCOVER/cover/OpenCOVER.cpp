@@ -271,7 +271,7 @@ void OpenCOVER::waitForWindowID()
 bool OpenCOVER::run()
 {
 	// always parse floats with . as separator
-	setlocale(LC_NUMERIC, "C");
+    setlocale(LC_NUMERIC, "C");
     int dl = coCoviseConfig::getInt("COVER.DebugLevel", 0);
 
     if (init())

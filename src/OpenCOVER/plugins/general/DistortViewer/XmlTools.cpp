@@ -13,7 +13,7 @@ XmlTools::XmlTools()
     config = new coConfigGroup("Global");
 
     //Konfig-File zum speichern festlegen
-    QString xmlFile = coConfigDefaultPaths::getDefaultGlobalConfigFileName();
+    auto xmlFile = coConfigDefaultPaths::getDefaultGlobalConfigFileName();
     config->addConfig(xmlFile, "distortion", true);
     coConfig::getInstance()->addConfig(config);
     plugPath = "COVER.Plugin.DistortViewer";
@@ -35,12 +35,12 @@ void XmlTools::setNewConfigFile(std::string new_file)
     //alte Datei entfernen
     config->removeConfig("distortion");
     //neue Datei hinzufügen
-    config->addConfig(QString(new_file.c_str()), "distortion", true);
+    config->addConfig(new_file, "distortion", true);
 }
 
 bool XmlTools::chkEntry(std::string section, std::string variable)
 {
-    coConfigString strValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigString strValue(config, variable, section);
     if (strValue.hasValidValue())
         return true;
     else
@@ -54,28 +54,26 @@ void XmlTools::saveToXml()
 
 void XmlTools::saveStrValue(std::string str_value, std::string section, std::string variable)
 {
-    coConfigString strValue(config, QString(variable.c_str()), QString(section.c_str())); //Angabe der Config -> setSaveToGroup
+    coConfigString strValue(config, variable, section); // Angabe der Config -> setSaveToGroup
     strValue = str_value.c_str();
     saveToXml();
 }
 
 std::string XmlTools::loadStrValue(std::string section, std::string variable, std::string defValue)
 {
-    QString xmlValue;
-    xmlValue = config->getValue(QString(variable.c_str()), QString(section.c_str()), QString(defValue.c_str()));
-    return xmlValue.toStdString();
+    return config->getValue(variable, section, defValue).entry;
 }
 
 void XmlTools::saveIntValue(int int_value, std::string section, std::string variable)
 {
-    coConfigInt intValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigInt intValue(config, variable, section);
     intValue = int_value;
     saveToXml();
 }
 
 int XmlTools::loadIntValue(std::string section, std::string variable, int defValue)
 {
-    coConfigInt intValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigInt intValue(config, variable, section);
     if (intValue.hasValidValue())
         return intValue;
     else
@@ -84,14 +82,14 @@ int XmlTools::loadIntValue(std::string section, std::string variable, int defVal
 
 void XmlTools::saveFloatValue(float float_value, std::string section, std::string variable)
 {
-    coConfigFloat floatValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigFloat floatValue(config, variable, section);
     floatValue = float_value;
     saveToXml();
 }
 
 float XmlTools::loadFloatValue(std::string section, std::string variable, float defValue)
 {
-    coConfigFloat floatValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigFloat floatValue(config, variable, section);
     if (floatValue.hasValidValue())
         return floatValue;
     else
@@ -100,14 +98,14 @@ float XmlTools::loadFloatValue(std::string section, std::string variable, float 
 
 void XmlTools::saveBoolValue(bool bool_value, std::string section, std::string variable)
 {
-    coConfigBool boolValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigBool boolValue(config, variable, section);
     boolValue = bool_value;
     saveToXml();
 }
 
 bool XmlTools::loadBoolValue(std::string section, std::string variable, bool defValue)
 {
-    coConfigBool boolValue(config, QString(variable.c_str()), QString(section.c_str()));
+    coConfigBool boolValue(config, variable, section);
     if (boolValue.hasValidValue())
         return boolValue;
     else

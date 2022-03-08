@@ -11,7 +11,7 @@
 
 using namespace covise;
 
-coConfigFloat::coConfigFloat(const QString &configGroupName, const QString &variable, const QString &section)
+coConfigFloat::coConfigFloat(const std::string &configGroupName, const std::string &variable, const std::string &section)
     : coConfigValue<float>(configGroupName, variable, section)
 {
 
@@ -19,7 +19,7 @@ coConfigFloat::coConfigFloat(const QString &configGroupName, const QString &vari
     //cerr << "coConfigFloat::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigFloat::coConfigFloat(const QString &variable, const QString &section)
+coConfigFloat::coConfigFloat(const std::string &variable, const std::string &section)
     : coConfigValue<float>(variable, section)
 {
 
@@ -27,7 +27,7 @@ coConfigFloat::coConfigFloat(const QString &variable, const QString &section)
     //cerr << "coConfigFloat::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigFloat::coConfigFloat(const QString &simpleVariable)
+coConfigFloat::coConfigFloat(const std::string &simpleVariable)
     : coConfigValue<float>(simpleVariable)
 {
 
@@ -35,7 +35,7 @@ coConfigFloat::coConfigFloat(const QString &simpleVariable)
     //cerr << "coConfigFloat::<init> info: 2: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigFloat::coConfigFloat(coConfigGroup *group, const QString &variable, const QString &section)
+coConfigFloat::coConfigFloat(coConfigGroup *group, const std::string &variable, const std::string &section)
     : coConfigValue<float>(group, variable, section)
 {
 
@@ -43,7 +43,7 @@ coConfigFloat::coConfigFloat(coConfigGroup *group, const QString &variable, cons
     //cerr << "coConfigFloat::<init> info: 3: " << this->variable << " " << this->section << " " << this->value << endl;
 }
 
-coConfigFloat::coConfigFloat(coConfigGroup *group, const QString &simpleVariable)
+coConfigFloat::coConfigFloat(coConfigGroup *group, const std::string &simpleVariable)
     : coConfigValue<float>(group, simpleVariable)
 {
 
@@ -61,14 +61,14 @@ coConfigFloat::~coConfigFloat()
 {
 }
 
-float coConfigFloat::fromString(const QString &value) const
+float coConfigFloat::fromString(const std::string &value) const
 {
-    return value.toFloat();
+    return std::stof(value);
 }
 
-QString coConfigFloat::toString(const float &value) const
+std::string coConfigFloat::toString(const float &value) const
 {
-    return QString::number(value);
+    return std::to_string(value);
 }
 
 coConfigFloat &coConfigFloat::operator=(float value)

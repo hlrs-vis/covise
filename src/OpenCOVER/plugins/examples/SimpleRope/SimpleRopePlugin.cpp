@@ -31,8 +31,8 @@
 #include "SimpleRopePlugin.h"
 #include <osg/LineWidth>
 #include <stdio.h>
-using namespace osg;
 #include <QDir>
+using namespace osg;
 
 //Constructor of Wire
 Wire::Wire(float r, float len, float slength, float rlength, int ns, int nls, int WNum, float a, osg::Group *group)
@@ -1290,11 +1290,11 @@ void SimpleRopePlugin::tabletPressEvent(coTUIElement *tUIItem)
     }
 }
 
-void SimpleRopePlugin::deleteColorMap(const QString &name)
+void SimpleRopePlugin::deleteColorMap(const std::string &name)
 {
-    float *mval = mapValues.value(name);
-    mapSize.remove(name);
-    mapValues.remove(name);
+    float *mval = mapValues[name];
+    mapSize.erase(name);
+    mapValues.erase(name);
     delete[] mval;
 }
 
@@ -1308,28 +1308,26 @@ void SimpleRopePlugin::readConfig()
     covise::coConfig *config = covise::coConfig::getInstance();
 
     // read the name of all colormaps in file
-    QStringList list;
-    list = config->getVariableList("Colormaps");
-
-    for (int i = 0; i < list.size(); i++)
-        mapNames.append(list[i]);
+    auto list = config->getVariableList("Colormaps").entries();
+    for (const auto &e : list)
+        mapNames.insert(e.entry);
 
     // read the values for each colormap
-    for (int k = 1; k < mapNames.size(); k++)
+    for (const auto &map : mapNames)
     {
         // get all definition points for the colormap
-        QString cmapname = "Colormaps." + mapNames[k];
-        QStringList variable = config->getVariableList(cmapname);
+        auto cmapname = "Colormaps." + map;
+        auto variable = config->getVariableList(cmapname).entries();
 
-        mapSize.insert(mapNames[k], variable.size());
+        mapSize.insert({map, variable.size()});
         float *cval = new float[variable.size() * 5];
-        mapValues.insert(mapNames[k], cval);
+        mapValues.insert({map, cval});
 
         // read the rgbax values
         int it = 0;
         for (int l = 0; l < variable.size() * 5; l = l + 5)
         {
-            QString tmp = cmapname + ".Point:" + QString::number(it);
+            std::string tmp = cmapname + ".Point:" + std::to_string(it);
             cval[l] = config->getFloat("x", tmp, -1.0);
             if (cval[l] == -1)
             {
@@ -1344,9 +1342,8 @@ void SimpleRopePlugin::readConfig()
     }
 
     // read values of local colormap files in .covise
-    QString place = covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "colormaps";
-
-    QDir directory(place);
+    auto place = covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "colormaps";
+    QDir directory(place.c_str());
     if (directory.exists())
     {
         QStringList filters;
@@ -1359,54 +1356,50 @@ void SimpleRopePlugin::readConfig()
         for (int j = 0; j < files.size(); j++)
         {
             covise::coConfigGroup *colorConfig = new covise::coConfigGroup("ColorMap");
-            colorConfig->addConfig(place + "/" + files[j], "local", true);
+            colorConfig->addConfig(place + "/" + files[j].toStdString(), "local", true);
 
             // read the name of the colormaps
-            QStringList list;
-            list = colorConfig->getVariableList("Colormaps");
+            auto list = colorConfig->getVariableList("Colormaps").entries();
 
             // loop over all colormaps in one file
-            for (int i = 0; i < list.size(); i++)
+            for (const auto &entry : list)
             {
 
                 // remove global colormap with same name
-                int index = mapNames.indexOf(list[i]);
-                if (index != -1)
+                auto index = mapNames.find(entry.entry);
+                if (index != mapNames.end())
                 {
-                    mapNames.removeAt(index);
-                    deleteColorMap(list[i]);
+                    deleteColorMap(entry.entry);
                 }
-                mapNames.append(list[i]);
 
                 // get all definition points for the colormap
-                QString cmapname = "Colormaps." + mapNames.last();
-                QStringList variable = colorConfig->getVariableList(cmapname);
+                std::string cmapname = "Colormaps." + entry.entry;
+                auto variable = colorConfig->getVariableList(cmapname).entries();
 
-                mapSize.insert(list[i], variable.size());
+                mapSize.insert({entry.entry, variable.size()});
                 float *cval = new float[variable.size() * 5];
-                mapValues.insert(list[i], cval);
+                mapValues.insert({entry.entry, cval});
 
                 // read the rgbax values
                 int it = 0;
                 for (int l = 0; l < variable.size() * 5; l = l + 5)
                 {
-                    QString tmp = cmapname + ".Point:" + QString::number(it);
-                    cval[l] = (colorConfig->getValue("x", tmp, " -1.0")).toFloat();
+                    std::string tmp = cmapname + ".Point:" + std::to_string(it);
+                    cval[l] = std::stof(colorConfig->getValue("x", tmp, " -1.0").entry);
                     if (cval[l] == -1)
                     {
                         cval[l] = (1.0 / (variable.size() - 1)) * (l / 5);
                     }
-                    cval[l + 1] = (colorConfig->getValue("r", tmp, "1.0")).toFloat();
-                    cval[l + 2] = (colorConfig->getValue("g", tmp, "1.0")).toFloat();
-                    cval[l + 3] = (colorConfig->getValue("b", tmp, "1.0")).toFloat();
-                    cval[l + 4] = (colorConfig->getValue("a", tmp, "1.0")).toFloat();
+                    cval[l + 1] = std::stof(colorConfig->getValue("r", tmp, "1.0").entry);
+                    cval[l + 2] = std::stof(colorConfig->getValue("g", tmp, "1.0").entry);
+                    cval[l + 3] = std::stof(colorConfig->getValue("b", tmp, "1.0").entry);
+                    cval[l + 4] = std::stof(colorConfig->getValue("a", tmp, "1.0").entry);
                     it++;
                 }
             }
-            config->removeConfig(place + "/" + files[j]);
+            config->removeConfig(place + "/" + files[j].toStdString());
         }
     }
-    mapNames.sort();
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1422,9 +1415,10 @@ Vec4 SimpleRopePlugin::getColor(float pos)
 
     Vec4 actCol;
     int idx = 0;
-    //cerr << "name: " << (const char *)mapNames[currentMap].toAscii() << endl;
-    float *map = mapValues.value(mapNames[currentMap]);
-    int mapS = mapSize.value(mapNames[currentMap]);
+    // cerr << "name: " << (const char *)mapNames[currentMap].toAscii() << endl;
+    // map and mapS were set according to current map, but currentMap was never set
+    float *map = mapValues[*mapNames.begin()];
+    int mapS = mapSize[*mapNames.begin()];
     if (map == NULL)
     {
         return actCol;

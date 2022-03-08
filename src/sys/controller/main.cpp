@@ -8,7 +8,6 @@
 #include <util/environment.h>
 #include "handler.h"
 
-
 int main(int argc, char **argv)
 {
   covise::setupEnvironment(argc, argv);

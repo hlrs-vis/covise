@@ -42,19 +42,15 @@ void Fenfloss::CreateUserMenu(void)
 
 	p_simApplication = addChoiceParam("Application", "Application");
 
-        coCoviseConfig::ScopeEntries e = coCoviseConfig::getScopeEntries("Module.Fenfloss", "Application");
-        const char ** entries = e.getValue();
-        while (entries && *entries) {
-           entries++;
-           const char *sim = *entries++;
-           if (sim) {
-              s_simApplication.push_back(strdup(sim));
-           }
-        }
+	coCoviseConfig::ScopeEntries entries = coCoviseConfig::getScopeEntries("Module.Fenfloss", "Application");
+	for (const auto &entry : entries)
+	{
+		s_simApplication.push_back(strdup(entry.second.c_str()));
+	}
 
-        char **sims = new char*[s_simApplication.size()];
-        for (int index = 0; index < s_simApplication.size(); index ++)
-           sims[index] = s_simApplication[index];
+	char **sims = new char *[s_simApplication.size()];
+	for (int index = 0; index < s_simApplication.size(); index++)
+		sims[index] = s_simApplication[index];
 
 	p_simApplication->setValue((int)s_simApplication.size(), sims, 0);
    delete []sims;

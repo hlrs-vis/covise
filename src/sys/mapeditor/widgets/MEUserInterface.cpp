@@ -190,12 +190,12 @@ void MEUserInterface::init()
     QPoint topLeft = maxScreen.topLeft();
 
     // rerarrange windows if entries in the XML file exist
-    const QString xx = mapConfig->getValue("xa", "System.MapEditor.Windows.MainWindow");
-    const QString yy = mapConfig->getValue("ya", "System.MapEditor.Windows.MainWindow");
-    if (!xx.isEmpty() && !yy.isEmpty())
+    const auto xx = mapConfig->getValue("xa", "System.MapEditor.Windows.MainWindow").entry;
+    const auto yy = mapConfig->getValue("ya", "System.MapEditor.Windows.MainWindow").entry;
+    if (!xx.empty() && !yy.empty())
     {
-        int x = xx.toInt();
-        int y = yy.toInt();
+        int x = atoi(xx.c_str());
+        int y = atoi(yy.c_str());
 
         if (maxScreen.contains(QPoint(x, y)))
             move(x, y);
@@ -205,10 +205,10 @@ void MEUserInterface::init()
     else
         move(topLeft);
 
-    const QString dx = mapConfig->getValue("width", "System.MapEditor.Windows.MainWindow");
-    const QString dy = mapConfig->getValue("height", "System.MapEditor.Windows.MainWindow");
-    if (!dx.isEmpty() && !dy.isEmpty())
-        resize(dx.toInt(), dy.toInt());
+    const auto dx = mapConfig->getValue("width", "System.MapEditor.Windows.MainWindow").entry;
+    const auto dy = mapConfig->getValue("height", "System.MapEditor.Windows.MainWindow").entry;
+    if (!dx.empty() && !dy.empty())
+        resize(atoi(dx.c_str()), atoi(dy.c_str()));
     else
         resize(800, 550);
 
@@ -456,8 +456,8 @@ void MEUserInterface::makeRightContent(QWidget *w)
     vb->addWidget(area);
 
     // set window size
-    int dx = (mapConfig->getValue("width", "System.MapEditor.Windows.ControlPanel")).toInt();
-    int dy = (mapConfig->getValue("height", "System.MapEditor.Windows.ControlPanel")).toInt();
+    int dx = atoi(mapConfig->getValue("width", "System.MapEditor.Windows.ControlPanel").entry.c_str());
+    int dy = atoi(mapConfig->getValue("height", "System.MapEditor.Windows.ControlPanel").entry.c_str());
     w->resize(dx, dy);
 }
 
@@ -482,10 +482,10 @@ void MEUserInterface::makeMessageArea()
     m_bottomDockWindow->addAction(closeAction);
 
     // set window position & size
-    int dx = (mapConfig->getValue("width", "System.MapEditor.Windows.MessageArea")).toInt();
-    int dy = (mapConfig->getValue("height", "System.MapEditor.Windows.MessageArea")).toInt();
-    int xx = (mapConfig->getValue("xa", "System.MapEditor.Windows.MessageArea")).toInt();
-    int yy = (mapConfig->getValue("ya", "System.MapEditor.Windows.MessageArea")).toInt();
+    int dx = atoi(mapConfig->getValue("width", "System.MapEditor.Windows.MessageArea").entry.c_str());
+    int dy = atoi(mapConfig->getValue("height", "System.MapEditor.Windows.MessageArea").entry.c_str());
+    int xx = atoi(mapConfig->getValue("xa", "System.MapEditor.Windows.MessageArea").entry.c_str());
+    int yy = atoi(mapConfig->getValue("ya", "System.MapEditor.Windows.MessageArea").entry.c_str());
     m_bottomDockWindow->move(xx, yy);
     m_bottomDockWindow->resize(dx, dy);
 
@@ -504,8 +504,8 @@ void MEUserInterface::makeMessageArea()
 void MEUserInterface::makeParameterWindow()
 {
     // set position
-    int xx = (mapConfig->getValue("xa", "UIConfig.Windows.ModuleParameter")).toInt();
-    int yy = (mapConfig->getValue("ya", "UIConfig.Windows.ModuleParameter")).toInt();
+    int xx = atoi(mapConfig->getValue("xa", "UIConfig.Windows.ModuleParameter").entry.c_str());
+    int yy = atoi(mapConfig->getValue("ya", "UIConfig.Windows.ModuleParameter").entry.c_str());
     MEModulePanel::instance()->init();
     MEModulePanel::instance()->move(xx, yy);
 }
@@ -861,27 +861,27 @@ void MEUserInterface::storeSessionParam(bool store)
 
         // main window
         QPoint global = mapToGlobal(QPoint(0, 0));
-        mapConfig->setValue("xa", QString::number(global.x()), "System.MapEditor.Windows.MainWindow");
-        mapConfig->setValue("ya", QString::number(global.y()), "System.MapEditor.Windows.MainWindow");
-        mapConfig->setValue("width", QString::number(this->width()), "System.MapEditor.Windows.MainWindow");
-        mapConfig->setValue("height", QString::number(this->height()), "System.MapEditor.Windows.MainWindow");
+        mapConfig->setValue("xa", std::to_string(global.x()), "System.MapEditor.Windows.MainWindow");
+        mapConfig->setValue("ya", std::to_string(global.y()), "System.MapEditor.Windows.MainWindow");
+        mapConfig->setValue("width", std::to_string(this->width()), "System.MapEditor.Windows.MainWindow");
+        mapConfig->setValue("height", std::to_string(this->height()), "System.MapEditor.Windows.MainWindow");
 
         // module parameter window
         if (MEModulePanel::instance())
         {
             global = MEModulePanel::instance()->mapToGlobal(QPoint(0, 0));
-            mapConfig->setValue("xa", QString::number(global.x()), "System.MapEditor.Windows.ModuleParameter");
-            mapConfig->setValue("ya", QString::number(global.y()), "System.MapEditor.Windows.ModuleParameter");
+            mapConfig->setValue("xa", std::to_string(global.x()), "System.MapEditor.Windows.ModuleParameter");
+            mapConfig->setValue("ya", std::to_string(global.y()), "System.MapEditor.Windows.ModuleParameter");
         }
 
         // message area
         global = m_bottomDockWindow->mapToGlobal(QPoint(0, 0));
-        mapConfig->setValue("xa", QString::number(global.x()), "System.MapEditor.Windows.MessageArea");
-        mapConfig->setValue("ya", QString::number(global.y()), "System.MapEditor.Windows.MessageArea");
+        mapConfig->setValue("xa", std::to_string(global.x()), "System.MapEditor.Windows.MessageArea");
+        mapConfig->setValue("ya", std::to_string(global.y()), "System.MapEditor.Windows.MessageArea");
 
         // control pannel
-        mapConfig->setValue("width", QString::number(m_mainRight->width()), "System.MapEditor.Windows.ControlPanel");
-        mapConfig->setValue("height", QString::number(m_mainRight->height()), "System.MapEditor.Windows.ControlPanel");
+        mapConfig->setValue("width", std::to_string(m_mainRight->width()), "System.MapEditor.Windows.ControlPanel");
+        mapConfig->setValue("height", std::to_string(m_mainRight->height()), "System.MapEditor.Windows.ControlPanel");
     }
 }
 

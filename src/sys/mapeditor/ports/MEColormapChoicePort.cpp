@@ -23,7 +23,7 @@
 #include "nodes/MENode.h"
 #include "controlPanel/MEControlParameter.h"
 #include "controlPanel/MEControlParameterLine.h"
-
+#include <qtutil/Qt5_15_deprecated.h>
 /*!
     \class MEColormapChoicePort
     \brief handles module parameter of type colormapChoice

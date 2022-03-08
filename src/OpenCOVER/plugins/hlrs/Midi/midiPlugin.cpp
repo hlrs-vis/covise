@@ -670,10 +670,9 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 	channel = coCoviseConfig::getInt("channel", "COVER.Plugin.Midi." + name, 0);
 
 	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi."+name, "Key");
-	const char** it = InstrumentEntries.getValue();
-	while (it && *it)
+	for (const auto &instrument : InstrumentEntries)
 	{
-		string n = *it;
+		const string &n = instrument.first;
 
 		std::string configName = "COVER.Plugin.Midi." + name + "." + n;
 
@@ -697,13 +696,10 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 		noteInfo->modelScale = coCoviseConfig::getFloat("modelScale", configName,  1.0);
 		noteInfo->modelName = coCoviseConfig::getEntry("modelName", configName,  "");
 		noteInfos[keyNumber] = noteInfo;
-
-		it++;// value
-		it++;// next key
 	}
 
 	int i = 0;
-	for (auto& noteInfo : noteInfos)
+	for (auto &noteInfo : noteInfos)
 	{
 		if (noteInfo)
 		{
@@ -726,7 +722,6 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 			i++;
 		}
 	}
-
 }
 MidiInstrument::~MidiInstrument()
 {
@@ -739,7 +734,7 @@ MidiDevice::MidiDevice(std::string n, int id)
 
 	std::string configName = "COVER.Plugin.Midi." + name;
 	int instID = coCoviseConfig::getInt("instrument", configName, 0);
-	if( MidiPlugin::instance()->instruments.size()>instID)
+	if (MidiPlugin::instance()->instruments.size() > instID)
 	{
 		instrument = MidiPlugin::instance()->instruments[instID].get();
 	}
@@ -770,34 +765,20 @@ bool MidiPlugin::init()
 		lTrack[i] = new Track(i, true);
 	}
 	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Instrument");
-	const char** it = InstrumentEntries.getValue();
-	while (it && *it)
+	for (const auto &entry : InstrumentEntries)
 	{
-		string n = *it;
-		std::unique_ptr<MidiInstrument> instrument = std::unique_ptr<MidiInstrument>(new MidiInstrument(n,instruments.size()));
+		std::unique_ptr<MidiInstrument> instrument = std::unique_ptr<MidiInstrument>(new MidiInstrument(entry.first, instruments.size()));
 		lTrack[instrument->channel]->instrument = instrument.get();
-
 		instruments.push_back(std::move(instrument));
-
-		it++;
-		it++;
 	}
 	coCoviseConfig::ScopeEntries DeviceEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Device");
-	it = DeviceEntries.getValue();
-	while (it && *it)
+	for (const auto &entry : DeviceEntries)
 	{
-		string n = *it;
-		std::unique_ptr<MidiDevice> device = std::unique_ptr<MidiDevice>(new MidiDevice(n, devices.size()));
-		devices.push_back(std::move(device));
-
-		it++;
-		it++;
+		devices.push_back(std::move(std::unique_ptr<MidiDevice>(new MidiDevice(entry.first, devices.size()))));
 	}
-
 
 	int instrument = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi.Instrument", 0);
 	int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
-
 
 	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
