@@ -106,7 +106,7 @@ InfoTowerPlugin::preSwapBuffers(int windowNumber)
 }
 
 void
-InfoTowerPlugin::allocatePixelBuffer(uint8_t **pixel_buffer, GLenum format, uint width, uint height)
+InfoTowerPlugin::allocatePixelBuffer(uint8_t **pixel_buffer, GLenum format, uint8_t width, uint8_t height)
 {
     if (format != GL_BGR_EXT)
         return;
