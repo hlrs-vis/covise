@@ -114,7 +114,7 @@ PlayerMix::startThread()
 #ifdef HAVE_PTHREAD
     if (threaded)
     {
-        CERR << "Master Audio Thread: " << (int)pthread_self() << endl;
+        //CERR << "Master Audio Thread: " << pthread_self() << endl;
         pthread_mutexattr_t attr;
         pthread_mutexattr_init(&attr);
         pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
