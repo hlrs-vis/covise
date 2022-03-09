@@ -196,8 +196,7 @@ void CTRLHandler::lookupSiblings()
 {
     auto list = coConfig::getInstance()->getScopeList("System.Siblings").entries();
 
-    auto listentry = list.begin();
-    for (const auto &listentry : coConfig::getInstance()->getScopeList("System.Siblings").entries())
+    for (const auto &listentry: list)
     {
         cerr << "Sibling: " << listentry.entry << endl;
         std::string value = coConfig::getInstance()->getString("mod1", "System.Siblings." + listentry.entry, "");
