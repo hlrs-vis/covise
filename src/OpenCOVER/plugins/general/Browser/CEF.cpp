@@ -4,6 +4,7 @@
 #include <cover/coVRCollaboration.h>
 #include <cover/coCollabInterface.h>
 #include <cover/coIntersection.h>
+#include <util/unixcompat.h>
 #include "include/cef_browser.h"
 #include "include/cef_request_context.h"
 #include "include/cef_command_line.h"
@@ -97,7 +98,6 @@ void CEF_client::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect)
 {
     rect = CefRect(0, 0, std::max(8, width), std::max(8, height)); // never give an empty rectangle!!
 }
-
 
 #ifdef _WIN32
 //Disable context menu

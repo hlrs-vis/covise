@@ -69,7 +69,7 @@ public:
     CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
 
-    bool DoClose(CefRefPtr<CefBrowser> browser) override;
+    virtual bool DoClose(CefRefPtr<CefBrowser> browser) override;
 
     // hit is called whenever the button
     // with this action is intersected
