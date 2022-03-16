@@ -197,7 +197,7 @@ coConfigEntryString coConfig::getValue(const std::string &variable,
 {
 
     coConfigEntryString value = getValue(variable, section);
-    if (value.entry.empty())
+    if (value == coConfigEntryString{})
         return coConfigEntryString{defaultValue};
     return value;
 }
@@ -216,7 +216,7 @@ coConfigEntryString coConfig::getValue(const std::string &variable,
     for (const auto configGroup : configGroups)
     {
         coConfigEntryString currentValue = configGroup.second->getValue(variable, section);
-        if (!currentValue.entry.empty())
+        if (!(currentValue == coConfigEntryString{}))
             item = currentValue;
     }
 
@@ -514,7 +514,7 @@ void coConfig::setValueForHost(const std::string &variable, const std::string &v
     if (config.empty())
     {
         //if (oldValue.isNull() || oldValue.getConfigGroupName() == "global")
-        if (oldValue.entry.empty() || oldValue.configName == "global")
+        if (oldValue == coConfigEntryString{} || oldValue.configName == "global")
         {
             groupName = "config";
             groupConfigName = "local";

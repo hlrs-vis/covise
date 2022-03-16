@@ -162,7 +162,7 @@ coConfigEntryString coConfigGroup::getValue(const std::string &variable,
 
     coConfigEntryString value = getValue(variable, section);
 
-    if (value.entry.empty())
+    if (value == coConfigEntryString{})
     {
         return coConfigEntryString{defaultValue};
     }
@@ -184,15 +184,15 @@ coConfigEntryString coConfigGroup::getValue(const std::string &variable,
     for (const auto config : configs)
     {
         coConfigEntryString currentValue = config.second->getValue(variable, section);
-        if (!currentValue.entry.empty())
+        if (!(currentValue == coConfigEntryString{}))             {
             item = currentValue;
+            item.configGroupName = groupName;
+
+        }
     }
-
-    item.configGroupName = groupName;
-
     COCONFIGDBG_GET_SET("coConfigGroup::getValue info: [" << groupName << "] "
                                                           << section << "." << variable << " = "
-                                                          << (item.entry.empty() ? "*NO VALUE*" : item.entry));
+                                                          << (item == coConfigEntryString{} ? "*NO VALUE*" : item.entry));
 
     return item;
 }
@@ -250,7 +250,7 @@ void coConfigGroup::setValue(const std::string &variable, const std::string &val
         // cerr << "coConfigGroup::setValue info: getting " << variable << " in " << section << endl;
         coConfigEntryString oldValue = getValue(variable, section);
 
-        if (oldValue.entry.empty())
+        if (oldValue == coConfigEntryString{})
         {
             assert(!configs.empty());
             configurationName = configs.begin()->first;
@@ -292,7 +292,7 @@ bool coConfigGroup::deleteValue(const std::string &variable, const std::string &
 
         coConfigEntryString oldValue = getValue(variable, section);
 
-        if (oldValue.entry.empty())
+        if (oldValue == coConfigEntryString{})
         {
             return false;
         }

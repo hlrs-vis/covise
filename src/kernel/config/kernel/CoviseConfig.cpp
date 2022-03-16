@@ -61,9 +61,11 @@ std::string coCoviseConfig::getEntry(const std::string &variable, const std::str
 
 std::string coCoviseConfig::getEntry(const std::string &variable, const std::string &entry, const std::string &defaultValue, bool *exists)
 {
-    std::string val = coConfig::getInstance()->getValue(variable, entry).entry;
+    if (entry == "COVER.UI.NavigationManager.Navigation.ViewAll")
+        std::cerr << " " << std::endl;
+    auto val = coConfig::getInstance()->getValue(variable, entry);
 
-    if (val.empty())
+    if (val == coConfigEntryString{})
     {
         if (exists)
             *exists = false;
@@ -73,9 +75,9 @@ std::string coCoviseConfig::getEntry(const std::string &variable, const std::str
     if (exists)
         *exists = true;
 
-    COCONFIGDBG("coCoviseConfig::getEntry info: " << entry << "/" << variable << " = " << val);
+    COCONFIGDBG("coCoviseConfig::getEntry info: " << entry << "/" << variable << " = " << val.entry);
 
-    return val;
+    return val.entry;
 }
 
 /**

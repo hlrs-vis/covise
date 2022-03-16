@@ -231,7 +231,7 @@ bool VruiView::isReparented(const Element *elem) const {
 
     bool exists = false;
     std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath(elem->path()), &exists);
-    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    std::cerr << "config: " << configPath(elem->path()) << " parent: " << parentPath <<  " exists " << exists << std::endl;
     if (exists)
     {
         if (parentPath.empty())

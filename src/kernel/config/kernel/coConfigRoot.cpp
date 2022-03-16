@@ -515,7 +515,7 @@ coConfigEntryString coConfigRoot::getValue(const std::string &variable,
 {
 
     coConfigEntryString value = getValue(variable, section);
-    if (value.entry.empty())
+    if (value == coConfigEntryString{})
         return coConfigEntryString{defaultValue, configName};
     return value;
 }
@@ -529,43 +529,22 @@ coConfigEntryString coConfigRoot::getValue(const std::string &variable,
                                            const std::string &section) const
 {
 
-    if (hostConfig)
+    std::array< coConfigEntry*, 3> configs = { hostConfig, clusterConfig, globalConfig };
+    for(auto config : configs)
     {
-        coConfigEntryString localItem = hostConfig->getValue(variable, section);
-
-        if (!localItem.entry.empty())
-        {
-            localItem.configName = configName;
-            return localItem;
-        }
-    }
-
-    if (clusterConfig)
-    {
-        coConfigEntryString localItem = clusterConfig->getValue(variable, section);
-
-        if (!localItem.entry.empty())
-        {
-            localItem.configName = configName;
-            return localItem;
-        }
-    }
-
-    if (globalConfig)
-    {
-        coConfigEntryString globalItem = globalConfig->getValue(variable, section);
-
-        if (!globalItem.entry.empty())
-        {
-            globalItem.configName = configName;
-            return globalItem;
+        if (config)             {
+            auto localItem = config->getValue(variable, section);
+            if (!(localItem == coConfigEntryString{})) {
+                localItem.configName = configName;
+                return localItem;
+            }
         }
     }
 
     // cerr << "coConfig::getValue info: " << section << "."
     //<< variable << "=" << (item.isNull() ? "*NULL*" : item) << endl;
 
-    return coConfigEntryString();
+    return coConfigEntryString{};
 }
 
 const char *coConfigRoot::getEntry(const char *variable) const

@@ -30,7 +30,8 @@ namespace covise
         bool islistItem = false;
     };
 
-    bool CONFIGEXPORT operator<(const coConfigEntryString &first, const coConfigEntryString &second);
+    bool CONFIGEXPORT operator<(const coConfigEntryString& first, const coConfigEntryString& second);
+    bool CONFIGEXPORT operator==(const coConfigEntryString &first, const coConfigEntryString &second);
     class CONFIGEXPORT coConfigEntryStringList
     {
     public:

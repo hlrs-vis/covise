@@ -431,7 +431,7 @@ coConfigEntryString coConfigEntry::getValue(const std::string &variable, const s
             if ((*child)->getName() == s.childName)
             {
                 value = (*child)->getValue(variable, s.scope);
-                if (!value.entry.empty())
+                if (!(value == coConfigEntryString{}))
                     break;
             }
         }
@@ -446,7 +446,7 @@ coConfigEntryString coConfigEntry::getValue(const std::string &variable, const s
         var = "value";
 
     auto attr = attributes.find(var);
-    if (attr != attributes.end() && !attr->second.empty())
+    if (attr != attributes.end())
     {
         // COCONFIGLOG("coConfigEntry::getValue info: variable " << var << " found");
         coConfigEntryString value{attr->second, configName, "", configScope};

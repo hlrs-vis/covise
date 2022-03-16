@@ -21,6 +21,11 @@ bool covise::operator<(const coConfigEntryString &first, const coConfigEntryStri
     return first.entry < second.entry || (first.entry == second.entry && first.configName < second.configName) || (first.configName == second.configName && first.configGroupName < second.configGroupName);
 }
 
+bool covise::operator==(const coConfigEntryString& first, const coConfigEntryString& second) {
+    return first.entry == second.entry && first.configGroupName == second.configGroupName && first.configName == second.configName && first.islistItem == second.islistItem;
+}
+
+
 coConfigEntryStringList &coConfigEntryStringList::merge(const coConfigEntryStringList &list)
 {
     if(!list.entries().empty())
