@@ -27,7 +27,8 @@
         <Device>
 
            <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
-              <Offset x="0" y="-3000" z="-1327" />
+              <!--Offset x="-86" y="-3080" z="-1260" /-->
+              <Offset x="-75" y="-3075" z="-1260" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCaveOutside>
 
@@ -111,7 +112,7 @@
         </Valuator>
 
         <Persons>
-           <Person name="Tracked" default ="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
