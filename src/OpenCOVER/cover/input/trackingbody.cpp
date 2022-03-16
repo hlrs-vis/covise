@@ -168,18 +168,39 @@ void TrackingBody::update()
     else if (device())
     {
         m_varying = device()->isVarying();
-
+	/*if(numDevices()>1)
+	{
+	    if(device(0)->isBodyMatrixValid(m_idx) && device(1)->isBodyMatrixValid(m_idx))
+	    {
+               m_mat = device(0)->getBodyMatrix(m_idx);
+               osg::Matrix m_mat2 = device(1)->getBodyMatrix(m_idx);
+	       osg::Vec3 v1,v2;
+	       v1 = m_mat.getTrans();
+	       v2 = m_mat2.getTrans();
+	       osg::Vec3 vd = v1 -v2;
+	       fprintf(stderr,"1: %f %f %f 2: %f %f %f 1-2: %f %f %f\n",v1[0],v1[1],v1[2],v2[0],v2[1],v2[2],vd[0],vd[1],vd[2]);
+	    }
+	}*/
+	if(lastDevice < numDevices() && device(lastDevice)->isBodyMatrixValid(m_idx))
+	{
+	    m_valid=true;
+            m_mat = device(lastDevice)->getBodyMatrix(m_idx);
+	}
+	else
+	{
 	    for(int i=0;i<numDevices();i++)
 	    {
-        m_valid = device(i)->isBodyMatrixValid(m_idx);
-        m_6dof = device(i)->is6Dof();
+                m_valid = device(i)->isBodyMatrixValid(m_idx);
+                m_6dof = device(i)->is6Dof();
 
-        if (m_valid)
-        {
-            m_mat = device(i)->getBodyMatrix(m_idx);
-	    break;
-        }
+                if (m_valid)
+                {
+	            lastDevice = i;
+                    m_mat = device(i)->getBodyMatrix(m_idx);
+	            break;
+                }
 	    }
+	}
     }
 
     if (Input::debug(Input::Raw) && m_valid != m_oldValid)
