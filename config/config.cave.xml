@@ -111,7 +111,7 @@
         </Valuator>
 
         <Persons>
-           <Person name="Tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked" default ="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />

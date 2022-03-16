@@ -474,14 +474,12 @@ bool Input::initPersons()
 
     activePerson = NULL;
 
-    for (size_t i = 0; i < names.size(); ++i)
+    for (const auto& name : names)
     {
-        Person *p = getPerson(names[i]);
-
-        if (!activePerson)
+        Person *p = getPerson(name);
+        if (!activePerson || coCoviseConfig::isOn("default", "COVER.Input.Persons.Person:" + name, false))
             activePerson = p;
     }
-
     return true;
 }
 
