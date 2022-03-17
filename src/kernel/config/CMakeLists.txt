@@ -26,7 +26,6 @@ set(CONFIG_HEADERS
     coConfigLong.h
     coConfigRoot.h
     coConfigSchemaInfos.h
-    coConfigSchemaInfosList.h
     coConfigString.h
     coConfigValue.h
 )
