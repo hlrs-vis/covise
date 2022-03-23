@@ -528,7 +528,7 @@ struct UnaryExpression<M, OP, true>
     double element(const T &vars) const
     {
         fprintf(stderr,"Oops, we actually need this code, go on and fix it in GeometricAlgebra.h\n");
-        exit(-1);
+        //exit(-1);
         return 0.0;
         //return this->mve_.element<EB>(vars);
     }
@@ -687,6 +687,7 @@ struct BinaryExpression
     typedef typename OP::MTR MultivectorType;
 
 #ifdef __CPP0X__
+
     BinaryExpression(BinaryExpression &&be)
         : l_(std::move(be.l_))
         , h_(std::move(be.h_))
