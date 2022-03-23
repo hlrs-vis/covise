@@ -76,3 +76,11 @@ ENDIF(MSVC)
 TARGET_LINK_LIBRARIES(coConfig coUtil ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
 COVISE_WNOERROR(coConfig BASEARCH goddard)
 COVISE_INSTALL_TARGET(coConfig)
+
+#older compilers do not support std::wstring_convert-->fall back ob boost::locale::conv::from_utf
+#boost::locale::conv::from_utf does not work for newer char16_t though
+target_compile_definitions(coConfig
+  PRIVATE
+    "$<$<COMPILE_FEATURES:cxx_unicode_literals>:HAVE_UNICODE_LITERALS>"
+    "$<$<NOT:$<COMPILE_FEATURES:cxx_unicode_literals>>:>"
+  )
