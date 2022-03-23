@@ -13,6 +13,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <vrb/client/SharedStateManager.h>
+#include <vrb/client/VrbClientRegistry.h>
 
 using namespace opencover;
 using namespace vehicleUtil;
@@ -38,7 +39,7 @@ fasi2::fasi2(const char *filename)
 {
     system = NULL;
     myFasi = this;
-    new vrb::SharedStateManager(NULL);
+    //new vrb::SharedStateManager(new vrb::VrbClientRegistry(-1));
     opencover::cover = new opencover::coVRPluginSupport();
     serverConn = new covise::ServerConnection(31880, 1234, -1);
     if (!serverConn->getSocket())
