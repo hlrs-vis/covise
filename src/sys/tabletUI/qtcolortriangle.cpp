@@ -1781,9 +1781,9 @@ void ColorDisplay::paintEvent(QPaintEvent *e)
 void ColorDisplay::setColor(const QColor &col)
 {
     c = col;
-
-    QString s;
-    s.asprintf("#%02x%02x%02x", c.red(), c.green(), c.blue());
+    char tt[100];
+    snprintf(tt,100,"#%02x%02x%02x", c.red(), c.green(), c.blue());
+    QString s(tt);
     setToolTip(s);
 
     update();
