@@ -13,6 +13,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <vrb/client/SharedStateManager.h>
+#include <vrb/client/VrbClientRegistry.h>
 
 using namespace opencover;
 using namespace vehicleUtil;
@@ -42,7 +43,8 @@ mopla::mopla(const char *filename)
     : XenomaiTask::XenomaiTask("FourWheelDynamicsRealtime2Task", 0, 99, 0)
 {
     myFasi = this;
-    new vrb::SharedStateManager(NULL);
+    new vrb::SharedStateManager(new vrb::VrbClientRegistry(-1));
+
     opencover::cover = new opencover::coVRPluginSupport();
     
     
