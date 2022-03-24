@@ -171,49 +171,49 @@ enum covise_msg_type
     COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION,          // 104
     COVISE_MESSAGE_VRB_REQUEST_FILE,                  // 105
     COVISE_MESSAGE_VRB_SEND_FILE,                     // 106
-    DEPRECATED_COVISE_MESSAGE_VRB_CURRENT_FILE,       // 107
-    COVISE_MESSAGE_CRB_QUIT,                          // 108
-    COVISE_MESSAGE_REMOVED_HOST,                      // 109
-    COVISE_MESSAGE_START_COVER_SLAVE,                 // 110
-    COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED,        // 111
-    COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED,        // 112
-    COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS,      // 113
-    COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE,   // 114
-    COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY,         // 115
-    COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE,            // 116
-    COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY,         // 117
-    COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS,    // 118
-    COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE, // 119
-    COVISE_MESSAGE_SYNCHRONIZED_ACTION,               // 120
-    COVISE_MESSAGE_ACCESSGRID_DAEMON,                 // 121
-    COVISE_MESSAGE_TABLET_UI,                         // 122
-    COVISE_MESSAGE_QUERY_DATA_PATH,                   // 123
-    COVISE_MESSAGE_SEND_DATA_PATH,                    // 124
-    COVISE_MESSAGE_VRB_FB_RQ,                         // 125
-    COVISE_MESSAGE_VRB_FB_SET,                        // 126
-    COVISE_MESSAGE_VRB_FB_REMREQ,                     // 127
-    COVISE_MESSAGE_UPDATE_LOADED_MAPNAME,             // 128
-    COVISE_MESSAGE_SSLDAEMON,                         // 129
-    COVISE_MESSAGE_VISENSO_UI,                        // 130
-    COVISE_MESSAGE_PARAMDESC,                         // 131
-    COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION,           // 132
-    COVISE_MESSAGE_VRBC_SET_SESSION,                  // 133
-    COVISE_MESSAGE_VRBC_SEND_SESSIONS,                // 134
-    COVISE_MESSAGE_VRBC_CHANGE_SESSION,               // 135
-    COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION,            // 136
-    COVISE_MESSAGE_VRB_SAVE_SESSION,                  // 137
-    COVISE_MESSAGE_VRB_LOAD_SESSION,                  // 138
-    COVISE_MESSAGE_VRB_MESSAGE,                       // 139
-    COVISE_MESSAGE_VRB_PERMIT_LAUNCH,                 // 140
-    COVISE_MESSAGE_BROADCAST_TO_PROGRAM,              // 141
-    COVISE_MESSAGE_NEW_UI,                            // 142
-    COVISE_MESSAGE_PROXY,                             // 143
-    COVISE_MESSAGE_SOUND,                             // 144
-    COVISE_MESSAGE_LAST_DUMMY_MESSAGE                 // 145
+    COVISE_MESSAGE_CRB_QUIT,                          // 107
+    COVISE_MESSAGE_REMOVED_HOST,                      // 108
+    COVISE_MESSAGE_START_COVER_SLAVE,                 // 109
+    COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED,        // 110
+    COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED,        // 111
+    COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS,      // 112
+    COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE,   // 113
+    COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY,         // 114
+    COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE,            // 115
+    COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY,         // 116
+    COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS,    // 117
+    COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE, // 118
+    COVISE_MESSAGE_SYNCHRONIZED_ACTION,               // 119
+    COVISE_MESSAGE_ACCESSGRID_DAEMON,                 // 120
+    COVISE_MESSAGE_TABLET_UI,                         // 121
+    COVISE_MESSAGE_QUERY_DATA_PATH,                   // 122
+    COVISE_MESSAGE_SEND_DATA_PATH,                    // 123
+    COVISE_MESSAGE_VRB_FB_RQ,                         // 124
+    COVISE_MESSAGE_VRB_FB_SET,                        // 125
+    COVISE_MESSAGE_VRB_FB_REMREQ,                     // 126
+    COVISE_MESSAGE_UPDATE_LOADED_MAPNAME,             // 127
+    COVISE_MESSAGE_SSLDAEMON,                         // 128
+    COVISE_MESSAGE_VISENSO_UI,                        // 129
+    COVISE_MESSAGE_PARAMDESC,                         // 130
+    COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION,           // 131
+    COVISE_MESSAGE_VRBC_SET_SESSION,                  // 132
+    COVISE_MESSAGE_VRBC_SEND_SESSIONS,                // 133
+    COVISE_MESSAGE_VRBC_CHANGE_SESSION,               // 134
+    COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION,            // 135
+    COVISE_MESSAGE_VRB_SAVE_SESSION,                  // 136
+    COVISE_MESSAGE_VRB_LOAD_SESSION,                  // 137
+    COVISE_MESSAGE_VRB_MESSAGE,                       // 138
+    COVISE_MESSAGE_VRB_PERMIT_LAUNCH,                 // 139
+    COVISE_MESSAGE_BROADCAST_TO_PROGRAM,              // 140
+    COVISE_MESSAGE_NEW_UI,                            // 141
+    COVISE_MESSAGE_PROXY,                             // 142
+    COVISE_MESSAGE_SOUND,                             // 143
+    COVISE_MESSAGE_LAST_DUMMY_MESSAGE                 // 144
 };
 
 #ifdef DEFINE_MSG_TYPES
 NETEXPORT const char *covise_msg_types_array[COVISE_MESSAGE_LAST_DUMMY_MESSAGE + 2] = {
+    "COVISE_MESSAGE_EMPTY",                             // -1
     "COVISE_MESSAGE_MSG_FAILED",                        //  0
     "COVISE_MESSAGE_MSG_OK",                            //  1
     "COVISE_MESSAGE_INIT",                              //  2
@@ -321,45 +321,44 @@ NETEXPORT const char *covise_msg_types_array[COVISE_MESSAGE_LAST_DUMMY_MESSAGE +
     "COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION",          // 104
     "COVISE_MESSAGE_VRB_REQUEST_FILE",                  // 105
     "COVISE_MESSAGE_VRB_SEND_FILE",                     // 106
-    "DEPRECATED_COVISE_MESSAGE_VRB_CURRENT_FILE",       // 107
-    "COVISE_MESSAGE_CRB_QUIT",                          // 108
-    "COVISE_MESSAGE_REMOVED_HOST",                      // 109
-    "COVISE_MESSAGE_START_COVER_SLAVE",                 // 110
-    "COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED",        // 111
-    "COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED",        // 112
-    "COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS",      // 113
-    "COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE",   // 114
-    "COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY",         // 115
-    "COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE",            // 116
-    "COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY",         // 117
-    "COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS",    // 118
-    "COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE", // 119
-    "COVISE_MESSAGE_SYNCHRONIZED_ACTION",               // 120
-    "COVISE_MESSAGE_ACCESSGRID_DAEMON",                 // 121
-    "COVISE_MESSAGE_TABLET_UI",                         // 122
-    "COVISE_MESSAGE_QUERY_DATA_PATH",                   // 123
-    "COVISE_MESSAGE_SEND_DATA_PATH",                    // 124
-    "COVISE_MESSAGE_VRB_FB_RQ",                         // 125
-    "COVISE_MESSAGE_VRB_FB_SET",                        // 126
-    "COVISE_MESSAGE_VRB_FB_REMREQ",                     // 127
-    "COVISE_MESSAGE_UPDATE_LOADED_MAPNAME",             // 128
-    "COVISE_MESSAGE_SSLDAEMON",                         // 129
-    "COVISE_MESSAGE_VISENSO_UI",                        // 130
-    "COVISE_MESSAGE_PARAMDESC",                         // 131
-    "COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION",           // 132
-    "COVISE_MESSAGE_VRBC_SET_SESSION",                  // 133
-    "COVISE_MESSAGE_VRBC_SEND_SESSIONS",                // 134
-    "COVISE_MESSAGE_VRBC_CHANGE_SESSION",               // 135
-    "COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION",            // 136
-    "COVISE_MESSAGE_VRB_SAVE_SESSION",                  // 137
-    "COVISE_MESSAGE_VRB_LOAD_SESSION",                  // 138
-    "COVISE_MESSAGE_VRB_MESSAGE",                       // 139
-    "COVISE_MESSAGE_VRB_PERMIT_LAUNCH",                 // 140
-    "COVISE_MESSAGE_BROADCAST_TO_PROGRAM",              // 141
-    "COVISE_MESSAGE_NEW_UI",                            // 142
-    "COVISE_MESSAGE_PROXY",                             // 143
-    "COVISE_MESSAGE_SOUND",                             // 144
-    "COVISE_MESSAGE_LAST_DUMMY_MESSAGE"                 // 145
+    "COVISE_MESSAGE_CRB_QUIT",                          // 107
+    "COVISE_MESSAGE_REMOVED_HOST",                      // 108
+    "COVISE_MESSAGE_START_COVER_SLAVE",                 // 109
+    "COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED",        // 110
+    "COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED",        // 111
+    "COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS",      // 112
+    "COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE",   // 113
+    "COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY",         // 114
+    "COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE",            // 115
+    "COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY",         // 116
+    "COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS",    // 117
+    "COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE", // 118
+    "COVISE_MESSAGE_SYNCHRONIZED_ACTION",               // 119
+    "COVISE_MESSAGE_ACCESSGRID_DAEMON",                 // 120
+    "COVISE_MESSAGE_TABLET_UI",                         // 121
+    "COVISE_MESSAGE_QUERY_DATA_PATH",                   // 122
+    "COVISE_MESSAGE_SEND_DATA_PATH",                    // 123
+    "COVISE_MESSAGE_VRB_FB_RQ",                         // 124
+    "COVISE_MESSAGE_VRB_FB_SET",                        // 125
+    "COVISE_MESSAGE_VRB_FB_REMREQ",                     // 126
+    "COVISE_MESSAGE_UPDATE_LOADED_MAPNAME",             // 127
+    "COVISE_MESSAGE_SSLDAEMON",                         // 128
+    "COVISE_MESSAGE_VISENSO_UI",                        // 129
+    "COVISE_MESSAGE_PARAMDESC",                         // 130
+    "COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION",           // 131
+    "COVISE_MESSAGE_VRBC_SET_SESSION",                  // 132
+    "COVISE_MESSAGE_VRBC_SEND_SESSIONS",                // 133
+    "COVISE_MESSAGE_VRBC_CHANGE_SESSION",               // 134
+    "COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION",            // 135
+    "COVISE_MESSAGE_VRB_SAVE_SESSION",                  // 136
+    "COVISE_MESSAGE_VRB_LOAD_SESSION",                  // 137
+    "COVISE_MESSAGE_VRB_MESSAGE",                       // 138
+    "COVISE_MESSAGE_VRB_PERMIT_LAUNCH",                 // 139
+    "COVISE_MESSAGE_BROADCAST_TO_PROGRAM",              // 140
+    "COVISE_MESSAGE_NEW_UI",                            // 141
+    "COVISE_MESSAGE_PROXY",                             // 142
+    "COVISE_MESSAGE_SOUND",                             // 143
+    "COVISE_MESSAGE_LAST_DUMMY_MESSAGE"                 // 144
 };
 #else
 NETEXPORT extern const char *covise_msg_types_array[COVISE_MESSAGE_LAST_DUMMY_MESSAGE+1];
