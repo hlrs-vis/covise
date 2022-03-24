@@ -11,7 +11,7 @@
 #include "coConfigXercesEntry.h"
 #include "coConfigXercesRoot.h"
 
-#include <codecvt>
+//#include <codecvt>
 #include <config/coConfigConstants.h>
 #include <config/coConfigLog.h>
 #include <config/coConfigRoot.h>
