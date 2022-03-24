@@ -89,7 +89,7 @@ void Variant::removeFromScenegraph(osg::Node *node)
 
 void Variant::releaseNode(osg::Node *node)
 {
-    attachedNodesList.remove(node);
+    attachedNodesList.erase(node);
 }
 
 //------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void Variant::attachNode(osg::Node *node)
         node->ref();
         while (node->getNumParents() > 0)
             node->getParent(0)->removeChild(node);
-        attachedNodesList.push_back(node);
+        attachedNodesList.insert(node);
         cover->getObjectsRoot()->removeChild(node);
         VarNode->addChild(node);
         node->unref();
@@ -128,10 +128,6 @@ int Variant::numNodes()
 }
 //------------------------------------------------------------------------------
 
-std::list<osg::Node *> Variant::getAttachedNodes()
-{
-    return attachedNodesList;
-}
 //------------------------------------------------------------------------------
 
 void Variant::createVRLabel()

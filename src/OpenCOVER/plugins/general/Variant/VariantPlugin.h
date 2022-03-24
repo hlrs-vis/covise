@@ -139,7 +139,7 @@ private:
     std::map<std::string, coTUIToggleButton *> tui_header_trans;
 
     std::list<Variant *> varlist;
-    Variant *vari;
+    std::map<osg::Node *, Variant *> varmap;
 
     osg::BoundingBox box;
 

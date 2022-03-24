@@ -434,15 +434,15 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                     osg::Node::ParentList parents;
                     if (node)
                         parents = node->getParents();
-                    vari = new Variant(var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
+                    var = new Variant(var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
 
-                    varlist.push_back(vari);
+                    varlist.push_back(var);
 
-                    vari->AddToScenegraph();
-                    vari->hideVRLabel();
+                    var->AddToScenegraph();
+                    var->hideVRLabel();
                     if(set_default && default_state==false)
                     {
-                       osg::Node *n = vari->getNode();
+                       osg::Node *n = var->getNode();
                        if (n)
                        {
                            std::string path = coVRSelectionManager::generatePath(n);
@@ -451,8 +451,8 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                            tb2 << path;
                            tb2 << pPath;
                            cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
-                           setMenuItem(vari, (false));
-                           setQDomElemState(vari, false);
+                           setMenuItem(var, (false));
+                           setQDomElemState(var, false);
                        }
                     }
                 }
@@ -460,6 +460,7 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                 {
                     var->attachNode(node);
                 }
+                varmap[node] = var;
             }
         }
     }
@@ -491,6 +492,8 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
         {
             var->releaseNode(node);
         }
+
+        varmap.erase(node);
     }
 }
 //------------------------------------------------------------------------------------------------------------------------------
@@ -539,21 +542,11 @@ void VariantPlugin::setVariant(std::string var)
 
 Variant *VariantPlugin::getVariantbyAttachedNode(osg::Node *node)
 {
-    std::list<Variant *>::iterator varlIter;
+    auto it = varmap.find(node);
+    if (it == varmap.end())
+        return nullptr;
 
-    for (varlIter = varlist.begin(); varlIter != varlist.end(); varlIter++)
-    {
-        std::list<osg::Node *> nodeList = (*varlIter)->getAttachedNodes();
-        std::list<osg::Node *>::iterator nodeIter;
-        for (nodeIter = nodeList.begin(); nodeIter != nodeList.end(); nodeIter++)
-        {
-            if ((*nodeIter) == node)
-            {
-                return *varlIter;
-            }
-        }
-    }
-    return NULL;
+    return it->second;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------

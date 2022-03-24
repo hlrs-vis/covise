@@ -23,6 +23,7 @@
 #include "coVRBoxOfInterest.h"
 #include <QtCore>
 #include <qdom.h>
+#include <set>
 
 namespace opencover {
 namespace ui {
@@ -66,7 +67,6 @@ public:
     void setOriginTransMatrix(osg::Vec3d vec);
     osg::Vec3d getTransVec();
     void setQDomElemTRANS(osg::Vec3d vec);
-    std::list<osg::Node *> getAttachedNodes();
 
     VariantUI *ui;
 
@@ -80,7 +80,7 @@ private:
     QDomDocument *xmlfile;
     QDomElement *qDE_Variant;
 
-    std::list<osg::Node *> attachedNodesList;
+    std::set<osg::Node *> attachedNodesList;
 
     coVRBoxOfInterest *myboi;
     osg::ClipNode *cn;
