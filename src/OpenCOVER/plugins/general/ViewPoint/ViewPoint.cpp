@@ -724,10 +724,14 @@ void ViewPoints::readFromDom()
     }
 }
 
-void ViewPoints::addNode(Node *n, const RenderObject *)
+void ViewPoints::addNode(Node *n, const RenderObject *ro)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::addNode()\n");
+    if (ro) {
+        // from visualization system, name will not match
+        return;
+    }
     if (!activeVP)
     {
         if (n)
@@ -735,32 +739,29 @@ void ViewPoints::addNode(Node *n, const RenderObject *)
             std::vector<Node *> nodes;
             std::string substr = "coVR";
             addNodes(n, substr, nodes);
-            if (nodes.size() > 0)
+            for (std::vector<Node *>::iterator it = nodes.begin(); it < nodes.end(); it++)
             {
-                for (std::vector<Node *>::iterator it = nodes.begin(); it < nodes.end(); it++)
+                string name = (*it)->getName().substr(5);
+                if (name[0] == 'V')
                 {
-                    string name = (*it)->getName().substr(5);
-                    if (name[0] == 'V')
-                    {
-                        float s;
-                        coCoord coord;
-                        string::size_type location;
-                        while ((location = name.find('_', 0)) != string::npos)
-                            name.replace(location, 1, ".");
-                        sscanf(name.c_str(), "VS%f=X%f=Y%f=Z%f=H%f=P%f=R%f",
-                               &s, &coord.xyz[0], &coord.xyz[1], &coord.xyz[2],
-                               &coord.hpr[0], &coord.hpr[1], &coord.hpr[2]);
-                        if (cover->debugLevel(3))
-                            fprintf(stderr, "Scale: %f\nX: %f Y:%f Z: %f\nH: %f P: %f R: %f\n",
-                                    s, coord.xyz[0], coord.xyz[1], coord.xyz[2],
-                                    coord.hpr[0], coord.hpr[1], coord.hpr[2]);
+                    float s;
+                    coCoord coord;
+                    string::size_type location;
+                    while ((location = name.find('_', 0)) != string::npos)
+                        name.replace(location, 1, ".");
+                    sscanf(name.c_str(), "VS%f=X%f=Y%f=Z%f=H%f=P%f=R%f",
+                           &s, &coord.xyz[0], &coord.xyz[1], &coord.xyz[2],
+                           &coord.hpr[0], &coord.hpr[1], &coord.hpr[2]);
+                    if (cover->debugLevel(3))
+                        fprintf(stderr, "Scale: %f\nX: %f Y:%f Z: %f\nH: %f P: %f R: %f\n",
+                                s, coord.xyz[0], coord.xyz[1], coord.xyz[2],
+                                coord.hpr[0], coord.hpr[1], coord.hpr[2]);
 
-                        cover->setScale(s);
-                        Matrix m;
-                        coord.makeMat(m);
-                        cover->getObjectsXform()->setMatrix(m);
-                        break;
-                    }
+                    cover->setScale(s);
+                    Matrix m;
+                    coord.makeMat(m);
+                    cover->getObjectsXform()->setMatrix(m);
+                    break;
                 }
             }
         }
