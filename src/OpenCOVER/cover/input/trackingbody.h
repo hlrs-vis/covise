@@ -59,7 +59,7 @@ private:
         double scale = 1.;
         double shift = 0.;
     };
-    int lastDevice = 0;
+    int m_lastDevice = 0;
     bool m_assemble = false;
     bool m_assembleWithRotationAxis = false; // assemble from 3 valuators desrcibing a rotation axis, angle is proportional to axis length
     Assemble m_valuator[9];

@@ -181,10 +181,10 @@ void TrackingBody::update()
 	       fprintf(stderr,"1: %f %f %f 2: %f %f %f 1-2: %f %f %f\n",v1[0],v1[1],v1[2],v2[0],v2[1],v2[2],vd[0],vd[1],vd[2]);
 	    }
 	}*/
-	if(lastDevice < numDevices() && device(lastDevice)->isBodyMatrixValid(m_idx))
+	if(m_lastDevice < numDevices() && device(m_lastDevice)->isBodyMatrixValid(m_idx))
 	{
 	    m_valid=true;
-            m_mat = device(lastDevice)->getBodyMatrix(m_idx);
+            m_mat = device(m_lastDevice)->getBodyMatrix(m_idx);
 	}
 	else
 	{
@@ -195,7 +195,7 @@ void TrackingBody::update()
 
                 if (m_valid)
                 {
-	            lastDevice = i;
+	            m_lastDevice = i;
                     m_mat = device(i)->getBodyMatrix(m_idx);
 	            break;
                 }
