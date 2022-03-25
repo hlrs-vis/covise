@@ -62,7 +62,6 @@ SET(CONFIG_DEV_HEADERS
 )
 
 ADD_COVISE_LIBRARY(coConfig ${COVISE_LIB_TYPE} ${CONFIG_SOURCES} ${CONFIG_HEADERS} ${CONFIG_DEV_HEADERS})
-#qt_use_modules(coConfig Core Xml)
 # maybe move the following to CovisePresets.cmake
 IF(MSVC80 OR MSVC90)
    ADD_COVISE_COMPILE_FLAGS(coConfig "/Zc:wchar_t-")
@@ -77,10 +76,4 @@ TARGET_LINK_LIBRARIES(coConfig coUtil ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
 COVISE_WNOERROR(coConfig BASEARCH goddard)
 COVISE_INSTALL_TARGET(coConfig)
 
-#older compilers do not support std::wstring_convert-->fall back ob boost::locale::conv::from_utf
-#boost::locale::conv::from_utf does not work for newer char16_t though
-target_compile_definitions(coConfig
-  PRIVATE
-    "$<$<COMPILE_FEATURES:cxx_unicode_literals>:HAVE_UNICODE_LITERALS>"
-    "$<$<NOT:$<COMPILE_FEATURES:cxx_unicode_literals>>:>"
-  )
+
