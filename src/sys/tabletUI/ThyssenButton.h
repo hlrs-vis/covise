@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_TUI_BUTTON_H
-#define CO_TUI_BUTTON_H
+#ifndef CO_ThyssenButton_H
+#define CO_ThyssenButton_H
 
 #include <QObject>
 
@@ -30,6 +30,7 @@ public:
 
     /// get the Element's classname
     virtual const char *getClassName() const override;
+    virtual void update(uint8_t bs);
 
 public slots:
 

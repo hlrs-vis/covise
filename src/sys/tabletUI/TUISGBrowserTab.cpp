@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <iostream>
+#include <chrono>
 
 #include "TUISGBrowserTab.h"
 #include "TUITab.h"

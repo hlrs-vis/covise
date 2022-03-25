@@ -110,6 +110,9 @@ if (WIRINGPI_FOUND)
       Thyssen.h
       ThyssenButton.h
       )
+   SET(TUI_MOC_HEADERS ${TUI_MOC_HEADERS}
+      ThyssenButton.h
+      )
 endif (WIRINGPI_FOUND)
 
 

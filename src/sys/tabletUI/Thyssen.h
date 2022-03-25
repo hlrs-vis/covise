@@ -49,6 +49,9 @@
 #ifndef THYSSEN_HEADER
 #define THYSSEN_HEADER
 #include <stdint.h>
+#include <list>
+
+class ThyssenButton;
 
 // ----------------------------------------------------------------------------
 //! class LEDController
@@ -100,11 +103,15 @@ class ThyssenPanel
 {
 private:
 
-    
+    bool change = false; 
 public:
 
     ThyssenPanel();
     ~ThyssenPanel();
+    void update();
+
+
+    std::list<ThyssenButton *> buttons;
 
     LEDController* led;
     KeyPadController* kpc;

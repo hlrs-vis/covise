@@ -73,6 +73,7 @@
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include "Thyssen.h"
+#include "ThyssenButton.h"
 
 using namespace std;
 
@@ -277,6 +278,17 @@ ThyssenPanel::ThyssenPanel()
     kpc = new KeyPadController();
     
     return;
+}
+void ThyssenPanel::update()
+{
+   if(change)
+   {
+      for(const auto &i: buttons)
+      {
+         i->update(kpc->getBtnStatus());
+      }
+      change = false;
+   }
 }
 
 // ----------------------------------------------------------------------------

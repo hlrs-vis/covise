@@ -62,6 +62,10 @@ ThyssenButton::~ThyssenButton()
     delete widget;
 }
 
+void ThyssenButton::update(uint8_t bs)
+{
+}
+
 void ThyssenButton::pressed()
 {
     covise::TokenBuffer tb;

@@ -14,6 +14,9 @@
 #include <QMainWindow>
 #include <QFrame>
 #include <QFont>
+#ifdef HAVE_WIRINGPI
+#include <ThyssenButton.h>
+#endif
 
 class QGridLayout;
 class QWidget;
@@ -61,6 +64,7 @@ public:
     QFont mainFont;
 #ifdef HAVE_WIRINGPI
    ThyssenPanel * thyssenPanel;
+   QTimer *thyssenTimer;
 #endif
 
     bool serverRunning();
@@ -87,7 +91,7 @@ protected:
 private slots:
     void timerDone();
 #ifdef HAVE_WIRINGPI
-    void thyssenTtimerDone();
+    void thyssenTimerDone();
 #endif
     void fontCB(const QString &);
     void styleCB(const QString &);

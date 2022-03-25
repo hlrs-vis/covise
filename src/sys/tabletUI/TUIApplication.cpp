@@ -195,7 +195,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 
 #ifdef HAVE_WIRINGPI
     thyssenPanel = new ThyssenPanel();
-    thyssenTimer.start(100);
+    thyssenTimer->start(100);
     thyssenPanel->led->setLED(0,true);
 #endif
 
@@ -289,7 +289,7 @@ void TUIMainWindow::timerDone()
 #ifdef HAVE_WIRINGPI
 void TUIMainWindow::thyssenTimerDone()
 {
-    thyssenPannel->update();
+    thyssenPanel->update();
 }
 #endif
 
@@ -514,13 +514,15 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
     case TABLET_TEXT_FIELD:
         return new TUILabel(id, type, w, parent, name);
     case TABLET_BUTTON:
+        {
 #ifdef HAVE_WIRINGPI
-        if(subString(name,0,7) == "thyssen")
+        if(name.mid(0,7) == "thyssen")
         {
               return new ThyssenButton(id,type,w,parent,name);
         }
 #endif
         return new TUIButton(id, type, w, parent, name);
+        }
     case TABLET_FILEBROWSER_BUTTON:
         return new TUIFileBrowserButton(id, type, w, parent, name);
     case TABLET_TAB: {
