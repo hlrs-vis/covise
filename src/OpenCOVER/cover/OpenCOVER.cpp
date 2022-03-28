@@ -1544,6 +1544,11 @@ void OpenCOVER::startVrbc()
 
 void OpenCOVER::restartVrbc()
 {
+    if (exitFlag) {
+        m_vrbc.reset();
+        return;
+    }
+
     if (m_loadVistlePlugin) {
         class PluginMessageSender : public covise::MessageSenderInterface {
 
