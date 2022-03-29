@@ -12,6 +12,7 @@
 #include "coVRCommunication.h"
 #include "coVRPartner.h"
 #include "coVRPluginSupport.h"
+#include "coVRMessageSender.h"
 #include "ui/Action.h"
 #include "ui/EditField.h"
 #include "ui/FileBrowser.h"
@@ -33,14 +34,11 @@ using namespace covise;
 namespace opencover
 {
 
-    VrbMenu::VrbMenu()
-        : ui::Owner("VRBMenu", cover->ui)
-    {
-        coVRCommunication::instance()->addOnConnectCallback([this]()
-                                                            { updateState(true); });
-        coVRCommunication::instance()->addOnDisconnectCallback([this]()
-                                                               { updateState(false); });
-    }
+VrbMenu::VrbMenu(): ui::Owner("VRBMenu", cover->ui), sender(new coVRMessageSender)
+{
+    coVRCommunication::instance()->addOnConnectCallback([this]() { updateState(true); });
+    coVRCommunication::instance()->addOnDisconnectCallback([this]() { updateState(false); });
+}
 
     void VrbMenu::initFileMenu()
     {
@@ -80,7 +78,11 @@ namespace opencover
                                               args.push_back("-g");
                                               args.push_back(coVRCommunication::instance()->getSessionID().name());
                                           }
-                                          vrb::sendLaunchRequestToRemoteLaunchers(vrb::VRB_MESSAGE{vrbc->ID(), covise::Program::opencover, getRemoteLauncherClientID(index), std::vector<std::string>(), args, 0}, cover);
+                                          vrb::sendLaunchRequestToRemoteLaunchers(
+                                              vrb::VRB_MESSAGE{vrbc->ID(), covise::Program::opencover,
+                                                               getRemoteLauncherClientID(index),
+                                                               std::vector<std::string>(), args, 0},
+                                              sender.get());
                                       });
 
         //save and load sessions
@@ -119,7 +121,7 @@ namespace opencover
         tb << coVRCommunication::instance()->getID();
         tb << coVRCommunication::instance()->getUsedSessionID();
         tb << file;
-        cover->send(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
+        sender->send(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
     }
 
     void VrbMenu::loadSession(const std::string &filename)
@@ -135,7 +137,7 @@ namespace opencover
         tb << vrb::SessionID(coVRCommunication::instance()->getID(), name, false);
         covise::Message msg(tb);
         msg.type = covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
-        cover->send(&msg);
+        sender->send(&msg);
     }
     void VrbMenu::selectSession(int id)
     {

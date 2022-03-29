@@ -411,11 +411,6 @@ void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
     //draw->setUseVertexArrayObject(vao);
 }
 
-opencover::coVRMessageSender *coVRPluginSupport::getSender()
-{
-    return this;
-}
-
 bool coVRPluginSupport::sendGrMessage(const coGRMsg &gr, int msgType) const
 {
     std::string s = gr.getString();

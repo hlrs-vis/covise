@@ -15,6 +15,8 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+
 namespace vrb
 {
 class SessionID;
@@ -30,11 +32,14 @@ class SelectionList;
 class Slider;
 class FileBrowser;
 }
+
+class coVRMessageSender;
 class VrbMenu;
 
 class VrbMenu : public ui::Owner
 {
 private:
+    std::unique_ptr<coVRMessageSender> sender;
     const std::string noSavedSession = "nothing";
     ui::Group *m_sessionGroup;
     ui::Group *m_ioGroup;

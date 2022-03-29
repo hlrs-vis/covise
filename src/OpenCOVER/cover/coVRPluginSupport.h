@@ -54,7 +54,6 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
 #include "coVRPlugin.h"
-#include "coVRMessageSender.h"
 
 #include <net/message_types.h>
 
@@ -68,6 +67,7 @@ class VruiView;
 }
 
 namespace covise {
+class MessageBase;
 class Message;
 class UdpMessage;
 }
@@ -188,7 +188,7 @@ private:
  * Provide a stable interface and a single entry point to the most import
  * OpenCOVER functions
  */
-class COVEREXPORT coVRPluginSupport : public opencover::coVRMessageSender
+class COVEREXPORT coVRPluginSupport
 {
     friend class OpenCOVER;
     friend class fasi;
@@ -522,8 +522,7 @@ public:
     //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
-    void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
-    opencover::coVRMessageSender *getSender();
+    void setRenderStrategy(osg::Drawable *draw, bool dynamic = false);
     bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
 private:
     void setFrameRealTime(double ft);
