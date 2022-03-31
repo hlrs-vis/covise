@@ -45,6 +45,8 @@ namespace opencover
 
     class COVEREXPORT deviceDiscovery : public OpenThreads::Thread
     {
+        friend class OpenCOVER;
+
     public:
         deviceDiscovery();
         ~deviceDiscovery();
@@ -52,10 +54,13 @@ namespace opencover
         void update(); //< called by Input::update()
         void run(); //regularly check for new devices
 
-        std::vector<deviceInfo*> devices;
-        std::vector<deviceInfo*> toAdd;
+        // only to be used from main thread
+        const std::vector<const deviceInfo *> &getDevices() const;
 
     private:
+        std::vector<const deviceInfo *> devices;
+        std::vector<deviceInfo*> toAdd;
+
         bool running = true;
         std::string broadcastAddress;
         int port;

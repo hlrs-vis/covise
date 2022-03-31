@@ -51,7 +51,7 @@ Input::Input()
 , activePerson(NULL)
 {
     assert(!s_singleton);
-    dD = new deviceDiscovery();
+    dD.reset(new deviceDiscovery());
 }
 
 bool Input::init()
@@ -93,6 +93,11 @@ bool Input::debug(DebugBits facility)
 coMousePointer *Input::mouse() const
 {
     return m_mouse;
+}
+
+deviceDiscovery *Input::discovery() const
+{
+    return dD.get();
 }
 
 namespace

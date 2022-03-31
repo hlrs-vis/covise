@@ -106,7 +106,8 @@ public:
     Valuator *getValuator(const std::string &name); //< a single analog value
 
     coMousePointer *mouse() const;
-    deviceDiscovery* dD;
+
+    deviceDiscovery *discovery() const;
 
 private:
     Input();
@@ -141,6 +142,8 @@ private:
     bool initObjects();
 
     std::string configPath(std::string src, int n = -1); //< access configuration values
+
+    std::unique_ptr<deviceDiscovery> dD;
 };
 }
 #endif

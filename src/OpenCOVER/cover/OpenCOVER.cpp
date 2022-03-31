@@ -880,7 +880,7 @@ bool OpenCOVER::init()
                   << std::endl;
     }
 
-    Input::instance()->dD->init();
+    Input::instance()->discovery()->init();
     m_initialized = true;
 
     return true;

@@ -24,6 +24,7 @@
 #include <util/threadname.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
+#include <util/unixcompat.h>
 
 namespace opencover
 {
@@ -62,6 +63,15 @@ namespace opencover
     deviceDiscovery::~deviceDiscovery()
     {
         running = false;
+        while (isRunning())
+        {
+            usleep(10000);
+        }
+    }
+
+    const std::vector<const deviceInfo *> &deviceDiscovery::getDevices() const
+    {
+        return devices;
     }
 
     void deviceDiscovery::update()
@@ -73,10 +83,11 @@ namespace opencover
             coVRMSController::instance()->sendSlaves(&numToAdd, sizeof(numToAdd));
 	    for(const auto &i:toAdd)
 	    {
-		int len = i->pluginName.length();
-		coVRMSController::instance()->sendSlaves(&len, sizeof(len));
-		coVRMSController::instance()->sendSlaves(i->pluginName.c_str(), len+1);
-		cover->addPlugin(i->pluginName.c_str());
+            devices.push_back(i);
+            int len = i->pluginName.length();
+            coVRMSController::instance()->sendSlaves(&len, sizeof(len));
+            coVRMSController::instance()->sendSlaves(i->pluginName.c_str(), len + 1);
+            cover->addPlugin(i->pluginName.c_str());
 	    }
 	}
 	else
@@ -91,8 +102,8 @@ namespace opencover
 		coVRMSController::instance()->readMaster(buf, len+1);
 		cover->addPlugin(buf);
 	    }
-	    toAdd.clear();
-	}
+    }
+    toAdd.clear();
     }
     void deviceDiscovery::run()
     {
@@ -101,7 +112,7 @@ namespace opencover
         buffer[99] = '\0';
         while (running)
         {
-            int numBytes = dComm->receive(buffer, sizeof(buffer), 60);
+            int numBytes = dComm->receive(buffer, sizeof(buffer), 1);
             if (numBytes > 0)
             {
                 char str[INET_ADDRSTRLEN];
@@ -111,9 +122,8 @@ namespace opencover
                 if (strncmp(buffer, "devInfo", 7) == 0)
                 {
                     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-                    deviceInfo* di = new deviceInfo(buffer, str);
-                    devices.push_back(di);
-		    toAdd.push_back(di);
+                    deviceInfo *di = new deviceInfo(buffer, str);
+                    toAdd.push_back(di);
                 }
                 fprintf(stderr, "message received %s from %s\n", buffer,str);
             }
