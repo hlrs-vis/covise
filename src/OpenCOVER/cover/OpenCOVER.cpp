@@ -1430,7 +1430,9 @@ OpenCOVER::~OpenCOVER()
     delete Input::instance();
     delete cover;
     cover = NULL;
+    delete coVRMSController::instance();
     delete coVRConfig::instance();
+    delete coCommandLine::instance();
 #ifdef DOTIMING
     coTimer::quit();
 #endif

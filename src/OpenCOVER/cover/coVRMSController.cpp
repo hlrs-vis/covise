@@ -586,6 +586,8 @@ coVRMSController::~coVRMSController()
         delete multicast;
 #endif
     }
+
+    s_singleton = nullptr;
 }
 
 bool

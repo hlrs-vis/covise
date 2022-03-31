@@ -180,8 +180,9 @@ const coVRPartner *coVRCommunication::me() const{
 
 coVRCommunication::~coVRCommunication()
 {
+    assert(s_instance);
     coVRPartnerList::instance()->removePartner(me()->ID());
-	delete remoteNavInteraction;
+    delete remoteNavInteraction;
     s_instance = NULL;
 }
 

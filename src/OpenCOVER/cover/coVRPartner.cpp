@@ -380,10 +380,12 @@ coVRPartnerList::coVRPartnerList()
     m_group = new ui::ButtonGroup("PartnerGroup", this);
     partners.push_back(ValueType::value_type{new coVRPartner{}}); //me at pos 0
     assert(!s_instance);
+    s_instance = this;
 }
 
 coVRPartnerList::~coVRPartnerList()
 {
+    assert(s_instance);
     s_instance = NULL;
 }
 

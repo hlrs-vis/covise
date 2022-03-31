@@ -30,6 +30,7 @@ class PluginMenu: public ui::Owner
 {
 public:
     static PluginMenu *instance();
+    ~PluginMenu();
 
     void updateState();
     void addEntry(const std::string &name, coVRPlugin *plugin);
@@ -38,7 +39,6 @@ public:
 
 private:
     PluginMenu();
-    ~PluginMenu();
     void scanPlugins();
 
     struct Plugin

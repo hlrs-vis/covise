@@ -30,6 +30,7 @@ class COVEREXPORT coCommandLine
 {
 public:
     coCommandLine(int argc, char *argv[]);
+    ~coCommandLine();
     static coCommandLine *instance();
     static int &argc();
     static char **argv();

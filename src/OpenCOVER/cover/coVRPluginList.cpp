@@ -105,6 +105,7 @@ coVRPluginList::~coVRPluginList()
 {
     for (int d=0; d<NumPluginDomains; ++d)
         unloadAllPlugins(static_cast<PluginDomain>(d));
+    delete PluginMenu::instance();
     singleton = NULL;
 }
 

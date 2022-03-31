@@ -50,12 +50,13 @@ PluginMenu::PluginMenu()
 : ui::Owner("PluginMenu", cover->ui)
 {
     assert(!s_instance);
+    s_instance = this;
 }
 
 PluginMenu::~PluginMenu()
 {
-    if (s_instance)
-        s_instance = NULL;
+    assert(s_instance);
+    s_instance = NULL;
 }
 
 PluginMenu *PluginMenu::instance()

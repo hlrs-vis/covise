@@ -29,6 +29,11 @@ coCommandLine::coCommandLine(int argc, char *argv[])
 #endif
 }
 
+coCommandLine::~coCommandLine()
+{
+    s_instance = nullptr;
+}
+
 coCommandLine *coCommandLine::instance()
 {
     return s_instance;
