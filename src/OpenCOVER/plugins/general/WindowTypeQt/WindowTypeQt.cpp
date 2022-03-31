@@ -460,6 +460,8 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     }
     delete win.widget;
     delete win.window;
+    qApp->sendPostedEvents();
+    qApp->processEvents();
     m_windows.erase(it);
 
     if (m_deleteQApp && m_windows.empty())
