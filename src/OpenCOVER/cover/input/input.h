@@ -16,6 +16,7 @@
 #define INPUT_H
 
 #include <vector>
+#include <memory>
 #include <osg/Matrix>
 
 #include "person.h"

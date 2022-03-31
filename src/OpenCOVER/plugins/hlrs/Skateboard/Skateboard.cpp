@@ -72,7 +72,7 @@ bool Skateboard::init()
         if (coVRMSController::instance()->isMaster())
         {
             std::string host = "";
-            for (const auto& i : opencover::Input::instance()->dD->devices)
+            for (const auto& i : opencover::Input::instance()->discovery()->getDevices())
             {
                 if (i->pluginName == "Skateboard")
                 {
