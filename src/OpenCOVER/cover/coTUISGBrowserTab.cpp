@@ -1,6 +1,7 @@
 #include "coTabletUI.h"
 
 #include <util/coTabletUIMessages.h>
+#include <util/threadname.h>
 #include <net/tokenbuffer.h>
 #include <net/covise_host.h>
 #include <net/covise_connect.h>
@@ -986,6 +987,7 @@ void SGTextureThread::msleep(int msec)
 
 void SGTextureThread::run()
 {
+    covise::setThreadName("cover:SG:tex");
     while (running)
     {
         bool work = false;

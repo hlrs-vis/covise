@@ -9,6 +9,10 @@
 #include <iostream>
 #endif
 
+#ifdef __APPLE__
+#include <pthread.h>
+#endif
+
 namespace covise
 {
 
@@ -27,6 +31,11 @@ bool setThreadName(std::string name)
     }
     std::cerr << "setThreadName failed: " << strerror(err) << std::endl;
 #endif
+#endif
+
+#ifdef __APPLE__
+    pthread_setname_np(name.c_str());
+    return true;
 #endif
     return false;
 }
