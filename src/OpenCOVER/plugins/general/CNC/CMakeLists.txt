@@ -1,6 +1,5 @@
 #OpenCOVER plugins general CNC
 
-USING(CG)
 ADD_DEFINITIONS(-DAA -DBB -DCC)
 
 SET(HEADERS

@@ -22,18 +22,20 @@
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
-using namespace covise;
-using namespace opencover;
 
-#include "cover/coTabletUI.h"
+#include <cover/coTabletUI.h>
 #include <osg/Geode>
 #include <osg/ref_ptr>
 #include <osg/Geometry>
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <PluginUtil/coSphere.h>
-#include <QStringList>
-#include <QMap>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace covise;
+using namespace opencover;
 
 class CNCPlugin : public coVRPlugin, public coTUIListener
 {
@@ -70,9 +72,9 @@ public:
     coTUIFileBrowserButton *fileNameBrowser;
     coTUIComboBox *renderMethod;
     coTUIComboBox *mapChoice;
-    QStringList mapNames;
-    QMap<QString, int> mapSize;
-    QMap<QString, float *> mapValues;
+    std::vector<std::string> mapNames;
+    std::map<std::string, int> mapSize;
+    std::map<std::string, float *> mapValues;
 
     int currentMap;
     osg::ref_ptr<osg::StateSet> geoState;
@@ -81,7 +83,7 @@ public:
     void setTimestep(int t);
 
     osg::Vec4 getColor(float pos);
-    void deleteColorMap(const QString &name);
+    void deleteColorMap(const std::string &name);
 
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletReleaseEvent(coTUIElement *tUIItem);

@@ -23,8 +23,8 @@
 #include "CNCPlugin.h"
 #define USE_MATH_DEFINES
 #include <math.h>
-#include <QDir>
 #include <config/coConfig.h>
+#include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
@@ -643,12 +643,13 @@ int CNCPlugin::unloadGCode(const char *filename, const char *)
     return 0;
 }
 
-void CNCPlugin::deleteColorMap(const QString &name)
+void CNCPlugin::deleteColorMap(const std::string &name)
 {
-    float *mval = mapValues.value(name);
-    mapSize.remove(name);
-    mapValues.remove(name);
-    delete[] mval;
+    auto it = mapValues.find(name);
+    if (it != mapValues.end())
+        delete[] it->second;
+    mapSize.erase(name);
+    mapValues.erase(name);
 }
 
 bool CNCPlugin::init()
@@ -666,105 +667,76 @@ bool CNCPlugin::init()
     coConfig *config = coConfig::getInstance();
 
     // read the name of all colormaps in file
-    QStringList list;
-    list = config->getVariableList("Colormaps");
-
-    for (int i = 0; i < list.size(); i++)
-        mapNames.append(list[i]);
+    covise::coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries("Colormaps");
+#ifdef NO_COLORMAP_PARAM
+    mapNames.push_back("COVISE");
+#else
+    mapNames.push_back("Editable");
+#endif
+    for (const auto &key: keys)
+        mapNames.push_back(key.first);
 
     // read the values for each colormap
     for (int k = 1; k < mapNames.size(); k++)
     {
         // get all definition points for the colormap
-        QString cmapname = "Colormaps." + mapNames[k];
-        QStringList variable = config->getVariableList(cmapname);
+        string name = "Colormaps." + mapNames[k];
+        coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries(name);
 
-        mapSize.insert(mapNames[k], variable.size());
-        float *cval = new float[variable.size() * 5];
-        mapValues.insert(mapNames[k], cval);
+        int no = keys.size();
+        mapSize.emplace(mapNames[k], no);
+        float *cval = new float[no * 5];
+        mapValues.emplace(mapNames[k], cval);
 
-        // read the rgbax values
-        int it = 0;
-        for (int l = 0; l < variable.size() * 5; l = l + 5)
+        // read all sampling points
+        float diff = 1.0f / (no - 1);
+        float pos = 0.0f;
+        float *cur = cval;
+        for (int j = 0; j < no; j++)
         {
-            QString tmp = cmapname + ".Point:" + QString::number(it);
-            cval[l] = config->getFloat("x", tmp, -1.0);
-            if (cval[l] == -1)
+            ostringstream out;
+            out << j;
+            string tmp = name + ".Point:" + out.str();
+
+            bool rgb = false;
+            string rgba = coCoviseConfig::getEntry("rgba", tmp);
+            if (rgba.empty())
             {
-                cval[l] = (1.0 / (variable.size() - 1)) * (l / 5);
+                rgb = true;
+                rgba = coCoviseConfig::getEntry("rgb", tmp);
             }
-            cval[l + 1] = config->getFloat("r", tmp, 1.0);
-            cval[l + 2] = config->getFloat("g", tmp, 1.0);
-            cval[l + 3] = config->getFloat("b", tmp, 1.0);
-            cval[l + 4] = config->getFloat("a", tmp, 1.0);
-            it++;
+            if (!rgba.empty())
+            {
+                float a = 1.;
+                uint32_t c = strtol(rgba.c_str(), NULL, 16);
+                if (!rgb)
+                {
+                    a = (c & 0xff) / 255.0f;
+                    c >>= 8;
+                }
+                float b = (c & 0xff) / 255.0f;
+                c >>= 8;
+                float g = (c & 0xff) / 255.0f;
+                c >>= 8;
+                float r = (c & 0xff) / 255.0f;
+                float x = coCoviseConfig::getFloat("x", tmp, pos);
+                *cur++ = r;
+                *cur++ = g;
+                *cur++ = b;
+                *cur++ = a;
+                *cur++ = x;
+            }
+            else
+            {
+                *cur++ = 1.;
+                *cur++ = 1.;
+                *cur++ = 1.;
+                *cur++ = 1.;
+                *cur++ = pos;
+            }
+            pos = pos + diff;
         }
     }
-
-    // read values of local colormap files in .covise
-    QString place = coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "colormaps";
-
-    QDir directory(place);
-    if (directory.exists())
-    {
-        QStringList filters;
-        filters << "colormap_*.xml";
-        directory.setNameFilters(filters);
-        directory.setFilter(QDir::Files);
-        QStringList files = directory.entryList();
-
-        // loop over all found colormap xml files
-        for (int j = 0; j < files.size(); j++)
-        {
-            coConfigGroup *colorConfig = new coConfigGroup("ColorMap");
-            colorConfig->addConfig(place + "/" + files[j], "local", true);
-
-            // read the name of the colormaps
-            QStringList list;
-            list = colorConfig->getVariableList("Colormaps");
-
-            // loop over all colormaps in one file
-            for (int i = 0; i < list.size(); i++)
-            {
-
-                // remove global colormap with same name
-                int index = mapNames.indexOf(list[i]);
-                if (index != -1)
-                {
-                    mapNames.removeAt(index);
-                    deleteColorMap(list[i]);
-                }
-                mapNames.append(list[i]);
-
-                // get all definition points for the colormap
-                QString cmapname = "Colormaps." + mapNames.last();
-                QStringList variable = colorConfig->getVariableList(cmapname);
-
-                mapSize.insert(list[i], variable.size());
-                float *cval = new float[variable.size() * 5];
-                mapValues.insert(list[i], cval);
-
-                // read the rgbax values
-                int it = 0;
-                for (int l = 0; l < variable.size() * 5; l = l + 5)
-                {
-                    QString tmp = cmapname + ".Point:" + QString::number(it);
-                    cval[l] = (colorConfig->getValue("x", tmp, " -1.0")).toFloat();
-                    if (cval[l] == -1)
-                    {
-                        cval[l] = (1.0 / (variable.size() - 1)) * (l / 5);
-                    }
-                    cval[l + 1] = (colorConfig->getValue("r", tmp, "1.0")).toFloat();
-                    cval[l + 2] = (colorConfig->getValue("g", tmp, "1.0")).toFloat();
-                    cval[l + 3] = (colorConfig->getValue("b", tmp, "1.0")).toFloat();
-                    cval[l + 4] = (colorConfig->getValue("a", tmp, "1.0")).toFloat();
-                    it++;
-                }
-            }
-            config->removeConfig(place + "/" + files[j]);
-        }
-    }
-    mapNames.sort();
 
     PathTab = new coTUITab("CNC", coVRTui::instance()->mainFolder->getID());
     record = new coTUIToggleButton("Record", PathTab->getID());
@@ -775,10 +747,9 @@ bool CNCPlugin::init()
 
     mapChoice = new coTUIComboBox("mapChoice", PathTab->getID());
     mapChoice->setEventListener(this);
-    int i;
-    for (i = 0; i < mapNames.count(); i++)
+    for (auto &n: mapNames)
     {
-        mapChoice->addEntry(mapNames[i].toStdString());
+        mapChoice->addEntry(n);
     }
     mapChoice->setSelectedEntry(currentMap);
     mapChoice->setPos(6, 0);
@@ -899,7 +870,7 @@ CNCPlugin::~CNCPlugin()
     delete[] lookat[1];
     delete[] lookat[2];
     delete[] objectName;
-    if (geode->getNumParents() > 0)
+    if (geode && geode->getNumParents() > 0)
     {
         parentNode = geode->getParent(0);
         if (parentNode)
@@ -1048,8 +1019,8 @@ osg::Vec4 CNCPlugin::getColor(float pos)
     osg::Vec4 actCol;
     int idx = 0;
     //cerr << "name: " << (const char *)mapNames[currentMap].toAscii() << endl;
-    float *map = mapValues.value(mapNames[currentMap]);
-    int mapS = mapSize.value(mapNames[currentMap]);
+    float *map = mapValues[mapNames[currentMap]];
+    int mapS = mapSize[mapNames[currentMap]];
     if (map == NULL)
     {
         return actCol;
