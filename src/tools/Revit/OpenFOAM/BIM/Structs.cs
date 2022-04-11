@@ -1,6 +1,8 @@
 using Autodesk.Revit.DB;
 using System.Windows.Media.Media3D;
 using System.Collections.Generic;
+using System.Collections;
+using System.Windows;
 using System;
 
 namespace OpenFOAMInterface.BIM.Structs
@@ -344,7 +346,298 @@ namespace OpenFOAMInterface.BIM.Structs
             }
         }
 
-        /// <summary>
+        public struct CastellatedMeshControls
+        {
+            private static CastellatedMeshControls def = new CastellatedMeshControls();
+            public static ref readonly CastellatedMeshControls Default => ref def;
+            public struct MeshCoords
+            {
+                private static XYZ ZERO = new(0, 0, 0);
+                private static MeshCoords def = new MeshCoords();
+                public static ref readonly MeshCoords Default => ref def;
+                public MeshCoords() : this(ZERO, ZERO, ZERO, ZERO) { }
+                public MeshCoords(in XYZ origin, in XYZ x, in XYZ y, in XYZ z)
+                {
+                    this.Origin = origin;
+                    this.X = x;
+                    this.Y = y;
+                    this.Z = z;
+                }
+                public XYZ Origin { get; set; }
+                public XYZ X { get; set; }
+                public XYZ Y { get; set; }
+                public XYZ Z { get; set; }
+            }
+
+            readonly public struct CellParameter
+            {
+                private static CellParameter def = new CellParameter();
+                public static ref readonly CellParameter Default => ref def;
+                public CellParameter() : this(100000, 2000000) { }
+                public CellParameter(int maxLocal, int maxGlobal)
+                {
+                    this.MaxLocal = maxLocal;
+                    this.maxGlobal = maxGlobal;
+                }
+                public int MaxLocal { get; }
+                public int maxGlobal { get; }
+            }
+
+            readonly public struct MeshLVL
+            {
+                private static Vector defWall = new(3, 3);
+                private static Vector defOutIn = new(4, 4);
+                private static MeshLVL def = new MeshLVL();
+                public static ref readonly MeshLVL Default => ref def;
+                public MeshLVL() : this(defWall, defOutIn, defOutIn) { }
+                public MeshLVL(in Vector wall, in Vector outlet, in Vector inlet)
+                {
+                    this.Wall = wall;
+                    this.Outlet = outlet;
+                    this.Inlet = inlet;
+                }
+                public Vector Wall { get; }
+                public Vector Outlet { get; }
+                public Vector Inlet { get; }
+            }
+
+            public CastellatedMeshControls() : this(
+                CellParameter.Default, 10, 0.10, 3, new(), MeshLVL.Default,
+                180, new(), true, new(65.6, 0, 16.5), MeshCoords.Default, MeshCoords.Default)
+            { }
+
+            public CastellatedMeshControls(in CellParameter cell, int minRefinementCalls,
+                                           in double maxLoadUnbalance, int nCellsBetweenLevels,
+                                           in ArrayList features, in MeshLVL meshLVL,
+                                           int resolveFeatureAngle,
+                                           in Dictionary<string, object> refinementRegions,
+                                           bool allowFreeStandingZoneFaces, in Vector3D locationInMesh,
+                                           in MeshCoords domainBox, in MeshCoords refinementBox)
+            {
+                this.CellParam = cell;
+                this.MinRefinementCalls = minRefinementCalls;
+                this.MaxLoadUnbalance = maxLoadUnbalance;
+                this.NCellsBetweenLevels = nCellsBetweenLevels;
+                this.Features = features;
+                this.MeshLevel = meshLVL;
+                this.ResolveFeatureAngle = resolveFeatureAngle;
+                this.RefinementRegions = refinementRegions;
+                this.AllowFreeStandigZoneFaces = allowFreeStandingZoneFaces;
+                this.LocationInMesh = locationInMesh;
+                this.DomainBox = domainBox;
+                this.RefinementBox = refinementBox;
+            }
+            public CellParameter CellParam { get; }
+            public MeshLVL MeshLevel { get; }
+            public ArrayList Features { get; }
+            public Dictionary<string, object> RefinementRegions { get; }
+            public Vector3D LocationInMesh { get; }
+            public MeshCoords DomainBox { get; }
+            public MeshCoords RefinementBox { get; }
+            public int MinRefinementCalls { get; }
+            public int ResolveFeatureAngle { get; }
+            public int NCellsBetweenLevels { get; }
+            public double MaxLoadUnbalance { get; }
+            public bool AllowFreeStandigZoneFaces { get; }
+        }
+
+        readonly public struct SnapControls
+        {
+            private static SnapControls def = new SnapControls();
+            public static ref readonly SnapControls Default => ref def;
+            public SnapControls() : this(5, 5, 100, 8, 10, true, true) { }
+            public SnapControls(int nSmoothPatch, int tolerance, int nSolverIter, int nRelaxIter,
+                                int featureSnapIter, bool implicitFeatureSnap, bool multiRegionFeatureSnap)
+            {
+                this.NSmoothPatch = nSmoothPatch;
+                this.Tolerance = tolerance;
+                this.NSolverIter = nSolverIter;
+                this.NRelaxIterSnap = nRelaxIter;
+                this.NFeatureSnapIter = featureSnapIter;
+                this.ImplicitFeatureSnap = implicitFeatureSnap;
+                this.MultiRegionFeatureSnap = multiRegionFeatureSnap;
+            }
+            public int NSmoothPatch { get; }
+            public int Tolerance { get; }
+            public int NSolverIter { get; }
+            public int NRelaxIterSnap { get; }
+            public int NFeatureSnapIter { get; }
+            public bool ImplicitFeatureSnap { get; }
+            public bool MultiRegionFeatureSnap { get; }
+        }
+
+        readonly public struct AddLayersControl
+        {
+            readonly public struct SmoothParameter
+            {
+                private static SmoothParameter def = new SmoothParameter();
+                public static ref readonly SmoothParameter Default => ref def;
+                public SmoothParameter() : this(1, 10, 3) { }
+                public SmoothParameter(int nSmoothSurfaceNormals, int nSmoothThickness, int nSmoothNormals)
+                {
+                    this.NSmoothNormals = nSmoothNormals;
+                    this.NSmoothSurfaceNormals = nSmoothSurfaceNormals;
+                    this.NSmoothThickness = nSmoothThickness;
+                }
+                public int NSmoothSurfaceNormals { get; }
+                public int NSmoothThickness { get; }
+                public int NSmoothNormals { get; }
+            }
+            private static AddLayersControl def = new AddLayersControl();
+            public static ref readonly AddLayersControl Default => ref def;
+            public AddLayersControl() : this(true, new(), 1.1, 0.7, 0.1, 0, 110, 3, SmoothParameter.Default,
+                                             0.5, 0.3, 130, 0, 50, 20)
+            { }
+            public AddLayersControl(bool relativeSizes, in Dictionary<string, object> layers, in double expansionRatio,
+                                    in double finalLayerThickness, in double minThickness, int nGrow, int featureAngle,
+                                    int nRelaxIterLayer, in SmoothParameter smoothParam, in double maxFaceThicknessRatio,
+                                    in double maxThicknessToMedialRatio, int minMedianAxisAngle, int nBufferCellsNoExtrude,
+                                    int nLayerIter, int nRelaxedIterLayer)
+            {
+                this.RelativeSizes = relativeSizes;
+                this.Layers = layers;
+                this.ExpansionRatio = expansionRatio;
+                this.FinalLayerThickness = finalLayerThickness;
+                this.MinThickness = minThickness;
+                this.NGrow = nGrow;
+                this.FeatureAngle = featureAngle;
+                this.NRelaxeIterLayer = nRelaxIterLayer;
+                this.SmoothParam = smoothParam;
+                this.MaxFaceThicknessRatio = maxFaceThicknessRatio;
+                this.MaxThicknessToMeadialRatio = maxThicknessToMedialRatio;
+                this.MinMedianAxisAngle = minMedianAxisAngle;
+                this.NBufferCellsNoExtrude = nBufferCellsNoExtrude;
+                this.NLayerIter = nLayerIter;
+                this.NRelaxedIterLayer = nRelaxedIterLayer;
+            }
+            public bool RelativeSizes { get; }
+            public double ExpansionRatio { get; }
+            public double FinalLayerThickness { get; }
+            public double MinThickness { get; }
+            public double MaxFaceThicknessRatio { get; }
+            public double MaxThicknessToMeadialRatio { get; }
+            public int NGrow { get; }
+            public int FeatureAngle { get; }
+            public int NRelaxeIterLayer { get; }
+            public int NRelaxedIterLayer { get; }
+            public int MinMedianAxisAngle { get; }
+            public int NBufferCellsNoExtrude { get; }
+            public int NLayerIter { get; }
+            public SmoothParameter SmoothParam { get; }
+            public Dictionary<string, object> Layers { get; }
+        }
+
+        readonly public struct MeshQualityControls
+        {
+            readonly public struct Max
+            {
+                private static Max def = new Max();
+                public static ref readonly Max Default => ref def;
+                public Max() : this(60, 20, 4, 80, 75) { }
+                public Max(int maxNonOrthoMeshQualtiy, int maxBoundarySkewness, int maxInternalSkewness, int maxConcave, int maxNonOrtho)
+                {
+                    this.MaxNonOrthoMeshQuality = maxNonOrthoMeshQualtiy;
+                    this.MaxBoundarySkewness = maxBoundarySkewness;
+                    this.MaxInternalSkewness = maxInternalSkewness;
+                    this.MaxConcave = maxConcave;
+                    this.MaxNonOrtho = maxNonOrtho;
+                }
+                public int MaxNonOrthoMeshQuality { get; }
+                public int MaxBoundarySkewness { get; }
+                public int MaxInternalSkewness { get; }
+                public int MaxConcave { get; }
+                public int MaxNonOrtho { get; }
+            }
+            readonly public struct Min
+            {
+                private static Min def = new Min();
+                public static ref readonly Min Default => ref def;
+                public Min() : this(0.5, 1e-13, 1e-15, -1, 0.02, 0.01, 0.02, 0.01, -1) { }
+                public Min(in double minFlatness, in double minVol, in double minTetQuality, int minArea,
+                           in double minTwist, in double minDeterminant, in double minFaceWeight, in double minVolRatio,
+                           int minTriangleTwist)
+                {
+                    this.MinFlatness = minFlatness;
+                    this.MinVol = minVol;
+                    this.MinTetQuality = minTetQuality;
+                    this.MinArea = minArea;
+                    this.MinTwist = minTwist;
+                    this.MinDeterminant = minDeterminant;
+                    this.MinFaceWeight = minFaceWeight;
+                    this.MinVolRatio = minVolRatio;
+                    this.MinTriangleTwist = minTriangleTwist;
+                }
+                public double MinFlatness { get; }
+                public double MinVol { get; }
+                public double MinTetQuality { get; }
+                public double MinTwist { get; }
+                public double MinDeterminant { get; }
+                public double MinFaceWeight { get; }
+                public double MinVolRatio { get; }
+                public int MinArea { get; }
+                public int MinTriangleTwist { get; }
+            }
+            private static MeshQualityControls def = new MeshQualityControls();
+            public static ref readonly MeshQualityControls Default => ref def;
+            public MeshQualityControls() : this(Max.Default, Min.Default, 4, 0.75,
+                                                new Dictionary<string, object> { { "maxNonOrtho", Max.Default.MaxNonOrtho } })
+            { }
+            public MeshQualityControls(in Max maxParam, in Min minParam, int nSmoothScale, in double errorReduction, in Dictionary<string, object> relaxed)
+            {
+                this.MaxParam = maxParam;
+                this.MinParam = minParam;
+                this.NSmoothScale = nSmoothScale;
+                this.ErrorReduction = errorReduction;
+                this.Relaxed = relaxed;
+            }
+            public Max MaxParam { get; }
+            public Min MinParam { get; }
+            public int NSmoothScale { get; }
+            public double ErrorReduction { get; }
+            public Dictionary<string, object> Relaxed { get; }
+        }
+
+        public struct SnappyHexMeshDict
+        {
+            private static double KELVIN_ZERO_DEG = 273.15;
+            private static SnappyHexMeshDict def = new SnappyHexMeshDict();
+            public static ref readonly SnappyHexMeshDict Default => ref def;
+            public SnappyHexMeshDict() : this(true, true, false, 0, 1e-6,
+                                              CastellatedMeshControls.Default, SnapControls.Default,
+                                              AddLayersControl.Default, MeshQualityControls.Default,
+                                              KELVIN_ZERO_DEG + 25, KELVIN_ZERO_DEG + 29)
+            { }
+            public SnappyHexMeshDict(bool castellatedMesh, bool snap, bool addLayers, int debug, in double mergeTolerance,
+                                     in CastellatedMeshControls castellatedMeshControls, in SnapControls snapControls,
+                                     in AddLayersControl addLayersControl, in MeshQualityControls meshQualityControls,
+                                     in double tempWall, in double tempInlet)
+            {
+                this.CastellatedMesh = castellatedMesh;
+                this.Snap = snap;
+                this.AddLayers = addLayers;
+                this.Debug = debug;
+                this.MergeTolerance = mergeTolerance;
+                this.CastellatedMeshControls = castellatedMeshControls;
+                this.SnapControls = snapControls;
+                this.AddLayersControl = addLayersControl;
+                this.MeshQualityControls = meshQualityControls;
+                this.TempWall = tempWall;
+                this.TempInlet = tempInlet;
+            }
+
+            public bool CastellatedMesh { get; }
+            public bool Snap { get; }
+            public bool AddLayers { get; }
+            public int Debug { get; }
+            public double MergeTolerance { get; }
+            public double TempWall { get; }
+            public double TempInlet { get; }
+            public CastellatedMeshControls CastellatedMeshControls { get; }
+            public SnapControls SnapControls { get; }
+            public AddLayersControl AddLayersControl { get; }
+            public MeshQualityControls MeshQualityControls { get; }
+        }
+
         /// Represents an initial parameter from the null folder.
         /// </summary>
         public struct NullParameter
@@ -389,7 +682,6 @@ namespace OpenFOAMInterface.BIM.Structs
             /// </summary>
             public readonly SolverControlDict Solver { get; }
 
-            // private SimulationType _simulationType;
             /// <summary>
             /// Turbulence simulationType.
             /// </summary>
@@ -451,44 +743,25 @@ namespace OpenFOAMInterface.BIM.Structs
         /// </summary>
         public struct CoeffsMethod
         {
-            //Attributes
+            private static CoeffsMethod def = new CoeffsMethod();
+            public static ref readonly CoeffsMethod Default => ref def;
+            public CoeffsMethod() : this(new Vector3D(2, 2, 1), 0.001) { }
+            public CoeffsMethod(in Vector3D n, in double delta)
+            {
+                _n = n;
+                this.Delta = delta;
+            }
+
             /// <summary>
             /// Distribution n-Vector in DecomposeParDict.
             /// </summary>
-            Vector3D n;
+            private Vector3D _n;
+            public Vector3D N { readonly get => _n; set => _n = value; }
 
             /// <summary>
             /// Delta of DecomposeParDict.
             /// </summary>
-            double delta;
-
-            /// <summary>
-            /// Getter for n-Vector.
-            /// </summary>
-            public Vector3D N { get => n; }
-
-            /// <summary>
-            /// Getter for Delta.
-            /// </summary>
-            public double Delta { get => delta; set => delta = value; }
-
-            /// <summary>
-            /// Initialize Vector N with the number of cpu's.
-            /// </summary>
-            /// <param name="numberOfSubdomains">Number of physical CPU's.</param>
-            public void SetN(int numberOfSubdomains)
-            {
-                //Algo for subDomains
-            }
-
-            /// <summary>
-            /// Initialize Vector N with given Vecotr _n.
-            /// </summary>
-            /// <param name="_n">Explicit Vector for N.</param>
-            public void SetN(Vector3D _n)
-            {
-                n = _n;
-            }
+            public readonly double Delta { get; }
 
             /// <summary>
             /// Creates Dictionary and adds attributes to it.
@@ -496,61 +769,75 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <returns>Dictionary filled with attributes.</returns>
             public Dictionary<string, object> ToDictionary()
             {
-                Dictionary<string, object> attributes = new Dictionary<string, object>();
-                attributes.Add("n", n);
-                attributes.Add("delta", delta);
-                return attributes;
+                return new Dictionary<string, object>
+                {
+                    {"n", N},
+                    {"delta", Delta}
+                };
             }
         }
+
         /// <summary>
         /// P-FvSolution.
         /// </summary>
-        public struct PFv
+        readonly public struct PFv
         {
-            //Parameter for the p-Dictionary in FvSolutionDictionary
+            public PFv(in FvSolutionParameter param, in Agglomerator agglomerator, in CacheAgglomeration cache) : this(
+                param: param,
+                agglomerator: agglomerator,
+                cache: cache,
+                nCellsInCoarsesLevel: 10,
+                nPostSweeps: 2,
+                nPreSweepers: 0,
+                mergeLevels: 1)
+            { }
+
+            public PFv(in FvSolutionParameter param, in Agglomerator agglomerator, in CacheAgglomeration cache,
+                       int nCellsInCoarsesLevel, int nPostSweeps, int nPreSweepers, int mergeLevels)
+            {
+                this.Param = param;
+                this.Agglomerator = agglomerator;
+                this.CacheAgglomeration = cache;
+                this.NCellsInCoarsesLevel = nCellsInCoarsesLevel;
+                this.NPostSweeps = nPostSweeps;
+                this.NPreSweepers = nPreSweepers;
+                this.MergeLevels = mergeLevels;
+            }
+
             /// <summary>
             /// Parameter for the p-Dicitonionary in FvSolutionDicitonary.
             /// </summary>
-            FvSolutionParameter param;
+            public FvSolutionParameter Param { get; }
 
             /// <summary>
             /// Agglomerator-Enum.
             /// </summary>
-            Agglomerator agglomerator;
+            public Agglomerator Agglomerator { get; }
 
             /// <summary>
             /// CachAgglomeration-Enum.
             /// </summary>
-            CacheAgglomeration cacheAgglomeration;
+            public CacheAgglomeration CacheAgglomeration { get; }
 
             /// <summary>
             /// Interger for nCellsInCoarsesLevel.
             /// </summary>
-            int nCellsInCoarsesLevel;
+            public int NCellsInCoarsesLevel { get; }
 
             /// <summary>
             /// Integer for nPostSweeps.
             /// </summary>
-            int nPostSweeps;
+            public int NPostSweeps { get; }
 
             /// <summary>
             /// Integer for nPreSweepsre.
             /// </summary>
-            int nPreSweepsre;
+            public int NPreSweepers { get; }
 
             /// <summary>
             /// Integer for mergeLevels.
             /// </summary>
-            int mergeLevels;
-
-            //Getter-Setter
-            public FvSolutionParameter Param { get => param; set => param = value; }
-            public Agglomerator Agglomerator { get => agglomerator; set => agglomerator = value; }
-            public CacheAgglomeration CacheAgglomeration { get => cacheAgglomeration; set => cacheAgglomeration = value; }
-            public int NCellsInCoarsesLevel { get => nCellsInCoarsesLevel; set => nCellsInCoarsesLevel = value; }
-            public int NPostSweeps { get => nPostSweeps; set => nPostSweeps = value; }
-            public int NPreSweepsre { get => nPreSweepsre; set => nPreSweepsre = value; }
-            public int MergeLevels { get => mergeLevels; set => mergeLevels = value; }
+            public int MergeLevels { get; }
 
             /// <summary>
             /// Creates a Dictionary of data.
@@ -568,7 +855,7 @@ namespace OpenFOAMInterface.BIM.Structs
                     {"solver" , Param.Solver },
                     {"cacheAgglomeration" , CacheAgglomeration },
                     {"nPostSweeps" , NPostSweeps },
-                    {"nPreSweepsre" , NPreSweepsre },
+                    {"nPreSweepers" , NPreSweepers },
                     {"mergeLevels", MergeLevels }
                 };
                 return pList;
@@ -850,6 +1137,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// Face normal of the surface.
             /// </summary>
             public XYZ FaceNormal { get; }
+
             /// <summary>
             /// Flow Temperature.
             /// </summary>

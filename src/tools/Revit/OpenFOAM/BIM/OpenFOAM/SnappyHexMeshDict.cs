@@ -261,7 +261,8 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
 
             //patchtype dict
             Dictionary<string, object> patchType = new Dictionary<string, object> { { "type", "patch" } };
-            Settings s = Exporter.Instance.settings;
+            // Settings s = Exporter.Instance.settings;
+            var s = Exporter.Instance.settings;
             if (s.RefinementBoxOrigin[0] != 0)
             {
                 int lev = s.RefinementBoxLevel;

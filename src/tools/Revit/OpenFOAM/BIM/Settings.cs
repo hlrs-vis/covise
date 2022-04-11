@@ -127,9 +127,14 @@ namespace OpenFOAMInterface.BIM
         Dictionary<string, object> m_RelaxationFactors;
         private int m_nNonOrhtogonalCorrectors;
         private Dictionary<string, object> m_residualControl;
-
+        private string m_localCaseFolder;
+        private double m_WindSpeed = 10.0;
+        private double m_ReferenceHeight = 6.0;
+        private string m_Profile = "constant";
+        private int m_RefinementBoxLevel;
 
         //SnappyHexMeshDict-General
+        // private SnappyHexMeshDict m_snappyHexMeshDict;
         private bool m_CastellatedMesh;
         private bool m_Snap;
         private bool m_AddLayers;
@@ -137,6 +142,7 @@ namespace OpenFOAMInterface.BIM
         private double m_MergeTolerance;
 
         //SnappyHexMeshDict-CastelletedMeshControls
+        // private SnappyHexMeshDict m_snappyHexMeshDict;
         private int m_MaxLocalCells;
         private int m_MaxGlobalCells;
         private int m_MinRefinementCalls;
@@ -159,11 +165,6 @@ namespace OpenFOAMInterface.BIM
         private XYZ m_RefinementBoxX;
         private XYZ m_RefinementBoxY;
         private XYZ m_RefinementBoxZ;
-        private int m_RefinementBoxLevel;
-        private double m_WindSpeed = 10.0;
-        private double m_ReferenceHeight = 6.0;
-        private string m_Profile = "constant";
-        private string m_localCaseFolder;
         private Dictionary<string, object> m_RefinementRegions;
         private bool m_AllowFreeStandingZoneFaces;
 
@@ -258,6 +259,7 @@ namespace OpenFOAMInterface.BIM
         public Dictionary<string, object> ResidualControl { get => m_residualControl; set => m_residualControl = value; }
 
         //Getter-Setter SnappyHexMesh
+        // public ref readonly SnappyHexMeshDict SnappyHexMeshDict => ref m_snappyHexMeshDict;
         public int Debug { get => m_Debug; set => m_Debug = value; }
         public double MergeTolerance { get => m_MergeTolerance; set => m_MergeTolerance = value; }
         public Vector3D LocationInMesh { get => m_LocationInMesh; set => m_LocationInMesh = value; }
@@ -752,6 +754,7 @@ namespace OpenFOAMInterface.BIM
         /// </summary>
         private void InitSnappyHexMesh()
         {
+            // m_snappyHexMeshDict = SnappyHexMeshDict.Default;
             m_CastellatedMesh = true;
             m_Snap = true;
             m_AddLayers = false;
@@ -881,6 +884,7 @@ namespace OpenFOAMInterface.BIM
                 m_DomainY = pos.BasisY * depth;
                 m_DomainZ = pos.BasisZ * height;
             }
+
             // Use Linq query to find family instances whose name is OpenFOAM
             var query = from element in collector
                         where element.Name == "OpenFOAM"
@@ -936,9 +940,10 @@ namespace OpenFOAMInterface.BIM
 
                 //distribution
                 Vector3D domainSplit = getVector(instance, "domainSplit");
-                m_HierarchicalCoeffs.SetN(domainSplit);
+                // m_HierarchicalCoeffs.SetN(domainSplit);
+                m_HierarchicalCoeffs.N = domainSplit;
                 NumberOfSubdomains = getInt(instance, "numberOfSubdomains");
-                m_SimpleCoeffs.SetN(domainSplit);
+                m_SimpleCoeffs.N = domainSplit;
 
                 //for debug result
                 string formatControl = getString(instance, "writeFormat");
@@ -1059,7 +1064,6 @@ namespace OpenFOAMInterface.BIM
             }
 
             //get duct-terminals in active document
-
             Autodesk.Revit.DB.View simulationView = Exporter.Instance.FindView(document, "Simulation");
             if (simulationView == null)
             {
@@ -1293,18 +1297,8 @@ namespace OpenFOAMInterface.BIM
             MethodDecompose methodDecompose = MethodDecompose.scotch;
             m_NumberOfSubdomains = numberOfSubdomains;
             m_MethodDecompose = methodDecompose;
-
-            SimpleCoeffs = new CoeffsMethod
-            {
-                Delta = 0.001
-            };
-            SimpleCoeffs.SetN(new Vector3D(2, 2, 1));
-
-            HierarchicalCoeffs = new CoeffsMethod
-            {
-                Delta = 0.001
-            };
-            HierarchicalCoeffs.SetN(new Vector3D(2, 2, 1));
+            SimpleCoeffs = CoeffsMethod.Default;
+            HierarchicalCoeffs = CoeffsMethod.Default;
             m_Order = "xyz";
             m_DataFile = "cellDecomposition";
         }
@@ -1433,15 +1427,11 @@ namespace OpenFOAMInterface.BIM
                 };
 
                 PFv m_p = new PFv
-                {
-                    Param = p,
-                    MergeLevels = 1,
-                    NPreSweepsre = 0,
-                    NPostSweeps = 2,
-                    NCellsInCoarsesLevel = 10,
-                    Agglomerator = agglomerator,
-                    CacheAgglomeration = cacheAgglomeration
-                };
+                (
+                    param: p,
+                    agglomerator: agglomerator,
+                    cache: cacheAgglomeration
+                );
 
                 m_FvParameter.Add("p", /*_p*/m_p);
             }
@@ -2427,10 +2417,6 @@ namespace OpenFOAMInterface.BIM
                                     }
                                     else
                                     {
-                                        /*if (properties.FaceNormal == null)
-                                            properties.FaceNormal = new XYZ(0, 0, 0);
-                                        v = new Vector3D(properties.FaceNormal.X, properties.FaceNormal.Y, properties.FaceNormal.Z) * properties.MeanFlowVelocity;*/
-
                                         type = "inletOutlet";
                                         v = new Vector3D(0, 0, 0);
                                         _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
