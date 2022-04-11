@@ -1088,7 +1088,8 @@ namespace OpenFOAMInterface.BIM
                     if (flowRate == 0)
                     {
                         flowRate = GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.CubicMetersPerSecond,
-                            () => param.Definition.ParameterType == ParameterType.HVACAirflow, ConvertParameterToDisplayUnitType);
+                            // () => param.Definition.ParameterType == ParameterType.HVACAirflow, ConvertParameterToDisplayUnitType);
+                            () => param.Definition.GetDataType() == SpecTypeId.AirFlow, ConvertParameterToDisplayUnitType);
                         if (flowRate != 0 && surfaceArea > 0)
                         {
                             meanFlowVelocity = flowRate / surfaceArea;
@@ -1099,7 +1100,8 @@ namespace OpenFOAMInterface.BIM
                     if (staticPressure == 0)
                     {
                         staticPressure = GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Pascals,
-                            () => param.Definition.Name.Equals("static Pressure") && param.Definition.ParameterType == ParameterType.HVACPressure,
+                            // () => param.Definition.Name.Equals("static Pressure") && param.Definition.ParameterType == ParameterType.HVACPressure,
+                            () => param.Definition.Name.Equals("static Pressure") && param.Definition.GetDataType() == SpecTypeId.HvacPressure,
                             ConvertParameterToDisplayUnitType);
                         if (staticPressure != 0)
                         {
@@ -1120,7 +1122,8 @@ namespace OpenFOAMInterface.BIM
                     if (temperature == 0)
                     {
                         temperature = (double)GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Kelvin,
-                            () => param.Definition.Name.Equals("Temperature") && param.Definition.ParameterType == ParameterType.HVACTemperature, ConvertParameterToDisplayUnitType);
+                            // () => param.Definition.Name.Equals("Temperature") && param.Definition.ParameterType == ParameterType.HVACTemperature, ConvertParameterToDisplayUnitType);
+                            () => param.Definition.Name.Equals("Temperature") && param.Definition.GetDataType() == SpecTypeId.HvacTemperature, ConvertParameterToDisplayUnitType);
 
                         if (temperature != 0)
                         {
