@@ -197,7 +197,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                             output.Add("decomposePar");
                             //runCommands.Add("mpirun -n " + DecomposeParDict.NumberOfSubdomains + " renumberMesh -overwrite -parallel");
                             output.Add("mpirun -np " + m_NumberOfSubdomains + " " + command + " -parallel " + log + command + ".log");
-                            output.Add("reconstructPar " + Exporter.Instance.settings.ReconstructParOption);
+                            output.Add("reconstructPar " + FOAMInterface.Singleton.Settings.ReconstructParOption);
                             continue;
                         }
                     }
@@ -580,16 +580,16 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         {
             string fileName = Path.GetFileName(m_CasePath);
             string caseDir = Path.GetDirectoryName(m_CasePath);
-            string serverDir = Exporter.Instance.settings.SSH.ServerCaseFolder;
-            string serverCaseDir = Exporter.Instance.settings.SSH.ServerCaseFolder + Path.GetFileNameWithoutExtension(fileName);
+            string serverDir = FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder;
+            string serverCaseDir = FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder + Path.GetFileNameWithoutExtension(fileName);
 
             //***********************SSH FOR LINUX IMPLEMENTED*******************/
             List<string> shellCommands = new List<string>
             {
-                "ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() + " mkdir -p " + Exporter.Instance.settings.SSH.ServerCaseFolder +"\n",
-                "scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + m_CasePath + " " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder,
-                "ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() +
-                " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + Exporter.Instance.settings.SSH.OfAlias +
+                "ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + " mkdir -p " + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder +"\n",
+                "scp -P " + FOAMInterface.Singleton.Settings.SSH.Port + " -r " + m_CasePath + " " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + ":" + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder,
+                "ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() +
+                " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + FOAMInterface.Singleton.Settings.SSH.OfAlias +
                 "; mkdir " + serverCaseDir +
                 "; cd " + serverDir +
                 "; unzip " + fileName + " -d " + serverCaseDir +
@@ -597,9 +597,9 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 "; cd " + serverCaseDir
             };
 
-            if (Exporter.Instance.settings.SSH.Slurm)
+            if (FOAMInterface.Singleton.Settings.SSH.Slurm)
             {
-                shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + Exporter.Instance.settings.SSH.SlurmCommand + " ./Allrun");
+                shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + FOAMInterface.Singleton.Settings.SSH.SlurmCommand + " ./Allrun");
             }
             shellCommands.Add("cd " + serverDir);
             shellCommands.Add("zip -r " + fileName + " " + Path.GetFileNameWithoutExtension(fileName));
@@ -619,7 +619,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             string caseDir = Path.GetDirectoryName(m_CasePath);
 
             //Download directory from Server: scp -r user@ssh.example.com:/path/to/remote/source /path/to/local/destination
-            if (Exporter.Instance.settings.SSH.Download)
+            if (FOAMInterface.Singleton.Settings.SSH.Download)
             {
                 string CasePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
                 if (!Directory.Exists(CasePathResults))
@@ -627,11 +627,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     Directory.CreateDirectory(CasePathResults);
                 }
 
-                commands.Add("scp -P " + Exporter.Instance.settings.SSH.Port + " -r " + Exporter.Instance.settings.SSH.ConnectionString() + ":" + Exporter.Instance.settings.SSH.ServerCaseFolder + fileName + " " + CasePathResults + ".zip");
+                commands.Add("scp -P " + FOAMInterface.Singleton.Settings.SSH.Port + " -r " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + ":" + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder + fileName + " " + CasePathResults + ".zip");
             }
-            if (Exporter.Instance.settings.SSH.Delete)
+            if (FOAMInterface.Singleton.Settings.SSH.Delete)
             {
-                commands.Add("ssh -p " + Exporter.Instance.settings.SSH.Port + " -t " + Exporter.Instance.settings.SSH.ConnectionString() + " \"rm -rf " + Exporter.Instance.settings.SSH.ServerCaseFolder);
+                commands.Add("ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + " \"rm -rf " + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder);
             }
             bool succeed = base.RunCommands(commands);
             return succeed;
@@ -656,7 +656,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 return;
             }
 
-            if (Exporter.Instance.settings.SSH.Slurm)
+            if (FOAMInterface.Singleton.Settings.SSH.Slurm)
             {
                 //current state => only Allrun
                 sw.Write(command + ";");

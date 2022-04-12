@@ -673,15 +673,6 @@ namespace OpenFOAMInterface.BIM
                     }
                 }
             }
-            //var edges = face.EdgeLoops;
-            //double boundary = 0;
-            //if (!edges.IsEmpty && edges != null)
-            //{
-            //    foreach (Edge edge in edges.get_Item(0) as EdgeArray)
-            //    {
-            //        boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, UnitTypeId.Meters), 2);
-            //    }
-            //}
             return boundary;
         }
 

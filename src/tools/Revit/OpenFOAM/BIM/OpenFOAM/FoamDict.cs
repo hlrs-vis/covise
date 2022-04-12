@@ -49,7 +49,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             {
                 m_FoamFile = new FoamFileAsBinary(_name, version, path, _class, attributes, format);
             }
-            Dictionary<string, object> m_ParentDictionary = Exporter.Instance.settings.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
+            Dictionary<string, object> m_ParentDictionary = FOAMInterface.Singleton.Settings.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
             m_DictFile = m_ParentDictionary[_name] as Dictionary<string, object>;
         }
 

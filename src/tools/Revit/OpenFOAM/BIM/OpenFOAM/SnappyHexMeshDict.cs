@@ -138,7 +138,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             else
             {
-
                 m_Stl.Add("type", "triSurfaceMesh");
                 m_Stl.Add(nameGeometry, m_STLName);
                 m_Stl.Add(regions, m_Regions);
@@ -158,8 +157,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 e1.Normalize();
                 e2.Normalize();
                 e3.Normalize();
-
-
 
                 m_BoxGeometry.Add("type", "searchableRotatedBox");
                 m_BoxGeometry.Add("span", vecs);
@@ -261,7 +258,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
 
             //patchtype dict
             Dictionary<string, object> patchType = new Dictionary<string, object> { { "type", "patch" } };
-            // Settings s = Exporter.Instance.settings;
             var s = FOAMInterface.Singleton.Settings;
             if (s.RefinementBoxOrigin[0] != 0)
             {
@@ -282,28 +278,20 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     vec = (Vector)m_SettingsCMC["outletLevel"];
                 }
                 m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
-                //m_RegionsRefinementCastellated.Add(name, new Dictionary<string, object>() { { level, vec} });
             }
-            foreach (var entry in FOAMInterface.Singleton.Settings.MeshResolution)
+            foreach (var entry in s.MeshResolution)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
-                //if(name.Contains("Zuluft") || name.Contains("Abluft") || name.Contains("Outlet") || name.Contains("Inlet"))
-                //{
-                //    //name = "Terminal_" + name;
-                //    m_RegionsRefinementCastellated[name] = ;
-                //    continue;
-                //}
                 vec = new Vector(entry.Value, entry.Value);
-                //m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", "wall" } });
                 m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec } });
             }
-            foreach (var entry in FOAMInterface.Singleton.Settings.m_InletElements)
+            foreach (var entry in s.m_InletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 vec = (Vector)m_SettingsCMC["inletLevel"];
                 m_RefinementSurfaces.Add("Inlet_" + name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
             }
-            foreach (var entry in FOAMInterface.Singleton.Settings.m_OutletElements)
+            foreach (var entry in s.m_OutletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 vec = (Vector)m_SettingsCMC["outletLevel"];
