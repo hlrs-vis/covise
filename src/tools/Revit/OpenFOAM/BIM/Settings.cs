@@ -24,6 +24,7 @@ namespace OpenFOAMInterface.BIM
     using Structs.FOAM.Model;
     using Structs.Revit;
     using Enums;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Settings made by user to export.
@@ -651,7 +652,6 @@ namespace OpenFOAMInterface.BIM
                 area += UnitUtils.ConvertFromInternalUnits(face.Area, UnitTypeId.SquareMeters);
             }
             return area;
-            //return UnitUtils.ConvertFromInternalUnits(face.Area, DisplayUnitType.DUT_SQUARE_METERS);
         }
 
         /// <summary>
@@ -819,23 +819,16 @@ namespace OpenFOAMInterface.BIM
             m_TempInlet = kelvin + 29;
         }
 
-        public void SetDocument(UIApplication revit)
+        private IEnumerable<Autodesk.Revit.DB.Element> QueryElemByName(string name, in FilteredElementCollector collector)
         {
-            m_Revit = revit;
-            document = m_Revit.ActiveUIDocument.Document;
-            LocalCaseFolder = "c:\\tmp";
+            return from element in collector
+                   where element.Name == name
+                   select element;
+        }
 
-            // try to get OpenFoamObject and initialize from there
-
-            ElementClassFilter filter = new(typeof(FamilyInstance));
-            // Apply the filter to the elements in the active document
-            FilteredElementCollector collector = new(document);
-            collector.WherePasses(filter);
-
-            // Use Linq query to find family instances whose name is OpenFOAM
-            var queryBox = from element in collector
-                           where element.Name == "OpenFOAMDomain"
-                           select element;
+        private void InitOpenFOAMDomain(in FilteredElementCollector collector)
+        {
+            var queryBox = QueryElemByName("OpenFOAMDomain", collector);
 
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
@@ -862,11 +855,27 @@ namespace OpenFOAMInterface.BIM
                 m_DomainY = pos.BasisY * depth;
                 m_DomainZ = pos.BasisZ * height;
             }
+        }
 
-            // Use Linq query to find family instances whose name is OpenFOAM
-            var query = from element in collector
-                        where element.Name == "OpenFOAM"
-                        select element;
+        private void InitSSH(in FamilyInstance instance)
+        {
+            m_openFOAMEnvironment = OpenFOAMEnvironment.ssh;
+            m_SSH = new(
+                user: getString(instance, "user"),
+                ip: getString(instance, "host"),
+                alias: getString(instance, "openFOAM alias"),
+                caseFolder: getString(instance, "serverCaseFolder"),
+                download: true,
+                delete: false,
+                slurm: true,
+                port: getInt(instance, "port"),
+                slurmCommand: getString(instance, "batchCommand"));
+
+        }
+
+        private void InitOpenFOAM(in FilteredElementCollector collector)
+        {
+            var query = QueryElemByName("OpenFOAM", collector);
 
             // Cast found elements to family instances, 
             // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
@@ -887,27 +896,11 @@ namespace OpenFOAMInterface.BIM
                 //environment
                 var foamEnv = getString(instance, "OpenFOAM Environment");
                 if (foamEnv == "ssh")
-                {
-                    m_openFOAMEnvironment = OpenFOAMEnvironment.ssh;
-                    m_SSH = new(
-                        user: getString(instance, "user"),
-                        ip: getString(instance, "host"),
-                        alias: getString(instance, "openFOAM alias"),
-                        caseFolder: getString(instance, "serverCaseFolder"),
-                        download: true,
-                        delete: false,
-                        slurm: true,
-                        port: getInt(instance, "port"),
-                        slurmCommand: getString(instance, "batchCommand"));
-                }
-                if (foamEnv == "blueCFD")
-                {
+                    InitSSH(instance);
+                else if (foamEnv == "blueCFD")
                     m_openFOAMEnvironment = OpenFOAMEnvironment.blueCFD;
-                }
-                if (foamEnv == "wsl")
-                {
+                else if (foamEnv == "wsl")
                     m_openFOAMEnvironment = OpenFOAMEnvironment.wsl;
-                }
 
                 //Solver
                 string solverName = getString(instance, "solver");
@@ -944,9 +937,7 @@ namespace OpenFOAMInterface.BIM
 
                 int maxGlobalCells = getInt(instance, "maxGlobalCells");
                 if (maxGlobalCells > 1)
-                {
                     m_MaxGlobalCells = maxGlobalCells;
-                }
 
                 //Refinement
                 int level = getInt(instance, "wallRefinement");
@@ -976,14 +967,11 @@ namespace OpenFOAMInterface.BIM
                 m_controlDictParam.WriteInterval = interval;
                 m_controlDictParam.EndTime = end;
             }
+        }
 
-            // Use Linq query to find family instances whose name is OpenFOAM
-            var queryBoxRef = from element in collector
-                              where element.Name == "OpenFOAMRefinementRegion"
-                              select element;
-
-            // Cast found elements to family instances, 
-            // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
+        private void InitOpenFOAMRefinementRegin(in FilteredElementCollector collector)
+        {
+            var queryBoxRef = QueryElemByName("OpenFOAMRefinementRegin", collector);
             List<FamilyInstance> familyInstancesRefRegion = queryBoxRef.Cast<FamilyInstance>().ToList();
             if (familyInstancesRefRegion.Count > 0)
             {
@@ -1005,6 +993,31 @@ namespace OpenFOAMInterface.BIM
                 m_RefinementBoxZ = pos.BasisZ * height;
                 m_RefinementBoxLevel = level;
             }
+        }
+
+        public void SetDocument(UIApplication revit)
+        {
+            m_Revit = revit;
+            document = m_Revit.ActiveUIDocument.Document;
+            LocalCaseFolder = "c:\\tmp";
+
+            // try to get OpenFoamObject and initialize from there
+            ElementClassFilter filter = new(typeof(FamilyInstance));
+            // Apply the filter to the elements in the active document
+            FilteredElementCollector collector = new(document);
+            collector.WherePasses(filter);
+
+            // Use Linq query to find family instances whose name is OpenFOAM
+            InitOpenFOAMDomain(collector);
+
+            // Use Linq query to find family instances whose name is OpenFOAM
+            InitOpenFOAM(collector);
+
+            // Use Linq query to find family instances whose name is OpenFOAM
+            InitOpenFOAMRefinementRegin(collector);
+
+            // Cast found elements to family instances, 
+            // this cast to FamilyInstance is safe because ElementClassFilter for FamilyInstance was used
             Outlet.Clear();
             Inlet.Clear();
             m_SimulationDefaultList.Clear();
@@ -1055,8 +1068,8 @@ namespace OpenFOAMInterface.BIM
 
             //get materials
             m_InletOutletMaterials = DataGenerator.GetMaterialList(m_DuctTerminals, new List<string> { "Inlet", "Outlet" });
-            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(FOAMInterface.Singleton.Settings.m_InletElements, new List<string> { "Inlet", "Outlet" }));
-            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(FOAMInterface.Singleton.Settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(m_InletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(m_OutletElements, new List<string> { "Inlet", "Outlet" }));
 
             return InitDuctParameters();
         }
@@ -1129,6 +1142,8 @@ namespace OpenFOAMInterface.BIM
         {
             int inletCount = 0;
             int outletCount = 0;
+
+            //get inlet outlet passed on material (old approach)
             foreach (Element element in m_DuctTerminals)
             {
                 FamilyInstance instance = element as FamilyInstance;
@@ -1142,7 +1157,6 @@ namespace OpenFOAMInterface.BIM
                 int rpm = 0;
                 double temperature = 0;
                 getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
-                //string nameDuct = AutodeskHelperFunctions.GenerateNameFromElement(element);
 
                 if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet"))
                 {
@@ -1150,19 +1164,18 @@ namespace OpenFOAMInterface.BIM
                     //...............................................
                     //for swirlFlowRateInletVelocity as type => -(faceNormal) = flowRate direction default => the value is positive inwards => -flowRate
                     DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                    FOAMInterface.Singleton.Settings.Outlet.Add(nameDuct, dProp);
+                    Outlet.Add(nameDuct, dProp);
                     outletCount++;
                 }
                 else if (nameDuct.Contains("Zuluft") || nameDuct.Contains("Inlet"))
                 {
                     DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                    FOAMInterface.Singleton.Settings.Inlet.Add(nameDuct, dProp);
+                    Inlet.Add(nameDuct, dProp);
                     inletCount++;
                 }
-                //AddDuctParameterToSettings(nameDuct, faceNormal, faceBoundary, surfaceArea, flowRate, meanFlowVelocity, staticPressure, rpm);
 
             }
-            foreach (var entry in FOAMInterface.Singleton.Settings.m_InletElements)
+            foreach (var entry in m_InletElements)
             {
                 FamilyInstance instance = entry as FamilyInstance;
                 string nameDuct = "Inlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -1178,10 +1191,10 @@ namespace OpenFOAMInterface.BIM
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                FOAMInterface.Singleton.Settings.Inlet.Add(nameDuct, dProp);
+                Inlet.Add(nameDuct, dProp);
                 inletCount++;
             }
-            foreach (var entry in FOAMInterface.Singleton.Settings.m_OutletElements)
+            foreach (var entry in m_OutletElements)
             {
                 FamilyInstance instance = entry as FamilyInstance;
                 string nameDuct = "Outlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -1197,12 +1210,12 @@ namespace OpenFOAMInterface.BIM
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                FOAMInterface.Singleton.Settings.Outlet.Add(nameDuct, dProp);
+                Outlet.Add(nameDuct, dProp);
                 outletCount++;
             }
 
-            FOAMInterface.Singleton.Settings.InletCount = inletCount;
-            FOAMInterface.Singleton.Settings.OutletCount = outletCount;
+            InletCount = inletCount;
+            OutletCount = outletCount;
 
             return true;
         }
