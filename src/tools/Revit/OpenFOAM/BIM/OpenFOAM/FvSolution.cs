@@ -42,11 +42,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             object val = null;
             if (m_SIMPLE.TryGetValue("pRefPoint", out val) == true)
             {
-                m_SIMPLE["pRefPoint"] = ConvertToDisplayUnits(Exporter.Instance.settings.LocationInMesh);
+                m_SIMPLE["pRefPoint"] = ConvertToDisplayUnits(FOAMInterface.Singleton.Settings.LocationInMesh);
             }
             else
             {
-                m_SIMPLE.Add("pRefPoint", ConvertToDisplayUnits(Exporter.Instance.settings.LocationInMesh)/*"(" + BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat).Replace(';', ' ') + ")"*/);
+                m_SIMPLE.Add("pRefPoint", ConvertToDisplayUnits(FOAMInterface.Singleton.Settings.LocationInMesh)/*"(" + BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat).Replace(';', ' ') + ")"*/);
             }
             base.InitAttributes();
         }

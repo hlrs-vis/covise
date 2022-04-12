@@ -105,12 +105,12 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// Struct for intializing Settings variables.
         /// </summary>
-        readonly public struct InitialSettingsParameter
+        readonly public struct SettingsParameter
         {
-            private static InitialSettingsParameter def = new InitialSettingsParameter();
-            public static ref readonly InitialSettingsParameter Default => ref def;
-            public InitialSettingsParameter() : this(SaveFormat.ascii, ElementsExportRange.OnlyVisibleOnes, ControlDictParameters.Default, true, false, false) { }
-            public InitialSettingsParameter(in SaveFormat format, in ElementsExportRange export, in ControlDictParameters control, bool includeLinkedModels, bool exportColor, bool exportSharedCoordinates)
+            private static SettingsParameter def = new SettingsParameter();
+            public static ref readonly SettingsParameter Default => ref def;
+            public SettingsParameter() : this(SaveFormat.ascii, ElementsExportRange.OnlyVisibleOnes, ControlDictParameters.Default, true, false, false) { }
+            public SettingsParameter(in SaveFormat format, in ElementsExportRange export, in ControlDictParameters control, bool includeLinkedModels, bool exportColor, bool exportSharedCoordinates)
             {
                 this.Format = format;
                 this.ExportRange = export;

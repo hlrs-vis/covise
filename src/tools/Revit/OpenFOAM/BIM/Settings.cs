@@ -428,19 +428,6 @@ namespace OpenFOAMInterface.BIM
         }
 
         /// <summary>
-        /// Units for STL.
-        /// </summary>
-        /// we will always use Meters as a unit!!
-       /* public DisplayUnitType Units {
-            get {
-                return m_Units;
-            }
-            set {
-                m_Units = value;
-            }
-        }*/
-
-        /// <summary>
         /// Get dicitionionary with default values.
         /// </summary>
         public Dictionary<string, object> SimulationDefault
@@ -523,13 +510,13 @@ namespace OpenFOAMInterface.BIM
 
         private static Settings def = new Settings();
         public static ref readonly Settings Default => ref def;
-        public Settings() : this(InitialSettingsParameter.Default) { }
+        public Settings() : this(SettingsParameter.Default) { }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="param"> Holds default parameter for the settings. </param>
-        public Settings(in InitialSettingsParameter param)
+        public Settings(in SettingsParameter param)
         {
             Init(param);
         }
@@ -538,7 +525,7 @@ namespace OpenFOAMInterface.BIM
         /// Initialize Settings.
         /// </summary>
         /// <param name="initParam"> Holds default parameter for the settings. </param>
-        private void Init(in InitialSettingsParameter param)
+        private void Init(in SettingsParameter param)
         {
             // get selected categories from the category list
             m_SelectedCategories = new List<Category>();
@@ -615,7 +602,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="instance">Familyinstance.</param>
         /// <param name="func">Face-function/methode.</param>
         /// <returns>Parameter as type T.</returns>
-        private T GetSurfaceParameter<T>(FamilyInstance instance, Func</*Face*/List<Face>, T> func)
+        private T GetSurfaceParameter<T>(FamilyInstance instance, Func<List<Face>, T> func)
         {
             T value = default(T);
             var m_ViewOptions = m_Revit.Application.Create.NewGeometryOptions();
@@ -1058,16 +1045,16 @@ namespace OpenFOAMInterface.BIM
         /// <returns>true, if BIMData used.</returns>
         private bool InitBIMData()
         {
-            if (Exporter.Instance.settings == null)
+            if (FOAMInterface.Singleton.Settings == null)
             {
                 return false;
             }
 
             //get duct-terminals in active document
-            Autodesk.Revit.DB.View simulationView = Exporter.Instance.FindView(document, "Simulation");
+            Autodesk.Revit.DB.View simulationView = FOAMInterface.Singleton.FindView(document, "Simulation");
             if (simulationView == null)
             {
-                simulationView = Exporter.Instance.FindView(document, "{3D}");
+                simulationView = FOAMInterface.Singleton.FindView(document, "{3D}");
             }
             if (simulationView == null)
             {
@@ -1077,8 +1064,8 @@ namespace OpenFOAMInterface.BIM
 
             //get materials
             m_InletOutletMaterials = DataGenerator.GetMaterialList(m_DuctTerminals, new List<string> { "Inlet", "Outlet" });
-            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(Exporter.Instance.settings.m_InletElements, new List<string> { "Inlet", "Outlet" }));
-            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(Exporter.Instance.settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(FOAMInterface.Singleton.Settings.m_InletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(DataGenerator.GetMaterialList(FOAMInterface.Singleton.Settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
 
             return InitDuctParameters();
         }
@@ -1172,19 +1159,19 @@ namespace OpenFOAMInterface.BIM
                     //...............................................
                     //for swirlFlowRateInletVelocity as type => -(faceNormal) = flowRate direction default => the value is positive inwards => -flowRate
                     DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                    Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
+                    FOAMInterface.Singleton.Settings.Outlet.Add(nameDuct, dProp);
                     outletCount++;
                 }
                 else if (nameDuct.Contains("Zuluft") || nameDuct.Contains("Inlet"))
                 {
                     DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                    Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
+                    FOAMInterface.Singleton.Settings.Inlet.Add(nameDuct, dProp);
                     inletCount++;
                 }
                 //AddDuctParameterToSettings(nameDuct, faceNormal, faceBoundary, surfaceArea, flowRate, meanFlowVelocity, staticPressure, rpm);
 
             }
-            foreach (var entry in Exporter.Instance.settings.m_InletElements)
+            foreach (var entry in FOAMInterface.Singleton.Settings.m_InletElements)
             {
                 FamilyInstance instance = entry as FamilyInstance;
                 string nameDuct = "Inlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -1200,10 +1187,10 @@ namespace OpenFOAMInterface.BIM
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                Exporter.Instance.settings.Inlet.Add(nameDuct, dProp);
+                FOAMInterface.Singleton.Settings.Inlet.Add(nameDuct, dProp);
                 inletCount++;
             }
-            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
+            foreach (var entry in FOAMInterface.Singleton.Settings.m_OutletElements)
             {
                 FamilyInstance instance = entry as FamilyInstance;
                 string nameDuct = "Outlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
@@ -1219,12 +1206,12 @@ namespace OpenFOAMInterface.BIM
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                Exporter.Instance.settings.Outlet.Add(nameDuct, dProp);
+                FOAMInterface.Singleton.Settings.Outlet.Add(nameDuct, dProp);
                 outletCount++;
             }
 
-            Exporter.Instance.settings.InletCount = inletCount;
-            Exporter.Instance.settings.OutletCount = outletCount;
+            FOAMInterface.Singleton.Settings.InletCount = inletCount;
+            FOAMInterface.Singleton.Settings.OutletCount = outletCount;
 
             return true;
         }

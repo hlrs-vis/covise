@@ -19,17 +19,17 @@ using RevitView = Autodesk.Revit.DB.View;
 namespace OpenFOAMInterface.BIM
 {
     using Structs.General;
-    public sealed class Exporter
+    public sealed class FOAMInterface
     {
-        public Settings settings = null;
-        public static Exporter Instance
+        public Settings Settings = null;
+        public static FOAMInterface Singleton
         {
             get
             {
                 return Nested.instance;
             }
         }
-        public Exporter()
+        public FOAMInterface()
         {
         }
 
@@ -85,7 +85,7 @@ namespace OpenFOAMInterface.BIM
             static Nested()
             {
             }
-            internal static readonly Exporter instance = new Exporter();
+            internal static readonly FOAMInterface instance = new FOAMInterface();
         }
     }
 
@@ -110,7 +110,7 @@ namespace OpenFOAMInterface.BIM
             try
             {
                 //set default settings
-                Exporter.Instance.settings = Settings.Default;
+                FOAMInterface.Singleton.Settings = Settings.Default;
 
                 string appName = "OpenFOAM Interface";
                 RibbonPanel panel = application.CreateRibbonPanel(appName);

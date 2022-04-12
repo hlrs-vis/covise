@@ -119,7 +119,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitBoundingboxFromPoints()
         {
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.DomainX.IsZeroLength())
             {
                 m_Vertices.Add(m_VecLowerEdgeLeft);
@@ -181,10 +181,10 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitDefaultCellSize()
         {
-            double scalarRes = Exporter.Instance.settings.BlockMeshResolution;
+            double scalarRes = FOAMInterface.Singleton.Settings.BlockMeshResolution;
             //if (scalarRes < 1)
             //    scalarRes = 1;
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.DomainX.IsZeroLength())
             {
                 m_CellSize.X = Math.Round(m_VecUpperEdgeRight.X - m_VecLowerEdgeLeft.X) * scalarRes;
@@ -221,7 +221,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitBoundary()
         {
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.DomainX.IsZeroLength()) // no ComputationalDomain Family instance
             {
                 Dictionary<string, object> boundingBox = new Dictionary<string, object>()
