@@ -25,6 +25,7 @@ namespace OpenFOAMInterface.BIM
     using Structs.Revit;
     using Enums;
     using System.Runtime.CompilerServices;
+    using System.Diagnostics.SymbolStore;
 
     /// <summary>
     /// Settings made by user to export.
@@ -449,17 +450,13 @@ namespace OpenFOAMInterface.BIM
         {
             List<double> entries = new List<double>();
             if (vecString.Equals("") || vecString == string.Empty)
-            {
                 return entries;
-            }
             double j = 0;
             foreach (string s in vecString.Split(' '))
             {
                 s.Trim(' ');
                 if (s.Equals(""))
-                {
                     continue;
-                }
                 try
                 {
                     j = Convert.ToDouble(s, System.Globalization.CultureInfo.GetCultureInfo("en-US"));
@@ -479,9 +476,7 @@ namespace OpenFOAMInterface.BIM
         {
             IList<Parameter> parameters = familyInstance.GetParameters(paramName);
             if (parameters.Count > 0)
-            {
                 return parameters[0].AsString();
-            }
             return "";
         }
         static public Vector3D getVector(FamilyInstance familyInstance, string paramName)
@@ -494,18 +489,14 @@ namespace OpenFOAMInterface.BIM
         {
             IList<Parameter> parameters = familyInstance.GetParameters(paramName);
             if (parameters.Count > 0)
-            {
                 return parameters[0].AsInteger();
-            }
             return -1;
         }
         static public double getDouble(FamilyInstance familyInstance, string paramName)
         {
             IList<Parameter> parameters = familyInstance.GetParameters(paramName);
             if (parameters.Count > 0)
-            {
                 return parameters[0].AsDouble();
-            }
             return -1;
         }
 
@@ -615,15 +606,11 @@ namespace OpenFOAMInterface.BIM
             foreach (Solid solid in solids)
             {
                 if (solid == default)
-                {
                     continue;
-                }
 
                 List<Face> faces = DataGenerator.GetFace(m_InletOutletMaterials, solid);
                 if (faces.Count > 0)
-                {
                     value = func(faces);
-                }
             }
             return value;
         }
@@ -648,9 +635,7 @@ namespace OpenFOAMInterface.BIM
         {
             double area = 0;
             foreach (Face face in faces)
-            {
                 area += UnitUtils.ConvertFromInternalUnits(face.Area, UnitTypeId.SquareMeters);
-            }
             return area;
         }
 
@@ -666,12 +651,8 @@ namespace OpenFOAMInterface.BIM
             {
                 var edges = face.EdgeLoops;
                 if (!edges.IsEmpty && edges != null)
-                {
                     foreach (Edge edge in edges.get_Item(0))
-                    {
                         boundary += Math.Round(UnitUtils.ConvertFromInternalUnits(edge.ApproximateLength, UnitTypeId.Meters), 2);
-                    }
-                }
             }
             return boundary;
         }
@@ -688,9 +669,7 @@ namespace OpenFOAMInterface.BIM
         {
             T paramValue = default;
             if (lambda())
-            {
                 paramValue = convertFunc(param, type);
-            }
             return paramValue;
         }
 
@@ -703,9 +682,7 @@ namespace OpenFOAMInterface.BIM
         private double ConvertParameterToDisplayUnitType(Parameter param, Autodesk.Revit.DB.ForgeTypeId type)
         {
             if (UnitTypeId.Custom == type)
-            {
                 return param.AsInteger();
-            }
             return UnitUtils.ConvertFromInternalUnits(param.AsDouble(), type);
         }
 
@@ -873,6 +850,106 @@ namespace OpenFOAMInterface.BIM
 
         }
 
+        private void InitLocationInMesh(in FamilyInstance instance)
+        {
+            Transform pos = instance.GetTransform();
+
+            m_LocationInMesh.X = pos.Origin.X;
+            m_LocationInMesh.Y = pos.Origin.Y;
+            m_LocationInMesh.Z = pos.Origin.Z;
+            m_LocationInMesh.Z += getDouble(instance, "height");
+            LocalCaseFolder = getString(instance, "localCaseFolder");
+        }
+
+        private void InitEnvironment(in FamilyInstance instance)
+        {
+            var foamEnv = getString(instance, "OpenFOAM Environment");
+            if (foamEnv == "ssh")
+                InitSSH(instance);
+            else if (foamEnv == "blueCFD")
+                m_openFOAMEnvironment = OpenFOAMEnvironment.blueCFD;
+            else if (foamEnv == "wsl")
+                m_openFOAMEnvironment = OpenFOAMEnvironment.wsl;
+        }
+
+        private void InitSolver(in FamilyInstance instance)
+        {
+            string solverName = getString(instance, "solver");
+            if (solverName == "simpleFoam")
+                m_controlDictParam.AppControlDictSolver = SolverControlDict.simpleFoam;
+            if (solverName == "buoyantBoussinesqSimpleFoam")
+                m_controlDictParam.AppControlDictSolver = SolverControlDict.buoyantBoussinesqSimpleFoam;
+        }
+
+        private void InitDistribution(in FamilyInstance instance)
+        {
+            Vector3D domainSplit = getVector(instance, "domainSplit");
+            m_HierarchicalCoeffs.N = domainSplit;
+            NumberOfSubdomains = getInt(instance, "numberOfSubdomains");
+            m_SimpleCoeffs.N = domainSplit;
+        }
+
+        private void InitFormat(in FamilyInstance instance)
+        {
+            string formatControl = getString(instance, "writeFormat");
+            if (formatControl.Equals("ascii"))
+                m_controlDictParam.WriteFormat = WriteFormat.ascii;
+            if (formatControl.Equals("binary"))
+                m_controlDictParam.WriteFormat = WriteFormat.binary;
+        }
+
+        private void InitTemp(in FamilyInstance instance)
+        {
+            double temp = getDouble(instance, "inletTemp");
+            m_TempInlet = temp;
+            //temp = getDouble(instance, "outletTemp");
+            //m_TempOutlet = temp;
+            temp = getDouble(instance, "wallTemp");
+            m_TempWall = temp;
+            temp = getDouble(instance, "internalTemp");
+            if (temp == -1)
+                temp = 298.15;
+            m_TempInternalField = temp;
+        }
+
+        private void InitGlobalCells(in FamilyInstance instance)
+        {
+            int maxGlobalCells = getInt(instance, "maxGlobalCells");
+            if (maxGlobalCells > 1)
+                m_MaxGlobalCells = maxGlobalCells;
+        }
+
+        private void InitRefinement(in FamilyInstance instance)
+        {
+            int level = getInt(instance, "wallRefinement");
+            m_WallLevel = new Vector(level, level);
+            level = getInt(instance, "inletRefinement");
+            m_InletLevel = new Vector(level, level);
+            level = getInt(instance, "outletRefinement");
+            m_OutletLevel = new Vector(level, level);
+        }
+
+        private void InitReconstructParOption(in FamilyInstance instance)
+        {
+            m_ReconstructParOption = getString(instance, "reconstructParOption");
+            if (m_ReconstructParOption.Equals(""))
+                m_ReconstructParOption = "-latestTime";
+        }
+
+        private void InitControlDictIntervals(in FamilyInstance instance)
+        {
+            var interval = getInt(instance, "writeInterval");
+            if (interval == 0)
+                interval = 100;
+            var end = getInt(instance, "endTime");
+            if (end == 0)
+                end = 100;
+            if (interval > end)
+                interval = end;
+            m_controlDictParam.WriteInterval = interval;
+            m_controlDictParam.EndTime = end;
+        }
+
         private void InitOpenFOAM(in FilteredElementCollector collector)
         {
             var query = QueryElemByName("OpenFOAM", collector);
@@ -885,87 +962,37 @@ namespace OpenFOAMInterface.BIM
                 FamilyInstance instance = familyInstances[0];
 
                 //locationInMesh
-                Transform pos = instance.GetTransform();
-
-                m_LocationInMesh.X = pos.Origin.X;
-                m_LocationInMesh.Y = pos.Origin.Y;
-                m_LocationInMesh.Z = pos.Origin.Z;
-                m_LocationInMesh.Z += getDouble(instance, "height");
-                LocalCaseFolder = getString(instance, "localCaseFolder");
+                InitLocationInMesh(instance);
 
                 //environment
-                var foamEnv = getString(instance, "OpenFOAM Environment");
-                if (foamEnv == "ssh")
-                    InitSSH(instance);
-                else if (foamEnv == "blueCFD")
-                    m_openFOAMEnvironment = OpenFOAMEnvironment.blueCFD;
-                else if (foamEnv == "wsl")
-                    m_openFOAMEnvironment = OpenFOAMEnvironment.wsl;
+                InitEnvironment(instance);
 
                 //Solver
-                string solverName = getString(instance, "solver");
-                if (solverName == "simpleFoam")
-                    m_controlDictParam.AppControlDictSolver = SolverControlDict.simpleFoam;
-                if (solverName == "buoyantBoussinesqSimpleFoam")
-                    m_controlDictParam.AppControlDictSolver = SolverControlDict.buoyantBoussinesqSimpleFoam;
+                InitSolver(instance);
 
                 //distribution
-                Vector3D domainSplit = getVector(instance, "domainSplit");
-                // m_HierarchicalCoeffs.SetN(domainSplit);
-                m_HierarchicalCoeffs.N = domainSplit;
-                NumberOfSubdomains = getInt(instance, "numberOfSubdomains");
-                m_SimpleCoeffs.N = domainSplit;
+                InitDistribution(instance);
 
-                //for debug result
-                string formatControl = getString(instance, "writeFormat");
-                if (formatControl.Equals("ascii"))
-                    m_controlDictParam.WriteFormat = WriteFormat.ascii;
-                if (formatControl.Equals("binary"))
-                    m_controlDictParam.WriteFormat = WriteFormat.binary;
+                //Format
+                InitFormat(instance);
 
                 //Temperature
-                double temp = getDouble(instance, "inletTemp");
-                m_TempInlet = temp;
-                //temp = getDouble(instance, "outletTemp");
-                //m_TempOutlet = temp;
-                temp = getDouble(instance, "wallTemp");
-                m_TempWall = temp;
-                temp = getDouble(instance, "internalTemp");
-                if (temp == -1)
-                    temp = 298.15;
-                m_TempInternalField = temp;
+                InitTemp(instance);
 
-                int maxGlobalCells = getInt(instance, "maxGlobalCells");
-                if (maxGlobalCells > 1)
-                    m_MaxGlobalCells = maxGlobalCells;
+                //global cells for snappy
+                InitGlobalCells(instance);
 
                 //Refinement
-                int level = getInt(instance, "wallRefinement");
-                m_WallLevel = new Vector(level, level);
-                level = getInt(instance, "inletRefinement");
-                m_InletLevel = new Vector(level, level);
-                level = getInt(instance, "outletRefinement");
-                m_OutletLevel = new Vector(level, level);
+                InitRefinement(instance);
 
                 //BlockMesh-Resoltion
                 m_BlockMeshResolution = getDouble(instance, "blockMeshResolution");
 
                 //ReconstructParOption
-                m_ReconstructParOption = getString(instance, "reconstructParOption");
-                if (m_ReconstructParOption.Equals(""))
-                    m_ReconstructParOption = "-latestTime";
+                InitReconstructParOption(instance);
 
                 //controldict
-                var interval = getInt(instance, "writeInterval");
-                if (interval == 0)
-                    interval = 100;
-                var end = getInt(instance, "endTime");
-                if (end == 0)
-                    end = 100;
-                if (interval > end)
-                    interval = end;
-                m_controlDictParam.WriteInterval = interval;
-                m_controlDictParam.EndTime = end;
+                InitControlDictIntervals(instance);
             }
         }
 
@@ -1043,6 +1070,16 @@ namespace OpenFOAMInterface.BIM
             InitOpenFOAMFolderDictionaries();
         }
 
+        private void InitDuctTerminals()
+        {
+            Autodesk.Revit.DB.View simulationView = FOAMInterface.Singleton.FindView(document, "Simulation");
+            if (simulationView == null)
+                simulationView = FOAMInterface.Singleton.FindView(document, "{3D}");
+            if (simulationView == null)
+                simulationView = document.ActiveView;
+            m_DuctTerminals = DataGenerator.GetDefaultCategoryListOfClass<FamilyInstance>(document, BuiltInCategory.OST_DuctTerminal, simulationView.Name);
+        }
+
         /// <summary>
         /// Initialize air flow velocity in settings for each duct terminals based on BIM-Data.
         /// </summary>
@@ -1050,21 +1087,10 @@ namespace OpenFOAMInterface.BIM
         private bool InitBIMData()
         {
             if (FOAMInterface.Singleton.Settings == null)
-            {
                 return false;
-            }
 
             //get duct-terminals in active document
-            Autodesk.Revit.DB.View simulationView = FOAMInterface.Singleton.FindView(document, "Simulation");
-            if (simulationView == null)
-            {
-                simulationView = FOAMInterface.Singleton.FindView(document, "{3D}");
-            }
-            if (simulationView == null)
-            {
-                simulationView = document.ActiveView;
-            }
-            m_DuctTerminals = DataGenerator.GetDefaultCategoryListOfClass<FamilyInstance>(document, BuiltInCategory.OST_DuctTerminal, simulationView.Name);
+            InitDuctTerminals();
 
             //get materials
             m_InletOutletMaterials = DataGenerator.GetMaterialList(m_DuctTerminals, new List<string> { "Inlet", "Outlet" });
@@ -1097,9 +1123,7 @@ namespace OpenFOAMInterface.BIM
                             () => param.Definition.Name.Equals("static Pressure") && param.Definition.GetDataType() == SpecTypeId.HvacPressure,
                             ConvertParameterToDisplayUnitType);
                         if (staticPressure != 0)
-                        {
                             continue;
-                        }
                     }
 
                     if (rpm == 0)
@@ -1108,23 +1132,18 @@ namespace OpenFOAMInterface.BIM
                             () => param.Definition.Name.Equals("RPM"), ConvertParameterToDisplayUnitType);
 
                         if (rpm != 0)
-                        {
                             continue;
-                        }
                     }
+
                     if (temperature == 0)
                     {
                         temperature = (double)GetParamValue(param, Autodesk.Revit.DB.UnitTypeId.Kelvin,
                             () => param.Definition.Name.Equals("Temperature") && param.Definition.GetDataType() == SpecTypeId.HvacTemperature, ConvertParameterToDisplayUnitType);
 
                         if (temperature != 0)
-                        {
                             continue;
-                        }
                         else
-                        {
                             temperature = m_TempInternalField;
-                        }
                     }
                 }
                 catch (Exception e)
@@ -1134,6 +1153,7 @@ namespace OpenFOAMInterface.BIM
                 }
             }
         }
+
         /// <summary>
         /// Initialize duct terminal parameters like flowRate, meanFlowVelocity and area.
         /// </summary>
@@ -1248,6 +1268,7 @@ namespace OpenFOAMInterface.BIM
                 temp: temperature
              );
         }
+
         /// <summary>
         /// Initialize FvSchemes default attributes.
         /// </summary>
@@ -1362,6 +1383,68 @@ namespace OpenFOAMInterface.BIM
             }
         }
 
+        private void InitFvSol_P_RGH(in SolverFV solverP_RGH)
+        {
+            FvSolutionParameter p_rgh = new FvSolutionParameter
+            {
+                RelTol = 0.01,
+                Solver = solverP_RGH,
+                Tolerance = 1e-8
+            };
+
+            m_FvParameter.Add("p_rgh", p_rgh);
+        }
+
+        private void InitFvSol_P(in SolverFV solver, in Agglomerator agglomerator, in CacheAgglomeration cacheAgglomeration)
+        {
+            FvSolutionParameter p_tmp = new FvSolutionParameter
+            {
+                Solver = solver,
+                RelTol = 0.1,
+                Tolerance = 1e-7,
+                NSweeps = 0
+            };
+
+            //p-FvSolution-Solver
+            PFv p = new PFv
+            (
+                param: p_tmp,
+                agglomerator: agglomerator,
+                cache: cacheAgglomeration
+            );
+
+            m_FvParameter.Add("p", p);
+        }
+
+        private void InitFvSol_BuoyantBoussinesq(in SolverFV solverP_RGH, in SolverFV solverT, in Smoother smootherT)
+        {
+            //p_rgh-FvSolution-Solver
+            InitFvSol_P_RGH(solverP_RGH);
+
+            //T-FvSolution-Solver
+            InitFvSol_Parameter("T", 0.1, 1e-8, 1, solverT, smootherT);
+        }
+
+        private void InitFvSol_SimpleFOAM(in SolverFV solver, in Agglomerator agglomerator, in CacheAgglomeration cacheAgglomeration)
+        {
+            InitFvSol_P(solver, agglomerator, cacheAgglomeration);
+        }
+        
+        private void InitFvSol_Parameter(in string name, in double relTol, in double tolerance, int nSweeps, in SolverFV solver, in Smoother smoother)
+        {
+
+            FvSolutionParameter fv = new FvSolutionParameter
+            {
+                RelTol = relTol,
+                Tolerance = tolerance,
+                NSweeps = nSweeps,
+                Solver = solver,
+                Smoother = smoother
+            };
+
+            m_FvParameter.Add(name, fv);
+        }
+
         /// <summary>
         /// Initialize Solver attributes from FvSolution with default attributes.
         /// </summary>
@@ -1371,94 +1454,30 @@ namespace OpenFOAMInterface.BIM
 
             Agglomerator agglomerator = Agglomerator.faceAreaPair;
             CacheAgglomeration cacheAgglomeration = CacheAgglomeration.on;
+            SolverFV solverP_RGH = SolverFV.PCG;
             SolverFV solverP = SolverFV.GAMG;
             SolverFV solverU = SolverFV.smoothSolver;
             SolverFV solverK = SolverFV.smoothSolver;
+            SolverFV solverT = SolverFV.smoothSolver;
             SolverFV solverEpsilon = SolverFV.smoothSolver;
             Smoother smootherU = Smoother.GaussSeidel;
             Smoother smootherK = Smoother.GaussSeidel;
+            Smoother smootherT = Smoother.GaussSeidel;
             Smoother smootherEpsilon = Smoother.GaussSeidel;
 
             if (ControlDictParameters.AppControlDictSolver == SolverControlDict.buoyantBoussinesqSimpleFoam)
-            {
-                //p_rgh-FvSolution-Solver
-                FvSolutionParameter p_rgh = new FvSolutionParameter
-                {
-                    RelTol = 0.01,
-                    Solver = SolverFV.PCG,
-                    Tolerance = 1e-8
-                };
-
-                m_FvParameter.Add("p_rgh", /*_p*/p_rgh);
-
-                //T-FvSolution-Solver
-                FvSolutionParameter T = new FvSolutionParameter
-                {
-                    RelTol = 0.1,
-                    Tolerance = 1e-8,
-                    NSweeps = 1,
-                    Smoother = Smoother.GaussSeidel,
-                    Solver = SolverFV.smoothSolver
-                };
-
-                m_FvParameter.Add("T", T);
-            }
+                InitFvSol_BuoyantBoussinesq(solverP_RGH, solverT, smootherT);
             else
-            {
-                //p-FvSolution-Solver
-                FvSolutionParameter p = new FvSolutionParameter
-                {
-                    Solver = solverP,
-                    RelTol = 0.1,
-                    Tolerance = 1e-7,
-                    NSweeps = 0
-                };
-
-                PFv m_p = new PFv
-                (
-                    param: p,
-                    agglomerator: agglomerator,
-                    cache: cacheAgglomeration
-                );
-
-                m_FvParameter.Add("p", /*_p*/m_p);
-            }
+                InitFvSol_SimpleFOAM(solverP, agglomerator, cacheAgglomeration);
 
             //U-FvSolution-Solver
-            FvSolutionParameter m_U = new FvSolutionParameter
-            {
-                RelTol = 0.1,
-                Tolerance = 1e-8,
-                NSweeps = 1,
-                Solver = solverU,
-                Smoother = smootherU
-            };
-
-            m_FvParameter.Add("U", m_U);
+            InitFvSol_Parameter("U", 0.1, 1e-8, 1, solverU, smootherU);
 
             //k-FvSolution-Solver
-            FvSolutionParameter m_k = new FvSolutionParameter
-            {
-                RelTol = 0.1,
-                Tolerance = 1e-8,
-                NSweeps = 1,
-                Solver = solverK,
-                Smoother = smootherK
-            };
-
-            m_FvParameter.Add("k", m_k);
+            InitFvSol_Parameter("k", 0.1, 1e-8, 1, solverK, smootherK);
 
             //epsilon-FvSolution-Solver
-            FvSolutionParameter m_epsilon = new FvSolutionParameter
-            {
-                RelTol = 0.1,
-                Tolerance = 1e-8,
-                NSweeps = 1,
-                Solver = solverEpsilon,
-                Smoother = smootherEpsilon
-            };
-
-            m_FvParameter.Add("epsilon", m_epsilon);
+            InitFvSol_Parameter("epsilon", 0.1, 1e-8, 1, solverEpsilon, smootherEpsilon);
         }
 
         /// <summary>
