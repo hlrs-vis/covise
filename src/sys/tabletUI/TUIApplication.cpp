@@ -172,6 +172,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 #ifdef HAVE_WIRINGPI
     thyssenTimer = new QTimer(this);
     connect(thyssenTimer, SIGNAL(timeout()), this, SLOT(thyssenTimerDone()));
+    thyssenTimer->start(100);
 #endif
 
     resize(500, 200);
@@ -194,9 +195,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     appwin = this;
 
 #ifdef HAVE_WIRINGPI
-    thyssenPanel = new ThyssenPanel();
-    thyssenTimer->start(100);
-    thyssenPanel->led->setLED(0,true);
+    ThyssenPanel::instance()->led->setLED(0,true);
 #endif
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
@@ -214,6 +213,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 #ifdef HAVE_WIRINGPI
     thyssenTimer = new QTimer(this);
     connect(thyssenTimer, SIGNAL(timeout()), this, SLOT(thyssenTimerDone()));
+    thyssenTimer->start(100);
 #endif
 
 // create the menus and toolbar buttons
@@ -289,7 +289,7 @@ void TUIMainWindow::timerDone()
 #ifdef HAVE_WIRINGPI
 void TUIMainWindow::thyssenTimerDone()
 {
-    thyssenPanel->update();
+    ThyssenPanel::instance()->update();
 }
 #endif
 
@@ -518,9 +518,15 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
 #ifdef HAVE_WIRINGPI
         if(name.mid(0,7) == "thyssen")
         {
-              return new ThyssenButton(id,type,w,parent,name);
+              return new ThyssenButton(id,type,w,parent,name.mid(7));
         }
 #endif
+        
+        if(name.mid(0,7) == "thyssen")
+        {
+            return new TUIButton(id, type, w, parent, name.mid(7));
+        }
+ 
         return new TUIButton(id, type, w, parent, name);
         }
     case TABLET_FILEBROWSER_BUTTON:

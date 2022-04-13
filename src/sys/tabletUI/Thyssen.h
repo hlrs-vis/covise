@@ -103,8 +103,10 @@ class ThyssenPanel
 {
 private:
 
-    bool change = false; 
+    static ThyssenPanel*myInstance;
 public:
+    bool change = false; 
+    static ThyssenPanel*instance();
 
     ThyssenPanel();
     ~ThyssenPanel();

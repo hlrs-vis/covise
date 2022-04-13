@@ -76,6 +76,7 @@
 #include "ThyssenButton.h"
 
 using namespace std;
+ThyssenPanel*ThyssenPanel::myInstance=nullptr;
 
 // ============================================================================
 
@@ -259,8 +260,9 @@ bool KeyPadController::isPressed()
 void KeyPadController::isrPressed()
 {
     readBtnStatus();
+    ThyssenPanel::instance()->change = true;
 
-    cout << int(mBtnStatus) << endl;
+    cout << "isr " << int(mBtnStatus) << endl;
 }
 
 // ============================================================================
@@ -268,11 +270,20 @@ void KeyPadController::isrPressed()
 const uint8_t MCP23017_ADDRESS = 0x20;
 const int iBtnArray[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
+ThyssenPanel *ThyssenPanel::instance()
+{
+    if(myInstance==nullptr)
+    {
+        myInstance = new ThyssenPanel();
+    }
+    return myInstance;
+}
 // ----------------------------------------------------------------------------
 //! ThyssenPanel::ThyssenPanel()
 // ----------------------------------------------------------------------------
 ThyssenPanel::ThyssenPanel()
 {
+    myInstance = this;
 
     led = new LEDController(MCP23017_ADDRESS);
     kpc = new KeyPadController();
@@ -281,13 +292,28 @@ ThyssenPanel::ThyssenPanel()
 }
 void ThyssenPanel::update()
 {
-   if(change)
+   static bool wasReleased=false;
+   static bool wasPressed=false;
+   if(change||wasReleased) // a key was pressed or released
    {
+      if(change)
+          wasPressed=true;
       for(const auto &i: buttons)
       {
-         i->update(kpc->getBtnStatus());
+         uint8_t bs=kpc->getBtnStatus();
+     //std::cerr << "update" << i->getNumber() << "bs:"<< bs<< std::endl;
+         i->update(bs,wasPressed);
       }
       change = false;
+      wasReleased = false;
+   }
+   else if(wasPressed)
+   {
+       if(!kpc->isPressed())
+       {
+            wasReleased=true;
+            wasPressed=false;
+       }
    }
 }
 

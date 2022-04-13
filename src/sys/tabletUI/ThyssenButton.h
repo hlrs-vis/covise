@@ -21,7 +21,8 @@
 class ThyssenButton : public QObject, public TUIElement
 {
     Q_OBJECT
-
+    int number=0;
+    bool oldState=false;
 public:
     ThyssenButton(int id, int type, QWidget *w, int parent, QString name);
     virtual ~ThyssenButton();
@@ -30,7 +31,8 @@ public:
 
     /// get the Element's classname
     virtual const char *getClassName() const override;
-    virtual void update(uint8_t bs);
+    virtual void update(uint8_t bs,bool wasPressed);
+    int getNumber(){return number;};
 
 public slots:
 

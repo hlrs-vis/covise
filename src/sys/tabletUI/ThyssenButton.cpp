@@ -20,6 +20,9 @@
 ThyssenButton::ThyssenButton(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
+    std::cerr << "name: " << name.toStdString() << std::endl;
+    number = name.toInt();
+    std::cerr << "number: " << number << std::endl;
     QPushButton *b = new QPushButton(w);
     if (name.contains("."))
     {
@@ -50,6 +53,7 @@ ThyssenButton::ThyssenButton(int id, int type, QWidget *w, int parent, QString n
     else
         b->setText(name);
 
+    ThyssenPanel::instance()->buttons.push_back(this);
     //b->setFixedSize(b->sizeHint());
     widget = b;
     connect(b, SIGNAL(pressed()), this, SLOT(pressed()));
@@ -62,8 +66,26 @@ ThyssenButton::~ThyssenButton()
     delete widget;
 }
 
-void ThyssenButton::update(uint8_t bs)
+void ThyssenButton::update(uint8_t bs,bool wasPressed)
 {
+    bool currentState = (bs == number);
+    std::cerr << (int)bs << " wasPr" << wasPressed <<  oldState << currentState << std::endl;
+    if(bs == number || oldState == true)
+    {
+        covise::TokenBuffer tb;
+        tb << ID;
+        if(currentState && wasPressed)
+        {
+            tb << TABLET_PRESSED;
+        }
+        else
+        {
+            currentState = false;
+            tb << TABLET_RELEASED;
+        }
+        TUIMainWindow::getInstance()->send(tb);
+        oldState = currentState;
+    }
 }
 
 void ThyssenButton::pressed()
