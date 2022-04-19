@@ -18,16 +18,10 @@
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"
 
-#include "src/mainwindow.hpp"
 
  // Qt  //
  //
-#include <QLayout>
 #include <QButtonGroup>
-#include <QComboBox>
-#include <QLabel>
-#include <QPushButton>
-#include <QSignalMapper>
 
 //################//
 //                //

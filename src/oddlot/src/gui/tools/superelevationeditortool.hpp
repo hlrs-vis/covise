@@ -58,10 +58,7 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
     void activateRibbonEditor();
-    void handleToolClick(int);
-    void setRadius();
     void handleRibbonToolClick(int);
     void setRibbonRadius();
 
@@ -73,7 +70,6 @@ private:
     ODD::ToolId toolId_;
     Ui::SuperelevationRibbon *ui_;
 
-    QDoubleSpinBox *radiusEdit_;
     QButtonGroup *ribbonToolGroup_;
 };
 

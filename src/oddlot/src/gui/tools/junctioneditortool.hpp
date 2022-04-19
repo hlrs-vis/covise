@@ -21,19 +21,8 @@
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
 
-#include "src/data/prototypemanager.hpp"
 #include "ui_JunctionRibbon.h"
 
- // Qt //
- //
-#include <QMap>
-#include <QDoubleSpinBox>
-#include <QPushButton>
-
-class QGroupBox;
-//class QAction;
-//class QMenu;
-//class QToolButton;
 
 class JunctionEditorTool : public EditorTool
 {
@@ -44,17 +33,7 @@ class JunctionEditorTool : public EditorTool
         //################//
 
 public:
-    /*! \brief Ids of the TrackEditor tools.
-    *
-    * This enum defines the Id of each tool.
-    */
-    // enum TrackEditorToolId
-    // {
-    //  TTE_UNKNOWN,
-    //  TTE_SELECT,
-    //  TTE_INSERT,
-    //  TTE_DELETE
-    // };
+
 
     //################//
     // FUNCTIONS      //
@@ -65,11 +44,6 @@ public:
     virtual ~JunctionEditorTool()
     { /* does nothing */
     }
-
-    QPushButton *getCuttingCircleButton()
-    {
-        return cuttingCircleButton_;
-    };
 
 protected:
 private:
@@ -92,9 +66,7 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
     void activateRibbonEditor();
-    void handleToolClick(int);
     void handleRibbonToolClick(int);
 
     //################//
@@ -105,7 +77,6 @@ protected:
 private:
     Ui::JunctionRibbon *ui;
     ODD::ToolId toolId_;
-    QPushButton *cuttingCircleButton_;
 
     QButtonGroup *ribbonToolGroup_;
 };

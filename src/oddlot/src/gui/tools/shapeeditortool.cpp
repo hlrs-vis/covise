@@ -18,13 +18,9 @@
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"
 
-#include "src/mainwindow.hpp"
-
 
  // Qt //
  //
-#include <QGridLayout>
-#include <QPushButton>
 #include <QButtonGroup>
 
 
@@ -53,53 +49,11 @@ ShapeEditorTool::ShapeEditorTool(ToolManager *toolManager)
 void
 ShapeEditorTool::initToolWidget()
 {
-    QGridLayout *toolLayout = new QGridLayout;
-
-    // ButtonGroup //
-    //
-    // A button group so only one button can be checked at a time
-    QButtonGroup *toolGroup = new QButtonGroup;
-    connect(toolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
-
-    // Tools //
-    //
-    QPushButton *toolButton;
-    int row = -1; // button row
-
-    toolButton = new QPushButton(tr("Select"));
-    toolButton->setCheckable(true);
-    toolLayout->addWidget(toolButton, ++row, 0);
-    toolGroup->addButton(toolButton, ODD::TRS_SELECT); // button, id
-    toolButton->setChecked(true);
-
-
-    toolButton = new QPushButton(tr("Add Section"));
-    toolButton->setCheckable(true);
-    toolLayout->addWidget(toolButton, ++row, 0);
-    toolGroup->addButton(toolButton, ODD::TRS_ADD); // button, id
-
-    toolButton = new QPushButton(tr("Del Section"));
-    toolButton->setCheckable(true);
-    toolLayout->addWidget(toolButton, ++row, 0);
-    toolGroup->addButton(toolButton, ODD::TRS_DEL); // button, id
-
-    // Finish Layout //
-    //
-    toolLayout->setRowStretch(++row, 1); // row 3 fills the rest of the availlable space
-    toolLayout->setColumnStretch(1, 1); // column 1 fills the rest of the availlable space
-
-    // Widget/Layout //
-    //
-    ToolWidget *toolWidget = new ToolWidget();
-    toolWidget->setLayout(toolLayout);
-    toolManager_->addToolBoxWidget(toolWidget, tr("RoadShape Editor"));
-    connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 
     // Ribbon //
     //
 
     ToolWidget *ribbonWidget = new ToolWidget();
-    //ribbonWidget->
     ui_ = new Ui::ShapeRibbon();
     ui_->setupUi(ribbonWidget);
 
@@ -125,18 +79,6 @@ ShapeEditorTool::initToolBar()
 // SLOTS          //
 //################//
 
-/*! \brief Gets called when this widget (tab) has been activated.
-*
-* Sends a ToolAction with the current ToolId and Radius.
-*/
-void
-ShapeEditorTool::activateEditor()
-{
-    ShapeEditorToolAction *action = new ShapeEditorToolAction(toolId_);
-    emit toolAction(action);
-    delete action;
-}
-
 
 /*! \brief Is called by the toolmanager to initialize the UI */
 /* UI sets the values of the current project */
@@ -149,22 +91,6 @@ ShapeEditorTool::activateRibbonEditor()
 
 }
 
-
-/*! \brief Gets called when a tool has been selected.
-*
-* Sends a ToolAction with the current ToolId and Radius.
-*/
-void
-ShapeEditorTool::handleToolClick(int id)
-{
-    toolId_ = (ODD::ToolId)id;
-
-    // Set a tool //
-    //
-    ShapeEditorToolAction *action = new ShapeEditorToolAction(toolId_);
-    emit toolAction(action);
-    delete action;
-}
 
 void
 ShapeEditorTool::handleRibbonToolClick(int id)

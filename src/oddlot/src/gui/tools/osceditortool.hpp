@@ -21,8 +21,6 @@
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
 
-#include <QComboBox>
-
 #include "ui_OSCRibbon.h"
 
 

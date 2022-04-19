@@ -61,7 +61,6 @@ signals:
 
 public slots:
     void activateProject(bool hasActive);
-    void activateEditor();
     void activateRibbonEditor();
     void handleToolClick(int);
 

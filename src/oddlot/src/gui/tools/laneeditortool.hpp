@@ -59,11 +59,8 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
     void activateRibbonEditor();
-    void setWidth();
     void setRibbonWidth();
-    void handleToolClick(int);
     void handleRibbonToolClick(int);
     void onCheckBoxStateChanged(int);
     // void setEditMode();
@@ -75,7 +72,6 @@ public slots:
 private:
     Ui::LaneRibbon *ui;
     ODD::ToolId toolId_;
-    QDoubleSpinBox *widthEdit_;
 
     QButtonGroup *ribbonToolGroup_;
 };

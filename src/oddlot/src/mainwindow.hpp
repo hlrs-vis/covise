@@ -362,7 +362,6 @@ private:
     QDockWidget *errorDock_;
     QWidget *emptyMessageWidget_;
 
-    QDockWidget *toolDock_;
     QDockWidget *ribbonToolDock_;
 
     QDockWidget *treeDock_;

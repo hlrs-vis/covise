@@ -172,7 +172,7 @@ ToolManager::initTools()
 
     // Default //
     //
-    defaultEditor->activateEditor();
+    defaultEditor->activateRibbonEditor();
 }
 
 /*! Resends a toolAction with the last EditorId and ToolId.

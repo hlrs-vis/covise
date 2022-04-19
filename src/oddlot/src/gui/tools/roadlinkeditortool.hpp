@@ -23,7 +23,6 @@
 
 #include "ui_RoadLinkRibbon.h"
 
-class QDoubleSpinBox;
 
 class RoadLinkEditorTool : public EditorTool
 {
@@ -59,9 +58,7 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
     void activateRibbonEditor();
-    void handleToolClick(int);
     void handleRibbonToolClick(int);
     void setThreshold();
 
@@ -72,7 +69,6 @@ public slots:
 private:
     Ui::RoadLinkRibbon *ui;
     ODD::ToolId toolId_;
-    QDoubleSpinBox *thresholdEdit_;
     QButtonGroup *ribbonToolGroup_;
 };
 

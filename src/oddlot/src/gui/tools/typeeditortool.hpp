@@ -19,17 +19,8 @@
 #include "editortool.hpp"
 
 #include "toolaction.hpp"
-#include "src/util/odd.hpp"
 
-#include "src/data/roadsystem/sections/typesection.hpp"
-
-#include <QMap>
-
-class QGroupBox;
-class QAction;
-class QMenu;
-class QToolButton;
-class RoadTypeComboBox;
+#include <QToolButton>
 
 class TypeEditorTool : public EditorTool
 {
@@ -65,10 +56,8 @@ signals:
 
 public slots:
     void activateProject(bool hasActive);
-    void activateEditor();
     void activateRibbonEditor();
     void handleToolClick(int);
-    void handleRoadTypeSelection(int);
 
     //################//
     // PROPERTIES     //
@@ -76,14 +65,9 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-    TypeSection::RoadType roadType_;
 
     // GUI Elements //
     //
-    QMap<QString, TypeSection::RoadType> roadTypes_;
-    QGroupBox *selectGroupBox_;
-    QMenu *roadTypeToolButtonMenu_;
-    QToolButton *roadTypeToolButton_;
     QButtonGroup *ribbonToolGroup_;
 
     bool active_;

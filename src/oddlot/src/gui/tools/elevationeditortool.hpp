@@ -58,13 +58,8 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
     void activateRibbonEditor();
-    void handleToolClick(int);
     void handleRibbonToolClick(int);
-    void setRadius();
-    void setHeight();
-    void setIHeight();
     void setRHeight();
     void setRIHeight();
     void setRRadius();
@@ -78,10 +73,6 @@ private:
     Ui::ElevationRibbon *ui;
     ODD::ToolId toolId_;
     QButtonGroup *ribbonToolGroup_;
-
-    QDoubleSpinBox *radiusEdit_;
-    QDoubleSpinBox *heightEdit_;
-    QDoubleSpinBox *iHeightEdit_;
 };
 
 class ElevationEditorToolAction : public ToolAction

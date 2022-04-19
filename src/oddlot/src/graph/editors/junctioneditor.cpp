@@ -45,6 +45,8 @@
 #include "src/data/commands/lanesectioncommands.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
 
+#include "src/data/prototypemanager.hpp"
+
 // Graph //
 //
 #include "src/graph/topviewgraph.hpp"

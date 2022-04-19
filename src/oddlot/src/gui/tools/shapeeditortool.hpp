@@ -57,9 +57,7 @@ signals:
     //################//
 
 public slots:
-    void activateEditor();
     void activateRibbonEditor();
-    void handleToolClick(int);
     void handleRibbonToolClick(int);
 
     //################//

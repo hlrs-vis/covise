@@ -575,26 +575,12 @@ MainWindow::createSignals()
 void
 MainWindow::createTools()
 {
-    // DockWidget //
-    //
-    toolDock_ = new QDockWidget(tr("Toolbox"), this);
-    toolDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::LeftDockWidgetArea, toolDock_);
-
-    // Show/Hide Action //
-    //
-    QAction *toolDockToggleAction = toolDock_->toggleViewAction();
-    toolDockToggleAction->setStatusTip(tr("Show/hide the tool box."));
-    viewMenu_->addAction(toolDockToggleAction);
 
     // ToolManager //
     //
     toolManager_ = new ToolManager(prototypeManager_, this);
     connect(toolManager_, SIGNAL(toolAction(ToolAction *)), this, SLOT(toolAction(ToolAction *)));
     connect(this, SIGNAL(hasActiveProject(bool)), toolManager_, SLOT(loadProjectEditor(bool)));
-
-    toolDock_->setWidget(toolManager_->getToolBox());
-    toolDock_->hide();
 
     ribbonToolDock_ = new QDockWidget(tr("Ribbon"), this);
     QWidget *titleWidget = new QWidget(this);
@@ -604,7 +590,7 @@ MainWindow::createTools()
 
     // Show/Hide Action //
     //
-    QAction *ribbonToolDockToggleAction = toolDock_->toggleViewAction();
+    QAction *ribbonToolDockToggleAction = ribbonToolDock_->toggleViewAction();
     ribbonToolDockToggleAction->setStatusTip(tr("Show/hide the ribbon."));
     viewMenu_->addAction(ribbonToolDockToggleAction);
 
