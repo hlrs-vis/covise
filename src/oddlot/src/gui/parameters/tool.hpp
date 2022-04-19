@@ -202,6 +202,32 @@ public:
         return v->getValue();
     }
 
+    template<class T>
+    QList<T *> getValues(int id)
+    {
+        QList<T *> objectList;
+
+        if (paramList_.contains(id))
+        {
+            QList<ToolParameter *> list = paramList_.value(id);
+            for (int i = 0; i < list.size();)
+            {
+                ToolParameter *p = list.takeAt(i);
+
+                ToolValue<T> *v = dynamic_cast<ToolValue<T> *>(p);
+                objectList.append(v->getValue());
+            }
+        }
+        else
+        {
+            ToolParameter *p = params_.value(id);
+            ToolValue<T> *v = dynamic_cast<ToolValue<T> *>(p);
+            objectList.append(v->getValue());
+        }
+
+        return objectList;
+    }
+
     void resetValues(QList<ToolParameter *> &paramList);
 
     QMap<unsigned int, QList<ToolParameter *>> *getParamList()
@@ -221,6 +247,7 @@ public:
     QList<ToolParameter *> getParamList(unsigned char listId);
     ToolParameter *getLastParam(unsigned char listId);
     ToolParameter *getParam(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId);
+    int getActiveParamId();
 
     bool containsToolId(ODD::ToolId id);
 

@@ -231,6 +231,11 @@ LaneEditor::toolAction(ToolAction *toolAction)
 
                 ODD::mainWindow()->showParameterDialog(true, "Insert new Lane", "Specify lane id and width, select a lane and press APPLY");
 
+                // verify if apply can be displayed //
+                if (tool_->verify())
+                {
+                    settingsApplyBox_->setApplyButtonVisible(true);
+                }
             }
         }
         else if (selectControls_ && (laneEditorToolAction->getToolId() == ODD::TLE_SELECT_ALL))

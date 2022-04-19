@@ -116,6 +116,8 @@ SignalEditor::init()
         signalRoadSystemItem_ = new SignalRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
         getTopviewGraph()->getScene()->addItem(signalRoadSystemItem_);
 
+        signalRoadSystemItem_->setJunctionsSelectable(false);
+
         // Signal Handle //
         //
         insertSignalHandle_ = new SignalHandle(signalRoadSystemItem_);
@@ -542,201 +544,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
             msg.exec();*/
         }
     }
-    else if ((currentToolId == ODD::TSG_CONTROLLER) || (currentToolId == ODD::TSG_ADD_CONTROL_ENTRY) || (currentToolId == ODD::TSG_REMOVE_CONTROL_ENTRY))
-    {
-        if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-        {
-            if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    QList<Signal *>selectionChangedSignals;
-                    if (selectedSignals_.empty())
-                    {
-                        oldSelectedItems.clear();
-                    }
-                    else if (oldSelectedItems.isEmpty())
-                    {
-                        selectionChangedSignals = selectedSignals_;
-                    }
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    QMultiMap<Signal *, QGraphicsItem *>graphicSignalItems;
-
-                    for (int i = 0; i < selectedItems.size();)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        SignalItem *signalItem = dynamic_cast<SignalItem *>(item);
-                        if (signalItem)
-                        {
-                            Signal *signal = signalItem->getSignal();
-                            if (!oldSelectedItems.contains(item))
-                            {
-                                if (!selectionChangedSignals.contains(signal))
-                                {
-                                    if (!selectedSignals_.contains(signal))
-                                    {
-                                        createToolParameters<Signal>(signal);
-                                        selectedSignals_.append(signal);
-
-                                        item->setSelected(true);
-                                    }
-                                    else
-                                    {
-                                        item->setSelected(false);
-                                        graphicSignalItems.insert(signal, item);
-
-                                        removeToolParameters<Signal>(signal);
-                                        selectedSignals_.removeOne(signal);
-                                    }
-                                    selectionChangedSignals.append(signal);
-                                }
-                                else if (!selectedSignals_.contains(signal))
-                                {
-                                    graphicSignalItems.insert(signal, item);
-                                }
-                            }
-                            else
-                            {
-                                int j = oldSelectedItems.indexOf(item);
-                                oldSelectedItems.takeAt(j);
-                                graphicSignalItems.insert(signal, item);
-                            }
-                            i++;
-                        }
-                        else if (currentToolId == ODD::TSG_CONTROLLER)
-                        {
-                            item->setSelected(false);
-                            selectedItems.removeAt(i);
-                        }
-                        else
-                        {
-                            ControllerItem *controllerItem = dynamic_cast<ControllerItem *>(item);
-                            if (!controllerItem || (controller_ != controllerItem->getController()))
-                            {
-                                item->setSelected(false);
-                            }
-                            selectedItems.removeAt(i);
-                        }
-                    }
-
-                    for (int i = 0; i < selectionChangedSignals.size(); i++)
-                    {
-                        Signal *signal = selectionChangedSignals.at(i);
-
-                        if (!selectedSignals_.contains(signal))
-                        {
-                            QGraphicsItem *signalItem = graphicSignalItems.value(signal);
-                            selectedItems.removeOne(signalItem);
-                            oldSelectedItems.removeOne(signalItem);
-                            graphicSignalItems.remove(signal);
-                        }
-
-                    }
-
-                    for (int i = 0; i < oldSelectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = oldSelectedItems.at(i);
-                        SignalItem *signalItem = dynamic_cast<SignalItem *>(item);
-                        if (signalItem)
-                        {
-                            Signal *signal = signalItem->getSignal();
-                            if (!selectionChangedSignals.contains(signal))
-                            {
-                                item->setSelected(false);
-
-                                removeToolParameters<Signal>(signal);
-                                selectedSignals_.removeOne(signal);
-
-                                selectionChangedSignals.append(signal);
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < selectionChangedSignals.size(); i++)
-                    {
-                        Signal *signal = selectionChangedSignals.at(i);
-                        if (!selectedSignals_.contains(signal))
-                        {
-                            QGraphicsItem *signalItem = graphicSignalItems.value(signal);
-                            selectedItems.removeOne(signalItem);
-                            graphicSignalItems.remove(signal);
-                        }
-                    }
-                    oldSelectedItems = selectedItems;
-                    mouseAction->intercept();
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
-                    if ((objectCount >= applyCount_) && (((getCurrentTool() != ODD::TSG_ADD_CONTROL_ENTRY) && (getCurrentTool() != ODD::TSG_REMOVE_CONTROL_ENTRY)) || controller_))
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
-    else if (currentToolId == ODD::TSG_SELECT_CONTROLLER)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    foreach(QGraphicsItem * item, selectedItems)
-                    {
-                        ControllerItem *controllerItem = dynamic_cast<ControllerItem *>(item);
-                        if (controllerItem)
-                        {
-                            controller_ = controllerItem->getController();
-                            setToolValue<RSystemElementController>(controller_, controller_->getIdName());
-                        }
-                        else
-                        {
-                            SignalItem *signalItem = dynamic_cast<SignalItem *>(item);
-                            if (!signalItem || !selectedSignals_.contains(signalItem->getSignal()))
-                            {
-                                item->setSelected(false);
-                            }
-                        }
-                    }
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(tool_->getToolId(), getCurrentParameterTool());
-                    if ((objectCount >= applyCount_) && controller_)
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
-    else if (currentToolId == ODD::TSG_SELECT)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (mouseAction->getEvent()->button() == Qt::LeftButton)
-            {
-
-                QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                foreach(QGraphicsItem * item, selectedItems)
-                {
-                    ControllerItem *controllerItem = dynamic_cast<ControllerItem *>(item);
-                    if (controllerItem)
-                    {
-                        controller_ = controllerItem->getController();
-                    }
-                }
-            }
-        }
-    }
-
-    // ProjectEditor::mouseAction(mouseAction);
+ 
 }
 
 //################//
@@ -751,9 +559,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
 {
     if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
     {
-        clearToolObjectSelection();
-        delToolParameters();
-        ODD::mainWindow()->showParameterDialog(false);
+        resetTool();
     }
 
     // Parent //
@@ -769,6 +575,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
             //
         if (signalEditorToolAction->getToolId() == ODD::TSG_CONTROLLER)
         {
+            signalRoadSystemItem_->setControllersSelectable(false);
             ODD::ToolId paramTool = getCurrentParameterTool();
 
             if ((paramTool == ODD::TNO_TOOL) && !tool_)
@@ -816,7 +623,15 @@ SignalEditor::toolAction(ToolAction *toolAction)
                 tool_ = new Tool(ODD::TSG_REMOVE_CONTROL_ENTRY, 4);
                 tool_->readParams(param);
                 assignParameterSelection(ODD::TSG_REMOVE_CONTROL_ENTRY);
-                ToolValue<Signal> *signalParam = new ToolValue<Signal>(ODD::TSG_REMOVE_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                ToolValue<Signal> *signalParam;
+                if (controller_)
+                {
+                    signalParam = new ToolValue<Signal>(ODD::TSG_REMOVE_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                }
+                else
+                {
+                    signalParam = new ToolValue<Signal>(ODD::TSG_REMOVE_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", false);
+                }
                 tool_->readParams(signalParam);
 
                 createToolParameterSettingsApplyBox(tool_, ODD::ESG);
@@ -856,7 +671,15 @@ SignalEditor::toolAction(ToolAction *toolAction)
                 tool_ = new Tool(ODD::TSG_ADD_CONTROL_ENTRY, 4);
                 tool_->readParams(param);
                 assignParameterSelection(ODD::TSG_ADD_CONTROL_ENTRY);
-                ToolValue<Signal> *signalParam = new ToolValue<Signal>(ODD::TSG_ADD_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                ToolValue<Signal> *signalParam;
+                if (controller_)
+                {
+                    signalParam = new ToolValue<Signal>(ODD::TSG_ADD_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                }
+                else
+                {
+                    signalParam = new ToolValue<Signal>(ODD::TSG_ADD_CONTROL_ENTRY, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", false);
+                }
                 tool_->readParams(signalParam);
 
                 createToolParameterSettingsApplyBox(tool_, ODD::ESG);
@@ -886,26 +709,17 @@ SignalEditor::toolAction(ToolAction *toolAction)
                     if (!action->getState())
                     {
 
-                        QList<Signal *> signalList = tool_->removeToolParameters<Signal>(action->getParamId());
-                        foreach(Signal * signal, signalList)
+                        QList<Signal *> signalList = tool_->getValues<Signal>(action->getParamId());
+                        foreach(Signal *signal, signalList)
                         {
                             DeselectDataElementCommand *command = new DeselectDataElementCommand(signal, NULL);
                             getProjectGraph()->executeCommand(command);
-                            selectedSignals_.removeOne(signal);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
                         }
                     }
                 }
             }
         }
     }
-
-
     if (currentTool != lastTool_)
     {
         if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT)
@@ -961,6 +775,58 @@ SignalEditor::assignParameterSelection(ODD::ToolId toolId)
         }
 
     }
+}
+
+void 
+SignalEditor::registerSignal(Signal *signal)
+{
+    createToolParameters<Signal>(signal);
+    selectedSignals_.append(signal);
+
+    int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+    if (objectCount >= applyCount_)
+    {
+        settingsApplyBox_->setApplyButtonVisible(true);
+    }
+}
+
+void 
+SignalEditor::deregisterSignal(Signal *signal)
+{
+    removeToolParameters<Signal>(signal);
+    selectedSignals_.removeOne(signal);
+
+    int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+    if (objectCount < applyCount_)
+    {
+        settingsApplyBox_->setApplyButtonVisible(false);
+    }
+}
+
+bool 
+SignalEditor::registerController(RSystemElementController *controller)
+{
+    if (controller != controller_)
+    {
+        DeselectDataElementCommand *command = new DeselectDataElementCommand(controller_);
+        getProjectGraph()->executeCommand(command);
+       
+        controller_ = controller;
+
+        if (tool_)
+        {
+            setToolValue<RSystemElementController>(controller_, controller_->getIdName());
+
+            int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+            if (objectCount >= applyCount_)
+            {
+                settingsApplyBox_->setApplyButtonVisible(true);
+            }
+        }
+
+        return true;
+    }
+    return false;
 }
 
 //################//
@@ -1043,19 +909,29 @@ SignalEditor::clearToolObjectSelection()
 void
 SignalEditor::reset()
 {
-    ODD::ToolId toolId = tool_->getToolId();
     clearToolObjectSelection();
     delToolParameters();
+}
+
+void
+SignalEditor::resetTool()
+{
+    if (tool_)
+    {
+        ODD::ToolId toolId = tool_->getToolId();
+        if (toolId == ODD::TSG_CONTROLLER) 
+        {
+            signalRoadSystemItem_->setControllersSelectable(true);
+        }
+        clearToolObjectSelection();
+        delToolParameters();
+        ODD::mainWindow()->showParameterDialog(false);
+    }
 }
 
 void SignalEditor::reject()
 {
     ProjectEditor::reject();
 
-    if (tool_)
-    {
-        clearToolObjectSelection();
-        delToolParameters();
-        ODD::mainWindow()->showParameterDialog(false);
-    }
+    resetTool();
 }

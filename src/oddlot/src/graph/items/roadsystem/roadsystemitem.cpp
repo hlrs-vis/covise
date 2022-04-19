@@ -19,6 +19,7 @@
  //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/rsystemelementjunction.hpp"
 
 // Widget //
 //
@@ -77,7 +78,9 @@ RoadSystemItem::init()
     {
         foreach(RSystemElementJunction * junction, roadSystem_->getJunctions())
         {
-            (new JunctionItem(this, junction))->setZValue(-1.0);
+            JunctionItem *item = new JunctionItem(this, junction);
+            item->setZValue(-1.0);
+            junctionItems_.append(item);
         }
     }
 }
@@ -96,6 +99,21 @@ bool
 RoadSystemItem::removeRoadItem(RoadItem *roadItem)
 {
     return roadItems_.remove(roadItem->getRoad()->getID().getID());
+}
+
+bool 
+RoadSystemItem::removeJunctionItem(JunctionItem *junctionItem)
+{
+    return junctionItems_.removeAll(junctionItem);
+}
+
+void
+RoadSystemItem::setJunctionsSelectable(bool selectable)
+{
+    foreach(JunctionItem * item, junctionItems_)
+    {
+        item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    }
 }
 
 //##################//
@@ -125,7 +143,13 @@ RoadSystemItem::updateObserver()
         {
             foreach(RSystemElementJunction * junction, roadSystem_->getJunctions())
             {
-                (new JunctionItem(this, junction))->setZValue(-1.0);
+                if ((junction->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+                    || (junction->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+                {
+                    JunctionItem *item = new JunctionItem(this, junction);
+                    item->setZValue(-1.0);
+                    junctionItems_.append(item);
+                }
             }
         }
     }

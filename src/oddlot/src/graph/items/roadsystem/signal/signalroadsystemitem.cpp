@@ -19,6 +19,7 @@
 //
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/rsystemelementcontroller.hpp"
 
 // Graph //
 //
@@ -51,9 +52,27 @@ SignalRoadSystemItem::init()
     //
     foreach (RSystemElementController *controller, getRoadSystem()->getControllers())
     {
-        (new ControllerItem(this, controller))->setZValue(-1.0);
+        ControllerItem *item = new ControllerItem(this, controller);
+        item->setZValue(-1.0);
+        controllerItems_.append(item);
     }
 }
+
+bool
+SignalRoadSystemItem::removeControllerItem(ControllerItem *controllerItem)
+{
+    return controllerItems_.removeAll(controllerItem);
+}
+
+void
+SignalRoadSystemItem::setControllersSelectable(bool selectable)
+{
+    foreach(ControllerItem * item, controllerItems_)
+    {
+        item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    }
+}
+
 
 //##################//
 // Observer Pattern //
@@ -96,7 +115,13 @@ SignalRoadSystemItem::updateObserver()
         //
         foreach (RSystemElementController *controller, getRoadSystem()->getControllers())
         {
-            (new ControllerItem(this, controller))->setZValue(-1.0);
+            if ((controller->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+                || (controller->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+            {
+                ControllerItem *item = new ControllerItem(this, controller);
+                item->setZValue(-1.0);
+                controllerItems_.append(item);
+            }
         }
     }
 }

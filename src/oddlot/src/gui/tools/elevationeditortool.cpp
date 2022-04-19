@@ -308,14 +308,10 @@ ElevationEditorTool::setIHeight()
 void
 ElevationEditorTool::setRRadius()
 {
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_RADIUS, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+    ToolAction *lastAction = toolManager_->getLastToolAction(ODD::EEL);
+    ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(lastAction);
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(elevationEditorToolAction->getToolId(), ODD::TEL_RADIUS, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
     emit toolAction(action);
-    //   delete action;
-
-    if (toolId_ != ODD::TEL_SELECT)
-    {
-        ribbonToolGroup_->button(toolId_)->click();
-    }
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -325,20 +321,16 @@ ElevationEditorTool::setRRadius()
 void
 ElevationEditorTool::setRHeight()
 {
-
-    ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+    ToolAction *lastAction = toolManager_->getLastToolAction(ODD::EEL);
+    ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(lastAction);
+    ElevationEditorToolAction *action = new ElevationEditorToolAction(elevationEditorToolAction->getToolId(), ODD::TEL_HEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
     emit toolAction(action);
-    //   delete action;
 
     ui->heightEdit->blockSignals(true);
     ui->heightEdit->setValue(0.0);
     ui->heightEdit->clearFocus();
     ui->heightEdit->blockSignals(false);
 
-    if (toolId_ != ODD::TEL_SELECT)
-    {
-        ribbonToolGroup_->button(toolId_)->click();
-    }
 }
 
 /*! \brief Gets called when the height has been changed.
@@ -350,18 +342,15 @@ ElevationEditorTool::setRIHeight()
 {
     if (fabs(ui->iHeightEdit->value()) > NUMERICAL_ZERO3)
     {
-        ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+        ToolAction *lastAction = toolManager_->getLastToolAction(ODD::EEL);
+        ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(lastAction);
+        ElevationEditorToolAction *action = new ElevationEditorToolAction(elevationEditorToolAction->getToolId(), ODD::TEL_IHEIGHT, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
         emit toolAction(action);
-        //   delete action;
+
         ui->iHeightEdit->blockSignals(true);
         ui->iHeightEdit->setValue(0.0);
         ui->heightEdit->clearFocus();
         ui->iHeightEdit->blockSignals(false);
-
-        if (toolId_ != ODD::TEL_SELECT)
-        {
-            ribbonToolGroup_->button(toolId_)->click();
-        }
     }
 }
 
@@ -375,19 +364,16 @@ ElevationEditorTool::setSectionStart()
 
     if (fabs(ui->startEdit->value()) > NUMERICAL_ZERO3)
     {
-        ElevationEditorToolAction *action = new ElevationEditorToolAction(ODD::TEL_SELECT, ODD::TEL_MOVE, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
+        ToolAction *lastAction = toolManager_->getLastToolAction(ODD::EEL);
+        ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(lastAction);
+        ElevationEditorToolAction *action = new ElevationEditorToolAction(elevationEditorToolAction->getToolId(), ODD::TEL_MOVE, ui->radiusEdit->value(), ui->heightEdit->value(), ui->iHeightEdit->value(), ui->startEdit->value());
         emit toolAction(action);
-        //   delete action;
 
         ui->startEdit->blockSignals(true);
         ui->startEdit->setValue(0.0);
         ui->heightEdit->clearFocus();
         ui->startEdit->blockSignals(false);
 
-        if (toolId_ != ODD::TEL_SELECT)
-        {
-            ribbonToolGroup_->button(toolId_)->click();
-        }
     }
 }
 

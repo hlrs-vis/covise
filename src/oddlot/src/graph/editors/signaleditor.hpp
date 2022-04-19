@@ -60,6 +60,19 @@ public:
     //
     virtual void toolAction(ToolAction *);
 
+    // Register signals //
+    //
+    void registerSignal(Signal *signal);
+    void deregisterSignal(Signal *signal);
+
+    // Controller //
+    //
+    bool registerController(RSystemElementController *controller);
+    RSystemElementController *getController()
+    {
+        return controller_;
+    }
+
     // Move Signals //
     //
     void duplicate();
@@ -96,6 +109,7 @@ private:
 
     void clearToolObjectSelection();
     void assignParameterSelection(ODD::ToolId toolId);
+    void resetTool();
 
     //################//
     // SLOTS          //

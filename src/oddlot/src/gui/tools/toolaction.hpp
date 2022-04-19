@@ -40,19 +40,26 @@ public:
     {
         return editorId_;
     }
+
     ODD::ToolId getToolId() const
     {
         return toolID_;
     }
-	ODD::ToolId getParamToolId() const
-	{
-		return paramToolId_;
-	}
 
-	void setParamToolId(const ODD::ToolId &id)
-	{
-		paramToolId_ = id;
-	}
+    void setToolId(const ODD::ToolId &id)
+    {
+        toolID_ = id;
+    }
+
+    ODD::ToolId getParamToolId() const
+    {
+        return paramToolId_;
+    }
+
+    void setParamToolId(const ODD::ToolId &id)
+    {
+        paramToolId_ = id;
+    }
 
 protected:
 private:
@@ -67,7 +74,7 @@ private:
 protected:
     ODD::EditorId editorId_;
     ODD::ToolId toolID_;
-	ODD::ToolId paramToolId_;
+    ODD::ToolId paramToolId_;
 
 private:
 };

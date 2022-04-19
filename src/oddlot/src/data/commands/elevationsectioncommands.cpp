@@ -750,10 +750,10 @@ SmoothElevationRoadsCommand::createSmoothSections(ElevationSection *elevationSec
         newSections_.insert(parentHigh, newSection);
     }
 
-    if (elevationSectionHigh->isElementSelected())
+ /*   if (elevationSectionHigh->isElementSelected())
     {
         newSection->setElementSelected(true);
-    }
+    } */
 
     return true;
 }

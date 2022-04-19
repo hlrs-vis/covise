@@ -134,6 +134,11 @@ ProfileGraph::updateBoundingBox()
         {
             elevationEditor->addSelectedRoad(selectedElevationItem);
         }
+        ElevationRoadPolynomialItem *selectedAdjacentElevationItem = elevationEditor->getSelectedAdjacentElevationItem();
+        if (selectedAdjacentElevationItem)
+        {
+            elevationEditor->addSelectedRoad(selectedAdjacentElevationItem);
+        }
         elevationEditor->fitView();
     }
     else

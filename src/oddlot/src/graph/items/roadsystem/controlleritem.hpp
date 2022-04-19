@@ -42,6 +42,10 @@ public:
         return controller_;
     }
 
+    // Garbage //
+    //
+    virtual void notifyDeletion(); // to be implemented by subclasses
+
     // Obsever Pattern //
     //
     virtual void updateObserver();
@@ -64,6 +68,14 @@ private:
 public slots:
     bool removeController();
     void addToCurrentTile();
+
+ //################//
+ // EVENTS         //
+ //################//
+
+protected:
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 
 public:

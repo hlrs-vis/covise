@@ -79,6 +79,11 @@ public:
         return selectedElevationItem_;
     };
 
+    ElevationRoadPolynomialItem *getSelectedAdjacentElevationItem()
+    {
+        return selectedAdjacentElevationItem_;
+    };
+
     // Selected Roads //
     //
     void addSelectedRoad(ElevationRoadPolynomialItem *roadItem);
@@ -96,10 +101,15 @@ public:
     bool translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos);
     bool selectionChangedRoadSection();
 
+    // ElevationSections //
+    //
+    bool registerElevationSection(QGraphicsItem *item, ElevationSection *section);
+    bool deregisterElevationSection(QGraphicsItem *item);
+
     // Tool, Mouse & Key //
     //
     virtual void toolAction(ToolAction *toolAction);
-    virtual void mouseAction(MouseAction *mouseAction);
+    // virtual void mouseAction(MouseAction *mouseAction);
     // virtual void   keyAction(KeyAction * keyAction);
 
 
@@ -112,6 +122,7 @@ private:
     ElevationEditor(const ElevationEditor &); /* not allowed */
     ElevationEditor &operator=(const ElevationEditor &); /* not allowed */
 
+    void arrangeAdjacentRoads(ElevationSection *section, RSystemElementRoad *road, ElevationSection *adjacentSection, RSystemElementRoad *adjacentRoad);
     void clearToolObjectSelection();
 
     //################//
@@ -151,6 +162,7 @@ private:
     //
     QList<RSystemElementRoad *> selectedRoads_;
     ElevationRoadPolynomialItem *selectedElevationItem_;
+    ElevationRoadPolynomialItem *selectedAdjacentElevationItem_;
 
     QMultiMap<int, ElevationMoveHandle *> selectedMoveHandles_;
 

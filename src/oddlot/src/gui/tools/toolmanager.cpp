@@ -191,8 +191,12 @@ ToolManager::resendCurrentTool(ProjectWidget *project)
 void
 ToolManager::resendStandardTool(ProjectWidget *project)
 {
+    /* set the toolId and paramToolId of the standardToolAction */
+    //
     ToolAction *lastToolAction = getProjectEditingState(project);
-    lastToolAction = standardToolAction_.value(lastToolAction->getEditorId());
+    ToolAction *standardToolAction = standardToolAction_.value(lastToolAction->getEditorId());
+    lastToolAction->setToolId(standardToolAction->getToolId());
+    lastToolAction->setParamToolId(standardToolAction->getParamToolId());
     setProjectEditingState(project, lastToolAction);
 
     ToolWidget *widget = dynamic_cast<ToolWidget *>(ribbon_->currentWidget());

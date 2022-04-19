@@ -108,6 +108,10 @@ JunctionEditor::JunctionEditor(ProjectWidget *projectWidget, ProjectData *projec
     , state_(JunctionEditor::STE_NONE)
     , sectionHandle_(NULL)
     , junction_(NULL)
+    , lane_(NULL)
+    , nextLane_(NULL)
+    , road_(NULL)
+    , nextRoad_(NULL)
     , threshold_(10.0)
 {
 }
@@ -142,14 +146,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
     ODD::ToolId lastTool = getCurrentTool();
     if (tool_ && !tool_->containsToolId(toolAction->getToolId()))
     {
-        clearToolObjectSelection();
-        delToolParameters();
-        ODD::mainWindow()->showParameterDialog(false);
-
-        if (lastTool == ODD::TJE_CIRCLE)
-        {
-            getTopviewGraph()->getView()->deleteCircle();
-        }
+        resetTool();
     }
     ProjectEditor::toolAction(toolAction);
 
@@ -199,7 +196,15 @@ JunctionEditor::toolAction(ToolAction *toolAction)
                 tool_->readParams(param);
 
                 assignParameterSelection(ODD::TJE_ADD_TO_JUNCTION);
-                ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_ADD_TO_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                ToolValue<RSystemElementRoad> *roadParam;
+                if (junction_)
+                {
+                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_ADD_TO_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                }
+                else
+                {
+                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_ADD_TO_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", false);
+                }
                 tool_->readParams(roadParam);
 
                 createToolParameterSettingsApplyBox(tool_, ODD::EJE);
@@ -281,6 +286,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
         //
         else if (junctionEditorToolAction->getToolId() == ODD::TJE_CREATE_JUNCTION)
         {
+            junctionRoadSystemItem_->setJunctionsSelectable(false);
             ODD::ToolId paramTool = getCurrentParameterTool();
 
             if ((paramTool == ODD::TNO_TOOL) && !tool_)
@@ -328,7 +334,15 @@ JunctionEditor::toolAction(ToolAction *toolAction)
                 tool_->readParams(param);
 
                 assignParameterSelection(ODD::TJE_REMOVE_FROM_JUNCTION);
-                ToolValue<RSystemElementRoad> *roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_REMOVE_FROM_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                ToolValue<RSystemElementRoad> *roadParam;
+                if (junction_)
+                {
+                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_REMOVE_FROM_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", true);
+                }
+                else
+                {
+                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_REMOVE_FROM_JUNCTION, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT_LIST, "Select/Remove", false);
+                }
                 tool_->readParams(roadParam);
 
                 createToolParameterSettingsApplyBox(tool_, ODD::EJE);
@@ -354,12 +368,11 @@ JunctionEditor::toolAction(ToolAction *toolAction)
             {
                 applyCount_ = 2;
                 getSelectedRoadsAndLanes();
-                selectedLanes_.clear();
                 ToolValue<RSystemElementRoad> *param;
                 if (!selectedRoads_.isEmpty())
                 {
-                    RSystemElementRoad *road = selectedRoads_.first();
-                    param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road", false, "", road->getIdName(), road);
+                    road_ = selectedRoads_.takeFirst();
+                    param = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road", false, "", road_->getIdName(), road_);
                 }
                 else
                 {
@@ -368,14 +381,14 @@ JunctionEditor::toolAction(ToolAction *toolAction)
                 tool_ = new Tool(ODD::TJE_CREATE_ROAD, 3);
                 tool_->readParams(param);
                 ToolValue<RSystemElementRoad> *roadParam;
-                if (selectedRoads_.size() > 1)
+                if (!selectedRoads_.isEmpty())
                 {
-                    RSystemElementRoad *road = selectedRoads_[1];
-                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road", false, "", road->getIdName(), road);
+                    nextRoad_ = selectedRoads_.takeFirst();
+                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_NEXT_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road", false, "", nextRoad_->getIdName(), nextRoad_);
                 }
                 else
                 {
-                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
+                    roadParam = new ToolValue<RSystemElementRoad>(ODD::TJE_NEXT_ROAD, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select road");
                 }
                 tool_->readParams(roadParam);
 
@@ -405,11 +418,10 @@ JunctionEditor::toolAction(ToolAction *toolAction)
                 getSelectedRoadsAndLanes();
                 selectedRoads_.clear();
                 ToolValue<Lane> *param;
-                if (!selectedLanes_.isEmpty())
+                if (lane_)
                 {
-                    Lane *lane = selectedLanes_.first();
-                    QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
-                    param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane", false, "", textDisplayed, lane);
+                    QString textDisplayed = QString("%1 Lane %2").arg(lane_->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane_->getId());
+                    param = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane", false, "", textDisplayed, lane_);
                 }
                 else
                 {
@@ -418,15 +430,14 @@ JunctionEditor::toolAction(ToolAction *toolAction)
                 tool_ = new Tool(ODD::TJE_CREATE_LANE, 3);
                 tool_->readParams(param);
                 ToolValue<Lane> *laneParam;
-                if (selectedLanes_.size() > 1)
+                if (nextLane_)
                 {
-                    Lane *lane = selectedLanes_[1];
-                    QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
-                    laneParam = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane", false, "", textDisplayed, lane);
+                    QString textDisplayed = QString("%1 Lane %2").arg(nextLane_->getParentLaneSection()->getParentRoad()->getIdName()).arg(nextLane_->getId());
+                    laneParam = new ToolValue<Lane>(ODD::TJE_NEXT_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane", false, "", textDisplayed, nextLane_);
                 }
                 else
                 {
-                    laneParam = new ToolValue<Lane>(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
+                    laneParam = new ToolValue<Lane>(ODD::TJE_NEXT_LANE, ODD::TPARAM_SELECT, 1, ToolParameter::ParameterTypes::OBJECT, "Select lane");
                 }
                 tool_->readParams(laneParam);
 
@@ -454,145 +465,27 @@ JunctionEditor::toolAction(ToolAction *toolAction)
                 threshold_ = action->getValue();
             }
 
-            else if (action->getToolId() == ODD::TJE_SELECT_JUNCTION)
+            else if (action->getParamToolId() == ODD::TPARAM_SELECT)
             {
-                currentParamId_ = action->getParamId();
-            }
-
-            else if ((action->getToolId() == ODD::TJE_ADD_TO_JUNCTION) && (action->getParamToolId() == ODD::TPARAM_SELECT))
-            {
-                currentParamId_ = action->getParamId();
-                if (!action->getState())
-                {
-
-                    QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-                    foreach(RSystemElementRoad * road, roads)
-                    {
-                        deselectLanes(road);
-                        selectedRoads_.removeOne(road);
-                    }
-
-                    // verify if apply has to be hidden //
-                    if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(false);
-                    }
-                }
-            }
-
-            else if (action->getToolId() == ODD::TJE_LINK_ROADS)
-            {
-                if (action->getParamToolId() == ODD::TPARAM_SELECT)
+                if ((action->getToolId() == ODD::TJE_ADD_TO_JUNCTION) || (action->getToolId() == ODD::TJE_LINK_ROADS) || (action->getToolId() == ODD::TJE_UNLINK_ROADS)
+                    || (action->getToolId() == ODD::TJE_CREATE_JUNCTION) || (action->getToolId() == ODD::TJE_REMOVE_FROM_JUNCTION))
                 {
                     currentParamId_ = action->getParamId();
                     if (!action->getState())
                     {
 
-                        QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
+                        QList<RSystemElementRoad *>roads = tool_->getValues<RSystemElementRoad>(currentParamId_);
                         foreach(RSystemElementRoad * road, roads)
                         {
                             deselectLanes(road);
-                            selectedRoads_.removeOne(road);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
                         }
                     }
                 }
-            }
 
 
-            else if (action->getToolId() == ODD::TJE_UNLINK_ROADS)
-            {
-                if (action->getParamToolId() == ODD::TPARAM_SELECT)
-                {
-                    currentParamId_ = action->getParamId();
-                    if (!action->getState())
-                    {
-
-                        QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-                        currentParamId_ = action->getParamId();
-                        foreach(RSystemElementRoad * road, roads)
-                        {
-                            deselectLanes(road);
-                            selectedRoads_.removeOne(road);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
-                        }
-                    }
-                }
-            }
-
-
-            // Create Junction //
-            //
-            else if (action->getToolId() == ODD::TJE_CREATE_JUNCTION)
-            {
-                if (action->getParamToolId() == ODD::TPARAM_SELECT)
-                {
-                    currentParamId_ = action->getParamId();
-                    if (!action->getState())
-                    {
-
-                        QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-                        foreach(RSystemElementRoad * road, roads)
-                        {
-                            deselectLanes(road);
-                            selectedRoads_.removeOne(road);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
-                        }
-                    }
-                }
-            }
-
-            else if (action->getToolId() == ODD::TJE_REMOVE_FROM_JUNCTION)
-            {
-                if (action->getParamToolId() == ODD::TPARAM_SELECT)
-                {
-                    currentParamId_ = action->getParamId();
-                    if (!action->getState())
-                    {
-                        QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-                        foreach(RSystemElementRoad * road, roads)
-                        {
-                            deselectLanes(road);
-                            selectedRoads_.removeOne(road);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
-                        }
-                    }
-                }
-            }
-            // Create Road //
-            //
-            else if (action->getToolId() == ODD::TJE_CREATE_ROAD)
-            {
-                if (action->getParamToolId() == ODD::TPARAM_SELECT)
-                {
-                    currentParamId_ = action->getParamId();
-                }
-            }
-            // Create Lane //
-            //
-            else if (action->getToolId() == ODD::TJE_CREATE_LANE)
-            {
-                if (action->getParamToolId() == ODD::TPARAM_SELECT)
+                // Create Road or lane, select junction //
+                //
+                else if ((action->getToolId() == ODD::TJE_CREATE_ROAD) || (action->getToolId() == ODD::TJE_CREATE_LANE) || (action->getToolId() == ODD::TJE_SELECT_JUNCTION))
                 {
                     currentParamId_ = action->getParamId();
                 }
@@ -703,7 +596,14 @@ JunctionEditor::getSelectedRoadsAndLanes()
                 if (!selectedRoads_.contains(road))
                 {
                     selectedRoads_.append(road);
-                    selectedLanes_.append(lane);
+                    if (!lane_)
+                    {
+                        lane_ = lane;
+                    }
+                    else
+                    {
+                        nextLane_ = lane;
+                    }
                     continue;
                 }
             }
@@ -754,12 +654,13 @@ JunctionEditor::widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *l
 void
 JunctionEditor::apply()
 {
-    if (getCurrentTool() == ODD::TJE_LINK_ROADS)
+    ODD::ToolId currentTool = getCurrentTool();
+    if (currentTool == ODD::TJE_LINK_ROADS)
     {
         SetRoadLinkRoadsCommand *command = new SetRoadLinkRoadsCommand(selectedRoads_, 10);
         getProjectGraph()->executeCommand(command);
     }
-    else if (getCurrentTool() == ODD::TJE_UNLINK_ROADS)
+    else if (currentTool == ODD::TJE_UNLINK_ROADS)
     {
         foreach(RSystemElementRoad * road, selectedRoads_)
         {
@@ -767,7 +668,7 @@ JunctionEditor::apply()
             getProjectGraph()->executeCommand(command);
         }
     }
-    else if (getCurrentTool() == ODD::TJE_CREATE_JUNCTION)
+    else if (currentTool == ODD::TJE_CREATE_JUNCTION)
     {
         // This is one undo //
               //
@@ -889,13 +790,13 @@ JunctionEditor::apply()
         }
         getProjectData()->getUndoStack()->endMacro();
     }
-    else if (getCurrentTool() == ODD::TJE_CREATE_ROAD)
+    else if ((currentTool == ODD::TJE_CREATE_ROAD) || (currentTool == ODD::TJE_NEXT_ROAD))
     {
-        createRoad(selectedRoads_);
+        createRoad();
     }
-    else if (getCurrentTool() == ODD::TJE_CREATE_LANE)
+    else if ((currentTool == ODD::TJE_CREATE_LANE) || (currentTool == ODD::TJE_NEXT_LANE))
     {
-        createRoad(selectedLanes_);
+        createLane();
     }
 }
 
@@ -923,7 +824,6 @@ JunctionEditor::deselectLanes(RSystemElementRoad *road)
             }
             DeselectDataElementCommand *command = new DeselectDataElementCommand(dataElements, NULL);
             getProjectGraph()->executeCommand(command);
-            break;
         }
         it++;
     }
@@ -943,17 +843,33 @@ JunctionEditor::clearToolObjectSelection()
 
     selectedRoads_.clear();
 
-    if (!selectedLanes_.isEmpty())
+
+    if (road_)
     {
-        QList<DataElement *>list;
-        foreach(Lane * lane, selectedLanes_)
-        {
-            list.append(lane);
-        }
-        DeselectDataElementCommand *command = new DeselectDataElementCommand(list);
+        deselectLanes(road_);
+        road_ = NULL;
+    }
+
+    if (nextRoad_)
+    {
+        deselectLanes(nextRoad_);
+        nextRoad_ = NULL;
+    }
+
+    if (lane_)
+    {
+        DeselectDataElementCommand *command = new DeselectDataElementCommand(lane_);
         getProjectGraph()->executeCommand(command);
 
-        selectedLanes_.clear();
+        lane_ = NULL;
+    }
+
+    if (nextLane_)
+    {
+        DeselectDataElementCommand *command = new DeselectDataElementCommand(nextLane_);
+        getProjectGraph()->executeCommand(command);
+
+        nextLane_ = NULL;
     }
 
 }
@@ -966,31 +882,218 @@ JunctionEditor::reset()
     delToolParameters();
 }
 
-void JunctionEditor::reject()
+void
+JunctionEditor::resetTool()
 {
-    ProjectEditor::reject();
-
     if (tool_)
     {
+        ODD::ToolId toolId = tool_->getToolId();
+        if (toolId == ODD::TJE_CREATE_JUNCTION)
+        {
+            junctionRoadSystemItem_->setJunctionsSelectable(true);
+        }
+
         clearToolObjectSelection();
         delToolParameters();
         ODD::mainWindow()->showParameterDialog(false);
-        if (getCurrentTool() == ODD::TJE_CIRCLE)
+
+        if (toolId == ODD::TJE_CIRCLE)
         {
             getTopviewGraph()->getView()->deleteCircle();
         }
     }
 }
 
+void JunctionEditor::reject()
+{
+    ProjectEditor::reject();
+
+    resetTool();
+}
+
+void 
+JunctionEditor::registerJunction(RSystemElementJunction *junction)
+{
+    if (junction != junction_)
+    {
+        DeselectDataElementCommand *command = new DeselectDataElementCommand(junction_);
+        getProjectGraph()->executeCommand(command);
+
+        junction_ = junction;
+
+        if (tool_)
+        {
+            setToolValue<RSystemElementJunction>(junction_, junction_->getIdName());
+
+            int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+            if (objectCount >= applyCount_)
+            {
+                settingsApplyBox_->setApplyButtonVisible(true);
+            }
+        }
+    }
+}
+
+bool
+JunctionEditor::registerSingleRoad(RSystemElementRoad *road)
+{
+    ODD::ToolId currentTool = getCurrentTool();
+
+    if (currentTool == ODD::TJE_CREATE_ROAD)
+    {
+        if ((road != road_) && (road != nextRoad_))
+        {
+            if (road_)
+            {
+                deselectLanes(road_);
+            }
+
+            setToolValue<RSystemElementRoad>(road, road->getIdName());
+
+            road_ = road;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if ((road != nextRoad_) && (road != road_))
+        {
+            if (nextRoad_)
+            {
+                deselectLanes(nextRoad_);
+            }
+
+            setToolValue<RSystemElementRoad>(road, road->getIdName());
+
+            nextRoad_ = road;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    if (road_ && nextRoad_)
+    {
+        settingsApplyBox_->setApplyButtonVisible(true);
+    }
+
+
+    return true;
+}
+
+bool
+JunctionEditor::registerRoad(RSystemElementRoad *road)
+{
+    if (!selectedRoads_.contains(road))
+    {
+        if (getCurrentTool() == ODD::TJE_CREATE_ROAD)
+        {
+            setToolValue<RSystemElementRoad>(road, road->getIdName());
+        }
+        else
+        {
+            createToolParameters<RSystemElementRoad>(road);
+        }
+        selectedRoads_.append(road);
+
+        int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+        if (objectCount >= applyCount_)
+        {
+            settingsApplyBox_->setApplyButtonVisible(true);
+        }
+
+        return true;
+    }
+
+    return false;
+}
 
 void
-JunctionEditor::createRoad(QList<Lane *> lanes)
+JunctionEditor::deregisterRoad(RSystemElementRoad *road)
 {
-    Lane *lane1 = lanes.first();
-    Lane *lane2 = lanes.last();
+    if (selectedRoads_.contains(road))
+    {
+        if (getCurrentTool() != ODD::TJE_CREATE_ROAD)
+        {
+            removeToolParameters<RSystemElementRoad>(road);
+        }
+        selectedRoads_.removeOne(road);
 
-    LaneSection *laneSection1 = lane1->getParentLaneSection();
-    LaneSection *laneSection2 = lane2->getParentLaneSection();
+        int objectCount = tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool());
+        if (objectCount < applyCount_)
+        {
+            settingsApplyBox_->setApplyButtonVisible(false);
+        }
+    }
+}
+
+bool
+JunctionEditor::registerLane(Lane *lane)
+{
+    ODD::ToolId currentTool = getCurrentTool();
+
+    if (currentTool == ODD::TJE_CREATE_LANE)
+    {
+        if ((lane != lane_) && (lane != nextLane_))
+        {
+            if (lane_)
+            {
+                DeselectDataElementCommand *command = new DeselectDataElementCommand(lane_);
+                getProjectGraph()->executeCommand(command);
+            }
+
+            QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
+            setToolValue<Lane>(lane, textDisplayed);
+
+            lane_ = lane;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if ((lane != nextLane_) && (lane != lane_))
+        {
+            if (nextLane_)
+            {
+                DeselectDataElementCommand *command = new DeselectDataElementCommand(nextLane_);
+                getProjectGraph()->executeCommand(command);
+            }
+
+            QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
+            setToolValue<Lane>(lane, textDisplayed);
+
+            nextLane_ = lane;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    if (lane_ && nextLane_)
+    {
+        settingsApplyBox_->setApplyButtonVisible(true);
+    }
+
+
+    return true;
+}
+
+
+void
+JunctionEditor::createLane()
+{
+    LaneSection *laneSection1 = lane_->getParentLaneSection();
+    LaneSection *laneSection2 = nextLane_->getParentLaneSection();
 
     RSystemElementRoad *road1 = laneSection1->getParentRoad();
     RSystemElementRoad *road2 = laneSection2->getParentRoad();
@@ -1034,36 +1137,36 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
     {
     case 0:
     {
-        if (((lane1->getId() < 0) && (lane2->getId() < 0)) || ((lane1->getId() > 0) && (lane2->getId() > 0)))
+        if (((lane_->getId() < 0) && (nextLane_->getId() < 0)) || ((lane_->getId() > 0) && (nextLane_->getId() > 0)))
         {
             addOwnLaneWidth = true;
         }
         laneSection1 = road1->getLaneSection(0.0);
         laneSection2 = road2->getLaneSection(0.0);
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSStart(), false);
-        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane_, laneSection1, laneSection1->getSStart(), false);
+        double offset2 = widthOffset(road2, nextLane_, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, true, true, offset1, offset2);
 
         if (!spiralPrototype)
         {
             return;
         }
-        a = lane2->getWidth(0.0);
-        b = (lane1->getWidth(0.0) - a) / spiralPrototype->getLength();
+        a = nextLane_->getWidth(0.0);
+        b = (lane_->getWidth(0.0) - a) / spiralPrototype->getLength();
     }
     break;
     case 1:
     {
-        if (((lane1->getId() < 0) && (lane2->getId() < 0)) || ((lane1->getId() > 0) && (lane2->getId() > 0)))
+        if (((lane_->getId() < 0) && (nextLane_->getId() < 0)) || ((lane_->getId() > 0) && (nextLane_->getId() > 0)))
         {
             addOwnLaneWidth = true;
         }
         laneSection1 = road1->getLaneSection(road1->getLength());
         laneSection2 = road2->getLaneSection(road2->getLength());
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSEnd(), false);
-        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane_, laneSection1, laneSection1->getSEnd(), false);
+        double offset2 = widthOffset(road2, nextLane_, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, false, false, offset1, offset2);
 
         if (!spiralPrototype)
@@ -1071,21 +1174,21 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
             getProjectData()->getUndoStack()->endMacro();
             return;
         }
-        a = lane1->getWidth(laneSection1->getLength());
-        b = (lane2->getWidth(laneSection2->getLength()) - a) / spiralPrototype->getLength();
+        a = lane_->getWidth(laneSection1->getLength());
+        b = (nextLane_->getWidth(laneSection2->getLength()) - a) / spiralPrototype->getLength();
     }
     break;
     case 2:
     {
-        if (((lane1->getId() < 0) && (lane2->getId() > 0)) || ((lane1->getId() > 0) && (lane2->getId() < 0)))
+        if (((lane_->getId() < 0) && (nextLane_->getId() > 0)) || ((lane_->getId() > 0) && (nextLane_->getId() < 0)))
         {
             addOwnLaneWidth = true;
         }
         laneSection1 = road1->getLaneSection(road1->getLength());
         laneSection2 = road2->getLaneSection(0.0);
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSEnd(), false);
-        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane_, laneSection1, laneSection1->getSEnd(), false);
+        double offset2 = widthOffset(road2, nextLane_, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, false, true, offset1, offset2);
 
         if (!spiralPrototype)
@@ -1094,22 +1197,22 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
             return;
         }
 
-        a = lane1->getWidth(laneSection1->getLength());
-        b = (lane2->getWidth(0.0) - a) / spiralPrototype->getLength();
+        a = lane_->getWidth(laneSection1->getLength());
+        b = (nextLane_->getWidth(0.0) - a) / spiralPrototype->getLength();
     }
     break;
 
     case 3:
     {
-        if (((lane1->getId() < 0) && (lane2->getId() > 0)) || ((lane1->getId() > 0) && (lane2->getId() < 0)))
+        if (((lane_->getId() < 0) && (nextLane_->getId() > 0)) || ((lane_->getId() > 0) && (nextLane_->getId() < 0)))
         {
             addOwnLaneWidth = true;
         }
         laneSection1 = road1->getLaneSection(0.0);
         laneSection2 = road2->getLaneSection(road2->getLength());
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSStart(), false);
-        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane_, laneSection1, laneSection1->getSStart(), false);
+        double offset2 = widthOffset(road2, nextLane_, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, true, false, offset1, offset2);
 
         if (!spiralPrototype)
@@ -1117,8 +1220,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
             getProjectData()->getUndoStack()->endMacro();
             return;
         }
-        a = lane2->getWidth(laneSection2->getLength());
-        b = (lane1->getWidth(0.0) - a) / spiralPrototype->getLength();
+        a = nextLane_->getWidth(laneSection2->getLength());
+        b = (lane_->getWidth(0.0) - a) / spiralPrototype->getLength();
     }
     break;
 
@@ -1149,13 +1252,13 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         spiralPrototype->superposePrototype(simplePrototype);
         LaneSection *newLaneSection = spiralPrototype->getLaneSection(0.0);
         Lane *newLane;
-        if (lane1->getId() < 0)
+        if (lane_->getId() < 0)
         {
-            newLane = new Lane(-1, lane1->getLaneType());
+            newLane = new Lane(-1, lane_->getLaneType());
         }
         else
         {
-            newLane = new Lane(1, lane1->getLaneType());
+            newLane = new Lane(1, lane_->getLaneType());
         }
 
         LaneWidth *width = new LaneWidth(0.0, a, b, 0.0, 0.0);
@@ -1172,7 +1275,7 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
 }
 
 void
-JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
+JunctionEditor::createRoad()
 {
 
     TrackComponent *track = NULL;
@@ -1180,10 +1283,10 @@ JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
     double newHeadingDeg = 0.0;
     bool foundHandle = false;
 
-    QPointF road1Start = roads.first()->getGlobalPoint(0.0);
-    QPointF road1End = roads.first()->getGlobalPoint(roads.first()->getLength());
-    QPointF road2Start = roads.last()->getGlobalPoint(0.0);
-    QPointF road2End = roads.last()->getGlobalPoint(roads.last()->getLength());
+    QPointF road1Start = road_->getGlobalPoint(0.0);
+    QPointF road1End = road_->getGlobalPoint(road_->getLength());
+    QPointF road2Start = nextRoad_->getGlobalPoint(0.0);
+    QPointF road2End = nextRoad_->getGlobalPoint(nextRoad_->getLength());
 
     // Find closest positions of the two roads
     double lineLength[4];
@@ -1207,23 +1310,23 @@ JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
     {
     case 0:
     {
-        spiralPrototype = createSpiral(roads.first(), roads.last(), true, true);
+        spiralPrototype = createSpiral(road_, nextRoad_, true, true);
     }
     break;
     case 1:
     {
-        spiralPrototype = createSpiral(roads.first(), roads.last(), false, false);
+        spiralPrototype = createSpiral(road_, nextRoad_, false, false);
     }
     break;
     case 2:
     {
-        spiralPrototype = createSpiral(roads.first(), roads.last(), false, true);
+        spiralPrototype = createSpiral(road_, nextRoad_, false, true);
     }
     break;
 
     case 3:
     {
-        spiralPrototype = createSpiral(roads.first(), roads.last(), true, false);
+        spiralPrototype = createSpiral(road_, nextRoad_, true, false);
     }
     break;
     }
@@ -1256,20 +1359,20 @@ JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
 
     if ((min = 0) || (min == 3))
     {
-        dist1 = QVector2D(roads.first()->getGlobalPoint(0.0) - spiralPrototype->getGlobalPoint(0.0)).length();
+        dist1 = QVector2D(road_->getGlobalPoint(0.0) - spiralPrototype->getGlobalPoint(0.0)).length();
     }
     else
     {
-        dist1 = QVector2D(roads.first()->getGlobalPoint(roads.first()->getLength()) - spiralPrototype->getGlobalPoint(0.0)).length();
+        dist1 = QVector2D(road_->getGlobalPoint(road_->getLength()) - spiralPrototype->getGlobalPoint(0.0)).length();
     }
 
     if ((min = 0) || (min == 2))
     {
-        dist2 = QVector2D(roads.last()->getGlobalPoint(0.0) - spiralPrototype->getGlobalPoint(0.0)).length();
+        dist2 = QVector2D(nextRoad_->getGlobalPoint(0.0) - spiralPrototype->getGlobalPoint(0.0)).length();
     }
     else
     {
-        dist2 = QVector2D(roads.last()->getGlobalPoint(roads.last()->getLength()) - spiralPrototype->getGlobalPoint(0.0)).length();
+        dist2 = QVector2D(nextRoad_->getGlobalPoint(nextRoad_->getLength()) - spiralPrototype->getGlobalPoint(0.0)).length();
     }
 
     if (dist1 < dist2)
@@ -1278,22 +1381,22 @@ JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
         {
             laneIDStart = -1;
             paramStart = 0.0;
-            prototypeLaneSectionStart = roads.first()->getLaneSection(0.0);
+            prototypeLaneSectionStart = road_->getLaneSection(0.0);
         }
         else
         {
             laneIDStart = 1;
-            paramStart = roads.first()->getLength();
-            prototypeLaneSectionStart = roads.first()->getLaneSection(roads.first()->getLength());
+            paramStart = road_->getLength();
+            prototypeLaneSectionStart = road_->getLaneSection(road_->getLength());
         }
         if ((min = 0) || (min == 2))
         {
             paramEnd = 0.0;
-            prototypeLaneSectionEnd = roads.last()->getLaneSection(0.0);
+            prototypeLaneSectionEnd = nextRoad_->getLaneSection(0.0);
         }
         else
         {
-            prototypeLaneSectionEnd = roads.last()->getLaneSection(roads.last()->getLength());
+            prototypeLaneSectionEnd = nextRoad_->getLaneSection(nextRoad_->getLength());
             paramEnd = prototypeLaneSectionEnd->getLength();
         }
     }
@@ -1302,23 +1405,23 @@ JunctionEditor::createRoad(QList<RSystemElementRoad *> roads)
         if ((min = 0) || (min == 3))
         {
             paramEnd = 0.0;
-            prototypeLaneSectionEnd = roads.first()->getLaneSection(0.0);
+            prototypeLaneSectionEnd = road_->getLaneSection(0.0);
         }
         else
         {
-            prototypeLaneSectionEnd = roads.first()->getLaneSection(roads.first()->getLength());
+            prototypeLaneSectionEnd = road_->getLaneSection(road_->getLength());
             paramEnd = prototypeLaneSectionEnd->getLength();
         }
         if ((min = 0) || (min == 2))
         {
             laneIDStart = -1;
             paramStart = 0.0;
-            prototypeLaneSectionStart = roads.last()->getLaneSection(0.0);
+            prototypeLaneSectionStart = nextRoad_->getLaneSection(0.0);
         }
         else
         {
             laneIDStart = 1;
-            prototypeLaneSectionStart = roads.last()->getLaneSection(roads.last()->getLength());
+            prototypeLaneSectionStart = nextRoad_->getLaneSection(nextRoad_->getLength());
             paramStart = prototypeLaneSectionStart->getLength();
         }
     }
@@ -1738,352 +1841,6 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
             }
         }
     }
-    else if ((currentToolId == ODD::TJE_LINK_ROADS) || (currentToolId == ODD::TJE_UNLINK_ROADS) || (currentToolId == ODD::TJE_CREATE_JUNCTION) || (currentToolId == ODD::TJE_ADD_TO_JUNCTION) || (currentToolId == ODD::TJE_REMOVE_FROM_JUNCTION))
-    {
-        if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-        {
-            if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    QList<RSystemElementRoad *>selectionChangedRoads;
-                    if (selectedRoads_.empty())
-                    {
-                        oldSelectedItems.clear();
-                    }
-                    else if (oldSelectedItems.isEmpty())
-                    {
-                        selectionChangedRoads = selectedRoads_;
-                    }
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    QMultiMap<RSystemElementRoad *, QGraphicsItem *>graphicRoadItems;
-
-                    for (int i = 0; i < selectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
-                        if (laneItem)
-                        {
-                            RSystemElementRoad *road = laneItem->getLane()->getParentLaneSection()->getParentRoad();
-                            if (!oldSelectedItems.contains(item))
-                            {
-                                if (!selectionChangedRoads.contains(road))
-                                {
-                                    if (!selectedRoads_.contains(road))
-                                    {
-                                        createToolParameters<RSystemElementRoad>(road);
-                                        selectedRoads_.append(road);
-                                    }
-                                    else
-                                    {
-                                        deselectLanes(road);
-                                        graphicRoadItems.insert(road, item);
-
-                                        removeToolParameters<RSystemElementRoad>(road);
-                                        selectedRoads_.removeOne(road);
-                                    }
-                                    selectionChangedRoads.append(road);
-                                }
-                                else if (!selectedRoads_.contains(road))
-                                {
-                                    graphicRoadItems.insert(road, item);
-                                }
-                            }
-                            else
-                            {
-                                int j = oldSelectedItems.indexOf(item);
-                                oldSelectedItems.takeAt(j);
-                                graphicRoadItems.insert(road, item);
-                            }
-                        }
-                        else if ((currentToolId != ODD::TJE_ADD_TO_JUNCTION) && (currentToolId != ODD::TJE_REMOVE_FROM_JUNCTION))
-                        {
-                            item->setSelected(false);
-                        }
-                        else
-                        {
-                            JunctionItem *junctionItem = dynamic_cast<JunctionItem *>(item);
-                            if (!junctionItem || (junction_ != junctionItem->getJunction()))
-                            {
-                                item->setSelected(false);
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < selectionChangedRoads.size(); i++)
-                    {
-                        RSystemElementRoad *road = selectionChangedRoads.at(i);
-                        if (!selectedRoads_.contains(road))
-                        {
-                            QList<QGraphicsItem *>itemList = graphicRoadItems.values(road);
-                            foreach(QGraphicsItem * laneItem, itemList)
-                            {
-                                int j = selectedItems.indexOf(laneItem);
-                                selectedItems.takeAt(j);
-
-                                j = oldSelectedItems.indexOf(laneItem);
-                                if (j > -1)
-                                {
-                                    oldSelectedItems.takeAt(j);
-                                }
-                            }
-                            graphicRoadItems.remove(road);
-                        }
-                    }
-
-                    for (int i = 0; i < oldSelectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = oldSelectedItems.at(i);
-                        JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
-                        if (laneItem)
-                        {
-                            RSystemElementRoad *road = laneItem->getLane()->getParentLaneSection()->getParentRoad();
-                            if (!selectionChangedRoads.contains(road))
-                            {
-                                deselectLanes(road);
-
-                                removeToolParameters<RSystemElementRoad>(road);
-                                selectedRoads_.removeOne(road);
-
-                                selectionChangedRoads.append(road);
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < selectionChangedRoads.size(); i++)
-                    {
-                        RSystemElementRoad *road = selectionChangedRoads.at(i);
-                        if (!selectedRoads_.contains(road))
-                        {
-                            QList<QGraphicsItem *>itemList = graphicRoadItems.values(road);
-                            foreach(QGraphicsItem * laneItem, itemList)
-                            {
-                                int j = selectedItems.indexOf(laneItem);
-                                selectedItems.takeAt(j);
-                            }
-                            graphicRoadItems.remove(road);
-                        }
-                    }
-                    oldSelectedItems = selectedItems;
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(currentToolId, getCurrentParameterTool());
-                    if ((objectCount >= applyCount_) && (((currentToolId != ODD::TJE_ADD_TO_JUNCTION) && (currentToolId != ODD::TJE_REMOVE_FROM_JUNCTION)) || junction_))
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
-    else if (currentToolId == ODD::TJE_SELECT_JUNCTION)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    for (int i = 0; i < selectedItems.size(); i++)
-                    {
-                        QGraphicsItem *item = selectedItems.at(i);
-                        JunctionItem *junctionItem = dynamic_cast<JunctionItem *>(item);
-                        if (junctionItem)
-                        {
-                            junction_ = junctionItem->getJunction();
-                            setToolValue<RSystemElementJunction>(junction_, junction_->getIdName());
-                            for (++i; i < selectedItems.size(); i++)
-                            {
-                                JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
-                                if (!laneItem || !selectedRoads_.contains(laneItem->getLane()->getParentLaneSection()->getParentRoad()))
-                                {
-                                    selectedItems.at(i)->setSelected(false);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
-                            if (!laneItem || !selectedRoads_.contains(laneItem->getLane()->getParentLaneSection()->getParentRoad()))
-                            {
-                                item->setSelected(false);
-                            }
-                        }
-                    }
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(tool_->getToolId(), getCurrentParameterTool());
-                    if ((objectCount >= applyCount_) && junction_)
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
-    else if (currentToolId == ODD::TJE_SELECT)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (mouseAction->getEvent()->button() == Qt::LeftButton)
-            {
-
-                QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                for (int i = 0; i < selectedItems.size(); i++)
-                {
-                    QGraphicsItem *item = selectedItems.at(i);
-                    JunctionItem *junctionItem = dynamic_cast<JunctionItem *>(item);
-                    if (junctionItem)
-                    {
-                        junction_ = junctionItem->getJunction();
-                    }
-                }
-            }
-        }
-    }
-    else if (currentToolId == ODD::TJE_CREATE_ROAD)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    if (selectedRoads_.empty())
-                    {
-                        oldSelectedItems.clear();
-                    }
-
-                    QMultiMap<RSystemElementRoad *, QGraphicsItem *>graphicRoadItems;
-                    QList<RSystemElementRoad *> roadsRemoved;
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    foreach(QGraphicsItem * item, selectedItems)
-                    {
-                        JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
-                        if (laneItem)
-                        {
-                            RSystemElementRoad *road = laneItem->getLane()->getParentLaneSection()->getParentRoad();
-                            graphicRoadItems.insert(road, item);
-                            if (!oldSelectedItems.contains(item))
-                            {
-                                if (!selectedRoads_.contains(road))
-                                {
-                                    RSystemElementRoad *oldRoad = tool_->getValue<RSystemElementRoad>(currentParamId_);
-                                    if (oldRoad)
-                                    {
-                                        selectedRoads_.removeOne(oldRoad);
-                                        roadsRemoved.append(oldRoad);
-                                    }
-
-                                    setToolValue<RSystemElementRoad>(road, road->getIdName());
-                                    selectedRoads_.append(road);
-                                    roadsRemoved.removeOne(road);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            item->setSelected(false);
-                        }
-                    }
-
-                    for (int i = 0; i < roadsRemoved.size(); i++)
-                    {
-                        foreach(QGraphicsItem * item, graphicRoadItems.values(roadsRemoved.at(i)))
-                        {
-                            selectedItems.removeOne(item);
-                            item->setSelected(false);
-                        }
-                    }
-
-                    oldSelectedItems = selectedItems;
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(ODD::TJE_CREATE_ROAD, ODD::TPARAM_SELECT);
-                    if (objectCount == applyCount_)
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
-    else if (currentToolId == ODD::TJE_CREATE_LANE)
-    {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
-        {
-            if (getCurrentParameterTool() == ODD::TPARAM_SELECT)
-            {
-                if (mouseAction->getEvent()->button() == Qt::LeftButton)
-                {
-                    if (selectedLanes_.empty())
-                    {
-                        oldSelectedItems.clear();
-                    }
-
-                    QMultiMap<Lane *, QGraphicsItem *>graphicLaneItems;
-                    QList<Lane *> lanesRemoved;
-                    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
-                    foreach(QGraphicsItem * item, selectedItems)
-                    {
-                        JunctionLaneItem *laneItem = dynamic_cast<JunctionLaneItem *>(item);
-                        if (laneItem)
-                        {
-                            Lane *lane = laneItem->getLane();
-                            graphicLaneItems.insert(lane, item);
-                            if (!oldSelectedItems.contains(item))
-                            {
-                                if (!selectedLanes_.contains(lane))
-                                {
-                                    Lane *oldLane = tool_->getValue<Lane>(currentParamId_);
-                                    if (oldLane)
-                                    {
-                                        selectedLanes_.removeOne(oldLane);
-                                        lanesRemoved.append(oldLane);
-                                    }
-                                    QString textDisplayed = QString("%1 Lane %2").arg(lane->getParentLaneSection()->getParentRoad()->getIdName()).arg(lane->getId());
-                                    setToolValue<Lane>(lane, textDisplayed);
-                                    selectedLanes_.append(lane);
-                                    lanesRemoved.removeOne(lane);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            item->setSelected(false);
-                        }
-                    }
-
-                    for (int i = 0; i < lanesRemoved.size(); i++)
-                    {
-                        foreach(QGraphicsItem * item, graphicLaneItems.values(lanesRemoved.at(i)))
-                        {
-                            selectedItems.removeOne(item);
-                            item->setSelected(false);
-                        }
-                    }
-
-                    oldSelectedItems = selectedItems;
-
-                    // verify if apply can be displayed //
-
-                    int objectCount = tool_->getObjectCount(ODD::TJE_CREATE_LANE, ODD::TPARAM_SELECT);
-                    if (objectCount == applyCount_)
-                    {
-                        settingsApplyBox_->setApplyButtonVisible(true);
-                    }
-                }
-            }
-        }
-    }
-
-
     else if (currentToolId == ODD::TJE_CIRCLE)
     {
 

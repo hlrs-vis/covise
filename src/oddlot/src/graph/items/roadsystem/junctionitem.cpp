@@ -34,6 +34,14 @@
 #include "roadsystemitem.hpp"
 #include "src/graph/items/handles/texthandle.hpp"
 
+// Editor //
+//
+#include "src/graph/editors/junctioneditor.hpp"
+
+// GUI //
+//
+#include "src/gui/projectwidget.hpp"
+
 // Qt //
 //
 #include <QBrush>
@@ -63,6 +71,10 @@ JunctionItem::~JunctionItem()
 void
 JunctionItem::init()
 {
+    // JunctionEditor //
+    //
+    junctionEditor_ = dynamic_cast<JunctionEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+
     // Selection/Hovering //
     //
     setAcceptHoverEvents(true);
@@ -190,6 +202,16 @@ JunctionItem::updatePath()
     textHandle_->setPos(minX - 5.0, maxY + 5.0);
 }
 
+/*! \brief Called when the item has been moved to the garbage.
+*
+*/
+void
+JunctionItem::notifyDeletion()
+{
+    roadSystemItem_->removeJunctionItem(this);
+    GraphElement::notifyDeletion();
+}
+
 //################//
 // SLOTS          //
 //################//
@@ -272,6 +294,66 @@ JunctionItem::deleteRequest()
 // EVENTS         //
 //################//
 
+QVariant
+JunctionItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (junctionEditor_)
+    {
+        if (change == QGraphicsItem::ItemSelectedHasChanged)
+        {
+            ODD::ToolId tool = junctionEditor_->getCurrentTool();
+            if (value.toBool())
+            {
+                if (((tool == ODD::TJE_SELECT_JUNCTION) && (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)) || (tool == ODD::TJE_SELECT))
+                {
+                    junctionEditor_->registerJunction(junction_);
+                }
+            }
+        }
+        else if (change == QGraphicsItem::ItemSelectedChange)
+        {
+            ODD::ToolId tool = junctionEditor_->getCurrentTool();
+            if (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)
+            {
+                if ((tool == ODD::TJE_ADD_TO_JUNCTION) || (tool == ODD::TJE_REMOVE_FROM_JUNCTION))
+                {
+                    return !value.toBool();
+                }
+                else if (tool == ODD::TJE_CREATE_JUNCTION)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    GraphElement::itemChange(change, value);
+    return value;
+}
+
+void
+JunctionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (junctionEditor_)
+    {
+        ODD::ToolId tool = junctionEditor_->getCurrentTool();
+        if (!isSelected())
+        {
+            if (((tool == ODD::TJE_SELECT_JUNCTION) && (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)) || (tool == ODD::TJE_SELECT))
+            {
+                GraphElement::mousePressEvent(event);
+            }
+            else if (tool == ODD::TJE_SELECT)
+            {
+                event->ignore();
+            }
+        }
+    }
+    else
+    {
+        GraphElement::mousePressEvent(event);
+    }
+}
 
 void
 JunctionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

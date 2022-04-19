@@ -316,13 +316,69 @@ JunctionLaneItem::updateObserver()
 // EVENTS         //
 //################//
 
+QVariant
+JunctionLaneItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemSelectedHasChanged)
+    {
+        ODD::ToolId tool = junctionEditor_->getCurrentTool();
+        if (value.toBool())
+        {
+            if (((tool == ODD::TJE_LINK_ROADS) || (tool == ODD::TJE_UNLINK_ROADS) || (tool == ODD::TJE_CREATE_JUNCTION) || (tool == ODD::TJE_ADD_TO_JUNCTION) || (tool == ODD::TJE_REMOVE_FROM_JUNCTION)) && (junctionEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT))
+            {
+                junctionEditor_->registerRoad(grandparentRoad_);
+            }
+        }
+        else
+        {
+            if ((tool == ODD::TJE_LINK_ROADS) || (tool == ODD::TJE_UNLINK_ROADS) || (tool == ODD::TJE_CREATE_JUNCTION) || (tool == ODD::TJE_ADD_TO_JUNCTION) || (tool == ODD::TJE_REMOVE_FROM_JUNCTION))
+            {
+                junctionEditor_->deregisterRoad(grandparentRoad_);
+            }
+        }
+    }
+
+    GraphElement::itemChange(change, value);
+
+    return value;
+}
+
 void
 JunctionLaneItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if ((junctionEditor_->getCurrentTool() == ODD::TJE_SELECT) || (junctionEditor_->getCurrentTool() == ODD::TJE_CIRCLE)
-        || (junctionEditor_->getCurrentTool() == ODD::TJE_SPLIT) || (junctionEditor_->getCurrentTool() == ODD::TJE_MOVE))
+    ODD::ToolId tool = junctionEditor_->getCurrentTool();
+    if ((tool == ODD::TJE_SELECT) || (tool == ODD::TJE_CIRCLE) || (tool == ODD::TJE_SPLIT) || (tool == ODD::TJE_MOVE))
     {
         GraphElement::mousePressEvent(event);
+    }
+    else if (((tool == ODD::TJE_LINK_ROADS) || (tool == ODD::TJE_UNLINK_ROADS) || (tool == ODD::TJE_CREATE_JUNCTION) || (tool == ODD::TJE_ADD_TO_JUNCTION) || (tool == ODD::TJE_REMOVE_FROM_JUNCTION)) && (junctionEditor_->getCurrentParameterTool() != ODD::TPARAM_SELECT))
+    {
+        if (!isSelected())
+        {
+            event->ignore();
+        }
+    }
+    else if ((tool == ODD::TJE_CREATE_ROAD) || (tool == ODD::TJE_NEXT_ROAD))
+    {
+        if (!isSelected())
+        {
+            if (!junctionEditor_->registerSingleRoad(grandparentRoad_))
+            {
+                event->ignore();
+                return;
+            }
+        }
+    }
+    else if ((tool == ODD::TJE_CREATE_LANE) || (tool == ODD::TJE_NEXT_LANE))
+    {
+        if (!isSelected())
+        {
+            if (!junctionEditor_->registerLane(lane_))
+            {
+                event->ignore();
+                return;
+            }
+        }
     }
 }
 

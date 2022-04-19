@@ -22,6 +22,7 @@
 class RoadSystem;
 
 class RoadItem;
+class JunctionItem;
 
 class SignalEditor;
 
@@ -60,6 +61,12 @@ public:
     {
         return roadItems_;
     }
+
+    // Junctions //
+    //
+    bool removeJunctionItem(JunctionItem *junctionItem);
+    void setJunctionsSelectable(bool selectable);
+
 
     // RoadSystem //
     //
@@ -103,6 +110,9 @@ private:
     // Roads //
     //
     QMap<int32_t, RoadItem *> roadItems_;
+
+    // Junctions //
+    QList<JunctionItem *> junctionItems_;
 };
 
 #endif // ROADSYSTEMITEM_HPP

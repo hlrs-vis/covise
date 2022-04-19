@@ -50,12 +50,12 @@ JunctionLaneRoadItem::~JunctionLaneRoadItem()
 void
 JunctionLaneRoadItem::init()
 {
-    // ElevationEditor //
+    // JunctionEditor //
     //
     junctionEditor_ = dynamic_cast<JunctionEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
     if (!junctionEditor_)
     {
-        qDebug("Warning 1006241105! ElevationRoadItem not created by an ElevationEditor");
+        qDebug("Warning 1006241105! JunctionRoadItem not created by an JunctionEditor");
     }
     // SectionItems //
     //

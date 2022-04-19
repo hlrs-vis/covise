@@ -330,6 +330,21 @@ Tool::getParam(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId)
     return NULL;
 }
 
+int 
+Tool::getActiveParamId()
+{
+    QMap<unsigned int, ToolParameter *>::const_iterator it = params_.constEnd();
+    while(--it != params_.constBegin())
+    {
+        if (it.value()->isActive())
+        {
+            return it.key();
+        }
+    }
+
+    return -1;
+}
+
 int
 Tool::getObjectCount(const ODD::ToolId &toolId, const ODD::ToolId &paramToolId)
 {

@@ -22,6 +22,7 @@ class RSystemElementJunction;
 class RSystemElementJunction;
 class RoadSystemItem;
 class TextHandle;
+class JunctionEditor;
 
 class JunctionItem : public GraphElement
 {
@@ -41,6 +42,10 @@ public:
     {
         return junction_;
     }
+
+    // Garbage //
+    //
+    virtual void notifyDeletion(); // to be implemented by subclasses
 
     // Obsever Pattern //
     //
@@ -71,7 +76,8 @@ public slots:
     //################//
 
 protected:
-    // virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     // virtual void   mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
@@ -81,6 +87,10 @@ public:
     //################//
 
 private:
+    // Junction Editor //
+    //
+    JunctionEditor *junctionEditor_;
+
     // Junction/Roads //
     //
     RSystemElementJunction *junction_;

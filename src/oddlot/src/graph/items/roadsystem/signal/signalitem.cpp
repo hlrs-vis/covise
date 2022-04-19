@@ -468,6 +468,33 @@ SignalItem::zoomAction()
 // EVENTS         //
 //################//
 
+QVariant
+SignalItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (change == QGraphicsItem::ItemSelectedHasChanged)
+    {
+        ODD::ToolId tool = signalEditor_->getCurrentTool();
+        if (value.toBool())
+        {
+            if (((tool == ODD::TSG_CONTROLLER) || (tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY)) && (signalEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT))
+            {
+                signalEditor_->registerSignal(signal_);
+            }
+        }
+        else
+        {
+            if ((tool == ODD::TSG_CONTROLLER) || (tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY))
+            {
+                signalEditor_->deregisterSignal(signal_);
+            }
+        }
+    }
+
+    BaseGraphElement::itemChange(change, value);
+
+    return value;
+}
+
 void
 SignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {

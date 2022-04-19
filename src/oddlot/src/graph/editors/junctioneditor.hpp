@@ -117,10 +117,25 @@ public:
         return threshold_;
     };
 
-    // Create connecting road in junction //
+    // Junction //
     //
-    void createRoad(QList<Lane *>);
-    void createRoad(QList<RSystemElementRoad *>);
+    void registerJunction(RSystemElementJunction *junction);
+
+    // Roads //
+    //
+    bool registerRoad(RSystemElementRoad *road);
+    void deregisterRoad(RSystemElementRoad *road);
+    bool registerSingleRoad(RSystemElementRoad *road);
+
+    // Lane //
+    //
+    bool registerLane(Lane *lane);
+
+    // Create connecting road //
+    //
+
+    void createLane();
+    void createRoad();
     RSystemElementRoad *createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road2, bool startContact1, bool startContact2, double offset1 = 0.0, double offset2 = 0.0);
 
     double widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth); // calculates the offset of a lane from the center of the road
@@ -140,6 +155,8 @@ private:
     JunctionEditor(); /* not allowed */
     JunctionEditor(const JunctionEditor &); /* not allowed */
     JunctionEditor &operator=(const JunctionEditor &); /* not allowed */
+
+    void resetTool();
 
     //################//
     // SLOTS          //
@@ -194,9 +211,12 @@ private:
     // TODO
     SectionHandle *sectionHandle_;
 
-    // List of selected lanes //
+    // Selected lanes and roads //
     //
-    QList<Lane *> selectedLanes_;
+    Lane *lane_;
+    Lane *nextLane_;
+    RSystemElementRoad *road_;
+    RSystemElementRoad *nextRoad_;
 
     // List of selected roads //
     //

@@ -18,6 +18,8 @@
 
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 
+class ControllerItem;
+
 class SignalRoadSystemItem : public RoadSystemItem
 {
 
@@ -28,6 +30,11 @@ class SignalRoadSystemItem : public RoadSystemItem
 public:
     explicit SignalRoadSystemItem(TopviewGraph *topviewGraph, RoadSystem *roadSystem);
     virtual ~SignalRoadSystemItem();
+
+    // Controllers //
+    //
+    void setControllersSelectable(bool selectable);
+    bool removeControllerItem(ControllerItem *controllerItem);
 
     // Obsever Pattern //
     //
@@ -45,6 +52,9 @@ private:
     //################//
 
 private:
+    // ControllerItems //
+    //
+    QList<ControllerItem *> controllerItems_;
 };
 
 #endif // ROADTYPEROADSYSTEMITEM_HPP

@@ -253,6 +253,21 @@ ElevationSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         // parent: selection //
         SectionItem::mousePressEvent(event); // pass to baseclass
     }
+    else if ((tool == ODD::TEL_SLOPE) || (tool == ODD::TEL_SMOOTH) || (tool == ODD::TEL_SMOOTH_SECTION))
+    {
+        if (!isSelected())
+        {
+            if (!elevationEditor_->registerElevationSection(this, elevationSection_))
+            {
+                event->ignore();
+                return;
+            }
+        }
+        else
+        {
+            elevationEditor_->deregisterElevationSection(this);
+        }
+    }
     else
     {
         return; // prevent selection by doing nothing

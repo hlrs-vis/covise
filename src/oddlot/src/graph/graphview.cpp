@@ -202,8 +202,8 @@ GraphView::shapeEditing(bool edit)
 void
 GraphView::toolAction(ToolAction *toolAction)
 {
-    static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT_CONTROLS << ODD::TLE_SELECT_ALL << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT << ODD::TEL_SELECT << ODD::TSE_SELECT << ODD::TLE_INSERT;
-    static QList<ODD::ToolId> singleParameterSelectionToolIds = QList<ODD::ToolId>() << ODD::TRL_LINK << ODD::TRL_SINK;
+    static QList<ODD::ToolId> selectionToolIds = QList<ODD::ToolId>() << ODD::TRL_SELECT << ODD::TRT_MOVE << ODD::TTE_ROAD_MOVE_ROTATE << ODD::TSE_SELECT << ODD::TCF_SELECT << ODD::TLN_SELECT << ODD::TLE_SELECT_CONTROLS << ODD::TLE_SELECT_ALL << ODD::TLE_SELECT << ODD::TJE_SELECT << ODD::TSG_SELECT << ODD::TOS_SELECT << ODD::TPARAM_SELECT << ODD::TEL_SELECT << ODD::TSE_SELECT << ODD::TLE_INSERT << ODD::TPARAM_VALUE;
+    static QList<ODD::ToolId> singleParameterSelectionToolIds = QList<ODD::ToolId>() << ODD::TRL_LINK << ODD::TRL_SINK << ODD::TEL_SLOPE << ODD::TEL_SMOOTH << ODD::TEL_SMOOTH_SECTION << ODD::TJE_CREATE_LANE << ODD::TJE_CREATE_ROAD << ODD::TJE_NEXT_LANE << ODD::TJE_NEXT_ROAD << ODD::TSG_SELECT_CONTROLLER << ODD::TJE_SELECT_JUNCTION;
 
     // Zoom //
     //
@@ -1386,7 +1386,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
         if (((event->modifiers() & (Qt::AltModifier | Qt::ControlModifier)) == 0) && paramToolAdditionalSelection_)
         {
             event->setModifiers(Qt::ControlModifier);
-        }
+        } 
 
         if (doBoxSelect_ == BBActive)
         {
@@ -1429,13 +1429,14 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
             }
 
             QList<QGraphicsItem *> oldSelection;
+            QList<QGraphicsItem *> newSelection;
 
             if (additionalSelection_)
             {
                 // Save old selection
 
                 oldSelection = scene()->selectedItems();
-            }
+            } 
 
             // Set the new selection area
 
@@ -1443,32 +1444,33 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 
             selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
             selectionArea.closeSubpath();
-            scene()->clearSelection();
-            scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+            if (additionalSelection_)
+            {
+                newSelection = scene()->items(selectionArea, Qt::IntersectsItemShape, Qt::DescendingOrder, viewportTransform());
+                scene()->setSelectionArea(selectionArea, Qt::ItemSelectionOperation::AddToSelection, Qt::IntersectsItemShape, viewportTransform());
+            }
+            else
+            {
+                scene()->setSelectionArea(selectionArea, Qt::ItemSelectionOperation::ReplaceSelection, Qt::IntersectsItemShape, viewportTransform());
+            }
 
             // Compare old and new selection lists and invert the selection state of elements contained in both
 
-            QList<QGraphicsItem *> selectList = scene()->selectedItems();
-
             foreach(QGraphicsItem * item, oldSelection)
             {
-                if (selectList.contains(item))
+                if (newSelection.contains(item))
                 {
                     item->setSelected(false);
-                    selectList.removeOne(item);
+                    newSelection.removeOne(item);
                 }
-                else
-                {
-                    item->setSelected(true);
-                }
-            }
+            } 
 
 
             // deselect elements which were not in the oldSelection
 
             if ((event->modifiers() & Qt::AltModifier) != 0) 
             {
-                foreach(QGraphicsItem * item, selectList)
+                foreach(QGraphicsItem * item, newSelection)
                 {
                     item->setSelected(false);
                 }

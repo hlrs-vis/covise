@@ -216,13 +216,19 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
         {
             threshold_ = action->getValue();
         }
+
+        ToolParameter *param = tool_->getLastParam(tool_->getActiveParamId());
+        if (param)
+        {
+            settings_->activateParameter(param);
+        }
     }
     else
     {
         ParameterToolAction *action = dynamic_cast<ParameterToolAction *>(toolAction);
         if (action)
         {
-            if (action->getToolId() == ODD::TRL_ROADLINK)
+            if ((action->getToolId() == ODD::TRL_ROADLINK) || (action->getToolId() == ODD::TRL_UNLINK))
             {
                 ODD::ToolId paramTool = action->getParamToolId();
                 if (paramTool == ODD::TPARAM_SELECT)
@@ -231,37 +237,11 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                     if (!action->getState())
                     {
 
-                        QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
+                        QList<RSystemElementRoad *>roads = tool_->getValues<RSystemElementRoad>(currentParamId_);
                         foreach(RSystemElementRoad * road, roads)
                         {
                             DeselectDataElementCommand *command = new DeselectDataElementCommand(road, NULL);
                             getProjectGraph()->executeCommand(command); 
-                            deregisterRoad(road);
-                        }
-                    }
-                }
-            }
-            else if (action->getToolId() == ODD::TRL_UNLINK)
-            {
-                ODD::ToolId paramTool = action->getParamToolId();
-                if (paramTool == ODD::TPARAM_SELECT)
-                {
-                    currentParamId_ = action->getParamId();
-                    if (!action->getState())
-                    {
-
-                        QList<RSystemElementRoad *>roads = tool_->removeToolParameters<RSystemElementRoad>(currentParamId_);
-                        foreach(RSystemElementRoad * road, roads)
-                        {
-                            DeselectDataElementCommand *command = new DeselectDataElementCommand(road, NULL);
-                            getProjectGraph()->executeCommand(command);
-                            selectedRoads_.removeOne(road);
-                        }
-
-                        // verify if apply has to be hidden //
-                        if (tool_->getObjectCount(getCurrentTool(), getCurrentParameterTool()) < applyCount_)
-                        {
-                            settingsApplyBox_->setApplyButtonVisible(false);
                         }
                     }
                 }
@@ -661,7 +641,7 @@ RoadLinkEditor::resetTool()
     if (tool_)
     {
         ODD::ToolId toolId = tool_->getToolId();
-        if (toolId == ODD::TRL_ROADLINK)
+        if ((toolId == ODD::TRL_ROADLINK) || (toolId == ODD::TRL_UNLINK))
         {
             roadSystemItem_->setHandlesSelectable(true);
         }

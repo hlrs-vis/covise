@@ -99,7 +99,7 @@ public slots:
     //################//
 
 public:
-    // virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
+    virtual QVariant  itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

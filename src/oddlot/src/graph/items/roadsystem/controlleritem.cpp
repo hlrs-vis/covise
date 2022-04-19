@@ -33,6 +33,7 @@
 // Graph //
 //
 #include "roadsystemitem.hpp"
+#include "src/graph/items/roadsystem/signal/signalroadsystemitem.hpp"
 #include "src/graph/items/handles/texthandle.hpp"
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
@@ -70,14 +71,15 @@ ControllerItem::~ControllerItem()
 void
 ControllerItem::init()
 {
-    // Selection/Hovering //
-    //
-    setAcceptHoverEvents(true);
-    setSelectable();
 
     // Signal Editor
     //
     signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+
+    // Selection/Hovering //
+    //
+    setAcceptHoverEvents(true);
+    setSelectable();
 
     // Text //
     //
@@ -145,6 +147,20 @@ ControllerItem::updatePath()
     setPath(thePath);
 }
 
+/*! \brief Called when the item has been moved to the garbage.
+*
+*/
+void
+ControllerItem::notifyDeletion()
+{
+    SignalRoadSystemItem *signalRoadSystemItem = dynamic_cast<SignalRoadSystemItem *>(roadSystemItem_); // oscroadsystemitem.cpp also refers to it
+    if (signalRoadSystemItem)
+    {
+        signalRoadSystemItem->removeControllerItem(this);
+    }
+    GraphElement::notifyDeletion();
+}
+
 //################//
 // SLOTS          //
 //################//
@@ -201,3 +217,71 @@ ControllerItem::deleteRequest()
 {
     return removeController();
 }
+
+//################//
+// EVENTS         //
+//################//
+
+QVariant
+ControllerItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (signalEditor_)
+    {
+        if (change == QGraphicsItem::ItemSelectedHasChanged)
+        {
+            ODD::ToolId tool = signalEditor_->getCurrentTool();
+            if (value.toBool())
+            {
+                if (((tool == ODD::TSG_SELECT_CONTROLLER) && (signalEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)) || (tool == ODD::TSG_SELECT))
+                {
+                    signalEditor_->registerController(controller_);
+                }
+            }
+        }
+        else if (change == QGraphicsItem::ItemSelectedChange)
+        {
+            ODD::ToolId tool = signalEditor_->getCurrentTool();
+            if (signalEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)
+            {
+                if ((tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY))
+                {
+                    return !value.toBool();
+                }
+                else if (tool == ODD::TSG_CONTROLLER)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    GraphElement::itemChange(change, value);
+    return value;
+} 
+
+void
+ControllerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (signalEditor_)
+    {
+        ODD::ToolId tool = signalEditor_->getCurrentTool();
+
+        if (!isSelected())
+        {
+            if (((tool == ODD::TSG_SELECT_CONTROLLER) && (signalEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT)) || (tool == ODD::TSG_SELECT))
+            {
+                GraphElement::mousePressEvent(event);
+            }
+            else
+            {
+                event->ignore();
+                return;
+            }
+        }
+    }
+    GraphElement::mousePressEvent(event);
+}
+
+
+
+

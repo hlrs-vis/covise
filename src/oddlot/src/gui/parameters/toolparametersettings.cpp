@@ -384,6 +384,11 @@ ToolParameterSettings::removeUI(unsigned int paramIndex)
         else
         {
             deleteButtonsAndLabels(buttonGroup_->button(paramIndex));
+            currentParamId_ = tool_->getActiveParamId();
+            if (currentParamId_ < 0)
+            {
+                currentParamId_ = tool_->getParams()->lastKey();
+            }
         }
     }
 }
@@ -663,6 +668,7 @@ ToolParameterSettings::onEditingFinished(const QString &objectName)
         ODD::ToolId paramToolId = p->getParamToolId();
         if (paramToolId == ODD::TPARAM_VALUE)
         {
+
             ParameterToolAction *action = new ParameterToolAction(editorID_, p->getToolId(), paramToolId, val, true);
             emit toolAction(action);
             delete action;
@@ -714,9 +720,9 @@ ToolParameterSettings::onButtonPressed(int paramId)
             emit toolAction(action);
             delete action;
 
-            removeUI(paramId);
+      //      removeUI(paramId);
 
-            currentParamId_ = oldParamId;
+      //      currentParamId_ = oldParamId;
         }
         else
         {
@@ -729,12 +735,15 @@ ToolParameterSettings::onButtonPressed(int paramId)
 
 }
 
+
 void 
 ToolParameterSettings::activateParameter(ToolParameter *param)
 {
-    unsigned int paramId = params_->key(param);
-    QAbstractButton *button = buttonGroup_->button(paramId);
-    button->click();
+    int paramId = params_->key(param);
+
+    ParameterToolAction *action = new ParameterToolAction(editorID_, param->getToolId(), param->getParamToolId(), paramId, true);
+    emit toolAction(action);
+    delete action;
 }
 
 void ToolParameterSettings::activateNextParameter()
@@ -901,7 +910,6 @@ ToolParameterSettingsApplyBox::cancel()
 void
 ToolParameterSettingsApplyBox::apply()
 {
-
     editor_->apply();
 }
 
