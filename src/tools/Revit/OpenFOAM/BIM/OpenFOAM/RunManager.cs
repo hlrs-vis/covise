@@ -601,6 +601,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             {
                 shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + FOAMInterface.Singleton.Settings.SSH.SlurmCommand + " ./Allrun");
             }
+            shellCommands.Add("rm -r processor*");
             shellCommands.Add("cd " + serverDir);
             shellCommands.Add("zip -r " + fileName + " " + Path.GetFileNameWithoutExtension(fileName));
 
