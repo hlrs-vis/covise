@@ -176,13 +176,13 @@ namespace OpenFOAMInterface.BIM.Structs
                 WriteControl.timeStep,
                 WriteFormat.ascii,
                 WriteCompression.off,
-                TimeFormat.general, false, 0, 101, 1, 100, 2, 8, 7, 4)
+                TimeFormat.general, true, 0, 101, 1, 100, 2, 6, 6, 4)
             { }
 
             public ControlDictParameters(in SolverControlDict solver, in StartFrom from, in StopAt at,
                                          in WriteControl writeControl, in WriteFormat writeFormat, in WriteCompression writeCompression,
                                          in TimeFormat time, bool runTimeModifiable, double start, double end,
-                                         double deltaT, double writeInterval, double purgeWrite,
+                                         double deltaT, double writeInterval, int purgeWrite,
                                          double writePrecision, double timePrecision, int numberOfSubdomains)
             {
                 _appControlDictSolver = solver;
@@ -190,6 +190,7 @@ namespace OpenFOAMInterface.BIM.Structs
                 _endTime = end;
                 _writeInterval = writeInterval;
                 _numberOfSubdomains = numberOfSubdomains;
+                _purgeWrite = purgeWrite;
                 this.StartFrom = from;
                 this.StopAt = at;
                 this.WriteControl = writeControl;
@@ -198,7 +199,6 @@ namespace OpenFOAMInterface.BIM.Structs
                 this.RunTimeModifiable = runTimeModifiable;
                 this.StartTime = start;
                 this.DeltaT = deltaT;
-                this.PurgeWrite = purgeWrite;
                 this.WritePrecision = writePrecision;
                 this.TimePrecision = timePrecision;
             }
@@ -273,7 +273,8 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <summary>
             /// PurgeWrite for ControlDict.
             /// </summary>
-            public readonly double PurgeWrite { get; }
+            private int _purgeWrite;
+            public int PurgeWrite {  readonly get => _purgeWrite; set => _purgeWrite = value; }
 
             /// <summary>
             /// WritePrecision for ControlDict.
