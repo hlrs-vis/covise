@@ -13,30 +13,31 @@
 #include <cctype>
 #include <stdlib.h>
 
-#include <osg/Texture2D>
-#include <osgText/Font>
-#include <util/unixcompat.h>
-#include <util/coFileUtil.h>
-#include <util/coHashIter.h>
 #include "OpenCOVER.h"
+#include "VRRegisterSceneGraph.h"
 #include "VRSceneGraph.h"
 #include "VRViewer.h"
-#include "coVRMSController.h"
-#include "coVRPluginSupport.h"
-#include "coVRPluginList.h"
-#include "coVRCommunication.h"
 #include "coTabletUI.h"
-#include "coVRIOReader.h"
-#include "VRRegisterSceneGraph.h"
+#include "coVRCommunication.h"
 #include "coVRConfig.h"
+#include "coVRIOReader.h"
+#include "coVRMSController.h"
+#include "coVRPartner.h"
+#include "coVRPluginList.h"
+#include "coVRPluginSupport.h"
 #include "coVRRenderer.h"
-#include <util/string_util.h>
-#include "ui/Owner.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
-#include "ui/Group.h"
 #include "ui/FileBrowser.h"
+#include "ui/Group.h"
 #include "ui/Menu.h"
+#include "ui/Owner.h"
+#include <osg/Texture2D>
+#include <osgText/Font>
+#include <util/coFileUtil.h>
+#include <util/coHashIter.h>
+#include <util/string_util.h>
+#include <util/unixcompat.h>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -1946,6 +1947,11 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 				else
 				{
 					coVRCommunication::instance()->handleVRB(*msg);
+                    if(!coVRPartnerList::instance()->get(fileOwner))
+                    {
+                        std::cerr << "RemoteFetch aborted: file owner disconneted" << std::endl;
+                        return "";
+                    }
 				}
 			}
 			else
