@@ -32,6 +32,7 @@ UserInfo::UserInfo(covise::TokenBuffer &tb)
     , hostName(detail::getString(tb))
     , email(detail::getString(tb))
     , url(detail::getString(tb))
+    , icon(detail::getString(tb))
 {
 }
 
@@ -42,13 +43,14 @@ UserInfo::UserInfo(Program type)
     , hostName(covise::Host::getHostname())
     , email(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
     , url(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise"))
+    , icon(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Icon", "$COVISE_PATH/share/covise/icons/hosts/localhost.obj"))
 {
 
 }
 
 TokenBuffer &covise::operator<<(TokenBuffer &tb, const UserInfo &userInfo)
 {
-    tb << userInfo.userType << userInfo.userName << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url;
+    tb << userInfo.userType << userInfo.userName << userInfo.ipAdress << userInfo.hostName << userInfo.email << userInfo.url << userInfo.icon;
     return tb;
 }
 
@@ -60,6 +62,7 @@ std::ostream &covise::operator<<(std::ostream &os, const UserInfo &userInfo)
     os << "email:    " << userInfo.email << std::endl;
     os << "url:      " << userInfo.url << std::endl;
     os << "type:     " << userInfo.userType << std::endl;
+    os << "icon:     " << userInfo.icon << std::endl;
     return os;
 }
 
