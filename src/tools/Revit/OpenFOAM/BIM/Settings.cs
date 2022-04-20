@@ -950,6 +950,14 @@ namespace OpenFOAMInterface.BIM
             m_controlDictParam.EndTime = end;
         }
 
+        private void InitPurgeWriteTime(in FamilyInstance instance)
+        {
+            var purgeWrite = getInt(instance, "purgeWrite");
+            if (purgeWrite < 0)
+                purgeWrite = 0;
+            m_controlDictParam.PurgeWrite = purgeWrite;
+        }
+
         private void InitOpenFOAM(in FilteredElementCollector collector)
         {
             var query = QueryElemByName("OpenFOAM", collector);
@@ -975,6 +983,9 @@ namespace OpenFOAMInterface.BIM
 
                 //Format
                 InitFormat(instance);
+
+                //purgeWrite => how many timestep result dirs in writeinterval skip to be hold 
+                InitPurgeWriteTime(instance);
 
                 //Temperature
                 InitTemp(instance);
