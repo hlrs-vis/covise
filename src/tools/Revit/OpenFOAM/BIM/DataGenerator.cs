@@ -338,7 +338,8 @@ namespace OpenFOAMInterface.BIM
                 "\nrunParallel snappyHexMesh -overwrite" +
                 "\n" +
                 //Problem with regular allrun => bypass through recontstructParMesh and decompose the case again
-                "\nrunApplication reconstructParMesh -constant" +
+                // "\nrunApplication reconstructParMesh -constant" +
+                "\nrunApplication reconstructParMesh -constant " + FOAMInterface.Singleton.Settings.ReconstructParOption +
                 "\nrm -r processor*" +
                 "\nrm -rf log.decomposePar" +
                 "\nrunApplication decomposePar" +
