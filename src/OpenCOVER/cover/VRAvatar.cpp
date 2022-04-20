@@ -75,13 +75,14 @@ bool VRAvatar::init(const std::string &hostAdress)
         brilleNode = coVRFileManager::instance()->loadIcon("brille");
         handNode = coVRFileManager::instance()->loadIcon("hand");
         schuheNode = coVRFileManager::instance()->loadIcon("schuhe");
-        char *hostIcon = new char[6 + hostAdress.length() + 4];
-        strcpy(hostIcon, "hosts/");
-        strcat(hostIcon, hostAdress.c_str());
-        hostIconNode = coVRFileManager::instance()->loadIcon(hostIcon);
-        if (hostIconNode == NULL)
+        hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
+        if (!hostIconNode)
         {
-            cerr << "Hosticon not found " << hostIcon << endl;
+            auto iconFile = coVRFileManager::instance()->findOrGetFile(m_partner->userInfo().icon, m_partner->ID());
+            hostIconNode = coVRFileManager::instance()->loadIcon(iconFile.c_str());
+            if(!hostIconNode)
+                cerr << "Hosticon not found " << iconFile << endl;
+
         }
         if (brilleNode)
         {
