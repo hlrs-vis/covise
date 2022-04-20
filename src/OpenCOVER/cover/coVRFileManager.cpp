@@ -1360,16 +1360,16 @@ bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string
 	fileName.erase(0, abs.length());
 	return true;
 }
-std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool *isTmp)
+std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int where)
 {
 	coVRMSController* ms = coVRMSController::instance();
 	enum FilePlace
 	{
-		MISS = 0,		//file not found
+		MISS = 0,	//file not found
 		LOCAL,		//local file
 		WORK,		//in current working directory
 		LINK,		//under shared data link
-		FETCHED,		//already in remote fetch directory
+		FETCHED,	//already in remote fetch directory
 		REMOTE		//fetch from remote in tmp directory
 	};
 	FilePlace filePlace = MISS;
@@ -1462,7 +1462,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool *is
 		{
 			path = "";
 			//fetch the file
-			int fileOwner = guessFileOwner(filePath);
+			int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
 			path = remoteFetch(filePath, fileOwner);
 			if (fileExist(path))
 			{
