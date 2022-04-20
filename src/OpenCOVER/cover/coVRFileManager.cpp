@@ -583,62 +583,53 @@ osg::Node *LoadedFile::load()
     return node;
 }
 
+osg::Node *getNodeIfExists(const std::string &name, const std::string &path)
+{
+    if (fs::exists(path))
+    {
+        auto node = osgDB::readNodeFile(path);
+        if (node)
+            node->setName(name);
+        else
+        {
+            std::cerr << "Error loading icon " << name << std::endl;
+        }
+        return node;
+    }
+    return nullptr;
+}
+
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
 osg::Node *coVRFileManager::loadIcon(const char *filename)
 {
-    START("coVRFileManager::loadIcon");
-    osg::Node *node = NULL;
-    if (node == NULL)
+    static std::array<const char *, 4> suffixes = {"", ".osg", ".iv", ".obj"};
+
+    static std::array<const char *, 2> rawPrefixes = {
+        "share/covise/icons/osg/",
+        "share/covise/icons/"};
+
+    static std::array<std::string, rawPrefixes.size() + 1> prefixes = {""};
+    static bool init = false;
+    if(!init)
     {
-        const char *name = NULL;
         std::string look = coCoviseConfig::getEntry("COVER.LookAndFeel");
-        if (!look.empty())
+        for (size_t i = 0; i < rawPrefixes.size(); i++)
         {
-            std::string fn = "share/covise/icons/osg/" + look + "/" + filename + ".osg";
-            name = getName(fn.c_str());
-            if (!name)
-            {
-                std::string fn = "share/covise/icons/" + look + "/" + filename + ".iv";
-                name = getName(fn.c_str());
-            }
+            auto s = rawPrefixes[i] + (look.empty() ? look : look + "/");
+            prefixes[i + 1] = getName(s.c_str());
         }
-        if (name == NULL)
+        init = true;
+    }
+    for(const auto &prefix : prefixes){
+        for(const auto suffix : suffixes)
         {
-            std::string fn = "share/covise/icons/osg/";
-            fn += filename;
-            fn += ".osg";
-            name = getName(fn.c_str());
-        }
-        if (name == NULL)
-        {
-            std::string fn = "share/covise/icons/";
-            fn += filename;
-            fn += ".iv";
-            name = getName(fn.c_str());
-        }
-        if (name == NULL)
-        {
-            std::string fn = "share/covise/icons/";
-            fn += filename;
-            fn += ".obj";
-            name = getName(fn.c_str());
-        }
-        if (name == NULL)
-        {
-            if (cover->debugLevel(4))
-                fprintf(stderr, "Did not find icon %s\n", filename);
-            return NULL;
-        }
-        node = osgDB::readNodeFile(name);
-        if (node)
-            node->setName(filename);
-        else
-        {
-            fprintf(stderr, "Error loading icon %s\n", filename);
+            auto node = getNodeIfExists(filename, prefix + filename + suffix);
+            if(node)
+                return node;
         }
     }
-    return (node);
+    return nullptr;
 }
 
 // parmanently loads a texture, looks in covise/icons/$LookAndFeel or covise/icons for filename.rgb
@@ -1952,8 +1943,8 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
                         std::cerr << "RemoteFetch aborted: file owner disconneted" << std::endl;
                         return "";
                     }
-				}
-			}
+                }
+            }
 			else
 			{
 					message = 0;
