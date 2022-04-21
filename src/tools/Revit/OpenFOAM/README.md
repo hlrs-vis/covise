@@ -1,17 +1,13 @@
-OpenFOAMInterface for Autodesk Revit
-=====================================================
+# OpenFOAMInterface for Autodesk Revit
 
-OpenFOAMInterface is an Addin for Autodesk Revit used to simulate the indoor airflow in OpenFOAM based on the designed HVAC system in the scene. 
-The plugin uses the BIM data stored in Revit to calculate the boundaries necessary for the simulation.
+OpenFOAMInterface is an Addin for Autodesk Revit used to simulate the indoor and outdoor airflow with OpenFOAM.
 
-License
--------
+## License
 
 OpenFOAMInterface source code is licensed under the LGPL v2.1. See `lgpl-2.1.txt` for
 details.
 
-Build Requirements
-------------------
+## Build Requirements
 
 - **Visual Studio MSBuild Tools**:
   with C#-Development environment and SDK for CMD
@@ -27,33 +23,51 @@ Build Requirements
 
   Autodesk Revit needs to be installed for the dependencies RevitAPI.dll and RevitAPIUI.dll (default Folder <Program Files>/Autodesk/"Revit <version>")
 
-Building OpenFOAMInterface with cmake-gui and visual studio 2019
-----------------------------------------------------------------
+## Building OpenFOAMInterface with cmake-gui and visual studio 2019
 
 Create a subdirectory for building, change to it, and invoke CMake-GUI:
 
+```bash
       cmake-gui ..
+```
 	  
 Configure and generate the CMakeFiles. Invoke the Visual Studio environment via `Open Project` in cmake-gui or with commandline command `devenv`.
 Add RevitAPI.dll and RevitAPIUI.dll to current session with right click on OpenFOAMInterface > Depenency in the Project-Explorer and select `Add dependencies`.
 Navigate to `Browse` and add both libs from the install directory of your Revit Version. After that choose to build as `Release` and rightclick on OpenFOAMInterface in the Project-Explorer and select `Build`.
 
-Install Addin
--------------
+## Install Addin
 
 Copy OpenFOAMInterface.addin from the directory `<sourcedir>/BIM/Resources` and OpenFOAMInterface.dll from your default build output folder (depending on you Visual Studio Setup it's `C:\opt\lib\`) to `C:\Users\<Username>\AppData\Roaming\Autodesk\Revit\Addins\<Version>`.
 
-Your good to go. Revit will prompt you always at startup to choose if you wanna load the addin.
+Your good to go. Revit will prompt you at startup to choose if you wanna load the Addin.
 
 Have fun.
 
-Usage
------
+### For Developers
+
+Copy only OpenFOAMInterface.addin to the Addins directory and edit `<Assembly>` like the following:
+
+```XML
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>OpenFOAMInterface</Name>
+    <Assembly>path/to/OpenFOAMInterface.dll</Assembly>
+    <ClientId>dacafd6c-f520-4bfa-838d-12d44b65d355</ClientId>
+    <FullClassName>OpenFOAMInterface.BIM.OpenFOAMInterfaceApp</FullClassName>
+    <VendorId>HLRS</VendorId>
+    <VendorDescription>HLRS, www.hlrs.de</VendorDescription>
+  </AddIn>
+</RevitAddIns>
+```
+
+Replace the `<Assembly>` entry with the path to your compiled OpenFOAMInterface.dll file.
+
+## Usage
 
 - TODO
 
-Source Code Organization
-------------------------
+## Source Code Organization
 
 - `Families`
   Revit-Families for simulation
