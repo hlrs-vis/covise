@@ -284,12 +284,12 @@ private:
 	std::vector<covise::Message*> m_sendFileMessages;
 
 	//utility
-	public:
-		///return the substring of s until the delimiter(delimiter is cut off)
-		static std::string cutStringAt(const std::string &s, char delimiter);
-		///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
-		static std::string resolveEnvs(const std::string& s);
-        osg::ref_ptr<osgDB::ReaderWriter::Options> options;
+    
+    ///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
+    static std::string resolveEnvs(const std::string& s);
+    ///return the substring of s until the delimiter(delimiter is cut off)
+    static std::string cutStringAt(const std::string &s, char delimiter);
+    osg::ref_ptr<osgDB::ReaderWriter::Options> options;
 };
 }
 #endif
