@@ -1181,24 +1181,24 @@ coVRFileManager::coVRFileManager()
 
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
 	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
-	path = resolveEnvs(path);
-	if (fileExist(path))
-	{
-		remoteFetchPath = path;
-	}
-	else
-	{
-		std::string tmp = fs::temp_directory_path().string() + "/OpenCOVER"; 
-        try
-        {
-            fs::create_directory(tmp);
-        }
-        catch (...)
-        {
-            fprintf(stderr, "Could not create directory %s\n", tmp.c_str());
-        }
-		remoteFetchPath = tmp;
-	}
+    path = resolveEnvs(path);
+    fs::path p{path};
+    if (path.empty())
+    {
+        auto user = getenv("USER");
+        p = fs::temp_directory_path() / user / "OpenCOVER";
+        
+    }
+    try
+    {
+        fs::create_directories(p);
+    }
+    catch (const fs::filesystem_error &e)
+    {
+        std::cerr << "Could not create directory: " << e.what() << std::endl;
+    }
+    remoteFetchPath = p.string();
+    std::cerr << "remotefech path = " << remoteFetchPath << std::endl;
 }
 
 coVRFileManager::~coVRFileManager()

@@ -52,7 +52,7 @@
 	
    <VRB>
     <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999" />
-	  <RemoteFetch value="on" path="/tmp/remoteFetch" />
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" />
     <CheckConnectionTimeout value ="5"/>
    </VRB>
 
