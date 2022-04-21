@@ -371,7 +371,7 @@ namespace OpenFOAMInterface.BIM
                     "\ncleanCase" +
                     "\n" +
                     "\nrm -rf constant/extendedFeatureEdgeMesh > /dev/null 2>&1" +
-                    "\nrm -f constant/triSurface/buildings.eMesh > /dev/null 2>&1" +
+                    "\nrm -rf constant/triSurface/*.eMesh > /dev/null 2>&1" +
                     "\nrm -f constant/polyMesh/boundary > /dev/null 2>&1" +
                     "\n" +
                     "\n#------------------------------------------------------------------------------";
