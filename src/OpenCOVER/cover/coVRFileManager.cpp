@@ -1185,9 +1185,15 @@ coVRFileManager::coVRFileManager()
     fs::path p{path};
     if (path.empty())
     {
+#ifdef _WIN32
+        p = fs::temp_directory_path();
+#else
+        p = "/var/tmp";
+#endif
         auto user = getenv("USER");
-        p = fs::temp_directory_path() / user / "OpenCOVER";
-        
+        if(user)
+            p = p / user;
+        p = p / "OpenCOVER";
     }
     try
     {
@@ -2205,8 +2211,14 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 				++it;
 			}
 
-			env = getenv(env.c_str());
-			env = cutStringAt(env, ';');
+			auto e = getenv(env.c_str());
+            if(!e){
+                std::cerr << "can not resolve environment variable " << env << "!" << std::endl;
+                return "";
+            }
+
+            env = e;
+            env = cutStringAt(env, ';');
 #ifndef WIN32
 			env.push_back(delimiter2);
 #endif // !WIN32
