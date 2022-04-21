@@ -18,7 +18,7 @@
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"
 
-
+#include <cmath>
  // Qt //
  //
 #include <QButtonGroup>
@@ -183,7 +183,7 @@ void
 ElevationEditorTool::setSectionStart()
 {
 
-    if (fabs(ui->startEdit->value()) > NUMERICAL_ZERO3)
+    if (std::abs(ui->startEdit->value()) > NUMERICAL_ZERO3)
     {
         ToolAction *lastAction = toolManager_->getLastToolAction(ODD::EEL);
         ElevationEditorToolAction *elevationEditorToolAction = dynamic_cast<ElevationEditorToolAction *>(lastAction);
