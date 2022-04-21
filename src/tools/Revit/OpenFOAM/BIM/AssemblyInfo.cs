@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HLRS Stuttgart")]
 [assembly: AssemblyProduct("OpenFOAM Plugin")]
-[assembly: AssemblyCopyright("�2021 HLRS, Inc. All rights reserved.")]
+[assembly: AssemblyCopyright("�2022 HLRS, Inc. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
