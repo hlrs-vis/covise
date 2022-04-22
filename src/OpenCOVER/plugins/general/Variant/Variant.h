@@ -72,6 +72,7 @@ public:
     void setQDomElemTRANS(osg::Vec3d vec);
 
     VariantUI *ui;
+    bool defaultVisibilitySet = false;
 
 private:
     osg::MatrixTransform *VarNode;

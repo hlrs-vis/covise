@@ -480,7 +480,7 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                 }
                 if (set_default)
                 {
-                    //std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
+                    std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
                 }
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
@@ -493,27 +493,31 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                     varlist.push_back(var);
                     var->AddToScenegraph();
                     var->hideVRLabel();
-                    if(set_default && default_state==false)
-                    {
-                       osg::Node *n = var->getNode();
-                       if (n)
-                       {
-                           std::string path = coVRSelectionManager::generatePath(n);
-                           std::string pPath = path.substr(0, path.find_last_of(";"));
-                           TokenBuffer tb2;
-                           tb2 << path;
-                           tb2 << pPath;
-                           cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
-                           setMenuItem(var, (false));
-                           setQDomElemState(var, false);
-                       }
-                    }
                 }
                 else
                 {
                     var->attachNode(node);
                 }
                 varmap[node] = var;
+                if(set_default && !var->defaultVisibilitySet)
+                {
+                    var->defaultVisibilitySet = true;
+                    if (default_state == false)
+                    {
+                   osg::Node *n = var->getNode();
+                   if (n)
+                   {
+                       std::string path = coVRSelectionManager::generatePath(n);
+                       std::string pPath = path.substr(0, path.find_last_of(";"));
+                       TokenBuffer tb2;
+                       tb2 << path;
+                       tb2 << pPath;
+                       cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
+                       setMenuItem(var, (false));
+                       setQDomElemState(var, false);
+                   }
+                    }
+                }
             }
         }
     }
