@@ -26,6 +26,9 @@ namespace OpenFOAMInterface.BIM
     using Enums;
     using System.Runtime.CompilerServices;
     using System.Diagnostics.SymbolStore;
+    using System.Reflection;
+    using System.Runtime.InteropServices.ComTypes;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// Settings made by user to export.
@@ -472,32 +475,89 @@ namespace OpenFOAMInterface.BIM
             return entries;
         }
 
-        static public string getString(FamilyInstance familyInstance, string paramName)
+        /// <summary>
+        /// Get parameter from given family instance by paramater name.
+        /// </summary>
+        /// <param name="instance">FamilyInstance object with parameters from scene.</param>
+        /// <param name="name">Name of parameter to search for.</param>
+        /// <returns>Parameter as T type if T is (double, int, string, boolean) else the default value for T.</returns>
+        static private T GetFamilyInstanceParameter<T>(in FamilyInstance instance, in string name)
         {
-            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
+            var parameters = instance.GetParameters(name);
+            var def = default(T);
             if (parameters.Count > 0)
-                return parameters[0].AsString();
-            return "";
+            {
+                var param = parameters[0];
+                return typeof(T).Name switch
+                {
+                    nameof(Double) => (T)(object)param.AsDouble(),
+                    nameof(Int16) or nameof(Int32) or nameof(Int64) => (T)(object)param.AsInteger(),
+                    nameof(String) => (T)(object)param.AsString(),
+                    nameof(Boolean) => (T)(object)Convert.ToBoolean(GetFamilyInstanceParameter<int>(instance, name)),
+                    _ => def,
+                };
+            }
+            return def;
         }
-        static public Vector3D getVector(FamilyInstance familyInstance, string paramName)
+
+        /// <summary>
+        /// Get parameter from given family instance by paramater name as string.
+        /// </summary>
+        /// <param name="instance">FamilyInstance object with parameters from scene.</param>
+        /// <param name="name">Name of parameter to search for.</param>
+        /// <returns>Parameter as string.</returns>
+        static public string GetString(in FamilyInstance familyInstance, in string paramName)
         {
-            String s = getString(familyInstance, paramName);
+            string strParam = GetFamilyInstanceParameter<string>(familyInstance, paramName);
+            return strParam == default(string) ? "" : strParam;
+        }
+
+        /// <summary>
+        /// Get parameter from given family instance by paramater name as Vector3D.
+        /// </summary>
+        /// <param name="instance">FamilyInstance object with parameters from scene.</param>
+        /// <param name="name">Name of parameter to search for.</param>
+        /// <returns>Parameter as Vector3D.</returns>
+        static public Vector3D GetVector(in FamilyInstance familyInstance, in string paramName)
+        {
+            String s = GetString(familyInstance, paramName);
             List<double> vec = ConvertVecStrToList(s);
             return new Vector3D(vec[0], vec[1], vec[2]);
         }
-        static public int getInt(FamilyInstance familyInstance, string paramName)
+
+        /// <summary>
+        /// Get parameter from given family instance by paramater name as Integer.
+        /// </summary>
+        /// <param name="instance">FamilyInstance object with parameters from scene.</param>
+        /// <param name="name">Name of parameter to search for.</param>
+        /// <returns>Parameter as Integer.</returns>
+        static public int GetInt(in FamilyInstance familyInstance, in string paramName)
         {
-            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
-            if (parameters.Count > 0)
-                return parameters[0].AsInteger();
-            return -1;
+            int intParam = GetFamilyInstanceParameter<int>(familyInstance, paramName);
+            return intParam == default(int) ? -1 : intParam;
         }
-        static public double getDouble(FamilyInstance familyInstance, string paramName)
+
+        /// <summary>
+        /// Get parameter from given family instance by paramater name as Double.
+        /// </summary>
+        /// <param name="instance">FamilyInstance object with parameters from scene.</param>
+        /// <param name="name">Name of parameter to search for.</param>
+        /// <returns>Parameter as Double.</returns>
+        static public double GetDouble(in FamilyInstance familyInstance, in string paramName)
         {
-            IList<Parameter> parameters = familyInstance.GetParameters(paramName);
-            if (parameters.Count > 0)
-                return parameters[0].AsDouble();
-            return -1;
+            double doubleParam = GetFamilyInstanceParameter<double>(familyInstance, paramName);
+            return doubleParam == default(double) ? -1 : doubleParam;
+        }
+
+        /// <summary>
+        /// Get parameter from given family instance by paramater name as boolean.
+        /// </summary>
+        /// <param name="instance">FamilyInstance object with parameters from scene.</param>
+        /// <param name="name">Name of parameter to search for.</param>
+        /// <returns>Parameter as Boolean.</returns>
+        static public bool GetBool(in FamilyInstance familyInstance, in string paramName)
+        {
+            return GetFamilyInstanceParameter<bool>(familyInstance, paramName);
         }
 
         private static Settings def = new Settings();
@@ -816,14 +876,14 @@ namespace OpenFOAMInterface.BIM
                 FamilyInstance instance = familyInstancesDomain[0];
 
                 Transform pos = instance.GetTransform();
-                m_WindSpeed = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "WindSpeed"), UnitTypeId.MetersPerSecond);
-                m_ReferenceHeight = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "ReferenceHeight"), UnitTypeId.MetersPerSecond);
+                m_WindSpeed = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "WindSpeed"), UnitTypeId.MetersPerSecond);
+                m_ReferenceHeight = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "ReferenceHeight"), UnitTypeId.MetersPerSecond);
 
-                m_Profile = getString(instance, "WindProfile");
+                m_Profile = GetString(instance, "WindProfile");
 
-                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), UnitTypeId.Meters);
-                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), UnitTypeId.Meters);
-                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), UnitTypeId.Meters);
+                double width = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "Width"), UnitTypeId.Meters);
+                double depth = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "Depth"), UnitTypeId.Meters);
+                double height = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "Height"), UnitTypeId.Meters);
                 XYZ origin = new(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, UnitTypeId.Meters));
@@ -838,15 +898,15 @@ namespace OpenFOAMInterface.BIM
         {
             m_openFOAMEnvironment = OpenFOAMEnvironment.ssh;
             m_SSH = new(
-                user: getString(instance, "user"),
-                ip: getString(instance, "host"),
-                alias: getString(instance, "openFOAM alias"),
-                caseFolder: getString(instance, "serverCaseFolder"),
+                user: GetString(instance, "user"),
+                ip: GetString(instance, "host"),
+                alias: GetString(instance, "openFOAM alias"),
+                caseFolder: GetString(instance, "serverCaseFolder"),
                 download: true,
                 delete: false,
                 slurm: true,
-                port: getInt(instance, "port"),
-                slurmCommand: getString(instance, "batchCommand"));
+                port: GetInt(instance, "port"),
+                slurmCommand: GetString(instance, "batchCommand"));
 
         }
 
@@ -857,13 +917,13 @@ namespace OpenFOAMInterface.BIM
             m_LocationInMesh.X = pos.Origin.X;
             m_LocationInMesh.Y = pos.Origin.Y;
             m_LocationInMesh.Z = pos.Origin.Z;
-            m_LocationInMesh.Z += getDouble(instance, "height");
-            LocalCaseFolder = getString(instance, "localCaseFolder");
+            m_LocationInMesh.Z += GetDouble(instance, "height");
+            LocalCaseFolder = GetString(instance, "localCaseFolder");
         }
 
         private void InitEnvironment(in FamilyInstance instance)
         {
-            var foamEnv = getString(instance, "OpenFOAM Environment");
+            var foamEnv = GetString(instance, "OpenFOAM Environment");
             if (foamEnv == "ssh")
                 InitSSH(instance);
             else if (foamEnv == "blueCFD")
@@ -874,7 +934,7 @@ namespace OpenFOAMInterface.BIM
 
         private void InitSolver(in FamilyInstance instance)
         {
-            string solverName = getString(instance, "solver");
+            string solverName = GetString(instance, "solver");
             if (solverName == "simpleFoam")
                 m_controlDictParam.AppControlDictSolver = SolverControlDict.simpleFoam;
             if (solverName == "buoyantBoussinesqSimpleFoam")
@@ -883,15 +943,15 @@ namespace OpenFOAMInterface.BIM
 
         private void InitDistribution(in FamilyInstance instance)
         {
-            Vector3D domainSplit = getVector(instance, "domainSplit");
+            Vector3D domainSplit = GetVector(instance, "domainSplit");
             m_HierarchicalCoeffs.N = domainSplit;
-            NumberOfSubdomains = getInt(instance, "numberOfSubdomains");
+            NumberOfSubdomains = GetInt(instance, "numberOfSubdomains");
             m_SimpleCoeffs.N = domainSplit;
         }
 
         private void InitFormat(in FamilyInstance instance)
         {
-            string formatControl = getString(instance, "writeFormat");
+            string formatControl = GetString(instance, "writeFormat");
             if (formatControl.Equals("ascii"))
                 m_controlDictParam.WriteFormat = WriteFormat.ascii;
             if (formatControl.Equals("binary"))
@@ -900,48 +960,59 @@ namespace OpenFOAMInterface.BIM
 
         private void InitTemp(in FamilyInstance instance)
         {
-            double temp = getDouble(instance, "inletTemp");
+            double temp = GetDouble(instance, "inletTemp");
+            // var temp = getParam<double>(instance, "inletTemp");
             m_TempInlet = temp;
             //temp = getDouble(instance, "outletTemp");
             //m_TempOutlet = temp;
-            temp = getDouble(instance, "wallTemp");
+            temp = GetDouble(instance, "wallTemp");
             m_TempWall = temp;
-            temp = getDouble(instance, "internalTemp");
+            temp = GetDouble(instance, "internalTemp");
             if (temp == -1)
                 temp = 298.15;
             m_TempInternalField = temp;
         }
 
-        private void InitGlobalCells(in FamilyInstance instance)
+        private void InitSnappy(in FamilyInstance instance)
         {
-            int maxGlobalCells = getInt(instance, "maxGlobalCells");
+            int maxLocalCells = GetInt(instance, "maxLocalCells");
+            if (maxLocalCells > 1)
+                m_MaxLocalCells = maxLocalCells;
+
+            int maxGlobalCells = GetInt(instance, "maxGlobalCells");
             if (maxGlobalCells > 1)
                 m_MaxGlobalCells = maxGlobalCells;
+
+            //locationInMesh
+            InitLocationInMesh(instance);
+
+            //Refinement
+            InitRefinement(instance);
         }
 
         private void InitRefinement(in FamilyInstance instance)
         {
-            int level = getInt(instance, "wallRefinement");
+            int level = GetInt(instance, "wallRefinement");
             m_WallLevel = new Vector(level, level);
-            level = getInt(instance, "inletRefinement");
+            level = GetInt(instance, "inletRefinement");
             m_InletLevel = new Vector(level, level);
-            level = getInt(instance, "outletRefinement");
+            level = GetInt(instance, "outletRefinement");
             m_OutletLevel = new Vector(level, level);
         }
 
         private void InitReconstructParOption(in FamilyInstance instance)
         {
-            m_ReconstructParOption = getString(instance, "reconstructParOption");
+            m_ReconstructParOption = GetString(instance, "reconstructParOption");
             if (m_ReconstructParOption.Equals(""))
                 m_ReconstructParOption = "-latestTime";
         }
 
         private void InitControlDictIntervals(in FamilyInstance instance)
         {
-            var interval = getInt(instance, "writeInterval");
+            var interval = GetInt(instance, "writeInterval");
             if (interval == 0)
                 interval = 100;
-            var end = getInt(instance, "endTime");
+            var end = GetInt(instance, "endTime");
             if (end == 0)
                 end = 100;
             if (interval > end)
@@ -952,7 +1023,7 @@ namespace OpenFOAMInterface.BIM
 
         private void InitPurgeWriteTime(in FamilyInstance instance)
         {
-            var purgeWrite = getInt(instance, "purgeWrite");
+            var purgeWrite = GetInt(instance, "purgeWrite");
             if (purgeWrite < 0)
                 purgeWrite = 0;
             m_controlDictParam.PurgeWrite = purgeWrite;
@@ -968,9 +1039,6 @@ namespace OpenFOAMInterface.BIM
             if (familyInstances.Count > 0)
             {
                 FamilyInstance instance = familyInstances[0];
-
-                //locationInMesh
-                InitLocationInMesh(instance);
 
                 //environment
                 InitEnvironment(instance);
@@ -990,14 +1058,11 @@ namespace OpenFOAMInterface.BIM
                 //Temperature
                 InitTemp(instance);
 
-                //global cells for snappy
-                InitGlobalCells(instance);
-
-                //Refinement
-                InitRefinement(instance);
+                //SnappyHexMesh cells
+                InitSnappy(instance);
 
                 //BlockMesh-Resoltion
-                m_BlockMeshResolution = getDouble(instance, "blockMeshResolution");
+                m_BlockMeshResolution = GetDouble(instance, "blockMeshResolution");
 
                 //ReconstructParOption
                 InitReconstructParOption(instance);
@@ -1018,10 +1083,10 @@ namespace OpenFOAMInterface.BIM
                 Transform pos = instance.GetTransform();
 
                 //Refinement
-                int level = getInt(instance, "RefinementLevel");
-                double width = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Width"), UnitTypeId.Meters);
-                double depth = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Depth"), UnitTypeId.Meters);
-                double height = UnitUtils.ConvertFromInternalUnits(getDouble(instance, "Height"), UnitTypeId.Meters);
+                int level = GetInt(instance, "RefinementLevel");
+                double width = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "Width"), UnitTypeId.Meters);
+                double depth = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "Depth"), UnitTypeId.Meters);
+                double height = UnitUtils.ConvertFromInternalUnits(GetDouble(instance, "Height"), UnitTypeId.Meters);
                 XYZ origin = new(UnitUtils.ConvertFromInternalUnits(pos.Origin.X, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Y, UnitTypeId.Meters),
                     UnitUtils.ConvertFromInternalUnits(pos.Origin.Z, UnitTypeId.Meters));
@@ -1440,7 +1505,7 @@ namespace OpenFOAMInterface.BIM
         {
             InitFvSol_P(solver, agglomerator, cacheAgglomeration);
         }
-        
+
         private void InitFvSol_Parameter(in string name, in double relTol, in double tolerance, int nSweeps, in SolverFV solver, in Smoother smoother)
         {
 
