@@ -249,15 +249,11 @@ namespace OpenFOAMInterface.BIM
             string zipPath = path;
 
             if (FOAMInterface.Singleton.Settings.OpenFOAMEnvironment == OpenFOAMEnvironment.ssh)
-            {
                 zipPath = path + ".zip";
-            }
 
             GeneratorStatus status = InitRunManager(zipPath);
             if (status != GeneratorStatus.SUCCESS)
-            {
                 return status;
-            }
 
             //generate files
             OpenFOAM.Version version = new();
@@ -267,9 +263,7 @@ namespace OpenFOAMInterface.BIM
             InitSystemFolder(version, system);
             InitConstantFolder(version, constant);
             if (InitNullFolder(version, nullFolder) == GeneratorStatus.FAILURE)
-            {
                 return GeneratorStatus.FAILURE;
-            }
 
             foreach (FOAMDict openFOAMDictionary in m_OpenFOAMDictionaries)
             {
@@ -295,16 +289,12 @@ namespace OpenFOAMInterface.BIM
 
             //zip file before pushing to cluster
             if (File.Exists(zipPath))
-            {
                 File.Delete(zipPath);
-            }
             ZipFile.CreateFromDirectory(path, zipPath);
 
             //run commands in windows-openfoam-environment
             if (!m_RunManager.RunCommands(commands))
-            {
                 return GeneratorStatus.FAILURE;
-            }
             return GeneratorStatus.SUCCESS;
         }
 
@@ -786,13 +776,13 @@ namespace OpenFOAMInterface.BIM
                     return GeneratorStatus.CANCEL;
                 }
 
-                if (0 == m_TriangularNumber)
-                {
-                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_NOSOLID);
+                // if (0 == m_TriangularNumber)
+                // {
+                //     OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_NOSOLID);
 
-                    m_StlCancel.Close();
-                    return GeneratorStatus.FAILURE;
-                }
+                //     m_StlCancel.Close();
+                //     return GeneratorStatus.FAILURE;
+                // }
 
                 if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                 {
@@ -1434,7 +1424,7 @@ namespace OpenFOAMInterface.BIM
             FamilyInstance instance = currentElement as FamilyInstance;
             if (instance != null)
             {
-                int meshResolution = Settings.getInt(instance, "Mesh Resolution");
+                int meshResolution = Settings.GetInt(instance, "Mesh Resolution");
                 if (meshResolution > 0)
                 {
                     if (hasMeshResolution == false) // don't add an instance twice if it is hierarchical
